@@ -27,6 +27,10 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from polisyos.common.async_tools import get_shared_executor, run_blocking_async
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
+from polisyos.core.contracts import (
+    BoundedLivenessConfig,
+    bounded_liveness_config_from_mapping,
+)
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.engine.errors import (
     CircuitBreakerOpenError,
@@ -36,6 +40,8 @@ from polisyos.scientist.orchestration.engine.errors import (
 from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from polisyos.scientist.orchestration.engine.circuit_breaker import CircuitBreaker
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
     from polisyos.scientist.orchestration.engine.state import ExperimentState
@@ -158,6 +164,23 @@ def _serialize_dead_letter_policy(policy: RetryPolicy) -> dict[str, Any]:
     return serialized
 
 
+def _apply_bounded_liveness_retry_ceiling(
+    *,
+    alias: str,
+    retry_policy: RetryPolicy,
+    liveness_config: BoundedLivenessConfig | Mapping[str, Any] | None,
+) -> RetryPolicy:
+    if liveness_config is None:
+        return retry_policy
+    resolved = bounded_liveness_config_from_mapping(liveness_config).resolve(
+        f"scientist.node.{alias}",
+        requested_retries=retry_policy.max_retries,
+    )
+    if resolved.retry_ceiling == retry_policy.max_retries:
+        return retry_policy
+    return retry_policy.model_copy(update={"max_retries": resolved.retry_ceiling})
+
+
 def execute_with_retry_sync(
     node: Any,
     ctx: ExecutionContext,
@@ -167,6 +190,7 @@ def execute_with_retry_sync(
     timeout_s: float | None,
     alias: str,
     circuit_breaker: CircuitBreaker | None = None,
+    liveness_config: BoundedLivenessConfig | Mapping[str, Any] | None = None,
 ) -> NodeOutcome:
     """Sync retry wrapper for ``WorkflowExecutor``.
 
@@ -174,6 +198,11 @@ def execute_with_retry_sync(
       ``concurrent.futures.Future.result(timeout=...)``.
     * Retry: loops up to ``max_retries``, exponential backoff via ``time.sleep()``.
     """
+    retry_policy = _apply_bounded_liveness_retry_ceiling(
+        alias=alias,
+        retry_policy=retry_policy,
+        liveness_config=liveness_config,
+    )
     # Fast path — no retry, no timeout
     if retry_policy.max_retries == 0 and timeout_s is None and circuit_breaker is None:
         return node.execute(ctx, state)
@@ -418,12 +447,18 @@ async def execute_with_retry_async(
     alias: str,
     circuit_breaker: CircuitBreaker | None = None,
     retry_stats: dict[str, int] | None = None,
+    liveness_config: BoundedLivenessConfig | Mapping[str, Any] | None = None,
 ) -> NodeOutcome:
     """Async retry wrapper for ``AsyncWorkflowExecutor``.
 
     * Timeout: ``asyncio.wait_for(asyncio.to_thread(...), timeout=...)``.
     * Retry: loop + ``asyncio.sleep()``.
     """
+    retry_policy = _apply_bounded_liveness_retry_ceiling(
+        alias=alias,
+        retry_policy=retry_policy,
+        liveness_config=liveness_config,
+    )
     # Detect real execute_async (not MagicMock auto-generated attributes).
     # Check the class dict to avoid MagicMock's __getattr__ false positives.
     _has_async = "execute_async" in type(node).__dict__ or (

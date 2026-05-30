@@ -2,7 +2,10 @@ from __future__ import annotations
 
 from polisyos.ir.analytics.causal_discovery import DataCharacteristics, DataType, DimensionRegime
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
-from polisyos.scientist.methods.discovery.aggregator import EdgeConfidenceEntry, EdgeConfidenceMatrix
+from polisyos.scientist.methods.discovery.aggregator import (
+    EdgeConfidenceEntry,
+    EdgeConfidenceMatrix,
+)
 from polisyos.scientist.methods.discovery.priors import (
     DisputedEdge,
     GraphPriorBundle,
@@ -162,7 +165,7 @@ def test_skeptic_worker_falls_back_on_invalid_provider_output(monkeypatch) -> No
             return "not json"
 
     monkeypatch.setattr(
-        "polisyos.scientist.discovery.workers.create_traced_gateway_client",
+        "polisyos.scientist.methods.discovery.workers.create_traced_gateway_client",
         lambda **kwargs: _BadClient(),
     )
 

@@ -72,7 +72,7 @@ def _write_minimal_repo(repo_root: Path, *, omit_claims_ref_in_packet: bool) -> 
             )
         elif path.name == "models.py":
             (repo_root / path).write_text(
-                "from polisyos.scientist.claims import ClaimLedger\n",
+                "from polisyos.scientist.evidence.claims import ClaimLedger\n",
                 encoding="utf-8",
             )
         else:

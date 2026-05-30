@@ -37,7 +37,7 @@ from polisyos.scientist.methods.search.artifact_minimality import (
     artifact_functions_field,
 )
 
-BOOTSTRAP_STABILITY_REPORT_SCHEMA_NAME = "polisyos.scientist.discovery.BootstrapStabilityReport"
+BOOTSTRAP_STABILITY_REPORT_SCHEMA_NAME = "polisyos.scientist.methods.discovery.BootstrapStabilityReport"
 
 
 class BootstrapMode(str, Enum):

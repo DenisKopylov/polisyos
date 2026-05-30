@@ -71,6 +71,33 @@ def test_policy_design_case_rebaseline_requires_current_coverage(
 
 def _write_coverage_dir(path: Path) -> Path:
     path.mkdir(parents=True)
-    payload = coverage.build_coverage_payload(repo_root=REPO_ROOT)
+    baseline = _write_wave0_baseline(path.parent)
+    payload = coverage.build_coverage_payload(
+        repo_root=REPO_ROOT,
+        baseline_coverage_path=baseline,
+        baseline_gaps_path=path.parent / "missing-baseline-gaps.json",
+    )
     (path / "coverage.json").write_text(coverage.dump_json(payload), encoding="utf-8")
+    return path
+
+
+def _write_wave0_baseline(tmp_path: Path) -> Path:
+    path = tmp_path / "_build/policy-design-case/rebaseline/wave-0/coverage.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(
+            {
+                "schema_version": "policyos.policy_design_case.wave0_coverage.v1",
+                "wave": "0",
+                "family_coverage": [
+                    {"family": "policy_design_case", "present": False},
+                    {"family": "intent_envelope", "present": False},
+                ],
+            },
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
     return path

@@ -12,7 +12,7 @@ Accepted
 
 Phase 4.1 consolidates Foundry executor internals. The repository already has
 `polisyos.foundry.execute` as the canonical package for the public `execute()`
-entrypoint, while `polisyos.foundry.executor` exists as an older helper import
+entrypoint; `polisyos.foundry.executor` was an older helper import
 surface. Moving private `_executor_*`, `_execution_posture`, and `_numeric`
 siblings without a naming decision would leave `execute` and `executor` looking
 like equal public roots.
@@ -23,8 +23,8 @@ like equal public roots.
    owns executor implementation internals.
 2. Private executor implementation lives under
    `polisyos.foundry.execute._internal`.
-3. `polisyos.foundry.executor` is a compatibility helper facade only. It
-   re-exports targeted helper names from `polisyos.foundry.execute.executor` and
+3. `polisyos.foundry.executor` was a compatibility helper facade only. It
+   re-exported targeted helper names from `polisyos.foundry.execute.executor` and
    is not a second canonical root.
 4. `polisyos.foundry.runtime.numeric` remains the public numeric guardrail
    import path, but its implementation is owned by

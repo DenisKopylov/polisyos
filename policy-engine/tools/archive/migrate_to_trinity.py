@@ -20,7 +20,7 @@ from typing import Iterator
 
 import yaml
 
-from polisyos.ir.loaders import load_trinity_bundle
+from polisyos.ir.loading.loaders import load_trinity_bundle
 from polisyos.ir.legacy.migrations.surface_to_trinity import (
     is_legacy_trinity_bundle_payload,
     is_trinity_bundle_payload,

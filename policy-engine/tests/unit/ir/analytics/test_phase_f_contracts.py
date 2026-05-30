@@ -19,7 +19,7 @@ from polisyos.ir.analytics.interference import (
     persist_maup_invariance_certificate,
     persist_spatial_hodge_diagnostics,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     ArtifactRefModel,
     InteractionComplexRef,
     InterferenceCertificateRef,

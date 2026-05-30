@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Any
 from unittest.mock import patch
 
 import pytest
+
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
@@ -28,7 +29,7 @@ from polisyos.fabric.data_plane.orchestrator import (
     run_orchestrated_ingestion,
     run_partitioned_ingestion,
 )
-from polisyos.fabric.processing_guarantees import (
+from polisyos.fabric.quality.processing_guarantees import (
     batch_processing_contract,
     processing_contract_snapshot,
 )

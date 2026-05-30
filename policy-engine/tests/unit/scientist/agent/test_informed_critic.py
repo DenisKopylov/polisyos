@@ -6,7 +6,7 @@ from contextlib import nullcontext
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain
 from polisyos.ir.governance.problem_frame import ProblemFrame as IRProblemFrame
-from polisyos.ir.model_spec import ModelSpec
+from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.agent.critic import MockCriticAgent
 from polisyos.scientist.agent.feasibility import BudgetImpactResult, PopulationQueryResult

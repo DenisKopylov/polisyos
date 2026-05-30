@@ -4,7 +4,7 @@ Related references: [Scientist](index.md), [Best-in-class readiness](best-in-cla
 
 Owner: `@scientist-owners`
 Backup owner: `@platform-owners`
-Source of truth: `src/polisyos/scientist/evidence/claims/**`, compatibility shim `src/polisyos/scientist/claims/**`, decision/governance/causal integration targets, `tools/ci/check_scientist_best_in_class_phase1_1.py`, and `tests/unit/scientist/evidence/claims/**`.
+Source of truth: `src/polisyos/scientist/evidence/claims/**`, decision/governance/causal integration targets, `tools/ci/check_scientist_best_in_class_phase1_1.py`, and `tests/unit/scientist/evidence/claims/**`.
 
 This page is the Phase 1.1 reference for the Scientist claim/evidence/readiness
 spine. It makes the plan rule concrete:

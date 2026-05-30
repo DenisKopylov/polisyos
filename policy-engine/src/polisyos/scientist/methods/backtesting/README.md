@@ -1,4 +1,4 @@
-# Backtesting (`polisyos.scientist.backtesting`)
+# Backtesting (`polisyos.scientist.methods.backtesting`)
 
 `backtesting` отвечает за историческую проверку policy outputs, сбор trust/evaluation
 метрик и выпуск diagnostic evidence, которое теперь напрямую потребляется

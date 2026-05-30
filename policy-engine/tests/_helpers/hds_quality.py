@@ -25,10 +25,10 @@ from polisyos.runtime.quality.diagnostic_slos import (
 from polisyos.runtime.quality.external_client_surface import (
     EXTERNAL_CLIENT_SURFACE_SCHEMA_VERSION,
 )
-from polisyos.runtime.quality.phase_barriers import PhaseBarrierId, PhaseBarrierRecord
 from polisyos.runtime.quality.pass1b_hardening import (
     build_pass1b_tenant_cas_approval_governance_record,
 )
+from polisyos.runtime.quality.phase_barriers import PhaseBarrierId, PhaseBarrierRecord
 from polisyos.runtime.quality.policy_design_case import (
     POLICY_DESIGN_CASE_GOVERNANCE_RECORD_FAMILY_REQUIREMENTS,
     POLICY_DESIGN_CASE_MINIMUM_RECORD_FAMILIES,
@@ -51,7 +51,7 @@ from polisyos.runtime.quality.semantic_binding import (
     PRODUCER_SPINE_CONTEXT_SCHEMA_VERSION,
     SEMANTIC_BINDING_SCHEMA_VERSION,
 )
-from polisyos.scholar.evidence import build_scholar_academic_evidence_report
+from polisyos.scholar import build_scholar_academic_evidence_report
 
 HDS_XFAIL_REASON = "HDS red control pending implementation"
 
@@ -249,6 +249,38 @@ def complete_scholar_academic_evidence() -> dict[str, Any]:
                 "resolution": "No active contradiction after source screening.",
             }
         ],
+        duplicate_markers=[],
+        polarity_markers=[
+            {
+                "marker_id": "polarity:msme-survival-review:rec_1",
+                "claim_id": "rec_1",
+                "source_id": "literature:msme-survival-review",
+                "snippet_id": "snippet:msme-survival-review:1",
+                "polarity": "support",
+                "support_status": "supported",
+            }
+        ],
+        dependence_records=[
+            {
+                "record_id": "dependence:academic_peer_reviewed:journal",
+                "claim_id": "rec_1",
+                "source_ids": ["literature:msme-survival-review"],
+                "source_family_independence_tag": "academic_peer_reviewed:journal",
+                "dependence_basis": "single_source_family",
+                "raw_source_count": 1,
+                "effective_source_count": 1,
+            }
+        ],
+        participation_downgrade_records=[
+            {
+                "record_id": "participation-downgrade:rec_1:none",
+                "claim_id": "rec_1",
+                "claim_use_requested": "academic_support",
+                "claim_use_allowed": "academic_support",
+                "authority_boundary": "scholar_academic_support_only",
+                "downgrade_reason": "not_participation_claim",
+            }
+        ],
         literature_deficit_blockers=[],
         source_family_independence_tags={
             "literature:msme-survival-review": "academic_peer_reviewed:journal"
@@ -258,22 +290,79 @@ def complete_scholar_academic_evidence() -> dict[str, Any]:
 
 def complete_data_forge_snapshot_binding() -> dict[str, Any]:
     def binding(role: str, surface: str, char: str) -> dict[str, Any]:
+        snapshot_ref = sha(char)
         return {
             "role": role,
             "snapshot_id": f"{role}-snapshot-R_hds_red_control",
-            "snapshot_ref": sha(char),
+            "snapshot_ref": snapshot_ref,
+            "release_id": f"release-{role}-R_hds_red_control",
+            "release_manifest_ref": "cas://sha256/" + char * 64,
             "manifest_ref": "cas://sha256/" + char * 64,
-            "manifest_artifact_id": sha(char),
-            "artifact_ids": [sha(char), sha("f")],
+            "manifest_artifact_id": snapshot_ref,
+            "artifact_ids": [snapshot_ref, sha("f")],
+            "merkle_root": char * 64,
+            "data_hash": snapshot_ref,
             "read_api_surface": surface,
             "read_api_module": f"polisyos.data_forge.read_api.{surface}",
+            "read_api_identity": f"{surface}@{role}-snapshot-R_hds_red_control",
+            "runtime_event_ref": f"event://data-forge/{role}/R_hds_red_control",
             "published_at": "2026-05-15T00:00:00+00:00",
             "freshness_ttl_seconds": 60 * 60 * 24 * 3650,
+            "corpus_id": f"corpus-{role}",
+            "provenance_manifest_ref": "cas://sha256/" + "e" * 64,
+            "creation_time": "2026-05-15T00:00:00+00:00",
+            "lineage_refs": [
+                "cas://sha256/" + char * 64,
+                f"event://data-forge/{role}/ingest",
+            ],
+            "builder_revision": "git:policyos-w9c-fixture",
+            "transform_lineage": [
+                {
+                    "step_id": f"{role}.normalize",
+                    "operation": "normalize",
+                    "input_refs": ["cas://sha256/" + char * 64],
+                    "output_refs": [snapshot_ref],
+                    "code_ref": "git:policyos-w9c-fixture",
+                    "config_ref": "cas://sha256/" + "e" * 64,
+                }
+            ],
             "quality_gates": [
                 {
                     "name": f"{role}_publish_quality",
                     "status": "pass",
                     "artifact_id": sha(char),
+                }
+            ],
+            "prov": {
+                "entity": f"data-forge:{role}:snapshot",
+                "activity": f"data-forge:{role}:publish",
+                "agent": "team-data-forge",
+            },
+            "openlineage": {
+                "namespace": "polisyos.data_forge",
+                "job": {"name": f"{role}.publish"},
+                "run": {"runId": f"run-{role}-R_hds_red_control"},
+                "outputs": [
+                    {
+                        "name": f"{role}-snapshot-R_hds_red_control",
+                        "facets": {
+                            "dataHash": {"sha256": char * 64},
+                            "merkleRoot": {"sha256": char * 64},
+                        },
+                    }
+                ],
+            },
+            "claim_requirement_bindings": [
+                {
+                    "claim_id": f"claim-{role}",
+                    "requirement_id": f"req-{role}-data",
+                    "requirement_kind": "data_source",
+                    "authority_level": "closeout",
+                    "time_role": "publication_time",
+                    "supported_by": [snapshot_ref],
+                    "lifecycle_dependency_refs": [
+                        f"event://data-forge/{role}/R_hds_red_control"
+                    ],
                 }
             ],
         }
@@ -638,13 +727,38 @@ def complete_semantic_binding_ledger() -> dict[str, Any]:
                 "binding_id": "foundry-binding-1",
                 "selected_method_refs": ["causal.difference_in_differences"],
                 "rejected_method_refs": ["descriptive.summary"],
+                "rejected_method_reasons": [
+                    {
+                        "method_ref": "descriptive.summary",
+                        "reason_code": "insufficient_identification_strategy",
+                    }
+                ],
                 "scenario_method_expectation_refs": ["causal_effect_estimation"],
                 "assumptions": ["parallel_trends"],
+                "runtime_assumption_gates": [
+                    {
+                        "gate_ref": (
+                            "foundry-assumption-gate:"
+                            "causal.difference_in_differences:parallel_trends"
+                        ),
+                        "assumption": "parallel_trends",
+                        "status": "pass",
+                    }
+                ],
+                "assumption_gate_refs": [
+                    "foundry-assumption-gate:"
+                    "causal.difference_in_differences:parallel_trends"
+                ],
                 "input_coverage": [{"source_ref": "production-msme-panel", "status": "pass"}],
                 "sample_power_adequacy": [{"method_ref": "causal.difference_in_differences"}],
                 "placebo_negative_control_refs": ["placebo:pre_period"],
                 "sensitivity_refs": ["sensitivity:survival-v1"],
+                "method_output_refs": ["method-output:causal.difference_in_differences"],
                 "uncertainty_refs": ["uncertainty:survival-v1"],
+                "uncertainty_envelopes": [
+                    {"status": "pass", "interval": [0.01, 0.07], "ref": "uncertainty:survival-v1"}
+                ],
+                "limitation_refs": ["method-limit:survival-v1"],
                 "method_incompatibility_blocker_refs": [],
                 **_spine_binding_fields("foundry"),
             }
@@ -745,6 +859,11 @@ def _complete_claim_evidence_paths() -> list[dict[str, Any]]:
             "foundry_binding_refs": ["foundry-binding-1"],
             "selected_method_refs": ["causal.difference_in_differences"],
             "method_output_refs": ["method-output:causal.difference_in_differences"],
+            "assumption_gate_refs": [
+                "foundry-assumption-gate:"
+                "causal.difference_in_differences:parallel_trends"
+            ],
+            "uncertainty_refs": ["uncertainty:survival-v1"],
             "scientist_claim_refs": ["claim:rec_1"],
             "argument_refs": ["arg-rec-1"],
             "warrant_refs": ["warrant-rec-1"],
@@ -1565,7 +1684,11 @@ def policy_design_phase28_2_records() -> dict[str, Any]:
                 _phase28_2_binding(
                     "PDD-031",
                     "publication_trust_and_external_governance.v1",
-                    ["deterministic_replay_manifest", "typed_replay_drift"],
+                    [
+                        "deterministic_replay_manifest",
+                        "rule_evolution_registry",
+                        "typed_replay_drift",
+                    ],
                 ),
                 _phase28_2_binding(
                     "PDD-032",
@@ -2451,11 +2574,26 @@ def complete_quality_evidence(*, authority_envelopes: bool = True) -> dict[str, 
                         "input_bindings_ref": sha("b"),
                     },
                     "assumptions": ["parallel_trends"],
+                    "runtime_assumption_gates": [
+                        {
+                            "gate_ref": (
+                                "foundry-assumption-gate:"
+                                "causal.difference_in_differences:parallel_trends"
+                            ),
+                            "assumption": "parallel_trends",
+                            "status": "pass",
+                        }
+                    ],
+                    "assumption_gate_refs": [
+                        "foundry-assumption-gate:"
+                        "causal.difference_in_differences:parallel_trends"
+                    ],
                     "identification_requirements": {
                         "estimand": "ATT",
                         "requirements": ["parallel_trends", "overlap"],
                     },
                     "uncertainty": {"status": "pass", "interval": [0.01, 0.07]},
+                    "uncertainty_envelope_refs": ["uncertainty:survival-v1"],
                     "missingness": {"status": "pass", "missing_rate": 0.02},
                     "missingness_handling": {
                         "strategy": "complete_case_with_ipw_sensitivity",
@@ -2466,10 +2604,12 @@ def complete_quality_evidence(*, authority_envelopes: bool = True) -> dict[str, 
                         "target_population": "wartime_msmes",
                         "limits": ["No extrapolation outside observed support."],
                     },
+                    "limitation_refs": ["method-limit:survival-v1"],
                     "specification_space": {
                         "primary": "two_way_fixed_effects",
                         "alternatives": ["event_study", "matched_did"],
                     },
+                    "method_output_refs": ["method-output:causal.difference_in_differences"],
                     "method_result_refs": {"method_result_ref": sha("c")},
                     "validity_surfaces": {
                         "identification": {"status": "present", "ref": sha("1")},
@@ -2595,6 +2735,73 @@ def complete_quality_evidence(*, authority_envelopes: bool = True) -> dict[str, 
             "schema_version": "policyos.scientist.decision_artifact_quality.v1",
             "status": "pass",
             "issues": [],
+            "claim_evidence_contract": {
+                "status": "pass",
+                "requirement": (
+                    "every_major_statement_has_evidence_refs_or_typed_blocker"
+                ),
+                "statements": [
+                    {
+                        "claim_id": "rec_1",
+                        "statement_id": "rec_1:recommendation",
+                        "statement_scope": "recommendation",
+                        "statement_type": "recommendation",
+                        "has_text": True,
+                        "evidence_refs": [
+                            "production-msme-panel",
+                            "norm.ua.credit_eligibility",
+                            "literature:msme-survival-review",
+                        ],
+                        "typed_blockers": [],
+                    },
+                    {
+                        "claim_id": "rec_1",
+                        "statement_id": "rec_1:implementation_feasibility",
+                        "statement_scope": "implementation_feasibility",
+                        "statement_type": "feasibility_statement",
+                        "has_text": True,
+                        "evidence_refs": [sha("f")],
+                        "typed_blockers": [],
+                    },
+                    {
+                        "claim_id": "rec_1",
+                        "statement_id": "rec_1:monitoring_plan",
+                        "statement_scope": "monitoring_plan",
+                        "statement_type": "monitoring_statement",
+                        "has_text": True,
+                        "evidence_refs": [sha("m")],
+                        "typed_blockers": [],
+                    },
+                    {
+                        "claim_id": "rec_1",
+                        "statement_id": "rec_1:implementation_risks",
+                        "statement_scope": "implementation_risks",
+                        "statement_type": "implementation_risk_statement",
+                        "has_text": True,
+                        "evidence_refs": [sha("r")],
+                        "typed_blockers": [],
+                    },
+                    {
+                        "claim_id": "rec_1",
+                        "statement_id": "rec_1:residual_uncertainty",
+                        "statement_scope": "residual_uncertainty",
+                        "statement_type": "residual_uncertainty_statement",
+                        "has_text": True,
+                        "evidence_refs": [sha("u")],
+                        "typed_blockers": [],
+                    },
+                    {
+                        "claim_id": "rec_1",
+                        "statement_id": "rec_1:withdrawal_reissue_triggers",
+                        "statement_scope": "withdrawal_reissue_triggers",
+                        "statement_type": "contestability_statement",
+                        "has_text": True,
+                        "evidence_refs": [sha("w")],
+                        "typed_blockers": [],
+                    },
+                ],
+                "issues": [],
+            },
             "decision_artifact_quality_report_ref": runtime_cas_refs()[
                 "decision_artifact_quality_report_ref"
             ],
@@ -2674,6 +2881,24 @@ def complete_quality_evidence(*, authority_envelopes: bool = True) -> dict[str, 
                             "decision": "schema_healing_not_required",
                             "status": "not_applicable",
                             "reason": "Strict parser validation passed.",
+                            "fmea_annotation": {
+                                "failure_mode": "parser_contract_repair",
+                                "severity": 1,
+                                "cause": "strict_parser_validation_passed",
+                                "recommended_mitigation": (
+                                    "Keep strict parser validation and retain the "
+                                    "no-repair decision for audit replay."
+                                ),
+                                "residual_risk": (
+                                    "No residual repair risk observed for this step."
+                                ),
+                                "occurrence": 1,
+                                "detectability": 1,
+                                "owner": "team-runtime-ops",
+                                "controls": ["strict parser validation"],
+                                "evidence_ref": sha("3"),
+                                "authority_effect": "advisory",
+                            },
                         }
                     ],
                     "authority_handoff_refs": [

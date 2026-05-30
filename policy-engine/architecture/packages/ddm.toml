@@ -20,7 +20,7 @@ status = "resolved"
 layout_owner = "team-scientist"
 source_root = "src/polisyos/ddm"
 readme = "src/polisyos/ddm/README.md"
-root_facade_policy = "canonical unversioned package; ddm_15_7 remains wrapper-only until shim sunset"
+root_facade_policy = "canonical unversioned package"
 implementation_roots = [
   "src/polisyos/ddm/calibration",
   "src/polisyos/ddm/contracts",
@@ -64,7 +64,6 @@ property_required = false
 property_roots = []
 minimum_expectations = [
   "monitor detector and readiness changes keep deterministic replay or acceptance unit tests",
-  "ddm_15_7 compatibility remains wrapper-only and smoke-tested separately",
 ]
 
 [slo_runbook]

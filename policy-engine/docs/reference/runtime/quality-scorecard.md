@@ -34,6 +34,7 @@ Phase 0.3 adds only new fields:
 - `performance_status`
 - `approval_state`
 - `warnings`
+- `soft_gate_telemetry`
 - `override_evidence`
 - `approval_eligibility`
 
@@ -86,7 +87,55 @@ when runtime-owned quality refs are missing:
 
 Dev or staging fixtures may warn only when `optional_runtime_quality_refs`
 explicitly explains why a missing runtime ref is optional for that profile.
-`warnings` mirrors non-blocking warning gates in a compact sanitized form.
+`warnings` mirrors non-blocking warning gates in a compact sanitized form and
+adds the soft-gate lifecycle fields required by W2.D:
+
+- `owner`
+- `first_observed_at`
+- `age_seconds`
+- `ttl_seconds`
+- `escalation_after_seconds`
+- `escalates_at`
+- `ttl_expires_at`
+- `lifecycle_status`
+- `accepted_deficit_policy`
+- `closeout_effect`
+- `publication_effect`
+
+Warnings are advisory while active, escalate to the named owner after the
+escalation window, and expire under TTL. Expired warnings require resolution or
+an owner-reviewed accepted deficit before serious closeout/publication.
+
+## Soft-Gate Telemetry
+
+`soft_gate_telemetry` is the W2.D runtime surface for self-FMEA and soft-gate
+observability. It is derived from existing runtime telemetry, not from a manual
+ceremony form. The payload uses
+`schema_version: policyos.runtime.soft_gate_telemetry.v1` and includes:
+
+- `warning_lifecycle`: the same owner/TTL records projected in `warnings`
+- `bounded_liveness_hooks`: finite producer deadline/retry resolutions from
+  governed bounded-liveness config
+- `repair_decision_fmea`: prompt/tool repair decisions and their FMEA
+  annotations, plus `machinery_failures` rows for non-not-applicable repair
+  decisions. Each machinery failure carries `failure_mode`, `severity`,
+  `cause`, `recommended_mitigation`, `residual_risk`, evidence ref, owner, and
+  risk-priority metadata.
+- `advisory_review_telemetry`: human-review effectiveness telemetry with the
+  current advisory authority boundary
+- `complexity_budget_telemetry`: gate, warning, tool, repair, review, elapsed,
+  and cost measurements derived from runtime telemetry, plus advisory
+  prune/merge decisions when a budget is exceeded
+
+The soft-gate telemetry surface is authoritative for observability and owner
+follow-up only. It does not provide claim support, evidence admissibility, or a
+standalone closeout decision.
+
+Prompt/tool repair machinery failures also project to the scorecard-level
+`operator_machinery_failures` dashboard/operator surface and to the optional
+`prompt_tool_repair_fmea` closeout reader record. Missing FMEA refs fail the
+prompt/tool parser authority ledger; annotated repair failures are surfaced as
+limitations or warnings, not as new producer authority.
 
 The control-plane job response projection also enforces these runtime-owned refs
 for completed jobs. A stale or fixture-authored scorecard that marks the gates

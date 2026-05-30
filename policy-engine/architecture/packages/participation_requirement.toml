@@ -1,0 +1,80 @@
+[package]
+id = "participation_requirement"
+module = "polisyos.participation_requirement"
+name = "participation_requirement"
+owner = "team-policyos-runtime"
+contract_status = "draft"
+gate_mode = "report_only"
+primary_contract = true
+description = "Participation provenance requirement compiler and claim-use ceiling evaluator."
+legacy_aggregate_mirrors = [
+  "architecture/public_surface/contract.toml",
+  "architecture/imports/contracts.toml",
+  "architecture/tests/topology.toml",
+]
+
+[layout]
+status = "active_internal_facade"
+layout_owner = "team-policyos-runtime"
+source_root = "src/polisyos/participation_requirement"
+readme = "src/polisyos/participation_requirement/README.md"
+root_facade_policy = "top-level package exports internal participation requirement contracts"
+implementation_roots = ["src/polisyos/participation_requirement"]
+legacy_layout_mirror = ""
+
+[boundaries]
+public_facade = "polisyos.participation_requirement"
+allowed_dependencies = ["polisyos.common", "polisyos.core"]
+forbidden_dependencies = ["polisyos.runtime", "polisyos.data_forge", "polisyos.foundry"]
+import_boundary_report = "architecture/imports/reports.toml"
+
+[public_surface]
+classification = "internal"
+facade_mode = "eager_exports"
+registry_owner = "team-policyos-runtime"
+reference_doc = "docs/reference/public-surface.md"
+supported_entrypoints = ["polisyos.participation_requirement"]
+major_subsystem = false
+notes = "Wave 7.E participation provenance requirement compiler and claim-use ceiling evaluator; internal until W7-W8 external surfaces graduate."
+
+[tests]
+status = "report_only"
+unit_roots = ["tests/unit/participation_requirement"]
+contract_roots = ["tests/unit/participation_requirement"]
+integration_required = false
+integration_roots = []
+property_required = false
+property_roots = []
+minimum_expectations = ["Participation compiler changes keep consent/source limitation tests."]
+
+[slo_runbook]
+status = "not_applicable"
+slo_files = ["not_applicable"]
+runbooks = ["not_applicable"]
+runbook_expectation = "Internal participation requirement compilation has no direct operator SLO surface."
+
+[observability]
+status = "not_applicable"
+metrics_owner = "team-policyos-runtime"
+metric_surfaces = []
+trace_expectation = "Participation requirement traces surface through PDC producer bindings."
+
+[name_collisions]
+status = "none"
+owner = "team-policyos-runtime"
+registry = "architecture/name_registry.toml"
+allowed = []
+
+[exceptions]
+status = "none"
+owner = "team-policyos-runtime"
+registries = []
+
+[sunsets]
+status = "none"
+owner = "team-architecture"
+
+[extension_host]
+status = "none"
+owner = "team-policyos-runtime"
+extension_points = []

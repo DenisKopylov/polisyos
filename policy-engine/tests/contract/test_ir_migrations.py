@@ -1,6 +1,6 @@
 import pytest
 
-from polisyos.ir.canon import to_canonical_bytes
+from polisyos.ir.model_layer.canon import to_canonical_bytes
 from polisyos.ir.migrations import (
     IR_CURRENT_VERSION,
     CompatibilityMode,

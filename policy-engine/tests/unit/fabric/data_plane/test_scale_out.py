@@ -4,6 +4,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
+
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.observability import get_metrics
@@ -27,7 +28,7 @@ from polisyos.fabric.world.store import (
     write_world_fact_segment,
 )
 from polisyos.ir.connectors import DataVersion, QualityTier, VersionStrategy
-from polisyos.ir.fact_log import FactSegmentManifest
+from polisyos.ir.loading.fact_log import FactSegmentManifest
 from polisyos.ir.world.abi import NodeKind
 
 

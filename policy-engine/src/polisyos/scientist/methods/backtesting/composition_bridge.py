@@ -180,7 +180,7 @@ def replay_fragment_composition_case(
     if outcome.status != "ok":
         raise RuntimeError(f"scientist composition replay failed: {outcome.status}")
 
-    from polisyos.ir.refs import (
+    from polisyos.ir.registry.refs import (
         AlignmentReportRef,
         CausalGraphModelRef,
         CompositionCertificateRef,

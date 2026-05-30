@@ -9,6 +9,10 @@ from pathlib import Path
 from typing import Any
 
 from polisyos.core.audit import StepStatus, VerificationReport
+from polisyos.runtime.quality.projection_semantics import (
+    PolicyDesignCaseProjectionError,
+    assert_policy_design_projection_not_authority,
+)
 
 EXTERNAL_AUDIT_RECORD_SCHEMA_VERSION = "policyos.policy_design_case.external_audit_record.v1"
 EXTERNAL_AUDIT_RECORD_FAMILY = "publication_trust_and_external_governance.v1"
@@ -40,6 +44,7 @@ def build_public_audit_archive_record(
     verification_report: VerificationReport | Mapping[str, Any],
     exported_refs: Mapping[str, Mapping[str, Any]] | None = None,
     evidence_rights: Mapping[str, Any] | None = None,
+    policy_design_case_projection: Mapping[str, Any] | None = None,
     generated_at: datetime | None = None,
 ) -> dict[str, Any]:
     """Build a public audit archive record from a verified core audit package."""
@@ -47,6 +52,11 @@ def build_public_audit_archive_record(
     report = _report_payload(verification_report)
     archive = _public_archive(archive_path, archive_sha256, archive_size_bytes)
     refs = _exported_refs(exported_refs or {})
+    pdc_surface = (
+        _policy_design_case_surface(policy_design_case_projection)
+        if policy_design_case_projection is not None
+        else None
+    )
     record = {
         "schema_version": EXTERNAL_AUDIT_RECORD_SCHEMA_VERSION,
         "record_family": EXTERNAL_AUDIT_RECORD_FAMILY,
@@ -102,6 +112,8 @@ def build_public_audit_archive_record(
         },
         "evidence_rights": dict(evidence_rights or {}),
     }
+    if pdc_surface is not None:
+        record["policy_design_case_surface"] = pdc_surface
 
     validation = validate_public_audit_archive_record(record)
     if validation["issues"]:
@@ -188,6 +200,19 @@ def validate_public_audit_archive_record(record: Mapping[str, Any]) -> dict[str,
             )
         )
 
+    pdc_surface = record.get("policy_design_case_surface")
+    if pdc_surface is not None:
+        if not isinstance(pdc_surface, Mapping):
+            issues.append(
+                _issue(
+                    "external_audit_policy_design_case_surface_invalid",
+                    "Policy Design Case audit surface must be a mapping.",
+                    "policy_design_case_surface",
+                )
+            )
+        else:
+            issues.extend(_policy_design_case_surface_issues(pdc_surface))
+
     return {
         "schema_version": "policyos.policy_design_case.external_audit_record.validation.v1",
         "status": "fail" if issues else "pass",
@@ -223,6 +248,56 @@ def _exported_refs(refs: Mapping[str, Mapping[str, Any]]) -> dict[str, dict[str,
             "sha256": _normalize_sha256(str(value.get("sha256") or "")),
         }
     return normalized
+
+
+def _policy_design_case_surface(projection: Mapping[str, Any]) -> dict[str, Any]:
+    try:
+        safe_projection = assert_policy_design_projection_not_authority(projection)
+    except PolicyDesignCaseProjectionError as exc:
+        raise ExternalAuditRecordError(exc.code, str(exc)) from exc
+    return {
+        "schema_version": safe_projection.get("schema_version"),
+        "surface": safe_projection.get("surface"),
+        "audience": safe_projection.get("audience"),
+        "authority_role": safe_projection.get("authority_role"),
+        "closeout_truth": safe_projection.get("closeout_truth"),
+        "projection_gaps": safe_projection.get("projection_gaps", []),
+        "omission_manifest": safe_projection.get("omission_manifest", []),
+        "contested_records": safe_projection.get("contested_records", []),
+        "audit_refs": safe_projection.get("audit_refs", []),
+        "contract_verification_status": safe_projection.get("contract_verification_status"),
+        "contract_verification_refs": safe_projection.get("contract_verification_refs", []),
+        "may_not_be_used_for": safe_projection.get("may_not_be_used_for", []),
+    }
+
+
+def _policy_design_case_surface_issues(surface: Mapping[str, Any]) -> list[dict[str, str]]:
+    issues: list[dict[str, str]] = []
+    if surface.get("authority_role") != "projection_only":
+        issues.append(
+            _issue(
+                "external_audit_policy_design_case_surface_mints_authority",
+                "Policy Design Case audit surface must remain projection_only.",
+                "policy_design_case_surface.authority_role",
+            )
+        )
+    if not isinstance(surface.get("closeout_truth"), Mapping):
+        issues.append(
+            _issue(
+                "external_audit_policy_design_case_closeout_truth_missing",
+                "Policy Design Case audit surface must expose closeout truth.",
+                "policy_design_case_surface.closeout_truth",
+            )
+        )
+    if surface.get("contract_verification_status") == "fail":
+        issues.append(
+            _issue(
+                "external_audit_policy_design_case_contract_failed",
+                "Policy Design Case audit surface cannot report failed contract verification.",
+                "policy_design_case_surface.contract_verification_status",
+            )
+        )
+    return issues
 
 
 def _safe_relative_archive_path(path: str | Path) -> str:

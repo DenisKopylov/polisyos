@@ -1,10 +1,10 @@
-# Workflows (`polisyos.scientist.workflows`)
+# Workflows (`polisyos.scientist.orchestration.workflows`)
 
 ## Purpose
 
-`polisyos.scientist.workflows` defines and launches the canonical Scientist DAG
-specs, builds execution context, assembles node registries, and hands the final
-`WorkflowSpec` to the engine runtime.
+`polisyos.scientist.orchestration.workflows` defines and launches the canonical
+Scientist DAG specs, builds execution context, assembles node registries, and
+hands the final `WorkflowSpec` to the engine runtime.
 
 ## Where to Start
 
@@ -32,14 +32,14 @@ specs, builds execution context, assembles node registries, and hands the final
 Run from the repository root (`policy-engine/`).
 
 - Smoke-tested import check: `uv run python -c "from polisyos.scientist.orchestration.workflows import default_workflow_spec, resolve_workflow_id; print(default_workflow_spec().workflow_id, callable(resolve_workflow_id))"`
-- Conceptual full-slice test run: `uv run pytest tests/unit/scientist/workflows -q`
+- Conceptual full-slice test run: `uv run pytest tests/unit/scientist/orchestration/workflows -q`
 
 ## Test / Verification Commands
 
 Smoke-tested:
 
 ```bash
-uv run pytest tests/unit/scientist/workflows/test_workflow_specs.py tests/unit/scientist/workflows/test_builder_pinning.py tests/unit/scientist/workflows/test_workflow_selection.py -q
+uv run pytest tests/unit/scientist/orchestration/workflows/test_workflow_specs.py tests/unit/scientist/orchestration/workflows/test_builder_pinning.py tests/unit/scientist/orchestration/workflows/test_workflow_selection.py -q
 ```
 
 ## Reference Docs

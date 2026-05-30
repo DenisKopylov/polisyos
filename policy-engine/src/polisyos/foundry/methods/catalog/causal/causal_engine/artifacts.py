@@ -235,12 +235,12 @@ from polisyos.ir.analytics.recoverability import (
 )
 from polisyos.ir.analytics.survey_quality import load_survey_quality_certificate
 from polisyos.ir.artifacts import ArtifactStore, InputRef, put_json_artifact
-from polisyos.ir.canon import CanonSpec
+from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.governance.phase1 import (
     build_phase1_gate_summary,
     load_phase1_flagship_dataset_ids,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     ArtifactRefModel,
     DynamicTreatmentRegimeRef,
     SurveyQualityCertificateRef,

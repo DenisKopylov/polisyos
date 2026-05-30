@@ -11,7 +11,10 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.scientist import GraphPriorBundleRef, PriorKnowledgeBundleRef
 from polisyos.ir.analytics.cross_graph import EvidenceSourceStatus
-from polisyos.scientist.methods.discovery.aggregator import EdgeConfidenceEntry, EdgeConfidenceMatrix
+from polisyos.scientist.methods.discovery.aggregator import (
+    EdgeConfidenceEntry,
+    EdgeConfidenceMatrix,
+)
 from polisyos.scientist.methods.discovery.utility_judge import DownstreamUtilityReport
 from polisyos.scientist.methods.search.artifact_minimality import (
     ArtifactFunction,
@@ -19,8 +22,8 @@ from polisyos.scientist.methods.search.artifact_minimality import (
     artifact_functions_field,
 )
 
-GRAPH_PRIOR_BUNDLE_SCHEMA_NAME = "polisyos.scientist.discovery.GraphPriorBundle"
-PRIOR_KNOWLEDGE_BUNDLE_SCHEMA_NAME = "polisyos.scientist.discovery.PriorKnowledgeBundle"
+GRAPH_PRIOR_BUNDLE_SCHEMA_NAME = "polisyos.scientist.methods.discovery.GraphPriorBundle"
+PRIOR_KNOWLEDGE_BUNDLE_SCHEMA_NAME = "polisyos.scientist.methods.discovery.PriorKnowledgeBundle"
 
 
 class PriorEdge(BaseModel):

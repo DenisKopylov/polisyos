@@ -12,9 +12,9 @@ Use this hub for:
   validators;
 - `provenance/`: run-level provenance DAGs and PROV-JSON serialization.
 
-Do not add new modules under `polisyos.scientist.evidence_sources`,
-`polisyos.scientist.claims`, or `polisyos.scientist.provenance`. Those packages
-are Phase 4.4 compatibility shims and sunset on 2026-11-30.
+Do not restore the retired `polisyos.scientist.evidence_sources` module, the
+retired `polisyos.scientist.provenance` compatibility package, or the retired
+`polisyos.scientist.claims` compatibility package.
 
 Tests live under `tests/unit/scientist/evidence`, with nested claim and
 provenance tests under `claims/` and `provenance/`.

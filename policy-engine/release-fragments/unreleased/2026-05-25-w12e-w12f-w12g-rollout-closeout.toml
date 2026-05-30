@@ -1,0 +1,43 @@
+id = "2026-05-25-w12e-w12f-w12g-rollout-closeout"
+title = "Add W12.E-F-G rollout closeout runners"
+type = "added"
+component = "quality-validation"
+owner = "team-release-governance"
+summary = "Add Wave 12 bundle/replay inspection, cloud one-lane revalidation, and rollout decision runners with checked-in manifests, typed blockers, metric citations, frozen revision/config records, and authority-boundary safeguards."
+evidence = [
+  "tests/repo_quality/tools/test_w12e_bundle_replay_inspection.py",
+  "tests/repo_quality/tools/test_w12f_cloud_one_lane_revalidation.py",
+  "tests/repo_quality/tools/test_w12g_rollout_decision.py",
+]
+compatibility = "Additive validation tools and manifests; no runtime API, generated client, or dashboard contract changes."
+change_class = "tooling"
+surface_classification = "internal_tooling"
+migration = "Use the new W12.E/F/G runners after W12.B-D evidence generation to produce rollout closeout evidence or an honest remediation hold."
+api = "Adds run_policy_design_case_bundle_replay_inspection.py, run_policy_design_case_cloud_one_lane_revalidation.py, and run_policy_design_case_rollout_decision.py."
+limitations = "The reports are rollout validation and release-governance evidence only; they may not satisfy producer domain truth, claim evidence authority, production closeout authority, or public projection authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "tools/quality/validation/README.md",
+]
+runbook_docs = [
+  "docs/plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md",
+]
+
+[[compatibility_change]]
+id = "quality-validation-w12e-w12f-w12g-rollout-closeout"
+change_class = "tooling"
+impact = "additive"
+surface = "internal_tooling: tools/quality/validation/run_policy_design_case_*"
+owner = "team-release-governance"
+version_owner = "team-release-governance"
+deprecation_window = "not_applicable"
+release_note = "W12 rollout closeout now has executable bundle/replay, cloud one-lane, and rollout decision phases with typed blocker semantics."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "tools/quality/validation/README.md",
+]
+runbook_docs = [
+  "docs/plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md",
+]

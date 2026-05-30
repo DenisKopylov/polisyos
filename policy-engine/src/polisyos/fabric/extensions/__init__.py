@@ -1,5 +1,6 @@
-"""Fabric extension contract markers."""
+"""Fabric extension package.
 
-from .api import FabricConnectorPlugin
+Extension marker contracts are exposed from :mod:`polisyos.fabric.extensions.api`.
+"""
 
-__all__ = ["FabricConnectorPlugin"]
+__all__: list[str] = []

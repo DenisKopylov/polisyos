@@ -37,6 +37,7 @@ Every committed generated artifact family must have a source of truth, a regener
 | `Frontend local generated outputs` | `generated_ignored` | `local_ignored` | `ignored_by_policy` | `team-frontend` | `node_modules`<br/>`packages/runtime-api-client/node_modules`<br/>`_build/packages/runtime-api-client/coverage`<br/>`_build/packages/runtime-api-client/dist`<br/>`_build/packages/runtime-api-client/.tmp`<br/>`_cache/packages/runtime-api-client/eslint/.eslintcache`<br/>`apps/runtime-dashboard/node_modules`<br/>`_build/apps/runtime-dashboard/coverage`<br/>`_build/apps/runtime-dashboard/dist`<br/>`_build/apps/runtime-dashboard/output`<br/>`_build/apps/runtime-dashboard/playwright-report`<br/>`_build/apps/runtime-dashboard/storybook-static`<br/>`_build/apps/runtime-dashboard/test-results`<br/>`_build/apps/runtime-dashboard/.tmp`<br/>`_cache/apps/runtime-dashboard/eslint/.eslintcache`<br/>`apps/runtime-reference-shell/node_modules`<br/>`_build/apps/runtime-reference-shell/coverage`<br/>`_build/apps/runtime-reference-shell/dist`<br/>`_build/apps/runtime-reference-shell/.tmp`<br/>`_cache/apps/runtime-reference-shell/eslint/.eslintcache`<br/>`packages/cli/node_modules`<br/>`_cache/packages/cli/eslint/.eslintcache` |
 | `Committed data fixtures and catalogs` | `source_committed` | `committed` | `manual_review` | `team-data-forge` | `data/academic_gold`<br/>`data/dataset_catalog` |
 | `Local medallion data lake` | `generated_ignored` | `local_ignored` | `ignored_by_policy` | `team-data-forge` | `data/bronze`<br/>`data/silver`<br/>`data/gold`<br/>`data/manifests`<br/>`data/quarantine` |
+| `Policy evidence capability index` | `generated_ignored` | `local_ignored_with_committed_profile` | `manual_review` | `team-runtime-quality` | `_build/.tmp/production-quality/capability-index`<br/>`production_data/capability_index/capability_index_v1.duckdb`<br/>`production_data/capability_index/capability_index_v1.manifest.json`<br/>`production_data/capability_index/capability_index_v1.sha256`<br/>`production_data/capability_index/capability_index_v1.summary.json`<br/>`production_data/capability_index/capability_index_v1.dcat.jsonld`<br/>`production_data/capability_index/capability_index_v1.prov.ttl`<br/>`production_data/capability_index/capability_index_v1.inspection.json`<br/>`production_data/capability_index/cards`<br/>`_build/.tmp/production-quality/capability-index/cards`<br/>`production_data/capability_index/capability_white_space_report_v1.json`<br/>`production_data/capability_index/capability_conflict_report_v1.json`<br/>`architecture/policy_design_case/capability_index_phase1_artifact_profile.json` |
 | `Local PolisyOS runtime state` | `runtime_ignored` | `local_ignored` | `ignored_by_policy` | `team-platform` | `.polisyos` |
 | `Ops observability baselines` | `source_committed` | `committed` | `manual_review` | `team-observability` | `ops/observability/otel/baseline.yaml`<br/>`ops/observability/slo`<br/>`ops/observability/prometheus`<br/>`ops/observability/grafana/dashboards` |
 | `Ops security and release baselines` | `source_committed` | `committed` | `manual_review` | `team-security` | `ops/security/gitleaks.toml`<br/>`ops/security/trufflehog.yaml`<br/>`ops/security/osv-scanner.toml`<br/>`ops/security/sbom.toml`<br/>`ops/security/secrets-baseline.toml`<br/>`ops/release/release-fragment-policy.toml`<br/>`ops/release/commit-policy.toml`<br/>`ops/release/deployment-topology.toml`<br/>`ops/release/promotion-gates.toml` |
@@ -818,6 +819,42 @@ Canonical regeneration commands:
 
 ```bash
 manual/local: create medallion directories under the ignored product-root data/ lake as needed
+```
+
+## `Policy evidence capability index`
+
+- Family id: `policy-evidence-capability-index`
+- Lifecycle: `generated_ignored`
+- Source of truth: production_data L1-L7 artifacts plus src/polisyos/runtime/quality/capability_index_compiler.py
+- Generator: canonical generator declared in regenerate_commands
+- Verifier: verifier declared by check_command, drift_gate, workflow, or manual review policy
+- Promotion target: production_data/capability_index for release-time replay and runtime resolver adoption
+- Commit policy: `local_ignored_with_committed_profile`
+- Freshness rule: Regenerate for every production-data release and commit the architecture profile with artifact sizes, DuckDB table row counts, modality floors, and performance budgets.
+- Stale output behavior: `fail`
+- Drift gate: `manual_review`
+- Owner: `team-runtime-quality`
+- Approval owner: `team-runtime-quality`
+- Related workflow/config: `tools/quality/validation/build_policy_evidence_capability_index.py`
+- Outputs:
+  - `_build/.tmp/production-quality/capability-index`
+  - `production_data/capability_index/capability_index_v1.duckdb`
+  - `production_data/capability_index/capability_index_v1.manifest.json`
+  - `production_data/capability_index/capability_index_v1.sha256`
+  - `production_data/capability_index/capability_index_v1.summary.json`
+  - `production_data/capability_index/capability_index_v1.dcat.jsonld`
+  - `production_data/capability_index/capability_index_v1.prov.ttl`
+  - `production_data/capability_index/capability_index_v1.inspection.json`
+  - `production_data/capability_index/cards`
+  - `_build/.tmp/production-quality/capability-index/cards`
+  - `production_data/capability_index/capability_white_space_report_v1.json`
+  - `production_data/capability_index/capability_conflict_report_v1.json`
+  - `architecture/policy_design_case/capability_index_phase1_artifact_profile.json`
+
+Canonical regeneration commands:
+
+```bash
+uv run python tools/quality/validation/build_policy_evidence_capability_index.py --production-data-root production_data --mode full --output-dir _build/.tmp/production-quality/capability-index
 ```
 
 ## `Local PolisyOS runtime state`

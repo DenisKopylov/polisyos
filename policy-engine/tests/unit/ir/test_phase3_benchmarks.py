@@ -8,7 +8,7 @@ pytest.importorskip("pytest_benchmark", reason="pytest-benchmark not installed")
 
 from polisyos.ir.connectors import FetchRequest, QualityTier
 from polisyos.ir.kernel.units import MoneyUnit, UnitsRegistry
-from polisyos.ir.registry_fragments import (
+from polisyos.ir.registry.registry_fragments import (
     ComposePolicy,
     RegistryComposeRequest,
     RegistryFragmentMeta,

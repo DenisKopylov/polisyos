@@ -12,7 +12,7 @@ from polisyos.ir.analytics.causal_graph import (
     load_causal_graph_model,
     persist_causal_graph_model,
 )
-from polisyos.ir.refs import CausalGraphModelRef
+from polisyos.ir.registry.refs import CausalGraphModelRef
 
 
 def _minimal_dag() -> CausalGraphModel:

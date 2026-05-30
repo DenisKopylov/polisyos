@@ -7,6 +7,7 @@ from pathlib import Path
 
 from hypothesis import HealthCheck, assume, given, settings
 from hypothesis import strategies as st
+
 from tools.quality.lint import lint_imports
 
 

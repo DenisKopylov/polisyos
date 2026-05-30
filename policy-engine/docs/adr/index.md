@@ -8,7 +8,7 @@ Theme navigation: [ADRs By Topic](by-topic.md).
 
 | Status | Count |
 | --- | --- |
-| `accepted` | 77 |
+| `accepted` | 86 |
 | `approved` | 6 |
 | `completed` | 1 |
 | `proposed` | 91 |
@@ -82,6 +82,15 @@ Theme navigation: [ADRs By Topic](by-topic.md).
 | [0163](0163-lifecycle-ddm-ex-post-calibration.md) | `accepted` | `runtime-state` | `repository` | Lifecycle, DDM, Ex-Post Outcomes, And Calibration | 0149, 0150, 0154, 0156, 0160, 0161, 0162, 0164 |
 | [0164](0164-run-cost-proportionality-evidence-budget-governance.md) | `accepted` | `observation` | `repository` | Run Cost, Proportionality, And Evidence Budget Governance | 0150, 0156, 0157, 0160, 0161, 0163, 0165 |
 | [0165](0165-formal-policy-case-substrate-invariant-specs.md) | `accepted` | `testing` | `repository` | Formal Policy Case And Substrate Invariant Specs | 0147, 0148, 0149, 0150, 0151, 0152, 0153, 0154, 0155, 0156, 0162, 0163, 0164 |
+| [0166](0166-evidence-acquisition-decision-boundaries.md) | `accepted` | `observation` | `repository` | Evidence Acquisition Decision Boundaries | 0052, 0132, 0147, 0150, 0152, 0156, 0157, 0159, 0160, 0163, 0164 |
+| [0167](0167-participation-legitimacy-matrix.md) | `accepted` | `product-domain` | `repository` | Participation Legitimacy Matrix | 0147, 0150, 0152, 0156, 0157, 0159, 0160, 0162, 0166 |
+| [0168](0168-legal-hierarchy-and-competence.md) | `accepted` | `product-domain` | `polisyos.lex` | Legal Hierarchy And Competence Boundaries | 0051, 0057, 0147, 0150, 0152, 0157, 0158, 0159, 0166 |
+| [0169](0169-bounded-liveness-and-runtime-escalation.md) | `accepted` | `runtime-state` | `polisyos.runtime` | Bounded Liveness And Runtime Escalation | 0006, 0011, 0097, 0148, 0153, 0154, 0156, 0164, 0165, 0166 |
+| [0170](0170-contestability-and-recourse-boundaries.md) | `accepted` | `runtime-state` | `repository` | Contestability And Recourse Boundaries | 0147, 0150, 0153, 0156, 0157, 0162, 0163, 0166 |
+| [0171](0171-review-effectiveness-telemetry-advisory-first.md) | `accepted` | `observation` | `polisyos.runtime` | Review Effectiveness Telemetry Advisory First | 0147, 0150, 0154, 0156, 0162, 0163, 0164, 0165 |
+| [0172](0172-balanced-memory-influence-ledger.md) | `accepted` | `observation` | `repository` | Balanced Memory Influence Ledger | - |
+| [0173](0173-obligation-frontier-and-bundle-control.md) | `accepted` | `observation` | `repository` | Obligation Frontier And Bundle Control | - |
+| [0174](0174-policy-evidence-capability-graph.md) | `accepted` | `observation` | `repository` | Policy Evidence Capability Graph | 0147, 0152, 0156, 0158, 0159, 0160, 0166, 0168, 0172, 0173 |
 | [RSR-0130](repository-structure-0130-workspace-boundary.md) | `accepted` | `repository-structure` | `repository` | Workspace Boundary | 0096, 0111 |
 | [RSR-0135](repository-structure-0135-versioning-out-of-package-names.md) | `accepted` | `repository-structure` | `repository` | Versioning Out of Package Names And Compatibility Contracts | 0118 |
 | [RSR-0136](repository-structure-0136-foundry-methods-flat-vs-catalog.md) | `accepted` | `repository-structure` | `polisyos.foundry` | Foundry Methods Flat vs Catalog | RSR-0129 |

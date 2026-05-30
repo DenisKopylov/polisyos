@@ -24,7 +24,7 @@ from polisyos.ir.analytics.recourse_manifold import (
     RecourseSemantics,
     RecourseSolverStatus,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     InterventionCostManifoldRef,
     OptimalRecourseInterventionQueryRef,
 )

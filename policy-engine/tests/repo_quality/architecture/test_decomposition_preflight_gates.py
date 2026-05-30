@@ -212,7 +212,6 @@ def test_phase4_1_foundry_executor_lane_closes_legacy_private_siblings() -> None
     }
     executor_cycle_markers = (
         "polisyos.foundry.execute",
-        "polisyos.foundry.executor",
         "polisyos.foundry.runtime.numeric",
     )
 

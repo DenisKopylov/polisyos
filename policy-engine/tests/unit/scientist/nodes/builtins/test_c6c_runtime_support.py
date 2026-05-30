@@ -23,9 +23,9 @@ from polisyos.ir.analytics.abstraction import (
 )
 from polisyos.ir.governance.policy_spec import InterventionSpec, ParameterSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ObjectiveSpec, ProblemDomain, ProblemFrame
-from polisyos.ir.model_spec import ModelSpec
+from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.ir.types import OptimizationDirection, SelectorOperator
+from polisyos.ir.model_layer.types import OptimizationDirection, SelectorOperator
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.nodes.builtins.c6c_runtime_support import (
     build_policy_parameter_override_bundle,

@@ -1,21 +1,39 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
+import duckdb
 import pytest
 
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.canon import from_canonical_bytes, to_canonical_bytes
+from polisyos.runtime.quality.capability_index_compiler import (
+    compute_logical_duckdb_digest,
+)
 from polisyos.runtime.quality.replay import (
+    build_policy_evidence_capability_replay_execution,
+    build_policy_evidence_capability_replay_policy,
     build_replay_manifest,
     explain_replay_drift,
     persist_drift_explanation,
     persist_replay_manifest,
+    validate_policy_evidence_capability_replay_refs,
+)
+from polisyos.runtime.quality.rule_evolution import (
+    build_rule_evolution_registry,
+    build_rule_evolution_replay_context,
 )
 
 
 def _sha(char: str) -> str:
     return "sha256:" + char * 64
+
+
+def _canonical_sha(value: object) -> str:
+    import hashlib
+
+    return "sha256:" + hashlib.sha256(to_canonical_bytes(value)).hexdigest()
 
 
 def _manifest() -> dict[str, object]:
@@ -63,6 +81,31 @@ def _manifest() -> dict[str, object]:
     )
 
 
+def _rule_registry(*, requirement_id: str = "req.credit_support") -> dict[str, object]:
+    return build_rule_evolution_registry(
+        registry_id=f"rule-registry-{requirement_id}",
+        version="2026.05",
+        effective_at="2026-05-22T00:00:00+00:00",
+        rule_refs=[
+            {
+                "requirement_id": requirement_id,
+                "logic": {"predicate": "liquidity_gap", "threshold": 0.2},
+                "taxonomy_refs": ["taxonomy.policy_obligation.v1"],
+                "authority_purpose": "admissibility",
+            }
+        ],
+        taxonomy_refs=[
+            {
+                "taxonomy_id": "taxonomy.policy_obligation",
+                "version": "2026.05",
+                "ref": _sha("b"),
+            }
+        ],
+        evidence_ref=_sha("c"),
+        runtime_event_ref="event://rule-evolution/2026-05",
+    )
+
+
 def test_replay_manifest_records_sanitized_deterministic_refs_and_persists(
     tmp_path,
 ) -> None:
@@ -95,6 +138,266 @@ def test_replay_manifest_records_sanitized_deterministic_refs_and_persists(
 
     assert str(ref.artifact_id).startswith("sha256:")
     assert stored == manifest
+
+
+def test_policy_evidence_replay_refs_fail_closed_for_missing_or_mutable_refs() -> None:
+    validation = validate_policy_evidence_capability_replay_refs(
+        {
+            "capability_index_ref": (
+                "production_data/current/capability_index_v1.duckdb"
+            ),
+            "construct_registry_ref": "construct-registry:latest",
+        }
+    )
+
+    issues_by_key = {issue["ref_key"]: issue for issue in validation["issues"]}
+
+    assert validation["schema_version"] == (
+        "policyos.policy_evidence_capability_replay_refs.v1"
+    )
+    assert validation["status"] == "fail"
+    assert validation["refs"] == {}
+    assert issues_by_key["capability_index_ref"]["code"] == (
+        "policy_evidence_capability_replay_ref_mutable"
+    )
+    assert issues_by_key["construct_registry_ref"]["code"] == (
+        "policy_evidence_capability_replay_ref_mutable"
+    )
+    assert issues_by_key["authority_composition_rule_ref"]["code"] == (
+        "policy_evidence_capability_replay_ref_missing"
+    )
+    assert issues_by_key["production_data_release_ref"]["code"] == (
+        "policy_evidence_capability_replay_ref_missing"
+    )
+
+
+def test_policy_evidence_replay_refs_accept_frozen_release_refs() -> None:
+    validation = validate_policy_evidence_capability_replay_refs(
+        {
+            "capability_index_ref": "capability-index:2026-05-25:" + _sha("1"),
+            "construct_registry_ref": "construct-registry:2026-05-25:" + _sha("2"),
+            "authority_composition_rule_ref": (
+                "authority-rule:2026-05-25:" + _sha("3")
+            ),
+            "production_data_release_ref": (
+                "production-data-release:2026-05-25:" + _sha("4")
+            ),
+        }
+    )
+
+    assert validation["status"] == "pass"
+    assert validation["issues"] == []
+    assert set(validation["refs"]) == {
+        "capability_index_ref",
+        "construct_registry_ref",
+        "authority_composition_rule_ref",
+        "production_data_release_ref",
+    }
+    assert validation["may_not_use_for"] == [
+        "capability_index_compilation",
+        "claim_evidence_satisfaction",
+    ]
+
+
+def test_legacy_pdc_replay_does_not_silently_use_current_filesystem() -> None:
+    replay_policy = build_policy_evidence_capability_replay_policy(
+        {},
+        pdc_closed_at="2026-05-24",
+        replay_at="2026-05-26",
+    )
+
+    assert replay_policy["status"] == "legacy_warning"
+    assert replay_policy["replay_mode"] == "legacy_scenario_family_reader_frozen_v1"
+    assert replay_policy["legacy_reader_ref"] == "legacy_scenario_family_reader_frozen_v1"
+    assert replay_policy["legacy_reader_expires_at"] == "2027-12-31"
+    assert replay_policy["refs"] == {}
+    assert {
+        warning["code"] for warning in replay_policy["warnings"]
+    } == {"pdcs_without_capability_index_ref"}
+    assert "current" not in json.dumps(replay_policy).casefold()
+    assert "production_data/" not in json.dumps(replay_policy).casefold()
+
+
+def test_partial_pdc_replay_is_best_effort_with_typed_warnings() -> None:
+    replay_policy = build_policy_evidence_capability_replay_policy(
+        {
+            "capability_index_ref": "capability-index:2026-05-25:" + _sha("1"),
+            "construct_registry_ref": "construct-registry:2026-05-25:" + _sha("2"),
+        },
+        pdc_closed_at="2026-05-25",
+        replay_at="2026-05-26",
+    )
+
+    assert replay_policy["status"] == "best_effort_with_warnings"
+    assert replay_policy["replay_mode"] == "frozen_capability_index_best_effort"
+    assert {
+        warning["code"] for warning in replay_policy["warnings"]
+    } == {"pdcs_with_partial_refs"}
+    assert replay_policy["validation"]["status"] == "fail"
+
+
+def test_full_pdc_replay_uses_frozen_capability_refs_deterministically() -> None:
+    refs = {
+        "capability_index_ref": "capability-index:2026-05-25:" + _sha("1"),
+        "construct_registry_ref": "construct-registry:2026-05-25:" + _sha("2"),
+        "authority_composition_rule_ref": "authority-rule:2026-05-25:" + _sha("3"),
+        "production_data_release_ref": "production-data-release:2026-05-25:" + _sha("4"),
+    }
+
+    first = build_policy_evidence_capability_replay_policy(
+        refs,
+        pdc_closed_at="2026-05-25",
+        replay_at="2026-05-26",
+    )
+    second = build_policy_evidence_capability_replay_policy(
+        dict(reversed(list(refs.items()))),
+        pdc_closed_at="2026-05-25",
+        replay_at="2026-05-26",
+    )
+
+    assert first == second
+    assert first["status"] == "deterministic"
+    assert first["replay_mode"] == "frozen_capability_index"
+    assert first["validation"]["status"] == "pass"
+    assert first["warnings"] == []
+    assert set(first["refs"]) == {
+        "capability_index_ref",
+        "construct_registry_ref",
+        "authority_composition_rule_ref",
+        "production_data_release_ref",
+    }
+
+
+def test_full_pdc_replay_loads_frozen_artifacts_and_detects_mutation(
+    tmp_path: Path,
+) -> None:
+    capability_index_path = tmp_path / "capability_index_v1.duckdb"
+    with duckdb.connect(str(capability_index_path)) as con:
+        con.execute("CREATE TABLE capabilities (capability_id VARCHAR)")
+        con.execute("INSERT INTO capabilities VALUES ('capability:credit:data')")
+        con.execute("CREATE TABLE index_metadata (key VARCHAR, value_json VARCHAR)")
+        con.execute("INSERT INTO index_metadata VALUES ('release_ref', '\"fixture\"')")
+    construct_registry = {"constructs": [{"id": "construct:credit"}]}
+    authority_rule = {"rule_id": "capability-authority-v1.0", "composition": "minimum"}
+    production_release = {"release_id": "production-data-release:2026-05-25"}
+    construct_path = tmp_path / "construct_registry_v1.json"
+    rule_path = tmp_path / "authority_rule.json"
+    release_path = tmp_path / "production_release.json"
+    construct_path.write_text(json.dumps(construct_registry), encoding="utf-8")
+    rule_path.write_text(json.dumps(authority_rule), encoding="utf-8")
+    release_path.write_text(json.dumps(production_release), encoding="utf-8")
+
+    refs = {
+        "capability_index_ref": (
+            "capability-index:2026-05-25:"
+            + compute_logical_duckdb_digest(capability_index_path)
+        ),
+        "construct_registry_ref": "construct-registry:2026-05-25:"
+        + _canonical_sha(construct_registry),
+        "authority_composition_rule_ref": "authority-rule:2026-05-25:"
+        + _canonical_sha(authority_rule),
+        "production_data_release_ref": "production-release:2026-05-25:"
+        + _canonical_sha(production_release),
+    }
+
+    first = build_policy_evidence_capability_replay_execution(
+        refs,
+        pdc_closed_at="2026-05-25",
+        replay_at="2026-05-26",
+        frozen_artifact_paths={
+            "capability_index_ref": capability_index_path,
+            "construct_registry_ref": construct_path,
+            "authority_composition_rule_ref": rule_path,
+            "production_data_release_ref": release_path,
+        },
+    )
+    second = build_policy_evidence_capability_replay_execution(
+        dict(reversed(list(refs.items()))),
+        pdc_closed_at="2026-05-25",
+        replay_at="2026-05-26",
+        frozen_artifact_paths={
+            "production_data_release_ref": release_path,
+            "authority_composition_rule_ref": rule_path,
+            "construct_registry_ref": construct_path,
+            "capability_index_ref": capability_index_path,
+        },
+    )
+
+    assert first == second
+    assert first["status"] == "deterministic"
+    assert first["artifact_validation"]["status"] == "pass"
+    assert first["artifact_validation"]["artifacts"]["capability_index_ref"][
+        "loaded_from"
+    ] == str(capability_index_path)
+
+    with duckdb.connect(str(capability_index_path)) as con:
+        con.execute("INSERT INTO capabilities VALUES ('capability:mutated')")
+
+    mutated = build_policy_evidence_capability_replay_execution(
+        refs,
+        pdc_closed_at="2026-05-25",
+        replay_at="2026-05-26",
+        frozen_artifact_paths={
+            "capability_index_ref": capability_index_path,
+            "construct_registry_ref": construct_path,
+            "authority_composition_rule_ref": rule_path,
+            "production_data_release_ref": release_path,
+        },
+    )
+
+    assert mutated["status"] == "artifact_mismatch"
+    assert mutated["artifact_validation"]["status"] == "fail"
+    assert {
+        issue["code"] for issue in mutated["artifact_validation"]["issues"]
+    } == {"policy_evidence_replay_artifact_digest_mismatch"}
+
+
+def test_replay_manifest_carries_rule_evolution_old_logic_context() -> None:
+    closed_registry = _rule_registry()
+    current_registry = build_rule_evolution_registry(
+        registry_id="rule-registry-2026-06",
+        version="2026.06",
+        effective_at="2026-06-01T00:00:00+00:00",
+        previous_registry=closed_registry,
+        rule_refs=[
+            {
+                "requirement_id": "req.credit_support.v2",
+                "logic": {"predicate": "liquidity_gap", "threshold": 0.35},
+                "taxonomy_refs": ["taxonomy.policy_obligation.v1"],
+                "authority_purpose": "admissibility",
+            }
+        ],
+        taxonomy_refs=closed_registry["taxonomy_refs"],
+        alias_remaps=[
+            {
+                "from_requirement_id": "req.credit_support",
+                "to_requirement_id": "req.credit_support.v2",
+            }
+        ],
+        evidence_ref=_sha("d"),
+        runtime_event_ref="event://rule-evolution/2026-06",
+    )
+    replay_context = build_rule_evolution_replay_context(
+        case_id="pdc-closed-001",
+        closed_case_rule_registry=closed_registry,
+        current_rule_registry=current_registry,
+        closure_time="2026-05-22T00:00:00+00:00",
+        replay_time="2026-06-02T00:00:00+00:00",
+    )
+
+    manifest = build_replay_manifest(
+        request_payload={"question": "Replay the closed PDC."},
+        rule_evolution_registry=current_registry,
+        rule_evolution_replay_context=replay_context,
+        rule_evolution_public_annotation=current_registry["public_annotation"],
+        revalidation_state=current_registry["revalidation_state"],
+    )
+
+    assert manifest["rule_evolution_registry"]["registry_id"] == "rule-registry-2026-06"
+    assert manifest["rule_evolution_replay_context"]["replay_mode"] == "original_logic"
+    assert manifest["rule_evolution_public_annotation"]["silent_upgrade_allowed"] is False
+    assert manifest["revalidation_state"]["state"] == "revalidation_required"
+    assert manifest["deterministic_fingerprint"].startswith("sha256:")
 
 
 def test_replay_manifest_includes_runtime_ledgers_and_registry_versions() -> None:

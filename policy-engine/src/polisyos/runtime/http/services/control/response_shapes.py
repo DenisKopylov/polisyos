@@ -19,6 +19,7 @@ from polisyos.core.contracts.control import (
 from polisyos.runtime.http.services._control_contracts import _build_api_meta
 from polisyos.runtime.quality.projection_semantics import (
     PolicyDesignCaseProjectionError,
+    build_policy_design_case_projection_from_runtime_graph,
     build_policy_design_case_projection_semantics,
 )
 from polisyos.runtime.quality.source_truth import (
@@ -493,6 +494,23 @@ def _quality_scorecard(progress: Mapping[str, Any]) -> dict[str, Any] | None:
 
 
 def _policy_design_projection(progress: Mapping[str, Any]) -> dict[str, Any] | None:
+    runtime_graph = _first_nested_mapping(
+        progress,
+        (
+            ("runtime_pdc_graph",),
+            ("details", "runtime_pdc_graph"),
+            ("runtime_quality_evidence", "runtime_pdc_graph"),
+            ("details", "runtime_quality_evidence", "runtime_pdc_graph"),
+        ),
+    )
+    if runtime_graph is not None:
+        try:
+            return build_policy_design_case_projection_from_runtime_graph(
+                runtime_pdc_graph=runtime_graph,
+                surface="runtime.api",
+            )
+        except (PolicyDesignCaseProjectionError, ValueError, TypeError):
+            return None
     case = _first_nested_mapping(
         progress,
         (

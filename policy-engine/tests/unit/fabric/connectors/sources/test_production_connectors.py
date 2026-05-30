@@ -14,7 +14,7 @@ from polisyos.fabric.connectors.sources.unpd import UNPDConnector
 from polisyos.fabric.connectors.sources.who import WHOConnector
 from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector, _retry_after_seconds
 from polisyos.fabric.connectors.sources.wvs import WVSConnector
-from polisyos.fabric.safety import UnsafePathSegmentError
+from polisyos.fabric.quality.safety import UnsafePathSegmentError
 from polisyos.ir.connectors import VersionStrategy
 
 

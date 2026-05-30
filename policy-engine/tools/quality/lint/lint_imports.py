@@ -57,6 +57,7 @@ class PolicyConfig:
     known_roots: set[str]
     internal_allow: dict[str, set[str]]
     external_allow: dict[str, set[str]]
+    package_cycle_baselines: frozenset[tuple[str, ...]]
 
 
 @dataclass(frozen=True)
@@ -124,6 +125,7 @@ class LintReportContext:
     cache_hits: int
     cache_misses: int
     fixes_applied: int
+    enforced_cycle_signatures: frozenset[tuple[str, ...]]
 
 
 def resolve_import_module(
@@ -485,6 +487,13 @@ def read_policy(path: Path) -> PolicyConfig:
         modules = values.get("modules") if isinstance(values, dict) else values
         external_allow_map[root] = set(modules or [])
 
+    package_cycle_baselines: set[tuple[str, ...]] = set()
+    for item in data.get("package_cycle_baseline", []):
+        packages = item.get("packages") if isinstance(item, dict) else None
+        if not isinstance(packages, list) or not packages:
+            raise ValueError(f"package_cycle_baseline entry must define packages: {item}")
+        package_cycle_baselines.add(tuple(sorted(str(package) for package in packages)))
+
     return PolicyConfig(
         version=version,
         internal_prefix=internal_prefix,
@@ -492,6 +501,7 @@ def read_policy(path: Path) -> PolicyConfig:
         known_roots=known_roots,
         internal_allow=internal_allow_map,
         external_allow=external_allow_map,
+        package_cycle_baselines=frozenset(package_cycle_baselines),
     )
 
 
@@ -761,8 +771,13 @@ def _structured_result(
                     rule_id="ARCH_EXCEPTION_EXPIRED",
                 )
             )
-    cycle_level = "error" if context.fail_on_cycles else "warning"
     for group in cycles:
+        cycle_signature = tuple(sorted(group))
+        cycle_level = (
+            "error"
+            if context.fail_on_cycles and cycle_signature in context.enforced_cycle_signatures
+            else "warning"
+        )
         messages.append(
             ToolMessage(
                 level=cycle_level,
@@ -794,6 +809,7 @@ def _structured_result(
             "violation_count": len(violations),
             "allowed_exception_count": len(allowed_exceptions),
             "cycle_count": len(cycles),
+            "cycle_error_count": len(context.enforced_cycle_signatures),
             "cycles_enforced": context.fail_on_cycles,
             "top_god_files": [
                 {
@@ -1401,11 +1417,16 @@ def main(argv: Sequence[str] | None = None) -> int:
         cycles = _filter_cycles_for_changed_files(
             cycles, config=config, changed_files=changed_files
         )
+    unregistered_cycle_signatures = frozenset(
+        tuple(sorted(group))
+        for group in cycles
+        if tuple(sorted(group)) not in config.package_cycle_baselines
+    )
 
     exit_code = 0
     if violations:
         exit_code = 1
-    if args.fail_on_cycles and cycles:
+    if args.fail_on_cycles and unregistered_cycle_signatures:
         exit_code = 1
 
     context = LintReportContext(
@@ -1420,6 +1441,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         cache_hits=cache_stats.hits,
         cache_misses=cache_stats.misses,
         fixes_applied=fixes_applied,
+        enforced_cycle_signatures=unregistered_cycle_signatures,
     )
 
     if baseline_label is not None and exit_code == 0:

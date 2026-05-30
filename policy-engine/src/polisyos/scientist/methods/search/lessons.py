@@ -43,6 +43,7 @@ class LessonKind(str, Enum):
 
     FAILURE = "failure"
     SUCCESS = "success"
+    OPPORTUNITY = "opportunity"
 
 
 class LessonTrustLevel(str, Enum):

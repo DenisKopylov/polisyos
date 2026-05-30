@@ -84,95 +84,95 @@ from polisyos.core.contracts.uncertainty import (
 from polisyos.core.contracts.uncertainty import (
     UncertaintyEnvelopeRef as CoreUncertaintyEnvelopeRef,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     BacktestReportRef as IrBacktestReportRef,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     CausalAssumptionCardRef as IrCausalAssumptionCardRef,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     CausalDiscoveryReportRef as IrCausalDiscoveryReportRef,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     CausalEffectReportRef as IrCausalEffectReportRef,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     CausalGraphModelRef as IrCausalGraphModelRef,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     CausalModelEnsembleRef as IrCausalModelEnsembleRef,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     CausalQueryResultRef as IrCausalQueryResultRef,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     DistributionalBoundsBundleRef as IrDistributionalBoundsBundleRef,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     DistributionalDualCertificateRef as IrDistributionalDualCertificateRef,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     DistributionalEffectBundleRef as IrDistributionalEffectBundleRef,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     DistributionalProofArtifactRef as IrDistributionalProofArtifactRef,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     DistributionalReportRef as IrDistributionalReportRef,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     HTEResultRef as IrHTEResultRef,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     InterventionCostManifoldRef as IrInterventionCostManifoldRef,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     LiteratureCausalPriorRef as IrLiteratureCausalPriorRef,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     MeanFieldEquilibriumCertificateRef as IrMeanFieldEquilibriumCertificateRef,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     MeanFieldMacroSimulationConfigRef as IrMeanFieldMacroSimulationConfigRef,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     MeanFieldPerturbationSpecRef as IrMeanFieldPerturbationSpecRef,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     NormativeArbitrationResultRef as IrNormativeArbitrationResultRef,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     OperatorEffectBundleRef as IrOperatorEffectBundleRef,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     OptimalRecourseInterventionBundleRef as IrOptimalRecourseInterventionBundleRef,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     OptimalRecourseInterventionQueryRef as IrOptimalRecourseInterventionQueryRef,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     OrdinalPovertyReportRef as IrOrdinalPovertyReportRef,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     PolicyRecommendationRef as IrPolicyRecommendationRef,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     PrivacyAwareTransportCertificateRef as IrPrivacyAwareTransportCertificateRef,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     RecourseFeasibilityCertificateRef as IrRecourseFeasibilityCertificateRef,
 )
-from polisyos.ir.refs import RecourseProofBundleRef as IrRecourseProofBundleRef
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import RecourseProofBundleRef as IrRecourseProofBundleRef
+from polisyos.ir.registry.refs import (
     RegimeShiftForecastBundleRef as IrRegimeShiftForecastBundleRef,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     RoughPathInterventionCertificateRef as IrRoughPathInterventionCertificateRef,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     StructuralCausalModelSpecRef as IrStructuralCausalModelSpecRef,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     UncertaintyEnvelopeRef as IrUncertaintyEnvelopeRef,
 )
 

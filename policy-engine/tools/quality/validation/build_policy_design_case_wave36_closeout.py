@@ -16,9 +16,11 @@ from typing import Any
 from tools.lib.fs import atomic_write_json
 from tools.lib.imports import ensure_repo_import_roots
 from tools.ops_runners.runtime import canary_matrix, run_canary_matrix
-from tools.quality.validation import check_policy_design_case_pass2_disposition
-from tools.quality.validation import check_policy_design_case_wave35f_integrity
-from tools.quality.validation import check_policy_design_case_wave35g_backfill
+from tools.quality.validation import (
+    check_policy_design_case_pass2_disposition,
+    check_policy_design_case_wave35f_integrity,
+    check_policy_design_case_wave35g_backfill,
+)
 
 REPO_ROOT, _SRC_ROOT = ensure_repo_import_roots(__file__)
 

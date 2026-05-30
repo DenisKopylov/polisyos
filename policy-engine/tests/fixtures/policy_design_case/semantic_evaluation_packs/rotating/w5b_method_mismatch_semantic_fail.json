@@ -1,0 +1,51 @@
+{
+  "schema_version": "policyos.runtime.policy_design_case.semantic_gold_card.v1",
+  "fixture_id": "w5b_method_mismatch_semantic_fail",
+  "title": "Causal policy claim cannot use descriptive method as compatible",
+  "expected_status": "semantic_fail",
+  "failure_mode": "method_mismatch",
+  "research_refs": ["E22", "C30", "C9"],
+  "pattern_ids": ["P10"],
+  "structural_pass_claimed": true,
+  "structural_verdict": {
+    "status": "pass",
+    "validator_refs": ["policy_design_case.structural.method_binding_shape.v1"],
+    "completeness_claims": [
+      "claim_verb_present",
+      "required_method_family_present",
+      "selected_method_family_present",
+      "compatibility_status_present"
+    ]
+  },
+  "semantic_adjudication": {
+    "status": "fail",
+    "adjudicator": "policyos.semantic_gold_card.w5b",
+    "failure_mode": "method_mismatch",
+    "failure_code": "semantic_method_mismatch",
+    "rationale": "The claim uses causal language while the selected descriptive method is marked compatible with a causal obligation.",
+    "authority_effect": "review_required",
+    "required_remediation": "Select a compatible causal method or downgrade the claim verb and support status."
+  },
+  "semantic_probes": [
+    {
+      "probe_id": "causal-method-family-mismatch",
+      "semantic_axis": "method",
+      "pattern_ids": ["P10"],
+      "observed_signal": "A causal claim marks descriptive analysis as compatible.",
+      "expected_signal": "Causal claims require a compatible causal method or limitation.",
+      "verdict": "fail",
+      "failure_code": "semantic_method_mismatch",
+      "evidence_refs": ["cas://sha256/33333333333333333333333333333333"]
+    }
+  ],
+  "payload": {
+    "case_id": "pdc-w5b-method-mismatch",
+    "claim_ids": ["claim-method"],
+    "method_binding": {
+      "claim_verb": "reduces",
+      "required_method_family": "causal_identification",
+      "selected_method_family": "descriptive_summary",
+      "compatibility_status": "claimed_compatible"
+    }
+  }
+}

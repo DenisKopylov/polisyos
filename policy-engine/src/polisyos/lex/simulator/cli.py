@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.canon import from_canonical_bytes
-from polisyos.ir.norm_pack import NormPack
+from polisyos.ir.loading.norm_pack import NormPack
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.store import FileSystemCAS

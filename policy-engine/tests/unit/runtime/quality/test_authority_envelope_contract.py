@@ -87,8 +87,8 @@ def test_fixture_only_authority_envelope_blocks_serious_closeout(canary_kind: st
 def test_packaging_only_manifest_cannot_satisfy_producer_authority() -> None:
     from polisyos.runtime.quality.authority import (
         AuthorityEnvelopeError,
-        classify_authority_failure,
         assert_runtime_emitted,
+        classify_authority_failure,
     )
 
     envelope = authority_envelope_for(

@@ -51,14 +51,13 @@ exception_required_fields = [
 [[single_file_shell_package_exception_group]]
 id = "ir-wave3-shell-packages"
 owner = "team-ir"
-rationale = "Remaining IR shell-like packages are retained only where Phase 3.2 keeps private facade, connector, schema, or Trinity wrappers."
+rationale = "Remaining IR shell-like packages are real package surfaces or private facades; they are no longer counted as last-mile compatibility shims."
 sunset = "2026-07-31"
-migration_target = "architecture/shims.toml#last_mile_import_compatibility_map"
-smoke_import_test = "tests/unit/ir/test_root_facade_closeout.py::test_ir_phase_0_3_import_map_declares_shell_group_targets"
+migration_target = "architecture/packages/ir.toml#layout"
+smoke_import_test = "tests/unit/ir/test_root_facade_closeout.py::test_ir_package_contract_covers_live_first_level_roots"
 created_to_wrap_formerly_loose_file = true
 paths = [
   "src/polisyos/ir/_internal",
-  "src/polisyos/ir/_lazy_facade",
   "src/polisyos/ir/connectors",
   "src/polisyos/ir/schemas",
   "src/polisyos/ir/trinity",

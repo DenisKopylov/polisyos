@@ -9,6 +9,10 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from polisyos.runtime.quality.candidate_firewall import (
+    candidate_firewall_issues_for_payload,
+)
+
 SEMANTIC_BINDING_SCHEMA_VERSION = "policyos.semantic_binding_ledger.v1"
 PRODUCER_SPINE_CONTEXT_SCHEMA_VERSION = "policyos.producer_spine_context.v1"
 PRODUCER_SPINE_CONSUMER_COMPONENTS = (
@@ -246,6 +250,13 @@ class LexBindingRecord(ProducerSpineBindingFields):
     competence_refs: tuple[str, ...] = Field(default=())
     no_norm_blocker_refs: tuple[str, ...] = Field(default=())
     retrieval_error_blocker_refs: tuple[str, ...] = Field(default=())
+    legal_authority_required: bool = False
+    legal_authority_record_refs: tuple[str, ...] = Field(default=())
+    legal_authority_blocker_refs: tuple[str, ...] = Field(default=())
+    legal_admissibility_grades: tuple[str, ...] = Field(default=())
+    legal_authority_types: tuple[str, ...] = Field(default=())
+    legal_window_segment_refs: tuple[str, ...] = Field(default=())
+    jurisdiction_fallback_policy_refs: tuple[str, ...] = Field(default=())
 
     @field_validator("binding_id")
     @classmethod
@@ -266,10 +277,25 @@ class LexBindingRecord(ProducerSpineBindingFields):
         "competence_refs",
         "no_norm_blocker_refs",
         "retrieval_error_blocker_refs",
+        "legal_authority_record_refs",
+        "legal_authority_blocker_refs",
+        "legal_authority_types",
+        "legal_window_segment_refs",
+        "jurisdiction_fallback_policy_refs",
     )
     @classmethod
     def _strip_tuple(cls, values: tuple[str, ...]) -> tuple[str, ...]:
         return _coerce_ref_tuple(values)
+
+    @field_validator("legal_admissibility_grades")
+    @classmethod
+    def _strip_grades(cls, values: tuple[str, ...]) -> tuple[str, ...]:
+        return tuple(
+            text
+            for value in values
+            for text in (_optional_text(value),)
+            if text is not None
+        )
 
 
 class MetricBinding(BaseModel):
@@ -520,13 +546,19 @@ class FoundryBindingRecord(ProducerSpineBindingFields):
     binding_id: str = Field(min_length=1)
     selected_method_refs: tuple[str, ...] = Field(default=())
     rejected_method_refs: tuple[str, ...] = Field(default=())
+    rejected_method_reasons: tuple[dict[str, Any], ...] = Field(default=())
     scenario_method_expectation_refs: tuple[str, ...] = Field(default=())
     assumptions: tuple[str, ...] = Field(default=())
+    assumption_gate_refs: tuple[str, ...] = Field(default=())
+    runtime_assumption_gates: tuple[dict[str, Any], ...] = Field(default=())
     input_coverage: tuple[dict[str, Any], ...] = Field(default=())
     sample_power_adequacy: tuple[dict[str, Any], ...] = Field(default=())
     placebo_negative_control_refs: tuple[str, ...] = Field(default=())
     sensitivity_refs: tuple[str, ...] = Field(default=())
     uncertainty_refs: tuple[str, ...] = Field(default=())
+    uncertainty_envelopes: tuple[dict[str, Any], ...] = Field(default=())
+    limitation_refs: tuple[str, ...] = Field(default=())
+    simulation_assumption_lineage_refs: tuple[str, ...] = Field(default=())
     method_output_refs: tuple[str, ...] = Field(default=())
     method_incompatibility_blocker_refs: tuple[str, ...] = Field(default=())
 
@@ -540,9 +572,12 @@ class FoundryBindingRecord(ProducerSpineBindingFields):
         "rejected_method_refs",
         "scenario_method_expectation_refs",
         "assumptions",
+        "assumption_gate_refs",
         "placebo_negative_control_refs",
         "sensitivity_refs",
         "uncertainty_refs",
+        "limitation_refs",
+        "simulation_assumption_lineage_refs",
         "method_output_refs",
         "method_incompatibility_blocker_refs",
     )
@@ -550,7 +585,13 @@ class FoundryBindingRecord(ProducerSpineBindingFields):
     def _strip_tuple(cls, values: tuple[str, ...]) -> tuple[str, ...]:
         return _coerce_ref_tuple(values)
 
-    @field_validator("input_coverage", "sample_power_adequacy")
+    @field_validator(
+        "rejected_method_reasons",
+        "runtime_assumption_gates",
+        "input_coverage",
+        "sample_power_adequacy",
+        "uncertainty_envelopes",
+    )
     @classmethod
     def _strip_mapping_tuple(cls, values: tuple[dict[str, Any], ...]) -> tuple[dict[str, Any], ...]:
         return _coerce_mapping_tuple(values)
@@ -562,6 +603,9 @@ class ClaimEvidencePath(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     claim_id: str = Field(min_length=1)
+    claim_type: str | None = None
+    claim_family: str | None = None
+    claim_use: str | None = None
     scenario_requirement_refs: tuple[str, ...] = Field(default=())
     canonical_concept_refs: tuple[str, ...] = Field(default=())
     fabric_binding_refs: tuple[str, ...] = Field(default=())
@@ -572,6 +616,8 @@ class ClaimEvidencePath(BaseModel):
     foundry_binding_refs: tuple[str, ...] = Field(default=())
     selected_method_refs: tuple[str, ...] = Field(default=())
     method_output_refs: tuple[str, ...] = Field(default=())
+    assumption_gate_refs: tuple[str, ...] = Field(default=())
+    uncertainty_refs: tuple[str, ...] = Field(default=())
     scientist_claim_refs: tuple[str, ...] = Field(default=())
     argument_refs: tuple[str, ...] = Field(default=())
     warrant_refs: tuple[str, ...] = Field(default=())
@@ -579,11 +625,19 @@ class ClaimEvidencePath(BaseModel):
     counter_evidence_refs: tuple[str, ...] = Field(default=())
     limitation_refs: tuple[str, ...] = Field(default=())
     blocker_refs: tuple[str, ...] = Field(default=())
+    baseline_refs: tuple[str, ...] = Field(default=())
+    alternative_refs: tuple[str, ...] = Field(default=())
+    comparison_refs: tuple[str, ...] = Field(default=())
 
     @field_validator("claim_id")
     @classmethod
     def _strip_required_text(cls, value: str) -> str:
         return _non_empty(value)
+
+    @field_validator("claim_type", "claim_family", "claim_use")
+    @classmethod
+    def _strip_optional_text(cls, value: str | None) -> str | None:
+        return _optional_text(value)
 
     @field_validator(
         "scenario_requirement_refs",
@@ -596,6 +650,8 @@ class ClaimEvidencePath(BaseModel):
         "foundry_binding_refs",
         "selected_method_refs",
         "method_output_refs",
+        "assumption_gate_refs",
+        "uncertainty_refs",
         "scientist_claim_refs",
         "argument_refs",
         "warrant_refs",
@@ -603,6 +659,9 @@ class ClaimEvidencePath(BaseModel):
         "counter_evidence_refs",
         "limitation_refs",
         "blocker_refs",
+        "baseline_refs",
+        "alternative_refs",
+        "comparison_refs",
     )
     @classmethod
     def _strip_tuple(cls, values: tuple[str, ...]) -> tuple[str, ...]:
@@ -684,6 +743,8 @@ class SemanticBindingLedger(BaseModel):
     runtime_report_status: RuntimeReportStatus | None = None
     policy_intent_ref: str = Field(min_length=1)
     spine_context: ProducerSpineReadContext | None = None
+    producer_handshake_ledger: Mapping[str, Any] | None = None
+    hypothesis_ledger: Mapping[str, Any] | None = None
     intent: IntentBindingRecord
     lex: tuple[LexBindingRecord, ...] = Field(default=())
     fabric: tuple[FabricBindingRecord, ...] = Field(default=())
@@ -711,7 +772,7 @@ class SemanticBindingLedger(BaseModel):
 
     @field_validator("runtime_report_status", mode="before")
     @classmethod
-    def _normalize_runtime_report_status(cls, value: Any) -> str | None:
+    def _normalize_runtime_report_status(cls, value: object) -> str | None:
         text = _optional_text(value)
         if text is None:
             return None
@@ -1109,6 +1170,7 @@ def evaluate_semantic_binding_ledger(
     validated = deserialize_semantic_binding_ledger(ledger)
     issues: list[SemanticBindingIssue] = []
     issues.extend(_record_presence_issues(validated))
+    issues.extend(_producer_handshake_ledger_issues(validated))
     issues.extend(_lex_selection_issues(validated))
     issues.extend(_fabric_selection_issues(validated))
     issues.extend(_fabric_lineage_issues(validated))
@@ -1116,6 +1178,7 @@ def evaluate_semantic_binding_ledger(
     issues.extend(_scholar_selection_issues(validated))
     issues.extend(_claim_coverage_issues(validated))
     issues.extend(_claim_evidence_closure_issues(validated))
+    issues.extend(_candidate_firewall_semantic_issues(validated))
     issues.extend(_producer_spine_binding_issues(validated))
     issues.extend(_final_claim_spine_ref_issues(validated))
     issues.extend(_generic_collapse_issues(validated))
@@ -1139,6 +1202,7 @@ def evaluate_semantic_binding_ledger(
         sorted(
             {
                 *(ref for lex in validated.lex for ref in lex.selected_norm_refs),
+                *(ref for lex in validated.lex for ref in lex.legal_authority_record_refs),
                 *(
                     ref
                     for fabric in validated.fabric
@@ -1216,6 +1280,78 @@ def authority_envelopes_missing_semantic_binding_ref(
                 )
             )
     return tuple(issues)
+
+
+def _candidate_firewall_semantic_issues(
+    ledger: SemanticBindingLedger,
+) -> list[SemanticBindingIssue]:
+    hypothesis_ledger = ledger.hypothesis_ledger
+    if hypothesis_ledger is None:
+        return []
+    issues: list[SemanticBindingIssue] = []
+    for binding in (*ledger.scientist, *ledger.final_compiler):
+        for path in binding.claim_evidence_paths:
+            slot_payloads = (
+                (
+                    "legal_authority",
+                    {"selected_norm_refs": path.selected_norm_refs},
+                ),
+                (
+                    "data_authority",
+                    {
+                        "source_refs": path.source_refs,
+                        "column_refs": path.column_refs,
+                    },
+                ),
+                (
+                    "method_authority",
+                    {
+                        "selected_method_refs": path.selected_method_refs,
+                        "method_output_refs": path.method_output_refs,
+                    },
+                ),
+                (
+                    "claim_authority",
+                    {"scientist_claim_refs": path.scientist_claim_refs},
+                ),
+                (
+                    "closeout_authority",
+                    {"blocker_refs": path.blocker_refs},
+                ),
+            )
+            for authority_slot, payload in slot_payloads:
+                for issue in candidate_firewall_issues_for_payload(
+                    payload,
+                    hypothesis_ledger=hypothesis_ledger,
+                    authority_slots=(authority_slot,),
+                    surface="semantic_binding",
+                ):
+                    issues.append(
+                        SemanticBindingIssue(
+                            code=str(issue["code"]),
+                            severity="fail",
+                            layer="candidate_firewall",
+                            phase="semantic_binding",
+                            message=str(issue["message"]),
+                            next_action=str(issue["next_action"]),
+                            claim_id=path.claim_id,
+                            refs=tuple(
+                                ref
+                                for key in ("candidate_ref", "candidate_id")
+                                for ref in (_optional_text(issue.get(key)),)
+                                if ref is not None
+                            ),
+                            missing_input=str(issue.get("authority_slot") or authority_slot),
+                            affected_claim=path.claim_id,
+                            next_command=(
+                                "uv run pytest "
+                                "tests/unit/runtime/quality/"
+                                "test_hypothesis_ledger_candidate_firewall.py "
+                                "tests/unit/runtime/quality/test_semantic_binding.py -q"
+                            ),
+                        )
+                    )
+    return issues
 
 
 def _build_intent_record(
@@ -1358,6 +1494,7 @@ def _build_lex_record(
         candidate_refs=candidate,
         blocker_refs=(*blockers, *retrieval_blockers, *typed_retrieval_blockers),
     )
+    legal_authority_fields = _lex_legal_authority_fields(lex_report)
     return {
         "binding_id": "lex-binding-runtime",
         "legal_query_terms": _refs_from(
@@ -1427,7 +1564,120 @@ def _build_lex_record(
         "retrieval_error_blocker_refs": tuple(
             dict.fromkeys([*retrieval_blockers, *typed_retrieval_blockers])
         ),
+        **legal_authority_fields,
         **spine_fields,
+    }
+
+
+def _lex_legal_authority_fields(lex_report: Mapping[str, Any]) -> dict[str, Any]:
+    records = _rows_from(lex_report.get("legal_authority_records"))
+    anchors = _rows_from(lex_report.get("claim_legal_anchors"))
+    splits = _rows_from(lex_report.get("claim_window_splits"))
+    record_refs = tuple(
+        dict.fromkeys(
+            ref
+            for record in records
+            for ref in (
+                _optional_text(
+                    record.get("legal_authority_record_id")
+                    or record.get("legal_authority_record_ref")
+                    or record.get("record_ref")
+                    or record.get("ref")
+                ),
+            )
+            if ref
+        )
+    )
+    anchor_record_refs = tuple(
+        dict.fromkeys(
+            ref
+            for anchor in anchors
+            for ref in _refs_from_value(anchor.get("legal_authority_record_refs"))
+        )
+    )
+    blocker_refs = tuple(
+        dict.fromkeys(
+            [
+                *(
+                    ref
+                    for record in records
+                    for ref in _refs_from_value(
+                        record.get("blocker_ref")
+                        or record.get("limitation_ref")
+                        or record.get("legal_authority_blocker_refs")
+                    )
+                ),
+                *(
+                    ref
+                    for anchor in anchors
+                    for ref in _refs_from_value(anchor.get("legal_authority_blocker_refs"))
+                ),
+            ]
+        )
+    )
+    grades = tuple(
+        grade
+        for record in records
+        for grade in (_optional_text(record.get("admissibility_grade")),)
+        if grade
+    )
+    authority_types = tuple(
+        dict.fromkeys(
+            [
+                *(
+                    ref
+                    for record in records
+                    for ref in _refs_from_value(
+                        record.get("authority_types") or record.get("authority_type")
+                    )
+                ),
+                *(
+                    ref
+                    for anchor in anchors
+                    for ref in _refs_from_value(anchor.get("selected_authority_types"))
+                ),
+            ]
+        )
+    )
+    segment_refs = tuple(
+        dict.fromkeys(
+            [
+                *(
+                    ref
+                    for record in records
+                    for ref in _refs_from_value(record.get("claim_segment_ref"))
+                ),
+                *(
+                    ref
+                    for split in splits
+                    for ref in _refs_from_value(split.get("claim_segment_ref"))
+                ),
+                *(
+                    ref
+                    for anchor in anchors
+                    for ref in _refs_from_value(anchor.get("blocked_segment_refs"))
+                ),
+            ]
+        )
+    )
+    fallback_policy_refs = tuple(
+        dict.fromkeys(
+            ref
+            for record in records
+            for ref in _refs_from_value(record.get("jurisdiction_fallback_policy_ref"))
+        )
+    )
+    legal_required = bool(lex_report.get("legal_authority_required")) or any(
+        bool(anchor.get("legal_authority_required")) for anchor in anchors
+    )
+    return {
+        "legal_authority_required": legal_required,
+        "legal_authority_record_refs": record_refs or anchor_record_refs,
+        "legal_authority_blocker_refs": blocker_refs,
+        "legal_admissibility_grades": grades,
+        "legal_authority_types": authority_types,
+        "legal_window_segment_refs": segment_refs,
+        "jurisdiction_fallback_policy_refs": fallback_policy_refs,
     }
 
 
@@ -1482,8 +1732,8 @@ def _build_fabric_record(
         fabric_report,
         spine_context,
         component="fabric",
-        candidate_refs=tuple([*candidates, *selected]),
-        blocker_refs=tuple([*data_gap_blockers, *ambiguity_blockers]),
+        candidate_refs=(*candidates, *selected),
+        blocker_refs=(*data_gap_blockers, *ambiguity_blockers),
     )
     return {
         "binding_id": "fabric-binding-runtime",
@@ -1580,7 +1830,7 @@ def _build_scholar_record(
         scholar_report,
         spine_context,
         component="scholar",
-        candidate_refs=tuple([*candidate, *selected]),
+        candidate_refs=(*candidate, *selected),
         blocker_refs=retrieval_blockers,
     )
     return {
@@ -1615,6 +1865,7 @@ def _build_foundry_record(
 ) -> dict[str, Any]:
     selected = _selected_method_refs(foundry_report, claims)
     selected_rows = _rows_from(foundry_report.get("selected_methods"))
+    rejected_rows = _rows_from(foundry_report.get("rejected_methods"))
     method_blockers = _blocker_ref_tuple(
         foundry_report,
         "method_incompatibility_blocker_refs",
@@ -1630,7 +1881,8 @@ def _build_foundry_record(
     return {
         "binding_id": "foundry-binding-runtime",
         "selected_method_refs": selected,
-        "rejected_method_refs": _method_refs_from_rows(foundry_report.get("rejected_methods")),
+        "rejected_method_refs": _method_refs_from_rows(rejected_rows),
+        "rejected_method_reasons": _rejected_method_reasons(rejected_rows),
         "scenario_method_expectation_refs": tuple(
             ref
             for ref in dict.fromkeys(
@@ -1653,6 +1905,34 @@ def _build_foundry_record(
                 ]
             )
         ),
+        "assumption_gate_refs": tuple(
+            dict.fromkeys(
+                [
+                    *_refs_from(foundry_report, "assumption_gate_refs"),
+                    *(
+                        ref
+                        for row in selected_rows
+                        for ref in _refs_from_value(row.get("assumption_gate_refs"))
+                    ),
+                    *(
+                        ref
+                        for row in selected_rows
+                        for gate in _rows_from(row.get("runtime_assumption_gates"))
+                        for ref in _refs_from_value(
+                            gate.get("gate_ref")
+                            or gate.get("assumption_gate_ref")
+                            or gate.get("ref")
+                        )
+                    ),
+                ]
+            )
+        ),
+        "runtime_assumption_gates": _mapping_tuple_from(foundry_report, "runtime_assumption_gates")
+        or tuple(
+            gate
+            for row in selected_rows
+            for gate in _rows_from(row.get("runtime_assumption_gates"))
+        ),
         "input_coverage": _mapping_tuple_from(foundry_report, "input_coverage")
         or tuple({"method_ref": method_ref, "status": "pass"} for method_ref in selected),
         "sample_power_adequacy": _mapping_tuple_from(foundry_report, "sample_power_adequacy")
@@ -1671,7 +1951,61 @@ def _build_foundry_record(
             "negative_control_refs",
         ),
         "sensitivity_refs": _refs_from(foundry_report, "sensitivity_refs"),
-        "uncertainty_refs": _refs_from(foundry_report, "uncertainty_refs"),
+        "uncertainty_refs": tuple(
+            dict.fromkeys(
+                [
+                    *_refs_from(foundry_report, "uncertainty_refs", "uncertainty_envelope_refs"),
+                    *(
+                        ref
+                        for row in selected_rows
+                        for ref in _refs_from_value(
+                            row.get("uncertainty_envelope_refs")
+                            or row.get("uncertainty_refs")
+                        )
+                    ),
+                ]
+            )
+        ),
+        "uncertainty_envelopes": _mapping_tuple_from(foundry_report, "uncertainty_envelopes")
+        or tuple(
+            uncertainty
+            for row in selected_rows
+            for uncertainty in (
+                _mapping_from(row.get("uncertainty") or row.get("uncertainty_envelope")),
+            )
+            if uncertainty
+        ),
+        "limitation_refs": tuple(
+            dict.fromkeys(
+                [
+                    *_refs_from(foundry_report, "limitation_refs", "method_limitation_refs"),
+                    *(
+                        ref
+                        for row in selected_rows
+                        for ref in _refs_from_value(row.get("limitation_refs"))
+                    ),
+                ]
+            )
+        ),
+        "simulation_assumption_lineage_refs": tuple(
+            dict.fromkeys(
+                [
+                    *_refs_from(
+                        foundry_report,
+                        "simulation_assumption_lineage_refs",
+                        "assumption_lineage_refs",
+                    ),
+                    *(
+                        ref
+                        for row in selected_rows
+                        for ref in _refs_from_value(
+                            row.get("simulation_assumption_lineage_refs")
+                            or row.get("assumption_lineage_refs")
+                        )
+                    ),
+                ]
+            )
+        ),
         "method_output_refs": tuple(
             dict.fromkeys(
                 [
@@ -1853,6 +2187,9 @@ def _build_claim_evidence_paths(
         paths.append(
             {
                 "claim_id": claim_id,
+                "claim_type": _optional_text(claim.get("claim_type")),
+                "claim_family": _optional_text(claim.get("claim_family")),
+                "claim_use": _optional_text(claim.get("claim_use")),
                 "scenario_requirement_refs": _refs_from(
                     claim,
                     "scenario_requirement_refs",
@@ -1946,6 +2283,32 @@ def _build_claim_evidence_paths(
                         for ref in _refs_from_value(binding.get("method_output_refs"))
                     )
                 ),
+                "assumption_gate_refs": _refs_from(
+                    claim,
+                    "assumption_gate_refs",
+                    "method_assumption_gate_refs",
+                    "foundry_assumption_gate_refs",
+                )
+                or tuple(
+                    dict.fromkeys(
+                        ref
+                        for binding in relevant_foundry
+                        for ref in _refs_from_value(binding.get("assumption_gate_refs"))
+                    )
+                ),
+                "uncertainty_refs": _refs_from(
+                    claim,
+                    "uncertainty_refs",
+                    "residual_uncertainty_refs",
+                    "foundry_uncertainty_refs",
+                )
+                or tuple(
+                    dict.fromkeys(
+                        ref
+                        for binding in relevant_foundry
+                        for ref in _refs_from_value(binding.get("uncertainty_refs"))
+                    )
+                ),
                 "scientist_claim_refs": _refs_from(
                     claim,
                     "scientist_claim_refs",
@@ -1971,6 +2334,18 @@ def _build_claim_evidence_paths(
                     "deficit_refs",
                 ),
                 "blocker_refs": _refs_from(claim, "blocker_refs", "typed_blockers"),
+                "baseline_refs": _refs_from(claim, "baseline_refs", "baseline_ref"),
+                "alternative_refs": _refs_from(
+                    claim,
+                    "alternative_refs",
+                    "alternative_ref",
+                ),
+                "comparison_refs": _refs_from(
+                    claim,
+                    "comparison_refs",
+                    "comparison_record_refs",
+                    "baseline_comparison_refs",
+                ),
             }
         )
     return paths
@@ -2052,6 +2427,36 @@ def _record_presence_issues(ledger: SemanticBindingLedger) -> list[SemanticBindi
     ]
 
 
+def _producer_handshake_ledger_issues(
+    ledger: SemanticBindingLedger,
+) -> list[SemanticBindingIssue]:
+    if not isinstance(ledger.producer_handshake_ledger, Mapping):
+        return []
+    status = str(ledger.producer_handshake_ledger.get("status") or "").strip().casefold()
+    findings = _rows_from(ledger.producer_handshake_ledger.get("findings"))
+    if status not in {"fail", "failed"} and not findings:
+        return []
+    issue_codes = tuple(
+        str(finding.get("code"))
+        for finding in findings
+        if str(finding.get("code") or "").strip()
+    )
+    return [
+        _issue(
+            "semantic_producer_handshake_ledger_failed",
+            "Producer handshake ledger failed before semantic binding could trust producers.",
+            next_action=(
+                "Resolve missing producer handshakes, bridge authority, or finite wait "
+                "conditions before claim-bound semantic binding."
+            ),
+            refs=(
+                str(ledger.producer_handshake_ledger.get("producer_handshake_ledger_ref") or ""),
+                *issue_codes,
+            ),
+        )
+    ]
+
+
 def _lex_selection_issues(ledger: SemanticBindingLedger) -> list[SemanticBindingIssue]:
     issues: list[SemanticBindingIssue] = []
     if not _domain_specific_intent(ledger.intent):
@@ -2060,6 +2465,28 @@ def _lex_selection_issues(ledger: SemanticBindingLedger) -> list[SemanticBinding
         has_typed_blocker = bool(
             binding.no_norm_blocker_refs or binding.retrieval_error_blocker_refs
         )
+        if (
+            binding.legal_authority_required
+            and binding.selected_norm_refs
+            and not binding.legal_authority_record_refs
+        ):
+            issues.append(
+                _issue(
+                    "semantic_lex_legal_authority_record_missing",
+                    (
+                        "Lex selected norm refs for a legally constrained claim without "
+                        "claim-level legal authority records."
+                    ),
+                    next_action=(
+                        "Produce Lex legal_authority_records with norm version, provenance, "
+                        "competence, authority type, jurisdiction fallback, and legal-window "
+                        "facets before treating the selected norm as recommendation authority."
+                    ),
+                    refs=(binding.binding_id, *binding.selected_norm_refs),
+                    missing_input="claim-level legal authority record refs",
+                    conflicting_producer="lex",
+                )
+            )
         if binding.selected_norm_refs or has_typed_blocker:
             continue
         issues.append(
@@ -2520,6 +2947,16 @@ _CLAIM_EVIDENCE_CLOSURE_REQUIREMENTS: tuple[tuple[str, str, str], ...] = (
         "method output refs",
     ),
     (
+        "assumption_gate_refs",
+        "semantic_major_claim_assumption_gate_refs_missing",
+        "runtime method assumption gate refs",
+    ),
+    (
+        "uncertainty_refs",
+        "semantic_major_claim_uncertainty_refs_missing",
+        "method uncertainty envelope refs",
+    ),
+    (
         "argument_refs",
         "semantic_major_claim_argument_refs_missing",
         "argument refs",
@@ -2598,7 +3035,46 @@ def _claim_evidence_closure_issues(
                         affected_claim=claim_id,
                     )
                 )
+            has_superiority_path = any(_claim_path_is_superiority(path) for path in paths)
+            has_comparison_refs = bool(_claim_path_axis_refs(paths, "comparison_refs"))
+            if has_superiority_path and not has_comparison_refs:
+                issues.append(
+                    _issue(
+                        "semantic_superiority_claim_comparison_refs_missing",
+                        (
+                            "Superiority claims cannot pass semantic binding without "
+                            "W8.C baseline/alternative comparison records."
+                        ),
+                        next_action=(
+                            "Compile baseline and alternative comparison records with "
+                            "BaselineComparisonCompiler and bind comparison_refs to "
+                            "the superiority claim before closeout."
+                        ),
+                        claim_id=claim_id,
+                        refs=(component, binding.binding_id, claim_id, "comparison_refs"),
+                        missing_input="comparison_refs",
+                        conflicting_producer=component,
+                        affected_claim=claim_id,
+                    )
+                )
     return issues
+
+
+def _claim_path_is_superiority(path: ClaimEvidencePath) -> bool:
+    tokens = {
+        _optional_text(path.claim_use),
+        _optional_text(path.claim_type),
+        _optional_text(path.claim_family),
+    }
+    normalized = {token.casefold().replace("-", "_") for token in tokens if token}
+    return bool(
+        normalized
+        & {
+            "superiority",
+            "comparative_superiority",
+            "selected_option_superiority",
+        }
+    )
 
 
 def _claim_path_axis_refs(
@@ -3071,8 +3547,10 @@ def _reason_family(
 
 def _blocker_refs(ledger: SemanticBindingLedger) -> tuple[str, ...]:
     refs = {
+        *_producer_handshake_blocker_refs(ledger.producer_handshake_ledger),
         *(ref for lex in ledger.lex for ref in lex.no_norm_blocker_refs),
         *(ref for lex in ledger.lex for ref in lex.retrieval_error_blocker_refs),
+        *(ref for lex in ledger.lex for ref in lex.legal_authority_blocker_refs),
         *(ref for lex in ledger.lex for ref in lex.spine_blocker_refs),
         *(ref for fabric in ledger.fabric for ref in fabric.data_gap_blocker_refs),
         *(ref for fabric in ledger.fabric for ref in fabric.ambiguity_blocker_refs),
@@ -3087,6 +3565,22 @@ def _blocker_refs(ledger: SemanticBindingLedger) -> tuple[str, ...]:
         *(ref for claim in ledger.final_compiler for ref in claim.spine_blocker_refs),
     }
     return tuple(sorted(refs))
+
+
+def _producer_handshake_blocker_refs(
+    producer_handshake_ledger: Mapping[str, Any] | None,
+) -> tuple[str, ...]:
+    if not isinstance(producer_handshake_ledger, Mapping):
+        return ()
+    refs: list[str] = []
+    for record in _rows_from(producer_handshake_ledger.get("records")):
+        refs.extend(_refs_from_value(record.get("blocked_binding_refs")))
+        for blocker in _rows_from(record.get("blockers")):
+            refs.extend(_refs_from_value(blocker.get("refs")))
+            code = _optional_text(blocker.get("code"))
+            if code:
+                refs.append(code)
+    return tuple(dict.fromkeys(refs))
 
 
 def _dedupe_issues(issues: list[SemanticBindingIssue]) -> list[SemanticBindingIssue]:
@@ -3170,14 +3664,14 @@ def _coerce_mapping_tuple(values: tuple[dict[str, Any], ...]) -> tuple[dict[str,
     return tuple(result)
 
 
-def _non_empty(value: Any) -> str:
+def _non_empty(value: object) -> str:
     text = str(value).strip()
     if not text:
         raise ValueError("value must be non-empty")
     return text
 
 
-def _optional_text(value: Any) -> str | None:
+def _optional_text(value: object) -> str | None:
     if value is None:
         return None
     text = str(value).strip()
@@ -3452,12 +3946,18 @@ def _foundry_bindings_for_ref(
     return tuple(binding for binding in ledger.foundry if ref in binding.selected_method_refs)
 
 
-def _rows_from(value: Any) -> tuple[Mapping[str, Any], ...]:
+def _rows_from(value: object) -> tuple[Mapping[str, Any], ...]:
     if isinstance(value, Mapping):
         return (value,)
     if isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray):
         return tuple(item for item in value if isinstance(item, Mapping))
     return ()
+
+
+def _mapping_from(value: object) -> dict[str, Any]:
+    if isinstance(value, Mapping):
+        return {str(key): item for key, item in value.items()}
+    return {}
 
 
 def _refs_from(payload: Mapping[str, Any], *keys: str) -> tuple[str, ...]:
@@ -3467,7 +3967,7 @@ def _refs_from(payload: Mapping[str, Any], *keys: str) -> tuple[str, ...]:
     return tuple(dict.fromkeys(refs))
 
 
-def _refs_from_value(value: Any) -> tuple[str, ...]:
+def _refs_from_value(value: object) -> tuple[str, ...]:
     if value is None:
         return ()
     if isinstance(value, str):
@@ -3491,9 +3991,22 @@ def _refs_from_value(value: Any) -> tuple[str, ...]:
             or _optional_text(value.get("source_ref"))
             or _optional_text(value.get("norm_id"))
             or _optional_text(value.get("method_id"))
+            or _optional_text(value.get("method_ref"))
+            or _optional_text(value.get("method_output_ref"))
+            or _optional_text(value.get("method_result_ref"))
+            or _optional_text(value.get("result_ref"))
+            or _optional_text(value.get("assumption_gate_ref"))
+            or _optional_text(value.get("gate_ref"))
+            or _optional_text(value.get("uncertainty_envelope_ref"))
+            or _optional_text(value.get("limitation_ref"))
             or _optional_text(value.get("claim_id"))
         )
-        return (ref,) if ref else ()
+        if ref:
+            return (ref,)
+        refs: list[str] = []
+        for item in value.values():
+            refs.extend(_refs_from_value(item))
+        return tuple(dict.fromkeys(refs))
     if isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray):
         refs: list[str] = []
         for item in value:
@@ -3507,7 +4020,7 @@ def _json_mapping(payload: Mapping[str, Any]) -> dict[str, Any]:
     return {str(key): _json_value(value) for key, value in payload.items()}
 
 
-def _json_value(value: Any) -> Any:
+def _json_value(value: object) -> object:
     if isinstance(value, Mapping):
         return _json_mapping(value)
     if isinstance(value, tuple):
@@ -3517,7 +4030,7 @@ def _json_value(value: Any) -> Any:
     return value
 
 
-def _first_text(*values: Any) -> str:
+def _first_text(*values: object) -> str:
     for value in values:
         if isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray):
             for item in value:
@@ -3584,7 +4097,7 @@ def _ids_by_type(claims: Sequence[Mapping[str, Any]], *tokens: str) -> tuple[str
     return tuple(dict.fromkeys(ids))
 
 
-def _norm_refs_from_rows(value: Any) -> tuple[str, ...]:
+def _norm_refs_from_rows(value: object) -> tuple[str, ...]:
     refs: list[str] = []
     for row in _rows_from(value):
         ref = (
@@ -3598,7 +4111,7 @@ def _norm_refs_from_rows(value: Any) -> tuple[str, ...]:
     return tuple(dict.fromkeys(refs))
 
 
-def _source_refs_from_rows(value: Any) -> tuple[str, ...]:
+def _source_refs_from_rows(value: object) -> tuple[str, ...]:
     refs: list[str] = []
     for row in _rows_from(value):
         ref = (
@@ -3613,7 +4126,7 @@ def _source_refs_from_rows(value: Any) -> tuple[str, ...]:
     return tuple(dict.fromkeys(refs))
 
 
-def _method_refs_from_rows(value: Any) -> tuple[str, ...]:
+def _method_refs_from_rows(value: object) -> tuple[str, ...]:
     refs: list[str] = []
     for row in _rows_from(value):
         ref = (
@@ -3625,6 +4138,32 @@ def _method_refs_from_rows(value: Any) -> tuple[str, ...]:
         if ref:
             refs.append(ref)
     return tuple(dict.fromkeys(refs))
+
+
+def _rejected_method_reasons(rows: Sequence[Mapping[str, Any]]) -> tuple[dict[str, Any], ...]:
+    reasons: list[dict[str, Any]] = []
+    for row in rows:
+        method_ref = (
+            _optional_text(row.get("method_id"))
+            or _optional_text(row.get("method_ref"))
+            or _optional_text(row.get("id"))
+        )
+        reason_code = _optional_text(row.get("reason_code") or row.get("code"))
+        reason = _optional_text(row.get("reason") or row.get("rationale"))
+        if not method_ref and not reason_code and not reason:
+            continue
+        payload: dict[str, Any] = {}
+        if method_ref:
+            payload["method_ref"] = method_ref
+        if reason_code:
+            payload["reason_code"] = reason_code
+        if reason:
+            payload["reason"] = reason
+        result_refs = _refs_from_value(row.get("result_refs"))
+        if result_refs:
+            payload["result_refs"] = result_refs
+        reasons.append(payload)
+    return tuple(reasons)
 
 
 def _method_output_refs_from_method(method: Mapping[str, Any]) -> tuple[str, ...]:
@@ -3641,7 +4180,7 @@ def _method_output_refs_from_method(method: Mapping[str, Any]) -> tuple[str, ...
     return tuple(dict.fromkeys(refs))
 
 
-def _literature_refs_from_rows(value: Any) -> tuple[str, ...]:
+def _literature_refs_from_rows(value: object) -> tuple[str, ...]:
     refs: list[str] = []
     for row in _rows_from(value):
         ref = (

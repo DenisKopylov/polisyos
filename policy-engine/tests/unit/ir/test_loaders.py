@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import pytest
-from polisyos.ir.loaders import PolicyLoadError, load_policy
+
+from polisyos.ir.loading.loaders import PolicyLoadError, load_policy
 from polisyos.ir.trinity import TrinityBundle
 
 ZERO_REF = "sha256:" + "0" * 64

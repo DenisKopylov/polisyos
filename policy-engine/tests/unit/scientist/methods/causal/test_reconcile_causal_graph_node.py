@@ -39,7 +39,7 @@ from polisyos.ir.analytics.negative_certificate import (
     BlockingType,
     load_negative_certificate,
 )
-from polisyos.ir.refs import NegativeCertificateRef
+from polisyos.ir.registry.refs import NegativeCertificateRef
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph import (

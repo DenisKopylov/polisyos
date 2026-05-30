@@ -4,7 +4,7 @@ import json
 from typing import Any
 
 import pytest
-from polisyos.ir.canon import CanonViolation, from_canonical_bytes
+from polisyos.ir.model_layer.canon import CanonViolation, from_canonical_bytes
 from polisyos.ir.governance.selector_expr import SelectorExpr
 from polisyos.ir.migrations.base import migrate_artifact, register_migration
 from polisyos.ir.world.ids import claim_id_from_payload

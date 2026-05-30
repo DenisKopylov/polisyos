@@ -37,7 +37,6 @@ forbidden_dependencies = [
   "polisyos.berl",
   "polisyos.calibration",
   "polisyos.ddm",
-  "polisyos.synthetic_world",
 ]
 
 [[package]]
@@ -56,7 +55,6 @@ forbidden_dependencies = [
   "polisyos.berl",
   "polisyos.calibration",
   "polisyos.ddm",
-  "polisyos.synthetic_world",
 ]
 
 [[package]]
@@ -78,7 +76,6 @@ forbidden_dependencies = [
   "polisyos.berl",
   "polisyos.calibration",
   "polisyos.ddm",
-  "polisyos.synthetic_world",
 ]
 runtime_allowed_submodules = ["polisyos.data_forge.read_api"]
 
@@ -103,7 +100,6 @@ forbidden_dependencies = [
   "polisyos.berl",
   "polisyos.calibration",
   "polisyos.ddm",
-  "polisyos.synthetic_world",
 ]
 
 [[package]]
@@ -127,7 +123,6 @@ forbidden_dependencies = [
   "polisyos.berl",
   "polisyos.calibration",
   "polisyos.ddm",
-  "polisyos.synthetic_world",
 ]
 
 [[package]]
@@ -151,7 +146,6 @@ forbidden_dependencies = [
   "polisyos.berl",
   "polisyos.calibration",
   "polisyos.ddm",
-  "polisyos.synthetic_world",
 ]
 
 [[package]]
@@ -175,7 +169,6 @@ forbidden_dependencies = [
   "polisyos.berl",
   "polisyos.calibration",
   "polisyos.ddm",
-  "polisyos.synthetic_world",
 ]
 
 [[package]]
@@ -192,6 +185,8 @@ allowed_dependencies = [
   "polisyos.scholar",
   "polisyos.data_forge.read_api",
   "polisyos.berl",
+  "polisyos.ddm",
+  "polisyos.obligation_graph",
 ]
 forbidden_dependencies = [
   "polisyos.runtime",
@@ -215,6 +210,41 @@ forbidden_dependencies = [
   "polisyos.batch_common",
   "polisyos.batch_snapshot",
 ]
+
+[[package]]
+module = "polisyos.obligation_rules"
+owner = "team-policyos-runtime"
+public_facade = "polisyos.obligation_rules"
+allowed_dependencies = ["polisyos.common", "polisyos.core"]
+forbidden_dependencies = ["polisyos.runtime", "polisyos.data_forge", "polisyos.foundry"]
+
+[[package]]
+module = "polisyos.obligation_graph"
+owner = "team-policyos-runtime"
+public_facade = "polisyos.obligation_graph"
+allowed_dependencies = ["polisyos.common", "polisyos.core"]
+forbidden_dependencies = ["polisyos.runtime", "polisyos.data_forge", "polisyos.foundry"]
+
+[[package]]
+module = "polisyos.method_requirement"
+owner = "team-policyos-runtime"
+public_facade = "polisyos.method_requirement"
+allowed_dependencies = ["polisyos.common", "polisyos.core"]
+forbidden_dependencies = ["polisyos.runtime", "polisyos.data_forge", "polisyos.foundry"]
+
+[[package]]
+module = "polisyos.participation_requirement"
+owner = "team-policyos-runtime"
+public_facade = "polisyos.participation_requirement"
+allowed_dependencies = ["polisyos.common", "polisyos.core"]
+forbidden_dependencies = ["polisyos.runtime", "polisyos.data_forge", "polisyos.foundry"]
+
+[[package]]
+module = "polisyos.evidence"
+owner = "team-policyos-runtime"
+public_facade = "polisyos.evidence"
+allowed_dependencies = ["polisyos.common", "polisyos.core"]
+forbidden_dependencies = ["polisyos.runtime", "polisyos.data_forge", "polisyos.foundry"]
 
 [[package]]
 module = "polisyos.berl"
@@ -262,19 +292,6 @@ forbidden_dependencies = [
 ]
 
 [[package]]
-module = "polisyos.ddm_15_7"
-owner = "team-architecture"
-public_facade = "polisyos.ddm_15_7"
-compatibility_shim = true
-shim_id = "ddm-15-7-rename"
-allowed_dependencies = ["polisyos.ddm"]
-forbidden_dependencies = [
-  "polisyos.runtime",
-  "polisyos.data_forge.kernel",
-  "polisyos.data_forge.domains",
-]
-
-[[package]]
 module = "polisyos.foundry.agent_sim.world"
 owner = "team-foundry"
 public_facade = "polisyos.foundry.agent_sim.world"
@@ -286,20 +303,6 @@ allowed_dependencies = [
 ]
 forbidden_dependencies = [
   "polisyos.scientist",
-  "polisyos.runtime",
-  "polisyos.data_forge.kernel",
-  "polisyos.data_forge.domains",
-  "polisyos.synthetic_world",
-]
-
-[[package]]
-module = "polisyos.synthetic_world"
-owner = "team-foundry"
-public_facade = "polisyos.synthetic_world"
-compatibility_shim = true
-shim_id = "synthetic-world-to-agent-sim-world"
-allowed_dependencies = ["polisyos.foundry.agent_sim.world"]
-forbidden_dependencies = [
   "polisyos.runtime",
   "polisyos.data_forge.kernel",
   "polisyos.data_forge.domains",

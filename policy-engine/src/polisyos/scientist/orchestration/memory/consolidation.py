@@ -7,7 +7,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.scientist.orchestration.memory.failure_lessons import (
+from polisyos.scientist.orchestration.memory.contracts import (
     LessonApplicability,
     ReflexiveMemoryEvent,
     build_reflexive_memory_event,

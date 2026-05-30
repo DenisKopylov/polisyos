@@ -46,7 +46,7 @@ from polisyos.ir.analytics.strategic import (
     load_strategic_decomposition_certificate,
     persist_strategic_solve_artifacts,
 )
-from polisyos.ir.refs import ArtifactRefModel
+from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.scientist.governance.passes.strategic_response_pass import _bundle_summary
 from polisyos.scientist.orchestration.kernel.budgets import ComputeBudget
 

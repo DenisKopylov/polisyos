@@ -27,7 +27,7 @@ if str(REPO_ROOT) not in sys.path:
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from polisyos.ir.schema_catalog import (  # noqa: E402
+from polisyos.ir.schemas import (  # noqa: E402
     IRPublicStatus,
     IRSchemaCatalog,
     IRTypeInfo,
@@ -86,7 +86,7 @@ def render_ir_schema_catalog(catalog: IRSchemaCatalog) -> str:
         "",
         "Related reference: [Schemas](../schemas.md).",
         "",
-        "> This page is generated from `polisyos.ir.schema_catalog` "
+        "> This page is generated from `polisyos.ir.schemas` "
         "and the current package facades.",
         "",
         "Canonical regeneration command (snapshots + reference docs):",

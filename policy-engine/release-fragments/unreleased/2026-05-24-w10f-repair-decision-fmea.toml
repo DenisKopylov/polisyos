@@ -1,0 +1,47 @@
+id = "2026-05-24-w10f-repair-decision-fmea"
+title = "Annotate prompt/tool repair decisions with FMEA refs"
+type = "added"
+component = "runtime-quality"
+owner = "team-runtime-ops"
+summary = "Add W10.F repair-decision FMEA refs to prompt/tool ledger decisions and project repair machinery failures to scorecard, closeout, and operator surfaces."
+evidence = [
+  "tests/unit/runtime/quality/test_prompt_tool_ledger_fmea.py",
+  "tests/unit/runtime/quality/test_prompt_tool_ledger.py",
+  "tests/unit/runtime/quality/test_soft_gate_telemetry.py",
+  "tests/unit/runtime/quality/test_closeout_reader.py",
+  "tests/unit/runtime/quality/test_scorecard.py",
+]
+compatibility = "Additive Python API and scorecard payload fields; prompt/tool ledgers with repair decisions but missing FMEA refs now fail serious authority validation."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.runtime.quality"
+migration = "Emit failure_mode, severity, cause, recommended_mitigation, and residual_risk for every prompt/tool repair decision before using the ledger for serious closeout."
+api = "Adds prompt_tool_repair_machinery_failures and prompt_tool_repair_fmea_closeout_record, and extends RepairDecisionFMEAAnnotation with W10.F cause, mitigation, and residual-risk fields."
+limitations = "Annotated repair failures are advisory/limitation machinery signals and do not mint producer, evidence, or closeout authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "docs/reference/runtime/quality-scorecard.md",
+  "docs/reference/policy-design-case-operator-guide.md",
+]
+runbook_docs = [
+  "docs/reference/policy-design-case-operator-guide.md",
+]
+
+[[compatibility_change]]
+id = "runtime-quality-repair-decision-fmea"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: polisyos.runtime.quality"
+owner = "team-runtime-ops"
+version_owner = "team-runtime-ops"
+deprecation_window = "not_applicable"
+release_note = "Prompt/tool repair decisions now carry W10.F FMEA refs and surface as operator-visible machinery failures."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "docs/reference/runtime/quality-scorecard.md",
+  "docs/reference/policy-design-case-operator-guide.md",
+]
+runbook_docs = [
+  "docs/reference/policy-design-case-operator-guide.md",
+]

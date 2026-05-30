@@ -38,7 +38,7 @@ from polisyos.ir.observation.contracts import (
     ObservationRecord,
     SourceConfidenceTier,
 )
-from polisyos.ir.types import TimeFrequency
+from polisyos.ir.model_layer.types import TimeFrequency
 from polisyos.ir.world.event import (
     EventKind,
     ProvActivity,

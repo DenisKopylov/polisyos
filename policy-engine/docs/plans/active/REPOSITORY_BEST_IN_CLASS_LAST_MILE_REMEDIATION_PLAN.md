@@ -45,8 +45,8 @@ This plan covers:
   consolidation;
 - `src/polisyos/ir/refs/**` versus `src/polisyos/ir/references/**` naming
   collision;
-- compatibility shim sunset for `polisyos.ddm_15_7` and
-  `polisyos.synthetic_world`;
+- completed compatibility shim sunset for the former `polisyos.ddm_15_7` and
+  `polisyos.synthetic_world` roots;
 - first real decomposition of the largest god modules, with shrinking
   line-count ratchets;
 - mirror-ratio and integration-test ratchets that regressed after the package
@@ -124,7 +124,7 @@ package-local or test-local change is already green.
 | Cross-package name collisions | team-architecture | `architecture/name_registry.toml`, last-mile name inventory | governance/contracts/registry/calibration/runtime/trace/discovery candidates | Wave 1: every repeated name is scoped-OK, renamed, or merged |
 | Cross-cutting concern duplication | team-architecture | `architecture/policies/cross_cutting_concerns.toml` | observability/security/registry/discovery duplicated across layers | Wave 1: canonical home plus adapter contract |
 | Scientist parallel implementation pairs | team-scientist | last-mile parallel implementation inventory | workflows/orchestration/orchestrator/research_dag and related pairs | Wave 2: all pairs resolved or shimmed |
-| Compatibility shim sunset debt | team-architecture | `architecture/shims.toml` | `ddm_15_7`, `synthetic_world` | Wave 2: removed or sunset no later than 2026-07-31 |
+| Compatibility shim sunset debt | team-architecture | `architecture/shims.toml` | former `ddm_15_7`, `synthetic_world` | Closed: removed early after zero-noncompat caller audit |
 | Shim caller pressure | team-architecture | `_build/.tmp/last-mile/shim_callers.json` | no caller report | Wave 0: every shim has callers list before sunset action |
 | God-module shrinkage | owning package teams | `architecture/module_size_budget.toml` | six top modules above 3,900 lines plus validator-tool growth risk | Wave 4 and 6: top modules shrink and validator budgets are added |
 | Mirror-test ratios | team-quality | `architecture/tests/ratchets.toml` | Scientist 56%, Fabric 35%, Foundry 67%, IR 52%, Core 40%, Runtime 69%, Data Forge 49%, Common 63%, DDM 41%, Berl 19%, Lex/Scholar 32% | Wave 5: improved floors with meaningful tests or registered exceptions |
@@ -167,7 +167,7 @@ Open regressions and debts from the post-merge review:
 | LM-003 | P-Critical | `ir/refs` and `ir/references` are near-duplicate first-level names. | package source: IR | team-ir | 3 |
 | LM-004 | P-High | `scientist/orchestrator` and `scientist/orchestration` coexist. | package source: Scientist | team-scientist | 2 |
 | LM-005 | P-High | Scientist package/file semantic duplicates remain: `publishing`/`publisher.py`, `evidence`/`evidence_sources.py`, `feedback`/`feedback_utils.py`, `replay`/`replay_backend.py`, `llm`/`llm_cycle.py`. | package source: Scientist | team-scientist | 2 |
-| LM-006 | P-High | `ddm_15_7` and `synthetic_world` wrappers still exist and need sunset execution or stricter time-boxing. | compatibility shims | team-architecture | 2 |
+| LM-006 | Closed | Former `ddm_15_7` and `synthetic_world` wrappers were removed after zero-noncompat caller audit. | compatibility shims | team-architecture | closed |
 | LM-007 | P-Critical | Large modules are ratcheted but not materially decomposed. | package source: Foundry/Data Forge/Scientist/Runtime | owning package teams | 4 |
 | LM-008 | P-High | Mirror coverage regressed for Scientist, Fabric, Foundry, IR, and Core; Berl/Lex/Scholar remain low. | tests: mirror/property/integration | team-quality | 5 |
 | LM-009 | P-Low | `_build/phase7-local-junk-20260505T092233Z/` remains as local residue. | lifecycle/output | team-devx | 1 |
@@ -394,21 +394,8 @@ uv run pytest tests/repo_quality/tools/test_docs_lifecycle.py -q
 Scope:
 
 - Build an import map for all planned source moves:
-  - `polisyos.scientist.decision_validity`;
-  - `polisyos.scientist.error_semantics`;
-  - `polisyos.scientist.evidence_sources`;
-  - `polisyos.scientist.feedback_utils`;
-  - `polisyos.scientist.frontier_runtime`;
-  - `polisyos.scientist.latent_separation`;
-  - `polisyos.scientist.llm_cycle`;
-  - `polisyos.scientist.publisher`;
-  - `polisyos.scientist.reliability_scorecard`;
-  - `polisyos.scientist.remediation_status`;
-  - `polisyos.scientist.replay_backend`;
   - Fabric shell packages to be grouped;
-  - IR shell packages to be grouped;
-  - `polisyos.ddm_15_7`;
-  - `polisyos.synthetic_world`.
+  - IR shell packages to be grouped.
 - Decide for each path whether it is removed, moved with a re-export shim, or
   retained with a dated exception.
 - Generate `_build/.tmp/last-mile/shim_callers.json` with a per-shim list of
@@ -885,9 +872,13 @@ uv run pytest tests/unit/scientist/methods/test_import_shims.py tests/unit/scien
 
 Scope:
 
-- Decide the release action for:
-  - `src/polisyos/ddm_15_7/__init__.py`;
-  - `src/polisyos/synthetic_world/__init__.py`.
+Status: completed early; the former `polisyos.ddm_15_7` and
+`polisyos.synthetic_world` root facades were removed after the caller report
+showed no non-compatibility callers.
+
+- Decide the release action for removed roots:
+  - former `src/polisyos/ddm_15_7/__init__.py`;
+  - former `src/polisyos/synthetic_world/__init__.py`.
 - Remove a shim if no first-party imports remain and compatibility policy
   allows removal.
 - Use `_build/.tmp/last-mile/shim_callers.json` as a precondition: a shim may
@@ -1050,9 +1041,8 @@ Scope:
   - `references` only if it means bibliographic or external source references.
 - If both concepts are real, place them under different semantic groups with
   explicit names such as `registry/refs.py` and `loading/citations.py`.
-- If one concept is redundant, remove or shim it. `polisyos.ir.references` may
-  remain only as a documented compatibility aggregate, not as a physical
-  semantic-group implementation file.
+- If one concept is redundant, remove or shim it. `polisyos.ir.references` is
+  retired and must not return as a physical semantic-group implementation file.
 
 Files:
 
@@ -1875,8 +1865,7 @@ The last-mile program exits only when:
   non-canonical duplicate concern roots fail gates.
 - No package group introduces group-level cross-cutting concern files outside
   `<package>/_adapters/**` or an explicit scoped exception.
-- `polisyos.ddm_15_7` and `polisyos.synthetic_world` are removed or
-  time-boxed with smoke import tests and release notes.
+- Former `polisyos.ddm_15_7` and `polisyos.synthetic_world` roots are removed.
 - Every remaining shim has a caller report; sunset dates are backed by caller
   migration evidence.
 - The top seven god modules have material line-count reductions and lowered

@@ -663,7 +663,7 @@ def run_s2_fabric_trust_flow(ctx: dict[str, Any]) -> dict[str, Any]:
     started = utc_now()
     try:
         from polisyos.core.contracts.runtime import QuantityCoverageSummary, TemporalScope
-        from polisyos.fabric.decision_data import (
+        from polisyos.fabric.evidence.decision_data import (
             SourceContractRef,
             coverage_from_decision_data,
             from_runtime_quantities,
@@ -1376,8 +1376,8 @@ def preflight(ctx: dict[str, Any]) -> dict[str, Any]:
         "duckdb",
         "numpy",
         "polisyos",
-        "polisyos.fabric.decision_data",
-        "polisyos.foundry.quickstart",
+        "polisyos.fabric.evidence.decision_data",
+        "polisyos.foundry._quickstart",
     ]
     for module in modules:
         try:

@@ -28,9 +28,9 @@ from polisyos.ir.governance.problem_frame import (
 )
 from polisyos.ir.governance.schedule import ScheduleSpec
 from polisyos.ir.governance.selector_expr import SelectorPredicate
-from polisyos.ir.model_spec import FidelityLevel, ModelSpec
+from polisyos.ir.model_layer.model_spec import FidelityLevel, ModelSpec
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.ir.types import OptimizationDirection
+from polisyos.ir.model_layer.types import OptimizationDirection
 from polisyos.scientist.governance.passes.incentive_compatibility_pass import (
     IncentiveCompatibilityPass,
 )

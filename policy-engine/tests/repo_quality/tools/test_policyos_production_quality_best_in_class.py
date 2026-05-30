@@ -874,6 +874,7 @@ def _patch_phase32_sources(
     inventory_payload: dict[str, Any] | None = None,
     registry_report: dict[str, Any] | None = None,
     proof_payload: dict[str, Any] | None = None,
+    coverage_payload: dict[str, Any] | None = None,
 ) -> None:
     monkeypatch.setattr(
         gate,
@@ -889,6 +890,11 @@ def _patch_phase32_sources(
         gate,
         "_build_proof_harness_payload",
         lambda _repo_root: proof_payload or _proof_payload(),
+    )
+    monkeypatch.setattr(
+        gate.build_policy_design_case_coverage,
+        "build_coverage_payload",
+        lambda *, repo_root: coverage_payload or _coverage_payload(),
     )
 
 
@@ -906,6 +912,30 @@ def _inventory_payload() -> dict[str, Any]:
                 "validators": ["lex.normative_applicability.validate"],
             }
         ],
+    }
+
+
+def _coverage_payload() -> dict[str, Any]:
+    return {
+        "schema_version": "policyos.policy_design_case.coverage.v1",
+        "metrics": {
+            "portfolio_predeclaration_pct": {
+                "metric_id": "portfolio_predeclaration_pct",
+                "value": 100.0,
+                "numerator": 1,
+                "denominator": 1,
+                "measurement_status": "wave15_portfolio_predeclaration_contract_enforced",
+            },
+            "benchmarking_proportionality_pct": {
+                "metric_id": "benchmarking_proportionality_pct",
+                "value": 100.0,
+                "numerator": 2,
+                "denominator": 2,
+                "measurement_status": (
+                    "wave31_best_in_class_benchmarking_and_proportionality_gates_enforced"
+                ),
+            },
+        },
     }
 
 

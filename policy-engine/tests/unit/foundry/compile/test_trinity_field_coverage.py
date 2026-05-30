@@ -3,7 +3,7 @@ from __future__ import annotations
 from polisyos.foundry.compile._lowering import TRINITY_FIELD_COVERAGE, audit_trinity_field_coverage
 from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemFrame
-from polisyos.ir.model_spec import ModelSpec
+from polisyos.ir.model_layer.model_spec import ModelSpec
 
 
 def test_trinity_field_coverage_matrix_is_complete() -> None:

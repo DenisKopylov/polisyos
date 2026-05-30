@@ -20,7 +20,7 @@ from polisyos.ir.analytics.welfare import (
     persist_channel_decomposition_artifact,
     persist_welfare_bundle,
 )
-from polisyos.ir.refs import ArtifactRefModel
+from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.decide.build_decision_packet import BuildDecisionPacketNode

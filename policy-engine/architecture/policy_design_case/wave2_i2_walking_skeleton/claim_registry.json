@@ -1,0 +1,108 @@
+{
+  "claims": [
+    {
+      "accepted_deficit_refs": [
+        "fixture.deficit.toy_scope_accepted"
+      ],
+      "argument_refs": [
+        "fixture.argument.credit_support"
+      ],
+      "assurance_node_id": "claim-node-claim.msme_credit_survival",
+      "authority_role": "producer_authority",
+      "blocker_refs": [],
+      "claim_id": "claim.msme_credit_survival",
+      "claim_ref": "sha256:634c7c01abf1bbbab11da69e01d2557f8a2c6d8b85bc0ef97ee36a9b45976077",
+      "concept_refs": [],
+      "concept_spine_ref": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "counter_evidence_refs": [
+        "fixture.counter.stress_case"
+      ],
+      "data_refs": [
+        "fixture.data.msme_panel"
+      ],
+      "disconfirming_refs": [
+        "fixture.rebuttal.none_found",
+        "fixture.counter.stress_case"
+      ],
+      "independence_refs": [],
+      "legal_norm_refs": [
+        "fixture.norm.msme_credit_eligibility"
+      ],
+      "limitation_refs": [
+        "fixture.limit.toy_policy_scope"
+      ],
+      "method_output_refs": [
+        "fixture.method.deterministic_delta"
+      ],
+      "method_refs": [
+        "fixture.method.deterministic_delta"
+      ],
+      "monitoring_refs": [],
+      "numerical_semantics_refs": [],
+      "objective_tradeoff_refs": [],
+      "portfolio_refs": [
+        "fixture.portfolio.single"
+      ],
+      "producer_handshake_ledger_ref": "producer-handshake-ledger:sha256:355ffffd0c1a827662bc89d501b3dc1f5e1e01408ee5341c12a64e58279af3f7",
+      "producer_handshake_refs": [
+        "producer-handshake:sha256:8b83729b73c106df70eed52138249f5f07c3ca442fb800274040d3b8c218a55f"
+      ],
+      "provenance_kind": "runtime_emitted",
+      "rebuttal_refs": [
+        "fixture.rebuttal.none_found"
+      ],
+      "rejected_method_refs": [],
+      "rejected_norm_refs": [],
+      "runtime_claim_registry_ref": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+      "runtime_event_ref": "event://runtime_claim_registry/run-wave2-i2/claim.msme_credit_survival",
+      "scenario_requirement_refs": [
+        "scenario.req.msme_credit_guarantee"
+      ],
+      "scholar_deficit_refs": [
+        "fixture.deficit.toy_scope_accepted"
+      ],
+      "scholar_refs": [],
+      "selected_norm_refs": [
+        "fixture.norm.msme_credit_eligibility"
+      ],
+      "selected_producer_refs": {
+        "data_forge": [
+          "fixture.data.msme_panel"
+        ],
+        "fabric": [
+          "fixture.data.msme_panel"
+        ],
+        "foundry": [
+          "fixture.method.deterministic_delta"
+        ],
+        "lex": [
+          "fixture.norm.msme_credit_eligibility"
+        ]
+      },
+      "source_data_refs": [
+        "fixture.data.msme_panel"
+      ],
+      "specification_curve_refs": [],
+      "synthesis_refs": [],
+      "uncertainty_refs": [],
+      "warrant_refs": [
+        "fixture.warrant.admissible"
+      ]
+    }
+  ],
+  "issues": [],
+  "registry_kind": "runtime.claim_registry",
+  "runtime_claim_registry_ref": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+  "schema_version": "policyos.runtime.claim_registry.v1",
+  "status": "pass",
+  "summary": {
+    "claim_count": 1,
+    "entry_count": 1,
+    "generic_global_method_ref_count": 0,
+    "global_method_ref_count": 0,
+    "global_norm_ref_count": 0,
+    "issue_count": 0,
+    "major_claim_count": 1,
+    "selected_data_ref_count": 0
+  }
+}

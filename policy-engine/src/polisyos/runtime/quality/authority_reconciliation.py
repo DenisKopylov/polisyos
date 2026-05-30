@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any
+from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.runtime.quality.diagnostic_events import RECONCILIATION_FAILURE_CODES
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 
 @dataclass(frozen=True, slots=True)
@@ -55,7 +57,7 @@ def reconcile_authority_ref(
             ref=cas_ref,
         )
 
-    assert normalized_ref is not None
+    normalized_ref = cast("str", normalized_ref)
     if not artifact_store.has(normalized_ref):
         _fail("authority_cas_missing", f"CAS artifact is missing: {normalized_ref}.")
 
@@ -270,4 +272,3 @@ __all__ = [
     "reconcile_authority_event",
     "reconcile_authority_ref",
 ]
-

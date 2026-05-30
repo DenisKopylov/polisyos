@@ -7,7 +7,7 @@ from types import SimpleNamespace
 
 import pytest
 from polisyos.fabric.connectors.contracts import SourceFieldAccessPolicy
-from polisyos.fabric.decision_data import (
+from polisyos.fabric.evidence.decision_data import (
     AccessRef,
     FabricDecisionData,
     FabricQuantityValue,

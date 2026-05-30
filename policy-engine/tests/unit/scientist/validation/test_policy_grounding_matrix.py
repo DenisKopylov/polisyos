@@ -4,6 +4,9 @@ from polisyos.foundry.validation.causal_validity import (
     build_causal_statistical_validity_report,
 )
 from polisyos.runtime.quality.claim_registry import build_runtime_claim_registry
+from polisyos.runtime.quality.ir_analytics_bridge import (
+    build_ir_analytics_claim_bridge,
+)
 from polisyos.scientist.validation.policy_grounding import (
     build_policy_grounding_matrix_report,
     normalize_policy_grounding_matrix,
@@ -170,6 +173,126 @@ def test_policy_grounding_matrix_uses_claim_registry_as_claim_bound_surface() ->
     ]
 
 
+def test_policy_grounding_matrix_consumes_ir_analytics_bridge_refs() -> None:
+    context = _evidence_context()
+    bridge = build_ir_analytics_claim_bridge(
+        claim_bindings=[
+            {
+                "claim_id": "impact_1",
+                "analytics_ref": "ir.analytics.partial_id.msme_survival",
+                "method_output_refs": ["ir.method.partial_identification.ate"],
+                "certificate_refs": ["ir.certificate.dual.msme_survival"],
+                "proof_status": "identified",
+                "proof_composability_status": "reusable",
+                "proof_composability_refs": ["ir.proof_composability.msme_survival"],
+                "uncertainty_refs": ["ir.uncertainty.msme_survival"],
+                "baseline_refs": ["baseline.status_quo.msme_survival"],
+            }
+        ],
+        run_id="run-w3a-ir",
+    )
+    registry = build_runtime_claim_registry(
+        claims=[
+            {
+                "claim_id": "impact_1",
+                "claim_type": "causal",
+                "major": True,
+                "text": "The guarantee improves MSME survival versus status quo.",
+                "requires_ir_analytics": True,
+                "scenario_requirement_refs": ["scenario.req.msme_survival"],
+                "data_refs": ["production-msme-panel"],
+                "selected_norm_refs": ["norm.ua.credit_eligibility"],
+                "portfolio_refs": ["portfolio-impact-1"],
+                "independence_refs": ["independence-impact-1"],
+                "synthesis_refs": ["synthesis-impact-1"],
+                "argument_refs": ["argument-impact-1"],
+                "warrant_refs": ["warrant-impact-1"],
+                "rebuttal_refs": ["rebuttal-impact-1"],
+                "counter_evidence_refs": ["counter-impact-1"],
+                "limitation_refs": ["limitation-impact-1"],
+                "accepted_deficit_refs": ["accepted-deficit-impact-1"],
+                "identification_strategy": "partial_identification",
+            }
+        ],
+        ir_analytics_bridge=bridge,
+        run_id="run-w3a-ir",
+    )
+
+    report = build_policy_grounding_matrix_report(
+        claims=[
+            {
+                "claim_id": "impact_1",
+                "claim_type": "causal",
+                "major": True,
+                "text": "The guarantee improves MSME survival versus status quo.",
+                "requires_ir_analytics": True,
+                "identification_strategy": "partial_identification",
+            }
+        ],
+        claim_registry=registry,
+        ir_analytics_bridge=bridge,
+        enforce_claim_support_semantics=True,
+        **context,
+    )
+
+    assert report["status"] == "pass"
+    assert report["runtime_claim_registry"]["summary"]["ir_analytics_binding_count"] == 1
+    assert report["claims"][0]["grounding"]["method_refs"] == [
+        "ir.method.partial_identification.ate"
+    ]
+    assert report["claims"][0]["evidence_graph"]["proof_composability_refs"] == [
+        "ir.proof_composability.msme_survival"
+    ]
+
+
+def test_policy_grounding_matrix_fails_ir_required_claim_without_bridge() -> None:
+    context = _evidence_context()
+    registry = build_runtime_claim_registry(
+        claims=[
+            {
+                "claim_id": "impact_1",
+                "claim_type": "causal",
+                "major": True,
+                "text": "The guarantee improves MSME survival versus status quo.",
+                "requires_ir_analytics": True,
+                "scenario_requirement_refs": ["scenario.req.msme_survival"],
+                "data_refs": ["production-msme-panel"],
+                "selected_norm_refs": ["norm.ua.credit_eligibility"],
+                "method_output_refs": ["ir.method.partial_identification.ate"],
+                "portfolio_refs": ["portfolio-impact-1"],
+                "argument_refs": ["argument-impact-1"],
+                "warrant_refs": ["warrant-impact-1"],
+                "rebuttal_refs": ["rebuttal-impact-1"],
+                "counter_evidence_refs": ["counter-impact-1"],
+                "limitation_refs": ["limitation-impact-1"],
+                "accepted_deficit_refs": ["accepted-deficit-impact-1"],
+                "identification_strategy": "partial_identification",
+            }
+        ],
+        run_id="run-w3a-ir",
+    )
+
+    report = build_policy_grounding_matrix_report(
+        claims=[
+            {
+                "claim_id": "impact_1",
+                "claim_type": "causal",
+                "major": True,
+                "text": "The guarantee improves MSME survival versus status quo.",
+                "requires_ir_analytics": True,
+                "identification_strategy": "partial_identification",
+            }
+        ],
+        claim_registry=registry,
+        enforce_claim_support_semantics=True,
+        **context,
+    )
+
+    issue_codes = {issue["code"] for issue in report["issues"]}
+    assert report["status"] == "fail"
+    assert "runtime_claim_registry_ir_analytics_bridge_missing" in issue_codes
+
+
 def test_policy_grounding_matrix_fails_major_recommendation_missing_evidence_graph_refs() -> None:
     context = _evidence_context()
     report = build_policy_grounding_matrix_report(
@@ -199,6 +322,53 @@ def test_policy_grounding_matrix_fails_major_recommendation_missing_evidence_gra
         "major_claim_limitation_or_deficit_refs_missing",
     } <= issue_codes
     assert report["claims"][0]["evidence_graph"]["portfolio_refs"] == []
+
+
+def test_policy_grounding_matrix_prioritizes_model_disagreement_over_graph_gaps() -> None:
+    context = _evidence_context()
+    report = build_policy_grounding_matrix_report(
+        claims=[
+            {
+                "claim_id": "rec_selected",
+                "claim_type": "recommendation",
+                "major": True,
+                "text": "Target wartime credit support to eligible MSMEs.",
+                "data_refs": ["production-msme-panel"],
+                "method_refs": ["causal.difference_in_differences"],
+                "norm_refs": ["norm.ua.credit_eligibility"],
+            }
+        ],
+        model_variants=[
+            {
+                "model_variant_id": "qwen",
+                "claims": [
+                    {
+                        "claim_id": "rec_qwen",
+                        "claim_type": "recommendation",
+                        "major": True,
+                        "policy_action": "targeted_credit_guarantee",
+                    }
+                ],
+            },
+            {
+                "model_variant_id": "kimi",
+                "claims": [
+                    {
+                        "claim_id": "rec_kimi",
+                        "claim_type": "recommendation",
+                        "major": True,
+                        "policy_action": "blanket_uncapped_credit_support",
+                    }
+                ],
+            },
+        ],
+        **context,
+    )
+
+    issue_codes = [issue["code"] for issue in report["issues"]]
+    assert report["status"] == "fail"
+    assert issue_codes[0] == "multi_model_policy_disagreement"
+    assert "major_claim_portfolio_refs_missing" in issue_codes
 
 
 def test_policy_grounding_matrix_passes_complete_graph_with_data_quality_limitation() -> None:

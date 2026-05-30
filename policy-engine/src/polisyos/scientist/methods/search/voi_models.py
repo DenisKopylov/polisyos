@@ -135,6 +135,28 @@ def stable_voi_decision_id(
     return f"voi_decision_{digest}"
 
 
+def acquisition_voi_metadata(
+    *,
+    requirement_gap_id: str,
+    acquisition_strategy: str,
+    requirement_family: str | None = None,
+    extra: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Build metadata for VOI rankings over compiled requirement gaps."""
+
+    metadata: dict[str, Any] = {
+        "requirement_gap_id": _required_text(requirement_gap_id),
+        "acquisition_strategy": _required_text(acquisition_strategy),
+        "ranking_subject": "compiled_requirement_gap",
+    }
+    family = _optional_text(requirement_family)
+    if family:
+        metadata["requirement_family"] = family
+    if extra:
+        metadata.update(dict(extra))
+    return metadata
+
+
 def validate_mandatory_gate_policy(report: VOIRunReport) -> list[str]:
     """Return violations for VOI decisions that try to waive mandatory gates."""
 
@@ -150,12 +172,27 @@ def _action_key(action: str) -> str:
     return str(action).strip().lower().replace("-", "_").replace(" ", "_")
 
 
+def _required_text(value: object) -> str:
+    text = _optional_text(value)
+    if text is None:
+        raise ValueError("required VOI metadata text cannot be blank")
+    return text
+
+
+def _optional_text(value: object) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    return text or None
+
+
 __all__ = [
     "MANDATORY_GATE_SAFE_ACTIONS",
     "NEGATIVE_VALUE_ACTIONS",
     "VOIDecisionRecord",
     "VOIDecisionType",
     "VOIRunReport",
+    "acquisition_voi_metadata",
     "stable_voi_decision_id",
     "validate_mandatory_gate_policy",
 ]

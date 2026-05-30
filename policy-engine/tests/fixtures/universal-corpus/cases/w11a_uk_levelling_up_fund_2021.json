@@ -1,0 +1,660 @@
+{
+  "case_id": "w11a_uk_levelling_up_fund_2021",
+  "claim_evidence_annotations": {
+    "annotation_provenance": {
+      "conflicts": [],
+      "disagreement_category": null,
+      "expertise_basis": "W11.A source triage from UK prospectus, methodology note, and NAO audit materials",
+      "reviewed_at": "2026-05-24",
+      "reviewer_role": "policy_generalist"
+    },
+    "annotation_status": "annotated_w11b",
+    "authority_boundary": {
+      "authoritative_for": [
+        "corpus_annotation",
+        "compilation_truthfulness_reference"
+      ],
+      "may_not_be_used_for": [
+        "claim_authority",
+        "producer_evidence_authority",
+        "legal_authority",
+        "method_validity",
+        "participation_legitimacy",
+        "projection_authority"
+      ],
+      "may_not_use_for": [
+        "claim_authority",
+        "producer_evidence_authority",
+        "legal_authority",
+        "method_validity",
+        "participation_legitimacy",
+        "projection_authority"
+      ]
+    },
+    "authority_level": "governed",
+    "capability_reality_label": "implemented",
+    "case_id": "w11a_uk_levelling_up_fund_2021",
+    "case_title": "United Kingdom Levelling Up Fund local infrastructure prioritisation",
+    "claims": [
+      {
+        "admissibility_label": "limited",
+        "claim_id": "claim:luf-prioritises-local-infrastructure",
+        "claim_type": "prioritisation_and_delivery",
+        "contestability_status": "contested",
+        "evidence_refs": [
+          "evidence:nao-luf-delivery"
+        ],
+        "legal_refs": [
+          "legal:luf-round-2-prospectus"
+        ],
+        "limitation_refs": [
+          "limitation:local-delivery-risk"
+        ],
+        "method_refs": [
+          "method:luf-decision-methodology"
+        ],
+        "participation_refs": [
+          "participation:local-authority-bids"
+        ],
+        "risks": [
+          "risk:delivery-delay-and-cost-pressure"
+        ],
+        "scope": {
+          "geography": [
+            "United_Kingdom"
+          ],
+          "institution": [
+            "Department_for_Levelling_Up_Housing_and_Communities",
+            "HM_Treasury",
+            "local_authorities"
+          ],
+          "population": [
+            "local_residents_and_businesses",
+            "local_authorities"
+          ],
+          "time_period": "2021-22 to 2025-26"
+        },
+        "text_ref": "text:case:summary",
+        "tradeoffs": [
+          "tradeoff:visible-projects-vs-evidence-based-need"
+        ]
+      }
+    ],
+    "corpus_phase": "W11.A",
+    "domain": "infrastructure_prioritisation",
+    "expected_evidence_families": [
+      "place_prioritisation_methodology",
+      "bid_assessment_records",
+      "project_delivery_milestones",
+      "regional_distribution_analysis",
+      "monitoring_and_evaluation_plan"
+    ],
+    "expert_adjudication_status": "adjudicated_w11c",
+    "jurisdiction": "United Kingdom",
+    "jurisdiction_authority_level": "national",
+    "known_failure_limitation_labels": [
+      "competitive_bid_burden",
+      "delivery_delay",
+      "prioritisation_transparency_contested",
+      "local_capacity_constraint"
+    ],
+    "known_outcomes_or_failures": [
+      {
+        "finding_id": "outcome:projects-behind-deadlines",
+        "source_ref": "outcome:projects-behind-deadlines",
+        "would_prior_obligation_have_flagged": true
+      }
+    ],
+    "obligations": [
+      {
+        "generated_from_facets": [
+          "facet:instrument.competitive_capital_grant",
+          "facet:targeting.place_prioritisation",
+          "facet:delivery.local_authority_projects"
+        ],
+        "obligation_id": "obligation:luf-prioritisation-and-delivery",
+        "required_evidence_family": "prioritisation_method_and_delivery_monitoring",
+        "reviewer_notes": "Governed closeout must surface bid burden, place-selection method, and delivery delay rather than only allocated funding totals.",
+        "status": "required_for_governed_closeout"
+      }
+    ],
+    "pattern_refs": [
+      "P01",
+      "P02",
+      "P03",
+      "P05",
+      "P10",
+      "P13",
+      "P14",
+      "P15"
+    ],
+    "policy_instrument": {
+      "delivery_channel": "local authority bids for transport, regeneration, culture, and heritage projects",
+      "funding_channel": "central_government_capital_grants",
+      "instrument_type": "competitive_capital_grant_fund"
+    },
+    "policy_time": "2021-22 to 2025-26",
+    "raw_source_refs": [
+      "https://www.gov.uk/government/publications/levelling-up-fund-round-2-prospectus/levelling-up-fund-round-2-prospectus",
+      "https://www.gov.uk/guidance/levelling-up-fund-round-3-explanatory-and-methodology-note-on-the-decision-making-process",
+      "https://www.nao.org.uk/press-releases/levelling-up-funding-to-local-government/"
+    ],
+    "redacted_source_hashes": [],
+    "references": [
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "text:case:summary",
+        "ref_type": "source",
+        "source_ref": "repo://docs/research/universal-policy-design/outcome-corpus/uk-levelling-up-fund-2021-infrastructure.md#summary",
+        "title": "Case summary"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "legal:luf-round-2-prospectus",
+        "ref_type": "legal",
+        "source_ref": "https://www.gov.uk/government/publications/levelling-up-fund-round-2-prospectus/levelling-up-fund-round-2-prospectus",
+        "title": "Levelling Up Fund Round 2 prospectus"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "evidence:nao-luf-delivery",
+        "ref_type": "evidence",
+        "source_ref": "https://www.nao.org.uk/press-releases/levelling-up-funding-to-local-government/",
+        "title": "NAO report on levelling up funding to local government"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "method:luf-decision-methodology",
+        "ref_type": "method",
+        "source_ref": "https://www.gov.uk/guidance/levelling-up-fund-round-3-explanatory-and-methodology-note-on-the-decision-making-process",
+        "title": "Levelling Up Fund decision-making methodology note"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "participation:local-authority-bids",
+        "ref_type": "participation",
+        "source_ref": "https://www.gov.uk/government/publications/levelling-up-fund-round-2-prospectus/levelling-up-fund-round-2-prospectus",
+        "title": "Local authority competitive bid process"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "risk:delivery-delay-and-cost-pressure",
+        "ref_type": "risk",
+        "source_ref": "https://www.nao.org.uk/press-releases/levelling-up-funding-to-local-government/",
+        "title": "Delivery delay and cost pressure risk"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "tradeoff:visible-projects-vs-evidence-based-need",
+        "ref_type": "tradeoff",
+        "source_ref": "https://www.gov.uk/government/publications/levelling-up-fund-round-2-prospectus/levelling-up-fund-round-2-prospectus",
+        "title": "Visible local infrastructure and need prioritisation tradeoff"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "limitation:local-delivery-risk",
+        "ref_type": "limitation",
+        "source_ref": "https://www.nao.org.uk/press-releases/levelling-up-funding-to-local-government/",
+        "title": "Local project delivery and deadline limitation"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "outcome:projects-behind-deadlines",
+        "ref_type": "outcome",
+        "source_ref": "https://www.nao.org.uk/press-releases/levelling-up-funding-to-local-government/",
+        "title": "Projects behind expected delivery deadlines"
+      }
+    ],
+    "schema_version": "policyos.universal_outcome_corpus.annotation.v1",
+    "sourcing_status": "sourced",
+    "targeting": {
+      "affected_populations": [
+        "unsuccessful_places",
+        "local_authorities",
+        "construction_supply_chain",
+        "taxpayers"
+      ],
+      "beneficiary_classes": [
+        "places_selected_for_local_infrastructure_projects",
+        "local_residents_and_businesses"
+      ],
+      "targeting_type": "place_prioritisation_and_bid_assessment"
+    }
+  },
+  "compilation_intent_text": "United Kingdom Levelling Up Fund local infrastructure prioritisation. Design a multi_year national infrastructure procurement programme for residents in regions, with budget appropriation, delivery risk monitoring, and annual review.",
+  "concept_spine_refs": {
+    "canonical_concept_refs": [
+      "concept://w11/w11a_uk_levelling_up_fund_2021/universal-policy-grammar"
+    ],
+    "concept_spine_ref": "concept-spine://w11/w11a_uk_levelling_up_fund_2021",
+    "facet_concept_refs": {
+      "authority_type": [
+        "concept://w11/w11a_uk_levelling_up_fund_2021/authority_type"
+      ],
+      "delivery_channel": [
+        "concept://w11/w11a_uk_levelling_up_fund_2021/delivery_channel"
+      ],
+      "funding_channel": [
+        "concept://w11/w11a_uk_levelling_up_fund_2021/funding_channel"
+      ],
+      "geography_predicate": [
+        "concept://w11/w11a_uk_levelling_up_fund_2021/geography_predicate"
+      ],
+      "instrument_type": [
+        "concept://w11/w11a_uk_levelling_up_fund_2021/instrument_type"
+      ],
+      "method_need": [
+        "concept://w11/w11a_uk_levelling_up_fund_2021/method_need"
+      ],
+      "outcome_channel": [
+        "concept://w11/w11a_uk_levelling_up_fund_2021/outcome_channel"
+      ],
+      "population_predicate": [
+        "concept://w11/w11a_uk_levelling_up_fund_2021/population_predicate"
+      ],
+      "risk_facet": [
+        "concept://w11/w11a_uk_levelling_up_fund_2021/risk_facet"
+      ],
+      "targeting_type": [
+        "concept://w11/w11a_uk_levelling_up_fund_2021/targeting_type"
+      ],
+      "time_predicate": [
+        "concept://w11/w11a_uk_levelling_up_fund_2021/time_predicate"
+      ]
+    },
+    "jurisdiction_spine_ref": "jurisdiction-spine://w11/w11a_uk_levelling_up_fund_2021"
+  },
+  "critic_ensemble": {
+    "authority_boundary": {
+      "authoritative_for": [
+        "critic_diversity_measurement"
+      ],
+      "may_not_use_for": [
+        "claim_authority",
+        "producer_evidence_authority",
+        "legal_authority",
+        "method_validity",
+        "projection_authority"
+      ]
+    },
+    "run_id": "run-w11a_uk_levelling_up_fund_2021",
+    "verdicts": [
+      {
+        "envelope": {
+          "critic_role": "legal",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_legal_basis"
+        },
+        "failure_modes": [
+          "authority_boundary:competitive_bid_burden"
+        ],
+        "message": "legal critic flags competitive_bid_burden for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_uk_levelling_up_fund_2021"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "fiscal",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_fiscal_basis"
+        },
+        "failure_modes": [
+          "budget_feasibility:delivery_delay"
+        ],
+        "message": "fiscal critic flags delivery_delay for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_uk_levelling_up_fund_2021"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "equity",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_equity_basis"
+        },
+        "failure_modes": [
+          "distributional_effect:prioritisation_transparency_contested"
+        ],
+        "message": "equity critic flags prioritisation_transparency_contested for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_uk_levelling_up_fund_2021"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "data",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_data_basis"
+        },
+        "failure_modes": [
+          "source_lineage:local_capacity_constraint"
+        ],
+        "message": "data critic flags local_capacity_constraint for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_uk_levelling_up_fund_2021"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "implementation",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_implementation_basis"
+        },
+        "failure_modes": [
+          "delivery_capacity:competitive_bid_burden"
+        ],
+        "message": "implementation critic flags competitive_bid_burden for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_uk_levelling_up_fund_2021"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "affected_person",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_affected_person_basis"
+        },
+        "failure_modes": [
+          "participation_voice:delivery_delay"
+        ],
+        "message": "affected_person critic flags delivery_delay for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_uk_levelling_up_fund_2021"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "adversarial",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_adversarial_basis"
+        },
+        "failure_modes": [
+          "failure_probe:prioritisation_transparency_contested"
+        ],
+        "message": "adversarial critic flags prioritisation_transparency_contested for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_uk_levelling_up_fund_2021"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "monitoring",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_monitoring_basis"
+        },
+        "failure_modes": [
+          "lifecycle_monitoring:local_capacity_constraint"
+        ],
+        "message": "monitoring critic flags local_capacity_constraint for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_uk_levelling_up_fund_2021"
+        ],
+        "verdict": "contest"
+      }
+    ]
+  },
+  "domain": "infrastructure_prioritisation",
+  "expected_adapter_bindings": {
+    "bindings": [
+      {
+        "adapter": "fabric",
+        "binding_id": "bind-w11a_uk_levelling_up_fund_2021-selected",
+        "reason_code": "annotation_data_family_selected",
+        "requirement_id": "data-w11a_uk_levelling_up_fund_2021",
+        "status": "selected"
+      },
+      {
+        "adapter": "scholar",
+        "binding_id": "bind-w11a_uk_levelling_up_fund_2021-rejected",
+        "reason_code": "generic_or_transfer_mismatch_rejected",
+        "requirement_id": "scholar-w11a_uk_levelling_up_fund_2021",
+        "status": "rejected"
+      },
+      {
+        "adapter": "foundry",
+        "binding_id": "bind-w11a_uk_levelling_up_fund_2021-blocked",
+        "reason_code": "method_or_counterfactual_precondition_missing",
+        "requirement_id": "method-w11a_uk_levelling_up_fund_2021",
+        "status": "blocked"
+      }
+    ]
+  },
+  "expected_claim_families": {
+    "families": [
+      {
+        "claim_family": "prioritisation_and_delivery",
+        "claim_id": "claim:luf-prioritises-local-infrastructure",
+        "expected_support_status": "limited"
+      }
+    ]
+  },
+  "expected_closeout_states": {
+    "states": [
+      {
+        "authority_level": "research",
+        "required_surface_refs": [
+          "audit://w11d/w11a_uk_levelling_up_fund_2021/research"
+        ],
+        "state": "publishable"
+      },
+      {
+        "authority_level": "governed",
+        "limitation_refs": [
+          "limitation://w11d/w11a_uk_levelling_up_fund_2021"
+        ],
+        "required_surface_refs": [
+          "audit://w11d/w11a_uk_levelling_up_fund_2021/governed"
+        ],
+        "state": "limited"
+      },
+      {
+        "authority_level": "production",
+        "limitation_refs": [
+          "limitation://w11d/w11a_uk_levelling_up_fund_2021"
+        ],
+        "required_surface_refs": [
+          "audit://w11d/w11a_uk_levelling_up_fund_2021/production"
+        ],
+        "state": "limited"
+      }
+    ]
+  },
+  "expected_facets": {
+    "facets": [
+      {
+        "concept_ref": "concept://w11d/w11a_uk_levelling_up_fund_2021/instrument",
+        "expected_value": "competitive_capital_grant_fund",
+        "facet_name": "instrument_type"
+      },
+      {
+        "concept_ref": "concept://w11d/w11a_uk_levelling_up_fund_2021/targeting",
+        "expected_value": "place_prioritisation_and_bid_assessment",
+        "facet_name": "targeting_type"
+      },
+      {
+        "concept_ref": "concept://w11d/w11a_uk_levelling_up_fund_2021/delivery",
+        "expected_value": "local authority bids for transport, regeneration, culture, and heritage projects",
+        "facet_name": "delivery_channel"
+      }
+    ]
+  },
+  "expected_obligation_graph": {
+    "frontier": [
+      {
+        "claim_refs": [
+          "claim:luf-prioritises-local-infrastructure"
+        ],
+        "family": "method",
+        "obligation_id": "obligation:luf-prioritisation-and-delivery",
+        "priority": "required_for_governed_closeout",
+        "source_class": "governed_rule"
+      }
+    ]
+  },
+  "expected_projection_truthfulness": {
+    "projections": [
+      {
+        "audience": "public",
+        "may_not_claim": [
+          "fixture expectation is runtime authority"
+        ],
+        "must_disclose_refs": [
+          "annotation://w11d/w11a_uk_levelling_up_fund_2021"
+        ],
+        "truthfulness": "limitation_required"
+      }
+    ]
+  },
+  "expected_requirement_specs": {
+    "families": {
+      "data": [
+        {
+          "claim_id": "claim:luf-prioritises-local-infrastructure",
+          "requirement_id": "data-w11a_uk_levelling_up_fund_2021",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/uk-levelling-up-fund-2021-infrastructure.md#data"
+        }
+      ],
+      "legal": [
+        {
+          "claim_id": "claim:luf-prioritises-local-infrastructure",
+          "requirement_id": "legal-w11a_uk_levelling_up_fund_2021",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/uk-levelling-up-fund-2021-infrastructure.md#legal"
+        }
+      ],
+      "method": [
+        {
+          "claim_id": "claim:luf-prioritises-local-infrastructure",
+          "requirement_id": "method-w11a_uk_levelling_up_fund_2021",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/uk-levelling-up-fund-2021-infrastructure.md#method"
+        }
+      ],
+      "participation": [
+        {
+          "claim_id": "claim:luf-prioritises-local-infrastructure",
+          "requirement_id": "participation-w11a_uk_levelling_up_fund_2021",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/uk-levelling-up-fund-2021-infrastructure.md#participation"
+        }
+      ],
+      "scholar": [
+        {
+          "claim_id": "claim:luf-prioritises-local-infrastructure",
+          "requirement_id": "scholar-w11a_uk_levelling_up_fund_2021",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/uk-levelling-up-fund-2021-infrastructure.md#scholar"
+        }
+      ]
+    }
+  },
+  "expert_adjudication": {
+    "case_label": "limitation_required",
+    "claim_labels": [
+      {
+        "claim_id": "claim:luf-prioritises-local-infrastructure",
+        "dimension_id": "compilation_truthfulness",
+        "failure_mode": "competitive_bid_burden",
+        "label": "limitation_required",
+        "required_surface_change": "Expose annotation-derived limitation, contestation, or blocker state.",
+        "status_should_have_been": "publish_with_limitation",
+        "why_structural_checks_missed_it": "W11.D fixture preserves annotation semantics for truthfulness comparison."
+      }
+    ],
+    "reviewer_topology_ref": "reviewer-topology://w11d/rotating/w11a_uk_levelling_up_fund_2021"
+  },
+  "input_intent_ref": "intent-w11a_uk_levelling_up_fund_2021",
+  "intent": {
+    "authority_levels": [
+      "research",
+      "governed",
+      "production"
+    ],
+    "instrument_type": "competitive_capital_grant_fund",
+    "intent_id": "intent-w11a_uk_levelling_up_fund_2021",
+    "jurisdiction": "United Kingdom",
+    "metadata": {
+      "w11a_authority_level": "governed"
+    },
+    "policy_time": "2021-22 to 2025-26",
+    "target_population": "places_selected_for_local_infrastructure_projects, local_residents_and_businesses",
+    "text": "United Kingdom Levelling Up Fund local infrastructure prioritisation"
+  },
+  "metadata": {
+    "pattern_refs": [
+      "P01",
+      "P02",
+      "P03",
+      "P05",
+      "P10",
+      "P13",
+      "P14",
+      "P15"
+    ],
+    "reuse_classification": "wire_existing",
+    "source_annotation_schema": "policyos.universal_outcome_corpus.annotation.v1"
+  },
+  "producer_pipeline": {
+    "producers": [
+      {
+        "consumed_concept_refs": [
+          "concept://w11/w11a_uk_levelling_up_fund_2021/universal-policy-grammar"
+        ],
+        "consumed_requirement_refs": [
+          "data-w11a_uk_levelling_up_fund_2021"
+        ],
+        "expected_output_families": [
+          "fabric.source_contract_binding.v1"
+        ],
+        "first_pass_bindings": [
+          {
+            "binding_id": "label.fabric.w11a_uk_levelling_up_fund_2021",
+            "binding_kind": "label",
+            "concept_ref": "concept://w11/w11a_uk_levelling_up_fund_2021/universal-policy-grammar",
+            "disposition": "context_only",
+            "label": "fabric context for w11a_uk_levelling_up_fund_2021"
+          }
+        ],
+        "producer_component": "fabric",
+        "requested_deadline_s": 5.0,
+        "second_pass_bindings": [
+          {
+            "artifact_ref": "source://w11/w11a_uk_levelling_up_fund_2021/fabric",
+            "binding_id": "binding.fabric.w11a_uk_levelling_up_fund_2021",
+            "binding_kind": "dataset",
+            "concept_ref": "concept://w11/w11a_uk_levelling_up_fund_2021/universal-policy-grammar",
+            "disposition": "selected",
+            "requirement_ref": "data-w11a_uk_levelling_up_fund_2021",
+            "time_role": "observation_time"
+          }
+        ]
+      }
+    ]
+  },
+  "redacted_source_hash": "sha256:91fd0c8e84f1f292244cf987b84f8eeac56ecf23c137b1cdae416260fe5e6ccd",
+  "schema_version": "policyos.universal_corpus_fixture.v1",
+  "source_case_ref": "docs/research/universal-policy-design/outcome-corpus/uk-levelling-up-fund-2021-infrastructure.md",
+  "split": "rotating",
+  "title": "United Kingdom Levelling Up Fund local infrastructure prioritisation"
+}

@@ -23,7 +23,7 @@ from polisyos.ir.kernel import (
     DEFAULT_TRUST_REGISTRY,
     DEFAULT_UNITS_REGISTRY,
 )
-from polisyos.ir.registry_fragments import (
+from polisyos.ir.registry.registry_fragments import (
     ComposePolicy,
     RegistryBundle,
     RegistryComposeRequest,

@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 from polisyos.core.canon import content_hash
 from polisyos.ir.analytics.applicability import IdSelector, NormApplicability, TimeWindow
-from polisyos.ir.canon import to_canonical_bytes
+from polisyos.ir.model_layer.canon import to_canonical_bytes
 
 if TYPE_CHECKING:
     from polisyos.ir.world.claim import Claim

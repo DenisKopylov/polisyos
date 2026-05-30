@@ -36,7 +36,7 @@ from polisyos.ir.analytics.dynamic_causal_semantics import (
     persist_forecast_intervention_certificate,
     persist_forecast_intervention_query,
 )
-from polisyos.ir.refs import ForecastInterventionCertificateRef, ForecastInterventionQueryRef
+from polisyos.ir.registry.refs import ForecastInterventionCertificateRef, ForecastInterventionQueryRef
 
 _REPLAY_FINGERPRINTS = {
     "announcement_timing_hash": "sha256:" + ("1" * 64),

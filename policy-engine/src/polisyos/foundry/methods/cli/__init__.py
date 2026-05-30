@@ -267,7 +267,7 @@ def _cmd_evidence(args: argparse.Namespace) -> int:
 
 def _cmd_release_acceptance(args: argparse.Namespace) -> int:
     from polisyos.core.artifacts.store import FileSystemCAS
-    from polisyos.foundry.release_acceptance import ReleaseAcceptanceRunner
+    from polisyos.foundry.validation.release_acceptance import ReleaseAcceptanceRunner
 
     store = FileSystemCAS(args.store_root)
     report = ReleaseAcceptanceRunner(store).run(

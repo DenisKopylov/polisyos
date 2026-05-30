@@ -1,0 +1,675 @@
+{
+  "schema_version": "policyos.runtime.can_i_closeout.reader_skeleton.v1",
+  "contract_id": "policyos.runtime.quality.closeout_reader",
+  "contract_version": "1.0.0",
+  "status": "incomplete",
+  "verdict": "cannot_closeout",
+  "can_closeout": false,
+  "run_id": "wave1-closeout-reader-smoke",
+  "capability_reality_state": "implemented_but_not_orchestrated",
+  "authority_envelope": {
+    "authority_role": "closeout_reader_authority",
+    "evidence_class": "closeout_verdict_only",
+    "provenance_kind": "runtime_reader",
+    "reader_contract": "policyos.runtime.quality.closeout_reader",
+    "reader_contract_version": "1.0.0",
+    "authoritative_for": [
+      "closeout_verdict"
+    ],
+    "may_not_use_for": [
+      "approval_authority",
+      "claim_authority",
+      "dashboard_projection",
+      "domain_evidence",
+      "producer_evidence",
+      "public_export",
+      "readiness_authority",
+      "scorecard_authority"
+    ],
+    "may_not_be_used_for": [
+      "approval_authority",
+      "claim_authority",
+      "dashboard_projection",
+      "domain_evidence",
+      "producer_evidence",
+      "public_export",
+      "readiness_authority",
+      "scorecard_authority"
+    ],
+    "run_id": "wave1-closeout-reader-smoke"
+  },
+  "summary": {
+    "module_reader_count": 12,
+    "passing_module_count": 1,
+    "stubbed_module_count": 0,
+    "missing_module_count": 11,
+    "failed_module_count": 0,
+    "substitution_rejection_count": 0,
+    "issue_count": 22
+  },
+  "module_reader_results": [
+    {
+      "module_id": "formal_invariants",
+      "reader_contract": "polisyos.runtime.quality.formal_invariants",
+      "owner": "team-runtime-quality",
+      "required": true,
+      "stubbed": true,
+      "status": "missing",
+      "blocking": true,
+      "source_schema_version": null,
+      "source_status": null,
+      "authority_role": null,
+      "provenance_kind": null,
+      "issue_codes": [
+        "closeout_module_evidence_missing",
+        "closeout_module_reader_stubbed"
+      ],
+      "issues": [
+        {
+          "code": "closeout_module_evidence_missing",
+          "severity": "incomplete",
+          "blocking": true,
+          "message": "Closeout module formal_invariants has no reader evidence. The W1.D skeleton fails closed until the module is wired.",
+          "next_action": "Wire formal_invariants into the closeout reader in W4.D or emit an explicit typed blocker.",
+          "module_id": "formal_invariants",
+          "owner": "team-runtime-quality"
+        },
+        {
+          "code": "closeout_module_reader_stubbed",
+          "severity": "incomplete",
+          "blocking": true,
+          "message": "Closeout module formal_invariants is declared but still stubbed in W1.D. A missing stub cannot satisfy closeout.",
+          "next_action": "Implement the formal_invariants reader before this slot can close out in W4.D.",
+          "module_id": "formal_invariants",
+          "owner": "team-runtime-quality"
+        }
+      ]
+    },
+    {
+      "module_id": "event_reconciliation",
+      "reader_contract": "polisyos.runtime.quality.authority_reconciliation",
+      "owner": "team-runtime-quality",
+      "required": true,
+      "stubbed": true,
+      "status": "missing",
+      "blocking": true,
+      "source_schema_version": null,
+      "source_status": null,
+      "authority_role": null,
+      "provenance_kind": null,
+      "issue_codes": [
+        "closeout_module_evidence_missing",
+        "closeout_module_reader_stubbed"
+      ],
+      "issues": [
+        {
+          "code": "closeout_module_evidence_missing",
+          "severity": "incomplete",
+          "blocking": true,
+          "message": "Closeout module event_reconciliation has no reader evidence. The W1.D skeleton fails closed until the module is wired.",
+          "next_action": "Wire event_reconciliation into the closeout reader in W4.D or emit an explicit typed blocker.",
+          "module_id": "event_reconciliation",
+          "owner": "team-runtime-quality"
+        },
+        {
+          "code": "closeout_module_reader_stubbed",
+          "severity": "incomplete",
+          "blocking": true,
+          "message": "Closeout module event_reconciliation is declared but still stubbed in W1.D. A missing stub cannot satisfy closeout.",
+          "next_action": "Implement the event_reconciliation reader before this slot can close out in W4.D.",
+          "module_id": "event_reconciliation",
+          "owner": "team-runtime-quality"
+        }
+      ]
+    },
+    {
+      "module_id": "attestation",
+      "reader_contract": "polisyos.runtime.quality.attestation",
+      "owner": "team-runtime-quality",
+      "required": true,
+      "stubbed": true,
+      "status": "missing",
+      "blocking": true,
+      "source_schema_version": null,
+      "source_status": null,
+      "authority_role": null,
+      "provenance_kind": null,
+      "issue_codes": [
+        "closeout_module_evidence_missing",
+        "closeout_module_reader_stubbed"
+      ],
+      "issues": [
+        {
+          "code": "closeout_module_evidence_missing",
+          "severity": "incomplete",
+          "blocking": true,
+          "message": "Closeout module attestation has no reader evidence. The W1.D skeleton fails closed until the module is wired.",
+          "next_action": "Wire attestation into the closeout reader in W4.D or emit an explicit typed blocker.",
+          "module_id": "attestation",
+          "owner": "team-runtime-quality"
+        },
+        {
+          "code": "closeout_module_reader_stubbed",
+          "severity": "incomplete",
+          "blocking": true,
+          "message": "Closeout module attestation is declared but still stubbed in W1.D. A missing stub cannot satisfy closeout.",
+          "next_action": "Implement the attestation reader before this slot can close out in W4.D.",
+          "module_id": "attestation",
+          "owner": "team-runtime-quality"
+        }
+      ]
+    },
+    {
+      "module_id": "source_truth",
+      "reader_contract": "polisyos.runtime.quality.source_truth",
+      "owner": "team-runtime-quality",
+      "required": true,
+      "stubbed": true,
+      "status": "missing",
+      "blocking": true,
+      "source_schema_version": null,
+      "source_status": null,
+      "authority_role": null,
+      "provenance_kind": null,
+      "issue_codes": [
+        "closeout_module_evidence_missing",
+        "closeout_module_reader_stubbed"
+      ],
+      "issues": [
+        {
+          "code": "closeout_module_evidence_missing",
+          "severity": "incomplete",
+          "blocking": true,
+          "message": "Closeout module source_truth has no reader evidence. The W1.D skeleton fails closed until the module is wired.",
+          "next_action": "Wire source_truth into the closeout reader in W4.D or emit an explicit typed blocker.",
+          "module_id": "source_truth",
+          "owner": "team-runtime-quality"
+        },
+        {
+          "code": "closeout_module_reader_stubbed",
+          "severity": "incomplete",
+          "blocking": true,
+          "message": "Closeout module source_truth is declared but still stubbed in W1.D. A missing stub cannot satisfy closeout.",
+          "next_action": "Implement the source_truth reader before this slot can close out in W4.D.",
+          "module_id": "source_truth",
+          "owner": "team-runtime-quality"
+        }
+      ]
+    },
+    {
+      "module_id": "metamorphic_controls",
+      "reader_contract": "polisyos.runtime.quality.metamorphic_controls",
+      "owner": "team-runtime-quality",
+      "required": true,
+      "stubbed": true,
+      "status": "missing",
+      "blocking": true,
+      "source_schema_version": null,
+      "source_status": null,
+      "authority_role": null,
+      "provenance_kind": null,
+      "issue_codes": [
+        "closeout_module_evidence_missing",
+        "closeout_module_reader_stubbed"
+      ],
+      "issues": [
+        {
+          "code": "closeout_module_evidence_missing",
+          "severity": "incomplete",
+          "blocking": true,
+          "message": "Closeout module metamorphic_controls has no reader evidence. The W1.D skeleton fails closed until the module is wired.",
+          "next_action": "Wire metamorphic_controls into the closeout reader in W4.D or emit an explicit typed blocker.",
+          "module_id": "metamorphic_controls",
+          "owner": "team-runtime-quality"
+        },
+        {
+          "code": "closeout_module_reader_stubbed",
+          "severity": "incomplete",
+          "blocking": true,
+          "message": "Closeout module metamorphic_controls is declared but still stubbed in W1.D. A missing stub cannot satisfy closeout.",
+          "next_action": "Implement the metamorphic_controls reader before this slot can close out in W4.D.",
+          "module_id": "metamorphic_controls",
+          "owner": "team-runtime-quality"
+        }
+      ]
+    },
+    {
+      "module_id": "performance_budget",
+      "reader_contract": "polisyos.runtime.quality.performance_budget",
+      "owner": "team-runtime-quality",
+      "required": true,
+      "stubbed": true,
+      "status": "missing",
+      "blocking": true,
+      "source_schema_version": null,
+      "source_status": null,
+      "authority_role": null,
+      "provenance_kind": null,
+      "issue_codes": [
+        "closeout_module_evidence_missing",
+        "closeout_module_reader_stubbed"
+      ],
+      "issues": [
+        {
+          "code": "closeout_module_evidence_missing",
+          "severity": "incomplete",
+          "blocking": true,
+          "message": "Closeout module performance_budget has no reader evidence. The W1.D skeleton fails closed until the module is wired.",
+          "next_action": "Wire performance_budget into the closeout reader in W4.D or emit an explicit typed blocker.",
+          "module_id": "performance_budget",
+          "owner": "team-runtime-quality"
+        },
+        {
+          "code": "closeout_module_reader_stubbed",
+          "severity": "incomplete",
+          "blocking": true,
+          "message": "Closeout module performance_budget is declared but still stubbed in W1.D. A missing stub cannot satisfy closeout.",
+          "next_action": "Implement the performance_budget reader before this slot can close out in W4.D.",
+          "module_id": "performance_budget",
+          "owner": "team-runtime-quality"
+        }
+      ]
+    },
+    {
+      "module_id": "closeout_compatibility",
+      "reader_contract": "polisyos.runtime.quality.closeout_compatibility",
+      "owner": "team-quality-closeout",
+      "required": true,
+      "stubbed": false,
+      "status": "pass",
+      "blocking": false,
+      "source_schema_version": "policyos.runtime.can_i_closeout_compatibility.v1",
+      "source_status": "pass",
+      "authority_role": null,
+      "provenance_kind": null,
+      "issue_codes": [],
+      "issues": []
+    },
+    {
+      "module_id": "semantic_binding",
+      "reader_contract": "polisyos.runtime.quality.semantic_binding",
+      "owner": "team-runtime-quality",
+      "required": true,
+      "stubbed": true,
+      "status": "missing",
+      "blocking": true,
+      "source_schema_version": null,
+      "source_status": null,
+      "authority_role": null,
+      "provenance_kind": null,
+      "issue_codes": [
+        "closeout_module_evidence_missing",
+        "closeout_module_reader_stubbed"
+      ],
+      "issues": [
+        {
+          "code": "closeout_module_evidence_missing",
+          "severity": "incomplete",
+          "blocking": true,
+          "message": "Closeout module semantic_binding has no reader evidence. The W1.D skeleton fails closed until the module is wired.",
+          "next_action": "Wire semantic_binding into the closeout reader in W4.D or emit an explicit typed blocker.",
+          "module_id": "semantic_binding",
+          "owner": "team-runtime-quality"
+        },
+        {
+          "code": "closeout_module_reader_stubbed",
+          "severity": "incomplete",
+          "blocking": true,
+          "message": "Closeout module semantic_binding is declared but still stubbed in W1.D. A missing stub cannot satisfy closeout.",
+          "next_action": "Implement the semantic_binding reader before this slot can close out in W4.D.",
+          "module_id": "semantic_binding",
+          "owner": "team-runtime-quality"
+        }
+      ]
+    },
+    {
+      "module_id": "claim_registry",
+      "reader_contract": "polisyos.runtime.quality.claim_registry",
+      "owner": "team-scientist-evidence",
+      "required": true,
+      "stubbed": true,
+      "status": "missing",
+      "blocking": true,
+      "source_schema_version": null,
+      "source_status": null,
+      "authority_role": null,
+      "provenance_kind": null,
+      "issue_codes": [
+        "closeout_module_evidence_missing",
+        "closeout_module_reader_stubbed"
+      ],
+      "issues": [
+        {
+          "code": "closeout_module_evidence_missing",
+          "severity": "incomplete",
+          "blocking": true,
+          "message": "Closeout module claim_registry has no reader evidence. The W1.D skeleton fails closed until the module is wired.",
+          "next_action": "Wire claim_registry into the closeout reader in W4.D or emit an explicit typed blocker.",
+          "module_id": "claim_registry",
+          "owner": "team-scientist-evidence"
+        },
+        {
+          "code": "closeout_module_reader_stubbed",
+          "severity": "incomplete",
+          "blocking": true,
+          "message": "Closeout module claim_registry is declared but still stubbed in W1.D. A missing stub cannot satisfy closeout.",
+          "next_action": "Implement the claim_registry reader before this slot can close out in W4.D.",
+          "module_id": "claim_registry",
+          "owner": "team-scientist-evidence"
+        }
+      ]
+    },
+    {
+      "module_id": "pdc_record_family_status",
+      "reader_contract": "polisyos.runtime.quality.policy_design_case",
+      "owner": "team-policyos-runtime",
+      "required": true,
+      "stubbed": true,
+      "status": "missing",
+      "blocking": true,
+      "source_schema_version": null,
+      "source_status": null,
+      "authority_role": null,
+      "provenance_kind": null,
+      "issue_codes": [
+        "closeout_module_evidence_missing",
+        "closeout_module_reader_stubbed"
+      ],
+      "issues": [
+        {
+          "code": "closeout_module_evidence_missing",
+          "severity": "incomplete",
+          "blocking": true,
+          "message": "Closeout module pdc_record_family_status has no reader evidence. The W1.D skeleton fails closed until the module is wired.",
+          "next_action": "Wire pdc_record_family_status into the closeout reader in W4.D or emit an explicit typed blocker.",
+          "module_id": "pdc_record_family_status",
+          "owner": "team-policyos-runtime"
+        },
+        {
+          "code": "closeout_module_reader_stubbed",
+          "severity": "incomplete",
+          "blocking": true,
+          "message": "Closeout module pdc_record_family_status is declared but still stubbed in W1.D. A missing stub cannot satisfy closeout.",
+          "next_action": "Implement the pdc_record_family_status reader before this slot can close out in W4.D.",
+          "module_id": "pdc_record_family_status",
+          "owner": "team-policyos-runtime"
+        }
+      ]
+    },
+    {
+      "module_id": "projection_publication_state",
+      "reader_contract": "polisyos.runtime.quality.projection_semantics",
+      "owner": "team-policyos-runtime",
+      "required": true,
+      "stubbed": true,
+      "status": "missing",
+      "blocking": true,
+      "source_schema_version": null,
+      "source_status": null,
+      "authority_role": null,
+      "provenance_kind": null,
+      "issue_codes": [
+        "closeout_module_evidence_missing",
+        "closeout_module_reader_stubbed"
+      ],
+      "issues": [
+        {
+          "code": "closeout_module_evidence_missing",
+          "severity": "incomplete",
+          "blocking": true,
+          "message": "Closeout module projection_publication_state has no reader evidence. The W1.D skeleton fails closed until the module is wired.",
+          "next_action": "Wire projection_publication_state into the closeout reader in W4.D or emit an explicit typed blocker.",
+          "module_id": "projection_publication_state",
+          "owner": "team-policyos-runtime"
+        },
+        {
+          "code": "closeout_module_reader_stubbed",
+          "severity": "incomplete",
+          "blocking": true,
+          "message": "Closeout module projection_publication_state is declared but still stubbed in W1.D. A missing stub cannot satisfy closeout.",
+          "next_action": "Implement the projection_publication_state reader before this slot can close out in W4.D.",
+          "module_id": "projection_publication_state",
+          "owner": "team-policyos-runtime"
+        }
+      ]
+    },
+    {
+      "module_id": "complexity_self_fmea",
+      "reader_contract": "polisyos.runtime.quality.run_cost_proportionality",
+      "owner": "team-runtime-quality",
+      "required": true,
+      "stubbed": true,
+      "status": "missing",
+      "blocking": true,
+      "source_schema_version": null,
+      "source_status": null,
+      "authority_role": null,
+      "provenance_kind": null,
+      "issue_codes": [
+        "closeout_module_evidence_missing",
+        "closeout_module_reader_stubbed"
+      ],
+      "issues": [
+        {
+          "code": "closeout_module_evidence_missing",
+          "severity": "incomplete",
+          "blocking": true,
+          "message": "Closeout module complexity_self_fmea has no reader evidence. The W1.D skeleton fails closed until the module is wired.",
+          "next_action": "Wire complexity_self_fmea into the closeout reader in W4.D or emit an explicit typed blocker.",
+          "module_id": "complexity_self_fmea",
+          "owner": "team-runtime-quality"
+        },
+        {
+          "code": "closeout_module_reader_stubbed",
+          "severity": "incomplete",
+          "blocking": true,
+          "message": "Closeout module complexity_self_fmea is declared but still stubbed in W1.D. A missing stub cannot satisfy closeout.",
+          "next_action": "Implement the complexity_self_fmea reader before this slot can close out in W4.D.",
+          "module_id": "complexity_self_fmea",
+          "owner": "team-runtime-quality"
+        }
+      ]
+    }
+  ],
+  "substitution_rejections": [],
+  "issues": [
+    {
+      "code": "closeout_module_evidence_missing",
+      "severity": "incomplete",
+      "blocking": true,
+      "message": "Closeout module formal_invariants has no reader evidence. The W1.D skeleton fails closed until the module is wired.",
+      "next_action": "Wire formal_invariants into the closeout reader in W4.D or emit an explicit typed blocker.",
+      "module_id": "formal_invariants",
+      "owner": "team-runtime-quality"
+    },
+    {
+      "code": "closeout_module_reader_stubbed",
+      "severity": "incomplete",
+      "blocking": true,
+      "message": "Closeout module formal_invariants is declared but still stubbed in W1.D. A missing stub cannot satisfy closeout.",
+      "next_action": "Implement the formal_invariants reader before this slot can close out in W4.D.",
+      "module_id": "formal_invariants",
+      "owner": "team-runtime-quality"
+    },
+    {
+      "code": "closeout_module_evidence_missing",
+      "severity": "incomplete",
+      "blocking": true,
+      "message": "Closeout module event_reconciliation has no reader evidence. The W1.D skeleton fails closed until the module is wired.",
+      "next_action": "Wire event_reconciliation into the closeout reader in W4.D or emit an explicit typed blocker.",
+      "module_id": "event_reconciliation",
+      "owner": "team-runtime-quality"
+    },
+    {
+      "code": "closeout_module_reader_stubbed",
+      "severity": "incomplete",
+      "blocking": true,
+      "message": "Closeout module event_reconciliation is declared but still stubbed in W1.D. A missing stub cannot satisfy closeout.",
+      "next_action": "Implement the event_reconciliation reader before this slot can close out in W4.D.",
+      "module_id": "event_reconciliation",
+      "owner": "team-runtime-quality"
+    },
+    {
+      "code": "closeout_module_evidence_missing",
+      "severity": "incomplete",
+      "blocking": true,
+      "message": "Closeout module attestation has no reader evidence. The W1.D skeleton fails closed until the module is wired.",
+      "next_action": "Wire attestation into the closeout reader in W4.D or emit an explicit typed blocker.",
+      "module_id": "attestation",
+      "owner": "team-runtime-quality"
+    },
+    {
+      "code": "closeout_module_reader_stubbed",
+      "severity": "incomplete",
+      "blocking": true,
+      "message": "Closeout module attestation is declared but still stubbed in W1.D. A missing stub cannot satisfy closeout.",
+      "next_action": "Implement the attestation reader before this slot can close out in W4.D.",
+      "module_id": "attestation",
+      "owner": "team-runtime-quality"
+    },
+    {
+      "code": "closeout_module_evidence_missing",
+      "severity": "incomplete",
+      "blocking": true,
+      "message": "Closeout module source_truth has no reader evidence. The W1.D skeleton fails closed until the module is wired.",
+      "next_action": "Wire source_truth into the closeout reader in W4.D or emit an explicit typed blocker.",
+      "module_id": "source_truth",
+      "owner": "team-runtime-quality"
+    },
+    {
+      "code": "closeout_module_reader_stubbed",
+      "severity": "incomplete",
+      "blocking": true,
+      "message": "Closeout module source_truth is declared but still stubbed in W1.D. A missing stub cannot satisfy closeout.",
+      "next_action": "Implement the source_truth reader before this slot can close out in W4.D.",
+      "module_id": "source_truth",
+      "owner": "team-runtime-quality"
+    },
+    {
+      "code": "closeout_module_evidence_missing",
+      "severity": "incomplete",
+      "blocking": true,
+      "message": "Closeout module metamorphic_controls has no reader evidence. The W1.D skeleton fails closed until the module is wired.",
+      "next_action": "Wire metamorphic_controls into the closeout reader in W4.D or emit an explicit typed blocker.",
+      "module_id": "metamorphic_controls",
+      "owner": "team-runtime-quality"
+    },
+    {
+      "code": "closeout_module_reader_stubbed",
+      "severity": "incomplete",
+      "blocking": true,
+      "message": "Closeout module metamorphic_controls is declared but still stubbed in W1.D. A missing stub cannot satisfy closeout.",
+      "next_action": "Implement the metamorphic_controls reader before this slot can close out in W4.D.",
+      "module_id": "metamorphic_controls",
+      "owner": "team-runtime-quality"
+    },
+    {
+      "code": "closeout_module_evidence_missing",
+      "severity": "incomplete",
+      "blocking": true,
+      "message": "Closeout module performance_budget has no reader evidence. The W1.D skeleton fails closed until the module is wired.",
+      "next_action": "Wire performance_budget into the closeout reader in W4.D or emit an explicit typed blocker.",
+      "module_id": "performance_budget",
+      "owner": "team-runtime-quality"
+    },
+    {
+      "code": "closeout_module_reader_stubbed",
+      "severity": "incomplete",
+      "blocking": true,
+      "message": "Closeout module performance_budget is declared but still stubbed in W1.D. A missing stub cannot satisfy closeout.",
+      "next_action": "Implement the performance_budget reader before this slot can close out in W4.D.",
+      "module_id": "performance_budget",
+      "owner": "team-runtime-quality"
+    },
+    {
+      "code": "closeout_module_evidence_missing",
+      "severity": "incomplete",
+      "blocking": true,
+      "message": "Closeout module semantic_binding has no reader evidence. The W1.D skeleton fails closed until the module is wired.",
+      "next_action": "Wire semantic_binding into the closeout reader in W4.D or emit an explicit typed blocker.",
+      "module_id": "semantic_binding",
+      "owner": "team-runtime-quality"
+    },
+    {
+      "code": "closeout_module_reader_stubbed",
+      "severity": "incomplete",
+      "blocking": true,
+      "message": "Closeout module semantic_binding is declared but still stubbed in W1.D. A missing stub cannot satisfy closeout.",
+      "next_action": "Implement the semantic_binding reader before this slot can close out in W4.D.",
+      "module_id": "semantic_binding",
+      "owner": "team-runtime-quality"
+    },
+    {
+      "code": "closeout_module_evidence_missing",
+      "severity": "incomplete",
+      "blocking": true,
+      "message": "Closeout module claim_registry has no reader evidence. The W1.D skeleton fails closed until the module is wired.",
+      "next_action": "Wire claim_registry into the closeout reader in W4.D or emit an explicit typed blocker.",
+      "module_id": "claim_registry",
+      "owner": "team-scientist-evidence"
+    },
+    {
+      "code": "closeout_module_reader_stubbed",
+      "severity": "incomplete",
+      "blocking": true,
+      "message": "Closeout module claim_registry is declared but still stubbed in W1.D. A missing stub cannot satisfy closeout.",
+      "next_action": "Implement the claim_registry reader before this slot can close out in W4.D.",
+      "module_id": "claim_registry",
+      "owner": "team-scientist-evidence"
+    },
+    {
+      "code": "closeout_module_evidence_missing",
+      "severity": "incomplete",
+      "blocking": true,
+      "message": "Closeout module pdc_record_family_status has no reader evidence. The W1.D skeleton fails closed until the module is wired.",
+      "next_action": "Wire pdc_record_family_status into the closeout reader in W4.D or emit an explicit typed blocker.",
+      "module_id": "pdc_record_family_status",
+      "owner": "team-policyos-runtime"
+    },
+    {
+      "code": "closeout_module_reader_stubbed",
+      "severity": "incomplete",
+      "blocking": true,
+      "message": "Closeout module pdc_record_family_status is declared but still stubbed in W1.D. A missing stub cannot satisfy closeout.",
+      "next_action": "Implement the pdc_record_family_status reader before this slot can close out in W4.D.",
+      "module_id": "pdc_record_family_status",
+      "owner": "team-policyos-runtime"
+    },
+    {
+      "code": "closeout_module_evidence_missing",
+      "severity": "incomplete",
+      "blocking": true,
+      "message": "Closeout module projection_publication_state has no reader evidence. The W1.D skeleton fails closed until the module is wired.",
+      "next_action": "Wire projection_publication_state into the closeout reader in W4.D or emit an explicit typed blocker.",
+      "module_id": "projection_publication_state",
+      "owner": "team-policyos-runtime"
+    },
+    {
+      "code": "closeout_module_reader_stubbed",
+      "severity": "incomplete",
+      "blocking": true,
+      "message": "Closeout module projection_publication_state is declared but still stubbed in W1.D. A missing stub cannot satisfy closeout.",
+      "next_action": "Implement the projection_publication_state reader before this slot can close out in W4.D.",
+      "module_id": "projection_publication_state",
+      "owner": "team-policyos-runtime"
+    },
+    {
+      "code": "closeout_module_evidence_missing",
+      "severity": "incomplete",
+      "blocking": true,
+      "message": "Closeout module complexity_self_fmea has no reader evidence. The W1.D skeleton fails closed until the module is wired.",
+      "next_action": "Wire complexity_self_fmea into the closeout reader in W4.D or emit an explicit typed blocker.",
+      "module_id": "complexity_self_fmea",
+      "owner": "team-runtime-quality"
+    },
+    {
+      "code": "closeout_module_reader_stubbed",
+      "severity": "incomplete",
+      "blocking": true,
+      "message": "Closeout module complexity_self_fmea is declared but still stubbed in W1.D. A missing stub cannot satisfy closeout.",
+      "next_action": "Implement the complexity_self_fmea reader before this slot can close out in W4.D.",
+      "module_id": "complexity_self_fmea",
+      "owner": "team-runtime-quality"
+    }
+  ]
+}

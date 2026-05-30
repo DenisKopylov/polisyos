@@ -274,8 +274,9 @@ owner = "team-docs"
 [[metric_baseline]]
 id = "non_product_python_root_count"
 direction = "not_increase"
-value = 7
+value = 8
 owner = "team-architecture"
+reason = "production_data and runs are now explicit local-only non-product roots with directory contracts and product import policy forbid rules."
 
 [[metric_baseline]]
 id = "source_local_residue_count"
@@ -328,8 +329,9 @@ owner = "team-docs"
 [[metric_baseline]]
 id = "max_directory_depth"
 direction = "not_increase"
-value = 8
+value = 10
 owner = "team-architecture"
+reason = "production_data is an explicit ignored local release-artifact root whose snapshot depth is tracked by directory contract rather than product package topology."
 
 [[metric_baseline]]
 id = "closure_top_level_loose_file_count"

@@ -1,0 +1,39 @@
+{
+  "schema_version": "policyos.policy_design_case.inventory.v1",
+  "status": "active",
+  "owner": "team-architecture",
+  "purpose": "Governed inventory for Policy Design Case architecture artifacts that must remain ratchetable or replay-visible.",
+  "artifacts": [
+    {
+      "id": "capability_reality_report",
+      "path": "architecture/policy_design_case/capability_reality_report.json",
+      "kind": "ratchet_report",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_policy_design_case_capability_ratchet.py",
+      "authority_boundary": "release_readiness_signal_only",
+      "status": "active"
+    },
+    {
+      "id": "cluster_ownership_map",
+      "path": "architecture/policy_design_case/cluster_ownership_map.toml",
+      "kind": "cluster_axis_ownership_map",
+      "owner": "team-architecture",
+      "validator": "tools/quality/validation/check_policy_design_case_cluster_ownership_map.py",
+      "authority_boundary": "architecture_diagnostic_and_gap_ratcheting_only",
+      "status": "seeded_governed_artifact",
+      "source_substrates": [
+        "architecture/policy_design_case/capability_reality_report.json",
+        "src/polisyos/*/README.md"
+      ]
+    },
+    {
+      "id": "capability_reuse_map",
+      "path": "architecture/policy_design_case/capability_reuse_map.json",
+      "kind": "reuse_classification_inventory",
+      "owner": "team-architecture",
+      "validator": "tools/quality/validation/check_policy_design_case_capability_ratchet.py",
+      "authority_boundary": "reuse_planning_signal_only",
+      "status": "active"
+    }
+  ]
+}

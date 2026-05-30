@@ -74,6 +74,105 @@ sunset = "2026-12-31"
 issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
 reason = "The ABI schema catalog is governed by product contract tests and schema-generation gates; it is not promoted to a package behavior mirror in this phase."
 
+[[source_package_exception]]
+name = "corpus"
+source_path = "src/polisyos/corpus"
+classification = "internal_compile_time_contract"
+owner = "team-policyos-runtime"
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+reason = "Corpus is a newly bounded internal facade in the current worktree; test topology ratchets should start after tracked package inventory is promoted."
+
+[[source_package_exception]]
+name = "data_requirement"
+source_path = "src/polisyos/data_requirement"
+classification = "internal_compile_time_contract"
+owner = "team-policyos-runtime"
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+reason = "Data requirement is a newly bounded internal facade; coverage is tracked by package-specific unit tests until ratchets are promoted."
+
+[[source_package_exception]]
+name = "evidence"
+source_path = "src/polisyos/evidence"
+classification = "internal_pdc_contract"
+owner = "team-policyos-runtime"
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+reason = "Evidence is an internal PDC contract package; package ratchets start after the source package is promoted into the tracked inventory."
+
+[[source_package_exception]]
+name = "legal_requirement"
+source_path = "src/polisyos/legal_requirement"
+classification = "internal_compile_time_contract"
+owner = "team-policyos-runtime"
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+reason = "Legal requirement is an internal compiler facade; tests are unit scoped until tracked ratchets are promoted."
+
+[[source_package_exception]]
+name = "method_requirement"
+source_path = "src/polisyos/method_requirement"
+classification = "internal_compile_time_contract"
+owner = "team-policyos-runtime"
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+reason = "Method requirement is an internal compiler facade; tests are unit scoped until tracked ratchets are promoted."
+
+[[source_package_exception]]
+name = "obligation_graph"
+source_path = "src/polisyos/obligation_graph"
+classification = "internal_compile_time_contract"
+owner = "team-policyos-runtime"
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+reason = "Obligation graph is an internal ledger compiler facade; tests are unit scoped until tracked ratchets are promoted."
+
+[[source_package_exception]]
+name = "obligation_rules"
+source_path = "src/polisyos/obligation_rules"
+classification = "internal_compile_time_contract"
+owner = "team-policyos-runtime"
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+reason = "Obligation rules are an internal governed catalog facade; tests are unit scoped until tracked ratchets are promoted."
+
+[[source_package_exception]]
+name = "participation_requirement"
+source_path = "src/polisyos/participation_requirement"
+classification = "internal_compile_time_contract"
+owner = "team-policyos-runtime"
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+reason = "Participation requirement is an internal compiler facade; tests are unit scoped until tracked ratchets are promoted."
+
+[[source_package_exception]]
+name = "pdc"
+source_path = "src/polisyos/pdc"
+classification = "internal_pdc_contract"
+owner = "team-policyos-runtime"
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+reason = "PDC helper package is internal and unit scoped until tracked package ratchets are promoted."
+
+[[source_package_exception]]
+name = "policy_grammar"
+source_path = "src/polisyos/policy_grammar"
+classification = "internal_compile_time_contract"
+owner = "team-policyos-runtime"
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+reason = "Policy grammar is an internal compiler facade; tests are unit scoped until tracked ratchets are promoted."
+
+[[source_package_exception]]
+name = "scholar_requirement"
+source_path = "src/polisyos/scholar_requirement"
+classification = "internal_compile_time_contract"
+owner = "team-policyos-runtime"
+sunset = "2026-12-31"
+issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+reason = "Scholar requirement is an internal compiler facade; tests are unit scoped until tracked ratchets are promoted."
+
 [[move]]
 id = "data-forge-unit-hub"
 from = "tests/data_forge"
@@ -155,7 +254,7 @@ name = "ddm"
 source_path = "src/polisyos/ddm"
 unit_path = "tests/unit/ddm"
 conftest_path = "tests/unit/ddm/conftest.py"
-integration = { required = false, reason = "DDM behavior coverage is unit scoped under tests/unit/ddm; the ddm_15_7 compatibility root keeps one facade smoke test only." }
+integration = { required = false, reason = "DDM behavior coverage is unit scoped under tests/unit/ddm." }
 property = { required = false, reason = "DDM has deterministic replay and acceptance unit tests; property coverage is deferred until the monitor API stabilizes." }
 
 [[package]]

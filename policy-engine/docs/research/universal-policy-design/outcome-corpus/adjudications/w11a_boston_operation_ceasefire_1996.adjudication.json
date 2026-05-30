@@ -1,0 +1,138 @@
+{
+  "adjudications": [
+    {
+      "adjudication_id": "adj-case-w11a_boston_operation_ceasefire_1996",
+      "claim_id": null,
+      "context_refs": [
+        "text:case:summary"
+      ],
+      "dimension_id": "public_truthfulness",
+      "evidence_refs": [
+        "evidence:nij-ceasefire-evaluation"
+      ],
+      "gold_card": {
+        "claim_id": "case",
+        "context_ref": "text:case:summary",
+        "dimension_id": "public_truthfulness",
+        "evidence_ref": "evidence:nij-ceasefire-evaluation",
+        "failure_mode": "one_group_time_series_limit",
+        "required_surface_change": "Expose the case-level C30 adjudication before useful-design counting.",
+        "status_should_have_been": "publish_with_limitation",
+        "why_structural_checks_missed_it": "Structural completion alone cannot establish public truthfulness for the corpus case."
+      },
+      "label": "limitation_required",
+      "reviewer_votes": [
+        {
+          "disagreement_category": "none",
+          "label": "limitation_required",
+          "rationale": "C30 first-pass adjudication preserves limitation_required for the corpus case.",
+          "reviewer_id": "reviewer-policy-generalist-w11c"
+        },
+        {
+          "disagreement_category": "none",
+          "label": "limitation_required",
+          "rationale": "C30 first-pass adjudication preserves limitation_required for the corpus case.",
+          "reviewer_id": "reviewer-domain-aware-w11c"
+        }
+      ],
+      "scope": "case",
+      "structural_pass_claimed": true,
+      "structural_validator_refs": [
+        "w11.fixture.loader",
+        "w11.compilation.truthfulness"
+      ]
+    },
+    {
+      "adjudication_id": "adj-claim-claim-ceasefire-reduced-youth-gun-violence",
+      "claim_id": "claim:ceasefire-reduced-youth-gun-violence",
+      "context_refs": [
+        "text:case:summary"
+      ],
+      "dimension_id": "causal_support",
+      "evidence_refs": [
+        "evidence:nij-ceasefire-evaluation"
+      ],
+      "gold_card": {
+        "claim_id": "claim:ceasefire-reduced-youth-gun-violence",
+        "context_ref": "text:case:summary",
+        "dimension_id": "causal_support",
+        "evidence_ref": "evidence:nij-ceasefire-evaluation",
+        "failure_mode": "one_group_time_series_limit",
+        "required_surface_change": "Expose annotation-derived limitation, contestation, or blocker state.",
+        "status_should_have_been": "publish_with_limitation",
+        "why_structural_checks_missed_it": "W11.D fixture preserves annotation semantics for truthfulness comparison."
+      },
+      "label": "limitation_required",
+      "reviewer_votes": [
+        {
+          "disagreement_category": "none",
+          "label": "limitation_required",
+          "rationale": "C30 first-pass adjudication preserves limitation_required for the corpus case.",
+          "reviewer_id": "reviewer-policy-generalist-w11c"
+        },
+        {
+          "disagreement_category": "none",
+          "label": "limitation_required",
+          "rationale": "C30 first-pass adjudication preserves limitation_required for the corpus case.",
+          "reviewer_id": "reviewer-domain-aware-w11c"
+        }
+      ],
+      "scope": "claim",
+      "structural_pass_claimed": true,
+      "structural_validator_refs": [
+        "w11.fixture.loader",
+        "w11.compilation.truthfulness"
+      ]
+    }
+  ],
+  "authority_level": "research",
+  "case_id": "w11a_boston_operation_ceasefire_1996",
+  "case_ref": "repo://docs/research/universal-policy-design/outcome-corpus/boston-operation-ceasefire-1996-public-safety.md",
+  "decomposition_ref": "repo://docs/research/universal-policy-design/outcome-corpus/boston-operation-ceasefire-1996-public-safety.md#frontmatter",
+  "domain_id": "public_safety",
+  "expected_claim_ids": [
+    "claim:ceasefire-reduced-youth-gun-violence"
+  ],
+  "manifest_id": "w11c-w11a_boston_operation_ceasefire_1996",
+  "pattern_ids": [
+    "P05",
+    "P10",
+    "P15"
+  ],
+  "phase_id": "W11.C",
+  "research_refs": [
+    "E1",
+    "E22",
+    "E24",
+    "C30"
+  ],
+  "reviewer_topology": {
+    "annotation_guide_ref": "repo://docs/research/universal-policy-design/outcome-corpus/adjudications/README.md#annotation-guide",
+    "calibration_round_id": "deep-pilot-round-1",
+    "corpus_slice": "deep_pilot",
+    "reviewers": [
+      {
+        "conflict_disclosures": [
+          "none_declared"
+        ],
+        "expertise_basis": [
+          "universal policy design case corpus calibration"
+        ],
+        "reviewer_id": "reviewer-policy-generalist-w11c",
+        "role": "policy_generalist"
+      },
+      {
+        "conflict_disclosures": [
+          "none_declared"
+        ],
+        "expertise_basis": [
+          "domain-aware outcome corpus adjudication"
+        ],
+        "reviewer_id": "reviewer-domain-aware-w11c",
+        "role": "domain_aware_reviewer"
+      }
+    ],
+    "topology_mode": "deep_pilot_overlap"
+  },
+  "schema_version": "policyos.universal_policy_design.outcome_corpus.expert_adjudication.v1"
+}

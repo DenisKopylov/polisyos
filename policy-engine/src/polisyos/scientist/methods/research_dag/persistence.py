@@ -11,7 +11,7 @@ from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.scientist.methods.research_dag.models import ResearchDAGArtifact
 
 RESEARCH_DAG_KIND = "scientist.research_dag"
-RESEARCH_DAG_SCHEMA_NAME = "polisyos.scientist.research_dag.ResearchDAGArtifact"
+RESEARCH_DAG_SCHEMA_NAME = "polisyos.scientist.methods.research_dag.ResearchDAGArtifact"
 RESEARCH_DAG_SCHEMA_VERSION = "1.0"
 
 

@@ -6,6 +6,10 @@ from copy import deepcopy
 from typing import Any
 
 from polisyos.core.contracts.runtime import RuntimeApiProblem
+from polisyos.runtime.http._openapi_contract_helpers import (
+    iter_openapi_operations,
+    runtime_problem_example,
+)
 
 _ARTIFACT_ID_SAMPLE = "sha256:" + "a" * 64
 _RUN_ID_SAMPLE = "R_core_api_001"
@@ -2711,35 +2715,6 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
 }
 
 
-def _problem_example(*, status_code: int, code: str, path: str) -> dict[str, Any]:
-    return {
-        "type": "about:blank",
-        "title": code.replace("_", " ").capitalize(),
-        "status": status_code,
-        "detail": f"{code} while processing request.",
-        "code": code,
-        "instance": path,
-        "request_id": _REQUEST_ID_SAMPLE,
-        "error": code,
-        "status_code": status_code,
-    }
-
-
-def _iter_operations(schema: dict[str, Any]) -> Any:
-    paths = schema.get("paths")
-    if not isinstance(paths, dict):
-        return
-    for path, path_item in paths.items():
-        if not isinstance(path_item, dict):
-            continue
-        for method, operation in path_item.items():
-            if method.lower() not in {"get", "post"}:
-                continue
-            if not isinstance(operation, dict):
-                continue
-            yield path, method.lower(), operation
-
-
 def augment_runtime_openapi(schema: dict[str, Any]) -> dict[str, Any]:
     """Augment runtime openapi helper."""
     mutated = deepcopy(schema)
@@ -2750,7 +2725,7 @@ def augment_runtime_openapi(schema: dict[str, Any]) -> dict[str, Any]:
             ref_template="#/components/schemas/{model}"
         )
 
-    for path, _, operation in _iter_operations(mutated):
+    for path, _, operation in iter_openapi_operations(mutated):
         operation_id = operation.get("operationId")
         responses = operation.setdefault("responses", {})
         if not isinstance(responses, dict):
@@ -2777,10 +2752,11 @@ def augment_runtime_openapi(schema: dict[str, Any]) -> dict[str, Any]:
                 payload["examples"] = {
                     "default": {
                         "summary": descriptor["description"],
-                        "value": _problem_example(
+                        "value": runtime_problem_example(
                             status_code=int(status_code),
                             code=descriptor["code"],
                             path=path,
+                            request_id=_REQUEST_ID_SAMPLE,
                         ),
                     }
                 }
@@ -2830,7 +2806,7 @@ def install_runtime_openapi_contract(app: Any) -> None:
 def validate_runtime_openapi_contract(schema: dict[str, Any]) -> list[str]:
     """Validate runtime openapi contract."""
     violations: list[str] = []
-    for path, method, operation in _iter_operations(schema):
+    for path, method, operation in iter_openapi_operations(schema):
         responses = operation.get("responses")
         if not isinstance(responses, dict):
             violations.append(f"{method.upper()} {path}: missing responses object")

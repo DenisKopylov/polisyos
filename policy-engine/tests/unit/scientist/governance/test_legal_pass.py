@@ -12,7 +12,7 @@ from polisyos.core.governance.passes.base import (
 )
 from polisyos.core.governance.passes.legal_pass import LegalPass
 from polisyos.core.governance.profiles import ValidationProfile
-from polisyos.ir.norm_pack import NormPack, NormRef, NormRule, RuleType
+from polisyos.ir.loading.norm_pack import NormPack, NormRef, NormRule, RuleType
 
 
 @pytest.fixture

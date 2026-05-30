@@ -21,19 +21,22 @@ Classification policy:
 | `polisyos.common` | `public_stable` | `lazy_facade` | 7 | `team-polisyos` | `src/polisyos/common/README.md` |
 | `polisyos.core` | `public_stable` | `lazy_facade` | 15 | `team-polisyos` | `src/polisyos/core/README.md` |
 | `polisyos.ir` | `public_stable` | `lazy_facade` | 273 | `team-polisyos` | `src/polisyos/ir/README.md` |
-| `polisyos.fabric` | `public_stable` | `lazy_facade` | 30 | `team-polisyos` | `src/polisyos/fabric/README.md` |
-| `polisyos.foundry` | `public_stable` | `lazy_facade` | 3 | `team-polisyos` | `src/polisyos/foundry/README.md` |
+| `polisyos.obligation_rules` | `internal` | `eager_exports` | 22 | `team-policyos-runtime` | `src/polisyos/obligation_rules/README.md` |
+| `polisyos.obligation_graph` | `internal` | `eager_exports` | 20 | `team-policyos-runtime` | `src/polisyos/obligation_graph/README.md` |
+| `polisyos.method_requirement` | `internal` | `eager_exports` | 14 | `team-policyos-runtime` | `src/polisyos/method_requirement/README.md` |
+| `polisyos.participation_requirement` | `internal` | `eager_exports` | 23 | `team-policyos-runtime` | `src/polisyos/participation_requirement/README.md` |
+| `polisyos.fabric` | `public_stable` | `lazy_facade` | 31 | `team-polisyos` | `src/polisyos/fabric/README.md` |
+| `polisyos.foundry` | `public_stable` | `lazy_facade` | 4 | `team-polisyos` | `src/polisyos/foundry/README.md` |
 | `polisyos.scientist` | `public_stable` | `lazy_facade` | 7 | `team-polisyos` | `src/polisyos/scientist/README.md` |
+| `polisyos.evidence` | `internal` | `eager_exports` | 19 | `team-policyos-runtime` | `src/polisyos/evidence/README.md` |
 | `polisyos.runtime` | `public_stable` | `lazy_facade` | 10 | `team-polisyos` | `src/polisyos/runtime/README.md` |
-| `polisyos.lex` | `public_stable` | `lazy_facade` | 50 | `team-polisyos` | `src/polisyos/lex/README.md` |
-| `polisyos.scholar` | `public_experimental` | `lazy_facade` | 16 | `team-polisyos` | `src/polisyos/scholar/README.md` |
-| `polisyos.data_forge` | `public_experimental` | `lazy_facade` | 33 | `team-data-forge` | `src/polisyos/data_forge/README.md` |
+| `polisyos.lex` | `public_stable` | `lazy_facade` | 51 | `team-polisyos` | `src/polisyos/lex/README.md` |
+| `polisyos.scholar` | `public_experimental` | `lazy_facade` | 25 | `team-polisyos` | `src/polisyos/scholar/README.md` |
+| `polisyos.data_forge` | `public_experimental` | `lazy_facade` | 49 | `team-data-forge` | `src/polisyos/data_forge/README.md` |
 | `polisyos.berl` | `public_experimental` | `eager_exports` | 11 | `team-scientist` | `src/polisyos/berl/README.md` |
 | `polisyos.calibration` | `public_experimental` | `eager_exports` | 10 | `team-scientist` | `src/polisyos/calibration/README.md` |
 | `polisyos.ddm` | `internal` | `eager_exports` | 17 | `team-scientist` | `src/polisyos/ddm/README.md` |
-| `polisyos.ddm_15_7` | `compatibility` | `eager_exports` | 17 | `team-architecture` | `src/polisyos/ddm_15_7/README.md` |
 | `polisyos.foundry.agent_sim.world` | `public_experimental` | `eager_exports` | 23 | `team-foundry` | `src/polisyos/foundry/agent_sim/world/README.md` |
-| `polisyos.synthetic_world` | `compatibility` | `eager_exports` | 23 | `team-foundry` | `src/polisyos/synthetic_world/README.md` |
 
 ## `polisyos.common`
 
@@ -384,6 +387,157 @@ persist_dependent_sensitivity_result
 
 </details>
 
+## `polisyos.obligation_rules`
+
+- Classification: `internal`
+- Supported entrypoints: `polisyos.obligation_rules`
+- Facade policy: expected `eager_exports`, observed `eager_exports`
+- Owner: `team-policyos-runtime`
+- README: `src/polisyos/obligation_rules/README.md`
+- Reference doc: `docs/reference/public-surface.md`
+- Notes: Wave 6 governed obligation rule catalog for universal Policy Design Case compilation; internal until W6-W8 external surfaces graduate.
+- Summary: Governed obligation rule catalog public module.
+
+<details><summary>Supported exports (22)</summary>
+
+```text
+OBLIGATION_RULE_CATALOG_CONTRACT_ID
+OBLIGATION_RULE_CATALOG_KIND
+OBLIGATION_RULE_CATALOG_SCHEMA
+OBLIGATION_RULE_CATALOG_SCHEMA_VERSION
+ObligationRule
+ObligationRuleCandidate
+ObligationRuleCatalog
+ObligationRuleCatalogSummary
+ObligationRuleFamily
+ObligationRuleGovernanceError
+ObligationRuleScope
+ObligationRuleSourceClass
+ObligationRuleStatus
+PublicRevalidationEffect
+RuleDeprecationPolicy
+RuleGovernanceDecision
+build_rule_evolution_registry_for_catalog
+build_seed_obligation_rule_catalog
+govern_rule_candidate
+governed_rule_catalog_public_surface
+persist_obligation_rule_catalog
+select_governed_rules
+```
+
+</details>
+
+## `polisyos.obligation_graph`
+
+- Classification: `internal`
+- Supported entrypoints: `polisyos.obligation_graph`
+- Facade policy: expected `eager_exports`, observed `eager_exports`
+- Owner: `team-policyos-runtime`
+- README: `src/polisyos/obligation_graph/README.md`
+- Reference doc: `docs/reference/public-surface.md`
+- Notes: Wave 6.C obligation graph compiler and ledger contracts; internal until graph audit and runtime projection surfaces graduate.
+- Summary: W6.C obligation graph compiler and ledger contracts.
+
+<details><summary>Supported exports (20)</summary>
+
+```text
+OBLIGATION_GRAPH_CONTRACT_ID
+OBLIGATION_GRAPH_SCHEMA_VERSION
+BundleKey
+CandidateLedgerEntry
+ComplexityBudget
+DeadlineBinding
+DeferredObligationRecord
+DeferredState
+FacetSnapshot
+FrontierItem
+GovernedObligationRule
+ObligationBundle
+ObligationCandidateInput
+ObligationGraph
+ObligationGraphCompileError
+PriorityClass
+SourceClass
+compile_obligation_graph
+obligation_graph_audit_surface
+write_obligation_graph_artifact
+```
+
+</details>
+
+## `polisyos.method_requirement`
+
+- Classification: `internal`
+- Supported entrypoints: `polisyos.method_requirement`
+- Facade policy: expected `eager_exports`, observed `eager_exports`
+- Owner: `team-policyos-runtime`
+- README: `src/polisyos/method_requirement/README.md`
+- Reference doc: `docs/reference/public-surface.md`
+- Notes: Wave 7.C method validity requirement compiler consumed by Foundry selection and IR analytics bridges; internal until W7-W8 external surfaces graduate.
+- Summary: Method validity requirement compiler for universal Policy Design Cases.
+
+<details><summary>Supported exports (14)</summary>
+
+```text
+AssumptionValidationNeed
+FairnessDecompositionNeed
+MethodIdentificationClass
+MethodTransportabilityRequirement
+MethodUncertaintyClass
+MethodValidityRequirementArtifact
+MethodValidityRequirementCompiler
+MethodValidityRequirementSpec
+SimulationDGPRequirement
+StrategicResponseSensitivity
+compile_method_validity_requirements
+method_validity_requirement_audit_surface
+normalize_method_requirements
+write_method_validity_requirement_artifact
+```
+
+</details>
+
+## `polisyos.participation_requirement`
+
+- Classification: `internal`
+- Supported entrypoints: `polisyos.participation_requirement`
+- Facade policy: expected `eager_exports`, observed `eager_exports`
+- Owner: `team-policyos-runtime`
+- README: `src/polisyos/participation_requirement/README.md`
+- Reference doc: `docs/reference/public-surface.md`
+- Notes: Wave 7.E participation provenance requirement compiler and claim-use ceiling evaluator; internal until W7-W8 external surfaces graduate.
+- Summary: Participation provenance requirement compiler and consumer enforcement.
+
+<details><summary>Supported exports (23)</summary>
+
+```text
+PARTICIPATION_EVALUATION_SCHEMA_VERSION
+PARTICIPATION_REQUIREMENT_BUNDLE_SCHEMA_VERSION
+PARTICIPATION_REQUIREMENT_SPEC_SCHEMA_VERSION
+ParticipationAuthorityBoundary
+ParticipationAuthorityLevel
+ParticipationClaimPurpose
+ParticipationClaimUse
+ParticipationDeficitRecord
+ParticipationPopulationScope
+ParticipationProvenanceClass
+ParticipationProvenanceCompiler
+ParticipationProvenanceRecord
+ParticipationProvenanceRequirementSpec
+ParticipationPublicProjectionRow
+ParticipationRepresentativenessClass
+ParticipationRepresentativenessConfig
+ParticipationRequirementBundle
+ParticipationRequirementEvaluation
+ParticipationSourceKind
+compile_participation_requirements
+evaluate_participation_requirement
+participation_requirement_bundle_audit_surface
+write_participation_requirement_bundle
+```
+
+</details>
+
 ## `polisyos.fabric`
 
 - Classification: `public_stable`
@@ -395,7 +549,7 @@ persist_dependent_sensitivity_result
 - Notes: Connector-backed ingestion, world queries, and catalog surfaces.
 - Summary: Stable Fabric facade for connector ingestion, world-query, and catalog APIs.
 
-<details><summary>Supported exports (30)</summary>
+<details><summary>Supported exports (31)</summary>
 
 ```text
 AccessRef
@@ -416,6 +570,7 @@ UnitRef
 WorldQueryError
 WorldQueryRequest
 batch_processing_contract
+build_source_contract_requirement_bindings
 execute_world_query
 fabric_claim_to_authored_text
 fabric_event_to_authored_text
@@ -443,12 +598,13 @@ world
 - Notes: Stable compile/execute facade over the compute and method stack. Phase 6 keeps root public exports in polisyos.foundry.api and narrow public subpackages; moved legacy FQN are compatibility shims registered in architecture/shims.toml.
 - Summary: Expose the stable Foundry compile/execute entrypoints behind lazy imports.
 
-<details><summary>Supported exports (3)</summary>
+<details><summary>Supported exports (4)</summary>
 
 ```text
 compile
 compile_program
 execute
+select_method_candidates_for_requirements
 ```
 
 </details>
@@ -456,7 +612,7 @@ execute
 ## `polisyos.scientist`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.scientist`
+- Supported entrypoints: `polisyos.scientist`, `polisyos.scientist.methods.research_dag`
 - Facade policy: expected `lazy_facade`, observed `lazy_facade`
 - Owner: `team-polisyos`
 - README: `src/polisyos/scientist/README.md`
@@ -478,10 +634,47 @@ run_experiment
 
 </details>
 
+## `polisyos.evidence`
+
+- Classification: `internal`
+- Supported entrypoints: `polisyos.evidence`
+- Facade policy: expected `eager_exports`, observed `eager_exports`
+- Owner: `team-policyos-runtime`
+- README: `src/polisyos/evidence/README.md`
+- Reference doc: `docs/reference/public-surface.md`
+- Notes: Wave 8 internal portfolio evidence records for Policy Design Case graph compilation; not a stable public API.
+- Summary: Cross-producer evidence graph artifacts for PolicyOS.
+
+<details><summary>Supported exports (19)</summary>
+
+```text
+CONFLICT_PORTFOLIO_INDEX_SCHEMA_VERSION
+CONFLICT_RECORD_SCHEMA_VERSION
+EFFECTIVE_INDEPENDENCE_GRAPH_CONTRACT_ID
+EFFECTIVE_INDEPENDENCE_GRAPH_SCHEMA_VERSION
+PAIRWISE_MODEL_FORMULA
+ConflictRecordError
+ConflictResolutionRoute
+EffectiveIndependenceGraphError
+PortfolioConflictType
+annotate_pdc_graph_with_effective_independence
+apply_runtime_claim_registry_to_claim
+build_conflict_portfolio_index
+build_conflict_record
+build_effective_independence_graph
+claim_registry_rows_by_id
+conflict_refs_by_claim
+normalize_runtime_claim_registry
+validate_conflict_record
+validate_effective_independence_graph_record
+```
+
+</details>
+
 ## `polisyos.runtime`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.runtime`
+- Supported entrypoints: `polisyos.runtime`, `polisyos.runtime.quality`
 - Facade policy: expected `lazy_facade`, observed `lazy_facade`
 - Owner: `team-polisyos`
 - README: `src/polisyos/runtime/README.md`
@@ -517,7 +710,7 @@ verify_replay
 - Notes: Stable runtime Lex facade for NormPack assembly, legal evaluation, simulator, interventions, and read-only legal knowledge APIs. Offline legal preprocessing is owned by polisyos.data_forge.domains.legal.
 - Summary: Stable Lex facade for runtime legal evaluation, NormPack assembly, and interventions.
 
-<details><summary>Supported exports (50)</summary>
+<details><summary>Supported exports (51)</summary>
 
 ```text
 ActiveVersionResult
@@ -565,6 +758,7 @@ TemporalInterventionSequencer
 TemporalInterventionStepInput
 WorldEventRefLike
 assemble_norm_pack
+build_legal_authority_report
 diff_norm_packs
 evaluate_legality
 lex_evidence_from_fabric_decision_data
@@ -585,9 +779,12 @@ resolve_active_version
 - Notes: Topic enrichment service facade; API is user-facing but still evolving.
 - Summary: Expose Scholar enrichment entrypoints and contracts via lazy imports.
 
-<details><summary>Supported exports (16)</summary>
+<details><summary>Supported exports (25)</summary>
 
 ```text
+SCHOLAR_ACADEMIC_EVIDENCE_FILENAME
+SCHOLAR_ACADEMIC_EVIDENCE_REF_KEY
+SCHOLAR_ACADEMIC_EVIDENCE_SCHEMA_VERSION
 EnrichResultV1
 EnrichmentReportV1
 KnowledgeBundlePayloadV1
@@ -602,7 +799,13 @@ ScholarPolicy
 ScholarReconcileError
 ScholarService
 ScholarValidationError
+build_scholar_academic_evidence_report
+build_scholar_academic_evidence_report_from_web_bundle
+build_scholar_spine_evidence_binding
 enrich_topic
+normalize_scholar_academic_evidence_report
+sanitize_untrusted_text
+scholar_academic_evidence_required
 scholar_citation_from_fabric_decision_data
 ```
 
@@ -616,10 +819,10 @@ scholar_citation_from_fabric_decision_data
 - Owner: `team-data-forge`
 - README: `src/polisyos/data_forge/README.md`
 - Reference doc: `docs/reference/public-surface.md`
-- Notes: Experimental asset-centric build-time Data Forge facade. The top-level package lazily exports build-time artifact, asset, schema, snapshot, quality, and migration-test contracts; read_api is the only runtime import surface.
+- Notes: Experimental asset-centric build-time Data Forge facade. The top-level package lazily exports build-time artifact, asset, schema, snapshot, provenance, quality, and migration-test contracts; read_api is the only runtime import surface.
 - Summary: Data Forge public facade for build-time artifact contracts and read APIs.
 
-<details><summary>Supported exports (33)</summary>
+<details><summary>Supported exports (49)</summary>
 
 ```text
 ArtifactRef
@@ -627,14 +830,19 @@ AssetDefinition
 AssetGroup
 AssetKey
 AssetSpec
+COMPLIANCE_OVERRIDE_REQUIRED_FIELDS
 CompatibilityMode
+DATA_FORGE_PROVENANCE_MANIFEST_FILE
+DATA_FORGE_PROVENANCE_MANIFEST_SCHEMA_VERSION
 DataForgeError
 DataForgeValidationError
 DifferentialComparison
 GoldenArtifact
 GoldenCase
 MaterializationContext
+OfficialSnapshotAnswer
 PIILevel
+PRIVACY_COMPLIANCE_REPORT_SCHEMA_VERSION
 ProducerVersion
 QCCheck
 QCReport
@@ -642,19 +850,30 @@ RetentionClass
 SchemaCompatibilityError
 SchemaRegistry
 SchemaVersion
+SnapshotClaimRequirementBinding
 SnapshotCommitError
+SnapshotProvenanceLedgerEntry
+SnapshotProvenanceManifest
+SnapshotQualityGate
 SnapshotTransaction
 SnapshotTransactionStatus
+TransformLineageStep
 __version__
 asset
+build_privacy_compliance_report
+build_snapshot_provenance_manifest
 capture_golden_file
 compare_file_sha256
 compare_json_files
 evaluate_fail_fast
+load_snapshot_provenance_manifest
 merkle_root
+normalize_privacy_compliance_report
+official_snapshot_answer_from_binding
 plan_asset_specs
 read_api
 verify_golden_file
+write_snapshot_provenance_manifest
 ```
 
 </details>
@@ -751,41 +970,6 @@ ShiftRiskEvent
 
 </details>
 
-## `polisyos.ddm_15_7`
-
-- Classification: `compatibility`
-- Supported entrypoints: `polisyos.ddm_15_7`
-- Facade policy: expected `eager_exports`, observed `eager_exports`
-- Owner: `team-architecture`
-- README: `src/polisyos/ddm_15_7/README.md`
-- Reference doc: `docs/reference/public-surface.md`
-- Notes: Wrapper-only compatibility facade for polisyos.ddm until 2026-07-31; tracked by ddm-15-7-rename and ADR-RSR-0135, with facade smoke coverage only.
-- Summary: Compatibility facade for :mod:`polisyos.ddm`.
-
-<details><summary>Supported exports (17)</summary>
-
-```text
-AffectedFeature
-AffectedSlice
-CalibrationAudit
-DDMWindowResult
-DataQualitySignal
-DriftAndDegradationMonitor
-IncidentPayload
-MetricDirection
-ModelRegistryReadinessRecord
-MonitoringWindow
-PerformanceDegradationEvent
-ReadinessState
-ReadinessStateEvent
-RegistryGateDecision
-RootCauseBundle
-ShiftDetectedEvent
-ShiftRiskEvent
-```
-
-</details>
-
 ## `polisyos.foundry.agent_sim.world`
 
 - Classification: `public_experimental`
@@ -796,47 +980,6 @@ ShiftRiskEvent
 - Reference doc: `docs/reference/public-surface.md`
 - Notes: Truth-centric synthetic world generation and evaluation surface under the Foundry agent simulation owner.
 - Summary: Synthetic-world family with truth-centric generation and evaluation.
-
-<details><summary>Supported exports (23)</summary>
-
-```text
-BenchmarkSuiteBinding
-EvaluationRun
-EvaluationSpec
-InterventionSpec
-InterventionStyle
-MeasurementErrorKind
-MeasurementErrorSpec
-MissingnessMechanism
-MissingnessSpec
-SamplingDesignKind
-SamplingDesignSpec
-SyntheticWorld
-SyntheticWorldDGP
-SyntheticWorldSample
-TruthComputationMode
-TruthManifest
-TruthQuery
-TruthSpec
-WorldArtifact
-WorldFamily
-WorldSpec
-phase0_seed_benchmark_binding
-phase0_seed_world_specs
-```
-
-</details>
-
-## `polisyos.synthetic_world`
-
-- Classification: `compatibility`
-- Supported entrypoints: `polisyos.synthetic_world`
-- Facade policy: expected `eager_exports`, observed `eager_exports`
-- Owner: `team-foundry`
-- README: `src/polisyos/synthetic_world/README.md`
-- Reference doc: `docs/reference/public-surface.md`
-- Notes: Wrapper-only compatibility facade for polisyos.foundry.agent_sim.world until 2026-07-31.
-- Summary: Compatibility facade for :mod:`polisyos.foundry.agent_sim.world`.
 
 <details><summary>Supported exports (23)</summary>
 

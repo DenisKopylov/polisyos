@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.fabric.ingestion_providers import (
+from polisyos.fabric.ingestion.ingestion_providers import (
     build_filesystem_artifact_store,
     resolve_ingestion_dependencies,
 )
@@ -50,15 +50,15 @@ def test_resolve_ingestion_dependencies_uses_factory_overrides(
         pass
 
     monkeypatch.setattr(
-        "polisyos.fabric.ingestion_providers._default_registry",
+        "polisyos.fabric.ingestion.ingestion_providers._default_registry",
         lambda: (_ for _ in ()).throw(AssertionError("global registry should not be used")),
     )
     monkeypatch.setattr(
-        "polisyos.fabric.ingestion_providers._default_tracer",
+        "polisyos.fabric.ingestion.ingestion_providers._default_tracer",
         lambda: (_ for _ in ()).throw(AssertionError("global tracer should not be used")),
     )
     monkeypatch.setattr(
-        "polisyos.fabric.ingestion_providers._default_metrics",
+        "polisyos.fabric.ingestion.ingestion_providers._default_metrics",
         lambda: (_ for _ in ()).throw(AssertionError("global metrics should not be used")),
     )
 

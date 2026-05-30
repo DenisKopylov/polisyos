@@ -3567,10 +3567,9 @@ export interface components {
       operator_diagnostic?: components["schemas"]["OperatorDiagnostic"] | null;
       /** Pipeline Id */
       pipeline_id?: string | null;
-      /** Policy Design Case Projection */
-      policy_design_case_projection?: {
-        [key: string]: unknown;
-      } | null;
+      policy_design_case_projection?:
+        | components["schemas"]["PolicyDesignCaseProjection"]
+        | null;
       /** Progress */
       progress?: {
         [key: string]: unknown;
@@ -6803,6 +6802,557 @@ export interface components {
         | "publishable";
     };
     /**
+     * PolicyDesignCaseAudience
+     * @description Audience tier for a Policy Design Case projection.
+     * @enum {string}
+     */
+    PolicyDesignCaseAudience: "public" | "reviewer" | "expert" | "machine";
+    /**
+     * PolicyDesignCaseCloseoutTruth
+     * @description Closeout truth that every audience must preserve.
+     */
+    PolicyDesignCaseCloseoutTruth: {
+      /**
+       * Blocker Codes
+       * @default []
+       */
+      blocker_codes: string[];
+      /**
+       * Blockers
+       * @default []
+       */
+      blockers: components["schemas"]["PolicyDesignCaseProjectionBlocker"][];
+      /** Can Closeout */
+      can_closeout: boolean;
+      /**
+       * Contested State
+       * @default not_contested
+       */
+      contested_state: string;
+      /**
+       * Limitation Codes
+       * @default []
+       */
+      limitation_codes: string[];
+      /**
+       * Omission Codes
+       * @default []
+       */
+      omission_codes: string[];
+      /** Status */
+      status: string;
+      /** Verdict */
+      verdict: string;
+    };
+    /**
+     * PolicyDesignCaseContestedRecord
+     * @description Projection-visible contested record owned by PolicyOS.
+     */
+    PolicyDesignCaseContestedRecord: {
+      /**
+       * Audience Visibility
+       * @default []
+       */
+      audience_visibility: components["schemas"]["PolicyDesignCaseAudience"][];
+      /** Authority Profile */
+      authority_profile: string;
+      /** Case Ref */
+      case_ref: string;
+      /**
+       * Claim Refs
+       * @default []
+       */
+      claim_refs: string[];
+      /** Contestability Status */
+      contestability_status: string;
+      /** Contested Record Id */
+      contested_record_id: string;
+      /**
+       * Counterevidence Refs
+       * @default []
+       */
+      counterevidence_refs: string[];
+      /**
+       * Grounds
+       * @default []
+       */
+      grounds: string[];
+      /**
+       * Ingestion Event Refs
+       * @default []
+       */
+      ingestion_event_refs: string[];
+      /**
+       * Lifecycle Event Refs
+       * @default []
+       */
+      lifecycle_event_refs: string[];
+      /** Public Projection Effect */
+      public_projection_effect: string;
+      /** Publication Effect */
+      publication_effect: string;
+      /**
+       * Recourse Outcome Refs
+       * @default []
+       */
+      recourse_outcome_refs: string[];
+      recourse_pointer?:
+        | components["schemas"]["PolicyDesignCaseRecoursePointer"]
+        | null;
+      /**
+       * Reopening Trigger Refs
+       * @default []
+       */
+      reopening_trigger_refs: string[];
+      /**
+       * Source Truth Conflict Refs
+       * @default []
+       */
+      source_truth_conflict_refs: string[];
+      /** Standing Or Actor Ref */
+      standing_or_actor_ref?: string | null;
+    };
+    /**
+     * PolicyDesignCaseDeficitProjection
+     * @description Projection row for a deficit that constrains authority or publication.
+     */
+    PolicyDesignCaseDeficitProjection: {
+      /** Audience Scope */
+      audience_scope: string;
+      /** Authority Level */
+      authority_level: string;
+      /**
+       * Claim Ids
+       * @default []
+       */
+      claim_ids: string[];
+      /** Deficit Code */
+      deficit_code: string;
+      /** Deficit Family */
+      deficit_family: string;
+      /** Deficit Id */
+      deficit_id: string;
+      /** Disposition */
+      disposition: string;
+      /** Evidence Ref */
+      evidence_ref: string;
+      /** Max Audience */
+      max_audience?: string | null;
+      /** Owner */
+      owner: string;
+      /** Public Limitation Note */
+      public_limitation_note?: string | null;
+      /** Readiness Cap */
+      readiness_cap?: string | null;
+      /**
+       * Review Refs
+       * @default []
+       */
+      review_refs: string[];
+      /** Runtime Event Ref */
+      runtime_event_ref: string;
+      /** Support Cap */
+      support_cap?: string | null;
+      /** Ttl Expires At */
+      ttl_expires_at?: string | null;
+    };
+    /**
+     * PolicyDesignCaseInvariantSummary
+     * @description Projection summary of invariant and formal-substrate reader results.
+     */
+    PolicyDesignCaseInvariantSummary: {
+      /**
+       * Blocker Codes
+       * @default []
+       */
+      blocker_codes: string[];
+      /** Details */
+      details?: {
+        [key: string]: unknown;
+      };
+      /**
+       * Evidence Refs
+       * @default []
+       */
+      evidence_refs: string[];
+      /**
+       * Failing Count
+       * @default 0
+       */
+      failing_count: number;
+      /**
+       * Passing Count
+       * @default 0
+       */
+      passing_count: number;
+      /**
+       * Status
+       * @default not_provided
+       */
+      status: string;
+    };
+    /**
+     * PolicyDesignCaseParticipationRequirementProjection
+     * @description Privacy-safe participation requirement/evaluation row.
+     */
+    PolicyDesignCaseParticipationRequirementProjection: {
+      /**
+       * Audience Visibility
+       * @default []
+       */
+      audience_visibility: components["schemas"]["PolicyDesignCaseAudience"][];
+      /** Blocker Code */
+      blocker_code?: string | null;
+      /** Claim Id */
+      claim_id: string;
+      /** Claim Use Allowed */
+      claim_use_allowed: string;
+      /** Claim Use Requested */
+      claim_use_requested: string;
+      /** Consultation Mode */
+      consultation_mode?: string | null;
+      /** Downgrade Reason */
+      downgrade_reason?: string | null;
+      /** Evidence Ref */
+      evidence_ref?: string | null;
+      /**
+       * Limitations
+       * @default []
+       */
+      limitations: string[];
+      /** Participation Ref */
+      participation_ref?: string | null;
+      /**
+       * Privacy Constraints
+       * @default []
+       */
+      privacy_constraints: string[];
+      /** Provenance Class */
+      provenance_class: string;
+      /** Public Projection Effect */
+      public_projection_effect: string;
+      /**
+       * Raw Materials Redacted
+       * @default true
+       */
+      raw_materials_redacted: boolean;
+      /** Representativeness Class */
+      representativeness_class: string;
+      /** Requirement Id */
+      requirement_id: string;
+      /** Source Kind */
+      source_kind: string;
+    };
+    /**
+     * PolicyDesignCaseProjection
+     * @description Typed, non-authoritative multi-audience Policy Design Case projection.
+     */
+    PolicyDesignCaseProjection: {
+      audience: components["schemas"]["PolicyDesignCaseAudience"];
+      /**
+       * Audit Refs
+       * @default []
+       */
+      audit_refs: string[];
+      /**
+       * Authoritative For
+       * @default []
+       */
+      authoritative_for: string[];
+      /**
+       * Authority Role
+       * @default projection_only
+       * @constant
+       */
+      authority_role: "projection_only";
+      /**
+       * Capability Reality State
+       * @default implemented
+       */
+      capability_reality_state: string;
+      closeout_truth: components["schemas"]["PolicyDesignCaseCloseoutTruth"];
+      /**
+       * Contested Records
+       * @default []
+       */
+      contested_records: components["schemas"]["PolicyDesignCaseContestedRecord"][];
+      /**
+       * Contract Verification Refs
+       * @default []
+       */
+      contract_verification_refs: string[];
+      /**
+       * Contract Verification Status
+       * @default not_verified
+       */
+      contract_verification_status: string;
+      /**
+       * Deficit Register
+       * @default []
+       */
+      deficit_register: components["schemas"]["PolicyDesignCaseDeficitProjection"][];
+      /** Evidence Class */
+      evidence_class: string;
+      /**
+       * Generated At
+       * Format: date-time
+       */
+      generated_at: string;
+      invariant_summary?: components["schemas"]["PolicyDesignCaseInvariantSummary"];
+      /**
+       * Labels
+       * @default []
+       */
+      labels: components["schemas"]["PolicyDesignCaseProjectionLabel"][];
+      /**
+       * May Be Used For
+       * @default []
+       */
+      may_be_used_for: string[];
+      /**
+       * May Not Be Used For
+       * @default []
+       */
+      may_not_be_used_for: string[];
+      /**
+       * Omission Manifest
+       * @default []
+       */
+      omission_manifest: components["schemas"]["PolicyDesignCaseProjectionOmission"][];
+      /**
+       * Participation Requirements
+       * @default []
+       */
+      participation_requirements: components["schemas"]["PolicyDesignCaseParticipationRequirementProjection"][];
+      /** Policy Design Case Id */
+      policy_design_case_id?: string | null;
+      /** Primary State */
+      primary_state: string;
+      /**
+       * Projection Gaps
+       * @default []
+       */
+      projection_gaps: components["schemas"]["PolicyDesignCaseProjectionGap"][];
+      /**
+       * Projection Policy
+       * @default reads_policy_design_case_only
+       * @enum {string}
+       */
+      projection_policy:
+        | "reads_policy_design_case_only"
+        | "reads_runtime_policy_design_case_graph";
+      /**
+       * Provenance Kind
+       * @default runtime_projection
+       * @constant
+       */
+      provenance_kind: "runtime_projection";
+      recourse_pointer?:
+        | components["schemas"]["PolicyDesignCaseRecoursePointer"]
+        | null;
+      /**
+       * Redacted
+       * @default false
+       */
+      redacted: boolean;
+      /** Redaction Summary */
+      redaction_summary?: {
+        [key: string]: unknown;
+      };
+      /** Run Id */
+      run_id?: string | null;
+      /**
+       * Schema Version
+       * @default policyos.runtime.policy_design_case.projection.v1
+       * @constant
+       */
+      schema_version: "policyos.runtime.policy_design_case.projection.v1";
+      /** Source Authority Refs */
+      source_authority_refs?: {
+        [key: string]: string;
+      };
+      /** Source Ref */
+      source_ref?: string | null;
+      /** Source Ref Fingerprint */
+      source_ref_fingerprint?: string | null;
+      /** Source State */
+      source_state?: {
+        [key: string]: unknown;
+      };
+      /**
+       * States
+       * @default []
+       */
+      states: string[];
+      /** Surface */
+      surface: string;
+    };
+    /**
+     * PolicyDesignCaseProjectionBlocker
+     * @description Closeout or publication blocker surfaced through a projection.
+     */
+    PolicyDesignCaseProjectionBlocker: {
+      /** Code */
+      code: string;
+      /** Evidence Ref */
+      evidence_ref?: string | null;
+      /** Message */
+      message: string;
+      /** Module Id */
+      module_id?: string | null;
+      /** Next Action */
+      next_action?: string | null;
+      /** Owner */
+      owner?: string | null;
+      /**
+       * Severity
+       * @default fail
+       */
+      severity: string;
+    };
+    /**
+     * PolicyDesignCaseProjectionGap
+     * @description Projection-visible blocker, limitation, redaction, or omission.
+     */
+    PolicyDesignCaseProjectionGap: {
+      /**
+       * Audience Visibility
+       * @default []
+       */
+      audience_visibility: components["schemas"]["PolicyDesignCaseAudience"][];
+      /**
+       * Claim Ids
+       * @default []
+       */
+      claim_ids: string[];
+      /**
+       * Closeout Effect
+       * @default limited_closeout
+       */
+      closeout_effect: string;
+      /** Evidence Ref */
+      evidence_ref?: string | null;
+      /** Gap Code */
+      gap_code: string;
+      /** Gap Family */
+      gap_family: string;
+      /** Gap Id */
+      gap_id: string;
+      /** Message */
+      message: string;
+      /** Next Action */
+      next_action?: string | null;
+      /** Owner */
+      owner?: string | null;
+      /**
+       * Publication Effect
+       * @default unaffected
+       */
+      publication_effect: string;
+      /** Severity */
+      severity: string;
+      /** Source */
+      source?: string | null;
+    };
+    /**
+     * PolicyDesignCaseProjectionLabel
+     * @description One display label attached to a projection state.
+     */
+    PolicyDesignCaseProjectionLabel: {
+      /**
+       * Authority Role
+       * @default projection_only
+       * @constant
+       */
+      authority_role: "projection_only";
+      /** Label */
+      label: string;
+      /**
+       * Source Authority
+       * @default policy_design_case
+       */
+      source_authority: string;
+      /** State */
+      state: string;
+    };
+    /**
+     * PolicyDesignCaseProjectionOmission
+     * @description Audience-visible omission manifest row for redacted or omitted PDC content.
+     */
+    PolicyDesignCaseProjectionOmission: {
+      /**
+       * Audience Visibility
+       * @default []
+       */
+      audience_visibility: components["schemas"]["PolicyDesignCaseAudience"][];
+      /**
+       * Claim Ids
+       * @default []
+       */
+      claim_ids: string[];
+      /**
+       * Closeout Effect
+       * @default limited_closeout
+       */
+      closeout_effect: string;
+      /** Evidence Ref */
+      evidence_ref?: string | null;
+      /** Manifest Ref */
+      manifest_ref?: string | null;
+      /** Omission Code */
+      omission_code: string;
+      /**
+       * Omission Family
+       * @default projection
+       */
+      omission_family: string;
+      /** Omission Id */
+      omission_id: string;
+      /** Owner */
+      owner?: string | null;
+      /**
+       * Publication Effect
+       * @default omission_manifest_required
+       */
+      publication_effect: string;
+      /** Reason */
+      reason: string;
+      /** Source */
+      source?: string | null;
+    };
+    /**
+     * PolicyDesignCaseRecoursePointer
+     * @description Projection pointer to a deployment-owned recourse process.
+     */
+    PolicyDesignCaseRecoursePointer: {
+      /**
+       * Authority Boundary
+       * @default deployment_owned_recourse_process
+       * @constant
+       */
+      authority_boundary: "deployment_owned_recourse_process";
+      /** Owner */
+      owner?: string | null;
+      /**
+       * Schema Version
+       * @default policyos.runtime.policy_design_case.recourse_pointer.v1
+       * @constant
+       */
+      schema_version: "policyos.runtime.policy_design_case.recourse_pointer.v1";
+      /** Uri */
+      uri: string;
+      /** Verification Ref */
+      verification_ref: string;
+      /**
+       * Verification Status
+       * @default verified_reachable
+       * @constant
+       */
+      verification_status: "verified_reachable";
+      /** Verified At */
+      verified_at: string;
+    };
+    /**
      * PolicyFlags
      * @description Carry opt-in execution relaxations requested by the client.
      *
@@ -7454,10 +8004,9 @@ export interface components {
       operator_diagnostic?:
         | components["schemas"]["RunOperatorDiagnostic"]
         | null;
-      /** Policy Design Case Projection */
-      policy_design_case_projection?: {
-        [key: string]: unknown;
-      } | null;
+      policy_design_case_projection?:
+        | components["schemas"]["PolicyDesignCaseProjection"]
+        | null;
       /** Root Artifacts */
       root_artifacts?: components["schemas"]["ArtifactRef-Output"][];
       /** Run Id */

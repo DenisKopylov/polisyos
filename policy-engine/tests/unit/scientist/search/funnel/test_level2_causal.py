@@ -154,7 +154,7 @@ class TestLevel2Identifiability:
         mock_result.trace = ["step1", "step2"]
 
         with patch(
-            "polisyos.scientist.search.funnel.level2_causal.Level2CausalPlausibility._check_identifiability",
+            "polisyos.scientist.methods.search.funnel.level2_causal.Level2CausalPlausibility._check_identifiability",
             return_value=(1.0, []),
         ):
             candidate = _make_candidate(causal_graph=MagicMock(nodes=["X", "Y"]))
@@ -176,7 +176,7 @@ class TestLevel2Identifiability:
         )
 
         with patch(
-            "polisyos.scientist.search.funnel.level2_causal.Level2CausalPlausibility._check_identifiability",
+            "polisyos.scientist.methods.search.funnel.level2_causal.Level2CausalPlausibility._check_identifiability",
             return_value=(0.0, [blocker]),
         ):
             candidate = _make_candidate(causal_graph=MagicMock(nodes=["X", "Y"]))
@@ -190,7 +190,7 @@ class TestLevel2Identifiability:
         graph = MagicMock(nodes=["X", "Y"])
 
         with patch(
-            "polisyos.scientist.search.funnel.level2_causal.Level2CausalPlausibility._check_identifiability",
+            "polisyos.scientist.methods.search.funnel.level2_causal.Level2CausalPlausibility._check_identifiability",
             return_value=(1.0, []),
         ):
             result = stage.evaluate(_make_candidate(causal_graph=graph), {})

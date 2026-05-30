@@ -7,7 +7,8 @@ solver, or optional catalog backends unless `compile()` or `execute()` is
 actually called.
 
 The stable public surface of this package is intentionally narrow:
-`compile`, `compile_program` (compatibility alias), and `execute`.
+`compile`, `compile_program` (compatibility alias), `execute`, and W7 method
+requirement selection.
 """
 
 from __future__ import annotations
@@ -16,20 +17,28 @@ import importlib
 import sys
 import threading
 import types
-from typing import Any
 
-__all__ = ["compile", "compile_program", "execute"]
+__all__ = [
+    "compile",
+    "compile_program",
+    "execute",
+    "select_method_candidates_for_requirements",
+]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "compile": ("polisyos.foundry.api", "compile"),
     "compile_program": ("polisyos.foundry.api", "compile_program"),
     "execute": ("polisyos.foundry.api", "execute"),
+    "select_method_candidates_for_requirements": (
+        "polisyos.foundry.methods.selection",
+        "select_method_candidates_for_requirements",
+    ),
 }
-_RESOLVED_EXPORTS: dict[str, Any] = {}
+_RESOLVED_EXPORTS: dict[str, object] = {}
 _RESOLVE_LOCK = threading.Lock()
 
 
-def _resolve_lazy_export(name: str) -> Any:
+def _resolve_lazy_export(name: str) -> object:
     """Resolve and memoize one stable facade export."""
     with _RESOLVE_LOCK:
         cached = _RESOLVED_EXPORTS.get(name)
@@ -42,7 +51,7 @@ def _resolve_lazy_export(name: str) -> Any:
         return value
 
 
-def __getattr__(name: str) -> Any:
+def __getattr__(name: str) -> object:
     """Resolve a lazy public export on first access.
 
     Args:
@@ -83,7 +92,7 @@ class _FoundryFacadeModule(types.ModuleType):
     when a lazy export name has been shadowed by a submodule object.
     """
 
-    def __getattribute__(self, name: str) -> Any:
+    def __getattribute__(self, name: str) -> object:
         lazy_imports = types.ModuleType.__getattribute__(self, "_LAZY_IMPORTS")
         if name in lazy_imports:
             module_dict = types.ModuleType.__getattribute__(self, "__dict__")

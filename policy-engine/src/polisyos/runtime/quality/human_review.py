@@ -17,9 +17,14 @@ from polisyos.core.canon.canon_json import CanonSpec
 
 SCHEMA_VERSION = "policyos.human_review_calibration_report.v1"
 PACKET_EVALUATION_SCHEMA_VERSION = "policyos.human_review_packet_evaluation.v1"
+REVIEW_EFFECTIVENESS_TELEMETRY_SCHEMA_VERSION = (
+    "policyos.human_review_effectiveness_telemetry.v1"
+)
 HUMAN_REVIEW_CALIBRATION_REPORT_KIND = "runtime.human_review_calibration_report"
 HUMAN_REVIEW_CALIBRATION_REPORT_SCHEMA = "polisyos.runtime.HumanReviewCalibrationReport"
 HUMAN_REVIEW_CALIBRATION_REPORT_FILENAME = "human_review_calibration_report.json"
+REVIEW_EFFECTIVENESS_ADR_REF = "ADR-0171"
+REVIEW_EFFECTIVENESS_MATURE_POLICY = "mature_governed"
 
 _FLOW_ALIASES = {
     "approval": "approval",
@@ -83,6 +88,47 @@ class HumanReviewThresholds:
 
 
 @dataclass(frozen=True)
+class HumanReviewEffectivenessPolicy:
+    """Governed policy controlling review-effectiveness telemetry consequences.
+
+    Early review telemetry is measurement evidence only. It can become a
+    blocking closeout input only when a governed policy explicitly enables
+    blocking and cites longitudinal promotion evidence.
+    """
+
+    maturity: str = "early_advisory"
+    blocking_enabled: bool = False
+    policy_ref: str | None = None
+    longitudinal_evidence_ref: str | None = None
+
+    @property
+    def permits_blocking(self) -> bool:
+        """Return whether review-effectiveness telemetry may block closeout."""
+
+        return (
+            self.maturity == REVIEW_EFFECTIVENESS_MATURE_POLICY
+            and self.blocking_enabled
+            and _clean_text(self.policy_ref) is not None
+            and _clean_text(self.longitudinal_evidence_ref) is not None
+        )
+
+    def to_public_dict(self) -> dict[str, Any]:
+        """Project the policy into the public report without hidden defaults."""
+
+        payload: dict[str, Any] = {
+            "adr_ref": REVIEW_EFFECTIVENESS_ADR_REF,
+            "maturity": self.maturity,
+            "blocking_enabled": self.blocking_enabled,
+            "blocking_permitted": self.permits_blocking,
+        }
+        if self.policy_ref:
+            payload["policy_ref"] = self.policy_ref
+        if self.longitudinal_evidence_ref:
+            payload["longitudinal_evidence_ref"] = self.longitudinal_evidence_ref
+        return payload
+
+
+@dataclass(frozen=True)
 class HumanReviewCalibrationPersistence:
     """Locations written when a human-review calibration report is materialized."""
 
@@ -91,6 +137,7 @@ class HumanReviewCalibrationPersistence:
 
 
 DEFAULT_HUMAN_REVIEW_THRESHOLDS = HumanReviewThresholds()
+DEFAULT_REVIEW_EFFECTIVENESS_POLICY = HumanReviewEffectivenessPolicy()
 
 
 def deterministic_review_fixtures(*, now: datetime | None = None) -> list[dict[str, Any]]:
@@ -173,6 +220,9 @@ def build_human_review_calibration_report(
     job_id: str | None = None,
     now: datetime | None = None,
     thresholds: HumanReviewThresholds = DEFAULT_HUMAN_REVIEW_THRESHOLDS,
+    review_effectiveness_policy: HumanReviewEffectivenessPolicy = (
+        DEFAULT_REVIEW_EFFECTIVENESS_POLICY
+    ),
     report_ref: str | None = None,
 ) -> dict[str, Any]:
     """Build a stable calibration report from reviewer-attributed decisions."""
@@ -209,8 +259,22 @@ def build_human_review_calibration_report(
         oversight_effectiveness=oversight_effectiveness,
         producer_independence=producer_independence,
         thresholds=thresholds,
+        blocking_permitted=review_effectiveness_policy.permits_blocking,
     )
-    status = _overall_status(quality_signals)
+    threshold_status = _overall_status(quality_signals)
+    status = _review_effectiveness_report_status(
+        threshold_status,
+        policy=review_effectiveness_policy,
+    )
+    review_effectiveness_telemetry = _review_effectiveness_telemetry(
+        normalized_events,
+        summary=summary,
+        oversight_effectiveness=oversight_effectiveness,
+        producer_independence=producer_independence,
+        quality_signals=quality_signals,
+        policy=review_effectiveness_policy,
+        threshold_status=threshold_status,
+    )
     report: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
         "generated_at": generated_at.isoformat(),
@@ -219,6 +283,7 @@ def build_human_review_calibration_report(
         "job_id": job_id,
         "summary": summary,
         "quality_signals": quality_signals,
+        "review_effectiveness_telemetry": review_effectiveness_telemetry,
         "reviewer_burden": reviewer_burden,
         "oversight_effectiveness": oversight_effectiveness,
         "producer_independence": producer_independence,
@@ -361,6 +426,10 @@ def human_review_public_export(report: Mapping[str, Any]) -> dict[str, Any]:
         ),
         "summary": report.get("summary", {}),
         "quality_signals": report.get("quality_signals", []),
+        "review_effectiveness_telemetry": report.get(
+            "review_effectiveness_telemetry",
+            {},
+        ),
         "reviewer_burden": report.get("reviewer_burden", {}),
         "oversight_effectiveness": report.get("oversight_effectiveness", {}),
         "producer_independence": report.get("producer_independence", {}),
@@ -689,6 +758,7 @@ def _quality_signals(
     oversight_effectiveness: Mapping[str, Any],
     producer_independence: Mapping[str, Any],
     thresholds: HumanReviewThresholds,
+    blocking_permitted: bool,
 ) -> list[dict[str, Any]]:
     signals: list[dict[str, Any]] = []
     agreement_rate = _number(summary.get("agreement_rate"))
@@ -701,6 +771,7 @@ def _quality_signals(
                     agreement_rate,
                     thresholds.agreement_fail,
                     "Reviewer agreement is below the production fail threshold.",
+                    blocking_permitted=blocking_permitted,
                 )
             )
         elif agreement_rate < thresholds.agreement_warn:
@@ -711,6 +782,7 @@ def _quality_signals(
                     agreement_rate,
                     thresholds.agreement_warn,
                     "Reviewer agreement is below the production warning threshold.",
+                    blocking_permitted=blocking_permitted,
                 )
             )
 
@@ -724,6 +796,7 @@ def _quality_signals(
                     override_rate,
                     thresholds.override_rate_fail,
                     "Override rate is above the production fail threshold.",
+                    blocking_permitted=blocking_permitted,
                 )
             )
         elif override_rate > thresholds.override_rate_warn:
@@ -734,6 +807,7 @@ def _quality_signals(
                     override_rate,
                     thresholds.override_rate_warn,
                     "Override rate is above the production warning threshold.",
+                    blocking_permitted=blocking_permitted,
                 )
             )
 
@@ -747,6 +821,7 @@ def _quality_signals(
                     override_correctness_rate,
                     thresholds.override_correctness_fail,
                     "Override correctness is below the production fail threshold.",
+                    blocking_permitted=blocking_permitted,
                 )
             )
         elif override_correctness_rate < thresholds.override_correctness_warn:
@@ -757,6 +832,7 @@ def _quality_signals(
                     override_correctness_rate,
                     thresholds.override_correctness_warn,
                     "Override correctness is below the production warning threshold.",
+                    blocking_permitted=blocking_permitted,
                 )
             )
 
@@ -769,6 +845,7 @@ def _quality_signals(
                 unresolved_count,
                 thresholds.unresolved_disagreement_fail,
                 "Unresolved reviewer disagreements exceed the production fail threshold.",
+                blocking_permitted=blocking_permitted,
             )
         )
     elif unresolved_count >= thresholds.unresolved_disagreement_warn:
@@ -779,6 +856,7 @@ def _quality_signals(
                 unresolved_count,
                 thresholds.unresolved_disagreement_warn,
                 "Unresolved reviewer disagreements exceed the production warning threshold.",
+                blocking_permitted=blocking_permitted,
             )
         )
 
@@ -791,6 +869,7 @@ def _quality_signals(
                 max_minutes,
                 thresholds.reviewer_burden_minutes_fail,
                 "Reviewer burden exceeds the production fail threshold.",
+                blocking_permitted=blocking_permitted,
             )
         )
     elif max_minutes >= thresholds.reviewer_burden_minutes_warn:
@@ -801,6 +880,7 @@ def _quality_signals(
                 max_minutes,
                 thresholds.reviewer_burden_minutes_warn,
                 "Reviewer burden exceeds the production warning threshold.",
+                blocking_permitted=blocking_permitted,
             )
         )
     reviewer_independence_rate = _number(summary.get("reviewer_independence_rate"))
@@ -813,6 +893,7 @@ def _quality_signals(
                     reviewer_independence_rate,
                     thresholds.reviewer_independence_fail,
                     "Reviewer independence is below the production fail threshold.",
+                    blocking_permitted=blocking_permitted,
                 )
             )
         elif reviewer_independence_rate < thresholds.reviewer_independence_warn:
@@ -823,6 +904,7 @@ def _quality_signals(
                     reviewer_independence_rate,
                     thresholds.reviewer_independence_warn,
                     "Reviewer independence is below the production warning threshold.",
+                    blocking_permitted=blocking_permitted,
                 )
             )
 
@@ -841,6 +923,7 @@ def _quality_signals(
                         "Producer/reviewer separation of duty is below the production "
                         "fail threshold."
                     ),
+                    blocking_permitted=blocking_permitted,
                 )
             )
         elif separation_rate < thresholds.separation_of_duty_warn:
@@ -854,6 +937,7 @@ def _quality_signals(
                         "Producer/reviewer separation of duty is below the production "
                         "warning threshold."
                     ),
+                    blocking_permitted=blocking_permitted,
                 )
             )
 
@@ -867,6 +951,7 @@ def _quality_signals(
                     approve_without_change_rate,
                     thresholds.approve_without_change_rate_fail,
                     "Approve-without-change rate is above the production fail threshold.",
+                    blocking_permitted=blocking_permitted,
                 )
             )
         elif approve_without_change_rate >= thresholds.approve_without_change_rate_warn:
@@ -877,6 +962,7 @@ def _quality_signals(
                     approve_without_change_rate,
                     thresholds.approve_without_change_rate_warn,
                     "Approve-without-change rate is above the production warning threshold.",
+                    blocking_permitted=blocking_permitted,
                 )
             )
 
@@ -889,9 +975,145 @@ def _quality_signals(
                 rubber_stamp_score,
                 thresholds.rubber_stamp_risk_fail,
                 "Review pattern is consistent with rubber-stamp risk.",
+                blocking_permitted=blocking_permitted,
             )
         )
     return signals
+
+
+def _review_effectiveness_report_status(
+    threshold_status: str,
+    *,
+    policy: HumanReviewEffectivenessPolicy,
+) -> str:
+    if policy.permits_blocking:
+        return threshold_status
+    return "pass"
+
+
+def _review_effectiveness_telemetry(
+    events: Sequence[Mapping[str, Any]],
+    *,
+    summary: Mapping[str, Any],
+    oversight_effectiveness: Mapping[str, Any],
+    producer_independence: Mapping[str, Any],
+    quality_signals: Sequence[Mapping[str, Any]],
+    policy: HumanReviewEffectivenessPolicy,
+    threshold_status: str,
+) -> dict[str, Any]:
+    blocking_permitted = policy.permits_blocking
+    blocking_signal_codes = [
+        str(signal.get("code"))
+        for signal in quality_signals
+        if signal.get("status") == "fail" and signal.get("blocking")
+    ]
+    advisory_signal_codes = [
+        str(signal.get("code"))
+        for signal in quality_signals
+        if signal.get("status") in {"fail", "warn"} and not signal.get("blocking")
+    ]
+    return {
+        "schema_version": REVIEW_EFFECTIVENESS_TELEMETRY_SCHEMA_VERSION,
+        "adr_ref": REVIEW_EFFECTIVENESS_ADR_REF,
+        "threshold_status": threshold_status,
+        "posture": "governed_blocking" if blocking_permitted else "advisory",
+        "blocking_permitted": blocking_permitted,
+        "report_status_effect": (
+            threshold_status if blocking_permitted else "pass_advisory_only"
+        ),
+        "policy": policy.to_public_dict(),
+        "authority_boundary": {
+            "authoritative_for": [
+                "review_effectiveness_measurement",
+                "future_policy_calibration",
+                "reviewer_load_observability",
+            ],
+            "may_not_use_for": (
+                []
+                if blocking_permitted
+                else [
+                    "current_run_closeout_block",
+                    "publication_block",
+                    "claim_support_downgrade",
+                ]
+            ),
+        },
+        "measured_signals": _review_effectiveness_measured_signals(
+            events,
+            summary=summary,
+            oversight_effectiveness=oversight_effectiveness,
+            producer_independence=producer_independence,
+        ),
+        "advisory_signal_codes": advisory_signal_codes,
+        "blocking_signal_codes": blocking_signal_codes,
+    }
+
+
+def _review_effectiveness_measured_signals(
+    events: Sequence[Mapping[str, Any]],
+    *,
+    summary: Mapping[str, Any],
+    oversight_effectiveness: Mapping[str, Any],
+    producer_independence: Mapping[str, Any],
+) -> dict[str, Any]:
+    review_count = len(events)
+    review_times = [
+        int(event["time_spent_seconds"])
+        for event in events
+        if event.get("time_spent_seconds") is not None
+    ]
+    no_delta_count = sum(
+        1
+        for event in events
+        if bool(event.get("approved_without_change"))
+        or (
+            not bool(event.get("dissent"))
+            and int(event.get("change_request_count") or 0) == 0
+            and event.get("outcome") == "approve"
+        )
+    )
+    separation_values = [
+        bool(event["separation_of_duty_attested"])
+        for event in events
+        if event.get("separation_of_duty_attested") is not None
+    ]
+    separation_failure_count = sum(1 for value in separation_values if not value)
+    return {
+        "review_count": review_count,
+        "review_time_seconds_average": (
+            sum(review_times) / len(review_times) if review_times else None
+        ),
+        "review_time_seconds_median": _median(review_times),
+        "low_time_review_count": int(
+            oversight_effectiveness.get("low_time_review_count") or 0
+        ),
+        "override_rate": summary.get("override_rate"),
+        "override_count": int(summary.get("override_count") or 0),
+        "dissent_rate": (
+            int(summary.get("dissent_count") or 0) / review_count
+            if review_count
+            else None
+        ),
+        "dissent_count": int(summary.get("dissent_count") or 0),
+        "no_delta_review_rate": no_delta_count / review_count if review_count else None,
+        "no_delta_review_count": no_delta_count,
+        "separation_of_duty_failure_rate": (
+            separation_failure_count / len(separation_values)
+            if separation_values
+            else None
+        ),
+        "separation_of_duty_failure_count": separation_failure_count,
+    }
+
+
+def _median(values: Sequence[int]) -> float | None:
+    if not values:
+        return None
+    ordered = sorted(values)
+    midpoint = len(ordered) // 2
+    if len(ordered) % 2:
+        return float(ordered[midpoint])
+    return (ordered[midpoint - 1] + ordered[midpoint]) / 2
 
 
 def _signal(
@@ -900,6 +1122,8 @@ def _signal(
     value: float | int,
     threshold: float | int,
     message: str,
+    *,
+    blocking_permitted: bool,
 ) -> dict[str, Any]:
     return {
         "code": code,
@@ -907,7 +1131,12 @@ def _signal(
         "value": value,
         "threshold": threshold,
         "message": message,
-        "blocking": status == "fail",
+        "blocking": status == "fail" and blocking_permitted,
+        "authority_effect": (
+            "blocking_closeout_input"
+            if status == "fail" and blocking_permitted
+            else "advisory_measurement"
+        ),
     }
 
 
@@ -1146,10 +1375,14 @@ def _utc(value: datetime | None) -> datetime:
 
 __all__ = [
     "DEFAULT_HUMAN_REVIEW_THRESHOLDS",
+    "DEFAULT_REVIEW_EFFECTIVENESS_POLICY",
     "HUMAN_REVIEW_CALIBRATION_REPORT_FILENAME",
     "HUMAN_REVIEW_CALIBRATION_REPORT_KIND",
     "HUMAN_REVIEW_CALIBRATION_REPORT_SCHEMA",
+    "REVIEW_EFFECTIVENESS_ADR_REF",
+    "REVIEW_EFFECTIVENESS_TELEMETRY_SCHEMA_VERSION",
     "HumanReviewCalibrationPersistence",
+    "HumanReviewEffectivenessPolicy",
     "HumanReviewThresholds",
     "build_human_review_calibration_report",
     "deterministic_review_fixtures",

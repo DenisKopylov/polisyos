@@ -1,11 +1,11 @@
-# Engine (`polisyos.scientist.engine`)
+# Engine (`polisyos.scientist.orchestration.engine`)
 
 ## Purpose
 
-`polisyos.scientist.engine` defines the Scientist workflow runtime: state
-model, DAG execution, checkpoint/resume, idempotency, retry and fan-out
-semantics, runner backends, and trace metadata shared across the orchestration
-stack.
+`polisyos.scientist.orchestration.engine` defines the Scientist workflow
+runtime: state model, DAG execution, checkpoint/resume, idempotency, retry and
+fan-out semantics, runner backends, and trace metadata shared across the
+orchestration stack.
 
 ## Where to Start
 
@@ -34,14 +34,14 @@ stack.
 Run from the repository root (`policy-engine/`).
 
 - Smoke-tested import check: `uv run python -c "from polisyos.scientist.orchestration.engine import ExperimentState, WorkflowExecutor, WorkflowSpec; print(ExperimentState.__name__, WorkflowExecutor.__name__, WorkflowSpec.__name__)"`
-- Conceptual full-slice test run: `uv run pytest tests/unit/scientist/engine -q`
+- Conceptual full-slice test run: `uv run pytest tests/unit/scientist/orchestration/engine -q`
 
 ## Test / Verification Commands
 
 Smoke-tested:
 
 ```bash
-uv run pytest tests/unit/scientist/engine/test_condition.py tests/unit/scientist/engine/test_retry.py tests/unit/scientist/engine/test_state_merge.py -q
+uv run pytest tests/unit/scientist/orchestration/engine/test_condition.py tests/unit/scientist/orchestration/engine/test_retry.py tests/unit/scientist/orchestration/engine/test_state_merge.py -q
 ```
 
 ## Reference Docs

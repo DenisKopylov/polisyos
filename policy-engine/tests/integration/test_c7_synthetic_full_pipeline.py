@@ -65,7 +65,7 @@ from polisyos.ir.observation.governance import (
     DEFAULT_OBSERVATION_FAMILY_POLICY_REGISTRY,
     GovernancePassMappingRegistry,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     ArtifactRefModel,
     CausalGraphModelRef,
     PolicyRecommendationRef,

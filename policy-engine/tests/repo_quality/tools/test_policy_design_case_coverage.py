@@ -41,11 +41,16 @@ def test_policy_design_case_coverage_builder_writes_baseline_only_dashboard(
     tmp_path: Path,
 ) -> None:
     output_dir = tmp_path / "coverage"
+    baseline_coverage = _write_wave0_baseline(tmp_path)
 
     exit_code = coverage.main(
         [
             "--repo-root",
             str(REPO_ROOT),
+            "--baseline-coverage",
+            str(baseline_coverage),
+            "--baseline-gaps",
+            str(tmp_path / "missing-baseline-gaps.json"),
             "--output-dir",
             str(output_dir),
         ]
@@ -152,11 +157,25 @@ def test_policy_design_case_coverage_require_targets_uses_final_closeout_evidenc
     tmp_path: Path,
 ) -> None:
     output_dir = tmp_path / "coverage"
+    baseline_coverage = _write_wave0_baseline(tmp_path)
+    walking_skeleton_readiness = _write_status_payload(
+        tmp_path / "wave-7/walking_skeleton_readiness.json",
+        status="pass",
+    )
+    pass2_disposition = _write_pass2_closeout_ready(tmp_path)
 
     exit_code = coverage.main(
         [
             "--repo-root",
             str(REPO_ROOT),
+            "--baseline-coverage",
+            str(baseline_coverage),
+            "--baseline-gaps",
+            str(tmp_path / "missing-baseline-gaps.json"),
+            "--walking-skeleton-readiness",
+            str(walking_skeleton_readiness),
+            "--pass2-disposition",
+            str(pass2_disposition),
             "--output-dir",
             str(output_dir),
             "--require-targets",
@@ -178,3 +197,76 @@ def test_policy_design_case_coverage_require_targets_uses_final_closeout_evidenc
     assert metrics["integrity_self_fmea_maturity_pct"]["value"] == 100.0
     assert metrics["publication_external_audit_pct"]["value"] == 100.0
     assert metrics["pass2_disposition_pct"]["value"] == 100.0
+
+
+def _write_wave0_baseline(tmp_path: Path) -> Path:
+    path = tmp_path / "_build/policy-design-case/rebaseline/wave-0/coverage.json"
+    families = [
+        "policy_design_case",
+        "intent_envelope",
+        "capability_ledger",
+        "runtime_quality_profile",
+        "concept_spine",
+        "producer_contract_runtime_evidence",
+        "data_forge_snapshot_binding",
+        "scholar_literature_strand",
+        "portfolio_predeclaration",
+        "effective_independent_count",
+        "evidence_synthesis_report",
+        "claim_argument_warrant",
+        "berl_required_reliability",
+        "structured_judgement_consultation",
+        "implementation_monitoring_evaluation",
+        "human_oversight_independence",
+        "integrity_self_fmea_maturity",
+        "publication_external_audit",
+        "benchmarking_proportionality",
+    ]
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(
+            {
+                "schema_version": "policyos.policy_design_case.wave0_coverage.v1",
+                "wave": "0",
+                "family_coverage": [
+                    {"family": family, "present": False, "coverage_status": "missing"}
+                    for family in families
+                ],
+                "policy_design_case_present": False,
+            },
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    return path
+
+
+def _write_status_payload(path: Path, *, status: str) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({"status": status}, indent=2) + "\n", encoding="utf-8")
+    return path
+
+
+def _write_pass2_closeout_ready(tmp_path: Path) -> Path:
+    path = tmp_path / "wave-35/pass2_disposition.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(
+            {
+                "schema_version": "policyos.policy_design_case.pass2_disposition.v1",
+                "status": "pass",
+                "summary": {
+                    "must_fix_unresolved_count": 0,
+                    "accepted_blocker_count": 0,
+                    "next_plan_remediation_count": 0,
+                },
+            },
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    return path

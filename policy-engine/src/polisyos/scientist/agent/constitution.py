@@ -10,8 +10,8 @@ from datetime import UTC, datetime
 from typing import Any, Protocol
 
 from polisyos.core.canon import content_hash
-from polisyos.ir.model_spec import ModelSpec
-from polisyos.ir.norm_pack import NormPack, RuleType
+from polisyos.ir.model_layer.model_spec import ModelSpec
+from polisyos.ir.loading.norm_pack import NormPack, RuleType
 from polisyos.scientist.agent.constraint_context import ConstraintContextAssembler
 from polisyos.scientist.agent.protocols import ProblemFrame as AgentProblemFrame
 

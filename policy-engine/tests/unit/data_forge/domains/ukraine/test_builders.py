@@ -41,7 +41,7 @@ from polisyos.data_forge.domains.ukraine.models import (
     build_default_pipeline_config,
 )
 from polisyos.ir.observation.contracts import EntityScope, ObservationFamily
-from polisyos.ir.types import TimeFrequency
+from polisyos.ir.model_layer.types import TimeFrequency
 from polisyos.scientist.governance import (
     CalibrationRunManifest,
     HoldoutScoresManifest,

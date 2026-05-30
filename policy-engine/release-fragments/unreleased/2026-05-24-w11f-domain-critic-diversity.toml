@@ -1,0 +1,38 @@
+id = "2026-05-24-w11f-domain-critic-diversity"
+title = "Add domain coverage breadth and critic ensemble diversity tools"
+type = "added"
+component = "quality-validation"
+owner = "team-evaluation"
+summary = "Add W11.F validation tools for domain coverage breadth, per-authority useful-design rates, and critic ensemble Jaccard diversity with monoculture warnings."
+evidence = [
+  "tests/repo_quality/tools/test_domain_coverage_breadth.py",
+  "tests/repo_quality/tools/test_critic_ensemble_diversity.py",
+]
+compatibility = "Additive validation tools; no runtime API, generated client, or dashboard contract changes."
+change_class = "tooling"
+surface_classification = "internal_tooling"
+migration = "Domain breadth cases need actual W6.C compile inputs to count as produced graphs; expected fixture slices remain annotations. Critic diversity inputs need W6.E-style verdicts with critic roles and failure_modes."
+api = "Adds tools/quality/validation/check_domain_coverage_breadth.py and tools/quality/validation/check_critic_ensemble_diversity.py with --self-test and JSON report output."
+limitations = "Reports are diagnostic and metric-bearing; they do not mint producer evidence, critic authority, publication authority, or closeout approval."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "tools/quality/validation/README.md",
+]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "quality-validation-w11f-domain-coverage-critic-diversity"
+change_class = "tooling"
+impact = "additive"
+surface = "internal_tooling: tools/quality/validation/check_domain_coverage_breadth.py, tools/quality/validation/check_critic_ensemble_diversity.py"
+owner = "team-evaluation"
+version_owner = "team-evaluation"
+deprecation_window = "not_applicable"
+release_note = "W11.F domain coverage breadth, authority useful-design rates, and critic ensemble diversity can now be audited from deterministic validation tools."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "tools/quality/validation/README.md",
+]
+runbook_docs = []

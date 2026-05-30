@@ -15,9 +15,9 @@ from polisyos.foundry.contracts.state import GlobalState
 from polisyos.foundry.execute.executor import put_state_snapshot
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
-from polisyos.ir.model_spec import ModelSpec
+from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.ir.types import SelectorOperator
+from polisyos.ir.model_layer.types import SelectorOperator
 from polisyos.scientist import run_experiment
 
 pytestmark = pytest.mark.integration

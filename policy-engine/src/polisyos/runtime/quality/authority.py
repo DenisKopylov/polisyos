@@ -520,6 +520,71 @@ def classify_authority_role(envelope: AuthorityEnvelopeInput) -> AuthorityRole:
     return deserialize_authority_envelope(envelope).authority_role
 
 
+def authority_purpose_blockers(
+    envelope: Mapping[str, Any] | AuthorityEnvelopeInput | None,
+    purpose: str,
+) -> tuple[str, ...]:
+    """Return purpose-boundary blockers from authoritative_for/may_not_use_for fields."""
+
+    payload = _authority_payload(envelope)
+    requested = _optional_text(str(purpose))
+    if requested is None:
+        return ("authority_purpose_missing",)
+    may_not = set(_authority_payload_sequence(payload, "may_not_use_for"))
+    may_not.update(_authority_payload_sequence(payload, "may_not_be_used_for"))
+    if requested in may_not:
+        return ("authority_purpose_forbidden",)
+    authoritative_for = set(_authority_payload_sequence(payload, "authoritative_for"))
+    if authoritative_for and requested not in authoritative_for:
+        return ("authority_purpose_not_authorized",)
+    return ()
+
+
+def assert_authority_purpose_allowed(
+    envelope: Mapping[str, Any] | AuthorityEnvelopeInput | None,
+    purpose: str,
+) -> Mapping[str, Any]:
+    """Fail closed when an authority envelope forbids the requested purpose."""
+
+    blockers = authority_purpose_blockers(envelope, purpose)
+    if blockers:
+        raise AuthorityEnvelopeError(blockers[0], f"purpose={purpose!r}")
+    return _authority_payload(envelope)
+
+
+def capability_binding_purpose_blockers(
+    binding_result: Mapping[str, Any] | None,
+    purpose: str,
+) -> tuple[str, ...]:
+    """Return purpose blockers for a capability binding result."""
+
+    payload = _authority_payload(binding_result)
+    blockers = list(authority_purpose_blockers(payload, purpose))
+    requested = _optional_text(str(purpose))
+    status = _authority_payload_text(payload, "status") or ""
+    if requested in {"claim_evidence", "claim_evidence_closeout"} and not bool(
+        payload.get("satisfies_claim_evidence")
+    ):
+        blockers.append(
+            status
+            if status.startswith("blocked_")
+            else "capability_binding_cannot_satisfy_claim_evidence"
+        )
+    return tuple(dict.fromkeys(blockers))
+
+
+def assert_capability_binding_purpose_allowed(
+    binding_result: Mapping[str, Any] | None,
+    purpose: str,
+) -> Mapping[str, Any]:
+    """Fail closed when a capability binding cannot be consumed for a purpose."""
+
+    blockers = capability_binding_purpose_blockers(binding_result, purpose)
+    if blockers:
+        raise AuthorityEnvelopeError(blockers[0], f"purpose={purpose!r}")
+    return _authority_payload(binding_result)
+
+
 def classify_authority_failure(
     *,
     authority_error_code: str | None = None,
@@ -765,6 +830,22 @@ def _authority_payload_text(payload: Mapping[str, Any], key: str) -> str | None:
     return _optional_text(value) if isinstance(value, str) else None
 
 
+def _authority_payload_sequence(payload: Mapping[str, Any], key: str) -> tuple[str, ...]:
+    value = payload.get(key)
+    if isinstance(value, str):
+        raw_values: Iterable[Any] = (value,)
+    elif isinstance(value, Iterable):
+        raw_values = value
+    else:
+        return ()
+    return tuple(
+        text
+        for item in raw_values
+        for text in (_optional_text(str(item)),)
+        if text is not None
+    )
+
+
 def _normalize_code(value: str | None) -> str | None:
     return _optional_text(value)
 
@@ -1005,7 +1086,10 @@ def _next_action_for_root_cause(root_cause_class: AuthorityRootCauseClass) -> st
     if root_cause_class in {"runtime_domain_failure", "runtime_owned_domain_failure"}:
         return "Repair the producer-owned domain evidence and rerun scorecard aggregation."
     if root_cause_class == "borrowed_authority_envelope":
-        return "Mint report-specific authority envelopes instead of borrowing authority from another artifact family."
+        return (
+            "Mint report-specific authority envelopes instead of borrowing authority "
+            "from another artifact family."
+        )
     if root_cause_class == "missing_provenance":
         return "Emit a runtime authority envelope before serious readiness closeout."
     if root_cause_class == "packaging_only_projection":
@@ -1038,10 +1122,10 @@ __all__ = [
     "EVIDENCE_AUTHORITY_ENVELOPE_SCHEMA_ID",
     "SERIOUS_EXECUTION_PROFILES",
     "AuthorityEnvelopeError",
-    "AuthorityFailureClassification",
-    "AuthorityRootCauseClass",
     "AuthorityEnvelopeViolation",
+    "AuthorityFailureClassification",
     "AuthorityRole",
+    "AuthorityRootCauseClass",
     "BlockingStatus",
     "EvidenceAuthorityEnvelope",
     "EvidenceClass",
@@ -1052,10 +1136,14 @@ __all__ = [
     "SameInputClosureStatus",
     "ValidationStatus",
     "assert_authority_bearing",
+    "assert_authority_purpose_allowed",
+    "assert_capability_binding_purpose_allowed",
     "assert_runtime_emitted",
     "assert_same_input_closure",
     "authority_envelope_json_schema",
     "authority_envelope_ownership_issues",
+    "authority_purpose_blockers",
+    "capability_binding_purpose_blockers",
     "classify_authority_failure",
     "classify_authority_role",
     "deserialize_authority_envelope",

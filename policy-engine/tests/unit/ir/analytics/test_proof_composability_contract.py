@@ -25,7 +25,7 @@ from polisyos.ir.analytics.proof_composability import (
     persist_proof_composability_certificate,
     persist_proof_witness_index,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     EvidenceBundleRef,
     ProofComposabilityCertificateRef,
     ProofWitnessIndexRef,

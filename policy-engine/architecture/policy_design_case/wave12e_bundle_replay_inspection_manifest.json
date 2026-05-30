@@ -1,0 +1,73 @@
+{
+  "schema_version": "policyos.policy_design_case.wave12e.bundle_replay_inspection_manifest.v1",
+  "status": "implemented",
+  "phase_id": "W12.E",
+  "phase_name": "Bundle, Replay, And Inspection",
+  "generated_at": "2026-05-25T00:00:00Z",
+  "owner": "team-runtime-quality",
+  "implementation_plan_ref": "repo://docs/plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md#w12e-bundle-replay-and-inspection",
+  "tool_ref": "repo://tools/quality/validation/run_policy_design_case_bundle_replay_inspection.py",
+  "required_bundle_components": [
+    "spine",
+    "handoff",
+    "claim_registry",
+    "pdc_graph",
+    "argument_graph",
+    "conflict_records",
+    "effective_independence_graph",
+    "pdc_projection",
+    "closeout",
+    "compatibility",
+    "rule_refs",
+    "tuned_config_refs",
+    "source_provenance",
+    "hypothesis_ledger_excerpts",
+    "inspected_artifact_refs"
+  ],
+  "command_contract": {
+    "command": "uv run python tools/quality/validation/run_policy_design_case_bundle_replay_inspection.py --repo-root . --w12d-report _build/.tmp/production-quality/w12d_universal_outcome_corpus_run.json --output _build/.tmp/production-quality/w12e_bundle_replay_inspection.json",
+    "output_refs": [
+      "_build/.tmp/production-quality/w12e_bundle_replay_inspection.json"
+    ],
+    "required_checks": [
+      "bundle_component_presence",
+      "replay_evidence_graph",
+      "packaging_authority_boundary"
+    ],
+    "owner": "team-runtime-quality",
+    "next_action": "Repair missing W8 bundle components, replay drift, or authority laundering blockers before W12.F/G can consume the phase."
+  },
+  "metric_policy": {
+    "packaging_summaries_are_authority": false,
+    "typed_blockers_count_as_useful_design": false,
+    "typed_blockers_are_closeout_honesty_failures": false
+  },
+  "authority_boundary": {
+    "authoritative_for": [
+      "w12e_bundle_replay_inspection"
+    ],
+    "may_not_use_for": [
+      "claim_evidence_authority",
+      "producer_domain_truth",
+      "production_closeout_authority",
+      "public_projection_authority"
+    ]
+  },
+  "pattern_pass": {
+    "relevant_patterns": [
+      "P01",
+      "P03",
+      "P05",
+      "P07",
+      "P10",
+      "P12",
+      "P15"
+    ],
+    "target_correct_pattern": "Bundle inspection is a consumer of runtime evidence and replay refs; it never becomes producer or public projection authority.",
+    "missing_capability_labels": []
+  },
+  "validation": {
+    "test_ref": "repo://tests/repo_quality/tools/test_w12e_bundle_replay_inspection.py",
+    "command_ref": "uv run python tools/quality/validation/run_policy_design_case_bundle_replay_inspection.py --repo-root . --w12d-report _build/.tmp/production-quality/w12d_universal_outcome_corpus_run.json --output _build/.tmp/production-quality/w12e_bundle_replay_inspection.json"
+  }
+}

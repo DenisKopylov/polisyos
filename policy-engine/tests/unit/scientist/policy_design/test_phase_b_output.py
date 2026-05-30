@@ -53,10 +53,10 @@ from polisyos.ir.governance.problem_frame import (
     ProblemFrame,
 )
 from polisyos.ir.kernel.values import MoneyValue
-from polisyos.ir.model_spec import AssumptionSpec, AssumptionType, ModelSpec
-from polisyos.ir.refs import ArtifactRefModel
+from polisyos.ir.model_layer.model_spec import AssumptionSpec, AssumptionType, ModelSpec
+from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.ir.types import OptimizationDirection, SelectorOperator
+from polisyos.ir.model_layer.types import OptimizationDirection, SelectorOperator
 from polisyos.scientist.policy_design.objectives import (
     ConstraintStatus,
     ObjectiveChannelValue,

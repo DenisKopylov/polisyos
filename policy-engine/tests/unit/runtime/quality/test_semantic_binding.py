@@ -9,8 +9,8 @@ from polisyos.runtime.quality.semantic_binding import (
     ProducerSpineReadContext,
     SemanticBindingLedger,
     build_producer_spine_read_context,
-    close_semantic_binding_ledger,
     build_semantic_binding_ledger,
+    close_semantic_binding_ledger,
     evaluate_semantic_binding_ledger,
     producer_spine_read_context_for,
 )
@@ -152,11 +152,28 @@ def _complete_ledger() -> dict[str, object]:
                 "rejected_method_refs": ["descriptive.summary"],
                 "scenario_method_expectation_refs": ["causal_effect_estimation"],
                 "assumptions": ["parallel_trends"],
+                "assumption_gate_refs": [
+                    "foundry-assumption-gate:causal.difference_in_differences:parallel_trends"
+                ],
+                "runtime_assumption_gates": [
+                    {
+                        "gate_ref": (
+                            "foundry-assumption-gate:"
+                            "causal.difference_in_differences:parallel_trends"
+                        ),
+                        "assumption": "parallel_trends",
+                        "status": "pass",
+                    }
+                ],
                 "input_coverage": [{"source_ref": "production-msme-panel", "status": "pass"}],
                 "sample_power_adequacy": [{"method_ref": "causal.difference_in_differences"}],
                 "placebo_negative_control_refs": ["placebo:pre_period"],
                 "sensitivity_refs": ["sensitivity:survival-v1"],
                 "uncertainty_refs": ["uncertainty:survival-v1"],
+                "uncertainty_envelopes": [
+                    {"status": "pass", "interval": [0.01, 0.07]}
+                ],
+                "limitation_refs": ["method-limit:survival-v1"],
                 "method_incompatibility_blocker_refs": [],
                 **_spine_binding_fields("foundry"),
             }
@@ -204,6 +221,66 @@ def _complete_ledger() -> dict[str, object]:
                 **_spine_binding_fields("final_compiler"),
             }
         ],
+    }
+
+
+def test_superiority_claim_without_comparison_records_fails_semantic_binding() -> None:
+    ledger = build_semantic_binding_ledger(
+        policy_intent={"intent_id": "intent-superiority"},
+        runtime_refs={
+            "policy_intent_ref": "intent:superiority",
+            "concept_spine_ref": sha("2"),
+            "jurisdiction_spine_ref": sha("6"),
+        },
+        normative_evidence={
+            "selected_norm_refs": ["norm.ua.credit_eligibility"],
+        },
+        fabric_retrieval_trace={
+            "selected_dataset_source_refs": ["production-msme-panel"],
+            "column_bindings": [
+                {
+                    "claim_id": "rec_superiority",
+                    "source_ref": "production-msme-panel",
+                    "column_refs": ["firm_id", "survival"],
+                }
+            ],
+        },
+        scholar_evidence={
+            "selected_literature_refs": ["literature:msme-credit"],
+        },
+        foundry_method_report={
+            "selected_method_refs": ["method:frontier-comparison"],
+            "method_output_refs": ["method-output:frontier-comparison"],
+            "assumption_gate_refs": ["assumption:frontier"],
+            "uncertainty_refs": ["uncertainty:frontier"],
+        },
+        final_claims=[
+            {
+                "claim_id": "rec_superiority",
+                "claim_use": "superiority",
+                "claim_type": "recommendation",
+                "major": True,
+                "text": "Selected option is superior to the baseline and alternatives.",
+                "scenario_requirement_refs": ["req:superiority"],
+                "data_refs": ["production-msme-panel"],
+                "norm_refs": ["norm.ua.credit_eligibility"],
+                "method_refs": ["method:frontier-comparison"],
+                "method_output_refs": ["method-output:frontier-comparison"],
+                "argument_refs": ["argument:superiority"],
+                "warrant_refs": ["warrant:superiority"],
+                "rebuttal_refs": ["rebuttal:superiority"],
+                "counter_evidence_refs": ["counter:superiority"],
+                "limitation_refs": ["limitation:superiority"],
+                "uncertainty_refs": ["uncertainty:frontier"],
+            }
+        ],
+    )
+
+    evaluation = evaluate_semantic_binding_ledger(ledger)
+
+    assert evaluation.status == "fail"
+    assert "semantic_superiority_claim_comparison_refs_missing" in {
+        issue.code for issue in evaluation.issues
     }
 
 
@@ -277,6 +354,10 @@ def _complete_claim_evidence_paths() -> list[dict[str, object]]:
             "foundry_binding_refs": ["foundry-binding-1"],
             "selected_method_refs": ["causal.difference_in_differences"],
             "method_output_refs": ["method-output:causal.difference_in_differences"],
+            "assumption_gate_refs": [
+                "foundry-assumption-gate:causal.difference_in_differences:parallel_trends"
+            ],
+            "uncertainty_refs": ["uncertainty:survival-v1"],
             "scientist_claim_refs": ["claim:rec_1"],
             "argument_refs": ["arg-rec-1"],
             "warrant_refs": ["warrant-rec-1"],
@@ -455,10 +536,58 @@ def test_complete_claim_evidence_path_closes_data_legal_method_and_argument_axes
     assert path.selected_norm_refs == ("norm.ua.credit_eligibility",)
     assert path.column_refs == ("firm_id", "survival", "credit_amount")
     assert path.method_output_refs == ("method-output:causal.difference_in_differences",)
+    assert path.assumption_gate_refs == (
+        "foundry-assumption-gate:causal.difference_in_differences:parallel_trends",
+    )
+    assert path.uncertainty_refs == ("uncertainty:survival-v1",)
     assert path.argument_refs == ("arg-rec-1",)
     assert path.warrant_refs == ("warrant-rec-1",)
     assert path.counter_evidence_refs == ("counter-evidence-rec-1",)
     assert path.limitation_refs == ("deficit-assessment-rec-1",)
+
+
+def test_semantic_binding_blocks_unverified_candidate_in_legal_read_path() -> None:
+    ledger = _complete_ledger()
+    hypothesis_ledger = {
+        "schema_version": "policyos.runtime.hypothesis_ledger.v1",
+        "run_id": "run-wave6f",
+        "job_id": "job-wave6f",
+        "entries": [
+            {
+                "candidate_id": "hypothesis-candidate:legal-reading-1",
+                "candidate_ref": "hypothesis-candidate:legal-reading-1",
+                "source_class": "llm_candidate",
+                "candidate_kind": "legal_reading",
+                "target_authority_slots": ["legal_authority"],
+                "target_claim_ids": ["rec_1"],
+                "prompt_fingerprint": "sha256:" + "1" * 64,
+                "tool_refs": ["tool-output:lex-probe"],
+                "repair_decision_lineage": ["repair:none"],
+                "authority_envelope": {
+                    "authoritative_for": ["candidate_hypothesis"],
+                    "may_not_use_for": ["legal_authority", "claim_authority"],
+                },
+                "admission_state": "candidate_unverified",
+            }
+        ],
+    }
+    ledger["hypothesis_ledger"] = hypothesis_ledger
+    final_binding = deepcopy(ledger["final_compiler"][0])  # type: ignore[index]
+    assert isinstance(final_binding, dict)
+    final_binding["claim_evidence_paths"] = [
+        {
+            **_complete_claim_evidence_paths()[0],
+            "selected_norm_refs": ["hypothesis-candidate:legal-reading-1"],
+        }
+    ]
+    ledger["final_compiler"] = [final_binding]
+
+    evaluation = evaluate_semantic_binding_ledger(ledger)
+
+    assert evaluation.status == "fail"
+    assert "candidate_firewall_candidate_unverified" in {
+        issue.code for issue in evaluation.issues
+    }
 
 
 def test_semantic_binding_builder_preserves_runtime_report_refs() -> None:

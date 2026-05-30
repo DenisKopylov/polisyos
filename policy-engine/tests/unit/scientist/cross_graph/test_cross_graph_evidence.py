@@ -33,7 +33,7 @@ from polisyos.ir.analytics.literature import (
 from polisyos.ir.analytics.transportability import TransportMode
 from polisyos.ir.governance.policy_spec import PolicySpec
 from polisyos.ir.governance.problem_frame import ConstraintSpec, ProblemFrame
-from polisyos.ir.model_spec import ModelSpec
+from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.cross_graph.compiler import (
     CrossGraphEvidenceCompiler,

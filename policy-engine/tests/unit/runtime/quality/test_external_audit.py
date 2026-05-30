@@ -13,6 +13,10 @@ from polisyos.runtime.quality.external_audit import (
     build_public_audit_archive_record,
     validate_public_audit_archive_record,
 )
+from polisyos.runtime.quality.projection_semantics import (
+    build_policy_design_case_projection_semantics,
+)
+from tests._helpers.policy_design_case_projection import policy_design_case
 
 
 def _sha(char: str) -> str:
@@ -102,6 +106,46 @@ def test_public_audit_archive_record_wires_core_audit_surfaces_without_private_c
     validation = validate_public_audit_archive_record(record)
     assert validation["status"] == "pass"
     assert validation["issues"] == []
+
+
+def test_public_audit_archive_record_surfaces_policy_design_case_projection_truth() -> None:
+    projection = build_policy_design_case_projection_semantics(
+        policy_design_case=policy_design_case(),
+        surface="public_export",
+        source_payload={
+            "authority_role": "final_decision_artifact",
+            "audit_refs": ["audit://pdc/w5a/external-audit"],
+            "closeout_verdict": {
+                "status": "blocked",
+                "verdict": "cannot_closeout",
+                "can_closeout": False,
+                "issues": [
+                    {
+                        "code": "omitted_blocked_claim",
+                        "severity": "omission",
+                        "message": "Claim rec_1 is omitted from the public summary.",
+                        "claim_ids": ["rec_1"],
+                    }
+                ],
+            },
+        },
+    )
+    projection["contract_verification_status"] = "pass"
+
+    record = build_public_audit_archive_record(
+        **_record_kwargs(),
+        policy_design_case_projection=projection,
+    )
+
+    surface = record["policy_design_case_surface"]
+    assert surface["authority_role"] == "projection_only"
+    assert surface["closeout_truth"]["can_closeout"] is False
+    assert surface["omission_manifest"][0]["claim_ids"] == ["rec_1"]
+    assert "audit://pdc/w5a/external-audit" in surface["audit_refs"]
+    assert surface["contract_verification_status"] == "pass"
+
+    validation = validate_public_audit_archive_record(record)
+    assert validation["status"] == "pass"
 
 
 def test_public_audit_archive_record_rejects_missing_prov() -> None:

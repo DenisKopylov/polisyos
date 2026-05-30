@@ -1081,7 +1081,8 @@ def _load_duckdb_rows(path: Path) -> tuple[list[dict[str, Any]], list[str]] | No
         ).fetchall()
         for (table_name,) in tables:
             safe_name = str(table_name).replace('"', '""')
-            rows = con.execute(f'select * from "{safe_name}" limit 10000').fetchdf()
+            # Table names come from DuckDB's own catalog and quotes are escaped.
+            rows = con.execute(f'select * from "{safe_name}" limit 10000').fetchdf()  # noqa: S608
             records = rows.to_dict(orient="records")
             return [dict(row) for row in records], [str(column) for column in rows.columns]
     except Exception:

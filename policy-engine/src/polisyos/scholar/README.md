@@ -9,6 +9,10 @@ staying CAS-first and freshness-aware.
 - **Depends on:** `core.contracts.scholar`, `core.artifacts`, `fabric.docs`, `fabric.claims`, `fabric.world`, and shared extractor entry points.
 - **Used by:** `scientist` nodes, the scholar CLI/component surface, and tests for bundle generation.
 - **Boundary function:** keeps knowledge-bundle creation separate from downstream consumers of the bundle.
+- **W7.D requirement bridge:** consumes `polisyos.scholar_requirement.ScholarSupportRequirementSpec`
+  when binding literature to Policy Design Case claims; publication evidence may
+  support or contest academic claims, but it cannot imply affected-person
+  representativeness.
 
 ## Key Concepts
 
@@ -17,6 +21,9 @@ staying CAS-first and freshness-aware.
 - **Discovery/acquire** - seed sources are normalized, canonicalized, and fetched from local files, URLs, or bytes.
 - **Docs/claims/reconcile** - document ingestion and claim extraction feed into conflict resolution and filtering.
 - **CAS and world events** - bundles and reports are persisted into CAS and accompanied by world events.
+- **Claim-bound Scholar requirements** - search, support links, dependence
+  records, and spine bindings can carry per-claim publication tier, recency,
+  replication, independence, and participation-boundary requirements.
 
 ## Public API
 

@@ -147,11 +147,11 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
         from polisyos.core.artifacts.ids import ArtifactID
         from polisyos.core.artifacts.manifest import ArtifactRef
         from polisyos.core.artifacts.store import FileSystemCAS
-        from polisyos.scientist.claims.lifecycle import (
+        from polisyos.scientist.evidence.claims.lifecycle import (
             AppendOnlyClaimLedger,
             ClaimLifecycleAction,
         )
-        from polisyos.scientist.claims.models import (
+        from polisyos.scientist.evidence.claims.models import (
             ClaimPublishability,
             ClaimRecord,
             ClaimSupportStatus,

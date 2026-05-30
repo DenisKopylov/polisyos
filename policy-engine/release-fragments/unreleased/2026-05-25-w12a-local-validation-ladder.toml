@@ -1,0 +1,41 @@
+id = "2026-05-25-w12a-local-validation-ladder"
+title = "Extend local validation ladder for W12.A"
+type = "changed"
+component = "quality-validation"
+owner = "team-runtime-quality"
+summary = "Extend the local Policy Design Case validation ladder to re-execute W6.A in W12.A over universal compilation, including W11.E compilation truthfulness and W11.F domain coverage / critic diversity command evidence."
+evidence = [
+  "tests/repo_quality/tools/test_policy_design_case_local_validation_ladder.py",
+]
+compatibility = "Keeps the wave6_local_validation_ladder_manifest.json path and schema version for compatibility while adding W12.A phase identity, W11.E/W11.F command rows, and separate compilation-truthfulness metrics."
+change_class = "tooling"
+surface_classification = "internal_tooling"
+migration = "Operators should keep using tools/quality/validation/run_policy_design_case_local_validation_ladder.py; W12.A quick/full profiles now emit W11.E/W11.F output refs in _build/.tmp/production-quality/."
+api = "Adds optional --compilation-truthfulness-json, --domain-coverage-json, and --critic-diversity-json report inputs to the local validation ladder."
+limitations = "The ladder reports typed blockers and metrics; it does not mint producer evidence, claim authority, publication authority, or rollout approval."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "tools/quality/validation/README.md",
+]
+runbook_docs = [
+  "docs/runbooks/policy-design-case-rollout-rollback.md",
+]
+
+[[compatibility_change]]
+id = "quality-validation-w12a-local-ladder"
+change_class = "tooling"
+impact = "additive"
+surface = "internal_tooling: tools/quality/validation/run_policy_design_case_local_validation_ladder.py"
+owner = "team-runtime-quality"
+version_owner = "team-runtime-quality"
+deprecation_window = "not_applicable"
+release_note = "W12.A local validation now records universal-compilation smoke commands and reports closeout honesty, useful design, and compilation truthfulness separately."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "tools/quality/validation/README.md",
+]
+runbook_docs = [
+  "docs/runbooks/policy-design-case-rollout-rollback.md",
+]

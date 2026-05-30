@@ -8,14 +8,21 @@ from polisyos.scientist.evals.authority import (
     PromotionEvidenceRequest,
 )
 from polisyos.scientist.evals.challenge_factory import (
+    AuthoritySpoofingProbe,
     ChallengeFactoryReport,
     ChallengeSeed,
     ChallengeSeedKind,
     ChallengeStatus,
     GeneratedChallenge,
+    ParticipationSpeculationProbe,
+    PromptInjectionProbe,
+    R14AdversarialProbeFixture,
+    R14AdversarialProbeResult,
+    evaluate_r14_adversarial_probe_fixture,
 )
 
 __all__ = [
+    "AuthoritySpoofingProbe",
     "BenchmarkAuthority",
     "BenchmarkAuthorityVerdict",
     "ChallengeFactoryReport",
@@ -23,5 +30,10 @@ __all__ = [
     "ChallengeSeedKind",
     "ChallengeStatus",
     "GeneratedChallenge",
+    "ParticipationSpeculationProbe",
     "PromotionEvidenceRequest",
+    "PromptInjectionProbe",
+    "R14AdversarialProbeFixture",
+    "R14AdversarialProbeResult",
+    "evaluate_r14_adversarial_probe_fixture",
 ]

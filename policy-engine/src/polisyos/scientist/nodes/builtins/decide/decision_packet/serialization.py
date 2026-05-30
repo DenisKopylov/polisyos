@@ -14,7 +14,7 @@ from polisyos.core.contracts.decision_validity import (
     DecisionDependencyKind,
     DecisionDependencyRef,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     SensitivityAnalysisBundleRef,
 )
 from polisyos.scientist.nodes.builtins.decide.decision_packet.validation import (

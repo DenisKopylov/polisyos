@@ -6,7 +6,7 @@ import re
 from collections.abc import Mapping
 from typing import Any
 
-from polisyos.runtime.quality.claim_registry import (
+from polisyos.evidence import (
     apply_runtime_claim_registry_to_claim,
     claim_registry_rows_by_id,
     normalize_runtime_claim_registry,
@@ -117,6 +117,17 @@ _LIMITATION_DEFICIT_REF_ALIASES = (
     "claim_limitation_refs",
     "data_quality_limitation_refs",
     "degrade_reason_refs",
+)
+_MAJOR_CLAIM_EVIDENCE_GRAPH_MISSING_CODES = frozenset(
+    {
+        "major_claim_portfolio_refs_missing",
+        "major_claim_independence_refs_missing",
+        "major_claim_synthesis_refs_missing",
+        "major_claim_argument_refs_missing",
+        "major_claim_warrant_refs_missing",
+        "major_claim_rebuttal_or_counter_evidence_refs_missing",
+        "major_claim_limitation_or_deficit_refs_missing",
+    }
 )
 
 
@@ -277,6 +288,19 @@ def _major_claim_evidence_graph(claim: dict[str, Any]) -> dict[str, list[str]]:
         "synthesis_refs": [],
         "argument_refs": [],
         "warrant_refs": [],
+        "ir_analytics_refs": _graph_refs_for_aliases(claim, ("ir_analytics_refs",)),
+        "ir_certificate_refs": _graph_refs_for_aliases(claim, ("ir_certificate_refs",)),
+        "negative_certificate_refs": _graph_refs_for_aliases(
+            claim,
+            ("negative_certificate_refs",),
+        ),
+        "proof_composability_refs": _graph_refs_for_aliases(
+            claim,
+            ("proof_composability_refs",),
+        ),
+        "uncertainty_refs": _graph_refs_for_aliases(claim, ("uncertainty_refs",)),
+        "baseline_refs": _graph_refs_for_aliases(claim, ("baseline_refs",)),
+        "conflict_refs": _graph_refs_for_aliases(claim, ("conflict_refs",)),
         "rebuttal_or_counter_evidence_refs": _graph_refs_for_aliases(
             claim,
             _REBUTTAL_COUNTER_REF_ALIASES,
@@ -449,6 +473,24 @@ def _status_from_issues(issues: list[dict[str, Any]]) -> str:
     return "pass"
 
 
+def _ordered_policy_grounding_issues(
+    issues: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    if not any(issue.get("code") == "multi_model_policy_disagreement" for issue in issues):
+        return issues
+
+    def _rank(indexed_issue: tuple[int, dict[str, Any]]) -> tuple[int, int]:
+        index, issue = indexed_issue
+        code = _text(issue.get("code"))
+        if code in _MAJOR_CLAIM_EVIDENCE_GRAPH_MISSING_CODES:
+            return (2, index)
+        if code == "multi_model_policy_disagreement":
+            return (1, index)
+        return (0, index)
+
+    return [issue for _index, issue in sorted(enumerate(issues), key=_rank)]
+
+
 def _claim_extraction_issues(
     claim_extraction_report: dict[str, Any] | None,
 ) -> list[dict[str, Any]]:
@@ -576,6 +618,27 @@ def _selected_method_refs(foundry_method_report: dict[str, Any] | None) -> set[s
     refs: set[str] = set()
     for method in _selected_methods(foundry_method_report):
         refs.update(_method_ref_values(method))
+    return refs
+
+
+def _runtime_claim_registry_method_refs(
+    claim_registry: Mapping[str, Any] | None,
+) -> set[str]:
+    refs: set[str] = set()
+    if not isinstance(claim_registry, Mapping):
+        return refs
+    rows = claim_registry.get("claims")
+    if not isinstance(rows, list):
+        return refs
+    for row in rows:
+        if not isinstance(row, Mapping):
+            continue
+        refs.update(_as_graph_refs(row.get("method_output_refs")))
+        refs.update(_as_graph_refs(row.get("method_refs")))
+        selected = row.get("selected_producer_refs")
+        if isinstance(selected, Mapping):
+            refs.update(_as_graph_refs(selected.get("ir_analytics")))
+            refs.update(_as_graph_refs(selected.get("foundry")))
     return refs
 
 
@@ -1425,6 +1488,7 @@ def build_policy_grounding_matrix_report(
     production_data_quality_report: dict[str, Any] | None = None,
     causal_statistical_validity_report: dict[str, Any] | None = None,
     claim_registry: Mapping[str, Any] | None = None,
+    ir_analytics_bridge: Mapping[str, Any] | None = None,
     enforce_claim_support_semantics: bool = False,
     default_numeric_tolerance: float = 1e-6,
     spine_context: Mapping[str, Any] | None = None,
@@ -1441,11 +1505,16 @@ def build_policy_grounding_matrix_report(
             normative_evidence=normative_evidence,
             fabric_retrieval_trace=fabric_retrieval_trace,
             foundry_method_report=foundry_method_report,
+            ir_analytics_bridge=ir_analytics_bridge,
         )
         if claim_registry is not None
         else None
     )
     claim_registry_rows = claim_registry_rows_by_id(normalized_claim_registry)
+    selected_method_refs = {
+        *selected_method_refs,
+        *_runtime_claim_registry_method_refs(normalized_claim_registry),
+    }
 
     normalized_claims: list[dict[str, Any]] = []
     issues: list[dict[str, Any]] = []
@@ -1540,6 +1609,7 @@ def build_policy_grounding_matrix_report(
             normalized_claims=normalized_claims,
         )
     )
+    issues = _ordered_policy_grounding_issues(issues)
 
     report = {
         "schema_version": SCHEMA_VERSION,
@@ -1605,12 +1675,10 @@ def build_policy_grounding_matrix_report(
         },
     }
     if spine_context is not None:
-        from polisyos.runtime.quality.semantic_binding import (
-            build_producer_spine_binding_fields,
-        )
+        from polisyos.core import contracts as core_contracts
 
         report.update(
-            build_producer_spine_binding_fields(
+            core_contracts.build_producer_spine_binding_fields(
                 component="scientist",
                 spine_context=spine_context,
                 candidate_refs=[_claim_id(claim, index) for index, claim in enumerate(claims)],
@@ -1631,6 +1699,7 @@ def normalize_policy_grounding_matrix(
     production_data_quality_report: dict[str, Any] | None = None,
     causal_statistical_validity_report: dict[str, Any] | None = None,
     claim_registry: Mapping[str, Any] | None = None,
+    ir_analytics_bridge: Mapping[str, Any] | None = None,
     enforce_claim_support_semantics: bool = False,
     default_numeric_tolerance: float = 1e-6,
 ) -> dict[str, Any]:
@@ -1716,6 +1785,13 @@ def normalize_policy_grounding_matrix(
             if isinstance(report.get("runtime_claim_registry"), Mapping)
             else report.get("claim_registry")
             if isinstance(report.get("claim_registry"), Mapping)
+            else None
+        ),
+        ir_analytics_bridge=(
+            ir_analytics_bridge
+            if ir_analytics_bridge is not None
+            else report.get("ir_analytics_bridge")
+            if isinstance(report.get("ir_analytics_bridge"), Mapping)
             else None
         ),
         enforce_claim_support_semantics=enforce_claim_support_semantics,

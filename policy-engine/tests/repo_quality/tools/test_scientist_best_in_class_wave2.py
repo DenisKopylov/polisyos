@@ -5,6 +5,8 @@ import json
 from pathlib import Path
 
 import pytest
+from pydantic import ValidationError
+
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.governance.continuous import DecisionValidityStatus
@@ -14,6 +16,7 @@ from polisyos.scientist.governance.human_review.oversight_policy import HumanRev
 from polisyos.scientist.governance.human_review.voi_escalation import (
     validate_human_escalation_voi_decision,
 )
+from polisyos.scientist.methods.search.voi_models import VOIDecisionRecord, VOIDecisionType
 from polisyos.scientist.orchestration.memory import (
     MemoryContaminationPolicy,
     assert_reusable_memory_clean,
@@ -22,8 +25,6 @@ from polisyos.scientist.publishing.publisher import (
     DecisionGradeExport,
     OutputAudience,
 )
-from polisyos.scientist.methods.search.voi_models import VOIDecisionRecord, VOIDecisionType
-from pydantic import ValidationError
 from tools.ci import check_scientist_best_in_class_wave2 as gate
 
 REPO_ROOT = Path(__file__).resolve().parents[3]

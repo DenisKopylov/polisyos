@@ -1,0 +1,276 @@
+{
+  "schema_version": "policyos.policy_design_case.wave6.local_validation_ladder_manifest.v1",
+  "status": "implemented",
+  "phase_id": "W12.A",
+  "legacy_phase_id": "W6.A",
+  "phase_name": "Local Validation Ladder (Re-Execution Over Universal Compilation)",
+  "generated_at": "2026-05-23T00:00:00Z",
+  "owner": "team-runtime-quality",
+  "implementation_plan_ref": "repo://docs/plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md#w12a-local-validation-ladder-re-execution-over-universal-compilation",
+  "tool_ref": "repo://tools/quality/validation/run_policy_design_case_local_validation_ladder.py",
+  "manifest_path_compatibility": {
+    "preserved_path": "architecture/policy_design_case/wave6_local_validation_ladder_manifest.json",
+    "legacy_phase_id": "W6.A",
+    "reason": "The W6.A manifest path is retained for shim compatibility while W12.A re-executes the ladder over the compiled universal PDC.",
+    "sunset_policy": "Record a dated architecture/shims.toml sunset only after the universal capability is production-capable."
+  },
+  "profile_commands": {
+    "quick": [
+      {
+        "command_id": "unit_runtime_quality_smoke",
+        "category": "unit",
+        "owner": "team-runtime-quality",
+        "description": "Run a bounded runtime quality smoke subset for closeout/projection semantics.",
+        "command": "uv run pytest tests/unit/runtime/quality/test_closeout_reader.py tests/unit/runtime/quality/test_policy_design_case_projection_semantics.py tests/unit/runtime/quality/test_semantic_gold_cards.py -q",
+        "timeout_s": 600,
+        "output_refs": [],
+        "next_action": "Repair closeout/projection/semantic smoke failures before running the full W12.A ladder."
+      },
+      {
+        "command_id": "unit_policy_producer_smoke",
+        "category": "unit",
+        "owner": "team-domain-producers",
+        "description": "Run a bounded Scientist/Lex/Fabric/Foundry producer smoke subset.",
+        "command": "uv run pytest tests/unit/scientist/validation/test_claim_support.py tests/unit/lex/test_legal_authority_adapter.py tests/unit/fabric/test_source_selection_audit.py tests/unit/foundry/validation/test_method_quality.py -q",
+        "timeout_s": 600,
+        "output_refs": [],
+        "next_action": "Repair producer smoke failures before broad unit or cloud validation."
+      },
+      {
+        "command_id": "repo_quality_smoke",
+        "category": "repo_quality",
+        "owner": "team-quality-closeout",
+        "description": "Run capability-ratchet and evidence-bundle repo-quality smoke checks.",
+        "command": "uv run pytest tests/repo_quality/tools/test_policy_design_case_capability_ratchet.py tests/repo_quality/tools/test_evidence_bundle_inspection.py -q",
+        "timeout_s": 600,
+        "output_refs": [],
+        "next_action": "Repair repo-quality smoke failures or classify them as local typed blockers."
+      },
+      {
+        "command_id": "semantic_evaluation_smoke",
+        "category": "semantic",
+        "owner": "team-evaluation",
+        "description": "Run semantic false-pass smoke checks.",
+        "command": "uv run pytest tests/repo_quality/tools/test_policy_design_case_w5b_semantic_evaluation_packs.py tests/unit/runtime/quality/test_policy_design_case_false_passes.py -q",
+        "timeout_s": 600,
+        "output_refs": [],
+        "next_action": "Repair semantic smoke failures before declaring local validation green."
+      },
+      {
+        "command_id": "compilation_truthfulness_smoke",
+        "category": "universal_compilation_smoke",
+        "owner": "team-evaluation",
+        "description": "Run the W11.E compilation truthfulness self-test smoke.",
+        "command": "uv run python tools/quality/validation/check_compilation_truthfulness.py --self-test --repo-root . --output _build/.tmp/production-quality/compilation_truthfulness_smoke.json",
+        "timeout_s": 600,
+        "output_refs": [
+          "_build/.tmp/production-quality/compilation_truthfulness_smoke.json"
+        ],
+        "next_action": "Repair W11.E missed, hallucinated, scope-drift, or authority-drift obligations before using W12 rollout evidence."
+      },
+      {
+        "command_id": "domain_coverage_breadth_smoke",
+        "category": "universal_compilation_smoke",
+        "owner": "team-evaluation",
+        "description": "Run the W11.F domain coverage breadth self-test smoke.",
+        "command": "uv run python tools/quality/validation/check_domain_coverage_breadth.py --self-test --repo-root . --output _build/.tmp/production-quality/domain_coverage_breadth_smoke.json",
+        "timeout_s": 600,
+        "output_refs": [
+          "_build/.tmp/production-quality/domain_coverage_breadth_smoke.json"
+        ],
+        "next_action": "Repair W11.F domain graph coverage or mark uncovered domains as research-only/held before rollout."
+      },
+      {
+        "command_id": "critic_ensemble_diversity_smoke",
+        "category": "universal_compilation_smoke",
+        "owner": "team-evaluation",
+        "description": "Run the W11.F critic ensemble diversity self-test smoke.",
+        "command": "uv run python tools/quality/validation/check_critic_ensemble_diversity.py --self-test --repo-root . --output _build/.tmp/production-quality/critic_ensemble_diversity_smoke.json",
+        "timeout_s": 600,
+        "output_refs": [
+          "_build/.tmp/production-quality/critic_ensemble_diversity_smoke.json"
+        ],
+        "next_action": "Repair critic monoculture or classify the diversity warning before promotion beyond governed pilot."
+      },
+      {
+        "command_id": "capability_graph_exports",
+        "category": "capability_graph_audit",
+        "owner": "team-runtime-quality",
+        "description": "Run Phase 7 capability graph export, PROV, inspection, and card gates.",
+        "command": "uv run pytest tests/repo_quality/tools/test_policy_evidence_capability_exports.py -q",
+        "timeout_s": 600,
+        "output_refs": [],
+        "next_action": "Repair DCAT/PROV/card/inspection generation before treating the capability graph as externally inspectable."
+      },
+      {
+        "command_id": "local_prod_debug_quick",
+        "category": "local_production_debug",
+        "owner": "team-platform-runtime",
+        "description": "Run the local production-debug quick path before cloud lanes.",
+        "command": "uv run --extra runtime --extra multi-tenant --extra ml python tools/quality/testing/local_prod_debug_probe.py --repo-root . --checks quick,production-data-static,docs-repro --output _build/.tmp/production-quality/universal_pdc_local_quick.json",
+        "timeout_s": 1200,
+        "output_refs": [
+          "_build/.tmp/production-quality/universal_pdc_local_quick.json"
+        ],
+        "next_action": "Repair local production-debug wiring or keep cloud validation held with a typed blocker owner."
+      }
+    ],
+    "full": [
+      {
+        "command_id": "unit_runtime_quality",
+        "category": "unit",
+        "owner": "team-runtime-quality",
+        "description": "Run the full runtime quality unit surface.",
+        "command": "uv run pytest tests/unit/runtime/quality -q",
+        "timeout_s": 1800,
+        "output_refs": [],
+        "next_action": "Repair the failing runtime-quality producer, bridge, consumer, or semantic test before cloud validation."
+      },
+      {
+        "command_id": "unit_policy_producers",
+        "category": "unit",
+        "owner": "team-domain-producers",
+        "description": "Run Scientist, Lex, Fabric, and Foundry unit surfaces.",
+        "command": "uv run pytest tests/unit/scientist tests/unit/lex tests/unit/fabric tests/unit/foundry -q",
+        "timeout_s": 2400,
+        "output_refs": [],
+        "next_action": "Repair producer adapter failures or emit typed producer blockers before using live lanes."
+      },
+      {
+        "command_id": "repo_quality_closeout",
+        "category": "repo_quality",
+        "owner": "team-quality-closeout",
+        "description": "Run evidence-bundle inspection and readiness repo-quality gates.",
+        "command": "uv run pytest tests/repo_quality/tools/test_evidence_bundle_inspection.py tests/repo_quality/tools/test_policyos_production_quality_best_in_class.py -q",
+        "timeout_s": 900,
+        "output_refs": [],
+        "next_action": "Repair bundle inspection/readiness findings or classify them as typed blockers with owners."
+      },
+      {
+        "command_id": "repo_quality_public_docs",
+        "category": "repo_quality",
+        "owner": "team-docs-platform",
+        "description": "Run public export and docs lifecycle repo-quality gates.",
+        "command": "uv run pytest tests/repo_quality/tools/test_policy_design_case_public_export.py tests/repo_quality/tools/test_docs_lifecycle.py tests/repo_quality/tools/test_docs_gate.py -q",
+        "timeout_s": 900,
+        "output_refs": [],
+        "next_action": "Repair public/docs truthfulness or hold rollout until projection surfaces preserve closeout truth."
+      },
+      {
+        "command_id": "semantic_evaluation",
+        "category": "semantic",
+        "owner": "team-evaluation",
+        "description": "Run semantic gold-card and false-pass evaluation pack gates.",
+        "command": "uv run pytest tests/unit/runtime/quality/test_semantic_gold_cards.py tests/repo_quality/tools/test_policy_design_case_w5b_semantic_evaluation_packs.py -q",
+        "timeout_s": 900,
+        "output_refs": [],
+        "next_action": "Repair semantic false-pass coverage before declaring local validation green."
+      },
+      {
+        "command_id": "compilation_truthfulness_corpus",
+        "category": "universal_compilation_smoke",
+        "owner": "team-evaluation",
+        "description": "Run W11.E compilation truthfulness over the universal outcome corpus.",
+        "command": "uv run python tools/quality/validation/check_compilation_truthfulness.py --corpus tests/fixtures/universal-corpus --repo-root . --output _build/.tmp/production-quality/compilation_truthfulness_report.json",
+        "timeout_s": 1200,
+        "output_refs": [
+          "_build/.tmp/production-quality/compilation_truthfulness_report.json"
+        ],
+        "next_action": "Repair W11.E missed, hallucinated, scope-drift, or authority-drift obligations before using W12 rollout evidence."
+      },
+      {
+        "command_id": "domain_coverage_breadth_corpus",
+        "category": "universal_compilation_smoke",
+        "owner": "team-evaluation",
+        "description": "Run W11.F domain coverage breadth over the universal outcome corpus.",
+        "command": "uv run python tools/quality/validation/check_domain_coverage_breadth.py --corpus tests/fixtures/universal-corpus --repo-root . --output _build/.tmp/production-quality/domain_coverage_breadth_report.json",
+        "timeout_s": 1200,
+        "output_refs": [
+          "_build/.tmp/production-quality/domain_coverage_breadth_report.json"
+        ],
+        "next_action": "Repair W11.F domain graph coverage or mark uncovered domains as research-only/held before rollout."
+      },
+      {
+        "command_id": "critic_ensemble_diversity_corpus",
+        "category": "universal_compilation_smoke",
+        "owner": "team-evaluation",
+        "description": "Run W11.F critic ensemble diversity over universal critic fixtures.",
+        "command": "uv run python tools/quality/validation/check_critic_ensemble_diversity.py --input tests/fixtures/universal-corpus --repo-root . --output _build/.tmp/production-quality/critic_ensemble_diversity_report.json",
+        "timeout_s": 1200,
+        "output_refs": [
+          "_build/.tmp/production-quality/critic_ensemble_diversity_report.json"
+        ],
+        "next_action": "Repair critic monoculture or classify the diversity warning before promotion beyond governed pilot."
+      },
+      {
+        "command_id": "capability_graph_exports",
+        "category": "capability_graph_audit",
+        "owner": "team-runtime-quality",
+        "description": "Run Phase 7 capability graph export, PROV, inspection, and card gates.",
+        "command": "uv run pytest tests/repo_quality/tools/test_policy_evidence_capability_exports.py -q",
+        "timeout_s": 600,
+        "output_refs": [],
+        "next_action": "Repair DCAT/PROV/card/inspection generation before treating the capability graph as externally inspectable."
+      },
+      {
+        "command_id": "local_prod_debug_quick",
+        "category": "local_production_debug",
+        "owner": "team-platform-runtime",
+        "description": "Run the local production-debug quick path before cloud lanes.",
+        "command": "uv run --extra runtime --extra multi-tenant --extra ml python tools/quality/testing/local_prod_debug_probe.py --repo-root . --checks quick,production-data-static,docs-repro --output _build/.tmp/production-quality/universal_pdc_local_quick.json",
+        "timeout_s": 1200,
+        "output_refs": [
+          "_build/.tmp/production-quality/universal_pdc_local_quick.json"
+        ],
+        "next_action": "Repair local production-debug wiring or keep cloud validation held with a typed blocker owner."
+      }
+    ]
+  },
+  "required_categories": [
+    "unit",
+    "repo_quality",
+    "semantic",
+    "local_production_debug",
+    "universal_compilation_smoke",
+    "capability_graph_audit"
+  ],
+  "metric_policy": {
+    "three_outcome_metrics": [
+      "closeout_honesty",
+      "useful_design",
+      "compilation_truthfulness"
+    ],
+    "compilation_truthfulness_source": "W11.E",
+    "domain_coverage_and_critic_diversity_source": "W11.F",
+    "closeout_honesty_outcomes": [
+      "accepted_deficit",
+      "pass",
+      "publish_with_limitation",
+      "typed_blocker"
+    ],
+    "useful_design_outcomes": [
+      "pass",
+      "publish_with_limitation"
+    ],
+    "typed_blockers_count_as_closeout_honesty": true,
+    "typed_blockers_count_as_useful_design": false,
+    "accepted_deficits_count_as_useful_design": false,
+    "structural_commitment": "closeout honesty and useful-design capability are reported separately; typed blockers are diagnostics, not capability success"
+  },
+  "pattern_pass": {
+    "relevant_patterns": [
+      "P01",
+      "P02",
+      "P03",
+      "P10",
+      "P13",
+      "P15"
+    ],
+    "target_correct_pattern": "Local validation is an executable command-evidence producer with typed blockers, owners, next actions, W11.E/W11.F command evidence, and separate capability metrics.",
+    "missing_capability_labels": []
+  },
+  "validation": {
+    "test_ref": "repo://tests/repo_quality/tools/test_policy_design_case_local_validation_ladder.py",
+    "command_ref": "uv run python tools/quality/validation/run_policy_design_case_local_validation_ladder.py --repo-root . --profile quick"
+  }
+}

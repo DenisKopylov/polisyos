@@ -152,3 +152,129 @@ status = "active"
 negative_tests = [
   "tests/unit/runtime/quality/test_run_state.py::test_too_early_final_artifact_compilation_is_blocked",
 ]
+
+[[specs]]
+spec_id = "bounded_liveness_producer_pipeline"
+family = "formal_temporal_liveness_invariant_spec.v1"
+owner = "team-runtime-quality"
+source_adrs = ["ADR-0169"]
+statement = "C40 producer waits must satisfy their expected state within the governed deadline or emit runtime escalation."
+protected_authority_property = "A producer in requested, preflighted, waiting_on_spine, or waiting_on_peer cannot remain live past deadline without escalation; late success cannot satisfy liveness."
+implementation_scopes = [
+  "src/polisyos/runtime/quality/formal_invariants.py",
+  "src/polisyos/runtime/quality/producer_pipeline.py",
+  "src/polisyos/runtime/quality/concept_spine.py",
+]
+accepted_check_type = "state_machine_model_check"
+model_property = "bounded_liveness_producer_pipeline_deadline_consistency"
+minimum_evidence_artifacts = [
+  "architecture/policy_design_case/formal_invariant_specs.toml",
+  "tests/unit/runtime/quality/test_formal_invariants.py",
+  "tests/unit/runtime/quality/test_producer_pipeline.py",
+]
+revisit_triggers = [
+  "C40 producer states change.",
+  "Producer pipeline liveness record shape changes.",
+  "Closeout-sensitive producer wait semantics change.",
+]
+retirement_rule = "May be superseded only by an ADR that preserves finite deadline-or-escalate semantics for producer waits."
+criticality = "substrate_critical"
+status = "active"
+negative_tests = [
+  "tests/unit/runtime/quality/test_formal_invariants.py::test_bounded_liveness_flags_producer_wait_past_deadline_without_escalation",
+  "tests/unit/runtime/quality/test_producer_pipeline.py::test_waiting_on_peer_without_artifact_fields_and_deadline_emits_liveness_blocker",
+]
+
+[[specs]]
+spec_id = "bounded_liveness_retry_lease"
+family = "formal_temporal_liveness_invariant_spec.v1"
+owner = "team-runtime-quality"
+source_adrs = ["ADR-0169"]
+statement = "Retry and lease states must remain within governed retry ceilings and finite lease/deadline bounds."
+protected_authority_property = "Retry, lease, and timeout machinery cannot extend a producer wait beyond governed liveness config."
+implementation_scopes = [
+  "src/polisyos/runtime/quality/formal_invariants.py",
+  "src/polisyos/scientist/orchestration/engine/retry.py",
+  "src/polisyos/runtime/quality/evidence_spine_handoff.py",
+]
+accepted_check_type = "state_machine_model_check"
+model_property = "bounded_liveness_retry_lease_deadline_consistency"
+minimum_evidence_artifacts = [
+  "architecture/policy_design_case/formal_invariant_specs.toml",
+  "tests/unit/runtime/quality/test_formal_invariants.py",
+  "tests/unit/scientist/orchestration/engine/test_retry.py",
+]
+revisit_triggers = [
+  "RetryPolicy or liveness retry ceiling semantics change.",
+  "Control-plane lease state records change.",
+  "Runtime timeout handling changes.",
+]
+retirement_rule = "May be superseded only by an ADR that preserves governed retry ceilings and finite lease deadlines."
+criticality = "substrate_critical"
+status = "active"
+negative_tests = [
+  "tests/unit/runtime/quality/test_formal_invariants.py::test_bounded_liveness_flags_retry_lease_deadline_breach",
+  "tests/unit/scientist/orchestration/engine/test_retry.py::TestExecuteWithRetrySync::test_bounded_liveness_config_clamps_retry_ceiling",
+]
+
+[[specs]]
+spec_id = "bounded_liveness_escalation_authority"
+family = "formal_temporal_liveness_invariant_spec.v1"
+owner = "team-runtime-quality"
+source_adrs = ["ADR-0169"]
+statement = "Runtime liveness escalation is visible governance evidence but never domain evidence or closeout satisfaction."
+protected_authority_property = "Escalated, timed_out, blocked, degraded, abandoned, and rerun_required states may block, downgrade, acquire, reissue, or review, but cannot satisfy evidence authority."
+implementation_scopes = [
+  "src/polisyos/runtime/quality/formal_invariants.py",
+  "src/polisyos/runtime/quality/closeout_reader.py",
+  "src/polisyos/runtime/quality/producer_pipeline.py",
+]
+accepted_check_type = "state_machine_model_check"
+model_property = "bounded_liveness_escalation_does_not_satisfy_authority"
+minimum_evidence_artifacts = [
+  "architecture/policy_design_case/formal_invariant_specs.toml",
+  "tests/unit/runtime/quality/test_formal_invariants.py",
+  "tests/unit/runtime/quality/test_closeout_reader.py",
+]
+revisit_triggers = [
+  "Closeout readers consume new liveness states.",
+  "Producer escalation status vocabulary changes.",
+  "Authority boundary fields change for runtime blockers.",
+]
+retirement_rule = "May be superseded only by an ADR that keeps runtime escalation outside domain authority."
+criticality = "substrate_critical"
+status = "active"
+negative_tests = [
+  "tests/unit/runtime/quality/test_formal_invariants.py::test_bounded_liveness_rejects_escalation_authority_and_late_reissue",
+]
+
+[[specs]]
+spec_id = "bounded_liveness_reissue_flow"
+family = "formal_temporal_liveness_invariant_spec.v1"
+owner = "team-runtime-quality"
+source_adrs = ["ADR-0169"]
+statement = "Lifecycle reissue flows must resolve within governed deadline or emit runtime escalation/public revision state."
+protected_authority_property = "Late producer completion and partial reissue cannot silently mutate closed publication authority."
+implementation_scopes = [
+  "src/polisyos/runtime/quality/formal_invariants.py",
+  "src/polisyos/runtime/quality/case_lifecycle.py",
+  "src/polisyos/scientist/governance/continuous/reissue.py",
+]
+accepted_check_type = "state_machine_model_check"
+model_property = "bounded_liveness_reissue_deadline_consistency"
+minimum_evidence_artifacts = [
+  "architecture/policy_design_case/formal_invariant_specs.toml",
+  "tests/unit/runtime/quality/test_formal_invariants.py",
+  "tests/unit/runtime/quality/test_policy_design_case_lifecycle.py",
+]
+revisit_triggers = [
+  "Lifecycle reissue status vocabulary changes.",
+  "Public revision state semantics change.",
+  "Rule replay or drift detection emits new reissue actions.",
+]
+retirement_rule = "May be superseded only by an ADR that preserves finite reissue deadlines and append-only revision authority."
+criticality = "substrate_critical"
+status = "active"
+negative_tests = [
+  "tests/unit/runtime/quality/test_formal_invariants.py::test_bounded_liveness_rejects_escalation_authority_and_late_reissue",
+]

@@ -8,14 +8,14 @@ from typing import Any
 import pytest
 
 from polisyos.runtime.quality.degradation import (
-    DEGRADATION_LEDGER_REQUIRED_FIELDS,
     DEFAULT_MODE_AND_FALLBACK_POLICY_REGISTRY,
+    DEGRADATION_LEDGER_REQUIRED_FIELDS,
     DegradationLedgerContractError,
     ModeAndFallbackPolicyRegistryError,
     assert_serious_fallback_allowed,
     build_degradation_record,
-    deserialize_degradation_record,
     degradation_gate_from_payloads,
+    deserialize_degradation_record,
     evaluate_degradation_policy,
     load_mode_and_fallback_policy_registry,
     serialize_degradation_record,

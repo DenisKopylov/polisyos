@@ -8,7 +8,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.ir.norm_pack import NormPack, NormRule
+from polisyos.ir.loading.norm_pack import NormPack, NormRule
 
 
 class NormChangeType(str, Enum):

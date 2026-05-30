@@ -9,7 +9,7 @@ from typing import Any
 
 import numpy as np
 
-from polisyos.ir.canon import CanonSpec, content_hash, to_canonical_bytes
+from polisyos.ir.model_layer.canon import CanonSpec, content_hash, to_canonical_bytes
 
 from .core.truth_api import select_truth_targets
 from .evaluators import build_hook_diagnostics, build_plot_specs, evaluate_prediction

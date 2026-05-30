@@ -1,3 +1,5 @@
+from polisyos.ir.registry.refs import ArtifactRefModel
+
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.causal_discovery import (
@@ -24,7 +26,6 @@ from polisyos.ir.analytics.causal_discovery import (
 )
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
 from polisyos.ir.analytics.causal_queries import CausalQuery, QueryType
-from polisyos.ir.refs import ArtifactRefModel
 from polisyos.scientist.methods.discovery.aggregator import EvidenceWeightedAggregator
 from polisyos.scientist.methods.discovery.output import (
     DiscoveryArtifactBuilder,
@@ -466,7 +467,7 @@ def test_discovery_artifact_builder_creates_full_bundle_with_typed_placeholders(
         def close(self):
             return None
 
-    monkeypatch.setattr("polisyos.scientist.discovery.prior_miner.SKGQuery", FakeQuery)
+    monkeypatch.setattr("polisyos.scientist.methods.discovery.prior_miner.SKGQuery", FakeQuery)
 
     hypotheses = [
         _hypothesis(
@@ -623,7 +624,7 @@ def test_discovery_artifact_builder_marks_measured_seed_reproducibility_when_rep
         def close(self):
             return None
 
-    monkeypatch.setattr("polisyos.scientist.discovery.prior_miner.SKGQuery", FakeQuery)
+    monkeypatch.setattr("polisyos.scientist.methods.discovery.prior_miner.SKGQuery", FakeQuery)
 
     hypotheses = [
         _hypothesis(

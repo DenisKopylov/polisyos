@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+
 from tools.ops_runners.release.build_release_notes import (
     render_release_notes,
     structured_compatibility_changes,

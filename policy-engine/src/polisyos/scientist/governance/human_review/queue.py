@@ -21,7 +21,9 @@ from polisyos.scientist.governance.human_review.models import (
 )
 
 HUMAN_REVIEW_QUEUE_KIND = "scientist.human_review_queue"
-HUMAN_REVIEW_QUEUE_SCHEMA_NAME = "polisyos.scientist.human_review.HumanReviewQueueState"
+HUMAN_REVIEW_QUEUE_SCHEMA_NAME = (
+    "polisyos.scientist.governance.human_review.HumanReviewQueueState"
+)
 HUMAN_REVIEW_QUEUE_SCHEMA_VERSION = "1.0"
 
 __all__ = [

@@ -15,7 +15,7 @@ from polisyos.ir.analytics.strategic import (
     load_strategic_response_bundle,
     persist_strategic_payoff_table,
 )
-from polisyos.ir.refs import ArtifactRefModel, SimulationProofBridgeRef, StrategicResponseBundleRef
+from polisyos.ir.registry.refs import ArtifactRefModel, SimulationProofBridgeRef, StrategicResponseBundleRef
 from polisyos.scientist.orchestration.kernel.budgets import ComputeBudget
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.simulate.run_simulation import _SPEC, RunSimulationNode

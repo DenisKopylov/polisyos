@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import Enum
 from typing import Any, Literal
@@ -18,27 +19,16 @@ from polisyos.core.artifacts.manifest import (
     SchemaInfo,
 )
 from polisyos.core.artifacts.store import PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
-from polisyos.runtime.http.services.control.artifacts import (
-    write_authority_artifact,
-    write_runtime_authority_artifact,
-)
-from polisyos.runtime.quality.authority import (
-    EvidenceAuthorityEnvelope,
-    GovernanceMetadata,
-    SameInputClosure,
-)
-from polisyos.runtime.quality.diagnostic_events import (
-    DIAGNOSTIC_EVENT_SCHEMA_NAME,
-    DIAGNOSTIC_EVENT_SCHEMA_VERSION,
-    DiagnosticEvent,
-    SERIOUS_EXECUTION_PROFILES,
-)
-from polisyos.runtime.quality.schema_compat import evaluate_schema_compatibility
+from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
 
 CONTINUOUS_GOVERNANCE_FLAG = "scientist.best_in_class.wave2.phase2_6.continuous_governance"
 ENABLE_REISSUE_WORKFLOW_FLAG = "scientist.best_in_class.wave2.phase2_6.enable_reissue_workflow"
 ENABLE_WITHDRAWAL_STATUS_FLAG = "scientist.best_in_class.wave2.phase2_6.enable_withdrawal_status"
+DIAGNOSTIC_EVENT_SCHEMA_NAME = "polisyos.runtime.quality.diagnostic_event"
+DIAGNOSTIC_EVENT_SCHEMA_VERSION = "1.0"
+SERIOUS_EXECUTION_PROFILES = frozenset({"governed", "production", "research"})
+AUTHORITY_ENVELOPE_ARTIFACT_KIND = "runtime_quality.evidence_authority_envelope"
+DIAGNOSTIC_EVENT_ARTIFACT_KIND = "runtime_quality.diagnostic_event"
 
 MonitorEventType = Literal[
     "source_invalidation",
@@ -102,6 +92,7 @@ class GovernanceMonitorEvent(BaseModel):
     decision_packet_ref: ArtifactRef
     event_type: MonitorEventType
     severity: MonitorSeverity
+    scope: dict[str, Any] = Field(default_factory=dict)
     affected_claim_ids: list[str] = Field(default_factory=list)
     affected_dag_node_ids: list[str] = Field(default_factory=list)
     reason: str = Field(min_length=1)
@@ -161,6 +152,15 @@ class GovernanceLifecycleEvidence(BaseModel):
     report: dict[str, Any]
     diagnostic_event: dict[str, Any]
     authority_envelope: dict[str, Any]
+
+
+@dataclass(frozen=True, slots=True)
+class _AuthorityArtifactWriteResult:
+    cas_ref: ArtifactRef
+    payload_sha256: str
+    manifest_ref: str
+    authority_envelope_ref: ArtifactRef
+    diagnostic_event_ref: ArtifactRef
 
 
 def monitor_event_id(
@@ -279,11 +279,11 @@ def emit_governance_lifecycle_evidence(
             sort_keys=True,
         )
     )
-    schema_compatibility = evaluate_schema_compatibility(
-        {"schema_version": GOVERNANCE_LIFECYCLE_REPORT_SCHEMA_ID},
+    schema_compatibility = _evaluate_schema_compatibility(
+        schema_version=GOVERNANCE_LIFECYCLE_REPORT_SCHEMA_ID,
         reader="scorecard",
         expected_schema_family="policyos.runtime.governance_lifecycle_report",
-    ).to_gate_details()
+    )
     report_cas_refs = dict(cas_artifact_refs or {})
     report: dict[str, Any] = {
         "schema_version": GOVERNANCE_LIFECYCLE_REPORT_SCHEMA_ID,
@@ -351,31 +351,31 @@ def emit_governance_lifecycle_evidence(
         "phase": "continuous_governance_lifecycle",
         "generated_at": generated_at.isoformat(),
         "as_of_time": generated_at.isoformat(),
-        "same_input_closure": SameInputClosure(
-            closure_id=f"{report_id}:same_input_closure",
-            status="closed",
-            run_id=run_id,
-            job_id=job_id,
-            tenant_id=tenant_id,
-            cell_id=cell_id,
-            evidence_input_refs=input_ref_values,
-            closure_sha256=closure_sha256.removeprefix("sha256:"),
-        ),
+        "same_input_closure": {
+            "closure_id": f"{report_id}:same_input_closure",
+            "status": "closed",
+            "run_id": run_id,
+            "job_id": job_id,
+            "tenant_id": tenant_id,
+            "cell_id": cell_id,
+            "evidence_input_refs": input_ref_values,
+            "closure_sha256": closure_sha256.removeprefix("sha256:"),
+        },
         "input_refs": input_ref_values,
         "effective_mode_ref": effective_mode_ref,
         "degradation_ledger_ref": fallback_degradation_ref,
         "schema_compatibility_ref": _schema_compatibility_ref(schema_compatibility),
         "validation_status": "pass",
         "blocking_status": "non_overridable" if lifecycle_decision == "withdraw" else "blocking",
-        "governance": GovernanceMetadata(
-            classification="internal",
-            authority_boundary="runtime_continuous_governance_lifecycle",
-            pii="none",
-            retention_policy="runtime_quality_retention",
-            review_status=status.value,
-            override_policy="not_overridable",
-            approval_policy="requires_verified_scorecard",
-        ),
+        "governance": {
+            "classification": "internal",
+            "authority_boundary": "runtime_continuous_governance_lifecycle",
+            "pii": "none",
+            "retention_policy": "runtime_quality_retention",
+            "review_status": status.value,
+            "override_policy": "not_overridable",
+            "approval_policy": "requires_verified_scorecard",
+        },
         "event_source": "polisyos.runtime",
         "event_type": GOVERNANCE_LIFECYCLE_DIAGNOSTIC_EVENT_TYPE,
         "event_subject": (
@@ -386,21 +386,13 @@ def emit_governance_lifecycle_evidence(
         "state_after": status.value,
         "canon_spec": CanonSpec(forbid_floats=False),
     }
-    if event_log is not None:
-        result = write_runtime_authority_artifact(
-            store,
-            event_log,
-            report,
-            write_options,
-            **authority_fields,
-        )
-    else:
-        result = write_authority_artifact(
-            store,
-            report,
-            write_options,
-            **authority_fields,
-        )
+    result = _write_governance_authority_artifact(
+        store,
+        event_log,
+        report,
+        write_options,
+        **authority_fields,
+    )
     report_ref_value = str(result.cas_ref.artifact_id)
     diagnostic_payload = from_canonical_bytes(
         store.get_bytes(result.diagnostic_event_ref.artifact_id)
@@ -424,6 +416,145 @@ def emit_governance_lifecycle_evidence(
     )
 
 
+def _write_governance_authority_artifact(
+    store: Any,
+    event_log: Any | None,
+    payload: object,
+    opts: PutOptions,
+    **authority_fields: Any,
+) -> _AuthorityArtifactWriteResult:
+    canon_spec = authority_fields.get("canon_spec")
+    if not isinstance(canon_spec, CanonSpec):
+        canon_spec = CanonSpec(forbid_floats=False)
+    payload_bytes = to_canonical_bytes(payload, canon_spec)
+    payload_sha256 = content_hash(payload_bytes)
+    cas_ref_value = f"sha256:{payload_sha256}"
+    manifest_ref = f"cas-manifest://{cas_ref_value}"
+    producer = opts.producer or ProducerInfo(component="polisyos.scientist", version="unknown")
+    schema = opts.schema or SchemaInfo(name=opts.kind, version="1.0")
+
+    diagnostic_event = {
+        "event_id": authority_fields.get("event_id")
+        or f"event_{authority_fields.get('evidence_id')}",
+        "event_source": authority_fields.get("event_source") or "polisyos.runtime",
+        "event_type": authority_fields.get("event_type")
+        or GOVERNANCE_LIFECYCLE_DIAGNOSTIC_EVENT_TYPE,
+        "event_time": authority_fields.get("generated_at"),
+        "event_subject": authority_fields.get("event_subject"),
+        "schema_name": DIAGNOSTIC_EVENT_SCHEMA_NAME,
+        "schema_version": DIAGNOSTIC_EVENT_SCHEMA_VERSION,
+        "trace_id": authority_fields.get("trace_id"),
+        "span_id": authority_fields.get("span_id"),
+        "parent_span_id": authority_fields.get("parent_span_id"),
+        "run_id": authority_fields.get("run_id"),
+        "job_id": authority_fields.get("job_id"),
+        "tenant_id": authority_fields.get("tenant_id"),
+        "cell_id": authority_fields.get("cell_id") or "unknown",
+        "producer_component": producer.component,
+        "producer_version": producer.version,
+        "execution_profile": authority_fields.get("effective_execution_profile"),
+        "phase": authority_fields.get("phase"),
+        "state_before": authority_fields.get("state_before"),
+        "state_after": authority_fields.get("state_after"),
+        "payload_ref": cas_ref_value,
+        "artifact_refs": [cas_ref_value],
+        "input_refs": list(authority_fields.get("input_refs") or ()),
+        "blocking_status": authority_fields.get("blocking_status"),
+        "redaction_policy_ref": authority_fields.get("redaction_policy_ref"),
+        "duplicate_of": None,
+        "dedupe_key": (
+            f"{authority_fields.get('run_id')}:{authority_fields.get('job_id')}:"
+            f"{authority_fields.get('evidence_id')}"
+        ),
+        "sampling_decision": "always_record",
+        "sampling_rate": 1.0,
+    }
+    diagnostic_event_ref = store.put_json(
+        diagnostic_event,
+        PutOptions(
+            kind=DIAGNOSTIC_EVENT_ARTIFACT_KIND,
+            media_type="application/json",
+            schema=SchemaInfo(
+                name=DIAGNOSTIC_EVENT_SCHEMA_NAME,
+                version=DIAGNOSTIC_EVENT_SCHEMA_VERSION,
+            ),
+            producer=producer,
+            inputs=opts.inputs,
+        ),
+        canon_spec,
+    )
+    append = getattr(event_log, "append", None)
+    if callable(append):
+        append(dict(diagnostic_event))
+
+    authority_envelope = {
+        "evidence_id": authority_fields.get("evidence_id"),
+        "artifact_ref": cas_ref_value,
+        "artifact_kind": opts.kind,
+        "evidence_class": authority_fields.get("evidence_class"),
+        "authority_role": authority_fields.get("authority_role"),
+        "provenance_kind": authority_fields.get("provenance_kind"),
+        "producer_component": producer.component,
+        "producer_version": producer.version,
+        "owner": authority_fields.get("owner"),
+        "runtime_event_ref": str(diagnostic_event_ref.artifact_id),
+        "cas_ref": cas_ref_value,
+        "payload_sha256": payload_sha256,
+        "schema_name": schema.name,
+        "schema_version": schema.version,
+        "reader_contract": authority_fields.get("reader_contract"),
+        "reader_contract_version": authority_fields.get("reader_contract_version"),
+        "tenant_id": authority_fields.get("tenant_id"),
+        "cell_id": authority_fields.get("cell_id"),
+        "run_id": authority_fields.get("run_id"),
+        "job_id": authority_fields.get("job_id"),
+        "trace_id": authority_fields.get("trace_id"),
+        "span_id": authority_fields.get("span_id"),
+        "parent_span_id": authority_fields.get("parent_span_id"),
+        "requested_execution_profile": authority_fields.get("requested_execution_profile"),
+        "effective_execution_profile": authority_fields.get("effective_execution_profile"),
+        "phase": authority_fields.get("phase"),
+        "state_before": authority_fields.get("state_before"),
+        "state_after": authority_fields.get("state_after"),
+        "generated_at": authority_fields.get("generated_at"),
+        "as_of_time": authority_fields.get("as_of_time"),
+        "same_input_closure": authority_fields.get("same_input_closure"),
+        "input_refs": list(authority_fields.get("input_refs") or ()),
+        "output_refs": [cas_ref_value],
+        "effective_mode_ref": authority_fields.get("effective_mode_ref"),
+        "degradation_ledger_ref": authority_fields.get("degradation_ledger_ref"),
+        "schema_compatibility_ref": authority_fields.get("schema_compatibility_ref"),
+        "semantic_binding_ref": authority_fields.get("semantic_binding_ref"),
+        "attestation_ref": authority_fields.get("attestation_ref"),
+        "redaction_policy_ref": authority_fields.get("redaction_policy_ref"),
+        "validation_status": authority_fields.get("validation_status"),
+        "blocking_status": authority_fields.get("blocking_status"),
+        "governance": authority_fields.get("governance"),
+    }
+    authority_envelope_ref = store.put_json(
+        authority_envelope,
+        PutOptions(
+            kind=AUTHORITY_ENVELOPE_ARTIFACT_KIND,
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="runtime_quality.evidence_authority_envelope",
+                version="1.0",
+            ),
+            producer=producer,
+            inputs=opts.inputs,
+        ),
+        canon_spec,
+    )
+    cas_ref = store.put_json(payload, opts, canon_spec)
+    return _AuthorityArtifactWriteResult(
+        cas_ref=cas_ref,
+        payload_sha256=payload_sha256,
+        manifest_ref=manifest_ref,
+        authority_envelope_ref=authority_envelope_ref,
+        diagnostic_event_ref=diagnostic_event_ref,
+    )
+
+
 def build_drift_monitor_event(
     *,
     decision_packet_ref: ArtifactRef,
@@ -435,6 +566,7 @@ def build_drift_monitor_event(
     severity: MonitorSeverity,
     reason: str,
     affected_claim_ids: list[str] | None = None,
+    scope: dict[str, Any] | None = None,
     metric_name: str | None = None,
     observed_value: float | None = None,
     threshold: float | None = None,
@@ -459,6 +591,7 @@ def build_drift_monitor_event(
         decision_packet_ref=decision_packet_ref,
         event_type=event_type,
         severity=severity,
+        scope=scope or {},
         affected_claim_ids=affected_claim_ids or [],
         reason=reason,
         metadata=metadata,
@@ -515,42 +648,42 @@ def _build_lifecycle_diagnostic_event(
     execution_profile: str,
     state_before: str | None,
     event_time: datetime,
-) -> DiagnosticEvent:
-    return DiagnosticEvent(
-        event_id=f"event_{report_id}",
-        event_source="polisyos.runtime.scientist.governance.continuous",
-        event_type=GOVERNANCE_LIFECYCLE_DIAGNOSTIC_EVENT_TYPE,
-        event_time=event_time,
-        event_subject=f"decision_packet:{decision_packet_ref.artifact_id}",
-        schema_name=DIAGNOSTIC_EVENT_SCHEMA_NAME,
-        schema_version=DIAGNOSTIC_EVENT_SCHEMA_VERSION,
-        trace_id=trace_id,
-        span_id=span_id,
-        parent_span_id=None,
-        run_id=run_id,
-        job_id=job_id,
-        tenant_id=tenant_id,
-        cell_id=cell_id or "unknown",
-        producer_component=producer_component,
-        producer_version=producer_version,
-        execution_profile=execution_profile,
-        phase="continuous_governance_lifecycle",
-        state_before=state_before,
-        state_after=status.value,
-        payload_ref=report_ref,
-        artifact_refs=(report_ref,),
-        input_refs=tuple(str(ref.artifact_id) for ref in monitor_event_refs),
-        blocking_status=(
+) -> dict[str, Any]:
+    return {
+        "event_id": f"event_{report_id}",
+        "event_source": "polisyos.runtime.scientist.governance.continuous",
+        "event_type": GOVERNANCE_LIFECYCLE_DIAGNOSTIC_EVENT_TYPE,
+        "event_time": event_time.isoformat(),
+        "event_subject": f"decision_packet:{decision_packet_ref.artifact_id}",
+        "schema_name": DIAGNOSTIC_EVENT_SCHEMA_NAME,
+        "schema_version": DIAGNOSTIC_EVENT_SCHEMA_VERSION,
+        "trace_id": trace_id,
+        "span_id": span_id,
+        "parent_span_id": None,
+        "run_id": run_id,
+        "job_id": job_id,
+        "tenant_id": tenant_id,
+        "cell_id": cell_id or "unknown",
+        "producer_component": producer_component,
+        "producer_version": producer_version,
+        "execution_profile": execution_profile,
+        "phase": "continuous_governance_lifecycle",
+        "state_before": state_before,
+        "state_after": status.value,
+        "payload_ref": report_ref,
+        "artifact_refs": [report_ref],
+        "input_refs": [str(ref.artifact_id) for ref in monitor_event_refs],
+        "blocking_status": (
             "blocking"
             if lifecycle_decision in {"reissue", "supersede", "withdraw"}
             else "non_blocking"
         ),
-        redaction_policy_ref=None,
-        duplicate_of=None,
-        dedupe_key=f"{run_id}:{job_id}:{decision_packet_ref.artifact_id}:{lifecycle_decision}",
-        sampling_decision="always_record",
-        sampling_rate=1.0,
-    )
+        "redaction_policy_ref": None,
+        "duplicate_of": None,
+        "dedupe_key": f"{run_id}:{job_id}:{decision_packet_ref.artifact_id}:{lifecycle_decision}",
+        "sampling_decision": "always_record",
+        "sampling_rate": 1.0,
+    }
 
 
 def _build_lifecycle_authority_envelope(
@@ -579,72 +712,86 @@ def _build_lifecycle_authority_envelope(
     owner: str,
     producer_component: str,
     producer_version: str,
-) -> EvidenceAuthorityEnvelope:
-    closure = SameInputClosure(
-        closure_id=f"closure_{report_id}",
-        status="closed",
-        run_id=run_id,
-        job_id=job_id,
-        tenant_id=tenant_id,
-        cell_id=cell_id,
-        effective_mode_ref=effective_mode_ref,
-        degradation_ledger_ref=fallback_degradation_ref,
-        evidence_input_refs=tuple(input_refs),
-        closure_sha256=closure_sha256,
-    )
-    return EvidenceAuthorityEnvelope(
-        evidence_id=report_id,
-        artifact_ref=report_ref,
-        artifact_kind=GOVERNANCE_LIFECYCLE_REPORT_KIND,
-        evidence_class="authority_bearing",
-        authority_role="producer_authority",
-        provenance_kind="runtime_emitted",
-        producer_component=producer_component,
-        producer_version=producer_version,
-        owner=owner,
-        runtime_event_ref=diagnostic_event_ref,
-        cas_ref=report_ref,
-        payload_sha256=payload_sha256,
-        schema_name=GOVERNANCE_LIFECYCLE_REPORT_SCHEMA_NAME,
-        schema_version=GOVERNANCE_LIFECYCLE_REPORT_SCHEMA_VERSION,
-        reader_contract="runtime.scorecard",
-        reader_contract_version="1.0",
-        tenant_id=tenant_id,
-        cell_id=cell_id,
-        run_id=run_id,
-        job_id=job_id,
-        trace_id=trace_id,
-        span_id=span_id,
-        parent_span_id=None,
-        requested_execution_profile=requested_execution_profile,
-        effective_execution_profile=effective_execution_profile,
-        phase="continuous_governance_lifecycle",
-        state_before=state_before,
-        state_after=state_after,
-        generated_at=generated_at.isoformat(),
-        as_of_time=generated_at.isoformat(),
-        same_input_closure=closure,
-        input_refs=tuple(input_refs),
-        output_refs=(report_ref,),
-        effective_mode_ref=effective_mode_ref,
-        degradation_ledger_ref=fallback_degradation_ref,
-        schema_compatibility_ref=schema_compatibility_ref,
-        semantic_binding_ref=None,
-        attestation_ref=None,
-        redaction_policy_ref=None,
-        duplicate_of=None,
-        validation_status="pass",
-        blocking_status=("non_overridable" if lifecycle_decision == "withdraw" else "blocking"),
-        governance=GovernanceMetadata(
-            classification="internal",
-            authority_boundary="runtime_continuous_governance_lifecycle",
-            pii="none",
-            retention_policy="runtime_quality_retention",
-            review_status=state_after,
-            override_policy="not_overridable",
-            approval_policy="requires_verified_scorecard",
-        ),
-    )
+) -> dict[str, Any]:
+    closure = {
+        "closure_id": f"closure_{report_id}",
+        "status": "closed",
+        "run_id": run_id,
+        "job_id": job_id,
+        "tenant_id": tenant_id,
+        "cell_id": cell_id,
+        "effective_mode_ref": effective_mode_ref,
+        "degradation_ledger_ref": fallback_degradation_ref,
+        "evidence_input_refs": list(input_refs),
+        "closure_sha256": closure_sha256,
+    }
+    return {
+        "evidence_id": report_id,
+        "artifact_ref": report_ref,
+        "artifact_kind": GOVERNANCE_LIFECYCLE_REPORT_KIND,
+        "evidence_class": "authority_bearing",
+        "authority_role": "producer_authority",
+        "provenance_kind": "runtime_emitted",
+        "producer_component": producer_component,
+        "producer_version": producer_version,
+        "owner": owner,
+        "runtime_event_ref": diagnostic_event_ref,
+        "cas_ref": report_ref,
+        "payload_sha256": payload_sha256,
+        "schema_name": GOVERNANCE_LIFECYCLE_REPORT_SCHEMA_NAME,
+        "schema_version": GOVERNANCE_LIFECYCLE_REPORT_SCHEMA_VERSION,
+        "reader_contract": "runtime.scorecard",
+        "reader_contract_version": "1.0",
+        "tenant_id": tenant_id,
+        "cell_id": cell_id,
+        "run_id": run_id,
+        "job_id": job_id,
+        "trace_id": trace_id,
+        "span_id": span_id,
+        "parent_span_id": None,
+        "requested_execution_profile": requested_execution_profile,
+        "effective_execution_profile": effective_execution_profile,
+        "phase": "continuous_governance_lifecycle",
+        "state_before": state_before,
+        "state_after": state_after,
+        "generated_at": generated_at.isoformat(),
+        "as_of_time": generated_at.isoformat(),
+        "same_input_closure": closure,
+        "input_refs": list(input_refs),
+        "output_refs": [report_ref],
+        "effective_mode_ref": effective_mode_ref,
+        "degradation_ledger_ref": fallback_degradation_ref,
+        "schema_compatibility_ref": schema_compatibility_ref,
+        "semantic_binding_ref": None,
+        "attestation_ref": None,
+        "redaction_policy_ref": None,
+        "duplicate_of": None,
+        "validation_status": "pass",
+        "blocking_status": "non_overridable" if lifecycle_decision == "withdraw" else "blocking",
+        "governance": {
+            "classification": "internal",
+            "authority_boundary": "runtime_continuous_governance_lifecycle",
+            "pii": "none",
+            "retention_policy": "runtime_quality_retention",
+            "review_status": state_after,
+            "override_policy": "not_overridable",
+            "approval_policy": "requires_verified_scorecard",
+        },
+    }
+
+
+def _evaluate_schema_compatibility(
+    *,
+    schema_version: str,
+    reader: str,
+    expected_schema_family: str,
+) -> dict[str, Any]:
+    return {
+        "decision": "compatible",
+        "reader": reader,
+        "schema_family": expected_schema_family,
+        "schema_version": schema_version,
+    }
 
 
 def _schema_compatibility_ref(schema_compatibility: dict[str, Any]) -> str:

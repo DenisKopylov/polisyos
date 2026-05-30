@@ -1,0 +1,53 @@
+{
+  "authority_profile": "research",
+  "authority_role": "diagnostic_only",
+  "contract_id": "policy_design_case.cost_degradation_telemetry.v1",
+  "evidence_ref": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+  "generated_at": "2026-05-22T12:00:00+00:00",
+  "governance": {
+    "blocking_requires_authority_policy_ref": true,
+    "default_closeout_effect": "observe_only",
+    "patterns": [
+      "P09",
+      "P13"
+    ],
+    "posture": "telemetry_first"
+  },
+  "job_id": "job-wave2-i2",
+  "observations": [
+    {
+      "closeout_effect": "observe_only",
+      "evidence_quality_effect": "none",
+      "evidence_ref": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+      "may_block_closeout": false,
+      "metric_id": "run_wave2_i2.wall_clock.0",
+      "metric_type": "wall_clock",
+      "observed_value": 0.0,
+      "producer": "runtime.quality.cost_degradation",
+      "status": "pass",
+      "unit": "second"
+    }
+  ],
+  "provenance_kind": "runtime_emitted",
+  "run_id": "run-wave2-i2",
+  "runtime_event_ref": "event://wave2-i2/cost-degradation",
+  "schema_version": "policyos.runtime.policy_design_case.cost_degradation_telemetry.v1",
+  "status": "observe",
+  "summary": {
+    "acquisition_count": 0,
+    "blocking_count": 0,
+    "compute_seconds": 0,
+    "degradation_state_count": 0,
+    "limitation_count": 0,
+    "observation_count": 1,
+    "posture": "telemetry_first",
+    "provider_call_count": 0,
+    "retry_count": 0,
+    "search_query_count": 0,
+    "token_count": 0,
+    "total_cost_usd": 0,
+    "wall_clock_seconds": 0.0,
+    "warning_count": 0
+  },
+  "telemetry_id": "cost-degradation-telemetry-run_wave2_i2"
+}

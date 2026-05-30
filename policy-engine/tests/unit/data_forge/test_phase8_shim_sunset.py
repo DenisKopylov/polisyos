@@ -105,7 +105,9 @@ def test_phase8_release_and_rollback_notes_cover_deleted_data_forge_shims() -> N
 
 def test_phase8_complexity_exceptions_have_no_data_forge_legacy_god_files() -> None:
     complexity = tomllib.loads(
-        (REPO_ROOT / "architecture" / "complexity_exceptions.toml").read_text(encoding="utf-8")
+        (REPO_ROOT / "architecture" / "exceptions" / "complexity.toml").read_text(
+            encoding="utf-8"
+        )
     )
     exception_paths = {item["path"] for item in complexity.get("exception", [])}
     old_data_forge_paths = {

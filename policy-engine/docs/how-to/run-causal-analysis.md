@@ -109,7 +109,7 @@ from polisyos.ir.observation.bundles import BoundsChannelSpec, BoundsEstimationB
 from polisyos.ir.observation.causal_execution import BoundsEstimationTask
 from polisyos.ir.observation.contract_compilers import BoundsEstimationInput
 from polisyos.ir.observation.contracts import ObservationFamily
-from polisyos.scientist.causal import BoundsEstimationRunner
+from polisyos.scientist.methods.causal import BoundsEstimationRunner
 
 with TemporaryDirectory(prefix="polisyos-bounds-") as tmp:
     store = FileSystemCAS(Path(tmp))

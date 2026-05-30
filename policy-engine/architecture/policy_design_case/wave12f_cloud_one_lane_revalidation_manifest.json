@@ -1,0 +1,77 @@
+{
+  "schema_version": "policyos.policy_design_case.wave12f.cloud_one_lane_revalidation_manifest.v1",
+  "status": "implemented",
+  "phase_id": "W12.F",
+  "phase_name": "Cloud One-Lane Revalidation",
+  "generated_at": "2026-05-25T00:00:00Z",
+  "owner": "team-runtime-platform",
+  "implementation_plan_ref": "repo://docs/plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md#w12f-cloud-one-lane-revalidation",
+  "tool_ref": "repo://tools/quality/validation/run_policy_design_case_cloud_one_lane_revalidation.py",
+  "canary_matrix_tool_ref": "repo://tools/ops_runners/runtime/run_canary_matrix.py",
+  "command_contract": {
+    "cloud_lane_command": "uv run python tools/ops_runners/runtime/run_canary_matrix.py --only-lane profile-research__provider-live_gonka_proxy__data-canonical_production__scenario-public_golden__ui-api_only --allow-live-provider --json-output _build/.tmp/production-quality/cloud_wave12/canary_matrix.json",
+    "report_command": "uv run python tools/quality/validation/run_policy_design_case_cloud_one_lane_revalidation.py --repo-root . --matrix-run-report _build/.tmp/production-quality/cloud_wave12/canary_matrix.json --w12b-report _build/.tmp/production-quality/w12b_compilation_truthfulness_audit.json --w12c-report _build/.tmp/production-quality/w12c_domain_coverage_critic_diversity_audit.json --w12d-report _build/.tmp/production-quality/w12d_universal_outcome_corpus_run.json --w12e-report _build/.tmp/production-quality/w12e_bundle_replay_inspection.json --output _build/.tmp/production-quality/w12f_cloud_one_lane_revalidation.json",
+    "output_refs": [
+      "_build/.tmp/production-quality/cloud_wave12/canary_matrix.json",
+      "_build/.tmp/production-quality/w12f_cloud_one_lane_revalidation.json"
+    ],
+    "required_checks": [
+      "selected_cloud_lane_passed",
+      "no_unknown_provenance_collapse",
+      "frozen_revision_config_recorded",
+      "three_outcome_metrics_preserved"
+    ],
+    "owner": "team-runtime-platform",
+    "next_action": "Rerun the frozen one-lane cloud/debug matrix after repairing typed lane, provenance, W12.E, or metric-floor blockers."
+  },
+  "floor_policy": {
+    "research-only": {
+      "minimum_runtime_useful_design_rate": null,
+      "minimum_useful_design_alignment_rate": null,
+      "minimum_compilation_truthfulness_rate": null
+    },
+    "governed-pilot": {
+      "minimum_runtime_useful_design_rate": 0.5,
+      "minimum_useful_design_alignment_rate": 0.5,
+      "minimum_compilation_truthfulness_rate": 60.0
+    },
+    "production-capable": {
+      "minimum_runtime_useful_design_rate": 0.7,
+      "minimum_useful_design_alignment_rate": 0.7,
+      "minimum_compilation_truthfulness_rate": 80.0
+    }
+  },
+  "metric_policy": {
+    "preserves_three_outcome_metrics": true,
+    "typed_blockers_count_as_useful_design": false,
+    "typed_blockers_are_closeout_honesty_failures": false
+  },
+  "authority_boundary": {
+    "authoritative_for": [
+      "w12f_cloud_one_lane_revalidation"
+    ],
+    "may_not_use_for": [
+      "claim_evidence_authority",
+      "producer_domain_truth",
+      "production_closeout_authority",
+      "public_projection_authority"
+    ]
+  },
+  "pattern_pass": {
+    "relevant_patterns": [
+      "P01",
+      "P02",
+      "P03",
+      "P05",
+      "P10",
+      "P12",
+      "P15"
+    ],
+    "target_correct_pattern": "Cloud one-lane evidence is a rollout validation input, not producer or closeout authority.",
+    "missing_capability_labels": []
+  },
+  "validation": {
+    "test_ref": "repo://tests/repo_quality/tools/test_w12f_cloud_one_lane_revalidation.py",
+    "command_ref": "uv run python tools/quality/validation/run_policy_design_case_cloud_one_lane_revalidation.py --repo-root . --matrix-run-report _build/.tmp/production-quality/cloud_wave12/canary_matrix.json --w12b-report _build/.tmp/production-quality/w12b_compilation_truthfulness_audit.json --w12c-report _build/.tmp/production-quality/w12c_domain_coverage_critic_diversity_audit.json --w12d-report _build/.tmp/production-quality/w12d_universal_outcome_corpus_run.json --w12e-report _build/.tmp/production-quality/w12e_bundle_replay_inspection.json --output _build/.tmp/production-quality/w12f_cloud_one_lane_revalidation.json"
+  }
+}

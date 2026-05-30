@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+import pytest
+
+from polisyos.runtime.quality.rule_evolution import (
+    RULE_EVOLUTION_REGISTRY_SCHEMA_VERSION,
+)
 from polisyos.runtime.quality.schema_compat import (
     COMPATIBILITY_DECISIONS,
     ReaderSchemaRange,
@@ -66,12 +71,9 @@ def test_schema_compatibility_registry_rejects_missing_required_reader(tmp_path)
         encoding="utf-8",
     )
 
-    try:
+    with pytest.raises(SchemaCompatibilityRegistryError) as exc_info:
         load_schema_compatibility_registry(registry)
-    except SchemaCompatibilityRegistryError as exc:
-        assert exc.code == "schema_compatibility_required_reader_missing"
-    else:  # pragma: no cover
-        raise AssertionError("registry load should fail")
+    assert exc_info.value.code == "schema_compatibility_required_reader_missing"
 
 
 def test_current_schema_is_compatible_for_declared_reader() -> None:
@@ -136,6 +138,20 @@ def test_declared_scorecard_aliases_are_compatible() -> None:
     )
 
     assert result.decision == "compatible"
+    assert result.production_closeout_allowed is True
+
+
+def test_rule_evolution_registry_schema_is_scorecard_readable() -> None:
+    result = evaluate_schema_compatibility(
+        {
+            "schema_version": RULE_EVOLUTION_REGISTRY_SCHEMA_VERSION,
+            "status": "pass",
+        },
+        reader="scorecard",
+    )
+
+    assert result.decision == "compatible"
+    assert result.schema_family == "policyos.runtime.policy_design_case.rule_evolution_registry"
     assert result.production_closeout_allowed is True
 
 

@@ -23,12 +23,10 @@ selection now lives with the workflow runtime under
 
 ## Compatibility
 
-The legacy packages `polisyos.scientist.search`,
-`polisyos.scientist.discovery`, `polisyos.scientist.research_dag`,
-`polisyos.scientist.causal`, `polisyos.scientist.doe`,
-`polisyos.scientist.autotune`, `polisyos.scientist.backtesting`, and
-`polisyos.scientist.compute.advanced_methods` remain time-boxed shims. New
-first-party code should import from `polisyos.scientist.methods.*`.
+The legacy package `polisyos.scientist.search` is retired. The old backtesting,
+causal, discovery, DOE, autotune, research_dag, and `compute.advanced_methods`
+shims were also removed after reaching zero, tiny, or small non-compat callers.
+New first-party code should import from `polisyos.scientist.methods.*`.
 
 ## Common Commands
 

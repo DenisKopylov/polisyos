@@ -361,9 +361,9 @@ approval_public_policies = [
   "not_public_exportable",
 ]
 dashboard_projection_policies = ["projection_only"]
-negative_tests = ["tests/security/test_policyos_runtime_abuse_gates.py::test_security_report_blocks_scorecard_approval_with_security_layer_gate"]
-next_diagnostic_commands = ["uv run pytest tests/security/test_policyos_runtime_abuse_gates.py -q"]
-proof_sources = ["tests/security/test_policyos_runtime_abuse_gates.py::test_security_report_blocks_scorecard_approval_with_security_layer_gate"]
+negative_tests = ["tests/unit/security/test_policyos_runtime_abuse_gates.py::test_security_report_blocks_scorecard_approval_with_security_layer_gate"]
+next_diagnostic_commands = ["uv run pytest tests/unit/security/test_policyos_runtime_abuse_gates.py -q"]
+proof_sources = ["tests/unit/security/test_policyos_runtime_abuse_gates.py::test_security_report_blocks_scorecard_approval_with_security_layer_gate"]
 
 [[fitness_functions]]
 fitness_id = "fitness.hds-mcg-013.privacy_compliance_evidence"

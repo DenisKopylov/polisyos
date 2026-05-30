@@ -47,7 +47,7 @@ classification = "public_stable"
 facade_mode = "lazy_facade"
 registry_owner = "team-polisyos"
 reference_doc = "docs/reference/public-surface.md"
-supported_entrypoints = ["polisyos.runtime"]
+supported_entrypoints = ["polisyos.runtime", "polisyos.runtime.quality"]
 major_subsystem = true
 notes = "Replay and runtime-facing contracts. HTTP subpackages stay internal unless separately documented."
 

@@ -49,7 +49,7 @@ Fabric-запросами для выбора страны и периода,
 ```python
 from polisyos.ir import KPISpec, ProblemDomain, ProblemFrame
 from polisyos.ir.governance.problem_frame import ObjectiveSpec
-from polisyos.ir.types import OptimizationDirection
+from polisyos.ir.model_layer.types import OptimizationDirection
 
 frame = ProblemFrame(
     problem_id="ukr_education_growth",
@@ -92,7 +92,7 @@ from polisyos.ir import PolicySpec
 from polisyos.ir.governance.policy_spec import InterventionSpec
 from polisyos.ir.governance.schedule import ScheduleSpec
 from polisyos.ir.governance.selector_expr import SelectorPredicate
-from polisyos.ir.types import SelectorOperator
+from polisyos.ir.model_layer.types import SelectorOperator
 
 spec = PolicySpec(
     policy_id="education_spending_increase",
@@ -194,13 +194,13 @@ from polisyos.core.contracts.foundry import (
 from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
 from polisyos.foundry import compile_program, execute
 from polisyos.foundry.contracts.state import GlobalState
-from polisyos.foundry.executor import put_state_snapshot
+from polisyos.foundry.execute.executor import put_state_snapshot
 from polisyos.ir import ModelSpec, ProblemDomain, ProblemFrame, PolicySpec
 from polisyos.ir.governance.policy_spec import InterventionSpec
 from polisyos.ir.governance.schedule import ScheduleSpec
 from polisyos.ir.governance.selector_expr import SelectorPredicate
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.ir.types import SelectorOperator
+from polisyos.ir.model_layer.types import SelectorOperator
 
 with TemporaryDirectory(prefix="polisyos-first-analysis-") as tmp:
     store = FileSystemCAS(Path(tmp))
@@ -389,7 +389,7 @@ from polisyos.fabric.connectors.base import ConnectionConfig
 from polisyos.fabric.connectors.sources import WorldBankConnector
 from polisyos.foundry import compile_program, execute
 from polisyos.foundry.contracts.state import GlobalState
-from polisyos.foundry.executor import put_state_snapshot
+from polisyos.foundry.execute.executor import put_state_snapshot
 from polisyos.ir import KPISpec, ModelSpec, ProblemDomain, ProblemFrame, PolicySpec
 from polisyos.ir.connectors import FetchRequest
 from polisyos.ir.governance.policy_spec import InterventionSpec
@@ -397,7 +397,7 @@ from polisyos.ir.governance.problem_frame import ObjectiveSpec
 from polisyos.ir.governance.schedule import ScheduleSpec
 from polisyos.ir.governance.selector_expr import SelectorPredicate
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.ir.types import OptimizationDirection, SelectorOperator
+from polisyos.ir.model_layer.types import OptimizationDirection, SelectorOperator
 
 
 async def load_panel() -> tuple[pd.DataFrame, str]:

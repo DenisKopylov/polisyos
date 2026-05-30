@@ -130,7 +130,7 @@ from polisyos.ir.analytics.survey_quality import (
 )
 from polisyos.ir.artifacts import get_json_artifact
 from polisyos.ir.governance.phase1 import load_phase1_flagship_dataset_ids
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     ArtifactRefModel,
     DynamicTreatmentRegimeRef,
     EffectTrajectoryBundleRef,

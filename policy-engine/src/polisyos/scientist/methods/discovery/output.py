@@ -39,7 +39,7 @@ from polisyos.ir.analytics.causal_discovery import (
 )
 from polisyos.ir.analytics.causal_queries import CausalQuery
 from polisyos.ir.artifacts import InputRef as IRInputRef
-from polisyos.ir.refs import CausalDiscoveryReportRef
+from polisyos.ir.registry.refs import CausalDiscoveryReportRef
 from polisyos.scientist.methods.causal.latent_separation import (
     SEPARATION_DIAGNOSTICS_KEY,
     certify_latent_separation_trust,
@@ -100,13 +100,13 @@ from polisyos.scientist.methods.search.artifact_minimality import (
 )
 from polisyos.scientist.methods.search.latent_promotion import evaluate_latent_promotion
 
-DISCOVERY_TASK_PROFILE_SCHEMA_NAME = "polisyos.scientist.discovery.DiscoveryTaskProfile"
-GRAPH_HYPOTHESIS_SET_SCHEMA_NAME = "polisyos.scientist.discovery.GraphHypothesisSet"
-REFUTATION_REPORT_SCHEMA_NAME = "polisyos.scientist.discovery.RefutationReport"
-REPRODUCIBILITY_REPORT_SCHEMA_NAME = "polisyos.scientist.discovery.ReproducibilityReport"
-ACTIVE_DISAMBIGUATION_PLAN_SCHEMA_NAME = "polisyos.scientist.discovery.ActiveDisambiguationPlan"
-DISCOVERY_AUDIT_BUNDLE_SCHEMA_NAME = "polisyos.scientist.discovery.DiscoveryAuditBundle"
-DISCOVERY_ARTIFACT_BUNDLE_SCHEMA_NAME = "polisyos.scientist.discovery.DiscoveryArtifactBundle"
+DISCOVERY_TASK_PROFILE_SCHEMA_NAME = "polisyos.scientist.methods.discovery.DiscoveryTaskProfile"
+GRAPH_HYPOTHESIS_SET_SCHEMA_NAME = "polisyos.scientist.methods.discovery.GraphHypothesisSet"
+REFUTATION_REPORT_SCHEMA_NAME = "polisyos.scientist.methods.discovery.RefutationReport"
+REPRODUCIBILITY_REPORT_SCHEMA_NAME = "polisyos.scientist.methods.discovery.ReproducibilityReport"
+ACTIVE_DISAMBIGUATION_PLAN_SCHEMA_NAME = "polisyos.scientist.methods.discovery.ActiveDisambiguationPlan"
+DISCOVERY_AUDIT_BUNDLE_SCHEMA_NAME = "polisyos.scientist.methods.discovery.DiscoveryAuditBundle"
+DISCOVERY_ARTIFACT_BUNDLE_SCHEMA_NAME = "polisyos.scientist.methods.discovery.DiscoveryArtifactBundle"
 _LATENT_CARDINALITY_METADATA_KEYS = {
     "model_class",
     "identifiability_status",

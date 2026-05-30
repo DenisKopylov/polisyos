@@ -215,7 +215,7 @@ def _cmd_replay_with_store(
 
 
 def _cmd_resume(args: Any) -> int:
-    checkpoint = importlib.import_module("polisyos.scientist.engine.checkpoint")
+    checkpoint = importlib.import_module("polisyos.scientist.orchestration.engine.checkpoint")
     normalize_checkpoint_policy = checkpoint.normalize_checkpoint_policy
     resolve_latest_checkpoint = checkpoint.resolve_latest_checkpoint
     resume_from_checkpoint = checkpoint.resume_from_checkpoint

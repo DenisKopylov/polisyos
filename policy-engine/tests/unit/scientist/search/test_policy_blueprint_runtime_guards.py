@@ -26,7 +26,7 @@ from polisyos.ir.analytics.strategic import (
     load_strategic_scm,
     persist_strategic_payoff_table,
 )
-from polisyos.ir.refs import ArtifactRefModel
+from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.scientist.methods.doe.stress_report import (
     StressTestReport,
     Vulnerability,

@@ -1,0 +1,17 @@
+{
+  "schema_version": "policyos.runtime.producer_pipeline.corpus_stub.v1",
+  "case_id": "w11a_berlin_rent_cap_2020",
+  "owner": "team-evaluation",
+  "max_authority_posture": "governed-pilot",
+  "derived_from": {
+    "expert_case_label": "false_pass",
+    "claim_labels": {
+      "claim:berlin-rent-cap-tenant-relief": "blocked"
+    }
+  },
+  "fabric": {"*": "blocked"},
+  "lex": {"*": "blocked"},
+  "foundry": {"*": "blocked"},
+  "scholar": {"*": "blocked"},
+  "participation": {"*": "blocked"}
+}

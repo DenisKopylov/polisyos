@@ -34,7 +34,7 @@ from ._fingerprint import (
     compute_source_fingerprint,
     compute_source_hash,
 )
-from ..specialization import Specialization
+from ..compiler.specialization import Specialization
 
 if TYPE_CHECKING:
     from ..base import MethodMetadata, MethodSignature

@@ -56,8 +56,10 @@
     "tests/_helpers/artifacts.py",
     "tests/_helpers/c7_synthetic_data.py",
     "tests/_helpers/causal_scm_fixtures.py",
+    "tests/_helpers/hds_quality.py",
     "tests/_helpers/mirror_contracts.py",
     "tests/_helpers/observability.py",
+    "tests/_helpers/policy_design_case_projection.py",
     "tests/_helpers/runtime_http.py",
     "tests/_helpers/scientist_runtime.py",
     "tests/_helpers/search_strategies.py"
@@ -67,7 +69,7 @@
     "duplicated_fixture_factories": 1,
     "forbidden_reverse_imports": 0,
     "layer_local_conftest_files": 27,
-    "shared_helper_files": 8,
+    "shared_helper_files": 10,
     "unused_helpers": 0
   },
   "unused_helpers": []

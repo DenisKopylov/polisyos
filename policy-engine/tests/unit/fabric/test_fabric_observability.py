@@ -4,12 +4,13 @@ from datetime import timedelta
 from types import SimpleNamespace
 
 import pandas as pd
+
 from polisyos.core.artifacts import FileSystemCAS
 from polisyos.core.observability import get_metrics
+from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES, build_fabric_health_snapshot
 from polisyos.fabric.connectors.base import HealthStatus
 from polisyos.fabric.connectors.cache import ConnectorCacheStore, TTLPolicy
 from polisyos.fabric.connectors.transform import TransformContext, TransformPipeline
-from polisyos.fabric.observability import FABRIC_TRACE_NAMES, build_fabric_health_snapshot
 from polisyos.fabric.provenance.lineage import FabricLineageTracker
 
 
@@ -138,7 +139,7 @@ def test_build_fabric_health_snapshot_accepts_injected_metrics(
 
     metrics = _Metrics()
     monkeypatch.setattr(
-        "polisyos.fabric.observability.get_metrics",
+        "polisyos.fabric._adapters.observability.get_metrics",
         lambda: (_ for _ in ()).throw(
             AssertionError("global metrics lookup should not run when metrics are injected")
         ),

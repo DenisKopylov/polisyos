@@ -70,6 +70,218 @@ allowed_adapters = [
 sunset = "none"
 unresolved_collisions = []
 
+[[concern]]
+name = "security"
+decision = "canonical_interface_plus_package_adapters"
+canonical_owner = "team-security"
+canonical_package = "polisyos.core.security"
+canonical_interface = "polisyos.core.security"
+canonical_home = "polisyos.core.security"
+file_names = ["security"]
+adapter_policy = "Package-local security modules may translate bounded-context authorization, quality-gate, or audit vocabulary to polisyos.core.security; they must not define competing cross-package security APIs."
+proposed_before_wave = "1.5"
+public_status = "public"
+semantic_axis = "process-wide security primitives versus package-local security adapters"
+import_rule = "Cross-component security imports use polisyos.core.security; package-specific enforcement remains behind package adapters or scoped exceptions."
+allowed_adapters = [
+  { package = "fabric", module = "polisyos.fabric.security", public_status = "private", sunset = "none" },
+]
+sunset = "none"
+unresolved_collisions = []
+
+[[concern]]
+name = "registry"
+decision = "canonical_interface_plus_package_adapters"
+canonical_owner = "team-core"
+canonical_package = "polisyos.core.registry"
+canonical_interface = "polisyos.core.registry"
+canonical_home = "polisyos.core.registry"
+file_names = ["registry"]
+adapter_policy = "Package registries may remain bounded-context catalogs; cross-component registry contracts must route through polisyos.core.registry."
+proposed_before_wave = "1.5"
+public_status = "internal"
+semantic_axis = "shared registry primitives versus package-local catalog registries"
+import_rule = "Cross-component registry imports use polisyos.core.registry; package-local registries stay qualified under their owning bounded context."
+allowed_adapters = [
+  { package = "fabric", module = "polisyos.fabric.catalog.registry", public_status = "private", sunset = "none" },
+]
+sunset = "none"
+unresolved_collisions = []
+
+[[concern]]
+name = "discovery"
+decision = "canonical_interface_plus_package_adapters"
+canonical_owner = "team-core"
+canonical_package = "polisyos.core.discovery"
+canonical_interface = "polisyos.core.discovery"
+canonical_home = "polisyos.core.discovery"
+file_names = ["discovery"]
+adapter_policy = "Package-local discovery modules may adapt local plugin or evidence discovery behavior; shared discovery contracts use polisyos.core.discovery."
+proposed_before_wave = "1.5"
+public_status = "internal"
+semantic_axis = "shared discovery primitives versus domain-specific discovery workflows"
+import_rule = "Cross-component discovery imports use polisyos.core.discovery; Scientist and producer discovery workflows remain package-qualified."
+allowed_adapters = [
+  { package = "fabric", module = "polisyos.fabric.catalog.discovery", public_status = "private", sunset = "none" },
+]
+sunset = "none"
+unresolved_collisions = []
+
+[[concern]]
+name = "configuration"
+decision = "canonical_interface_plus_package_adapters"
+canonical_owner = "team-core"
+canonical_package = "polisyos.common.config"
+canonical_interface = "polisyos.common.config"
+canonical_home = "polisyos.common.config"
+file_names = ["config", "configuration"]
+adapter_policy = "Package-local config modules may define bounded-context options; shared process configuration uses polisyos.common.config."
+proposed_before_wave = "1.5"
+public_status = "public"
+semantic_axis = "process configuration helpers versus package-local configuration schemas"
+import_rule = "Cross-component configuration imports use polisyos.common.config; package-local config modules stay internal to their bounded context."
+allowed_adapters = [
+  { package = "fabric", module = "polisyos.fabric.config", public_status = "private", sunset = "none" },
+]
+sunset = "none"
+unresolved_collisions = []
+
+[[concern]]
+name = "tracing"
+decision = "canonical_interface_plus_package_adapters"
+canonical_owner = "team-observability"
+canonical_package = "polisyos.core.trace"
+canonical_interface = "polisyos.core.trace"
+canonical_home = "polisyos.core.trace"
+file_names = ["trace", "tracing"]
+adapter_policy = "Tracing helpers should adapt to polisyos.core.trace records and sinks and must not create a competing trace API."
+proposed_before_wave = "1.5"
+public_status = "public"
+semantic_axis = "distributed tracing primitives versus package-local trace annotations"
+import_rule = "Cross-component tracing imports use polisyos.core.trace; package-local trace naming stays behind adapters."
+allowed_adapters = [
+  { package = "foundry", module = "polisyos.foundry.runtime.trace", public_status = "private", sunset = "none" },
+]
+sunset = "none"
+unresolved_collisions = []
+
+[[concern]]
+name = "telemetry"
+decision = "canonical_interface_plus_package_adapters"
+canonical_owner = "team-observability"
+canonical_package = "polisyos.core.observability"
+canonical_interface = "polisyos.core.observability"
+canonical_home = "polisyos.core.observability"
+file_names = ["telemetry"]
+adapter_policy = "Telemetry helpers should adapt package-local metric vocabulary to polisyos.core.observability."
+proposed_before_wave = "1.5"
+public_status = "public"
+semantic_axis = "process-wide telemetry primitives versus package-local metric vocabulary"
+import_rule = "Cross-component telemetry imports use polisyos.core.observability; package telemetry remains adapter-scoped."
+allowed_adapters = [
+  { package = "fabric", module = "polisyos.fabric._adapters.observability", public_status = "public", sunset = "none" },
+]
+sunset = "none"
+unresolved_collisions = []
+
+[[concern]]
+name = "contracts"
+decision = "canonical_interface_plus_package_adapters"
+canonical_owner = "team-core"
+canonical_package = "polisyos.core.contracts"
+canonical_interface = "polisyos.core.contracts"
+canonical_home = "polisyos.core.contracts"
+file_names = ["contracts"]
+adapter_policy = "Package-local contracts may define bounded-context payloads; shared cross-package contracts live under polisyos.core.contracts."
+proposed_before_wave = "1.5"
+public_status = "internal"
+semantic_axis = "shared contract DTOs versus package-local protocol and payload contracts"
+import_rule = "Cross-component contract imports use polisyos.core.contracts; package-local contracts stay qualified under their owning bounded context."
+allowed_adapters = [
+  { package = "foundry", module = "polisyos.foundry.contracts", public_status = "private", sunset = "none" },
+  { package = "berl", module = "polisyos.berl.contracts", public_status = "public_experimental", sunset = "none" },
+]
+sunset = "none"
+unresolved_collisions = []
+
+[[concern]]
+name = "governance"
+decision = "canonical_interface_plus_package_adapters"
+canonical_owner = "team-core"
+canonical_package = "polisyos.core.governance"
+canonical_interface = "polisyos.core.governance"
+canonical_home = "polisyos.core.governance"
+file_names = ["governance"]
+adapter_policy = "Package governance modules adapt bounded-context pass/rule vocabularies to core governance primitives."
+proposed_before_wave = "1.5"
+public_status = "internal"
+semantic_axis = "shared governance primitives versus package-local governance workflows"
+import_rule = "Cross-component governance imports use polisyos.core.governance; package-local governance workflows stay package-qualified."
+allowed_adapters = [
+  { package = "scientist", module = "polisyos.scientist.governance", public_status = "private", sunset = "none" },
+  { package = "ir", module = "polisyos.ir.governance", public_status = "private", sunset = "none" },
+]
+sunset = "none"
+unresolved_collisions = []
+
+[[concern]]
+name = "runtime"
+decision = "canonical_interface_plus_package_adapters"
+canonical_owner = "team-core"
+canonical_package = "polisyos.core.contracts"
+canonical_interface = "polisyos.core.contracts.runtime"
+canonical_home = "polisyos.core.contracts.runtime"
+file_names = ["runtime"]
+adapter_policy = "Package runtime modules are bounded execution adapters; cross-package runtime DTOs live under polisyos.core.contracts.runtime."
+proposed_before_wave = "1.5"
+public_status = "internal"
+semantic_axis = "shared runtime contracts versus package-local execution surfaces"
+import_rule = "Cross-component runtime contract imports use polisyos.core.contracts.runtime; concrete package runtime modules stay behind their package facade."
+allowed_adapters = [
+  { package = "foundry", module = "polisyos.foundry.runtime", public_status = "private", sunset = "none" },
+  { package = "data_forge", module = "polisyos.data_forge.kernel.runtime", public_status = "private", sunset = "none" },
+]
+sunset = "none"
+unresolved_collisions = []
+
+[[concern]]
+name = "trace"
+decision = "canonical_interface_plus_package_adapters"
+canonical_owner = "team-observability"
+canonical_package = "polisyos.core.trace"
+canonical_interface = "polisyos.core.trace"
+canonical_home = "polisyos.core.trace"
+file_names = ["trace"]
+adapter_policy = "Trace helpers adapt package-local execution spans to polisyos.core.trace records."
+proposed_before_wave = "1.5"
+public_status = "public"
+semantic_axis = "distributed tracing primitives versus package-local trace annotations"
+import_rule = "Cross-component trace imports use polisyos.core.trace; package-local trace naming stays behind adapters."
+allowed_adapters = [
+  { package = "foundry", module = "polisyos.foundry.runtime.trace", public_status = "private", sunset = "none" },
+]
+sunset = "none"
+unresolved_collisions = []
+
+[[concern]]
+name = "calibration"
+decision = "canonical_interface_plus_package_adapters"
+canonical_owner = "team-scientist"
+canonical_package = "polisyos.calibration"
+canonical_interface = "polisyos.calibration"
+canonical_home = "polisyos.calibration"
+file_names = ["calibration"]
+adapter_policy = "Package-local calibration modules may adapt method- or producer-specific calibration signals; shared calibration diagnostics use polisyos.calibration."
+proposed_before_wave = "1.5"
+public_status = "public_experimental"
+semantic_axis = "shared calibration diagnostics versus bounded-context calibration execution"
+import_rule = "Cross-component calibration imports use polisyos.calibration unless a package-local adapter owns execution-specific behavior."
+allowed_adapters = [
+  { package = "foundry", module = "polisyos.foundry.calibration", public_status = "private", sunset = "none" },
+]
+sunset = "none"
+unresolved_collisions = []
+
 [[scoped_exception]]
 concern = "config"
 path = "src/polisyos/core/artifacts/backends/config.py"
@@ -359,13 +571,6 @@ sunset = "none"
 
 [[scoped_exception]]
 concern = "registry"
-path = "src/polisyos/foundry/registry"
-owner = "team-foundry"
-rationale = "Existing package-scoped registry package; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
-sunset = "none"
-
-[[scoped_exception]]
-concern = "registry"
 path = "src/polisyos/ir/registry"
 owner = "team-ir"
 rationale = "IR registry is the semantic group for IR refs, registry fragments, and public-surface metadata; it is package-scoped and not a process-wide registry singleton."
@@ -376,13 +581,6 @@ concern = "trace"
 path = "src/polisyos/foundry/runtime/trace.py"
 owner = "team-foundry"
 rationale = "Existing package-scoped trace module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
-sunset = "none"
-
-[[scoped_exception]]
-concern = "trace"
-path = "src/polisyos/foundry/trace"
-owner = "team-foundry"
-rationale = "Existing package-scoped trace package; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
 sunset = "none"
 
 [[scoped_exception]]
@@ -422,55 +620,6 @@ sunset = "none"
 
 [[scoped_exception]]
 concern = "calibration"
-path = "src/polisyos/scientist/autotune/calibration.py"
-owner = "team-scientist"
-rationale = "Existing package-scoped calibration module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
-sunset = "none"
-
-[[scoped_exception]]
-concern = "registry"
-path = "src/polisyos/scientist/autotune/registry.py"
-owner = "team-scientist"
-rationale = "Existing package-scoped registry module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
-sunset = "none"
-
-[[scoped_exception]]
-concern = "discovery"
-path = "src/polisyos/scientist/discovery"
-owner = "team-scientist"
-rationale = "Existing package-scoped discovery package; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
-sunset = "none"
-
-[[scoped_exception]]
-concern = "config"
-path = "src/polisyos/scientist/engine/locks/config.py"
-owner = "team-scientist"
-rationale = "Existing package-scoped config module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
-sunset = "none"
-
-[[scoped_exception]]
-concern = "registry"
-path = "src/polisyos/scientist/engine/registry.py"
-owner = "team-scientist"
-rationale = "Existing package-scoped registry module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
-sunset = "none"
-
-[[scoped_exception]]
-concern = "config"
-path = "src/polisyos/scientist/engine/runner/config.py"
-owner = "team-scientist"
-rationale = "Existing package-scoped config module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
-sunset = "none"
-
-[[scoped_exception]]
-concern = "telemetry"
-path = "src/polisyos/scientist/engine/telemetry.py"
-owner = "team-scientist"
-rationale = "Existing package-scoped telemetry module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
-sunset = "none"
-
-[[scoped_exception]]
-concern = "calibration"
 path = "src/polisyos/scientist/governance/calibration.py"
 owner = "team-scientist"
 rationale = "Existing package-scoped calibration module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
@@ -481,13 +630,6 @@ concern = "telemetry"
 path = "src/polisyos/scientist/governance/telemetry.py"
 owner = "team-scientist"
 rationale = "Existing package-scoped telemetry module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
-sunset = "none"
-
-[[scoped_exception]]
-concern = "registry"
-path = "src/polisyos/scientist/llm/profiles/registry.py"
-owner = "team-scientist"
-rationale = "Existing package-scoped registry module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
 sunset = "none"
 
 [[scoped_exception]]
@@ -552,221 +694,3 @@ path = "src/polisyos/scientist/orchestration/workflows/discovery.py"
 owner = "team-scientist"
 rationale = "Existing package-scoped discovery module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
 sunset = "none"
-
-[[scoped_exception]]
-concern = "discovery"
-path = "src/polisyos/scientist/workflows/discovery.py"
-owner = "team-scientist"
-rationale = "Existing package-scoped discovery module; Phase 1.5 blocks new peers unless they move to _adapters or receive a separate decision."
-sunset = "none"
-
-[[concern]]
-name = "security"
-decision = "canonical_interface_plus_package_adapters"
-canonical_owner = "team-core"
-canonical_package = "polisyos.core.security"
-canonical_interface = "polisyos.core.security"
-canonical_home = "polisyos.core.security"
-file_names = ["security"]
-adapter_policy = "Package adapters may translate local resources to core identity, authorization, audit, and quota primitives; non-core packages must not define global security context APIs."
-proposed_before_wave = "1.5"
-public_status = "public"
-semantic_axis = "tenant identity, authorization, and audit primitives versus package-local data access enforcement"
-import_rule = "Cross-package security context and audit primitives import from polisyos.core.security; package security modules adapt those primitives to local resource models."
-allowed_adapters = [
-  { package = "fabric", module = "polisyos.fabric.security.adapters", public_status = "public", sunset = "none" },
-]
-sunset = "none"
-unresolved_collisions = []
-
-[[concern]]
-name = "registry"
-decision = "canonical_interface_plus_package_adapters"
-canonical_owner = "team-core"
-canonical_package = "polisyos.core.registry"
-canonical_interface = "polisyos.core.registry"
-canonical_home = "polisyos.core.registry"
-file_names = ["registry"]
-adapter_policy = "Package registries may adapt domain records to core registry primitives; they must stay package-qualified and must not act as process-wide registry singletons."
-proposed_before_wave = "1.5"
-public_status = "mixed"
-semantic_axis = "generic registry primitives versus package-owned registries for manifests and runtime mechanisms"
-import_rule = "Reusable registry primitives import from polisyos.core.registry; Fabric and Foundry registry facades are package-local and must not be imported as global singletons."
-allowed_adapters = [
-  { package = "fabric", module = "polisyos.fabric._internal.registry", public_status = "private_facade", sunset = "none" },
-  { package = "foundry", module = "polisyos.foundry.registry", public_status = "compatibility_facade", sunset = "2026-10-01" },
-]
-sunset = "none"
-unresolved_collisions = []
-
-[[concern]]
-name = "discovery"
-decision = "rename_or_sunset"
-canonical_owner = "team-core"
-canonical_package = "polisyos.core.discovery"
-canonical_interface = "polisyos.core.discovery"
-canonical_home = "polisyos.core.discovery"
-file_names = ["discovery"]
-adapter_policy = "Plugin and entry-point discovery use polisyos.core.discovery; domain discovery workflows must live under package-specific semantic groups such as scientist.methods.discovery."
-proposed_before_wave = "1.5"
-public_status = "mixed"
-semantic_axis = "plugin/entry-point discovery primitives versus Scientist hypothesis discovery workflows"
-import_rule = "Plugin loading imports from polisyos.core.discovery; Scientist implementation imports use polisyos.scientist.methods.discovery, while polisyos.scientist.discovery is a sunset compatibility shim only."
-allowed_adapters = []
-sunset = "2026-10-01"
-unresolved_collisions = [
-  { package = "scientist", module = "polisyos.scientist.discovery", owner = "team-scientist", replacement = "polisyos.scientist.methods.discovery", sunset = "2026-10-01" },
-]
-
-[[concern]]
-name = "configuration"
-decision = "canonical_interface_plus_package_adapters"
-canonical_owner = "team-architecture"
-canonical_package = "polisyos.common.config"
-canonical_interface = "polisyos.common.config"
-canonical_home = "polisyos.common.config"
-file_names = ["configuration", "config"]
-adapter_policy = "Package config modules may adapt local schema and environment details to polisyos.common.config helpers; new reusable configuration parsing belongs in the canonical common module."
-proposed_before_wave = "1.5"
-public_status = "mixed"
-semantic_axis = "shared configuration parsing helpers versus package-local config schemas and runtime knobs"
-import_rule = "Reusable configuration parsing imports from polisyos.common.config; package-specific config remains under the owning package and must not expose global configuration state."
-allowed_adapters = [
-  { package = "data_forge", module = "polisyos.data_forge.kernel.pipeline.config", public_status = "private", sunset = "none" },
-  { package = "fabric", module = "polisyos.fabric.config", public_status = "package_api", sunset = "none" },
-]
-sunset = "none"
-unresolved_collisions = []
-
-[[concern]]
-name = "tracing"
-decision = "canonical_interface_plus_package_adapters"
-canonical_owner = "team-core"
-canonical_package = "polisyos.core.trace"
-canonical_interface = "polisyos.core.trace"
-canonical_home = "polisyos.core.trace"
-file_names = ["tracing", "trace"]
-adapter_policy = "Tracing adapters may emit package-local spans, records, or replay hooks through polisyos.core.trace; new package trace roots are not canonical APIs."
-proposed_before_wave = "1.5"
-public_status = "mixed"
-semantic_axis = "canonical persisted trace records and sinks versus package runtime trace adapters"
-import_rule = "Persisted run traces import from polisyos.core.trace; package runtime tracing imports remain local adapters or compatibility facades."
-allowed_adapters = [
-  { package = "foundry", module = "polisyos.foundry.trace", public_status = "compatibility_facade", sunset = "2026-10-01" },
-  { package = "scientist", module = "polisyos.scientist.nodes.builtins.tracing", public_status = "private", sunset = "none" },
-]
-sunset = "none"
-unresolved_collisions = []
-
-[[concern]]
-name = "telemetry"
-decision = "canonical_interface_plus_package_adapters"
-canonical_owner = "team-observability"
-canonical_package = "polisyos.core.observability"
-canonical_interface = "polisyos.core.observability"
-canonical_home = "polisyos.core.observability"
-file_names = ["telemetry"]
-adapter_policy = "Telemetry adapters may bind Scientist engine and governance events to polisyos.core.observability metrics and logs; package telemetry modules must not become separate observability stacks."
-proposed_before_wave = "1.5"
-public_status = "private"
-semantic_axis = "runtime event emission and metrics vocabulary under the canonical observability interface"
-import_rule = "Telemetry emitters use polisyos.core.observability for shared metrics/log primitives and keep domain event naming package-local."
-allowed_adapters = [
-  { package = "scientist", module = "polisyos.scientist.engine.telemetry", public_status = "private", sunset = "none" },
-  { package = "scientist", module = "polisyos.scientist.governance.telemetry", public_status = "private", sunset = "none" },
-  { package = "scientist", module = "polisyos.scientist.orchestration.engine.telemetry", public_status = "private", sunset = "none" },
-]
-sunset = "none"
-unresolved_collisions = []
-
-[[concern]]
-name = "governance"
-decision = "package_local_bounded_context"
-canonical_owner = "team-architecture"
-canonical_package = ""
-canonical_interface = ""
-public_status = "package_local"
-semantic_axis = "core policy primitives, IR governance model/schema rules, and Scientist decision/pass governance"
-import_rule = "Governance imports must be package-qualified; cross-package callers use the owning package facade instead of deep-importing another package governance implementation."
-allowed_contexts = [
-  { package = "core", module = "polisyos.core.governance", owner = "team-core", public_status = "private" },
-  { package = "ir", module = "polisyos.ir.governance", owner = "team-ir", public_status = "private" },
-  { package = "scientist", module = "polisyos.scientist.governance", owner = "team-scientist", public_status = "package_api" },
-]
-allowed_adapters = []
-sunset = "none"
-unresolved_collisions = []
-
-[[concern]]
-name = "contracts"
-decision = "package_local_bounded_context"
-canonical_owner = "team-architecture"
-canonical_package = ""
-canonical_interface = ""
-public_status = "package_local"
-semantic_axis = "package-owned Pydantic/schema contracts scoped to each bounded context"
-import_rule = "Contracts imports stay within the owning package or its public facade; shared product contracts move through polisyos.core.contracts only after a package-boundary contract change."
-allowed_contexts = [
-  { package = "berl", module = "polisyos.berl.contracts", owner = "team-architecture", public_status = "package_api" },
-  { package = "core", module = "polisyos.core.contracts", owner = "team-core", public_status = "public" },
-  { package = "ddm", module = "polisyos.ddm.contracts", owner = "team-architecture", public_status = "package_api" },
-  { package = "fabric", module = "polisyos.fabric.connectors.contracts", owner = "team-fabric", public_status = "package_api" },
-  { package = "foundry", module = "polisyos.foundry.contracts", owner = "team-foundry", public_status = "package_api" },
-]
-allowed_adapters = []
-sunset = "none"
-unresolved_collisions = []
-
-[[concern]]
-name = "calibration"
-decision = "canonical_interface_plus_package_adapters"
-canonical_owner = "team-foundry"
-canonical_package = "polisyos.calibration"
-canonical_interface = "polisyos.calibration"
-canonical_home = "polisyos.calibration"
-file_names = ["calibration"]
-adapter_policy = "Package calibration modules may adapt local drift, search, and governance artifacts to polisyos.calibration diagnostics; reusable diagnostics move to the canonical package."
-proposed_before_wave = "1.5"
-public_status = "public"
-semantic_axis = "generic calibration diagnostics versus drift, parameter, and governance calibration workflows"
-import_rule = "Generic calibration diagnostics import from polisyos.calibration; DDM, Foundry, and Scientist calibration modules adapt those diagnostics to local runtime artifacts."
-allowed_adapters = [
-  { package = "ddm", module = "polisyos.ddm.calibration", public_status = "package_api", sunset = "none" },
-  { package = "foundry", module = "polisyos.foundry.calibration", public_status = "package_api", sunset = "none" },
-  { package = "scientist", module = "polisyos.scientist.governance.calibration", public_status = "private", sunset = "none" },
-]
-sunset = "none"
-unresolved_collisions = []
-
-[[concern]]
-name = "runtime"
-decision = "rename_or_sunset"
-canonical_owner = "team-runtime"
-canonical_package = "polisyos.runtime"
-canonical_interface = "polisyos.runtime"
-public_status = "public"
-semantic_axis = "top-level product runtime/control plane versus package-local execution glue"
-import_rule = "External runtime imports use polisyos.runtime; nested runtime directories are private execution glue and must not expose cross-package runtime contracts."
-allowed_adapters = [
-  { package = "data_forge", module = "polisyos.data_forge.kernel.runtime", public_status = "private", sunset = "none" },
-]
-sunset = "2026-10-01"
-unresolved_collisions = [
-  { package = "foundry", module = "polisyos.foundry.runtime", owner = "team-foundry", replacement = "polisyos.foundry._runtime_glue or package facade fold-in", sunset = "2026-10-01" },
-]
-
-[[concern]]
-name = "trace"
-decision = "canonical_interface_plus_package_adapters"
-canonical_owner = "team-core"
-canonical_package = "polisyos.core.trace"
-canonical_interface = "polisyos.core.trace"
-canonical_home = "polisyos.core.trace"
-public_status = "public"
-semantic_axis = "canonical persisted trace records/sinks versus Foundry runtime trace slices"
-import_rule = "Persisted run trace records import from polisyos.core.trace; Foundry trace imports remain a compatibility facade over Foundry runtime tracing."
-allowed_adapters = [
-  { package = "foundry", module = "polisyos.foundry.trace", public_status = "compatibility_facade", sunset = "2026-10-01" },
-]
-sunset = "none"
-unresolved_collisions = []

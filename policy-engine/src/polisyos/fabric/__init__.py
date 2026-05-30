@@ -14,7 +14,6 @@ import importlib.machinery
 import sys
 import warnings
 from types import ModuleType
-from typing import Any
 
 __all__ = [
     "AccessRef",
@@ -35,6 +34,7 @@ __all__ = [
     "WorldQueryError",
     "WorldQueryRequest",
     "batch_processing_contract",
+    "build_source_contract_requirement_bindings",
     "execute_world_query",
     "fabric_claim_to_authored_text",
     "fabric_event_to_authored_text",
@@ -88,12 +88,12 @@ class _LazyReexportModule(ModuleType):
             super().__setattr__("_target_module", target)
         return target
 
-    def __getattr__(self, name: str) -> Any:
+    def __getattr__(self, name: str) -> object:
         if name.startswith("__"):
             raise AttributeError(name)
         return getattr(self._target(), name)
 
-    def __setattr__(self, name: str, value: Any) -> None:
+    def __setattr__(self, name: str, value: object) -> None:
         if name.startswith("__") or name in {"_target_fqn", "_target_module"}:
             super().__setattr__(name, value)
             return
@@ -181,37 +181,14 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "SearchResponse": ("polisyos.fabric.catalog", "SearchResponse"),
     "SearchResult": ("polisyos.fabric.catalog", "SearchResult"),
     "load_contract_collection": ("polisyos.fabric.catalog", "load_contract_collection"),
+    "build_source_contract_requirement_bindings": (
+        "polisyos.fabric.catalog",
+        "build_source_contract_requirement_bindings",
+    ),
 }
 
-_COMPAT_MODULE_ALIASES = {
-    "polisyos.fabric._connector_bridge": "polisyos.fabric.api",
-    "polisyos.fabric._numeric_parsing": "polisyos.fabric._internal.numeric_parsing",
-    "polisyos.fabric.compatibility": "polisyos.fabric._internal.compatibility",
-    "polisyos.fabric.connectors_ingestion": (
-        "polisyos.fabric.connectors.ingestion.connectors_ingestion"
-    ),
-    "polisyos.fabric.decision_data": "polisyos.fabric.evidence.decision_data",
-    "polisyos.fabric.fact_writer": "polisyos.fabric.evidence.fact_writer",
-    "polisyos.fabric.finite": "polisyos.fabric.numerics.finite",
-    "polisyos.fabric.fitness_report": "polisyos.fabric.quality.fitness_report",
-    "polisyos.fabric.ingestion_providers": (
-        "polisyos.fabric.ingestion.ingestion_providers"
-    ),
-    "polisyos.fabric.manifest": "polisyos.fabric.identity.manifest",
-    "polisyos.fabric.observability": "polisyos.fabric._adapters.observability",
-    "polisyos.fabric.observability.adapters": "polisyos.fabric._adapters.observability",
-    "polisyos.fabric.processing_guarantees": (
-        "polisyos.fabric.quality.processing_guarantees"
-    ),
-    "polisyos.fabric.registry": "polisyos.fabric._internal.registry",
-    "polisyos.fabric.safety": "polisyos.fabric.quality.safety",
-    "polisyos.fabric.segment_manifest": "polisyos.fabric.identity.segment_manifest",
-    "polisyos.fabric.tabular": "polisyos.fabric.data_plane.tabular",
-    "polisyos.fabric.temporal": "polisyos.fabric.data_plane.temporal",
-    "polisyos.fabric.trust_adapter": "polisyos.fabric.trust.adapter",
-    "polisyos.fabric.world_query": "polisyos.fabric.world.query",
-}
-_PACKAGE_COMPAT_ALIASES = {"polisyos.fabric.observability"}
+_COMPAT_MODULE_ALIASES: dict[str, str] = {}
+_PACKAGE_COMPAT_ALIASES: set[str] = set()
 
 
 class _FabricCompatAliasLoader(importlib.abc.Loader):
@@ -283,7 +260,7 @@ def _install_compat_module_aliases() -> None:
 _install_compat_module_aliases()
 
 
-def __getattr__(name: str) -> Any:
+def __getattr__(name: str) -> object:
     """Load Fabric exports or the ``world`` subpackage lazily.
 
     Raises:

@@ -44,7 +44,7 @@ from polisyos.ir.governance.problem_frame import (
     StakeholderUtilityTerm,
     UtilityDirection,
 )
-from polisyos.ir.refs import DistributionalReportRef
+from polisyos.ir.registry.refs import DistributionalReportRef
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path

@@ -1,0 +1,119 @@
+{
+  "alias_remaps": [],
+  "authority_profile_ref": null,
+  "capability_reality": {
+    "artifact": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
+    "consumer": "polisyos.runtime.quality.closeout_reader",
+    "orchestration_bridge": "polisyos.runtime.quality.replay.build_replay_manifest",
+    "producer": "team-runtime-quality",
+    "semantic_test": "requirement id remap with changed logic hash blocks",
+    "surface": "public_rule_evolution_annotation",
+    "typed_contract": "policy_design_case.rule_evolution_registry.v1",
+    "verification": "tests/unit/runtime/quality/test_rule_evolution.py"
+  },
+  "contract_id": "policy_design_case.rule_evolution_registry.v1",
+  "effective_at": "2026-05-22T12:00:00+00:00",
+  "evidence_ref": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
+  "issues": [],
+  "old_logic_replay_behavior": {
+    "closed_cases": "current_registry_compatible",
+    "current_cases": "lossless_schema_or_alias_migration_allowed",
+    "silent_upgrade_allowed": false
+  },
+  "producer_owner": "team-runtime-quality",
+  "public_annotation": {
+    "affected_requirement_ids": [],
+    "alias_remap_count": 0,
+    "annotation_required": false,
+    "authoritative_for": [
+      "public_rule_evolution_annotation"
+    ],
+    "authority_boundary": "annotation_only_until_ADR-TBD-rule-evolution-public-revalidation_is_accepted",
+    "blocked_structural_policy_ref": "ADR-TBD-rule-evolution-public-revalidation",
+    "closed_cases_replay_under_original_logic": false,
+    "decision_refs": [
+      "ADR-0163",
+      "ADR-0100"
+    ],
+    "may_not_use_for": [
+      "mandatory_public_revalidation_policy",
+      "silent_upgrade_approval",
+      "claim_evidence_authority",
+      "scorecard_authority"
+    ],
+    "public_annotation_state": "unchanged",
+    "registry_id": "wave2-i2-rule-registry",
+    "registry_version": "2026.05.22",
+    "revalidation_state": "not_required",
+    "rule_registry_ref": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
+    "schema_version": "policyos.runtime.policy_design_case.rule_evolution_public_annotation.v1",
+    "semantic_change_count": 0,
+    "silent_upgrade_allowed": false
+  },
+  "reader_owner": "team-runtime-quality",
+  "record_family": "publication_trust_and_external_governance.v1",
+  "registry_id": "wave2-i2-rule-registry",
+  "registry_kind": "runtime.rule_evolution_registry",
+  "revalidation_state": {
+    "affected_requirement_ids": [],
+    "alias_remap_count": 0,
+    "closed_cases_replay_under_original_logic": false,
+    "public_annotation_required": false,
+    "semantic_change_count": 0,
+    "state": "not_required"
+  },
+  "rule_refs": [
+    {
+      "authority_purpose": "admissibility",
+      "logic": {
+        "predicate": "eligible_wartime_msme",
+        "threshold": "deterministic"
+      },
+      "logic_hash": "sha256:9e86821f0404bab161165d964cbbcb9029973ab2264df8bd110fdd385a7fc96b",
+      "logic_hash_source": "computed",
+      "requirement_id": "scenario.req.msme_credit_guarantee",
+      "rule_id": "scenario.req.msme_credit_guarantee",
+      "status": "active",
+      "taxonomy_refs": [
+        "taxonomy.policy_obligation.v1"
+      ]
+    }
+  ],
+  "rule_registry_ref": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
+  "runtime_authority_envelope": {
+    "authoritative_for": [
+      "rule_evolution_replay"
+    ],
+    "authority_role": "runtime_reader",
+    "cas_ref": "sha256:8888888888888888888888888888888888888888888888888888888888888888",
+    "may_not_use_for": [
+      "claim_evidence_authority",
+      "mandatory_public_revalidation_policy",
+      "scorecard_authority",
+      "silent_upgrade_approval"
+    ],
+    "provenance_kind": "runtime_emitted",
+    "runtime_event_ref": "event://wave2-i2/rule-evolution"
+  },
+  "runtime_event_ref": "event://wave2-i2/rule-evolution",
+  "same_requirement_id_changes": [],
+  "schema_version": "policyos.runtime.policy_design_case.rule_evolution_registry.v1",
+  "semantic_changes": [],
+  "status": "pass",
+  "summary": {
+    "alias_remap_count": 0,
+    "issue_count": 0,
+    "rule_ref_count": 1,
+    "semantic_change_count": 0,
+    "taxonomy_ref_count": 1
+  },
+  "taxonomy_refs": [
+    {
+      "logic_hash": "sha256:c58c70bbe2efbd05823b9c9f0ad81b2415a873510fd11d1f69269bb69c11d947",
+      "ref": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+      "taxonomy_id": "taxonomy.policy_obligation.v1",
+      "version": "2026.05.22"
+    }
+  ],
+  "version": "2026.05.22"
+}

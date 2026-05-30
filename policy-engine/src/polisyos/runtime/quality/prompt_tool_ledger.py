@@ -28,11 +28,20 @@ PROMPT_TOOL_LEDGER_SCHEMA = "polisyos.runtime.PromptToolParserAuthorityLedger"
 PROMPT_TOOL_LEDGER_REPORT_KEY = "prompt_tool_ledger"
 PROMPT_TOOL_LEDGER_REF_KEY = "prompt_tool_ledger_ref"
 PROMPT_TOOL_LEDGER_FILENAME = "prompt_tool_ledger.json"
+REPAIR_FMEA_SURFACE_SCHEMA_VERSION = "policyos.runtime.prompt_tool_repair_fmea_surface.v1"
 
 AuthorityScope = Literal["evidence", "claims", "scorecard", "approval"]
 ValidationStatus = Literal["pass", "fail", "warn", "blocked", "not_applicable"]
 RepairDecisionStatus = Literal["applied", "rejected", "not_applicable"]
 ToolCallStatus = Literal["pass", "fail", "blocked", "skipped"]
+RepairFailureMode = Literal[
+    "parser_contract_repair",
+    "tool_output_repair",
+    "schema_healing",
+    "operator_workaround",
+    "authority_handoff_repair",
+    "unknown",
+]
 
 AUTHORITY_SCOPES: tuple[AuthorityScope, ...] = (
     "evidence",
@@ -209,6 +218,56 @@ class ValidationRef(BaseModel):
         return _non_empty(value)
 
 
+class RepairDecisionFMEAAnnotation(BaseModel):
+    """FMEA-style risk annotation for one repair decision."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    failure_mode: RepairFailureMode = "unknown"
+    severity: int = Field(ge=1, le=10)
+    cause: str = Field(min_length=1)
+    recommended_mitigation: str = Field(min_length=1)
+    residual_risk: str = Field(min_length=1)
+    occurrence: int = Field(ge=1, le=10)
+    detectability: int = Field(ge=1, le=10)
+    risk_priority_number: int | None = Field(default=None, ge=1, le=1000)
+    owner: str = Field(min_length=1)
+    controls: tuple[str, ...] = Field(default=())
+    evidence_ref: str | None = None
+    authority_effect: Literal[
+        "accepted_mitigation",
+        "authority_blocked",
+        "candidate_only",
+        "advisory",
+    ] = "accepted_mitigation"
+
+    @field_validator(
+        "cause",
+        "recommended_mitigation",
+        "residual_risk",
+        "owner",
+        "evidence_ref",
+    )
+    @classmethod
+    def _clean_text_field(cls, value: str | None) -> str | None:
+        return _optional_text(value)
+
+    @field_validator("controls")
+    @classmethod
+    def _clean_controls(cls, values: tuple[str, ...]) -> tuple[str, ...]:
+        controls = tuple(_clean_refs(values))
+        if not controls:
+            raise ValueError("repair FMEA annotations require mitigation controls")
+        return controls
+
+    @model_validator(mode="after")
+    def _fill_risk_priority_number(self) -> RepairDecisionFMEAAnnotation:
+        expected = self.severity * self.occurrence * self.detectability
+        if self.risk_priority_number is None:
+            self.risk_priority_number = expected
+        return self
+
+
 class RepairDecision(BaseModel):
     """Recorded repair or healing decision for prompt/parser/tool output."""
 
@@ -219,6 +278,7 @@ class RepairDecision(BaseModel):
     reason: str = Field(min_length=1)
     repair_ref: str | None = None
     approved_by: str | None = None
+    fmea_annotation: RepairDecisionFMEAAnnotation | None = None
 
     @field_validator("decision", "reason", "repair_ref", "approved_by")
     @classmethod
@@ -375,6 +435,23 @@ class PromptToolParserAuthorityLedger(BaseModel):
         scopes = sorted({scope for step in self.steps for scope in step.authority_scopes})
         tool_names = sorted({tool for step in self.steps for tool in step.tool_allowlist})
         repair_count = sum(len(step.repair_decisions) for step in self.steps)
+        repair_annotations = [
+            decision.fmea_annotation
+            for step in self.steps
+            for decision in step.repair_decisions
+            if decision.fmea_annotation is not None
+        ]
+        unannotated_repairs = [
+            decision
+            for step in self.steps
+            for decision in step.repair_decisions
+            if decision.fmea_annotation is None
+        ]
+        repair_rpns = [
+            int(annotation.risk_priority_number)
+            for annotation in repair_annotations
+            if annotation.risk_priority_number is not None
+        ]
         status = (
             "pass"
             if self._has_required_authority_scopes(AUTHORITY_SCOPES)
@@ -389,6 +466,16 @@ class PromptToolParserAuthorityLedger(BaseModel):
             "tool_count": len(tool_names),
             "tool_names": tool_names,
             "repair_decision_count": repair_count,
+            "repair_fmea_annotation_count": len(repair_annotations),
+            "repair_fmea_unannotated_count": len(unannotated_repairs),
+            "repair_fmea_max_rpn": max(repair_rpns) if repair_rpns else None,
+            "repair_fmea_machinery_failure_count": sum(
+                1
+                for step in self.steps
+                for decision in step.repair_decisions
+                if decision.status != "not_applicable"
+                and decision.fmea_annotation is not None
+            ),
             "finding_count": len(self.findings),
             "upstream_spine_blocker_refs": sorted(
                 {
@@ -398,6 +485,8 @@ class PromptToolParserAuthorityLedger(BaseModel):
                 }
             ),
         }
+        if unannotated_repairs:
+            self.summary["status"] = "fail"
         return self
 
     def _has_required_authority_scopes(self, scopes: Sequence[str]) -> bool:
@@ -457,6 +546,9 @@ def validate_prompt_tool_parser_authority(
         if scope not in scopes
     )
     status = str(ledger.summary.get("status") or "").casefold()
+    unannotated_count = _int_or_zero(ledger.summary.get("repair_fmea_unannotated_count"))
+    if unannotated_count > 0:
+        missing = (*missing, "prompt_tool_repair_fmea_refs_missing")
     if status not in {"pass", "ok", "passed"}:
         missing = (*missing, "prompt_tool_parser_authority_ledger_not_passing")
     return PromptToolParserAuthorityValidation(
@@ -480,6 +572,29 @@ def serialize_prompt_tool_ledger(
     return parsed.model_dump(mode="json", exclude_none=True, by_alias=True)
 
 
+def persist_runtime_quality_json_artifact(
+    *,
+    payload: object,
+    store: Any,
+    kind: str,
+    schema_name: str,
+    schema_version: str = "1.0",
+    inputs: Iterable[InputRef] | None = None,
+) -> ArtifactRef:
+    """Persist a runtime-quality JSON artifact with canonical CAS metadata."""
+
+    return store.put_json(
+        payload,
+        ArtifactWriteOptions(
+            kind=kind,
+            media_type="application/json",
+            schema=SchemaInfo(name=schema_name, version=schema_version),
+            inputs=list(inputs or []),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+
+
 def persist_prompt_tool_ledger(
     ledger: PromptToolParserAuthorityLedger | Mapping[str, Any],
     *,
@@ -489,16 +604,164 @@ def persist_prompt_tool_ledger(
     """Persist a prompt/tool/parser authority ledger in CAS and return its ref."""
 
     payload = serialize_prompt_tool_ledger(ledger)
-    return store.put_json(
-        payload,
-        ArtifactWriteOptions(
-            kind=PROMPT_TOOL_LEDGER_KIND,
-            media_type="application/json",
-            schema=SchemaInfo(name=PROMPT_TOOL_LEDGER_SCHEMA, version="1.0"),
-            inputs=list(inputs or []),
-        ),
-        canon_spec=CanonSpec(forbid_floats=False),
+    return persist_runtime_quality_json_artifact(
+        payload=payload,
+        store=store,
+        kind=PROMPT_TOOL_LEDGER_KIND,
+        schema_name=PROMPT_TOOL_LEDGER_SCHEMA,
+        inputs=inputs,
     )
+
+
+def prompt_tool_repair_machinery_failures(
+    ledger: PromptToolParserAuthorityLedger | Mapping[str, Any] | None,
+) -> list[dict[str, Any]]:
+    """Project repair decisions as operator-visible machinery failures.
+
+    Args:
+        ledger: Prompt/tool/parser authority ledger.
+
+    Returns:
+        Non-not-applicable repair decisions with W10.F FMEA refs, suitable for
+        scorecard, dashboard, operator, and closeout reader surfaces.
+    """
+
+    parsed = _coerce_ledger(ledger)
+    if parsed is None:
+        return []
+
+    failures: list[dict[str, Any]] = []
+    for step in parsed.steps:
+        for decision in step.repair_decisions:
+            annotation = decision.fmea_annotation
+            if decision.status == "not_applicable" or annotation is None:
+                continue
+            failures.append(
+                {
+                    "failure_id": f"prompt_tool_repair:{step.step_id}:{decision.decision}",
+                    "step_id": step.step_id,
+                    "decision": decision.decision,
+                    "status": decision.status,
+                    "repair_ref": decision.repair_ref,
+                    "failure_mode": annotation.failure_mode,
+                    "severity": annotation.severity,
+                    "cause": annotation.cause,
+                    "recommended_mitigation": annotation.recommended_mitigation,
+                    "residual_risk": annotation.residual_risk,
+                    "risk_priority_number": annotation.risk_priority_number,
+                    "authority_effect": annotation.authority_effect,
+                    "evidence_ref": annotation.evidence_ref,
+                    "owner": annotation.owner,
+                    "surface": "prompt_tool_repair_fmea",
+                }
+            )
+    return failures
+
+
+def prompt_tool_repair_fmea_closeout_record(
+    ledger: PromptToolParserAuthorityLedger | Mapping[str, Any],
+) -> dict[str, Any]:
+    """Build the closeout-reader surface for prompt/tool repair FMEA."""
+
+    if (
+        isinstance(ledger, Mapping)
+        and ledger.get("schema_version") == REPAIR_FMEA_SURFACE_SCHEMA_VERSION
+    ):
+        return dict(ledger)
+    parsed = _coerce_ledger(ledger)
+    if parsed is None:
+        return {
+            "schema_version": REPAIR_FMEA_SURFACE_SCHEMA_VERSION,
+            "status": "fail",
+            "authority_role": "module_closeout_evidence",
+            "provenance_kind": "runtime_reader",
+            "surface": "prompt_tool_repair_fmea",
+            "summary": {
+                "repair_decision_count": 0,
+                "repair_fmea_annotation_count": 0,
+                "repair_fmea_unannotated_count": 0,
+                "repair_machinery_failure_count": 0,
+            },
+            "repair_machinery_failures": [],
+            "issues": [
+                {
+                    "code": "prompt_tool_repair_fmea_ledger_invalid",
+                    "severity": "fail",
+                    "message": "Prompt/tool repair FMEA closeout record could not parse ledger.",
+                    "next_action": "Emit a valid prompt/tool parser authority ledger.",
+                }
+            ],
+        }
+
+    failures = prompt_tool_repair_machinery_failures(parsed)
+    unannotated = [
+        {
+            "step_id": step.step_id,
+            "decision": decision.decision,
+            "status": decision.status,
+            "repair_ref": decision.repair_ref,
+        }
+        for step in parsed.steps
+        for decision in step.repair_decisions
+        if decision.fmea_annotation is None
+    ]
+    issues = [
+        {
+            "code": "prompt_tool_repair_decision_machinery_failure",
+            "severity": "limitation",
+            "message": (
+                f"Prompt/tool repair decision {failure['decision']} surfaced as "
+                f"{failure['failure_mode']} machinery failure."
+            ),
+            "next_action": failure["recommended_mitigation"],
+            "failure_id": failure["failure_id"],
+            "failure_mode": failure["failure_mode"],
+            "cause": failure["cause"],
+            "residual_risk": failure["residual_risk"],
+            "evidence_ref": failure["evidence_ref"],
+            "source_producer": "polisyos.runtime.quality.prompt_tool_ledger",
+        }
+        for failure in failures
+    ]
+    issues.extend(
+        {
+            "code": "prompt_tool_repair_fmea_refs_missing",
+            "severity": "fail",
+            "message": (
+                f"Prompt/tool repair decision {row['decision']} is missing W10.F "
+                "FMEA refs."
+            ),
+            "next_action": (
+                "Annotate the repair decision with failure_mode, severity, cause, "
+                "recommended_mitigation, and residual_risk before closeout."
+            ),
+            "step_id": row["step_id"],
+            "repair_ref": row["repair_ref"],
+            "source_producer": "polisyos.runtime.quality.prompt_tool_ledger",
+        }
+        for row in unannotated
+    )
+    status = "fail" if unannotated else "warn" if failures else "pass"
+    return {
+        "schema_version": REPAIR_FMEA_SURFACE_SCHEMA_VERSION,
+        "status": status,
+        "run_id": parsed.run_id,
+        "job_id": parsed.job_id,
+        "authority_role": "module_closeout_evidence",
+        "provenance_kind": "runtime_reader",
+        "surface": "prompt_tool_repair_fmea",
+        "producer_ref": "polisyos.runtime.quality.prompt_tool_ledger",
+        "summary": {
+            "repair_decision_count": parsed.summary["repair_decision_count"],
+            "repair_fmea_annotation_count": parsed.summary["repair_fmea_annotation_count"],
+            "repair_fmea_unannotated_count": parsed.summary["repair_fmea_unannotated_count"],
+            "repair_machinery_failure_count": len(failures),
+            "max_risk_priority_number": parsed.summary["repair_fmea_max_rpn"],
+        },
+        "repair_machinery_failures": failures,
+        "unannotated_repair_decisions": unannotated,
+        "issues": issues,
+    }
 
 
 def build_prompt_tool_ledger_from_model_variant(
@@ -549,6 +812,59 @@ def build_prompt_tool_ledger_from_model_variant(
         validation_status: ValidationStatus = (
             "pass" if status in {"ok", "completed", "pass", "success"} else "fail"
         )
+        schema_healing_count = int(variant.get("schema_healing_count") or 0)
+        repair_decision: dict[str, Any] = {
+            "decision": "schema_healing_not_required"
+            if schema_healing_count <= 0
+            else "schema_healing_applied",
+            "status": "not_applicable" if schema_healing_count <= 0 else "applied",
+            "reason": (
+                "Runtime variant reported no schema healing."
+                if schema_healing_count <= 0
+                else "Runtime variant reported schema healing."
+            ),
+        }
+        if schema_healing_count > 0:
+            repair_decision["repair_ref"] = handoff_values[0]
+            repair_decision["fmea_annotation"] = {
+                "failure_mode": "parser_contract_repair",
+                "severity": 6,
+                "cause": "model_output_failed_parser_contract",
+                "recommended_mitigation": (
+                    "Keep strict parser validation and preserve repaired output as "
+                    "candidate-only until authority handoff validation passes."
+                ),
+                "residual_risk": (
+                    "Parser healing may mask prompt or tool drift; audit the repair ref "
+                    "before reuse in production authority runs."
+                ),
+                "occurrence": 2,
+                "detectability": 3,
+                "owner": "team-runtime-ops",
+                "controls": [
+                    "strict parser validation",
+                    "authority handoff validation",
+                ],
+                "evidence_ref": handoff_values[0],
+                "authority_effect": "accepted_mitigation",
+            }
+        else:
+            repair_decision["fmea_annotation"] = {
+                "failure_mode": "parser_contract_repair",
+                "severity": 1,
+                "cause": "strict_parser_validation_passed",
+                "recommended_mitigation": (
+                    "Keep strict parser validation and retain the no-repair decision "
+                    "for audit replay."
+                ),
+                "residual_risk": "No residual repair risk observed for this step.",
+                "occurrence": 1,
+                "detectability": 1,
+                "owner": "team-runtime-ops",
+                "controls": ["strict parser validation"],
+                "evidence_ref": handoff_values[0],
+                "authority_effect": "advisory",
+            }
         steps.append(
             {
                 "step_id": f"{variant_id}:{agent}:{action}:{index}",
@@ -585,26 +901,7 @@ def build_prompt_tool_ledger_from_model_variant(
                         "validation_ref": handoff_values[0],
                     }
                 ],
-                "repair_decisions": [
-                    {
-                        "decision": "schema_healing_not_required"
-                        if int(variant.get("schema_healing_count") or 0) <= 0
-                        else "schema_healing_applied",
-                        "status": "not_applicable"
-                        if int(variant.get("schema_healing_count") or 0) <= 0
-                        else "applied",
-                        "reason": (
-                            "Runtime variant reported no schema healing."
-                            if int(variant.get("schema_healing_count") or 0) <= 0
-                            else "Runtime variant reported schema healing."
-                        ),
-                        **(
-                            {"repair_ref": handoff_values[0]}
-                            if int(variant.get("schema_healing_count") or 0) > 0
-                            else {}
-                        ),
-                    }
-                ],
+                "repair_decisions": [repair_decision],
                 "authority_handoff_refs": [
                     {
                         "scope": scope,
@@ -667,28 +964,55 @@ def _clean_ref_tuple(values: tuple[str, ...]) -> tuple[str, ...]:
     return tuple(_clean_refs(values))
 
 
+def _int_or_zero(value: Any) -> int:
+    try:
+        return int(value or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
+def _coerce_ledger(
+    value: PromptToolParserAuthorityLedger | Mapping[str, Any] | None,
+) -> PromptToolParserAuthorityLedger | None:
+    if value is None:
+        return None
+    if isinstance(value, PromptToolParserAuthorityLedger):
+        return value
+    if isinstance(value, Mapping):
+        try:
+            return PromptToolParserAuthorityLedger.model_validate(value)
+        except ValidationError:
+            return None
+    return None
+
+
 __all__ = [
     "AUTHORITY_SCOPES",
     "PROMPT_TOOL_LEDGER_FILENAME",
     "PROMPT_TOOL_LEDGER_KIND",
     "PROMPT_TOOL_LEDGER_REF_KEY",
     "PROMPT_TOOL_LEDGER_REPORT_KEY",
+    "REPAIR_FMEA_SURFACE_SCHEMA_VERSION",
     "SCHEMA_VERSION",
     "AuthorityHandoffRef",
     "ModelAssistedStepLedger",
     "ModelProviderConfig",
     "ParserContract",
     "PromptTemplateRecord",
-    "PromptToolLedgerFinding",
     "PromptToolLedgerError",
+    "PromptToolLedgerFinding",
     "PromptToolParserAuthorityLedger",
     "PromptToolParserAuthorityValidation",
     "RepairDecision",
+    "RepairDecisionFMEAAnnotation",
     "ToolCallRecord",
     "ToolSchemaRecord",
     "ValidationRef",
     "build_prompt_tool_ledger_from_model_variant",
     "persist_prompt_tool_ledger",
+    "persist_runtime_quality_json_artifact",
+    "prompt_tool_repair_fmea_closeout_record",
+    "prompt_tool_repair_machinery_failures",
     "serialize_prompt_tool_ledger",
     "validate_prompt_tool_parser_authority",
 ]

@@ -5,6 +5,6 @@
   in `comparators.py`.
 - Put replay report persistence and registry behavior in `verification.py`.
 - New first-party imports must use `polisyos.scientist.replay.*`, never
-  `polisyos.scientist.replay_backend`.
+  `polisyos.scientist.replay.backend`.
 - Replay changes should keep deterministic behavior explicit: seed handling,
   environment diffs, and verification reason codes need direct tests.

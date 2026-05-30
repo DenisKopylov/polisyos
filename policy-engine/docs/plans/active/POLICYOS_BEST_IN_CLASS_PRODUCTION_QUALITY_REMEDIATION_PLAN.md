@@ -1286,7 +1286,7 @@ Files:
 
 - Create: `src/polisyos/runtime/security/quality_gates.py`
 - Create: `tests/security/fixtures/policyos_abuse_cases/`
-- Test: `tests/security/test_policyos_runtime_abuse_gates.py`
+- Test: `tests/unit/security/test_policyos_runtime_abuse_gates.py`
 - Test: `tests/unit/tools/test_canary_evidence.py`
 - Test: `apps/runtime-dashboard/e2e/journeys/control-quality-security.spec.ts`
 
@@ -1306,7 +1306,7 @@ Acceptance:
 Verification:
 
 ```bash
-uv run pytest tests/security/test_policyos_runtime_abuse_gates.py tests/unit/tools/test_canary_evidence.py -q
+uv run pytest tests/unit/security/test_policyos_runtime_abuse_gates.py tests/unit/tools/test_canary_evidence.py -q
 corepack pnpm --dir apps/runtime-dashboard run test:journeys:smoke
 ```
 

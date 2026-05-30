@@ -1,0 +1,669 @@
+{
+  "case_id": "w11a_berlin_rent_cap_2020",
+  "claim_evidence_annotations": {
+    "annotation_provenance": {
+      "conflicts": [],
+      "disagreement_category": null,
+      "expertise_basis": "W11.A source triage from Berlin court, BVerfG, and case-note sources",
+      "reviewed_at": "2026-05-24",
+      "reviewer_role": "policy_generalist"
+    },
+    "annotation_status": "annotated_w11b",
+    "authority_boundary": {
+      "authoritative_for": [
+        "corpus_annotation",
+        "compilation_truthfulness_reference"
+      ],
+      "may_not_be_used_for": [
+        "claim_authority",
+        "producer_evidence_authority",
+        "legal_authority",
+        "method_validity",
+        "participation_legitimacy",
+        "projection_authority"
+      ],
+      "may_not_use_for": [
+        "claim_authority",
+        "producer_evidence_authority",
+        "legal_authority",
+        "method_validity",
+        "participation_legitimacy",
+        "projection_authority"
+      ]
+    },
+    "authority_level": "governed",
+    "capability_reality_label": "implemented",
+    "case_id": "w11a_berlin_rent_cap_2020",
+    "case_title": "Berlin rent cap and legal competence failure",
+    "claims": [
+      {
+        "admissibility_label": "blocked",
+        "claim_id": "claim:berlin-rent-cap-tenant-relief",
+        "claim_type": "legal_and_distributional",
+        "contestability_status": "resolved_by_court",
+        "evidence_refs": [
+          "evidence:housing-rights-watch-case-note"
+        ],
+        "legal_refs": [
+          "legal:berlin-mietenwog-litigation",
+          "legal:bverfg-rent-cap-void"
+        ],
+        "limitation_refs": [
+          "limitation:legal-authority-blocker"
+        ],
+        "method_refs": [
+          "method:competence-first-review"
+        ],
+        "participation_refs": [
+          "participation:tenant-landlord-litigation-channel"
+        ],
+        "risks": [
+          "risk:invalid-state-authority"
+        ],
+        "scope": {
+          "geography": [
+            "Berlin"
+          ],
+          "institution": [
+            "Berlin_Senate",
+            "Federal_Constitutional_Court"
+          ],
+          "population": [
+            "covered_tenants",
+            "landlords"
+          ],
+          "time_period": "2020-02 to 2021-04"
+        },
+        "text_ref": "text:case:summary",
+        "tradeoffs": [
+          "tradeoff:rent-relief-vs-supply"
+        ]
+      }
+    ],
+    "corpus_phase": "W11.A",
+    "domain": "housing_rent_control",
+    "expected_evidence_families": [
+      "legal_competence_analysis",
+      "rent_market_administrative_data",
+      "tenant_landlord_distributional_analysis",
+      "housing_supply_response",
+      "court_outcome_tracking"
+    ],
+    "expert_adjudication_status": "adjudicated_w11c",
+    "jurisdiction": "Berlin, Germany",
+    "jurisdiction_authority_level": "subnational",
+    "known_failure_limitation_labels": [
+      "legal_competence_block",
+      "housing_supply_response_uncertain",
+      "tenant_landlord_distributional_tradeoff",
+      "retroactive_reliance_risk"
+    ],
+    "known_outcomes_or_failures": [
+      {
+        "finding_id": "outcome:law-void",
+        "source_ref": "outcome:law-void",
+        "would_prior_obligation_have_flagged": true
+      }
+    ],
+    "obligations": [
+      {
+        "generated_from_facets": [
+          "facet:instrument.rent_cap",
+          "facet:authority.subnational",
+          "facet:market.housing"
+        ],
+        "obligation_id": "obligation:rent-cap-competence-check",
+        "required_evidence_family": "legal_competence_analysis",
+        "reviewer_notes": "A governed recommendation should block before outcome modeling when the implementing authority lacks competence.",
+        "status": "closeout_block"
+      }
+    ],
+    "pattern_refs": [
+      "P01",
+      "P02",
+      "P03",
+      "P05",
+      "P10",
+      "P13",
+      "P14",
+      "P15"
+    ],
+    "policy_instrument": {
+      "delivery_channel": "state housing rent regulation and enforcement",
+      "funding_channel": null,
+      "instrument_type": "rent_cap"
+    },
+    "policy_time": "2020-02 to 2021-04",
+    "raw_source_refs": [
+      "https://www.berlin.de/gerichte/presse/pressemitteilungen-der-ordentlichen-gerichtsbarkeit/2020/pressemitteilung.967839.php",
+      "https://www.bundesverfassungsgericht.de/SharedDocs/Pressemitteilungen/EN/2021/bvg21-028.html",
+      "https://housingrightswatch.org/jurisprudence/german-constitutional-court-order-2-bvf-120-2-bvl-520-2-bvl-420-25032021"
+    ],
+    "redacted_source_hashes": [],
+    "references": [
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "text:case:summary",
+        "ref_type": "source",
+        "source_ref": "repo://docs/research/universal-policy-design/outcome-corpus/berlin-rent-cap-2020-housing.md#summary",
+        "title": "Case summary"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "legal:berlin-mietenwog-litigation",
+        "ref_type": "legal",
+        "source_ref": "https://www.berlin.de/gerichte/presse/pressemitteilungen-der-ordentlichen-gerichtsbarkeit/2020/pressemitteilung.967839.php",
+        "title": "Berlin court press release on MietenWoG Bln proceedings"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "legal:bverfg-rent-cap-void",
+        "ref_type": "legal",
+        "source_ref": "https://www.bundesverfassungsgericht.de/SharedDocs/Pressemitteilungen/EN/2021/bvg21-028.html",
+        "title": "Federal Constitutional Court press release declaring Berlin rent cap void"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "evidence:housing-rights-watch-case-note",
+        "ref_type": "evidence",
+        "source_ref": "https://housingrightswatch.org/jurisprudence/german-constitutional-court-order-2-bvf-120-2-bvl-520-2-bvl-420-25032021",
+        "title": "Housing Rights Watch case note on the Constitutional Court order"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "method:competence-first-review",
+        "ref_type": "method",
+        "source_ref": "https://www.bundesverfassungsgericht.de/SharedDocs/Pressemitteilungen/EN/2021/bvg21-028.html",
+        "title": "Competence review before housing-market merits"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "participation:tenant-landlord-litigation-channel",
+        "ref_type": "participation",
+        "source_ref": "https://www.berlin.de/gerichte/presse/pressemitteilungen-der-ordentlichen-gerichtsbarkeit/2020/pressemitteilung.967839.php",
+        "title": "Tenant-landlord dispute pathway"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "risk:invalid-state-authority",
+        "ref_type": "risk",
+        "source_ref": "https://www.bundesverfassungsgericht.de/SharedDocs/Pressemitteilungen/EN/2021/bvg21-028.html",
+        "title": "State authority competence risk"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "tradeoff:rent-relief-vs-supply",
+        "ref_type": "tradeoff",
+        "source_ref": "https://housingrightswatch.org/jurisprudence/german-constitutional-court-order-2-bvf-120-2-bvl-520-2-bvl-420-25032021",
+        "title": "Rent relief and housing-market response tradeoff"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "limitation:legal-authority-blocker",
+        "ref_type": "limitation",
+        "source_ref": "https://www.bundesverfassungsgericht.de/SharedDocs/Pressemitteilungen/EN/2021/bvg21-028.html",
+        "title": "Legal authority blocker"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "outcome:law-void",
+        "ref_type": "outcome",
+        "source_ref": "https://www.bundesverfassungsgericht.de/SharedDocs/Pressemitteilungen/EN/2021/bvg21-028.html",
+        "title": "Rent cap declared void"
+      }
+    ],
+    "schema_version": "policyos.universal_outcome_corpus.annotation.v1",
+    "sourcing_status": "sourced",
+    "targeting": {
+      "affected_populations": [
+        "landlords",
+        "prospective_renters",
+        "state_enforcement_authorities"
+      ],
+      "beneficiary_classes": [
+        "tenants_in_covered_existing_rental_units"
+      ],
+      "targeting_type": "regulated_market_segment"
+    }
+  },
+  "compilation_intent_text": "Berlin rent cap and legal competence failure. Design a multi_year municipal rent regulation enforcement programme for low_income renters, with budget oversight, legal risk monitoring, and annual review.",
+  "concept_spine_refs": {
+    "canonical_concept_refs": [
+      "concept://w11/w11a_berlin_rent_cap_2020/universal-policy-grammar"
+    ],
+    "concept_spine_ref": "concept-spine://w11/w11a_berlin_rent_cap_2020",
+    "facet_concept_refs": {
+      "authority_type": [
+        "concept://w11/w11a_berlin_rent_cap_2020/authority_type"
+      ],
+      "delivery_channel": [
+        "concept://w11/w11a_berlin_rent_cap_2020/delivery_channel"
+      ],
+      "funding_channel": [
+        "concept://w11/w11a_berlin_rent_cap_2020/funding_channel"
+      ],
+      "geography_predicate": [
+        "concept://w11/w11a_berlin_rent_cap_2020/geography_predicate"
+      ],
+      "instrument_type": [
+        "concept://w11/w11a_berlin_rent_cap_2020/instrument_type"
+      ],
+      "method_need": [
+        "concept://w11/w11a_berlin_rent_cap_2020/method_need"
+      ],
+      "outcome_channel": [
+        "concept://w11/w11a_berlin_rent_cap_2020/outcome_channel"
+      ],
+      "population_predicate": [
+        "concept://w11/w11a_berlin_rent_cap_2020/population_predicate"
+      ],
+      "risk_facet": [
+        "concept://w11/w11a_berlin_rent_cap_2020/risk_facet"
+      ],
+      "targeting_type": [
+        "concept://w11/w11a_berlin_rent_cap_2020/targeting_type"
+      ],
+      "time_predicate": [
+        "concept://w11/w11a_berlin_rent_cap_2020/time_predicate"
+      ]
+    },
+    "jurisdiction_spine_ref": "jurisdiction-spine://w11/w11a_berlin_rent_cap_2020"
+  },
+  "critic_ensemble": {
+    "authority_boundary": {
+      "authoritative_for": [
+        "critic_diversity_measurement"
+      ],
+      "may_not_use_for": [
+        "claim_authority",
+        "producer_evidence_authority",
+        "legal_authority",
+        "method_validity",
+        "projection_authority"
+      ]
+    },
+    "run_id": "run-w11a_berlin_rent_cap_2020",
+    "verdicts": [
+      {
+        "envelope": {
+          "critic_role": "legal",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_legal_basis"
+        },
+        "failure_modes": [
+          "authority_boundary:legal_competence_block"
+        ],
+        "message": "legal critic flags legal_competence_block for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_berlin_rent_cap_2020"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "fiscal",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_fiscal_basis"
+        },
+        "failure_modes": [
+          "budget_feasibility:housing_supply_response_uncertain"
+        ],
+        "message": "fiscal critic flags housing_supply_response_uncertain for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_berlin_rent_cap_2020"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "equity",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_equity_basis"
+        },
+        "failure_modes": [
+          "distributional_effect:tenant_landlord_distributional_tradeoff"
+        ],
+        "message": "equity critic flags tenant_landlord_distributional_tradeoff for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_berlin_rent_cap_2020"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "data",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_data_basis"
+        },
+        "failure_modes": [
+          "source_lineage:retroactive_reliance_risk"
+        ],
+        "message": "data critic flags retroactive_reliance_risk for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_berlin_rent_cap_2020"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "implementation",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_implementation_basis"
+        },
+        "failure_modes": [
+          "delivery_capacity:legal_competence_block"
+        ],
+        "message": "implementation critic flags legal_competence_block for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_berlin_rent_cap_2020"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "affected_person",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_affected_person_basis"
+        },
+        "failure_modes": [
+          "participation_voice:housing_supply_response_uncertain"
+        ],
+        "message": "affected_person critic flags housing_supply_response_uncertain for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_berlin_rent_cap_2020"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "adversarial",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_adversarial_basis"
+        },
+        "failure_modes": [
+          "failure_probe:tenant_landlord_distributional_tradeoff"
+        ],
+        "message": "adversarial critic flags tenant_landlord_distributional_tradeoff for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_berlin_rent_cap_2020"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "monitoring",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_monitoring_basis"
+        },
+        "failure_modes": [
+          "lifecycle_monitoring:retroactive_reliance_risk"
+        ],
+        "message": "monitoring critic flags retroactive_reliance_risk for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_berlin_rent_cap_2020"
+        ],
+        "verdict": "contest"
+      }
+    ]
+  },
+  "domain": "housing_rent_control",
+  "expected_adapter_bindings": {
+    "bindings": [
+      {
+        "adapter": "fabric",
+        "binding_id": "bind-w11a_berlin_rent_cap_2020-selected",
+        "reason_code": "annotation_data_family_selected",
+        "requirement_id": "data-w11a_berlin_rent_cap_2020",
+        "status": "selected"
+      },
+      {
+        "adapter": "scholar",
+        "binding_id": "bind-w11a_berlin_rent_cap_2020-rejected",
+        "reason_code": "generic_or_transfer_mismatch_rejected",
+        "requirement_id": "scholar-w11a_berlin_rent_cap_2020",
+        "status": "rejected"
+      },
+      {
+        "adapter": "foundry",
+        "binding_id": "bind-w11a_berlin_rent_cap_2020-blocked",
+        "reason_code": "method_or_counterfactual_precondition_missing",
+        "requirement_id": "method-w11a_berlin_rent_cap_2020",
+        "status": "blocked"
+      }
+    ]
+  },
+  "expected_claim_families": {
+    "families": [
+      {
+        "claim_family": "legal_and_distributional",
+        "claim_id": "claim:berlin-rent-cap-tenant-relief",
+        "expected_support_status": "blocked"
+      }
+    ]
+  },
+  "expected_closeout_states": {
+    "states": [
+      {
+        "authority_level": "research",
+        "limitation_refs": [
+          "limitation://w11d/w11a_berlin_rent_cap_2020"
+        ],
+        "required_surface_refs": [
+          "audit://w11d/w11a_berlin_rent_cap_2020/research"
+        ],
+        "state": "limited"
+      },
+      {
+        "authority_level": "governed",
+        "blocker_refs": [
+          "blocker://w11d/w11a_berlin_rent_cap_2020"
+        ],
+        "required_surface_refs": [
+          "audit://w11d/w11a_berlin_rent_cap_2020/governed"
+        ],
+        "state": "blocked"
+      },
+      {
+        "authority_level": "production",
+        "blocker_refs": [
+          "blocker://w11d/w11a_berlin_rent_cap_2020"
+        ],
+        "required_surface_refs": [
+          "audit://w11d/w11a_berlin_rent_cap_2020/production"
+        ],
+        "state": "blocked"
+      }
+    ]
+  },
+  "expected_facets": {
+    "facets": [
+      {
+        "concept_ref": "concept://w11d/w11a_berlin_rent_cap_2020/instrument",
+        "expected_value": "rent_cap",
+        "facet_name": "instrument_type"
+      },
+      {
+        "concept_ref": "concept://w11d/w11a_berlin_rent_cap_2020/targeting",
+        "expected_value": "regulated_market_segment",
+        "facet_name": "targeting_type"
+      },
+      {
+        "concept_ref": "concept://w11d/w11a_berlin_rent_cap_2020/delivery",
+        "expected_value": "state housing rent regulation and enforcement",
+        "facet_name": "delivery_channel"
+      }
+    ]
+  },
+  "expected_obligation_graph": {
+    "frontier": [
+      {
+        "claim_refs": [
+          "claim:berlin-rent-cap-tenant-relief"
+        ],
+        "family": "legal",
+        "obligation_id": "obligation:rent-cap-competence-check",
+        "priority": "closeout_block",
+        "source_class": "legal_requirement"
+      }
+    ]
+  },
+  "expected_projection_truthfulness": {
+    "projections": [
+      {
+        "audience": "public",
+        "may_not_claim": [
+          "fixture expectation is runtime authority"
+        ],
+        "must_disclose_refs": [
+          "annotation://w11d/w11a_berlin_rent_cap_2020"
+        ],
+        "truthfulness": "unfaithful"
+      }
+    ]
+  },
+  "expected_requirement_specs": {
+    "families": {
+      "data": [
+        {
+          "claim_id": "claim:berlin-rent-cap-tenant-relief",
+          "requirement_id": "data-w11a_berlin_rent_cap_2020",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/berlin-rent-cap-2020-housing.md#data"
+        }
+      ],
+      "legal": [
+        {
+          "claim_id": "claim:berlin-rent-cap-tenant-relief",
+          "requirement_id": "legal-w11a_berlin_rent_cap_2020",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/berlin-rent-cap-2020-housing.md#legal"
+        }
+      ],
+      "method": [
+        {
+          "claim_id": "claim:berlin-rent-cap-tenant-relief",
+          "requirement_id": "method-w11a_berlin_rent_cap_2020",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/berlin-rent-cap-2020-housing.md#method"
+        }
+      ],
+      "participation": [
+        {
+          "claim_id": "claim:berlin-rent-cap-tenant-relief",
+          "requirement_id": "participation-w11a_berlin_rent_cap_2020",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/berlin-rent-cap-2020-housing.md#participation"
+        }
+      ],
+      "scholar": [
+        {
+          "claim_id": "claim:berlin-rent-cap-tenant-relief",
+          "requirement_id": "scholar-w11a_berlin_rent_cap_2020",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/berlin-rent-cap-2020-housing.md#scholar"
+        }
+      ]
+    }
+  },
+  "expert_adjudication": {
+    "case_label": "false_pass",
+    "claim_labels": [
+      {
+        "claim_id": "claim:berlin-rent-cap-tenant-relief",
+        "dimension_id": "compilation_truthfulness",
+        "failure_mode": "legal_competence_block",
+        "label": "false_pass",
+        "required_surface_change": "Expose annotation-derived limitation, contestation, or blocker state.",
+        "status_should_have_been": "blocked",
+        "why_structural_checks_missed_it": "W11.D fixture preserves annotation semantics for truthfulness comparison."
+      }
+    ],
+    "reviewer_topology_ref": "reviewer-topology://w11d/public/w11a_berlin_rent_cap_2020"
+  },
+  "input_intent_ref": "intent-w11a_berlin_rent_cap_2020",
+  "intent": {
+    "authority_levels": [
+      "research",
+      "governed",
+      "production"
+    ],
+    "instrument_type": "rent_cap",
+    "intent_id": "intent-w11a_berlin_rent_cap_2020",
+    "jurisdiction": "Berlin, Germany",
+    "metadata": {
+      "w11a_authority_level": "governed"
+    },
+    "policy_time": "2020-02 to 2021-04",
+    "target_population": "tenants_in_covered_existing_rental_units",
+    "text": "Berlin rent cap and legal competence failure"
+  },
+  "metadata": {
+    "pattern_refs": [
+      "P01",
+      "P02",
+      "P03",
+      "P05",
+      "P10",
+      "P13",
+      "P14",
+      "P15"
+    ],
+    "reuse_classification": "wire_existing",
+    "source_annotation_schema": "policyos.universal_outcome_corpus.annotation.v1"
+  },
+  "producer_pipeline": {
+    "producers": [
+      {
+        "consumed_concept_refs": [
+          "concept://w11/w11a_berlin_rent_cap_2020/universal-policy-grammar"
+        ],
+        "consumed_requirement_refs": [
+          "data-w11a_berlin_rent_cap_2020"
+        ],
+        "expected_output_families": [
+          "fabric.source_contract_binding.v1"
+        ],
+        "first_pass_bindings": [
+          {
+            "binding_id": "label.fabric.w11a_berlin_rent_cap_2020",
+            "binding_kind": "label",
+            "concept_ref": "concept://w11/w11a_berlin_rent_cap_2020/universal-policy-grammar",
+            "disposition": "context_only",
+            "label": "fabric context for w11a_berlin_rent_cap_2020"
+          }
+        ],
+        "producer_component": "fabric",
+        "requested_deadline_s": 5.0,
+        "second_pass_bindings": [
+          {
+            "artifact_ref": "source://w11/w11a_berlin_rent_cap_2020/fabric",
+            "binding_id": "binding.fabric.w11a_berlin_rent_cap_2020",
+            "binding_kind": "dataset",
+            "concept_ref": "concept://w11/w11a_berlin_rent_cap_2020/universal-policy-grammar",
+            "disposition": "selected",
+            "requirement_ref": "data-w11a_berlin_rent_cap_2020",
+            "time_role": "observation_time"
+          }
+        ]
+      }
+    ]
+  },
+  "redacted_source_hash": "sha256:277e253534e562c50d558ebda49d1139b9c20efff9d2480c65042b380bdfb75c",
+  "schema_version": "policyos.universal_corpus_fixture.v1",
+  "source_case_ref": "docs/research/universal-policy-design/outcome-corpus/berlin-rent-cap-2020-housing.md",
+  "split": "public",
+  "title": "Berlin rent cap and legal competence failure"
+}

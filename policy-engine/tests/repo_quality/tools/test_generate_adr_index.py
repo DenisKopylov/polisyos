@@ -139,7 +139,7 @@ def test_phase6_5_new_adr_files_require_an_index_topic_row(
     monkeypatch.setattr(generate_adr_index, "REPO_ROOT", tmp_path)
     monkeypatch.setattr(generate_adr_index, "ADR_DIR", adr_root)
 
-    with pytest.raises(ValueError, match="missing from docs/adr/index.toml"):
+    with pytest.raises(ValueError, match=r"missing from docs/adr/index\.toml"):
         generate_adr_index._entries(index)
 
 

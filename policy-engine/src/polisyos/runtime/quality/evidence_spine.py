@@ -244,7 +244,11 @@ class EvidenceSpineNode:
             "consumed_requirement_ids",
             _text_tuple(self.consumed_requirement_ids) or self.consumed_carrier.requirement_ids,
         )
-        object.__setattr__(self, "emitted_requirement_ids", _text_tuple(self.emitted_requirement_ids))
+        object.__setattr__(
+            self,
+            "emitted_requirement_ids",
+            _text_tuple(self.emitted_requirement_ids),
+        )
         object.__setattr__(self, "bindings", tuple(self.bindings))
         object.__setattr__(self, "status", _clean_text(self.status) or "pass")
         object.__setattr__(self, "metadata", dict(self.metadata))
@@ -452,9 +456,10 @@ def find_scenario_evidence_contract(
         ),
     ]
     for candidate in candidates:
-        if candidate is not None:
-            if "contract_id" in candidate or "scenario_evidence_contract_id" in candidate:
-                return candidate
+        if candidate is not None and (
+            "contract_id" in candidate or "scenario_evidence_contract_id" in candidate
+        ):
+            return candidate
     return None
 
 
@@ -505,7 +510,9 @@ def _nodes_from_quality_evidence(
                     ),
                     consumed_requirement_ids=lex_consumed,
                     emitted_requirement_ids=lex_emitted,
-                    bindings=_bindings_from_findings(_nested_list(normative, ("legal_requirements",))),
+                    bindings=_bindings_from_findings(
+                        _nested_list(normative, ("legal_requirements",))
+                    ),
                 )
             )
 

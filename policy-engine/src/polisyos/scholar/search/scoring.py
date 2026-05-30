@@ -91,6 +91,8 @@ def build_source_metadata(
         fetch_status=fetch.status,
         content_type=fetch.content_type,
         content_sha256=fetch.content_sha256,
+        publication_tier=_publication_tier_for_source(hit.source_type, domain),
+        underlying_study_id=fetch.content_sha256,
         quality_score=round(quality, 6),
         anti_seo_score=round(anti_seo, 6),
         duplicate_of_source_id=duplicate_of_source_id,
@@ -232,6 +234,17 @@ def _domain_quality_boost(domain: str) -> float:
         if domain == suffix or domain.endswith(suffix):
             score = max(score, boost)
     return score
+
+
+def _publication_tier_for_source(source_type: str, domain: str) -> str:
+    normalized = source_type.strip().casefold()
+    if normalized in {"academic", "journal", "peer_reviewed", "systematic_review"}:
+        return "peer_reviewed"
+    if normalized in {"working_paper", "preprint"}:
+        return "working_paper"
+    if normalized in {"government", "law"} or domain.endswith(".gov"):
+        return "government_report"
+    return "grey_literature"
 
 
 def _lexical_overlap(text: str, query_terms: Sequence[str]) -> float:

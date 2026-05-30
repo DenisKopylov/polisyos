@@ -151,7 +151,7 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
         from polisyos.scientist.agent.runtime_capabilities import AgentCapabilityId
         from polisyos.scientist.agent.tool_contracts import summarize_tool_contracts
         from polisyos.scientist.agent.tools.schema import ToolDefinition
-        from polisyos.scientist.claims.validators import (
+        from polisyos.scientist.evidence.claims.validators import (
             SELECTED_FAIL_CLOSED_WORKFLOWS,
             validate_naked_decision_claims,
             validate_state_claim_projection,

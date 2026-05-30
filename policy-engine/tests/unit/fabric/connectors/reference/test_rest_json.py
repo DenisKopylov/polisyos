@@ -30,7 +30,7 @@ from polisyos.fabric.connectors.reference.rest_json import (
 )
 from polisyos.fabric.connectors.testing import ConnectorTestHarness
 from polisyos.fabric.connectors.types import RateLimitError
-from polisyos.fabric.safety import UnsafeDataPathError
+from polisyos.fabric.quality.safety import UnsafeDataPathError
 from polisyos.ir.connectors import DataVersion, QualityTier, VersionStrategy
 
 SAMPLE_SCHEMA = DataSchema(

@@ -20,7 +20,7 @@ from polisyos.ir.observation.causal_readiness import (
     CounterfactualCheckEntry,
     load_causal_readiness_bundle,
 )
-from polisyos.ir.refs import CausalReadinessBundleRef
+from polisyos.ir.registry.refs import CausalReadinessBundleRef
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.orchestration.engine.state import ExperimentState

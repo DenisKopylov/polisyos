@@ -1,4 +1,4 @@
-# DoE (`polisyos.scientist.doe`)
+# DoE (`polisyos.scientist.methods.doe`)
 
 `doe` покрывает design-of-experiments и stress-analysis часть Scientist: sensitivity,
 ablation и adversarial планы, генерацию sample sets и пост-анализ уязвимостей.

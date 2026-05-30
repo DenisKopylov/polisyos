@@ -37,6 +37,16 @@ CAS state is canonical under `.polisyos/cas`. Recomputable CAS cache lives under
 | Scholar jobs | `.polisyos/scholar_jobs` | 30 days | manual approval only |
 | Scientist memory | `.polisyos/scientist` | 90 days | manual approval only |
 | Control-plane SQLite | `.polisyos/control_plane.sqlite3`, `.polisyos/control.sqlite3` | 90 days | manual approval only |
+| Nested local runtime state | `.polisyos/.polisyos` | 30 days | cleanup after migration review |
+| Control-plane real canary SQLite | `.polisyos/control_plane_real_canary_8031.sqlite3` | 7 days | cleanup after canary review |
+| Local production debug | `.polisyos/local-prod-debug` | 7 days | cleanup after debug review |
+| Local production canary | `.polisyos/local_production_canary` | 30 days | cleanup after canary evidence review |
+| Canary evidence | `.polisyos/canary_evidence`, `.polisyos/canary_evidence_debug` | 30 days | promote reviewed summaries, then cleanup |
+| Canary matrix runs | `.polisyos/canary_matrix_runs` | 30 days | cleanup after matrix summary promotion |
+| Canary replay CAS | `.polisyos/canary_replay_cas` | 30 days | cleanup after replay summary promotion |
+| Real production profile attempt state | `.polisyos/real_production_profile_attempt_state` | 30 days | cleanup after attempt review |
+| Real production quality run | `.polisyos/real_production_quality_run`, `.polisyos/real_production_quality_run_state` | 30 days | promote reviewed summaries, then cleanup |
+| Wave 35A runs | `.polisyos/wave35A_runs` | 30 days | cleanup after wave evidence review |
 | Future persisted local state | `.polisyos/state` | 90 days | manual approval only |
 
 Promote only reviewed summaries into `docs/archive/reports/` or release

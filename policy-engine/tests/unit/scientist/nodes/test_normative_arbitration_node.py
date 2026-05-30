@@ -35,9 +35,9 @@ from polisyos.ir.governance.problem_frame import (
     StakeholderSpec,
     StakeholderUtilityTerm,
 )
-from polisyos.ir.model_spec import FidelityLevel, ModelSpec
+from polisyos.ir.model_layer.model_spec import FidelityLevel, ModelSpec
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.ir.types import EntityType, OptimizationDirection
+from polisyos.ir.model_layer.types import EntityType, OptimizationDirection
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state as real_branch_state

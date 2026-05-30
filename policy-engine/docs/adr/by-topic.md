@@ -7,14 +7,14 @@
 | Topic | Description | Count |
 | --- | --- | --- |
 | `repository-structure` | Repository topology, package layout, import boundaries, docs governance, and workspace hygiene. | 32 |
-| `observation` | Observability, causal evidence, scientist workflows, measurement, confidence, and validity. | 44 |
+| `observation` | Observability, causal evidence, scientist workflows, measurement, confidence, and validity. | 49 |
 | `security` | Tenant isolation, signing, secrets, trust stores, and other security controls. | 4 |
-| `runtime-state` | Runtime state, replay, idempotency, CAS, snapshots, persistence, and lifecycle behavior. | 17 |
+| `runtime-state` | Runtime state, replay, idempotency, CAS, snapshots, persistence, and lifecycle behavior. | 19 |
 | `schemas` | IR, API, schema, serialization, registry, metadata, and compatibility contracts. | 16 |
 | `testing` | Test topology, fixtures, golden data, drift checks, and reproducibility gates. | 4 |
 | `release` | Release trains, SemVer, versioning, deprecation, migration, and retraction policy. | 6 |
 | `frontend` | Frontend workspace, dashboard, UI language, themes, and authored text surfaces. | 5 |
-| `product-domain` | Domain-level Foundry, Fabric, Lex, Data Forge, synthetic-world, and product concepts. | 48 |
+| `product-domain` | Domain-level Foundry, Fabric, Lex, Data Forge, synthetic-world, and product concepts. | 50 |
 
 ## Topic Index
 
@@ -103,6 +103,11 @@
 | [0153](0153-diagnostic-slos-assurance-case-and-attestation.md) | `accepted` | `repository` | Diagnostic SLOs, Assurance Case, And Attestation | 0006, 0010, 0116, 0128, 0147, 0148, 0149, 0150, 0151, 0152 |
 | [0160](0160-evidence-portfolio-independence-multiverse-synthesis.md) | `accepted` | `repository` | Evidence Portfolio, Independence Map, Multiverse, And Synthesis | 0020, 0028, 0041, 0129, 0152, 0156, 0159, 0161 |
 | [0164](0164-run-cost-proportionality-evidence-budget-governance.md) | `accepted` | `repository` | Run Cost, Proportionality, And Evidence Budget Governance | 0150, 0156, 0157, 0160, 0161, 0163, 0165 |
+| [0166](0166-evidence-acquisition-decision-boundaries.md) | `accepted` | `repository` | Evidence Acquisition Decision Boundaries | 0052, 0132, 0147, 0150, 0152, 0156, 0157, 0159, 0160, 0163, 0164 |
+| [0171](0171-review-effectiveness-telemetry-advisory-first.md) | `accepted` | `polisyos.runtime` | Review Effectiveness Telemetry Advisory First | 0147, 0150, 0154, 0156, 0162, 0163, 0164, 0165 |
+| [0172](0172-balanced-memory-influence-ledger.md) | `accepted` | `repository` | Balanced Memory Influence Ledger | - |
+| [0173](0173-obligation-frontier-and-bundle-control.md) | `accepted` | `repository` | Obligation Frontier And Bundle Control | - |
+| [0174](0174-policy-evidence-capability-graph.md) | `accepted` | `repository` | Policy Evidence Capability Graph | 0147, 0152, 0156, 0158, 0159, 0160, 0166, 0168, 0172, 0173 |
 
 ### security
 
@@ -133,6 +138,8 @@
 | [0156](0156-policy-design-case-runtime-quality-assurance-profile.md) | `accepted` | `polisyos.runtime` | Policy Design Case Runtime Quality Assurance Profile | 0147, 0150, 0152, 0153, 0155, 0157, 0161 |
 | [0162](0162-human-oversight-publication-external-audit-authority.md) | `accepted` | `repository` | Human Oversight, Publication, And External Audit Authority | 0147, 0150, 0153, 0154, 0156, 0157, 0161, 0163 |
 | [0163](0163-lifecycle-ddm-ex-post-calibration.md) | `accepted` | `repository` | Lifecycle, DDM, Ex-Post Outcomes, And Calibration | 0149, 0150, 0154, 0156, 0160, 0161, 0162, 0164 |
+| [0169](0169-bounded-liveness-and-runtime-escalation.md) | `accepted` | `polisyos.runtime` | Bounded Liveness And Runtime Escalation | 0006, 0011, 0097, 0148, 0153, 0154, 0156, 0164, 0165, 0166 |
+| [0170](0170-contestability-and-recourse-boundaries.md) | `accepted` | `repository` | Contestability And Recourse Boundaries | 0147, 0150, 0153, 0156, 0157, 0162, 0163, 0166 |
 | [ADR-004](ADR-004-policy-surface-removal.md) | `completed` | `polisyos.ir` | Trinity-Only IR Runtime | - |
 
 ### schemas
@@ -237,4 +244,6 @@
 | [0158](0158-concept-spine-multi-jurisdiction-reconciliation.md) | `accepted` | `polisyos.ir` | Concept Spine And Multi-Jurisdiction Reconciliation | 0036, 0051, 0147, 0152, 0156, 0157, 0159 |
 | [0159](0159-production-evidence-producer-contracts.md) | `accepted` | `repository` | Production Evidence Producer Contracts For Lex, Fabric, Scholar, And Data Forge | 0015, 0021, 0112, 0122, 0152, 0156, 0158, 0160 |
 | [0161](0161-claim-argument-warrant-compiler-closeout-gate.md) | `accepted` | `repository` | Claim Argument, Warrant Reliability, And Compiler Closeout Gate | 0129, 0147, 0152, 0153, 0156, 0160 |
+| [0167](0167-participation-legitimacy-matrix.md) | `accepted` | `repository` | Participation Legitimacy Matrix | 0147, 0150, 0152, 0156, 0157, 0159, 0160, 0162, 0166 |
+| [0168](0168-legal-hierarchy-and-competence.md) | `accepted` | `polisyos.lex` | Legal Hierarchy And Competence Boundaries | 0051, 0057, 0147, 0150, 0152, 0157, 0158, 0159, 0166 |
 | [ADR-043](ADR-043-provenance-law.md) | `approved` | `polisyos.lex` | Provenance Law Through QuantityValue | 0123, ADR-044, ADR-046 |

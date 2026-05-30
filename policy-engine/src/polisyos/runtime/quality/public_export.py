@@ -11,13 +11,39 @@ from polisyos.runtime.quality.authority import (
     AuthorityEnvelopeInput,
     deserialize_authority_envelope,
 )
+from polisyos.runtime.quality.candidate_firewall import (
+    candidate_firewall_issues_for_payload,
+)
+from polisyos.runtime.quality.case_lifecycle import PUBLIC_REVISION_STATE_SCHEMA_VERSION
+from polisyos.runtime.quality.contestability import (
+    PolicyDesignContestabilityError,
+    verified_recourse_pointer_for_publication,
+)
 from polisyos.runtime.quality.projection_semantics import (
+    build_policy_design_case_projection_from_runtime_graph,
     build_policy_design_case_projection_semantics,
+    verify_policy_design_case_projection_consumer_contract,
+)
+from polisyos.runtime.quality.rule_evolution import (
+    RULE_EVOLUTION_PUBLIC_ANNOTATION_SCHEMA_VERSION,
 )
 
 PUBLIC_EXPORT_SCHEMA_VERSION = "policyos.runtime.public_export_bundle.v1"
 PUBLIC_EXPORT_REDACTION_POLICY_REF = "redaction-policy/public-export-v1"
 
+_SCALAR_WELFARE_KEYS = frozenset(
+    {
+        "aggregate_welfare",
+        "bcr",
+        "net_benefit",
+        "npv",
+        "scalar_aggregate",
+        "scalar_welfare",
+        "welfare_aggregate",
+        "welfare_delta",
+        "welfare_score",
+    }
+)
 _PUBLIC_EXPORT_EVIDENCE_CLASSES = {
     "diagnostic_supporting",
     "public_exported",
@@ -124,22 +150,66 @@ def build_public_export_bundle(
     artifacts: Mapping[str, object],
     authority_envelopes: Sequence[AuthorityEnvelopeInput] = (),
     policy_design_case: Mapping[str, object] | None = None,
+    runtime_pdc_graph: Mapping[str, object] | None = None,
     projection_payload: Mapping[str, object] | None = None,
     title: str | None = None,
     generated_at: datetime | None = None,
 ) -> dict[str, object]:
     """Build a redacted public projection that cannot satisfy authority gates."""
 
+    recourse_pointer = None
+    if policy_design_case is not None:
+        try:
+            recourse_pointer = verified_recourse_pointer_for_publication(
+                policy_design_case=policy_design_case,
+                projection_payload=projection_payload or {},
+            )
+        except PolicyDesignContestabilityError as exc:
+            raise PublicExportRedactionError(exc.code, exc.message) from exc
     _assert_no_unexplained_replay_drift(artifacts)
+    _assert_public_export_candidate_firewall(artifacts)
+    _assert_public_welfare_frontier_surface(artifacts)
+    if projection_payload is not None:
+        _assert_public_welfare_frontier_surface(projection_payload)
     redactions: list[dict[str, str]] = []
     sanitized_artifacts = _sanitize_public_payload(
         dict(artifacts),
         path="artifacts",
         redactions=redactions,
     )
+    rule_evolution_annotations = _iter_rule_evolution_annotations(sanitized_artifacts)
+    public_revision_states = _iter_public_revision_states(sanitized_artifacts)
+    orchestration_continuity = _public_orchestration_continuity_projection(
+        sanitized_artifacts
+    )
     authority_projections = [_authority_projection(envelope) for envelope in authority_envelopes]
     projection_semantics = None
-    if policy_design_case is not None:
+    if runtime_pdc_graph is not None:
+        projection_semantics = build_policy_design_case_projection_from_runtime_graph(
+            runtime_pdc_graph=runtime_pdc_graph,
+            surface="public_export",
+            generated_at=generated_at,
+        )
+        projection_contract_verification = verify_policy_design_case_projection_consumer_contract(
+            projections={"public": projection_semantics},
+            expected_closeout_truth=projection_semantics["closeout_truth"],
+            expected_contested_record_ids=[
+                str(record.get("contested_record_id"))
+                for record in projection_semantics.get("contested_records", [])
+                if isinstance(record, Mapping)
+            ],
+            runtime_pdc_graph=runtime_pdc_graph,
+        )
+        projection_semantics = {
+            **projection_semantics,
+            "contract_verification_status": str(
+                projection_contract_verification.get("status") or "fail"
+            ),
+            "contract_verification_refs": [
+                "policyos.runtime.policy_design_case.projection_contract_verification.v1"
+            ],
+        }
+    elif policy_design_case is not None:
         projection_source: dict[str, object] = {
             "public_export_classification": "public_redacted_projection",
             "evidence_class": "redacted_derived",
@@ -155,6 +225,27 @@ def build_public_export_bundle(
             else None,
             generated_at=generated_at,
         )
+        projection_contract_verification = verify_policy_design_case_projection_consumer_contract(
+            projections={"public": projection_semantics},
+            expected_closeout_truth=projection_semantics["closeout_truth"],
+            expected_contested_record_ids=[
+                str(record.get("contested_record_id"))
+                for record in projection_semantics.get("contested_records", [])
+                if isinstance(record, Mapping)
+            ],
+        )
+        projection_semantics = {
+            **projection_semantics,
+            "contract_verification_status": str(
+                projection_contract_verification.get("status") or "fail"
+            ),
+            "contract_verification_refs": [
+                "policyos.runtime.policy_design_case.projection_contract_verification.v1"
+            ],
+        }
+    else:
+        projection_contract_verification = None
+    _assert_public_claim_omissions_manifested(sanitized_artifacts, projection_semantics)
     bundle = {
         "schema_version": PUBLIC_EXPORT_SCHEMA_VERSION,
         "generated_at": (generated_at or datetime.now(UTC)).replace(microsecond=0).isoformat(),
@@ -173,6 +264,21 @@ def build_public_export_bundle(
             "artifact_keys": sorted(str(key) for key in artifacts),
             "authority_projection_count": len(authority_projections),
             "authority_projections": authority_projections,
+            "runtime_orchestration_continuity": orchestration_continuity,
+            "recourse_pointer": recourse_pointer,
+            "rule_evolution_annotations": rule_evolution_annotations,
+            "public_revision_states": public_revision_states,
+            "omission_manifest": list(
+                projection_semantics.get("omission_manifest", [])
+                if projection_semantics is not None
+                else []
+            ),
+            "audit_refs": list(
+                projection_semantics.get("audit_refs", [])
+                if projection_semantics is not None
+                else []
+            ),
+            "projection_contract_verification": projection_contract_verification,
         },
         "redaction_summary": {
             "redaction_policy_ref": PUBLIC_EXPORT_REDACTION_POLICY_REF,
@@ -185,6 +291,104 @@ def build_public_export_bundle(
         bundle["projection_semantics"] = projection_semantics
     assert_public_export_official_use_limits(bundle)
     return bundle
+
+
+def _assert_public_claim_omissions_manifested(
+    artifacts: Mapping[str, object],
+    projection_semantics: Mapping[str, object] | None,
+) -> None:
+    omitted_claim_ids = set(_iter_omitted_claim_ids(artifacts))
+    if not omitted_claim_ids:
+        return
+    manifested_claim_ids: set[str] = set()
+    if projection_semantics is not None:
+        for row in _as_sequence(projection_semantics.get("omission_manifest")):
+            if isinstance(row, Mapping):
+                manifested_claim_ids.update(
+                    str(value) for value in _as_sequence(row.get("claim_ids"))
+                )
+    if not omitted_claim_ids <= manifested_claim_ids:
+        raise PublicExportRedactionError(
+            "public_export_omission_manifest_missing",
+            "public exports must manifest omitted blocked claims instead of silently dropping them",
+        )
+
+
+def _assert_public_export_candidate_firewall(artifacts: Mapping[str, object]) -> None:
+    hypothesis_ledger = _find_hypothesis_ledger(artifacts)
+    issues = candidate_firewall_issues_for_payload(
+        artifacts,
+        hypothesis_ledger=hypothesis_ledger,
+        authority_slots=("projection_authority",),
+        surface="public_export",
+    )
+    if issues:
+        issue = issues[0]
+        raise PublicExportRedactionError(
+            str(issue.get("code") or "candidate_firewall_blocked"),
+            str(issue.get("message") or "Candidate content cannot be publicly exported."),
+        )
+
+
+def _assert_public_welfare_frontier_surface(payload: Mapping[str, object]) -> None:
+    scalar_keys = {
+        key for key, value in payload.items() if key in _SCALAR_WELFARE_KEYS and value is not None
+    }
+    if not scalar_keys:
+        return
+    has_frontier = bool(payload.get("frontier") or payload.get("pareto_frontier"))
+    has_value_choice = bool(payload.get("value_choice") or payload.get("value_choice_decision"))
+    has_provenance = bool(
+        payload.get("social_weight_provenance") or payload.get("social_weight_provenance_refs")
+    )
+    if has_frontier and has_value_choice and has_provenance:
+        return
+    raise PublicExportRedactionError(
+        "scalar_welfare_aggregate_without_frontier",
+        "Scalar welfare aggregates cannot be published without Pareto frontier, "
+        "value-choice, and social-weight provenance records.",
+    )
+
+
+def _find_hypothesis_ledger(value: object) -> Mapping[str, object] | None:
+    if isinstance(value, Mapping):
+        ledger = value.get("hypothesis_ledger")
+        if isinstance(ledger, Mapping):
+            return ledger
+        for item in value.values():
+            found = _find_hypothesis_ledger(item)
+            if found is not None:
+                return found
+    elif isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
+        for item in value:
+            found = _find_hypothesis_ledger(item)
+            if found is not None:
+                return found
+    return None
+
+
+def _iter_omitted_claim_ids(value: object) -> list[str]:
+    found: list[str] = []
+    if isinstance(value, Mapping):
+        for key, item in value.items():
+            lowered = str(key).casefold()
+            if lowered in {"omitted_claim_ids", "omitted_blocked_claim_ids"}:
+                found.extend(str(claim_id) for claim_id in _as_sequence(item) if str(claim_id))
+                continue
+            if lowered in {"omitted_claims", "omitted_blocked_claims"}:
+                for claim in _as_sequence(item):
+                    if isinstance(claim, Mapping):
+                        claim_id = str(claim.get("claim_id") or claim.get("id") or "")
+                        if claim_id:
+                            found.append(claim_id)
+                    elif str(claim):
+                        found.append(str(claim))
+                continue
+            found.extend(_iter_omitted_claim_ids(item))
+    elif isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
+        for item in value:
+            found.extend(_iter_omitted_claim_ids(item))
+    return sorted(set(found))
 
 
 def _assert_no_unexplained_replay_drift(artifacts: Mapping[str, object]) -> None:
@@ -222,6 +426,91 @@ def _looks_like_drift_explanation(value: Mapping[str, object]) -> bool:
         value.get("schema_version") == "policyos.drift_explanation.v1"
         or "drift_sources" in value
         or "unexplained_difference_count" in value
+    )
+
+
+def _iter_rule_evolution_annotations(value: object) -> list[dict[str, object]]:
+    found: list[dict[str, object]] = []
+    if isinstance(value, Mapping):
+        if _looks_like_rule_evolution_annotation(value):
+            found.append(dict(value))
+        for item in value.values():
+            found.extend(_iter_rule_evolution_annotations(item))
+    elif isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
+        for item in value:
+            found.extend(_iter_rule_evolution_annotations(item))
+    return found
+
+
+def _iter_public_revision_states(value: object) -> list[dict[str, object]]:
+    found: list[dict[str, object]] = []
+    if isinstance(value, Mapping):
+        if _looks_like_public_revision_state(value):
+            found.append(dict(value))
+        for item in value.values():
+            found.extend(_iter_public_revision_states(item))
+    elif isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
+        for item in value:
+            found.extend(_iter_public_revision_states(item))
+    return found
+
+
+def _public_orchestration_continuity_projection(
+    artifacts: Mapping[str, object],
+) -> dict[str, object] | None:
+    value = artifacts.get("runtime_orchestration_continuity")
+    if not isinstance(value, Mapping):
+        return None
+    return {
+        "schema_version": value.get("schema_version"),
+        "status": value.get("status"),
+        "carrier_ref": value.get("carrier_ref"),
+        "concept_spine_ref": value.get("concept_spine_ref"),
+        "jurisdiction_spine_ref": value.get("jurisdiction_spine_ref"),
+        "runtime_claim_registry_ref": value.get("runtime_claim_registry_ref"),
+        "producer_handshake_ledger_ref": value.get("producer_handshake_ledger_ref"),
+        "handoff_ref_count": _summary_count(value, "handoff_ref_count"),
+        "producer_binding_ref_count": _summary_count(value, "producer_binding_ref_count"),
+        "authority_role": "projection_only",
+        "may_not_use_for": [
+            "producer_domain_truth",
+            "runtime_closeout_authority",
+            "scorecard_authority",
+            "approval_authority",
+        ],
+    }
+
+
+def _summary_count(value: Mapping[str, object], key: str) -> int:
+    summary = value.get("summary")
+    if not isinstance(summary, Mapping):
+        return 0
+    try:
+        return int(summary.get(key) or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
+def _looks_like_rule_evolution_annotation(value: Mapping[str, object]) -> bool:
+    return (
+        value.get("schema_version") == RULE_EVOLUTION_PUBLIC_ANNOTATION_SCHEMA_VERSION
+        or (
+            "public_annotation_state" in value
+            and "revalidation_state" in value
+            and "silent_upgrade_allowed" in value
+        )
+    )
+
+
+def _looks_like_public_revision_state(value: Mapping[str, object]) -> bool:
+    return (
+        value.get("schema_version") == PUBLIC_REVISION_STATE_SCHEMA_VERSION
+        or (
+            "affected_claim_ids" in value
+            and "unaffected_claim_ids" in value
+            and "silent_upgrade_allowed" in value
+            and value.get("authority_role") == "projection_only"
+        )
     )
 
 

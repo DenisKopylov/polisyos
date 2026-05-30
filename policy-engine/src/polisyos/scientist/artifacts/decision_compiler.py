@@ -5,10 +5,15 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from typing import Any
 
-from polisyos.runtime.quality.projection_semantics import (
-    build_policy_design_case_projection_semantics,
+from polisyos.core import contracts as core_contracts
+
+build_policy_design_case_projection_from_runtime_graph = (
+    core_contracts.build_policy_design_case_projection_from_runtime_graph
 )
-from polisyos.runtime.quality.source_truth import detect_source_truth_conflict
+build_policy_design_case_projection_semantics = (
+    core_contracts.build_policy_design_case_projection_semantics
+)
+detect_source_truth_conflict = core_contracts.detect_source_truth_conflict
 
 DECISION_ARTIFACT_SCHEMA_VERSION = "policyos.scientist.decision_artifact.v1"
 DRAFT_DECISION_PACKET_ARTIFACT_KIND = "draft_decision_packet"
@@ -470,6 +475,7 @@ def compile_publishable_decision_artifact(
     claim_registry: Mapping[str, Any] | None = None,
     runtime_authority: Mapping[str, Any] | None = None,
     policy_design_case: Mapping[str, Any] | None = None,
+    runtime_pdc_graph: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Compile a publishable decision artifact, failing closed on missing authority."""
 
@@ -498,7 +504,12 @@ def compile_publishable_decision_artifact(
     artifact["artifact_kind"] = PUBLISHABLE_DECISION_ARTIFACT_KIND
     artifact["authority_role"] = "final_decision_artifact"
     artifact["publishability"] = "publishable"
-    if policy_design_case is not None:
+    if runtime_pdc_graph is not None:
+        artifact["projection_semantics"] = build_policy_design_case_projection_from_runtime_graph(
+            runtime_pdc_graph=runtime_pdc_graph,
+            surface="final_artifact",
+        )
+    elif policy_design_case is not None:
         artifact["projection_semantics"] = build_policy_design_case_projection_semantics(
             policy_design_case=policy_design_case,
             surface="final_artifact",
@@ -524,7 +535,14 @@ def compile_publishable_decision_artifact(
     if issues:
         blocked_artifact = dict(artifact)
         blocked_artifact["publishability"] = "blocked"
-        if policy_design_case is not None:
+        if runtime_pdc_graph is not None:
+            blocked_artifact["projection_semantics"] = (
+                build_policy_design_case_projection_from_runtime_graph(
+                    runtime_pdc_graph=runtime_pdc_graph,
+                    surface="final_artifact",
+                )
+            )
+        elif policy_design_case is not None:
             blocked_artifact["projection_semantics"] = (
                 build_policy_design_case_projection_semantics(
                     policy_design_case=policy_design_case,
@@ -968,9 +986,7 @@ def _build_claim_evidence_contract(
         "issues": issues,
     }
     if spine_context is not None:
-        from polisyos.runtime.quality.semantic_binding import (
-            build_producer_spine_binding_fields,
-        )
+        from polisyos.core import contracts as core_contracts
 
         evidence_refs = [
             ref
@@ -987,7 +1003,7 @@ def _build_claim_evidence_contract(
             str(issue.get("code")) for issue in issues if isinstance(issue.get("code"), str)
         ]
         contract.update(
-            build_producer_spine_binding_fields(
+            core_contracts.build_producer_spine_binding_fields(
                 component="final_compiler",
                 spine_context=spine_context,
                 candidate_refs=candidate_refs,
@@ -1113,7 +1129,7 @@ def _publishable_gate_issues(
     issues.extend(
         _quality_layer_gate_issues(
             quality_scorecard,
-            layer_token="security",  # noqa: S106 - quality layer name, not a credential.
+            layer_token="security",
             code="publishable_artifact_security_not_passing",
             message="Security assurance must pass before artifact publication.",
             next_action="Resolve security assurance failures before public artifact creation.",
@@ -1122,7 +1138,7 @@ def _publishable_gate_issues(
     issues.extend(
         _quality_layer_gate_issues(
             quality_scorecard,
-            layer_token="privacy",  # noqa: S106 - quality layer name, not a credential.
+            layer_token="privacy",
             code="publishable_artifact_privacy_not_passing",
             message="Privacy compliance must pass before artifact publication.",
             next_action="Resolve privacy compliance failures before public artifact creation.",

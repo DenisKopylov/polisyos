@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import importlib
 import sys
+import warnings
 
 import pytest
-
 
 ARTIFACT_ID = "sha256:" + "b" * 64
 
@@ -155,49 +155,64 @@ def test_ir_schemas_group_preserves_catalog_anchor_semantics() -> None:
 
 
 @pytest.mark.parametrize(
-    ("source_fqn", "target_fqn", "export_name"),
+    ("target_fqn", "export_name"),
     [
-        ("polisyos.ir._lazy_facade", "polisyos.ir.api", "resolve_lazy_export"),
-        ("polisyos.ir.canon", "polisyos.ir.model_layer.canon", "content_hash"),
-        ("polisyos.ir.citations", "polisyos.ir.loading.citations", "CitationRef"),
-        ("polisyos.ir.fact_log", "polisyos.ir.loading.fact_log", "build_fact_id"),
-        ("polisyos.ir.loaders", "polisyos.ir.loading.loaders", "load_policy"),
-        (
-            "polisyos.ir.migration_report",
-            "polisyos.ir.loading.migration_report",
-            "MigrationReport",
-        ),
-        ("polisyos.ir.model_spec", "polisyos.ir.model_layer.model_spec", "ModelSpec"),
-        ("polisyos.ir.norm_pack", "polisyos.ir.loading.norm_pack", "NormPack"),
-        ("polisyos.ir.portfolio", "polisyos.ir.loading.portfolio", "InteractionMatrix"),
-        ("polisyos.ir.predicate", "polisyos.ir.model_layer.predicate", "PredicateRegistry"),
-        ("polisyos.ir.public_surface", "polisyos.ir.registry.public_surface", "RegistryItemId"),
-        ("polisyos.ir.queries", "polisyos.ir.model_layer.queries", "DataViewRequest"),
-        ("polisyos.ir.references", "polisyos.ir.loading.citations", "CitationRef"),
-        ("polisyos.ir.refs", "polisyos.ir.registry.refs", "ArtifactRefModel"),
-        (
-            "polisyos.ir.registry_fragments",
-            "polisyos.ir.registry.registry_fragments",
-            "RegistryBundle",
-        ),
-        ("polisyos.ir.schema_catalog", "polisyos.ir.loading.schema_catalog", "get_ir_type"),
-        ("polisyos.ir.types", "polisyos.ir.model_layer.types", "EntityType"),
-        ("polisyos.ir.units", "polisyos.ir.model_layer.units", "UNIT_REGISTRY"),
+        ("polisyos.ir.model_layer.model_spec", "ModelSpec"),
+        ("polisyos.ir.registry.refs", "ArtifactRefModel"),
+        ("polisyos.ir.model_layer.types", "EntityType"),
     ],
 )
-def test_ir_old_alias_paths_warn_and_reexport_canonical_symbols(
-    source_fqn: str,
+def test_ir_canonical_large_surfaces_import_without_alias_warning(
     target_fqn: str,
     export_name: str,
 ) -> None:
-    _drop_module(source_fqn)
+    _drop_module(target_fqn)
     importlib.import_module("polisyos.ir")
 
-    with pytest.warns(DeprecationWarning, match=source_fqn):
-        legacy_module = importlib.import_module(source_fqn)
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        target_module = importlib.import_module(target_fqn)
 
-    target_module = importlib.import_module(target_fqn)
-    assert getattr(legacy_module, export_name) is getattr(target_module, export_name)
+    assert getattr(target_module, export_name)
+    assert not [
+        warning
+        for warning in caught
+        if issubclass(warning.category, DeprecationWarning)
+        and "deprecated IR compatibility import" in str(warning.message)
+    ]
+
+
+@pytest.mark.parametrize(
+    "retired_fqn",
+    [
+        "polisyos.ir._lazy_facade",
+        "polisyos.ir.canon",
+        "polisyos.ir.citations",
+        "polisyos.ir.fact_log",
+        "polisyos.ir.loaders",
+        "polisyos.ir.migration_report",
+        "polisyos.ir.model_spec",
+        "polisyos.ir.norm_pack",
+        "polisyos.ir.predicate",
+        "polisyos.ir.portfolio",
+        "polisyos.ir.public_surface",
+        "polisyos.ir.queries",
+        "polisyos.ir.refs",
+        "polisyos.ir.references",
+        "polisyos.ir.references.citations",
+        "polisyos.ir.references.refs",
+        "polisyos.ir.registry_fragments",
+        "polisyos.ir.schema_catalog",
+        "polisyos.ir.types",
+        "polisyos.ir.units",
+    ],
+)
+def test_tiny_ir_alias_paths_are_removed(retired_fqn: str) -> None:
+    _drop_module(retired_fqn)
+    importlib.import_module("polisyos.ir")
+
+    with pytest.raises(ModuleNotFoundError):
+        importlib.import_module(retired_fqn)
 
 
 def _drop_module(module_name: str) -> None:

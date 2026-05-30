@@ -1,4 +1,4 @@
-# Kernel (`polisyos.scientist.kernel`)
+# Kernel (`polisyos.scientist.orchestration.kernel`)
 
 `kernel` содержит lightweight orchestration primitives Scientist: phase FSM,
 budget models и typed human-gate protocol, который связывает runtime governance

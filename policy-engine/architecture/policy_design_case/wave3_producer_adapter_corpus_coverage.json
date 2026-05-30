@@ -1,0 +1,108 @@
+{
+  "schema_version": "policyos.policy_design_case.wave3.producer_adapter_corpus_coverage.v1",
+  "status": "recorded",
+  "generated_at": "2026-05-22T00:00:00Z",
+  "implementation_plan_ref": "repo://docs/plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md#wave-3---producer-adapters-and-claim-bound-evidence",
+  "pattern_pass": {
+    "relevant_patterns": [
+      "P01",
+      "P02",
+      "P05",
+      "P08",
+      "P09",
+      "P10",
+      "P12",
+      "P14",
+      "P15"
+    ],
+    "target_correct_pattern": "producer reports carry authority envelopes, selected/rejected/blocked/context-only evidence, and laundering fixtures before Wave 4 composition",
+    "missing_capability_labels": [],
+    "acceptance_signal": "every Wave 3 producer has an authority-bearing fixture, a laundering or blocked fixture, a runtime consumer, and a machine-readable authority envelope"
+  },
+  "producer_coverage": [
+    {
+      "producer": "ir_analytics",
+      "phase": "W3.A",
+      "capability_reality_status": "implemented",
+      "authority_bearing_fixture_ref": "repo://tests/unit/runtime/quality/test_claim_registry.py#test_ir_analytics_bridge_projects_proof_refs_into_claim_registry",
+      "blocked_or_laundering_fixture_ref": "repo://tests/unit/runtime/quality/test_claim_registry.py#test_ir_analytics_required_claim_fails_without_bridge_binding",
+      "typed_blocker_fixture_ref": "repo://tests/unit/runtime/quality/test_claim_registry.py#test_ir_analytics_negative_certificate_blocks_claim_registry_entry",
+      "producer_report_ref": "repo://src/polisyos/runtime/quality/ir_analytics_bridge.py#build_ir_analytics_claim_bridge",
+      "runtime_consumer_ref": "repo://src/polisyos/runtime/quality/claim_registry.py#build_runtime_claim_registry",
+      "authority_envelope_ref": "repo://src/polisyos/runtime/quality/ir_analytics_bridge.py#runtime_authority_envelope",
+      "context_only_is_non_authoritative": true
+    },
+    {
+      "producer": "lex",
+      "phase": "W3.B",
+      "capability_reality_status": "implemented",
+      "authority_bearing_fixture_ref": "repo://tests/unit/lex/test_legal_authority_adapter.py#test_jurisdiction_fallback_requires_governed_config",
+      "blocked_or_laundering_fixture_ref": "repo://tests/unit/lex/test_legal_authority_adapter.py#test_generic_ukrainian_topic_match_stays_context_not_authority",
+      "typed_blocker_fixture_ref": "repo://tests/unit/lex/test_legal_authority_adapter.py#test_llm_legal_summary_remains_candidate_until_lex_validates_norm_ref",
+      "producer_report_ref": "repo://src/polisyos/lex/normpack/legal_authority.py#build_legal_authority_report",
+      "runtime_consumer_ref": "repo://src/polisyos/runtime/quality/semantic_binding.py#_lex_selection_issues",
+      "authority_envelope_ref": "repo://src/polisyos/lex/normpack/legal_authority.py#runtime_authority_envelope",
+      "context_only_is_non_authoritative": true
+    },
+    {
+      "producer": "fabric",
+      "phase": "W3.C",
+      "capability_reality_status": "implemented",
+      "authority_bearing_fixture_ref": "repo://tests/unit/runtime/quality/test_production_data_contract_index.py#test_contract_index_maps_curated_source_binding_to_scenario_family",
+      "blocked_or_laundering_fixture_ref": "repo://tests/unit/runtime/quality/test_production_data_contract_index.py#test_contract_index_blocks_cloud_curated_macro_contracts_for_public_golden",
+      "typed_blocker_fixture_ref": "repo://tests/unit/runtime/quality/test_production_data_contract_index.py#test_contract_index_blocks_inactive_source_contract",
+      "producer_report_ref": "repo://src/polisyos/runtime/quality/production_data_contract_index.py#ProductionDataContractIndex.build_scenario_binding_report",
+      "runtime_consumer_ref": "repo://src/polisyos/runtime/quality/semantic_binding.py#_fabric_selection_issues",
+      "authority_envelope_ref": "repo://src/polisyos/runtime/quality/production_data_contract_index.py#runtime_authority_envelope",
+      "context_only_is_non_authoritative": true
+    },
+    {
+      "producer": "scholar",
+      "phase": "W3.D",
+      "capability_reality_status": "implemented",
+      "authority_bearing_fixture_ref": "repo://tests/unit/runtime/quality/test_scholar_academic_evidence.py#test_scholar_web_bundle_adapter_emits_w3d_markers_and_participation_downgrade",
+      "blocked_or_laundering_fixture_ref": "repo://tests/unit/runtime/quality/test_scholar_academic_evidence.py#test_scholar_evidence_blocks_participation_like_support_without_downgrade",
+      "typed_blocker_fixture_ref": "repo://tests/unit/runtime/quality/test_scholar_academic_evidence.py#test_scholar_academic_evidence_missing_is_producer_owned_boundary",
+      "producer_report_ref": "repo://src/polisyos/scholar/search/jobs.py#DeepResearchJobManager._persist_scholar_academic_evidence_async",
+      "runtime_consumer_ref": "repo://src/polisyos/runtime/quality/scholar_academic_evidence.py#build_scholar_academic_evidence_boundary_record",
+      "authority_envelope_ref": "repo://src/polisyos/scholar/_impl/evidence.py#runtime_authority_envelope",
+      "context_only_is_non_authoritative": true
+    },
+    {
+      "producer": "foundry",
+      "phase": "W3.E",
+      "capability_reality_status": "implemented",
+      "authority_bearing_fixture_ref": "repo://tests/unit/foundry/validation/test_method_quality.py#test_foundry_method_report_passes_for_valid_method_diagnostics",
+      "blocked_or_laundering_fixture_ref": "repo://tests/unit/foundry/validation/test_method_quality.py#test_generic_foundry_execute_cannot_satisfy_policy_method_obligations",
+      "typed_blocker_fixture_ref": "repo://tests/unit/foundry/validation/test_method_quality.py#test_method_report_fails_method_output_when_assumption_gate_fails",
+      "producer_report_ref": "repo://src/polisyos/foundry/validation/method_quality.py#build_foundry_method_report",
+      "runtime_consumer_ref": "repo://src/polisyos/scientist/orchestration/workflows/builder.py#_attach_foundry_method_report",
+      "authority_envelope_ref": "repo://src/polisyos/foundry/validation/method_quality.py#runtime_authority_envelope",
+      "context_only_is_non_authoritative": true
+    },
+    {
+      "producer": "data_forge",
+      "phase": "W3.F",
+      "capability_reality_status": "implemented",
+      "authority_bearing_fixture_ref": "repo://tests/unit/runtime/quality/test_data_forge_binding.py#test_data_forge_finalize_emits_official_binding_consumed_by_runtime",
+      "blocked_or_laundering_fixture_ref": "repo://tests/unit/runtime/quality/test_data_forge_binding.py#test_data_forge_snapshot_binding_requires_closeout_grade_identity_lineage_and_claims",
+      "typed_blocker_fixture_ref": "repo://tests/unit/runtime/quality/test_data_forge_binding.py#test_data_forge_snapshot_binding_preserves_runtime_blocker",
+      "producer_report_ref": "repo://src/polisyos/data_forge/kernel/snapshot/finalize.py#finalize_snapshot",
+      "runtime_consumer_ref": "repo://src/polisyos/runtime/quality/scorecard.py#data_forge_snapshot_binding_scorecard_gates",
+      "authority_envelope_ref": "repo://src/polisyos/runtime/quality/data_forge_binding.py#runtime_authority_envelope",
+      "context_only_is_non_authoritative": true
+    },
+    {
+      "producer": "acquisition",
+      "phase": "W3.G",
+      "capability_reality_status": "implemented",
+      "authority_bearing_fixture_ref": "repo://tests/unit/runtime/quality/test_acquisition_planner.py#test_voi_ranking_is_filtered_by_eligibility",
+      "blocked_or_laundering_fixture_ref": "repo://tests/unit/runtime/quality/test_acquisition_planner.py#test_non_overridable_gate_blocks_even_when_voi_prefers_proxy",
+      "typed_blocker_fixture_ref": "repo://tests/unit/runtime/quality/test_acquisition_planner.py#test_deficit_limitation_and_block_states_remain_distinct",
+      "producer_report_ref": "repo://src/polisyos/runtime/quality/acquisition_planner.py#plan_evidence_acquisition",
+      "runtime_consumer_ref": "repo://src/polisyos/runtime/quality/acquisition_planner.py#acquisition_planner_scorecard_gates",
+      "authority_envelope_ref": "repo://src/polisyos/runtime/quality/acquisition_planner.py#authority_boundary",
+      "context_only_is_non_authoritative": true
+    }
+  ]
+}

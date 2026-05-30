@@ -10,7 +10,7 @@ from pydantic import ValidationError
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
-from polisyos.ir.norm_pack import NormPack
+from polisyos.ir.loading.norm_pack import NormPack
 
 _NORM_PACK_LOAD_ERRORS = (
     LookupError,

@@ -175,15 +175,28 @@ def _eligible_repo_files(repo_root: Path) -> set[str] | None:
         _ELIGIBLE_FILE_CACHE[repo_root] = None
         return None
     paths = {raw.decode("utf-8") for raw in completed.stdout.split(b"\0") if raw}
-    phase_2_4_roots = [
+    measured_untracked_roots = [
         root
-        for root in ("tests/_data", "tests/_golden", "tests/_helpers", "tests/repo_quality")
+        for root in (
+            "src/polisyos",
+            "tests",
+            "benchmarks",
+            "schemas",
+        )
         if (repo_root / root).exists()
     ]
-    if phase_2_4_roots:
+    if measured_untracked_roots:
         try:
             extra_completed = subprocess.run(
-                ["git", "ls-files", "--others", "--exclude-standard", "-z", "--", *phase_2_4_roots],
+                [
+                    "git",
+                    "ls-files",
+                    "--others",
+                    "--exclude-standard",
+                    "-z",
+                    "--",
+                    *measured_untracked_roots,
+                ],
                 cwd=repo_root,
                 check=True,
                 capture_output=True,
@@ -830,8 +843,8 @@ def build_inventory(repo_root: Path = REPO_ROOT) -> dict[str, Any]:
             "`strict_module_mirror_ratio` requires path-preserving "
             "`tests/unit/<package>/.../test_<module>.py` or `<module>_test.py`",
             "`loose_name_mirror_ratio` accepts same-name tests anywhere under `tests/unit/<package>`",
-            "file scans use git-tracked files plus Phase 0.4 files introduced "
-            "by this inventory, excluding unrelated local untracked files",
+            "file scans use git-tracked files plus untracked files under measured "
+            "source/test/schema roots, excluding unrelated ignored local files",
             "no tests, fixtures, benchmarks, or pytest configuration are moved or edited by this inventory",
         ],
         "summary": {},

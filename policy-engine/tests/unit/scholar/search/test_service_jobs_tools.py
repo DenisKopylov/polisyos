@@ -2,9 +2,14 @@
 
 from __future__ import annotations
 
-import polisyos.scholar.search.jobs as jobs_module
+import asyncio
+import json
+
 import pytest
+
+import polisyos.scholar.search.jobs as jobs_module
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.contracts import BoundedLivenessConfig
 from polisyos.scholar.api import ScholarService
 from polisyos.scholar.search.jobs import DeepResearchJobManager
 from polisyos.scholar.search.models import (
@@ -15,6 +20,7 @@ from polisyos.scholar.search.models import (
 )
 from polisyos.scholar.search.providers import ProviderFailoverPolicy
 from polisyos.scholar.search.service import ScholarDeepSearchService
+from polisyos.scholar_requirement import ScholarSupportRequirementCompiler
 from polisyos.scientist.agent.tools.scholar_search_tools import (
     build_scholar_search_tool_registry,
 )
@@ -45,6 +51,20 @@ class _StaticProvider:
                 source_type="academic",
             ),
         ][:max_results]
+
+
+class _CapturingProvider(_StaticProvider):
+    def __init__(self) -> None:
+        self.seen_constraints = []
+
+    async def search(self, query, *, constraints, max_results, timeout_s):
+        self.seen_constraints.append(constraints)
+        return await super().search(
+            query,
+            constraints=constraints,
+            max_results=max_results,
+            timeout_s=timeout_s,
+        )
 
 
 class _ArtifactStoreProxy:
@@ -144,6 +164,52 @@ async def test_deep_search_builds_citation_ready_bundle(monkeypatch, tmp_path):
 
 
 @pytest.mark.asyncio
+async def test_deep_search_consumes_scholar_requirement_spec(monkeypatch, tmp_path):
+    monkeypatch.setattr(
+        "polisyos.scholar.search.service.fetch_open_page",
+        _fake_fetch_open_page,
+    )
+    spec = ScholarSupportRequirementCompiler().compile(
+        {
+            "run_id": "run.scholar.search",
+            "authority_level": "production",
+            "claims": [
+                {
+                    "claim_id": "claim.1",
+                    "claim_text": "Minimum wage increased earnings.",
+                    "claim_type": "causal",
+                    "claim_family": "causal",
+                    "claim_use": "decision_support",
+                }
+            ],
+        }
+    ).requirements[0]
+    provider = _CapturingProvider()
+    service = ScholarDeepSearchService(
+        provider_policy=ProviderFailoverPolicy([provider]),
+        cas=FileSystemCAS(tmp_path / "cas"),
+    )
+
+    bundle = await service.deep_search(
+        question="minimum wage impact on low-wage workers",
+        requirement_specs=[spec],
+        constraints=SearchConstraints(allowed_domains=["agency.gov", "journal.edu"]),
+        budgets=SearchBudgetControls(
+            max_search_queries=2,
+            max_fetch_pages=2,
+            max_parallel_fetches=2,
+            max_depth=1,
+        ),
+    )
+
+    assert provider.seen_constraints
+    assert provider.seen_constraints[0].recency_days == spec.recency_days
+    assert "academic" in provider.seen_constraints[0].source_types
+    assert bundle.claim_supports[0].claim_id == "claim.1"
+    assert bundle.claim_supports[0].metadata["requirement_id"] == spec.requirement_id
+
+
+@pytest.mark.asyncio
 async def test_scholar_search_tool_registry_executes_tools(monkeypatch, tmp_path):
     monkeypatch.setattr(
         "polisyos.scholar.search.service.fetch_open_page",
@@ -203,6 +269,24 @@ class _FlakyService:
         return await self._delegate.deep_search(**kwargs)
 
 
+class _HangingService:
+    async def deep_search(self, **kwargs):
+        del kwargs
+        await asyncio.Event().wait()
+
+
+class _CancellationResistantService:
+    def __init__(self, release: asyncio.Event) -> None:
+        self._release = release
+
+    async def deep_search(self, **kwargs):
+        del kwargs
+        try:
+            await asyncio.Event().wait()
+        except asyncio.CancelledError:
+            await self._release.wait()
+
+
 @pytest.mark.asyncio
 async def test_deep_research_job_manager_checkpoints_and_resumes(monkeypatch, tmp_path):
     monkeypatch.setattr(
@@ -242,8 +326,73 @@ async def test_deep_research_job_manager_checkpoints_and_resumes(monkeypatch, tm
     completed_status = await manager.wait(resumed_job_id)
 
     assert completed_status.status == "completed"
+    assert completed_status.scholar_academic_evidence_artifact_id is not None
     assert completed_status.result_bundle is not None
     assert completed_status.result_bundle.claim_supports
+    report_payload = json.loads(
+        cas.get_bytes(completed_status.scholar_academic_evidence_artifact_id).decode("utf-8")
+    )
+    assert report_payload["schema_version"] == "policyos.scholar.academic_evidence.v1"
+    assert report_payload["capability_reality_status"] == "implemented"
+
+
+@pytest.mark.asyncio
+async def test_deep_research_job_manager_escalates_when_producer_wait_exceeds_deadline(
+    tmp_path,
+):
+    manager = DeepResearchJobManager(
+        service=_HangingService(),
+        cas=FileSystemCAS(tmp_path / "cas"),
+        liveness_config=BoundedLivenessConfig(
+            config_id="bounded-liveness.test.v1",
+            owner="team-runtime-quality",
+            version="2026-05-22",
+            default_deadline_s=0.01,
+            default_retry_ceiling=0,
+            producer_deadline_overrides_s={"scholar.deep_research_job": 0.01},
+            feature_flag="universal_pdc_bounded_liveness",
+            rollback_path="restore previous governed config artifact",
+            promotion_evidence_ref="artifact://bounded-liveness/evidence",
+        ),
+    )
+
+    job_id = manager.submit(question="minimum wage")
+
+    status = await manager.wait(job_id)
+
+    assert status.status == "escalated"
+    assert status.error == "bounded_liveness_deadline_exceeded:scholar.deep_research_job"
+    assert manager.get_status(job_id).status == "escalated"
+
+
+@pytest.mark.asyncio
+async def test_deep_research_job_manager_wait_returns_even_when_producer_ignores_cancel(
+    tmp_path,
+):
+    release = asyncio.Event()
+    manager = DeepResearchJobManager(
+        service=_CancellationResistantService(release),
+        cas=FileSystemCAS(tmp_path / "cas"),
+        liveness_config=BoundedLivenessConfig(
+            config_id="bounded-liveness.test.v1",
+            owner="team-runtime-quality",
+            version="2026-05-22",
+            default_deadline_s=0.01,
+            default_retry_ceiling=0,
+            producer_deadline_overrides_s={"scholar.deep_research_job": 0.01},
+            feature_flag="universal_pdc_bounded_liveness",
+            rollback_path="restore previous governed config artifact",
+            promotion_evidence_ref="artifact://bounded-liveness/evidence",
+        ),
+    )
+    job_id = manager.submit(question="minimum wage")
+
+    try:
+        status = await asyncio.wait_for(manager.wait(job_id), timeout=0.2)
+    finally:
+        release.set()
+
+    assert status.status == "escalated"
 
 
 @pytest.mark.asyncio

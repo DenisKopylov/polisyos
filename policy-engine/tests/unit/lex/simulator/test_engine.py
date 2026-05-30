@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.ir.norm_pack import NormPack, NormRule, RuleType
+from polisyos.ir.loading.norm_pack import NormPack, NormRule, RuleType
 from polisyos.lex.simulator.engine import NormImpactAnalyzer
 
 if TYPE_CHECKING:

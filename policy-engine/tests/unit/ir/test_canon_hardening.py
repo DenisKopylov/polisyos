@@ -5,21 +5,22 @@ from datetime import UTC, datetime, timedelta, timezone
 from decimal import Decimal
 
 import pytest
-from polisyos.ir.canon import (
+from polisyos.ir.model_layer.canon import (
     CanonSpec,
     CanonViolation,
     content_hash,
     from_canonical_bytes,
     to_canonical_bytes,
 )
-from polisyos.ir.fact_log import Fact, FactProvenance
+from pydantic import BaseModel, ValidationError
+
+from polisyos.ir.loading.fact_log import Fact, FactProvenance
 from polisyos.ir.migrations.base import (
     MigrationSchemaVersionError,
     migrate_artifact,
     register_migration,
 )
 from polisyos.ir.world.ids import claim_id_from_payload
-from pydantic import BaseModel, ValidationError
 
 
 class _NestedModel(BaseModel):

@@ -8,10 +8,21 @@ from typing import Any
 
 import pytest
 
+from polisyos.runtime.quality.capability_authority import compose_capability_authority
+from polisyos.runtime.quality.capability_index import (
+    AuthorityEnvelope,
+    CapabilityScope,
+    CapabilitySourceAsset,
+    EvidenceCapability,
+    FreshnessEnvelope,
+    QualityScore,
+    RightsEnvelope,
+)
 from polisyos.runtime.quality.evidence_independence import (
     INDEPENDENCE_MAP_SCHEMA_VERSION,
     EvidenceIndependenceError,
     build_evidence_independence_map,
+    effective_independence_factor_for_capability,
     validate_evidence_independence_map_record,
 )
 from polisyos.runtime.quality.evidence_portfolio import (
@@ -134,6 +145,48 @@ def _evidence_line(*, cluster: int, index: int) -> dict[str, Any]:
     }
 
 
+def _capability(
+    *,
+    capability_id: str,
+    lineage_refs: tuple[str, ...],
+) -> EvidenceCapability:
+    return EvidenceCapability(
+        capability_id=capability_id,
+        construct="firm_survival",
+        modality=("fabric_data",),
+        evidence_mode="observed",
+        concept_spine_refs=("concept:firm_survival",),
+        scope=CapabilityScope(
+            geography="UA",
+            schema_regime="ukraine_schema_v2",
+            entity_scope="firm",
+            time_start="2022-02-01",
+        ),
+        identification_mode="point_identified",
+        trust_tier="authoritative_high_coverage",
+        quality_score=QualityScore(
+            composite=0.95,
+            breakdown={"construct_validity": 0.95},
+        ),
+        source_assets=(
+            CapabilitySourceAsset(
+                ref=f"asset:{capability_id}",
+                source_layer="L4",
+                asset_type="parquet",
+                role="observation",
+            ),
+        ),
+        authority_envelope=AuthorityEnvelope(
+            research="admissible",
+            governed_pilot="admissible",
+            production="admissible",
+        ),
+        lineage_refs=lineage_refs,
+        freshness_envelope=FreshnessEnvelope(freshness_class="fresh_for_production"),
+        rights_envelope=RightsEnvelope(access_class="government_administrative"),
+    )
+
+
 def _consensus_reports() -> list[dict[str, Any]]:
     return [
         {
@@ -191,6 +244,175 @@ def test_independence_map_collapses_400_raw_lines_to_small_effective_count() -> 
         "foundry.did.cluster2.primary",
         "foundry.did.cluster3.primary",
     }
+    assert independence_map["effective_mass_report"]["raw_evidence_line_count"] == 400
+    assert (
+        independence_map["effective_mass_report"]["effective_independent_evidence_count"]
+        == 4
+    )
+    assert independence_map["effective_mass_report"]["effective_support_mass"] == 4.0
+    assert independence_map["effective_mass_report"]["dominant_collapse_reasons"]
+    assert all(
+        cluster["collapse_reasons"]
+        for cluster in independence_map["collapse_clusters"]
+        if cluster["raw_line_count"] > 1
+    )
+
+
+def test_effective_independence_factor_degrades_overlapping_capability_lineage() -> None:
+    first = _capability(
+        capability_id="capability:firm_survival_admin",
+        lineage_refs=("source_snapshot:shared", "calibration_run:shared"),
+    )
+    second = _capability(
+        capability_id="capability:firm_survival_duplicate",
+        lineage_refs=("source_snapshot:shared", "calibration_run:shared"),
+    )
+
+    factor = effective_independence_factor_for_capability(
+        second,
+        selected_capabilities=(first,),
+    )
+    result = compose_capability_authority(
+        second,
+        posture="production",
+        claim_use="claim_evidence_closeout",
+        selected_capabilities=(first,),
+    )
+
+    assert factor.value < 0.5
+    assert factor.collapse_ratio > 0.7
+    assert result.factor_by_name("effective_independence").value == factor.value
+    assert result.status == "selected_proxy_with_limitation"
+    assert result.authority_envelope_result == "limited"
+
+
+def test_independence_map_preserves_counterevidence_as_separate_effective_mass() -> None:
+    lines = [
+        {
+            **_evidence_line(cluster=0, index=0),
+            "line_id": "support-line-1",
+            "polarity": "support",
+        },
+        {
+            **_evidence_line(cluster=0, index=1),
+            "line_id": "support-line-2",
+            "polarity": "support",
+        },
+        {
+            **_evidence_line(cluster=0, index=2),
+            "line_id": "counter-line-1",
+            "polarity": "counterevidence",
+        },
+    ]
+
+    independence_map = build_evidence_independence_map(
+        lines,
+        portfolio_designs=[_portfolio_design()],
+        method_consensus_reports=_consensus_reports(),
+        method_equivalence_reports=_equivalence_reports(),
+        map_id="independence-map-rec-1",
+        producer_execution_started_at="2026-05-17T09:00:00+00:00",
+    )
+
+    mass = independence_map["effective_mass_report"]
+    assert independence_map["raw_evidence_line_count"] == 3
+    assert independence_map["effective_independent_evidence_count"] == 1
+    assert mass["raw_support_line_count"] == 2
+    assert mass["raw_counterevidence_line_count"] == 1
+    assert mass["effective_support_mass"] == 1.0
+    assert mass["effective_counterevidence_mass"] == 1.0
+    assert mass["balance_status"] == "mixed"
+    assert mass["counterevidence_line_ids"] == ["counter-line-1"]
+    assert "dependent_evidence_collapsed" in mass["limiting_deficits"]
+
+
+def test_independence_map_rejects_collapsed_cluster_without_reasons() -> None:
+    valid = build_evidence_independence_map(
+        [_evidence_line(cluster=0, index=0), _evidence_line(cluster=0, index=1)],
+        portfolio_designs=[_portfolio_design()],
+        method_consensus_reports=_consensus_reports(),
+        method_equivalence_reports=_equivalence_reports(),
+        map_id="independence-map-rec-1",
+        producer_execution_started_at="2026-05-17T09:00:00+00:00",
+    )
+    invalid = deepcopy(valid)
+    invalid["collapse_clusters"][0].pop("collapse_reasons")
+
+    with pytest.raises(
+        EvidenceIndependenceError,
+        match="policy_design_independence_collapse_reasons_missing",
+    ):
+        validate_evidence_independence_map_record(
+            invalid,
+            evidence_lines=[
+                _evidence_line(cluster=0, index=0),
+                _evidence_line(cluster=0, index=1),
+            ],
+            portfolio_designs=[_portfolio_design()],
+            producer_execution_started_at="2026-05-17T09:00:00+00:00",
+        )
+
+
+def test_independence_map_keeps_graded_weights_behind_feature_flag_and_config() -> None:
+    valid = build_evidence_independence_map(
+        [_evidence_line(cluster=0, index=0)],
+        portfolio_designs=[_portfolio_design()],
+        method_consensus_reports=_consensus_reports(),
+        method_equivalence_reports=_equivalence_reports(),
+        map_id="independence-map-rec-1",
+        producer_execution_started_at="2026-05-17T09:00:00+00:00",
+    )
+    invalid = deepcopy(valid)
+    invalid["graded_independence"] = {
+        "enabled": True,
+        "feature_flag": "policy_design_case.graded_independence_weights",
+        "feature_flag_enabled": False,
+        "authority_posture": "advisory_only",
+        "governed_config": {
+            "owner": "team-science-quality",
+            "version": "2026-05-17.provisional",
+            "status": "provisional",
+        },
+    }
+
+    with pytest.raises(
+        EvidenceIndependenceError,
+        match="policy_design_independence_graded_feature_flag_disabled",
+    ):
+        validate_evidence_independence_map_record(invalid)
+
+
+def test_independence_map_classifies_rare_domain_scarcity_without_support_inflation() -> None:
+    independence_map = build_evidence_independence_map(
+        [_evidence_line(cluster=0, index=0)],
+        portfolio_designs=[_portfolio_design()],
+        method_consensus_reports=_consensus_reports(),
+        method_equivalence_reports=_equivalence_reports(),
+        map_id="independence-map-rec-1",
+        producer_execution_started_at="2026-05-17T09:00:00+00:00",
+        rare_domain_context={
+            "scarcity_kind": "scarcity_structural",
+            "limitation_ref": sha("rare-domain-limitation"),
+            "monitoring_plan_ref": sha("rare-domain-monitoring"),
+            "minimum_effective_independent_evidence_count": 3,
+        },
+    )
+
+    scarcity = independence_map["rare_domain_scarcity"]
+    assert scarcity["status"] == "scarcity_structural"
+    assert scarcity["support_inflation_allowed"] is False
+    assert scarcity["effective_support_mass_after_scarcity"] == 1.0
+    assert "scarcity_structural" in independence_map["effective_mass_report"][
+        "limiting_deficits"
+    ]
+
+    invalid = deepcopy(independence_map)
+    invalid["rare_domain_scarcity"]["effective_support_mass_after_scarcity"] = 3.0
+    with pytest.raises(
+        EvidenceIndependenceError,
+        match="policy_design_independence_scarcity_support_inflation",
+    ):
+        validate_evidence_independence_map_record(invalid)
 
 
 def test_independence_map_rejects_raw_count_without_effective_count() -> None:
@@ -225,4 +447,10 @@ def test_independence_map_json_schema_requires_raw_and_effective_counts() -> Non
         "raw_evidence_line_count",
         "effective_independent_evidence_count",
         "collapse_clusters",
+        "effective_mass_report",
+        "graded_independence",
+        "rare_domain_scarcity",
     }
+    assert "collapse_reasons" in schema["properties"]["collapse_clusters"]["items"][
+        "properties"
+    ]

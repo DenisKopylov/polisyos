@@ -27,8 +27,8 @@ from polisyos.ir.analytics.forecasting_uncertainty import (
     ReconciliationStatus,
 )
 from polisyos.ir.artifacts import ArtifactStore, put_json_artifact
-from polisyos.ir.canon import CanonSpec
-from polisyos.ir.refs import ArtifactRefModel
+from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.ir.registry.refs import ArtifactRefModel
 
 _FAN_LEVELS = (0.05, 0.10, 0.25, 0.50, 0.75, 0.90, 0.95)
 _EPS = 1e-12

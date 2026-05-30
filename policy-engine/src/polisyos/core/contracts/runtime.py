@@ -7,6 +7,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.ir import governance, observation
+
 from ..artifacts.manifest import ArtifactRef, InputRef
 from .decision_validity import DecisionValidityStatus
 from .execution_plan import (
@@ -21,6 +23,11 @@ from .feedback import (
     DecisionReissuePlan,
 )
 from .foundry import EquilibriumMultiplicityReport
+from .policy_design_case_projection import PolicyDesignCaseProjection
+
+PolicyLayerLevel = governance.PolicyLayerLevel
+NormativeOutcomeChannel = governance.NormativeOutcomeChannel
+IdentificationMode = observation.IdentificationMode
 
 SourceKind = Literal["core_run"]
 NodeStatus = Literal["ok", "skip", "fail", "unknown"]
@@ -133,6 +140,150 @@ LineageSummaryKind = Literal[
     "unknown",
 ]
 FabricImpactSubjectKind = Literal["lineage", "source_contract", "run", "decision_data"]
+UniversalPolicyGrammarStatus = Literal["compiled", "blocked", "candidate_unverified"]
+UniversalPolicyGrammarSourceClassification = Literal[
+    "deterministic_producer",
+    "human_author",
+    "mixed",
+    "llm_candidate",
+    "llm_critic",
+    "llm_drafter",
+]
+UniversalPolicyAuthorityPurpose = Literal[
+    "compilation_facets",
+    "legal_authority",
+    "data_authority",
+    "method_authority",
+    "closeout_authority",
+    "publication_authority",
+    "projection_diagnostic",
+]
+UniversalPolicyFacetName = Literal[
+    "instrument_type",
+    "targeting_type",
+    "delivery_channel",
+    "funding_channel",
+    "authority_type",
+    "outcome_channel",
+    "risk_facet",
+    "method_need",
+    "population_predicate",
+    "geography_predicate",
+    "time_predicate",
+]
+UniversalPolicyInstrumentType = Literal[
+    "transfer",
+    "subsidy",
+    "tax",
+    "regulation",
+    "service",
+    "procurement",
+    "infrastructure",
+    "information",
+    "credit",
+    "insurance",
+    "price_control",
+    "coordination",
+]
+UniversalPolicyTargetingType = Literal[
+    "universal",
+    "means_tested",
+    "categorical",
+    "geographic",
+    "sectoral",
+    "risk_based",
+    "entitlement",
+    "discretionary",
+]
+UniversalPolicyDeliveryChannel = Literal[
+    "direct_payment",
+    "tax_expenditure",
+    "public_service",
+    "procurement",
+    "credit_registry",
+    "regulatory_enforcement",
+    "grant_program",
+    "voucher",
+    "information_campaign",
+    "infrastructure_project",
+]
+UniversalPolicyFundingChannel = Literal[
+    "budget_appropriation",
+    "earmarked_tax",
+    "donor_grant",
+    "concessional_credit",
+    "user_fee",
+    "cross_subsidy",
+    "regulatory_mandate",
+    "unfunded_mandate",
+]
+UniversalPolicyRiskFacet = Literal[
+    "budget_feasibility",
+    "legal_exception",
+    "equity_harm",
+    "privacy_pii",
+    "transportability",
+    "strategic_gaming",
+    "stale_source",
+    "forged_citation",
+    "source_contradiction",
+    "ambiguous_human_review",
+    "method_assumption",
+    "fairness_threshold_reversal",
+]
+UniversalPopulationPredicate = Literal[
+    "all_residents",
+    "households",
+    "children",
+    "firms",
+    "msmes",
+    "low_income_renters",
+    "workers",
+    "patients",
+    "students",
+    "sector_members",
+]
+UniversalGeographyPredicate = Literal[
+    "national",
+    "state_or_region",
+    "municipal",
+    "rural",
+    "urban",
+    "displacement_affected",
+    "custom_administrative_area",
+]
+UniversalTimePredicate = Literal[
+    "single_period",
+    "annual",
+    "multi_year",
+    "phased_rollout",
+    "event_triggered",
+    "retroactive",
+    "open_ended",
+]
+UniversalPolicyCapabilityRealityLabel = Literal[
+    "implemented",
+    "contract_only",
+    "producer_missing",
+    "artifact_missing",
+    "bridge_missing",
+    "consumer_missing",
+    "verification_missing",
+    "implemented_but_not_orchestrated",
+    "surface_missing",
+    "surface_out_of_scope",
+    "semantic_test_missing",
+]
+
+_AUTHORITY_PROTECTED_PURPOSES = frozenset(
+    {
+        "legal_authority",
+        "data_authority",
+        "method_authority",
+        "closeout_authority",
+        "publication_authority",
+    }
+)
 
 
 def _utc_now() -> datetime:
@@ -195,6 +346,250 @@ class UnitRef(BaseModel):
     code: str = Field(min_length=1)
     system: str = Field(default="ucum", min_length=1)
     display: str | None = None
+
+
+class UniversalAuthorityProfile(BaseModel):
+    """Authority profile consumed by the universal policy grammar compiler.
+
+    The profile is intentionally separate from evidence authority. It may
+    authorize deterministic compilation of facets, but LLM-sourced profiles may
+    never authorize legal, data, method, closeout, or publication slots.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    profile_id: str = Field(min_length=1)
+    authority_type: PolicyLayerLevel
+    source_classification: UniversalPolicyGrammarSourceClassification = "deterministic_producer"
+    authoritative_for: tuple[UniversalPolicyAuthorityPurpose, ...] = ("compilation_facets",)
+    may_not_use_for: tuple[UniversalPolicyAuthorityPurpose, ...] = ()
+    rule_version_ref: str = "policyos.policy_grammar.authority_profile.v1"
+
+    @model_validator(mode="after")
+    def _validate_llm_authority_boundary(self) -> UniversalAuthorityProfile:
+        if self.source_classification.startswith("llm_"):
+            illegal = sorted(set(self.authoritative_for) & _AUTHORITY_PROTECTED_PURPOSES)
+            if illegal:
+                raise ValueError(
+                    f"{self.source_classification} cannot be authoritative_for: "
+                    + ", ".join(illegal)
+                )
+        return self
+
+
+class UniversalPolicyGrammarAuthorityEnvelope(BaseModel):
+    """Authority envelope attached to a compiled universal policy design case."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    profile_id: str = Field(min_length=1)
+    authority_type: PolicyLayerLevel
+    source_classification: UniversalPolicyGrammarSourceClassification
+    authoritative_for: tuple[UniversalPolicyAuthorityPurpose, ...]
+    may_not_use_for: tuple[UniversalPolicyAuthorityPurpose, ...]
+    rule_version_ref: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_llm_authority_boundary(self) -> UniversalPolicyGrammarAuthorityEnvelope:
+        if self.source_classification.startswith("llm_"):
+            illegal = sorted(set(self.authoritative_for) & _AUTHORITY_PROTECTED_PURPOSES)
+            if illegal:
+                raise ValueError(
+                    f"{self.source_classification} cannot authorize protected purposes: "
+                    + ", ".join(illegal)
+                )
+        return self
+
+
+class UniversalPolicyFacetBase(BaseModel):
+    """Common semantic grounding carried by every universal policy grammar facet."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    facet_name: UniversalPolicyFacetName
+    concept_spine_refs: tuple[str, ...] = Field(min_length=1)
+    source_vocabulary_refs: tuple[str, ...] = Field(min_length=1)
+    derivation_rule_ref: str = Field(min_length=1)
+
+
+class UniversalPolicyInstrumentTypeFacet(UniversalPolicyFacetBase):
+    """Controlled policy instrument facet."""
+
+    facet_name: Literal["instrument_type"] = "instrument_type"
+    value: UniversalPolicyInstrumentType
+
+
+class UniversalPolicyTargetingTypeFacet(UniversalPolicyFacetBase):
+    """Controlled policy targeting facet."""
+
+    facet_name: Literal["targeting_type"] = "targeting_type"
+    value: UniversalPolicyTargetingType
+
+
+class UniversalPolicyDeliveryChannelFacet(UniversalPolicyFacetBase):
+    """Controlled delivery-channel facet."""
+
+    facet_name: Literal["delivery_channel"] = "delivery_channel"
+    value: UniversalPolicyDeliveryChannel
+
+
+class UniversalPolicyFundingChannelFacet(UniversalPolicyFacetBase):
+    """Controlled funding-channel facet."""
+
+    facet_name: Literal["funding_channel"] = "funding_channel"
+    value: UniversalPolicyFundingChannel
+
+
+class UniversalPolicyAuthorityTypeFacet(UniversalPolicyFacetBase):
+    """Authority-layer facet reusing the IR governance policy-layer enum."""
+
+    facet_name: Literal["authority_type"] = "authority_type"
+    value: PolicyLayerLevel
+
+
+class UniversalPolicyOutcomeChannelFacet(UniversalPolicyFacetBase):
+    """Outcome-channel facet reusing the IR normative outcome enum."""
+
+    facet_name: Literal["outcome_channel"] = "outcome_channel"
+    value: NormativeOutcomeChannel
+
+
+class UniversalPolicyRiskFacetRecord(UniversalPolicyFacetBase):
+    """Controlled risk facet reconciled with deterministic critic/challenge vocabularies."""
+
+    facet_name: Literal["risk_facet"] = "risk_facet"
+    value: UniversalPolicyRiskFacet
+
+
+class UniversalPolicyMethodNeedFacet(UniversalPolicyFacetBase):
+    """Method-need facet reusing the IR observation identification-mode enum."""
+
+    facet_name: Literal["method_need"] = "method_need"
+    value: IdentificationMode
+
+
+class UniversalPolicyPopulationPredicateFacet(UniversalPolicyFacetBase):
+    """Controlled population predicate facet grounded in the concept spine."""
+
+    facet_name: Literal["population_predicate"] = "population_predicate"
+    value: UniversalPopulationPredicate
+
+
+class UniversalPolicyGeographyPredicateFacet(UniversalPolicyFacetBase):
+    """Controlled geography predicate facet grounded in the concept spine."""
+
+    facet_name: Literal["geography_predicate"] = "geography_predicate"
+    value: UniversalGeographyPredicate
+
+
+class UniversalPolicyTimePredicateFacet(UniversalPolicyFacetBase):
+    """Controlled time predicate facet grounded in temporal policy semantics."""
+
+    facet_name: Literal["time_predicate"] = "time_predicate"
+    value: UniversalTimePredicate
+
+
+class UniversalPolicyFacets(BaseModel):
+    """Facet set emitted by the W6.A universal policy grammar compiler."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    instrument_type: UniversalPolicyInstrumentTypeFacet
+    targeting_type: UniversalPolicyTargetingTypeFacet
+    delivery_channel: UniversalPolicyDeliveryChannelFacet
+    funding_channel: UniversalPolicyFundingChannelFacet
+    authority_type: UniversalPolicyAuthorityTypeFacet
+    outcome_channel: UniversalPolicyOutcomeChannelFacet
+    risk_facet: UniversalPolicyRiskFacetRecord
+    method_need: UniversalPolicyMethodNeedFacet
+    population_predicate: UniversalPolicyPopulationPredicateFacet
+    geography_predicate: UniversalPolicyGeographyPredicateFacet
+    time_predicate: UniversalPolicyTimePredicateFacet
+
+    def iter_facets(self) -> tuple[UniversalPolicyFacetBase, ...]:
+        """Return all facets in stable compiler order."""
+        return (
+            self.instrument_type,
+            self.targeting_type,
+            self.delivery_channel,
+            self.funding_channel,
+            self.authority_type,
+            self.outcome_channel,
+            self.risk_facet,
+            self.method_need,
+            self.population_predicate,
+            self.geography_predicate,
+            self.time_predicate,
+        )
+
+
+class UniversalPolicyGrammarBlocker(BaseModel):
+    """Typed blocker preventing grammar output from masquerading as authority."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    code: str = Field(min_length=1)
+    severity: Literal["blocked", "warning"] = "blocked"
+    message: str = Field(min_length=1)
+    facet_name: UniversalPolicyFacetName | None = None
+    pattern_refs: tuple[str, ...] = Field(default=())
+    missing_capability_label: UniversalPolicyCapabilityRealityLabel | None = None
+
+
+class UniversalPolicyDesignCaseAuditSurface(BaseModel):
+    """Machine/audit surface for inspecting compiled grammar output."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    case_id: str = Field(min_length=1)
+    status: UniversalPolicyGrammarStatus
+    authoritative_for: tuple[UniversalPolicyAuthorityPurpose, ...]
+    may_not_use_for: tuple[UniversalPolicyAuthorityPurpose, ...]
+    facet_names: tuple[UniversalPolicyFacetName, ...] = Field(default=())
+    blocker_codes: tuple[str, ...] = Field(default=())
+    consumer_components: tuple[str, ...] = Field(default=())
+    capability_reality_label: UniversalPolicyCapabilityRealityLabel
+
+
+class UniversalPolicyDesignCase(BaseModel):
+    """Compilation-only universal policy design case produced by W6.A."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: Literal["policyos.universal_policy_design_case.v1"] = (
+        "policyos.universal_policy_design_case.v1"
+    )
+    case_id: str = Field(min_length=1)
+    intent_id: str = Field(min_length=1)
+    status: UniversalPolicyGrammarStatus
+    authority_profile: UniversalAuthorityProfile
+    authority_envelope: UniversalPolicyGrammarAuthorityEnvelope
+    concept_spine_ref: str = Field(min_length=1)
+    jurisdiction_spine_ref: str = Field(min_length=1)
+    facets: UniversalPolicyFacets | None = None
+    blockers: tuple[UniversalPolicyGrammarBlocker, ...] = Field(default=())
+    downstream_consumer_components: tuple[str, ...] = Field(
+        default=("obligation_graph", "claim_decomposition", "requirement_compilers")
+    )
+    audit_surface: UniversalPolicyDesignCaseAuditSurface
+    capability_reality_label: UniversalPolicyCapabilityRealityLabel
+    reuse_classification: Literal[
+        "wire_existing",
+        "extend_existing",
+        "consolidate_existing",
+        "build_new",
+    ]
+    reuse_evidence: tuple[str, ...] = Field(default=())
+    produced_by: str = "polisyos.policy_grammar.compiler.PolicyGrammarCompiler"
+    persisted_artifact_ref: ArtifactRef | None = None
+
+    @model_validator(mode="after")
+    def _validate_compilation_state(self) -> UniversalPolicyDesignCase:
+        if self.status == "compiled" and self.facets is None:
+            raise ValueError("compiled universal policy design case requires facets")
+        if self.status == "blocked" and not self.blockers:
+            raise ValueError("blocked universal policy design case requires blockers")
+        return self
 
 
 class TemporalRef(BaseModel):
@@ -1153,7 +1548,7 @@ class RunDetails(RunRecordV1):
     decision_review_required: bool = False
     decision_superseded_by_ref: ArtifactRef | None = None
     operator_diagnostic: RunOperatorDiagnostic | None = None
-    policy_design_case_projection: dict[str, Any] | None = None
+    policy_design_case_projection: PolicyDesignCaseProjection | None = None
 
 
 class RunTimelineEvent(BaseModel):
@@ -2298,6 +2693,12 @@ __all__ = [
     "TemporalSurfaceSupport",
     "TrustMetadataRef",
     "UnitRef",
+    "UniversalAuthorityProfile",
+    "UniversalPolicyDesignCase",
+    "UniversalPolicyDesignCaseAuditSurface",
+    "UniversalPolicyFacets",
+    "UniversalPolicyGrammarAuthorityEnvelope",
+    "UniversalPolicyGrammarBlocker",
     "VerificationMetadata",
     "VerificationStatus",
 ]

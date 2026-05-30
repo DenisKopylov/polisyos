@@ -1,0 +1,41 @@
+id = "2026-05-25-w12c-domain-coverage-critic-diversity-audit"
+title = "Add W12.C domain coverage and critic diversity audit run"
+type = "added"
+component = "quality-validation"
+owner = "team-evaluation"
+summary = "Add a W12.C runner that executes the W11.F domain coverage breadth and critic ensemble diversity tools, emits a domain x authority useful-design matrix, and reports rollout-posture typed domain-coverage blockers plus critic-monoculture caps."
+evidence = [
+  "tests/repo_quality/tools/test_w12c_domain_coverage_critic_diversity_audit.py",
+]
+compatibility = "Additive validation tool and manifest; no runtime API, generated client, or dashboard contract changes."
+change_class = "tooling"
+surface_classification = "internal_tooling"
+migration = "Use tools/quality/validation/run_domain_coverage_critic_diversity_audit.py for W12.C rollout-posture domain coverage and critic diversity evidence; keep the W11.F checkers for raw metric reports."
+api = "Adds --corpus, --critic-input, --domain-coverage-report, --critic-diversity-report, --raw-domain-report-output, --raw-critic-report-output, --rollout-posture, --allow-typed-blockers, --require-passing, and --write-manifest options."
+limitations = "The audit report is diagnostic rollout evidence; typed domain-coverage blockers and critic-monoculture warnings do not mint producer evidence, useful-design success, closeout honesty failure, publication authority, or rollout approval."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "tools/quality/validation/README.md",
+]
+runbook_docs = [
+  "docs/runbooks/policy-design-case-rollout-rollback.md",
+]
+
+[[compatibility_change]]
+id = "quality-validation-w12c-domain-coverage-critic-diversity-audit"
+change_class = "tooling"
+impact = "additive"
+surface = "internal_tooling: tools/quality/validation/run_domain_coverage_critic_diversity_audit.py"
+owner = "team-evaluation"
+version_owner = "team-evaluation"
+deprecation_window = "not_applicable"
+release_note = "W12.C domain coverage and critic diversity can now be run as a rollout-posture audit with typed domain-coverage blockers and critic-monoculture rollout caps."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "tools/quality/validation/README.md",
+]
+runbook_docs = [
+  "docs/runbooks/policy-design-case-rollout-rollback.md",
+]

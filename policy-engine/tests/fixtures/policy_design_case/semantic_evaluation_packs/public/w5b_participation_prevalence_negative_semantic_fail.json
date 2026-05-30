@@ -1,0 +1,61 @@
+{
+  "schema_version": "policyos.runtime.policy_design_case.semantic_gold_card.v1",
+  "fixture_id": "w5b_participation_prevalence_negative_semantic_fail",
+  "title": "Thin consultation cannot satisfy affected-population prevalence",
+  "expected_status": "semantic_fail",
+  "failure_mode": "participation_prevalence_negative",
+  "research_refs": ["E22", "C30", "C19", "C34"],
+  "pattern_ids": ["P10", "P15", "P05"],
+  "structural_pass_claimed": true,
+  "structural_verdict": {
+    "status": "pass",
+    "validator_refs": ["policy_design_case.structural.participation_matrix_shape.v1"],
+    "completeness_claims": [
+      "participation_ref_present",
+      "claim_use_requested_present",
+      "population_scope_present",
+      "public_projection_present"
+    ]
+  },
+  "semantic_adjudication": {
+    "status": "fail",
+    "adjudicator": "policyos.semantic_gold_card.w5b",
+    "failure_mode": "participation_prevalence_negative",
+    "failure_code": "semantic_participation_prevalence_negative",
+    "rationale": "The case projects affected-population prevalence from nonrepresentative consultation despite a lower allowed claim use and no downgrade reference.",
+    "authority_effect": "block_closeout",
+    "required_remediation": "Downgrade the participation claim use or add representative population participation evidence."
+  },
+  "semantic_probes": [
+    {
+      "probe_id": "participation-prevalence-negative",
+      "semantic_axis": "participation",
+      "pattern_ids": ["P10", "P15", "P05"],
+      "observed_signal": "Projection claims affected-population prevalence.",
+      "expected_signal": "Allowed use remains qualitative or context-only until representative evidence exists.",
+      "verdict": "fail",
+      "failure_code": "semantic_participation_prevalence_negative",
+      "evidence_refs": ["event://policy-design-case/w5b/thin-consultation"]
+    }
+  ],
+  "payload": {
+    "case_id": "pdc-w5b-participation-prevalence",
+    "claim_ids": ["claim-participation-prevalence"],
+    "participation": {
+      "claim_use_requested": "prevalence",
+      "claim_use_allowed": "qualitative",
+      "authority_level": "production",
+      "population_scope": "affected_population",
+      "source_kind": "consultation",
+      "provenance_class": "C_attributable_nonrepresentative",
+      "representativeness_class": "nonrepresentative",
+      "downgrade_ref": null,
+      "blocker_ref": null
+    },
+    "projection": {
+      "participation_claim_use": "prevalence",
+      "prevalence_supported": true,
+      "population_scope": "affected_population"
+    }
+  }
+}

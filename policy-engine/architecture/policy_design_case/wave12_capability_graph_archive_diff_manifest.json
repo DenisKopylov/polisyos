@@ -1,0 +1,61 @@
+{
+  "schema_version": "policyos.policy_evidence_capability_graph.wave12_archive_diff.v1",
+  "status": "implemented",
+  "phase_id": "Policy Evidence Capability Graph Phase 7",
+  "owner": "team-runtime-quality",
+  "generated_at": "2026-05-26T00:00:00Z",
+  "purpose": "Archive the Wave 12 pre-plan versus after-capability-graph evidence diff for strict plan closure.",
+  "artifact_refs": {
+    "pre_plan_baseline": "repo://architecture/policy_design_case/wave6_local_validation_ladder_manifest.json",
+    "w12a_after_capability_graph": "repo://_build/.tmp/production-quality/w12a-after-capability-graph.json",
+    "w12d_corpus_stub_after_capability_graph": "repo://_build/.tmp/production-quality/w12d-after-capability-graph.json",
+    "w12d_real_producer_after_capability_graph": "repo://_build/.tmp/production-quality/w12d-real-producer-after-capability-graph.json",
+    "capability_index_full": "repo://_build/.tmp/production-quality/capability-index-review-full/capability_index_v1.duckdb",
+    "dcat_export": "repo://_build/.tmp/production-quality/capability-index-review-full/capability_index_v1.dcat.jsonld",
+    "prov_export": "repo://_build/.tmp/production-quality/capability-index-review-full/capability_index_v1.prov.ttl",
+    "capability_cards": "repo://_build/.tmp/production-quality/capability-index-review-full/cards"
+  },
+  "baseline_diff": {
+    "removed_generic_blockers": [
+      "production_data_scenario_contracts_missing"
+    ],
+    "replaced_generic_blockers": [
+      "w12d_producer_pipeline_blocked"
+    ],
+    "replacement_semantics": "Scenario-family gaps are represented as construct/capability binding statuses with acquisition strategies, rejected alternatives, and authority factors."
+  },
+  "known_remaining_typed_blockers": [
+    "blocked_construct_not_observed",
+    "blocked_acquisition_required",
+    "blocked_construct_validity_below_floor",
+    "blocked_sample_size_below_floor",
+    "blocked_rights_boundary",
+    "blocked_authority_boundary"
+  ],
+  "capability_graph_evidence": {
+    "capability_index_loaded": true,
+    "construct_registry_loaded": true,
+    "resolver_executed": true,
+    "compatibility_projection_only": [
+      "scenario_family_authority_lookup"
+    ],
+    "legacy_scenario_family_authority": "surface_out_of_scope"
+  },
+  "pattern_pass": {
+    "relevant_patterns": [
+      "P01",
+      "P02",
+      "P03",
+      "P04",
+      "P05",
+      "P06",
+      "P07",
+      "P10",
+      "P12",
+      "P14",
+      "P15"
+    ],
+    "target_correct_pattern": "Capability graph evidence is replayable, externally inspectable, and consumed by Wave 12 validation without scenario-family authority lookup.",
+    "missing_capability_labels": []
+  }
+}

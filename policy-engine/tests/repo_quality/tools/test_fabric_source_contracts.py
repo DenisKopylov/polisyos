@@ -168,7 +168,10 @@ def test_validate_report_rejects_count_and_fail_closed_errors() -> None:
                 "schema_field_policy_coverage_count": 1,
             }
         }
-    ) == ["production connector count does not match SourceContract count"]
+    ) == [
+        "production connector count does not match SourceContract count",
+        "Fabric source-selection state machine contract failed",
+    ]
 
     assert fabric_source_contracts.validate_report(
         {
@@ -183,4 +186,7 @@ def test_validate_report_rejects_count_and_fail_closed_errors() -> None:
             }
         },
         fail_closed=True,
-    ) == ["conformance errors present in fail-closed mode"]
+    ) == [
+        "Fabric source-selection state machine contract failed",
+        "conformance errors present in fail-closed mode",
+    ]

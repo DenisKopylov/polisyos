@@ -17,6 +17,7 @@ from .decision_validity import (
     DecisionValidityStatus,
     DecisionValidityTransition,
 )
+from .policy_design_case_projection import PolicyDesignCaseProjection
 from .runtime import ApiMeta
 
 # ---------------------------------------------------------------------------
@@ -1237,7 +1238,7 @@ class ControlJobResponse(BaseModel):
     )
     unresolved_authority_gaps: list[ControlAuthorityGap] = Field(default_factory=list)
     next_diagnostic_commands: list[str] = Field(default_factory=list)
-    policy_design_case_projection: dict[str, Any] | None = None
+    policy_design_case_projection: PolicyDesignCaseProjection | None = None
     quality_evidence_bundle_path: str | None = None
     quality_gates: list[ControlQualityGate] = Field(default_factory=list)
     blocking_quality_failures: list[ControlQualityFailure] = Field(default_factory=list)

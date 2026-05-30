@@ -64,6 +64,30 @@ def test_openapi_contract_includes_batch_read_operations() -> None:
     assert lineage_batch["operationId"] == "get_lineage_batch"
 
 
+def test_openapi_contract_exposes_typed_policy_design_case_projection() -> None:
+    schema = export_runtime_openapi_schema()
+    components = schema["components"]["schemas"]
+
+    projection_schema = components["PolicyDesignCaseProjection"]
+    assert {
+        "closeout_truth",
+        "projection_gaps",
+        "contested_records",
+        "recourse_pointer",
+        "deficit_register",
+        "invariant_summary",
+        "may_not_be_used_for",
+    } <= set(projection_schema["properties"])
+
+    control_projection = components["ControlJobResponse"]["properties"][
+        "policy_design_case_projection"
+    ]
+    run_projection = components["RunDetails"]["properties"]["policy_design_case_projection"]
+
+    assert "#/components/schemas/PolicyDesignCaseProjection" in json.dumps(control_projection)
+    assert "#/components/schemas/PolicyDesignCaseProjection" in json.dumps(run_projection)
+
+
 def test_generated_runtime_client_includes_batch_read_wrappers() -> None:
     repo_root = Path(__file__).resolve().parents[4]
     spec_path = repo_root / "schemas" / "runtime_api_v1.openapi.json"

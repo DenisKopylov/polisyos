@@ -1,0 +1,59 @@
+{
+  "schema_version": "policyos.policy_design_case.wave12b.compilation_truthfulness_audit_manifest.v1",
+  "status": "implemented",
+  "phase_id": "W12.B",
+  "phase_name": "Compilation Truthfulness Audit Run",
+  "generated_at": "2026-05-25T00:00:00Z",
+  "owner": "team-evaluation",
+  "implementation_plan_ref": "repo://docs/plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md#w12b-compilation-truthfulness-audit-run",
+  "tool_ref": "repo://tools/quality/validation/run_compilation_truthfulness_audit.py",
+  "w11e_tool_ref": "repo://tools/quality/validation/check_compilation_truthfulness.py",
+  "command_contract": {
+    "command": "uv run python tools/quality/validation/run_compilation_truthfulness_audit.py --repo-root . --corpus tests/fixtures/universal-corpus --rollout-posture governed-pilot --output _build/.tmp/production-quality/w12b_compilation_truthfulness_audit.json",
+    "output_refs": [
+      "_build/.tmp/production-quality/w12b_compilation_truthfulness_audit.json",
+      "_build/.tmp/production-quality/w12b_compilation_truthfulness_report.json"
+    ],
+    "owner": "team-evaluation",
+    "next_action": "Repair W11.E missed, hallucinated, scope-drift, or authority-drift obligations before declaring the W12.B truthfulness floor met."
+  },
+  "floor_policy": {
+    "research-only": {
+      "minimum_case_score": null,
+      "minimum_aggregate_rate": null,
+      "minimum_domain_rate": null
+    },
+    "governed-pilot": {
+      "minimum_case_score": 50.0,
+      "minimum_aggregate_rate": 60.0,
+      "minimum_domain_rate": 50.0
+    },
+    "production-capable": {
+      "minimum_case_score": 70.0,
+      "minimum_aggregate_rate": 80.0,
+      "minimum_domain_rate": 70.0
+    }
+  },
+  "metric_policy": {
+    "per_case_truthfulness_required": true,
+    "aggregate_truthfulness_required": true,
+    "typed_blockers_count_as_useful_design": false,
+    "typed_blockers_are_closeout_honesty_failures": false
+  },
+  "pattern_pass": {
+    "relevant_patterns": [
+      "P01",
+      "P03",
+      "P05",
+      "P10",
+      "P13",
+      "P15"
+    ],
+    "target_correct_pattern": "W12.B consumes the W11.E report as diagnostic evidence, exposes rollout-posture floor blockers, and keeps compilation truthfulness separate from useful design and closeout honesty.",
+    "missing_capability_labels": []
+  },
+  "validation": {
+    "test_ref": "repo://tests/repo_quality/tools/test_w12b_compilation_truthfulness_audit.py",
+    "command_ref": "uv run python tools/quality/validation/run_compilation_truthfulness_audit.py --repo-root . --corpus tests/fixtures/universal-corpus --rollout-posture governed-pilot --output _build/.tmp/production-quality/w12b_compilation_truthfulness_audit.json"
+  }
+}

@@ -10,7 +10,7 @@ import pytest
 from polisyos.fabric.connectors.base import ConnectionConfig, FetchRequest
 from polisyos.fabric.connectors.sources.sparql import _MAX_LIMIT, SPARQLConnector
 from polisyos.fabric.connectors.types import FetchError
-from polisyos.fabric.safety import UnsafeFilterExpressionError
+from polisyos.fabric.quality.safety import UnsafeFilterExpressionError
 from polisyos.ir.connectors import ConnectorCapability
 
 FIXTURES_DIR = (

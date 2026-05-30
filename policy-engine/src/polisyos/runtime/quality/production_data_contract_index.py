@@ -2,17 +2,21 @@
 
 from __future__ import annotations
 
+import importlib
 import json
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from polisyos.data_requirement import DataRequirementSpec
+
 PRODUCTION_DATA_CONTRACT_INDEX_SCHEMA_VERSION = "policyos.production_data_contract_index.v1"
 
 SCENARIO_ADMISSIBLE_REQUIRED_FACETS = (
     "dataset_identity",
     "source_family",
+    "source_contract_ref",
     "dictionary_ref",
     "schema_ref",
     "field_refs",
@@ -63,6 +67,15 @@ _FACET_ALIASES: dict[str, tuple[str, ...]] = {
         "usage_rights",
         "license",
         "access_rights",
+    ),
+    "source_contract_ref": (
+        "source_contract_ref",
+        "source_contract_refs",
+        "source_contract_id",
+        "source_contract_ids",
+        "fabric_source_contract_id",
+        "source_contract.id",
+        "source_contract.contract.id",
     ),
     "dictionary_ref": (
         "dictionary_ref",
@@ -239,6 +252,8 @@ class ProductionDataContractCandidate:
     raw_contract: Mapping[str, Any]
     raw_source_binding: Mapping[str, Any]
     raw_bundle: Mapping[str, Any]
+    source_contract_ref: str | None
+    source_contract_validation: Mapping[str, Any]
 
     def to_summary(self) -> dict[str, Any]:
         """Return a JSON-friendly non-secret candidate summary."""
@@ -249,6 +264,7 @@ class ProductionDataContractCandidate:
             "bundle_role": self.bundle_role,
             "contract_id": self.contract_id,
             "source_binding_id": self.source_binding_id,
+            "source_contract_ref": self.source_contract_ref,
             "present_facets": list(self.present_facets),
         }
 
@@ -263,12 +279,14 @@ class ProductionDataContractIndex:
         manifest: Mapping[str, Any],
         data_contracts_path: Path | None,
         source_bindings_path: Path | None,
+        source_contracts_path: Path | None,
         candidates: Sequence[ProductionDataContractCandidate],
     ) -> None:
         self.root = root
         self.manifest = manifest
         self.data_contracts_path = data_contracts_path
         self.source_bindings_path = source_bindings_path
+        self.source_contracts_path = source_contracts_path
         self.candidates = tuple(candidates)
 
     @classmethod
@@ -281,19 +299,30 @@ class ProductionDataContractIndex:
         curated_root = _curated_root(resolved_root, bundles)
         data_contracts_path = curated_root / "data_contracts.json" if curated_root else None
         source_bindings_path = curated_root / "source_bindings.json" if curated_root else None
+        source_contracts_path = _source_contracts_path(
+            root=resolved_root,
+            curated_root=curated_root,
+            bundles=bundles,
+        )
         contracts_payload = _load_mapping(data_contracts_path) if data_contracts_path else {}
         bindings_payload = _load_mapping(source_bindings_path) if source_bindings_path else {}
+        source_contracts_payload = (
+            _load_mapping(source_contracts_path) if source_contracts_path else {}
+        )
+        source_contracts = _source_contract_index(source_contracts_payload)
         candidates = _build_candidates(
             root=resolved_root,
             bundles=bundles,
             contracts=_rows(contracts_payload, "contracts"),
             source_bindings=_rows(bindings_payload, "bindings"),
+            source_contracts=source_contracts,
         )
         return cls(
             root=resolved_root,
             manifest=manifest,
             data_contracts_path=data_contracts_path,
             source_bindings_path=source_bindings_path,
+            source_contracts_path=source_contracts_path,
             candidates=candidates,
         )
 
@@ -303,11 +332,38 @@ class ProductionDataContractIndex:
     ) -> dict[str, Any]:
         """Bind data-domain scenario requirements to production-data candidates."""
 
-        requirements = [
+        legacy_requirements = [
             item
             for item in _rows(scenario_evidence_contract, "requirements")
             if str(item.get("domain") or "").strip().casefold() == "data"
         ]
+        spec_rows = _rows(scenario_evidence_contract, "data_requirement_specs")
+        specs: Sequence[DataRequirementSpec | Mapping[str, Any]]
+        specs = (
+            spec_rows
+            if spec_rows
+            else [
+                _data_requirement_spec_from_legacy_requirement(item)
+                for item in legacy_requirements
+            ]
+        )
+        return self.build_data_requirement_binding_report(
+            specs,
+            scenario_contract_id=scenario_evidence_contract.get("contract_id"),
+            scenario_id=scenario_evidence_contract.get("scenario_id"),
+        )
+
+    def build_data_requirement_binding_report(
+        self,
+        data_requirement_specs: Sequence[DataRequirementSpec | Mapping[str, Any]],
+        *,
+        scenario_contract_id: object | None = None,
+        scenario_id: object | None = None,
+    ) -> dict[str, Any]:
+        """Bind compiled data requirement specs to production-data candidates."""
+
+        specs = tuple(_coerce_data_requirement_spec(item) for item in data_requirement_specs)
+        requirements = _requirements_from_data_requirement_specs(specs)
         findings = [self.bind_requirement(requirement) for requirement in requirements]
         statuses = [str(item.get("status") or "") for item in findings]
         missing_source_families = sorted(
@@ -319,8 +375,31 @@ class ProductionDataContractIndex:
                 and item.get("expected_family")
             }
         )
+        source_contract_binding_report = _build_source_contract_requirement_bindings(
+            data_requirement_specs=specs,
+            source_contract_candidates=[
+                _candidate_for_data_requirement_adapter(candidate)
+                for candidate in self.candidates
+            ],
+            selected_candidate_refs=[
+                str(item.get("candidate_ref"))
+                for item in findings
+                if item.get("candidate_ref")
+            ],
+        )
         return {
             "schema_version": PRODUCTION_DATA_CONTRACT_INDEX_SCHEMA_VERSION,
+            "capability_reality_status": "implemented",
+            "runtime_authority_envelope": _authority_envelope(),
+            "compatibility_projection": {
+                "scenario_family_authority_status": "sunset_projection_only",
+                "replacement": "capability_index_v1",
+                "may_not_use_for": [
+                    "scenario_family_authority_lookup",
+                    "claim_evidence_satisfaction_without_capability_binding",
+                ],
+            },
+            "requirement_source": "compiled_data_requirement_spec",
             "root": str(self.root),
             "manifest_path": str(self.root / "manifest.json"),
             "data_contracts_path": str(self.data_contracts_path)
@@ -329,8 +408,11 @@ class ProductionDataContractIndex:
             "source_bindings_path": str(self.source_bindings_path)
             if self.source_bindings_path
             else None,
-            "scenario_contract_id": scenario_evidence_contract.get("contract_id"),
-            "scenario_id": scenario_evidence_contract.get("scenario_id"),
+            "source_contracts_path": str(self.source_contracts_path)
+            if self.source_contracts_path
+            else None,
+            "scenario_contract_id": _text(scenario_contract_id),
+            "scenario_id": _text(scenario_id),
             "candidate_count": len(self.candidates),
             "source_families": sorted(
                 {
@@ -346,8 +428,14 @@ class ProductionDataContractIndex:
                 "blocked": statuses.count("blocked"),
             },
             "required_scenario_facets": list(SCENARIO_ADMISSIBLE_REQUIRED_FACETS),
+            "compiled_data_requirement_specs": [
+                spec.model_dump(mode="json") for spec in specs
+            ],
             "missing_scenario_source_families": missing_source_families,
             "scenario_binding_findings": findings,
+            "source_contract_bindings": list(
+                source_contract_binding_report.get("source_contract_bindings") or []
+            ),
         }
 
     def bind_requirement(self, requirement: Mapping[str, Any]) -> dict[str, Any]:
@@ -370,9 +458,13 @@ class ProductionDataContractIndex:
         if not matching:
             return {
                 "requirement_id": requirement.get("requirement_id"),
+                "data_requirement_id": requirement.get("data_requirement_id")
+                or requirement.get("requirement_id"),
+                "domain": "data",
                 "expected_family": expected_family,
                 "candidate_ref": None,
                 "status": "blocked",
+                "binding_status": "blocked",
                 "blocker_code": "scenario_source_family_absent",
                 "missing_facets": sorted(
                     set(admissible_required_facets) | set(QUALITY_REQUIRED_FACETS)
@@ -380,6 +472,11 @@ class ProductionDataContractIndex:
                 "present_facets": [],
                 "claim_bindability_status": "blocked",
                 "claim_bound_limitations": [],
+                "selected_refs": [],
+                "rejected_refs": [],
+                "limitation_refs": [],
+                "source_contract_validation": _source_contract_missing_validation(None),
+                "openlineage_facets": {},
                 "rejected_candidate_source_families": sorted(
                     {
                         candidate.source_family
@@ -396,6 +493,8 @@ class ProductionDataContractIndex:
         ]
         missing_quality = [facet for facet in QUALITY_REQUIRED_FACETS if facet not in present]
         missing_facets = sorted(set(missing_required + missing_quality))
+        source_contract_validation = dict(candidate.source_contract_validation)
+        source_contract_status = _text(source_contract_validation.get("status")).casefold()
         limitations = _claim_bound_limitations(
             requirement=requirement,
             candidate=candidate,
@@ -403,15 +502,33 @@ class ProductionDataContractIndex:
         )
         status = (
             "satisfied"
-            if not missing_facets and not _has_fail_limitation(limitations)
+            if (
+                not missing_facets
+                and not _has_fail_limitation(limitations)
+                and source_contract_status == "pass"
+            )
             else "failed"
         )
+        binding_status = "selected" if status == "satisfied" else "rejected"
+        blocker_code = None if status == "satisfied" else "scenario_data_contract_incomplete"
+        source_contract_blocker = _source_contract_blocker_code(source_contract_validation)
+        if status != "satisfied" and source_contract_blocker:
+            blocker_code = source_contract_blocker
+        limitation_refs = [
+            str(item.get("limitation_ref"))
+            for item in limitations
+            if str(item.get("limitation_ref") or "").strip()
+        ]
         return {
             "requirement_id": requirement.get("requirement_id"),
+            "data_requirement_id": requirement.get("data_requirement_id")
+            or requirement.get("requirement_id"),
+            "domain": "data",
             "expected_family": expected_family,
             "candidate_ref": candidate.candidate_ref,
             "status": status,
-            "blocker_code": None if status == "satisfied" else "scenario_data_contract_incomplete",
+            "binding_status": binding_status,
+            "blocker_code": blocker_code,
             "missing_facets": missing_facets,
             "present_facets": sorted(present),
             "facet_refs": {
@@ -422,6 +539,15 @@ class ProductionDataContractIndex:
             "bundle_role": candidate.bundle_role,
             "contract_id": candidate.contract_id,
             "source_binding_id": candidate.source_binding_id,
+            "source_contract_ref": candidate.source_contract_ref,
+            "source_contract_validation": source_contract_validation,
+            "selected_refs": [candidate.candidate_ref] if status == "satisfied" else [],
+            "rejected_refs": [] if status == "satisfied" else [candidate.candidate_ref],
+            "limitation_refs": limitation_refs,
+            "openlineage_facets": _openlineage_facets(
+                candidate,
+                source_contract_validation=source_contract_validation,
+            ),
             "claim_bindability_status": _claim_bindability_status(
                 status=status,
                 missing_facets=missing_facets,
@@ -431,12 +557,171 @@ class ProductionDataContractIndex:
         }
 
 
+def _coerce_data_requirement_spec(
+    spec: DataRequirementSpec | Mapping[str, Any],
+) -> DataRequirementSpec:
+    if isinstance(spec, DataRequirementSpec):
+        return spec
+    return DataRequirementSpec.model_validate(spec)
+
+
+def _build_source_contract_requirement_bindings(**kwargs: object) -> dict[str, Any]:
+    adapter = importlib.import_module("polisyos.fabric.catalog.data_requirement_adapter")
+    return adapter.build_source_contract_requirement_bindings(**kwargs)
+
+
+def _requirement_from_data_requirement_spec(
+    spec: DataRequirementSpec,
+    source_family: str,
+) -> dict[str, Any]:
+    claim_scope = spec.metadata.get("claim_scope")
+    return {
+        "requirement_id": spec.requirement_id,
+        "data_requirement_id": spec.requirement_id,
+        "domain": "data",
+        "expected_family": source_family,
+        "required_facets": list(spec.mandatory_facets),
+        "claim_scope": list(claim_scope) if isinstance(claim_scope, list) else [spec.claim_id],
+        "jurisdiction": spec.scope.jurisdiction,
+        "temporal_scope": spec.scope.time,
+        "authority_scope": list(spec.authority_profile_refs),
+        "instrument_type": spec.claim_type,
+        "beneficiary_class": spec.scope.population,
+        "rights_scope": "compiled_data_requirement",
+        "data_requirement_schema_version": spec.schema_version,
+    }
+
+
+def _requirements_from_data_requirement_specs(
+    specs: Sequence[DataRequirementSpec],
+) -> list[dict[str, Any]]:
+    requirements_by_family: dict[str, dict[str, Any]] = {}
+    for spec in specs:
+        for source_family in spec.required_data_families:
+            requirement = _requirement_from_data_requirement_spec(spec, source_family)
+            existing = requirements_by_family.get(source_family)
+            if existing is None:
+                requirement["data_requirement_ids"] = [spec.requirement_id]
+                requirements_by_family[source_family] = requirement
+                continue
+            existing["required_facets"] = list(
+                dict.fromkeys(
+                    [
+                        *(existing.get("required_facets") or ()),
+                        *requirement["required_facets"],
+                    ]
+                )
+            )
+            existing["claim_scope"] = list(
+                dict.fromkeys(
+                    [
+                        *(existing.get("claim_scope") or ()),
+                        *requirement["claim_scope"],
+                    ]
+                )
+            )
+            existing["authority_scope"] = list(
+                dict.fromkeys(
+                    [
+                        *(existing.get("authority_scope") or ()),
+                        *requirement["authority_scope"],
+                    ]
+                )
+            )
+            existing.setdefault("data_requirement_ids", []).append(spec.requirement_id)
+    return list(requirements_by_family.values())
+
+
+def _data_requirement_spec_from_legacy_requirement(
+    requirement: Mapping[str, Any],
+) -> DataRequirementSpec:
+    expected_family = _text(requirement.get("expected_family")) or "production_data"
+    required_facets = tuple(
+        dict.fromkeys(
+            str(item)
+            for item in (
+                *(requirement.get("required_facets") or ()),
+                *SCENARIO_ADMISSIBLE_REQUIRED_FACETS,
+            )
+            if str(item).strip()
+        )
+    )
+    requirement_id = _text(requirement.get("requirement_id")) or (
+        f"scenario:data:{expected_family}"
+    )
+    claim_scope = tuple(
+        str(item)
+        for item in requirement.get("claim_scope") or ("major_recommendations",)
+        if str(item).strip()
+    )
+    authority_scope = tuple(
+        str(item)
+        for item in requirement.get("authority_scope") or ("scenario_evidence_contract",)
+        if str(item).strip()
+    )
+    return DataRequirementSpec(
+        requirement_id=requirement_id,
+        claim_id=requirement_id,
+        claim_family="legacy_scenario_requirement",
+        claim_type="source_quality",
+        claim_use="decision_support",
+        required_data_families=(expected_family,),
+        scope={
+            "population": _text(requirement.get("beneficiary_class")) or "scenario_population",
+            "geography": _text(requirement.get("jurisdiction")) or "scenario_geography",
+            "time": _text(requirement.get("temporal_scope")) or "scenario_time",
+            "time_role": "observation_time",
+            "jurisdiction": _text(requirement.get("jurisdiction")) or None,
+        },
+        recency_horizon="P90D",
+        lineage_strictness="strict",
+        quality_minima={
+            "min_quality_score": 0.8,
+            "min_completeness": 0.95,
+            "required_quality_refs": ["quality_assertion_refs", "construct_validity_refs"],
+        },
+        missingness_tolerance=0.05,
+        transformation_tolerance="traceable",
+        admissibility_predicates=(
+            "source_family_matches_compiled_requirement",
+            "source_contract_active",
+            "observation_time_covers_claim_time",
+            "lineage_preserves_required_transformations",
+            "missingness_within_tolerance",
+        ),
+        mandatory_facets=required_facets,
+        facet_refs=claim_scope,
+        obligation_refs=(requirement_id,),
+        concept_spine_refs=claim_scope or (f"concept://scenario/{expected_family}",),
+        authority_profile_refs=authority_scope,
+        source_requirement_refs=(requirement_id,),
+        metadata={
+            "legacy_bridge": "scenario_evidence_contract.data_requirement",
+            "claim_scope": list(claim_scope),
+            "producer_owner": requirement.get("producer_owner"),
+            "reader_owner": requirement.get("reader_owner"),
+        },
+    )
+
+
+def _candidate_for_data_requirement_adapter(
+    candidate: ProductionDataContractCandidate,
+) -> dict[str, Any]:
+    return {
+        "candidate_ref": candidate.candidate_ref,
+        "source_family": candidate.source_family,
+        "present_facets": list(candidate.present_facets),
+        "source_contract_validation": dict(candidate.source_contract_validation),
+    }
+
+
 def _build_candidates(
     *,
     root: Path,
     bundles: Mapping[str, Mapping[str, Any]],
     contracts: Sequence[Mapping[str, Any]],
     source_bindings: Sequence[Mapping[str, Any]],
+    source_contracts: Mapping[str, Mapping[str, Any]],
 ) -> tuple[ProductionDataContractCandidate, ...]:
     contracts_by_id = {
         contract_id: contract
@@ -455,6 +740,7 @@ def _build_candidates(
             bundle=curated_bundle,
             contract=contract,
             source_binding=binding,
+            source_contracts=source_contracts,
         )
         if candidate is not None:
             emitted[candidate.candidate_ref] = candidate
@@ -469,6 +755,7 @@ def _build_candidates(
             bundle=curated_bundle,
             contract=contract,
             source_binding={},
+            source_contracts=source_contracts,
         )
         if candidate is not None:
             emitted[candidate.candidate_ref] = candidate
@@ -483,6 +770,7 @@ def _build_candidates(
             bundle=bundle,
             contract={},
             source_binding={},
+            source_contracts=source_contracts,
         )
         if candidate is not None:
             emitted.setdefault(candidate.candidate_ref, candidate)
@@ -496,6 +784,7 @@ def _candidate_from_rows(
     bundle: Mapping[str, Any],
     contract: Mapping[str, Any],
     source_binding: Mapping[str, Any],
+    source_contracts: Mapping[str, Mapping[str, Any]],
 ) -> ProductionDataContractCandidate | None:
     rows = (source_binding, contract, bundle)
     source_family = (
@@ -523,6 +812,14 @@ def _candidate_from_rows(
         )
         if _present(value)
     }
+    source_contract_ref = _source_contract_ref(facet_refs.get("source_contract_ref"))
+    source_contract_validation = _validate_source_contract_ref(
+        source_contract_ref=source_contract_ref,
+        rows=rows,
+        source_contracts=source_contracts,
+    )
+    if _text(source_contract_validation.get("status")).casefold() != "pass":
+        facet_refs.pop("source_contract_ref", None)
     return ProductionDataContractCandidate(
         candidate_ref=(
             f"production_data:{bundle_role}:{source_family}:{_safe_ref_component(version_ref)}"
@@ -536,6 +833,8 @@ def _candidate_from_rows(
         raw_contract=contract,
         raw_source_binding=source_binding,
         raw_bundle=bundle,
+        source_contract_ref=source_contract_ref,
+        source_contract_validation=source_contract_validation,
     )
 
 
@@ -696,14 +995,197 @@ def _explicit_limitation_ref(
     return None
 
 
+def _source_contract_ref(value: object) -> str | None:
+    """Return the first source-contract reference from a facet-like value."""
+
+    if isinstance(value, str):
+        text = _text(value)
+        return text or None
+    if isinstance(value, Mapping):
+        for key in (
+            "source_contract_id",
+            "source_contract_ref",
+            "id",
+            "ref",
+            "artifact_ref",
+            "content_hash",
+        ):
+            text = _text(value.get(key))
+            if text:
+                return text
+        return None
+    if isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
+        for item in value:
+            text = _source_contract_ref(item)
+            if text:
+                return text
+    return None
+
+
+def _validate_source_contract_ref(
+    *,
+    source_contract_ref: str | None,
+    rows: Sequence[Mapping[str, Any]],
+    source_contracts: Mapping[str, Mapping[str, Any]],
+) -> Mapping[str, Any]:
+    if not source_contract_ref:
+        return _source_contract_missing_validation(None)
+
+    embedded = _embedded_source_contract(source_contract_ref=source_contract_ref, rows=rows)
+    source_contract = source_contracts.get(source_contract_ref) or embedded
+    if source_contract is None:
+        return _source_contract_missing_validation(
+            source_contract_ref,
+            reason_code="source_contract_record_missing",
+        )
+
+    status = _text(source_contract.get("status")).casefold() or "unknown"
+    validation = {
+        "status": "pass" if status == "active" else "blocked",
+        "source_contract_id": source_contract_ref,
+        "source_contract_ref": source_contract_ref,
+        "source_contract_version": _text(source_contract.get("version")) or None,
+        "source_contract_status": status,
+        "content_hash": _text(source_contract.get("content_hash")) or None,
+    }
+    if status != "active":
+        validation["reason_code"] = "source_contract_not_active"
+    return validation
+
+
+def _source_contract_missing_validation(
+    source_contract_ref: str | None,
+    *,
+    reason_code: str = "source_contract_ref_missing",
+) -> Mapping[str, Any]:
+    return {
+        "status": "missing",
+        "source_contract_id": source_contract_ref,
+        "source_contract_ref": source_contract_ref,
+        "source_contract_version": None,
+        "source_contract_status": None,
+        "content_hash": None,
+        "reason_code": reason_code,
+    }
+
+
+def _embedded_source_contract(
+    *,
+    source_contract_ref: str,
+    rows: Sequence[Mapping[str, Any]],
+) -> Mapping[str, Any] | None:
+    for row in rows:
+        for key in ("source_contract", "source_contract_v2"):
+            value = row.get(key)
+            if not isinstance(value, Mapping):
+                continue
+            normalized = _normalize_source_contract_record(value)
+            if normalized and normalized.get("id") == source_contract_ref:
+                return normalized
+    return None
+
+
+def _source_contract_blocker_code(validation: Mapping[str, Any]) -> str | None:
+    status = _text(validation.get("status")).casefold()
+    reason_code = _text(validation.get("reason_code"))
+    if status == "pass":
+        return None
+    if reason_code == "source_contract_not_active":
+        return "source_contract_not_active"
+    if reason_code:
+        return "source_contract_missing"
+    return None
+
+
+def _openlineage_facets(
+    candidate: ProductionDataContractCandidate,
+    *,
+    source_contract_validation: Mapping[str, Any],
+) -> dict[str, Any]:
+    facets = candidate.facet_refs
+    return {
+        "dataset": {
+            "namespace": "fabric.production_data",
+            "name": candidate.source_family,
+            "facets": {
+                "sourceContract": {
+                    "sourceContractId": candidate.source_contract_ref,
+                    "version": source_contract_validation.get("source_contract_version"),
+                    "status": source_contract_validation.get("source_contract_status"),
+                    "contentHash": source_contract_validation.get("content_hash"),
+                },
+                "schema": {
+                    "schemaRef": _first_ref(facets.get("schema_ref")),
+                    "fieldRefs": _refs(facets.get("field_refs")),
+                    "unitRefs": _refs(facets.get("unit_refs")),
+                },
+                "dataQuality": {
+                    "qualityRefs": _refs(facets.get("quality_refs")),
+                    "qualityAssertionRefs": _refs(facets.get("quality_assertion_refs")),
+                    "missingnessRefs": _refs(facets.get("missingness_refs")),
+                    "outlierRefs": _refs(facets.get("outlier_refs")),
+                    "constructValidityRefs": _refs(facets.get("construct_validity_refs")),
+                },
+                "freshness": {
+                    "freshnessRef": _first_ref(facets.get("freshness_ref")),
+                    "recencyRef": _first_ref(facets.get("recency_ref")),
+                },
+                "lineage": {
+                    "lineageRefs": _refs(facets.get("lineage_refs")),
+                    "transformationRefs": _refs(facets.get("transformation_refs")),
+                    "datasetIdentity": _first_ref(facets.get("dataset_identity")),
+                },
+                "admissibility": {
+                    "sourceFamily": candidate.source_family,
+                    "sourceRights": _first_ref(facets.get("source_rights")),
+                    "claimBindabilityRefs": _refs(facets.get("claim_bindability_refs")),
+                },
+            },
+        }
+    }
+
+
+def _first_ref(value: object) -> str | None:
+    refs = _refs(value)
+    return refs[0] if refs else None
+
+
+def _refs(value: object) -> list[str]:
+    if value is None:
+        return []
+    if isinstance(value, str):
+        text = _text(value)
+        return [text] if text else []
+    if isinstance(value, Mapping):
+        for key in (
+            "ref",
+            "id",
+            "artifact_ref",
+            "artifact_id",
+            "source_contract_id",
+            "source_contract_ref",
+        ):
+            text = _text(value.get(key))
+            if text:
+                return [text]
+        return [text for text in (_text(item) for item in value.values()) if text]
+    if isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
+        refs: list[str] = []
+        for item in value:
+            refs.extend(_refs(item))
+        return list(dict.fromkeys(refs))
+    text = _text(value)
+    return [text] if text else []
+
+
 def _facet_ref(
     *,
     root: Path,
     rows: Sequence[Mapping[str, Any]],
     facet: str,
 ) -> object | None:
-    for row in rows:
-        for alias in _FACET_ALIASES[facet]:
+    for alias in _FACET_ALIASES[facet]:
+        for row in rows:
             value = _deep_get(row, alias)
             if _path_alias_exists(root=root, alias=alias, value=value) or _present(value):
                 return value
@@ -752,6 +1234,64 @@ def _binding_id(row: Mapping[str, Any]) -> str | None:
     if connector and dataset:
         return f"{connector}:{dataset}"
     return None
+
+
+def _source_contracts_path(
+    *,
+    root: Path,
+    curated_root: Path | None,
+    bundles: Mapping[str, Mapping[str, Any]],
+) -> Path | None:
+    candidates: list[Path] = []
+    if curated_root is not None:
+        candidates.append(curated_root / "source_contracts_v2.json")
+    candidates.append(root / "source_contracts_v2.json")
+
+    for bundle in bundles.values():
+        for key in (
+            "source_contracts_v2_path",
+            "source_contracts_path",
+            "source_contract_snapshot_path",
+        ):
+            raw = _text(bundle.get(key))
+            if not raw:
+                continue
+            path = Path(raw).expanduser()
+            candidates.append(path if path.is_absolute() else root / path)
+
+    for path in candidates:
+        if path.exists():
+            return path
+    return None
+
+
+def _source_contract_index(payload: Mapping[str, Any]) -> dict[str, Mapping[str, Any]]:
+    rows = _rows(payload, "contracts")
+    indexed: dict[str, Mapping[str, Any]] = {}
+    for row in rows:
+        normalized = _normalize_source_contract_record(row)
+        if normalized:
+            indexed[str(normalized["id"])] = normalized
+    return indexed
+
+
+def _normalize_source_contract_record(row: Mapping[str, Any]) -> dict[str, Any] | None:
+    contract = row.get("contract") if isinstance(row.get("contract"), Mapping) else {}
+    source_contract_id = _text(
+        row.get("source_contract_id")
+        or row.get("id")
+        or contract.get("source_contract_id")
+        or contract.get("id")
+    )
+    if not source_contract_id:
+        return None
+    return {
+        "id": source_contract_id,
+        "version": _text(row.get("version") or contract.get("version")) or None,
+        "status": _text(row.get("status") or contract.get("status") or "active"),
+        "content_hash": _text(row.get("content_hash") or contract.get("content_hash")) or None,
+        "raw": row,
+    }
 
 
 def _curated_root(
@@ -856,6 +1396,29 @@ def _json_like(value: object) -> object:
     if isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
         return [_json_like(item) for item in value]
     return value
+
+
+def _authority_envelope() -> dict[str, tuple[str, ...] | str]:
+    return {
+        "authority_role": "producer_authority",
+        "provenance_kind": "runtime_emitted",
+        "authoritative_for": (
+            "source_contract_binding",
+            "openlineage_facet_presence",
+            "selected_rejected_blocked_contract_bindings",
+            "missing_facet_findings",
+        ),
+        "may_not_use_for": (
+            "scenario_family_authority_lookup",
+            "scenario_source_family_authority",
+            "legal_authority",
+            "method_validity",
+            "academic_support_strength",
+            "participation_representativeness",
+            "official_snapshot_identity",
+            "closeout_pass_without_data_forge_binding",
+        ),
+    }
 
 
 def _safe_ref_component(value: str) -> str:

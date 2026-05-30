@@ -40,10 +40,10 @@ from polisyos.core.contracts.runtime import (
     TemporalScope,
     TemporalSurfaceSupport,
 )
-from polisyos.fabric.decision_data import (
+from polisyos.fabric.evidence.decision_data import (
     FabricDecisionDataResponse,
 )
-from polisyos.fabric.decision_data import (
+from polisyos.fabric.evidence.decision_data import (
     TemporalRef as FabricTemporalRef,
 )
 from polisyos.runtime.http.dependencies import (

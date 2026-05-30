@@ -4,6 +4,15 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import Any
 
+from polisyos.runtime.quality.case_lifecycle import build_lifecycle_reissue_report
+from polisyos.runtime.quality.ddm_monitoring import (
+    build_implementation_monitoring_evaluation_record,
+    validate_implementation_monitoring_evaluation_record,
+)
+from polisyos.runtime.quality.rule_evolution import (
+    build_rule_evolution_registry,
+    build_rule_evolution_replay_context,
+)
 from tests.unit.runtime.quality.test_policy_design_case_false_passes import (
     _policy_design_case,
     _scorecard_blocking_codes_for_case,
@@ -12,11 +21,6 @@ from tests.unit.runtime.quality.test_policy_design_case_false_passes import (
 
 
 def test_implementation_monitoring_record_wires_ddm_events_to_claims() -> None:
-    from polisyos.runtime.quality.ddm_monitoring import (
-        build_implementation_monitoring_evaluation_record,
-        validate_implementation_monitoring_evaluation_record,
-    )
-
     record = build_implementation_monitoring_evaluation_record(
         record_id="implementation-monitoring-rec-1",
         case_id="pdc-R_hds_red_control",
@@ -105,6 +109,124 @@ def test_scorecard_blocks_contaminated_ex_post_learning() -> None:
     codes = _scorecard_blocking_codes_for_case(case)
 
     assert "policy_design_learning_contamination_detected" in codes
+
+
+def test_lifecycle_reissue_report_scopes_ddm_and_rule_events_to_affected_claims() -> None:
+    old_registry = build_rule_evolution_registry(
+        registry_id="rule-registry-2026-05",
+        version="2026.05",
+        effective_at="2026-05-01T00:00:00+00:00",
+        rule_refs=[
+            {
+                "requirement_id": "req.credit_support",
+                "logic": {"predicate": "liquidity_gap", "threshold": 0.2},
+            }
+        ],
+        evidence_ref=sha("2"),
+        runtime_event_ref="event://rule-evolution/old",
+    )
+    changed_registry = build_rule_evolution_registry(
+        registry_id="rule-registry-2026-07",
+        version="2026.07",
+        effective_at="2026-07-01T00:00:00+00:00",
+        previous_registry=old_registry,
+        rule_refs=[
+            {
+                "requirement_id": "req.credit_support",
+                "logic": {"predicate": "liquidity_gap", "threshold": 0.35},
+            }
+        ],
+        evidence_ref=sha("3"),
+        runtime_event_ref="event://rule-evolution/current",
+    )
+    replay_context = build_rule_evolution_replay_context(
+        case_id="pdc-R_hds_red_control",
+        closed_case_rule_registry=old_registry,
+        current_rule_registry=changed_registry,
+        closure_time="2026-05-22T00:00:00+00:00",
+        replay_time="2026-07-02T00:00:00+00:00",
+    )
+
+    report = build_lifecycle_reissue_report(
+        report_id="lifecycle-reissue-rec-1",
+        case_id="pdc-R_hds_red_control",
+        claim_ids=["rec_1", "rec_2"],
+        implementation_monitoring_evaluation=_implementation_monitoring_record(),
+        rule_evolution_replay_context=replay_context,
+        claim_requirement_bindings={
+            "rec_1": ["req.credit_support"],
+            "rec_2": ["req.admin"],
+        },
+        evidence_ref=sha("4"),
+        runtime_event_ref="event://policy-design-case/lifecycle-reissue/1",
+    )
+
+    states = {row["claim_id"]: row for row in report["claim_revision_states"]}
+    assert report["status"] == "reissue_required"
+    assert report["summary"]["affected_claim_count"] == 1
+    assert states["rec_1"]["lifecycle_action"] == "partial_reissue"
+    assert states["rec_1"]["public_revision_status"] == "revalidation_required"
+    assert states["rec_1"]["closed_case_historical_meaning"] == "preserved"
+    assert states["rec_2"]["current_validity"] == "current"
+    assert states["rec_2"]["affected_event_ids"] == []
+    assert report["public_revision_state"]["affected_claim_ids"] == ["rec_1"]
+    assert report["public_revision_state"]["unaffected_claim_ids"] == ["rec_2"]
+    assert report["public_revision_state"]["silent_upgrade_allowed"] is False
+
+
+def test_lifecycle_reissue_report_rejects_unscoped_events_without_whole_case_rewrite() -> None:
+    report = build_lifecycle_reissue_report(
+        report_id="lifecycle-reissue-unscoped",
+        case_id="pdc-R_hds_red_control",
+        claim_ids=["rec_1", "rec_2"],
+        source_events=[
+            {
+                "event_id": "source-withdrawn-unscoped",
+                "event_type": "source_invalidation",
+                "invalidation_type": "withdrawn",
+                "reason": "Source was withdrawn but no dependent claim was identified.",
+                "evidence_ref": sha("5"),
+                "runtime_event_ref": "event://source/withdrawn-unscoped",
+                "occurred_at": "2026-07-02T00:00:00+00:00",
+            }
+        ],
+        evidence_ref=sha("6"),
+        runtime_event_ref="event://policy-design-case/lifecycle-reissue/unscoped",
+    )
+
+    assert report["status"] == "fail"
+    assert report["summary"]["affected_claim_count"] == 0
+    assert {
+        issue["code"] for issue in report["issues"]
+    } == {"policy_design_lifecycle_event_claim_scope_missing"}
+    assert report["public_revision_state"]["affected_claim_ids"] == []
+    assert report["public_revision_state"]["unaffected_claim_ids"] == ["rec_1", "rec_2"]
+
+
+def test_scorecard_consumes_lifecycle_reissue_report_failures() -> None:
+    case = _phase27_case()
+    case["lifecycle_reissue_report"] = build_lifecycle_reissue_report(
+        report_id="lifecycle-reissue-unscoped",
+        case_id="pdc-R_hds_red_control",
+        claim_ids=["rec_1"],
+        policy_context_events=[
+            {
+                "event_id": "policy-context-unscoped",
+                "event_type": "policy_context_drift",
+                "severity": "block",
+                "reason": "Eligibility policy changed without scoped claim mapping.",
+                "evidence_ref": sha("8"),
+                "runtime_event_ref": "event://policy-context/unscoped",
+                "occurred_at": "2026-07-02T00:00:00+00:00",
+            }
+        ],
+        evidence_ref=sha("7"),
+        runtime_event_ref="event://policy-design-case/lifecycle-reissue/unscoped",
+    )
+
+    codes = _scorecard_blocking_codes_for_case(case)
+
+    assert "policy_design_lifecycle_event_claim_scope_missing" in codes
 
 
 def _phase27_case() -> dict[str, Any]:

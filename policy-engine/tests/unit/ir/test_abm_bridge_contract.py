@@ -11,7 +11,7 @@ from polisyos.ir.analytics.abm_bridge import (
     load_abm_alignment_report,
     persist_abm_alignment_report,
 )
-from polisyos.ir.refs import ABMAlignmentReportRef
+from polisyos.ir.registry.refs import ABMAlignmentReportRef
 
 
 def test_macro_micro_mapping_accepts_supported_values() -> None:

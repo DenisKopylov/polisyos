@@ -22,7 +22,7 @@ from polisyos.core.registry.generic import GenericRegistry
 if TYPE_CHECKING:
     from polisyos.core.artifacts.manifest import ArtifactRef
     from polisyos.core.artifacts.store import FileSystemCAS
-    from polisyos.ir.norm_pack import NormPack
+    from polisyos.ir.loading.norm_pack import NormPack
 
 
 class NormPackProvider(Protocol):

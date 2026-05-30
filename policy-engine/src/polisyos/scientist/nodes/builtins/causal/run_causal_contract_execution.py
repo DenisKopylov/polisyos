@@ -21,7 +21,7 @@ from polisyos.ir.observation.causal_execution import (
     TemporalDTRTask,
     persist_causal_execution_bundle,
 )
-from polisyos.ir.refs import ArtifactRefModel
+from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.lex.interventions import TemporalInterventionSequenceCompiler
 from polisyos.scientist.methods.causal.execution import BoundsEstimationRunner
 from polisyos.scientist.orchestration.engine.context import ExecutionContext

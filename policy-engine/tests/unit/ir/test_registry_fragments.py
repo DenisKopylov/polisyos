@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from polisyos.ir.kernel.units import MoneyUnit, UnitsRegistry
-from polisyos.ir.registry_fragments import (
+from polisyos.ir.registry.registry_fragments import (
     ComposePolicy,
     RegistryComposeRequest,
     RegistryFragmentMeta,

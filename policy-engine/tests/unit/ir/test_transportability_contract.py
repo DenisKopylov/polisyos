@@ -25,7 +25,7 @@ from polisyos.ir.analytics.transportability import (
     load_transportability_result,
     persist_transportability_result,
 )
-from polisyos.ir.refs import TransportabilityResultRef
+from polisyos.ir.registry.refs import TransportabilityResultRef
 from pydantic import ValidationError
 
 

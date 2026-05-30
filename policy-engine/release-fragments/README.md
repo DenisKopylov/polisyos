@@ -22,7 +22,7 @@ Optional but strongly encouraged fields:
 - `owner`: team that owns the release note
 - `evidence`: reviewed docs, tests, manifests, or reports that support the note
 - `compatibility`: compatibility note if operators or consumers must care
-- `change_class`: one of `python-public-api`, `schema-openapi-abi`, `extension-plugin-abi`, `runtime-state-format`, `persisted-artifact-format`, `js-package-api`, or `internal`
+- `change_class`: one of `python-public-api`, `schema-openapi-abi`, `extension-plugin-abi`, `runtime-state-format`, `persisted-artifact-format`, `js-package-api`, `tooling`, `shim_sunset`, or `internal`
 - `surface_classification`: supported-surface impact in the format `public_stable: polisyos.runtime` / `public_experimental: polisyos.scholar` / `internal: internal-only` when the change touches a classified package surface
 - `migration`: migration guidance if rollout steps are needed
 - `api`: schema/runtime/API surface note
@@ -46,7 +46,8 @@ Release snapshots must cover `compatibility`, `migration`, `api`, and
 `limitations` across the selected fragment set. User-visible compatibility
 changes should also set `change_class` so release notes can distinguish Python
 public API, schema/OpenAPI ABI, extension plugin ABI, runtime-state format,
-persisted artifact format, and JS package API changes.
+persisted artifact format, JS package API changes, tooling-only gates, and
+shim sunset promises.
 
 Release prep helper:
 

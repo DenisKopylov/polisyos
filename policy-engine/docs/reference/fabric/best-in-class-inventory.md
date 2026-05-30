@@ -44,7 +44,7 @@ Phase 0 is report-only: `--check` fails only when the committed manifest or repo
 | `decision_data_envelope` | `implemented` | status=`implemented`; decision_data_module=true; trust_envelope_schema=true; coverage_report=true |
 | `discovery_intelligence` | `implemented` | status=`implemented`; semantic_catalog=true; source_contract_v2_count=20; eval_case_count=4 |
 | `product_api_integration` | `implemented` | status=`implemented`; runtime_endpoints=5; frontend_fixture_count=12; required_frontend_fixture_count=12 |
-| `public_facade_exports` | `implemented` | status=`implemented`; export_count=30; exports=30; tests=3 |
+| `public_facade_exports` | `implemented` | status=`implemented`; export_count=31; exports=31; tests=3 |
 
 ## Tests By Plane
 
@@ -133,7 +133,7 @@ Phase 0 is report-only: `--check` fails only when the committed manifest or repo
 | `trust.openlineage_export` | `implemented` | `P2` | OpenLineage export | export_openlineage_json=true | - |
 | `trust.product_evidence_adapters` | `implemented` | `P2` | Scholar, Lex, and Foundry Fabric evidence adapters | fabric_evidence_path=true; scholar=true; lex=true; foundry_calibration=true | - |
 | `trust.prov_export` | `implemented` | `P2` | W3C PROV export | prov_o_export=true; prov_json_export=true | - |
-| `trust.public_facade_exports` | `implemented` | `P2` | Stable public facade exports | export_count=30; exports=30 | - |
+| `trust.public_facade_exports` | `implemented` | `P2` | Stable public facade exports | export_count=31; exports=31 | - |
 | `trust.runtime_fabric_product_api` | `implemented` | `P1` | Runtime Fabric product API endpoints | operation_ids=5; route=true; service=true; openapi=true | - |
 | `trust.runtime_lineage_adapter` | `implemented` | `P1` | Runtime lineage API adapter | route=true; service=true | - |
 | `trust.scientist_fabric_trust_governance` | `implemented` | `P1` | Scientist readiness cap from Fabric trust metadata | pass=true; readiness_cap=true | - |

@@ -3,13 +3,14 @@ from __future__ import annotations
 from datetime import UTC, datetime
 
 import pytest
+
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.fabric import DataSnapshot, DataViewRequestRef
 from polisyos.ir.connectors import DataVersion, FetchResult, QualityTier, VersionStrategy
-from polisyos.ir.queries import DataViewRequest
+from polisyos.ir.model_layer.queries import DataViewRequest
 from polisyos.scientist.adapters.fabric_bridge import DefaultFabricPort, ExecutionTierViolation
 
 

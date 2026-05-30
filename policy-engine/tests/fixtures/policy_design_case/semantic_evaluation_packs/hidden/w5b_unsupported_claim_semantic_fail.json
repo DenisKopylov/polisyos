@@ -1,0 +1,52 @@
+{
+  "schema_version": "policyos.runtime.policy_design_case.semantic_gold_card.v1",
+  "fixture_id": "w5b_unsupported_claim_semantic_fail",
+  "title": "Structurally complete claim cannot publish without support",
+  "expected_status": "semantic_fail",
+  "failure_mode": "unsupported_claim",
+  "research_refs": ["E22", "C30", "C14"],
+  "pattern_ids": ["P10"],
+  "structural_pass_claimed": true,
+  "structural_verdict": {
+    "status": "pass",
+    "validator_refs": ["policy_design_case.structural.claim_shape.v1"],
+    "completeness_claims": [
+      "claim_id_present",
+      "support_status_present",
+      "publication_status_present"
+    ]
+  },
+  "semantic_adjudication": {
+    "status": "fail",
+    "adjudicator": "policyos.semantic_gold_card.w5b",
+    "failure_mode": "unsupported_claim",
+    "failure_code": "semantic_unsupported_claim",
+    "rationale": "The claim is marked publishable without supporting evidence refs or a blocker/limitation record.",
+    "authority_effect": "block_closeout",
+    "required_remediation": "Bind supporting evidence, record a limitation, or block publication."
+  },
+  "semantic_probes": [
+    {
+      "probe_id": "unsupported-claim-publication",
+      "semantic_axis": "claim_support",
+      "pattern_ids": ["P10"],
+      "observed_signal": "Claim projects publishable support without evidence refs.",
+      "expected_signal": "Unsupported claims must emit blocker, limitation, or evidence binding.",
+      "verdict": "fail",
+      "failure_code": "semantic_unsupported_claim",
+      "evidence_refs": ["public://policy-design-case/w5b/claim-support"]
+    }
+  ],
+  "payload": {
+    "case_id": "pdc-w5b-unsupported-claim",
+    "claim_ids": ["claim-unsupported"],
+    "claim_support": {
+      "claimed_support_status": "supported",
+      "publication_status": "publishable",
+      "projected_publishable": true,
+      "supporting_evidence_refs": [],
+      "blocker_ref": null,
+      "limitation_ref": null
+    }
+  }
+}

@@ -19,7 +19,8 @@ if str(REPO_ROOT) not in sys.path:
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from polisyos.fabric.decision_data import FabricDecisionData  # noqa: E402
+from polisyos.fabric.evidence.decision_data import FabricDecisionData  # noqa: E402
+
 from polisyos.fabric.io.atomic import atomic_write_text  # noqa: E402
 
 REPORT_SCHEMA_VERSION = "fabric.decision_data_coverage.v1"

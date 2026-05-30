@@ -31,7 +31,7 @@ from polisyos.ir.analytics.invariance import (
     load_regime_shift_identification_certificate,
     persist_regime_shift_identification_certificate,
 )
-from polisyos.ir.refs import RegimeShiftIdentificationCertificateRef
+from polisyos.ir.registry.refs import RegimeShiftIdentificationCertificateRef
 
 
 def _certificate() -> RegimeShiftIdentificationCertificate:

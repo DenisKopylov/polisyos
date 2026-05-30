@@ -18,7 +18,7 @@ status = "active_nested_facade"
 layout_owner = "team-foundry"
 source_root = "src/polisyos/foundry/agent_sim/world"
 readme = "src/polisyos/foundry/agent_sim/world/README.md"
-root_facade_policy = "nested public experimental facade under Foundry agent_sim; synthetic_world remains wrapper-only until sunset"
+root_facade_policy = "nested public experimental facade under Foundry agent_sim"
 implementation_roots = ["src/polisyos/foundry/agent_sim/world"]
 legacy_layout_mirror = ""
 
@@ -35,7 +35,6 @@ forbidden_dependencies = [
   "polisyos.runtime",
   "polisyos.data_forge.kernel",
   "polisyos.data_forge.domains",
-  "polisyos.synthetic_world",
 ]
 import_boundary_report = "architecture/imports/reports.toml"
 
@@ -58,7 +57,6 @@ property_required = false
 property_roots = []
 minimum_expectations = [
   "world generation changes keep Foundry agent-sim world unit coverage",
-  "synthetic_world shim behavior remains covered until sunset",
 ]
 
 [slo_runbook]
@@ -85,7 +83,7 @@ allowed = ["world"]
 [[allowed_name_collision]]
 name = "world"
 scope = "nested public surface"
-reason = "Foundry agent_sim.world is the canonical synthetic world target while polisyos.synthetic_world remains a temporary shim."
+reason = "Foundry agent_sim.world is the canonical synthetic world target."
 owner = "team-foundry"
 
 [exceptions]

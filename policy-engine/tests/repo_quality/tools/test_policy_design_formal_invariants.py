@@ -8,6 +8,8 @@ from pathlib import Path
 
 from polisyos.runtime.quality.formal_invariants import (
     FORMAL_INVARIANT_REGISTRY_RELATIVE_PATH,
+    REQUIRED_CLOSEOUT_INVARIANT_IDS,
+    REQUIRED_TEMPORAL_LIVENESS_INVARIANT_IDS,
     build_formal_invariant_spec_report,
     validate_formal_invariant_specs_payload,
 )
@@ -25,20 +27,17 @@ def test_policy_design_formal_invariant_specs_cover_phase_29_4() -> None:
     report = build_formal_invariant_spec_report(repo_root=REPO_ROOT)
 
     assert report["status"] == "pass", report["issues"]
-    assert report["summary"] == {
-        "spec_count": 5,
-        "required_spec_count": 5,
-        "covered_required_spec_count": 5,
-        "required_coverage_pct": 100.0,
-        "issue_count": 0,
-    }
-    assert {row["spec_id"] for row in report["specs"]} == {
-        "authority_ordering",
-        "phase_barriers",
-        "same_input_closure",
-        "cas_event_reconciliation",
-        "terminal_readiness",
-    }
+    assert report["summary"]["spec_count"] >= 9
+    assert report["summary"]["required_spec_count"] == 5
+    assert report["summary"]["covered_required_spec_count"] == 5
+    assert report["summary"]["required_coverage_pct"] == 100.0
+    assert report["summary"]["temporal_liveness_required_spec_count"] == 4
+    assert report["summary"]["temporal_liveness_covered_required_spec_count"] == 4
+    assert report["summary"]["temporal_liveness_coverage_pct"] == 100.0
+    assert report["summary"]["issue_count"] == 0
+    spec_ids = {row["spec_id"] for row in report["specs"]}
+    assert spec_ids >= REQUIRED_CLOSEOUT_INVARIANT_IDS
+    assert spec_ids >= REQUIRED_TEMPORAL_LIVENESS_INVARIANT_IDS
 
 
 def test_policy_design_formal_invariant_specs_reject_missing_evidence_artifact() -> None:

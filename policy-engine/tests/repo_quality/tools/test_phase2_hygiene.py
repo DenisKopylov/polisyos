@@ -7,6 +7,7 @@ import urllib.error
 from pathlib import Path
 
 import pytest
+
 from tools.lib.imports import ensure_repo_import_roots, is_type_checking_test
 from tools.ops_runners.migrations import migrate
 from tools.ops_runners.ukraine_data import pre_shard_lex_corpus

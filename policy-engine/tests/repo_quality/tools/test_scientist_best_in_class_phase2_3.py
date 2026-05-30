@@ -31,7 +31,7 @@ def test_phase2_3_gate_reports_missing_reference_token(tmp_path) -> None:
     repo.mkdir()
     (repo / "docs/reference/scientist").mkdir(parents=True)
     (repo / "docs/plans/active").mkdir(parents=True)
-    (repo / "src/polisyos/scientist/search").mkdir(parents=True)
+    (repo / "src/polisyos/scientist/methods/search").mkdir(parents=True)
     (repo / "src/polisyos/scientist/governance/human_review").mkdir(parents=True)
     (repo / "src/polisyos/scientist/evidence").mkdir(parents=True)
     (repo / "tools/ci").mkdir(parents=True)

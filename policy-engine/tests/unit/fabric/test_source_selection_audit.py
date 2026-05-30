@@ -57,13 +57,37 @@ def _data_forge_binding() -> dict[str, object]:
                 "role": "domain",
                 "snapshot_id": "domain-snapshot-R_wave13",
                 "snapshot_ref": "sha256:" + "4" * 64,
+                "release_id": "release-domain-R_wave13",
+                "release_manifest_ref": "cas://sha256/" + "4" * 64,
                 "manifest_ref": "cas://sha256/" + "4" * 64,
                 "manifest_artifact_id": "sha256:" + "4" * 64,
                 "artifact_ids": ["sha256:" + "4" * 64],
+                "merkle_root": "4" * 64,
+                "data_hash": "sha256:" + "4" * 64,
                 "read_api_surface": "ukraine",
                 "read_api_module": "polisyos.data_forge.read_api.ukraine",
+                "read_api_identity": "ukraine@domain-snapshot-R_wave13",
+                "runtime_event_ref": "event://data-forge/domain/R_wave13",
                 "published_at": "2026-05-15T00:00:00+00:00",
                 "freshness_ttl_seconds": 60 * 60 * 24 * 14,
+                "corpus_id": "corpus-domain",
+                "provenance_manifest_ref": "cas://sha256/" + "e" * 64,
+                "creation_time": "2026-05-15T00:00:00+00:00",
+                "lineage_refs": [
+                    "cas://sha256/" + "4" * 64,
+                    "event://data-forge/domain/ingest",
+                ],
+                "builder_revision": "git:policyos-w9c-fixture",
+                "transform_lineage": [
+                    {
+                        "step_id": "domain.normalize",
+                        "operation": "normalize",
+                        "input_refs": ["cas://sha256/" + "4" * 64],
+                        "output_refs": ["sha256:" + "4" * 64],
+                        "code_ref": "git:policyos-w9c-fixture",
+                        "config_ref": "cas://sha256/" + "e" * 64,
+                    }
+                ],
                 "quality_gates": [
                     {
                         "name": "domain_publish_quality",
@@ -71,6 +95,25 @@ def _data_forge_binding() -> dict[str, object]:
                         "artifact_id": "sha256:" + "4" * 64,
                     }
                 ],
+                "prov": {
+                    "entity": "data-forge:domain:snapshot",
+                    "activity": "data-forge:domain:publish",
+                    "agent": "team-data-forge",
+                },
+                "openlineage": {
+                    "namespace": "polisyos.data_forge",
+                    "job": {"name": "domain.publish"},
+                    "run": {"runId": "run-domain-R_wave13"},
+                    "outputs": [
+                        {
+                            "name": "domain-snapshot-R_wave13",
+                            "facets": {
+                                "dataHash": {"sha256": "4" * 64},
+                                "merkleRoot": {"sha256": "4" * 64},
+                            },
+                        }
+                    ],
+                },
             }
         ],
     }

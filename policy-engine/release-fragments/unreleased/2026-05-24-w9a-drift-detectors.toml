@@ -1,0 +1,38 @@
+id = "2026-05-24-w9a-drift-detectors"
+title = "Add advanced lifecycle drift detectors"
+type = "added"
+component = "scientist-governance"
+owner = "team-policyos-runtime"
+summary = "Add W9.A detector producers for calibration drift, fairness drift, policy-context drift, and source invalidation with sparse-history gating, affected-claim scope, and continuous-governance monitor events."
+evidence = [
+  "tests/unit/scientist/governance/continuous/detectors/test_drift_detectors.py",
+  "tests/unit/scientist/governance/continuous/detectors",
+]
+compatibility = "Additive Python API for experimental Scientist continuous governance; no OpenAPI, generated runtime client, or dashboard API changes."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.scientist.governance.continuous.detectors"
+migration = "Existing monitor event APIs continue to work; consumers may opt into the W9.A detector functions and sparse-history metadata before lifecycle bridging."
+api = "Adds detect_calibration_drift, detect_fairness_drift, detect_policy_context_drift, detect_source_invalidation, DriftDetectionResult, SparseHistoryPolicy, and detector event helpers."
+limitations = "Detector events are lifecycle signals, not independent claim evidence; sparse Insufficient/Thin histories warn without silently blocking closed PDCs."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/scientist/governance/README.md",
+]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "scientist-continuous-governance-drift-detectors"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: polisyos.scientist.governance.continuous.detectors"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "not_applicable"
+release_note = "Scientist continuous governance can now emit typed drift events for calibration, fairness, policy context, and source invalidation."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/scientist/governance/README.md",
+]
+runbook_docs = []

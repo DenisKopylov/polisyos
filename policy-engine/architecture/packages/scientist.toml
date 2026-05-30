@@ -80,42 +80,16 @@ validation_roots = [
   "src/polisyos/scientist/validation/verification",
 ]
 compatibility_shim_roots = [
-  "src/polisyos/scientist/claims",
-  "src/polisyos/scientist/provenance",
-  "src/polisyos/scientist/autotune",
   "src/polisyos/scientist/backtesting",
-  "src/polisyos/scientist/causal",
-  "src/polisyos/scientist/doe",
-  "src/polisyos/scientist/engine",
-  "src/polisyos/scientist/kernel",
-  "src/polisyos/scientist/llm",
-  "src/polisyos/scientist/memory",
-  "src/polisyos/scientist/orchestrator",
-  "src/polisyos/scientist/workflows",
-  "src/polisyos/scientist/compute/advanced_methods.py",
-  "src/polisyos/scientist/search",
   "src/polisyos/scientist/discovery",
-  "src/polisyos/scientist/research_dag",
-  "src/polisyos/scientist/workflows/selection.py",
-  "src/polisyos/scientist/continuous_governance",
-  "src/polisyos/scientist/human_review",
-  "src/polisyos/scientist/policy_verified",
-  "src/polisyos/scientist/verification",
 ]
 phase2_2_semantic_duplicate_root_status = "resolved_with_sunset_shims"
 phase2_2_closeout_registry = "architecture/name_registry.toml#phase2_2_scientist_parallel_closeout"
 phase2_2_shim_registry = "architecture/shims.toml"
 phase2_2_smoke_test = "tests/unit/scientist/methods/test_import_shims.py"
-phase2_2_active_root_rule = "claims, provenance, orchestrator, workflows, search, discovery, research_dag, continuous_governance, human_review, policy_verified, and verification are compatibility roots only; active implementation stays under evidence, orchestration, methods, governance, and validation."
+phase2_2_active_root_rule = "claims, search, discovery, and backtesting are compatibility roots only; provenance, workflows, research_dag, human_review, and engine legacy roots were retired after reaching tiny non-compat usage."
 legacy_layout_mirror = "architecture/packages/layout.toml"
 legacy_layout_status = "resolved_root_facade"
-
-[[duplicate_package_file_pair]]
-package_path = "src/polisyos/scientist/publishing"
-file_path = "src/polisyos/scientist/publisher.py"
-owner = "team-scientist"
-wave = "2.2"
-reason = "Wave 2.2 resolves the publishing package and publisher.py compatibility pair."
 
 [[duplicate_package_file_pair]]
 package_path = "src/polisyos/scientist/evidence"
@@ -157,6 +131,8 @@ allowed_dependencies = [
   "polisyos.scholar",
   "polisyos.data_forge.read_api",
   "polisyos.berl",
+  "polisyos.ddm",
+  "polisyos.obligation_graph",
 ]
 forbidden_dependencies = [
   "polisyos.runtime",
@@ -170,7 +146,7 @@ classification = "public_stable"
 facade_mode = "lazy_facade"
 registry_owner = "team-polisyos"
 reference_doc = "docs/reference/public-surface.md"
-supported_entrypoints = ["polisyos.scientist"]
+supported_entrypoints = ["polisyos.scientist", "polisyos.scientist.methods.research_dag"]
 major_subsystem = true
 notes = "Workflow orchestration facade for experiment execution and shared observability hooks."
 

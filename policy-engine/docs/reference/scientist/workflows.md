@@ -4,11 +4,11 @@ Related explanation: [Governance Model](../../explanation/governance-model.md).
 
 Owner: `@scientist-owners`
 Backup owner: `@platform-owners`
-Source of truth: `src/polisyos/scientist/api.py`, `src/polisyos/scientist/orchestration/workflows/builder.py`, `src/polisyos/scientist/orchestration/workflows/selection.py`, `src/polisyos/scientist/orchestration/workflows/default.py`, `src/polisyos/scientist/orchestration/workflows/discovery.py`, `src/polisyos/scientist/orchestration/workflows/causal_full.py`, `src/polisyos/scientist/orchestration/workflows/policy_verified.py`, `src/polisyos/scientist/orchestration/workflows/policy_design.py`, `src/polisyos/scientist/orchestration/engine/workflow_spec.py`, compatibility shim `src/polisyos/scientist/workflows/selection.py`, and workflow selection tests.
+Source of truth: `src/polisyos/scientist/api.py`, `src/polisyos/scientist/orchestration/workflows/builder.py`, `src/polisyos/scientist/orchestration/workflows/selection.py`, `src/polisyos/scientist/orchestration/workflows/default.py`, `src/polisyos/scientist/orchestration/workflows/discovery.py`, `src/polisyos/scientist/orchestration/workflows/causal_full.py`, `src/polisyos/scientist/orchestration/workflows/policy_verified.py`, `src/polisyos/scientist/orchestration/workflows/policy_design.py`, `src/polisyos/scientist/orchestration/engine/workflow_spec.py`, and workflow selection tests.
 
 > Owner lane: `L6 Scientist`  
 > Type: Manual reference (not generated).  
-> Source of truth: `src/polisyos/scientist/api.py`, `src/polisyos/scientist/orchestration/workflows/builder.py`, `src/polisyos/scientist/orchestration/workflows/selection.py`, `src/polisyos/scientist/orchestration/workflows/default.py`, `src/polisyos/scientist/orchestration/workflows/discovery.py`, `src/polisyos/scientist/orchestration/workflows/causal_full.py`, `src/polisyos/scientist/orchestration/workflows/policy_verified.py`, `src/polisyos/scientist/orchestration/workflows/policy_design.py`, `src/polisyos/scientist/orchestration/engine/workflow_spec.py`, compatibility shim `src/polisyos/scientist/workflows/selection.py`, and workflow selection tests.
+> Source of truth: `src/polisyos/scientist/api.py`, `src/polisyos/scientist/orchestration/workflows/builder.py`, `src/polisyos/scientist/orchestration/workflows/selection.py`, `src/polisyos/scientist/orchestration/workflows/default.py`, `src/polisyos/scientist/orchestration/workflows/discovery.py`, `src/polisyos/scientist/orchestration/workflows/causal_full.py`, `src/polisyos/scientist/orchestration/workflows/policy_verified.py`, `src/polisyos/scientist/orchestration/workflows/policy_design.py`, `src/polisyos/scientist/orchestration/engine/workflow_spec.py`, and workflow selection tests.
 
 Workflow execution has two layers:
 
@@ -78,25 +78,25 @@ Current builtin specs are:
 ## Validation
 
 ```bash
-uv run pytest tests/unit/scientist/workflows/test_workflow_specs.py tests/unit/scientist/workflows/test_builder_pinning.py -q
-uv run pytest tests/unit/scientist/workflows/test_workflow_selection.py tests/integration/scientist/test_workflow_reliability_scenarios.py -q
+uv run pytest tests/unit/scientist/orchestration/workflows/test_workflow_specs.py tests/unit/scientist/orchestration/workflows/test_builder_pinning.py -q
+uv run pytest tests/unit/scientist/orchestration/workflows/test_workflow_selection.py tests/integration/scientist/test_workflow_reliability_scenarios.py -q
 uv run pytest tests/performance/test_scientist_runtime_paths.py --benchmark-only --benchmark-warmup=on --benchmark-min-rounds=5 -q
 ```
 
 ## API Reference
 
-::: polisyos.scientist.workflows
+::: polisyos.scientist.orchestration.workflows
 
-::: polisyos.scientist.workflows.builder
+::: polisyos.scientist.orchestration.workflows.builder
 
-::: polisyos.scientist.workflows.selection
+::: polisyos.scientist.orchestration.workflows.selection
 
-::: polisyos.scientist.workflows.default
+::: polisyos.scientist.orchestration.workflows.default
 
-::: polisyos.scientist.workflows.discovery
+::: polisyos.scientist.orchestration.workflows.discovery
 
-::: polisyos.scientist.workflows.causal_full
+::: polisyos.scientist.orchestration.workflows.causal_full
 
-::: polisyos.scientist.workflows.policy_verified
+::: polisyos.scientist.orchestration.workflows.policy_verified
 
-::: polisyos.scientist.workflows.policy_design
+::: polisyos.scientist.orchestration.workflows.policy_design

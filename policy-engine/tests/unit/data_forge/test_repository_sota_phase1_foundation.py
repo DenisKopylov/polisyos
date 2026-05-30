@@ -26,8 +26,6 @@ RUNTIME_CONSUMER_PACKAGES = (
     "berl",
     "calibration",
     "ddm",
-    "ddm_15_7",
-    "synthetic_world",
 )
 READ_API_IGNORE_IMPORTS = (
     "polisyos.data_forge.read_api",
@@ -197,17 +195,17 @@ def test_schema_snapshot_quality_and_migration_baselines_use_public_facade(
 
 def test_runtime_consumers_are_bound_to_data_forge_read_api() -> None:
     import_contracts = tomllib.loads(
-        (ARCHITECTURE_ROOT / "import_contracts.toml").read_text(encoding="utf-8")
+        (ARCHITECTURE_ROOT / "imports" / "contracts.toml").read_text(encoding="utf-8")
     )
     package_boundaries = tomllib.loads(
-        (ARCHITECTURE_ROOT / "package_boundaries.toml").read_text(encoding="utf-8")
+        (ARCHITECTURE_ROOT / "packages" / "boundaries.toml").read_text(encoding="utf-8")
     )
     contract = _contract_by_name(
         import_contracts,
         "Runtime and Fabric consumers use Data Forge only through read_api",
     )
     public_surface = tomllib.loads(
-        (ARCHITECTURE_ROOT / "public_surface.toml").read_text(encoding="utf-8")
+        (ARCHITECTURE_ROOT / "public_surface" / "contract.toml").read_text(encoding="utf-8")
     )
     package_by_module = {item["module"]: item for item in package_boundaries["package"]}
     public_surface_by_module = {item["module"]: item for item in public_surface["package"]}

@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import uuid
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from polisyos.core.artifacts.async_store import (
     AsyncArtifactStoreAdapter,  # noqa: F401 - legacy monkeypatch surface
@@ -18,6 +19,14 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.contracts import (
+    BoundedLivenessConfig,
+    bounded_liveness_config_from_mapping,
+)
+from polisyos.scholar import (
+    SCHOLAR_ACADEMIC_EVIDENCE_SCHEMA_VERSION,
+    build_scholar_academic_evidence_report_from_web_bundle,
+)
 from polisyos.scholar.search.models import (
     QueryGraph,
     ResearchBrief,
@@ -28,8 +37,14 @@ from polisyos.scholar.search.models import (
     SearchConstraints,
     WebEvidenceBundle,
 )
+from polisyos.scholar_requirement import (
+    ScholarSupportRequirementSpec,
+    normalize_scholar_support_requirement_specs,
+)
 
 if TYPE_CHECKING:
+    from collections.abc import Mapping
+
     from polisyos.core.artifacts.protocol import ArtifactStore
     from polisyos.scholar.search.service import ScholarDeepSearchService
 
@@ -54,6 +69,15 @@ def _resolve_status_index_path(store: ArtifactStore, status_root: Path | None) -
     return base_root / "scholar_web_jobs" / "status_index.json"
 
 
+def _bundle_runtime_ref(bundle: WebEvidenceBundle, *, suffix: str) -> str:
+    payload = {
+        "suffix": suffix,
+        "bundle": bundle.model_dump(mode="json", exclude_none=True),
+    }
+    canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str)
+    return "sha256:" + hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
 class DeepResearchJobManager:
     """Manage background deep-search jobs and checkpoint snapshots."""
 
@@ -63,12 +87,14 @@ class DeepResearchJobManager:
         service: ScholarDeepSearchService,
         cas: ArtifactStore,
         status_root: Path | None = None,
+        liveness_config: BoundedLivenessConfig | Mapping[str, Any] | None = None,
     ) -> None:
         self._service = service
         self._cas = cas
         self._async_cas = ensure_async_artifact_store(cas)
         self._jobs: dict[str, _JobRecord] = {}
         self._status_index_path = _resolve_status_index_path(cas, status_root)
+        self._liveness_config = bounded_liveness_config_from_mapping(liveness_config)
         self._load_status_index()
 
     def submit(
@@ -78,6 +104,8 @@ class DeepResearchJobManager:
         brief: ResearchBrief | None = None,
         query_graph: QueryGraph | None = None,
         claim_texts: list[str] | None = None,
+        requirement_specs: list[ScholarSupportRequirementSpec | Mapping[str, Any]]
+        | None = None,
         constraints: SearchConstraints | None = None,
         budgets: SearchBudgetControls | None = None,
     ) -> str:
@@ -94,6 +122,7 @@ class DeepResearchJobManager:
                 brief=brief,
                 query_graph=query_graph,
                 claim_texts=claim_texts,
+                requirement_specs=requirement_specs,
                 constraints=constraints,
                 budgets=budgets,
                 resume_bundle=None,
@@ -127,6 +156,7 @@ class DeepResearchJobManager:
                 query_graph=checkpoint.query_graph,
                 claim_texts=[item.claim_text for item in checkpoint.bundle.claim_supports]
                 or [checkpoint.brief.question],
+                requirement_specs=checkpoint.requirement_specs,
                 constraints=checkpoint.constraints,
                 budgets=checkpoint.budgets,
                 resume_bundle=checkpoint.bundle,
@@ -154,12 +184,36 @@ class DeepResearchJobManager:
         checkpoint = ResearchJobCheckpoint.model_validate(payload)
         return checkpoint.bundle
 
-    async def wait(self, job_id: str) -> ResearchJobStatus:
+    async def wait(
+        self,
+        job_id: str,
+        *,
+        deadline_s: float | None = None,
+    ) -> ResearchJobStatus:
         """Await job completion and return the latest status snapshot."""
         if job_id not in self._jobs:
             raise KeyError(job_id)
         record = self._jobs[job_id]
         if record.task is not None:
+            liveness = self._liveness_config.resolve(
+                "scholar.deep_research_job",
+                requested_deadline_s=deadline_s,
+            )
+            done, _pending = await asyncio.wait({record.task}, timeout=liveness.deadline_s)
+            if not done:
+                record.task.cancel()
+                record.status = record.status.model_copy(
+                    update={
+                        "status": "escalated",
+                        "error": (
+                            "bounded_liveness_deadline_exceeded:"
+                            f"{liveness.producer_key}"
+                        ),
+                        "updated_at": datetime.now(UTC),
+                    }
+                )
+                self._persist_status_index()
+                return record.status
             await record.task
         return record.status
 
@@ -171,6 +225,8 @@ class DeepResearchJobManager:
         brief: ResearchBrief | None,
         query_graph: QueryGraph | None,
         claim_texts: list[str] | None,
+        requirement_specs: list[ScholarSupportRequirementSpec | Mapping[str, Any]]
+        | None,
         constraints: SearchConstraints | None,
         budgets: SearchBudgetControls | None,
         resume_bundle: WebEvidenceBundle | None,
@@ -178,6 +234,10 @@ class DeepResearchJobManager:
         record = self._jobs[job_id]
         record.status = record.status.model_copy(update={"status": "running"})
         self._persist_status_index()
+        scholar_requirements = normalize_scholar_support_requirement_specs(requirement_specs)
+        requirement_payloads = [
+            requirement.model_dump(mode="json") for requirement in scholar_requirements
+        ]
 
         brief_for_checkpoint = brief or ResearchBrief(question=question or "research")
         graph_for_checkpoint = query_graph or QueryGraph(brief=brief_for_checkpoint)
@@ -207,6 +267,7 @@ class DeepResearchJobManager:
                     query_graph=graph_for_checkpoint,
                     constraints=constraints,
                     budgets=budgets,
+                    requirement_specs=requirement_payloads,
                     bundle=bundle_for_checkpoint,
                     progress_events=progress_events,
                 )
@@ -229,10 +290,16 @@ class DeepResearchJobManager:
                 brief=brief,
                 query_graph=query_graph,
                 claim_texts=claim_texts,
+                requirement_specs=scholar_requirements,
                 constraints=constraints,
                 budgets=budgets,
                 progress_callback=_on_progress,
                 resume_bundle=resume_bundle,
+            )
+            scholar_evidence_ref = await self._persist_scholar_academic_evidence_async(
+                bundle,
+                job_id=job_id,
+                requirement_specs=scholar_requirements,
             )
             checkpoint_ref = await self._persist_checkpoint_async(
                 ResearchJobCheckpoint(
@@ -242,6 +309,7 @@ class DeepResearchJobManager:
                     query_graph=bundle.query_graph,
                     constraints=constraints,
                     budgets=budgets,
+                    requirement_specs=requirement_payloads,
                     bundle=bundle,
                     progress_events=progress_events,
                 )
@@ -250,6 +318,7 @@ class DeepResearchJobManager:
                 job_id=job_id,
                 status="completed",
                 checkpoint_artifact_id=str(checkpoint_ref.artifact_id),
+                scholar_academic_evidence_artifact_id=str(scholar_evidence_ref.artifact_id),
                 latest_event=progress_events[-1] if progress_events else None,
                 result_bundle=bundle,
                 updated_at=bundle.created_at,
@@ -257,6 +326,11 @@ class DeepResearchJobManager:
             self._persist_status_index()
             return bundle
         except Exception as exc:
+            scholar_evidence_ref = await self._persist_scholar_academic_evidence_async(
+                bundle_for_checkpoint,
+                job_id=job_id,
+                requirement_specs=scholar_requirements,
+            )
             checkpoint_ref = await self._persist_checkpoint_async(
                 ResearchJobCheckpoint(
                     job_id=job_id,
@@ -265,6 +339,7 @@ class DeepResearchJobManager:
                     query_graph=graph_for_checkpoint,
                     constraints=constraints,
                     budgets=budgets,
+                    requirement_specs=requirement_payloads,
                     bundle=bundle_for_checkpoint,
                     progress_events=progress_events,
                     error=str(exc),
@@ -274,6 +349,7 @@ class DeepResearchJobManager:
                 job_id=job_id,
                 status="failed",
                 checkpoint_artifact_id=str(checkpoint_ref.artifact_id),
+                scholar_academic_evidence_artifact_id=str(scholar_evidence_ref.artifact_id),
                 latest_event=progress_events[-1] if progress_events else None,
                 result_bundle=bundle_for_checkpoint,
                 error=str(exc),
@@ -289,6 +365,35 @@ class DeepResearchJobManager:
                 kind="scholar.web_research_checkpoint",
                 media_type="application/json",
                 schema=SchemaInfo(name="polisyos.scholar.web_research_checkpoint", version="1.0"),
+                producer=ProducerInfo(component="polisyos.scholar.search.jobs", version="1.0.0"),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+
+    async def _persist_scholar_academic_evidence_async(
+        self,
+        bundle: WebEvidenceBundle,
+        *,
+        job_id: str,
+        requirement_specs: list[ScholarSupportRequirementSpec] | None = None,
+    ) -> ArtifactRef:
+        report = build_scholar_academic_evidence_report_from_web_bundle(
+            scholar_evidence_ref=_bundle_runtime_ref(bundle, suffix="academic-evidence"),
+            bundle=bundle,
+            corpus_snapshot_ref=_bundle_runtime_ref(bundle, suffix="corpus-snapshot"),
+            lineage_ref=_bundle_runtime_ref(bundle, suffix="lineage"),
+            runtime_event_ref=f"event://scholar/deep-research/{job_id}/academic-evidence",
+            requirement_specs=requirement_specs,
+        )
+        return await self._async_cas.put_json(
+            report,
+            ArtifactWriteOptions(
+                kind="scholar.academic_evidence",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="polisyos.scholar.academic_evidence",
+                    version=SCHOLAR_ACADEMIC_EVIDENCE_SCHEMA_VERSION,
+                ),
                 producer=ProducerInfo(component="polisyos.scholar.search.jobs", version="1.0.0"),
             ),
             canon_spec=CanonSpec(forbid_floats=False),

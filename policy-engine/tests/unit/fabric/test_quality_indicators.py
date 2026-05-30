@@ -5,7 +5,7 @@ from datetime import UTC, datetime, timedelta
 import pandas as pd
 import pytest
 from polisyos.fabric.connectors.quality.statistics import AnomalyFinding, AnomalyReport
-from polisyos.fabric.fitness_report import DataFitnessReport, MetricFitness
+from polisyos.fabric.quality.fitness_report import DataFitnessReport, MetricFitness
 from polisyos.fabric.quality import (
     QualityIndicators,
     QualityLevel,
@@ -13,7 +13,7 @@ from polisyos.fabric.quality import (
     compute_quality_from_duckdb,
     compute_quality_indicators,
 )
-from polisyos.fabric.safety import UnsafeIdentifierError
+from polisyos.fabric.quality.safety import UnsafeIdentifierError
 
 
 class TestQualityIndicatorsCalculation:

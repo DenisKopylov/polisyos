@@ -23,7 +23,7 @@ from polisyos.core.contracts.runtime import (
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from polisyos.fabric.decision_data import FabricDecisionData, FabricDecisionDataCoverage
+    from polisyos.fabric.evidence.decision_data import FabricDecisionData, FabricDecisionDataCoverage
 
     from .lineage import LineageService
     from .run_index import IndexedRunRecord

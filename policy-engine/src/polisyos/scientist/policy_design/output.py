@@ -34,7 +34,7 @@ from polisyos.ir.analytics.distributional import (
     DistributionalReport,
     ImpactDirection,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     FiscalFeedbackLinkRef,
     IncentiveCompatibilityCertificateRef,
     MechanismWelfareLossBoundRef,

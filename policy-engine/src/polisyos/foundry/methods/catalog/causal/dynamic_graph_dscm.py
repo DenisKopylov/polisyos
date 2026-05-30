@@ -64,7 +64,7 @@ from polisyos.ir.analytics.phase4_dynamics import (
     build_temporal_graph_causal_certificate,
     persist_temporal_graph_causal_certificate,
 )
-from polisyos.ir.refs import TemporalGraphCausalCertificateRef
+from polisyos.ir.registry.refs import TemporalGraphCausalCertificateRef
 
 _METHOD_ID = "causal.dynamic_graph.dscm"
 _TRACK_ID = "causal.3.4.continuous_time_dscm"

@@ -2,7 +2,10 @@ from __future__ import annotations
 
 # ruff: noqa: S101
 import json
+import os
 from pathlib import Path
+
+import pytest
 
 from tools.quality.validation import (
     build_policy_design_case_wave35e as wave35e,
@@ -21,6 +24,18 @@ from tools.quality.validation import (
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
+WAVE35_STAGE_PREREQUISITES = (
+    REPO_ROOT / "_build/policy-design-case/rebaseline/wave-35/pass2_disposition.json",
+    REPO_ROOT / "_build/policy-design-case/rebaseline/wave-35F/runtime_enforcement_gap_ledger.json",
+)
+pytestmark = pytest.mark.skipif(
+    os.environ.get("POLISYOS_RUN_STAGED_REBASELINE_TESTS") != "1"
+    or not all(path.exists() for path in WAVE35_STAGE_PREREQUISITES),
+    reason=(
+        "staged Wave 35F/G rebaseline check; set POLISYOS_RUN_STAGED_REBASELINE_TESTS=1 "
+        "after running the policy-design-case rebaseline pipeline"
+    ),
+)
 ARTIFACT_PATH = (
     REPO_ROOT / "_build/policy-design-case/rebaseline/wave-35G/"
     "projection_fail_closed_runtime_backfill.json"

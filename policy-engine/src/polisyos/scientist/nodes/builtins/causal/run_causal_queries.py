@@ -22,7 +22,7 @@ from polisyos.ir.analytics.causal_queries import (
 )
 from polisyos.ir.analytics.structural_causal_model import load_structural_causal_model_spec
 from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope, persist_uncertainty_envelope
-from polisyos.ir.refs import StructuralCausalModelSpecRef
+from polisyos.ir.registry.refs import StructuralCausalModelSpecRef
 from polisyos.scientist.compute.job_spec import JobSpec
 from polisyos.scientist.compute.runner import run_job
 from polisyos.scientist.orchestration.engine.context import ExecutionContext

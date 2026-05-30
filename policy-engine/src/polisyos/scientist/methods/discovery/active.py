@@ -14,7 +14,10 @@ from polisyos.foundry.methods.catalog.causal.optimal_design import (
 )
 from polisyos.ir.analytics.causal_queries import CausalQuery
 from polisyos.ir.analytics.negative_certificate import BlockingType, NegativeCertificate
-from polisyos.scientist.methods.discovery.aggregator import EdgeConfidenceEntry, EdgeConfidenceMatrix
+from polisyos.scientist.methods.discovery.aggregator import (
+    EdgeConfidenceEntry,
+    EdgeConfidenceMatrix,
+)
 from polisyos.scientist.methods.discovery.priors import GraphPriorBundle, PriorKnowledgeBundle
 from polisyos.scientist.methods.discovery.schema import GraphHypothesis
 from polisyos.scientist.methods.discovery.stability import BootstrapStabilityReport

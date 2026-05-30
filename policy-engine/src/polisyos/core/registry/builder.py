@@ -156,7 +156,7 @@ def build_registry_bundle(
             store,
             obj=predicate_registry,
             kind="ir.predicate_registry",
-            schema_name="polisyos.ir.predicate.PredicateRegistry",
+            schema_name="polisyos.ir.model_layer.predicate.PredicateRegistry",
         )
 
     privacy_ref = None
@@ -165,7 +165,7 @@ def build_registry_bundle(
             store,
             obj=privacy_registry,
             kind="ir.privacy_registry",
-            schema_name="polisyos.ir.predicate.PrivacyPolicyRegistry",
+            schema_name="polisyos.ir.model_layer.predicate.PrivacyPolicyRegistry",
         )
 
     payload = RegistryBundlePayload(

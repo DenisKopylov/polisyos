@@ -4,7 +4,7 @@ from polisyos.ir.analytics.simulation_proof_bridge import (
     SimulationCertificationStatus,
     SimulationProofBridge,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     ArtifactRefModel,
     EvidenceBundleRef,
     InterfaceMappingRef,

@@ -11,7 +11,7 @@ from typing import Any
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
-from polisyos.ir.canon import CanonSpec, content_hash, to_canonical_bytes
+from polisyos.ir.model_layer.canon import CanonSpec, content_hash, to_canonical_bytes
 
 
 class WorldFamily(str, Enum):

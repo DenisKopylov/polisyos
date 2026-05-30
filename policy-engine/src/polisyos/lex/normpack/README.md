@@ -7,7 +7,7 @@
 
 ## Роль в системе
 
-- **Зависит от:** `polisyos.data_forge.read_api.legal`, `polisyos.fabric.claims`, `polisyos.core.components`, `polisyos.ir.norm_pack`
+- **Зависит от:** `polisyos.data_forge.read_api.legal`, `polisyos.fabric.claims`, `polisyos.core.components`, `polisyos.ir.loading.norm_pack`
 - **Используется в:** `polisyos.lex.legal_evaluation`, `polisyos.lex.simulator`, policy validation flows
 - Пакет переводит corpus/provision evidence в executable legal rules для compliance и what-if analysis.
 
@@ -19,6 +19,10 @@
 - **Applicability windows** — `applicability.py` вычисляет `NormApplicability` по validity intervals claims.
 - **Conflict resolution** — competing claims проходят через `fabric.claims.resolve_conflicts`, а не затираются локально.
 - **Budgeted assembly** — `max_docs`, `max_provisions` и `max_claims` держат сборку в предсказуемых resource limits.
+- **Legal authority requirements** — W7.B authority evaluation consumes
+  `polisyos.legal_requirement.LegalAuthorityRequirementSpec`; broad
+  jurisdiction/topic hits remain `context_only` until claim-level competence
+  facets satisfy the compiled requirement.
 
 ## Public API
 
@@ -28,6 +32,7 @@
 | `NormPackBuildRequest`, `NormPackBuildResult` | Input/output contracts for pack assembly           |
 | `NormPackBudgets`                             | Resource budgets for doc/provision/claim selection |
 | `select_sources.py`                           | Source and active-version selection logic          |
+| `legal_authority.py`                          | Claim-level authority adapter over compiled legal requirements |
 
 Full reference: [docs/reference/lex/](../../../../docs/reference/lex/index.md)
 

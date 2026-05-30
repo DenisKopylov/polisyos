@@ -23,7 +23,7 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
     UncertaintySource,
 )
-from polisyos.ir.refs import DynamicMicrosimValidationReportRef, FiscalFeedbackLinkRef
+from polisyos.ir.registry.refs import DynamicMicrosimValidationReportRef, FiscalFeedbackLinkRef
 
 
 def _to_numpy(value: Any) -> np.ndarray:

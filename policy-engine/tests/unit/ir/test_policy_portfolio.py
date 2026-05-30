@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import pytest
+
 from polisyos.ir.governance.policy_spec import PolicySpec
-from polisyos.ir.portfolio import InteractionMatrix, PolicyInteraction, PolicyPortfolio
+from polisyos.ir.loading.portfolio import InteractionMatrix, PolicyInteraction, PolicyPortfolio
 
 
 def _portfolio_three() -> PolicyPortfolio:

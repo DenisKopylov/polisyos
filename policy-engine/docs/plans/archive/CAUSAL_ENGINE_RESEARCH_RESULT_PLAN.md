@@ -394,7 +394,7 @@ PolicyOS решает LP через `scipy.optimize.linprog(..., method="highs")
 
 Предлагаемое изменение:
 
-- В `polisyos.ir.refs` добавить типизированный ref:
+- В `polisyos.ir.registry.refs` добавить типизированный ref:
   - `class DualCertificateRef(ArtifactRefModel): kind = "ir.dual_certificate", media_type="application/json"`
   По образцу `BoundsBundleRef` и других refs.
 
@@ -9993,7 +9993,7 @@ merged_readiness_cap = resolve_from_judge(merged_bundle)
   defines `InterventionCostManifold`, `OptimalRecourseInterventionQuery`,
   `RecourseProofBundle`, `RecourseFeasibilityCertificate`, and
   `OptimalRecourseInterventionBundle`, plus `persist_*`/`load_*` helpers.
-- Typed refs: added to `polisyos.ir.refs` and re-exported via
+- Typed refs: added to `polisyos.ir.registry.refs` and re-exported via
   `polisyos.core.contracts.causal`
   (`InterventionCostManifoldRef`, `OptimalRecourseInterventionQueryRef`,
   `RecourseProofBundleRef`, `RecourseFeasibilityCertificateRef`,

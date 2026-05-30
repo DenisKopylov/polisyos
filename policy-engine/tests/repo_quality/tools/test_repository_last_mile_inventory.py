@@ -47,7 +47,7 @@ def test_inventory_reports_all_last_mile_findings_with_gate_fields() -> None:
     assert {finding["finding_id"] for finding in findings} == EXPECTED_FINDING_IDS
 
     for finding in findings:
-        assert REQUIRED_FINDING_FIELDS <= set(finding), finding["finding_id"]
+        assert set(finding) >= REQUIRED_FINDING_FIELDS, finding["finding_id"]
         assert isinstance(finding["paths"], list), finding["finding_id"]
         assert finding["count"] == len(finding["paths"]), finding["finding_id"]
         assert finding["kind"], finding["finding_id"]
@@ -68,8 +68,8 @@ def test_inventory_captures_phase_0_1_last_mile_regressions() -> None:
     scientist_loose = by_id["LM-001"]
     assert scientist_loose["kind"] == "package_root_loose_python"
     assert scientist_loose["package"] == "scientist"
-    assert scientist_loose["count"] >= 11
-    assert "src/polisyos/scientist/publisher.py" in scientist_loose["paths"]
+    assert scientist_loose["count"] <= 1
+    assert scientist_loose["paths"] in ([], ["src/polisyos/scientist/api.py"])
 
     single_file_shells = by_id["LM-002"]
     assert single_file_shells["kind"] == "single_file_shell_package"
@@ -83,26 +83,20 @@ def test_inventory_captures_phase_0_1_last_mile_regressions() -> None:
     assert by_id["LM-003"]["current_status"] == "not_observed"
     assert by_id["LM-004"]["paths"] == [
         "src/polisyos/scientist/orchestration",
-        "src/polisyos/scientist/orchestrator",
     ]
 
     semantic_pairs = {
         tuple(pair["paths"])
         for pair in by_id["LM-005"]["metadata"]["semantic_pairs"]
     }
-    assert (
-        "src/polisyos/scientist/publishing",
-        "src/polisyos/scientist/publisher.py",
-    ) in semantic_pairs
-    assert (
-        "src/polisyos/scientist/evidence",
-        "src/polisyos/scientist/evidence_sources.py",
-    ) in semantic_pairs
+    assert semantic_pairs == set()
+    assert by_id["LM-005"]["current_status"] == "not_observed"
 
     assert by_id["LM-015"]["kind"] == "cross_cutting_concern_duplicate"
     assert by_id["LM-015"]["count"] > 0
     assert by_id["LM-016"]["kind"] == "scientist_parallel_family"
-    assert by_id["LM-016"]["count"] > 0
+    assert by_id["LM-016"]["count"] == 0
+    assert by_id["LM-016"]["current_status"] == "not_observed"
     assert by_id["LM-017"]["kind"] == "repeated_cross_package_name"
     assert by_id["LM-017"]["count"] > 0
 
@@ -122,7 +116,9 @@ def test_inventory_records_sunset_metadata_and_schema_residue() -> None:
             "source",
         }
 
-    assert by_id["LM-006"]["sunset"]["sunset_date"] == "2026-07-31"
+    assert by_id["LM-006"]["count"] == 0
+    assert by_id["LM-006"]["current_status"] == "not_observed"
+    assert by_id["LM-006"]["sunset"]["sunset_date"] is None
     assert by_id["LM-010"]["sunset"]["source"] is None
     assert by_id["LM-012"]["sunset"]["source"] == "frontend/README.md"
     for finding_id in ("LM-010", "LM-012"):

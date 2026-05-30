@@ -14,7 +14,7 @@ name = "Layered architecture"
 type = "layers"
 layers = [
   "polisyos.runtime",
-  "polisyos.scientist | polisyos.berl | polisyos.calibration | polisyos.ddm | polisyos.synthetic_world",
+  "polisyos.scientist | polisyos.berl | polisyos.calibration | polisyos.ddm",
   "polisyos.scholar | polisyos.foundry | polisyos.lex | polisyos.data_forge | polisyos.fabric",
   "polisyos.core",
   "polisyos.ir",
@@ -42,7 +42,6 @@ forbidden_modules = [
   "polisyos.berl",
   "polisyos.calibration",
   "polisyos.ddm",
-  "polisyos.synthetic_world",
 ]
 
 [[importlinter.contracts]]
@@ -61,7 +60,6 @@ forbidden_modules = [
   "polisyos.berl",
   "polisyos.calibration",
   "polisyos.ddm",
-  "polisyos.synthetic_world",
 ]
 ignore_imports = [
   "polisyos.data_forge.read_api",
@@ -83,7 +81,6 @@ forbidden_modules = [
   "polisyos.berl",
   "polisyos.calibration",
   "polisyos.ddm",
-  "polisyos.synthetic_world",
 ]
 
 # ---------------------------------------------------------------------------
@@ -114,7 +111,6 @@ source_modules = [
   "polisyos.berl",
   "polisyos.calibration",
   "polisyos.ddm",
-  "polisyos.synthetic_world",
 ]
 forbidden_modules = [
   "polisyos.data_forge",
@@ -145,7 +141,6 @@ forbidden_modules = [
   "polisyos.berl",
   "polisyos.calibration",
   "polisyos.ddm",
-  "polisyos.synthetic_world",
 ]
 
 [[importlinter.contracts]]
@@ -185,7 +180,6 @@ source_modules = [
   "polisyos.berl",
   "polisyos.calibration",
   "polisyos.ddm",
-  "polisyos.synthetic_world",
 ]
 forbidden_modules = [
   "polisyos.runtime.http",
@@ -211,7 +205,6 @@ forbidden_modules = [
   "polisyos.berl._private",
   "polisyos.calibration._private",
   "polisyos.ddm._private",
-  "polisyos.synthetic_world._private",
   "polisyos.data_forge.kernel",
   "polisyos.data_forge.domains",
 ]
@@ -238,7 +231,6 @@ source_modules = [
   "polisyos.berl",
   "polisyos.calibration",
   "polisyos.ddm",
-  "polisyos.synthetic_world",
 ]
 forbidden_modules = [
   "polisyos.academic",

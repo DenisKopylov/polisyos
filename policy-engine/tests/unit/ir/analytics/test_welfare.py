@@ -22,7 +22,7 @@ from polisyos.ir.analytics.welfare import (
     persist_ge_uncertainty_bundle,
     persist_welfare_bundle,
 )
-from polisyos.ir.refs import ArtifactRefModel
+from polisyos.ir.registry.refs import ArtifactRefModel
 from pydantic import ValidationError
 
 

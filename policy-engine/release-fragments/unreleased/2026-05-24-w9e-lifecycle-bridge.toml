@@ -1,0 +1,38 @@
+id = "2026-05-24-w9e-lifecycle-bridge"
+title = "Add continuous governance to claim lifecycle bridge"
+type = "added"
+component = "scientist-governance"
+owner = "team-policyos-runtime"
+summary = "Add W9.E typed bridge from continuous-governance detector events to append-only claim lifecycle transitions, scoped public revision state, validity reports, and partial reissue packets."
+evidence = [
+  "tests/unit/scientist/governance/continuous/test_lifecycle_bridge.py",
+  "tests/unit/scientist/governance/continuous",
+]
+compatibility = "Additive Python API for experimental Scientist continuous governance; no OpenAPI, generated runtime client, or dashboard API changes."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.scientist.governance.continuous"
+migration = "Existing monitor, validity report, incident, and reissue APIs continue to work; consumers may opt into LifecycleBridgeResult and bridge_governance_events_to_claim_lifecycle for detector-to-claim lifecycle orchestration."
+api = "Adds LifecycleBridgeResult, LifecycleBridgeBlocker, bridge_governance_events_to_claim_lifecycle, lifecycle bridge CAS persistence helpers, and claim lifecycle actions for review_required, reissued, and withdrawn."
+limitations = "The bridge preserves detector and evidence authority boundaries; public revision state is projection-only and cannot mint claim evidence authority, mandatory revalidation policy, or silent current-logic upgrades."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/scientist/governance/README.md",
+]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "scientist-continuous-governance-lifecycle-bridge"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: polisyos.scientist.governance.continuous"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "not_applicable"
+release_note = "Scientist continuous governance now maps detector events into append-only claim lifecycle transitions and scoped public revision state."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/scientist/governance/README.md",
+]
+runbook_docs = []

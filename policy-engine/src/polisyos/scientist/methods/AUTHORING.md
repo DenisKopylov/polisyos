@@ -4,11 +4,11 @@
 
 - New search, discovery, and research DAG code imports canonical modules from
   `polisyos.scientist.methods.*`.
-- Legacy `polisyos.scientist.search`, `polisyos.scientist.discovery`, and
-  `polisyos.scientist.research_dag` imports are compatibility-only and carry a
-  shim sunset of `2027-03-02`.
-- Preserve public artifact schema names unless a separate schema migration is
-  accepted.
+- Legacy `polisyos.scientist.search`, `polisyos.scientist.backtesting`,
+  `polisyos.scientist.discovery`, and `polisyos.scientist.research_dag` import
+  surfaces are retired. Keep explicit negative import tests for retired roots.
+- New public artifact schema names use canonical `polisyos.scientist.methods.*`
+  ownership unless a separate schema migration accepts a retained legacy name.
 
 ## Placement
 
@@ -24,5 +24,4 @@
 ## Tests
 
 Add canonical-path tests under `tests/unit/scientist/methods/**`. Keep
-compatibility assertions for old public imports whenever a legacy import path is
-changed or extended.
+negative import-surface assertions whenever a legacy import path is retired.

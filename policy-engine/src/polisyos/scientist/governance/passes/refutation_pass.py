@@ -13,7 +13,7 @@ from polisyos.ir.analytics.causal import (
     RefutationTestType,
     load_causal_effect_report,
 )
-from polisyos.ir.refs import CausalEffectReportRef
+from polisyos.ir.registry.refs import CausalEffectReportRef
 from polisyos.scientist.governance.passes._artifact_resolution import (
     resolve_optional_artifact_model,
 )

@@ -22,8 +22,8 @@ from polisyos.ir.analytics.kernel_causal import (
     KernelSpec,
     KernelTargetRepresentation,
 )
-from polisyos.ir.canon import content_hash, to_canonical_bytes
-from polisyos.ir.refs import EstimandASTRef, ProofBundleRef
+from polisyos.ir.model_layer.canon import content_hash, to_canonical_bytes
+from polisyos.ir.registry.refs import EstimandASTRef, ProofBundleRef
 
 
 def should_request_kernel_lowering(

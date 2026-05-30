@@ -3,10 +3,14 @@
 Related runbooks: [Honest Diagnostics Operator Triage](honest-diagnostics.md),
 [Production Quality Triage](production-quality-triage.md),
 [Production Quality Canary](production-quality-canary.md), and
-[Replay or Restore Workflow](replay-or-restore.md).
+[Replay or Restore Workflow](replay-or-restore.md). For promotion, hold,
+rollback, or kill-switch work, use
+[Policy Design Case Rollout And Rollback](policy-design-case-rollout-rollback.md).
 
 Related reference:
 [Policy Design Best-In-Class Operating Model](../system-design-decisions/policy-design-best-in-class-operating-model.md),
+[Policy Design Case Operator Guide](../reference/policy-design-case-operator-guide.md),
+[Policy Design Case Evidence Paths](../reference/policy-design-case-evidence-paths.md),
 [Production Quality Approval](../reference/runtime/production-quality-approval.md),
 [Runtime Quality Scorecard](../reference/runtime/quality-scorecard.md), and
 [Run Cost Proportionality Ledger](../reference/runtime/run-cost-proportionality-ledger.md).
@@ -22,10 +26,15 @@ Evidence path: `quality_evidence/policy_design_case.json`,
 `quality_evidence/decision_artifact_quality.json`,
 `quality_evidence/replay_manifest.json`, Wave 35H provenance artifacts under
 `_build/policy-design-case/rebaseline/wave-35H/`, and Wave 40 closeout artifacts
-under `_build/policy-design-case/rebaseline/wave-40/`.
-Rollback path: stop promotion, preserve the original bundle and runtime CAS refs,
-quarantine public/dashboard/API projections, and rerun only the producer that
-owns the missing or contradictory record family.
+under `_build/policy-design-case/rebaseline/wave-40/`. Durable command-evidence
+and closeout-note paths follow
+`docs/reference/policy-design-case-evidence-paths.md`.
+Rollback path: follow
+`docs/runbooks/policy-design-case-rollout-rollback.md`; stop promotion,
+preserve the original bundle and runtime CAS refs, quarantine
+public/dashboard/API/export projections, disable or downgrade the affected
+feature flags and tuned configs, and rerun only the producer that owns the
+missing or contradictory record family.
 
 Use this runbook when a serious PolicyOS run cannot close because the Policy
 Design Case is missing, incomplete, divergent, too weak for the requested
@@ -135,6 +144,50 @@ authority profile, or projected more strongly than runtime evidence permits.
 | Human oversight, consultation, structured judgement | governance reviewers | `@platform-owners` |
 | Publication trust, external audit, archive | `@core-audit-owners` | security and compliance reviewers |
 
+## Acquisition Strategy Ownership
+
+Use this section when scorecards, resolver output, or
+`capability_white_space_report_v1.json` show `blocked_construct_not_observed`,
+`blocked_acquisition_required`, `blocked_construct_validity_below_floor`,
+`blocked_sample_size_below_floor`, `blocked_freshness`,
+`blocked_rights_boundary`, or `blocked_authority_boundary`.
+
+1. Open the primary capability index, not a copied status string:
+
+   ```bash
+   uv run python tools/quality/validation/production_quality_evidence_inventory.py \
+     --capability-index "$CAPABILITY_INDEX_DUCKDB" \
+     --output _build/.tmp/production-quality/capability-white-space-triage.json
+   ```
+
+2. For each failure node, identify the grouped row by construct, domain,
+   authority posture, and producer owner. If any grouping is missing, treat the
+   report as invalid and route to `@runtime-owners`.
+3. Confirm every `acquisition_strategy_ref` resolves to an owned strategy with
+   owner team, legal counsel owner when government/official/administrative data
+   is involved, estimated cost, estimated time, prerequisites, resulting
+   authority envelope, contact path, TTL, review cadence, and escalation owner.
+4. Add a new strategy only by updating the capability-index producer or its
+   governed fixture source. Do not paste strategy notes into an incident ticket
+   as if they were runtime authority.
+5. Review active acquisition and proxy strategies at their `review_cadence`.
+   When `ttl` expires without evidence, escalate to the strategy
+   `escalation_owner` and keep closeout blocked or demoted according to the
+   failure node authority posture.
+6. Sunset a strategy only after one of these closure events is recorded in the
+   capability index: acquired producer-backed capability supersedes the gap,
+   legal counsel rejects the acquisition path, construct validity review fails,
+   or the policy claim is explicitly scoped out. The sunset note must preserve
+   the previous strategy id, owner, reason, and replacement or out-of-scope
+   authority policy.
+
+For `credit_program_enrollment`, the expected active strategies are
+`acquire_from_nbu_registry`, `derive_proxy_from_tax_relief_records`, and
+`simulation_only_dynamic_treatment`. The simulation route is advisory/modeling
+support only and must remain blocked for production claim evidence unless a
+producer-backed observed or validated equivalent is emitted under a new
+authority envelope.
+
 ## Closeout Record
 
 Every incident note must include:
@@ -150,3 +203,9 @@ Every incident note must include:
 - rerun commands and output paths;
 - explicit residual limitations if the run remains blocked, demoted,
   quarantined, or outside public/production scope.
+
+Accepted phase or wave closeout notes should be promoted to
+`docs/archive/reports/YYYY-MM-DD-policy-design-case-<wave-or-phase>-closeout.md`
+with optional sibling `.json` when structured evidence exists. `_build/.tmp/`
+or `_build/policy-design-case/` output may support the note, but it is not the
+durable operator memory by itself.

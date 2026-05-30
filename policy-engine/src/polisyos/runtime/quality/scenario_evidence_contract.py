@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Any, Literal, Mapping
+from typing import Any, Literal
+
+from polisyos.data_requirement import DataRequirementCompiler, DataRequirementSpec
 
 SCENARIO_EVIDENCE_CONTRACT_SCHEMA_VERSION = "policyos.scenario_evidence_contract.v1"
 
@@ -72,6 +75,11 @@ OWNER_BY_DOMAIN: dict[RequirementDomain, str] = {
     "claim": "team-policy-semantics",
     "governance": "team-runtime-quality",
 }
+LEGACY_SCENARIO_FAMILY_ORDER = (
+    "production_msme_panel",
+    "credit_program_registry",
+    "regional_displacement_indicators",
+)
 
 
 @dataclass(frozen=True)
@@ -122,6 +130,8 @@ class ScenarioEvidenceContract:
     title: str | None
     pack: str | None
     requirements: tuple[ScenarioEvidenceRequirement, ...]
+    admissible_data_source_families: tuple[str, ...]
+    data_requirement_specs: tuple[DataRequirementSpec, ...]
 
     def to_dict(self) -> dict[str, Any]:
         """Return a JSON-serializable representation."""
@@ -134,6 +144,12 @@ class ScenarioEvidenceContract:
             "pack": self.pack,
             "requirements": [item.to_dict() for item in self.requirements],
             "requirement_count": len(self.requirements),
+            "admissible_data_source_families": list(
+                self.admissible_data_source_families
+            ),
+            "data_requirement_specs": [
+                item.model_dump(mode="json") for item in self.data_requirement_specs
+            ],
         }
 
 
@@ -168,13 +184,22 @@ def normalize_scenario_evidence_contract(
     )
     rights_scope = _optional_text(metadata.get("rights_scope")) or "public_policy_research"
     claim_scope = _claim_scope(expected)
+    data_requirement_report = DataRequirementCompiler().compile_for_scenario(scenario)
+    admissible_data_source_families = _legacy_scenario_family_projection(
+        expected,
+        data_requirement_report.legacy_admissible_data_source_families,
+    )
+    data_requirement_specs = _legacy_data_requirement_specs(
+        data_requirement_report.specs,
+        admissible_data_source_families,
+    )
     requirements: list[ScenarioEvidenceRequirement] = []
 
     requirements.extend(
         _requirements_for_values(
             scenario_id=scenario_id,
             domain="data",
-            values=expected.get("admissible_data_source_families"),
+            values=admissible_data_source_families,
             facets=DATA_REQUIRED_FACETS,
             claim_scope=claim_scope,
             jurisdiction=jurisdiction,
@@ -252,6 +277,50 @@ def normalize_scenario_evidence_contract(
         title=_optional_text(scenario.get("title")),
         pack=_optional_text(scenario.get("pack")),
         requirements=tuple(requirements),
+        admissible_data_source_families=admissible_data_source_families,
+        data_requirement_specs=data_requirement_specs,
+    )
+
+
+def _legacy_scenario_family_projection(
+    expected: Mapping[str, Any],
+    compiled_families: tuple[str, ...],
+) -> tuple[str, ...]:
+    expected_families = _text_tuple(expected.get("admissible_data_source_families"))
+    legacy_family_set = set(LEGACY_SCENARIO_FAMILY_ORDER)
+    if expected_families and set(expected_families) <= legacy_family_set:
+        return tuple(
+            family for family in LEGACY_SCENARIO_FAMILY_ORDER if family in expected_families
+        )
+
+    compiled_legacy_families = tuple(
+        family for family in LEGACY_SCENARIO_FAMILY_ORDER if family in compiled_families
+    )
+    return compiled_legacy_families or expected_families or compiled_families
+
+
+def _legacy_data_requirement_specs(
+    specs: tuple[DataRequirementSpec, ...],
+    legacy_families: tuple[str, ...],
+) -> tuple[DataRequirementSpec, ...]:
+    family_order = {family: index for index, family in enumerate(legacy_families)}
+    filtered = [
+        spec
+        for spec in specs
+        if spec.required_data_families
+        and spec.required_data_families[0] in family_order
+    ]
+    if not filtered:
+        return specs
+    return tuple(
+        sorted(
+            filtered,
+            key=lambda spec: (
+                family_order[spec.required_data_families[0]],
+                spec.claim_id,
+                spec.requirement_id,
+            ),
+        )
     )
 
 
@@ -259,7 +328,12 @@ def evaluate_source_family_binding(
     requirement: ScenarioEvidenceRequirement | Mapping[str, Any],
     selected_source_family: str,
 ) -> dict[str, Any]:
-    """Evaluate whether a selected source family satisfies a data requirement."""
+    """Evaluate the legacy source-family compatibility projection.
+
+    Scenario-family strings are kept only for old dashboards and audit views.
+    Matching the projected family name does not grant evidence authority; current
+    authority must come from construct/capability bindings compiled elsewhere.
+    """
 
     requirement_dict = (
         requirement.to_dict()
@@ -268,17 +342,33 @@ def evaluate_source_family_binding(
     )
     expected = _required_text(requirement_dict.get("expected_family"), "expected_family")
     selected = _required_text(selected_source_family, "selected_source_family")
-    satisfied = (
+    projected_match = (
         requirement_dict.get("domain") == "data"
         and selected.casefold() == expected.casefold()
     )
+    if projected_match:
+        return {
+            "requirement_id": requirement_dict.get("requirement_id"),
+            "status": "compatibility_projection_only",
+            "selected_ref": selected,
+            "expected_family": expected,
+            "blocker_code": "scenario_family_authority_lookup_sunset",
+            "authority_granted": False,
+            "missing_facets": list(requirement_dict.get("required_facets") or ()),
+            "replacement": "capability_index_v1",
+            "may_not_use_for": [
+                "scenario_family_authority_lookup",
+                "source_family_authority_decision_path",
+            ],
+        }
     return {
         "requirement_id": requirement_dict.get("requirement_id"),
-        "status": "satisfied" if satisfied else "failed",
+        "status": "failed",
         "selected_ref": selected,
         "expected_family": expected,
-        "blocker_code": None if satisfied else "source_family_mismatch",
-        "missing_facets": [] if satisfied else list(requirement_dict.get("required_facets") or ()),
+        "blocker_code": "source_family_mismatch",
+        "authority_granted": False,
+        "missing_facets": list(requirement_dict.get("required_facets") or ()),
     }
 
 

@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import re
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from typing import Any
 
 from polisyos.runtime.quality.ddm_monitoring import (
@@ -20,6 +23,14 @@ CASE_LIFECYCLE_SCHEMA_VERSION = "policyos.runtime.policy_design_case.case_lifecy
 CASE_LIFECYCLE_CONTRACT_ID = "policy_design_case.case_lifecycle.v1"
 EX_POST_LEARNING_SCHEMA_VERSION = "policyos.runtime.policy_design_case.ex_post_learning.v1"
 EX_POST_LEARNING_CONTRACT_ID = "policy_design_case.ex_post_learning.v1"
+LIFECYCLE_REISSUE_REPORT_SCHEMA_VERSION = (
+    "policyos.runtime.policy_design_case.lifecycle_reissue_report.v1"
+)
+LIFECYCLE_REISSUE_CONTRACT_ID = "policy_design_case.lifecycle_reissue_report.v1"
+PUBLIC_REVISION_STATE_SCHEMA_VERSION = (
+    "policyos.runtime.policy_design_case.public_revision_state.v1"
+)
+RULE_EVOLUTION_PUBLIC_POLICY_ADR_BLOCKER = "ADR-TBD-rule-evolution-public-revalidation"
 
 GOVERNED_LIFECYCLE_PROFILES = frozenset({"governed", "production"})
 ALLOWED_LIFECYCLE_EVENTS = frozenset(
@@ -58,6 +69,13 @@ RESOLUTION_LIFECYCLE_EVENTS = frozenset(
 REASSESSMENT_STATUSES = frozenset(
     {"confirmed", "refuted", "superseded", "inconclusive", "accepted_data_deficit"}
 )
+REVISION_ACTION_ORDER = {
+    "none": 0,
+    "review_required": 1,
+    "partial_reissue": 2,
+    "supersede": 3,
+    "withdraw": 4,
+}
 _SHA256_REF_RE = re.compile(r"^(?:sha256:|cas://sha256/)[0-9a-f]{64}$", re.IGNORECASE)
 
 
@@ -311,6 +329,237 @@ def validate_ex_post_learning_record(
     return normalized
 
 
+def build_lifecycle_reissue_report(
+    *,
+    report_id: str,
+    case_id: str,
+    claim_ids: Iterable[str],
+    implementation_monitoring_evaluation: Mapping[str, Any] | None = None,
+    rule_evolution_replay_context: Mapping[str, Any] | None = None,
+    claim_requirement_bindings: Mapping[str, Iterable[str]] | None = None,
+    legal_authority_report: Mapping[str, Any] | None = None,
+    source_events: Iterable[Mapping[str, Any]] = (),
+    participation_events: Iterable[Mapping[str, Any]] = (),
+    policy_context_events: Iterable[Mapping[str, Any]] = (),
+    evidence_ref: str | None = None,
+    runtime_event_ref: str | None = None,
+    generated_at: datetime | str | None = None,
+) -> dict[str, Any]:
+    """Build the W4.C scoped lifecycle and partial-reissue report.
+
+    The report is a runtime reader over existing DDM, legal, source,
+    participation, policy-context, and rule-evolution evidence. It deliberately
+    maps events to claim ids and emits a fail-closed issue when an event lacks
+    claim scope, instead of rewriting an entire closed case.
+    """
+
+    generated = _iso_time(generated_at)
+    known_claim_ids = _dedupe_texts(claim_ids)
+    issues: list[dict[str, Any]] = []
+    impacts: list[dict[str, Any]] = []
+    impacts.extend(
+        _ddm_lifecycle_impacts(
+            implementation_monitoring_evaluation,
+            claim_ids=known_claim_ids,
+            generated_at=generated,
+            issues=issues,
+        )
+    )
+    impacts.extend(
+        _legal_lifecycle_impacts(
+            legal_authority_report,
+            claim_ids=known_claim_ids,
+            generated_at=generated,
+            issues=issues,
+        )
+    )
+    impacts.extend(
+        _event_lifecycle_impacts(
+            source_events,
+            event_family="source",
+            claim_ids=known_claim_ids,
+            generated_at=generated,
+            issues=issues,
+        )
+    )
+    impacts.extend(
+        _event_lifecycle_impacts(
+            participation_events,
+            event_family="participation",
+            claim_ids=known_claim_ids,
+            generated_at=generated,
+            issues=issues,
+        )
+    )
+    impacts.extend(
+        _event_lifecycle_impacts(
+            policy_context_events,
+            event_family="policy_context",
+            claim_ids=known_claim_ids,
+            generated_at=generated,
+            issues=issues,
+        )
+    )
+    rule_impact = _rule_evolution_lifecycle_impact(
+        rule_evolution_replay_context,
+        claim_ids=known_claim_ids,
+        claim_requirement_bindings=claim_requirement_bindings or {},
+        generated_at=generated,
+        issues=issues,
+    )
+    if rule_impact is not None:
+        impacts.append(rule_impact)
+
+    claim_states = _claim_revision_states(
+        claim_ids=known_claim_ids,
+        event_impacts=impacts,
+    )
+    status = _lifecycle_reissue_status(claim_states, issues)
+    public_revision_state = _public_revision_state(
+        case_id=case_id,
+        status=status,
+        claim_ids=known_claim_ids,
+        claim_revision_states=claim_states,
+        generated_at=generated,
+        rule_evolution_replay_context=rule_evolution_replay_context,
+    )
+    report_ref = (
+        _text(evidence_ref)
+        or _stable_ref(
+            {
+                "report_id": report_id,
+                "case_id": case_id,
+                "claim_ids": known_claim_ids,
+                "event_impacts": impacts,
+                "public_revision_state": public_revision_state,
+            }
+        )
+    )
+    report_id_text = _required_text(
+        report_id,
+        "report_id",
+        "policy_design_lifecycle_reissue_report_id_missing",
+    )
+    event_ref = (
+        _text(runtime_event_ref)
+        or f"event://policy-design-case/lifecycle-reissue/{report_id_text}"
+    )
+    payload = {
+        "schema_version": LIFECYCLE_REISSUE_REPORT_SCHEMA_VERSION,
+        "contract_id": LIFECYCLE_REISSUE_CONTRACT_ID,
+        "report_id": report_id,
+        "case_id": case_id,
+        "generated_at": generated,
+        "status": status,
+        "claim_ids": known_claim_ids,
+        "event_impacts": impacts,
+        "claim_revision_states": claim_states,
+        "public_revision_state": public_revision_state,
+        "issues": issues,
+        "summary": {
+            "claim_count": len(known_claim_ids),
+            "event_impact_count": len(impacts),
+            "affected_claim_count": len(public_revision_state["affected_claim_ids"]),
+            "unaffected_claim_count": len(public_revision_state["unaffected_claim_ids"]),
+            "issue_count": len(issues),
+        },
+        "evidence_ref": report_ref,
+        "runtime_event_ref": event_ref,
+        "authority_role": "runtime_reader",
+        "provenance_kind": "runtime_emitted",
+        "runtime_authority_envelope": _lifecycle_reissue_authority_envelope(
+            report_ref=report_ref,
+            runtime_event_ref=event_ref,
+        ),
+        "capability_reality": {
+            "typed_contract": LIFECYCLE_REISSUE_CONTRACT_ID,
+            "producer": "polisyos.runtime.quality.case_lifecycle.build_lifecycle_reissue_report",
+            "artifact": report_ref,
+            "orchestration_bridge": "DDM/legal/source/participation/rule events -> claim ids",
+            "consumer": "validate_policy_design_lifecycle_records",
+            "verification": "tests/unit/runtime/quality/test_policy_design_case_lifecycle.py",
+            "surface": "public_export.semantic_audit.public_revision_states",
+            "semantic_test": "unscoped lifecycle event cannot rewrite whole case",
+        },
+    }
+    return validate_lifecycle_reissue_report(payload)
+
+
+def validate_lifecycle_reissue_report(record: Mapping[str, Any]) -> dict[str, Any]:
+    """Validate the W4.C partial-reissue report shape and authority boundary."""
+
+    if not isinstance(record, Mapping):
+        raise PolicyDesignLifecycleError(
+            "policy_design_lifecycle_reissue_report_missing",
+            "Lifecycle reissue report must be a mapping.",
+            "lifecycle_reissue_report",
+        )
+    normalized = dict(record)
+    schema_version = _required_text(
+        record.get("schema_version"),
+        "schema_version",
+        "policy_design_lifecycle_reissue_schema_version_missing",
+    )
+    if schema_version != LIFECYCLE_REISSUE_REPORT_SCHEMA_VERSION:
+        raise PolicyDesignLifecycleError(
+            "policy_design_lifecycle_reissue_schema_version_invalid",
+            "Lifecycle reissue report must use the W4.C schema.",
+            "schema_version",
+        )
+    normalized["schema_version"] = LIFECYCLE_REISSUE_REPORT_SCHEMA_VERSION
+    normalized["contract_id"] = _text(record.get("contract_id")) or LIFECYCLE_REISSUE_CONTRACT_ID
+    normalized["report_id"] = _required_text(
+        record.get("report_id") or record.get("id"),
+        "report_id",
+        "policy_design_lifecycle_reissue_report_id_missing",
+    )
+    normalized["case_id"] = _required_text(
+        record.get("case_id"),
+        "case_id",
+        "policy_design_lifecycle_reissue_case_id_missing",
+    )
+    claim_ids = _dedupe_texts(record.get("claim_ids") or ())
+    if not claim_ids:
+        raise PolicyDesignLifecycleError(
+            "policy_design_lifecycle_reissue_claim_ids_missing",
+            "Lifecycle reissue report must name scoped case claim ids.",
+            "claim_ids",
+        )
+    normalized["claim_ids"] = claim_ids
+    normalized["event_impacts"] = [
+        _normalized_event_impact(row, claim_ids=claim_ids)
+        for row in _mapping_rows(record.get("event_impacts"))
+    ]
+    normalized["claim_revision_states"] = [
+        _normalized_claim_revision_state(row, claim_ids=claim_ids)
+        for row in _mapping_rows(record.get("claim_revision_states"))
+    ]
+    normalized["public_revision_state"] = _required_mapping(
+        record.get("public_revision_state"),
+        "public_revision_state",
+        "policy_design_public_revision_state_missing",
+        "Lifecycle reissue report must include public revision state.",
+    )
+    normalized["issues"] = [dict(issue) for issue in _mapping_rows(record.get("issues"))]
+    normalized["status"] = _required_text(
+        record.get("status"),
+        "status",
+        "policy_design_lifecycle_reissue_status_missing",
+    )
+    _required_text(
+        record.get("evidence_ref") or record.get("cas_ref"),
+        "evidence_ref",
+        "policy_design_lifecycle_reissue_runtime_ref_missing",
+    )
+    _required_text(
+        record.get("runtime_event_ref"),
+        "runtime_event_ref",
+        "policy_design_lifecycle_reissue_runtime_event_missing",
+    )
+    _reject_lifecycle_reissue_authority_leak(normalized)
+    return normalized
+
+
 def validate_policy_design_lifecycle_records(
     case: Mapping[str, Any],
     *,
@@ -398,6 +647,19 @@ def validate_policy_design_lifecycle_records(
             )
         except PolicyDesignLifecycleError as exc:
             issues.append(_issue_from_error(exc))
+
+    reissue_report = _first_mapping(
+        case.get("lifecycle_reissue_report"),
+        case.get("partial_reissue_report"),
+        case.get("claim_lifecycle_reissue"),
+    )
+    if reissue_report is not None:
+        try:
+            normalized_reissue = validate_lifecycle_reissue_report(reissue_report)
+        except PolicyDesignLifecycleError as exc:
+            issues.append(_issue_from_error(exc))
+        else:
+            issues.extend(_lifecycle_reissue_report_issues(normalized_reissue))
 
     issues.extend(_claim_future_prior_issues(case))
     return issues
@@ -725,6 +987,764 @@ def _claim_future_prior_issues(case: Mapping[str, Any]) -> list[PolicyDesignLife
     return issues
 
 
+def _ddm_lifecycle_impacts(
+    record: Mapping[str, Any] | None,
+    *,
+    claim_ids: list[str],
+    generated_at: str,
+    issues: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    if not isinstance(record, Mapping):
+        return []
+    ddm = _first_mapping(record.get("ddm_monitoring"), record.get("ddm_events"))
+    if ddm is None:
+        return []
+    impacts: list[dict[str, Any]] = []
+    for group, rows in ddm.items():
+        for row in _mapping_rows(rows):
+            impact = _event_lifecycle_impact(
+                row,
+                event_family="ddm",
+                claim_ids=claim_ids,
+                generated_at=generated_at,
+                issues=issues,
+                default_event_type=str(group),
+            )
+            if impact is not None:
+                impacts.append(impact)
+    return impacts
+
+
+def _legal_lifecycle_impacts(
+    report: Mapping[str, Any] | None,
+    *,
+    claim_ids: list[str],
+    generated_at: str,
+    issues: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    if not isinstance(report, Mapping):
+        return []
+    impacts: list[dict[str, Any]] = []
+    for anchor in _mapping_rows(report.get("claim_legal_anchors")):
+        grade = (_text(anchor.get("admissibility_grade")) or "").casefold()
+        blockers = _text_values(anchor.get("legal_authority_blocker_refs"))
+        if (
+            grade not in {"blocked_no_authority", "contested_authority", "limited_authority"}
+            and not blockers
+        ):
+            continue
+        event = {
+            "event_id": anchor.get("anchor_id")
+            or anchor.get("claim_legal_anchor_id")
+            or f"legal-authority:{anchor.get('claim_id')}",
+            "event_type": "legal_authority_change",
+            "affected_claim_ids": _text_values(anchor.get("claim_id")),
+            "admissibility_grade": grade,
+            "reason": anchor.get("no_anchor_rationale")
+            or anchor.get("reason")
+            or "Claim-level legal authority changed.",
+            "evidence_ref": report.get("producer_artifact_ref") or report.get("evidence_ref"),
+            "runtime_event_ref": report.get("runtime_event_ref")
+            or "event://lex/legal-authority/lifecycle",
+        }
+        impact = _event_lifecycle_impact(
+            event,
+            event_family="legal",
+            claim_ids=claim_ids,
+            generated_at=generated_at,
+            issues=issues,
+        )
+        if impact is not None:
+            impacts.append(impact)
+    for issue in _mapping_rows(report.get("issues")):
+        if not _text(issue.get("claim_id")):
+            continue
+        impact = _event_lifecycle_impact(
+            {
+                "event_id": issue.get("code") or "legal-authority-issue",
+                "event_type": "legal_authority_issue",
+                "affected_claim_ids": [issue.get("claim_id")],
+                "severity": issue.get("severity"),
+                "reason": issue.get("message") or issue.get("code"),
+                "evidence_ref": issue.get("evidence_ref") or report.get("producer_artifact_ref"),
+                "runtime_event_ref": issue.get("runtime_event_ref")
+                or "event://lex/legal-authority/issue",
+            },
+            event_family="legal",
+            claim_ids=claim_ids,
+            generated_at=generated_at,
+            issues=issues,
+        )
+        if impact is not None:
+            impacts.append(impact)
+    return impacts
+
+
+def _event_lifecycle_impacts(
+    events: Iterable[Mapping[str, Any]],
+    *,
+    event_family: str,
+    claim_ids: list[str],
+    generated_at: str,
+    issues: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    impacts: list[dict[str, Any]] = []
+    for event in events:
+        if not isinstance(event, Mapping):
+            continue
+        impact = _event_lifecycle_impact(
+            event,
+            event_family=event_family,
+            claim_ids=claim_ids,
+            generated_at=generated_at,
+            issues=issues,
+        )
+        if impact is not None:
+            impacts.append(impact)
+    return impacts
+
+
+def _event_lifecycle_impact(
+    event: Mapping[str, Any],
+    *,
+    event_family: str,
+    claim_ids: list[str],
+    generated_at: str,
+    issues: list[dict[str, Any]],
+    default_event_type: str | None = None,
+) -> dict[str, Any] | None:
+    event_id = _text(event.get("event_id") or event.get("id")) or _stable_event_id(
+        event_family=event_family,
+        event=event,
+    )
+    affected_claims = [
+        claim_id
+        for claim_id in _dedupe_texts(
+            event.get("affected_claim_ids")
+            or event.get("claim_ids")
+            or event.get("affected_claims")
+            or event.get("claim_id")
+        )
+        if claim_id in set(claim_ids)
+    ]
+    if not affected_claims:
+        issues.append(
+            _lifecycle_reissue_issue(
+                code="policy_design_lifecycle_event_claim_scope_missing",
+                message=(
+                    "Lifecycle event has no claim scope. W4.C refuses to rewrite "
+                    "the whole case without affected claim ids."
+                ),
+                field="affected_claim_ids",
+                event_id=event_id,
+                event_family=event_family,
+                evidence_ref=_text(event.get("evidence_ref") or event.get("cas_ref")),
+            )
+        )
+        return None
+    raw_unknown_claims = set(
+        _dedupe_texts(
+            event.get("affected_claim_ids")
+            or event.get("claim_ids")
+            or event.get("affected_claims")
+            or event.get("claim_id")
+        )
+    ).difference(claim_ids)
+    if raw_unknown_claims:
+        issues.append(
+            _lifecycle_reissue_issue(
+                code="policy_design_lifecycle_event_unknown_claim_scope",
+                message=(
+                    "Lifecycle event references claim ids outside the closed case "
+                    "revision scope."
+                ),
+                field="affected_claim_ids",
+                event_id=event_id,
+                event_family=event_family,
+                evidence_ref=_text(event.get("evidence_ref") or event.get("cas_ref")),
+                affected_claim=None,
+                extra={"unknown_claim_ids": sorted(raw_unknown_claims)},
+            )
+        )
+    event_type = _text(event.get("event_type") or event.get("type")) or default_event_type
+    return {
+        "event_id": event_id,
+        "event_family": event_family,
+        "event_type": event_type or event_family,
+        "affected_claim_ids": affected_claims,
+        "lifecycle_action": _lifecycle_action_for_event(
+            event,
+            event_family=event_family,
+            event_type=event_type or event_family,
+        ),
+        "reason": _text(event.get("reason") or event.get("message"))
+        or f"{event_family} event requires claim lifecycle review.",
+        "downstream_status": _text(
+            event.get("downstream_status")
+            or event.get("publication_status")
+            or event.get("readiness_status")
+            or event.get("status")
+        ),
+        "evidence_ref": _text(event.get("evidence_ref") or event.get("cas_ref")),
+        "runtime_event_ref": _text(event.get("runtime_event_ref")),
+        "time_roles": _event_time_roles(event, generated_at=generated_at),
+        "closed_case_historical_meaning": "preserved",
+    }
+
+
+def _rule_evolution_lifecycle_impact(
+    replay_context: Mapping[str, Any] | None,
+    *,
+    claim_ids: list[str],
+    claim_requirement_bindings: Mapping[str, Iterable[str]],
+    generated_at: str,
+    issues: list[dict[str, Any]],
+) -> dict[str, Any] | None:
+    if not isinstance(replay_context, Mapping):
+        return None
+    revalidation = _first_mapping(replay_context.get("revalidation_state")) or {}
+    affected_requirements = _dedupe_texts(revalidation.get("affected_requirement_ids"))
+    for mismatch in _mapping_rows(replay_context.get("logic_hash_mismatches")):
+        affected_requirements.extend(
+            _dedupe_texts(
+                [
+                    mismatch.get("requirement_id"),
+                    mismatch.get("current_requirement_id"),
+                ]
+            )
+        )
+    affected_requirements = _dedupe_texts(affected_requirements)
+    semantic_change = bool(replay_context.get("semantic_change_detected")) or bool(
+        affected_requirements
+    )
+    if not semantic_change:
+        return None
+    claims = _claims_for_requirements(
+        affected_requirements=affected_requirements,
+        claim_requirement_bindings=claim_requirement_bindings,
+        claim_ids=claim_ids,
+    )
+    event = {
+        "event_id": "rule-evolution:" + (
+            _text(replay_context.get("current_rule_registry_version")) or "current"
+        ),
+        "event_type": "rule_evolution_semantic_change",
+        "affected_claim_ids": claims,
+        "reason": "Rule or taxonomy semantics changed; closed case replays under original logic.",
+        "evidence_ref": replay_context.get("current_rule_registry_ref"),
+        "runtime_event_ref": "event://rule-evolution/public-revalidation",
+        "lifecycle_action": "partial_reissue",
+        "closure_time": _first_mapping(replay_context.get("time_roles"), {}).get(
+            "closure_time"
+        )
+        if isinstance(replay_context.get("time_roles"), Mapping)
+        else None,
+        "replay_time": _first_mapping(replay_context.get("time_roles"), {}).get("replay_time")
+        if isinstance(replay_context.get("time_roles"), Mapping)
+        else generated_at,
+    }
+    impact = _event_lifecycle_impact(
+        event,
+        event_family="rule_evolution",
+        claim_ids=claim_ids,
+        generated_at=generated_at,
+        issues=issues,
+    )
+    if impact is not None:
+        impact["affected_requirement_ids"] = affected_requirements
+        impact["public_annotation"] = dict(
+            replay_context.get("public_annotation")
+            if isinstance(replay_context.get("public_annotation"), Mapping)
+            else {}
+        )
+    return impact
+
+
+def _claims_for_requirements(
+    *,
+    affected_requirements: list[str],
+    claim_requirement_bindings: Mapping[str, Iterable[str]],
+    claim_ids: list[str],
+) -> list[str]:
+    affected = set(affected_requirements)
+    claims: list[str] = []
+    for claim_id in claim_ids:
+        requirement_refs = set(_dedupe_texts(claim_requirement_bindings.get(claim_id) or ()))
+        if affected.intersection(requirement_refs):
+            claims.append(claim_id)
+    return claims
+
+
+def _claim_revision_states(
+    *,
+    claim_ids: list[str],
+    event_impacts: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    by_claim: dict[str, list[dict[str, Any]]] = {claim_id: [] for claim_id in claim_ids}
+    for impact in event_impacts:
+        for claim_id in _dedupe_texts(impact.get("affected_claim_ids")):
+            if claim_id in by_claim:
+                by_claim[claim_id].append(impact)
+    states: list[dict[str, Any]] = []
+    for claim_id in claim_ids:
+        impacts = by_claim[claim_id]
+        action = _strongest_lifecycle_action(impact["lifecycle_action"] for impact in impacts)
+        states.append(
+            {
+                "claim_id": claim_id,
+                "current_validity": _claim_current_validity(action),
+                "lifecycle_action": action,
+                "public_revision_status": _public_revision_status(action),
+                "affected_event_ids": [str(impact["event_id"]) for impact in impacts],
+                "affected_event_families": sorted(
+                    {str(impact["event_family"]) for impact in impacts}
+                ),
+                "public_diff_required": action != "none",
+                "closed_case_historical_meaning": "preserved",
+                "reason": _claim_revision_reason(impacts, action=action),
+            }
+        )
+    return states
+
+
+def _public_revision_state(
+    *,
+    case_id: str,
+    status: str,
+    claim_ids: list[str],
+    claim_revision_states: list[dict[str, Any]],
+    generated_at: str,
+    rule_evolution_replay_context: Mapping[str, Any] | None,
+) -> dict[str, Any]:
+    affected = [
+        str(row["claim_id"])
+        for row in claim_revision_states
+        if row.get("lifecycle_action") != "none"
+    ]
+    unaffected = [claim_id for claim_id in claim_ids if claim_id not in set(affected)]
+    public_diffs = [
+        {
+            "claim_id": str(row["claim_id"]),
+            "diff_kind": str(row["lifecycle_action"]),
+            "public_status": str(row["public_revision_status"]),
+            "reason": str(row["reason"]),
+        }
+        for row in claim_revision_states
+        if row.get("lifecycle_action") != "none"
+    ]
+    return {
+        "schema_version": PUBLIC_REVISION_STATE_SCHEMA_VERSION,
+        "case_id": case_id,
+        "generated_at": generated_at,
+        "current_case_validity": _public_case_validity(
+            status=status,
+            affected_count=len(affected),
+            claim_count=len(claim_ids),
+        ),
+        "closed_case_historical_meaning": "preserved",
+        "affected_claim_ids": affected,
+        "unaffected_claim_ids": unaffected,
+        "public_diffs": public_diffs,
+        "public_diff_required": bool(public_diffs),
+        "silent_upgrade_allowed": False,
+        "revalidation_status": _public_revalidation_status(status),
+        "rule_evolution_public_annotation": dict(
+            rule_evolution_replay_context.get("public_annotation")
+            if isinstance(rule_evolution_replay_context, Mapping)
+            and isinstance(rule_evolution_replay_context.get("public_annotation"), Mapping)
+            else {}
+        ),
+        "blocked_structural_policy_ref": RULE_EVOLUTION_PUBLIC_POLICY_ADR_BLOCKER,
+        "authority_role": "projection_only",
+        "provenance_kind": "runtime_projection",
+        "authoritative_for": ["public_revision_state"],
+        "may_not_use_for": [
+            "claim_evidence_authority",
+            "mandatory_public_revalidation_policy",
+            "scorecard_authority",
+            "silent_current_logic_upgrade",
+        ],
+    }
+
+
+def _lifecycle_reissue_status(
+    claim_revision_states: list[dict[str, Any]],
+    issues: list[dict[str, Any]],
+) -> str:
+    if issues:
+        return "fail"
+    actions = [str(row["lifecycle_action"]) for row in claim_revision_states]
+    if "withdraw" in actions:
+        return "withdraw_required"
+    if "supersede" in actions:
+        return "supersede_required"
+    if "partial_reissue" in actions:
+        return "reissue_required"
+    if "review_required" in actions:
+        return "review_required"
+    return "pass"
+
+
+def _lifecycle_action_for_event(
+    event: Mapping[str, Any],
+    *,
+    event_family: str,
+    event_type: str,
+) -> str:
+    explicit = _text(event.get("lifecycle_action") or event.get("action"))
+    if explicit:
+        normalized = explicit.casefold()
+        if normalized in {"reissue", "reissue_required", "partial_reissue"}:
+            return "partial_reissue"
+        if normalized in {"supersede", "superseded"}:
+            return "supersede"
+        if normalized in {"withdraw", "withdrawn", "withdrawal_review"}:
+            return "withdraw"
+        if normalized in {"review", "review_required", "human_review"}:
+            return "review_required"
+    status_text = " ".join(
+        value
+        for value in (
+            _text(event.get("downstream_status")),
+            _text(event.get("publication_status")),
+            _text(event.get("readiness_status")),
+            _text(event.get("status")),
+            _text(event.get("severity")),
+            _text(event.get("invalidation_type")),
+            _text(event.get("admissibility_grade")),
+            event_type,
+        )
+        if value
+    ).casefold()
+    if "withdraw" in status_text or "blocked_no_authority" in status_text:
+        return "withdraw" if event_family in {"legal", "incident"} else "partial_reissue"
+    if "supersede" in status_text:
+        return "supersede"
+    if any(token in status_text for token in ("reissue", "contradicted", "block")):
+        return "partial_reissue"
+    return "review_required"
+
+
+def _strongest_lifecycle_action(actions: Iterable[str]) -> str:
+    strongest = "none"
+    for action in actions:
+        normalized = action if action in REVISION_ACTION_ORDER else "review_required"
+        if REVISION_ACTION_ORDER[normalized] > REVISION_ACTION_ORDER[strongest]:
+            strongest = normalized
+    return strongest
+
+
+def _claim_current_validity(action: str) -> str:
+    return {
+        "none": "current",
+        "review_required": "review_required",
+        "partial_reissue": "revalidation_required",
+        "supersede": "superseded",
+        "withdraw": "withdrawn",
+    }[action]
+
+
+def _public_revision_status(action: str) -> str:
+    return {
+        "none": "current",
+        "review_required": "review_required",
+        "partial_reissue": "revalidation_required",
+        "supersede": "superseded",
+        "withdraw": "withdrawn",
+    }[action]
+
+
+def _public_case_validity(*, status: str, affected_count: int, claim_count: int) -> str:
+    if status == "fail":
+        return "review_required"
+    if affected_count == 0:
+        return "current"
+    if affected_count < claim_count:
+        return "partially_current"
+    return _public_revalidation_status(status)
+
+
+def _public_revalidation_status(status: str) -> str:
+    return {
+        "pass": "current",
+        "review_required": "review_required",
+        "reissue_required": "revalidation_required",
+        "supersede_required": "superseded",
+        "withdraw_required": "withdrawn",
+        "fail": "review_required",
+    }.get(status, "review_required")
+
+
+def _claim_revision_reason(impacts: list[dict[str, Any]], *, action: str) -> str:
+    if not impacts:
+        return "No lifecycle event currently affects this claim."
+    reasons = _dedupe_texts(impact.get("reason") for impact in impacts)
+    if reasons:
+        return "; ".join(reasons)
+    return f"Claim requires {action} because lifecycle events affected its evidence."
+
+
+def _event_time_roles(event: Mapping[str, Any], *, generated_at: str) -> dict[str, str | None]:
+    occurred = _text(event.get("occurred_at") or event.get("event_time"))
+    detection = _text(event.get("detected_at") or event.get("detection_time")) or occurred
+    return {
+        "event_time": occurred,
+        "detection_time": detection or generated_at,
+        "valid_time": _text(event.get("valid_time") or event.get("as_of_time")),
+        "publication_time": _text(event.get("publication_time")),
+        "closure_time": _text(event.get("closure_time")),
+        "replay_time": _text(event.get("replay_time")) or generated_at,
+    }
+
+
+def _normalized_event_impact(
+    row: Mapping[str, Any],
+    *,
+    claim_ids: list[str],
+) -> dict[str, Any]:
+    normalized = dict(row)
+    normalized["event_id"] = _required_text(
+        row.get("event_id"),
+        "event_impacts.event_id",
+        "policy_design_lifecycle_event_id_missing",
+    )
+    normalized["event_family"] = _required_text(
+        row.get("event_family"),
+        "event_impacts.event_family",
+        "policy_design_lifecycle_event_family_missing",
+    )
+    affected = _dedupe_texts(row.get("affected_claim_ids"))
+    if not affected:
+        raise PolicyDesignLifecycleError(
+            "policy_design_lifecycle_event_claim_scope_missing",
+            "Lifecycle event impacts must name affected claim ids.",
+            "event_impacts.affected_claim_ids",
+        )
+    unknown = set(affected).difference(claim_ids)
+    if unknown:
+        raise PolicyDesignLifecycleError(
+            "policy_design_lifecycle_event_unknown_claim_scope",
+            "Lifecycle event impacts reference claim ids outside this report.",
+            "event_impacts.affected_claim_ids",
+        )
+    normalized["affected_claim_ids"] = affected
+    action = _required_text(
+        row.get("lifecycle_action"),
+        "event_impacts.lifecycle_action",
+        "policy_design_lifecycle_event_action_missing",
+    )
+    if action not in REVISION_ACTION_ORDER or action == "none":
+        raise PolicyDesignLifecycleError(
+            "policy_design_lifecycle_event_action_invalid",
+            (
+                "Lifecycle event action must be review_required, partial_reissue, "
+                "supersede, or withdraw."
+            ),
+            "event_impacts.lifecycle_action",
+        )
+    normalized["lifecycle_action"] = action
+    return normalized
+
+
+def _normalized_claim_revision_state(
+    row: Mapping[str, Any],
+    *,
+    claim_ids: list[str],
+) -> dict[str, Any]:
+    normalized = dict(row)
+    claim_id = _required_text(
+        row.get("claim_id"),
+        "claim_revision_states.claim_id",
+        "policy_design_lifecycle_claim_state_claim_id_missing",
+    )
+    if claim_id not in claim_ids:
+        raise PolicyDesignLifecycleError(
+            "policy_design_lifecycle_claim_state_unknown_claim",
+            "Claim revision state references a claim outside this report.",
+            "claim_revision_states.claim_id",
+        )
+    normalized["claim_id"] = claim_id
+    action = _required_text(
+        row.get("lifecycle_action"),
+        "claim_revision_states.lifecycle_action",
+        "policy_design_lifecycle_claim_state_action_missing",
+    )
+    if action not in REVISION_ACTION_ORDER:
+        raise PolicyDesignLifecycleError(
+            "policy_design_lifecycle_claim_state_action_invalid",
+            "Claim revision state action is not recognized.",
+            "claim_revision_states.lifecycle_action",
+        )
+    return normalized
+
+
+def _reject_lifecycle_reissue_authority_leak(record: Mapping[str, Any]) -> None:
+    public_state = record.get("public_revision_state")
+    if not isinstance(public_state, Mapping):
+        return
+    if _text(public_state.get("authority_role")) != "projection_only":
+        raise PolicyDesignLifecycleError(
+            "policy_design_public_revision_state_authority_leak",
+            "Public revision state is a projection and cannot mint claim authority.",
+            "public_revision_state.authority_role",
+        )
+    if public_state.get("silent_upgrade_allowed") is not False:
+        raise PolicyDesignLifecycleError(
+            "policy_design_public_revision_state_silent_upgrade",
+            "Public revision state must forbid silent current-logic upgrades.",
+            "public_revision_state.silent_upgrade_allowed",
+        )
+
+
+def _lifecycle_reissue_report_issues(
+    report: Mapping[str, Any],
+) -> list[PolicyDesignLifecycleIssue]:
+    issues: list[PolicyDesignLifecycleIssue] = []
+    for issue in _mapping_rows(report.get("issues")):
+        if str(issue.get("severity") or "fail") not in {"fail", "error", "critical"}:
+            continue
+        issues.append(
+            PolicyDesignLifecycleIssue(
+                code=str(issue.get("code") or "policy_design_lifecycle_reissue_invalid"),
+                message=str(
+                    issue.get("message")
+                    or "Lifecycle reissue report contains a blocking issue."
+                ),
+                field=str(issue.get("field") or "lifecycle_reissue_report"),
+                evidence_ref=_text(issue.get("evidence_ref") or report.get("evidence_ref")),
+                affected_claim=_text(issue.get("affected_claim")),
+                next_action=str(
+                    issue.get("next_action")
+                    or (
+                        "Resolve scoped lifecycle event mapping before public "
+                        "revision or closeout."
+                    )
+                ),
+            )
+        )
+    status = _text(report.get("status")) or "fail"
+    if status in {
+        "review_required",
+        "reissue_required",
+        "supersede_required",
+        "withdraw_required",
+    }:
+        public_state = report.get("public_revision_state")
+        affected_claims = (
+            _text_values(public_state.get("affected_claim_ids"))
+            if isinstance(public_state, Mapping)
+            else []
+        )
+        issues.append(
+            PolicyDesignLifecycleIssue(
+                code=f"policy_design_lifecycle_{status}",
+                message=(
+                    "Lifecycle reissue report marks current public validity as "
+                    f"{status} for scoped claims."
+                ),
+                field="lifecycle_reissue_report.status",
+                evidence_ref=_text(report.get("evidence_ref")),
+                affected_claim=affected_claims[0] if affected_claims else None,
+                next_action=(
+                    "Publish public revision state and complete scoped review, "
+                    "partial reissue, supersession, or withdrawal before closeout."
+                ),
+            )
+        )
+    return issues
+
+
+def _lifecycle_reissue_issue(
+    *,
+    code: str,
+    message: str,
+    field: str,
+    event_id: str,
+    event_family: str,
+    evidence_ref: str | None,
+    affected_claim: str | None = None,
+    extra: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    payload = {
+        "code": code,
+        "severity": "fail",
+        "status": "fail",
+        "field": field,
+        "event_id": event_id,
+        "event_family": event_family,
+        "message": message,
+        "evidence_ref": evidence_ref,
+        "affected_claim": affected_claim,
+        "next_action": (
+            "Map the event to affected claim ids and emit scoped public revision "
+            "state; do not rewrite the whole case."
+        ),
+    }
+    payload.update(dict(extra or {}))
+    return {key: value for key, value in payload.items() if value not in (None, "", [])}
+
+
+def _lifecycle_reissue_authority_envelope(
+    *,
+    report_ref: str,
+    runtime_event_ref: str,
+) -> dict[str, Any]:
+    return {
+        "authority_role": "runtime_reader",
+        "provenance_kind": "runtime_emitted",
+        "reader_contract": LIFECYCLE_REISSUE_CONTRACT_ID,
+        "cas_ref": report_ref,
+        "runtime_event_ref": runtime_event_ref,
+        "authoritative_for": ["claim_lifecycle_reissue_state", "public_revision_state"],
+        "may_not_use_for": [
+            "claim_evidence_authority",
+            "mandatory_public_revalidation_policy",
+            "silent_current_logic_upgrade",
+        ],
+    }
+
+
+def _stable_event_id(*, event_family: str, event: Mapping[str, Any]) -> str:
+    digest = hashlib.sha256(
+        json.dumps(
+            {"event_family": event_family, "event": _json_safe(event)},
+            ensure_ascii=True,
+            sort_keys=True,
+        ).encode("utf-8")
+    ).hexdigest()[:16]
+    return f"lifecycle_event_{digest}"
+
+
+def _stable_ref(payload: Mapping[str, Any]) -> str:
+    digest = hashlib.sha256(
+        json.dumps(_json_safe(payload), ensure_ascii=True, sort_keys=True).encode("utf-8")
+    ).hexdigest()
+    return f"sha256:{digest}"
+
+
+def _json_safe(value: object) -> object:
+    if isinstance(value, Mapping):
+        return {str(key): _json_safe(item) for key, item in sorted(value.items())}
+    if isinstance(value, list | tuple):
+        return [_json_safe(item) for item in value]
+    if isinstance(value, datetime):
+        return value.isoformat()
+    return value
+
+
+def _iso_time(value: datetime | str | None) -> str:
+    if isinstance(value, datetime):
+        return value.astimezone(UTC).replace(microsecond=0).isoformat()
+    text = _text(value)
+    if text is not None:
+        return text
+    return datetime.now(UTC).replace(microsecond=0).isoformat()
+
+
+def _dedupe_texts(value: object) -> list[str]:
+    return list(dict.fromkeys(_text_values(value)))
+
+
 def _phase27_in_scope(case: Mapping[str, Any], *, canary_kind: str) -> bool:
     profile = _effective_profile(case) or canary_kind.casefold()
     if profile in GOVERNED_LIFECYCLE_PROFILES:
@@ -862,11 +1882,16 @@ __all__ = [
     "CASE_LIFECYCLE_SCHEMA_VERSION",
     "EX_POST_LEARNING_CONTRACT_ID",
     "EX_POST_LEARNING_SCHEMA_VERSION",
+    "LIFECYCLE_REISSUE_CONTRACT_ID",
+    "LIFECYCLE_REISSUE_REPORT_SCHEMA_VERSION",
+    "PUBLIC_REVISION_STATE_SCHEMA_VERSION",
     "PolicyDesignLifecycleError",
     "PolicyDesignLifecycleIssue",
     "build_case_lifecycle_record",
     "build_ex_post_learning_record",
+    "build_lifecycle_reissue_report",
     "validate_case_lifecycle_record",
     "validate_ex_post_learning_record",
+    "validate_lifecycle_reissue_report",
     "validate_policy_design_lifecycle_records",
 ]

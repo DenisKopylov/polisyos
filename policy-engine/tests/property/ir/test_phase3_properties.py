@@ -3,7 +3,7 @@ from __future__ import annotations
 from decimal import Decimal
 
 import pytest
-from polisyos.ir.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
+from polisyos.ir.model_layer.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.governance.schedule import ScheduleSpec
@@ -20,8 +20,8 @@ from polisyos.ir.kernel import (
 )
 from polisyos.ir.kernel.units import MoneyUnit, UnitsRegistry
 from polisyos.ir.linker import link_trinity
-from polisyos.ir.model_spec import ModelSpec
-from polisyos.ir.registry_fragments import (
+from polisyos.ir.model_layer.model_spec import ModelSpec
+from polisyos.ir.registry.registry_fragments import (
     ComposePolicy,
     RegistryBundle,
     RegistryComposeRequest,

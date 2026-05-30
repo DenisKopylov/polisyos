@@ -2346,6 +2346,7 @@ DEFAULT_POLICY_DESIGN_CASE_RECORD_REGISTRY = (
             "standalone_verifier",
             "archive_replay",
             "deterministic_replay_manifest",
+            "rule_evolution_registry",
             "typed_replay_drift",
             "local_client_compliance",
             "offline_mutation_authority",
@@ -2433,13 +2434,19 @@ DEFAULT_POLICY_DESIGN_CASE_SUBSTRATE_RESIDUAL_BINDINGS = (
         "PDD-031",
         title="Replay reproduction semantics",
         record_family_id="publication_trust_and_external_governance.v1",
-        facets=("deterministic_replay_manifest", "typed_replay_drift"),
+        facets=(
+            "deterministic_replay_manifest",
+            "rule_evolution_registry",
+            "typed_replay_drift",
+        ),
         runtime_records=(
             "src/polisyos/runtime/quality/replay.py",
+            "src/polisyos/runtime/quality/rule_evolution.py",
             "src/polisyos/runtime/quality/public_export.py",
         ),
         test_paths=(
             "tests/unit/runtime/quality/test_replay.py",
+            "tests/unit/runtime/quality/test_rule_evolution.py",
             "tests/unit/runtime/quality/test_public_export.py",
         ),
     ),
@@ -2653,6 +2660,8 @@ _RUNTIME_RECORD_FAMILY_SOURCE_KEYS: dict[str, tuple[str, ...]] = {
         "public_export",
         "external_audit",
         "replay_manifest",
+        "rule_evolution",
+        "rule_evolution_registry",
         "pass1b_tenant_cas_approval_governance",
     ),
     "best_in_class_benchmarking.v1": (
@@ -2969,7 +2978,9 @@ def _typed_family_residual_boundary_policy(
         )
     deduped_codes = list(dict.fromkeys(codes))
     return {
-        "policy_code": f"policy_design_case.{family_id.removesuffix('.v1')}.residual_boundary_blocked",
+        "policy_code": (
+            f"policy_design_case.{family_id.removesuffix('.v1')}.residual_boundary_blocked"
+        ),
         "status": "blocked",
         "profile": profile,
         "reason": (
@@ -3160,9 +3171,7 @@ def _runtime_refs_from_value(value: object) -> tuple[str, ...]:
                 text = item.strip()
                 if _coverage_runtime_artifact_ref(text) or _coverage_runtime_event_ref(text):
                     refs.append(text)
-            elif isinstance(item, list | tuple):
-                refs.extend(_runtime_refs_from_value(item))
-            elif isinstance(item, Mapping):
+            elif isinstance(item, list | tuple | Mapping):
                 refs.extend(_runtime_refs_from_value(item))
     elif isinstance(value, list | tuple):
         for item in value:

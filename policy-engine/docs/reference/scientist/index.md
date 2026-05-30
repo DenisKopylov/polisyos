@@ -78,7 +78,7 @@ The current routed workflow surface consists of five builtin workflow ids:
 | Workflow engine, routing, and builtin DAGs           | [workflows.md](workflows.md)                           | `src/polisyos/scientist/orchestration/workflows/**`, `src/polisyos/scientist/api.py`, workflow selection shim coverage       |
 | Builtin node contract and registry                   | [nodes.md](nodes.md)                                   | `src/polisyos/scientist/nodes/**`, `src/polisyos/scientist/orchestration/engine/protocol.py`, `tests/unit/scientist/nodes/**`                                                 |
 | Governance registry and runtime pipeline             | [governance-passes.md](governance-passes.md)           | `src/polisyos/scientist/governance/**`, `pyproject.toml`, `tests/unit/scientist/governance/**`                                                                  |
-| Claim/evidence/readiness spine                       | [claims.md](claims.md)                                 | `src/polisyos/scientist/evidence/claims/**`, shim: `src/polisyos/scientist/claims/**`, decision/governance/causal integration targets, `tests/unit/scientist/evidence/claims/**`, Phase 1.1 gate                            |
+| Claim/evidence/readiness spine                       | [claims.md](claims.md)                                 | `src/polisyos/scientist/evidence/claims/**`, decision/governance/causal integration targets, `tests/unit/scientist/evidence/claims/**`, Phase 1.1 gate                            |
 | Claim Ledger lifecycle                               | [claim-ledger.md](claim-ledger.md)                     | `src/polisyos/scientist/evidence/claims/{audit,diff,export,lifecycle}.py`, packet and policy-output summaries, Phase 2.1 gate |
 | Research DAG sidecar                                 | [research-dag.md](research-dag.md)                     | `src/polisyos/scientist/methods/research_dag/**`, workflow/provenance/tool-loop integrations, `tests/unit/scientist/methods/research_dag/**`, Phase 1.2 gate                    |
 | Research DAG replay                                  | [research-dag-replay.md](research-dag-replay.md)       | `src/polisyos/scientist/methods/research_dag/replay.py`, `comparison.py`, `invalidation.py`, extended `diff.py`, `tests/unit/scientist/methods/research_dag/test_replay_plan.py`, `test_comparison.py`, `test_invalidation.py`, Phase 2.2 gate |
@@ -125,7 +125,7 @@ published factual reference surface.
 ## Validation
 
 ```bash
-uv run pytest tests/unit/scientist/workflows/test_workflow_specs.py tests/unit/scientist/workflows/test_workflow_selection.py -q
+uv run pytest tests/unit/scientist/orchestration/workflows/test_workflow_specs.py tests/unit/scientist/orchestration/workflows/test_workflow_selection.py -q
 uv run pytest tests/unit/scientist/governance/test_pass_registry.py tests/unit/scientist/governance/test_reliability_scorecard.py -q
 uv run pytest tests/unit/scientist/governance/test_ic_verification.py tests/unit/scientist/governance/test_ic_conformance.py tests/unit/scientist/governance/test_incentive_compatibility_pass.py -q
 uv run pytest tests/unit/scientist/agent/test_reasoning.py tests/unit/scientist/agent/test_eval_harness.py tests/unit/scientist/search/strategies/test_advanced_policy.py -q

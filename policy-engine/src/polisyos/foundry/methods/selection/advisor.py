@@ -24,16 +24,15 @@ from polisyos.core.observability.truthfulness import (
 )
 from polisyos.foundry.methods.base import parse_fqn
 from polisyos.foundry.methods.catalog.snapshot import build_method_capability_matrix
+from polisyos.foundry.methods.compiler.plan_optimizer import MethodCostModel
 from polisyos.foundry.methods.components.consensus import (
     ConsensusTarget,
     CrossMethodConsensus,
     SupportsConsensusTarget,
     run_cross_method_consensus,
 )
-from polisyos.foundry.methods.selection.cost_model import CostBudget, CostEstimate
 from polisyos.foundry.methods.components.linker import check_linkable
-from polisyos.foundry.methods.compiler.plan_optimizer import MethodCostModel
-from polisyos.foundry.methods.selection.registry import MethodRegistry
+from polisyos.foundry.methods.selection.cost_model import CostBudget, CostEstimate
 from polisyos.foundry.methods.selection.history import (
     ADVISOR_EXECUTION_CONTEXT_PARAM,
     AdvisorExecutionContext,
@@ -42,6 +41,7 @@ from polisyos.foundry.methods.selection.history import (
     fit_runtime_predictor_from_history,
     get_global_selection_history,
 )
+from polisyos.foundry.methods.selection.registry import MethodRegistry
 from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope
 
 _FIDELITY_ORDER = {"low": 0, "medium": 1, "high": 2}

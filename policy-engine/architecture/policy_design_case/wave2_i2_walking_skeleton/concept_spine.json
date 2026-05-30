@@ -1,0 +1,119 @@
+{
+  "authority_boundary": "concept_spine_closeout_input",
+  "authority_profile": "research",
+  "blockers": [],
+  "bridge_authority": {
+    "authoritative_boundary": "concept_spine_closeout_input",
+    "authoritative_for": [
+      "boundary_continuity"
+    ],
+    "authority_role": "closeout_input",
+    "bridge_class": "reader_attestation",
+    "bridge_ref": "bridge.concept_spine.run-wave2-i2",
+    "cas_ref": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "closeout_input": true,
+    "consumer_component": "runtime.closeout_reader",
+    "input_refs": [
+      "repo://policy-engine/architecture/concept-namespaces#policyos.metric.v1",
+      "repo://policy-engine/architecture/concept-namespaces#policyos.population.v1",
+      "repo://policy-engine/architecture/concept-namespaces#policyos.time_role.v1"
+    ],
+    "may_not_use_for": [
+      "producer_domain_truth",
+      "public_projection_authority",
+      "evidence_strength"
+    ],
+    "output_refs": [
+      "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+    ],
+    "producer_component": "runtime.concept_spine",
+    "provenance_kind": "runtime_emitted",
+    "reader_compatible": true,
+    "redaction_integrity_status": "pass",
+    "same_input_closed": true,
+    "schema_version": "policyos.runtime.policy_design_case.concept_spine_bridge_authority.v1"
+  },
+  "carrier_ref": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+  "cas_ref": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+  "concept_spine_ref": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+  "generated_at": "2026-05-22T12:00:00+00:00",
+  "governed_namespace_refs": [
+    {
+      "definition_ref": "repo://policy-engine/architecture/concept-namespaces#policyos.metric.v1",
+      "governed": true,
+      "namespace_id": "policyos.metric.v1",
+      "namespace_type": "metric",
+      "scheme_owner": "team-policy-semantics",
+      "scheme_version": "2026-05-22"
+    },
+    {
+      "definition_ref": "repo://policy-engine/architecture/concept-namespaces#policyos.population.v1",
+      "governed": true,
+      "namespace_id": "policyos.population.v1",
+      "namespace_type": "population",
+      "scheme_owner": "team-policy-semantics",
+      "scheme_version": "2026-05-22"
+    },
+    {
+      "definition_ref": "repo://policy-engine/architecture/concept-namespaces#policyos.time_role.v1",
+      "governed": true,
+      "namespace_id": "policyos.time_role.v1",
+      "namespace_type": "time_role",
+      "scheme_owner": "team-policy-semantics",
+      "scheme_version": "2026-05-22"
+    }
+  ],
+  "job_id": "job-wave2-i2",
+  "producer_handshake_refs": [],
+  "producer_owner": "team-policy-semantics",
+  "reader_owner": "team-runtime-quality",
+  "reconciled_concepts": [
+    {
+      "blocker_refs": [],
+      "concept_id": "concept.msme_survival_rate",
+      "concept_type": "metric",
+      "conflict_refs": [],
+      "context_only_label_refs": [],
+      "geography_refs": [
+        "UA"
+      ],
+      "label": "MSME survival rate",
+      "namespace_refs": [
+        "policyos.metric.v1"
+      ],
+      "population_refs": [
+        "wartime-msmes"
+      ],
+      "producer_refs": [
+        "deterministic_policy_fixture"
+      ],
+      "relation_refs": [],
+      "source_refs": [
+        "request:intent-wave2-i2"
+      ],
+      "status": "resolved",
+      "time_roles": {
+        "data_time": "2025-Q4",
+        "policy_time": "2026-05-22",
+        "replay_time": "2026-05-22T12:00:00+00:00"
+      },
+      "unit_refs": [
+        "unit:rate"
+      ]
+    }
+  ],
+  "record_family": "concept_and_jurisdiction_spine.v1",
+  "relations": [],
+  "run_id": "run-wave2-i2",
+  "schema_version": "policyos.runtime.policy_design_case.hybrid_concept_spine_carrier.v1",
+  "source_concept_spine_ref": null,
+  "status": "pass",
+  "summary": {
+    "blocker_count": 0,
+    "governed_namespace_count": 3,
+    "producer_handshake_ref_count": 0,
+    "reconciled_concept_count": 1,
+    "relation_count": 0
+  },
+  "tenant_id": "tenant-wave2-i2"
+}

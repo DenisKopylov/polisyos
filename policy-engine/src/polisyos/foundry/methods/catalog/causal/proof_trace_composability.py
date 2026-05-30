@@ -39,7 +39,7 @@ from polisyos.ir.analytics.proof_composability import (
 
 if TYPE_CHECKING:
     from polisyos.ir.analytics.evidence_bundle import ProofStep
-    from polisyos.ir.refs import EvidenceBundleRef, ProofWitnessIndexRef
+    from polisyos.ir.registry.refs import EvidenceBundleRef, ProofWitnessIndexRef
 
 
 _MUTILATION_RE = re.compile(r"(?P<op>remove_in|remove_out|do)\s*\((?P<vars>[^)]*)\)")

@@ -1,0 +1,38 @@
+id = "2026-05-24-w9b-partial-scope-reissue"
+title = "Add partial-scope reissue mechanics"
+type = "added"
+component = "scientist-governance"
+owner = "team-policyos-runtime"
+summary = "Add W9.B claim-scoped reissue packets with scope_to_revise, unchanged_records, superseded_refs, public_diff_refs, and projection-only partial publication state."
+evidence = [
+  "tests/unit/scientist/governance/continuous/test_reissue_partial_scope.py",
+  "tests/unit/scientist/governance/continuous/test_lifecycle_bridge.py",
+]
+compatibility = "Additive Python API for experimental Scientist continuous governance; no OpenAPI, generated runtime client, or dashboard API changes."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.scientist.governance.continuous"
+migration = "Existing whole-case reissue packets remain valid; partial-scope packets now require named affected claims, unchanged records, superseded refs when reissued, and public diff refs."
+api = "Extends ReissuePacket and adds PartialPublicationState plus build_partial_scope_reissue_packet and related persistence/loader support."
+limitations = "Partial publication state preserves historical semantics for unaffected claims and cannot silently upgrade closed cases under current logic."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/scientist/governance/README.md",
+]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "scientist-continuous-governance-partial-reissue"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: polisyos.scientist.governance.continuous"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "not_applicable"
+release_note = "Reissue packets can now represent claim-scoped revisions while preserving closed-case meaning for unaffected claims."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/scientist/governance/README.md",
+]
+runbook_docs = []

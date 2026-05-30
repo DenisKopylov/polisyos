@@ -46,6 +46,50 @@ major_subsystem = true
 notes = "Primary compatibility boundary for policy, governance, analytics, and observation contracts; api.py owns public-surface helper metadata."
 
 [[package]]
+module = "polisyos.obligation_rules"
+classification = "internal"
+facade_mode = "eager_exports"
+owner = "team-policyos-runtime"
+readme = "src/polisyos/obligation_rules/README.md"
+reference_doc = "docs/reference/public-surface.md"
+supported_entrypoints = ["polisyos.obligation_rules"]
+major_subsystem = false
+notes = "Wave 6 governed obligation rule catalog for universal Policy Design Case compilation; internal until W6-W8 external surfaces graduate."
+
+[[package]]
+module = "polisyos.obligation_graph"
+classification = "internal"
+facade_mode = "eager_exports"
+owner = "team-policyos-runtime"
+readme = "src/polisyos/obligation_graph/README.md"
+reference_doc = "docs/reference/public-surface.md"
+supported_entrypoints = ["polisyos.obligation_graph"]
+major_subsystem = false
+notes = "Wave 6.C obligation graph compiler and ledger contracts; internal until graph audit and runtime projection surfaces graduate."
+
+[[package]]
+module = "polisyos.method_requirement"
+classification = "internal"
+facade_mode = "eager_exports"
+owner = "team-policyos-runtime"
+readme = "src/polisyos/method_requirement/README.md"
+reference_doc = "docs/reference/public-surface.md"
+supported_entrypoints = ["polisyos.method_requirement"]
+major_subsystem = false
+notes = "Wave 7.C method validity requirement compiler consumed by Foundry selection and IR analytics bridges; internal until W7-W8 external surfaces graduate."
+
+[[package]]
+module = "polisyos.participation_requirement"
+classification = "internal"
+facade_mode = "eager_exports"
+owner = "team-policyos-runtime"
+readme = "src/polisyos/participation_requirement/README.md"
+reference_doc = "docs/reference/public-surface.md"
+supported_entrypoints = ["polisyos.participation_requirement"]
+major_subsystem = false
+notes = "Wave 7.E participation provenance requirement compiler and claim-use ceiling evaluator; internal until W7-W8 external surfaces graduate."
+
+[[package]]
 module = "polisyos.fabric"
 classification = "public_stable"
 facade_mode = "lazy_facade"
@@ -79,9 +123,20 @@ facade_mode = "lazy_facade"
 owner = "team-polisyos"
 readme = "src/polisyos/scientist/README.md"
 reference_doc = "docs/reference/public-surface.md"
-supported_entrypoints = ["polisyos.scientist"]
+supported_entrypoints = ["polisyos.scientist", "polisyos.scientist.methods.research_dag"]
 major_subsystem = true
 notes = "Workflow orchestration facade for experiment execution and shared observability hooks."
+
+[[package]]
+module = "polisyos.evidence"
+classification = "internal"
+facade_mode = "eager_exports"
+owner = "team-policyos-runtime"
+readme = "src/polisyos/evidence/README.md"
+reference_doc = "docs/reference/public-surface.md"
+supported_entrypoints = ["polisyos.evidence"]
+major_subsystem = false
+notes = "Wave 8 internal portfolio evidence records for Policy Design Case graph compilation; not a stable public API."
 
 [[package]]
 module = "polisyos.runtime"
@@ -90,7 +145,7 @@ facade_mode = "lazy_facade"
 owner = "team-polisyos"
 readme = "src/polisyos/runtime/README.md"
 reference_doc = "docs/reference/public-surface.md"
-supported_entrypoints = ["polisyos.runtime"]
+supported_entrypoints = ["polisyos.runtime", "polisyos.runtime.quality"]
 major_subsystem = true
 notes = "Replay and runtime-facing contracts. HTTP subpackages stay internal unless separately documented."
 
@@ -125,7 +180,7 @@ readme = "src/polisyos/data_forge/README.md"
 reference_doc = "docs/reference/public-surface.md"
 supported_entrypoints = ["polisyos.data_forge", "polisyos.data_forge.read_api"]
 major_subsystem = true
-notes = "Experimental asset-centric build-time Data Forge facade. The top-level package lazily exports build-time artifact, asset, schema, snapshot, quality, and migration-test contracts; read_api is the only runtime import surface."
+notes = "Experimental asset-centric build-time Data Forge facade. The top-level package lazily exports build-time artifact, asset, schema, snapshot, provenance, quality, and migration-test contracts; read_api is the only runtime import surface."
 
 [[package]]
 module = "polisyos.berl"
@@ -161,23 +216,6 @@ major_subsystem = false
 notes = "Canonical unversioned drift/degradation monitor surface. It is registered to prevent accidental deep-import promotion, not as a stable public API."
 
 [[package]]
-module = "polisyos.ddm_15_7"
-classification = "compatibility"
-facade_mode = "eager_exports"
-owner = "team-architecture"
-readme = "src/polisyos/ddm_15_7/README.md"
-reference_doc = "docs/reference/public-surface.md"
-supported_entrypoints = ["polisyos.ddm_15_7"]
-major_subsystem = false
-notes = "Wrapper-only compatibility facade for polisyos.ddm until 2026-07-31; tracked by ddm-15-7-rename and ADR-RSR-0135, with facade smoke coverage only."
-compatibility_decision = "retained_with_dated_exception"
-compatibility_owner = "team-architecture"
-compatibility_reason = "Versioned package root remains wrapper-only until callers migrate to polisyos.ddm."
-compatibility_test = "tests/unit/ddm/test_ddm_15_7_shim.py::test_ddm_15_7_root_shim_reexports_canonical_facade_until_july_2026"
-compatibility_release_note = "docs/archive/reports/REPOSITORY_BEST_IN_CLASS_LAST_MILE_IMPORT_MAP.md#ddm-and-synthetic-world"
-compatibility_sunset = "2026-07-31"
-
-[[package]]
 module = "polisyos.foundry.agent_sim.world"
 classification = "public_experimental"
 facade_mode = "eager_exports"
@@ -187,20 +225,3 @@ reference_doc = "docs/reference/public-surface.md"
 supported_entrypoints = ["polisyos.foundry.agent_sim.world"]
 major_subsystem = false
 notes = "Truth-centric synthetic world generation and evaluation surface under the Foundry agent simulation owner."
-
-[[package]]
-module = "polisyos.synthetic_world"
-classification = "compatibility"
-facade_mode = "eager_exports"
-owner = "team-foundry"
-readme = "src/polisyos/synthetic_world/README.md"
-reference_doc = "docs/reference/public-surface.md"
-supported_entrypoints = ["polisyos.synthetic_world"]
-major_subsystem = false
-notes = "Wrapper-only compatibility facade for polisyos.foundry.agent_sim.world until 2026-07-31."
-compatibility_decision = "retained_with_dated_exception"
-compatibility_owner = "team-foundry"
-compatibility_reason = "Former top-level synthetic world root remains wrapper-only until callers migrate to polisyos.foundry.agent_sim.world."
-compatibility_test = "tests/unit/foundry/agent_sim/test_synthetic_world_shim.py::test_synthetic_world_root_shim_reexports_canonical_world_until_july_2026"
-compatibility_release_note = "docs/archive/reports/REPOSITORY_BEST_IN_CLASS_LAST_MILE_IMPORT_MAP.md#ddm-and-synthetic-world"
-compatibility_sunset = "2026-07-31"

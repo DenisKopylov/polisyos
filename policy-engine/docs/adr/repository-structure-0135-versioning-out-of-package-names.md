@@ -26,9 +26,9 @@ extension contracts, runtime state, persisted artifacts, and JS packages.
 1. Canonical package names must not encode versions.
 2. `src/polisyos/ddm_15_7` migrates to `src/polisyos/ddm` in Phase 4A.
 3. The target Python facade is `polisyos.ddm`.
-4. The old `polisyos.ddm_15_7` facade remains wrapper-only until
-   2026-07-31.
-5. Deep `polisyos.ddm_15_7.*` imports are internal and must be migrated in
+4. The old `polisyos.ddm_15_7` facade remained wrapper-only until early
+   sunset cleanup removed it.
+5. Deep `polisyos.ddm_15_7.*` imports were internal and had to be migrated in
    first-party source and tests during Phase 4A.
 6. Existing schema IDs, YAML contract IDs, and policy IDs that contain
    `ddm_15_7` are compatibility identifiers, not package names; they are not

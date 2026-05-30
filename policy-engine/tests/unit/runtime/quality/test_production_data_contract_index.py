@@ -43,16 +43,173 @@ def test_contract_index_maps_curated_source_binding_to_scenario_family(
     )
 
     assert report["schema_version"] == PRODUCTION_DATA_CONTRACT_INDEX_SCHEMA_VERSION
+    assert report["capability_reality_status"] == "implemented"
+    assert report["requirement_source"] == "compiled_data_requirement_spec"
+    assert report["compiled_data_requirement_specs"][0]["required_data_families"] == [
+        "credit_program_registry"
+    ]
+    assert "source_contract_binding" in report["runtime_authority_envelope"]["authoritative_for"]
+    assert "scenario_source_family_admissibility" not in report[
+        "runtime_authority_envelope"
+    ]["authoritative_for"]
+    assert "scenario_family_authority_lookup" in report[
+        "runtime_authority_envelope"
+    ]["may_not_use_for"]
+    assert "legal_authority" in report["runtime_authority_envelope"]["may_not_use_for"]
+    assert report["compatibility_projection"]["scenario_family_authority_status"] == (
+        "sunset_projection_only"
+    )
     finding = report["scenario_binding_findings"][0]
+    binding = report["source_contract_bindings"][0]
     assert finding["requirement_id"] == (
         "scenario:ukraine_msme_wartime_credit_support:data:credit_program_registry"
     )
     assert finding["status"] == "satisfied"
+    assert finding["binding_status"] == "selected"
+    assert binding["binding_status"] == "selected"
+    assert binding["data_requirement_id"] == finding["requirement_id"]
     assert finding["candidate_ref"] == (
         "production_data:curated:credit_program_registry:contract.credit_registry"
     )
     assert finding["missing_facets"] == []
     assert finding["claim_bindability_status"] == "claim_bound"
+
+
+def test_contract_index_requires_source_contract_backing_for_scenario_family(
+    tmp_path: Path,
+) -> None:
+    contract = _complete_contract(
+        contract_id="contract.credit_registry",
+        source_family="credit_program_registry",
+    )
+    contract.pop("source_contract_ref")
+    root = _production_root(
+        tmp_path,
+        contracts=[contract],
+        bindings=[
+            {
+                "binding_id": "binding.credit_registry",
+                "contract_id": "contract.credit_registry",
+                "scenario_source_family": "credit_program_registry",
+                "connector_id": "ministry.credit_registry",
+                "dataset_id": "wartime_credit_programs",
+            }
+        ],
+    )
+
+    finding = ProductionDataContractIndex.load(root).build_scenario_binding_report(
+        _scenario_contract(_requirement("credit_program_registry"))
+    )["scenario_binding_findings"][0]
+
+    assert finding["status"] == "failed"
+    assert finding["blocker_code"] == "source_contract_missing"
+    assert "source_contract_ref" in finding["missing_facets"]
+    assert finding["claim_bindability_status"] == "blocked"
+    assert finding["source_contract_validation"]["status"] == "missing"
+
+
+def test_contract_index_validates_source_contract_snapshot_and_exports_lineage_facets(
+    tmp_path: Path,
+) -> None:
+    root = _production_root(
+        tmp_path,
+        contracts=[
+            _complete_contract(
+                contract_id="contract.credit_registry",
+                source_family="credit_program_registry",
+                source_contract_ref="source-contract:credit.registry:v1",
+            )
+        ],
+        bindings=[
+            {
+                "binding_id": "binding.credit_registry",
+                "contract_id": "contract.credit_registry",
+                "scenario_source_family": "credit_program_registry",
+                "connector_id": "ministry.credit_registry",
+                "dataset_id": "wartime_credit_programs",
+            }
+        ],
+        source_contracts=[
+            _source_contract_record(
+                source_contract_id="source-contract:credit.registry:v1",
+                version="1.1.0",
+                status="active",
+            )
+        ],
+    )
+
+    finding = ProductionDataContractIndex.load(root).build_scenario_binding_report(
+        _scenario_contract(_requirement("credit_program_registry"))
+    )["scenario_binding_findings"][0]
+
+    assert finding["status"] == "satisfied"
+    assert finding["missing_facets"] == []
+    assert finding["source_contract_validation"] == {
+        "status": "pass",
+        "source_contract_id": "source-contract:credit.registry:v1",
+        "source_contract_ref": "source-contract:credit.registry:v1",
+        "source_contract_version": "1.1.0",
+        "source_contract_status": "active",
+        "content_hash": "sha256:" + "c" * 64,
+    }
+    assert finding["selected_refs"] == [
+        "production_data:curated:credit_program_registry:contract.credit_registry"
+    ]
+    assert finding["rejected_refs"] == []
+    assert finding["limitation_refs"] == []
+    openlineage = finding["openlineage_facets"]
+    assert openlineage["dataset"]["namespace"] == "fabric.production_data"
+    assert openlineage["dataset"]["name"] == "credit_program_registry"
+    assert openlineage["dataset"]["facets"]["sourceContract"]["sourceContractId"] == (
+        "source-contract:credit.registry:v1"
+    )
+    assert openlineage["dataset"]["facets"]["schema"]["schemaRef"].startswith("sha256:")
+    assert openlineage["dataset"]["facets"]["dataQuality"]["qualityAssertionRefs"] == [
+        "quality-assertion:credit_program_registry:v1"
+    ]
+    assert openlineage["dataset"]["facets"]["lineage"]["lineageRefs"] == [
+        "lineage:ministry-credit-registry:v1"
+    ]
+
+
+def test_contract_index_blocks_inactive_source_contract_snapshot(
+    tmp_path: Path,
+) -> None:
+    root = _production_root(
+        tmp_path,
+        contracts=[
+            _complete_contract(
+                contract_id="contract.credit_registry",
+                source_family="credit_program_registry",
+                source_contract_ref="source-contract:credit.registry:v1",
+            )
+        ],
+        bindings=[
+            {
+                "binding_id": "binding.credit_registry",
+                "contract_id": "contract.credit_registry",
+                "scenario_source_family": "credit_program_registry",
+            }
+        ],
+        source_contracts=[
+            _source_contract_record(
+                source_contract_id="source-contract:credit.registry:v1",
+                version="1.1.0",
+                status="sunset",
+            )
+        ],
+    )
+
+    finding = ProductionDataContractIndex.load(root).build_scenario_binding_report(
+        _scenario_contract(_requirement("credit_program_registry"))
+    )["scenario_binding_findings"][0]
+
+    assert finding["status"] == "failed"
+    assert finding["blocker_code"] == "source_contract_not_active"
+    assert finding["source_contract_validation"]["status"] == "blocked"
+    assert finding["rejected_refs"] == [
+        "production_data:curated:credit_program_registry:contract.credit_registry"
+    ]
 
 
 def test_contract_index_reports_missing_dictionary_schema_and_lineage(
@@ -272,6 +429,7 @@ def test_contract_index_blocks_cloud_curated_macro_contracts_for_public_golden(
     ]
     for finding in report["scenario_binding_findings"]:
         assert finding["status"] == "blocked"
+        assert finding["binding_status"] == "blocked"
         assert finding["blocker_code"] == "scenario_source_family_absent"
         assert finding["candidate_ref"] is None
         assert {
@@ -296,6 +454,52 @@ def test_contract_index_blocks_cloud_curated_macro_contracts_for_public_golden(
             "agent_income",
             "datasets",
         ]
+    rejected = [
+        binding
+        for binding in report["source_contract_bindings"]
+        if binding["binding_status"] == "context_only"
+    ]
+    assert {binding["source_family"] for binding in rejected} == {"agent_income", "datasets"}
+
+
+def test_contract_index_can_bind_directly_against_compiled_data_requirement_specs(
+    tmp_path: Path,
+) -> None:
+    root = _production_root(
+        tmp_path,
+        contracts=[
+            _complete_contract(
+                contract_id="contract.credit_registry",
+                source_family="credit_program_registry",
+            )
+        ],
+        bindings=[
+            {
+                "binding_id": "binding.credit_registry",
+                "contract_id": "contract.credit_registry",
+                "scenario_source_family": "credit_program_registry",
+                "connector_id": "ministry.credit_registry",
+                "dataset_id": "wartime_credit_programs",
+            }
+        ],
+    )
+    spec = _data_requirement_spec("credit_program_registry")
+
+    report = ProductionDataContractIndex.load(root).build_data_requirement_binding_report(
+        [spec]
+    )
+
+    assert report["requirement_source"] == "compiled_data_requirement_spec"
+    assert report["summary"] == {
+        "requirements": 1,
+        "satisfied": 1,
+        "failed": 0,
+        "blocked": 0,
+    }
+    assert report["scenario_binding_findings"][0]["requirement_id"] == (
+        "data-requirement:claim-credit:credit_program_registry"
+    )
+    assert report["source_contract_bindings"][0]["binding_status"] == "selected"
 
 
 def test_contract_index_reports_openlineage_facets_as_missing_facets(
@@ -343,6 +547,7 @@ def _production_root(
     *,
     contracts: list[dict[str, Any]],
     bindings: list[dict[str, Any]],
+    source_contracts: list[dict[str, Any]] | None = None,
 ) -> Path:
     root = tmp_path / "production_data"
     curated = root / "canonical/local_data_20260501/policy_engine_data/curated"
@@ -356,7 +561,11 @@ def _production_root(
                 "version_id": "local_data_20260501",
                 "readiness": "ready",
                 "path": "canonical/local_data_20260501/policy_engine_data/curated",
-                "required_files": ["data_contracts.json", "source_bindings.json"],
+                "required_files": [
+                    "data_contracts.json",
+                    "source_bindings.json",
+                    "source_contracts_v2.json",
+                ],
             },
             "datasets": {
                 "role": "dataset_catalog_snapshot",
@@ -376,14 +585,31 @@ def _production_root(
         json.dumps({"schema_version": "1.0", "bindings": bindings}),
         encoding="utf-8",
     )
+    (curated / "source_contracts_v2.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "fabric.source_contract.v2",
+                "contracts": {
+                    row["id"]: row for row in source_contracts or _default_source_contracts()
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
     return root
 
 
-def _complete_contract(*, contract_id: str, source_family: str) -> dict[str, Any]:
+def _complete_contract(
+    *,
+    contract_id: str,
+    source_family: str,
+    source_contract_ref: str | None = None,
+) -> dict[str, Any]:
     return {
         "contract_id": contract_id,
         "dataset_identity": f"dataset:{source_family}:202605",
         "source_family": source_family,
+        "source_contract_ref": source_contract_ref or f"source-contract:{source_family}:v1",
         "source_rights": "public_sector_reuse",
         "dictionary_ref": "sha256:" + "d" * 64,
         "schema_ref": "sha256:" + "s" * 64,
@@ -405,6 +631,45 @@ def _complete_contract(*, contract_id: str, source_family: str) -> dict[str, Any
     }
 
 
+def _default_source_contracts() -> list[dict[str, Any]]:
+    return [
+        _source_contract_record(
+            source_contract_id="source-contract:credit_program_registry:v1",
+            version="1.1.0",
+            status="active",
+        ),
+        _source_contract_record(
+            source_contract_id="source-contract:production_msme_panel:v1",
+            version="1.1.0",
+            status="active",
+        ),
+        _source_contract_record(
+            source_contract_id="source-contract:regional_displacement_indicators:v1",
+            version="1.1.0",
+            status="active",
+        ),
+    ]
+
+
+def _source_contract_record(
+    *,
+    source_contract_id: str,
+    version: str,
+    status: str,
+) -> dict[str, Any]:
+    return {
+        "id": source_contract_id,
+        "version": version,
+        "status": status,
+        "content_hash": "sha256:" + "c" * 64,
+        "contract": {
+            "id": source_contract_id,
+            "version": version,
+            "status": status,
+        },
+    }
+
+
 def _requirement(source_family: str) -> ScenarioEvidenceRequirement:
     return ScenarioEvidenceRequirement(
         requirement_id=(
@@ -423,6 +688,49 @@ def _requirement(source_family: str) -> ScenarioEvidenceRequirement:
         producer_owner="team-fabric",
         reader_owner="team-runtime-quality",
     )
+
+
+def _data_requirement_spec(source_family: str) -> dict[str, Any]:
+    return {
+        "schema_version": "policyos.data_requirement_spec.v1",
+        "requirement_id": f"data-requirement:claim-credit:{source_family}",
+        "claim_id": "claim-credit",
+        "claim_family": "causal",
+        "claim_type": "causal",
+        "claim_use": "decision_support",
+        "required_data_families": [source_family],
+        "scope": {
+            "population": "msmes",
+            "geography": "state_or_region",
+            "time": "annual",
+            "time_role": "observation_time",
+        },
+        "recency_horizon": "P90D",
+        "lineage_strictness": "strict",
+        "quality_minima": {
+            "min_quality_score": 0.8,
+            "min_completeness": 0.95,
+        },
+        "missingness_tolerance": 0.05,
+        "transformation_tolerance": "traceable",
+        "admissibility_predicates": [
+            "source_family_matches_compiled_requirement",
+            "source_contract_active",
+        ],
+        "mandatory_facets": [
+            "source_contract_ref",
+            *DATA_REQUIRED_FACETS,
+            "freshness_ref",
+            "quality_assertion_refs",
+            "construct_validity_refs",
+            "outlier_refs",
+            "claim_bindability_refs",
+        ],
+        "facet_refs": ["facet:instrument"],
+        "obligation_refs": ["obl:data"],
+        "concept_spine_refs": ["concept:msme"],
+        "authority_profile_refs": ["authority:production"],
+    }
 
 
 def _scenario_contract(*requirements: ScenarioEvidenceRequirement) -> dict[str, Any]:

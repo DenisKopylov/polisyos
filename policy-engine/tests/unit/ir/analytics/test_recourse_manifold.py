@@ -116,7 +116,7 @@ def test_manifold_rejects_missing_channel_for_mutable_node() -> None:
 
 def test_query_rejects_bounded_point_probability_combo() -> None:
     _minimal_manifold()
-    from polisyos.ir.refs import InterventionCostManifoldRef
+    from polisyos.ir.registry.refs import InterventionCostManifoldRef
 
     manifold_ref = InterventionCostManifoldRef(
         artifact_id="sha256:" + "a" * 64,
@@ -136,7 +136,7 @@ def test_query_rejects_bounded_point_probability_combo() -> None:
 
 
 def test_proof_bundle_caps_readiness_by_status() -> None:
-    from polisyos.ir.refs import OptimalRecourseInterventionQueryRef
+    from polisyos.ir.registry.refs import OptimalRecourseInterventionQueryRef
 
     query_ref = OptimalRecourseInterventionQueryRef(
         artifact_id="sha256:" + "b" * 64,
@@ -175,7 +175,7 @@ def test_proof_bundle_caps_readiness_by_status() -> None:
 
 
 def test_proof_bundle_rejects_bounded_point_probability_combo() -> None:
-    from polisyos.ir.refs import OptimalRecourseInterventionQueryRef
+    from polisyos.ir.registry.refs import OptimalRecourseInterventionQueryRef
 
     query_ref = OptimalRecourseInterventionQueryRef(
         artifact_id="sha256:" + "1" * 64,
@@ -324,7 +324,7 @@ def test_feasibility_certificate_accepts_action_scoped_prerequisites() -> None:
 
 
 def test_recourse_bundle_blocks_when_solver_status_blocked() -> None:
-    from polisyos.ir.refs import (
+    from polisyos.ir.registry.refs import (
         OptimalRecourseInterventionQueryRef,
         RecourseProofBundleRef,
     )
@@ -353,7 +353,7 @@ def test_recourse_bundle_blocks_when_solver_status_blocked() -> None:
 
 
 def test_render_recourse_query_is_stable() -> None:
-    from polisyos.ir.refs import InterventionCostManifoldRef
+    from polisyos.ir.registry.refs import InterventionCostManifoldRef
 
     manifold_ref = InterventionCostManifoldRef(
         artifact_id="sha256:" + "e" * 64,

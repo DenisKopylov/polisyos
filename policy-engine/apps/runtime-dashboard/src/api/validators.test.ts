@@ -119,4 +119,107 @@ describe("runtime API validators", () => {
       });
     },
   );
+
+  it("fails closed when dashboard projection closeout truth is missing", () => {
+    const payload = runDetailsPayload("publishable");
+    payload.run.policy_design_case_projection = {
+      audience: "public",
+      authority_role: "projection_only",
+      closeout_truth: {
+        status: "ready",
+        verdict: "can_closeout",
+        can_closeout: null,
+      },
+      labels: [
+        {
+          authority_role: "projection_only",
+          label: "publishable",
+          state: "publishable",
+        },
+      ],
+      may_not_be_used_for: ["scorecard_authority"],
+      primary_state: "publishable",
+      projection_policy: "reads_policy_design_case_only",
+      states: ["publishable", "projection_only"],
+    };
+
+    const parsed = runDetailsSchema.parse(payload);
+    const projection = parsed.run.policy_design_case_projection as Record<
+      string,
+      unknown
+    >;
+
+    expect(projection.primary_state).toBe("blocked");
+    expect(projection.fail_closed_codes).toContain(
+      "projection_closeout_truth_missing",
+    );
+    expect(projection.closeout_truth).toMatchObject({
+      can_closeout: false,
+      status: "blocked",
+      verdict: "cannot_closeout",
+    });
+    expect(projection.may_not_be_used_for).toEqual(
+      expect.arrayContaining([
+        "runtime_closeout_authority",
+        "scorecard_authority",
+      ]),
+    );
+  });
+
+  it("fails closed when participation projection launders speculative prevalence", () => {
+    const payload = runDetailsPayload("projection only");
+    payload.run.policy_design_case_projection = {
+      audience: "public",
+      authority_role: "projection_only",
+      closeout_truth: {
+        blocker_codes: [],
+        blockers: [],
+        can_closeout: true,
+        contested_state: "not_contested",
+        limitation_codes: [],
+        omission_codes: [],
+        status: "ready",
+        verdict: "can_closeout",
+      },
+      labels: [
+        {
+          authority_role: "projection_only",
+          label: "projection only",
+          state: "projection_only",
+        },
+      ],
+      may_not_be_used_for: ["scorecard_authority"],
+      participation_requirements: [
+        {
+          claim_id: "claim-preference",
+          claim_use_requested: "prevalence",
+          claim_use_allowed: "prevalence",
+          source_kind: "llm_speculation",
+          representativeness_class: "unknown",
+          public_projection_effect: "supports_claim",
+        },
+      ],
+      primary_state: "projection_only",
+      projection_policy: "reads_policy_design_case_only",
+      states: ["projection_only"],
+    };
+
+    const parsed = runDetailsSchema.parse(payload);
+    const projection = parsed.run.policy_design_case_projection as Record<
+      string,
+      unknown
+    >;
+
+    expect(projection.primary_state).toBe("blocked");
+    expect(projection.fail_closed_codes).toContain(
+      "participation_projection_authority_leak",
+    );
+    expect(projection.may_not_be_used_for).toEqual(
+      expect.arrayContaining([
+        "participation_authority",
+        "runtime_closeout_authority",
+        "scorecard_authority",
+      ]),
+    );
+  });
 });

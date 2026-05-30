@@ -15,8 +15,8 @@ from polisyos.ir.analytics.welfare import (
     persist_welfare_bundle,
 )
 from polisyos.ir.artifacts import put_json_artifact
-from polisyos.ir.canon import CanonSpec
-from polisyos.ir.refs import (
+from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.ir.registry.refs import (
     ArtifactRefModel,
     ChannelDecompositionArtifactRef,
     GEUncertaintyBundleRef,

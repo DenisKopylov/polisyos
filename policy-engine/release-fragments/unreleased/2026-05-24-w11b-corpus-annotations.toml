@@ -1,0 +1,45 @@
+id = "2026-05-24-w11b-corpus-annotations"
+title = "Validate universal outcome corpus claim/evidence annotations"
+type = "added"
+component = "corpus"
+owner = "team-evaluation"
+summary = "Add W11.B strict claim/evidence decomposition annotation contracts, a repo-owned annotated corpus seed, and a fail-closed validation checker."
+evidence = [
+  "tests/unit/corpus/test_annotations.py",
+  "tests/repo_quality/tools/test_universal_corpus_annotations.py",
+  "tools/quality/validation/check_universal_corpus_annotations.py",
+]
+compatibility = "Additive internal Python API under polisyos.corpus plus a direct validation script; annotations are evaluation artifacts only."
+change_class = "python-public-api"
+surface_classification = "internal: polisyos.corpus"
+migration = "Add W11.B YAML frontmatter annotations to outcome-corpus Markdown cases before using them in fixture loaders or compilation truthfulness checks."
+api = "Adds PolicyCaseAnnotation and related W11.B annotation models, loaders, audit surface, and deterministic JSON artifact writer."
+limitations = "Annotations cannot satisfy claim authority, producer evidence authority, legal authority, method validity, participation legitimacy, projection authority, or closeout."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "docs/research/universal-policy-design/outcome-corpus/README.md",
+  "tools/quality/validation/README.md",
+]
+runbook_docs = [
+  "tools/quality/validation/README.md",
+]
+
+[[compatibility_change]]
+id = "corpus-w11b-annotation-contracts"
+change_class = "python-public-api"
+impact = "additive"
+surface = "internal: polisyos.corpus"
+owner = "team-evaluation"
+version_owner = "team-evaluation"
+deprecation_window = "not_applicable"
+release_note = "Universal outcome corpus cases now have strict W11.B claim/evidence decomposition annotation contracts and a fail-closed checker."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "docs/research/universal-policy-design/outcome-corpus/README.md",
+  "tools/quality/validation/README.md",
+]
+runbook_docs = [
+  "tools/quality/validation/README.md",
+]

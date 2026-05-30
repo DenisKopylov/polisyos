@@ -42,7 +42,7 @@ from polisyos.ir.analytics.structural_causal_model import (
     persist_structural_causal_model_spec,
 )
 from polisyos.ir.analytics.uncertainty import persist_uncertainty_envelope
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     CausalDiscoveryReportRef,
     CausalGraphModelRef,
     CausalQueryResultRef,

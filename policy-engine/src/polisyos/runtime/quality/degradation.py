@@ -730,13 +730,13 @@ def _contains_jax_missing(payload: object) -> bool:
 
 
 __all__ = [
-    "DEGRADATION_LEDGER_REQUIRED_FIELDS",
     "DEFAULT_MODE_AND_FALLBACK_POLICY_REGISTRY",
+    "DEGRADATION_LEDGER_REQUIRED_FIELDS",
     "DegradationLedgerContractError",
     "DegradationLedgerRecord",
+    "DegradationPolicyDecision",
     "ModeAndFallbackPolicyRegistry",
     "ModeAndFallbackPolicyRegistryError",
-    "DegradationPolicyDecision",
     "TypedBlocker",
     "assert_serious_fallback_allowed",
     "build_degradation_record",

@@ -1,0 +1,138 @@
+{
+  "adjudications": [
+    {
+      "adjudication_id": "adj-case-w11a_ghana_free_shs_2017",
+      "claim_id": null,
+      "context_refs": [
+        "text:case:summary"
+      ],
+      "dimension_id": "public_truthfulness",
+      "evidence_refs": [
+        "evidence:education-sector-apr-2019"
+      ],
+      "gold_card": {
+        "claim_id": "case",
+        "context_ref": "text:case:summary",
+        "dimension_id": "public_truthfulness",
+        "evidence_ref": "evidence:education-sector-apr-2019",
+        "failure_mode": "infrastructure_capacity_constraint",
+        "required_surface_change": "Expose the case-level C30 adjudication before useful-design counting.",
+        "status_should_have_been": "publish_with_limitation",
+        "why_structural_checks_missed_it": "Structural completion alone cannot establish public truthfulness for the corpus case."
+      },
+      "label": "limitation_required",
+      "reviewer_votes": [
+        {
+          "disagreement_category": "none",
+          "label": "limitation_required",
+          "rationale": "C30 first-pass adjudication preserves limitation_required for the corpus case.",
+          "reviewer_id": "reviewer-method-evidence-w11c"
+        },
+        {
+          "disagreement_category": "none",
+          "label": "limitation_required",
+          "rationale": "C30 first-pass adjudication preserves limitation_required for the corpus case.",
+          "reviewer_id": "reviewer-public-surface-w11c"
+        }
+      ],
+      "scope": "case",
+      "structural_pass_claimed": true,
+      "structural_validator_refs": [
+        "w11.fixture.loader",
+        "w11.compilation.truthfulness"
+      ]
+    },
+    {
+      "adjudication_id": "adj-claim-claim-free-shs-expands-access",
+      "claim_id": "claim:free-shs-expands-access",
+      "context_refs": [
+        "text:case:summary"
+      ],
+      "dimension_id": "causal_support",
+      "evidence_refs": [
+        "evidence:education-sector-apr-2019"
+      ],
+      "gold_card": {
+        "claim_id": "claim:free-shs-expands-access",
+        "context_ref": "text:case:summary",
+        "dimension_id": "causal_support",
+        "evidence_ref": "evidence:education-sector-apr-2019",
+        "failure_mode": "infrastructure_capacity_constraint",
+        "required_surface_change": "Expose annotation-derived limitation, contestation, or blocker state.",
+        "status_should_have_been": "publish_with_limitation",
+        "why_structural_checks_missed_it": "W11.D fixture preserves annotation semantics for truthfulness comparison."
+      },
+      "label": "limitation_required",
+      "reviewer_votes": [
+        {
+          "disagreement_category": "none",
+          "label": "limitation_required",
+          "rationale": "C30 first-pass adjudication preserves limitation_required for the corpus case.",
+          "reviewer_id": "reviewer-method-evidence-w11c"
+        },
+        {
+          "disagreement_category": "none",
+          "label": "limitation_required",
+          "rationale": "C30 first-pass adjudication preserves limitation_required for the corpus case.",
+          "reviewer_id": "reviewer-public-surface-w11c"
+        }
+      ],
+      "scope": "claim",
+      "structural_pass_claimed": true,
+      "structural_validator_refs": [
+        "w11.fixture.loader",
+        "w11.compilation.truthfulness"
+      ]
+    }
+  ],
+  "authority_level": "research",
+  "case_id": "w11a_ghana_free_shs_2017",
+  "case_ref": "repo://docs/research/universal-policy-design/outcome-corpus/ghana-free-shs-2017-education-access.md",
+  "decomposition_ref": "repo://docs/research/universal-policy-design/outcome-corpus/ghana-free-shs-2017-education-access.md#frontmatter",
+  "domain_id": "education_access",
+  "expected_claim_ids": [
+    "claim:free-shs-expands-access"
+  ],
+  "manifest_id": "w11c-w11a_ghana_free_shs_2017",
+  "pattern_ids": [
+    "P05",
+    "P10",
+    "P15"
+  ],
+  "phase_id": "W11.C",
+  "research_refs": [
+    "E1",
+    "E22",
+    "E24",
+    "C30"
+  ],
+  "reviewer_topology": {
+    "annotation_guide_ref": "repo://docs/research/universal-policy-design/outcome-corpus/adjudications/README.md#annotation-guide",
+    "calibration_round_id": null,
+    "corpus_slice": "admissibility_pair_set",
+    "reviewers": [
+      {
+        "conflict_disclosures": [
+          "none_declared"
+        ],
+        "expertise_basis": [
+          "method and evidence adequacy review"
+        ],
+        "reviewer_id": "reviewer-method-evidence-w11c",
+        "role": "method_evidence_reviewer"
+      },
+      {
+        "conflict_disclosures": [
+          "none_declared"
+        ],
+        "expertise_basis": [
+          "public truthfulness and limitation review"
+        ],
+        "reviewer_id": "reviewer-public-surface-w11c",
+        "role": "public_surface_reviewer"
+      }
+    ],
+    "topology_mode": "partial_disjoint"
+  },
+  "schema_version": "policyos.universal_policy_design.outcome_corpus.expert_adjudication.v1"
+}

@@ -27,7 +27,7 @@ class FabricCompatibilityBridge(BaseModel):
 FABRIC_COMPATIBILITY_BRIDGES: tuple[FabricCompatibilityBridge, ...] = (
     FabricCompatibilityBridge(
         id="runtime.fabric_decision_data_v1",
-        source_surface="polisyos.fabric.decision_data.FabricDecisionData",
+        source_surface="polisyos.fabric.evidence.decision_data.FabricDecisionData",
         target_surface="/api/v1/runs/{run_id}/fabric-decision-data",
         owner="@fabric-owners",
         reason="Expose trust envelopes to Runtime while downstream clients migrate to native QuantityValue rendering.",

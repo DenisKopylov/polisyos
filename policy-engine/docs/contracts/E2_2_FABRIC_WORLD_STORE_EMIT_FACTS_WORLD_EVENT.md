@@ -34,7 +34,7 @@ Source of truth:
 - `WorldID` must match `ID_PATTERN = ^[a-z][a-z0-9_.-]*$` (colon‑free)
 - `ArtifactID` is `sha256:<hex64>`
 - all edges are encoded as fact predicates: `predicate_id="world.rel.<edge_kind>"`
-- canonical JSON forbids floats (`polisyos.ir.canon.to_canonical_bytes()`)
+- canonical JSON forbids floats (`polisyos.ir.model_layer.canon.to_canonical_bytes()`)
 
 ### 0.2 CAS exists in Core (E1.4)
 
@@ -78,7 +78,7 @@ In this repo, `Fact.fact_id` is computed from canonical payload bytes of:
 
 `{subject_id, predicate_id, object_value, target_id, valid_time, provenance, trust, legal}`
 
-Source of truth: `polisyos.fabric.fact_writer._fact_from_payload()` + `polisyos.ir.fact_log.build_fact_id()`.
+Source of truth: `polisyos.fabric.evidence.fact_writer._fact_from_payload()` + `polisyos.ir.loading.fact_log.build_fact_id()`.
 
 Therefore, **provenance changes change fact_id**.
 
@@ -193,7 +193,7 @@ Phase 9 does not mandate which root wins; it mandates **the “/world/” channe
 
 ### 4.2 Segment schema (parquet columns)
 
-World facts use the existing `polisyos.fabric.fact_writer.write_fact_segment()` writer.
+World facts use the existing `polisyos.fabric.evidence.fact_writer.write_fact_segment()` writer.
 
 Therefore the parquet columns are normative (Phase 9):
 
@@ -275,7 +275,7 @@ Provide provenance builders used by all emitters.
 Normative API:
 
 ```python
-from polisyos.ir.fact_log import FactProvenance
+from polisyos.ir.loading.fact_log import FactProvenance
 
 def stable_world_provenance_v1(*, license: str = "internal") -> FactProvenance: ...
 
@@ -368,12 +368,12 @@ Persist functions may add `PutOptions.inputs` so that CAS manifests capture dire
 
 #### 6.5.1 Core primitives
 
-Emitters must build facts via `polisyos.fabric.fact_writer.build_fact()` to ensure deterministic `fact_id` hashing rules are consistent across the codebase.
+Emitters must build facts via `polisyos.fabric.evidence.fact_writer.build_fact()` to ensure deterministic `fact_id` hashing rules are consistent across the codebase.
 
 Normative primitives:
 
 ```python
-from polisyos.ir.fact_log import Fact, FactProvenance, FactLegal
+from polisyos.ir.loading.fact_log import Fact, FactProvenance, FactLegal
 from polisyos.ir.world.abi import NodeKind, EdgeKind
 
 def emit_attr_fact(
@@ -598,7 +598,7 @@ On mismatch → raise `WorldIDError`.
 Implement:
 
 ```python
-from polisyos.ir.fact_log import Fact
+from polisyos.ir.loading.fact_log import Fact
 
 def validate_fact_is_world_abi(fact: Fact, *, strict_edge_kinds: bool = False) -> None: ...
 def validate_world_facts(facts: list[Fact]) -> None: ...
@@ -634,7 +634,7 @@ Normative API:
 
 ```python
 from pathlib import Path
-from polisyos.ir.fact_log import Fact, FactSegmentManifest
+from polisyos.ir.loading.fact_log import Fact, FactSegmentManifest
 
 SEGMENTS_INDEX_NAME = "_segments.jsonl"
 

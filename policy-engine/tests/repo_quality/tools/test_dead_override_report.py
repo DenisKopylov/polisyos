@@ -47,6 +47,31 @@ def test_dead_override_report_remains_zero_exit_when_debt_is_visible(tmp_path: P
     }
 
 
+def test_dead_override_report_normalizes_nested_ruff_config_paths(tmp_path: Path) -> None:
+    _write_repo_with_metadata(tmp_path)
+    generated = tmp_path / "architecture" / "tooling" / "ruff" / "generated.toml"
+    generated.parent.mkdir(parents=True, exist_ok=True)
+    generated.write_text(
+        """
+[lint.per-file-ignores]
+"../../../src/polisyos/pkg/live.py" = ["ANN401"]
+""".lstrip(),
+        encoding="utf-8",
+    )
+
+    report = dead_overrides.build_report(
+        tmp_path,
+        ruff_config="architecture/tooling/ruff/generated.toml",
+    )
+
+    ruff_findings = [
+        finding
+        for finding in report["findings"]
+        if finding["tool"] == "ruff"
+    ]
+    assert ruff_findings == []
+
+
 def _write_repo_with_metadata(repo_root: Path) -> None:
     _write_common_configs(
         repo_root,

@@ -34,7 +34,7 @@ from polisyos.scientist.methods.search.artifact_minimality import (
     artifact_functions_field,
 )
 
-DOWNSTREAM_UTILITY_REPORT_SCHEMA_NAME = "polisyos.scientist.discovery.DownstreamUtilityReport"
+DOWNSTREAM_UTILITY_REPORT_SCHEMA_NAME = "polisyos.scientist.methods.discovery.DownstreamUtilityReport"
 
 
 class UtilityJudgeConfig(BaseModel):

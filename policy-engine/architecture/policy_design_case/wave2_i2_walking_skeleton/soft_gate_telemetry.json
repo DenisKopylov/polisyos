@@ -1,0 +1,90 @@
+{
+  "advisory_review_telemetry": {
+    "authority_boundary": {
+      "authoritative_for": [
+        "review_effectiveness_measurement_absence"
+      ],
+      "may_not_use_for": [
+        "current_run_closeout_block",
+        "publication_block",
+        "claim_support_downgrade"
+      ]
+    },
+    "blocking_permitted": false,
+    "posture": "not_observed",
+    "schema_version": "policyos.human_review_effectiveness_telemetry.v1"
+  },
+  "authority_boundary": {
+    "authoritative_for": [
+      "soft_gate_lifecycle_tracking",
+      "bounded_liveness_runtime_observability",
+      "repair_decision_self_fmea",
+      "complexity_budget_observability"
+    ],
+    "may_not_use_for": [
+      "claim_support",
+      "evidence_admissibility",
+      "current_run_closeout_without_scorecard_gate"
+    ]
+  },
+  "bounded_liveness_hooks": [],
+  "complexity_budget_telemetry": {
+    "authority_effect": "advisory_complexity_budget",
+    "budget": {
+      "max_elapsed_seconds": 86400.0,
+      "max_gate_count": 200.0,
+      "max_human_review_hours": 24.0,
+      "max_repair_decision_count": 10.0,
+      "max_review_count": 50.0,
+      "max_tool_count": 20.0,
+      "max_total_actual_cost_usd": 1000.0,
+      "max_warning_count": 10.0
+    },
+    "human_form_count": 0,
+    "input_source": "runtime_telemetry",
+    "measurements": {
+      "elapsed_seconds": 0.0,
+      "gate_count": 0,
+      "human_review_hours": 0.0,
+      "repair_decision_count": 0,
+      "repair_fmea_annotation_count": 0,
+      "review_count": 0,
+      "tool_count": 0,
+      "total_actual_cost_usd": 0.0,
+      "warning_count": 0
+    },
+    "prune_or_merge_decisions": [],
+    "status": "advisory_within_budget"
+  },
+  "generated_at": "2026-05-22T12:00:00+00:00",
+  "job_id": "job-wave2-i2",
+  "pattern_refs": [
+    "P04",
+    "P09",
+    "P13"
+  ],
+  "repair_decision_fmea": {
+    "decisions": [],
+    "machinery_failures": [],
+    "summary": {
+      "max_risk_priority_number": null,
+      "repair_decision_count": 0,
+      "repair_fmea_annotation_count": 0,
+      "repair_fmea_unannotated_count": 0,
+      "repair_machinery_failure_count": 0
+    }
+  },
+  "run_id": "run-wave2-i2",
+  "schema_version": "policyos.runtime.soft_gate_telemetry.v1",
+  "status": "pass",
+  "summary": {
+    "bounded_liveness_hook_count": 0,
+    "complexity_budget_status": "advisory_within_budget",
+    "expired_warning_count": 0,
+    "repair_decision_count": 0,
+    "repair_fmea_annotation_count": 0,
+    "warning_count": 0
+  },
+  "surface": "quality_scorecard.soft_gate_telemetry",
+  "warning_lifecycle": []
+}

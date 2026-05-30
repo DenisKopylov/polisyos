@@ -1549,7 +1549,11 @@ def test_production_data_canary_materializes_local_lane_without_external_fetch(
                 "version_id": "local_data_20990101",
                 "readiness": "ready",
                 "path": "canonical/local_data_20990101/policy_engine_data/curated",
-                "required_files": ["data_contracts.json", "source_bindings.json"],
+                "required_files": [
+                    "data_contracts.json",
+                    "source_bindings.json",
+                    "source_contracts_v2.json",
+                ],
             },
             "datasets": {
                 "version_id": "datasets_full_20990101",
@@ -1574,6 +1578,7 @@ def test_production_data_canary_materializes_local_lane_without_external_fetch(
                         "contract_id": "contract.production_msme_panel",
                         "dataset_identity": "dataset:prod-msme-panel:202605",
                         "source_family": "production_msme_panel",
+                        "source_contract_ref": "source-contract:production_msme_panel:v1",
                         "source_rights": "public_sector_reuse",
                         "dictionary_ref": "dictionary:prod-msme-panel:v1",
                         "schema_ref": "schema:prod-msme-panel:v1",
@@ -1615,6 +1620,27 @@ def test_production_data_canary_materializes_local_lane_without_external_fetch(
                         "dataset_id": "wartime_msme_panel",
                     }
                 ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    (curated_dir / "source_contracts_v2.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "fabric.source_contract.v2",
+                "contracts": {
+                    "source-contract:production_msme_panel:v1": {
+                        "id": "source-contract:production_msme_panel:v1",
+                        "version": "1.1.0",
+                        "status": "active",
+                        "content_hash": "sha256:" + "c" * 64,
+                        "contract": {
+                            "id": "source-contract:production_msme_panel:v1",
+                            "version": "1.1.0",
+                            "status": "active",
+                        },
+                    }
+                },
             }
         ),
         encoding="utf-8",

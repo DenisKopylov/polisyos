@@ -48,7 +48,7 @@ from polisyos.ir.analytics.strategic import (
     StrategicSolutionConcept,
     compile_intervention_spec_to_mean_field_perturbation,
 )
-from polisyos.ir.refs import ArtifactRefModel, MeanFieldEquilibriumCertificateRef
+from polisyos.ir.registry.refs import ArtifactRefModel, MeanFieldEquilibriumCertificateRef
 
 MAX_STRATEGIC_ACTIONS_PER_AGENT = 8
 MAX_STRATEGIC_PROFILE_ENUMERATIONS = 256

@@ -13,7 +13,7 @@ from polisyos.ir.observation.contracts import (
     ObservationFamily,
     SourceConfidenceTier,
 )
-from polisyos.ir.types import TimeFrequency
+from polisyos.ir.model_layer.types import TimeFrequency
 
 
 class StageId(str, Enum):

@@ -19,7 +19,7 @@ from polisyos.ir.governance.policy_spec import InterventionSpec, MechanismBindin
 from polisyos.ir.governance.policy_spec import PolicySpec as PolicySpecModel
 from polisyos.ir.governance.problem_frame import ProblemFrame as ProblemFrameModel
 from polisyos.ir.kernel.mechanisms import MechanismTypeSpec
-from polisyos.ir.model_spec import ModelSpec as ModelSpecModel
+from polisyos.ir.model_layer.model_spec import ModelSpec as ModelSpecModel
 from polisyos.ir.trinity import TrinityBundle
 
 CoverageStatus = Literal[

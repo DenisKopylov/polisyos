@@ -10,7 +10,7 @@ import re
 import subprocess
 import sys
 from collections import Counter
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Mapping, Sequence
 from copy import deepcopy
 from datetime import UTC, datetime
 from pathlib import Path
@@ -929,7 +929,7 @@ def _transliterate_ukrainian(value: str) -> str:
 
 
 def _approval_reason(*, surface: str, path: str, context: str) -> str:
-    if "locales/" in path or path.endswith((".json", ".ts", ".tsx")) and "i18n" in path:
+    if "locales/" in path or (path.endswith((".json", ".ts", ".tsx")) and "i18n" in path):
         return "Locale resource or UI projection key, not routing logic."
     if "golden_quality_scenarios" in path or "quality_scenarios" in path:
         return "Scenario contract literal used as test input, not a hardcoded language path."

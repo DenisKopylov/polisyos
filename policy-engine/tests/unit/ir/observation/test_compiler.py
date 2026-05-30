@@ -21,7 +21,7 @@ from polisyos.ir.observation.measurement import (
     SchemaRegimeRegistry,
     SchemaRegimeSpec,
 )
-from polisyos.ir.types import TimeFrequency
+from polisyos.ir.model_layer.types import TimeFrequency
 
 
 def _record(

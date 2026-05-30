@@ -8,6 +8,12 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
+from polisyos.ir.registry.refs import (
+    ArtifactRefModel,
+    DynamicTreatmentRegimeRef,
+    EffectTrajectoryBundleRef,
+    TemporalInterventionTrajectoryRef,
+)
 
 from benchmarks.temporal.common import TemporalBenchmarkFixture
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -39,13 +45,7 @@ from polisyos.ir.analytics.dynamic_regime import (
     persist_temporal_intervention_trajectory,
 )
 from polisyos.ir.artifacts import get_json_artifact
-from polisyos.ir.refs import (
-    ArtifactRefModel,
-    DynamicTreatmentRegimeRef,
-    EffectTrajectoryBundleRef,
-    TemporalInterventionTrajectoryRef,
-)
-from polisyos.scientist.backtesting.temporal import (
+from polisyos.scientist.methods.backtesting.temporal import (
     TemporalThresholds,
     evaluate_temporal_safe_rejection,
     evaluate_temporal_trajectory,

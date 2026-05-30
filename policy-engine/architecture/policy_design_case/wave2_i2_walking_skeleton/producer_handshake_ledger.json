@@ -1,0 +1,136 @@
+{
+  "findings": [],
+  "producer_handshake_ledger_ref": "producer-handshake-ledger:sha256:355ffffd0c1a827662bc89d501b3dc1f5e1e01408ee5341c12a64e58279af3f7",
+  "records": [
+    {
+      "bindings": [
+        {
+          "artifact_ref": "fixture.data.msme_panel",
+          "binding_id": "binding.fixture.dataset",
+          "binding_kind": "dataset",
+          "bridge_ref": null,
+          "concept_ref": "concept.msme_survival_rate",
+          "disposition": "selected",
+          "label": null,
+          "requirement_ref": "scenario.req.msme_credit_guarantee",
+          "time_role": "policy_time"
+        },
+        {
+          "artifact_ref": "fixture.norm.msme_credit_eligibility",
+          "binding_id": "binding.fixture.norm",
+          "binding_kind": "norm",
+          "bridge_ref": null,
+          "concept_ref": "concept.msme_survival_rate",
+          "disposition": "selected",
+          "label": null,
+          "requirement_ref": "scenario.req.msme_credit_guarantee",
+          "time_role": "policy_time"
+        },
+        {
+          "artifact_ref": "fixture.method.deterministic_delta",
+          "binding_id": "binding.fixture.method",
+          "binding_kind": "method",
+          "bridge_ref": null,
+          "concept_ref": "concept.msme_survival_rate",
+          "disposition": "selected",
+          "label": null,
+          "requirement_ref": "scenario.req.msme_credit_guarantee",
+          "time_role": "policy_time"
+        },
+        {
+          "artifact_ref": "fixture.claim.msme_survival",
+          "binding_id": "binding.fixture.claim",
+          "binding_kind": "claim",
+          "bridge_ref": null,
+          "concept_ref": "concept.msme_survival_rate",
+          "disposition": "selected",
+          "label": null,
+          "requirement_ref": "scenario.req.msme_credit_guarantee",
+          "time_role": "policy_time"
+        }
+      ],
+      "blocked_binding_refs": [],
+      "blockers": [],
+      "bridge_authority": {
+        "authoritative_boundary": "producer_spine_handshake",
+        "authoritative_for": [
+          "boundary_continuity"
+        ],
+        "authority_role": "closeout_input",
+        "bridge_class": "producer_attestation",
+        "bridge_ref": "bridge.deterministic_policy_fixture.producer-handshake:sha256:8b83729b73c106df70eed52138249f5f07c3ca442fb800274040d3b8c218a55f",
+        "cas_ref": "producer-handshake:sha256:8b83729b73c106df70eed52138249f5f07c3ca442fb800274040d3b8c218a55f",
+        "closeout_input": true,
+        "consumer_component": "runtime.semantic_binding",
+        "input_refs": [
+          "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+          "scenario.req.msme_credit_guarantee"
+        ],
+        "may_not_use_for": [
+          "producer_domain_truth",
+          "public_projection_authority",
+          "evidence_strength"
+        ],
+        "output_refs": [
+          "binding.fixture.dataset",
+          "binding.fixture.norm",
+          "binding.fixture.method",
+          "binding.fixture.claim"
+        ],
+        "producer_component": "deterministic_policy_fixture",
+        "provenance_kind": "runtime_emitted",
+        "reader_compatible": true,
+        "redaction_integrity_status": "pass",
+        "same_input_closed": true,
+        "schema_version": "policyos.runtime.policy_design_case.concept_spine_bridge_authority.v1"
+      },
+      "consumed_concept_refs": [
+        "concept.msme_survival_rate"
+      ],
+      "consumed_concept_spine_ref": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "consumed_jurisdiction_spine_ref": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+      "consumed_requirement_refs": [
+        "scenario.req.msme_credit_guarantee"
+      ],
+      "context_only_label_refs": [],
+      "emitted_binding_refs": [],
+      "handshake_id": "producer-handshake:sha256:8b83729b73c106df70eed52138249f5f07c3ca442fb800274040d3b8c218a55f",
+      "job_id": "job-wave2-i2",
+      "liveness": {
+        "config_id": "policyos.bounded_liveness.default.v1",
+        "config_version": "2026-05-22",
+        "deadline_s": 30.0,
+        "escalation": "runtime_escalation",
+        "feature_flag": "universal_pdc_bounded_liveness",
+        "notes": [],
+        "owner": "team-runtime-quality",
+        "producer_key": "deterministic_policy_fixture",
+        "retry_ceiling": 1
+      },
+      "producer_component": "deterministic_policy_fixture",
+      "rejected_binding_refs": [],
+      "run_id": "run-wave2-i2",
+      "schema_version": "policyos.runtime.policy_design_case.producer_handshake_record.v1",
+      "selected_binding_refs": [
+        "binding.fixture.dataset",
+        "binding.fixture.norm",
+        "binding.fixture.method",
+        "binding.fixture.claim"
+      ],
+      "state": "emitted_binding",
+      "status": "pass",
+      "tenant_id": "tenant-wave2-i2",
+      "wait_conditions": []
+    }
+  ],
+  "run_id": "run-wave2-i2",
+  "schema_version": "policyos.runtime.policy_design_case.producer_handshake_ledger.v1",
+  "status": "pass",
+  "summary": {
+    "blocked_record_count": 0,
+    "finding_count": 0,
+    "record_count": 1,
+    "required_producer_count": 1
+  }
+}

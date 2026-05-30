@@ -8,7 +8,7 @@ import re
 from collections.abc import Mapping, Sequence
 from typing import Any
 
-from polisyos.runtime.quality.claim_registry import normalize_runtime_claim_registry
+from polisyos.evidence import normalize_runtime_claim_registry
 from polisyos.scientist.artifacts.decision_compiler import (
     DECISION_ARTIFACT_SCHEMA_VERSION,
     PUBLIC_FORBIDDEN_KEY_TOKENS,

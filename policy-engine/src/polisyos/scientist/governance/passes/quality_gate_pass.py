@@ -13,7 +13,6 @@ from polisyos.core.governance.passes.base import (
     PassContext,
     ValidatorPass,
 )
-from polisyos.fabric.fitness_report import DataFitnessReport, MetricFitness
 from polisyos.fabric.quality import (
     QualityIndicators,
     QualityLevel,
@@ -21,6 +20,7 @@ from polisyos.fabric.quality import (
     compute_quality_indicators,
     get_cached_quality_indicators,
 )
+from polisyos.fabric.quality.fitness_report import DataFitnessReport, MetricFitness
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 
 _QUALITY_GATE_ERRORS = (

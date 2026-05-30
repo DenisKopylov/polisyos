@@ -48,8 +48,7 @@ HIGH_VOLUME_SUBTREE_DOCS: dict[str, tuple[str, ...]] = {
     ),
     "src/polisyos/data_forge/domains/catalog/batch": ("README.md", "AUTHORING.md"),
     "src/polisyos/scientist/agent": ("README.md", "AUTHORING.md", "index.md"),
-    "src/polisyos/scientist/search": ("README.md", "AUTHORING.md", "index.md"),
-    "src/polisyos/scientist/engine": ("README.md", "AUTHORING.md"),
+    "src/polisyos/scientist/methods/search": ("README.md", "AUTHORING.md", "index.md"),
     "src/polisyos/scientist/orchestration/engine": (
         "README.md",
         "AUTHORING.md",

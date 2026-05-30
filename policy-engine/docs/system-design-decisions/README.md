@@ -33,6 +33,13 @@ before ADR acceptance.
 A document in this directory may later become one or more ADRs. Until then, it
 is intentionally explicit about status, open questions, and consequences.
 
+For universal Policy Design Case operations, use
+`docs/reference/policy-design-case-operator-guide.md` as the W5.E operator
+lookup path. Promotion, hold, rollback, and kill-switch procedures live in
+`docs/runbooks/policy-design-case-rollout-rollback.md`. Those pages link back
+to this index and the append-only decision log when a reversible design
+decision has not yet become an accepted ADR.
+
 ## Document Shape
 
 Each decision document should include:
@@ -57,3 +64,4 @@ implementation work, move that part to `docs/plans/`.
 |----------|--------|-------|
 | [Honest Diagnostics Substrate](honest-diagnostics-substrate.md) | Draft umbrella, ADR core accepted | Runtime evidence authority, provenance, mode, fallback/degradation, phase barriers, scorecard/readiness/approval semantics |
 | [Best-In-Class Policy Design Operating Model](policy-design-best-in-class-operating-model.md) | Draft design decision | Assurance-case-aligned policy design case, reuse-first capability realization map, Scholar academic evidence producer, concept spine, legal/data/method authority, evidence portfolios, multiverse/specification curves, argument-bearing claim compiler, effective oversight, requester-capture controls, lifecycle, ex-post learning, calibration, governance/publication boundaries |
+| [Policy Design Case Decision Log](policy-design-case-decision-log.md) | Active append-only log | Reversible implementation-time ownership assignments, temporary exceptions, proof-obligation owners, Wave 35/Wave 41 disposition entries, and docs-ADR integration context used by W5.E operator guidance |

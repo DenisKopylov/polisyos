@@ -40,7 +40,7 @@
       "proposed_before_wave": "1.5"
     },
     {
-      "adapter_policy": "Package adapters may translate local resources to core identity, authorization, audit, and quota primitives; non-core packages must not define global security context APIs.",
+      "adapter_policy": "Package-local security modules may translate bounded-context authorization, quality-gate, or audit vocabulary to polisyos.core.security; they must not define competing cross-package security APIs.",
       "canonical_home": "polisyos.core.security",
       "decision": "canonical_interface_plus_package_adapters",
       "implementation_locations": [
@@ -69,7 +69,7 @@
       "proposed_before_wave": "1.5"
     },
     {
-      "adapter_policy": "Package registries may adapt domain records to core registry primitives; they must stay package-qualified and must not act as process-wide registry singletons.",
+      "adapter_policy": "Package registries may remain bounded-context catalogs; cross-component registry contracts must route through polisyos.core.registry.",
       "canonical_home": "polisyos.core.registry",
       "decision": "canonical_interface_plus_package_adapters",
       "implementation_locations": [
@@ -160,11 +160,6 @@
         },
         {
           "kind": "package",
-          "package": "foundry",
-          "path": "src/polisyos/foundry/registry"
-        },
-        {
-          "kind": "package",
           "package": "ir",
           "path": "src/polisyos/ir/registry"
         },
@@ -172,21 +167,6 @@
           "kind": "module",
           "package": "scientist",
           "path": "src/polisyos/scientist/agent/tools/registry.py"
-        },
-        {
-          "kind": "module",
-          "package": "scientist",
-          "path": "src/polisyos/scientist/autotune/registry.py"
-        },
-        {
-          "kind": "module",
-          "package": "scientist",
-          "path": "src/polisyos/scientist/engine/registry.py"
-        },
-        {
-          "kind": "module",
-          "package": "scientist",
-          "path": "src/polisyos/scientist/llm/profiles/registry.py"
         },
         {
           "kind": "module",
@@ -208,9 +188,9 @@
       "proposed_before_wave": "1.5"
     },
     {
-      "adapter_policy": "Plugin and entry-point discovery use polisyos.core.discovery; domain discovery workflows must live under package-specific semantic groups such as scientist.methods.discovery.",
+      "adapter_policy": "Package-local discovery modules may adapt local plugin or evidence discovery behavior; shared discovery contracts use polisyos.core.discovery.",
       "canonical_home": "polisyos.core.discovery",
-      "decision": "rename_or_sunset",
+      "decision": "canonical_interface_plus_package_adapters",
       "implementation_locations": [
         {
           "kind": "module",
@@ -255,29 +235,19 @@
         {
           "kind": "package",
           "package": "scientist",
-          "path": "src/polisyos/scientist/discovery"
-        },
-        {
-          "kind": "package",
-          "package": "scientist",
           "path": "src/polisyos/scientist/methods/discovery"
         },
         {
           "kind": "module",
           "package": "scientist",
           "path": "src/polisyos/scientist/orchestration/workflows/discovery.py"
-        },
-        {
-          "kind": "module",
-          "package": "scientist",
-          "path": "src/polisyos/scientist/workflows/discovery.py"
         }
       ],
       "name": "discovery",
       "proposed_before_wave": "1.5"
     },
     {
-      "adapter_policy": "Package config modules may adapt local schema and environment details to polisyos.common.config helpers; new reusable configuration parsing belongs in the canonical common module.",
+      "adapter_policy": "Package-local config modules may define bounded-context options; shared process configuration uses polisyos.common.config.",
       "canonical_home": "polisyos.common.config",
       "decision": "canonical_interface_plus_package_adapters",
       "implementation_locations": [
@@ -344,16 +314,6 @@
         {
           "kind": "module",
           "package": "scientist",
-          "path": "src/polisyos/scientist/engine/locks/config.py"
-        },
-        {
-          "kind": "module",
-          "package": "scientist",
-          "path": "src/polisyos/scientist/engine/runner/config.py"
-        },
-        {
-          "kind": "module",
-          "package": "scientist",
           "path": "src/polisyos/scientist/orchestration/engine/locks/config.py"
         },
         {
@@ -366,7 +326,7 @@
       "proposed_before_wave": "1.5"
     },
     {
-      "adapter_policy": "Tracing adapters may emit package-local spans, records, or replay hooks through polisyos.core.trace; new package trace roots are not canonical APIs.",
+      "adapter_policy": "Tracing helpers should adapt to polisyos.core.trace records and sinks and must not create a competing trace API.",
       "canonical_home": "polisyos.core.trace",
       "decision": "canonical_interface_plus_package_adapters",
       "implementation_locations": [
@@ -381,11 +341,6 @@
           "path": "src/polisyos/foundry/runtime/trace.py"
         },
         {
-          "kind": "package",
-          "package": "foundry",
-          "path": "src/polisyos/foundry/trace"
-        },
-        {
           "kind": "module",
           "package": "scientist",
           "path": "src/polisyos/scientist/nodes/builtins/tracing.py"
@@ -395,15 +350,10 @@
       "proposed_before_wave": "1.5"
     },
     {
-      "adapter_policy": "Telemetry adapters may bind Scientist engine and governance events to polisyos.core.observability metrics and logs; package telemetry modules must not become separate observability stacks.",
+      "adapter_policy": "Telemetry helpers should adapt package-local metric vocabulary to polisyos.core.observability.",
       "canonical_home": "polisyos.core.observability",
       "decision": "canonical_interface_plus_package_adapters",
       "implementation_locations": [
-        {
-          "kind": "module",
-          "package": "scientist",
-          "path": "src/polisyos/scientist/engine/telemetry.py"
-        },
         {
           "kind": "module",
           "package": "scientist",
@@ -419,7 +369,7 @@
       "proposed_before_wave": "1.5"
     },
     {
-      "adapter_policy": "Package calibration modules may adapt local drift, search, and governance artifacts to polisyos.calibration diagnostics; reusable diagnostics move to the canonical package.",
+      "adapter_policy": "Package-local calibration modules may adapt method- or producer-specific calibration signals; shared calibration diagnostics use polisyos.calibration.",
       "canonical_home": "polisyos.calibration",
       "decision": "canonical_interface_plus_package_adapters",
       "implementation_locations": [
@@ -457,11 +407,6 @@
           "kind": "module",
           "package": "ir",
           "path": "src/polisyos/ir/analytics/calibration.py"
-        },
-        {
-          "kind": "module",
-          "package": "scientist",
-          "path": "src/polisyos/scientist/autotune/calibration.py"
         },
         {
           "kind": "module",

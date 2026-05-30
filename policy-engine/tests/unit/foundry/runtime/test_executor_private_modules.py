@@ -75,7 +75,7 @@ from polisyos.ir.kernel import (
     MergeRuleKind,
 )
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
-from polisyos.ir.types import SelectorOperator
+from polisyos.ir.model_layer.types import SelectorOperator
 from pydantic import ValidationError
 
 

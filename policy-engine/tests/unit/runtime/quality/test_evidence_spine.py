@@ -11,7 +11,6 @@ from polisyos.runtime.quality.evidence_spine import (
     build_evidence_spine_graph,
 )
 
-
 SCENARIO_CONTRACT_ID = "scenario-evidence-contract:ukraine_msme_wartime_credit_support:v1"
 
 

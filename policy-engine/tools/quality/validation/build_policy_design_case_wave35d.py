@@ -556,7 +556,10 @@ def _build_resource_exhaustion_ledger(
         "cluster_id": CLUSTER_ID,
         "status": "complete"
         if set(RESOURCE_LIMIT_TYPES) == {row["limit_type"] for row in rows}
-        and all(not row["partial_evidence_negative_scenario"]["observed_result"] == "promoted" for row in rows)
+        and all(
+            row["partial_evidence_negative_scenario"]["observed_result"] != "promoted"
+            for row in rows
+        )
         else "incomplete",
         "source_artifacts": [
             SOURCE_ARTIFACT_BY_PDD["PDD-078"],

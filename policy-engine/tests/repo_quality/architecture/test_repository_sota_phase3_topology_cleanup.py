@@ -98,6 +98,11 @@ FORBIDDEN_TEST_ROOTS = {
     "synthetic_world",
 }
 
+RETIRED_TEST_ROOTS_WITHOUT_UNIT_MIRRORS = {
+    "ddm_15_7",
+    "synthetic_world",
+}
+
 FINAL_OPS_ROOTS = {
     "ci",
     "cloud",
@@ -260,8 +265,10 @@ def test_phase3_tests_tree_uses_final_physical_taxonomy() -> None:
     assert FORBIDDEN_TEST_ROOTS.isdisjoint(entries)
     assert entries <= FINAL_TEST_ROOTS
 
-    for package in FORBIDDEN_TEST_ROOTS - {"demos", "docs"}:
+    for package in FORBIDDEN_TEST_ROOTS - {"demos", "docs"} - RETIRED_TEST_ROOTS_WITHOUT_UNIT_MIRRORS:
         assert (REPO_ROOT / "tests" / "unit" / package).exists(), package
+    for package in RETIRED_TEST_ROOTS_WITHOUT_UNIT_MIRRORS:
+        assert not (REPO_ROOT / "tests" / "unit" / package).exists(), package
     assert (REPO_ROOT / "tests" / "e2e" / "demos").exists()
     assert (REPO_ROOT / "tests" / "repo_quality" / "architecture" / "docs").exists()
 

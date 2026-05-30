@@ -63,7 +63,7 @@ from polisyos.ir.analytics.recourse_manifold import (
     build_feasibility_certificate,
     build_recourse_proof_bundle,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     OptimalRecourseInterventionQueryRef,
     RecourseFeasibilityCertificateRef,
     RecourseProofBundleRef,

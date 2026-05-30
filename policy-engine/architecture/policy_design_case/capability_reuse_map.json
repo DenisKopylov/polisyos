@@ -334,7 +334,7 @@
       "existing_owner_or_surface": "src/polisyos/ddm/*; DriftAndDegradationMonitor, shift/degradation events, incident payloads, model-registry readiness records, registry gate decisions",
       "sdd_status": "wire-existing",
       "classification": "wire-existing",
-      "design_implication": "Post-market monitoring, shift/degradation detection, root-cause evidence, and registry readiness should project over DDM. ddm_15_7 is a compatibility shim, not the canonical owner.",
+      "design_implication": "Post-market monitoring, shift/degradation detection, root-cause evidence, and registry readiness should project over DDM.",
       "source": {
         "sdd_path": "docs/system-design-decisions/policy-design-best-in-class-operating-model.md",
         "sdd_section": "Capability Realization Map",
@@ -378,7 +378,7 @@
     {
       "target_capability_id": "agent_based_simulation_and_synthetic_worlds",
       "target_capability": "Agent-based simulation and synthetic worlds",
-      "existing_owner_or_surface": "src/polisyos/foundry/agent_sim/*; src/polisyos/foundry/agent_sim/world/*; src/polisyos/synthetic_world compatibility facade",
+      "existing_owner_or_surface": "src/polisyos/foundry/agent_sim/*; src/polisyos/foundry/agent_sim/world/*",
       "sdd_status": "wire-existing",
       "classification": "wire-existing",
       "design_implication": "Make agent simulation a distinct evidence-line family with different failure modes from econometrics and legal/literature evidence.",

@@ -4,13 +4,15 @@ from __future__ import annotations
 
 import json
 from collections.abc import Mapping
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.runtime.quality.scorecard import (
     QUALITY_REPORT_FILES,
     QUALITY_REPORT_GATE_METADATA,
 )
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 SCHEMA_VERSION = "policyos.runtime.can_i_closeout_compatibility.v1"
 COMPATIBILITY_FILENAME = "can_i_closeout_compatibility.json"

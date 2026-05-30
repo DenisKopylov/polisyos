@@ -7,9 +7,8 @@ and training-heavy policy simulation workflows.
 - Last updated: 2026-05-05
 
 Truth-centric synthetic world generation now lives in
-`polisyos.foundry.agent_sim.world`. The former `polisyos.synthetic_world` root
-is a wrapper-only compatibility facade until 2026-07-31; first-party behavior
-tests and examples use the Foundry world import directly.
+`polisyos.foundry.agent_sim.world`. First-party behavior tests and examples use
+the Foundry world import directly.
 
 ## Purpose
 

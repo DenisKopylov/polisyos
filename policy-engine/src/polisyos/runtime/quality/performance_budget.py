@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import math
 import time
 from collections.abc import Mapping, Sequence
@@ -12,6 +13,7 @@ from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec
 
 SCHEMA_VERSION = "policyos.canary_performance_budget.v1"
+_LOGGER = logging.getLogger(__name__)
 
 
 _BUDGETS_MS: dict[str, float] = {
@@ -58,14 +60,18 @@ _ROW_META: dict[str, dict[str, Any]] = {
         "layer": "control_plane",
         "source": "control_timestamps",
         "retryable": True,
-        "next_action": "Inspect control job timing and worker saturation before production approval.",
+        "next_action": (
+            "Inspect control job timing and worker saturation before production approval."
+        ),
     },
     "control.queue_latency": {
         "category": "control",
         "layer": "control_plane",
         "source": "control_timestamps",
         "retryable": True,
-        "next_action": "Inspect control queue depth, lease ownership, and worker heartbeat latency.",
+        "next_action": (
+            "Inspect control queue depth, lease ownership, and worker heartbeat latency."
+        ),
     },
     "control.execution": {
         "category": "control",
@@ -121,7 +127,9 @@ _ROW_META: dict[str, dict[str, Any]] = {
         "layer": "dashboard",
         "source": "dashboard_evidence",
         "retryable": True,
-        "next_action": "Inspect dashboard smoke trace and optimize the route before production approval.",
+        "next_action": (
+            "Inspect dashboard smoke trace and optimize the route before production approval."
+        ),
     },
 }
 
@@ -175,6 +183,58 @@ def build_canary_performance_budget(
     }
 
 
+def run_cost_budget_policy_from_performance_budget(
+    performance_budget: Mapping[str, Any],
+    *,
+    policy_ref: str,
+    authority_policy_ref: str,
+    owner: str = "team-runtime-quality",
+    ttl_seconds: int = 7 * 24 * 60 * 60,
+    evidence_ref: str = "quality_evidence/canary_performance_budget.json",
+) -> dict[str, Any]:
+    """Project a governed wall-clock run-cost policy from performance budgets.
+
+    Args:
+        performance_budget: Canary performance budget payload.
+        policy_ref: Governed run-cost policy/config ref.
+        authority_policy_ref: Authority-level policy ref that permits blocking.
+        owner: Budget owner for warning/blocker lifecycle.
+        ttl_seconds: Warning/blocker lifecycle TTL.
+        evidence_ref: Runtime-quality evidence ref for this budget input.
+
+    Returns:
+        A run-cost budget policy with a `wall_clock_seconds` limit, or an empty
+        limits list when the performance payload has no duration budget.
+    """
+
+    budget_ms = _performance_budget_wall_clock_ms(performance_budget)
+    limits: list[dict[str, Any]] = []
+    if budget_ms is not None:
+        limits.append(
+            {
+                "dimension": "wall_clock_seconds",
+                "budget": round(budget_ms / 1000.0, 6),
+                "unit": "second",
+                "closeout_effect": "blocking",
+                "authority_policy_ref": authority_policy_ref,
+                "owner": owner,
+                "ttl_seconds": int(ttl_seconds),
+                "next_action": (
+                    "Investigate canary performance budget wall-clock overrun before "
+                    "production-authority closeout."
+                ),
+                "evidence_ref": evidence_ref,
+            }
+        )
+    return {
+        "policy_ref": policy_ref,
+        "source": "canary_performance_budget",
+        "owner": owner,
+        "ttl_seconds": int(ttl_seconds),
+        "limits": limits,
+    }
+
+
 def measure_cas_round_trip_samples(
     store: Any,
     *,
@@ -200,7 +260,8 @@ def measure_cas_round_trip_samples(
                 canon_spec=CanonSpec(forbid_floats=False),
             )
             get_bytes(ref.artifact_id)
-        except Exception:
+        except Exception as exc:
+            _LOGGER.debug("Skipping CAS round-trip sample after failed write/read: %s", exc)
             continue
         samples.append({"duration_ms": round((time.perf_counter() - started) * 1000.0, 3)})
     return samples
@@ -371,6 +432,23 @@ def _summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def _performance_budget_wall_clock_ms(performance_budget: Mapping[str, Any]) -> float | None:
+    rows = [
+        row
+        for row in performance_budget.get("phase_budgets") or ()
+        if isinstance(row, Mapping)
+    ]
+    for row in rows:
+        if row.get("phase") == "control.job_total":
+            total_budget = _number(row.get("budget_ms") or row.get("max_duration_ms"))
+            if total_budget is not None:
+                return round(total_budget, 3)
+    total = sum(_number(row.get("budget_ms") or row.get("max_duration_ms")) or 0.0 for row in rows)
+    if total > 0:
+        return round(total, 3)
+    return _number(performance_budget.get("budget_ms") or performance_budget.get("max_duration_ms"))
+
+
 def _nested_get(payload: Any, key: str) -> Any:
     if isinstance(payload, Mapping):
         if key in payload:
@@ -477,4 +555,5 @@ __all__ = [
     "SCHEMA_VERSION",
     "build_canary_performance_budget",
     "measure_cas_round_trip_samples",
+    "run_cost_budget_policy_from_performance_budget",
 ]

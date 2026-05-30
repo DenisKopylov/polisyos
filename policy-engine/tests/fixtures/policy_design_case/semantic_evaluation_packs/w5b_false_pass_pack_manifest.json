@@ -1,0 +1,113 @@
+{
+  "schema_version": "policyos.runtime.policy_design_case.semantic_evaluation_pack.v1",
+  "pack_id": "w5b_false_pass_semantic_evaluation_pack",
+  "phase_id": "W5.B",
+  "title": "W5.B Semantic false-pass evaluation pack",
+  "research_refs": ["E22", "C30", "C19", "C34", "C39b", "P10", "P14", "P15"],
+  "pattern_ids": ["P10", "P14", "P15"],
+  "adjudication_labels": [
+    "false_pass",
+    "unsupported",
+    "limitation_required",
+    "contested"
+  ],
+  "required_failure_modes": [
+    "participation_prevalence_negative",
+    "projection_laundering",
+    "unreachable_recourse_pointer",
+    "tuned_threshold_hardcoding",
+    "raw_count_inflation",
+    "llm_speculation",
+    "unsupported_claim"
+  ],
+  "reviewer_protocol_ref": "repo://docs/plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_RESEARCH_PLAN.md#C30---Semantic-Benchmark-Rubric",
+  "splits": [
+    {
+      "split": "public",
+      "purpose": "Stable public examples for semantic adequacy review and reviewer calibration.",
+      "public_export_visibility": "public_detail",
+      "fixtures": [
+        {
+          "fixture_id": "w5b_participation_prevalence_negative_semantic_fail",
+          "fixture_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/public/w5b_participation_prevalence_negative_semantic_fail.json",
+          "failure_mode": "participation_prevalence_negative",
+          "challenge_family": "participation_claim_use"
+        },
+        {
+          "fixture_id": "w5b_projection_laundering_semantic_fail",
+          "fixture_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/public/w5b_projection_laundering_semantic_fail.json",
+          "failure_mode": "projection_laundering",
+          "challenge_family": "projection_authority"
+        },
+        {
+          "fixture_id": "w5b_raw_count_inflation_semantic_fail",
+          "fixture_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/public/w5b_raw_count_inflation_semantic_fail.json",
+          "failure_mode": "raw_count_inflation",
+          "challenge_family": "effective_independence"
+        }
+      ]
+    },
+    {
+      "split": "hidden",
+      "purpose": "Internal holdout fixtures for anti-overfitting and promotion checks.",
+      "public_export_visibility": "aggregate_only",
+      "fixtures": [
+        {
+          "fixture_id": "w5b_unreachable_recourse_pointer_semantic_fail",
+          "fixture_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/w5b_unreachable_recourse_pointer_semantic_fail.json",
+          "failure_mode": "unreachable_recourse_pointer",
+          "challenge_family": "contestability_recourse"
+        },
+        {
+          "fixture_id": "w5b_llm_speculation_semantic_fail",
+          "fixture_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/w5b_llm_speculation_semantic_fail.json",
+          "failure_mode": "llm_speculation",
+          "challenge_family": "candidate_authority_firewall"
+        },
+        {
+          "fixture_id": "w5b_unsupported_claim_semantic_fail",
+          "fixture_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/w5b_unsupported_claim_semantic_fail.json",
+          "failure_mode": "unsupported_claim",
+          "challenge_family": "claim_support"
+        }
+      ]
+    },
+    {
+      "split": "rotating",
+      "purpose": "Time-limited challenge fixtures that refresh before they become memorized targets.",
+      "public_export_visibility": "aggregate_only",
+      "rotation_policy": {
+        "rotation_interval_days": 30,
+        "next_rotation_due": "2026-06-22",
+        "owner": "team-evaluation"
+      },
+      "fixtures": [
+        {
+          "fixture_id": "w5b_tuned_threshold_hardcoding_semantic_fail",
+          "fixture_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/rotating/w5b_tuned_threshold_hardcoding_semantic_fail.json",
+          "failure_mode": "tuned_threshold_hardcoding",
+          "challenge_family": "governed_config_thresholds"
+        },
+        {
+          "fixture_id": "w5b_method_mismatch_semantic_fail",
+          "fixture_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/rotating/w5b_method_mismatch_semantic_fail.json",
+          "failure_mode": "method_mismatch",
+          "challenge_family": "method_obligation_fit"
+        },
+        {
+          "fixture_id": "w5b_stale_evidence_semantic_fail",
+          "fixture_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/rotating/w5b_stale_evidence_semantic_fail.json",
+          "failure_mode": "stale_evidence",
+          "challenge_family": "time_role_freshness"
+        }
+      ]
+    }
+  ],
+  "benchmark_metadata": {
+    "visibility_rule": "hidden_and_rotating_fixture_details_are_aggregate_only",
+    "leakage_policy": "public_exports_may_show_counts_status_and_failure_mode_coverage_only",
+    "fixture_rotation_ref": "repo://docs/reference/policy-design-case-failure-patterns.md#Register",
+    "reviewer_protocol_ref": "repo://docs/plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_RESEARCH_PLAN.md#C30---Semantic-Benchmark-Rubric",
+    "validation_command": "uv run pytest tests/repo_quality/tools/test_policy_design_case_w5b_semantic_evaluation_packs.py -q"
+  }
+}

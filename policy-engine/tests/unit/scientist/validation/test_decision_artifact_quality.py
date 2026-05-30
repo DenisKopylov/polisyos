@@ -207,6 +207,7 @@ def test_quality_report_accepts_runtime_claim_registry_projection() -> None:
         selected_norm_refs=["norm.ua.credit_guarantee"],
         rejected_norm_refs=["norm.ua.unrelated"],
         method_output_refs=["foundry.did.msme_survival"],
+        assumption_gate_refs=["assumption-gate.rec_credit_guarantee"],
         counter_evidence_refs=["counter.rec_credit_guarantee"],
         scholar_deficit_refs=["scholar-deficit.msme_credit"],
         objective_tradeoff_refs=["objective_tradeoff.rec_credit_guarantee"],

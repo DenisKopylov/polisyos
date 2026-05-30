@@ -21,7 +21,7 @@ from polisyos.ir.analytics.partial_identification import (
     persist_bounds_bundle,
 )
 from polisyos.ir.artifacts import ArtifactID as IRArtifactID
-from polisyos.ir.refs import BoundsBundleRef, MobilityReportRef
+from polisyos.ir.registry.refs import BoundsBundleRef, MobilityReportRef
 
 if TYPE_CHECKING:
     from collections.abc import Mapping

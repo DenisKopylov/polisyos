@@ -39,7 +39,7 @@ from polisyos.ir.kernel import (
     SlotRegistry,
     SlotScope,
 )
-from polisyos.ir.types import SelectorOperator
+from polisyos.ir.model_layer.types import SelectorOperator
 
 PendingPatchRecord = tuple[str, dict[str, Any]]
 

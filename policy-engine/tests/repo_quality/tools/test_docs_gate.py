@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from pathlib import Path
 import subprocess
+from pathlib import Path
 
 import pytest
 
@@ -14,7 +14,6 @@ from tools.quality.validation.check_docstring_quality import (
     filter_subjects_by_prefix,
     inspect_public_subjects,
 )
-
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
@@ -200,7 +199,7 @@ def test_docstring_filter_scopes_subjects_to_requested_prefixes(tmp_path: Path) 
         pragma_allowed=False,
     )
     non_matching = DocstringSubject(
-        ref=TargetRef(module="polisyos.foundry.quickstart", qualname="QuickstartRunResult"),
+        ref=TargetRef(module="polisyos.foundry._quickstart", qualname="QuickstartRunResult"),
         file_path=tmp_path / "foundry.py",
         lineno=1,
         kind="class",

@@ -878,6 +878,16 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--baseline-coverage", type=Path, default=DEFAULT_BASELINE_COVERAGE)
     parser.add_argument("--baseline-gaps", type=Path, default=DEFAULT_BASELINE_GAPS)
     parser.add_argument("--sdd", type=Path, default=DEFAULT_SDD)
+    parser.add_argument(
+        "--pass2-disposition",
+        type=Path,
+        default=DEFAULT_PASS2_DISPOSITION,
+    )
+    parser.add_argument(
+        "--walking-skeleton-readiness",
+        type=Path,
+        default=DEFAULT_WALKING_SKELETON_READINESS,
+    )
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument("--json-output", type=Path)
     parser.add_argument("--markdown-output", type=Path)
@@ -905,7 +915,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             repo_root=repo_root,
             baseline_coverage_path=args.baseline_coverage,
             baseline_gaps_path=args.baseline_gaps,
+            pass2_disposition_path=args.pass2_disposition,
             sdd_path=args.sdd,
+            walking_skeleton_readiness_path=args.walking_skeleton_readiness,
             require_targets=args.require_targets,
         )
     except (CoverageDefinitionError, CoverageInputError) as exc:

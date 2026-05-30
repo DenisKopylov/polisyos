@@ -554,7 +554,7 @@ semantic_binding_policy = "preserve_required_semantics"
 invariant_id = "HDS-MCG-012"
 minimum_closeout_gate = "security_abuse_resistance_gates"
 pql_id = "PQL-017"
-final_owner = "runtime.security.quality_gates"
+final_owner = "core.security.quality_gates"
 producer_owners = ["runtime.security"]
 runtime_event_names = [
   "polisyos.runtime.diagnostic.blocker.v1",
@@ -590,8 +590,8 @@ consumers = [
   "runtime.approval",
   "runtime.dashboard_projection",
 ]
-next_diagnostic_command = "uv run pytest tests/security/test_policyos_runtime_abuse_gates.py -q"
-negative_tests = ["tests/security/test_policyos_runtime_abuse_gates.py::test_security_report_blocks_scorecard_approval_with_security_layer_gate"]
+next_diagnostic_command = "uv run pytest tests/unit/security/test_policyos_runtime_abuse_gates.py -q"
+negative_tests = ["tests/unit/security/test_policyos_runtime_abuse_gates.py::test_security_report_blocks_scorecard_approval_with_security_layer_gate"]
 fallback_ledger_policy = "fail_closed"
 legacy_quarantine_policy = "legacy_quarantined_from_serious_closeout"
 semantic_binding_policy = "preserve_required_semantics"

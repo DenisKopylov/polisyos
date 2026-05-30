@@ -1,0 +1,658 @@
+{
+  "case_id": "w11a_ghana_free_shs_2017",
+  "claim_evidence_annotations": {
+    "annotation_provenance": {
+      "conflicts": [],
+      "disagreement_category": null,
+      "expertise_basis": "W11.A source triage from Ghana MoE, NDPC, and implementation-assessment sources",
+      "reviewed_at": "2026-05-24",
+      "reviewer_role": "policy_generalist"
+    },
+    "annotation_status": "annotated_w11b",
+    "authority_boundary": {
+      "authoritative_for": [
+        "corpus_annotation",
+        "compilation_truthfulness_reference"
+      ],
+      "may_not_be_used_for": [
+        "claim_authority",
+        "producer_evidence_authority",
+        "legal_authority",
+        "method_validity",
+        "participation_legitimacy",
+        "projection_authority"
+      ],
+      "may_not_use_for": [
+        "claim_authority",
+        "producer_evidence_authority",
+        "legal_authority",
+        "method_validity",
+        "participation_legitimacy",
+        "projection_authority"
+      ]
+    },
+    "authority_level": "research",
+    "capability_reality_label": "implemented",
+    "case_id": "w11a_ghana_free_shs_2017",
+    "case_title": "Ghana Free Senior High School access expansion",
+    "claims": [
+      {
+        "admissibility_label": "limited",
+        "claim_id": "claim:free-shs-expands-access",
+        "claim_type": "access_and_implementation",
+        "contestability_status": "contested",
+        "evidence_refs": [
+          "evidence:education-sector-apr-2019"
+        ],
+        "legal_refs": [
+          "legal:free-shs-policy"
+        ],
+        "limitation_refs": [
+          "limitation:infrastructure-and-funding"
+        ],
+        "method_refs": [
+          "method:implementation-assessment"
+        ],
+        "participation_refs": [
+          "participation:stakeholder-consensus-recommendation"
+        ],
+        "risks": [
+          "risk:capacity-overcrowding"
+        ],
+        "scope": {
+          "geography": [
+            "Ghana"
+          ],
+          "institution": [
+            "Ministry_of_Education_Ghana",
+            "Ghana_Education_Service"
+          ],
+          "population": [
+            "public_senior_high_school_students"
+          ],
+          "time_period": "2017-09 onward"
+        },
+        "text_ref": "text:case:summary",
+        "tradeoffs": [
+          "tradeoff:access-vs-quality"
+        ]
+      }
+    ],
+    "corpus_phase": "W11.A",
+    "domain": "education_access",
+    "expected_evidence_families": [
+      "education_budget_and_enrollment_data",
+      "infrastructure_capacity_assessment",
+      "learning_outcome_evaluation",
+      "household_cost_analysis",
+      "stakeholder_consultation_evidence"
+    ],
+    "expert_adjudication_status": "adjudicated_w11c",
+    "jurisdiction": "Ghana",
+    "jurisdiction_authority_level": "national",
+    "known_failure_limitation_labels": [
+      "infrastructure_capacity_constraint",
+      "funding_sustainability_contested",
+      "quality_access_tradeoff",
+      "stakeholder_consensus_gap"
+    ],
+    "known_outcomes_or_failures": [
+      {
+        "finding_id": "outcome:enrollment-surge-capacity-pressure",
+        "source_ref": "outcome:enrollment-surge-capacity-pressure",
+        "would_prior_obligation_have_flagged": true
+      }
+    ],
+    "obligations": [
+      {
+        "generated_from_facets": [
+          "facet:instrument.fee_abolition",
+          "facet:targeting.universal_school_level",
+          "facet:outcome.education_access"
+        ],
+        "obligation_id": "obligation:free-shs-access-quality-split",
+        "required_evidence_family": "enrollment_quality_and_capacity_evaluation",
+        "reviewer_notes": "Research use may cite access expansion, but useful-design scoring should require separate quality and capacity evidence.",
+        "status": "required_for_research_closeout"
+      }
+    ],
+    "pattern_refs": [
+      "P01",
+      "P02",
+      "P03",
+      "P05",
+      "P10",
+      "P13",
+      "P14",
+      "P15"
+    ],
+    "policy_instrument": {
+      "delivery_channel": "public senior high schools",
+      "funding_channel": "national_budget",
+      "instrument_type": "fee_abolition_and_public_secondary_school_subsidy"
+    },
+    "policy_time": "2017-09 onward",
+    "raw_source_refs": [
+      "https://moe.gov.gh/free-shs-intervention-project/",
+      "https://ndpc.gov.gh/media/Ministry_of_Education_APR_2019.pdf",
+      "https://www.uew.edu.gh/def/staff/sdansah/publications/28230/detail"
+    ],
+    "redacted_source_hashes": [],
+    "references": [
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "text:case:summary",
+        "ref_type": "source",
+        "source_ref": "repo://docs/research/universal-policy-design/outcome-corpus/ghana-free-shs-2017-education-access.md#summary",
+        "title": "Case summary"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "legal:free-shs-policy",
+        "ref_type": "legal",
+        "source_ref": "https://moe.gov.gh/free-shs-intervention-project/",
+        "title": "Ghana Ministry of Education Free SHS intervention project"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "evidence:education-sector-apr-2019",
+        "ref_type": "evidence",
+        "source_ref": "https://ndpc.gov.gh/media/Ministry_of_Education_APR_2019.pdf",
+        "title": "Ghana Ministry of Education annual progress report 2019"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "method:implementation-assessment",
+        "ref_type": "method",
+        "source_ref": "https://www.uew.edu.gh/def/staff/sdansah/publications/28230/detail",
+        "title": "Free SHS programme implementation assessment"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "participation:stakeholder-consensus-recommendation",
+        "ref_type": "participation",
+        "source_ref": "https://www.uew.edu.gh/def/staff/sdansah/publications/28230/detail",
+        "title": "Recommendation for stakeholder engagement and national consensus"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "risk:capacity-overcrowding",
+        "ref_type": "risk",
+        "source_ref": "https://moe.gov.gh/free-shs-intervention-project/",
+        "title": "Infrastructure need to accommodate extra students"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "tradeoff:access-vs-quality",
+        "ref_type": "tradeoff",
+        "source_ref": "https://www.uew.edu.gh/def/staff/sdansah/publications/28230/detail",
+        "title": "Access expansion and implementation quality tradeoff"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "limitation:infrastructure-and-funding",
+        "ref_type": "limitation",
+        "source_ref": "https://www.uew.edu.gh/def/staff/sdansah/publications/28230/detail",
+        "title": "Implementation challenges and funding/infrastructure limitations"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "outcome:enrollment-surge-capacity-pressure",
+        "ref_type": "outcome",
+        "source_ref": "https://ndpc.gov.gh/media/Ministry_of_Education_APR_2019.pdf",
+        "title": "Enrollment increase and secondary education capacity pressure"
+      }
+    ],
+    "schema_version": "policyos.universal_outcome_corpus.annotation.v1",
+    "sourcing_status": "sourced",
+    "targeting": {
+      "affected_populations": [
+        "teachers",
+        "school_administrators",
+        "parents",
+        "taxpayers"
+      ],
+      "beneficiary_classes": [
+        "public_senior_high_school_students",
+        "lower_income_households"
+      ],
+      "targeting_type": "universal_access_by_school_level"
+    }
+  },
+  "compilation_intent_text": "Ghana Free Senior High School access expansion. Design a multi_year national service subsidy for students and children, with budget appropriation, equity coverage risk monitoring, and annual review.",
+  "concept_spine_refs": {
+    "canonical_concept_refs": [
+      "concept://w11/w11a_ghana_free_shs_2017/universal-policy-grammar"
+    ],
+    "concept_spine_ref": "concept-spine://w11/w11a_ghana_free_shs_2017",
+    "facet_concept_refs": {
+      "authority_type": [
+        "concept://w11/w11a_ghana_free_shs_2017/authority_type"
+      ],
+      "delivery_channel": [
+        "concept://w11/w11a_ghana_free_shs_2017/delivery_channel"
+      ],
+      "funding_channel": [
+        "concept://w11/w11a_ghana_free_shs_2017/funding_channel"
+      ],
+      "geography_predicate": [
+        "concept://w11/w11a_ghana_free_shs_2017/geography_predicate"
+      ],
+      "instrument_type": [
+        "concept://w11/w11a_ghana_free_shs_2017/instrument_type"
+      ],
+      "method_need": [
+        "concept://w11/w11a_ghana_free_shs_2017/method_need"
+      ],
+      "outcome_channel": [
+        "concept://w11/w11a_ghana_free_shs_2017/outcome_channel"
+      ],
+      "population_predicate": [
+        "concept://w11/w11a_ghana_free_shs_2017/population_predicate"
+      ],
+      "risk_facet": [
+        "concept://w11/w11a_ghana_free_shs_2017/risk_facet"
+      ],
+      "targeting_type": [
+        "concept://w11/w11a_ghana_free_shs_2017/targeting_type"
+      ],
+      "time_predicate": [
+        "concept://w11/w11a_ghana_free_shs_2017/time_predicate"
+      ]
+    },
+    "jurisdiction_spine_ref": "jurisdiction-spine://w11/w11a_ghana_free_shs_2017"
+  },
+  "critic_ensemble": {
+    "authority_boundary": {
+      "authoritative_for": [
+        "critic_diversity_measurement"
+      ],
+      "may_not_use_for": [
+        "claim_authority",
+        "producer_evidence_authority",
+        "legal_authority",
+        "method_validity",
+        "projection_authority"
+      ]
+    },
+    "run_id": "run-w11a_ghana_free_shs_2017",
+    "verdicts": [
+      {
+        "envelope": {
+          "critic_role": "legal",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_legal_basis"
+        },
+        "failure_modes": [
+          "authority_boundary:infrastructure_capacity_constraint"
+        ],
+        "message": "legal critic flags infrastructure_capacity_constraint for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_ghana_free_shs_2017"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "fiscal",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_fiscal_basis"
+        },
+        "failure_modes": [
+          "budget_feasibility:funding_sustainability_contested"
+        ],
+        "message": "fiscal critic flags funding_sustainability_contested for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_ghana_free_shs_2017"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "equity",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_equity_basis"
+        },
+        "failure_modes": [
+          "distributional_effect:quality_access_tradeoff"
+        ],
+        "message": "equity critic flags quality_access_tradeoff for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_ghana_free_shs_2017"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "data",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_data_basis"
+        },
+        "failure_modes": [
+          "source_lineage:stakeholder_consensus_gap"
+        ],
+        "message": "data critic flags stakeholder_consensus_gap for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_ghana_free_shs_2017"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "implementation",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_implementation_basis"
+        },
+        "failure_modes": [
+          "delivery_capacity:infrastructure_capacity_constraint"
+        ],
+        "message": "implementation critic flags infrastructure_capacity_constraint for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_ghana_free_shs_2017"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "affected_person",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_affected_person_basis"
+        },
+        "failure_modes": [
+          "participation_voice:funding_sustainability_contested"
+        ],
+        "message": "affected_person critic flags funding_sustainability_contested for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_ghana_free_shs_2017"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "adversarial",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_adversarial_basis"
+        },
+        "failure_modes": [
+          "failure_probe:quality_access_tradeoff"
+        ],
+        "message": "adversarial critic flags quality_access_tradeoff for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_ghana_free_shs_2017"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "monitoring",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_monitoring_basis"
+        },
+        "failure_modes": [
+          "lifecycle_monitoring:stakeholder_consensus_gap"
+        ],
+        "message": "monitoring critic flags stakeholder_consensus_gap for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_ghana_free_shs_2017"
+        ],
+        "verdict": "contest"
+      }
+    ]
+  },
+  "domain": "education_access",
+  "expected_adapter_bindings": {
+    "bindings": [
+      {
+        "adapter": "fabric",
+        "binding_id": "bind-w11a_ghana_free_shs_2017-selected",
+        "reason_code": "annotation_data_family_selected",
+        "requirement_id": "data-w11a_ghana_free_shs_2017",
+        "status": "selected"
+      },
+      {
+        "adapter": "scholar",
+        "binding_id": "bind-w11a_ghana_free_shs_2017-rejected",
+        "reason_code": "generic_or_transfer_mismatch_rejected",
+        "requirement_id": "scholar-w11a_ghana_free_shs_2017",
+        "status": "rejected"
+      },
+      {
+        "adapter": "foundry",
+        "binding_id": "bind-w11a_ghana_free_shs_2017-blocked",
+        "reason_code": "method_or_counterfactual_precondition_missing",
+        "requirement_id": "method-w11a_ghana_free_shs_2017",
+        "status": "blocked"
+      }
+    ]
+  },
+  "expected_claim_families": {
+    "families": [
+      {
+        "claim_family": "access_and_implementation",
+        "claim_id": "claim:free-shs-expands-access",
+        "expected_support_status": "limited"
+      }
+    ]
+  },
+  "expected_closeout_states": {
+    "states": [
+      {
+        "authority_level": "research",
+        "required_surface_refs": [
+          "audit://w11d/w11a_ghana_free_shs_2017/research"
+        ],
+        "state": "publishable"
+      },
+      {
+        "authority_level": "governed",
+        "limitation_refs": [
+          "limitation://w11d/w11a_ghana_free_shs_2017"
+        ],
+        "required_surface_refs": [
+          "audit://w11d/w11a_ghana_free_shs_2017/governed"
+        ],
+        "state": "limited"
+      },
+      {
+        "authority_level": "production",
+        "limitation_refs": [
+          "limitation://w11d/w11a_ghana_free_shs_2017"
+        ],
+        "required_surface_refs": [
+          "audit://w11d/w11a_ghana_free_shs_2017/production"
+        ],
+        "state": "limited"
+      }
+    ]
+  },
+  "expected_facets": {
+    "facets": [
+      {
+        "concept_ref": "concept://w11d/w11a_ghana_free_shs_2017/instrument",
+        "expected_value": "fee_abolition_and_public_secondary_school_subsidy",
+        "facet_name": "instrument_type"
+      },
+      {
+        "concept_ref": "concept://w11d/w11a_ghana_free_shs_2017/targeting",
+        "expected_value": "universal_access_by_school_level",
+        "facet_name": "targeting_type"
+      },
+      {
+        "concept_ref": "concept://w11d/w11a_ghana_free_shs_2017/delivery",
+        "expected_value": "public senior high schools",
+        "facet_name": "delivery_channel"
+      }
+    ]
+  },
+  "expected_obligation_graph": {
+    "frontier": [
+      {
+        "claim_refs": [
+          "claim:free-shs-expands-access"
+        ],
+        "family": "method",
+        "obligation_id": "obligation:free-shs-access-quality-split",
+        "priority": "required_for_research_closeout",
+        "source_class": "governed_rule"
+      }
+    ]
+  },
+  "expected_projection_truthfulness": {
+    "projections": [
+      {
+        "audience": "public",
+        "may_not_claim": [
+          "fixture expectation is runtime authority"
+        ],
+        "must_disclose_refs": [
+          "annotation://w11d/w11a_ghana_free_shs_2017"
+        ],
+        "truthfulness": "limitation_required"
+      }
+    ]
+  },
+  "expected_requirement_specs": {
+    "families": {
+      "data": [
+        {
+          "claim_id": "claim:free-shs-expands-access",
+          "requirement_id": "data-w11a_ghana_free_shs_2017",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/ghana-free-shs-2017-education-access.md#data"
+        }
+      ],
+      "legal": [
+        {
+          "claim_id": "claim:free-shs-expands-access",
+          "requirement_id": "legal-w11a_ghana_free_shs_2017",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/ghana-free-shs-2017-education-access.md#legal"
+        }
+      ],
+      "method": [
+        {
+          "claim_id": "claim:free-shs-expands-access",
+          "requirement_id": "method-w11a_ghana_free_shs_2017",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/ghana-free-shs-2017-education-access.md#method"
+        }
+      ],
+      "participation": [
+        {
+          "claim_id": "claim:free-shs-expands-access",
+          "requirement_id": "participation-w11a_ghana_free_shs_2017",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/ghana-free-shs-2017-education-access.md#participation"
+        }
+      ],
+      "scholar": [
+        {
+          "claim_id": "claim:free-shs-expands-access",
+          "requirement_id": "scholar-w11a_ghana_free_shs_2017",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/ghana-free-shs-2017-education-access.md#scholar"
+        }
+      ]
+    }
+  },
+  "expert_adjudication": {
+    "case_label": "limitation_required",
+    "claim_labels": [
+      {
+        "claim_id": "claim:free-shs-expands-access",
+        "dimension_id": "compilation_truthfulness",
+        "failure_mode": "infrastructure_capacity_constraint",
+        "label": "limitation_required",
+        "required_surface_change": "Expose annotation-derived limitation, contestation, or blocker state.",
+        "status_should_have_been": "publish_with_limitation",
+        "why_structural_checks_missed_it": "W11.D fixture preserves annotation semantics for truthfulness comparison."
+      }
+    ],
+    "reviewer_topology_ref": "reviewer-topology://w11d/public/w11a_ghana_free_shs_2017"
+  },
+  "input_intent_ref": "intent-w11a_ghana_free_shs_2017",
+  "intent": {
+    "authority_levels": [
+      "research",
+      "governed",
+      "production"
+    ],
+    "instrument_type": "fee_abolition_and_public_secondary_school_subsidy",
+    "intent_id": "intent-w11a_ghana_free_shs_2017",
+    "jurisdiction": "Ghana",
+    "metadata": {
+      "w11a_authority_level": "research"
+    },
+    "policy_time": "2017-09 onward",
+    "target_population": "public_senior_high_school_students, lower_income_households",
+    "text": "Ghana Free Senior High School access expansion"
+  },
+  "metadata": {
+    "pattern_refs": [
+      "P01",
+      "P02",
+      "P03",
+      "P05",
+      "P10",
+      "P13",
+      "P14",
+      "P15"
+    ],
+    "reuse_classification": "wire_existing",
+    "source_annotation_schema": "policyos.universal_outcome_corpus.annotation.v1"
+  },
+  "producer_pipeline": {
+    "producers": [
+      {
+        "consumed_concept_refs": [
+          "concept://w11/w11a_ghana_free_shs_2017/universal-policy-grammar"
+        ],
+        "consumed_requirement_refs": [
+          "data-w11a_ghana_free_shs_2017"
+        ],
+        "expected_output_families": [
+          "fabric.source_contract_binding.v1"
+        ],
+        "first_pass_bindings": [
+          {
+            "binding_id": "label.fabric.w11a_ghana_free_shs_2017",
+            "binding_kind": "label",
+            "concept_ref": "concept://w11/w11a_ghana_free_shs_2017/universal-policy-grammar",
+            "disposition": "context_only",
+            "label": "fabric context for w11a_ghana_free_shs_2017"
+          }
+        ],
+        "producer_component": "fabric",
+        "requested_deadline_s": 5.0,
+        "second_pass_bindings": [
+          {
+            "artifact_ref": "source://w11/w11a_ghana_free_shs_2017/fabric",
+            "binding_id": "binding.fabric.w11a_ghana_free_shs_2017",
+            "binding_kind": "dataset",
+            "concept_ref": "concept://w11/w11a_ghana_free_shs_2017/universal-policy-grammar",
+            "disposition": "selected",
+            "requirement_ref": "data-w11a_ghana_free_shs_2017",
+            "time_role": "observation_time"
+          }
+        ]
+      }
+    ]
+  },
+  "redacted_source_hash": "sha256:158ac6380e9cb6f8c951c3f62e8643fd2aac0e06d031fb2e48d8161665914536",
+  "schema_version": "policyos.universal_corpus_fixture.v1",
+  "source_case_ref": "docs/research/universal-policy-design/outcome-corpus/ghana-free-shs-2017-education-access.md",
+  "split": "public",
+  "title": "Ghana Free Senior High School access expansion"
+}

@@ -3,6 +3,8 @@ from __future__ import annotations
 from datetime import UTC, datetime
 
 import pytest
+from pydantic import ValidationError
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.forecasting_uncertainty import (
     FanChartSpec,
@@ -22,8 +24,7 @@ from polisyos.ir.analytics.forecasting_uncertainty import (
     load_forecasting_uncertainty_bundle,
     persist_forecasting_uncertainty_bundle,
 )
-from polisyos.ir.schema_catalog import get_ir_type
-from pydantic import ValidationError
+from polisyos.ir.schemas import get_ir_type
 
 
 def _now() -> datetime:

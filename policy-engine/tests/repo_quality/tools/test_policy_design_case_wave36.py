@@ -16,6 +16,33 @@ DEV_SMOKE_LANE_ID = (
     "profile-dev__provider-simulated__data-fixture"
     "__scenario-public_golden__ui-api_only"
 )
+ENTRY_CRITERIA_IDS = (
+    "pass2_disposition_passing",
+    "pass2_disposition_closeout_ready",
+    "wave35f_integrity",
+    "wave35g_backfill",
+    "pass2_disposition_zero_unresolved_must_fix",
+    "wave35f_exit_fence_allows_wave36",
+    "wave35g_exit_fence_allows_wave36",
+    "wave35a_through_wave35e_exit_fences_complete",
+)
+
+
+def _patch_passing_entry_criteria(monkeypatch) -> None:
+    def fake_build_entry_criteria(**kwargs):
+        generated_at = str(kwargs["generated_at"])
+        return [
+            {
+                "id": check_id,
+                "kind": "unit_fixture",
+                "status": "pass",
+                "errors": [],
+                "checked_at": generated_at,
+            }
+            for check_id in ENTRY_CRITERIA_IDS
+        ]
+
+    monkeypatch.setattr(build, "_build_entry_criteria", fake_build_entry_criteria)
 
 
 def _matrix_payload(
@@ -77,6 +104,7 @@ def test_wave36_closeout_records_serious_matrix_and_excludes_dev_smoke(
     monkeypatch,
 ) -> None:
     wave36_dir = tmp_path / "wave-36"
+    _patch_passing_entry_criteria(monkeypatch)
 
     def fake_run_matrix_mode(**kwargs):
         mode = kwargs["mode"]
@@ -176,6 +204,7 @@ def test_wave36_validator_rejects_dev_smoke_counting_as_closeout(
     monkeypatch,
 ) -> None:
     wave36_dir = tmp_path / "wave-36"
+    _patch_passing_entry_criteria(monkeypatch)
 
     def fake_run_matrix_mode(**kwargs):
         mode = kwargs["mode"]
@@ -213,6 +242,7 @@ def test_wave36_validator_rejects_nonpassing_serious_scorecard(
     monkeypatch,
 ) -> None:
     wave36_dir = tmp_path / "wave-36"
+    _patch_passing_entry_criteria(monkeypatch)
 
     def fake_run_matrix_mode(**kwargs):
         mode = kwargs["mode"]

@@ -51,11 +51,6 @@ modules = ["polisyos.scientist.methods.backtesting.abstraction_suite", "polisyos
 reason = "Pre-existing lazy import cycle captured before scientist/foundry decomposition."
 
 [[allowed_cycle]]
-id = "cycle-f5f58b85a843"
-modules = ["polisyos.scientist.orchestration.memory.applicability", "polisyos.scientist.orchestration.memory.consolidation", "polisyos.scientist.orchestration.memory.failure_lessons", "polisyos.scientist.orchestration.memory.retrieval"]
-reason = "Pre-existing lazy import cycle captured before scientist/foundry decomposition."
-
-[[allowed_cycle]]
 id = "cycle-053fc3091fd7"
 modules = ["polisyos.foundry.agent_sim.credit_assignment", "polisyos.foundry.agent_sim.distributions", "polisyos.foundry.agent_sim.population", "polisyos.foundry.agent_sim.rewards", "polisyos.foundry.agent_sim.state"]
 reason = "Pre-existing lazy import cycle captured before scientist/foundry decomposition."

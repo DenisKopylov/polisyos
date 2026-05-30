@@ -48,6 +48,30 @@
 # Runtime manifest keeps runtime-visible Pydantic annotations for model rebuilds.
 "src/polisyos/runtime/manifest.py" = ["TC001"]
 "src/polisyos/runtime/replay.py" = ["ANN401"]
+# Runtime-quality and data-requirement bridges consume heterogeneous CAS,
+# Pydantic, and tool JSON payloads. Keep these dynamic boundary annotations
+# explicitly owned while each module gains narrower DTO/protocol types.
+"src/polisyos/data_requirement/compiler.py" = ["ANN401"]
+"src/polisyos/runtime/quality/acquisition_planner.py" = ["ANN401"]
+"src/polisyos/runtime/quality/adapter_contracts.py" = ["ANN401"]
+"src/polisyos/runtime/quality/approval.py" = ["ANN401"]
+"src/polisyos/runtime/quality/attestation.py" = ["ANN401"]
+"src/polisyos/runtime/quality/authority_reconciliation.py" = ["ANN401"]
+"src/polisyos/runtime/quality/closeout_compatibility.py" = ["ANN401"]
+"src/polisyos/runtime/quality/compliance.py" = ["ANN401"]
+"src/polisyos/runtime/quality/construct_registry.py" = ["ANN401"]
+"src/polisyos/runtime/quality/data_quality.py" = ["ANN401"]
+"src/polisyos/runtime/quality/event_log.py" = ["ANN401"]
+"src/polisyos/runtime/quality/evidence_spine.py" = ["ANN401"]
+"src/polisyos/runtime/quality/human_review.py" = ["ANN401"]
+"src/polisyos/runtime/quality/performance_budget.py" = ["ANN401"]
+"src/polisyos/runtime/quality/policy_design_case.py" = ["ANN401"]
+"src/polisyos/runtime/quality/prompt_tool_ledger.py" = ["ANN401"]
+"src/polisyos/runtime/quality/refs.py" = ["ANN401"]
+"src/polisyos/runtime/quality/replay.py" = ["ANN401"]
+"src/polisyos/runtime/quality/scenario_evidence_contract.py" = ["ANN401"]
+"src/polisyos/runtime/quality/scorecard.py" = ["ANN401"]
+"src/polisyos/runtime/quality/source_truth.py" = ["ANN401"]
 # FastAPI requires dependency factories in endpoint defaults; the route modules
 # keep B008 suppressed while runtime API contract tests police the surface.
 "src/polisyos/runtime/http/routes/artifacts.py" = ["B008"]

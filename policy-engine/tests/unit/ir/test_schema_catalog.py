@@ -10,7 +10,7 @@ from polisyos.ir import (
     get_ir_type,
     list_ir_types,
 )
-from polisyos.ir.schema_catalog import IRPublicStatus
+from polisyos.ir.schemas import IRPublicStatus
 
 
 def test_schema_catalog_exposes_root_metadata() -> None:

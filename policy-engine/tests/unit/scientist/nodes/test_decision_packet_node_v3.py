@@ -120,7 +120,7 @@ from polisyos.ir.analytics.uncertainty import (
     persist_uncertainty_envelope,
 )
 from polisyos.ir.linker import LinkReport
-from polisyos.ir.refs import ArtifactRefModel, UncertaintyEnvelopeRef
+from polisyos.ir.registry.refs import ArtifactRefModel, UncertaintyEnvelopeRef
 from polisyos.scientist.governance.continuous.incident import (
     build_withdrawal_record,
     persist_withdrawal_record,

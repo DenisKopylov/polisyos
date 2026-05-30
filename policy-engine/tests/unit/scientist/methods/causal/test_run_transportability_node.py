@@ -7,7 +7,7 @@ import pytest
 
 _Y0_INSTALLED = importlib.util.find_spec("y0") is not None
 
-from polisyos.ir.refs import PrivacyAwareTransportCertificateRef
+from polisyos.ir.registry.refs import PrivacyAwareTransportCertificateRef
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.registry import build_default_registry_bundle

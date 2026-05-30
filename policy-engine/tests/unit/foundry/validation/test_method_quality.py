@@ -79,8 +79,59 @@ def test_foundry_method_report_passes_for_valid_method_diagnostics() -> None:
     )
 
     assert report["status"] == "pass"
+    assert report["capability_reality_status"] == "implemented"
+    assert "method_validity" in report["runtime_authority_envelope"]["authoritative_for"]
+    assert "legal_authority" in report["runtime_authority_envelope"]["may_not_use_for"]
     assert report["selected_methods"][0]["method_id"] == "causal.difference_in_differences"
     assert report["blocking_issue_count"] == 0
+
+
+def test_method_report_emits_runtime_assumption_and_uncertainty_surfaces() -> None:
+    report = build_foundry_method_report(
+        selected_methods=[_method()],
+        expected_method_expectations=[
+            "causal_effect_estimation",
+            "uncertainty_interval",
+            "limitations",
+        ],
+        canary_kind="production",
+    )
+
+    selected = report["selected_methods"][0]
+
+    assert report["status"] == "pass"
+    assert selected["method_output_refs"] == {"method_result_ref": _sha("3")}
+    assert selected["assumption_gate_refs"] == {
+        "parallel_trends": (
+            "foundry-assumption-gate:causal.difference_in_differences:parallel_trends"
+        ),
+        "stable_composition": (
+            "foundry-assumption-gate:causal.difference_in_differences:stable_composition"
+        ),
+    }
+    assert selected["runtime_assumption_gates"] == [
+        {
+            "gate_ref": (
+                "foundry-assumption-gate:causal.difference_in_differences:parallel_trends"
+            ),
+            "assumption": "parallel_trends",
+            "status": "pass",
+        },
+        {
+            "gate_ref": (
+                "foundry-assumption-gate:causal.difference_in_differences:stable_composition"
+            ),
+            "assumption": "stable_composition",
+            "status": "pass",
+        },
+    ]
+    assert selected["uncertainty_envelope_refs"] == {
+        "uncertainty_envelope_ref": _sha("f")
+    }
+    assert selected["limitation_refs"] == {"method_limitation_ref": _sha("b")}
+    assert report["summary"]["assumption_gate_ref_count"] == 2
+    assert report["summary"]["method_output_ref_count"] == 1
+    assert report["summary"]["uncertainty_envelope_ref_count"] == 1
 
 
 def test_foundry_method_report_fails_point_estimate_without_uncertainty() -> None:
@@ -110,6 +161,20 @@ def test_foundry_method_report_requires_assumptions_and_sensitivity() -> None:
     assert report["status"] == "fail"
     assert "method_assumptions_missing" in issue_codes
     assert "method_sensitivity_missing" in issue_codes
+
+
+def test_method_report_fails_method_output_when_assumption_gate_fails() -> None:
+    method = _method(assumptions={"parallel_trends": "fail"})
+
+    report = build_foundry_method_report(
+        selected_methods=[method],
+        expected_method_expectations=["causal_effect_estimation"],
+        canary_kind="production",
+    )
+
+    issue_codes = {issue["code"] for issue in report["issues"]}
+    assert report["status"] == "fail"
+    assert "method_assumption_gate_failed" in issue_codes
 
 
 def test_foundry_method_report_fails_insufficient_data_without_degrade() -> None:
@@ -484,6 +549,44 @@ def test_generic_foundry_execute_cannot_satisfy_policy_method_obligations() -> N
         "distributional_evidence": "missing",
         "implementation_feasibility": "missing",
     }
+
+
+def test_method_report_records_simulation_assumption_lineage_and_independence_collapse() -> None:
+    shared_lineage = {"scenario_assumption_ref": "simulation-assumption:take-up-model-v1"}
+    methods = [
+        _method(
+            method_id="simulation.named.take_up_a",
+            method_family="simulation",
+            method_expectations=["implementation_feasibility"],
+            method_result_refs={"method_result_ref": _sha("1")},
+            result_refs={"method_result_ref": _sha("1")},
+            implementation_feasibility_refs={"delivery_capacity_ref": _sha("3")},
+            simulation_assumption_lineage_refs=shared_lineage,
+        ),
+        _method(
+            method_id="simulation.named.take_up_b",
+            method_family="simulation",
+            method_expectations=["implementation_feasibility"],
+            method_result_refs={"method_result_ref": _sha("2")},
+            result_refs={"method_result_ref": _sha("2")},
+            implementation_feasibility_refs={"delivery_capacity_ref": _sha("4")},
+            simulation_assumption_lineage_refs=shared_lineage,
+        ),
+    ]
+
+    report = build_foundry_method_report(
+        selected_methods=methods,
+        expected_method_expectations=["implementation_feasibility"],
+        canary_kind="production",
+    )
+
+    assert report["status"] == "warn"
+    assert report["summary"]["selected_method_count"] == 2
+    assert report["summary"]["effective_independent_method_count"] == 1
+    assert report["selected_methods"][0]["simulation_assumption_lineage_refs"] == shared_lineage
+    assert {
+        issue["code"] for issue in report["issues"]
+    } == {"method_independence_collapsed_by_shared_assumptions"}
 
 
 def test_selected_generic_foundry_execute_is_demoted_under_serious_obligations() -> None:

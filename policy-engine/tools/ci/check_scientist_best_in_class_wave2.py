@@ -261,13 +261,13 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
     try:
         from polisyos.core.artifacts.ids import ArtifactID
         from polisyos.core.artifacts.manifest import ArtifactRef
-        from polisyos.scientist.claims.diff import diff_claim_ledgers
-        from polisyos.scientist.claims.export import ClaimExportAudience, export_claim_ledger
-        from polisyos.scientist.claims.lifecycle import (
+        from polisyos.scientist.evidence.claims.diff import diff_claim_ledgers
+        from polisyos.scientist.evidence.claims.export import ClaimExportAudience, export_claim_ledger
+        from polisyos.scientist.evidence.claims.lifecycle import (
             build_initial_append_only_ledger,
             lifecycle_status_for_ledger,
         )
-        from polisyos.scientist.claims.models import (
+        from polisyos.scientist.evidence.claims.models import (
             ClaimLedger,
             ClaimPublishability,
             ClaimRecord,

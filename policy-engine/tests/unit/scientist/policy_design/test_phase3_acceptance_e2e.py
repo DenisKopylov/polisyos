@@ -43,10 +43,10 @@ from polisyos.ir.governance.policy_spec import InterventionSpec, MechanismBindin
 from polisyos.ir.governance.problem_frame import ObjectiveSpec, ProblemDomain, ProblemFrame
 from polisyos.ir.governance.schedule import ScheduleSpec
 from polisyos.ir.governance.selector_expr import SelectorPredicate
-from polisyos.ir.model_spec import FidelityLevel, ModelSpec
-from polisyos.ir.refs import ArtifactRefModel
+from polisyos.ir.model_layer.model_spec import FidelityLevel, ModelSpec
+from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.ir.types import OptimizationDirection
+from polisyos.ir.model_layer.types import OptimizationDirection
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.policy_design.objectives import (

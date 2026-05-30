@@ -12,7 +12,7 @@ def _clear_import_state() -> None:
     }
     prefixes = (
         "polisyos.ir.analytics.alignment_certification.",
-        "polisyos.ir.norm_pack",
+        "polisyos.ir.loading.norm_pack",
         "polisyos.lex.api",
         "polisyos.scientist.cross_graph.compiler",
     )

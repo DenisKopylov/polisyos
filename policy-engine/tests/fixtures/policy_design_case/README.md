@@ -42,3 +42,9 @@ The rejected examples cover the Phase 1.1 negative control: a static ADR row,
 manifest role, local path, dashboard projection, or narrative citation may
 describe what should exist, but it cannot satisfy serious-run Policy Design
 Case authority unless a runtime producer emits a compatible envelope.
+
+W1.B adds `semantic_false_passes/`, a production-quality semantic gold-card
+pack. Those fixtures intentionally keep `structural_verdict.status=pass` while
+the semantic evaluator derives failures for projection laundering,
+participation laundering, raw-count inflation, method mismatch, stale evidence,
+LLM speculation laundering, and unsupported claims.

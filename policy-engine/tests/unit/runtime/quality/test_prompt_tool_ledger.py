@@ -5,6 +5,7 @@ from polisyos.core.canon import from_canonical_bytes
 from polisyos.runtime.quality.prompt_tool_ledger import (
     SCHEMA_VERSION,
     PromptToolParserAuthorityLedger,
+    build_prompt_tool_ledger_from_model_variant,
     persist_prompt_tool_ledger,
     validate_prompt_tool_parser_authority,
 )
@@ -75,6 +76,22 @@ def _authority_step() -> dict[str, object]:
                 "decision": "schema_healing_not_required",
                 "status": "not_applicable",
                 "reason": "Strict parser validation passed.",
+                "fmea_annotation": {
+                    "failure_mode": "parser_contract_repair",
+                    "severity": 1,
+                    "cause": "strict_parser_validation_passed",
+                    "recommended_mitigation": (
+                        "Keep strict parser validation and retain the no-repair "
+                        "decision for audit replay."
+                    ),
+                    "residual_risk": "No residual repair risk observed for this step.",
+                    "occurrence": 1,
+                    "detectability": 1,
+                    "owner": "team-runtime-ops",
+                    "controls": ["strict parser validation"],
+                    "evidence_ref": sha("9"),
+                    "authority_effect": "advisory",
+                },
             }
         ],
         "authority_handoff_refs": [
@@ -150,6 +167,31 @@ def test_prompt_tool_ledger_records_system_confounded_findings() -> None:
     assert ledger.summary["upstream_spine_blocker_refs"] == [
         "quality_evidence/semantic_binding_ledger.json#/issues/0"
     ]
+
+
+def test_prompt_tool_ledger_annotations_repair_decisions_with_fmea() -> None:
+    ledger = build_prompt_tool_ledger_from_model_variant(
+        run_id="R_prompt_tool",
+        job_id="job-prompt-tool",
+        variant={
+            "model_variant_id": "qwen_1",
+            "provider": "gateway",
+            "model": "qwen",
+            "schema_healing_count": 1,
+        },
+        rendered_input_refs=[sha("a")],
+        output_refs=[sha("b")],
+        authority_handoff_refs=[sha("c")],
+    )
+
+    decision = ledger.steps[0].repair_decisions[0]
+    assert decision.status == "applied"
+    assert decision.fmea_annotation is not None
+    assert decision.fmea_annotation.failure_mode == "parser_contract_repair"
+    assert decision.fmea_annotation.risk_priority_number == 36
+    assert decision.fmea_annotation.authority_effect == "accepted_mitigation"
+    assert ledger.summary["repair_fmea_annotation_count"] == 1
+    assert ledger.summary["repair_fmea_unannotated_count"] == 0
 
 
 def test_provider_ledger_presence_alone_cannot_satisfy_prompt_tool_parser_authority() -> None:

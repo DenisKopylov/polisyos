@@ -13,6 +13,9 @@ from typing import Any
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
+from polisyos.runtime.quality.nl_replay_orchestration import (
+    NL_REPLAY_ORCHESTRATION_FILE_REF,
+)
 from polisyos.runtime.quality.replay import (
     build_replay_manifest,
     explain_replay_drift,
@@ -135,6 +138,7 @@ def build_replay_manifest_for_bundle(bundle_path: str | Path) -> dict[str, Any]:
     request = _load_json(bundle_dir / str(files.get("request") or "request.sanitized.json"))
     env = _load_json(bundle_dir / str(files.get("env") or "env.sanitized.json"))
     artifacts = _load_json(bundle_dir / str(files.get("artifacts") or "artifacts.json"))
+    orchestration_continuity = _load_json(bundle_dir / NL_REPLAY_ORCHESTRATION_FILE_REF)
     scorecard = _load_scorecard(bundle_dir, bundle, files)
     refs = _refs_from_artifacts(artifacts)
     run_params = _run_params(bundle)
@@ -153,6 +157,7 @@ def build_replay_manifest_for_bundle(bundle_path: str | Path) -> dict[str, Any]:
         random_seeds=_random_seeds(run_params),
         run_params=run_params,
         quality_scorecard_ref=_quality_scorecard_ref(bundle, files),
+        orchestration_continuity=orchestration_continuity,
         execution_summary=_execution_summary(bundle, scorecard),
         quality_summary=_quality_summary(scorecard, bundle),
     )

@@ -22,7 +22,7 @@ from polisyos.ir.observation.measurement import (
     ShockCalendar,
     ShockCalendarEntry,
 )
-from polisyos.ir.types import TimeFrequency
+from polisyos.ir.model_layer.types import TimeFrequency
 
 
 def _record(**overrides) -> ObservationRecord:

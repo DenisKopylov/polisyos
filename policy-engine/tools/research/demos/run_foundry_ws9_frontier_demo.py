@@ -85,10 +85,12 @@ def _dispatch(
     registry = MethodRegistry.get_instance()
     dispatcher = MethodDispatcher.get_instance()
     method_cls = registry.get(method_fqn)
+    materialize = getattr(method_cls, "materialize_input", None)
+    materialized_state = materialize({}, state) if callable(materialize) else state
     result = dispatcher.dispatch(
         method_class=method_cls,
         signature=method_cls.signature,
-        state=state,
+        state=materialized_state,
         params=params or {},
         seed=seed,
     )

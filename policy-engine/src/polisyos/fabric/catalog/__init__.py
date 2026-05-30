@@ -2,6 +2,10 @@
 
 from .binding import DataContractSchemaBinding, MetricBinding
 from .contract import DataContract, DataContractCollection, DataType, Granularity, PIITier
+from .data_requirement_adapter import (
+    FABRIC_DATA_REQUIREMENT_BINDINGS_SCHEMA_VERSION,
+    build_source_contract_requirement_bindings,
+)
 from .discovery import (
     DatasetCatalogEntry,
     DatasetCatalogStalenessReport,
@@ -29,6 +33,7 @@ from .source_bindings import SourceBinding, SourceBindingCollection, SourceBindi
 from .validate import ContractValidationError, load_contract_collection
 
 __all__ = [
+    "FABRIC_DATA_REQUIREMENT_BINDINGS_SCHEMA_VERSION",
     "ContractHashMismatchError",
     "ContractNotFoundError",
     "ContractValidationError",
@@ -64,5 +69,6 @@ __all__ = [
     "SourceBindingCollection",
     "SourceBindingRegistry",
     "build_semantic_dataset_catalog",
+    "build_source_contract_requirement_bindings",
     "load_contract_collection",
 ]

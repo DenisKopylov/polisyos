@@ -50,7 +50,7 @@ from benchmarks.runtime import (  # noqa: E402
 from benchmarks.suite_registry import spec_by_suite_id  # noqa: E402
 from polisyos.core.artifacts.ids import ArtifactID  # noqa: E402
 from polisyos.core.artifacts.manifest import ArtifactRef  # noqa: E402
-from polisyos.scientist.search.benchmark_registry import BenchmarkRegistry  # noqa: E402
+from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegistry  # noqa: E402
 
 
 class SuitePreflightFailure(RuntimeError):
@@ -1023,8 +1023,8 @@ def _artifact_ref(seed: str) -> ArtifactRef:
 def _cold_start_payload(mode: str, *, quiet: bool) -> dict[str, Any]:
     suite_id = "cold_start_import"
     targets = [
-        ("judge_stack", "polisyos.scientist.search.judge_stack"),
-        ("benchmark_registry", "polisyos.scientist.search.benchmark_registry"),
+        ("judge_stack", "polisyos.scientist.methods.search.judge_stack"),
+        ("benchmark_registry", "polisyos.scientist.methods.search.benchmark_registry"),
         ("runtime_replay", "polisyos.runtime.replay"),
         ("suite_registry", "benchmarks.suite_registry"),
     ]

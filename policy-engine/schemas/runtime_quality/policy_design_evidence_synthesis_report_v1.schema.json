@@ -8,6 +8,7 @@
     "report_id",
     "claim_ids",
     "portfolio_id",
+    "effective_evidence_mass",
     "weighting_model",
     "heterogeneity_model",
     "certainty_framework",
@@ -93,6 +94,51 @@
     "publication_bias_treatment": {
       "type": "object",
       "required": ["status"],
+      "additionalProperties": true
+    },
+    "effective_evidence_mass": {
+      "type": "object",
+      "required": [
+        "effective_support_mass",
+        "effective_counterevidence_mass",
+        "effective_context_mass",
+        "collapse_reasons",
+        "raw_count_display_policy"
+      ],
+      "properties": {
+        "raw_evidence_line_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "effective_support_mass": {
+          "type": "number",
+          "minimum": 0
+        },
+        "effective_counterevidence_mass": {
+          "type": "number",
+          "minimum": 0
+        },
+        "effective_context_mass": {
+          "type": "number",
+          "minimum": 0
+        },
+        "collapse_reasons": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["reason_code"],
+            "additionalProperties": true
+          }
+        },
+        "counterevidence_preserved": {
+          "type": "boolean"
+        },
+        "raw_count_display_policy": {
+          "type": "object",
+          "required": ["raw_count_authority", "must_display_with"],
+          "additionalProperties": true
+        }
+      },
       "additionalProperties": true
     },
     "inclusion_policy": {

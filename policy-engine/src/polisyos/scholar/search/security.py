@@ -34,6 +34,20 @@ _PROMPT_INJECTION_PATTERNS = [
 ]
 
 
+def sanitize_untrusted_text(text: str, *, max_chars: int = 400_000) -> str:
+    """Normalize text and neutralize common prompt-injection control strings."""
+
+    cleaned = "".join(ch if ch == "\n" or ch == "\t" or ord(ch) >= 32 else " " for ch in text)
+    cleaned = re.sub(r"[ \t]+", " ", cleaned)
+    cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)
+    for pattern in _PROMPT_INJECTION_PATTERNS:
+        cleaned = pattern.sub("[[removed-untrusted-instruction]]", cleaned)
+    cleaned = cleaned.strip()
+    if len(cleaned) > max_chars:
+        return cleaned[:max_chars]
+    return cleaned
+
+
 def validate_fetch_url(url: str, constraints: SearchConstraints) -> None:
     """Reject non-http, blocked-domain, and private-network URLs."""
     parsed = urllib.parse.urlparse(url)
@@ -84,19 +98,6 @@ def detect_paywall(text: str) -> bool:
     """Return ``True`` for common paywall/interstitial markers."""
     lowered = text.lower()
     return any(marker in lowered for marker in _PAYWALL_MARKERS)
-
-
-def sanitize_untrusted_text(text: str, *, max_chars: int = 400_000) -> str:
-    """Normalize page text and neutralize common prompt-injection control strings."""
-    cleaned = "".join(ch if ch == "\n" or ch == "\t" or ord(ch) >= 32 else " " for ch in text)
-    cleaned = re.sub(r"[ \t]+", " ", cleaned)
-    cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)
-    for pattern in _PROMPT_INJECTION_PATTERNS:
-        cleaned = pattern.sub("[[removed-untrusted-instruction]]", cleaned)
-    cleaned = cleaned.strip()
-    if len(cleaned) > max_chars:
-        return cleaned[:max_chars]
-    return cleaned
 
 
 def _ensure_public_address(address: str) -> None:

@@ -4,6 +4,11 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
+from tests.repo_quality.tools.test_policy_design_case_pass2_diagnostics import (
+    _write_complete_wave34_packet,
+)
 from tools.quality.validation import (
     build_policy_design_case_pass2_disposition as build,
 )
@@ -14,8 +19,20 @@ from tools.quality.validation import (
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
-def test_wave35_findings_ledger_represents_every_wave34_artifact() -> None:
-    ledger = build.build_findings_ledger_payload(repo_root=REPO_ROOT)
+@pytest.fixture(scope="module")
+def wave34_diagnostics_root(tmp_path_factory: pytest.TempPathFactory) -> Path:
+    output_root = tmp_path_factory.mktemp("wave34-diagnostics")
+    _write_complete_wave34_packet(output_root)
+    return output_root
+
+
+def test_wave35_findings_ledger_represents_every_wave34_artifact(
+    wave34_diagnostics_root: Path,
+) -> None:
+    ledger = build.build_findings_ledger_payload(
+        repo_root=REPO_ROOT,
+        diagnostics_root=wave34_diagnostics_root,
+    )
 
     assert ledger["schema_version"] == build.SCHEMA_VERSION
     assert ledger["wave"] == "35"
@@ -35,8 +52,13 @@ def test_wave35_findings_ledger_represents_every_wave34_artifact() -> None:
     )
 
 
-def test_wave35_root_cause_clusters_cover_every_finding_once() -> None:
-    ledger, clusters, _disposition = build.build_wave35_payloads(repo_root=REPO_ROOT)
+def test_wave35_root_cause_clusters_cover_every_finding_once(
+    wave34_diagnostics_root: Path,
+) -> None:
+    ledger, clusters, _disposition = build.build_wave35_payloads(
+        repo_root=REPO_ROOT,
+        diagnostics_root=wave34_diagnostics_root,
+    )
 
     finding_ids = {row["finding_id"] for row in ledger["findings"]}
     covered_ids = [
@@ -56,8 +78,13 @@ def test_wave35_root_cause_clusters_cover_every_finding_once() -> None:
     )
 
 
-def test_wave35_disposition_classifies_every_finding_and_not_triggered_artifact() -> None:
-    _ledger, _clusters, disposition = build.build_wave35_payloads(repo_root=REPO_ROOT)
+def test_wave35_disposition_classifies_every_finding_and_not_triggered_artifact(
+    wave34_diagnostics_root: Path,
+) -> None:
+    _ledger, _clusters, disposition = build.build_wave35_payloads(
+        repo_root=REPO_ROOT,
+        diagnostics_root=wave34_diagnostics_root,
+    )
 
     assert disposition["status"] == "pass"
     assert disposition["summary"]["finding_count"] == 113
@@ -84,11 +111,24 @@ def test_wave35_disposition_classifies_every_finding_and_not_triggered_artifact(
         assert row["source_evidence"]
 
 
-def test_wave35_validator_accepts_generated_payloads(tmp_path: Path) -> None:
-    build.main(["--repo-root", str(REPO_ROOT), "--output-dir", str(tmp_path)])
+def test_wave35_validator_accepts_generated_payloads(
+    tmp_path: Path,
+    wave34_diagnostics_root: Path,
+) -> None:
+    build.main(
+        [
+            "--repo-root",
+            str(REPO_ROOT),
+            "--diagnostics-root",
+            str(wave34_diagnostics_root),
+            "--output-dir",
+            str(tmp_path),
+        ]
+    )
 
     errors = check.validate_pass2_disposition(
         repo_root=REPO_ROOT,
+        diagnostics_root=wave34_diagnostics_root,
         output_dir=tmp_path,
         require_passing=True,
     )
@@ -98,8 +138,9 @@ def test_wave35_validator_accepts_generated_payloads(tmp_path: Path) -> None:
 
 def test_wave35_validator_fails_when_a_finding_lacks_disposition(
     tmp_path: Path,
+    wave34_diagnostics_root: Path,
 ) -> None:
-    _write_payloads(tmp_path)
+    _write_payloads(tmp_path, diagnostics_root=wave34_diagnostics_root)
     disposition_path = tmp_path / "pass2_disposition.json"
     disposition = json.loads(disposition_path.read_text(encoding="utf-8"))
     disposition["dispositions"] = disposition["dispositions"][1:]
@@ -107,6 +148,7 @@ def test_wave35_validator_fails_when_a_finding_lacks_disposition(
 
     errors = check.validate_pass2_disposition(
         repo_root=REPO_ROOT,
+        diagnostics_root=wave34_diagnostics_root,
         output_dir=tmp_path,
     )
 
@@ -115,8 +157,9 @@ def test_wave35_validator_fails_when_a_finding_lacks_disposition(
 
 def test_wave35_validator_fails_when_deferral_target_is_not_before_wave36(
     tmp_path: Path,
+    wave34_diagnostics_root: Path,
 ) -> None:
-    _write_payloads(tmp_path)
+    _write_payloads(tmp_path, diagnostics_root=wave34_diagnostics_root)
     disposition_path = tmp_path / "pass2_disposition.json"
     disposition = json.loads(disposition_path.read_text(encoding="utf-8"))
     for row in disposition["dispositions"]:
@@ -127,6 +170,7 @@ def test_wave35_validator_fails_when_deferral_target_is_not_before_wave36(
 
     errors = check.validate_pass2_disposition(
         repo_root=REPO_ROOT,
+        diagnostics_root=wave34_diagnostics_root,
         output_dir=tmp_path,
     )
 
@@ -135,11 +179,13 @@ def test_wave35_validator_fails_when_deferral_target_is_not_before_wave36(
 
 def test_wave35_validator_closeout_ready_fails_while_deferrals_remain(
     tmp_path: Path,
+    wave34_diagnostics_root: Path,
 ) -> None:
-    _write_payloads(tmp_path)
+    _write_payloads(tmp_path, diagnostics_root=wave34_diagnostics_root)
 
     errors = check.validate_pass2_disposition(
         repo_root=REPO_ROOT,
+        diagnostics_root=wave34_diagnostics_root,
         output_dir=tmp_path,
         require_passing=True,
         require_closeout_ready=True,
@@ -150,8 +196,9 @@ def test_wave35_validator_closeout_ready_fails_while_deferrals_remain(
 
 def test_wave35_validator_fails_when_remediation_wave_spec_is_too_vague(
     tmp_path: Path,
+    wave34_diagnostics_root: Path,
 ) -> None:
-    _write_payloads(tmp_path)
+    _write_payloads(tmp_path, diagnostics_root=wave34_diagnostics_root)
     plan_path = tmp_path / "plan.md"
     source = (
         REPO_ROOT
@@ -167,6 +214,7 @@ def test_wave35_validator_fails_when_remediation_wave_spec_is_too_vague(
 
     errors = check.validate_pass2_disposition(
         repo_root=REPO_ROOT,
+        diagnostics_root=wave34_diagnostics_root,
         output_dir=tmp_path,
         plan_path=plan_path,
     )
@@ -180,8 +228,9 @@ def test_wave35_validator_fails_when_remediation_wave_spec_is_too_vague(
 
 def test_wave35_validator_requires_wave35f_integrity_gate_before_wave36(
     tmp_path: Path,
+    wave34_diagnostics_root: Path,
 ) -> None:
-    _write_payloads(tmp_path)
+    _write_payloads(tmp_path, diagnostics_root=wave34_diagnostics_root)
     plan_path = tmp_path / "plan.md"
     source = (
         REPO_ROOT
@@ -200,6 +249,7 @@ def test_wave35_validator_requires_wave35f_integrity_gate_before_wave36(
 
     errors = check.validate_pass2_disposition(
         repo_root=REPO_ROOT,
+        diagnostics_root=wave34_diagnostics_root,
         output_dir=tmp_path,
         plan_path=plan_path,
     )
@@ -213,8 +263,9 @@ def test_wave35_validator_requires_wave35f_integrity_gate_before_wave36(
 
 def test_wave35_validator_requires_wave35g_backfill_gate_before_wave36(
     tmp_path: Path,
+    wave34_diagnostics_root: Path,
 ) -> None:
-    _write_payloads(tmp_path)
+    _write_payloads(tmp_path, diagnostics_root=wave34_diagnostics_root)
     plan_path = tmp_path / "plan.md"
     source = (
         REPO_ROOT
@@ -233,6 +284,7 @@ def test_wave35_validator_requires_wave35g_backfill_gate_before_wave36(
 
     errors = check.validate_pass2_disposition(
         repo_root=REPO_ROOT,
+        diagnostics_root=wave34_diagnostics_root,
         output_dir=tmp_path,
         plan_path=plan_path,
     )
@@ -244,9 +296,10 @@ def test_wave35_validator_requires_wave35g_backfill_gate_before_wave36(
     )
 
 
-def _write_payloads(output_dir: Path) -> None:
+def _write_payloads(output_dir: Path, *, diagnostics_root: Path) -> None:
     ledger, clusters, disposition = build.build_wave35_payloads(
         repo_root=REPO_ROOT,
+        diagnostics_root=diagnostics_root,
         output_dir=output_dir,
     )
     output_dir.mkdir(parents=True, exist_ok=True)

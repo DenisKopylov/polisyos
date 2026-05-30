@@ -22,7 +22,7 @@ from polisyos.ir.analytics.endogenous_inequality import (
 )
 from polisyos.ir.analytics.negative_certificate import BlockingType, NegativeCertificate
 from polisyos.ir.analytics.partial_identification import BoundMethod, PartialIdentificationResult
-from polisyos.ir.refs import EndogenousGroupInequalityDecompositionRef
+from polisyos.ir.registry.refs import EndogenousGroupInequalityDecompositionRef
 
 
 def _law(label: CounterfactualLawLabel, value: float) -> CounterfactualLawEstimate:

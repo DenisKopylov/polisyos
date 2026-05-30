@@ -20,7 +20,7 @@ from polisyos.ir.governance.selector_expr import (
     SelectorNot,
     SelectorPredicate,
 )
-from polisyos.ir.norm_pack import RuleType
+from polisyos.ir.loading.norm_pack import RuleType
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.agent.constraint_context import ConstraintContextAssembler
 from polisyos.scientist.agent.feasibility import FeasibilityProbe, NullFeasibilityProbe

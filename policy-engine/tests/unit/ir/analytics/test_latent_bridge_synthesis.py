@@ -32,7 +32,7 @@ from polisyos.ir.analytics.latent_bridge_synthesis import (
     persist_latent_bridge_hypothesis,
     synthesize_latent_bridge,
 )
-from polisyos.ir.refs import LatentBridgeHypothesisRef
+from polisyos.ir.registry.refs import LatentBridgeHypothesisRef
 
 PAIR_KEY = "fragA:var|fragB:var"
 

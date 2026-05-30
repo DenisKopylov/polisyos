@@ -31,7 +31,7 @@ from polisyos.core.contracts.runtime import (
     UnitRef,
 )
 from polisyos.fabric.connectors.contracts import SourceContract, load_source_contracts
-from polisyos.fabric.decision_data import (
+from polisyos.fabric.evidence.decision_data import (
     FabricDecisionData,
     FabricDecisionDataCoverage,
     QualityRef,

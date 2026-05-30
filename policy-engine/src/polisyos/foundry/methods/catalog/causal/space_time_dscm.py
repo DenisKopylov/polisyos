@@ -48,7 +48,7 @@ from polisyos.ir.analytics.phase4_dynamics import (
     build_space_time_causal_certificate,
     persist_space_time_causal_certificate,
 )
-from polisyos.ir.refs import SpaceTimeCausalCertificateRef
+from polisyos.ir.registry.refs import SpaceTimeCausalCertificateRef
 
 
 class SpaceTimePathSpace(StrEnum):

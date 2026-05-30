@@ -1,0 +1,56 @@
+{
+  "schema_version": "policyos.runtime.policy_design_case.semantic_gold_card.v1",
+  "fixture_id": "w5b_unreachable_recourse_pointer_semantic_fail",
+  "title": "Contested public case cannot publish with unreachable recourse",
+  "expected_status": "semantic_fail",
+  "failure_mode": "unreachable_recourse_pointer",
+  "research_refs": ["E22", "C30", "C17", "C39b"],
+  "pattern_ids": ["P10", "P05"],
+  "structural_pass_claimed": true,
+  "structural_verdict": {
+    "status": "pass",
+    "validator_refs": ["policy_design_case.structural.recourse_pointer_shape.v1"],
+    "completeness_claims": [
+      "contestability_record_present",
+      "recourse_pointer_present",
+      "public_projection_present"
+    ]
+  },
+  "semantic_adjudication": {
+    "status": "fail",
+    "adjudicator": "policyos.semantic_gold_card.w5b",
+    "failure_mode": "unreachable_recourse_pointer",
+    "failure_code": "semantic_recourse_pointer_unreachable",
+    "rationale": "A high-stakes contested production publication carries an unreachable recourse pointer.",
+    "authority_effect": "block_closeout",
+    "required_remediation": "Publish only after a verified-reachable recourse pointer exists."
+  },
+  "semantic_probes": [
+    {
+      "probe_id": "recourse-pointer-reachability",
+      "semantic_axis": "recourse",
+      "pattern_ids": ["P10", "P05"],
+      "observed_signal": "Publication status is publishable with an unreachable pointer.",
+      "expected_signal": "Publication fails with public_export_recourse_pointer_unreachable.",
+      "verdict": "fail",
+      "failure_code": "semantic_recourse_pointer_unreachable",
+      "evidence_refs": ["runtime-event://recourse-pointer/unreachable"]
+    }
+  ],
+  "payload": {
+    "case_id": "pdc-w5b-recourse",
+    "claim_ids": ["claim-contested-publication"],
+    "contestability": {
+      "contestability_status": "contested",
+      "authority_level": "production",
+      "stakes": "high_stakes",
+      "publication_status": "publishable",
+      "recourse_pointer": {
+        "uri": "https://appeals.example.test/pdc/w5b",
+        "verification_status": "unreachable",
+        "verified_at": "2026-05-23T00:00:00Z",
+        "verification_ref": "runtime-event://recourse-pointer/unreachable"
+      }
+    }
+  }
+}

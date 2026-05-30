@@ -1,6 +1,6 @@
 """Scenario-aware Lex query normalization for legal authority retrieval."""
 
-# ruff: noqa: RUF001 - Ukrainian legal retrieval terms intentionally use Cyrillic.
+
 
 from __future__ import annotations
 

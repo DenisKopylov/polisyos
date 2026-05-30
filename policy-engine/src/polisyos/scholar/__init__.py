@@ -11,9 +11,11 @@ Names listed in `__all__` are the supported package-level surface.
 from __future__ import annotations
 
 import importlib
-from typing import Any
 
 __all__ = [
+    "SCHOLAR_ACADEMIC_EVIDENCE_FILENAME",
+    "SCHOLAR_ACADEMIC_EVIDENCE_REF_KEY",
+    "SCHOLAR_ACADEMIC_EVIDENCE_SCHEMA_VERSION",
     "EnrichResultV1",
     "EnrichmentReportV1",
     "KnowledgeBundlePayloadV1",
@@ -28,7 +30,13 @@ __all__ = [
     "ScholarReconcileError",
     "ScholarService",
     "ScholarValidationError",
+    "build_scholar_academic_evidence_report",
+    "build_scholar_academic_evidence_report_from_web_bundle",
+    "build_scholar_spine_evidence_binding",
     "enrich_topic",
+    "normalize_scholar_academic_evidence_report",
+    "sanitize_untrusted_text",
+    "scholar_academic_evidence_required",
     "scholar_citation_from_fabric_decision_data",
 ]
 
@@ -44,6 +52,42 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "ScholarReconcileError": ("polisyos.scholar.errors", "ScholarReconcileError"),
     "ScholarValidationError": ("polisyos.scholar.errors", "ScholarValidationError"),
     "ScholarPolicy": ("polisyos.scholar.policies", "ScholarPolicy"),
+    "build_scholar_academic_evidence_report_from_web_bundle": (
+        "polisyos.scholar._impl.evidence",
+        "build_scholar_academic_evidence_report_from_web_bundle",
+    ),
+    "build_scholar_academic_evidence_report": (
+        "polisyos.scholar._impl.evidence",
+        "build_scholar_academic_evidence_report",
+    ),
+    "normalize_scholar_academic_evidence_report": (
+        "polisyos.scholar._impl.evidence",
+        "normalize_scholar_academic_evidence_report",
+    ),
+    "scholar_academic_evidence_required": (
+        "polisyos.scholar._impl.evidence",
+        "scholar_academic_evidence_required",
+    ),
+    "SCHOLAR_ACADEMIC_EVIDENCE_FILENAME": (
+        "polisyos.scholar._impl.evidence",
+        "SCHOLAR_ACADEMIC_EVIDENCE_FILENAME",
+    ),
+    "SCHOLAR_ACADEMIC_EVIDENCE_REF_KEY": (
+        "polisyos.scholar._impl.evidence",
+        "SCHOLAR_ACADEMIC_EVIDENCE_REF_KEY",
+    ),
+    "SCHOLAR_ACADEMIC_EVIDENCE_SCHEMA_VERSION": (
+        "polisyos.scholar._impl.evidence",
+        "SCHOLAR_ACADEMIC_EVIDENCE_SCHEMA_VERSION",
+    ),
+    "build_scholar_spine_evidence_binding": (
+        "polisyos.scholar._impl.spine",
+        "build_scholar_spine_evidence_binding",
+    ),
+    "sanitize_untrusted_text": (
+        "polisyos.scholar.search.security",
+        "sanitize_untrusted_text",
+    ),
     "ScholarFabricCitation": ("polisyos.scholar.provenance", "ScholarFabricCitation"),
     "scholar_citation_from_fabric_decision_data": (
         "polisyos.scholar.provenance",
@@ -55,7 +99,7 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
 }
 
 
-def __getattr__(name: str) -> Any:
+def __getattr__(name: str) -> object:
     """Resolve one exported Scholar symbol and cache it on the package."""
     if name not in _LAZY_IMPORTS:
         raise AttributeError(f"module 'polisyos.scholar' has no attribute '{name}'")

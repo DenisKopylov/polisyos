@@ -32,6 +32,12 @@ claims live in the linked child reference pages.
 | [Public Surface](public-surface.md)                                  | Explicit supported package entrypoints and compatibility classes                                       |
 | [Generated Artifacts](generated-artifacts.md)                        | Authoritative source map, regeneration commands, and freshness rules                                   |
 | [Policy Design Case Failure And Repair Patterns](policy-design-case-failure-patterns.md) | Agent-facing anti-pattern and correct-pattern register for governance, evidence, runtime-quality, and PDC closeout |
+| [Policy Design Case Capability Ratchet](policy-design-case-capability-ratchet.md) | W1.A capability reality report, debt algebra, purpose multipliers, readiness bands, and burn-down templates |
+| [Policy Design Case Source Ownership](policy-design-case-source-ownership.md) | W0.G repo-owned source chain from raw research to synthesis, C/E/P ids, ADRs, and implementation gates |
+| [Policy Design Case Evidence Paths](policy-design-case-evidence-paths.md) | W1.E canonical paths for raw sources, synthesis, ADRs, validation commands, command evidence, and closeout notes |
+| [Policy Design Case Structural ADR Registry](policy-design-case-structural-adr-registry.md) | W0.H `docs/reference/policy-design-case-structural-adr-registry.md` map from C0-C41 structural decisions to ADRs, blockers, or explicit no-ADR rationales |
+| [Policy Design Case Operator Guide](policy-design-case-operator-guide.md) | W5.E operator lookup for ADRs, system-design decision indexes, public evidence paths, tuned-parameter owners, validation ladders, capability evidence, and rollout/rollback procedures in `docs/runbooks/policy-design-case-rollout-rollback.md` |
+| [Run-Cost Enforcement Gate](runtime/run-cost-enforcement-gate.md) | W10.D authority-level cost enforcement over provider calls, tokens, compute spend, embeddings/searches, wall-clock, retry, and acquisition budgets |
 | [Repository Topology](repository-topology.md)                         | Final clean-cut product-root, docs, tools, tests, ops, data, and local-state placement map             |
 | [Documentation Inventory](documentation-inventory.md)                | Docs control ledger: source plans, owners, current QA evidence, and coordination conflicts             |
 | [Contributor Start Here](contributor-start-here.md)                  | “If you need to change X, start here” navigation index                                                 |

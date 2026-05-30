@@ -1,0 +1,41 @@
+id = "2026-05-25-w12d-universal-outcome-corpus-run"
+title = "Add W12.D universal outcome corpus run"
+type = "added"
+component = "quality-validation"
+owner = "team-evaluation"
+summary = "Add a W12.D runner that executes every universal outcome corpus case through W6 universal compilation, W7 producer pipeline orchestration, and W8.A RuntimePolicyDesignCase graph assembly, then reports per-case outcomes, graph artifact refs, expert-adjudication deltas, and authority-level metric stratification."
+evidence = [
+  "tests/repo_quality/tools/test_w12d_universal_outcome_corpus_run.py",
+]
+compatibility = "Additive validation tool and manifest; no runtime API, generated client, or dashboard contract changes."
+change_class = "tooling"
+surface_classification = "internal_tooling"
+migration = "Use tools/quality/validation/run_universal_outcome_corpus.py for W12.D canonical real-corpus evidence; W12.B/W12.C remain metric-specific audits."
+api = "Adds --corpus, --graph-output-dir, --output, --allow-typed-blockers, --require-passing, and --write-manifest options."
+limitations = "The corpus run reports canonical rollout evidence and typed blockers; W8.A graph artifacts are authoritative only for pdc_graph_structure and may not be used for projection authority, claim authority, or rollout approval."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "tools/quality/validation/README.md",
+]
+runbook_docs = [
+  "docs/runbooks/policy-design-case-rollout-rollback.md",
+]
+
+[[compatibility_change]]
+id = "quality-validation-w12d-universal-outcome-corpus-run"
+change_class = "tooling"
+impact = "additive"
+surface = "internal_tooling: tools/quality/validation/run_universal_outcome_corpus.py"
+owner = "team-evaluation"
+version_owner = "team-evaluation"
+deprecation_window = "not_applicable"
+release_note = "W12.D universal outcome corpus evidence can now be run over W6/W7/W8 with per-case outcome, graph artifact, adjudication-delta, and authority-stratified metrics."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "tools/quality/validation/README.md",
+]
+runbook_docs = [
+  "docs/runbooks/policy-design-case-rollout-rollback.md",
+]

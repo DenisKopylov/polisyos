@@ -1,14 +1,17 @@
 from __future__ import annotations
 
+# ruff: noqa: S101
 import json
 
 import pytest
 
+from polisyos.runtime.quality.case_lifecycle import build_lifecycle_reissue_report
 from polisyos.runtime.quality.public_export import (
     PublicExportRedactionError,
     assert_public_export_official_use_limits,
     build_public_export_bundle,
 )
+from polisyos.runtime.quality.rule_evolution import build_rule_evolution_registry
 from tests._helpers.hds_quality import authority_envelope_for, sha
 from tests._helpers.policy_design_case_projection import policy_design_case
 
@@ -102,6 +105,285 @@ def test_public_export_reads_policy_design_case_projection_without_exposing_auth
     assert "Target wartime credit support" in rendered
     assert "sk-secret-token" not in rendered
     assert "tenant-sensitive" not in rendered
+
+
+def test_public_export_blocks_scalar_welfare_without_frontier_provenance() -> None:
+    with pytest.raises(
+        PublicExportRedactionError,
+        match="scalar_welfare_aggregate_without_frontier",
+    ):
+        build_public_export_bundle(
+            run_id="run-public-scalar-welfare",
+            artifacts={
+                "decision_artifact": {
+                    "claim_id": "claim:welfare:1",
+                    "text": "Publish selected welfare option.",
+                },
+                "welfare_score": 0.72,
+            },
+            authority_envelopes=[],
+            policy_design_case=policy_design_case(),
+            projection_payload={
+                "public_export_classification": "public_redacted_projection",
+                "decision_context": {"public_export_status": "publishable"},
+                "publishability": "publishable",
+            },
+        )
+
+
+def test_public_export_blocks_unverified_candidate_in_public_artifact() -> None:
+    with pytest.raises(
+        PublicExportRedactionError,
+        match="candidate_firewall_candidate_unverified",
+    ):
+        build_public_export_bundle(
+            run_id="run-public-candidate-firewall",
+            artifacts={
+                "public_summary": {
+                    "claim_refs": ["hypothesis-candidate:public-claim-1"],
+                    "hypothesis_ledger": {
+                        "schema_version": "policyos.runtime.hypothesis_ledger.v1",
+                        "run_id": "run-wave6f",
+                        "job_id": "job-wave6f",
+                        "entries": [
+                            {
+                                "candidate_id": "hypothesis-candidate:public-claim-1",
+                                "candidate_ref": "hypothesis-candidate:public-claim-1",
+                                "source_class": "llm_drafter",
+                                "candidate_kind": "public_projection_claim",
+                                "target_authority_slots": ["projection_authority"],
+                                "target_claim_ids": ["rec_1"],
+                                "prompt_fingerprint": "sha256:" + "1" * 64,
+                                "tool_refs": ["tool-output:public-projection"],
+                                "repair_decision_lineage": ["repair:none"],
+                                "authority_envelope": {
+                                    "authoritative_for": ["candidate_hypothesis"],
+                                    "may_not_use_for": ["projection_authority"],
+                                },
+                                "admission_state": "candidate_unverified",
+                            }
+                        ],
+                    },
+                }
+            },
+            authority_envelopes=[],
+        )
+
+
+def test_public_export_rejects_omitted_blocked_claim_without_omission_manifest() -> None:
+    with pytest.raises(
+        PublicExportRedactionError,
+        match="public_export_omission_manifest_missing",
+    ):
+        build_public_export_bundle(
+            run_id="run-public-omission",
+            artifacts={
+                "claims_manifest": {
+                    "included_claim_ids": ["rec_2"],
+                    "omitted_claim_ids": ["rec_1"],
+                }
+            },
+            authority_envelopes=[],
+            policy_design_case=policy_design_case(),
+            projection_payload={
+                "authority_role": "final_decision_artifact",
+                "closeout_verdict": {
+                    "status": "blocked",
+                    "verdict": "cannot_closeout",
+                    "can_closeout": False,
+                    "issues": [
+                        {
+                            "code": "blocked_claim_missing_anchor",
+                            "severity": "fail",
+                            "message": "Claim rec_1 is blocked.",
+                            "claim_ids": ["rec_1"],
+                        }
+                    ],
+                },
+            },
+        )
+
+
+def test_public_export_surfaces_omission_manifest_and_projection_contract_status() -> None:
+    public_bundle = build_public_export_bundle(
+        run_id="run-public-omission",
+        artifacts={
+            "claims_manifest": {
+                "included_claim_ids": ["rec_2"],
+                "omitted_claim_ids": ["rec_1"],
+            }
+        },
+        authority_envelopes=[],
+        policy_design_case=policy_design_case(),
+        projection_payload={
+            "authority_role": "final_decision_artifact",
+            "audit_refs": ["audit://pdc/w5a/public-export"],
+            "closeout_verdict": {
+                "status": "blocked",
+                "verdict": "cannot_closeout",
+                "can_closeout": False,
+                "issues": [
+                    {
+                        "code": "omitted_blocked_claim",
+                        "severity": "omission",
+                        "message": "Claim rec_1 is omitted from the public bundle.",
+                        "claim_ids": ["rec_1"],
+                        "module_id": "public_export",
+                        "evidence_ref": sha("9"),
+                    }
+                ],
+            },
+        },
+    )
+
+    projection = public_bundle["projection_semantics"]
+    assert projection["contract_verification_status"] == "pass"
+    assert "audit://pdc/w5a/public-export" in projection["audit_refs"]
+    assert projection["omission_manifest"][0]["claim_ids"] == ["rec_1"]
+    assert public_bundle["semantic_audit"]["omission_manifest"] == projection["omission_manifest"]
+    assert public_bundle["semantic_audit"]["projection_contract_verification"]["status"] == "pass"
+
+
+def test_public_export_surfaces_rule_evolution_annotation_without_authority_upgrade() -> None:
+    old_registry = build_rule_evolution_registry(
+        registry_id="rule-registry-2026-05",
+        version="2026.05",
+        effective_at="2026-05-22T00:00:00+00:00",
+        rule_refs=[
+            {
+                "requirement_id": "req.credit_support",
+                "logic": {"predicate": "liquidity_gap", "threshold": 0.2},
+                "taxonomy_refs": ["taxonomy.policy_obligation.v1"],
+                "authority_purpose": "admissibility",
+            }
+        ],
+        taxonomy_refs=[
+            {
+                "taxonomy_id": "taxonomy.policy_obligation",
+                "version": "2026.05",
+                "ref": sha("a"),
+            }
+        ],
+        evidence_ref=sha("b"),
+        runtime_event_ref="event://rule-evolution/2026-05",
+    )
+    changed_registry = build_rule_evolution_registry(
+        registry_id="rule-registry-2026-07",
+        version="2026.07",
+        effective_at="2026-07-01T00:00:00+00:00",
+        previous_registry=old_registry,
+        rule_refs=[
+            {
+                "requirement_id": "req.credit_support.v2",
+                "logic": {"predicate": "liquidity_gap", "threshold": 0.35},
+                "taxonomy_refs": ["taxonomy.policy_obligation.v1"],
+                "authority_purpose": "admissibility",
+            }
+        ],
+        taxonomy_refs=old_registry["taxonomy_refs"],
+        alias_remaps=[
+            {
+                "from_requirement_id": "req.credit_support",
+                "to_requirement_id": "req.credit_support.v2",
+            }
+        ],
+        evidence_ref=sha("c"),
+        runtime_event_ref="event://rule-evolution/2026-07",
+    )
+
+    public_bundle = build_public_export_bundle(
+        run_id="run-public-rule-evolution",
+        artifacts={
+            "rule_evolution_public_annotation": changed_registry["public_annotation"],
+        },
+        authority_envelopes=[],
+    )
+
+    annotations = public_bundle["semantic_audit"]["rule_evolution_annotations"]
+    assert annotations[0]["public_annotation_state"] == "semantic_change"
+    assert annotations[0]["revalidation_state"] == "revalidation_required"
+    assert annotations[0]["silent_upgrade_allowed"] is False
+    assert public_bundle["authority_role"] == "projection_only"
+
+
+def test_public_export_surfaces_lifecycle_public_revision_state_without_authority_upgrade() -> None:
+    lifecycle_report = build_lifecycle_reissue_report(
+        report_id="lifecycle-reissue-public",
+        case_id="pdc-R_hds_red_control",
+        claim_ids=["rec_1", "rec_2"],
+        source_events=[
+            {
+                "event_id": "source-stale-rec-1",
+                "event_type": "source_invalidation",
+                "invalidation_type": "stale",
+                "affected_claim_ids": ["rec_1"],
+                "reason": "Primary data source freshness window expired.",
+                "evidence_ref": sha("1"),
+                "runtime_event_ref": "event://source/stale-rec-1",
+                "occurred_at": "2026-07-02T00:00:00+00:00",
+            }
+        ],
+        evidence_ref=sha("2"),
+        runtime_event_ref="event://policy-design-case/lifecycle-reissue/public",
+    )
+
+    public_bundle = build_public_export_bundle(
+        run_id="run-public-lifecycle",
+        artifacts={
+            "lifecycle_reissue_report": lifecycle_report,
+        },
+        authority_envelopes=[],
+    )
+
+    revision_states = public_bundle["semantic_audit"]["public_revision_states"]
+    assert revision_states[0]["affected_claim_ids"] == ["rec_1"]
+    assert revision_states[0]["unaffected_claim_ids"] == ["rec_2"]
+    assert revision_states[0]["silent_upgrade_allowed"] is False
+    assert revision_states[0]["authority_role"] == "projection_only"
+    assert "claim_evidence_authority" in revision_states[0]["may_not_use_for"]
+    assert public_bundle["authority_role"] == "projection_only"
+
+
+@pytest.mark.parametrize(
+    "recourse_pointer",
+    [
+        None,
+        {
+            "uri": "https://appeals.example.test/policy-design-case/run-public-redaction",
+            "verification_status": "unreachable",
+            "verified_at": "2026-05-22T10:00:00Z",
+            "verification_ref": "runtime-event://recourse-pointer/unreachable",
+        },
+    ],
+)
+def test_public_export_blocks_high_stakes_contested_production_without_reachable_recourse(
+    recourse_pointer: dict[str, object] | None,
+) -> None:
+    projection_payload: dict[str, object] = {
+        "publishability": "publishable",
+        "contestability_status": "contested",
+        "stakes": "high_stakes",
+        "authority_level": "production",
+        "decision_context": {"public_export_status": "publishable"},
+    }
+    if recourse_pointer is not None:
+        projection_payload["recourse_pointer"] = recourse_pointer
+
+    with pytest.raises(
+        PublicExportRedactionError,
+        match="public_export_recourse_pointer_unreachable",
+    ):
+        build_public_export_bundle(
+            run_id="run-public-redaction",
+            artifacts={"decision_artifact": {"claim_id": "rec_1"}},
+            authority_envelopes=[],
+            policy_design_case={
+                **policy_design_case(),
+                "contestability_status": "contested",
+                "stakes": "high_stakes",
+            },
+            projection_payload=projection_payload,
+        )
 
 
 def test_public_export_official_use_guard_rejects_authority_upgrade() -> None:

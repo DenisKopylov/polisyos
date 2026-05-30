@@ -1,0 +1,52 @@
+{
+  "schema_version": "policyos.policy_design_case.wave12d.universal_outcome_corpus_run_manifest.v1",
+  "status": "implemented",
+  "phase_id": "W12.D",
+  "phase_name": "Universal Outcome Corpus Run",
+  "generated_at": "2026-05-25T00:00:00Z",
+  "owner": "team-evaluation",
+  "implementation_plan_ref": "repo://docs/plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md#w12d-universal-outcome-corpus-run",
+  "tool_ref": "repo://tools/quality/validation/run_universal_outcome_corpus.py",
+  "command_contract": {
+    "command": "uv run python tools/quality/validation/run_universal_outcome_corpus.py --repo-root . --corpus tests/fixtures/universal-corpus --output _build/.tmp/production-quality/w12d_universal_outcome_corpus_run.json --capability-index _build/.tmp/production-quality/capability-index/capability_index_v1.duckdb",
+    "output_refs": [
+      "_build/.tmp/production-quality/w12d_universal_outcome_corpus_run.json",
+      "_build/.tmp/production-quality/w12d-runtime-pdc-graphs"
+    ],
+    "synthetic_fixture_substitution_allowed": false,
+    "owner": "team-evaluation",
+    "next_action": "Repair any W6/W7/W8 typed blockers or adjudication deltas before using the corpus run as universal-capability rollout evidence."
+  },
+  "w6_w7_w8_chain": {
+    "universal_compilation_kernel": "W6",
+    "producer_pipeline": "W7",
+    "runtime_pdc_graph": "W8.A"
+  },
+  "metric_policy": {
+    "useful_design_outcomes": [
+      "pass",
+      "publish-with-limitation"
+    ],
+    "typed_blockers_count_as_useful_design": false,
+    "accepted_deficits_count_as_useful_design": false,
+    "synthetic_fixtures_count_as_canonical_evidence": false
+  },
+  "pattern_pass": {
+    "relevant_patterns": [
+      "P01",
+      "P02",
+      "P03",
+      "P05",
+      "P10",
+      "P12",
+      "P13",
+      "P15"
+    ],
+    "target_correct_pattern": "W12.D is the canonical real-corpus run over W6/W7/W8 with expert-adjudication deltas and authority-level stratification.",
+    "missing_capability_labels": []
+  },
+  "validation": {
+    "test_ref": "repo://tests/repo_quality/tools/test_w12d_universal_outcome_corpus_run.py",
+    "command_ref": "uv run python tools/quality/validation/run_universal_outcome_corpus.py --repo-root . --corpus tests/fixtures/universal-corpus --output _build/.tmp/production-quality/w12d_universal_outcome_corpus_run.json --capability-index _build/.tmp/production-quality/capability-index/capability_index_v1.duckdb"
+  }
+}

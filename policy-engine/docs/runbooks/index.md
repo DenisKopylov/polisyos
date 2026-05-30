@@ -46,6 +46,12 @@ Component bundle index: `ops/components/README.md`.
 | [Production Quality Triage](production-quality-triage.md)                                             | PQL-001 through PQL-024 failure triage by layer, phase, report, and next action           | `@platform-owners`                  |
 | [Honest Diagnostics Operator Triage](honest-diagnostics.md)                                           | Serious closeout fails on runtime ref, diagnostic event, source-truth, mode, fallback, phase-barrier, semantic, tenant, attestation, stale, or partial-state evidence | `@platform-owners` + runtime        |
 | [Policy Design Case Operator Triage](policy-design-case-operator-triage.md)                           | Serious policy-design closeout fails on missing case, intent, spine, producer refs, portfolio/synthesis/claim support, BERL, DDM, audit, maturity, invariant, consultation, proportionality, or benchmarking evidence | `@platform-owners` + runtime        |
+| [Policy Design Case Rollout And Rollback](policy-design-case-rollout-rollback.md)                     | Universal PDC promotion, hold, rollback, kill-switch, tuned-config downgrade, evidence preservation, and closeout-note recording | `@platform-owners` + runtime        |
+
+W5.E operator index:
+[Policy Design Case Operator Guide](../reference/policy-design-case-operator-guide.md)
+is the reference entrypoint for ADR lookup, public evidence paths, tuned owners,
+validation ladders, capability evidence, and rollout/rollback routing.
 
 ## Postmortem Minimum
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import pytest
-from polisyos.fabric.safety import (
+from polisyos.fabric.quality.safety import (
     UnsafeDataPathError,
     UnsafeIdentifierError,
     UnsafePathSegmentError,

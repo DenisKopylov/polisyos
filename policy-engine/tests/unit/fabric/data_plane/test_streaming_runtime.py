@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any
 
 import pandas as pd
 import pytest
+
 from polisyos.core.artifacts.async_store import AsyncArtifactStoreAdapter
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
@@ -19,7 +20,10 @@ from polisyos.fabric.data_plane.streaming import (
     process_stream_dataset,
 )
 from polisyos.fabric.data_plane.watermark import WindowPolicy
-from polisyos.fabric.processing_guarantees import BackpressurePolicy, stream_processing_contract
+from polisyos.fabric.quality.processing_guarantees import (
+    BackpressurePolicy,
+    stream_processing_contract,
+)
 
 if TYPE_CHECKING:
     from pathlib import Path

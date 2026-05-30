@@ -1,0 +1,55 @@
+{
+  "schema_version": "policyos.runtime.policy_design_case.semantic_gold_card.v1",
+  "fixture_id": "unsupported_claim_semantic_fail",
+  "title": "Supported claim without producer evidence remains unsupported",
+  "expected_status": "semantic_fail",
+  "failure_mode": "unsupported_claim",
+  "research_refs": ["E1", "C30", "C12"],
+  "pattern_ids": ["P10"],
+  "structural_pass_claimed": true,
+  "structural_verdict": {
+    "status": "pass",
+    "validator_refs": ["policy_design_case.structural.required_fields.v1"],
+    "completeness_claims": [
+      "claim_present",
+      "support_status_present",
+      "publication_status_present",
+      "producer_slots_present"
+    ]
+  },
+  "semantic_adjudication": {
+    "status": "fail",
+    "adjudicator": "policyos.semantic_gold_card.w1b",
+    "failure_mode": "unsupported_claim",
+    "failure_code": "semantic_unsupported_claim",
+    "rationale": "The case declares a major claim supported and publishable while carrying no supporting producer evidence, blocker, deficit, or limitation reference.",
+    "authority_effect": "block_closeout",
+    "required_remediation": "Bind the claim to producer evidence or emit a typed deficit/blocker before closeout can proceed."
+  },
+  "semantic_probes": [
+    {
+      "probe_id": "major-claim-support-authority",
+      "semantic_axis": "claim_support",
+      "pattern_ids": ["P10"],
+      "observed_signal": "The public-facing claim is marked supported and publishable.",
+      "expected_signal": "A supported claim must cite producer evidence or remain blocked by a typed deficit.",
+      "verdict": "fail",
+      "failure_code": "semantic_unsupported_claim",
+      "evidence_refs": ["case://pdc-w1b-unsupported/claim_support"]
+    }
+  ],
+  "payload": {
+    "case_id": "pdc-w1b-unsupported",
+    "claim_ids": ["claim-unsupported"],
+    "claim_support": {
+      "claim_id": "claim-unsupported",
+      "claimed_support_status": "supported",
+      "projected_publishable": true,
+      "publication_status": "publishable",
+      "supporting_evidence_refs": [],
+      "blocker_ref": null,
+      "deficit_ref": null,
+      "limitation_ref": null
+    }
+  }
+}

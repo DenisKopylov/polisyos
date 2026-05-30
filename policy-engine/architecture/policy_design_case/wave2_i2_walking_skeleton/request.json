@@ -1,0 +1,63 @@
+{
+  "affected_stakeholders": [
+    "wartime MSMEs",
+    "public finance reviewers"
+  ],
+  "analysis_independence": {
+    "independent_analysis_required": true,
+    "requester_preference_may_not_determine_conclusion": true,
+    "requires_alternative_analysis": true,
+    "requires_counter_evidence_assessment": true
+  },
+  "assumptions": [
+    "deterministic fixture producer is narrow and non-general"
+  ],
+  "authoring_provenance": {
+    "capture_ref": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "captured_by": "policyos.runtime.quality.wave2_walking_skeleton"
+  },
+  "challenge_depth_policy": {
+    "depth": "standard",
+    "minimum_alternative_count": 1,
+    "requires_disconfirming_evidence": false,
+    "requires_requester_capture_challenge": false
+  },
+  "constraints": [],
+  "data_time": "2025-Q4",
+  "desired_outcome": "Improve MSME survival without laundering prior cases into evidence.",
+  "evidence_expectations": [
+    "claim-bound refs are current-run producer outputs"
+  ],
+  "fallback_policy": "serious_fallback_fail_closed",
+  "generated_at": "2026-05-22T12:00:00+00:00",
+  "intent_id": "intent-wave2-i2",
+  "job_id": "job-wave2-i2",
+  "jurisdiction": "UA",
+  "objectives": [
+    "prove the Wave 2 runtime seam"
+  ],
+  "policy_problem": "MSME survival depends on targeted emergency credit access.",
+  "policy_time": "2026-05-22",
+  "proposed_intervention": "Target a small credit guarantee to eligible wartime MSMEs.",
+  "requested_authority_level": "research",
+  "requested_execution_profile": "research",
+  "requester_capture_risk": {
+    "challenge_depth": "standard",
+    "mitigation": "separate requester preference from independent analysis before routing",
+    "preferred_conclusion_present": false,
+    "risk_factors": [],
+    "risk_level": "low"
+  },
+  "requester_preference": {
+    "may_not_determine_independent_conclusion": true,
+    "preferred_conclusion": null,
+    "provided": false,
+    "separation_required": true
+  },
+  "requester_preferred_conclusion": null,
+  "run_id": "run-wave2-i2",
+  "schema_version": "policyos.runtime.policy_intent_envelope.v1",
+  "target_population": "wartime MSMEs",
+  "tenant_id": "tenant-wave2-i2",
+  "validation_profile": "mvp"
+}

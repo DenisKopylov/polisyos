@@ -58,6 +58,12 @@ def test_publish_decision_validity_event_updates_registered_packets(runtime_api_
         },
         kind="scientist.decision_packet",
     )
+    store.record_artifact_owner(
+        packet_ref.artifact_id,
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+        writer="tests.runtime_http.decision_validity",
+    )
     service.register_decision_packet(
         packet_ref=str(packet_ref.artifact_id),
         envelope=envelope,

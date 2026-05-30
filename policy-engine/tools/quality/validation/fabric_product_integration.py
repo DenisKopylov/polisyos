@@ -19,7 +19,7 @@ if str(REPO_ROOT) not in sys.path:
 if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
-from polisyos.fabric.compatibility import (  # noqa: E402
+from polisyos.fabric._internal.compatibility import (  # noqa: E402
     FABRIC_COMPATIBILITY_BRIDGES,
     validate_fabric_compatibility_bridges,
 )

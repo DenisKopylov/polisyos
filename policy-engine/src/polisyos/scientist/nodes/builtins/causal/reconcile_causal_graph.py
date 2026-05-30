@@ -54,7 +54,7 @@ from polisyos.ir.analytics.cross_graph import (
 )
 from polisyos.ir.analytics.literature import load_literature_causal_prior
 from polisyos.ir.analytics.negative_certificate import persist_negative_certificate
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     AlignmentReportRef,
     CausalGraphModelRef,
     CompositionCertificateRef,

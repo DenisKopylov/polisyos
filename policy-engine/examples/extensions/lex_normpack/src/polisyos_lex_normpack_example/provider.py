@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
-from polisyos.ir.norm_pack import NormPack, NormRule, RuleType
+from polisyos.ir.loading.norm_pack import NormPack, NormRule, RuleType
 
 
 class MinimumWageNormPackProvider:

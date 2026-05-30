@@ -165,6 +165,6 @@ Numeric/JAX claims in this documentation should point to one of these anchors:
 
 ::: polisyos.foundry.runtime.fingerprint
 
-::: polisyos.foundry.release_acceptance
+::: polisyos.foundry.validation.release_acceptance
 
 ::: polisyos.foundry.methods.catalog.snapshot

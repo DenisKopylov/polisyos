@@ -12,10 +12,11 @@ data preparation and governed artifact publication.
 
 The top-level package lazily exports build-time contracts for asset identity,
 `ArtifactRef` governance, schema registry access, snapshot transactions,
-quality checks, and golden/differential migration tests. Runtime consumers use
-`polisyos.data_forge.read_api` only. `read_api` keeps its domain surfaces lazy,
-so importing `polisyos.data_forge.read_api` does not load `domains/` or
-`kernel/` internals. Domain internals under `domains/` remain non-public.
+quality checks, provenance manifests, and golden/differential migration tests.
+Runtime consumers use `polisyos.data_forge.read_api` only. `read_api` keeps its
+domain surfaces lazy, so importing `polisyos.data_forge.read_api` does not load
+`domains/` or `kernel/` internals. Domain internals under `domains/` remain
+non-public.
 
 ## Role
 
@@ -46,6 +47,13 @@ batch runtime directly.
 Phase 8 removed the academic, catalog, Ukraine, shared-kernel, snapshot, and
 old Lex offline compatibility packages. Release and rollback notes live under
 `docs/migration/`.
+
+W9.C snapshot finalization writes a durable
+`data_forge_provenance_manifest.json` ledger for each official snapshot. The
+ledger carries `corpus_id`, `data_hash`, `creation_time`, lineage refs, quality
+gates, `builder_revision`, transform lineage, and claim requirement bindings;
+runtime closeout consumes the companion binding report and fails closed when the
+provenance manifest identity or transform lineage is absent.
 
 ## Where to Start
 

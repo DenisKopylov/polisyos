@@ -37,7 +37,7 @@ from polisyos.data_forge.kernel.io import ensure_dirs
 from polisyos.ir.observation.contracts import (
     ObservationFamily,
 )
-from polisyos.ir.types import TimeFrequency
+from polisyos.ir.model_layer.types import TimeFrequency
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence

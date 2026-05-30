@@ -1,0 +1,184 @@
+{
+  "fixture_schema_version": "policyos.universal_corpus_fixture.v1",
+  "fixtures": [
+    {
+      "authority_levels": [
+        "research",
+        "governed",
+        "production"
+      ],
+      "case_id": "w11a_berlin_rent_cap_2020",
+      "domain": "housing_rent_control",
+      "path": "cases/w11a_berlin_rent_cap_2020.json",
+      "split": "public"
+    },
+    {
+      "authority_levels": [
+        "research",
+        "governed",
+        "production"
+      ],
+      "case_id": "w11a_boston_operation_ceasefire_1996",
+      "domain": "public_safety",
+      "path": "cases/w11a_boston_operation_ceasefire_1996.json",
+      "split": "public"
+    },
+    {
+      "authority_levels": [
+        "research",
+        "governed",
+        "production"
+      ],
+      "case_id": "w11a_eu_temporary_protection_ukraine_2022",
+      "domain": "migration_displacement",
+      "path": "cases/w11a_eu_temporary_protection_ukraine_2022.json",
+      "split": "public"
+    },
+    {
+      "authority_levels": [
+        "research",
+        "governed",
+        "production"
+      ],
+      "case_id": "w11a_ghana_free_shs_2017",
+      "domain": "education_access",
+      "path": "cases/w11a_ghana_free_shs_2017.json",
+      "split": "public"
+    },
+    {
+      "authority_levels": [
+        "research",
+        "governed",
+        "production"
+      ],
+      "case_id": "w11a_india_aadhaar_dbt_2016",
+      "domain": "digital_public_service",
+      "path": "cases/w11a_india_aadhaar_dbt_2016.json",
+      "split": "public"
+    },
+    {
+      "authority_levels": [
+        "research",
+        "governed",
+        "production"
+      ],
+      "case_id": "w11a_mexico_ssb_tax_2014",
+      "domain": "public_health_intervention",
+      "path": "cases/w11a_mexico_ssb_tax_2014.json",
+      "split": "hidden"
+    },
+    {
+      "authority_levels": [
+        "research",
+        "governed",
+        "production"
+      ],
+      "case_id": "w11a_netherlands_room_for_river_2007",
+      "domain": "climate_adaptation",
+      "path": "cases/w11a_netherlands_room_for_river_2007.json",
+      "split": "hidden"
+    },
+    {
+      "authority_levels": [
+        "research",
+        "governed",
+        "production"
+      ],
+      "case_id": "w11a_pakistan_ehsaas_cash_2020",
+      "domain": "social_protection_targeting",
+      "path": "cases/w11a_pakistan_ehsaas_cash_2020.json",
+      "split": "hidden"
+    },
+    {
+      "authority_levels": [
+        "research",
+        "governed",
+        "production"
+      ],
+      "case_id": "ua-msme-affordable-loans-2022",
+      "domain": "msme_credit_grant",
+      "path": "cases/ua-msme-affordable-loans-2022.json",
+      "split": "hidden"
+    },
+    {
+      "authority_levels": [
+        "research",
+        "governed",
+        "production"
+      ],
+      "case_id": "w11a_uk_levelling_up_fund_2021",
+      "domain": "infrastructure_prioritisation",
+      "path": "cases/w11a_uk_levelling_up_fund_2021.json",
+      "rotation_group": "w11d-active",
+      "split": "rotating"
+    },
+    {
+      "authority_levels": [
+        "research",
+        "governed",
+        "production"
+      ],
+      "case_id": "w11a_uk_mtd_vat_2019",
+      "domain": "tax_enforcement",
+      "path": "cases/w11a_uk_mtd_vat_2019.json",
+      "rotation_group": "w11d-active",
+      "split": "rotating"
+    },
+    {
+      "authority_levels": [
+        "research",
+        "governed",
+        "production"
+      ],
+      "case_id": "w11a_uk_work_programme_2011",
+      "domain": "labour_activation",
+      "path": "cases/w11a_uk_work_programme_2011.json",
+      "rotation_group": "w11d-active",
+      "split": "rotating"
+    },
+    {
+      "authority_levels": [
+        "research",
+        "governed",
+        "production"
+      ],
+      "case_id": "w11a_us_ppp_2020",
+      "domain": "msme_credit_grant",
+      "path": "cases/w11a_us_ppp_2020.json",
+      "rotation_group": "w11d-active",
+      "split": "rotating"
+    }
+  ],
+  "generated_at": "2026-05-24T00:00:00Z",
+  "rotation_policy": {
+    "acknowledgements": [],
+    "active_round_id": "round-2026-05-w11d",
+    "min_rotation_days": 30,
+    "no_consecutive_round_reuse": true,
+    "policy_id": "w11d-universal-corpus-rotation-v1",
+    "previous_round_id": "round-2026-04-seed",
+    "rounds": [
+      {
+        "rotating_case_ids": [
+          "w11a_berlin_rent_cap_2020",
+          "w11a_boston_operation_ceasefire_1996",
+          "w11a_eu_temporary_protection_ukraine_2022"
+        ],
+        "round_id": "round-2026-04-seed",
+        "started_at": "2026-04-24T00:00:00Z"
+      },
+      {
+        "rotating_case_ids": [
+          "w11a_uk_levelling_up_fund_2021",
+          "w11a_uk_mtd_vat_2019",
+          "w11a_uk_work_programme_2011",
+          "w11a_us_ppp_2020"
+        ],
+        "round_id": "round-2026-05-w11d",
+        "started_at": "2026-05-24T00:00:00Z"
+      }
+    ]
+  },
+  "schema_version": "policyos.universal_corpus_manifest.v1",
+  "source_plan_ref": "docs/plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md#W11.D"
+}

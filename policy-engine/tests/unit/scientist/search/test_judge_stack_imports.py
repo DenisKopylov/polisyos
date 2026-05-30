@@ -6,7 +6,7 @@ import sys
 
 def _clear_import_state() -> None:
     prefixes = (
-        "polisyos.scientist.search.judge_stack",
+        "polisyos.scientist.methods.search.judge_stack",
         "polisyos.scientist.policy_design",
         "polisyos.scientist.policy_design.objectives",
         "polisyos.scientist.policy_design.output",
@@ -23,7 +23,7 @@ def _clear_import_state() -> None:
 def test_judge_stack_imports_without_policy_design_cycle() -> None:
     _clear_import_state()
 
-    module = importlib.import_module("polisyos.scientist.search.judge_stack")
+    module = importlib.import_module("polisyos.scientist.methods.search.judge_stack")
 
     assert module.JudgeThresholdRegistry.__name__ == "JudgeThresholdRegistry"
 

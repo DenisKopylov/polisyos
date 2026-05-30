@@ -9,6 +9,11 @@ stability: draft
 
 # Small Package Consolidation Blueprint
 
+> Status note: the root compatibility facades for `polisyos.ddm_15_7` and
+> `polisyos.synthetic_world` have since been removed after a zero-noncompat
+> caller audit. The historical move-map details below remain useful for replay
+> and architecture archaeology, but they are no longer active shim contracts.
+
 This is the Phase 3B planning deliverable for section 13 of
 `docs/plans/accepted/REPOSITORY_STRUCTURE_REMEDIATION_PLAN.md`.
 

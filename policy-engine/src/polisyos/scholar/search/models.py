@@ -158,6 +158,14 @@ class SourceMetadata(BaseModel):
     fetch_status: str = "ok"
     content_type: str = "application/octet-stream"
     content_sha256: str | None = None
+    publication_tier: str | None = None
+    underlying_study_id: str | None = None
+    dataset_ids: list[str] = Field(default_factory=list)
+    author_names: list[str] = Field(default_factory=list)
+    institution_names: list[str] = Field(default_factory=list)
+    citation_network_refs: list[str] = Field(default_factory=list)
+    replication_of_source_id: str | None = None
+    review_status: str | None = None
     quality_score: float = 0.0
     anti_seo_score: float = 0.0
     duplicate_of_source_id: str | None = None
@@ -336,6 +344,7 @@ class ResearchJobCheckpoint(BaseModel):
     query_graph: QueryGraph
     constraints: SearchConstraints | None = None
     budgets: SearchBudgetControls | None = None
+    requirement_specs: list[dict[str, Any]] = Field(default_factory=list)
     bundle: WebEvidenceBundle
     progress_events: list[ResearchProgressEvent] = Field(default_factory=list)
     error: str | None = None
@@ -348,8 +357,9 @@ class ResearchJobStatus(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     job_id: str
-    status: Literal["pending", "running", "completed", "failed"]
+    status: Literal["pending", "running", "completed", "failed", "escalated"]
     checkpoint_artifact_id: str | None = None
+    scholar_academic_evidence_artifact_id: str | None = None
     latest_event: ResearchProgressEvent | None = None
     result_bundle: WebEvidenceBundle | None = None
     error: str | None = None

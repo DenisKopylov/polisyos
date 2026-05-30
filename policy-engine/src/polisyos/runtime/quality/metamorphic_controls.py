@@ -11,7 +11,7 @@ from polisyos.runtime.quality.semantic_binding import (
     SEMANTIC_BINDING_SCHEMA_VERSION,
     evaluate_semantic_binding_ledger,
 )
-from polisyos.scholar.search.security import sanitize_untrusted_text
+from polisyos.scholar import sanitize_untrusted_text
 from polisyos.scientist.validation.policy_grounding import (
     build_policy_grounding_matrix_report,
 )
@@ -453,6 +453,7 @@ def _base_semantic_binding_ledger(contract: JsonMap) -> JsonMap:
     claim_id = evidence["claim_id"]
     concept_spine_ref = f"spine:concept:{_scenario_id(contract)}"
     jurisdiction_spine_ref = f"spine:jurisdiction:{_scenario_id(contract)}"
+    claim_evidence_paths = [_claim_evidence_path(evidence)]
     return {
         "schema_version": SEMANTIC_BINDING_SCHEMA_VERSION,
         "semantic_binding_ref": f"semantic:{_scenario_id(contract)}",
@@ -642,6 +643,7 @@ def _base_semantic_binding_ledger(contract: JsonMap) -> JsonMap:
                 "placebo_negative_control_refs": ["placebo:phase56"],
                 "sensitivity_refs": ["sensitivity:phase56"],
                 "uncertainty_refs": ["uncertainty:phase56"],
+                "method_output_refs": [f"method-output:{evidence['method_ref']}"],
                 "method_incompatibility_blocker_refs": [],
                 **_spine_binding_fields(
                     "foundry",
@@ -667,6 +669,7 @@ def _base_semantic_binding_ledger(contract: JsonMap) -> JsonMap:
                 "required_literature_refs": [f"literature:{evidence['domain']}"],
                 "required_uncertainty_refs": ["uncertainty:phase56"],
                 "required_blocker_refs": [],
+                "claim_evidence_paths": claim_evidence_paths,
                 **_spine_binding_fields(
                     "scientist",
                     concept_spine_ref=concept_spine_ref,
@@ -692,6 +695,7 @@ def _base_semantic_binding_ledger(contract: JsonMap) -> JsonMap:
                 "required_uncertainty_refs": ["uncertainty:phase56"],
                 "required_blocker_refs": [],
                 "public_artifact_section_refs": ["section:recommendations"],
+                "claim_evidence_paths": claim_evidence_paths,
                 **_spine_binding_fields(
                     "final_compiler",
                     concept_spine_ref=concept_spine_ref,
@@ -699,6 +703,37 @@ def _base_semantic_binding_ledger(contract: JsonMap) -> JsonMap:
                 ),
             }
         ],
+    }
+
+
+def _claim_evidence_path(evidence: dict[str, str]) -> JsonMap:
+    claim_id = evidence["claim_id"]
+    source_ref = evidence["source_ref"]
+    method_ref = evidence["method_ref"]
+    norm_ref = evidence["norm_ref"]
+    outcome = evidence["outcome"]
+    domain = evidence["domain"]
+    return {
+        "claim_id": claim_id,
+        "scenario_requirement_refs": [f"scenario-requirement:{domain}:{claim_id}"],
+        "canonical_concept_refs": [f"concept:{domain}", f"concept:{outcome}"],
+        "fabric_binding_refs": ["fabric-binding-phase56"],
+        "source_refs": [source_ref],
+        "column_refs": ["entity_id", outcome],
+        "lex_binding_refs": ["lex-binding-phase56"],
+        "selected_norm_refs": [norm_ref],
+        "foundry_binding_refs": ["foundry-binding-phase56"],
+        "selected_method_refs": [method_ref],
+        "method_output_refs": [f"method-output:{method_ref}"],
+        "assumption_gate_refs": [f"assumption-gate:{method_ref}:phase56"],
+        "uncertainty_refs": ["uncertainty:phase56"],
+        "scientist_claim_refs": [f"claim:{claim_id}"],
+        "argument_refs": [f"argument:{claim_id}"],
+        "warrant_refs": [f"warrant:{claim_id}"],
+        "rebuttal_refs": [f"rebuttal:{claim_id}"],
+        "counter_evidence_refs": [f"counter-evidence:{claim_id}"],
+        "limitation_refs": [f"limitation:{claim_id}:phase56"],
+        "blocker_refs": [],
     }
 
 
@@ -861,9 +896,15 @@ def _time_context_from_prompt(prompt: str, normalized: str) -> str | None:
     match = re.search(r"\b(20\d{2})-(\d{2})-(\d{2})\b", prompt)
     if match:
         return match.group(0)
-    if "may 2026" in normalized or "трав" in normalized and "2026" in normalized:
+    if "may 2026" in normalized or ("трав" in normalized and "2026" in normalized):
         return "2026-05-15"
-    month_match = re.search(r"\b(january|february|march|april|june|july|august|september|october|november|december)\s+2026\b", normalized)
+    month_match = re.search(
+        r"\b("
+        r"january|february|march|april|june|july|august|september|"
+        r"october|november|december"
+        r")\s+2026\b",
+        normalized,
+    )
     if month_match:
         month = {
             "january": "01",
@@ -883,31 +924,47 @@ def _time_context_from_prompt(prompt: str, normalized: str) -> str | None:
 
 
 def _domain_binding_from_prompt(normalized: str) -> JsonMap | None:
-    if "benefit exclusion" in normalized or "benefit exclusion policy" in normalized or "виключення" in normalized:
+    if (
+        "benefit exclusion" in normalized
+        or "benefit exclusion policy" in normalized
+        or "виключення" in normalized
+    ):
         return {
             "data_source_family": "benefits_registry",
             "legal_query": "lex-query:benefit_exclusion_conflict",
             "method_expectation": "eligibility_coverage_estimation",
         }
-    if any(token in normalized for token in ("benefit", "tax relief", "household support", "податков")):
+    if any(
+        token in normalized
+        for token in ("benefit", "tax relief", "household support", "податков")
+    ):
         return {
             "data_source_family": "benefits_registry",
             "legal_query": "lex-query:social_benefit_tax_relief",
             "method_expectation": "distributional_incidence_analysis",
         }
-    if any(token in normalized for token in ("medicine", "reimbursement", "pharmacy", "stockout", "лік")):
+    if any(
+        token in normalized
+        for token in ("medicine", "reimbursement", "pharmacy", "stockout", "лік")
+    ):
         return {
             "data_source_family": "medicine_stockout_registry",
             "legal_query": "lex-query:medicine_access",
             "method_expectation": "access_gap_estimation",
         }
-    if any(token in normalized for token in ("grid", "energy", "outage", "infrastructure", "енерг")):
+    if any(
+        token in normalized
+        for token in ("grid", "energy", "outage", "infrastructure", "енерг")
+    ):
         return {
             "data_source_family": "grid_outage_event_log",
             "legal_query": "lex-query:energy_reliability",
             "method_expectation": "interrupted_time_series",
         }
-    if any(token in normalized for token in ("reskilling", "training", "labor-market", "voucher", "перенавч")):
+    if any(
+        token in normalized
+        for token in ("reskilling", "training", "labor-market", "voucher", "перенавч")
+    ):
         return {
             "data_source_family": "training_program_registry",
             "legal_query": "lex-query:education_labor_reskilling",
@@ -927,7 +984,9 @@ def _failure_envelope(
         "phase": "phase_5_6_diagnostic_control",
         "cause": f"{control_id} observed {observed_status}",
         "missing_input": [] if failure_codes else ["typed_failure_code"],
-        "downstream_impact": "generic or unsupported evidence cannot close serious quality approval",
+        "downstream_impact": (
+            "generic or unsupported evidence cannot close serious quality approval"
+        ),
         "refs": [f"diagnostic-control:{control_id}"],
         "next_command": (
             "uv run pytest tests/repo_quality/tools/"

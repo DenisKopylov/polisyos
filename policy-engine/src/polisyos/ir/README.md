@@ -42,21 +42,20 @@ IR-подсистеме.
 ## Internal Layout
 
 - [`api.py`](./api.py) and [`__init__.py`](./__init__.py) own the stable lazy
-  facade, lazy legacy import aliases, and public-surface helper metadata.
+  facade, remaining lazy legacy import aliases, and public-surface helper metadata.
 - [`_internal/`](./_internal/) is private implementation code. Do not import it
   from other packages.
-- [`_lazy_facade/`](./_lazy_facade/) and
-  `polisyos.ir.public_surface` are compatibility paths that route through
-  `api.py` / [`registry/public_surface.py`](./registry/public_surface.py) while
-  the facade cleanup sunsets.
+- [`registry/public_surface.py`](./registry/public_surface.py) owns the
+  public-surface metadata that used to be exposed through the retired
+  `polisyos.ir.public_surface` compatibility alias.
 - [`model_layer/`](./model_layer/README.md) owns model-layer semantics:
   canonicalization, `ModelSpec`, predicates, queries, shared types, and units.
 - [`loading/`](./loading/README.md) owns loaders, citations, fact-log,
   migration-report, norm-pack, portfolio, and schema-catalog loading views.
 - [`registry/`](./registry/README.md) owns registry fragments, artifact refs,
   and public-surface registry metadata. Citation refs live in
-  [`loading/citations.py`](./loading/citations.py); `polisyos.ir.references` is
-  compatibility-only and synthesized by `api.py`.
+  [`loading/citations.py`](./loading/citations.py); the retired
+  `polisyos.ir.references` aggregate no longer resolves.
 - [`schemas/`](./schemas/__init__.py) remains schema wrapper and reflection code,
   [`trinity/`](./trinity/README.md), [`governance/`](./governance/README.md),
   [`observation/`](./observation/README.md), and
@@ -118,14 +117,12 @@ analytics coverage is documented in
 
 ## Known Shims/Deprecations
 
-- Active IR facade-cleanup shims are registered in
-  [architecture/shims.toml](../../../architecture/shims.toml) with owner
-  `team-ir` and sunset `2026-12-31`.
-- Current wrapper-only import paths include `polisyos.ir.public_surface`,
-  `polisyos.ir._lazy_facade`, `polisyos.ir.citations`,
-  `polisyos.ir.refs`, `polisyos.ir.references`, and
-  `polisyos.ir.schema_catalog`; these are served by lazy aliases registered in
-  `api.py`, not by physical shell packages.
+- The last-mile import aliases for `polisyos.ir.model_spec`,
+  `polisyos.ir.refs`, and `polisyos.ir.types` are retired. Use
+  `polisyos.ir.model_layer.model_spec`, `polisyos.ir.registry.refs`, and
+  `polisyos.ir.model_layer.types`.
+- `polisyos.ir.connectors` and `polisyos.ir.trinity` are real public IR
+  contract surfaces, not shim debt.
 - The high-complexity `ir/analytics/strategic.py` budget is tracked in
   [architecture/module_size_budget.toml](../../../architecture/module_size_budget.toml)
   with owner `team-ir` and sunset `2026-12-31`.

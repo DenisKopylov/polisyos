@@ -1,0 +1,56 @@
+{
+  "schema_version": "policyos.runtime.policy_design_case.semantic_gold_card.v1",
+  "fixture_id": "w5b_llm_speculation_semantic_fail",
+  "title": "LLM candidate cannot occupy an authority slot",
+  "expected_status": "semantic_fail",
+  "failure_mode": "llm_speculation",
+  "research_refs": ["E22", "C30", "C12"],
+  "pattern_ids": ["P10", "P15", "P05"],
+  "structural_pass_claimed": true,
+  "structural_verdict": {
+    "status": "pass",
+    "validator_refs": ["policy_design_case.structural.source_classification_present.v1"],
+    "completeness_claims": [
+      "source_ref_present",
+      "classification_present",
+      "authority_slot_present"
+    ]
+  },
+  "semantic_adjudication": {
+    "status": "fail",
+    "adjudicator": "policyos.semantic_gold_card.w5b",
+    "failure_mode": "llm_speculation",
+    "failure_code": "semantic_llm_speculation_laundering",
+    "rationale": "An unverified LLM-generated legal interpretation is used as authoritative evidence without producer validation.",
+    "authority_effect": "block_closeout",
+    "required_remediation": "Keep the LLM output as candidate_unverified until Lex or another authority producer validates it."
+  },
+  "semantic_probes": [
+    {
+      "probe_id": "llm-candidate-authority-slot",
+      "semantic_axis": "source_classification",
+      "pattern_ids": ["P10", "P15", "P05"],
+      "observed_signal": "An llm_candidate source is used as authority.",
+      "expected_signal": "LLM candidates remain candidate_unverified until producer validation.",
+      "verdict": "fail",
+      "failure_code": "semantic_llm_speculation_laundering",
+      "evidence_refs": ["event://llm/policy-design/w5b/legal-reading"]
+    }
+  ],
+  "payload": {
+    "case_id": "pdc-w5b-llm",
+    "claim_ids": ["claim-llm"],
+    "source_classification": {
+      "authority_slots": [
+        {
+          "slot": "legal_interpretation",
+          "source_kind": "llm_candidate",
+          "classification": "candidate_unverified",
+          "used_as_authority": true,
+          "producer_validation_ref": null,
+          "source_ref": "event://llm/policy-design/w5b/legal-reading"
+        }
+      ]
+    }
+  }
+}

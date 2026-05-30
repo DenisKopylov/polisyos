@@ -43,7 +43,7 @@ from polisyos.ir.governance.temporal_logic import (
     TemporalUnaryFormula,
     TemporalUnaryOperator,
 )
-from polisyos.ir.types import SelectorOperator
+from polisyos.ir.model_layer.types import SelectorOperator
 
 
 def _policy_target() -> SelectorAll:

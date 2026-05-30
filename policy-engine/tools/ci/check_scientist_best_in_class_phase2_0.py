@@ -286,7 +286,7 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
     try:
         from polisyos.core.artifacts.ids import ArtifactID
         from polisyos.core.artifacts.manifest import ArtifactRef
-        from polisyos.scientist.claims.validators import legacy_claim_ledger_status
+        from polisyos.scientist.evidence.claims.validators import legacy_claim_ledger_status
         from polisyos.scientist.orchestration.orchestrator.decision_card import DecisionCard
         from polisyos.scientist.methods.research_dag.replay import legacy_research_dag_status
     except Exception as exc:  # pragma: no cover - surfaced in gate payload.

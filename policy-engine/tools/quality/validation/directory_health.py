@@ -1101,12 +1101,13 @@ def _local_residue_by_class(
         _stable_residue_key(relative)
         for relative in _ignored_files(repo_root)
         if relative.split("/", 1)[0] in residue_roots
+        and "__pycache__" not in Path(relative).parts
     }
     residue_dirs = [
         _rel(path, repo_root)
         for root in residue_roots
         for path in _walk_dirs(repo_root, root)
-        if path.name in {"__pycache__", ".DS_Store"}
+        if path.name == ".DS_Store"
     ]
     classes["ignored_source_docs_schemas_tests"] = len(
         set(ignored_source).union(residue_dirs)

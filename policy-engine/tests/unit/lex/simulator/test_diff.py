@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from polisyos.ir.norm_pack import NormPack, NormRule, RuleType
+from polisyos.ir.loading.norm_pack import NormPack, NormRule, RuleType
 from polisyos.lex.simulator.diff import NormChangeType, diff_norm_packs
 
 

@@ -55,10 +55,10 @@ def test_core_security_config_reaches_runtime_startup_and_fabric_context(
 
         scope = AccessScope.for_service(
             tenant_id=env["tenant_a"],
-            cell_id="cell-a",
-            spiffe_id="spiffe://polisyos.local/cell/cell-a/svc/runtime",
+            cell_id=env["cell_a"],
+            spiffe_id=f"spiffe://polisyos.local/cell/{env['cell_a']}/svc/runtime",
         )
-        with tenant_scope(None, tenant_id=env["tenant_a"], cell_id="cell-a"):
+        with tenant_scope(None, tenant_id=env["tenant_a"], cell_id=env["cell_a"]):
             token = set_current_access_scope(scope)
             try:
                 fabric_context = get_fabric_security_adapter().current_context()
@@ -67,7 +67,7 @@ def test_core_security_config_reaches_runtime_startup_and_fabric_context(
 
         assert fabric_context.is_tenant_scoped is True
         assert fabric_context.tenant_id == env["tenant_a"]
-        assert fabric_context.cell_id == "cell-a"
+        assert fabric_context.cell_id == env["cell_a"]
         assert fabric_context.access_scope is scope
     finally:
         get_security_settings.cache_clear()

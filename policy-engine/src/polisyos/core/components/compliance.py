@@ -457,7 +457,7 @@ def _validate_runtime_shape(
     if metadata.kind == ComponentKind.IR_FRAGMENT:
         from pydantic import TypeAdapter
 
-        from polisyos.ir.registry_fragments import RegistryFragment
+        from polisyos.ir.registry.registry_fragments import RegistryFragment
 
         try:
             TypeAdapter(RegistryFragment).validate_python(created)

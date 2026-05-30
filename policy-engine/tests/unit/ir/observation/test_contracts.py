@@ -13,7 +13,7 @@ from polisyos.ir.observation.contracts import (
     SourceConfidenceTier,
     StrategicResponseChannel,
 )
-from polisyos.ir.types import TimeFrequency
+from polisyos.ir.model_layer.types import TimeFrequency
 from pydantic import ValidationError
 
 

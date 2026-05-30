@@ -5,6 +5,8 @@ import json
 import sys
 import types
 
+import pytest
+
 from polisyos.core.contracts.execution_plan import MethodCatalogEntry, MethodCatalogSnapshot
 from polisyos.foundry.methods import cli
 
@@ -229,7 +231,7 @@ def test_release_acceptance_command_emits_report_json(
 
     monkeypatch.setitem(
         sys.modules,
-        "polisyos.foundry.release_acceptance",
+        "polisyos.foundry.validation.release_acceptance",
         types.SimpleNamespace(ReleaseAcceptanceRunner=_FakeRunner),
     )
 
@@ -267,6 +269,13 @@ def test_release_acceptance_command_emits_report_json(
 
 
 def test_release_acceptance_module_imports_without_ukraine_cycle() -> None:
-    module = importlib.import_module("polisyos.foundry.release_acceptance")
+    module = importlib.import_module("polisyos.foundry.validation.release_acceptance")
 
     assert hasattr(module, "ReleaseAcceptanceRunner")
+
+
+def test_release_acceptance_legacy_module_is_removed() -> None:
+    sys.modules.pop("polisyos.foundry.release_acceptance", None)
+
+    with pytest.raises(ModuleNotFoundError):
+        importlib.import_module("polisyos.foundry.release_acceptance")

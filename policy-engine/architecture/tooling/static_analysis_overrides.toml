@@ -209,18 +209,6 @@ issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-mast
 expectation = "Calibration compatibility ignores remain visible until package ownership is fully split."
 
 [[override_scope]]
-id = "synthetic-world-ruff-shim-ratchet"
-package = "synthetic_world"
-owner = "team-foundry"
-tool = "ruff"
-config = "architecture/tooling/ruff/generated.toml"
-pattern = "src/polisyos/synthetic_world/**"
-mode = "report_only"
-sunset = "2026-07-31"
-issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-55---tool-config-split-and-overrides-lane"
-expectation = "Synthetic World shim ignores are owned until the 2026-07-31 facade sunset."
-
-[[override_scope]]
 id = "schema-catalog-ruff-ratchet"
 package = "schemas"
 owner = "team-architecture"
@@ -231,6 +219,30 @@ mode = "report_only"
 sunset = "2026-12-31"
 issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-55---tool-config-split-and-overrides-lane"
 expectation = "Generated schema catalog ignores remain tracked until ABI model generation is split from hand-authored code."
+
+[[override_scope]]
+id = "data-requirement-ruff-ratchet"
+package = "data_requirement"
+owner = "team-runtime-quality"
+tool = "ruff"
+config = "architecture/tooling/ruff/generated.toml"
+pattern = "src/polisyos/data_requirement/**"
+mode = "report_only"
+sunset = "2026-12-31"
+issue = "docs/plans/active/POLICYOS_POLICY_EVIDENCE_CAPABILITY_GRAPH_PLAN.md"
+expectation = "Data-requirement dynamic payload bridges remain explicit while construct/capability DTOs replace legacy untyped compiler edges."
+
+[[override_scope]]
+id = "runtime-quality-ruff-ratchet"
+package = "runtime"
+owner = "team-runtime-quality"
+tool = "ruff"
+config = "architecture/tooling/ruff/generated.toml"
+pattern = "src/polisyos/runtime/quality/**"
+mode = "report_only"
+sunset = "2026-12-31"
+issue = "docs/plans/active/POLICYOS_POLICY_EVIDENCE_CAPABILITY_GRAPH_PLAN.md"
+expectation = "Runtime-quality dynamic CAS/Pydantic/tool payload annotations stay owned while boundary DTOs and protocols narrow ANN401 debt by module."
 
 [[override_scope]]
 id = "test-suite-ruff-ratchet"

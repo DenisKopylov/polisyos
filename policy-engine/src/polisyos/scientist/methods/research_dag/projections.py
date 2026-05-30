@@ -8,9 +8,6 @@ from datetime import UTC, datetime
 from typing import Any
 
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.memory.failure_lessons import ReflexiveMemoryEvent
-from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_CLAIMS_REF
 from polisyos.scientist.methods.research_dag.builder import (
     ResearchDAGBuilder,
     sanitize_public_metadata,
@@ -22,6 +19,9 @@ from polisyos.scientist.methods.research_dag.models import (
     ResearchEdgeType,
     ResearchNodeType,
 )
+from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_CLAIMS_REF
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.memory.contracts import ReflexiveMemoryEvent
 
 RESEARCH_DAG_FEATURE_FLAG = "scientist.best_in_class.wave1.phase1_2.research_dag"
 REQUIRE_RESEARCH_DAG_FOR_PUBLICATION_FLAG = (
@@ -153,7 +153,9 @@ def project_workflow_execution_to_research_dag(
     return builder.artifact(
         metadata={
             "workflow_status": "projected",
-            "claim_ledger_status": "available" if claim_ledger_ref is not None else "legacy_missing",
+            "claim_ledger_status": "available"
+            if claim_ledger_ref is not None
+            else "legacy_missing",
         }
     )
 
@@ -176,7 +178,9 @@ def project_tool_call_result_to_research_node(
         "tool_name": tool_name,
         "status": "error" if raw_error is not None else "ok",
         "duration_ms": int(getattr(tool_call_result, "duration_ms", 0) or 0),
-        "argument_fingerprint": stable_fingerprint(getattr(tool_call_result, "arguments", {}) or {}),
+        "argument_fingerprint": stable_fingerprint(
+            getattr(tool_call_result, "arguments", {}) or {}
+        ),
         "error_type": getattr(tool_call_result, "error_type", None),
     }
     builder = ResearchDAGBuilder(
@@ -271,7 +275,9 @@ def project_provenance_graph_to_research_dag(
     for index, activity in enumerate(activities.values()):
         label = str(getattr(activity, "label", "provenance activity"))
         node = builder.add_node(
-            node_type=classify_runtime_step(alias=label, node_id=str(getattr(activity, "activity_type", ""))),
+            node_type=classify_runtime_step(
+                alias=label, node_id=str(getattr(activity, "activity_type", ""))
+            ),
             producer="provenance.run_dag",
             summary=label,
             node_id=f"{workflow_id}:provenance:{index + 1}",
@@ -448,10 +454,7 @@ def project_web_evidence_bundle_to_research_dag(
             metadata={
                 "event_count": len(safety_events),
                 "event_types": sorted(
-                    {
-                        str(getattr(event, "event_type", ""))
-                        for event in safety_events
-                    }
+                    {str(getattr(event, "event_type", "")) for event in safety_events}
                 ),
                 "blocked_count": sum(
                     1 for event in safety_events if getattr(event, "severity", "") == "block"
@@ -572,6 +575,120 @@ def validate_memory_influence_dag_attribution(
     return violations
 
 
+def project_memory_influence_records_to_research_dag(
+    records: list[object],
+    *,
+    run_id: str,
+    workflow_id: str = "scientist_balanced_memory",
+    claim_ledger_ref: ArtifactRef | None = None,
+) -> ResearchDAGArtifact:
+    """Project balanced-memory influence records into a redacted Research DAG."""
+
+    builder = ResearchDAGBuilder(
+        run_id=run_id,
+        workflow_id=workflow_id,
+        claim_ledger_ref=claim_ledger_ref,
+        metadata={
+            "projection_source": "runtime.quality.memory_influence",
+            "memory_influence_record_count": len(records),
+        },
+    )
+    plan = builder.add_node(
+        node_type=ResearchNodeType.PLAN,
+        producer="runtime.quality.memory_influence",
+        summary=(
+            "Project balanced memory as future routing, search, review, or "
+            "acquisition influence, never as current claim evidence."
+        ),
+        metadata={
+            "influence_boundary": "future_only",
+            "evidence_slot_admission": "forbidden",
+        },
+        safety_labels=["balanced_memory", "historical_prior", "not_evidence"],
+    )
+    previous_node_id = plan.node_id
+    for index, record in enumerate(records):
+        payload = _memory_influence_payload(record)
+        record_id = _payload_text(
+            payload,
+            "record_id",
+            fallback=f"memory-influence-{index + 1}",
+        )
+        memory_id = _payload_text(payload, "memory_id", fallback=record_id)
+        memory_kind = _payload_text(payload, "memory_kind", fallback="unknown")
+        influence_modes = _payload_values(payload.get("influence_modes"))
+        may_not_use_for = _payload_values(payload.get("may_not_use_for"))
+        node = builder.add_node(
+            node_type=ResearchNodeType.CRITIQUE,
+            producer="runtime.quality.memory_influence",
+            summary=(
+                f"Balanced memory {memory_id} ({memory_kind}) influenced future "
+                "search/review posture only."
+            ),
+            node_id=f"{workflow_id}:memory_influence:{index + 1}:{memory_id}",
+            metadata={
+                "record_id": record_id,
+                "memory_id": memory_id,
+                "memory_kind": memory_kind,
+                "source_run_id": _payload_text(payload, "source_run_id"),
+                "source_kind": _payload_text(payload, "source_kind"),
+                "source_status": _payload_text(payload, "source_status"),
+                "influence_modes": influence_modes,
+                "authoritative_for": _payload_values(payload.get("authoritative_for")),
+                "may_not_use_for": may_not_use_for,
+                "scope": dict(payload.get("scope") or {}),
+                "applicability_reasons": _payload_values(payload.get("applicability_reasons")),
+                "contamination_status": _payload_text(payload, "contamination_status"),
+                "contamination_check_ref": _payload_text(payload, "contamination_check_ref"),
+                "memory_influence_visible": True,
+                "evidence_slot_admission": "forbidden",
+            },
+            input_fingerprint=stable_fingerprint(payload),
+            safety_labels=["balanced_memory", "historical_prior", "not_evidence"],
+        )
+        builder.add_edge(
+            source_node_id=previous_node_id,
+            target_node_id=node.node_id,
+            edge_type=ResearchEdgeType.DEPENDS_ON,
+            metadata={"evidence_slot_admission": "forbidden"},
+        )
+        previous_node_id = node.node_id
+    return builder.artifact(
+        metadata={
+            "memory_influence_status": "visible" if records else "no_memory_influence_records",
+            "memory_influence_record_count": len(records),
+            "evidence_slot_admission": "forbidden",
+        }
+    )
+
+
+def validate_memory_influence_record_dag_attribution(
+    records: list[object],
+    dag: ResearchDAGArtifact,
+) -> list[str]:
+    """Return violations for memory influence records missing visible DAG nodes."""
+
+    visible: set[tuple[str, str]] = set()
+    for node in dag.nodes:
+        if node.metadata.get("memory_influence_visible") is not True:
+            continue
+        visible.add(
+            (
+                str(node.metadata.get("record_id", "")),
+                str(node.metadata.get("memory_id", "")),
+            )
+        )
+
+    violations: list[str] = []
+    for record in records:
+        payload = _memory_influence_payload(record)
+        record_id = _payload_text(payload, "record_id")
+        memory_id = _payload_text(payload, "memory_id", fallback=record_id)
+        if (record_id, memory_id) not in visible:
+            violations.append(f"memory_influence_record_missing_dag_node:{record_id}")
+    return violations
+
+
 def classify_runtime_step(*, alias: str, node_id: str) -> ResearchNodeType:
     """Map existing workflow/node naming into high-level research node families."""
 
@@ -655,6 +772,56 @@ def _safe_json_text(value: Any) -> str:
         return str(value)
 
 
+def _memory_influence_payload(record: object) -> dict[str, Any]:
+    if hasattr(record, "model_dump"):
+        return dict(record.model_dump(mode="json"))
+    if isinstance(record, dict):
+        return dict(record)
+    return {
+        key: getattr(record, key)
+        for key in (
+            "record_id",
+            "memory_id",
+            "memory_kind",
+            "source_run_id",
+            "source_kind",
+            "source_status",
+            "influence_modes",
+            "authoritative_for",
+            "may_not_use_for",
+            "scope",
+            "applicability_reasons",
+            "contamination_status",
+            "contamination_check_ref",
+        )
+        if hasattr(record, key)
+    }
+
+
+def _payload_text(
+    payload: dict[str, Any],
+    key: str,
+    *,
+    fallback: str = "",
+) -> str:
+    value = payload.get(key, fallback)
+    raw = getattr(value, "value", value)
+    text = str(raw or "").strip()
+    return text or fallback
+
+
+def _payload_values(value: object) -> list[str]:
+    if value is None:
+        return []
+    if isinstance(value, str):
+        return [value] if value else []
+    if isinstance(value, dict):
+        return [str(item) for item in value.values() if str(item)]
+    if isinstance(value, list | tuple | set):
+        return [str(getattr(item, "value", item)) for item in value if str(item)]
+    return [str(getattr(value, "value", value))]
+
+
 def _truthy(value: Any) -> bool:
     if isinstance(value, bool):
         return value
@@ -681,11 +848,13 @@ __all__ = [
     "classify_tool_step",
     "is_research_dag_enabled",
     "is_research_dag_required_for_publication",
-    "project_reflexive_memory_events_to_research_dag",
+    "project_memory_influence_records_to_research_dag",
     "project_provenance_graph_to_research_dag",
+    "project_reflexive_memory_events_to_research_dag",
     "project_tool_call_result_to_research_node",
     "project_tool_loop_result_to_research_dag",
     "project_web_evidence_bundle_to_research_dag",
     "project_workflow_execution_to_research_dag",
     "validate_memory_influence_dag_attribution",
+    "validate_memory_influence_record_dag_attribution",
 ]

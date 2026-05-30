@@ -36,12 +36,22 @@ class ClaimLedgerExportClaim(BaseModel):
     claim_id: str
     text: str
     claim_type: str
+    claim_family: str | None = None
+    claim_use: str | None = None
     support_status: str
     publishability: str
     readiness_level: str
     visible: bool
     omission_reason: str | None = None
     blocked_reasons: list[str] = Field(default_factory=list)
+    facet_refs: list[str] = Field(default_factory=list)
+    obligation_refs: list[str] = Field(default_factory=list)
+    concept_spine_refs: list[str] = Field(default_factory=list)
+    authority_profile_refs: list[str] = Field(default_factory=list)
+    baseline_refs: list[str] = Field(default_factory=list)
+    alternative_refs: list[str] = Field(default_factory=list)
+    comparison_refs: list[str] = Field(default_factory=list)
+    method_need_preconditions: list[dict[str, Any]] = Field(default_factory=list)
     evidence_ref_count: int = 0
     counterevidence_ref_count: int = 0
     reviewer_ref_count: int = 0
@@ -58,6 +68,7 @@ class ClaimLedgerExport(BaseModel):
     audience: ClaimExportAudience
     lifecycle_status: Literal["available", "legacy_no_events", "legacy_missing"]
     claims: list[ClaimLedgerExportClaim] = Field(default_factory=list)
+    comparison_records: list[dict[str, Any]] = Field(default_factory=list)
     omitted_claim_ids: list[str] = Field(default_factory=list)
     blocked_claim_ids: list[str] = Field(default_factory=list)
     superseded_claim_ids: list[str] = Field(default_factory=list)
@@ -86,6 +97,10 @@ def claim_ledger_summary(
         "schema_version": ledger.schema_version,
         "run_id": ledger.run_id,
         "claim_count": len(claims),
+        "family_assignment_count": len(_family_assignments(ledger)),
+        "baseline_record_count": len(_baseline_records(ledger)),
+        "alternative_record_count": len(_alternative_records(ledger)),
+        "comparison_record_count": len(_comparison_records(ledger)),
         "lifecycle_status": lifecycle_status_for_ledger(ledger),
         "event_count": len(ledger.events) if isinstance(ledger, AppendOnlyClaimLedger) else 0,
         "publishability_counts": publishability_counts,
@@ -155,14 +170,25 @@ def export_claim_ledger(
         in {ClaimExportAudience.REVIEWER, ClaimExportAudience.EXPERT, ClaimExportAudience.MACHINE},
         "superseded_claims_visible": resolved_audience
         in {ClaimExportAudience.REVIEWER, ClaimExportAudience.EXPERT, ClaimExportAudience.MACHINE},
+        "family_assignment_count": len(_family_assignments(ledger)),
+        "baseline_record_count": len(_baseline_records(ledger)),
+        "alternative_record_count": len(_alternative_records(ledger)),
+        "comparison_record_count": len(_comparison_records(ledger)),
     }
     if isinstance(ledger, AppendOnlyClaimLedger):
         metadata["retention_window"] = retention_window_for_export(ledger)
+    comparison_records = (
+        [record.model_dump(mode="json") for record in _comparison_records(ledger)]
+        if resolved_audience
+        in {ClaimExportAudience.REVIEWER, ClaimExportAudience.EXPERT, ClaimExportAudience.MACHINE}
+        else []
+    )
     return ClaimLedgerExport(
         run_id=ledger.run_id,
         audience=resolved_audience,
         lifecycle_status=lifecycle_status_for_ledger(ledger),
         claims=exported_claims,
+        comparison_records=comparison_records,
         omitted_claim_ids=omitted,
         blocked_claim_ids=blocked_ids,
         superseded_claim_ids=superseded_ids,
@@ -177,7 +203,9 @@ def legacy_claim_ledger_export_status(ledger: ClaimLedger | AppendOnlyClaimLedge
 
 
 def _claims(ledger: ClaimLedger | AppendOnlyClaimLedger) -> list[ClaimRecord]:
-    return list(ledger.current_claims if isinstance(ledger, AppendOnlyClaimLedger) else ledger.claims)
+    if isinstance(ledger, AppendOnlyClaimLedger):
+        return list(ledger.current_claims)
+    return list(ledger.claims)
 
 
 def _event_claim_ids(
@@ -217,17 +245,48 @@ def _export_claim(
         claim_id=claim.claim_id,
         text=claim.text if visible else "",
         claim_type=claim.claim_type.value,
+        claim_family=claim.claim_family.value if claim.claim_family is not None else None,
+        claim_use=claim.claim_use.value if claim.claim_use is not None else None,
         support_status=claim.support_status.value,
         publishability=claim.publishability.value,
         readiness_level=claim.readiness_level.value,
         visible=visible,
         omission_reason=omission_reason,
         blocked_reasons=list(claim.blocked_reasons) if visible else [],
+        facet_refs=list(claim.facet_refs) if visible else [],
+        obligation_refs=list(claim.obligation_refs) if visible else [],
+        concept_spine_refs=list(claim.concept_spine_refs) if visible else [],
+        authority_profile_refs=list(claim.authority_profile_refs) if visible else [],
+        baseline_refs=list(claim.baseline_refs) if visible else [],
+        alternative_refs=list(claim.alternative_refs) if visible else [],
+        comparison_refs=list(claim.comparison_refs) if visible else [],
+        method_need_preconditions=[
+            precondition.model_dump(mode="json")
+            for precondition in claim.method_need_preconditions
+        ]
+        if visible
+        else [],
         evidence_ref_count=len(claim.evidence_refs),
         counterevidence_ref_count=len(claim.counterevidence_refs),
         reviewer_ref_count=len(claim.reviewer_refs),
         source_attribution=list(claim.source_attribution) if visible else [],
     )
+
+
+def _family_assignments(ledger: ClaimLedger | AppendOnlyClaimLedger) -> list[Any]:
+    return list(getattr(ledger, "family_assignments", []))
+
+
+def _baseline_records(ledger: ClaimLedger | AppendOnlyClaimLedger) -> list[Any]:
+    return list(getattr(ledger, "baseline_records", []))
+
+
+def _alternative_records(ledger: ClaimLedger | AppendOnlyClaimLedger) -> list[Any]:
+    return list(getattr(ledger, "alternative_records", []))
+
+
+def _comparison_records(ledger: ClaimLedger | AppendOnlyClaimLedger) -> list[Any]:
+    return list(getattr(ledger, "comparison_records", []))
 
 
 __all__ = [

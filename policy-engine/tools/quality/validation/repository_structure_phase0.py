@@ -66,7 +66,6 @@ PRODUCT_BUILD_OUTPUT_NAMES = (
     "site",
     "release",
     "release-fragments",
-    "production_data",
     "benchmark-results",
     ".tmp",
     "logs",

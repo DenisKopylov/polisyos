@@ -17,8 +17,8 @@ from typing import Any
 from polisyos.common.logger import get_logger
 from polisyos.core.llm import retry_async
 from polisyos.core.observability import get_metrics, get_tracer
-from polisyos.ir.model_spec import ModelSpec
-from polisyos.ir.norm_pack import NormPack
+from polisyos.ir.model_layer.model_spec import ModelSpec
+from polisyos.ir.loading.norm_pack import NormPack
 from polisyos.scientist.agent.code_verifier import (
     CodeVerificationSandbox,
     SandboxConfig,

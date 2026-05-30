@@ -2,7 +2,6 @@
 # canonical Ruff pass, but their historical style/security debt stays explicit
 # until each directory owner burns it down.
 "src/polisyos/calibration/**" = ["ANN401", "B905", "E501", "RUF005", "TC001", "TC003"]
-"src/polisyos/synthetic_world/**" = ["ANN401", "E501", "RUF046", "TC001", "TC003"]
 "src/polisyos/schemas/abi_models.py" = ["TC003"]
 "examples/**" = ["RUF012"]
 "ops/cloud/gcp/upload_gonka_secrets.py" = ["S603", "T201"]
@@ -10,6 +9,9 @@
 "migrate.py" = ["E402"]
 "tools/quality/testing/check_fabric_exception_baseline.py" = ["S603", "T201"]
 "tools/quality/testing/repeat_pytest.py" = ["S603", "T201"]
+"tools/quality/validation/build_policy_design_case_wave35a.py" = [
+  "RUF001",
+] # Ukrainian transliteration table intentionally contains Cyrillic source glyphs.
 "tools/lib/**" = ["ANN401", "RUF046", "S108", "S310", "S603", "S607", "TC001", "TC003"]
 "tools/ci/**" = ["E402", "E501", "RUF100", "S314", "TC003"]
 "tools/cli.py" = ["E501", "S101", "TC003"]

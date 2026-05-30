@@ -10,7 +10,7 @@ from polisyos.ir.analytics.parameters import (
     persist_context_adaptive_parameter_bundle,
 )
 from polisyos.ir.analytics.transportability import TransportabilityStatus, TransportMode
-from polisyos.ir.refs import ContextAdaptiveParameterBundleRef
+from polisyos.ir.registry.refs import ContextAdaptiveParameterBundleRef
 
 
 def test_context_adaptive_parameter_bundle_artifact_roundtrip(tmp_path) -> None:

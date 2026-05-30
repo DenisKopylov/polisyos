@@ -8,7 +8,10 @@
     "map_id",
     "raw_evidence_line_count",
     "effective_independent_evidence_count",
-    "collapse_clusters"
+    "collapse_clusters",
+    "effective_mass_report",
+    "graded_independence",
+    "rare_domain_scarcity"
   ],
   "properties": {
     "schema_version": {
@@ -58,7 +61,9 @@
           "cluster_id",
           "line_ids",
           "raw_line_count",
-          "collapse_dimensions"
+          "effective_line_count",
+          "collapse_dimensions",
+          "collapse_reasons"
         ],
         "properties": {
           "cluster_id": {
@@ -77,9 +82,49 @@
             "type": "integer",
             "minimum": 1
           },
+          "effective_line_count": {
+            "type": "integer",
+            "minimum": 0
+          },
           "representative_line_id": {
             "type": "string",
             "minLength": 1
+          },
+          "collapse_reasons": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["reason_id", "dimension", "reason_code", "line_ids"],
+              "properties": {
+                "reason_id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "dimension": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "reason_code": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "line_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "minItems": 1
+                },
+                "collapse_policy": {
+                  "type": "string"
+                },
+                "explanation": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": true
+            }
           },
           "collapse_dimensions": {
             "type": "object",
@@ -145,6 +190,149 @@
         },
         "additionalProperties": true
       }
+    },
+    "effective_mass_report": {
+      "type": "object",
+      "required": [
+        "raw_evidence_line_count",
+        "effective_independent_evidence_count",
+        "raw_support_line_count",
+        "raw_counterevidence_line_count",
+        "raw_context_line_count",
+        "effective_support_mass",
+        "effective_counterevidence_mass",
+        "effective_context_mass",
+        "balance_status",
+        "independence_status",
+        "largest_hard_collapse_cluster",
+        "dominant_collapse_reasons",
+        "limiting_deficits",
+        "raw_count_display_policy"
+      ],
+      "properties": {
+        "raw_evidence_line_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "effective_independent_evidence_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "raw_support_line_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "raw_counterevidence_line_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "raw_context_line_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "effective_support_mass": {
+          "type": "number",
+          "minimum": 0
+        },
+        "effective_counterevidence_mass": {
+          "type": "number",
+          "minimum": 0
+        },
+        "effective_context_mass": {
+          "type": "number",
+          "minimum": 0
+        },
+        "balance_status": {
+          "enum": ["support_dominant", "mixed", "counter_dominant", "insufficient"]
+        },
+        "independence_status": {
+          "enum": [
+            "sufficient",
+            "weak",
+            "singular",
+            "inflated_raw_count",
+            "insufficient"
+          ]
+        },
+        "largest_hard_collapse_cluster": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "dominant_collapse_reasons": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["reason_code", "cluster_count"],
+            "additionalProperties": true
+          }
+        },
+        "limiting_deficits": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "raw_count_display_policy": {
+          "type": "object",
+          "required": ["raw_count_authority", "must_display_with"],
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "graded_independence": {
+      "type": "object",
+      "required": ["enabled", "feature_flag", "feature_flag_enabled", "authority_posture"],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "feature_flag": {
+          "const": "policy_design_case.graded_independence_weights"
+        },
+        "feature_flag_enabled": {
+          "type": "boolean"
+        },
+        "authority_posture": {
+          "type": "string",
+          "minLength": 1
+        },
+        "governed_config": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "graded_effective_independent_evidence_count": {
+          "type": "number",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": true
+    },
+    "rare_domain_scarcity": {
+      "type": "object",
+      "required": [
+        "status",
+        "support_inflation_allowed",
+        "effective_support_mass_after_scarcity",
+        "authority_effect"
+      ],
+      "properties": {
+        "status": {
+          "enum": ["not_rare_domain", "scarcity_structural", "scarcity_remediable"]
+        },
+        "support_inflation_allowed": {
+          "const": false
+        },
+        "effective_support_mass_after_scarcity": {
+          "type": "number",
+          "minimum": 0
+        },
+        "authority_effect": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
     },
     "evidence_ref": {
       "type": "string"

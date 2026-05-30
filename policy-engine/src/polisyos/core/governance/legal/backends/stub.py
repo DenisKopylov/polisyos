@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any
 from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 
 if TYPE_CHECKING:
-    from polisyos.ir.norm_pack import NormPack
+    from polisyos.ir.loading.norm_pack import NormPack
 
 
 class StubBackend:

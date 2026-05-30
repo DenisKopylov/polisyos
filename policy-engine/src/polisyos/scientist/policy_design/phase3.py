@@ -45,7 +45,7 @@ from polisyos.ir.analytics.welfare import (
     load_channel_decomposition_artifact,
     load_welfare_bundle,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     ArtifactRefModel,
     FiscalFeedbackLinkRef,
     IncentiveCompatibilityCertificateRef,

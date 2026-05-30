@@ -1,0 +1,58 @@
+{
+  "schema_version": "policyos.runtime.policy_design_case.semantic_gold_card.v1",
+  "fixture_id": "raw_count_inflation_semantic_fail",
+  "title": "Raw source count cannot replace effective independence",
+  "expected_status": "semantic_fail",
+  "failure_mode": "raw_count_inflation",
+  "research_refs": ["E1", "C30", "C13"],
+  "pattern_ids": ["P10", "P14"],
+  "structural_pass_claimed": true,
+  "structural_verdict": {
+    "status": "pass",
+    "validator_refs": ["policy_design_case.structural.evidence_strength_shape.v1"],
+    "completeness_claims": [
+      "portfolio_present",
+      "evidence_lines_present",
+      "independence_map_present",
+      "strength_label_present"
+    ]
+  },
+  "semantic_adjudication": {
+    "status": "fail",
+    "adjudicator": "policyos.semantic_gold_card.w1b",
+    "failure_mode": "raw_count_inflation",
+    "failure_code": "semantic_raw_count_inflation",
+    "rationale": "The claim projects strong support from 400 raw lines even though the independence map collapses them to one effective line.",
+    "authority_effect": "publish_with_limitation",
+    "required_remediation": "Report effective independent support and downgrade evidence strength or add independent evidence."
+  },
+  "semantic_probes": [
+    {
+      "probe_id": "raw-count-effective-independence",
+      "semantic_axis": "evidence_strength",
+      "pattern_ids": ["P10", "P14"],
+      "observed_signal": "Projected strength uses raw evidence line count.",
+      "expected_signal": "Strength must use effective independent evidence count and collapse reasons.",
+      "verdict": "fail",
+      "failure_code": "semantic_raw_count_inflation",
+      "evidence_refs": ["cas://sha256/22222222222222222222222222222222"]
+    }
+  ],
+  "payload": {
+    "case_id": "pdc-w1b-raw-count",
+    "claim_ids": ["claim-raw-count"],
+    "evidence_strength": {
+      "projected_strength": "strong",
+      "raw_evidence_line_count": 400,
+      "effective_independent_evidence_count": 1,
+      "collapse_clusters": [
+        {
+          "cluster_id": "shared-prompt-and-dataset",
+          "raw_line_count": 400,
+          "effective_count": 1,
+          "collapse_dimensions": ["shared_dataset", "shared_prompt", "shared_method"]
+        }
+      ]
+    }
+  }
+}

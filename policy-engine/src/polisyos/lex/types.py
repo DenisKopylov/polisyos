@@ -27,7 +27,7 @@ if TYPE_CHECKING:
     from datetime import datetime
     from pathlib import Path
 
-    from polisyos.ir.fact_log import FactSegmentManifest
+    from polisyos.ir.loading.fact_log import FactSegmentManifest
 
 
 @dataclass(frozen=True)

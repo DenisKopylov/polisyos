@@ -19,6 +19,10 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import quote, urlsplit, urlunsplit
 
+from polisyos.core.contracts import (
+    RequirementToCapabilityQuery,
+    construct_for_legacy_family,
+)
 from polisyos.core.security.authz import AuthzDecision, AuthzResult
 from polisyos.runtime.http.execution_policy import (
     RuntimeBootstrapError,
@@ -31,6 +35,7 @@ from polisyos.runtime.http.services.control.production_data import (
     production_data_quality_report,
 )
 from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
 from polisyos.runtime.quality.diagnostic_events import (
     DIAGNOSTIC_EVENT_SCHEMA_NAME,
     DIAGNOSTIC_EVENT_SCHEMA_VERSION,
@@ -51,6 +56,9 @@ from tools.ops_runners.runtime.quality_scenarios import (
 
 SCHEMA_VERSION = "policyos.local_prod_debug_probe.v1"
 DEFAULT_OUTPUT = Path("_build/.tmp/production-quality/local_prod_debug_probe.json")
+DEFAULT_CAPABILITY_INDEX = Path(
+    "_build/.tmp/production-quality/capability-index/capability_index_v1.duckdb"
+)
 DEFAULT_MODEL = "Qwen/Qwen3-235B-A22B-Instruct-2507-FP8"
 KIMI_MODEL = "moonshotai/Kimi-K2.6"
 LIVE_RESEARCH_LANE_ID = (
@@ -1216,29 +1224,42 @@ def run_production_data_static_check(context: ProbeContext) -> dict[str, Any]:
         if isinstance(scenario_binding_report, Mapping)
         else []
     )
-    for finding in scenario_binding_findings or []:
-        if not isinstance(finding, Mapping):
-            continue
-        if finding.get("status") in {"failed", "blocked"}:
-            issues.append(
-                {
-                    "code": "production_data_scenario_binding_incomplete",
-                    "requirement_id": finding.get("requirement_id"),
-                    "expected_family": finding.get("expected_family"),
-                    "status": finding.get("status"),
-                    "candidate_ref": finding.get("candidate_ref"),
-                    "missing_facets": list(finding.get("missing_facets") or ()),
-                    "claim_bound_limitations": list(
-                        finding.get("claim_bound_limitations") or ()
-                    ),
-                }
-            )
-    scenario_contract_issue = any(
-        issue.get("code") == "production_data_scenario_binding_incomplete"
-        for issue in issues
+    construct_capability_report = _construct_capability_report(
+        context,
+        scenario_binding_report if isinstance(scenario_binding_report, Mapping) else {},
     )
-    status = "fail" if scenario_contract_issue else ("pass" if not issues else "warn")
-    code = "production_data_scenario_contracts_missing" if scenario_contract_issue else None
+    construct_capability_blockers = _construct_capability_blockers(
+        {
+            **(scenario_binding_report if isinstance(scenario_binding_report, Mapping) else {}),
+            "construct_capability_report": construct_capability_report,
+        }
+    )
+    untyped_construct_capability_blockers = [
+        blocker
+        for blocker in construct_capability_blockers
+        if not str(blocker.get("status") or "").startswith(("blocked_", "selected_"))
+    ]
+    construct_issue = bool(untyped_construct_capability_blockers)
+    construct_evidence_issue = (
+        construct_capability_report.get("status") == "blocked"
+        and not construct_capability_blockers
+    )
+    status = (
+        "fail"
+        if (construct_evidence_issue or construct_issue)
+        else ("pass" if not issues else "warn")
+    )
+    if construct_evidence_issue:
+        code = str(
+            next(
+                iter(construct_capability_report.get("issue_codes") or ()),
+                "production_data_construct_capability_evidence_missing",
+            )
+        )
+    elif construct_issue:
+        code = "production_data_construct_capability_blockers"
+    else:
+        code = None
     return _check_result(
         "production-data-static",
         status,
@@ -1255,11 +1276,17 @@ def run_production_data_static_check(context: ProbeContext) -> dict[str, Any]:
                 if isinstance(scenario_binding_report, Mapping)
                 else None
             ),
+            "construct_capability_report": construct_capability_report,
             "scenario_binding_findings": scenario_binding_findings or [],
+            "compatibility_projection_findings": scenario_binding_findings or [],
+            "construct_capability_blockers": construct_capability_blockers,
+            "untyped_construct_capability_blockers": untyped_construct_capability_blockers,
             "missing_scenario_source_families": (
-                list(
-                    scenario_binding_report.get("missing_scenario_source_families")
-                    or []
+                []
+                if construct_capability_report.get("resolver_executed")
+                or construct_capability_blockers
+                else list(
+                    scenario_binding_report.get("missing_scenario_source_families") or []
                 )
                 if isinstance(scenario_binding_report, Mapping)
                 else []
@@ -1267,6 +1294,274 @@ def run_production_data_static_check(context: ProbeContext) -> dict[str, Any]:
             "issues": issues,
         },
     )
+
+
+def _construct_capability_blockers(report: Mapping[str, Any]) -> list[dict[str, Any]]:
+    blockers: list[dict[str, Any]] = []
+    blocker_statuses = {
+        "selected_proxy_with_limitation",
+        "selected_with_conflict_marker",
+        "selected_context_only",
+        "selected_simulation_only",
+    }
+    for spec in report.get("compiled_data_requirement_specs") or []:
+        if not isinstance(spec, Mapping):
+            continue
+        metadata = spec.get("metadata")
+        if not isinstance(metadata, Mapping):
+            continue
+        binding = metadata.get("capability_binding")
+        if not isinstance(binding, Mapping):
+            continue
+        status = str(binding.get("status") or "")
+        if not (status.startswith("blocked_") or status in blocker_statuses):
+            continue
+        blockers.append(
+            {
+                "construct_ref": binding.get("construct_ref"),
+                "capability_ref": binding.get("selected_capability_ref"),
+                "requirement_id": binding.get("requirement_id"),
+                "status": status,
+                "code": status,
+                "blocked_reasons": list(binding.get("blocked_reasons") or ()),
+                "limitations": list(binding.get("limitations") or ()),
+                "acquisition_strategies": list(binding.get("acquisition_strategies") or ()),
+                "rejected_alternatives": list(binding.get("rejected_alternatives") or ()),
+            }
+        )
+    construct_report = report.get("construct_capability_report")
+    if isinstance(construct_report, Mapping):
+        for binding in construct_report.get("capability_bindings") or []:
+            if not isinstance(binding, Mapping):
+                continue
+            status = str(binding.get("status") or "")
+            if not (status.startswith("blocked_") or status in blocker_statuses):
+                continue
+            blockers.append(
+                {
+                    "construct_ref": binding.get("construct_ref"),
+                    "capability_ref": binding.get("selected_capability_ref"),
+                    "requirement_id": binding.get("requirement_id"),
+                    "status": status,
+                    "code": status,
+                    "blocked_reasons": list(binding.get("blocked_reasons") or ()),
+                    "limitations": list(binding.get("limitations") or ()),
+                    "acquisition_strategies": list(
+                        binding.get("acquisition_strategies") or ()
+                    ),
+                    "rejected_alternatives": list(
+                        binding.get("rejected_alternatives") or ()
+                    ),
+                }
+            )
+    return blockers
+
+
+def _construct_capability_report(
+    context: ProbeContext,
+    scenario_binding_report: Mapping[str, Any],
+) -> dict[str, Any]:
+    embedded_bindings = _embedded_capability_bindings(scenario_binding_report)
+    if embedded_bindings:
+        return {
+            "schema_version": "policyos.local_prod_debug.construct_capability_report.v1",
+            "status": "pass",
+            "source": "compiled_data_requirement_spec_metadata",
+            "resolver_executed": False,
+            "capability_index_loaded": None,
+            "capability_bindings": embedded_bindings,
+            "binding_count": len(embedded_bindings),
+            "issue_codes": [],
+            "issues": [],
+        }
+    specs = [
+        spec
+        for spec in scenario_binding_report.get("compiled_data_requirement_specs") or []
+        if isinstance(spec, Mapping)
+    ]
+    capability_index = context.repo_root / DEFAULT_CAPABILITY_INDEX
+    base = {
+        "schema_version": "policyos.local_prod_debug.construct_capability_report.v1",
+        "source": "requirement_to_capability_resolver",
+        "capability_index_path": f"repo://{DEFAULT_CAPABILITY_INDEX.as_posix()}",
+        "resolver_executed": False,
+        "capability_index_loaded": False,
+        "capability_bindings": [],
+        "binding_count": 0,
+        "issues": [],
+    }
+    if not specs:
+        return {
+            **base,
+            "status": "blocked",
+            "issue_codes": ["production_data_construct_capability_evidence_missing"],
+        }
+    if not capability_index.exists():
+        return {
+            **base,
+            "status": "blocked",
+            "issue_codes": ["production_data_construct_capability_evidence_missing"],
+            "issues": [
+                {
+                    "code": "production_data_construct_capability_evidence_missing",
+                    "message": "W12.A production-data-static could not load capability index evidence.",
+                    "capability_index_path": f"repo://{DEFAULT_CAPABILITY_INDEX.as_posix()}",
+                }
+            ],
+        }
+    try:
+        resolver = RequirementToCapabilityResolver.from_duckdb(capability_index)
+    except Exception as exc:  # pragma: no cover - environment-dependent.
+        return {
+            **base,
+            "status": "blocked",
+            "issue_codes": ["production_data_construct_capability_resolver_failed"],
+            "issues": [
+                {
+                    "code": "production_data_construct_capability_resolver_failed",
+                    "message": str(exc),
+                }
+            ],
+        }
+    bindings: list[dict[str, Any]] = []
+    issues: list[dict[str, Any]] = []
+    for spec in specs:
+        query = _capability_query_for_static_spec(spec)
+        if query is None:
+            issues.append(
+                {
+                    "code": "production_data_construct_capability_query_missing",
+                    "requirement_id": spec.get("requirement_id"),
+                }
+            )
+            continue
+        try:
+            result = resolver.resolve(query)
+        except Exception as exc:  # pragma: no cover - defensive diagnostic path.
+            issues.append(
+                {
+                    "code": "production_data_construct_capability_resolver_failed",
+                    "requirement_id": query.requirement_id,
+                    "message": str(exc),
+                }
+            )
+            continue
+        row = result.model_dump(mode="json", exclude_none=True)
+        row.setdefault("capability_index_ref", resolver.capability_index_ref)
+        row.setdefault("construct_registry_ref", "construct-registry:v1")
+        bindings.append(row)
+    issue_codes = sorted({str(issue["code"]) for issue in issues if issue.get("code")})
+    return {
+        **base,
+        "status": "pass" if bindings and not issues else "blocked",
+        "resolver_executed": bool(bindings or issues),
+        "capability_index_loaded": True,
+        "capability_index_ref": resolver.capability_index_ref,
+        "capability_bindings": bindings,
+        "binding_count": len(bindings),
+        "issue_codes": issue_codes
+        or ([] if bindings else ["production_data_construct_capability_evidence_missing"]),
+        "issues": issues,
+    }
+
+
+def _embedded_capability_bindings(report: Mapping[str, Any]) -> list[dict[str, Any]]:
+    bindings: list[dict[str, Any]] = []
+    for spec in report.get("compiled_data_requirement_specs") or []:
+        if not isinstance(spec, Mapping):
+            continue
+        metadata = spec.get("metadata")
+        if not isinstance(metadata, Mapping):
+            continue
+        binding = metadata.get("capability_binding")
+        if isinstance(binding, Mapping):
+            bindings.append(dict(binding))
+    return bindings
+
+
+def _capability_query_for_static_spec(
+    spec: Mapping[str, Any],
+) -> RequirementToCapabilityQuery | None:
+    requirement_id = _optional_text(spec.get("requirement_id"))
+    construct = _construct_for_static_spec(spec)
+    if not requirement_id or not construct:
+        return None
+    scope = spec.get("scope") if isinstance(spec.get("scope"), Mapping) else {}
+    family = _first_text(spec.get("required_data_families"))
+    geography = (
+        _optional_text(scope.get("jurisdiction"))
+        or _optional_text(scope.get("geography"))
+        or "scenario_geography"
+    )
+    return RequirementToCapabilityQuery(
+        requirement_id=requirement_id,
+        construct=construct,
+        entity_scope=_entity_scope_for_construct(construct),
+        population_filter={
+            "type": _optional_text(scope.get("population")) or "scenario_population"
+        },
+        geography=geography,
+        time_window={"start": _optional_text(scope.get("time")), "end": None},
+        authority_level="production",
+        claim_use=_optional_text(spec.get("claim_use")) or "claim_evidence_closeout",
+        required_evidence_modes=(
+            "observed",
+            "derived",
+            "proxy_observational",
+            "scholarly_causal_support",
+            "legal_threshold",
+        ),
+        forbidden_evidence_modes=("simulation_only", "candidate_unverified"),
+        source_family_alias=family,
+    )
+
+
+def _construct_for_static_spec(spec: Mapping[str, Any]) -> str | None:
+    metadata = spec.get("metadata") if isinstance(spec.get("metadata"), Mapping) else {}
+    binding = (
+        metadata.get("capability_binding")
+        if isinstance(metadata.get("capability_binding"), Mapping)
+        else {}
+    )
+    for value in (
+        binding.get("construct_ref"),
+        metadata.get("construct_ref"),
+        spec.get("construct_ref"),
+        spec.get("target_construct_ref"),
+    ):
+        text = _optional_text(value)
+        if text:
+            return text.removeprefix("construct:")
+    family = _first_text(spec.get("required_data_families"))
+    return construct_for_legacy_family(family) if family else None
+
+
+def _entity_scope_for_construct(construct: str) -> str:
+    bare = construct.removeprefix("construct:")
+    return {
+        "firm_survival": "firm",
+        "credit_program_enrollment": "firm_or_program",
+        "regional_displacement_pressure": "region",
+    }.get(bare, "entity")
+
+
+def _first_text(value: object) -> str | None:
+    if value is None:
+        return None
+    if isinstance(value, str):
+        return _optional_text(value)
+    if isinstance(value, Iterable):
+        for item in value:
+            if text := _optional_text(item):
+                return text
+    return None
+
+
+def _optional_text(value: object) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    return text or None
 
 
 def run_docs_repro_check(context: ProbeContext) -> dict[str, Any]:
@@ -1374,10 +1669,13 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
     ]
     if missing_dsn_checks:
-        results = [
-            _missing_dsn_result(check)
-            for check in missing_dsn_checks
-        ]
+        missing_dsn_check_set = set(missing_dsn_checks)
+        results = []
+        for check in checks:
+            if check in missing_dsn_check_set:
+                results.append(_missing_dsn_result(check))
+            else:
+                results.extend(run_checks(context, (check,)))
         payload = _payload(
             context=context,
             checks=results,

@@ -165,15 +165,6 @@ issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-mast
 source_glob = "src/polisyos/foundry/agent_sim/wiring/contracts.py"
 import_root = "lex"
 
-[[exception]]
-id = "E-2026-04-SCIENTIST-FOUNDRY-PRIVATE-001"
-owner = "team-polisyos"
-reason = "scientist search dtr.py imports foundry causal _common private module for DTR shared utilities"
-expires = "2026-07-01"
-issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-61---package-public-surface-and-import-gate-conversion"
-source_glob = "src/polisyos/scientist/search/dtr.py"
-import_module_prefix = "polisyos.foundry.methods.catalog.causal._common"
-
 # ---------------------------------------------------------------------------
 # Documentation SOTA closeout import debt ledger (added 2026-04-17)
 # These exceptions convert previously hidden ci-parity import failures into

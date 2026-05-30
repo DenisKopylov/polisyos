@@ -9,7 +9,7 @@ from polisyos.core.contracts.lex import ComplianceIssue, IssueSeverity
 from polisyos.core.governance.passes.base import PassContext, ValidatorPass
 from polisyos.core.governance.profiles import ProfileLevel
 from polisyos.ir.analytics.causal import CausalEffectReport, load_causal_effect_report
-from polisyos.ir.refs import CausalEffectReportRef
+from polisyos.ir.registry.refs import CausalEffectReportRef
 from polisyos.scientist.governance.passes._artifact_resolution import (
     resolve_optional_artifact_model,
 )

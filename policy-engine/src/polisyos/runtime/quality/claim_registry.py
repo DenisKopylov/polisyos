@@ -9,6 +9,23 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
+from polisyos.runtime.quality.calibration_ledger import (
+    historical_prior_claim_evidence_issues,
+)
+from polisyos.runtime.quality.candidate_firewall import (
+    candidate_firewall_issues_for_payload,
+)
+from polisyos.runtime.quality.ir_analytics_bridge import (
+    IR_ANALYTICS_CLAIM_BRIDGE_REF_KEY,
+    ir_analytics_bridge_issues_for_claims,
+    ir_analytics_claim_bindings_by_claim,
+    merge_ir_analytics_binding_into_registry_entry,
+    normalize_ir_analytics_claim_bridge,
+)
+from polisyos.runtime.quality.memory_influence import (
+    memory_influence_claim_evidence_issues,
+)
+
 SCHEMA_VERSION = "policyos.runtime.claim_registry.v1"
 REPORT_KIND = "runtime.claim_registry"
 REPORT_REF_KEY = "runtime_claim_registry_ref"
@@ -25,6 +42,27 @@ _REQUIRED_ENTRY_REF_SPECS: tuple[tuple[str, str], ...] = (
     ("counter_evidence_refs", "counter_evidence"),
     ("limitation_refs", "limitation"),
     ("accepted_deficit_refs", "accepted_deficit"),
+)
+
+_OPTIONAL_EMPTY_REF_KEYS = frozenset(
+    {
+        "assumption_gate_refs",
+        "legal_authority_record_refs",
+        "legal_authority_blocker_refs",
+        "ir_analytics_refs",
+        "ir_certificate_refs",
+        "negative_certificate_refs",
+        "proof_composability_refs",
+        "proof_statuses",
+        "proof_composability_statuses",
+        "baseline_refs",
+        "alternative_refs",
+        "comparison_refs",
+        "conflict_refs",
+        "claim_family",
+        "claim_type",
+        "claim_use",
+    }
 )
 
 
@@ -45,6 +83,13 @@ class RuntimeClaimRegistryEntry:
     counter_evidence_refs: tuple[str, ...] = ()
     limitation_refs: tuple[str, ...] = ()
     accepted_deficit_refs: tuple[str, ...] = ()
+    assumption_gate_refs: tuple[str, ...] = ()
+    legal_authority_record_refs: tuple[str, ...] = ()
+    legal_authority_blocker_refs: tuple[str, ...] = ()
+    uncertainty_refs: tuple[str, ...] = ()
+    baseline_refs: tuple[str, ...] = ()
+    alternative_refs: tuple[str, ...] = ()
+    comparison_refs: tuple[str, ...] = ()
     blocker_refs: tuple[str, ...] = ()
     extra: Mapping[str, Any] = field(default_factory=dict)
 
@@ -63,6 +108,13 @@ class RuntimeClaimRegistryEntry:
             "counter_evidence_refs": list(self.counter_evidence_refs),
             "limitation_refs": list(self.limitation_refs),
             "accepted_deficit_refs": list(self.accepted_deficit_refs),
+            "assumption_gate_refs": list(self.assumption_gate_refs),
+            "legal_authority_record_refs": list(self.legal_authority_record_refs),
+            "legal_authority_blocker_refs": list(self.legal_authority_blocker_refs),
+            "uncertainty_refs": list(self.uncertainty_refs),
+            "baseline_refs": list(self.baseline_refs),
+            "alternative_refs": list(self.alternative_refs),
+            "comparison_refs": list(self.comparison_refs),
             "blocker_refs": list(self.blocker_refs),
         }
         payload.update(dict(self.extra))
@@ -99,9 +151,11 @@ def build_runtime_claim_registry(
     fabric_retrieval_trace: Mapping[str, Any] | None = None,
     normative_evidence: Mapping[str, Any] | None = None,
     foundry_method_report: Mapping[str, Any] | None = None,
+    ir_analytics_bridge: Mapping[str, Any] | None = None,
     run_id: str | None = None,
     registry_ref: str | None = None,
     spine_context: Mapping[str, Any] | None = None,
+    hypothesis_ledger: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Build the runtime claim registry from final, claim-local evidence refs."""
 
@@ -130,7 +184,9 @@ def build_runtime_claim_registry(
         normative_evidence=normative_evidence,
         fabric_retrieval_trace=fabric_retrieval_trace,
         foundry_method_report=foundry_method_report,
+        ir_analytics_bridge=ir_analytics_bridge,
         run_id=run_id,
+        hypothesis_ledger=hypothesis_ledger,
     )
 
 
@@ -141,13 +197,32 @@ def normalize_runtime_claim_registry(
     normative_evidence: Mapping[str, Any] | None = None,
     fabric_retrieval_trace: Mapping[str, Any] | None = None,
     foundry_method_report: Mapping[str, Any] | None = None,
+    ir_analytics_bridge: Mapping[str, Any] | None = None,
     run_id: str | None = None,
+    hypothesis_ledger: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Normalize and validate a stored runtime claim registry payload."""
 
     payload = dict(claim_registry or {})
+    bridge_payload = (
+        ir_analytics_bridge
+        if ir_analytics_bridge is not None
+        else payload.get("ir_analytics_bridge")
+        if isinstance(payload.get("ir_analytics_bridge"), Mapping)
+        else None
+    )
+    normalized_ir_analytics_bridge = normalize_ir_analytics_claim_bridge(
+        bridge_payload,
+        run_id=run_id,
+    )
+    ir_bindings_by_claim = ir_analytics_claim_bindings_by_claim(
+        normalized_ir_analytics_bridge,
+    )
     rows = [
-        _normalize_entry_row(dict(row), index=index, run_id=run_id)
+        merge_ir_analytics_binding_into_registry_entry(
+            _normalize_entry_row(dict(row), index=index, run_id=run_id),
+            ir_bindings_by_claim.get(_claim_id(row, index)),
+        )
         for index, row in enumerate(_claim_rows(payload))
     ]
     issues: list[dict[str, Any]] = []
@@ -191,6 +266,14 @@ def normalize_runtime_claim_registry(
 
     for row in rows:
         issues.extend(_entry_issues(row))
+        issues.extend(_candidate_firewall_issues(row, hypothesis_ledger=hypothesis_ledger))
+    issues.extend(
+        ir_analytics_bridge_issues_for_claims(
+            claims=claims,
+            bridge=normalized_ir_analytics_bridge,
+            registry_rows=rows,
+        )
+    )
 
     status = _status_from_issues(issues)
     registry_ref = _text(payload.get(REPORT_REF_KEY) or payload.get("registry_ref"))
@@ -204,6 +287,21 @@ def normalize_runtime_claim_registry(
         "generic_global_method_ref_count": len(generic_global_method_refs),
         "selected_data_ref_count": len(_global_data_refs(fabric_retrieval_trace)),
     }
+    if normalized_ir_analytics_bridge is not None:
+        summary.update(
+            {
+                "ir_analytics_binding_count": int(
+                    normalized_ir_analytics_bridge.get("summary", {}).get("binding_count", 0)
+                ),
+                "ir_analytics_blocked_claim_count": int(
+                    normalized_ir_analytics_bridge.get("summary", {}).get(
+                        "blocked_claim_count",
+                        0,
+                    )
+                ),
+                "ir_analytics_bridge_status": normalized_ir_analytics_bridge.get("status"),
+            }
+        )
     result = {
         **payload,
         "schema_version": SCHEMA_VERSION,
@@ -213,6 +311,8 @@ def normalize_runtime_claim_registry(
         "summary": summary,
         "issues": issues,
     }
+    if normalized_ir_analytics_bridge is not None:
+        result["ir_analytics_bridge"] = normalized_ir_analytics_bridge
     if registry_ref:
         result[REPORT_REF_KEY] = registry_ref
     return result
@@ -249,6 +349,8 @@ def apply_runtime_claim_registry_to_claim(
         "data_refs": "data_refs",
         "selected_norm_refs": "selected_norm_refs",
         "rejected_norm_refs": "rejected_norm_refs",
+        "legal_authority_record_refs": "legal_authority_record_refs",
+        "legal_authority_blocker_refs": "legal_authority_blocker_refs",
         "method_output_refs": "method_output_refs",
         "portfolio_refs": "portfolio_refs",
         "argument_refs": "argument_refs",
@@ -260,6 +362,15 @@ def apply_runtime_claim_registry_to_claim(
         "blocker_refs": "blocker_refs",
         "independence_refs": "independence_refs",
         "synthesis_refs": "synthesis_refs",
+        "ir_analytics_refs": "ir_analytics_refs",
+        "ir_certificate_refs": "ir_certificate_refs",
+        "negative_certificate_refs": "negative_certificate_refs",
+        "proof_composability_refs": "proof_composability_refs",
+        "uncertainty_refs": "uncertainty_refs",
+        "baseline_refs": "baseline_refs",
+        "alternative_refs": "alternative_refs",
+        "comparison_refs": "comparison_refs",
+        "conflict_refs": "conflict_refs",
     }
     for source_key, target_key in ref_mapping.items():
         refs = _as_refs(entry.get(source_key))
@@ -285,6 +396,17 @@ def apply_runtime_claim_registry_to_claim(
         "counter_evidence_refs",
         "limitation_refs",
         "accepted_deficit_refs",
+        "legal_authority_record_refs",
+        "legal_authority_blocker_refs",
+        "ir_analytics_refs",
+        "ir_certificate_refs",
+        "negative_certificate_refs",
+        "proof_composability_refs",
+        "uncertainty_refs",
+        "baseline_refs",
+        "alternative_refs",
+        "comparison_refs",
+        "conflict_refs",
     ):
         refs = _as_refs(entry.get(key))
         if refs:
@@ -303,6 +425,8 @@ def apply_runtime_claim_registry_to_claim(
             "data_refs",
             "selected_norm_refs",
             "rejected_norm_refs",
+            "legal_authority_record_refs",
+            "legal_authority_blocker_refs",
             "method_output_refs",
             "portfolio_refs",
             "argument_refs",
@@ -312,6 +436,22 @@ def apply_runtime_claim_registry_to_claim(
             "limitation_refs",
             "accepted_deficit_refs",
             "blocker_refs",
+            "concept_spine_ref",
+            "producer_handshake_ledger_ref",
+            "producer_handshake_refs",
+            IR_ANALYTICS_CLAIM_BRIDGE_REF_KEY,
+            "ir_analytics_runtime_event_ref",
+            "ir_analytics_refs",
+            "ir_certificate_refs",
+            "negative_certificate_refs",
+            "proof_statuses",
+            "proof_composability_refs",
+            "proof_composability_statuses",
+            "uncertainty_refs",
+            "baseline_refs",
+            "alternative_refs",
+            "comparison_refs",
+            "conflict_refs",
         }
     }
     return merged
@@ -324,6 +464,8 @@ def runtime_claim_registry_issues_for_claims(
     normative_evidence: Mapping[str, Any] | None = None,
     fabric_retrieval_trace: Mapping[str, Any] | None = None,
     foundry_method_report: Mapping[str, Any] | None = None,
+    ir_analytics_bridge: Mapping[str, Any] | None = None,
+    hypothesis_ledger: Mapping[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
     normalized = normalize_runtime_claim_registry(
         claim_registry,
@@ -331,6 +473,8 @@ def runtime_claim_registry_issues_for_claims(
         normative_evidence=normative_evidence,
         fabric_retrieval_trace=fabric_retrieval_trace,
         foundry_method_report=foundry_method_report,
+        ir_analytics_bridge=ir_analytics_bridge,
+        hypothesis_ledger=hypothesis_ledger,
     )
     return [dict(issue) for issue in normalized.get("issues") or []]
 
@@ -437,6 +581,9 @@ def _entry_from_claim(
         "claim_ref": _safe_ref(claim.get("claim_ref") or claim.get("cas_ref"))
         or _stable_claim_ref(claim),
         "runtime_event_ref": _runtime_event_ref(claim, claim_id=claim_id, run_id=run_id),
+        "claim_family": _text(claim.get("claim_family") or claim.get("family")),
+        "claim_type": _text(claim.get("claim_type") or claim.get("type")),
+        "claim_use": _text(claim.get("claim_use") or claim.get("use")),
         "authority_role": _text(claim.get("authority_role")) or "producer_authority",
         "provenance_kind": _text(claim.get("provenance_kind")) or "runtime_emitted",
         "assurance_node_id": _text(
@@ -496,6 +643,28 @@ def _entry_from_claim(
                 "multiverse_curve_refs",
             ),
         ),
+        "assumption_gate_refs": _refs_for_aliases(
+            claim,
+            ("assumption_gate_refs", "assumption_refs", "runtime_assumption_gate_refs"),
+        ),
+        "legal_authority_record_refs": _refs_for_aliases(
+            claim,
+            (
+                "legal_authority_record_refs",
+                "legal_authority_refs",
+                "lex_legal_authority_record_refs",
+                "legal_competence_record_refs",
+            ),
+        ),
+        "legal_authority_blocker_refs": _refs_for_aliases(
+            claim,
+            (
+                "legal_authority_blocker_refs",
+                "legal_blocker_refs",
+                "lex_legal_authority_blocker_refs",
+                "legal_competence_blocker_refs",
+            ),
+        ),
         "objective_tradeoff_refs": _refs_for_aliases(
             claim,
             ("objective_tradeoff_refs", "objective_refs", "tradeoff_refs"),
@@ -504,6 +673,44 @@ def _entry_from_claim(
             claim,
             ("uncertainty_refs", "residual_uncertainty_refs", "foundry_uncertainty_refs"),
         ),
+        "ir_analytics_refs": _refs_for_aliases(
+            claim,
+            ("ir_analytics_refs", "analytics_refs", "ir_result_refs"),
+        ),
+        "ir_certificate_refs": _refs_for_aliases(
+            claim,
+            ("ir_certificate_refs", "certificate_refs", "dual_certificate_refs"),
+        ),
+        "negative_certificate_refs": _refs_for_aliases(
+            claim,
+            ("negative_certificate_refs", "non_identification_refs"),
+        ),
+        "proof_composability_refs": _refs_for_aliases(
+            claim,
+            ("proof_composability_refs", "composability_certificate_refs"),
+        ),
+        "proof_statuses": _refs_for_aliases(claim, ("proof_statuses", "proof_status")),
+        "proof_composability_statuses": _refs_for_aliases(
+            claim,
+            ("proof_composability_statuses", "proof_composability_status"),
+        ),
+        "baseline_refs": _refs_for_aliases(
+            claim,
+            ("baseline_refs", "comparison_baseline_refs"),
+        ),
+        "alternative_refs": _refs_for_aliases(
+            claim,
+            ("alternative_refs", "comparison_alternative_refs", "named_alternative_refs"),
+        ),
+        "comparison_refs": _refs_for_aliases(
+            claim,
+            (
+                "comparison_refs",
+                "baseline_comparison_refs",
+                "baseline_alternative_comparison_refs",
+            ),
+        ),
+        "conflict_refs": _refs_for_aliases(claim, ("conflict_refs", "conflict_ref")),
         "numerical_semantics_refs": _refs_for_aliases(
             claim,
             ("numerical_semantics_refs", "number_semantics_refs", "unit_semantics_refs"),
@@ -533,11 +740,21 @@ def _entry_from_claim(
     if registry_ref:
         entry["runtime_claim_registry_ref"] = registry_ref
     if isinstance(spine_context, Mapping):
-        for key in ("spine_ref", "evidence_spine_ref", "scenario_evidence_contract_id"):
+        for key in (
+            "spine_ref",
+            "concept_spine_ref",
+            "evidence_spine_ref",
+            "scenario_evidence_contract_id",
+            "producer_handshake_ledger_ref",
+        ):
             value = _text(spine_context.get(key))
             if value:
                 entry[key] = value
+        handshake_refs = _as_refs(spine_context.get("producer_handshake_refs"))
+        if handshake_refs:
+            entry["producer_handshake_refs"] = handshake_refs
     _add_compatibility_fields(entry)
+    _drop_optional_empty_refs(entry)
     return entry
 
 
@@ -574,10 +791,25 @@ def _normalize_entry_row(
         "limitation_refs",
         "accepted_deficit_refs",
         "blocker_refs",
+        "ir_analytics_refs",
+        "ir_certificate_refs",
+        "negative_certificate_refs",
+        "proof_composability_refs",
+        "proof_statuses",
+        "proof_composability_statuses",
+        "uncertainty_refs",
+        "assumption_gate_refs",
+        "legal_authority_record_refs",
+        "legal_authority_blocker_refs",
+        "baseline_refs",
+        "alternative_refs",
+        "comparison_refs",
+        "conflict_refs",
     ):
         if key in row:
             normalized[key] = _as_refs(row.get(key))
     _add_compatibility_fields(normalized)
+    _drop_optional_empty_refs(normalized)
     return normalized
 
 
@@ -598,9 +830,49 @@ def _entry_issues(row: Mapping[str, Any]) -> list[dict[str, Any]]:
                     "policy grounding or publication can pass."
                 ),
             )
-        )
+    )
+    method_output_refs = _as_refs(row.get("method_output_refs"))
+    if any(_requires_method_runtime_evidence(ref) for ref in method_output_refs):
+        if not _as_refs(row.get("assumption_gate_refs")) and not (
+            _as_refs(row.get("ir_certificate_refs"))
+            or _as_refs(row.get("proof_composability_refs"))
+            or _as_refs(row.get("ir_analytics_refs"))
+        ):
+            issues.append(
+                _issue(
+                    code="runtime_claim_registry_assumption_gate_refs_missing",
+                    claim_id=claim_id,
+                    missing_evidence_type="assumption_gate",
+                    message=(
+                        f"Runtime claim registry entry {claim_id} has method output refs "
+                        "but no runtime assumption-gate refs."
+                    ),
+                    next_action=(
+                        "Bind the selected method output to assumption validation or "
+                        "proof-carrying IR certificate refs before claim closure."
+                    ),
+                )
+            )
+        if not _as_refs(row.get("uncertainty_refs")):
+            issues.append(
+                _issue(
+                    code="runtime_claim_registry_uncertainty_refs_missing",
+                    claim_id=claim_id,
+                    missing_evidence_type="uncertainty",
+                    message=(
+                        f"Runtime claim registry entry {claim_id} has method output refs "
+                        "but no uncertainty refs."
+                    ),
+                    next_action=(
+                        "Bind uncertainty envelopes, residual uncertainty, or certified "
+                        "bounds refs before treating the method output as claim support."
+                    ),
+                )
+            )
     rejected_methods = _as_refs(row.get("rejected_method_refs"))
-    generic_selected = [ref for ref in _as_refs(row.get("method_output_refs")) if _is_generic_method_ref(ref)]
+    generic_selected = [
+        ref for ref in _as_refs(row.get("method_output_refs")) if _is_generic_method_ref(ref)
+    ]
     if rejected_methods or generic_selected:
         issues.append(
             _issue(
@@ -615,6 +887,73 @@ def _entry_issues(row: Mapping[str, Any]) -> list[dict[str, Any]]:
                 rejected_method_refs=_dedupe([*rejected_methods, *generic_selected]),
             )
         )
+    claim_use = _text(row.get("claim_use") or row.get("use"))
+    if claim_use == "superiority" and (
+        not _as_refs(row.get("baseline_refs")) or not _as_refs(row.get("alternative_refs"))
+    ):
+        issues.append(
+            _issue(
+                code="runtime_claim_registry_superiority_comparator_refs_missing",
+                claim_id=claim_id,
+                missing_evidence_type="baseline_or_alternative",
+                message=(
+                    "Superiority claims require both baseline_refs and named "
+                    "alternative_refs before admission to the runtime claim registry."
+                ),
+                next_action=(
+                    "Bind no-action/status-quo/business-as-usual baselines and at "
+                    "least one named alternative record from claim decomposition."
+                ),
+            )
+        )
+    if claim_use == "superiority" and not _as_refs(row.get("comparison_refs")):
+        issues.append(
+            _issue(
+                code="runtime_claim_registry_superiority_comparison_refs_missing",
+                claim_id=claim_id,
+                missing_evidence_type="baseline_alternative_comparison",
+                message=(
+                    "Superiority claims require W8.C baseline/alternative comparison "
+                    "records before they can pass semantic binding."
+                ),
+                next_action=(
+                    "Run polisyos.scientist.policy_design.baseline_compiler and bind "
+                    "the emitted comparison_refs to the runtime claim registry entry."
+                ),
+            )
+        )
+    issues.extend(historical_prior_claim_evidence_issues(row, claim_id=claim_id))
+    issues.extend(memory_influence_claim_evidence_issues(row, claim_id=claim_id))
+    return issues
+
+
+def _candidate_firewall_issues(
+    row: Mapping[str, Any],
+    *,
+    hypothesis_ledger: Mapping[str, Any] | None,
+) -> list[dict[str, Any]]:
+    if hypothesis_ledger is None:
+        embedded = row.get("hypothesis_ledger")
+        hypothesis_ledger = embedded if isinstance(embedded, Mapping) else None
+    claim_id = _text(row.get("claim_id"))
+    issues: list[dict[str, Any]] = []
+    slot_payloads = (
+        ("legal_authority", {"selected_norm_refs": _as_refs(row.get("selected_norm_refs"))}),
+        ("data_authority", {"data_refs": _as_refs(row.get("data_refs"))}),
+        ("method_authority", {"method_output_refs": _as_refs(row.get("method_output_refs"))}),
+        ("claim_authority", {"claim_refs": _as_refs(row.get("claim_refs"))}),
+        ("closeout_authority", {"blocker_refs": _as_refs(row.get("blocker_refs"))}),
+    )
+    for authority_slot, payload in slot_payloads:
+        for issue in candidate_firewall_issues_for_payload(
+            payload,
+            hypothesis_ledger=hypothesis_ledger,
+            authority_slots=(authority_slot,),
+            surface="claim_registry",
+        ):
+            issue["claim_id"] = claim_id
+            issue["missing_evidence_type"] = authority_slot
+            issues.append(issue)
     return issues
 
 
@@ -643,6 +982,11 @@ def _add_compatibility_fields(row: dict[str, Any]) -> None:
         )
     selected = dict(row.get("selected_producer_refs") or {})
     _set_selected(selected, "lex", _as_refs(row.get("legal_norm_refs")))
+    _set_selected(
+        selected,
+        "lex_legal_authority",
+        _as_refs(row.get("legal_authority_record_refs")),
+    )
     _set_selected(selected, "fabric", _as_refs(row.get("source_data_refs")))
     _set_selected(selected, "data_forge", _as_refs(row.get("source_data_refs")))
     if _as_refs(row.get("scholar_refs")):
@@ -650,11 +994,41 @@ def _add_compatibility_fields(row: dict[str, Any]) -> None:
     _set_selected(
         selected,
         "foundry",
-        _dedupe([*_as_refs(row.get("method_refs")), *_as_refs(row.get("uncertainty_refs"))]),
+        _dedupe(
+            [
+                *_as_refs(row.get("method_refs")),
+                *_as_refs(row.get("assumption_gate_refs")),
+                *_as_refs(row.get("uncertainty_refs")),
+            ]
+        ),
     )
+    if (
+        _as_refs(row.get("ir_analytics_refs"))
+        or _as_refs(row.get("ir_certificate_refs"))
+        or _as_refs(row.get("negative_certificate_refs"))
+    ):
+        _set_selected(
+            selected,
+            "ir_analytics",
+            _dedupe(
+                [
+                    *_as_refs(row.get("ir_analytics_refs")),
+                    *_as_refs(row.get("method_output_refs")),
+                    *_as_refs(row.get("ir_certificate_refs")),
+                    *_as_refs(row.get("uncertainty_refs")),
+                    *_as_refs(row.get("proof_composability_refs")),
+                ]
+            ),
+        )
     _set_selected(selected, "options_objectives", _as_refs(row.get("objective_tradeoff_refs")))
     if selected:
         row["selected_producer_refs"] = selected
+
+
+def _drop_optional_empty_refs(row: dict[str, Any]) -> None:
+    for key in _OPTIONAL_EMPTY_REF_KEYS:
+        if key in row and not _as_refs(row.get(key)):
+            row.pop(key, None)
 
 
 def _set_selected(
@@ -732,11 +1106,22 @@ def _as_refs(value: object) -> list[str]:
             "claim_ref",
             "norm_id",
             "method_id",
+            "method_ref",
+            "method_output_ref",
+            "method_result_ref",
+            "result_ref",
+            "assumption_gate_ref",
+            "gate_ref",
+            "uncertainty_envelope_ref",
+            "limitation_ref",
             "source_id",
             "candidate_ref",
             "requirement_id",
         ):
             refs.extend(_as_refs(value.get(key)))
+        if not refs:
+            for item in value.values():
+                refs.extend(_as_refs(item))
         return _dedupe(refs)
     if isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray):
         refs: list[str] = []
@@ -839,6 +1224,11 @@ def _is_generic_method_ref(ref: str) -> bool:
     return lowered in {"foundry.execute", "execute", "method.execute"} or lowered.endswith(
         ".execute"
     )
+
+
+def _requires_method_runtime_evidence(ref: str) -> bool:
+    lowered = _text(ref).casefold()
+    return lowered.startswith(("method-output:", "foundry.", "ir.method."))
 
 
 def _runtime_event_ref(

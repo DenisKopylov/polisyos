@@ -1,4 +1,4 @@
-"""Loading-owned compatibility view of the IR schema reflection catalog."""
+"""Loading-owned view of the IR schema reflection catalog."""
 
 from __future__ import annotations
 

@@ -1,0 +1,660 @@
+{
+  "case_id": "w11a_boston_operation_ceasefire_1996",
+  "claim_evidence_annotations": {
+    "annotation_provenance": {
+      "conflicts": [],
+      "disagreement_category": null,
+      "expertise_basis": "W11.A source triage from NIJ and CrimeSolutions sources",
+      "reviewed_at": "2026-05-24",
+      "reviewer_role": "policy_generalist"
+    },
+    "annotation_status": "annotated_w11b",
+    "authority_boundary": {
+      "authoritative_for": [
+        "corpus_annotation",
+        "compilation_truthfulness_reference"
+      ],
+      "may_not_be_used_for": [
+        "claim_authority",
+        "producer_evidence_authority",
+        "legal_authority",
+        "method_validity",
+        "participation_legitimacy",
+        "projection_authority"
+      ],
+      "may_not_use_for": [
+        "claim_authority",
+        "producer_evidence_authority",
+        "legal_authority",
+        "method_validity",
+        "participation_legitimacy",
+        "projection_authority"
+      ]
+    },
+    "authority_level": "research",
+    "capability_reality_label": "implemented",
+    "case_id": "w11a_boston_operation_ceasefire_1996",
+    "case_title": "Boston Operation Ceasefire focused deterrence intervention",
+    "claims": [
+      {
+        "admissibility_label": "limited",
+        "claim_id": "claim:ceasefire-reduced-youth-gun-violence",
+        "claim_type": "causal",
+        "contestability_status": "contested",
+        "evidence_refs": [
+          "evidence:nij-ceasefire-evaluation"
+        ],
+        "legal_refs": [
+          "legal:operation-ceasefire-local-authority"
+        ],
+        "limitation_refs": [
+          "limitation:evaluation-design-limits"
+        ],
+        "method_refs": [
+          "method:one-group-time-series"
+        ],
+        "participation_refs": [
+          "participation:community-and-agency-partnership"
+        ],
+        "risks": [
+          "risk:replication-fidelity"
+        ],
+        "scope": {
+          "geography": [
+            "Boston"
+          ],
+          "institution": [
+            "Boston_Police_Department",
+            "National_Institute_of_Justice",
+            "community_partners"
+          ],
+          "population": [
+            "youth_at_risk_of_gun_violence",
+            "gang_involved_youth"
+          ],
+          "time_period": "1996-05 to 2000 evaluation window"
+        },
+        "text_ref": "text:case:summary",
+        "tradeoffs": [
+          "tradeoff:focused-deterrence-vs-over-enforcement"
+        ]
+      }
+    ],
+    "corpus_phase": "W11.A",
+    "domain": "public_safety",
+    "expected_evidence_families": [
+      "crime_incident_time_series",
+      "implementation_fidelity_records",
+      "community_participation_evidence",
+      "deterrence_mechanism_evidence",
+      "replication_and_external_validity_review"
+    ],
+    "expert_adjudication_status": "adjudicated_w11c",
+    "jurisdiction": "Boston, Massachusetts, United States",
+    "jurisdiction_authority_level": "local",
+    "known_failure_limitation_labels": [
+      "one_group_time_series_limit",
+      "replication_context_dependency",
+      "community_legitimacy_requirement",
+      "enforcement_displacement_risk"
+    ],
+    "known_outcomes_or_failures": [
+      {
+        "finding_id": "outcome:youth-violence-reduction-claim",
+        "source_ref": "outcome:youth-violence-reduction-claim",
+        "would_prior_obligation_have_flagged": false
+      }
+    ],
+    "obligations": [
+      {
+        "generated_from_facets": [
+          "facet:instrument.focused_deterrence",
+          "facet:targeting.high_risk_group",
+          "facet:method.time_series"
+        ],
+        "obligation_id": "obligation:ceasefire-fidelity-and-legitimacy",
+        "required_evidence_family": "implementation_fidelity_and_external_validity_review",
+        "reviewer_notes": "Research use should preserve the evaluation-design limitation and require fidelity evidence before transfer to another city.",
+        "status": "required_for_research_closeout"
+      }
+    ],
+    "pattern_refs": [
+      "P01",
+      "P02",
+      "P03",
+      "P05",
+      "P10",
+      "P13",
+      "P14",
+      "P15"
+    ],
+    "policy_instrument": {
+      "delivery_channel": "multi-agency law enforcement and community intervention",
+      "funding_channel": "local and federal criminal justice resources",
+      "instrument_type": "focused_deterrence_and_problem_oriented_policing"
+    },
+    "policy_time": "1996-05 to 2000 evaluation window",
+    "raw_source_refs": [
+      "https://nij.ojp.gov/library/publications/problem-oriented-policing-deterrence-and-youth-violence-evaluation-bostons",
+      "https://nij.ojp.gov/library/publications/reducing-gun-violence-boston-gun-projects-operation-ceasefire",
+      "https://crimesolutions.ojp.gov/ratedprograms/operation-ceasefire-boston-mass"
+    ],
+    "redacted_source_hashes": [],
+    "references": [
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "text:case:summary",
+        "ref_type": "source",
+        "source_ref": "repo://docs/research/universal-policy-design/outcome-corpus/boston-operation-ceasefire-1996-public-safety.md#summary",
+        "title": "Case summary"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "legal:operation-ceasefire-local-authority",
+        "ref_type": "legal",
+        "source_ref": "https://nij.ojp.gov/library/publications/reducing-gun-violence-boston-gun-projects-operation-ceasefire",
+        "title": "Boston Gun Project Operation Ceasefire report"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "evidence:nij-ceasefire-evaluation",
+        "ref_type": "evidence",
+        "source_ref": "https://nij.ojp.gov/library/publications/problem-oriented-policing-deterrence-and-youth-violence-evaluation-bostons",
+        "title": "NIJ evaluation of Boston Operation Ceasefire"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "method:one-group-time-series",
+        "ref_type": "method",
+        "source_ref": "https://nij.ojp.gov/library/publications/reducing-gun-violence-boston-gun-projects-operation-ceasefire",
+        "title": "One-group time-series evaluation design"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "participation:community-and-agency-partnership",
+        "ref_type": "participation",
+        "source_ref": "https://nij.ojp.gov/library/publications/reducing-gun-violence-boston-gun-projects-operation-ceasefire",
+        "title": "Multi-agency and community partnership model"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "risk:replication-fidelity",
+        "ref_type": "risk",
+        "source_ref": "https://crimesolutions.ojp.gov/ratedprograms/operation-ceasefire-boston-mass",
+        "title": "CrimeSolutions rated program profile and replication context"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "tradeoff:focused-deterrence-vs-over-enforcement",
+        "ref_type": "tradeoff",
+        "source_ref": "https://nij.ojp.gov/library/publications/problem-oriented-policing-deterrence-and-youth-violence-evaluation-bostons",
+        "title": "Focused deterrence and enforcement-legitimacy tradeoff"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "limitation:evaluation-design-limits",
+        "ref_type": "limitation",
+        "source_ref": "https://nij.ojp.gov/library/publications/reducing-gun-violence-boston-gun-projects-operation-ceasefire",
+        "title": "Evaluation design and external validity limitations"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "outcome:youth-violence-reduction-claim",
+        "ref_type": "outcome",
+        "source_ref": "https://crimesolutions.ojp.gov/ratedprograms/operation-ceasefire-boston-mass",
+        "title": "CrimeSolutions outcome profile"
+      }
+    ],
+    "schema_version": "policyos.universal_outcome_corpus.annotation.v1",
+    "sourcing_status": "sourced",
+    "targeting": {
+      "affected_populations": [
+        "gang_involved_youth",
+        "police",
+        "community_organizations",
+        "prosecutors"
+      ],
+      "beneficiary_classes": [
+        "youth_at_risk_of_gun_violence",
+        "neighborhoods_exposed_to_youth_homicide"
+      ],
+      "targeting_type": "high_risk_group_and_illicit_firearms_network_focus"
+    }
+  },
+  "compilation_intent_text": "Boston Operation Ceasefire focused deterrence intervention. Design a multi_year municipal service and enforcement campaign for residents facing risk, with budget support, community monitoring, and annual review.",
+  "concept_spine_refs": {
+    "canonical_concept_refs": [
+      "concept://w11/w11a_boston_operation_ceasefire_1996/universal-policy-grammar"
+    ],
+    "concept_spine_ref": "concept-spine://w11/w11a_boston_operation_ceasefire_1996",
+    "facet_concept_refs": {
+      "authority_type": [
+        "concept://w11/w11a_boston_operation_ceasefire_1996/authority_type"
+      ],
+      "delivery_channel": [
+        "concept://w11/w11a_boston_operation_ceasefire_1996/delivery_channel"
+      ],
+      "funding_channel": [
+        "concept://w11/w11a_boston_operation_ceasefire_1996/funding_channel"
+      ],
+      "geography_predicate": [
+        "concept://w11/w11a_boston_operation_ceasefire_1996/geography_predicate"
+      ],
+      "instrument_type": [
+        "concept://w11/w11a_boston_operation_ceasefire_1996/instrument_type"
+      ],
+      "method_need": [
+        "concept://w11/w11a_boston_operation_ceasefire_1996/method_need"
+      ],
+      "outcome_channel": [
+        "concept://w11/w11a_boston_operation_ceasefire_1996/outcome_channel"
+      ],
+      "population_predicate": [
+        "concept://w11/w11a_boston_operation_ceasefire_1996/population_predicate"
+      ],
+      "risk_facet": [
+        "concept://w11/w11a_boston_operation_ceasefire_1996/risk_facet"
+      ],
+      "targeting_type": [
+        "concept://w11/w11a_boston_operation_ceasefire_1996/targeting_type"
+      ],
+      "time_predicate": [
+        "concept://w11/w11a_boston_operation_ceasefire_1996/time_predicate"
+      ]
+    },
+    "jurisdiction_spine_ref": "jurisdiction-spine://w11/w11a_boston_operation_ceasefire_1996"
+  },
+  "critic_ensemble": {
+    "authority_boundary": {
+      "authoritative_for": [
+        "critic_diversity_measurement"
+      ],
+      "may_not_use_for": [
+        "claim_authority",
+        "producer_evidence_authority",
+        "legal_authority",
+        "method_validity",
+        "projection_authority"
+      ]
+    },
+    "run_id": "run-w11a_boston_operation_ceasefire_1996",
+    "verdicts": [
+      {
+        "envelope": {
+          "critic_role": "legal",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_legal_basis"
+        },
+        "failure_modes": [
+          "authority_boundary:one_group_time_series_limit"
+        ],
+        "message": "legal critic flags one_group_time_series_limit for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_boston_operation_ceasefire_1996"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "fiscal",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_fiscal_basis"
+        },
+        "failure_modes": [
+          "budget_feasibility:replication_context_dependency"
+        ],
+        "message": "fiscal critic flags replication_context_dependency for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_boston_operation_ceasefire_1996"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "equity",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_equity_basis"
+        },
+        "failure_modes": [
+          "distributional_effect:community_legitimacy_requirement"
+        ],
+        "message": "equity critic flags community_legitimacy_requirement for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_boston_operation_ceasefire_1996"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "data",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_data_basis"
+        },
+        "failure_modes": [
+          "source_lineage:enforcement_displacement_risk"
+        ],
+        "message": "data critic flags enforcement_displacement_risk for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_boston_operation_ceasefire_1996"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "implementation",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_implementation_basis"
+        },
+        "failure_modes": [
+          "delivery_capacity:one_group_time_series_limit"
+        ],
+        "message": "implementation critic flags one_group_time_series_limit for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_boston_operation_ceasefire_1996"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "affected_person",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_affected_person_basis"
+        },
+        "failure_modes": [
+          "participation_voice:replication_context_dependency"
+        ],
+        "message": "affected_person critic flags replication_context_dependency for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_boston_operation_ceasefire_1996"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "adversarial",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_adversarial_basis"
+        },
+        "failure_modes": [
+          "failure_probe:community_legitimacy_requirement"
+        ],
+        "message": "adversarial critic flags community_legitimacy_requirement for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_boston_operation_ceasefire_1996"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "monitoring",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_monitoring_basis"
+        },
+        "failure_modes": [
+          "lifecycle_monitoring:enforcement_displacement_risk"
+        ],
+        "message": "monitoring critic flags enforcement_displacement_risk for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_boston_operation_ceasefire_1996"
+        ],
+        "verdict": "contest"
+      }
+    ]
+  },
+  "domain": "public_safety",
+  "expected_adapter_bindings": {
+    "bindings": [
+      {
+        "adapter": "fabric",
+        "binding_id": "bind-w11a_boston_operation_ceasefire_1996-selected",
+        "reason_code": "annotation_data_family_selected",
+        "requirement_id": "data-w11a_boston_operation_ceasefire_1996",
+        "status": "selected"
+      },
+      {
+        "adapter": "scholar",
+        "binding_id": "bind-w11a_boston_operation_ceasefire_1996-rejected",
+        "reason_code": "generic_or_transfer_mismatch_rejected",
+        "requirement_id": "scholar-w11a_boston_operation_ceasefire_1996",
+        "status": "rejected"
+      },
+      {
+        "adapter": "foundry",
+        "binding_id": "bind-w11a_boston_operation_ceasefire_1996-blocked",
+        "reason_code": "method_or_counterfactual_precondition_missing",
+        "requirement_id": "method-w11a_boston_operation_ceasefire_1996",
+        "status": "blocked"
+      }
+    ]
+  },
+  "expected_claim_families": {
+    "families": [
+      {
+        "claim_family": "causal",
+        "claim_id": "claim:ceasefire-reduced-youth-gun-violence",
+        "expected_support_status": "limited"
+      }
+    ]
+  },
+  "expected_closeout_states": {
+    "states": [
+      {
+        "authority_level": "research",
+        "required_surface_refs": [
+          "audit://w11d/w11a_boston_operation_ceasefire_1996/research"
+        ],
+        "state": "publishable"
+      },
+      {
+        "authority_level": "governed",
+        "limitation_refs": [
+          "limitation://w11d/w11a_boston_operation_ceasefire_1996"
+        ],
+        "required_surface_refs": [
+          "audit://w11d/w11a_boston_operation_ceasefire_1996/governed"
+        ],
+        "state": "limited"
+      },
+      {
+        "authority_level": "production",
+        "limitation_refs": [
+          "limitation://w11d/w11a_boston_operation_ceasefire_1996"
+        ],
+        "required_surface_refs": [
+          "audit://w11d/w11a_boston_operation_ceasefire_1996/production"
+        ],
+        "state": "limited"
+      }
+    ]
+  },
+  "expected_facets": {
+    "facets": [
+      {
+        "concept_ref": "concept://w11d/w11a_boston_operation_ceasefire_1996/instrument",
+        "expected_value": "focused_deterrence_and_problem_oriented_policing",
+        "facet_name": "instrument_type"
+      },
+      {
+        "concept_ref": "concept://w11d/w11a_boston_operation_ceasefire_1996/targeting",
+        "expected_value": "high_risk_group_and_illicit_firearms_network_focus",
+        "facet_name": "targeting_type"
+      },
+      {
+        "concept_ref": "concept://w11d/w11a_boston_operation_ceasefire_1996/delivery",
+        "expected_value": "multi-agency law enforcement and community intervention",
+        "facet_name": "delivery_channel"
+      }
+    ]
+  },
+  "expected_obligation_graph": {
+    "frontier": [
+      {
+        "claim_refs": [
+          "claim:ceasefire-reduced-youth-gun-violence"
+        ],
+        "family": "data",
+        "obligation_id": "obligation:ceasefire-fidelity-and-legitimacy",
+        "priority": "required_for_research_closeout",
+        "source_class": "governed_rule"
+      }
+    ]
+  },
+  "expected_projection_truthfulness": {
+    "projections": [
+      {
+        "audience": "public",
+        "may_not_claim": [
+          "fixture expectation is runtime authority"
+        ],
+        "must_disclose_refs": [
+          "annotation://w11d/w11a_boston_operation_ceasefire_1996"
+        ],
+        "truthfulness": "limitation_required"
+      }
+    ]
+  },
+  "expected_requirement_specs": {
+    "families": {
+      "data": [
+        {
+          "claim_id": "claim:ceasefire-reduced-youth-gun-violence",
+          "requirement_id": "data-w11a_boston_operation_ceasefire_1996",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/boston-operation-ceasefire-1996-public-safety.md#data"
+        }
+      ],
+      "legal": [
+        {
+          "claim_id": "claim:ceasefire-reduced-youth-gun-violence",
+          "requirement_id": "legal-w11a_boston_operation_ceasefire_1996",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/boston-operation-ceasefire-1996-public-safety.md#legal"
+        }
+      ],
+      "method": [
+        {
+          "claim_id": "claim:ceasefire-reduced-youth-gun-violence",
+          "requirement_id": "method-w11a_boston_operation_ceasefire_1996",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/boston-operation-ceasefire-1996-public-safety.md#method"
+        }
+      ],
+      "participation": [
+        {
+          "claim_id": "claim:ceasefire-reduced-youth-gun-violence",
+          "requirement_id": "participation-w11a_boston_operation_ceasefire_1996",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/boston-operation-ceasefire-1996-public-safety.md#participation"
+        }
+      ],
+      "scholar": [
+        {
+          "claim_id": "claim:ceasefire-reduced-youth-gun-violence",
+          "requirement_id": "scholar-w11a_boston_operation_ceasefire_1996",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/boston-operation-ceasefire-1996-public-safety.md#scholar"
+        }
+      ]
+    }
+  },
+  "expert_adjudication": {
+    "case_label": "limitation_required",
+    "claim_labels": [
+      {
+        "claim_id": "claim:ceasefire-reduced-youth-gun-violence",
+        "dimension_id": "compilation_truthfulness",
+        "failure_mode": "one_group_time_series_limit",
+        "label": "limitation_required",
+        "required_surface_change": "Expose annotation-derived limitation, contestation, or blocker state.",
+        "status_should_have_been": "publish_with_limitation",
+        "why_structural_checks_missed_it": "W11.D fixture preserves annotation semantics for truthfulness comparison."
+      }
+    ],
+    "reviewer_topology_ref": "reviewer-topology://w11d/public/w11a_boston_operation_ceasefire_1996"
+  },
+  "input_intent_ref": "intent-w11a_boston_operation_ceasefire_1996",
+  "intent": {
+    "authority_levels": [
+      "research",
+      "governed",
+      "production"
+    ],
+    "instrument_type": "focused_deterrence_and_problem_oriented_policing",
+    "intent_id": "intent-w11a_boston_operation_ceasefire_1996",
+    "jurisdiction": "Boston, Massachusetts, United States",
+    "metadata": {
+      "w11a_authority_level": "research"
+    },
+    "policy_time": "1996-05 to 2000 evaluation window",
+    "target_population": "youth_at_risk_of_gun_violence, neighborhoods_exposed_to_youth_homicide",
+    "text": "Boston Operation Ceasefire focused deterrence intervention"
+  },
+  "metadata": {
+    "pattern_refs": [
+      "P01",
+      "P02",
+      "P03",
+      "P05",
+      "P10",
+      "P13",
+      "P14",
+      "P15"
+    ],
+    "reuse_classification": "wire_existing",
+    "source_annotation_schema": "policyos.universal_outcome_corpus.annotation.v1"
+  },
+  "producer_pipeline": {
+    "producers": [
+      {
+        "consumed_concept_refs": [
+          "concept://w11/w11a_boston_operation_ceasefire_1996/universal-policy-grammar"
+        ],
+        "consumed_requirement_refs": [
+          "data-w11a_boston_operation_ceasefire_1996"
+        ],
+        "expected_output_families": [
+          "fabric.source_contract_binding.v1"
+        ],
+        "first_pass_bindings": [
+          {
+            "binding_id": "label.fabric.w11a_boston_operation_ceasefire_1996",
+            "binding_kind": "label",
+            "concept_ref": "concept://w11/w11a_boston_operation_ceasefire_1996/universal-policy-grammar",
+            "disposition": "context_only",
+            "label": "fabric context for w11a_boston_operation_ceasefire_1996"
+          }
+        ],
+        "producer_component": "fabric",
+        "requested_deadline_s": 5.0,
+        "second_pass_bindings": [
+          {
+            "artifact_ref": "source://w11/w11a_boston_operation_ceasefire_1996/fabric",
+            "binding_id": "binding.fabric.w11a_boston_operation_ceasefire_1996",
+            "binding_kind": "dataset",
+            "concept_ref": "concept://w11/w11a_boston_operation_ceasefire_1996/universal-policy-grammar",
+            "disposition": "selected",
+            "requirement_ref": "data-w11a_boston_operation_ceasefire_1996",
+            "time_role": "observation_time"
+          }
+        ]
+      }
+    ]
+  },
+  "redacted_source_hash": "sha256:d377bda83eddb21e36a3d1d6df7d18d7d9e3fdad1d9b516b3827c6d5cbb7f4e7",
+  "schema_version": "policyos.universal_corpus_fixture.v1",
+  "source_case_ref": "docs/research/universal-policy-design/outcome-corpus/boston-operation-ceasefire-1996-public-safety.md",
+  "split": "public",
+  "title": "Boston Operation Ceasefire focused deterrence intervention"
+}

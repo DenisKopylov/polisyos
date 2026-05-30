@@ -45,19 +45,19 @@ from polisyos.ir.observation.causal_execution import (
     TemporalDTRTask,
 )
 from polisyos.ir.observation.contracts import IdentificationMode, StrategicResponseChannel
-from polisyos.ir.refs import EffectTrajectoryBundleRef
+from polisyos.ir.registry.refs import EffectTrajectoryBundleRef
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.lex.intervention_artifacts import (
     LexPolicyBundleInput,
     LexProvisionMappingRegistry,
 )
+from polisyos.scientist.methods.search.controller import SearchIteration, SearchResult, SearchStatus
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 from polisyos.scientist.policy_design.search import (
     HierarchicalSearchConfig,
     HierarchicalSearchCoordinator,
     PolicySearchLevel,
 )
-from polisyos.scientist.methods.search.controller import SearchIteration, SearchResult, SearchStatus
 
 if TYPE_CHECKING:
     from polisyos.ir.artifacts import ArtifactStore, InputRef

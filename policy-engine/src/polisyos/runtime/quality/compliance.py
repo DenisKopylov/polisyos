@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
-from polisyos.data_forge.compliance import normalize_privacy_compliance_report
+from polisyos.data_forge.read_api import normalize_privacy_compliance_report
 
 PRIVACY_COMPLIANCE_REPORT_KEY = "privacy_compliance_report"
 PRIVACY_COMPLIANCE_REPORT_FILENAME = "privacy_compliance_report.json"

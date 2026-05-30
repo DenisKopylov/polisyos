@@ -45,7 +45,6 @@ from polisyos.fabric.world.materialize import (  # noqa: E402
     query_world_policy_impact,
     query_world_source_overlap,
 )
-
 from tools.quality.validation.fabric_source_contracts import (  # noqa: E402
     build_source_contracts,
 )

@@ -245,13 +245,14 @@ def test_phase34_4_main_writes_canonical_extraction_measurement_reports(
     tmp_path: Path,
 ) -> None:
     output_root = tmp_path / "diagnostics"
+    wave33_dir = _write_phase34_2_wave33(tmp_path)
 
     exit_code = diag34_4.main(
         [
             "--repo-root",
             str(REPO_ROOT),
             "--wave33-dir",
-            str(_actual_wave33_dir()),
+            str(wave33_dir),
             "--output-root",
             str(output_root),
         ]
@@ -294,13 +295,14 @@ def test_phase34_5_main_writes_canonical_operational_recovery_reports(
     tmp_path: Path,
 ) -> None:
     output_root = tmp_path / "diagnostics"
+    wave33_dir = _write_phase34_2_wave33(tmp_path)
 
     exit_code = diag34_5.main(
         [
             "--repo-root",
             str(REPO_ROOT),
             "--wave33-dir",
-            str(_actual_wave33_dir()),
+            str(wave33_dir),
             "--output-root",
             str(output_root),
         ]
@@ -343,13 +345,14 @@ def test_phase34_6_main_reproduces_canonical_human_facing_packet(
     tmp_path: Path,
 ) -> None:
     output_root = tmp_path / "diagnostics"
+    wave33_dir = _write_phase34_2_wave33(tmp_path)
 
     exit_code = diag34_6.main(
         [
             "--repo-root",
             str(REPO_ROOT),
             "--wave33-dir",
-            str(_actual_wave33_dir()),
+            str(wave33_dir),
             "--output-root",
             str(output_root),
         ]
@@ -765,10 +768,6 @@ def _write_json(path: Path, payload: object) -> None:
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
 
-def _actual_wave33_dir() -> Path:
-    return REPO_ROOT / "_build" / "policy-design-case" / "rebaseline" / "wave-33"
-
-
 def _assert_canonical_wave34_detail(
     payload: dict[str, object],
     *,
@@ -799,7 +798,7 @@ def _assert_canonical_wave34_detail(
 
 def _write_complete_wave34_packet(output_root: Path) -> None:
     fragment_dir = output_root / "pass2" / "backlog_fragments"
-    wave33_dir = _actual_wave33_dir()
+    wave33_dir = _write_phase34_2_wave33(output_root.parent)
     assert (
         diag.main(
             [

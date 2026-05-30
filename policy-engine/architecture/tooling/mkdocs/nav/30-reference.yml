@@ -102,6 +102,7 @@
           - Production Data Quality: reference/runtime/production-data-quality.md
           - Production Resilience Matrix: reference/runtime/production-resilience-matrix.md
           - Deterministic Replay: reference/runtime/deterministic-replay.md
+          - Run-Cost Enforcement Gate: reference/runtime/run-cost-enforcement-gate.md
           - Human Review Calibration: reference/runtime/human-review-calibration.md
           - Privacy Compliance Evidence: reference/runtime/privacy-compliance-evidence.md
           - Provider Model Quality: reference/runtime/provider-model-quality.md
@@ -118,6 +119,12 @@
       - Schemas: reference/schemas.md
       - Public Surface: reference/public-surface.md
       - Generated Artifacts: reference/generated-artifacts.md
+      - Policy Design Case Failure Patterns: reference/policy-design-case-failure-patterns.md
+      - Policy Design Case Capability Ratchet: reference/policy-design-case-capability-ratchet.md
+      - Policy Design Case Source Ownership: reference/policy-design-case-source-ownership.md
+      - Policy Design Case Evidence Paths: reference/policy-design-case-evidence-paths.md
+      - Policy Design Case Structural ADR Registry: reference/policy-design-case-structural-adr-registry.md
+      - Policy Design Case Operator Guide: reference/policy-design-case-operator-guide.md
       - Repository Topology: reference/repository-topology.md
       - Data Lake Policy: reference/data-lake-policy.md
       - Local Runtime State: reference/local-runtime-state.md

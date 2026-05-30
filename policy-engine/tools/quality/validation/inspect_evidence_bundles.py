@@ -15,6 +15,9 @@ from tools.lib.imports import ensure_repo_import_roots
 
 REPO_ROOT, _SRC_ROOT = ensure_repo_import_roots(__file__)
 
+from polisyos.runtime.quality.authority import (  # noqa: E402
+    authority_envelope_ownership_issues,
+)
 from polisyos.runtime.quality.concept_spine import (  # noqa: E402
     build_policy_design_concept_spine_boundary_record,
 )
@@ -22,8 +25,9 @@ from polisyos.runtime.quality.data_forge_binding import (  # noqa: E402
     DATA_FORGE_SNAPSHOT_BINDING_FILE,
     normalize_data_forge_snapshot_binding_report,
 )
-from polisyos.runtime.quality.authority import (  # noqa: E402
-    authority_envelope_ownership_issues,
+from polisyos.runtime.quality.nl_replay_orchestration import (  # noqa: E402
+    NL_REPLAY_ORCHESTRATION_FILE_REF,
+    NL_REPLAY_ORCHESTRATION_SCHEMA_VERSION,
 )
 from polisyos.runtime.quality.policy_design_jurisdiction_spine import (  # noqa: E402
     build_policy_design_jurisdiction_spine_boundary_record,
@@ -200,6 +204,20 @@ REQUIRED_COMPONENTS: tuple[ComponentSpec, ...] = (
         "policy_design_jurisdiction_spine_boundary",
         ("quality_evidence/policy_design_case.json#/jurisdiction_spine",),
         lambda _root, payloads: _jurisdiction_spine_boundary_status(payloads) == "pass",
+    ),
+    (
+        "runtime_orchestration_continuity",
+        (NL_REPLAY_ORCHESTRATION_FILE_REF,),
+        lambda root, _payloads: _json_file_has_schema(
+            root,
+            NL_REPLAY_ORCHESTRATION_FILE_REF,
+            NL_REPLAY_ORCHESTRATION_SCHEMA_VERSION,
+        )
+        and _status_from_payload(
+            _load_json_or_none(root / NL_REPLAY_ORCHESTRATION_FILE_REF),
+            "status",
+        )
+        == "pass",
     ),
     (
         "assurance_case",
@@ -624,7 +642,10 @@ def _residual_spine_boundary_findings(
             issues = [
                 {
                     "code": f"{boundary.get('record_id') or 'residual_boundary'}_invalid",
-                    "message": "Residual evidence boundary did not pass and emitted no typed issue.",
+                    "message": (
+                        "Residual evidence boundary did not pass and emitted no typed "
+                        "issue."
+                    ),
                 }
             ]
         for issue in issues:

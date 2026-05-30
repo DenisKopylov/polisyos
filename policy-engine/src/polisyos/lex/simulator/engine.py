@@ -16,7 +16,7 @@ from polisyos.core.governance.passes.base import PassContext
 from polisyos.core.governance.passes.legal_pass import LegalPass
 from polisyos.core.governance.passes.safety_pass import SafetyPass
 from polisyos.core.governance.profiles import ValidationProfile
-from polisyos.ir.norm_pack import NormPack, RuleType
+from polisyos.ir.loading.norm_pack import NormPack, RuleType
 from polisyos.ir.world.ids import stable_world_id_from_canon
 
 from .diff import NormChangeType, NormDiff, diff_norm_packs

@@ -9,10 +9,16 @@ from polisyos.runtime.quality.assurance_case import (
     build_policy_design_jurisdiction_spine,
 )
 from polisyos.runtime.quality.attestation import build_required_production_attestations
+from polisyos.runtime.quality.calibration_ledger import (
+    CalibrationBehaviorPolicy,
+    CalibrationHistoryPolicy,
+    build_calibration_ledger,
+)
 from polisyos.runtime.quality.diagnostic_slos import (
     build_diagnostic_slo_report,
     pass_observations_for_all_diagnostic_slos,
 )
+from polisyos.runtime.quality.human_review import build_human_review_calibration_report
 from polisyos.runtime.quality.pass1b_hardening import (
     PASS1B_PDD_REQUIRED_SURFACES,
     PASS1B_REQUIRED_CASE_BINDING_FIELDS,
@@ -49,6 +55,51 @@ from tests._helpers.hds_quality import (
 
 def _sha(char: str) -> str:
     return "sha256:" + char * 64
+
+
+def _calibration_scope() -> dict[str, str]:
+    return {
+        "domain": "msme_credit",
+        "method_family": "causal_effect",
+        "jurisdiction": "UA",
+        "data_class": "admin_panel",
+        "evidence_mode": "claim_bound_runtime",
+        "authority_level": "publication",
+        "provider": "provider.alpha",
+        "claim_family": "recommendation",
+    }
+
+
+def _calibration_entry(index: int, *, false_pass: bool) -> dict[str, object]:
+    return {
+        "ledger_entry_id": f"cal-score-{index}",
+        "source_case_id": f"case-score-{index}",
+        "run_id": f"run-score-{index}",
+        "claim_id": f"claim-score-{index}",
+        "event_kind": "claim_refuted" if false_pass else "claim_confirmed",
+        **_calibration_scope(),
+        "group_keys": ["population:msme", "geography:kyiv-oblast"],
+        "predicted_object": {"claim_status": "publishable", "probability": 0.86},
+        "realized_object": {
+            "claim_status": "refuted" if false_pass else "confirmed",
+            "resolved_at": "2026-05-20T00:00:00+00:00",
+        },
+        "calibration_metrics": {
+            "nominal_coverage": 0.9,
+            "empirical_coverage": 0.76 if false_pass else 0.91,
+            "false_pass": false_pass,
+        },
+        "decision_metrics": {
+            "passed_gate": True,
+            "material_failure": false_pass,
+            "false_pass": false_pass,
+            "error_opportunity": True,
+        },
+        "evidence_portfolio_signature": "legal_anchor+admin_data+foundry_causal",
+        "exchangeability_signature": "scope:msme-credit/UA/admin-panel/causal/v1",
+        "status": "active",
+        "provenance_refs": [f"event://lifecycle/case-score-{index}"],
+    }
 
 
 def _blocking_codes(scorecard: dict[str, object]) -> set[str]:
@@ -328,22 +379,77 @@ def _pass1b_surface_binding(
 
 def _complete_data_forge_snapshot_binding_report() -> dict[str, object]:
     def binding(role: str, surface: str, char: str) -> dict[str, object]:
+        snapshot_ref = _sha(char)
         return {
             "role": role,
             "snapshot_id": f"{role}-snapshot-R_quality",
-            "snapshot_ref": _sha(char),
+            "snapshot_ref": snapshot_ref,
+            "release_id": f"release-{role}-R_quality",
+            "release_manifest_ref": "cas://sha256/" + char * 64,
             "manifest_ref": "cas://sha256/" + char * 64,
-            "manifest_artifact_id": _sha(char),
-            "artifact_ids": [_sha(char), _sha("f")],
+            "manifest_artifact_id": snapshot_ref,
+            "artifact_ids": [snapshot_ref, _sha("f")],
+            "merkle_root": char * 64,
+            "data_hash": snapshot_ref,
             "read_api_surface": surface,
             "read_api_module": f"polisyos.data_forge.read_api.{surface}",
+            "read_api_identity": f"{surface}@{role}-snapshot-R_quality",
+            "runtime_event_ref": f"event://data-forge/{role}/R_quality",
             "published_at": "2026-05-15T00:00:00+00:00",
             "freshness_ttl_seconds": 60 * 60 * 24 * 3650,
+            "corpus_id": f"corpus-{role}",
+            "provenance_manifest_ref": "cas://sha256/" + "e" * 64,
+            "creation_time": "2026-05-15T00:00:00+00:00",
+            "lineage_refs": [
+                "cas://sha256/" + char * 64,
+                f"event://data-forge/{role}/ingest",
+            ],
+            "builder_revision": "git:policyos-w9c-fixture",
+            "transform_lineage": [
+                {
+                    "step_id": f"{role}.normalize",
+                    "operation": "normalize",
+                    "input_refs": ["cas://sha256/" + char * 64],
+                    "output_refs": [snapshot_ref],
+                    "code_ref": "git:policyos-w9c-fixture",
+                    "config_ref": "cas://sha256/" + "e" * 64,
+                }
+            ],
             "quality_gates": [
                 {
                     "name": f"{role}_publish_quality",
                     "status": "pass",
                     "artifact_id": _sha(char),
+                }
+            ],
+            "prov": {
+                "entity": f"data-forge:{role}:snapshot",
+                "activity": f"data-forge:{role}:publish",
+                "agent": "team-data-forge",
+            },
+            "openlineage": {
+                "namespace": "polisyos.data_forge",
+                "job": {"name": f"{role}.publish"},
+                "run": {"runId": f"run-{role}-R_quality"},
+                "outputs": [
+                    {
+                        "name": f"{role}-snapshot-R_quality",
+                        "facets": {
+                            "dataHash": {"sha256": char * 64},
+                            "merkleRoot": {"sha256": char * 64},
+                        },
+                    }
+                ],
+            },
+            "claim_requirement_bindings": [
+                {
+                    "claim_id": f"claim-{role}",
+                    "requirement_id": f"req-{role}-data",
+                    "requirement_kind": "data_source",
+                    "authority_level": "closeout",
+                    "time_role": "publication_time",
+                    "supported_by": [snapshot_ref],
+                    "lifecycle_dependency_refs": [f"event://data-forge/{role}/R_quality"],
                 }
             ],
         }
@@ -925,7 +1031,191 @@ def test_runtime_quality_scorecard_builds_stage_scores_and_evidence_refs() -> No
         "warning_count": 0,
         "reasons": [],
     }
+
+
+def test_scorecard_ingests_can_i_closeout_blockers_without_minting_closeout() -> None:
+    quality_evidence = normalize_quality_evidence(
+        {
+            **_complete_quality_evidence(),
+            "can_i_closeout": {
+                "schema_version": "policyos.runtime.can_i_closeout.integration.v1",
+                "status": "blocked",
+                "can_closeout": False,
+                "verdict": "cannot_closeout",
+                "authority_envelope": {
+                    "authoritative_for": ["closeout_verdict"],
+                    "may_not_use_for": ["scorecard_authority"],
+                },
+                "blockers": [
+                    {
+                        "upstream_issue_code": "semantic_binding_claim_missing",
+                        "message": "Major claim lacks semantic closure.",
+                        "source_module_id": "semantic_binding",
+                        "source_reader_contract": "polisyos.runtime.quality.semantic_binding",
+                        "source_producer": "polisyos.runtime.quality.semantic_binding",
+                        "claim_id": "rec_1",
+                    }
+                ],
+            },
+        },
+        canary_kind="production",
+    )
+
+    scorecard = build_quality_scorecard(
+        canary_kind="production",
+        job_id="job-quality",
+        run_id="R_quality",
+        execution_status="completed",
+        job_payload=_complete_job_payload(),
+        run_payload=None,
+        provider_preflight={"status": "passed"},
+        quality_evidence=quality_evidence,
+    )
+
+    gate = _failure_by_code(scorecard, "can_i_closeout_blocked")
+    assert scorecard["quality_status"] == "fail"
+    assert gate["gate"] == "can_i_closeout_verdict"
+    assert gate["layer"] == "closeout_reader"
+    assert gate["source_module_id"] == "semantic_binding"
+    assert gate["source_reader_contract"] == "polisyos.runtime.quality.semantic_binding"
     assert scorecard["warnings"] == []
+
+
+def test_review_effectiveness_telemetry_cannot_block_without_mature_policy() -> None:
+    quality_evidence = copy.deepcopy(_complete_quality_evidence())
+    quality_evidence["human_review_calibration"] = build_human_review_calibration_report(
+        review_events=[
+            {
+                "review_id": "review-fast-override",
+                "flow": "override",
+                "outcome": "override",
+                "expected_outcome": "reject",
+                "reviewer_identity": "producer@example.test",
+                "producer_identity": "producer@example.test",
+                "reviewer_independent": False,
+                "separation_of_duty_attested": False,
+                "time_spent_seconds": 20,
+                "dissent": False,
+                "change_requests": [],
+                "approved_without_change": True,
+                "decision_ref": _sha("6"),
+                "completed_at": "2026-05-13T10:00:00+00:00",
+                "override_correct": False,
+            }
+        ],
+        run_id="R_quality",
+        job_id="job-quality",
+        report_ref=_sha("0"),
+    )
+    quality_evidence["human_review_calibration"]["authority_envelope"] = authority_envelope_for(
+        report_key="human_review_calibration",
+        ref_key="human_review_calibration_report_ref",
+        ref_value=_sha("0"),
+    )
+
+    scorecard = build_quality_scorecard(
+        canary_kind="production",
+        job_id="job-quality",
+        run_id="R_quality",
+        execution_status="completed",
+        job_payload=_complete_job_payload(),
+        run_payload=None,
+        provider_preflight={"status": "passed"},
+        quality_evidence=normalize_quality_evidence(
+            quality_evidence,
+            canary_kind="production",
+        ),
+    )
+
+    assert scorecard["quality_status"] == "pass"
+    assert "human_review_calibration_present" not in _blocking_codes(scorecard)
+    assert "serious_warn_scorecard_blocks_closeout" not in _blocking_codes(scorecard)
+    assert scorecard["approval_eligibility"]["eligible"] is True
+
+
+def test_scorecard_consumes_calibration_behavior_as_future_readiness_cap() -> None:
+    quality_evidence = _complete_quality_evidence()
+    quality_evidence["calibration_ledger"] = build_calibration_ledger(
+        entries=[
+            _calibration_entry(index, false_pass=index <= 30)
+            for index in range(1, 211)
+        ],
+        target_scope=_calibration_scope(),
+        target_run_id="R_quality",
+        target_claim_id="rec_1",
+        policy=CalibrationHistoryPolicy(
+            maturity="mature_governed",
+            blocking_enabled=True,
+            policy_ref=_sha("p"),
+            longitudinal_evidence_ref=_sha("l"),
+        ),
+        ledger_ref=_sha("c"),
+    )
+    quality_evidence["calibration_behavior_policy"] = CalibrationBehaviorPolicy(
+        mature_gate_enabled=True,
+        governed_config_ref=_sha("g"),
+    )
+
+    scorecard = build_quality_scorecard(
+        canary_kind="production",
+        job_id="job-quality",
+        run_id="R_quality",
+        execution_status="completed",
+        job_payload=_complete_job_payload(),
+        run_payload=None,
+        provider_preflight={"status": "passed"},
+        quality_evidence=normalize_quality_evidence(
+            quality_evidence,
+            canary_kind="production",
+        ),
+    )
+
+    failure = _failure_by_code(scorecard, "calibration_mature_history_scoped_block")
+    assert scorecard["quality_status"] == "fail"
+    assert failure["readiness_cap"] == "below_publication"
+    assert (
+        failure["attempted_authority_upgrade"]
+        == "input_payload_to_scorecard_or_readiness_authority"
+    )
+    assert scorecard["approval_eligibility"]["eligible"] is False
+    assert "calibration_mature_history_scoped_block" in scorecard["approval_eligibility"][
+        "reasons"
+    ]
+
+    cap_rows = [
+        row
+        for row in scorecard["deficit_crosswalk"]
+        if row["deficit_family"] == "longitudinal_calibration"
+    ]
+    assert cap_rows == [
+        {
+            "schema_version": "policyos.runtime.deficit_crosswalk.v1",
+            "deficit_id": "calibration:historical-prior:R-quality:rec-1",
+            "status_entry_id": "deficit:0:calibration:historical-prior:R-quality:rec-1",
+            "deficit_family": "longitudinal_calibration",
+            "deficit_code": "scoped_block",
+            "claim_ids": ["rec_1"],
+            "authority_level": "publication",
+            "audience_scope": "public",
+            "disposition": "hard_block",
+            "severity": "critical",
+            "blockingness": "hard_blocking",
+            "publication_effect": "publication_blocked",
+            "review_action": "hard_block",
+            "closeout_effect": "closeout_blocked",
+            "readiness_cap": "below_publication",
+            "max_audience": "below_publication",
+            "owner": "team-runtime-quality",
+            "ttl_expires_at": cap_rows[0]["ttl_expires_at"],
+            "runtime_event_ref": "event://runtime/calibration-behavior/historical-prior-r-quality-rec-1",
+            "evidence_ref": _sha("c"),
+            "public_limitation_note": (
+                "Longitudinal calibration history may cap future readiness, but "
+                "cannot satisfy or refute current-run claim evidence."
+            ),
+            "review_refs": ["cal-score-1"],
+        }
+    ]
 
 
 def test_scorecard_emits_first_failing_producer_owner_map() -> None:
@@ -1050,6 +1340,49 @@ def test_scorecard_semantic_failures_match_closed_producer_ledger_status() -> No
     assert {
         issue["code"] for issue in closed_ledger["issues"]
     } <= _blocking_codes(scorecard)
+
+
+def test_scorecard_blocks_unverified_hypothesis_candidate_for_dashboard_surfaces() -> None:
+    quality_evidence = _complete_quality_evidence()
+    quality_evidence["hypothesis_ledger"] = {
+        "schema_version": "policyos.runtime.hypothesis_ledger.v1",
+        "run_id": "R_quality",
+        "job_id": "job-quality",
+        "entries": [
+            {
+                "candidate_id": "hypothesis-candidate:public-claim-1",
+                "candidate_ref": "hypothesis-candidate:public-claim-1",
+                "source_class": "llm_drafter",
+                "candidate_kind": "dashboard_summary_claim",
+                "target_authority_slots": ["projection_authority"],
+                "target_claim_ids": ["rec_1"],
+                "prompt_fingerprint": "sha256:" + "1" * 64,
+                "tool_refs": ["tool-output:dashboard-projection"],
+                "repair_decision_lineage": ["repair:none"],
+                "authority_envelope": {
+                    "authoritative_for": ["candidate_hypothesis"],
+                    "may_not_use_for": ["projection_authority", "claim_authority"],
+                },
+                "admission_state": "candidate_unverified",
+            }
+        ],
+    }
+    quality_evidence["dashboard_projection"] = {
+        "claim_refs": ["hypothesis-candidate:public-claim-1"],
+    }
+
+    scorecard = build_quality_scorecard(
+        canary_kind="production",
+        job_id="job-quality",
+        run_id="R_quality",
+        execution_status="completed",
+        job_payload=_complete_job_payload(),
+        run_payload=None,
+        provider_preflight={"status": "passed"},
+        quality_evidence=quality_evidence,
+    )
+
+    assert "candidate_firewall_candidate_unverified" in _blocking_codes(scorecard)
 
 
 def test_source_truth_adapter_conflict_blocks_scorecard_input() -> None:
@@ -1777,17 +2110,40 @@ def test_runtime_quality_scorecard_distinguishes_quality_warning_state() -> None
     assert scorecard["quality_status"] == "warn"
     assert scorecard["approval_state"] == "quality_warn"
     assert scorecard["approval_eligibility"]["eligible"] is False
-    assert scorecard["warnings"] == [
-        {
-            "gate": "provider_preflight_recorded",
-            "code": "provider_preflight_missing",
-            "layer": "llm_gateway",
-            "phase": "provider_preflight",
-            "message": "Provider preflight evidence is missing.",
-            "evidence_ref": None,
-            "next_action": "Record provider preflight evidence before long real LLM runs.",
-        }
-    ]
+    assert len(scorecard["warnings"]) == 1
+    warning = scorecard["warnings"][0]
+    assert {
+        "gate": warning["gate"],
+        "code": warning["code"],
+        "layer": warning["layer"],
+        "phase": warning["phase"],
+        "message": warning["message"],
+        "evidence_ref": warning["evidence_ref"],
+        "next_action": warning["next_action"],
+        "owner": warning["owner"],
+        "lifecycle_status": warning["lifecycle_status"],
+        "closeout_effect": warning["closeout_effect"],
+        "accepted_deficit_policy": warning["accepted_deficit_policy"],
+    } == {
+        "gate": "provider_preflight_recorded",
+        "code": "provider_preflight_missing",
+        "layer": "llm_gateway",
+        "phase": "provider_preflight",
+        "message": "Provider preflight evidence is missing.",
+        "evidence_ref": None,
+        "next_action": "Record provider preflight evidence before long real LLM runs.",
+        "owner": "team-runtime-ops",
+        "lifecycle_status": "active",
+        "closeout_effect": "advisory_until_ttl_or_serious_closeout",
+        "accepted_deficit_policy": "owner_review_required",
+    }
+    assert warning["ttl_seconds"] > 0
+    assert warning["ttl_expires_at"] > warning["first_observed_at"]
+    assert scorecard["soft_gate_telemetry"]["warning_lifecycle"][0] == warning
+    assert (
+        scorecard["soft_gate_telemetry"]["complexity_budget_telemetry"]["input_source"]
+        == "runtime_telemetry"
+    )
 
 
 def test_runtime_quality_scorecard_requires_override_for_performance_budget_failure() -> None:

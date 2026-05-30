@@ -22,7 +22,7 @@ from polisyos.ir.analytics.parameters import (
     persist_context_adaptive_parameter_bundle,
 )
 from polisyos.ir.artifacts import InputRef
-from polisyos.ir.refs import CausalGraphModelRef, CrossGraphEvidenceProfileRef
+from polisyos.ir.registry.refs import CausalGraphModelRef, CrossGraphEvidenceProfileRef
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.orchestration.engine.state import ExperimentState

@@ -46,8 +46,7 @@ owner-group reference for reviews and escalation.
 | Data Forge                     | `src/polisyos/data_forge/**`, `schemas/artifacts/**`, `schemas/manifests/**` | `@data-forge-owners`   | `@DenisKopylov`         | `@platform-owners` |
 | Scholar                        | `src/polisyos/scholar/**`                                                    | `@scholar-owners`      | `@DenisKopylov`         | `@platform-owners` |
 | Scientist support packages     | `src/polisyos/berl/**`, `src/polisyos/calibration/**`, `src/polisyos/ddm/**` | `@scientist-owners` | `@DenisKopylov` | `@architecture-owners` |
-| DDM compatibility shim          | `src/polisyos/ddm_15_7/**`, `tests/unit/ddm_15_7/**` | `@architecture-owners` | `@DenisKopylov` | `@scientist-owners` |
-| Foundry support packages       | `src/polisyos/foundry/agent_sim/world/**`, `src/polisyos/synthetic_world/**` | `@foundry-owners`      | `@DenisKopylov`         | `@architecture-owners` |
+| Foundry support packages       | `src/polisyos/foundry/agent_sim/world/**`                                  | `@foundry-owners`      | `@DenisKopylov`         | `@architecture-owners` |
 | Architecture contracts         | `architecture/**`, `schemas/topology/**`                                     | `@architecture-owners` | `@DenisKopylov`         | `@platform-owners` |
 | Schemas                        | `schemas/**`                                                                 | `@architecture-owners` | `@DenisKopylov`         | `@platform-owners` |
 | Frontend                       | `apps/**`, `packages/**`, `frontend/README.md`                               | `@frontend-owners`     | `@DenisKopylov`         | `@platform-owners` |

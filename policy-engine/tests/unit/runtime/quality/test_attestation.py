@@ -6,8 +6,8 @@ from pathlib import Path
 import pytest
 
 from polisyos.runtime.quality.attestation import (
-    AttestationViolation,
     REQUIRED_TRUST_BOUNDARY_IDS,
+    AttestationViolation,
     TrustBoundaryRegistryError,
     build_required_production_attestations,
     deserialize_attestation_record,

@@ -1,0 +1,48 @@
+{
+  "artifact_size_profile": {
+    "capability_conflict_report_v1.json": 114,
+    "capability_index_v1.dcat.jsonld": 302105,
+    "capability_index_v1.duckdb": 15216640,
+    "capability_index_v1.prov.ttl": 247079,
+    "capability_index_v1.sha256": 101,
+    "capability_white_space_report_v1.json": 5512918
+  },
+  "duckdb_table_row_counts": {
+    "acquisition_strategies": 902,
+    "capabilities": 1261,
+    "capability_source_assets": 6085,
+    "conflicts": 0,
+    "failure_modes": 904,
+    "index_metadata": 4,
+    "source_assets": 6085
+  },
+  "full_mode_capability_floors": {
+    "compatibility_only": 1,
+    "fabric_data": 1,
+    "foundry_method_contract": 1,
+    "lex_norm": 1,
+    "scholar_claim": 1
+  },
+  "observed_modality_counts": {
+    "compatibility_only": 6,
+    "derived": 1,
+    "fabric_data": 1021,
+    "foundry_method_contract": 4,
+    "lex_norm": 222,
+    "runtime_calibration": 13,
+    "scholar_claim": 14
+  },
+  "performance_budget": {
+    "fixture": {
+      "budget_seconds": 30
+    },
+    "full": {
+      "budget_seconds": 600
+    },
+    "incremental": {
+      "budget_seconds": 120
+    }
+  },
+  "schema_version": "policyos.capability_index.phase1_artifact_profile.v1",
+  "source_summary_ref": "repo://_build/.tmp/closure-audit/capability-index-full/capability_index_v1.summary.json"
+}

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib
 import tomllib
 from pathlib import Path
 
@@ -23,51 +24,23 @@ def test_fabric_api_preserves_public_facade_imports() -> None:
     assert callable(run_connectors_ingestion)
 
 
-def test_fabric_phase_0_3_import_map_declares_shell_group_targets() -> None:
-    expected_targets = {
-        "polisyos.fabric._connector_bridge": "polisyos.fabric",
-        "polisyos.fabric._numeric_parsing": "polisyos.fabric._internal.numeric_parsing",
-        "polisyos.fabric.compatibility": "polisyos.fabric._internal.compatibility",
-        "polisyos.fabric.config": "polisyos.fabric.config.config",
-        "polisyos.fabric.connectors.sdk": "polisyos.fabric.connectors.sdk.scaffold",
-        "polisyos.fabric.connectors_ingestion": (
-            "polisyos.fabric.connectors.ingestion.connectors_ingestion"
-        ),
-        "polisyos.fabric.decision_data": "polisyos.fabric.evidence.decision_data",
-        "polisyos.fabric.evidence": "polisyos.fabric.evidence.evidence",
-        "polisyos.fabric.extensions": "polisyos.fabric.extensions.api",
-        "polisyos.fabric.fact_writer": "polisyos.fabric.evidence.fact_writer",
-        "polisyos.fabric.finite": "polisyos.fabric.numerics.finite",
-        "polisyos.fabric.fitness_report": "polisyos.fabric.quality.fitness_report",
-        "polisyos.fabric.ingestion_providers": (
-            "polisyos.fabric.ingestion.ingestion_providers"
-        ),
-        "polisyos.fabric.manifest": "polisyos.fabric.identity.manifest",
-        "polisyos.fabric.observability": "polisyos.fabric._adapters.observability",
-        "polisyos.fabric.processing_guarantees": (
-            "polisyos.fabric.quality.processing_guarantees"
-        ),
-        "polisyos.fabric.product_integration": "polisyos.fabric.product_integration",
-        "polisyos.fabric.registry": "polisyos.fabric._internal.registry",
-        "polisyos.fabric.safety": "polisyos.fabric.quality.safety",
-        "polisyos.fabric.segment_manifest": "polisyos.fabric.identity.segment_manifest",
-        "polisyos.fabric.tabular": "polisyos.fabric.data_plane.tabular",
-        "polisyos.fabric.temporal": "polisyos.fabric.data_plane.temporal",
-        "polisyos.fabric.trust": "polisyos.fabric.trust.trust",
-        "polisyos.fabric.trust_adapter": "polisyos.fabric.trust.adapter",
-        "polisyos.fabric.world_query": "polisyos.fabric.world.query",
+def test_fabric_medium_shims_are_removed_from_last_mile_import_map() -> None:
+    retired_ids = {
+        "fabric-connectors-sdk",
+        "fabric-decision-data",
+        "fabric-evidence",
+        "fabric-safety",
     }
-    planned = _planned_source_moves_by_source()
+    retired_sources = {
+        "polisyos.fabric.connectors.sdk",
+        "polisyos.fabric.decision_data",
+        "polisyos.fabric.evidence",
+        "polisyos.fabric.safety",
+    }
+    planned = _planned_source_moves()
 
-    for source_fqn, target_fqn in expected_targets.items():
-        entry = planned[source_fqn]
-
-        assert entry["target_fqn"] == target_fqn
-        assert entry["owner"] == "team-fabric"
-        assert entry["sunset"] == "2026-12-31"
-        assert entry["test"].endswith(
-            "test_fabric_phase_0_3_import_map_declares_shell_group_targets"
-        )
+    assert retired_ids.isdisjoint({entry["id"] for entry in planned})
+    assert retired_sources.isdisjoint({entry["source_fqn"] for entry in planned})
 
 
 def test_fabric_phase_5_3_import_map_has_explicit_compatibility_behavior() -> None:
@@ -78,11 +51,10 @@ def test_fabric_phase_5_3_import_map_has_explicit_compatibility_behavior() -> No
     }
     planned = [
         entry
-        for entry in _planned_source_moves_by_source().values()
+        for entry in _planned_source_moves()
         if entry["owner"] == "team-fabric" and entry["wave"] == "3.1"
     ]
 
-    assert planned
     for entry in planned:
         assert entry["decision"] in supported_decisions
         assert entry["release_note"].startswith("docs/archive/reports/")
@@ -91,6 +63,11 @@ def test_fabric_phase_5_3_import_map_has_explicit_compatibility_behavior() -> No
             assert entry.get("removal_release")
         else:
             assert entry["target_fqn"]
+
+
+def test_removed_fabric_alias_imports_are_not_resolved() -> None:
+    for module_name in ("polisyos.fabric.decision_data", "polisyos.fabric.safety"):
+        assert _find_spec(module_name) is None
 
 
 def test_fabric_phase_3_1_semantic_group_modules_exist() -> None:
@@ -175,6 +152,13 @@ def test_fabric_package_contract_covers_live_first_level_roots() -> None:
     assert live_roots <= declared_roots
 
 
-def _planned_source_moves_by_source() -> dict[str, dict[str, object]]:
+def _planned_source_moves() -> list[dict[str, object]]:
     payload = tomllib.loads((REPO_ROOT / "architecture/shims.toml").read_text(encoding="utf-8"))
-    return {entry["source_fqn"]: entry for entry in payload["planned_source_move"]}
+    return payload.get("planned_source_move", [])
+
+
+def _find_spec(module_name: str) -> object | None:
+    try:
+        return importlib.util.find_spec(module_name)
+    except ModuleNotFoundError:
+        return None

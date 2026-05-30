@@ -1,0 +1,658 @@
+{
+  "case_id": "w11a_netherlands_room_for_river_2007",
+  "claim_evidence_annotations": {
+    "annotation_provenance": {
+      "conflicts": [],
+      "disagreement_category": null,
+      "expertise_basis": "W11.A source triage from Rijkswaterstaat and Dutch national water policy materials",
+      "reviewed_at": "2026-05-24",
+      "reviewer_role": "policy_generalist"
+    },
+    "annotation_status": "annotated_w11b",
+    "authority_boundary": {
+      "authoritative_for": [
+        "corpus_annotation",
+        "compilation_truthfulness_reference"
+      ],
+      "may_not_be_used_for": [
+        "claim_authority",
+        "producer_evidence_authority",
+        "legal_authority",
+        "method_validity",
+        "participation_legitimacy",
+        "projection_authority"
+      ],
+      "may_not_use_for": [
+        "claim_authority",
+        "producer_evidence_authority",
+        "legal_authority",
+        "method_validity",
+        "participation_legitimacy",
+        "projection_authority"
+      ]
+    },
+    "authority_level": "research",
+    "capability_reality_label": "implemented",
+    "case_id": "w11a_netherlands_room_for_river_2007",
+    "case_title": "Netherlands Room for the River flood-risk adaptation programme",
+    "claims": [
+      {
+        "admissibility_label": "limited",
+        "claim_id": "claim:room-for-river-reduces-flood-risk",
+        "claim_type": "risk_reduction",
+        "contestability_status": "review_required",
+        "evidence_refs": [
+          "evidence:room-for-river-project-description"
+        ],
+        "legal_refs": [
+          "legal:room-for-river-programme"
+        ],
+        "limitation_refs": [
+          "limitation:adaptation-not-final"
+        ],
+        "method_refs": [
+          "method:hydrological-spatial-adaptation"
+        ],
+        "participation_refs": [
+          "participation:regional-resident-coordination"
+        ],
+        "risks": [
+          "risk:future-water-level-uncertainty"
+        ],
+        "scope": {
+          "geography": [
+            "Netherlands_river_regions"
+          ],
+          "institution": [
+            "Rijkswaterstaat",
+            "regional_water_authorities"
+          ],
+          "population": [
+            "residents_in_river_flood_risk_areas"
+          ],
+          "time_period": "2007-01 to 2019-01"
+        },
+        "text_ref": "text:case:summary",
+        "tradeoffs": [
+          "tradeoff:flood-safety-vs-land-use"
+        ]
+      }
+    ],
+    "corpus_phase": "W11.A",
+    "domain": "climate_adaptation",
+    "expected_evidence_families": [
+      "hydrological_modeling",
+      "spatial_planning_authority",
+      "project_delivery_and_cost_data",
+      "resident_participation_records",
+      "climate_risk_scenario_analysis"
+    ],
+    "expert_adjudication_status": "adjudicated_w11c",
+    "jurisdiction": "Netherlands",
+    "jurisdiction_authority_level": "national",
+    "known_failure_limitation_labels": [
+      "land_use_displacement_burden",
+      "future_climate_scenario_uncertainty",
+      "maintenance_and_monitoring_dependency",
+      "localized_distributional_burden"
+    ],
+    "known_outcomes_or_failures": [
+      {
+        "finding_id": "outcome:programme-officially-completed",
+        "source_ref": "outcome:programme-officially-completed",
+        "would_prior_obligation_have_flagged": false
+      }
+    ],
+    "obligations": [
+      {
+        "generated_from_facets": [
+          "facet:instrument.spatial_adaptation",
+          "facet:outcome.flood_risk_reduction",
+          "facet:time.future_climate_scenarios"
+        ],
+        "obligation_id": "obligation:room-for-river-scenario-monitoring",
+        "required_evidence_family": "hydrological_modeling_and_lifecycle_monitoring",
+        "reviewer_notes": "Research authority should preserve future-scenario uncertainty and land-use burden rather than treating completion as permanent adequacy.",
+        "status": "required_for_research_closeout"
+      }
+    ],
+    "pattern_refs": [
+      "P01",
+      "P02",
+      "P03",
+      "P05",
+      "P10",
+      "P13",
+      "P14",
+      "P15"
+    ],
+    "policy_instrument": {
+      "delivery_channel": "national and regional water-management works",
+      "funding_channel": "national infrastructure and water-management budget",
+      "instrument_type": "spatial_flood_risk_adaptation_programme"
+    },
+    "policy_time": "2007-01 to 2019-01",
+    "raw_source_refs": [
+      "https://www.rijkswaterstaat.nl/en/projects/iconic-structures/room-for-the-river",
+      "https://www.rijkswaterstaat.nl/water/waterbeheer/bescherming-tegen-het-water/maatregelen-om-overstromingen-te-voorkomen/ruimte-voor-de-rivieren",
+      "https://www.government.nl/topics/water-management/documents/policy-notes/2015/12/14/national-water-plan-2016-2021"
+    ],
+    "redacted_source_hashes": [],
+    "references": [
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "text:case:summary",
+        "ref_type": "source",
+        "source_ref": "repo://docs/research/universal-policy-design/outcome-corpus/netherlands-room-for-the-river-2007-climate-adaptation.md#summary",
+        "title": "Case summary"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "legal:room-for-river-programme",
+        "ref_type": "legal",
+        "source_ref": "https://www.rijkswaterstaat.nl/water/waterbeheer/bescherming-tegen-het-water/maatregelen-om-overstromingen-te-voorkomen/ruimte-voor-de-rivieren",
+        "title": "Rijkswaterstaat Room for the River programme"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "evidence:room-for-river-project-description",
+        "ref_type": "evidence",
+        "source_ref": "https://www.rijkswaterstaat.nl/en/projects/iconic-structures/room-for-the-river",
+        "title": "Rijkswaterstaat Room for the River project description"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "method:hydrological-spatial-adaptation",
+        "ref_type": "method",
+        "source_ref": "https://www.rijkswaterstaat.nl/en/projects/iconic-structures/room-for-the-river",
+        "title": "River-capacity and flood-channel adaptation method"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "participation:regional-resident-coordination",
+        "ref_type": "participation",
+        "source_ref": "https://www.rijkswaterstaat.nl/water/waterbeheer/bescherming-tegen-het-water/maatregelen-om-overstromingen-te-voorkomen/ruimte-voor-de-rivieren",
+        "title": "Regional coordination with residents and authorities"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "risk:future-water-level-uncertainty",
+        "ref_type": "risk",
+        "source_ref": "https://www.government.nl/topics/water-management/documents/policy-notes/2015/12/14/national-water-plan-2016-2021",
+        "title": "National Water Plan climate and water-management uncertainty"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "tradeoff:flood-safety-vs-land-use",
+        "ref_type": "tradeoff",
+        "source_ref": "https://www.rijkswaterstaat.nl/en/projects/iconic-structures/room-for-the-river",
+        "title": "Flood safety through giving rivers more room"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "limitation:adaptation-not-final",
+        "ref_type": "limitation",
+        "source_ref": "https://www.government.nl/topics/water-management/documents/policy-notes/2015/12/14/national-water-plan-2016-2021",
+        "title": "Ongoing adaptation and monitoring needs"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "outcome:programme-officially-completed",
+        "ref_type": "outcome",
+        "source_ref": "https://www.rijkswaterstaat.nl/water/waterbeheer/bescherming-tegen-het-water/maatregelen-om-overstromingen-te-voorkomen/ruimte-voor-de-rivieren",
+        "title": "Programme officially completed after Reevediep opening"
+      }
+    ],
+    "schema_version": "policyos.universal_outcome_corpus.annotation.v1",
+    "sourcing_status": "sourced",
+    "targeting": {
+      "affected_populations": [
+        "farmers_and_landowners",
+        "municipalities",
+        "water_boards",
+        "river_ecosystem_users"
+      ],
+      "beneficiary_classes": [
+        "residents_in_river_flood_risk_areas",
+        "national_water_safety_system"
+      ],
+      "targeting_type": "risk_geography_and_hydrological_exposure"
+    }
+  },
+  "compilation_intent_text": "Netherlands Room for the River flood-risk adaptation programme. Design a multi_year national infrastructure procurement and construction programme for residents in regions, with budget appropriation, climate risk monitoring, and annual review.",
+  "concept_spine_refs": {
+    "canonical_concept_refs": [
+      "concept://w11/w11a_netherlands_room_for_river_2007/universal-policy-grammar"
+    ],
+    "concept_spine_ref": "concept-spine://w11/w11a_netherlands_room_for_river_2007",
+    "facet_concept_refs": {
+      "authority_type": [
+        "concept://w11/w11a_netherlands_room_for_river_2007/authority_type"
+      ],
+      "delivery_channel": [
+        "concept://w11/w11a_netherlands_room_for_river_2007/delivery_channel"
+      ],
+      "funding_channel": [
+        "concept://w11/w11a_netherlands_room_for_river_2007/funding_channel"
+      ],
+      "geography_predicate": [
+        "concept://w11/w11a_netherlands_room_for_river_2007/geography_predicate"
+      ],
+      "instrument_type": [
+        "concept://w11/w11a_netherlands_room_for_river_2007/instrument_type"
+      ],
+      "method_need": [
+        "concept://w11/w11a_netherlands_room_for_river_2007/method_need"
+      ],
+      "outcome_channel": [
+        "concept://w11/w11a_netherlands_room_for_river_2007/outcome_channel"
+      ],
+      "population_predicate": [
+        "concept://w11/w11a_netherlands_room_for_river_2007/population_predicate"
+      ],
+      "risk_facet": [
+        "concept://w11/w11a_netherlands_room_for_river_2007/risk_facet"
+      ],
+      "targeting_type": [
+        "concept://w11/w11a_netherlands_room_for_river_2007/targeting_type"
+      ],
+      "time_predicate": [
+        "concept://w11/w11a_netherlands_room_for_river_2007/time_predicate"
+      ]
+    },
+    "jurisdiction_spine_ref": "jurisdiction-spine://w11/w11a_netherlands_room_for_river_2007"
+  },
+  "critic_ensemble": {
+    "authority_boundary": {
+      "authoritative_for": [
+        "critic_diversity_measurement"
+      ],
+      "may_not_use_for": [
+        "claim_authority",
+        "producer_evidence_authority",
+        "legal_authority",
+        "method_validity",
+        "projection_authority"
+      ]
+    },
+    "run_id": "run-w11a_netherlands_room_for_river_2007",
+    "verdicts": [
+      {
+        "envelope": {
+          "critic_role": "legal",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_legal_basis"
+        },
+        "failure_modes": [
+          "authority_boundary:land_use_displacement_burden"
+        ],
+        "message": "legal critic flags land_use_displacement_burden for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_netherlands_room_for_river_2007"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "fiscal",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_fiscal_basis"
+        },
+        "failure_modes": [
+          "budget_feasibility:future_climate_scenario_uncertainty"
+        ],
+        "message": "fiscal critic flags future_climate_scenario_uncertainty for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_netherlands_room_for_river_2007"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "equity",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_equity_basis"
+        },
+        "failure_modes": [
+          "distributional_effect:maintenance_and_monitoring_dependency"
+        ],
+        "message": "equity critic flags maintenance_and_monitoring_dependency for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_netherlands_room_for_river_2007"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "data",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_data_basis"
+        },
+        "failure_modes": [
+          "source_lineage:localized_distributional_burden"
+        ],
+        "message": "data critic flags localized_distributional_burden for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_netherlands_room_for_river_2007"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "implementation",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_implementation_basis"
+        },
+        "failure_modes": [
+          "delivery_capacity:land_use_displacement_burden"
+        ],
+        "message": "implementation critic flags land_use_displacement_burden for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_netherlands_room_for_river_2007"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "affected_person",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_affected_person_basis"
+        },
+        "failure_modes": [
+          "participation_voice:future_climate_scenario_uncertainty"
+        ],
+        "message": "affected_person critic flags future_climate_scenario_uncertainty for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_netherlands_room_for_river_2007"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "adversarial",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_adversarial_basis"
+        },
+        "failure_modes": [
+          "failure_probe:maintenance_and_monitoring_dependency"
+        ],
+        "message": "adversarial critic flags maintenance_and_monitoring_dependency for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_netherlands_room_for_river_2007"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "monitoring",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_monitoring_basis"
+        },
+        "failure_modes": [
+          "lifecycle_monitoring:localized_distributional_burden"
+        ],
+        "message": "monitoring critic flags localized_distributional_burden for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_netherlands_room_for_river_2007"
+        ],
+        "verdict": "contest"
+      }
+    ]
+  },
+  "domain": "climate_adaptation",
+  "expected_adapter_bindings": {
+    "bindings": [
+      {
+        "adapter": "fabric",
+        "binding_id": "bind-w11a_netherlands_room_for_river_2007-selected",
+        "reason_code": "annotation_data_family_selected",
+        "requirement_id": "data-w11a_netherlands_room_for_river_2007",
+        "status": "selected"
+      },
+      {
+        "adapter": "scholar",
+        "binding_id": "bind-w11a_netherlands_room_for_river_2007-rejected",
+        "reason_code": "generic_or_transfer_mismatch_rejected",
+        "requirement_id": "scholar-w11a_netherlands_room_for_river_2007",
+        "status": "rejected"
+      },
+      {
+        "adapter": "foundry",
+        "binding_id": "bind-w11a_netherlands_room_for_river_2007-blocked",
+        "reason_code": "method_or_counterfactual_precondition_missing",
+        "requirement_id": "method-w11a_netherlands_room_for_river_2007",
+        "status": "blocked"
+      }
+    ]
+  },
+  "expected_claim_families": {
+    "families": [
+      {
+        "claim_family": "risk_reduction",
+        "claim_id": "claim:room-for-river-reduces-flood-risk",
+        "expected_support_status": "limited"
+      }
+    ]
+  },
+  "expected_closeout_states": {
+    "states": [
+      {
+        "authority_level": "research",
+        "required_surface_refs": [
+          "audit://w11d/w11a_netherlands_room_for_river_2007/research"
+        ],
+        "state": "publishable"
+      },
+      {
+        "authority_level": "governed",
+        "limitation_refs": [
+          "limitation://w11d/w11a_netherlands_room_for_river_2007"
+        ],
+        "required_surface_refs": [
+          "audit://w11d/w11a_netherlands_room_for_river_2007/governed"
+        ],
+        "state": "limited"
+      },
+      {
+        "authority_level": "production",
+        "limitation_refs": [
+          "limitation://w11d/w11a_netherlands_room_for_river_2007"
+        ],
+        "required_surface_refs": [
+          "audit://w11d/w11a_netherlands_room_for_river_2007/production"
+        ],
+        "state": "limited"
+      }
+    ]
+  },
+  "expected_facets": {
+    "facets": [
+      {
+        "concept_ref": "concept://w11d/w11a_netherlands_room_for_river_2007/instrument",
+        "expected_value": "spatial_flood_risk_adaptation_programme",
+        "facet_name": "instrument_type"
+      },
+      {
+        "concept_ref": "concept://w11d/w11a_netherlands_room_for_river_2007/targeting",
+        "expected_value": "risk_geography_and_hydrological_exposure",
+        "facet_name": "targeting_type"
+      },
+      {
+        "concept_ref": "concept://w11d/w11a_netherlands_room_for_river_2007/delivery",
+        "expected_value": "national and regional water-management works",
+        "facet_name": "delivery_channel"
+      }
+    ]
+  },
+  "expected_obligation_graph": {
+    "frontier": [
+      {
+        "claim_refs": [
+          "claim:room-for-river-reduces-flood-risk"
+        ],
+        "family": "method",
+        "obligation_id": "obligation:room-for-river-scenario-monitoring",
+        "priority": "required_for_research_closeout",
+        "source_class": "governed_rule"
+      }
+    ]
+  },
+  "expected_projection_truthfulness": {
+    "projections": [
+      {
+        "audience": "public",
+        "may_not_claim": [
+          "fixture expectation is runtime authority"
+        ],
+        "must_disclose_refs": [
+          "annotation://w11d/w11a_netherlands_room_for_river_2007"
+        ],
+        "truthfulness": "limitation_required"
+      }
+    ]
+  },
+  "expected_requirement_specs": {
+    "families": {
+      "data": [
+        {
+          "claim_id": "claim:room-for-river-reduces-flood-risk",
+          "requirement_id": "data-w11a_netherlands_room_for_river_2007",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/netherlands-room-for-the-river-2007-climate-adaptation.md#data"
+        }
+      ],
+      "legal": [
+        {
+          "claim_id": "claim:room-for-river-reduces-flood-risk",
+          "requirement_id": "legal-w11a_netherlands_room_for_river_2007",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/netherlands-room-for-the-river-2007-climate-adaptation.md#legal"
+        }
+      ],
+      "method": [
+        {
+          "claim_id": "claim:room-for-river-reduces-flood-risk",
+          "requirement_id": "method-w11a_netherlands_room_for_river_2007",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/netherlands-room-for-the-river-2007-climate-adaptation.md#method"
+        }
+      ],
+      "participation": [
+        {
+          "claim_id": "claim:room-for-river-reduces-flood-risk",
+          "requirement_id": "participation-w11a_netherlands_room_for_river_2007",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/netherlands-room-for-the-river-2007-climate-adaptation.md#participation"
+        }
+      ],
+      "scholar": [
+        {
+          "claim_id": "claim:room-for-river-reduces-flood-risk",
+          "requirement_id": "scholar-w11a_netherlands_room_for_river_2007",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/netherlands-room-for-the-river-2007-climate-adaptation.md#scholar"
+        }
+      ]
+    }
+  },
+  "expert_adjudication": {
+    "case_label": "limitation_required",
+    "claim_labels": [
+      {
+        "claim_id": "claim:room-for-river-reduces-flood-risk",
+        "dimension_id": "compilation_truthfulness",
+        "failure_mode": "land_use_displacement_burden",
+        "label": "limitation_required",
+        "required_surface_change": "Expose annotation-derived limitation, contestation, or blocker state.",
+        "status_should_have_been": "publish_with_limitation",
+        "why_structural_checks_missed_it": "W11.D fixture preserves annotation semantics for truthfulness comparison."
+      }
+    ],
+    "reviewer_topology_ref": "reviewer-topology://w11d/hidden/w11a_netherlands_room_for_river_2007"
+  },
+  "input_intent_ref": "intent-w11a_netherlands_room_for_river_2007",
+  "intent": {
+    "authority_levels": [
+      "research",
+      "governed",
+      "production"
+    ],
+    "instrument_type": "spatial_flood_risk_adaptation_programme",
+    "intent_id": "intent-w11a_netherlands_room_for_river_2007",
+    "jurisdiction": "Netherlands",
+    "metadata": {
+      "w11a_authority_level": "research"
+    },
+    "policy_time": "2007-01 to 2019-01",
+    "target_population": "residents_in_river_flood_risk_areas, national_water_safety_system",
+    "text": "Netherlands Room for the River flood-risk adaptation programme"
+  },
+  "metadata": {
+    "pattern_refs": [
+      "P01",
+      "P02",
+      "P03",
+      "P05",
+      "P10",
+      "P13",
+      "P14",
+      "P15"
+    ],
+    "reuse_classification": "wire_existing",
+    "source_annotation_schema": "policyos.universal_outcome_corpus.annotation.v1"
+  },
+  "producer_pipeline": {
+    "producers": [
+      {
+        "consumed_concept_refs": [
+          "concept://w11/w11a_netherlands_room_for_river_2007/universal-policy-grammar"
+        ],
+        "consumed_requirement_refs": [
+          "data-w11a_netherlands_room_for_river_2007"
+        ],
+        "expected_output_families": [
+          "fabric.source_contract_binding.v1"
+        ],
+        "first_pass_bindings": [
+          {
+            "binding_id": "label.fabric.w11a_netherlands_room_for_river_2007",
+            "binding_kind": "label",
+            "concept_ref": "concept://w11/w11a_netherlands_room_for_river_2007/universal-policy-grammar",
+            "disposition": "context_only",
+            "label": "fabric context for w11a_netherlands_room_for_river_2007"
+          }
+        ],
+        "producer_component": "fabric",
+        "requested_deadline_s": 5.0,
+        "second_pass_bindings": [
+          {
+            "artifact_ref": "source://w11/w11a_netherlands_room_for_river_2007/fabric",
+            "binding_id": "binding.fabric.w11a_netherlands_room_for_river_2007",
+            "binding_kind": "dataset",
+            "concept_ref": "concept://w11/w11a_netherlands_room_for_river_2007/universal-policy-grammar",
+            "disposition": "selected",
+            "requirement_ref": "data-w11a_netherlands_room_for_river_2007",
+            "time_role": "observation_time"
+          }
+        ]
+      }
+    ]
+  },
+  "redacted_source_hash": "sha256:1c0785643ceaa1cf2266cc71bb24c6c2ab2d6276d098e40d2bbbe2ae21e36896",
+  "schema_version": "policyos.universal_corpus_fixture.v1",
+  "source_case_ref": "docs/research/universal-policy-design/outcome-corpus/netherlands-room-for-the-river-2007-climate-adaptation.md",
+  "split": "hidden",
+  "title": "Netherlands Room for the River flood-risk adaptation programme"
+}

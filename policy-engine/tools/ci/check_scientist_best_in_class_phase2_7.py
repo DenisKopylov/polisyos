@@ -29,7 +29,7 @@ WAVE2_CONTRACT_DOC = Path("docs/reference/scientist/wave2-runtime-contracts.md")
 MKDOCS_CONFIG = Path("architecture/tooling/mkdocs/generated.yml")
 
 REQUIRED_FILES: tuple[Path, ...] = (
-    Path("src/polisyos/scientist/publisher.py"),
+    Path("src/polisyos/scientist/publishing/publisher.py"),
     Path("src/polisyos/scientist/orchestration/orchestrator/decision_card.py"),
     Path("src/polisyos/scientist/evidence/claims/export.py"),
     REFERENCE_DOC,

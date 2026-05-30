@@ -319,7 +319,9 @@ def test_differential_harness_supports_file_and_json_comparisons(tmp_path: Path)
 def test_phase1_architecture_manifests_no_longer_track_removed_shims() -> None:
     repo_root = Path(__file__).resolve().parents[3]
     package_boundaries = tomllib.loads(
-        (repo_root / "architecture" / "package_boundaries.toml").read_text(encoding="utf-8")
+        (repo_root / "architecture" / "packages" / "boundaries.toml").read_text(
+            encoding="utf-8"
+        )
     )
     packages = {item["module"]: item for item in package_boundaries["package"]}
 

@@ -12,14 +12,14 @@ from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
 from polisyos.ir.governance.schedule import ScheduleSpec
 from polisyos.ir.governance.selector_expr import SelectorPredicate
-from polisyos.ir.model_spec import ModelSpec
+from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.observation.bundles import GovernancePassMappingBundle
 from polisyos.ir.observation.governance import (
     DEFAULT_GOVERNANCE_PASS_ALIAS_REGISTRY,
     DEFAULT_OBSERVATION_FAMILY_POLICY_REGISTRY,
 )
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.ir.types import SelectorOperator
+from polisyos.ir.model_layer.types import SelectorOperator
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 

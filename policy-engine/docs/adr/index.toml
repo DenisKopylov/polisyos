@@ -1646,6 +1646,105 @@ superseded_by = []
 related = ["0147", "0148", "0149", "0150", "0151", "0152", "0153", "0154", "0155", "0156", "0162", "0163", "0164"]
 
 [[adr]]
+id = "0166"
+title = "Evidence Acquisition Decision Boundaries"
+status = "accepted"
+topic = "observation"
+package = "repository"
+path = "docs/adr/0166-evidence-acquisition-decision-boundaries.md"
+supersedes = []
+superseded_by = []
+related = ["0052", "0132", "0147", "0150", "0152", "0156", "0157", "0159", "0160", "0163", "0164"]
+
+[[adr]]
+id = "0167"
+title = "Participation Legitimacy Matrix"
+status = "accepted"
+topic = "product-domain"
+package = "repository"
+path = "docs/adr/0167-participation-legitimacy-matrix.md"
+supersedes = []
+superseded_by = []
+related = ["0147", "0150", "0152", "0156", "0157", "0159", "0160", "0162", "0166"]
+
+[[adr]]
+id = "0168"
+title = "Legal Hierarchy And Competence Boundaries"
+status = "accepted"
+topic = "product-domain"
+package = "polisyos.lex"
+path = "docs/adr/0168-legal-hierarchy-and-competence.md"
+supersedes = []
+superseded_by = []
+related = ["0051", "0057", "0147", "0150", "0152", "0157", "0158", "0159", "0166"]
+
+[[adr]]
+id = "0169"
+title = "Bounded Liveness And Runtime Escalation"
+status = "accepted"
+topic = "runtime-state"
+package = "polisyos.runtime"
+path = "docs/adr/0169-bounded-liveness-and-runtime-escalation.md"
+supersedes = []
+superseded_by = []
+related = ["0006", "0011", "0097", "0148", "0153", "0154", "0156", "0164", "0165", "0166"]
+
+[[adr]]
+id = "0170"
+title = "Contestability And Recourse Boundaries"
+status = "accepted"
+topic = "runtime-state"
+package = "repository"
+path = "docs/adr/0170-contestability-and-recourse-boundaries.md"
+supersedes = []
+superseded_by = []
+related = ["0147", "0150", "0153", "0156", "0157", "0162", "0163", "0166"]
+
+[[adr]]
+id = "0171"
+title = "Review Effectiveness Telemetry Advisory First"
+status = "accepted"
+topic = "observation"
+package = "polisyos.runtime"
+path = "docs/adr/0171-review-effectiveness-telemetry-advisory-first.md"
+supersedes = []
+superseded_by = []
+related = ["0147", "0150", "0154", "0156", "0162", "0163", "0164", "0165"]
+
+[[adr]]
+id = "0172"
+title = "Balanced Memory Influence Ledger"
+status = "accepted"
+topic = "observation"
+package = "repository"
+path = "docs/adr/0172-balanced-memory-influence-ledger.md"
+supersedes = []
+superseded_by = []
+related = []
+
+[[adr]]
+id = "0173"
+title = "Obligation Frontier And Bundle Control"
+status = "accepted"
+topic = "observation"
+package = "repository"
+path = "docs/adr/0173-obligation-frontier-and-bundle-control.md"
+supersedes = []
+superseded_by = []
+related = []
+
+[[adr]]
+id = "0174"
+title = "Policy Evidence Capability Graph"
+status = "accepted"
+topic = "observation"
+package = "repository"
+path = "docs/adr/0174-policy-evidence-capability-graph.md"
+supersedes = []
+superseded_by = []
+related = ["0147", "0152", "0156", "0158", "0159", "0160", "0166", "0168", "0172", "0173"]
+
+[[adr]]
 id = "ADR-004"
 title = "Trinity-Only IR Runtime"
 status = "completed"

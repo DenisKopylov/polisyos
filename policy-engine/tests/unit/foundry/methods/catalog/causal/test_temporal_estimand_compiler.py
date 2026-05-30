@@ -38,7 +38,7 @@ from polisyos.ir.analytics.rough_path_semantics import (
     TemporalPathSemanticsAttachment,
     TemporalPathSemanticsScope,
 )
-from polisyos.ir.refs import ArtifactRefModel, RoughPathInterventionCertificateRef
+from polisyos.ir.registry.refs import ArtifactRefModel, RoughPathInterventionCertificateRef
 
 
 def _artifact_id(ch: str) -> str:

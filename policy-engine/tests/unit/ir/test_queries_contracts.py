@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import pytest
-from polisyos.ir.queries import DataFilter, DataViewRequest, QueryScope, ValidTimeRange
+
+from polisyos.ir.model_layer.queries import DataFilter, DataViewRequest, QueryScope, ValidTimeRange
 
 
 def test_query_scope_aliases() -> None:

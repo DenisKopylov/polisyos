@@ -23,53 +23,7 @@ class ScientistEvidenceShim:
 
 PHASE44_SHIM_SUNSET_DATE = date(2026, 11, 30)
 
-SCIENTIST_EVIDENCE_SHIMS: tuple[ScientistEvidenceShim, ...] = (
-    ScientistEvidenceShim(
-        id="scientist.feedback_utils-to-feedback.utils",
-        legacy_module="polisyos.scientist.feedback_utils",
-        canonical_module="polisyos.scientist.feedback.utils",
-        owner="team-scientist",
-        reason="Feedback helpers now live inside the Feedback hub.",
-        sunset_date=PHASE44_SHIM_SUNSET_DATE,
-        migration_hint="Use polisyos.scientist.feedback.utils for new imports.",
-    ),
-    ScientistEvidenceShim(
-        id="scientist.replay_backend-to-replay.backend",
-        legacy_module="polisyos.scientist.replay_backend",
-        canonical_module="polisyos.scientist.replay.backend",
-        owner="team-scientist",
-        reason="Replay backend helpers now live inside the Replay hub.",
-        sunset_date=PHASE44_SHIM_SUNSET_DATE,
-        migration_hint="Use polisyos.scientist.replay.backend for new imports.",
-    ),
-    ScientistEvidenceShim(
-        id="scientist.evidence_sources-to-evidence.sources",
-        legacy_module="polisyos.scientist.evidence_sources",
-        canonical_module="polisyos.scientist.evidence.sources",
-        owner="team-scientist",
-        reason="Evidence source configuration now lives inside the Evidence hub.",
-        sunset_date=PHASE44_SHIM_SUNSET_DATE,
-        migration_hint="Use polisyos.scientist.evidence.sources for new imports.",
-    ),
-    ScientistEvidenceShim(
-        id="scientist.claims-to-evidence.claims",
-        legacy_module="polisyos.scientist.claims",
-        canonical_module="polisyos.scientist.evidence.claims",
-        owner="team-scientist",
-        reason="Claim ledgers are evidence artifacts and now live under the Evidence hub.",
-        sunset_date=PHASE44_SHIM_SUNSET_DATE,
-        migration_hint="Use polisyos.scientist.evidence.claims for new imports.",
-    ),
-    ScientistEvidenceShim(
-        id="scientist.provenance-to-evidence.provenance",
-        legacy_module="polisyos.scientist.provenance",
-        canonical_module="polisyos.scientist.evidence.provenance",
-        owner="team-scientist",
-        reason="Run provenance helpers are evidence artifacts and now live under the Evidence hub.",
-        sunset_date=PHASE44_SHIM_SUNSET_DATE,
-        migration_hint="Use polisyos.scientist.evidence.provenance for new imports.",
-    ),
-)
+SCIENTIST_EVIDENCE_SHIMS: tuple[ScientistEvidenceShim, ...] = ()
 
 
 def shim_metadata_for(legacy_module: str) -> ScientistEvidenceShim:

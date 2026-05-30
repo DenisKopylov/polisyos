@@ -1,0 +1,38 @@
+id = "2026-05-24-w9d-memory-decay"
+title = "Add balanced memory decay and contamination lifecycle controls"
+type = "added"
+component = "scientist-orchestration"
+owner = "team-policyos-runtime"
+summary = "Add W9.D TTL, decay, scoped rule-change revocation, contamination-check persistence, and conservative-bias metrics for balanced success/failure/opportunity memory."
+evidence = [
+  "tests/unit/scientist/orchestration/memory/test_decay_and_contamination.py",
+  "tests/unit/scientist/orchestration/memory",
+]
+compatibility = "Additive Python API for experimental Scientist orchestration memory; no OpenAPI, generated runtime client, or dashboard API changes."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.scientist.orchestration.memory"
+migration = "Existing memory retrieval and failure lesson APIs continue to work; consumers may opt into decay_policy, bias_policy, MemoryScopeRevocationTrigger, and conservative-bias metadata."
+api = "Adds BalancedMemoryDecayPolicy, BalancedMemoryBiasPolicy, BalancedMemoryBiasMetrics, MemoryScopeRevocationTrigger, decay-aware applicability, scope revocation helpers, and decay/bias metadata on balanced-memory retrieval."
+limitations = "Decay and bias thresholds are governed provisional configuration and memory remains future influence only; it may not close, refute, or satisfy current-run claim evidence."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/scientist/orchestration/README.md",
+]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "scientist-balanced-memory-decay-api"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: polisyos.scientist.orchestration.memory"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "not_applicable"
+release_note = "Scientist orchestration memory exposes W9.D TTL, decay, contamination, scope revocation, and conservative-bias controls."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/scientist/orchestration/README.md",
+]
+runbook_docs = []

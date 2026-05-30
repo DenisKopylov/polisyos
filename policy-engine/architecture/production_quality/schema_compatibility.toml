@@ -38,6 +38,7 @@ accepted_schema_families = [
   "policyos.human_review_calibration_report",
   "policyos.scientist.decision_artifact_quality",
   "policyos.privacy_compliance_report",
+  "policyos.runtime.policy_design_case.rule_evolution_registry",
   "policyos.runtime.governance_lifecycle_report",
 ]
 min_version = "1"
@@ -79,6 +80,7 @@ accepted_schema_families = [
   "policyos.human_review_calibration_report",
   "policyos.scientist.decision_artifact_quality",
   "policyos.privacy_compliance_report",
+  "policyos.runtime.policy_design_case.rule_evolution_registry",
   "policyos.runtime.governance_lifecycle_report",
   "policyos.quality_scorecard",
   "policyos.canary_evidence",
@@ -205,6 +207,13 @@ schema_contract = "runtime_quality.privacy_compliance_report.v1"
 reader_contracts = ["runtime.scorecard", "runtime.readiness", "runtime.canary_bundle"]
 decision = "compatible"
 required_semantic_fields = ["owner", "provenance", "status", "tenant", "schema"]
+
+[[schema_compatibility]]
+schema_contract = "runtime_quality.rule_evolution_registry.v1"
+reader_contracts = ["runtime.scorecard", "runtime.canary_bundle"]
+decision = "compatible"
+required_semantic_fields = ["owner", "provenance", "status", "schema", "logic_hash"]
+
 [[schema_compatibility]]
 schema_contract = "runtime_quality.replay_manifest.v1"
 reader_contracts = ["runtime.scorecard", "runtime.readiness", "runtime.canary_bundle"]

@@ -8,7 +8,7 @@ from polisyos.ir.analytics.causal_ensemble import (
     load_causal_model_ensemble,
     persist_causal_model_ensemble,
 )
-from polisyos.ir.refs import CausalModelEnsembleRef
+from polisyos.ir.registry.refs import CausalModelEnsembleRef
 from pydantic import ValidationError
 
 

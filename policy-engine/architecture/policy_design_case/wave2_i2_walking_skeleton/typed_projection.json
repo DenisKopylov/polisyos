@@ -1,0 +1,97 @@
+{
+  "audience": "machine",
+  "audit_refs": [
+    "event://wave2-i2/policy-design-case",
+    "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+  ],
+  "authoritative_for": [],
+  "authority_role": "projection_only",
+  "capability_reality_state": "implemented",
+  "closeout_truth": {
+    "blocker_codes": [],
+    "blockers": [],
+    "can_closeout": false,
+    "contested_state": "not_contested",
+    "limitation_codes": [],
+    "omission_codes": [],
+    "status": "not_provided",
+    "verdict": "cannot_closeout"
+  },
+  "contested_records": [],
+  "contract_verification_refs": [],
+  "contract_verification_status": "not_verified",
+  "deficit_register": [],
+  "evidence_class": "diagnostic_supporting",
+  "generated_at": "2026-05-22T12:00:00Z",
+  "invariant_summary": {
+    "blocker_codes": [],
+    "details": {},
+    "evidence_refs": [],
+    "failing_count": 0,
+    "passing_count": 0,
+    "status": "not_provided"
+  },
+  "labels": [
+    {
+      "authority_role": "projection_only",
+      "label": "projection only",
+      "source_authority": "policy_design_case",
+      "state": "projection_only"
+    },
+    {
+      "authority_role": "projection_only",
+      "label": "publishable",
+      "source_authority": "policy_design_case",
+      "state": "publishable"
+    }
+  ],
+  "may_be_used_for": [
+    "api_display",
+    "dashboard_display",
+    "external_explanation",
+    "operator_triage",
+    "public_audit"
+  ],
+  "may_not_be_used_for": [
+    "approval_authority",
+    "claim_authority",
+    "provider_credential_validation",
+    "runtime_closeout_authority",
+    "scorecard_authority",
+    "tenant_identity_resolution"
+  ],
+  "omission_manifest": [],
+  "participation_requirements": [],
+  "policy_design_case_id": "pdc-wave2-i2",
+  "primary_state": "publishable",
+  "projection_gaps": [],
+  "projection_policy": "reads_policy_design_case_only",
+  "provenance_kind": "runtime_projection",
+  "redacted": false,
+  "redaction_summary": {
+    "audience": "machine",
+    "redacted_for_public": false
+  },
+  "run_id": "run-wave2-i2",
+  "schema_version": "policyos.runtime.policy_design_case.projection.v1",
+  "source_authority_refs": {
+    "effective_mode_ref": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "policy_design_case_ref": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+    "runtime_event_ref": "event://wave2-i2/policy-design-case",
+    "same_input_closure_ref": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "schema_compatibility_ref": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
+  },
+  "source_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "source_ref_fingerprint": "sha256:9f447b1b473d359884f2b8541a1ad0b7d194ed59b79e8eee48047ec4830564fd",
+  "source_state": {
+    "artifact_publishability": "publishable",
+    "policy_design_case_status": "",
+    "public_export_status": "publishable"
+  },
+  "states": [
+    "projection_only",
+    "publishable"
+  ],
+  "surface": "final_artifact"
+}

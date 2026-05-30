@@ -63,7 +63,7 @@ from polisyos.ir.analytics.transportability import (
     persist_transportability_result,
 )
 from polisyos.ir.artifacts import InputRef
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     CausalCapabilityContractRef,
     CausalEffectReportRef,
     CausalGraphModelRef,

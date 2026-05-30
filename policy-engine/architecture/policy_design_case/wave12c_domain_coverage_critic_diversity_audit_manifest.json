@@ -1,0 +1,77 @@
+{
+  "schema_version": "policyos.policy_design_case.wave12c.domain_coverage_critic_audit_manifest.v1",
+  "status": "implemented",
+  "phase_id": "W12.C",
+  "phase_name": "Domain Coverage And Critic Diversity Audit Run",
+  "generated_at": "2026-05-25T00:00:00Z",
+  "owner": "team-evaluation",
+  "implementation_plan_ref": "repo://docs/plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md#w12c-domain-coverage-and-critic-diversity-audit-run",
+  "tool_ref": "repo://tools/quality/validation/run_domain_coverage_critic_diversity_audit.py",
+  "w11f_tool_refs": [
+    "repo://tools/quality/validation/check_domain_coverage_breadth.py",
+    "repo://tools/quality/validation/check_critic_ensemble_diversity.py"
+  ],
+  "command_contract": {
+    "command": "uv run python tools/quality/validation/run_domain_coverage_critic_diversity_audit.py --repo-root . --corpus tests/fixtures/universal-corpus --rollout-posture governed-pilot --output _build/.tmp/production-quality/w12c_domain_coverage_critic_diversity_audit.json",
+    "output_refs": [
+      "_build/.tmp/production-quality/w12c_domain_coverage_critic_diversity_audit.json",
+      "_build/.tmp/production-quality/w12c_domain_coverage_breadth_report.json",
+      "_build/.tmp/production-quality/w12c_critic_ensemble_diversity_report.json"
+    ],
+    "owner": "team-evaluation",
+    "next_action": "Repair zero-useful committed domain slices or critic monoculture before declaring production-capable rollout posture."
+  },
+  "floor_policy": {
+    "research-only": {
+      "minimum_domain_breadth": null,
+      "minimum_useful_design_rate": null,
+      "minimum_critic_diversity_jaccard": null,
+      "committed_authority_levels": [],
+      "minimum_domain_authority_useful_design_count": null
+    },
+    "governed-pilot": {
+      "minimum_domain_breadth": 4,
+      "minimum_useful_design_rate": 0.5,
+      "minimum_critic_diversity_jaccard": 0.25,
+      "committed_authority_levels": [
+        "research",
+        "governed"
+      ],
+      "minimum_domain_authority_useful_design_count": 1
+    },
+    "production-capable": {
+      "minimum_domain_breadth": 6,
+      "minimum_useful_design_rate": 0.7,
+      "minimum_critic_diversity_jaccard": 0.25,
+      "committed_authority_levels": [
+        "research",
+        "governed",
+        "production"
+      ],
+      "minimum_domain_authority_useful_design_count": 1
+    }
+  },
+  "metric_policy": {
+    "domain_authority_useful_design_matrix_required": true,
+    "critic_diversity_jaccard_summary_required": true,
+    "typed_blockers_count_as_useful_design": false,
+    "typed_blockers_are_closeout_honesty_failures": false,
+    "critic_monoculture_caps_rollout": "governed-pilot-or-below"
+  },
+  "pattern_pass": {
+    "relevant_patterns": [
+      "P01",
+      "P03",
+      "P05",
+      "P10",
+      "P13",
+      "P15"
+    ],
+    "target_correct_pattern": "W12.C consumes W11.F measurement reports, exposes domain x authority useful-design coverage, and treats critic monoculture as a rollout cap warning rather than useful-design evidence.",
+    "missing_capability_labels": []
+  },
+  "validation": {
+    "test_ref": "repo://tests/repo_quality/tools/test_w12c_domain_coverage_critic_diversity_audit.py",
+    "command_ref": "uv run python tools/quality/validation/run_domain_coverage_critic_diversity_audit.py --repo-root . --corpus tests/fixtures/universal-corpus --rollout-posture governed-pilot --output _build/.tmp/production-quality/w12c_domain_coverage_critic_diversity_audit.json"
+  }
+}

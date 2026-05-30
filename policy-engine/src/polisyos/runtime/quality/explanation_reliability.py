@@ -378,8 +378,8 @@ def _validate_bundle_record(
     evidence_ref: str | None,
 ) -> tuple[dict[str, Any], tuple[WarrantReliabilityIssue, ...]]:
     try:
-        from polisyos.berl.contracts.explanation_bundle import ExplanationBundle
-        from polisyos.berl.contracts.validation_rules import (
+        from polisyos.berl import (
+            ExplanationBundle,
             ValidationThresholds,
             validate_explanation_bundle,
         )

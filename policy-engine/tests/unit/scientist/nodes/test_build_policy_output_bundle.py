@@ -32,10 +32,10 @@ from polisyos.ir.governance.problem_frame import (
     ProblemFrame,
 )
 from polisyos.ir.kernel.values import MoneyValue
-from polisyos.ir.model_spec import AssumptionSpec, AssumptionType, ModelSpec
-from polisyos.ir.refs import ArtifactRefModel
+from polisyos.ir.model_layer.model_spec import AssumptionSpec, AssumptionType, ModelSpec
+from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.ir.types import OptimizationDirection, SelectorOperator
+from polisyos.ir.model_layer.types import OptimizationDirection, SelectorOperator
 from polisyos.scientist.orchestration.engine.state_branching import branch_state as real_branch_state
 from polisyos.scientist.governance.backtest_matrix import BacktestKind, BacktestMatrixResult
 from polisyos.scientist.governance.calibration_leaderboard import (

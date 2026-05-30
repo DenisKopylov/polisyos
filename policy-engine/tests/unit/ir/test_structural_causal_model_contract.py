@@ -11,7 +11,7 @@ from polisyos.ir.analytics.structural_causal_model import (
     load_structural_causal_model_spec,
     persist_structural_causal_model_spec,
 )
-from polisyos.ir.refs import StructuralCausalModelSpecRef
+from polisyos.ir.registry.refs import StructuralCausalModelSpecRef
 
 
 def _minimal_graph() -> CausalGraphModel:

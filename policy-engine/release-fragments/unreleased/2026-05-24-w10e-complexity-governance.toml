@@ -1,0 +1,37 @@
+id = "2026-05-24-w10e-complexity-governance"
+title = "Add complexity governance pruning"
+type = "added"
+component = "runtime-quality"
+owner = "team-runtime-quality"
+summary = "Add W10.E Net-MAV complexity governance over W2.D self-FMEA telemetry, including blocking-frontier admission, periodic prune/merge review, and self-application retirement checks."
+evidence = [
+  "tests/unit/runtime/quality/test_complexity_governance.py",
+]
+compatibility = "Additive Python module API under polisyos.runtime.quality.complexity_governance; no package facade, OpenAPI, generated runtime client, or dashboard API changes."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.runtime.quality.complexity_governance"
+migration = "Existing soft-gate telemetry remains unchanged; consumers may opt into complexity governance reports when proposing new blocking controls or running periodic prune review."
+api = "Adds compute_net_mav, evaluate_blocking_frontier_control, review_controls_for_pruning, build_complexity_governance_report, and complexity-governance schema/contract constants."
+limitations = "Complexity governance gates control growth and prune review only; it does not mint claim support, producer evidence, publication authority, or closeout blocks without scorecard/closeout consumers."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/runtime/README.md",
+]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "runtime-quality-complexity-governance"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: polisyos.runtime.quality.complexity_governance"
+owner = "team-runtime-quality"
+version_owner = "team-runtime-quality"
+deprecation_window = "not_applicable"
+release_note = "Runtime quality can now evaluate Net-MAV admission for new blocking controls and run telemetry-derived complexity prune reviews."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/runtime/README.md",
+]
+runbook_docs = []

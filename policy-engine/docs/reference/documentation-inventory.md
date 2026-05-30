@@ -60,6 +60,13 @@ canonical regeneration command.
 | `docs/reference/tools.md`                   | `@tools-owners`     | regenerated in D0           | `tools.registry` command metadata                                | `uv run polisyos-tools docs --output docs/reference/tools.md` |
 | `docs/reference/schemas.md`                 | `@ir-owners`        | active/generated reference  | generated schema inventory                                       | schema generation check                                       |
 | `docs/reference/operations/**`              | `@platform-owners`  | active operations reference | runbooks, SLO docs, operational checks                           | CI parity, runbook rehearsal evidence                         |
+| `docs/reference/policy-design-case-failure-patterns.md` | `team-policyos-runtime` | active PDC pattern register | P01-P15 failure and repair vocabulary, capability reality labels | pattern lifecycle use in plans, tests, and closeout notes |
+| `docs/reference/policy-design-case-capability-ratchet.md` | `team-runtime-quality` | active W1.A capability ratchet | `architecture/policy_design_case/capability_reality_report.json`, capability ratchet checker | `uv run pytest tests/repo_quality/tools/test_policy_design_case_capability_ratchet.py -q` |
+| `docs/reference/policy-design-case-source-ownership.md` | `team-policyos-runtime` | active W0.G source ledger | raw research ledger, normalized synthesis, research plan, implementation plan, ADR index | `uv run pytest tests/repo_quality/tools/test_policy_design_case_source_ownership.py -q` |
+| `docs/reference/policy-design-case-evidence-paths.md` | `team-policyos-runtime` | active W1.E evidence path ledger | W0.G source ledger, W0.H structural ADR registry, implementation plan, operator runbook | `uv run pytest tests/repo_quality/tools/test_policy_design_case_documentation_paths.py -q` |
+| `docs/reference/policy-design-case-structural-adr-registry.md` | `team-policyos-runtime` | active W0.H structural ADR registry | C0-C41 research map, implementation plan, ADR index, W0 fast-track ADRs | `uv run pytest tests/repo_quality/tools/test_policy_design_case_structural_adr_registry.py -q` |
+| `docs/reference/policy-design-case-operator-guide.md` | `team-policyos-runtime` | active W5.E operator guide | evidence paths, structural ADR registry, system-design decision index, tuned-parameter owner ledger, validation ladder, capability evidence, rollout runbook | `uv run pytest tests/repo_quality/tools/test_policy_design_case_w5e_docs_runbooks.py -q` |
+| `docs/runbooks/policy-design-case-rollout-rollback.md` | `@platform-owners` with `team-policyos-runtime` | active W5.E rollout runbook | operator guide, evidence paths, capability ratchet, structural ADR registry, W6 validation ladder | `uv run pytest tests/repo_quality/tools/test_policy_design_case_w5e_docs_runbooks.py -q` |
 | `docs/runbooks/**`                          | `@platform-owners`  | active rehearsed runbooks   | incident procedures, release gates                               | last-tested evidence and rollback validation                  |
 | `docs/how-to/**`                            | `@docs-owners`      | active task guidance        | current CLI, API, code paths                                     | walkthrough smoke tests                                       |
 | `docs/tutorials/**`                         | `@docs-owners`      | active tutorial path        | product quickstart and example fixtures                          | tutorial smoke tests                                          |
@@ -86,6 +93,8 @@ ledger and retain archive status by path.
 | `docs/plans/active/FRONTEND_SOTA_PLAN.md`                         | active | L7         | Frontend/API-consumer plan; planning-only surface excluded from the published site by `mkdocs.yml`.                      |
 | `docs/plans/active/INFRASTRUCTURE_SOTA_PLAN.md`                   | active | L8/L9      | Infrastructure/platform plan; useful for ownership, gates, and release governance surfaces.                              |
 | `docs/plans/active/IR_AUDIT_REMEDIATION_PLAN.md`                  | active | L4         | Canonical source remediation plan for IR docs refresh.                                                                   |
+| `docs/plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_RESEARCH_PLAN.md` | active | L6/L9      | Repo-owned research plan for universal Policy Design Case C0-C41 and E0-E24 handoff.                                    |
+| `docs/plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md` | active-draft | L6/L9 | Engineering wave plan for universal Policy Design Case implementation; W0.G source chain is indexed in `docs/reference/policy-design-case-source-ownership.md`, W1.E command evidence paths are indexed in `docs/reference/policy-design-case-evidence-paths.md`, and W5.E operator guidance is indexed in `docs/reference/policy-design-case-operator-guide.md` plus `docs/runbooks/policy-design-case-rollout-rollback.md`. |
 | `docs/plans/active/SCIENTIST_AUDIT_REMEDIATION_PLAN.md`           | active | L6         | Canonical source remediation plan for Scientist docs refresh.                                                            |
 | `docs/plans/active/TOOLS_AUDIT_REMEDIATION_PLAN.md`               | active | L5         | Canonical source remediation plan for Tools docs refresh.                                                                |
 | `docs/plans/active/UKRAINE_FUNDING_INTELLIGENCE_PLAN.md`          | active | L2/L6      | Domain/data plan; use as context for Ukraine funding surfaces and data-source docs.                                      |
@@ -186,6 +195,12 @@ Total required file coverage: `97/97`.
   attestation, and partial-state failures. The design decision and accepted ADR
   set were reviewed for this documentation pass; no decision supersession was
   required.
+- 2026-05-23: Universal Policy Design Case W5.E added
+  `docs/reference/policy-design-case-operator-guide.md` and
+  `docs/runbooks/policy-design-case-rollout-rollback.md` as the durable
+  operator routes for ADR lookup, system-design decision indexes, public
+  evidence paths, tuned-parameter owners, validation ladders, capability
+  evidence, and rollout/rollback procedures.
 - 2026-05-13: Production-quality Phase 6.2 documents the cross-lane impact of
   runtime quality, Fabric source-selection audit, compliance, frontend
   operator dashboard, provider-quality, replay, resilience, approval, reissue,

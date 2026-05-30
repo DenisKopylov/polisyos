@@ -15,7 +15,7 @@ from pydantic import (
 )
 
 from polisyos.ir.analytics.interference import MAUPInvarianceCertificate, SpatialHodgeDiagnostics
-from polisyos.ir.refs import DependenceStructureRef
+from polisyos.ir.registry.refs import DependenceStructureRef
 
 
 def _to_numpy(value: Any) -> np.ndarray:

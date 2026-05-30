@@ -77,6 +77,9 @@ class EvidenceSpineHandoff:
     handoff_id: str | None = None
     batch_id: str | None = None
     message_count: int | None = None
+    concept_spine_ref: str | None = None
+    producer_handshake_refs: tuple[str, ...] = ()
+    bridge_authority_ref: str | None = None
     carrier_redaction_status: str = "pass"
     integrity_status: str = "pass"
     schema_version: str = EVIDENCE_SPINE_HANDOFF_SCHEMA_VERSION
@@ -91,6 +94,9 @@ class EvidenceSpineHandoff:
             "output_refs": list(self.output_refs),
             "carrier_ref": self.carrier_ref,
             "batch_id": self.batch_id,
+            "concept_spine_ref": self.concept_spine_ref,
+            "producer_handshake_refs": list(self.producer_handshake_refs),
+            "bridge_authority_ref": self.bridge_authority_ref,
         }
         assert_carrier_payload_safe(payload)
         handoff_kind = _clean_text(self.handoff_kind)
@@ -117,6 +123,13 @@ class EvidenceSpineHandoff:
         object.__setattr__(self, "output_refs", output_refs)
         object.__setattr__(self, "carrier_ref", carrier_ref or "")
         object.__setattr__(self, "batch_id", _clean_text(self.batch_id))
+        object.__setattr__(self, "concept_spine_ref", _clean_text(self.concept_spine_ref))
+        object.__setattr__(
+            self,
+            "producer_handshake_refs",
+            _text_tuple(self.producer_handshake_refs),
+        )
+        object.__setattr__(self, "bridge_authority_ref", _clean_text(self.bridge_authority_ref))
         object.__setattr__(self, "message_count", max(int(message_count), 0))
         object.__setattr__(
             self,
@@ -143,12 +156,15 @@ class EvidenceSpineHandoff:
             "batch_id": self.batch_id,
             "message_count": self.message_count,
             "carrier_ref": self.carrier_ref,
+            "concept_spine_ref": self.concept_spine_ref,
+            "producer_handshake_refs": list(self.producer_handshake_refs),
+            "bridge_authority_ref": self.bridge_authority_ref,
             "carrier_redaction_status": self.carrier_redaction_status,
             "integrity_status": self.integrity_status,
         }
 
 
-def assert_carrier_payload_safe(payload: Any, *, path: str = "$") -> None:
+def assert_carrier_payload_safe(payload: object, *, path: str = "$") -> None:
     """Reject secret-like values and raw text surfaces from handoff carrier payloads."""
 
     if isinstance(payload, Mapping):
@@ -317,6 +333,7 @@ def build_canary_evidence_handoff_ledger(
 
     carrier_ref = _carrier_ref_from_quality_evidence(quality_evidence_payload, command_metadata)
     parent_spine_ref = carrier_ref
+    handoff_context = _handoff_context_from_quality_evidence(quality_evidence_payload)
     handoffs: list[EvidenceSpineHandoff] = []
     handoffs.append(
         EvidenceSpineHandoff(
@@ -347,7 +364,11 @@ def build_canary_evidence_handoff_ledger(
             producer_ref="runtime.nl_pipeline",
             consumer_ref="tools.ops_runners.runtime.canary_evidence",
             parent_spine_ref=parent_spine_ref,
-            input_refs=tuple(ref for ref in ("job.json", "run.json") if _surface_present(ref, job_payload, run_payload)),
+            input_refs=tuple(
+                ref
+                for ref in ("job.json", "run.json")
+                if _surface_present(ref, job_payload, run_payload)
+            ),
             output_refs=quality_outputs or ("quality_evidence/quality_scorecard.json",),
             carrier_ref=carrier_ref,
             message_count=len(quality_outputs) or 1,
@@ -432,13 +453,28 @@ def build_canary_evidence_handoff_ledger(
                 carrier_ref=carrier_ref,
             )
         )
-    return build_evidence_spine_handoff_ledger(handoffs)
+    records = [
+        _handoff_with_continuity_context(handoff, handoff_context)
+        for handoff in handoffs
+    ]
+    required_kinds = [
+        *REQUIRED_HANDOFF_KINDS,
+        "replay_result",
+        "inspection_result",
+    ]
+    if "public_export_bundle" in quality_evidence_payload:
+        required_kinds.append("public_export_projection")
+    return build_evidence_spine_handoff_ledger(
+        records,
+        required_handoff_kinds=required_kinds,
+    )
 
 
 def build_evidence_spine_handoff_ledger(
     handoffs: Sequence[EvidenceSpineHandoff | Mapping[str, Any]],
     *,
     required_handoff_kinds: Sequence[str] = REQUIRED_HANDOFF_KINDS,
+    generated_at: datetime | None = None,
 ) -> dict[str, Any]:
     """Validate a handoff ledger and return typed findings."""
 
@@ -458,9 +494,12 @@ def build_evidence_spine_handoff_ledger(
                 )
             )
     status = "fail" if findings else "pass"
+    timestamp = generated_at or datetime.now(UTC)
+    if timestamp.tzinfo is None:
+        timestamp = timestamp.replace(tzinfo=UTC)
     return {
         "schema_version": EVIDENCE_SPINE_HANDOFF_LEDGER_SCHEMA_VERSION,
-        "generated_at": datetime.now(UTC).replace(microsecond=0).isoformat(),
+        "generated_at": timestamp.astimezone(UTC).replace(microsecond=0).isoformat(),
         "status": status,
         "summary": {
             "handoff_count": len(records),
@@ -607,6 +646,84 @@ def _carrier_ref_from_quality_evidence(
     return command_contract_id or "evidence-spine:bundle-carrier-unavailable"
 
 
+def _handoff_context_from_quality_evidence(
+    quality_evidence_payload: Mapping[str, Any],
+) -> dict[str, Any]:
+    continuity = quality_evidence_payload.get("runtime_orchestration_continuity")
+    if isinstance(continuity, Mapping):
+        producer_handshake_refs = _text_tuple(continuity.get("producer_handshake_refs"))
+        bridge_refs = _text_tuple(continuity.get("bridge_authority_refs"))
+        return {
+            "concept_spine_ref": _clean_text(continuity.get("concept_spine_ref")),
+            "producer_handshake_refs": producer_handshake_refs,
+            "bridge_authority_ref": bridge_refs[0] if bridge_refs else None,
+        }
+    semantic_binding = quality_evidence_payload.get("semantic_binding_ledger")
+    spine_context = (
+        semantic_binding.get("spine_context")
+        if isinstance(semantic_binding, Mapping)
+        and isinstance(semantic_binding.get("spine_context"), Mapping)
+        else None
+    )
+    concept_spine_ref = (
+        _clean_text(spine_context.get("concept_spine_ref"))
+        if isinstance(spine_context, Mapping)
+        else None
+    )
+    handshake_refs = _all_nested_refs(
+        semantic_binding,
+        keys=("handshake_id", "producer_handshake_refs"),
+    )
+    bridge_refs = _all_nested_refs(
+        semantic_binding,
+        keys=("bridge_authority_ref", "bridge_ref"),
+    )
+    return {
+        "concept_spine_ref": concept_spine_ref,
+        "producer_handshake_refs": handshake_refs,
+        "bridge_authority_ref": bridge_refs[0] if bridge_refs else None,
+    }
+
+
+def _handoff_with_continuity_context(
+    handoff: EvidenceSpineHandoff,
+    context: Mapping[str, Any],
+) -> dict[str, Any]:
+    record = handoff.to_dict()
+    if not record.get("concept_spine_ref") and context.get("concept_spine_ref"):
+        record["concept_spine_ref"] = context["concept_spine_ref"]
+    existing_handshakes = list(_text_tuple(record.get("producer_handshake_refs")))
+    for ref in _text_tuple(context.get("producer_handshake_refs")):
+        if ref not in existing_handshakes:
+            existing_handshakes.append(ref)
+    if existing_handshakes:
+        record["producer_handshake_refs"] = existing_handshakes
+    if not record.get("bridge_authority_ref") and context.get("bridge_authority_ref"):
+        record["bridge_authority_ref"] = context["bridge_authority_ref"]
+    return record
+
+
+def _all_nested_refs(value: object, *, keys: Sequence[str]) -> tuple[str, ...]:
+    found: list[str] = []
+    key_set = {key.casefold() for key in keys}
+
+    def walk(item: object) -> None:
+        if isinstance(item, Mapping):
+            for key, child in item.items():
+                if str(key).casefold() in key_set:
+                    for ref in _text_tuple(child):
+                        if ref not in found:
+                            found.append(ref)
+                walk(child)
+            return
+        if isinstance(item, Sequence) and not isinstance(item, (str, bytes, bytearray)):
+            for child in item:
+                walk(child)
+
+    walk(value)
+    return tuple(found)
+
+
 def _quality_output_refs(quality_evidence_payload: Mapping[str, Any]) -> tuple[str, ...]:
     filenames = {
         "golden_scenario_contract": "quality_evidence/golden_scenario_contract.json",
@@ -648,14 +765,14 @@ def _readiness_ref(progress: Mapping[str, Any]) -> str | None:
     return _clean_text(progress.get("readiness_ref"))
 
 
-def _clean_text(value: Any) -> str | None:
+def _clean_text(value: object) -> str | None:
     if value is None:
         return None
     text = str(value).strip()
     return text or None
 
 
-def _text_tuple(values: Any) -> tuple[str, ...]:
+def _text_tuple(values: object) -> tuple[str, ...]:
     if values is None:
         return ()
     if isinstance(values, str):

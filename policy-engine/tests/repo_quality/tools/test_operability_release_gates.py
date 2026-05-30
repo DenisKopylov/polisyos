@@ -44,7 +44,7 @@ def test_phase6_6_public_stable_bundles_are_complete_or_actioned() -> None:
 
     for component_id in public_stable:
         bundle_path = REPO_ROOT / components[component_id]["bundle"]
-        assert REQUIRED_BUNDLE_FILES <= {path.name for path in bundle_path.iterdir()}, component_id
+        assert {path.name for path in bundle_path.iterdir()} >= REQUIRED_BUNDLE_FILES, component_id
 
     _assert_exception_registry_is_actioned(index["component"])
     _assert_exception_registry_is_actioned(observability["component_contract"])

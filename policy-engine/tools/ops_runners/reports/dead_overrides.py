@@ -207,11 +207,12 @@ def _collect_ruff_entries(repo_root: Path, config: str) -> list[OverrideEntry]:
         inline_comment = _inline_comment(lines[line - 1]) if line else ""
         if inline_comment:
             comments = (*comments, inline_comment)
+        normalized_subject = _ruff_subject_for_report(repo_root, path, subject)
         entries.append(
             OverrideEntry(
                 tool="ruff",
                 kind="ruff-per-file-ignore",
-                subject=subject,
+                subject=normalized_subject,
                 config=config,
                 line=line,
                 comments=comments,
@@ -236,6 +237,29 @@ def _ruff_per_file_ignore_line_map(lines: list[str]) -> dict[str, int]:
             key = match.group("quoted") or match.group("bare")
             line_map[key] = index + 1
     return line_map
+
+
+def _ruff_subject_for_report(repo_root: Path, config_path: Path, subject: str) -> str:
+    """Normalize Ruff per-file patterns to repo-relative paths for reports.
+
+    Ruff resolves per-file ignore patterns relative to the configuration file
+    that declares them. Our generated Ruff config lives under
+    ``architecture/tooling/ruff/``, while override metadata is documented in
+    repo-root-relative terms. Normalize here so stale-override and metadata
+    checks evaluate the same path that Ruff will apply at runtime.
+    """
+
+    negated = subject.startswith("!")
+    pattern = subject[1:] if negated else subject
+    if pattern.startswith("/"):
+        normalized = pattern
+    else:
+        normalized_path = (config_path.parent / pattern).resolve(strict=False)
+        try:
+            normalized = normalized_path.relative_to(repo_root).as_posix()
+        except ValueError:
+            normalized = pattern
+    return f"!{normalized}" if negated else normalized
 
 
 def _leading_comment_block(lines: list[str], index: int) -> tuple[str, ...]:

@@ -13,14 +13,14 @@ from polisyos.ir.analytics.cross_graph import (
     EvidenceSourceKind,
     EvidenceSourceState,
 )
+from polisyos.scientist.evidence.sources import (
+    build_path_source_status,
+    update_source_status,
+)
 from polisyos.scientist.methods.discovery.priors import (
     GraphPriorBundle,
     PriorKnowledgeBundle,
     PriorKnowledgeSupport,
-)
-from polisyos.scientist.evidence.sources import (
-    build_path_source_status,
-    update_source_status,
 )
 
 

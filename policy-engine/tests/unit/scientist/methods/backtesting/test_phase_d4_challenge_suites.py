@@ -14,7 +14,7 @@ from polisyos.ir.analytics.strategic import (
     StrategicSCM,
     encode_action_profile,
 )
-from polisyos.ir.refs import FiniteStateAbstractionMapRef, StrategicPayoffTableRef
+from polisyos.ir.registry.refs import FiniteStateAbstractionMapRef, StrategicPayoffTableRef
 from polisyos.scientist.methods.autotune.models import BenchmarkSplit
 from polisyos.scientist.methods.backtesting.abstraction_suite import run_abstraction_challenge_suite
 from polisyos.scientist.methods.backtesting.strategic_suite import run_strategic_challenge_suites

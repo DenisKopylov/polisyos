@@ -1,0 +1,39 @@
+id = "2026-05-24-w8b-argument-graph"
+title = "Add Policy Design Case argument graph builder"
+type = "added"
+component = "runtime-quality"
+owner = "team-policyos-runtime"
+summary = "Add W8.B runtime argument/warrant graph emission with typed warrant semantics, machine inspection, SACM/CAE/GSN export, and authority-boundary safeguards."
+evidence = [
+  "tests/unit/runtime/quality/test_argument_graph.py",
+  "tests/unit/runtime/quality/test_claim_argument.py",
+  "tests/unit/runtime/quality/test_assurance_case.py",
+]
+compatibility = "Additive runtime-quality Python API; no OpenAPI or generated runtime client changes."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.runtime.quality"
+migration = "Existing Policy Design Case claim-argument surfaces continue to work; consumers may opt into argument_graph, argument_graph_inspection, and argument_graph_export quality evidence surfaces."
+api = "Adds build_argument_graph, inspect_argument_graph, export_argument_graph, build_argument_graph_quality_evidence_surfaces, merge_argument_graph_quality_evidence_surfaces, and persist_argument_graph."
+limitations = "The argument graph is diagnostic/inspection authority only and may not be used as claim, evidence, projection, readiness, or closeout authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/runtime/README.md",
+]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "policy-design-case-argument-graph-runtime-quality-api"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: polisyos.runtime.quality"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "not_applicable"
+release_note = "Runtime quality exposes W8.B argument graph construction, inspection, and SACM/CAE/GSN export helpers."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/runtime/README.md",
+]
+runbook_docs = []

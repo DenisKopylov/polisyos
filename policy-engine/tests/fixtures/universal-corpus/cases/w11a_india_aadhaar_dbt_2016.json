@@ -1,0 +1,664 @@
+{
+  "case_id": "w11a_india_aadhaar_dbt_2016",
+  "claim_evidence_annotations": {
+    "annotation_provenance": {
+      "conflicts": [],
+      "disagreement_category": null,
+      "expertise_basis": "W11.A source triage from UIDAI legal and DBT materials",
+      "reviewed_at": "2026-05-24",
+      "reviewer_role": "policy_generalist"
+    },
+    "annotation_status": "annotated_w11b",
+    "authority_boundary": {
+      "authoritative_for": [
+        "corpus_annotation",
+        "compilation_truthfulness_reference"
+      ],
+      "may_not_be_used_for": [
+        "claim_authority",
+        "producer_evidence_authority",
+        "legal_authority",
+        "method_validity",
+        "participation_legitimacy",
+        "projection_authority"
+      ],
+      "may_not_use_for": [
+        "claim_authority",
+        "producer_evidence_authority",
+        "legal_authority",
+        "method_validity",
+        "participation_legitimacy",
+        "projection_authority"
+      ]
+    },
+    "authority_level": "production",
+    "capability_reality_label": "implemented",
+    "case_id": "w11a_india_aadhaar_dbt_2016",
+    "case_title": "India Aadhaar-enabled Direct Benefit Transfer",
+    "claims": [
+      {
+        "admissibility_label": "publishable_with_limitation",
+        "claim_id": "claim:aadhaar-dbt-targets-benefits",
+        "claim_type": "implementation_and_rights",
+        "contestability_status": "contested",
+        "evidence_refs": [
+          "evidence:uidai-dbt-faq"
+        ],
+        "legal_refs": [
+          "legal:aadhaar-act-2016",
+          "legal:puttaswamy-aadhaar-judgment"
+        ],
+        "limitation_refs": [
+          "limitation:section-7-purpose-boundary"
+        ],
+        "method_refs": [
+          "method:identity-authentication-delivery"
+        ],
+        "participation_refs": [
+          "participation:beneficiary-authentication-channel"
+        ],
+        "risks": [
+          "risk:privacy-and-exclusion"
+        ],
+        "scope": {
+          "geography": [
+            "India"
+          ],
+          "institution": [
+            "UIDAI",
+            "central_and_state_governments",
+            "Supreme_Court_of_India"
+          ],
+          "population": [
+            "benefit_and_subsidy_recipients"
+          ],
+          "time_period": "2016-09 onward"
+        },
+        "text_ref": "text:case:summary",
+        "tradeoffs": [
+          "tradeoff:leakage-control-vs-rights"
+        ]
+      }
+    ],
+    "corpus_phase": "W11.A",
+    "domain": "digital_public_service",
+    "expected_evidence_families": [
+      "statutory_authority_and_court_limits",
+      "authentication_success_failure_data",
+      "benefit_delivery_and_exclusion_audit",
+      "privacy_and_data_protection_assessment",
+      "grievance_and_recourse_records"
+    ],
+    "expert_adjudication_status": "adjudicated_w11c",
+    "jurisdiction": "India",
+    "jurisdiction_authority_level": "national",
+    "known_failure_limitation_labels": [
+      "privacy_rights_contested",
+      "beneficiary_exclusion_risk",
+      "authentication_failure_risk",
+      "purpose_limitation_required"
+    ],
+    "known_outcomes_or_failures": [
+      {
+        "finding_id": "outcome:dbt-enabled-benefit-delivery",
+        "source_ref": "outcome:dbt-enabled-benefit-delivery",
+        "would_prior_obligation_have_flagged": null
+      }
+    ],
+    "obligations": [
+      {
+        "generated_from_facets": [
+          "facet:instrument.digital_identity",
+          "facet:delivery.direct_benefit_transfer",
+          "facet:risk.privacy_exclusion"
+        ],
+        "obligation_id": "obligation:aadhaar-exclusion-and-purpose-limits",
+        "required_evidence_family": "rights_exclusion_and_recourse_audit",
+        "reviewer_notes": "Production useful design must carry purpose limitation, exclusion-risk, and recourse evidence alongside delivery-efficiency claims.",
+        "status": "required_for_production_closeout"
+      }
+    ],
+    "pattern_refs": [
+      "P01",
+      "P02",
+      "P03",
+      "P05",
+      "P10",
+      "P13",
+      "P14",
+      "P15"
+    ],
+    "policy_instrument": {
+      "delivery_channel": "Aadhaar authentication and Direct Benefit Transfer systems",
+      "funding_channel": "consolidated_fund_benefit_and_subsidy_programmes",
+      "instrument_type": "digital_identity_enabled_benefit_delivery"
+    },
+    "policy_time": "2016-09 onward",
+    "raw_source_refs": [
+      "https://www.uidai.gov.in/en/about-uidai/legal-framework/2033-aadhaar-targeted-delivery-of-financial-and-other-subsidies%2C-benefits-and-services-act%2C-2016.html",
+      "https://www.uidai.gov.in/en/309-faqs/direct-benefit-transfer-dbt/about-dbt.html",
+      "https://uidai.gov.in/en/about-uidai/legal-framework/judgements/13583-justice-k-s-puttaswamy-retd-and-anr-vs-uoi-and-ors-dated-26-09-2018-five-judges-constitutional-bench.html"
+    ],
+    "redacted_source_hashes": [],
+    "references": [
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "text:case:summary",
+        "ref_type": "source",
+        "source_ref": "repo://docs/research/universal-policy-design/outcome-corpus/india-aadhaar-dbt-2016-digital-public-service.md#summary",
+        "title": "Case summary"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "legal:aadhaar-act-2016",
+        "ref_type": "legal",
+        "source_ref": "https://www.uidai.gov.in/en/about-uidai/legal-framework/2033-aadhaar-targeted-delivery-of-financial-and-other-subsidies%2C-benefits-and-services-act%2C-2016.html",
+        "title": "Aadhaar Act 2016"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "legal:puttaswamy-aadhaar-judgment",
+        "ref_type": "legal",
+        "source_ref": "https://uidai.gov.in/en/about-uidai/legal-framework/judgements/13583-justice-k-s-puttaswamy-retd-and-anr-vs-uoi-and-ors-dated-26-09-2018-five-judges-constitutional-bench.html",
+        "title": "Justice K.S. Puttaswamy Aadhaar judgment"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "evidence:uidai-dbt-faq",
+        "ref_type": "evidence",
+        "source_ref": "https://www.uidai.gov.in/en/309-faqs/direct-benefit-transfer-dbt/about-dbt.html",
+        "title": "UIDAI Aadhaar for Direct Benefit Transfer FAQ"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "method:identity-authentication-delivery",
+        "ref_type": "method",
+        "source_ref": "https://www.uidai.gov.in/en/309-faqs/direct-benefit-transfer-dbt/about-dbt.html",
+        "title": "Aadhaar authentication and benefit delivery mechanism"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "participation:beneficiary-authentication-channel",
+        "ref_type": "participation",
+        "source_ref": "https://www.uidai.gov.in/en/309-faqs/direct-benefit-transfer-dbt/about-dbt.html",
+        "title": "Beneficiary authentication and update pathway"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "risk:privacy-and-exclusion",
+        "ref_type": "risk",
+        "source_ref": "https://uidai.gov.in/en/about-uidai/legal-framework/judgements/13583-justice-k-s-puttaswamy-retd-and-anr-vs-uoi-and-ors-dated-26-09-2018-five-judges-constitutional-bench.html",
+        "title": "Privacy, proportionality, and exclusion litigation risk"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "tradeoff:leakage-control-vs-rights",
+        "ref_type": "tradeoff",
+        "source_ref": "https://uidai.gov.in/en/about-uidai/legal-framework/judgements/13583-justice-k-s-puttaswamy-retd-and-anr-vs-uoi-and-ors-dated-26-09-2018-five-judges-constitutional-bench.html",
+        "title": "Leakage reduction and rights limitation tradeoff"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "limitation:section-7-purpose-boundary",
+        "ref_type": "limitation",
+        "source_ref": "https://www.uidai.gov.in/en/309-faqs/direct-benefit-transfer-dbt/about-dbt.html",
+        "title": "Aadhaar mandate tied to Section 7 benefit and subsidy purposes"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "outcome:dbt-enabled-benefit-delivery",
+        "ref_type": "outcome",
+        "source_ref": "https://www.uidai.gov.in/en/309-faqs/direct-benefit-transfer-dbt/about-dbt.html",
+        "title": "Aadhaar-enabled benefit delivery"
+      }
+    ],
+    "schema_version": "policyos.universal_outcome_corpus.annotation.v1",
+    "sourcing_status": "sourced",
+    "targeting": {
+      "affected_populations": [
+        "residents_without_reliable_biometrics_or_documents",
+        "banks_and_payment_agents",
+        "state_and_central_departments"
+      ],
+      "beneficiary_classes": [
+        "benefit_and_subsidy_recipients",
+        "welfare_programme_administrators"
+      ],
+      "targeting_type": "identity_linkage_for_eligible_beneficiaries"
+    }
+  },
+  "compilation_intent_text": "India Aadhaar-enabled Direct Benefit Transfer. Design a multi_year national registry service for households and residents, with budget support, privacy pii risk controls, and annual review.",
+  "concept_spine_refs": {
+    "canonical_concept_refs": [
+      "concept://w11/w11a_india_aadhaar_dbt_2016/universal-policy-grammar"
+    ],
+    "concept_spine_ref": "concept-spine://w11/w11a_india_aadhaar_dbt_2016",
+    "facet_concept_refs": {
+      "authority_type": [
+        "concept://w11/w11a_india_aadhaar_dbt_2016/authority_type"
+      ],
+      "delivery_channel": [
+        "concept://w11/w11a_india_aadhaar_dbt_2016/delivery_channel"
+      ],
+      "funding_channel": [
+        "concept://w11/w11a_india_aadhaar_dbt_2016/funding_channel"
+      ],
+      "geography_predicate": [
+        "concept://w11/w11a_india_aadhaar_dbt_2016/geography_predicate"
+      ],
+      "instrument_type": [
+        "concept://w11/w11a_india_aadhaar_dbt_2016/instrument_type"
+      ],
+      "method_need": [
+        "concept://w11/w11a_india_aadhaar_dbt_2016/method_need"
+      ],
+      "outcome_channel": [
+        "concept://w11/w11a_india_aadhaar_dbt_2016/outcome_channel"
+      ],
+      "population_predicate": [
+        "concept://w11/w11a_india_aadhaar_dbt_2016/population_predicate"
+      ],
+      "risk_facet": [
+        "concept://w11/w11a_india_aadhaar_dbt_2016/risk_facet"
+      ],
+      "targeting_type": [
+        "concept://w11/w11a_india_aadhaar_dbt_2016/targeting_type"
+      ],
+      "time_predicate": [
+        "concept://w11/w11a_india_aadhaar_dbt_2016/time_predicate"
+      ]
+    },
+    "jurisdiction_spine_ref": "jurisdiction-spine://w11/w11a_india_aadhaar_dbt_2016"
+  },
+  "critic_ensemble": {
+    "authority_boundary": {
+      "authoritative_for": [
+        "critic_diversity_measurement"
+      ],
+      "may_not_use_for": [
+        "claim_authority",
+        "producer_evidence_authority",
+        "legal_authority",
+        "method_validity",
+        "projection_authority"
+      ]
+    },
+    "run_id": "run-w11a_india_aadhaar_dbt_2016",
+    "verdicts": [
+      {
+        "envelope": {
+          "critic_role": "legal",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_legal_basis"
+        },
+        "failure_modes": [
+          "authority_boundary:privacy_rights_contested"
+        ],
+        "message": "legal critic flags privacy_rights_contested for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_india_aadhaar_dbt_2016"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "fiscal",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_fiscal_basis"
+        },
+        "failure_modes": [
+          "budget_feasibility:beneficiary_exclusion_risk"
+        ],
+        "message": "fiscal critic flags beneficiary_exclusion_risk for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_india_aadhaar_dbt_2016"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "equity",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_equity_basis"
+        },
+        "failure_modes": [
+          "distributional_effect:authentication_failure_risk"
+        ],
+        "message": "equity critic flags authentication_failure_risk for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_india_aadhaar_dbt_2016"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "data",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_data_basis"
+        },
+        "failure_modes": [
+          "source_lineage:purpose_limitation_required"
+        ],
+        "message": "data critic flags purpose_limitation_required for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_india_aadhaar_dbt_2016"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "implementation",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_implementation_basis"
+        },
+        "failure_modes": [
+          "delivery_capacity:privacy_rights_contested"
+        ],
+        "message": "implementation critic flags privacy_rights_contested for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_india_aadhaar_dbt_2016"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "affected_person",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_affected_person_basis"
+        },
+        "failure_modes": [
+          "participation_voice:beneficiary_exclusion_risk"
+        ],
+        "message": "affected_person critic flags beneficiary_exclusion_risk for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_india_aadhaar_dbt_2016"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "adversarial",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_adversarial_basis"
+        },
+        "failure_modes": [
+          "failure_probe:authentication_failure_risk"
+        ],
+        "message": "adversarial critic flags authentication_failure_risk for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_india_aadhaar_dbt_2016"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "monitoring",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_monitoring_basis"
+        },
+        "failure_modes": [
+          "lifecycle_monitoring:purpose_limitation_required"
+        ],
+        "message": "monitoring critic flags purpose_limitation_required for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_india_aadhaar_dbt_2016"
+        ],
+        "verdict": "contest"
+      }
+    ]
+  },
+  "domain": "digital_public_service",
+  "expected_adapter_bindings": {
+    "bindings": [
+      {
+        "adapter": "fabric",
+        "binding_id": "bind-w11a_india_aadhaar_dbt_2016-selected",
+        "reason_code": "annotation_data_family_selected",
+        "requirement_id": "data-w11a_india_aadhaar_dbt_2016",
+        "status": "selected"
+      },
+      {
+        "adapter": "scholar",
+        "binding_id": "bind-w11a_india_aadhaar_dbt_2016-rejected",
+        "reason_code": "generic_or_transfer_mismatch_rejected",
+        "requirement_id": "scholar-w11a_india_aadhaar_dbt_2016",
+        "status": "rejected"
+      },
+      {
+        "adapter": "foundry",
+        "binding_id": "bind-w11a_india_aadhaar_dbt_2016-blocked",
+        "reason_code": "method_or_counterfactual_precondition_missing",
+        "requirement_id": "method-w11a_india_aadhaar_dbt_2016",
+        "status": "blocked"
+      }
+    ]
+  },
+  "expected_claim_families": {
+    "families": [
+      {
+        "claim_family": "implementation_and_rights",
+        "claim_id": "claim:aadhaar-dbt-targets-benefits",
+        "expected_support_status": "publishable_with_limitation"
+      }
+    ]
+  },
+  "expected_closeout_states": {
+    "states": [
+      {
+        "authority_level": "research",
+        "required_surface_refs": [
+          "audit://w11d/w11a_india_aadhaar_dbt_2016/research"
+        ],
+        "state": "publishable"
+      },
+      {
+        "authority_level": "governed",
+        "required_surface_refs": [
+          "audit://w11d/w11a_india_aadhaar_dbt_2016/governed"
+        ],
+        "state": "publishable"
+      },
+      {
+        "authority_level": "production",
+        "limitation_refs": [
+          "limitation://w11d/w11a_india_aadhaar_dbt_2016"
+        ],
+        "required_surface_refs": [
+          "audit://w11d/w11a_india_aadhaar_dbt_2016/production"
+        ],
+        "state": "limited"
+      }
+    ]
+  },
+  "expected_facets": {
+    "facets": [
+      {
+        "concept_ref": "concept://w11d/w11a_india_aadhaar_dbt_2016/instrument",
+        "expected_value": "digital_identity_enabled_benefit_delivery",
+        "facet_name": "instrument_type"
+      },
+      {
+        "concept_ref": "concept://w11d/w11a_india_aadhaar_dbt_2016/targeting",
+        "expected_value": "identity_linkage_for_eligible_beneficiaries",
+        "facet_name": "targeting_type"
+      },
+      {
+        "concept_ref": "concept://w11d/w11a_india_aadhaar_dbt_2016/delivery",
+        "expected_value": "Aadhaar authentication and Direct Benefit Transfer systems",
+        "facet_name": "delivery_channel"
+      }
+    ]
+  },
+  "expected_obligation_graph": {
+    "frontier": [
+      {
+        "claim_refs": [
+          "claim:aadhaar-dbt-targets-benefits"
+        ],
+        "family": "participation",
+        "obligation_id": "obligation:aadhaar-exclusion-and-purpose-limits",
+        "priority": "required_for_production_closeout",
+        "source_class": "governed_rule"
+      }
+    ]
+  },
+  "expected_projection_truthfulness": {
+    "projections": [
+      {
+        "audience": "public",
+        "may_not_claim": [
+          "fixture expectation is runtime authority"
+        ],
+        "must_disclose_refs": [
+          "annotation://w11d/w11a_india_aadhaar_dbt_2016"
+        ],
+        "truthfulness": "faithful"
+      }
+    ]
+  },
+  "expected_requirement_specs": {
+    "families": {
+      "data": [
+        {
+          "claim_id": "claim:aadhaar-dbt-targets-benefits",
+          "requirement_id": "data-w11a_india_aadhaar_dbt_2016",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/india-aadhaar-dbt-2016-digital-public-service.md#data"
+        }
+      ],
+      "legal": [
+        {
+          "claim_id": "claim:aadhaar-dbt-targets-benefits",
+          "requirement_id": "legal-w11a_india_aadhaar_dbt_2016",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/india-aadhaar-dbt-2016-digital-public-service.md#legal"
+        }
+      ],
+      "method": [
+        {
+          "claim_id": "claim:aadhaar-dbt-targets-benefits",
+          "requirement_id": "method-w11a_india_aadhaar_dbt_2016",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/india-aadhaar-dbt-2016-digital-public-service.md#method"
+        }
+      ],
+      "participation": [
+        {
+          "claim_id": "claim:aadhaar-dbt-targets-benefits",
+          "requirement_id": "participation-w11a_india_aadhaar_dbt_2016",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/india-aadhaar-dbt-2016-digital-public-service.md#participation"
+        }
+      ],
+      "scholar": [
+        {
+          "claim_id": "claim:aadhaar-dbt-targets-benefits",
+          "requirement_id": "scholar-w11a_india_aadhaar_dbt_2016",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/india-aadhaar-dbt-2016-digital-public-service.md#scholar"
+        }
+      ]
+    }
+  },
+  "expert_adjudication": {
+    "case_label": "semantic_pass",
+    "claim_labels": [
+      {
+        "claim_id": "claim:aadhaar-dbt-targets-benefits",
+        "dimension_id": "compilation_truthfulness",
+        "failure_mode": "privacy_rights_contested",
+        "label": "semantic_pass",
+        "required_surface_change": "Expose annotation-derived limitation, contestation, or blocker state.",
+        "status_should_have_been": "publishable",
+        "why_structural_checks_missed_it": "W11.D fixture preserves annotation semantics for truthfulness comparison."
+      }
+    ],
+    "reviewer_topology_ref": "reviewer-topology://w11d/public/w11a_india_aadhaar_dbt_2016"
+  },
+  "input_intent_ref": "intent-w11a_india_aadhaar_dbt_2016",
+  "intent": {
+    "authority_levels": [
+      "research",
+      "governed",
+      "production"
+    ],
+    "instrument_type": "digital_identity_enabled_benefit_delivery",
+    "intent_id": "intent-w11a_india_aadhaar_dbt_2016",
+    "jurisdiction": "India",
+    "metadata": {
+      "w11a_authority_level": "production"
+    },
+    "policy_time": "2016-09 onward",
+    "target_population": "benefit_and_subsidy_recipients, welfare_programme_administrators",
+    "text": "India Aadhaar-enabled Direct Benefit Transfer"
+  },
+  "metadata": {
+    "pattern_refs": [
+      "P01",
+      "P02",
+      "P03",
+      "P05",
+      "P10",
+      "P13",
+      "P14",
+      "P15"
+    ],
+    "reuse_classification": "wire_existing",
+    "source_annotation_schema": "policyos.universal_outcome_corpus.annotation.v1"
+  },
+  "producer_pipeline": {
+    "producers": [
+      {
+        "consumed_concept_refs": [
+          "concept://w11/w11a_india_aadhaar_dbt_2016/universal-policy-grammar"
+        ],
+        "consumed_requirement_refs": [
+          "data-w11a_india_aadhaar_dbt_2016"
+        ],
+        "expected_output_families": [
+          "fabric.source_contract_binding.v1"
+        ],
+        "first_pass_bindings": [
+          {
+            "binding_id": "label.fabric.w11a_india_aadhaar_dbt_2016",
+            "binding_kind": "label",
+            "concept_ref": "concept://w11/w11a_india_aadhaar_dbt_2016/universal-policy-grammar",
+            "disposition": "context_only",
+            "label": "fabric context for w11a_india_aadhaar_dbt_2016"
+          }
+        ],
+        "producer_component": "fabric",
+        "requested_deadline_s": 5.0,
+        "second_pass_bindings": [
+          {
+            "artifact_ref": "source://w11/w11a_india_aadhaar_dbt_2016/fabric",
+            "binding_id": "binding.fabric.w11a_india_aadhaar_dbt_2016",
+            "binding_kind": "dataset",
+            "concept_ref": "concept://w11/w11a_india_aadhaar_dbt_2016/universal-policy-grammar",
+            "disposition": "selected",
+            "requirement_ref": "data-w11a_india_aadhaar_dbt_2016",
+            "time_role": "observation_time"
+          }
+        ]
+      }
+    ]
+  },
+  "redacted_source_hash": "sha256:6cbf7c163ed19d73369f23e9a07cd8127b4a00ff25b93560f48428dc223270c2",
+  "schema_version": "policyos.universal_corpus_fixture.v1",
+  "source_case_ref": "docs/research/universal-policy-design/outcome-corpus/india-aadhaar-dbt-2016-digital-public-service.md",
+  "split": "public",
+  "title": "India Aadhaar-enabled Direct Benefit Transfer"
+}

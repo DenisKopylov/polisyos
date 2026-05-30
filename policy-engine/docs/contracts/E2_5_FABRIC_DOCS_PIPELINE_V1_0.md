@@ -93,7 +93,7 @@ World facts must be produced via:
 - `polisyos.fabric.world.store.emit_*_facts`
 - `polisyos.fabric.world.store.write_world_fact_segment` + `append_world_segment_index`
 
-No producers should call `polisyos.fabric.fact_writer.write_fact_segment()` directly for world facts.
+No producers should call `polisyos.fabric.evidence.fact_writer.write_fact_segment()` directly for world facts.
 
 ### 2.3 World materialization projections are CAS-driven
 

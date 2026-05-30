@@ -7,6 +7,8 @@ from datetime import UTC, datetime
 from types import SimpleNamespace
 
 import pytest
+
+from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
 from polisyos.fabric.connectors.base import FetchRequest, FetchResult
 from polisyos.fabric.connectors.resilience import (
     AdaptiveRateLimiter,
@@ -24,7 +26,6 @@ from polisyos.fabric.connectors.resilience.circuit_breaker import (
     CircuitLeaseError,
     CircuitState,
 )
-from polisyos.fabric.observability import FABRIC_TRACE_NAMES
 from polisyos.ir.connectors import DataVersion, VersionStrategy
 
 

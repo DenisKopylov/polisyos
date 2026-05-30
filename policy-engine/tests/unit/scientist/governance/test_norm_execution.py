@@ -22,7 +22,7 @@ from polisyos.core.governance.legal.backends.expr_ast import (
     SafeExpressionEvaluator,
 )
 from polisyos.core.governance.passes.base import IssueSeverity
-from polisyos.ir.norm_pack import NormPack, NormRule, RuleType
+from polisyos.ir.loading.norm_pack import NormPack, NormRule, RuleType
 
 
 class TestSecurityRejection:

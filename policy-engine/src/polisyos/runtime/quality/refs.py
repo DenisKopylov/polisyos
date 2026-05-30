@@ -134,7 +134,7 @@ class RuntimeQualityAuthorityRefs:
         job_payload: Mapping[str, Any] | None = None,
         run_payload: Mapping[str, Any] | None = None,
         quality_evidence: Mapping[str, Any] | None = None,
-    ) -> "RuntimeQualityAuthorityRefs":
+    ) -> RuntimeQualityAuthorityRefs:
         refs: dict[str, str] = {}
         sources: dict[str, str] = {}
 
@@ -371,9 +371,9 @@ def _missing_evidence(ref_key: str) -> dict[str, str]:
 __all__ = [
     "KNOWN_QUALITY_REF_KEYS",
     "LIFECYCLE_QUALITY_REF_KEYS",
+    "REQUIRED_QUALITY_REF_KEYS",
     "QualityRefMatch",
     "QualityRefResolution",
-    "REQUIRED_QUALITY_REF_KEYS",
     "RuntimeQualityAuthorityRefs",
     "resolve_quality_refs",
 ]

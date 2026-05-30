@@ -1,0 +1,39 @@
+id = "2026-05-24-w10d-run-cost-gate"
+title = "Add authority-level run-cost enforcement gates"
+type = "added"
+component = "runtime-quality"
+owner = "team-runtime-quality"
+summary = "Add W10.D run-cost enforcement over W2.C telemetry, including production-authority typed blockers, research-authority limitations, scorecard consumption, closeout reader ingestion, and canary bundle persistence."
+evidence = [
+  "tests/unit/runtime/quality/test_cost_gate.py",
+]
+compatibility = "Additive runtime-quality Python API and quality-evidence artifact; no OpenAPI, generated runtime client, or dashboard API changes."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.runtime.quality"
+migration = "Existing W2.C telemetry remains advisory. Consumers may opt into run_cost_gate policy records for authority-level enforcement."
+api = "Adds build_run_cost_gate_report, validate_run_cost_gate_report, cost_gate_scorecard_gates, RunCostGateError, and run_cost_budget_policy_from_performance_budget."
+limitations = "Hard blocking requires governed authority-policy refs; research-authority runs emit limitations only."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/runtime/README.md",
+  "docs/reference/runtime/run-cost-enforcement-gate.md",
+]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "policy-design-case-run-cost-gate-runtime-quality-api"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: polisyos.runtime.quality"
+owner = "team-runtime-quality"
+version_owner = "team-runtime-quality"
+deprecation_window = "not_applicable"
+release_note = "Runtime quality can now enforce governed run-cost budgets as authority-scoped blockers or limitations."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/runtime/README.md",
+  "docs/reference/runtime/run-cost-enforcement-gate.md",
+]
+runbook_docs = []

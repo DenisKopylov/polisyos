@@ -28,7 +28,7 @@ from polisyos.ir.kernel import (
     SlotScope,
 )
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
-from polisyos.ir.types import SelectorOperator
+from polisyos.ir.model_layer.types import SelectorOperator
 
 __all__ = [
     "apply_op",

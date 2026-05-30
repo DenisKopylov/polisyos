@@ -1,0 +1,185 @@
+{
+  "schema_version": "policyos.capability_authority.mixed_outcomes.v1",
+  "rule_version": "capability-authority-v1.0",
+  "cases": [
+    {
+      "case_id": "exact",
+      "posture": "production",
+      "claim_use": "claim_evidence_closeout",
+      "required_schema_regime": "ukraine_schema_v2",
+      "capability": {
+        "capability_id": "capability:firm_survival_exact",
+        "evidence_mode": "observed",
+        "trust_tier": "authoritative_high_coverage",
+        "identification_mode": "point_identified",
+        "construct_validity": 0.95
+      },
+      "expected_status": "selected_exact",
+      "expected_authority_envelope_result": "admissible",
+      "expected_satisfies_claim_evidence": true,
+      "expected_reasoning": ["construct_match", "authority_minimum_passed"]
+    },
+    {
+      "case_id": "exact_plus_proxy",
+      "posture": "governed_pilot",
+      "claim_use": "claim_evidence_closeout",
+      "capability": {
+        "capability_id": "capability:firm_survival_proxy",
+        "evidence_mode": "proxy_observational",
+        "trust_tier": "derived_proxy",
+        "identification_mode": "proxy_identified",
+        "construct_validity": 0.72
+      },
+      "selected": [
+        {
+          "capability_id": "capability:firm_survival_exact_context",
+          "evidence_mode": "observed",
+          "lineage_refs": ["source_snapshot:independent-admin"]
+        }
+      ],
+      "expected_status": "selected_proxy_with_limitation",
+      "expected_authority_envelope_result": "limited",
+      "expected_satisfies_claim_evidence": false,
+      "expected_reasoning": ["proxy_observational_selected_with_limitation"]
+    },
+    {
+      "case_id": "proxy_legal_gap",
+      "posture": "governed_pilot",
+      "claim_use": "claim_evidence_closeout",
+      "capability": {
+        "capability_id": "capability:credit_program_proxy_legal_gap",
+        "construct": "credit_program_enrollment",
+        "evidence_mode": "proxy_observational",
+        "trust_tier": "derived_proxy",
+        "identification_mode": "proxy_identified",
+        "construct_validity": 0.7,
+        "metadata": {
+          "authority_factors": {
+            "legal_authority": 0.0
+          }
+        }
+      },
+      "expected_status": "blocked_authority_boundary",
+      "expected_authority_envelope_result": "blocked",
+      "expected_satisfies_claim_evidence": false,
+      "expected_reasoning": ["legal_authority_below_floor"]
+    },
+    {
+      "case_id": "scholar_only",
+      "posture": "production",
+      "claim_use": "claim_evidence_closeout",
+      "capability": {
+        "capability_id": "capability:scholar_credit_survival_support",
+        "modality": ["scholar_claim"],
+        "evidence_mode": "scholarly_causal_support",
+        "trust_tier": "authoritative_high_coverage",
+        "identification_mode": "point_identified",
+        "construct_validity": 0.9
+      },
+      "expected_status": "blocked_authority_boundary",
+      "expected_authority_envelope_result": "blocked",
+      "expected_satisfies_claim_evidence": false,
+      "expected_reasoning": ["scholar_only_cannot_satisfy_current_claim_evidence"]
+    },
+    {
+      "case_id": "simulation_only",
+      "posture": "production",
+      "claim_use": "claim_evidence_closeout",
+      "capability": {
+        "capability_id": "capability:simulation_credit_program",
+        "modality": ["simulation_state"],
+        "evidence_mode": "simulation_only",
+        "trust_tier": "authoritative_high_coverage",
+        "identification_mode": "point_identified",
+        "construct_validity": 0.95
+      },
+      "expected_status": "blocked_authority_boundary",
+      "expected_authority_envelope_result": "blocked",
+      "expected_satisfies_claim_evidence": false,
+      "expected_reasoning": ["simulation_only_cannot_satisfy_production_claim_evidence"]
+    },
+    {
+      "case_id": "historical_prior_only",
+      "posture": "production",
+      "claim_use": "claim_evidence_closeout",
+      "capability": {
+        "capability_id": "capability:historical_pdc_prior",
+        "modality": ["historical_pdc_artifact"],
+        "evidence_mode": "historical_prior",
+        "trust_tier": "authoritative_high_coverage",
+        "identification_mode": "point_identified",
+        "construct_validity": 0.95
+      },
+      "expected_status": "blocked_authority_boundary",
+      "expected_authority_envelope_result": "blocked",
+      "expected_satisfies_claim_evidence": false,
+      "expected_reasoning": ["historical_prior_firewall_current_claim_evidence"]
+    },
+    {
+      "case_id": "independence_collapsed",
+      "posture": "production",
+      "claim_use": "claim_evidence_closeout",
+      "capability": {
+        "capability_id": "capability:firm_survival_duplicate_lineage",
+        "evidence_mode": "observed",
+        "lineage_refs": ["source_snapshot:shared", "calibration_run:shared"],
+        "trust_tier": "authoritative_high_coverage",
+        "identification_mode": "point_identified",
+        "construct_validity": 0.95
+      },
+      "selected": [
+        {
+          "capability_id": "capability:firm_survival_selected",
+          "evidence_mode": "observed",
+          "lineage_refs": ["source_snapshot:shared", "calibration_run:shared"]
+        }
+      ],
+      "expected_status": "selected_proxy_with_limitation",
+      "expected_authority_envelope_result": "limited",
+      "expected_satisfies_claim_evidence": false,
+      "expected_reasoning": ["effective_independence_below_floor"]
+    },
+    {
+      "case_id": "conflict_marked",
+      "posture": "production",
+      "claim_use": "claim_evidence_closeout",
+      "capability": {
+        "capability_id": "capability:firm_survival_exact",
+        "evidence_mode": "observed",
+        "trust_tier": "authoritative_high_coverage",
+        "identification_mode": "point_identified",
+        "construct_validity": 0.95
+      },
+      "conflict_markers": [
+        {
+          "conflict_id": "conflict:firm_survival:empirical",
+          "construct": "firm_survival",
+          "conflict_class": "empirical",
+          "conflict_resolution_route": "new_evidence",
+          "capability_refs": ["capability:firm_survival_exact"]
+        }
+      ],
+      "expected_status": "selected_with_conflict_marker",
+      "expected_authority_envelope_result": "contested",
+      "expected_satisfies_claim_evidence": false,
+      "expected_reasoning": ["construct_conflict_marker_present"]
+    },
+    {
+      "case_id": "rights_blocked",
+      "posture": "production",
+      "claim_use": "claim_evidence_closeout",
+      "capability": {
+        "capability_id": "capability:firm_survival_rights_blocked",
+        "evidence_mode": "observed",
+        "claim_evidence_use_allowed": false,
+        "trust_tier": "authoritative_high_coverage",
+        "identification_mode": "point_identified",
+        "construct_validity": 0.95
+      },
+      "expected_status": "blocked_rights_boundary",
+      "expected_authority_envelope_result": "blocked",
+      "expected_satisfies_claim_evidence": false,
+      "expected_reasoning": ["rights_access_below_floor"]
+    }
+  ]
+}

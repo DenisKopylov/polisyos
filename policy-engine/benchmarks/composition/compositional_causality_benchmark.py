@@ -16,6 +16,18 @@ for _path in (str(_SRC), str(_BENCH_ROOT)):
     if _path not in sys.path:
         sys.path.insert(0, _path)
 
+from benchmarks.harness import (  # noqa: E402
+    BenchmarkCase,
+    BenchmarkCircuit,
+    BenchmarkHarness,
+    BenchmarkReport,
+)
+from benchmarks.reporting import (  # noqa: E402
+    build_preflight,
+    build_report_payload,
+    print_preflight,
+)
+from benchmarks.runtime import BenchmarkMode, resolve_mode  # noqa: E402
 from polisyos.foundry.methods.catalog.causal.graph_reconciliation import (  # noqa: E402
     ComposeSCMFragments,
 )
@@ -31,25 +43,12 @@ from polisyos.ir.analytics.alignment_certification import (  # noqa: E402
 from polisyos.ir.analytics.causal_graph import CausalGraphModel  # noqa: E402
 from polisyos.ir.analytics.causal_queries import CausalQuery  # noqa: E402
 from polisyos.ir.analytics.cross_graph import SCMFragment  # noqa: E402
-from polisyos.scientist.backtesting.composition_bridge import (  # noqa: E402
+from polisyos.scientist.methods.backtesting.composition_bridge import (  # noqa: E402
     normalize_alignment_report,
     normalize_composition_certificate,
     normalize_interface_mapping,
     replay_fragment_composition_case,
 )
-
-from benchmarks.harness import (  # noqa: E402
-    BenchmarkCase,
-    BenchmarkCircuit,
-    BenchmarkHarness,
-    BenchmarkReport,
-)
-from benchmarks.reporting import (  # noqa: E402
-    build_preflight,
-    build_report_payload,
-    print_preflight,
-)
-from benchmarks.runtime import BenchmarkMode, resolve_mode  # noqa: E402
 
 CIRCUIT = BenchmarkCircuit.CAPABILITY_WINS
 _FIXTURE_PATH = Path(__file__).resolve().parent / "fixtures" / "composition_cases.json"

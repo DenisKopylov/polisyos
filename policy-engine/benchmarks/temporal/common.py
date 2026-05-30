@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from benchmarks.harness import BenchmarkCase, BenchmarkCircuit, BenchmarkReport, CaseResult
-from polisyos.scientist.backtesting.temporal import (
+from polisyos.scientist.methods.backtesting.temporal import (
     TemporalEvaluationResult,
     build_temporal_backtest_report,
     summarize_temporal_evaluations,

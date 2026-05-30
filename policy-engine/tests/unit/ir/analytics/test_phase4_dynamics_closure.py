@@ -4,6 +4,11 @@ from datetime import UTC, datetime
 from types import SimpleNamespace
 
 import pytest
+from polisyos.ir.registry.refs import (
+    DynamicMicrosimValidationReportRef,
+    MicrosimCalibrationReportRef,
+)
+
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.foundry import (
     AttractorAnalysisResult,
@@ -52,11 +57,7 @@ from polisyos.ir.analytics.phase4_dynamics import (
     persist_space_time_causal_certificate,
     persist_temporal_graph_causal_certificate,
 )
-from polisyos.ir.refs import (
-    DynamicMicrosimValidationReportRef,
-    MicrosimCalibrationReportRef,
-)
-from polisyos.ir.schema_catalog import get_ir_type
+from polisyos.ir.schemas import get_ir_type
 
 
 def _artifact_id(char: str) -> str:

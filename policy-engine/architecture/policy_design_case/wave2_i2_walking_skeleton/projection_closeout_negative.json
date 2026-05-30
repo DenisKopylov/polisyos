@@ -1,0 +1,91 @@
+{
+  "authority_envelope": {
+    "authoritative_for": [
+      "closeout_verdict"
+    ],
+    "authority_role": "closeout_reader_authority",
+    "evidence_class": "closeout_verdict_only",
+    "may_not_be_used_for": [
+      "approval_authority",
+      "claim_authority",
+      "dashboard_projection",
+      "domain_evidence",
+      "producer_evidence",
+      "public_export",
+      "readiness_authority",
+      "scorecard_authority"
+    ],
+    "may_not_use_for": [
+      "approval_authority",
+      "claim_authority",
+      "dashboard_projection",
+      "domain_evidence",
+      "producer_evidence",
+      "public_export",
+      "readiness_authority",
+      "scorecard_authority"
+    ],
+    "provenance_kind": "runtime_reader",
+    "reader_contract": "policyos.runtime.quality.closeout_reader",
+    "reader_contract_version": "1.0.0",
+    "run_id": "run-wave2-i2"
+  },
+  "can_closeout": false,
+  "capability_reality_state": "implemented_but_not_orchestrated",
+  "contract_id": "policyos.runtime.quality.closeout_reader",
+  "contract_version": "1.0.0",
+  "issues": [
+    {
+      "authority_role": "projection_only",
+      "blocking": true,
+      "code": "closeout_projection_only_not_authority",
+      "message": "final_artifact is not closeout evidence. Readiness, dashboard, packaging, and public export surfaces cannot substitute for closeout substrate readers.",
+      "next_action": "Use the surface only for display or routing, and provide module-owned runtime evidence to the closeout reader.",
+      "provenance_kind": "runtime_projection",
+      "severity": "fail",
+      "surface": "final_artifact"
+    }
+  ],
+  "module_reader_results": [
+    {
+      "authority_role": null,
+      "blocking": false,
+      "issue_codes": [],
+      "issues": [],
+      "module_id": "closeout_compatibility",
+      "owner": "team-quality-closeout",
+      "provenance_kind": null,
+      "reader_contract": "polisyos.runtime.quality.closeout_compatibility",
+      "required": true,
+      "source_schema_version": "policyos.runtime.can_i_closeout_compatibility.v1",
+      "source_status": "pass",
+      "status": "pass",
+      "stubbed": false
+    }
+  ],
+  "run_id": "run-wave2-i2",
+  "schema_version": "policyos.runtime.can_i_closeout.reader_skeleton.v1",
+  "status": "blocked",
+  "substitution_rejections": [
+    {
+      "authority_role": "projection_only",
+      "blocking": true,
+      "code": "closeout_projection_only_not_authority",
+      "message": "final_artifact is not closeout evidence. Readiness, dashboard, packaging, and public export surfaces cannot substitute for closeout substrate readers.",
+      "next_action": "Use the surface only for display or routing, and provide module-owned runtime evidence to the closeout reader.",
+      "provenance_kind": "runtime_projection",
+      "severity": "fail",
+      "surface": "final_artifact"
+    }
+  ],
+  "summary": {
+    "failed_module_count": 0,
+    "issue_count": 1,
+    "missing_module_count": 0,
+    "module_reader_count": 1,
+    "passing_module_count": 1,
+    "stubbed_module_count": 0,
+    "substitution_rejection_count": 1
+  },
+  "verdict": "cannot_closeout"
+}

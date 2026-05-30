@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
+
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.security import (
     ArtifactGovernanceError,
@@ -14,6 +15,7 @@ from polisyos.fabric.security import (
 )
 from polisyos.fabric.world.materialize import ensure_world_schema
 from polisyos.fabric.world.materialize.sql import sql_update_world_nodes
+from polisyos.fabric.world.query import WorldQueryError, query_world_table
 from polisyos.fabric.world.store import (
     WorldBranchMergeConflictError,
     WorldSnapshotAdapterError,
@@ -26,7 +28,6 @@ from polisyos.fabric.world.store import (
     register_world_snapshot_record,
     resolve_world_snapshot,
 )
-from polisyos.fabric.world_query import WorldQueryError, query_world_table
 from polisyos.runtime.http.services.temporal import TemporalService
 
 

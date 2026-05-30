@@ -1,0 +1,315 @@
+{
+  "schema_version": "policyos.policy_design_case.wave5.i5_external_consumer_truth_manifest.v1",
+  "status": "closed",
+  "wave_id": "Wave 5",
+  "integration_slice": "I5",
+  "generated_at": "2026-05-23T00:00:00Z",
+  "owner": "team-runtime-quality",
+  "implementation_plan_ref": "repo://docs/plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md",
+  "failure_patterns_ref": "repo://docs/reference/policy-design-case-failure-patterns.md",
+  "closeout_note_ref": "repo://docs/archive/reports/2026-05-23-policy-design-case-wave5-closeout.md",
+  "entry_gate": {
+    "status": "accepted",
+    "source": "Wave 4 typed PDC graph and closeout substrate",
+    "evidence_ref": "repo://architecture/policy_design_case/wave4_i4_runtime_closeout_manifest.json"
+  },
+  "completed_phases": [
+    {
+      "phase_id": "W5.A",
+      "name": "Client, Dashboard, Export, And Audit",
+      "status": "closed",
+      "capability_id": "w5a_external_surfaces_truth",
+      "patterns_closed": [
+        "P03",
+        "P05",
+        "P10"
+      ]
+    },
+    {
+      "phase_id": "W5.B",
+      "name": "Semantic Evaluation Packs",
+      "status": "closed",
+      "capability_id": "w5b_semantic_evaluation_packs",
+      "patterns_closed": [
+        "P10",
+        "P14",
+        "P15"
+      ]
+    },
+    {
+      "phase_id": "W5.C",
+      "name": "Calibration Behavior",
+      "status": "closed",
+      "capability_id": "w5c_calibration_behavior",
+      "patterns_closed": [
+        "P07",
+        "P09",
+        "P10"
+      ]
+    },
+    {
+      "phase_id": "W5.D",
+      "name": "Balanced Memory Behavior",
+      "status": "closed",
+      "capability_id": "w5d_balanced_memory_behavior",
+      "patterns_closed": [
+        "P11",
+        "P15"
+      ]
+    },
+    {
+      "phase_id": "W5.E",
+      "name": "Docs, Runbooks, And ADR Index",
+      "status": "closed",
+      "capability_id": "w5e_operator_docs_runbooks",
+      "patterns_closed": [
+        "P03",
+        "P06",
+        "P13"
+      ]
+    },
+    {
+      "phase_id": "I5",
+      "name": "External Consumer Truth Check",
+      "status": "closed",
+      "capability_id": "w5i5_external_consumer_truth_check",
+      "patterns_closed": [
+        "P03",
+        "P05",
+        "P10",
+        "P15"
+      ]
+    }
+  ],
+  "artifacts_produced": [
+    {
+      "artifact_id": "w5a_external_surfaces_truth",
+      "artifact_ref": "repo://src/polisyos/runtime/quality/projection_semantics.py",
+      "surface_refs": [
+        "repo://src/polisyos/runtime/quality/public_export.py",
+        "repo://src/polisyos/runtime/quality/external_audit.py",
+        "repo://apps/runtime-dashboard/src/api/validators.ts",
+        "repo://packages/runtime-api-client/runtimeApiClient.ts"
+      ],
+      "authority_boundary": "projection_only"
+    },
+    {
+      "artifact_id": "w5b_semantic_evaluation_packs",
+      "artifact_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/w5b_false_pass_pack_manifest.json",
+      "surface_refs": [
+        "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/README.md",
+        "repo://tests/repo_quality/tools/test_policy_design_case_w5b_semantic_evaluation_packs.py"
+      ],
+      "authority_boundary": "evaluation_authority_not_runtime_claim_authority"
+    },
+    {
+      "artifact_id": "w5c_calibration_behavior",
+      "artifact_ref": "repo://src/polisyos/runtime/quality/calibration_ledger.py",
+      "surface_refs": [
+        "repo://docs/reference/runtime/calibration-ledger.md",
+        "repo://src/polisyos/runtime/quality/scorecard.py"
+      ],
+      "authority_boundary": "future_influence_never_current_evidence"
+    },
+    {
+      "artifact_id": "w5d_balanced_memory_behavior",
+      "artifact_ref": "repo://src/polisyos/runtime/quality/memory_influence.py",
+      "surface_refs": [
+        "repo://src/polisyos/scientist/methods/research_dag/projections.py",
+        "repo://docs/adr/0172-balanced-memory-influence-ledger.md"
+      ],
+      "authority_boundary": "future_influence_never_current_evidence"
+    },
+    {
+      "artifact_id": "w5e_operator_docs_runbooks",
+      "artifact_ref": "repo://docs/reference/policy-design-case-operator-guide.md",
+      "surface_refs": [
+        "repo://docs/runbooks/policy-design-case-rollout-rollback.md",
+        "repo://docs/reference/policy-design-case-evidence-paths.md",
+        "repo://architecture/tooling/mkdocs/nav/30-reference.yml",
+        "repo://architecture/tooling/mkdocs/nav/60-runbooks.yml"
+      ],
+      "authority_boundary": "operator_bridge_not_runtime_authority"
+    }
+  ],
+  "capability_states_closed": [
+    {
+      "capability_id": "w5a_external_surfaces_truth",
+      "reality_state": "implemented",
+      "missing_labels": []
+    },
+    {
+      "capability_id": "w5b_semantic_evaluation_packs",
+      "reality_state": "implemented",
+      "missing_labels": []
+    },
+    {
+      "capability_id": "w5c_calibration_behavior",
+      "reality_state": "implemented",
+      "missing_labels": []
+    },
+    {
+      "capability_id": "w5d_balanced_memory_behavior",
+      "reality_state": "implemented",
+      "missing_labels": []
+    },
+    {
+      "capability_id": "w5e_operator_docs_runbooks",
+      "reality_state": "implemented",
+      "missing_labels": []
+    },
+    {
+      "capability_id": "w5i5_external_consumer_truth_check",
+      "reality_state": "implemented",
+      "missing_labels": []
+    }
+  ],
+  "i5_evidence": {
+    "external_contract_fixtures": [
+      {
+        "audience": "public",
+        "fixture_ref": "repo://tests/unit/runtime/quality/test_policy_design_case_projection_semantics.py",
+        "contract_status": "pass",
+        "semantic_omission_manifest_status": "pass",
+        "closeout_truth_preserved": true,
+        "blockers_visible": true,
+        "limitations_visible": true,
+        "contested_records_visible": true,
+        "audit_refs_visible": true,
+        "schema_refs_reconstructable": true
+      },
+      {
+        "audience": "reviewer",
+        "fixture_ref": "repo://tests/unit/runtime/quality/test_policy_design_case_projection_semantics.py",
+        "contract_status": "pass",
+        "semantic_omission_manifest_status": "pass",
+        "closeout_truth_preserved": true,
+        "blockers_visible": true,
+        "limitations_visible": true,
+        "contested_records_visible": true,
+        "audit_refs_visible": true,
+        "schema_refs_reconstructable": true
+      },
+      {
+        "audience": "expert",
+        "fixture_ref": "repo://tests/unit/runtime/quality/test_policy_design_case_projection_semantics.py",
+        "contract_status": "pass",
+        "semantic_omission_manifest_status": "pass",
+        "closeout_truth_preserved": true,
+        "blockers_visible": true,
+        "limitations_visible": true,
+        "contested_records_visible": true,
+        "audit_refs_visible": true,
+        "schema_refs_reconstructable": true
+      },
+      {
+        "audience": "machine",
+        "fixture_ref": "repo://tests/unit/runtime/quality/test_policy_design_case_projection_semantics.py",
+        "contract_status": "pass",
+        "semantic_omission_manifest_status": "pass",
+        "closeout_truth_preserved": true,
+        "blockers_visible": true,
+        "limitations_visible": true,
+        "contested_records_visible": true,
+        "audit_refs_visible": true,
+        "schema_refs_reconstructable": true
+      }
+    ],
+    "public_export_truth_check": {
+      "fixture_ref": "repo://tests/unit/runtime/quality/test_public_export.py",
+      "omitted_blocked_claim_without_manifest": "rejected",
+      "projection_contract_status_visible": "pass",
+      "authority_role": "projection_only"
+    },
+    "dashboard_truth_check": {
+      "fixture_ref": "repo://apps/runtime-dashboard/src/api/validators.test.ts",
+      "none_to_success": "blocked",
+      "missing_closeout_truth": "blocked",
+      "promotion_labels_removed": true,
+      "runtime_closeout_authority_forbidden": true
+    },
+    "external_audit_truth_check": {
+      "fixture_ref": "repo://tests/unit/runtime/quality/test_external_audit.py",
+      "pdc_surface_authority_role": "projection_only",
+      "contract_verification_status": "pass",
+      "verifiable_without_private_operator_context": true
+    },
+    "semantic_pack": {
+      "manifest_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/w5b_false_pass_pack_manifest.json",
+      "public_split_count": 3,
+      "hidden_split_count": 3,
+      "rotating_split_count": 3,
+      "hidden_and_rotating_visibility": "aggregate_only",
+      "required_failure_modes_covered": [
+        "participation_prevalence_negative",
+        "projection_laundering",
+        "unreachable_recourse_pointer",
+        "tuned_threshold_hardcoding",
+        "raw_count_inflation",
+        "llm_speculation",
+        "unsupported_claim"
+      ]
+    },
+    "calibration_boundary": {
+      "fixture_ref": "repo://tests/unit/runtime/quality/test_calibration_ledger.py",
+      "sparse_history_behavior": "warning_review_nonblocking",
+      "mature_gate_feature_flag": "policy_design_case.calibration_mature_history_gates",
+      "mature_gate_feature_flag_default": "disabled",
+      "current_run_evidence_effect": "none",
+      "claim_evidence_admissible": false
+    },
+    "memory_boundary": {
+      "fixture_ref": "repo://tests/unit/runtime/quality/test_memory_influence_records.py",
+      "balanced_memory_kinds": [
+        "failure",
+        "success",
+        "opportunity"
+      ],
+      "scope_ttl_revocation_contamination_controls": "enforced",
+      "evidence_slot_admission": "forbidden",
+      "claim_evidence_admissible": false
+    },
+    "operator_surface": {
+      "operator_guide_ref": "repo://docs/reference/policy-design-case-operator-guide.md",
+      "rollout_runbook_ref": "repo://docs/runbooks/policy-design-case-rollout-rollback.md",
+      "docs_gate_ref": "repo://tests/repo_quality/tools/test_policy_design_case_w5e_docs_runbooks.py",
+      "repo_owned_paths_only": true
+    }
+  },
+  "validation": {
+    "commands": [
+      "uv run pytest tests/repo_quality/tools/test_policy_design_case_public_export.py -q",
+      "uv run pytest tests/repo_quality/tools/test_policyos_production_quality_best_in_class.py -q",
+      "uv run pytest tests/repo_quality/tools/test_policy_design_case_w5e_docs_runbooks.py tests/repo_quality/tools/test_docs_lifecycle.py tests/repo_quality/tools/test_docs_gate.py -q",
+      "uv run pytest tests/unit/runtime/quality/test_policy_design_case_projection_semantics.py tests/unit/runtime/quality/test_public_export.py tests/unit/runtime/quality/test_external_audit.py tests/repo_quality/tools/test_policy_design_case_w5b_semantic_evaluation_packs.py tests/unit/runtime/quality/test_calibration_ledger.py tests/unit/runtime/quality/test_memory_influence_records.py tests/unit/scientist/orchestration/memory/test_balanced_memory.py tests/unit/scientist/orchestration/memory/test_research_dag_projection.py -q",
+      "corepack pnpm --dir apps/runtime-dashboard exec vitest run src/api/validators.test.ts",
+      "uv run python tools/quality/validation/check_policy_design_case_capability_ratchet.py --repo-root ."
+    ],
+    "status": "pass"
+  },
+  "pattern_pass": {
+    "relevant_patterns": [
+      "P03",
+      "P05",
+      "P06",
+      "P07",
+      "P09",
+      "P10",
+      "P11",
+      "P13",
+      "P14",
+      "P15"
+    ],
+    "existing_anti_patterns_found": [
+      {
+        "pattern_id": "P01",
+        "state": "capability_claim_missing",
+        "closure": "W5.A, W5.C, W5.D, W5.E, and I5 now have capability ratchet rows with producer, artifact, bridge, consumer, surface, verification, and semantic-test refs."
+      }
+    ],
+    "target_correct_pattern": "external surfaces expose Wave 4 truth; semantic packs test it; calibration and memory remain future influence; operator docs route to repo-owned evidence without becoming runtime authority",
+    "missing_capability_labels": []
+  },
+  "deferred_blockers": [],
+  "next_wave_target": "Wave 6 local/cloud validation and rollout decision"
+}

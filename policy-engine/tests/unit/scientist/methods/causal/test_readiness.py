@@ -37,7 +37,7 @@ from polisyos.ir.observation.bundles import (
     StrategicResponseSpecsBundle,
     TransportabilityCheckBundle,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     ArtifactRefModel,
     PrivacyAwareTransportCertificateRef,
     TransportabilityResultRef,

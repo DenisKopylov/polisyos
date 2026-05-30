@@ -1,0 +1,212 @@
+{
+  "schema_version": "policyos.universal_policy_design.outcome_corpus.expert_adjudication.v1",
+  "manifest_id": "w11c-partial-disjoint-public-health-001",
+  "phase_id": "W11.C",
+  "case_id": "public-health-outreach-001",
+  "case_ref": "repo://docs/research/universal-policy-design/outcome-corpus/cases/public-health-outreach-001.md",
+  "decomposition_ref": "repo://docs/research/universal-policy-design/outcome-corpus/annotations/public-health-outreach-001.json",
+  "authority_level": "production",
+  "domain_id": "public_health",
+  "research_refs": [
+    "E1",
+    "E22",
+    "E24",
+    "C30"
+  ],
+  "pattern_ids": [
+    "P05",
+    "P10",
+    "P15"
+  ],
+  "expected_claim_ids": [
+    "claim-outreach-uptake",
+    "claim-participation-attribution",
+    "claim-source-verifiability"
+  ],
+  "reviewer_topology": {
+    "corpus_slice": "contested_tradeoff_participation_corpus",
+    "topology_mode": "partial_disjoint",
+    "annotation_guide_ref": "repo://docs/research/universal-policy-design/outcome-corpus/adjudications/README.md#annotation-guide",
+    "calibration_round_id": null,
+    "reviewers": [
+      {
+        "reviewer_id": "reviewer-method-evidence-001",
+        "role": "method_evidence_reviewer",
+        "expertise_basis": [
+          "public health evaluation"
+        ],
+        "conflict_disclosures": [
+          "none_declared"
+        ]
+      },
+      {
+        "reviewer_id": "reviewer-participation-001",
+        "role": "stakeholder_participation_reviewer",
+        "expertise_basis": [
+          "community participation review"
+        ],
+        "conflict_disclosures": [
+          "none_declared"
+        ]
+      },
+      {
+        "reviewer_id": "reviewer-public-surface-001",
+        "role": "public_surface_reviewer",
+        "expertise_basis": [
+          "public communication truthfulness"
+        ],
+        "conflict_disclosures": [
+          "none_declared"
+        ]
+      }
+    ]
+  },
+  "adjudications": [
+    {
+      "adjudication_id": "adj-case-public-health-disagreement",
+      "scope": "case",
+      "claim_id": null,
+      "dimension_id": "public_truthfulness",
+      "label": "reviewer_disagreement",
+      "structural_pass_claimed": true,
+      "structural_validator_refs": [
+        "structural-pdc-v1"
+      ],
+      "evidence_refs": [
+        "evidence://public-health/outreach/clinic-panel"
+      ],
+      "context_refs": [
+        "context://public-health/community-trust"
+      ],
+      "reviewer_votes": [
+        {
+          "reviewer_id": "reviewer-method-evidence-001",
+          "label": "limitation_required",
+          "rationale": "Uptake evidence is usable with a sampling limitation.",
+          "disagreement_category": "method_fit"
+        },
+        {
+          "reviewer_id": "reviewer-participation-001",
+          "label": "contested",
+          "rationale": "Participation attribution changes the public meaning of the recommendation.",
+          "disagreement_category": "participation_attribution"
+        }
+      ],
+      "gold_card": {
+        "claim_id": "case",
+        "dimension_id": "public_truthfulness",
+        "evidence_ref": "evidence://public-health/outreach/clinic-panel",
+        "context_ref": "context://public-health/community-trust",
+        "failure_mode": "substantive_reviewer_disagreement",
+        "why_structural_checks_missed_it": "Structural checks cannot decide whether community-attribution disagreement is substantive.",
+        "status_should_have_been": "review_required",
+        "required_surface_change": "Expose the disagreement category and do not publish a single hidden gold label."
+      }
+    },
+    {
+      "adjudication_id": "adj-claim-outreach-uptake",
+      "scope": "claim",
+      "claim_id": "claim-outreach-uptake",
+      "dimension_id": "causal_support",
+      "label": "contested",
+      "structural_pass_claimed": true,
+      "structural_validator_refs": [
+        "claim-support-v1"
+      ],
+      "evidence_refs": [
+        "evidence://public-health/outreach/clinic-panel"
+      ],
+      "context_refs": [
+        "context://public-health/seasonal-confounding"
+      ],
+      "reviewer_votes": [
+        {
+          "reviewer_id": "reviewer-method-evidence-001",
+          "label": "contested",
+          "rationale": "Uptake trend is plausible but confounded by a simultaneous seasonal campaign.",
+          "disagreement_category": "none"
+        }
+      ],
+      "gold_card": {
+        "claim_id": "claim-outreach-uptake",
+        "dimension_id": "causal_support",
+        "evidence_ref": "evidence://public-health/outreach/clinic-panel",
+        "context_ref": "context://public-health/seasonal-confounding",
+        "failure_mode": "faithful_snippet_does_not_settle_claim",
+        "why_structural_checks_missed_it": "The cited snippet was faithful, but it did not identify the outreach effect.",
+        "status_should_have_been": "contested",
+        "required_surface_change": "Mark causal effect as contested and require method follow-up."
+      }
+    },
+    {
+      "adjudication_id": "adj-claim-participation-attribution",
+      "scope": "claim",
+      "claim_id": "claim-participation-attribution",
+      "dimension_id": "participation_attribution",
+      "label": "unsupported",
+      "structural_pass_claimed": true,
+      "structural_validator_refs": [
+        "participation-ref-v1"
+      ],
+      "evidence_refs": [
+        "participation://public-health/listening-session-summary"
+      ],
+      "context_refs": [
+        "context://public-health/affected-population"
+      ],
+      "reviewer_votes": [
+        {
+          "reviewer_id": "reviewer-participation-001",
+          "label": "unsupported",
+          "rationale": "A listening-session summary cannot support affected-population prevalence.",
+          "disagreement_category": "none"
+        }
+      ],
+      "gold_card": {
+        "claim_id": "claim-participation-attribution",
+        "dimension_id": "participation_attribution",
+        "evidence_ref": "participation://public-health/listening-session-summary",
+        "context_ref": "context://public-health/affected-population",
+        "failure_mode": "participation_prevalence_laundering",
+        "why_structural_checks_missed_it": "Structural checks saw a participation ref but not the allowed claim-use downgrade.",
+        "status_should_have_been": "limitation_required",
+        "required_surface_change": "Downgrade participation use to qualitative context only."
+      }
+    },
+    {
+      "adjudication_id": "adj-claim-source-verifiability",
+      "scope": "claim",
+      "claim_id": "claim-source-verifiability",
+      "dimension_id": "interpretation",
+      "label": "fabricated_unverifiable",
+      "structural_pass_claimed": true,
+      "structural_validator_refs": [
+        "citation-shape-v1"
+      ],
+      "evidence_refs": [
+        "evidence://public-health/unverifiable-outreach-memo"
+      ],
+      "context_refs": [
+        "context://public-health/source-provenance"
+      ],
+      "reviewer_votes": [
+        {
+          "reviewer_id": "reviewer-public-surface-001",
+          "label": "fabricated_unverifiable",
+          "rationale": "The memo identifier has citation shape but no owned source hash or raw source ref.",
+          "disagreement_category": "none"
+        }
+      ],
+      "gold_card": {
+        "claim_id": "claim-source-verifiability",
+        "dimension_id": "interpretation",
+        "evidence_ref": "evidence://public-health/unverifiable-outreach-memo",
+        "context_ref": "context://public-health/source-provenance",
+        "failure_mode": "citation_shape_without_verifiable_source",
+        "why_structural_checks_missed_it": "The checker validated citation shape, not source existence or retrievability.",
+        "status_should_have_been": "blocked",
+        "required_surface_change": "Remove the claim or attach a raw source ref or redacted source hash."
+      }
+    }
+  ]
+}

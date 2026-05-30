@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import importlib.util
+from pathlib import Path
+
 import numpy as np
 import pytest
 from polisyos.foundry.methods.catalog.distributional.mobility_latent_adapter import (
@@ -9,6 +12,29 @@ from polisyos.foundry.methods.catalog.econometrics.mobility_latent import (
     LatentMobilityEstimator,
 )
 from polisyos.ir.analytics.mobility import MobilityReport
+
+
+def _latent_mobility_benchmark_runner():
+    module_path = None
+    for parent in Path(__file__).resolve().parents:
+        candidate = (
+            parent
+            / "benchmarks"
+            / "distributional"
+            / "phase2_mobility_latent_frontier.py"
+        )
+        if candidate.exists():
+            module_path = candidate
+            break
+    assert module_path is not None
+    spec = importlib.util.spec_from_file_location(
+        "_policyos_phase2_mobility_latent_frontier",
+        module_path,
+    )
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.run_latent_mobility_benchmark
 
 
 def _simulate_latent_panel(
@@ -221,9 +247,7 @@ def test_adapter_emits_mobility_report_contract() -> None:
 
 
 def test_benchmark_metrics_monotone_in_sample_size() -> None:
-    from benchmarks.distributional.phase2_mobility_latent_frontier import (
-        run_latent_mobility_benchmark,
-    )
+    run_latent_mobility_benchmark = _latent_mobility_benchmark_runner()
 
     small = run_latent_mobility_benchmark(n_entities=32, seed=31)["metrics"]
     large = run_latent_mobility_benchmark(n_entities=64, seed=31)["metrics"]

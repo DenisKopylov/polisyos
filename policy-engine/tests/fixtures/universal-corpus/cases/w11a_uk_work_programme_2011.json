@@ -1,0 +1,660 @@
+{
+  "case_id": "w11a_uk_work_programme_2011",
+  "claim_evidence_annotations": {
+    "annotation_provenance": {
+      "conflicts": [],
+      "disagreement_category": null,
+      "expertise_basis": "W11.A source triage from DWP and NAO materials",
+      "reviewed_at": "2026-05-24",
+      "reviewer_role": "policy_generalist"
+    },
+    "annotation_status": "annotated_w11b",
+    "authority_boundary": {
+      "authoritative_for": [
+        "corpus_annotation",
+        "compilation_truthfulness_reference"
+      ],
+      "may_not_be_used_for": [
+        "claim_authority",
+        "producer_evidence_authority",
+        "legal_authority",
+        "method_validity",
+        "participation_legitimacy",
+        "projection_authority"
+      ],
+      "may_not_use_for": [
+        "claim_authority",
+        "producer_evidence_authority",
+        "legal_authority",
+        "method_validity",
+        "participation_legitimacy",
+        "projection_authority"
+      ]
+    },
+    "authority_level": "governed",
+    "capability_reality_label": "implemented",
+    "case_id": "w11a_uk_work_programme_2011",
+    "case_title": "United Kingdom Work Programme labour activation",
+    "claims": [
+      {
+        "admissibility_label": "limited",
+        "claim_id": "claim:work-programme-sustained-employment",
+        "claim_type": "causal_and_distributional",
+        "contestability_status": "contested",
+        "evidence_refs": [
+          "evidence:work-programme-impact-assessment"
+        ],
+        "legal_refs": [
+          "legal:work-programme-dwp"
+        ],
+        "limitation_refs": [
+          "limitation:subgroup-effectiveness"
+        ],
+        "method_refs": [
+          "method:work-programme-impact-analysis"
+        ],
+        "participation_refs": [
+          "participation:claimant-provider-delivery"
+        ],
+        "risks": [
+          "risk:payment-by-results-creaming"
+        ],
+        "scope": {
+          "geography": [
+            "England",
+            "Scotland",
+            "Wales"
+          ],
+          "institution": [
+            "Department_for_Work_and_Pensions",
+            "contracted_providers"
+          ],
+          "population": [
+            "long_term_unemployed_claimants",
+            "harder_to_help_claimant_groups"
+          ],
+          "time_period": "2011-06 to 2017-03"
+        },
+        "text_ref": "text:case:summary",
+        "tradeoffs": [
+          "tradeoff:provider-flexibility-vs-equity"
+        ]
+      }
+    ],
+    "corpus_phase": "W11.A",
+    "domain": "labour_activation",
+    "expected_evidence_families": [
+      "official_program_statistics",
+      "impact_assessment",
+      "provider_payment_data",
+      "subgroup_outcome_analysis",
+      "participant_experience_evidence"
+    ],
+    "expert_adjudication_status": "adjudicated_w11c",
+    "jurisdiction": "Great Britain",
+    "jurisdiction_authority_level": "national",
+    "known_failure_limitation_labels": [
+      "hard_to_help_subgroup_underperformance",
+      "payment_by_results_incentive_risk",
+      "participant_experience_variance",
+      "deadweight_and_counterfactual_uncertainty"
+    ],
+    "known_outcomes_or_failures": [
+      {
+        "finding_id": "outcome:final-statistics-window",
+        "source_ref": "outcome:final-statistics-window",
+        "would_prior_obligation_have_flagged": null
+      }
+    ],
+    "obligations": [
+      {
+        "generated_from_facets": [
+          "facet:instrument.provider_led_activation",
+          "facet:funding.payment_by_results",
+          "facet:population.harder_to_help"
+        ],
+        "obligation_id": "obligation:work-programme-hard-to-help-effects",
+        "required_evidence_family": "subgroup_impact_and_incentive_analysis",
+        "reviewer_notes": "Useful design must prove outcomes for harder-to-help groups, not only aggregate job outcomes.",
+        "status": "required_for_governed_closeout"
+      }
+    ],
+    "pattern_refs": [
+      "P01",
+      "P02",
+      "P03",
+      "P05",
+      "P10",
+      "P13",
+      "P14",
+      "P15"
+    ],
+    "policy_instrument": {
+      "delivery_channel": "contracted welfare-to-work providers",
+      "funding_channel": "payment_by_results_contracts",
+      "instrument_type": "provider_led_employment_activation"
+    },
+    "policy_time": "2011-06 to 2017-03",
+    "raw_source_refs": [
+      "https://www.gov.uk/government/publications/work-programme-official-statistics-background-information-note/new",
+      "https://www.gov.uk/government/publications/the-work-programme-impact-assessment",
+      "https://www.nao.org.uk/wp-content/uploads/2012/01/10121701.pdf"
+    ],
+    "redacted_source_hashes": [],
+    "references": [
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "text:case:summary",
+        "ref_type": "source",
+        "source_ref": "repo://docs/research/universal-policy-design/outcome-corpus/uk-work-programme-2011-labour-activation.md#summary",
+        "title": "Case summary"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "legal:work-programme-dwp",
+        "ref_type": "legal",
+        "source_ref": "https://www.gov.uk/government/publications/work-programme-official-statistics-background-information-note/new",
+        "title": "DWP Work Programme official statistics background"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "evidence:work-programme-impact-assessment",
+        "ref_type": "evidence",
+        "source_ref": "https://www.gov.uk/government/publications/the-work-programme-impact-assessment",
+        "title": "DWP Work Programme impact assessment"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "method:work-programme-impact-analysis",
+        "ref_type": "method",
+        "source_ref": "https://www.gov.uk/government/publications/the-work-programme-impact-assessment",
+        "title": "Employment and benefit outcome impact method"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "participation:claimant-provider-delivery",
+        "ref_type": "participation",
+        "source_ref": "https://www.gov.uk/government/publications/work-programme-official-statistics-background-information-note/new",
+        "title": "Claimant referral and provider support pathway"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "risk:payment-by-results-creaming",
+        "ref_type": "risk",
+        "source_ref": "https://www.nao.org.uk/wp-content/uploads/2012/01/10121701.pdf",
+        "title": "NAO Work Programme provider incentive and performance concerns"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "tradeoff:provider-flexibility-vs-equity",
+        "ref_type": "tradeoff",
+        "source_ref": "https://www.nao.org.uk/wp-content/uploads/2012/01/10121701.pdf",
+        "title": "Provider flexibility and harder-to-help claimant equity tradeoff"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "limitation:subgroup-effectiveness",
+        "ref_type": "limitation",
+        "source_ref": "https://www.gov.uk/government/publications/the-work-programme-impact-assessment",
+        "title": "Subgroup impact and cost-benefit limitation"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "outcome:final-statistics-window",
+        "ref_type": "outcome",
+        "source_ref": "https://www.gov.uk/government/publications/work-programme-official-statistics-background-information-note/new",
+        "title": "Final Work Programme statistics window"
+      }
+    ],
+    "schema_version": "policyos.universal_outcome_corpus.annotation.v1",
+    "sourcing_status": "sourced",
+    "targeting": {
+      "affected_populations": [
+        "employment_service_providers",
+        "jobcentre_plus_staff",
+        "claimants_with_disabilities_or_health_conditions"
+      ],
+      "beneficiary_classes": [
+        "long_term_unemployed_claimants",
+        "harder_to_help_claimant_groups"
+      ],
+      "targeting_type": "benefit_claimant_referral_by_group"
+    }
+  },
+  "compilation_intent_text": "United Kingdom Work Programme labour activation. Design a multi_year national service programme for employment workers, with budget support, provider risk monitoring, and annual review.",
+  "concept_spine_refs": {
+    "canonical_concept_refs": [
+      "concept://w11/w11a_uk_work_programme_2011/universal-policy-grammar"
+    ],
+    "concept_spine_ref": "concept-spine://w11/w11a_uk_work_programme_2011",
+    "facet_concept_refs": {
+      "authority_type": [
+        "concept://w11/w11a_uk_work_programme_2011/authority_type"
+      ],
+      "delivery_channel": [
+        "concept://w11/w11a_uk_work_programme_2011/delivery_channel"
+      ],
+      "funding_channel": [
+        "concept://w11/w11a_uk_work_programme_2011/funding_channel"
+      ],
+      "geography_predicate": [
+        "concept://w11/w11a_uk_work_programme_2011/geography_predicate"
+      ],
+      "instrument_type": [
+        "concept://w11/w11a_uk_work_programme_2011/instrument_type"
+      ],
+      "method_need": [
+        "concept://w11/w11a_uk_work_programme_2011/method_need"
+      ],
+      "outcome_channel": [
+        "concept://w11/w11a_uk_work_programme_2011/outcome_channel"
+      ],
+      "population_predicate": [
+        "concept://w11/w11a_uk_work_programme_2011/population_predicate"
+      ],
+      "risk_facet": [
+        "concept://w11/w11a_uk_work_programme_2011/risk_facet"
+      ],
+      "targeting_type": [
+        "concept://w11/w11a_uk_work_programme_2011/targeting_type"
+      ],
+      "time_predicate": [
+        "concept://w11/w11a_uk_work_programme_2011/time_predicate"
+      ]
+    },
+    "jurisdiction_spine_ref": "jurisdiction-spine://w11/w11a_uk_work_programme_2011"
+  },
+  "critic_ensemble": {
+    "authority_boundary": {
+      "authoritative_for": [
+        "critic_diversity_measurement"
+      ],
+      "may_not_use_for": [
+        "claim_authority",
+        "producer_evidence_authority",
+        "legal_authority",
+        "method_validity",
+        "projection_authority"
+      ]
+    },
+    "run_id": "run-w11a_uk_work_programme_2011",
+    "verdicts": [
+      {
+        "envelope": {
+          "critic_role": "legal",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_legal_basis"
+        },
+        "failure_modes": [
+          "authority_boundary:hard_to_help_subgroup_underperformance"
+        ],
+        "message": "legal critic flags hard_to_help_subgroup_underperformance for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_uk_work_programme_2011"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "fiscal",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_fiscal_basis"
+        },
+        "failure_modes": [
+          "budget_feasibility:payment_by_results_incentive_risk"
+        ],
+        "message": "fiscal critic flags payment_by_results_incentive_risk for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_uk_work_programme_2011"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "equity",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_equity_basis"
+        },
+        "failure_modes": [
+          "distributional_effect:participant_experience_variance"
+        ],
+        "message": "equity critic flags participant_experience_variance for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_uk_work_programme_2011"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "data",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_data_basis"
+        },
+        "failure_modes": [
+          "source_lineage:deadweight_and_counterfactual_uncertainty"
+        ],
+        "message": "data critic flags deadweight_and_counterfactual_uncertainty for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_uk_work_programme_2011"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "implementation",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_implementation_basis"
+        },
+        "failure_modes": [
+          "delivery_capacity:hard_to_help_subgroup_underperformance"
+        ],
+        "message": "implementation critic flags hard_to_help_subgroup_underperformance for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_uk_work_programme_2011"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "affected_person",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_affected_person_basis"
+        },
+        "failure_modes": [
+          "participation_voice:payment_by_results_incentive_risk"
+        ],
+        "message": "affected_person critic flags payment_by_results_incentive_risk for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_uk_work_programme_2011"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "adversarial",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_adversarial_basis"
+        },
+        "failure_modes": [
+          "failure_probe:participant_experience_variance"
+        ],
+        "message": "adversarial critic flags participant_experience_variance for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_uk_work_programme_2011"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "monitoring",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_monitoring_basis"
+        },
+        "failure_modes": [
+          "lifecycle_monitoring:deadweight_and_counterfactual_uncertainty"
+        ],
+        "message": "monitoring critic flags deadweight_and_counterfactual_uncertainty for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_uk_work_programme_2011"
+        ],
+        "verdict": "contest"
+      }
+    ]
+  },
+  "domain": "labour_activation",
+  "expected_adapter_bindings": {
+    "bindings": [
+      {
+        "adapter": "fabric",
+        "binding_id": "bind-w11a_uk_work_programme_2011-selected",
+        "reason_code": "annotation_data_family_selected",
+        "requirement_id": "data-w11a_uk_work_programme_2011",
+        "status": "selected"
+      },
+      {
+        "adapter": "scholar",
+        "binding_id": "bind-w11a_uk_work_programme_2011-rejected",
+        "reason_code": "generic_or_transfer_mismatch_rejected",
+        "requirement_id": "scholar-w11a_uk_work_programme_2011",
+        "status": "rejected"
+      },
+      {
+        "adapter": "foundry",
+        "binding_id": "bind-w11a_uk_work_programme_2011-blocked",
+        "reason_code": "method_or_counterfactual_precondition_missing",
+        "requirement_id": "method-w11a_uk_work_programme_2011",
+        "status": "blocked"
+      }
+    ]
+  },
+  "expected_claim_families": {
+    "families": [
+      {
+        "claim_family": "causal_and_distributional",
+        "claim_id": "claim:work-programme-sustained-employment",
+        "expected_support_status": "limited"
+      }
+    ]
+  },
+  "expected_closeout_states": {
+    "states": [
+      {
+        "authority_level": "research",
+        "required_surface_refs": [
+          "audit://w11d/w11a_uk_work_programme_2011/research"
+        ],
+        "state": "publishable"
+      },
+      {
+        "authority_level": "governed",
+        "limitation_refs": [
+          "limitation://w11d/w11a_uk_work_programme_2011"
+        ],
+        "required_surface_refs": [
+          "audit://w11d/w11a_uk_work_programme_2011/governed"
+        ],
+        "state": "limited"
+      },
+      {
+        "authority_level": "production",
+        "limitation_refs": [
+          "limitation://w11d/w11a_uk_work_programme_2011"
+        ],
+        "required_surface_refs": [
+          "audit://w11d/w11a_uk_work_programme_2011/production"
+        ],
+        "state": "limited"
+      }
+    ]
+  },
+  "expected_facets": {
+    "facets": [
+      {
+        "concept_ref": "concept://w11d/w11a_uk_work_programme_2011/instrument",
+        "expected_value": "provider_led_employment_activation",
+        "facet_name": "instrument_type"
+      },
+      {
+        "concept_ref": "concept://w11d/w11a_uk_work_programme_2011/targeting",
+        "expected_value": "benefit_claimant_referral_by_group",
+        "facet_name": "targeting_type"
+      },
+      {
+        "concept_ref": "concept://w11d/w11a_uk_work_programme_2011/delivery",
+        "expected_value": "contracted welfare-to-work providers",
+        "facet_name": "delivery_channel"
+      }
+    ]
+  },
+  "expected_obligation_graph": {
+    "frontier": [
+      {
+        "claim_refs": [
+          "claim:work-programme-sustained-employment"
+        ],
+        "family": "data",
+        "obligation_id": "obligation:work-programme-hard-to-help-effects",
+        "priority": "required_for_governed_closeout",
+        "source_class": "governed_rule"
+      }
+    ]
+  },
+  "expected_projection_truthfulness": {
+    "projections": [
+      {
+        "audience": "public",
+        "may_not_claim": [
+          "fixture expectation is runtime authority"
+        ],
+        "must_disclose_refs": [
+          "annotation://w11d/w11a_uk_work_programme_2011"
+        ],
+        "truthfulness": "limitation_required"
+      }
+    ]
+  },
+  "expected_requirement_specs": {
+    "families": {
+      "data": [
+        {
+          "claim_id": "claim:work-programme-sustained-employment",
+          "requirement_id": "data-w11a_uk_work_programme_2011",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/uk-work-programme-2011-labour-activation.md#data"
+        }
+      ],
+      "legal": [
+        {
+          "claim_id": "claim:work-programme-sustained-employment",
+          "requirement_id": "legal-w11a_uk_work_programme_2011",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/uk-work-programme-2011-labour-activation.md#legal"
+        }
+      ],
+      "method": [
+        {
+          "claim_id": "claim:work-programme-sustained-employment",
+          "requirement_id": "method-w11a_uk_work_programme_2011",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/uk-work-programme-2011-labour-activation.md#method"
+        }
+      ],
+      "participation": [
+        {
+          "claim_id": "claim:work-programme-sustained-employment",
+          "requirement_id": "participation-w11a_uk_work_programme_2011",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/uk-work-programme-2011-labour-activation.md#participation"
+        }
+      ],
+      "scholar": [
+        {
+          "claim_id": "claim:work-programme-sustained-employment",
+          "requirement_id": "scholar-w11a_uk_work_programme_2011",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/uk-work-programme-2011-labour-activation.md#scholar"
+        }
+      ]
+    }
+  },
+  "expert_adjudication": {
+    "case_label": "limitation_required",
+    "claim_labels": [
+      {
+        "claim_id": "claim:work-programme-sustained-employment",
+        "dimension_id": "compilation_truthfulness",
+        "failure_mode": "hard_to_help_subgroup_underperformance",
+        "label": "limitation_required",
+        "required_surface_change": "Expose annotation-derived limitation, contestation, or blocker state.",
+        "status_should_have_been": "publish_with_limitation",
+        "why_structural_checks_missed_it": "W11.D fixture preserves annotation semantics for truthfulness comparison."
+      }
+    ],
+    "reviewer_topology_ref": "reviewer-topology://w11d/rotating/w11a_uk_work_programme_2011"
+  },
+  "input_intent_ref": "intent-w11a_uk_work_programme_2011",
+  "intent": {
+    "authority_levels": [
+      "research",
+      "governed",
+      "production"
+    ],
+    "instrument_type": "provider_led_employment_activation",
+    "intent_id": "intent-w11a_uk_work_programme_2011",
+    "jurisdiction": "Great Britain",
+    "metadata": {
+      "w11a_authority_level": "governed"
+    },
+    "policy_time": "2011-06 to 2017-03",
+    "target_population": "long_term_unemployed_claimants, harder_to_help_claimant_groups",
+    "text": "United Kingdom Work Programme labour activation"
+  },
+  "metadata": {
+    "pattern_refs": [
+      "P01",
+      "P02",
+      "P03",
+      "P05",
+      "P10",
+      "P13",
+      "P14",
+      "P15"
+    ],
+    "reuse_classification": "wire_existing",
+    "source_annotation_schema": "policyos.universal_outcome_corpus.annotation.v1"
+  },
+  "producer_pipeline": {
+    "producers": [
+      {
+        "consumed_concept_refs": [
+          "concept://w11/w11a_uk_work_programme_2011/universal-policy-grammar"
+        ],
+        "consumed_requirement_refs": [
+          "data-w11a_uk_work_programme_2011"
+        ],
+        "expected_output_families": [
+          "fabric.source_contract_binding.v1"
+        ],
+        "first_pass_bindings": [
+          {
+            "binding_id": "label.fabric.w11a_uk_work_programme_2011",
+            "binding_kind": "label",
+            "concept_ref": "concept://w11/w11a_uk_work_programme_2011/universal-policy-grammar",
+            "disposition": "context_only",
+            "label": "fabric context for w11a_uk_work_programme_2011"
+          }
+        ],
+        "producer_component": "fabric",
+        "requested_deadline_s": 5.0,
+        "second_pass_bindings": [
+          {
+            "artifact_ref": "source://w11/w11a_uk_work_programme_2011/fabric",
+            "binding_id": "binding.fabric.w11a_uk_work_programme_2011",
+            "binding_kind": "dataset",
+            "concept_ref": "concept://w11/w11a_uk_work_programme_2011/universal-policy-grammar",
+            "disposition": "selected",
+            "requirement_ref": "data-w11a_uk_work_programme_2011",
+            "time_role": "observation_time"
+          }
+        ]
+      }
+    ]
+  },
+  "redacted_source_hash": "sha256:d273a193cfb795ac92c5e985d67af37fddee74796330d4eec38d917f24f9045b",
+  "schema_version": "policyos.universal_corpus_fixture.v1",
+  "source_case_ref": "docs/research/universal-policy-design/outcome-corpus/uk-work-programme-2011-labour-activation.md",
+  "split": "rotating",
+  "title": "United Kingdom Work Programme labour activation"
+}

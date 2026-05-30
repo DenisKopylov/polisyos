@@ -99,7 +99,7 @@ class FrontierRuntimeReport(BaseModel):
     claim_projection: dict[str, str] = Field(
         default_factory=lambda: {
             "status": "available",
-            "owner": "polisyos.scientist.claims.projections.project_frontier_runtime_claims",
+            "owner": "polisyos.scientist.evidence.claims.projections.project_frontier_runtime_claims",
         }
     )
     rationale: str = Field(min_length=1)

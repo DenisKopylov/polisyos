@@ -17,8 +17,8 @@
 "src/polisyos/scientist/nodes/builtins/decide/decision_packet_support.py" = 0
 "src/polisyos/scientist/nodes/builtins/decide/policy_runtime_state.py" = 0
 "src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py" = 20
-"src/polisyos/scientist/search/judge_stack.py" = 6
-"src/polisyos/scientist/search/judge_thresholds.py" = 0
+"src/polisyos/scientist/methods/search/judge_stack.py" = 16
+"src/polisyos/scientist/methods/search/judge_thresholds.py" = 0
 
 [unsafe_cast]
 "src/polisyos/scientist/methods/autotune/pareto.py" = 0
@@ -39,8 +39,8 @@
 "src/polisyos/scientist/nodes/builtins/decide/decision_packet_support.py" = 0
 "src/polisyos/scientist/nodes/builtins/decide/policy_runtime_state.py" = 0
 "src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py" = 0
-"src/polisyos/scientist/search/judge_stack.py" = 0
-"src/polisyos/scientist/search/judge_thresholds.py" = 0
+"src/polisyos/scientist/methods/search/judge_stack.py" = 0
+"src/polisyos/scientist/methods/search/judge_thresholds.py" = 0
 
 [raw_dict_index]
 "src/polisyos/scientist/methods/autotune/pareto.py" = 0
@@ -61,5 +61,5 @@
 "src/polisyos/scientist/nodes/builtins/decide/decision_packet_support.py" = 0
 "src/polisyos/scientist/nodes/builtins/decide/policy_runtime_state.py" = 0
 "src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py" = 89
-"src/polisyos/scientist/search/judge_stack.py" = 22
-"src/polisyos/scientist/search/judge_thresholds.py" = 0
+"src/polisyos/scientist/methods/search/judge_stack.py" = 38
+"src/polisyos/scientist/methods/search/judge_thresholds.py" = 0

@@ -24,7 +24,7 @@ from polisyos.ir.analytics.distributional import (
     persist_distributional_bounds_bundle,
     persist_distributional_dual_certificate,
 )
-from polisyos.ir.refs import ArtifactRefModel
+from polisyos.ir.registry.refs import ArtifactRefModel
 
 
 def _distributional_proof_ref() -> ArtifactRefModel:

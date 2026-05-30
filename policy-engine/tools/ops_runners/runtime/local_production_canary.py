@@ -60,7 +60,7 @@ from polisyos.runtime.quality.semantic_binding import (
     PRODUCER_SPINE_CONTEXT_SCHEMA_VERSION,
     build_semantic_binding_ledger,
 )
-from polisyos.scholar.evidence import build_scholar_academic_evidence_report
+from polisyos.scholar import build_scholar_academic_evidence_report
 from tools.ops_runners.runtime.canary_evidence import assemble_canary_evidence
 from tools.ops_runners.runtime.quality_scenarios import (
     DEFAULT_QUALITY_SCENARIO_ID,
@@ -659,15 +659,27 @@ def _deterministic_data_forge_snapshot_binding(
 ) -> dict[str, Any]:
     def binding(role: str, surface: str) -> dict[str, Any]:
         snapshot_ref = _runtime_ref(refs, f"{role}_snapshot_ref", identity["run_id"], role)
+        merkle_root = snapshot_ref.removeprefix("sha256:")
         return {
             "role": role,
             "snapshot_id": f"{role}-snapshot-{identity['run_id']}",
             "snapshot_ref": snapshot_ref,
+            "release_id": f"release-{role}-{identity['run_id']}",
+            "release_manifest_ref": snapshot_ref,
             "manifest_ref": snapshot_ref,
             "manifest_artifact_id": snapshot_ref,
             "artifact_ids": [snapshot_ref],
+            "merkle_root": merkle_root,
+            "data_hash": snapshot_ref,
             "read_api_surface": surface,
             "read_api_module": f"polisyos.data_forge.read_api.{surface}",
+            "read_api_identity": f"{surface}@{role}-snapshot-{identity['run_id']}",
+            "runtime_event_ref": _stable_runtime_ref(
+                "event",
+                "data-forge",
+                role,
+                identity["run_id"],
+            ),
             "published_at": "2026-05-15T00:00:00+00:00",
             "freshness_ttl_seconds": 60 * 60 * 24 * 3650,
             "quality_gates": [
@@ -675,6 +687,38 @@ def _deterministic_data_forge_snapshot_binding(
                     "name": f"{role}_publish_quality",
                     "status": "pass",
                     "artifact_id": snapshot_ref,
+                }
+            ],
+            "prov": {
+                "entity": f"data-forge:{role}:snapshot",
+                "activity": f"data-forge:{role}:publish",
+                "agent": "team-data-forge",
+            },
+            "openlineage": {
+                "namespace": "polisyos.data_forge",
+                "job": {"name": f"{role}.publish"},
+                "run": {"runId": f"run-{role}-{identity['run_id']}"},
+                "outputs": [
+                    {
+                        "name": f"{role}-snapshot-{identity['run_id']}",
+                        "facets": {
+                            "dataHash": {"sha256": merkle_root},
+                            "merkleRoot": {"sha256": merkle_root},
+                        },
+                    }
+                ],
+            },
+            "claim_requirement_bindings": [
+                {
+                    "claim_id": "claim-msme-survival",
+                    "requirement_id": f"req-{role}-data",
+                    "requirement_kind": "data_source",
+                    "authority_level": "closeout",
+                    "time_role": "publication_time",
+                    "supported_by": [snapshot_ref],
+                    "lifecycle_dependency_refs": [
+                        _stable_runtime_ref("event", "data-forge", role, identity["run_id"])
+                    ],
                 }
             ],
         }
@@ -804,6 +848,8 @@ def _deterministic_scholar_evidence(
                 "source_ids": ["literature:msme-survival-review"],
                 "snippet_ids": ["snippet:msme-survival-review:1"],
                 "citation_ids": ["citation:msme-survival-review"],
+                "support_score": 0.86,
+                "support_status": "supportive",
             }
         ],
         conflict_links=[
@@ -811,6 +857,27 @@ def _deterministic_scholar_evidence(
                 "link_id": "conflict:literature:resolved",
                 "claim_id": claim_id,
                 "resolution": "No active contradiction after source screening.",
+            }
+        ],
+        polarity_markers=[
+            {
+                "marker_id": f"polarity:{claim_id}:snippet:msme-survival-review:1",
+                "claim_id": claim_id,
+                "source_id": "literature:msme-survival-review",
+                "snippet_id": "snippet:msme-survival-review:1",
+                "polarity": "support",
+                "support_status": "supportive",
+            }
+        ],
+        dependence_records=[
+            {
+                "record_id": "dependence:academic_peer_reviewed:journal",
+                "source_ids": ["literature:msme-survival-review"],
+                "source_family_independence_tag": "academic_peer_reviewed:journal",
+                "underlying_study_id": "academic_peer_reviewed:journal",
+                "dependence_basis": "source_family_independence_tag",
+                "raw_source_count": 1,
+                "effective_source_count": 1,
             }
         ],
         literature_deficit_blockers=[],

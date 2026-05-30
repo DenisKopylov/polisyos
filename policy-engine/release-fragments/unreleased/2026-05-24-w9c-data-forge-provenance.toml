@@ -1,0 +1,39 @@
+id = "2026-05-24-w9c-data-forge-provenance"
+title = "Add Data Forge snapshot provenance manifests"
+type = "added"
+component = "data-forge"
+owner = "team-data-forge"
+summary = "Add W9.C closeout-grade Data Forge snapshot provenance manifests with corpus identity, data hash, creation time, lineage refs, quality gates, builder revision, transform lineage, and claim-to-snapshot answers."
+evidence = [
+  "tests/unit/data_forge/test_provenance_manifest.py",
+  "tests/unit/data_forge/test_w9c_provenance_manifest.py",
+  "tests/unit/runtime/quality/test_data_forge_binding.py",
+]
+compatibility = "Additive Python build-time API and stricter runtime-quality validation for serious Data Forge snapshot binding evidence."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.data_forge"
+migration = "Snapshot finalization now writes data_forge_provenance_manifest.json; closeout-grade binding reports must include provenance_manifest_ref, corpus_id, creation_time, lineage_refs, builder_revision, and transform_lineage."
+api = "Adds SnapshotProvenanceManifest, OfficialSnapshotAnswer, load_snapshot_provenance_manifest, write_snapshot_provenance_manifest, and official_data_forge_snapshot_for_claim."
+limitations = "The manifest proves official snapshot provenance and claim requirement binding identity; it does not itself prove claim support, legal authority, method validity, or source-family satisfaction."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/data_forge/README.md",
+]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "data-forge-snapshot-provenance-manifest"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: polisyos.data_forge"
+owner = "team-data-forge"
+version_owner = "team-data-forge"
+deprecation_window = "not_applicable"
+release_note = "Data Forge snapshot finalization emits a provenance manifest and runtime quality can answer which official snapshot satisfied a claim requirement."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/data_forge/README.md",
+]
+runbook_docs = []

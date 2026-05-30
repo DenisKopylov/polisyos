@@ -5,6 +5,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
+
 from polisyos.fabric.connectors.contracts import (
     SOURCE_CONTRACT_SCHEMA_VERSION,
     SourceContract,
@@ -27,7 +28,7 @@ from polisyos.fabric.connectors.sdk import (
 from polisyos.fabric.connectors.sources._contracts import WDI_GENERIC_CONTRACT
 from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
 from polisyos.fabric.connectors.testing.conformance import validate_source_conformance_v2
-from polisyos.fabric.processing_guarantees import ProcessingGuarantee
+from polisyos.fabric.quality.processing_guarantees import ProcessingGuarantee
 from tools.quality.validation import fabric_source_contracts
 
 REPO_ROOT = Path(__file__).resolve().parents[4]

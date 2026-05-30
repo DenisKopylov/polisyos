@@ -20,7 +20,7 @@ from polisyos.ir.analytics.structural_causal_model import (
     StructuralCausalModelSpec,
     persist_structural_causal_model_spec,
 )
-from polisyos.ir.refs import CausalGraphModelRef
+from polisyos.ir.registry.refs import CausalGraphModelRef
 from polisyos.scientist.compute.job_spec import JobKey, JobResult
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState

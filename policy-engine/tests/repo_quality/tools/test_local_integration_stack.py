@@ -13,7 +13,7 @@ def test_local_integration_stack_uses_playwright_fixture_metadata_path() -> None
         / "fixture-runtime.json"
     )
 
-    assert local_integration_stack.DEFAULT_METADATA_FILE == expected
+    assert expected == local_integration_stack.DEFAULT_METADATA_FILE
 
 
 def test_local_integration_stack_runtime_defaults_to_simulated_llm() -> None:

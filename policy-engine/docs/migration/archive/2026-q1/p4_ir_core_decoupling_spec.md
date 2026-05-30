@@ -80,8 +80,8 @@ Canonical ownership after P4:
 
 | Current owner/usage                                                                          | Canonical P4 owner                                                  |
 | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| `polisyos.core.canon.*` consumed by IR                                                       | `polisyos.ir.canon`                                                 |
-| Analytics artifact refs in `core.contracts.{uncertainty,hte,causal,distributional,backtest}` | IR-owned refs (`polisyos.ir.refs`)                                  |
+| `polisyos.core.canon.*` consumed by IR                                                       | `polisyos.ir.model_layer.canon`                                                 |
+| Analytics artifact refs in `core.contracts.{uncertainty,hte,causal,distributional,backtest}` | IR-owned refs (`polisyos.ir.registry.refs`)                                  |
 | IR analytics imports of `core.artifacts.manifest` and `core.artifacts.store`                 | IR-owned artifact I/O contract/protocol (`polisyos.ir.artifacts.*`) |
 
 ### 4.3 Compatibility contract (one release)
@@ -106,7 +106,7 @@ Required implementation:
    - `to_canonical_bytes(...)`
    - `from_canonical_bytes(...)`
    - `content_hash(...)`
-3. Rewire IR modules to import canon/hash only from `polisyos.ir.canon`:
+3. Rewire IR modules to import canon/hash only from `polisyos.ir.model_layer.canon`:
 
    - `src/polisyos/ir/connectors.py`
    - `src/polisyos/ir/fact_log.py`

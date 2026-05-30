@@ -25,7 +25,7 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
     UncertaintySource,
 )
-from polisyos.ir.refs import DependenceStructureRef
+from polisyos.ir.registry.refs import DependenceStructureRef
 
 if TYPE_CHECKING:
     import pandas as pd

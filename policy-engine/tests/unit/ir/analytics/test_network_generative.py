@@ -8,7 +8,7 @@ from polisyos.ir.analytics.network_generative import (
     load_causal_block_bridge,
     persist_causal_block_bridge,
 )
-from polisyos.ir.refs import CausalBlockBridgeRef
+from polisyos.ir.registry.refs import CausalBlockBridgeRef
 
 
 def test_causal_block_bridge_round_trip(tmp_path) -> None:

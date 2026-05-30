@@ -9,7 +9,6 @@ from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
 from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
 from tools.quality.testing import runtime_resilience_matrix
 
-
 REQUIRED_SLO_PHASES = {
     "control.job_lease",
     "control.job_heartbeat",
@@ -77,7 +76,7 @@ def test_deterministic_matrix_declares_phase_5_6_scenarios_and_slo_budgets() -> 
         "run_index_pressure",
         "dashboard_degraded_rendering",
     } <= scenario_ids
-    assert REQUIRED_SLO_PHASES <= budget_phases
+    assert budget_phases >= REQUIRED_SLO_PHASES
     assert all(budget["budget_ms"] > 0 for budget in payload["slo_budgets"])
     assert all(budget["next_action"] for budget in payload["slo_budgets"])
 
@@ -91,7 +90,7 @@ def test_phase_5_5_report_only_readiness_lanes_do_not_claim_runtime_authority() 
         if scenario.get("readiness_lane")
     }
 
-    assert REQUIRED_PHASE_5_5_READINESS_LANES <= set(lanes)
+    assert set(lanes) >= REQUIRED_PHASE_5_5_READINESS_LANES
     for lane_id in REQUIRED_PHASE_5_5_READINESS_LANES:
         scenario = lanes[lane_id]
         evidence = scenario["runtime_owned_evidence"]
@@ -138,7 +137,7 @@ def test_phase_5_5_emits_runtime_owned_cas_and_durable_events(tmp_path: Path) ->
     )
     event_types = {record.event.event_type for record in records}
 
-    assert REQUIRED_PHASE_5_5_READINESS_LANES <= set(lanes)
+    assert set(lanes) >= REQUIRED_PHASE_5_5_READINESS_LANES
     assert {
         "polisyos.runtime.resilience_lane.evidence_emitted.v1",
         "polisyos.runtime.resilience_lane.slo_evidence_emitted.v1",
@@ -185,10 +184,10 @@ def test_phase_5_5_each_readiness_lane_emits_diagnostic_slo_evidence() -> None:
         assert slo_evidence["schema_version"] == "policyos.runtime.lane_diagnostic_slos.v1"
         assert slo_evidence["runtime_owned"] is False
         assert slo_evidence["emission_mode"] == "report_only"
-        assert REQUIRED_PHASE_5_5_SLO_METRICS <= metric_ids
+        assert metric_ids >= REQUIRED_PHASE_5_5_SLO_METRICS
         assert all(metric["evidence_ref"] for metric in slo_evidence["metrics"])
         assert all(metric["observed_at"] for metric in slo_evidence["metrics"])
-        assert REQUIRED_OPERATOR_ROOT_CAUSE_FIELDS <= set(root_cause["fields"])
+        assert set(root_cause["fields"]) >= REQUIRED_OPERATOR_ROOT_CAUSE_FIELDS
 
 
 def test_live_provider_brownout_is_quarantined_until_explicitly_enabled() -> None:

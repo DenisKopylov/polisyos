@@ -1,0 +1,138 @@
+{
+  "adjudications": [
+    {
+      "adjudication_id": "adj-case-w11a_berlin_rent_cap_2020",
+      "claim_id": null,
+      "context_refs": [
+        "text:case:summary"
+      ],
+      "dimension_id": "public_truthfulness",
+      "evidence_refs": [
+        "evidence:housing-rights-watch-case-note"
+      ],
+      "gold_card": {
+        "claim_id": "case",
+        "context_ref": "text:case:summary",
+        "dimension_id": "public_truthfulness",
+        "evidence_ref": "evidence:housing-rights-watch-case-note",
+        "failure_mode": "legal_competence_block",
+        "required_surface_change": "Expose the case-level C30 adjudication before useful-design counting.",
+        "status_should_have_been": "blocked",
+        "why_structural_checks_missed_it": "Structural completion alone cannot establish public truthfulness for the corpus case."
+      },
+      "label": "false_pass",
+      "reviewer_votes": [
+        {
+          "disagreement_category": "none",
+          "label": "false_pass",
+          "rationale": "C30 first-pass adjudication preserves false_pass for the corpus case.",
+          "reviewer_id": "reviewer-policy-generalist-w11c"
+        },
+        {
+          "disagreement_category": "none",
+          "label": "false_pass",
+          "rationale": "C30 first-pass adjudication preserves false_pass for the corpus case.",
+          "reviewer_id": "reviewer-domain-aware-w11c"
+        }
+      ],
+      "scope": "case",
+      "structural_pass_claimed": true,
+      "structural_validator_refs": [
+        "w11.fixture.loader",
+        "w11.compilation.truthfulness"
+      ]
+    },
+    {
+      "adjudication_id": "adj-claim-claim-berlin-rent-cap-tenant-relief",
+      "claim_id": "claim:berlin-rent-cap-tenant-relief",
+      "context_refs": [
+        "text:case:summary"
+      ],
+      "dimension_id": "legal_competence",
+      "evidence_refs": [
+        "evidence:housing-rights-watch-case-note"
+      ],
+      "gold_card": {
+        "claim_id": "claim:berlin-rent-cap-tenant-relief",
+        "context_ref": "text:case:summary",
+        "dimension_id": "legal_competence",
+        "evidence_ref": "evidence:housing-rights-watch-case-note",
+        "failure_mode": "legal_competence_block",
+        "required_surface_change": "Expose annotation-derived limitation, contestation, or blocker state.",
+        "status_should_have_been": "blocked",
+        "why_structural_checks_missed_it": "W11.D fixture preserves annotation semantics for truthfulness comparison."
+      },
+      "label": "false_pass",
+      "reviewer_votes": [
+        {
+          "disagreement_category": "none",
+          "label": "false_pass",
+          "rationale": "C30 first-pass adjudication preserves false_pass for the corpus case.",
+          "reviewer_id": "reviewer-policy-generalist-w11c"
+        },
+        {
+          "disagreement_category": "none",
+          "label": "false_pass",
+          "rationale": "C30 first-pass adjudication preserves false_pass for the corpus case.",
+          "reviewer_id": "reviewer-domain-aware-w11c"
+        }
+      ],
+      "scope": "claim",
+      "structural_pass_claimed": true,
+      "structural_validator_refs": [
+        "w11.fixture.loader",
+        "w11.compilation.truthfulness"
+      ]
+    }
+  ],
+  "authority_level": "governed",
+  "case_id": "w11a_berlin_rent_cap_2020",
+  "case_ref": "repo://docs/research/universal-policy-design/outcome-corpus/berlin-rent-cap-2020-housing.md",
+  "decomposition_ref": "repo://docs/research/universal-policy-design/outcome-corpus/berlin-rent-cap-2020-housing.md#frontmatter",
+  "domain_id": "housing_rent_control",
+  "expected_claim_ids": [
+    "claim:berlin-rent-cap-tenant-relief"
+  ],
+  "manifest_id": "w11c-w11a_berlin_rent_cap_2020",
+  "pattern_ids": [
+    "P05",
+    "P10",
+    "P15"
+  ],
+  "phase_id": "W11.C",
+  "research_refs": [
+    "E1",
+    "E22",
+    "E24",
+    "C30"
+  ],
+  "reviewer_topology": {
+    "annotation_guide_ref": "repo://docs/research/universal-policy-design/outcome-corpus/adjudications/README.md#annotation-guide",
+    "calibration_round_id": "deep-pilot-round-1",
+    "corpus_slice": "deep_pilot",
+    "reviewers": [
+      {
+        "conflict_disclosures": [
+          "none_declared"
+        ],
+        "expertise_basis": [
+          "universal policy design case corpus calibration"
+        ],
+        "reviewer_id": "reviewer-policy-generalist-w11c",
+        "role": "policy_generalist"
+      },
+      {
+        "conflict_disclosures": [
+          "none_declared"
+        ],
+        "expertise_basis": [
+          "domain-aware outcome corpus adjudication"
+        ],
+        "reviewer_id": "reviewer-domain-aware-w11c",
+        "role": "domain_aware_reviewer"
+      }
+    ],
+    "topology_mode": "deep_pilot_overlap"
+  },
+  "schema_version": "policyos.universal_policy_design.outcome_corpus.expert_adjudication.v1"
+}

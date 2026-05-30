@@ -37,22 +37,10 @@ sunset = "2026-07-31"
 reason = "Legacy IR internal shell package is time-boxed until Wave 3 semantic grouping."
 
 [[single_file_shell_package_exception]]
-path = "src/polisyos/ir/_lazy_facade"
-owner = "team-ir"
-sunset = "2026-07-31"
-reason = "Legacy IR lazy facade shell package is time-boxed until Wave 3 semantic grouping."
-
-[[single_file_shell_package_exception]]
 path = "src/polisyos/ir/connectors"
 owner = "team-ir"
 sunset = "2026-07-31"
 reason = "Legacy IR connectors shell package is time-boxed until Wave 3 semantic grouping."
-
-[[single_file_shell_package_exception]]
-path = "src/polisyos/ir/schemas"
-owner = "team-ir"
-sunset = "2026-07-31"
-reason = "Legacy IR schemas shell package is time-boxed until Wave 3 semantic grouping."
 
 [[single_file_shell_package_exception]]
 path = "src/polisyos/ir/trinity"
@@ -308,14 +296,7 @@ name = "ddm"
 owner = "team-architecture"
 target_phase = "4A"
 current_status = "resolved"
-notes = "Canonical unversioned Drift-and-Degradation Monitor package. ddm_15_7 is wrapper-only until its shim sunset."
-
-[[package]]
-name = "ddm_15_7"
-owner = "team-architecture"
-target_phase = "4A"
-current_status = "compatibility_shim"
-notes = "Wrapper-only facade to polisyos.ddm; no implementation subpackages remain."
+notes = "Canonical unversioned Drift-and-Degradation Monitor package."
 
 [[package]]
 name = "calibration"
@@ -323,13 +304,6 @@ owner = "team-architecture"
 target_phase = "3B/4A"
 current_status = "resolved"
 notes = "Canonical shared diagnostics/recalibration home per ADR-RSR-0139."
-
-[[package]]
-name = "synthetic_world"
-owner = "team-architecture"
-target_phase = "3B/4A"
-current_status = "compatibility_shim"
-notes = "Wrapper-only facade to polisyos.foundry.agent_sim.world until its shim sunset."
 
 [[package]]
 name = "packs"

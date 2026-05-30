@@ -19,7 +19,7 @@ from polisyos.ir.analytics.cross_graph import (
     EvidenceStatus,
     load_cross_graph_evidence_profile,
 )
-from polisyos.ir.refs import CrossGraphEvidenceProfileRef
+from polisyos.ir.registry.refs import CrossGraphEvidenceProfileRef
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 
 logger = get_logger(__name__)

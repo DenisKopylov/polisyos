@@ -20,7 +20,9 @@ from polisyos.scientist.governance.human_review.models import (
 )
 
 HUMAN_REVIEW_PACKET_KIND = "scientist.human_review_packet"
-HUMAN_REVIEW_PACKET_SCHEMA_NAME = "polisyos.scientist.human_review.HumanReviewPacket"
+HUMAN_REVIEW_PACKET_SCHEMA_NAME = (
+    "polisyos.scientist.governance.human_review.HumanReviewPacket"
+)
 HUMAN_REVIEW_PACKET_SCHEMA_VERSION = "1.0"
 
 __all__ = [

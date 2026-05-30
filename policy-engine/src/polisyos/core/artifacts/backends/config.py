@@ -126,6 +126,21 @@ def build_artifact_store(
     raise ValueError(f"Unknown CAS backend: {config.backend!r}")
 
 
+def with_ambient_ownership_enforcement_if_supported(store: ArtifactStore) -> ArtifactStore:
+    """Return a tenant-guarded store view when the backend supports it.
+
+    Runtime code depends on the backend-agnostic artifact-store protocol. The
+    concrete filesystem CAS is the only backend that currently supports ambient
+    request-scope ownership checks, so the structural capability check stays in
+    the backend factory layer that owns concrete backend knowledge.
+    """
+
+    enforcer = getattr(store, "with_ambient_ownership_enforcement", None)
+    if not callable(enforcer):
+        return store
+    return cast("ArtifactStore", enforcer())
+
+
 def build_async_artifact_store(
     config: ArtifactStoreConfig,
     *,

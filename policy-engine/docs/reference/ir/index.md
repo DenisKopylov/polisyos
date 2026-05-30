@@ -55,15 +55,15 @@ Source plan: `docs/plans/active/IR_AUDIT_REMEDIATION_PLAN.md`, D1-L4 section in 
 | -------------------------------------- | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `polisyos.ir.connectors`               | 4     | `ConnectorCapability`, `ConnectorMetadataSpec`, `QualityTier`, `TrustLevel`                                                                                                                          |
 | `polisyos.ir.analytics.data_views`     | 4     | `AccessTier`, `DataFilter`, `DataViewRequest`, `DataViewType`                                                                                                                                        |
-| `polisyos.ir.norm_pack`                | 4     | `NormPack`, `NormRule`, `NormRef`, `RuleType`                                                                                                                                                        |
-| `polisyos.ir.loaders`                  | 1     | `load_policy`                                                                                                                                                                                        |
-| `polisyos.ir.schema_catalog`           | 11    | `IRExportInfo`, `IRFieldInfo`, `IRPublicStatus`, `IRSchemaCatalog`, `IRTypeInfo`, `IRTypeKind`, `enumerate_ir_exports`, `get_ir_schema_catalog`, `get_ir_type`, `inspect_ir_schema`, `list_ir_types` |
+| `polisyos.ir.loading.norm_pack`                | 4     | `NormPack`, `NormRule`, `NormRef`, `RuleType`                                                                                                                                                        |
+| `polisyos.ir.loading.loaders`          | 1     | `load_policy`                                                                                                                                                                                        |
+| `polisyos.ir.schemas`           | 11    | `IRExportInfo`, `IRFieldInfo`, `IRPublicStatus`, `IRSchemaCatalog`, `IRTypeInfo`, `IRTypeKind`, `enumerate_ir_exports`, `get_ir_schema_catalog`, `get_ir_type`, `inspect_ir_schema`, `list_ir_types` |
 | `polisyos.ir.governance.problem_frame` | 7     | `ProblemFrame`, `ProblemDomain`, `KPISpec`, `SuccessCriterion`, `ProblemConstraintSpec`, `ConstraintType`, `StakeholderSpec`                                                                         |
 | `polisyos.ir.governance.policy_spec`   | 6     | `PolicySpec`, `PolicyInterventionSpec`, `MechanismBinding`, `ParameterSpec`, `TemporalInterventionSequence`, `TemporalInterventionStep`                                                              |
 | `polisyos.ir.governance.gate`          | 7     | `GateContext`, `GateDecision`, `GateEvent`, `GateEventType`, `GatePriority`, `GateRequest`, `GateVerdict`                                                                                            |
-| `polisyos.ir.model_spec`               | 8     | `ModelSpec`, `FidelityLevel`, `AssumptionSpec`, `AssumptionType`, `AgentConfig`, `AgentTypeConfig`, `EnvironmentConfig`, `EnvironmentParam`                                                          |
-| `polisyos.ir.portfolio`                | 4     | `PolicyPortfolio`, `PolicyInteraction`, `InteractionMatrix`, `InteractionType`                                                                                                                       |
-| `polisyos.ir.refs`                     | 4     | `CausalQueryResultRef`, `CausalExecutionBundleRef`, `CausalModelEnsembleRef`, `TransportabilityResultRef`                                                                                            |
+| `polisyos.ir.model_layer.model_spec`               | 8     | `ModelSpec`, `FidelityLevel`, `AssumptionSpec`, `AssumptionType`, `AgentConfig`, `AgentTypeConfig`, `EnvironmentConfig`, `EnvironmentParam`                                                          |
+| `polisyos.ir.loading.portfolio`                | 4     | `PolicyPortfolio`, `PolicyInteraction`, `InteractionMatrix`, `InteractionType`                                                                                                                       |
+| `polisyos.ir.registry.refs`                     | 4     | `CausalQueryResultRef`, `CausalExecutionBundleRef`, `CausalModelEnsembleRef`, `TransportabilityResultRef`                                                                                            |
 
 ## Analytics Exports
 
@@ -96,7 +96,7 @@ Source plan: `docs/plans/active/IR_AUDIT_REMEDIATION_PLAN.md`, D1-L4 section in 
 
 ## Notes
 
-- The root facade now exposes 171 unique names, including the reflection API in `polisyos.ir.schema_catalog`.
+- The root facade now exposes 171 unique names, including the reflection API in `polisyos.ir.schemas`.
 - `docs/reference/ir/schema-catalog.md` is generated from the same reflection layer that powers export/schema inspection.
 - `docs/reference/ir/compiler-pipeline.md` documents the execution-free pass layer introduced for compiler-grade IR validation and normalization.
 - `docs/reference/ir/analytics.md` also documents `polisyos.ir.analytics.strategic`, which is new in code but not yet re-exported from the root `polisyos.ir` facade.

@@ -7,7 +7,7 @@ from typing import Any
 
 from polisyos.ir.kernel import DEFAULT_MECHANISM_REGISTRY, MechanismTypeSpec, ParamType
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
-from polisyos.ir.units import UNIT_REGISTRY
+from polisyos.ir.model_layer.units import UNIT_REGISTRY
 
 MechanismSpec = MechanismTypeSpec
 MECHANISM_SPECS: dict[str, MechanismSpec] = DEFAULT_MECHANISM_REGISTRY.mechanisms

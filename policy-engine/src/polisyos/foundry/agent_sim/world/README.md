@@ -6,8 +6,7 @@ Truth-centric synthetic-world family for Bayesian, ML, forecasting, econometrics
 survey, distributional, and causal methods.
 
 This package is the canonical home for synthetic world generation under the
-Foundry agent simulation owner. The old `polisyos.synthetic_world` root remains
-a wrapper-only compatibility facade until 2026-07-31.
+Foundry agent simulation owner.
 
 New first-party and external examples should import this package directly. The
 compatibility root keeps only facade smoke coverage; behavior coverage lives in

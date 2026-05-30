@@ -49,8 +49,8 @@ from polisyos.ir.analytics.regime_shift_forecast import (
     RegimeShiftForecastBundle,
 )
 from polisyos.ir.artifacts import ArtifactStore, put_json_artifact
-from polisyos.ir.canon import CanonSpec, to_canonical_bytes
-from polisyos.ir.refs import ArtifactRefModel
+from polisyos.ir.model_layer.canon import CanonSpec, to_canonical_bytes
+from polisyos.ir.registry.refs import ArtifactRefModel
 
 _METHOD_FQN = "forecasting.regime_shift.hybrid@1.0.0"
 _EPS = 1e-12

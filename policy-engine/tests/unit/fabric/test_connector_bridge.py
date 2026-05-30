@@ -74,7 +74,7 @@ def test_fabric_get_data_uses_injected_registry(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
-        "polisyos.fabric._connector_bridge._default_connector_registry",
+        "polisyos.fabric.api._default_connector_registry",
         lambda: (_ for _ in ()).throw(AssertionError("global registry should not be used")),
     )
 
@@ -94,7 +94,7 @@ def test_resolve_connector_registry_uses_factory_override(
     registry = _BridgeRegistry()
 
     monkeypatch.setattr(
-        "polisyos.fabric._connector_bridge._default_connector_registry",
+        "polisyos.fabric.api._default_connector_registry",
         lambda: (_ for _ in ()).throw(AssertionError("global registry should not be used")),
     )
 

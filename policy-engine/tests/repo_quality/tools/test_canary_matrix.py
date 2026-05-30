@@ -11,6 +11,7 @@ from tools.ops_runners.runtime import (
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
+WORKSPACE_ROOT = REPO_ROOT.parent
 
 
 def test_canary_matrix_declares_full_phase_0_4_dimensions() -> None:
@@ -811,7 +812,7 @@ def test_local_canary_runner_collects_runtime_hot_path_observations() -> None:
 
 
 def test_canary_matrix_workflow_wires_ci_and_quarantined_nightly_jobs() -> None:
-    workflow = REPO_ROOT / ".github/workflows/policyos-canary-matrix.yml"
+    workflow = WORKSPACE_ROOT / ".github/workflows/policyos-canary-matrix.yml"
     text = workflow.read_text(encoding="utf-8")
 
     assert "run_canary_matrix.py --deterministic" in text

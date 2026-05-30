@@ -26,7 +26,7 @@ from polisyos.ir.analytics.simulation_proof_bridge import (
     SimulationCertificationStatus,
     SimulationProofBridge,
 )
-from polisyos.ir.refs import ArtifactRefModel
+from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.scientist.methods.search.voi_scheduler import ComputeEconomicsDecision
 
 _SCHEMA_VERSION = "1.0"

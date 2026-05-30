@@ -80,7 +80,7 @@ Missing evidence is recorded as:
 uv run pytest tests/integration/scientist/test_workflow_reliability_scenarios.py \
   --junitxml=_build/.tmp/test-reports/scientist-reliability-scenarios.xml -q
 
-uv run pytest tests/unit/scientist/engine/test_reliability_operational_evidence.py \
+uv run pytest tests/unit/scientist/orchestration/engine/test_reliability_operational_evidence.py \
   --junitxml=_build/.tmp/test-reports/scientist-reliability-operational.xml -q
 
 uv run pytest tests/performance/test_scientist_runtime_paths.py \

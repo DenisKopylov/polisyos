@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-05-08T10:06:30.484507+00:00",
+  "generated_at": "2026-05-28T17:00:42.818236+00:00",
   "call_sites": [
     {
       "path": "src/polisyos/fabric/data_plane/orchestrator.py",
@@ -160,7 +160,7 @@
     },
     {
       "path": "tools/quality/validation/decomposition_preflight.py",
-      "line": 1072,
+      "line": 944,
       "patterns": [
         "pickle.dump",
         "pickle.dumps"
@@ -169,7 +169,7 @@
     },
     {
       "path": "tools/quality/validation/decomposition_preflight.py",
-      "line": 1130,
+      "line": 1002,
       "patterns": [
         "pickle.load"
       ],
@@ -183,7 +183,7 @@
     },
     {
       "path": "tests/_data/checkpoint_compat/scientist/engine_checkpoint_artifact.pkl",
-      "bytes": 1791
+      "bytes": 1793
     }
   ],
   "canonical_fixture_root": "tests/_data/checkpoint_compat"

@@ -12,7 +12,7 @@ from polisyos.ir.analytics.normative_arbitration import (
     NormativeModelCompleteness,
     load_normative_arbitration_result,
 )
-from polisyos.ir.refs import NormativeArbitrationResultRef
+from polisyos.ir.registry.refs import NormativeArbitrationResultRef
 from polisyos.scientist.governance.passes._artifact_resolution import (
     resolve_optional_artifact_model,
 )

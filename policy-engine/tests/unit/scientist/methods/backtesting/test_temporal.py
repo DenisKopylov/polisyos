@@ -24,7 +24,7 @@ from polisyos.ir.analytics.dynamic_regime import (
     TemporalPathRepresentation,
     TemporalSamplingScheme,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     ArtifactRefModel,
     ContinuousTimeQueryRef,
     RoughPathInterventionCertificateRef,

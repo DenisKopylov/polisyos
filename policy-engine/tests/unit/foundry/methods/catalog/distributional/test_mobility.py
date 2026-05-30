@@ -5,7 +5,7 @@ import pytest
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.analytics.mobility import MobilityReport, load_mobility_report
 from polisyos.ir.analytics.partial_identification import load_bounds_bundle
-from polisyos.ir.refs import MobilityReportRef
+from polisyos.ir.registry.refs import MobilityReportRef
 
 
 def _method_or_skip(registry, fqn):

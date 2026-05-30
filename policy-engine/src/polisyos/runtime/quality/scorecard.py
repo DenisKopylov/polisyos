@@ -15,6 +15,11 @@ from polisyos.lex.normpack.applicability_report import (
     normalize_normative_applicability_report,
 )
 from polisyos.lex.normpack.conflict_check import normalize_policy_conflict_check_report
+from polisyos.runtime.quality.acquisition_planner import (
+    acquisition_planner_reports_from_quality_evidence,
+    acquisition_planner_scorecard_gates,
+    acquisition_report_deficit_records,
+)
 from polisyos.runtime.quality.adapter_contracts import (
     AdapterContractError,
     adapter_surface_payload_from_envelope,
@@ -41,6 +46,13 @@ from polisyos.runtime.quality.authority import (
     classify_authority_failure,
     deserialize_authority_envelope,
 )
+from polisyos.runtime.quality.calibration_ledger import (
+    calibration_behavior_deficit_records,
+    calibration_behavior_scorecard_gates,
+)
+from polisyos.runtime.quality.candidate_firewall import (
+    candidate_firewall_issues_for_payload,
+)
 from polisyos.runtime.quality.case_integrity import (
     validate_evidence_graph_threat_model_record,
 )
@@ -54,6 +66,9 @@ from polisyos.runtime.quality.claim_argument import (
     ClaimArgumentValidationResult,
     validate_claim_argument_case_surfaces,
 )
+from polisyos.runtime.quality.complexity_governance import (
+    complexity_governance_scorecard_gates,
+)
 from polisyos.runtime.quality.compliance import (
     PRIVACY_COMPLIANCE_REPORT_EVIDENCE_REF,
     PRIVACY_COMPLIANCE_REPORT_KEY,
@@ -66,6 +81,16 @@ from polisyos.runtime.quality.config_release_hardening import (
 )
 from polisyos.runtime.quality.consultation import (
     validate_policy_design_case_legitimacy_records,
+)
+from polisyos.runtime.quality.cost_degradation import (
+    COST_DEGRADATION_TELEMETRY_FILENAME,
+    COST_DEGRADATION_TELEMETRY_REPORT_KEY,
+    cost_degradation_scorecard_gates,
+)
+from polisyos.runtime.quality.cost_gate import (
+    RUN_COST_GATE_FILENAME,
+    RUN_COST_GATE_REPORT_KEY,
+    cost_gate_scorecard_gates,
 )
 from polisyos.runtime.quality.data_forge_binding import (
     DATA_FORGE_SNAPSHOT_BINDING_FILE,
@@ -117,6 +142,11 @@ from polisyos.runtime.quality.external_audit import (
 from polisyos.runtime.quality.external_client_surface import (
     validate_external_client_surface_record,
 )
+from polisyos.runtime.quality.hypothesis_ledger import (
+    HYPOTHESIS_LEDGER_FILENAME,
+    HYPOTHESIS_LEDGER_REF_KEY,
+    HYPOTHESIS_LEDGER_REPORT_KEY,
+)
 from polisyos.runtime.quality.invariants import (
     InvariantRegistryError,
     load_production_invariant_registry,
@@ -152,6 +182,7 @@ from polisyos.runtime.quality.prompt_tool_ledger import (
     PROMPT_TOOL_LEDGER_FILENAME,
     PROMPT_TOOL_LEDGER_REF_KEY,
     PROMPT_TOOL_LEDGER_REPORT_KEY,
+    prompt_tool_repair_machinery_failures,
     validate_prompt_tool_parser_authority,
 )
 from polisyos.runtime.quality.refs import RuntimeQualityAuthorityRefs
@@ -166,27 +197,37 @@ from polisyos.runtime.quality.schema_compat import (
     SCORECARD_REPORT_SCHEMA_FAMILY_ALIASES,
     evaluate_schema_compatibility,
 )
+from polisyos.runtime.quality.scholar_academic_evidence import (
+    SCHOLAR_ACADEMIC_EVIDENCE_FILENAME,
+    normalize_scholar_academic_evidence_report,
+    scholar_academic_evidence_required,
+)
 from polisyos.runtime.quality.semantic_binding import (
     authority_envelopes_missing_semantic_binding_ref,
     deserialize_semantic_binding_ledger,
     evaluate_semantic_binding_ledger,
 )
 from polisyos.runtime.quality.skip_blockers import skip_blocker_gate_from_payloads
+from polisyos.runtime.quality.soft_gate_telemetry import (
+    build_soft_gate_telemetry_report,
+    warning_lifecycle_summaries,
+)
 from polisyos.runtime.quality.source_truth import (
     SOURCE_TRUTH_CONFLICT_SCHEMA,
     SourceTruthContractError,
     detect_source_truth_conflict,
     load_source_truth_lattice,
 )
-from polisyos.runtime.security.quality_gates import (
+from polisyos.runtime.quality.status_deficits import (
+    StatusEnvelope,
+    build_status_envelope,
+    status_envelope_payload,
+    status_envelope_scorecard_gates,
+)
+from polisyos.core.security.quality_gates import (
     SECURITY_ASSURANCE_REPORT_REF_KEY,
     SECURITY_REPORT_FILE,
     security_gates_from_report,
-)
-from polisyos.runtime.quality.scholar_academic_evidence import (
-    SCHOLAR_ACADEMIC_EVIDENCE_FILENAME,
-    normalize_scholar_academic_evidence_report,
-    scholar_academic_evidence_required,
 )
 from polisyos.scientist.validation.policy_grounding import (
     normalize_policy_grounding_matrix,
@@ -209,18 +250,47 @@ QUALITY_REPORT_FILES = {
     "decision_artifact_quality": "decision_artifact_quality.json",
     "provider_model_quality_ledger": "provider_model_quality_ledger.json",
     "prompt_tool_ledger": PROMPT_TOOL_LEDGER_FILENAME,
+    HYPOTHESIS_LEDGER_REPORT_KEY: HYPOTHESIS_LEDGER_FILENAME,
+    COST_DEGRADATION_TELEMETRY_REPORT_KEY: COST_DEGRADATION_TELEMETRY_FILENAME,
+    RUN_COST_GATE_REPORT_KEY: RUN_COST_GATE_FILENAME,
     "security_assurance_report": "security_assurance_report.json",
     "privacy_compliance_report": "privacy_compliance_report.json",
     "policy_design_case": "policy_design_case.json",
+    "claim_registry": "claim_registry.json",
     "scholar_evidence": "scholar_academic_evidence.json",
     "scenario_contract_propagation_graph": "scenario_contract_propagation_graph.json",
     "evidence_spine_handoff_ledger": "evidence_spine_handoff_ledger.json",
+    "producer_pipeline": "producer_pipeline.json",
+    "producer_handshake_ledger": "producer_handshake_ledger.json",
+    "producer_pipeline_readiness": "producer_pipeline_readiness.json",
+    "producer_pipeline_control_plane": "producer_pipeline_control_plane.json",
+    "producer_pipeline_replay": "producer_pipeline_replay.json",
+    "producer_pipeline_bundle_assembly": "producer_pipeline_bundle_assembly.json",
+    "producer_pipeline_inspection": "producer_pipeline_inspection.json",
     DATA_FORGE_SNAPSHOT_BINDING_REPORT_KEY: DATA_FORGE_SNAPSHOT_BINDING_FILE,
     "continuous_governance_stale": "continuous_governance_stale_report.json",
     "continuous_governance_reissue": "continuous_governance_reissue_report.json",
     "continuous_governance_supersede": "continuous_governance_supersede_report.json",
     "continuous_governance_withdraw": "continuous_governance_withdraw_report.json",
     "source_truth_conflicts": "source_truth_conflicts.json",
+    "formal_invariants": "formal_invariants.json",
+    "source_truth": "source_truth.json",
+    "conflict_materialization": "conflict_materialization_closeout.json",
+    "attestation": "attestation.json",
+    "policy_design_case_i4_graph": "policy_design_case_i4_graph.json",
+    "policy_design_portfolio_effective_support": (
+        "policy_design_portfolio_effective_support.json"
+    ),
+    "lifecycle_reissue_report": "lifecycle_reissue_report.json",
+    "policy_design_case_projection": "policy_design_case_projection.json",
+    "projection_publication_state": "projection_publication_state.json",
+    "policy_design_case_projection_contract_fixture": (
+        "policy_design_case_projection_contract_fixture.json"
+    ),
+    "calibration_ledger": "calibration_ledger.json",
+    "run_cost_proportionality": "run_cost_proportionality.json",
+    "audit_verifier_ingestion": "audit_verifier.json",
+    "can_i_closeout": "can_i_closeout.json",
 }
 QUALITY_REPORT_RUNTIME_REFS = {
     "production_data_quality": "production_data_quality_report_ref",
@@ -237,12 +307,14 @@ QUALITY_REPORT_RUNTIME_REFS = {
     "human_review_calibration": "human_review_calibration_report_ref",
     "decision_artifact_quality": "decision_artifact_quality_report_ref",
     "provider_model_quality_ledger": "provider_model_quality_ledger_ref",
+    HYPOTHESIS_LEDGER_REPORT_KEY: HYPOTHESIS_LEDGER_REF_KEY,
     "security_assurance_report": "security_assurance_report_ref",
     "privacy_compliance_report": "privacy_compliance_report_ref",
     "continuous_governance_stale": "continuous_governance_stale_report_ref",
     "continuous_governance_reissue": "continuous_governance_reissue_report_ref",
     "continuous_governance_supersede": "continuous_governance_supersede_report_ref",
     "continuous_governance_withdraw": "continuous_governance_withdraw_report_ref",
+    "can_i_closeout": "can_i_closeout_ref",
 }
 QUALITY_REPORT_GATE_METADATA = {
     "production_data_quality": (
@@ -286,6 +358,11 @@ QUALITY_REPORT_GATE_METADATA = {
         "provider_model_quality_ledger_passed",
         "llm",
         "llm_provider_quality",
+    ),
+    HYPOTHESIS_LEDGER_REPORT_KEY: (
+        "hypothesis_candidate_firewall",
+        "policy_output",
+        "candidate_firewall",
     ),
     "security_assurance_report": (
         "security_assurance_report_passed",
@@ -428,7 +505,10 @@ SCORECARD_CONTROL_PROGRESS_KEYS = (
     "quality_gates",
     "blocking_quality_failures",
     "operator_triage_ledger",
+    "operator_machinery_failures",
     "warnings",
+    "status_envelope",
+    "deficit_crosswalk",
     "approval_eligibility",
     "evidence_refs",
     "source_truth_conflicts",
@@ -513,6 +593,7 @@ _AUTHORITY_SPOOFING_DIAGNOSTIC_COMMAND = (
 
 _SPOOF_OWNER_BY_LAYER = {
     "attestation": "team-assurance",
+    "candidate_firewall": "team-policy-semantics",
     "fabric_materialization": "team-runtime-quality",
     "fabric_retrieval": "team-fabric",
     "foundry_causal_validity": "team-foundry",
@@ -719,6 +800,21 @@ def _blocking_failure_from_gate(gate: dict[str, Any]) -> dict[str, Any]:
         "conflicting_producer",
         "affected_claim",
         "next_command",
+        "severity",
+        "blockingness",
+        "publication_effect",
+        "review_action",
+        "closeout_effect",
+        "deficit_id",
+        "deficit_family",
+        "deficit_disposition",
+        "support_cap",
+        "readiness_cap",
+        "max_audience",
+        "source_module_id",
+        "source_reader_contract",
+        "source_producer",
+        "upstream_issue_code",
     ):
         if gate.get(key) is not None:
             failure[key] = gate[key]
@@ -1573,6 +1669,41 @@ def _prompt_tool_parser_authority_gate(
     )
 
 
+def _prompt_tool_repair_fmea_gate(
+    *,
+    quality_evidence: dict[str, Any],
+) -> dict[str, Any] | None:
+    report = quality_evidence.get(PROMPT_TOOL_LEDGER_REPORT_KEY)
+    if not isinstance(report, Mapping):
+        return None
+    failures = prompt_tool_repair_machinery_failures(report)
+    if not failures:
+        return None
+    evidence_ref = f"quality_evidence/{PROMPT_TOOL_LEDGER_FILENAME}"
+    first_failure = failures[0]
+    return _gate(
+        name="prompt_tool_repair_decision_fmea_surface",
+        stage="llm",
+        code="prompt_tool_repair_decision_fmea_observed",
+        status="warn",
+        layer="prompt_tool_parser_authority",
+        phase="prompt_tool_repair_fmea",
+        message=(
+            f"{len(failures)} prompt/tool repair decision(s) surfaced as "
+            "machinery failures with FMEA refs."
+        ),
+        evidence_ref=evidence_ref,
+        next_action=(
+            "Review prompt/tool repair machinery failures before reusing this "
+            "variant in production authority runs."
+        ),
+        blocking=False,
+        owner="team-runtime-ops",
+        root_cause_class="prompt_tool_repair_machinery_failure",
+        first_failing_artifact_ref=str(first_failure.get("evidence_ref") or evidence_ref),
+    )
+
+
 def _execution_gate(
     *,
     execution_status: str,
@@ -1850,6 +1981,7 @@ def _authority_contract_gates(
             stage: str = stage,
             layer: str = layer,
             evidence_ref: str = evidence_ref,
+            runtime_ref: str = runtime_ref,
             envelope: Mapping[str, Any] | None = None,
             authority_error_code: str | None = None,
             domain_failure_code: str | None = None,
@@ -2470,6 +2602,77 @@ def _semantic_binding_gates(
             next_action="Persist semantic binding ledger evidence before serious closeout.",
         )
     ]
+
+
+def _hypothesis_candidate_firewall_gates(
+    quality_evidence: dict[str, Any],
+    *,
+    canary_kind: str,
+) -> list[dict[str, Any]]:
+    if not _serious_canary(canary_kind):
+        return []
+    ledger = quality_evidence.get(HYPOTHESIS_LEDGER_REPORT_KEY)
+    if not isinstance(ledger, Mapping):
+        return []
+    surfaces = (
+        (
+            "dashboard",
+            quality_evidence.get("dashboard_projection")
+            or quality_evidence.get("policy_design_case_projection")
+            or {},
+            ("projection_authority",),
+        ),
+        (
+            "public_export",
+            quality_evidence.get("public_export")
+            or quality_evidence.get("public_export_bundle")
+            or {},
+            ("projection_authority",),
+        ),
+        (
+            "claim_registry",
+            quality_evidence.get("claim_registry") or {},
+            (
+                "claim_authority",
+                "legal_authority",
+                "data_authority",
+                "method_authority",
+            ),
+        ),
+    )
+    gates: list[dict[str, Any]] = []
+    for surface, payload, slots in surfaces:
+        if not isinstance(payload, Mapping):
+            continue
+        for issue in candidate_firewall_issues_for_payload(
+            payload,
+            hypothesis_ledger=ledger,
+            authority_slots=slots,
+            surface=surface,
+        ):
+            gates.append(
+                _gate(
+                    name="hypothesis_candidate_firewall",
+                    stage="policy_output",
+                    code=str(issue.get("code") or "candidate_firewall_blocked"),
+                    status="fail",
+                    layer="candidate_firewall",
+                    phase=surface,
+                    message=str(
+                        issue.get("message")
+                        or "Candidate content cannot satisfy authority slots."
+                    ),
+                    evidence_ref=f"quality_evidence/{HYPOTHESIS_LEDGER_FILENAME}",
+                    next_action=str(
+                        issue.get("next_action")
+                        or "Route the candidate through producer/reader validation."
+                    ),
+                    affected_claim=_sanitize_ref(issue.get("candidate_id")),
+                    missing_input=str(issue.get("authority_slot") or ""),
+                    owner="team-policy-semantics",
+                )
+            )
+    return gates
 
 
 def _semantic_binding_required_for_serious(
@@ -8701,7 +8904,7 @@ def _serious_warning_gate(
 def _runtime_quality_ref_gate(
     *,
     ref_key: str,
-    pass_message: str,
+    success_message: str,
     default_next_action: str,
     canary_kind: str,
     job_payload: dict[str, Any] | None,
@@ -8736,7 +8939,7 @@ def _runtime_quality_ref_gate(
     return {
         "code": code,
         "status": status,
-        "message": f"{pass_message} Runtime-owned {ref_key} is missing.",
+        "message": f"{success_message} Runtime-owned {ref_key} is missing.",
         "next_action": next_action or default_next_action,
         "blocking": status == "fail",
     }
@@ -9038,7 +9241,7 @@ def _report_gates(
         gate_name,
         stage,
         layer,
-        pass_message,
+        success_message,
         next_action,
     ) in report_gate_specs.items():
         report = quality_evidence.get(report_key)
@@ -9060,31 +9263,34 @@ def _report_gates(
         )
         gate_status = report_status if report_status != "missing" else "fail"
         gate_message = (
-            pass_message
+            success_message
             if report_status == "pass"
             else (
-                f"{pass_message} Status: {report_status}."
+                f"{success_message} Status: {report_status}."
                 + (f" Issues: {', '.join(issue_codes[:5])}." if issue_codes else "")
             )
         )
         gate_next_action = None if report_status == "pass" else issue_next_action or next_action
         gate_blocking = True
-        if report_key == "production_data_quality" and not _serious_canary(canary_kind):
-            if gate_status == "fail":
-                gate_status = "warn"
-                gate_blocking = False
+        if (
+            report_key == "production_data_quality"
+            and not _serious_canary(canary_kind)
+            and gate_status == "fail"
+        ):
+            gate_status = "warn"
+            gate_blocking = False
         if report_key in CONTINUOUS_GOVERNANCE_LIFECYCLE_REPORT_KEYS and report_status == "missing":
             ref_key = QUALITY_REPORT_RUNTIME_REFS[report_key]
             gate_code = (
                 "hds_runtime_ref_missing" if _serious_canary(canary_kind) else f"{ref_key}_missing"
             )
-            gate_message = f"{pass_message} Runtime-owned {ref_key} is missing."
+            gate_message = f"{success_message} Runtime-owned {ref_key} is missing."
             gate_next_action = (
                 f"Persist {ref_key} from the owning runtime layer before production approval."
             )
         runtime_ref_gate = _runtime_quality_ref_gate(
             ref_key=QUALITY_REPORT_RUNTIME_REFS[report_key],
-            pass_message=pass_message,
+            success_message=success_message,
             default_next_action=next_action,
             canary_kind=canary_kind,
             job_payload=job_payload,
@@ -9204,7 +9410,7 @@ def _compliance_gates(
     gate_blocking = bool(gate_details["blocking"])
     runtime_ref_gate = _runtime_quality_ref_gate(
         ref_key=PRIVACY_COMPLIANCE_REPORT_REF_KEY,
-        pass_message="Privacy, licensing, and compliance evidence is present.",
+        success_message="Privacy, licensing, and compliance evidence is present.",
         default_next_action=(
             "Persist privacy_compliance_report_ref from compliance evidence assembly."
         ),
@@ -9333,6 +9539,64 @@ def _scorecard_degradation_gate(gate: dict[str, Any] | None) -> dict[str, Any] |
         + f" Fallback code: {raw_code}."
     )
     return normalized
+
+
+def _can_i_closeout_scorecard_gates(
+    quality_evidence: Mapping[str, Any],
+) -> list[dict[str, Any]]:
+    record = quality_evidence.get("can_i_closeout") or quality_evidence.get(
+        "closeout_verdict"
+    )
+    if not isinstance(record, Mapping):
+        return []
+    can_closeout = bool(record.get("can_closeout"))
+    status = _clean_text(record.get("status")) or "unknown"
+    blockers = _mapping_rows(record.get("blockers"))
+    if can_closeout:
+        return [
+            _gate(
+                name="can_i_closeout_verdict",
+                stage="ops",
+                code="can_i_closeout_passed",
+                status="pass",
+                layer="closeout_reader",
+                phase="can_i_closeout",
+                message="Can-I-Closeout reader verdict allows closeout.",
+                evidence_ref="quality_evidence/can_i_closeout.json",
+                next_action=None,
+                blocking=False,
+            )
+        ]
+    if not blockers:
+        blockers = [
+            {
+                "upstream_issue_code": f"can_i_closeout_{status}",
+                "message": "Can-I-Closeout reader verdict did not allow closeout.",
+            }
+        ]
+    gates: list[dict[str, Any]] = []
+    for blocker in blockers:
+        gate = _gate(
+            name="can_i_closeout_verdict",
+            stage="ops",
+            code="can_i_closeout_blocked",
+            status="fail",
+            layer="closeout_reader",
+            phase="can_i_closeout",
+            message=_clean_text(blocker.get("message"))
+            or "Can-I-Closeout reader verdict blocked closeout.",
+            evidence_ref="quality_evidence/can_i_closeout.json",
+            next_action=_clean_text(blocker.get("next_action"))
+            or "Resolve the upstream closeout blocker and rerun can_i_closeout.",
+            blocking=True,
+        )
+        gate["source_module_id"] = _clean_text(blocker.get("source_module_id"))
+        gate["source_reader_contract"] = _clean_text(blocker.get("source_reader_contract"))
+        gate["source_producer"] = _clean_text(blocker.get("source_producer"))
+        gate["upstream_issue_code"] = _clean_text(blocker.get("upstream_issue_code"))
+        gate["affected_claim"] = _clean_text(blocker.get("claim_id"))
+        gates.append(gate)
+    return gates
 
 
 def _stage_scores(gates: list[dict[str, Any]]) -> dict[str, float]:
@@ -9545,20 +9809,72 @@ def _override_evidence(
     return evidence
 
 
-def _warning_summaries(gates: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    return [
-        {
-            "gate": str(gate["name"]),
-            "code": _clean_text(gate.get("code")) or str(gate["name"]),
-            "layer": _clean_text(gate.get("layer")) or "quality_scorecard",
-            "phase": _clean_text(gate.get("phase")),
-            "message": _clean_text(gate.get("message")) or "Quality warning.",
-            "evidence_ref": _sanitize_ref(gate.get("evidence_ref")),
-            "next_action": _clean_text(gate.get("next_action")),
-        }
-        for gate in gates
-        if gate.get("status") == "warn"
-    ]
+def _warning_summaries(
+    gates: list[dict[str, Any]],
+    *,
+    generated_at: datetime | None = None,
+) -> list[dict[str, Any]]:
+    return warning_lifecycle_summaries(gates, generated_at=generated_at)
+
+
+def _status_envelope_from_quality_evidence(
+    quality_evidence: dict[str, Any],
+) -> StatusEnvelope | None:
+    local_statuses = _status_envelope_local_statuses(quality_evidence)
+    deficits = _status_envelope_deficits(quality_evidence)
+    if not local_statuses and not deficits:
+        return None
+    return build_status_envelope(
+        local_statuses=local_statuses,
+        deficits=deficits,
+    )
+
+
+def _status_envelope_local_statuses(
+    quality_evidence: Mapping[str, Any],
+) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for key in (
+        "runtime_status_records",
+        "status_records",
+        "status_envelope_records",
+        "status_envelope_inputs",
+    ):
+        rows.extend(_mapping_rows(quality_evidence.get(key)))
+    policy_design_case = quality_evidence.get("policy_design_case")
+    if isinstance(policy_design_case, Mapping):
+        rows.extend(_mapping_rows(policy_design_case.get("runtime_status_records")))
+        rows.extend(_mapping_rows(policy_design_case.get("status_records")))
+    return rows
+
+
+def _status_envelope_deficits(
+    quality_evidence: Mapping[str, Any],
+) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for key in (
+        "deficit_records",
+        "runtime_deficit_records",
+        "status_deficit_records",
+        "deficit_crosswalk_records",
+    ):
+        rows.extend(_mapping_rows(quality_evidence.get(key)))
+    policy_design_case = quality_evidence.get("policy_design_case")
+    if isinstance(policy_design_case, Mapping):
+        rows.extend(_mapping_rows(policy_design_case.get("deficit_records")))
+        rows.extend(_mapping_rows(policy_design_case.get("runtime_deficit_records")))
+    for report in acquisition_planner_reports_from_quality_evidence(quality_evidence):
+        rows.extend(acquisition_report_deficit_records(report))
+    rows.extend(calibration_behavior_deficit_records(quality_evidence))
+    return rows
+
+
+def _mapping_rows(value: object) -> list[dict[str, Any]]:
+    if isinstance(value, Mapping):
+        return [dict(value)]
+    if isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
+        return [dict(item) for item in value if isinstance(item, Mapping)]
+    return []
 
 
 def _performance_reason(performance_status: str) -> str | None:
@@ -9598,10 +9914,7 @@ def _approval_readiness(
     elif quality_status == "warn":
         requires_override = serious
         reasons = [str(warning.get("code") or warning["gate"]) for warning in warnings]
-        if serious and override_accepted:
-            approval_state = "approval_ready"
-        else:
-            approval_state = "quality_warn"
+        approval_state = "approval_ready" if serious and override_accepted else "quality_warn"
     elif serious and performance_status in {"fail", "warn", "missing"}:
         requires_override = True
         reason = _performance_reason(performance_status)
@@ -9653,6 +9966,7 @@ def build_quality_scorecard(
     quality_evidence_bundle_path: str | None = None,
 ) -> dict[str, Any]:
     """Build a production-quality scorecard from runtime and domain evidence."""
+    generated_at = datetime.now(UTC).replace(microsecond=0)
     source_truth_gates, source_truth_conflicts = _source_truth_adapter_gates(
         quality_evidence,
         canary_kind=canary_kind,
@@ -9680,6 +9994,9 @@ def build_quality_scorecard(
         run_payload=run_payload,
         quality_evidence=quality_evidence,
     )
+    prompt_tool_repair_fmea_gate = _prompt_tool_repair_fmea_gate(
+        quality_evidence=quality_evidence,
+    )
     degradation_gate = degradation_gate_from_payloads(
         canary_kind=canary_kind,
         job_payload=job_payload,
@@ -9702,11 +10019,17 @@ def build_quality_scorecard(
             provider_preflight=provider_preflight,
         ),
         *([provider_model_quality_gate] if provider_model_quality_gate is not None else []),
+        *calibration_behavior_scorecard_gates(
+            quality_evidence,
+            canary_kind=canary_kind,
+            generated_at=generated_at,
+        ),
         *(
             [prompt_tool_parser_authority_gate]
             if prompt_tool_parser_authority_gate is not None
             else []
         ),
+        *([prompt_tool_repair_fmea_gate] if prompt_tool_repair_fmea_gate is not None else []),
         _materialization_gate(job_payload=job_payload, run_payload=run_payload),
         _scientist_gate(
             execution_status=execution_status,
@@ -9765,6 +10088,10 @@ def build_quality_scorecard(
             canary_kind=canary_kind,
             job_payload=job_payload,
             run_payload=run_payload,
+        ),
+        *_hypothesis_candidate_firewall_gates(
+            quality_evidence,
+            canary_kind=canary_kind,
         ),
         *_scholar_academic_evidence_gates(
             quality_evidence,
@@ -9894,6 +10221,23 @@ def build_quality_scorecard(
             job_payload=job_payload,
             run_payload=run_payload,
         ),
+        *cost_degradation_scorecard_gates(
+            quality_evidence=quality_evidence,
+            job_payload=job_payload,
+            run_payload=run_payload,
+            canary_kind=canary_kind,
+        ),
+        *cost_gate_scorecard_gates(
+            quality_evidence=quality_evidence,
+            job_payload=job_payload,
+            run_payload=run_payload,
+            canary_kind=canary_kind,
+        ),
+        *complexity_governance_scorecard_gates(quality_evidence),
+        *acquisition_planner_scorecard_gates(
+            quality_evidence,
+            canary_kind=canary_kind,
+        ),
         *_policy_design_wave31_best_in_class_benchmarking_gates(
             quality_evidence,
             canary_kind=canary_kind,
@@ -9933,6 +10277,7 @@ def build_quality_scorecard(
         ),
         *_source_truth_conflict_gates_from_records(reader_source_truth_conflicts),
         *source_truth_gates,
+        *_can_i_closeout_scorecard_gates(quality_evidence),
         *_legacy_migration_sandbox_gates(
             quality_evidence,
             canary_kind=canary_kind,
@@ -9944,6 +10289,9 @@ def build_quality_scorecard(
         ),
         *([degradation_gate] if degradation_gate is not None else []),
     ]
+    status_envelope = _status_envelope_from_quality_evidence(quality_evidence)
+    if status_envelope is not None:
+        gates.extend(status_envelope_scorecard_gates(status_envelope))
     serious_warning_gate = _serious_warning_gate(canary_kind=canary_kind, gates=gates)
     if serious_warning_gate is not None:
         gates.append(serious_warning_gate)
@@ -9964,7 +10312,34 @@ def build_quality_scorecard(
         job_payload=job_payload,
         run_payload=run_payload,
     )
-    warnings = _warning_summaries(gates)
+    warnings = _warning_summaries(gates, generated_at=generated_at)
+    case_payload = quality_evidence.get("policy_design_case")
+    run_cost_ledgers = (
+        _policy_design_run_cost_ledger_rows(case_payload)
+        if isinstance(case_payload, Mapping)
+        else ()
+    )
+    bounded_liveness_resolutions = [
+        *list(_mapping_rows(quality_evidence.get("bounded_liveness_resolutions"))),
+        *(
+            list(_mapping_rows(case_payload.get("bounded_liveness_resolutions")))
+            if isinstance(case_payload, Mapping)
+            else []
+        ),
+    ]
+    soft_gate_telemetry = build_soft_gate_telemetry_report(
+        run_id=str(run_id) if run_id is not None else None,
+        job_id=job_id,
+        gates=gates,
+        prompt_tool_ledger=quality_evidence.get(PROMPT_TOOL_LEDGER_REPORT_KEY),
+        human_review_calibration=quality_evidence.get("human_review_calibration"),
+        run_cost_ledgers=run_cost_ledgers,
+        bounded_liveness_resolutions=bounded_liveness_resolutions,
+        generated_at=generated_at,
+    )
+    operator_machinery_failures = prompt_tool_repair_machinery_failures(
+        quality_evidence.get(PROMPT_TOOL_LEDGER_REPORT_KEY),
+    )
     override_evidence = _override_evidence(
         job_payload=job_payload,
         run_payload=run_payload,
@@ -9994,7 +10369,7 @@ def build_quality_scorecard(
         refs["source_truth_conflicts"] = "quality_evidence/source_truth_conflicts.json"
     payload: dict[str, Any] = {
         "schema_version": "policyos.quality_scorecard.v1",
-        "generated_at": datetime.now(UTC).replace(microsecond=0).isoformat(),
+        "generated_at": generated_at.isoformat(),
         "canary_kind": canary_kind,
         "job_id": job_id,
         "run_id": run_id,
@@ -10007,11 +10382,19 @@ def build_quality_scorecard(
         "quality_gates": gates,
         "blocking_quality_failures": blocking_quality_failures,
         "operator_triage_ledger": operator_triage_ledger,
+        "operator_machinery_failures": operator_machinery_failures,
         "warnings": warnings,
+        "soft_gate_telemetry": soft_gate_telemetry,
         "override_evidence": override_evidence,
         "approval_eligibility": approval_eligibility,
         "evidence_refs": refs,
     }
+    if status_envelope is not None:
+        payload["status_envelope"] = status_envelope_payload(status_envelope)
+        payload["deficit_crosswalk"] = [
+            row.model_dump(mode="json", exclude_none=True)
+            for row in status_envelope.deficit_crosswalk
+        ]
     if quality_scorecard_ref:
         payload["quality_scorecard_ref"] = quality_scorecard_ref
     if quality_evidence_bundle_path:

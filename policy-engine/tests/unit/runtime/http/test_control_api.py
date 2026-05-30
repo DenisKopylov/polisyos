@@ -95,7 +95,7 @@ def _persist_scorecard(runtime_api_env, scorecard: dict[str, object]) -> str:
     store.record_artifact_owner(
         ref.artifact_id,
         tenant_id=runtime_api_env["tenant_a"],
-        cell_id="cell-a",
+        cell_id=runtime_api_env["cell_a"],
         writer="test",
     )
     return str(ref.artifact_id)
@@ -667,16 +667,24 @@ class TestProductionApproval:
         tenant_b_store.record_artifact_owner(
             tenant_b_ref.artifact_id,
             tenant_id=runtime_api_env["tenant_b"],
-            cell_id="cell-a",
+            cell_id=runtime_api_env["cell_a"],
             writer="test",
         )
         runtime_store = runtime_api_env["app"].state.runtime_api_ctx.store
 
-        with tenant_scope(None, tenant_id=runtime_api_env["tenant_a"], cell_id="cell-a"):
+        with tenant_scope(
+            None,
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=runtime_api_env["cell_a"],
+        ):
             with pytest.raises(ArtifactOwnershipError):
                 runtime_store.get_bytes(tenant_b_ref.artifact_id)
 
-        with tenant_scope(None, tenant_id=runtime_api_env["tenant_b"], cell_id="cell-a"):
+        with tenant_scope(
+            None,
+            tenant_id=runtime_api_env["tenant_b"],
+            cell_id=runtime_api_env["cell_a"],
+        ):
             assert json.loads(runtime_store.get_bytes(tenant_b_ref.artifact_id)) == {
                 "tenant": "b-only"
             }

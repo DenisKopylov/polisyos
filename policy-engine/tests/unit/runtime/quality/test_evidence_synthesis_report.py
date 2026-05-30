@@ -286,6 +286,11 @@ def test_synthesis_report_records_weighting_certainty_bias_stopping_and_cost() -
     assert validated["divergence_assessment"]["status"] == "divergent"
     assert validated["sensitivity_to_synthesis_rules"][0]["direction"] == "negative"
     assert validated["sensitivity_to_synthesis_rules"][0]["direction_changed"] is True
+    assert validated["effective_evidence_mass"]["effective_support_mass"] == 3.0
+    assert validated["effective_evidence_mass"]["effective_counterevidence_mass"] == 1.0
+    assert validated["effective_evidence_mass"]["raw_count_display_policy"][
+        "raw_count_authority"
+    ] == "diagnostic_only"
 
 
 def test_synthesis_report_projects_claim_ref_axis_for_compiler() -> None:
@@ -336,6 +341,56 @@ def test_synthesis_report_projects_claim_ref_axis_for_compiler() -> None:
     )
 
     assert evidence_synthesis_refs_by_claim([report]) == {"rec_1": ["synthesis-rec-1"]}
+
+
+def test_synthesis_report_preserves_disconfirming_generator_for_effective_mass() -> None:
+    report = build_evidence_synthesis_report(
+        report_id="synthesis-rec-1",
+        claim_id="rec_1",
+        portfolio_id="portfolio-rec-1",
+        multiverse_curve=_multiverse_curve(),
+        disconfirming_ledgers=(row for row in [_disconfirming_ledger()]),
+        primary_synthesis_rule={
+            "rule_id": "ivw_defensible_only",
+            "weighting": "inverse_variance",
+            "included_decisions": ["defensible"],
+        },
+        sensitivity_synthesis_rules=[
+            {
+                "rule_id": "equal_weight_with_severe_backtests",
+                "weighting": "equal",
+                "included_decisions": ["defensible", "rejected"],
+                "reasonable": True,
+            }
+        ],
+        heterogeneity_model={"model": "random_effects", "i_squared": 0.71},
+        certainty_framework={"framework": "GRADE-like", "rating": "low"},
+        publication_bias_treatment={"method": "trim_and_fill_shadow", "status": "assessed"},
+        inclusion_policy={"policy_id": "predeclared-portfolio-inclusion"},
+        exclusion_policy={"policy_id": "exclude-invalid-primary-include-sensitivity"},
+        information_saturation={
+            "status": "not_saturated",
+            "effective_independent_evidence_count": 3,
+            "minimum_effective_independent_evidence_count": 4,
+            "recent_direction_changes": 1,
+            "stopping_decision": "continue",
+        },
+        run_cost_proportionality=_cost_proportionality(),
+        divergence_evidence=[
+            {
+                "evidence_id": "divergence-synthesis-rule-direction-change",
+                "kind": "synthesis_rule_sensitivity",
+                "claim_ids": ["rec_1"],
+                "summary": "Reasonable synthesis rules change the claim direction.",
+                "evidence_ref": sha("a"),
+            }
+        ],
+        evidence_ref=sha("b"),
+        runtime_event_ref=sha("c"),
+    )
+
+    assert "disconfirming-ledger-rec-1" in report["disconfirming_ledger_refs"]
+    assert report["effective_evidence_mass"]["effective_counterevidence_mass"] == 1.0
 
 
 def test_synthesis_report_rejects_hidden_direction_change_without_divergence_evidence() -> None:
@@ -398,6 +453,68 @@ def test_synthesis_report_rejects_hidden_direction_change_without_divergence_evi
         validate_evidence_synthesis_report_record(hidden)
 
 
+def test_synthesis_report_rejects_raw_count_without_collapse_reasons() -> None:
+    report = build_evidence_synthesis_report(
+        report_id="synthesis-rec-1",
+        claim_id="rec_1",
+        portfolio_id="portfolio-rec-1",
+        multiverse_curve=_multiverse_curve(),
+        disconfirming_ledgers=[_disconfirming_ledger()],
+        primary_synthesis_rule={
+            "rule_id": "ivw_defensible_only",
+            "weighting": "inverse_variance",
+            "included_decisions": ["defensible"],
+        },
+        sensitivity_synthesis_rules=[
+            {
+                "rule_id": "equal_weight_with_severe_backtests",
+                "weighting": "equal",
+                "included_decisions": ["defensible", "rejected"],
+                "reasonable": True,
+            }
+        ],
+        heterogeneity_model={"model": "random_effects", "i_squared": 0.71},
+        certainty_framework={"framework": "GRADE-like", "rating": "low"},
+        publication_bias_treatment={"method": "trim_and_fill_shadow", "status": "assessed"},
+        inclusion_policy={"policy_id": "predeclared-portfolio-inclusion"},
+        exclusion_policy={"policy_id": "exclude-invalid-primary-include-sensitivity"},
+        information_saturation={
+            "status": "not_saturated",
+            "effective_independent_evidence_count": 1,
+            "minimum_effective_independent_evidence_count": 4,
+            "recent_direction_changes": 0,
+            "stopping_decision": "continue",
+        },
+        run_cost_proportionality=_cost_proportionality(),
+        divergence_evidence=[
+            {
+                "evidence_id": "divergence-synthesis-rule-direction-change",
+                "kind": "synthesis_rule_sensitivity",
+                "claim_ids": ["rec_1"],
+                "summary": "Reasonable synthesis rules change the claim direction.",
+                "evidence_ref": sha("a"),
+            }
+        ],
+        evidence_ref=sha("b"),
+        runtime_event_ref=sha("c"),
+        previous_wave_refs=_previous_wave_refs(),
+    )
+    inflated = deepcopy(report)
+    inflated["effective_evidence_mass"] = {
+        "raw_evidence_line_count": 10,
+        "effective_support_mass": 1.0,
+        "effective_counterevidence_mass": 1.0,
+        "collapse_reasons": [],
+        "raw_count_display_policy": {"raw_count_authority": "diagnostic_only"},
+    }
+
+    with pytest.raises(
+        EvidenceSynthesisReportError,
+        match="policy_design_synthesis_effective_mass_collapse_reasons_missing",
+    ):
+        validate_evidence_synthesis_report_record(inflated)
+
+
 def test_synthesis_report_json_schema_names_required_wave19_surfaces() -> None:
     schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
 
@@ -408,6 +525,7 @@ def test_synthesis_report_json_schema_names_required_wave19_surfaces() -> None:
         "report_id",
         "claim_ids",
         "portfolio_id",
+        "effective_evidence_mass",
         "weighting_model",
         "heterogeneity_model",
         "certainty_framework",

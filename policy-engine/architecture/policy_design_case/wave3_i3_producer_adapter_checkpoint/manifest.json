@@ -1,0 +1,37 @@
+{
+  "schema_version": "policyos.policy_design_case.wave3.i3_producer_adapter_checkpoint.v1",
+  "status": "passed",
+  "adapter_set_status": "accepted_for_remaining_breadth",
+  "generated_at": "2026-05-22T00:00:00Z",
+  "implementation_plan_ref": "repo://docs/plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md#wave-3---producer-adapters-and-claim-bound-evidence",
+  "producer_adapter_corpus_coverage_ref": "repo://architecture/policy_design_case/wave3_producer_adapter_corpus_coverage.json",
+  "entry_gate_evidence": {
+    "wave2_closeout_ref": "repo://docs/archive/reports/2026-05-22-policy-design-case-wave2-closeout.md",
+    "i2_walking_skeleton_ref": "repo://architecture/policy_design_case/wave2_i2_walking_skeleton/manifest.json"
+  },
+  "parallelism_contract": {
+    "consumes_wave2_interfaces_only": true,
+    "sibling_adapters_do_not_call_each_other": true,
+    "cross_producer_conflicts_deferred_to_wave4_records": true
+  },
+  "capability_closures": {
+    "each_producer_closes_missing_surface": true,
+    "each_adapter_has_authority_path": true,
+    "each_adapter_has_typed_blocker_or_laundering_path": true,
+    "context_only_non_authoritative": true,
+    "acquisition_does_not_bypass_mandatory_gates": true
+  },
+  "validation": {
+    "commands": [
+      "uv run pytest tests/unit/lex tests/unit/fabric tests/unit/foundry tests/unit/scientist -q",
+      "uv run pytest tests/unit/runtime/quality -q"
+    ],
+    "status": "passed",
+    "recorded_reason": "Both Wave 3 validation commands passed during Wave 3 closeout implementation."
+  },
+  "authority_envelope_requirement": {
+    "status": "recorded",
+    "required_field": "runtime_authority_envelope",
+    "required_capability_field": "capability_reality_status"
+  }
+}

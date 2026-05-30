@@ -1,0 +1,57 @@
+{
+  "schema_version": "policyos.runtime.policy_design_case.semantic_gold_card.v1",
+  "fixture_id": "participation_laundering_semantic_fail",
+  "title": "Consultation record cannot launder missing representation",
+  "expected_status": "semantic_fail",
+  "failure_mode": "participation_laundering",
+  "research_refs": ["E1", "C30", "C19", "C34"],
+  "pattern_ids": ["P10", "P15", "P05"],
+  "structural_pass_claimed": true,
+  "structural_verdict": {
+    "status": "pass",
+    "validator_refs": ["policy_design_case.structural.participation_shape.v1"],
+    "completeness_claims": [
+      "consultation_record_present",
+      "stakeholder_map_present",
+      "final_claim_participation_ref_present"
+    ]
+  },
+  "semantic_adjudication": {
+    "status": "fail",
+    "adjudicator": "policyos.semantic_gold_card.w1b",
+    "failure_mode": "participation_laundering",
+    "failure_code": "semantic_participation_laundering",
+    "rationale": "The final claim uses participation as legitimacy evidence while affected groups are unrepresented and no downgrade is recorded.",
+    "authority_effect": "review_required",
+    "required_remediation": "Record representativeness limits, downgrade the claim use, or collect missing participation evidence."
+  },
+  "semantic_probes": [
+    {
+      "probe_id": "participation-representativeness-downgrade",
+      "semantic_axis": "participation",
+      "pattern_ids": ["P10", "P15", "P05"],
+      "observed_signal": "Participation is claimed adequate from a narrow consultation record.",
+      "expected_signal": "Unrepresented affected classes must limit or block legitimacy use.",
+      "verdict": "fail",
+      "failure_code": "semantic_participation_laundering",
+      "evidence_refs": ["event://policy-design-case/w1b/consultation"]
+    }
+  ],
+  "payload": {
+    "case_id": "pdc-w1b-participation",
+    "claim_ids": ["claim-participation"],
+    "participation": {
+      "claimed_status": "adequate",
+      "consultation_record_refs": ["event://policy-design-case/w1b/consultation"],
+      "affected_stakeholder_classes": ["banks", "informal_msmes", "disabled_owners"],
+      "represented_stakeholder_classes": ["banks"],
+      "unrepresented_classes": ["informal_msmes", "disabled_owners"],
+      "downgrade_ref": null
+    },
+    "final_claim": {
+      "claim_id": "claim-participation",
+      "uses_participation_for_legitimacy": true,
+      "participation_status": "adequate"
+    }
+  }
+}

@@ -94,7 +94,7 @@ from polisyos.ir.analytics.structural_causal_model import (
     NodeMechanism,
     StructuralCausalModelSpec,
 )
-from polisyos.ir.refs import ArtifactRefModel, EstimandASTRef, ProofBundleRef
+from polisyos.ir.registry.refs import ArtifactRefModel, EstimandASTRef, ProofBundleRef
 from polisyos.scientist.orchestration.kernel.budgets import ComputeBudget
 from pydantic import ValidationError
 

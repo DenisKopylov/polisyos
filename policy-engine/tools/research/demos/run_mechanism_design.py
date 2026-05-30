@@ -46,7 +46,7 @@ from polisyos.ir.kernel import (
     DEFAULT_SLOT_REGISTRY,
 )
 from polisyos.ir.kernel.merge_rules import MergeRuleKind
-from polisyos.ir.model_spec import ModelSpec
+from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
 
 # --- CONFIG (TWEAKED) ---

@@ -39,7 +39,7 @@ from polisyos.ir.analytics.rough_path_semantics import (
     RoughPathTopology,
     TemporalPathSemanticsScope,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     ArtifactRefModel,
     ContinuousTimeQueryRef,
     DynamicTreatmentRegimeRef,

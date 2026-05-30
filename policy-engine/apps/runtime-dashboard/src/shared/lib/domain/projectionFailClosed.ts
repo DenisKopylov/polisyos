@@ -147,13 +147,99 @@ function stringArray(value: unknown) {
     : [];
 }
 
+function objectArray(value: unknown) {
+  return Array.isArray(value)
+    ? value.flatMap((item) =>
+        item && typeof item === "object"
+          ? [item as Record<string, unknown>]
+          : [],
+      )
+    : [];
+}
+
+function participationRows(projection: Record<string, unknown>) {
+  return [
+    ...objectArray(projection.participation_requirements),
+    ...objectArray(projection.participation_requirement_evaluations),
+    ...objectArray(projection.participation_evaluations),
+  ];
+}
+
+function participationProjectionFailClosedCodes(
+  projection: Record<string, unknown>,
+) {
+  const codes: string[] = [];
+  for (const row of participationRows(projection)) {
+    const sourceKind = normalizedToken(stringValue(row.source_kind));
+    const requested = normalizedToken(stringValue(row.claim_use_requested));
+    const allowed = normalizedToken(stringValue(row.claim_use_allowed));
+    const representativeness = normalizedToken(
+      stringValue(row.representativeness_class),
+    );
+    const projectionEffect = normalizedToken(
+      stringValue(row.public_projection_effect),
+    );
+
+    if (
+      ["llm_speculation", "analyst_summary"].includes(sourceKind) &&
+      allowed !== "context_only"
+    ) {
+      codes.push("participation_projection_authority_leak");
+    }
+    if (
+      requested === "prevalence" &&
+      allowed === "prevalence" &&
+      ["nonrepresentative", "unknown", "unverifiable"].includes(
+        representativeness,
+      )
+    ) {
+      codes.push("participation_projection_authority_leak");
+    }
+    if (
+      projectionEffect === "supports_claim" &&
+      (stringValue(row.blocker_code) || stringValue(row.downgrade_reason))
+    ) {
+      codes.push("participation_projection_authority_leak");
+    }
+    if (
+      stringValue(row.raw_material_ref) ||
+      stringValue(row.raw_transcript_ref) ||
+      row.raw_transcript
+    ) {
+      codes.push("participation_projection_privacy_leak");
+    }
+  }
+  return uniqueStrings(codes);
+}
+
+function closeoutTruthMissing(projection: Record<string, unknown>) {
+  const closeoutTruth = projection.closeout_truth;
+  if (!closeoutTruth || typeof closeoutTruth !== "object") {
+    return true;
+  }
+  const record = closeoutTruth as Record<string, unknown>;
+  return typeof record.can_closeout !== "boolean";
+}
+
 export function normalizeApiProjectionFailClosed(
   projection: Record<string, unknown>,
 ) {
   const maskingCases = detectProjectionMaskingCases(projection);
-  if (maskingCases.length === 0) {
+  const participationCodes = participationProjectionFailClosedCodes(projection);
+  const missingCloseoutTruth = closeoutTruthMissing(projection);
+  if (
+    maskingCases.length === 0 &&
+    participationCodes.length === 0 &&
+    !missingCloseoutTruth
+  ) {
     return projection;
   }
+  const failClosedCodes = uniqueStrings([
+    ...projectionFailClosedCodes(maskingCases),
+    ...participationCodes,
+    ...(missingCloseoutTruth ? ["projection_closeout_truth_missing"] : []),
+    ...stringArray(projection.fail_closed_codes),
+  ]);
   const states = uniqueStrings([
     ...stringArray(projection.states).filter(
       (state) => state !== "publishable",
@@ -176,7 +262,26 @@ export function normalizeApiProjectionFailClosed(
   return {
     ...projection,
     authority_role: "projection_only",
-    fail_closed_codes: projectionFailClosedCodes(maskingCases),
+    closeout_truth: missingCloseoutTruth
+      ? {
+          blocker_codes: ["projection_closeout_truth_missing"],
+          blockers: [
+            {
+              code: "projection_closeout_truth_missing",
+              message:
+                "Dashboard projection is missing boolean closeout truth.",
+              severity: "fail",
+            },
+          ],
+          can_closeout: false,
+          contested_state: "not_contested",
+          limitation_codes: [],
+          omission_codes: [],
+          status: "blocked",
+          verdict: "cannot_closeout",
+        }
+      : projection.closeout_truth,
+    fail_closed_codes: failClosedCodes,
     labels: uniqueStrings([...labels.map((label) => JSON.stringify(label))])
       .map((label) => JSON.parse(label) as Record<string, unknown>)
       .concat([
@@ -190,6 +295,7 @@ export function normalizeApiProjectionFailClosed(
     masking_cases: maskingCases,
     may_not_be_used_for: uniqueStrings([
       ...DEFAULT_PROJECTION_USE_LIMITS,
+      ...(participationCodes.length ? ["participation_authority"] : []),
       ...stringArray(projection.may_not_be_used_for),
     ]),
     primary_state: "blocked",

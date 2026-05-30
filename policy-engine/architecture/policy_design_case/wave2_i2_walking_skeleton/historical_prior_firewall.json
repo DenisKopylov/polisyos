@@ -1,0 +1,12 @@
+{
+  "authority_role": "runtime_reader",
+  "may_not_use_for": [
+    "claim_support",
+    "current_run_evidence_closure"
+  ],
+  "provenance_kind": "runtime_emitted",
+  "record_id": "historical_prior_firewall",
+  "schema_version": "policyos.runtime.policy_design_case.historical_prior_firewall.v1",
+  "statement": "Historical priors are influence-only and cannot enter current claim evidence slots.",
+  "status": "pass"
+}

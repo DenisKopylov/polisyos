@@ -16,8 +16,8 @@ from polisyos.fabric.provenance.core import (
     ProvenanceCoreGraph,
     ProvenanceEntity,
 )
-from polisyos.ir.canon import to_canonical_bytes as ir_to_canonical_bytes
-from polisyos.ir.citations import AnchorKind, FragmentLocator
+from polisyos.ir.model_layer.canon import to_canonical_bytes as ir_to_canonical_bytes
+from polisyos.ir.loading.citations import AnchorKind, FragmentLocator
 from polisyos.ir.world.event import (
     EventKind,
     ProvActivity,

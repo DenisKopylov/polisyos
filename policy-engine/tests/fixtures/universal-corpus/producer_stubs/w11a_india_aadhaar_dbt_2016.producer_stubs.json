@@ -1,0 +1,17 @@
+{
+  "schema_version": "policyos.runtime.producer_pipeline.corpus_stub.v1",
+  "case_id": "w11a_india_aadhaar_dbt_2016",
+  "owner": "team-evaluation",
+  "max_authority_posture": "governed-pilot",
+  "derived_from": {
+    "expert_case_label": "semantic_pass",
+    "claim_labels": {
+      "claim:aadhaar-dbt-targets-benefits": "publishable_with_limitation"
+    }
+  },
+  "fabric": {"*": "selected"},
+  "lex": {"*": "selected"},
+  "foundry": {"*": "selected"},
+  "scholar": {"*": "selected"},
+  "participation": {"*": "selected"}
+}

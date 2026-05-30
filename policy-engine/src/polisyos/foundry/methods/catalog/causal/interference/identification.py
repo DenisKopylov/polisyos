@@ -72,7 +72,7 @@ from polisyos.ir.analytics.interference import (
     SpatialResult,
 )
 from polisyos.ir.analytics.network_generative import BlockSupportReport, CausalBlockBridge
-from polisyos.ir.refs import ArtifactRefModel
+from polisyos.ir.registry.refs import ArtifactRefModel
 
 _PAIRWISE_QUERY_FAMILY = "pairwise_projection_queries"
 _CLUSTER_QUERY_FAMILY = "cluster_projection_queries"

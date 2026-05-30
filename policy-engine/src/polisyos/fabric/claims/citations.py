@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from polisyos.ir.citations import CitationRef, DocumentRef
+from polisyos.ir.loading.citations import CitationRef, DocumentRef
 from polisyos.ir.world.doc import DocMeta
 
 

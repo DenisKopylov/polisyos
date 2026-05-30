@@ -53,9 +53,11 @@
 /policy-engine/src/polisyos/berl/**       @DenisKopylov
 /policy-engine/src/polisyos/calibration/** @DenisKopylov
 /policy-engine/src/polisyos/ddm/**        @DenisKopylov
-/policy-engine/src/polisyos/ddm_15_7/**   @DenisKopylov
 /policy-engine/src/polisyos/scholar/**    @DenisKopylov
-/policy-engine/src/polisyos/synthetic_world/** @DenisKopylov
+/policy-engine/src/polisyos/obligation_rules/** @DenisKopylov
+/policy-engine/src/polisyos/method_requirement/** @DenisKopylov
+/policy-engine/src/polisyos/participation_requirement/** @DenisKopylov
+/policy-engine/src/polisyos/evidence/** @DenisKopylov
 /policy-engine/frontend/README.md        @DenisKopylov
 /policy-engine/apps/**                    @DenisKopylov
 /policy-engine/packages/**                @DenisKopylov

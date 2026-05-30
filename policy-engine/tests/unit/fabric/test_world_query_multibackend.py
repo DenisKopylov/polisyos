@@ -5,8 +5,9 @@ from contextlib import contextmanager
 from typing import Any
 
 import pandas as pd
+
 from polisyos.fabric.security import RowAccessPolicy
-from polisyos.fabric.world_query import WorldQueryRequest, execute_world_query
+from polisyos.fabric.world.query import WorldQueryRequest, execute_world_query
 
 
 class FakeBackend:

@@ -6,7 +6,7 @@ models, and provenance payloads that let `fabric`, `foundry`, `scientist`, `lex`
 
 ## Role in System
 
-- **Depends on:** `core.artifacts` for CAS-backed `ArtifactRef` and `polisyos.ir.refs` for canonical analytics refs.
+- **Depends on:** `core.artifacts` for CAS-backed `ArtifactRef` and `polisyos.ir.registry.refs` for canonical analytics refs.
 - **Used by:** runtime HTTP routes, control-plane orchestration, domain pipelines, and audit/provenance tooling.
 - **Boundary function:** prevents each domain package from inventing its own incompatible payload schema.
 
@@ -14,9 +14,16 @@ models, and provenance payloads that let `fabric`, `foundry`, `scientist`, `lex`
 
 - **Typed refs** - every artifact family uses explicit `kind` and `media_type` checks.
 - **Runtime/control DTOs** - HTTP and orchestration payloads live here so routes stay thin.
-- **Compatibility facades** - analytics refs that migrated into `polisyos.ir.refs` still have stable re-export paths here.
+- **Policy Design Case projections** - typed non-authoritative PDC views carry closeout truth,
+  projection gaps, contested records, recourse pointers, deficits, and invariant summaries to API
+  and generated-client consumers.
+- **Universal Policy Design Case** - W6.A compilation-only PDC facets carry authority envelope,
+  concept-spine refs, reuse evidence, audit surface, and candidate-to-authority boundaries before
+  obligation/requirement compilers run.
+- **Compatibility facades** - analytics refs that migrated into `polisyos.ir.registry.refs` still have stable re-export paths here.
 - **Provenance payloads** - shared entity/agent/activity records keep audit and lineage data consistent.
 - **Execution planning** - `execution_plan.py` carries preflight, evaluator, and reproducibility artifacts.
+- **Bounded liveness** - `bounded_liveness.py` carries governed deadline and retry ceilings for finite producer waits.
 - **Scientist artifacts** - scientist-specific refs include decision, checkpoint, sensitivity, stress, and calibration validation bundles.
 
 ## Public API
@@ -27,6 +34,10 @@ Main ref families:
 - `trinity.py`, `compiler.py`, `lex.py`, `execution_plan.py`
 - `runtime.py`, `control.py`, `cursor.py`
 - `provenance.py`
+- `bounded_liveness.py`
+- `policy_design_case_projection.py`
+- `runtime.py` also exposes `UniversalPolicyDesignCase` and `UniversalAuthorityProfile`
+  for the universal grammar compiler.
 - compatibility facades: `backtest.py`, `causal.py`, `distributional.py`, `hte.py`, `uncertainty.py`
 
 Notable current exports include `ExecutionPlanRef`, `PreflightReportRef`, `RunDetailsResponse`,
@@ -34,6 +45,10 @@ Notable current exports include `ExecutionPlanRef`, `PreflightReportRef`, `RunDe
 
 ## Current State
 
-- Last updated: 2026-04-03
-- The scientist contract family gained `CalibrationValidationBundleRef`.
+- Last updated: 2026-05-23
+- The Universal Policy Design Case contract is now available for W6.A universal grammar compiler
+  artifacts and audit surfaces.
+- The bounded-liveness contract family now carries governed deadline and retry ceilings for runtime producer waits.
+- The Policy Design Case projection contract is now a strict shared DTO for runtime/control
+  responses, OpenAPI, and generated clients.
 - `core.contracts` still acts as the stable import surface for runtime/control payloads while analytics refs continue to be re-exported for compatibility.

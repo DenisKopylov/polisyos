@@ -1,0 +1,1353 @@
+schema_version = "policyos.policy_design_case.cluster_ownership_map.v1"
+status = "seeded_governed_artifact"
+owner = "team-architecture"
+purpose = "Ratchetable cluster-by-axis ownership map for the universal policy designer architecture."
+ratchet_report = "architecture/policy_design_case/capability_reality_report.json"
+validator = "tools/quality/validation/check_policy_design_case_cluster_ownership_map.py"
+inventory = "architecture/policy_design_case/inventory.json"
+source_substrates = [
+  "architecture/policy_design_case/capability_reality_report.json",
+  "src/polisyos/*/README.md",
+  "docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md",
+]
+ratchet_state_vocabulary = [
+  "implemented",
+  "implemented_but_not_orchestrated",
+  "bridge_missing",
+  "producer_missing",
+  "contract_only",
+  "artifact_missing",
+  "consumer_missing",
+  "verification_missing",
+  "surface_missing",
+  "surface_out_of_scope",
+  "semantic_test_missing",
+]
+required_open_cell_closure_fields = [
+  "cell_ref",
+  "owner",
+  "reuse_classification",
+  "current_state",
+  "target_state",
+  "missing_chain",
+  "producer_artifact",
+  "persisted_artifact",
+  "bridge_consumer",
+  "surface",
+  "semantic_test",
+  "negative_test",
+  "acceptance_signal",
+  "next_action",
+]
+capability_chain_steps = [
+  "typed_contract",
+  "producer",
+  "persisted_artifact",
+  "orchestration_bridge",
+  "consumer",
+  "verification",
+  "surface",
+  "semantic_test",
+]
+reuse_classification_vocabulary = [
+  "wire_existing",
+  "extend_existing",
+  "consolidate_existing",
+  "build_new",
+]
+required_clusters = [
+  "SYSTEM",
+  "KNOWLEDGE",
+  "ACTOR",
+  "INTERVENTION",
+  "OTHER_AGENTS",
+  "DESIGNER_ITSELF",
+  "CROSS_CUTTING",
+]
+required_cell_fields = [
+  "owner_module",
+  "seed_files",
+  "ratchet_state",
+  "p01_chain",
+  "authority_dim",
+  "firewall",
+  "publishes",
+  "consumes",
+  "gap",
+  "action",
+]
+
+[stop_rule]
+every_top_level_package_assigned = true
+architecture_core_only = true
+every_cell_has_status = true
+not_orchestrated_cells_name_consumer_gap = true
+every_cell_has_authority_dim_and_firewall = true
+orphan_authority_gate_cells_have_action = true
+split_required_packages_are_not_wholesale_assigned = true
+every_handshake_edge_resolves = true
+cell_to_cell_publish_edges_are_reciprocal = true
+firewall_ids_are_registered = true
+every_open_cell_has_closure_contract = true
+closure_contracts_match_open_cell_states = true
+closure_contracts_name_missing_capability_chain = true
+controlled_gap_tokens = ["none_for_seed_scope", "none_for_ddm_scope"]
+
+[open_cell_closure.SYSTEM.connectivity_modularity]
+cell_ref = "SYSTEM.connectivity_modularity"
+owner = "team-foundry-design-composition"
+reuse_classification = "wire_existing"
+current_state = "implemented_but_not_orchestrated"
+target_state = "implemented"
+missing_chain = ["producer", "persisted_artifact", "orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
+producer_artifact = "CouplingGraph and DecompositionResult emitted from Foundry coupling seeds."
+persisted_artifact = "Runtime-visible decomposition record keyed by design candidate and system boundary."
+bridge_consumer = "INTERVENTION.scale_composition consumes the decomposition record before composing sub-design authority."
+surface = "EXPERT/MACHINE projection exposes coupling regime, module boundaries, cross-terms, and residual interaction risk."
+semantic_test = "Entangled reform fixture cannot assemble whole-design authority from validated submodules alone."
+negative_test = "False-modular fixture with strong cyclic cross-effects must fail P17 decomposition firewall."
+acceptance_signal = "Composition path blocks or downgrades when CouplingGraph is absent or classified entangled."
+next_action = "Wrap foundry/coupling/des_kernel.py behind an owned SYSTEM producer and emit a fixture-backed DecompositionResult."
+
+[open_cell_closure.SYSTEM.dynamics_feedback]
+cell_ref = "SYSTEM.dynamics_feedback"
+owner = "team-foundry-system-dynamics"
+reuse_classification = "wire_existing"
+current_state = "implemented_but_not_orchestrated"
+target_state = "implemented"
+missing_chain = ["producer", "persisted_artifact", "orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
+producer_artifact = "SystemDynamicsFeedbackRecord carrying equilibrium, feedback-loop, and post-intervention DGP assumptions."
+persisted_artifact = "Replay-visible dynamics record linked to DesignCandidate, coupling regime, and response model."
+bridge_consumer = "INTERVENTION.scale_composition and DESIGNER_ITSELF.closeout consume dynamics records for system-level claims."
+surface = "EXPERT/MACHINE projection exposes model type, feedback loops, fixed-point or simulation limitations, and downgrade reason."
+semantic_test = "High-feedback design without dynamics evidence cannot publish a system-level effect claim."
+negative_test = "Partial-equilibrium fixture with hidden feedback loop must be downgraded or blocked."
+acceptance_signal = "Entangled/high-feedback candidates route to dynamics before projection or closeout can claim system effect."
+next_action = "Route dynamic_graph_dscm and simulation/dynamics outputs into a design-level feedback producer."
+
+[open_cell_closure.SYSTEM.measurability]
+cell_ref = "SYSTEM.measurability"
+owner = "team-semantic-binding"
+reuse_classification = "extend_existing"
+current_state = "producer_missing"
+target_state = "implemented"
+missing_chain = ["typed_contract", "producer", "persisted_artifact", "orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
+producer_artifact = "MeasurabilityAdequacyRecord classifying each construct as observed, proxy-only, qualitative, or missing."
+persisted_artifact = "Claim-bound measurability ledger with proxy validity, value-loss, and ignorance/limitation disposition."
+bridge_consumer = "KNOWLEDGE.epistemic_regime and ACTOR.value_choice_provenance consume measurability before strategy or weights close."
+surface = "PUBLIC shows omitted/unmeasured policy values; EXPERT/MACHINE show proxy validity and streetlight-risk status."
+semantic_test = "Policy with dignity/trust objective cannot pass by optimizing only an observable administrative proxy."
+negative_test = "Proxy-only fixture must not satisfy the original value construct without limitation."
+acceptance_signal = "Every design objective has a measurability disposition before regime classification and projection."
+next_action = "Extend semantic_binding into a producer that emits construct-level measurability records."
+
+[open_cell_closure.SYSTEM.subject_granularity]
+cell_ref = "SYSTEM.subject_granularity"
+owner = "team-concept-spine"
+reuse_classification = "extend_existing"
+current_state = "producer_missing"
+target_state = "implemented"
+missing_chain = ["typed_contract", "producer", "persisted_artifact", "orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
+producer_artifact = "AggregationValidityRecord for individual/group/jurisdiction scope and Simpson/ecological-error risk."
+persisted_artifact = "Concept-spine-linked granularity ledger keyed by construct, population, jurisdiction, and claim scope."
+bridge_consumer = "INTERVENTION.targeting and KNOWLEDGE.epistemic_regime consume aggregation validity before targeting claims close."
+surface = "EXPERT/MACHINE projection exposes aggregation level, transported scope, and drift disposition."
+semantic_test = "Group-level evidence cannot close an individual-level targeting claim without aggregation validity."
+negative_test = "Fixture with jurisdiction-level averages hiding subgroup harm must emit a limitation or blocker."
+acceptance_signal = "Population and targeting claims fail closed when evidence granularity does not match claim scope."
+next_action = "Extend concept_spine with aggregation-validity records and a consumer in targeting/regime checks."
+
+[open_cell_closure.KNOWLEDGE.epistemic_regime]
+cell_ref = "KNOWLEDGE.epistemic_regime"
+owner = "team-knowledge-regime"
+reuse_classification = "build_new"
+current_state = "contract_only"
+target_state = "implemented"
+missing_chain = ["producer", "persisted_artifact", "orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
+producer_artifact = "EpistemicRegimeRecord per claim: Risk, Uncertainty, Ambiguity, Ignorance, or contested-model."
+persisted_artifact = "Regime ledger with evidence basis, asymmetry penalty, downgrade/upgrade reason, and strategy consequence."
+bridge_consumer = "INTERVENTION.design_strategy and DESIGNER_ITSELF.envelope_membership consume regime records."
+surface = "PUBLIC sees regime and honest limitation; EXPERT/MACHINE see evidence basis and firewall decisions."
+semantic_test = "Uncertainty/Ambiguity corpus cases produce robust or frame-indexed designs instead of hard blockers."
+negative_test = "False-risk fixture with weak evidence must fail overconfidence firewall; evidence-rich downgrade must fail precaution laundering firewall."
+acceptance_signal = "Design strategy is selected by gate-owned regime records, never by B-side generator preference."
+next_action = "Build the D2.5 regime classifier from substrate coverage, measurability, calibration, contested Scholar edges, stakes, and value provenance."
+
+[open_cell_closure.KNOWLEDGE.calibration]
+cell_ref = "KNOWLEDGE.calibration"
+owner = "team-calibration"
+reuse_classification = "wire_existing"
+current_state = "implemented_but_not_orchestrated"
+target_state = "implemented"
+missing_chain = ["orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
+producer_artifact = "ForecastCalibrationRecord tied to prediction family, context, time horizon, and observed outcome."
+persisted_artifact = "Calibration ledger entry linked to forecast, regime record, and evaluation case."
+bridge_consumer = "KNOWLEDGE.epistemic_regime and INTERVENTION.forecast_quality consume calibration outputs."
+surface = "EXPERT/MACHINE projection shows calibration status, uncertainty bands, and stale-history limitations."
+semantic_test = "Poorly calibrated forecast cannot support risk-regime optimization without downgrade."
+negative_test = "Fixture with historical prior outside context cannot improve current forecast authority."
+acceptance_signal = "Forecast quality and regime classification change when calibration evidence is absent, stale, or poor."
+next_action = "Wire calibration ledger outputs into forecast-tier and epistemic-regime gates."
+
+[open_cell_closure.KNOWLEDGE.ir_proof_carrying_analytics]
+cell_ref = "KNOWLEDGE.ir_proof_carrying_analytics"
+owner = "team-ir-analytics"
+reuse_classification = "wire_existing"
+current_state = "implemented_but_not_orchestrated"
+target_state = "implemented"
+missing_chain = ["orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
+producer_artifact = "ProofCarryingAnalyticsRecord with proof/certificate refs for baseline, alternative, and world-model assumptions."
+persisted_artifact = "Claim-bound IR artifact linked to evidence portfolio and design-comparison graph."
+bridge_consumer = "KNOWLEDGE.evidence_claims_portfolio and INTERVENTION.design_comparison consume proof-carrying analytics."
+surface = "EXPERT/MACHINE projection exposes proof refs, model assumptions, and rejected/limited analytics."
+semantic_test = "Design comparison cannot cite IR analytics unless proof/certificate refs bind to the compared claim."
+negative_test = "Unbound analytics fixture must not increase evidence strength or recommendation ranking."
+acceptance_signal = "Baseline/alternative comparison reads proof-carrying IR artifacts through claim-bound consumers."
+next_action = "Classify IR subpackages into proof, world, schema, loading, and governance producers, then bridge proof outputs into claims."
+
+[open_cell_closure.ACTOR.value_choice_provenance]
+cell_ref = "ACTOR.value_choice_provenance"
+owner = "team-welfare-governance"
+reuse_classification = "wire_existing"
+current_state = "implemented_but_not_orchestrated"
+target_state = "implemented"
+missing_chain = ["producer", "persisted_artifact", "orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
+producer_artifact = "ValueChoiceProvenanceRecord for objective functions, social weights, elicitation source, and authorized value schedule."
+persisted_artifact = "Replay-visible value-choice ledger linked to mandate/legitimacy and public tradeoff disclosure."
+bridge_consumer = "INTERVENTION.design_candidate and INTERVENTION.design_grammar consume value records before optimization or comparison."
+surface = "PUBLIC shows value tradeoff disclosure; EXPERT/MACHINE show weight source, conflicts, and multi-principal incompatibilities."
+semantic_test = "System cannot choose social weights silently when goals conflict across principals."
+negative_test = "LLM-proposed objective weights without mandate must fail P20 normative firewall."
+acceptance_signal = "Every objective function has authorized value-choice provenance or remains advisory/blocked."
+next_action = "Orchestrate foundry/welfare/social_weight_provenance.py behind an ACTOR producer gated by mandate records."
+
+[open_cell_closure.ACTOR.state_capacity_feasibility]
+cell_ref = "ACTOR.state_capacity_feasibility"
+owner = "team-governance-feasibility"
+reuse_classification = "build_new"
+current_state = "producer_missing"
+target_state = "implemented"
+missing_chain = ["typed_contract", "producer", "persisted_artifact", "orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
+producer_artifact = "CapacityFeasibilityRecord for administrative, fiscal, enforcement, delivery, and coordination capacity."
+persisted_artifact = "Actor-context feasibility ledger linked to jurisdiction, instrument, lifecycle stage, and design candidate."
+bridge_consumer = "INTERVENTION.design_candidate and INTERVENTION.feasibility consume capacity records before implementability claims."
+surface = "PUBLIC shows feasibility limitations; EXPERT/MACHINE show capacity dimensions and evidence/provenance."
+semantic_test = "Design requiring absent delivery capacity cannot be ranked as implementable without capacity-building obligation."
+negative_test = "High-capacity assumption copied across jurisdictions must fail capacity feasibility firewall."
+acceptance_signal = "Implementability closes only when capacity dimensions are grounded or explicitly limited."
+next_action = "Create the ACTOR capacity-feasibility contract and first producer over jurisdiction/instrument fixtures."
+
+[open_cell_closure.ACTOR.mandate_legitimacy]
+cell_ref = "ACTOR.mandate_legitimacy"
+owner = "team-participation-governance"
+reuse_classification = "extend_existing"
+current_state = "producer_missing"
+target_state = "implemented"
+missing_chain = ["typed_contract", "producer", "persisted_artifact", "orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
+producer_artifact = "MandateLegitimacyRecord for legal mandate, participation basis, affected-person provenance, and authority to set objectives."
+persisted_artifact = "Mandate ledger linked to population, jurisdiction, objectives, and value-choice records."
+bridge_consumer = "ACTOR.value_choice_provenance and INTERVENTION.design_candidate consume mandate records before goals/weights close."
+surface = "PUBLIC shows legitimacy disclosure; EXPERT/MACHINE show participation scope, conflicts, and mandate gaps."
+semantic_test = "Multi-principal design with missing affected-person mandate cannot collapse preferences into one hidden objective."
+negative_test = "Participation speculation by LLM must remain candidate_unverified or blocker."
+acceptance_signal = "Objectives and social weights require mandate/legitimacy provenance before publication."
+next_action = "Promote participation_requirement and scientist/governance seeds into mandate records with public disclosure effects."
+
+[open_cell_closure.INTERVENTION.scale_composition]
+cell_ref = "INTERVENTION.scale_composition"
+owner = "team-design-composition"
+reuse_classification = "consolidate_existing"
+current_state = "implemented_but_not_orchestrated"
+target_state = "implemented"
+missing_chain = ["typed_contract", "producer", "persisted_artifact", "orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
+producer_artifact = "CompositionReceipt for recursive DesignCandidate trees, critical paths, interfaces, and residual system-risk obligations."
+persisted_artifact = "RuntimePolicyDesignCase graph extension linking parent and sub-designs with coupling precondition refs."
+bridge_consumer = "INTERVENTION.requirement_compilers, SYSTEM.dynamics_feedback, and DESIGNER closeout consume composition receipts."
+surface = "EXPERT/MACHINE projection shows design tree, module interfaces, critical path, and where authority is not composable."
+semantic_test = "Country-scale portfolio fixture decomposes only along valid boundaries and blocks entangled partial-equilibrium aggregation."
+negative_test = "Naive sum-of-subdesigns fixture must fail when coupling precondition is absent."
+acceptance_signal = "Recursive design composition cannot emit whole-design authority without CouplingGraph and composition receipt."
+next_action = "Consolidate pdc, IR portfolio, and Foundry coupling seeds into D2.6 composition producer."
+
+[open_cell_closure.INTERVENTION.design_candidate]
+cell_ref = "INTERVENTION.design_candidate"
+owner = "team-design-generation"
+reuse_classification = "consolidate_existing"
+current_state = "implemented_but_not_orchestrated"
+target_state = "implemented"
+missing_chain = ["typed_contract", "producer", "persisted_artifact", "orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
+producer_artifact = "DesignCandidate contract and artifact with instrument family, parameters, objectives, assumptions, authority boundary, and candidate source."
+persisted_artifact = "Candidate ledger entry linked to grammar derivation, LLM/source classification, regime, value, and capacity gates."
+bridge_consumer = "Design comparison, requirement compilers, strategic response, and projection consume only typed candidates."
+surface = "PUBLIC sees recommendation status and limitations; EXPERT/MACHINE inspect derivation, source, and firewall state."
+semantic_test = "LLM-drafted candidate cannot satisfy authority or recommendation without deterministic/gate-owned validation."
+negative_test = "Narrative-only memo fixture must fail because it lacks typed candidate derivation and firewall state."
+acceptance_signal = "B-side generation emits typed candidate-only artifacts routed through grammar, value, regime, and P15 firewall."
+next_action = "Create the D3 DesignCandidate contract and route scientist agent/policy_design seeds through it."
+
+[open_cell_closure.INTERVENTION.design_grammar]
+cell_ref = "INTERVENTION.design_grammar"
+owner = "team-policy-grammar"
+reuse_classification = "extend_existing"
+current_state = "implemented_but_not_orchestrated"
+target_state = "implemented"
+missing_chain = ["producer", "persisted_artifact", "orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
+producer_artifact = "DesignGrammarExpansion artifact for facet-derived instrument families, parameter space, constraints, and construct demand."
+persisted_artifact = "Grammar derivation ledger linked to policy intent, facets, obligations, and candidate generation."
+bridge_consumer = "INTERVENTION.design_candidate and requirement compilers consume grammar expansion records."
+surface = "EXPERT/MACHINE projection exposes grammar derivation, constraints, pruned branches, and LLM candidate boundaries."
+semantic_test = "Candidate space must include non-template alternatives across instrument families under the same objective."
+negative_test = "LLM-only candidate proposal without grammar derivation must fail P15 firewall."
+acceptance_signal = "Design generation searches grammar-derived space rather than typed wrappers around free-text suggestions."
+next_action = "Promote policy_grammar, obligation_graph, and obligation_rules into a design-space expansion producer."
+
+[open_cell_closure.INTERVENTION.reversibility_lifecycle_stakes]
+cell_ref = "INTERVENTION.reversibility_lifecycle_stakes"
+owner = "team-case-lifecycle"
+reuse_classification = "extend_existing"
+current_state = "contract_only"
+target_state = "implemented"
+missing_chain = ["producer", "persisted_artifact", "orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
+producer_artifact = "CommitmentProfileRecord for reversibility, option value, lifecycle stage, transition cost, and stakes/asymmetric error."
+persisted_artifact = "Candidate-linked commitment profile consumed by regime and strategy constraints."
+bridge_consumer = "KNOWLEDGE.epistemic_regime and INTERVENTION.design_strategy consume commitment profile before floors are selected."
+surface = "PUBLIC shows reversible/adaptive/precautionary posture; EXPERT/MACHINE show stakes floors and lifecycle constraints."
+semantic_test = "Irreversible high-stakes intervention under ignorance must route to precaution/adaptive pathway, not risk optimization."
+negative_test = "Low-stakes evidence floor applied to catastrophic irreversible design must fail P23 firewall."
+acceptance_signal = "Design strategy and floors change when reversibility, lifecycle, or stakes profile changes."
+next_action = "Extend case_lifecycle into a first-class commitment-profile producer and add fields to DesignCandidate."
+
+[open_cell_closure.OTHER_AGENTS.strategic_response]
+cell_ref = "OTHER_AGENTS.strategic_response"
+owner = "team-strategic-response"
+reuse_classification = "wire_existing"
+current_state = "implemented_but_not_orchestrated"
+target_state = "implemented"
+missing_chain = ["producer", "persisted_artifact", "orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
+producer_artifact = "StrategicResponseRecord for Goodhart, Lucas/performativity, capture, sabotage, gaming, adaptation, and compliance response."
+persisted_artifact = "Response-model ledger linked to candidate, actor capacity, coupling regime, and post-intervention DGP."
+bridge_consumer = "SYSTEM.dynamics_feedback consumes post-intervention DGP; INTERVENTION.robustness consumes response risks."
+surface = "EXPERT/MACHINE projection exposes behavioral response model, assumptions, and robustness/downgrade effects."
+semantic_test = "Incentive target susceptible to gaming cannot project pre-policy effect as post-policy effect unchanged."
+negative_test = "Goodhart fixture must emit response risk and update SYSTEM.post_intervention_dgp."
+acceptance_signal = "The required reflexive flow OTHER_AGENTS response -> SYSTEM post-intervention DGP -> dynamics is runtime-produced."
+next_action = "Wrap strategic.py, policy_learning.py, dtr.py, and adversary.py seeds in an owned response producer."
+
+[open_cell_closure.DESIGNER_ITSELF.envelope_growth]
+cell_ref = "DESIGNER_ITSELF.envelope_growth"
+owner = "team-architecture"
+reuse_classification = "extend_existing"
+current_state = "implemented_but_not_orchestrated"
+target_state = "implemented"
+missing_chain = ["producer", "persisted_artifact", "orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
+producer_artifact = "CertifiedEnvelopeDelta describing domain, scale, regime, actor, response, and method scope gained or lost."
+persisted_artifact = "Envelope-growth ledger tied to capability ratchet states, acquisition outputs, method additions, and firewall coverage."
+bridge_consumer = "Rollout decision, corpus evaluation, acquisition planner, and cluster ownership map consume certified envelope deltas."
+surface = "PUBLIC/REVIEWER see certified scope changes; EXPERT/MACHINE inspect per-cluster evidence and open cells."
+semantic_test = "Adding a source or method cannot expand certified envelope unless its cluster firewall and consumer path are present."
+negative_test = "Governance-only artifact without producer/consumer chain must not increase envelope scope."
+acceptance_signal = "Envelope growth is monotonic, evidence-linked, and decreases or holds when cluster cells regress."
+next_action = "Teach the ratchet to compute envelope deltas from cluster cells, capability reality, acquisition, and corpus metrics."
+
+[open_cell_closure.CROSS_CUTTING.scientist_orchestration]
+cell_ref = "CROSS_CUTTING.scientist_orchestration"
+owner = "team-scientist-orchestration"
+reuse_classification = "consolidate_existing"
+current_state = "implemented_but_not_orchestrated"
+target_state = "implemented"
+missing_chain = ["persisted_artifact", "orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
+producer_artifact = "ClusterHandoffRecord proving which cluster artifact a Scientist workflow consumed, emitted, rejected, or blocked."
+persisted_artifact = "Replay-visible handoff ledger keyed by workflow, candidate, cluster, and authority purpose."
+bridge_consumer = "Cluster producers and DESIGNER closeout consume handoff records instead of workflow summaries."
+surface = "EXPERT/MACHINE projection exposes producer handoffs and prevents Scientist summaries from masquerading as authority."
+semantic_test = "Scientist orchestration summary cannot satisfy cluster authority without typed handoff and producer artifact refs."
+negative_test = "Workflow-only fixture with no cluster handoff must fail P12 producer-handshake check."
+acceptance_signal = "Scientist workflow emits typed cluster handoff records for generation, governance, feedback, validation, and publication."
+next_action = "Decompose Scientist workflow outputs into cluster handoff records and wire them to existing cluster consumers."
+
+[handshake_graph]
+audiences = ["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"]
+ports = [
+  "SYSTEM.jurisdiction",
+  "SYSTEM.outcome_observations",
+  "SYSTEM.population_scope",
+  "SYSTEM.post_intervention_dgp",
+  "KNOWLEDGE.evidence_half_life",
+  "INTERVENTION.construct_demand",
+  "INTERVENTION.design_strategy",
+  "INTERVENTION.requirements",
+  "INTERVENTION.method_requirements",
+  "INTERVENTION.objectives",
+  "INTERVENTION.objective_function",
+  "INTERVENTION.tradeoffs",
+  "INTERVENTION.targeting",
+  "INTERVENTION.population_scope",
+  "INTERVENTION.forecast",
+  "INTERVENTION.forecast_quality",
+  "INTERVENTION.system_level_forecast",
+  "INTERVENTION.feasibility",
+  "INTERVENTION.design_comparison",
+  "INTERVENTION.strategy_constraints",
+  "INTERVENTION.robustness",
+  "OTHER_AGENTS.response_model",
+  "DESIGNER_ITSELF.closeout",
+  "DESIGNER_ITSELF.envelope_membership",
+  "DESIGNER_ITSELF.metric_floors",
+  "DESIGNER_ITSELF.certified_envelope_delta",
+  "DESIGNER_ITSELF.cluster_evidence",
+]
+buses = [
+  "ALL.status_authority_time_contracts",
+  "ALL.cluster_artifacts",
+  "SYSTEM.cluster_artifacts",
+  "KNOWLEDGE.cluster_artifacts",
+  "ACTOR.cluster_artifacts",
+  "OTHER_AGENTS.cluster_artifacts",
+]
+
+[[handshake_graph.required_flow]]
+id = "reflexive_response_updates_system"
+producer = "OTHER_AGENTS.strategic_response"
+target = "SYSTEM.post_intervention_dgp"
+consumer = "SYSTEM.dynamics_feedback"
+reason = "Close the Goodhart/Lucas loop: intervention response changes the data-generating process consumed by system-dynamics evidence."
+
+[architecture_core]
+scope = "src/polisyos only; repository app, docs, release, and tooling trees are out of scope for this map pass."
+root = "src/polisyos"
+coverage_status = "top_level_and_required_subpackages_mapped"
+top_level_package_rule = "Every immediate src/polisyos package must appear in architecture_core.package_group.paths."
+split_rule = "Every immediate subdirectory of split_required_packages must appear in architecture_core.subpackage_group.paths."
+split_required_packages = [
+  "berl",
+  "core",
+  "data_forge",
+  "ddm",
+  "evidence",
+  "fabric",
+  "foundry",
+  "ir",
+  "lex",
+  "runtime",
+  "scholar",
+  "scientist",
+]
+
+[[architecture_core.package_group]]
+cell_ref = "DESIGNER_ITSELF.closeout_projection_ratchet"
+paths = ["src/polisyos/berl"]
+coverage_mode = "split_by_subpackage"
+ratchet_state = "implemented"
+p01_chain = "implemented"
+gap = "BERL is assigned to the designer-explanation surface; subpackages are split below."
+action = "keep BERL explanation reliability as an explicit DESIGNER_ITSELF surface dependency."
+
+[[architecture_core.package_group]]
+cell_ref = "KNOWLEDGE.calibration"
+paths = ["src/polisyos/calibration"]
+coverage_mode = "root_package"
+ratchet_state = "implemented_but_not_orchestrated"
+p01_chain = "bridge_missing"
+gap = "Calibration exists as a package but is not yet a cluster-level regime or prediction-quality producer in the design loop."
+action = "wire calibration records into epistemic-regime and forecast-quality gates."
+
+[[architecture_core.package_group]]
+cell_ref = "CROSS_CUTTING.core_contracts"
+paths = ["src/polisyos/common", "src/polisyos/core", "src/polisyos/schemas"]
+coverage_mode = "split_by_subpackage_for_core"
+ratchet_state = "implemented"
+p01_chain = "implemented"
+gap = "common and schemas are root helpers; core is split below."
+action = "preserve status, authority, time, provenance, and schema contracts as cross-cluster substrate."
+
+[[architecture_core.package_group]]
+cell_ref = "DESIGNER_ITSELF.evaluation_corpus"
+paths = ["src/polisyos/corpus"]
+coverage_mode = "root_package"
+ratchet_state = "implemented"
+p01_chain = "implemented"
+gap = "corpus is assigned to evaluation; detailed corpus contents are governed by corpus fixtures rather than this architecture-core map."
+action = "keep corpus loaders and outcome fixtures as DESIGNER_ITSELF evaluation inputs."
+
+[[architecture_core.package_group]]
+cell_ref = "SYSTEM.domain_data"
+paths = ["src/polisyos/data_forge", "src/polisyos/fabric"]
+coverage_mode = "split_by_subpackage"
+ratchet_state = "implemented"
+p01_chain = "implemented"
+gap = "data_forge and fabric are split below because source contracts, connectors, domains, quality, and read APIs carry different authority surfaces."
+action = "maintain source-contract, lineage, quality, rights, and domain-read boundaries per subpackage."
+
+[[architecture_core.package_group]]
+cell_ref = "INTERVENTION.requirement_compilers"
+paths = ["src/polisyos/data_requirement", "src/polisyos/method_requirement"]
+coverage_mode = "root_package"
+ratchet_state = "implemented"
+p01_chain = "implemented"
+gap = "requirement compiler packages are assigned, but future passes should split _impl if compiler authority grows."
+action = "keep RequirementSpec compilers as explicit bridges from obligation/design demand to producer adapters."
+
+[[architecture_core.package_group]]
+cell_ref = "SYSTEM.nonstationarity"
+paths = ["src/polisyos/ddm"]
+coverage_mode = "split_by_subpackage"
+ratchet_state = "implemented"
+p01_chain = "implemented"
+gap = "DDM is split below so detectors, readiness, integration, calibration, and contracts remain distinguishable."
+action = "route drift and degradation artifacts into regime, lifecycle, and envelope-growth decisions."
+
+[[architecture_core.package_group]]
+cell_ref = "KNOWLEDGE.evidence_claims_portfolio"
+paths = ["src/polisyos/evidence"]
+coverage_mode = "split_by_subpackage"
+ratchet_state = "implemented"
+p01_chain = "implemented"
+gap = "evidence claims and portfolio are split below because claim authority and independence/conflict authority are different surfaces."
+action = "preserve claim registry, conflict, and effective-independence records as KNOWLEDGE outputs."
+
+[[architecture_core.package_group]]
+cell_ref = "SYSTEM.connectivity_modularity"
+paths = ["src/polisyos/foundry"]
+coverage_mode = "split_by_subpackage"
+ratchet_state = "implemented_but_not_orchestrated"
+p01_chain = "bridge_missing"
+gap = "Foundry is a method-rich package; subpackages are split below to avoid method-cemetery wholesale coverage."
+action = "route only design-loop-consumed Foundry methods into cluster producers; keep catalog-only methods incomplete until bridged."
+
+[[architecture_core.package_group]]
+cell_ref = "KNOWLEDGE.ir_proof_carrying_analytics"
+paths = ["src/polisyos/ir"]
+coverage_mode = "split_by_subpackage"
+ratchet_state = "implemented_but_not_orchestrated"
+p01_chain = "bridge_missing"
+gap = "IR has proof-carrying seeds, but subpackages must be mapped to evidence, model, world, and schema roles."
+action = "wire proof-carrying IR outputs into claim/evidence and design-comparison consumers."
+
+[[architecture_core.package_group]]
+cell_ref = "ACTOR.legal_authority"
+paths = ["src/polisyos/legal_requirement", "src/polisyos/lex"]
+coverage_mode = "split_by_subpackage_for_lex"
+ratchet_state = "implemented"
+p01_chain = "implemented"
+gap = "Lex is split below; legal_requirement is assigned as its requirement-compiler bridge."
+action = "keep legal authority and legal requirement compilation distinct from projection or LLM authority."
+
+[[architecture_core.package_group]]
+cell_ref = "INTERVENTION.design_grammar"
+paths = [
+  "src/polisyos/obligation_graph",
+  "src/polisyos/obligation_rules",
+  "src/polisyos/pdc",
+  "src/polisyos/policy_grammar",
+]
+coverage_mode = "root_package"
+ratchet_state = "implemented_but_not_orchestrated"
+p01_chain = "bridge_missing"
+gap = "policy grammar, obligation graph/rules, and PDC graph compile the design case but do not yet form a complete generative design-space engine."
+action = "wire these packages into recursive DesignCandidate generation, requirement compilation, and projection-from-graph checks."
+
+[[architecture_core.package_group]]
+cell_ref = "ACTOR.mandate_legitimacy"
+paths = ["src/polisyos/participation_requirement"]
+coverage_mode = "root_package"
+ratchet_state = "producer_missing"
+p01_chain = "producer_missing"
+gap = "participation requirements exist but do not yet produce mandate/legitimacy authority for arbitrary design objectives."
+action = "promote participation requirements into mandate and legitimacy records before value choices can close."
+
+[[architecture_core.package_group]]
+cell_ref = "DESIGNER_ITSELF.closeout_projection_ratchet"
+paths = ["src/polisyos/runtime"]
+coverage_mode = "split_by_subpackage"
+ratchet_state = "implemented"
+p01_chain = "implemented"
+gap = "runtime is split below into API/extensions/quality; only quality is the current PDC backbone owner."
+action = "keep runtime HTTP/API surfaces distinct from runtime quality authority and closeout surfaces."
+
+[[architecture_core.package_group]]
+cell_ref = "KNOWLEDGE.epistemic_regime"
+paths = ["src/polisyos/scholar", "src/polisyos/scholar_requirement"]
+coverage_mode = "split_by_subpackage_for_scholar"
+ratchet_state = "contract_only"
+p01_chain = "producer_missing"
+gap = "Scholar supports evidence and contestability, but the epistemic-regime classifier is not yet produced."
+action = "connect Scholar contested/support records and scholar requirements to D2.5 regime classification."
+
+[[architecture_core.package_group]]
+cell_ref = "CROSS_CUTTING.scientist_orchestration"
+paths = ["src/polisyos/scientist"]
+coverage_mode = "split_by_subpackage"
+ratchet_state = "implemented_but_not_orchestrated"
+p01_chain = "bridge_missing"
+gap = "Scientist spans generation, orchestration, governance, feedback, validation, and publication; subpackages are split below."
+action = "promote only typed, cluster-owned Scientist producers into the design loop."
+
+[[architecture_core.subpackage_group]]
+parent = "src/polisyos/berl"
+cell_ref = "DESIGNER_ITSELF.closeout_projection_ratchet"
+coverage_mode = "subpackage_list"
+paths = [
+  "src/polisyos/berl/adapters",
+  "src/polisyos/berl/benchmarks",
+  "src/polisyos/berl/contracts",
+  "src/polisyos/berl/metrics",
+]
+ratchet_state = "implemented"
+p01_chain = "implemented"
+gap = "BERL subpackages support explanation reliability; no orphan immediate subpackages remain."
+action = "keep explanation contracts and metrics surfaced through DESIGNER_ITSELF projection and evaluation."
+
+[[architecture_core.subpackage_group]]
+parent = "src/polisyos/core"
+cell_ref = "CROSS_CUTTING.core_contracts"
+coverage_mode = "subpackage_list"
+paths = [
+  "src/polisyos/core/artifacts",
+  "src/polisyos/core/audit",
+  "src/polisyos/core/backends",
+  "src/polisyos/core/cache",
+  "src/polisyos/core/canon",
+  "src/polisyos/core/compiler",
+  "src/polisyos/core/components",
+  "src/polisyos/core/contracts",
+  "src/polisyos/core/discovery",
+  "src/polisyos/core/errors",
+  "src/polisyos/core/evaluation",
+  "src/polisyos/core/governance",
+  "src/polisyos/core/llm",
+  "src/polisyos/core/observability",
+  "src/polisyos/core/pipeline",
+  "src/polisyos/core/registry",
+  "src/polisyos/core/resilience",
+  "src/polisyos/core/run",
+  "src/polisyos/core/security",
+  "src/polisyos/core/trace",
+]
+ratchet_state = "implemented"
+p01_chain = "implemented"
+gap = "Core subpackages are cross-cutting contract/runtime primitives, not policy-design authority by themselves."
+action = "keep Core as shared substrate and prevent cluster-specific authority from leaking into it."
+
+[[architecture_core.subpackage_group]]
+parent = "src/polisyos/data_forge"
+cell_ref = "SYSTEM.domain_data"
+coverage_mode = "subpackage_list"
+paths = [
+  "src/polisyos/data_forge/_impl",
+  "src/polisyos/data_forge/domains",
+  "src/polisyos/data_forge/extensions",
+  "src/polisyos/data_forge/kernel",
+  "src/polisyos/data_forge/read_api",
+]
+ratchet_state = "implemented"
+p01_chain = "implemented"
+gap = "Data Forge subpackages are explicit source, domain, kernel, and read-API boundaries."
+action = "preserve per-domain source contracts, manifests, provenance, and read-API authority limits."
+
+[[architecture_core.subpackage_group]]
+parent = "src/polisyos/ddm"
+cell_ref = "SYSTEM.nonstationarity"
+coverage_mode = "subpackage_list"
+paths = [
+  "src/polisyos/ddm/calibration",
+  "src/polisyos/ddm/contracts",
+  "src/polisyos/ddm/detectors",
+  "src/polisyos/ddm/integration",
+  "src/polisyos/ddm/readiness",
+]
+ratchet_state = "implemented"
+p01_chain = "implemented"
+gap = "DDM subpackages are assigned to nonstationarity and readiness; design-loop regime use remains a future consumer action."
+action = "feed detector and readiness outputs into KNOWLEDGE regime and DESIGNER envelope-growth cells."
+
+[[architecture_core.subpackage_group]]
+parent = "src/polisyos/evidence"
+cell_ref = "KNOWLEDGE.evidence_claims_portfolio"
+coverage_mode = "subpackage_list"
+paths = [
+  "src/polisyos/evidence/claims",
+  "src/polisyos/evidence/portfolio",
+]
+ratchet_state = "implemented"
+p01_chain = "implemented"
+gap = "Evidence subpackages are mapped at claims and portfolio granularity."
+action = "keep claim authority, conflicts, and effective-independence reports distinct in projection."
+
+[[architecture_core.subpackage_group]]
+parent = "src/polisyos/fabric"
+cell_ref = "SYSTEM.domain_data"
+coverage_mode = "subpackage_list"
+paths = [
+  "src/polisyos/fabric/_adapters",
+  "src/polisyos/fabric/_internal",
+  "src/polisyos/fabric/catalog",
+  "src/polisyos/fabric/claims",
+  "src/polisyos/fabric/config",
+  "src/polisyos/fabric/connectors",
+  "src/polisyos/fabric/data_plane",
+  "src/polisyos/fabric/docs",
+  "src/polisyos/fabric/entity_resolution",
+  "src/polisyos/fabric/evidence",
+  "src/polisyos/fabric/extensions",
+  "src/polisyos/fabric/identity",
+  "src/polisyos/fabric/ingestion",
+  "src/polisyos/fabric/io",
+  "src/polisyos/fabric/numerics",
+  "src/polisyos/fabric/pii",
+  "src/polisyos/fabric/product_integration",
+  "src/polisyos/fabric/provenance",
+  "src/polisyos/fabric/quality",
+  "src/polisyos/fabric/retrieval",
+  "src/polisyos/fabric/security",
+  "src/polisyos/fabric/storage",
+  "src/polisyos/fabric/trust",
+  "src/polisyos/fabric/world",
+]
+ratchet_state = "implemented"
+p01_chain = "implemented"
+gap = "Fabric subpackages all serve SYSTEM data/source authority but differ by connector, world, quality, trust, and provenance boundary."
+action = "continue Pass 2 by splitting Fabric source-contract, connector, and trust cells if any subpackage begins producing design-loop authority independently."
+
+[[architecture_core.subpackage_group]]
+parent = "src/polisyos/foundry"
+cell_ref = "SYSTEM.connectivity_modularity"
+coverage_mode = "subpackage_list"
+paths = [
+  "src/polisyos/foundry/coupling",
+]
+ratchet_state = "implemented_but_not_orchestrated"
+p01_chain = "bridge_missing"
+gap = "Foundry coupling seeds exist but are not yet an owned SYSTEM connectivity producer consumed by composition."
+action = "wire Foundry coupling outputs into CouplingGraph and DecompositionResult before composition authority is assembled."
+
+[[architecture_core.subpackage_group]]
+parent = "src/polisyos/foundry"
+cell_ref = "SYSTEM.dynamics_feedback"
+coverage_mode = "subpackage_list"
+paths = [
+  "src/polisyos/foundry/agent_sim",
+  "src/polisyos/foundry/feedback",
+  "src/polisyos/foundry/mechanisms",
+  "src/polisyos/foundry/methods",
+]
+ratchet_state = "implemented_but_not_orchestrated"
+p01_chain = "bridge_missing"
+gap = "Foundry simulation, feedback, mechanisms, and method catalog seeds are not yet routed as design-level response or equilibrium producers."
+action = "split method families further as they become cluster-owned producers for dynamics, strategic response, or design comparison."
+
+[[architecture_core.subpackage_group]]
+parent = "src/polisyos/foundry"
+cell_ref = "KNOWLEDGE.calibration"
+coverage_mode = "subpackage_list"
+paths = [
+  "src/polisyos/foundry/analysis",
+  "src/polisyos/foundry/calibration",
+  "src/polisyos/foundry/uncertainty",
+  "src/polisyos/foundry/validation",
+]
+ratchet_state = "implemented_but_not_orchestrated"
+p01_chain = "bridge_missing"
+gap = "Foundry analysis, calibration, uncertainty, and validation seeds are not yet a design-loop forecast-quality gate."
+action = "route these outputs into KNOWLEDGE calibration, uncertainty, and regime-appropriateness cells."
+
+[[architecture_core.subpackage_group]]
+parent = "src/polisyos/foundry"
+cell_ref = "ACTOR.value_choice_provenance"
+coverage_mode = "subpackage_list"
+paths = [
+  "src/polisyos/foundry/welfare",
+]
+ratchet_state = "implemented_but_not_orchestrated"
+p01_chain = "bridge_missing"
+gap = "Foundry welfare/social-weight seeds are not yet the authorized value-choice producer for arbitrary designs."
+action = "wire welfare and social-weight provenance into ACTOR value-choice and normative firewall records."
+
+[[architecture_core.subpackage_group]]
+parent = "src/polisyos/foundry"
+cell_ref = "CROSS_CUTTING.method_infrastructure"
+coverage_mode = "subpackage_list"
+paths = [
+  "src/polisyos/foundry/_internal",
+  "src/polisyos/foundry/compile",
+  "src/polisyos/foundry/contracts",
+  "src/polisyos/foundry/data_plane",
+  "src/polisyos/foundry/domain",
+  "src/polisyos/foundry/execute",
+  "src/polisyos/foundry/extensions",
+  "src/polisyos/foundry/plugins",
+  "src/polisyos/foundry/runtime",
+]
+ratchet_state = "implemented"
+p01_chain = "implemented"
+gap = "Foundry infrastructure is method substrate, not design authority by itself."
+action = "keep compile/execute/runtime/data-plane concerns as method infrastructure until a cluster-owned producer consumes their artifacts."
+
+[[architecture_core.subpackage_group]]
+parent = "src/polisyos/ir"
+cell_ref = "KNOWLEDGE.ir_proof_carrying_analytics"
+coverage_mode = "subpackage_list"
+paths = [
+  "src/polisyos/ir/_internal",
+  "src/polisyos/ir/analytics",
+  "src/polisyos/ir/artifacts",
+  "src/polisyos/ir/connectors",
+  "src/polisyos/ir/data",
+  "src/polisyos/ir/governance",
+  "src/polisyos/ir/kernel",
+  "src/polisyos/ir/linker",
+  "src/polisyos/ir/loading",
+  "src/polisyos/ir/migrations",
+  "src/polisyos/ir/model_layer",
+  "src/polisyos/ir/observation",
+  "src/polisyos/ir/passes",
+  "src/polisyos/ir/registry",
+  "src/polisyos/ir/schemas",
+  "src/polisyos/ir/trinity",
+  "src/polisyos/ir/world",
+]
+ratchet_state = "implemented_but_not_orchestrated"
+p01_chain = "bridge_missing"
+gap = "IR subpackages are enumerated but still need Pass 2 classification into proof, world, schema, loading, and governance producers."
+action = "wire proof-carrying analytics and portfolio/world structures into claim-bound evidence and design-comparison consumers."
+
+[[architecture_core.subpackage_group]]
+parent = "src/polisyos/lex"
+cell_ref = "ACTOR.legal_authority"
+coverage_mode = "subpackage_list"
+paths = [
+  "src/polisyos/lex/extensions",
+  "src/polisyos/lex/knowledge",
+  "src/polisyos/lex/legal_evaluation",
+  "src/polisyos/lex/normpack",
+  "src/polisyos/lex/simulator",
+]
+ratchet_state = "implemented"
+p01_chain = "implemented"
+gap = "Lex subpackages are assigned to legal authority; simulator output remains analysis unless admitted by Lex authority records."
+action = "keep normpack, legal evaluation, and simulation boundaries explicit under ACTOR legal authority."
+
+[[architecture_core.subpackage_group]]
+parent = "src/polisyos/runtime"
+cell_ref = "DESIGNER_ITSELF.closeout_projection_ratchet"
+coverage_mode = "subpackage_list"
+paths = [
+  "src/polisyos/runtime/extensions",
+  "src/polisyos/runtime/http",
+  "src/polisyos/runtime/quality",
+]
+ratchet_state = "implemented"
+p01_chain = "implemented"
+gap = "Runtime subpackages are enumerated; HTTP is surface, extensions are boundary, quality is authority backbone."
+action = "prevent runtime HTTP/API projection from satisfying runtime-quality authority slots."
+
+[[architecture_core.subpackage_group]]
+parent = "src/polisyos/scholar"
+cell_ref = "KNOWLEDGE.epistemic_regime"
+coverage_mode = "subpackage_list"
+paths = [
+  "src/polisyos/scholar/_impl",
+  "src/polisyos/scholar/discover",
+  "src/polisyos/scholar/orchestrator",
+  "src/polisyos/scholar/search",
+]
+ratchet_state = "contract_only"
+p01_chain = "producer_missing"
+gap = "Scholar subpackages are evidence seeds for regime and contestability, but no regime classifier consumes them yet."
+action = "route Scholar support/conflict/boundary-condition signals into D2.5 epistemic-regime classification."
+
+[[architecture_core.subpackage_group]]
+parent = "src/polisyos/scientist"
+cell_ref = "CROSS_CUTTING.scientist_orchestration"
+coverage_mode = "subpackage_list"
+paths = [
+  "src/polisyos/scientist/_adapters",
+  "src/polisyos/scientist/_internal",
+  "src/polisyos/scientist/adapters",
+  "src/polisyos/scientist/artifacts",
+  "src/polisyos/scientist/extensions",
+  "src/polisyos/scientist/nodes",
+  "src/polisyos/scientist/orchestration",
+  "src/polisyos/scientist/publishing",
+  "src/polisyos/scientist/replay",
+]
+ratchet_state = "implemented_but_not_orchestrated"
+p01_chain = "bridge_missing"
+gap = "Scientist orchestration substrate is separated from design generation, evidence, feedback, governance, and evaluation subpackages below."
+action = "keep workflow orchestration from masquerading as producer authority unless it emits typed cluster handoff records."
+
+[[architecture_core.subpackage_group]]
+parent = "src/polisyos/scientist"
+cell_ref = "INTERVENTION.design_candidate"
+coverage_mode = "subpackage_list"
+paths = [
+  "src/polisyos/scientist/agent",
+  "src/polisyos/scientist/policy_design",
+]
+ratchet_state = "implemented_but_not_orchestrated"
+p01_chain = "bridge_missing"
+gap = "Scientist agent and policy_design packages are B-side generation seeds, not authority-bearing design producers."
+action = "route them through DesignCandidate, grammar, and LLM candidate firewalls before comparison or projection."
+
+[[architecture_core.subpackage_group]]
+parent = "src/polisyos/scientist"
+cell_ref = "KNOWLEDGE.evidence_claims_portfolio"
+coverage_mode = "subpackage_list"
+paths = [
+  "src/polisyos/scientist/cross_graph",
+  "src/polisyos/scientist/evidence",
+]
+ratchet_state = "implemented"
+p01_chain = "implemented"
+gap = "Scientist evidence and cross-graph packages are assigned to claim/evidence portfolio authority."
+action = "preserve claim/evidence outputs as KNOWLEDGE inputs rather than orchestration summaries."
+
+[[architecture_core.subpackage_group]]
+parent = "src/polisyos/scientist"
+cell_ref = "SYSTEM.dynamics_feedback"
+coverage_mode = "subpackage_list"
+paths = [
+  "src/polisyos/scientist/feedback",
+]
+ratchet_state = "implemented_but_not_orchestrated"
+p01_chain = "bridge_missing"
+gap = "Scientist feedback is a system-dynamics seed but is not yet routed into the reflexive response loop."
+action = "consume OTHER_AGENTS response and emit updated system feedback records for large-scale designs."
+
+[[architecture_core.subpackage_group]]
+parent = "src/polisyos/scientist"
+cell_ref = "DESIGNER_ITSELF.evaluation_corpus"
+coverage_mode = "subpackage_list"
+paths = [
+  "src/polisyos/scientist/evals",
+  "src/polisyos/scientist/validation",
+]
+ratchet_state = "implemented"
+p01_chain = "implemented"
+gap = "Scientist evals and validation are mapped to DESIGNER_ITSELF evaluation, not domain authority."
+action = "use them to test cluster firewalls, design quality, and semantic adequacy."
+
+[[architecture_core.subpackage_group]]
+parent = "src/polisyos/scientist"
+cell_ref = "ACTOR.mandate_legitimacy"
+coverage_mode = "subpackage_list"
+paths = [
+  "src/polisyos/scientist/governance",
+]
+ratchet_state = "producer_missing"
+p01_chain = "producer_missing"
+gap = "Scientist governance seeds do not yet emit mandate/legitimacy authority for arbitrary design objectives."
+action = "wire governance outputs into ACTOR mandate and value-choice records."
+
+[[architecture_core.subpackage_group]]
+parent = "src/polisyos/scientist"
+cell_ref = "CROSS_CUTTING.method_infrastructure"
+coverage_mode = "subpackage_list"
+paths = [
+  "src/polisyos/scientist/compute",
+  "src/polisyos/scientist/methods",
+]
+ratchet_state = "implemented_but_not_orchestrated"
+p01_chain = "bridge_missing"
+gap = "Scientist compute and methods are reusable infrastructure until consumed by cluster-owned producers."
+action = "split method and compute ownership further when they become direct design-loop producers."
+
+[cell.SYSTEM.domain_data]
+owner_module = "src/polisyos/fabric"
+seed_files = [
+  "src/polisyos/fabric/README.md",
+  "src/polisyos/scholar/README.md",
+  "src/polisyos/data_forge/README.md",
+]
+ratchet_state = "implemented"
+p01_chain = "implemented"
+authority_dim = "construct_validity"
+firewall = "P05_P10_authority_and_semantic_adequacy"
+publishes = ["KNOWLEDGE.substrate_coverage", "INTERVENTION.requirement_compilers"]
+consumes = ["INTERVENTION.construct_demand"]
+gap = "none_for_seed_scope"
+action = "preserve source-contract and claim-bound evidence handoff while Pass 1 assigns remaining data packages."
+
+[cell.SYSTEM.nonstationarity]
+owner_module = "src/polisyos/ddm"
+seed_files = [
+  "src/polisyos/ddm/README.md",
+  "src/polisyos/runtime/quality/ddm_monitoring.py",
+]
+ratchet_state = "implemented"
+p01_chain = "implemented"
+authority_dim = "time_scope_and_nonstationarity"
+firewall = "P08_time_role_conflation"
+publishes = ["KNOWLEDGE.evidence_half_life", "DESIGNER_ITSELF.envelope_growth"]
+consumes = ["SYSTEM.domain_data"]
+gap = "none_for_ddm_scope"
+action = "route DDM shift records into regime and envelope-growth classification during Pass 3."
+
+[cell.SYSTEM.connectivity_modularity]
+owner_module = ""
+seed_files = ["src/polisyos/foundry/coupling/des_kernel.py"]
+ratchet_state = "implemented_but_not_orchestrated"
+p01_chain = "bridge_missing"
+authority_dim = "coupling_validity"
+firewall = "P17_decomposition_laundering"
+publishes = ["INTERVENTION.scale_composition"]
+consumes = ["SYSTEM.domain_data", "KNOWLEDGE.evidence_claims_portfolio"]
+gap = "no producer routes des_kernel into design-composition precondition checks."
+action = "add a SYSTEM connectivity producer that emits CouplingGraph and DecompositionResult before composition authority is assembled."
+
+[cell.SYSTEM.dynamics_feedback]
+owner_module = ""
+seed_files = [
+  "src/polisyos/foundry/methods/catalog/simulation/dynamics.py",
+  "src/polisyos/foundry/methods/catalog/causal/dynamic_graph_dscm.py",
+]
+ratchet_state = "implemented_but_not_orchestrated"
+p01_chain = "bridge_missing"
+authority_dim = "system_dynamics_validity"
+firewall = "P17_decomposition_laundering"
+publishes = ["OTHER_AGENTS.response_model", "INTERVENTION.system_level_forecast"]
+consumes = ["SYSTEM.connectivity_modularity", "SYSTEM.post_intervention_dgp", "INTERVENTION.design_candidate"]
+gap = "system-dynamics seeds are not orchestrated as design-level equilibrium or feedback evidence."
+action = "route entangled or high-feedback designs into Foundry dynamics before any system-level effect claim is projected."
+
+[cell.SYSTEM.measurability]
+owner_module = ""
+seed_files = ["src/polisyos/runtime/quality/semantic_binding.py"]
+ratchet_state = "producer_missing"
+p01_chain = "producer_missing"
+authority_dim = "measurability_adequacy"
+firewall = "P18_streetlight_measurability_laundering"
+publishes = ["KNOWLEDGE.epistemic_regime", "ACTOR.value_choice_provenance"]
+consumes = ["INTERVENTION.objectives", "SYSTEM.domain_data"]
+gap = "no producer declares whether key constructs are measurable, proxy-only, qualitative, or missing."
+action = "add a measurability producer and require unmeasured constructs to become explicit ignorance or limitation records."
+
+[cell.SYSTEM.subject_granularity]
+owner_module = ""
+seed_files = ["src/polisyos/runtime/quality/concept_spine.py"]
+ratchet_state = "producer_missing"
+p01_chain = "producer_missing"
+authority_dim = "aggregation_validity"
+firewall = "P19_aggregation_laundering"
+publishes = ["INTERVENTION.targeting", "KNOWLEDGE.epistemic_regime"]
+consumes = ["SYSTEM.domain_data", "INTERVENTION.population_scope"]
+gap = "no producer detects individual-to-group aggregation drift, ecological error, or Simpson-risk boundaries."
+action = "add subject-granularity and aggregation-validity records before targeting or population-level claims close."
+
+[cell.KNOWLEDGE.substrate_coverage]
+owner_module = "src/polisyos/runtime/quality/capability_resolver.py"
+seed_files = [
+  "src/polisyos/runtime/quality/capability_resolver.py",
+  "src/polisyos/runtime/quality/capability_index.py",
+  "architecture/policy_design_case/capability_index_phase1_artifact_profile.json",
+]
+ratchet_state = "implemented"
+p01_chain = "implemented"
+authority_dim = "coverage_honesty"
+firewall = "P05_P06_authority_selector_and_shim_drift"
+publishes = ["KNOWLEDGE.epistemic_regime", "INTERVENTION.requirement_compilers"]
+consumes = ["SYSTEM.domain_data", "INTERVENTION.construct_demand"]
+gap = "coverage exists but remains sparse for many corpus constructs."
+action = "keep construct blockers typed and feed acquisition-loop priorities without treating scenario-family projections as authority selectors."
+
+[cell.KNOWLEDGE.epistemic_regime]
+owner_module = ""
+seed_files = [
+  "src/polisyos/runtime/quality/capability_white_space.py",
+  "src/polisyos/scholar/_impl/evidence.py",
+  "src/polisyos/scholar_requirement/README.md",
+]
+ratchet_state = "contract_only"
+p01_chain = "producer_missing"
+authority_dim = "regime_appropriateness"
+firewall = "P16_epistemic_regime_laundering"
+publishes = ["INTERVENTION.design_strategy", "DESIGNER_ITSELF.envelope_membership"]
+consumes = ["SYSTEM.measurability", "SYSTEM.subject_granularity", "KNOWLEDGE.substrate_coverage", "KNOWLEDGE.calibration", "INTERVENTION.reversibility_lifecycle_stakes", "ACTOR.value_choice_provenance"]
+gap = "regime taxonomy is specified in architecture notes but no gate-owned classifier emits per-claim regime records."
+action = "build the D2.5 regime classifier as a gate-owned A-side producer with asymmetric false-risk penalties."
+
+[cell.KNOWLEDGE.calibration]
+owner_module = "src/polisyos/calibration"
+seed_files = [
+  "src/polisyos/calibration/README.md",
+  "src/polisyos/runtime/quality/calibration_ledger.py",
+]
+ratchet_state = "implemented_but_not_orchestrated"
+p01_chain = "bridge_missing"
+authority_dim = "prediction_calibration_validity"
+firewall = "P16_epistemic_regime_laundering"
+publishes = ["KNOWLEDGE.epistemic_regime", "INTERVENTION.forecast_quality"]
+consumes = ["INTERVENTION.forecast", "SYSTEM.outcome_observations"]
+gap = "calibration primitives exist but are not yet the design-loop gate for forecast quality or regime-appropriate evidence."
+action = "wire calibration outputs into forecast-tier, epistemic-regime, and D4 evaluation metrics."
+
+[cell.KNOWLEDGE.evidence_claims_portfolio]
+owner_module = "src/polisyos/evidence"
+seed_files = [
+  "src/polisyos/evidence/README.md",
+  "src/polisyos/evidence/claims/claim_registry.py",
+  "src/polisyos/evidence/portfolio/effective_independence_graph.py",
+]
+ratchet_state = "implemented"
+p01_chain = "implemented"
+authority_dim = "claim_evidence_portfolio_validity"
+firewall = "P14_evidence_independence_inflation"
+publishes = ["DESIGNER_ITSELF.closeout", "PUBLIC.evidence_strength"]
+consumes = ["SYSTEM.domain_data", "KNOWLEDGE.substrate_coverage", "KNOWLEDGE.ir_proof_carrying_analytics", "INTERVENTION.requirement_compilers"]
+gap = "none_for_seed_scope"
+action = "preserve claim registry, conflict, and effective-independence as distinct KNOWLEDGE authority surfaces."
+
+[cell.KNOWLEDGE.ir_proof_carrying_analytics]
+owner_module = "src/polisyos/ir"
+seed_files = [
+  "src/polisyos/ir/README.md",
+  "src/polisyos/ir/loading/portfolio.py",
+]
+ratchet_state = "implemented_but_not_orchestrated"
+p01_chain = "bridge_missing"
+authority_dim = "proof_carrying_analytics_validity"
+firewall = "P02_thin_orchestration"
+publishes = ["KNOWLEDGE.evidence_claims_portfolio", "INTERVENTION.design_comparison"]
+consumes = ["SYSTEM.domain_data", "INTERVENTION.method_requirements"]
+gap = "IR proof-carrying analytics and portfolio structures are not fully consumed by the universal design loop."
+action = "wire IR proof/certificate outputs into claim records, baseline comparison, and recursive design graph consumers."
+
+[cell.ACTOR.legal_authority]
+owner_module = "src/polisyos/lex"
+seed_files = [
+  "src/polisyos/lex/README.md",
+  "src/polisyos/legal_requirement/README.md",
+]
+ratchet_state = "implemented"
+p01_chain = "implemented"
+authority_dim = "legal_authority"
+firewall = "P05_authority_boundary_leak"
+publishes = ["INTERVENTION.feasibility", "DESIGNER_ITSELF.closeout"]
+consumes = ["INTERVENTION.design_candidate", "SYSTEM.jurisdiction"]
+gap = "none_for_legal_seed_scope"
+action = "preserve Lex and legal requirement authority boundaries during cluster-interface mapping."
+
+[cell.ACTOR.value_choice_provenance]
+owner_module = ""
+seed_files = ["src/polisyos/foundry/welfare/social_weight_provenance.py"]
+ratchet_state = "implemented_but_not_orchestrated"
+p01_chain = "bridge_missing"
+authority_dim = "value_choice_provenance"
+firewall = "P20_normative_choice_laundering"
+publishes = ["INTERVENTION.objective_function", "PUBLIC.value_tradeoff_disclosure"]
+consumes = ["SYSTEM.measurability", "ACTOR.mandate_legitimacy", "INTERVENTION.tradeoffs"]
+gap = "social-weight provenance seed is not the gate-owned normative firewall for arbitrary policy designs."
+action = "orchestrate authorized value-weight inputs and expose value-choice provenance to every audience projection."
+
+[cell.ACTOR.state_capacity_feasibility]
+owner_module = ""
+seed_files = ["src/polisyos/participation_requirement/README.md"]
+ratchet_state = "producer_missing"
+p01_chain = "producer_missing"
+authority_dim = "capacity_feasibility"
+firewall = "P21_capacity_feasibility_laundering"
+publishes = ["INTERVENTION.feasibility", "DESIGNER_ITSELF.envelope_membership"]
+consumes = ["INTERVENTION.design_candidate", "SYSTEM.jurisdiction"]
+gap = "no producer grounds administrative capacity, enforcement capacity, fiscal capacity, or implementation feasibility for this actor."
+action = "create an ACTOR capacity-feasibility producer before candidate designs can claim implementability."
+
+[cell.ACTOR.mandate_legitimacy]
+owner_module = ""
+seed_files = ["src/polisyos/participation_requirement/README.md"]
+ratchet_state = "producer_missing"
+p01_chain = "producer_missing"
+authority_dim = "mandate_legitimacy"
+firewall = "P22_mandate_legitimacy_laundering"
+publishes = ["ACTOR.value_choice_provenance", "PUBLIC.legitimacy_disclosure"]
+consumes = ["INTERVENTION.objectives", "SYSTEM.population_scope"]
+gap = "participation primitives exist, but no cluster producer grounds who is authorized to set goals or social weights."
+action = "add mandate and legitimacy records that gate normative choices, especially in multi-principal designs."
+
+[cell.INTERVENTION.requirement_compilers]
+owner_module = "src/polisyos/data_requirement"
+seed_files = [
+  "src/polisyos/data_requirement/README.md",
+  "src/polisyos/legal_requirement/README.md",
+  "src/polisyos/method_requirement/README.md",
+  "src/polisyos/scholar_requirement/README.md",
+]
+ratchet_state = "implemented"
+p01_chain = "implemented"
+authority_dim = "requirement_compilation_validity"
+firewall = "P12_producer_handshake_gap"
+publishes = ["INTERVENTION.requirements"]
+consumes = ["SYSTEM.domain_data", "INTERVENTION.design_grammar", "KNOWLEDGE.substrate_coverage"]
+gap = "none_for_seed_scope"
+action = "keep family-specific RequirementSpec compilers as the bridge from obligation/design demand to producer adapters."
+
+[cell.INTERVENTION.scale_composition]
+owner_module = ""
+seed_files = [
+  "src/polisyos/foundry/coupling/des_kernel.py",
+  "src/polisyos/pdc/README.md",
+  "src/polisyos/ir/loading/portfolio.py",
+]
+ratchet_state = "implemented_but_not_orchestrated"
+p01_chain = "bridge_missing"
+authority_dim = "composition_validity"
+firewall = "P17_decomposition_laundering"
+publishes = ["INTERVENTION.design_candidate", "INTERVENTION.requirements"]
+consumes = ["SYSTEM.connectivity_modularity", "INTERVENTION.design_candidate", "SYSTEM.dynamics_feedback"]
+gap = "scale/composition is the second universalism axis, but no owned producer yet emits recursive DesignCandidate composition receipts."
+action = "build the D2.6 composition producer with CouplingGraph preconditions, recursive sub-design interfaces, and system-level residual-risk obligations."
+
+[cell.INTERVENTION.design_candidate]
+owner_module = ""
+seed_files = [
+  "src/polisyos/policy_grammar/README.md",
+  "src/polisyos/scientist/agent/_drafter_orchestrator.py",
+  "src/polisyos/pdc/_impl/compiler.py",
+]
+ratchet_state = "implemented_but_not_orchestrated"
+p01_chain = "bridge_missing"
+authority_dim = "design_candidate_validity"
+firewall = "P15_LLM_speculation_laundering"
+publishes = ["INTERVENTION.design_comparison", "INTERVENTION.requirements", "OTHER_AGENTS.response_model"]
+consumes = ["INTERVENTION.design_grammar", "INTERVENTION.scale_composition", "CROSS_CUTTING.scientist_orchestration", "ACTOR.value_choice_provenance", "KNOWLEDGE.epistemic_regime"]
+gap = "DesignCandidate is central to D3, but generation still exists as advisory seeds rather than an owned typed design producer."
+action = "create the D3 DesignCandidate contract and route B-side generation through grammar, value, regime, and firewall checks before any comparison or projection."
+
+[cell.INTERVENTION.design_grammar]
+owner_module = "src/polisyos/policy_grammar"
+seed_files = [
+  "src/polisyos/policy_grammar/README.md",
+  "src/polisyos/pdc/README.md",
+  "src/polisyos/obligation_graph/README.md",
+  "src/polisyos/obligation_rules/README.md",
+  "src/polisyos/method_requirement/README.md",
+]
+ratchet_state = "implemented_but_not_orchestrated"
+p01_chain = "bridge_missing"
+authority_dim = "design_grammar_validity"
+firewall = "P15_LLM_speculation_laundering"
+publishes = ["INTERVENTION.design_candidate", "INTERVENTION.construct_demand"]
+consumes = ["SYSTEM.domain_data", "KNOWLEDGE.epistemic_regime", "ACTOR.value_choice_provenance"]
+gap = "facet and obligation grammar exist, but design-space generation and search are not yet a first-class orchestrated producer."
+action = "promote design grammar to a B-side generator constrained by A-side cluster firewalls and capability ratchet reality labels."
+
+[cell.INTERVENTION.reversibility_lifecycle_stakes]
+owner_module = ""
+seed_files = ["src/polisyos/runtime/quality/case_lifecycle.py"]
+ratchet_state = "contract_only"
+p01_chain = "producer_missing"
+authority_dim = "reversibility_stakes_fit"
+firewall = "P23_stakes_and_commitment_laundering"
+publishes = ["KNOWLEDGE.epistemic_regime", "INTERVENTION.strategy_constraints"]
+consumes = ["INTERVENTION.design_candidate", "ACTOR.state_capacity_feasibility"]
+gap = "reversibility, lifecycle stage, and stakes are architecture concepts but not first-class candidate fields with gates."
+action = "add reversible/irreversible, greenfield/reform/termination, and stakes fields to DesignCandidate and closeout surfaces."
+
+[cell.OTHER_AGENTS.strategic_response]
+owner_module = ""
+seed_files = [
+  "src/polisyos/foundry/methods/catalog/causal/strategic.py",
+  "src/polisyos/foundry/methods/catalog/causal/policy_learning.py",
+  "src/polisyos/foundry/methods/catalog/causal/dtr.py",
+  "src/polisyos/scientist/policy_design/adversary.py",
+]
+ratchet_state = "implemented_but_not_orchestrated"
+p01_chain = "bridge_missing"
+authority_dim = "strategic_robustness"
+firewall = "P24_goodhart_lucas_response_laundering"
+publishes = ["SYSTEM.post_intervention_dgp", "INTERVENTION.robustness"]
+consumes = ["INTERVENTION.design_candidate", "SYSTEM.connectivity_modularity", "ACTOR.state_capacity_feasibility"]
+gap = "strategic and adversarial method seeds exist, but no producer models governed agents' response to this design."
+action = "build an OTHER_AGENTS response producer that emits Goodhart, Lucas, capture, sabotage, and adaptation risks for each design."
+
+[cell.DESIGNER_ITSELF.closeout_projection_ratchet]
+owner_module = "src/polisyos/runtime/quality"
+seed_files = [
+  "src/polisyos/runtime/quality/capability_ratchet.py",
+  "src/polisyos/runtime/quality/closeout_reader.py",
+  "src/polisyos/runtime/quality/projection_semantics.py",
+  "src/polisyos/corpus/README.md",
+  "src/polisyos/berl/README.md",
+]
+ratchet_state = "implemented"
+p01_chain = "implemented"
+authority_dim = "self_tractability"
+firewall = "P01_P03_P10_capability_and_projection_truthfulness"
+publishes = ["PUBLIC.closeout_truth", "EXPERT.cluster_firewall_status", "MACHINE.contracts"]
+consumes = ["SYSTEM.domain_data", "KNOWLEDGE.substrate_coverage", "ACTOR.legal_authority", "INTERVENTION.design_grammar"]
+gap = "cluster ownership itself was not governed before this artifact."
+action = "ratchet this map and require future design work to update cluster cells and handshakes."
+
+[cell.DESIGNER_ITSELF.evaluation_corpus]
+owner_module = "src/polisyos/corpus"
+seed_files = [
+  "src/polisyos/corpus/README.md",
+  "tests/fixtures/universal-corpus",
+]
+ratchet_state = "implemented"
+p01_chain = "implemented"
+authority_dim = "evaluation_corpus_validity"
+firewall = "P10_semantic_adequacy_gap"
+publishes = ["DESIGNER_ITSELF.metric_floors", "EXPERT.adjudication_labels"]
+consumes = ["INTERVENTION.design_candidate", "KNOWLEDGE.evidence_claims_portfolio"]
+gap = "none_for_seed_scope"
+action = "use corpus fixtures to measure design quality, regime classification, coupling classification, and cluster-firewall adequacy."
+
+[cell.DESIGNER_ITSELF.envelope_growth]
+owner_module = ""
+seed_files = [
+  "architecture/policy_design_case/capability_reality_report.json",
+  "src/polisyos/runtime/quality/capability_ratchet.py",
+]
+ratchet_state = "implemented_but_not_orchestrated"
+p01_chain = "bridge_missing"
+authority_dim = "knowledge_governance_throughput"
+firewall = "P13_governance_gravity"
+publishes = ["DESIGNER_ITSELF.certified_envelope_delta"]
+consumes = ["SYSTEM.nonstationarity", "KNOWLEDGE.substrate_coverage", "SYSTEM.measurability", "ACTOR.state_capacity_feasibility", "OTHER_AGENTS.strategic_response"]
+gap = "capability ratchet measures reality states, but no process computes envelope growth across clusters and axes."
+action = "define envelope-growth deltas and make acquisition, method, and firewall additions update certified scope monotonically."
+
+[cell.CROSS_CUTTING.method_infrastructure]
+owner_module = "src/polisyos/foundry"
+seed_files = [
+  "src/polisyos/foundry/README.md",
+  "src/polisyos/scientist/methods/search/AUTHORING.md",
+]
+ratchet_state = "implemented"
+p01_chain = "implemented"
+authority_dim = "method_infrastructure_integrity"
+firewall = "P02_thin_orchestration"
+publishes = ["ALL.cluster_artifacts"]
+consumes = ["ALL.status_authority_time_contracts"]
+gap = "method infrastructure is mapped as substrate only; it cannot satisfy producer authority without a cluster-owned consumer."
+action = "keep compile, execute, runtime, compute, and reusable method search infrastructure distinct from authority-bearing design producers."
+
+[cell.CROSS_CUTTING.core_contracts]
+owner_module = "src/polisyos/core"
+seed_files = [
+  "src/polisyos/core/README.md",
+  "src/polisyos/common/README.md",
+  "src/polisyos/schemas/__init__.py",
+]
+ratchet_state = "implemented"
+p01_chain = "implemented"
+authority_dim = "cross_cluster_contract_integrity"
+firewall = "P04_status_lattice_gap"
+publishes = ["ALL.status_authority_time_contracts"]
+consumes = ["ALL.cluster_artifacts"]
+gap = "cross-cluster matrix semantics are newly governed here and need future mixed-status tests."
+action = "keep cluster artifacts on existing status/authority/time contracts instead of introducing parallel enums."
+
+[cell.CROSS_CUTTING.scientist_orchestration]
+owner_module = "src/polisyos/scientist"
+seed_files = [
+  "src/polisyos/scientist/README.md",
+  "src/polisyos/scientist/policy_design/adversary.py",
+]
+ratchet_state = "implemented_but_not_orchestrated"
+p01_chain = "bridge_missing"
+authority_dim = "cluster_orchestration_integrity"
+firewall = "P12_producer_handshake_gap"
+publishes = ["INTERVENTION.design_candidate", "DESIGNER_ITSELF.cluster_evidence"]
+consumes = ["SYSTEM.cluster_artifacts", "KNOWLEDGE.cluster_artifacts", "ACTOR.cluster_artifacts", "OTHER_AGENTS.cluster_artifacts"]
+gap = "Scientist spans orchestration, generation, methods, and governance; Pass 1 must split it by subpackage instead of assigning it whole."
+action = "decompose scientist subpackages into cluster cells and wire only typed producers into the design loop."

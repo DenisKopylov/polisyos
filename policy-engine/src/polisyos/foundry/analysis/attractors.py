@@ -39,7 +39,7 @@ from polisyos.core.contracts.foundry import (
     SimulationResultRef,
 )
 from polisyos.ir.analytics.phase4_dynamics import build_abm_result_from_simulation
-from polisyos.ir.refs import ABMResultRef
+from polisyos.ir.registry.refs import ABMResultRef
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.store import FileSystemCAS

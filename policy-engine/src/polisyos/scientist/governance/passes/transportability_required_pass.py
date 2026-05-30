@@ -22,7 +22,7 @@ from polisyos.ir.analytics.transportability import (
     TransportabilityStatus,
     load_transportability_result,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     CausalEffectReportRef,
     CrossGraphEvidenceProfileRef,
     TransportabilityResultRef,

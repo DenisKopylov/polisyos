@@ -283,7 +283,10 @@ def test_catalog_legacy_core_sources_entrypoint_removed_after_shim_sunset() -> N
 def test_catalog_complexity_exception_is_burned_down() -> None:
     payload = tomllib.loads(
         (
-            Path(__file__).resolve().parents[3] / "architecture" / "complexity_exceptions.toml"
+            Path(__file__).resolve().parents[3]
+            / "architecture"
+            / "exceptions"
+            / "complexity.toml"
         ).read_text(encoding="utf-8")
     )
     exception_paths = {

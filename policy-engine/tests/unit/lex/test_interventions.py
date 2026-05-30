@@ -16,7 +16,7 @@ from polisyos.ir.governance.problem_frame import ObjectiveSpec, ProblemDomain, P
 from polisyos.ir.governance.schedule import ScheduleSpec
 from polisyos.ir.governance.selector_expr import SelectorPredicate
 from polisyos.ir.kernel.values import MoneyValue
-from polisyos.ir.model_spec import AssumptionSpec, AssumptionType, ModelSpec
+from polisyos.ir.model_layer.model_spec import AssumptionSpec, AssumptionType, ModelSpec
 from polisyos.ir.observation.bundles import StrategicResponseSpec
 from polisyos.ir.observation.contract_compilers import (
     DynamicTreatmentCompileSpec,
@@ -32,7 +32,7 @@ from polisyos.ir.observation.contracts import (
     StrategicResponseChannel,
 )
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.ir.types import OptimizationDirection, SelectorOperator, TimeFrequency
+from polisyos.ir.model_layer.types import OptimizationDirection, SelectorOperator, TimeFrequency
 from polisyos.lex import (
     HierarchicalPolicySearchAdapter,
     InterventionKnobSpec,

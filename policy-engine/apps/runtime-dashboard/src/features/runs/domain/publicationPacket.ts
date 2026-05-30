@@ -207,7 +207,9 @@ export type PublicProjectionSemantics = {
   mayNotBeUsedFor: string[];
   maskingCases: ProjectionMaskingCase[];
   primaryState: PublicProjectionState;
-  projectionPolicy: "reads_policy_design_case_only";
+  projectionPolicy:
+    | "reads_policy_design_case_only"
+    | "reads_runtime_policy_design_case_graph";
   states: PublicProjectionState[];
 };
 

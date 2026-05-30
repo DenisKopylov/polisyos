@@ -22,7 +22,7 @@ SCHEMA_VERSION = "repository.last_mile.shim_callers.v1"
 PHASE = "0.3"
 GENERATED_AT = "2026-05-07T00:00:00Z"
 DEFAULT_OUTPUT = REPO_ROOT / "_build" / ".tmp" / "last-mile" / "shim_callers.json"
-SOURCE_CONTRACT = "architecture/shims.toml#last_mile_import_compatibility_map"
+SOURCE_CONTRACT = "architecture/shims.toml#planned_source_move+shim"
 REMOVAL_RULE = (
     "A shim may be removed only when caller_count is zero or all remaining callers "
     "are examples/tests intentionally exercising compatibility."
@@ -101,22 +101,51 @@ def _is_intentional_compatibility_exercise(rel_path: str) -> bool:
     )
 
 
-def _planned_retained_shims(repo_root: Path) -> dict[str, dict[str, str]]:
-    payload = _read_toml(repo_root / "architecture" / "shims.toml")
-    entries: dict[str, dict[str, str]] = {}
+def _iter_import_compatibility_records(
+    payload: Mapping[str, Any],
+) -> list[tuple[str, Mapping[str, Any]]]:
+    records: list[tuple[str, Mapping[str, Any]]] = []
     for entry in payload.get("planned_source_move", []):
         if not isinstance(entry, Mapping) or entry.get("decision") == "removed":
             continue
+        records.append(("planned_source_move", entry))
+    for entry in payload.get("shim", []):
+        if not isinstance(entry, Mapping) or entry.get("status") == "sunset":
+            continue
+        if str(entry.get("source_fqn", "")).startswith("polisyos."):
+            records.append(("shim", entry))
+    return records
+
+
+def _retained_python_import_shims(repo_root: Path) -> dict[str, dict[str, Any]]:
+    payload = _read_toml(repo_root / "architecture" / "shims.toml")
+    entries_by_source: dict[str, dict[str, Any]] = {}
+    for section, entry in _iter_import_compatibility_records(payload):
         shim_id = str(entry.get("id", ""))
         source_fqn = str(entry.get("source_fqn", ""))
         target_fqn = str(entry.get("target_fqn", ""))
         if not shim_id or not source_fqn or not target_fqn:
             continue
-        entries[shim_id] = {
-            "source_fqn": source_fqn,
-            "migration_target": target_fqn,
-        }
-    return dict(sorted(entries.items()))
+        existing = entries_by_source.get(source_fqn)
+        if existing is None:
+            entries_by_source[source_fqn] = {
+                "source_fqn": source_fqn,
+                "migration_target": target_fqn,
+                "primary_registry_id": shim_id,
+                "registry_ids": [shim_id],
+                "registry_sections": [section],
+            }
+            continue
+        if existing["migration_target"] != target_fqn:
+            existing.setdefault("target_conflicts", []).append(
+                {"registry_id": shim_id, "migration_target": target_fqn}
+            )
+        existing["registry_ids"].append(shim_id)
+        existing["registry_sections"].append(section)
+    return {
+        str(row["primary_registry_id"]): row
+        for row in sorted(entries_by_source.values(), key=lambda item: str(item["source_fqn"]))
+    }
 
 
 def _matching_source(import_name: str, source_by_fqn: Mapping[str, str]) -> str | None:
@@ -266,9 +295,17 @@ def _dedupe_callers(callers: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]
     )
 
 
+def _caller_role_counts(callers: Sequence[Mapping[str, Any]]) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for caller in callers:
+        role = str(caller.get("caller_role", ""))
+        counts[role] = counts.get(role, 0) + 1
+    return dict(sorted(counts.items()))
+
+
 def collect_shim_callers(repo_root: Path = REPO_ROOT) -> dict[str, Any]:
     repo_root = repo_root.resolve()
-    retained = _planned_retained_shims(repo_root)
+    retained = _retained_python_import_shims(repo_root)
     shim_id_by_source = {
         row["source_fqn"]: shim_id for shim_id, row in retained.items()
     }
@@ -307,19 +344,41 @@ def collect_shim_callers(repo_root: Path = REPO_ROOT) -> dict[str, Any]:
 
     shims: dict[str, Any] = {}
     total_callers = 0
+    total_non_compatibility_callers = 0
     shims_with_source_callers = 0
+    shims_with_non_compatibility_callers = 0
     zero_caller_shims: list[str] = []
+    zero_non_compatibility_caller_shims: list[str] = []
     for shim_id, entry in retained.items():
         callers = _dedupe_callers(rows[shim_id])
+        non_compatibility_callers = [
+            caller
+            for caller in callers
+            if not caller.get("intentional_compatibility_exercise")
+        ]
         total_callers += len(callers)
+        total_non_compatibility_callers += len(non_compatibility_callers)
         if any(caller["caller_role"] == "source" for caller in callers):
             shims_with_source_callers += 1
+        if non_compatibility_callers:
+            shims_with_non_compatibility_callers += 1
         if not callers:
             zero_caller_shims.append(shim_id)
+        if not non_compatibility_callers:
+            zero_non_compatibility_caller_shims.append(shim_id)
         shims[shim_id] = {
             "source_fqn": entry["source_fqn"],
             "migration_target": entry["migration_target"],
+            "registry_ids": entry["registry_ids"],
+            "registry_sections": entry["registry_sections"],
             "caller_count": len(callers),
+            "non_compatibility_caller_count": len(non_compatibility_callers),
+            "intentional_compatibility_caller_count": len(callers)
+            - len(non_compatibility_callers),
+            "caller_role_counts": _caller_role_counts(callers),
+            "non_compatibility_caller_role_counts": _caller_role_counts(
+                non_compatibility_callers
+            ),
             "callers": callers,
         }
 
@@ -336,10 +395,21 @@ def collect_shim_callers(repo_root: Path = REPO_ROOT) -> dict[str, Any]:
         "removal_policy": {"phase_2_3": REMOVAL_RULE},
         "summary": {
             "shim_count": len(shims),
+            "registry_entry_count": sum(
+                len(row["registry_ids"]) for row in retained.values()
+            ),
             "caller_count": total_callers,
+            "non_compatibility_caller_count": total_non_compatibility_callers,
             "zero_caller_shim_count": len(zero_caller_shims),
             "zero_caller_shims": zero_caller_shims,
+            "zero_non_compatibility_caller_shim_count": len(
+                zero_non_compatibility_caller_shims
+            ),
+            "zero_non_compatibility_caller_shims": zero_non_compatibility_caller_shims,
             "shims_with_first_party_source_callers": shims_with_source_callers,
+            "shims_with_non_compatibility_callers": (
+                shims_with_non_compatibility_callers
+            ),
         },
         "shims": shims,
     }
@@ -358,7 +428,18 @@ def validate_report(report: Mapping[str, Any]) -> list[str]:
         if not isinstance(row, Mapping):
             errors.append(f"{shim_id}: shim row must be an object")
             continue
-        for field in ("source_fqn", "migration_target", "caller_count", "callers"):
+        for field in (
+            "source_fqn",
+            "migration_target",
+            "registry_ids",
+            "registry_sections",
+            "caller_count",
+            "non_compatibility_caller_count",
+            "intentional_compatibility_caller_count",
+            "caller_role_counts",
+            "non_compatibility_caller_role_counts",
+            "callers",
+        ):
             if field not in row:
                 errors.append(f"{shim_id}: missing {field}")
         callers = row.get("callers", [])

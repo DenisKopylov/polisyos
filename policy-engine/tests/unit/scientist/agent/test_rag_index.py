@@ -7,7 +7,7 @@ from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain
 from polisyos.ir.governance.problem_frame import ProblemFrame as IRProblemFrame
-from polisyos.ir.model_spec import ModelSpec
+from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.agent.protocols import ProblemFrame as AgentProblemFrame
 from polisyos.scientist.agent.rag import (

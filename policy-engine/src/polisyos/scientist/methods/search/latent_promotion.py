@@ -31,7 +31,7 @@ from polisyos.ir.analytics.causal_discovery import (
     LatentPromotionVerdict,
     LatentTrustLevel,
 )
-from polisyos.ir.refs import ArtifactRefModel
+from polisyos.ir.registry.refs import ArtifactRefModel
 
 TrustLevelCap = Literal["proof_only", "bounds_ready", "estimation_ready"]
 ClaimMode = Literal["proof_only", "bounded_latent", "validated_measurement_latent"]

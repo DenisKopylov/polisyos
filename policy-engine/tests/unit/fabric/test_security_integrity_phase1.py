@@ -27,7 +27,7 @@ from polisyos.fabric.connectors.sources.sparql import SPARQLConnector
 from polisyos.fabric.connectors.sources.sql_query import SQLQueryConnector
 from polisyos.fabric.connectors.types import FetchError
 from polisyos.fabric.quality import compute_quality_indicators
-from polisyos.fabric.safety import FabricSafetyError, UnsafePathSegmentError
+from polisyos.fabric.quality.safety import FabricSafetyError, UnsafePathSegmentError
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 FABRIC_ROOT = REPO_ROOT / "src" / "polisyos" / "fabric"

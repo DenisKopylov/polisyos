@@ -4,7 +4,7 @@ Repo snapshot date: 2026-02-04
 
 ## 0) Цель фазы
 
-Lex получает способность собрать **применимый** `NormPack` (IR‑контракт из `polisyos.ir.norm_pack`) для заданного `LegalContext` / `NormPackBuildRequest`:
+Lex получает способность собрать **применимый** `NormPack` (IR‑контракт из `polisyos.ir.loading.norm_pack`) для заданного `LegalContext` / `NormPackBuildRequest`:
 
 - `jurisdiction` (обяз.)
 - `as_of` дата/время (обяз., ISO)

@@ -9,7 +9,6 @@ eagerly importing DuckDB, Foundry, or Scientist dependencies. Treat symbols expo
 from __future__ import annotations
 
 import importlib
-from typing import Any
 
 __all__ = [
     "ActiveVersionResult",
@@ -57,6 +56,7 @@ __all__ = [
     "TemporalInterventionStepInput",
     "WorldEventRefLike",
     "assemble_norm_pack",
+    "build_legal_authority_report",
     "diff_norm_packs",
     "evaluate_legality",
     "lex_evidence_from_fabric_decision_data",
@@ -71,6 +71,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "LegalReportRef": ("polisyos.core.contracts.lex", "LegalReportRef"),
     # api
     "assemble_norm_pack": ("polisyos.lex.api", "assemble_norm_pack"),
+    "build_legal_authority_report": (
+        "polisyos.lex.normpack",
+        "build_legal_authority_report",
+    ),
     "evaluate_legality": ("polisyos.lex.api", "evaluate_legality"),
     "propose_changes": ("polisyos.lex.api", "propose_changes"),
     "resolve_active_version": ("polisyos.lex.api", "resolve_active_version"),
@@ -167,7 +171,7 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
 }
 
 
-def __getattr__(name: str) -> Any:
+def __getattr__(name: str) -> object:
     """Load a public Lex symbol on first access.
 
     Args:

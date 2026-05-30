@@ -1,0 +1,950 @@
+schema_version: policyos.construct_registry.v1
+registry_id: policyos.policy_evidence.construct_registry
+registry_version: 2026.05.phase2
+rule_version_ref: construct-registry-v1.0
+owner: team-runtime-quality
+source_refs:
+  - repo://docs/adr/0174-policy-evidence-capability-graph.md
+  - repo://docs/plans/active/POLICYOS_POLICY_EVIDENCE_CAPABILITY_GRAPH_PLAN.md#phase-2---construct-registry
+  - repo://data/dataset_catalog/metrics_map.yaml
+  - repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json
+compatibility_policy:
+  legacy_scenario_family_aliases: deprecated_projection_only
+  authority_selector: construct
+  may_not_use_for:
+    - evidence_authority_selector
+    - production_closeout_authority
+authority_boundary:
+  authoritative_for:
+    - governed_construct_semantics
+    - construct_authority_requirement_inspection
+  may_not_use_for:
+    - producer_evidence_authority
+    - scenario_family_authority
+    - capability_binding_without_resolver
+summary:
+  construct_count: 40
+constructs:
+  - construct_id: construct:firm_survival
+    aliases: [firm survival, msme survival, survival_status]
+    compatibility_aliases:
+      - alias: production_msme_panel
+        alias_type: legacy_scenario_family
+        deprecation: &legacy_family_deprecation
+          status: deprecated
+          owner: team-runtime-quality
+          created: "2026-05-25"
+          sunset_date: "2026-12-31"
+          sunset_trigger: Policy Evidence Capability Graph Phase 7 closes legacy scenario-family authority.
+          replacement: construct_to_capability_resolver
+          reason: Scenario-family labels map to constructs for compatibility but do not grant authority.
+          may_not_use_for: [evidence_authority_selector, production_closeout_authority]
+    domain: [msme_credit, employment_outcome]
+    entity_scope: [firm]
+    description: Whether a firm continues operating or exits within a defined horizon.
+    concept_spine_ref: concept:firm_survival
+    required_time_roles: &time_roles_default [observation_time, policy_time, freshness_time, replay_time]
+    allowed_evidence_modes: &modes_default
+      - observed
+      - derived
+      - proxy_observational
+      - bounds_only
+      - legal_threshold
+      - scholarly_causal_support
+      - participation_attestation
+      - reviewer_admitted
+    authority_requirements: &authority_admin_proxy
+      research:
+        identification_modes: [point_identified, partially_identified, proxy_identified, bounds_only]
+        trust_tier_min: weak_anchor
+        requires_proxy_validation_when_proxy: false
+        requires_construct_validity_evidence: false
+        construct_validity_floor: face_validated
+        admissible_authority_results: [admissible, admissible_with_limitation]
+      governed_pilot:
+        identification_modes: [point_identified, partially_identified, proxy_identified]
+        trust_tier_min: administrative_noisy
+        requires_proxy_validation_when_proxy: true
+        requires_construct_validity_evidence: true
+        construct_validity_floor: proxy_validated
+        admissible_authority_results: [admissible, admissible_with_proxy_limitation]
+      production:
+        identification_modes: [point_identified, partially_identified]
+        trust_tier_min: authoritative_partial_coverage
+        requires_proxy_validation_when_proxy: true
+        requires_construct_validity_evidence: true
+        construct_validity_floor: construct_validated
+        admissible_authority_results: [admissible]
+    construct_validity_requirements: &validity_default
+      minimum_status_by_posture:
+        research: face_validated
+        governed_pilot: proxy_validated
+        production: construct_validated
+      required_validation_refs: [semantic_probe, negative_control]
+      negative_controls: [name_match_only, simulation_only, llm_candidate_only]
+    proxy_validation_rules: &proxy_rules_default
+      - proxy evidence must name the latent construct and the observable proxy.
+      - proxy evidence must carry construct_validity_status for governed_pilot and production.
+      - old family labels never satisfy proxy validation by name alone.
+    allowed_method_contracts: [foundry.ml.survival_data.v1, foundry.causal.dynamic_treatment_data.v1]
+    legal_authority_patterns:
+      - norm_type: eligibility
+      - threshold_metric_any: [employee_count, annual_revenue]
+    related_scholar_claim_patterns:
+      - cause: construct:credit_access
+        effect: construct:firm_survival
+    corpus_bindings:
+      - case_id: ua-msme-affordable-loans-2022
+        obligation_refs: [obligation:claim-level-credit-additionality]
+        evidence_family_refs: [bank_portfolio_and_credit_additionality_data]
+      - case_id: w11a_us_ppp_2020
+        obligation_refs: [obligation:ppp-cross-program-fraud-screening]
+        evidence_family_refs: [fraud_risk_analytics]
+    source_refs:
+      - repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/normalized_corpus/normalized/dps_financials
+      - repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json#firm_fundamentals
+
+  - construct_id: construct:credit_access
+    aliases: [credit access, loan access, additional credit]
+    compatibility_aliases:
+      - alias: production_msme_panel
+        alias_type: legacy_scenario_family
+        deprecation: *legacy_family_deprecation
+      - alias: credit_program_registry
+        alias_type: legacy_scenario_family
+        deprecation: *legacy_family_deprecation
+    domain: [msme_credit, fiscal_program_delivery]
+    entity_scope: [firm, household]
+    description: Whether eligible entities can obtain credit on policy-relevant terms.
+    concept_spine_ref: concept:credit_access
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: [foundry.causal.panel_observational_data.v1, foundry.causal.dynamic_treatment_data.v1]
+    legal_authority_patterns:
+      - norm_type: eligibility
+    related_scholar_claim_patterns:
+      - cause: construct:credit_access
+        effect: construct:firm_survival
+    corpus_bindings:
+      - case_id: ua-msme-affordable-loans-2022
+        obligation_refs: [obligation:claim-level-credit-additionality]
+      - case_id: w11a_us_ppp_2020
+        obligation_refs: [obligation:ppp-cross-program-fraud-screening]
+    source_refs:
+      - repo://docs/plans/active/POLICYOS_POLICY_EVIDENCE_CAPABILITY_GRAPH_PLAN.md#old-scenario-families-to-construct-based-requirements
+
+  - construct_id: construct:credit_program_enrollment
+    aliases: [credit registry enrollment, loan program enrollment, program loan takeup]
+    compatibility_aliases:
+      - alias: credit_program_registry
+        alias_type: legacy_scenario_family
+        deprecation: *legacy_family_deprecation
+    domain: [msme_credit, fiscal_program_delivery]
+    entity_scope: [firm, program]
+    description: Enrollment or receipt status in a credit-support program.
+    concept_spine_ref: concept:credit_program_enrollment
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: [foundry.causal.dynamic_treatment_data.v1]
+    legal_authority_patterns:
+      - norm_type: program_administration
+    related_scholar_claim_patterns:
+      - cause: construct:credit_program_enrollment
+        effect: construct:credit_access
+    corpus_bindings:
+      - case_id: ua-msme-affordable-loans-2022
+        obligation_refs: [obligation:claim-level-credit-additionality]
+      - case_id: w11a_us_ppp_2020
+        obligation_refs: [obligation:ppp-cross-program-fraud-screening]
+    source_refs:
+      - repo://docs/plans/active/POLICYOS_POLICY_EVIDENCE_CAPABILITY_GRAPH_PLAN.md#old-scenario-families-to-construct-based-requirements
+
+  - construct_id: construct:regional_displacement_pressure
+    aliases: [displacement pressure, migration pressure, transport pressure]
+    compatibility_aliases:
+      - alias: regional_displacement_indicators
+        alias_type: legacy_scenario_family
+        deprecation: *legacy_family_deprecation
+    domain: [participation, housing_regulation, climate_environment]
+    entity_scope: [region, cell]
+    description: Regional pressure created by population displacement or mobility shocks.
+    concept_spine_ref: concept:regional_displacement_pressure
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: [foundry.simulation.agent_state_panel.v1]
+    legal_authority_patterns:
+      - norm_type: service_entitlement
+    related_scholar_claim_patterns:
+      - cause: construct:wartime_displacement_indicator
+        effect: construct:regional_displacement_pressure
+    corpus_bindings:
+      - case_id: w11a_eu_temporary_protection_ukraine_2022
+        obligation_refs: [obligation:temporary-protection-rights-realization]
+    source_refs:
+      - repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json#logistics_friction
+
+  - construct_id: construct:employment_count
+    aliases: [employment, employee count, jobs]
+    compatibility_aliases:
+      - alias: production_msme_panel
+        alias_type: legacy_scenario_family
+        deprecation: *legacy_family_deprecation
+    domain: [msme_credit, employment_outcome]
+    entity_scope: [firm, person, region]
+    description: Count of employed workers or employees in a relevant entity or region.
+    concept_spine_ref: concept:employment_count
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: [foundry.causal.panel_observational_data.v1]
+    legal_authority_patterns: []
+    related_scholar_claim_patterns:
+      - cause: construct:credit_access
+        effect: construct:employment_count
+    corpus_bindings:
+      - case_id: w11a_uk_work_programme_2011
+        obligation_refs: [obligation:work-programme-hard-to-help-effects]
+    source_refs:
+      - repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json#labor_market
+
+  - construct_id: construct:labor_force_participation
+    aliases: [labour force participation, labor participation]
+    domain: [employment_outcome, fiscal_program_delivery]
+    entity_scope: [person, household, region]
+    description: Share of eligible people participating in the labor force.
+    concept_spine_ref: concept:labor_force_participation
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: [foundry.causal.panel_observational_data.v1]
+    legal_authority_patterns: []
+    related_scholar_claim_patterns: []
+    corpus_bindings:
+      - case_id: w11a_eu_temporary_protection_ukraine_2022
+      - case_id: w11a_uk_work_programme_2011
+    source_refs:
+      - repo://data/dataset_catalog/metrics_map.yaml#labor_force_participation
+
+  - construct_id: construct:household_income
+    aliases: [income, household resources]
+    domain: [fiscal_program_delivery, participation]
+    entity_scope: [household]
+    description: Household income or consumption resources over the policy period.
+    concept_spine_ref: concept:household_income
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: [foundry.causal.panel_observational_data.v1]
+    legal_authority_patterns:
+      - threshold_metric_any: [income, consumption_proxy]
+    related_scholar_claim_patterns: []
+    corpus_bindings:
+      - case_id: w11a_pakistan_ehsaas_cash_2020
+      - case_id: w11a_ghana_free_shs_2017
+    source_refs:
+      - repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json#household_distribution
+
+  - construct_id: construct:poverty_rate
+    aliases: [poverty, deprivation rate]
+    domain: [fiscal_program_delivery, participation]
+    entity_scope: [household, region]
+    description: Share of people or households below a governed poverty threshold.
+    concept_spine_ref: concept:poverty_rate
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: [foundry.causal.panel_observational_data.v1]
+    legal_authority_patterns:
+      - norm_type: eligibility
+    related_scholar_claim_patterns: []
+    corpus_bindings:
+      - case_id: w11a_pakistan_ehsaas_cash_2020
+    source_refs:
+      - repo://data/dataset_catalog/metrics_map.yaml#poverty_rate
+
+  - construct_id: construct:budget_flow
+    aliases: [budget allocation, fiscal flow, public spending]
+    domain: [fiscal_program_delivery, climate_environment]
+    entity_scope: [program, institution, region]
+    description: Budgeted or executed public spending flow for a policy program.
+    concept_spine_ref: concept:budget_flow
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: [foundry.cost_benefit.budget_flow.v1]
+    legal_authority_patterns:
+      - norm_type: budget_authorization
+    related_scholar_claim_patterns: []
+    corpus_bindings:
+      - case_id: w11a_netherlands_room_for_river_2007
+      - case_id: w11a_uk_levelling_up_fund_2021
+      - case_id: w11a_uk_mtd_vat_2019
+    source_refs:
+      - repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json#budget_flows
+
+  - construct_id: construct:procurement_flow
+    aliases: [procurement, contracts, capital delivery]
+    domain: [fiscal_program_delivery, climate_environment]
+    entity_scope: [program, contract, supplier]
+    description: Procurement contracts or payments used to deliver a policy intervention.
+    concept_spine_ref: concept:procurement_flow
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: [foundry.cost_benefit.budget_flow.v1]
+    legal_authority_patterns:
+      - norm_type: procurement_rule
+    related_scholar_claim_patterns: []
+    corpus_bindings:
+      - case_id: w11a_netherlands_room_for_river_2007
+      - case_id: w11a_uk_levelling_up_fund_2021
+    source_refs:
+      - repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json#procurement_flows
+
+  - construct_id: construct:public_service_payment
+    aliases: [benefit payment, service payment, transfer payment]
+    domain: [fiscal_program_delivery, health_service_delivery]
+    entity_scope: [person, household, provider, program]
+    description: Payment made to a beneficiary or service provider for public-service delivery.
+    concept_spine_ref: concept:public_service_payment
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: [foundry.causal.panel_observational_data.v1]
+    legal_authority_patterns:
+      - norm_type: payment_authorization
+    related_scholar_claim_patterns: []
+    corpus_bindings:
+      - case_id: w11a_india_aadhaar_dbt_2016
+      - case_id: w11a_pakistan_ehsaas_cash_2020
+      - case_id: w11a_us_ppp_2020
+    source_refs:
+      - repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json#public_service_domain_flows
+
+  - construct_id: construct:tax_debt
+    aliases: [tax arrears, tax debt]
+    domain: [fiscal_program_delivery, msme_credit]
+    entity_scope: [firm, household]
+    description: Outstanding tax debt or arrears relevant to compliance and eligibility.
+    concept_spine_ref: concept:tax_debt
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: [foundry.causal.panel_observational_data.v1]
+    legal_authority_patterns:
+      - threshold_metric_any: [tax_debt, arrears_amount]
+    related_scholar_claim_patterns: []
+    corpus_bindings:
+      - case_id: w11a_uk_mtd_vat_2019
+    source_refs:
+      - repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/normalized_corpus/normalized/dps_tax_risk
+
+  - construct_id: construct:risk_score
+    aliases: [risk score, credit risk, fraud risk]
+    domain: [msme_credit, fiscal_program_delivery]
+    entity_scope: [firm, program]
+    description: Risk classification used for compliance, credit, fraud, or portfolio-quality decisions.
+    concept_spine_ref: concept:risk_score
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: [foundry.risk.panel_scoring.v1]
+    legal_authority_patterns:
+      - norm_type: risk_screening
+    related_scholar_claim_patterns: []
+    corpus_bindings:
+      - case_id: ua-msme-affordable-loans-2022
+      - case_id: w11a_us_ppp_2020
+    source_refs:
+      - repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/normalized_corpus/normalized/dps_tax_risk
+
+  - construct_id: construct:trade_exposure
+    aliases: [trade exposure, export exposure, import exposure]
+    domain: [msme_credit, climate_environment]
+    entity_scope: [firm, region, sector]
+    description: Exposure to trade flows, trade shocks, or supply-chain counterparties.
+    concept_spine_ref: concept:trade_exposure
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: [foundry.causal.panel_observational_data.v1]
+    legal_authority_patterns: []
+    related_scholar_claim_patterns: []
+    corpus_binding_status: research_only
+    source_refs:
+      - repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json#trade_exposure
+
+  - construct_id: construct:logistics_friction
+    aliases: [logistics friction, transport friction, queue delay]
+    compatibility_aliases:
+      - alias: regional_displacement_indicators
+        alias_type: legacy_scenario_family
+        deprecation: *legacy_family_deprecation
+    domain: [msme_credit, climate_environment, participation]
+    entity_scope: [region, corridor, cell]
+    description: Transport, border, or mobility friction affecting access or delivery.
+    concept_spine_ref: concept:logistics_friction
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: [foundry.spatial.mobility_panel.v1]
+    legal_authority_patterns: []
+    related_scholar_claim_patterns: []
+    corpus_binding_status: research_only
+    source_refs:
+      - repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json#logistics_friction
+
+  - construct_id: construct:macro_state
+    aliases: [macroeconomic state, macro controls]
+    domain: [fiscal_program_delivery, msme_credit]
+    entity_scope: [country, region]
+    description: Macroeconomic context used as a scope condition or control.
+    concept_spine_ref: concept:macro_state
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: [foundry.causal.panel_observational_data.v1]
+    legal_authority_patterns: []
+    related_scholar_claim_patterns: []
+    corpus_binding_status: research_only
+    source_refs:
+      - repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json#macro_state
+
+  - construct_id: construct:inflation
+    aliases: [cpi, consumer price inflation]
+    domain: [fiscal_program_delivery, housing_regulation]
+    entity_scope: [country, region]
+    description: Inflation rate or price-index change relevant to real benefit and cost claims.
+    concept_spine_ref: concept:inflation
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: []
+    legal_authority_patterns:
+      - threshold_metric_any: [cpi, indexation]
+    related_scholar_claim_patterns: []
+    corpus_binding_status: research_only
+    source_refs:
+      - repo://data/dataset_catalog/metrics_map.yaml#inflation
+
+  - construct_id: construct:gdp_per_capita
+    aliases: [gdp per capita, income per capita]
+    domain: [fiscal_program_delivery]
+    entity_scope: [country, region]
+    description: GDP per capita used as a macro-context or comparability measure.
+    concept_spine_ref: concept:gdp_per_capita
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: []
+    legal_authority_patterns: []
+    related_scholar_claim_patterns: []
+    corpus_binding_status: research_only
+    source_refs:
+      - repo://data/dataset_catalog/metrics_map.yaml#gdp_per_capita
+
+  - construct_id: construct:health_outcomes
+    aliases: [health, mortality, morbidity, health outcome]
+    domain: [health_service_delivery]
+    entity_scope: [person, household, provider, region]
+    description: Health status, morbidity, mortality, or life-expectancy outcome.
+    concept_spine_ref: concept:health_outcomes
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: [foundry.causal.panel_observational_data.v1]
+    legal_authority_patterns:
+      - norm_type: service_entitlement
+    related_scholar_claim_patterns:
+      - cause: construct:intervention_take_up_rate
+        effect: construct:health_outcomes
+    corpus_bindings:
+      - case_id: w11a_eu_temporary_protection_ukraine_2022
+      - case_id: w11a_mexico_ssb_tax_2014
+    source_refs:
+      - repo://data/dataset_catalog/metrics_map.yaml#health_outcomes
+
+  - construct_id: construct:education_outcomes
+    aliases: [education, school enrollment, learning outcomes]
+    domain: [health_service_delivery, fiscal_program_delivery]
+    entity_scope: [person, school, region]
+    description: Education enrollment, attainment, learning, or service access outcomes.
+    concept_spine_ref: concept:education_outcomes
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: [foundry.causal.panel_observational_data.v1]
+    legal_authority_patterns:
+      - norm_type: service_entitlement
+    related_scholar_claim_patterns: []
+    corpus_bindings:
+      - case_id: w11a_eu_temporary_protection_ukraine_2022
+      - case_id: w11a_ghana_free_shs_2017
+    source_refs:
+      - repo://data/dataset_catalog/metrics_map.yaml#education_outcomes
+
+  - construct_id: construct:social_trust
+    aliases: [trust, public trust]
+    domain: [participation]
+    entity_scope: [person, community, region]
+    description: Social trust or institutional trust used for legitimacy and compliance claims.
+    concept_spine_ref: concept:social_trust
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: []
+    legal_authority_patterns: []
+    related_scholar_claim_patterns: []
+    corpus_bindings:
+      - case_id: w11a_boston_operation_ceasefire_1996
+    source_refs:
+      - repo://data/dataset_catalog/metrics_map.yaml#social_trust
+
+  - construct_id: construct:institutional_quality
+    aliases: [rule of law, government effectiveness, competence]
+    domain: [participation, housing_regulation, climate_environment]
+    entity_scope: [institution, jurisdiction]
+    description: Institutional quality, competence, governance, or legal capacity signal.
+    concept_spine_ref: concept:institutional_quality
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: []
+    legal_authority_patterns:
+      - norm_type: competence
+    related_scholar_claim_patterns: []
+    corpus_bindings:
+      - case_id: w11a_berlin_rent_cap_2020
+      - case_id: w11a_netherlands_room_for_river_2007
+      - case_id: w11a_uk_levelling_up_fund_2021
+      - case_id: w11a_uk_mtd_vat_2019
+    source_refs:
+      - repo://data/dataset_catalog/metrics_map.yaml#institutional_quality
+
+  - construct_id: construct:housing_rent_burden
+    aliases: [rent burden, housing affordability, rent cap outcome]
+    domain: [housing_regulation]
+    entity_scope: [household, housing_unit, region]
+    description: Rent or housing-cost burden relative to income or governed affordability floor.
+    concept_spine_ref: concept:housing_rent_burden
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: [foundry.causal.panel_observational_data.v1]
+    legal_authority_patterns:
+      - threshold_metric_any: [rent, income, housing_cost]
+    related_scholar_claim_patterns:
+      - cause: construct:regulatory_compliance_rate
+        effect: construct:housing_rent_burden
+    corpus_bindings:
+      - case_id: w11a_berlin_rent_cap_2020
+      - case_id: w11a_eu_temporary_protection_ukraine_2022
+    source_refs:
+      - repo://docs/plans/active/POLICYOS_POLICY_EVIDENCE_CAPABILITY_GRAPH_PLAN.md#initial-construct-seed
+
+  - construct_id: construct:hospital_admission_rate
+    aliases: [hospital admissions, admission rate]
+    domain: [health_service_delivery]
+    entity_scope: [person, provider, region]
+    description: Rate of hospital admissions for a population and period.
+    concept_spine_ref: concept:hospital_admission_rate
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: [foundry.causal.panel_observational_data.v1]
+    legal_authority_patterns:
+      - norm_type: service_entitlement
+    related_scholar_claim_patterns: []
+    corpus_binding_status: research_only
+    source_refs:
+      - repo://docs/plans/active/POLICYOS_POLICY_EVIDENCE_CAPABILITY_GRAPH_PLAN.md#initial-construct-seed
+
+  - construct_id: construct:regional_emissions_intensity
+    aliases: [emissions intensity, regional emissions, carbon intensity]
+    domain: [climate_environment]
+    entity_scope: [region, sector]
+    description: Regional emissions intensity or environmental pressure relevant to climate policy.
+    concept_spine_ref: concept:regional_emissions_intensity
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: [foundry.spatial.environment_panel.v1]
+    legal_authority_patterns:
+      - norm_type: environmental_standard
+    related_scholar_claim_patterns: []
+    corpus_bindings:
+      - case_id: w11a_netherlands_room_for_river_2007
+    source_refs:
+      - repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json#spatial_raster_exogenous
+
+  - construct_id: construct:program_participation_rate
+    aliases: [participation rate, program participation]
+    compatibility_aliases:
+      - alias: credit_program_registry
+        alias_type: legacy_scenario_family
+        deprecation: *legacy_family_deprecation
+    domain: [fiscal_program_delivery, participation]
+    entity_scope: [person, household, firm, program]
+    description: Share of eligible units participating in a policy program.
+    concept_spine_ref: concept:program_participation_rate
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: [foundry.causal.dynamic_treatment_data.v1]
+    legal_authority_patterns:
+      - norm_type: eligibility
+    related_scholar_claim_patterns: []
+    corpus_binding_status: research_only
+    source_refs:
+      - repo://docs/plans/active/POLICYOS_POLICY_EVIDENCE_CAPABILITY_GRAPH_PLAN.md#initial-construct-seed
+
+  - construct_id: construct:program_targeting_accuracy
+    aliases: [targeting accuracy, exclusion error, inclusion error]
+    domain: [fiscal_program_delivery, participation, msme_credit]
+    entity_scope: [person, household, firm, program]
+    description: Accuracy of selecting eligible and intended beneficiaries.
+    concept_spine_ref: concept:program_targeting_accuracy
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: [foundry.causal.panel_observational_data.v1]
+    legal_authority_patterns:
+      - norm_type: eligibility
+    related_scholar_claim_patterns: []
+    corpus_bindings:
+      - case_id: w11a_india_aadhaar_dbt_2016
+      - case_id: w11a_pakistan_ehsaas_cash_2020
+      - case_id: w11a_us_ppp_2020
+      - case_id: ua-msme-affordable-loans-2022
+    source_refs:
+      - repo://docs/plans/active/POLICYOS_POLICY_EVIDENCE_CAPABILITY_GRAPH_PLAN.md#initial-construct-seed
+
+  - construct_id: construct:intervention_take_up_rate
+    aliases: [take-up rate, takeup, adoption rate]
+    domain: [fiscal_program_delivery, health_service_delivery]
+    entity_scope: [person, household, firm, program]
+    description: Share of eligible units taking up an offered intervention.
+    concept_spine_ref: concept:intervention_take_up_rate
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: [foundry.causal.dynamic_treatment_data.v1]
+    legal_authority_patterns:
+      - norm_type: eligibility
+    related_scholar_claim_patterns:
+      - cause: construct:intervention_take_up_rate
+        effect: construct:health_outcomes
+    corpus_bindings:
+      - case_id: w11a_mexico_ssb_tax_2014
+    source_refs:
+      - repo://docs/plans/active/POLICYOS_POLICY_EVIDENCE_CAPABILITY_GRAPH_PLAN.md#initial-construct-seed
+
+  - construct_id: construct:treatment_effect_heterogeneity
+    aliases: [heterogeneous treatment effects, subgroup effect]
+    domain: [fiscal_program_delivery, health_service_delivery, participation]
+    entity_scope: [person, household, firm, subgroup]
+    description: Variation in treatment effects across groups, places, or contexts.
+    concept_spine_ref: concept:treatment_effect_heterogeneity
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: [foundry.causal.dynamic_treatment_data.v1]
+    legal_authority_patterns: []
+    related_scholar_claim_patterns: []
+    corpus_bindings:
+      - case_id: w11a_boston_operation_ceasefire_1996
+      - case_id: w11a_mexico_ssb_tax_2014
+      - case_id: w11a_uk_work_programme_2011
+    source_refs:
+      - repo://docs/plans/active/POLICYOS_POLICY_EVIDENCE_CAPABILITY_GRAPH_PLAN.md#initial-construct-seed
+
+  - construct_id: construct:subsidy_pass_through_rate
+    aliases: [pass-through, subsidy passthrough, price pass-through]
+    domain: [fiscal_program_delivery, housing_regulation, health_service_delivery]
+    entity_scope: [market, firm, household]
+    description: Share of subsidy or tax changes passed through to prices or beneficiaries.
+    concept_spine_ref: concept:subsidy_pass_through_rate
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: [foundry.causal.panel_observational_data.v1]
+    legal_authority_patterns: []
+    related_scholar_claim_patterns: []
+    corpus_bindings:
+      - case_id: w11a_berlin_rent_cap_2020
+      - case_id: w11a_mexico_ssb_tax_2014
+    source_refs:
+      - repo://docs/plans/active/POLICYOS_POLICY_EVIDENCE_CAPABILITY_GRAPH_PLAN.md#initial-construct-seed
+
+  - construct_id: construct:regulatory_compliance_rate
+    aliases: [compliance rate, regulatory compliance, tax compliance]
+    domain: [housing_regulation, fiscal_program_delivery]
+    entity_scope: [firm, landlord, taxpayer, provider]
+    description: Rate of compliance with a governed regulatory or tax requirement.
+    concept_spine_ref: concept:regulatory_compliance_rate
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: [foundry.risk.panel_scoring.v1]
+    legal_authority_patterns:
+      - norm_type: compliance
+    related_scholar_claim_patterns: []
+    corpus_bindings:
+      - case_id: w11a_berlin_rent_cap_2020
+      - case_id: w11a_uk_mtd_vat_2019
+    source_refs:
+      - repo://docs/plans/active/POLICYOS_POLICY_EVIDENCE_CAPABILITY_GRAPH_PLAN.md#initial-construct-seed
+
+  - construct_id: construct:provider_network_capacity
+    aliases: [provider capacity, network capacity, service capacity]
+    domain: [health_service_delivery, fiscal_program_delivery]
+    entity_scope: [provider, school, region, network]
+    description: Capacity of providers or delivery networks to serve the target population.
+    concept_spine_ref: concept:provider_network_capacity
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: [foundry.capacity.service_network.v1]
+    legal_authority_patterns:
+      - norm_type: service_standard
+    related_scholar_claim_patterns: []
+    corpus_bindings:
+      - case_id: w11a_eu_temporary_protection_ukraine_2022
+      - case_id: w11a_ghana_free_shs_2017
+      - case_id: w11a_uk_work_programme_2011
+    source_refs:
+      - repo://docs/plans/active/POLICYOS_POLICY_EVIDENCE_CAPABILITY_GRAPH_PLAN.md#initial-construct-seed
+
+  - construct_id: construct:service_quality_indicator
+    aliases: [service quality, implementation quality, fidelity]
+    domain: [health_service_delivery, fiscal_program_delivery, participation]
+    entity_scope: [provider, program, region]
+    description: Quality, fidelity, timeliness, or adequacy indicator for service delivery.
+    concept_spine_ref: concept:service_quality_indicator
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: [foundry.capacity.service_network.v1]
+    legal_authority_patterns:
+      - norm_type: service_standard
+    related_scholar_claim_patterns: []
+    corpus_bindings:
+      - case_id: w11a_boston_operation_ceasefire_1996
+      - case_id: w11a_ghana_free_shs_2017
+      - case_id: w11a_uk_levelling_up_fund_2021
+    source_refs:
+      - repo://docs/plans/active/POLICYOS_POLICY_EVIDENCE_CAPABILITY_GRAPH_PLAN.md#initial-construct-seed
+
+  - construct_id: construct:informal_economy_indicator
+    aliases: [informal economy, informal employment]
+    domain: [employment_outcome, msme_credit]
+    entity_scope: [person, household, region]
+    description: Signal for informal employment or unregistered economic activity.
+    concept_spine_ref: concept:informal_economy_indicator
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: [foundry.causal.panel_observational_data.v1]
+    legal_authority_patterns: []
+    related_scholar_claim_patterns: []
+    corpus_bindings:
+      - case_id: w11a_uk_work_programme_2011
+    source_refs:
+      - repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json#labor_market
+
+  - construct_id: construct:wartime_displacement_indicator
+    aliases: [wartime displacement, displaced persons, temporary protection displacement]
+    compatibility_aliases:
+      - alias: regional_displacement_indicators
+        alias_type: legacy_scenario_family
+        deprecation: *legacy_family_deprecation
+    domain: [participation, housing_regulation]
+    entity_scope: [person, household, region]
+    description: Indicator for persons or regions affected by wartime displacement.
+    concept_spine_ref: concept:wartime_displacement_indicator
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: [foundry.spatial.mobility_panel.v1]
+    legal_authority_patterns:
+      - norm_type: protection_status
+    related_scholar_claim_patterns: []
+    corpus_bindings:
+      - case_id: w11a_eu_temporary_protection_ukraine_2022
+    source_refs:
+      - repo://docs/plans/active/POLICYOS_POLICY_EVIDENCE_CAPABILITY_GRAPH_PLAN.md#old-scenario-families-to-construct-based-requirements
+
+  - construct_id: construct:participation_provenance
+    aliases: [participation provenance, consultation record, affected person evidence]
+    domain: [participation]
+    entity_scope: [person, group, institution]
+    description: Provenance of consultation, participation, consent, or affected-person voice.
+    concept_spine_ref: concept:participation_provenance
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: [participation_attestation, reviewer_admitted, context_only]
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: []
+    legal_authority_patterns:
+      - norm_type: consultation
+    related_scholar_claim_patterns: []
+    corpus_bindings:
+      - case_id: ua-msme-affordable-loans-2022
+      - case_id: w11a_india_aadhaar_dbt_2016
+    source_refs:
+      - repo://docs/plans/active/POLICYOS_POLICY_EVIDENCE_CAPABILITY_GRAPH_PLAN.md#initial-construct-seed
+
+  - construct_id: construct:value_choice_provenance
+    aliases: [value choice, tradeoff provenance]
+    domain: [participation]
+    entity_scope: [policy_case, reviewer]
+    description: Provenance for admitted value choices and tradeoff judgments.
+    concept_spine_ref: concept:value_choice_provenance
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: [normative_authority, reviewer_admitted, context_only]
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: []
+    legal_authority_patterns: []
+    related_scholar_claim_patterns: []
+    corpus_bindings:
+      - case_id: w11a_india_aadhaar_dbt_2016
+    source_refs:
+      - repo://docs/plans/active/POLICYOS_POLICY_EVIDENCE_CAPABILITY_GRAPH_PLAN.md#initial-construct-seed
+
+  - construct_id: construct:normative_judgment
+    aliases: [normative judgment, policy value judgment]
+    domain: [participation, fiscal_program_delivery]
+    entity_scope: [policy_case, reviewer]
+    description: Explicit normative judgment used to make contested tradeoffs inspectable.
+    concept_spine_ref: concept:normative_judgment
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: [normative_authority, reviewer_admitted, context_only]
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: []
+    legal_authority_patterns: []
+    related_scholar_claim_patterns: []
+    corpus_binding_status: research_only
+    source_refs:
+      - repo://docs/plans/active/POLICYOS_POLICY_EVIDENCE_CAPABILITY_GRAPH_PLAN.md#initial-construct-seed
+
+  - construct_id: construct:civic_legitimacy_signal
+    aliases: [legitimacy, civic legitimacy, public legitimacy]
+    domain: [participation]
+    entity_scope: [community, institution, region]
+    description: Signal for civic legitimacy, contestability, or community acceptance.
+    concept_spine_ref: concept:civic_legitimacy_signal
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: [participation_attestation, reviewer_admitted, scholarly_causal_support]
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: []
+    legal_authority_patterns:
+      - norm_type: consultation
+    related_scholar_claim_patterns: []
+    corpus_bindings:
+      - case_id: w11a_boston_operation_ceasefire_1996
+      - case_id: w11a_eu_temporary_protection_ukraine_2022
+      - case_id: w11a_india_aadhaar_dbt_2016
+      - case_id: w11a_pakistan_ehsaas_cash_2020
+    source_refs:
+      - repo://docs/plans/active/POLICYOS_POLICY_EVIDENCE_CAPABILITY_GRAPH_PLAN.md#initial-construct-seed
+
+  - construct_id: construct:fiscal_burden_per_beneficiary
+    aliases: [cost per beneficiary, fiscal burden, unit cost]
+    domain: [fiscal_program_delivery, msme_credit]
+    entity_scope: [program, beneficiary]
+    description: Fiscal burden or cost per beneficiary under a policy program.
+    concept_spine_ref: concept:fiscal_burden_per_beneficiary
+    required_time_roles: *time_roles_default
+    allowed_evidence_modes: *modes_default
+    authority_requirements: *authority_admin_proxy
+    construct_validity_requirements: *validity_default
+    proxy_validation_rules: *proxy_rules_default
+    allowed_method_contracts: [foundry.cost_benefit.budget_flow.v1]
+    legal_authority_patterns:
+      - norm_type: budget_authorization
+    related_scholar_claim_patterns: []
+    corpus_bindings:
+      - case_id: ua-msme-affordable-loans-2022
+      - case_id: w11a_uk_levelling_up_fund_2021
+      - case_id: w11a_uk_mtd_vat_2019
+      - case_id: w11a_us_ppp_2020
+    source_refs:
+      - repo://docs/plans/active/POLICYOS_POLICY_EVIDENCE_CAPABILITY_GRAPH_PLAN.md#initial-construct-seed

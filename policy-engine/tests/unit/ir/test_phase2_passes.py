@@ -15,7 +15,7 @@ from polisyos.ir.kernel.metrics import DEFAULT_METRIC_REGISTRY
 from polisyos.ir.kernel.selector_fields import DEFAULT_SELECTOR_FIELD_REGISTRY
 from polisyos.ir.kernel.slots import DEFAULT_SLOT_REGISTRY
 from polisyos.ir.kernel.units import DEFAULT_UNITS_REGISTRY, MoneyUnit, UnitsRegistry
-from polisyos.ir.model_spec import ModelSpec
+from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.observation.causal_execution import BoundsEstimationEntry, CausalExecutionBundle
 from polisyos.ir.observation.contracts import ObservationFamily
 from polisyos.ir.passes import (
@@ -27,8 +27,8 @@ from polisyos.ir.passes import (
     TrinityLinkAnalysisPass,
     UnusedArtifactAnalysisPass,
 )
-from polisyos.ir.refs import BoundsBundleRef
-from polisyos.ir.registry_fragments import (
+from polisyos.ir.registry.refs import BoundsBundleRef
+from polisyos.ir.registry.registry_fragments import (
     ComposePolicy,
     RegistryBundle,
     RegistryComposeRequest,

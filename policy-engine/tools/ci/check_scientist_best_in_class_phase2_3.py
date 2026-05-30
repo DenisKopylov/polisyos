@@ -28,9 +28,9 @@ WAVE2_CONTRACT_DOC = Path("docs/reference/scientist/wave2-runtime-contracts.md")
 MKDOCS_CONFIG = Path("architecture/tooling/mkdocs/generated.yml")
 
 REQUIRED_FILES: tuple[Path, ...] = (
-    Path("src/polisyos/scientist/search/voi_models.py"),
-    Path("src/polisyos/scientist/search/voi_scheduler.py"),
-    Path("src/polisyos/scientist/search/voi_calibration.py"),
+    Path("src/polisyos/scientist/methods/search/voi_models.py"),
+    Path("src/polisyos/scientist/methods/search/voi_scheduler.py"),
+    Path("src/polisyos/scientist/methods/search/voi_calibration.py"),
     Path("src/polisyos/scientist/governance/human_review/voi_escalation.py"),
     Path("src/polisyos/scientist/evidence/claim_support.py"),
     Path("src/polisyos/scientist/nodes/builtins/state_keys.py"),

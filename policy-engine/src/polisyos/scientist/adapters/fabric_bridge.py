@@ -20,7 +20,7 @@ from polisyos.core.contracts.fabric import (
 from polisyos.fabric import fabric_get_data
 from polisyos.ir.analytics.data_views import DataViewRequest as AnalyticsDataViewRequest
 from polisyos.ir.connectors import FetchResult, QualityTier
-from polisyos.ir.queries import DataViewRequest as QueryDataViewRequest
+from polisyos.ir.model_layer.queries import DataViewRequest as QueryDataViewRequest
 
 if TYPE_CHECKING:
     from collections.abc import Iterable

@@ -24,7 +24,7 @@ from polisyos.ir.governance.selector_expr import (
     SelectorPredicate,
 )
 from polisyos.ir.kernel import SelectorFieldRegistry
-from polisyos.ir.types import SelectorOperator
+from polisyos.ir.model_layer.types import SelectorOperator
 
 
 @dataclass(frozen=True, slots=True)

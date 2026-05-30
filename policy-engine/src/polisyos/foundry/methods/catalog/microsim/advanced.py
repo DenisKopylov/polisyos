@@ -35,7 +35,7 @@ from polisyos.ir.analytics.phase4_dynamics import (
     load_dynamic_microsim_validation_report,
     persist_dynamic_microsim_validation_report,
 )
-from polisyos.ir.refs import DynamicMicrosimValidationReportRef
+from polisyos.ir.registry.refs import DynamicMicrosimValidationReportRef
 
 from .dynamic_validation import attach_dynamic_validation
 from .protocols import (

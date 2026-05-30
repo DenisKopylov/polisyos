@@ -16,7 +16,7 @@ from polisyos.ir.analytics.survey_quality import (
     SurveyVarianceMode,
     load_survey_quality_certificate,
 )
-from polisyos.ir.refs import SurveyQualityCertificateRef
+from polisyos.ir.registry.refs import SurveyQualityCertificateRef
 
 
 def _method_or_skip(registry, fqn):

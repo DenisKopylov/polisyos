@@ -9,7 +9,7 @@ from polisyos.foundry.methods.catalog.microsim.static import StaticMicrosimEstim
 from polisyos.foundry.methods.microsim import SurveyMicroData, ensure_microsim_methods_registered
 from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.ir.analytics.microsim_calibration import load_microsim_calibration_report
-from polisyos.ir.refs import MicrosimCalibrationReportRef
+from polisyos.ir.registry.refs import MicrosimCalibrationReportRef
 
 
 def _inverse_method():

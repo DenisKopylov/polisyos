@@ -12,7 +12,7 @@ from typing import Any, Protocol, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.ir.norm_pack import NormPack, NormRef, NormRule, RuleType
+from polisyos.ir.loading.norm_pack import NormPack, NormRef, NormRule, RuleType
 
 from ..artifacts.manifest import ArtifactRef
 from .fabric import FabricResultRef

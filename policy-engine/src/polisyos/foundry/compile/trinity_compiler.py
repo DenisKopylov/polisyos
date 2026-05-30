@@ -28,7 +28,7 @@ from polisyos.foundry.methods.layout import build_slot_layout
 from polisyos.foundry.validation.conflict_checker import CompileTimeConflictChecker
 from polisyos.ir.linker import link_trinity
 from polisyos.ir.linker.reports import LinkSeverity
-from polisyos.ir.registry_fragments import RegistryBundle
+from polisyos.ir.registry.registry_fragments import RegistryBundle
 from polisyos.ir.trinity import TrinityBundle
 
 from ._graph import build_exec_order, build_program_graph

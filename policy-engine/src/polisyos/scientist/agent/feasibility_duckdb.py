@@ -13,7 +13,7 @@ from polisyos.ir.governance.selector_expr import (
     SelectorNot,
     SelectorPredicate,
 )
-from polisyos.ir.types import SelectorOperator
+from polisyos.ir.model_layer.types import SelectorOperator
 from polisyos.scientist.agent.feasibility import BudgetImpactResult, PopulationQueryResult
 
 

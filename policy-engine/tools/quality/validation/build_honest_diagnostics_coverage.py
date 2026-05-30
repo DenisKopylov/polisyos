@@ -507,7 +507,6 @@ def _build_metric_rows(
     known_gate_rows = {
         str(row.get("minimum_closeout_gate") or "").strip(): row for row in invariants
     }
-    negative_test_count = sum(len(_list(row.get("negative_tests"))) for row in invariants)
     closeout_items = _closeout_item_statuses(closeout_report)
     diagnostic_slo_refs = (
         closeout_report.get("diagnostic_slo_refs")
@@ -878,9 +877,7 @@ def _wave5_semantic_binding_metric(
     for scenario in scenarios:
         semantic = scenario.get("semantic_binding_report")
         cross_domain = scenario.get("cross_domain")
-        if isinstance(semantic, Mapping) and semantic.get("status") == "pass":
-            numerator += 1
-        elif isinstance(cross_domain, Mapping) and cross_domain.get("status") == "pass":
+        if (isinstance(semantic, Mapping) and semantic.get("status") == "pass") or (isinstance(cross_domain, Mapping) and cross_domain.get("status") == "pass"):
             numerator += 1
     return {"numerator": numerator, "denominator": len(scenarios)}
 

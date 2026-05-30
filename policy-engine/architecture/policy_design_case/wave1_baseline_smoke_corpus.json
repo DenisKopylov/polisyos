@@ -1,0 +1,49 @@
+{
+  "schema_version": "policyos.policy_design_case.wave1.baseline_smoke.v1",
+  "status": "recorded",
+  "generated_at": "2026-05-22T00:00:00Z",
+  "owner": "team-policyos-runtime",
+  "source_plan": "docs/plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md#Wave-1---Runtime-Quality-Foundation",
+  "pattern_ids": ["P01", "P04", "P05", "P09", "P10", "P15"],
+  "notes": "Baseline smoke corpus recorded before Wave 1 closure. These cases document the pre-implementation behavior that later runtime readers must not relabel as implemented authority.",
+  "smoke_cases": [
+    {
+      "case_id": "w1-baseline-housing-projection",
+      "domain": "housing",
+      "request_summary": "Housing affordability recommendation with a public dashboard projection but no producer-owned closeout evidence.",
+      "pre_implementation_behavior": "Structural fields and public projection can be present, but closeout authority remains absent and publication must not rely on projection output.",
+      "capability_reality_state": "bridge_missing",
+      "missing_capability_labels": ["bridge_missing", "semantic_test_missing"],
+      "expected_wave1_effect": "Capability ratchet reports the missing bridge, semantic fixtures reject projection laundering, and closeout reader rejects projection-only authority."
+    },
+    {
+      "case_id": "w1-baseline-public-health-warning",
+      "domain": "public_health",
+      "request_summary": "Public health intervention with a warning status lacking an owner and TTL.",
+      "pre_implementation_behavior": "A warning-like local producer status can appear in the payload, but without lifecycle ownership it cannot be silently ignored.",
+      "capability_reality_state": "verification_missing",
+      "missing_capability_labels": ["verification_missing"],
+      "expected_wave1_effect": "Status envelope emits lifecycle blockers for missing owner and TTL while preserving the local producer status."
+    },
+    {
+      "case_id": "w1-baseline-tax-benefit-unsupported-claim",
+      "domain": "tax_benefit",
+      "request_summary": "Tax-benefit recommendation with a structurally complete major claim marked supported but no evidence refs or typed deficit.",
+      "pre_implementation_behavior": "Required fields can pass while the support claim is semantically unsupported and must not become publishable authority.",
+      "capability_reality_state": "semantic_test_missing",
+      "missing_capability_labels": ["semantic_test_missing"],
+      "expected_wave1_effect": "Gold-card semantic fixture fails the structural pass with semantic_unsupported_claim."
+    }
+  ],
+  "status_deficit_crosswalk": {
+    "source": "src/polisyos/runtime/quality/status_deficits.py",
+    "mixed_status_fixture": "tests/unit/runtime/quality/test_status_deficits.py#test_deficit_crosswalk_keeps_accepted_limitation_review_reissue_and_block_distinct",
+    "distinct_closeout_effects": [
+      "accepted_deficit",
+      "limited_closeout",
+      "review_required",
+      "reissue_required",
+      "closeout_blocked"
+    ]
+  }
+}

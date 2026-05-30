@@ -57,6 +57,9 @@ def build_report(
             "blocked": 0,
             "finding_count": 0,
         },
+        "requirement_source": None,
+        "compiled_data_requirement_specs": [],
+        "source_contract_bindings": [],
         "missing_scenario_source_families": [],
         "scenario_binding_findings": [],
         "findings": [],
@@ -124,24 +127,89 @@ def build_report(
     contract_report = ProductionDataContractIndex.load(
         resolved_root
     ).build_scenario_binding_report(scenario_contract)
-    findings = _diagnostic_findings(contract_report)
+    construct_findings = _construct_capability_findings(contract_report)
+    findings = construct_findings or _diagnostic_findings(contract_report)
     status = "pass" if not findings else "fail"
     summary = dict(contract_report.get("summary") or {})
+    summary["construct_capability_blockers"] = len(construct_findings)
     summary["finding_count"] = len(findings)
+    construct_resolved = bool(_compiled_construct_bindings(contract_report))
     return {
         **base_report,
         "status": status,
         "scenario_contract_id": contract_report.get("scenario_contract_id"),
+        "requirement_source": contract_report.get("requirement_source"),
+        "compiled_data_requirement_specs": list(
+            contract_report.get("compiled_data_requirement_specs") or []
+        ),
         "summary": summary,
         "source_families": list(contract_report.get("source_families") or []),
-        "missing_scenario_source_families": list(
-            contract_report.get("missing_scenario_source_families") or []
+        "source_contract_bindings": list(
+            contract_report.get("source_contract_bindings") or []
         ),
+        "missing_scenario_source_families": list(
+            []
+            if construct_resolved
+            else contract_report.get("missing_scenario_source_families") or []
+        ),
+        "construct_capability_blockers": construct_findings,
         "scenario_binding_findings": list(
             contract_report.get("scenario_binding_findings") or []
         ),
         "findings": findings,
     }
+
+
+def _compiled_construct_bindings(report: Mapping[str, Any]) -> list[dict[str, Any]]:
+    bindings: list[dict[str, Any]] = []
+    for spec in report.get("compiled_data_requirement_specs") or []:
+        if not isinstance(spec, Mapping):
+            continue
+        metadata = spec.get("metadata")
+        if not isinstance(metadata, Mapping):
+            continue
+        binding = metadata.get("capability_binding")
+        if isinstance(binding, Mapping) and binding.get("construct_ref"):
+            bindings.append(dict(binding))
+    return bindings
+
+
+def _construct_capability_findings(report: Mapping[str, Any]) -> list[dict[str, Any]]:
+    findings: list[dict[str, Any]] = []
+    blocker_statuses = {
+        "selected_proxy_with_limitation",
+        "selected_with_conflict_marker",
+        "selected_context_only",
+        "selected_simulation_only",
+    }
+    for binding in _compiled_construct_bindings(report):
+        status = str(binding.get("status") or "").strip()
+        if not (status.startswith("blocked_") or status in blocker_statuses):
+            continue
+        construct_ref = str(binding.get("construct_ref") or "construct:unknown")
+        findings.append(
+            _finding(
+                code="production_data_construct_capability_blocker",
+                message=(
+                    f"Construct-resolved capability binding for {construct_ref} "
+                    f"returned {status}."
+                ),
+                next_action=(
+                    "Use the resolver acquisition strategies, limitations, and "
+                    "review queues rather than restoring scenario-family authority."
+                ),
+                root_cause_class="production_data_construct_capability",
+                requirement_id=binding.get("requirement_id"),
+                construct_ref=construct_ref,
+                capability_ref=binding.get("selected_capability_ref"),
+                blocker_code=status,
+                blocked_reasons=list(binding.get("blocked_reasons") or []),
+                limitations=list(binding.get("limitations") or []),
+                acquisition_strategies=list(binding.get("acquisition_strategies") or []),
+                rejected_alternatives=list(binding.get("rejected_alternatives") or []),
+            )
+        )
+    return findings
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -257,6 +325,7 @@ def _finding(
     message: str,
     next_action: str,
     severity: str = "error",
+    root_cause_class: str = "production_data_scenario_admissibility",
     artifact_ref: str | None = None,
     details: Mapping[str, Any] | None = None,
     **extra: object,
@@ -266,7 +335,7 @@ def _finding(
         "severity": severity,
         "code": code,
         "message": message,
-        "root_cause_class": "production_data_scenario_admissibility",
+        "root_cause_class": root_cause_class,
         "next_action": next_action,
     }
     if artifact_ref:

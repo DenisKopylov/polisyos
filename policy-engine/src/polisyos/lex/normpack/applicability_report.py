@@ -5,11 +5,14 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Mapping
-from datetime import date
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from datetime import date
 
 from polisyos.lex.common import parse_iso_date
+from polisyos.lex.normpack.legal_authority import build_legal_authority_report
 from polisyos.lex.normpack.query_normalization import (
     legal_requirements_from_query_normalization_report,
     legal_requirements_from_scenario_contract,
@@ -46,11 +49,11 @@ _RECOMMENDATION_KEYS = frozenset(
 )
 
 
-def _text(value: Any) -> str:
+def _text(value: object) -> str:
     return str(value or "").strip()
 
 
-def _text_list(value: Any) -> list[str]:
+def _text_list(value: object) -> list[str]:
     if isinstance(value, str):
         token = _text(value)
         return [token] if token else []
@@ -59,7 +62,7 @@ def _text_list(value: Any) -> list[str]:
     return []
 
 
-def _mapping_list(value: Any) -> list[dict[str, Any]]:
+def _mapping_list(value: object) -> list[dict[str, Any]]:
     if isinstance(value, Mapping):
         return [dict(value)]
     if isinstance(value, list | tuple):
@@ -67,7 +70,7 @@ def _mapping_list(value: Any) -> list[dict[str, Any]]:
     return []
 
 
-def _mapping(value: Any) -> dict[str, Any] | None:
+def _mapping(value: object) -> dict[str, Any] | None:
     if isinstance(value, Mapping):
         return {str(key): item for key, item in value.items()}
     to_dict = getattr(value, "to_dict", None)
@@ -86,13 +89,13 @@ def _mapping(value: Any) -> dict[str, Any] | None:
     return None
 
 
-def _list(value: Any) -> list[Any]:
+def _list(value: object) -> list[Any]:
     if isinstance(value, list | tuple):
         return list(value)
     return []
 
 
-def _first_token(value: Any) -> str:
+def _first_token(value: object) -> str:
     if isinstance(value, list | tuple | set):
         for item in value:
             token = _text(item)
@@ -411,7 +414,7 @@ def _competence_rows(applied_norms: list[dict[str, Any]]) -> list[dict[str, Any]
     return rows
 
 
-def _walk_mappings(value: Any, *, depth: int = 0) -> list[dict[str, Any]]:
+def _walk_mappings(value: object, *, depth: int = 0) -> list[dict[str, Any]]:
     if depth > 8:
         return []
     mapped = _mapping(value)
@@ -451,7 +454,7 @@ def _norm_authority(norm: dict[str, Any]) -> tuple[str, str]:
     return authority, level
 
 
-def _first_selector_value(selector: Any) -> str:
+def _first_selector_value(selector: object) -> str:
     selector_payload = _mapping(selector)
     if selector_payload is None:
         return _first_token(selector)
@@ -714,7 +717,7 @@ def _recommendation_claims_from_runtime_payload(
     return _recommendation_claims_from_trinity_payload(selected_variant.get("_bundle"))
 
 
-def _coerce_recommendation_claim(item: Any) -> dict[str, Any] | None:
+def _coerce_recommendation_claim(item: object) -> dict[str, Any] | None:
     if isinstance(item, str):
         text = item.strip()
         return {"text": text, "major": True, "norm_refs": []} if text else None
@@ -737,7 +740,7 @@ def _coerce_recommendation_claim(item: Any) -> dict[str, Any] | None:
     return claim
 
 
-def _recommendation_claims_from_trinity_payload(bundle: Any) -> list[dict[str, Any]]:
+def _recommendation_claims_from_trinity_payload(bundle: object) -> list[dict[str, Any]]:
     payload = _mapping(bundle)
     if payload is None:
         return []
@@ -1352,6 +1355,42 @@ def _recommendation_coverage(
     return coverage, anchors, issues
 
 
+def _merge_legal_authority_anchors(
+    legacy_anchors: list[dict[str, Any]],
+    legal_authority_anchors: object,
+) -> list[dict[str, Any]]:
+    legal_by_claim = {
+        _text(anchor.get("claim_id")): dict(anchor)
+        for anchor in _mapping_list(legal_authority_anchors)
+        if _text(anchor.get("claim_id"))
+    }
+    merged: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for legacy in legacy_anchors:
+        claim_id = _text(legacy.get("claim_id"))
+        legal = legal_by_claim.get(claim_id)
+        if legal is None:
+            merged.append(legacy)
+            continue
+        seen.add(claim_id)
+        if bool(legal.get("legal_authority_required")):
+            merged.append({**legacy, **legal})
+        else:
+            merged.append(
+                {
+                    **legacy,
+                    "legal_authority_required": False,
+                    "legal_admissibility_grade": legal.get("admissibility_grade"),
+                    "legal_authority_record_refs": legal.get("legal_authority_record_refs", []),
+                    "legal_authority_blocker_refs": legal.get("legal_authority_blocker_refs", []),
+                }
+            )
+    for claim_id, legal in legal_by_claim.items():
+        if claim_id not in seen:
+            merged.append(legal)
+    return merged
+
+
 def _status_from_issues(issues: list[dict[str, Any]]) -> str:
     if any(issue.get("severity") == "fail" for issue in issues):
         return "fail"
@@ -1377,6 +1416,8 @@ def build_normative_applicability_report(
     authority_blockers: list[dict[str, Any]] | None = None,
     conflicts: list[dict[str, Any]] | None = None,
     competence: list[dict[str, Any]] | None = None,
+    jurisdiction_fallback_config: Mapping[str, Any] | None = None,
+    legal_requirement_specs: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     """Build a strict applicability report from candidate Lex norms."""
     recommendation_claims = recommendation_claims or []
@@ -1442,6 +1483,43 @@ def build_normative_applicability_report(
         if issue is not None:
             issues.append(issue)
 
+    legal_authority = build_legal_authority_report(
+        target_context=target_context,
+        candidate_norms=candidate_norms,
+        recommendation_claims=recommendation_claims,
+        legal_requirement_specs=legal_requirement_specs,
+        jurisdiction_fallback_config=jurisdiction_fallback_config,
+    )
+    legal_selected_norm_refs = set(_text_list(legal_authority.get("selected_norm_refs")))
+    if legal_selected_norm_refs:
+        candidate_by_id = {
+            _norm_id(candidate): candidate for candidate in candidate_norms if _norm_id(candidate)
+        }
+        existing_applied = {_norm_id(norm) for norm in applied_norms if _norm_id(norm)}
+        for norm_ref in sorted(legal_selected_norm_refs - existing_applied):
+            selected_candidate = candidate_by_id.get(norm_ref)
+            if selected_candidate is None:
+                continue
+            applied_norms.append(
+                {
+                    **selected_candidate,
+                    "norm_id": norm_ref,
+                    "applicability_status": "applied",
+                    "legal_selection_reason": "claim_level_legal_authority",
+                }
+            )
+        rejected_norms = [
+            norm for norm in rejected_norms if _norm_id(norm) not in legal_selected_norm_refs
+        ]
+        issues = [
+            issue
+            for issue in issues
+            if not (
+                _text(issue.get("norm_id")) in legal_selected_norm_refs
+                and _text(issue.get("code")) in {"wrong_jurisdiction"}
+            )
+        ]
+
     authority_blocker_rows = _mapping_list(authority_blockers)
     if retrieval_blocker is not None and not any(
         _text(blocker.get("code")) == retrieval_blocker["code"]
@@ -1457,7 +1535,30 @@ def build_normative_applicability_report(
         applied_norms=applied_norms,
         rejected_norms=rejected_norms,
     )
+    claim_legal_anchors = _merge_legal_authority_anchors(
+        claim_legal_anchors,
+        legal_authority.get("claim_legal_anchors"),
+    )
+    legal_selected_claim_ids = {
+        _text(anchor.get("claim_id"))
+        for anchor in _mapping_list(legal_authority.get("claim_legal_anchors"))
+        if _text_list(anchor.get("selected_norm_refs"))
+    }
+    coverage_issues = [
+        issue
+        for issue in coverage_issues
+        if not (
+            _text(issue.get("claim_id")) in legal_selected_claim_ids
+            and _text(issue.get("code"))
+            in {
+                "missing_claim_specific_normative_anchor",
+                "missing_recommendation_normative_anchor",
+                "recommendation_references_rejected_norm",
+            }
+        )
+    ]
     issues.extend(coverage_issues)
+    issues.extend(_mapping_list(legal_authority.get("issues")))
     if not candidate_norms:
         query_trace_issue = _query_normalization_trace_issue(normalized_query_report)
         if query_trace_issue is not None:
@@ -1505,6 +1606,9 @@ def build_normative_applicability_report(
             "as_of": as_of.isoformat() if as_of is not None else as_of_raw,
         },
         "legal_requirements": legal_requirements,
+        "legal_requirement_specs": _mapping_list(
+            legal_authority.get("legal_requirement_specs")
+        ),
         "candidate_norms": candidate_norms,
         "candidate_norm_refs": candidate_norm_ids,
         "global_candidate_norms": candidate_norms,
@@ -1520,6 +1624,17 @@ def build_normative_applicability_report(
         "global_rejected_norm_refs": rejected_norm_refs,
         "conflicts": _mapping_list(conflicts),
         "competence": _mapping_list(competence) or _competence_rows(applied_norms),
+        "legal_authority_report_schema_version": legal_authority.get("schema_version"),
+        "capability_reality_status": legal_authority.get("capability_reality_status"),
+        "runtime_authority_envelope": dict(
+            legal_authority.get("runtime_authority_envelope") or {}
+        ),
+        "legal_authority_required": bool(legal_authority.get("legal_authority_required")),
+        "legal_authority_records": _mapping_list(
+            legal_authority.get("legal_authority_records")
+        ),
+        "claim_window_splits": _mapping_list(legal_authority.get("claim_window_splits")),
+        "legal_authority_summary": dict(legal_authority.get("summary") or {}),
         "authority_blockers": authority_blocker_rows,
         "blockers": authority_blocker_rows,
         "recommendation_coverage": coverage,
@@ -1533,6 +1648,12 @@ def build_normative_applicability_report(
             "applied_norm_count": len(applied_norms),
             "rejected_norm_count": len(rejected_norms),
             "legal_requirement_count": len(legal_requirements),
+            "legal_requirement_spec_count": int(
+                dict(legal_authority.get("summary") or {}).get(
+                    "legal_requirement_spec_count",
+                    0,
+                )
+            ),
             "claim_legal_anchor_count": len(claim_legal_anchors),
             "claim_legal_anchor_pass_count": sum(
                 1 for anchor in claim_legal_anchors if anchor.get("status") == "pass"
@@ -1546,12 +1667,10 @@ def build_normative_applicability_report(
         },
     }
     if spine_context is not None:
-        from polisyos.runtime.quality.semantic_binding import (
-            build_producer_spine_binding_fields,
-        )
+        from polisyos.core import contracts as core_contracts
 
         report.update(
-            build_producer_spine_binding_fields(
+            core_contracts.build_producer_spine_binding_fields(
                 component="lex",
                 spine_context=spine_context,
                 candidate_refs=[_norm_id(norm) for norm in candidate_norms],
@@ -1625,6 +1744,10 @@ def build_runtime_normative_applicability_report(
             context.get("authority_blockers") or context.get("blockers")
         ),
         conflicts=_mapping_list(context.get("conflicts") or context.get("legal_conflicts")),
+        jurisdiction_fallback_config=_mapping(
+            context.get("jurisdiction_fallback_config")
+            or context.get("legal_jurisdiction_fallback_config")
+        ),
     )
 
 

@@ -58,8 +58,8 @@
 На snapshot 2026-02-03:
 
 - Есть хардкод‑оркестрация на LangGraph:
-  - `polisyos.scientist.orchestrator.workflow.build_workflow()` собирает граф с условными роутингами,
-  - `polisyos.scientist.orchestrator.flow_nodes` содержит большой объём доменной логики и прямых интеграций.
+  - pre-decomposition orchestrator workflow builder собирает граф с условными роутингами,
+  - pre-decomposition flow-nodes module содержит большой объём доменной логики и прямых интеграций.
 - Есть абстракция `polisyos.scientist.workflows` (engine_simple / engine_langgraph), но:
   - отсутствует единый Node protocol (ctx+state → outcome),
   - отсутствует единый serializable workflow spec (DAG как контракт),

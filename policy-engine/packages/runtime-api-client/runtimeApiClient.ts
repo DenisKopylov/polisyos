@@ -869,9 +869,7 @@ export type ControlJobResponse = {
   next_diagnostic_commands?: Array<string>;
   operator_diagnostic?: OperatorDiagnostic | null;
   pipeline_id?: string | null;
-  policy_design_case_projection?: {
-  [key: string]: unknown;
-} | null;
+  policy_design_case_projection?: PolicyDesignCaseProjection | null;
   progress?: {
   [key: string]: unknown;
 };
@@ -2256,6 +2254,190 @@ export type OperatorProjectionStateLabel = {
   state: "draft" | "projection_only" | "redacted" | "stale" | "contested" | "projected" | "blocked" | "readiness_closed" | "approved" | "rejected" | "published_blocked" | "publishable";
 };
 
+export type PolicyDesignCaseAudience = "public" | "reviewer" | "expert" | "machine";
+
+export type PolicyDesignCaseCloseoutTruth = {
+  blocker_codes?: Array<string>;
+  blockers?: Array<PolicyDesignCaseProjectionBlocker>;
+  can_closeout: boolean;
+  contested_state?: string;
+  limitation_codes?: Array<string>;
+  omission_codes?: Array<string>;
+  status: string;
+  verdict: string;
+};
+
+export type PolicyDesignCaseContestedRecord = {
+  audience_visibility?: Array<PolicyDesignCaseAudience>;
+  authority_profile: string;
+  case_ref: string;
+  claim_refs?: Array<string>;
+  contestability_status: string;
+  contested_record_id: string;
+  counterevidence_refs?: Array<string>;
+  grounds?: Array<string>;
+  ingestion_event_refs?: Array<string>;
+  lifecycle_event_refs?: Array<string>;
+  public_projection_effect: string;
+  publication_effect: string;
+  recourse_outcome_refs?: Array<string>;
+  recourse_pointer?: PolicyDesignCaseRecoursePointer | null;
+  reopening_trigger_refs?: Array<string>;
+  source_truth_conflict_refs?: Array<string>;
+  standing_or_actor_ref?: string | null;
+};
+
+export type PolicyDesignCaseDeficitProjection = {
+  audience_scope: string;
+  authority_level: string;
+  claim_ids?: Array<string>;
+  deficit_code: string;
+  deficit_family: string;
+  deficit_id: string;
+  disposition: string;
+  evidence_ref: string;
+  max_audience?: string | null;
+  owner: string;
+  public_limitation_note?: string | null;
+  readiness_cap?: string | null;
+  review_refs?: Array<string>;
+  runtime_event_ref: string;
+  support_cap?: string | null;
+  ttl_expires_at?: string | null;
+};
+
+export type PolicyDesignCaseInvariantSummary = {
+  blocker_codes?: Array<string>;
+  details?: {
+  [key: string]: unknown;
+};
+  evidence_refs?: Array<string>;
+  failing_count?: number;
+  passing_count?: number;
+  status?: string;
+};
+
+export type PolicyDesignCaseParticipationRequirementProjection = {
+  audience_visibility?: Array<PolicyDesignCaseAudience>;
+  blocker_code?: string | null;
+  claim_id: string;
+  claim_use_allowed: string;
+  claim_use_requested: string;
+  consultation_mode?: string | null;
+  downgrade_reason?: string | null;
+  evidence_ref?: string | null;
+  limitations?: Array<string>;
+  participation_ref?: string | null;
+  privacy_constraints?: Array<string>;
+  provenance_class: string;
+  public_projection_effect: string;
+  raw_materials_redacted?: boolean;
+  representativeness_class: string;
+  requirement_id: string;
+  source_kind: string;
+};
+
+export type PolicyDesignCaseProjection = {
+  audience: PolicyDesignCaseAudience;
+  audit_refs?: Array<string>;
+  authoritative_for?: Array<string>;
+  authority_role?: string;
+  capability_reality_state?: string;
+  closeout_truth: PolicyDesignCaseCloseoutTruth;
+  contested_records?: Array<PolicyDesignCaseContestedRecord>;
+  contract_verification_refs?: Array<string>;
+  contract_verification_status?: string;
+  deficit_register?: Array<PolicyDesignCaseDeficitProjection>;
+  evidence_class: string;
+  generated_at: string;
+  invariant_summary?: PolicyDesignCaseInvariantSummary;
+  labels?: Array<PolicyDesignCaseProjectionLabel>;
+  may_be_used_for?: Array<string>;
+  may_not_be_used_for?: Array<string>;
+  omission_manifest?: Array<PolicyDesignCaseProjectionOmission>;
+  participation_requirements?: Array<PolicyDesignCaseParticipationRequirementProjection>;
+  policy_design_case_id?: string | null;
+  primary_state: string;
+  projection_gaps?: Array<PolicyDesignCaseProjectionGap>;
+  projection_policy?: "reads_policy_design_case_only" | "reads_runtime_policy_design_case_graph";
+  provenance_kind?: string;
+  recourse_pointer?: PolicyDesignCaseRecoursePointer | null;
+  redacted?: boolean;
+  redaction_summary?: {
+  [key: string]: unknown;
+};
+  run_id?: string | null;
+  schema_version?: string;
+  source_authority_refs?: {
+  [key: string]: string;
+};
+  source_ref?: string | null;
+  source_ref_fingerprint?: string | null;
+  source_state?: {
+  [key: string]: unknown;
+};
+  states?: Array<string>;
+  surface: string;
+};
+
+export type PolicyDesignCaseProjectionBlocker = {
+  code: string;
+  evidence_ref?: string | null;
+  message: string;
+  module_id?: string | null;
+  next_action?: string | null;
+  owner?: string | null;
+  severity?: string;
+};
+
+export type PolicyDesignCaseProjectionGap = {
+  audience_visibility?: Array<PolicyDesignCaseAudience>;
+  claim_ids?: Array<string>;
+  closeout_effect?: string;
+  evidence_ref?: string | null;
+  gap_code: string;
+  gap_family: string;
+  gap_id: string;
+  message: string;
+  next_action?: string | null;
+  owner?: string | null;
+  publication_effect?: string;
+  severity: string;
+  source?: string | null;
+};
+
+export type PolicyDesignCaseProjectionLabel = {
+  authority_role?: string;
+  label: string;
+  source_authority?: string;
+  state: string;
+};
+
+export type PolicyDesignCaseProjectionOmission = {
+  audience_visibility?: Array<PolicyDesignCaseAudience>;
+  claim_ids?: Array<string>;
+  closeout_effect?: string;
+  evidence_ref?: string | null;
+  manifest_ref?: string | null;
+  omission_code: string;
+  omission_family?: string;
+  omission_id: string;
+  owner?: string | null;
+  publication_effect?: string;
+  reason: string;
+  source?: string | null;
+};
+
+export type PolicyDesignCaseRecoursePointer = {
+  authority_boundary?: string;
+  owner?: string | null;
+  schema_version?: string;
+  uri: string;
+  verification_ref: string;
+  verification_status?: string;
+  verified_at: string;
+};
+
 export type PolicyFlags = {
   allow_mock_fallback?: boolean;
 };
@@ -2516,9 +2698,7 @@ export type RunDetails = {
   has_workflow_report?: boolean;
   manifest_ref?: ArtifactRefOutput | null;
   operator_diagnostic?: RunOperatorDiagnostic | null;
-  policy_design_case_projection?: {
-  [key: string]: unknown;
-} | null;
+  policy_design_case_projection?: PolicyDesignCaseProjection | null;
   root_artifacts?: Array<ArtifactRefOutput>;
   run_id: string;
   source_kind: string;

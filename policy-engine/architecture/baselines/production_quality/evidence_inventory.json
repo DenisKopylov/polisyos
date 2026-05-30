@@ -7,42 +7,42 @@
       "expected_ref": "FabricDecisionData.quality",
       "field_path": "QualityRef.quality_surface",
       "owner_runtime_layer": "fabric_trust_envelope",
-      "producer": "polisyos.fabric.decision_data.QualityRef",
+      "producer": "polisyos.fabric.evidence.decision_data.QualityRef",
       "status": "runtime_emitted"
     },
     {
       "expected_ref": "FabricDecisionData.quality",
       "field_path": "QualityRef.reason_code",
       "owner_runtime_layer": "fabric_trust_envelope",
-      "producer": "polisyos.fabric.decision_data.QualityRef",
+      "producer": "polisyos.fabric.evidence.decision_data.QualityRef",
       "status": "runtime_emitted"
     },
     {
       "expected_ref": "FabricDecisionData.quality",
       "field_path": "QualityRef.remediation_link",
       "owner_runtime_layer": "fabric_trust_envelope",
-      "producer": "polisyos.fabric.decision_data.QualityRef",
+      "producer": "polisyos.fabric.evidence.decision_data.QualityRef",
       "status": "runtime_emitted"
     },
     {
       "expected_ref": "FabricDecisionData.quality",
       "field_path": "QualityRef.report_ref",
       "owner_runtime_layer": "fabric_trust_envelope",
-      "producer": "polisyos.fabric.decision_data.QualityRef",
+      "producer": "polisyos.fabric.evidence.decision_data.QualityRef",
       "status": "runtime_emitted"
     },
     {
       "expected_ref": "FabricDecisionData.quality",
       "field_path": "QualityRef.score",
       "owner_runtime_layer": "fabric_trust_envelope",
-      "producer": "polisyos.fabric.decision_data.QualityRef",
+      "producer": "polisyos.fabric.evidence.decision_data.QualityRef",
       "status": "runtime_emitted"
     },
     {
       "expected_ref": "FabricDecisionData.quality",
       "field_path": "QualityRef.status",
       "owner_runtime_layer": "fabric_trust_envelope",
-      "producer": "polisyos.fabric.decision_data.QualityRef",
+      "producer": "polisyos.fabric.evidence.decision_data.QualityRef",
       "status": "runtime_emitted"
     },
     {
@@ -571,6 +571,55 @@
       "status": "runtime_emitted"
     },
     {
+      "expected_ref": "quality_evidence/can_i_closeout.json",
+      "field_path": "runtime.can_i_closeout.can_close",
+      "owner_runtime_layer": "closeout_authority",
+      "producer": "polisyos.runtime.quality.closeout_reader.build_can_i_closeout_verdict",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/can_i_closeout.json",
+      "field_path": "runtime.can_i_closeout.capability_index_ref",
+      "owner_runtime_layer": "closeout_authority",
+      "producer": "polisyos.runtime.quality.closeout_reader.build_can_i_closeout_verdict",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/can_i_closeout.json",
+      "field_path": "runtime.can_i_closeout.issues",
+      "owner_runtime_layer": "closeout_authority",
+      "producer": "polisyos.runtime.quality.closeout_reader.build_can_i_closeout_verdict",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/can_i_closeout.json",
+      "field_path": "runtime.can_i_closeout.quality_report_refs",
+      "owner_runtime_layer": "closeout_authority",
+      "producer": "polisyos.runtime.quality.closeout_reader.build_can_i_closeout_verdict",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/can_i_closeout.json",
+      "field_path": "runtime.can_i_closeout.schema_version",
+      "owner_runtime_layer": "closeout_authority",
+      "producer": "polisyos.runtime.quality.closeout_reader.build_can_i_closeout_verdict",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/can_i_closeout.json",
+      "field_path": "runtime.can_i_closeout.status",
+      "owner_runtime_layer": "closeout_authority",
+      "producer": "polisyos.runtime.quality.closeout_reader.build_can_i_closeout_verdict",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/can_i_closeout.json",
+      "field_path": "runtime.can_i_closeout.verdict",
+      "owner_runtime_layer": "closeout_authority",
+      "producer": "polisyos.runtime.quality.closeout_reader.build_can_i_closeout_verdict",
+      "status": "runtime_emitted"
+    },
+    {
       "expected_ref": "quality_evidence/drift_explanation.json",
       "field_path": "runtime.drift_explanation.differences",
       "owner_runtime_layer": "runtime_replay",
@@ -655,6 +704,55 @@
       "status": "runtime_emitted"
     },
     {
+      "expected_ref": "quality_evidence/hypothesis_ledger.json",
+      "field_path": "runtime.hypothesis_ledger.candidate_firewall",
+      "owner_runtime_layer": "candidate_firewall",
+      "producer": "polisyos.runtime.quality.hypothesis_ledger.persist_hypothesis_ledger",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/hypothesis_ledger.json",
+      "field_path": "runtime.hypothesis_ledger.entries",
+      "owner_runtime_layer": "candidate_firewall",
+      "producer": "polisyos.runtime.quality.hypothesis_ledger.persist_hypothesis_ledger",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/hypothesis_ledger.json",
+      "field_path": "runtime.hypothesis_ledger.entries[].authority_status",
+      "owner_runtime_layer": "candidate_firewall",
+      "producer": "polisyos.runtime.quality.hypothesis_ledger.persist_hypothesis_ledger",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/hypothesis_ledger.json",
+      "field_path": "runtime.hypothesis_ledger.entries[].candidate_type",
+      "owner_runtime_layer": "candidate_firewall",
+      "producer": "polisyos.runtime.quality.hypothesis_ledger.persist_hypothesis_ledger",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/hypothesis_ledger.json",
+      "field_path": "runtime.hypothesis_ledger.hypothesis_ledger_ref",
+      "owner_runtime_layer": "candidate_firewall",
+      "producer": "polisyos.runtime.quality.hypothesis_ledger.persist_hypothesis_ledger",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/hypothesis_ledger.json",
+      "field_path": "runtime.hypothesis_ledger.schema_version",
+      "owner_runtime_layer": "candidate_firewall",
+      "producer": "polisyos.runtime.quality.hypothesis_ledger.persist_hypothesis_ledger",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/hypothesis_ledger.json",
+      "field_path": "runtime.hypothesis_ledger.status",
+      "owner_runtime_layer": "candidate_firewall",
+      "producer": "polisyos.runtime.quality.hypothesis_ledger.persist_hypothesis_ledger",
+      "status": "runtime_emitted"
+    },
+    {
       "expected_ref": "performance.json",
       "field_path": "runtime.performance_summary.llm_model_variants[].cost_usd",
       "owner_runtime_layer": "nl_pipeline",
@@ -707,49 +805,49 @@
       "expected_ref": "quality_evidence/privacy_compliance_report.json",
       "field_path": "runtime.privacy_compliance_report.issues",
       "owner_runtime_layer": "privacy_compliance",
-      "producer": "polisyos.data_forge.compliance.build_privacy_compliance_report",
+      "producer": "polisyos.data_forge.read_api.build_privacy_compliance_report",
       "status": "runtime_emitted"
     },
     {
       "expected_ref": "quality_evidence/privacy_compliance_report.json",
       "field_path": "runtime.privacy_compliance_report.override",
       "owner_runtime_layer": "privacy_compliance",
-      "producer": "polisyos.data_forge.compliance.build_privacy_compliance_report",
+      "producer": "polisyos.data_forge.read_api.build_privacy_compliance_report",
       "status": "runtime_emitted"
     },
     {
       "expected_ref": "quality_evidence/privacy_compliance_report.json",
       "field_path": "runtime.privacy_compliance_report.production_data_sources",
       "owner_runtime_layer": "privacy_compliance",
-      "producer": "polisyos.data_forge.compliance.build_privacy_compliance_report",
+      "producer": "polisyos.data_forge.read_api.build_privacy_compliance_report",
       "status": "runtime_emitted"
     },
     {
       "expected_ref": "quality_evidence/privacy_compliance_report.json",
       "field_path": "runtime.privacy_compliance_report.public_artifact_families",
       "owner_runtime_layer": "privacy_compliance",
-      "producer": "polisyos.data_forge.compliance.build_privacy_compliance_report",
+      "producer": "polisyos.data_forge.read_api.build_privacy_compliance_report",
       "status": "runtime_emitted"
     },
     {
       "expected_ref": "quality_evidence/privacy_compliance_report.json",
       "field_path": "runtime.privacy_compliance_report.schema_version",
       "owner_runtime_layer": "privacy_compliance",
-      "producer": "polisyos.data_forge.compliance.build_privacy_compliance_report",
+      "producer": "polisyos.data_forge.read_api.build_privacy_compliance_report",
       "status": "runtime_emitted"
     },
     {
       "expected_ref": "quality_evidence/privacy_compliance_report.json",
       "field_path": "runtime.privacy_compliance_report.status",
       "owner_runtime_layer": "privacy_compliance",
-      "producer": "polisyos.data_forge.compliance.build_privacy_compliance_report",
+      "producer": "polisyos.data_forge.read_api.build_privacy_compliance_report",
       "status": "runtime_emitted"
     },
     {
       "expected_ref": "quality_evidence/privacy_compliance_report.json",
       "field_path": "runtime.privacy_compliance_report.summary",
       "owner_runtime_layer": "privacy_compliance",
-      "producer": "polisyos.data_forge.compliance.build_privacy_compliance_report",
+      "producer": "polisyos.data_forge.read_api.build_privacy_compliance_report",
       "status": "runtime_emitted"
     },
     {
@@ -1022,42 +1120,42 @@
       "expected_ref": "quality_evidence/security_assurance_report.json",
       "field_path": "runtime.security_assurance_report.findings",
       "owner_runtime_layer": "security_quality_gates",
-      "producer": "polisyos.runtime.security.quality_gates.build_security_assurance_report",
+      "producer": "polisyos.core.security.quality_gates.build_security_assurance_report",
       "status": "runtime_emitted"
     },
     {
       "expected_ref": "quality_evidence/security_assurance_report.json",
       "field_path": "runtime.security_assurance_report.issues",
       "owner_runtime_layer": "security_quality_gates",
-      "producer": "polisyos.runtime.security.quality_gates.build_security_assurance_report",
+      "producer": "polisyos.core.security.quality_gates.build_security_assurance_report",
       "status": "runtime_emitted"
     },
     {
       "expected_ref": "quality_evidence/security_assurance_report.json",
       "field_path": "runtime.security_assurance_report.schema_version",
       "owner_runtime_layer": "security_quality_gates",
-      "producer": "polisyos.runtime.security.quality_gates.build_security_assurance_report",
+      "producer": "polisyos.core.security.quality_gates.build_security_assurance_report",
       "status": "runtime_emitted"
     },
     {
       "expected_ref": "quality_evidence/security_assurance_report.json",
       "field_path": "runtime.security_assurance_report.security_assurance_report_ref",
       "owner_runtime_layer": "security_quality_gates",
-      "producer": "polisyos.runtime.security.quality_gates.build_security_assurance_report",
+      "producer": "polisyos.core.security.quality_gates.build_security_assurance_report",
       "status": "runtime_emitted"
     },
     {
       "expected_ref": "quality_evidence/security_assurance_report.json",
       "field_path": "runtime.security_assurance_report.status",
       "owner_runtime_layer": "security_quality_gates",
-      "producer": "polisyos.runtime.security.quality_gates.build_security_assurance_report",
+      "producer": "polisyos.core.security.quality_gates.build_security_assurance_report",
       "status": "runtime_emitted"
     },
     {
       "expected_ref": "quality_evidence/security_assurance_report.json",
       "field_path": "runtime.security_assurance_report.surfaces",
       "owner_runtime_layer": "security_quality_gates",
-      "producer": "polisyos.runtime.security.quality_gates.build_security_assurance_report",
+      "producer": "polisyos.core.security.quality_gates.build_security_assurance_report",
       "status": "runtime_emitted"
     },
     {
@@ -1128,6 +1226,13 @@
       "field_path": "runtime.semantic_binding_ledger.status",
       "owner_runtime_layer": "semantic_binding",
       "producer": "polisyos.runtime.quality.semantic_binding.build_semantic_binding_ledger",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "runtime_quality_ref#can_i_closeout_ref",
+      "field_path": "runtime_quality_refs.can_i_closeout_ref",
+      "owner_runtime_layer": "closeout_authority",
+      "producer": "polisyos.runtime.quality.closeout_reader.build_can_i_closeout_verdict",
       "status": "runtime_emitted"
     },
     {
@@ -1208,6 +1313,13 @@
       "status": "runtime_emitted"
     },
     {
+      "expected_ref": "runtime_quality_ref#hypothesis_ledger_ref",
+      "field_path": "runtime_quality_refs.hypothesis_ledger_ref",
+      "owner_runtime_layer": "candidate_firewall",
+      "producer": "polisyos.runtime.quality.hypothesis_ledger.persist_hypothesis_ledger",
+      "status": "runtime_emitted"
+    },
+    {
       "expected_ref": "runtime_quality_ref#normative_applicability_report_ref",
       "field_path": "runtime_quality_refs.normative_applicability_report_ref",
       "owner_runtime_layer": "lex",
@@ -1225,7 +1337,7 @@
       "expected_ref": "runtime_quality_ref#privacy_compliance_report_ref",
       "field_path": "runtime_quality_refs.privacy_compliance_report_ref",
       "owner_runtime_layer": "privacy_compliance",
-      "producer": "polisyos.data_forge.compliance.build_privacy_compliance_report",
+      "producer": "polisyos.data_forge.read_api.build_privacy_compliance_report",
       "status": "runtime_emitted"
     },
     {
@@ -1260,7 +1372,7 @@
       "expected_ref": "runtime_quality_ref#security_assurance_report_ref",
       "field_path": "runtime_quality_refs.security_assurance_report_ref",
       "owner_runtime_layer": "security_quality_gates",
-      "producer": "polisyos.runtime.security.quality_gates.build_security_assurance_report",
+      "producer": "polisyos.core.security.quality_gates.build_security_assurance_report",
       "status": "runtime_emitted"
     },
     {
@@ -2125,9 +2237,9 @@
       "producer": {
         "current_emission": "NL pipeline and canary evidence emit compliance evidence without raw sensitive records.",
         "kind": "runtime_report_builder",
-        "name": "polisyos.data_forge.compliance.build_privacy_compliance_report",
+        "name": "polisyos.data_forge.read_api.build_privacy_compliance_report",
         "source_exists": true,
-        "source_path": "src/polisyos/data_forge/compliance.py"
+        "source_path": "src/polisyos/data_forge/read_api/compliance.py"
       },
       "required_for_serious_profile": true,
       "status": "runtime_emitted",
@@ -2152,15 +2264,15 @@
       "producer": {
         "current_emission": "Canary evidence emits sanitized LLM/tool/data/artifact/runtime/dashboard security assurance reports.",
         "kind": "runtime_report_builder",
-        "name": "polisyos.runtime.security.quality_gates.build_security_assurance_report",
+        "name": "polisyos.core.security.quality_gates.build_security_assurance_report",
         "source_exists": true,
-        "source_path": "src/polisyos/runtime/security/quality_gates.py"
+        "source_path": "src/polisyos/core/security/quality_gates.py"
       },
       "required_for_serious_profile": true,
       "status": "runtime_emitted",
       "title": "Security assurance report",
       "validators": [
-        "polisyos.runtime.security.quality_gates.security_gates_from_report"
+        "polisyos.core.security.quality_gates.security_gates_from_report"
       ]
     },
     {
@@ -2188,6 +2300,64 @@
       "title": "Provider and model quality drift ledger",
       "validators": [
         "tools.ops_runners.runtime.provider_quality_ledger.build_provider_quality_ledger"
+      ]
+    },
+    {
+      "artifact_fields": [
+        "schema_version",
+        "status",
+        "hypothesis_ledger_ref",
+        "entries",
+        "entries[].candidate_type",
+        "entries[].authority_status",
+        "candidate_firewall"
+      ],
+      "expected_ref": "quality_evidence/hypothesis_ledger.json",
+      "first_missing_producer": null,
+      "id": "runtime.hypothesis_ledger",
+      "owner_runtime_layer": "candidate_firewall",
+      "producer": {
+        "current_emission": "Runtime capability and semantic-binding paths persist HypothesisLedger evidence so LLM candidates remain advisory until producer-backed admission.",
+        "kind": "runtime_report_builder",
+        "name": "polisyos.runtime.quality.hypothesis_ledger.persist_hypothesis_ledger",
+        "source_exists": true,
+        "source_path": "src/polisyos/runtime/quality/hypothesis_ledger.py"
+      },
+      "required_for_serious_profile": true,
+      "status": "runtime_emitted",
+      "title": "HypothesisLedger candidate firewall evidence",
+      "validators": [
+        "polisyos.runtime.quality.hypothesis_ledger.deserialize_hypothesis_ledger",
+        "polisyos.runtime.quality.scorecard._hypothesis_candidate_firewall_gates"
+      ]
+    },
+    {
+      "artifact_fields": [
+        "schema_version",
+        "status",
+        "verdict",
+        "can_close",
+        "issues",
+        "quality_report_refs",
+        "capability_index_ref"
+      ],
+      "expected_ref": "quality_evidence/can_i_closeout.json",
+      "first_missing_producer": null,
+      "id": "runtime.can_i_closeout",
+      "owner_runtime_layer": "closeout_authority",
+      "producer": {
+        "current_emission": "Canary evidence and closeout tooling compile typed closeout verdicts from scorecard, quality reports, and capability refs.",
+        "kind": "runtime_report_builder",
+        "name": "polisyos.runtime.quality.closeout_reader.build_can_i_closeout_verdict",
+        "source_exists": true,
+        "source_path": "src/polisyos/runtime/quality/closeout_reader.py"
+      },
+      "required_for_serious_profile": true,
+      "status": "runtime_emitted",
+      "title": "Can-I-closeout verdict",
+      "validators": [
+        "polisyos.runtime.quality.closeout_reader.build_can_i_closeout_verdict",
+        "polisyos.runtime.quality.scorecard._can_i_closeout_scorecard_gates"
       ]
     },
     {
@@ -2690,6 +2860,18 @@
       ]
     },
     {
+      "expected_ref": "quality_evidence/can_i_closeout.json",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "closeout_authority",
+      "producer": "polisyos.runtime.quality.closeout_reader.build_can_i_closeout_verdict",
+      "report_id": "runtime.can_i_closeout",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.runtime.quality.closeout_reader.build_can_i_closeout_verdict",
+        "polisyos.runtime.quality.scorecard._can_i_closeout_scorecard_gates"
+      ]
+    },
+    {
       "expected_ref": "quality_evidence/causal_statistical_validity.json",
       "first_missing_producer": null,
       "owner_runtime_layer": "foundry_causal_validity",
@@ -2826,6 +3008,18 @@
       ]
     },
     {
+      "expected_ref": "quality_evidence/hypothesis_ledger.json",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "candidate_firewall",
+      "producer": "polisyos.runtime.quality.hypothesis_ledger.persist_hypothesis_ledger",
+      "report_id": "runtime.hypothesis_ledger",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.runtime.quality.hypothesis_ledger.deserialize_hypothesis_ledger",
+        "polisyos.runtime.quality.scorecard._hypothesis_candidate_firewall_gates"
+      ]
+    },
+    {
       "expected_ref": "quality_evidence/normative_evidence.json",
       "first_missing_producer": null,
       "owner_runtime_layer": "lex",
@@ -2851,7 +3045,7 @@
       "expected_ref": "quality_evidence/privacy_compliance_report.json",
       "first_missing_producer": null,
       "owner_runtime_layer": "privacy_compliance",
-      "producer": "polisyos.data_forge.compliance.build_privacy_compliance_report",
+      "producer": "polisyos.data_forge.read_api.build_privacy_compliance_report",
       "report_id": "runtime.privacy_compliance_report",
       "status": "runtime_emitted",
       "validators": [
@@ -2917,11 +3111,11 @@
       "expected_ref": "quality_evidence/security_assurance_report.json",
       "first_missing_producer": null,
       "owner_runtime_layer": "security_quality_gates",
-      "producer": "polisyos.runtime.security.quality_gates.build_security_assurance_report",
+      "producer": "polisyos.core.security.quality_gates.build_security_assurance_report",
       "report_id": "runtime.security_assurance_report",
       "status": "runtime_emitted",
       "validators": [
-        "polisyos.runtime.security.quality_gates.security_gates_from_report"
+        "polisyos.core.security.quality_gates.security_gates_from_report"
       ]
     },
     {
@@ -2934,6 +3128,19 @@
       "validators": [
         "polisyos.runtime.quality.semantic_binding.deserialize_semantic_binding_ledger",
         "polisyos.runtime.quality.semantic_binding.evaluate_semantic_binding_ledger"
+      ]
+    },
+    {
+      "expected_ref": "runtime_quality_ref#can_i_closeout_ref",
+      "field_path": "can_i_closeout_ref",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "closeout_authority",
+      "producer": "polisyos.runtime.quality.closeout_reader.build_can_i_closeout_verdict",
+      "report_id": "runtime.can_i_closeout",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.runtime.quality.closeout_reader.build_can_i_closeout_verdict",
+        "polisyos.runtime.quality.scorecard._can_i_closeout_scorecard_gates"
       ]
     },
     {
@@ -3073,6 +3280,19 @@
       ]
     },
     {
+      "expected_ref": "runtime_quality_ref#hypothesis_ledger_ref",
+      "field_path": "hypothesis_ledger_ref",
+      "first_missing_producer": null,
+      "owner_runtime_layer": "candidate_firewall",
+      "producer": "polisyos.runtime.quality.hypothesis_ledger.persist_hypothesis_ledger",
+      "report_id": "runtime.hypothesis_ledger",
+      "status": "runtime_emitted",
+      "validators": [
+        "polisyos.runtime.quality.hypothesis_ledger.deserialize_hypothesis_ledger",
+        "polisyos.runtime.quality.scorecard._hypothesis_candidate_firewall_gates"
+      ]
+    },
+    {
       "expected_ref": "runtime_quality_ref#normative_applicability_report_ref",
       "field_path": "normative_applicability_report_ref",
       "first_missing_producer": null,
@@ -3101,7 +3321,7 @@
       "field_path": "privacy_compliance_report_ref",
       "first_missing_producer": null,
       "owner_runtime_layer": "privacy_compliance",
-      "producer": "polisyos.data_forge.compliance.build_privacy_compliance_report",
+      "producer": "polisyos.data_forge.read_api.build_privacy_compliance_report",
       "report_id": "runtime.privacy_compliance_report",
       "status": "runtime_emitted",
       "validators": [
@@ -3161,11 +3381,11 @@
       "field_path": "security_assurance_report_ref",
       "first_missing_producer": null,
       "owner_runtime_layer": "security_quality_gates",
-      "producer": "polisyos.runtime.security.quality_gates.build_security_assurance_report",
+      "producer": "polisyos.core.security.quality_gates.build_security_assurance_report",
       "report_id": "runtime.security_assurance_report",
       "status": "runtime_emitted",
       "validators": [
-        "polisyos.runtime.security.quality_gates.security_gates_from_report"
+        "polisyos.core.security.quality_gates.security_gates_from_report"
       ]
     },
     {
@@ -3206,21 +3426,21 @@
   },
   "summary": {
     "missing_or_input_required_producers": [],
-    "quality_artifact_field_count": 247,
-    "quality_report_count": 28,
+    "quality_artifact_field_count": 263,
+    "quality_report_count": 30,
     "quality_report_status_counts": {
       "fixture_input": 0,
       "manual_input": 0,
       "missing": 0,
-      "runtime_emitted": 28
+      "runtime_emitted": 30
     },
     "required_ref_status_counts": {
       "fixture_input": 0,
       "manual_input": 0,
       "missing": 0,
-      "runtime_emitted": 53
+      "runtime_emitted": 57
     },
-    "required_serious_profile_ref_count": 53,
+    "required_serious_profile_ref_count": 57,
     "validator_count": 15
   },
   "validators": [
@@ -3365,14 +3585,43 @@
         "decision_artifact_quality",
         "provider_model_quality_ledger",
         "prompt_tool_ledger",
+        "hypothesis_ledger",
+        "cost_degradation_telemetry",
+        "run_cost_gate",
         "security_assurance_report",
         "privacy_compliance_report",
+        "policy_design_case",
+        "claim_registry",
+        "scholar_evidence",
+        "scenario_contract_propagation_graph",
+        "evidence_spine_handoff_ledger",
+        "producer_pipeline",
+        "producer_handshake_ledger",
+        "producer_pipeline_readiness",
+        "producer_pipeline_control_plane",
+        "producer_pipeline_replay",
+        "producer_pipeline_bundle_assembly",
+        "producer_pipeline_inspection",
         "data_forge_snapshot_binding",
         "continuous_governance_stale",
         "continuous_governance_reissue",
         "continuous_governance_supersede",
         "continuous_governance_withdraw",
-        "source_truth_conflicts"
+        "source_truth_conflicts",
+        "formal_invariants",
+        "source_truth",
+        "conflict_materialization",
+        "attestation",
+        "policy_design_case_i4_graph",
+        "policy_design_portfolio_effective_support",
+        "lifecycle_reissue_report",
+        "policy_design_case_projection",
+        "projection_publication_state",
+        "policy_design_case_projection_contract_fixture",
+        "calibration_ledger",
+        "run_cost_proportionality",
+        "audit_verifier_ingestion",
+        "can_i_closeout"
       ]
     },
     {

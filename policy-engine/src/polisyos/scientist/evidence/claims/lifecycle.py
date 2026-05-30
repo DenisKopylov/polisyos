@@ -10,14 +10,12 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import ArtifactRef  # noqa: TC001
 from polisyos.scientist.evidence.claims.models import (
     ClaimLedger,
     ClaimPublishability,
     ClaimRecord,
-    ClaimSupportStatus,
 )
-from polisyos.scientist.methods.search.readiness import DecisionReadiness
 
 CLAIM_LEDGER_V2_FLAG = "scientist.best_in_class.wave2.phase2_1.claim_ledger_v2"
 REQUIRE_LIFECYCLE_EVENTS_FLAG = (
@@ -37,6 +35,9 @@ class ClaimLifecycleAction(str, Enum):
     BLOCKED = "blocked"
     UNBLOCKED = "unblocked"
     MARKED_STALE = "marked_stale"
+    REVIEW_REQUIRED = "review_required"
+    REISSUED = "reissued"
+    WITHDRAWN = "withdrawn"
     REVIEWED = "reviewed"
     INVALIDATED = "invalidated"
 
@@ -270,6 +271,9 @@ def validate_claim_transition(
             ClaimLifecycleAction.SUPERSEDED,
             ClaimLifecycleAction.INVALIDATED,
             ClaimLifecycleAction.MARKED_STALE,
+            ClaimLifecycleAction.REVIEW_REQUIRED,
+            ClaimLifecycleAction.REISSUED,
+            ClaimLifecycleAction.WITHDRAWN,
             ClaimLifecycleAction.REVIEWED,
         }
     ):
@@ -291,6 +295,9 @@ def validate_claim_transition(
             ClaimLifecycleAction.INVALIDATED,
             ClaimLifecycleAction.MARKED_STALE,
             ClaimLifecycleAction.SUPERSEDED,
+            ClaimLifecycleAction.REVIEW_REQUIRED,
+            ClaimLifecycleAction.REISSUED,
+            ClaimLifecycleAction.WITHDRAWN,
         }:
             raise ValueError("publishability changes require a release lifecycle action")
     if previous.readiness_level != next_claim.readiness_level and action not in {
@@ -303,6 +310,9 @@ def validate_claim_transition(
         ClaimLifecycleAction.MERGED,
         ClaimLifecycleAction.SPLIT,
         ClaimLifecycleAction.SUPERSEDED,
+        ClaimLifecycleAction.REVIEW_REQUIRED,
+        ClaimLifecycleAction.REISSUED,
+        ClaimLifecycleAction.WITHDRAWN,
     }:
         raise ValueError("readiness changes require updated_readiness action")
     if previous.support_status != next_claim.support_status and action not in {
@@ -315,6 +325,9 @@ def validate_claim_transition(
         ClaimLifecycleAction.MERGED,
         ClaimLifecycleAction.SPLIT,
         ClaimLifecycleAction.SUPERSEDED,
+        ClaimLifecycleAction.REVIEW_REQUIRED,
+        ClaimLifecycleAction.REISSUED,
+        ClaimLifecycleAction.WITHDRAWN,
     }:
         raise ValueError("support changes require updated_support action")
 

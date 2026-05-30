@@ -7,6 +7,7 @@ import time as _time
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+from polisyos.core.contracts import BoundedLivenessConfig
 from polisyos.scientist.orchestration.engine.errors import NodeTimeoutError, RetryExhaustedError
 from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeOutcome
 from polisyos.scientist.orchestration.engine.retry import (
@@ -362,6 +363,40 @@ class TestExecuteWithRetrySync:
         retry_calls = [c for c in ctx.run.emit.call_args_list if c[0][1] == "NODE_RETRY"]
         assert len(retry_calls) == 1
         assert retry_calls[0][1]["metrics"]["attempt"] == 1
+
+    def test_bounded_liveness_config_clamps_retry_ceiling(self, ctx, state):
+        node = MagicMock()
+        node.execute.side_effect = [
+            _fail_outcome(state, code="node.exception"),
+            _fail_outcome(state, code="node.exception"),
+            _ok_outcome(state),
+        ]
+        policy = RetryPolicy(max_retries=3, backoff_base_s=0.1, backoff_factor=1.0)
+        liveness_config = BoundedLivenessConfig(
+            config_id="bounded-liveness.test.v1",
+            owner="team-runtime-quality",
+            version="2026-05-22",
+            default_deadline_s=30.0,
+            default_retry_ceiling=3,
+            producer_retry_ceiling_overrides={"scientist.node.step_a": 1},
+            feature_flag="universal_pdc_bounded_liveness",
+            rollback_path="restore previous governed config artifact",
+            promotion_evidence_ref="artifact://bounded-liveness/evidence",
+        )
+
+        with patch("polisyos.scientist.orchestration.engine.retry.time.sleep"):
+            result = execute_with_retry_sync(
+                node,
+                ctx,
+                state,
+                retry_policy=policy,
+                timeout_s=None,
+                alias="step_a",
+                liveness_config=liveness_config,
+            )
+
+        assert result.status == "fail"
+        assert node.execute.call_count == 2
 
 
 # ---------------------------------------------------------------------------

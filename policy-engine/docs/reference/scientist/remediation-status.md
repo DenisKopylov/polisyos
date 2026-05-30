@@ -6,7 +6,7 @@ Owner: `@scientist-owners`
 Source of truth: `src/polisyos/scientist/remediation_status.py`, `tests/unit/scientist/facade/test_remediation_status.py`, and the linked Scientist acceptance pages
 
 This page is the human-readable view of the machine source of truth in
-`polisyos.scientist.remediation_status`. The closure posture is strict:
+`polisyos.scientist.governance.remediation_status`. The closure posture is strict:
 workstreams are `done` only when code, direct regressions, docs, observable
 evidence, and CI barriers all agree.
 
@@ -14,7 +14,8 @@ evidence, and CI barriers all agree.
 
 - A workstream is not considered done because some code landed.
 - Acceptance requires repo-tracked evidence and an explicit CI barrier.
-- The machine-readable source of truth lives in `polisyos.scientist.remediation_status`.
+- The machine-readable source of truth lives in
+  `polisyos.scientist.governance.remediation_status`.
 - `scientist-phase0-gate` and `scientist-phase1-gate` are the acceptance barriers for the reopened early phases.
 
 ## Current Closure Report

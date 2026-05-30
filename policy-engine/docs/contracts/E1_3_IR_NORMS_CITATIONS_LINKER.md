@@ -26,7 +26,7 @@ IR remains a **pure contract/kernel** with deterministic, side-effect-free opera
 
 ### 2.1 Norms today
 
-- `polisyos.ir.norm_pack` defines:
+- `polisyos.ir.loading.norm_pack` defines:
   - `NormPack`, `NormRule`, `NormRef`, `RuleType`
   - `Applicability` is currently **underspecified** and embedded in `norm_pack.py`.
   - `NormRef` is **not citation-grade**: it stores `source_document: str` + optional `version: str`.
@@ -58,7 +58,7 @@ File:
 
 ### 2.4 Registry bundle contracts exist (useful for E1.3)
 
-- `polisyos.ir.registry_fragments` defines `RegistryBundle`, plus `ActorRegistry`, `ConceptRegistry`, `GeoRegistry`, `TimeAxisRegistry`, and fragment composition utilities.
+- `polisyos.ir.registry.registry_fragments` defines `RegistryBundle`, plus `ActorRegistry`, `ConceptRegistry`, `GeoRegistry`, `TimeAxisRegistry`, and fragment composition utilities.
 
 File:
 
@@ -70,7 +70,8 @@ This is the **correct** IR-level “registries bundle” type for `link_trinity(
 
 - Legacy format lives under `polisyos.ir.legacy.*`.
 - `polisyos.ir.surface` is a shim re-exporting legacy `PolicySurfaceIR`.
-- Loaders already support legacy→Trinity migration: `polisyos.ir.loaders`, `polisyos.ir.legacy.migrations.*`.
+- Loaders already support legacy-to-Trinity migration:
+  `polisyos.ir.loading.loaders`, `polisyos.ir.legacy.migrations.*`.
 
 ## 3) Deliverables (what must exist after E1.3)
 
@@ -338,7 +339,7 @@ def validate_norm_applicability_refs(
 
 This is purely structural validation and keeps IR free of applicability semantics.
 
-## 6) Norm contracts update (`polisyos.ir.norm_pack`)
+## 6) Norm contracts update (`polisyos.ir.loading.norm_pack`)
 
 ### 6.1 Required changes
 
@@ -529,7 +530,7 @@ def link_trinity(
 Where:
 
 - `TrinityBundle` is `polisyos.ir.trinity.TrinityBundle`
-- `RegistryBundle` is `polisyos.ir.registry_fragments.RegistryBundle`
+- `RegistryBundle` is `polisyos.ir.registry.registry_fragments.RegistryBundle`
 - `strict=True` means:
   - missing required registries produce `severity="error"` issues
   - “citation-grade required” checks (if added later) can be enforced only under strict mode
@@ -854,22 +855,22 @@ This section is the engineering breakdown for implementing E1.3.
 ### 10.5 Docs + schema snapshots (optional but recommended)
 
 - Consider generating new schema snapshots for:
-  - `polisyos.ir.norm_pack:NormPack`
-  - `polisyos.ir.citations:CitationRef`
+  - `polisyos.ir.loading.norm_pack:NormPack`
+  - `polisyos.ir.loading.citations:CitationRef`
   - `polisyos.ir.analytics.applicability:NormApplicability`
   - `polisyos.ir.linker.reports:LinkReport`
 
 If adding snapshots, document how to regenerate using:
 
 ```bash
-python policy-engine/tools/quality/diagnostics/gen_schema.py --model polisyos.ir.norm_pack:NormPack --output norm_pack_schema.json
+python policy-engine/tools/quality/diagnostics/gen_schema.py --model polisyos.ir.loading.norm_pack:NormPack --output norm_pack_schema.json
 ```
 
 ## 11) Definition of Done (E1.3)
 
 E1.3 is complete when all are true:
 
-1. IR defines unified citation primitive (`polisyos.ir.citations`) that can express doc→version→fragment/anchor/offset and references evidence/provenance by artifact id.
+1. IR defines unified citation primitive (`polisyos.ir.loading.citations`) that can express doc→version→fragment/anchor/offset and references evidence/provenance by artifact id.
 2. IR defines applicability as declarative data (`polisyos.ir.analytics.applicability`) with jurisdiction/time + subject/object + exceptions/conditions.
 3. IR provides `link_trinity()` as a pure contract:
 

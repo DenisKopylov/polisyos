@@ -313,10 +313,10 @@ def test_phase7_slo_definitions_validate_against_ops_schema() -> None:
 
 def test_phase7_fabric_and_runtime_consumer_contracts_are_read_api_only() -> None:
     import_contracts = tomllib.loads(
-        (ARCHITECTURE_ROOT / "import_contracts.toml").read_text(encoding="utf-8")
+        (ARCHITECTURE_ROOT / "imports" / "contracts.toml").read_text(encoding="utf-8")
     )
     package_boundaries = tomllib.loads(
-        (ARCHITECTURE_ROOT / "package_boundaries.toml").read_text(encoding="utf-8")
+        (ARCHITECTURE_ROOT / "packages" / "boundaries.toml").read_text(encoding="utf-8")
     )
 
     contract = _contract_by_name(

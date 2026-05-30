@@ -40,7 +40,6 @@ implementation_roots = [
   "src/polisyos/ir/trinity",
   "src/polisyos/ir/world",
   "src/polisyos/ir/_internal",
-  "src/polisyos/ir/_lazy_facade",
 ]
 legacy_layout_mirror = "architecture/packages/layout.toml"
 legacy_layout_status = "resolved_root_facade"
@@ -64,7 +63,6 @@ forbidden_dependencies = [
   "polisyos.berl",
   "polisyos.calibration",
   "polisyos.ddm",
-  "polisyos.synthetic_world",
 ]
 import_boundary_report = "architecture/imports/reports.toml"
 
@@ -123,18 +121,9 @@ reason = "IR schemas is the reflection catalog home and remains distinct from th
 owner = "team-ir"
 
 [exceptions]
-status = "declared"
+status = "none"
 owner = "team-ir"
-registries = ["architecture/shims.toml"]
-
-[[exception]]
-id = "ir-compatibility-shim-packages"
-owner = "team-ir"
-kind = "compatibility_shim"
-reason = "Phase 3.2 keeps old public module paths as lazy aliases while implementations live under semantic IR groups."
-sunset = "2026-12-31"
-issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
-registry = "architecture/shims.toml"
+registries = []
 
 [sunsets]
 status = "declared"

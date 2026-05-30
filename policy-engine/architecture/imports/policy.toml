@@ -5,26 +5,33 @@ src_root = "../../src"
 
 [roots]
 # data_forge is the planned build-time layer. calibration is the shared
-# diagnostics/recalibration root. ddm_15_7 and synthetic_world remain known
-# roots only for wrapper-only compatibility facades; new first-party imports
-# should target ddm and foundry.agent_sim.world respectively.
+# diagnostics/recalibration root.
 known = [
   "common",
   "schemas",
   "ir",
+  "obligation_rules",
+  "legal_requirement",
   "core",
   "fabric",
   "foundry",
   "calibration",
   "ddm",
-  "synthetic_world",
   "data_forge",
+  "data_requirement",
+  "corpus",
+  "policy_grammar",
+  "method_requirement",
+  "participation_requirement",
   "scientist",
   "runtime",
+  "obligation_graph",
+  "scholar_requirement",
+  "evidence",
+  "pdc",
   "scholar",
   "lex",
   "berl",
-  "ddm_15_7",
   "academic",
   "batch_common",
   "batch_snapshot",
@@ -32,14 +39,39 @@ known = [
   "ukraine_data",
 ]
 
+[[package_cycle_baseline]]
+id = "package-cycle-2026-05-boundary-repair-baseline"
+packages = [
+  "polisyos.calibration",
+  "polisyos.core",
+  "polisyos.data_forge",
+  "polisyos.data_requirement",
+  "polisyos.fabric",
+  "polisyos.fabric.io",
+  "polisyos.foundry",
+  "polisyos.ir",
+  "polisyos.lex",
+  "polisyos.obligation_rules",
+  "polisyos.pdc",
+  "polisyos.policy_grammar",
+  "polisyos.runtime",
+  "polisyos.scholar",
+  "polisyos.scientist",
+  "polisyos.scientist.agent",
+]
+reason = "Existing package-level SCC after neutral-contract extraction; package import gate still fails on new module-level cycles via architecture/imports/lazy.toml."
+
 [internal.allow]
 common = ["common"]
 schemas = ["schemas", "common"]
 ir = ["ir", "schemas", "data_forge", "common"]
+obligation_rules = ["obligation_rules", "runtime", "ir", "core", "common"]
+legal_requirement = ["legal_requirement", "core", "ir", "common"]
 core = ["core", "ir", "common"]
-fabric = ["fabric", "data_forge", "core", "ir", "common"]
+fabric = ["fabric", "data_requirement", "data_forge", "core", "ir", "common"]
 foundry = [
   "foundry",
+  "method_requirement",
   "calibration",
   "data_forge",
   "core",
@@ -48,15 +80,23 @@ foundry = [
 ]
 calibration = ["calibration", "core", "ir", "common"]
 ddm = ["ddm", "core", "ir", "common"]
-synthetic_world = ["synthetic_world", "foundry", "core", "ir", "common"]
 data_forge = ["data_forge", "fabric", "core", "ir", "common"]
+policy_grammar = ["policy_grammar", "scientist", "core", "ir", "common"]
+method_requirement = ["method_requirement", "core", "ir", "common"]
+participation_requirement = ["participation_requirement", "core", "ir", "common"]
+evidence = ["evidence", "core", "ir", "common"]
 scientist = [
   "scientist",
+  "evidence",
+  "obligation_graph",
+  "ddm",
   "calibration",
   "berl",
+  "participation_requirement",
   "lex",
   "scholar",
   "foundry",
+  "method_requirement",
   "fabric",
   "data_forge",
   "runtime",
@@ -64,13 +104,15 @@ scientist = [
   "ir",
   "common",
 ]
-runtime = ["runtime", "scientist", "lex", "data_forge", "foundry", "fabric", "core", "ir", "common"]
-scholar = ["scholar", "fabric", "ir", "core", "common"]
-lex = ["lex", "data_forge", "batch_common", "fabric", "ir", "core", "common"]
+data_requirement = ["data_requirement", "obligation_graph", "obligation_rules", "policy_grammar", "scientist", "core", "ir", "common"]
+corpus = ["corpus", "common"]
+runtime = ["runtime", "pdc", "evidence", "scholar_requirement", "scholar", "berl", "scientist", "lex", "data_requirement", "data_forge", "foundry", "method_requirement", "participation_requirement", "fabric", "core", "ir", "common"]
+obligation_graph = ["obligation_graph", "core", "ir", "common"]
+scholar_requirement = ["scholar_requirement", "core", "common"]
+pdc = ["pdc", "runtime", "scientist", "core", "ir", "common"]
+scholar = ["scholar", "scholar_requirement", "fabric", "ir", "core", "common"]
+lex = ["lex", "legal_requirement", "data_forge", "batch_common", "fabric", "ir", "core", "common"]
 berl = ["berl", "core", "ir", "common"]
-# Wrapper-only import boundary exception for the root compatibility facade.
-# Deep first-party imports through polisyos.ddm_15_7.* are not supported.
-ddm_15_7 = ["ddm_15_7", "ddm", "core", "ir", "common"]
 academic = ["academic", "batch_common", "ir", "core", "common"]
 batch_common = ["batch_common", "data_forge", "ir", "core", "common"]
 batch_snapshot = ["batch_snapshot", "data_forge", "batch_common", "ir", "core", "common"]

@@ -7,11 +7,12 @@ import json
 from collections.abc import Mapping
 from typing import Any
 
-from polisyos.scholar.evidence import (
+from polisyos.scholar import (
     SCHOLAR_ACADEMIC_EVIDENCE_FILENAME,
     SCHOLAR_ACADEMIC_EVIDENCE_REF_KEY,
     SCHOLAR_ACADEMIC_EVIDENCE_SCHEMA_VERSION,
     build_scholar_academic_evidence_report,
+    build_scholar_academic_evidence_report_from_web_bundle,
     normalize_scholar_academic_evidence_report as _normalize_scholar_report,
     scholar_academic_evidence_required,
 )
@@ -141,6 +142,7 @@ __all__ = [
     "SCHOLAR_ACADEMIC_EVIDENCE_SCHEMA_VERSION",
     "build_scholar_academic_evidence_boundary_record",
     "build_scholar_academic_evidence_report",
+    "build_scholar_academic_evidence_report_from_web_bundle",
     "normalize_scholar_academic_evidence_report",
     "scholar_academic_evidence_required",
 ]

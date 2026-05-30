@@ -111,8 +111,8 @@ Top god files (internal import count, top 80):
 - src/polisyos/scientist/agent/informed_critic.py: 10
 - src/polisyos/scientist/engine/checkpoint.py: 10
 - src/polisyos/scientist/governance/passes/__init__.py: 10
-- src/polisyos/scientist/search/adversarial.py: 10
-- src/polisyos/scientist/search/strategies/__init__.py: 10
+- src/polisyos/scientist/methods/search/adversarial.py: 10
+- src/polisyos/scientist/methods/search/strategies/__init__.py: 10
 - src/polisyos/core/components/cli_parts.py: 9
 - src/polisyos/fabric/connectors/quality/validator.py: 9
 - src/polisyos/fabric/world/store/emit.py: 9
@@ -124,7 +124,7 @@ Top god files (internal import count, top 80):
 - src/polisyos/scientist/agent/critic.py: 9
 - src/polisyos/scientist/backtesting/orchestrator.py: 9
 - src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py: 9
-- src/polisyos/scientist/search/__init__.py: 9
+- src/polisyos/scientist/methods/search/__init__.py: 9
 - src/polisyos/core/registry/builder_from_fragments.py: 8
 - src/polisyos/fabric/connectors/cache/_store_core.py: 8
 - src/polisyos/fabric/connectors/transform/pipeline.py: 8

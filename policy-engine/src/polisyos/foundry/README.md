@@ -64,6 +64,9 @@ deep-importing ad hoc internals.
 - [`agent_sim/`](agent_sim/README.md), [`calibration/`](calibration/README.md),
   [`uncertainty/`](uncertainty/README.md), and domain helpers are
   implementation surfaces unless exported by the root facade.
+- [`welfare/`](welfare/) owns welfare-bound sidecars, social-weight schedule
+  helpers, and the W8.D Pareto frontier/social-weight provenance emitter used
+  to expose tradeoff facts separately from governance value choices.
 - [`execute/_internal/`](execute/_internal/) is private executor support.
 
 ## Extension Points
@@ -91,7 +94,7 @@ Smoke-tested on 2026-04-17:
 ```bash
 uv run python - <<'PY'
 from tempfile import TemporaryDirectory
-from polisyos.foundry.quickstart import run_trivial_compile_execute
+from polisyos.foundry._quickstart import run_trivial_compile_execute
 
 with TemporaryDirectory(prefix="foundry-docs-") as tmp:
     result = run_trivial_compile_execute(cas_root=tmp)
@@ -127,9 +130,6 @@ metadata.
 
 ## Known Shims/Deprecations
 
-- `polisyos.synthetic_world` is a compatibility facade for
-  `polisyos.foundry.agent_sim.world` until 2026-07-31; see
-  [architecture/shims.toml](../../../architecture/shims.toml).
 - Root public exports stay intentionally narrow. Promote new compile/execute
   API through `api.py`, public-surface docs, and a compatibility note before
   removing old import paths.

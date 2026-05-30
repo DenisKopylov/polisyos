@@ -1,0 +1,64 @@
+{
+  "schema_version": "policyos.scientist.evals.r14_adversarial_probe_fixture.v1",
+  "fixture_id": "authority_spoofing_fake_envelope",
+  "challenge_class": "authority_spoofing",
+  "probe_id": "authority_spoofing",
+  "title": "Projection content borrows a fake closeout authority envelope",
+  "expected_failure_code": "r14_authority_spoofing_rejected",
+  "research_refs": ["C26", "E22", "C12"],
+  "pattern_ids": ["P10", "P15", "P05"],
+  "structural_pass_claimed": true,
+  "structural_verdict": {
+    "status": "pass",
+    "validator_refs": ["policy_design_case.structural.authority_envelope_shape.v1"],
+    "completeness_claims": [
+      "authority_envelope_present",
+      "projection_ref_present",
+      "target_authority_slot_present"
+    ]
+  },
+  "payload": {
+    "target_authority_slot": "closeout_authority",
+    "authority_payload": {
+      "source_surface": "public_projection",
+      "projection_refs": ["hypothesis-candidate:projection-spoof"],
+      "public_status": "publishable",
+      "authority_envelope": {
+        "authoritative_for": ["public_summary"],
+        "may_not_use_for": ["closeout_authority", "producer_authority"]
+      }
+    },
+    "hypothesis_ledger": {
+      "schema_version": "policyos.runtime.hypothesis_ledger.v1",
+      "run_id": "run-w10c-authority",
+      "job_id": "job-w10c-authority",
+      "entries": [
+        {
+          "candidate_id": "hypothesis-candidate:projection-spoof",
+          "candidate_ref": "hypothesis-candidate:projection-spoof",
+          "source_class": "llm_drafter",
+          "candidate_kind": "public_projection_status",
+          "target_authority_slots": ["closeout_authority"],
+          "target_claim_ids": ["claim-authority-spoof"],
+          "prompt_fingerprint": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+          "tool_refs": ["tool-output:projection-drafter"],
+          "repair_decision_lineage": ["repair:none"],
+          "authority_envelope": {
+            "authoritative_for": ["candidate_hypothesis"],
+            "may_not_use_for": [
+              "legal_authority",
+              "data_authority",
+              "method_authority",
+              "participation_authority",
+              "closeout_authority",
+              "projection_authority",
+              "claim_authority",
+              "obligation_authority"
+            ]
+          },
+          "admission_state": "candidate_unverified"
+        }
+      ]
+    }
+  }
+}

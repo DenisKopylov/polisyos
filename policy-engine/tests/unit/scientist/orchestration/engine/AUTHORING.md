@@ -10,8 +10,8 @@ Pytest modules, local helpers, small fixtures, and docs.
 
 ## Public/Private Boundary
 
-Use canonical `polisyos.scientist.orchestration.engine` imports. Legacy
-`polisyos.scientist.engine` imports belong only in shim tests.
+Use canonical `polisyos.scientist.orchestration.engine` imports. The legacy
+`polisyos.scientist.engine` import surface is retired.
 
 ## Naming Convention
 
@@ -35,4 +35,5 @@ Node extension registration is out of scope for this subtree.
 
 ## Deprecation And Shim Policy
 
-Tests should prefer canonical imports and keep shim coverage isolated.
+Tests should use canonical imports; retired shim paths are covered only by
+negative import-surface assertions.

@@ -24,33 +24,9 @@ from typing import Any
 
 LazyExportMap = dict[str, tuple[str, str]]
 
-_IR_LEGACY_MODULE_ALIASES: dict[str, tuple[str, bool]] = {
-    "polisyos.ir.canon": ("polisyos.ir.model_layer.canon", False),
-    "polisyos.ir.citations": ("polisyos.ir.loading.citations", False),
-    "polisyos.ir.fact_log": ("polisyos.ir.loading.fact_log", False),
-    "polisyos.ir.loaders": ("polisyos.ir.loading.loaders", False),
-    "polisyos.ir.migration_report": ("polisyos.ir.loading.migration_report", False),
-    "polisyos.ir.model_spec": ("polisyos.ir.model_layer.model_spec", False),
-    "polisyos.ir.norm_pack": ("polisyos.ir.loading.norm_pack", False),
-    "polisyos.ir.portfolio": ("polisyos.ir.loading.portfolio", False),
-    "polisyos.ir.predicate": ("polisyos.ir.model_layer.predicate", False),
-    "polisyos.ir.public_surface": ("polisyos.ir.registry.public_surface", False),
-    "polisyos.ir.queries": ("polisyos.ir.model_layer.queries", False),
-    "polisyos.ir.references.citations": ("polisyos.ir.loading.citations", False),
-    "polisyos.ir.references.refs": ("polisyos.ir.registry.refs", False),
-    "polisyos.ir.refs": ("polisyos.ir.registry.refs", False),
-    "polisyos.ir.registry_fragments": ("polisyos.ir.registry.registry_fragments", False),
-    "polisyos.ir.schema_catalog": ("polisyos.ir.loading.schema_catalog", False),
-    "polisyos.ir.types": ("polisyos.ir.model_layer.types", False),
-    "polisyos.ir.units": ("polisyos.ir.model_layer.units", False),
-}
+_IR_LEGACY_MODULE_ALIASES: dict[str, tuple[str, bool]] = {}
 
-_IR_LEGACY_AGGREGATE_MODULES: dict[str, tuple[str, ...]] = {
-    "polisyos.ir.references": (
-        "polisyos.ir.loading.citations",
-        "polisyos.ir.registry.refs",
-    ),
-}
+_IR_LEGACY_AGGREGATE_MODULES: dict[str, tuple[str, ...]] = {}
 
 
 class _IRLegacyModuleAliasLoader(importlib.abc.Loader):

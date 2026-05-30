@@ -7,7 +7,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import ArtifactRef  # noqa: TC001
 from polisyos.scientist.evals.challenge_factory import (
     REQUIRED_CHALLENGE_CLASSES,
     ChallengeClass,
@@ -33,6 +33,9 @@ class RedTeamRiskTag(StrEnum):
     STRATEGIC_RESPONSE = "strategic_response"
     BUDGET = "budget"
     HUMAN_OVERSIGHT = "human_oversight"
+    AUTHORITY_BOUNDARY = "authority_boundary"
+    PROMPT_INJECTION = "prompt_injection"
+    PARTICIPATION = "participation"
 
 
 class RedTeamScenario(BaseModel):
@@ -70,6 +73,9 @@ def default_red_team_scenario_registry() -> list[RedTeamScenario]:
         ChallengeClass.POLICY_GAMING_STRATEGIC_RESPONSE: [RedTeamRiskTag.STRATEGIC_RESPONSE],
         ChallengeClass.BUDGET_INFEASIBILITY: [RedTeamRiskTag.BUDGET],
         ChallengeClass.AMBIGUOUS_HUMAN_REVIEW_INSTRUCTION: [RedTeamRiskTag.HUMAN_OVERSIGHT],
+        ChallengeClass.AUTHORITY_SPOOFING: [RedTeamRiskTag.AUTHORITY_BOUNDARY],
+        ChallengeClass.PROMPT_INJECTION: [RedTeamRiskTag.PROMPT_INJECTION],
+        ChallengeClass.PARTICIPATION_SPECULATION: [RedTeamRiskTag.PARTICIPATION],
     }
     return [
         RedTeamScenario(

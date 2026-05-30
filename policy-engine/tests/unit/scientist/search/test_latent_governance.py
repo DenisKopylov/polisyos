@@ -14,7 +14,7 @@ from polisyos.ir.analytics.causal_discovery import (
     LatentPromotionEvidence,
     LatentTrustLevel,
 )
-from polisyos.ir.refs import ArtifactRefModel
+from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.scientist.methods.search.latent_governance import assess_latent_governance
 
 

@@ -28,7 +28,7 @@ from polisyos.foundry.methods.catalog.survey.demographic_consistency import (
     DemographicConsistencyResult,
 )
 from polisyos.ir.analytics.microsim_calibration import load_microsim_calibration_report
-from polisyos.ir.refs import MicrosimCalibrationReportRef
+from polisyos.ir.registry.refs import MicrosimCalibrationReportRef
 
 
 def _result_slot() -> frozenset[SlotSpec]:

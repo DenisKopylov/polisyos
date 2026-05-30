@@ -6,6 +6,7 @@ last_verified: 2026-05-13
 stability: active
 related:
   - ../../plans/active/POLICYOS_BEST_IN_CLASS_PRODUCTION_QUALITY_REMEDIATION_PLAN.md
+  - ../../adr/0171-review-effectiveness-telemetry-advisory-first.md
   - ../../../src/polisyos/runtime/quality/human_review.py
   - ../../../src/polisyos/runtime/quality/approval.py
 ---
@@ -17,6 +18,12 @@ approval, override, escalation, reissue, and withdrawal review flows. It emits
 `human_review_calibration_report_ref` so approval packets and dashboard
 surfaces can prove that reviewer behavior was measured without requiring live
 reviewers in deterministic CI.
+
+ADR-0171 separates review-effectiveness telemetry from blocking authority.
+Early review-time, override, dissent, no-delta, and separation-of-duty signals
+are advisory measurement by default. They become blocking only when a mature
+governed `HumanReviewEffectivenessPolicy` cites both a governed policy ref and
+longitudinal promotion evidence.
 
 ## Runtime Contract
 
@@ -46,10 +53,30 @@ Private reviewer notes can be present in source fixtures, but the runtime report
 only publishes aggregate privacy metadata. Public exports are built with
 `human_review_public_export(...)` and strip private-note fields recursively.
 
+## Review-Effectiveness Telemetry
+
+The report includes `review_effectiveness_telemetry` with schema version
+`policyos.human_review_effectiveness_telemetry.v1`.
+
+Measured signals include:
+
+- average and median review time;
+- low-time review count;
+- override rate and count;
+- dissent rate and count;
+- no-delta review rate and count;
+- separation-of-duty failure rate and count.
+
+`quality_signals` can still show failed thresholds, but default
+`blocking = false` and report status remains `pass` for those advisory
+review-effectiveness failures. Consumers must inspect
+`review_effectiveness_telemetry.threshold_status` for the measured risk and
+`review_effectiveness_telemetry.blocking_permitted` for authority effect.
+
 ## Quality Signals
 
-The report status is `pass`, `warn`, or `fail` based on these deterministic
-signals:
+The telemetry threshold status is `pass`, `warn`, or `fail` based on these
+deterministic signals:
 
 - low reviewer agreement;
 - high override rate;
@@ -57,10 +84,14 @@ signals:
 - unresolved disagreement count;
 - reviewer burden above configured thresholds.
 
-`fail` signals are blocking quality evidence for serious production approval.
-Approval failures can only move to `approved_with_override` when the override
-packet is reviewer-attributed, scoped to the reviewed run or job, expiring,
-signed, evidence-backed, and has a strong rationale.
+By default, failed review-effectiveness thresholds are advisory and cannot
+block serious production approval. They become blocking only when
+`HumanReviewEffectivenessPolicy` has `maturity = mature_governed`,
+`blocking_enabled = true`, `policy_ref`, and `longitudinal_evidence_ref`.
+
+This does not demote missing review provenance, missing runtime refs, missing
+authority envelopes, or missing effective-oversight records. Those remain
+ordinary production-quality failures.
 
 ## Approval Packet Integration
 
@@ -107,6 +138,7 @@ and shows:
 - reviewer burden;
 - unresolved disagreement count;
 - sanitized `human_review_calibration_report_ref`.
+- review-effectiveness advisory or governed-blocking posture.
 
 The dashboard renders aggregate public fields only. It intentionally ignores
 `private_notes` and strips query-string secrets from displayed refs.

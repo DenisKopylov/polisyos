@@ -26,8 +26,8 @@ before or after decision publication.
 - Calibration surfaces in [`calibration.py`](calibration.py), [`calibration_validation.py`](calibration_validation.py), and [`calibration_leaderboard.py`](calibration_leaderboard.py)
 - Accountability/report surfaces in [`accountability.py`](accountability.py) and [`report.py`](report.py)
 - Stress and backtest surfaces in [`backtest_matrix.py`](backtest_matrix.py) and [`stress_scenarios.py`](stress_scenarios.py)
-- Continuous governance public contracts in [`continuous/`](continuous/) for monitor events, decision validity reports, reissue packets, incidents, and withdrawals
-- Human review public contracts in [`human_review/`](human_review/) for review packets, decisions, queue state, oversight policy, and VOI escalation
+- Continuous governance public contracts in [`continuous/`](continuous/) for monitor events, drift detectors, lifecycle bridges, decision validity reports, reissue packets, incidents, and withdrawals
+- Human review public contracts in [`human_review/`](human_review/) for review packets, decisions, queue state, oversight policy, VOI escalation, and advisory review-effectiveness measurement
 
 ## Depends On / Depended On By
 
@@ -61,4 +61,4 @@ uv run pytest tests/unit/scientist/governance/test_pass_registry.py tests/unit/s
 
 ## Last Updated
 
-- Last updated: 2026-05-05
+- Last updated: 2026-05-24

@@ -84,14 +84,22 @@ DEFAULT_HOOK_BOUNDARY_FILES = (
     REPO_ROOT / "src" / "polisyos" / "fabric" / "connectors" / "quality" / "freshness.py",
     REPO_ROOT / "src" / "polisyos" / "scientist" / "agent" / "informed_critic.py",
     REPO_ROOT / "src" / "polisyos" / "scientist" / "agent" / "knowledge_base.py",
-    REPO_ROOT / "src" / "polisyos" / "scientist" / "engine" / "operational_monitoring.py",
-    REPO_ROOT / "src" / "polisyos" / "scientist" / "engine" / "metrics_otel.py",
-    REPO_ROOT / "src" / "polisyos" / "scientist" / "engine" / "metrics.py",
-    REPO_ROOT / "src" / "polisyos" / "scientist" / "engine" / "error_semantics.py",
+    REPO_ROOT
+    / "src"
+    / "polisyos"
+    / "scientist"
+    / "orchestration"
+    / "engine"
+    / "operational_monitoring.py",
+    REPO_ROOT / "src" / "polisyos" / "scientist" / "orchestration"
+    / "engine" / "metrics_otel.py",
+    REPO_ROOT / "src" / "polisyos" / "scientist" / "orchestration"
+    / "engine" / "metrics.py",
+    REPO_ROOT / "src" / "polisyos" / "scientist" / "orchestration"
+    / "engine" / "error_semantics.py",
     REPO_ROOT / "src" / "polisyos" / "scientist" / "governance" / "pipeline.py",
-    REPO_ROOT / "src" / "polisyos" / "scientist" / "llm" / "budget_enforcer.py",
+    REPO_ROOT / "src" / "polisyos" / "scientist" / "orchestration" / "llm" / "budget_enforcer.py",
     REPO_ROOT / "src" / "polisyos" / "scientist" / "compute" / "runner.py",
-    REPO_ROOT / "src" / "polisyos" / "scientist" / "compute" / "advanced_methods.py",
     REPO_ROOT / "src" / "polisyos" / "fabric" / "quality" / "quality.py",
     REPO_ROOT / "src" / "polisyos" / "fabric" / "connectors" / "components_bridge.py",
     REPO_ROOT / "src" / "polisyos" / "fabric" / "connectors" / "_registry_lifecycle.py",
@@ -107,7 +115,7 @@ DEFAULT_HOOK_BOUNDARY_FILES = (
     / "run_simulation.py",
     REPO_ROOT / "src" / "polisyos" / "scientist" / "agent" / "_drafter_passes.py",
     REPO_ROOT / "src" / "polisyos" / "scientist" / "agent" / "_drafter_orchestrator.py",
-    REPO_ROOT / "src" / "polisyos" / "scientist" / "search" / "controller.py",
+    REPO_ROOT / "src" / "polisyos" / "scientist" / "methods" / "search" / "controller.py",
     REPO_ROOT / "src" / "polisyos" / "scholar" / "freshness.py",
     REPO_ROOT / "src" / "polisyos" / "fabric" / "data_plane" / "quarantine.py",
 )

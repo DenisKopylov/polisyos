@@ -512,11 +512,11 @@ FINDING_SPECS: tuple[FindingSpec, ...] = (
         phase="5.3",
         failure_class="compliance_failure",
         next_action="Keep security assurance reports blocking prompt/tool/source/provider/rendering/secret abuse.",
-        expected_verification_command="uv run pytest tests/security/test_policyos_runtime_abuse_gates.py -q",
+        expected_verification_command="uv run pytest tests/unit/security/test_policyos_runtime_abuse_gates.py -q",
         report_ids=("runtime.security_assurance_report",),
         required_paths=(
-            "src/polisyos/runtime/security/quality_gates.py",
-            "tests/security/test_policyos_runtime_abuse_gates.py",
+            "src/polisyos/core/security/quality_gates.py",
+            "tests/unit/security/test_policyos_runtime_abuse_gates.py",
         ),
         component="system_assurance_reports",
     ),
@@ -996,7 +996,7 @@ def _component_results(repo_root: Path, inventory_payload: Mapping[str, Any]) ->
         (
             "src/polisyos/runtime/quality/data_quality.py",
             "src/polisyos/foundry/validation/causal_validity.py",
-            "src/polisyos/runtime/security/quality_gates.py",
+            "src/polisyos/core/security/quality_gates.py",
             "src/polisyos/runtime/quality/compliance.py",
             "src/polisyos/runtime/quality/replay.py",
             "tools/quality/testing/runtime_resilience_matrix.py",
@@ -1016,7 +1016,7 @@ def _component_results(repo_root: Path, inventory_payload: Mapping[str, Any]) ->
         "expected_verification_command": (
             "uv run pytest tests/repo_quality/tools/test_runtime_resilience_matrix.py "
             "tests/repo_quality/tools/test_provider_quality_ledger.py "
-            "tests/security/test_policyos_runtime_abuse_gates.py -q"
+            "tests/unit/security/test_policyos_runtime_abuse_gates.py -q"
         ),
     }
 

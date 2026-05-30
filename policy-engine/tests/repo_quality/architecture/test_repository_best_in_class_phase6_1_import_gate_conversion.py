@@ -36,7 +36,6 @@ SCIENTIST_PHASE2_1_ROOT_SHIM_PATHS = {
     "src/polisyos/scientist/frontier_runtime.py",
     "src/polisyos/scientist/latent_separation.py",
     "src/polisyos/scientist/llm_cycle.py",
-    "src/polisyos/scientist/publisher.py",
     "src/polisyos/scientist/reliability_scorecard.py",
     "src/polisyos/scientist/remediation_status.py",
     "src/polisyos/scientist/replay_backend.py",
@@ -205,14 +204,14 @@ def test_phase2_1_scientist_root_facade_summary_reports_registered_shims() -> No
     report = check_package_import_gates.build_report(REPO_ROOT)
     summary = report["summary"]["scientist_root_facade"]
 
-    assert summary["root_loose_py_count"] == 11
-    assert summary["registered_root_py_shim_count"] == 11
-    assert summary["canonical_first_level_root_count"] == 18
-    assert summary["compatibility_shim_root_count"] == 21
-    assert summary["duplicate_package_file_pair_count"] == 5
+    assert summary["root_loose_py_count"] == 0
+    assert summary["registered_root_py_shim_count"] == 0
+    assert summary["canonical_first_level_root_count"] == 19
+    assert summary["compatibility_shim_root_count"] == 2
+    assert summary["duplicate_package_file_pair_count"] == 0
     assert summary["wave2_root_file_debt_count"] == 0
     assert summary["unregistered_root_py_count"] == 0
-    assert set(summary["registered_root_py_shim_files"]) == SCIENTIST_PHASE2_1_ROOT_SHIM_PATHS
+    assert summary["registered_root_py_shim_files"] == []
 
 
 def test_phase2_1_scientist_contract_tracks_resolved_root_shims() -> None:
@@ -233,13 +232,9 @@ def test_phase2_1_scientist_contract_tracks_resolved_root_shims() -> None:
     assert layout["status"] == "resolved_root_facade"
     assert layout["legacy_layout_status"] == "resolved_root_facade"
     assert "root_facade_wave2_debt" not in package_contract
-    assert SCIENTIST_PHASE2_1_ROOT_SHIM_PATHS <= set(registered_root_shims)
+    assert set(registered_root_shims).isdisjoint(SCIENTIST_PHASE2_1_ROOT_SHIM_PATHS)
     for path in SCIENTIST_PHASE2_1_ROOT_SHIM_PATHS:
-        entry = registered_root_shims[path]
-        assert entry["owner"] == "team-scientist"
-        assert entry["sunset_date"] <= "2026-12-31"
-        assert entry["reason"]
-        assert entry["target_path"].startswith("src/polisyos/scientist/")
+        assert not (REPO_ROOT / path).exists()
 
 
 def test_phase7_undocumented_top_level_namespace_root_fails(tmp_path: Path) -> None:
@@ -982,9 +977,11 @@ def test_phase6_1_reexport_shims_count_toward_shim_debt() -> None:
     payload = contracts.build_report(REPO_ROOT, report="dependency-graph")
     shim_debt = payload["summary"]["shim_debt"]
 
-    assert shim_debt["shim_count"] >= shim_debt["python_reexport_count"] > 0
-    assert shim_debt["by_type"]["python_reexport"] == shim_debt["python_reexport_count"]
-    assert "foundry" in shim_debt["by_source_package"]
+    assert shim_debt["shim_count"] >= shim_debt["python_reexport_count"] >= 0
+    if shim_debt["python_reexport_count"]:
+        assert shim_debt["by_type"]["python_reexport"] == shim_debt["python_reexport_count"]
+    else:
+        assert shim_debt["by_type"].get("python_reexport", 0) == 0
 
 
 def test_phase6_1_enforcement_promotes_unregistered_hidden_growth_to_error() -> None:

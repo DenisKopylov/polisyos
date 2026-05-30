@@ -15,8 +15,8 @@ from polisyos.ir.analytics.alignment_certification import (
 )
 from polisyos.ir.analytics.cross_graph import CompositionCertificate, InterfaceMapping
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
-from polisyos.ir.canon import CanonSpec
-from polisyos.ir.refs import CompositionFailureCardBundleRef
+from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.ir.registry.refs import CompositionFailureCardBundleRef
 from polisyos.scientist.methods.search.failure_cards import FailureSeverity, TypedFailureCard
 
 _COMPOSITION_FAILURE_CARD_BUNDLE_SCHEMA_NAME = "ir.composition_failure_card_bundle"

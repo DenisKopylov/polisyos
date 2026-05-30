@@ -132,7 +132,25 @@ def test_phase64_inspection_accepts_complete_selected_serious_bundle(
         "scholar_academic_evidence",
         "policy_design_concept_spine_boundary",
         "policy_design_jurisdiction_spine_boundary",
+        "runtime_orchestration_continuity",
     }
+
+
+def test_w4a_inspection_flags_missing_runtime_orchestration_continuity(
+    tmp_path: Path,
+) -> None:
+    bundle = _fresh_serious_bundle(tmp_path, canary_kind="research")
+    continuity = bundle / "quality_evidence" / "runtime_orchestration_continuity.json"
+    continuity.unlink()
+
+    report = build_evidence_bundle_inspection_report(
+        repo_root=REPO_ROOT,
+        bundle_dirs=[bundle],
+    )
+
+    assert report["status"] == "fail"
+    assert "phase64_component_missing" in _failure_codes(report)
+    assert report["bundle_inspections"][0]["closeout_ready"] is False
 
 
 def test_phase64_inspection_flags_missing_data_forge_snapshot_boundary(

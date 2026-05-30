@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "generated_at": "2026-05-08T10:06:27.735639+00:00",
+  "generated_at": "2026-05-28T17:00:37.160083+00:00",
   "collector": "tools.quality.validation.decomposition_preflight.collect_import_graph",
   "collector_mode": "internal_ast_import_graph",
   "pydeps_available": false,
   "import_linter_available": false,
   "notes": "Phase 3A uses a deterministic AST import graph collector because pydeps/import-linter are not required dev dependencies in this workspace.",
-  "module_count": 1446,
-  "edge_count": 3616,
+  "module_count": 1173,
+  "edge_count": 3423,
   "cycles": [
     {
       "id": "cycle-a4951a692d2a",
@@ -73,15 +73,6 @@
         "polisyos.scientist.methods.backtesting.abstraction_suite",
         "polisyos.scientist.methods.backtesting.adversarial",
         "polisyos.scientist.methods.backtesting.strategic_suite"
-      ]
-    },
-    {
-      "id": "cycle-f5f58b85a843",
-      "modules": [
-        "polisyos.scientist.orchestration.memory.applicability",
-        "polisyos.scientist.orchestration.memory.consolidation",
-        "polisyos.scientist.orchestration.memory.failure_lessons",
-        "polisyos.scientist.orchestration.memory.retrieval"
       ]
     },
     {
@@ -217,10 +208,6 @@
     {
       "source": "polisyos.foundry.agent_sim",
       "target": "polisyos.foundry.analysis"
-    },
-    {
-      "source": "polisyos.foundry.agent_sim",
-      "target": "polisyos.foundry.executor"
     },
     {
       "source": "polisyos.foundry.agent_sim",
@@ -1500,15 +1487,15 @@
     },
     {
       "source": "polisyos.foundry.methods.artifacts._method",
-      "target": "polisyos.foundry.methods.specialization"
+      "target": "polisyos.foundry.methods.compiler.specialization"
+    },
+    {
+      "source": "polisyos.foundry.methods.artifacts._records",
+      "target": "polisyos.foundry.methods"
     },
     {
       "source": "polisyos.foundry.methods.artifacts._records",
       "target": "polisyos.foundry.methods.artifacts._fingerprint"
-    },
-    {
-      "source": "polisyos.foundry.methods.artifacts._records",
-      "target": "polisyos.foundry.methods.linker"
     },
     {
       "source": "polisyos.foundry.methods.artifacts.parts",
@@ -5348,7 +5335,7 @@
     },
     {
       "source": "polisyos.foundry.methods.cli",
-      "target": "polisyos.foundry.release_acceptance"
+      "target": "polisyos.foundry.validation.release_acceptance"
     },
     {
       "source": "polisyos.foundry.methods.cli.validator",
@@ -6104,6 +6091,14 @@
     },
     {
       "source": "polisyos.foundry.validation",
+      "target": "polisyos.foundry.validation.causal_validity"
+    },
+    {
+      "source": "polisyos.foundry.validation",
+      "target": "polisyos.foundry.validation.method_quality"
+    },
+    {
+      "source": "polisyos.foundry.validation",
       "target": "polisyos.foundry.validation.phase0_closure"
     },
     {
@@ -6121,6 +6116,10 @@
     {
       "source": "polisyos.foundry.validation.constraints_engine",
       "target": "polisyos.foundry.runtime.numeric"
+    },
+    {
+      "source": "polisyos.foundry.validation.method_quality",
+      "target": "polisyos.foundry.methods.selection.requirements"
     },
     {
       "source": "polisyos.foundry.validation.phase0_closure",
@@ -6201,6 +6200,18 @@
     {
       "source": "polisyos.foundry.validation.release_acceptance",
       "target": "polisyos.scientist.governance.postflight"
+    },
+    {
+      "source": "polisyos.foundry.welfare",
+      "target": "polisyos.foundry.welfare.frontier_emitter"
+    },
+    {
+      "source": "polisyos.foundry.welfare",
+      "target": "polisyos.foundry.welfare.social_weight_provenance"
+    },
+    {
+      "source": "polisyos.foundry.welfare.frontier_emitter",
+      "target": "polisyos.foundry.welfare.social_weight_provenance"
     },
     {
       "source": "polisyos.foundry.welfare.social_weights",
@@ -6440,6 +6451,10 @@
     },
     {
       "source": "polisyos.scientist.agent.critic",
+      "target": "polisyos.scientist.agent._llm_timeouts"
+    },
+    {
+      "source": "polisyos.scientist.agent.critic",
       "target": "polisyos.scientist.agent.feasibility"
     },
     {
@@ -6461,6 +6476,10 @@
     {
       "source": "polisyos.scientist.agent.critic",
       "target": "polisyos.scientist.agent.protocols"
+    },
+    {
+      "source": "polisyos.scientist.agent.critic",
+      "target": "polisyos.scientist.orchestration.engine.error_semantics"
     },
     {
       "source": "polisyos.scientist.agent.critic",
@@ -6641,6 +6660,10 @@
     {
       "source": "polisyos.scientist.agent.feasibility_duckdb",
       "target": "polisyos.scientist.agent.feasibility"
+    },
+    {
+      "source": "polisyos.scientist.agent.formalizer",
+      "target": "polisyos.scientist.agent._llm_timeouts"
     },
     {
       "source": "polisyos.scientist.agent.formalizer",
@@ -6939,200 +6962,12 @@
       "target": "polisyos.scientist.orchestration.workflows.builder"
     },
     {
-      "source": "polisyos.scientist.autotune",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.autotune.bayesian_generator",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.autotune.calibration",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.autotune.cheap_stage",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.autotune.claim_adjudication",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.autotune.dedup",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.autotune.execution_plan",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.autotune.hyperband",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.autotune.models",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.autotune.pareto",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.autotune.reflexion",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.autotune.registry",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.autotune.runtime",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.autotune.sensitivity_bridge",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.autotune.warm_start",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.backtesting",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.backtesting.abstraction_suite",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.backtesting.adversarial",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.backtesting.bootstrap",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.backtesting.calibration_curve",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.backtesting.cli",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.backtesting.composition_bridge",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.backtesting.cv",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.backtesting.distributional",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.backtesting.evaluator",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.backtesting.ipw",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.backtesting.masking",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.backtesting.orchestrator",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.backtesting.plan",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.backtesting.strategic_suite",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.backtesting.temporal",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.backtesting.trust_scorer",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.causal",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.causal.execution",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.causal.latent_separation",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.causal.readiness",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.causal.validity",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.claims",
-      "target": "polisyos.scientist.evidence._shim"
-    },
-    {
-      "source": "polisyos.scientist.claims.audit",
-      "target": "polisyos.scientist.evidence._shim"
-    },
-    {
-      "source": "polisyos.scientist.claims.diff",
-      "target": "polisyos.scientist.evidence._shim"
-    },
-    {
-      "source": "polisyos.scientist.claims.export",
-      "target": "polisyos.scientist.evidence._shim"
-    },
-    {
-      "source": "polisyos.scientist.claims.ledger",
-      "target": "polisyos.scientist.evidence._shim"
-    },
-    {
-      "source": "polisyos.scientist.claims.lifecycle",
-      "target": "polisyos.scientist.evidence._shim"
-    },
-    {
-      "source": "polisyos.scientist.claims.models",
-      "target": "polisyos.scientist.evidence._shim"
-    },
-    {
-      "source": "polisyos.scientist.claims.projections",
-      "target": "polisyos.scientist.evidence._shim"
-    },
-    {
-      "source": "polisyos.scientist.claims.readiness",
-      "target": "polisyos.scientist.evidence._shim"
-    },
-    {
-      "source": "polisyos.scientist.claims.validators",
-      "target": "polisyos.scientist.evidence._shim"
+      "source": "polisyos.scientist.artifacts",
+      "target": "polisyos.scientist.artifacts.decision_compiler"
     },
     {
       "source": "polisyos.scientist.compute",
       "target": "polisyos.scientist"
-    },
-    {
-      "source": "polisyos.scientist.compute.advanced_methods",
-      "target": "polisyos.scientist._internal.compat"
     },
     {
       "source": "polisyos.scientist.compute.runner",
@@ -7163,30 +6998,6 @@
       "target": "polisyos.scientist.orchestration.engine.error_semantics"
     },
     {
-      "source": "polisyos.scientist.continuous_governance",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.continuous_governance.incident",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.continuous_governance.invalidation",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.continuous_governance.monitors",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.continuous_governance.reissue",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.continuous_governance.reports",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
       "source": "polisyos.scientist.cross_graph",
       "target": "polisyos.scientist.cross_graph.compiler"
     },
@@ -7211,6 +7022,10 @@
       "target": "polisyos.scientist.evidence.sources"
     },
     {
+      "source": "polisyos.scientist.cross_graph.conflict_materializer",
+      "target": "polisyos.scientist.cross_graph.conflict"
+    },
+    {
       "source": "polisyos.scientist.cross_graph.gatherers.academic",
       "target": "polisyos.scientist.cross_graph.protocols"
     },
@@ -7225,342 +7040,6 @@
     {
       "source": "polisyos.scientist.cross_graph.gatherers.transport",
       "target": "polisyos.scientist.cross_graph.protocols"
-    },
-    {
-      "source": "polisyos.scientist.decision_validity",
-      "target": "polisyos.scientist._internal.shims"
-    },
-    {
-      "source": "polisyos.scientist.discovery",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.discovery.active",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.discovery.aggregator",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.discovery.latent_producers",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.discovery.output",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.discovery.portfolio",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.discovery.prior_miner",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.discovery.priors",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.discovery.schema",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.discovery.stability",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.discovery.utility_judge",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.discovery.workers",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.doe",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.doe.adaptive",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.doe.analysis",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.doe.designs",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.doe.multi_output",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.doe.sampling",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.doe.sensitivity_benchmark",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.doe.stability",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.doe.stress_report",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.doe.uncertainty",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.async_executor",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.budget",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.budget_ledger",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.budget_middleware",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.builtins",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.builtins.emit_artifact",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.builtins.noop",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.builtins.set_state",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.checkpoint",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.circuit_breaker",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.compensation",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.condition",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.context",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.convergence",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.error_semantics",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.errors",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.executor",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.fan_out",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.frontier_runtime",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.idempotency",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.iteration_state_machine",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.lock_protocol",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.locks",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.locks.config",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.locks.dynamodb_lock",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.locks.fcntl_lock",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.locks.metrics",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.locks.redis_lock",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.metrics",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.metrics_otel",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.metrics_protocol",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.operational_monitoring",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.protocol",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.registry",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.retry",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.runner",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.runner._activity_worker",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.runner.autoscaler",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.runner.config",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.runner.distributed_tier",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.runner.error_classifier",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.runner.fallback_runner",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.runner.local_pool",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.runner.local_runner",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.runner.protocol",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.runner.ray_runner",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.runner.serialization",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.runner.state_merge",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.runner.task_router",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.runner.temporal_runner",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.runner.worker_pool",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.state",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.state_branching",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.state_merge",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.sub_workflow",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.telemetry",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.topo",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.trace_attributes",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.engine.workflow_spec",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.error_semantics",
-      "target": "polisyos.scientist._internal.shims"
     },
     {
       "source": "polisyos.scientist.evals",
@@ -7723,10 +7202,6 @@
       "target": "polisyos.scientist.evidence.claims.models"
     },
     {
-      "source": "polisyos.scientist.evidence.claims.lifecycle",
-      "target": "polisyos.scientist.methods.search.readiness"
-    },
-    {
       "source": "polisyos.scientist.evidence.claims.models",
       "target": "polisyos.scientist.methods.search.readiness"
     },
@@ -7795,10 +7270,6 @@
       "target": "polisyos.scientist.evidence.snippet_ledger"
     },
     {
-      "source": "polisyos.scientist.evidence_sources",
-      "target": "polisyos.scientist._internal.shims"
-    },
-    {
       "source": "polisyos.scientist.extensions",
       "target": "polisyos.scientist.api"
     },
@@ -7817,14 +7288,6 @@
     {
       "source": "polisyos.scientist.feedback.core",
       "target": "polisyos.scientist.validation.decision_validity"
-    },
-    {
-      "source": "polisyos.scientist.feedback_utils",
-      "target": "polisyos.scientist._internal.shims"
-    },
-    {
-      "source": "polisyos.scientist.frontier_runtime",
-      "target": "polisyos.scientist._internal.shims"
     },
     {
       "source": "polisyos.scientist.governance.backtest_matrix",
@@ -7939,6 +7402,50 @@
       "target": "polisyos.scientist.methods.search.transfer_context"
     },
     {
+      "source": "polisyos.scientist.governance.continuous.detectors",
+      "target": "polisyos.scientist.governance.continuous"
+    },
+    {
+      "source": "polisyos.scientist.governance.continuous.detectors.calibration_drift",
+      "target": "polisyos.scientist.governance.continuous.detectors.common"
+    },
+    {
+      "source": "polisyos.scientist.governance.continuous.detectors.calibration_drift",
+      "target": "polisyos.scientist.governance.continuous.monitors"
+    },
+    {
+      "source": "polisyos.scientist.governance.continuous.detectors.common",
+      "target": "polisyos.scientist.governance.continuous.monitors"
+    },
+    {
+      "source": "polisyos.scientist.governance.continuous.detectors.common",
+      "target": "polisyos.scientist.orchestration.memory"
+    },
+    {
+      "source": "polisyos.scientist.governance.continuous.detectors.fairness",
+      "target": "polisyos.scientist.governance.continuous.detectors.common"
+    },
+    {
+      "source": "polisyos.scientist.governance.continuous.detectors.fairness",
+      "target": "polisyos.scientist.governance.continuous.monitors"
+    },
+    {
+      "source": "polisyos.scientist.governance.continuous.detectors.policy_context",
+      "target": "polisyos.scientist.governance.continuous.detectors.common"
+    },
+    {
+      "source": "polisyos.scientist.governance.continuous.detectors.policy_context",
+      "target": "polisyos.scientist.governance.continuous.monitors"
+    },
+    {
+      "source": "polisyos.scientist.governance.continuous.detectors.source_invalidation",
+      "target": "polisyos.scientist.governance.continuous.detectors.common"
+    },
+    {
+      "source": "polisyos.scientist.governance.continuous.detectors.source_invalidation",
+      "target": "polisyos.scientist.governance.continuous.monitors"
+    },
+    {
       "source": "polisyos.scientist.governance.continuous.incident",
       "target": "polisyos.scientist.governance.continuous.monitors"
     },
@@ -7955,6 +7462,22 @@
       "target": "polisyos.scientist.methods.research_dag.invalidation"
     },
     {
+      "source": "polisyos.scientist.governance.continuous.lifecycle_bridge",
+      "target": "polisyos.scientist.evidence.claims.lifecycle"
+    },
+    {
+      "source": "polisyos.scientist.governance.continuous.lifecycle_bridge",
+      "target": "polisyos.scientist.governance.continuous.monitors"
+    },
+    {
+      "source": "polisyos.scientist.governance.continuous.lifecycle_bridge",
+      "target": "polisyos.scientist.governance.continuous.reissue"
+    },
+    {
+      "source": "polisyos.scientist.governance.continuous.lifecycle_bridge",
+      "target": "polisyos.scientist.governance.continuous.reports"
+    },
+    {
       "source": "polisyos.scientist.governance.continuous.reissue",
       "target": "polisyos.scientist.governance.continuous.monitors"
     },
@@ -7965,6 +7488,10 @@
     {
       "source": "polisyos.scientist.governance.human_review",
       "target": "polisyos.scientist.governance.human_review.decisions"
+    },
+    {
+      "source": "polisyos.scientist.governance.human_review",
+      "target": "polisyos.scientist.governance.human_review.effectiveness"
     },
     {
       "source": "polisyos.scientist.governance.human_review",
@@ -7989,6 +7516,10 @@
     {
       "source": "polisyos.scientist.governance.human_review.decisions",
       "target": "polisyos.scientist.governance.human_review.models"
+    },
+    {
+      "source": "polisyos.scientist.governance.human_review.effectiveness",
+      "target": "polisyos.scientist.methods.search.voi_models"
     },
     {
       "source": "polisyos.scientist.governance.human_review.oversight_policy",
@@ -8213,154 +7744,6 @@
     {
       "source": "polisyos.scientist.governance.stress_scenarios",
       "target": "polisyos.scientist.methods.doe.stress_report"
-    },
-    {
-      "source": "polisyos.scientist.human_review",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.human_review.audit",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.human_review.decisions",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.human_review.models",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.human_review.oversight_policy",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.human_review.packets",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.human_review.queue",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.human_review.voi_escalation",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.kernel",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.kernel.budgets",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.kernel.fsm",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.kernel.gate_protocol",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.kernel.guards",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.latent_separation",
-      "target": "polisyos.scientist._internal.shims"
-    },
-    {
-      "source": "polisyos.scientist.llm",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.llm.budget_enforcer",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.llm.cost_anomaly",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.llm.cycle",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.llm.factory",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.llm.fallback_router",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.llm.gateway_client",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.llm.profiles",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.llm.profiles.builtin_profiles",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.llm.profiles.models",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.llm.profiles.registry",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.llm.prompt_cache",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.llm.provider_verification",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.llm.streaming",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.llm.token_estimator",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.llm.traced_client",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.llm_cycle",
-      "target": "polisyos.scientist._internal.shims"
-    },
-    {
-      "source": "polisyos.scientist.memory",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.memory.applicability",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.memory.consolidation",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.memory.contamination",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.memory.failure_lessons",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.memory.retrieval",
-      "target": "polisyos.scientist._internal.compat"
     },
     {
       "source": "polisyos.scientist.methods.advanced",
@@ -9015,6 +8398,10 @@
       "target": "polisyos.scientist.methods.doe.designs"
     },
     {
+      "source": "polisyos.scientist.methods.requirements",
+      "target": "polisyos.scientist.methods.research_dag.models"
+    },
+    {
       "source": "polisyos.scientist.methods.research_dag",
       "target": "polisyos.scientist.methods.research_dag.builder"
     },
@@ -9092,7 +8479,7 @@
     },
     {
       "source": "polisyos.scientist.methods.research_dag.projections",
-      "target": "polisyos.scientist.orchestration.memory.failure_lessons"
+      "target": "polisyos.scientist.orchestration.memory.contracts"
     },
     {
       "source": "polisyos.scientist.methods.research_dag.replay",
@@ -12919,6 +12306,10 @@
       "target": "polisyos.scientist.orchestration.engine.workflow_spec"
     },
     {
+      "source": "polisyos.scientist.orchestration.engine.executor",
+      "target": "polisyos.scientist.orchestration.memory.authority"
+    },
+    {
       "source": "polisyos.scientist.orchestration.engine.fan_out",
       "target": "polisyos.scientist.orchestration.engine.context"
     },
@@ -13475,6 +12866,10 @@
       "target": "polisyos.scientist.orchestration.llm.prompt_cache"
     },
     {
+      "source": "polisyos.scientist.orchestration.llm.factory",
+      "target": "polisyos.scientist.orchestration.llm.simulated_gateway"
+    },
+    {
       "source": "polisyos.scientist.orchestration.llm.fallback_router",
       "target": "polisyos.scientist.orchestration.engine.error_semantics"
     },
@@ -13523,6 +12918,10 @@
       "target": "polisyos.scientist.orchestration.llm.gateway_client"
     },
     {
+      "source": "polisyos.scientist.orchestration.llm.simulated_gateway",
+      "target": "polisyos.scientist.orchestration.llm.gateway_client"
+    },
+    {
       "source": "polisyos.scientist.orchestration.llm.streaming",
       "target": "polisyos.scientist.orchestration.engine.error_semantics"
     },
@@ -13536,11 +12935,23 @@
     },
     {
       "source": "polisyos.scientist.orchestration.memory",
+      "target": "polisyos.scientist.orchestration.memory.authority"
+    },
+    {
+      "source": "polisyos.scientist.orchestration.memory",
+      "target": "polisyos.scientist.orchestration.memory.balanced"
+    },
+    {
+      "source": "polisyos.scientist.orchestration.memory",
       "target": "polisyos.scientist.orchestration.memory.consolidation"
     },
     {
       "source": "polisyos.scientist.orchestration.memory",
       "target": "polisyos.scientist.orchestration.memory.contamination"
+    },
+    {
+      "source": "polisyos.scientist.orchestration.memory",
+      "target": "polisyos.scientist.orchestration.memory.contracts"
     },
     {
       "source": "polisyos.scientist.orchestration.memory",
@@ -13556,7 +12967,19 @@
     },
     {
       "source": "polisyos.scientist.orchestration.memory.applicability",
-      "target": "polisyos.scientist.orchestration.memory.failure_lessons"
+      "target": "polisyos.scientist.orchestration.memory.contracts"
+    },
+    {
+      "source": "polisyos.scientist.orchestration.memory.balanced",
+      "target": "polisyos.scientist.methods.search.lessons"
+    },
+    {
+      "source": "polisyos.scientist.orchestration.memory.balanced",
+      "target": "polisyos.scientist.orchestration.memory.applicability"
+    },
+    {
+      "source": "polisyos.scientist.orchestration.memory.balanced",
+      "target": "polisyos.scientist.orchestration.memory.contracts"
     },
     {
       "source": "polisyos.scientist.orchestration.memory.consolidation",
@@ -13564,7 +12987,7 @@
     },
     {
       "source": "polisyos.scientist.orchestration.memory.consolidation",
-      "target": "polisyos.scientist.orchestration.memory.failure_lessons"
+      "target": "polisyos.scientist.orchestration.memory.contracts"
     },
     {
       "source": "polisyos.scientist.orchestration.memory.contamination",
@@ -13572,6 +12995,14 @@
     },
     {
       "source": "polisyos.scientist.orchestration.memory.contamination",
+      "target": "polisyos.scientist.methods.search.lessons"
+    },
+    {
+      "source": "polisyos.scientist.orchestration.memory.contracts",
+      "target": "polisyos.scientist.methods.search.failure_cards"
+    },
+    {
+      "source": "polisyos.scientist.orchestration.memory.contracts",
       "target": "polisyos.scientist.methods.search.lessons"
     },
     {
@@ -13588,6 +13019,10 @@
     },
     {
       "source": "polisyos.scientist.orchestration.memory.failure_lessons",
+      "target": "polisyos.scientist.orchestration.memory.balanced"
+    },
+    {
+      "source": "polisyos.scientist.orchestration.memory.failure_lessons",
       "target": "polisyos.scientist.orchestration.memory.consolidation"
     },
     {
@@ -13608,6 +13043,10 @@
     },
     {
       "source": "polisyos.scientist.orchestration.memory.retrieval",
+      "target": "polisyos.scientist.orchestration.memory.balanced"
+    },
+    {
+      "source": "polisyos.scientist.orchestration.memory.retrieval",
       "target": "polisyos.scientist.orchestration.memory.consolidation"
     },
     {
@@ -13616,11 +13055,7 @@
     },
     {
       "source": "polisyos.scientist.orchestration.memory.retrieval",
-      "target": "polisyos.scientist.orchestration.memory.failure_lessons"
-    },
-    {
-      "source": "polisyos.scientist.orchestration.orchestrator.publisher",
-      "target": "polisyos.scientist._internal.compat"
+      "target": "polisyos.scientist.orchestration.memory.contracts"
     },
     {
       "source": "polisyos.scientist.orchestration.workflows",
@@ -13653,6 +13088,10 @@
     {
       "source": "polisyos.scientist.orchestration.workflows",
       "target": "polisyos.scientist.orchestration.workflows.policy_design"
+    },
+    {
+      "source": "polisyos.scientist.orchestration.workflows.builder",
+      "target": "polisyos.foundry.validation.method_quality"
     },
     {
       "source": "polisyos.scientist.orchestration.workflows.builder",
@@ -13779,18 +13218,6 @@
       "target": "polisyos.scientist.orchestration.engine.state"
     },
     {
-      "source": "polisyos.scientist.orchestrator",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.orchestrator.decision_card",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.orchestrator.publisher",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
       "source": "polisyos.scientist.policy_design.adversary",
       "target": "polisyos.scientist.methods.autotune.models"
     },
@@ -13831,6 +13258,18 @@
       "target": "polisyos.scientist.policy_design.prompts"
     },
     {
+      "source": "polisyos.scientist.policy_design.baseline_compiler",
+      "target": "polisyos.scientist.evidence.claims.models"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.claim_decomposition",
+      "target": "polisyos.scientist.evidence.claims.models"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.claim_decomposition",
+      "target": "polisyos.scientist.methods.search.readiness"
+    },
+    {
       "source": "polisyos.scientist.policy_design.critic",
       "target": "polisyos.scientist.agent.constraint_context"
     },
@@ -13865,6 +13304,198 @@
     {
       "source": "polisyos.scientist.policy_design.critic",
       "target": "polisyos.scientist.policy_design.schema"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critic_contracts",
+      "target": "polisyos.scientist.policy_design.formulator"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critic_ensemble",
+      "target": "polisyos.scientist.policy_design.critic_contracts"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critic_ensemble",
+      "target": "polisyos.scientist.policy_design.critics.adversarial"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critic_ensemble",
+      "target": "polisyos.scientist.policy_design.critics.affected_person"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critic_ensemble",
+      "target": "polisyos.scientist.policy_design.critics.data"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critic_ensemble",
+      "target": "polisyos.scientist.policy_design.critics.equity"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critic_ensemble",
+      "target": "polisyos.scientist.policy_design.critics.fiscal"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critic_ensemble",
+      "target": "polisyos.scientist.policy_design.critics.implementation"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critic_ensemble",
+      "target": "polisyos.scientist.policy_design.critics.legal"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critic_ensemble",
+      "target": "polisyos.scientist.policy_design.critics.monitoring"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critic_ensemble",
+      "target": "polisyos.scientist.policy_design.formulator"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critic_obligation_bridge",
+      "target": "polisyos.scientist.policy_design.critic_contracts"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critic_obligation_bridge",
+      "target": "polisyos.scientist.policy_design.critic_ensemble"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critic_obligation_bridge",
+      "target": "polisyos.scientist.policy_design.formulator"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics",
+      "target": "polisyos.scientist.policy_design.critics.adversarial"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics",
+      "target": "polisyos.scientist.policy_design.critics.affected_person"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics",
+      "target": "polisyos.scientist.policy_design.critics.data"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics",
+      "target": "polisyos.scientist.policy_design.critics.equity"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics",
+      "target": "polisyos.scientist.policy_design.critics.fiscal"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics",
+      "target": "polisyos.scientist.policy_design.critics.implementation"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics",
+      "target": "polisyos.scientist.policy_design.critics.legal"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics",
+      "target": "polisyos.scientist.policy_design.critics.monitoring"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics._shared",
+      "target": "polisyos.scientist.policy_design.critic_contracts"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics._shared",
+      "target": "polisyos.scientist.policy_design.formulator"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics.adversarial",
+      "target": "polisyos.scientist.policy_design.critic_contracts"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics.adversarial",
+      "target": "polisyos.scientist.policy_design.critics._shared"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics.adversarial",
+      "target": "polisyos.scientist.policy_design.formulator"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics.affected_person",
+      "target": "polisyos.scientist.policy_design.critic_contracts"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics.affected_person",
+      "target": "polisyos.scientist.policy_design.critics._shared"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics.affected_person",
+      "target": "polisyos.scientist.policy_design.formulator"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics.data",
+      "target": "polisyos.scientist.policy_design.critic_contracts"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics.data",
+      "target": "polisyos.scientist.policy_design.critics._shared"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics.data",
+      "target": "polisyos.scientist.policy_design.formulator"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics.equity",
+      "target": "polisyos.scientist.policy_design.critic_contracts"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics.equity",
+      "target": "polisyos.scientist.policy_design.critics._shared"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics.equity",
+      "target": "polisyos.scientist.policy_design.formulator"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics.fiscal",
+      "target": "polisyos.scientist.policy_design.critic_contracts"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics.fiscal",
+      "target": "polisyos.scientist.policy_design.critics._shared"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics.fiscal",
+      "target": "polisyos.scientist.policy_design.formulator"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics.implementation",
+      "target": "polisyos.scientist.policy_design.critic_contracts"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics.implementation",
+      "target": "polisyos.scientist.policy_design.critics._shared"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics.implementation",
+      "target": "polisyos.scientist.policy_design.formulator"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics.legal",
+      "target": "polisyos.scientist.policy_design.critic_contracts"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics.legal",
+      "target": "polisyos.scientist.policy_design.critics._shared"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics.legal",
+      "target": "polisyos.scientist.policy_design.formulator"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics.monitoring",
+      "target": "polisyos.scientist.policy_design.critic_contracts"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics.monitoring",
+      "target": "polisyos.scientist.policy_design.critics._shared"
+    },
+    {
+      "source": "polisyos.scientist.policy_design.critics.monitoring",
+      "target": "polisyos.scientist.policy_design.formulator"
     },
     {
       "source": "polisyos.scientist.policy_design.objectives",
@@ -14059,38 +13690,6 @@
       "target": "polisyos.scientist.policy_design.prompts"
     },
     {
-      "source": "polisyos.scientist.policy_verified",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.policy_verified.models",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.policy_verified.service",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.provenance",
-      "target": "polisyos.scientist.evidence._shim"
-    },
-    {
-      "source": "polisyos.scientist.provenance.llm_provenance",
-      "target": "polisyos.scientist.evidence._shim"
-    },
-    {
-      "source": "polisyos.scientist.provenance.prov_json",
-      "target": "polisyos.scientist.evidence._shim"
-    },
-    {
-      "source": "polisyos.scientist.provenance.run_dag",
-      "target": "polisyos.scientist.evidence._shim"
-    },
-    {
-      "source": "polisyos.scientist.publisher",
-      "target": "polisyos.scientist._internal.shims"
-    },
-    {
       "source": "polisyos.scientist.publishing.publisher",
       "target": "polisyos.scientist.evidence.claims.export"
     },
@@ -14121,14 +13720,6 @@
     {
       "source": "polisyos.scientist.publishing.publisher",
       "target": "polisyos.scientist.methods.research_dag.replay"
-    },
-    {
-      "source": "polisyos.scientist.reliability_scorecard",
-      "target": "polisyos.scientist._internal.shims"
-    },
-    {
-      "source": "polisyos.scientist.remediation_status",
-      "target": "polisyos.scientist._internal.shims"
     },
     {
       "source": "polisyos.scientist.replay.backend",
@@ -14167,336 +13758,20 @@
       "target": "polisyos.scientist.methods.autotune.models"
     },
     {
-      "source": "polisyos.scientist.replay_backend",
-      "target": "polisyos.scientist._internal.shims"
-    },
-    {
-      "source": "polisyos.scientist.research_dag",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.research_dag.builder",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.research_dag.comparison",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.research_dag.diff",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.research_dag.invalidation",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.research_dag.models",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.research_dag.persistence",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.research_dag.projections",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.research_dag.replay",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.actionable_side_information",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.adversarial",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.artifact_minimality",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.benchmark_registry",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.calibration_report",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.cold_start",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.compliance_audit",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.contracts",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.controller",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.diversity",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.failure_cards",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.frontier",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.funnel",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.funnel._rules",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.funnel.correlation",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.funnel.level0_static",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.funnel.level1_heuristic",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.funnel.level2_causal",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.funnel.level3_medium",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.funnel.level4_full",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.funnel.level5_refutation_governance",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.funnel.level6_promotion",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.funnel.orchestrator",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.funnel.types",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.judge_passes",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.judge_stack",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.judge_thresholds",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.latent_governance",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.latent_promotion",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.lessons",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.objective",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.pareto_registry",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.portfolio",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.promotion_evidence",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.readiness",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.registry_contracts",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.sbi_scheduler",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.sensitivity_adapter",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.sentinels",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.stages",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.stopping",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.strategies",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.strategies._deps",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.strategies.acquisition",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.strategies.adapter",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.strategies.advanced_policy",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.strategies.base",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.strategies.bayesian",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.strategies.codec",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.strategies.ensemble_surrogate",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.strategies.errors",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.strategies.grid",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.strategies.multi_fidelity",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.strategies.multi_objective",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.strategies.neural",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.strategies.normalization",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.strategies.objective_adapter",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.strategies.random",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.strategies.resource_arbiter",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.strategies.rl_wrapper",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.strategies.run_similarity",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.strategies.runtime",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.strategies.space",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.strategies.surrogate",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.strategies.transfer",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.strategies.types",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.transfer_context",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.uncertainty",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.voi_calibration",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.voi_models",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
-      "source": "polisyos.scientist.search.voi_scheduler",
-      "target": "polisyos.scientist.methods._compat"
-    },
-    {
       "source": "polisyos.scientist.validation.benchmarks",
       "target": "polisyos.scientist.validation.metrics"
+    },
+    {
+      "source": "polisyos.scientist.validation.claim_support",
+      "target": "polisyos.scientist.evidence.claims.models"
+    },
+    {
+      "source": "polisyos.scientist.validation.claim_support",
+      "target": "polisyos.scientist.methods.search.readiness"
+    },
+    {
+      "source": "polisyos.scientist.validation.decision_artifact_quality",
+      "target": "polisyos.scientist.artifacts.decision_compiler"
     },
     {
       "source": "polisyos.scientist.validation.decision_validity",
@@ -14525,6 +13800,10 @@
     {
       "source": "polisyos.scientist.validation.phase5_preflight",
       "target": "polisyos.scientist.orchestration.engine.state"
+    },
+    {
+      "source": "polisyos.scientist.validation.policy_grounding",
+      "target": "polisyos.scientist.validation.claim_support"
     },
     {
       "source": "polisyos.scientist.validation.policy_verified",
@@ -14577,66 +13856,6 @@
     {
       "source": "polisyos.scientist.validation.verification.ic.service",
       "target": "polisyos.foundry.mechanisms.design"
-    },
-    {
-      "source": "polisyos.scientist.verification",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.verification.ic",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.verification.ic.conformance",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.verification.ic.service",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.workflows",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.workflows.builder",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.workflows.causal_full",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.workflows.default",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.workflows.discovery",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.workflows.engine_base",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.workflows.engine_langgraph",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.workflows.engine_simple",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.workflows.policy_design",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.workflows.policy_verified",
-      "target": "polisyos.scientist._internal.compat"
-    },
-    {
-      "source": "polisyos.scientist.workflows.selection",
-      "target": "polisyos.scientist.methods._compat"
     }
   ]
 }

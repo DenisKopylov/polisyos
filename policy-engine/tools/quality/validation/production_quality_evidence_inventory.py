@@ -23,9 +23,26 @@ from tools.lib.imports import ensure_repo_import_roots
 
 REPO_ROOT, _SRC_ROOT = ensure_repo_import_roots(__file__)
 
+from polisyos.runtime.quality.capability_white_space import (  # noqa: E402
+    build_capability_white_space_report_from_duckdb,
+    dump_capability_white_space_report,
+)
+from polisyos.runtime.quality.cost_degradation import (  # noqa: E402
+    COST_DEGRADATION_TELEMETRY_FILENAME,
+    COST_DEGRADATION_TELEMETRY_REPORT_KEY,
+)
+from polisyos.runtime.quality.cost_gate import (  # noqa: E402
+    RUN_COST_GATE_FILENAME,
+    RUN_COST_GATE_REPORT_KEY,
+)
 from polisyos.runtime.quality.data_forge_binding import (  # noqa: E402
     DATA_FORGE_SNAPSHOT_BINDING_FILE,
     DATA_FORGE_SNAPSHOT_BINDING_REPORT_KEY,
+)
+from polisyos.runtime.quality.hypothesis_ledger import (  # noqa: E402
+    HYPOTHESIS_LEDGER_FILENAME,
+    HYPOTHESIS_LEDGER_REF_KEY,
+    HYPOTHESIS_LEDGER_REPORT_KEY,
 )
 from polisyos.runtime.quality.prompt_tool_ledger import PROMPT_TOOL_LEDGER_FILENAME  # noqa: E402
 
@@ -49,7 +66,14 @@ _QUALITY_REF_FIELDS = (
 _KNOWN_LITERAL_NAMES: dict[str, object] = {
     "DATA_FORGE_SNAPSHOT_BINDING_FILE": DATA_FORGE_SNAPSHOT_BINDING_FILE,
     "DATA_FORGE_SNAPSHOT_BINDING_REPORT_KEY": DATA_FORGE_SNAPSHOT_BINDING_REPORT_KEY,
+    "COST_DEGRADATION_TELEMETRY_FILENAME": COST_DEGRADATION_TELEMETRY_FILENAME,
+    "COST_DEGRADATION_TELEMETRY_REPORT_KEY": COST_DEGRADATION_TELEMETRY_REPORT_KEY,
+    "HYPOTHESIS_LEDGER_FILENAME": HYPOTHESIS_LEDGER_FILENAME,
+    "HYPOTHESIS_LEDGER_REF_KEY": HYPOTHESIS_LEDGER_REF_KEY,
+    "HYPOTHESIS_LEDGER_REPORT_KEY": HYPOTHESIS_LEDGER_REPORT_KEY,
     "PROMPT_TOOL_LEDGER_FILENAME": PROMPT_TOOL_LEDGER_FILENAME,
+    "RUN_COST_GATE_FILENAME": RUN_COST_GATE_FILENAME,
+    "RUN_COST_GATE_REPORT_KEY": RUN_COST_GATE_REPORT_KEY,
 }
 
 
@@ -119,6 +143,8 @@ QUALITY_REPORT_IDS_BY_KEY = {
     "continuous_governance_reissue": "scientist.continuous_governance_reissue",
     "continuous_governance_supersede": "scientist.continuous_governance_supersede",
     "continuous_governance_withdraw": "scientist.continuous_governance_withdraw",
+    "can_i_closeout": "runtime.can_i_closeout",
+    "hypothesis_ledger": "runtime.hypothesis_ledger",
 }
 
 
@@ -126,6 +152,18 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo-root", type=Path, default=REPO_ROOT)
     parser.add_argument("--json-output", type=Path, default=DEFAULT_BASELINE)
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=None,
+        help="Output path for capability white-space reports.",
+    )
+    parser.add_argument(
+        "--capability-index",
+        type=Path,
+        default=None,
+        help="Primary capability_index_v1.duckdb to query for Phase 6 white-space.",
+    )
     parser.add_argument("--check", action="store_true", help="Fail if the baseline JSON drifts")
     return parser.parse_args(argv)
 
@@ -168,7 +206,7 @@ def _quality_ref_field_rows() -> list[dict[str, Any]]:
             "field_path": field_path,
             "owner_runtime_layer": "fabric_trust_envelope",
             "expected_ref": "FabricDecisionData.quality",
-            "producer": "polisyos.fabric.decision_data.QualityRef",
+            "producer": "polisyos.fabric.evidence.decision_data.QualityRef",
             "status": "runtime_emitted",
         }
         for field_path in _QUALITY_REF_FIELDS
@@ -589,9 +627,9 @@ def _quality_report_specs(repo_root: Path) -> list[dict[str, Any]]:
                 "override",
             ],
             "producer": _producer(
-                name="polisyos.data_forge.compliance.build_privacy_compliance_report",
+                name="polisyos.data_forge.read_api.build_privacy_compliance_report",
                 kind="runtime_report_builder",
-                source_path="src/polisyos/data_forge/compliance.py",
+                source_path="src/polisyos/data_forge/read_api/compliance.py",
                 current_emission="NL pipeline and canary evidence emit compliance evidence without raw sensitive records.",
                 repo_root=repo_root,
             ),
@@ -616,14 +654,14 @@ def _quality_report_specs(repo_root: Path) -> list[dict[str, Any]]:
                 "issues",
             ],
             "producer": _producer(
-                name="polisyos.runtime.security.quality_gates.build_security_assurance_report",
+                name="polisyos.core.security.quality_gates.build_security_assurance_report",
                 kind="runtime_report_builder",
-                source_path="src/polisyos/runtime/security/quality_gates.py",
+                source_path="src/polisyos/core/security/quality_gates.py",
                 current_emission="Canary evidence emits sanitized LLM/tool/data/artifact/runtime/dashboard security assurance reports.",
                 repo_root=repo_root,
             ),
             "validators": [
-                "polisyos.runtime.security.quality_gates.security_gates_from_report",
+                "polisyos.core.security.quality_gates.security_gates_from_report",
             ],
             "first_missing_producer": None,
         },
@@ -654,6 +692,71 @@ def _quality_report_specs(repo_root: Path) -> list[dict[str, Any]]:
             ),
             "validators": [
                 "tools.ops_runners.runtime.provider_quality_ledger.build_provider_quality_ledger",
+            ],
+            "first_missing_producer": None,
+        },
+        {
+            "id": "runtime.hypothesis_ledger",
+            "title": "HypothesisLedger candidate firewall evidence",
+            "status": "runtime_emitted",
+            "required_for_serious_profile": True,
+            "expected_ref": quality_ref["hypothesis_ledger"],
+            "owner_runtime_layer": "candidate_firewall",
+            "artifact_fields": [
+                "schema_version",
+                "status",
+                "hypothesis_ledger_ref",
+                "entries",
+                "entries[].candidate_type",
+                "entries[].authority_status",
+                "candidate_firewall",
+            ],
+            "producer": _producer(
+                name="polisyos.runtime.quality.hypothesis_ledger.persist_hypothesis_ledger",
+                kind="runtime_report_builder",
+                source_path="src/polisyos/runtime/quality/hypothesis_ledger.py",
+                current_emission=(
+                    "Runtime capability and semantic-binding paths persist "
+                    "HypothesisLedger evidence so LLM candidates remain advisory "
+                    "until producer-backed admission."
+                ),
+                repo_root=repo_root,
+            ),
+            "validators": [
+                "polisyos.runtime.quality.hypothesis_ledger.deserialize_hypothesis_ledger",
+                "polisyos.runtime.quality.scorecard._hypothesis_candidate_firewall_gates",
+            ],
+            "first_missing_producer": None,
+        },
+        {
+            "id": "runtime.can_i_closeout",
+            "title": "Can-I-closeout verdict",
+            "status": "runtime_emitted",
+            "required_for_serious_profile": True,
+            "expected_ref": quality_ref["can_i_closeout"],
+            "owner_runtime_layer": "closeout_authority",
+            "artifact_fields": [
+                "schema_version",
+                "status",
+                "verdict",
+                "can_close",
+                "issues",
+                "quality_report_refs",
+                "capability_index_ref",
+            ],
+            "producer": _producer(
+                name="polisyos.runtime.quality.closeout_reader.build_can_i_closeout_verdict",
+                kind="runtime_report_builder",
+                source_path="src/polisyos/runtime/quality/closeout_reader.py",
+                current_emission=(
+                    "Canary evidence and closeout tooling compile typed closeout "
+                    "verdicts from scorecard, quality reports, and capability refs."
+                ),
+                repo_root=repo_root,
+            ),
+            "validators": [
+                "polisyos.runtime.quality.closeout_reader.build_can_i_closeout_verdict",
+                "polisyos.runtime.quality.scorecard._can_i_closeout_scorecard_gates",
             ],
             "first_missing_producer": None,
         },
@@ -1313,6 +1416,14 @@ def check_artifacts(
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parse_args(argv)
     repo_root = args.repo_root.resolve()
+    if args.capability_index is not None:
+        capability_index = _resolve(args.capability_index, repo_root)
+        output = _resolve(args.output or args.json_output, repo_root)
+        payload = build_capability_white_space_report_from_duckdb(capability_index)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(dump_capability_white_space_report(payload), encoding="utf-8")
+        return 0
+
     output = _resolve(args.json_output, repo_root)
 
     if args.check:

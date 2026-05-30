@@ -180,8 +180,7 @@ def run_cmd(
             cmd,
             cwd=str(cwd) if cwd else None,
             text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            capture_output=True,
             timeout=timeout,
             check=False,
         )
@@ -519,7 +518,9 @@ def graph_inventory(ctx: dict[str, Any]) -> dict[str, Any]:
 
 def scientist_workflow_inventory(ctx: dict[str, Any]) -> dict[str, Any]:
     try:
-        from polisyos.scientist.workflows.policy_design import policy_design_workflow_spec
+        from polisyos.scientist.orchestration.workflows.policy_design import (
+            policy_design_workflow_spec,
+        )
 
         spec = policy_design_workflow_spec()
         return {
@@ -599,7 +600,7 @@ Ukraine agent baseline status: `{graphs.get("status")}`, graph files:
 
 
 def deterministic_policy_designs(count: int, legal_refs: list[str]) -> list[dict[str, Any]]:
-    rng = random.Random(20260501)
+    rng = random.Random(20260501)  # noqa: S311 - deterministic fixture generation.
     designs = []
     archetypes = [
         ("resilience_grant_credit", "Resilience grants plus subsidized credit"),
@@ -715,7 +716,7 @@ def run_t2_policy_design_factory(ctx: dict[str, Any]) -> dict[str, Any]:
     prompt_evidence = "\n".join(
         f"- {row.get('doc_name')}: {row.get('snippet')[:350]}" for row in snippets[:12]
     )
-    for batch_index, role in enumerate(POLICY_ROLES):
+    for _batch_index, role in enumerate(POLICY_ROLES):
         prompt = f"""
 Policy intent: {DEFAULT_INTENT}
 
@@ -958,6 +959,11 @@ def build_runtime_fabric_payloads(
         for row in top
     ]
     try:
+        from polisyos.fabric.evidence.decision_data import (
+            coverage_from_decision_data,
+            from_runtime_quantities,
+        )
+
         from polisyos.core.contracts.runtime import (
             LineageRef,
             QuantityUncertainty,
@@ -965,10 +971,6 @@ def build_runtime_fabric_payloads(
             TemporalRef,
             UnitRef,
             VerificationMetadata,
-        )
-        from polisyos.fabric.decision_data import (
-            coverage_from_decision_data,
-            from_runtime_quantities,
         )
 
         now = datetime.now(UTC).replace(microsecond=0)
@@ -1029,7 +1031,7 @@ def make_causal_panel(rows: int, seed: int = 20260501) -> dict[str, np.ndarray]:
     veteran = rng.binomial(1, 0.08 + 0.08 * conflict)
     female_owned = rng.binomial(1, 0.32, size=rows)
     procurement_exposure = rng.beta(1.5, 4.0, size=rows)
-    X = np.column_stack(
+    features = np.column_stack(
         [
             conflict,
             np.log1p(firm_size),
@@ -1057,7 +1059,7 @@ def make_causal_panel(rows: int, seed: int = 20260501) -> dict[str, np.ndarray]:
     )
     selected = rng.binomial(1, np.clip(0.92 - 0.12 * conflict + 0.03 * treatment, 0.55, 0.99))
     return {
-        "X": X.astype(np.float64),
+        "X": features.astype(np.float64),
         "treatment": treatment.astype(np.float64),
         "outcome": outcome.astype(np.float64),
         "selected": selected.astype(np.float64),
@@ -1312,7 +1314,7 @@ def simulate_policy_worker(
             0.02,
             0.75,
         )
-        for month in range(months):
+        for _month in range(months):
             shock = rng.normal(0.0, 0.025, size=agent_count).astype(np.float32)
             policy_access = np.clip(
                 base_uptake
@@ -1827,7 +1829,7 @@ def preflight(ctx: dict[str, Any]) -> dict[str, Any]:
         "polisyos",
         "polisyos.foundry.methods.catalog.causal.treatment_effects",
         "polisyos.foundry.methods.catalog.policy.mcda",
-        "polisyos.fabric.decision_data",
+        "polisyos.fabric.evidence.decision_data",
     ]:
         try:
             __import__(module)

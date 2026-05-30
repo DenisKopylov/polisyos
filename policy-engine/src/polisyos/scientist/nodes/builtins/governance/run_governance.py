@@ -40,7 +40,7 @@ from polisyos.ir.governance.gate import (
     GateRequest,
     GateVerdict,
 )
-from polisyos.ir.refs import NormativeArbitrationResultRef
+from polisyos.ir.registry.refs import NormativeArbitrationResultRef
 from polisyos.scientist.evidence.claims.ledger import persist_claim_ledger
 from polisyos.scientist.evidence.claims.projections import project_governance_report_claims
 from polisyos.scientist.evidence.claims.validators import (

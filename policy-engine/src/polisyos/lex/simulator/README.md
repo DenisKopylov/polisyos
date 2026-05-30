@@ -6,7 +6,7 @@ diff и impact analysis до того, как изменения попадут 
 
 ## Роль в системе
 
-- **Зависит от:** `polisyos.lex.normpack`, `polisyos.core.governance`, `polisyos.ir.norm_pack`
+- **Зависит от:** `polisyos.lex.normpack`, `polisyos.core.governance`, `polisyos.ir.loading.norm_pack`
 - **Используется в:** policy-design review, governance validation, explicit norm change analysis
 - Пакет отделяет legal what-if analysis от production assembly/evaluation path.
 

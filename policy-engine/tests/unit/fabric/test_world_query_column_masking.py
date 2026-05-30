@@ -7,6 +7,7 @@ from typing import Any
 
 import pandas as pd
 import pytest
+
 from polisyos.core.security.access_scope import AccessScope
 from polisyos.core.security.identity import PIIAccessLevel, PolicyOSRole
 from polisyos.fabric.security import (
@@ -14,7 +15,7 @@ from polisyos.fabric.security import (
     JsonlAccessAuditLog,
     RowAccessPolicy,
 )
-from polisyos.fabric.world_query import WorldQueryError, WorldQueryRequest, execute_world_query
+from polisyos.fabric.world.query import WorldQueryError, WorldQueryRequest, execute_world_query
 
 
 class _MaskingBackend:

@@ -10,7 +10,7 @@ from polisyos.ir.governance.policy_spec import (
 from polisyos.ir.governance.schedule import ScheduleSpec
 from polisyos.ir.governance.selector_expr import SelectorPredicate
 from polisyos.ir.observation.contracts import IdentificationMode, StrategicResponseChannel
-from polisyos.ir.types import SelectorOperator
+from polisyos.ir.model_layer.types import SelectorOperator
 
 
 def _target_selector() -> SelectorPredicate:

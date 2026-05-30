@@ -85,15 +85,17 @@ def build_evidence_synthesis_report(
         records, claim_ids=claims
     )
     divergence_status = "divergent" if divergence_required else "convergent"
+    ledger_rows = tuple(_as_mapping(row) for row in disconfirming_ledgers)
     normalized_previous_wave_refs = (
         _validate_previous_wave_refs(previous_wave_refs)
         if previous_wave_refs is not None
         else _previous_wave_refs_from_inputs(
             curve=curve,
-            disconfirming_ledgers=tuple(disconfirming_ledgers),
+            disconfirming_ledgers=ledger_rows,
         )
     )
-    ledger_rows = tuple(_as_mapping(row) for row in disconfirming_ledgers)
+    divergence_rows = tuple(_as_mapping(row) for row in divergence_evidence)
+    saturation = dict(information_saturation)
     payload: dict[str, Any] = {
         "schema_version": EVIDENCE_SYNTHESIS_REPORT_SCHEMA_VERSION,
         "contract_id": EVIDENCE_SYNTHESIS_REPORT_CONTRACT_ID,
@@ -127,7 +129,11 @@ def build_evidence_synthesis_report(
         "synthesis_estimate": primary,
         "claim_direction": primary["direction"],
         "sensitivity_to_synthesis_rules": sensitivity_rows,
-        "information_saturation": dict(information_saturation),
+        "information_saturation": saturation,
+        "effective_evidence_mass": _build_effective_evidence_mass(
+            information_saturation=saturation,
+            disconfirming_ledgers=ledger_rows,
+        ),
         "run_cost_proportionality": dict(run_cost_proportionality),
         "divergence_assessment": {
             "status": divergence_status,
@@ -137,7 +143,7 @@ def build_evidence_synthesis_report(
                 else ["reasonable_synthesis_rules_preserve_direction"]
             ),
         },
-        "divergence_evidence": [dict(row) for row in divergence_evidence],
+        "divergence_evidence": [dict(row) for row in divergence_rows],
         "blockers": [dict(row) for row in blockers],
         "previous_wave_refs": normalized_previous_wave_refs,
     }
@@ -266,6 +272,10 @@ def validate_evidence_synthesis_report_record(
     normalized["information_saturation"] = _validate_information_saturation(
         record.get("information_saturation")
     )
+    normalized["effective_evidence_mass"] = _validate_effective_evidence_mass(
+        record.get("effective_evidence_mass"),
+        information_saturation=normalized["information_saturation"],
+    )
     normalized["run_cost_proportionality"] = _validate_run_cost_proportionality(
         record.get("run_cost_proportionality")
     )
@@ -376,6 +386,7 @@ def evidence_synthesis_refs_by_claim(
 
 
 _REQUIRED_SURFACES = {
+    "effective_evidence_mass": "policy_design_synthesis_effective_mass_missing",
     "weighting_model": "policy_design_synthesis_weighting_model_missing",
     "heterogeneity_model": "policy_design_synthesis_heterogeneity_model_missing",
     "certainty_framework": "policy_design_synthesis_certainty_framework_missing",
@@ -660,6 +671,108 @@ def _validate_information_saturation(value: object) -> dict[str, Any]:
             "Saturation cannot be claimed while recent synthesis directions changed.",
             "information_saturation.recent_direction_changes",
         )
+    return row
+
+
+def _build_effective_evidence_mass(
+    *,
+    information_saturation: Mapping[str, Any],
+    disconfirming_ledgers: Sequence[Mapping[str, Any]],
+) -> dict[str, Any]:
+    effective_support_mass = float(
+        _required_int(
+            information_saturation.get("effective_independent_evidence_count"),
+            "information_saturation.effective_independent_evidence_count",
+            "policy_design_synthesis_saturation_effective_count_missing",
+        )
+    )
+    has_counterevidence = any(
+        _ledger_preserves_counterevidence(row) for row in disconfirming_ledgers
+    )
+    effective_counter_mass = 1.0 if has_counterevidence else 0.0
+    return {
+        "effective_support_mass": effective_support_mass,
+        "effective_counterevidence_mass": effective_counter_mass,
+        "effective_context_mass": 0.0,
+        "collapse_reasons": [],
+        "counterevidence_preserved": effective_counter_mass > 0.0,
+        "raw_count_display_policy": {
+            "raw_count_authority": "diagnostic_only",
+            "must_display_with": [
+                "effective_support_mass",
+                "effective_counterevidence_mass",
+                "collapse_reasons",
+            ],
+        },
+    }
+
+
+def _validate_effective_evidence_mass(
+    value: object,
+    *,
+    information_saturation: Mapping[str, Any],
+) -> dict[str, Any]:
+    if not isinstance(value, Mapping):
+        raise EvidenceSynthesisReportError(
+            "policy_design_synthesis_effective_mass_missing",
+            "Evidence synthesis report must include effective_evidence_mass.",
+            "effective_evidence_mass",
+        )
+    row = dict(value)
+    row["effective_support_mass"] = _nonnegative_float(
+        row.get("effective_support_mass"),
+        "effective_evidence_mass.effective_support_mass",
+        "policy_design_synthesis_effective_support_mass_missing",
+    )
+    row["effective_counterevidence_mass"] = _nonnegative_float(
+        row.get("effective_counterevidence_mass"),
+        "effective_evidence_mass.effective_counterevidence_mass",
+        "policy_design_synthesis_effective_counter_mass_missing",
+    )
+    row["effective_context_mass"] = _nonnegative_float(
+        row.get("effective_context_mass"),
+        "effective_evidence_mass.effective_context_mass",
+        "policy_design_synthesis_effective_context_mass_missing",
+        default=0.0,
+    )
+    expected_support = float(
+        information_saturation.get("effective_independent_evidence_count") or 0
+    )
+    if row["effective_support_mass"] > expected_support:
+        raise EvidenceSynthesisReportError(
+            "policy_design_synthesis_effective_support_exceeds_independence",
+            (
+                "Synthesis effective support mass cannot exceed the effective "
+                "independent evidence count."
+            ),
+            "effective_evidence_mass.effective_support_mass",
+        )
+    raw_count = _optional_int(row.get("raw_evidence_line_count"))
+    if raw_count is not None:
+        row["raw_evidence_line_count"] = raw_count
+        effective_total = row["effective_support_mass"] + row["effective_counterevidence_mass"]
+        collapse_reasons = _collapse_reason_rows(row.get("collapse_reasons"))
+        if raw_count > effective_total and not collapse_reasons:
+            raise EvidenceSynthesisReportError(
+                "policy_design_synthesis_effective_mass_collapse_reasons_missing",
+                (
+                    "Raw evidence count in synthesis must be displayed beside "
+                    "effective mass and collapse reasons."
+                ),
+                "effective_evidence_mass.collapse_reasons",
+            )
+        row["collapse_reasons"] = collapse_reasons
+    else:
+        row["collapse_reasons"] = _collapse_reason_rows(row.get("collapse_reasons"))
+    display_policy = row.get("raw_count_display_policy")
+    if not isinstance(display_policy, Mapping):
+        raise EvidenceSynthesisReportError(
+            "policy_design_synthesis_raw_count_display_policy_missing",
+            "Evidence synthesis must declare raw-count display policy.",
+            "effective_evidence_mass.raw_count_display_policy",
+        )
+    row["raw_count_display_policy"] = dict(display_policy)
+    row["counterevidence_preserved"] = bool(row.get("counterevidence_preserved", False))
     return row
 
 
@@ -1026,6 +1139,48 @@ def _sequence_of_mappings(value: object) -> list[Mapping[str, Any]]:
     return [item for item in value if isinstance(item, Mapping)]
 
 
+def _ledger_preserves_counterevidence(row: Mapping[str, Any]) -> bool:
+    if _sequence_of_mappings(row.get("disconfirming_lines")):
+        return True
+    if _text_values(row.get("disconfirming_lines")):
+        return True
+    for severe_test in _sequence_of_mappings(row.get("severe_tests")):
+        result = (_text(severe_test.get("result")) or "").lower()
+        if result in {"failed", "blocked", "counterevidence", "disconfirming"}:
+            return True
+    for report in _sequence_of_mappings(row.get("ir_falsification_reports")):
+        if report.get("overall_passed") is False:
+            return True
+    return False
+
+
+def _collapse_reason_rows(value: object) -> list[dict[str, Any]]:
+    if value is None:
+        return []
+    if not isinstance(value, Sequence) or isinstance(value, str):
+        raise EvidenceSynthesisReportError(
+            "policy_design_synthesis_effective_mass_collapse_reasons_invalid",
+            "Synthesis collapse reasons must be a sequence.",
+            "effective_evidence_mass.collapse_reasons",
+        )
+    rows: list[dict[str, Any]] = []
+    for index, item in enumerate(value):
+        if not isinstance(item, Mapping):
+            raise EvidenceSynthesisReportError(
+                "policy_design_synthesis_effective_mass_collapse_reason_invalid",
+                "Synthesis collapse reason rows must be mappings.",
+                f"effective_evidence_mass.collapse_reasons[{index}]",
+            )
+        row = dict(item)
+        row["reason_code"] = _required_text(
+            row.get("reason_code") or row.get("code"),
+            "reason_code",
+            "policy_design_synthesis_effective_mass_collapse_reason_code_missing",
+        )
+        rows.append(row)
+    return rows
+
+
 def _as_mapping(value: object) -> Mapping[str, Any]:
     if isinstance(value, Mapping):
         return value
@@ -1159,6 +1314,36 @@ def _optional_float(value: object) -> float | None:
     if value is None:
         return None
     return _float(value, field="optional_float")
+
+
+def _nonnegative_float(
+    value: object,
+    field: str,
+    code: str,
+    *,
+    default: float | None = None,
+) -> float:
+    number = _float(value, field=field, default=default)
+    if number < 0.0:
+        raise EvidenceSynthesisReportError(
+            code,
+            f"Evidence synthesis {field} cannot be negative.",
+            field,
+        )
+    return number
+
+
+def _optional_int(value: object) -> int | None:
+    if value is None:
+        return None
+    number = _float(value, field="optional_int")
+    if number < 0 or int(number) != number:
+        raise EvidenceSynthesisReportError(
+            "policy_design_synthesis_integer_invalid",
+            "Synthesis count fields must be non-negative integers.",
+            "optional_int",
+        )
+    return int(number)
 
 
 def _required_int(value: object, field: str, code: str) -> int:

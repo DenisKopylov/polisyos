@@ -73,7 +73,7 @@ ProblemFrame True
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from polisyos.foundry.quickstart import run_trivial_compile_execute
+from polisyos.foundry._quickstart import run_trivial_compile_execute
 
 with TemporaryDirectory(prefix="polisyos-quickstart-") as tmp:
     result = run_trivial_compile_execute(cas_root=Path(tmp))

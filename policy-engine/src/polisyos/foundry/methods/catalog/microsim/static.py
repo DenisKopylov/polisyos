@@ -23,7 +23,7 @@ from polisyos.foundry.methods.base import (
 from polisyos.foundry.methods.catalog._payloads import extract_model_payload
 from polisyos.foundry.methods.catalog._phase1_artifacts import resolve_artifact_store
 from polisyos.ir.analytics.microsim_calibration import load_microsim_calibration_report
-from polisyos.ir.refs import MicrosimCalibrationReportRef
+from polisyos.ir.registry.refs import MicrosimCalibrationReportRef
 
 from .protocols import MicrosimResult, SurveyMicroData
 

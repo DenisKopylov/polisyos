@@ -2,10 +2,19 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
-import polisyos.fabric.connectors.components as connector_components
 import pytest
+
+import polisyos.fabric.connectors.components as connector_components
 from polisyos.core.governance.passes.base import PassContext
 from polisyos.core.governance.profiles import ValidationProfile
+from polisyos.fabric._adapters.observability import (
+    DEFAULT_FABRIC_SLO_TARGETS,
+    FabricReliabilityBudgetError,
+    FabricSLIName,
+    assert_fabric_feature_expansion_allowed,
+    build_fabric_health_snapshot,
+    evaluate_fabric_reliability_budget,
+)
 from polisyos.fabric.connectors.governance_metadata import (
     validate_connector_governance_metadata,
 )
@@ -13,14 +22,6 @@ from polisyos.fabric.connectors.quality.report import (
     DataQualityReport,
     FreshnessLevel,
     FreshnessStatus,
-)
-from polisyos.fabric.observability import (
-    DEFAULT_FABRIC_SLO_TARGETS,
-    FabricReliabilityBudgetError,
-    FabricSLIName,
-    assert_fabric_feature_expansion_allowed,
-    build_fabric_health_snapshot,
-    evaluate_fabric_reliability_budget,
 )
 from polisyos.fabric.provenance.lineage import (
     FabricLineageTracker,

@@ -23,8 +23,10 @@ This left three gaps:
 
 ## Decision
 
-We introduce a unified reflection layer in `polisyos.ir.schema_catalog` and use
-it as the single source for generated IR reference pages.
+We introduce a unified reflection layer. The initial compatibility entry point
+was `polisyos.ir.schema_catalog`; after the shim sunset, the supported public
+surface is `polisyos.ir.schemas`, backed by `polisyos.ir.schemas.catalog`.
+Tooling uses it as the single source for generated IR reference pages.
 
 The catalog:
 

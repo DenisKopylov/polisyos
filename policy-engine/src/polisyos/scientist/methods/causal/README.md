@@ -1,4 +1,4 @@
-# Causal Runtime (`polisyos.scientist.causal`)
+# Causal Runtime (`polisyos.scientist.methods.causal`)
 
 `causal` — новый Scientist-пакет для execution/readiness раннеров, которые
 обрабатывают observation-plane causal contracts и публикуют transportability,

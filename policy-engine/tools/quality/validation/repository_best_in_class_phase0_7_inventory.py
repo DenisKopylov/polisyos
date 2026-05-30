@@ -77,7 +77,7 @@ HIGH_VOLUME_SUBTREES = (
     "src/polisyos/data_forge/domains/legal/batch",
     "src/polisyos/data_forge/domains/catalog/batch",
     "src/polisyos/scientist/agent",
-    "src/polisyos/scientist/search",
+    "src/polisyos/scientist/methods/search",
     "src/polisyos/scientist/orchestration/engine",
     "src/polisyos/runtime/http/services",
     "src/polisyos/fabric/connectors/sources",

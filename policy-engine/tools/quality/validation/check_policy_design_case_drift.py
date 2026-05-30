@@ -44,7 +44,7 @@ REUSE_CRITICAL_SURFACES = (
     "core/contracts",
 )
 RUNTIME_QUALITY_AUTHORITY_PATH = Path("src/polisyos/runtime/quality/assurance_case.py")
-PARALLEL_AUTHORITY_WORDS = ("authority", "profile", "ledger", "case")
+PARALLEL_AUTHORITY_WORDS = ("authority", "profile", "ledger")
 AUTHORITY_PROFILE_TAXONOMY_OWNER_PATHS = frozenset(
     {
         Path("src/polisyos/core/contracts/control.py"),

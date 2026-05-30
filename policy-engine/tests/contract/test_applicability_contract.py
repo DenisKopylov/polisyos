@@ -10,7 +10,7 @@ from polisyos.ir.analytics.applicability import (
     TimeWindow,
 )
 from polisyos.ir.linker import LinkIssueCode, validate_norm_applicability_refs
-from polisyos.ir.registry_fragments import ConceptRegistry, RegistryBundle
+from polisyos.ir.registry.registry_fragments import ConceptRegistry, RegistryBundle
 
 
 def test_time_window_ordering() -> None:

@@ -17,8 +17,8 @@ from polisyos.runtime.http.services.control.artifacts import (
     write_runtime_authority_artifact,
 )
 from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
-from polisyos.runtime.quality.authority import GovernanceMetadata
 from polisyos.runtime.quality.attestation import deserialize_attestation_record
+from polisyos.runtime.quality.authority import GovernanceMetadata
 from polisyos.runtime.quality.authority_reconciliation import (
     AuthorityReconciliationError,
     reconcile_authority_event,

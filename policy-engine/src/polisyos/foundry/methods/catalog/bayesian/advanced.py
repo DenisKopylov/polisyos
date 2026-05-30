@@ -35,7 +35,7 @@ from polisyos.foundry.methods.catalog.ml.regression import (
     _tabular_payload,
 )
 from polisyos.foundry.uncertainty.protocol import UncertaintyDecomposition
-from polisyos.ir.canon import CanonSpec, content_hash, to_canonical_bytes
+from polisyos.ir.model_layer.canon import CanonSpec, content_hash, to_canonical_bytes
 
 from .pmd_hmc import assess_pmd_hmc_multimodality
 from .prior_sensitivity import (

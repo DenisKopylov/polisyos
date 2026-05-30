@@ -13,7 +13,7 @@ from polisyos.ir.analytics.simulation_proof_bridge import (
     load_simulation_calibration_receipt,
     load_simulation_proof_bridge,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     InterfaceMappingRef,
     ProofBundleRef,
     SimulationCalibrationReceiptRef,

@@ -31,7 +31,7 @@ from polisyos.fabric.world.events import (
     build_deterministic_world_event,
     persist_world_event_with_facts,
 )
-from polisyos.ir.citations import AnchorKind, FragmentLocator
+from polisyos.ir.loading.citations import AnchorKind, FragmentLocator
 from polisyos.ir.world.doc import DocFragment
 from polisyos.ir.world.event import (
     EventKind,

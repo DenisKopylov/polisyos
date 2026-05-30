@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 from types import SimpleNamespace
+from typing import Any, cast
 
 import pytest
 
@@ -258,6 +259,214 @@ def test_optional_postgres_lifecycle_probe_is_gated_by_env(tmp_path: Path) -> No
     assert result["details"]["backend"] == "postgres"
 
 
+def test_production_data_static_passes_with_actionable_construct_blockers(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    production_root = tmp_path / "production_data"
+    production_root.mkdir()
+    (production_root / "manifest.json").write_text(
+        json.dumps({"bundles": {"catalog": {"path": "catalog.duckdb"}}}),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(
+        local_prod_debug_probe,
+        "load_production_data_manifest",
+        lambda _root: {"bundles": {"catalog": {"path": "catalog.duckdb"}}},
+    )
+    monkeypatch.setattr(
+        local_prod_debug_probe,
+        "production_data_evidence_context",
+        lambda *_args, **_kwargs: {"production_data_root": str(production_root)},
+    )
+    monkeypatch.setattr(
+        local_prod_debug_probe,
+        "production_data_quality_report",
+        lambda *_args, **_kwargs: {"status": "pass", "issues": []},
+    )
+    monkeypatch.setattr(
+        local_prod_debug_probe,
+        "load_quality_scenario_contract",
+        lambda _scenario_id: {"scenario_evidence_contract": {}},
+    )
+    monkeypatch.setattr(
+        local_prod_debug_probe,
+        "production_data_contract_binding_report",
+        lambda *_args, **_kwargs: {
+            "summary": {"status": "blocked"},
+            "missing_scenario_source_families": ["credit_program_registry"],
+            "scenario_binding_findings": [
+                {
+                    "requirement_id": "req:credit-program",
+                    "expected_family": "credit_program_registry",
+                    "status": "blocked",
+                }
+            ],
+            "compiled_data_requirement_specs": [
+                {
+                    "metadata": {
+                        "capability_binding": {
+                            "construct_ref": "construct:credit_program_enrollment",
+                            "selected_capability_ref": None,
+                            "requirement_id": "req:credit-program",
+                            "status": "blocked_acquisition_required",
+                            "blocked_reasons": ["acquisition_required"],
+                            "acquisition_strategies": [
+                                {
+                                    "strategy_id": "acquisition:acquire_from_nbu_registry",
+                                    "owner_team": "team-data-acquisition",
+                                }
+                            ],
+                            "rejected_alternatives": [
+                                {
+                                    "capability_ref": "capability:simulation-only",
+                                    "rejection_reason": "evidence_mode_forbidden",
+                                    "rejection_severity": "hard",
+                                }
+                            ],
+                        }
+                    }
+                }
+            ],
+        },
+    )
+    context = local_prod_debug_probe.ProbeContext.for_tests(
+        repo_root=tmp_path,
+        production_data_root=production_root,
+    )
+
+    result = local_prod_debug_probe.run_production_data_static_check(context)
+
+    assert result["status"] == "pass"
+    assert result["code"] is None
+    details = result["details"]
+    assert details["missing_scenario_source_families"] == []
+    assert details["construct_capability_blockers"][0]["construct_ref"] == (
+        "construct:credit_program_enrollment"
+    )
+    assert details["construct_capability_blockers"][0]["status"] == (
+        "blocked_acquisition_required"
+    )
+    assert details["construct_capability_blockers"][0]["acquisition_strategies"]
+    assert not any(
+        issue["code"] == "production_data_scenario_binding_incomplete"
+        for issue in details["issues"]
+    )
+
+
+def test_production_data_static_uses_resolver_when_projection_lacks_binding(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    production_root = tmp_path / "production_data"
+    production_root.mkdir()
+    capability_index = (
+        tmp_path
+        / "_build/.tmp/production-quality/capability-index/capability_index_v1.duckdb"
+    )
+    capability_index.parent.mkdir(parents=True)
+    capability_index.write_text("fixture", encoding="utf-8")
+    (production_root / "manifest.json").write_text(
+        json.dumps({"bundles": {"catalog": {"path": "catalog.duckdb"}}}),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(
+        local_prod_debug_probe,
+        "load_production_data_manifest",
+        lambda _root: {"bundles": {"catalog": {"path": "catalog.duckdb"}}},
+    )
+    monkeypatch.setattr(
+        local_prod_debug_probe,
+        "production_data_evidence_context",
+        lambda *_args, **_kwargs: {"production_data_root": str(production_root)},
+    )
+    monkeypatch.setattr(
+        local_prod_debug_probe,
+        "production_data_quality_report",
+        lambda *_args, **_kwargs: {"status": "pass", "issues": []},
+    )
+    monkeypatch.setattr(
+        local_prod_debug_probe,
+        "load_quality_scenario_contract",
+        lambda _scenario_id: {"scenario_evidence_contract": {}},
+    )
+    monkeypatch.setattr(
+        local_prod_debug_probe,
+        "production_data_contract_binding_report",
+        lambda *_args, **_kwargs: {
+            "summary": {"status": "blocked"},
+            "missing_scenario_source_families": ["credit_program_registry"],
+            "scenario_binding_findings": [
+                {
+                    "requirement_id": "req:credit-program",
+                    "expected_family": "credit_program_registry",
+                    "status": "blocked",
+                }
+            ],
+            "compiled_data_requirement_specs": [
+                {
+                    "requirement_id": "req:credit-program",
+                    "claim_id": "claim:credit-program",
+                    "claim_use": "claim_evidence_closeout",
+                    "required_data_families": ["credit_program_registry"],
+                    "scope": {
+                        "population": "msme",
+                        "geography": "UA",
+                        "time": "2022",
+                        "jurisdiction": "UA",
+                    },
+                    "metadata": {},
+                }
+            ],
+        },
+    )
+
+    class _Resolver:
+        capability_index_ref = "capability-index:test"
+
+        @classmethod
+        def from_duckdb(cls, path: Path) -> _Resolver:
+            assert path == capability_index
+            return cls()
+
+        def resolve(self, query: object) -> object:
+            query_payload = cast("Any", query)
+            assert query_payload.construct == "credit_program_enrollment"
+            return _BindingResult(
+                {
+                    "requirement_id": "req:credit-program",
+                    "status": "blocked_acquisition_required",
+                    "construct_ref": "construct:credit_program_enrollment",
+                    "selected_capability_ref": None,
+                    "capability_index_ref": self.capability_index_ref,
+                    "blocked_reasons": ["acquisition_required"],
+                    "acquisition_strategies": [
+                        {"strategy_id": "acquisition:acquire_from_nbu_registry"}
+                    ],
+                    "rejected_alternatives": [],
+                }
+            )
+
+    monkeypatch.setattr(local_prod_debug_probe, "RequirementToCapabilityResolver", _Resolver)
+    context = local_prod_debug_probe.ProbeContext.for_tests(
+        repo_root=tmp_path,
+        production_data_root=production_root,
+    )
+
+    result = local_prod_debug_probe.run_production_data_static_check(context)
+
+    assert result["status"] == "pass"
+    assert result["code"] is None
+    assert result["details"]["missing_scenario_source_families"] == []
+    assert result["details"]["construct_capability_report"]["resolver_executed"] is True
+    assert result["details"]["compatibility_projection_findings"]
+    assert result["details"]["construct_capability_blockers"][0]["status"] == (
+        "blocked_acquisition_required"
+    )
+
+
 def test_evidence_inspection_preserves_failed_lane_failure_envelope(tmp_path: Path) -> None:
     matrix_path = tmp_path / "failed_live_matrix.json"
     matrix_payload = {
@@ -308,17 +517,22 @@ def test_production_data_static_reports_missing_manifest_cleanly(tmp_path: Path)
     assert result["details"]["issues"][0]["code"] == "production_data_manifest_missing"
 
 
-def test_production_data_static_exports_scenario_binding_findings(tmp_path: Path) -> None:
+def test_production_data_static_exports_compatibility_projection_findings(
+    tmp_path: Path,
+) -> None:
     root = _production_data_root_with_credit_registry_contract(tmp_path)
     context = local_prod_debug_probe.ProbeContext.for_tests(
-        repo_root=Path.cwd(),
+        repo_root=tmp_path,
         production_data_root=root,
     )
 
     result = local_prod_debug_probe.run_production_data_static_check(context)
 
     assert result["status"] == "fail"
-    assert result["code"] == "production_data_scenario_contracts_missing"
+    assert result["code"] == "production_data_construct_capability_evidence_missing"
+    assert result["details"]["construct_capability_blockers"] == []
+    assert result["details"]["construct_capability_report"]["resolver_executed"] is False
+    assert result["details"]["compatibility_projection_findings"]
     assert result["details"]["missing_scenario_source_families"] == [
         "production_msme_panel",
         "regional_displacement_indicators",
@@ -337,14 +551,13 @@ def test_production_data_static_exports_scenario_binding_findings(tmp_path: Path
         "status",
         "missing_facets",
     } <= set(findings["credit_program_registry"])
-    assert any(
+    assert not any(
         issue["code"] == "production_data_scenario_binding_incomplete"
-        and issue["expected_family"] == "production_msme_panel"
         for issue in result["details"]["issues"]
     )
 
 
-def test_production_data_scenario_contract_checker_blocks_missing_families(
+def test_production_data_scenario_contract_checker_reports_projection_findings_without_resolver(
     tmp_path: Path,
 ) -> None:
     root = _production_data_root_with_credit_registry_contract(tmp_path)
@@ -357,7 +570,17 @@ def test_production_data_scenario_contract_checker_blocks_missing_families(
 
     assert report["status"] == "fail"
     assert report["scenario_id"] == "ukraine_msme_wartime_credit_support"
-    assert report["summary"]["satisfied"] == 1
+    assert report["requirement_source"] == "compiled_data_requirement_spec"
+    assert {
+        family
+        for spec in report["compiled_data_requirement_specs"]
+        for family in spec["required_data_families"]
+    } >= {
+        "production_msme_panel",
+        "credit_program_registry",
+        "regional_displacement_indicators",
+    }
+    assert report["summary"]["construct_capability_blockers"] == 0
     assert report["missing_scenario_source_families"] == [
         "production_msme_panel",
         "regional_displacement_indicators",
@@ -365,10 +588,12 @@ def test_production_data_scenario_contract_checker_blocks_missing_families(
     assert {
         finding["code"] for finding in report["findings"]
     } == {"production_data_scenario_family_missing"}
-    assert all(
-        "source_family" in finding["missing_facets"]
-        for finding in report["findings"]
-    )
+    assert {
+        finding["expected_family"] for finding in report["findings"]
+    } >= {
+        "production_msme_panel",
+        "regional_displacement_indicators",
+    }
 
 
 def test_docs_repro_checks_runbook_and_gitignore_contract() -> None:
@@ -413,6 +638,7 @@ def test_cli_writes_schema_and_returns_failed_status_for_missing_postgres_dsn(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.delenv("POLISYOS_CONTROL_POSTGRES_DSN", raising=False)
+    monkeypatch.setattr(local_prod_debug_probe, "_runtime_env", lambda _repo_root: {})
     output = tmp_path / "probe.json"
 
     exit_code = local_prod_debug_probe.main(
@@ -433,6 +659,44 @@ def test_cli_writes_schema_and_returns_failed_status_for_missing_postgres_dsn(
     assert payload["checks"][0]["code"] == "postgres_dsn_missing"
 
 
+def test_cli_missing_postgres_dsn_still_runs_static_production_data_checks(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    root = _production_data_root_with_credit_registry_contract(tmp_path)
+    monkeypatch.delenv("POLISYOS_CONTROL_POSTGRES_DSN", raising=False)
+    monkeypatch.setenv("POLISYOS_PRODUCTION_DATA_ROOT", str(root))
+    monkeypatch.setattr(
+        local_prod_debug_probe,
+        "_runtime_env",
+        lambda _repo_root: {"POLISYOS_PRODUCTION_DATA_ROOT": str(root)},
+    )
+    output = tmp_path / "probe.json"
+
+    exit_code = local_prod_debug_probe.main(
+        [
+            "--repo-root",
+            str(Path.cwd()),
+            "--checks",
+            "postgres-lifecycle,production-data-static,docs-repro",
+            "--output",
+            str(output),
+        ]
+    )
+
+    payload = json.loads(output.read_text(encoding="utf-8"))
+    checks = {check["name"]: check for check in payload["checks"]}
+    assert exit_code == 3
+    assert payload["summary"]["status"] == "invalid"
+    assert checks["postgres-lifecycle"]["code"] == "postgres_dsn_missing"
+    assert checks["production-data-static"]["code"] != (
+        "production_data_scenario_contracts_missing"
+    )
+    assert checks["production-data-static"]["details"][
+        "missing_scenario_source_families"
+    ] == []
+
+
 def _production_data_root_with_credit_registry_contract(tmp_path: Path) -> Path:
     root = tmp_path / "production_data"
     curated = root / "canonical/local_data_20260501/policy_engine_data/curated"
@@ -446,7 +710,11 @@ def _production_data_root_with_credit_registry_contract(tmp_path: Path) -> Path:
                 "version_id": "local_data_20260501",
                 "readiness": "ready",
                 "path": "canonical/local_data_20260501/policy_engine_data/curated",
-                "required_files": ["data_contracts.json", "source_bindings.json"],
+                "required_files": [
+                    "data_contracts.json",
+                    "source_bindings.json",
+                    "source_contracts_v2.json",
+                ],
             }
         },
     }
@@ -454,6 +722,7 @@ def _production_data_root_with_credit_registry_contract(tmp_path: Path) -> Path:
         "contract_id": "contract.credit_registry",
         "source_family": "credit_program_registry",
         "dataset_identity": "dataset:credit_program_registry:202605",
+        "source_contract_ref": "source-contract:credit_program_registry:v1",
         "source_rights": "public_sector_reuse",
         "dictionary_ref": "sha256:" + "d" * 64,
         "schema_ref": "sha256:" + "s" * 64,
@@ -489,4 +758,33 @@ def _production_data_root_with_credit_registry_contract(tmp_path: Path) -> Path:
         json.dumps({"schema_version": "1.0", "bindings": [binding]}),
         encoding="utf-8",
     )
+    (curated / "source_contracts_v2.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "fabric.source_contract.v2",
+                "contracts": {
+                    "source-contract:credit_program_registry:v1": {
+                        "id": "source-contract:credit_program_registry:v1",
+                        "version": "1.1.0",
+                        "status": "active",
+                        "content_hash": "sha256:" + "c" * 64,
+                        "contract": {
+                            "id": "source-contract:credit_program_registry:v1",
+                            "version": "1.1.0",
+                            "status": "active",
+                        },
+                    }
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
     return root
+
+
+class _BindingResult:
+    def __init__(self, payload: dict[str, object]) -> None:
+        self._payload = payload
+
+    def model_dump(self, **_kwargs: object) -> dict[str, object]:
+        return dict(self._payload)

@@ -569,9 +569,3 @@ __all__ = [
     "inspect_ir_schema",
     "list_ir_types",
 ]
-
-for _name in __all__:
-    _obj = globals().get(_name)
-    if isinstance(_obj, type):
-        _obj.__module__ = "polisyos.ir.schema_catalog"
-del _name, _obj

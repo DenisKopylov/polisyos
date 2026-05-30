@@ -1,1 +1,63 @@
-"""Phase 5/6 decomposition package."""
+"""Foundry welfare bounds, social-weight schedules, and frontier emission."""
+
+from __future__ import annotations
+
+from polisyos.foundry.welfare.frontier_emitter import (
+    AlternativeOutcome,
+    DominanceRecord,
+    ObjectiveSpec,
+    ParetoFrontierRecord,
+    ValueChoiceDecisionPoint,
+    WelfareAuditTrail,
+    WelfareFrontierEmission,
+    WelfareFrontierError,
+    WelfareFrontierSurface,
+    assert_welfare_publication_not_scalar_only,
+    build_welfare_frontier_surface,
+    emit_welfare_frontier,
+    load_welfare_frontier_emission,
+    persist_welfare_frontier_emission,
+)
+from polisyos.foundry.welfare.social_weight_provenance import (
+    AffectedGroupWeight,
+    SocialWeightDissent,
+    SocialWeightMandate,
+    SocialWeightProvenance,
+    SocialWeightProvenanceError,
+    SponsorDisclosure,
+    ValueChoiceActor,
+    assert_social_weight_provenance_publication_ready,
+    assert_social_weight_provenance_usable_for_value_choice,
+    coerce_social_weight_provenance,
+    load_social_weight_provenance,
+    persist_social_weight_provenance,
+)
+
+__all__ = [
+    "AffectedGroupWeight",
+    "AlternativeOutcome",
+    "DominanceRecord",
+    "ObjectiveSpec",
+    "ParetoFrontierRecord",
+    "SocialWeightDissent",
+    "SocialWeightMandate",
+    "SocialWeightProvenance",
+    "SocialWeightProvenanceError",
+    "SponsorDisclosure",
+    "ValueChoiceActor",
+    "ValueChoiceDecisionPoint",
+    "WelfareAuditTrail",
+    "WelfareFrontierEmission",
+    "WelfareFrontierError",
+    "WelfareFrontierSurface",
+    "assert_social_weight_provenance_publication_ready",
+    "assert_social_weight_provenance_usable_for_value_choice",
+    "assert_welfare_publication_not_scalar_only",
+    "build_welfare_frontier_surface",
+    "coerce_social_weight_provenance",
+    "emit_welfare_frontier",
+    "load_social_weight_provenance",
+    "load_welfare_frontier_emission",
+    "persist_social_weight_provenance",
+    "persist_welfare_frontier_emission",
+]

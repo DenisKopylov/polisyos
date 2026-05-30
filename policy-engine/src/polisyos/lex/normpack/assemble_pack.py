@@ -43,7 +43,7 @@ from polisyos.fabric.world.events import (
     persist_world_event_with_facts,
 )
 from polisyos.ir.kernel.base import ARTIFACT_ID_PATTERN, ID_PATTERN
-from polisyos.ir.norm_pack import NormPack, NormRef, NormRule, RuleType
+from polisyos.ir.loading.norm_pack import NormPack, NormRef, NormRule, RuleType
 from polisyos.ir.world.abi import NodeKind
 from polisyos.ir.world.conflict import ConflictSet
 from polisyos.ir.world.event import (

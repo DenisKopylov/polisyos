@@ -4,11 +4,17 @@ status: active
 owner: team-policy-design-research
 created: 2026-05-21
 stability: draft
+raw_research_ledger: ../../research/universal-policy-design/deep-research-reports-105-146-combined.md
+source_synthesis: ../../backlog/universal-policy-design-case-research-results-consolidation.md
+implementation_plan: ./POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md
+source_ownership: ../../reference/policy-design-case-source-ownership.md
 related:
   - ../../system-design-decisions/policy-design-best-in-class-operating-model.md
   - ../../system-design-decisions/policy-design-case-decision-log.md
   - ../../backlog/production-data-e2e-diagnostic-backlog.md
   - ../../backlog/cloud-wave11-root-cause-diagnostic-backlog.md
+  - ../../backlog/universal-policy-design-case-research-results-consolidation.md
+  - ../../research/universal-policy-design/deep-research-reports-105-146-combined.md
   - ./POLICYOS_BEST_IN_CLASS_EVIDENCE_BINDING_AND_SCENARIO_AUTHORITY_PLAN.md
   - ./POLICYOS_EVIDENCE_SPINE_CONNECTIVITY_REMEDIATION_PLAN.md
 scope:
@@ -40,6 +46,16 @@ scope:
 ---
 
 # PolicyOS Universal Policy Design Case Research Plan
+
+Source ownership: this research plan is part of the repo-owned Policy Design
+Case source chain governed by
+`docs/reference/policy-design-case-source-ownership.md`. The raw research
+ledger lives at
+`docs/research/universal-policy-design/deep-research-reports-105-146-combined.md`,
+the normalized synthesis lives at
+`docs/backlog/universal-policy-design-case-research-results-consolidation.md`,
+and the engineering handoff lives at
+`docs/plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md`.
 
 > **For agentic researchers:** REQUIRED WORKFLOW: use this document as a
 > research plan, not an implementation plan. Each wave should produce a
@@ -1714,6 +1730,12 @@ unbounded mandatory gates or hidden deletion of inconvenient obligations.
 **Purpose:** decide what public, reviewer, expert, and machine audiences must
 see for contestability and accountability to be real.
 
+**Engineering split:** C39 has two execution surfaces. `C39a` is projection
+structure and audience entitlement; it is ready for E4/E5. `C39b` is recourse
+mechanics; PolicyOS owns contested records, `recourse_pointer`, reopening
+triggers, and recourse-outcome ingestion, while appeal intake/adjudication/SLA
+remain deployment-owned unless explicitly configured.
+
 **Code-informed starting point:** PDC projection, public export guards,
 DecisionGradeExport, dashboard validators, audit verifier, assurance case,
 claim registry, participation provenance, contestability, tradeoff/welfare,
@@ -1734,6 +1756,8 @@ and C16/C17/C18/C19 synthesis.
 - Define failure modes: public surface hides blocker, reviewer surface cannot
   reconstruct claim, machine surface lacks refs, redaction masks dissent, or
   dashboard promotes a projection as authority.
+- Define the minimum `recourse_pointer` contract for high-stakes contested
+  production PDCs without making PolicyOS a universal appeal tribunal.
 
 **Output:** external legitimacy surface taxonomy and audience requirement
 matrix.
@@ -1814,6 +1838,53 @@ Engineering tasks should be planned in detail only after their conceptual gates
 are satisfied. Each task below represents a future capability chain, not merely
 a code module.
 
+The transition to engineering is now allowed, but not unconditional. The
+normalized synthesis in
+`docs/backlog/universal-policy-design-case-research-results-consolidation.md`
+is the controlling summary; the raw research ledger is archived in
+`docs/research/universal-policy-design/deep-research-reports-105-146-combined.md`
+for detail checks. Engineering planning must honor four conditions:
+
+1. Six fast-track decision ADRs must land early. Work may plan in parallel, but
+   dependent implementation stays gated until the relevant ADR is ratified.
+2. Every ADR must distinguish structural commitments from tuned parameters.
+3. Threshold items must use governed configuration, provisional defaults,
+   feature flags or advisory mode, and explicit owners; early defaults are not
+   validated truth.
+4. Research sources used by the plan must live in the repo, not only in a local
+   Downloads folder.
+
+#### Fast-Track Decision ADRs
+
+These are not new research waves. They ratify decisions already present in the
+consolidation so engineering does not inherit conceptual ambiguity.
+
+| ADR | Scope | Structural commitment | Tuned parameter posture | Gates |
+| --- | --- | --- | --- | --- |
+| FT-ADR-01 | Evidence acquisition decision boundaries | Eligibility precedes ranking; mandatory gates dominate VOI; `accepted_deficit`, `publish_with_limitation`, and `closeout_block` are distinct; governed/production commit needs human or governed authority. | VOI weights, cost values, time estimates, and strategy-prior values remain config-governed. | E17, acquisition paths in E10/E16 |
+| FT-ADR-02 | Participation legitimacy matrix | Commit `claim_use x authority_level x population_scope -> representativeness/provenance` structure and fail-safe downgrade posture. | Representativeness numeric thresholds remain governed config under methodology/governance owners. | Participation surfaces in E4/E5, E11, E22 |
+| FT-ADR-03 | Contestability record vs recourse process | PolicyOS owns contested records, public visibility, reopening triggers, `recourse_pointer`, and recourse-outcome ingestion; it does not own universal appeal adjudication. | Deployment-specific appeal SLA/intake/adjudicator settings are external/institutional config. | C39b parts of E4/E5 and lifecycle ingestion in E15 |
+| FT-ADR-04 | Legal hierarchy and competence mini-decisions | Jurisdiction fallback is per-jurisdiction config; multiple authority types are allowed per norm; competence changes split claims by legal window. | Jurisdiction-specific fallback tables are governed namespace config. | E9 |
+| FT-ADR-05 | Bounded liveness invariants | `eventually X` becomes `X within deadline D, else escalate`, finite-state-checkable through deadline consistency. | Deadlines and retry ceilings are governed runtime config. | E3, E6, E7, E19 |
+| FT-ADR-06 | Review-effectiveness telemetry | Start advisory-only; measure review time, override rate, dissent, no-delta reviews, and separation-of-duty failures from existing metadata. | Blocking consequences wait for longitudinal data. | E19 |
+
+#### ADR Template Requirements
+
+Every ADR produced from this plan must include:
+
+- **Structural commitment:** schema, transition, invariant, authority boundary,
+  ownership, and required negative tests.
+- **Tuned parameter:** thresholds, weights, minimum counts, budgets, deadlines,
+  reviewer cutoffs, or calibration cutoffs that are provisional and
+  config-governed.
+- **Feature flag or advisory posture:** required for effective-independence
+  weights, calibration blocking, complexity budgets, participation thresholds,
+  and other values that need real outcome data.
+- **Anti-laundering test:** a concrete case where the new artifact must not
+  mint data, legal, method, participation, closeout, or public authority.
+- **Revision path:** owner, evidence required for changing tuned parameters,
+  and whether public notice/revalidation is needed.
+
 #### E0 - Capability Ratchet And Pattern Register Tooling
 
 **Depends on:** C0, C27.
@@ -1870,7 +1941,7 @@ and closeout/publication effects.
 
 #### E3 - Unified `can_i_closeout` Substrate
 
-**Depends on:** C1, C2, C3, C24.
+**Depends on:** C1, C2, C3, C24, FT-ADR-05.
 
 **Closes:** P01, P02, P04, P05, P09, P10.
 
@@ -1880,6 +1951,11 @@ and closeout/publication effects.
   attestation, source truth, metamorphic controls, performance/cost budgets,
   closeout compatibility, semantic binding, approval, audit verifier, and
   publication state.
+- Materialize the record through a separate closeout substrate reader, not
+  readiness. Readiness is one conjunct; the closeout record is authoritative
+  only for `closeout_verdict`.
+- Add bounded-liveness deadline consistency checks where closeout depends on
+  async repair, retry, producer wait, or escalation paths.
 - Add CLI/API output and readiness integration.
 - Add negative tests for missing provenance, incompatible reader schema,
   failed invariant, semantic closure failure, projection-only authority, and
@@ -1890,7 +1966,7 @@ closeout state with first failing producer, root-cause class, and next action.
 
 #### E4 - Typed Policy Design Case Projection Backend
 
-**Depends on:** C15, C16, C17, C18, C19, C26.
+**Depends on:** C15, C16, C17, C18, C19, C26, FT-ADR-02, FT-ADR-03.
 
 **Closes:** P03, P05, P10, P15.
 
@@ -1898,10 +1974,16 @@ closeout state with first failing producer, root-cause class, and next action.
 
 - Replace shallow `dict[str, Any]` assumptions with strict Pydantic DTOs for
   Policy Design Case projection and typed projection gaps.
+- Split `C39a` projection structure from `C39b` recourse mechanics. Projection
+  structure is owned by PolicyOS; appeal intake/adjudication/SLA are
+  deployment-owned unless separately configured.
 - Include claim graph, warrant structures, authority summary, readiness gates,
   approval decision, publication status, contested records, deficit register,
   invariant summary, audit-verifier summary, limitations, and machine-readable
   authority gaps.
+- Add `recourse_pointer` and recourse-outcome ingestion refs for high-stakes
+  contested production PDCs, while keeping projection artifacts
+  non-authoritative.
 - Add OpenAPI contract and backend tests.
 
 **Completion signal:** runtime can emit a typed projection or typed projection
@@ -1909,7 +1991,7 @@ failure without minting authority.
 
 #### E5 - Generated Client, Dashboard, Public Export, And Audit Surface
 
-**Depends on:** E4.
+**Depends on:** E4, FT-ADR-03 for high-stakes contested publication surfaces.
 
 **Closes:** P03, P05, P10.
 
@@ -1918,6 +2000,9 @@ failure without minting authority.
 - Regenerate TypeScript clients.
 - Update dashboard/public/export renderers to consume typed projection.
 - Wire public export and audit package references to typed projection truth.
+- Render verified `recourse_pointer`, contested-record omissions, and
+  deployment-owned recourse boundaries without implying PolicyOS adjudicates
+  appeals.
 - Add projection-laundering tests for dashboard/API mismatch, raw artifact used
   as public export, missing projection gap, and failed claim promotion.
 
@@ -1977,7 +2062,7 @@ sidecars.
 
 #### E9 - Lex Legal Authority Adapter
 
-**Depends on:** C2, C7, C8, C11.
+**Depends on:** C2, C7, C8, C11, FT-ADR-04.
 
 **Closes:** P01, P02, P05, P08, P12.
 
@@ -1988,6 +2073,10 @@ sidecars.
   lists are absent.
 - Add hierarchical jurisdiction, temporal competence, authority-type facets,
   selected/rejected/no-anchor refs, and typed blockers.
+- Use governed per-jurisdiction fallback config rather than a universal
+  hardcoded hierarchy rule.
+- Allow one norm to carry multiple authority types and split claims when
+  competence changes during the policy window.
 
 **Completion signal:** legal authority cannot pass through global or generic
 Ukrainian matches alone.
@@ -2013,7 +2102,7 @@ scenario evidence.
 
 #### E11 - Scholar Academic Evidence Adapter
 
-**Depends on:** C8, C13, C14, C26.
+**Depends on:** C8, C13, C14, C26, FT-ADR-02 for participation-like source claims.
 
 **Closes:** P01, P02, P10, P14.
 
@@ -2026,6 +2115,9 @@ scenario evidence.
   lineage for independence calculations.
 - Add typed blocker when serious claims lack academic evidence or when Scholar
   evidence is context-only.
+- For participation-like or affected-person claims surfaced through Scholar or
+  grey literature, preserve claim-use downgrade and provenance limits rather
+  than treating publication as representativeness.
 
 **Completion signal:** academic evidence can support, limit, contest, or block
 claim support with visible provenance.
@@ -2058,6 +2150,12 @@ support serious method obligations.
 
 - Implement evidence-line identity and collapse reason records.
 - Downweight dependent evidence lines in portfolio aggregation.
+- Put graded weights and authority-level minimum effective counts behind
+  governed configuration and feature flags; initial defaults are provisional,
+  not validated thresholds.
+- Represent rare-domain `scarcity_structural` separately from
+  `scarcity_remediable`; never inflate scarce evidence into independent
+  support.
 - Wire proof replay, Scholar dependence, Fabric lineage, legal source
   dependence, prompt/model paths, and simulation assumptions into effective
   independent evidence count.
@@ -2117,7 +2215,7 @@ the official input for each claim.
 
 #### E17 - Evidence Acquisition Planner
 
-**Depends on:** C22.
+**Depends on:** C22, FT-ADR-01.
 
 **Closes:** P01, P02, P10.
 
@@ -2126,6 +2224,11 @@ the official input for each claim.
 - Implement acquisition strategy records: registry, agency request, survey,
   consultation, legal corpus expansion, academic retrieval, production
   snapshot build, proxy/degrade, accepted deficit, rerun, and block.
+- Implement `gap_type x authority_level x mandatory_gate_state` eligibility
+  before VOI ranking. VOI ranks eligible strategies only; it cannot bypass a
+  non-overridable gate.
+- Keep `accepted_deficit`, `publish_with_limitation`, and `closeout_block`
+  distinct in records, readers, and public surfaces.
 - Feed acquisition outcomes into VOI calibration and future strategy priors.
 - Add next-action output for blocked claims.
 
@@ -2152,7 +2255,7 @@ confusing them with ordinary performance telemetry.
 
 #### E19 - Self-FMEA, Soft-Gate, Review, And Complexity Controls
 
-**Depends on:** C24.
+**Depends on:** C24, FT-ADR-05, FT-ADR-06.
 
 **Closes:** P04, P09, P10, P13.
 
@@ -2160,7 +2263,12 @@ confusing them with ordinary performance telemetry.
 
 - Implement soft-gate registry and aging/escalation checks.
 - Emit repair-decision FMEA records for prompt/tool repairs.
-- Capture review-effectiveness telemetry and complexity budget reports.
+- Capture review-effectiveness telemetry in advisory mode first. Do not make
+  review-effectiveness thresholds blocking until longitudinal evidence supports
+  them.
+- Capture complexity budget reports from existing telemetry. The budget may
+  gate growth of new controls by requiring expected Net-MAV and measurement
+  refs; it should not become a per-run ceremonial gate by default.
 - Add tests for legacy warning publication, inferred-ledger box ticking,
   projection failure with no gap, and ceremonial gate overload.
 
@@ -2179,8 +2287,10 @@ failures and cannot hide under domain evidence status.
   data class, evidence mode, and authority level.
 - Track interval coverage, bias, reversal, retraction, blocker precision/recall,
   and evidence-class reliability.
-- Wire longitudinal metrics into future authority warnings or blockers without
-  contaminating current-run evidence.
+- Wire longitudinal metrics into future authority warnings, review depth,
+  uncertainty widening, provider/model routing, or later blockers without
+  contaminating current-run evidence. Blocking thresholds start as
+  feature-flagged governed config and require mature history.
 
 **Completion signal:** weak track record can warn or block future high-authority
 runs with explicit governance policy.
@@ -2204,7 +2314,7 @@ past failures.
 
 #### E22 - Semantic Evaluation And Adversarial Packs
 
-**Depends on:** C26 and stable producer/surface tasks.
+**Depends on:** C26, FT-ADR-02, FT-ADR-03, and stable producer/surface tasks.
 
 **Closes:** P10, P14, P15.
 
@@ -2213,6 +2323,9 @@ past failures.
 - Implement semantic-completeness fixtures, expert-disagreement tests,
   projection-laundering tests, LLM speculation tests, participation
   provenance tests, raw-count inflation tests, and citation false-pass probes.
+- Add negative tests where participation prevalence is improperly inferred
+  from thin consultation, `recourse_pointer` is missing or unreachable for a
+  high-stakes contested PDC, and a tuned threshold is hardcoded as final.
 - Map existing challenge classes before adding new ones.
 - Add benchmark governance metadata and ablation hooks.
 
@@ -2230,6 +2343,9 @@ validity from evidence-bound, authority-truthful policy design.
 - Publish ADRs for stable conceptual decisions.
 - Update runbooks, reference docs, docs index, public-surface docs, and
   generated-artifact instructions.
+- Keep raw research ledgers, normalized synthesis docs, ADRs, and engineering
+  plans under repo-owned paths so future readers do not depend on local
+  Downloads files.
 - Record evidence paths and command evidence for each completed capability.
 
 **Completion signal:** operators and future agents can find the canonical
@@ -2237,7 +2353,7 @@ owner, contract, evidence path, and validation commands.
 
 #### E24 - Final Implementation Plan And Validation Ladder
 
-**Depends on:** C27.
+**Depends on:** C27 and the six fast-track decision ADRs.
 
 **Closes:** sequencing risk.
 
@@ -2246,8 +2362,13 @@ owner, contract, evidence path, and validation commands.
 - Write `POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md`.
 - Include file ownership, dependencies, task order, test commands, validation
   ladder, rollout gates, and explicit unresolved research questions.
+- Place the six fast-track ADRs at the front of the implementation sequence
+  and mark E9, E17, E19, and C39b-dependent E4/E5 work as blocked until their
+  relevant ADR lands.
 - Require every task to name anti-pattern IDs closed or risked, capability
   state moved, and reuse path.
+- Require every task with tuned parameters to identify config owner, feature
+  flag/advisory mode, provisional default source, and validation path.
 
 **Completion signal:** implementation can proceed without reintroducing the old
 mix of conceptual ambiguity and engineering wiring debt.
@@ -2284,66 +2405,78 @@ mix of conceptual ambiguity and engineering wiring debt.
 | C25 | E20, E21 | Calibration and memory policy separates current evidence from future priors. |
 | C26 | E1, E22, E24 | Benchmark governance includes semantic negative controls and anti-laundering probes. |
 | C27 | E23, E24 | Consolidated report marks decisions implementable, experimental, optional, or research-only. |
+| C28 | E6, E7, E9-E13 | Hybrid concept spine is accepted: repo-governed namespaces by default plus per-run reconciled authority artifact. |
+| C29 | E13, E22 | Effective-independence function has strict collapse and graded defaults; weights/minima are feature-flagged governed config. |
+| C30 | E1, E22, E24 | Semantic benchmark rubric has labels, gold-card fields, and false-pass probes. |
+| C31 | E2, E3, E4, E19 | Deficit dispositions distinguish accepted deficit, publish-with-limitation, review, reissue, and hard block. |
+| C32 | E19 | Complexity budget is telemetry-derived and advisory by default; new controls declare expected Net-MAV. |
+| C33 | E14, E15 | Rule evolution policy distinguishes schema migration from semantic/rule change and public revalidation. |
+| C34 | E4, E11, E22 | Participation matrix structure and downgrade posture are decided; thresholds are tuned parameters. |
+| C35 | E20, E21 | Sparse-history calibration policy is non-blocking until mature history supports governed thresholds. |
+| C36 | E0, E24 | Capability debt algebra provides state labels, purpose multipliers, and readiness bands. |
+| C37 | E3, E6, E7, E19 | Bridge authority uses boundary-scoped closeout input, not a bridge-specific top-level authority role. |
+| C38 | E17, E19 | Obligation control uses candidate ledger, bundle ledger, and bounded blocking frontier. |
+| C39a | E4, E5 | Projection structure and audience entitlement matrix are ready for typed surface engineering. |
+| C39b | E4, E5, E15 | PolicyOS owns contestability records and `recourse_pointer`; appeal process is deployment-owned. |
+| C40 | E6, E7, E9-E13, E19 | Producer liveness uses bounded states, deadlines, typed blockers, and context-only non-authority. |
+| C41 | E20, E21, E22 | Historical priors influence routing, VOI, review, and uncertainty, never current-run evidence closure. |
 
 ---
 
-## Open Design Decisions
+## Decision Status After Synthesis
 
-These decisions should remain open until research evidence is available:
+The broad research questions have converged enough to plan engineering. The
+remaining work is not homogeneous; the plan must not treat every uncertainty as
+"more research."
 
-- Is admissibility best modeled as algebra, rules, graph matching, type
-  checking, or a hybrid?
-- Which facet families are runtime-stable versus research-only?
-- Can obligation rules be mined reliably from historical failures?
-- How much expert review is needed before a rule becomes `established`?
-- Are LLM critics useful because of persona diversity or because of
-  substantively different evidence bases?
-- What closeout state should contested but legally publishable policies have?
-- Which tradeoffs can be quantified and which require explicit public reason?
-- What minimum participation provenance is required for different legitimacy
-  claims?
-- What benchmark governance prevents overfitting to the first policy corpus?
-- Which existing module semantics become canonical, and which are projections
-  or legacy compatibility layers?
-- What is the canonical cross-status algebra over existing local statuses, and
-  which local statuses cap publication, support strength, readiness, or
-  closeout?
-- What is the canonical unified `can_i_closeout(run_id)` decision surface over
-  formal invariants, event logs, attestation, source truth, metamorphic
-  controls, performance budgets, and compatibility records?
-- What graded legal admissibility states and hierarchical-jurisdiction rules
-  should Lex expose for governed and production policy recommendations?
-- What minimum effective independent evidence count is required by authority
-  level and claim type?
-- Which warrant semantics and exporter profiles are missing from the existing
-  `assurance_case.py` SACM/CAE/GSN mapping?
-- How should existing projection semantics, public-export guardrails, and
-  `DecisionGradeExport` audience tiers be unified into one typed
-  `PolicyDesignCaseProjection`, and which fields are public, reviewer-only,
-  expert-only, or machine-only?
-- Which numeric, temporal, and geographic mismatches are transformable, and
-  which are closeout blockers?
-- What canonical time-role envelope reconciles legal, data, policy, model,
-  detection, publication, replay, freshness, and retention time?
-- How should acquisition planning trade off VOI, authority, cost, urgency,
-  privacy, and implementation feasibility?
-- Which run-cost, provider-call, and degradation-SLA thresholds warn, degrade,
-  or block by authority level?
-- Which case-machinery failures deserve formal model checking before runtime
-  implementation?
-- Which taxonomy/rule changes force mandatory revalidation of past closed
-  cases?
-- Which rule-semantics changes can be replayed under old logic, migrated, or
-  grandfathered, and which must trigger mandatory public revalidation?
-- Which calibration metrics should block future high-authority runs rather
-  than only warn reviewers?
-- How should PolicyOS learn from successful policy patterns without creating
-  overconfident priors or conservative bias from failure-only memory?
-- What is the maximum acceptable closeout complexity by authority level, and
-  which record families or gates may be optional, sampled, or deferred?
-- Which additional universal-policy continuous-governance detectors and
-  bridges are mandatory before relying on typed reissue/withdraw/supersede
-  records?
+### Ratify Immediately
+
+These are decided in the consolidation but must land as ADRs before their
+dependent E-tasks proceed:
+
+- evidence acquisition decision boundaries: eligibility before ranking,
+  mandatory gates over VOI, three distinct terminal states, and governed commit
+  authority;
+- participation legitimacy matrix structure and fail-safe downgrade posture;
+- contestability record vs deployment-owned recourse process, with verified
+  `recourse_pointer` for high-stakes contested production PDCs;
+- legal hierarchy/competence mini-decisions: jurisdiction-config fallback,
+  multiple authority types, and competence-window splitting;
+- bounded-liveness invariants as deadline consistency and escalation;
+- advisory-first review-effectiveness telemetry.
+
+### Structural Now, Tune Later
+
+These structures should be implemented with provisional, governed defaults and
+feature flags or advisory mode:
+
+- effective-independence weights and authority-level minimum effective counts;
+- calibration blocking thresholds and sparse-history promotion/demotion rules;
+- complexity budgets, Net-MAV bands, and ceremony thresholds;
+- participation representativeness numeric thresholds;
+- rare-domain weak-evidence thresholds and single-line-deficit policy;
+- run-cost, provider-call, budget, and degradation-SLA thresholds.
+
+### Deployment Or Institution Owned
+
+These are intentionally not universal PolicyOS research problems:
+
+- appeal intake, adjudication, SLA, and outcome authority beyond the typed
+  `recourse_pointer` and recourse-outcome ingestion hook;
+- jurisdiction-specific legal fallback tables;
+- named methodological and governance ownership for participation thresholds;
+- external concept namespace service operation until promotion triggers fire.
+
+### Still Empirical
+
+These need corpus, telemetry, or longitudinal evidence while engineering
+progresses:
+
+- whether initial independence weights match expert portfolio judgements;
+- how often semantic false passes appear after structural gates pass;
+- reviewer-time, no-delta review, false-block, and ceremony rates;
+- calibration drift and track-record thresholds after enough resolved cases;
+- whether repo-governed concept dictionaries become operationally insufficient.
 
 ---
 

@@ -18,10 +18,10 @@ from polisyos.ir.analytics.causal_discovery import (
     LatentDiscoveryBundle,
 )
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel
-from polisyos.ir.refs import CausalDiscoveryReportRef
+from polisyos.ir.registry.refs import CausalDiscoveryReportRef
 from polisyos.scientist.methods.discovery.latent_producers import produce_latent_discovery_bundle
 
-GRAPH_HYPOTHESIS_SCHEMA_NAME = "polisyos.scientist.discovery.GraphHypothesis"
+GRAPH_HYPOTHESIS_SCHEMA_NAME = "polisyos.scientist.methods.discovery.GraphHypothesis"
 GRAPH_HYPOTHESIS_SCHEMA_VERSION = "1.0"
 
 

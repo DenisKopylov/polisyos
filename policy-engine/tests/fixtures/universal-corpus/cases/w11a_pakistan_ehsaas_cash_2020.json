@@ -1,0 +1,657 @@
+{
+  "case_id": "w11a_pakistan_ehsaas_cash_2020",
+  "claim_evidence_annotations": {
+    "annotation_provenance": {
+      "conflicts": [],
+      "disagreement_category": null,
+      "expertise_basis": "W11.A source triage from Ehsaas and World Bank materials",
+      "reviewed_at": "2026-05-24",
+      "reviewer_role": "policy_generalist"
+    },
+    "annotation_status": "annotated_w11b",
+    "authority_boundary": {
+      "authoritative_for": [
+        "corpus_annotation",
+        "compilation_truthfulness_reference"
+      ],
+      "may_not_be_used_for": [
+        "claim_authority",
+        "producer_evidence_authority",
+        "legal_authority",
+        "method_validity",
+        "participation_legitimacy",
+        "projection_authority"
+      ],
+      "may_not_use_for": [
+        "claim_authority",
+        "producer_evidence_authority",
+        "legal_authority",
+        "method_validity",
+        "participation_legitimacy",
+        "projection_authority"
+      ]
+    },
+    "authority_level": "production",
+    "capability_reality_label": "implemented",
+    "case_id": "w11a_pakistan_ehsaas_cash_2020",
+    "case_title": "Pakistan Ehsaas Emergency Cash COVID-19 social protection response",
+    "claims": [
+      {
+        "admissibility_label": "publishable_with_limitation",
+        "claim_id": "claim:ehsaas-rapid-social-protection",
+        "claim_type": "targeting_and_delivery",
+        "contestability_status": "limited",
+        "evidence_refs": [
+          "evidence:worldbank-responsive-social-protection"
+        ],
+        "legal_refs": [
+          "legal:ehsaas-emergency-cash"
+        ],
+        "limitation_refs": [
+          "limitation:registry-and-access-gap"
+        ],
+        "method_refs": [
+          "method:social-registry-emergency-targeting"
+        ],
+        "participation_refs": [
+          "participation:cash-disbursement-access"
+        ],
+        "risks": [
+          "risk:digital-and-registry-exclusion"
+        ],
+        "scope": {
+          "geography": [
+            "Pakistan"
+          ],
+          "institution": [
+            "Government_of_Pakistan",
+            "Ehsaas_programme",
+            "World_Bank"
+          ],
+          "population": [
+            "low_income_households",
+            "informal_workers_affected_by_covid_19"
+          ],
+          "time_period": "2020-04 to 2020-10"
+        },
+        "text_ref": "text:case:summary",
+        "tradeoffs": [
+          "tradeoff:rapid-scale-vs-targeting-precision"
+        ]
+      }
+    ],
+    "corpus_phase": "W11.A",
+    "domain": "social_protection_targeting",
+    "expected_evidence_families": [
+      "social_registry_targeting_data",
+      "payment_delivery_records",
+      "coverage_and_exclusion_analysis",
+      "gender_and_accessibility_analysis",
+      "shock_response_evaluation"
+    ],
+    "expert_adjudication_status": "adjudicated_w11c",
+    "jurisdiction": "Pakistan",
+    "jurisdiction_authority_level": "national",
+    "known_failure_limitation_labels": [
+      "digital_access_exclusion_risk",
+      "registry_freshness_gap",
+      "coverage_vs_targeting_tradeoff",
+      "payment_site_access_and_safety_risk"
+    ],
+    "known_outcomes_or_failures": [
+      {
+        "finding_id": "outcome:cash-transfers-delivered",
+        "source_ref": "outcome:cash-transfers-delivered",
+        "would_prior_obligation_have_flagged": false
+      }
+    ],
+    "obligations": [
+      {
+        "generated_from_facets": [
+          "facet:instrument.emergency_cash_transfer",
+          "facet:targeting.social_registry",
+          "facet:delivery.digital_screening_cash_points"
+        ],
+        "obligation_id": "obligation:ehsaas-targeting-exclusion-audit",
+        "required_evidence_family": "coverage_exclusion_and_payment_access_analysis",
+        "reviewer_notes": "Production closeout must expose exclusion and payment access risks, not only headline coverage.",
+        "status": "required_for_production_closeout"
+      }
+    ],
+    "pattern_refs": [
+      "P01",
+      "P02",
+      "P03",
+      "P05",
+      "P10",
+      "P13",
+      "P14",
+      "P15"
+    ],
+    "policy_instrument": {
+      "delivery_channel": "digital eligibility screening and cash disbursement points",
+      "funding_channel": "national social protection response with development partner support",
+      "instrument_type": "emergency_cash_transfer"
+    },
+    "policy_time": "2020-04 to 2020-10",
+    "raw_source_refs": [
+      "https://www.ehsaas2047.com/emergency-cash",
+      "https://www.worldbank.org/en/results/2020/12/09/responsive-social-protection-program-and-systems-to-serve-pakistans-poorest-people",
+      "https://www.worldbank.org/en/news/press-release/2021/03/25/pakistan-expands-ehsaas-social-protection-programs-to-increase-household-resilience-to-economic-shocks-with-world-bank-s"
+    ],
+    "redacted_source_hashes": [],
+    "references": [
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "text:case:summary",
+        "ref_type": "source",
+        "source_ref": "repo://docs/research/universal-policy-design/outcome-corpus/pakistan-ehsaas-emergency-cash-2020-social-protection.md#summary",
+        "title": "Case summary"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "legal:ehsaas-emergency-cash",
+        "ref_type": "legal",
+        "source_ref": "https://www.ehsaas2047.com/emergency-cash",
+        "title": "Ehsaas Emergency Cash programme page"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "evidence:worldbank-responsive-social-protection",
+        "ref_type": "evidence",
+        "source_ref": "https://www.worldbank.org/en/results/2020/12/09/responsive-social-protection-program-and-systems-to-serve-pakistans-poorest-people",
+        "title": "World Bank results brief on Pakistan responsive social protection"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "method:social-registry-emergency-targeting",
+        "ref_type": "method",
+        "source_ref": "https://www.worldbank.org/en/results/2020/12/09/responsive-social-protection-program-and-systems-to-serve-pakistans-poorest-people",
+        "title": "Emergency cash transfer targeting and delivery systems"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "participation:cash-disbursement-access",
+        "ref_type": "participation",
+        "source_ref": "https://www.ehsaas2047.com/emergency-cash",
+        "title": "Cash disbursement access and recipient pathway"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "risk:digital-and-registry-exclusion",
+        "ref_type": "risk",
+        "source_ref": "https://www.worldbank.org/en/results/2020/12/09/responsive-social-protection-program-and-systems-to-serve-pakistans-poorest-people",
+        "title": "Fragmented coverage and shock responsiveness limitation"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "tradeoff:rapid-scale-vs-targeting-precision",
+        "ref_type": "tradeoff",
+        "source_ref": "https://www.worldbank.org/en/results/2020/12/09/responsive-social-protection-program-and-systems-to-serve-pakistans-poorest-people",
+        "title": "Rapid emergency scale and targeting precision tradeoff"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "limitation:registry-and-access-gap",
+        "ref_type": "limitation",
+        "source_ref": "https://www.worldbank.org/en/results/2020/12/09/responsive-social-protection-program-and-systems-to-serve-pakistans-poorest-people",
+        "title": "Coverage, administration, and targeting efficiency limitation"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "outcome:cash-transfers-delivered",
+        "ref_type": "outcome",
+        "source_ref": "https://www.ehsaas2047.com/emergency-cash",
+        "title": "Emergency cash disbursement to eligible families"
+      }
+    ],
+    "schema_version": "policyos.universal_outcome_corpus.annotation.v1",
+    "sourcing_status": "sourced",
+    "targeting": {
+      "affected_populations": [
+        "households_without_digital_access",
+        "payment_agents",
+        "provincial_administrations"
+      ],
+      "beneficiary_classes": [
+        "low_income_households",
+        "informal_workers_affected_by_covid_19",
+        "women_payment_recipients"
+      ],
+      "targeting_type": "poverty_registry_and_emergency_vulnerability_screening"
+    }
+  },
+  "compilation_intent_text": "Pakistan Ehsaas Emergency Cash COVID-19 social protection response. Design a multi_year national service grant for low_income households and workers, with budget support, coverage risk monitoring, and annual review.",
+  "concept_spine_refs": {
+    "canonical_concept_refs": [
+      "concept://w11/w11a_pakistan_ehsaas_cash_2020/universal-policy-grammar"
+    ],
+    "concept_spine_ref": "concept-spine://w11/w11a_pakistan_ehsaas_cash_2020",
+    "facet_concept_refs": {
+      "authority_type": [
+        "concept://w11/w11a_pakistan_ehsaas_cash_2020/authority_type"
+      ],
+      "delivery_channel": [
+        "concept://w11/w11a_pakistan_ehsaas_cash_2020/delivery_channel"
+      ],
+      "funding_channel": [
+        "concept://w11/w11a_pakistan_ehsaas_cash_2020/funding_channel"
+      ],
+      "geography_predicate": [
+        "concept://w11/w11a_pakistan_ehsaas_cash_2020/geography_predicate"
+      ],
+      "instrument_type": [
+        "concept://w11/w11a_pakistan_ehsaas_cash_2020/instrument_type"
+      ],
+      "method_need": [
+        "concept://w11/w11a_pakistan_ehsaas_cash_2020/method_need"
+      ],
+      "outcome_channel": [
+        "concept://w11/w11a_pakistan_ehsaas_cash_2020/outcome_channel"
+      ],
+      "population_predicate": [
+        "concept://w11/w11a_pakistan_ehsaas_cash_2020/population_predicate"
+      ],
+      "risk_facet": [
+        "concept://w11/w11a_pakistan_ehsaas_cash_2020/risk_facet"
+      ],
+      "targeting_type": [
+        "concept://w11/w11a_pakistan_ehsaas_cash_2020/targeting_type"
+      ],
+      "time_predicate": [
+        "concept://w11/w11a_pakistan_ehsaas_cash_2020/time_predicate"
+      ]
+    },
+    "jurisdiction_spine_ref": "jurisdiction-spine://w11/w11a_pakistan_ehsaas_cash_2020"
+  },
+  "critic_ensemble": {
+    "authority_boundary": {
+      "authoritative_for": [
+        "critic_diversity_measurement"
+      ],
+      "may_not_use_for": [
+        "claim_authority",
+        "producer_evidence_authority",
+        "legal_authority",
+        "method_validity",
+        "projection_authority"
+      ]
+    },
+    "run_id": "run-w11a_pakistan_ehsaas_cash_2020",
+    "verdicts": [
+      {
+        "envelope": {
+          "critic_role": "legal",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_legal_basis"
+        },
+        "failure_modes": [
+          "authority_boundary:digital_access_exclusion_risk"
+        ],
+        "message": "legal critic flags digital_access_exclusion_risk for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_pakistan_ehsaas_cash_2020"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "fiscal",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_fiscal_basis"
+        },
+        "failure_modes": [
+          "budget_feasibility:registry_freshness_gap"
+        ],
+        "message": "fiscal critic flags registry_freshness_gap for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_pakistan_ehsaas_cash_2020"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "equity",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_equity_basis"
+        },
+        "failure_modes": [
+          "distributional_effect:coverage_vs_targeting_tradeoff"
+        ],
+        "message": "equity critic flags coverage_vs_targeting_tradeoff for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_pakistan_ehsaas_cash_2020"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "data",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_data_basis"
+        },
+        "failure_modes": [
+          "source_lineage:payment_site_access_and_safety_risk"
+        ],
+        "message": "data critic flags payment_site_access_and_safety_risk for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_pakistan_ehsaas_cash_2020"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "implementation",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_implementation_basis"
+        },
+        "failure_modes": [
+          "delivery_capacity:digital_access_exclusion_risk"
+        ],
+        "message": "implementation critic flags digital_access_exclusion_risk for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_pakistan_ehsaas_cash_2020"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "affected_person",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_affected_person_basis"
+        },
+        "failure_modes": [
+          "participation_voice:registry_freshness_gap"
+        ],
+        "message": "affected_person critic flags registry_freshness_gap for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_pakistan_ehsaas_cash_2020"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "adversarial",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_adversarial_basis"
+        },
+        "failure_modes": [
+          "failure_probe:coverage_vs_targeting_tradeoff"
+        ],
+        "message": "adversarial critic flags coverage_vs_targeting_tradeoff for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_pakistan_ehsaas_cash_2020"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "monitoring",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_monitoring_basis"
+        },
+        "failure_modes": [
+          "lifecycle_monitoring:payment_site_access_and_safety_risk"
+        ],
+        "message": "monitoring critic flags payment_site_access_and_safety_risk for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_pakistan_ehsaas_cash_2020"
+        ],
+        "verdict": "contest"
+      }
+    ]
+  },
+  "domain": "social_protection_targeting",
+  "expected_adapter_bindings": {
+    "bindings": [
+      {
+        "adapter": "fabric",
+        "binding_id": "bind-w11a_pakistan_ehsaas_cash_2020-selected",
+        "reason_code": "annotation_data_family_selected",
+        "requirement_id": "data-w11a_pakistan_ehsaas_cash_2020",
+        "status": "selected"
+      },
+      {
+        "adapter": "scholar",
+        "binding_id": "bind-w11a_pakistan_ehsaas_cash_2020-rejected",
+        "reason_code": "generic_or_transfer_mismatch_rejected",
+        "requirement_id": "scholar-w11a_pakistan_ehsaas_cash_2020",
+        "status": "rejected"
+      },
+      {
+        "adapter": "foundry",
+        "binding_id": "bind-w11a_pakistan_ehsaas_cash_2020-blocked",
+        "reason_code": "method_or_counterfactual_precondition_missing",
+        "requirement_id": "method-w11a_pakistan_ehsaas_cash_2020",
+        "status": "blocked"
+      }
+    ]
+  },
+  "expected_claim_families": {
+    "families": [
+      {
+        "claim_family": "targeting_and_delivery",
+        "claim_id": "claim:ehsaas-rapid-social-protection",
+        "expected_support_status": "publishable_with_limitation"
+      }
+    ]
+  },
+  "expected_closeout_states": {
+    "states": [
+      {
+        "authority_level": "research",
+        "required_surface_refs": [
+          "audit://w11d/w11a_pakistan_ehsaas_cash_2020/research"
+        ],
+        "state": "publishable"
+      },
+      {
+        "authority_level": "governed",
+        "required_surface_refs": [
+          "audit://w11d/w11a_pakistan_ehsaas_cash_2020/governed"
+        ],
+        "state": "publishable"
+      },
+      {
+        "authority_level": "production",
+        "limitation_refs": [
+          "limitation://w11d/w11a_pakistan_ehsaas_cash_2020"
+        ],
+        "required_surface_refs": [
+          "audit://w11d/w11a_pakistan_ehsaas_cash_2020/production"
+        ],
+        "state": "limited"
+      }
+    ]
+  },
+  "expected_facets": {
+    "facets": [
+      {
+        "concept_ref": "concept://w11d/w11a_pakistan_ehsaas_cash_2020/instrument",
+        "expected_value": "emergency_cash_transfer",
+        "facet_name": "instrument_type"
+      },
+      {
+        "concept_ref": "concept://w11d/w11a_pakistan_ehsaas_cash_2020/targeting",
+        "expected_value": "poverty_registry_and_emergency_vulnerability_screening",
+        "facet_name": "targeting_type"
+      },
+      {
+        "concept_ref": "concept://w11d/w11a_pakistan_ehsaas_cash_2020/delivery",
+        "expected_value": "digital eligibility screening and cash disbursement points",
+        "facet_name": "delivery_channel"
+      }
+    ]
+  },
+  "expected_obligation_graph": {
+    "frontier": [
+      {
+        "claim_refs": [
+          "claim:ehsaas-rapid-social-protection"
+        ],
+        "family": "data",
+        "obligation_id": "obligation:ehsaas-targeting-exclusion-audit",
+        "priority": "required_for_production_closeout",
+        "source_class": "governed_rule"
+      }
+    ]
+  },
+  "expected_projection_truthfulness": {
+    "projections": [
+      {
+        "audience": "public",
+        "may_not_claim": [
+          "fixture expectation is runtime authority"
+        ],
+        "must_disclose_refs": [
+          "annotation://w11d/w11a_pakistan_ehsaas_cash_2020"
+        ],
+        "truthfulness": "faithful"
+      }
+    ]
+  },
+  "expected_requirement_specs": {
+    "families": {
+      "data": [
+        {
+          "claim_id": "claim:ehsaas-rapid-social-protection",
+          "requirement_id": "data-w11a_pakistan_ehsaas_cash_2020",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/pakistan-ehsaas-emergency-cash-2020-social-protection.md#data"
+        }
+      ],
+      "legal": [
+        {
+          "claim_id": "claim:ehsaas-rapid-social-protection",
+          "requirement_id": "legal-w11a_pakistan_ehsaas_cash_2020",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/pakistan-ehsaas-emergency-cash-2020-social-protection.md#legal"
+        }
+      ],
+      "method": [
+        {
+          "claim_id": "claim:ehsaas-rapid-social-protection",
+          "requirement_id": "method-w11a_pakistan_ehsaas_cash_2020",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/pakistan-ehsaas-emergency-cash-2020-social-protection.md#method"
+        }
+      ],
+      "participation": [
+        {
+          "claim_id": "claim:ehsaas-rapid-social-protection",
+          "requirement_id": "participation-w11a_pakistan_ehsaas_cash_2020",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/pakistan-ehsaas-emergency-cash-2020-social-protection.md#participation"
+        }
+      ],
+      "scholar": [
+        {
+          "claim_id": "claim:ehsaas-rapid-social-protection",
+          "requirement_id": "scholar-w11a_pakistan_ehsaas_cash_2020",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/pakistan-ehsaas-emergency-cash-2020-social-protection.md#scholar"
+        }
+      ]
+    }
+  },
+  "expert_adjudication": {
+    "case_label": "semantic_pass",
+    "claim_labels": [
+      {
+        "claim_id": "claim:ehsaas-rapid-social-protection",
+        "dimension_id": "compilation_truthfulness",
+        "failure_mode": "digital_access_exclusion_risk",
+        "label": "semantic_pass",
+        "required_surface_change": "Expose annotation-derived limitation, contestation, or blocker state.",
+        "status_should_have_been": "publishable",
+        "why_structural_checks_missed_it": "W11.D fixture preserves annotation semantics for truthfulness comparison."
+      }
+    ],
+    "reviewer_topology_ref": "reviewer-topology://w11d/hidden/w11a_pakistan_ehsaas_cash_2020"
+  },
+  "input_intent_ref": "intent-w11a_pakistan_ehsaas_cash_2020",
+  "intent": {
+    "authority_levels": [
+      "research",
+      "governed",
+      "production"
+    ],
+    "instrument_type": "emergency_cash_transfer",
+    "intent_id": "intent-w11a_pakistan_ehsaas_cash_2020",
+    "jurisdiction": "Pakistan",
+    "metadata": {
+      "w11a_authority_level": "production"
+    },
+    "policy_time": "2020-04 to 2020-10",
+    "target_population": "low_income_households, informal_workers_affected_by_covid_19, women_payment_recipients",
+    "text": "Pakistan Ehsaas Emergency Cash COVID-19 social protection response"
+  },
+  "metadata": {
+    "pattern_refs": [
+      "P01",
+      "P02",
+      "P03",
+      "P05",
+      "P10",
+      "P13",
+      "P14",
+      "P15"
+    ],
+    "reuse_classification": "wire_existing",
+    "source_annotation_schema": "policyos.universal_outcome_corpus.annotation.v1"
+  },
+  "producer_pipeline": {
+    "producers": [
+      {
+        "consumed_concept_refs": [
+          "concept://w11/w11a_pakistan_ehsaas_cash_2020/universal-policy-grammar"
+        ],
+        "consumed_requirement_refs": [
+          "data-w11a_pakistan_ehsaas_cash_2020"
+        ],
+        "expected_output_families": [
+          "fabric.source_contract_binding.v1"
+        ],
+        "first_pass_bindings": [
+          {
+            "binding_id": "label.fabric.w11a_pakistan_ehsaas_cash_2020",
+            "binding_kind": "label",
+            "concept_ref": "concept://w11/w11a_pakistan_ehsaas_cash_2020/universal-policy-grammar",
+            "disposition": "context_only",
+            "label": "fabric context for w11a_pakistan_ehsaas_cash_2020"
+          }
+        ],
+        "producer_component": "fabric",
+        "requested_deadline_s": 5.0,
+        "second_pass_bindings": [
+          {
+            "artifact_ref": "source://w11/w11a_pakistan_ehsaas_cash_2020/fabric",
+            "binding_id": "binding.fabric.w11a_pakistan_ehsaas_cash_2020",
+            "binding_kind": "dataset",
+            "concept_ref": "concept://w11/w11a_pakistan_ehsaas_cash_2020/universal-policy-grammar",
+            "disposition": "selected",
+            "requirement_ref": "data-w11a_pakistan_ehsaas_cash_2020",
+            "time_role": "observation_time"
+          }
+        ]
+      }
+    ]
+  },
+  "redacted_source_hash": "sha256:62bd95133f649d88247c8a709149ce1157a1081f14bbce7a4c8d703eeac56396",
+  "schema_version": "policyos.universal_corpus_fixture.v1",
+  "source_case_ref": "docs/research/universal-policy-design/outcome-corpus/pakistan-ehsaas-emergency-cash-2020-social-protection.md",
+  "split": "hidden",
+  "title": "Pakistan Ehsaas Emergency Cash COVID-19 social protection response"
+}

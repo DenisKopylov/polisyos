@@ -38,8 +38,8 @@ from polisyos.ir.analytics.forecasting_uncertainty import (
     HorizonDiagnosticState,
 )
 from polisyos.ir.artifacts import ArtifactStore, put_json_artifact
-from polisyos.ir.canon import CanonSpec
-from polisyos.ir.refs import ArtifactRefModel
+from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.ir.registry.refs import ArtifactRefModel
 
 _GUARDED_FQN = "forecasting.hybrid.guarded_neural@1.0.0"
 _GUARDED_ENSEMBLE_SOURCE = "forecasting.hybrid.guarded_ensemble@1.0.0"

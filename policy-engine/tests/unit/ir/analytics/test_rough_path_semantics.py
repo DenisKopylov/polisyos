@@ -16,7 +16,7 @@ from polisyos.ir.analytics.rough_path_semantics import (
     load_rough_path_intervention_certificate,
     persist_rough_path_intervention_certificate,
 )
-from polisyos.ir.refs import ArtifactRefModel, RoughPathInterventionCertificateRef
+from polisyos.ir.registry.refs import ArtifactRefModel, RoughPathInterventionCertificateRef
 from pydantic import ValidationError
 
 

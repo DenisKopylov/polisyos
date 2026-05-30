@@ -28,9 +28,9 @@ Use snake_case modules by engine concern: `checkpoint`, `retry`, `telemetry`,
 
 ## Test Location
 
-Tests live under `tests/unit/scientist/engine/`,
-`tests/unit/scientist/workflows/`, and `tests/unit/scientist/nodes/` depending
-on the behavior under change.
+Tests live under `tests/unit/scientist/orchestration/engine/`,
+`tests/unit/scientist/orchestration/workflows/`, and
+`tests/unit/scientist/nodes/` depending on the behavior under change.
 
 ## Fixture/Data Policy
 
@@ -49,6 +49,5 @@ Scientist nodes are the extension host. Engine changes must preserve
 
 ## Deprecation And Shim Policy
 
-The old `polisyos.scientist.engine` path is a compatibility concern during the
-orchestration move. Keep shims and tests until the sunset date in architecture
-contracts.
+The old `polisyos.scientist.engine` path is retired. Keep new imports on the
+canonical `polisyos.scientist.orchestration.engine` path.

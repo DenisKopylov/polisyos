@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from polisyos.ir.loaders import PolicyLoadError, load_policy, load_trinity
+from polisyos.ir.loading.loaders import PolicyLoadError, load_policy, load_trinity
 from polisyos.ir.migrations.trinity_migration import is_trinity_migrated, split_to_bundle
 from polisyos.ir.trinity import TrinityBundle
 

@@ -32,6 +32,25 @@ _put_json = put_json_artifact
 _RUNTIME_API_ENVS: list[dict[str, object]] = []
 
 
+def _record_fixture_owner(
+    store: FileSystemCAS,
+    *refs: object,
+    tenant_id: str,
+    cell_id: str,
+) -> None:
+    """Mark fixture artifacts that participate in tenant-scoped runtime flows."""
+    for ref in refs:
+        artifact_id = getattr(ref, "artifact_id", None)
+        if artifact_id is None:
+            continue
+        store.record_artifact_owner(
+            artifact_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            writer="tests.runtime_api_env",
+        )
+
+
 def close_runtime_api_env(env: dict[str, object]) -> None:
     """Close resources created by ``build_runtime_api_env`` exactly once."""
     if env.get("_runtime_api_env_closed") is True:
@@ -68,6 +87,7 @@ def build_runtime_api_env(
 ):
     tenant_a = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
     tenant_b = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
+    cell_a = "cell-a"
 
     cas_root = tmp_path / ".polisyos"
     store = FileSystemCAS(cas_root)
@@ -901,12 +921,47 @@ def build_runtime_api_env(
         kind="foundry.equilibrium_multiplicity_report",
     )
 
+    _record_fixture_owner(
+        store,
+        binary_ref,
+        secret_ref,
+        registry_ref,
+        governance_ref,
+        evidence_bundle_ref,
+        actual_data_ref,
+        quality_ref,
+        legal_ref,
+        calibration_report_ref,
+        norm_pack_primary_ref,
+        norm_pack_secondary_ref,
+        execution_plan_ref,
+        preflight_ref,
+        evaluator_ref,
+        reproducibility_ref,
+        capability_manifest_ref,
+        data_snapshot_ref,
+        input_bindings_ref,
+        fabric_retrieval_trace_ref,
+        decision_card_ref,
+        normative_ref,
+        monitoring_contract_ref,
+        decision_packet_ref,
+        decision_packet_ref_secondary,
+        reflexion_terminal_ref,
+        experiment_state_ref,
+        workflow_report_ref,
+        workflow_spec_ref,
+        equilibrium_report_ref,
+        tenant_id=tenant_a,
+        cell_id=cell_a,
+    )
+
     run = RunContext.start(
         store=store,
         registry_bundle=registry_ref,
         run_id=core_run_id,
         tenant_id=tenant_a,
-        cell_id="cell-a",
+        cell_id=cell_a,
     )
     run.add_input(workflow_spec_ref)
     run.add_input(data_snapshot_ref)
@@ -960,7 +1015,7 @@ def build_runtime_api_env(
         registry_bundle=registry_ref,
         run_id=core_run_id_secondary,
         tenant_id=tenant_a,
-        cell_id="cell-a",
+        cell_id=cell_a,
     )
     second_run.emit(
         "scientist.node.compile_foundry",
@@ -976,7 +1031,7 @@ def build_runtime_api_env(
         registry_bundle=registry_ref,
         run_id=cross_tenant_run_id,
         tenant_id=tenant_b,
-        cell_id="cell-a",
+        cell_id=cell_a,
     )
     cross_tenant_run.emit(
         "scientist.node.compile_foundry",
@@ -1065,6 +1120,7 @@ def build_runtime_api_env(
         "promotion_candidate_id": "promotion_fixture_001",
         "tenant_a": tenant_a,
         "tenant_b": tenant_b,
+        "cell_a": cell_a,
     }
     _RUNTIME_API_ENVS.append(env)
     return env

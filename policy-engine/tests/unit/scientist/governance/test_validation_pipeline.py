@@ -5,9 +5,9 @@ import pytest
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
 from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
-from polisyos.ir.model_spec import ModelSpec
+from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.ir.types import SelectorOperator
+from polisyos.ir.model_layer.types import SelectorOperator
 from polisyos.scientist.governance.passes.base import (
     ComplianceIssue,
     IssueSeverity,
@@ -187,12 +187,17 @@ def test_mvp_profile_runs_safety() -> None:
     assert "safety" in pass_ids_run
 
 
-def test_telemetry_attached_on_failure() -> None:
+def test_telemetry_attached_on_failure(tmp_path: Path) -> None:
     """Trace should be in state even when validation fails."""
     from polisyos.scientist.governance import preflight_checks
     from polisyos.scientist.governance.profiles import ValidationProfile
 
-    state = {"run_id": "test_004", "ir": None, "budget": {"max_sim_runs": 5}}
+    state = {
+        "run_id": "test_004",
+        "ir": None,
+        "budget": {"max_sim_runs": 5},
+        "runtime_base_dir": str(tmp_path / "runs"),
+    }
 
     updated_state, gate_request = preflight_checks(state, ValidationProfile.mvp())
 

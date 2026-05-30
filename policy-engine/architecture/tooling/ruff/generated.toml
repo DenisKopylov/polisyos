@@ -52,8 +52,8 @@ allowed-confusables = [
 [lint.per-file-ignores]
 
 # Запрещаем print только в продакшн коде (src), разрешаем в скриптах и утилитах
-"tests/*" = ["ANN", "S101", "T201"]
-"tests/**" = [
+"../../../tests/*" = ["ANN", "S101", "T201"]
+"../../../tests/**" = [
   "ANN",
   "E402",
   "E501",
@@ -72,14 +72,14 @@ allowed-confusables = [
   "TC003",
   "UP047",
 ]
-"src/polisyos/ir/**" = [
+"../../../src/polisyos/ir/**" = [
   "ANN401",
   "TC001",
   "TC003",
   "E501",
   "SIM102",
 ] # IR contracts rely on runtime-visible annotations for Pydantic model rebuilds.
-"tests/unit/ir/**" = [
+"../../../tests/unit/ir/**" = [
   "ANN",
   "B017",
   "E501",
@@ -93,21 +93,21 @@ allowed-confusables = [
 # Phase 3 keeps Core on the same ratchet model as IR: keep public facades and
 # optional runtime adapters stable now, then remove these local ignores module by
 # module as the base layer is hardened.
-"src/polisyos/core/**" = ["ANN401", "TC001", "TC002", "TC003", "UP046", "UP047"]
-"src/polisyos/core/components/_cli_*.py" = ["N803", "N806", "T201"]
-"src/polisyos/core/components/cli_parts.py" = ["T201"]
-"src/polisyos/core/artifacts/_env_utils.py" = ["S603"]
-"src/polisyos/core/audit/_assembler_core.py" = ["S603"]
-"src/polisyos/core/audit/models.py" = ["S105"]
-"src/polisyos/core/audit/standalone_verifier_template.py" = ["T201"]
-"src/polisyos/core/contracts/__init__.py" = ["F401"]
-"src/polisyos/core/observability/__init__.py" = ["ANN"]
-"src/polisyos/core/security/settings.py" = ["B019"]
-"src/polisyos/core/governance/legal/backends/expr_ast.py" = ["S106"]
-"src/polisyos/core/governance/legal/backends/stub.py" = ["S106"]
-"src/polisyos/core/security/sbom.py" = ["S603"]
-"src/polisyos/core/security/slsa/config.py" = ["S105"]
-"tests/unit/core/**" = [
+"../../../src/polisyos/core/**" = ["ANN401", "TC001", "TC002", "TC003", "UP046", "UP047"]
+"../../../src/polisyos/core/components/_cli_*.py" = ["N803", "N806", "T201"]
+"../../../src/polisyos/core/components/cli_parts.py" = ["T201"]
+"../../../src/polisyos/core/artifacts/_env_utils.py" = ["S603"]
+"../../../src/polisyos/core/audit/_assembler_core.py" = ["S603"]
+"../../../src/polisyos/core/audit/models.py" = ["S105"]
+"../../../src/polisyos/core/audit/standalone_verifier_template.py" = ["T201"]
+"../../../src/polisyos/core/contracts/__init__.py" = ["F401"]
+"../../../src/polisyos/core/observability/__init__.py" = ["ANN"]
+"../../../src/polisyos/core/security/settings.py" = ["B019"]
+"../../../src/polisyos/core/governance/legal/backends/expr_ast.py" = ["S106"]
+"../../../src/polisyos/core/governance/legal/backends/stub.py" = ["S106"]
+"../../../src/polisyos/core/security/sbom.py" = ["S603"]
+"../../../src/polisyos/core/security/slsa/config.py" = ["S105"]
+"../../../tests/unit/core/**" = [
   "B017",
   "B905",
   "E501",
@@ -126,7 +126,7 @@ allowed-confusables = [
 # Phase 4D keeps Foundry on a directory-level Ruff ratchet while the heavy
 # numerics and method registry surfaces are cleaned by vertical slices. The
 # mypy plugin remains active; these suppressions are lint/style debt only.
-"src/polisyos/foundry/**" = [
+"../../../src/polisyos/foundry/**" = [
   "ANN001",
   "ANN002",
   "ANN003",
@@ -186,21 +186,21 @@ allowed-confusables = [
   "UP046",
   "UP047",
 ]
-"src/polisyos/foundry/agent_sim/distributions.py" = ["F722", "F821"]
-"src/polisyos/foundry/agent_sim/experiment.py" = ["S301"]
-"src/polisyos/foundry/agent_sim/graphs.py" = ["F722", "F821"]
-"src/polisyos/foundry/agent_sim/policy.py" = ["F722"]
-"src/polisyos/foundry/agent_sim/population.py" = ["F722", "F821"]
-"src/polisyos/foundry/agent_sim/prng.py" = ["F722"]
-"src/polisyos/foundry/agent_sim/rl.py" = ["F722", "F821"]
-"src/polisyos/foundry/agent_sim/state.py" = ["F722", "F821"]
-"src/polisyos/foundry/agent_sim/temporal.py" = ["F722", "F821"]
-"src/polisyos/foundry/agent_sim/wiring/contracts.py" = ["F821"]
-"src/polisyos/foundry/contracts/state.py" = ["F722", "F821"]
-"src/polisyos/foundry/methods/catalog/causal/admg_ops.py" = ["S324"]
-"src/polisyos/foundry/methods/catalog/causal/ncm_engine.py" = ["S307"]
-"src/polisyos/foundry/validation/phase2_closure.py" = ["S314"]
-"tests/unit/foundry/**" = [
+"../../../src/polisyos/foundry/agent_sim/distributions.py" = ["F722", "F821"]
+"../../../src/polisyos/foundry/agent_sim/experiment.py" = ["S301"]
+"../../../src/polisyos/foundry/agent_sim/graphs.py" = ["F722", "F821"]
+"../../../src/polisyos/foundry/agent_sim/policy.py" = ["F722"]
+"../../../src/polisyos/foundry/agent_sim/population.py" = ["F722", "F821"]
+"../../../src/polisyos/foundry/agent_sim/prng.py" = ["F722"]
+"../../../src/polisyos/foundry/agent_sim/rl.py" = ["F722", "F821"]
+"../../../src/polisyos/foundry/agent_sim/state.py" = ["F722", "F821"]
+"../../../src/polisyos/foundry/agent_sim/temporal.py" = ["F722", "F821"]
+"../../../src/polisyos/foundry/agent_sim/wiring/contracts.py" = ["F821"]
+"../../../src/polisyos/foundry/contracts/state.py" = ["F722", "F821"]
+"../../../src/polisyos/foundry/methods/catalog/causal/admg_ops.py" = ["S324"]
+"../../../src/polisyos/foundry/methods/catalog/causal/ncm_engine.py" = ["S307"]
+"../../../src/polisyos/foundry/validation/phase2_closure.py" = ["S314"]
+"../../../tests/unit/foundry/**" = [
   "B007",
   "B017",
   "B905",
@@ -241,32 +241,32 @@ allowed-confusables = [
 # Phase 4A legacy data-package ratchet. These entries are intentionally
 # per-file rather than package-wide globs so legacy data packages do not gain
 # new blanket ignores.
-"src/polisyos/data_forge/domains/academic/batch/article_extractor.py" = ["ANN401", "E501", "N806", "S101"]
-"src/polisyos/data_forge/domains/academic/batch/benchmark.py" = ["ANN401", "E501", "S110", "S608"]
-"src/polisyos/data_forge/domains/academic/batch/best_snapshot.py" = ["ANN001", "ANN401", "E501", "S107", "S608"]
-"src/polisyos/data_forge/domains/academic/batch/claim_adjudicator.py" = ["ANN401", "E501", "SIM115"]
-"src/polisyos/data_forge/domains/academic/batch/cli.py" = ["E501"]
-"src/polisyos/data_forge/domains/academic/batch/config.py" = ["S105"]
-"src/polisyos/data_forge/domains/academic/batch/dedup.py" = ["ANN401"]
-"src/polisyos/data_forge/domains/academic/batch/doc_normalize.py" = ["E501", "S314"]
-"src/polisyos/data_forge/domains/academic/batch/edge_synthesize.py" = ["E501", "S608"]
-"src/polisyos/data_forge/domains/academic/batch/fulltext_resolver.py" = ["E501"]
-"src/polisyos/data_forge/domains/academic/batch/graph_builder.py" = ["B007", "E501"]
-"src/polisyos/data_forge/domains/academic/batch/llm_extractor.py" = ["ANN401", "S101", "S324"]
-"src/polisyos/data_forge/domains/academic/batch/numeric_extract.py" = ["E501"]
-"src/polisyos/data_forge/domains/academic/batch/parser.py" = ["E501"]
-"src/polisyos/data_forge/domains/academic/batch/pipeline.py" = ["ANN001"]
-"src/polisyos/data_forge/domains/academic/batch/prompts/boundary_conditions.py" = ["E501"]
-"src/polisyos/data_forge/domains/academic/batch/prompts/causal_claims.py" = ["E501"]
-"src/polisyos/data_forge/domains/academic/batch/prompts/claim_adjudication.py" = ["E501"]
-"src/polisyos/data_forge/domains/academic/batch/prompts/context_extraction.py" = ["E501"]
-"src/polisyos/data_forge/domains/academic/batch/prompts/empirical_parameters.py" = ["E501"]
-"src/polisyos/data_forge/domains/academic/batch/prompts/mechanisms.py" = ["E501"]
-"src/polisyos/data_forge/domains/academic/batch/prompts/moderator_extraction.py" = ["E501"]
-"src/polisyos/data_forge/domains/academic/batch/prompts/paper_classification.py" = ["E501"]
-"src/polisyos/data_forge/domains/academic/batch/prompts/screening.py" = ["E501"]
-"src/polisyos/data_forge/domains/academic/batch/qc.py" = ["E501", "S310"]
-"src/polisyos/data_forge/domains/academic/batch/resolve_extract.py" = [
+"../../../src/polisyos/data_forge/domains/academic/batch/article_extractor.py" = ["ANN401", "E501", "N806", "S101"]
+"../../../src/polisyos/data_forge/domains/academic/batch/benchmark.py" = ["ANN401", "E501", "S110", "S608"]
+"../../../src/polisyos/data_forge/domains/academic/batch/best_snapshot.py" = ["ANN001", "ANN401", "E501", "S107", "S608"]
+"../../../src/polisyos/data_forge/domains/academic/batch/claim_adjudicator.py" = ["ANN401", "E501", "SIM115"]
+"../../../src/polisyos/data_forge/domains/academic/batch/cli.py" = ["E501"]
+"../../../src/polisyos/data_forge/domains/academic/batch/config.py" = ["S105"]
+"../../../src/polisyos/data_forge/domains/academic/batch/dedup.py" = ["ANN401"]
+"../../../src/polisyos/data_forge/domains/academic/batch/doc_normalize.py" = ["E501", "S314"]
+"../../../src/polisyos/data_forge/domains/academic/batch/edge_synthesize.py" = ["E501", "S608"]
+"../../../src/polisyos/data_forge/domains/academic/batch/fulltext_resolver.py" = ["E501"]
+"../../../src/polisyos/data_forge/domains/academic/batch/graph_builder.py" = ["B007", "E501"]
+"../../../src/polisyos/data_forge/domains/academic/batch/llm_extractor.py" = ["ANN401", "S101", "S324"]
+"../../../src/polisyos/data_forge/domains/academic/batch/numeric_extract.py" = ["E501"]
+"../../../src/polisyos/data_forge/domains/academic/batch/parser.py" = ["E501"]
+"../../../src/polisyos/data_forge/domains/academic/batch/pipeline.py" = ["ANN001"]
+"../../../src/polisyos/data_forge/domains/academic/batch/prompts/boundary_conditions.py" = ["E501"]
+"../../../src/polisyos/data_forge/domains/academic/batch/prompts/causal_claims.py" = ["E501"]
+"../../../src/polisyos/data_forge/domains/academic/batch/prompts/claim_adjudication.py" = ["E501"]
+"../../../src/polisyos/data_forge/domains/academic/batch/prompts/context_extraction.py" = ["E501"]
+"../../../src/polisyos/data_forge/domains/academic/batch/prompts/empirical_parameters.py" = ["E501"]
+"../../../src/polisyos/data_forge/domains/academic/batch/prompts/mechanisms.py" = ["E501"]
+"../../../src/polisyos/data_forge/domains/academic/batch/prompts/moderator_extraction.py" = ["E501"]
+"../../../src/polisyos/data_forge/domains/academic/batch/prompts/paper_classification.py" = ["E501"]
+"../../../src/polisyos/data_forge/domains/academic/batch/prompts/screening.py" = ["E501"]
+"../../../src/polisyos/data_forge/domains/academic/batch/qc.py" = ["E501", "S310"]
+"../../../src/polisyos/data_forge/domains/academic/batch/resolve_extract.py" = [
   "ANN401",
   "E501",
   "N806",
@@ -275,24 +275,24 @@ allowed-confusables = [
   "SIM102",
   "SIM113",
 ]
-"src/polisyos/data_forge/domains/academic/batch/resolve_finalize.py" = ["E501", "N806", "SIM102"]
-"src/polisyos/data_forge/domains/academic/batch/topic_select.py" = ["E501", "S101"]
-"src/polisyos/data_forge/domains/academic/batch/transport_score.py" = ["E501", "S608"]
-"src/polisyos/data_forge/domains/academic/knowledge/__init__.py" = ["ANN202"]
-"src/polisyos/data_forge/domains/academic/knowledge/canonical_resolver.py" = ["S106"]
-"src/polisyos/data_forge/domains/academic/knowledge/parameter_selector.py" = ["ANN001", "ANN202"]
-"src/polisyos/data_forge/domains/academic/knowledge/skg_query.py" = ["E501", "S112", "S608"]
-"src/polisyos/data_forge/domains/academic/knowledge/skg_store.py" = ["ANN401", "E501"]
-"src/polisyos/data_forge/domains/academic/knowledge/skg_versioning.py" = ["ANN401"]
-"src/polisyos/data_forge/domains/academic/knowledge/store.py" = ["E501", "S608"]
-"src/polisyos/data_forge/domains/academic/knowledge/variable_canonizer.py" = ["S101"]
-"src/polisyos/data_forge/domains/academic/openalex/client.py" = ["S101"]
-"src/polisyos/data_forge/domains/catalog/batch/__init__.py" = ["E501"]
-"src/polisyos/data_forge/domains/catalog/batch/benchmark.py" = ["E501", "S112", "S608"]
-"src/polisyos/data_forge/domains/catalog/batch/checkpoints.py" = ["ANN401"]
-"src/polisyos/data_forge/domains/catalog/batch/cli.py" = ["E501"]
-"src/polisyos/data_forge/domains/catalog/batch/config.py" = ["SIM102"]
-"src/polisyos/data_forge/domains/catalog/batch/core_sources_ingest.py" = [
+"../../../src/polisyos/data_forge/domains/academic/batch/resolve_finalize.py" = ["E501", "N806", "SIM102"]
+"../../../src/polisyos/data_forge/domains/academic/batch/topic_select.py" = ["E501", "S101"]
+"../../../src/polisyos/data_forge/domains/academic/batch/transport_score.py" = ["E501", "S608"]
+"../../../src/polisyos/data_forge/domains/academic/knowledge/__init__.py" = ["ANN202"]
+"../../../src/polisyos/data_forge/domains/academic/knowledge/canonical_resolver.py" = ["S106"]
+"../../../src/polisyos/data_forge/domains/academic/knowledge/parameter_selector.py" = ["ANN001", "ANN202"]
+"../../../src/polisyos/data_forge/domains/academic/knowledge/skg_query.py" = ["E501", "S112", "S608"]
+"../../../src/polisyos/data_forge/domains/academic/knowledge/skg_store.py" = ["ANN401", "E501"]
+"../../../src/polisyos/data_forge/domains/academic/knowledge/skg_versioning.py" = ["ANN401"]
+"../../../src/polisyos/data_forge/domains/academic/knowledge/store.py" = ["E501", "S608"]
+"../../../src/polisyos/data_forge/domains/academic/knowledge/variable_canonizer.py" = ["S101"]
+"../../../src/polisyos/data_forge/domains/academic/openalex/client.py" = ["S101"]
+"../../../src/polisyos/data_forge/domains/catalog/batch/__init__.py" = ["E501"]
+"../../../src/polisyos/data_forge/domains/catalog/batch/benchmark.py" = ["E501", "S112", "S608"]
+"../../../src/polisyos/data_forge/domains/catalog/batch/checkpoints.py" = ["ANN401"]
+"../../../src/polisyos/data_forge/domains/catalog/batch/cli.py" = ["E501"]
+"../../../src/polisyos/data_forge/domains/catalog/batch/config.py" = ["SIM102"]
+"../../../src/polisyos/data_forge/domains/catalog/batch/core_sources_ingest.py" = [
   "ANN401",
   "B007",
   "B020",
@@ -304,27 +304,27 @@ allowed-confusables = [
   "S608",
   "SIM117",
 ]
-"src/polisyos/data_forge/domains/catalog/batch/graph_builder.py" = ["E501"]
-"src/polisyos/data_forge/domains/catalog/batch/harvester.py" = ["ANN401", "E501", "S314", "SIM102", "SIM117"]
-"src/polisyos/data_forge/domains/catalog/batch/interpolation.py" = ["S608"]
-"src/polisyos/data_forge/domains/catalog/batch/normalizer.py" = ["ANN401", "E501", "RUF001", "SIM115"]
-"src/polisyos/data_forge/domains/catalog/batch/publish.py" = ["E501", "S608"]
-"src/polisyos/data_forge/domains/catalog/batch/qc.py" = ["E501", "S310", "S608"]
-"src/polisyos/data_forge/domains/catalog/batch/source_registry.py" = ["ANN401"]
-"src/polisyos/data_forge/domains/catalog/knowledge/__init__.py" = ["E501"]
-"src/polisyos/data_forge/domains/catalog/knowledge/proxy_resolver.py" = ["ANN401", "SIM102"]
-"src/polisyos/data_forge/domains/catalog/knowledge/registry.py" = ["ANN401", "RUF059", "SIM102"]
-"src/polisyos/data_forge/domains/catalog/knowledge/search.py" = ["E501", "SIM102"]
-"src/polisyos/data_forge/domains/catalog/knowledge/store.py" = ["E501", "S608"]
-"src/polisyos/data_forge/domains/ukraine/adapters.py" = [
+"../../../src/polisyos/data_forge/domains/catalog/batch/graph_builder.py" = ["E501"]
+"../../../src/polisyos/data_forge/domains/catalog/batch/harvester.py" = ["ANN401", "E501", "S314", "SIM102", "SIM117"]
+"../../../src/polisyos/data_forge/domains/catalog/batch/interpolation.py" = ["S608"]
+"../../../src/polisyos/data_forge/domains/catalog/batch/normalizer.py" = ["ANN401", "E501", "RUF001", "SIM115"]
+"../../../src/polisyos/data_forge/domains/catalog/batch/publish.py" = ["E501", "S608"]
+"../../../src/polisyos/data_forge/domains/catalog/batch/qc.py" = ["E501", "S310", "S608"]
+"../../../src/polisyos/data_forge/domains/catalog/batch/source_registry.py" = ["ANN401"]
+"../../../src/polisyos/data_forge/domains/catalog/knowledge/__init__.py" = ["E501"]
+"../../../src/polisyos/data_forge/domains/catalog/knowledge/proxy_resolver.py" = ["ANN401", "SIM102"]
+"../../../src/polisyos/data_forge/domains/catalog/knowledge/registry.py" = ["ANN401", "RUF059", "SIM102"]
+"../../../src/polisyos/data_forge/domains/catalog/knowledge/search.py" = ["E501", "SIM102"]
+"../../../src/polisyos/data_forge/domains/catalog/knowledge/store.py" = ["E501", "S608"]
+"../../../src/polisyos/data_forge/domains/ukraine/adapters.py" = [
   "E501",
   "S314",
   "S603",
   "S608",
   "SIM102",
 ]
-"src/polisyos/data_forge/domains/ukraine/builders/__init__.py" = ["F403", "F405"]
-"src/polisyos/data_forge/domains/ukraine/builders/calibration.py" = [
+"../../../src/polisyos/data_forge/domains/ukraine/builders/__init__.py" = ["F403", "F405"]
+"../../../src/polisyos/data_forge/domains/ukraine/builders/calibration.py" = [
   "ANN202",
   "ANN401",
   "E501",
@@ -336,7 +336,7 @@ allowed-confusables = [
   "S608",
   "TC001",
 ]
-"src/polisyos/data_forge/domains/ukraine/builders/common.py" = [
+"../../../src/polisyos/data_forge/domains/ukraine/builders/common.py" = [
   "ANN202",
   "ANN401",
   "E501",
@@ -346,7 +346,7 @@ allowed-confusables = [
   "S608",
   "TC001",
 ]
-"src/polisyos/data_forge/domains/ukraine/builders/demography.py" = [
+"../../../src/polisyos/data_forge/domains/ukraine/builders/demography.py" = [
   "ANN202",
   "ANN401",
   "E501",
@@ -355,7 +355,7 @@ allowed-confusables = [
   "RUF001",
   "S110",
 ]
-"src/polisyos/data_forge/domains/ukraine/builders/release.py" = [
+"../../../src/polisyos/data_forge/domains/ukraine/builders/release.py" = [
   "ANN202",
   "ANN401",
   "E501",
@@ -366,7 +366,7 @@ allowed-confusables = [
   "S324",
   "S608",
 ]
-"src/polisyos/data_forge/domains/ukraine/builders/sources.py" = [
+"../../../src/polisyos/data_forge/domains/ukraine/builders/sources.py" = [
   "ANN202",
   "ANN401",
   "E501",
@@ -378,44 +378,44 @@ allowed-confusables = [
   "S608",
   "TC001",
 ]
-"src/polisyos/data_forge/domains/ukraine/models.py" = ["E501"]
-"src/polisyos/data_forge/domains/ukraine/orchestrator.py" = ["E501"]
-"src/polisyos/data_forge/domains/ukraine/server.py" = ["S603"]
-"src/polisyos/data_forge/domains/ukraine/sharding.py" = ["RUF001"]
-"tests/unit/data_forge/domains/academic/batch/test_article_extraction_golden.py" = ["E501"]
-"tests/unit/data_forge/domains/academic/batch/test_article_extractor_stage.py" = ["E501"]
-"tests/unit/data_forge/domains/academic/batch/test_benchmark.py" = ["E501"]
-"tests/unit/data_forge/domains/academic/batch/test_best_snapshot.py" = ["E501"]
-"tests/unit/data_forge/domains/academic/batch/test_claim_adjudicator.py" = ["E501"]
-"tests/unit/data_forge/domains/academic/batch/test_doc_normalize.py" = ["E501"]
-"tests/unit/data_forge/domains/academic/batch/test_fulltext_resolver.py" = ["E501"]
-"tests/unit/data_forge/domains/academic/batch/test_graph_builder_skg_tables.py" = ["E501"]
-"tests/unit/data_forge/domains/academic/batch/test_parser.py" = ["E501"]
-"tests/unit/data_forge/domains/academic/batch/test_qc.py" = ["PT017"]
-"tests/unit/data_forge/domains/academic/batch/test_run2_pipeline_upgrades.py" = ["E501"]
-"tests/unit/data_forge/domains/academic/batch/test_skg_versioning.py" = ["E501"]
-"tests/unit/data_forge/domains/academic/batch/test_transport_score.py" = ["E501"]
-"tests/unit/data_forge/domains/academic/knowledge/test_canonical_resolver.py" = ["E501"]
-"tests/unit/data_forge/domains/academic/knowledge/test_skg_query.py" = ["E501"]
-"tests/unit/data_forge/domains/academic/knowledge/test_types.py" = ["B017", "PT011"]
-"tests/unit/data_forge/domains/catalog/batch/test_benchmark.py" = ["E501"]
-"tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py" = ["E501"]
-"tests/unit/data_forge/domains/catalog/batch/test_harvester_sampling.py" = ["E501"]
-"tests/unit/data_forge/domains/catalog/batch/test_pipeline.py" = ["PT017"]
-"tests/unit/data_forge/domains/catalog/batch/test_publish.py" = ["PT017"]
-"tests/unit/data_forge/domains/catalog/batch/test_qc.py" = ["E501", "PT017"]
-"tests/unit/data_forge/domains/catalog/knowledge/test_registry.py" = ["E501"]
-"tests/unit/data_forge/domains/catalog/knowledge/test_store.py" = ["E501"]
-"tests/unit/data_forge/domains/catalog/knowledge/test_types.py" = ["B017", "PT011"]
-"tests/integration/test_phase0_quality_validation.py" = ["E501"]
-"tests/unit/data_forge/domains/ukraine/test_adapters.py" = ["E501", "RUF001"]
-"tests/unit/data_forge/domains/ukraine/test_builders.py" = ["RUF043"]
+"../../../src/polisyos/data_forge/domains/ukraine/models.py" = ["E501"]
+"../../../src/polisyos/data_forge/domains/ukraine/orchestrator.py" = ["E501"]
+"../../../src/polisyos/data_forge/domains/ukraine/server.py" = ["S603"]
+"../../../src/polisyos/data_forge/domains/ukraine/sharding.py" = ["RUF001"]
+"../../../tests/unit/data_forge/domains/academic/batch/test_article_extraction_golden.py" = ["E501"]
+"../../../tests/unit/data_forge/domains/academic/batch/test_article_extractor_stage.py" = ["E501"]
+"../../../tests/unit/data_forge/domains/academic/batch/test_benchmark.py" = ["E501"]
+"../../../tests/unit/data_forge/domains/academic/batch/test_best_snapshot.py" = ["E501"]
+"../../../tests/unit/data_forge/domains/academic/batch/test_claim_adjudicator.py" = ["E501"]
+"../../../tests/unit/data_forge/domains/academic/batch/test_doc_normalize.py" = ["E501"]
+"../../../tests/unit/data_forge/domains/academic/batch/test_fulltext_resolver.py" = ["E501"]
+"../../../tests/unit/data_forge/domains/academic/batch/test_graph_builder_skg_tables.py" = ["E501"]
+"../../../tests/unit/data_forge/domains/academic/batch/test_parser.py" = ["E501"]
+"../../../tests/unit/data_forge/domains/academic/batch/test_qc.py" = ["PT017"]
+"../../../tests/unit/data_forge/domains/academic/batch/test_run2_pipeline_upgrades.py" = ["E501"]
+"../../../tests/unit/data_forge/domains/academic/batch/test_skg_versioning.py" = ["E501"]
+"../../../tests/unit/data_forge/domains/academic/batch/test_transport_score.py" = ["E501"]
+"../../../tests/unit/data_forge/domains/academic/knowledge/test_canonical_resolver.py" = ["E501"]
+"../../../tests/unit/data_forge/domains/academic/knowledge/test_skg_query.py" = ["E501"]
+"../../../tests/unit/data_forge/domains/academic/knowledge/test_types.py" = ["B017", "PT011"]
+"../../../tests/unit/data_forge/domains/catalog/batch/test_benchmark.py" = ["E501"]
+"../../../tests/unit/data_forge/domains/catalog/batch/test_core_sources_ingest.py" = ["E501"]
+"../../../tests/unit/data_forge/domains/catalog/batch/test_harvester_sampling.py" = ["E501"]
+"../../../tests/unit/data_forge/domains/catalog/batch/test_pipeline.py" = ["PT017"]
+"../../../tests/unit/data_forge/domains/catalog/batch/test_publish.py" = ["PT017"]
+"../../../tests/unit/data_forge/domains/catalog/batch/test_qc.py" = ["E501", "PT017"]
+"../../../tests/unit/data_forge/domains/catalog/knowledge/test_registry.py" = ["E501"]
+"../../../tests/unit/data_forge/domains/catalog/knowledge/test_store.py" = ["E501"]
+"../../../tests/unit/data_forge/domains/catalog/knowledge/test_types.py" = ["B017", "PT011"]
+"../../../tests/integration/test_phase0_quality_validation.py" = ["E501"]
+"../../../tests/unit/data_forge/domains/ukraine/test_adapters.py" = ["E501", "RUF001"]
+"../../../tests/unit/data_forge/domains/ukraine/test_builders.py" = ["RUF043"]
 
 # Phase 4B keeps Fabric on the same explicit ratchet model as the base layers:
 # formatting/import sorting is fail-closed now, while legacy dynamic connector
 # payloads, runtime Pydantic annotations, and generated SQL builders are
 # narrowed by local ignores instead of repo-wide rule suppression.
-"src/polisyos/fabric/**" = [
+"../../../src/polisyos/fabric/**" = [
   "ANN",
   "E501",
   "N818",
@@ -427,21 +427,21 @@ allowed-confusables = [
   "UP046",
   "UP047",
 ]
-"src/polisyos/fabric/claims/conflicts/**" = ["S608"]
-"src/polisyos/fabric/connectors/cache/_store_index.py" = ["S608"]
-"src/polisyos/fabric/connectors/sources/eurostat.py" = ["N817"]
-"src/polisyos/fabric/connectors/sources/sql_query.py" = ["S608"]
-"src/polisyos/fabric/connectors/registry_core_parts.py" = ["SIM118"]
-"src/polisyos/fabric/connectors/testing/**" = ["S101", "S110", "SIM105"]
-"src/polisyos/fabric/connectors/transform/aggregator.py" = ["F402"]
-"src/polisyos/fabric/data_plane/cli.py" = ["T201"]
-"src/polisyos/fabric/docs/normalize.py" = ["S110"]
-"src/polisyos/fabric/quality/__init__.py" = ["S608"]
-"src/polisyos/fabric/storage/duckdb_adapter.py" = ["S608"]
-"src/polisyos/fabric/world/materialize/**" = ["S112", "S608"]
-"src/polisyos/fabric/world/store/snapshots.py" = ["S608"]
-"src/polisyos/fabric/world/query.py" = ["S608"]
-"tests/unit/fabric/**" = [
+"../../../src/polisyos/fabric/claims/conflicts/**" = ["S608"]
+"../../../src/polisyos/fabric/connectors/cache/_store_index.py" = ["S608"]
+"../../../src/polisyos/fabric/connectors/sources/eurostat.py" = ["N817"]
+"../../../src/polisyos/fabric/connectors/sources/sql_query.py" = ["S608"]
+"../../../src/polisyos/fabric/connectors/registry_core_parts.py" = ["SIM118"]
+"../../../src/polisyos/fabric/connectors/testing/**" = ["S101", "S110", "SIM105"]
+"../../../src/polisyos/fabric/connectors/transform/aggregator.py" = ["F402"]
+"../../../src/polisyos/fabric/data_plane/cli.py" = ["T201"]
+"../../../src/polisyos/fabric/docs/normalize.py" = ["S110"]
+"../../../src/polisyos/fabric/quality/__init__.py" = ["S608"]
+"../../../src/polisyos/fabric/storage/duckdb_adapter.py" = ["S608"]
+"../../../src/polisyos/fabric/world/materialize/**" = ["S112", "S608"]
+"../../../src/polisyos/fabric/world/store/snapshots.py" = ["S608"]
+"../../../src/polisyos/fabric/world/query.py" = ["S608"]
+"../../../tests/unit/fabric/**" = [
   "B017",
   "E501",
   "N801",
@@ -471,7 +471,7 @@ allowed-confusables = [
 # retrieval-oriented surfaces are formatted. Ukrainian legal text fixtures,
 # validated dynamic SQL/table-name composition, and dynamically-composed SPO
 # extractors are tracked here instead of scattering inline suppressions.
-"src/polisyos/lex/**" = [
+"../../../src/polisyos/lex/**" = [
   "ANN001",
   "ANN201",
   "ANN202",
@@ -501,7 +501,7 @@ allowed-confusables = [
 # behavior changes. Keep its historical lint debt on the same explicit ratchet;
 # the legacy Lex offline package has been retired; this ratchet now
 # applies only to the canonical Data Forge legal batch runtime.
-"src/polisyos/data_forge/domains/legal/batch/**" = [
+"../../../src/polisyos/data_forge/domains/legal/batch/**" = [
   "ANN001",
   "ANN201",
   "ANN202",
@@ -527,17 +527,17 @@ allowed-confusables = [
   "TC001",
   "TC003",
 ]
-"src/polisyos/data_forge/domains/legal/batch/deterministic_spo.py" = ["E402"]
-"src/polisyos/data_forge/domains/legal/batch/deterministic_spo_core.py" = ["E402", "F821"]
-"src/polisyos/data_forge/domains/legal/batch/deterministic_spo_articles.py" = ["F821"]
-"src/polisyos/data_forge/domains/legal/batch/deterministic_spo_subtypes.py" = ["F821"]
-"src/polisyos/scholar/**" = ["ANN001", "ANN202", "ANN401", "S310"]
-"tests/unit/lex/**" = ["E501", "PT011", "RUF001", "RUF002", "RUF003", "S608"]
-"tests/unit/scholar/**" = ["E501"]
+"../../../src/polisyos/data_forge/domains/legal/batch/deterministic_spo.py" = ["E402"]
+"../../../src/polisyos/data_forge/domains/legal/batch/deterministic_spo_core.py" = ["E402", "F821"]
+"../../../src/polisyos/data_forge/domains/legal/batch/deterministic_spo_articles.py" = ["F821"]
+"../../../src/polisyos/data_forge/domains/legal/batch/deterministic_spo_subtypes.py" = ["F821"]
+"../../../src/polisyos/scholar/**" = ["ANN001", "ANN202", "ANN401", "S310"]
+"../../../tests/unit/lex/**" = ["E501", "PT011", "RUF001", "RUF002", "RUF003", "S608"]
+"../../../tests/unit/scholar/**" = ["E501"]
 
 # Phase 5A keeps Scientist fail-closed for syntax and undefined names while
 # the large downstream consumer layer is cleaned by narrower vertical slices.
-"src/polisyos/scientist/**" = [
+"../../../src/polisyos/scientist/**" = [
   "ANN001",
   "ANN003",
   "ANN201",
@@ -595,7 +595,7 @@ allowed-confusables = [
   "UP040",
   "UP046",
 ]
-"tests/unit/scientist/**" = [
+"../../../tests/unit/scientist/**" = [
   "B007",
   "B017",
   "C408",
@@ -625,15 +625,15 @@ allowed-confusables = [
   "TC003",
 ]
 
-"src/polisyos/common/*" = ["T201"] # Разрешаем print в утилитах для отладки
-"src/polisyos/common/serialization.py" = ["ANN401"]
-"src/polisyos/core/artifacts/backends/caching_store.py" = ["ANN401", "TC001"]
-"src/polisyos/core/security/authz.py" = ["ANN401", "TC001"]
-"src/polisyos/ir/observation/governance.py" = ["S106"]
-"src/polisyos/ir/analytics/latent_bridge_synthesis.py" = ["S105"]
-"src/polisyos/ir/analytics/survey_quality.py" = ["S105"]
-"src/polisyos/runtime/http/errors.py" = ["ANN401"]
-"src/polisyos/runtime/http/services/control_plane_store.py" = [
+"../../../src/polisyos/common/*" = ["T201"] # Разрешаем print в утилитах для отладки
+"../../../src/polisyos/common/serialization.py" = ["ANN401"]
+"../../../src/polisyos/core/artifacts/backends/caching_store.py" = ["ANN401", "TC001"]
+"../../../src/polisyos/core/security/authz.py" = ["ANN401", "TC001"]
+"../../../src/polisyos/ir/observation/governance.py" = ["S106"]
+"../../../src/polisyos/ir/analytics/latent_bridge_synthesis.py" = ["S105"]
+"../../../src/polisyos/ir/analytics/survey_quality.py" = ["S105"]
+"../../../src/polisyos/runtime/http/errors.py" = ["ANN401"]
+"../../../src/polisyos/runtime/http/services/control_plane_store.py" = [
   "ANN401",
   "C416",
   "E501",
@@ -648,64 +648,90 @@ allowed-confusables = [
 # Phase 5B runtime ratchet: these dynamic edges sit at HTTP, CAS payload,
 # observability, and framework-extension boundaries. The list stays explicit so
 # newly added runtime modules enter Ruff fail-closed.
-"src/polisyos/runtime/__init__.py" = ["ANN401"]
-"src/polisyos/runtime/api.py" = ["ANN401"]
-"src/polisyos/runtime/http/app.py" = ["ANN401"]
-"src/polisyos/runtime/http/container.py" = ["ANN401"]
-"src/polisyos/runtime/http/csrf.py" = ["ANN401"]
-"src/polisyos/runtime/http/dev_identity_middleware.py" = ["ANN401"]
-"src/polisyos/runtime/http/fail_closed_middleware.py" = ["ANN401"]
-"src/polisyos/runtime/http/mutation_policy.py" = ["ANN401"]
-"src/polisyos/runtime/http/openapi_contract.py" = ["ANN401"]
-"src/polisyos/runtime/http/resilience.py" = ["ANN401"]
-"src/polisyos/runtime/http/response_policies.py" = ["ANN401"]
-"src/polisyos/runtime/http/routes/review.py" = ["ANN401"]
-"src/polisyos/runtime/http/routes/runs.py" = ["ANN401", "B008"]
-"src/polisyos/runtime/http/security.py" = ["ANN401"]
-"src/polisyos/runtime/http/services/artifact_inspector.py" = ["ANN401"]
-"src/polisyos/runtime/http/services/control.py" = ["ANN401"]
-"src/polisyos/runtime/http/services/control_registry_providers.py" = ["ANN401"]
-"src/polisyos/runtime/http/services/debug.py" = ["ANN401"]
-"src/polisyos/runtime/http/services/feedback.py" = ["ANN401"]
-"src/polisyos/runtime/http/services/mobility.py" = ["ANN401"]
-"src/polisyos/runtime/http/services/run_index.py" = ["ANN401"]
-"src/polisyos/runtime/http/services/sae_spatial_service.py" = ["ANN401"]
-"src/polisyos/runtime/http/services/task_runner.py" = ["ANN401"]
-"src/polisyos/runtime/http/services/timeline.py" = ["ANN401"]
+"../../../src/polisyos/runtime/__init__.py" = ["ANN401"]
+"../../../src/polisyos/runtime/api.py" = ["ANN401"]
+"../../../src/polisyos/runtime/http/app.py" = ["ANN401"]
+"../../../src/polisyos/runtime/http/container.py" = ["ANN401"]
+"../../../src/polisyos/runtime/http/csrf.py" = ["ANN401"]
+"../../../src/polisyos/runtime/http/dev_identity_middleware.py" = ["ANN401"]
+"../../../src/polisyos/runtime/http/fail_closed_middleware.py" = ["ANN401"]
+"../../../src/polisyos/runtime/http/mutation_policy.py" = ["ANN401"]
+"../../../src/polisyos/runtime/http/openapi_contract.py" = ["ANN401"]
+"../../../src/polisyos/runtime/http/resilience.py" = ["ANN401"]
+"../../../src/polisyos/runtime/http/response_policies.py" = ["ANN401"]
+"../../../src/polisyos/runtime/http/routes/review.py" = ["ANN401"]
+"../../../src/polisyos/runtime/http/routes/runs.py" = ["ANN401", "B008"]
+"../../../src/polisyos/runtime/http/security.py" = ["ANN401"]
+"../../../src/polisyos/runtime/http/services/artifact_inspector.py" = ["ANN401"]
+"../../../src/polisyos/runtime/http/services/control.py" = ["ANN401"]
+"../../../src/polisyos/runtime/http/services/control_registry_providers.py" = ["ANN401"]
+"../../../src/polisyos/runtime/http/services/debug.py" = ["ANN401"]
+"../../../src/polisyos/runtime/http/services/feedback.py" = ["ANN401"]
+"../../../src/polisyos/runtime/http/services/mobility.py" = ["ANN401"]
+"../../../src/polisyos/runtime/http/services/run_index.py" = ["ANN401"]
+"../../../src/polisyos/runtime/http/services/sae_spatial_service.py" = ["ANN401"]
+"../../../src/polisyos/runtime/http/services/task_runner.py" = ["ANN401"]
+"../../../src/polisyos/runtime/http/services/timeline.py" = ["ANN401"]
 # Runtime manifest keeps runtime-visible Pydantic annotations for model rebuilds.
-"src/polisyos/runtime/manifest.py" = ["TC001"]
-"src/polisyos/runtime/replay.py" = ["ANN401"]
+"../../../src/polisyos/runtime/manifest.py" = ["TC001"]
+"../../../src/polisyos/runtime/replay.py" = ["ANN401"]
+# Runtime-quality and data-requirement bridges consume heterogeneous CAS,
+# Pydantic, and tool JSON payloads. Keep these dynamic boundary annotations
+# explicitly owned while each module gains narrower DTO/protocol types.
+"../../../src/polisyos/data_requirement/compiler.py" = ["ANN401"]
+"../../../src/polisyos/runtime/quality/acquisition_planner.py" = ["ANN401"]
+"../../../src/polisyos/runtime/quality/adapter_contracts.py" = ["ANN401"]
+"../../../src/polisyos/runtime/quality/approval.py" = ["ANN401"]
+"../../../src/polisyos/runtime/quality/attestation.py" = ["ANN401"]
+"../../../src/polisyos/runtime/quality/authority_reconciliation.py" = ["ANN401"]
+"../../../src/polisyos/runtime/quality/closeout_compatibility.py" = ["ANN401"]
+"../../../src/polisyos/runtime/quality/compliance.py" = ["ANN401"]
+"../../../src/polisyos/runtime/quality/construct_registry.py" = ["ANN401"]
+"../../../src/polisyos/runtime/quality/data_quality.py" = ["ANN401"]
+"../../../src/polisyos/runtime/quality/event_log.py" = ["ANN401"]
+"../../../src/polisyos/runtime/quality/evidence_spine.py" = ["ANN401"]
+"../../../src/polisyos/runtime/quality/human_review.py" = ["ANN401"]
+"../../../src/polisyos/runtime/quality/performance_budget.py" = ["ANN401"]
+"../../../src/polisyos/runtime/quality/policy_design_case.py" = ["ANN401"]
+"../../../src/polisyos/runtime/quality/prompt_tool_ledger.py" = ["ANN401"]
+"../../../src/polisyos/runtime/quality/refs.py" = ["ANN401"]
+"../../../src/polisyos/runtime/quality/replay.py" = ["ANN401"]
+"../../../src/polisyos/runtime/quality/scenario_evidence_contract.py" = ["ANN401"]
+"../../../src/polisyos/runtime/quality/scorecard.py" = ["ANN401"]
+"../../../src/polisyos/runtime/quality/source_truth.py" = ["ANN401"]
 # FastAPI requires dependency factories in endpoint defaults; the route modules
 # keep B008 suppressed while runtime API contract tests police the surface.
-"src/polisyos/runtime/http/routes/artifacts.py" = ["B008"]
-"src/polisyos/runtime/http/routes/control.py" = ["B008"]
-"src/polisyos/runtime/http/routes/debug.py" = ["B008"]
-"src/polisyos/runtime/http/routes/lineage.py" = ["B008"]
-"src/polisyos/runtime/http/routes/mobility.py" = ["B008"]
-"tests/unit/ir/analytics/test_evidence_bundle.py" = ["S106"]
-"tests/unit/ir/test_public_surface.py" = ["S603"]
-"tests/unit/ir/test_schema_catalog.py" = ["S603"]
+"../../../src/polisyos/runtime/http/routes/artifacts.py" = ["B008"]
+"../../../src/polisyos/runtime/http/routes/control.py" = ["B008"]
+"../../../src/polisyos/runtime/http/routes/debug.py" = ["B008"]
+"../../../src/polisyos/runtime/http/routes/lineage.py" = ["B008"]
+"../../../src/polisyos/runtime/http/routes/mobility.py" = ["B008"]
+"../../../tests/unit/ir/analytics/test_evidence_bundle.py" = ["S106"]
+"../../../tests/unit/ir/test_public_surface.py" = ["S603"]
+"../../../tests/unit/ir/test_schema_catalog.py" = ["S603"]
 
 # Repository hygiene closeout ratchets: these surfaces are now part of the
 # canonical Ruff pass, but their historical style/security debt stays explicit
 # until each directory owner burns it down.
-"src/polisyos/calibration/**" = ["ANN401", "B905", "E501", "RUF005", "TC001", "TC003"]
-"src/polisyos/synthetic_world/**" = ["ANN401", "E501", "RUF046", "TC001", "TC003"]
-"src/polisyos/schemas/abi_models.py" = ["TC003"]
-"examples/**" = ["RUF012"]
-"ops/cloud/gcp/upload_gonka_secrets.py" = ["S603", "T201"]
-"jax_bootstrap.py" = ["E402"]
-"migrate.py" = ["E402"]
-"tools/quality/testing/check_fabric_exception_baseline.py" = ["S603", "T201"]
-"tools/quality/testing/repeat_pytest.py" = ["S603", "T201"]
-"tools/lib/**" = ["ANN401", "RUF046", "S108", "S310", "S603", "S607", "TC001", "TC003"]
-"tools/ci/**" = ["E402", "E501", "RUF100", "S314", "TC003"]
-"tools/cli.py" = ["E501", "S101", "TC003"]
-"tools/devx/architecture/**" = ["E501", "S603", "SIM102"]
-"tools/devx/connectors/**" = ["ANN401", "SIM102", "TC001"]
-"tools/devx/foundry/**" = ["TC003"]
-"tools/devx/workspace/**" = ["E402", "E501", "RUF100", "S101", "S603", "S607", "SIM108", "TC003"]
-"tools/ops_runners/**" = [
+"../../../src/polisyos/calibration/**" = ["ANN401", "B905", "E501", "RUF005", "TC001", "TC003"]
+"../../../src/polisyos/schemas/abi_models.py" = ["TC003"]
+"../../../examples/**" = ["RUF012"]
+"../../../ops/cloud/gcp/upload_gonka_secrets.py" = ["S603", "T201"]
+"../../../jax_bootstrap.py" = ["E402"]
+"../../../migrate.py" = ["E402"]
+"../../../tools/quality/testing/check_fabric_exception_baseline.py" = ["S603", "T201"]
+"../../../tools/quality/testing/repeat_pytest.py" = ["S603", "T201"]
+"../../../tools/quality/validation/build_policy_design_case_wave35a.py" = [
+  "RUF001",
+] # Ukrainian transliteration table intentionally contains Cyrillic source glyphs.
+"../../../tools/lib/**" = ["ANN401", "RUF046", "S108", "S310", "S603", "S607", "TC001", "TC003"]
+"../../../tools/ci/**" = ["E402", "E501", "RUF100", "S314", "TC003"]
+"../../../tools/cli.py" = ["E501", "S101", "TC003"]
+"../../../tools/devx/architecture/**" = ["E501", "S603", "SIM102"]
+"../../../tools/devx/connectors/**" = ["ANN401", "SIM102", "TC001"]
+"../../../tools/devx/foundry/**" = ["TC003"]
+"../../../tools/devx/workspace/**" = ["E402", "E501", "RUF100", "S101", "S603", "S607", "SIM108", "TC003"]
+"../../../tools/ops_runners/**" = [
   "ANN001",
   "ANN202",
   "ANN401",
@@ -730,7 +756,7 @@ allowed-confusables = [
   "TC003",
   "UP031",
 ]
-"tools/quality/**" = [
+"../../../tools/quality/**" = [
   "ANN001",
   "ANN401",
   "B007",
@@ -751,6 +777,6 @@ allowed-confusables = [
   "TC003",
   "UP022",
 ]
-"tools/registry.py" = ["E501"]
-"tools/*" = ["T201"]
-"tools/**" = ["T201"]
+"../../../tools/registry.py" = ["E501"]
+"../../../tools/*" = ["T201"]
+"../../../tools/**" = ["T201"]

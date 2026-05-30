@@ -5,5 +5,5 @@ and publication helpers. The decision-grade compiler implementation lives in
 `polisyos.scientist.publishing.publisher`; older publisher module paths are
 compatibility shims.
 
-Legacy imports from `polisyos.scientist.publisher` are compatibility shims and
+`polisyos.scientist.publisher` has been retired; canonical publishing imports
 sunset on 2026-12-31.

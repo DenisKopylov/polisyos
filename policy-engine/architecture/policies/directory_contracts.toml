@@ -373,6 +373,20 @@ owner = "team-ops"
 allowed_reason = "Operations contracts may include migration or policy helpers, but ops is operational control-plane support, not product import surface."
 product_import_policy = "src/polisyos product code must not import ops."
 
+[[non_product_python_root]]
+path = "production_data"
+policy = "local_production_data_release_artifacts_only"
+owner = "team-data-forge"
+allowed_reason = "Local production-data release snapshots may contain Python-adjacent residue, but the root is data state and never a product import surface."
+product_import_policy = "src/polisyos product code must not import production_data."
+
+[[non_product_python_root]]
+path = "runs"
+policy = "local_runtime_run_state_only"
+owner = "team-runtime"
+allowed_reason = "Local run outputs may be namespace-capable on disk, but the root is runtime state and never a product import surface."
+product_import_policy = "src/polisyos product code must not import runs."
+
 [[contract]]
 path = "architecture"
 status = "active"
@@ -458,6 +472,44 @@ allowed_ignored_children = [
 ]
 reason = "The path is a legacy local-data namespace inside the canonical data/ root, not a second product root."
 source_reference_policy = "Source and fixture code may reference this path only through architecture/policies/data.toml, documented workspace tooling excludes, or tests that assert the data policy contract."
+
+[[contract]]
+path = "production_data"
+status = "local_only"
+role = "Ignored local production-data release snapshots, capability-index build inputs, and heavyweight data artifacts."
+owner = "team-data-forge"
+lifecycle_class = "local_runtime_state"
+topology_category = "local_runtime_state"
+topology_commit_policy = "ignored"
+allowed_file_kinds = ["ignored_generated_output", "baseline_evidence"]
+allowed_child_directory_kinds = ["local_runtime_state", "cache", "build_output"]
+python_import_policy = "not_importable"
+generated_output_policy = "local_ignored_only_unless_promoted_to_registered_committed_artifact"
+committed_data_policy = "no_committed_data"
+readme_index_requirement = "README not required for ignored local production data roots."
+max_root_loose_files = 0
+root_loose_file_policy = "No committed loose files; production-data evidence must be promoted through architecture/policy_design_case or generated artifacts."
+ignored_descendant_retention = "local_runtime_state"
+evidence_or_generated_artifact_promotion_path = "architecture/policy_design_case/, docs/archive/reports/, or architecture/generated_artifacts.toml"
+
+[[contract]]
+path = "runs"
+status = "local_only"
+role = "Ignored local runtime run state and replay/debug outputs."
+owner = "team-runtime"
+lifecycle_class = "local_runtime_state"
+topology_category = "local_runtime_state"
+topology_commit_policy = "ignored"
+allowed_file_kinds = ["ignored_generated_output"]
+allowed_child_directory_kinds = ["local_runtime_state", "build_output", "cache"]
+python_import_policy = "not_importable"
+generated_output_policy = "local_ignored_only_unless_promoted_to_registered_committed_artifact"
+committed_data_policy = "no_committed_data"
+readme_index_requirement = "README not required for ignored local run-state roots."
+max_root_loose_files = 0
+root_loose_file_policy = "No committed loose files; reviewed run evidence must be archived through registered reports or manifests."
+ignored_descendant_retention = "local_runtime_state"
+evidence_or_generated_artifact_promotion_path = "docs/archive/reports/, release/, or architecture/generated_artifacts.toml"
 
 [[contract]]
 path = "design"

@@ -10,6 +10,7 @@ from tools.ops_runners.runtime.quality_scenarios import (
     load_quality_scenario_contract,
 )
 
+
 def _requirements_by_domain(contract: object, domain: str) -> list[object]:
     return [item for item in contract.requirements if item.domain == domain]
 
@@ -24,6 +25,12 @@ def test_normalizes_public_golden_scenario_to_typed_runtime_obligations() -> Non
         "scenario-evidence-contract:ukraine_msme_wartime_credit_support:v1"
     )
     assert contract.scenario_id == DEFAULT_QUALITY_SCENARIO_ID
+    assert contract.admissible_data_source_families == (
+        "production_msme_panel",
+        "credit_program_registry",
+        "regional_displacement_indicators",
+    )
+    assert contract.data_requirement_specs == ()
     assert [item.expected_family for item in _requirements_by_domain(contract, "data")] == [
         "production_msme_panel",
         "credit_program_registry",
@@ -69,7 +76,7 @@ def test_data_requirements_carry_source_admissibility_facets_and_owners() -> Non
     } <= set(requirement.required_facets)
 
 
-def test_broad_source_family_does_not_satisfy_specific_source_requirement() -> None:
+def test_scenario_family_name_alone_does_not_grant_authority() -> None:
     scenario = load_quality_scenario_contract(DEFAULT_QUALITY_SCENARIO_ID)
     contract = normalize_scenario_evidence_contract(scenario)
     requirement = next(
@@ -84,8 +91,26 @@ def test_broad_source_family_does_not_satisfy_specific_source_requirement() -> N
     assert failed["status"] == "failed"
     assert failed["blocker_code"] == "source_family_mismatch"
     assert failed["missing_facets"] == list(requirement.required_facets)
-    assert passed["status"] == "satisfied"
-    assert passed["blocker_code"] is None
+    assert passed["status"] == "compatibility_projection_only"
+    assert passed["blocker_code"] == "scenario_family_authority_lookup_sunset"
+    assert passed["authority_granted"] is False
+    assert passed["replacement"] == "capability_index_v1"
+    assert "source_family_authority_decision_path" in passed["may_not_use_for"]
+
+
+def test_non_legacy_source_family_surface_remains_projection_only_without_resolver() -> None:
+    scenario = load_quality_scenario_contract(DEFAULT_QUALITY_SCENARIO_ID)
+    scenario["expected_evidence_contract"]["admissible_data_source_families"] = ["datasets"]
+
+    contract = normalize_scenario_evidence_contract(scenario)
+
+    assert contract.admissible_data_source_families == ("datasets",)
+    assert contract.data_requirement_specs == ()
+    data_requirement = _requirements_by_domain(contract, "data")[0]
+    assert data_requirement.expected_family == "datasets"
+    projected = evaluate_source_family_binding(data_requirement, "datasets")
+    assert projected["status"] == "compatibility_projection_only"
+    assert projected["authority_granted"] is False
 
 
 def test_scenario_evidence_contract_serializes_for_request_context() -> None:
@@ -99,5 +124,11 @@ def test_scenario_evidence_contract_serializes_for_request_context() -> None:
     assert contract["requirements"][0]["requirement_id"].startswith(
         "scenario:ukraine_msme_wartime_credit_support:"
     )
+    assert contract["admissible_data_source_families"] == [
+        "production_msme_panel",
+        "credit_program_registry",
+        "regional_displacement_indicators",
+    ]
+    assert contract["data_requirement_specs"] == []
     assert all(item["producer_owner"] for item in contract["requirements"])
     assert all(item["reader_owner"] for item in contract["requirements"])

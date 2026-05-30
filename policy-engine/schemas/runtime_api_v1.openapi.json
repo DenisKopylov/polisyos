@@ -4876,14 +4876,12 @@
           "policy_design_case_projection": {
             "anyOf": [
               {
-                "additionalProperties": true,
-                "type": "object"
+                "$ref": "#/components/schemas/PolicyDesignCaseProjection"
               },
               {
                 "type": "null"
               }
-            ],
-            "title": "Policy Design Case Projection"
+            ]
           },
           "progress": {
             "additionalProperties": true,
@@ -12684,6 +12682,1183 @@
         "title": "OperatorProjectionStateLabel",
         "type": "object"
       },
+      "PolicyDesignCaseAudience": {
+        "description": "Audience tier for a Policy Design Case projection.",
+        "enum": [
+          "public",
+          "reviewer",
+          "expert",
+          "machine"
+        ],
+        "title": "PolicyDesignCaseAudience",
+        "type": "string"
+      },
+      "PolicyDesignCaseCloseoutTruth": {
+        "additionalProperties": false,
+        "description": "Closeout truth that every audience must preserve.",
+        "properties": {
+          "blocker_codes": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Blocker Codes",
+            "type": "array"
+          },
+          "blockers": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/PolicyDesignCaseProjectionBlocker"
+            },
+            "title": "Blockers",
+            "type": "array"
+          },
+          "can_closeout": {
+            "title": "Can Closeout",
+            "type": "boolean"
+          },
+          "contested_state": {
+            "default": "not_contested",
+            "minLength": 1,
+            "title": "Contested State",
+            "type": "string"
+          },
+          "limitation_codes": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitation Codes",
+            "type": "array"
+          },
+          "omission_codes": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Omission Codes",
+            "type": "array"
+          },
+          "status": {
+            "minLength": 1,
+            "title": "Status",
+            "type": "string"
+          },
+          "verdict": {
+            "minLength": 1,
+            "title": "Verdict",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "verdict",
+          "can_closeout"
+        ],
+        "title": "PolicyDesignCaseCloseoutTruth",
+        "type": "object"
+      },
+      "PolicyDesignCaseContestedRecord": {
+        "additionalProperties": false,
+        "description": "Projection-visible contested record owned by PolicyOS.",
+        "properties": {
+          "audience_visibility": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/PolicyDesignCaseAudience"
+            },
+            "title": "Audience Visibility",
+            "type": "array"
+          },
+          "authority_profile": {
+            "minLength": 1,
+            "title": "Authority Profile",
+            "type": "string"
+          },
+          "case_ref": {
+            "minLength": 1,
+            "title": "Case Ref",
+            "type": "string"
+          },
+          "claim_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Claim Refs",
+            "type": "array"
+          },
+          "contestability_status": {
+            "minLength": 1,
+            "title": "Contestability Status",
+            "type": "string"
+          },
+          "contested_record_id": {
+            "minLength": 1,
+            "title": "Contested Record Id",
+            "type": "string"
+          },
+          "counterevidence_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Counterevidence Refs",
+            "type": "array"
+          },
+          "grounds": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Grounds",
+            "type": "array"
+          },
+          "ingestion_event_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Ingestion Event Refs",
+            "type": "array"
+          },
+          "lifecycle_event_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Lifecycle Event Refs",
+            "type": "array"
+          },
+          "public_projection_effect": {
+            "minLength": 1,
+            "title": "Public Projection Effect",
+            "type": "string"
+          },
+          "publication_effect": {
+            "minLength": 1,
+            "title": "Publication Effect",
+            "type": "string"
+          },
+          "recourse_outcome_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Recourse Outcome Refs",
+            "type": "array"
+          },
+          "recourse_pointer": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PolicyDesignCaseRecoursePointer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "reopening_trigger_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Reopening Trigger Refs",
+            "type": "array"
+          },
+          "source_truth_conflict_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Source Truth Conflict Refs",
+            "type": "array"
+          },
+          "standing_or_actor_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Standing Or Actor Ref"
+          }
+        },
+        "required": [
+          "contested_record_id",
+          "case_ref",
+          "contestability_status",
+          "authority_profile",
+          "publication_effect",
+          "public_projection_effect"
+        ],
+        "title": "PolicyDesignCaseContestedRecord",
+        "type": "object"
+      },
+      "PolicyDesignCaseDeficitProjection": {
+        "additionalProperties": false,
+        "description": "Projection row for a deficit that constrains authority or publication.",
+        "properties": {
+          "audience_scope": {
+            "minLength": 1,
+            "title": "Audience Scope",
+            "type": "string"
+          },
+          "authority_level": {
+            "minLength": 1,
+            "title": "Authority Level",
+            "type": "string"
+          },
+          "claim_ids": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Claim Ids",
+            "type": "array"
+          },
+          "deficit_code": {
+            "minLength": 1,
+            "title": "Deficit Code",
+            "type": "string"
+          },
+          "deficit_family": {
+            "minLength": 1,
+            "title": "Deficit Family",
+            "type": "string"
+          },
+          "deficit_id": {
+            "minLength": 1,
+            "title": "Deficit Id",
+            "type": "string"
+          },
+          "disposition": {
+            "minLength": 1,
+            "title": "Disposition",
+            "type": "string"
+          },
+          "evidence_ref": {
+            "minLength": 1,
+            "title": "Evidence Ref",
+            "type": "string"
+          },
+          "max_audience": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Audience"
+          },
+          "owner": {
+            "minLength": 1,
+            "title": "Owner",
+            "type": "string"
+          },
+          "public_limitation_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Public Limitation Note"
+          },
+          "readiness_cap": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Readiness Cap"
+          },
+          "review_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Review Refs",
+            "type": "array"
+          },
+          "runtime_event_ref": {
+            "minLength": 1,
+            "title": "Runtime Event Ref",
+            "type": "string"
+          },
+          "support_cap": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Support Cap"
+          },
+          "ttl_expires_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ttl Expires At"
+          }
+        },
+        "required": [
+          "deficit_id",
+          "deficit_family",
+          "deficit_code",
+          "authority_level",
+          "audience_scope",
+          "disposition",
+          "owner",
+          "runtime_event_ref",
+          "evidence_ref"
+        ],
+        "title": "PolicyDesignCaseDeficitProjection",
+        "type": "object"
+      },
+      "PolicyDesignCaseInvariantSummary": {
+        "additionalProperties": false,
+        "description": "Projection summary of invariant and formal-substrate reader results.",
+        "properties": {
+          "blocker_codes": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Blocker Codes",
+            "type": "array"
+          },
+          "details": {
+            "additionalProperties": true,
+            "title": "Details",
+            "type": "object"
+          },
+          "evidence_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Evidence Refs",
+            "type": "array"
+          },
+          "failing_count": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Failing Count",
+            "type": "integer"
+          },
+          "passing_count": {
+            "default": 0,
+            "minimum": 0.0,
+            "title": "Passing Count",
+            "type": "integer"
+          },
+          "status": {
+            "default": "not_provided",
+            "minLength": 1,
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "title": "PolicyDesignCaseInvariantSummary",
+        "type": "object"
+      },
+      "PolicyDesignCaseParticipationRequirementProjection": {
+        "additionalProperties": false,
+        "description": "Privacy-safe participation requirement/evaluation row.",
+        "properties": {
+          "audience_visibility": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/PolicyDesignCaseAudience"
+            },
+            "title": "Audience Visibility",
+            "type": "array"
+          },
+          "blocker_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Blocker Code"
+          },
+          "claim_id": {
+            "minLength": 1,
+            "title": "Claim Id",
+            "type": "string"
+          },
+          "claim_use_allowed": {
+            "minLength": 1,
+            "title": "Claim Use Allowed",
+            "type": "string"
+          },
+          "claim_use_requested": {
+            "minLength": 1,
+            "title": "Claim Use Requested",
+            "type": "string"
+          },
+          "consultation_mode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Consultation Mode"
+          },
+          "downgrade_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Downgrade Reason"
+          },
+          "evidence_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Ref"
+          },
+          "limitations": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "participation_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Participation Ref"
+          },
+          "privacy_constraints": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Privacy Constraints",
+            "type": "array"
+          },
+          "provenance_class": {
+            "minLength": 1,
+            "title": "Provenance Class",
+            "type": "string"
+          },
+          "public_projection_effect": {
+            "minLength": 1,
+            "title": "Public Projection Effect",
+            "type": "string"
+          },
+          "raw_materials_redacted": {
+            "default": true,
+            "title": "Raw Materials Redacted",
+            "type": "boolean"
+          },
+          "representativeness_class": {
+            "minLength": 1,
+            "title": "Representativeness Class",
+            "type": "string"
+          },
+          "requirement_id": {
+            "minLength": 1,
+            "title": "Requirement Id",
+            "type": "string"
+          },
+          "source_kind": {
+            "minLength": 1,
+            "title": "Source Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "requirement_id",
+          "claim_id",
+          "claim_use_requested",
+          "claim_use_allowed",
+          "source_kind",
+          "provenance_class",
+          "representativeness_class",
+          "public_projection_effect"
+        ],
+        "title": "PolicyDesignCaseParticipationRequirementProjection",
+        "type": "object"
+      },
+      "PolicyDesignCaseProjection": {
+        "additionalProperties": false,
+        "description": "Typed, non-authoritative multi-audience Policy Design Case projection.",
+        "properties": {
+          "audience": {
+            "$ref": "#/components/schemas/PolicyDesignCaseAudience"
+          },
+          "audit_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Audit Refs",
+            "type": "array"
+          },
+          "authoritative_for": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Authoritative For",
+            "type": "array"
+          },
+          "authority_role": {
+            "const": "projection_only",
+            "default": "projection_only",
+            "title": "Authority Role",
+            "type": "string"
+          },
+          "capability_reality_state": {
+            "default": "implemented",
+            "minLength": 1,
+            "title": "Capability Reality State",
+            "type": "string"
+          },
+          "closeout_truth": {
+            "$ref": "#/components/schemas/PolicyDesignCaseCloseoutTruth"
+          },
+          "contested_records": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/PolicyDesignCaseContestedRecord"
+            },
+            "title": "Contested Records",
+            "type": "array"
+          },
+          "contract_verification_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Contract Verification Refs",
+            "type": "array"
+          },
+          "contract_verification_status": {
+            "default": "not_verified",
+            "minLength": 1,
+            "title": "Contract Verification Status",
+            "type": "string"
+          },
+          "deficit_register": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/PolicyDesignCaseDeficitProjection"
+            },
+            "title": "Deficit Register",
+            "type": "array"
+          },
+          "evidence_class": {
+            "minLength": 1,
+            "title": "Evidence Class",
+            "type": "string"
+          },
+          "generated_at": {
+            "format": "date-time",
+            "title": "Generated At",
+            "type": "string"
+          },
+          "invariant_summary": {
+            "$ref": "#/components/schemas/PolicyDesignCaseInvariantSummary"
+          },
+          "labels": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/PolicyDesignCaseProjectionLabel"
+            },
+            "title": "Labels",
+            "type": "array"
+          },
+          "may_be_used_for": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "May Be Used For",
+            "type": "array"
+          },
+          "may_not_be_used_for": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "May Not Be Used For",
+            "type": "array"
+          },
+          "omission_manifest": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/PolicyDesignCaseProjectionOmission"
+            },
+            "title": "Omission Manifest",
+            "type": "array"
+          },
+          "participation_requirements": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/PolicyDesignCaseParticipationRequirementProjection"
+            },
+            "title": "Participation Requirements",
+            "type": "array"
+          },
+          "policy_design_case_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Policy Design Case Id"
+          },
+          "primary_state": {
+            "minLength": 1,
+            "title": "Primary State",
+            "type": "string"
+          },
+          "projection_gaps": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/PolicyDesignCaseProjectionGap"
+            },
+            "title": "Projection Gaps",
+            "type": "array"
+          },
+          "projection_policy": {
+            "default": "reads_policy_design_case_only",
+            "enum": [
+              "reads_policy_design_case_only",
+              "reads_runtime_policy_design_case_graph"
+            ],
+            "title": "Projection Policy",
+            "type": "string"
+          },
+          "provenance_kind": {
+            "const": "runtime_projection",
+            "default": "runtime_projection",
+            "title": "Provenance Kind",
+            "type": "string"
+          },
+          "recourse_pointer": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PolicyDesignCaseRecoursePointer"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "redacted": {
+            "default": false,
+            "title": "Redacted",
+            "type": "boolean"
+          },
+          "redaction_summary": {
+            "additionalProperties": true,
+            "title": "Redaction Summary",
+            "type": "object"
+          },
+          "run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Run Id"
+          },
+          "schema_version": {
+            "const": "policyos.runtime.policy_design_case.projection.v1",
+            "default": "policyos.runtime.policy_design_case.projection.v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "source_authority_refs": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Source Authority Refs",
+            "type": "object"
+          },
+          "source_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Ref"
+          },
+          "source_ref_fingerprint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Ref Fingerprint"
+          },
+          "source_state": {
+            "additionalProperties": true,
+            "title": "Source State",
+            "type": "object"
+          },
+          "states": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "States",
+            "type": "array"
+          },
+          "surface": {
+            "minLength": 1,
+            "title": "Surface",
+            "type": "string"
+          }
+        },
+        "required": [
+          "generated_at",
+          "surface",
+          "audience",
+          "primary_state",
+          "closeout_truth",
+          "evidence_class"
+        ],
+        "title": "PolicyDesignCaseProjection",
+        "type": "object"
+      },
+      "PolicyDesignCaseProjectionBlocker": {
+        "additionalProperties": false,
+        "description": "Closeout or publication blocker surfaced through a projection.",
+        "properties": {
+          "code": {
+            "minLength": 1,
+            "title": "Code",
+            "type": "string"
+          },
+          "evidence_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Ref"
+          },
+          "message": {
+            "minLength": 1,
+            "title": "Message",
+            "type": "string"
+          },
+          "module_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Module Id"
+          },
+          "next_action": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Action"
+          },
+          "owner": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner"
+          },
+          "severity": {
+            "default": "fail",
+            "minLength": 1,
+            "title": "Severity",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ],
+        "title": "PolicyDesignCaseProjectionBlocker",
+        "type": "object"
+      },
+      "PolicyDesignCaseProjectionGap": {
+        "additionalProperties": false,
+        "description": "Projection-visible blocker, limitation, redaction, or omission.",
+        "properties": {
+          "audience_visibility": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/PolicyDesignCaseAudience"
+            },
+            "title": "Audience Visibility",
+            "type": "array"
+          },
+          "claim_ids": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Claim Ids",
+            "type": "array"
+          },
+          "closeout_effect": {
+            "default": "limited_closeout",
+            "minLength": 1,
+            "title": "Closeout Effect",
+            "type": "string"
+          },
+          "evidence_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Ref"
+          },
+          "gap_code": {
+            "minLength": 1,
+            "title": "Gap Code",
+            "type": "string"
+          },
+          "gap_family": {
+            "minLength": 1,
+            "title": "Gap Family",
+            "type": "string"
+          },
+          "gap_id": {
+            "minLength": 1,
+            "title": "Gap Id",
+            "type": "string"
+          },
+          "message": {
+            "minLength": 1,
+            "title": "Message",
+            "type": "string"
+          },
+          "next_action": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Action"
+          },
+          "owner": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner"
+          },
+          "publication_effect": {
+            "default": "unaffected",
+            "minLength": 1,
+            "title": "Publication Effect",
+            "type": "string"
+          },
+          "severity": {
+            "minLength": 1,
+            "title": "Severity",
+            "type": "string"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          }
+        },
+        "required": [
+          "gap_id",
+          "gap_code",
+          "gap_family",
+          "severity",
+          "message"
+        ],
+        "title": "PolicyDesignCaseProjectionGap",
+        "type": "object"
+      },
+      "PolicyDesignCaseProjectionLabel": {
+        "additionalProperties": false,
+        "description": "One display label attached to a projection state.",
+        "properties": {
+          "authority_role": {
+            "const": "projection_only",
+            "default": "projection_only",
+            "title": "Authority Role",
+            "type": "string"
+          },
+          "label": {
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          },
+          "source_authority": {
+            "default": "policy_design_case",
+            "minLength": 1,
+            "title": "Source Authority",
+            "type": "string"
+          },
+          "state": {
+            "minLength": 1,
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "state",
+          "label"
+        ],
+        "title": "PolicyDesignCaseProjectionLabel",
+        "type": "object"
+      },
+      "PolicyDesignCaseProjectionOmission": {
+        "additionalProperties": false,
+        "description": "Audience-visible omission manifest row for redacted or omitted PDC content.",
+        "properties": {
+          "audience_visibility": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/PolicyDesignCaseAudience"
+            },
+            "title": "Audience Visibility",
+            "type": "array"
+          },
+          "claim_ids": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Claim Ids",
+            "type": "array"
+          },
+          "closeout_effect": {
+            "default": "limited_closeout",
+            "minLength": 1,
+            "title": "Closeout Effect",
+            "type": "string"
+          },
+          "evidence_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Ref"
+          },
+          "manifest_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Manifest Ref"
+          },
+          "omission_code": {
+            "minLength": 1,
+            "title": "Omission Code",
+            "type": "string"
+          },
+          "omission_family": {
+            "default": "projection",
+            "minLength": 1,
+            "title": "Omission Family",
+            "type": "string"
+          },
+          "omission_id": {
+            "minLength": 1,
+            "title": "Omission Id",
+            "type": "string"
+          },
+          "owner": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner"
+          },
+          "publication_effect": {
+            "default": "omission_manifest_required",
+            "minLength": 1,
+            "title": "Publication Effect",
+            "type": "string"
+          },
+          "reason": {
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          }
+        },
+        "required": [
+          "omission_id",
+          "omission_code",
+          "reason"
+        ],
+        "title": "PolicyDesignCaseProjectionOmission",
+        "type": "object"
+      },
+      "PolicyDesignCaseRecoursePointer": {
+        "additionalProperties": false,
+        "description": "Projection pointer to a deployment-owned recourse process.",
+        "properties": {
+          "authority_boundary": {
+            "const": "deployment_owned_recourse_process",
+            "default": "deployment_owned_recourse_process",
+            "title": "Authority Boundary",
+            "type": "string"
+          },
+          "owner": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner"
+          },
+          "schema_version": {
+            "const": "policyos.runtime.policy_design_case.recourse_pointer.v1",
+            "default": "policyos.runtime.policy_design_case.recourse_pointer.v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "uri": {
+            "minLength": 1,
+            "title": "Uri",
+            "type": "string"
+          },
+          "verification_ref": {
+            "minLength": 1,
+            "title": "Verification Ref",
+            "type": "string"
+          },
+          "verification_status": {
+            "const": "verified_reachable",
+            "default": "verified_reachable",
+            "title": "Verification Status",
+            "type": "string"
+          },
+          "verified_at": {
+            "minLength": 1,
+            "title": "Verified At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "uri",
+          "verified_at",
+          "verification_ref"
+        ],
+        "title": "PolicyDesignCaseRecoursePointer",
+        "type": "object"
+      },
       "PolicyFlags": {
         "additionalProperties": false,
         "description": "Carry opt-in execution relaxations requested by the client.\n\n`allow_mock_fallback=True` is privileged in governed/production profiles and\nmay be rejected by the runtime execution-policy resolver.",
@@ -14306,14 +15481,12 @@
           "policy_design_case_projection": {
             "anyOf": [
               {
-                "additionalProperties": true,
-                "type": "object"
+                "$ref": "#/components/schemas/PolicyDesignCaseProjection"
               },
               {
                 "type": "null"
               }
-            ],
-            "title": "Policy Design Case Projection"
+            ]
           },
           "root_artifacts": {
             "items": {

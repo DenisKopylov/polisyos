@@ -1,0 +1,621 @@
+{
+  "authority_chain": {
+    "authority_role": "producer_authority",
+    "cas_ref": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+    "effective_mode_ref": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "owner": "team-runtime-quality",
+    "producer_component": "polisyos.runtime.quality.assurance_case",
+    "provenance_kind": "runtime_emitted",
+    "runtime_event_ref": "event://wave2-i2/policy-design-case",
+    "runtime_quality_authority": true,
+    "same_input_closure_ref": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "schema_compatibility_ref": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "schema_name": "policyos.runtime.policy_design_case.v1",
+    "schema_version": "1.0"
+  },
+  "authority_profile": {
+    "effective_execution_profile": "research",
+    "fallback_policy": "serious_fallback_fail_closed",
+    "requested_authority_level": "research",
+    "requested_execution_profile": "research",
+    "validation_profile": "mvp"
+  },
+  "capability_ledger": {
+    "duties": [
+      {
+        "capability": "lex",
+        "cas_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "evidence_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "owner": "team-lex",
+        "reason": "I2 deterministic fixture proves Wave 2 carrier wiring.",
+        "required": true,
+        "runtime_event_ref": "event://wave2-i2/capability/lex",
+        "state": "selected"
+      },
+      {
+        "capability": "fabric",
+        "cas_ref": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "evidence_ref": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "owner": "team-fabric",
+        "reason": "I2 deterministic fixture proves Wave 2 carrier wiring.",
+        "required": true,
+        "runtime_event_ref": "event://wave2-i2/capability/fabric",
+        "state": "selected"
+      },
+      {
+        "capability": "scholar",
+        "cas_ref": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "evidence_ref": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "owner": "team-scholar",
+        "reason": "I2 deterministic fixture proves Wave 2 carrier wiring.",
+        "required": true,
+        "runtime_event_ref": "event://wave2-i2/capability/scholar",
+        "state": "selected"
+      },
+      {
+        "capability": "foundry",
+        "cas_ref": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "evidence_ref": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "owner": "team-foundry",
+        "reason": "I2 deterministic fixture proves Wave 2 carrier wiring.",
+        "required": true,
+        "runtime_event_ref": "event://wave2-i2/capability/foundry",
+        "state": "selected"
+      },
+      {
+        "capability": "scientist",
+        "cas_ref": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "evidence_ref": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "owner": "team-scientist",
+        "reason": "I2 deterministic fixture proves Wave 2 carrier wiring.",
+        "required": true,
+        "runtime_event_ref": "event://wave2-i2/capability/scientist",
+        "state": "selected"
+      },
+      {
+        "capability": "compiler",
+        "cas_ref": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "evidence_ref": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "owner": "team-claim-compiler",
+        "reason": "I2 deterministic fixture proves Wave 2 carrier wiring.",
+        "required": true,
+        "runtime_event_ref": "event://wave2-i2/capability/compiler",
+        "state": "selected"
+      },
+      {
+        "capability": "review",
+        "cas_ref": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        "evidence_ref": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        "owner": "team-runtime-review",
+        "reason": "I2 deterministic fixture proves Wave 2 carrier wiring.",
+        "required": true,
+        "runtime_event_ref": "event://wave2-i2/capability/review",
+        "state": "selected"
+      },
+      {
+        "capability": "publication",
+        "cas_ref": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+        "evidence_ref": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+        "owner": "team-publication",
+        "reason": "I2 deterministic fixture proves Wave 2 carrier wiring.",
+        "required": true,
+        "runtime_event_ref": "event://wave2-i2/capability/publication",
+        "state": "selected"
+      },
+      {
+        "capability": "audit",
+        "cas_ref": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+        "evidence_ref": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+        "owner": "team-core-audit",
+        "reason": "I2 deterministic fixture proves Wave 2 carrier wiring.",
+        "required": true,
+        "runtime_event_ref": "event://wave2-i2/capability/audit",
+        "state": "selected"
+      }
+    ],
+    "ledger_ref": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "literature_evidence_required": false,
+    "schema_version": "policyos.runtime.policy_design_case.capability_ledger.v1"
+  },
+  "case_id": "pdc-wave2-i2",
+  "case_registry_entry": {
+    "enforcement_function": "polisyos.runtime.quality.policy_design_case.validate_policy_design_case_record_registry_payload",
+    "generated_at": "2026-05-22T12:00:00+00:00",
+    "readiness_check": "policy_design_case.minimum_record_registry",
+    "record_family_count": 19,
+    "registry_ref": "policy_design_case.minimum_record_registry",
+    "schema_version": "policyos.runtime.policy_design_case.registry_entry.v1",
+    "scorecard_gate": "policy_design_case.minimum_record_registry"
+  },
+  "core_node_types": [
+    "policy_intent",
+    "capability_duty",
+    "concept_spine",
+    "jurisdiction_spine",
+    "producer_evidence",
+    "portfolio",
+    "claim",
+    "argument",
+    "warrant",
+    "rebuttal",
+    "counter_evidence",
+    "deficit"
+  ],
+  "effective_execution_profile": "research",
+  "generated_at": "2026-05-22T12:00:00+00:00",
+  "intent_envelope": {
+    "affected_stakeholders": [
+      "wartime MSMEs",
+      "public finance reviewers"
+    ],
+    "analysis_independence": {
+      "independent_analysis_required": true,
+      "requester_preference_may_not_determine_conclusion": true,
+      "requires_alternative_analysis": true,
+      "requires_counter_evidence_assessment": true
+    },
+    "assumptions": [
+      "deterministic fixture producer is narrow and non-general"
+    ],
+    "authoring_provenance": {
+      "capture_ref": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "captured_by": "policyos.runtime.quality.wave2_walking_skeleton"
+    },
+    "challenge_depth_policy": {
+      "depth": "standard",
+      "minimum_alternative_count": 1,
+      "requires_disconfirming_evidence": false,
+      "requires_requester_capture_challenge": false
+    },
+    "constraints": [],
+    "data_time": "2025-Q4",
+    "desired_outcome": "Improve MSME survival without laundering prior cases into evidence.",
+    "evidence_expectations": [
+      "claim-bound refs are current-run producer outputs"
+    ],
+    "fallback_policy": "serious_fallback_fail_closed",
+    "generated_at": "2026-05-22T12:00:00+00:00",
+    "intent_id": "intent-wave2-i2",
+    "job_id": "job-wave2-i2",
+    "jurisdiction": "UA",
+    "objectives": [
+      "prove the Wave 2 runtime seam"
+    ],
+    "policy_problem": "MSME survival depends on targeted emergency credit access.",
+    "policy_time": "2026-05-22",
+    "proposed_intervention": "Target a small credit guarantee to eligible wartime MSMEs.",
+    "requested_authority_level": "research",
+    "requested_execution_profile": "research",
+    "requester_capture_risk": {
+      "challenge_depth": "standard",
+      "mitigation": "separate requester preference from independent analysis before routing",
+      "preferred_conclusion_present": false,
+      "risk_factors": [],
+      "risk_level": "low"
+    },
+    "requester_preference": {
+      "may_not_determine_independent_conclusion": true,
+      "preferred_conclusion": null,
+      "provided": false,
+      "separation_required": true
+    },
+    "requester_preferred_conclusion": null,
+    "run_id": "run-wave2-i2",
+    "schema_version": "policyos.runtime.policy_intent_envelope.v1",
+    "target_population": "wartime MSMEs",
+    "tenant_id": "tenant-wave2-i2",
+    "validation_profile": "mvp"
+  },
+  "job_id": "job-wave2-i2",
+  "jurisdiction_spine": null,
+  "major_claims": [
+    {
+      "claim_id": "claim.msme_credit_survival",
+      "claim_ref": "fixture.claim.msme_survival",
+      "major": true,
+      "runtime_claim_registry_ref": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+    }
+  ],
+  "nodes": [
+    {
+      "affected_stakeholders": [
+        "wartime MSMEs",
+        "public finance reviewers"
+      ],
+      "analysis_independence": {
+        "independent_analysis_required": true,
+        "requester_preference_may_not_determine_conclusion": true,
+        "requires_alternative_analysis": true,
+        "requires_counter_evidence_assessment": true
+      },
+      "assumptions": [
+        "deterministic fixture producer is narrow and non-general"
+      ],
+      "authoring_provenance": {
+        "capture_ref": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        "captured_by": "policyos.runtime.quality.wave2_walking_skeleton"
+      },
+      "cas_ref": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "challenge_depth_policy": {
+        "depth": "standard",
+        "minimum_alternative_count": 1,
+        "requires_disconfirming_evidence": false,
+        "requires_requester_capture_challenge": false
+      },
+      "constraints": [],
+      "data_time": "2025-Q4",
+      "desired_outcome": "Improve MSME survival without laundering prior cases into evidence.",
+      "evidence_expectations": [
+        "claim-bound refs are current-run producer outputs"
+      ],
+      "fallback_policy": "serious_fallback_fail_closed",
+      "generated_at": "2026-05-22T12:00:00+00:00",
+      "intent_id": "intent-wave2-i2",
+      "job_id": "job-wave2-i2",
+      "jurisdiction": "UA",
+      "node_type": "policy_intent",
+      "objectives": [
+        "prove the Wave 2 runtime seam"
+      ],
+      "policy_problem": "MSME survival depends on targeted emergency credit access.",
+      "policy_time": "2026-05-22",
+      "proposed_intervention": "Target a small credit guarantee to eligible wartime MSMEs.",
+      "requested_authority_level": "research",
+      "requested_execution_profile": "research",
+      "requester_capture_risk": {
+        "challenge_depth": "standard",
+        "mitigation": "separate requester preference from independent analysis before routing",
+        "preferred_conclusion_present": false,
+        "risk_factors": [],
+        "risk_level": "low"
+      },
+      "requester_preference": {
+        "may_not_determine_independent_conclusion": true,
+        "preferred_conclusion": null,
+        "provided": false,
+        "separation_required": true
+      },
+      "requester_preferred_conclusion": null,
+      "run_id": "run-wave2-i2",
+      "schema_version": "policyos.runtime.policy_intent_envelope.v1",
+      "target_population": "wartime MSMEs",
+      "tenant_id": "tenant-wave2-i2",
+      "validation_profile": "mvp"
+    },
+    {
+      "authority_boundary": "concept_spine_closeout_input",
+      "authority_profile": "research",
+      "blockers": [],
+      "bridge_authority": {
+        "authoritative_boundary": "concept_spine_closeout_input",
+        "authoritative_for": [
+          "boundary_continuity"
+        ],
+        "authority_role": "closeout_input",
+        "bridge_class": "reader_attestation",
+        "bridge_ref": "bridge.concept_spine.run-wave2-i2",
+        "cas_ref": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+        "closeout_input": true,
+        "consumer_component": "runtime.closeout_reader",
+        "input_refs": [
+          "repo://policy-engine/architecture/concept-namespaces#policyos.metric.v1",
+          "repo://policy-engine/architecture/concept-namespaces#policyos.population.v1",
+          "repo://policy-engine/architecture/concept-namespaces#policyos.time_role.v1"
+        ],
+        "may_not_use_for": [
+          "producer_domain_truth",
+          "public_projection_authority",
+          "evidence_strength"
+        ],
+        "output_refs": [
+          "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+        ],
+        "producer_component": "runtime.concept_spine",
+        "provenance_kind": "runtime_emitted",
+        "reader_compatible": true,
+        "redaction_integrity_status": "pass",
+        "same_input_closed": true,
+        "schema_version": "policyos.runtime.policy_design_case.concept_spine_bridge_authority.v1"
+      },
+      "carrier_ref": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "cas_ref": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "concept_spine_ref": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "generated_at": "2026-05-22T12:00:00+00:00",
+      "governed_namespace_refs": [
+        {
+          "definition_ref": "repo://policy-engine/architecture/concept-namespaces#policyos.metric.v1",
+          "governed": true,
+          "namespace_id": "policyos.metric.v1",
+          "namespace_type": "metric",
+          "scheme_owner": "team-policy-semantics",
+          "scheme_version": "2026-05-22"
+        },
+        {
+          "definition_ref": "repo://policy-engine/architecture/concept-namespaces#policyos.population.v1",
+          "governed": true,
+          "namespace_id": "policyos.population.v1",
+          "namespace_type": "population",
+          "scheme_owner": "team-policy-semantics",
+          "scheme_version": "2026-05-22"
+        },
+        {
+          "definition_ref": "repo://policy-engine/architecture/concept-namespaces#policyos.time_role.v1",
+          "governed": true,
+          "namespace_id": "policyos.time_role.v1",
+          "namespace_type": "time_role",
+          "scheme_owner": "team-policy-semantics",
+          "scheme_version": "2026-05-22"
+        }
+      ],
+      "job_id": "job-wave2-i2",
+      "node_type": "concept_spine",
+      "producer_handshake_refs": [],
+      "producer_owner": "team-policy-semantics",
+      "reader_owner": "team-runtime-quality",
+      "reconciled_concepts": [
+        {
+          "blocker_refs": [],
+          "concept_id": "concept.msme_survival_rate",
+          "concept_type": "metric",
+          "conflict_refs": [],
+          "context_only_label_refs": [],
+          "geography_refs": [
+            "UA"
+          ],
+          "label": "MSME survival rate",
+          "namespace_refs": [
+            "policyos.metric.v1"
+          ],
+          "population_refs": [
+            "wartime-msmes"
+          ],
+          "producer_refs": [
+            "deterministic_policy_fixture"
+          ],
+          "relation_refs": [],
+          "source_refs": [
+            "request:intent-wave2-i2"
+          ],
+          "status": "resolved",
+          "time_roles": {
+            "data_time": "2025-Q4",
+            "policy_time": "2026-05-22",
+            "replay_time": "2026-05-22T12:00:00+00:00"
+          },
+          "unit_refs": [
+            "unit:rate"
+          ]
+        }
+      ],
+      "record_family": "concept_and_jurisdiction_spine.v1",
+      "relations": [],
+      "run_id": "run-wave2-i2",
+      "schema_version": "policyos.runtime.policy_design_case.hybrid_concept_spine_carrier.v1",
+      "source_concept_spine_ref": null,
+      "status": "pass",
+      "summary": {
+        "blocker_count": 0,
+        "governed_namespace_count": 3,
+        "producer_handshake_ref_count": 0,
+        "reconciled_concept_count": 1,
+        "relation_count": 0
+      },
+      "tenant_id": "tenant-wave2-i2"
+    },
+    {
+      "authority_role": "producer_authority",
+      "bindings": [
+        {
+          "artifact_ref": "fixture.data.msme_panel",
+          "binding_id": "binding.fixture.dataset",
+          "binding_kind": "dataset",
+          "concept_ref": "concept.msme_survival_rate",
+          "disposition": "selected",
+          "requirement_ref": "scenario.req.msme_credit_guarantee",
+          "time_role": "policy_time"
+        },
+        {
+          "artifact_ref": "fixture.norm.msme_credit_eligibility",
+          "binding_id": "binding.fixture.norm",
+          "binding_kind": "norm",
+          "concept_ref": "concept.msme_survival_rate",
+          "disposition": "selected",
+          "requirement_ref": "scenario.req.msme_credit_guarantee",
+          "time_role": "policy_time"
+        },
+        {
+          "artifact_ref": "fixture.method.deterministic_delta",
+          "binding_id": "binding.fixture.method",
+          "binding_kind": "method",
+          "concept_ref": "concept.msme_survival_rate",
+          "disposition": "selected",
+          "requirement_ref": "scenario.req.msme_credit_guarantee",
+          "time_role": "policy_time"
+        },
+        {
+          "artifact_ref": "fixture.claim.msme_survival",
+          "binding_id": "binding.fixture.claim",
+          "binding_kind": "claim",
+          "concept_ref": "concept.msme_survival_rate",
+          "disposition": "selected",
+          "requirement_ref": "scenario.req.msme_credit_guarantee",
+          "time_role": "policy_time"
+        }
+      ],
+      "cas_ref": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+      "concept_spine_ref": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "generated_at": "2026-05-22T12:00:00+00:00",
+      "job_id": "job-wave2-i2",
+      "jurisdiction_spine_ref": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+      "node_type": "producer_evidence",
+      "producer_component": "deterministic_policy_fixture",
+      "producer_ref": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+      "provenance_kind": "runtime_emitted",
+      "run_id": "run-wave2-i2",
+      "runtime_event_ref": "event://wave2-i2/deterministic-producer",
+      "schema_version": "policyos.runtime.policy_design_case.deterministic_producer_fixture.v1",
+      "status": "pass",
+      "tenant_id": "tenant-wave2-i2"
+    },
+    {
+      "accepted_deficit_refs": [
+        "fixture.deficit.toy_scope_accepted"
+      ],
+      "argument_refs": [
+        "fixture.argument.credit_support"
+      ],
+      "assurance_node_id": "claim-node-claim.msme_credit_survival",
+      "authority_role": "producer_authority",
+      "blocker_refs": [],
+      "claim_id": "claim.msme_credit_survival",
+      "claim_ref": "sha256:634c7c01abf1bbbab11da69e01d2557f8a2c6d8b85bc0ef97ee36a9b45976077",
+      "concept_refs": [],
+      "concept_spine_ref": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "counter_evidence_refs": [
+        "fixture.counter.stress_case"
+      ],
+      "data_refs": [
+        "fixture.data.msme_panel"
+      ],
+      "disconfirming_refs": [
+        "fixture.rebuttal.none_found",
+        "fixture.counter.stress_case"
+      ],
+      "independence_refs": [],
+      "legal_norm_refs": [
+        "fixture.norm.msme_credit_eligibility"
+      ],
+      "limitation_refs": [
+        "fixture.limit.toy_policy_scope"
+      ],
+      "method_output_refs": [
+        "fixture.method.deterministic_delta"
+      ],
+      "method_refs": [
+        "fixture.method.deterministic_delta"
+      ],
+      "monitoring_refs": [],
+      "node_type": "claim",
+      "numerical_semantics_refs": [],
+      "objective_tradeoff_refs": [],
+      "portfolio_refs": [
+        "fixture.portfolio.single"
+      ],
+      "producer_handshake_ledger_ref": "producer-handshake-ledger:sha256:355ffffd0c1a827662bc89d501b3dc1f5e1e01408ee5341c12a64e58279af3f7",
+      "producer_handshake_refs": [
+        "producer-handshake:sha256:8b83729b73c106df70eed52138249f5f07c3ca442fb800274040d3b8c218a55f"
+      ],
+      "provenance_kind": "runtime_emitted",
+      "rebuttal_refs": [
+        "fixture.rebuttal.none_found"
+      ],
+      "rejected_method_refs": [],
+      "rejected_norm_refs": [],
+      "runtime_claim_registry_ref": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+      "runtime_event_ref": "event://runtime_claim_registry/run-wave2-i2/claim.msme_credit_survival",
+      "scenario_requirement_refs": [
+        "scenario.req.msme_credit_guarantee"
+      ],
+      "scholar_deficit_refs": [
+        "fixture.deficit.toy_scope_accepted"
+      ],
+      "scholar_refs": [],
+      "selected_norm_refs": [
+        "fixture.norm.msme_credit_eligibility"
+      ],
+      "selected_producer_refs": {
+        "data_forge": [
+          "fixture.data.msme_panel"
+        ],
+        "fabric": [
+          "fixture.data.msme_panel"
+        ],
+        "foundry": [
+          "fixture.method.deterministic_delta"
+        ],
+        "lex": [
+          "fixture.norm.msme_credit_eligibility"
+        ]
+      },
+      "source_data_refs": [
+        "fixture.data.msme_panel"
+      ],
+      "specification_curve_refs": [],
+      "synthesis_refs": [],
+      "uncertainty_refs": [],
+      "warrant_refs": [
+        "fixture.warrant.admissible"
+      ]
+    }
+  ],
+  "owner": "team-runtime-quality",
+  "profile": "policy_design",
+  "profile_metadata": {
+    "authority_chain": [
+      "runtime_quality_owner",
+      "runtime_event_ref",
+      "cas_ref",
+      "same_input_closure_ref",
+      "effective_mode_ref",
+      "schema_compatibility_ref",
+      "tenant_id"
+    ],
+    "authority_surface": "src/polisyos/runtime/quality/assurance_case.py",
+    "core_node_types": [
+      "policy_intent",
+      "capability_duty",
+      "concept_spine",
+      "jurisdiction_spine",
+      "producer_evidence",
+      "portfolio",
+      "claim",
+      "argument",
+      "warrant",
+      "rebuttal",
+      "counter_evidence",
+      "deficit"
+    ],
+    "extends_schema_version": "policyos.runtime.assurance_case.v1",
+    "mapping": {
+      "argument": "SACM.argument_reasoning",
+      "capability_duty": "SACM.context",
+      "claim": "SACM.claim",
+      "concept_spine": "SACM.context",
+      "counter_evidence": "CAE.defeater",
+      "deficit": "SACM.assurance_deficit",
+      "jurisdiction_spine": "SACM.context",
+      "policy_intent": "SACM.context",
+      "portfolio": "CAE.evidence_set",
+      "producer_evidence": "SACM.artifact_reference",
+      "rebuttal": "CAE.rebuttal",
+      "warrant": "CAE.warrant"
+    },
+    "owner": "team-runtime-quality",
+    "profile": "policy_design",
+    "reserved_node_families": [
+      "oversight_effectiveness",
+      "lifecycle_event",
+      "audit_attestation",
+      "publication_trust",
+      "run_cost_proportionality",
+      "ex_post_outcome",
+      "calibration",
+      "formal_invariant"
+    ],
+    "runtime_quality_component": "polisyos.runtime.quality.assurance_case",
+    "schema_version": "policyos.runtime.policy_design_case.v1"
+  },
+  "reserved_node_families": [
+    "oversight_effectiveness",
+    "lifecycle_event",
+    "audit_attestation",
+    "publication_trust",
+    "run_cost_proportionality",
+    "ex_post_outcome",
+    "calibration",
+    "formal_invariant"
+  ],
+  "run_id": "run-wave2-i2",
+  "schema_version": "policyos.runtime.policy_design_case.v1",
+  "tenant_id": "tenant-wave2-i2"
+}

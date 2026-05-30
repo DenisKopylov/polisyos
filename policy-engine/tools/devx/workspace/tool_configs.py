@@ -6,6 +6,8 @@ from __future__ import annotations
 import argparse
 import difflib
 import json
+import os
+import re
 import sys
 import tomllib
 from collections.abc import Sequence
@@ -89,18 +91,22 @@ def _render_mypy(repo_root: Path, data: dict[str, Any]) -> tuple[RenderedFile, .
 def _render_ruff(repo_root: Path, data: dict[str, Any]) -> tuple[RenderedFile, ...]:
     config = data["ruff"]
     base = _read_fragment(repo_root, config["base_config"])
-    fragments = [_read_fragment(repo_root, path) for path in config["per_file_ignore_fragments"]]
+    generated_config = config["generated_config"]
+    fragments = [
+        _read_ruff_per_file_ignore_fragment(repo_root, path, generated_config)
+        for path in config["per_file_ignore_fragments"]
+    ]
     root_content = (
         _comment_notice("ruff.toml")
-        + f'extend = "{config["generated_config"]}"\n'
+        + f'extend = "{generated_config}"\n'
         + 'cache-dir = "_cache/ruff"\n'
     )
-    generated_content = _comment_notice(config["generated_config"]) + _join_blocks(
+    generated_content = _comment_notice(generated_config) + _join_blocks(
         [base, "[lint.per-file-ignores]\n", *fragments]
     )
     return (
         RenderedFile(repo_root / config["root_config"], root_content, repo_root),
-        RenderedFile(repo_root / config["generated_config"], generated_content, repo_root),
+        RenderedFile(repo_root / generated_config, generated_content, repo_root),
     )
 
 
@@ -129,6 +135,44 @@ def _comment_notice(target: str, *, comment: str = "#") -> str:
 
 def _read_fragment(repo_root: Path, relative_path: str) -> str:
     return (repo_root / relative_path).read_text(encoding="utf-8")
+
+
+_RUFF_PER_FILE_IGNORE_KEY_RE = re.compile(
+    r'^(?P<indent>\s*)"(?P<pattern>[^"]+)"(?P<suffix>\s*=.*)$'
+)
+
+
+def _read_ruff_per_file_ignore_fragment(
+    repo_root: Path, relative_path: str, generated_config: str
+) -> str:
+    fragment = _read_fragment(repo_root, relative_path)
+    generated_dir = (repo_root / generated_config).parent
+    rendered_lines = []
+    for line in fragment.splitlines():
+        match = _RUFF_PER_FILE_IGNORE_KEY_RE.match(line)
+        if match is None:
+            rendered_lines.append(line)
+            continue
+        rendered_lines.append(
+            (
+                f'{match.group("indent")}"'
+                f'{_ruff_pattern_for_generated_config(match.group("pattern"), repo_root, generated_dir)}'
+                f'"{match.group("suffix")}'
+            )
+        )
+    return "\n".join(rendered_lines) + ("\n" if fragment.endswith("\n") else "")
+
+
+def _ruff_pattern_for_generated_config(pattern: str, repo_root: Path, generated_dir: Path) -> str:
+    """Render repo-root-relative Ruff patterns relative to the generated config."""
+
+    negated = pattern.startswith("!")
+    subject = pattern[1:] if negated else pattern
+    if subject.startswith(("/", "./", "../")):
+        return pattern
+    prefix = os.path.relpath(repo_root, generated_dir).replace(os.sep, "/")
+    rendered = f"{prefix}/{subject}" if prefix != "." else subject
+    return f"!{rendered}" if negated else rendered
 
 
 def _ensure_trailing_newline(content: str) -> str:

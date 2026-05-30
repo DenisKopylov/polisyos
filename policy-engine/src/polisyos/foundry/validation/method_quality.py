@@ -9,6 +9,10 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.foundry.methods.selection.requirements import (
+    select_method_candidates_for_requirements,
+)
+from polisyos.method_requirement import normalize_method_requirements
 
 SCHEMA_VERSION = "policyos.foundry.method_quality_report.v1"
 REPORT_KIND = "foundry.method_quality_report"
@@ -312,11 +316,19 @@ _METHOD_VALIDITY_REGISTRY: dict[str, dict[str, Any]] = {
 }
 
 
-def _text(value: Any) -> str:
+def _text(value: object) -> str:
     return str(value or "").strip()
 
 
-def _jsonable(value: Any) -> Any:
+def _slug(value: object) -> str:
+    text = "".join(
+        ch if ch.isalnum() or ch in {".", "_", "-", ":"} else "-"
+        for ch in _text(value)
+    ).strip("-")
+    return text or "method"
+
+
+def _jsonable(value: object) -> object:
     if hasattr(value, "model_dump"):
         return value.model_dump(mode="json")
     if isinstance(value, Mapping):
@@ -326,7 +338,7 @@ def _jsonable(value: Any) -> Any:
     return value
 
 
-def _mapping(value: Any) -> dict[str, Any]:
+def _mapping(value: object) -> dict[str, Any]:
     if hasattr(value, "model_dump"):
         value = value.model_dump(mode="json")
     if isinstance(value, Mapping):
@@ -334,7 +346,7 @@ def _mapping(value: Any) -> dict[str, Any]:
     return {}
 
 
-def _ref_id(value: Any) -> str | None:
+def _ref_id(value: object) -> str | None:
     if isinstance(value, str):
         text = value.strip()
         return text or None
@@ -350,7 +362,7 @@ def _ref_id(value: Any) -> str | None:
     return text or None
 
 
-def _normalize_ref_mapping(value: Any) -> dict[str, str]:
+def _normalize_ref_mapping(value: object) -> dict[str, str]:
     refs: dict[str, str] = {}
     for key, item in _mapping(value).items():
         ref = _ref_id(item)
@@ -361,14 +373,14 @@ def _normalize_ref_mapping(value: Any) -> dict[str, str]:
     return refs
 
 
-def _merge_ref_mappings(*values: Any) -> dict[str, str]:
+def _merge_ref_mappings(*values: object) -> dict[str, str]:
     refs: dict[str, str] = {}
     for value in values:
         refs.update(_normalize_ref_mapping(value))
     return refs
 
 
-def _load_json_artifact(store: Any, ref_value: Any) -> dict[str, Any] | None:
+def _load_json_artifact(store: object, ref_value: object) -> dict[str, Any] | None:
     artifact_id = _ref_id(ref_value)
     if artifact_id is None or store is None:
         return None
@@ -379,13 +391,13 @@ def _load_json_artifact(store: Any, ref_value: Any) -> dict[str, Any] | None:
     return _mapping(payload)
 
 
-def _state_section(state: Any, key: str) -> dict[str, Any]:
+def _state_section(state: object, key: str) -> dict[str, Any]:
     if isinstance(state, Mapping):
         return _mapping(state.get(key))
     return _mapping(getattr(state, key, None))
 
 
-def _state_value(state: Any, key: str) -> Any:
+def _state_value(state: object, key: str) -> object:
     if isinstance(state, Mapping):
         return state.get(key)
     return getattr(state, key, None)
@@ -450,6 +462,160 @@ def _result_refs(method: dict[str, Any]) -> dict[str, str]:
     return _normalize_ref_mapping(method.get("result_refs") or method.get("method_result_refs"))
 
 
+def _method_output_refs(method: dict[str, Any]) -> dict[str, str]:
+    refs = _merge_ref_mappings(
+        method.get("method_output_refs"),
+        method.get("method_result_refs"),
+        method.get("result_refs"),
+    )
+    return refs
+
+
+def _generated_ref(prefix: str, method_id: str, label: str) -> str:
+    return f"{prefix}:{_slug(method_id)}:{_slug(label)}"
+
+
+def _assumption_status(value: object) -> str:
+    if isinstance(value, Mapping):
+        status = _text(value.get("status") or value.get("gate_status")).casefold()
+    else:
+        status = _text(value).casefold()
+    if status in {"fail", "failed", "block", "blocked", "missing"}:
+        return "fail"
+    if status in {"warn", "warning", "limited", "degraded"}:
+        return "warn"
+    return "pass"
+
+
+def _runtime_assumption_gates(method: dict[str, Any]) -> list[dict[str, str]]:
+    raw_gates = method.get("runtime_assumption_gates")
+    if isinstance(raw_gates, list) and raw_gates:
+        gates: list[dict[str, str]] = []
+        for item in raw_gates:
+            gate = _mapping(item)
+            gate_ref = _text(
+                gate.get("gate_ref")
+                or gate.get("assumption_gate_ref")
+                or gate.get("ref")
+                or gate.get("id")
+            )
+            assumption = _text(gate.get("assumption") or gate.get("assumption_id"))
+            status = _assumption_status(gate.get("status") or gate.get("gate_status"))
+            if gate_ref and assumption:
+                gates.append(
+                    {
+                        "gate_ref": gate_ref,
+                        "assumption": assumption,
+                        "status": status,
+                    }
+                )
+        return gates
+
+    method_id = _method_id(method) or "method"
+    explicit_refs = _normalize_ref_mapping(method.get("assumption_gate_refs"))
+    assumptions = method.get("assumptions") or method.get("assumption_card")
+    gates = []
+    if isinstance(assumptions, Mapping):
+        for assumption, value in assumptions.items():
+            assumption_id = _text(assumption)
+            if not assumption_id:
+                continue
+            gates.append(
+                {
+                    "gate_ref": explicit_refs.get(assumption_id)
+                    or _generated_ref("foundry-assumption-gate", method_id, assumption_id),
+                    "assumption": assumption_id,
+                    "status": _assumption_status(value),
+                }
+            )
+    else:
+        for item in _as_list(assumptions):
+            assumption_id = _text(item)
+            if not assumption_id:
+                continue
+            gates.append(
+                {
+                    "gate_ref": explicit_refs.get(assumption_id)
+                    or _generated_ref("foundry-assumption-gate", method_id, assumption_id),
+                    "assumption": assumption_id,
+                    "status": "pass",
+                }
+            )
+    return gates
+
+
+def _assumption_gate_refs(method: dict[str, Any]) -> dict[str, str]:
+    raw_refs = method.get("assumption_gate_refs")
+    if raw_refs is not None:
+        refs = _normalize_ref_mapping(raw_refs)
+        if refs:
+            return refs
+    return {
+        gate["assumption"]: gate["gate_ref"]
+        for gate in _runtime_assumption_gates(method)
+        if gate.get("assumption") and gate.get("gate_ref")
+    }
+
+
+def _uncertainty_envelope_refs(method: dict[str, Any]) -> dict[str, str]:
+    refs = _merge_ref_mappings(
+        method.get("uncertainty_envelope_refs"),
+        method.get("uncertainty_refs"),
+    )
+    if refs:
+        return refs
+    uncertainty = method.get("uncertainty") or method.get("uncertainty_envelope")
+    if _status_pass(uncertainty):
+        method_id = _method_id(method) or "method"
+        return {
+            "uncertainty_envelope_ref": _generated_ref(
+                "foundry-uncertainty-envelope",
+                method_id,
+                "runtime",
+            )
+        }
+    return {}
+
+
+def _limitation_refs(method: dict[str, Any]) -> dict[str, str]:
+    refs = _normalize_ref_mapping(method.get("limitation_refs"))
+    if refs:
+        return refs
+    for key in ("limitations", "transportability_limits", "degradation"):
+        if _mapping(method.get(key)):
+            method_id = _method_id(method) or "method"
+            return {
+                "method_limitation_ref": _generated_ref(
+                    "foundry-method-limitation",
+                    method_id,
+                    key,
+                )
+            }
+    return {}
+
+
+def _simulation_assumption_lineage_refs(method: dict[str, Any]) -> dict[str, str]:
+    return _merge_ref_mappings(
+        method.get("simulation_assumption_lineage_refs"),
+        method.get("simulation_assumption_refs"),
+        method.get("assumption_lineage_refs"),
+        method.get("dgp_refs"),
+    )
+
+
+def _enrich_method_surfaces(method: dict[str, Any]) -> dict[str, Any]:
+    enriched = dict(method)
+    enriched["method_output_refs"] = _method_output_refs(enriched)
+    enriched["runtime_assumption_gates"] = _runtime_assumption_gates(enriched)
+    enriched["assumption_gate_refs"] = _assumption_gate_refs(enriched)
+    enriched["uncertainty_envelope_refs"] = _uncertainty_envelope_refs(enriched)
+    enriched["limitation_refs"] = _limitation_refs(enriched)
+    lineage_refs = _simulation_assumption_lineage_refs(enriched)
+    if lineage_refs:
+        enriched["simulation_assumption_lineage_refs"] = lineage_refs
+    return enriched
+
+
 def _surface_ref(surface: Mapping[str, Any]) -> str | None:
     for key in (
         "ref",
@@ -503,7 +669,7 @@ def _registry_surface_issues(
     return issues
 
 
-def _status_pass(payload: Any) -> bool:
+def _status_pass(payload: object) -> bool:
     if not isinstance(payload, dict):
         return False
     status = _text(payload.get("status") or payload.get("quality_status")).casefold()
@@ -957,6 +1123,57 @@ def _method_obligation_issues(
     return issues
 
 
+def _method_independence_report(selected_methods: list[dict[str, Any]]) -> dict[str, Any]:
+    signatures: dict[tuple[str, ...], list[str]] = {}
+    independent = 0
+    for method in selected_methods:
+        method_id = _method_id(method) or "<missing>"
+        lineage_refs = tuple(sorted(_simulation_assumption_lineage_refs(method).values()))
+        if lineage_refs:
+            signatures.setdefault(lineage_refs, []).append(method_id)
+        else:
+            independent += 1
+
+    collapse_reasons = [
+        {
+            "reason_code": "shared_simulation_assumption_lineage",
+            "simulation_assumption_lineage_refs": list(lineage_refs),
+            "method_refs": method_ids,
+            "effective_independent_count": 1,
+            "raw_method_count": len(method_ids),
+        }
+        for lineage_refs, method_ids in signatures.items()
+        if len(method_ids) > 1
+    ]
+    independent += len(signatures)
+    return {
+        "raw_method_count": len(selected_methods),
+        "effective_independent_method_count": independent,
+        "collapse_reasons": collapse_reasons,
+    }
+
+
+def _method_independence_issues(
+    independence_report: Mapping[str, Any],
+) -> list[dict[str, Any]]:
+    if not independence_report.get("collapse_reasons"):
+        return []
+    return [
+        _issue(
+            code="method_independence_collapsed_by_shared_assumptions",
+            severity="warn",
+            message=(
+                "Multiple Foundry method outputs share simulation assumption lineage "
+                "and cannot count as fully independent method evidence."
+            ),
+            next_action=(
+                "Report effective method independence and collapse reasons instead of "
+                "raw method counts."
+            ),
+        )
+    ]
+
+
 def _has_point_estimate(method: dict[str, Any]) -> bool:
     result_summary = method.get("result_summary")
     if not isinstance(result_summary, dict):
@@ -1200,6 +1417,42 @@ def _validate_method(
             )
         )
 
+    method_output_refs = _method_output_refs(method)
+    assumption_gate_refs = _assumption_gate_refs(method)
+    runtime_assumption_gates = _runtime_assumption_gates(method)
+    if method_output_refs and not assumption_gate_refs:
+        issues.append(
+            _issue(
+                code="method_assumption_gate_refs_missing",
+                method_id=method_id,
+                message=(
+                    f"Method {method_id or '<missing>'} emits method outputs without "
+                    "runtime assumption gate refs."
+                ),
+                next_action=(
+                    "Record assumption gates before using method outputs for "
+                    "claim-bound policy authority."
+                ),
+            )
+        )
+    failed_gates = [
+        gate.get("gate_ref") or gate.get("assumption")
+        for gate in runtime_assumption_gates
+        if _text(gate.get("status")).casefold() in {"fail", "failed", "block", "blocked"}
+    ]
+    if failed_gates:
+        issues.append(
+            _issue(
+                code="method_assumption_gate_failed",
+                method_id=method_id,
+                message=f"Method {method_id or '<missing>'} has failing assumption gates.",
+                next_action=(
+                    "Reject, degrade, or rerun the method before binding its outputs "
+                    "to claims."
+                ),
+            )
+        )
+
     uncertainty = method.get("uncertainty") or method.get("uncertainty_envelope")
     if not _status_pass(uncertainty):
         code = (
@@ -1216,6 +1469,34 @@ def _validate_method(
                     "diagnostics."
                 ),
                 next_action="Attach uncertainty interval/envelope before policy approval.",
+            )
+        )
+    if method_output_refs and not _uncertainty_envelope_refs(method):
+        issues.append(
+            _issue(
+                code="method_uncertainty_refs_missing",
+                method_id=method_id,
+                message=(
+                    f"Method {method_id or '<missing>'} emits outputs without "
+                    "uncertainty envelope refs."
+                ),
+                next_action=(
+                    "Persist uncertainty envelope refs alongside method outputs before "
+                    "claims consume them."
+                ),
+            )
+        )
+
+    if method_output_refs and not _limitation_refs(method):
+        issues.append(
+            _issue(
+                code="method_limitation_refs_missing",
+                method_id=method_id,
+                message=f"Method {method_id or '<missing>'} emits outputs without limitation refs.",
+                next_action=(
+                    "Record transportability, scope, degradation, or other method "
+                    "limitation refs before policy closeout."
+                ),
             )
         )
 
@@ -1280,16 +1561,35 @@ def _validate_method(
                 )
             )
 
+    if (
+        _method_family(method).casefold() == "simulation"
+        and not _simulation_assumption_lineage_refs(method)
+    ):
+        issues.append(
+            _issue(
+                code="simulation_assumption_lineage_missing",
+                method_id=method_id,
+                message=(
+                    f"Simulation method {method_id or '<missing>'} has no simulation "
+                    "assumption lineage refs."
+                ),
+                next_action=(
+                    "Attach scenario, DGP, behavioral, or take-up assumption lineage "
+                    "before simulation output is used as method evidence."
+                ),
+            )
+        )
+
     return issues
 
 
-def _as_list(value: Any) -> list[Any]:
+def _as_list(value: object) -> list[object]:
     if isinstance(value, list | tuple):
         return list(value)
     return []
 
 
-def _first_mapping(*values: Any) -> dict[str, Any]:
+def _first_mapping(*values: object) -> dict[str, Any]:
     for value in values:
         candidate = _mapping(value)
         if candidate:
@@ -1669,6 +1969,18 @@ def _selected_method_from_output(
             evidence.get("uncertainty_refs"),
             result.get("uncertainty_refs"),
         ),
+        "assumption_gate_refs": _merge_ref_mappings(
+            output.get("assumption_gate_refs"),
+            report.get("assumption_gate_refs"),
+            evidence.get("assumption_gate_refs"),
+            result.get("assumption_gate_refs"),
+        ),
+        "runtime_assumption_gates": (
+            _as_list(output.get("runtime_assumption_gates"))
+            or _as_list(report.get("runtime_assumption_gates"))
+            or _as_list(evidence.get("runtime_assumption_gates"))
+            or _as_list(result.get("runtime_assumption_gates"))
+        ),
         "sensitivity_refs": _merge_ref_mappings(
             output.get("sensitivity_refs"),
             report.get("sensitivity_refs"),
@@ -1680,6 +1992,14 @@ def _selected_method_from_output(
             report.get("limitation_refs"),
             evidence.get("limitation_refs"),
             result.get("limitation_refs"),
+        ),
+        "simulation_assumption_lineage_refs": _merge_ref_mappings(
+            output.get("simulation_assumption_lineage_refs"),
+            report.get("simulation_assumption_lineage_refs"),
+            evidence.get("simulation_assumption_lineage_refs"),
+            result.get("simulation_assumption_lineage_refs"),
+            output.get("assumption_lineage_refs"),
+            result.get("assumption_lineage_refs"),
         ),
         "distributional_evidence": _first_mapping(
             output.get("distributional_evidence"),
@@ -1930,27 +2250,57 @@ def build_foundry_method_report(
     rejected_methods: list[dict[str, Any]] | None = None,
     foundry_input_refs: Mapping[str, Any] | None = None,
     expected_method_expectations: list[str] | None = None,
+    method_requirements: list[Mapping[str, Any] | Any] | None = None,
     canary_kind: str = "production",
     spine_context: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Build a strict Foundry method-quality report from selected methods."""
     normalized_foundry_input_refs = _normalize_ref_mapping(foundry_input_refs or {})
+    normalized_method_requirements = normalize_method_requirements(method_requirements)
     expected = {
         _text(expectation).casefold()
         for expectation in (expected_method_expectations or [])
         if _text(expectation)
     }
+    for requirement in normalized_method_requirements:
+        expected.update(
+            _text(expectation).casefold()
+            for expectation in requirement.method_expectations
+            if _text(expectation)
+        )
     normalized_candidate_methods = list(candidate_methods or selected_methods)
     normalized_rejected_methods = list(rejected_methods or [])
     selected_methods, reconciled_rejections = _reconcile_selected_methods(
         list(selected_methods),
         expected_method_expectations=expected,
     )
+    requirement_selection_report: dict[str, Any] | None = None
+    if normalized_method_requirements:
+        requirement_selection_report = select_method_candidates_for_requirements(
+            candidate_methods=selected_methods,
+            method_requirements=normalized_method_requirements,
+        )
+        selected_methods = [
+            method
+            for method in requirement_selection_report.get("selected_methods", [])
+            if isinstance(method, dict)
+        ]
+        normalized_rejected_methods.extend(
+            method
+            for method in requirement_selection_report.get("rejected_methods", [])
+            if isinstance(method, dict)
+        )
+    selected_methods = [
+        _enrich_method_surfaces(method)
+        for method in selected_methods
+        if isinstance(method, dict)
+    ]
     normalized_rejected_methods = [*normalized_rejected_methods, *reconciled_rejections]
     method_obligations = _build_method_obligations(
         selected_methods=selected_methods,
         expected_method_expectations=expected,
     )
+    method_independence = _method_independence_report(selected_methods)
     issues: list[dict[str, Any]] = []
     issues.extend(
         _selection_issues_from_rejections(
@@ -1959,7 +2309,14 @@ def build_foundry_method_report(
             expected_method_expectations=expected,
         )
     )
+    if requirement_selection_report is not None:
+        issues.extend(
+            issue
+            for issue in requirement_selection_report.get("issues", [])
+            if isinstance(issue, dict)
+        )
     issues.extend(_method_obligation_issues(method_obligations))
+    issues.extend(_method_independence_issues(method_independence))
     if not selected_methods:
         issues.append(
             _issue(
@@ -1984,9 +2341,20 @@ def build_foundry_method_report(
     report = {
         "schema_version": SCHEMA_VERSION,
         "status": status,
+        "capability_reality_status": "implemented",
+        "runtime_authority_envelope": _authority_envelope(),
         "canary_kind": canary_kind,
         "foundry_input_refs": normalized_foundry_input_refs,
         "expected_method_expectations": sorted(expected),
+        "method_requirements": [
+            requirement.model_dump(mode="json")
+            for requirement in normalized_method_requirements
+        ],
+        "method_requirement_statuses": (
+            dict(requirement_selection_report.get("method_requirement_statuses") or {})
+            if requirement_selection_report is not None
+            else {}
+        ),
         "candidate_methods": normalized_candidate_methods,
         "candidate_method_families": _candidate_method_families(
             candidate_methods=normalized_candidate_methods,
@@ -1994,6 +2362,7 @@ def build_foundry_method_report(
             rejected_methods=normalized_rejected_methods,
         ),
         "method_obligations": method_obligations,
+        "method_independence": method_independence,
         "selected_methods": list(selected_methods),
         "rejected_methods": normalized_rejected_methods,
         "issues": issues,
@@ -2015,19 +2384,46 @@ def build_foundry_method_report(
                 for method in selected_methods
                 if isinstance(method, dict) and _result_refs(method)
             ],
+            "method_output_ref_count": sum(
+                len(_method_output_refs(method))
+                for method in selected_methods
+                if isinstance(method, dict)
+            ),
+            "assumption_gate_ref_count": sum(
+                len(_assumption_gate_refs(method))
+                for method in selected_methods
+                if isinstance(method, dict)
+            ),
+            "uncertainty_envelope_ref_count": sum(
+                len(_uncertainty_envelope_refs(method))
+                for method in selected_methods
+                if isinstance(method, dict)
+            ),
+            "limitation_ref_count": sum(
+                len(_limitation_refs(method))
+                for method in selected_methods
+                if isinstance(method, dict)
+            ),
+            "effective_independent_method_count": method_independence[
+                "effective_independent_method_count"
+            ],
+            "method_independence_collapse_reasons": method_independence["collapse_reasons"],
             "method_obligation_statuses": {
                 str(obligation["expectation"]): str(obligation["status"])
                 for obligation in method_obligations
             },
+            "method_requirement_statuses": (
+                dict(requirement_selection_report.get("method_requirement_statuses") or {})
+                if requirement_selection_report is not None
+                else {}
+            ),
         },
     }
     if spine_context is not None:
-        from polisyos.runtime.quality.semantic_binding import (
-            build_producer_spine_binding_fields,
-        )
+        from polisyos.core import contracts as core_contracts
 
         report.update(
-            build_producer_spine_binding_fields(
+            core_contracts.build_producer_spine_binding_fields(
                 component="foundry",
                 spine_context=spine_context,
                 candidate_refs=[
@@ -2046,6 +2442,7 @@ def normalize_foundry_method_report(
     *,
     foundry_input_refs: Mapping[str, Any] | None = None,
     expected_method_expectations: list[str] | None = None,
+    method_requirements: list[Mapping[str, Any] | Any] | None = None,
     canary_kind: str = "production",
 ) -> dict[str, Any]:
     """Recompute method-quality status from selected method diagnostics."""
@@ -2054,6 +2451,7 @@ def normalize_foundry_method_report(
             selected_methods=[],
             foundry_input_refs=foundry_input_refs,
             expected_method_expectations=expected_method_expectations,
+            method_requirements=method_requirements,
             canary_kind=canary_kind,
         )
     selected_methods = [
@@ -2076,6 +2474,7 @@ def normalize_foundry_method_report(
         rejected_methods=rejected_methods or None,
         foundry_input_refs=foundry_input_refs or report.get("foundry_input_refs"),
         expected_method_expectations=expected,
+        method_requirements=method_requirements or report.get("method_requirements"),
         canary_kind=canary_kind,
     )
     return {**report, **normalized}
@@ -2086,6 +2485,7 @@ def build_foundry_method_report_from_execution_outputs(
     method_outputs: list[dict[str, Any]],
     foundry_input_refs: Mapping[str, Any] | None = None,
     expected_method_expectations: list[str] | None = None,
+    method_requirements: list[Mapping[str, Any] | Any] | None = None,
     canary_kind: str = "production",
 ) -> dict[str, Any]:
     """Build a method-quality report from executed method outputs and Foundry refs."""
@@ -2110,11 +2510,12 @@ def build_foundry_method_report_from_execution_outputs(
         rejected_methods=rejected_methods,
         foundry_input_refs=normalized_foundry_refs,
         expected_method_expectations=expected_method_expectations,
+        method_requirements=method_requirements,
         canary_kind=canary_kind,
     )
 
 
-def _state_foundry_input_refs(state: Any) -> dict[str, str]:
+def _state_foundry_input_refs(state: object) -> dict[str, str]:
     inputs = _state_section(state, "inputs")
     params = _state_section(state, "params")
     auto_refs = _mapping(params.get("auto_data_source_refs"))
@@ -2126,7 +2527,7 @@ def _state_foundry_input_refs(state: Any) -> dict[str, str]:
     return refs
 
 
-def _state_expected_method_expectations(state: Any) -> list[str]:
+def _state_expected_method_expectations(state: object) -> list[str]:
     params = _state_section(state, "params")
     expected = params.get("expected_method_expectations")
     if isinstance(expected, list):
@@ -2141,7 +2542,7 @@ def _state_expected_method_expectations(state: Any) -> list[str]:
 
 def _artifact_payload_from_sections(
     *,
-    store: Any,
+    store: object,
     artifacts: dict[str, Any],
     reports: dict[str, Any],
     params: dict[str, Any],
@@ -2152,7 +2553,7 @@ def _artifact_payload_from_sections(
     return ref, _load_json_artifact(store, ref_value) or {}
 
 
-def _method_outputs_from_state(store: Any, state: Any) -> list[dict[str, Any]]:
+def _method_outputs_from_state(store: object, state: object) -> list[dict[str, Any]]:
     artifacts = _state_section(state, "artifacts_index")
     reports = _state_section(state, "reports_index")
     params = _state_section(state, "params")
@@ -2260,8 +2661,8 @@ def _method_outputs_from_state(store: Any, state: Any) -> list[dict[str, Any]]:
 
 
 def build_foundry_method_report_from_state(
-    store: Any,
-    state: Any,
+    store: object,
+    state: object,
     *,
     expected_method_expectations: list[str] | None = None,
     canary_kind: str = "production",
@@ -2278,14 +2679,14 @@ def build_foundry_method_report_from_state(
     )
 
 
-def expected_method_expectations_from_state(state: Any) -> list[str]:
+def expected_method_expectations_from_state(state: object) -> list[str]:
     """Return the scenario or caller-declared Foundry method expectations for a state."""
     return _state_expected_method_expectations(state)
 
 
 def build_foundry_method_obligation_report_from_state(
-    store: Any,
-    state: Any,
+    store: object,
+    state: object,
     *,
     expected_method_expectations: list[str] | None = None,
     canary_kind: str = "production",
@@ -2321,7 +2722,7 @@ def _method_report_lineage_inputs(report: dict[str, Any]) -> list[InputRef]:
     inputs: list[InputRef] = []
     seen: set[tuple[str, str]] = set()
 
-    def _append(role: str, artifact_id: Any) -> None:
+    def _append(role: str, artifact_id: object) -> None:
         ref = _ref_id(artifact_id)
         if not ref or (role, ref) in seen:
             return
@@ -2342,7 +2743,31 @@ def _method_report_lineage_inputs(report: dict[str, Any]) -> list[InputRef]:
     return inputs
 
 
-def persist_foundry_method_report(store: Any, report: dict[str, Any]) -> ArtifactRef:
+def _authority_envelope() -> dict[str, tuple[str, ...] | str]:
+    return {
+        "authority_role": "producer_authority",
+        "provenance_kind": "runtime_emitted",
+        "authoritative_for": (
+            "method_validity",
+            "selected_method_refs",
+            "rejected_method_refs",
+            "runtime_assumption_gates",
+            "method_output_refs",
+            "uncertainty_envelope_refs",
+            "method_limitations",
+        ),
+        "may_not_use_for": (
+            "legal_authority",
+            "source_family_satisfaction",
+            "academic_support_strength",
+            "participation_representativeness",
+            "claim_support_without_claim_registry_bridge",
+            "closeout_pass",
+        ),
+    }
+
+
+def persist_foundry_method_report(store: object, report: dict[str, Any]) -> ArtifactRef:
     """Persist a Foundry method-quality report as a CAS artifact."""
     return store.put_json(
         _jsonable(report),
@@ -2357,8 +2782,8 @@ def persist_foundry_method_report(store: Any, report: dict[str, Any]) -> Artifac
 
 
 def persist_foundry_method_report_for_state(
-    store: Any,
-    state: Any,
+    store: object,
+    state: object,
     *,
     expected_method_expectations: list[str] | None = None,
     canary_kind: str = "production",
@@ -2374,8 +2799,8 @@ def persist_foundry_method_report_for_state(
 
 
 def persist_foundry_method_obligation_report_for_state(
-    store: Any,
-    state: Any,
+    store: object,
+    state: object,
     *,
     expected_method_expectations: list[str] | None = None,
     canary_kind: str = "production",

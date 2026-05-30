@@ -1,0 +1,80 @@
+[package]
+id = "obligation_graph"
+module = "polisyos.obligation_graph"
+name = "obligation_graph"
+owner = "team-policyos-runtime"
+contract_status = "draft"
+gate_mode = "report_only"
+primary_contract = true
+description = "Obligation graph compiler and three-tier ledger for Policy Design Case obligation visibility."
+legacy_aggregate_mirrors = [
+  "architecture/public_surface/contract.toml",
+  "architecture/imports/contracts.toml",
+  "architecture/tests/topology.toml",
+]
+
+[layout]
+status = "active_internal_facade"
+layout_owner = "team-policyos-runtime"
+source_root = "src/polisyos/obligation_graph"
+readme = "src/polisyos/obligation_graph/README.md"
+root_facade_policy = "top-level package exports the internal obligation graph facade; implementation stays under _impl"
+implementation_roots = ["src/polisyos/obligation_graph/_impl"]
+legacy_layout_mirror = ""
+
+[boundaries]
+public_facade = "polisyos.obligation_graph"
+allowed_dependencies = ["polisyos.common", "polisyos.core"]
+forbidden_dependencies = ["polisyos.runtime", "polisyos.data_forge", "polisyos.foundry"]
+import_boundary_report = "architecture/imports/reports.toml"
+
+[public_surface]
+classification = "internal"
+facade_mode = "eager_exports"
+registry_owner = "team-policyos-runtime"
+reference_doc = "docs/reference/public-surface.md"
+supported_entrypoints = ["polisyos.obligation_graph"]
+major_subsystem = false
+notes = "Wave 6.C obligation graph compiler and ledger contracts; internal until graph audit and runtime projection surfaces graduate."
+
+[tests]
+status = "report_only"
+unit_roots = ["tests/unit/obligation_graph"]
+contract_roots = ["tests/unit/obligation_graph"]
+integration_required = false
+integration_roots = []
+property_required = false
+property_roots = []
+minimum_expectations = ["Graph compiler changes keep three-tier ledger and source-ceiling tests."]
+
+[slo_runbook]
+status = "not_applicable"
+slo_files = ["not_applicable"]
+runbooks = ["not_applicable"]
+runbook_expectation = "Internal compile-time graph construction does not own an operator SLO surface."
+
+[observability]
+status = "not_applicable"
+metrics_owner = "team-policyos-runtime"
+metric_surfaces = []
+trace_expectation = "Obligation graph decisions should surface through compiler/runtime-quality traces."
+
+[name_collisions]
+status = "none"
+owner = "team-policyos-runtime"
+registry = "architecture/name_registry.toml"
+allowed = []
+
+[exceptions]
+status = "none"
+owner = "team-policyos-runtime"
+registries = []
+
+[sunsets]
+status = "none"
+owner = "team-architecture"
+
+[extension_host]
+status = "none"
+owner = "team-policyos-runtime"
+extension_points = []

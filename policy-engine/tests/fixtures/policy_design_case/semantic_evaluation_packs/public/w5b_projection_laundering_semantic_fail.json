@@ -1,0 +1,56 @@
+{
+  "schema_version": "policyos.runtime.policy_design_case.semantic_gold_card.v1",
+  "fixture_id": "w5b_projection_laundering_semantic_fail",
+  "title": "Public projection cannot satisfy closeout authority",
+  "expected_status": "semantic_fail",
+  "failure_mode": "projection_laundering",
+  "research_refs": ["E22", "C30", "C12"],
+  "pattern_ids": ["P10", "P15", "P05"],
+  "structural_pass_claimed": true,
+  "structural_verdict": {
+    "status": "pass",
+    "validator_refs": ["policy_design_case.structural.required_fields.v1"],
+    "completeness_claims": [
+      "intent_present",
+      "producer_refs_present",
+      "projection_present",
+      "public_status_present"
+    ]
+  },
+  "semantic_adjudication": {
+    "status": "fail",
+    "adjudicator": "policyos.semantic_gold_card.w5b",
+    "failure_mode": "projection_laundering",
+    "failure_code": "semantic_projection_laundering",
+    "rationale": "The public projection marks the case publishable even though the authority chain forbids using projection output for closeout.",
+    "authority_effect": "block_closeout",
+    "required_remediation": "Bind publishability to closeout evidence rather than public-export projection status."
+  },
+  "semantic_probes": [
+    {
+      "probe_id": "projection-closeout-authority",
+      "semantic_axis": "authority",
+      "pattern_ids": ["P10", "P15", "P05"],
+      "observed_signal": "The public export says publishable.",
+      "expected_signal": "Closeout authority remains absent and must block publication.",
+      "verdict": "fail",
+      "failure_code": "semantic_projection_laundering",
+      "evidence_refs": ["public://policy-design-case/w5b/projection"]
+    }
+  ],
+  "payload": {
+    "case_id": "pdc-w5b-projection",
+    "claim_ids": ["claim-projection"],
+    "authority_chain": {
+      "producer_evidence_refs": ["cas://sha256/11111111111111111111111111111111"],
+      "closeout_evidence_ref": null,
+      "authoritative_for": ["public_summary"],
+      "may_not_use_for": ["closeout", "producer_evidence"]
+    },
+    "projection": {
+      "source_surface": "public_export",
+      "claims_publishable": true,
+      "public_status": "publishable"
+    }
+  }
+}

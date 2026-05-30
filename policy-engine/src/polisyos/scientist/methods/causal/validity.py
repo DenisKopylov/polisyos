@@ -35,7 +35,7 @@ from polisyos.ir.analytics.causal_graph import (
     load_causal_graph_model,
     persist_causal_graph_model,
 )
-from polisyos.ir.refs import CausalGraphModelRef
+from polisyos.ir.registry.refs import CausalGraphModelRef
 from polisyos.scientist.evidence.claims.ledger import persist_claim_ledger
 from polisyos.scientist.evidence.claims.projections import project_causal_validity_bundle_claims
 from polisyos.scientist.compute.job_spec import JobResult, JobSpec

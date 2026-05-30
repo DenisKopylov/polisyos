@@ -1,0 +1,35 @@
+id = "2026-05-23-w7e-participation-requirements"
+title = "Add participation provenance requirements"
+type = "added"
+component = "runtime-quality"
+owner = "team-policyos-runtime"
+summary = "Add participation provenance requirement compilation and projection safeguards for preference, legitimacy, and participation claims."
+evidence = [
+  "tests/unit/participation_requirement/test_compiler.py",
+  "tests/unit/runtime/quality/test_policy_design_case_projection_semantics.py",
+  "tests/unit/scientist/policy_design/test_claim_decomposition.py",
+  "apps/runtime-dashboard/src/api/validators.test.ts",
+]
+compatibility = "Policy Design Case projections gain an additive participation_requirements surface; generated OpenAPI, runtime client, and dashboard API types were regenerated."
+change_class = "schema-openapi-abi"
+surface_classification = "public_stable: polisyos.runtime"
+migration = "Regenerate runtime API clients before consuming the additive participation_requirements projection field."
+api = "PolicyDesignCaseProjection now includes participation_requirements rows with source kind, representativeness, claim-use downgrade/blocker, public projection, and privacy-safe redaction status."
+limitations = "Representativeness thresholds remain governed configuration under the named methodology and governance owners."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "policy-design-case-participation-requirements-projection"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "public_stable: polisyos.runtime PolicyDesignCaseProjection"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "not_applicable"
+release_note = "Policy Design Case projections expose participation provenance requirement rows without changing existing projection fields."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = []
+runbook_docs = []

@@ -9,7 +9,7 @@ Use this hub for:
 - semantic diff models and comparators;
 - replay verification reports and registries.
 
-Do not add new modules under `polisyos.scientist.replay_backend`. That package
+Do not add new modules under `polisyos.scientist.replay.backend`. The retired legacy module
 is a Phase 4.4 compatibility shim for `polisyos.scientist.replay.backend` and
 sunsets on 2026-11-30.
 

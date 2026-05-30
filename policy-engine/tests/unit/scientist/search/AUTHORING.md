@@ -12,7 +12,8 @@ Pytest modules, local helpers, tiny fixtures, and docs.
 ## Public/Private Boundary
 
 Use canonical `polisyos.scientist.methods.search` imports. Legacy
-`polisyos.scientist.search` imports are reserved for explicit shim tests.
+`polisyos.scientist.search` imports are retired and appear only in explicit
+negative import-surface tests or stable historical schema names.
 
 ## Naming Convention
 
@@ -36,5 +37,5 @@ Search strategy extension tests should name the strategy boundary explicitly.
 
 ## Deprecation And Shim Policy
 
-Shim tests must assert the canonical `scientist.methods.search` target and
-sunset.
+Retired import tests must prove the legacy `scientist.search` surface is not
+resolved.

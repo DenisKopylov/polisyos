@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
-from polisyos.ir.portfolio import PolicyPortfolio
+from polisyos.ir.loading.portfolio import PolicyPortfolio
 
 
 class PortfolioSearchMode(str, Enum):

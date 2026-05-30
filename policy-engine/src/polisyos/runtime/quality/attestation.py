@@ -340,7 +340,10 @@ def build_verified_attestation_record(
         consumer_verification=consumer_verification,
         tamper_check_status=tamper_check_status,
         signature_ref=signature_ref or f"signature://{boundary.boundary_id}",
-        evidence_ref=evidence_ref or f"quality_evidence/attestation_records.json#/{boundary.boundary_id}",
+        evidence_ref=(
+            evidence_ref
+            or f"quality_evidence/attestation_records.json#/{boundary.boundary_id}"
+        ),
         metadata=merged_metadata,
     )
 
@@ -612,11 +615,11 @@ def _failure_code(status: AttestationStatus) -> str:
 
 __all__ = [
     "ATTESTATION_SCHEMA_VERSION",
+    "REQUIRED_TRUST_BOUNDARY_IDS",
     "AttestationError",
     "AttestationRecord",
     "AttestationRequirementResult",
     "AttestationViolation",
-    "REQUIRED_TRUST_BOUNDARY_IDS",
     "AttestedMaterial",
     "EnvironmentIdentity",
     "FunctionaryIdentity",

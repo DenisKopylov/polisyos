@@ -1,4 +1,4 @@
-# Orchestrator (`polisyos.scientist.orchestrator`)
+# Orchestrator (`polisyos.scientist.orchestration.orchestrator`)
 
 `orchestrator` публикует presentation-friendly readout поверх итогового
 `DecisionPacket`: компактные decision cards, issue summaries и key metrics

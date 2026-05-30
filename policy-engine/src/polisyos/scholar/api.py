@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from polisyos.common.async_tools import run_coro_sync
 from polisyos.core.contracts.scholar import KnowledgeBundleRef, ResearchIntent, SourceSpec
@@ -13,18 +13,22 @@ from polisyos.scholar.search.jobs import DeepResearchJobManager
 from polisyos.scholar.search.service import ScholarDeepSearchService
 
 if TYPE_CHECKING:
-    from collections.abc import Awaitable, Callable
+    from collections.abc import Awaitable, Callable, Mapping
 
     from polisyos.core.artifacts.protocol import ArtifactStore
     from polisyos.core.artifacts.store import FileSystemCAS
     from polisyos.fabric.storage import StoragePort
     from polisyos.scholar.policies import ScholarPolicy
     from polisyos.scholar.search.models import (
+        QueryGraph,
+        ResearchBrief,
+        ResearchJobStatus,
         SearchBudgetControls,
         SearchConstraints,
         WebEvidenceBundle,
     )
     from polisyos.scholar.types import EnrichResultV1
+    from polisyos.scholar_requirement import ScholarSupportRequirementSpec
 
 
 def enrich_topic(
@@ -33,7 +37,7 @@ def enrich_topic(
     fact_log_root: Path,
     intent: ResearchIntent,
     storage: StoragePort | None = None,
-    db: Any | None = None,
+    db: object | None = None,
     policy: ScholarPolicy | None = None,
     web_search_service: ScholarDeepSearchService | None = None,
     web_search_constraints: SearchConstraints | None = None,
@@ -106,7 +110,7 @@ class ScholarService:
 
     fact_log_root: Path
     storage: StoragePort | None = None
-    db: Any | None = None
+    db: object | None = None
     policy: ScholarPolicy | None = None
     web_search_service: ScholarDeepSearchService | None = None
     web_search_constraints: SearchConstraints | None = None
@@ -138,9 +142,11 @@ class ScholarService:
         store: ArtifactStore,
         *,
         question: str | None = None,
-        brief: Any | None = None,
-        query_graph: Any | None = None,
+        brief: ResearchBrief | None = None,
+        query_graph: QueryGraph | None = None,
         claim_texts: list[str] | None = None,
+        requirement_specs: list[ScholarSupportRequirementSpec | Mapping[str, object]]
+        | None = None,
         constraints: SearchConstraints | None = None,
         budgets: SearchBudgetControls | None = None,
     ) -> str:
@@ -151,6 +157,7 @@ class ScholarService:
             brief=brief,
             query_graph=query_graph,
             claim_texts=claim_texts,
+            requirement_specs=requirement_specs,
             constraints=constraints or self.web_search_constraints,
             budgets=budgets or self.web_search_budgets,
         )
@@ -162,7 +169,7 @@ class ScholarService:
         job_id = await manager.resume(checkpoint_artifact_id=checkpoint_artifact_id)
         return str(job_id)
 
-    def get_status(self, store: ArtifactStore, job_id: str) -> Any:
+    def get_status(self, store: ArtifactStore, job_id: str) -> ResearchJobStatus:
         """Return the latest persisted job status."""
         return self._job_manager(store).get_status(job_id)
 
@@ -170,7 +177,7 @@ class ScholarService:
         """Return the latest persisted partial/completed evidence bundle."""
         return self._job_manager(store).get_snapshot(job_id)
 
-    async def wait(self, store: ArtifactStore, job_id: str) -> Any:
+    async def wait(self, store: ArtifactStore, job_id: str) -> ResearchJobStatus:
         """Wait for a background deep-research job to finish."""
         return await self._job_manager(store).wait(job_id)
 

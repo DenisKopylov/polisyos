@@ -12,7 +12,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 ## Snapshot Summary
 
-- IR snapshot: `99` schemas, generated `2026-05-06T07:43:21+00:00`.
+- IR snapshot: `99` schemas, generated `2026-05-27T19:59:31+00:00`.
 - Fabric world ABI snapshot: `2` schemas, generated `2026-05-06T07:43:21+00:00`.
 - Direct-read compatibility is declared in `polisyos.ir.migrations.schema_registry` and surfaced below.
 
@@ -65,6 +65,13 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `temporal_intervention_sequence` | `polisyos.ir.governance.policy_spec.TemporalInterventionSequence` | `governance` | `1.0` | `p1` | `—` | `root_facade` | [TemporalInterventionSequence](ir/schema-catalog.md#polisyos-ir-governance-policy-spec-temporalinterventionsequence) | `schemas/snapshots/ir/temporal_intervention_sequence.schema.json` |
 | `temporal_intervention_step` | `polisyos.ir.governance.policy_spec.TemporalInterventionStep` | `governance` | `—` | `p2` | `—` | `root_facade` | [TemporalInterventionStep](ir/schema-catalog.md#polisyos-ir-governance-policy-spec-temporalinterventionstep) | `schemas/snapshots/ir/temporal_intervention_step.schema.json` |
 | `problem_frame` | `polisyos.ir.governance.problem_frame.ProblemFrame` | `governance` | `1.0` | `p0` | `—` | `root_facade` | [ProblemFrame](ir/schema-catalog.md#polisyos-ir-governance-problem-frame-problemframe) | `schemas/snapshots/ir/problem_frame.schema.json` |
+| `fact` | `polisyos.ir.loading.fact_log.Fact` | `loading` | `1.0` | `p0` | `—` | `snapshot_only` | [Fact](ir/schema-catalog.md#polisyos-ir-loading-fact-log-fact) | `schemas/snapshots/ir/fact.schema.json` |
+| `fact_segment_manifest` | `polisyos.ir.loading.fact_log.FactSegmentManifest` | `loading` | `1.0` | `p0` | `—` | `snapshot_only` | [FactSegmentManifest](ir/schema-catalog.md#polisyos-ir-loading-fact-log-factsegmentmanifest) | `schemas/snapshots/ir/fact_segment_manifest.schema.json` |
+| `norm_pack` | `polisyos.ir.loading.norm_pack.NormPack` | `loading` | `1.0` | `p0` | `—` | `root_facade` | [NormPack](ir/schema-catalog.md#polisyos-ir-loading-norm-pack-normpack) | `schemas/snapshots/ir/norm_pack.schema.json` |
+| `norm_ref` | `polisyos.ir.loading.norm_pack.NormRef` | `loading` | `1.0` | `p0` | `—` | `root_facade` | [NormRef](ir/schema-catalog.md#polisyos-ir-loading-norm-pack-normref) | `schemas/snapshots/ir/norm_ref.schema.json` |
+| `norm_rule` | `polisyos.ir.loading.norm_pack.NormRule` | `loading` | `1.0` | `p0` | `—` | `root_facade` | [NormRule](ir/schema-catalog.md#polisyos-ir-loading-norm-pack-normrule) | `schemas/snapshots/ir/norm_rule.schema.json` |
+| `policy_portfolio` | `polisyos.ir.loading.portfolio.PolicyPortfolio` | `loading` | `1.0` | `p0` | `—` | `root_facade` | [PolicyPortfolio](ir/schema-catalog.md#polisyos-ir-loading-portfolio-policyportfolio) | `schemas/snapshots/ir/policy_portfolio.schema.json` |
+| `model_spec` | `polisyos.ir.model_layer.model_spec.ModelSpec` | `model_layer` | `1.0` | `p0` | `—` | `root_facade` | [ModelSpec](ir/schema-catalog.md#polisyos-ir-model-layer-model-spec-modelspec) | `schemas/snapshots/ir/model_spec.schema.json` |
 | `backtest_plan_bundle` | `polisyos.ir.observation.bundles.BacktestPlanBundle` | `observation` | `1.0` | `p2` | `—` | `root_facade` | [BacktestPlanBundle](ir/schema-catalog.md#polisyos-ir-observation-bundles-backtestplanbundle) | `schemas/snapshots/ir/backtest_plan_bundle.schema.json` |
 | `bounds_estimation_bundle` | `polisyos.ir.observation.bundles.BoundsEstimationBundle` | `observation` | `1.0` | `p2` | `—` | `root_facade` | [BoundsEstimationBundle](ir/schema-catalog.md#polisyos-ir-observation-bundles-boundsestimationbundle) | `schemas/snapshots/ir/bounds_estimation_bundle.schema.json` |
 | `calibration_target_bundle_manifest` | `polisyos.ir.observation.bundles.CalibrationTargetBundleManifest` | `observation` | `1.0` | `p1` | `—` | `root_facade` | [CalibrationTargetBundleManifest](ir/schema-catalog.md#polisyos-ir-observation-bundles-calibrationtargetbundlemanifest) | `schemas/snapshots/ir/calibration_target_bundle_manifest.schema.json` |

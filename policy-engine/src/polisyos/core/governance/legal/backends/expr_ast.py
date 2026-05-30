@@ -25,7 +25,7 @@ from polisyos.core.governance.legal.ast_policy import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.ir.norm_pack import NormPack, NormRule
+    from polisyos.ir.loading.norm_pack import NormPack, NormRule
 
 
 logger = get_logger(__name__)

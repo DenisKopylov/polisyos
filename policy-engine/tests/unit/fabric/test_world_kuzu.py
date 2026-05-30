@@ -19,7 +19,7 @@ from polisyos.fabric.world.store import (
     stable_world_provenance_v1,
     write_world_fact_segment,
 )
-from polisyos.ir.citations import AnchorKind, FragmentLocator
+from polisyos.ir.loading.citations import AnchorKind, FragmentLocator
 from polisyos.ir.world.doc import DocFragment, DocMeta
 from polisyos.ir.world.ids import (
     doc_fragment_id,

@@ -28,7 +28,7 @@ from polisyos.ir.analytics.transportability import (
     TransportabilityResult,
     TransportabilityStatus,
 )
-from polisyos.ir.refs import PrivacyAwareTransportCertificateRef
+from polisyos.ir.registry.refs import PrivacyAwareTransportCertificateRef
 
 
 def _certificate(

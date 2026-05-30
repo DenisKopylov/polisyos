@@ -18,8 +18,8 @@ verification.
 ## Compatibility
 
 The old first-level packages `polisyos.scientist.decision_validity`,
-`polisyos.scientist.policy_verified`, `polisyos.scientist.verification`, and
-`polisyos.scientist.reliability_scorecard` are compatibility shims. New code
+`polisyos.scientist.reliability_scorecard`, `policy_verified`, and
+`verification` were removed after reaching zero non-compat callers. New code
 should import from this validation hub.
 
 ## Common Commands

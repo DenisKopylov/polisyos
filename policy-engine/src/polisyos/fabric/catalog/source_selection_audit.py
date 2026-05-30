@@ -531,6 +531,13 @@ def _contract_finding_family(finding: Mapping[str, Any]) -> str:
 
 
 def _contract_binding_status(finding: Mapping[str, Any]) -> str:
+    binding_status = _text(finding.get("binding_status")).casefold()
+    if binding_status in {"selected", "satisfied"}:
+        return "satisfied"
+    if binding_status in {"blocked", "missing"}:
+        return "blocked"
+    if binding_status in {"rejected", "failed"}:
+        return "failed"
     status = _text(finding.get("status")).casefold()
     if status in {"satisfied", "pass", "passed", "ok"}:
         return "satisfied"
@@ -548,9 +555,11 @@ def _contract_binding_projection(
 ) -> dict[str, Any]:
     payload = {
         "requirement_id": finding.get("requirement_id"),
+        "data_requirement_id": finding.get("data_requirement_id"),
         "expected_family": _contract_finding_family(finding),
         "candidate_ref": finding.get("candidate_ref"),
         "status": _contract_binding_status(finding),
+        "binding_status": finding.get("binding_status"),
         "selection_status": selection_status,
         "selected_source_ids": list(selected_source_ids),
         "missing_facets": list(finding.get("missing_facets") or ()),
@@ -945,12 +954,10 @@ def build_fabric_source_selection_trace(
         },
     }
     if spine_context is not None:
-        from polisyos.runtime.quality.semantic_binding import (
-            build_producer_spine_binding_fields,
-        )
+        from polisyos.core import contracts as core_contracts
 
         trace.update(
-            build_producer_spine_binding_fields(
+            core_contracts.build_producer_spine_binding_fields(
                 component="fabric",
                 spine_context=spine_context,
                 candidate_refs=[_source_id(source) for source in normalized_candidate_sources],

@@ -56,7 +56,6 @@ forbidden_dependencies = [
   "polisyos.berl",
   "polisyos.calibration",
   "polisyos.ddm",
-  "polisyos.synthetic_world",
 ]
 import_boundary_report = "architecture/imports/reports.toml"
 

@@ -4,15 +4,19 @@ from __future__ import annotations
 
 import os
 import re
-from collections.abc import Mapping
-from typing import Any
+from typing import TYPE_CHECKING
 
-from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.evidence.claims.models import (
     ClaimLedger,
     ClaimPublishability,
+    ClaimUse,
     ClaimValidationResult,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
+
+    from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.scientist.evidence.claims.projections import has_decision_bearing_content
 
 CLAIM_SPINE_FLAG = "scientist.best_in_class.wave1.phase1_1.claim_spine"
@@ -38,7 +42,7 @@ STATE_DECISION_BEARING_ARTIFACT_KEYS: tuple[str, ...] = (
 
 
 def is_feature_enabled(
-    params: Mapping[str, Any] | None,
+    params: Mapping[str, object] | None,
     flag_name: str,
     *,
     default: bool,
@@ -55,13 +59,13 @@ def is_feature_enabled(
     return default
 
 
-def is_claim_spine_enabled(params: Mapping[str, Any] | None = None) -> bool:
+def is_claim_spine_enabled(params: Mapping[str, object] | None = None) -> bool:
     """Return whether additive claim-ledger sidecars should be produced."""
 
     return is_feature_enabled(params, CLAIM_SPINE_FLAG, default=True)
 
 
-def is_fail_on_naked_claims_enabled(params: Mapping[str, Any] | None = None) -> bool:
+def is_fail_on_naked_claims_enabled(params: Mapping[str, object] | None = None) -> bool:
     """Return whether selected workflows should fail closed on missing claims_ref."""
 
     return is_feature_enabled(params, FAIL_ON_NAKED_CLAIMS_FLAG, default=False)
@@ -76,17 +80,31 @@ def validate_claim_ledger_for_publication(ledger: ClaimLedger) -> ClaimValidatio
             violations.append(f"blocked_claim:{claim.claim_id}")
         elif claim.publishability is ClaimPublishability.REVIEW_REQUIRED:
             violations.append(f"review_required_claim:{claim.claim_id}")
+        if claim.claim_use is ClaimUse.SUPERIORITY and not claim.comparison_refs:
+            violations.append(f"superiority_comparison_missing:{claim.claim_id}")
+    known_comparison_ids = {record.comparison_id for record in ledger.comparison_records}
+    for claim in ledger.claims:
+        if claim.claim_use is not ClaimUse.SUPERIORITY:
+            continue
+        missing = sorted(set(claim.comparison_refs) - known_comparison_ids)
+        violations.extend(
+            f"superiority_comparison_unknown:{claim.claim_id}:{comparison_id}"
+            for comparison_id in missing
+        )
     return ClaimValidationResult(
         passed=not violations,
         status="ok" if not violations else "blocked",
         violations=violations,
         claim_ledger_status="present",
-        metadata={"claim_count": len(ledger.claims)},
+        metadata={
+            "claim_count": len(ledger.claims),
+            "comparison_record_count": len(ledger.comparison_records),
+        },
     )
 
 
 def validate_naked_decision_claims(
-    payload: Mapping[str, Any],
+    payload: Mapping[str, object],
     *,
     claims_ref: ArtifactRef | str | None,
     workflow_id: str | None,
@@ -166,7 +184,7 @@ def _flag_env_key(flag_name: str) -> str:
     return re.sub(r"[^A-Za-z0-9]+", "_", flag_name).upper()
 
 
-def _truthy(value: Any, *, default: bool) -> bool:
+def _truthy(value: object, *, default: bool) -> bool:
     if isinstance(value, bool):
         return value
     if value is None:

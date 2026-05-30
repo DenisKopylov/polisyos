@@ -6,8 +6,8 @@
     "release_fragment_change_class": "persisted-artifact-format",
     "version_owner": "team-ir"
   },
-  "content_hash": "5aa0cb9bcb42aa8b2c9bac13657afa345c08a2b983ced6caec0547040bd45782",
-  "generated_at": "2026-05-06T07:43:21+00:00",
+  "content_hash": "a3c37c7fd7baae71100569e6ccb001ac9d42e8dabbc0b717d046df75be3730c6",
+  "generated_at": "2026-05-27T19:59:31+00:00",
   "generator_version": "1.0.0",
   "models": {
     "abm_alignment_report": {
@@ -373,7 +373,7 @@
     "fact": {
       "aliases": [],
       "compat_mode": "strict",
-      "fqn": "polisyos.ir.fact_log.Fact",
+      "fqn": "polisyos.ir.loading.fact_log.Fact",
       "lifecycle": "active",
       "priority": "p0",
       "schema_file": "fact.schema.json",
@@ -385,7 +385,7 @@
     "fact_segment_manifest": {
       "aliases": [],
       "compat_mode": "strict",
-      "fqn": "polisyos.ir.fact_log.FactSegmentManifest",
+      "fqn": "polisyos.ir.loading.fact_log.FactSegmentManifest",
       "lifecycle": "active",
       "priority": "p0",
       "schema_file": "fact_segment_manifest.schema.json",
@@ -661,7 +661,7 @@
     "model_spec": {
       "aliases": [],
       "compat_mode": "strict",
-      "fqn": "polisyos.ir.model_spec.ModelSpec",
+      "fqn": "polisyos.ir.model_layer.model_spec.ModelSpec",
       "lifecycle": "active",
       "priority": "p0",
       "schema_file": "model_spec.schema.json",
@@ -709,7 +709,7 @@
     "norm_pack": {
       "aliases": [],
       "compat_mode": "strict",
-      "fqn": "polisyos.ir.norm_pack.NormPack",
+      "fqn": "polisyos.ir.loading.norm_pack.NormPack",
       "lifecycle": "active",
       "priority": "p0",
       "schema_file": "norm_pack.schema.json",
@@ -721,7 +721,7 @@
     "norm_ref": {
       "aliases": [],
       "compat_mode": "strict",
-      "fqn": "polisyos.ir.norm_pack.NormRef",
+      "fqn": "polisyos.ir.loading.norm_pack.NormRef",
       "lifecycle": "active",
       "priority": "p0",
       "schema_file": "norm_ref.schema.json",
@@ -733,7 +733,7 @@
     "norm_rule": {
       "aliases": [],
       "compat_mode": "strict",
-      "fqn": "polisyos.ir.norm_pack.NormRule",
+      "fqn": "polisyos.ir.loading.norm_pack.NormRule",
       "lifecycle": "active",
       "priority": "p0",
       "schema_file": "norm_rule.schema.json",
@@ -889,7 +889,7 @@
     "policy_portfolio": {
       "aliases": [],
       "compat_mode": "strict",
-      "fqn": "polisyos.ir.portfolio.PolicyPortfolio",
+      "fqn": "polisyos.ir.loading.portfolio.PolicyPortfolio",
       "lifecycle": "active",
       "priority": "p0",
       "schema_file": "policy_portfolio.schema.json",

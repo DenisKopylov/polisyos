@@ -41,7 +41,7 @@ from polisyos.ir.governance.problem_frame import (
 )
 from polisyos.ir.governance.schedule import ScheduleSpec
 from polisyos.ir.governance.selector_expr import SelectorNot, SelectorPredicate
-from polisyos.ir.model_spec import (
+from polisyos.ir.model_layer.model_spec import (
     AgentConfig,
     AgentTypeConfig,
     AssumptionSpec,
@@ -50,7 +50,7 @@ from polisyos.ir.model_spec import (
     ModelSpec,
 )
 from polisyos.ir.trinity import TrinityBundle as IRTrinityBundle
-from polisyos.ir.types import EntityType, OptimizationDirection
+from polisyos.ir.model_layer.types import EntityType, OptimizationDirection
 
 # =============================================================================
 # Fixtures

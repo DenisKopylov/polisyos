@@ -87,7 +87,7 @@ from polisyos.ir.analytics.negative_certificate import (
     NegativeCertificate,
     persist_negative_certificate,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     CausalAssumptionCardRef,
     CausalGraphModelRef,
     DistributionalBoundsBundleRef,

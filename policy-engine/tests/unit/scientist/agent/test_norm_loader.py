@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.ir.norm_pack import NormPack, NormRule, RuleType
+from polisyos.ir.loading.norm_pack import NormPack, NormRule, RuleType
 from polisyos.scientist.agent.norm_loader import CASNormPackLoader, StaticNormPackLoader
 
 

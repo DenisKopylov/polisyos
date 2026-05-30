@@ -11,7 +11,7 @@ Source plan phase: D1-L4 Phase 4 reflection, schema catalog, transport, streamin
 
 ## Reflection And Catalog
 
-- `polisyos.ir.schema_catalog` exposes the unified introspection surface:
+- `polisyos.ir.schemas` exposes the unified introspection surface:
   `get_ir_schema_catalog()`, `list_ir_types()`, `get_ir_type()`,
   `inspect_ir_schema()`, and `enumerate_ir_exports()`.
 

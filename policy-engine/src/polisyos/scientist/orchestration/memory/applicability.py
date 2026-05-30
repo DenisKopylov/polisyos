@@ -8,7 +8,10 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.scientist.orchestration.memory.failure_lessons import LessonApplicability, MemoryVisibility
+from polisyos.scientist.orchestration.memory.contracts import (
+    LessonApplicability,
+    MemoryVisibility,
+)
 from polisyos.scientist.methods.search.lessons import LessonCard, LessonKind
 
 

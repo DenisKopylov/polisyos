@@ -7,6 +7,8 @@ from types import SimpleNamespace
 
 import pandas as pd
 import pytest
+from polisyos.ir.loading.citations import AnchorKind, CitationRef, DocumentRef, FragmentLocator
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.fabric.io.db import SimulationDB
@@ -39,8 +41,7 @@ from polisyos.fabric.world.store import (
     stable_world_provenance_v1,
     write_world_fact_segment,
 )
-from polisyos.ir.citations import AnchorKind, CitationRef, DocumentRef, FragmentLocator
-from polisyos.ir.fact_log import FactSegmentManifest
+from polisyos.ir.loading.fact_log import FactSegmentManifest
 from polisyos.ir.world.abi import EdgeKind, NodeKind
 from polisyos.ir.world.claim import Claim, ClaimSourceKind
 from polisyos.ir.world.doc import DocMeta

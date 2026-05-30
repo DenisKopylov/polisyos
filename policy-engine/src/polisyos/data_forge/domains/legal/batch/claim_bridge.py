@@ -39,7 +39,7 @@ from polisyos.fabric.world import (
     validate_claim_id,
     write_world_fact_segment,
 )
-from polisyos.ir.citations import AnchorKind, CitationRef, DocumentRef, FragmentLocator
+from polisyos.ir.loading.citations import AnchorKind, CitationRef, DocumentRef, FragmentLocator
 from polisyos.ir.world.claim import Claim, ClaimSourceKind
 from polisyos.ir.world.doc import DocFragment, DocMeta
 from polisyos.ir.world.event import EventKind, ProvActivityType, WorldObjectRef
@@ -53,7 +53,7 @@ from polisyos.ir.world.ids import (
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from polisyos.ir.fact_log import FactSegmentManifest
+    from polisyos.ir.loading.fact_log import FactSegmentManifest
 
 logger = get_logger(__name__)
 

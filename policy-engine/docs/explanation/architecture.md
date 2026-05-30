@@ -172,7 +172,7 @@ PolicyOS має **дві категорії спроможностей**:
 
 1. **Detrministic seeds.** Шар Foundry використовує `TreasuryPlan` (`src/polisyos/foundry/mechanisms/treasury.py`) — це детерміністичний seed plan із `root_seed` + `node_salts` + `stream_salts`, який забезпечує, що один і той самий ProgramGraph дасть біт-в-біт однаковий вивід.
 2. **Snapshot-based world.** Fabric-шар фіксує `data_snapshot_artifact_id: sha256:171f3da2779d…` — це означає, що weather/economy/agents/cells на момент компіляції зафіксовані; навіть якщо джерело даних оновиться через 5 хвилин, replay використає той самий snapshot.
-3. **Replay engine.** `polisyos.runtime.replay` + `polisyos.scientist.replay_backend` дозволяють виконати раніше записаний run з тими самими хешами входів.
+3. **Replay engine.** `polisyos.runtime.replay` + `polisyos.scientist.replay.backend` дозволяють виконати раніше записаний run з тими самими хешами входів.
 4. **Replay command artifact.** Будь-який експеримент пише `replay_command.sh` — однорядкову команду, яка повторює ввесь run.
 
 ### 2.5. Принцип 5: Honest failure modes
@@ -1079,7 +1079,7 @@ from decimal import Decimal
 from polisyos.ir.governance.problem_frame import (
     ProblemFrame, ProblemDomain, ObjectiveSpec
 )
-from polisyos.ir.types import OptimizationDirection
+from polisyos.ir.model_layer.types import OptimizationDirection
 
 problem = ProblemFrame(
     problem_id="reduce_inequality_2026",
@@ -1137,7 +1137,7 @@ PolicySpec фіксує:
 #### 6.2.3. ModelSpec (How)
 
 ```python
-from polisyos.ir.model_spec import ModelSpec, FidelityLevel
+from polisyos.ir.model_layer.model_spec import ModelSpec, FidelityLevel
 
 model = ModelSpec(
     model_id="baseline_2026",
@@ -4132,7 +4132,7 @@ Replay-by-default не означає «ідентичний bit-by-bit на б�
 
 ```bash
 # Full replay command from 10_ablation_reproducibility/replay_command.sh
-tools/ops/experiments/run_msme_final_fresg_suite_v2.py \
+tools/ops_runners/experiments/run_msme_final_fresg_suite_v2.py \
   --mode run --profile default \
   --run-id msme_final_fresg_evaluation_v3_20260501_20260430-184808 \
   --workdir /mnt/experiments/msme_final_fresg_evaluation_v3_20260501 \
@@ -4213,7 +4213,6 @@ tools/ops/experiments/run_msme_final_fresg_suite_v2.py \
 **Кінець документа.**
 
 > Цей документ описує **архітектуру PolicyOS Policy Engine** станом на 2026-05-08. Кваліфікаційна робота використала фрагмент цієї архітектури в одному дедлайн-запуску. Те, що в експерименті не активовано, не означає, що архітектура не повна — це означає, що повний контур доступний для подальших production-деплоїв та research-runs.
-
 
 
 

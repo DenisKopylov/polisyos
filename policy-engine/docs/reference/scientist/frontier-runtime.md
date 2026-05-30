@@ -75,7 +75,8 @@ implemented. They must remain behind a feature flag until:
 
 ## Source Of Truth
 
-- Runtime report builder: `polisyos.scientist.frontier_runtime`
+- Runtime report builder:
+  `polisyos.scientist.orchestration.engine.frontier_runtime`
 - Frontier benchmark registry: `polisyos.scientist.methods.search.benchmark_registry`
 - Runtime promotion gate: `polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime`
 - Tests: `tests/unit/scientist/search/test_frontier_runtime.py`

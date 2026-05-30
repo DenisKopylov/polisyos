@@ -28,11 +28,12 @@ resolve across the Fabric layer.
 | `FastLaneResolver`           | Deterministic resolver for metric requests. |
 | `MetricSearcher`             | Search helper for contract discovery.       |
 | `load_contract_collection()` | Loads curated contract collections.         |
+| `build_source_contract_requirement_bindings()` | Classifies SourceContract candidates against compiled `DataRequirementSpec` rows. |
 
 → Full reference: [docs/reference/fabric/index.md](../../../../docs/reference/fabric/index.md)
 
 ## Current State
 
-- Last updated: 2026-04-03
-- Files: 8 Python files
-- Exports: 20
+- Last updated: 2026-05-23
+- Files: 9 Python files
+- Exports: 21

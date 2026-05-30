@@ -17,7 +17,7 @@ from polisyos.ir.analytics.uncertainty import (
     PropagationMethod,
     UncertaintySource,
 )
-from polisyos.ir.refs import CausalQueryResultRef
+from polisyos.ir.registry.refs import CausalQueryResultRef
 
 
 def test_intervention_spec_accepts_supported_variants() -> None:

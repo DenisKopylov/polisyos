@@ -1,0 +1,657 @@
+{
+  "case_id": "w11a_mexico_ssb_tax_2014",
+  "claim_evidence_annotations": {
+    "annotation_provenance": {
+      "conflicts": [],
+      "disagreement_category": null,
+      "expertise_basis": "W11.A source triage from DOF, BMJ, and PAHO materials",
+      "reviewed_at": "2026-05-24",
+      "reviewer_role": "policy_generalist"
+    },
+    "annotation_status": "annotated_w11b",
+    "authority_boundary": {
+      "authoritative_for": [
+        "corpus_annotation",
+        "compilation_truthfulness_reference"
+      ],
+      "may_not_be_used_for": [
+        "claim_authority",
+        "producer_evidence_authority",
+        "legal_authority",
+        "method_validity",
+        "participation_legitimacy",
+        "projection_authority"
+      ],
+      "may_not_use_for": [
+        "claim_authority",
+        "producer_evidence_authority",
+        "legal_authority",
+        "method_validity",
+        "participation_legitimacy",
+        "projection_authority"
+      ]
+    },
+    "authority_level": "research",
+    "capability_reality_label": "implemented",
+    "case_id": "w11a_mexico_ssb_tax_2014",
+    "case_title": "Mexico sugar-sweetened beverage excise tax",
+    "claims": [
+      {
+        "admissibility_label": "limited",
+        "claim_id": "claim:ssb-tax-reduces-purchases",
+        "claim_type": "causal",
+        "contestability_status": "contested",
+        "evidence_refs": [
+          "evidence:bmj-purchase-panel"
+        ],
+        "legal_refs": [
+          "legal:ieps-ssb-rate"
+        ],
+        "limitation_refs": [
+          "limitation:observational-health-effect"
+        ],
+        "method_refs": [
+          "method:counterfactual-purchase-trend"
+        ],
+        "participation_refs": [
+          "participation:public-health-tax-framing"
+        ],
+        "risks": [
+          "risk:substitution-and-package-pricing"
+        ],
+        "scope": {
+          "geography": [
+            "Mexico"
+          ],
+          "institution": [
+            "Mexican_tax_authority",
+            "public_health_researchers"
+          ],
+          "population": [
+            "beverage_consumers"
+          ],
+          "time_period": "2014"
+        },
+        "text_ref": "text:case:summary",
+        "tradeoffs": [
+          "tradeoff:revenue-vs-regressivity"
+        ]
+      }
+    ],
+    "corpus_phase": "W11.A",
+    "domain": "public_health_intervention",
+    "expected_evidence_families": [
+      "tax_law_and_rate_design",
+      "household_purchase_panel",
+      "price_pass_through_analysis",
+      "public_health_outcome_model",
+      "substitution_and_equity_analysis"
+    ],
+    "expert_adjudication_status": "adjudicated_w11c",
+    "jurisdiction": "Mexico",
+    "jurisdiction_authority_level": "national",
+    "known_failure_limitation_labels": [
+      "observational_causal_identification_limit",
+      "tax_rate_sufficiency_contested",
+      "substitution_risk",
+      "health_outcome_lag"
+    ],
+    "known_outcomes_or_failures": [
+      {
+        "finding_id": "outcome:purchases-declined-first-year",
+        "source_ref": "outcome:purchases-declined-first-year",
+        "would_prior_obligation_have_flagged": false
+      }
+    ],
+    "obligations": [
+      {
+        "generated_from_facets": [
+          "facet:instrument.excise_tax",
+          "facet:outcome.public_health_behavior",
+          "facet:method.observational_panel"
+        ],
+        "obligation_id": "obligation:ssb-tax-health-linkage",
+        "required_evidence_family": "causal_or_quasi_experimental_public_health_evaluation",
+        "reviewer_notes": "Research authority may use purchase evidence, but production claims about health outcomes need longer-run health and substitution evidence.",
+        "status": "limitation_required"
+      }
+    ],
+    "pattern_refs": [
+      "P01",
+      "P02",
+      "P03",
+      "P05",
+      "P10",
+      "P13",
+      "P14",
+      "P15"
+    ],
+    "policy_instrument": {
+      "delivery_channel": "producer_and_importer_tax_on_sugar_sweetened_beverages",
+      "funding_channel": "national_tax_revenue",
+      "instrument_type": "excise_tax"
+    },
+    "policy_time": "2014-01 onward",
+    "raw_source_refs": [
+      "https://www.dof.gob.mx/nota_detalle.php?codigo=5378141&fecha=07/01/2015",
+      "https://www.bmj.com/content/352/bmj.h6704",
+      "https://www.paho.org/en/node/78468"
+    ],
+    "redacted_source_hashes": [],
+    "references": [
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "text:case:summary",
+        "ref_type": "source",
+        "source_ref": "repo://docs/research/universal-policy-design/outcome-corpus/mexico-ssb-tax-2014-public-health.md#summary",
+        "title": "Case summary"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "legal:ieps-ssb-rate",
+        "ref_type": "legal",
+        "source_ref": "https://www.dof.gob.mx/nota_detalle.php?codigo=5378141&fecha=07/01/2015",
+        "title": "Diario Oficial de la Federacion IEPS flavored beverages rate"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "evidence:bmj-purchase-panel",
+        "ref_type": "evidence",
+        "source_ref": "https://www.bmj.com/content/352/bmj.h6704",
+        "title": "BMJ observational study of beverage purchases under the tax"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "method:counterfactual-purchase-trend",
+        "ref_type": "method",
+        "source_ref": "https://www.bmj.com/content/352/bmj.h6704",
+        "title": "Observed purchases compared with predicted counterfactual volumes"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "participation:public-health-tax-framing",
+        "ref_type": "participation",
+        "source_ref": "https://www.paho.org/en/node/78468",
+        "title": "PAHO regional framing of sugar-sweetened beverage taxation"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "risk:substitution-and-package-pricing",
+        "ref_type": "risk",
+        "source_ref": "https://www.bmj.com/content/352/bmj.h6704",
+        "title": "Substitution and package-size pass-through concern"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "tradeoff:revenue-vs-regressivity",
+        "ref_type": "tradeoff",
+        "source_ref": "https://www.paho.org/en/node/78468",
+        "title": "Excise tax public health rationale and economic impacts"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "limitation:observational-health-effect",
+        "ref_type": "limitation",
+        "source_ref": "https://www.bmj.com/content/352/bmj.h6704",
+        "title": "Short-run observational purchase outcome limitation"
+      },
+      {
+        "notes": null,
+        "redacted_source_hash": null,
+        "ref_id": "outcome:purchases-declined-first-year",
+        "ref_type": "outcome",
+        "source_ref": "https://www.bmj.com/content/352/bmj.h6704",
+        "title": "Lower observed taxed beverage purchases in 2014"
+      }
+    ],
+    "schema_version": "policyos.universal_outcome_corpus.annotation.v1",
+    "sourcing_status": "sourced",
+    "targeting": {
+      "affected_populations": [
+        "beverage_consumers",
+        "beverage_producers",
+        "retailers"
+      ],
+      "beneficiary_classes": [
+        "population_at_risk_of_obesity_and_diabetes",
+        "low_income_households_exposed_to_high_ssb_consumption"
+      ],
+      "targeting_type": "population_wide_price_signal"
+    }
+  },
+  "compilation_intent_text": "Mexico sugar-sweetened beverage excise tax. Design a multi_year national tax intervention for patients and low_income households, with earmarked tax funding, health risk monitoring, and annual review.",
+  "concept_spine_refs": {
+    "canonical_concept_refs": [
+      "concept://w11/w11a_mexico_ssb_tax_2014/universal-policy-grammar"
+    ],
+    "concept_spine_ref": "concept-spine://w11/w11a_mexico_ssb_tax_2014",
+    "facet_concept_refs": {
+      "authority_type": [
+        "concept://w11/w11a_mexico_ssb_tax_2014/authority_type"
+      ],
+      "delivery_channel": [
+        "concept://w11/w11a_mexico_ssb_tax_2014/delivery_channel"
+      ],
+      "funding_channel": [
+        "concept://w11/w11a_mexico_ssb_tax_2014/funding_channel"
+      ],
+      "geography_predicate": [
+        "concept://w11/w11a_mexico_ssb_tax_2014/geography_predicate"
+      ],
+      "instrument_type": [
+        "concept://w11/w11a_mexico_ssb_tax_2014/instrument_type"
+      ],
+      "method_need": [
+        "concept://w11/w11a_mexico_ssb_tax_2014/method_need"
+      ],
+      "outcome_channel": [
+        "concept://w11/w11a_mexico_ssb_tax_2014/outcome_channel"
+      ],
+      "population_predicate": [
+        "concept://w11/w11a_mexico_ssb_tax_2014/population_predicate"
+      ],
+      "risk_facet": [
+        "concept://w11/w11a_mexico_ssb_tax_2014/risk_facet"
+      ],
+      "targeting_type": [
+        "concept://w11/w11a_mexico_ssb_tax_2014/targeting_type"
+      ],
+      "time_predicate": [
+        "concept://w11/w11a_mexico_ssb_tax_2014/time_predicate"
+      ]
+    },
+    "jurisdiction_spine_ref": "jurisdiction-spine://w11/w11a_mexico_ssb_tax_2014"
+  },
+  "critic_ensemble": {
+    "authority_boundary": {
+      "authoritative_for": [
+        "critic_diversity_measurement"
+      ],
+      "may_not_use_for": [
+        "claim_authority",
+        "producer_evidence_authority",
+        "legal_authority",
+        "method_validity",
+        "projection_authority"
+      ]
+    },
+    "run_id": "run-w11a_mexico_ssb_tax_2014",
+    "verdicts": [
+      {
+        "envelope": {
+          "critic_role": "legal",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_legal_basis"
+        },
+        "failure_modes": [
+          "authority_boundary:observational_causal_identification_limit"
+        ],
+        "message": "legal critic flags observational_causal_identification_limit for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_mexico_ssb_tax_2014"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "fiscal",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_fiscal_basis"
+        },
+        "failure_modes": [
+          "budget_feasibility:tax_rate_sufficiency_contested"
+        ],
+        "message": "fiscal critic flags tax_rate_sufficiency_contested for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_mexico_ssb_tax_2014"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "equity",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_equity_basis"
+        },
+        "failure_modes": [
+          "distributional_effect:substitution_risk"
+        ],
+        "message": "equity critic flags substitution_risk for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_mexico_ssb_tax_2014"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "data",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_data_basis"
+        },
+        "failure_modes": [
+          "source_lineage:health_outcome_lag"
+        ],
+        "message": "data critic flags health_outcome_lag for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_mexico_ssb_tax_2014"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "implementation",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_implementation_basis"
+        },
+        "failure_modes": [
+          "delivery_capacity:observational_causal_identification_limit"
+        ],
+        "message": "implementation critic flags observational_causal_identification_limit for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_mexico_ssb_tax_2014"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "affected_person",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_affected_person_basis"
+        },
+        "failure_modes": [
+          "participation_voice:tax_rate_sufficiency_contested"
+        ],
+        "message": "affected_person critic flags tax_rate_sufficiency_contested for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_mexico_ssb_tax_2014"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "adversarial",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_adversarial_basis"
+        },
+        "failure_modes": [
+          "failure_probe:substitution_risk"
+        ],
+        "message": "adversarial critic flags substitution_risk for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_mexico_ssb_tax_2014"
+        ],
+        "verdict": "contest"
+      },
+      {
+        "envelope": {
+          "critic_role": "monitoring",
+          "critic_version": "w11.first-pass.v1",
+          "source_class": "deterministic_critic",
+          "substantive_basis": "w11_fixture_monitoring_basis"
+        },
+        "failure_modes": [
+          "lifecycle_monitoring:health_outcome_lag"
+        ],
+        "message": "monitoring critic flags health_outcome_lag for first-pass corpus measurement.",
+        "target_candidate_ids": [
+          "candidate:w11a_mexico_ssb_tax_2014"
+        ],
+        "verdict": "contest"
+      }
+    ]
+  },
+  "domain": "public_health_intervention",
+  "expected_adapter_bindings": {
+    "bindings": [
+      {
+        "adapter": "fabric",
+        "binding_id": "bind-w11a_mexico_ssb_tax_2014-selected",
+        "reason_code": "annotation_data_family_selected",
+        "requirement_id": "data-w11a_mexico_ssb_tax_2014",
+        "status": "selected"
+      },
+      {
+        "adapter": "scholar",
+        "binding_id": "bind-w11a_mexico_ssb_tax_2014-rejected",
+        "reason_code": "generic_or_transfer_mismatch_rejected",
+        "requirement_id": "scholar-w11a_mexico_ssb_tax_2014",
+        "status": "rejected"
+      },
+      {
+        "adapter": "foundry",
+        "binding_id": "bind-w11a_mexico_ssb_tax_2014-blocked",
+        "reason_code": "method_or_counterfactual_precondition_missing",
+        "requirement_id": "method-w11a_mexico_ssb_tax_2014",
+        "status": "blocked"
+      }
+    ]
+  },
+  "expected_claim_families": {
+    "families": [
+      {
+        "claim_family": "causal",
+        "claim_id": "claim:ssb-tax-reduces-purchases",
+        "expected_support_status": "limited"
+      }
+    ]
+  },
+  "expected_closeout_states": {
+    "states": [
+      {
+        "authority_level": "research",
+        "required_surface_refs": [
+          "audit://w11d/w11a_mexico_ssb_tax_2014/research"
+        ],
+        "state": "publishable"
+      },
+      {
+        "authority_level": "governed",
+        "limitation_refs": [
+          "limitation://w11d/w11a_mexico_ssb_tax_2014"
+        ],
+        "required_surface_refs": [
+          "audit://w11d/w11a_mexico_ssb_tax_2014/governed"
+        ],
+        "state": "limited"
+      },
+      {
+        "authority_level": "production",
+        "limitation_refs": [
+          "limitation://w11d/w11a_mexico_ssb_tax_2014"
+        ],
+        "required_surface_refs": [
+          "audit://w11d/w11a_mexico_ssb_tax_2014/production"
+        ],
+        "state": "limited"
+      }
+    ]
+  },
+  "expected_facets": {
+    "facets": [
+      {
+        "concept_ref": "concept://w11d/w11a_mexico_ssb_tax_2014/instrument",
+        "expected_value": "excise_tax",
+        "facet_name": "instrument_type"
+      },
+      {
+        "concept_ref": "concept://w11d/w11a_mexico_ssb_tax_2014/targeting",
+        "expected_value": "population_wide_price_signal",
+        "facet_name": "targeting_type"
+      },
+      {
+        "concept_ref": "concept://w11d/w11a_mexico_ssb_tax_2014/delivery",
+        "expected_value": "producer_and_importer_tax_on_sugar_sweetened_beverages",
+        "facet_name": "delivery_channel"
+      }
+    ]
+  },
+  "expected_obligation_graph": {
+    "frontier": [
+      {
+        "claim_refs": [
+          "claim:ssb-tax-reduces-purchases"
+        ],
+        "family": "method",
+        "obligation_id": "obligation:ssb-tax-health-linkage",
+        "priority": "limitation_required",
+        "source_class": "governed_rule"
+      }
+    ]
+  },
+  "expected_projection_truthfulness": {
+    "projections": [
+      {
+        "audience": "public",
+        "may_not_claim": [
+          "fixture expectation is runtime authority"
+        ],
+        "must_disclose_refs": [
+          "annotation://w11d/w11a_mexico_ssb_tax_2014"
+        ],
+        "truthfulness": "limitation_required"
+      }
+    ]
+  },
+  "expected_requirement_specs": {
+    "families": {
+      "data": [
+        {
+          "claim_id": "claim:ssb-tax-reduces-purchases",
+          "requirement_id": "data-w11a_mexico_ssb_tax_2014",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/mexico-ssb-tax-2014-public-health.md#data"
+        }
+      ],
+      "legal": [
+        {
+          "claim_id": "claim:ssb-tax-reduces-purchases",
+          "requirement_id": "legal-w11a_mexico_ssb_tax_2014",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/mexico-ssb-tax-2014-public-health.md#legal"
+        }
+      ],
+      "method": [
+        {
+          "claim_id": "claim:ssb-tax-reduces-purchases",
+          "requirement_id": "method-w11a_mexico_ssb_tax_2014",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/mexico-ssb-tax-2014-public-health.md#method"
+        }
+      ],
+      "participation": [
+        {
+          "claim_id": "claim:ssb-tax-reduces-purchases",
+          "requirement_id": "participation-w11a_mexico_ssb_tax_2014",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/mexico-ssb-tax-2014-public-health.md#participation"
+        }
+      ],
+      "scholar": [
+        {
+          "claim_id": "claim:ssb-tax-reduces-purchases",
+          "requirement_id": "scholar-w11a_mexico_ssb_tax_2014",
+          "source_annotation_ref": "docs/research/universal-policy-design/outcome-corpus/mexico-ssb-tax-2014-public-health.md#scholar"
+        }
+      ]
+    }
+  },
+  "expert_adjudication": {
+    "case_label": "limitation_required",
+    "claim_labels": [
+      {
+        "claim_id": "claim:ssb-tax-reduces-purchases",
+        "dimension_id": "compilation_truthfulness",
+        "failure_mode": "observational_causal_identification_limit",
+        "label": "limitation_required",
+        "required_surface_change": "Expose annotation-derived limitation, contestation, or blocker state.",
+        "status_should_have_been": "publish_with_limitation",
+        "why_structural_checks_missed_it": "W11.D fixture preserves annotation semantics for truthfulness comparison."
+      }
+    ],
+    "reviewer_topology_ref": "reviewer-topology://w11d/hidden/w11a_mexico_ssb_tax_2014"
+  },
+  "input_intent_ref": "intent-w11a_mexico_ssb_tax_2014",
+  "intent": {
+    "authority_levels": [
+      "research",
+      "governed",
+      "production"
+    ],
+    "instrument_type": "excise_tax",
+    "intent_id": "intent-w11a_mexico_ssb_tax_2014",
+    "jurisdiction": "Mexico",
+    "metadata": {
+      "w11a_authority_level": "research"
+    },
+    "policy_time": "2014-01 onward",
+    "target_population": "population_at_risk_of_obesity_and_diabetes, low_income_households_exposed_to_high_ssb_consumption",
+    "text": "Mexico sugar-sweetened beverage excise tax"
+  },
+  "metadata": {
+    "pattern_refs": [
+      "P01",
+      "P02",
+      "P03",
+      "P05",
+      "P10",
+      "P13",
+      "P14",
+      "P15"
+    ],
+    "reuse_classification": "wire_existing",
+    "source_annotation_schema": "policyos.universal_outcome_corpus.annotation.v1"
+  },
+  "producer_pipeline": {
+    "producers": [
+      {
+        "consumed_concept_refs": [
+          "concept://w11/w11a_mexico_ssb_tax_2014/universal-policy-grammar"
+        ],
+        "consumed_requirement_refs": [
+          "data-w11a_mexico_ssb_tax_2014"
+        ],
+        "expected_output_families": [
+          "fabric.source_contract_binding.v1"
+        ],
+        "first_pass_bindings": [
+          {
+            "binding_id": "label.fabric.w11a_mexico_ssb_tax_2014",
+            "binding_kind": "label",
+            "concept_ref": "concept://w11/w11a_mexico_ssb_tax_2014/universal-policy-grammar",
+            "disposition": "context_only",
+            "label": "fabric context for w11a_mexico_ssb_tax_2014"
+          }
+        ],
+        "producer_component": "fabric",
+        "requested_deadline_s": 5.0,
+        "second_pass_bindings": [
+          {
+            "artifact_ref": "source://w11/w11a_mexico_ssb_tax_2014/fabric",
+            "binding_id": "binding.fabric.w11a_mexico_ssb_tax_2014",
+            "binding_kind": "dataset",
+            "concept_ref": "concept://w11/w11a_mexico_ssb_tax_2014/universal-policy-grammar",
+            "disposition": "selected",
+            "requirement_ref": "data-w11a_mexico_ssb_tax_2014",
+            "time_role": "observation_time"
+          }
+        ]
+      }
+    ]
+  },
+  "redacted_source_hash": "sha256:4d670aab468605b9dc51ffdb0cb9994b3fd9ca8b0efaecd1a6be539049b2702c",
+  "schema_version": "policyos.universal_corpus_fixture.v1",
+  "source_case_ref": "docs/research/universal-policy-design/outcome-corpus/mexico-ssb-tax-2014-public-health.md",
+  "split": "hidden",
+  "title": "Mexico sugar-sweetened beverage excise tax"
+}

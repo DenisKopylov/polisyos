@@ -179,7 +179,7 @@ Imported from
 - **Affected ADR**: ADR-0147, ADR-0152, ADR-0155
 - **Affected invariant id or phase id**: HDS-MCG-001; HDS-MCG-002; Wave 6
 - **Owner**: team-runtime-quality
-- **Reversibility**: superseded only by new ADR or accepted decision-log supersession
+- **Reversibility**: costly_to_reverse
 - **Revisit trigger**: Any final readiness run accepts a bundle-local path, projection, or static inventory row as runtime authority.
 - **Revisit wave**: Wave 7
 - **Promotion status**: retired
@@ -193,7 +193,7 @@ Imported from
 - **Affected ADR**: ADR-0150, ADR-0154
 - **Affected invariant id or phase id**: HDS-MCG-001; HDS-MCG-020; Wave 6
 - **Owner**: team-observability
-- **Reversibility**: superseded only by new ADR or accepted decision-log supersession
+- **Reversibility**: costly_to_reverse
 - **Revisit trigger**: Event/CAS reconciliation fails or a dashboard projection is used as closeout authority.
 - **Revisit wave**: Wave 7
 - **Promotion status**: retired
@@ -207,7 +207,7 @@ Imported from
 - **Affected ADR**: ADR-0151
 - **Affected invariant id or phase id**: HDS-MCG-001; HDS-MCG-003; Wave 6
 - **Owner**: team-architecture
-- **Reversibility**: superseded only by new ADR or accepted decision-log supersession
+- **Reversibility**: costly_to_reverse
 - **Revisit trigger**: A legacy bundle is promoted to serious authority without a new runtime CAS ref and compatible schema decision.
 - **Revisit wave**: Wave 7
 - **Promotion status**: retired
@@ -221,7 +221,7 @@ Imported from
 - **Affected ADR**: ADR-0153
 - **Affected invariant id or phase id**: HDS-MCG-001; HDS-MCG-021; Wave 6
 - **Owner**: team-assurance
-- **Reversibility**: superseded only by new ADR or accepted decision-log supersession
+- **Reversibility**: costly_to_reverse
 - **Revisit trigger**: Diagnostic SLO evidence becomes stale or a closeout lane passes with missing diagnostic observations.
 - **Revisit wave**: Wave 7
 - **Promotion status**: retired
@@ -235,7 +235,7 @@ Imported from
 - **Affected ADR**: ADR-0148, ADR-0149, ADR-0152, ADR-0153, ADR-0155
 - **Affected invariant id or phase id**: HDS-MCG-001; HDS-MCG-008; Wave 6
 - **Owner**: team-architecture-governance
-- **Reversibility**: superseded only by new ADR or accepted decision-log supersession
+- **Reversibility**: costly_to_reverse
 - **Revisit trigger**: A serious bundle contains an unattested producer step, semantic binding gap, or non-overridable blocker bypass.
 - **Revisit wave**: Wave 7
 - **Promotion status**: retired
@@ -249,7 +249,7 @@ Imported from
 - **Affected ADR**: ADR-0153, ADR-0155
 - **Affected invariant id or phase id**: CI Tiers And Test Budget; Wave 6 Exit Fence
 - **Owner**: team-quality-closeout
-- **Reversibility**: superseded only by new ADR or accepted decision-log supersession
+- **Reversibility**: costly_to_reverse
 - **Revisit trigger**: Final validation timing or flakiness requires changing lane ownership, timeout budgets, or gate order.
 - **Revisit wave**: Wave 7
 - **Promotion status**: retired
@@ -263,7 +263,7 @@ Imported from
 - **Affected ADR**: ADR-0147, ADR-0148, ADR-0149, ADR-0150, ADR-0152, ADR-0154, ADR-0155
 - **Affected invariant id or phase id**: HDS-MCG-001; Phase 1.10; Wave 6
 - **Owner**: team-architecture-governance
-- **Reversibility**: superseded only by new ADR or accepted decision-log supersession
+- **Reversibility**: costly_to_reverse
 - **Revisit trigger**: Any strict xfail budget increases, broadens, or carries past its revisit wave.
 - **Revisit wave**: Wave 7
 - **Promotion status**: retired
@@ -277,7 +277,7 @@ Imported from
 - **Affected ADR**: ADR-0152, ADR-0153
 - **Affected invariant id or phase id**: Wave 6 Exit Fence; Phase 6.1; Phase 6.4
 - **Owner**: team-runtime-quality
-- **Reversibility**: superseded only by new ADR or accepted decision-log supersession
+- **Reversibility**: costly_to_reverse
 - **Revisit trigger**: Final closeout evidence is missing, stale, or fails inspection/readiness.
 - **Revisit wave**: Wave 7
 - **Promotion status**: retired

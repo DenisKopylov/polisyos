@@ -74,7 +74,7 @@ from polisyos.ir.observation.contracts import (
     ObservationRecord,
     SourceConfidenceTier,
 )
-from polisyos.ir.types import TimeFrequency
+from polisyos.ir.model_layer.types import TimeFrequency
 from polisyos.scientist.methods.backtesting.orchestrator import BacktestOrchestrator
 from pydantic import ValidationError
 

@@ -793,6 +793,48 @@ drift_gate = "ignored_by_policy"
 workflow = "docs/reference/data-lake-policy.md"
 
 [[family]]
+id = "policy-evidence-capability-index"
+label = "Policy evidence capability index"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_ignored"
+generator = "canonical generator declared in regenerate_commands"
+verifier = "verifier declared by check_command, drift_gate, workflow, or manual review policy"
+promotion_target = "production_data/capability_index for release-time replay and runtime resolver adoption"
+stale_output_behavior = "fail"
+source_of_truth = "production_data L1-L7 artifacts plus src/polisyos/runtime/quality/capability_index_compiler.py"
+outputs = [
+  "_build/.tmp/production-quality/capability-index/",
+  "production_data/capability_index/capability_index_v1.duckdb",
+  "production_data/capability_index/capability_index_v1.manifest.json",
+  "production_data/capability_index/capability_index_v1.sha256",
+  "production_data/capability_index/capability_index_v1.summary.json",
+  "production_data/capability_index/capability_index_v1.dcat.jsonld",
+  "production_data/capability_index/capability_index_v1.prov.ttl",
+  "production_data/capability_index/capability_index_v1.inspection.json",
+  "production_data/capability_index/cards/",
+  "_build/.tmp/production-quality/capability-index/cards/",
+  "production_data/capability_index/capability_white_space_report_v1.json",
+  "production_data/capability_index/capability_conflict_report_v1.json",
+  "architecture/policy_design_case/capability_index_phase1_artifact_profile.json",
+]
+regenerate_commands = [
+  "uv run python tools/quality/validation/build_policy_evidence_capability_index.py --production-data-root production_data --mode full --output-dir _build/.tmp/production-quality/capability-index",
+]
+commit_policy = "local_ignored_with_committed_profile"
+freshness_rule = "Regenerate for every production-data release and commit the architecture profile with artifact sizes, DuckDB table row counts, modality floors, and performance budgets."
+drift_gate = "manual_review"
+workflow = "tools/quality/validation/build_policy_evidence_capability_index.py"
+check_cwd = "."
+check_command = [
+  "uv",
+  "run",
+  "pytest",
+  "tests/repo_quality/tools/test_policy_evidence_capability_index.py",
+  "-q",
+]
+
+[[family]]
 id = "local-runtime-state"
 label = "Local PolisyOS runtime state"
 owner = "team-platform"

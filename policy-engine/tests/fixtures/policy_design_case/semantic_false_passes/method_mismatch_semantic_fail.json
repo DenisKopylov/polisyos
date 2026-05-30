@@ -1,0 +1,51 @@
+{
+  "schema_version": "policyos.runtime.policy_design_case.semantic_gold_card.v1",
+  "fixture_id": "method_mismatch_semantic_fail",
+  "title": "Descriptive method cannot satisfy causal claim",
+  "expected_status": "semantic_fail",
+  "failure_mode": "method_mismatch",
+  "research_refs": ["E1", "C30", "C9"],
+  "pattern_ids": ["P10"],
+  "structural_pass_claimed": true,
+  "structural_verdict": {
+    "status": "pass",
+    "validator_refs": ["policy_design_case.structural.method_refs_present.v1"],
+    "completeness_claims": [
+      "method_ref_present",
+      "claim_ref_present",
+      "foundry_report_ref_present"
+    ]
+  },
+  "semantic_adjudication": {
+    "status": "fail",
+    "adjudicator": "policyos.semantic_gold_card.w1b",
+    "failure_mode": "method_mismatch",
+    "failure_code": "semantic_method_mismatch",
+    "rationale": "The claim uses causal language while the selected method family is descriptive and is incorrectly marked compatible.",
+    "authority_effect": "block_closeout",
+    "required_remediation": "Select a causal-effect method or rewrite the claim to match descriptive evidence."
+  },
+  "semantic_probes": [
+    {
+      "probe_id": "causal-claim-descriptive-method",
+      "semantic_axis": "method",
+      "pattern_ids": ["P10"],
+      "observed_signal": "The method binding declares descriptive pre/post analysis compatible with a causal claim.",
+      "expected_signal": "Causal claims require a compatible causal-effect method family.",
+      "verdict": "fail",
+      "failure_code": "semantic_method_mismatch",
+      "evidence_refs": ["event://foundry/method/w1b/descriptive"]
+    }
+  ],
+  "payload": {
+    "case_id": "pdc-w1b-method",
+    "claim_ids": ["claim-method"],
+    "method_binding": {
+      "claim_verb": "causes",
+      "required_method_family": "causal_effect_estimation",
+      "selected_method_family": "descriptive_pre_post",
+      "selected_method_ref": "foundry.method.descriptive_pre_post",
+      "compatibility_status": "claimed_compatible"
+    }
+  }
+}

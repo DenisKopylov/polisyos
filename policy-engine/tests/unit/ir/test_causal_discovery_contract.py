@@ -29,7 +29,7 @@ from polisyos.ir.analytics.causal_discovery import (
 )
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
 from polisyos.ir.artifacts import get_json_artifact
-from polisyos.ir.refs import ArtifactRefModel, CausalDiscoveryReportRef
+from polisyos.ir.registry.refs import ArtifactRefModel, CausalDiscoveryReportRef
 
 
 def _minimal_report() -> CausalDiscoveryReport:

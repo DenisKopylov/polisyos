@@ -15,7 +15,7 @@ from polisyos.foundry.contracts.specs import (
     validate_mechanism_params,
 )
 from polisyos.ir.kernel import MechanismTypeSpec
-from polisyos.ir.model_spec import FidelityLevel as IRFidelityLevel
+from polisyos.ir.model_layer.model_spec import FidelityLevel as IRFidelityLevel
 
 
 @dataclass(frozen=True)

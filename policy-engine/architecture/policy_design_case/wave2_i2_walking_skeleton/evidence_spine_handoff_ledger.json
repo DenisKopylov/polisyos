@@ -1,0 +1,59 @@
+{
+  "findings": [],
+  "generated_at": "2026-05-22T12:00:00+00:00",
+  "handoffs": [
+    {
+      "batch_id": null,
+      "bridge_authority_ref": "bridge.concept_spine.run-wave2-i2",
+      "carrier_redaction_status": "pass",
+      "carrier_ref": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "concept_spine_ref": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "consumer_ref": "deterministic_policy_fixture",
+      "handoff_id": "handoff:c3ed785fd778d5b659efe990",
+      "handoff_kind": "concept_spine_to_producer",
+      "input_refs": [
+        "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+      ],
+      "integrity_status": "pass",
+      "message_count": 1,
+      "output_refs": [
+        "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+      ],
+      "parent_spine_ref": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "producer_handshake_refs": [],
+      "producer_ref": "runtime.concept_spine",
+      "schema_version": "policyos.evidence_spine_handoff.v1"
+    },
+    {
+      "batch_id": null,
+      "bridge_authority_ref": "bridge.deterministic_policy_fixture.producer-handshake:sha256:8b83729b73c106df70eed52138249f5f07c3ca442fb800274040d3b8c218a55f",
+      "carrier_redaction_status": "pass",
+      "carrier_ref": "producer-handshake-ledger:sha256:355ffffd0c1a827662bc89d501b3dc1f5e1e01408ee5341c12a64e58279af3f7",
+      "concept_spine_ref": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "consumer_ref": "runtime.claim_registry",
+      "handoff_id": "handoff:ff8c4e65deb27fb79f5a22c3",
+      "handoff_kind": "producer_to_claim_registry",
+      "input_refs": [
+        "producer-handshake:sha256:8b83729b73c106df70eed52138249f5f07c3ca442fb800274040d3b8c218a55f"
+      ],
+      "integrity_status": "pass",
+      "message_count": 1,
+      "output_refs": [
+        "sha256:5555555555555555555555555555555555555555555555555555555555555555"
+      ],
+      "parent_spine_ref": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+      "producer_handshake_refs": [
+        "producer-handshake:sha256:8b83729b73c106df70eed52138249f5f07c3ca442fb800274040d3b8c218a55f"
+      ],
+      "producer_ref": "deterministic_policy_fixture",
+      "schema_version": "policyos.evidence_spine_handoff.v1"
+    }
+  ],
+  "schema_version": "policyos.evidence_spine_handoff_ledger.v1",
+  "status": "pass",
+  "summary": {
+    "finding_count": 0,
+    "handoff_count": 2,
+    "required_handoff_count": 2
+  }
+}

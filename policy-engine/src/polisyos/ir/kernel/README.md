@@ -33,7 +33,7 @@ mechanism types, merge rules, units, metrics, constraints и time semantics.
 ## Depends on / depended on by
 
 - Depends on: базовый canonical/pydantic stack внутри `polisyos.ir`.
-- Depended on by: [`../governance/README.md`](../governance/README.md), [`../linker/README.md`](../linker/README.md), `polisyos.core.registry`, `polisyos.foundry`, `polisyos.fabric`, `polisyos.ir.registry_fragments`.
+- Depended on by: [`../governance/README.md`](../governance/README.md), [`../linker/README.md`](../linker/README.md), `polisyos.core.registry`, `polisyos.foundry`, `polisyos.fabric`, `polisyos.ir.registry.registry_fragments`.
 
 ## Common commands
 

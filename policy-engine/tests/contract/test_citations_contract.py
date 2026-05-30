@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
-from polisyos.ir.citations import (
+from polisyos.ir.loading.citations import (
     AnchorKind,
     CitationRef,
     DocumentRef,

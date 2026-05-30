@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import re
 from collections.abc import Mapping, Sequence
 from datetime import date, datetime
@@ -19,6 +20,20 @@ REPLAY_MANIFEST_SCHEMA_VERSION = "policyos.replay_manifest.v1"
 DRIFT_EXPLANATION_KIND = "runtime.drift_explanation"
 DRIFT_EXPLANATION_SCHEMA = "polisyos.runtime.DriftExplanation"
 DRIFT_EXPLANATION_SCHEMA_VERSION = "policyos.drift_explanation.v1"
+POLICY_EVIDENCE_CAPABILITY_REPLAY_REF_SCHEMA_VERSION = (
+    "policyos.policy_evidence_capability_replay_refs.v1"
+)
+POLICY_EVIDENCE_CAPABILITY_REPLAY_REF_KEYS = (
+    "capability_index_ref",
+    "construct_registry_ref",
+    "authority_composition_rule_ref",
+    "production_data_release_ref",
+)
+POLICY_EVIDENCE_LEGACY_READER_REF = "legacy_scenario_family_reader_frozen_v1"
+POLICY_EVIDENCE_LEGACY_READER_EXPIRES_AT = "2027-12-31"
+POLICY_EVIDENCE_CAPABILITY_REPLAY_EXECUTION_SCHEMA_VERSION = (
+    "policyos.policy_evidence_capability_replay_execution.v1"
+)
 
 DRIFT_SOURCES = (
     "assurance",
@@ -34,6 +49,7 @@ DRIFT_SOURCES = (
     "mode",
     "norm",
     "nondeterminism",
+    "orchestration",
     "prompt",
     "prompt_tool_parser",
     "provider",
@@ -65,6 +81,19 @@ _IGNORED_COMPARISON_PATHS = {
     "$.deterministic_fingerprint",
     "$.manifest_fingerprint",
 }
+_MUTABLE_POLICY_EVIDENCE_REF_MARKERS = (
+    "../",
+    "./",
+    "/current",
+    "current/",
+    "/latest",
+    "latest/",
+    "latest",
+    "production_data/",
+    "/tmp/",  # noqa: S108 - literal mutable-path marker, not a temp file location.
+    "/var/folders/",
+)
+_FROZEN_POLICY_EVIDENCE_URI_PREFIXES = ("cas://", "artifact://")
 
 
 def build_replay_manifest(
@@ -91,6 +120,11 @@ def build_replay_manifest(
     prompt_tool_parser_ledger: Mapping[str, Any] | None = None,
     assurance_case: Mapping[str, Any] | None = None,
     registry_refs: Mapping[str, Any] | None = None,
+    rule_evolution_registry: Mapping[str, Any] | None = None,
+    rule_evolution_replay_context: Mapping[str, Any] | None = None,
+    rule_evolution_public_annotation: Mapping[str, Any] | None = None,
+    revalidation_state: Mapping[str, Any] | None = None,
+    orchestration_continuity: Mapping[str, Any] | None = None,
     execution_summary: Mapping[str, Any] | None = None,
     quality_summary: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
@@ -124,6 +158,13 @@ def build_replay_manifest(
         "prompt_tool_parser_ledger": _stable_mapping(prompt_tool_parser_ledger),
         "assurance_case": _stable_mapping(assurance_case),
         "registry_refs": _stable_mapping(registry_refs),
+        "rule_evolution_registry": _stable_mapping(rule_evolution_registry),
+        "rule_evolution_replay_context": _stable_mapping(rule_evolution_replay_context),
+        "rule_evolution_public_annotation": _stable_mapping(
+            rule_evolution_public_annotation
+        ),
+        "revalidation_state": _stable_mapping(revalidation_state),
+        "orchestration_continuity": _stable_mapping(orchestration_continuity),
         "execution_summary": _stable_mapping(execution_summary),
         "quality_summary": _stable_mapping(quality_summary),
     }
@@ -210,7 +251,10 @@ def explain_replay_drift(
             "owner": "team-runtime-ops",
             "phase": "runtime_replay",
             "cause": "accepted replay drift exceeds production readiness impact bounds",
-            "downstream_impact": "approval and public export are blocked until drift is explained with bounded impact",
+            "downstream_impact": (
+                "approval and public export are blocked until drift is explained "
+                "with bounded impact"
+            ),
             "refs": [str(difference["path"]) for difference in accepted_non_ready],
             "next_command": "uv run pytest tests/unit/runtime/quality/test_replay.py -q",
         }
@@ -233,6 +277,316 @@ def persist_replay_manifest(
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
+
+
+def attach_replay_orchestration_continuity(
+    manifest: Mapping[str, Any],
+    orchestration_continuity: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Attach W4.A continuity to an existing replay manifest and refingerprint it."""
+
+    enriched = sanitize_for_replay(dict(manifest))
+    if not isinstance(enriched, dict):
+        enriched = {}
+    enriched["orchestration_continuity"] = _stable_mapping(orchestration_continuity)
+    enriched["deterministic_fingerprint"] = _fingerprint(
+        {
+            key: value
+            for key, value in enriched.items()
+            if key not in {"deterministic_fingerprint", "manifest_fingerprint"}
+        }
+    )
+    return enriched
+
+
+def validate_policy_evidence_capability_replay_refs(
+    closed_case_refs: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Validate frozen Policy Evidence Capability Graph refs for closed-case replay.
+
+    Args:
+        closed_case_refs: Candidate refs stored on a closed Policy Design Case.
+
+    Returns:
+        A deterministic validation report that fails closed when any required
+        Phase 0 replay ref is missing or points at mutable runtime state.
+    """
+
+    refs = _stable_mapping(closed_case_refs)
+    normalized_refs: dict[str, str] = {}
+    issues: list[dict[str, Any]] = []
+    for key in POLICY_EVIDENCE_CAPABILITY_REPLAY_REF_KEYS:
+        ref = _clean_policy_evidence_capability_replay_ref(refs.get(key))
+        if ref is None:
+            issues.append(
+                {
+                    "code": "policy_evidence_capability_replay_ref_missing",
+                    "ref_key": key,
+                    "severity": "blocking",
+                    "reason": (
+                        "Closed Policy Design Case replay requires frozen Policy "
+                        "Evidence Capability Graph refs."
+                    ),
+                }
+            )
+            continue
+        if _looks_mutable_policy_evidence_capability_ref(ref):
+            issues.append(
+                {
+                    "code": "policy_evidence_capability_replay_ref_mutable",
+                    "ref_key": key,
+                    "ref": ref,
+                    "severity": "blocking",
+                    "reason": (
+                        "Replay must use the frozen ref stored at closeout, not "
+                        "current/latest production-data filesystem state."
+                    ),
+                }
+            )
+            continue
+        normalized_refs[key] = ref
+
+    return {
+        "schema_version": POLICY_EVIDENCE_CAPABILITY_REPLAY_REF_SCHEMA_VERSION,
+        "status": "pass" if not issues else "fail",
+        "required_refs": list(POLICY_EVIDENCE_CAPABILITY_REPLAY_REF_KEYS),
+        "refs": normalized_refs,
+        "issues": issues,
+        "authoritative_for": [
+            "closed_policy_design_case_replay_ref_validation",
+        ],
+        "may_not_use_for": [
+            "capability_index_compilation",
+            "claim_evidence_satisfaction",
+        ],
+    }
+
+
+def build_policy_evidence_capability_replay_policy(
+    closed_case_refs: Mapping[str, Any],
+    *,
+    pdc_closed_at: str,
+    replay_at: str,
+) -> dict[str, Any]:
+    """Classify closed-PDC replay behavior for capability graph refs.
+
+    Args:
+        closed_case_refs: Refs persisted on the closed Policy Design Case.
+        pdc_closed_at: Closure date or datetime for audit traceability.
+        replay_at: Replay date or datetime.
+
+    Returns:
+        Deterministic policy report for legacy, partial, or full frozen replay.
+    """
+
+    refs = _stable_mapping(closed_case_refs)
+    validation = validate_policy_evidence_capability_replay_refs(refs)
+    present_ref_keys = sorted(
+        key for key in POLICY_EVIDENCE_CAPABILITY_REPLAY_REF_KEYS if refs.get(key)
+    )
+    warnings: list[dict[str, Any]] = []
+    if not refs.get("capability_index_ref"):
+        expired = _date_value(replay_at) > _date_value(POLICY_EVIDENCE_LEGACY_READER_EXPIRES_AT)
+        warnings.append(
+            {
+                "code": "pdcs_without_capability_index_ref",
+                "severity": "warn" if not expired else "blocking",
+                "message": (
+                    "Closed PDC has no capability_index_ref; replay is routed "
+                    "through the frozen legacy scenario-family reader until the "
+                    "legacy sunset date."
+                ),
+                "legacy_reader_ref": POLICY_EVIDENCE_LEGACY_READER_REF,
+                "expires_at": POLICY_EVIDENCE_LEGACY_READER_EXPIRES_AT,
+            }
+        )
+        return {
+            "schema_version": "policyos.policy_evidence_capability_replay_policy.v1",
+            "status": "legacy_expired" if expired else "legacy_warning",
+            "replay_mode": POLICY_EVIDENCE_LEGACY_READER_REF,
+            "pdc_closed_at": _clean_scalar(pdc_closed_at),
+            "replay_at": _clean_scalar(replay_at),
+            "legacy_reader_ref": POLICY_EVIDENCE_LEGACY_READER_REF,
+            "legacy_reader_expires_at": POLICY_EVIDENCE_LEGACY_READER_EXPIRES_AT,
+            "refs": {},
+            "validation": validation,
+            "warnings": warnings,
+            "authoritative_for": ["closed_policy_design_case_replay_routing"],
+            "may_not_use_for": ["claim_evidence_satisfaction", "capability_index_compilation"],
+        }
+
+    if validation["status"] != "pass":
+        missing = [
+            issue
+            for issue in validation["issues"]
+            if issue.get("code") == "policy_evidence_capability_replay_ref_missing"
+        ]
+        warnings.append(
+            {
+                "code": "pdcs_with_partial_refs",
+                "severity": "warn",
+                "message": (
+                    "Closed PDC has a frozen capability_index_ref but not the full "
+                    "capability replay ref set; replay is best-effort and typed."
+                ),
+                "present_ref_keys": present_ref_keys,
+                "missing_ref_keys": sorted(str(issue["ref_key"]) for issue in missing),
+            }
+        )
+        return {
+            "schema_version": "policyos.policy_evidence_capability_replay_policy.v1",
+            "status": "best_effort_with_warnings",
+            "replay_mode": "frozen_capability_index_best_effort",
+            "pdc_closed_at": _clean_scalar(pdc_closed_at),
+            "replay_at": _clean_scalar(replay_at),
+            "refs": validation["refs"],
+            "validation": validation,
+            "warnings": warnings,
+            "authoritative_for": ["closed_policy_design_case_replay_routing"],
+            "may_not_use_for": ["claim_evidence_satisfaction", "capability_index_compilation"],
+        }
+
+    return {
+        "schema_version": "policyos.policy_evidence_capability_replay_policy.v1",
+        "status": "deterministic",
+        "replay_mode": "frozen_capability_index",
+        "pdc_closed_at": _clean_scalar(pdc_closed_at),
+        "replay_at": _clean_scalar(replay_at),
+        "refs": validation["refs"],
+        "validation": validation,
+        "warnings": [],
+        "authoritative_for": ["closed_policy_design_case_replay_routing"],
+        "may_not_use_for": ["claim_evidence_satisfaction", "capability_index_compilation"],
+    }
+
+
+def build_policy_evidence_capability_replay_execution(
+    closed_case_refs: Mapping[str, Any],
+    *,
+    pdc_closed_at: str,
+    replay_at: str,
+    frozen_artifact_paths: Mapping[str, str | Path] | None = None,
+) -> dict[str, Any]:
+    """Build a deterministic replay execution proof over frozen artifacts.
+
+    The replay policy classifies legacy/partial/full ref posture. This execution
+    proof additionally loads the frozen artifacts available to the replay run and
+    verifies their stable digests against the refs stored on the closed PDC.
+    """
+
+    policy = build_policy_evidence_capability_replay_policy(
+        closed_case_refs,
+        pdc_closed_at=pdc_closed_at,
+        replay_at=replay_at,
+    )
+    artifact_validation = validate_policy_evidence_capability_replay_artifacts(
+        policy.get("refs") if isinstance(policy.get("refs"), Mapping) else {},
+        frozen_artifact_paths=frozen_artifact_paths or {},
+    )
+    deterministic_fingerprint = (
+        _fingerprint(
+            {
+                "replay_policy": policy,
+                "artifact_digests": {
+                    key: value.get("digest")
+                    for key, value in artifact_validation["artifacts"].items()
+                },
+            }
+        )
+        if policy.get("status") == "deterministic"
+        and artifact_validation["status"] == "pass"
+        else None
+    )
+    status = str(policy.get("status"))
+    if policy.get("status") == "deterministic":
+        status = (
+            "deterministic"
+            if artifact_validation["status"] == "pass"
+            else "artifact_mismatch"
+        )
+    return {
+        "schema_version": POLICY_EVIDENCE_CAPABILITY_REPLAY_EXECUTION_SCHEMA_VERSION,
+        "status": status,
+        "replay_mode": policy.get("replay_mode"),
+        "pdc_closed_at": policy.get("pdc_closed_at"),
+        "replay_at": policy.get("replay_at"),
+        "replay_policy": policy,
+        "artifact_validation": artifact_validation,
+        "deterministic_fingerprint": deterministic_fingerprint,
+        "authoritative_for": ["closed_policy_design_case_frozen_replay_execution"],
+        "may_not_use_for": ["claim_evidence_satisfaction", "capability_index_compilation"],
+    }
+
+
+def validate_policy_evidence_capability_replay_artifacts(
+    refs: Mapping[str, Any],
+    *,
+    frozen_artifact_paths: Mapping[str, str | Path],
+) -> dict[str, Any]:
+    """Load frozen replay artifacts and validate their stable digests."""
+
+    normalized_refs = _stable_mapping(refs)
+    paths = {str(key): Path(value) for key, value in frozen_artifact_paths.items()}
+    issues: list[dict[str, Any]] = []
+    artifacts: dict[str, dict[str, Any]] = {}
+    for key in POLICY_EVIDENCE_CAPABILITY_REPLAY_REF_KEYS:
+        ref = _clean_policy_evidence_capability_replay_ref(normalized_refs.get(key))
+        if ref is None:
+            continue
+        path = paths.get(key)
+        if path is None:
+            issues.append(
+                {
+                    "code": "policy_evidence_replay_artifact_path_missing",
+                    "ref_key": key,
+                    "ref": ref,
+                    "severity": "blocking",
+                    "reason": "Frozen replay artifact path was not provided.",
+                }
+            )
+            continue
+        artifact = _fingerprint_replay_artifact(path)
+        artifact["ref"] = ref
+        artifacts[key] = artifact
+        if not artifact.get("exists"):
+            issues.append(
+                {
+                    "code": "policy_evidence_replay_artifact_missing",
+                    "ref_key": key,
+                    "ref": ref,
+                    "path": str(path),
+                    "severity": "blocking",
+                    "reason": "Frozen replay artifact path does not exist.",
+                }
+            )
+            continue
+        expected_digest = _embedded_sha256_ref(ref)
+        if expected_digest and _digest_token(artifact["digest"]) != _digest_token(
+            expected_digest
+        ):
+            issues.append(
+                {
+                    "code": "policy_evidence_replay_artifact_digest_mismatch",
+                    "ref_key": key,
+                    "ref": ref,
+                    "expected_digest": expected_digest,
+                    "actual_digest": artifact["digest"],
+                    "severity": "blocking",
+                    "reason": (
+                        "Frozen replay artifact content does not match the digest "
+                        "stored on the closed Policy Design Case."
+                    ),
+                }
+            )
+    return {
+        "schema_version": "policyos.policy_evidence_capability_replay_artifacts.v1",
+        "status": "fail" if issues else "pass",
+        "required_refs": list(POLICY_EVIDENCE_CAPABILITY_REPLAY_REF_KEYS),
+        "artifacts": artifacts,
+        "issues": issues,
+        "authoritative_for": ["closed_policy_design_case_replay_artifact_validation"],
+        "may_not_use_for": ["claim_evidence_satisfaction", "capability_index_compilation"],
+    }
 
 
 def persist_drift_explanation(
@@ -305,6 +659,78 @@ def _clean_scalar(value: Any) -> str | None:
     if _SECRET_KEY_RE.search(text):
         return None
     return text
+
+
+def _clean_policy_evidence_capability_replay_ref(value: Any) -> str | None:
+    if isinstance(value, Mapping) or (
+        isinstance(value, Sequence) and not isinstance(value, str)
+    ):
+        return None
+    return _clean_scalar(value)
+
+
+def _date_value(value: str) -> date:
+    text = str(value).strip()
+    if "T" in text:
+        return datetime.fromisoformat(text.replace("Z", "+00:00")).date()
+    return date.fromisoformat(text)
+
+
+def _looks_mutable_policy_evidence_capability_ref(ref: str) -> bool:
+    normalized = ref.replace("\\", "/").strip().casefold()
+    if any(marker in normalized for marker in _MUTABLE_POLICY_EVIDENCE_REF_MARKERS):
+        return True
+    if normalized.startswith(_FROZEN_POLICY_EVIDENCE_URI_PREFIXES):
+        return False
+    return "/" in normalized
+
+
+def _fingerprint_replay_artifact(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        return {
+            "loaded_from": str(path),
+            "media_type": "missing",
+            "digest": _fingerprint({"missing": str(path)}),
+            "exists": False,
+        }
+    if path.suffix == ".duckdb":
+        from polisyos.runtime.quality.capability_index_compiler import (
+            compute_logical_duckdb_digest,
+        )
+
+        return {
+            "loaded_from": str(path),
+            "media_type": "application/vnd.duckdb",
+            "digest": compute_logical_duckdb_digest(path),
+            "exists": True,
+        }
+    text = path.read_text(encoding="utf-8")
+    parsed: Any
+    try:
+        parsed = json.loads(text)
+        media_type = "application/json"
+    except json.JSONDecodeError:
+        parsed = text
+        media_type = "text/plain"
+    return {
+        "loaded_from": str(path),
+        "media_type": media_type,
+        "digest": _fingerprint(parsed),
+        "exists": True,
+    }
+
+
+def _embedded_sha256_ref(ref: str) -> str | None:
+    match = re.search(r"sha256:[0-9a-f]{64}", ref)
+    if match:
+        return match.group(0)
+    bare_match = re.search(r"(?<![0-9a-f])[0-9a-f]{64}(?![0-9a-f])", ref)
+    return bare_match.group(0) if bare_match else None
+
+
+def _digest_token(value: Any) -> str:
+    text = str(value).strip().casefold()
+    return text.removeprefix("sha256:")
 
 
 def _redacted_secret(value: Any, *, key_hint: str) -> dict[str, Any]:
@@ -431,7 +857,11 @@ def _explain_difference(
         and accepted["drift_source"] == drift_source
         and _impact_rank(impact) <= _impact_rank(str(accepted["impact"]))
     ):
-        status = "accepted_non_ready" if _impact_rank(impact) >= _impact_rank("medium") else "accepted"
+        status = (
+            "accepted_non_ready"
+            if _impact_rank(impact) >= _impact_rank("medium")
+            else "accepted"
+        )
         reason = str(accepted["reason"])
 
     payload = {
@@ -452,6 +882,8 @@ def _classify_drift_source(path: str) -> str:
         return "code"
     if path.startswith("$.registry_refs"):
         return "registry"
+    if path.startswith("$.rule_evolution") or path.startswith("$.revalidation_state"):
+        return "registry"
     if path.startswith("$.runtime_event_log"):
         return "event_log"
     if path.startswith("$.authority_envelopes"):
@@ -464,6 +896,8 @@ def _classify_drift_source(path: str) -> str:
         return "degradation"
     if path.startswith("$.semantic_binding_ledger"):
         return "semantic_binding"
+    if path.startswith("$.orchestration_continuity"):
+        return "orchestration"
     if path.startswith("$.prompt_tool_parser_ledger"):
         return "prompt_tool_parser"
     if path.startswith("$.assurance_case"):
@@ -504,12 +938,15 @@ def _impact_for_path(path: str) -> str:
     if path.startswith(
         (
             "$.registry_refs",
+            "$.rule_evolution",
+            "$.revalidation_state",
             "$.runtime_event_log",
             "$.authority_envelopes",
             "$.schema_compatibility_decisions",
             "$.effective_mode_ledger",
             "$.degradation_ledger",
             "$.semantic_binding_ledger",
+            "$.orchestration_continuity",
             "$.prompt_tool_parser_ledger",
             "$.assurance_case",
         )
@@ -542,10 +979,20 @@ def _max_impact(differences: Sequence[Mapping[str, Any]]) -> str:
 __all__ = [
     "DRIFT_EXPLANATION_SCHEMA_VERSION",
     "DRIFT_SOURCES",
+    "POLICY_EVIDENCE_CAPABILITY_REPLAY_EXECUTION_SCHEMA_VERSION",
+    "POLICY_EVIDENCE_CAPABILITY_REPLAY_REF_KEYS",
+    "POLICY_EVIDENCE_CAPABILITY_REPLAY_REF_SCHEMA_VERSION",
+    "POLICY_EVIDENCE_LEGACY_READER_EXPIRES_AT",
+    "POLICY_EVIDENCE_LEGACY_READER_REF",
     "REPLAY_MANIFEST_SCHEMA_VERSION",
+    "attach_replay_orchestration_continuity",
+    "build_policy_evidence_capability_replay_execution",
+    "build_policy_evidence_capability_replay_policy",
     "build_replay_manifest",
     "explain_replay_drift",
     "persist_drift_explanation",
     "persist_replay_manifest",
     "sanitize_for_replay",
+    "validate_policy_evidence_capability_replay_artifacts",
+    "validate_policy_evidence_capability_replay_refs",
 ]

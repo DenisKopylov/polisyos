@@ -25,7 +25,7 @@ from polisyos.ir.kernel import (
     DEFAULT_UNITS_REGISTRY,
 )
 from polisyos.ir.kernel.constraints import ConstraintRegistry, ConstraintSpec
-from polisyos.ir.model_spec import ModelSpec
+from polisyos.ir.model_layer.model_spec import ModelSpec
 from polisyos.ir.trinity import TrinityBundle
 
 CTX_REF = "sha256:0000000000000000000000000000000000000000000000000000000000000000"

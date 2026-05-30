@@ -11,7 +11,7 @@ from polisyos.core.compiler.report import put_link_report
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.registry import load_registry_bundle_content
 from polisyos.ir.linker import link_trinity
-from polisyos.ir.registry_fragments import RegistryBundle
+from polisyos.ir.registry.registry_fragments import RegistryBundle
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec

@@ -1,0 +1,17 @@
+{
+  "schema_version": "policyos.runtime.producer_pipeline.corpus_stub.v1",
+  "case_id": "w11a_netherlands_room_for_river_2007",
+  "owner": "team-evaluation",
+  "max_authority_posture": "governed-pilot",
+  "derived_from": {
+    "expert_case_label": "limitation_required",
+    "claim_labels": {
+      "claim:room-for-river-reduces-flood-risk": "limited"
+    }
+  },
+  "fabric": {"*": "limited"},
+  "lex": {"*": "limited"},
+  "foundry": {"*": "limited"},
+  "scholar": {"*": "limited"},
+  "participation": {"*": "limited"}
+}

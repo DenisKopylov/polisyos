@@ -3,8 +3,9 @@ from __future__ import annotations
 from typing import Any
 
 import pytest
+
 from polisyos.ir.governance.policy_spec import PolicySpec
-from polisyos.ir.portfolio import PolicyPortfolio
+from polisyos.ir.loading.portfolio import PolicyPortfolio
 from polisyos.scientist.methods.search.controller import SearchConfig, SearchController
 from polisyos.scientist.methods.search.objective import (
     CompositeObjective,
@@ -165,7 +166,7 @@ def test_search_controller_portfolio_search_accepts_injected_metrics(
     monkeypatch,
 ) -> None:
     monkeypatch.setattr(
-        "polisyos.scientist.search.controller._default_metrics",
+        "polisyos.scientist.methods.search.controller._default_metrics",
         lambda: (_ for _ in ()).throw(AssertionError("global metrics should not be used")),
     )
     metrics = _FakePortfolioMetrics()

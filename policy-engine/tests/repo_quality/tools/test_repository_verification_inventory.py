@@ -21,8 +21,8 @@ def test_phase04_inventory_covers_verification_surfaces() -> None:
         assert "property_test_file_count" in packages[package]
 
     shims = payload["mirror_ratios"]["compatibility_shims"]
-    assert any(row["source_package"] == "ddm_15_7" for row in shims)
-    assert any(row["source_package"] == "synthetic_world" for row in shims)
+    assert not any(row["source_package"] == "ddm_15_7" for row in shims)
+    assert not any(row["source_package"] == "synthetic_world" for row in shims)
 
     fixtures = payload["fixtures"]
     assert fixtures["roots"]["tests/_data"]["exists"]

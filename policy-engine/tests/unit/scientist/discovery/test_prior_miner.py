@@ -123,7 +123,7 @@ def test_prior_miner_queries_hybrid_skg_and_filters_to_target_edges(monkeypatch,
         def close(self):
             captured["closed"] = True
 
-    monkeypatch.setattr("polisyos.scientist.discovery.prior_miner.SKGQuery", FakeQuery)
+    monkeypatch.setattr("polisyos.scientist.methods.discovery.prior_miner.SKGQuery", FakeQuery)
 
     miner = PriorMiner(
         config=PriorMinerConfig(
@@ -158,7 +158,7 @@ def test_prior_miner_returns_degraded_bundle_when_skg_unavailable(monkeypatch, t
 
             raise RuntimeError("db unavailable")
 
-    monkeypatch.setattr("polisyos.scientist.discovery.prior_miner.SKGQuery", BrokenQuery)
+    monkeypatch.setattr("polisyos.scientist.methods.discovery.prior_miner.SKGQuery", BrokenQuery)
 
     miner = PriorMiner(
         config=PriorMinerConfig(

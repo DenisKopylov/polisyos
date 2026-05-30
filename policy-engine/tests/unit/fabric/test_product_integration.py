@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from polisyos.fabric.compatibility import validate_fabric_compatibility_bridges
+from polisyos.fabric._internal.compatibility import validate_fabric_compatibility_bridges
 from polisyos.fabric.product_integration import (
     evidence_path_from_fabric_decision_data,
     evidence_paths_from_fabric_decision_data,

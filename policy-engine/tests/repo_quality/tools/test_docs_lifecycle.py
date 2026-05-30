@@ -417,6 +417,160 @@ def test_wave26_second_governance_adr_pack_is_lifecycle_checked() -> None:
     assert check_docs_lifecycle.check_policy_design_case_second_governance_pack(REPO_ROOT) == []
 
 
+def test_w0b_participation_fast_track_adr_is_accepted_and_lifecycle_checked() -> None:
+    adr_path = REPO_ROOT / "docs/adr/0167-participation-legitimacy-matrix.md"
+    text = adr_path.read_text(encoding="utf-8")
+
+    required_sections = (
+        "## Status",
+        "## Context",
+        "## Decision",
+        "## Structural Commitment",
+        "## Tuned Parameter",
+        "## Authority Boundary",
+        "## Negative Laundering Test",
+        "## Feature Flag / Advisory Posture",
+        "## Revision Path",
+        "## Affected E Tasks",
+        "## Validation",
+        "## Capability Reality And Pattern Pass",
+    )
+    assert all(section in text for section in required_sections)
+
+    required_tokens = (
+        "Accepted",
+        "claim_use x authority_level x population_scope",
+        "fail-safe downgrade",
+        "prevalence",
+        "existence",
+        "qualitative",
+        "role-feasibility",
+        "dissent",
+        "context-only",
+        "representativeness thresholds",
+        "governed configuration",
+        "thin consultation",
+        "affected-population prevalence",
+        "producer_missing",
+        "bridge_missing",
+        "consumer_missing",
+        "surface_missing",
+        "semantic_test_missing",
+        "P05",
+        "P10",
+        "P15",
+        "E4",
+        "E5",
+        "E11",
+        "E22",
+    )
+    assert all(token in text for token in required_tokens)
+
+    with (REPO_ROOT / "docs/adr/index.toml").open("rb") as stream:
+        index = tomllib.load(stream)
+
+    indexed_rows = {
+        row["id"]: row
+        for row in index["adr"]
+        if row["path"] == "docs/adr/0167-participation-legitimacy-matrix.md"
+    }
+    assert indexed_rows == {
+        "0167": {
+            "id": "0167",
+            "title": "Participation Legitimacy Matrix",
+            "status": "accepted",
+            "topic": "product-domain",
+            "package": "repository",
+            "path": "docs/adr/0167-participation-legitimacy-matrix.md",
+            "supersedes": [],
+            "superseded_by": [],
+            "related": ["0147", "0150", "0152", "0156", "0157", "0159", "0160", "0162", "0166"],
+        }
+    }
+
+    implementation_plan = (
+        REPO_ROOT
+        / "docs/plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md"
+    ).read_text(encoding="utf-8")
+    assert "[ADR-0167 Participation Legitimacy Matrix]" in implementation_plan
+
+
+def test_w0d_legal_competence_fast_track_adr_is_accepted_and_lifecycle_checked() -> None:
+    adr_path = REPO_ROOT / "docs/adr/0168-legal-hierarchy-and-competence.md"
+    text = adr_path.read_text(encoding="utf-8")
+
+    required_sections = (
+        "## Status",
+        "## Context",
+        "## Decision",
+        "## Structural Commitment",
+        "## Tuned Parameter",
+        "## Authority Boundary",
+        "## Negative Laundering Test",
+        "## Feature Flag / Advisory Posture",
+        "## Revision Path",
+        "## Affected E Tasks",
+        "## Validation",
+        "## Capability Reality And Pattern Pass",
+    )
+    assert all(section in text for section in required_sections)
+
+    required_tokens = (
+        "Accepted",
+        "generic legal context",
+        "serious legal authority",
+        "per-jurisdiction namespace configuration",
+        "context_only",
+        "candidate_norm",
+        "selected_authority",
+        "limited_authority",
+        "contested_authority",
+        "blocked_no_authority",
+        "implementing",
+        "delegating",
+        "enabling",
+        "funding",
+        "oversight",
+        "appeals_or_contestability",
+        "Competence changes split claims by legal window",
+        "legal_as_of",
+        "legal_effective",
+        "implementation_period",
+        "fiscal_period",
+        "generic Ukrainian jurisdiction/topic match",
+        "universal jurisdiction fallback rule",
+        "producer_missing",
+        "semantic_test_missing",
+        "P05",
+        "P08",
+        "P15",
+        "E9",
+    )
+    assert all(token in text for token in required_tokens)
+
+    with (REPO_ROOT / "docs/adr/index.toml").open("rb") as stream:
+        index = tomllib.load(stream)
+
+    indexed_rows = {
+        row["id"]: row
+        for row in index["adr"]
+        if row["path"] == "docs/adr/0168-legal-hierarchy-and-competence.md"
+    }
+    assert indexed_rows == {
+        "0168": {
+            "id": "0168",
+            "title": "Legal Hierarchy And Competence Boundaries",
+            "status": "accepted",
+            "topic": "product-domain",
+            "package": "polisyos.lex",
+            "path": "docs/adr/0168-legal-hierarchy-and-competence.md",
+            "supersedes": [],
+            "superseded_by": [],
+            "related": ["0051", "0057", "0147", "0150", "0152", "0157", "0158", "0159", "0166"],
+        }
+    }
+
+
 def test_phase6_4_docs_gate_dispatches_lifecycle_nav_and_example_smokes() -> None:
     plan = build_gate_plan(
         (

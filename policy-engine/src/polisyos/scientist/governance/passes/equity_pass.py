@@ -11,7 +11,7 @@ from polisyos.ir.analytics.distributional import (
     MetricUnit,
     load_distributional_report,
 )
-from polisyos.ir.refs import DistributionalReportRef
+from polisyos.ir.registry.refs import DistributionalReportRef
 from polisyos.scientist.governance.accountability import resolve_governance_threshold
 from polisyos.scientist.governance.passes._artifact_resolution import (
     resolve_optional_artifact_model,

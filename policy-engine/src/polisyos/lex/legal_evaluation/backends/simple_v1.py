@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, Literal
 from polisyos.lex.common import collapse_ws
 
 if TYPE_CHECKING:
-    from polisyos.ir.norm_pack import NormRule
+    from polisyos.ir.loading.norm_pack import NormRule
     from polisyos.lex.legal_evaluation.context_builder import RuleObservation
 
 FindingStatus = Literal["PASS", "FAIL", "UNKNOWN", "NOT_APPLICABLE"]

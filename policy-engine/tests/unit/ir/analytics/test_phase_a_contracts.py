@@ -55,7 +55,7 @@ from polisyos.ir.analytics.partial_identification import (
     load_bounds_bundle,
     persist_bounds_bundle,
 )
-from polisyos.ir.refs import DualCertificateRef
+from polisyos.ir.registry.refs import DualCertificateRef
 
 
 def _partial(lower: float, upper: float, *, method: BoundMethod) -> PartialIdentificationResult:

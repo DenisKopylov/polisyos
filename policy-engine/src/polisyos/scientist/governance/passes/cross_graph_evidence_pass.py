@@ -18,7 +18,7 @@ from polisyos.ir.analytics.cross_graph import (
     load_cross_graph_evidence_profile,
 )
 from polisyos.ir.analytics.transportability import TransportMode
-from polisyos.ir.refs import CrossGraphEvidenceProfileRef
+from polisyos.ir.registry.refs import CrossGraphEvidenceProfileRef
 from polisyos.scientist.governance.passes._artifact_resolution import (
     resolve_optional_artifact_model,
 )

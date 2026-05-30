@@ -87,7 +87,6 @@ PACKAGE_OWNER = {
     "scientist": "team-scientist",
 }
 SEMANTIC_DUPLICATE_PAIRS = (
-    ("src/polisyos/scientist/publishing", "src/polisyos/scientist/publisher.py"),
     ("src/polisyos/scientist/evidence", "src/polisyos/scientist/evidence_sources.py"),
     ("src/polisyos/scientist/feedback", "src/polisyos/scientist/feedback_utils.py"),
     ("src/polisyos/scientist/replay", "src/polisyos/scientist/replay_backend.py"),
@@ -694,7 +693,6 @@ def _collect_phase0_4_scientist_parallel_implementations(repo_root: Path) -> dic
                 "src/polisyos/scientist/methods/search",
                 "src/polisyos/scientist/methods/discovery",
                 "src/polisyos/scientist/methods/research_dag",
-                "src/polisyos/scientist/search",
                 "src/polisyos/scientist/discovery",
                 "src/polisyos/scientist/research_dag",
                 "src/polisyos/scientist/causal",

@@ -1,0 +1,38 @@
+{
+  "issues": [
+    {
+      "authority_boundary": {
+        "authoritative_for": [
+          "future_routing",
+          "future_review_depth",
+          "future_uncertainty_posture",
+          "future_evidence_budget",
+          "future_provider_model_selection",
+          "future_authority_cap"
+        ],
+        "may_not_use_for": [
+          "current_run_evidence_closure",
+          "satisfying_claim_evidence",
+          "refuting_current_evidence",
+          "minting_legal_authority",
+          "minting_data_authority",
+          "minting_method_authority",
+          "minting_participation_authority",
+          "hiding_current_run_deficits"
+        ]
+      },
+      "claim_id": "claim.msme_credit_survival",
+      "code": "historical_prior_ref_not_admissible_as_claim_evidence",
+      "evidence_slot": "data_refs",
+      "historical_prior_ref": "historical-prior-influence:msme-credit-v1",
+      "layer": "runtime_quality",
+      "message": "Historical calibration and prior influence records may adjust future routing, review, uncertainty, and authority caps, but they cannot satisfy or refute current-run claim evidence.",
+      "next_action": "Move the historical prior ref to an influence surface and bind the claim to current-run producer evidence, typed blockers, limitations, or accepted deficits.",
+      "phase": "historical_priors_firewall",
+      "severity": "fail"
+    }
+  ],
+  "negative_control": "historical_prior_claim_evidence_slot",
+  "schema_version": "policyos.runtime.policy_design_case.wave2_i2_semantic_negative.v1",
+  "status": "fail"
+}

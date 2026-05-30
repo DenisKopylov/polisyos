@@ -1,0 +1,48 @@
+id = "2026-05-26-policy-evidence-capability-graph-phase7"
+title = "Close Policy Evidence Capability Graph Phase 7"
+type = "changed"
+component = "quality-validation"
+owner = "team-runtime-quality"
+summary = "Add capability-index DCAT, PROV-O, inspection, and audit-card export surfaces; wire frozen capability-index replay policy; extend W12/I7-bis validation hooks; and sunset scenario-family authority lookup in favor of capability_index_v1."
+evidence = [
+  "tests/repo_quality/tools/test_policy_evidence_capability_exports.py",
+  "tests/unit/runtime/quality/test_replay.py",
+  "tests/repo_quality/tools/test_compilation_truthfulness.py",
+  "tests/repo_quality/tools/test_w12d_universal_outcome_corpus_run.py",
+  "tests/repo_quality/tools/test_i7bis_universal_compilation_integration_realism_check.py",
+]
+compatibility = "Keeps scenario-family strings as compatibility/audit projections and frozen legacy replay warnings only; authority decisions use capability_index_v1 refs."
+change_class = "tooling"
+surface_classification = "internal_tooling"
+migration = "Consumers should migrate from scenario-family authority lookup to frozen capability_index_ref, construct_registry_ref, and authority_composition_rule_ref replay inputs."
+api = "Adds validation CLIs for capability index inspection, DCAT JSON-LD export, PROV-O Turtle export, and Markdown capability-card generation."
+limitations = "Legacy PDCs without capability_index_ref replay through legacy_scenario_family_reader_frozen_v1 with typed warnings until 2027-12-31."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "docs/adr/0174-policy-evidence-capability-graph.md",
+  "docs/reference/generated-artifacts.md",
+  "architecture/shims.toml",
+]
+runbook_docs = [
+  "docs/runbooks/policy-design-case-operator-triage.md",
+]
+
+[[compatibility_change]]
+id = "scenario-family-authority-lookup-sunset"
+change_class = "shim_sunset"
+impact = "compatibility_projection_only"
+surface = "architecture/shims.toml#scenario_family_authority_lookup"
+owner = "team-runtime-quality"
+version_owner = "team-runtime-quality"
+deprecation_window = "until 2027-12-31"
+release_note = "Scenario-family authority lookup is sunset; legacy strings remain available only for compatibility/audit projection and typed frozen replay warnings."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "docs/adr/0174-policy-evidence-capability-graph.md",
+  "docs/reference/generated-artifacts.md",
+]
+runbook_docs = [
+  "docs/runbooks/policy-design-case-operator-triage.md",
+]

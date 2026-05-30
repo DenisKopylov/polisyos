@@ -483,3 +483,213 @@ path = "tests/repo_quality/tools/test_policy_design_case_benchmarking.py"
 tier = "fast-pr"
 owner = "team-quality-closeout"
 purpose = "Archived Policy Design Case validation ladder compatibility for benchmarking coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_acquisition_planner.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Policy evidence capability graph acquisition-planning coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_argument_graph.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Runtime quality argument-graph substrate coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_calibration_ledger.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Runtime quality calibration-ledger substrate coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_candidate_firewall.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Candidate firewall authority-boundary coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_capability_authority.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Policy evidence capability authority-composition coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_capability_index_compiler.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Policy evidence capability index compiler coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_capability_ratchet.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Capability reality ratchet coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_capability_resolver.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Requirement-to-capability resolver coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_capability_white_space.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Capability white-space reporting coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_claim_registry.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Runtime claim-registry compatibility coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_closeout_compatibility.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Runtime closeout compatibility coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_closeout_reader.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Runtime closeout reader coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_complexity_governance.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Runtime complexity governance coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_construct_registry.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Policy evidence construct registry coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_cost_degradation.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Runtime cost degradation coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_cost_gate.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Runtime cost gate coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_evidence_spine.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Runtime evidence-spine coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_evidence_spine_handoff.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Runtime evidence-spine handoff coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_hypothesis_ledger.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "HypothesisLedger advisory-boundary coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_hypothesis_ledger_candidate_firewall.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "HypothesisLedger candidate-firewall coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_ir_analytics_bridge_method_requirements.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "IR analytics bridge method-requirement coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_lex_legal_authority_surface.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Lex legal authority surface coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_memory_influence_records.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Runtime memory influence record coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_nl_replay_orchestration.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Natural-language replay orchestration coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_producer_pipeline.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Runtime producer-pipeline capability binding coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_production_data_contract_index.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Production data contract index coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_prompt_tool_ledger_fmea.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Prompt-tool ledger FMEA coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_rule_evolution.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Runtime rule-evolution coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_rule_replay_engine.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Runtime rule-replay engine coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_scenario_evidence_contract.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Scenario evidence compatibility contract coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_semantic_gold_cards.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Semantic gold-card coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_soft_gate_telemetry.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Soft-gate telemetry coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_status_deficits.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Runtime status deficit coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_wave2_walking_skeleton.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Policy Design Case Wave 2 walking-skeleton coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_wave7_requirement_pipeline_integration.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Wave 7 requirement-pipeline integration coverage."

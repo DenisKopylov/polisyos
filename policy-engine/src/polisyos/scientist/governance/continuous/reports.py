@@ -134,6 +134,7 @@ def export_public_validity_report(report: DecisionValidityReport) -> dict[str, A
                 "event_id": event.event_id,
                 "event_type": event.event_type,
                 "severity": event.severity,
+                "scope": dict(event.scope),
                 "affected_claim_ids": list(event.affected_claim_ids),
                 "reason": event.reason,
             }

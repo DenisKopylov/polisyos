@@ -22,6 +22,26 @@ target_phase = "4.8"
 sunset = "none"
 
 [[shared_name]]
+name = "_impl"
+allowed_in = [
+  "corpus",
+  "data_forge",
+  "data_requirement",
+  "legal_requirement",
+  "method_requirement",
+  "obligation_graph",
+  "pdc",
+  "policy_grammar",
+  "scholar",
+  "scholar_requirement",
+]
+semantic_axis = "package-private implementation modules behind package-level public facades"
+disambiguation = "qualified imports required only inside the owning package; cross-package callers use the package facade"
+owner = "team-architecture"
+target_phase = "package-guardrails-closure"
+sunset = "none"
+
+[[shared_name]]
 name = "adapters"
 allowed_in = ["berl", "runtime", "scientist"]
 semantic_axis = "package-owned integration adapters"
@@ -95,11 +115,29 @@ sunset = "none"
 
 [[shared_name]]
 name = "claims"
-allowed_in = ["fabric", "scientist"]
-semantic_axis = "claim storage/processing versus scientist claim reasoning"
-disambiguation = "qualified imports required"
+allowed_in = ["evidence", "fabric", "scientist"]
+semantic_axis = "read-only evidence claim normalization, Fabric claim storage/processing, and Scientist claim reasoning"
+disambiguation = "qualified imports required; evidence/claims is a neutral read-only projection facade, not a runtime claim registry owner"
 owner = "team-architecture"
 target_phase = "1C"
+sunset = "none"
+
+[[shared_name]]
+name = "corpus"
+allowed_in = ["corpus", "data_forge"]
+semantic_axis = "universal evaluation corpus package versus Data Forge domain corpus ingest internals"
+disambiguation = "qualified imports required; top-level corpus is review/evaluation fixture surface and data_forge corpus remains producer ingest"
+owner = "team-architecture"
+target_phase = "package-guardrails-closure"
+sunset = "none"
+
+[[shared_name]]
+name = "detectors"
+allowed_in = ["ddm", "scientist"]
+semantic_axis = "DDM detector primitives versus Scientist continuous-governance detector consumers"
+disambiguation = "qualified imports required; Scientist detectors emit governance events and do not own DDM detector contracts"
+owner = "team-architecture"
+target_phase = "package-guardrails-closure"
 sunset = "none"
 
 [[shared_name]]
@@ -221,9 +259,9 @@ sunset = "none"
 
 [[shared_name]]
 name = "evidence"
-allowed_in = ["fabric", "scientist"]
-semantic_axis = "Fabric evidence materialization versus Scientist evidence reasoning and review"
-disambiguation = "qualified imports required; Fabric owns evidence data-plane assets and Scientist owns decision/evaluation workflows"
+allowed_in = ["evidence", "fabric", "scientist"]
+semantic_axis = "neutral evidence contracts, Fabric evidence materialization, and Scientist evidence reasoning and review"
+disambiguation = "qualified imports required; top-level evidence is a contract/projection home and not a producer implementation"
 owner = "team-architecture"
 target_phase = "4.8"
 sunset = "none"
@@ -313,7 +351,7 @@ sunset = "none"
 name = "observability"
 allowed_in = ["core", "fabric"]
 semantic_axis = "canonical core observability APIs plus Fabric telemetry adapter/contract"
-disambiguation = "imports of cross-component telemetry must go through polisyos.core.observability; Fabric-specific telemetry stays under polisyos.fabric.observability"
+disambiguation = "imports of cross-component telemetry must go through polisyos.core.observability; Fabric-specific telemetry stays under polisyos.fabric._adapters.observability"
 owner = "team-observability"
 target_phase = "4.8"
 sunset = "none"
@@ -365,9 +403,9 @@ sunset = "none"
 
 [[shared_name]]
 name = "quality"
-allowed_in = ["data_forge", "fabric"]
-semantic_axis = "data quality controls per package"
-disambiguation = "qualified imports required"
+allowed_in = ["data_forge", "fabric", "runtime"]
+semantic_axis = "data quality controls, Fabric quality reports, and runtime closeout quality gates"
+disambiguation = "qualified imports required; runtime/quality owns runtime closeout semantics, not data quality primitives"
 owner = "team-architecture"
 target_phase = "1C"
 sunset = "none"
@@ -517,31 +555,6 @@ target_phase = "3.1"
 sunset = "2026-12-31"
 
 [[rename_backlog]]
-name = "ir_shell_packages"
-packages = ["ir"]
-locations = [
-  "src/polisyos/ir/canon",
-  "src/polisyos/ir/fact_log",
-  "src/polisyos/ir/loaders",
-  "src/polisyos/ir/migration_report",
-  "src/polisyos/ir/model_spec",
-  "src/polisyos/ir/norm_pack",
-  "src/polisyos/ir/portfolio",
-  "src/polisyos/ir/predicate",
-  "src/polisyos/ir/public_surface",
-  "src/polisyos/ir/queries",
-  "src/polisyos/ir/registry_fragments",
-  "src/polisyos/ir/schema_catalog",
-  "src/polisyos/ir/types",
-  "src/polisyos/ir/units",
-]
-action = "Phase 3.2 groups IR shell packages under model_layer, loading, and registry; Phase 3.3 closes the refs/references collision by making registry/refs.py the artifact-ref home, loading/citations.py the citation-ref home, and keeping polisyos.ir.references only as an api.py-synthesized compatibility aggregate."
-replacement = "architecture/shims.toml#last_mile_import_compatibility_map"
-owner = "team-ir"
-target_phase = "3.2/3.3"
-sunset = "2026-12-31"
-
-[[rename_backlog]]
 name = "discovery"
 packages = ["core", "foundry", "scientist"]
 locations = [
@@ -595,6 +608,14 @@ owner = "team-architecture"
 target_phase = "0.4"
 sunset = "none"
 rationale = "Private implementation capsules are intentionally repeated across bounded contexts and must remain package-qualified."
+
+[[phase0_4_name_decision]]
+name = "_impl"
+decision = "scoped_ok"
+owner = "team-architecture"
+target_phase = "0.4/package-guardrails-closure"
+sunset = "none"
+rationale = "Package-private implementation capsules are allowed only behind package facades and must not become cross-package import surfaces."
 
 [[phase0_4_name_decision]]
 name = "_adapters"
@@ -765,6 +786,14 @@ sunset = "none"
 rationale = "Fabric and Scientist provenance packages track separate bounded-context artifacts."
 
 [[phase0_4_name_decision]]
+name = "quality"
+decision = "scoped_ok"
+owner = "team-architecture"
+target_phase = "0.4/package-guardrails-closure"
+sunset = "none"
+rationale = "Data Forge, Fabric, and Runtime quality packages own distinct quality semantics and remain package-qualified."
+
+[[phase0_4_name_decision]]
 name = "registry"
 decision = "canonical_home_with_adapters"
 owner = "team-architecture"
@@ -830,7 +859,7 @@ rationale = "Fabric and IR world packages describe different bounded-context wor
 
 [[phase2_2_scientist_parallel_closeout]]
 family_id = "evidence_claims_provenance_legacy_roots"
-resolution = "moved_with_sunset_shims"
+resolution = "merged_with_retired_legacy_roots"
 owner = "team-scientist"
 target_phase = "2.2"
 canonical_home = "polisyos.scientist.evidence"
@@ -839,17 +868,18 @@ canonical_roots = [
   "polisyos.scientist.evidence.claims",
   "polisyos.scientist.evidence.provenance",
 ]
-legacy_roots = [
+legacy_roots = []
+retired_legacy_roots = [
   "polisyos.scientist.claims",
   "polisyos.scientist.provenance",
 ]
 scoped_ok_roots = []
-non_overlap_rationale = "Claim ledger and provenance helpers live under the Scientist evidence boundary; the old first-level claims and provenance roots are dated compatibility shims only."
-test = "tests/unit/scientist/methods/test_import_shims.py::test_phase2_2_scientist_compatibility_roots_are_registered_in_shims"
+non_overlap_rationale = "Claim ledger and provenance helpers live under the Scientist evidence boundary; the first-level claims and provenance roots were retired after callers moved to evidence subpackages."
+test = "tests/unit/scientist/methods/test_import_shims.py::test_phase2_2_scientist_parallel_families_have_closeout_decisions"
 
 [[phase2_2_scientist_parallel_closeout]]
 family_id = "workflows_orchestration_orchestrator_research_dag"
-resolution = "merged_with_sunset_shims"
+resolution = "merged_with_retired_legacy_roots"
 owner = "team-scientist"
 target_phase = "2.2"
 canonical_home = "polisyos.scientist.orchestration"
@@ -858,18 +888,18 @@ canonical_roots = [
   "polisyos.scientist.orchestration.workflows",
   "polisyos.scientist.orchestration.orchestrator",
 ]
-legacy_roots = [
+legacy_roots = []
+retired_legacy_roots = [
   "polisyos.scientist.workflows",
-  "polisyos.scientist.orchestrator",
   "polisyos.scientist.research_dag",
 ]
 scoped_ok_roots = ["polisyos.scientist.methods.research_dag"]
-non_overlap_rationale = "Executable workflow routing and decision-card orchestration live under orchestration; Research DAG is a methods/provenance sidecar under methods/research_dag and only the first-level research_dag path remains as a dated shim."
+non_overlap_rationale = "Executable workflow routing and decision-card orchestration live under orchestration; old orchestrator, workflows, and research_dag roots were removed after reaching zero or tiny non-compat callers. Research DAG is a methods/provenance sidecar under methods/research_dag."
 test = "tests/unit/scientist/methods/test_import_shims.py::test_phase2_2_scientist_parallel_families_have_closeout_decisions"
 
 [[phase2_2_scientist_parallel_closeout]]
 family_id = "methods_legacy_search_discovery_research_roots"
-resolution = "moved_with_sunset_shims"
+resolution = "merged_with_retired_legacy_roots"
 owner = "team-scientist"
 target_phase = "2.2"
 canonical_home = "polisyos.scientist.methods"
@@ -883,17 +913,15 @@ canonical_roots = [
   "polisyos.scientist.methods.backtesting",
   "polisyos.scientist.methods.doe",
 ]
-legacy_roots = [
-  "polisyos.scientist.search",
+legacy_roots = []
+retired_legacy_roots = [
+  "polisyos.scientist.backtesting",
   "polisyos.scientist.discovery",
   "polisyos.scientist.research_dag",
-  "polisyos.scientist.causal",
-  "polisyos.scientist.autotune",
-  "polisyos.scientist.backtesting",
-  "polisyos.scientist.doe",
+  "polisyos.scientist.search",
 ]
 scoped_ok_roots = []
-non_overlap_rationale = "Scientist method implementations live below methods; old first-level search, discovery, research_dag, causal, autotune, backtesting, and DOE imports are compatibility paths only."
+non_overlap_rationale = "Scientist method implementations live below methods; old first-level backtesting, causal, autotune, discovery, DOE, research_dag, and search roots were removed after callers moved to canonical methods subpackages."
 test = "tests/unit/scientist/methods/test_import_shims.py::test_phase2_2_scientist_parallel_families_have_closeout_decisions"
 
 [[phase2_2_scientist_parallel_closeout]]
@@ -917,7 +945,7 @@ test = "tests/unit/scientist/methods/test_import_shims.py::test_phase2_2_scienti
 
 [[phase2_2_scientist_parallel_closeout]]
 family_id = "governance_validation_verification_policy_verified"
-resolution = "moved_with_sunset_shims"
+resolution = "removed_remaining_human_review_shim"
 owner = "team-scientist"
 target_phase = "2.2"
 canonical_home = "polisyos.scientist.governance and polisyos.scientist.validation"
@@ -929,14 +957,10 @@ canonical_roots = [
   "polisyos.scientist.validation.policy_verified",
   "polisyos.scientist.validation.verification",
 ]
-legacy_roots = [
-  "polisyos.scientist.continuous_governance",
-  "polisyos.scientist.human_review",
-  "polisyos.scientist.policy_verified",
-  "polisyos.scientist.verification",
-]
+legacy_roots = []
+retired_legacy_roots = ["polisyos.scientist.human_review"]
 scoped_ok_roots = []
-non_overlap_rationale = "Governance owns continuous governance and human review, while validation owns policy_verified and implementation verification; the old first-level roots are dated compatibility shims only."
+non_overlap_rationale = "Governance owns continuous governance and human review, while validation owns policy_verified and implementation verification; continuous_governance, policy_verified, verification, and human_review roots were removed after reaching zero or tiny non-compat callers."
 test = "tests/unit/scientist/methods/test_import_shims.py::test_phase2_2_scientist_parallel_families_have_closeout_decisions"
 
 [[phase1_5_cross_cutting_concern_decision]]

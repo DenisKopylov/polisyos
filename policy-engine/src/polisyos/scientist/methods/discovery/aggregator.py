@@ -27,7 +27,7 @@ from polisyos.scientist.methods.search.artifact_minimality import (
     artifact_functions_field,
 )
 
-EDGE_CONFIDENCE_MATRIX_SCHEMA_NAME = "polisyos.scientist.discovery.EdgeConfidenceMatrix"
+EDGE_CONFIDENCE_MATRIX_SCHEMA_NAME = "polisyos.scientist.methods.discovery.EdgeConfidenceMatrix"
 
 
 class EvidenceWeightedAggregatorConfig(BaseModel):

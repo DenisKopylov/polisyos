@@ -45,7 +45,6 @@ forbidden_dependencies = [
   "polisyos.berl",
   "polisyos.calibration",
   "polisyos.ddm",
-  "polisyos.synthetic_world",
 ]
 runtime_allowed_submodules = ["polisyos.data_forge.read_api"]
 import_boundary_report = "architecture/imports/reports.toml"
@@ -57,7 +56,7 @@ registry_owner = "team-data-forge"
 reference_doc = "docs/reference/public-surface.md"
 supported_entrypoints = ["polisyos.data_forge", "polisyos.data_forge.read_api"]
 major_subsystem = true
-notes = "Experimental asset-centric build-time Data Forge facade. The top-level package lazily exports build-time artifact, asset, schema, snapshot, quality, and migration-test contracts; read_api is the only runtime import surface."
+notes = "Experimental asset-centric build-time Data Forge facade. The top-level package lazily exports build-time artifact, asset, schema, snapshot, provenance, quality, and migration-test contracts; read_api is the only runtime import surface."
 
 [tests]
 status = "report_only"

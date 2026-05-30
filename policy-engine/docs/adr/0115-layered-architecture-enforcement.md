@@ -35,11 +35,11 @@ Use import-linter as the primary architecture boundary arbiter:
 
 Repository SOTA Phase 0 validated `architecture/imports/contracts.toml` against
 the topology schema on 2026-05-02 and registered the current experimental
-scientist-support roots (`polisyos.berl`, `polisyos.calibration`,
-`polisyos.ddm_15_7`, and `polisyos.synthetic_world`) in the layer contract. The
-dedicated import-linter runner for this TOML remains a report-only normalization
-target until its baseline and exceptions are accepted; existing CI import checks
-continue to use the legacy `architecture/imports/policy.toml` path.
+scientist-support roots (`polisyos.berl`, `polisyos.calibration`, and
+`polisyos.ddm`) in the layer contract. The dedicated import-linter runner for
+this TOML remains a report-only normalization target until its baseline and
+exceptions are accepted; existing CI import checks continue to use the legacy
+`architecture/imports/policy.toml` path.
 
 ## Related Decisions
 

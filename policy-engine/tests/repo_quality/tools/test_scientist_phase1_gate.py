@@ -58,7 +58,7 @@ def _write_source_tree(repo_root: Path) -> None:
         "src/polisyos/scientist/methods/autotune/calibration.py",
         "src/polisyos/scientist/cross_graph/compiler.py",
         "src/polisyos/scientist/cross_graph/gatherers/academic.py",
-        "src/polisyos/scientist/search/funnel/level2_causal.py",
+        "src/polisyos/scientist/methods/search/funnel/level2_causal.py",
         "src/polisyos/scientist/nodes/builtins/decide/run_policy_translation.py",
         "src/polisyos/scientist/nodes/builtins/decide/run_translator_compliance.py",
         "src/polisyos/scientist/orchestration/workflows/builder.py",

@@ -43,7 +43,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from polisyos.core.artifacts.store import FileSystemCAS
-    from polisyos.ir.fact_log import FactSegmentManifest
+    from polisyos.ir.loading.fact_log import FactSegmentManifest
     from polisyos.ir.world.doc import DocMeta
 
 logger = get_logger(__name__)

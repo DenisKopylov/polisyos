@@ -119,9 +119,7 @@ personal_repo_exception_issue = "docs/plans/archive/2026-05-07-repository-best-i
 personal_repo_exception_reason = "GitHub team slugs are not provisioned in the current personal repository; logical owners map to @DenisKopylov until organization teams exist."
 covers_modules = [
   "polisyos.ddm",
-  "polisyos.ddm_15_7",
   "polisyos.calibration",
-  "polisyos.synthetic_world",
 ]
 target_codeowners_patterns = [
   "/policy-engine/architecture/**",
@@ -129,9 +127,7 @@ target_codeowners_patterns = [
   "/policy-engine/docs/adr/**",
   "/policy-engine/docs/plans/**",
   "/policy-engine/src/polisyos/ddm/**",
-  "/policy-engine/src/polisyos/ddm_15_7/**",
   "/policy-engine/src/polisyos/calibration/**",
-  "/policy-engine/src/polisyos/synthetic_world/**",
 ]
 
 [[owner_mapping]]
@@ -230,11 +226,9 @@ personal_repo_exception_reason = "GitHub team slugs are not provisioned in the c
 covers_modules = [
   "polisyos.foundry",
   "polisyos.foundry.agent_sim.world",
-  "polisyos.synthetic_world",
 ]
 target_codeowners_patterns = [
   "/policy-engine/src/polisyos/foundry/**",
-  "/policy-engine/src/polisyos/synthetic_world/**",
 ]
 
 [[owner_mapping]]
@@ -261,14 +255,12 @@ covers_modules = [
   "polisyos.berl",
   "polisyos.calibration",
   "polisyos.ddm",
-  "polisyos.ddm_15_7",
 ]
 target_codeowners_patterns = [
   "/policy-engine/src/polisyos/scientist/**",
   "/policy-engine/src/polisyos/berl/**",
   "/policy-engine/src/polisyos/calibration/**",
   "/policy-engine/src/polisyos/ddm/**",
-  "/policy-engine/src/polisyos/ddm_15_7/**",
 ]
 
 [[owner_mapping]]
@@ -284,6 +276,27 @@ target_codeowners_patterns = [
   "/policy-engine/src/polisyos/runtime/**",
   "/policy-engine/docs/reference/api/**",
   "/policy-engine/docs/runbooks/runtime-api-outage.md",
+]
+
+[[owner_mapping]]
+owner = "team-policyos-runtime"
+logical_owner_group = "@runtime-owners"
+current_reviewers = ["@DenisKopylov"]
+personal_repo_exception = true
+personal_repo_exception_expires = "2026-12-31"
+personal_repo_exception_issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-65---exception-and-sunset-cleanup"
+personal_repo_exception_reason = "GitHub team slugs are not provisioned in the current personal repository; logical owners map to @DenisKopylov until organization teams exist."
+covers_modules = [
+  "polisyos.obligation_rules",
+  "polisyos.method_requirement",
+  "polisyos.participation_requirement",
+  "polisyos.evidence",
+]
+target_codeowners_patterns = [
+  "/policy-engine/src/polisyos/obligation_rules/**",
+  "/policy-engine/src/polisyos/method_requirement/**",
+  "/policy-engine/src/polisyos/participation_requirement/**",
+  "/policy-engine/src/polisyos/evidence/**",
 ]
 
 [[owner_mapping]]

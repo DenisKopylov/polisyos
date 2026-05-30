@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.fabric.connectors.base import ConnectionConfig
 from polisyos.fabric.connectors.registry import ConnectorRegistry
@@ -12,7 +13,7 @@ from polisyos.fabric.data_plane.streaming import (
     process_stream_dataset,
     resolve_dedupe_key,
 )
-from polisyos.fabric.processing_guarantees import (
+from polisyos.fabric.quality.processing_guarantees import (
     AtomicityProof,
     CDCSchemaCompatibility,
     OutOfOrderPolicy,

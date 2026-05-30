@@ -15,7 +15,7 @@ from polisyos.ir.analytics.strategic import (
     load_performative_shift_summary,
     load_strategic_response_bundle,
 )
-from polisyos.ir.refs import StrategicResponseBundleRef
+from polisyos.ir.registry.refs import StrategicResponseBundleRef
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 
 

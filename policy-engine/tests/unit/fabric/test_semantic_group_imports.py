@@ -9,7 +9,6 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-
 ARTIFACT_ID = "sha256:" + "a" * 64
 
 
@@ -197,83 +196,60 @@ def test_fabric_config_group_normalizes_path_values() -> None:
 
 
 @pytest.mark.parametrize(
-    ("source_fqn", "target_fqn", "export_name"),
+    ("canonical_fqn", "export_name"),
     [
-        ("polisyos.fabric._connector_bridge", "polisyos.fabric", "fabric_get_data"),
-        (
-            "polisyos.fabric._numeric_parsing",
-            "polisyos.fabric._internal.numeric_parsing",
-            "normalize_decimal_text",
-        ),
-        (
-            "polisyos.fabric.compatibility",
-            "polisyos.fabric._internal.compatibility",
-            "validate_fabric_compatibility_bridges",
-        ),
-        (
-            "polisyos.fabric.connectors_ingestion",
-            "polisyos.fabric.connectors.ingestion.connectors_ingestion",
-            "run_connectors_ingestion",
-        ),
-        (
-            "polisyos.fabric.decision_data",
-            "polisyos.fabric.evidence.decision_data",
-            "FabricDecisionData",
-        ),
-        ("polisyos.fabric.fact_writer", "polisyos.fabric.evidence.fact_writer", "build_fact"),
-        ("polisyos.fabric.finite", "polisyos.fabric.numerics.finite", "ensure_finite_float"),
-        (
-            "polisyos.fabric.fitness_report",
-            "polisyos.fabric.quality.fitness_report",
-            "DataFitnessReport",
-        ),
-        (
-            "polisyos.fabric.ingestion_providers",
-            "polisyos.fabric.ingestion.ingestion_providers",
-            "IngestionDependencies",
-        ),
-        ("polisyos.fabric.manifest", "polisyos.fabric.identity.manifest", "DatasetManifest"),
-        (
-            "polisyos.fabric.observability",
-            "polisyos.fabric._adapters.observability",
-            "get_fabric_observability_adapter",
-        ),
-        (
-            "polisyos.fabric.processing_guarantees",
-            "polisyos.fabric.quality.processing_guarantees",
-            "ProcessingGuarantee",
-        ),
-        ("polisyos.fabric.registry", "polisyos.fabric._internal.registry", "ManifestRegistry"),
-        ("polisyos.fabric.safety", "polisyos.fabric.quality.safety", "validate_sql_identifier"),
-        (
-            "polisyos.fabric.segment_manifest",
-            "polisyos.fabric.identity.segment_manifest",
-            "write_segment_manifest",
-        ),
-        ("polisyos.fabric.tabular", "polisyos.fabric.data_plane.tabular", "payload_to_dataframe"),
-        ("polisyos.fabric.temporal", "polisyos.fabric.data_plane.temporal", "parse_datetime_utc"),
-        (
-            "polisyos.fabric.trust_adapter",
-            "polisyos.fabric.trust.adapter",
-            "envelope_from_trust_bounds",
-        ),
-        ("polisyos.fabric.world_query", "polisyos.fabric.world.query", "WorldQueryRequest"),
+        ("polisyos.fabric.evidence.decision_data", "FabricDecisionData"),
+        ("polisyos.fabric.quality.safety", "validate_sql_identifier"),
     ],
 )
-def test_fabric_old_alias_paths_warn_and_reexport_canonical_symbols(
-    source_fqn: str,
-    target_fqn: str,
+def test_fabric_canonical_paths_import_without_deprecation_warning(
+    canonical_fqn: str,
     export_name: str,
+    recwarn: pytest.WarningsRecorder,
 ) -> None:
-    _drop_module(source_fqn)
+    _drop_module(canonical_fqn)
     importlib.import_module("polisyos.fabric")
 
-    with pytest.warns(DeprecationWarning, match=source_fqn):
-        legacy_module = importlib.import_module(source_fqn)
-        legacy_export = getattr(legacy_module, export_name)
+    canonical_module = importlib.import_module(canonical_fqn)
 
-    target_module = importlib.import_module(target_fqn)
-    assert legacy_export is getattr(target_module, export_name)
+    assert getattr(canonical_module, export_name)
+    assert not [
+        warning
+        for warning in recwarn
+        if issubclass(warning.category, DeprecationWarning)
+        and canonical_fqn in str(warning.message)
+    ]
+
+
+@pytest.mark.parametrize(
+    "retired_fqn",
+    [
+        "polisyos.fabric._connector_bridge",
+        "polisyos.fabric._numeric_parsing",
+        "polisyos.fabric.compatibility",
+        "polisyos.fabric.connectors_ingestion",
+        "polisyos.fabric.fact_writer",
+        "polisyos.fabric.finite",
+        "polisyos.fabric.fitness_report",
+        "polisyos.fabric.ingestion_providers",
+        "polisyos.fabric.manifest",
+        "polisyos.fabric.observability",
+        "polisyos.fabric.observability.adapters",
+        "polisyos.fabric.processing_guarantees",
+        "polisyos.fabric.registry",
+        "polisyos.fabric.segment_manifest",
+        "polisyos.fabric.tabular",
+        "polisyos.fabric.temporal",
+        "polisyos.fabric.trust_adapter",
+        "polisyos.fabric.world_query",
+    ],
+)
+def test_tiny_fabric_alias_paths_are_removed(retired_fqn: str) -> None:
+    _drop_module(retired_fqn)
+    importlib.import_module("polisyos.fabric")
+
+    with pytest.raises(ModuleNotFoundError):
+        importlib.import_module(retired_fqn)
 
 
 def _drop_module(module_name: str) -> None:

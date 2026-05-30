@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from importlib import import_module
-from typing import Any
 
 __all__ = [
     "COST_PER_MS",
@@ -21,6 +20,8 @@ __all__ = [
     "MethodLossProfile",
     "MethodScoreTraceEntry",
     "MethodSelectionCriteria",
+    "_score_entry",
+    "_score_entry_v2",
     "advise_methods",
     "advise_methods_for_analyst",
     "attach_advisor_execution_context",
@@ -30,18 +31,26 @@ __all__ = [
     "method_selection_payload",
     "pareto_advise_methods",
     "rank_method_catalog_entries",
+    "select_method_candidates_for_requirements",
     "suggest_adapter_methods",
     "suggest_alternative_methods",
     "suggest_plan_node_alternatives",
-    "_score_entry",
-    "_score_entry_v2",
 ]
 
+_REQUIREMENT_IMPORTS = {
+    "select_method_candidates_for_requirements",
+}
 
-def __getattr__(name: str) -> Any:
+
+def __getattr__(name: str) -> object:
     if name not in __all__:
         raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
-    value = getattr(import_module("polisyos.foundry.methods.selection.advisor"), name)
+    module_name = (
+        "polisyos.foundry.methods.selection.requirements"
+        if name in _REQUIREMENT_IMPORTS
+        else "polisyos.foundry.methods.selection.advisor"
+    )
+    value = getattr(import_module(module_name), name)
     globals()[name] = value
     return value
 

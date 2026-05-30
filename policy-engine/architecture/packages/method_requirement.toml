@@ -1,0 +1,80 @@
+[package]
+id = "method_requirement"
+module = "polisyos.method_requirement"
+name = "method_requirement"
+owner = "team-policyos-runtime"
+contract_status = "draft"
+gate_mode = "report_only"
+primary_contract = true
+description = "Method-validity requirement compiler consumed by Foundry selection and policy-design compilation."
+legacy_aggregate_mirrors = [
+  "architecture/public_surface/contract.toml",
+  "architecture/imports/contracts.toml",
+  "architecture/tests/topology.toml",
+]
+
+[layout]
+status = "active_internal_facade"
+layout_owner = "team-policyos-runtime"
+source_root = "src/polisyos/method_requirement"
+readme = "src/polisyos/method_requirement/README.md"
+root_facade_policy = "top-level package exports internal compiler contracts; implementation lives under _impl"
+implementation_roots = ["src/polisyos/method_requirement/_impl"]
+legacy_layout_mirror = ""
+
+[boundaries]
+public_facade = "polisyos.method_requirement"
+allowed_dependencies = ["polisyos.common", "polisyos.core"]
+forbidden_dependencies = ["polisyos.runtime", "polisyos.data_forge", "polisyos.foundry"]
+import_boundary_report = "architecture/imports/reports.toml"
+
+[public_surface]
+classification = "internal"
+facade_mode = "eager_exports"
+registry_owner = "team-policyos-runtime"
+reference_doc = "docs/reference/public-surface.md"
+supported_entrypoints = ["polisyos.method_requirement"]
+major_subsystem = false
+notes = "Wave 7.C method validity requirement compiler consumed by Foundry selection and IR analytics bridges; internal until W7-W8 external surfaces graduate."
+
+[tests]
+status = "report_only"
+unit_roots = ["tests/unit/method_requirement"]
+contract_roots = ["tests/unit/method_requirement", "tests/unit/foundry/methods/selection"]
+integration_required = false
+integration_roots = []
+property_required = false
+property_roots = []
+minimum_expectations = ["Compiler changes keep Foundry selection contract tests."]
+
+[slo_runbook]
+status = "not_applicable"
+slo_files = ["not_applicable"]
+runbooks = ["not_applicable"]
+runbook_expectation = "Internal requirement compilation has no direct operator SLO surface."
+
+[observability]
+status = "not_applicable"
+metrics_owner = "team-policyos-runtime"
+metric_surfaces = []
+trace_expectation = "Method requirement traces surface through producer pipeline bindings."
+
+[name_collisions]
+status = "none"
+owner = "team-policyos-runtime"
+registry = "architecture/name_registry.toml"
+allowed = []
+
+[exceptions]
+status = "none"
+owner = "team-policyos-runtime"
+registries = []
+
+[sunsets]
+status = "none"
+owner = "team-architecture"
+
+[extension_host]
+status = "none"
+owner = "team-policyos-runtime"
+extension_points = []

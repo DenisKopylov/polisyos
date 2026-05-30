@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 
 from polisyos.runtime.quality.human_review import (
+    HumanReviewEffectivenessPolicy,
     build_human_review_calibration_report,
     deterministic_review_fixtures,
     evaluate_review_packet,
@@ -104,7 +105,8 @@ def test_low_agreement_and_high_override_rate_emit_fail_quality_signals() -> Non
         now=datetime(2026, 5, 13, 10, 15, tzinfo=UTC),
     )
 
-    assert report["status"] == "fail"
+    assert report["status"] == "pass"
+    assert report["review_effectiveness_telemetry"]["threshold_status"] == "fail"
     signals = {signal["code"]: signal for signal in report["quality_signals"]}
     assert signals["reviewer_agreement_below_fail_threshold"]["status"] == "fail"
     assert signals["override_rate_above_fail_threshold"]["status"] == "fail"
@@ -116,6 +118,75 @@ def test_low_agreement_and_high_override_rate_emit_fail_quality_signals() -> Non
         "policy_scope_mismatch": 1,
         "unsupported_exception": 1,
     }
+
+
+def test_review_effectiveness_telemetry_is_advisory_until_governed_policy_matures() -> None:
+    events = [
+        {
+            "review_id": "review-override",
+            "flow": "override",
+            "outcome": "override",
+            "expected_outcome": "reject",
+            "reviewer_identity": "producer@example.test",
+            "producer_identity": "producer@example.test",
+            "reviewer_independent": False,
+            "separation_of_duty_attested": False,
+            "time_spent_seconds": 30,
+            "dissent": False,
+            "change_requests": [],
+            "approved_without_change": True,
+            "decision_ref": _sha("6"),
+            "completed_at": "2026-05-13T10:00:00+00:00",
+            "override_correct": False,
+        }
+    ]
+
+    report = build_human_review_calibration_report(
+        review_events=events,
+        run_id="R_review",
+        job_id="job-review",
+        now=datetime(2026, 5, 13, 10, 5, tzinfo=UTC),
+    )
+
+    telemetry = report["review_effectiveness_telemetry"]
+    assert report["status"] == "pass"
+    assert telemetry["schema_version"] == "policyos.human_review_effectiveness_telemetry.v1"
+    assert telemetry["threshold_status"] == "fail"
+    assert telemetry["posture"] == "advisory"
+    assert telemetry["blocking_permitted"] is False
+    assert telemetry["measured_signals"] == {
+        "review_count": 1,
+        "review_time_seconds_average": 30.0,
+        "review_time_seconds_median": 30.0,
+        "low_time_review_count": 1,
+        "override_rate": 1.0,
+        "override_count": 1,
+        "dissent_rate": 0.0,
+        "dissent_count": 0,
+        "no_delta_review_rate": 1.0,
+        "no_delta_review_count": 1,
+        "separation_of_duty_failure_rate": 1.0,
+        "separation_of_duty_failure_count": 1,
+    }
+    assert {signal["blocking"] for signal in report["quality_signals"]} == {False}
+
+    mature_report = build_human_review_calibration_report(
+        review_events=events,
+        run_id="R_review",
+        job_id="job-review",
+        now=datetime(2026, 5, 13, 10, 5, tzinfo=UTC),
+        review_effectiveness_policy=HumanReviewEffectivenessPolicy(
+            policy_ref=_sha("p"),
+            maturity="mature_governed",
+            longitudinal_evidence_ref=_sha("l"),
+            blocking_enabled=True,
+        ),
+    )
+
+    assert mature_report["status"] == "fail"
+    assert mature_report["review_effectiveness_telemetry"]["posture"] == "governed_blocking"
+    assert mature_report["review_effectiveness_telemetry"]["blocking_permitted"] is True
+    assert {signal["blocking"] for signal in mature_report["quality_signals"]} == {True}
 
 
 def test_nominal_approval_without_effective_oversight_is_rubber_stamp_risk() -> None:
@@ -163,7 +234,8 @@ def test_nominal_approval_without_effective_oversight_is_rubber_stamp_risk() -> 
         now=datetime(2026, 5, 13, 10, 5, tzinfo=UTC),
     )
 
-    assert report["status"] == "fail"
+    assert report["status"] == "pass"
+    assert report["review_effectiveness_telemetry"]["threshold_status"] == "fail"
     assert report["summary"]["approve_without_change_rate"] == 1.0
     assert report["oversight_effectiveness"]["rubber_stamp_risk"] == "high"
     assert report["oversight_effectiveness"]["reviewer_independence_rate"] == 0.0

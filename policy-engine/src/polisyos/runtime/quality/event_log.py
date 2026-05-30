@@ -245,7 +245,7 @@ def _sha256_from_canonical_bytes(payload_bytes: bytes) -> str:
 
 __all__ = [
     "CORRECTIVE_EVENT_ACTIONS",
-    "DiagnosticEventPayloadPolicy",
     "INLINE_PAYLOAD_MAX_BYTES",
+    "DiagnosticEventPayloadPolicy",
     "RuntimeDiagnosticEventLog",
 ]

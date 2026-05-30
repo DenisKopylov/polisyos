@@ -104,7 +104,7 @@ conceptual:
 ```bash
 uv run python - <<'PY'
 from tempfile import TemporaryDirectory
-from polisyos.foundry.quickstart import run_trivial_compile_execute
+from polisyos.foundry._quickstart import run_trivial_compile_execute
 
 with TemporaryDirectory(prefix="foundry-docs-") as tmp:
     result = run_trivial_compile_execute(cas_root=tmp)
@@ -135,7 +135,7 @@ Feedback-enabled quickstart:
 ```bash
 uv run python - <<'PY'
 from tempfile import TemporaryDirectory
-from polisyos.foundry.quickstart import run_feedback_compile_execute
+from polisyos.foundry._quickstart import run_feedback_compile_execute
 
 with TemporaryDirectory(prefix="foundry-feedback-docs-") as tmp:
     result = run_feedback_compile_execute(cas_root=tmp)
@@ -152,7 +152,7 @@ Feedback multiplicity quickstart:
 ```bash
 uv run python - <<'PY'
 from tempfile import TemporaryDirectory
-from polisyos.foundry.quickstart import run_feedback_multiplicity_demo
+from polisyos.foundry._quickstart import run_feedback_multiplicity_demo
 
 with TemporaryDirectory(prefix="foundry-multiplicity-docs-") as tmp:
     result = run_feedback_multiplicity_demo(cas_root=tmp)
@@ -195,7 +195,7 @@ execute_result = execute(
 Feedback mode follows the same contract but adds one more CAS-backed artifact:
 
 ```python
-from polisyos.foundry.quickstart import prepare_trivial_feedback_config
+from polisyos.foundry._quickstart import prepare_trivial_feedback_config
 
 feedback_config_ref = prepare_trivial_feedback_config(
     store,
@@ -266,4 +266,4 @@ model-invariant probabilities.
 
 ::: polisyos.foundry.data_plane.bindings
 
-::: polisyos.foundry.quickstart
+::: polisyos.foundry._quickstart

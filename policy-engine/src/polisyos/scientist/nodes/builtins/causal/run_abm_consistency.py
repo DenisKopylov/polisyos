@@ -36,7 +36,7 @@ from polisyos.ir.analytics.structural_causal_model import (
     StructuralCausalModelSpec,
     load_structural_causal_model_spec,
 )
-from polisyos.ir.refs import FiniteStateAbstractionMapRef, StructuralCausalModelSpecRef
+from polisyos.ir.registry.refs import FiniteStateAbstractionMapRef, StructuralCausalModelSpecRef
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.orchestration.engine.state import ExperimentState

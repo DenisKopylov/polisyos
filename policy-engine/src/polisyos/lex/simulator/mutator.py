@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.ir.norm_pack import NormPack, NormRule
+from polisyos.ir.loading.norm_pack import NormPack, NormRule
 from polisyos.ir.world.ids import stable_world_id_from_canon
 
 

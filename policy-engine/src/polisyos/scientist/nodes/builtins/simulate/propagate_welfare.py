@@ -54,7 +54,7 @@ from polisyos.ir.analytics.welfare import (
     persist_welfare_sample_bundle,
 )
 from polisyos.ir.observation.bundles import LeontiefIOBundle
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     ArtifactRefModel,
     DependenceStructureRef,
     GEUncertaintyBundleRef,

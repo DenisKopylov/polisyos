@@ -30,7 +30,7 @@ from polisyos.ir.kernel.metrics import (
     canonicalize_metric_id_with_diagnostics,
     taxonomy_diagnostic_note,
 )
-from polisyos.ir.model_spec import (
+from polisyos.ir.model_layer.model_spec import (
     AgentConfig,
     AssumptionSpec,
     AssumptionType,

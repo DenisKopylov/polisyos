@@ -1,0 +1,191 @@
+{
+  "schema_version": "policyos.policy_design_case.wave4.i4_runtime_closeout_manifest.v1",
+  "status": "closed",
+  "wave_id": "Wave 4",
+  "integration_slice": "I4",
+  "generated_at": "2026-05-23T00:00:00Z",
+  "git_revision": "ffc1beae9625cb9497a0da27cd24373818bea95f",
+  "owner": "team-runtime-quality",
+  "accepted_summary_ref": "repo://docs/archive/reports/2026-05-23-policy-design-case-wave4-closeout.md",
+  "implementation_plan_ref": "repo://docs/plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md#wave-4---runtime-orchestration-portfolio-closeout-and-projection",
+  "completed_phases": [
+    {
+      "phase_id": "W4.A",
+      "phase_name": "NL/Replay Orchestration",
+      "owner": "team-policyos-runtime",
+      "status": "closed",
+      "capability_id": "w4a_nl_replay_orchestration"
+    },
+    {
+      "phase_id": "W4.B",
+      "phase_name": "Portfolio Aggregation",
+      "owner": "team-science-quality",
+      "status": "closed",
+      "capability_id": "w4b_portfolio_aggregation"
+    },
+    {
+      "phase_id": "W4.C",
+      "phase_name": "Lifecycle And Partial Reissue",
+      "owner": "team-policyos-runtime",
+      "status": "closed",
+      "capability_id": "w4c_lifecycle_partial_reissue"
+    },
+    {
+      "phase_id": "W4.D",
+      "phase_name": "Closeout Integration",
+      "owner": "team-quality-closeout",
+      "status": "closed",
+      "capability_id": "w4d_closeout_integration"
+    },
+    {
+      "phase_id": "W4.E",
+      "phase_name": "Typed PDC Projection Backend",
+      "owner": "team-policyos-runtime",
+      "status": "closed",
+      "capability_id": "w4e_typed_pdc_projection_backend"
+    },
+    {
+      "phase_id": "I4",
+      "phase_name": "Runtime PDC Graph And Closeout De-stub",
+      "owner": "team-runtime-quality",
+      "status": "closed",
+      "capability_id": "w4i4_runtime_pdc_graph_closeout"
+    }
+  ],
+  "artifacts_produced": [
+    {
+      "artifact_id": "runtime_orchestration_continuity",
+      "schema_version": "policyos.runtime.nl_replay_orchestration_continuity.v1",
+      "runtime_artifact_ref": "quality_evidence/runtime_orchestration_continuity.json",
+      "producer_ref": "repo://src/polisyos/runtime/quality/nl_replay_orchestration.py#build_nl_replay_orchestration_continuity",
+      "verification_ref": "repo://tests/unit/runtime/quality/test_nl_replay_orchestration.py#test_nl_replay_continuity_binds_carrier_spine_claims_and_producers"
+    },
+    {
+      "artifact_id": "portfolio_effective_support",
+      "schema_version": "policyos.runtime.policy_design_case.portfolio_effective_support.v1",
+      "runtime_artifact_ref": "quality_evidence/policy_design_portfolio_effective_support.json",
+      "producer_ref": "repo://tools/ops_runners/runtime/canary_evidence.py#_wave4_i4_portfolio_effective_support",
+      "verification_ref": "repo://tests/unit/runtime/quality/test_evidence_independence_map.py#test_independence_map_collapses_400_raw_lines_to_small_effective_count"
+    },
+    {
+      "artifact_id": "lifecycle_partial_reissue",
+      "schema_version": "policyos.runtime.policy_design_case.lifecycle_reissue_report.v1",
+      "runtime_artifact_ref": "quality_evidence/lifecycle_reissue_report.json",
+      "producer_ref": "repo://src/polisyos/runtime/quality/case_lifecycle.py#build_lifecycle_reissue_report",
+      "verification_ref": "repo://tests/unit/runtime/quality/test_policy_design_case_lifecycle.py#test_lifecycle_reissue_report_scopes_ddm_and_rule_events_to_affected_claims"
+    },
+    {
+      "artifact_id": "can_i_closeout",
+      "schema_version": "policyos.runtime.can_i_closeout.integration.v1",
+      "runtime_artifact_ref": "quality_evidence/can_i_closeout.json",
+      "producer_ref": "repo://src/polisyos/runtime/quality/closeout_reader.py#build_can_i_closeout_verdict",
+      "verification_ref": "repo://tests/unit/runtime/quality/test_closeout_reader.py#test_w4_closeout_preserves_upstream_blocker_when_readiness_and_scorecard_pass"
+    },
+    {
+      "artifact_id": "typed_policy_design_case_projection",
+      "schema_version": "policyos.runtime.policy_design_case.projection.v1",
+      "runtime_artifact_ref": "runtime_api.policy_design_case_projection",
+      "producer_ref": "repo://src/polisyos/runtime/quality/projection_semantics.py#build_policy_design_case_projection_semantics",
+      "verification_ref": "repo://tests/unit/runtime/http/test_runtime_api_contract_hardening.py#test_openapi_contract_exposes_typed_policy_design_case_projection"
+    },
+    {
+      "artifact_id": "i4_policy_design_case_graph",
+      "schema_version": "policyos.runtime.policy_design_case.wave4_i4_graph.v1",
+      "runtime_artifact_ref": "quality_evidence/policy_design_case_i4_graph.json",
+      "producer_ref": "repo://tools/ops_runners/runtime/canary_evidence.py#_wave4_i4_graph",
+      "verification_ref": "repo://tests/unit/tools/test_canary_evidence.py#test_assemble_canary_evidence_writes_wave4_i4_pdc_graph_and_closeout"
+    }
+  ],
+  "capability_states_closed": [
+    {
+      "capability_id": "w4a_nl_replay_orchestration",
+      "reality_state": "implemented"
+    },
+    {
+      "capability_id": "w4b_portfolio_aggregation",
+      "reality_state": "implemented"
+    },
+    {
+      "capability_id": "w4c_lifecycle_partial_reissue",
+      "reality_state": "implemented"
+    },
+    {
+      "capability_id": "w4d_closeout_integration",
+      "reality_state": "implemented"
+    },
+    {
+      "capability_id": "w4e_typed_pdc_projection_backend",
+      "reality_state": "implemented"
+    },
+    {
+      "capability_id": "w4i4_runtime_pdc_graph_closeout",
+      "reality_state": "implemented"
+    }
+  ],
+  "anti_patterns_closed": [
+    {
+      "pattern_id": "P02",
+      "closure": "runtime_orchestration_continuity carries carrier, spine, handoff, claim registry, and producer binding refs through live/replay/export/inspection surfaces"
+    },
+    {
+      "pattern_id": "P05",
+      "closure": "closeout and projection records declare authority roles; projection_only cannot satisfy closeout"
+    },
+    {
+      "pattern_id": "P10",
+      "closure": "semantic tests cover non-overridable semantic binding, public projection omissions, and scoped lifecycle events"
+    },
+    {
+      "pattern_id": "P12",
+      "closure": "I4 graph consumes Wave 3 producer-bound claim registry and normalized producer outputs"
+    },
+    {
+      "pattern_id": "P14",
+      "closure": "raw evidence count is diagnostic-only beside effective support mass and collapse reasons"
+    },
+    {
+      "pattern_id": "P15",
+      "closure": "typed projection exposes truth without minting authority and blocks unverified recourse for high-stakes contested publication"
+    }
+  ],
+  "i4_evidence": {
+    "happy_path": {
+      "test_ref": "repo://tests/unit/tools/test_canary_evidence.py#test_assemble_canary_evidence_writes_wave4_i4_pdc_graph_and_closeout",
+      "pdc_graph_status": "pass",
+      "portfolio_effective_support": "raw_count_greater_than_effective_count",
+      "projection_contract_status": "pass",
+      "closeout_status": "closed",
+      "stubbed_sibling_outputs": false
+    },
+    "typed_blocker_path": {
+      "test_ref": "repo://tests/unit/tools/test_canary_evidence.py#test_assemble_canary_evidence_preserves_scoped_lifecycle_reissue_as_i4_blocker",
+      "blocker_kind": "scoped_lifecycle_partial_reissue",
+      "affected_claim_count": 1,
+      "whole_case_rewrite": false,
+      "expected_i4_graph_status": "fail",
+      "expected_closeout_status": "blocked"
+    }
+  },
+  "validation": {
+    "commands": [
+      "uv run pytest tests/unit/runtime/quality tests/unit/scientist/validation -q",
+      "uv run pytest tests/repo_quality/tools/test_evidence_bundle_inspection.py -q",
+      "uv run pytest tests/repo_quality/tools/test_can_i_closeout.py tests/unit/tools/test_canary_evidence.py::test_assemble_canary_evidence_writes_wave4_i4_pdc_graph_and_closeout tests/unit/tools/test_canary_evidence.py::test_assemble_canary_evidence_preserves_scoped_lifecycle_reissue_as_i4_blocker tests/unit/runtime/http/test_runtime_api_contract_hardening.py tests/unit/runtime/http/test_control_plane_store.py::test_control_job_response_projects_policy_design_case_semantics_without_authority -q",
+      "uv run --extra runtime --extra ml polisyos-tools runtime check-runtime-api-contract",
+      "uv run polisyos-tools architecture guardrails check",
+      "uv run python tools/quality/validation/check_policy_design_case_capability_ratchet.py --repo-root ."
+    ],
+    "contract_surfaces": [
+      "runtime OpenAPI",
+      "generated runtime API client",
+      "evidence bundle inspection",
+      "can_i_closeout reader integration",
+      "capability ratchet report"
+    ]
+  },
+  "rollback_notes": [
+    "Disable Wave 4 I4 graph assembly in production canary evidence and fail closed to W1 closeout reader skeleton.",
+    "Remove W4 capability claims from the ratchet only with a replacement manifest that marks the affected capability state explicitly."
+  ],
+  "deferred_blockers": []
+}

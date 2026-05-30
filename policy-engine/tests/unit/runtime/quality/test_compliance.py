@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 
-from polisyos.data_forge.compliance import build_privacy_compliance_report
+from polisyos.data_forge import build_privacy_compliance_report
 from polisyos.runtime.quality.scorecard import build_quality_scorecard
 
 

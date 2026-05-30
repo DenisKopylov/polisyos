@@ -49,7 +49,7 @@ Minimal ProblemFrame:
 from decimal import Decimal
 
 from polisyos.ir.governance.problem_frame import ProblemFrame, ProblemDomain, ObjectiveSpec
-from polisyos.ir.types import OptimizationDirection
+from polisyos.ir.model_layer.types import OptimizationDirection
 
 problem = ProblemFrame(
     problem_id="reduce_inequality_2026",
@@ -96,7 +96,7 @@ policy = PolicySpec(
 Minimal ModelSpec:
 
 ```python
-from polisyos.ir.model_spec import ModelSpec, FidelityLevel
+from polisyos.ir.model_layer.model_spec import ModelSpec, FidelityLevel
 
 model = ModelSpec(
     model_id="baseline_2026",

@@ -3,6 +3,11 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from polisyos.runtime.quality.capability_index_compiler import (
+    CapabilityIndexCompilerConfig,
+    compile_capability_index,
+    create_capability_index_fixture_inputs,
+)
 from tools.quality.validation import production_quality_evidence_inventory as inventory
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -186,3 +191,32 @@ def test_cli_writes_json_output(tmp_path: Path) -> None:
 
     assert inventory.main(["--json-output", str(output)]) == 0
     assert json.loads(output.read_text(encoding="utf-8")) == _inventory()
+
+
+def test_cli_writes_capability_white_space_report_from_capability_index(
+    tmp_path: Path,
+) -> None:
+    input_root = create_capability_index_fixture_inputs(tmp_path / "production_data")
+    result = compile_capability_index(
+        CapabilityIndexCompilerConfig(
+            production_data_root=input_root,
+            output_dir=tmp_path / "capability-index",
+            mode="fixture",
+            generated_at="2026-05-25T00:00:00Z",
+        )
+    )
+    output = tmp_path / "capability-white-space-after-phase6.json"
+
+    assert inventory.main(
+        [
+            "--capability-index",
+            str(result.primary_duckdb_path),
+            "--output",
+            str(output),
+        ]
+    ) == 0
+
+    payload = json.loads(output.read_text(encoding="utf-8"))
+    assert payload["schema_version"] == "policyos.capability_white_space_report.v1"
+    assert payload["validation"]["status"] == "pass"
+    assert payload["groupings"]["by_construct"]["credit_program_enrollment"]["count"] >= 1

@@ -68,6 +68,9 @@ _NON_OVERRIDABLE_REPLAY_REASONS = {
     "replay_drift_unbounded",
     "replay_drift_unexplained",
 }
+_NON_OVERRIDABLE_DEFICIT_REASONS = {
+    "status_deficit_hard_block",
+}
 _PROJECTION_AUTHORITY_ROLES = {
     "approval_input",
     "diagnostic_only",
@@ -316,6 +319,7 @@ def _approval_eligibility(scorecard: Mapping[str, Any]) -> ProductionApprovalEli
     identity_reasons = _scorecard_identity_reasons(scorecard, scorecard_ref=scorecard_ref)
     replay_reasons = _replay_drift_reasons(scorecard)
     non_overridable_codes = _non_overridable_blocking_codes(scorecard)
+    deficit_reasons = _deficit_closeout_reasons(scorecard)
     execution_completed = execution_status == "completed"
     quality_passed = quality_status in _PASS_STATUSES
     performance_blocking = performance_status in _PERFORMANCE_BLOCKING_STATUSES
@@ -334,9 +338,15 @@ def _approval_eligibility(scorecard: Mapping[str, Any]) -> ProductionApprovalEli
         reasons.append("conflict_blocking")
     if not schema_compatibility.production_closeout_allowed:
         reasons.append(schema_compatibility.decision)
+    reasons.extend(deficit_reasons)
     reasons.extend(identity_reasons)
     reasons.extend(replay_reasons)
-    if identity_reasons or replay_reasons or non_overridable_codes:
+    if (
+        identity_reasons
+        or replay_reasons
+        or non_overridable_codes
+        or _NON_OVERRIDABLE_DEFICIT_REASONS.intersection(deficit_reasons)
+    ):
         reasons.append("non_overridable_blocker")
         reasons.extend(non_overridable_codes)
 
@@ -366,9 +376,49 @@ def _has_non_overridable_blocker(eligibility: ProductionApprovalEligibility) -> 
         reason == "non_overridable_blocker"
         or reason in _NON_OVERRIDABLE_IDENTITY_REASONS
         or reason in _NON_OVERRIDABLE_REPLAY_REASONS
+        or reason in _NON_OVERRIDABLE_DEFICIT_REASONS
         or reason in non_overridable
         for reason in eligibility.reasons
     )
+
+
+def _deficit_closeout_reasons(scorecard: Mapping[str, Any]) -> list[str]:
+    reasons: set[str] = set()
+    for row in _list(scorecard.get("deficit_crosswalk")):
+        if not isinstance(row, Mapping):
+            continue
+        closeout_effect = _normalized_status(row.get("closeout_effect"))
+        review_action = _normalized_status(row.get("review_action"))
+        disposition = _normalized_status(row.get("disposition"))
+        if closeout_effect == "review_required" or review_action in {
+            "human_review",
+            "expert_review",
+        }:
+            reasons.add("status_deficit_review_required")
+        if closeout_effect == "reissue_required" or review_action == "reissue":
+            reasons.add("status_deficit_reissue_required")
+        if (
+            closeout_effect == "closeout_blocked"
+            or review_action == "hard_block"
+            or disposition == "hard_block"
+        ):
+            reasons.add("status_deficit_hard_block")
+    envelope = scorecard.get("status_envelope")
+    if isinstance(envelope, Mapping):
+        summary = envelope.get("summary")
+        if isinstance(summary, Mapping):
+            closeout_effect = _normalized_status(summary.get("closeout_effect"))
+            review_action = _normalized_status(summary.get("review_action"))
+            if closeout_effect == "review_required" or review_action in {
+                "human_review",
+                "expert_review",
+            }:
+                reasons.add("status_deficit_review_required")
+            if closeout_effect == "reissue_required" or review_action == "reissue":
+                reasons.add("status_deficit_reissue_required")
+            if closeout_effect == "closeout_blocked" or review_action == "hard_block":
+                reasons.add("status_deficit_hard_block")
+    return sorted(reasons)
 
 
 def _replay_drift_reasons(scorecard: Mapping[str, Any]) -> list[str]:

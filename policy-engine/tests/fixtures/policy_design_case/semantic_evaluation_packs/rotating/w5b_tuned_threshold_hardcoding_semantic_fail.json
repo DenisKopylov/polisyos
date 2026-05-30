@@ -1,0 +1,60 @@
+{
+  "schema_version": "policyos.runtime.policy_design_case.semantic_gold_card.v1",
+  "fixture_id": "w5b_tuned_threshold_hardcoding_semantic_fail",
+  "title": "Tuned threshold cannot be projected as final structural truth",
+  "expected_status": "semantic_fail",
+  "failure_mode": "tuned_threshold_hardcoding",
+  "research_refs": ["E22", "C30", "C35"],
+  "pattern_ids": ["P10", "P13"],
+  "structural_pass_claimed": true,
+  "structural_verdict": {
+    "status": "pass",
+    "validator_refs": ["policy_design_case.structural.threshold_shape.v1"],
+    "completeness_claims": [
+      "threshold_value_present",
+      "threshold_status_present",
+      "public_output_present"
+    ]
+  },
+  "semantic_adjudication": {
+    "status": "fail",
+    "adjudicator": "policyos.semantic_gold_card.w5b",
+    "failure_mode": "tuned_threshold_hardcoding",
+    "failure_code": "semantic_tuned_threshold_hardcoding",
+    "rationale": "A provisional participation threshold is hardcoded and projected as final without governed config or ADR evidence.",
+    "authority_effect": "review_required",
+    "required_remediation": "Move the threshold to governed config with owner and version."
+  },
+  "semantic_probes": [
+    {
+      "probe_id": "tuned-threshold-hardcoding",
+      "semantic_axis": "tuned_config",
+      "pattern_ids": ["P10", "P13"],
+      "observed_signal": "Output presents a hardcoded threshold as final.",
+      "expected_signal": "Threshold remains governed config until evidence promotes it.",
+      "verdict": "fail",
+      "failure_code": "semantic_tuned_threshold_hardcoding",
+      "evidence_refs": ["repo://docs/adr/0167-participation-legitimacy-matrix.md"]
+    }
+  ],
+  "payload": {
+    "case_id": "pdc-w5b-threshold",
+    "claim_ids": ["claim-threshold"],
+    "tuned_parameters": {
+      "parameters": [
+        {
+          "parameter_id": "participation.prevalence.minimum_response_rate",
+          "value": 0.73,
+          "status": "hardcoded_final",
+          "owner": null,
+          "config_ref": null,
+          "adr_ref": null
+        }
+      ],
+      "public_output": {
+        "threshold_status": "final",
+        "claims_structural_truth": true
+      }
+    }
+  }
+}

@@ -28,7 +28,7 @@ from polisyos.ir.analytics.latent_bridge_synthesis import (
     LatentBridgeHypothesis,
     LatentBridgeStatus,
 )
-from polisyos.ir.refs import ArtifactRefModel
+from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.scientist.methods.causal.latent_separation import (
     SEPARATION_DIAGNOSTICS_KEY,
     certified_latent_separation_pairs,

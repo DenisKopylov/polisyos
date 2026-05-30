@@ -72,7 +72,7 @@ from polisyos.ir.observation.measurement import (
     SchemaRegimeRegistry,
     ShockCalendar,
 )
-from polisyos.ir.refs import ArtifactRefModel
+from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 
 

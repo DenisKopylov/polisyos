@@ -7,8 +7,8 @@ from decimal import Decimal
 import pytest
 from pydantic import ValidationError
 
-from polisyos.ir.canon import CanonViolation
-from polisyos.ir.citations import AnchorKind, CitationRef, DocumentRef, FragmentLocator
+from polisyos.ir.model_layer.canon import CanonViolation
+from polisyos.ir.loading.citations import AnchorKind, CitationRef, DocumentRef, FragmentLocator
 from polisyos.ir.kernel.base import ID_PATTERN
 from polisyos.ir.world.claim import Claim, ClaimSourceKind
 from polisyos.ir.world.doc import DocFragment, DocMeta

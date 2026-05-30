@@ -41,7 +41,7 @@ from polisyos.ir.analytics.cross_graph import (
     persist_interface_mapping,
     persist_scm_fragment,
 )
-from polisyos.ir.refs import (
+from polisyos.ir.registry.refs import (
     AlignmentReportRef,
     CompositionCertificateRef,
     InterfaceMappingRef,

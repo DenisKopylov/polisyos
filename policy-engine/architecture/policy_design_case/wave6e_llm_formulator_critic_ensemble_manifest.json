@@ -1,0 +1,120 @@
+{
+  "schema_version": "policyos.policy_design_case.wave6e.llm_formulator_critic_ensemble.v1",
+  "wave_id": "Wave 6",
+  "phase_id": "W6.E",
+  "capability_id": "w6e_llm_formulator_critic_ensemble",
+  "status": "implemented",
+  "capability_reality_state": "implemented",
+  "pattern_pass": {
+    "relevant_patterns": ["P05", "P10", "P12", "P15"],
+    "existing_anti_patterns_found": [
+      {
+        "pattern_id": "P12",
+        "state": "implemented_but_not_orchestrated",
+        "evidence": "repo://src/polisyos/scientist/policy_design/critic.py"
+      },
+      {
+        "pattern_id": "P15",
+        "state": "candidate_channel_missing",
+        "evidence": "repo://src/polisyos/scientist/policy_design/adversary.py"
+      }
+    ],
+    "target_correct_pattern": "structured candidate-only producer with prompt/tool/repair provenance, multi-basis critic verdicts, and no authority-bearing output",
+    "missing_capability_labels": [],
+    "acceptance_signal": "formulator candidates and critic-proposed candidates are candidate_unverified, carry source_class, and cannot satisfy authority slots without W6.F firewall admission"
+  },
+  "formulator": {
+    "typed_contract_ref": "repo://src/polisyos/scientist/policy_design/formulator.py#FormulatorCandidate",
+    "producer_ref": "repo://src/polisyos/scientist/policy_design/formulator.py#LLMFormulator",
+    "artifact_ref": "repo://src/polisyos/scientist/policy_design/formulator.py#HypothesisLedgerEntry",
+    "bridge_ref": "repo://src/polisyos/scientist/policy_design/formulator.py#InMemoryHypothesisLedger",
+    "source_class": "llm_candidate",
+    "admission_state": "candidate_unverified",
+    "authoritative_for": [],
+    "may_not_use_for": [
+      "evidence",
+      "legal_authority",
+      "method_authority",
+      "participation_authority",
+      "closeout",
+      "public_projection",
+      "dashboard_readiness",
+      "claim_registry_admission"
+    ],
+    "candidate_kinds": [
+      "field",
+      "risk",
+      "obligation",
+      "missing_question",
+      "method_need"
+    ],
+    "requires_prompt_fingerprint": true,
+    "requires_tool_refs": true,
+    "requires_repair_decision_lineage": true
+  },
+  "critics": [
+    {
+      "role": "legal",
+      "substantive_basis": "legal_corpus_probe",
+      "implementation_ref": "repo://src/polisyos/scientist/policy_design/critics/legal.py#LegalCritic"
+    },
+    {
+      "role": "fiscal",
+      "substantive_basis": "deterministic_rule_set",
+      "implementation_ref": "repo://src/polisyos/scientist/policy_design/critics/fiscal.py#FiscalCritic"
+    },
+    {
+      "role": "equity",
+      "substantive_basis": "statistical_pattern",
+      "implementation_ref": "repo://src/polisyos/scientist/policy_design/critics/equity.py#EquityCritic"
+    },
+    {
+      "role": "data",
+      "substantive_basis": "historical_failure_corpus",
+      "implementation_ref": "repo://src/polisyos/scientist/policy_design/critics/data.py#DataCritic"
+    },
+    {
+      "role": "implementation",
+      "substantive_basis": "simulation_probe",
+      "implementation_ref": "repo://src/polisyos/scientist/policy_design/critics/implementation.py#ImplementationCritic"
+    },
+    {
+      "role": "affected_person",
+      "substantive_basis": "participation_provenance_check",
+      "implementation_ref": "repo://src/polisyos/scientist/policy_design/critics/affected_person.py#AffectedPersonCritic"
+    },
+    {
+      "role": "adversarial",
+      "substantive_basis": "adversarial_scenario_generator",
+      "implementation_ref": "repo://src/polisyos/scientist/policy_design/critics/adversarial.py#AdversarialCritic"
+    },
+    {
+      "role": "monitoring",
+      "substantive_basis": "monitoring_lifecycle_drift_simulator",
+      "implementation_ref": "repo://src/polisyos/scientist/policy_design/critics/monitoring.py#MonitoringCritic"
+    }
+  ],
+  "critic_verdicts": [
+    "agree",
+    "contest",
+    "add_candidate_obligation",
+    "flag_missing_evidence",
+    "flag_speculation",
+    "flag_scope_drift"
+  ],
+  "negative_tests": [
+    "candidate_unverified_authority_denylist",
+    "prompt_tool_repair_lineage_required",
+    "critic_monoculture_identical_output",
+    "participation_provenance_missing_flags_speculation"
+  ],
+  "verification_refs": [
+    "repo://tests/unit/scientist/policy_design/test_formulator.py",
+    "repo://tests/unit/scientist/policy_design/test_critic_ensemble.py",
+    "repo://tests/repo_quality/tools/test_policy_design_case_capability_ratchet.py#test_wave6e_llm_formulator_critic_ensemble_claim_is_closed_in_exit_report"
+  ],
+  "surface": {
+    "type": "audit_manifest",
+    "inspection_path": "repo://architecture/policy_design_case/wave6e_llm_formulator_critic_ensemble_manifest.json"
+  }
+}

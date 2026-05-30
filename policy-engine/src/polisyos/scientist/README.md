@@ -13,6 +13,9 @@ governance, and publishes replayable decision artifacts across the `ir`,
 - Workflow assembly and routing: [`orchestration/workflows/README.md`](orchestration/workflows/README.md) and [`orchestration/workflows/builder.py`](orchestration/workflows/builder.py)
 - DAG execution semantics: [`orchestration/engine/README.md`](orchestration/engine/README.md)
 - Method lanes for search, discovery, and research DAG: [`methods/README.md`](methods/README.md)
+- Policy-design candidate, objective, critique, claim-decomposition, and
+  baseline-comparison contracts:
+  [`policy_design/`](policy_design/)
 - Builtin runtime nodes: [`nodes/README.md`](nodes/README.md)
 - Governance, calibration, human review, and continuous governance: [`governance/README.md`](governance/README.md)
 - Validation, decision validity, verified policy, and IC verification: [`validation/README.md`](validation/README.md)
@@ -43,6 +46,12 @@ governance, and publishes replayable decision artifacts across the `ir`,
   node implementations.
 - [`methods/`](methods/README.md) owns search, discovery, causal, DOE,
   backtesting, and research DAG method lanes.
+- [`policy_design/`](policy_design/) owns typed policy candidate schemas,
+  objective extraction, deterministic critics, W6.D claim-decomposition seed
+  records, and W8.C baseline/alternative comparison records for superiority
+  claim gating.
+- [`cross_graph/`](cross_graph/) owns cross-graph evidence need compilation,
+  detector backstops, and W8.E conflict-to-portfolio materialization.
 - [`governance/`](governance/README.md), [`validation/`](validation/README.md),
   [`evidence/`](evidence/README.md), [`feedback/`](feedback/README.md), and
   [`replay/`](replay/README.md) own decision validity, oversight, and replay

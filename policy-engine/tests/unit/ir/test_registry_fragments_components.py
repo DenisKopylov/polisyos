@@ -19,7 +19,7 @@ from polisyos.core.registry import (
     load_registry_bundle_content,
 )
 from polisyos.ir.kernel.units import GenericUnit, UnitsRegistry
-from polisyos.ir.registry_fragments import RegistryFragmentMeta, UnitsFragment
+from polisyos.ir.registry.registry_fragments import RegistryFragmentMeta, UnitsFragment
 
 
 @dataclass(frozen=True)

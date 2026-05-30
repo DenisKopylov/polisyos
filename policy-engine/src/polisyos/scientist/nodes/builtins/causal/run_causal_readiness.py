@@ -34,7 +34,7 @@ from polisyos.ir.observation.measurement import (
     SchemaRegimeRegistry,
     ShockCalendar,
 )
-from polisyos.ir.refs import ArtifactRefModel, CausalGraphModelRef
+from polisyos.ir.registry.refs import ArtifactRefModel, CausalGraphModelRef
 from polisyos.scientist.methods.causal.readiness import (
     CounterfactualQueryRunner,
     ProxyIdentificationRunner,

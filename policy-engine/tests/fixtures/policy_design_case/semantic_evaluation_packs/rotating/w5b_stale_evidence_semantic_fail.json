@@ -1,0 +1,55 @@
+{
+  "schema_version": "policyos.runtime.policy_design_case.semantic_gold_card.v1",
+  "fixture_id": "w5b_stale_evidence_semantic_fail",
+  "title": "Stale evidence cannot be projected as current",
+  "expected_status": "semantic_fail",
+  "failure_mode": "stale_evidence",
+  "research_refs": ["E22", "C30", "C11"],
+  "pattern_ids": ["P10", "P08"],
+  "structural_pass_claimed": true,
+  "structural_verdict": {
+    "status": "pass",
+    "validator_refs": ["policy_design_case.structural.freshness_shape.v1"],
+    "completeness_claims": [
+      "policy_time_present",
+      "evidence_as_of_present",
+      "freshness_status_present"
+    ]
+  },
+  "semantic_adjudication": {
+    "status": "fail",
+    "adjudicator": "policyos.semantic_gold_card.w5b",
+    "failure_mode": "stale_evidence",
+    "failure_code": "semantic_stale_evidence",
+    "rationale": "Evidence older than its freshness window is projected as current for a policy-time-sensitive claim.",
+    "authority_effect": "publish_with_limitation",
+    "required_remediation": "Refresh the evidence, split the time-scoped claim, or emit a freshness limitation."
+  },
+  "semantic_probes": [
+    {
+      "probe_id": "freshness-window-overrun",
+      "semantic_axis": "freshness",
+      "pattern_ids": ["P10", "P08"],
+      "observed_signal": "Evidence is older than the acceptable recency window but marked current.",
+      "expected_signal": "The claim must be limited, blocked, or refreshed.",
+      "verdict": "fail",
+      "failure_code": "semantic_stale_evidence",
+      "evidence_refs": ["cas://sha256/44444444444444444444444444444444"]
+    }
+  ],
+  "payload": {
+    "case_id": "pdc-w5b-stale-evidence",
+    "claim_ids": ["claim-stale"],
+    "freshness": {
+      "policy_time": "2026-05-23",
+      "evidence": [
+        {
+          "evidence_ref": "cas://sha256/44444444444444444444444444444444",
+          "evidence_as_of": "2024-01-01",
+          "acceptable_recency_window_days": 180,
+          "freshness_status": "current"
+        }
+      ]
+    }
+  }
+}

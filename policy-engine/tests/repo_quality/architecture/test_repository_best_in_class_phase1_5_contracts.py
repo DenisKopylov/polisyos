@@ -123,7 +123,7 @@ def test_phase1_5_versioning_policy_categories_and_windows_are_machine_readable(
 
 
 def test_phase1_5_future_versioned_concepts_do_not_create_versioned_packages() -> None:
-    allowed_existing = {"src/polisyos/ddm_15_7"}
+    allowed_existing: set[str] = set()
     versioned_packages = {
         path.relative_to(REPO_ROOT).as_posix()
         for path in (REPO_ROOT / "src/polisyos").rglob("*")

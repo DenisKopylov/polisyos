@@ -54,6 +54,17 @@ presence, checksum integrity, or schema compatibility.
 | P13 | Contract gravity well | Proportional governance | Does a required gate/artifact justify its marginal cost for producing a valid PDC? | Make requirements authority-level-gated or optional unless their value is load-bearing. |
 | P14 | Raw evidence count inflation | Effective independence accounting | Do multiple sources collapse through shared data, authors, methods, lineage, prompts, institutions, or assumptions? | Report effective independent evidence count and collapse reasons before claiming strong support. |
 | P15 | LLM speculation laundering | Candidate-to-authority firewall | Can LLM-generated risks, claims, legal readings, participation claims, or method choices become authoritative without producer evidence? | Keep LLM output as `candidate_unverified`, `rejected_speculation`, `typed_blocker`, or `limitation` until producer authority validates it. |
+| P16 | Epistemic-regime laundering | Gate-owned regime declaration | Can a design claim risk-regime precision without evidence, or hide available evidence behind precaution/robustness language? | Classify epistemic regime on the A-side, per claim, with asymmetric false-precision penalties and downgrade/upgrade firewalls. |
+| P17 | Decomposition / partial-equilibrium laundering | Coupling-gated composition | Is whole-design authority assembled from parts before decomposition validity and cross-effects are grounded? | Prove modular or near-decomposable boundaries before composing authority; entangled cases need system-level evidence or downgrade. |
+| P18 | Streetlight measurability laundering | Measurability adequacy declaration | Are measurable proxies optimized and projected as if they exhausted the policy value? | Represent unmeasured/qualitative constructs as limitations or ignorance, with proxy validity and value-loss disclosure. |
+| P19 | Aggregation laundering | Subject-granularity and aggregation validity | Does evidence at one aggregation level close claims at another level without ecological-error checks? | Emit aggregation-validity records and block or limit individual/group/jurisdiction scope drift. |
+| P20 | Normative choice laundering | Authorized value-choice provenance | Does the system or LLM silently choose objectives, social weights, or value tradeoffs? | Require authorized value inputs, show alternative schedules, and expose multi-principal incompatibilities rather than resolving them silently. |
+| P21 | Capacity-feasibility laundering | State-capacity grounded feasibility | Does a design assume administrative, fiscal, enforcement, or delivery capacity that the actor lacks? | Ground capacity assumptions and make absent capacity a blocker, limitation, or design-to-build-capacity obligation. |
+| P22 | Mandate-legitimacy laundering | Mandate and legitimacy authority | Are goals or social weights treated as authorized without participation, legal mandate, or governance provenance? | Emit mandate/legitimacy records before objectives and value weights can close. |
+| P23 | Stakes and commitment laundering | Stakes/reversibility-gated floors | Are low-stakes or reversible evidence floors applied to irreversible, high-stakes, or catastrophic commitments? | Classify stakes, reversibility, and option value; raise floors or require adaptive/precautionary design when needed. |
+| P24 | Strategic-response laundering | Response-model validity | Are pre-policy effects transported into a post-policy world whose incentives and behavior change? | Model Goodhart/Lucas/performativity/capture response or limit claims and route response back into system dynamics. |
+| P25 | Search-control laundering | Replayable search frontier boundary | Is a search frontier, best-so-far candidate, or control-plane summary projected as exhaustive, replayable, or authoritative? | Persist `SearchLedger`, search incompleteness, budget cutoffs, and frontier provenance; keep frontier support separate from producer evidence. |
+| P26 | Responsibility-integrity laundering | Mandate-bounded human decision integrity | Does the system shift responsibility to a human who was not informed enough to approve, or does the human shift responsibility back to "the AI"? | Require mandate-bounded `HumanDecisionRecord`, active choice for high-stakes/value-laden decisions, disconfirming evidence, and responsibility-integrity checks. |
 
 Notes:
 
@@ -87,6 +98,17 @@ plans, or backlog docs.
 | P13 | `src/polisyos/runtime/quality/formal_invariants.py`, `src/polisyos/runtime/quality/invariants.py`, `src/polisyos/runtime/quality/scorecard.py` |
 | P14 | `src/polisyos/foundry/methods/consensus.py`, `src/polisyos/foundry/methods/equivalence/`, `src/polisyos/scholar/search/models.py` |
 | P15 | `src/polisyos/scientist/policy_design/adversary.py`, `src/polisyos/runtime/quality/prompt_tool_ledger.py`, `src/polisyos/scientist/publishing/publisher.py` |
+| P16 | `src/polisyos/runtime/quality/capability_white_space.py`, `src/polisyos/scholar/_impl/evidence.py`, `src/polisyos/calibration/` |
+| P17 | `src/polisyos/foundry/coupling/des_kernel.py`, `src/polisyos/foundry/methods/catalog/causal/dynamic_graph_dscm.py`, `src/polisyos/pdc/` |
+| P18 | `src/polisyos/runtime/quality/semantic_binding.py`, `src/polisyos/fabric/claims/`, `src/polisyos/data_forge/` |
+| P19 | `src/polisyos/runtime/quality/concept_spine.py`, `src/polisyos/fabric/entity_resolution/`, `src/polisyos/ir/world/` |
+| P20 | `src/polisyos/foundry/welfare/social_weight_provenance.py`, `src/polisyos/participation_requirement/` |
+| P21 | `src/polisyos/participation_requirement/`, `src/polisyos/scientist/governance/`, `src/polisyos/runtime/quality/approval.py` |
+| P22 | `src/polisyos/participation_requirement/`, `src/polisyos/lex/`, `src/polisyos/scientist/governance/` |
+| P23 | `src/polisyos/runtime/quality/case_lifecycle.py`, `src/polisyos/runtime/quality/cost_gate.py`, `src/polisyos/scientist/policy_design/` |
+| P24 | `src/polisyos/foundry/methods/catalog/causal/strategic.py`, `src/polisyos/foundry/methods/catalog/causal/policy_learning.py`, `src/polisyos/scientist/feedback/` |
+| P25 | `src/polisyos/scientist/methods/search/`, `src/polisyos/scientist/agent/drafter_multipass.py`, `src/polisyos/runtime/quality/capability_ratchet.py` |
+| P26 | `src/polisyos/runtime/quality/human_review.py`, `src/polisyos/runtime/quality/approval.py`, `src/polisyos/scientist/governance/` |
 
 ## Repair Priority
 
@@ -96,7 +118,8 @@ plans, or backlog docs.
 4. Expose what the system knows to external audiences: `P03`.
 5. Protect replay and reproducibility with rule and time semantics: `P07`, `P08`.
 6. Preserve evidence strength truthfulness: `P14`.
-7. Run complexity audits continuously so repairs do not add ceremonial load: `P13`.
+7. Protect universal-design axis declarations, composition, search, and delegation: `P16` through `P26`.
+8. Run complexity audits continuously so repairs do not add ceremonial load: `P13`.
 
 ## Maintenance Rules
 
@@ -106,6 +129,7 @@ plans, or backlog docs.
 - Do not change monitoring, DDM, invalidation, reissue, or calibration behavior without checking P01, P02, P07, P08, and P09.
 - Do not change evidence producers or cross-graph compilation without checking P02, P08, P11, P12, and P14.
 - Do not change LLM formulation, critic, drafting, summarization, or tool-repair behavior without checking P05, P10, P13, and P15.
+- Do not change universal policy-design axes, regime classification, decomposition, value choices, capacity, mandate, stakes, strategic-response modeling, design search, or delegation without checking P16 through P26.
 
 ## Pattern Lifecycle
 
@@ -142,3 +166,11 @@ The ratchet is directional: over time, capability claims should move from
 missing-state labels toward `implemented`, or be explicitly scoped out. New
 work should not increase `contract_only`, `bridge_missing`, or
 `semantic_test_missing` without a named follow-up owner.
+
+W1.A makes this executable through
+`architecture/policy_design_case/capability_reality_report.json` and
+`tools/quality/validation/check_policy_design_case_capability_ratchet.py`. The
+report includes debt points, purpose multipliers, readiness bands, and
+burn-down templates; a red readiness band is acceptable when the report is
+honest and owned, but the affected capability still cannot be called
+implemented.

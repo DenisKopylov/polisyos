@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import time
-from collections.abc import Awaitable, Callable, Sequence
+from collections.abc import Awaitable, Callable, Mapping, Sequence
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
@@ -46,6 +46,10 @@ from polisyos.scholar.search.scoring import (
     lexical_support_score,
     score_search_hit,
     source_rank_key,
+)
+from polisyos.scholar_requirement import (
+    ScholarSupportRequirementSpec,
+    normalize_scholar_support_requirement_specs,
 )
 
 if TYPE_CHECKING:
@@ -211,6 +215,8 @@ class ScholarDeepSearchService:
         brief: ResearchBrief | None = None,
         query_graph: QueryGraph | None = None,
         claim_texts: Sequence[str] | None = None,
+        requirement_specs: Sequence[ScholarSupportRequirementSpec | Mapping[str, Any]]
+        | None = None,
         constraints: SearchConstraints | None = None,
         budgets: SearchBudgetControls | None = None,
         progress_callback: ProgressCallback | None = None,
@@ -218,6 +224,12 @@ class ScholarDeepSearchService:
     ) -> WebEvidenceBundle:
         """Run one resumable deep-search job and return a citation-ready bundle."""
         search_budgets = budgets or SearchBudgetControls()
+        scholar_requirements = normalize_scholar_support_requirement_specs(requirement_specs)
+        active_claim_texts = (
+            list(claim_texts)
+            if claim_texts is not None
+            else [requirement.claim_text for requirement in scholar_requirements]
+        )
         active_brief = brief or build_research_brief(
             question=question,
             intent=intent,
@@ -225,7 +237,11 @@ class ScholarDeepSearchService:
             if constraints is not None
             else (brief.locale if brief else "en-US"),
         )
-        active_constraints = _resolve_constraints(active_brief, constraints)
+        active_constraints = _resolve_constraints(
+            active_brief,
+            constraints,
+            requirement_specs=scholar_requirements,
+        )
         graph = query_graph or plan_query_graph(
             active_brief,
             max_depth=search_budgets.max_depth,
@@ -417,8 +433,9 @@ class ScholarDeepSearchService:
                 )
 
         bundle.claim_supports = _build_claim_supports(
-            claim_texts=list(claim_texts or [active_brief.question]),
+            claim_texts=active_claim_texts or [active_brief.question],
             snippets=bundle.snippets,
+            requirement_specs=scholar_requirements,
         )
         bundle.uncertainty_notes = sorted(dict.fromkeys(bundle.uncertainty_notes))
         bundle.partial = bundle.partial or any(
@@ -545,9 +562,22 @@ def _build_claim_supports(
     *,
     claim_texts: Sequence[str],
     snippets: Sequence[SourceSnippet],
+    requirement_specs: Sequence[ScholarSupportRequirementSpec] | None = None,
 ) -> list[ClaimSupportLink]:
     supports: list[ClaimSupportLink] = []
-    for index, claim_text in enumerate(claim_texts):
+    requirements = list(requirement_specs or ())
+    claim_rows: list[tuple[str, str, ScholarSupportRequirementSpec | None]] = []
+    if requirements:
+        claim_rows.extend(
+            (requirement.claim_id, requirement.claim_text, requirement)
+            for requirement in requirements
+        )
+    else:
+        claim_rows.extend(
+            (f"claim.{index + 1}", claim_text, None)
+            for index, claim_text in enumerate(claim_texts)
+        )
+    for _index, (claim_id, claim_text, requirement) in enumerate(claim_rows):
         ranked = sorted(
             ((lexical_support_score(claim_text, snippet.text), snippet) for snippet in snippets),
             key=lambda item: (-item[0], item[1].source_id, item[1].snippet_id),
@@ -567,7 +597,7 @@ def _build_claim_supports(
         )
         supports.append(
             ClaimSupportLink(
-                claim_id=f"claim.{index + 1}",
+                claim_id=claim_id,
                 claim_text=claim_text,
                 snippet_ids=snippet_ids,
                 source_ids=source_ids,
@@ -577,6 +607,7 @@ def _build_claim_supports(
                 metadata={
                     "claim_id_namespace": "legacy_local",
                     "support_status": support_status,
+                    **_requirement_support_metadata(requirement),
                 },
             )
         )
@@ -601,21 +632,72 @@ def _claim_support_status(
 def _resolve_constraints(
     brief: ResearchBrief,
     constraints: SearchConstraints | None,
+    *,
+    requirement_specs: Sequence[ScholarSupportRequirementSpec] | None = None,
 ) -> SearchConstraints:
     """Merge planner-derived defaults with explicit runtime constraints."""
+    requirements = list(requirement_specs or ())
     if constraints is None:
-        return SearchConstraints(
+        resolved = SearchConstraints(
             allowed_domains=brief.preferred_domains,
             source_types=brief.required_source_types,
             locale=brief.locale,
         )
-    return constraints.model_copy(
+    else:
+        resolved = constraints.model_copy(
+            update={
+                "allowed_domains": constraints.allowed_domains or brief.preferred_domains,
+                "source_types": constraints.source_types or brief.required_source_types,
+                "locale": constraints.locale or brief.locale,
+            }
+        )
+    if not requirements:
+        return resolved
+    recency_days = min(requirement.recency_days for requirement in requirements)
+    source_types = sorted(
+        dict.fromkeys(
+            [
+                *resolved.source_types,
+                *(
+                    _source_type_for_publication_tier(requirement.required_publication_tier)
+                    for requirement in requirements
+                ),
+            ]
+        )
+    )
+    return resolved.model_copy(
         update={
-            "allowed_domains": constraints.allowed_domains or brief.preferred_domains,
-            "source_types": constraints.source_types or brief.required_source_types,
-            "locale": constraints.locale or brief.locale,
+            "recency_days": resolved.recency_days or recency_days,
+            "source_types": source_types,
         }
     )
+
+
+def _requirement_support_metadata(
+    requirement: ScholarSupportRequirementSpec | None,
+) -> dict[str, Any]:
+    if requirement is None:
+        return {}
+    return {
+        "requirement_id": requirement.requirement_id,
+        "claim_use_requested": requirement.participation_claim_use_requested,
+        "claim_use_allowed": requirement.participation_claim_use_allowed,
+        "authority_level": requirement.authority_level,
+        "population_scope": requirement.population_scope,
+        "required_publication_tier": requirement.required_publication_tier,
+        "required_recency_days": requirement.recency_days,
+        "required_replication_count": requirement.required_replication_count,
+        "required_independence_breadth": requirement.required_independence_breadth,
+        "required_citation_network_depth": requirement.required_citation_network_depth,
+    }
+
+
+def _source_type_for_publication_tier(tier: str) -> str:
+    if tier in {"peer_reviewed", "systematic_review", "working_paper"}:
+        return "academic"
+    if tier == "government_report":
+        return "government"
+    return "grey_literature"
 
 
 async def _emit_progress(

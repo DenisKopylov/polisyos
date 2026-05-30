@@ -2,21 +2,20 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable
 from datetime import UTC, datetime
 from enum import Enum
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.scientist.methods.search.failure_cards import TypedFailureCard
-from polisyos.scientist.methods.search.lessons import (
-    LessonCard,
-    LessonQuery,
-    LessonRegistry,
-    lesson_from_failure_card,
-)
+from polisyos.scientist.methods.search.lessons import lesson_from_failure_card
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
+
+    from polisyos.scientist.methods.search.failure_cards import TypedFailureCard
+    from polisyos.scientist.methods.search.lessons import LessonCard, LessonQuery, LessonRegistry
 
 
 class MemoryVisibility(str, Enum):
@@ -38,6 +37,15 @@ class LessonApplicability(BaseModel):
     reasons: list[str] = Field(default_factory=list)
     scope: dict[str, str] = Field(default_factory=dict)
     expires_at: datetime | None = None
+    influence_weight: float = Field(default=1.0, ge=0.0, le=1.0)
+    decay_status: Literal[
+        "active",
+        "decayed",
+        "expired_scope",
+        "expired_ttl",
+        "revoked",
+        "blocked",
+    ] = "active"
 
     @model_validator(mode="after")
     def _require_reasons(self) -> LessonApplicability:
@@ -235,8 +243,8 @@ def build_reflexion_recovery_eval_report(
 def build_reflexion_memory_recovery_eval_report(
     *,
     run_id: str,
-    baseline_evaluation: Any,
-    memory_evaluation: Any,
+    baseline_evaluation: object,
+    memory_evaluation: object,
     metadata: dict[str, Any] | None = None,
 ) -> ReflexionRecoveryEvalReport:
     """Build a recovery report from existing Reflexion replay/eval outputs."""
@@ -273,7 +281,7 @@ class ReflexiveMemoryFacade:
         hidden_ref_ids: set[str] | None = None,
         hidden_suite_ids: set[str] | None = None,
         canary_tokens: set[str] | None = None,
-    ) -> Any:
+    ) -> object:
         """Record a reusable lesson only after contamination checks pass."""
 
         from polisyos.scientist.orchestration.memory.contamination import (
@@ -289,6 +297,46 @@ class ReflexiveMemoryFacade:
         )
         assert_reusable_memory_clean(lesson_payload_for_contamination(lesson), policy=policy)
         return self.registry.record_local(lesson)
+
+    def record_balanced_memory(
+        self,
+        memory: object,
+        *,
+        hidden_ref_ids: set[str] | None = None,
+        hidden_suite_ids: set[str] | None = None,
+        canary_tokens: set[str] | None = None,
+    ) -> object:
+        """Record a balanced success/failure/opportunity memory record."""
+
+        from polisyos.scientist.orchestration.memory.balanced import (
+            BalancedMemoryRecord,
+            balanced_memory_to_lesson_card,
+        )
+        from polisyos.scientist.orchestration.memory.contamination import (
+            MemoryContaminationPolicy,
+            assert_reusable_memory_clean,
+            lesson_payload_for_contamination,
+        )
+
+        record = (
+            memory
+            if isinstance(memory, BalancedMemoryRecord)
+            else BalancedMemoryRecord.model_validate(memory)
+        )
+        lesson = balanced_memory_to_lesson_card(record)
+        policy = MemoryContaminationPolicy(
+            hidden_ref_ids=hidden_ref_ids or set(),
+            hidden_suite_ids=hidden_suite_ids or set(),
+            canary_tokens=canary_tokens or set(),
+        )
+        assert_reusable_memory_clean(lesson_payload_for_contamination(lesson), policy=policy)
+        checked_record = record.model_copy(
+            update={
+                "contamination_checked": True,
+                "contamination_findings": (),
+            }
+        )
+        return self.registry.record_local(balanced_memory_to_lesson_card(checked_record))
 
     def record_failure_card(
         self,
@@ -307,7 +355,7 @@ class ReflexiveMemoryFacade:
         hidden_ref_ids: set[str] | None = None,
         hidden_suite_ids: set[str] | None = None,
         canary_tokens: set[str] | None = None,
-    ) -> Any:
+    ) -> object:
         """Create, scope and record a failure lesson."""
 
         lesson = failure_card_to_reflexive_lesson(
@@ -334,18 +382,25 @@ class ReflexiveMemoryFacade:
         self,
         query: LessonQuery,
         *,
-        context: Any,
+        context: object,
         limit: int = 10,
+        decay_policy: object | None = None,
         revoked_lesson_ids: Iterable[str] = (),
         hidden_ref_ids: set[str] | None = None,
         hidden_suite_ids: set[str] | None = None,
         canary_tokens: set[str] | None = None,
-    ) -> Any:
+    ) -> object:
         """Retrieve governed warning-only lessons from the existing registry."""
 
-        from polisyos.scientist.orchestration.memory.applicability import MemoryApplicabilityContext
-        from polisyos.scientist.orchestration.memory.contamination import MemoryContaminationPolicy
-        from polisyos.scientist.orchestration.memory.retrieval import retrieve_reflexive_lessons_from_registry
+        from polisyos.scientist.orchestration.memory.applicability import (
+            MemoryApplicabilityContext,
+        )
+        from polisyos.scientist.orchestration.memory.contamination import (
+            MemoryContaminationPolicy,
+        )
+        from polisyos.scientist.orchestration.memory.retrieval import (
+            retrieve_reflexive_lessons_from_registry,
+        )
 
         active_context = (
             context
@@ -362,9 +417,111 @@ class ReflexiveMemoryFacade:
             query,
             context=active_context,
             contamination_policy=policy,
+            decay_policy=decay_policy,
             limit=limit,
             revoked_lesson_ids=set(revoked_lesson_ids),
         )
+
+    def retrieve_balanced(
+        self,
+        query: LessonQuery,
+        *,
+        context: object,
+        limit: int = 10,
+        decay_policy: object | None = None,
+        bias_policy: object | None = None,
+        revoked_memory_ids: Iterable[str] = (),
+        hidden_ref_ids: set[str] | None = None,
+        hidden_suite_ids: set[str] | None = None,
+        canary_tokens: set[str] | None = None,
+    ) -> object:
+        """Retrieve W5.D success/failure/opportunity memory as future influence."""
+
+        from polisyos.scientist.orchestration.memory.applicability import (
+            MemoryApplicabilityContext,
+        )
+        from polisyos.scientist.orchestration.memory.contamination import MemoryContaminationPolicy
+        from polisyos.scientist.orchestration.memory.retrieval import (
+            retrieve_balanced_memories_from_registry,
+        )
+
+        active_context = (
+            context
+            if isinstance(context, MemoryApplicabilityContext)
+            else MemoryApplicabilityContext.model_validate(context)
+        )
+        policy = MemoryContaminationPolicy(
+            hidden_ref_ids=hidden_ref_ids or set(),
+            hidden_suite_ids=hidden_suite_ids or set(),
+            canary_tokens=canary_tokens or set(),
+        )
+        return retrieve_balanced_memories_from_registry(
+            self.registry,
+            query,
+            context=active_context,
+            contamination_policy=policy,
+            decay_policy=decay_policy,
+            bias_policy=bias_policy,
+            limit=limit,
+            revoked_memory_ids=set(revoked_memory_ids),
+        )
+
+    def revoke_balanced_scope(
+        self,
+        trigger: object,
+        *,
+        query: LessonQuery,
+        run_id: str | None = None,
+    ) -> list[ReflexiveMemoryEvent]:
+        """Revoke balanced memories affected by a scoped rule-change trigger."""
+
+        from polisyos.scientist.orchestration.memory.balanced import (
+            MemoryScopeRevocationTrigger,
+            balanced_memory_from_lesson_card,
+            memory_matches_scope_revocation_trigger,
+        )
+
+        active_trigger = (
+            trigger
+            if isinstance(trigger, MemoryScopeRevocationTrigger)
+            else MemoryScopeRevocationTrigger.model_validate(trigger)
+        )
+        events: list[ReflexiveMemoryEvent] = []
+        for lesson in self.registry.query(query):
+            memory = balanced_memory_from_lesson_card(lesson)
+            if not memory_matches_scope_revocation_trigger(memory, active_trigger):
+                continue
+            reason = (
+                f"scope_revoked_rule_change:{active_trigger.changed_rule_ref}:"
+                f"{active_trigger.reason}"
+            )
+            self.registry.invalidate(memory.memory_id, reason)
+            applicability = LessonApplicability(
+                lesson_id=memory.memory_id,
+                applies=False,
+                reasons=[
+                    "scope_revoked_rule_change",
+                    active_trigger.trigger_id,
+                    active_trigger.changed_rule_ref,
+                ],
+                scope=memory.scope.to_legacy_scope(),
+                expires_at=memory.scope.expires_at,
+            )
+            events.append(
+                build_reflexive_memory_event(
+                    run_id=run_id or active_trigger.trigger_id,
+                    lesson_id=memory.memory_id,
+                    action="revoked",
+                    applicability=applicability,
+                    metadata={
+                        "balanced_memory": True,
+                        "scope_revocation_trigger": active_trigger.model_dump(mode="json"),
+                        "revocation_reason": reason,
+                        "evidence_slot_admission": "forbidden",
+                    },
+                )
+            )
+        return events
 
     def revoke(self, lesson_id: str, *, reason: str, run_id: str) -> ReflexiveMemoryEvent:
         """Invalidate a lesson in the underlying registry and return an audit event."""
@@ -374,7 +531,7 @@ class ReflexiveMemoryFacade:
         return revoke_lesson(self.registry, lesson_id=lesson_id, reason=reason, run_id=run_id)
 
 
-def _extract_recovery_rate(evaluation: Any) -> float:
+def _extract_recovery_rate(evaluation: object) -> float:
     if isinstance(evaluation, dict):
         if "reflexion_recovery_rate" in evaluation:
             return float(evaluation["reflexion_recovery_rate"])
@@ -397,7 +554,7 @@ def _extract_recovery_rate(evaluation: Any) -> float:
     raise ValueError("could not extract Reflexion recovery rate")
 
 
-def _extract_sample_count(evaluation: Any) -> int:
+def _extract_sample_count(evaluation: object) -> int:
     if isinstance(evaluation, dict):
         if "sample_count" in evaluation:
             return max(1, int(evaluation["sample_count"]))

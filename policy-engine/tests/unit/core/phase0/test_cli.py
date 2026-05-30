@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 from polisyos.core.components.cli import main
-from polisyos.ir.norm_pack import NormPack, NormRule, RuleType
+from polisyos.ir.loading.norm_pack import NormPack, NormRule, RuleType
 from polisyos.scientist.methods.doe.designs import SensitivityMethod, SensitivityResult
 
 

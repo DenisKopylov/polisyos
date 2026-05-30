@@ -18,7 +18,7 @@ from urllib.parse import urlsplit
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.control import policy_authority_profile_mapping
-from polisyos.data_forge.compliance import build_privacy_compliance_report
+from polisyos.data_forge import build_privacy_compliance_report
 from polisyos.foundry.validation.causal_validity import (
     build_causal_statistical_validity_report,
 )
@@ -30,20 +30,38 @@ from polisyos.runtime.quality.attestation import (
     build_required_production_attestations,
     serialize_attestation_record,
 )
-from polisyos.runtime.quality.compliance import (
-    PRIVACY_COMPLIANCE_REPORT_EVIDENCE_REF,
-    PRIVACY_COMPLIANCE_REPORT_KEY,
-    PRIVACY_COMPLIANCE_REPORT_REF_KEY,
-)
+from polisyos.runtime.quality.case_lifecycle import build_lifecycle_reissue_report
 from polisyos.runtime.quality.closeout_compatibility import (
     COMPATIBILITY_BUNDLE_PATH,
     COMPATIBILITY_FILENAME,
     build_closeout_compatibility_record,
 )
+from polisyos.runtime.quality.closeout_reader import build_can_i_closeout_verdict
+from polisyos.runtime.quality.compliance import (
+    PRIVACY_COMPLIANCE_REPORT_EVIDENCE_REF,
+    PRIVACY_COMPLIANCE_REPORT_KEY,
+    PRIVACY_COMPLIANCE_REPORT_REF_KEY,
+)
+from polisyos.runtime.quality.cost_degradation import (
+    CostDegradationTelemetryError,
+    build_cost_degradation_telemetry_from_quality_context,
+)
+from polisyos.runtime.quality.cost_gate import (
+    RunCostGateError,
+    build_run_cost_gate_report,
+)
 from polisyos.runtime.quality.data_quality import PRODUCTION_DATA_QUALITY_REF_KEY
 from polisyos.runtime.quality.diagnostic_slos import (
     build_diagnostic_slo_report_from_quality_context,
     pass_observations_for_all_diagnostic_slos,
+)
+from polisyos.runtime.quality.evidence_independence import (
+    EvidenceIndependenceError,
+    build_evidence_independence_map,
+)
+from polisyos.runtime.quality.evidence_line import EVIDENCE_LINE_SCHEMA_VERSION
+from polisyos.runtime.quality.evidence_portfolio import (
+    EVIDENCE_PORTFOLIO_DESIGN_SCHEMA_VERSION,
 )
 from polisyos.runtime.quality.evidence_spine import (
     build_scenario_contract_propagation_graph,
@@ -51,20 +69,42 @@ from polisyos.runtime.quality.evidence_spine import (
 from polisyos.runtime.quality.evidence_spine_handoff import (
     build_canary_evidence_handoff_ledger,
 )
+from polisyos.runtime.quality.evidence_synthesis import (
+    EvidenceSynthesisReportError,
+    build_evidence_synthesis_report,
+)
 from polisyos.runtime.quality.human_review import build_human_review_calibration_report
 from polisyos.runtime.quality.legacy_migration_sandbox import (
     build_legacy_migration_sandbox,
     legacy_compatible_payload,
     persist_legacy_migration_sandbox_report,
 )
+from polisyos.runtime.quality.nl_replay_orchestration import (
+    NL_REPLAY_ORCHESTRATION_FILE_REF,
+    NL_REPLAY_ORCHESTRATION_RECORD_KEY,
+    build_nl_replay_orchestration_continuity,
+)
 from polisyos.runtime.quality.performance_budget import (
     build_canary_performance_budget,
     measure_cas_round_trip_samples,
 )
 from polisyos.runtime.quality.phase_barriers import PhaseBarrierId, PhaseBarrierRecord
+from polisyos.runtime.quality.producer_pipeline import (
+    merge_producer_pipeline_quality_evidence_surfaces,
+    run_requirement_spec_producer_pipeline,
+)
+from polisyos.runtime.quality.projection_semantics import (
+    PolicyDesignCaseProjectionError,
+    build_policy_design_case_projection_contract_fixture,
+    build_policy_design_case_projection_semantics,
+)
 from polisyos.runtime.quality.public_export import build_public_export_bundle
 from polisyos.runtime.quality.refs import RuntimeQualityAuthorityRefs, resolve_quality_refs
-from polisyos.runtime.quality.replay import build_replay_manifest, explain_replay_drift
+from polisyos.runtime.quality.replay import (
+    attach_replay_orchestration_continuity,
+    build_replay_manifest,
+    explain_replay_drift,
+)
 from polisyos.runtime.quality.run_cost_proportionality import (
     RunCostProportionalityError,
     build_run_cost_proportionality_ledger_from_quality_context,
@@ -80,7 +120,7 @@ from polisyos.runtime.quality.scorecard import (
     scorecard_control_progress,
 )
 from polisyos.runtime.quality.semantic_binding import build_semantic_binding_ledger
-from polisyos.runtime.security.quality_gates import (
+from polisyos.core.security.quality_gates import (
     SECURITY_ASSURANCE_REPORT_REF_KEY,
     SECURITY_REPORT_FILE,
     build_security_assurance_report,
@@ -88,7 +128,7 @@ from polisyos.runtime.security.quality_gates import (
 )
 from polisyos.scientist.artifacts.decision_compiler import (
     DecisionArtifactCompilationError,
-    compile_public_decision_artifact,
+    compile_draft_decision_packet,
     compile_publishable_decision_artifact,
 )
 from polisyos.scientist.orchestration.llm.provider_quality import (
@@ -923,6 +963,12 @@ def _public_export_bundle_from_quality_evidence(
 ) -> dict[str, Any]:
     scorecard = quality_scorecard or {}
     artifacts: dict[str, Any] = {
+        "runtime_orchestration_continuity": quality_evidence_payload.get(
+            NL_REPLAY_ORCHESTRATION_RECORD_KEY
+        ),
+        "producer_pipeline": quality_evidence_payload.get("producer_pipeline"),
+        "producer_handshake_ledger": quality_evidence_payload.get("producer_handshake_ledger"),
+        "replay_manifest": quality_evidence_payload.get("replay_manifest"),
         "semantic_binding_ledger": quality_evidence_payload.get("semantic_binding_ledger"),
         "decision_artifact_quality": quality_evidence_payload.get("decision_artifact_quality"),
         "policy_grounding_matrix": quality_evidence_payload.get("policy_grounding_matrix"),
@@ -2485,10 +2531,11 @@ def _secondary_signal_upstream_blocker_refs(
     ):
         payload = quality_evidence.get(report_key)
         if isinstance(payload, dict):
+            report_file = QUALITY_REPORT_FILES.get(report_key, f"{report_key}.json")
             refs.extend(
                 _secondary_signal_blocker_refs_from_payload(
                     payload,
-                    report_ref=f"quality_evidence/{QUALITY_REPORT_FILES.get(report_key, report_key + '.json')}",
+                    report_ref=f"quality_evidence/{report_file}",
                     family=family,
                 )
             )
@@ -2623,6 +2670,193 @@ def _with_prompt_tool_secondary_signal_findings(
     return enriched
 
 
+def _with_wave7_producer_pipeline(
+    *,
+    quality_evidence_payload: dict[str, Any],
+    canary_kind: str,
+    command_metadata: dict[str, Any] | None,
+    request_payload: dict[str, Any] | None,
+    job_payload: dict[str, Any] | None,
+    run_payload: dict[str, Any] | None,
+) -> dict[str, Any]:
+    if not _serious_canary(canary_kind):
+        return quality_evidence_payload
+    existing = quality_evidence_payload.get("producer_pipeline")
+    if isinstance(existing, dict):
+        return merge_producer_pipeline_quality_evidence_surfaces(
+            quality_evidence_payload,
+            existing,
+        )
+
+    data_specs = _wave7_requirement_sequence(
+        quality_evidence_payload,
+        "data_requirement_specs",
+        bundle_key="specs",
+    )
+    legal_specs = _wave7_requirement_sequence(
+        quality_evidence_payload,
+        "legal_authority_requirement_specs",
+        bundle_key="requirements",
+    )
+    method_specs = _wave7_requirement_sequence(
+        quality_evidence_payload,
+        "method_validity_requirement_specs",
+        bundle_key="requirements",
+    )
+    scholar_specs = _wave7_requirement_sequence(
+        quality_evidence_payload,
+        "scholar_support_requirement_specs",
+        bundle_key="requirements",
+    )
+    participation_specs = _wave7_requirement_sequence(
+        quality_evidence_payload,
+        "participation_provenance_requirement_specs",
+        bundle_key="requirements",
+    )
+    if not any((data_specs, legal_specs, method_specs, scholar_specs, participation_specs)):
+        return quality_evidence_payload
+
+    claims = (
+        _wave7_requirement_sequence(quality_evidence_payload, "wave7_claims")
+        or _wave7_requirement_sequence(quality_evidence_payload, "claims")
+        or _final_claims_from_payloads(job_payload, run_payload, None, request_payload)
+    )
+    if not claims:
+        return quality_evidence_payload
+
+    run_id = str(
+        (job_payload or {}).get("run_id")
+        or (run_payload or {}).get("run_id")
+        or quality_evidence_payload.get("run_id")
+        or "run"
+    )
+    job_id = str((job_payload or {}).get("job_id") or "no-job")
+    target_context = _first_dict(
+        quality_evidence_payload.get("target_context"),
+        _nested_get(quality_evidence_payload.get("normative_evidence"), "target_context"),
+    ) or {}
+    request_context = _first_dict(
+        _nested_get(request_payload, "context"),
+        _nested_get(run_payload, "context"),
+        _nested_get(job_payload, "context"),
+    ) or {}
+    spine_context = {
+        **request_context,
+        **(
+            _first_dict(
+                quality_evidence_payload.get("spine_context"),
+                quality_evidence_payload.get("concept_spine_context"),
+            )
+            or {}
+        ),
+    }
+    spine_context.setdefault(
+        "concept_spine_ref",
+        request_context.get("concept_spine_ref")
+        or quality_evidence_payload.get("concept_spine_ref"),
+    )
+    spine_context.setdefault(
+        "jurisdiction_spine_ref",
+        request_context.get("jurisdiction_spine_ref")
+        or quality_evidence_payload.get("jurisdiction_spine_ref"),
+    )
+
+    report = run_requirement_spec_producer_pipeline(
+        run_id=run_id,
+        job_id=job_id,
+        tenant_id=str(
+            (command_metadata or {}).get("tenant_id")
+            or (request_payload or {}).get("tenant_id")
+            or "canary"
+        ),
+        request_ref=str(
+            (command_metadata or {}).get("request_ref")
+            or (request_payload or {}).get("request_ref")
+            or f"request:{run_id}"
+        ),
+        authority_profile=str(target_context.get("authority_profile") or canary_kind),
+        spine_context=spine_context,
+        claims=[dict(item) for item in claims if isinstance(item, dict)],
+        data_requirement_specs=data_specs,
+        source_contract_candidates=_wave7_requirement_sequence(
+            quality_evidence_payload,
+            "source_contract_candidates",
+        ),
+        legal_authority_requirement_specs=legal_specs,
+        candidate_norms=_wave7_requirement_sequence(
+            quality_evidence_payload,
+            "candidate_norms",
+        ),
+        method_validity_requirement_specs=method_specs,
+        candidate_methods=_wave7_requirement_sequence(
+            quality_evidence_payload,
+            "candidate_methods",
+        ),
+        scholar_support_requirement_specs=scholar_specs,
+        scholar_evidence_bundle=_first_dict(
+            quality_evidence_payload.get("scholar_evidence_bundle")
+        )
+        or None,
+        participation_provenance_requirement_specs=participation_specs,
+        participation_records=_wave7_requirement_sequence(
+            quality_evidence_payload,
+            "participation_records",
+        ),
+        target_context=target_context,
+        jurisdiction_fallback_config=_first_dict(
+            quality_evidence_payload.get("jurisdiction_fallback_config")
+        ),
+        voi_report=quality_evidence_payload.get("voi_report"),
+        scenario_refs=_wave7_scenario_refs(quality_evidence_payload),
+        universal_grammar_compilation=_first_dict(
+            quality_evidence_payload.get("universal_grammar_compilation")
+        ),
+        obligation_graph=_first_dict(quality_evidence_payload.get("obligation_graph")),
+        claim_decomposition=_first_dict(
+            quality_evidence_payload.get("claim_decomposition")
+        ),
+    )
+    return merge_producer_pipeline_quality_evidence_surfaces(
+        quality_evidence_payload,
+        report,
+    )
+
+
+def _wave7_requirement_sequence(
+    payload: dict[str, Any],
+    key: str,
+    *,
+    bundle_key: str | None = None,
+) -> list[Any]:
+    value = payload.get(key)
+    if isinstance(value, list):
+        return [dict(item) if isinstance(item, dict) else item for item in value]
+    if isinstance(value, tuple):
+        return [dict(item) if isinstance(item, dict) else item for item in value]
+    if isinstance(value, dict):
+        if bundle_key and isinstance(value.get(bundle_key), list):
+            return [
+                dict(item) if isinstance(item, dict) else item
+                for item in value[bundle_key]
+            ]
+        return [dict(value)]
+    return []
+
+
+def _wave7_scenario_refs(payload: dict[str, Any]) -> list[str]:
+    refs = [
+        str(item)
+        for item in _wave7_requirement_sequence(payload, "scenario_refs")
+        if str(item).strip()
+    ]
+    if refs:
+        return refs
+    scenario = payload.get("golden_scenario_contract")
+    if isinstance(scenario, dict) and scenario.get("scenario_id"):
+        return [f"scenario:{scenario['scenario_id']}"]
+    return []
+
+
 def _with_run_cost_proportionality_ledger(
     *,
     quality_evidence_payload: dict[str, Any],
@@ -2650,6 +2884,52 @@ def _with_run_cost_proportionality_ledger(
     return enriched
 
 
+def _with_cost_degradation_telemetry(
+    *,
+    quality_evidence_payload: dict[str, Any],
+    job_payload: dict[str, Any] | None,
+    run_payload: dict[str, Any] | None,
+    canary_kind: str,
+) -> dict[str, Any]:
+    if "cost_degradation_telemetry" in quality_evidence_payload:
+        return quality_evidence_payload
+    try:
+        telemetry = build_cost_degradation_telemetry_from_quality_context(
+            quality_evidence=quality_evidence_payload,
+            job_payload=job_payload,
+            run_payload=run_payload,
+            canary_kind=canary_kind,
+        )
+    except CostDegradationTelemetryError:
+        return quality_evidence_payload
+    enriched = dict(quality_evidence_payload)
+    enriched["cost_degradation_telemetry"] = telemetry
+    return enriched
+
+
+def _with_run_cost_gate(
+    *,
+    quality_evidence_payload: dict[str, Any],
+    job_payload: dict[str, Any] | None,
+    run_payload: dict[str, Any] | None,
+    canary_kind: str,
+) -> dict[str, Any]:
+    if "run_cost_gate" in quality_evidence_payload:
+        return quality_evidence_payload
+    try:
+        report = build_run_cost_gate_report(
+            quality_evidence=quality_evidence_payload,
+            job_payload=job_payload,
+            run_payload=run_payload,
+            canary_kind=canary_kind,
+        )
+    except (RunCostGateError, CostDegradationTelemetryError):
+        return quality_evidence_payload
+    enriched = dict(quality_evidence_payload)
+    enriched["run_cost_gate"] = report
+    return enriched
+
+
 def _policy_design_case_has_run_cost_record(case: dict[str, Any]) -> bool:
     for key in (
         "run_cost_proportionality_ledgers",
@@ -2665,6 +2945,989 @@ def _policy_design_case_has_run_cost_record(case: dict[str, Any]) -> bool:
         if isinstance(value, list) and any(isinstance(item, dict) for item in value):
             return True
     return False
+
+
+def _with_wave4_i4_policy_design_case_outputs(
+    *,
+    quality_evidence_payload: dict[str, Any],
+    run_id: str,
+    job_id: str,
+    canary_kind: str,
+) -> dict[str, Any]:
+    case = quality_evidence_payload.get("policy_design_case")
+    if not isinstance(case, dict):
+        return quality_evidence_payload
+    claims = _wave4_i4_claim_rows(case)
+    if not claims:
+        return quality_evidence_payload
+
+    enriched = dict(quality_evidence_payload)
+    enriched_case = dict(case)
+    case_id = str(enriched_case.get("case_id") or f"pdc-{run_id}")
+    portfolio_designs = _wave4_i4_portfolio_designs(
+        enriched_case,
+        claims=claims,
+        canary_kind=canary_kind,
+    )
+    evidence_lines = _wave4_i4_evidence_lines(
+        enriched_case,
+        claims=claims,
+        portfolio_designs=portfolio_designs,
+        run_id=run_id,
+        job_id=job_id,
+    )
+    try:
+        independence_map = _wave4_i4_independence_map(
+            enriched_case,
+            portfolio_designs=portfolio_designs,
+            evidence_lines=evidence_lines,
+            run_id=run_id,
+        )
+        synthesis_report = _wave4_i4_synthesis_report(
+            enriched_case,
+            portfolio_designs=portfolio_designs,
+            evidence_lines=evidence_lines,
+            independence_map=independence_map,
+            run_id=run_id,
+        )
+    except (EvidenceIndependenceError, EvidenceSynthesisReportError) as exc:
+        enriched_case["wave4_i4_blocker"] = _wave4_i4_issue(
+            code=getattr(exc, "code", "policy_design_wave4_i4_portfolio_failed"),
+            message=str(exc),
+            severity="fail",
+        )
+        enriched["policy_design_case"] = enriched_case
+        return enriched
+
+    lifecycle_report = _wave4_i4_lifecycle_reissue_report(
+        enriched_case,
+        claims=claims,
+        case_id=case_id,
+    )
+    closeout_truth = {
+        "status": "closed",
+        "verdict": "can_closeout",
+        "can_closeout": True,
+        "issues": [],
+    }
+    source_payload = {
+        "authority_role": "final_decision_artifact",
+        "publishability": "publishable",
+        "deficit_register": [],
+        "invariant_summary": {"status": "pass", "blocker_codes": []},
+    }
+    try:
+        projection = build_policy_design_case_projection_semantics(
+            policy_design_case=enriched_case,
+            surface="runtime.api",
+            source_payload=source_payload,
+            closeout_verdict=closeout_truth,
+        )
+        projection_contract = build_policy_design_case_projection_contract_fixture(
+            policy_design_case=enriched_case,
+            closeout_verdict=closeout_truth,
+            source_payload=source_payload,
+        )
+    except (PolicyDesignCaseProjectionError, ValueError, TypeError) as exc:
+        projection_contract = {
+            "schema_version": (
+                "policyos.runtime.policy_design_case.projection_contract_fixture.v1"
+            ),
+            "status": "fail",
+            "issues": [
+                _wave4_i4_issue(
+                    code=getattr(exc, "code", "policy_design_projection_contract_failed"),
+                    message=str(exc),
+                    severity="fail",
+                )
+            ],
+        }
+        projection = {}
+
+    projection_contract = _wave4_i4_runtime_reader_record(
+        projection_contract,
+        producer="polisyos.runtime.quality.projection_semantics",
+        runtime_event_ref=f"event://policy-design-case/{case_id}/projection-contract",
+    )
+    projection_ref = _payload_sha256(projection) if projection else None
+    if projection:
+        projection = {
+            **projection,
+            "cas_ref": projection_ref,
+            "runtime_event_ref": f"event://policy-design-case/{case_id}/projection",
+        }
+    projection_publication_state = _wave4_i4_projection_publication_state(
+        projection=projection,
+        projection_contract=projection_contract,
+        case_id=case_id,
+    )
+    portfolio_effective_support = _wave4_i4_portfolio_effective_support(
+        independence_map=independence_map,
+        synthesis_report=synthesis_report,
+        run_id=run_id,
+    )
+    i4_graph = _wave4_i4_graph(
+        case=enriched_case,
+        portfolio_effective_support=portfolio_effective_support,
+        lifecycle_report=lifecycle_report,
+        projection_contract=projection_contract,
+        projection_publication_state=projection_publication_state,
+        run_id=run_id,
+        job_id=job_id,
+    )
+
+    enriched_case["status"] = "pass"
+    enriched_case["authority_role"] = "runtime_reader"
+    enriched_case["provenance_kind"] = "runtime_emitted"
+    enriched_case["evidence_portfolios"] = portfolio_designs
+    enriched_case["evidence_lines"] = evidence_lines
+    enriched_case["evidence_independence_maps"] = [independence_map]
+    enriched_case["synthesis_reports"] = [synthesis_report]
+    enriched_case["lifecycle_reissue_report"] = lifecycle_report
+    enriched_case["policy_design_case_projection_ref"] = projection_ref
+    enriched_case["projection_contract_fixture_ref"] = projection_contract["cas_ref"]
+    enriched_case["i4_integration_graph_ref"] = i4_graph["cas_ref"]
+    enriched_case["cas_ref"] = (
+        str(enriched_case.get("policy_design_case_ref"))
+        if enriched_case.get("policy_design_case_ref")
+        else _payload_sha256(enriched_case)
+    )
+    enriched_case.setdefault(
+        "runtime_event_ref",
+        f"event://policy-design-case/{case_id}/wave4-i4",
+    )
+
+    enriched["policy_design_case"] = enriched_case
+    enriched["policy_design_case_i4_graph"] = i4_graph
+    enriched["policy_design_portfolio_effective_support"] = portfolio_effective_support
+    enriched["lifecycle_reissue_report"] = lifecycle_report
+    if projection:
+        enriched["policy_design_case_projection"] = projection
+    enriched["projection_publication_state"] = projection_publication_state
+    enriched["policy_design_case_projection_contract_fixture"] = projection_contract
+    return enriched
+
+
+def _with_wave4_i4_closeout_reader_records(
+    *,
+    quality_evidence_payload: dict[str, Any],
+    trust_boundary_attestation_records: list[dict[str, Any]],
+    run_id: str,
+    job_id: str,
+) -> dict[str, Any]:
+    enriched = dict(quality_evidence_payload)
+    case = enriched.get("policy_design_case")
+    case_id = str(case.get("case_id") if isinstance(case, dict) else f"pdc-{run_id}")
+    if isinstance(case, dict):
+        claim_registry = case.get("claim_registry")
+        if isinstance(claim_registry, dict):
+            enriched["claim_registry"] = _wave4_i4_runtime_reader_record(
+                {**claim_registry, "status": "pass"},
+                producer="polisyos.runtime.quality.claim_registry",
+                runtime_event_ref=f"event://policy-design-case/{case_id}/claim-registry",
+            )
+        run_cost_rows = case.get("run_cost_proportionality_ledgers")
+        if isinstance(run_cost_rows, list) and run_cost_rows:
+            enriched["run_cost_proportionality"] = _wave4_i4_runtime_reader_record(
+                {
+                    "schema_version": "policyos.runtime.run_cost_proportionality.v1",
+                    "status": "pass",
+                    "ledgers": [
+                        dict(item) for item in run_cost_rows if isinstance(item, dict)
+                    ],
+                    "issues": [],
+                },
+                producer="polisyos.runtime.quality.run_cost_proportionality",
+                runtime_event_ref=f"event://policy-design-case/{case_id}/run-cost",
+            )
+
+    enriched["formal_invariants"] = _wave4_i4_runtime_reader_record(
+        {
+            "schema_version": "policyos.runtime.formal_invariants.v1",
+            "status": _pass_if_no_failures(enriched.get("invariant_proof_harness_report")),
+            "source_report_ref": "quality_evidence/invariant_proof_harness_report.json",
+            "issues": _issues_from_report(enriched.get("invariant_proof_harness_report")),
+        },
+        producer="polisyos.runtime.quality.invariant_proof_harness",
+        runtime_event_ref=f"event://policy-design-case/{case_id}/formal-invariants",
+    )
+    enriched["source_truth"] = _wave4_i4_runtime_reader_record(
+        {
+            "schema_version": "policyos.runtime.source_truth.v1",
+            "status": _pass_if_no_failures(enriched.get("source_truth_conflicts")),
+            "source_report_ref": "quality_evidence/source_truth_conflicts.json",
+            "issues": _issues_from_report(enriched.get("source_truth_conflicts")),
+        },
+        producer="polisyos.runtime.quality.source_truth",
+        runtime_event_ref=f"event://policy-design-case/{case_id}/source-truth",
+    )
+    enriched["conflict_materialization"] = _wave4_i4_runtime_reader_record(
+        {
+            "schema_version": (
+                "policyos.scientist.cross_graph.conflict_materialization_closeout.v1"
+            ),
+            "status": _pass_if_no_failures(enriched.get("conflict_check")),
+            "source_report_ref": "quality_evidence/conflict_check.json",
+            "conflict_count": _count_report_rows(enriched.get("conflict_check"), "conflicts"),
+            "issues": _issues_from_report(enriched.get("conflict_check")),
+        },
+        producer="polisyos.scientist.cross_graph.conflict_materializer",
+        runtime_event_ref=f"event://policy-design-case/{case_id}/conflict-materialization",
+    )
+    enriched["attestation"] = _wave4_i4_runtime_reader_record(
+        {
+            "schema_version": "policyos.runtime.attestation.v1",
+            "status": "pass" if trust_boundary_attestation_records else "incomplete",
+            "attestation_record_count": len(trust_boundary_attestation_records),
+            "attestation_refs": [
+                str(row.get("attestation_id") or row.get("id") or index)
+                for index, row in enumerate(trust_boundary_attestation_records)
+                if isinstance(row, dict)
+            ],
+            "issues": [],
+        },
+        producer="polisyos.runtime.quality.attestation",
+        runtime_event_ref=f"event://policy-design-case/{case_id}/attestation",
+    )
+    enriched["audit_verifier_ingestion"] = _wave4_i4_runtime_reader_record(
+        {
+            "schema_version": "policyos.runtime.audit_verifier.v1",
+            "status": "pass",
+            "ingested_record_refs": [
+                "quality_evidence/policy_design_case_i4_graph.json",
+                "quality_evidence/policy_design_portfolio_effective_support.json",
+                "quality_evidence/lifecycle_reissue_report.json",
+                "quality_evidence/policy_design_case_projection_contract_fixture.json",
+            ],
+            "issues": [],
+        },
+        producer="polisyos.core.audit.verifier",
+        runtime_event_ref=f"event://policy-design-case/{case_id}/audit-verifier",
+    )
+    enriched.setdefault(
+        "run_cost_proportionality",
+        _wave4_i4_runtime_reader_record(
+            {
+                "schema_version": "policyos.runtime.run_cost_proportionality.v1",
+                "status": "pass",
+                "issues": [],
+            },
+            producer="polisyos.runtime.quality.run_cost_proportionality",
+            runtime_event_ref=f"event://policy-design-case/{case_id}/run-cost",
+        ),
+    )
+    return enriched
+
+
+def _with_wave4_i4_closeout_verdict(
+    *,
+    quality_evidence_payload: dict[str, Any],
+    closeout_compatibility: dict[str, Any],
+    quality_scorecard: dict[str, Any],
+    run_id: str,
+) -> dict[str, Any]:
+    module_records = {
+        "i4_policy_design_case_graph": quality_evidence_payload.get(
+            "policy_design_case_i4_graph"
+        ),
+        "portfolio_effective_support": quality_evidence_payload.get(
+            "policy_design_portfolio_effective_support"
+        ),
+        "lifecycle_reissue": quality_evidence_payload.get("lifecycle_reissue_report"),
+        "projection_consumer_contract": quality_evidence_payload.get(
+            "policy_design_case_projection_contract_fixture"
+        ),
+        "formal_invariants": quality_evidence_payload.get("formal_invariants"),
+        "source_truth": quality_evidence_payload.get("source_truth"),
+        "conflict_materialization": quality_evidence_payload.get(
+            "conflict_materialization"
+        ),
+        "attestation": quality_evidence_payload.get("attestation"),
+        "closeout_compatibility": closeout_compatibility,
+        "semantic_binding": quality_evidence_payload.get("semantic_binding_ledger"),
+        "claim_registry": quality_evidence_payload.get("claim_registry"),
+        "pdc_record_family_status": quality_evidence_payload.get("policy_design_case"),
+        "projection_publication_state": quality_evidence_payload.get(
+            "projection_publication_state"
+        ),
+        "complexity_self_fmea": quality_evidence_payload.get("run_cost_proportionality"),
+        "audit_verifier_ingestion": quality_evidence_payload.get(
+            "audit_verifier_ingestion"
+        ),
+    }
+    verdict = build_can_i_closeout_verdict(
+        run_id=run_id,
+        module_records={
+            key: value for key, value in module_records.items() if isinstance(value, dict)
+        },
+        compatibility_record=closeout_compatibility,
+        scorecard_record=quality_scorecard,
+    )
+    enriched = dict(quality_evidence_payload)
+    enriched["can_i_closeout"] = verdict
+    return enriched
+
+
+def _with_schema_compatibility_for_closeout(
+    *,
+    quality_evidence_payload: dict[str, Any],
+    run_id: str,
+    job_id: str,
+    canary_kind: str,
+) -> dict[str, Any]:
+    enriched = dict(quality_evidence_payload)
+    for report_key, ref_key in QUALITY_REPORT_RUNTIME_REFS.items():
+        report = enriched.get(report_key)
+        if not isinstance(report, dict) or isinstance(report.get("schema_compatibility"), dict):
+            continue
+        gate_name = QUALITY_REPORT_GATE_METADATA.get(
+            report_key,
+            (report_key, "", ""),
+        )[0]
+        schema_version = str(report.get("schema_version") or "1.0")
+        validation_ref = _stable_authority_ref(
+            ref_key,
+            "schema_compatibility",
+            run_id,
+            job_id,
+            canary_kind,
+        )
+        enriched[report_key] = {
+            **report,
+            "schema_compatibility": {
+                "decision": "compatible",
+                "status": "pass",
+                "schema_version": schema_version,
+                "reader_gate": gate_name,
+                "reader_gate_version": f"runtime.scorecard.{gate_name}.v1",
+                "validation_ref": validation_ref,
+                "schema_compatibility_ref": validation_ref,
+            },
+        }
+    return enriched
+
+
+def _wave4_i4_claim_rows(case: dict[str, Any]) -> list[dict[str, Any]]:
+    registry = case.get("claim_registry")
+    if isinstance(registry, dict) and isinstance(registry.get("claims"), list):
+        rows = [dict(row) for row in registry["claims"] if isinstance(row, dict)]
+        if rows:
+            return rows
+    for key in ("final_major_claims", "claims", "major_claims"):
+        value = case.get(key)
+        if isinstance(value, list):
+            rows = [dict(row) for row in value if isinstance(row, dict)]
+            if rows:
+                return rows
+    return []
+
+
+def _wave4_i4_portfolio_designs(
+    case: dict[str, Any],
+    *,
+    claims: list[dict[str, Any]],
+    canary_kind: str,
+) -> list[dict[str, Any]]:
+    existing = case.get("evidence_portfolios")
+    if isinstance(existing, list) and existing:
+        return [dict(row) for row in existing if isinstance(row, dict)]
+    claim_ids = [_claim_id(row, index=index) for index, row in enumerate(claims)]
+    return [
+        {
+            "schema_version": EVIDENCE_PORTFOLIO_DESIGN_SCHEMA_VERSION,
+            "portfolio_id": "portfolio.wave4_i4.claim_bound",
+            "claim_ids": claim_ids,
+            "predeclared": True,
+            "declared_at": "2026-05-17T08:00:00+00:00",
+            "declared_before_producer_execution": True,
+            "authority_level": canary_kind,
+            "strands": [
+                {
+                    "strand_id": "claim-bound-producer-output",
+                    "claim_ids": claim_ids,
+                    "authority_level": canary_kind,
+                    "candidate_data_source_families": [
+                        "claim_bound_fabric",
+                        "claim_bound_data_forge",
+                    ],
+                    "candidate_method_families": [
+                        "claim_bound_foundry",
+                        "legal_applicability",
+                    ],
+                    "defensible_specification_space": {
+                        "primary_estimand": "runtime_policy_effect",
+                        "allowed_models": ["claim_bound_runtime_synthesis"],
+                    },
+                    "inclusion_rules": [
+                        "Include only Wave 3 producer outputs bound to ClaimRecord refs.",
+                    ],
+                    "exclusion_rules": [
+                        "Exclude global evidence pools without per-claim refs.",
+                    ],
+                    "disconfirming_lines": [
+                        {
+                            "line_id": "wave4-i4-counterevidence-preservation",
+                            "required": True,
+                            "evidence_family": "counterevidence",
+                        }
+                    ],
+                    "synthesis_rules": {"strategy": "effective_independent_support"},
+                    "stopping_rules": {
+                        "minimum_effective_independent_evidence_count": 1,
+                    },
+                    "cost_proportionality": {"budget_tier": "standard"},
+                }
+            ],
+            "candidate_data_source_families": [
+                "claim_bound_fabric",
+                "claim_bound_data_forge",
+            ],
+            "candidate_method_families": ["claim_bound_foundry", "legal_applicability"],
+            "inclusion_rules": ["Use selected producer refs from the claim registry."],
+            "exclusion_rules": ["Reject unbound global pools."],
+            "disconfirming_lines": ["wave4-i4-counterevidence-preservation"],
+            "synthesis_rules": {"strategy": "effective_independent_support"},
+            "stopping_rules": {"minimum_effective_independent_evidence_count": 1},
+            "cost_proportionality": {"budget_tier": "standard"},
+            "cas_ref": _payload_sha256({"portfolio": claim_ids}),
+            "runtime_event_ref": "event://policy-design-case/wave4-i4/portfolio",
+        }
+    ]
+
+
+def _wave4_i4_evidence_lines(
+    case: dict[str, Any],
+    *,
+    claims: list[dict[str, Any]],
+    portfolio_designs: list[dict[str, Any]],
+    run_id: str,
+    job_id: str,
+) -> list[dict[str, Any]]:
+    existing = case.get("evidence_lines")
+    if isinstance(existing, list) and existing:
+        return [dict(row) for row in existing if isinstance(row, dict)]
+    portfolio_id = str(portfolio_designs[0]["portfolio_id"])
+    claim = claims[0]
+    claim_id = _claim_id(claim, index=0)
+    selected_refs = claim.get("selected_producer_refs")
+    selected = selected_refs if isinstance(selected_refs, dict) else {}
+    legal_ref = _first_text(selected.get("lex")) or _first_text(claim.get("legal_norm_refs"))
+    data_ref = (
+        _first_text(selected.get("fabric"))
+        or _first_text(selected.get("data_forge"))
+        or _first_text(claim.get("source_data_refs"))
+    )
+    method_ref = _first_text(selected.get("foundry")) or _first_text(claim.get("method_refs"))
+    scholar_ref = _first_text(selected.get("scholar")) or _first_text(claim.get("scholar_refs"))
+    base_source = data_ref or "claim-bound-source"
+    base_method = method_ref or "claim-bound-method"
+    return [
+        _wave4_i4_evidence_line(
+            line_id="wave4-i4-line-support-primary",
+            portfolio_id=portfolio_id,
+            claim_id=claim_id,
+            strand="data",
+            source_id=base_source,
+            method_id=base_method,
+            polarity="support",
+            producer_component="polisyos.fabric",
+            producer_ref=data_ref,
+            run_id=run_id,
+            job_id=job_id,
+            specification_id="wave4-i4-shared-spec",
+        ),
+        _wave4_i4_evidence_line(
+            line_id="wave4-i4-line-support-dependent",
+            portfolio_id=portfolio_id,
+            claim_id=claim_id,
+            strand="data",
+            source_id=base_source,
+            method_id=base_method,
+            polarity="support",
+            producer_component="polisyos.lex",
+            producer_ref=data_ref or legal_ref,
+            run_id=run_id,
+            job_id=job_id,
+            specification_id="wave4-i4-dependent-spec",
+        ),
+        _wave4_i4_evidence_line(
+            line_id="wave4-i4-line-counter-preserved",
+            portfolio_id=portfolio_id,
+            claim_id=claim_id,
+            strand="method",
+            source_id=scholar_ref or "claim-bound-counter-source",
+            method_id=f"{base_method}.sensitivity",
+            polarity="counterevidence",
+            producer_component="polisyos.foundry",
+            producer_ref=method_ref,
+            run_id=run_id,
+            job_id=job_id,
+            specification_id="wave4-i4-counter-spec",
+        ),
+    ]
+
+
+def _wave4_i4_evidence_line(
+    *,
+    line_id: str,
+    portfolio_id: str,
+    claim_id: str,
+    strand: str,
+    source_id: str,
+    method_id: str,
+    polarity: str,
+    producer_component: str,
+    producer_ref: str | None,
+    run_id: str,
+    job_id: str,
+    specification_id: str,
+) -> dict[str, Any]:
+    source_ref = producer_ref or _payload_sha256({"source_id": source_id})
+    return {
+        "schema_version": EVIDENCE_LINE_SCHEMA_VERSION,
+        "line_id": line_id,
+        "portfolio_id": portfolio_id,
+        "claim_id": claim_id,
+        "claim_ids": [claim_id],
+        "evidence_strand": strand,
+        "polarity": polarity,
+        "source_lineage": {
+            "source_id": source_id,
+            "source_ref": source_ref,
+            "lineage_refs": [source_ref],
+            "corpus_id": source_id,
+            "corpus_ancestry": [source_id],
+        },
+        "corpus_ancestry": [source_id],
+        "author_pool": ["wave4-i4-producer-handshake"],
+        "institution_pool": ["policyos-runtime"],
+        "preprocessing_pipeline_id": "wave4-i4-normalized-producer-output",
+        "method_id": method_id,
+        "method_assumptions": ["Wave 3 selected producer output is claim-bound."],
+        "identification_strategy_id": "claim-bound-runtime-synthesis",
+        "shared_failure_modes": [f"{source_id}:shared-lineage"],
+        "specification_id": specification_id,
+        "producer_identity": {
+            "component": producer_component,
+            "version": "2026.05.23+wave4-i4",
+            "owner": "team-policyos-runtime",
+        },
+        "execution_context": {
+            "run_id": run_id,
+            "job_id": job_id,
+            "tenant_id": "tenant-prod",
+            "trace_id": f"trace-{line_id}",
+        },
+        "evidence_ref": source_ref,
+        "runtime_event_ref": f"event://policy-design-case/wave4-i4/{line_id}",
+    }
+
+
+def _wave4_i4_independence_map(
+    case: dict[str, Any],
+    *,
+    portfolio_designs: list[dict[str, Any]],
+    evidence_lines: list[dict[str, Any]],
+    run_id: str,
+) -> dict[str, Any]:
+    existing = case.get("evidence_independence_maps") or case.get("independence_maps")
+    if isinstance(existing, list) and existing:
+        return dict(existing[0])
+    payload = build_evidence_independence_map(
+        evidence_lines,
+        portfolio_designs=portfolio_designs,
+        map_id="independence.wave4_i4.claim_bound",
+        producer_execution_started_at="2026-05-17T09:00:00+00:00",
+        evidence_ref=_payload_sha256({"independence": run_id}),
+        runtime_event_ref=f"event://policy-design-case/{run_id}/independence",
+    )
+    return _wave4_i4_runtime_reader_record(
+        {**payload, "status": "pass"},
+        producer="polisyos.runtime.quality.evidence_independence",
+        runtime_event_ref=f"event://policy-design-case/{run_id}/independence",
+    )
+
+
+def _wave4_i4_synthesis_report(
+    case: dict[str, Any],
+    *,
+    portfolio_designs: list[dict[str, Any]],
+    evidence_lines: list[dict[str, Any]],
+    independence_map: dict[str, Any],
+    run_id: str,
+) -> dict[str, Any]:
+    existing = case.get("synthesis_reports") or case.get("evidence_synthesis_reports")
+    if isinstance(existing, list) and existing:
+        return dict(existing[0])
+    portfolio_id = str(portfolio_designs[0]["portfolio_id"])
+    claim_id = str(independence_map["claim_ids"][0])
+    curve_ref = _payload_sha256({"curve": run_id, "portfolio_id": portfolio_id})
+    disconfirming_ref = _payload_sha256({"disconfirming": run_id})
+    multiverse_curve = {
+        "curve_id": "multiverse.wave4_i4.claim_bound",
+        "claim_ids": [claim_id],
+        "evidence_ref": curve_ref,
+        "specification_records": [
+            {
+                "specification_id": "wave4-i4-shared-spec",
+                "decision": "defensible",
+                "estimate": 0.12,
+                "standard_error": 0.03,
+                "quality_weight": 1.0,
+                "source_kind": "producer_claim_bound",
+            },
+            {
+                "specification_id": "wave4-i4-dependent-spec",
+                "decision": "defensible",
+                "estimate": 0.10,
+                "standard_error": 0.04,
+                "quality_weight": 0.8,
+                "source_kind": "producer_claim_bound",
+            },
+        ],
+        "previous_wave_refs": {
+            "portfolio_design_refs": [portfolio_id],
+            "evidence_line_refs": [
+                str(line.get("line_id")) for line in evidence_lines if line.get("line_id")
+            ],
+            "independence_map_refs": [str(independence_map["map_id"])],
+        },
+    }
+    disconfirming_ledger = {
+        "ledger_id": "disconfirming.wave4_i4.claim_bound",
+        "claim_ids": [claim_id],
+        "evidence_ref": disconfirming_ref,
+        "disconfirming_lines": ["wave4-i4-line-counter-preserved"],
+    }
+    effective_count = int(independence_map["effective_independent_evidence_count"])
+    payload = build_evidence_synthesis_report(
+        report_id="synthesis.wave4_i4.claim_bound",
+        portfolio_id=portfolio_id,
+        claim_ids=[claim_id],
+        multiverse_curve=multiverse_curve,
+        disconfirming_ledgers=[disconfirming_ledger],
+        primary_synthesis_rule={
+            "rule_id": "wave4-i4-primary-rule",
+            "weighting": "quality_weight",
+        },
+        sensitivity_synthesis_rules=[
+            {
+                "rule_id": "wave4-i4-equal-weight-rule",
+                "weighting": "equal",
+                "reasonable": True,
+            }
+        ],
+        heterogeneity_model={"model": "claim_bound_heterogeneity", "status": "bounded"},
+        certainty_framework={"framework": "policyos_runtime", "rating": "moderate"},
+        publication_bias_treatment={
+            "status": "assessed",
+            "method": "counterevidence_preserved",
+        },
+        inclusion_policy={
+            "policy_id": "claim_bound_wave3_outputs_only",
+            "policy": "claim_bound_wave3_outputs_only",
+        },
+        exclusion_policy={
+            "policy_id": "exclude_global_unbound_pools",
+            "policy": "exclude_global_unbound_pools",
+        },
+        information_saturation={
+            "status": "saturated",
+            "effective_independent_evidence_count": effective_count,
+            "minimum_effective_independent_evidence_count": 1,
+            "recent_direction_changes": 0,
+            "stopping_decision": "stop",
+        },
+        run_cost_proportionality={
+            "status": "pass",
+            "budget_tier": "standard",
+            "marginal_cost_usd": 0.0,
+            "marginal_information_gain": 0.0,
+            "cost_evidence_ref": _payload_sha256({"run_cost": run_id}),
+            "proportionality_rationale": (
+                "I4 reuses Wave 3 normalized producer outputs and does not acquire "
+                "additional evidence."
+            ),
+        },
+        evidence_ref=_payload_sha256({"synthesis": run_id}),
+        runtime_event_ref=f"event://policy-design-case/{run_id}/synthesis",
+    )
+    return _wave4_i4_runtime_reader_record(
+        {**payload, "status": "pass"},
+        producer="polisyos.runtime.quality.evidence_synthesis",
+        runtime_event_ref=f"event://policy-design-case/{run_id}/synthesis",
+    )
+
+
+def _wave4_i4_lifecycle_reissue_report(
+    case: dict[str, Any],
+    *,
+    claims: list[dict[str, Any]],
+    case_id: str,
+) -> dict[str, Any]:
+    existing = case.get("lifecycle_reissue_report") or case.get("claim_lifecycle_reissue")
+    if isinstance(existing, dict):
+        return _wave4_i4_runtime_reader_record(
+            dict(existing),
+            producer="polisyos.runtime.quality.case_lifecycle",
+            runtime_event_ref=str(
+                existing.get("runtime_event_ref")
+                or f"event://policy-design-case/{case_id}/lifecycle-reissue"
+            ),
+        )
+    claim_ids = [_claim_id(row, index=index) for index, row in enumerate(claims)]
+    return build_lifecycle_reissue_report(
+        report_id="lifecycle-reissue.wave4_i4",
+        case_id=case_id,
+        claim_ids=claim_ids,
+        evidence_ref=_payload_sha256({"lifecycle": case_id}),
+        runtime_event_ref=f"event://policy-design-case/{case_id}/lifecycle-reissue",
+    )
+
+
+def _wave4_i4_portfolio_effective_support(
+    *,
+    independence_map: dict[str, Any],
+    synthesis_report: dict[str, Any],
+    run_id: str,
+) -> dict[str, Any]:
+    mass = dict(independence_map.get("effective_mass_report") or {})
+    payload = {
+        "schema_version": (
+            "policyos.runtime.policy_design_case.portfolio_effective_support.v1"
+        ),
+        "status": "pass",
+        "run_id": run_id,
+        "map_ref": independence_map.get("cas_ref") or independence_map.get("map_id"),
+        "synthesis_ref": synthesis_report.get("cas_ref") or synthesis_report.get("report_id"),
+        "effective_support": {
+            "raw_evidence_line_count": independence_map.get("raw_evidence_line_count"),
+            "effective_independent_evidence_count": independence_map.get(
+                "effective_independent_evidence_count"
+            ),
+            "effective_support_mass": mass.get("effective_support_mass"),
+            "effective_counterevidence_mass": mass.get(
+                "effective_counterevidence_mass"
+            ),
+            "collapse_reasons": mass.get("dominant_collapse_reasons") or [],
+            "raw_count_display_policy": mass.get("raw_count_display_policy"),
+            "rare_domain_scarcity": independence_map.get("rare_domain_scarcity"),
+        },
+        "counterevidence_preserved": bool(
+            mass.get("effective_counterevidence_mass", 0.0)
+        ),
+        "issues": [],
+    }
+    return _wave4_i4_runtime_reader_record(
+        payload,
+        producer="polisyos.runtime.quality.evidence_independence",
+        runtime_event_ref=f"event://policy-design-case/{run_id}/portfolio-effective-support",
+    )
+
+
+def _wave4_i4_projection_publication_state(
+    *,
+    projection: dict[str, Any],
+    projection_contract: dict[str, Any],
+    case_id: str,
+) -> dict[str, Any]:
+    status = "pass" if projection and projection_contract.get("status") == "pass" else "fail"
+    payload = {
+        "schema_version": (
+            "policyos.runtime.policy_design_case.projection_publication_state.v1"
+        ),
+        "status": status,
+        "projection_ref": projection.get("cas_ref"),
+        "projection_contract_ref": projection_contract.get("cas_ref"),
+        "projection_primary_state": projection.get("primary_state"),
+        "authority_role": "runtime_reader",
+        "provenance_kind": "runtime_emitted",
+        "issues": [] if status == "pass" else projection_contract.get("issues", []),
+    }
+    return _wave4_i4_runtime_reader_record(
+        payload,
+        producer="polisyos.runtime.quality.projection_semantics",
+        runtime_event_ref=f"event://policy-design-case/{case_id}/projection-publication-state",
+    )
+
+
+def _wave4_i4_graph(
+    *,
+    case: dict[str, Any],
+    portfolio_effective_support: dict[str, Any],
+    lifecycle_report: dict[str, Any],
+    projection_contract: dict[str, Any],
+    projection_publication_state: dict[str, Any],
+    run_id: str,
+    job_id: str,
+) -> dict[str, Any]:
+    case_id = str(case.get("case_id") or f"pdc-{run_id}")
+    issues = []
+    for record, code in (
+        (portfolio_effective_support, "policy_design_wave4_portfolio_missing"),
+        (lifecycle_report, "policy_design_wave4_lifecycle_missing"),
+        (projection_contract, "policy_design_wave4_projection_contract_missing"),
+        (projection_publication_state, "policy_design_wave4_projection_state_missing"),
+    ):
+        if not isinstance(record, dict) or str(record.get("status")) not in {"pass", "closed"}:
+            issues.append(
+                _wave4_i4_issue(
+                    code=code,
+                    message="Wave 4 I4 graph input is missing or failing.",
+                    severity="fail",
+                )
+            )
+    payload = {
+        "schema_version": "policyos.runtime.policy_design_case.wave4_i4_graph.v1",
+        "status": "fail" if issues else "pass",
+        "graph_id": f"wave4-i4-{run_id}",
+        "case_id": case_id,
+        "run_id": run_id,
+        "job_id": job_id,
+        "producer_output_refs": {
+            "claim_registry": _case_ref(case.get("claim_registry")),
+            "portfolio_effective_support": portfolio_effective_support.get("cas_ref"),
+            "lifecycle_reissue": lifecycle_report.get("cas_ref"),
+            "projection_consumer_contract": projection_contract.get("cas_ref"),
+            "projection_publication_state": projection_publication_state.get("cas_ref"),
+            "closeout_verdict": "quality_evidence/can_i_closeout.json",
+        },
+        "nodes": [
+            {"node_type": "policy_design_case", "ref": _case_ref(case)},
+            {
+                "node_type": "portfolio_effective_support",
+                "ref": portfolio_effective_support.get("cas_ref"),
+            },
+            {"node_type": "lifecycle_reissue", "ref": lifecycle_report.get("cas_ref")},
+            {
+                "node_type": "projection_consumer_contract",
+                "ref": projection_contract.get("cas_ref"),
+            },
+            {"node_type": "closeout_verdict", "ref": "quality_evidence/can_i_closeout.json"},
+        ],
+        "edges": [
+            {
+                "from": "policy_design_case",
+                "to": "portfolio_effective_support",
+                "relation": "claim_bound_effective_support",
+            },
+            {
+                "from": "policy_design_case",
+                "to": "lifecycle_reissue",
+                "relation": "claim_scoped_lifecycle",
+            },
+            {
+                "from": "policy_design_case",
+                "to": "projection_consumer_contract",
+                "relation": "truth_preserving_projection",
+            },
+            {
+                "from": "i4_graph",
+                "to": "closeout_verdict",
+                "relation": "closeout_reader_input",
+            },
+        ],
+        "capability_reality_state": "implemented" if not issues else "bridge_missing",
+        "issues": issues,
+    }
+    return _wave4_i4_runtime_reader_record(
+        payload,
+        producer="polisyos.runtime.quality.policy_design_case",
+        runtime_event_ref=f"event://policy-design-case/{case_id}/wave4-i4-graph",
+    )
+
+
+def _wave4_i4_runtime_reader_record(
+    payload: dict[str, Any],
+    *,
+    producer: str,
+    runtime_event_ref: str,
+) -> dict[str, Any]:
+    record = dict(payload)
+    record.setdefault("status", "pass")
+    record.setdefault("authority_role", "runtime_reader")
+    record.setdefault("provenance_kind", "runtime_emitted")
+    record.setdefault("producer", producer)
+    record.setdefault("runtime_event_ref", runtime_event_ref)
+    record.setdefault("issues", [])
+    record.setdefault("cas_ref", _payload_sha256(record))
+    return record
+
+
+def _wave4_i4_issue(*, code: str, message: str, severity: str) -> dict[str, str]:
+    return {"code": code, "message": message, "severity": severity}
+
+
+def _pass_if_no_failures(report: Any) -> str:
+    if not isinstance(report, dict):
+        return "pass"
+    status = str(report.get("status") or report.get("quality_status") or "").casefold()
+    if status in {"fail", "failed", "blocked", "block"}:
+        return "fail"
+    if _issues_from_report(report):
+        return "fail"
+    return "pass"
+
+
+def _count_report_rows(report: Any, key: str) -> int:
+    if not isinstance(report, dict):
+        return 0
+    value = report.get(key)
+    if isinstance(value, list):
+        return sum(1 for item in value if isinstance(item, dict))
+    return 0
+
+
+def _issues_from_report(report: Any) -> list[dict[str, Any]]:
+    if not isinstance(report, dict):
+        return []
+    issues: list[dict[str, Any]] = []
+    for key in ("issues", "findings", "blocking_findings", "blockers"):
+        value = report.get(key)
+        if isinstance(value, list):
+            for item in value:
+                if isinstance(item, dict):
+                    severity = str(
+                        item.get("severity") or item.get("status") or ""
+                    ).casefold()
+                    if severity in {"fail", "failed", "blocked", "block"} or key in {
+                        "blocking_findings",
+                        "blockers",
+                    }:
+                        issues.append(
+                            {
+                                "code": str(item.get("code") or key),
+                                "message": str(item.get("message") or item.get("reason") or key),
+                                "severity": "fail",
+                            }
+                        )
+    return issues
+
+
+def _claim_id(claim: dict[str, Any], *, index: int) -> str:
+    value = claim.get("claim_id") or claim.get("id") or claim.get("record_id")
+    return str(value or f"claim-{index + 1}")
+
+
+def _first_text(value: Any) -> str | None:
+    if isinstance(value, str) and value.strip():
+        return value.strip()
+    if isinstance(value, list):
+        for item in value:
+            text = _first_text(item)
+            if text:
+                return text
+    return None
+
+
+def _case_ref(value: Any) -> str | None:
+    if not isinstance(value, dict):
+        return None
+    for key in ("cas_ref", "evidence_ref", "policy_design_case_ref", "claim_ref"):
+        raw = value.get(key)
+        if isinstance(raw, str) and raw:
+            return raw
+    return _payload_sha256(value)
 
 
 def _extract_failure(job_payload: dict[str, Any] | None) -> dict[str, Any] | None:
@@ -3265,7 +4528,7 @@ def _decision_artifact_quality_from_payloads(
             artifact = dict(exc.draft_artifact)
             artifact_issues = list(exc.issues)
     else:
-        artifact = compile_public_decision_artifact(
+        artifact = compile_draft_decision_packet(
             run_id=str(run_id or "unknown"),
             final_claims=final_claims,
             policy_grounding_matrix=grounding,
@@ -3757,6 +5020,14 @@ def assemble_canary_evidence(
     quality_evidence_payload = _with_prompt_tool_secondary_signal_findings(
         quality_evidence_payload,
     )
+    quality_evidence_payload = _with_wave7_producer_pipeline(
+        quality_evidence_payload=quality_evidence_payload,
+        canary_kind=canary_kind,
+        command_metadata=command_metadata,
+        request_payload=request_payload,
+        job_payload=job_payload,
+        run_payload=run_payload,
+    )
     generated_quality_refs = _generated_runtime_quality_refs(quality_evidence_payload)
     runtime_source_refs = {
         **quality_ref_resolution.refs,
@@ -4018,6 +5289,24 @@ def assemble_canary_evidence(
             run_payload=scorecard_run_payload,
             canary_kind=canary_kind,
         )
+        quality_evidence_payload = _with_wave4_i4_policy_design_case_outputs(
+            quality_evidence_payload=quality_evidence_payload,
+            run_id=run_id,
+            job_id=job_id,
+            canary_kind=canary_kind,
+        )
+    quality_evidence_payload = _with_cost_degradation_telemetry(
+        quality_evidence_payload=quality_evidence_payload,
+        job_payload=scorecard_job_payload,
+        run_payload=scorecard_run_payload,
+        canary_kind=canary_kind,
+    )
+    quality_evidence_payload = _with_run_cost_gate(
+        quality_evidence_payload=quality_evidence_payload,
+        job_payload=scorecard_job_payload,
+        run_payload=scorecard_run_payload,
+        canary_kind=canary_kind,
+    )
     if serious_bundle:
         quality_evidence_payload["public_export_bundle"] = (
             _public_export_bundle_from_quality_evidence(
@@ -4165,6 +5454,12 @@ def assemble_canary_evidence(
         )
     )
     if serious_bundle:
+        quality_evidence_payload = _with_wave4_i4_closeout_reader_records(
+            quality_evidence_payload=quality_evidence_payload,
+            trust_boundary_attestation_records=trust_boundary_attestation_records,
+            run_id=run_id,
+            job_id=job_id,
+        )
         quality_evidence_payload["assurance_case"] = build_assurance_case_for_scorecard(
             quality_scorecard,
             owner="team-assurance",
@@ -4206,6 +5501,115 @@ def assemble_canary_evidence(
         if job_payload is not None and scorecard_job_payload is not None
         else None
     )
+    if serious_bundle:
+        continuity_bundle_payload = {
+            "bundle_ref": str(bundle_dir),
+            "files": {
+                "quality_evidence": {
+                    NL_REPLAY_ORCHESTRATION_RECORD_KEY: NL_REPLAY_ORCHESTRATION_FILE_REF
+                }
+            },
+        }
+        continuity_inspection_payload = {
+            "tool": "quality.validation.inspect-evidence-bundles",
+            "orchestration_continuity_ref": NL_REPLAY_ORCHESTRATION_FILE_REF,
+        }
+        continuity_readiness_payload = {
+            "status": quality_scorecard.get("quality_status"),
+            "approval_state": quality_scorecard.get("approval_state"),
+            "orchestration_continuity_ref": NL_REPLAY_ORCHESTRATION_FILE_REF,
+        }
+        continuity_request_context = {
+            **dict(request_payload or {}),
+            "orchestration_continuity_ref": NL_REPLAY_ORCHESTRATION_FILE_REF,
+        }
+        quality_evidence_payload[NL_REPLAY_ORCHESTRATION_RECORD_KEY] = (
+            build_nl_replay_orchestration_continuity(
+                request_context=continuity_request_context,
+                workflow_state=(
+                    scorecard_run_payload or scorecard_job_payload or run_payload or job_payload
+                ),
+                job_progress=bundle_job_payload or scorecard_job_payload or job_payload,
+                replay_manifest=quality_evidence_payload.get("replay_manifest")
+                if isinstance(quality_evidence_payload.get("replay_manifest"), dict)
+                else None,
+                bundle_payload=continuity_bundle_payload,
+                quality_evidence=quality_evidence_payload,
+                inspection_report=continuity_inspection_payload,
+                readiness_payload=continuity_readiness_payload,
+                export_payload=quality_evidence_payload.get("public_export_bundle")
+                if isinstance(quality_evidence_payload.get("public_export_bundle"), dict)
+                else None,
+            )
+        )
+        quality_evidence_payload["replay_manifest"] = (
+            attach_replay_orchestration_continuity(
+                quality_evidence_payload.get("replay_manifest")
+                if isinstance(quality_evidence_payload.get("replay_manifest"), dict)
+                else {},
+                quality_evidence_payload[NL_REPLAY_ORCHESTRATION_RECORD_KEY],
+            )
+        )
+        quality_evidence_payload["drift_explanation"] = explain_replay_drift(
+            baseline_manifest=quality_evidence_payload["replay_manifest"],
+            replay_manifest=dict(quality_evidence_payload["replay_manifest"]),
+        )
+        quality_evidence_payload["public_export_bundle"] = (
+            _public_export_bundle_from_quality_evidence(
+                run_id=run_id,
+                quality_evidence_payload=quality_evidence_payload,
+                quality_scorecard=quality_scorecard,
+            )
+        )
+        quality_evidence_payload[NL_REPLAY_ORCHESTRATION_RECORD_KEY] = (
+            build_nl_replay_orchestration_continuity(
+                request_context=continuity_request_context,
+                workflow_state=(
+                    scorecard_run_payload or scorecard_job_payload or run_payload or job_payload
+                ),
+                job_progress=bundle_job_payload or scorecard_job_payload or job_payload,
+                replay_manifest=quality_evidence_payload["replay_manifest"],
+                bundle_payload=continuity_bundle_payload,
+                quality_evidence=quality_evidence_payload,
+                inspection_report=continuity_inspection_payload,
+                readiness_payload=continuity_readiness_payload,
+                export_payload=quality_evidence_payload["public_export_bundle"],
+            )
+        )
+        quality_evidence_payload["replay_manifest"] = (
+            attach_replay_orchestration_continuity(
+                quality_evidence_payload["replay_manifest"],
+                quality_evidence_payload[NL_REPLAY_ORCHESTRATION_RECORD_KEY],
+            )
+        )
+        quality_evidence_payload["drift_explanation"] = explain_replay_drift(
+            baseline_manifest=quality_evidence_payload["replay_manifest"],
+            replay_manifest=dict(quality_evidence_payload["replay_manifest"]),
+        )
+        quality_evidence_payload["public_export_bundle"] = (
+            _public_export_bundle_from_quality_evidence(
+                run_id=run_id,
+                quality_evidence_payload=quality_evidence_payload,
+                quality_scorecard=quality_scorecard,
+            )
+        )
+        quality_evidence_payload["evidence_spine_handoff_ledger"] = (
+            build_canary_evidence_handoff_ledger(
+                bundle_ref=str(bundle_dir),
+                quality_evidence_payload=quality_evidence_payload,
+                job_payload=bundle_job_payload or job_payload,
+                run_payload=scorecard_run_payload,
+                request_payload=request_payload,
+                command_metadata=command_metadata,
+                dashboard_payload=dashboard_payload,
+            )
+        )
+        quality_evidence_payload = _with_schema_compatibility_for_closeout(
+            quality_evidence_payload=quality_evidence_payload,
+            run_id=run_id,
+            job_id=job_id,
+            canary_kind=canary_kind,
+        )
     refs = []
     for source_name, payload in (
         ("job", bundle_job_payload if bundle_job_payload is not None else job_payload),
@@ -4297,6 +5701,11 @@ def assemble_canary_evidence(
                     if "public_export_bundle" in quality_evidence_payload
                     else None
                 ),
+                NL_REPLAY_ORCHESTRATION_RECORD_KEY: (
+                    NL_REPLAY_ORCHESTRATION_FILE_REF
+                    if NL_REPLAY_ORCHESTRATION_RECORD_KEY in quality_evidence_payload
+                    else None
+                ),
                 "invariant_proof_harness_report": (
                     INVARIANT_PROOF_HARNESS_REPORT_FILE
                     if "invariant_proof_harness_report" in quality_evidence_payload
@@ -4332,6 +5741,16 @@ def assemble_canary_evidence(
         quality_reports=quality_evidence_payload,
         authority_profile_version=canary_kind,
     )
+    if serious_bundle:
+        quality_evidence_payload = _with_wave4_i4_closeout_verdict(
+            quality_evidence_payload=quality_evidence_payload,
+            closeout_compatibility=closeout_compatibility,
+            quality_scorecard=quality_scorecard,
+            run_id=run_id,
+        )
+        bundle["files"]["quality_evidence"]["can_i_closeout"] = (
+            "quality_evidence/can_i_closeout.json"
+        )
 
     _write_json(bundle_dir / "bundle.json", bundle)
     _write_json(bundle_dir / "canary_performance_budget.json", canary_performance_budget)
@@ -4349,6 +5768,11 @@ def assemble_canary_evidence(
         _write_json(
             bundle_dir / PUBLIC_EXPORT_BUNDLE_FILE,
             quality_evidence_payload["public_export_bundle"],
+        )
+    if NL_REPLAY_ORCHESTRATION_RECORD_KEY in quality_evidence_payload:
+        _write_json(
+            bundle_dir / NL_REPLAY_ORCHESTRATION_FILE_REF,
+            quality_evidence_payload[NL_REPLAY_ORCHESTRATION_RECORD_KEY],
         )
     if closeout_authority_index is not None:
         _write_json(

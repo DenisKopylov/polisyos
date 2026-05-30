@@ -1,0 +1,30 @@
+{
+  "artifact_count": 16,
+  "artifact_paths": {
+    "claim_registry": "claim_registry.json",
+    "closeout_verdict": "closeout_verdict.json",
+    "concept_spine": "concept_spine.json",
+    "cost_degradation_telemetry": "cost_degradation_telemetry.json",
+    "deterministic_producer_fixture": "deterministic_producer_fixture.json",
+    "evidence_spine_handoff_ledger": "evidence_spine_handoff_ledger.json",
+    "historical_prior_firewall": "historical_prior_firewall.json",
+    "memory_influence_firewall": "memory_influence_firewall.json",
+    "policy_design_case": "policy_design_case.json",
+    "producer_handshake_ledger": "producer_handshake_ledger.json",
+    "projection_closeout_negative": "projection_closeout_negative.json",
+    "request": "request.json",
+    "rule_evolution_registry": "rule_evolution_registry.json",
+    "semantic_negative": "semantic_negative.json",
+    "soft_gate_telemetry": "soft_gate_telemetry.json",
+    "typed_projection": "typed_projection.json"
+  },
+  "integration_slice": "I2",
+  "refs": {
+    "closeout_verdict": "policyos.runtime.quality.closeout_reader",
+    "concept_spine": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "producer_handshake_ledger": "producer-handshake-ledger:sha256:355ffffd0c1a827662bc89d501b3dc1f5e1e01408ee5341c12a64e58279af3f7"
+  },
+  "run_id": "run-wave2-i2",
+  "schema_version": "policyos.runtime.policy_design_case.wave2_i2_manifest.v1",
+  "status": "pass"
+}

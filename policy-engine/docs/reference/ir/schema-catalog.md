@@ -2,7 +2,7 @@
 
 Related reference: [Schemas](../schemas.md).
 
-> This page is generated from `polisyos.ir.schema_catalog` and the current package facades.
+> This page is generated from `polisyos.ir.schemas` and the current package facades.
 
 Canonical regeneration command (snapshots + reference docs):
 
@@ -12,9 +12,9 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 
 ## Summary
 
-- Total IR types: `1541`.
+- Total IR types: `1547`.
 - Public/root-or-package facade types: `422`.
-- ABI snapshot-backed types: `88`.
+- ABI snapshot-backed types: `95`.
 - Export enumeration covers these public packages:
 
 | Package | Export count |
@@ -39,10 +39,11 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `world` | 32 | 32 | 12 |
 | `connectors` | 24 | 4 | 0 |
 | `data` | 7 | 0 | 0 |
-| `loading` | 25 | 8 | 0 |
-| `model_layer` | 30 | 8 | 0 |
+| `loading` | 25 | 10 | 6 |
+| `model_layer` | 30 | 8 | 1 |
 | `passes` | 17 | 0 | 0 |
 | `registry` | 146 | 30 | 0 |
+| `schemas` | 6 | 0 | 0 |
 
 ## Analytics
 
@@ -22770,7 +22771,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `canonicalizer` | `str` | `no` | `'production_metric_taxonomy.v1'` | — |
 | `metrics` | `dict[str, polisyos.ir.kernel.metrics.MetricTaxonomyEntry]` | `no` | `—` | `polisyos.ir.kernel.metrics.MetricTaxonomyEntry` |
 | `schema_version` | `str` | `no` | `'1.0'` | — |
-| `taxonomy_version` | `str` | `no` | `'2026.05.13'` | — |
+| `taxonomy_version` | `str` | `no` | `'2026.05.19'` | — |
 
 ### `polisyos.ir.kernel.selector_fields.SelectorFieldRegistry` { #polisyos-ir-kernel-selector-fields-selectorfieldregistry }
 
@@ -27572,10 +27573,10 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.loading.fact_log.Fact` { #polisyos-ir-loading-fact-log-fact }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `snapshot_only`
 - Current version: `1.0`
 - Exported from: —
-- ABI snapshot: `—` / `—`
+- ABI snapshot: `fact` / `schemas/snapshots/ir/fact.schema.json`
 - Compatibility mode: `—`
 - References: `polisyos.ir.loading.fact_log.FactLegal`, `polisyos.ir.loading.fact_log.FactProvenance`, `polisyos.ir.loading.fact_log.FactTrust`
 - Summary: Fact public type.
@@ -27676,10 +27677,10 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 ### `polisyos.ir.loading.fact_log.FactSegmentManifest` { #polisyos-ir-loading-fact-log-factsegmentmanifest }
 
 - Kind: `pydantic_model`
-- Public status: `internal`
+- Public status: `snapshot_only`
 - Current version: `1.0`
 - Exported from: —
-- ABI snapshot: `—` / `—`
+- ABI snapshot: `fact_segment_manifest` / `schemas/snapshots/ir/fact_segment_manifest.schema.json`
 - Compatibility mode: `—`
 - References: —
 - Summary: Fact segment manifest data model.
@@ -27810,7 +27811,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Public status: `root_facade`
 - Current version: `1.0`
 - Exported from: `polisyos.ir:NormPack`
-- ABI snapshot: `—` / `—`
+- ABI snapshot: `norm_pack` / `schemas/snapshots/ir/norm_pack.schema.json`
 - Compatibility mode: `—`
 - References: `polisyos.ir.loading.norm_pack.NormRule`
 - Summary: Package of applicable norms for policy evaluation.
@@ -27830,7 +27831,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Public status: `root_facade`
 - Current version: `1.0`
 - Exported from: `polisyos.ir:NormRef`
-- ABI snapshot: `—` / `—`
+- ABI snapshot: `norm_ref` / `schemas/snapshots/ir/norm_ref.schema.json`
 - Compatibility mode: `—`
 - References: `polisyos.ir.loading.citations.CitationRef`
 - Summary: Reference a source provision that grounds one normative rule.
@@ -27849,7 +27850,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Public status: `root_facade`
 - Current version: `1.0`
 - Exported from: `polisyos.ir:NormRule`
-- ABI snapshot: `—` / `—`
+- ABI snapshot: `norm_rule` / `schemas/snapshots/ir/norm_rule.schema.json`
 - Compatibility mode: `—`
 - References: `polisyos.ir.analytics.applicability.NormApplicability`, `polisyos.ir.loading.norm_pack.BackendExpr`, `polisyos.ir.loading.norm_pack.NormRef`, `polisyos.ir.loading.norm_pack.RuleType`
 - Summary: Declare one machine-readable norm and its source-backed applicability scope.
@@ -27966,7 +27967,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Public status: `root_facade`
 - Current version: `1.0`
 - Exported from: `polisyos.ir:PolicyPortfolio`
-- ABI snapshot: `—` / `—`
+- ABI snapshot: `policy_portfolio` / `schemas/snapshots/ir/policy_portfolio.schema.json`
 - Compatibility mode: `—`
 - References: `polisyos.ir.governance.policy_spec.PolicySpec`, `polisyos.ir.loading.portfolio.InteractionMatrix`, `polisyos.ir.model_layer.types.TranslatableString`
 - Summary: Bundle a feasible policy set plus pairwise interaction rules for portfolio search.
@@ -28174,7 +28175,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 - Public status: `root_facade`
 - Current version: `1.0`
 - Exported from: `polisyos.ir:ModelSpec`
-- ABI snapshot: `—` / `—`
+- ABI snapshot: `model_spec` / `schemas/snapshots/ir/model_spec.schema.json`
 - Compatibility mode: `—`
 - References: `polisyos.ir.kernel.time_semantics.TimeSemantics`, `polisyos.ir.model_layer.model_spec.AgentConfig`, `polisyos.ir.model_layer.model_spec.AssumptionSpec`, `polisyos.ir.model_layer.model_spec.EnvironmentConfig`, `polisyos.ir.model_layer.model_spec.FidelityLevel`, `polisyos.ir.model_layer.types.TranslatableString`
 - Summary: Define the Trinity ``how`` contract for simulation assumptions and state.
@@ -31331,3 +31332,128 @@ uv run --extra ml polisyos-tools diagnostics gen-schema
 | `kind` | `Literal[units]` | `no` | `'units'` | — |
 | `meta` | `polisyos.ir.registry.registry_fragments.RegistryFragmentMeta` | `yes` | `—` | `polisyos.ir.registry.registry_fragments.RegistryFragmentMeta` |
 | `payload` | `polisyos.ir.kernel.units.UnitsRegistry` | `yes` | `—` | `polisyos.ir.kernel.units.UnitsRegistry` |
+
+## Schemas
+
+### `polisyos.ir.schemas.catalog.IRExportInfo` { #polisyos-ir-schemas-catalog-irexportinfo }
+
+- Kind: `dataclass`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: One exported symbol from a package facade.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `package` | `str` | `yes` | `—` | — |
+| `export_name` | `str` | `yes` | `—` | — |
+| `target_fqn` | `str` | `yes` | `—` | — |
+
+### `polisyos.ir.schemas.catalog.IRFieldInfo` { #polisyos-ir-schemas-catalog-irfieldinfo }
+
+- Kind: `dataclass`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Structured field metadata exposed by the reflection catalog.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `name` | `str` | `yes` | `—` | — |
+| `annotation` | `str` | `yes` | `—` | — |
+| `required` | `bool` | `yes` | `—` | — |
+| `default` | `str \| None` | `yes` | `—` | — |
+| `references` | `tuple[str, ...]` | `no` | `()` | — |
+
+### `polisyos.ir.schemas.catalog.IRPublicStatus` { #polisyos-ir-schemas-catalog-irpublicstatus }
+
+- Kind: `enum`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Describe how a symbol becomes part of the supported IR surface.
+
+| Enum values |
+| ----------- |
+| `root_facade` |
+| `package_facade` |
+| `snapshot_only` |
+| `internal` |
+
+### `polisyos.ir.schemas.catalog.IRSchemaCatalog` { #polisyos-ir-schemas-catalog-irschemacatalog }
+
+- Kind: `dataclass`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Snapshot of the current importable IR type surface.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `types` | `tuple[IRTypeInfo, ...]` | `yes` | `—` | — |
+| `exports` | `tuple[IRExportInfo, ...]` | `yes` | `—` | — |
+
+### `polisyos.ir.schemas.catalog.IRTypeInfo` { #polisyos-ir-schemas-catalog-irtypeinfo }
+
+- Kind: `dataclass`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Catalog entry for one IR class or enum.
+
+| Field | Type | Required | Default | IR refs |
+| ----- | ---- | -------- | ------- | ------- |
+| `name` | `str` | `yes` | `—` | — |
+| `qualname` | `str` | `yes` | `—` | — |
+| `fqn` | `str` | `yes` | `—` | — |
+| `module` | `str` | `yes` | `—` | — |
+| `kind` | `IRTypeKind` | `yes` | `—` | — |
+| `schema_version` | `str \| None` | `yes` | `—` | — |
+| `public_status` | `IRPublicStatus` | `yes` | `—` | — |
+| `exported_from` | `tuple[str, ...]` | `yes` | `—` | — |
+| `docs_link` | `str` | `yes` | `—` | — |
+| `summary` | `str \| None` | `yes` | `—` | — |
+| `fields` | `tuple[IRFieldInfo, ...]` | `no` | `()` | — |
+| `refs` | `tuple[str, ...]` | `no` | `()` | — |
+| `enum_values` | `tuple[str, ...]` | `no` | `()` | — |
+| `abi_key` | `str \| None` | `no` | `None` | — |
+| `abi_schema_file` | `str \| None` | `no` | `None` | — |
+| `abi_priority` | `str \| None` | `no` | `None` | — |
+| `compat_mode` | `CompatibilityMode \| None` | `no` | `None` | — |
+| `compat_readable_versions` | `tuple[str, ...]` | `no` | `()` | — |
+| `compat_writable_versions` | `tuple[str, ...]` | `no` | `()` | — |
+
+### `polisyos.ir.schemas.catalog.IRTypeKind` { #polisyos-ir-schemas-catalog-irtypekind }
+
+- Kind: `enum`
+- Public status: `internal`
+- Current version: `—`
+- Exported from: —
+- ABI snapshot: `—` / `—`
+- Compatibility mode: `—`
+- References: —
+- Summary: Classify the structural shape of one IR symbol.
+
+| Enum values |
+| ----------- |
+| `pydantic_model` |
+| `root_model` |
+| `enum` |
+| `dataclass` |
+| `protocol` |
+| `class` |

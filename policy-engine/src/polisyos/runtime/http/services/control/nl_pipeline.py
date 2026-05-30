@@ -22,7 +22,7 @@ from polisyos.core.contracts.control import (
     DataResolveRequest,
     DataSourceBinding,
 )
-from polisyos.data_forge.compliance import build_privacy_compliance_report
+from polisyos.data_forge.read_api import build_privacy_compliance_report
 from polisyos.foundry.validation.causal_validity import (
     build_causal_statistical_validity_report,
 )
@@ -7218,8 +7218,8 @@ class NaturalLanguageRunMixin:
                     from polisyos.runtime.quality.semantic_binding import (
                         build_semantic_binding_ledger,
                     )
-                    from polisyos.scholar.spine import build_scholar_spine_evidence_binding
-                    from polisyos.runtime.security.quality_gates import (
+                    from polisyos.scholar import build_scholar_spine_evidence_binding
+                    from polisyos.core.security.quality_gates import (
                         SECURITY_ASSURANCE_REPORT_REF_KEY,
                         build_security_assurance_report,
                     )

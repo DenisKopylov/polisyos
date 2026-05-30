@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from datetime import UTC, datetime
+from pathlib import Path
 
 from polisyos.core.artifacts.manifest import ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -10,6 +11,7 @@ from polisyos.core.canon import CanonSpec
 from polisyos.runtime.http.services.control.artifacts import write_authority_artifact
 from polisyos.runtime.quality.approval import build_production_approval_packet
 from polisyos.runtime.quality.authority import GovernanceMetadata, SameInputClosure
+from polisyos.runtime.quality.case_lifecycle import build_lifecycle_reissue_report
 from polisyos.runtime.quality.scorecard import QUALITY_REPORT_RUNTIME_REFS
 from tests._helpers.hds_quality import (
     authority_envelope_for as _hds_authority_envelope_for,
@@ -365,6 +367,271 @@ def _complete_quality_evidence() -> dict[str, object]:
     }
 
 
+def _wave7_requirement_quality_evidence() -> dict[str, object]:
+    return {
+        "wave7_claims": [
+            {
+                "claim_id": "claim-msme-effect",
+                "facet_refs": ["facet-msme"],
+                "baseline_refs": ["baseline:status-quo"],
+                "alternative_refs": ["alternative:credit-guarantee"],
+                "portfolio_refs": ["portfolio:wave7"],
+                "effective_independence_refs": ["independence:wave7"],
+                "argument_refs": ["argument:wave7"],
+            }
+        ],
+        "universal_grammar_compilation": {
+            "status": "pass",
+            "ref": "grammar:wave7-canary",
+        },
+        "obligation_graph": {
+            "status": "pass",
+            "graph_ref": "obligation-graph:wave7-canary",
+        },
+        "claim_decomposition": {
+            "status": "pass",
+            "ref": "claim-ledger:wave7-canary",
+        },
+        "data_requirement_specs": [
+            {
+                "requirement_id": "data-requirement:claim-msme-effect",
+                "claim_id": "claim-msme-effect",
+                "required_data_families": ["production_msme_panel"],
+                "scope": {
+                    "population": "msmes",
+                    "geography": "state_or_region",
+                    "time": "annual",
+                    "time_role": "observation_time",
+                },
+                "recency_horizon": "P90D",
+                "lineage_strictness": "strict",
+                "quality_minima": {
+                    "min_quality_score": 0.8,
+                    "min_completeness": 0.95,
+                },
+                "missingness_tolerance": 0.02,
+                "transformation_tolerance": "none",
+                "admissibility_predicates": [
+                    "source_family_matches_compiled_requirement"
+                ],
+                "mandatory_facets": ["source_contract_ref", "lineage_refs"],
+                "facet_refs": ["facet-msme"],
+                "concept_spine_refs": ["concept:msme-survival"],
+                "authority_profile_refs": ["authority_profile.production"],
+            }
+        ],
+        "source_contract_candidates": [
+            {
+                "candidate_ref": "source-contract:production-msme-panel",
+                "source_family": "production_msme_panel",
+                "present_facets": ["source_contract_ref", "lineage_refs"],
+                "source_contract_validation": {"status": "pass"},
+            }
+        ],
+        "target_context": {
+            "jurisdiction": "UA-30-KYIV",
+            "policy_domain": "wartime_msme_support",
+            "as_of": "2026-05-23",
+            "authority_profile": "production",
+        },
+        "legal_authority_requirement_specs": [
+            {
+                "requirement_id": "legal-requirement:claim-msme-effect",
+                "claim_ref": "claim:claim-msme-effect",
+                "claim_id": "claim-msme-effect",
+                "mandatory": True,
+                "required_hierarchy_depth": 2,
+                "temporal_competence_window": {
+                    "start": "2026-01-01",
+                    "end": "2026-12-31",
+                    "time_role": "implementation_period",
+                },
+                "authority_types": ["implementing"],
+                "required_instrument_classes": ["credit_guarantee"],
+                "required_actor_refs": ["kyiv_city_council"],
+                "implementation_authority_required": True,
+                "jurisdiction": "UA-30-KYIV",
+                "authority_profile_ref": "production",
+            }
+        ],
+        "candidate_norms": [
+            {
+                "norm_id": "norm.ua.local_credit",
+                "norm_version_ref": "norm.ua.local_credit@2026-01-01",
+                "source_provenance_ref": "lex-corpus:ua-local-credit",
+                "jurisdiction": "UA-30-KYIV",
+                "policy_domain": "wartime_msme_support",
+                "effective_from": "2025-01-01",
+                "source_authority": "Kyiv City Council",
+                "authority_level": "local",
+                "hierarchy_depth": 2,
+                "authority_basis": "statutory_delegation",
+                "authority_types": ["implementing"],
+                "competent_actor_ref": "kyiv_city_council",
+                "instrument_types": ["credit_guarantee"],
+                "implementation_authority_ref": "kyiv_city_program_office",
+                "hierarchy_position": "local",
+                "legal_as_of": "2026-05-23",
+                "legal_effective_window": {"start": "2025-01-01", "end": None},
+                "rule_version_ref": "lex-legal-authority:v2",
+                "provenance_kind": "deterministic_producer",
+            }
+        ],
+        "method_validity_requirement_specs": [
+            {
+                "requirement_id": "method-requirement:claim-msme-effect",
+                "run_id": "R_wave7_pipeline",
+                "claim_id": "claim-msme-effect",
+                "identification_class": "point",
+                "method_expectations": ["causal_effect_estimation"],
+                "required_method_families": ["causal_effect_estimation"],
+                "transportability_requirement": "target_population_limits",
+                "uncertainty_class": "interval",
+                "assumption_validation_needs": [
+                    {"assumption_id": "parallel_trends"},
+                    {"assumption_id": "overlap_or_support"},
+                ],
+            }
+        ],
+        "candidate_methods": [
+            {
+                "method_id": "causal.did.runtime",
+                "method_family": "causal_effect_estimation",
+                "method_expectations": ["causal_effect_estimation"],
+                "truthfulness_status": "runtime_consistent",
+                "runtime_assumption_gates": [
+                    {
+                        "gate_ref": "gate://parallel-trends",
+                        "assumption": "parallel_trends",
+                        "status": "pass",
+                    },
+                    {
+                        "gate_ref": "gate://overlap",
+                        "assumption": "overlap_or_support",
+                        "status": "pass",
+                    },
+                ],
+                "uncertainty_refs": {"uncertainty_envelope_ref": "sha256:" + "6" * 64},
+                "limitation_refs": {"method_limitation_ref": "sha256:" + "5" * 64},
+                "method_result_refs": {"method_result_ref": "sha256:" + "4" * 64},
+            }
+        ],
+        "scholar_support_requirement_specs": [
+            {
+                "requirement_id": "scholar-support:claim-msme-effect",
+                "claim_id": "claim-msme-effect",
+                "claim_text": "Credit guarantees improve MSME survival.",
+                "claim_type": "causal",
+                "authority_level": "production",
+                "required_publication_tier": "peer_reviewed",
+                "recency_days": 730,
+                "required_replication_count": 1,
+                "required_independence_breadth": 1,
+                "required_citation_network_depth": 0,
+                "dependent_corpus_collapse_rules": [
+                    {
+                        "rule_id": "collapse-study",
+                        "collapse_on": "underlying_study_id",
+                    }
+                ],
+            }
+        ],
+        "scholar_evidence_bundle": {
+            "bundle_id": "bundle-wave7-scholar",
+            "brief": {"question": "Do credit guarantees improve MSME survival?"},
+            "query_graph": {
+                "nodes": [
+                    {
+                        "node_id": "q1",
+                        "query": "credit guarantees MSME survival peer reviewed",
+                        "perspective": "academic evidence",
+                        "status": "searched",
+                        "hit_count": 1,
+                    }
+                ],
+                "root_node_ids": ["q1"],
+            },
+            "query_traces": [
+                {"query_node_id": "q1", "query": "credit guarantees", "hit_count": 1}
+            ],
+            "sources": [
+                {
+                    "source_id": "literature:journal-version",
+                    "url": "https://example.org/journal-version",
+                    "title": "Credit guarantees and MSME survival",
+                    "domain": "example.org",
+                    "source_type": "academic",
+                    "publication_tier": "peer_reviewed",
+                    "underlying_study_id": "credit-panel-2025",
+                    "provider": "fixture",
+                    "published_at": "2025-10-01T00:00:00+00:00",
+                    "page_age_days": 228,
+                    "content_sha256": "credit-panel-study",
+                    "quality_score": 0.9,
+                }
+            ],
+            "snippets": [
+                {
+                    "snippet_id": "snippet:journal-version:1",
+                    "source_id": "literature:journal-version",
+                    "url": "https://example.org/journal-version",
+                    "query_node_id": "q1",
+                    "perspective": "academic evidence",
+                    "text": "The journal article reports higher MSME survival.",
+                    "start_char": 0,
+                    "end_char": 50,
+                    "relevance_score": 0.9,
+                }
+            ],
+            "claim_supports": [
+                {
+                    "claim_id": "claim-msme-effect",
+                    "claim_text": "Credit guarantees improve MSME survival.",
+                    "snippet_ids": ["snippet:journal-version:1"],
+                    "source_ids": ["literature:journal-version"],
+                    "support_score": 0.8,
+                    "conflict_score": 0.0,
+                    "metadata": {"support_status": "supported"},
+                }
+            ],
+        },
+        "participation_provenance_requirement_specs": [
+            {
+                "requirement_id": "participation-requirement:claim-msme-effect",
+                "run_id": "R_wave7_pipeline",
+                "claim_id": "claim-msme-effect",
+                "claim_family": "preference",
+                "claim_purpose": "preference",
+                "claim_use_requested": "prevalence",
+                "authority_level": "production",
+                "population_scope": "affected_population",
+                "required_modes": ["survey"],
+                "required_sampling_frame": "scope_matched_sampling_frame",
+                "minimum_provenance_class": "A_representative_population",
+                "minimum_representativeness_class": "representative",
+                "consent_redaction": "redacted_microdata",
+                "dissent_handling": "dissent_recorded",
+                "sponsor_disclosure": "sponsor_disclosed",
+            }
+        ],
+        "participation_records": [
+            {
+                "participation_ref": "participation:survey:msme-owners",
+                "claim_refs": ["claim-msme-effect"],
+                "source_kind": "survey",
+                "provenance_class": "A_representative_population",
+                "representativeness_class": "representative",
+                "sampling_or_recruitment_frame": "scope_matched_sampling_frame",
+                "affected_group_map": {"groups": ["affected_msmes"]},
+                "consent_redaction_state": "redacted_microdata",
+                "dissent_state": "recorded",
+                "sponsor_disclosure": "sponsor_disclosed",
+                "evidence_ref": "sha256:" + "1" * 64,
+            }
+        ],
+    }
+
+
 def test_canary_evidence_sanitizer_recursively_redacts_secrets() -> None:
     payload = {
         "Authorization": "Bearer sk-secret-token",
@@ -561,8 +828,81 @@ def test_assemble_canary_evidence_writes_success_and_failure_context_without_sec
     assert handoff_ledger["status"] == "pass"
 
 
+def test_assemble_canary_evidence_runs_wave7_producer_pipeline_from_requirement_specs(
+    tmp_path,
+) -> None:
+    evidence = _complete_quality_evidence()
+    evidence.update(_wave7_requirement_quality_evidence())
+
+    output = assemble_canary_evidence(
+        output_root=tmp_path,
+        canary_kind="production",
+        command_metadata={"argv": ["policyos-canary", "--wave7"]},
+        request_payload={
+            "request": "Evaluate Ukraine MSME credit support.",
+            "context": {
+                "concept_spine_ref": "concept-spine:wave7-canary",
+                "jurisdiction_spine_ref": "jurisdiction-spine:ua",
+            },
+        },
+        job_payload={
+            "job_id": "job-wave7-pipeline",
+            "run_id": "R_wave7_pipeline",
+            "state": "completed",
+        },
+        quality_evidence=evidence,
+    )
+
+    bundle = json.loads((output / "bundle.json").read_text(encoding="utf-8"))
+    pipeline = json.loads(
+        (output / "quality_evidence" / "producer_pipeline.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    readiness = json.loads(
+        (output / "quality_evidence" / "producer_pipeline_readiness.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    control_plane = json.loads(
+        (output / "quality_evidence" / "producer_pipeline_control_plane.json").read_text(
+            encoding="utf-8"
+        )
+    )
+
+    assert pipeline["status"] == "pass"
+    assert pipeline["capability_reality_label"] == "implemented"
+    assert pipeline["compiled_requirement_exit_gate"]["status"] == "pass"
+    assert pipeline["producer_state_summary"]["final_states"] == {
+        "fabric": "emitted_binding",
+        "foundry": "emitted_binding",
+        "lex": "emitted_binding",
+        "participation": "emitted_binding",
+        "scholar": "emitted_binding",
+    }
+    assert readiness["status"] == "pass"
+    assert control_plane["progress_patch"]["producer_pipeline_ref"] == pipeline[
+        "producer_pipeline_ref"
+    ]
+    assert bundle["files"]["quality_evidence"]["producer_pipeline"] == (
+        "quality_evidence/producer_pipeline.json"
+    )
+    assert bundle["files"]["quality_evidence"]["producer_pipeline_readiness"] == (
+        "quality_evidence/producer_pipeline_readiness.json"
+    )
+    assert (
+        output / "quality_evidence" / "producer_pipeline_replay.json"
+    ).exists()
+    assert (
+        output / "quality_evidence" / "producer_pipeline_bundle_assembly.json"
+    ).exists()
+    assert (
+        output / "quality_evidence" / "producer_pipeline_inspection.json"
+    ).exists()
+
+
 def test_canary_evidence_redacts_local_paths_from_request_and_env(tmp_path) -> None:
-    local_root = "/Users/deniskopylov/polisyos/policy-engine/production_data"
+    local_root = str(Path(__file__).resolve().parents[3] / "production_data")
 
     output = assemble_canary_evidence(
         output_root=tmp_path,
@@ -1581,6 +1921,205 @@ def test_assemble_canary_evidence_projects_wave30_run_cost_ledger(
     }
 
 
+def test_assemble_canary_evidence_writes_wave4_i4_pdc_graph_and_closeout(
+    tmp_path,
+) -> None:
+    job_payload = _hds_complete_job_payload()
+    job_payload["job_id"] = "job-quality-wave4-i4"
+    job_payload["run_id"] = "R_quality_wave4_i4"
+    evidence = _hds_complete_quality_evidence()
+
+    output = assemble_canary_evidence(
+        output_root=tmp_path,
+        canary_kind="production",
+        command_metadata={"argv": ["policyos-canary", "--real"]},
+        request_payload={"request": "Evaluate Ukraine MSME support."},
+        job_payload=job_payload,
+        provider_preflight={"status": "passed"},
+        quality_evidence=evidence,
+    )
+
+    bundle = json.loads((output / "bundle.json").read_text(encoding="utf-8"))
+    persisted_case = json.loads(
+        (output / "quality_evidence" / "policy_design_case.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    i4_graph = json.loads(
+        (output / "quality_evidence" / "policy_design_case_i4_graph.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    portfolio = json.loads(
+        (
+            output
+            / "quality_evidence"
+            / "policy_design_portfolio_effective_support.json"
+        ).read_text(encoding="utf-8")
+    )
+    lifecycle = json.loads(
+        (output / "quality_evidence" / "lifecycle_reissue_report.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    projection_fixture = json.loads(
+        (
+            output
+            / "quality_evidence"
+            / "policy_design_case_projection_contract_fixture.json"
+        ).read_text(encoding="utf-8")
+    )
+    closeout = json.loads(
+        (output / "quality_evidence" / "can_i_closeout.json").read_text(
+            encoding="utf-8"
+        )
+    )
+
+    assert bundle["files"]["quality_evidence"]["policy_design_case_i4_graph"] == (
+        "quality_evidence/policy_design_case_i4_graph.json"
+    )
+    assert persisted_case["i4_integration_graph_ref"] == i4_graph["cas_ref"]
+    assert persisted_case["evidence_independence_maps"][0]["raw_evidence_line_count"] > (
+        persisted_case["evidence_independence_maps"][0][
+            "effective_independent_evidence_count"
+        ]
+    )
+    assert portfolio["status"] == "pass"
+    assert portfolio["effective_support"]["raw_evidence_line_count"] > (
+        portfolio["effective_support"]["effective_independent_evidence_count"]
+    )
+    assert lifecycle["status"] == "pass"
+    assert projection_fixture["status"] == "pass"
+    assert i4_graph["status"] == "pass"
+    assert closeout["schema_version"] == "policyos.runtime.can_i_closeout.integration.v1"
+    assert closeout["integration_slice"] == "I4"
+    assert closeout["status"] == "closed"
+    module_status = {
+        row["module_id"]: row["status"] for row in closeout["module_reader_results"]
+    }
+    assert {
+        "i4_policy_design_case_graph": "pass",
+        "portfolio_effective_support": "pass",
+        "lifecycle_reissue": "pass",
+        "projection_consumer_contract": "pass",
+    }.items() <= module_status.items()
+
+
+def test_assemble_canary_evidence_preserves_scoped_lifecycle_reissue_as_i4_blocker(
+    tmp_path,
+) -> None:
+    job_payload = _hds_complete_job_payload()
+    job_payload["job_id"] = "job-quality-wave4-i4-scoped-reissue"
+    job_payload["run_id"] = "R_quality_wave4_i4_scoped_reissue"
+    evidence = _hds_complete_quality_evidence()
+    case = evidence["policy_design_case"]
+    claim_ids = [
+        str(record["claim_id"])
+        for record in case["claim_registry"]["claims"]
+    ]
+    case["lifecycle_reissue_report"] = build_lifecycle_reissue_report(
+        report_id="lifecycle-reissue.wave4_i4.scoped",
+        case_id=str(case["case_id"]),
+        claim_ids=claim_ids,
+        source_events=[
+            {
+                "event_id": "source-withdrawn-claim-bound",
+                "event_type": "source_invalidation",
+                "affected_claim_ids": [claim_ids[0]],
+                "invalidation_type": "withdrawn",
+                "reason": "Claim-bound source was withdrawn after closure.",
+                "evidence_ref": _sha("5"),
+                "runtime_event_ref": "event://source/withdrawn-claim-bound",
+                "occurred_at": "2026-07-02T00:00:00+00:00",
+            }
+        ],
+        evidence_ref=_sha("6"),
+        runtime_event_ref="event://policy-design-case/lifecycle-reissue/scoped",
+    )
+
+    output = assemble_canary_evidence(
+        output_root=tmp_path,
+        canary_kind="production",
+        command_metadata={"argv": ["policyos-canary", "--real"]},
+        request_payload={"request": "Evaluate Ukraine MSME support."},
+        job_payload=job_payload,
+        provider_preflight={"status": "passed"},
+        quality_evidence=evidence,
+    )
+
+    lifecycle = json.loads(
+        (output / "quality_evidence" / "lifecycle_reissue_report.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    i4_graph = json.loads(
+        (output / "quality_evidence" / "policy_design_case_i4_graph.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    closeout = json.loads(
+        (output / "quality_evidence" / "can_i_closeout.json").read_text(
+            encoding="utf-8"
+        )
+    )
+
+    assert lifecycle["status"] == "reissue_required"
+    assert lifecycle["public_revision_state"]["affected_claim_ids"] == [claim_ids[0]]
+    assert set(lifecycle["public_revision_state"]["unaffected_claim_ids"]) == set(
+        claim_ids[1:]
+    )
+    assert lifecycle["public_revision_state"]["silent_upgrade_allowed"] is False
+    assert i4_graph["status"] == "fail"
+    assert {
+        issue["code"] for issue in i4_graph["issues"]
+    } >= {"policy_design_wave4_lifecycle_missing"}
+    assert closeout["status"] == "blocked"
+    assert {
+        blocker["source_module_id"] for blocker in closeout["blockers"]
+    } >= {"lifecycle_reissue", "i4_policy_design_case_graph"}
+
+
+def test_assemble_canary_evidence_writes_w2c_cost_degradation_telemetry(
+    tmp_path,
+) -> None:
+    job_payload = _completed_quality_job_payload()
+    job_payload["job_id"] = "job-quality-w2c-cost"
+    job_payload["run_id"] = "R_quality_w2c_cost"
+    details = job_payload["progress"]["details"]  # type: ignore[index]
+    assert isinstance(details, dict)
+    details["retry_stats"] = {"attempts": 2, "retries": 1}
+
+    output = assemble_canary_evidence(
+        output_root=tmp_path,
+        canary_kind="production",
+        command_metadata={"argv": ["policyos-canary", "--real"]},
+        request_payload={"request": "Evaluate Ukraine MSME support."},
+        job_payload=job_payload,
+        provider_preflight={"status": "passed"},
+        quality_evidence=_complete_quality_evidence(),
+    )
+
+    bundle = json.loads((output / "bundle.json").read_text(encoding="utf-8"))
+    scorecard = json.loads(
+        (output / "quality_evidence" / "quality_scorecard.json").read_text(encoding="utf-8")
+    )
+    telemetry = json.loads(
+        (output / "quality_evidence" / "cost_degradation_telemetry.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    metric_types = {row["metric_type"] for row in telemetry["observations"]}
+
+    assert bundle["files"]["quality_evidence"]["cost_degradation_telemetry"] == (
+        "quality_evidence/cost_degradation_telemetry.json"
+    )
+    assert metric_types >= {"provider_call", "tokens", "retry", "wall_clock"}
+    assert telemetry["summary"]["blocking_count"] == 0
+    assert "policy_design_w2c_cost_degradation_telemetry" not in {
+        failure["gate"] for failure in scorecard["blocking_quality_failures"]
+    }
+
+
 def test_assemble_canary_evidence_stores_scorecard_refs_in_control_progress(
     tmp_path,
 ) -> None:
@@ -2567,6 +3106,13 @@ def test_assemble_canary_evidence_fails_policy_grounding_for_model_disagreement(
                         "data_refs": ["production-msme-panel"],
                         "method_refs": ["causal.difference_in_differences"],
                         "norm_refs": ["norm.ua.credit_eligibility"],
+                        "portfolio_refs": ["portfolio:model-disagreement"],
+                        "independence_refs": ["independence:model-disagreement"],
+                        "synthesis_refs": ["synthesis:model-disagreement"],
+                        "argument_refs": ["argument:model-disagreement"],
+                        "warrant_refs": ["warrant:model-disagreement"],
+                        "rebuttal_refs": ["rebuttal:model-disagreement"],
+                        "limitation_refs": ["limitation:model-disagreement"],
                     }
                 ],
                 "model_variants": [

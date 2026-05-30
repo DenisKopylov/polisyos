@@ -27,11 +27,14 @@ def test_wave40_build_records_final_readiness_bundle_coverage_and_exit_fence(
 ) -> None:
     wave40_dir = tmp_path / "wave-40"
     _patch_wave40_inputs(monkeypatch)
+    wave35e_dir, wave35h_dir, matrix_path = _write_wave40_prerequisites(tmp_path)
 
     outputs = build.build_wave40_readiness_outputs(
         repo_root=REPO_ROOT,
+        wave35e_dir=wave35e_dir,
+        wave35h_dir=wave35h_dir,
         wave40_dir=wave40_dir,
-        matrix_run_json=MATRIX_PATH,
+        matrix_run_json=matrix_path,
     )
 
     closeout = outputs["closeout"]
@@ -63,10 +66,13 @@ def test_wave40_validator_rejects_static_inventory_as_runtime_authority(
 ) -> None:
     wave40_dir = tmp_path / "wave-40"
     _patch_wave40_inputs(monkeypatch)
+    wave35e_dir, wave35h_dir, matrix_path = _write_wave40_prerequisites(tmp_path)
     build.build_wave40_readiness_outputs(
         repo_root=REPO_ROOT,
+        wave35e_dir=wave35e_dir,
+        wave35h_dir=wave35h_dir,
         wave40_dir=wave40_dir,
-        matrix_run_json=MATRIX_PATH,
+        matrix_run_json=matrix_path,
     )
 
     closeout_path = wave40_dir / build.CLOSEOUT_OUTPUT
@@ -85,10 +91,13 @@ def test_wave40_validator_rejects_pass1b_missing_owner_or_gate(
 ) -> None:
     wave40_dir = tmp_path / "wave-40"
     _patch_wave40_inputs(monkeypatch)
+    wave35e_dir, wave35h_dir, matrix_path = _write_wave40_prerequisites(tmp_path)
     build.build_wave40_readiness_outputs(
         repo_root=REPO_ROOT,
+        wave35e_dir=wave35e_dir,
+        wave35h_dir=wave35h_dir,
         wave40_dir=wave40_dir,
-        matrix_run_json=MATRIX_PATH,
+        matrix_run_json=matrix_path,
     )
 
     closeout_path = wave40_dir / build.CLOSEOUT_OUTPUT
@@ -107,10 +116,13 @@ def test_wave40_validator_rejects_sdd_mapping_without_runtime_record_family_cove
 ) -> None:
     wave40_dir = tmp_path / "wave-40"
     _patch_wave40_inputs(monkeypatch)
+    wave35e_dir, wave35h_dir, matrix_path = _write_wave40_prerequisites(tmp_path)
     build.build_wave40_readiness_outputs(
         repo_root=REPO_ROOT,
+        wave35e_dir=wave35e_dir,
+        wave35h_dir=wave35h_dir,
         wave40_dir=wave40_dir,
-        matrix_run_json=MATRIX_PATH,
+        matrix_run_json=matrix_path,
     )
 
     closeout_path = wave40_dir / build.CLOSEOUT_OUTPUT
@@ -164,6 +176,59 @@ def _patch_wave40_inputs(monkeypatch: pytest.MonkeyPatch) -> None:
         "build_pass1b_hardening_payload",
         lambda **_kwargs: _pass1b_payload(),
     )
+
+
+def _write_wave40_prerequisites(tmp_path: Path) -> tuple[Path, Path, Path]:
+    wave35e_dir = tmp_path / "wave-35E"
+    wave35h_dir = tmp_path / "wave-35H"
+    matrix_path = tmp_path / MATRIX_PATH
+    wave35e_dir.mkdir(parents=True)
+    wave35h_dir.mkdir(parents=True)
+    matrix_path.parent.mkdir(parents=True)
+    _write_json(
+        wave35h_dir / "wave35h_exit_fence.json",
+        {
+            "status": "pass",
+            "wave40_authority_decision": "allowed",
+            "runtime_owned_provenance_count": 6,
+            "not_closeout_authority_count": 0,
+        },
+    )
+    for filename in (
+        "implementation_feasibility_ledger.json",
+        "contestability_appeals_ledger.json",
+    ):
+        _write_json(
+            wave35e_dir / filename,
+            {
+                "runtime_enforcement_evidence": {
+                    "evidence_authority_class": "runtime_emitted",
+                    "manual_assertion_remaining_count": 0,
+                },
+                "rows": [
+                    {
+                        "evidence_authority_class": "runtime_emitted",
+                        "runtime_owned_provenance": {
+                            "producer": "runtime.institutional_provenance",
+                            "artifact_refs": ["quality_evidence/institutional.json"],
+                        },
+                    }
+                ],
+            },
+        )
+    _write_json(
+        matrix_path,
+        {
+            "schema_version": "policyos.policy_design_case.deterministic_matrix.v1",
+            "status": "pass",
+            "lanes": [],
+        },
+    )
+    return wave35e_dir, wave35h_dir, matrix_path
+
+
+def _write_json(path: Path, payload: object) -> None:
+    path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
 
 
 def _readiness_payload() -> dict[str, object]:

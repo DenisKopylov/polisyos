@@ -29,7 +29,7 @@ from polisyos.fabric.world import (
     validate_doc_meta_ids,
     write_world_fact_segment,
 )
-from polisyos.ir.citations import AnchorKind, FragmentLocator
+from polisyos.ir.loading.citations import AnchorKind, FragmentLocator
 from polisyos.ir.world.doc import DocFragment, DocMeta
 from polisyos.ir.world.event import (
     EventKind,

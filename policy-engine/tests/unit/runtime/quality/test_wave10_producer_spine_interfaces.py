@@ -10,7 +10,7 @@ from polisyos.runtime.quality.semantic_binding import (
     build_producer_spine_read_context,
     build_semantic_binding_ledger,
 )
-from polisyos.scholar.spine import build_scholar_spine_evidence_binding
+from polisyos.scholar import build_scholar_spine_evidence_binding
 from polisyos.scientist.artifacts.decision_compiler import compile_draft_decision_packet
 from polisyos.scientist.validation.policy_grounding import (
     build_policy_grounding_matrix_report,
@@ -200,3 +200,14 @@ def test_producer_reports_consume_spine_context_and_emit_candidate_bindings() ->
         assert binding["consumed_concept_spine_ref"] == _sha("2")
         assert binding["consumed_jurisdiction_spine_ref"] == _sha("6")
         assert binding["candidate_spine_binding_refs"] or binding["spine_blocker_refs"]
+
+    foundry_binding = ledger["foundry"][0]  # type: ignore[index]
+    assert foundry_binding["assumption_gate_refs"] == [
+        "foundry-assumption-gate:causal.difference_in_differences:parallel_trends",
+        "foundry-assumption-gate:causal.difference_in_differences:stable_composition",
+    ]
+    assert foundry_binding["method_output_refs"] == [_sha("c")]
+    assert foundry_binding["uncertainty_refs"]
+    assert foundry_binding["limitation_refs"]
+    assert foundry_binding["runtime_assumption_gates"][0]["status"] == "pass"
+    assert foundry_binding["rejected_method_reasons"] == []

@@ -18,7 +18,7 @@ from polisyos.core.governance.profiles import ProfileLevel
 
 if TYPE_CHECKING:
     from polisyos.core.governance.legal.backends.base import RuleBackend
-    from polisyos.ir.norm_pack import NormPack
+    from polisyos.ir.loading.norm_pack import NormPack
 
 
 _BACKEND_REGISTRY: dict[str, type[RuleBackend]] = {

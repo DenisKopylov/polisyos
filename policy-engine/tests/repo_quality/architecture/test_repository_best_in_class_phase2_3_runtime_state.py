@@ -1,11 +1,22 @@
 from __future__ import annotations
 
+import os
 import tomllib
 from pathlib import Path
 from typing import Any
 
+import pytest
+
 REPO_ROOT = Path(__file__).resolve().parents[3]
 RUNTIME_ROOT = REPO_ROOT / ".polisyos"
+
+pytestmark = pytest.mark.skipif(
+    bool(os.getenv("PYTEST_XDIST_WORKER")),
+    reason=(
+        "workspace runtime-state topology tests inspect shared .polisyos and "
+        "run in the serial workspace-state lane"
+    ),
+)
 
 
 def _read_toml(path: str) -> dict[str, Any]:

@@ -24,6 +24,8 @@ allowed_change_classes = [
   "runtime-state-format",
   "persisted-artifact-format",
   "js-package-api",
+  "tooling",
+  "shim_sunset",
   "internal",
 ]
 breaking_impacts = ["breaking", "removed", "removal", "major"]

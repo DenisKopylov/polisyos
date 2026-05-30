@@ -44,6 +44,7 @@ PRIMARY_TAXONOMY_MARKERS = (
     "performance",
     "repo_quality",
 )
+ALLOW_XDIST_BENCHMARKS_ENV = "POLISYOS_ALLOW_XDIST_BENCHMARKS"
 
 
 @dataclass(frozen=True)
@@ -118,12 +119,39 @@ def _infer_primary_marker(item: pytest.Item) -> str:
     return "unit"
 
 
+def _xdist_worker_active(config: pytest.Config) -> bool:
+    return bool(getattr(config, "workerinput", None)) or bool(os.getenv("PYTEST_XDIST_WORKER"))
+
+
+def _xdist_benchmarks_allowed() -> bool:
+    return os.getenv(ALLOW_XDIST_BENCHMARKS_ENV, "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+
+
+def _requires_serial_benchmark_lane(item: pytest.Item) -> bool:
+    return item.get_closest_marker("benchmark") is not None or "benchmark" in getattr(
+        item,
+        "fixturenames",
+        (),
+    )
+
+
 def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addoption(
         "--run-quarantine",
         action="store_true",
         default=False,
         help="include tests listed in tests/quarantine.toml instead of skipping them",
+    )
+    parser.addoption(
+        "--self-test",
+        action="store_true",
+        default=False,
+        help="compatibility no-op for validation scripts that expose a CLI --self-test",
     )
 
 
@@ -180,10 +208,21 @@ def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item
         {},
     )
     include_quarantine = bool(config.getoption("--run-quarantine"))
+    skip_parallel_benchmark = _xdist_worker_active(config) and not _xdist_benchmarks_allowed()
 
     for item in items:
         primary_marker = _infer_primary_marker(item)
         item.add_marker(getattr(pytest.mark, primary_marker))
+
+        if skip_parallel_benchmark and _requires_serial_benchmark_lane(item):
+            item.add_marker(
+                pytest.mark.skip(
+                    reason=(
+                        "pytest-benchmark/performance cases run in the serial "
+                        f"benchmark lane; set {ALLOW_XDIST_BENCHMARKS_ENV}=1 to override"
+                    )
+                )
+            )
 
         nodeid_lower = item.nodeid.lower()
         if "smoke" in nodeid_lower or _path_startswith(item, "tests/e2e/demos"):

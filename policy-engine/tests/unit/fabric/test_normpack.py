@@ -17,8 +17,8 @@ from polisyos.data_forge.read_api.legal import export_normative_claim_sets
 from polisyos.fabric.claims.persist import load_json_artifact
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.world.materialize import materialize_world_duckdb_from_fact_log
-from polisyos.ir.citations import CitationRef, DocumentRef
-from polisyos.ir.norm_pack import NormPack
+from polisyos.ir.loading.citations import CitationRef, DocumentRef
+from polisyos.ir.loading.norm_pack import NormPack
 from polisyos.ir.world.claim import Claim, ClaimSourceKind
 from polisyos.lex.api import assemble_norm_pack
 from polisyos.lex.normpack.assemble_pack import claims_to_norm_rules

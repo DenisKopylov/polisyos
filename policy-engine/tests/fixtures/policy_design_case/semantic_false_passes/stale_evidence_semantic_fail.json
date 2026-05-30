@@ -1,0 +1,64 @@
+{
+  "schema_version": "policyos.runtime.policy_design_case.semantic_gold_card.v1",
+  "fixture_id": "stale_evidence_semantic_fail",
+  "title": "Stale legal and data evidence cannot be projected as current",
+  "expected_status": "semantic_fail",
+  "failure_mode": "stale_evidence",
+  "research_refs": ["E1", "C30", "C11", "C20"],
+  "pattern_ids": ["P10", "P08"],
+  "structural_pass_claimed": true,
+  "structural_verdict": {
+    "status": "pass",
+    "validator_refs": ["policy_design_case.structural.freshness_fields_present.v1"],
+    "completeness_claims": [
+      "policy_time_present",
+      "legal_evidence_time_present",
+      "data_evidence_time_present",
+      "freshness_status_present"
+    ]
+  },
+  "semantic_adjudication": {
+    "status": "fail",
+    "adjudicator": "policyos.semantic_gold_card.w1b",
+    "failure_mode": "stale_evidence",
+    "failure_code": "semantic_stale_evidence",
+    "rationale": "Legal and data evidence are outside their recency windows but are still projected as current.",
+    "authority_effect": "review_required",
+    "required_remediation": "Revalidate stale evidence, reissue the affected claim, or publish a limitation."
+  },
+  "semantic_probes": [
+    {
+      "probe_id": "freshness-window-overrun",
+      "semantic_axis": "freshness",
+      "pattern_ids": ["P10", "P08"],
+      "observed_signal": "Evidence older than the allowed window has freshness_status=claimed_current.",
+      "expected_signal": "Stale evidence must trigger revalidation, limitation, or blocking.",
+      "verdict": "fail",
+      "failure_code": "semantic_stale_evidence",
+      "evidence_refs": ["event://policy-design-case/w1b/freshness"]
+    }
+  ],
+  "payload": {
+    "case_id": "pdc-w1b-stale",
+    "claim_ids": ["claim-stale"],
+    "freshness": {
+      "policy_time": "2026-05-15",
+      "evidence": [
+        {
+          "kind": "legal",
+          "evidence_as_of": "2024-01-01",
+          "acceptable_recency_window_days": 30,
+          "freshness_status": "claimed_current",
+          "evidence_ref": "cas://sha256/33333333333333333333333333333333"
+        },
+        {
+          "kind": "data",
+          "evidence_as_of": "2024-05-01",
+          "acceptable_recency_window_days": 90,
+          "freshness_status": "claimed_current",
+          "evidence_ref": "cas://sha256/44444444444444444444444444444444"
+        }
+      ]
+    }
+  }
+}

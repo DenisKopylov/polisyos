@@ -24,7 +24,6 @@ from polisyos.foundry.methods.base import (
     foundry_method,
 )
 
-
 RUNTIME_MECHANISM_METHOD_AUTHORITY_SCOPE: dict[str, tuple[str, ...] | str] = {
     "method_family": "mechanism_runtime_execution",
     "satisfies_method_obligations": (),
@@ -374,7 +373,9 @@ class QueueMechanismMethod:
         _RUNTIME_METHOD_NOT_SUFFICIENT_FOR
     )
     runtime_mechanism_type: ClassVar[str] = "queue"
-    runtime_mechanism_class_path: ClassVar[str] = "polisyos.foundry.queue:QueueMechanism"
+    runtime_mechanism_class_path: ClassVar[str] = (
+        "polisyos.foundry.execute.queue:QueueMechanism"
+    )
     supported_runtime_fidelities: ClassVar[tuple[RuntimeFidelityLevel, ...]] = (
         RuntimeFidelityLevel.SURROGATE_FLUID,
         RuntimeFidelityLevel.RELAXED_DISCRETE,
@@ -444,7 +445,9 @@ class AdaptiveAgentMechanismMethod:
         _RUNTIME_METHOD_NOT_SUFFICIENT_FOR
     )
     runtime_mechanism_type: ClassVar[str] = "adaptive_agent"
-    runtime_mechanism_class_path: ClassVar[str] = "polisyos.foundry.agents:AdaptiveAgentMechanism"
+    runtime_mechanism_class_path: ClassVar[str] = (
+        "polisyos.foundry.agent_sim.agents:AdaptiveAgentMechanism"
+    )
     supported_runtime_fidelities: ClassVar[tuple[RuntimeFidelityLevel, ...]] = tuple(
         RuntimeFidelityLevel
     )

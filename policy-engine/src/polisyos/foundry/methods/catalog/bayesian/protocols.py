@@ -27,7 +27,7 @@ from polisyos.ir.analytics.uncertainty import (
     UncertaintyEnvelope,
     UncertaintySource,
 )
-from polisyos.ir.canon import CanonSpec, content_hash, to_canonical_bytes
+from polisyos.ir.model_layer.canon import CanonSpec, content_hash, to_canonical_bytes
 
 from .prior_sensitivity import (
     PriorSensitivityReport,

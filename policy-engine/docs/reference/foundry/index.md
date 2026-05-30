@@ -73,7 +73,7 @@ The compile/execute quickstart is runnable, not conceptual:
 ```bash
 uv run python - <<'PY'
 from tempfile import TemporaryDirectory
-from polisyos.foundry.quickstart import run_trivial_compile_execute
+from polisyos.foundry._quickstart import run_trivial_compile_execute
 
 with TemporaryDirectory(prefix="foundry-docs-") as tmp:
     result = run_trivial_compile_execute(cas_root=tmp)

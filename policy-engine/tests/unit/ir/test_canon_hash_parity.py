@@ -15,16 +15,16 @@ from polisyos.core.canon import (
 from polisyos.core.canon import (
     to_canonical_bytes as core_to_canonical_bytes,
 )
-from polisyos.ir.canon import (
+from polisyos.ir.model_layer.canon import (
     CanonSpec as IrCanonSpec,
 )
-from polisyos.ir.canon import (
+from polisyos.ir.model_layer.canon import (
     content_hash as ir_content_hash,
 )
-from polisyos.ir.canon import (
+from polisyos.ir.model_layer.canon import (
     from_canonical_bytes as ir_from_canonical_bytes,
 )
-from polisyos.ir.canon import (
+from polisyos.ir.model_layer.canon import (
     to_canonical_bytes as ir_to_canonical_bytes,
 )
 

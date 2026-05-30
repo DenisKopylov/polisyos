@@ -25,8 +25,8 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
     from polisyos.core.artifacts.store import FileSystemCAS
-    from polisyos.ir.model_spec import ModelSpec
-    from polisyos.ir.norm_pack import NormPack
+    from polisyos.ir.model_layer.model_spec import ModelSpec
+    from polisyos.ir.loading.norm_pack import NormPack
     from polisyos.scientist.agent.constitution import ConstitutionGenerator
     from polisyos.scientist.agent.knowledge_base import CriticKnowledgeBase
     from polisyos.scientist.agent.memory import ShortTermMemory

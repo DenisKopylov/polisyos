@@ -34,7 +34,7 @@ from polisyos.ir.analytics.regime_shift_forecast import (
     RegimeShiftForecastBundle,
     persist_regime_shift_forecast_bundle,
 )
-from polisyos.ir.refs import ArtifactRefModel
+from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.runtime.http.errors import RuntimeHTTPError
 from polisyos.runtime.http.services.scenarios import _enforce_phase4_scenario_gate
 

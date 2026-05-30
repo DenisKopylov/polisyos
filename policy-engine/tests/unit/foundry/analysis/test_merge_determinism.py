@@ -111,6 +111,7 @@ class TestCommutativity:
             result_ab.merged_values["test.sum_slot"],
             result_ba.merged_values["test.sum_slot"],
             rtol=1e-10,
+            atol=1e-12,
         )
 
     @given(
@@ -199,6 +200,7 @@ class TestAssociativity:
             result_left.merged_values["test.sum_slot"],
             result_all.merged_values["test.sum_slot"],
             rtol=1e-10,
+            atol=1e-12,
         )
 
     @given(

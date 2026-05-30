@@ -346,9 +346,7 @@ def _claim_matches_constraint(
     constraint_claim_ids = _as_set(raw_claim_ids)
     has_criteria = bool(constraint_claim_ids)
     if constraint_claim_ids:
-        if claim_id.casefold() in constraint_claim_ids:
-            return True
-        return False
+        return claim_id.casefold() in constraint_claim_ids
 
     claim_norm_refs = set(_claim_norm_refs(claim))
     constraint_norm_refs = set(_constraint_norm_refs(constraint))

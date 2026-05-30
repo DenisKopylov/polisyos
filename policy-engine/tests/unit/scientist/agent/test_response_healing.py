@@ -6,7 +6,7 @@ import json
 
 import jax
 import pytest
-from polisyos.ir.registry_fragments import RegistryBundle
+from polisyos.ir.registry.registry_fragments import RegistryBundle
 
 from polisyos.foundry.agent_sim.agents import AdaptiveAgentMechanism
 from polisyos.foundry.agent_sim.state import GlobalState

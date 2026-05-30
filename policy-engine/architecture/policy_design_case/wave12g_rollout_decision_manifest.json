@@ -1,0 +1,110 @@
+{
+  "schema_version": "policyos.policy_design_case.wave12g.rollout_decision_manifest.v1",
+  "status": "implemented",
+  "phase_id": "W12.G",
+  "phase_name": "Rollout Decision",
+  "generated_at": "2026-05-25T00:00:00Z",
+  "owner": "team-release-governance",
+  "implementation_plan_ref": "repo://docs/plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md#w12g-rollout-decision",
+  "tool_ref": "repo://tools/quality/validation/run_policy_design_case_rollout_decision.py",
+  "consumes_phase_reports": [
+    "W12.A",
+    "W12.B",
+    "W12.C",
+    "W12.D",
+    "W12.E",
+    "W12.F"
+  ],
+  "command_contract": {
+    "command": "uv run python tools/quality/validation/run_policy_design_case_rollout_decision.py --repo-root . --w12a-report _build/.tmp/production-quality/universal_pdc_local_validation_ladder.json --w12b-report _build/.tmp/production-quality/w12b_compilation_truthfulness_audit.json --w12c-report _build/.tmp/production-quality/w12c_domain_coverage_critic_diversity_audit.json --w12d-report _build/.tmp/production-quality/w12d_universal_outcome_corpus_run.json --w12e-report _build/.tmp/production-quality/w12e_bundle_replay_inspection.json --w12f-report _build/.tmp/production-quality/w12f_cloud_one_lane_revalidation.json --requested-posture governed-pilot --output _build/.tmp/production-quality/w12g_rollout_decision.json",
+    "output_refs": [
+      "_build/.tmp/production-quality/w12g_rollout_decision.json"
+    ],
+    "required_checks": [
+      "w12a_to_w12f_phase_evidence_present",
+      "closeout_honesty_metric_cited",
+      "runtime_useful_design_metric_cited",
+      "compilation_truthfulness_metric_cited",
+      "rollback_and_kill_switches_declared",
+      "corpus_stub_production_boundary_enforced"
+    ],
+    "owner": "team-release-governance",
+    "next_action": "Promote only when all phase evidence and metric floors pass; otherwise publish the remediation backlog with frozen revision refs."
+  },
+  "floor_policy": {
+    "research-only": {
+      "minimum_closeout_honesty_rate": null,
+      "minimum_runtime_useful_design_rate": null,
+      "minimum_compilation_truthfulness_rate": null,
+      "minimum_useful_design_alignment_rate": null,
+      "minimum_expert_useful_design_ceiling": null
+    },
+    "governed-pilot": {
+      "minimum_closeout_honesty_rate": 0.9,
+      "minimum_runtime_useful_design_rate": 0.5,
+      "minimum_compilation_truthfulness_rate": 60.0,
+      "minimum_useful_design_alignment_rate": 0.5,
+      "minimum_expert_useful_design_ceiling": 0.5
+    },
+    "production-capable": {
+      "minimum_closeout_honesty_rate": 0.95,
+      "minimum_runtime_useful_design_rate": 0.7,
+      "minimum_compilation_truthfulness_rate": 80.0,
+      "minimum_useful_design_alignment_rate": 0.7,
+      "minimum_expert_useful_design_ceiling": 0.7
+    }
+  },
+  "metric_policy": {
+    "rollout_decision_cites_three_metrics": true,
+    "typed_blockers_count_as_useful_design": false,
+    "typed_blockers_are_closeout_honesty_failures": false,
+    "corpus_stub_never_satisfies_production_authority": true
+  },
+  "rollback_and_kill_switches": [
+    {
+      "flag": "POLISYOS_DATA_REQ_FAMILY_FALLBACK_FROM_HARDCODED",
+      "rollback_action": "restore fallback while catalog-derived data rules are repaired",
+      "owner": "team-data-requirements"
+    },
+    {
+      "flag": "POLISYOS_SCIENTIST_V2_ENABLED",
+      "rollback_action": "disable universal PDC runtime path at entrypoint",
+      "owner": "team-runtime-quality"
+    },
+    {
+      "flag": "POLISYOS_PDC_CORPUS_STUB_MODE",
+      "rollback_action": "disable governed-pilot corpus-stub validation mode",
+      "owner": "team-evaluation"
+    }
+  ],
+  "authority_boundary": {
+    "authoritative_for": [
+      "w12g_rollout_decision"
+    ],
+    "may_not_use_for": [
+      "claim_evidence_authority",
+      "producer_domain_truth",
+      "production_closeout_authority",
+      "public_projection_authority"
+    ]
+  },
+  "pattern_pass": {
+    "relevant_patterns": [
+      "P01",
+      "P02",
+      "P03",
+      "P04",
+      "P05",
+      "P09",
+      "P10",
+      "P12",
+      "P15"
+    ],
+    "target_correct_pattern": "Rollout decision is a release-governance consumer of A-F evidence, not a producer, closeout, claim, or public projection authority.",
+    "missing_capability_labels": []
+  },
+  "validation": {
+    "test_ref": "repo://tests/repo_quality/tools/test_w12g_rollout_decision.py",
+    "command_ref": "uv run python tools/quality/validation/run_policy_design_case_rollout_decision.py --repo-root . --w12a-report _build/.tmp/production-quality/universal_pdc_local_validation_ladder.json --w12b-report _build/.tmp/production-quality/w12b_compilation_truthfulness_audit.json --w12c-report _build/.tmp/production-quality/w12c_domain_coverage_critic_diversity_audit.json --w12d-report _build/.tmp/production-quality/w12d_universal_outcome_corpus_run.json --w12e-report _build/.tmp/production-quality/w12e_bundle_replay_inspection.json --w12f-report _build/.tmp/production-quality/w12f_cloud_one_lane_revalidation.json --requested-posture governed-pilot --output _build/.tmp/production-quality/w12g_rollout_decision.json"
+  }
+}

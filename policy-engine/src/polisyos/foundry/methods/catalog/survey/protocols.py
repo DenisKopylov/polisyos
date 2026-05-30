@@ -15,7 +15,7 @@ from pydantic import (
 )
 
 from polisyos.ir.observation.bundles import ContractCompatibilityTarget
-from polisyos.ir.refs import ArtifactRefModel, DependenceStructureRef
+from polisyos.ir.registry.refs import ArtifactRefModel, DependenceStructureRef
 
 SCHEMA_VERSION_PATTERN = r"^\d+\.\d+$"
 _PSD_TOL = 1e-10

@@ -134,10 +134,12 @@ Run from the repository root (`policy-engine/`).
 - Active Fabric facade-cleanup shims are registered in
   [architecture/shims.toml](../../../architecture/shims.toml) with owner
   `team-fabric` and sunset `2026-12-31`.
-- Legacy compatibility imports such as `polisyos.fabric.decision_data`,
-  `polisyos.fabric.processing_guarantees`, `polisyos.fabric.world_query`, and
-  `polisyos.fabric.observability` are bridged through documented re-export
-  aliases to the semantic groups above.
+- Legacy compatibility imports such as `polisyos.fabric.evidence.decision_data` and
+  `polisyos.fabric._adapters.observability` are bridged through documented re-export
+  aliases to the semantic groups above. Newly retired cleanup paths now import
+  directly from their semantic groups, such as
+  `polisyos.fabric.quality.processing_guarantees` and
+  `polisyos.fabric.world.query`.
 - New public imports must be added to `api.py`, the generated public-surface
   reference, and compatibility policy before old import paths are retired.
 

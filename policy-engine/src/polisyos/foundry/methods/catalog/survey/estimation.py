@@ -39,8 +39,8 @@ from polisyos.ir.analytics.dependence_structure import (
     persist_dependence_structure,
 )
 from polisyos.ir.artifacts.io import put_json_artifact
-from polisyos.ir.canon import CanonSpec
-from polisyos.ir.refs import ArtifactRefModel
+from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.ir.registry.refs import ArtifactRefModel
 
 _FLOAT_EPS = 1e-12
 _CHI2_95 = 3.841458820694124

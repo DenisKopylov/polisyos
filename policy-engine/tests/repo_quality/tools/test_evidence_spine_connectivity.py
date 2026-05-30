@@ -5,7 +5,6 @@ from pathlib import Path
 
 from tools.quality.validation import check_evidence_spine_connectivity as checker
 
-
 SCENARIO_CONTRACT_ID = "scenario-evidence-contract:ukraine_msme_wartime_credit_support:v1"
 DATA_REQ = "scenario:ukraine_msme_wartime_credit_support:data:production_msme_panel"
 LEGAL_REQ = "scenario:ukraine_msme_wartime_credit_support:legal:msme_credit"

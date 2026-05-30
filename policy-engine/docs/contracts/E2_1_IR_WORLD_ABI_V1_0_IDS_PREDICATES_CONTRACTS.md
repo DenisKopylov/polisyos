@@ -51,7 +51,7 @@ This phase **only** defines:
 
 ### 2.2 Canonical JSON is already defined (must be reused)
 
-`polisyos.ir.canon.to_canonical_bytes()`:
+`polisyos.ir.model_layer.canon.to_canonical_bytes()`:
 
 - Deterministic JSON bytes
 - **forbid_floats=True** by default (hard policy)
@@ -61,7 +61,7 @@ Source: `policy-engine/src/polisyos/ir/canon.py`
 
 ### 2.3 Citations contract already exists (must be reused)
 
-Phase E1.3 introduced `polisyos.ir.citations`:
+Phase E1.3 introduced `polisyos.ir.loading.citations`:
 
 - `DocumentRef` (doc id + optional version binding)
 - `FragmentLocator` (anchor_path / offsets / page range)
@@ -282,7 +282,7 @@ All world edges are represented as FactLog facts with:
   - `prefix` must be a reserved prefix for v1.0 (`artifact|docv|event` etc) **when used for ABI objects**
 
 - `def stable_world_id_from_canon(*, prefix: str, payload: dict[str, Any]) -> str:`
-  - Uses `polisyos.ir.canon.to_canonical_bytes(payload)`
+  - Uses `polisyos.ir.model_layer.canon.to_canonical_bytes(payload)`
   - `sha256_hex = hashlib.sha256(canon).hexdigest()`
   - Returns `f"{prefix}.sha256_{sha256_hex}"`
   - Must raise if canonicalization fails (including floats)
@@ -387,7 +387,7 @@ Define a citation-grade fragment bound to a document version.
 
 **Re-use from E1.3:**
 
-Use `polisyos.ir.citations.FragmentLocator` as the locator payload.
+Use `polisyos.ir.loading.citations.FragmentLocator` as the locator payload.
 
 **Fields (minimum v1.0):**
 
@@ -419,7 +419,7 @@ Represent a typed assertion about the world with minimal evidence requirements.
 
 **Re-use from E1.3:**
 
-Use `polisyos.ir.citations.CitationRef` for doc-based evidence.
+Use `polisyos.ir.loading.citations.CitationRef` for doc-based evidence.
 
 **Fields (minimum v1.0):**
 

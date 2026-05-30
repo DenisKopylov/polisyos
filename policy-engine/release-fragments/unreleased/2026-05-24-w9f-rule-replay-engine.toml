@@ -1,0 +1,38 @@
+id = "2026-05-24-w9f-rule-replay-engine"
+title = "Add rule evolution replay engine"
+type = "added"
+component = "runtime-quality"
+owner = "team-runtime-quality"
+summary = "Add W9.F closed-PDC rule replay under original and new rule logic, comparison reports, research-DAG replay integration, and C33 mandatory revalidation triggers."
+evidence = [
+  "tests/unit/runtime/quality/test_rule_replay_engine.py",
+  "tests/repo_quality/tools/test_lifecycle_drift_smoke.py",
+]
+compatibility = "Additive Python API for runtime quality; no OpenAPI, generated runtime client, or dashboard API changes."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.runtime.quality"
+migration = "Existing rule evolution registry records continue to load; stricter C33 change classes now require replay comparison and lifecycle revalidation for affected closed PDC claims."
+api = "Adds replay_under_original_rules, replay_under_new_rules, build_rule_replay_comparison_report, persist_rule_replay_comparison_report, and the C33 rule-change class table."
+limitations = "Replay compares governed rule logic and lifecycle effects; it does not reinterpret historical meaning silently or substitute for producer evidence reruns."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/runtime/quality/README.md",
+]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "runtime-quality-rule-evolution-replay-engine"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_experimental: polisyos.runtime.quality"
+owner = "team-runtime-quality"
+version_owner = "team-runtime-quality"
+deprecation_window = "not_applicable"
+release_note = "Runtime quality can now replay closed PDCs under original and new rule logic and trigger mandatory revalidation for C33 rule-change classes."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/runtime/quality/README.md",
+]
+runbook_docs = []

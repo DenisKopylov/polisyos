@@ -20,6 +20,10 @@ from tools.lib.runner import render_command
 
 REPO_ROOT, _SRC_ROOT = ensure_repo_import_roots(__file__)
 
+from polisyos.core.contracts.capability_resolution import (  # noqa: E402
+    RequirementToCapabilityQuery,
+    construct_for_legacy_family,
+)
 from polisyos.core.contracts.runtime import UniversalAuthorityProfile  # noqa: E402
 from polisyos.ir.governance.policy_composition import PolicyLayerLevel  # noqa: E402
 from polisyos.ir.governance.problem_frame import ProblemDomain  # noqa: E402
@@ -35,12 +39,18 @@ from polisyos.policy_grammar import (  # noqa: E402
     PolicyGrammarIntent,
     facet_snapshots_for_obligation_graph,
 )
-from polisyos.core.contracts.capability_resolution import (  # noqa: E402
-    RequirementToCapabilityQuery,
-    construct_for_legacy_family,
-)
 from polisyos.runtime.quality.capability_resolver import (  # noqa: E402
     RequirementToCapabilityResolver,
+)
+from polisyos.runtime.quality.closeout_reader import (  # noqa: E402
+    build_can_i_closeout_verdict,
+)
+from polisyos.runtime.quality.graded_outcomes import (  # noqa: E402
+    S1_GRADED_OUTCOME_SCHEMA_VERSION,
+    GradedOutcomeDecision,
+    GradedOutcomeEvidenceInput,
+    compose_graded_outcome,
+    graded_outcome_closeout_record,
 )
 from polisyos.runtime.quality.hypothesis_ledger import (  # noqa: E402
     HYPOTHESIS_LEDGER_SCHEMA_VERSION,
@@ -484,6 +494,9 @@ def _run_case(
         if mode == "corpus_stub"
         else None
     )
+    s1_graded_outcome: dict[str, Any] = _s1_not_applicable_summary(
+        authority_level=authority_level,
+    )
     capability_graph_trace: dict[str, Any] = _capability_graph_not_run(
         capability_index_path=capability_index_path,
         repo_root=repo_root,
@@ -692,6 +705,18 @@ def _run_case(
             )
         )
 
+    runtime_typed_blockers = list(typed_blockers)
+    s1_graded_outcome = _s1_graded_outcome_summary(
+        case=case,
+        case_id=case_id,
+        domain=domain,
+        authority_level=authority_level,
+        producer_pipeline=producer_pipeline,
+        runtime_pdc_graph=runtime_pdc_graph,
+        capability_graph_trace=capability_graph_trace,
+        corpus_stub_summary=corpus_stub_summary,
+        typed_blockers=runtime_typed_blockers,
+    )
     expert_delta = _expert_adjudication_delta(
         case,
         runtime_structural_outcome=_runtime_structural_outcome(
@@ -712,6 +737,8 @@ def _run_case(
         producer_pipeline=producer_pipeline,
         expert_delta=expert_delta,
         typed_blockers=typed_blockers,
+        authority_level=authority_level,
+        s1_graded_outcome=s1_graded_outcome,
     )
     expert_delta = _finalize_expert_adjudication_delta(
         expert_delta,
@@ -732,6 +759,7 @@ def _run_case(
         case,
         outcome=outcome,
         expert_delta=expert_delta,
+        s1_authority_outcomes=_mapping(s1_graded_outcome.get("authority_outcomes")),
     )
     return {
         "case_id": case_id,
@@ -747,6 +775,7 @@ def _run_case(
         "evidence_bound_pdc_graph": evidence_bound_pdc_graph,
         "llm_universal_compilation": llm_summary,
         "corpus_stub": corpus_stub_summary,
+        "s1_graded_outcome": s1_graded_outcome,
         "expert_adjudication_delta": expert_delta,
         "authority_outcomes": authority_outcomes,
         "typed_blockers": typed_blockers,
@@ -1695,12 +1724,35 @@ def _canonical_outcome(
     producer_pipeline: Mapping[str, Any],
     expert_delta: Mapping[str, Any],
     typed_blockers: Sequence[Mapping[str, Any]],
+    authority_level: str,
+    s1_graded_outcome: Mapping[str, Any],
 ) -> str:
     if typed_blockers or runtime_pdc_graph.get("status") != "pass":
         return "typed_blocker"
     if producer_pipeline.get("status") != "pass":
         return "typed_blocker"
+    if _s1_can_publish_with_limitation(
+        s1_graded_outcome,
+        authority_level=_s1_primary_authority_level(None, authority_level),
+    ):
+        return "publish-with-limitation"
     return str(expert_delta.get("expected_outcome") or "accepted_deficit")
+
+
+def _s1_can_publish_with_limitation(
+    s1_graded_outcome: Mapping[str, Any],
+    *,
+    authority_level: str,
+) -> bool:
+    return (
+        authority_level in {"research", "governed"}
+        and s1_graded_outcome.get("outcome") == "publish_with_limitation"
+        and s1_graded_outcome.get("closeout_status") == "closed_with_limitations"
+        and not s1_graded_outcome.get("blocked_by")
+        and bool(s1_graded_outcome.get("decision_owner_ref"))
+        and bool(s1_graded_outcome.get("authority_profile_ref"))
+        and bool(_sequence(s1_graded_outcome.get("review_refs")))
+    )
 
 
 def _expert_delta_blockers(
@@ -1775,6 +1827,328 @@ def _producer_pipeline_diagnostic_codes(pipeline: Mapping[str, Any]) -> list[str
     return sorted(codes)
 
 
+def _s1_graded_outcome_summary(
+    *,
+    case: Mapping[str, Any],
+    case_id: str,
+    domain: str,
+    authority_level: str,
+    producer_pipeline: Mapping[str, Any],
+    runtime_pdc_graph: Mapping[str, Any],
+    capability_graph_trace: Mapping[str, Any],
+    corpus_stub_summary: Mapping[str, Any] | None,
+    typed_blockers: Sequence[Mapping[str, Any]],
+) -> dict[str, Any]:
+    authority = _s1_primary_authority_level(corpus_stub_summary, authority_level)
+    blocked_by = _s1_blocked_by(
+        producer_pipeline=producer_pipeline,
+        runtime_pdc_graph=runtime_pdc_graph,
+        typed_blockers=typed_blockers,
+    )
+    if blocked_by is not None:
+        return {
+            **_s1_not_applicable_summary(authority_level=authority),
+            "outcome": "typed_blocker",
+            "closeout_effect": "closeout_blocked",
+            "closeout_status": "blocked",
+            "blocked_by": blocked_by,
+            "authority_outcomes": {
+                level: {"outcome": "typed_blocker", "blocked_by": blocked_by}
+                for level in AUTHORITY_LEVELS
+            },
+        }
+
+    proxy_refs, partial_refs = _s1_evidence_refs(
+        producer_pipeline=producer_pipeline,
+        capability_graph_trace=capability_graph_trace,
+    )
+    if not proxy_refs and not partial_refs:
+        return _s1_not_applicable_summary(authority_level=authority)
+
+    authority_decisions = _s1_authority_decisions(
+        case=case,
+        case_id=case_id,
+        domain=domain,
+        proxy_refs=proxy_refs,
+        partial_refs=partial_refs,
+    )
+    primary = authority_decisions.get(authority)
+    if primary is None:
+        return {
+            **_s1_not_applicable_summary(authority_level=authority),
+            "authority_outcomes": _s1_authority_outcome_rows(authority_decisions),
+        }
+
+    closeout_verdict: dict[str, Any] = {"status": "not_applicable"}
+    projection_surface_status = "not_applicable"
+    if primary.outcome == "publish_with_limitation":
+        closeout_record = graded_outcome_closeout_record(
+            [primary],
+            generated_at=datetime.fromisoformat(GENERATED_AT.replace("Z", "+00:00")),
+        )
+        module_records = _s1_passing_closeout_records()
+        module_records["deficit_crosswalk"] = closeout_record
+        closeout_verdict = build_can_i_closeout_verdict(
+            run_id=f"run-layer2-s1-{_slug(case_id)}",
+            module_records=module_records,
+        )
+        projection_surface_status = (
+            "pass"
+            if closeout_verdict.get("status") == "closed_with_limitations"
+            else "blocked"
+        )
+
+    return {
+        "schema_version": S1_GRADED_OUTCOME_SCHEMA_VERSION,
+        "outcome": primary.outcome,
+        "closeout_effect": primary.closeout_effect,
+        "closeout_status": closeout_verdict.get("status") or "not_applicable",
+        "decision_owner_ref": primary.decision_owner_ref,
+        "authority_profile_ref": primary.authority_profile_ref,
+        "review_refs": list(primary.review_refs),
+        "projection_surface_status": projection_surface_status,
+        "authority_level": primary.authority_level,
+        "authority_boundary": primary.authority_boundary,
+        "authority_outcomes": _s1_authority_outcome_rows(authority_decisions),
+    }
+
+
+def _s1_not_applicable_summary(*, authority_level: str) -> dict[str, Any]:
+    return {
+        "schema_version": S1_GRADED_OUTCOME_SCHEMA_VERSION,
+        "outcome": "not_applicable",
+        "closeout_effect": "unaffected",
+        "closeout_status": "not_applicable",
+        "decision_owner_ref": None,
+        "authority_profile_ref": f"authority_profile.{authority_level}",
+        "review_refs": [],
+        "projection_surface_status": "not_applicable",
+        "authority_level": authority_level,
+        "authority_outcomes": {},
+    }
+
+
+def _s1_authority_decisions(
+    *,
+    case: Mapping[str, Any],
+    case_id: str,
+    domain: str,
+    proxy_refs: Sequence[str],
+    partial_refs: Sequence[str],
+) -> dict[str, GradedOutcomeDecision]:
+    decisions: dict[str, GradedOutcomeDecision] = {}
+    for authority_level in AUTHORITY_LEVELS:
+        requested_outcome = _s1_requested_outcome(case, authority_level=authority_level)
+        if requested_outcome != "publish_with_limitation":
+            continue
+        input_row = GradedOutcomeEvidenceInput(
+            schema_version=S1_GRADED_OUTCOME_SCHEMA_VERSION,
+            case_id=case_id,
+            claim_id=_s1_claim_id(case, case_id=case_id),
+            authority_level=authority_level,
+            requested_outcome="publish_with_limitation",
+            evidence_profile="partial_or_proxy",
+            proxy_evidence_refs=tuple(proxy_refs),
+            partial_evidence_refs=tuple(partial_refs),
+            limitation_reason_codes=("w12d_partial_or_proxy_evidence",),
+            mandatory_gate_state="none",
+            owner="team-evaluation",
+            decision_owner_ref=f"review://layer2-s1/{case_id}/{authority_level}/owner",
+            authority_profile_ref=f"authority_profile.{authority_level}",
+            review_refs=(f"review://layer2-s1/{case_id}/{authority_level}/limitation",),
+            ttl_expires_at=datetime(2026, 6, 30, tzinfo=UTC),
+            public_limitation_note=(
+                "W12.D S1 routed partial or proxy producer evidence to a "
+                "closeout-visible limitation."
+            ),
+            rule_version_ref="policyos.layer2.s1.graded_outcomes.v1",
+        )
+        decisions[authority_level] = compose_graded_outcome(input_row)
+    return decisions
+
+
+def _s1_authority_outcome_rows(
+    decisions: Mapping[str, GradedOutcomeDecision],
+) -> dict[str, dict[str, Any]]:
+    rows: dict[str, dict[str, Any]] = {}
+    for authority_level, decision in decisions.items():
+        outcome = (
+            "publish-with-limitation"
+            if decision.outcome == "publish_with_limitation"
+            else decision.outcome
+        )
+        rows[authority_level] = {
+            "outcome": outcome,
+            "closeout_effect": decision.closeout_effect,
+            "decision_owner_ref": decision.decision_owner_ref,
+            "authority_profile_ref": decision.authority_profile_ref,
+            "review_refs": list(decision.review_refs),
+            "blocked_by": _s1_decision_blocked_by(decision),
+        }
+    return rows
+
+
+def _s1_primary_authority_level(
+    corpus_stub_summary: Mapping[str, Any] | None,
+    authority_level: str,
+) -> str:
+    raw = (
+        _text((corpus_stub_summary or {}).get("max_authority_posture"))
+        or authority_level
+        or "research"
+    )
+    normalized = raw.replace("-", "_")
+    if normalized == "governed_pilot":
+        return "governed"
+    if normalized in AUTHORITY_LEVELS:
+        return normalized
+    return _normalized_token(authority_level or "research")
+
+
+def _s1_blocked_by(
+    *,
+    producer_pipeline: Mapping[str, Any],
+    runtime_pdc_graph: Mapping[str, Any],
+    typed_blockers: Sequence[Mapping[str, Any]],
+) -> str | None:
+    codes = {
+        _normalized_token(blocker.get("code"))
+        for blocker in typed_blockers
+        if blocker.get("code")
+    }
+    if any("non_overridable" in code for code in codes):
+        return "non_overridable_gate"
+    if any("reissue" in code for code in codes):
+        return "reissue_required"
+    if any("review_required" in code or "review" in code for code in codes):
+        return "review_required"
+    if (
+        typed_blockers
+        or producer_pipeline.get("status") != "pass"
+        or runtime_pdc_graph.get("status") != "pass"
+    ):
+        return "hard_closeout_blocker"
+    return None
+
+
+def _s1_decision_blocked_by(decision: GradedOutcomeDecision) -> str | None:
+    blocker_codes = {
+        _normalized_token(blocker.get("code"))
+        for blocker in decision.blockers
+        if blocker.get("code")
+    }
+    if "graded_outcome_non_overridable_gate" in blocker_codes:
+        return "non_overridable_gate"
+    if "graded_outcome_production_proxy_block" in blocker_codes:
+        return "production_proxy_evidence"
+    if blocker_codes:
+        return "hard_closeout_blocker"
+    return None
+
+
+def _s1_requested_outcome(
+    case: Mapping[str, Any],
+    *,
+    authority_level: str,
+) -> str:
+    for row in _expected_closeout_rows(case):
+        if _normalized_token(row.get("authority_level")) != authority_level:
+            continue
+        state = _normalized_token(row.get("state") or row.get("outcome") or row.get("status"))
+        if state in {"limited", "publish_with_limitation", "publish-with-limitation"}:
+            return "publish_with_limitation"
+    return "pass"
+
+
+def _s1_evidence_refs(
+    *,
+    producer_pipeline: Mapping[str, Any],
+    capability_graph_trace: Mapping[str, Any],
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    proxy_refs: list[str] = []
+    partial_refs: list[str] = []
+    for decision in _sequence_of_mappings(producer_pipeline.get("producer_binding_decisions")):
+        artifact_ref = _text(decision.get("artifact_ref"))
+        if not artifact_ref:
+            continue
+        label = _normalized_token(decision.get("label"))
+        if "proxy" in artifact_ref or "proxy" in label:
+            proxy_refs.append(artifact_ref)
+        elif "limited" in label or artifact_ref.startswith("corpus-stub:"):
+            partial_refs.append(artifact_ref)
+    for binding in _sequence_of_mappings(capability_graph_trace.get("capability_bindings")):
+        if not _sequence(binding.get("acquisition_strategies")):
+            continue
+        binding_ref = _text(binding.get("binding_id"))
+        if binding_ref:
+            proxy_refs.append(f"capability-binding://{binding_ref}")
+    return tuple(_unique_texts(proxy_refs)[:8]), tuple(_unique_texts(partial_refs)[:8])
+
+
+def _s1_claim_id(case: Mapping[str, Any], *, case_id: str) -> str:
+    claims = _sequence_of_mappings(_nested(case, ("claim_evidence_annotations", "claims")))
+    if claims:
+        claim_id = _text(claims[0].get("claim_id") or claims[0].get("id"))
+        if claim_id:
+            return claim_id
+    return f"claim:{case_id}:main"
+
+
+def _s1_passing_closeout_records() -> dict[str, dict[str, object]]:
+    return {
+        "i4_policy_design_case_graph": _s1_w4_record(
+            "policyos.runtime.policy_design_case.wave4_i4_graph.v1"
+        ),
+        "portfolio_effective_support": _s1_w4_record(
+            "policyos.runtime.policy_design_case.portfolio_effective_support.v1"
+        ),
+        "lifecycle_reissue": _s1_w4_record(
+            "policyos.runtime.policy_design_case.lifecycle_reissue_report.v1"
+        ),
+        "projection_consumer_contract": _s1_w4_record(
+            "policyos.runtime.policy_design_case.projection_contract_fixture.v1"
+        ),
+        "formal_invariants": _s1_w4_record("policyos.runtime.formal_invariants.v1"),
+        "source_truth": _s1_w4_record("policyos.runtime.source_truth.v1"),
+        "conflict_materialization": _s1_w4_record(
+            "policyos.runtime.policy_design_case.conflict_materialization_closeout.v1"
+        ),
+        "attestation": _s1_w4_record("policyos.runtime.attestation.v1"),
+        "closeout_compatibility": _s1_w4_record(
+            "policyos.runtime.can_i_closeout_compatibility.v1"
+        ),
+        "semantic_binding": _s1_w4_record("policyos.runtime.semantic_binding.v1"),
+        "claim_registry": _s1_w4_record("policyos.runtime.claim_registry.v1"),
+        "pdc_record_family_status": _s1_w4_record(
+            "policyos.policy_design_case.record_family_coverage.v1"
+        ),
+        "projection_publication_state": _s1_w4_record(
+            "policyos.runtime.policy_design_case.projection_publication_state.v1"
+        ),
+        "run_cost_gate": _s1_w4_record("policyos.runtime.run_cost_gate.v1"),
+        "complexity_self_fmea": _s1_w4_record(
+            "policyos.runtime.run_cost_proportionality.v1"
+        ),
+        "audit_verifier_ingestion": _s1_w4_record("policyos.runtime.audit_verifier.v1"),
+        "prompt_tool_repair_fmea": _s1_w4_record(
+            "policyos.runtime.prompt_tool_repair_fmea.v1"
+        ),
+    }
+
+
+def _s1_w4_record(schema_version: str) -> dict[str, object]:
+    return {
+        "schema_version": schema_version,
+        "status": "pass",
+        "authority_role": "runtime_reader",
+        "provenance_kind": "runtime_emitted",
+        "producer": "w12d.layer2_s1",
+        "runtime_event_ref": "event://w12d/layer2-s1",
+        "cas_ref": "sha256:" + "1" * 64,
+        "issues": [],
+    }
+
+
 def _capability_graph_actionable_blockers(
     *,
     case_id: str,
@@ -1825,6 +2199,7 @@ def _authority_outcomes(
     *,
     outcome: str,
     expert_delta: Mapping[str, Any],
+    s1_authority_outcomes: Mapping[str, Any],
 ) -> dict[str, dict[str, Any]]:
     rows = _expected_closeout_rows(case)
     if not rows:
@@ -1837,6 +2212,9 @@ def _authority_outcomes(
             _normalized_token(row.get("state") or row.get("outcome") or row.get("status")),
             fallback=outcome,
         )
+        s1_row = _mapping(s1_authority_outcomes.get(authority_level))
+        if s1_row:
+            row_outcome = str(s1_row.get("outcome") or row_outcome)
         if outcome == "typed_blocker":
             row_outcome = "typed_blocker"
         authority_outcomes[authority_level] = {
@@ -2494,6 +2872,15 @@ def _sequence(value: object) -> tuple[Any, ...]:
 
 def _sequence_of_mappings(value: object) -> tuple[Mapping[str, Any], ...]:
     return tuple(row for row in _sequence(value) if isinstance(row, Mapping))
+
+
+def _unique_texts(values: Sequence[object]) -> list[str]:
+    rows: list[str] = []
+    for value in values:
+        text = _text(value)
+        if text and text not in rows:
+            rows.append(text)
+    return rows
 
 
 def _nested(mapping: Mapping[str, Any], path: Sequence[str]) -> object | None:

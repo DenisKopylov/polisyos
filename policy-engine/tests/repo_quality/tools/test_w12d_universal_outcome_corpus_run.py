@@ -169,6 +169,90 @@ def test_w12d_corpus_stub_mode_can_produce_useful_design_without_production_auth
     assert "production_closeout_authority" in case["corpus_stub"]["may_not_use_for"]
 
 
+def test_w12d_canonical_outcome_consumes_s1_governed_closeout_downgrade(
+    tmp_path: Path,
+) -> None:
+    stub_dir = tmp_path / "producer-stubs"
+    stub_dir.mkdir()
+    (stub_dir / "ua-msme-affordable-loans-2022.producer_stubs.json").write_text(
+        json.dumps(
+            {
+                "case_id": "ua-msme-affordable-loans-2022",
+                "mode": "corpus_stub",
+                "max_authority_posture": "governed-pilot",
+                "fabric": {"*": "selected"},
+                "lex": {"*": "selected"},
+                "foundry": {"*": "selected"},
+                "scholar": {"*": "selected"},
+                "participation": {"*": "limited"},
+            }
+        ),
+        encoding="utf-8",
+    )
+    index_dir = tmp_path / "capability-index"
+    assert builder.main(["--mode", "fixture", "--output-dir", str(index_dir)]) == 0
+
+    report = w12d.run_w12d_universal_outcome_corpus(
+        repo_root=REPO_ROOT,
+        corpus_path=SINGLE_CASE_PATH,
+        graph_output_dir=tmp_path / "graphs",
+        hypothesis_ledger_output_dir=tmp_path / "ledgers",
+        mode="corpus_stub",
+        producer_stub_dir=stub_dir,
+        capability_index_path=index_dir / "capability_index_v1.duckdb",
+    )
+
+    case = report["cases"][0]
+    assert case["s1_graded_outcome"]["outcome"] == "publish_with_limitation"
+    assert case["s1_graded_outcome"]["closeout_status"] == "closed_with_limitations"
+    assert case["s1_graded_outcome"]["decision_owner_ref"]
+    assert case["s1_graded_outcome"]["authority_profile_ref"]
+    assert case["s1_graded_outcome"]["review_refs"]
+    assert case["outcome"] == "publish-with-limitation"
+    assert case["expert_adjudication_delta"]["canonical_runtime_outcome"] == (
+        "publish-with-limitation"
+    )
+
+
+def test_w12d_s1_route_does_not_override_production_or_hard_blockers(
+    tmp_path: Path,
+) -> None:
+    index_dir = tmp_path / "capability-index"
+    assert builder.main(["--mode", "fixture", "--output-dir", str(index_dir)]) == 0
+
+    governed_report = w12d.run_w12d_universal_outcome_corpus(
+        repo_root=REPO_ROOT,
+        corpus_path=SINGLE_CASE_PATH,
+        graph_output_dir=tmp_path / "governed-graphs",
+        hypothesis_ledger_output_dir=tmp_path / "governed-ledgers",
+        mode="corpus_stub",
+        producer_stub_dir=REPO_ROOT / "tests/fixtures/universal-corpus/producer_stubs",
+        capability_index_path=index_dir / "capability_index_v1.duckdb",
+    )
+    governed_case = governed_report["cases"][0]
+    assert governed_case["authority_outcomes"]["governed"]["outcome"] == (
+        "publish-with-limitation"
+    )
+    assert governed_case["authority_outcomes"]["production"]["outcome"] == "typed_blocker"
+
+    blocked_report = w12d.run_w12d_universal_outcome_corpus(
+        repo_root=REPO_ROOT,
+        corpus_path=SINGLE_CASE_PATH,
+        graph_output_dir=tmp_path / "blocked-graphs",
+        hypothesis_ledger_output_dir=tmp_path / "blocked-ledgers",
+        mode="real_producer",
+        capability_index_path=index_dir / "capability_index_v1.duckdb",
+    )
+    blocked_case = blocked_report["cases"][0]
+    assert blocked_case["outcome"] == "typed_blocker"
+    assert blocked_case["s1_graded_outcome"]["blocked_by"] in {
+        "hard_closeout_blocker",
+        "non_overridable_gate",
+        "review_required",
+        "reissue_required",
+    }
+
+
 def test_w12d_corpus_stub_consumes_capability_index_and_emits_claim_binding_refs(
     tmp_path: Path,
 ) -> None:

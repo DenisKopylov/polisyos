@@ -16,20 +16,30 @@ def test_layer2_s0_readiness_manifest_is_valid() -> None:
     validation = readiness.validate_layer2_readiness(REPO_ROOT)
 
     assert validation["status"] == "pass", validation["issues"]
-    assert validation["summary"]["open_cell_count"] == 17  # type: ignore[index]
+    assert validation["summary"]["open_cell_count_baseline"] == 17  # type: ignore[index]
     assert validation["summary"]["assigned_open_cell_count"] == 17  # type: ignore[index]
+    assert validation["summary"]["current_open_cell_count"] == 15  # type: ignore[index]
     assert validation["summary"]["s0_cells_closed"] == []  # type: ignore[index]
+    assert validation["summary"]["cells_closed_since_s0"] == [
+        "INTERVENTION.design_candidate",
+        "INTERVENTION.design_grammar",
+    ]  # type: ignore[index]
 
 
-def test_layer2_slice_cell_matrix_covers_every_open_cell() -> None:
+def test_layer2_slice_cell_matrix_preserves_baseline_and_current_open_subset() -> None:
     payloads = readiness.load_layer2_readiness_payloads(REPO_ROOT)
     cluster_map = payloads["cluster_map"]
-    open_cells = readiness._open_cell_refs(cluster_map)  # type: ignore[attr-defined]
+    current_open_cells = readiness._open_cell_refs(cluster_map)  # type: ignore[attr-defined]
     assigned = {
         str(entry["cell_ref"]) for entry in payloads["slice_cell_matrix"].get("assignment", [])
     }
 
-    assert open_cells == assigned
+    assert len(assigned) == 17
+    assert current_open_cells < assigned
+    assert assigned - current_open_cells == {
+        "INTERVENTION.design_candidate",
+        "INTERVENTION.design_grammar",
+    }
 
 
 def test_layer2_readiness_rejects_missing_open_cell_assignment() -> None:
@@ -44,7 +54,7 @@ def test_layer2_readiness_rejects_missing_open_cell_assignment() -> None:
     validation = readiness.validate_layer2_readiness_payloads(payloads)
 
     assert validation["status"] == "fail"
-    assert "layer2_slice_cell_matrix_open_cell_mismatch" in _issue_codes(validation)
+    assert "layer2_slice_cell_matrix_current_open_cell_not_assigned" in _issue_codes(validation)
 
 
 def test_layer2_readiness_rejects_maturity_as_ratchet_state() -> None:

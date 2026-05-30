@@ -269,38 +269,6 @@ negative_test = "Naive sum-of-subdesigns fixture must fail when coupling precond
 acceptance_signal = "Recursive design composition cannot emit whole-design authority without CouplingGraph and composition receipt."
 next_action = "Consolidate pdc, IR portfolio, and Foundry coupling seeds into D2.6 composition producer."
 
-[open_cell_closure.INTERVENTION.design_candidate]
-cell_ref = "INTERVENTION.design_candidate"
-owner = "team-design-generation"
-reuse_classification = "consolidate_existing"
-current_state = "implemented_but_not_orchestrated"
-target_state = "implemented"
-missing_chain = ["typed_contract", "producer", "persisted_artifact", "orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
-producer_artifact = "DesignCandidate contract and artifact with instrument family, parameters, objectives, assumptions, authority boundary, and candidate source."
-persisted_artifact = "Candidate ledger entry linked to grammar derivation, LLM/source classification, regime, value, and capacity gates."
-bridge_consumer = "Design comparison, requirement compilers, strategic response, and projection consume only typed candidates."
-surface = "PUBLIC sees recommendation status and limitations; EXPERT/MACHINE inspect derivation, source, and firewall state."
-semantic_test = "LLM-drafted candidate cannot satisfy authority or recommendation without deterministic/gate-owned validation."
-negative_test = "Narrative-only memo fixture must fail because it lacks typed candidate derivation and firewall state."
-acceptance_signal = "B-side generation emits typed candidate-only artifacts routed through grammar, value, regime, and P15 firewall."
-next_action = "Create the D3 DesignCandidate contract and route scientist agent/policy_design seeds through it."
-
-[open_cell_closure.INTERVENTION.design_grammar]
-cell_ref = "INTERVENTION.design_grammar"
-owner = "team-policy-grammar"
-reuse_classification = "extend_existing"
-current_state = "implemented_but_not_orchestrated"
-target_state = "implemented"
-missing_chain = ["producer", "persisted_artifact", "orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
-producer_artifact = "DesignGrammarExpansion artifact for facet-derived instrument families, parameter space, constraints, and construct demand."
-persisted_artifact = "Grammar derivation ledger linked to policy intent, facets, obligations, and candidate generation."
-bridge_consumer = "INTERVENTION.design_candidate and requirement compilers consume grammar expansion records."
-surface = "EXPERT/MACHINE projection exposes grammar derivation, constraints, pruned branches, and LLM candidate boundaries."
-semantic_test = "Candidate space must include non-template alternatives across instrument families under the same objective."
-negative_test = "LLM-only candidate proposal without grammar derivation must fail P15 firewall."
-acceptance_signal = "Design generation searches grammar-derived space rather than typed wrappers around free-text suggestions."
-next_action = "Promote policy_grammar, obligation_graph, and obligation_rules into a design-space expansion producer."
-
 [open_cell_closure.INTERVENTION.reversibility_lifecycle_stakes]
 cell_ref = "INTERVENTION.reversibility_lifecycle_stakes"
 owner = "team-case-lifecycle"
@@ -1196,20 +1164,20 @@ gap = "scale/composition is the second universalism axis, but no owned producer 
 action = "build the D2.6 composition producer with CouplingGraph preconditions, recursive sub-design interfaces, and system-level residual-risk obligations."
 
 [cell.INTERVENTION.design_candidate]
-owner_module = ""
+owner_module = "src/polisyos/pdc"
 seed_files = [
   "src/polisyos/policy_grammar/README.md",
   "src/polisyos/scientist/agent/_drafter_orchestrator.py",
   "src/polisyos/pdc/_impl/compiler.py",
 ]
-ratchet_state = "implemented_but_not_orchestrated"
-p01_chain = "bridge_missing"
+ratchet_state = "implemented"
+p01_chain = "implemented"
 authority_dim = "design_candidate_validity"
 firewall = "P15_LLM_speculation_laundering"
 publishes = ["INTERVENTION.design_comparison", "INTERVENTION.requirements", "OTHER_AGENTS.response_model"]
 consumes = ["INTERVENTION.design_grammar", "INTERVENTION.scale_composition", "CROSS_CUTTING.scientist_orchestration", "ACTOR.value_choice_provenance", "KNOWLEDGE.epistemic_regime"]
-gap = "DesignCandidate is central to D3, but generation still exists as advisory seeds rather than an owned typed design producer."
-action = "create the D3 DesignCandidate contract and route B-side generation through grammar, value, regime, and firewall checks before any comparison or projection."
+gap = "none_for_s2_shadow_design_search"
+action = "S2 emits grammar-derived DesignCandidateV0 artifacts linked to DesignRecordV0, SearchLedger, and authority firewalls."
 
 [cell.INTERVENTION.design_grammar]
 owner_module = "src/polisyos/policy_grammar"
@@ -1220,14 +1188,14 @@ seed_files = [
   "src/polisyos/obligation_rules/README.md",
   "src/polisyos/method_requirement/README.md",
 ]
-ratchet_state = "implemented_but_not_orchestrated"
-p01_chain = "bridge_missing"
+ratchet_state = "implemented"
+p01_chain = "implemented"
 authority_dim = "design_grammar_validity"
 firewall = "P15_LLM_speculation_laundering"
 publishes = ["INTERVENTION.design_candidate", "INTERVENTION.construct_demand"]
 consumes = ["SYSTEM.domain_data", "KNOWLEDGE.epistemic_regime", "ACTOR.value_choice_provenance"]
-gap = "facet and obligation grammar exist, but design-space generation and search are not yet a first-class orchestrated producer."
-action = "promote design grammar to a B-side generator constrained by A-side cluster firewalls and capability ratchet reality labels."
+gap = "none_for_s2_shadow_design_search"
+action = "S2 emits DesignGrammarExpansion artifacts consumed by DesignCandidateV0 and projected through MACHINE/REVIEWER search trace."
 
 [cell.INTERVENTION.reversibility_lifecycle_stakes]
 owner_module = ""

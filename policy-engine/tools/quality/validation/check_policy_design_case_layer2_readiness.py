@@ -122,17 +122,25 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
 
     issues: list[dict[str, str]] = []
     cluster_payload = payloads["cluster_map"]
-    open_cells = _open_cell_refs(cluster_payload)
+    current_open_cells = _open_cell_refs(cluster_payload)
     ratchet_states = set(cluster_payload.get("ratchet_state_vocabulary", []))
 
     matrix = payloads["slice_cell_matrix"]
+    open_cell_count_baseline = int(matrix["open_cell_count_baseline"])
     assignments = list(matrix.get("assignment", []))
     assigned_cells = {str(entry.get("cell_ref", "")) for entry in assignments}
-    if assigned_cells != open_cells:
+    if len(assigned_cells) != open_cell_count_baseline:
         issues.append(
             _issue(
-                "layer2_slice_cell_matrix_open_cell_mismatch",
-                "Slice-cell matrix must assign exactly the open cluster cells.",
+                "layer2_slice_cell_matrix_baseline_count_mismatch",
+                "Slice-cell matrix must preserve the S0 baseline open-cell assignments.",
+            )
+        )
+    if not current_open_cells <= assigned_cells:
+        issues.append(
+            _issue(
+                "layer2_slice_cell_matrix_current_open_cell_not_assigned",
+                "Every current open cell must remain assigned in the S0 slice-cell baseline.",
             )
         )
 
@@ -192,12 +200,16 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
     _validate_corpus_partition(payloads["corpus_partition"], issues)
     _validate_first_proving_case(payloads["first_proving_case"], issues)
     _validate_readiness_manifest(payloads["readiness_manifest"], issues)
+    closed_since_s0 = sorted(assigned_cells - current_open_cells)
 
     return _result(
         issues,
         summary={
-            "open_cell_count": len(open_cells),
+            "open_cell_count": len(current_open_cells),
+            "open_cell_count_baseline": open_cell_count_baseline,
+            "current_open_cell_count": len(current_open_cells),
             "assigned_open_cell_count": len(assigned_cells),
+            "cells_closed_since_s0": closed_since_s0,
             "s0_cells_closed": s0_cells_closed,
             "readiness_artifact_count": len(payloads["readiness_manifest"].get("artifacts", [])),
             "inventory_artifact_count": _inventory_layer2_artifact_count(payloads["inventory"]),

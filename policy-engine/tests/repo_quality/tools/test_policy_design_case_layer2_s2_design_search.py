@@ -45,21 +45,18 @@ def test_s2_manifest_declares_closed_cells_and_shadow_scope() -> None:
     assert "production_recommendation" in manifest["may_not_use_for"]
 
 
-def test_s2_validator_blocks_until_cluster_map_closes_s2_cells() -> None:
+def test_s2_validator_reports_full_loop_and_floor() -> None:
     summary = s2_validator.validate_s2_design_search(repo_root=REPO_ROOT)
 
-    assert summary["status"] == "fail"
+    assert summary["status"] == "pass"
     assert summary["slice"] == "S2"
     assert summary["first_proving_case_id"] == "ua-msme-affordable-loans-2022"
-    assert summary["current_open_cell_count"] == 17
+    assert summary["current_open_cell_count"] == 15
     assert summary["expected_current_open_cell_count"] == 15
     assert summary["cells_closed"] == [
         "INTERVENTION.design_grammar",
         "INTERVENTION.design_candidate",
     ]
-    assert "s2_cluster_open_cell_count_unexpected" in {
-        issue["code"] for issue in summary["issues"]
-    }
     assert summary["counterexample_conversion_rate"] == 1.0
     assert summary["grammar_diversity_minimum"] == 3
     assert summary["governance_decision_classes_verified"] == ["a_spec_gap"]
@@ -84,3 +81,30 @@ def test_s2_validator_rejects_manifest_that_claims_acquisition() -> None:
     assert "s2_acquisition_branch_must_remain_bridge_missing" in {
         issue["code"] for issue in validation["issues"]
     }
+
+
+def test_s2_manifest_is_registered_in_inventory() -> None:
+    inventory = json.loads(
+        (REPO_ROOT / "architecture/policy_design_case/inventory.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    artifacts = {str(row["id"]): row for row in inventory["artifacts"]}
+
+    row = artifacts["layer2_s2_design_search_manifest"]
+    assert row["path"] == "architecture/policy_design_case/layer2_s2_design_search_manifest.json"
+    assert row["schema_version"] == (
+        "policyos.policy_design_case.layer2_s2_design_search_manifest.v1"
+    )
+    assert row["owner"] == "team-design-generation"
+    assert row["status"] == "active"
+    assert row["capability_reality_label"] == "implemented"
+    assert row["authority_scope"] == "shadow_design_search_replay"
+    assert "acquisition_authority" in row["may_not_use_for"]
+    assert "production_recommendation" in row["may_not_use_for"]
+    assert row["validator"] == (
+        "tools/quality/validation/check_policy_design_case_layer2_s2_design_search.py"
+    )
+    assert row["canonical_route"] == (
+        "tools/quality/validation/run_universal_outcome_corpus.py"
+    )

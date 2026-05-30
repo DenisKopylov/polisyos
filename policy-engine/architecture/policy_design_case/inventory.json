@@ -62,6 +62,27 @@
       "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py"
     },
     {
+      "id": "layer2_s2_design_search_manifest",
+      "path": "architecture/policy_design_case/layer2_s2_design_search_manifest.json",
+      "kind": "layer2_s2_design_search_manifest",
+      "schema_version": "policyos.policy_design_case.layer2_s2_design_search_manifest.v1",
+      "owner": "team-design-generation",
+      "status": "active",
+      "capability_reality_label": "implemented",
+      "authority_scope": "shadow_design_search_replay",
+      "may_not_use_for": [
+        "production_recommendation",
+        "publication_authority",
+        "rollout_authority",
+        "claim_authority",
+        "production_closeout_authority",
+        "acquisition_authority",
+        "source_contract_authority"
+      ],
+      "validator": "tools/quality/validation/check_policy_design_case_layer2_s2_design_search.py",
+      "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py"
+    },
+    {
       "id": "layer2_minimal_seed_manifest",
       "path": "architecture/policy_design_case/layer2_minimal_seed_manifest.json",
       "kind": "layer2_seed_manifest",

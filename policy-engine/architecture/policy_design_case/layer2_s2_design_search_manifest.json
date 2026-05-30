@@ -1,0 +1,91 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s2_design_search_manifest.v1",
+  "status": "active",
+  "slice": "S2",
+  "slice_label": "grammar_candidate_search_design_record_v0",
+  "owner": "team-design-generation",
+  "promotion": "shadow_only",
+  "cells_closed": [
+    "INTERVENTION.design_grammar",
+    "INTERVENTION.design_candidate"
+  ],
+  "layer_contributions": [
+    {
+      "cell_ref": "CROSS_CUTTING.scientist_orchestration",
+      "contribution": "generation_handoff",
+      "artifact": "ClusterHandoffRecord",
+      "ratchet_state_after_s2": "implemented_but_not_orchestrated",
+      "closure_owner_slice": "S7"
+    }
+  ],
+  "open_cell_count_baseline": 17,
+  "expected_current_open_cell_count": 15,
+  "first_proving_case_id": "ua-msme-affordable-loans-2022",
+  "required_artifacts": [
+    "DesignGrammarExpansion",
+    "DesignCandidateV0",
+    "ConstraintStoreSnapshot",
+    "CounterexampleRecord",
+    "RefinementDecision",
+    "SearchLedger",
+    "ClusterInterfaceContract",
+    "ClusterHandoffRecord",
+    "DesignRecordV0"
+  ],
+  "counterexample_class_vocabulary": [
+    "real_design_blocker",
+    "substrate_gap",
+    "a_spec_gap",
+    "abstraction_gap",
+    "value_gap",
+    "budget_gap"
+  ],
+  "floors": [
+    {
+      "floor_id": "s2_counterexample_conversion",
+      "metric": "counterexample_conversion_rate",
+      "required_value": 1.0,
+      "owner": "team-runtime-quality"
+    }
+  ],
+  "shadow_adequacy_checks": [
+    {
+      "check_id": "s2_shadow_grammar_diversity",
+      "metric": "instrument_family_coverage_count",
+      "required_value": 3,
+      "owner": "team-design-generation",
+      "rationale": "S2 shadow grammar must not collapse to variants of one instrument family."
+    }
+  ],
+  "required_governance_decision_classes": [
+    "a_spec_gap"
+  ],
+  "required_voi_sites": [
+    "s2_refinement_policy"
+  ],
+  "acquisition_branch_state": "bridge_missing",
+  "projection_audiences": [
+    "MACHINE",
+    "REVIEWER"
+  ],
+  "authority_scope": "shadow_design_search_replay",
+  "may_not_use_for": [
+    "production_recommendation",
+    "publication_authority",
+    "rollout_authority",
+    "claim_authority",
+    "production_closeout_authority",
+    "acquisition_authority",
+    "source_contract_authority"
+  ],
+  "validator": "tools/quality/validation/check_policy_design_case_layer2_s2_design_search.py",
+  "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py",
+  "rule_version_ref": "policyos.layer2.s2.design_search.v1",
+  "firewalls": [
+    "P05",
+    "P10",
+    "P12",
+    "P15",
+    "P25"
+  ]
+}

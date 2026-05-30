@@ -214,6 +214,56 @@ def test_w12d_canonical_outcome_consumes_s1_governed_closeout_downgrade(
     )
 
 
+def test_w12d_corpus_route_emits_s2_shadow_design_search_for_first_proving_case(
+    tmp_path: Path,
+) -> None:
+    report = w12d.run_w12d_universal_outcome_corpus(
+        repo_root=REPO_ROOT,
+        corpus_path=SINGLE_CASE_PATH,
+        graph_output_dir=tmp_path / "graphs",
+        hypothesis_ledger_output_dir=tmp_path / "ledgers",
+        mode="corpus_stub",
+        producer_stub_dir=REPO_ROOT / "tests/fixtures/universal-corpus/producer_stubs",
+    )
+
+    case = report["cases"][0]
+    s2 = case["s2_design_search"]
+    assert s2["status"] == "shadow_ready"
+    assert s2["search_ledger"]["counterexample_conversion_rate"] == 1.0
+    assert s2["search_ledger"]["grammar_diversity_minimum"] == 3
+    assert set(s2["search_ledger"]["counterexample_class_vocabulary"]) == {
+        "real_design_blocker",
+        "substrate_gap",
+        "a_spec_gap",
+        "abstraction_gap",
+        "value_gap",
+        "budget_gap",
+    }
+    assert s2["search_ledger"]["acquisition_branch_state"] == "bridge_missing"
+    assert s2["design_record"]["projection_status"] == "shadow"
+    assert "production_recommendation" in s2["design_record"]["authority_boundary"][
+        "may_not_use_for"
+    ]
+
+
+def test_w12d_s2_shadow_search_does_not_change_canonical_closeout_outcome(
+    tmp_path: Path,
+) -> None:
+    report = w12d.run_w12d_universal_outcome_corpus(
+        repo_root=REPO_ROOT,
+        corpus_path=SINGLE_CASE_PATH,
+        graph_output_dir=tmp_path / "graphs",
+        hypothesis_ledger_output_dir=tmp_path / "ledgers",
+        mode="corpus_stub",
+        producer_stub_dir=REPO_ROOT / "tests/fixtures/universal-corpus/producer_stubs",
+    )
+
+    case = report["cases"][0]
+    assert case["s2_design_search"]["status"] == "shadow_ready"
+    assert case["s2_design_search"]["canonical_outcome_effect"] == "none_shadow_only"
+    assert case["outcome"] in {"accepted_deficit", "publish-with-limitation", "typed_blocker"}
+
+
 def test_w12d_s1_route_does_not_override_production_or_hard_blockers(
     tmp_path: Path,
 ) -> None:

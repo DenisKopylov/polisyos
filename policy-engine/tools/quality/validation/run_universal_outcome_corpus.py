@@ -33,6 +33,10 @@ from polisyos.obligation_graph import (  # noqa: E402
     compile_obligation_graph,
 )
 from polisyos.obligation_rules import build_seed_obligation_rule_catalog  # noqa: E402
+from polisyos.pdc import (  # noqa: E402
+    Layer2S2DesignSearchInput,
+    run_s2_shadow_design_loop,
+)
 from polisyos.policy_grammar import (  # noqa: E402
     PolicyGrammarCompiler,
     PolicyGrammarConceptSpineRefs,
@@ -501,6 +505,7 @@ def _run_case(
         capability_index_path=capability_index_path,
         repo_root=repo_root,
     )
+    s2_design_search = _s2_design_search_summary(case, repo_root=repo_root)
 
     try:
         compiled = _compile_case_artifacts(
@@ -776,10 +781,50 @@ def _run_case(
         "llm_universal_compilation": llm_summary,
         "corpus_stub": corpus_stub_summary,
         "s1_graded_outcome": s1_graded_outcome,
+        "s2_design_search": s2_design_search,
         "expert_adjudication_delta": expert_delta,
         "authority_outcomes": authority_outcomes,
         "typed_blockers": typed_blockers,
         "issues": issues,
+    }
+
+
+def _s2_design_search_summary(case: Mapping[str, Any], *, repo_root: Path) -> dict[str, Any]:
+    case_id = str(case.get("case_id") or case.get("id") or "")
+    if case_id != "ua-msme-affordable-loans-2022":
+        return {"status": "not_applicable", "canonical_outcome_effect": "none_shadow_only"}
+    input_row = Layer2S2DesignSearchInput(
+        case_id=case_id,
+        intent_ref="repo://architecture/policy_design_case/layer2_first_proving_case.json",
+        grammar_ref="repo://src/polisyos/policy_grammar",
+        actor_ref="actor://ua/ministry-of-economy",
+        domain="ukrainian_msme_credit",
+        objective_refs=(
+            "objective://credit_program_enrollment",
+            "objective://firm_survival",
+            "objective://regional_displacement_pressure",
+            "objective://credit_access",
+            "objective://fiscal_burden_per_beneficiary",
+        ),
+        construct_refs=(
+            "construct://credit_program_enrollment",
+            "construct://firm_survival",
+            "construct://regional_displacement_pressure",
+            "construct://credit_access",
+            "construct://fiscal_burden_per_beneficiary",
+        ),
+        authority_profile_ref="authority_profile.shadow",
+        requested_posture="shadow",
+        generated_at=datetime.fromisoformat(GENERATED_AT.replace("Z", "+00:00")),
+        rule_version_ref="policyos.layer2.s2.design_search.v1",
+    )
+    run = run_s2_shadow_design_loop(input_row)
+    return {
+        "status": run.status,
+        "canonical_outcome_effect": "none_shadow_only",
+        "search_ledger": run.search_ledger.model_dump(mode="json"),
+        "design_record": run.design_record.model_dump(mode="json"),
+        "handoff_records": [row.model_dump(mode="json") for row in run.handoff_records],
     }
 
 

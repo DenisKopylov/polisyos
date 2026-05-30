@@ -414,6 +414,14 @@ from .external_audit import (
     build_public_audit_archive_record,
     validate_public_audit_archive_record,
 )
+from .graded_outcomes import (
+    S1_GRADED_OUTCOME_SCHEMA_VERSION,
+    GradedOutcomeDecision,
+    GradedOutcomeEvidenceInput,
+    GradedOutcomeInputError,
+    compose_graded_outcome,
+    graded_outcome_closeout_record,
+)
 from .human_review import (
     build_human_review_calibration_report,
     deterministic_review_fixtures,
@@ -864,6 +872,7 @@ __all__ = [
     "RUN_COST_GATE_SCHEMA_VERSION",
     "RUN_COST_PROPORTIONALITY_LEDGER_CONTRACT_ID",
     "RUN_COST_PROPORTIONALITY_LEDGER_SCHEMA_VERSION",
+    "S1_GRADED_OUTCOME_SCHEMA_VERSION",
     "SEMANTIC_BINDING_SCHEMA_VERSION",
     "SEMANTIC_EVALUATION_PACK_CONTRACT_ID",
     "SEMANTIC_EVALUATION_PACK_SCHEMA_VERSION",
@@ -950,6 +959,9 @@ __all__ = [
     "FoundryBindingRecord",
     "FreshnessEnvelope",
     "GovernanceMetadata",
+    "GradedOutcomeDecision",
+    "GradedOutcomeEvidenceInput",
+    "GradedOutcomeInputError",
     "HypothesisLedger",
     "HypothesisLedgerEntry",
     "IRAnalyticsClaimBinding",
@@ -1116,6 +1128,7 @@ __all__ = [
     "compile_capability_index",
     "complexity_governance_scorecard_gates",
     "compose_capability_authority",
+    "compose_graded_outcome",
     "compute_net_mav",
     "construct_for_legacy_family",
     "construct_refs_for_alias",
@@ -1146,6 +1159,7 @@ __all__ = [
     "explain_replay_drift",
     "export_argument_graph",
     "export_claim_argument_case_mapping",
+    "graded_outcome_closeout_record",
     "historical_prior_claim_evidence_issues",
     "human_review_public_export",
     "inspect_argument_graph",

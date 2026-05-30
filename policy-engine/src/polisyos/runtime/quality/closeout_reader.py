@@ -1010,7 +1010,7 @@ def _classify_record_closeout_items(
                     upstream_issue=row,
                 )
             )
-    return issues, blockers, limitations, accepted_deficits
+    return issues, blockers, _dedupe_closeout_items(limitations), accepted_deficits
 
 
 def _deficit_rows(record: Mapping[str, Any]) -> list[Mapping[str, Any]]:
@@ -1020,6 +1020,28 @@ def _deficit_rows(record: Mapping[str, Any]) -> list[Mapping[str, Any]]:
     if isinstance(raw_rows, Mapping):
         return [row for row in raw_rows.values() if isinstance(row, Mapping)]
     return []
+
+
+def _dedupe_closeout_items(
+    items: Sequence[Mapping[str, Any]],
+) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for item in items:
+        row = dict(item)
+        key = (
+            _text(row.get("deficit_id"))
+            or _text(row.get("limitation_id"))
+            or _text(row.get("code"))
+        )
+        if key is None:
+            rows.append(row)
+            continue
+        if key in seen:
+            continue
+        seen.add(key)
+        rows.append(row)
+    return rows
 
 
 def _issue_from_upstream(

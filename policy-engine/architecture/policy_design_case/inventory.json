@@ -45,6 +45,23 @@
       "status": "active"
     },
     {
+      "id": "layer2_s1_graded_outcomes_manifest",
+      "path": "architecture/policy_design_case/layer2_s1_graded_outcomes_manifest.json",
+      "kind": "layer2_s1_graded_outcomes_manifest",
+      "schema_version": "policyos.policy_design_case.layer2_s1_graded_outcomes_manifest.v1",
+      "owner": "team-runtime-quality",
+      "status": "active",
+      "capability_reality_label": "implemented",
+      "authority_scope": "graded_outcome_routing",
+      "may_not_use_for": [
+        "production_closeout_authority",
+        "claim_authority",
+        "b_side_design_generation"
+      ],
+      "validator": "tools/quality/validation/check_policy_design_case_layer2_s1_graded_outcomes.py",
+      "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py"
+    },
+    {
       "id": "layer2_minimal_seed_manifest",
       "path": "architecture/policy_design_case/layer2_minimal_seed_manifest.json",
       "kind": "layer2_seed_manifest",

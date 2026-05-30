@@ -73,6 +73,33 @@ def test_s1_manifest_requires_governed_decision_owner_and_canonical_route() -> N
     )
 
 
+def test_s1_manifest_is_registered_in_inventory() -> None:
+    inventory_path = REPO_ROOT / "architecture/policy_design_case/inventory.json"
+    inventory = json.loads(inventory_path.read_text(encoding="utf-8"))
+    artifacts = {str(artifact["id"]): artifact for artifact in inventory["artifacts"]}
+
+    row = artifacts["layer2_s1_graded_outcomes_manifest"]
+    assert row["path"] == (
+        "architecture/policy_design_case/layer2_s1_graded_outcomes_manifest.json"
+    )
+    assert row["schema_version"] == (
+        "policyos.policy_design_case.layer2_s1_graded_outcomes_manifest.v1"
+    )
+    assert row["owner"] == "team-runtime-quality"
+    assert row["status"] == "active"
+    assert row["capability_reality_label"] == "implemented"
+    assert row["authority_scope"] == "graded_outcome_routing"
+    assert "production_closeout_authority" in row["may_not_use_for"]
+    assert "claim_authority" in row["may_not_use_for"]
+    assert "b_side_design_generation" in row["may_not_use_for"]
+    assert row["validator"] == (
+        "tools/quality/validation/check_policy_design_case_layer2_s1_graded_outcomes.py"
+    )
+    assert row["canonical_route"] == (
+        "tools/quality/validation/run_universal_outcome_corpus.py"
+    )
+
+
 def test_s1_validator_reports_governed_limitations_and_production_strictness() -> None:
     summary = s1_validator.validate_s1_graded_outcomes(repo_root=REPO_ROOT)
 

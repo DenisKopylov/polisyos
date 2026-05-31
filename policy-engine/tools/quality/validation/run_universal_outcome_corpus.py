@@ -46,6 +46,10 @@ from polisyos.policy_grammar import (  # noqa: E402
 from polisyos.runtime.quality.capability_resolver import (  # noqa: E402
     RequirementToCapabilityResolver,
 )
+from polisyos.runtime.quality.case_lifecycle import (  # noqa: E402
+    build_commitment_profile,
+    select_floor,
+)
 from polisyos.runtime.quality.closeout_reader import (  # noqa: E402
     build_can_i_closeout_verdict,
 )
@@ -60,6 +64,16 @@ from polisyos.runtime.quality.hypothesis_ledger import (  # noqa: E402
     HYPOTHESIS_LEDGER_SCHEMA_VERSION,
     HypothesisLedger,
     serialize_hypothesis_ledger,
+)
+from polisyos.runtime.quality.layer2_epistemic_regime import (  # noqa: E402
+    RegimeEvidenceBasis,
+    classify_regime,
+    regime_accuracy,
+    regime_claim_to_axis_position,
+)
+from polisyos.runtime.quality.layer2_substrate_acquisition import (  # noqa: E402
+    ConstructExpression,
+    SubstrateAcquisitionLoop,
 )
 from polisyos.runtime.quality.producer_pipeline import (  # noqa: E402
     run_requirement_spec_producer_pipeline,
@@ -107,6 +121,13 @@ DEFAULT_MANIFEST_OUTPUT = Path(
     "architecture/policy_design_case/wave12d_universal_outcome_corpus_run_manifest.json"
 )
 DEFAULT_AUTHORITY_COMPOSITION_RULE_REF = "capability-authority-v1.0"
+S3_FIRST_PROVING_CASE_ID = "ua-msme-affordable-loans-2022"
+S3_GROUNDED_CONSTRUCT = "credit_program_enrollment"
+S3_ACQUISITION_SOURCE_FIXTURE = Path(
+    "tests/fixtures/layer2/s3/ua_msme_credit_program_enrollment_source.json"
+)
+S4_EXPERT_LABELS_PATH = Path("tests/fixtures/layer2/s4/s4_expert_labels.json")
+S4_RULE_VERSION_REF = "repo://docs/adr/0174-policy-evidence-capability-graph.md"
 W12D_FORMULATOR_TOOL_REFS: tuple[str, ...] = (
     "tool:w12d.universal_outcome_corpus_run",
     "tool:llm_formulator_runtime",
@@ -177,6 +198,7 @@ def build_w12d_universal_outcome_corpus_report(
         blocker for blocker in typed_blockers if blocker.get("blocks_rollout_posture")
     ]
     summary = _summary(cases)
+    s4_regime_summary = _s4_regime_summary(cases)
     status = "blocked" if rollout_blockers else "pass"
     return {
         "schema_version": SCHEMA_VERSION,
@@ -190,6 +212,7 @@ def build_w12d_universal_outcome_corpus_report(
         "synthetic_fixture_substitution_allowed": False,
         "status": status,
         "summary": summary,
+        "s4_regime_summary": s4_regime_summary,
         "cases": cases,
         "authority_level_metric_stratification": _authority_stratification(cases),
         "domain_authority_metric_stratification": _domain_authority_stratification(cases),
@@ -403,8 +426,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--capability-index",
         type=Path,
+        default=DEFAULT_CAPABILITY_INDEX,
         help=(
-            "Optional Phase 1 capability-index DuckDB used to materialize "
+            "Phase 1 capability-index DuckDB used to materialize "
             "capability/construct refs in W12.D claim bindings."
         ),
     )
@@ -505,8 +529,6 @@ def _run_case(
         capability_index_path=capability_index_path,
         repo_root=repo_root,
     )
-    s2_design_search = _s2_design_search_summary(case, repo_root=repo_root)
-
     try:
         compiled = _compile_case_artifacts(
             case,
@@ -520,6 +542,7 @@ def _run_case(
             capability_index_path=capability_index_path,
             repo_root=repo_root,
             authority_level=authority_level,
+            mode=mode,
         )
         llm_artifacts = _mapping(compiled.get("llm_artifacts"))
         if llm_artifacts:
@@ -766,6 +789,16 @@ def _run_case(
         expert_delta=expert_delta,
         s1_authority_outcomes=_mapping(s1_graded_outcome.get("authority_outcomes")),
     )
+    s4_epistemic_regime = _s4_epistemic_regime_summary(
+        case,
+        repo_root=repo_root,
+        capability_graph_trace=capability_graph_trace,
+    )
+    s2_design_search = _s2_design_search_summary(
+        case,
+        repo_root=repo_root,
+        s4_epistemic_regime=s4_epistemic_regime,
+    )
     return {
         "case_id": case_id,
         "source_path": source_path or None,
@@ -782,6 +815,7 @@ def _run_case(
         "corpus_stub": corpus_stub_summary,
         "s1_graded_outcome": s1_graded_outcome,
         "s2_design_search": s2_design_search,
+        "s4_epistemic_regime": s4_epistemic_regime,
         "expert_adjudication_delta": expert_delta,
         "authority_outcomes": authority_outcomes,
         "typed_blockers": typed_blockers,
@@ -789,7 +823,12 @@ def _run_case(
     }
 
 
-def _s2_design_search_summary(case: Mapping[str, Any], *, repo_root: Path) -> dict[str, Any]:
+def _s2_design_search_summary(
+    case: Mapping[str, Any],
+    *,
+    repo_root: Path,
+    s4_epistemic_regime: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
     case_id = str(case.get("case_id") or case.get("id") or "")
     if case_id != "ua-msme-affordable-loans-2022":
         return {"status": "not_applicable", "canonical_outcome_effect": "none_shadow_only"}
@@ -818,7 +857,21 @@ def _s2_design_search_summary(case: Mapping[str, Any], *, repo_root: Path) -> di
         generated_at=datetime.fromisoformat(GENERATED_AT.replace("Z", "+00:00")),
         rule_version_ref="policyos.layer2.s2.design_search.v1",
     )
-    run = run_s2_shadow_design_loop(input_row)
+    if s4_epistemic_regime:
+        run = run_s2_shadow_design_loop(
+            input_row,
+            regime=_text(s4_epistemic_regime.get("predicted_regime")),  # type: ignore[arg-type]
+            design_strategy=_text(s4_epistemic_regime.get("selected_strategy")),
+            regime_claim_ref=_text(s4_epistemic_regime.get("regime_claim_ref")),
+            commitment_profile_ref=_text(
+                s4_epistemic_regime.get("commitment_profile_ref")
+            ),
+            commitment_stakes=_text(
+                _nested(s4_epistemic_regime, ("derived_commitment", "stakes"))
+            ),  # type: ignore[arg-type]
+        )
+    else:
+        run = run_s2_shadow_design_loop(input_row)
     return {
         "status": run.status,
         "canonical_outcome_effect": "none_shadow_only",
@@ -826,6 +879,275 @@ def _s2_design_search_summary(case: Mapping[str, Any], *, repo_root: Path) -> di
         "design_record": run.design_record.model_dump(mode="json"),
         "handoff_records": [row.model_dump(mode="json") for row in run.handoff_records],
     }
+
+
+def _s4_epistemic_regime_summary(
+    case: Mapping[str, Any],
+    *,
+    repo_root: Path,
+    capability_graph_trace: Mapping[str, Any],
+) -> dict[str, Any]:
+    case_id = _required_text(case.get("case_id") or case.get("id"), field_name="case_id")
+    labels = _s4_expert_labels(repo_root).get(case_id, {})
+    evidence = RegimeEvidenceBasis(
+        claim_ref=_s4_claim_ref(case, case_id=case_id),
+        substrate_binding_status=_s4_substrate_binding_status(
+            case,
+            capability_graph_trace=capability_graph_trace,
+        ),
+        measurability_present=False,
+        calibration_present=False,
+        method_boundary_conditions_met=None,
+        expert_disagreement=_s4_expert_disagreement(case),
+        contested_scholar_edges=_s4_contested_scholar_edges(case),
+        value_provenance_present=False,
+        rule_version_ref=S4_RULE_VERSION_REF,
+    )
+    commitment = build_commitment_profile(
+        candidate_ref=f"pdc://layer2/s4/{case_id}/candidate",
+        rule_version_ref=S4_RULE_VERSION_REF,
+        domain=_text(case.get("domain")),
+        instrument_type=_text(_nested(case, ("policy_instrument", "instrument_type"))),
+        policy_time=_text(_nested(case, ("intent", "policy_time"))),
+    )
+    claim = classify_regime(evidence, commitment)
+    position, firewall = regime_claim_to_axis_position(claim)
+    regime_claim_ref = f"pdc://layer2/s4/{case_id}/epistemic-regime-claim"
+    commitment_profile_ref = f"pdc://layer2/s4/{case_id}/commitment-profile"
+    gold_commitment = _s4_gold_commitment(labels)
+    derived_commitment = commitment.model_dump(mode="json")
+    expert_regime = _text(labels.get("expert_regime")) or "unknown"
+    return {
+        "schema_version": "policyos.policy_design_case.layer2_s4.case_regime_summary.v1",
+        "status": "pass",
+        "case_id": case_id,
+        "classifier_owner": claim.classified_by,
+        "claim_ref": claim.claim_ref,
+        "predicted_regime": claim.regime,
+        "expert_regime": expert_regime,
+        "regime_matches_gold": claim.regime == expert_regime,
+        "evidence_basis": evidence.model_dump(mode="json"),
+        "regime_claim": claim.model_dump(mode="json"),
+        "regime_claim_ref": regime_claim_ref,
+        "commitment_profile": derived_commitment,
+        "derived_commitment": derived_commitment,
+        "gold_commitment": gold_commitment,
+        "commitment_profile_ref": commitment_profile_ref,
+        "commitment_profile_matches_gold": _s4_commitment_matches_gold(
+            derived_commitment,
+            gold_commitment,
+        ),
+        "selected_strategy": claim.strategy_consequence,
+        "selected_floor": select_floor(commitment),
+        "axis_projection": {
+            "position": _axis_position_payload(position),
+            "firewall": firewall.model_dump(mode="json"),
+        },
+        "authority_boundary": claim.authority_boundary.model_dump(mode="json"),
+        "canonical_outcome_effect": "none_shadow_only",
+    }
+
+
+def _s4_regime_summary(cases: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+    rows = [
+        _mapping(case.get("s4_epistemic_regime"))
+        for case in cases
+        if isinstance(case.get("s4_epistemic_regime"), Mapping)
+    ]
+    per_case_table = [
+        _s4_per_case_summary_row(case)
+        for case in cases
+        if isinstance(case.get("s4_epistemic_regime"), Mapping)
+    ]
+    predicted = [
+        str(row.get("predicted_regime"))
+        for row in rows
+        if _text(row.get("expert_regime")) not in {None, "unknown"}
+    ]
+    gold = [
+        str(row.get("expert_regime"))
+        for row in rows
+        if _text(row.get("expert_regime")) not in {None, "unknown"}
+    ]
+    accuracy = regime_accuracy(predicted=predicted, gold=gold) if gold else {
+        "accuracy": 0.0,
+        "false_risk_count": 0,
+        "false_caution_count": 0,
+        "penalized_score": 0.0,
+    }
+    commitment_gold_rows = [
+        row
+        for row in rows
+        if isinstance(row.get("gold_commitment"), Mapping)
+        and row.get("gold_commitment")
+    ]
+    commitment_match_count = sum(
+        1 for row in commitment_gold_rows if row.get("commitment_profile_matches_gold")
+    )
+    limitation_rows = [
+        _mapping(case.get("s4_epistemic_regime"))
+        for case in cases
+        if isinstance(case.get("s4_epistemic_regime"), Mapping)
+        and _s4_case_expert_label(case) == "limitation_required"
+    ]
+    non_risk_rows = [
+        row for row in limitation_rows if row.get("predicted_regime") != "risk"
+    ]
+    non_risk_breakdown = Counter(str(row.get("predicted_regime")) for row in non_risk_rows)
+    hypothesis = (
+        "confirmed"
+        if limitation_rows and len(non_risk_rows) == len(limitation_rows)
+        else "revised"
+    )
+    return {
+        "schema_version": "policyos.policy_design_case.layer2_s4.regime_corpus_summary.v1",
+        "case_count": len(rows),
+        "regime_accuracy": accuracy["accuracy"],
+        "false_risk_count": accuracy["false_risk_count"],
+        "false_caution_count": accuracy["false_caution_count"],
+        "penalized_score": accuracy["penalized_score"],
+        "commitment_profile_adequacy": _rate(
+            commitment_match_count,
+            len(commitment_gold_rows),
+        ),
+        "commitment_profile_match_count": commitment_match_count,
+        "commitment_profile_gold_count": len(commitment_gold_rows),
+        "limitation_required_case_count": len(limitation_rows),
+        "limitation_required_non_risk_count": len(non_risk_rows),
+        "limitation_required_non_risk_breakdown": dict(sorted(non_risk_breakdown.items())),
+        "per_case_regime_table": per_case_table,
+        "w12_overblocking_hypothesis": hypothesis,
+        "canonical_outcome_effect": "none_shadow_only",
+    }
+
+
+def _s4_expert_labels(repo_root: Path) -> dict[str, dict[str, Any]]:
+    path = _resolve(repo_root, S4_EXPERT_LABELS_PATH)
+    if not path.exists():
+        return {}
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, Mapping):
+        return {}
+    raw_labels = payload.get("cases") if isinstance(payload.get("cases"), Mapping) else payload
+    return {
+        str(case_id): dict(row)
+        for case_id, row in raw_labels.items()
+        if isinstance(row, Mapping) and not str(case_id).startswith("_")
+    }
+
+
+def _s4_case_expert_label(case: Mapping[str, Any]) -> str | None:
+    return _text(
+        _nested(case, ("expert_adjudication_delta", "expert_label"))
+        or _nested(case, ("expert_adjudication", "case_label"))
+    )
+
+
+def _s4_per_case_summary_row(case: Mapping[str, Any]) -> dict[str, Any]:
+    row = _mapping(case.get("s4_epistemic_regime"))
+    derived = _mapping(row.get("derived_commitment"))
+    gold = _mapping(row.get("gold_commitment"))
+    return {
+        "case_id": _text(case.get("case_id") or row.get("case_id")),
+        "expert_label": _s4_case_expert_label(case),
+        "predicted_regime": _text(row.get("predicted_regime")),
+        "expert_regime": _text(row.get("expert_regime")),
+        "regime_matches_gold": bool(row.get("regime_matches_gold")),
+        "derived_reversibility": _text(derived.get("reversibility")),
+        "gold_reversibility": _text(gold.get("reversibility")),
+        "derived_stakes": _text(derived.get("stakes")),
+        "gold_stakes": _text(gold.get("stakes")),
+        "commitment_profile_matches_gold": bool(
+            row.get("commitment_profile_matches_gold")
+        ),
+    }
+
+
+def _s4_claim_ref(case: Mapping[str, Any], *, case_id: str) -> str:
+    claims = _sequence_of_mappings(_nested(case, ("claim_evidence_annotations", "claims")))
+    for claim in claims:
+        claim_id = _text(claim.get("claim_id") or claim.get("id"))
+        if claim_id:
+            return f"claim:{claim_id}"
+    return f"claim:{case_id}:main"
+
+
+def _s4_substrate_binding_status(
+    case: Mapping[str, Any],
+    *,
+    capability_graph_trace: Mapping[str, Any],
+) -> str:
+    if capability_graph_trace.get("status") == "pass":
+        live_statuses = [
+            _text(binding.get("status"))
+            for binding in _sequence_of_mappings(capability_graph_trace.get("capability_bindings"))
+        ]
+        if any(status in {"selected_exact", "selected_derived"} for status in live_statuses):
+            return "selected_exact"
+    labels = {
+        _normalized_token(row.get("admissibility_label") or row.get("expected_support_status"))
+        for row in _sequence_of_mappings(
+            _nested(case, ("claim_evidence_annotations", "claims"))
+        )
+    }
+    labels.update(
+        _normalized_token(row.get("expected_support_status"))
+        for row in _sequence_of_mappings(_nested(case, ("expected_claim_families", "families")))
+    )
+    if "blocked" in labels:
+        return "blocked_construct_not_observed"
+    if labels & {"limited", "publishable_with_limitation"}:
+        return "selected_proxy_with_limitation"
+    adapter_statuses = {
+        _normalized_token(row.get("status"))
+        for row in _sequence_of_mappings(_nested(case, ("expected_adapter_bindings", "bindings")))
+    }
+    if "selected" in adapter_statuses:
+        return "selected_proxy_with_limitation"
+    return "blocked_construct_not_observed"
+
+
+def _s4_contested_scholar_edges(case: Mapping[str, Any]) -> int:
+    statuses = {
+        _normalized_token(row.get("contestability_status"))
+        for row in _sequence_of_mappings(_nested(case, ("claim_evidence_annotations", "claims")))
+    }
+    return 1 if "contested" in statuses else 0
+
+
+def _s4_expert_disagreement(case: Mapping[str, Any]) -> str:
+    statuses = {
+        _normalized_token(row.get("contestability_status"))
+        for row in _sequence_of_mappings(_nested(case, ("claim_evidence_annotations", "claims")))
+    }
+    return "some" if "review_required" in statuses else "none"
+
+
+def _s4_gold_commitment(labels: Mapping[str, Any]) -> dict[str, str]:
+    keys = ("reversibility", "option_value", "lifecycle_stage", "transition_cost", "stakes")
+    return {
+        key: text
+        for key in keys
+        if (text := _text(labels.get(key))) is not None
+    }
+
+
+def _s4_commitment_matches_gold(
+    derived: Mapping[str, Any],
+    gold: Mapping[str, Any],
+) -> bool:
+    if not gold:
+        return False
+    return (
+        _text(derived.get("reversibility")) == _text(gold.get("reversibility"))
+        and _text(derived.get("stakes")) == _text(gold.get("stakes"))
+    )
+
+
+def _axis_position_payload(position: Any) -> dict[str, Any]:
+    payload = position.model_dump(mode="json")
+    payload["cell_ref"] = position.cell_ref
+    return payload
 
 
 def _capability_graph_not_run(
@@ -875,6 +1197,7 @@ def _capability_graph_context(
     capability_index_path: Path | None,
     repo_root: Path,
     authority_level: str,
+    mode: str,
 ) -> dict[str, Any]:
     trace = _capability_graph_not_run(
         capability_index_path=capability_index_path,
@@ -907,6 +1230,8 @@ def _capability_graph_context(
 
     bindings: list[dict[str, Any]] = []
     issues: list[dict[str, Any]] = []
+    s3_receipt: Any | None = None
+    s3_acquisition: dict[str, Any] | None = None
     for spec in _sequence(compiled.get("data_requirement_specs")):
         query = _capability_query_for_spec(
             spec,
@@ -932,9 +1257,23 @@ def _capability_graph_context(
         row["authority_composition_rule_ref"] = (
             row.get("rule_version_ref") or DEFAULT_AUTHORITY_COMPOSITION_RULE_REF
         )
+        if _should_apply_s3_closed_acquisition(
+            case=case,
+            query=query,
+            binding_row=row,
+            authority_level=authority_level,
+            mode=mode,
+        ):
+            if s3_receipt is None:
+                s3_receipt = _run_s3_closed_acquisition(case=case, repo_root=repo_root)
+                s3_acquisition = _s3_acquisition_trace(
+                    s3_receipt,
+                    repo_root=repo_root,
+                )
+            row = _s3_binding_row(s3_receipt, query=query)
         bindings.append(row)
 
-    return {
+    payload = {
         **trace,
         "status": "pass" if bindings and not issues else "blocked",
         "capability_index_ref": resolver.capability_index_ref,
@@ -948,6 +1287,144 @@ def _capability_graph_context(
         "issue_codes": sorted({str(issue["code"]) for issue in issues}),
         "issues": issues,
     }
+    if s3_acquisition is not None:
+        payload["s3_acquisition"] = s3_acquisition
+    return payload
+
+
+def _should_apply_s3_closed_acquisition(
+    *,
+    case: Mapping[str, Any],
+    query: RequirementToCapabilityQuery,
+    binding_row: Mapping[str, Any],
+    authority_level: str,
+    mode: str,
+) -> bool:
+    """Return whether the closed S3 governed binding may replace this blocker."""
+
+    case_id = _text(case.get("case_id") or case.get("id"))
+    construct = _text(query.construct).removeprefix("construct:")
+    return (
+        mode == "real_producer"
+        and case_id == S3_FIRST_PROVING_CASE_ID
+        and authority_level == "governed"
+        and _text(query.authority_level) == "governed_pilot"
+        and construct == S3_GROUNDED_CONSTRUCT
+        and _text(binding_row.get("status"))
+        in {"blocked_construct_not_observed", "blocked_acquisition_required"}
+    )
+
+
+def _run_s3_closed_acquisition(
+    *,
+    case: Mapping[str, Any],
+    repo_root: Path,
+) -> Any:
+    expression = ConstructExpression(
+        construct=S3_GROUNDED_CONSTRUCT,
+        facets={
+            "jurisdiction": "ua",
+            "population_scope": "msme",
+            "time_role": "policy_time",
+        },
+        authority_posture="governed",
+        rule_version_refs=[
+            f"case://{_text(case.get('case_id') or case.get('id'))}",
+            DEFAULT_AUTHORITY_COMPOSITION_RULE_REF,
+        ],
+    )
+    loop = SubstrateAcquisitionLoop.from_fixture(
+        expression=expression,
+        source_fixture=str(_resolve(repo_root, S3_ACQUISITION_SOURCE_FIXTURE)),
+    )
+    receipt = loop.run_to_closure()
+    loop.assert_closed()
+    return receipt
+
+
+def _s3_binding_row(
+    receipt: Any,
+    *,
+    query: RequirementToCapabilityQuery,
+) -> dict[str, Any]:
+    row = dict(receipt.binding)
+    construct_ref = f"construct:{S3_GROUNDED_CONSTRUCT}"
+    row.update(
+        {
+            "requirement_id": query.requirement_id,
+            "construct_ref": construct_ref,
+            "capability_index_ref": receipt.frozen.capability_index_ref,
+            "construct_registry_ref": "construct-registry:v1",
+            "authority_composition_rule_ref": (
+                row.get("rule_version_ref") or DEFAULT_AUTHORITY_COMPOSITION_RULE_REF
+            ),
+            "source_family": S3_GROUNDED_CONSTRUCT,
+        }
+    )
+    row["authoritative_for"] = _append_unique_text(
+        row.get("authoritative_for"),
+        "governed_construct_binding",
+    )
+    row["may_not_use_for"] = _append_unique_text(
+        row.get("may_not_use_for"),
+        "production_claim_authority",
+        "scenario_family_authority",
+    )
+    row["lineage_refs"] = _append_unique_text(
+        row.get("lineage_refs"),
+        receipt.frozen.capability_index_ref,
+    )
+    return row
+
+
+def _s3_acquisition_trace(
+    receipt: Any,
+    *,
+    repo_root: Path,
+) -> dict[str, Any]:
+    transition_states = [transition.state.value for transition in receipt.transitions]
+    before_status = next(
+        (
+            transition.detail
+            for transition in receipt.transitions
+            if transition.state.value == "gap_detected"
+        ),
+        None,
+    )
+    return {
+        "schema_version": "policyos.policy_design_case.layer2.s3.corpus_route.v1",
+        "status": "consumed_closed_case",
+        "case_id": S3_FIRST_PROVING_CASE_ID,
+        "construct_ref": f"construct:{S3_GROUNDED_CONSTRUCT}",
+        "terminal": receipt.terminal.value,
+        "binding_status": receipt.binding_status,
+        "construct_status_before_after": {
+            "before": before_status,
+            "after": receipt.binding_status,
+        },
+        "frozen": receipt.frozen.model_dump(mode="json"),
+        "source_fixture_ref": f"repo://{_repo_relative(repo_root, S3_ACQUISITION_SOURCE_FIXTURE)}",
+        "transition_states": transition_states,
+        "authority_boundary": {
+            "authoritative_for": [
+                "governed_construct_binding",
+                "capability_graph_traceability",
+            ],
+            "may_not_use_for": [
+                "production_claim_authority",
+                "scenario_family_authority",
+                "publication_authority",
+            ],
+        },
+    }
+
+
+def _append_unique_text(value: object, *items: str) -> list[str]:
+    rows = _unique_texts(_sequence(value))
+    for item in items:
+        if item not in rows:
+            rows.append(item)
+    return rows
 
 
 def _w8e_conflict_signals(bindings: Sequence[Mapping[str, Any]]) -> dict[str, Any]:

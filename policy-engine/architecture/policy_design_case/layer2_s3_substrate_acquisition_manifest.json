@@ -1,0 +1,90 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s3_substrate_acquisition_manifest.v1",
+  "status": "active",
+  "owner": "team-runtime-quality",
+  "slice": "S3",
+  "layer_capabilities": [
+    "facet_substrate",
+    "acquisition_loop"
+  ],
+  "cells_closed": [],
+  "open_cell_count_baseline": 17,
+  "expected_current_open_cell_count": 15,
+  "acquisition_branch_state": "implemented",
+  "acquisition_state_machine": [
+    "gap_detected",
+    "eligibility_checked",
+    "ranked_by_voi",
+    "task_opened",
+    "source_acquired",
+    "source_contract_validated",
+    "capability_index_updated",
+    "rerun_started",
+    "rerun_consumed_delta",
+    "closed_as_binding",
+    "closed_as_limitation",
+    "closed_as_still_blocked"
+  ],
+  "first_proving_case_id": "ua-msme-affordable-loans-2022",
+  "pinned_constructs": [
+    "credit_program_enrollment",
+    "firm_survival",
+    "regional_displacement_pressure",
+    "credit_access",
+    "fiscal_burden_per_beneficiary"
+  ],
+  "constructs_grounded_in_s3": [
+    "credit_program_enrollment"
+  ],
+  "constructs_staged_followup": [
+    "firm_survival",
+    "regional_displacement_pressure",
+    "credit_access",
+    "fiscal_burden_per_beneficiary"
+  ],
+  "canonical_route_status_before_after": {
+    "case_id": "ua-msme-affordable-loans-2022",
+    "construct": "credit_program_enrollment",
+    "before": "blocked_acquisition_required",
+    "after": "selected_exact",
+    "authority_posture": "governed"
+  },
+  "required_artifacts": [
+    "ConstructExpression",
+    "ConstructDemandLedger",
+    "CapabilityBindingResult",
+    "AcquisitionTaskRecord",
+    "SourceDiscoveryCandidate",
+    "SourceContract",
+    "RerunClosureReceipt",
+    "SubstrateCoverageSnapshot"
+  ],
+  "floors": [
+    "s3_acquisition_closure"
+  ],
+  "authority_scope": [
+    "substrate_coverage_snapshot",
+    "acquisition_loop_closure",
+    "governed_construct_binding"
+  ],
+  "may_not_use_for": [
+    "production_claim_authority",
+    "scenario_family_authority",
+    "publication_authority",
+    "rollout_authority",
+    "claim_authority_from_proxy_or_simulation"
+  ],
+  "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py",
+  "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py",
+  "rule_version_ref": "repo://docs/adr/0174-policy-evidence-capability-graph.md",
+  "firewalls": [
+    "P01",
+    "P02",
+    "P05",
+    "P06",
+    "P07",
+    "P10",
+    "P12",
+    "P14"
+  ]
+}

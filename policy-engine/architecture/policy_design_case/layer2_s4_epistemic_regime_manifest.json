@@ -1,0 +1,84 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s4_epistemic_regime_manifest.v1",
+  "status": "active",
+  "owner": "team-knowledge-regime",
+  "slice": "S4",
+  "slice_label": "epistemic_regime_classifier_commitment_profile",
+  "promotion": "governed",
+  "promotion_note": "Regime classification is governed A-side authority; the B-side strategy it drives stays shadow (regime does not grant the design production/rollout authority). Ignorance outputs carry no outcome claims.",
+  "cells_closed": [
+    "KNOWLEDGE.epistemic_regime",
+    "INTERVENTION.reversibility_lifecycle_stakes"
+  ],
+  "cell_owners": {
+    "KNOWLEDGE.epistemic_regime": "team-knowledge-regime",
+    "INTERVENTION.reversibility_lifecycle_stakes": "team-case-lifecycle"
+  },
+  "open_cell_count_baseline": 17,
+  "expected_current_open_cell_count": 13,
+  "regimes": [
+    "risk",
+    "uncertainty",
+    "ambiguity",
+    "ignorance",
+    "contested_model"
+  ],
+  "design_strategies": [
+    "expected_welfare_optimization",
+    "robust_satisficing",
+    "frame_indexed_portfolio",
+    "precautionary_adaptive_pathway"
+  ],
+  "required_artifacts": [
+    "EpistemicRegimeClaim",
+    "RegimeEvidenceBasis",
+    "CommitmentProfileRecord"
+  ],
+  "proving_ground_case_count": 13,
+  "s4_expert_labels_ref": "tests/fixtures/layer2/s4/s4_expert_labels.json",
+  "w12_overblocking_hypothesis": "confirmed",
+  "regime_accuracy": 1.0,
+  "penalized_score": 1.0,
+  "commitment_profile_adequacy": 0.9231,
+  "floors": [
+    "s4_regime_accuracy"
+  ],
+  "shadow_adequacy_checks": [
+    {
+      "check_id": "s4_commitment_profile_adequacy",
+      "metric": "commitment_profile_match_rate_vs_gold",
+      "owner": "team-case-lifecycle",
+      "rationale": "Reversibility cell is fully implemented: the producer's derived reversibility/stakes must match expert gold across the 13 cases. Non-governed adequacy check (floor governance is S0-frozen and carries only s4_regime_accuracy)."
+    }
+  ],
+  "authority_scope": [
+    "epistemic_regime_classification",
+    "regime_conditional_strategy_selection",
+    "commitment_profile",
+    "regime_accuracy_metric"
+  ],
+  "may_not_use_for": [
+    "risk_regime_authority_without_risk_evidence",
+    "b_side_regime_selection",
+    "outcome_claim_from_ignorance",
+    "low_stakes_floor_on_catastrophic_irreversible",
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority"
+  ],
+  "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py",
+  "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py",
+  "rule_version_ref": "repo://docs/adr/0174-policy-evidence-capability-graph.md",
+  "firewalls": [
+    "P01",
+    "P03",
+    "P04",
+    "P05",
+    "P10",
+    "P12",
+    "P13",
+    "P15",
+    "P16",
+    "P23"
+  ]
+}

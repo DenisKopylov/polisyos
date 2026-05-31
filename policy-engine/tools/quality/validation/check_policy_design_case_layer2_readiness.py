@@ -37,6 +37,12 @@ DEFAULT_CORPUS_PARTITION_PATH = Path(
 DEFAULT_FIRST_PROVING_CASE_PATH = Path(
     "architecture/policy_design_case/layer2_first_proving_case.json"
 )
+DEFAULT_S3_SUBSTRATE_ACQUISITION_MANIFEST_PATH = Path(
+    "architecture/policy_design_case/layer2_s3_substrate_acquisition_manifest.json"
+)
+DEFAULT_S4_EPISTEMIC_REGIME_MANIFEST_PATH = Path(
+    "architecture/policy_design_case/layer2_s4_epistemic_regime_manifest.json"
+)
 DEFAULT_INVENTORY_PATH = Path("architecture/policy_design_case/inventory.json")
 
 REQUIRED_SLICES = {f"S{number}" for number in range(15)}
@@ -81,6 +87,12 @@ def load_layer2_readiness_payloads(repo_root: Path | str = REPO_ROOT) -> dict[st
         "artifact_traceability": _load_toml(root / DEFAULT_ARTIFACT_TRACEABILITY_PATH),
         "corpus_partition": _load_json(root / DEFAULT_CORPUS_PARTITION_PATH),
         "first_proving_case": _load_json(root / DEFAULT_FIRST_PROVING_CASE_PATH),
+        "s3_substrate_acquisition": _load_optional_json(
+            root / DEFAULT_S3_SUBSTRATE_ACQUISITION_MANIFEST_PATH
+        ),
+        "s4_epistemic_regime": _load_optional_json(
+            root / DEFAULT_S4_EPISTEMIC_REGIME_MANIFEST_PATH
+        ),
         "inventory": _load_json(root / DEFAULT_INVENTORY_PATH),
         "cluster_map": cluster_map.load_cluster_ownership_map(root),
     }
@@ -200,7 +212,47 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
     _validate_corpus_partition(payloads["corpus_partition"], issues)
     _validate_first_proving_case(payloads["first_proving_case"], issues)
     _validate_readiness_manifest(payloads["readiness_manifest"], issues)
+    _validate_s3_substrate_acquisition(
+        s3=payloads.get("s3_substrate_acquisition"),
+        floor_governance=payloads["floor_governance"],
+        first_proving_case=payloads["first_proving_case"],
+        inventory=payloads["inventory"],
+        issues=issues,
+    )
+    _validate_s4_epistemic_regime(
+        s4=payloads.get("s4_epistemic_regime"),
+        floor_governance=payloads["floor_governance"],
+        current_open_cells=current_open_cells,
+        assigned_cells=assigned_cells,
+        inventory=payloads["inventory"],
+        issues=issues,
+    )
     closed_since_s0 = sorted(assigned_cells - current_open_cells)
+    s3 = payloads.get("s3_substrate_acquisition")
+    s3_summary = (
+        {
+            "s3_acquisition_branch_state": s3.get("acquisition_branch_state"),
+            "s3_expected_current_open_cell_count": s3.get(
+                "expected_current_open_cell_count"
+            ),
+        }
+        if isinstance(s3, dict) and s3
+        else {}
+    )
+    s4 = payloads.get("s4_epistemic_regime")
+    s4_summary = (
+        {
+            "s4_w12_overblocking_hypothesis": s4.get(
+                "w12_overblocking_hypothesis"
+            ),
+            "s4_regime_accuracy": s4.get("regime_accuracy"),
+            "s4_expected_current_open_cell_count": s4.get(
+                "expected_current_open_cell_count"
+            ),
+        }
+        if isinstance(s4, dict) and s4
+        else {}
+    )
 
     return _result(
         issues,
@@ -213,6 +265,8 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
             "s0_cells_closed": s0_cells_closed,
             "readiness_artifact_count": len(payloads["readiness_manifest"].get("artifacts", [])),
             "inventory_artifact_count": _inventory_layer2_artifact_count(payloads["inventory"]),
+            **s3_summary,
+            **s4_summary,
         },
     )
 
@@ -349,8 +403,211 @@ def _validate_readiness_manifest(payload: dict[str, Any], issues: list[dict[str,
         )
 
 
+def _validate_s3_substrate_acquisition(
+    *,
+    s3: object,
+    floor_governance: dict[str, Any],
+    first_proving_case: dict[str, Any],
+    inventory: dict[str, Any],
+    issues: list[dict[str, str]],
+) -> None:
+    if not isinstance(s3, dict) or not s3:
+        return
+    if s3.get("acquisition_branch_state") != "implemented":
+        issues.append(
+            _issue(
+                "layer2_s3_acquisition_branch_not_implemented",
+                "S3 must close the acquisition branch (bridge_missing -> implemented).",
+            )
+        )
+    if s3.get("cells_closed"):
+        issues.append(
+            _issue(
+                "layer2_s3_must_not_close_cluster_cell",
+                "S3 advances layers only; it closes no cluster cell.",
+            )
+        )
+    if s3.get("expected_current_open_cell_count") != 15:
+        issues.append(
+            _issue(
+                "layer2_s3_open_cell_count_drift",
+                "S3 must keep current open_cell_count at 15.",
+            )
+        )
+    deny = set(s3.get("may_not_use_for", []))
+    required_deny = {
+        "production_claim_authority",
+        "scenario_family_authority",
+        "claim_authority_from_proxy_or_simulation",
+    }
+    if not required_deny <= deny:
+        issues.append(
+            _issue(
+                "layer2_s3_authority_boundary_incomplete",
+                (
+                    "S3 may_not_use_for must block production/scenario-family/proxy "
+                    "authority."
+                ),
+            )
+        )
+    if set(s3.get("pinned_constructs", [])) != set(
+        first_proving_case.get("constructs", [])
+    ):
+        issues.append(
+            _issue(
+                "layer2_s3_pinned_constructs_drift",
+                "S3 pinned constructs must match the first proving case constructs.",
+            )
+        )
+    grounded = set(s3.get("constructs_grounded_in_s3", []))
+    staged = set(s3.get("constructs_staged_followup", []))
+    pinned = set(s3.get("pinned_constructs", []))
+    if not grounded or not grounded.isdisjoint(staged) or grounded | staged != pinned:
+        issues.append(
+            _issue(
+                "layer2_s3_construct_partition_invalid",
+                "S3 grounded and staged constructs must be disjoint and cover pinned constructs.",
+            )
+        )
+    if "s3_acquisition_closure" not in set(s3.get("floors", [])):
+        issues.append(
+            _issue(
+                "layer2_s3_floor_missing",
+                "S3 manifest must reference the s3_acquisition_closure floor.",
+            )
+        )
+    floor = _floor_by_id(floor_governance, "s3_acquisition_closure")
+    if floor.get("metric") != "acquisition_loop_closure_rate":
+        issues.append(
+            _issue(
+                "layer2_s3_floor_metric_invalid",
+                "S3 acquisition closure floor must use acquisition_loop_closure_rate.",
+            )
+        )
+    if floor.get("floor_owner") != "team-integration-spine":
+        issues.append(
+            _issue(
+                "layer2_s3_floor_owner_invalid",
+                "S3 acquisition closure floor owner must be team-integration-spine.",
+            )
+        )
+    inventory_paths = {
+        str(artifact.get("path", ""))
+        for artifact in inventory.get("artifacts", [])
+        if isinstance(artifact, dict)
+    }
+    if DEFAULT_S3_SUBSTRATE_ACQUISITION_MANIFEST_PATH.as_posix() not in inventory_paths:
+        issues.append(
+            _issue(
+                "layer2_s3_manifest_missing_from_inventory",
+                "S3 manifest must be registered in the Policy Design Case inventory.",
+            )
+        )
+
+
+def _validate_s4_epistemic_regime(
+    *,
+    s4: object,
+    floor_governance: dict[str, Any],
+    current_open_cells: set[str],
+    assigned_cells: set[str],
+    inventory: dict[str, Any],
+    issues: list[dict[str, str]],
+) -> None:
+    if not isinstance(s4, dict) or not s4:
+        return
+    expected_closed = {
+        "KNOWLEDGE.epistemic_regime",
+        "INTERVENTION.reversibility_lifecycle_stakes",
+    }
+    if set(s4.get("cells_closed", [])) != expected_closed:
+        issues.append(
+            _issue(
+                "layer2_s4_cells_closed_invalid",
+                "S4 must close exactly the epistemic_regime and reversibility cells.",
+            )
+        )
+    if s4.get("expected_current_open_cell_count") != 13:
+        issues.append(
+            _issue(
+                "layer2_s4_open_cell_count_drift",
+                "S4 manifest must record expected_current_open_cell_count=13.",
+            )
+        )
+    if expected_closed & current_open_cells:
+        issues.append(
+            _issue(
+                "layer2_s4_cluster_map_not_closed",
+                "S4 cells must be removed from open_cell_closure.",
+            )
+        )
+    if not expected_closed <= assigned_cells:
+        issues.append(
+            _issue(
+                "layer2_s4_cells_not_assigned",
+                "S4 closed cells must be in the frozen slice-cell baseline.",
+            )
+        )
+    deny = set(s4.get("may_not_use_for", []))
+    required_deny = {
+        "risk_regime_authority_without_risk_evidence",
+        "b_side_regime_selection",
+        "outcome_claim_from_ignorance",
+        "low_stakes_floor_on_catastrophic_irreversible",
+    }
+    if not required_deny <= deny:
+        issues.append(
+            _issue(
+                "layer2_s4_authority_boundary_incomplete",
+                (
+                    "S4 may_not_use_for must block false-risk, regime-shopping, "
+                    "ignorance-outcome, and P23."
+                ),
+            )
+        )
+    if not _floor_by_id(floor_governance, "s4_regime_accuracy"):
+        issues.append(
+            _issue(
+                "layer2_s4_regime_floor_missing",
+                "s4_regime_accuracy floor must be registered.",
+            )
+        )
+    if s4.get("w12_overblocking_hypothesis") not in {"confirmed", "revised"}:
+        issues.append(
+            _issue(
+                "layer2_s4_w12_hypothesis_not_recorded",
+                "S4 must record the W12 hypothesis as confirmed or revised.",
+            )
+        )
+    inventory_paths = {
+        str(artifact.get("path", ""))
+        for artifact in inventory.get("artifacts", [])
+        if isinstance(artifact, dict)
+    }
+    if DEFAULT_S4_EPISTEMIC_REGIME_MANIFEST_PATH.as_posix() not in inventory_paths:
+        issues.append(
+            _issue(
+                "layer2_s4_manifest_missing_from_inventory",
+                "S4 manifest must be registered in the Policy Design Case inventory.",
+            )
+        )
+
+
+def _floor_by_id(payload: dict[str, Any], floor_id: str) -> dict[str, Any]:
+    for floor in payload.get("floor", []):
+        if isinstance(floor, dict) and floor.get("floor_id") == floor_id:
+            return floor
+    return {}
+
+
 def _load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _load_optional_json(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        return {}
+    return _load_json(path)
 
 
 def _load_toml(path: Path) -> dict[str, Any]:

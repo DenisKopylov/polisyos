@@ -157,22 +157,6 @@ negative_test = "Fixture with jurisdiction-level averages hiding subgroup harm m
 acceptance_signal = "Population and targeting claims fail closed when evidence granularity does not match claim scope."
 next_action = "Extend concept_spine with aggregation-validity records and a consumer in targeting/regime checks."
 
-[open_cell_closure.KNOWLEDGE.epistemic_regime]
-cell_ref = "KNOWLEDGE.epistemic_regime"
-owner = "team-knowledge-regime"
-reuse_classification = "build_new"
-current_state = "contract_only"
-target_state = "implemented"
-missing_chain = ["producer", "persisted_artifact", "orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
-producer_artifact = "EpistemicRegimeRecord per claim: Risk, Uncertainty, Ambiguity, Ignorance, or contested-model."
-persisted_artifact = "Regime ledger with evidence basis, asymmetry penalty, downgrade/upgrade reason, and strategy consequence."
-bridge_consumer = "INTERVENTION.design_strategy and DESIGNER_ITSELF.envelope_membership consume regime records."
-surface = "PUBLIC sees regime and honest limitation; EXPERT/MACHINE see evidence basis and firewall decisions."
-semantic_test = "Uncertainty/Ambiguity corpus cases produce robust or frame-indexed designs instead of hard blockers."
-negative_test = "False-risk fixture with weak evidence must fail overconfidence firewall; evidence-rich downgrade must fail precaution laundering firewall."
-acceptance_signal = "Design strategy is selected by gate-owned regime records, never by B-side generator preference."
-next_action = "Build the D2.5 regime classifier from substrate coverage, measurability, calibration, contested Scholar edges, stakes, and value provenance."
-
 [open_cell_closure.KNOWLEDGE.calibration]
 cell_ref = "KNOWLEDGE.calibration"
 owner = "team-calibration"
@@ -268,22 +252,6 @@ semantic_test = "Country-scale portfolio fixture decomposes only along valid bou
 negative_test = "Naive sum-of-subdesigns fixture must fail when coupling precondition is absent."
 acceptance_signal = "Recursive design composition cannot emit whole-design authority without CouplingGraph and composition receipt."
 next_action = "Consolidate pdc, IR portfolio, and Foundry coupling seeds into D2.6 composition producer."
-
-[open_cell_closure.INTERVENTION.reversibility_lifecycle_stakes]
-cell_ref = "INTERVENTION.reversibility_lifecycle_stakes"
-owner = "team-case-lifecycle"
-reuse_classification = "extend_existing"
-current_state = "contract_only"
-target_state = "implemented"
-missing_chain = ["producer", "persisted_artifact", "orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
-producer_artifact = "CommitmentProfileRecord for reversibility, option value, lifecycle stage, transition cost, and stakes/asymmetric error."
-persisted_artifact = "Candidate-linked commitment profile consumed by regime and strategy constraints."
-bridge_consumer = "KNOWLEDGE.epistemic_regime and INTERVENTION.design_strategy consume commitment profile before floors are selected."
-surface = "PUBLIC shows reversible/adaptive/precautionary posture; EXPERT/MACHINE show stakes floors and lifecycle constraints."
-semantic_test = "Irreversible high-stakes intervention under ignorance must route to precaution/adaptive pathway, not risk optimization."
-negative_test = "Low-stakes evidence floor applied to catastrophic irreversible design must fail P23 firewall."
-acceptance_signal = "Design strategy and floors change when reversibility, lifecycle, or stakes profile changes."
-next_action = "Extend case_lifecycle into a first-class commitment-profile producer and add fields to DesignCandidate."
 
 [open_cell_closure.OTHER_AGENTS.strategic_response]
 cell_ref = "OTHER_AGENTS.strategic_response"
@@ -1018,20 +986,20 @@ gap = "coverage exists but remains sparse for many corpus constructs."
 action = "keep construct blockers typed and feed acquisition-loop priorities without treating scenario-family projections as authority selectors."
 
 [cell.KNOWLEDGE.epistemic_regime]
-owner_module = ""
+owner_module = "src/polisyos/runtime/quality"
 seed_files = [
   "src/polisyos/runtime/quality/capability_white_space.py",
   "src/polisyos/scholar/_impl/evidence.py",
   "src/polisyos/scholar_requirement/README.md",
 ]
-ratchet_state = "contract_only"
-p01_chain = "producer_missing"
+ratchet_state = "implemented"
+p01_chain = "implemented"
 authority_dim = "regime_appropriateness"
 firewall = "P16_epistemic_regime_laundering"
 publishes = ["INTERVENTION.design_strategy", "DESIGNER_ITSELF.envelope_membership"]
 consumes = ["SYSTEM.measurability", "SYSTEM.subject_granularity", "KNOWLEDGE.substrate_coverage", "KNOWLEDGE.calibration", "INTERVENTION.reversibility_lifecycle_stakes", "ACTOR.value_choice_provenance"]
-gap = "regime taxonomy is specified in architecture notes but no gate-owned classifier emits per-claim regime records."
-action = "build the D2.5 regime classifier as a gate-owned A-side producer with asymmetric false-risk penalties."
+gap = "none_for_s4_epistemic_regime"
+action = "S4 gate-owned classifier emits per-claim EpistemicRegimeClaim with P16; consumed by INTERVENTION.design_strategy and DESIGNER_ITSELF.envelope_membership."
 
 [cell.KNOWLEDGE.calibration]
 owner_module = "src/polisyos/calibration"
@@ -1198,16 +1166,16 @@ gap = "none_for_s2_shadow_design_search"
 action = "S2 emits DesignGrammarExpansion artifacts consumed by DesignCandidateV0 and projected through MACHINE/REVIEWER search trace."
 
 [cell.INTERVENTION.reversibility_lifecycle_stakes]
-owner_module = ""
+owner_module = "src/polisyos/runtime/quality"
 seed_files = ["src/polisyos/runtime/quality/case_lifecycle.py"]
-ratchet_state = "contract_only"
-p01_chain = "producer_missing"
+ratchet_state = "implemented"
+p01_chain = "implemented"
 authority_dim = "reversibility_stakes_fit"
 firewall = "P23_stakes_and_commitment_laundering"
 publishes = ["KNOWLEDGE.epistemic_regime", "INTERVENTION.strategy_constraints"]
 consumes = ["INTERVENTION.design_candidate", "ACTOR.state_capacity_feasibility"]
-gap = "reversibility, lifecycle stage, and stakes are architecture concepts but not first-class candidate fields with gates."
-action = "add reversible/irreversible, greenfield/reform/termination, and stakes fields to DesignCandidate and closeout surfaces."
+gap = "none_for_s4_epistemic_regime"
+action = "S4 CommitmentProfileRecord producer derives reversibility/lifecycle/stakes; drives design strategy and select_floor, with P23."
 
 [cell.OTHER_AGENTS.strategic_response]
 owner_module = ""

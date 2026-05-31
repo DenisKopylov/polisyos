@@ -51,7 +51,7 @@ def test_s2_validator_reports_full_loop_and_floor() -> None:
     assert summary["status"] == "pass"
     assert summary["slice"] == "S2"
     assert summary["first_proving_case_id"] == "ua-msme-affordable-loans-2022"
-    assert summary["current_open_cell_count"] == 15
+    assert summary["current_open_cell_count"] == 13
     assert summary["expected_current_open_cell_count"] == 15
     assert summary["cells_closed"] == [
         "INTERVENTION.design_grammar",

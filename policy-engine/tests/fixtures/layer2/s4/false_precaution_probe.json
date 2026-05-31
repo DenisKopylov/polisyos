@@ -1,0 +1,17 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s4.false_precaution_probe.v1",
+  "case_id": "s4_false_precaution_probe",
+  "declared_regime": "uncertainty",
+  "expected_error": "P16PrecautionLaunderingError",
+  "evidence_basis": {
+    "claim_ref": "claim:s4_false_precaution_probe",
+    "substrate_binding_status": "selected_exact",
+    "measurability_present": true,
+    "calibration_present": true,
+    "method_boundary_conditions_met": true,
+    "expert_disagreement": "none",
+    "contested_scholar_edges": 0,
+    "value_provenance_present": true,
+    "rule_version_ref": "repo://docs/adr/0174-policy-evidence-capability-graph.md"
+  }
+}

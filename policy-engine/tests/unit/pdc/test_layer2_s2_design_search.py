@@ -65,9 +65,7 @@ def test_s2_shadow_loop_emits_grammar_candidate_counterexample_refinement_and_re
     assert run.design_record.axis_positions
     assert run.design_record.firewall_status
     assert run.search_ledger.counterexample_refs == [run.counterexamples[0].counterexample_ref]
-    assert run.search_ledger.refinement_decision_refs == [
-        run.refinement_decisions[0].decision_ref
-    ]
+    assert run.search_ledger.refinement_decision_refs == [run.refinement_decisions[0].decision_ref]
     assert run.refinement_decisions[0].value_of_information.estimate_id == (
         "s2_shadow_refinement_voi"
     )
@@ -189,12 +187,112 @@ def test_s2_machine_and_reviewer_projection_expose_trace_without_authority() -> 
     assert projections["MACHINE"]["search_ledger_ref"] == run.search_ledger.ledger_ref
     assert projections["MACHINE"]["grammar_diversity_minimum"] == 3
     assert projections["REVIEWER"]["counterexample_conversion_rate"] == 1.0
-    assert "best_known_shadow_frontier" in projections["REVIEWER"][
-        "search_incompleteness_note"
+    assert "best_known_shadow_frontier" in projections["REVIEWER"]["search_incompleteness_note"]
+    assert (
+        "publication_authority" in projections["REVIEWER"]["authority_boundary"]["may_not_use_for"]
+    )
+
+
+def test_injected_regime_recorded_on_record_without_self_classification() -> None:
+    pure_s2 = run_s2_shadow_design_loop(_input())
+    assert pure_s2.candidates[0].regime is None
+    assert pure_s2.design_record.envelope.epistemic_regime_scopes == ["ignorance"]
+
+    run = run_s2_shadow_design_loop(
+        _input(),
+        regime="uncertainty",
+        design_strategy="robust_satisficing",
+        regime_claim_ref="pdc://layer2/s4/claim/ua-msme/regime",
+        commitment_profile_ref="pdc://layer2/s4/commitment/ua-msme",
+        commitment_stakes="high",
+    )
+
+    candidate = run.candidates[0]
+    assert candidate.regime == "uncertainty"
+    assert candidate.design_strategy == "robust_satisficing"
+    assert candidate.commitment_profile_ref == "pdc://layer2/s4/commitment/ua-msme"
+    assert candidate.commitment_stakes == "high"
+    assert run.design_record.envelope.epistemic_regime_scopes == ["uncertainty"]
+    axis_by_cell = {position.cell_ref: position for position in run.design_record.axis_positions}
+    assert axis_by_cell["KNOWLEDGE.epistemic_regime"].position == "uncertainty"
+    assert axis_by_cell["KNOWLEDGE.epistemic_regime"].evidence_refs == [
+        "pdc://layer2/s4/claim/ua-msme/regime"
     ]
-    assert "publication_authority" in projections["REVIEWER"]["authority_boundary"][
-        "may_not_use_for"
-    ]
+    assert "INTERVENTION.reversibility_lifecycle_stakes" in axis_by_cell
+    firewall_by_cell = {status.cell_ref: status for status in run.design_record.firewall_status}
+    assert "P16" in firewall_by_cell["KNOWLEDGE.epistemic_regime"].pattern_ids
+    assert "P23" in firewall_by_cell["INTERVENTION.reversibility_lifecycle_stakes"].pattern_ids
+    assert "pdc://layer2/s4/claim/ua-msme/regime" in run.design_record.ledger_refs
+    assert "pdc://layer2/s4/commitment/ua-msme" in run.design_record.ledger_refs
+
+
+def test_four_audience_surface_renders_regime() -> None:
+    run = run_s2_shadow_design_loop(
+        _input(),
+        regime="uncertainty",
+        design_strategy="robust_satisficing",
+        regime_claim_ref="pdc://layer2/s4/claim/ua-msme/regime",
+        commitment_profile_ref="pdc://layer2/s4/commitment/ua-msme",
+        commitment_stakes="high",
+    )
+
+    projections = project_s2_design_search(
+        run,
+        audiences=("PUBLIC", "REVIEWER", "EXPERT", "MACHINE"),
+    )
+
+    assert set(projections) == {"PUBLIC", "REVIEWER", "EXPERT", "MACHINE"}
+    for projection in projections.values():
+        assert projection["regime"] == "uncertainty"
+        assert projection["design_strategy"] == "robust_satisficing"
+    assert "limitation" in projections["PUBLIC"]
+    assert "risk-regime authority" in projections["PUBLIC"]["limitation"]
+    assert "evidence_basis_ref" not in projections["PUBLIC"]
+    assert projections["REVIEWER"]["p16_firewall_status"] == "limit"
+    assert projections["EXPERT"]["evidence_basis_ref"] == "pdc://layer2/s4/claim/ua-msme/regime"
+    assert projections["EXPERT"]["commitment_profile_ref"] == ("pdc://layer2/s4/commitment/ua-msme")
+    assert projections["EXPERT"]["stakes_band"] == "high"
+    assert projections["EXPERT"]["selected_floor"] == "standard"
+    assert projections["MACHINE"]["p23_firewall_status"] == "limit"
+
+
+def test_public_projection_dropping_limitation_fails() -> None:
+    from polisyos.pdc._impl.layer2_design_search import (
+        assert_s2_public_projection_has_regime_limitation,
+    )
+
+    run = run_s2_shadow_design_loop(
+        _input(),
+        regime="uncertainty",
+        design_strategy="robust_satisficing",
+        regime_claim_ref="pdc://layer2/s4/claim/ua-msme/regime",
+        commitment_profile_ref="pdc://layer2/s4/commitment/ua-msme",
+        commitment_stakes="high",
+    )
+    public_projection = project_s2_design_search(run, audiences=("PUBLIC",))["PUBLIC"]
+    assert_s2_public_projection_has_regime_limitation(public_projection)
+
+    broken_projection = dict(public_projection)
+    broken_projection.pop("limitation")
+    with pytest.raises(ValueError, match="PUBLIC regime projection requires limitation"):
+        assert_s2_public_projection_has_regime_limitation(broken_projection)
+
+
+def test_precautionary_strategy_blocks_point_optimization_refinement() -> None:
+    run = run_s2_shadow_design_loop(
+        _input().model_copy(update={"forced_counterexample_class": "abstraction_gap"}),
+        regime="ignorance",
+        design_strategy="precautionary_adaptive_pathway",
+        regime_claim_ref="pdc://layer2/s4/claim/ua-msme/regime",
+        commitment_profile_ref="pdc://layer2/s4/commitment/ua-msme",
+        commitment_stakes="catastrophic",
+    )
+
+    decision = run.refinement_decisions[0]
+    assert decision.decision == "reframe"
+    assert decision.next_candidate_ref is None
+    assert decision.stakes_band == "high_stakes"
+    assert "precautionary_adaptive_pathway" in decision.reason
 
 
 def test_s2_persists_design_record_and_search_ledger(tmp_path: Path) -> None:
@@ -212,9 +310,7 @@ def test_s2_persists_design_record_and_search_ledger(tmp_path: Path) -> None:
     design_record = json.loads(store.get_bytes(refs["design_record"].artifact_id))
     search_ledger = json.loads(store.get_bytes(refs["search_ledger"].artifact_id))
     assert design_record["record_id"] == run.design_record.record_id
-    assert search_ledger["deterministic_replay_key"] == (
-        run.search_ledger.deterministic_replay_key
-    )
+    assert search_ledger["deterministic_replay_key"] == (run.search_ledger.deterministic_replay_key)
 
 
 def test_s2_loaded_ledger_replays_same_key(tmp_path: Path) -> None:

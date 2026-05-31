@@ -18,11 +18,13 @@ def test_layer2_s0_readiness_manifest_is_valid() -> None:
     assert validation["status"] == "pass", validation["issues"]
     assert validation["summary"]["open_cell_count_baseline"] == 17  # type: ignore[index]
     assert validation["summary"]["assigned_open_cell_count"] == 17  # type: ignore[index]
-    assert validation["summary"]["current_open_cell_count"] == 15  # type: ignore[index]
+    assert validation["summary"]["current_open_cell_count"] == 13  # type: ignore[index]
     assert validation["summary"]["s0_cells_closed"] == []  # type: ignore[index]
     assert validation["summary"]["cells_closed_since_s0"] == [
         "INTERVENTION.design_candidate",
         "INTERVENTION.design_grammar",
+        "INTERVENTION.reversibility_lifecycle_stakes",
+        "KNOWLEDGE.epistemic_regime",
     ]  # type: ignore[index]
 
 
@@ -39,6 +41,8 @@ def test_layer2_slice_cell_matrix_preserves_baseline_and_current_open_subset() -
     assert assigned - current_open_cells == {
         "INTERVENTION.design_candidate",
         "INTERVENTION.design_grammar",
+        "INTERVENTION.reversibility_lifecycle_stakes",
+        "KNOWLEDGE.epistemic_regime",
     }
 
 

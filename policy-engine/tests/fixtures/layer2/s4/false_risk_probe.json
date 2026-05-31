@@ -1,0 +1,17 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s4.false_risk_probe.v1",
+  "case_id": "s4_false_risk_probe",
+  "declared_regime": "risk",
+  "expected_error": "P16OverconfidenceError",
+  "evidence_basis": {
+    "claim_ref": "claim:s4_false_risk_probe",
+    "substrate_binding_status": "selected_proxy_with_limitation",
+    "measurability_present": false,
+    "calibration_present": false,
+    "method_boundary_conditions_met": null,
+    "expert_disagreement": "none",
+    "contested_scholar_edges": 0,
+    "value_provenance_present": false,
+    "rule_version_ref": "repo://docs/adr/0174-policy-evidence-capability-graph.md"
+  }
+}

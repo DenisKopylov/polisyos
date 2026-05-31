@@ -1,0 +1,125 @@
+{
+  "_meta": {
+    "schema_version": "policyos.policy_design_case.layer2_s4.expert_labels.v1",
+    "reviewer": "team-policy-design-research",
+    "adjudication_date": "2026-05-31",
+    "status": "seeded_for_confirmation",
+    "rule_version_ref": "repo://docs/adr/0174-policy-evidence-capability-graph.md",
+    "authority_boundary": {
+      "authoritative_for": [
+        "s4_corpus_regime_gold_comparison",
+        "s4_commitment_profile_gold_comparison"
+      ],
+      "may_not_use_for": [
+        "production_claim_authority",
+        "canonical_closeout_override"
+      ]
+    }
+  },
+  "cases": {
+    "ua-msme-affordable-loans-2022": {
+      "expert_regime": "contested_model",
+      "reversibility": "pilotable",
+      "option_value": "medium",
+      "lifecycle_stage": "emergency",
+      "transition_cost": "medium",
+      "stakes": "high"
+    },
+    "w11a_berlin_rent_cap_2020": {
+      "expert_regime": "ignorance",
+      "reversibility": "lock_in",
+      "option_value": "low",
+      "lifecycle_stage": "reform",
+      "transition_cost": "high",
+      "stakes": "high"
+    },
+    "w11a_boston_operation_ceasefire_1996": {
+      "expert_regime": "contested_model",
+      "reversibility": "reversible",
+      "option_value": "medium",
+      "lifecycle_stage": "reform",
+      "transition_cost": "medium",
+      "stakes": "high"
+    },
+    "w11a_eu_temporary_protection_ukraine_2022": {
+      "expert_regime": "uncertainty",
+      "reversibility": "pilotable",
+      "option_value": "medium",
+      "lifecycle_stage": "emergency",
+      "transition_cost": "medium",
+      "stakes": "high"
+    },
+    "w11a_ghana_free_shs_2017": {
+      "expert_regime": "contested_model",
+      "reversibility": "lock_in",
+      "option_value": "low",
+      "lifecycle_stage": "reform",
+      "transition_cost": "high",
+      "stakes": "high"
+    },
+    "w11a_india_aadhaar_dbt_2016": {
+      "expert_regime": "contested_model",
+      "reversibility": "irreversible",
+      "option_value": "low",
+      "lifecycle_stage": "reform",
+      "transition_cost": "high",
+      "stakes": "catastrophic"
+    },
+    "w11a_mexico_ssb_tax_2014": {
+      "expert_regime": "contested_model",
+      "reversibility": "reversible",
+      "option_value": "medium",
+      "lifecycle_stage": "reform",
+      "transition_cost": "medium",
+      "stakes": "high"
+    },
+    "w11a_netherlands_room_for_river_2007": {
+      "expert_regime": "uncertainty",
+      "reversibility": "irreversible",
+      "option_value": "low",
+      "lifecycle_stage": "transition",
+      "transition_cost": "high",
+      "stakes": "catastrophic"
+    },
+    "w11a_pakistan_ehsaas_cash_2020": {
+      "expert_regime": "uncertainty",
+      "reversibility": "pilotable",
+      "option_value": "medium",
+      "lifecycle_stage": "emergency",
+      "transition_cost": "medium",
+      "stakes": "high"
+    },
+    "w11a_uk_levelling_up_fund_2021": {
+      "expert_regime": "contested_model",
+      "reversibility": "irreversible",
+      "option_value": "low",
+      "lifecycle_stage": "reform",
+      "transition_cost": "high",
+      "stakes": "high"
+    },
+    "w11a_uk_mtd_vat_2019": {
+      "expert_regime": "contested_model",
+      "reversibility": "reversible",
+      "option_value": "medium",
+      "lifecycle_stage": "reform",
+      "transition_cost": "medium",
+      "stakes": "high"
+    },
+    "w11a_uk_work_programme_2011": {
+      "expert_regime": "contested_model",
+      "reversibility": "reversible",
+      "option_value": "medium",
+      "lifecycle_stage": "reform",
+      "transition_cost": "medium",
+      "stakes": "high"
+    },
+    "w11a_us_ppp_2020": {
+      "expert_regime": "contested_model",
+      "reversibility": "pilotable",
+      "option_value": "medium",
+      "lifecycle_stage": "emergency",
+      "transition_cost": "medium",
+      "stakes": "high"
+    }
+  }
+}

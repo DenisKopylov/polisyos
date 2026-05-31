@@ -373,6 +373,124 @@ def test_w12d_real_producer_converts_capability_graph_blockers_to_actionable_evi
     assert all(not blocker["blocks_rollout_posture"] for blocker in report["typed_blockers"])
 
 
+def test_w12d_real_producer_consumes_s3_closed_acquisition_binding(
+    tmp_path: Path,
+) -> None:
+    index_dir = tmp_path / "capability-index"
+    assert builder.main(["--mode", "fixture", "--output-dir", str(index_dir)]) == 0
+
+    report = w12d.run_w12d_universal_outcome_corpus(
+        repo_root=REPO_ROOT,
+        corpus_path=SINGLE_CASE_PATH,
+        graph_output_dir=tmp_path / "graphs",
+        hypothesis_ledger_output_dir=tmp_path / "ledgers",
+        mode="real_producer",
+        capability_index_path=index_dir / "capability_index_v1.duckdb",
+    )
+
+    case = report["cases"][0]
+    trace = case["capability_graph_trace"]
+    s3 = trace["s3_acquisition"]
+    assert s3["terminal"] == "closed_as_binding"
+    assert s3["construct_status_before_after"] == {
+        "before": "blocked_acquisition_required",
+        "after": "selected_exact",
+    }
+    assert s3["frozen"]["capability_index_ref"].startswith(
+        "capability-index:layer2-s3-delta:credit_program_enrollment:"
+    )
+
+    grounded_rows = [
+        binding
+        for binding in trace["capability_bindings"]
+        if binding.get("construct_ref") == "construct:credit_program_enrollment"
+    ]
+    assert grounded_rows
+    assert {row["status"] for row in grounded_rows} == {"selected_exact"}
+    assert all(
+        row["capability_index_ref"] == s3["frozen"]["capability_index_ref"]
+        for row in grounded_rows
+    )
+    assert all(
+        "production_claim_authority" in row["may_not_use_for"]
+        for row in grounded_rows
+    )
+    assert case["authority_outcomes"]["production"]["outcome"] == "typed_blocker"
+
+
+def test_w12d_emits_s4_regime_for_13_cases(tmp_path: Path) -> None:
+    report = w12d.run_w12d_universal_outcome_corpus(
+        repo_root=REPO_ROOT,
+        corpus_path=REPO_ROOT / "tests/fixtures/universal-corpus",
+        graph_output_dir=tmp_path / "graphs",
+        hypothesis_ledger_output_dir=tmp_path / "ledgers",
+        mode="real_producer",
+    )
+
+    assert report["summary"]["case_count"] == 13
+    s4_blocks = [case["s4_epistemic_regime"] for case in report["cases"]]
+    assert len(s4_blocks) == 13
+    assert {block["classifier_owner"] for block in s4_blocks} == {"A_gate"}
+    assert all(block["evidence_basis"]["measurability_present"] is False for block in s4_blocks)
+    assert all(block["evidence_basis"]["calibration_present"] is False for block in s4_blocks)
+    assert all(block["evidence_basis"]["value_provenance_present"] is False for block in s4_blocks)
+    assert all(block["predicted_regime"] != "risk" for block in s4_blocks)
+    assert all(block["regime_claim_ref"].startswith("pdc://layer2/s4/") for block in s4_blocks)
+    assert all(
+        block["commitment_profile_ref"].startswith("pdc://layer2/s4/")
+        for block in s4_blocks
+    )
+    assert all(
+        block["axis_projection"]["position"]["cell_ref"] == "KNOWLEDGE.epistemic_regime"
+        for block in s4_blocks
+    )
+
+
+def test_w12d_s4_records_w12_hypothesis(tmp_path: Path) -> None:
+    report = w12d.run_w12d_universal_outcome_corpus(
+        repo_root=REPO_ROOT,
+        corpus_path=REPO_ROOT / "tests/fixtures/universal-corpus",
+        graph_output_dir=tmp_path / "graphs",
+        hypothesis_ledger_output_dir=tmp_path / "ledgers",
+        mode="real_producer",
+    )
+
+    summary = report["s4_regime_summary"]
+    assert summary["case_count"] == 13
+    assert "regime_accuracy" in summary
+    assert "penalized_score" in summary
+    assert 0.0 <= summary["commitment_profile_adequacy"] <= 1.0
+    assert summary["w12_overblocking_hypothesis"] in {"confirmed", "revised"}
+    assert summary["limitation_required_case_count"] == 9
+    assert sum(summary["limitation_required_non_risk_breakdown"].values()) == (
+        summary["limitation_required_non_risk_count"]
+    )
+    assert summary["limitation_required_non_risk_count"] == 9
+    assert summary["w12_overblocking_hypothesis"] == "confirmed"
+    assert len(summary["per_case_regime_table"]) == 13
+    assert all(row["expert_regime"] for row in summary["per_case_regime_table"])
+
+
+def test_w12d_s4_does_not_change_canonical_closeout_outcome(tmp_path: Path) -> None:
+    index_dir = tmp_path / "capability-index"
+    assert builder.main(["--mode", "fixture", "--output-dir", str(index_dir)]) == 0
+
+    report = w12d.run_w12d_universal_outcome_corpus(
+        repo_root=REPO_ROOT,
+        corpus_path=SINGLE_CASE_PATH,
+        graph_output_dir=tmp_path / "graphs",
+        hypothesis_ledger_output_dir=tmp_path / "ledgers",
+        mode="corpus_stub",
+        producer_stub_dir=REPO_ROOT / "tests/fixtures/universal-corpus/producer_stubs",
+        capability_index_path=index_dir / "capability_index_v1.duckdb",
+    )
+
+    case = report["cases"][0]
+    assert case["s4_epistemic_regime"]["canonical_outcome_effect"] == "none_shadow_only"
+    assert case["outcome"] == "publish-with-limitation"
+    assert report["summary"]["closeout_honesty_rate"] == 1.0
+
+
 def test_w12d_persists_runtime_critic_report_refs_for_w12c(
     tmp_path: Path,
 ) -> None:
@@ -422,10 +540,18 @@ def test_w12d_case_loader_ignores_producer_stub_fixtures() -> None:
     assert not any(str(case.get("_source_path")).endswith(".producer_stubs.json") for case in cases)
 
 
-def test_w12d_cli_writes_report_for_existing_single_case(tmp_path: Path) -> None:
+def test_w12d_cli_writes_report_for_existing_single_case(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
     output_report = tmp_path / "w12d.json"
     index_dir = tmp_path / "capability-index"
     assert builder.main(["--mode", "fixture", "--output-dir", str(index_dir)]) == 0
+    monkeypatch.setattr(
+        w12d,
+        "DEFAULT_CAPABILITY_INDEX",
+        index_dir / "capability_index_v1.duckdb",
+    )
 
     exit_code = w12d.main(
         [
@@ -435,8 +561,6 @@ def test_w12d_cli_writes_report_for_existing_single_case(tmp_path: Path) -> None
             str(SINGLE_CASE_PATH),
             "--graph-output-dir",
             str(tmp_path / "graphs"),
-            "--capability-index",
-            str(index_dir / "capability_index_v1.duckdb"),
             "--output",
             str(output_report),
             "--allow-typed-blockers",
@@ -450,6 +574,9 @@ def test_w12d_cli_writes_report_for_existing_single_case(tmp_path: Path) -> None
     assert payload["cases"][0]["runtime_pdc_graph"]["status"] == "pass"
     assert payload["status"] == "pass"
     assert payload["summary"]["runtime_useful_design_rate"] == 0.0
+    assert payload["cases"][0]["capability_graph_trace"]["s3_acquisition"][
+        "terminal"
+    ] == "closed_as_binding"
     assert "w12d_producer_pipeline_blocked" not in {
         blocker["code"] for blocker in payload["typed_blockers"]
     }

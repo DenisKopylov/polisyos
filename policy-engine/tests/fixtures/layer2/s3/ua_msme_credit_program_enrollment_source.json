@@ -1,0 +1,53 @@
+{
+  "fixture_id": "fixture:layer2:s3:ua-msme-credit-program-enrollment",
+  "connector": "fabric.connectors.fixture.ua_msme_credit_registry",
+  "source_id": "source:ua:msme_credit_program_enrollment:2022",
+  "dataset_identity": {
+    "name": "Ukraine MSME credit program enrollment governed fixture",
+    "jurisdiction": "UA",
+    "publisher": "PolicyOS deterministic fixture",
+    "fixture_only": true
+  },
+  "lineage_ref": "source_snapshot:layer2_s3_ua_msme_credit_program_enrollment_2022",
+  "rights_scope": "governed_claim_evidence_aggregate_only",
+  "legal_use_scope": {
+    "claim_evidence_use_allowed": true,
+    "public_export_allowed": "aggregate_only",
+    "reviewed_by": "team-legal-counsel",
+    "review_ref": "legal-review:layer2-s3:ua-msme-credit-program-enrollment"
+  },
+  "coverage_period": "2022-02-01/2022-12-31",
+  "update_cadence": "monthly",
+  "linkage_key_quality": "stable_program_and_firm_hash",
+  "construct_validity_note": "Directly observes enrollment in the affordable-loans program at firm-program granularity using de-identified fixture keys.",
+  "schema_regime": "ukraine_schema_v2",
+  "data_dictionary": {
+    "firm_key_hash": "Deterministic non-PII fixture key for a registered MSME.",
+    "program_id": "Credit program identifier.",
+    "enrollment_status": "Observed enrollment status.",
+    "enrollment_month": "Month in 2022 when enrollment was observed.",
+    "region_code": "Aggregate region code."
+  },
+  "quality": {
+    "composite": 0.93,
+    "construct_validity": 0.94,
+    "schema_profile_present": 1.0,
+    "rights_access": 1.0
+  },
+  "rows": [
+    {
+      "firm_key_hash": "firm_hash_001",
+      "program_id": "5-7-9",
+      "enrollment_status": "enrolled",
+      "enrollment_month": "2022-04",
+      "region_code": "UA-32"
+    },
+    {
+      "firm_key_hash": "firm_hash_002",
+      "program_id": "5-7-9",
+      "enrollment_status": "enrolled",
+      "enrollment_month": "2022-06",
+      "region_code": "UA-46"
+    }
+  ]
+}

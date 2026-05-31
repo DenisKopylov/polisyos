@@ -35,7 +35,7 @@ def test_cluster_ownership_map_is_governed_and_valid() -> None:
     assert open_cell_closure["closure_contract_count"] == (  # type: ignore[index]
         validation["summary"]["open_or_incomplete_count"]  # type: ignore[index]
     )
-    assert open_cell_closure["open_cell_count"] == 17
+    assert open_cell_closure["open_cell_count"] == 13
 
 
 def test_cluster_ownership_map_uses_capability_ratchet_state_vocabulary() -> None:
@@ -92,10 +92,13 @@ def test_cluster_ownership_map_keeps_known_blind_spots_explicit() -> None:
     assert payload["cell"]["INTERVENTION"]["design_candidate"]["firewall"].startswith(
         "P15"
     )
+    assert payload["cell"]["INTERVENTION"]["design_candidate"]["ratchet_state"] == (
+        "implemented"
+    )
     assert (
-        payload["open_cell_closure"]["INTERVENTION"]["design_candidate"][
+        payload["open_cell_closure"]["OTHER_AGENTS"]["strategic_response"][
             "producer_artifact"
-        ].startswith("DesignCandidate contract")
+        ].startswith("StrategicResponseRecord")
     )
 
 
@@ -239,9 +242,9 @@ def test_cluster_ownership_validator_rejects_missing_open_cell_closure() -> None
 def test_cluster_ownership_validator_rejects_closure_state_mismatch() -> None:
     payload = cluster_map.load_cluster_ownership_map(REPO_ROOT)
     payload = copy.deepcopy(payload)
-    payload["open_cell_closure"]["KNOWLEDGE"]["epistemic_regime"][
+    payload["open_cell_closure"]["KNOWLEDGE"]["calibration"][
         "current_state"
-    ] = "implemented_but_not_orchestrated"
+    ] = "producer_missing"
 
     validation = _validate_payload_without_inventory_mutation(payload)
 

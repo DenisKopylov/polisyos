@@ -13,10 +13,10 @@ revision_rule = "governance_pr_required_for_floor_or_denominator_change"
 [[floor]]
 floor_id = "s3_acquisition_closure"
 slice = "S3"
-metric = "acquisition_closure_rate"
+metric = "acquisition_loop_closure_rate"
 floor_owner = "team-integration-spine"
 floor_artifact = "architecture/policy_design_case/layer2_floor_governance.toml"
-revision_rule = "source_contract_and_rerun_closure_required"
+revision_rule = "source_contract_and_rerun_closure_required_for_floor_or_denominator_change"
 
 [[floor]]
 floor_id = "s4_regime_accuracy"

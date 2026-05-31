@@ -8,7 +8,9 @@ import re
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, Literal
+
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.runtime.quality.ddm_monitoring import (
     ImplementationMonitoringEvaluationError,
@@ -78,6 +80,90 @@ REVISION_ACTION_ORDER = {
 }
 _SHA256_REF_RE = re.compile(r"^(?:sha256:|cas://sha256/)[0-9a-f]{64}$", re.IGNORECASE)
 
+COMMITMENT_PROFILE_SCHEMA_VERSION = "policyos.runtime.policy_design_case.commitment_profile.v1"
+Reversibility = Literal[
+    "reversible",
+    "pilotable",
+    "option_preserving",
+    "lock_in",
+    "irreversible",
+]
+LifecycleStage = Literal[
+    "greenfield",
+    "reform",
+    "transition",
+    "termination",
+    "grandfathering",
+    "emergency",
+    "recovery",
+]
+StakesBand = Literal["low", "high", "catastrophic"]
+FloorBand = Literal["low_stakes", "standard", "high_stakes"]
+
+_HARD_COMMITMENT = frozenset({"lock_in", "irreversible"})
+_DOMAIN_COMMITMENT_BASELINE: dict[str, tuple[Reversibility, StakesBand, LifecycleStage]] = {
+    "climate_adaptation": ("irreversible", "catastrophic", "transition"),
+    "digital_public_service": ("lock_in", "catastrophic", "reform"),
+    "housing_rent_control": ("lock_in", "high", "reform"),
+    "education_access": ("lock_in", "high", "reform"),
+    "infrastructure_prioritisation": ("irreversible", "high", "reform"),
+    "public_health_intervention": ("reversible", "high", "reform"),
+    "public_safety": ("reversible", "high", "reform"),
+    "tax_enforcement": ("reversible", "high", "reform"),
+    "labour_activation": ("reversible", "high", "reform"),
+    "social_protection_targeting": ("pilotable", "high", "emergency"),
+    "migration_displacement": ("pilotable", "high", "emergency"),
+    "msme_credit_grant": ("pilotable", "high", "emergency"),
+}
+_DEFAULT_COMMITMENT: tuple[Reversibility, StakesBand, LifecycleStage] = (
+    "irreversible",
+    "high",
+    "transition",
+)
+_EMERGENCY_TIME_HINTS = ("emergency", "2020", "2022")
+_LIFECYCLE_STAGE_EVENT_ANCHORS: dict[str, frozenset[str]] = {
+    "transition": frozenset({"amended", "superseded", "reissue"}),
+    "termination": frozenset({"withdrawn", "retracted", "superseded"}),
+    "grandfathering": frozenset({"amended", "superseded", "reissue"}),
+}
+
+
+class CommitmentProfileRecord(BaseModel):
+    """Reversibility, lifecycle, transition-cost, and stakes for a design candidate."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: Literal["policyos.runtime.policy_design_case.commitment_profile.v1"] = (
+        COMMITMENT_PROFILE_SCHEMA_VERSION
+    )
+    candidate_ref: str = Field(min_length=1)
+    reversibility: Reversibility
+    option_value: Literal["none", "low", "medium", "high"]
+    lifecycle_stage: LifecycleStage
+    transition_cost: Literal["low", "medium", "high"]
+    stakes: StakesBand
+    rule_version_ref: str = Field(min_length=1)
+
+    @property
+    def is_high_commitment(self) -> bool:
+        """Return whether this profile requires elevated floors."""
+
+        return self.reversibility in _HARD_COMMITMENT and self.stakes in {
+            "high",
+            "catastrophic",
+        }
+
+    @model_validator(mode="after")
+    def _lifecycle_stage_reuses_lifecycle_events(self) -> CommitmentProfileRecord:
+        anchor_events = _LIFECYCLE_STAGE_EVENT_ANCHORS.get(self.lifecycle_stage)
+        if anchor_events and not anchor_events <= ALLOWED_LIFECYCLE_EVENTS:
+            raise ValueError("commitment lifecycle stage is not anchored in lifecycle events")
+        return self
+
+
+class P23StakesFloorError(ValueError):
+    """Raised when a low-stakes floor is applied to a hard high-stakes commitment."""
+
 
 @dataclass(frozen=True)
 class PolicyDesignLifecycleError(ValueError):
@@ -114,6 +200,88 @@ class PolicyDesignLifecycleIssue:
             "affected_claim": self.affected_claim,
             "next_action": self.next_action,
         }
+
+
+def build_commitment_profile(
+    *,
+    candidate_ref: str,
+    rule_version_ref: str,
+    domain: str | None = None,
+    instrument_type: str | None = None,
+    policy_time: str | None = None,
+    annotation: dict[str, str] | None = None,
+    **overrides: str,
+) -> CommitmentProfileRecord:
+    """Derive a commitment profile from case signals.
+
+    Explicit annotation and keyword overrides win over deterministic domain and
+    time heuristics. Unknown domains default conservatively to a hard, high-stakes
+    transition profile, matching S4's "default toward more uncertainty" posture.
+
+    Args:
+        candidate_ref: Stable candidate identifier.
+        rule_version_ref: Rule or ADR reference used for replay.
+        domain: Policy domain signal from the case.
+        instrument_type: Optional instrument signal reserved for later refinement.
+        policy_time: Policy-time hint; crisis years lean emergency when otherwise unknown.
+        annotation: Expert/gold annotation that overrides derived fields.
+        **overrides: Field-level overrides for tests or explicitly recorded signals.
+
+    Returns:
+        Strict commitment profile record consumed by regime and floor selection.
+    """
+
+    del instrument_type
+    reversibility, stakes, lifecycle_stage = _DOMAIN_COMMITMENT_BASELINE.get(
+        domain or "",
+        _DEFAULT_COMMITMENT,
+    )
+    if (
+        policy_time
+        and any(hint in policy_time for hint in _EMERGENCY_TIME_HINTS)
+        and lifecycle_stage == "transition"
+    ):
+        lifecycle_stage = "emergency"
+
+    fields: dict[str, str] = {
+        "candidate_ref": candidate_ref,
+        "reversibility": reversibility,
+        "option_value": "low" if reversibility in _HARD_COMMITMENT else "medium",
+        "lifecycle_stage": lifecycle_stage,
+        "transition_cost": "high" if reversibility in _HARD_COMMITMENT else "medium",
+        "stakes": stakes,
+        "rule_version_ref": rule_version_ref,
+    }
+    fields.update({key: value for key, value in (annotation or {}).items() if key in fields})
+    fields.update(overrides)
+    return CommitmentProfileRecord(**fields)  # type: ignore[arg-type]
+
+
+def select_floor(profile: CommitmentProfileRecord) -> FloorBand:
+    """Select the floor band required by a commitment profile."""
+
+    if profile.stakes == "catastrophic" or profile.is_high_commitment:
+        return "high_stakes"
+    if profile.stakes == "high":
+        return "standard"
+    return "low_stakes"
+
+
+def assert_stakes_floor_consistency(
+    profile: CommitmentProfileRecord,
+    *,
+    selected_floor: str,
+) -> None:
+    """Fail closed when P23 would launder a low-stakes floor into a hard commitment."""
+
+    if (
+        profile.stakes == "catastrophic"
+        and profile.reversibility in _HARD_COMMITMENT
+        and selected_floor == "low_stakes"
+    ):
+        raise P23StakesFloorError(
+            "low-stakes floor cannot be applied to a catastrophic irreversible commitment (P23)"
+        )
 
 
 def build_case_lifecycle_record(

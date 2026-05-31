@@ -83,6 +83,55 @@
       "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py"
     },
     {
+      "id": "layer2_s3_substrate_acquisition_manifest",
+      "path": "architecture/policy_design_case/layer2_s3_substrate_acquisition_manifest.json",
+      "kind": "layer2_s3_substrate_acquisition_manifest",
+      "schema_version": "policyos.policy_design_case.layer2_s3_substrate_acquisition_manifest.v1",
+      "owner": "team-runtime-quality",
+      "status": "active",
+      "capability_reality_label": "implemented",
+      "authority_scope": [
+        "substrate_coverage_snapshot",
+        "acquisition_loop_closure",
+        "governed_construct_binding"
+      ],
+      "may_not_use_for": [
+        "production_claim_authority",
+        "scenario_family_authority",
+        "publication_authority",
+        "rollout_authority",
+        "claim_authority_from_proxy_or_simulation"
+      ],
+      "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py",
+      "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py"
+    },
+    {
+      "id": "layer2_s4_epistemic_regime_manifest",
+      "path": "architecture/policy_design_case/layer2_s4_epistemic_regime_manifest.json",
+      "kind": "layer2_s4_epistemic_regime_manifest",
+      "schema_version": "policyos.policy_design_case.layer2_s4_epistemic_regime_manifest.v1",
+      "owner": "team-knowledge-regime",
+      "status": "active",
+      "capability_reality_label": "implemented",
+      "authority_scope": [
+        "epistemic_regime_classification",
+        "regime_conditional_strategy_selection",
+        "commitment_profile",
+        "regime_accuracy_metric"
+      ],
+      "may_not_use_for": [
+        "risk_regime_authority_without_risk_evidence",
+        "b_side_regime_selection",
+        "outcome_claim_from_ignorance",
+        "low_stakes_floor_on_catastrophic_irreversible",
+        "production_claim_authority",
+        "rollout_authority",
+        "publication_authority"
+      ],
+      "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py",
+      "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py"
+    },
+    {
       "id": "layer2_minimal_seed_manifest",
       "path": "architecture/policy_design_case/layer2_minimal_seed_manifest.json",
       "kind": "layer2_seed_manifest",

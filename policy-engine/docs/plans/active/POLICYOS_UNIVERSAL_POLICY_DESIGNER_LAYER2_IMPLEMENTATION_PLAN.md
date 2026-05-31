@@ -134,7 +134,9 @@ S0 freezes, as committed artifacts under `architecture/policy_design_case/`:
    authority-bearing object that S2 starts writing immediately (candidate,
    counterexample, refinement, ledger refs, axis-position vector, authority
    boundary, projection status). S9 matures projection/lowering over it; it is
-   **not** introduced late.
+   **not** introduced late. Its canonical code home is neutral `polisyos.pdc`,
+   not B-side `scientist.policy_design`, because A-side grounding and Runtime
+   closeout consume the matured record.
 3. **Dependency DAG** — the slice graph below, marking critical path and each
    off-path slice's prerequisites.
 4. **Slice -> open-cell matrix** — every one of the 17 open cells assigned to a
@@ -171,8 +173,11 @@ S0 freezes, as committed artifacts under `architecture/policy_design_case/`:
    post-deploy, battery) are *layers* with no single cell, tracked separately.
    The slice->open-cell matrix must assign **all 17 open cells** to a slice,
    including the easily-missed `KNOWLEDGE.calibration`,
-   `KNOWLEDGE.ir_proof_carrying_analytics`, `CROSS_CUTTING.method_infrastructure`,
-   `INTERVENTION.scale_composition`, and `ACTOR.mandate_legitimacy`.
+   `KNOWLEDGE.ir_proof_carrying_analytics`,
+   `CROSS_CUTTING.scientist_orchestration`, `INTERVENTION.scale_composition`,
+   and `ACTOR.mandate_legitimacy`. `CROSS_CUTTING.method_infrastructure` is
+   already `implemented` substrate and may be advanced by S11, but is not part
+   of the open-17 closure matrix.
 
 **Dependency DAG (critical path bold):**
 
@@ -233,7 +238,7 @@ and per-cell ratchet_state comes from the map validator, not from this table.
 | S8 | Normative firewall + value-choice + Pareto | `ACTOR.value_choice_provenance` | normative firewall, P20 | off-path |
 | S9 | Canonical DesignRecord matured + projection/lowering | `DESIGNER_ITSELF.closeout_projection_ratchet`; *layer:* canonical record + projection algebra | faithfulness verifier reuse | off-path |
 | S10 | Outcome prediction + welfare comparison | *layer:* outcome prediction (B; no own cell) | `ForecastSupport` | off-path (after S6) |
-| S11 | Rich blind-spot models + knowledge cells | `KNOWLEDGE.calibration`, `KNOWLEDGE.ir_proof_carrying_analytics`, `CROSS_CUTTING.method_infrastructure`; S6 cells `maturity=predictive` | — | off-path |
+| S11 | Rich blind-spot models + knowledge cells | `KNOWLEDGE.calibration`, `KNOWLEDGE.ir_proof_carrying_analytics`; advances already-`implemented` `CROSS_CUTTING.method_infrastructure`; S6 cells `maturity=predictive` | — | off-path |
 | S12 | Cold-start + resource economics | `DESIGNER_ITSELF.envelope_growth` | one VOI currency, reflexive self-design | off-path |
 | S13 | Post-deploy accountability + learning | `DESIGNER_ITSELF.envelope_growth` (shrink/expand); *layer:* post-deploy accountability | `TypedDiagnosticRecord` (post-deploy), `AssuranceCaseDelta` | off-path |
 | S14 | Universality assurance battery | `DESIGNER_ITSELF.evaluation_corpus`; *layer:* universality battery | faithfulness verifier reuse | gate to "universal" |
@@ -521,7 +526,8 @@ Firewalls · Cells · Promotion · Floor (owner/artifact) · Done when.
 - **Adds:** rich strategic-response/Goodhart-Lucas + capacity-feasibility models
   (`maturity=predictive`); `KNOWLEDGE.calibration` orchestration;
   `KNOWLEDGE.ir_proof_carrying_analytics` wired into claim/comparison consumers;
-  `CROSS_CUTTING.method_infrastructure` Foundry-method orchestration.
+  advances already-`implemented` `CROSS_CUTTING.method_infrastructure`
+  Foundry-method orchestration without counting it as an open-cell closure.
 - **Not yet:** a rich model never exceeds its evidence; where calibration/validity
   fail it stays at the S6 fail-closed limit.
 - **Closure:** producer = predictive axis models + calibration; persisted =
@@ -531,8 +537,9 @@ Firewalls · Cells · Promotion · Floor (owner/artifact) · Done when.
   calibration passes; negative = a model exceeding its evidence reverts to the S6
   fail-closed limit.
 - **Firewalls:** keeps S6 P18/P19/P21/P24 as floor; calibration-before-relaxation.
-- **Cells:** `KNOWLEDGE.calibration`, `KNOWLEDGE.ir_proof_carrying_analytics`,
-  `CROSS_CUTTING.method_infrastructure`; S6 cells -> `maturity=predictive`.
+- **Cells:** `KNOWLEDGE.calibration`, `KNOWLEDGE.ir_proof_carrying_analytics`;
+  advances already-`implemented` `CROSS_CUTTING.method_infrastructure`; S6 cells
+  -> `maturity=predictive`.
 - **Promotion:** governed where calibrated.
 - **Floor:** per-axis calibration floor (owner: research; artifact: governed config).
 - **Done when:** each upgraded cell is calibrated or reverts to fail-closed;

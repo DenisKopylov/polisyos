@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 from pydantic import AwareDatetime, Field, model_validator
 
@@ -17,10 +17,14 @@ from .layer2_readiness import (
     AxisPositionDeclaration,
     CertifiedOperationEnvelope,
     DesignRecordV0,
+    EpistemicRegime,
     GovernanceDecisionClass,
     Layer2ReadinessModel,
     ValueOfInformationEstimate,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 S2_DESIGN_SEARCH_SCHEMA_VERSION = "policyos.policy_design_case.layer2_s2_design_search.v1"
 S2_DESIGN_RECORD_RULE_VERSION = "policyos.layer2.s2.design_search.v1"
@@ -84,6 +88,13 @@ _MAY_NOT_USE_FOR = [
     "acquisition_authority",
     "source_contract_authority",
 ]
+_NON_POINT_OPTIMIZATION_STRATEGIES = frozenset(
+    {
+        "robust_satisficing",
+        "frame_indexed_portfolio",
+        "precautionary_adaptive_pathway",
+    }
+)
 
 
 class Layer2S2DesignSearchInputError(ValueError):
@@ -158,6 +169,10 @@ class DesignCandidateV0(Layer2ReadinessModel):
     field_source_classification: dict[str, FieldSourceClass]
     authority_boundary: AuthorityBoundary
     status: Literal["candidate_unverified", "a_verified_shadow", "blocked"]
+    regime: EpistemicRegime | None = None
+    design_strategy: str | None = None
+    commitment_profile_ref: str | None = None
+    commitment_stakes: Literal["low", "high", "catastrophic"] | None = None
 
     @model_validator(mode="after")
     def _validate_grammar_first(self) -> DesignCandidateV0:
@@ -313,6 +328,12 @@ class Layer2S2DesignSearchRun(Layer2ReadinessModel):
 
 def run_s2_shadow_design_loop(
     input: Layer2S2DesignSearchInput,
+    *,
+    regime: EpistemicRegime | None = None,
+    design_strategy: str | None = None,
+    regime_claim_ref: str | None = None,
+    commitment_profile_ref: str | None = None,
+    commitment_stakes: Literal["low", "high", "catastrophic"] | None = None,
 ) -> Layer2S2DesignSearchRun:
     """Run the deterministic S2 one-case shadow design-search loop."""
 
@@ -323,7 +344,15 @@ def run_s2_shadow_design_loop(
     boundary = _shadow_boundary(input)
     run_id = f"layer2.s2.{_slug(input.case_id)}"
     expansion = _grammar_expansion(input, boundary=boundary)
-    candidate = _candidate(input, expansion=expansion, boundary=boundary)
+    candidate = _candidate(
+        input,
+        expansion=expansion,
+        boundary=boundary,
+        regime=regime,
+        design_strategy=design_strategy,
+        commitment_profile_ref=commitment_profile_ref,
+        commitment_stakes=commitment_stakes,
+    )
     constraint_store = _constraint_store(input, expansion=expansion)
     counterexample = _counterexample(input, candidate=candidate)
     decision = _refinement_decision(
@@ -344,6 +373,11 @@ def run_s2_shadow_design_loop(
         candidate=candidate,
         ledger=ledger,
         boundary=boundary,
+        regime=regime,
+        regime_claim_ref=regime_claim_ref,
+        commitment_profile_ref=commitment_profile_ref,
+        design_strategy=design_strategy,
+        commitment_stakes=commitment_stakes,
     )
     status: S2RunStatus = (
         "governance_required"
@@ -374,14 +408,24 @@ def run_s2_shadow_design_loop(
 def project_s2_design_search(
     run: Layer2S2DesignSearchRun,
     *,
-    audiences: tuple[Literal["MACHINE", "REVIEWER"], ...],
+    audiences: tuple[Literal["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"], ...],
 ) -> dict[str, dict[str, object]]:
     """Project S2 search trace without minting recommendation authority."""
 
     projections: dict[str, dict[str, object]] = {}
     boundary = run.design_record.authority_boundary.model_dump(mode="json")
+    regime_axis = _axis_position(run.design_record, "KNOWLEDGE.epistemic_regime")
+    commitment_axis = _axis_position(
+        run.design_record,
+        "INTERVENTION.reversibility_lifecycle_stakes",
+    )
+    p16_firewall = _firewall_status(run.design_record, "KNOWLEDGE.epistemic_regime")
+    p23_firewall = _firewall_status(
+        run.design_record,
+        "INTERVENTION.reversibility_lifecycle_stakes",
+    )
     for audience in audiences:
-        projections[audience] = {
+        projection: dict[str, object] = {
             "schema_version": S2_DESIGN_SEARCH_SCHEMA_VERSION,
             "audience": audience,
             "status": run.status,
@@ -397,7 +441,32 @@ def project_s2_design_search(
             "search_incompleteness_note": run.search_ledger.search_incompleteness_note,
             "authority_boundary": boundary,
         }
+        if regime_axis is not None:
+            projection.update(
+                _regime_projection_fields(
+                    audience,
+                    regime_axis=regime_axis,
+                    commitment_axis=commitment_axis,
+                    p16_firewall=p16_firewall,
+                    p23_firewall=p23_firewall,
+                    candidate=run.candidates[0],
+                )
+            )
+            if audience == "PUBLIC":
+                assert_s2_public_projection_has_regime_limitation(projection)
+        projections[audience] = projection
     return projections
+
+
+def assert_s2_public_projection_has_regime_limitation(
+    projection: Mapping[str, object],
+) -> None:
+    """Require the load-bearing PUBLIC limitation for projected S4 regime data."""
+
+    if projection.get("audience") == "PUBLIC" and projection.get("regime"):
+        limitation = projection.get("limitation")
+        if not isinstance(limitation, str) or not limitation.strip():
+            raise ValueError("PUBLIC regime projection requires limitation")
 
 
 def persist_s2_design_search_run(
@@ -502,6 +571,10 @@ def _candidate(
     *,
     expansion: DesignGrammarExpansion,
     boundary: AuthorityBoundary,
+    regime: EpistemicRegime | None = None,
+    design_strategy: str | None = None,
+    commitment_profile_ref: str | None = None,
+    commitment_stakes: Literal["low", "high", "catastrophic"] | None = None,
 ) -> DesignCandidateV0:
     slug = _slug(input.case_id)
     return DesignCandidateV0(
@@ -526,6 +599,10 @@ def _candidate(
         },
         authority_boundary=boundary,
         status="candidate_unverified",
+        regime=regime,
+        design_strategy=design_strategy,
+        commitment_profile_ref=commitment_profile_ref,
+        commitment_stakes=commitment_stakes,
     )
 
 
@@ -604,6 +681,12 @@ def _refinement_decision(
         decision = "abstain"
     else:
         decision = "refine"
+    if (
+        decision == "refine"
+        and candidate.design_strategy in _NON_POINT_OPTIMIZATION_STRATEGIES
+        and counterexample.counterexample_class != "real_design_blocker"
+    ):
+        decision = "reframe"
 
     governance_class = _governance_decision_class(input) if decision == "human_decision" else None
     governance_ref = (
@@ -630,13 +713,17 @@ def _refinement_decision(
             rule_version_ref=input.rule_version_ref,
         ),
         budget_refs=["budget://layer2/s2/shadow-loop"],
-        stakes_band="moderate",
+        stakes_band=_stakes_band_for_commitment(candidate.commitment_stakes),
         governance_decision_class_ref=governance_ref,
         governance_decision_class=governance_class,
         governance_refs=(
             ["governance://layer2/s2/a_spec_gap"] if decision == "human_decision" else []
         ),
-        reason=_decision_reason(decision, counterexample.counterexample_class),
+        reason=_decision_reason(
+            decision,
+            counterexample.counterexample_class,
+            design_strategy=candidate.design_strategy,
+        ),
     )
 
 
@@ -717,55 +804,119 @@ def _design_record(
     candidate: DesignCandidateV0,
     ledger: SearchLedger,
     boundary: AuthorityBoundary,
+    regime: EpistemicRegime | None = None,
+    regime_claim_ref: str | None = None,
+    commitment_profile_ref: str | None = None,
+    design_strategy: str | None = None,
+    commitment_stakes: Literal["low", "high", "catastrophic"] | None = None,
 ) -> DesignRecordV0:
     slug = _slug(input.case_id)
+    axis_positions = [
+        AxisPositionDeclaration(
+            cluster="INTERVENTION",
+            axis="design_grammar",
+            position="grammar_expanded_shadow_only",
+            evidence_refs=[candidate.grammar_expansion_ref],
+            authority_purpose=_AUTHORITY_PURPOSE,
+            rule_version_ref=input.rule_version_ref,
+        ),
+        AxisPositionDeclaration(
+            cluster="INTERVENTION",
+            axis="design_candidate",
+            position="candidate_emitted_from_grammar_shadow_only",
+            evidence_refs=[candidate.candidate_ref],
+            authority_purpose=_AUTHORITY_PURPOSE,
+            rule_version_ref=input.rule_version_ref,
+        ),
+    ]
+    firewall_status = [
+        AxisFirewallStatus(
+            cell_ref="INTERVENTION.design_grammar",
+            status="pass",
+            pattern_ids=["P10", "P15"],
+            reason="Grammar expansion precedes candidate emission in the S2 shadow loop.",
+            maturity="predictive",
+            rule_version_ref=input.rule_version_ref,
+        ),
+        AxisFirewallStatus(
+            cell_ref="INTERVENTION.design_candidate",
+            status="warn",
+            pattern_ids=["P05", "P25"],
+            reason="Candidate is replay-visible but remains shadow-only and non-exhaustive.",
+            maturity="fail_closed",
+            rule_version_ref=input.rule_version_ref,
+        ),
+    ]
+    ledger_refs = [ledger.ledger_ref]
+    projection_audiences: list[Literal["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"]] = [
+        "MACHINE",
+        "REVIEWER",
+    ]
+    if regime is not None:
+        axis_positions.append(
+            AxisPositionDeclaration(
+                cluster="KNOWLEDGE",
+                axis="epistemic_regime",
+                position=regime,
+                evidence_refs=[regime_claim_ref] if regime_claim_ref else [],
+                authority_purpose="design_strategy_selection",
+                rule_version_ref=input.rule_version_ref,
+            )
+        )
+        axis_positions.append(
+            AxisPositionDeclaration(
+                cluster="INTERVENTION",
+                axis="reversibility_lifecycle_stakes",
+                position=_commitment_axis_position(
+                    commitment_stakes=commitment_stakes,
+                    design_strategy=design_strategy,
+                ),
+                evidence_refs=[commitment_profile_ref] if commitment_profile_ref else [],
+                authority_purpose="commitment_gated_floor_selection",
+                rule_version_ref=input.rule_version_ref,
+            )
+        )
+        firewall_status.append(
+            AxisFirewallStatus(
+                cell_ref="KNOWLEDGE.epistemic_regime",
+                status="pass" if regime == "risk" else "limit",
+                pattern_ids=["P16"],
+                reason=f"A-side injected {regime} regime selects {design_strategy or 'strategy'}.",
+                maturity="fail_closed",
+                rule_version_ref=input.rule_version_ref,
+            )
+        )
+        firewall_status.append(
+            AxisFirewallStatus(
+                cell_ref="INTERVENTION.reversibility_lifecycle_stakes",
+                status="pass" if commitment_stakes == "low" else "limit",
+                pattern_ids=["P23"],
+                reason=(
+                    f"Commitment stakes {commitment_stakes or 'unknown'} select "
+                    f"{_selected_floor_for_commitment(commitment_stakes)} floor."
+                ),
+                maturity="fail_closed",
+                rule_version_ref=input.rule_version_ref,
+            )
+        )
+        ledger_refs.extend(
+            ref for ref in (regime_claim_ref, commitment_profile_ref) if ref is not None
+        )
+        projection_audiences = ["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"]
+
     return DesignRecordV0(
         record_id=f"layer2.s2.design_record.{slug}",
         candidate_ref=candidate.candidate_ref,
         candidate_source=candidate.source_authority,
         projection_status="shadow",
         authority_boundary=boundary,
-        axis_positions=[
-            AxisPositionDeclaration(
-                cluster="INTERVENTION",
-                axis="design_grammar",
-                position="grammar_expanded_shadow_only",
-                evidence_refs=[candidate.grammar_expansion_ref],
-                authority_purpose=_AUTHORITY_PURPOSE,
-                rule_version_ref=input.rule_version_ref,
-            ),
-            AxisPositionDeclaration(
-                cluster="INTERVENTION",
-                axis="design_candidate",
-                position="candidate_emitted_from_grammar_shadow_only",
-                evidence_refs=[candidate.candidate_ref],
-                authority_purpose=_AUTHORITY_PURPOSE,
-                rule_version_ref=input.rule_version_ref,
-            ),
-        ],
-        firewall_status=[
-            AxisFirewallStatus(
-                cell_ref="INTERVENTION.design_grammar",
-                status="pass",
-                pattern_ids=["P10", "P15"],
-                reason="Grammar expansion precedes candidate emission in the S2 shadow loop.",
-                maturity="predictive",
-                rule_version_ref=input.rule_version_ref,
-            ),
-            AxisFirewallStatus(
-                cell_ref="INTERVENTION.design_candidate",
-                status="warn",
-                pattern_ids=["P05", "P25"],
-                reason="Candidate is replay-visible but remains shadow-only and non-exhaustive.",
-                maturity="fail_closed",
-                rule_version_ref=input.rule_version_ref,
-            ),
-        ],
+        axis_positions=axis_positions,
+        firewall_status=firewall_status,
         envelope=CertifiedOperationEnvelope(
             envelope_id=f"layer2.s2.envelope.{slug}",
             domains=[input.domain],
             posture_scopes=["shadow"],
-            epistemic_regime_scopes=["ignorance"],
+            epistemic_regime_scopes=[regime] if regime else ["ignorance"],
             actor_scopes=[input.actor_ref],
             method_scopes=["deterministic_shadow_design_search"],
             certified_for=[
@@ -776,9 +927,127 @@ def _design_record(
             not_certified_for=list(_MAY_NOT_USE_FOR),
             rule_version_ref=input.rule_version_ref,
         ),
-        ledger_refs=[ledger.ledger_ref],
-        projection_audiences=["MACHINE", "REVIEWER"],
+        ledger_refs=ledger_refs,
+        projection_audiences=projection_audiences,
     )
+
+
+def _axis_position(
+    record: DesignRecordV0,
+    cell_ref: str,
+) -> AxisPositionDeclaration | None:
+    for position in record.axis_positions:
+        if position.cell_ref == cell_ref:
+            return position
+    return None
+
+
+def _firewall_status(
+    record: DesignRecordV0,
+    cell_ref: str,
+) -> AxisFirewallStatus | None:
+    for status in record.firewall_status:
+        if status.cell_ref == cell_ref:
+            return status
+    return None
+
+
+def _regime_projection_fields(
+    audience: Literal["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"],
+    *,
+    regime_axis: AxisPositionDeclaration,
+    commitment_axis: AxisPositionDeclaration | None,
+    p16_firewall: AxisFirewallStatus | None,
+    p23_firewall: AxisFirewallStatus | None,
+    candidate: DesignCandidateV0,
+) -> dict[str, object]:
+    commitment = _parse_commitment_axis_position(
+        commitment_axis.position if commitment_axis else ""
+    )
+    design_strategy = (
+        commitment.get("design_strategy") or candidate.design_strategy or "strategy_not_injected"
+    )
+    fields: dict[str, object] = {
+        "regime": regime_axis.position,
+        "design_strategy": design_strategy,
+        "limitation": (
+            f"{regime_axis.position} is an A-side regime classification for shadow design "
+            "strategy only; it does not grant risk-regime authority, production authority, "
+            "publication authority, or rollout authority."
+        ),
+        "commitment_posture": commitment_axis.position if commitment_axis else "not_projected",
+        "adaptive_posture": _adaptive_posture(design_strategy),
+    }
+    if audience in {"REVIEWER", "EXPERT", "MACHINE"}:
+        fields.update(
+            {
+                "p16_firewall_status": p16_firewall.status if p16_firewall else "limit",
+                "p23_firewall_status": p23_firewall.status if p23_firewall else "limit",
+            }
+        )
+    if audience in {"EXPERT", "MACHINE"}:
+        fields.update(
+            {
+                "evidence_basis_ref": _first_ref(regime_axis.evidence_refs),
+                "commitment_profile_ref": (
+                    _first_ref(commitment_axis.evidence_refs) if commitment_axis else None
+                ),
+                "asymmetry_penalty": _asymmetry_penalty(regime_axis.position),
+                "stakes_band": commitment.get("stakes", candidate.commitment_stakes or "unknown"),
+                "lifecycle_stage": commitment.get("lifecycle_stage", "see_commitment_profile"),
+                "selected_floor": commitment.get(
+                    "selected_floor",
+                    _selected_floor_for_commitment(candidate.commitment_stakes),
+                ),
+            }
+        )
+    return fields
+
+
+def _commitment_axis_position(
+    *,
+    commitment_stakes: Literal["low", "high", "catastrophic"] | None,
+    design_strategy: str | None,
+) -> str:
+    return ";".join(
+        [
+            f"stakes={commitment_stakes or 'unknown'}",
+            "lifecycle_stage=see_commitment_profile",
+            f"selected_floor={_selected_floor_for_commitment(commitment_stakes)}",
+            f"design_strategy={design_strategy or 'not_injected'}",
+        ]
+    )
+
+
+def _parse_commitment_axis_position(position: str) -> dict[str, str]:
+    parsed: dict[str, str] = {}
+    for part in position.split(";"):
+        key, separator, value = part.partition("=")
+        if separator and key and value:
+            parsed[key] = value
+    return parsed
+
+
+def _first_ref(refs: list[str]) -> str | None:
+    return refs[0] if refs else None
+
+
+def _asymmetry_penalty(regime: str) -> float:
+    if regime == "risk":
+        return 0.0
+    if regime == "ignorance":
+        return 2.0
+    return 1.0
+
+
+def _adaptive_posture(design_strategy: object) -> str:
+    if design_strategy == "expected_welfare_optimization":
+        return "optimization_shadow_only"
+    if design_strategy == "frame_indexed_portfolio":
+        return "frame_indexed_limited"
+    if design_strategy == "precautionary_adaptive_pathway":
+        return "precautionary_adaptive"
+    return "robust_limited"
 
 
 def _cluster_interfaces(boundary: AuthorityBoundary) -> list[ClusterInterfaceContract]:
@@ -855,6 +1124,23 @@ def _deterministic_replay_key(
         "value_of_information.estimate_id": decision.value_of_information.estimate_id,
         "budget_refs": list(decision.budget_refs),
     }
+    if any(
+        value is not None
+        for value in (
+            candidate.regime,
+            candidate.design_strategy,
+            candidate.commitment_profile_ref,
+            candidate.commitment_stakes,
+        )
+    ):
+        payload.update(
+            {
+                "regime": candidate.regime,
+                "design_strategy": candidate.design_strategy,
+                "commitment_profile_ref": candidate.commitment_profile_ref,
+                "commitment_stakes": candidate.commitment_stakes,
+            }
+        )
     canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
@@ -871,7 +1157,12 @@ def _counterexample_message(counterexample_class: str) -> str:
     return "Candidate violates a shadow A-side design constraint and must be refined."
 
 
-def _decision_reason(decision: RefinementDecisionKind, counterexample_class: str) -> str:
+def _decision_reason(
+    decision: RefinementDecisionKind,
+    counterexample_class: str,
+    *,
+    design_strategy: str | None = None,
+) -> str:
     if decision == "human_decision":
         return "A-side specification gaps are governance-owned and cannot be self-repaired."
     if decision == "acquire":
@@ -880,7 +1171,41 @@ def _decision_reason(decision: RefinementDecisionKind, counterexample_class: str
         return "Budget gaps preserve search incompleteness instead of laundering a frontier."
     if decision == "block_candidate":
         return "The same blocked candidate cannot be retried into a pass without new grammar."
+    if decision == "reframe":
+        strategy_note = f" under {design_strategy}" if design_strategy else ""
+        frame_note = (
+            "; frame-indexed portfolios remain a limitation until S8 value provenance"
+            if design_strategy == "frame_indexed_portfolio"
+            else ""
+        )
+        return (
+            f"{counterexample_class} is consumed by reframe{strategy_note}, "
+            "not point-optimization refinement"
+            f"{frame_note}."
+        )
     return f"{counterexample_class} is consumed by deterministic shadow refinement."
+
+
+def _stakes_band_for_commitment(
+    commitment_stakes: Literal["low", "high", "catastrophic"] | None,
+) -> Literal["low", "moderate", "high", "high_stakes"]:
+    if commitment_stakes == "catastrophic":
+        return "high_stakes"
+    if commitment_stakes == "high":
+        return "high"
+    if commitment_stakes == "low":
+        return "low"
+    return "moderate"
+
+
+def _selected_floor_for_commitment(
+    commitment_stakes: Literal["low", "high", "catastrophic"] | None,
+) -> Literal["low_stakes", "standard", "high_stakes"]:
+    if commitment_stakes == "catastrophic":
+        return "high_stakes"
+    if commitment_stakes == "low":
+        return "low_stakes"
+    return "standard"
 
 
 def _slug(value: str) -> str:

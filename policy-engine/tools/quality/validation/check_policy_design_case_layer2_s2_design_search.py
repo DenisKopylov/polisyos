@@ -90,7 +90,9 @@ def validate_s2_design_search(repo_root: Path | str = REPO_ROOT) -> dict[str, An
     governed_floor_ids = _floor_governance_ids(root)
     inventory_registered = _inventory_has_s2_manifest(root)
     expected_open_count = int(manifest["expected_current_open_cell_count"])
-    cluster_cells_closed = cluster_summary["current_open_cell_count"] == expected_open_count
+    cluster_cells_closed = not (
+        set(manifest.get("cells_closed", [])) & cluster_summary["current_open_cells"]
+    )
 
     issues: list[dict[str, str]] = []
     _expect(
@@ -301,14 +303,14 @@ def _run_artifact_names(run: object) -> set[str]:
     }
 
 
-def _cluster_summary(repo_root: Path) -> dict[str, int]:
+def _cluster_summary(repo_root: Path) -> dict[str, object]:
     payload = _load_toml(repo_root / DEFAULT_CLUSTER_MAP_PATH)
     open_cells = {
         f"{cluster}.{axis}"
         for cluster, axes in payload.get("open_cell_closure", {}).items()
         for axis in axes
     }
-    return {"current_open_cell_count": len(open_cells)}
+    return {"current_open_cell_count": len(open_cells), "current_open_cells": open_cells}
 
 
 def _floor_governance_ids(repo_root: Path) -> set[str]:

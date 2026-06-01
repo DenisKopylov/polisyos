@@ -12,7 +12,7 @@ source_design_doc: ../../../system-design-decisions/universal-policy-design-targ
 cluster_ownership_map: ../../../../architecture/policy_design_case/cluster_ownership_map.toml
 slice_cell_matrix: ../../../../architecture/policy_design_case/layer2_slice_cell_matrix.toml
 failure_patterns: ../../../reference/policy-design-case-failure-patterns.md
-depends_on: S6
+depends_on: [S2, S6]
 ---
 
 # Layer 2 S7 Operating Model / Delegation Implementation Plan
@@ -23,7 +23,7 @@ depends_on: S6
 
 **Architecture:** S7 adds A-side runtime-quality delegation contracts and P26 responsibility-integrity checks, then injects a compact `Layer2S7DelegationPostureInput` into the S2/S4/S5/S6 shadow loop. The producer owns `DelegationContract`, `DecisionRightsMatrix`, `HumanDecisionRequest`, and `HumanDecisionRecord`; B consumes those records and can pause, request, route, or record a human decision, but cannot self-approve, choose values, infer mandate, or promote to production. S7 closes the S7-owned orchestration/delegation layer of `CROSS_CUTTING.scientist_orchestration` without claiming full S8 value-choice provenance, S13 oversight effectiveness, or production authority.
 
-**Tech Stack:** Python 3.14, Pydantic v2 strict models through S0 `Layer2ReadinessModel`, existing S0 `GovernanceDecisionClass`, `ValueOfInformationEstimate`, `AuthorityBoundary`, S2 `ClusterHandoffRecord` / `RefinementDecision` / `ConstraintStoreSnapshot`, S6 `MandateLegitimacyRecord` posture, Scientist supervisor seeds in `scientist.agent.supervisor` and `scientist.agent.supervisor_eval`, participation/consultation mandate seeds, `run_universal_outcome_corpus.py`, pytest, and existing `tools.quality.validation` validators.
+**Tech Stack:** Python 3.14, Pydantic v2 strict models through S0 `Layer2ReadinessModel`, existing S0 `GovernanceDecisionClass`, `ValueOfInformationEstimate`, `AuthorityBoundary`, S2 `SearchLedger` / `ClusterHandoffRecord` / `RefinementDecision` / `ConstraintStoreSnapshot`, S6 `MandateLegitimacyRecord` posture, Scientist supervisor seeds in `scientist.agent.supervisor` and `scientist.agent.supervisor_eval`, participation/consultation mandate seeds, `run_universal_outcome_corpus.py`, pytest, and existing `tools.quality.validation` validators.
 
 ---
 
@@ -66,13 +66,14 @@ First proving ground:
 
 S7 authority boundary:
 
-- `authoritative_for`: `delegation_integrity`, `decision_rights_matrix`, `human_decision_routing`, `mandate_bounded_decision_record`, `responsibility_integrity_check`, `governance_attention_allocation`, `governed_pilot_promotion_gate`.
-- `may_not_use_for`: `production_claim_authority`, `rollout_authority`, `publication_authority`, `value_choice_authority`, `social_weight_selection`, `outcome_prediction_authority`, `forecast_calibration_authority`, `oversight_effectiveness_claim`, `human_approval_without_decision_record`, `ai_self_authorization`, `delegated_autonomy_without_mandate`, `s13_accountability_closure`.
+- `authoritative_for`: `delegation_integrity`, `decision_rights_matrix`, `human_decision_routing`, `human_decision_request_ranking`, `mandate_bounded_decision_record`, `responsibility_integrity_check`, `governed_pilot_promotion_gate`.
+- `may_not_use_for`: `production_claim_authority`, `rollout_authority`, `publication_authority`, `value_choice_authority`, `social_weight_selection`, `outcome_prediction_authority`, `forecast_calibration_authority`, `oversight_effectiveness_claim`, `attention_ledger_authority`, `resource_allocation_authority`, `human_approval_without_decision_record`, `ai_self_authorization`, `delegated_autonomy_without_mandate`, `s13_accountability_closure`.
 
 Promotion boundary:
 
 - S7 may unlock `governed_pilot` posture for grounded cases when S6 mandate is grounded and the S7 decision record passes responsibility integrity.
 - S7 must not unlock `production`.
+- S7 may rank human-decision requests by VOI, stakes, urgency, and attention cost, but the minimal attention ledger remains not implemented until a later slice.
 - S7 must not convert S8 value choices, S10 forecasts, S11 calibration, or S13 accountability into implemented states.
 
 ## Architecture Decision
@@ -100,31 +101,47 @@ Import boundaries:
 S7 public labels:
 
 - `DelegationInteractionMode`: `ai_follow`, `request_driven`, `ai_first`, `delegated_autonomous`.
-- `DecisionRight`: `request_evidence`, `approve`, `reject`, `revise_scope`, `escalate`.
-- `DecisionRole`: `policy_design_governance_reviewer`, `mandate_owner`, `domain_principal`, `affected_person_representative`, `accountable_officer`, `technical_reviewer`.
+- `DecisionAction`: `request_evidence`, `approve`, `reject`, `revise_scope`, `escalate`.
+- `DecisionRole`: `principal`, `mandate_owner`, `legal_approver`, `budget_owner`, `data_steward`, `affected_person_representative`, `domain_expert`, `governance_board`, `policy_design_governance_reviewer`, `technical_reviewer`.
 - `DelegationDisposition`: `no_interrupt`, `request_human_decision`, `recorded_valid_decision`, `blocked_wrong_role`, `blocked_oversight_theater`, `blocked_mandate_missing`, `blocked_ai_first_forbidden`.
 - `ResponsibilityIntegrityStatus`: `pass`, `limit`, `block`.
-- `DecisionNeedReason`: `high_stakes`, `value_laden`, `out_of_envelope`, `mandate_limited`, `low_voi_no_interrupt`, `routine_in_envelope`.
+- `DecisionNeedReason`: `high_stakes`, `value_laden`, `out_of_envelope`, `mandate_limited`, `budget_required`, `acquisition_required`, `final_choice`, `low_voi_no_interrupt`, `routine_in_envelope`.
+- `FiveRightsDimension`: `right_decision`, `right_person`, `right_information`, `right_format_channel`, `right_time`.
 
 Five-rights rule:
 
-- Every `HumanDecisionRequest` exposes exactly these rights to the accountable human role:
+- Do not treat `request_evidence`, `approve`, `reject`, `revise_scope`, and `escalate` as the five rights. They are decision actions exposed by the request.
+- Every `HumanDecisionRequest` carries a nested `FiveRightsRequirement` with exactly these dimensions:
+  - `right_decision`
+  - `right_person`
+  - `right_information`
+  - `right_format_channel`
+  - `right_time`
+- Every `HumanDecisionRecord` carries a nested `FiveRightsCheck` for those same dimensions.
+- A record is valid only when all five dimensions pass:
+  - the decision class is the one actually being decided;
+  - the actor role is allowed by the `DecisionRightsMatrix`;
+  - limitations, disconfirming evidence, value/stakes implications, options, and consequences were shown;
+  - the audience projection/channel matches the role and stakes;
+  - the decision was requested at a point where it could still change the search/design route.
+- The request may also expose exactly these `available_actions`:
   - `request_evidence`
   - `approve`
   - `reject`
   - `revise_scope`
   - `escalate`
-- A record is valid only when the chosen right is allowed by the matrix row for the decision class and the actor role.
+- The chosen `decision_action_exercised` must be allowed by the matrix row for the decision class and actor role.
 
 Fail-closed delegation rule:
 
-- High-stakes, value-laden, out-of-envelope, or mandate-limited decisions cannot default to `ai_first`.
+- High-stakes, value-laden, out-of-envelope, mandate-limited, budget-required, acquisition-required, or final-choice decisions cannot default to `ai_first`.
+- For those decisions, the default interaction mode is `ai_follow` or `request_driven` according to the `DecisionRightsMatrix`; tests must prove only the `ai_first` default is forbidden.
 - `delegated_autonomous` requires:
   - S6 mandate disposition is grounded;
   - decision class allows delegated autonomy;
   - bounds are explicit;
   - active disconfirming evidence was shown or the class is low-risk/no-interrupt.
-- A human click without evidence summary, active choice, disconfirming evidence, and accountability statement is `oversight_theater`.
+- A human click without a passing `FiveRightsCheck`, evidence summary, active choice, disconfirming evidence, value/stakes implication disclosure, and accountability statement is `oversight_theater`.
 - A decision record from the wrong role is invalid even if the decision content is plausible.
 - Low-VOI routine in-envelope actions do not interrupt, but the no-interrupt decision is still recorded and bounded.
 
@@ -132,7 +149,7 @@ Consumer rule:
 
 - S7 emits `AxisPositionDeclaration` and `AxisFirewallStatus` for `CROSS_CUTTING.scientist_orchestration` with pattern ids `P26`, `P12`, `P15`, `P20`, and `P22` as relevant.
 - S7 writes typed S2 `ConstraintStoreSnapshot.constraint_records` for pending, requested, blocked, or recorded human-decision states.
-- S7 persists top-level refs on `DesignRecordV0.ledger_refs`: `DelegationContract`, `DecisionRightsMatrix`, `HumanDecisionRequest`, and `HumanDecisionRecord` when present.
+- S7 persists top-level refs in S2 `SearchLedger`, closeout-visible run payloads, audience projections, and `DesignRecordV0.ledger_refs`: `DelegationContract`, `DecisionRightsMatrix`, `HumanDecisionRequest`, and `HumanDecisionRecord` when present.
 - S7 emits `ClusterHandoffRecord` rows proving that Scientist orchestration consumed cluster artifacts and emitted/blocked/routed typed handoffs instead of workflow summaries.
 - Missing downstream slices become typed pending constraints:
   - S8 value-choice provenance pending when a decision attempts to choose social weights;
@@ -141,8 +158,8 @@ Consumer rule:
 
 Audience projection rule:
 
-- `PUBLIC`: decision-shaped, pull-first summary: what decision is needed, who is accountable, what rights are available, what limitation applies. Do not expose machine-only disposition labels such as `blocked_oversight_theater`.
-- `REVIEWER`: decision class, required role, interaction mode, right exercised, P26/P20/P22/P12/P15 firewall status, and reason.
+- `PUBLIC`: decision-shaped, pull-first summary: what decision is needed, who is accountable, which decision actions are available, what limitation applies. Do not expose machine-only disposition labels such as `blocked_oversight_theater`.
+- `REVIEWER`: decision class, required role, interaction mode, action exercised, P26/P20/P22/P12/P15 firewall status, and reason.
 - `EXPERT`: all record refs, matrix rows, mandate refs, VOI rank, responsibility-integrity check, disconfirming evidence refs, and negative-control flags.
 - `MACHINE`: full compact posture, request/record refs, constraint-store entries, handoff rows, metrics inputs, authority boundary, and governed-pilot eligibility.
 
@@ -154,7 +171,7 @@ Existing risks found:
 
 - `CROSS_CUTTING.scientist_orchestration` is `implemented_but_not_orchestrated` / `bridge_missing`. S2 contributed `ClusterHandoffRecord` for generation but intentionally did not close the whole cell.
 - Scientist supervisor and worker orchestration seeds can delegate work, but they are not PDC authority records.
-- `GovernanceDecisionClass` exists in S0 and S2 uses it for `a_spec_gap`, but no `DecisionRightsMatrix`, `HumanDecisionRequest`, or `HumanDecisionRecord` currently governs the role/right/record lifecycle.
+- `GovernanceDecisionClass` exists in S0 and S2 uses it for `a_spec_gap`, but no `DecisionRightsMatrix`, `HumanDecisionRequest`, or `HumanDecisionRecord` currently governs the role/action/five-rights/record lifecycle.
 - S6 mandate legitimacy exists as a fail-closed prerequisite, but S7 must decide what the system is allowed to ask a human to do with that mandate.
 - A UI or workflow could create P26 responsibility theater by asking a human to approve without active choice, evidence, disconfirming evidence, or role authority.
 - A B-side loop could self-route governance decisions as if the request itself were approval.
@@ -204,7 +221,7 @@ Weak spots that make S7 more than a small DTO patch:
 - S7 has no single new cell in `layer2_slice_cell_matrix.toml`, but it is the closure owner for the split `CROSS_CUTTING.scientist_orchestration` cell. The plan must validate closure through the S7 manifest and cluster map, not by pretending S2 closed it.
 - `run_universal_outcome_corpus.py` is already carrying S4/S5/S6 route logic. S7 should mirror that pattern with small helpers and not refactor the route.
 - PUBLIC projection must be decision-shaped and pull-first. It should not dump matrix rows, machine disposition labels, or role internals.
-- Governed-pilot posture is not production. Tests must assert production outcomes and closeout honesty are unchanged.
+- Governed-pilot posture is not production. Tests must assert production outcomes are unchanged while S7 decision refs become closeout-visible as non-production governance context.
 - S7 must keep S8 value-choice authority pending when human decisions touch objectives/social weights.
 
 ## Source Of Truth
@@ -274,8 +291,9 @@ Modify:
 Create `tests/unit/runtime/quality/test_layer2_s7_delegation.py` with these tests:
 
 - `test_s7_artifacts_are_strict_replayable_and_exported`
-- `test_decision_rights_matrix_maps_classes_to_roles_modes_and_five_rights`
-- `test_high_stakes_value_laden_or_out_of_envelope_defaults_to_request_driven`
+- `test_decision_rights_matrix_maps_classes_to_roles_modes_actions_and_five_rights`
+- `test_high_stakes_value_laden_or_out_of_envelope_never_defaults_to_ai_first`
+- `test_ai_follow_is_valid_for_high_stakes_when_matrix_selects_it`
 - `test_low_voi_in_envelope_action_records_no_interrupt`
 - `test_oversight_theater_probe_invalidates_human_decision_record`
 - `test_wrong_role_approval_probe_invalidates_human_decision_record`
@@ -322,7 +340,7 @@ def test_s7_artifacts_are_strict_replayable_and_exported() -> None:
         assert model.model_config.get("extra") == "forbid"
 
 
-def test_decision_rights_matrix_maps_classes_to_roles_modes_and_five_rights() -> None:
+def test_decision_rights_matrix_maps_classes_to_roles_modes_actions_and_five_rights() -> None:
     matrix = build_decision_rights_matrix(
         case_id="ua-msme-affordable-loans-2022",
         rule_version_ref="policyos.layer2.s7.delegation.v1",
@@ -330,7 +348,7 @@ def test_decision_rights_matrix_maps_classes_to_roles_modes_and_five_rights() ->
 
     row = matrix.row_for_decision_class("a_spec_gap")
     assert row.required_role == "policy_design_governance_reviewer"
-    assert set(row.available_rights) == {
+    assert set(row.available_actions) == {
         "request_evidence",
         "approve",
         "reject",
@@ -339,6 +357,13 @@ def test_decision_rights_matrix_maps_classes_to_roles_modes_and_five_rights() ->
     }
     assert row.default_interaction_mode == "request_driven"
     assert row.ai_first_allowed is False
+    assert set(row.five_rights_dimensions) == {
+        "right_decision",
+        "right_person",
+        "right_information",
+        "right_format_channel",
+        "right_time",
+    }
 
 
 def test_oversight_theater_probe_invalidates_human_decision_record() -> None:
@@ -358,6 +383,7 @@ Extend `tests/unit/pdc/test_layer2_s2_design_search.py` with:
 - `test_s2_records_valid_s7_human_decision_without_production_authority`
 - `test_s2_s7_wrong_role_record_blocks_self_approval`
 - `test_s2_s7_public_projection_is_decision_shaped_pull_first`
+- `test_s2_s7_search_ledger_and_closeout_payload_include_decision_record_refs`
 - `test_s2_s7_reviewer_projection_shows_p26_and_role_status`
 - `test_s2_s7_expert_machine_projection_contains_refs_matrix_and_integrity`
 - `test_s2_s7_governed_pilot_requires_s6_mandate_and_s7_valid_record`
@@ -392,7 +418,7 @@ Extend `tests/repo_quality/tools/test_w12d_universal_outcome_corpus_run.py` with
 - `test_w12d_s7_records_precision_recall_and_responsibility_integrity`
 - `test_w12d_s7_gold_labels_cover_all_13_cases_and_decision_need_reasons`
 - `test_w12d_s7_pinned_case_injects_delegation_posture_into_s2`
-- `test_w12d_s7_production_posture_and_closeout_honesty_unchanged`
+- `test_w12d_s7_decision_refs_are_closeout_visible_without_production_authority`
 - `test_w12d_s7_negative_controls_fail_closed`
 
 Expected S7 summary assertions:
@@ -451,6 +477,9 @@ Create `src/polisyos/runtime/quality/layer2_delegation.py` with strict `Layer2Re
 - `DecisionRightsMatrixRow`
 - `DecisionRightsMatrix`
 - `DelegationContract`
+- `DecisionOption`
+- `FiveRightsRequirement`
+- `FiveRightsCheck`
 - `ResponsibilityIntegrityCheck`
 - `HumanDecisionRequest`
 - `HumanDecisionRecord`
@@ -462,8 +491,10 @@ Required fields:
 - all records carry `schema_version="policyos.policy_design_case.layer2_s7_delegation.v1"`;
 - all top-level records carry `record_ref` or `*_ref`;
 - every top-level artifact carries `authority_boundary`;
-- `HumanDecisionRequest.available_rights` must contain exactly the five rights;
-- `HumanDecisionRecord` must carry `actor_role`, `decision_right_exercised`, `evidence_summary_ref`, `disconfirming_evidence_refs`, `active_choice`, `accountability_statement`, `mandate_record_ref`, and `responsibility_integrity`.
+- `DelegationContract` must carry `autonomous_decision_classes`, `approval_required_decision_classes`, `compute_budget_ref`, `acquisition_budget_ref`, `human_attention_budget_ref`, `maximum_stakes_band`, `maximum_reversibility_posture`, `value_policy_ref`, and `override_policy_ref`;
+- `DecisionRightsMatrixRow` must carry `decision_class_id`, `required_role`, `default_interaction_mode`, `ai_first_allowed`, `delegated_autonomous_allowed`, `non_overridable`, `available_actions`, and `five_rights_dimensions`;
+- `HumanDecisionRequest` must carry `decision_options`, `recommendation_ref`, `provenance_refs`, `material_limitations`, `disconfirming_evidence_refs`, `value_stakes_impact`, `what_changes_under_each_choice`, `five_rights_requirements`, `available_actions`, `attention_cost_rank`, and `voi_rank`;
+- `HumanDecisionRecord` must carry `actor_role`, `decision_action_exercised`, `evidence_summary_ref`, `disconfirming_evidence_refs`, `active_choice`, `accountability_statement`, `mandate_record_ref`, `five_rights_check`, and `responsibility_integrity`.
 
 - [ ] **Step 2: Implement producer functions**
 
@@ -472,16 +503,16 @@ Add:
 - `build_decision_rights_matrix(case_id, rule_version_ref) -> DecisionRightsMatrix`
 - `build_delegation_contract(case_id, matrix, s6_mandate_record_ref, rule_version_ref) -> DelegationContract`
 - `build_human_decision_request(case_id, contract, decision_class_id, need_reasons, voi_rank, rule_version_ref) -> HumanDecisionRequest`
-- `record_human_decision(case_id, request, actor_role, decision_right_exercised, evidence_summary_ref, disconfirming_evidence_refs, active_choice, accountability_statement, mandate_record_ref, rule_version_ref) -> HumanDecisionRecord`
+- `record_human_decision(case_id, request, actor_role, decision_action_exercised, evidence_summary_ref, disconfirming_evidence_refs, active_choice, accountability_statement, five_rights_check, mandate_record_ref, rule_version_ref) -> HumanDecisionRecord`
 - `evaluate_delegation_for_case(case_id, s6_mandate_posture, case_signals, expert_label, rule_version_ref) -> DelegationIntegrityReport`
 - `s7_delegation_integrity(probe_results) -> dict[str, object]`
 
 Core rules:
 
-- if `need_reasons` intersects `{"high_stakes", "value_laden", "out_of_envelope", "mandate_limited"}`, default mode is `request_driven`;
+- if `need_reasons` intersects `{"high_stakes", "value_laden", "out_of_envelope", "mandate_limited", "budget_required", "acquisition_required", "final_choice"}`, default mode is the matrix-selected `ai_follow` or `request_driven`, never `ai_first`;
 - if `need_reasons == {"low_voi_no_interrupt"}`, disposition is `no_interrupt`;
 - if actor role does not match matrix row, raise `P26ResponsibilityIntegrityError("wrong_role_approval")`;
-- if active choice, evidence summary, disconfirming evidence, or accountability statement is missing for a required decision, raise `P26ResponsibilityIntegrityError("oversight_theater")`;
+- if active choice, evidence summary, disconfirming evidence, value/stakes disclosure, accountability statement, or any `FiveRightsCheck` dimension is missing for a required decision, raise `P26ResponsibilityIntegrityError("oversight_theater")`;
 - if delegated autonomy is requested without grounded S6 mandate, raise `P26ResponsibilityIntegrityError("delegated_autonomy_without_mandate")`.
 
 - [ ] **Step 3: Export S7 public surface**
@@ -543,8 +574,16 @@ Required fields:
 - `required_role`
 - `interaction_mode`
 - `disposition`
-- `available_rights`
-- `decision_right_exercised | None`
+- `available_actions`
+- `decision_action_exercised | None`
+- `five_rights_check`
+- `decision_options`
+- `recommendation_ref | None`
+- `provenance_refs`
+- `material_limitations`
+- `value_stakes_impact`
+- `what_changes_under_each_choice`
+- `attention_cost_rank`
 - `responsibility_integrity_status`
 - `mandate_record_ref`
 - `voi_rank`
@@ -565,6 +604,8 @@ When present:
 
 - include S7 constraint-store updates;
 - add S7 ledger refs to `DesignRecordV0.ledger_refs`;
+- add S7 request/record refs to `SearchLedger` through `delegation_request_refs`, `delegation_record_refs`, and `delegation_status`;
+- include closeout-visible, non-production S7 refs in the run dump/projection so closeout can show who decided what without changing production authority;
 - add one `ClusterHandoffRecord` from `CROSS_CUTTING.scientist_orchestration` to `INTERVENTION.design_candidate`;
 - if disposition is `request_human_decision`, status is `governance_required`;
 - if disposition starts with `blocked_`, status is `blocked` or `governance_required` according to the existing S2 status vocabulary;
@@ -577,7 +618,7 @@ Extend `project_s2_design_search` with `_s7_projection_fields(audience, delegati
 - PUBLIC keys:
   - `human_decision_needed`
   - `accountable_role`
-  - `available_decision_rights`
+  - `available_decision_actions`
   - `delegation_limitation`
   - no machine-only `DelegationDisposition` label;
 - REVIEWER keys:
@@ -585,11 +626,14 @@ Extend `project_s2_design_search` with `_s7_projection_fields(audience, delegati
   - `s7_required_role`
   - `s7_interaction_mode`
   - `s7_p26_firewall_status`
-  - `s7_decision_right_exercised`;
+  - `s7_decision_action_exercised`;
 - EXPERT/MACHINE keys:
   - all S7 refs;
   - `decision_rights_matrix_row`;
+  - `five_rights_check`;
   - `responsibility_integrity_check`;
+  - `decision_options`;
+  - `what_changes_under_each_choice`;
   - `need_reasons`;
   - `constraint_store_updates`;
   - `handoff_rows`;
@@ -652,13 +696,24 @@ Create `s7_delegation_case_signals.json` with 13 cases. Each case entry includes
 - `value_laden`
 - `out_of_envelope`
 - `mandate_status`
+- `budget_or_legal_use_required`
+- `acquisition_required`
+- `final_choice_required`
 - `voi_rank`
+- `attention_cost_rank`
 - `actor_role`
+- `decision_options`
+- `recommendation_ref`
+- `provenance_refs`
+- `material_limitations`
+- `value_stakes_impact`
+- `what_changes_under_each_choice`
 - `evidence_summary_ref`
 - `disconfirming_evidence_refs`
 - `active_choice`
 - `accountability_statement`
-- `decision_right_exercised`
+- `five_rights_check`
+- `decision_action_exercised`
 
 Create `s7_delegation_expert_labels.json` with 13 matching cases. Each label entry includes:
 
@@ -672,9 +727,12 @@ Create `s7_delegation_expert_labels.json` with 13 matching cases. Each label ent
 
 Ensure coverage includes:
 
-- at least 4 request-driven high-stakes/value-laden/out-of-envelope cases;
+- at least 4 high-stakes/value-laden/out-of-envelope cases that choose `ai_follow` or `request_driven`, never `ai_first`;
 - at least 3 low-VOI no-interrupt cases;
 - at least 2 blocked mandate-limited or absent-mandate cases;
+- at least 1 budget/legal-use approval case;
+- at least 1 acquisition approval case;
+- at least 1 final-choice case;
 - at least 1 governed-pilot eligible case;
 - at least 1 wrong-role record in negative controls, not in positive corpus labels.
 
@@ -719,7 +777,10 @@ Expected S2 summary additions:
 
 - `s2_design_search["delegation_posture"]` present or represented through run dump;
 - `constraint_store.constraint_records` includes `CROSS_CUTTING.scientist_orchestration`;
+- `search_ledger.delegation_request_refs` includes the S7 request ref;
+- `search_ledger.delegation_record_refs` includes the S7 record ref when present;
 - `design_record.ledger_refs` includes S7 refs;
+- closeout-visible payload includes S7 request/record refs but does not mark them as production authority;
 - `canonical_outcome_effect == "none_shadow_or_governed_pilot_only"`.
 
 - [ ] **Step 4: Add corpus summary metrics**
@@ -739,6 +800,9 @@ The top-level W12.D report must include `s7_delegation_summary` with:
 - `no_interrupt_count`
 - `valid_human_decision_record_count`
 - `governed_pilot_eligible_count`
+- `budget_or_legal_use_request_count`
+- `acquisition_request_count`
+- `final_choice_request_count`
 - `per_case_delegation_table`
 - `decision_need_reason_counts`
 - `interaction_mode_counts`
@@ -761,7 +825,7 @@ delegation_precision=1.0.
 delegation_recall=1.0.
 responsibility_integrity_pass_rate=1.0.
 All S7 false-clear counts are 0.
-S7 does not change production-posture outcomes or closeout honesty.
+S7 decision refs are closeout-visible without changing production-posture outcomes or production closeout authority.
 ```
 
 - [ ] **Step 6: Commit Task 4**
@@ -796,7 +860,7 @@ Create `architecture/policy_design_case/layer2_s7_delegation_manifest.json`:
   "slice_label": "operating_model_delegation",
   "status": "active",
   "owner": "governance-board",
-  "depends_on": ["S6"],
+  "depends_on": ["S2", "S6"],
   "cells_closed": ["CROSS_CUTTING.scientist_orchestration"],
   "expected_current_open_cell_count": 4,
   "required_artifacts": [
@@ -818,9 +882,9 @@ Create `architecture/policy_design_case/layer2_s7_delegation_manifest.json`:
     "delegation_integrity",
     "decision_rights_matrix",
     "human_decision_routing",
+    "human_decision_request_ranking",
     "mandate_bounded_decision_record",
     "responsibility_integrity_check",
-    "governance_attention_allocation",
     "governed_pilot_promotion_gate"
   ],
   "may_not_use_for": [
@@ -832,6 +896,8 @@ Create `architecture/policy_design_case/layer2_s7_delegation_manifest.json`:
     "outcome_prediction_authority",
     "forecast_calibration_authority",
     "oversight_effectiveness_claim",
+    "attention_ledger_authority",
+    "resource_allocation_authority",
     "human_approval_without_decision_record",
     "ai_self_authorization",
     "delegated_autonomy_without_mandate",
@@ -851,6 +917,7 @@ Add S7 constants and `_validate_s7_delegation(s7, floor_governance, artifact_tra
 Validator must check:
 
 - manifest exists and schema is valid;
+- `depends_on == ["S2", "S6"]`;
 - `cells_closed == {"CROSS_CUTTING.scientist_orchestration"}`;
 - `expected_current_open_cell_count == 4`;
 - the S7 cell is no longer in `_open_cell_refs(cluster_map)`;
@@ -1110,6 +1177,9 @@ Record under this task:
 - `no_interrupt_count`
 - `valid_human_decision_record_count`
 - `governed_pilot_eligible_count`
+- `budget_or_legal_use_request_count`
+- `acquisition_request_count`
+- `final_choice_request_count`
 - `decision_need_reason_counts`
 - `interaction_mode_counts`
 - `disposition_counts`
@@ -1162,23 +1232,23 @@ Open cells are exactly:
 
 ## Done When
 
-1. `DelegationContract`, `DecisionRightsMatrix`, `HumanDecisionRequest`, and `HumanDecisionRecord` are strict, replayable, and exported from `runtime.quality`.
+1. `DelegationContract`, `DecisionRightsMatrix`, `HumanDecisionRequest`, and `HumanDecisionRecord` are strict, replayable, and exported from `runtime.quality`; nested `FiveRightsRequirement` and `FiveRightsCheck` records distinguish five-rights validity from decision actions.
 2. S7 consumes S6 mandate refs and cannot authorize delegated autonomy when mandate is absent, limited, or candidate-only.
 3. B consumes injected `Layer2S7DelegationPostureInput` and cannot self-approve or import S7 producers.
 4. `CROSS_CUTTING.scientist_orchestration` is implemented for S7 delegation/orchestration scope, with P01 chain implemented, and no wholesale Scientist authority claim.
-5. High-stakes, value-laden, out-of-envelope, and mandate-limited decisions surface a request; low-VOI in-envelope actions do not interrupt.
-6. P26 fails closed: oversight theater and wrong-role approval invalidate the `HumanDecisionRecord`.
+5. High-stakes, value-laden, out-of-envelope, mandate-limited, budget/legal-use, acquisition, and final-choice decisions surface `ai_follow` or `request_driven` handling, never default `ai_first`; low-VOI in-envelope actions do not interrupt.
+6. P26 fails closed: oversight theater, wrong-role approval, and missing five-rights dimensions invalidate the `HumanDecisionRecord`.
 7. P20/P22 remain bounded: S7 can route value/mandate decisions to humans but cannot choose social weights or invent mandate.
-8. S7 emits `AxisPositionDeclaration`, `AxisFirewallStatus`, typed `ConstraintStoreSnapshot.constraint_records`, S7 `ClusterHandoffRecord` rows, and DesignRecord ledger refs.
+8. S7 emits `AxisPositionDeclaration`, `AxisFirewallStatus`, typed `ConstraintStoreSnapshot.constraint_records`, S7 `ClusterHandoffRecord` rows, `SearchLedger` delegation refs, closeout-visible non-production decision refs, and DesignRecord ledger refs.
 9. S7 posture renders in all four audience projections:
    - PUBLIC: decision-shaped, pull-first accountability summary only.
-   - REVIEWER: decision class, role, mode, right, P26/P20/P22/P12/P15 status.
+   - REVIEWER: decision class, role, mode, action, P26/P20/P22/P12/P15 status.
    - EXPERT/MACHINE: all refs, matrix rows, request/record details, integrity checks, VOI rank, authority boundary, and governed-pilot eligibility.
-10. All 13 corpus cases contain S7 blocks; precision/recall/integrity metrics are recorded; negative-control false-clear counts are zero.
-11. Production-posture outcomes and closeout honesty are unchanged by S7; S7 affects governed-pilot routing only.
+10. All 13 corpus cases contain S7 blocks; precision/recall/integrity metrics include budget/legal-use, acquisition, and final-choice triggers; negative-control false-clear counts are zero.
+11. Production-posture outcomes are unchanged by S7; closeout is more transparent because S7 decision refs are visible, but S7 affects governed-pilot routing only and does not grant production authority.
 12. `s7_delegation_integrity` floor is recorded from the governed floor table; no denominator/floor is changed.
 13. Cluster-map open cell count is `4`; both validators pass; S7 manifest is registered in inventory.
-14. No S8 value-choice provenance, S10 forecast support, S11 calibration/predictive maturity, S12 envelope growth, S13 oversight effectiveness, production authority, calibrated prediction, rich simulation, portfolio optimization, or S14 universality battery cell is marked implemented.
+14. No attention ledger, S8 value-choice provenance, S10 forecast support, S11 calibration/predictive maturity, S12 envelope growth, S13 oversight effectiveness, production authority, calibrated prediction, rich simulation, portfolio optimization, or S14 universality battery cell is marked implemented.
 
 ## Commit Guidance
 

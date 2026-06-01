@@ -62,6 +62,12 @@ _REQUIRED_ARTIFACTS = {
     "ClusterHandoffRecord",
     "DesignRecordV0",
 }
+_S2_CANONICAL_ROUTE_ALLOWED_STATUSES = {
+    "shadow_ready",
+    "acquisition_required",
+    "governance_required",
+    "blocked",
+}
 
 
 def validate_s2_design_search(repo_root: Path | str = REPO_ROOT) -> dict[str, Any]:
@@ -344,7 +350,16 @@ def _canonical_route_status(repo_root: Path) -> str:
     if not cases:
         return "fail"
     s2 = cases[0].get("s2_design_search")
-    if isinstance(s2, Mapping) and s2.get("status") == "shadow_ready":
+    if not isinstance(s2, Mapping):
+        return "fail"
+    constraint_store = s2.get("constraint_store")
+    if (
+        s2.get("status") in _S2_CANONICAL_ROUTE_ALLOWED_STATUSES
+        and s2.get("canonical_outcome_effect") == "none_shadow_only"
+        and isinstance(constraint_store, Mapping)
+        and constraint_store.get("constraint_records")
+        and s2.get("design_record")
+    ):
         return "pass"
     return "fail"
 

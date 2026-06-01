@@ -60,6 +60,15 @@ RefinementDecisionKind = Literal[
     "abstain",
     "block_candidate",
 ]
+ConstraintRecordStatus = Literal["pass", "warn", "limit", "block"]
+ConstraintRefinementRoute = Literal[
+    "none",
+    "acquire",
+    "reframe",
+    "human_decision",
+    "block_candidate",
+    "pending_consumer_constraint",
+]
 
 _COUNTEREXAMPLE_CLASS_VOCABULARY: list[str] = [
     "real_design_blocker",
@@ -124,6 +133,64 @@ class Layer2S2DesignSearchInput(Layer2ReadinessModel):
     omit_grammar_derivation: bool = False
 
 
+class Layer2S5CompositionPostureInput(Layer2ReadinessModel):
+    """Injected S5 A-gate posture consumed by the S2 shadow loop."""
+
+    coupling_regime: Literal[
+        "modular",
+        "near_decomposable",
+        "hierarchically_coupled",
+        "entangled",
+    ]
+    composition_disposition: Literal[
+        "compose",
+        "compose_with_limitations",
+        "system_evidence_required",
+        "blocked",
+    ]
+    coupling_graph_ref: str
+    module_discovery_ref: str
+    decomposition_result_ref: str
+    composition_receipt_ref: str
+    dynamics_requirement_ref: str | None = None
+    tractability_budget_ref: str | None = None
+    boundary_coupling_rows: list[dict[str, object]] = Field(default_factory=list)
+    forecast_support_label: str | None = None
+    critical_path_module_refs: list[str] = Field(default_factory=list)
+    residual_interaction_risk: str | None = None
+    authority_mode: Literal["critical_path_only", "module_local_only", "not_composable"] = (
+        "critical_path_only"
+    )
+    false_modular_penalty: float = Field(default=0.0, ge=0.0)
+
+
+class Layer2S6BlindSpotPostureInput(Layer2ReadinessModel):
+    """Injected S6 A-gate blind-spot posture consumed by the S2 shadow loop."""
+
+    overall_posture: Literal["clear_fail_closed", "limited", "blocked"]
+    maturity: Literal["fail_closed"] = "fail_closed"
+    measurability_record_ref: str
+    aggregation_validity_record_ref: str
+    capacity_feasibility_record_ref: str
+    mandate_legitimacy_record_ref: str
+    strategic_response_record_ref: str
+    cluster_authority_dimension_refs: list[str] = Field(default_factory=list, max_length=40)
+    bridge_consumer_rows: list[dict[str, object]] = Field(default_factory=list, max_length=40)
+    constraint_store_updates: list[dict[str, object]] = Field(default_factory=list, max_length=40)
+    c3_authority_dimension_rows: list[dict[str, object]] = Field(
+        default_factory=list,
+        max_length=10,
+    )
+    axis_rows: list[dict[str, object]] = Field(default_factory=list, max_length=10)
+    blocking_axis_refs: list[str] = Field(default_factory=list, max_length=10)
+    limiting_axis_refs: list[str] = Field(default_factory=list, max_length=10)
+    post_intervention_dgp_update_ref: str | None = None
+    system_dynamics_handoff_required: bool
+    regime_reissue_required: bool
+    limitation_summary: str
+    false_clear_penalty: float = Field(ge=0.0)
+
+
 class TypedDiagnosticRecord(Layer2ReadinessModel):
     """Design-time diagnostic carried by S2 counterexamples."""
 
@@ -173,6 +240,12 @@ class DesignCandidateV0(Layer2ReadinessModel):
     design_strategy: str | None = None
     commitment_profile_ref: str | None = None
     commitment_stakes: Literal["low", "high", "catastrophic"] | None = None
+    coupling_regime: str | None = None
+    composition_disposition: str | None = None
+    decomposition_result_ref: str | None = None
+    composition_receipt_ref: str | None = None
+    forecast_support_label: str | None = None
+    residual_interaction_risk: str | None = None
 
     @model_validator(mode="after")
     def _validate_grammar_first(self) -> DesignCandidateV0:
@@ -181,6 +254,21 @@ class DesignCandidateV0(Layer2ReadinessModel):
         if self.source_authority == "llm_candidate" and self.status != "candidate_unverified":
             raise ValueError("llm_candidate cannot become A-verified authority")
         return self
+
+
+class ConstraintStoreEntry(Layer2ReadinessModel):
+    """Typed bounded S2 constraint-store entry consumed by refinement and projection."""
+
+    schema_version: str = S2_DESIGN_SEARCH_SCHEMA_VERSION
+    constraint_id: str
+    cell_ref: str
+    status: ConstraintRecordStatus
+    source_ref: str
+    consumer_ref: str
+    refinement_route: ConstraintRefinementRoute
+    evidence_refs: list[str] = Field(default_factory=list, max_length=20)
+    reason: str
+    rule_version_ref: str
 
 
 class ConstraintStoreSnapshot(Layer2ReadinessModel):
@@ -193,6 +281,7 @@ class ConstraintStoreSnapshot(Layer2ReadinessModel):
     constraint_ids: list[str]
     hard_constraint_ids: list[str]
     governance_owned_gap_ids: list[str]
+    constraint_records: list[ConstraintStoreEntry] = Field(default_factory=list, max_length=40)
 
 
 class CounterexampleRecord(Layer2ReadinessModel):
@@ -324,6 +413,8 @@ class Layer2S2DesignSearchRun(Layer2ReadinessModel):
     cluster_interface_contracts: list[ClusterInterfaceContract]
     handoff_records: list[ClusterHandoffRecord]
     design_record: DesignRecordV0
+    composition_posture: Layer2S5CompositionPostureInput | None = None
+    blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None
 
 
 def run_s2_shadow_design_loop(
@@ -334,6 +425,8 @@ def run_s2_shadow_design_loop(
     regime_claim_ref: str | None = None,
     commitment_profile_ref: str | None = None,
     commitment_stakes: Literal["low", "high", "catastrophic"] | None = None,
+    composition_posture: Layer2S5CompositionPostureInput | None = None,
+    blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
 ) -> Layer2S2DesignSearchRun:
     """Run the deterministic S2 one-case shadow design-search loop."""
 
@@ -352,13 +445,20 @@ def run_s2_shadow_design_loop(
         design_strategy=design_strategy,
         commitment_profile_ref=commitment_profile_ref,
         commitment_stakes=commitment_stakes,
+        composition_posture=composition_posture,
     )
-    constraint_store = _constraint_store(input, expansion=expansion)
+    constraint_store = _constraint_store(
+        input,
+        expansion=expansion,
+        blind_spot_posture=blind_spot_posture,
+    )
     counterexample = _counterexample(input, candidate=candidate)
     decision = _refinement_decision(
         input,
         candidate=candidate,
         counterexample=counterexample,
+        composition_posture=composition_posture,
+        blind_spot_posture=blind_spot_posture,
     )
     iteration_status = _iteration_status(input, decision)
     ledger = _search_ledger(
@@ -367,6 +467,8 @@ def run_s2_shadow_design_loop(
         counterexample=counterexample,
         decision=decision,
         iteration_status=iteration_status,
+        composition_posture=composition_posture,
+        blind_spot_posture=blind_spot_posture,
     )
     design_record = _design_record(
         input,
@@ -378,6 +480,8 @@ def run_s2_shadow_design_loop(
         commitment_profile_ref=commitment_profile_ref,
         design_strategy=design_strategy,
         commitment_stakes=commitment_stakes,
+        composition_posture=composition_posture,
+        blind_spot_posture=blind_spot_posture,
     )
     status: S2RunStatus = (
         "governance_required"
@@ -399,9 +503,21 @@ def run_s2_shadow_design_loop(
         counterexamples=[counterexample],
         refinement_decisions=[decision],
         search_ledger=ledger,
-        cluster_interface_contracts=_cluster_interfaces(boundary),
-        handoff_records=_handoff_records(candidate, expansion, ledger),
+        cluster_interface_contracts=_cluster_interfaces(
+            boundary,
+            composition_posture=composition_posture,
+            blind_spot_posture=blind_spot_posture,
+        ),
+        handoff_records=_handoff_records(
+            candidate,
+            expansion,
+            ledger,
+            composition_posture=composition_posture,
+            blind_spot_posture=blind_spot_posture,
+        ),
         design_record=design_record,
+        composition_posture=composition_posture,
+        blind_spot_posture=blind_spot_posture,
     )
 
 
@@ -424,6 +540,14 @@ def project_s2_design_search(
         run.design_record,
         "INTERVENTION.reversibility_lifecycle_stakes",
     )
+    composition_axis = _axis_position(run.design_record, "INTERVENTION.scale_composition")
+    p17_composition_firewall = _firewall_status(
+        run.design_record,
+        "INTERVENTION.scale_composition",
+    )
+    s6_firewalls = [
+        status for status in run.design_record.firewall_status if _is_s6_cell(status.cell_ref)
+    ]
     for audience in audiences:
         projection: dict[str, object] = {
             "schema_version": S2_DESIGN_SEARCH_SCHEMA_VERSION,
@@ -454,6 +578,28 @@ def project_s2_design_search(
             )
             if audience == "PUBLIC":
                 assert_s2_public_projection_has_regime_limitation(projection)
+        if run.composition_posture is not None:
+            projection.update(
+                _composition_projection_fields(
+                    audience,
+                    composition_posture=run.composition_posture,
+                    composition_axis=composition_axis,
+                    p17_firewall=p17_composition_firewall,
+                )
+            )
+            if audience == "PUBLIC":
+                assert_s2_public_projection_has_composition_limitation(projection)
+        if run.blind_spot_posture is not None:
+            projection.update(
+                _s6_projection_fields(
+                    audience,
+                    blind_spot_posture=run.blind_spot_posture,
+                    s6_firewalls=s6_firewalls,
+                    constraint_store=run.constraint_store,
+                )
+            )
+            if audience == "PUBLIC":
+                assert_s2_public_projection_has_blind_spot_disclosure(projection)
         projections[audience] = projection
     return projections
 
@@ -467,6 +613,28 @@ def assert_s2_public_projection_has_regime_limitation(
         limitation = projection.get("limitation")
         if not isinstance(limitation, str) or not limitation.strip():
             raise ValueError("PUBLIC regime projection requires limitation")
+
+
+def assert_s2_public_projection_has_composition_limitation(
+    projection: Mapping[str, object],
+) -> None:
+    """Require the load-bearing PUBLIC limitation for projected S5 composition data."""
+
+    if projection.get("audience") == "PUBLIC" and projection.get("coupling_regime"):
+        limitation = projection.get("composition_limitation")
+        if not isinstance(limitation, str) or not limitation.strip():
+            raise ValueError("PUBLIC composition projection requires limitation")
+
+
+def assert_s2_public_projection_has_blind_spot_disclosure(
+    projection: Mapping[str, object],
+) -> None:
+    """Require honest PUBLIC disclosure when S6 blind-spot posture is projected."""
+
+    if projection.get("audience") == "PUBLIC" and projection.get("s6_disclosure_present"):
+        disclosure = projection.get("blind_spot_disclosure")
+        if not isinstance(disclosure, str) or not disclosure.strip():
+            raise ValueError("PUBLIC blind-spot projection requires disclosure")
 
 
 def persist_s2_design_search_run(
@@ -575,6 +743,7 @@ def _candidate(
     design_strategy: str | None = None,
     commitment_profile_ref: str | None = None,
     commitment_stakes: Literal["low", "high", "catastrophic"] | None = None,
+    composition_posture: Layer2S5CompositionPostureInput | None = None,
 ) -> DesignCandidateV0:
     slug = _slug(input.case_id)
     return DesignCandidateV0(
@@ -603,6 +772,32 @@ def _candidate(
         design_strategy=design_strategy,
         commitment_profile_ref=commitment_profile_ref,
         commitment_stakes=commitment_stakes,
+        coupling_regime=(
+            composition_posture.coupling_regime if composition_posture is not None else None
+        ),
+        composition_disposition=(
+            composition_posture.composition_disposition
+            if composition_posture is not None
+            else None
+        ),
+        decomposition_result_ref=(
+            composition_posture.decomposition_result_ref
+            if composition_posture is not None
+            else None
+        ),
+        composition_receipt_ref=(
+            composition_posture.composition_receipt_ref
+            if composition_posture is not None
+            else None
+        ),
+        forecast_support_label=(
+            composition_posture.forecast_support_label if composition_posture is not None else None
+        ),
+        residual_interaction_risk=(
+            composition_posture.residual_interaction_risk
+            if composition_posture is not None
+            else None
+        ),
     )
 
 
@@ -610,19 +805,39 @@ def _constraint_store(
     input: Layer2S2DesignSearchInput,
     *,
     expansion: DesignGrammarExpansion,
+    blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
 ) -> ConstraintStoreSnapshot:
     slug = _slug(input.case_id)
+    s6_constraints = _s6_constraint_entries(blind_spot_posture)
+    base_constraint_ids = [
+        "shadow_only",
+        "authority_boundary_required",
+        "a_side_counterexample_required",
+    ]
+    s6_constraint_ids = [entry.constraint_id for entry in s6_constraints]
     return ConstraintStoreSnapshot(
         snapshot_id=f"layer2.s2.constraints.{slug}",
         snapshot_ref=f"pdc://layer2/s2/{slug}/constraint-store",
         grammar_expansion_ref=expansion.expansion_ref,
-        constraint_ids=[
+        constraint_ids=[*base_constraint_ids, *s6_constraint_ids],
+        hard_constraint_ids=[
             "shadow_only",
             "authority_boundary_required",
-            "a_side_counterexample_required",
+            *[
+                entry.constraint_id
+                for entry in s6_constraints
+                if entry.status == "block"
+            ],
         ],
-        hard_constraint_ids=["shadow_only", "authority_boundary_required"],
-        governance_owned_gap_ids=["a_spec_gap"],
+        governance_owned_gap_ids=[
+            "a_spec_gap",
+            *[
+                entry.constraint_id
+                for entry in s6_constraints
+                if entry.refinement_route == "human_decision"
+            ],
+        ],
+        constraint_records=s6_constraints,
     )
 
 
@@ -670,8 +885,13 @@ def _refinement_decision(
     *,
     candidate: DesignCandidateV0,
     counterexample: CounterexampleRecord,
+    composition_posture: Layer2S5CompositionPostureInput | None = None,
+    blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
 ) -> RefinementDecision:
-    if input.force_retry_same_candidate:
+    s6_route = _s6_refinement_decision(blind_spot_posture)
+    if s6_route is not None:
+        decision = s6_route
+    elif input.force_retry_same_candidate:
         decision: RefinementDecisionKind = "block_candidate"
     elif counterexample.counterexample_class == "a_spec_gap":
         decision = "human_decision"
@@ -679,6 +899,11 @@ def _refinement_decision(
         decision = "acquire"
     elif counterexample.counterexample_class == "budget_gap":
         decision = "abstain"
+    elif (
+        composition_posture is not None
+        and composition_posture.composition_disposition == "system_evidence_required"
+    ):
+        decision = "decompose"
     else:
         decision = "refine"
     if (
@@ -723,6 +948,8 @@ def _refinement_decision(
             decision,
             counterexample.counterexample_class,
             design_strategy=candidate.design_strategy,
+            composition_posture=composition_posture,
+            blind_spot_posture=blind_spot_posture,
         ),
     )
 
@@ -763,6 +990,8 @@ def _search_ledger(
         "abstained",
         "refined_shadow",
     ],
+    composition_posture: Layer2S5CompositionPostureInput | None = None,
+    blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
 ) -> SearchLedger:
     slug = _slug(input.case_id)
     replay_key = _deterministic_replay_key(
@@ -770,6 +999,8 @@ def _search_ledger(
         candidate=candidate,
         counterexample=counterexample,
         decision=decision,
+        composition_posture=composition_posture,
+        blind_spot_posture=blind_spot_posture,
     )
     return SearchLedger(
         ledger_id=f"layer2.s2.ledger.{slug}",
@@ -809,6 +1040,8 @@ def _design_record(
     commitment_profile_ref: str | None = None,
     design_strategy: str | None = None,
     commitment_stakes: Literal["low", "high", "catastrophic"] | None = None,
+    composition_posture: Layer2S5CompositionPostureInput | None = None,
+    blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
 ) -> DesignRecordV0:
     slug = _slug(input.case_id)
     axis_positions = [
@@ -904,6 +1137,28 @@ def _design_record(
         )
         projection_audiences = ["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"]
 
+    if composition_posture is not None:
+        axis_positions.extend(
+            _composition_axis_positions(composition_posture, input.rule_version_ref)
+        )
+        firewall_status.extend(
+            _composition_firewall_statuses(composition_posture, input.rule_version_ref)
+        )
+        ledger_refs.extend(_composition_ledger_refs(composition_posture))
+        projection_audiences = ["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"]
+
+    if blind_spot_posture is not None:
+        axis_positions.extend(_s6_axis_positions(blind_spot_posture, input.rule_version_ref))
+        firewall_status.extend(
+            _s6_firewall_statuses(blind_spot_posture, input.rule_version_ref)
+        )
+        ledger_refs.extend(_s6_ledger_refs(blind_spot_posture))
+        projection_audiences = ["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"]
+
+    not_certified_for = list(_MAY_NOT_USE_FOR)
+    if blind_spot_posture is not None and blind_spot_posture.overall_posture == "blocked":
+        not_certified_for.append("closeout_authority_blocked_by_s6")
+
     return DesignRecordV0(
         record_id=f"layer2.s2.design_record.{slug}",
         candidate_ref=candidate.candidate_ref,
@@ -924,12 +1179,114 @@ def _design_record(
                 "machine_replay_trace",
                 "reviewer_search_trace",
             ],
-            not_certified_for=list(_MAY_NOT_USE_FOR),
+            not_certified_for=not_certified_for,
+            cluster_authority_dimension_refs=(
+                list(blind_spot_posture.cluster_authority_dimension_refs)
+                if blind_spot_posture is not None
+                else []
+            ),
             rule_version_ref=input.rule_version_ref,
         ),
         ledger_refs=ledger_refs,
         projection_audiences=projection_audiences,
     )
+
+
+def _composition_axis_positions(
+    composition_posture: Layer2S5CompositionPostureInput,
+    rule_version_ref: str,
+) -> list[AxisPositionDeclaration]:
+    return [
+        AxisPositionDeclaration(
+            cluster="SYSTEM",
+            axis="connectivity_modularity",
+            position=composition_posture.coupling_regime,
+            evidence_refs=[
+                composition_posture.coupling_graph_ref,
+                composition_posture.composition_receipt_ref,
+            ],
+            authority_purpose="coupling_regime_classification",
+            rule_version_ref=rule_version_ref,
+        ),
+        AxisPositionDeclaration(
+            cluster="SYSTEM",
+            axis="dynamics_feedback",
+            position=_dynamics_axis_position(composition_posture),
+            evidence_refs=[
+                ref
+                for ref in (
+                    composition_posture.dynamics_requirement_ref,
+                    composition_posture.coupling_graph_ref,
+                )
+                if ref is not None
+            ],
+            authority_purpose="system_dynamics_requirement",
+            rule_version_ref=rule_version_ref,
+        ),
+        AxisPositionDeclaration(
+            cluster="INTERVENTION",
+            axis="scale_composition",
+            position=_composition_axis_position(composition_posture),
+            evidence_refs=[
+                composition_posture.decomposition_result_ref,
+                composition_posture.composition_receipt_ref,
+            ],
+            authority_purpose="composition_gate",
+            rule_version_ref=rule_version_ref,
+        ),
+    ]
+
+
+def _composition_firewall_statuses(
+    composition_posture: Layer2S5CompositionPostureInput,
+    rule_version_ref: str,
+) -> list[AxisFirewallStatus]:
+    return [
+        AxisFirewallStatus(
+            cell_ref="SYSTEM.connectivity_modularity",
+            status=_coupling_firewall_status(composition_posture),
+            pattern_ids=["P17"],
+            reason=(
+                f"S5 injected {composition_posture.coupling_regime} coupling; "
+                "S2 consumes the posture without boundary discovery authority."
+            ),
+            maturity="fail_closed",
+            rule_version_ref=rule_version_ref,
+        ),
+        AxisFirewallStatus(
+            cell_ref="SYSTEM.dynamics_feedback",
+            status=_dynamics_firewall_status(composition_posture),
+            pattern_ids=["P17", "P24"],
+            reason="S5 dynamics posture gates system-effect and feedback claims.",
+            maturity="fail_closed",
+            rule_version_ref=rule_version_ref,
+        ),
+        AxisFirewallStatus(
+            cell_ref="INTERVENTION.scale_composition",
+            status=_composition_firewall_status(composition_posture),
+            pattern_ids=["P17"],
+            reason="S5 composition receipt gates whole-design authority assembly.",
+            maturity="fail_closed",
+            rule_version_ref=rule_version_ref,
+        ),
+    ]
+
+
+def _composition_ledger_refs(
+    composition_posture: Layer2S5CompositionPostureInput,
+) -> list[str]:
+    return [
+        ref
+        for ref in (
+            composition_posture.coupling_graph_ref,
+            composition_posture.module_discovery_ref,
+            composition_posture.decomposition_result_ref,
+            composition_posture.composition_receipt_ref,
+            composition_posture.dynamics_requirement_ref,
+            composition_posture.tractability_budget_ref,
+        )
+        if ref is not None
+    ]
 
 
 def _axis_position(
@@ -1004,6 +1361,290 @@ def _regime_projection_fields(
     return fields
 
 
+def _composition_projection_fields(
+    audience: Literal["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"],
+    *,
+    composition_posture: Layer2S5CompositionPostureInput,
+    composition_axis: AxisPositionDeclaration | None,
+    p17_firewall: AxisFirewallStatus | None,
+) -> dict[str, object]:
+    fields: dict[str, object] = {
+        "coupling_regime": composition_posture.coupling_regime,
+        "composition_disposition": composition_posture.composition_disposition,
+        "composition_limitation": _composition_limitation(composition_posture),
+    }
+    if audience in {"REVIEWER", "EXPERT", "MACHINE"}:
+        fields.update(
+            {
+                "p17_firewall_status": p17_firewall.status if p17_firewall else "limit",
+                "composition_strategy": _composition_strategy(composition_posture),
+                "residual_interaction_risk": composition_posture.residual_interaction_risk,
+            }
+        )
+    if audience in {"EXPERT", "MACHINE"}:
+        fields.update(
+            {
+                "coupling_graph_ref": composition_posture.coupling_graph_ref,
+                "module_discovery_ref": composition_posture.module_discovery_ref,
+                "decomposition_result_ref": composition_posture.decomposition_result_ref,
+                "composition_receipt_ref": composition_posture.composition_receipt_ref,
+                "dynamics_requirement_ref": composition_posture.dynamics_requirement_ref,
+                "tractability_budget_ref": composition_posture.tractability_budget_ref,
+                "boundary_coupling_rows": list(composition_posture.boundary_coupling_rows),
+                "forecast_support_label": composition_posture.forecast_support_label,
+                "critical_path_module_refs": list(composition_posture.critical_path_module_refs),
+                "false_modular_penalty": composition_posture.false_modular_penalty,
+                "authority_mode": composition_posture.authority_mode,
+                "composition_axis_position": (
+                    composition_axis.position if composition_axis else "not_projected"
+                ),
+            }
+        )
+    return fields
+
+
+def _s6_projection_fields(
+    audience: Literal["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"],
+    *,
+    blind_spot_posture: Layer2S6BlindSpotPostureInput,
+    s6_firewalls: list[AxisFirewallStatus],
+    constraint_store: ConstraintStoreSnapshot,
+) -> dict[str, object]:
+    pattern_ids = sorted({pattern for firewall in s6_firewalls for pattern in firewall.pattern_ids})
+    if audience == "PUBLIC":
+        return {
+            "s6_disclosure_present": True,
+            "blind_spot_disclosure": blind_spot_posture.limitation_summary,
+            "blind_spot_limiting_axis_refs": list(blind_spot_posture.limiting_axis_refs),
+            "blind_spot_blocking_axis_refs": list(blind_spot_posture.blocking_axis_refs),
+        }
+
+    fields: dict[str, object] = {
+        "s6_overall_posture": blind_spot_posture.overall_posture,
+        "s6_maturity": blind_spot_posture.maturity,
+        "s6_pattern_ids": pattern_ids,
+        "s6_firewall_status": {
+            firewall.cell_ref: firewall.status for firewall in s6_firewalls
+        },
+        "s6_refinement_route": _s6_refinement_decision(blind_spot_posture),
+        "s6_regime_reissue_required": blind_spot_posture.regime_reissue_required,
+        "s6_strategy_cap": (
+            "strategy_limited_until_s4_reissue"
+            if blind_spot_posture.regime_reissue_required
+            else "none"
+        ),
+        "s6_system_dynamics_handoff_required": (
+            blind_spot_posture.system_dynamics_handoff_required
+        ),
+        "s6_post_intervention_dgp_update_ref": (
+            blind_spot_posture.post_intervention_dgp_update_ref
+        ),
+    }
+    if audience in {"EXPERT", "MACHINE"}:
+        fields.update(
+            {
+                "s6_record_refs": {
+                    "measurability": blind_spot_posture.measurability_record_ref,
+                    "aggregation": blind_spot_posture.aggregation_validity_record_ref,
+                    "capacity": blind_spot_posture.capacity_feasibility_record_ref,
+                    "mandate": blind_spot_posture.mandate_legitimacy_record_ref,
+                    "strategic_response": blind_spot_posture.strategic_response_record_ref,
+                },
+                "s6_axis_rows": list(blind_spot_posture.axis_rows),
+                "s6_bridge_consumer_rows": list(blind_spot_posture.bridge_consumer_rows),
+                "s6_constraint_store_updates": [
+                    record.model_dump(mode="json")
+                    for record in constraint_store.constraint_records
+                ],
+                "s6_c3_authority_dimension_rows": list(
+                    blind_spot_posture.c3_authority_dimension_rows
+                ),
+                "s6_cluster_authority_dimension_refs": list(
+                    blind_spot_posture.cluster_authority_dimension_refs
+                ),
+                "s6_false_clear_penalty": blind_spot_posture.false_clear_penalty,
+            }
+        )
+    return fields
+
+
+def _s6_axis_positions(
+    blind_spot_posture: Layer2S6BlindSpotPostureInput,
+    rule_version_ref: str,
+) -> list[AxisPositionDeclaration]:
+    positions: list[AxisPositionDeclaration] = []
+    for row in blind_spot_posture.axis_rows:
+        cell_ref = str(row.get("cell_ref", "UNKNOWN.unknown"))
+        cluster, _, axis = cell_ref.partition(".")
+        positions.append(
+            AxisPositionDeclaration(
+                cluster=cluster,
+                axis=axis or "unknown",
+                position=str(row.get("disposition", "limit")),
+                evidence_refs=[str(row["record_ref"])] if row.get("record_ref") else [],
+                authority_purpose="fail_closed_blind_spot_firewall",
+                rule_version_ref=rule_version_ref,
+            )
+        )
+    return positions
+
+
+def _s6_firewall_statuses(
+    blind_spot_posture: Layer2S6BlindSpotPostureInput,
+    rule_version_ref: str,
+) -> list[AxisFirewallStatus]:
+    statuses: list[AxisFirewallStatus] = []
+    for row in blind_spot_posture.axis_rows:
+        status = str(row.get("disposition", "limit"))
+        if status not in {"pass", "limit", "block"}:
+            status = "limit"
+        statuses.append(
+            AxisFirewallStatus(
+                cell_ref=str(row.get("cell_ref", "UNKNOWN.unknown")),
+                status=status,  # type: ignore[arg-type]
+                pattern_ids=[str(row.get("firewall_pattern_id", "P18"))],
+                reason=str(row.get("decision_reason", blind_spot_posture.limitation_summary)),
+                maturity="fail_closed",
+                rule_version_ref=rule_version_ref,
+            )
+        )
+    return statuses
+
+
+def _s6_constraint_entries(
+    blind_spot_posture: Layer2S6BlindSpotPostureInput | None,
+) -> list[ConstraintStoreEntry]:
+    if blind_spot_posture is None:
+        return []
+    return [
+        ConstraintStoreEntry.model_validate(update)
+        for update in blind_spot_posture.constraint_store_updates
+    ]
+
+
+def _s6_refinement_decision(
+    blind_spot_posture: Layer2S6BlindSpotPostureInput | None,
+) -> RefinementDecisionKind | None:
+    if blind_spot_posture is None or blind_spot_posture.overall_posture == "clear_fail_closed":
+        return None
+    priority: dict[str, RefinementDecisionKind] = {
+        "block_candidate": "block_candidate",
+        "acquire": "acquire",
+        "reframe": "reframe",
+        "human_decision": "human_decision",
+        "pending_consumer_constraint": "acquire",
+    }
+    for route in priority:
+        if any(
+            update.get("refinement_route") == route
+            for update in blind_spot_posture.constraint_store_updates
+        ):
+            return priority[route]
+    if blind_spot_posture.overall_posture == "blocked":
+        return "block_candidate"
+    return "acquire"
+
+
+def _s6_ledger_refs(blind_spot_posture: Layer2S6BlindSpotPostureInput) -> list[str]:
+    refs = [
+        blind_spot_posture.measurability_record_ref,
+        blind_spot_posture.aggregation_validity_record_ref,
+        blind_spot_posture.capacity_feasibility_record_ref,
+        blind_spot_posture.mandate_legitimacy_record_ref,
+        blind_spot_posture.strategic_response_record_ref,
+        *blind_spot_posture.cluster_authority_dimension_refs,
+    ]
+    return list(dict.fromkeys(refs))[:40]
+
+
+def _is_s6_cell(cell_ref: str) -> bool:
+    return cell_ref in {
+        "SYSTEM.measurability",
+        "SYSTEM.subject_granularity",
+        "ACTOR.state_capacity_feasibility",
+        "ACTOR.mandate_legitimacy",
+        "OTHER_AGENTS.strategic_response",
+    }
+
+
+def _composition_limitation(
+    composition_posture: Layer2S5CompositionPostureInput,
+) -> str:
+    return (
+        f"{composition_posture.coupling_regime} coupling with "
+        f"{composition_posture.composition_disposition} composition is S5 shadow routing only; "
+        "whole-design authority remains limited by the S5 receipt, P17 firewall, and system "
+        "evidence obligations."
+    )
+
+
+def _composition_strategy(
+    composition_posture: Layer2S5CompositionPostureInput,
+) -> str:
+    if composition_posture.composition_disposition == "compose":
+        return "compose_critical_path_shadow_only"
+    if composition_posture.composition_disposition == "compose_with_limitations":
+        return "compose_with_s5_limitations"
+    if composition_posture.composition_disposition == "system_evidence_required":
+        return "require_system_evidence_or_decompose"
+    return "blocked_until_s5_repair"
+
+
+def _dynamics_axis_position(composition_posture: Layer2S5CompositionPostureInput) -> str:
+    residual_risk = composition_posture.residual_interaction_risk or "unknown"
+    return ";".join(
+        [
+            f"dynamics_requirement_ref={composition_posture.dynamics_requirement_ref or 'none'}",
+            f"forecast_support_label={composition_posture.forecast_support_label or 'none'}",
+            f"residual_interaction_risk={residual_risk}",
+        ]
+    )
+
+
+def _composition_axis_position(composition_posture: Layer2S5CompositionPostureInput) -> str:
+    residual_risk = composition_posture.residual_interaction_risk or "unknown"
+    return ";".join(
+        [
+            f"composition_disposition={composition_posture.composition_disposition}",
+            f"authority_mode={composition_posture.authority_mode}",
+            f"residual_interaction_risk={residual_risk}",
+        ]
+    )
+
+
+def _coupling_firewall_status(
+    composition_posture: Layer2S5CompositionPostureInput,
+) -> Literal["pass", "warn", "limit", "block"]:
+    if composition_posture.coupling_regime == "modular":
+        return "pass"
+    if composition_posture.coupling_regime == "entangled":
+        return "block"
+    return "limit"
+
+
+def _dynamics_firewall_status(
+    composition_posture: Layer2S5CompositionPostureInput,
+) -> Literal["pass", "warn", "limit", "block"]:
+    if composition_posture.composition_disposition in {"system_evidence_required", "blocked"}:
+        return "block"
+    if (
+        composition_posture.dynamics_requirement_ref
+        or composition_posture.residual_interaction_risk
+    ):
+        return "limit"
+    return "pass"
+
+
+def _composition_firewall_status(
+    composition_posture: Layer2S5CompositionPostureInput,
+) -> Literal["pass", "warn", "limit", "block"]:
+    if composition_posture.composition_disposition == "compose":
+        return "pass"
+    if composition_posture.composition_disposition == "blocked":
+        return "block"
+    return "limit"
+
+
 def _commitment_axis_position(
     *,
     commitment_stakes: Literal["low", "high", "catastrophic"] | None,
@@ -1050,8 +1691,13 @@ def _adaptive_posture(design_strategy: object) -> str:
     return "robust_limited"
 
 
-def _cluster_interfaces(boundary: AuthorityBoundary) -> list[ClusterInterfaceContract]:
-    return [
+def _cluster_interfaces(
+    boundary: AuthorityBoundary,
+    *,
+    composition_posture: Layer2S5CompositionPostureInput | None = None,
+    blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
+) -> list[ClusterInterfaceContract]:
+    contracts = [
         ClusterInterfaceContract(
             contract_id="layer2.s2.cluster.interface.design_grammar",
             cell_ref="INTERVENTION.design_grammar",
@@ -1067,14 +1713,65 @@ def _cluster_interfaces(boundary: AuthorityBoundary) -> list[ClusterInterfaceCon
             authority_boundary=boundary,
         ),
     ]
+    if composition_posture is not None:
+        contracts.extend(
+            [
+                ClusterInterfaceContract(
+                    contract_id="layer2.s2.cluster.interface.connectivity_modularity",
+                    cell_ref="SYSTEM.connectivity_modularity",
+                    publishes=["CouplingGraph", "CouplingRegimeClassification"],
+                    consumes=["Layer2S5CompositionPostureInput"],
+                    authority_boundary=boundary,
+                ),
+                ClusterInterfaceContract(
+                    contract_id="layer2.s2.cluster.interface.dynamics_feedback",
+                    cell_ref="SYSTEM.dynamics_feedback",
+                    publishes=(
+                        ["SystemDynamicsRequirement"]
+                        if composition_posture.dynamics_requirement_ref
+                        else []
+                    ),
+                    consumes=["Layer2S5CompositionPostureInput"],
+                    authority_boundary=boundary,
+                ),
+                ClusterInterfaceContract(
+                    contract_id="layer2.s2.cluster.interface.scale_composition",
+                    cell_ref="INTERVENTION.scale_composition",
+                    publishes=["CompositionReceipt"],
+                    consumes=[
+                        "CouplingGraph",
+                        "DecompositionResult",
+                        "Layer2S5CompositionPostureInput",
+                    ],
+                    authority_boundary=boundary,
+                ),
+            ]
+        )
+    if blind_spot_posture is not None:
+        for row in blind_spot_posture.bridge_consumer_rows:
+            cell_ref = str(row.get("cell_ref", "UNKNOWN.unknown"))
+            consumer_ref = str(row.get("consumer_ref", "UNKNOWN.consumer"))
+            contracts.append(
+                ClusterInterfaceContract(
+                    contract_id=f"layer2.s2.cluster.interface.s6.{_slug(cell_ref)}.{_slug(consumer_ref)}",
+                    cell_ref=cell_ref,
+                    publishes=["Layer2S6BlindSpotPostureInput", "ConstraintStoreEntry"],
+                    consumes=["Layer2S6BlindSpotPostureInput"],
+                    authority_boundary=boundary,
+                )
+            )
+    return contracts
 
 
 def _handoff_records(
     candidate: DesignCandidateV0,
     expansion: DesignGrammarExpansion,
     ledger: SearchLedger,
+    *,
+    composition_posture: Layer2S5CompositionPostureInput | None = None,
+    blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
 ) -> list[ClusterHandoffRecord]:
-    return [
+    records = [
         ClusterHandoffRecord(
             handoff_id="layer2.s2.handoff.generation",
             workflow_ref="workflow://layer2/s2/shadow-design-loop",
@@ -1086,6 +1783,41 @@ def _handoff_records(
             may_not_use_for=list(_MAY_NOT_USE_FOR),
         )
     ]
+    if composition_posture is not None:
+        records.append(
+            ClusterHandoffRecord(
+                handoff_id="layer2.s2.handoff.s5_composition_posture",
+                workflow_ref="workflow://layer2/s2/shadow-design-loop",
+                source_cell_ref="INTERVENTION.scale_composition",
+                target_cell_ref="INTERVENTION.design_candidate",
+                artifact_refs=_composition_ledger_refs(composition_posture),
+                disposition="consumed",
+                authority_purpose="composition_gate",
+                may_not_use_for=[
+                    "whole_design_authority_without_coupling_graph",
+                    "false_modular_decomposition",
+                    "production_recommendation",
+                ],
+            )
+        )
+    if blind_spot_posture is not None:
+        records.append(
+            ClusterHandoffRecord(
+                handoff_id="layer2.s2.handoff.s6_blind_spot_posture",
+                workflow_ref="workflow://layer2/s2/shadow-design-loop",
+                source_cell_ref="RUNTIME_QUALITY.blind_spot_firewalls",
+                target_cell_ref="INTERVENTION.design_candidate",
+                artifact_refs=_s6_ledger_refs(blind_spot_posture),
+                disposition="consumed",
+                authority_purpose="fail_closed_blind_spot_constraint_injection",
+                may_not_use_for=[
+                    "blind_spot_self_clearance_by_b_side",
+                    "production_recommendation",
+                    "outcome_prediction_authority",
+                ],
+            )
+        )
+    return records
 
 
 def _governance_decision_class(input: Layer2S2DesignSearchInput) -> GovernanceDecisionClass:
@@ -1111,6 +1843,8 @@ def _deterministic_replay_key(
     candidate: DesignCandidateV0,
     counterexample: CounterexampleRecord,
     decision: RefinementDecision,
+    composition_posture: Layer2S5CompositionPostureInput | None = None,
+    blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
 ) -> str:
     payload = {
         "case_id": input.case_id,
@@ -1141,6 +1875,10 @@ def _deterministic_replay_key(
                 "commitment_stakes": candidate.commitment_stakes,
             }
         )
+    if composition_posture is not None:
+        payload["composition_posture"] = composition_posture.model_dump(mode="json")
+    if blind_spot_posture is not None:
+        payload["blind_spot_posture"] = blind_spot_posture.model_dump(mode="json")
     canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
@@ -1162,7 +1900,15 @@ def _decision_reason(
     counterexample_class: str,
     *,
     design_strategy: str | None = None,
+    composition_posture: Layer2S5CompositionPostureInput | None = None,
+    blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
 ) -> str:
+    if blind_spot_posture is not None and blind_spot_posture.overall_posture != "clear_fail_closed":
+        return (
+            f"S6 {blind_spot_posture.overall_posture} blind-spot posture routes "
+            "refinement before point optimization; "
+            f"{blind_spot_posture.limitation_summary}"
+        )
     if decision == "human_decision":
         return "A-side specification gaps are governance-owned and cannot be self-repaired."
     if decision == "acquire":
@@ -1182,6 +1928,16 @@ def _decision_reason(
             f"{counterexample_class} is consumed by reframe{strategy_note}, "
             "not point-optimization refinement"
             f"{frame_note}."
+        )
+    if decision == "decompose":
+        disposition = (
+            composition_posture.composition_disposition
+            if composition_posture is not None
+            else "system_evidence_required"
+        )
+        return (
+            f"{counterexample_class} is consumed by S5 {disposition}; "
+            "route to decomposition or system evidence before point optimization."
         )
     return f"{counterexample_class} is consumed by deterministic shadow refinement."
 

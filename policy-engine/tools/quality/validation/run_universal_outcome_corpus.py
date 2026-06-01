@@ -37,6 +37,7 @@ from polisyos.pdc import (  # noqa: E402
     Layer2S2DesignSearchInput,
     Layer2S5CompositionPostureInput,
     Layer2S6BlindSpotPostureInput,
+    Layer2S7DelegationPostureInput,
     run_s2_shadow_design_loop,
 )
 from polisyos.policy_grammar import (  # noqa: E402
@@ -91,6 +92,17 @@ from polisyos.runtime.quality.layer2_coupling_composition import (  # noqa: E402
     decompose_design,
     derive_recursive_design_graph,
     discover_design_modules,
+)
+from polisyos.runtime.quality.layer2_delegation import (  # noqa: E402
+    LAYER2_S7_DELEGATION_SCHEMA_VERSION,
+    P26ResponsibilityIntegrityError,
+    build_decision_rights_matrix,
+    build_delegation_contract,
+    build_governance_decision_class_registry,
+    build_human_decision_request,
+    evaluate_delegation_for_case,
+    record_human_decision,
+    s7_delegation_integrity,
 )
 from polisyos.runtime.quality.layer2_epistemic_regime import (  # noqa: E402
     RegimeEvidenceBasis,
@@ -158,7 +170,10 @@ S5_CASE_SIGNALS_PATH = Path("tests/fixtures/layer2/s5/s5_coupling_case_signals.j
 S5_EXPERT_LABELS_PATH = Path("tests/fixtures/layer2/s5/s5_coupling_expert_labels.json")
 S6_CASE_SIGNALS_PATH = Path("tests/fixtures/layer2/s6/s6_blind_spot_case_signals.json")
 S6_EXPERT_LABELS_PATH = Path("tests/fixtures/layer2/s6/s6_blind_spot_expert_labels.json")
+S7_CASE_SIGNALS_PATH = Path("tests/fixtures/layer2/s7/s7_delegation_case_signals.json")
+S7_EXPERT_LABELS_PATH = Path("tests/fixtures/layer2/s7/s7_delegation_expert_labels.json")
 S4_RULE_VERSION_REF = "repo://docs/adr/0174-policy-evidence-capability-graph.md"
+S7_RULE_VERSION_REF = "policyos.layer2.s7.delegation.v1"
 W12D_FORMULATOR_TOOL_REFS: tuple[str, ...] = (
     "tool:w12d.universal_outcome_corpus_run",
     "tool:llm_formulator_runtime",
@@ -237,6 +252,13 @@ S6_NEGATIVE_CONTROL_PROBES: tuple[Path, ...] = (
     Path("tests/fixtures/layer2/s6/mandate_speculation_probe.json"),
     Path("tests/fixtures/layer2/s6/goodhart_post_intervention_probe.json"),
 )
+S7_NEGATIVE_CONTROL_PROBES: tuple[Path, ...] = (
+    Path("tests/fixtures/layer2/s7/oversight_theater_probe.json"),
+    Path("tests/fixtures/layer2/s7/wrong_role_approval_probe.json"),
+    Path("tests/fixtures/layer2/s7/ai_first_high_stakes_probe.json"),
+    Path("tests/fixtures/layer2/s7/mandate_absent_delegation_probe.json"),
+    Path("tests/fixtures/layer2/s7/workflow_only_delegation_summary_probe.json"),
+)
 
 
 class W12DCaseRunError(ValueError):
@@ -269,6 +291,10 @@ def build_w12d_universal_outcome_corpus_report(
         cases,
         repo_root=Path(repo_root),
     )
+    s7_delegation_summary = _s7_delegation_corpus_summary(
+        cases,
+        repo_root=Path(repo_root),
+    )
     status = "blocked" if rollout_blockers else "pass"
     return {
         "schema_version": SCHEMA_VERSION,
@@ -285,6 +311,7 @@ def build_w12d_universal_outcome_corpus_report(
         "s4_regime_summary": s4_regime_summary,
         "s5_coupling_summary": s5_coupling_summary,
         "s6_blind_spot_summary": s6_blind_spot_summary,
+        "s7_delegation_summary": s7_delegation_summary,
         "cases": cases,
         "authority_level_metric_stratification": _authority_stratification(cases),
         "domain_authority_metric_stratification": _domain_authority_stratification(cases),
@@ -876,12 +903,18 @@ def _run_case(
         repo_root=repo_root,
         s5_coupling_composition=s5_coupling_composition,
     )
+    s7_delegation = _s7_delegation_summary(
+        case,
+        repo_root=repo_root,
+        s6_blind_spot_firewalls=s6_blind_spot_firewalls,
+    )
     s2_design_search = _s2_design_search_summary(
         case,
         repo_root=repo_root,
         s4_epistemic_regime=s4_epistemic_regime,
         s5_coupling_composition=s5_coupling_composition,
         s6_blind_spot_firewalls=s6_blind_spot_firewalls,
+        s7_delegation=s7_delegation,
     )
     return {
         "case_id": case_id,
@@ -902,6 +935,8 @@ def _run_case(
         "s4_epistemic_regime": s4_epistemic_regime,
         "s5_coupling_composition": s5_coupling_composition,
         "s6_blind_spot_firewalls": s6_blind_spot_firewalls,
+        "s7_delegation": s7_delegation,
+        "closeout_visible_refs": _closeout_visible_refs(s7_delegation=s7_delegation),
         "expert_adjudication_delta": expert_delta,
         "authority_outcomes": authority_outcomes,
         "typed_blockers": typed_blockers,
@@ -916,6 +951,7 @@ def _s2_design_search_summary(
     s4_epistemic_regime: Mapping[str, Any] | None = None,
     s5_coupling_composition: Mapping[str, Any] | None = None,
     s6_blind_spot_firewalls: Mapping[str, Any] | None = None,
+    s7_delegation: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     case_id = str(case.get("case_id") or case.get("id") or "")
     if case_id != "ua-msme-affordable-loans-2022":
@@ -955,6 +991,11 @@ def _s2_design_search_summary(
         if s6_blind_spot_firewalls
         else None
     )
+    delegation_posture = (
+        _s7_delegation_posture_input(s7_delegation)
+        if s7_delegation
+        else None
+    )
     if s4_epistemic_regime:
         run = run_s2_shadow_design_loop(
             input_row,
@@ -969,16 +1010,23 @@ def _s2_design_search_summary(
             ),  # type: ignore[arg-type]
             composition_posture=composition_posture,
             blind_spot_posture=blind_spot_posture,
+            delegation_posture=delegation_posture,
         )
     else:
         run = run_s2_shadow_design_loop(
             input_row,
             composition_posture=composition_posture,
             blind_spot_posture=blind_spot_posture,
+            delegation_posture=delegation_posture,
         )
     return {
         "status": run.status,
         "canonical_outcome_effect": "none_shadow_only",
+        "delegation_posture": (
+            run.delegation_posture.model_dump(mode="json")
+            if run.delegation_posture is not None
+            else None
+        ),
         "search_ledger": run.search_ledger.model_dump(mode="json"),
         "design_record": run.design_record.model_dump(mode="json"),
         "constraint_store": run.constraint_store.model_dump(mode="json"),
@@ -1610,6 +1658,639 @@ def _s6_expert_labels(repo_root: Path) -> dict[str, dict[str, Any]]:
         str(case_id): dict(row)
         for case_id, row in _mapping(raw_cases).items()
         if isinstance(row, Mapping)
+    }
+
+
+def _s7_delegation_summary(
+    case: Mapping[str, object],
+    *,
+    repo_root: Path,
+    s6_blind_spot_firewalls: Mapping[str, object],
+) -> dict[str, object]:
+    """Build the S7 delegation block for one corpus case."""
+
+    case_id = _required_text(case.get("case_id") or case.get("id"), field_name="case_id")
+    signals = _s7_case_signals(repo_root).get(case_id)
+    labels = _s7_expert_labels(repo_root).get(case_id)
+    if not signals or not labels:
+        raise W12DCaseRunError(f"S7 delegation fixture missing for case {case_id}")
+
+    registry = build_governance_decision_class_registry(
+        case_id=case_id,
+        rule_version_ref=S7_RULE_VERSION_REF,
+    )
+    matrix = build_decision_rights_matrix(
+        case_id=case_id,
+        governance_decision_classes=registry,
+        rule_version_ref=S7_RULE_VERSION_REF,
+    )
+    mandate_record_ref = _required_text(
+        signals.get("s6_mandate_record_ref")
+        or s6_blind_spot_firewalls.get("mandate_legitimacy_record_ref"),
+        field_name="s6_mandate_record_ref",
+    )
+    mandate_disposition = _required_text(
+        signals.get("s6_mandate_firewall_disposition"),
+        field_name="s6_mandate_firewall_disposition",
+    )
+    contract = build_delegation_contract(
+        case_id=case_id,
+        matrix=matrix,
+        governance_decision_classes=registry,
+        s6_mandate_record_ref=mandate_record_ref,
+        s6_mandate_firewall_disposition=mandate_disposition,
+        rule_version_ref=S7_RULE_VERSION_REF,
+    )
+    need_reasons = _s7_need_reasons_from_signals(signals)
+    request = build_human_decision_request(
+        case_id=case_id,
+        contract=contract,
+        decision_class_id=_required_text(
+            signals.get("decision_class_id"),
+            field_name="decision_class_id",
+        ),
+        need_reasons=need_reasons,
+        voi_rank=int(signals.get("voi_rank") or 1),
+        s6_mandate_record_ref=mandate_record_ref,
+        s6_mandate_firewall_disposition=mandate_disposition,
+        rule_version_ref=S7_RULE_VERSION_REF,
+    )
+    report = evaluate_delegation_for_case(
+        case_id=case_id,
+        s6_mandate_posture={
+            "mandate_legitimacy_record_ref": mandate_record_ref,
+            "firewall_disposition": mandate_disposition,
+            "mandate_source_refs": list(_sequence(signals.get("mandate_source_refs"))),
+        },
+        case_signals=signals,
+        expert_label=labels,
+        rule_version_ref=S7_RULE_VERSION_REF,
+    )
+    record_payload: dict[str, object] | None = None
+    record_error: str | None = None
+    if bool(labels.get("expected_record_valid")) and signals.get("actor_ref"):
+        try:
+            record = record_human_decision(
+                case_id=case_id,
+                request=request,
+                actor_ref=_required_text(signals.get("actor_ref"), field_name="actor_ref"),
+                actor_role=_required_text(signals.get("actor_role"), field_name="actor_role"),
+                decision_action_exercised=_required_text(
+                    signals.get("decision_action_exercised"),
+                    field_name="decision_action_exercised",
+                ),
+                evidence_summary_ref=_text(signals.get("evidence_summary_ref")),
+                disconfirming_evidence_refs=[
+                    str(ref) for ref in _sequence(signals.get("disconfirming_evidence_refs"))
+                ],
+                active_choice=bool(signals.get("active_choice")),
+                accountability_statement=_text(signals.get("accountability_statement")),
+                five_rights_check=_mapping(signals.get("five_rights_check")),
+                mandate_record_ref=mandate_record_ref,
+                rule_version_ref=S7_RULE_VERSION_REF,
+            )
+            record_payload = record.model_dump(mode="json")
+        except P26ResponsibilityIntegrityError as exc:
+            record_error = str(exc)
+
+    block = {
+        "schema_version": LAYER2_S7_DELEGATION_SCHEMA_VERSION,
+        "case_id": case_id,
+        "delegation_contract_ref": contract.contract_ref,
+        "decision_rights_matrix_ref": matrix.matrix_ref,
+        "human_decision_request_ref": request.request_ref,
+        "human_decision_record_ref": (
+            record_payload.get("record_ref") if record_payload is not None else None
+        ),
+        "decision_class_id": report.decision_class_id,
+        "required_role": report.required_role,
+        "interaction_mode": report.interaction_mode,
+        "disposition": report.disposition,
+        "request_emitted": report.request_emitted,
+        "record_valid": report.record_valid and record_error is None,
+        "governed_pilot_eligible": report.governed_pilot_eligible
+        and record_payload is not None
+        and mandate_disposition == "pass",
+        "predicted_need_reasons": list(report.predicted_need_reasons),
+        "expected_need_reasons": list(report.expected_need_reasons),
+        "need_reasons": need_reasons,
+        "matches_gold": report.matches_gold,
+        "available_actions": list(request.available_actions),
+        "decision_action_exercised": (
+            record_payload.get("decision_action_exercised")
+            if record_payload is not None
+            else signals.get("decision_action_exercised")
+        ),
+        "five_rights_requirement": request.five_rights_requirements.model_dump(mode="json"),
+        "five_rights_check": (
+            record_payload.get("five_rights_check")
+            if record_payload is not None
+            else signals.get("five_rights_check")
+        ),
+        "decision_options": [
+            option.model_dump(mode="json") for option in request.decision_options
+        ],
+        "recommendation_ref": signals.get("recommendation_ref") or request.recommendation_ref,
+        "provenance_refs": list(_sequence(signals.get("provenance_refs")))
+        or list(request.provenance_refs),
+        "source_seed_refs": list(_sequence(signals.get("source_seed_refs")))
+        or list(request.source_seed_refs),
+        "material_limitations": list(_sequence(signals.get("material_limitations")))
+        or list(request.material_limitations),
+        "value_stakes_impact": _required_text(
+            signals.get("value_stakes_impact") or request.value_stakes_impact,
+            field_name="value_stakes_impact",
+        ),
+        "what_changes_under_each_choice": list(
+            _sequence(signals.get("what_changes_under_each_choice"))
+        )
+        or list(request.what_changes_under_each_choice),
+        "attention_cost_rank": int(signals.get("attention_cost_rank") or request.attention_cost_rank),
+        "responsibility_integrity_status": report.responsibility_integrity.status,
+        "responsibility_integrity_check": report.responsibility_integrity.model_dump(mode="json"),
+        "mandate_record_ref": mandate_record_ref,
+        "s6_mandate_firewall_disposition": mandate_disposition,
+        "mandate_source_refs": [str(ref) for ref in _sequence(signals.get("mandate_source_refs"))],
+        "requested_at": _required_text(signals.get("requested_at"), field_name="requested_at"),
+        "decision_due_at": _text(signals.get("decision_due_at")) or None,
+        "decided_at": (
+            record_payload.get("decided_at")
+            if record_payload is not None
+            else signals.get("decided_at")
+        ),
+        "actor_ref": (
+            record_payload.get("actor_ref") if record_payload is not None else signals.get("actor_ref")
+        ),
+        "voi_rank": int(signals.get("voi_rank") or request.voi_rank),
+        "authority_boundary": report.authority_boundary.model_dump(mode="json"),
+        "constraint_store_updates": _s7_constraint_store_updates(
+            report=report,
+            request_ref=request.request_ref,
+        ),
+        "handoff_rows": _s7_handoff_rows(
+            case_id=case_id,
+            contract_ref=contract.contract_ref,
+            matrix_ref=matrix.matrix_ref,
+            request_ref=request.request_ref,
+            record_ref=record_payload.get("record_ref") if record_payload is not None else None,
+            disposition=report.disposition,
+        ),
+        "limitation_summary": (
+            "S7 delegation refs are closeout-visible for shadow/governed-pilot routing only; "
+            "they do not grant production, value-choice, or S13 oversight authority."
+        ),
+        "canonical_outcome_effect": "none_shadow_or_governed_pilot_only",
+        "record_error": record_error,
+    }
+    return block
+
+
+def _s7_delegation_corpus_summary(
+    cases: Sequence[Mapping[str, Any]],
+    *,
+    repo_root: Path,
+) -> dict[str, object]:
+    rows = [
+        _mapping(case.get("s7_delegation"))
+        for case in cases
+        if isinstance(case.get("s7_delegation"), Mapping)
+    ]
+    negative_results = _s7_negative_control_probe_results(repo_root)
+    metric_rows = [
+        {
+            "case_id": row.get("case_id"),
+            "predicted_disposition": row.get("disposition"),
+            "expected_disposition": row.get("disposition") if row.get("matches_gold") else None,
+            "responsibility_integrity_status": (
+                "block" if str(row.get("disposition", "")).startswith("blocked_") else "pass"
+            ),
+            "negative_control_false_clear": False,
+        }
+        for row in rows
+    ]
+    metric_rows.extend(negative_results.values())
+    integrity = s7_delegation_integrity(metric_rows)
+    disposition_counts = Counter(str(row.get("disposition")) for row in rows)
+    interaction_mode_counts = Counter(str(row.get("interaction_mode")) for row in rows)
+    need_reason_counts: Counter[str] = Counter()
+    for row in rows:
+        need_reason_counts.update(str(reason) for reason in _sequence(row.get("need_reasons")))
+    return {
+        "schema_version": "policyos.policy_design_case.layer2_s7.delegation_corpus_summary.v1",
+        "case_count": len(rows),
+        "delegation_precision": integrity["delegation_precision"],
+        "delegation_recall": integrity["delegation_recall"],
+        "responsibility_integrity_pass_rate": integrity[
+            "responsibility_integrity_pass_rate"
+        ],
+        "oversight_theater_false_clear_count": _s7_false_clear_count(
+            negative_results,
+            "oversight_theater_probe",
+        ),
+        "wrong_role_false_clear_count": _s7_false_clear_count(
+            negative_results,
+            "wrong_role_approval_probe",
+        ),
+        "ai_first_high_stakes_false_clear_count": _s7_false_clear_count(
+            negative_results,
+            "ai_first_high_stakes_probe",
+        ),
+        "mandate_absent_delegation_false_clear_count": _s7_false_clear_count(
+            negative_results,
+            "mandate_absent_delegation_probe",
+        ),
+        "workflow_only_summary_false_clear_count": _s7_false_clear_count(
+            negative_results,
+            "workflow_only_delegation_summary_probe",
+        ),
+        "request_emitted_count": sum(1 for row in rows if bool(row.get("request_emitted"))),
+        "no_interrupt_count": disposition_counts.get("no_interrupt", 0),
+        "valid_human_decision_record_count": sum(
+            1
+            for row in rows
+            if row.get("human_decision_record_ref") and bool(row.get("record_valid"))
+        ),
+        "governed_pilot_eligible_count": sum(
+            1 for row in rows if bool(row.get("governed_pilot_eligible"))
+        ),
+        "budget_or_legal_use_request_count": need_reason_counts.get("budget_required", 0),
+        "acquisition_request_count": need_reason_counts.get("acquisition_required", 0),
+        "final_choice_request_count": need_reason_counts.get("final_choice", 0),
+        "per_case_delegation_table": [
+            {
+                "case_id": row.get("case_id"),
+                "decision_class_id": row.get("decision_class_id"),
+                "need_reasons": list(_sequence(row.get("need_reasons"))),
+                "interaction_mode": row.get("interaction_mode"),
+                "disposition": row.get("disposition"),
+                "request_emitted": row.get("request_emitted"),
+                "record_valid": row.get("record_valid"),
+                "governed_pilot_eligible": row.get("governed_pilot_eligible"),
+            }
+            for row in rows
+        ],
+        "decision_need_reason_counts": dict(need_reason_counts),
+        "interaction_mode_counts": dict(interaction_mode_counts),
+        "disposition_counts": dict(disposition_counts),
+        "negative_control_results": negative_results,
+    }
+
+
+def _s7_delegation_posture_input(
+    s7_delegation: Mapping[str, Any],
+) -> Layer2S7DelegationPostureInput:
+    return Layer2S7DelegationPostureInput(
+        delegation_contract_ref=_required_text(
+            s7_delegation.get("delegation_contract_ref"),
+            field_name="delegation_contract_ref",
+        ),
+        decision_rights_matrix_ref=_required_text(
+            s7_delegation.get("decision_rights_matrix_ref"),
+            field_name="decision_rights_matrix_ref",
+        ),
+        human_decision_request_ref=_required_text(
+            s7_delegation.get("human_decision_request_ref"),
+            field_name="human_decision_request_ref",
+        ),
+        human_decision_record_ref=_text(s7_delegation.get("human_decision_record_ref")) or None,
+        decision_class_id=_required_text(
+            s7_delegation.get("decision_class_id"),
+            field_name="decision_class_id",
+        ),
+        required_role=_required_text(s7_delegation.get("required_role"), field_name="required_role"),
+        interaction_mode=_required_text(
+            s7_delegation.get("interaction_mode"),
+            field_name="interaction_mode",
+        ),
+        disposition=_required_text(s7_delegation.get("disposition"), field_name="disposition"),
+        available_actions=[str(action) for action in _sequence(s7_delegation.get("available_actions"))],
+        decision_action_exercised=_text(s7_delegation.get("decision_action_exercised")) or None,
+        five_rights_requirement=dict(_mapping(s7_delegation.get("five_rights_requirement"))),
+        five_rights_check=(
+            dict(_mapping(s7_delegation.get("five_rights_check")))
+            if isinstance(s7_delegation.get("five_rights_check"), Mapping)
+            else None
+        ),
+        decision_options=[
+            dict(row) for row in _sequence_of_mappings(s7_delegation.get("decision_options"))
+        ],
+        recommendation_ref=_text(s7_delegation.get("recommendation_ref")) or None,
+        provenance_refs=[str(ref) for ref in _sequence(s7_delegation.get("provenance_refs"))],
+        material_limitations=[
+            str(item) for item in _sequence(s7_delegation.get("material_limitations"))
+        ],
+        value_stakes_impact=_required_text(
+            s7_delegation.get("value_stakes_impact"),
+            field_name="value_stakes_impact",
+        ),
+        what_changes_under_each_choice=[
+            str(item) for item in _sequence(s7_delegation.get("what_changes_under_each_choice"))
+        ],
+        attention_cost_rank=int(s7_delegation.get("attention_cost_rank") or 1),
+        responsibility_integrity_status=_required_text(
+            s7_delegation.get("responsibility_integrity_status"),
+            field_name="responsibility_integrity_status",
+        ),
+        mandate_record_ref=_required_text(
+            s7_delegation.get("mandate_record_ref"),
+            field_name="mandate_record_ref",
+        ),
+        s6_mandate_firewall_disposition=_required_text(
+            s7_delegation.get("s6_mandate_firewall_disposition"),
+            field_name="s6_mandate_firewall_disposition",
+        ),
+        mandate_source_refs=[
+            str(ref) for ref in _sequence(s7_delegation.get("mandate_source_refs"))
+        ],
+        requested_at=_required_text(s7_delegation.get("requested_at"), field_name="requested_at"),
+        decision_due_at=_text(s7_delegation.get("decision_due_at")) or None,
+        decided_at=_text(s7_delegation.get("decided_at")) or None,
+        actor_ref=_text(s7_delegation.get("actor_ref")) or None,
+        voi_rank=int(s7_delegation.get("voi_rank") or 1),
+        need_reasons=[str(reason) for reason in _sequence(s7_delegation.get("need_reasons"))],
+        authority_boundary=dict(_mapping(s7_delegation.get("authority_boundary"))),
+        governed_pilot_eligible=bool(s7_delegation.get("governed_pilot_eligible")),
+        constraint_store_updates=[
+            dict(row)
+            for row in _sequence_of_mappings(s7_delegation.get("constraint_store_updates"))
+        ],
+        handoff_rows=[dict(row) for row in _sequence_of_mappings(s7_delegation.get("handoff_rows"))],
+        limitation_summary=_required_text(
+            s7_delegation.get("limitation_summary"),
+            field_name="limitation_summary",
+        ),
+    )
+
+
+def _s7_negative_control_probe_results(repo_root: Path) -> dict[str, dict[str, object]]:
+    results: dict[str, dict[str, object]] = {}
+    for probe_path in S7_NEGATIVE_CONTROL_PROBES:
+        payload = json.loads(_resolve(repo_root, probe_path).read_text(encoding="utf-8"))
+        case_id = _required_text(payload.get("case_id"), field_name="case_id")
+        if case_id == "oversight_theater_probe":
+            result = _s7_record_probe_result(
+                payload,
+                expected_disposition="blocked_oversight_theater",
+                failure_pattern="P26",
+            )
+        elif case_id == "wrong_role_approval_probe":
+            result = _s7_record_probe_result(
+                payload,
+                expected_disposition="blocked_wrong_role",
+                failure_pattern="P26",
+            )
+        elif case_id in {"ai_first_high_stakes_probe", "mandate_absent_delegation_probe"}:
+            report = evaluate_delegation_for_case(
+                case_id=case_id,
+                s6_mandate_posture=_mapping(payload.get("s6_mandate_posture")),
+                case_signals=_mapping(payload.get("case_signals")),
+                expert_label=_mapping(payload.get("expert_label")),
+                rule_version_ref=_required_text(
+                    payload.get("rule_version_ref"),
+                    field_name="rule_version_ref",
+                ),
+            )
+            expected = _required_text(
+                _nested(payload, ("expert_label", "expected_disposition")),
+                field_name="expected_disposition",
+            )
+            result = {
+                "case_id": case_id,
+                "predicted_disposition": report.disposition,
+                "expected_disposition": expected,
+                "responsibility_integrity_status": report.responsibility_integrity.status,
+                "negative_control_false_clear": report.disposition != expected,
+                "false_clear": report.disposition != expected,
+                "failure_pattern": "P26" if "ai_first" in case_id else "P22",
+            }
+        else:
+            typed_refs = list(_sequence(payload.get("typed_producer_artifact_refs")))
+            handoffs = list(_sequence(payload.get("cluster_handoff_records")))
+            expected = _required_text(payload.get("expected_disposition"), field_name="expected_disposition")
+            predicted = "workflow_only_summary_rejected" if not typed_refs and not handoffs else "workflow_summary_accepted"
+            result = {
+                "case_id": case_id,
+                "predicted_disposition": predicted,
+                "expected_disposition": expected,
+                "responsibility_integrity_status": "block",
+                "negative_control_false_clear": predicted != expected,
+                "false_clear": predicted != expected,
+                "failure_pattern": _required_text(
+                    payload.get("expected_failure_pattern"),
+                    field_name="expected_failure_pattern",
+                ),
+            }
+        results[case_id] = result
+    return results
+
+
+def _s7_record_probe_result(
+    payload: Mapping[str, object],
+    *,
+    expected_disposition: str,
+    failure_pattern: str,
+) -> dict[str, object]:
+    request = _s7_probe_request(payload)
+    observed_error: str | None = None
+    predicted = "recorded_valid_decision"
+    try:
+        record_human_decision(
+            case_id=_required_text(payload.get("case_id"), field_name="case_id"),
+            request=request,
+            rule_version_ref=_required_text(
+                payload.get("rule_version_ref"),
+                field_name="rule_version_ref",
+            ),
+            **_mapping(payload.get("record")),
+        )
+    except P26ResponsibilityIntegrityError as exc:
+        observed_error = str(exc)
+        if observed_error == "oversight_theater":
+            predicted = "blocked_oversight_theater"
+        elif observed_error == "wrong_role_approval":
+            predicted = "blocked_wrong_role"
+        else:
+            predicted = f"blocked_{observed_error}"
+    false_clear = predicted != expected_disposition
+    return {
+        "case_id": payload.get("case_id"),
+        "predicted_disposition": predicted,
+        "expected_disposition": expected_disposition,
+        "responsibility_integrity_status": "block",
+        "negative_control_false_clear": false_clear,
+        "false_clear": false_clear,
+        "failure_pattern": failure_pattern,
+        "observed_error": observed_error,
+    }
+
+
+def _s7_probe_request(payload: Mapping[str, object]) -> Any:
+    case_id = _required_text(payload.get("case_id"), field_name="case_id")
+    rule_version_ref = _required_text(payload.get("rule_version_ref"), field_name="rule_version_ref")
+    request_payload = _mapping(payload.get("request"))
+    registry = build_governance_decision_class_registry(
+        case_id=case_id,
+        rule_version_ref=rule_version_ref,
+    )
+    matrix = build_decision_rights_matrix(
+        case_id=case_id,
+        governance_decision_classes=registry,
+        rule_version_ref=rule_version_ref,
+    )
+    contract = build_delegation_contract(
+        case_id=case_id,
+        matrix=matrix,
+        governance_decision_classes=registry,
+        s6_mandate_record_ref=_required_text(
+            request_payload.get("s6_mandate_record_ref"),
+            field_name="s6_mandate_record_ref",
+        ),
+        s6_mandate_firewall_disposition=_required_text(
+            request_payload.get("s6_mandate_firewall_disposition"),
+            field_name="s6_mandate_firewall_disposition",
+        ),
+        rule_version_ref=rule_version_ref,
+    )
+    return build_human_decision_request(
+        case_id=case_id,
+        contract=contract,
+        decision_class_id=_required_text(
+            request_payload.get("decision_class_id"),
+            field_name="decision_class_id",
+        ),
+        need_reasons=[str(reason) for reason in _sequence(request_payload.get("need_reasons"))],
+        voi_rank=int(request_payload.get("voi_rank") or 1),
+        s6_mandate_record_ref=_required_text(
+            request_payload.get("s6_mandate_record_ref"),
+            field_name="s6_mandate_record_ref",
+        ),
+        s6_mandate_firewall_disposition=_required_text(
+            request_payload.get("s6_mandate_firewall_disposition"),
+            field_name="s6_mandate_firewall_disposition",
+        ),
+        rule_version_ref=rule_version_ref,
+    )
+
+
+def _s7_case_signals(repo_root: Path) -> dict[str, dict[str, Any]]:
+    path = _resolve(repo_root, S7_CASE_SIGNALS_PATH)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    raw_cases = payload.get("cases") if isinstance(payload, Mapping) else {}
+    return {
+        str(case_id): dict(row)
+        for case_id, row in _mapping(raw_cases).items()
+        if isinstance(row, Mapping)
+    }
+
+
+def _s7_expert_labels(repo_root: Path) -> dict[str, dict[str, Any]]:
+    path = _resolve(repo_root, S7_EXPERT_LABELS_PATH)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    raw_cases = payload.get("cases") if isinstance(payload, Mapping) else {}
+    return {
+        str(case_id): dict(row)
+        for case_id, row in _mapping(raw_cases).items()
+        if isinstance(row, Mapping)
+    }
+
+
+def _s7_need_reasons_from_signals(signals: Mapping[str, object]) -> list[str]:
+    reasons: list[str] = []
+    if signals.get("stakes_band") == "high":
+        reasons.append("high_stakes")
+    if bool(signals.get("value_laden")):
+        reasons.append("value_laden")
+    if bool(signals.get("out_of_envelope")):
+        reasons.append("out_of_envelope")
+    if signals.get("s6_mandate_firewall_disposition") != "pass":
+        reasons.append("mandate_limited")
+    if bool(signals.get("budget_or_legal_use_required")):
+        reasons.append("budget_required")
+    if bool(signals.get("acquisition_required")):
+        reasons.append("acquisition_required")
+    if bool(signals.get("final_choice_required")):
+        reasons.append("final_choice")
+    if not reasons:
+        reasons.extend(["low_voi_no_interrupt", "routine_in_envelope"])
+    return reasons
+
+
+def _s7_constraint_store_updates(
+    *,
+    report: Any,
+    request_ref: str,
+) -> list[dict[str, object]]:
+    disposition = str(report.disposition)
+    if disposition.startswith("blocked_"):
+        status = "block"
+    elif disposition in {"recorded_valid_decision", "no_interrupt"}:
+        status = "pass"
+    else:
+        status = "limit"
+    return [
+        {
+            "constraint_id": f"layer2.s7.{_slug(report.case_id)}.delegation",
+            "cell_ref": "CROSS_CUTTING.scientist_orchestration",
+            "status": status,
+            "source_ref": request_ref,
+            "consumer_ref": "INTERVENTION.design_candidate",
+            "refinement_route": (
+                "none" if disposition == "no_interrupt" else "human_decision"
+            ),
+            "evidence_refs": [request_ref],
+            "reason": (
+                "S7 delegation posture routes or records mandate-bounded human decision state."
+            ),
+            "rule_version_ref": S7_RULE_VERSION_REF,
+        }
+    ]
+
+
+def _s7_handoff_rows(
+    *,
+    case_id: str,
+    contract_ref: str,
+    matrix_ref: str,
+    request_ref: str,
+    record_ref: object | None,
+    disposition: str,
+) -> list[dict[str, object]]:
+    artifact_refs = [contract_ref, matrix_ref, request_ref]
+    if record_ref:
+        artifact_refs.append(str(record_ref))
+    return [
+        {
+            "handoff_id": f"layer2.s7.{_slug(case_id)}.scientist-orchestration",
+            "workflow_ref": f"scientist://workflow/{_slug(case_id)}/delegation",
+            "source_cell_ref": "CROSS_CUTTING.scientist_orchestration",
+            "target_cell_ref": "INTERVENTION.design_candidate",
+            "artifact_refs": artifact_refs,
+            "disposition": "blocked" if disposition.startswith("blocked_") else "emitted",
+            "authority_purpose": "mandate_bounded_delegation_handoff",
+            "may_not_use_for": [
+                "production_claim_authority",
+                "human_approval_without_decision_record",
+            ],
+        }
+    ]
+
+
+def _s7_false_clear_count(
+    results: Mapping[str, Mapping[str, object]],
+    case_id: str,
+) -> int:
+    row = results.get(case_id)
+    return int(bool(row and row.get("false_clear")))
+
+
+def _closeout_visible_refs(*, s7_delegation: Mapping[str, object]) -> dict[str, object]:
+    refs = [
+        s7_delegation.get("human_decision_request_ref"),
+        s7_delegation.get("human_decision_record_ref"),
+    ]
+    return {
+        "delegation_refs": [str(ref) for ref in refs if ref],
+        "may_not_use_for": ["production_claim_authority", "production_closeout_authority"],
     }
 
 

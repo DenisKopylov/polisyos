@@ -108,6 +108,7 @@ class CertifiedOperationEnvelope(Layer2ReadinessModel):
     method_scopes: list[str] = Field(..., min_length=1, max_length=20)
     certified_for: list[str] = Field(..., min_length=1, max_length=20)
     not_certified_for: list[str] = Field(..., min_length=1, max_length=20)
+    cluster_authority_dimension_refs: list[str] = Field(default_factory=list, max_length=40)
     rule_version_ref: str = Field(..., min_length=1, max_length=300)
 
 

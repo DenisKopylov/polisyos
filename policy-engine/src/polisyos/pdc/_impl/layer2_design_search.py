@@ -93,6 +93,7 @@ _MAY_NOT_USE_FOR = [
     "publication_authority",
     "rollout_authority",
     "claim_authority",
+    "production_claim_authority",
     "production_closeout_authority",
     "acquisition_authority",
     "source_contract_authority",
@@ -189,6 +190,45 @@ class Layer2S6BlindSpotPostureInput(Layer2ReadinessModel):
     regime_reissue_required: bool
     limitation_summary: str
     false_clear_penalty: float = Field(ge=0.0)
+
+
+class Layer2S7DelegationPostureInput(Layer2ReadinessModel):
+    """Injected S7 delegation posture consumed by the S2 shadow loop."""
+
+    delegation_contract_ref: str = Field(..., min_length=1, max_length=300)
+    decision_rights_matrix_ref: str = Field(..., min_length=1, max_length=300)
+    human_decision_request_ref: str = Field(..., min_length=1, max_length=300)
+    human_decision_record_ref: str | None = Field(default=None, max_length=300)
+    decision_class_id: str = Field(..., min_length=1, max_length=120)
+    required_role: str = Field(..., min_length=1, max_length=120)
+    interaction_mode: str = Field(..., min_length=1, max_length=120)
+    disposition: str = Field(..., min_length=1, max_length=120)
+    available_actions: list[str] = Field(default_factory=list, max_length=10)
+    decision_action_exercised: str | None = Field(default=None, max_length=120)
+    five_rights_requirement: dict[str, object]
+    five_rights_check: dict[str, object] | None = None
+    decision_options: list[dict[str, object]] = Field(default_factory=list, max_length=20)
+    recommendation_ref: str | None = Field(default=None, max_length=300)
+    provenance_refs: list[str] = Field(default_factory=list, max_length=40)
+    material_limitations: list[str] = Field(default_factory=list, max_length=20)
+    value_stakes_impact: str = Field(..., min_length=1, max_length=500)
+    what_changes_under_each_choice: list[str] = Field(default_factory=list, max_length=20)
+    attention_cost_rank: int = Field(ge=1)
+    responsibility_integrity_status: str = Field(..., min_length=1, max_length=40)
+    mandate_record_ref: str = Field(..., min_length=1, max_length=300)
+    s6_mandate_firewall_disposition: str = Field(..., min_length=1, max_length=80)
+    mandate_source_refs: list[str] = Field(default_factory=list, max_length=20)
+    requested_at: AwareDatetime
+    decision_due_at: AwareDatetime | None = None
+    decided_at: AwareDatetime | None = None
+    actor_ref: str | None = Field(default=None, max_length=300)
+    voi_rank: int = Field(ge=1)
+    need_reasons: list[str] = Field(default_factory=list, max_length=20)
+    authority_boundary: AuthorityBoundary
+    governed_pilot_eligible: bool
+    constraint_store_updates: list[dict[str, object]] = Field(default_factory=list, max_length=40)
+    handoff_rows: list[dict[str, object]] = Field(default_factory=list, max_length=40)
+    limitation_summary: str = Field(..., min_length=1, max_length=500)
 
 
 class TypedDiagnosticRecord(Layer2ReadinessModel):
@@ -369,6 +409,16 @@ class SearchLedger(Layer2ReadinessModel):
     instrument_family_coverage: list[str]
     counterexample_class_vocabulary: list[str]
     acquisition_branch_state: Literal["bridge_missing"] = "bridge_missing"
+    delegation_request_refs: list[str] = Field(default_factory=list, max_length=40)
+    delegation_record_refs: list[str] = Field(default_factory=list, max_length=40)
+    cluster_handoff_refs: list[str] = Field(default_factory=list, max_length=40)
+    delegation_status: Literal[
+        "not_applicable",
+        "requested",
+        "recorded",
+        "blocked",
+        "no_interrupt",
+    ] = "not_applicable"
     no_retry_without_new_grammar: bool
     search_incompleteness_note: str
 
@@ -415,6 +465,7 @@ class Layer2S2DesignSearchRun(Layer2ReadinessModel):
     design_record: DesignRecordV0
     composition_posture: Layer2S5CompositionPostureInput | None = None
     blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None
+    delegation_posture: Layer2S7DelegationPostureInput | None = None
 
 
 def run_s2_shadow_design_loop(
@@ -427,6 +478,7 @@ def run_s2_shadow_design_loop(
     commitment_stakes: Literal["low", "high", "catastrophic"] | None = None,
     composition_posture: Layer2S5CompositionPostureInput | None = None,
     blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
+    delegation_posture: Layer2S7DelegationPostureInput | None = None,
 ) -> Layer2S2DesignSearchRun:
     """Run the deterministic S2 one-case shadow design-search loop."""
 
@@ -451,6 +503,7 @@ def run_s2_shadow_design_loop(
         input,
         expansion=expansion,
         blind_spot_posture=blind_spot_posture,
+        delegation_posture=delegation_posture,
     )
     counterexample = _counterexample(input, candidate=candidate)
     decision = _refinement_decision(
@@ -461,6 +514,7 @@ def run_s2_shadow_design_loop(
         blind_spot_posture=blind_spot_posture,
     )
     iteration_status = _iteration_status(input, decision)
+    iteration_status = _s7_iteration_status(delegation_posture, fallback=iteration_status)
     ledger = _search_ledger(
         input,
         candidate=candidate,
@@ -469,6 +523,7 @@ def run_s2_shadow_design_loop(
         iteration_status=iteration_status,
         composition_posture=composition_posture,
         blind_spot_posture=blind_spot_posture,
+        delegation_posture=delegation_posture,
     )
     design_record = _design_record(
         input,
@@ -482,6 +537,7 @@ def run_s2_shadow_design_loop(
         commitment_stakes=commitment_stakes,
         composition_posture=composition_posture,
         blind_spot_posture=blind_spot_posture,
+        delegation_posture=delegation_posture,
     )
     status: S2RunStatus = (
         "governance_required"
@@ -494,6 +550,7 @@ def run_s2_shadow_design_loop(
         if decision.decision == "block_candidate"
         else "shadow_ready"
     )
+    status = _s7_run_status(delegation_posture, fallback=status)
     return Layer2S2DesignSearchRun(
         run_id=run_id,
         status=status,
@@ -514,10 +571,12 @@ def run_s2_shadow_design_loop(
             ledger,
             composition_posture=composition_posture,
             blind_spot_posture=blind_spot_posture,
+            delegation_posture=delegation_posture,
         ),
         design_record=design_record,
         composition_posture=composition_posture,
         blind_spot_posture=blind_spot_posture,
+        delegation_posture=delegation_posture,
     )
 
 
@@ -600,6 +659,17 @@ def project_s2_design_search(
             )
             if audience == "PUBLIC":
                 assert_s2_public_projection_has_blind_spot_disclosure(projection)
+        if run.delegation_posture is not None:
+            projection.update(
+                _s7_projection_fields(
+                    audience,
+                    delegation_posture=run.delegation_posture,
+                    constraint_store=run.constraint_store,
+                    blind_spot_posture=run.blind_spot_posture,
+                )
+            )
+            if audience == "PUBLIC":
+                assert_s2_public_projection_has_delegation_request(projection)
         projections[audience] = projection
     return projections
 
@@ -635,6 +705,19 @@ def assert_s2_public_projection_has_blind_spot_disclosure(
         disclosure = projection.get("blind_spot_disclosure")
         if not isinstance(disclosure, str) or not disclosure.strip():
             raise ValueError("PUBLIC blind-spot projection requires disclosure")
+
+
+def assert_s2_public_projection_has_delegation_request(
+    projection: Mapping[str, object],
+) -> None:
+    """Require decision-shaped PUBLIC disclosure for S7 delegation requests."""
+
+    if projection.get("audience") == "PUBLIC" and projection.get("human_decision_needed"):
+        limitation = projection.get("delegation_limitation")
+        if not isinstance(limitation, str) or not limitation.strip():
+            raise ValueError("PUBLIC S7 projection requires delegation limitation")
+        if "s7_disposition" in projection:
+            raise ValueError("PUBLIC S7 projection must not expose disposition labels")
 
 
 def persist_s2_design_search_run(
@@ -806,26 +889,30 @@ def _constraint_store(
     *,
     expansion: DesignGrammarExpansion,
     blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
+    delegation_posture: Layer2S7DelegationPostureInput | None = None,
 ) -> ConstraintStoreSnapshot:
     slug = _slug(input.case_id)
     s6_constraints = _s6_constraint_entries(blind_spot_posture)
+    s7_constraints = _s7_constraint_entries(delegation_posture)
     base_constraint_ids = [
         "shadow_only",
         "authority_boundary_required",
         "a_side_counterexample_required",
     ]
     s6_constraint_ids = [entry.constraint_id for entry in s6_constraints]
+    s7_constraint_ids = [entry.constraint_id for entry in s7_constraints]
+    constraint_records = [*s6_constraints, *s7_constraints]
     return ConstraintStoreSnapshot(
         snapshot_id=f"layer2.s2.constraints.{slug}",
         snapshot_ref=f"pdc://layer2/s2/{slug}/constraint-store",
         grammar_expansion_ref=expansion.expansion_ref,
-        constraint_ids=[*base_constraint_ids, *s6_constraint_ids],
+        constraint_ids=[*base_constraint_ids, *s6_constraint_ids, *s7_constraint_ids],
         hard_constraint_ids=[
             "shadow_only",
             "authority_boundary_required",
             *[
                 entry.constraint_id
-                for entry in s6_constraints
+                for entry in constraint_records
                 if entry.status == "block"
             ],
         ],
@@ -833,11 +920,11 @@ def _constraint_store(
             "a_spec_gap",
             *[
                 entry.constraint_id
-                for entry in s6_constraints
+                for entry in constraint_records
                 if entry.refinement_route == "human_decision"
             ],
         ],
-        constraint_records=s6_constraints,
+        constraint_records=constraint_records,
     )
 
 
@@ -992,6 +1079,7 @@ def _search_ledger(
     ],
     composition_posture: Layer2S5CompositionPostureInput | None = None,
     blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
+    delegation_posture: Layer2S7DelegationPostureInput | None = None,
 ) -> SearchLedger:
     slug = _slug(input.case_id)
     replay_key = _deterministic_replay_key(
@@ -1001,7 +1089,9 @@ def _search_ledger(
         decision=decision,
         composition_posture=composition_posture,
         blind_spot_posture=blind_spot_posture,
+        delegation_posture=delegation_posture,
     )
+    handoff_refs = _s7_handoff_refs(delegation_posture)
     return SearchLedger(
         ledger_id=f"layer2.s2.ledger.{slug}",
         ledger_ref=f"pdc://layer2/s2/{slug}/search-ledger",
@@ -1024,6 +1114,10 @@ def _search_ledger(
         instrument_family_coverage=list(_INSTRUMENT_FAMILIES),
         counterexample_class_vocabulary=list(_COUNTEREXAMPLE_CLASS_VOCABULARY),
         acquisition_branch_state="bridge_missing",
+        delegation_request_refs=_s7_delegation_request_refs(delegation_posture),
+        delegation_record_refs=_s7_delegation_record_refs(delegation_posture),
+        cluster_handoff_refs=handoff_refs,
+        delegation_status=_s7_delegation_status(delegation_posture),
         no_retry_without_new_grammar=input.force_retry_same_candidate,
         search_incompleteness_note=_SEARCH_INCOMPLETENESS_NOTE,
     )
@@ -1042,6 +1136,7 @@ def _design_record(
     commitment_stakes: Literal["low", "high", "catastrophic"] | None = None,
     composition_posture: Layer2S5CompositionPostureInput | None = None,
     blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
+    delegation_posture: Layer2S7DelegationPostureInput | None = None,
 ) -> DesignRecordV0:
     slug = _slug(input.case_id)
     axis_positions = [
@@ -1153,6 +1248,12 @@ def _design_record(
             _s6_firewall_statuses(blind_spot_posture, input.rule_version_ref)
         )
         ledger_refs.extend(_s6_ledger_refs(blind_spot_posture))
+        projection_audiences = ["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"]
+
+    if delegation_posture is not None:
+        axis_positions.append(_s7_axis_position(delegation_posture, input.rule_version_ref))
+        firewall_status.append(_s7_firewall_status(delegation_posture, input.rule_version_ref))
+        ledger_refs.extend(_s7_ledger_refs(delegation_posture))
         projection_audiences = ["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"]
 
     not_certified_for = list(_MAY_NOT_USE_FOR)
@@ -1468,6 +1569,78 @@ def _s6_projection_fields(
     return fields
 
 
+def _s7_projection_fields(
+    audience: Literal["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"],
+    *,
+    delegation_posture: Layer2S7DelegationPostureInput,
+    constraint_store: ConstraintStoreSnapshot,
+    blind_spot_posture: Layer2S6BlindSpotPostureInput | None,
+) -> dict[str, object]:
+    if audience == "PUBLIC":
+        return {
+            "human_decision_needed": delegation_posture.disposition == "request_human_decision",
+            "accountable_role": delegation_posture.required_role,
+            "available_decision_actions": list(delegation_posture.available_actions),
+            "delegation_limitation": delegation_posture.limitation_summary,
+        }
+
+    fields: dict[str, object] = {
+        "s7_decision_class_id": delegation_posture.decision_class_id,
+        "s7_required_role": delegation_posture.required_role,
+        "s7_interaction_mode": delegation_posture.interaction_mode,
+        "s7_p26_firewall_status": delegation_posture.responsibility_integrity_status,
+        "s7_decision_action_exercised": delegation_posture.decision_action_exercised,
+    }
+    if audience in {"EXPERT", "MACHINE"}:
+        fields.update(
+            {
+                "delegation_contract_ref": delegation_posture.delegation_contract_ref,
+                "decision_rights_matrix_ref": delegation_posture.decision_rights_matrix_ref,
+                "human_decision_request_ref": delegation_posture.human_decision_request_ref,
+                "human_decision_record_ref": delegation_posture.human_decision_record_ref,
+                "recommendation_ref": delegation_posture.recommendation_ref,
+                "mandate_record_ref": delegation_posture.mandate_record_ref,
+                "mandate_source_refs": list(delegation_posture.mandate_source_refs),
+                "decision_rights_matrix_row": {
+                    "decision_class_id": delegation_posture.decision_class_id,
+                    "required_role": delegation_posture.required_role,
+                    "interaction_mode": delegation_posture.interaction_mode,
+                    "available_actions": list(delegation_posture.available_actions),
+                },
+                "five_rights_requirement": dict(delegation_posture.five_rights_requirement),
+                "five_rights_check": (
+                    dict(delegation_posture.five_rights_check)
+                    if delegation_posture.five_rights_check is not None
+                    else None
+                ),
+                "responsibility_integrity_check": {
+                    "status": delegation_posture.responsibility_integrity_status,
+                    "pattern_ids": ["P26", "P20", "P22"],
+                    "record_ref": delegation_posture.human_decision_record_ref,
+                },
+                "decision_options": list(delegation_posture.decision_options),
+                "what_changes_under_each_choice": list(
+                    delegation_posture.what_changes_under_each_choice
+                ),
+                "need_reasons": list(delegation_posture.need_reasons),
+                "constraint_store_updates": [
+                    record.model_dump(mode="json")
+                    for record in constraint_store.constraint_records
+                    if record.cell_ref == "CROSS_CUTTING.scientist_orchestration"
+                ],
+                "handoff_rows": list(delegation_posture.handoff_rows),
+                "authority_boundary": delegation_posture.authority_boundary.model_dump(
+                    mode="json"
+                ),
+                "governed_pilot_eligible": _s7_governed_pilot_eligible(
+                    delegation_posture,
+                    blind_spot_posture=blind_spot_posture,
+                ),
+            }
+        )
+    return fields
+
+
 def _s6_axis_positions(
     blind_spot_posture: Layer2S6BlindSpotPostureInput,
     rule_version_ref: str,
@@ -1522,6 +1695,17 @@ def _s6_constraint_entries(
     ]
 
 
+def _s7_constraint_entries(
+    delegation_posture: Layer2S7DelegationPostureInput | None,
+) -> list[ConstraintStoreEntry]:
+    if delegation_posture is None:
+        return []
+    return [
+        ConstraintStoreEntry.model_validate(update)
+        for update in delegation_posture.constraint_store_updates
+    ]
+
+
 def _s6_refinement_decision(
     blind_spot_posture: Layer2S6BlindSpotPostureInput | None,
 ) -> RefinementDecisionKind | None:
@@ -1555,6 +1739,157 @@ def _s6_ledger_refs(blind_spot_posture: Layer2S6BlindSpotPostureInput) -> list[s
         *blind_spot_posture.cluster_authority_dimension_refs,
     ]
     return list(dict.fromkeys(refs))[:40]
+
+
+def _s7_ledger_refs(delegation_posture: Layer2S7DelegationPostureInput) -> list[str]:
+    refs = [
+        delegation_posture.delegation_contract_ref,
+        delegation_posture.decision_rights_matrix_ref,
+        delegation_posture.human_decision_request_ref,
+        delegation_posture.human_decision_record_ref,
+        delegation_posture.recommendation_ref,
+        delegation_posture.mandate_record_ref,
+        *delegation_posture.mandate_source_refs,
+        *delegation_posture.provenance_refs,
+    ]
+    return [ref for ref in dict.fromkeys(refs) if ref is not None][:40]
+
+
+def _s7_delegation_request_refs(
+    delegation_posture: Layer2S7DelegationPostureInput | None,
+) -> list[str]:
+    if delegation_posture is None:
+        return []
+    return [delegation_posture.human_decision_request_ref]
+
+
+def _s7_delegation_record_refs(
+    delegation_posture: Layer2S7DelegationPostureInput | None,
+) -> list[str]:
+    if delegation_posture is None or delegation_posture.human_decision_record_ref is None:
+        return []
+    return [delegation_posture.human_decision_record_ref]
+
+
+def _s7_handoff_refs(
+    delegation_posture: Layer2S7DelegationPostureInput | None,
+) -> list[str]:
+    if delegation_posture is None:
+        return []
+    return [
+        str(row["handoff_id"])
+        for row in delegation_posture.handoff_rows
+        if row.get("handoff_id")
+    ][:40]
+
+
+def _s7_delegation_status(
+    delegation_posture: Layer2S7DelegationPostureInput | None,
+) -> Literal["not_applicable", "requested", "recorded", "blocked", "no_interrupt"]:
+    if delegation_posture is None:
+        return "not_applicable"
+    if delegation_posture.disposition.startswith("blocked_"):
+        return "blocked"
+    if delegation_posture.disposition == "recorded_valid_decision":
+        return "recorded"
+    if delegation_posture.disposition == "no_interrupt":
+        return "no_interrupt"
+    return "requested"
+
+
+def _s7_run_status(
+    delegation_posture: Layer2S7DelegationPostureInput | None,
+    *,
+    fallback: S2RunStatus,
+) -> S2RunStatus:
+    if delegation_posture is None:
+        return fallback
+    if delegation_posture.disposition.startswith("blocked_"):
+        return "blocked"
+    if delegation_posture.disposition == "request_human_decision":
+        return "governance_required"
+    return fallback
+
+
+def _s7_iteration_status(
+    delegation_posture: Layer2S7DelegationPostureInput | None,
+    *,
+    fallback: Literal[
+        "blocked",
+        "blocked_no_retry",
+        "governance_required",
+        "acquisition_required",
+        "abstained",
+        "refined_shadow",
+    ],
+) -> Literal[
+    "blocked",
+    "blocked_no_retry",
+    "governance_required",
+    "acquisition_required",
+    "abstained",
+    "refined_shadow",
+]:
+    if delegation_posture is None:
+        return fallback
+    if delegation_posture.disposition.startswith("blocked_"):
+        return "blocked"
+    if delegation_posture.disposition == "request_human_decision":
+        return "governance_required"
+    return fallback
+
+
+def _s7_axis_position(
+    delegation_posture: Layer2S7DelegationPostureInput,
+    rule_version_ref: str,
+) -> AxisPositionDeclaration:
+    return AxisPositionDeclaration(
+        cluster="CROSS_CUTTING",
+        axis="scientist_orchestration",
+        position=delegation_posture.disposition,
+        evidence_refs=_s7_ledger_refs(delegation_posture),
+        authority_purpose="mandate_bounded_delegation_handoff",
+        rule_version_ref=rule_version_ref,
+    )
+
+
+def _s7_firewall_status(
+    delegation_posture: Layer2S7DelegationPostureInput,
+    rule_version_ref: str,
+) -> AxisFirewallStatus:
+    if delegation_posture.disposition.startswith("blocked_"):
+        status: Literal["pass", "warn", "limit", "block"] = "block"
+    elif delegation_posture.responsibility_integrity_status == "pass":
+        status = "pass"
+    else:
+        status = "limit"
+    return AxisFirewallStatus(
+        cell_ref="CROSS_CUTTING.scientist_orchestration",
+        status=status,
+        pattern_ids=["P26", "P12", "P15", "P20", "P22"],
+        reason=(
+            "S7 injected mandate-bounded delegation posture; S2 consumes typed refs "
+            "without creating approval authority."
+        ),
+        maturity="fail_closed",
+        rule_version_ref=rule_version_ref,
+    )
+
+
+def _s7_governed_pilot_eligible(
+    delegation_posture: Layer2S7DelegationPostureInput,
+    *,
+    blind_spot_posture: Layer2S6BlindSpotPostureInput | None,
+) -> bool:
+    return (
+        delegation_posture.governed_pilot_eligible
+        and delegation_posture.disposition == "recorded_valid_decision"
+        and delegation_posture.human_decision_record_ref is not None
+        and delegation_posture.responsibility_integrity_status == "pass"
+        and delegation_posture.s6_mandate_firewall_disposition == "pass"
+        and blind_spot_posture is not None
+        and blind_spot_posture.overall_posture == "clear_fail_closed"
+    )
 
 
 def _is_s6_cell(cell_ref: str) -> bool:
@@ -1770,6 +2105,7 @@ def _handoff_records(
     *,
     composition_posture: Layer2S5CompositionPostureInput | None = None,
     blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
+    delegation_posture: Layer2S7DelegationPostureInput | None = None,
 ) -> list[ClusterHandoffRecord]:
     records = [
         ClusterHandoffRecord(
@@ -1817,6 +2153,11 @@ def _handoff_records(
                 ],
             )
         )
+    if delegation_posture is not None:
+        records.extend(
+            ClusterHandoffRecord.model_validate(row)
+            for row in delegation_posture.handoff_rows
+        )
     return records
 
 
@@ -1845,6 +2186,7 @@ def _deterministic_replay_key(
     decision: RefinementDecision,
     composition_posture: Layer2S5CompositionPostureInput | None = None,
     blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
+    delegation_posture: Layer2S7DelegationPostureInput | None = None,
 ) -> str:
     payload = {
         "case_id": input.case_id,
@@ -1879,6 +2221,8 @@ def _deterministic_replay_key(
         payload["composition_posture"] = composition_posture.model_dump(mode="json")
     if blind_spot_posture is not None:
         payload["blind_spot_posture"] = blind_spot_posture.model_dump(mode="json")
+    if delegation_posture is not None:
+        payload["delegation_posture"] = delegation_posture.model_dump(mode="json")
     canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 

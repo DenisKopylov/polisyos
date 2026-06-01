@@ -404,6 +404,8 @@ Extend `tests/unit/pdc/test_layer2_s2_design_search.py` with:
 - `test_s2_s7_public_projection_is_decision_shaped_pull_first`
 - `test_s2_s7_search_ledger_and_closeout_payload_include_decision_record_refs`
 - `test_s2_s7_persisted_search_ledger_round_trips_delegation_refs`
+- `test_s2_s7_search_ledger_defaults_preserve_legacy_cas_payloads`
+- `test_s2_s7_replay_key_unchanged_without_delegation_posture`
 - `test_s2_s7_replay_key_changes_when_delegation_record_changes`
 - `test_s2_s7_reviewer_projection_shows_p26_and_role_status`
 - `test_s2_s7_expert_machine_projection_contains_refs_matrix_and_integrity`
@@ -645,6 +647,7 @@ When present:
   - `delegation_status: Literal["not_applicable", "requested", "recorded", "blocked", "no_interrupt"] = "not_applicable"`
 - add S7 request/record/handoff refs to `SearchLedger` through those fields;
 - update deterministic replay-key construction so materially different S7 request/record refs change the S2 replay key;
+- preserve S2 determinism for runs without S7: old CAS search-ledger payloads load with default empty S7 fields, and the replay key is byte-for-byte unchanged when `delegation_posture is None`;
 - update `persist_s2_design_search_run()` / `load_s2_search_ledger()` tests so S7 refs round-trip through CAS persistence;
 - include closeout-visible, non-production S7 refs in the run dump/projection so closeout can show who decided what without changing production authority;
 - add one `ClusterHandoffRecord` from `CROSS_CUTTING.scientist_orchestration` to `INTERVENTION.design_candidate`;
@@ -1127,6 +1130,14 @@ Closing `CROSS_CUTTING.scientist_orchestration` moves live open count `5 -> 4`.
 
 Update only live readiness open-count assertions:
 
+- `tests/repo_quality/tools/test_policy_design_case_cluster_ownership_map.py`
+  - update `open_cell_closure["open_cell_count"] == 5` to `4`.
+- `tests/repo_quality/tools/test_policy_design_case_layer2_readiness.py`
+  - update `current_open_cell_count == 5` to `4`;
+  - add a named `CELLS_CLOSED_THROUGH_S7 = [*CELLS_CLOSED_THROUGH_S6, "CROSS_CUTTING.scientist_orchestration"]`;
+  - update `cells_closed_since_s0 == CELLS_CLOSED_THROUGH_S6` to `CELLS_CLOSED_THROUGH_S7`;
+  - update `assigned - current_open_cells == set(CELLS_CLOSED_THROUGH_S6)` to `set(CELLS_CLOSED_THROUGH_S7)`;
+  - keep S6 static manifest assertions such as `s6_expected_current_open_cell_count == 5`.
 - `tests/repo_quality/tools/test_policy_design_case_layer2_s2_design_search.py`
   - live readiness open count `4`; keep S2 static manifest `expected_current_open_cell_count == 15`.
 - `tests/repo_quality/tools/test_policy_design_case_layer2_s3_substrate_acquisition.py`
@@ -1141,17 +1152,21 @@ Update only live readiness open-count assertions:
 Run stale searches:
 
 ```bash
-rg -n "summary\\[\\\"(open_cell_count|current_open_cell_count)\\\"\\] == 5|live_open_count_is_5|readiness_open_count_is_5" \
+rg -n "summary\\[\\\"(open_cell_count|current_open_cell_count)\\\"\\] == 5|open_cell_closure\\[\\\"open_cell_count\\\"\\] == 5|live_open_count_is_5|readiness_open_count_is_5" \
+  tests/repo_quality/tools/test_policy_design_case_cluster_ownership_map.py \
+  tests/repo_quality/tools/test_policy_design_case_layer2_readiness.py \
   tests/repo_quality/tools/test_policy_design_case_layer2_s2_design_search.py \
   tests/repo_quality/tools/test_policy_design_case_layer2_s3_substrate_acquisition.py \
   tests/repo_quality/tools/test_policy_design_case_layer2_s4_epistemic_regime.py \
   tests/repo_quality/tools/test_policy_design_case_layer2_s5_coupling_composition.py \
   tests/repo_quality/tools/test_policy_design_case_layer2_s6_blind_spot_firewalls.py
+rg -n "cells_closed_since_s0.*CELLS_CLOSED_THROUGH_S6|assigned - current_open_cells == set\\(CELLS_CLOSED_THROUGH_S6\\)" \
+  tests/repo_quality/tools/test_policy_design_case_layer2_readiness.py
 rg -n "\\[open_cell_closure\\.CROSS_CUTTING\\.scientist_orchestration\\]" \
   architecture/policy_design_case/cluster_ownership_map.toml
 ```
 
-Expected: both commands return no matches.
+Expected: all three commands return no matches.
 
 - [ ] **Step 3: Run repo-quality burn-down**
 

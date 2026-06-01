@@ -25,15 +25,11 @@ DEFAULT_DEPENDENCY_DAG_PATH = Path("architecture/policy_design_case/layer2_depen
 DEFAULT_SLICE_CELL_MATRIX_PATH = Path(
     "architecture/policy_design_case/layer2_slice_cell_matrix.toml"
 )
-DEFAULT_FLOOR_GOVERNANCE_PATH = Path(
-    "architecture/policy_design_case/layer2_floor_governance.toml"
-)
+DEFAULT_FLOOR_GOVERNANCE_PATH = Path("architecture/policy_design_case/layer2_floor_governance.toml")
 DEFAULT_ARTIFACT_TRACEABILITY_PATH = Path(
     "architecture/policy_design_case/layer2_artifact_traceability.toml"
 )
-DEFAULT_CORPUS_PARTITION_PATH = Path(
-    "architecture/policy_design_case/layer2_corpus_partition.json"
-)
+DEFAULT_CORPUS_PARTITION_PATH = Path("architecture/policy_design_case/layer2_corpus_partition.json")
 DEFAULT_FIRST_PROVING_CASE_PATH = Path(
     "architecture/policy_design_case/layer2_first_proving_case.json"
 )
@@ -51,6 +47,9 @@ DEFAULT_S6_BLIND_SPOT_FIREWALLS_MANIFEST_PATH = Path(
 )
 DEFAULT_S7_DELEGATION_MANIFEST_PATH = Path(
     "architecture/policy_design_case/layer2_s7_delegation_manifest.json"
+)
+DEFAULT_S8_VALUE_CHOICE_MANIFEST_PATH = Path(
+    "architecture/policy_design_case/layer2_s8_value_choice_manifest.json"
 )
 DEFAULT_INVENTORY_PATH = Path("architecture/policy_design_case/inventory.json")
 
@@ -204,6 +203,53 @@ S7_REQUIRED_DENY = {
     "s13_accountability_closure",
 }
 S7_INVENTORY_ID = "layer2_s7_delegation_manifest"
+S8_CLOSED_CELLS = {"ACTOR.value_choice_provenance"}
+S8_REQUIRED_ARTIFACTS = {
+    "AuthorizedValueSchedule",
+    "ObjectiveFunctionProvenanceRecord",
+    "ParetoArchive",
+    "ValueChoiceProvenanceRecord",
+    "ValueTradeoffDisclosureRecord",
+    "ValueChoiceIntegrityReport",
+}
+S8_REQUIRED_FIREWALLS = {"P20", "P22", "P12", "P15", "P26"}
+S8_REQUIRED_AUTHORITY_SCOPE = {
+    "value_choice_provenance",
+    "authorized_value_schedule",
+    "shadow_scenario_value_schedule",
+    "pareto_frontier_fact",
+    "value_tradeoff_disclosure",
+}
+S8_REQUIRED_DENY = {
+    "production_claim_authority",
+    "production_recommendation",
+    "rollout_authority",
+    "publication_authority",
+    "claim_authority",
+    "scalar_welfare_authority",
+    "preference_learning_authority",
+    "mandate_creation",
+    "social_weight_selection_without_authorized_schedule",
+    "outcome_prediction_authority",
+    "forecast_calibration_authority",
+    "s9_projection_maturity",
+    "s10_forecast_support",
+    "s11_calibration",
+    "s12_envelope_growth",
+    "s13_accountability_closure",
+    "s14_universality",
+}
+S8_FALSE_CLEAR_FIELDS = (
+    "llm_weight_false_clear_count",
+    "corpus_weight_false_clear_count",
+    "blocked_mandate_value_choice_false_clear_count",
+    "pareto_ranking_without_value_source_false_clear_count",
+    "multi_principal_silent_average_false_clear_count",
+    "s7_decision_substitution_false_clear_count",
+    "shadow_scenario_authority_false_clear_count",
+    "missing_arrow_disclosure_false_clear_count",
+)
+S8_INVENTORY_ID = "layer2_s8_value_choice_manifest"
 
 
 def load_layer2_readiness_payloads(repo_root: Path | str = REPO_ROOT) -> dict[str, Any]:
@@ -232,6 +278,7 @@ def load_layer2_readiness_payloads(repo_root: Path | str = REPO_ROOT) -> dict[st
             root / DEFAULT_S6_BLIND_SPOT_FIREWALLS_MANIFEST_PATH
         ),
         "s7_delegation": _load_optional_json(root / DEFAULT_S7_DELEGATION_MANIFEST_PATH),
+        "s8_value_choice": _load_optional_json(root / DEFAULT_S8_VALUE_CHOICE_MANIFEST_PATH),
         "inventory": _load_json(root / DEFAULT_INVENTORY_PATH),
         "cluster_map": cluster_map.load_cluster_ownership_map(root),
     }
@@ -395,14 +442,23 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
         inventory=payloads["inventory"],
         issues=issues,
     )
+    _validate_s8_value_choice(
+        s8=payloads.get("s8_value_choice"),
+        s7=payloads.get("s7_delegation"),
+        floor_governance=payloads["floor_governance"],
+        artifact_traceability=payloads["artifact_traceability"],
+        cluster_map_payload=cluster_payload,
+        current_open_cells=current_open_cells,
+        assigned_cells=assigned_cells,
+        inventory=payloads["inventory"],
+        issues=issues,
+    )
     closed_since_s0 = sorted(assigned_cells - current_open_cells)
     s3 = payloads.get("s3_substrate_acquisition")
     s3_summary = (
         {
             "s3_acquisition_branch_state": s3.get("acquisition_branch_state"),
-            "s3_expected_current_open_cell_count": s3.get(
-                "expected_current_open_cell_count"
-            ),
+            "s3_expected_current_open_cell_count": s3.get("expected_current_open_cell_count"),
         }
         if isinstance(s3, dict) and s3
         else {}
@@ -410,13 +466,9 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
     s4 = payloads.get("s4_epistemic_regime")
     s4_summary = (
         {
-            "s4_w12_overblocking_hypothesis": s4.get(
-                "w12_overblocking_hypothesis"
-            ),
+            "s4_w12_overblocking_hypothesis": s4.get("w12_overblocking_hypothesis"),
             "s4_regime_accuracy": s4.get("regime_accuracy"),
-            "s4_expected_current_open_cell_count": s4.get(
-                "expected_current_open_cell_count"
-            ),
+            "s4_expected_current_open_cell_count": s4.get("expected_current_open_cell_count"),
         }
         if isinstance(s4, dict) and s4
         else {}
@@ -426,16 +478,12 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
         {
             "s5_coupling_accuracy": s5.get("coupling_accuracy"),
             "s5_penalized_score": s5.get("penalized_score"),
-            "s5_expected_current_open_cell_count": s5.get(
-                "expected_current_open_cell_count"
-            ),
+            "s5_expected_current_open_cell_count": s5.get("expected_current_open_cell_count"),
             "s5_false_modular_count": s5.get("false_modular_count"),
             "s5_false_entangled_count": s5.get("false_entangled_count"),
             "s5_coupling_regime_counts": s5.get("coupling_regime_counts"),
             "s5_boundary_regime_counts": s5.get("boundary_regime_counts"),
-            "s5_system_effect_support_labels": s5.get(
-                "system_effect_support_labels"
-            ),
+            "s5_system_effect_support_labels": s5.get("system_effect_support_labels"),
         }
         if isinstance(s5, dict) and s5
         else {}
@@ -447,16 +495,10 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
             "s6_case_count": s6.get("case_count"),
             "s6_axis_coverage_count": s6.get("axis_coverage_count"),
             "s6_bridge_consumer_coverage": s6.get("bridge_consumer_coverage"),
-            "s6_c3_authority_dimension_coverage": s6.get(
-                "c3_authority_dimension_coverage"
-            ),
-            "s6_fail_closed_coverage": s6.get(
-                "per_axis_fail_closed_negative_control_pass_rate"
-            ),
+            "s6_c3_authority_dimension_coverage": s6.get("c3_authority_dimension_coverage"),
+            "s6_fail_closed_coverage": s6.get("per_axis_fail_closed_negative_control_pass_rate"),
             "s6_false_clear_count": s6.get("false_clear_count"),
-            "s6_expected_current_open_cell_count": s6.get(
-                "expected_current_open_cell_count"
-            ),
+            "s6_expected_current_open_cell_count": s6.get("expected_current_open_cell_count"),
         }
         if isinstance(s6, dict) and s6
         else {}
@@ -467,21 +509,29 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
             "s7_case_count": s7.get("case_count"),
             "s7_delegation_precision": s7.get("delegation_precision"),
             "s7_delegation_recall": s7.get("delegation_recall"),
-            "s7_responsibility_integrity_pass_rate": s7.get(
-                "responsibility_integrity_pass_rate"
-            ),
-            "s7_oversight_theater_false_clear_count": s7.get(
-                "oversight_theater_false_clear_count"
-            ),
+            "s7_responsibility_integrity_pass_rate": s7.get("responsibility_integrity_pass_rate"),
+            "s7_oversight_theater_false_clear_count": s7.get("oversight_theater_false_clear_count"),
             "s7_wrong_role_false_clear_count": s7.get("wrong_role_false_clear_count"),
             "s7_workflow_only_summary_false_clear_count": s7.get(
                 "workflow_only_summary_false_clear_count"
             ),
-            "s7_expected_current_open_cell_count": s7.get(
-                "expected_current_open_cell_count"
-            ),
+            "s7_expected_current_open_cell_count": s7.get("expected_current_open_cell_count"),
         }
         if isinstance(s7, dict) and s7
+        else {}
+    )
+    s8 = payloads.get("s8_value_choice")
+    s8_summary = (
+        {
+            "s8_case_count": s8.get("case_count"),
+            "s8_value_provenance_completeness": s8.get("value_provenance_completeness"),
+            "s8_authorized_value_schedule_recall": s8.get("authorized_value_schedule_recall"),
+            "s8_pareto_archive_coverage": s8.get("pareto_archive_coverage"),
+            "s8_tradeoff_disclosure_coverage": s8.get("tradeoff_disclosure_coverage"),
+            "s8_expected_current_open_cell_count": s8.get("expected_current_open_cell_count"),
+            **{f"s8_{field}": s8.get(field) for field in S8_FALSE_CLEAR_FIELDS},
+        }
+        if isinstance(s8, dict) and s8
         else {}
     )
 
@@ -501,6 +551,7 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
             **s5_summary,
             **s6_summary,
             **s7_summary,
+            **s8_summary,
         },
     )
 
@@ -678,15 +729,10 @@ def _validate_s3_substrate_acquisition(
         issues.append(
             _issue(
                 "layer2_s3_authority_boundary_incomplete",
-                (
-                    "S3 may_not_use_for must block production/scenario-family/proxy "
-                    "authority."
-                ),
+                ("S3 may_not_use_for must block production/scenario-family/proxy authority."),
             )
         )
-    if set(s3.get("pinned_constructs", [])) != set(
-        first_proving_case.get("constructs", [])
-    ):
+    if set(s3.get("pinned_constructs", [])) != set(first_proving_case.get("constructs", [])):
         issues.append(
             _issue(
                 "layer2_s3_pinned_constructs_drift",
@@ -1223,7 +1269,10 @@ def _validate_s6_blind_spot_firewalls(
             )
         )
     else:
-        if inventory_artifact.get("path") != DEFAULT_S6_BLIND_SPOT_FIREWALLS_MANIFEST_PATH.as_posix():
+        if (
+            inventory_artifact.get("path")
+            != DEFAULT_S6_BLIND_SPOT_FIREWALLS_MANIFEST_PATH.as_posix()
+        ):
             issues.append(
                 _issue(
                     "layer2_s6_inventory_path_invalid",
@@ -1234,9 +1283,9 @@ def _validate_s6_blind_spot_firewalls(
             issues.append(
                 _issue(
                     "layer2_s6_inventory_maturity_invalid",
-                "S6 inventory entry must carry maturity=fail_closed.",
+                    "S6 inventory entry must carry maturity=fail_closed.",
+                )
             )
-        )
 
 
 def _validate_s7_delegation(
@@ -1258,9 +1307,7 @@ def _validate_s7_delegation(
             )
         )
         return
-    if s7.get("schema_version") != (
-        "policyos.policy_design_case.layer2_s7_delegation_manifest.v1"
-    ):
+    if s7.get("schema_version") != ("policyos.policy_design_case.layer2_s7_delegation_manifest.v1"):
         issues.append(
             _issue(
                 "layer2_s7_schema_version_invalid",
@@ -1302,11 +1349,11 @@ def _validate_s7_delegation(
                 "S7 delegation cell must be removed from open_cell_closure.",
             )
         )
-    if len(current_open_cells) != int(s7.get("expected_current_open_cell_count", -1)):
+    if len(current_open_cells) > int(s7.get("expected_current_open_cell_count", -1)):
         issues.append(
             _issue(
                 "layer2_s7_cluster_open_cell_count_mismatch",
-                "S7 manifest expected open-cell count must match the cluster map.",
+                "S7 manifest expected open-cell count must not be exceeded by the cluster map.",
             )
         )
     if not assigned_cells >= S7_CLOSED_CELLS:
@@ -1317,10 +1364,14 @@ def _validate_s7_delegation(
             )
         )
 
-    cell = cluster_map_payload.get("cell", {}).get(
-        "CROSS_CUTTING",
-        {},
-    ).get("scientist_orchestration", {})
+    cell = (
+        cluster_map_payload.get("cell", {})
+        .get(
+            "CROSS_CUTTING",
+            {},
+        )
+        .get("scientist_orchestration", {})
+    )
     if not isinstance(cell, dict) or cell.get("ratchet_state") != "implemented":
         issues.append(
             _issue(
@@ -1383,8 +1434,7 @@ def _validate_s7_delegation(
         s7.get("floor_id") != "s7_delegation_integrity"
         or not floor
         or floor.get("metric") != s7.get("floor_metric")
-        or floor.get("revision_rule")
-        != "decision_rights_matrix_change_requires_governance_owner"
+        or floor.get("revision_rule") != "decision_rights_matrix_change_requires_governance_owner"
     ):
         issues.append(
             _issue(
@@ -1544,6 +1594,479 @@ def _validate_s7_delegation(
             _issue(
                 "layer2_s7_inventory_canonical_route_mismatch",
                 "S7 inventory canonical_route must match the manifest.",
+            )
+        )
+
+
+def _validate_s8_value_choice(
+    *,
+    s8: object,
+    s7: object,
+    floor_governance: dict[str, Any],
+    artifact_traceability: dict[str, Any],
+    cluster_map_payload: dict[str, Any],
+    current_open_cells: set[str],
+    assigned_cells: set[str],
+    inventory: dict[str, Any],
+    issues: list[dict[str, str]],
+) -> None:
+    if not isinstance(s8, dict) or not s8:
+        issues.append(
+            _issue(
+                "layer2_s8_manifest_missing",
+                "S8 value-choice provenance manifest must be present.",
+            )
+        )
+        return
+    if s8.get("schema_version") != (
+        "policyos.policy_design_case.layer2_s8_value_choice_manifest.v1"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s8_schema_version_invalid",
+                "S8 value-choice manifest schema_version is invalid.",
+            )
+        )
+    if s8.get("status") != "active" or s8.get("owner") != "governance-board":
+        issues.append(
+            _issue(
+                "layer2_s8_status_or_owner_invalid",
+                "S8 value-choice manifest must be active and owned by governance-board.",
+            )
+        )
+    if s8.get("depends_on") != ["S2", "S6", "S7"]:
+        issues.append(
+            _issue(
+                "layer2_s8_dependencies_invalid",
+                "S8 must depend on S2, S6, and S7 in that order.",
+            )
+        )
+    if set(s8.get("cells_closed", [])) != S8_CLOSED_CELLS:
+        issues.append(
+            _issue(
+                "layer2_s8_cells_closed_invalid",
+                "S8 must close exactly ACTOR.value_choice_provenance.",
+            )
+        )
+    if s8.get("expected_current_open_cell_count") != 3:
+        issues.append(
+            _issue(
+                "layer2_s8_open_cell_count_drift",
+                "S8 manifest must record expected_current_open_cell_count=3.",
+            )
+        )
+    if S8_CLOSED_CELLS & current_open_cells:
+        issues.append(
+            _issue(
+                "layer2_s8_cluster_map_not_closed",
+                "S8 value-choice cell must be removed from open_cell_closure.",
+            )
+        )
+    if len(current_open_cells) != int(s8.get("expected_current_open_cell_count", -1)):
+        issues.append(
+            _issue(
+                "layer2_s8_cluster_open_cell_count_mismatch",
+                "S8 manifest expected open-cell count must match the cluster map.",
+            )
+        )
+    if not assigned_cells >= S8_CLOSED_CELLS:
+        issues.append(
+            _issue(
+                "layer2_s8_cells_not_assigned",
+                "S8 closed cells must be in the frozen slice-cell baseline.",
+            )
+        )
+
+    cell = (
+        cluster_map_payload.get("cell", {})
+        .get("ACTOR", {})
+        .get(
+            "value_choice_provenance",
+            {},
+        )
+    )
+    if not isinstance(cell, dict) or cell.get("ratchet_state") != "implemented":
+        issues.append(
+            _issue(
+                "layer2_s8_cluster_cell_not_implemented",
+                "ACTOR.value_choice_provenance must be implemented.",
+            )
+        )
+    else:
+        if cell.get("p01_chain") != "implemented":
+            issues.append(
+                _issue(
+                    "layer2_s8_cluster_cell_p01_chain_invalid",
+                    "S8 value-choice cell must have p01_chain=implemented.",
+                )
+            )
+        if cell.get("owner_module") != s8.get("producer_module"):
+            issues.append(
+                _issue(
+                    "layer2_s8_cluster_cell_owner_invalid",
+                    "S8 value-choice cell owner_module must match the producer module.",
+                )
+            )
+        if cell.get("firewall") != "P20_normative_choice_laundering":
+            issues.append(
+                _issue(
+                    "layer2_s8_cluster_cell_firewall_invalid",
+                    "S8 value-choice cell must be guarded by the P20 firewall.",
+                )
+            )
+        if cell.get("gap") != "none_for_s8_value_choice_provenance_scope":
+            issues.append(
+                _issue(
+                    "layer2_s8_cluster_cell_gap_invalid",
+                    "S8 value-choice cell must record no S8-scope gap.",
+                )
+            )
+
+    trace_s8_artifacts = {
+        str(row.get("name", ""))
+        for row in artifact_traceability.get("artifact", [])
+        if isinstance(row, dict) and row.get("slice") == "S8"
+    }
+    if set(s8.get("required_artifacts", [])) != S8_REQUIRED_ARTIFACTS:
+        issues.append(
+            _issue(
+                "layer2_s8_required_artifacts_missing",
+                "S8 required_artifacts must list the six value-choice artifacts.",
+            )
+        )
+    if trace_s8_artifacts != S8_REQUIRED_ARTIFACTS:
+        issues.append(
+            _issue(
+                "layer2_s8_traceability_missing",
+                "S8 artifacts must match layer2_artifact_traceability S8 rows.",
+            )
+        )
+    if set(s8.get("required_firewalls", [])) != S8_REQUIRED_FIREWALLS:
+        issues.append(
+            _issue(
+                "layer2_s8_firewalls_invalid",
+                "S8 must require P20, P22, P12, P15, and P26 firewalls.",
+            )
+        )
+
+    floor = _floor_by_id(floor_governance, "s8_value_provenance")
+    if (
+        s8.get("floor_id") != "s8_value_provenance"
+        or not floor
+        or floor.get("metric") != s8.get("floor_metric")
+        or floor.get("revision_rule") != "ranked_recommendations_require_authorized_value_source"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s8_floor_governance_invalid",
+                "S8 floor must govern value provenance before ranked recommendations.",
+            )
+        )
+    if s8.get("case_count") != 13:
+        issues.append(
+            _issue(
+                "layer2_s8_case_count_invalid",
+                "S8 manifest must record all 13 universal corpus cases.",
+            )
+        )
+    for field, code in (
+        (
+            "value_provenance_completeness",
+            "layer2_s8_value_provenance_completeness_below_floor",
+        ),
+        (
+            "authorized_value_schedule_recall",
+            "layer2_s8_authorized_value_schedule_recall_below_floor",
+        ),
+        ("pareto_archive_coverage", "layer2_s8_pareto_archive_coverage_below_floor"),
+        (
+            "tradeoff_disclosure_coverage",
+            "layer2_s8_tradeoff_disclosure_coverage_below_floor",
+        ),
+    ):
+        if not _number_at_least(s8.get(field), 1.0):
+            issues.append(_issue(code, f"S8 {field} must be at least 1.0."))
+    for field in S8_FALSE_CLEAR_FIELDS:
+        if s8.get(field) != 0:
+            issues.append(
+                _issue(
+                    f"layer2_s8_{field}_nonzero",
+                    f"S8 {field} must stay zero.",
+                )
+            )
+    if set(s8.get("authority_scope", [])) != S8_REQUIRED_AUTHORITY_SCOPE:
+        issues.append(
+            _issue(
+                "layer2_s8_authority_scope_invalid",
+                "S8 authority_scope must match the governed value-choice scope.",
+            )
+        )
+    if not set(s8.get("may_not_use_for", [])) >= S8_REQUIRED_DENY:
+        issues.append(
+            _issue(
+                "layer2_s8_authority_deny_list_incomplete",
+                "S8 may_not_use_for must block production, prediction, and value laundering.",
+            )
+        )
+    if s8.get("canonical_route") != "tools/quality/validation/run_universal_outcome_corpus.py":
+        issues.append(
+            _issue(
+                "layer2_s8_canonical_route_invalid",
+                "S8 manifest must point at the universal outcome corpus runner.",
+            )
+        )
+    if (
+        s8.get("validator")
+        != "tools/quality/validation/check_policy_design_case_layer2_readiness.py"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s8_validator_invalid",
+                "S8 manifest must point at the layer2 readiness validator.",
+            )
+        )
+
+    _validate_s8_s7_value_authorization_support(s7=s7, issues=issues)
+    _validate_s8_runtime_negative_firewalls(issues)
+
+    if _inventory_layer2_artifact_count(inventory) != 16:
+        issues.append(
+            _issue(
+                "layer2_s8_inventory_artifact_count_invalid",
+                "Layer 2 inventory artifact count must be 16 after registering S8.",
+            )
+        )
+    inventory_artifact = _inventory_artifact_by_id(inventory, S8_INVENTORY_ID)
+    if not inventory_artifact:
+        issues.append(
+            _issue(
+                "layer2_s8_manifest_missing_from_inventory",
+                "S8 manifest must be registered in the Policy Design Case inventory.",
+            )
+        )
+        return
+    if inventory_artifact.get("path") != DEFAULT_S8_VALUE_CHOICE_MANIFEST_PATH.as_posix():
+        issues.append(
+            _issue(
+                "layer2_s8_inventory_path_invalid",
+                "S8 inventory path must point at the governed manifest.",
+            )
+        )
+    if inventory_artifact.get("kind") != "layer2_s8_value_choice_manifest":
+        issues.append(
+            _issue(
+                "layer2_s8_inventory_kind_invalid",
+                "S8 inventory entry must carry kind=layer2_s8_value_choice_manifest.",
+            )
+        )
+    if inventory_artifact.get("schema_version") != s8.get("schema_version"):
+        issues.append(
+            _issue(
+                "layer2_s8_inventory_schema_version_invalid",
+                "S8 inventory schema_version must match the manifest.",
+            )
+        )
+    if (
+        inventory_artifact.get("owner") != s8.get("owner")
+        or inventory_artifact.get("status") != s8.get("status")
+        or inventory_artifact.get("capability_reality_label") != "implemented"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s8_inventory_status_invalid",
+                "S8 inventory entry must be active, implemented, and owned by governance-board.",
+            )
+        )
+    if inventory_artifact.get("authority_scope") != s8.get("authority_scope"):
+        issues.append(
+            _issue(
+                "layer2_s8_inventory_authority_scope_mismatch",
+                "S8 inventory authority_scope must match the manifest.",
+            )
+        )
+    if inventory_artifact.get("may_not_use_for") != s8.get("may_not_use_for"):
+        issues.append(
+            _issue(
+                "layer2_s8_inventory_deny_list_mismatch",
+                "S8 inventory may_not_use_for must match the manifest.",
+            )
+        )
+    if inventory_artifact.get("validator") != s8.get("validator"):
+        issues.append(
+            _issue(
+                "layer2_s8_inventory_validator_mismatch",
+                "S8 inventory validator must match the manifest.",
+            )
+        )
+    if inventory_artifact.get("canonical_route") != s8.get("canonical_route"):
+        issues.append(
+            _issue(
+                "layer2_s8_inventory_canonical_route_mismatch",
+                "S8 inventory canonical_route must match the manifest.",
+            )
+        )
+
+
+def _validate_s8_s7_value_authorization_support(
+    *,
+    s7: object,
+    issues: list[dict[str, str]],
+) -> None:
+    s7_deny = set(s7.get("may_not_use_for", [])) if isinstance(s7, dict) else set()
+    if not {"value_choice_authority", "social_weight_selection"} <= s7_deny:
+        issues.append(
+            _issue(
+                "layer2_s8_s7_value_authority_boundary_missing",
+                "S7 must continue denying value-choice authority while routing value authorization.",
+            )
+        )
+    try:
+        from polisyos.runtime.quality.layer2_delegation import (
+            build_decision_rights_matrix,
+            build_governance_decision_class_registry,
+        )
+
+        rule_version_ref = "policyos.layer2.s7.delegation.v1"
+        classes = build_governance_decision_class_registry(
+            "layer2-s8-readiness-probe",
+            rule_version_ref,
+        )
+        class_ids = {row.decision_class_id for row in classes}
+        matrix = build_decision_rights_matrix(
+            "layer2-s8-readiness-probe",
+            classes,
+            rule_version_ref,
+        )
+        row = matrix.row_for_decision_class("value_authorization")
+        if (
+            "value_authorization" not in class_ids
+            or row.required_role != "principal"
+            or set(row.five_rights_dimensions)
+            != {
+                "right_decision",
+                "right_person",
+                "right_information",
+                "right_format_channel",
+                "right_time",
+            }
+        ):
+            issues.append(
+                _issue(
+                    "layer2_s8_s7_value_authorization_support_invalid",
+                    "S7 must export value_authorization with a matching five-rights matrix row.",
+                )
+            )
+    except Exception as exc:  # pragma: no cover - defensive diagnostics for CLI users.
+        issues.append(
+            _issue(
+                "layer2_s8_s7_value_authorization_support_invalid",
+                f"S7 value_authorization support could not be validated: {exc}",
+            )
+        )
+
+
+def _validate_s8_runtime_negative_firewalls(issues: list[dict[str, str]]) -> None:
+    try:
+        from polisyos.runtime.quality.layer2_value_choice import (
+            P20NormativeChoiceError,
+            build_authorized_value_schedule,
+            build_pareto_archive,
+            build_shadow_scenario_value_schedule,
+            build_value_choice_provenance_record,
+        )
+
+        rule_version_ref = "policyos.layer2.s8.value_choice.v1"
+        authority_boundary = {
+            "authoritative_for": ["value_choice_provenance"],
+            "may_not_use_for": sorted(S8_REQUIRED_DENY),
+            "source_authority": "deterministic_producer",
+            "posture": "shadow",
+            "rule_version_refs": [rule_version_ref],
+        }
+        authorized_schedule = build_authorized_value_schedule(
+            schedule_id="layer2.s8.readiness.authorized",
+            schedule_ref="pdc://layer2/s8/readiness/authorized-value-schedule",
+            case_id="layer2-s8-readiness-probe",
+            mandate_record_ref="pdc://layer2/s6/readiness/mandate",
+            s6_mandate_firewall_disposition="pass",
+            principal_refs=["principal://readiness"],
+            source_class="authorized_governance_schedule",
+            review_status="approved",
+            effective_at="2026-06-01T00:00:00+00:00",
+            social_weight_provenance_refs=["pdc://layer2/s8/readiness/social-weight"],
+            authority_boundary=authority_boundary,
+            rule_version_ref=rule_version_ref,
+            delegation_reference_class="s7_value_authorization_record",
+            s7_decision_rights_matrix_ref="pdc://layer2/s7/readiness/matrix",
+            s7_value_authorization_request_ref="pdc://layer2/s7/readiness/request",
+            s7_value_authorization_record_ref="pdc://layer2/s7/readiness/record",
+            s7_value_authorization_decision_class_id="value_authorization",
+            s7_five_rights_passed=True,
+        )
+        if authorized_schedule.disposition != "authorized":
+            issues.append(
+                _issue(
+                    "layer2_s8_authorized_schedule_probe_failed",
+                    "S8 must accept S7 value_authorization refs only as mandate-bounded value authorization.",
+                )
+            )
+        shadow_schedule = build_shadow_scenario_value_schedule(
+            schedule_ref="pdc://layer2/s8/shadow-scenario/readiness-probe",
+            case_id="layer2-s8-readiness-probe",
+            principal_refs=["principal://readiness"],
+            social_weight_provenance_refs=["pdc://layer2/s8/readiness/social-weight"],
+            scenario_label="readiness shadow scenario",
+            rule_version_ref=rule_version_ref,
+        )
+        try:
+            build_pareto_archive(
+                archive_id="layer2.s8.readiness.shadow",
+                archive_ref="pdc://layer2/s8/readiness/shadow-pareto",
+                case_id="layer2-s8-readiness-probe",
+                ranking_mode="ranked_with_authorized_values",
+                archive_status="probe",
+                value_schedule_ref=shadow_schedule.schedule_ref,
+                authority_boundary=authority_boundary,
+                rule_version_ref=rule_version_ref,
+            )
+        except P20NormativeChoiceError:
+            pass
+        else:
+            issues.append(
+                _issue(
+                    "layer2_s8_shadow_scenario_negative_control_failed",
+                    "S8 must block shadow_scenario schedules from satisfying authorized ranking.",
+                )
+            )
+        try:
+            build_value_choice_provenance_record(
+                record_id="layer2.s8.readiness.multi_principal",
+                record_ref="pdc://layer2/s8/readiness/multi-principal",
+                case_id="layer2-s8-readiness-probe",
+                selected_alternative_ref="policy://readiness/alternative",
+                objective_provenance_ref="pdc://layer2/s8/readiness/objective",
+                value_schedule_ref="pdc://layer2/s8/readiness/authorized-schedule",
+                pareto_archive_ref="pdc://layer2/s8/readiness/pareto",
+                conflict_rows=[{"principal_ref": "principal://readiness"}],
+                disposition="authorized",
+                integrity_status="pass",
+                authority_boundary=authority_boundary,
+                rule_version_ref=rule_version_ref,
+            )
+        except P20NormativeChoiceError:
+            pass
+        else:
+            issues.append(
+                _issue(
+                    "layer2_s8_multi_principal_negative_control_failed",
+                    "S8 must block multi-principal conflicts without arrow disclosures.",
+                )
+            )
+    except Exception as exc:  # pragma: no cover - defensive diagnostics for CLI users.
+        issues.append(
+            _issue(
+                "layer2_s8_runtime_negative_firewall_invalid",
+                f"S8 runtime negative firewall probes could not be validated: {exc}",
             )
         )
 

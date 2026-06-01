@@ -1,0 +1,74 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s8_value_choice_manifest.v1",
+  "status": "active",
+  "owner": "governance-board",
+  "slice": "S8",
+  "depends_on": [
+    "S2",
+    "S6",
+    "S7"
+  ],
+  "cells_closed": [
+    "ACTOR.value_choice_provenance"
+  ],
+  "producer_module": "src/polisyos/runtime/quality/layer2_value_choice.py",
+  "expected_current_open_cell_count": 3,
+  "floor_id": "s8_value_provenance",
+  "floor_metric": "value_provenance_completeness",
+  "required_artifacts": [
+    "AuthorizedValueSchedule",
+    "ObjectiveFunctionProvenanceRecord",
+    "ParetoArchive",
+    "ValueChoiceProvenanceRecord",
+    "ValueTradeoffDisclosureRecord",
+    "ValueChoiceIntegrityReport"
+  ],
+  "required_firewalls": [
+    "P20",
+    "P22",
+    "P12",
+    "P15",
+    "P26"
+  ],
+  "case_count": 13,
+  "value_provenance_completeness": 1.0,
+  "authorized_value_schedule_recall": 1.0,
+  "pareto_archive_coverage": 1.0,
+  "tradeoff_disclosure_coverage": 1.0,
+  "llm_weight_false_clear_count": 0,
+  "corpus_weight_false_clear_count": 0,
+  "blocked_mandate_value_choice_false_clear_count": 0,
+  "pareto_ranking_without_value_source_false_clear_count": 0,
+  "multi_principal_silent_average_false_clear_count": 0,
+  "s7_decision_substitution_false_clear_count": 0,
+  "shadow_scenario_authority_false_clear_count": 0,
+  "missing_arrow_disclosure_false_clear_count": 0,
+  "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py",
+  "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py",
+  "authority_scope": [
+    "value_choice_provenance",
+    "authorized_value_schedule",
+    "shadow_scenario_value_schedule",
+    "pareto_frontier_fact",
+    "value_tradeoff_disclosure"
+  ],
+  "may_not_use_for": [
+    "production_claim_authority",
+    "production_recommendation",
+    "rollout_authority",
+    "publication_authority",
+    "claim_authority",
+    "scalar_welfare_authority",
+    "preference_learning_authority",
+    "mandate_creation",
+    "social_weight_selection_without_authorized_schedule",
+    "outcome_prediction_authority",
+    "forecast_calibration_authority",
+    "s9_projection_maturity",
+    "s10_forecast_support",
+    "s11_calibration",
+    "s12_envelope_growth",
+    "s13_accountability_closure",
+    "s14_universality"
+  ]
+}

@@ -223,9 +223,34 @@ slice = "S7"
 maturity = "planned"
 
 [[artifact]]
+name = "AuthorizedValueSchedule"
+slice = "S8"
+maturity = "implemented"
+
+[[artifact]]
+name = "ObjectiveFunctionProvenanceRecord"
+slice = "S8"
+maturity = "implemented"
+
+[[artifact]]
 name = "ParetoArchive"
 slice = "S8"
-maturity = "planned"
+maturity = "implemented"
+
+[[artifact]]
+name = "ValueChoiceProvenanceRecord"
+slice = "S8"
+maturity = "implemented"
+
+[[artifact]]
+name = "ValueTradeoffDisclosureRecord"
+slice = "S8"
+maturity = "implemented"
+
+[[artifact]]
+name = "ValueChoiceIntegrityReport"
+slice = "S8"
+maturity = "implemented"
 
 [[artifact]]
 name = "ForecastSupport"

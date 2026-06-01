@@ -236,6 +236,43 @@
       "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py"
     },
     {
+      "id": "layer2_s8_value_choice_manifest",
+      "path": "architecture/policy_design_case/layer2_s8_value_choice_manifest.json",
+      "kind": "layer2_s8_value_choice_manifest",
+      "schema_version": "policyos.policy_design_case.layer2_s8_value_choice_manifest.v1",
+      "owner": "governance-board",
+      "status": "active",
+      "capability_reality_label": "implemented",
+      "authority_scope": [
+        "value_choice_provenance",
+        "authorized_value_schedule",
+        "shadow_scenario_value_schedule",
+        "pareto_frontier_fact",
+        "value_tradeoff_disclosure"
+      ],
+      "may_not_use_for": [
+        "production_claim_authority",
+        "production_recommendation",
+        "rollout_authority",
+        "publication_authority",
+        "claim_authority",
+        "scalar_welfare_authority",
+        "preference_learning_authority",
+        "mandate_creation",
+        "social_weight_selection_without_authorized_schedule",
+        "outcome_prediction_authority",
+        "forecast_calibration_authority",
+        "s9_projection_maturity",
+        "s10_forecast_support",
+        "s11_calibration",
+        "s12_envelope_growth",
+        "s13_accountability_closure",
+        "s14_universality"
+      ],
+      "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py",
+      "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py"
+    },
+    {
       "id": "layer2_minimal_seed_manifest",
       "path": "architecture/policy_design_case/layer2_minimal_seed_manifest.json",
       "kind": "layer2_seed_manifest",

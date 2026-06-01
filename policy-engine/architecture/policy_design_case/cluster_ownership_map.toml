@@ -125,22 +125,6 @@ negative_test = "Unbound analytics fixture must not increase evidence strength o
 acceptance_signal = "Baseline/alternative comparison reads proof-carrying IR artifacts through claim-bound consumers."
 next_action = "Classify IR subpackages into proof, world, schema, loading, and governance producers, then bridge proof outputs into claims."
 
-[open_cell_closure.ACTOR.value_choice_provenance]
-cell_ref = "ACTOR.value_choice_provenance"
-owner = "team-welfare-governance"
-reuse_classification = "wire_existing"
-current_state = "implemented_but_not_orchestrated"
-target_state = "implemented"
-missing_chain = ["producer", "persisted_artifact", "orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
-producer_artifact = "ValueChoiceProvenanceRecord for objective functions, social weights, elicitation source, and authorized value schedule."
-persisted_artifact = "Replay-visible value-choice ledger linked to mandate/legitimacy and public tradeoff disclosure."
-bridge_consumer = "INTERVENTION.design_candidate and INTERVENTION.design_grammar consume value records before optimization or comparison."
-surface = "PUBLIC shows value tradeoff disclosure; EXPERT/MACHINE show weight source, conflicts, and multi-principal incompatibilities."
-semantic_test = "System cannot choose social weights silently when goals conflict across principals."
-negative_test = "LLM-proposed objective weights without mandate must fail P20 normative firewall."
-acceptance_signal = "Every objective function has authorized value-choice provenance or remains advisory/blocked."
-next_action = "Orchestrate foundry/welfare/social_weight_provenance.py behind an ACTOR producer gated by mandate records."
-
 [open_cell_closure.DESIGNER_ITSELF.envelope_growth]
 cell_ref = "DESIGNER_ITSELF.envelope_growth"
 owner = "team-architecture"
@@ -929,16 +913,19 @@ gap = "none_for_legal_seed_scope"
 action = "preserve Lex and legal requirement authority boundaries during cluster-interface mapping."
 
 [cell.ACTOR.value_choice_provenance]
-owner_module = ""
-seed_files = ["src/polisyos/foundry/welfare/social_weight_provenance.py"]
-ratchet_state = "implemented_but_not_orchestrated"
-p01_chain = "bridge_missing"
+owner_module = "src/polisyos/runtime/quality/layer2_value_choice.py"
+seed_files = [
+  "src/polisyos/runtime/quality/layer2_value_choice.py",
+  "src/polisyos/foundry/welfare/social_weight_provenance.py",
+]
+ratchet_state = "implemented"
+p01_chain = "implemented"
 authority_dim = "value_choice_provenance"
 firewall = "P20_normative_choice_laundering"
 publishes = ["INTERVENTION.objective_function", "PUBLIC.value_tradeoff_disclosure"]
 consumes = ["SYSTEM.measurability", "ACTOR.mandate_legitimacy", "INTERVENTION.tradeoffs"]
-gap = "social-weight provenance seed is not the gate-owned normative firewall for arbitrary policy designs."
-action = "orchestrate authorized value-weight inputs and expose value-choice provenance to every audience projection."
+gap = "none_for_s8_value_choice_provenance_scope"
+action = "preserve P20/P22 value provenance firewalls before any ranked recommendation."
 
 [cell.ACTOR.state_capacity_feasibility]
 owner_module = "src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py"

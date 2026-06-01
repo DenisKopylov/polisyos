@@ -6,6 +6,20 @@ from pathlib import Path
 from tools.quality.validation import check_policy_design_case_layer2_readiness as readiness
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
+CELLS_CLOSED_THROUGH_S6 = [
+    "ACTOR.mandate_legitimacy",
+    "ACTOR.state_capacity_feasibility",
+    "INTERVENTION.design_candidate",
+    "INTERVENTION.design_grammar",
+    "INTERVENTION.reversibility_lifecycle_stakes",
+    "INTERVENTION.scale_composition",
+    "KNOWLEDGE.epistemic_regime",
+    "OTHER_AGENTS.strategic_response",
+    "SYSTEM.connectivity_modularity",
+    "SYSTEM.dynamics_feedback",
+    "SYSTEM.measurability",
+    "SYSTEM.subject_granularity",
+]
 
 
 def _issue_codes(validation: dict[str, object]) -> set[str]:
@@ -18,14 +32,15 @@ def test_layer2_s0_readiness_manifest_is_valid() -> None:
     assert validation["status"] == "pass", validation["issues"]
     assert validation["summary"]["open_cell_count_baseline"] == 17  # type: ignore[index]
     assert validation["summary"]["assigned_open_cell_count"] == 17  # type: ignore[index]
-    assert validation["summary"]["current_open_cell_count"] == 13  # type: ignore[index]
+    assert validation["summary"]["current_open_cell_count"] == 5  # type: ignore[index]
     assert validation["summary"]["s0_cells_closed"] == []  # type: ignore[index]
-    assert validation["summary"]["cells_closed_since_s0"] == [
-        "INTERVENTION.design_candidate",
-        "INTERVENTION.design_grammar",
-        "INTERVENTION.reversibility_lifecycle_stakes",
-        "KNOWLEDGE.epistemic_regime",
-    ]  # type: ignore[index]
+    assert validation["summary"]["cells_closed_since_s0"] == CELLS_CLOSED_THROUGH_S6  # type: ignore[index]
+    assert validation["summary"]["s6_maturity"] == "fail_closed"  # type: ignore[index]
+    assert validation["summary"]["s6_case_count"] == 13  # type: ignore[index]
+    assert validation["summary"]["s6_axis_coverage_count"] == 5  # type: ignore[index]
+    assert validation["summary"]["s6_fail_closed_coverage"] == 1.0  # type: ignore[index]
+    assert validation["summary"]["s6_false_clear_count"] == 0  # type: ignore[index]
+    assert validation["summary"]["s6_expected_current_open_cell_count"] == 5  # type: ignore[index]
 
 
 def test_layer2_slice_cell_matrix_preserves_baseline_and_current_open_subset() -> None:
@@ -38,12 +53,7 @@ def test_layer2_slice_cell_matrix_preserves_baseline_and_current_open_subset() -
 
     assert len(assigned) == 17
     assert current_open_cells < assigned
-    assert assigned - current_open_cells == {
-        "INTERVENTION.design_candidate",
-        "INTERVENTION.design_grammar",
-        "INTERVENTION.reversibility_lifecycle_stakes",
-        "KNOWLEDGE.epistemic_regime",
-    }
+    assert assigned - current_open_cells == set(CELLS_CLOSED_THROUGH_S6)
 
 
 def test_layer2_readiness_rejects_missing_open_cell_assignment() -> None:
@@ -115,4 +125,22 @@ def test_layer2_readiness_artifacts_are_in_policy_design_case_inventory() -> Non
     validation = readiness.validate_layer2_readiness(REPO_ROOT)
 
     assert validation["status"] == "pass", validation["issues"]
-    assert validation["summary"]["inventory_artifact_count"] >= 8  # type: ignore[index]
+    assert validation["summary"]["inventory_artifact_count"] == 14  # type: ignore[index]
+
+
+def test_layer2_readiness_validates_s6_manifest_metrics_and_coverage() -> None:
+    payloads = readiness.load_layer2_readiness_payloads(REPO_ROOT)
+
+    validation = readiness.validate_layer2_readiness_payloads(payloads)
+
+    assert validation["status"] == "pass", validation["issues"]
+    summary = validation["summary"]
+    assert set(summary["s6_bridge_consumer_coverage"].values()) == {True}  # type: ignore[index]
+    assert set(summary["s6_c3_authority_dimension_coverage"].values()) == {True}  # type: ignore[index]
+
+    payloads = copy.deepcopy(payloads)
+    payloads["s6_blind_spot_firewalls"]["false_clear_count"] = 1
+    validation = readiness.validate_layer2_readiness_payloads(payloads)
+
+    assert validation["status"] == "fail"
+    assert "layer2_s6_false_clear_count_nonzero" in _issue_codes(validation)

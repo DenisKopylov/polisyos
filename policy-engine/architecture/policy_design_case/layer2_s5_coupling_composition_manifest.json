@@ -1,0 +1,94 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s5_coupling_composition_manifest.v1",
+  "manifest_id": "layer2_s5_coupling_composition",
+  "slice": "S5",
+  "slice_label": "coupling_composition",
+  "status": "active",
+  "cells_closed": [
+    "SYSTEM.connectivity_modularity",
+    "SYSTEM.dynamics_feedback",
+    "INTERVENTION.scale_composition"
+  ],
+  "open_cell_count_baseline": 17,
+  "expected_current_open_cell_count": 10,
+  "floors": [
+    "s5_coupling_accuracy"
+  ],
+  "coupling_summary_source_ref": "report://w12d/s5_coupling_summary",
+  "coupling_accuracy": 1.0,
+  "penalized_score": 1.0,
+  "false_modular_count": 0,
+  "false_entangled_count": 0,
+  "coupling_regime_counts": {
+    "modular": 2,
+    "near_decomposable": 2,
+    "hierarchically_coupled": 3,
+    "entangled": 6
+  },
+  "boundary_regime_counts": {
+    "modular": 2,
+    "near_decomposable": 2,
+    "hierarchically_coupled": 3,
+    "entangled": 6
+  },
+  "system_effect_support_labels": [
+    "equilibrium_contested",
+    "historical_prior_system_context",
+    "leaf_only_no_system_claim",
+    "simulation_only_system_effect",
+    "transported_with_heavy_limitation",
+    "validated_local_dynamic_model"
+  ],
+  "proving_ground_case_count": 13,
+  "required_artifacts": [
+    "CompositionReceipt",
+    "ComputationalTractabilityBudget",
+    "CouplingGraph",
+    "CouplingRegimeClassification",
+    "DecompositionResult",
+    "DesignInterfaceContract",
+    "RecursiveDesignGraph",
+    "SystemDynamicsRequirement"
+  ],
+  "nested_records": [
+    "BoundaryCouplingClassification",
+    "CompositionLawCheck",
+    "ForecastSupportScope",
+    "ModuleDiscoveryResult"
+  ],
+  "may_not_use_for": [
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority",
+    "equilibrium_prediction_authority",
+    "simulation_calibration_authority",
+    "whole_design_authority_without_coupling_graph",
+    "whole_design_authority_from_syntactic_decomposition",
+    "whole_design_authority_from_user_supplied_module_split",
+    "averaged_cross_level_authority",
+    "false_modular_decomposition",
+    "weakened_authority_from_tractability_cutoff"
+  ],
+  "semantic_tests": [
+    "tests/unit/runtime/quality/test_layer2_s5_coupling_composition.py",
+    "tests/unit/pdc/test_layer2_s2_design_search.py",
+    "tests/repo_quality/tools/test_w12d_universal_outcome_corpus_run.py"
+  ],
+  "negative_controls": [
+    "tests/fixtures/layer2/s5/false_modular_probe.json",
+    "tests/fixtures/layer2/s5/syntactic_decomposition_probe.json",
+    "tests/fixtures/layer2/s5/boundary_spoof_probe.json"
+  ],
+  "rule_version_ref": "repo://docs/adr/0174-policy-evidence-capability-graph.md",
+  "relevant_patterns": [
+    "P01",
+    "P03",
+    "P05",
+    "P10",
+    "P13",
+    "P15",
+    "P17",
+    "P24"
+  ],
+  "authority_boundary": "shadow_governed_composition_gate_only_no_production_or_prediction_authority"
+}

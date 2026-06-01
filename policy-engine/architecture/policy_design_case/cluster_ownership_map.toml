@@ -93,70 +93,6 @@ closure_contracts_match_open_cell_states = true
 closure_contracts_name_missing_capability_chain = true
 controlled_gap_tokens = ["none_for_seed_scope", "none_for_ddm_scope"]
 
-[open_cell_closure.SYSTEM.connectivity_modularity]
-cell_ref = "SYSTEM.connectivity_modularity"
-owner = "team-foundry-design-composition"
-reuse_classification = "wire_existing"
-current_state = "implemented_but_not_orchestrated"
-target_state = "implemented"
-missing_chain = ["producer", "persisted_artifact", "orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
-producer_artifact = "CouplingGraph and DecompositionResult emitted from Foundry coupling seeds."
-persisted_artifact = "Runtime-visible decomposition record keyed by design candidate and system boundary."
-bridge_consumer = "INTERVENTION.scale_composition consumes the decomposition record before composing sub-design authority."
-surface = "EXPERT/MACHINE projection exposes coupling regime, module boundaries, cross-terms, and residual interaction risk."
-semantic_test = "Entangled reform fixture cannot assemble whole-design authority from validated submodules alone."
-negative_test = "False-modular fixture with strong cyclic cross-effects must fail P17 decomposition firewall."
-acceptance_signal = "Composition path blocks or downgrades when CouplingGraph is absent or classified entangled."
-next_action = "Wrap foundry/coupling/des_kernel.py behind an owned SYSTEM producer and emit a fixture-backed DecompositionResult."
-
-[open_cell_closure.SYSTEM.dynamics_feedback]
-cell_ref = "SYSTEM.dynamics_feedback"
-owner = "team-foundry-system-dynamics"
-reuse_classification = "wire_existing"
-current_state = "implemented_but_not_orchestrated"
-target_state = "implemented"
-missing_chain = ["producer", "persisted_artifact", "orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
-producer_artifact = "SystemDynamicsFeedbackRecord carrying equilibrium, feedback-loop, and post-intervention DGP assumptions."
-persisted_artifact = "Replay-visible dynamics record linked to DesignCandidate, coupling regime, and response model."
-bridge_consumer = "INTERVENTION.scale_composition and DESIGNER_ITSELF.closeout consume dynamics records for system-level claims."
-surface = "EXPERT/MACHINE projection exposes model type, feedback loops, fixed-point or simulation limitations, and downgrade reason."
-semantic_test = "High-feedback design without dynamics evidence cannot publish a system-level effect claim."
-negative_test = "Partial-equilibrium fixture with hidden feedback loop must be downgraded or blocked."
-acceptance_signal = "Entangled/high-feedback candidates route to dynamics before projection or closeout can claim system effect."
-next_action = "Route dynamic_graph_dscm and simulation/dynamics outputs into a design-level feedback producer."
-
-[open_cell_closure.SYSTEM.measurability]
-cell_ref = "SYSTEM.measurability"
-owner = "team-semantic-binding"
-reuse_classification = "extend_existing"
-current_state = "producer_missing"
-target_state = "implemented"
-missing_chain = ["typed_contract", "producer", "persisted_artifact", "orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
-producer_artifact = "MeasurabilityAdequacyRecord classifying each construct as observed, proxy-only, qualitative, or missing."
-persisted_artifact = "Claim-bound measurability ledger with proxy validity, value-loss, and ignorance/limitation disposition."
-bridge_consumer = "KNOWLEDGE.epistemic_regime and ACTOR.value_choice_provenance consume measurability before strategy or weights close."
-surface = "PUBLIC shows omitted/unmeasured policy values; EXPERT/MACHINE show proxy validity and streetlight-risk status."
-semantic_test = "Policy with dignity/trust objective cannot pass by optimizing only an observable administrative proxy."
-negative_test = "Proxy-only fixture must not satisfy the original value construct without limitation."
-acceptance_signal = "Every design objective has a measurability disposition before regime classification and projection."
-next_action = "Extend semantic_binding into a producer that emits construct-level measurability records."
-
-[open_cell_closure.SYSTEM.subject_granularity]
-cell_ref = "SYSTEM.subject_granularity"
-owner = "team-concept-spine"
-reuse_classification = "extend_existing"
-current_state = "producer_missing"
-target_state = "implemented"
-missing_chain = ["typed_contract", "producer", "persisted_artifact", "orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
-producer_artifact = "AggregationValidityRecord for individual/group/jurisdiction scope and Simpson/ecological-error risk."
-persisted_artifact = "Concept-spine-linked granularity ledger keyed by construct, population, jurisdiction, and claim scope."
-bridge_consumer = "INTERVENTION.targeting and KNOWLEDGE.epistemic_regime consume aggregation validity before targeting claims close."
-surface = "EXPERT/MACHINE projection exposes aggregation level, transported scope, and drift disposition."
-semantic_test = "Group-level evidence cannot close an individual-level targeting claim without aggregation validity."
-negative_test = "Fixture with jurisdiction-level averages hiding subgroup harm must emit a limitation or blocker."
-acceptance_signal = "Population and targeting claims fail closed when evidence granularity does not match claim scope."
-next_action = "Extend concept_spine with aggregation-validity records and a consumer in targeting/regime checks."
-
 [open_cell_closure.KNOWLEDGE.calibration]
 cell_ref = "KNOWLEDGE.calibration"
 owner = "team-calibration"
@@ -204,70 +140,6 @@ semantic_test = "System cannot choose social weights silently when goals conflic
 negative_test = "LLM-proposed objective weights without mandate must fail P20 normative firewall."
 acceptance_signal = "Every objective function has authorized value-choice provenance or remains advisory/blocked."
 next_action = "Orchestrate foundry/welfare/social_weight_provenance.py behind an ACTOR producer gated by mandate records."
-
-[open_cell_closure.ACTOR.state_capacity_feasibility]
-cell_ref = "ACTOR.state_capacity_feasibility"
-owner = "team-governance-feasibility"
-reuse_classification = "build_new"
-current_state = "producer_missing"
-target_state = "implemented"
-missing_chain = ["typed_contract", "producer", "persisted_artifact", "orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
-producer_artifact = "CapacityFeasibilityRecord for administrative, fiscal, enforcement, delivery, and coordination capacity."
-persisted_artifact = "Actor-context feasibility ledger linked to jurisdiction, instrument, lifecycle stage, and design candidate."
-bridge_consumer = "INTERVENTION.design_candidate and INTERVENTION.feasibility consume capacity records before implementability claims."
-surface = "PUBLIC shows feasibility limitations; EXPERT/MACHINE show capacity dimensions and evidence/provenance."
-semantic_test = "Design requiring absent delivery capacity cannot be ranked as implementable without capacity-building obligation."
-negative_test = "High-capacity assumption copied across jurisdictions must fail capacity feasibility firewall."
-acceptance_signal = "Implementability closes only when capacity dimensions are grounded or explicitly limited."
-next_action = "Create the ACTOR capacity-feasibility contract and first producer over jurisdiction/instrument fixtures."
-
-[open_cell_closure.ACTOR.mandate_legitimacy]
-cell_ref = "ACTOR.mandate_legitimacy"
-owner = "team-participation-governance"
-reuse_classification = "extend_existing"
-current_state = "producer_missing"
-target_state = "implemented"
-missing_chain = ["typed_contract", "producer", "persisted_artifact", "orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
-producer_artifact = "MandateLegitimacyRecord for legal mandate, participation basis, affected-person provenance, and authority to set objectives."
-persisted_artifact = "Mandate ledger linked to population, jurisdiction, objectives, and value-choice records."
-bridge_consumer = "ACTOR.value_choice_provenance and INTERVENTION.design_candidate consume mandate records before goals/weights close."
-surface = "PUBLIC shows legitimacy disclosure; EXPERT/MACHINE show participation scope, conflicts, and mandate gaps."
-semantic_test = "Multi-principal design with missing affected-person mandate cannot collapse preferences into one hidden objective."
-negative_test = "Participation speculation by LLM must remain candidate_unverified or blocker."
-acceptance_signal = "Objectives and social weights require mandate/legitimacy provenance before publication."
-next_action = "Promote participation_requirement and scientist/governance seeds into mandate records with public disclosure effects."
-
-[open_cell_closure.INTERVENTION.scale_composition]
-cell_ref = "INTERVENTION.scale_composition"
-owner = "team-design-composition"
-reuse_classification = "consolidate_existing"
-current_state = "implemented_but_not_orchestrated"
-target_state = "implemented"
-missing_chain = ["typed_contract", "producer", "persisted_artifact", "orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
-producer_artifact = "CompositionReceipt for recursive DesignCandidate trees, critical paths, interfaces, and residual system-risk obligations."
-persisted_artifact = "RuntimePolicyDesignCase graph extension linking parent and sub-designs with coupling precondition refs."
-bridge_consumer = "INTERVENTION.requirement_compilers, SYSTEM.dynamics_feedback, and DESIGNER closeout consume composition receipts."
-surface = "EXPERT/MACHINE projection shows design tree, module interfaces, critical path, and where authority is not composable."
-semantic_test = "Country-scale portfolio fixture decomposes only along valid boundaries and blocks entangled partial-equilibrium aggregation."
-negative_test = "Naive sum-of-subdesigns fixture must fail when coupling precondition is absent."
-acceptance_signal = "Recursive design composition cannot emit whole-design authority without CouplingGraph and composition receipt."
-next_action = "Consolidate pdc, IR portfolio, and Foundry coupling seeds into D2.6 composition producer."
-
-[open_cell_closure.OTHER_AGENTS.strategic_response]
-cell_ref = "OTHER_AGENTS.strategic_response"
-owner = "team-strategic-response"
-reuse_classification = "wire_existing"
-current_state = "implemented_but_not_orchestrated"
-target_state = "implemented"
-missing_chain = ["producer", "persisted_artifact", "orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
-producer_artifact = "StrategicResponseRecord for Goodhart, Lucas/performativity, capture, sabotage, gaming, adaptation, and compliance response."
-persisted_artifact = "Response-model ledger linked to candidate, actor capacity, coupling regime, and post-intervention DGP."
-bridge_consumer = "SYSTEM.dynamics_feedback consumes post-intervention DGP; INTERVENTION.robustness consumes response risks."
-surface = "EXPERT/MACHINE projection exposes behavioral response model, assumptions, and robustness/downgrade effects."
-semantic_test = "Incentive target susceptible to gaming cannot project pre-policy effect as post-policy effect unchanged."
-negative_test = "Goodhart fixture must emit response risk and update SYSTEM.post_intervention_dgp."
-acceptance_signal = "The required reflexive flow OTHER_AGENTS response -> SYSTEM post-intervention DGP -> dynamics is runtime-produced."
-next_action = "Wrap strategic.py, policy_learning.py, dtr.py, and adversary.py seeds in an owned response producer."
 
 [open_cell_closure.DESIGNER_ITSELF.envelope_growth]
 cell_ref = "DESIGNER_ITSELF.envelope_growth"
@@ -919,55 +791,65 @@ gap = "none_for_ddm_scope"
 action = "route DDM shift records into regime and envelope-growth classification during Pass 3."
 
 [cell.SYSTEM.connectivity_modularity]
-owner_module = ""
-seed_files = ["src/polisyos/foundry/coupling/des_kernel.py"]
-ratchet_state = "implemented_but_not_orchestrated"
-p01_chain = "bridge_missing"
+owner_module = "src/polisyos/runtime/quality"
+seed_files = [
+  "src/polisyos/runtime/quality/layer2_coupling_composition.py",
+  "src/polisyos/foundry/coupling/des_kernel.py",
+]
+ratchet_state = "implemented"
+p01_chain = "implemented"
 authority_dim = "coupling_validity"
 firewall = "P17_decomposition_laundering"
 publishes = ["INTERVENTION.scale_composition"]
 consumes = ["SYSTEM.domain_data", "KNOWLEDGE.evidence_claims_portfolio"]
-gap = "no producer routes des_kernel into design-composition precondition checks."
-action = "add a SYSTEM connectivity producer that emits CouplingGraph and DecompositionResult before composition authority is assembled."
+gap = "none_for_s5_scope"
+action = "keep S5 CouplingGraph and DecompositionResult as the A-owned composition precondition before whole-design authority is assembled."
 
 [cell.SYSTEM.dynamics_feedback]
-owner_module = ""
+owner_module = "src/polisyos/runtime/quality"
 seed_files = [
+  "src/polisyos/runtime/quality/layer2_coupling_composition.py",
   "src/polisyos/foundry/methods/catalog/simulation/dynamics.py",
   "src/polisyos/foundry/methods/catalog/causal/dynamic_graph_dscm.py",
 ]
-ratchet_state = "implemented_but_not_orchestrated"
-p01_chain = "bridge_missing"
+ratchet_state = "implemented"
+p01_chain = "implemented"
 authority_dim = "system_dynamics_validity"
 firewall = "P17_decomposition_laundering"
 publishes = ["OTHER_AGENTS.response_model", "INTERVENTION.system_level_forecast"]
-consumes = ["SYSTEM.connectivity_modularity", "SYSTEM.post_intervention_dgp", "INTERVENTION.design_candidate"]
-gap = "system-dynamics seeds are not orchestrated as design-level equilibrium or feedback evidence."
-action = "route entangled or high-feedback designs into Foundry dynamics before any system-level effect claim is projected."
+consumes = ["SYSTEM.connectivity_modularity", "SYSTEM.post_intervention_dgp", "INTERVENTION.design_candidate", "OTHER_AGENTS.strategic_response"]
+gap = "none_for_s5_scope"
+action = "keep S5 SystemDynamicsRequirement and ForecastSupportScope as system-effect limitations until calibrated dynamics producers arrive."
 
 [cell.SYSTEM.measurability]
-owner_module = ""
-seed_files = ["src/polisyos/runtime/quality/semantic_binding.py"]
-ratchet_state = "producer_missing"
-p01_chain = "producer_missing"
+owner_module = "src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py"
+seed_files = [
+  "src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py",
+  "src/polisyos/runtime/quality/semantic_binding.py",
+]
+ratchet_state = "implemented"
+p01_chain = "implemented"
 authority_dim = "measurability_adequacy"
 firewall = "P18_streetlight_measurability_laundering"
 publishes = ["KNOWLEDGE.epistemic_regime", "ACTOR.value_choice_provenance"]
 consumes = ["INTERVENTION.objectives", "SYSTEM.domain_data"]
-gap = "no producer declares whether key constructs are measurable, proxy-only, qualitative, or missing."
-action = "add a measurability producer and require unmeasured constructs to become explicit ignorance or limitation records."
+gap = "none_for_s6_fail_closed_scope"
+action = "S6 fail-closed wrapper emits MeasurabilityAdequacyRecord and blocks proxy/value laundering; predictive upgrade remains S11."
 
 [cell.SYSTEM.subject_granularity]
-owner_module = ""
-seed_files = ["src/polisyos/runtime/quality/concept_spine.py"]
-ratchet_state = "producer_missing"
-p01_chain = "producer_missing"
+owner_module = "src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py"
+seed_files = [
+  "src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py",
+  "src/polisyos/runtime/quality/concept_spine.py",
+]
+ratchet_state = "implemented"
+p01_chain = "implemented"
 authority_dim = "aggregation_validity"
 firewall = "P19_aggregation_laundering"
 publishes = ["INTERVENTION.targeting", "KNOWLEDGE.epistemic_regime"]
 consumes = ["SYSTEM.domain_data", "INTERVENTION.population_scope"]
-gap = "no producer detects individual-to-group aggregation drift, ecological error, or Simpson-risk boundaries."
-action = "add subject-granularity and aggregation-validity records before targeting or population-level claims close."
+gap = "none_for_s6_fail_closed_scope"
+action = "S6 fail-closed wrapper emits AggregationValidityRecord before targeting or population-level claims close; predictive upgrade remains S11."
 
 [cell.KNOWLEDGE.substrate_coverage]
 owner_module = "src/polisyos/runtime/quality/capability_resolver.py"
@@ -1075,28 +957,34 @@ gap = "social-weight provenance seed is not the gate-owned normative firewall fo
 action = "orchestrate authorized value-weight inputs and expose value-choice provenance to every audience projection."
 
 [cell.ACTOR.state_capacity_feasibility]
-owner_module = ""
-seed_files = ["src/polisyos/participation_requirement/README.md"]
-ratchet_state = "producer_missing"
-p01_chain = "producer_missing"
+owner_module = "src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py"
+seed_files = [
+  "src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py",
+  "src/polisyos/participation_requirement/README.md",
+]
+ratchet_state = "implemented"
+p01_chain = "implemented"
 authority_dim = "capacity_feasibility"
 firewall = "P21_capacity_feasibility_laundering"
 publishes = ["INTERVENTION.feasibility", "DESIGNER_ITSELF.envelope_membership"]
 consumes = ["INTERVENTION.design_candidate", "SYSTEM.jurisdiction"]
-gap = "no producer grounds administrative capacity, enforcement capacity, fiscal capacity, or implementation feasibility for this actor."
-action = "create an ACTOR capacity-feasibility producer before candidate designs can claim implementability."
+gap = "none_for_s6_fail_closed_scope"
+action = "S6 fail-closed wrapper emits CapacityFeasibilityRecord and capacity-building obligations before implementability claims close; predictive upgrade remains S11."
 
 [cell.ACTOR.mandate_legitimacy]
-owner_module = ""
-seed_files = ["src/polisyos/participation_requirement/README.md"]
-ratchet_state = "producer_missing"
-p01_chain = "producer_missing"
+owner_module = "src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py"
+seed_files = [
+  "src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py",
+  "src/polisyos/participation_requirement/README.md",
+]
+ratchet_state = "implemented"
+p01_chain = "implemented"
 authority_dim = "mandate_legitimacy"
 firewall = "P22_mandate_legitimacy_laundering"
-publishes = ["ACTOR.value_choice_provenance", "PUBLIC.legitimacy_disclosure"]
+publishes = ["ACTOR.value_choice_provenance", "PUBLIC.legitimacy_disclosure", "INTERVENTION.design_candidate"]
 consumes = ["INTERVENTION.objectives", "SYSTEM.population_scope"]
-gap = "participation primitives exist, but no cluster producer grounds who is authorized to set goals or social weights."
-action = "add mandate and legitimacy records that gate normative choices, especially in multi-principal designs."
+gap = "none_for_s6_fail_closed_scope"
+action = "S6 fail-closed wrapper emits MandateLegitimacyRecord before objectives, value choices, or design candidates can close; predictive upgrade remains S11."
 
 [cell.INTERVENTION.requirement_compilers]
 owner_module = "src/polisyos/data_requirement"
@@ -1116,20 +1004,22 @@ gap = "none_for_seed_scope"
 action = "keep family-specific RequirementSpec compilers as the bridge from obligation/design demand to producer adapters."
 
 [cell.INTERVENTION.scale_composition]
-owner_module = ""
+owner_module = "src/polisyos/pdc"
 seed_files = [
+  "src/polisyos/pdc/_impl/layer2_design_search.py",
+  "src/polisyos/runtime/quality/layer2_coupling_composition.py",
   "src/polisyos/foundry/coupling/des_kernel.py",
   "src/polisyos/pdc/README.md",
   "src/polisyos/ir/loading/portfolio.py",
 ]
-ratchet_state = "implemented_but_not_orchestrated"
-p01_chain = "bridge_missing"
+ratchet_state = "implemented"
+p01_chain = "implemented"
 authority_dim = "composition_validity"
 firewall = "P17_decomposition_laundering"
 publishes = ["INTERVENTION.design_candidate", "INTERVENTION.requirements"]
 consumes = ["SYSTEM.connectivity_modularity", "INTERVENTION.design_candidate", "SYSTEM.dynamics_feedback"]
-gap = "scale/composition is the second universalism axis, but no owned producer yet emits recursive DesignCandidate composition receipts."
-action = "build the D2.6 composition producer with CouplingGraph preconditions, recursive sub-design interfaces, and system-level residual-risk obligations."
+gap = "none_for_s5_scope"
+action = "keep the S2 narrow waist consuming injected S5 CompositionReceipt refs before recursive composition is projected."
 
 [cell.INTERVENTION.design_candidate]
 owner_module = "src/polisyos/pdc"
@@ -1143,7 +1033,7 @@ p01_chain = "implemented"
 authority_dim = "design_candidate_validity"
 firewall = "P15_LLM_speculation_laundering"
 publishes = ["INTERVENTION.design_comparison", "INTERVENTION.requirements", "OTHER_AGENTS.response_model"]
-consumes = ["INTERVENTION.design_grammar", "INTERVENTION.scale_composition", "CROSS_CUTTING.scientist_orchestration", "ACTOR.value_choice_provenance", "KNOWLEDGE.epistemic_regime"]
+consumes = ["INTERVENTION.design_grammar", "INTERVENTION.scale_composition", "CROSS_CUTTING.scientist_orchestration", "ACTOR.value_choice_provenance", "ACTOR.mandate_legitimacy", "KNOWLEDGE.epistemic_regime"]
 gap = "none_for_s2_shadow_design_search"
 action = "S2 emits grammar-derived DesignCandidateV0 artifacts linked to DesignRecordV0, SearchLedger, and authority firewalls."
 
@@ -1178,21 +1068,22 @@ gap = "none_for_s4_epistemic_regime"
 action = "S4 CommitmentProfileRecord producer derives reversibility/lifecycle/stakes; drives design strategy and select_floor, with P23."
 
 [cell.OTHER_AGENTS.strategic_response]
-owner_module = ""
+owner_module = "src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py"
 seed_files = [
+  "src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py",
   "src/polisyos/foundry/methods/catalog/causal/strategic.py",
   "src/polisyos/foundry/methods/catalog/causal/policy_learning.py",
   "src/polisyos/foundry/methods/catalog/causal/dtr.py",
   "src/polisyos/scientist/policy_design/adversary.py",
 ]
-ratchet_state = "implemented_but_not_orchestrated"
-p01_chain = "bridge_missing"
+ratchet_state = "implemented"
+p01_chain = "implemented"
 authority_dim = "strategic_robustness"
 firewall = "P24_goodhart_lucas_response_laundering"
-publishes = ["SYSTEM.post_intervention_dgp", "INTERVENTION.robustness"]
+publishes = ["SYSTEM.post_intervention_dgp", "SYSTEM.dynamics_feedback", "INTERVENTION.robustness"]
 consumes = ["INTERVENTION.design_candidate", "SYSTEM.connectivity_modularity", "ACTOR.state_capacity_feasibility"]
-gap = "strategic and adversarial method seeds exist, but no producer models governed agents' response to this design."
-action = "build an OTHER_AGENTS response producer that emits Goodhart, Lucas, capture, sabotage, and adaptation risks for each design."
+gap = "none_for_s6_fail_closed_scope"
+action = "S6 fail-closed wrapper emits StrategicResponseRecord and post-intervention DGP handoff while rich predictive response modeling remains S11."
 
 [cell.DESIGNER_ITSELF.closeout_projection_ratchet]
 owner_module = "src/polisyos/runtime/quality"

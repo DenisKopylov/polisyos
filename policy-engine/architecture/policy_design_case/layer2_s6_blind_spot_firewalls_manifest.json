@@ -1,0 +1,110 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s6_blind_spot_firewalls_manifest.v1",
+  "slice": "S6",
+  "slice_label": "blind_spot_fail_closed_producers",
+  "status": "active",
+  "owner": "team-runtime-quality",
+  "depends_on": [
+    "S5"
+  ],
+  "maturity": "fail_closed",
+  "cells_closed": [
+    "SYSTEM.measurability",
+    "SYSTEM.subject_granularity",
+    "ACTOR.state_capacity_feasibility",
+    "ACTOR.mandate_legitimacy",
+    "OTHER_AGENTS.strategic_response"
+  ],
+  "expected_current_open_cell_count": 5,
+  "required_artifacts": [
+    "MeasurabilityAdequacyRecord",
+    "AggregationValidityRecord",
+    "CapacityFeasibilityRecord",
+    "MandateLegitimacyRecord",
+    "StrategicResponseRecord",
+    "ClusterAuthorityDimensionRecord"
+  ],
+  "required_firewalls": [
+    "P18",
+    "P19",
+    "P21",
+    "P22",
+    "P24"
+  ],
+  "floor_id": "s6_fail_closed_coverage",
+  "floor_metric": "per_axis_fail_closed_negative_control_pass_rate",
+  "floor_expected_minimum": 1.0,
+  "false_clear_count": 0,
+  "case_count": 13,
+  "axis_coverage_count": 5,
+  "all_five_axes_covered": true,
+  "per_axis_fail_closed_negative_control_pass_rate": 1.0,
+  "bridge_consumer_coverage": {
+    "KNOWLEDGE.epistemic_regime": true,
+    "ACTOR.value_choice_provenance": true,
+    "INTERVENTION.targeting": true,
+    "INTERVENTION.feasibility": true,
+    "DESIGNER_ITSELF.envelope_membership": true,
+    "PUBLIC.legitimacy_disclosure": true,
+    "INTERVENTION.design_candidate": true,
+    "SYSTEM.post_intervention_dgp": true,
+    "SYSTEM.dynamics_feedback": true,
+    "INTERVENTION.robustness": true
+  },
+  "c3_authority_dimension_coverage": {
+    "measurability_adequacy": true,
+    "aggregation_validity": true,
+    "capacity_feasibility": true,
+    "mandate_legitimacy": true,
+    "strategic_robustness": true,
+    "response_model_validity": true
+  },
+  "authority_scope": [
+    "measurability_adequacy",
+    "aggregation_validity",
+    "capacity_feasibility",
+    "mandate_legitimacy",
+    "strategic_robustness",
+    "response_model_validity",
+    "fail_closed_axis_firewall"
+  ],
+  "c3_authority_dimensions": [
+    "measurability_adequacy",
+    "aggregation_validity",
+    "capacity_feasibility",
+    "mandate_legitimacy",
+    "strategic_robustness",
+    "response_model_validity"
+  ],
+  "required_bridge_consumers": [
+    "KNOWLEDGE.epistemic_regime",
+    "ACTOR.value_choice_provenance",
+    "INTERVENTION.targeting",
+    "INTERVENTION.feasibility",
+    "DESIGNER_ITSELF.envelope_membership",
+    "PUBLIC.legitimacy_disclosure",
+    "INTERVENTION.design_candidate",
+    "SYSTEM.post_intervention_dgp",
+    "SYSTEM.dynamics_feedback",
+    "INTERVENTION.robustness"
+  ],
+  "may_not_use_for": [
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority",
+    "delegation_authority",
+    "value_choice_authority",
+    "outcome_prediction_authority",
+    "forecast_calibration_authority",
+    "rich_response_model_authority",
+    "capacity_transfer_authority",
+    "mandate_authority_from_llm",
+    "proxy_construct_equivalence_without_disclosure",
+    "aggregation_scope_transfer_without_validity",
+    "post_policy_effect_claim_without_response_model"
+  ],
+  "producer_module": "src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py",
+  "consumer_module": "src/polisyos/pdc/_impl/layer2_design_search.py",
+  "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py",
+  "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py"
+}

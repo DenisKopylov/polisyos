@@ -43,6 +43,12 @@ DEFAULT_S3_SUBSTRATE_ACQUISITION_MANIFEST_PATH = Path(
 DEFAULT_S4_EPISTEMIC_REGIME_MANIFEST_PATH = Path(
     "architecture/policy_design_case/layer2_s4_epistemic_regime_manifest.json"
 )
+DEFAULT_S5_COUPLING_COMPOSITION_MANIFEST_PATH = Path(
+    "architecture/policy_design_case/layer2_s5_coupling_composition_manifest.json"
+)
+DEFAULT_S6_BLIND_SPOT_FIREWALLS_MANIFEST_PATH = Path(
+    "architecture/policy_design_case/layer2_s6_blind_spot_firewalls_manifest.json"
+)
 DEFAULT_INVENTORY_PATH = Path("architecture/policy_design_case/inventory.json")
 
 REQUIRED_SLICES = {f"S{number}" for number in range(15)}
@@ -72,6 +78,95 @@ REQUIRED_ARTIFACT_NAMES = {
     "CertifiedEnvelopeDelta",
 }
 MATURITY_QUALIFIERS = {"fail_closed", "predictive"}
+S5_CLOSED_CELLS = {
+    "SYSTEM.connectivity_modularity",
+    "SYSTEM.dynamics_feedback",
+    "INTERVENTION.scale_composition",
+}
+S5_COUPLING_REGIMES = {
+    "modular",
+    "near_decomposable",
+    "hierarchically_coupled",
+    "entangled",
+}
+S5_REQUIRED_ARTIFACTS = {
+    "CompositionReceipt",
+    "ComputationalTractabilityBudget",
+    "CouplingGraph",
+    "CouplingRegimeClassification",
+    "DecompositionResult",
+    "DesignInterfaceContract",
+    "RecursiveDesignGraph",
+    "SystemDynamicsRequirement",
+}
+S5_REQUIRED_NESTED_RECORDS = {
+    "BoundaryCouplingClassification",
+    "CompositionLawCheck",
+    "ForecastSupportScope",
+    "ModuleDiscoveryResult",
+}
+S5_REQUIRED_DENY = {
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority",
+    "equilibrium_prediction_authority",
+    "whole_design_authority_without_coupling_graph",
+    "whole_design_authority_from_syntactic_decomposition",
+    "whole_design_authority_from_user_supplied_module_split",
+    "false_modular_decomposition",
+    "weakened_authority_from_tractability_cutoff",
+}
+S6_CLOSED_CELLS = {
+    "SYSTEM.measurability",
+    "SYSTEM.subject_granularity",
+    "ACTOR.state_capacity_feasibility",
+    "ACTOR.mandate_legitimacy",
+    "OTHER_AGENTS.strategic_response",
+}
+S6_REQUIRED_ARTIFACTS = {
+    "MeasurabilityAdequacyRecord",
+    "AggregationValidityRecord",
+    "CapacityFeasibilityRecord",
+    "MandateLegitimacyRecord",
+    "StrategicResponseRecord",
+    "ClusterAuthorityDimensionRecord",
+}
+S6_REQUIRED_FIREWALLS = {"P18", "P19", "P21", "P22", "P24"}
+S6_REQUIRED_BRIDGE_CONSUMERS = {
+    "KNOWLEDGE.epistemic_regime",
+    "ACTOR.value_choice_provenance",
+    "INTERVENTION.targeting",
+    "INTERVENTION.feasibility",
+    "DESIGNER_ITSELF.envelope_membership",
+    "PUBLIC.legitimacy_disclosure",
+    "INTERVENTION.design_candidate",
+    "SYSTEM.post_intervention_dgp",
+    "SYSTEM.dynamics_feedback",
+    "INTERVENTION.robustness",
+}
+S6_C3_AUTHORITY_DIMENSIONS = {
+    "measurability_adequacy",
+    "aggregation_validity",
+    "capacity_feasibility",
+    "mandate_legitimacy",
+    "strategic_robustness",
+    "response_model_validity",
+}
+S6_REQUIRED_DENY = {
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority",
+    "delegation_authority",
+    "value_choice_authority",
+    "outcome_prediction_authority",
+    "forecast_calibration_authority",
+    "rich_response_model_authority",
+    "capacity_transfer_authority",
+    "mandate_authority_from_llm",
+    "proxy_construct_equivalence_without_disclosure",
+    "aggregation_scope_transfer_without_validity",
+    "post_policy_effect_claim_without_response_model",
+}
 
 
 def load_layer2_readiness_payloads(repo_root: Path | str = REPO_ROOT) -> dict[str, Any]:
@@ -92,6 +187,12 @@ def load_layer2_readiness_payloads(repo_root: Path | str = REPO_ROOT) -> dict[st
         ),
         "s4_epistemic_regime": _load_optional_json(
             root / DEFAULT_S4_EPISTEMIC_REGIME_MANIFEST_PATH
+        ),
+        "s5_coupling_composition": _load_optional_json(
+            root / DEFAULT_S5_COUPLING_COMPOSITION_MANIFEST_PATH
+        ),
+        "s6_blind_spot_firewalls": _load_optional_json(
+            root / DEFAULT_S6_BLIND_SPOT_FIREWALLS_MANIFEST_PATH
         ),
         "inventory": _load_json(root / DEFAULT_INVENTORY_PATH),
         "cluster_map": cluster_map.load_cluster_ownership_map(root),
@@ -227,6 +328,25 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
         inventory=payloads["inventory"],
         issues=issues,
     )
+    _validate_s5_coupling_composition(
+        s5=payloads.get("s5_coupling_composition"),
+        floor_governance=payloads["floor_governance"],
+        artifact_traceability=payloads["artifact_traceability"],
+        current_open_cells=current_open_cells,
+        assigned_cells=assigned_cells,
+        inventory=payloads["inventory"],
+        issues=issues,
+    )
+    _validate_s6_blind_spot_firewalls(
+        s6=payloads.get("s6_blind_spot_firewalls"),
+        floor_governance=payloads["floor_governance"],
+        artifact_traceability=payloads["artifact_traceability"],
+        cluster_map_payload=cluster_payload,
+        current_open_cells=current_open_cells,
+        assigned_cells=assigned_cells,
+        inventory=payloads["inventory"],
+        issues=issues,
+    )
     closed_since_s0 = sorted(assigned_cells - current_open_cells)
     s3 = payloads.get("s3_substrate_acquisition")
     s3_summary = (
@@ -253,6 +373,46 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
         if isinstance(s4, dict) and s4
         else {}
     )
+    s5 = payloads.get("s5_coupling_composition")
+    s5_summary = (
+        {
+            "s5_coupling_accuracy": s5.get("coupling_accuracy"),
+            "s5_penalized_score": s5.get("penalized_score"),
+            "s5_expected_current_open_cell_count": s5.get(
+                "expected_current_open_cell_count"
+            ),
+            "s5_false_modular_count": s5.get("false_modular_count"),
+            "s5_false_entangled_count": s5.get("false_entangled_count"),
+            "s5_coupling_regime_counts": s5.get("coupling_regime_counts"),
+            "s5_boundary_regime_counts": s5.get("boundary_regime_counts"),
+            "s5_system_effect_support_labels": s5.get(
+                "system_effect_support_labels"
+            ),
+        }
+        if isinstance(s5, dict) and s5
+        else {}
+    )
+    s6 = payloads.get("s6_blind_spot_firewalls")
+    s6_summary = (
+        {
+            "s6_maturity": s6.get("maturity"),
+            "s6_case_count": s6.get("case_count"),
+            "s6_axis_coverage_count": s6.get("axis_coverage_count"),
+            "s6_bridge_consumer_coverage": s6.get("bridge_consumer_coverage"),
+            "s6_c3_authority_dimension_coverage": s6.get(
+                "c3_authority_dimension_coverage"
+            ),
+            "s6_fail_closed_coverage": s6.get(
+                "per_axis_fail_closed_negative_control_pass_rate"
+            ),
+            "s6_false_clear_count": s6.get("false_clear_count"),
+            "s6_expected_current_open_cell_count": s6.get(
+                "expected_current_open_cell_count"
+            ),
+        }
+        if isinstance(s6, dict) and s6
+        else {}
+    )
 
     return _result(
         issues,
@@ -267,6 +427,8 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
             "inventory_artifact_count": _inventory_layer2_artifact_count(payloads["inventory"]),
             **s3_summary,
             **s4_summary,
+            **s5_summary,
+            **s6_summary,
         },
     )
 
@@ -591,6 +753,447 @@ def _validate_s4_epistemic_regime(
                 "S4 manifest must be registered in the Policy Design Case inventory.",
             )
         )
+
+
+def _validate_s5_coupling_composition(
+    *,
+    s5: object,
+    floor_governance: dict[str, Any],
+    artifact_traceability: dict[str, Any],
+    current_open_cells: set[str],
+    assigned_cells: set[str],
+    inventory: dict[str, Any],
+    issues: list[dict[str, str]],
+) -> None:
+    if not isinstance(s5, dict) or not s5:
+        return
+    if set(s5.get("cells_closed", [])) != S5_CLOSED_CELLS:
+        issues.append(
+            _issue(
+                "layer2_s5_cells_closed_invalid",
+                "S5 must close exactly connectivity, dynamics feedback, and composition cells.",
+            )
+        )
+    if s5.get("open_cell_count_baseline") != 17:
+        issues.append(
+            _issue(
+                "layer2_s5_open_cell_count_baseline_invalid",
+                "S5 must preserve open_cell_count_baseline=17.",
+            )
+        )
+    if s5.get("expected_current_open_cell_count") != 10:
+        issues.append(
+            _issue(
+                "layer2_s5_open_cell_count_drift",
+                "S5 manifest must record expected_current_open_cell_count=10.",
+            )
+        )
+    if S5_CLOSED_CELLS & current_open_cells:
+        issues.append(
+            _issue(
+                "layer2_s5_cluster_map_not_closed",
+                "S5 cells must be removed from open_cell_closure.",
+            )
+        )
+    if len(current_open_cells) > int(s5.get("expected_current_open_cell_count", -1)):
+        issues.append(
+            _issue(
+                "layer2_s5_cluster_open_cell_count_mismatch",
+                "S5 manifest expected open-cell count must not be exceeded by the cluster map.",
+            )
+        )
+    if not assigned_cells >= S5_CLOSED_CELLS:
+        issues.append(
+            _issue(
+                "layer2_s5_cells_not_assigned",
+                "S5 closed cells must be in the frozen slice-cell baseline.",
+            )
+        )
+    if "s5_coupling_accuracy" not in set(s5.get("floors", [])):
+        issues.append(
+            _issue(
+                "layer2_s5_floor_missing",
+                "S5 manifest must reference the s5_coupling_accuracy floor.",
+            )
+        )
+    if not _floor_by_id(floor_governance, "s5_coupling_accuracy"):
+        issues.append(
+            _issue(
+                "layer2_s5_floor_governance_missing",
+                "s5_coupling_accuracy floor must be registered.",
+            )
+        )
+    if not _number_at_least(s5.get("coupling_accuracy"), 0.9):
+        issues.append(
+            _issue(
+                "layer2_s5_coupling_accuracy_below_floor",
+                "S5 coupling accuracy must meet the seeded corpus floor.",
+            )
+        )
+    if not _number_at_least(s5.get("penalized_score"), 0.9):
+        issues.append(
+            _issue(
+                "layer2_s5_penalized_score_below_floor",
+                "S5 penalized score must meet the false-modular penalty floor.",
+            )
+        )
+    if s5.get("false_modular_count") != 0:
+        issues.append(
+            _issue(
+                "layer2_s5_false_modular_present",
+                "S5 false_modular_count must remain zero.",
+            )
+        )
+    if not _non_negative_int(s5.get("false_entangled_count")):
+        issues.append(
+            _issue(
+                "layer2_s5_false_entangled_count_invalid",
+                "S5 false_entangled_count must be present and non-negative.",
+            )
+        )
+    if s5.get("proving_ground_case_count") != 13:
+        issues.append(
+            _issue(
+                "layer2_s5_case_count_invalid",
+                "S5 proving ground must cover all 13 universal corpus cases.",
+            )
+        )
+    for field, code in (
+        ("coupling_regime_counts", "layer2_s5_coupling_regime_counts_incomplete"),
+        ("boundary_regime_counts", "layer2_s5_boundary_regime_counts_incomplete"),
+    ):
+        counts = s5.get(field)
+        if not isinstance(counts, dict) or not set(counts) >= S5_COUPLING_REGIMES:
+            issues.append(
+                _issue(
+                    code,
+                    f"S5 {field} must cover all four D2.6 coupling regimes.",
+                )
+            )
+    labels = s5.get("system_effect_support_labels")
+    if not isinstance(labels, list) or "simulation_only_system_effect" not in labels:
+        issues.append(
+            _issue(
+                "layer2_s5_system_effect_support_labels_incomplete",
+                "S5 support labels must expose simulation-only system-effect scope.",
+            )
+        )
+    required_artifacts = set(s5.get("required_artifacts", []))
+    trace_s5_artifacts = {
+        str(row.get("name", ""))
+        for row in artifact_traceability.get("artifact", [])
+        if isinstance(row, dict) and row.get("slice") == "S5"
+    }
+    if required_artifacts != S5_REQUIRED_ARTIFACTS or required_artifacts != trace_s5_artifacts:
+        issues.append(
+            _issue(
+                "layer2_s5_required_artifacts_missing",
+                "S5 required_artifacts must match layer2_artifact_traceability S5 rows.",
+            )
+        )
+    nested_records = set(s5.get("nested_records", []))
+    if not nested_records >= S5_REQUIRED_NESTED_RECORDS:
+        issues.append(
+            _issue(
+                "layer2_s5_nested_records_missing",
+                "S5 nested_records must include boundary, discovery, forecast, and law checks.",
+            )
+        )
+    negative_controls = set(s5.get("negative_controls", []))
+    required_controls = {
+        "tests/fixtures/layer2/s5/false_modular_probe.json",
+        "tests/fixtures/layer2/s5/syntactic_decomposition_probe.json",
+        "tests/fixtures/layer2/s5/boundary_spoof_probe.json",
+    }
+    if not negative_controls >= required_controls:
+        issues.append(
+            _issue(
+                "layer2_s5_negative_control_missing",
+                "S5 negative_controls must include false-modular, syntactic, and boundary-spoof probes.",
+            )
+        )
+    if not set(s5.get("may_not_use_for", [])) >= S5_REQUIRED_DENY:
+        issues.append(
+            _issue(
+                "layer2_s5_authority_deny_list_incomplete",
+                "S5 may_not_use_for must block production, prediction, and P17 authority laundering.",
+            )
+        )
+    if s5.get("authority_boundary") != (
+        "shadow_governed_composition_gate_only_no_production_or_prediction_authority"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s5_authority_boundary_incomplete",
+                "S5 authority_boundary must stay shadow-governed and non-production.",
+            )
+        )
+    if "P17" not in set(s5.get("relevant_patterns", [])):
+        issues.append(
+            _issue(
+                "layer2_s5_relevant_patterns_missing_p17",
+                "S5 manifest must cite P17 decomposition laundering.",
+            )
+        )
+    inventory_paths = {
+        str(artifact.get("path", ""))
+        for artifact in inventory.get("artifacts", [])
+        if isinstance(artifact, dict)
+    }
+    if DEFAULT_S5_COUPLING_COMPOSITION_MANIFEST_PATH.as_posix() not in inventory_paths:
+        issues.append(
+            _issue(
+                "layer2_s5_manifest_missing_from_inventory",
+                "S5 manifest must be registered in the Policy Design Case inventory.",
+            )
+        )
+
+
+def _validate_s6_blind_spot_firewalls(
+    *,
+    s6: object,
+    floor_governance: dict[str, Any],
+    artifact_traceability: dict[str, Any],
+    cluster_map_payload: dict[str, Any],
+    current_open_cells: set[str],
+    assigned_cells: set[str],
+    inventory: dict[str, Any],
+    issues: list[dict[str, str]],
+) -> None:
+    if not isinstance(s6, dict) or not s6:
+        issues.append(
+            _issue(
+                "layer2_s6_manifest_missing",
+                "S6 blind-spot firewalls manifest must be present.",
+            )
+        )
+        return
+    if s6.get("schema_version") != (
+        "policyos.policy_design_case.layer2_s6_blind_spot_firewalls_manifest.v1"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s6_schema_version_invalid",
+                "S6 manifest schema_version is invalid.",
+            )
+        )
+    if s6.get("status") != "active" or s6.get("maturity") != "fail_closed":
+        issues.append(
+            _issue(
+                "layer2_s6_status_or_maturity_invalid",
+                "S6 manifest must be active with maturity=fail_closed.",
+            )
+        )
+    if set(s6.get("cells_closed", [])) != S6_CLOSED_CELLS:
+        issues.append(
+            _issue(
+                "layer2_s6_cells_closed_invalid",
+                "S6 must close exactly the five blind-spot cells.",
+            )
+        )
+    if s6.get("expected_current_open_cell_count") != 5:
+        issues.append(
+            _issue(
+                "layer2_s6_open_cell_count_drift",
+                "S6 manifest must record expected_current_open_cell_count=5.",
+            )
+        )
+    if S6_CLOSED_CELLS & current_open_cells:
+        issues.append(
+            _issue(
+                "layer2_s6_cluster_map_not_closed",
+                "S6 cells must be removed from open_cell_closure.",
+            )
+        )
+    if len(current_open_cells) != int(s6.get("expected_current_open_cell_count", -1)):
+        issues.append(
+            _issue(
+                "layer2_s6_cluster_open_cell_count_mismatch",
+                "S6 manifest expected open-cell count must match the cluster map.",
+            )
+        )
+    if not assigned_cells >= S6_CLOSED_CELLS:
+        issues.append(
+            _issue(
+                "layer2_s6_cells_not_assigned",
+                "S6 closed cells must be in the frozen slice-cell baseline.",
+            )
+        )
+
+    trace_s6_artifacts = {
+        str(row.get("name", ""))
+        for row in artifact_traceability.get("artifact", [])
+        if isinstance(row, dict) and row.get("slice") == "S6"
+    }
+    if set(s6.get("required_artifacts", [])) != S6_REQUIRED_ARTIFACTS:
+        issues.append(
+            _issue(
+                "layer2_s6_required_artifacts_missing",
+                "S6 required_artifacts must list the six blind-spot artifacts.",
+            )
+        )
+    if not trace_s6_artifacts >= S6_REQUIRED_ARTIFACTS:
+        issues.append(
+            _issue(
+                "layer2_s6_traceability_missing",
+                "S6 artifacts must be traceable in layer2_artifact_traceability.",
+            )
+        )
+    if set(s6.get("required_firewalls", [])) != S6_REQUIRED_FIREWALLS:
+        issues.append(
+            _issue(
+                "layer2_s6_firewalls_invalid",
+                "S6 must require P18, P19, P21, P22, and P24 firewalls.",
+            )
+        )
+    if set(s6.get("c3_authority_dimensions", [])) != S6_C3_AUTHORITY_DIMENSIONS:
+        issues.append(
+            _issue(
+                "layer2_s6_c3_dimensions_invalid",
+                "S6 C3 authority dimensions must include strategic_robustness and response_model_validity.",
+            )
+        )
+    if set(s6.get("required_bridge_consumers", [])) != S6_REQUIRED_BRIDGE_CONSUMERS:
+        issues.append(
+            _issue(
+                "layer2_s6_bridge_consumers_invalid",
+                "S6 required_bridge_consumers must cover all five blind-spot cells.",
+            )
+        )
+    cluster_bridge_consumers = _s6_bridge_consumers_from_cluster_map(cluster_map_payload)
+    if not cluster_bridge_consumers >= S6_REQUIRED_BRIDGE_CONSUMERS:
+        issues.append(
+            _issue(
+                "layer2_s6_cluster_bridge_consumers_missing",
+                "Cluster map must expose every S6 required bridge consumer.",
+            )
+        )
+
+    floor = _floor_by_id(floor_governance, "s6_fail_closed_coverage")
+    if not floor or floor.get("revision_rule") != "all_five_blind_spot_axes_required":
+        issues.append(
+            _issue(
+                "layer2_s6_floor_governance_invalid",
+                "s6_fail_closed_coverage floor must require all five blind-spot axes.",
+            )
+        )
+    if s6.get("floor_id") != "s6_fail_closed_coverage":
+        issues.append(
+            _issue(
+                "layer2_s6_floor_missing",
+                "S6 manifest must reference s6_fail_closed_coverage.",
+            )
+        )
+    if s6.get("case_count") != 13:
+        issues.append(
+            _issue(
+                "layer2_s6_case_count_invalid",
+                "S6 manifest must record all 13 universal corpus cases.",
+            )
+        )
+    if s6.get("axis_coverage_count") != 5 or s6.get("all_five_axes_covered") is not True:
+        issues.append(
+            _issue(
+                "layer2_s6_axis_coverage_invalid",
+                "S6 manifest must record coverage for all five blind-spot axes.",
+            )
+        )
+    if not _number_at_least(
+        s6.get("per_axis_fail_closed_negative_control_pass_rate"),
+        1.0,
+    ):
+        issues.append(
+            _issue(
+                "layer2_s6_fail_closed_coverage_below_floor",
+                "S6 fail-closed coverage must be at least 1.0.",
+            )
+        )
+    if s6.get("false_clear_count") != 0:
+        issues.append(
+            _issue(
+                "layer2_s6_false_clear_count_nonzero",
+                "S6 false_clear_count must stay zero.",
+            )
+        )
+    bridge_coverage = s6.get("bridge_consumer_coverage")
+    if not _coverage_has_all_true(bridge_coverage, S6_REQUIRED_BRIDGE_CONSUMERS):
+        issues.append(
+            _issue(
+                "layer2_s6_bridge_consumer_coverage_incomplete",
+                "S6 bridge_consumer_coverage must mark every required consumer true.",
+            )
+        )
+    c3_coverage = s6.get("c3_authority_dimension_coverage")
+    if not _coverage_has_all_true(c3_coverage, S6_C3_AUTHORITY_DIMENSIONS):
+        issues.append(
+            _issue(
+                "layer2_s6_c3_authority_dimension_coverage_incomplete",
+                "S6 c3_authority_dimension_coverage must mark every C3 dimension true.",
+            )
+        )
+    if not set(s6.get("may_not_use_for", [])) >= S6_REQUIRED_DENY:
+        issues.append(
+            _issue(
+                "layer2_s6_authority_deny_list_incomplete",
+                "S6 may_not_use_for must block prediction, production, value, capacity, and mandate laundering.",
+            )
+        )
+
+    inventory_artifact = _inventory_artifact_by_id(
+        inventory,
+        "layer2_s6_blind_spot_firewalls_manifest",
+    )
+    if not inventory_artifact:
+        issues.append(
+            _issue(
+                "layer2_s6_manifest_missing_from_inventory",
+                "S6 manifest must be registered in the Policy Design Case inventory.",
+            )
+        )
+    else:
+        if inventory_artifact.get("path") != DEFAULT_S6_BLIND_SPOT_FIREWALLS_MANIFEST_PATH.as_posix():
+            issues.append(
+                _issue(
+                    "layer2_s6_inventory_path_invalid",
+                    "S6 inventory path must point at the governed manifest.",
+                )
+            )
+        if inventory_artifact.get("maturity") != "fail_closed":
+            issues.append(
+                _issue(
+                    "layer2_s6_inventory_maturity_invalid",
+                    "S6 inventory entry must carry maturity=fail_closed.",
+                )
+            )
+
+
+def _s6_bridge_consumers_from_cluster_map(payload: dict[str, Any]) -> set[str]:
+    consumers: set[str] = set()
+    for cell_ref in S6_CLOSED_CELLS:
+        cluster, axis = cell_ref.split(".", maxsplit=1)
+        cell = payload.get("cell", {}).get(cluster, {}).get(axis, {})
+        if isinstance(cell, dict):
+            consumers.update(str(ref) for ref in cell.get("publishes", []) if ref)
+    return consumers
+
+
+def _coverage_has_all_true(value: object, required: set[str]) -> bool:
+    return isinstance(value, dict) and all(value.get(key) is True for key in required)
+
+
+def _inventory_artifact_by_id(payload: dict[str, Any], artifact_id: str) -> dict[str, Any]:
+    for artifact in payload.get("artifacts", []):
+        if isinstance(artifact, dict) and artifact.get("id") == artifact_id:
+            return artifact
+    return {}
+
+
+def _number_at_least(value: object, minimum: float) -> bool:
+    return isinstance(value, int | float) and not isinstance(value, bool) and value >= minimum
+
+
+def _non_negative_int(value: object) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool) and value >= 0
 
 
 def _floor_by_id(payload: dict[str, Any], floor_id: str) -> dict[str, Any]:

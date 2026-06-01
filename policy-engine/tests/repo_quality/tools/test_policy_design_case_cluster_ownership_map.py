@@ -35,7 +35,7 @@ def test_cluster_ownership_map_is_governed_and_valid() -> None:
     assert open_cell_closure["closure_contract_count"] == (  # type: ignore[index]
         validation["summary"]["open_or_incomplete_count"]  # type: ignore[index]
     )
-    assert open_cell_closure["open_cell_count"] == 13
+    assert open_cell_closure["open_cell_count"] == 5
 
 
 def test_cluster_ownership_map_uses_capability_ratchet_state_vocabulary() -> None:
@@ -72,33 +72,50 @@ def test_cluster_ownership_firewall_patterns_are_registered() -> None:
 def test_cluster_ownership_map_keeps_known_blind_spots_explicit() -> None:
     payload = cluster_map.load_cluster_ownership_map(REPO_ROOT)
 
-    assert payload["cell"]["OTHER_AGENTS"]["strategic_response"]["owner_module"] == ""
+    for cluster, axis in (
+        ("SYSTEM", "measurability"),
+        ("SYSTEM", "subject_granularity"),
+        ("ACTOR", "state_capacity_feasibility"),
+        ("ACTOR", "mandate_legitimacy"),
+        ("OTHER_AGENTS", "strategic_response"),
+    ):
+        cell = payload["cell"][cluster][axis]
+        assert cell["owner_module"] == (
+            "src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py"
+        )
+        assert cell["ratchet_state"] == "implemented"
+        assert cell["p01_chain"] == "implemented"
+        assert cell["gap"] == "none_for_s6_fail_closed_scope"
+        assert "S11" in cell["action"]
+        assert "predictive" in cell["action"]
+
     assert (
-        payload["cell"]["OTHER_AGENTS"]["strategic_response"]["ratchet_state"]
-        == "implemented_but_not_orchestrated"
+        "OTHER_AGENTS" not in payload["open_cell_closure"]
+        or "strategic_response" not in payload["open_cell_closure"]["OTHER_AGENTS"]
     )
-    assert payload["cell"]["ACTOR"]["state_capacity_feasibility"]["ratchet_state"] == (
-        "producer_missing"
-    )
-    assert payload["cell"]["ACTOR"]["mandate_legitimacy"]["ratchet_state"] == (
-        "producer_missing"
+    assert payload["cell"]["SYSTEM"]["connectivity_modularity"]["ratchet_state"] == (
+        "implemented"
     )
     assert payload["cell"]["SYSTEM"]["connectivity_modularity"]["p01_chain"] == (
-        "bridge_missing"
+        "implemented"
+    )
+    assert payload["cell"]["SYSTEM"]["dynamics_feedback"]["ratchet_state"] == (
+        "implemented"
+    )
+    assert payload["cell"]["SYSTEM"]["dynamics_feedback"]["p01_chain"] == (
+        "implemented"
+    )
+    assert payload["cell"]["INTERVENTION"]["scale_composition"]["ratchet_state"] == (
+        "implemented"
     )
     assert payload["cell"]["INTERVENTION"]["scale_composition"]["p01_chain"] == (
-        "bridge_missing"
+        "implemented"
     )
     assert payload["cell"]["INTERVENTION"]["design_candidate"]["firewall"].startswith(
         "P15"
     )
     assert payload["cell"]["INTERVENTION"]["design_candidate"]["ratchet_state"] == (
         "implemented"
-    )
-    assert (
-        payload["open_cell_closure"]["OTHER_AGENTS"]["strategic_response"][
-            "producer_artifact"
-        ].startswith("StrategicResponseRecord")
     )
 
 
@@ -170,7 +187,7 @@ def test_architecture_core_split_required_packages_cover_immediate_subpackages()
 def test_cluster_ownership_validator_rejects_open_cell_without_gap() -> None:
     payload = cluster_map.load_cluster_ownership_map(REPO_ROOT)
     payload = copy.deepcopy(payload)
-    payload["cell"]["SYSTEM"]["connectivity_modularity"]["gap"] = "none_for_seed_scope"
+    payload["cell"]["KNOWLEDGE"]["calibration"]["gap"] = "none_for_seed_scope"
 
     validation = _validate_payload_without_inventory_mutation(payload)
 
@@ -231,7 +248,7 @@ def test_cluster_ownership_validator_rejects_broken_reflexive_response_flow() ->
 def test_cluster_ownership_validator_rejects_missing_open_cell_closure() -> None:
     payload = cluster_map.load_cluster_ownership_map(REPO_ROOT)
     payload = copy.deepcopy(payload)
-    del payload["open_cell_closure"]["SYSTEM"]["measurability"]
+    del payload["open_cell_closure"]["KNOWLEDGE"]["calibration"]
 
     validation = _validate_payload_without_inventory_mutation(payload)
 
@@ -257,9 +274,9 @@ def test_cluster_ownership_validator_rejects_closure_state_mismatch() -> None:
 def test_cluster_ownership_validator_rejects_closure_without_semantic_gap() -> None:
     payload = cluster_map.load_cluster_ownership_map(REPO_ROOT)
     payload = copy.deepcopy(payload)
-    payload["open_cell_closure"]["OTHER_AGENTS"]["strategic_response"][
-        "missing_chain"
-    ].remove("semantic_test")
+    payload["open_cell_closure"]["KNOWLEDGE"]["calibration"]["missing_chain"].remove(
+        "semantic_test"
+    )
 
     validation = _validate_payload_without_inventory_mutation(payload)
 

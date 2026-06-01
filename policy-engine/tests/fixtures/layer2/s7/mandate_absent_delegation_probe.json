@@ -1,0 +1,34 @@
+{
+  "case_id": "mandate_absent_delegation_probe",
+  "rule_version_ref": "policyos.layer2.s7.delegation.v1",
+  "s6_mandate_posture": {
+    "mandate_legitimacy_record_ref": "pdc://layer2/s6/mandate-absent/mandate",
+    "firewall_disposition": "block",
+    "mandate_source_refs": []
+  },
+  "case_signals": {
+    "decision_class_id": "routine_in_envelope",
+    "requested_interaction_mode": "delegated_autonomous",
+    "stakes_band": "moderate",
+    "value_laden": false,
+    "out_of_envelope": false,
+    "s6_mandate_record_ref": "pdc://layer2/s6/mandate-absent/mandate",
+    "s6_mandate_firewall_disposition": "block",
+    "mandate_source_refs": [],
+    "budget_or_legal_use_required": false,
+    "acquisition_required": false,
+    "final_choice_required": false,
+    "voi_rank": 9,
+    "attention_cost_rank": 9,
+    "actor_role": "domain_expert"
+  },
+  "expert_label": {
+    "expected_need_reasons": ["mandate_limited"],
+    "expected_interaction_mode": "delegated_autonomous",
+    "expected_disposition": "blocked_mandate_missing",
+    "expected_required_role": "domain_expert",
+    "expected_request_emitted": false,
+    "expected_record_valid": false,
+    "expected_governed_pilot_eligible": false
+  }
+}

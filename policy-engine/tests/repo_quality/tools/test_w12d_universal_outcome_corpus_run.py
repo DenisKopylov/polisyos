@@ -898,6 +898,213 @@ def test_w12d_s6_canonical_outcome_effect_remains_shadow_only(tmp_path: Path) ->
     assert report["summary"]["closeout_honesty_rate"] == 1.0
 
 
+def test_w12d_emits_s7_delegation_for_13_cases(tmp_path: Path) -> None:
+    report = _run_full_corpus_report(tmp_path)
+
+    assert report["summary"]["case_count"] == 13
+    assert report["s7_delegation_summary"]["case_count"] == 13
+    s7_blocks = [case["s7_delegation"] for case in report["cases"]]
+    assert len(s7_blocks) == 13
+    assert all(
+        block["schema_version"] == "policyos.policy_design_case.layer2_s7_delegation.v1"
+        for block in s7_blocks
+    )
+    assert all(
+        block["delegation_contract_ref"].startswith("pdc://layer2/s7/") for block in s7_blocks
+    )
+    assert all(
+        block["decision_rights_matrix_ref"].startswith("pdc://layer2/s7/") for block in s7_blocks
+    )
+    assert all(
+        block["canonical_outcome_effect"] == "none_shadow_or_governed_pilot_only"
+        for block in s7_blocks
+    )
+    assert all(
+        "production_claim_authority" in block["authority_boundary"]["may_not_use_for"]
+        for block in s7_blocks
+    )
+
+
+def test_w12d_s7_records_precision_recall_and_responsibility_integrity(
+    tmp_path: Path,
+) -> None:
+    report = _run_full_corpus_report(tmp_path)
+
+    summary = report["s7_delegation_summary"]
+    assert summary["case_count"] == 13
+    assert summary["delegation_precision"] == 1.0
+    assert summary["delegation_recall"] == 1.0
+    assert summary["responsibility_integrity_pass_rate"] == 1.0
+    assert summary["oversight_theater_false_clear_count"] == 0
+    assert summary["wrong_role_false_clear_count"] == 0
+    assert summary["workflow_only_summary_false_clear_count"] == 0
+    assert len(summary["per_case_delegation_table"]) == 13
+    assert summary["request_emitted_count"] >= 7
+    assert summary["no_interrupt_count"] >= 3
+    assert summary["valid_human_decision_record_count"] >= 6
+
+
+def test_w12d_s7_gold_labels_cover_all_13_cases_and_decision_need_reasons() -> None:
+    signals = json.loads(
+        (REPO_ROOT / "tests/fixtures/layer2/s7/s7_delegation_case_signals.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    labels = json.loads(
+        (REPO_ROOT / "tests/fixtures/layer2/s7/s7_delegation_expert_labels.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    expected_cases = {
+        path.stem for path in (REPO_ROOT / "tests/fixtures/universal-corpus/cases").glob("*.json")
+    }
+
+    assert set(labels["cases"]) == expected_cases
+    assert set(signals["cases"]) == expected_cases
+    label_fields = {
+        "expected_need_reasons",
+        "expected_interaction_mode",
+        "expected_disposition",
+        "expected_required_role",
+        "expected_request_emitted",
+        "expected_record_valid",
+        "expected_governed_pilot_eligible",
+    }
+    observed_reasons = set()
+    for case_id, row in labels["cases"].items():
+        assert label_fields <= set(row), case_id
+        observed_reasons.update(row["expected_need_reasons"])
+        assert row["expected_interaction_mode"] != "ai_first"
+
+    assert observed_reasons >= {
+        "high_stakes",
+        "value_laden",
+        "out_of_envelope",
+        "mandate_limited",
+        "budget_required",
+        "acquisition_required",
+        "final_choice",
+        "low_voi_no_interrupt",
+        "routine_in_envelope",
+    }
+    assert (
+        sum(
+            1
+            for row in labels["cases"].values()
+            if row["expected_disposition"] == "blocked_mandate_missing"
+        )
+        >= 2
+    )
+    assert any(row["expected_governed_pilot_eligible"] for row in labels["cases"].values())
+
+    forbidden_gold_fields = {
+        "expected_need_reasons",
+        "expected_interaction_mode",
+        "expected_disposition",
+        "expected_required_role",
+        "expected_request_emitted",
+        "expected_record_valid",
+        "expected_governed_pilot_eligible",
+        "matches_gold",
+    }
+    for row in signals["cases"].values():
+        assert forbidden_gold_fields.isdisjoint(row)
+
+
+def test_w12d_s7_pinned_case_injects_delegation_posture_into_s2(
+    tmp_path: Path,
+) -> None:
+    index_dir = tmp_path / "capability-index"
+    assert builder.main(["--mode", "fixture", "--output-dir", str(index_dir)]) == 0
+
+    report = w12d.run_w12d_universal_outcome_corpus(
+        repo_root=REPO_ROOT,
+        corpus_path=SINGLE_CASE_PATH,
+        graph_output_dir=tmp_path / "graphs",
+        hypothesis_ledger_output_dir=tmp_path / "ledgers",
+        mode="corpus_stub",
+        producer_stub_dir=REPO_ROOT / "tests/fixtures/universal-corpus/producer_stubs",
+        capability_index_path=index_dir / "capability_index_v1.duckdb",
+    )
+
+    case = report["cases"][0]
+    s2 = case["s2_design_search"]
+    s7 = case["s7_delegation"]
+    assert (
+        s2["delegation_posture"]["human_decision_request_ref"] == (s7["human_decision_request_ref"])
+    )
+    assert any(
+        row["cell_ref"] == "CROSS_CUTTING.scientist_orchestration"
+        for row in s2["constraint_store"]["constraint_records"]
+    )
+    assert s7["human_decision_request_ref"] in s2["search_ledger"]["delegation_request_refs"]
+    if s7["human_decision_record_ref"] is not None:
+        assert s7["human_decision_record_ref"] in s2["search_ledger"]["delegation_record_refs"]
+    assert s7["human_decision_request_ref"] in s2["design_record"]["ledger_refs"]
+
+
+def test_w12d_s7_decision_refs_are_closeout_visible_without_production_authority(
+    tmp_path: Path,
+) -> None:
+    index_dir = tmp_path / "capability-index"
+    assert builder.main(["--mode", "fixture", "--output-dir", str(index_dir)]) == 0
+
+    report = w12d.run_w12d_universal_outcome_corpus(
+        repo_root=REPO_ROOT,
+        corpus_path=SINGLE_CASE_PATH,
+        graph_output_dir=tmp_path / "graphs",
+        hypothesis_ledger_output_dir=tmp_path / "ledgers",
+        mode="corpus_stub",
+        producer_stub_dir=REPO_ROOT / "tests/fixtures/universal-corpus/producer_stubs",
+        capability_index_path=index_dir / "capability_index_v1.duckdb",
+    )
+
+    case = report["cases"][0]
+    s7 = case["s7_delegation"]
+    closeout = case["closeout_visible_refs"]
+    assert s7["human_decision_request_ref"] in closeout["delegation_refs"]
+    assert s7["canonical_outcome_effect"] == "none_shadow_or_governed_pilot_only"
+    assert case["s2_design_search"]["canonical_outcome_effect"] == "none_shadow_only"
+    assert "production_claim_authority" in s7["authority_boundary"]["may_not_use_for"]
+    assert case["outcome"] == "publish-with-limitation"
+
+
+def test_w12d_s7_negative_controls_fail_closed(tmp_path: Path) -> None:
+    report = _run_full_corpus_report(tmp_path)
+
+    summary = report["s7_delegation_summary"]
+    assert summary["oversight_theater_false_clear_count"] == 0
+    assert summary["wrong_role_false_clear_count"] == 0
+    assert summary["ai_first_high_stakes_false_clear_count"] == 0
+    assert summary["mandate_absent_delegation_false_clear_count"] == 0
+    assert set(summary["negative_control_results"]) >= {
+        "oversight_theater_probe",
+        "wrong_role_approval_probe",
+        "ai_first_high_stakes_probe",
+        "mandate_absent_delegation_probe",
+    }
+
+
+def test_w12d_s7_workflow_only_summary_probe_fails_p12(tmp_path: Path) -> None:
+    probe = json.loads(
+        (
+            REPO_ROOT / "tests/fixtures/layer2/s7/workflow_only_delegation_summary_probe.json"
+        ).read_text(encoding="utf-8")
+    )
+    report = _run_full_corpus_report(tmp_path)
+
+    assert probe["expected_failure_pattern"] == "P12"
+    assert probe["typed_producer_artifact_refs"] == []
+    assert probe["cluster_handoff_records"] == []
+    assert report["s7_delegation_summary"]["workflow_only_summary_false_clear_count"] == 0
+    assert (
+        report["s7_delegation_summary"]["negative_control_results"][
+            "workflow_only_delegation_summary_probe"
+        ]["failure_pattern"]
+        == "P12"
+    )
+
+
 _S6_AXIS_CELLS = {
     "SYSTEM.measurability",
     "SYSTEM.subject_granularity",

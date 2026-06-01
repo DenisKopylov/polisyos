@@ -1,0 +1,14 @@
+{
+  "case_id": "workflow_only_delegation_summary_probe",
+  "rule_version_ref": "policyos.layer2.s7.delegation.v1",
+  "workflow_summary": {
+    "workflow_ref": "scientist://workflow/delegation-summary-only",
+    "status": "approved",
+    "summary": "Human review complete.",
+    "source_seed_refs": ["scientist://human-review/queue-item/1"]
+  },
+  "typed_producer_artifact_refs": [],
+  "cluster_handoff_records": [],
+  "expected_failure_pattern": "P12",
+  "expected_disposition": "workflow_only_summary_rejected"
+}

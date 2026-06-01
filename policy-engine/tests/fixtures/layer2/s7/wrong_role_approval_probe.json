@@ -1,0 +1,31 @@
+{
+  "case_id": "wrong_role_approval_probe",
+  "rule_version_ref": "policyos.layer2.s7.delegation.v1",
+  "request": {
+    "decision_class_id": "a_spec_gap",
+    "need_reasons": ["high_stakes", "value_laden"],
+    "voi_rank": 1,
+    "s6_mandate_record_ref": "pdc://layer2/s6/wrong-role/mandate-legitimacy",
+    "s6_mandate_firewall_disposition": "pass"
+  },
+  "record": {
+    "actor_ref": "principal://technical-review/reviewer-1",
+    "actor_role": "technical_reviewer",
+    "decision_action_exercised": "approve",
+    "evidence_summary_ref": "pdc://layer2/s7/wrong-role/evidence-summary",
+    "disconfirming_evidence_refs": [
+      "pdc://layer2/s7/wrong-role/disconfirming-evidence"
+    ],
+    "active_choice": true,
+    "accountability_statement": "I accept accountability within the stated mandate bounds.",
+    "five_rights_check": {
+      "right_decision": true,
+      "right_person": false,
+      "right_information": true,
+      "right_format_channel": true,
+      "right_time": true
+    },
+    "mandate_record_ref": "pdc://layer2/s6/wrong-role/mandate-legitimacy"
+  },
+  "expected_error": "wrong_role_approval"
+}

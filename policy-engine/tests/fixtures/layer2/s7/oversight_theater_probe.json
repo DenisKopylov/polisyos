@@ -1,0 +1,29 @@
+{
+  "case_id": "oversight_theater_probe",
+  "rule_version_ref": "policyos.layer2.s7.delegation.v1",
+  "request": {
+    "decision_class_id": "a_spec_gap",
+    "need_reasons": ["high_stakes", "value_laden"],
+    "voi_rank": 1,
+    "s6_mandate_record_ref": "pdc://layer2/s6/oversight-theater/mandate-legitimacy",
+    "s6_mandate_firewall_disposition": "pass"
+  },
+  "record": {
+    "actor_ref": "principal://policy-board/reviewer-1",
+    "actor_role": "policy_design_governance_reviewer",
+    "decision_action_exercised": "approve",
+    "evidence_summary_ref": null,
+    "disconfirming_evidence_refs": [],
+    "active_choice": false,
+    "accountability_statement": "",
+    "five_rights_check": {
+      "right_decision": false,
+      "right_person": true,
+      "right_information": false,
+      "right_format_channel": false,
+      "right_time": false
+    },
+    "mandate_record_ref": "pdc://layer2/s6/oversight-theater/mandate-legitimacy"
+  },
+  "expected_error": "oversight_theater"
+}

@@ -1,0 +1,133 @@
+{
+  "cases": {
+    "ua-msme-affordable-loans-2022": {
+      "expected_need_reasons": ["high_stakes", "value_laden", "out_of_envelope"],
+      "expected_interaction_mode": "request_driven",
+      "expected_disposition": "recorded_valid_decision",
+      "expected_required_role": "policy_design_governance_reviewer",
+      "expected_request_emitted": true,
+      "expected_record_valid": true,
+      "expected_governed_pilot_eligible": true
+    },
+    "w11a_berlin_rent_cap_2020": {
+      "expected_need_reasons": ["high_stakes", "value_laden", "final_choice"],
+      "expected_interaction_mode": "request_driven",
+      "expected_disposition": "recorded_valid_decision",
+      "expected_required_role": "governance_board",
+      "expected_request_emitted": true,
+      "expected_record_valid": true,
+      "expected_governed_pilot_eligible": false
+    },
+    "w11a_boston_operation_ceasefire_1996": {
+      "expected_need_reasons": ["high_stakes", "value_laden", "out_of_envelope"],
+      "expected_interaction_mode": "ai_follow",
+      "expected_disposition": "request_human_decision",
+      "expected_required_role": "policy_design_governance_reviewer",
+      "expected_request_emitted": true,
+      "expected_record_valid": false,
+      "expected_governed_pilot_eligible": false
+    },
+    "w11a_eu_temporary_protection_ukraine_2022": {
+      "expected_need_reasons": ["high_stakes", "value_laden", "mandate_limited"],
+      "expected_interaction_mode": "request_driven",
+      "expected_disposition": "recorded_valid_decision",
+      "expected_required_role": "mandate_owner",
+      "expected_request_emitted": true,
+      "expected_record_valid": true,
+      "expected_governed_pilot_eligible": false
+    },
+    "w11a_ghana_free_shs_2017": {
+      "expected_need_reasons": ["high_stakes", "value_laden", "budget_required"],
+      "expected_interaction_mode": "request_driven",
+      "expected_disposition": "recorded_valid_decision",
+      "expected_required_role": "budget_owner",
+      "expected_request_emitted": true,
+      "expected_record_valid": true,
+      "expected_governed_pilot_eligible": false
+    },
+    "w11a_india_aadhaar_dbt_2016": {
+      "expected_need_reasons": ["high_stakes", "value_laden", "out_of_envelope"],
+      "expected_interaction_mode": "request_driven",
+      "expected_disposition": "recorded_valid_decision",
+      "expected_required_role": "data_steward",
+      "expected_request_emitted": true,
+      "expected_record_valid": true,
+      "expected_governed_pilot_eligible": false
+    },
+    "w11a_mexico_ssb_tax_2014": {
+      "expected_need_reasons": ["low_voi_no_interrupt", "routine_in_envelope"],
+      "expected_interaction_mode": "delegated_autonomous",
+      "expected_disposition": "no_interrupt",
+      "expected_required_role": "domain_expert",
+      "expected_request_emitted": false,
+      "expected_record_valid": true,
+      "expected_governed_pilot_eligible": false
+    },
+    "w11a_netherlands_room_for_river_2007": {
+      "expected_need_reasons": ["high_stakes", "value_laden", "acquisition_required"],
+      "expected_interaction_mode": "request_driven",
+      "expected_disposition": "recorded_valid_decision",
+      "expected_required_role": "legal_approver",
+      "expected_request_emitted": true,
+      "expected_record_valid": true,
+      "expected_governed_pilot_eligible": false
+    },
+    "w11a_pakistan_ehsaas_cash_2020": {
+      "expected_need_reasons": ["low_voi_no_interrupt", "routine_in_envelope"],
+      "expected_interaction_mode": "delegated_autonomous",
+      "expected_disposition": "no_interrupt",
+      "expected_required_role": "domain_expert",
+      "expected_request_emitted": false,
+      "expected_record_valid": true,
+      "expected_governed_pilot_eligible": false
+    },
+    "w11a_uk_levelling_up_fund_2021": {
+      "expected_need_reasons": [
+        "high_stakes",
+        "value_laden",
+        "budget_required",
+        "final_choice"
+      ],
+      "expected_interaction_mode": "request_driven",
+      "expected_disposition": "recorded_valid_decision",
+      "expected_required_role": "governance_board",
+      "expected_request_emitted": true,
+      "expected_record_valid": true,
+      "expected_governed_pilot_eligible": false
+    },
+    "w11a_uk_mtd_vat_2019": {
+      "expected_need_reasons": ["low_voi_no_interrupt", "routine_in_envelope"],
+      "expected_interaction_mode": "delegated_autonomous",
+      "expected_disposition": "no_interrupt",
+      "expected_required_role": "domain_expert",
+      "expected_request_emitted": false,
+      "expected_record_valid": true,
+      "expected_governed_pilot_eligible": false
+    },
+    "w11a_uk_work_programme_2011": {
+      "expected_need_reasons": ["high_stakes", "value_laden", "mandate_limited"],
+      "expected_interaction_mode": "delegated_autonomous",
+      "expected_disposition": "blocked_mandate_missing",
+      "expected_required_role": "mandate_owner",
+      "expected_request_emitted": false,
+      "expected_record_valid": false,
+      "expected_governed_pilot_eligible": false
+    },
+    "w11a_us_ppp_2020": {
+      "expected_need_reasons": [
+        "high_stakes",
+        "value_laden",
+        "out_of_envelope",
+        "mandate_limited",
+        "budget_required",
+        "acquisition_required"
+      ],
+      "expected_interaction_mode": "delegated_autonomous",
+      "expected_disposition": "blocked_mandate_missing",
+      "expected_required_role": "budget_owner",
+      "expected_request_emitted": false,
+      "expected_record_valid": false,
+      "expected_governed_pilot_eligible": false
+    }
+  }
+}

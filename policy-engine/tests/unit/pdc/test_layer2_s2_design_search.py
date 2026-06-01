@@ -59,15 +59,23 @@ def _s6_blind_spot_posture(
     regime_reissue_required: bool = True,
     system_dynamics_handoff_required: bool = True,
 ) -> Layer2S6BlindSpotPostureInput:
-    blocking = blocking_axis_refs or [
-        "SYSTEM.measurability",
-        "OTHER_AGENTS.strategic_response",
-    ]
-    limiting = limiting_axis_refs or [
-        "SYSTEM.subject_granularity",
-        "ACTOR.state_capacity_feasibility",
-        "ACTOR.mandate_legitimacy",
-    ]
+    blocking = (
+        blocking_axis_refs
+        if blocking_axis_refs is not None
+        else [
+            "SYSTEM.measurability",
+            "OTHER_AGENTS.strategic_response",
+        ]
+    )
+    limiting = (
+        limiting_axis_refs
+        if limiting_axis_refs is not None
+        else [
+            "SYSTEM.subject_granularity",
+            "ACTOR.state_capacity_feasibility",
+            "ACTOR.mandate_legitimacy",
+        ]
+    )
     axis_rows = [
         {
             "axis": "measurability",
@@ -207,6 +215,133 @@ def _s6_blind_spot_posture(
             "risks limit this shadow design."
         ),
         false_clear_penalty=5.0,
+    )
+
+
+def _delegation_posture(
+    *,
+    disposition: str = "request_human_decision",
+    human_decision_record_ref: str | None = None,
+    decision_action_exercised: str | None = None,
+    responsibility_integrity_status: str = "limit",
+    governed_pilot_eligible: bool = False,
+    required_role: str = "policy_design_governance_reviewer",
+    actor_ref: str | None = None,
+    interaction_mode: str = "request_driven",
+    request_ref: str = "pdc://layer2/s7/ua-msme/human-decision-request",
+) -> object:
+    from polisyos.pdc import Layer2S7DelegationPostureInput
+
+    return Layer2S7DelegationPostureInput(
+        delegation_contract_ref="pdc://layer2/s7/ua-msme/delegation-contract",
+        decision_rights_matrix_ref="pdc://layer2/s7/ua-msme/decision-rights-matrix",
+        human_decision_request_ref=request_ref,
+        human_decision_record_ref=human_decision_record_ref,
+        decision_class_id="a_spec_gap",
+        required_role=required_role,
+        interaction_mode=interaction_mode,
+        disposition=disposition,
+        available_actions=[
+            "request_evidence",
+            "approve",
+            "reject",
+            "revise_scope",
+            "escalate",
+        ],
+        decision_action_exercised=decision_action_exercised,
+        five_rights_requirement={
+            "right_decision": "Decide the A-side specification gap.",
+            "right_person": required_role,
+            "right_information": "Evidence, limitations, consequences, and alternatives.",
+            "right_format_channel": "reviewer_console",
+            "right_time": "before S2 route can still change",
+        },
+        five_rights_check=(
+            {
+                "right_decision": True,
+                "right_person": required_role == "policy_design_governance_reviewer",
+                "right_information": responsibility_integrity_status == "pass",
+                "right_format_channel": True,
+                "right_time": True,
+            }
+            if human_decision_record_ref
+            else None
+        ),
+        decision_options=[
+            {"option_id": "request_evidence", "action": "request_evidence"},
+            {"option_id": "approve_shadow_handoff", "action": "approve"},
+        ],
+        recommendation_ref="pdc://layer2/s7/ua-msme/recommendation",
+        provenance_refs=[
+            "pdc://layer2/s2/ua-msme-affordable-loans-2022/refinement/001",
+        ],
+        material_limitations=[
+            "S7 decision refs are closeout-visible but not production authority.",
+        ],
+        value_stakes_impact="Delegation can route the design but cannot choose social weights.",
+        what_changes_under_each_choice=[
+            "Approval records a bounded human decision.",
+            "Requesting evidence keeps S2 in governance-required posture.",
+        ],
+        attention_cost_rank=2,
+        responsibility_integrity_status=responsibility_integrity_status,
+        mandate_record_ref="pdc://layer2/s6/ua-msme/mandate-legitimacy",
+        s6_mandate_firewall_disposition="pass",
+        mandate_source_refs=["legal://ua/msme-credit/2022/mandate"],
+        requested_at=NOW,
+        decision_due_at=NOW,
+        decided_at=NOW if human_decision_record_ref else None,
+        actor_ref=actor_ref,
+        voi_rank=1,
+        need_reasons=["high_stakes", "value_laden"],
+        authority_boundary={
+            "authoritative_for": [
+                "delegation_integrity",
+                "human_decision_routing",
+            ],
+            "may_not_use_for": [
+                "production_claim_authority",
+                "value_choice_authority",
+                "s13_accountability_closure",
+            ],
+            "source_authority": "human_governance",
+            "posture": "shadow",
+            "rule_version_refs": ["policyos.layer2.s7.delegation.v1"],
+        },
+        governed_pilot_eligible=governed_pilot_eligible,
+        constraint_store_updates=[
+            {
+                "constraint_id": "layer2.s7.delegation.human_decision",
+                "cell_ref": "CROSS_CUTTING.scientist_orchestration",
+                "status": "block" if disposition.startswith("blocked_") else "limit",
+                "source_ref": request_ref,
+                "consumer_ref": "INTERVENTION.design_candidate",
+                "refinement_route": "human_decision",
+                "evidence_refs": [request_ref],
+                "reason": "S7 delegation posture requires typed human decision routing.",
+                "rule_version_ref": "policyos.layer2.s7.delegation.v1",
+            }
+        ],
+        handoff_rows=[
+            {
+                "handoff_id": "layer2.s7.ua-msme.scientist-orchestration",
+                "workflow_ref": "scientist://workflow/ua-msme/delegation",
+                "source_cell_ref": "CROSS_CUTTING.scientist_orchestration",
+                "target_cell_ref": "INTERVENTION.design_candidate",
+                "artifact_refs": [
+                    "pdc://layer2/s7/ua-msme/delegation-contract",
+                    "pdc://layer2/s7/ua-msme/decision-rights-matrix",
+                    request_ref,
+                ],
+                "disposition": "blocked" if disposition.startswith("blocked_") else "emitted",
+                "authority_purpose": "mandate_bounded_delegation_handoff",
+                "may_not_use_for": [
+                    "production_claim_authority",
+                    "human_approval_without_decision_record",
+                ],
+            }
+        ],
+        limitation_summary="Human decision routing is bounded to S7 delegation integrity.",
     )
 
 
@@ -848,3 +983,273 @@ def test_pdc_does_not_import_layer2_blind_spot_firewalls() -> None:
     assert "evaluate_capacity" not in source
     assert "evaluate_mandate" not in source
     assert "evaluate_strategic_response" not in source
+
+
+def test_s2_consumes_s7_delegation_posture_and_pauses_for_human_request() -> None:
+    input_row = _input()
+    posture = _delegation_posture(disposition="request_human_decision")
+
+    run = run_s2_shadow_design_loop(input_row, delegation_posture=posture)
+
+    assert run.delegation_posture == posture
+    assert run.status == "governance_required"
+    assert any(
+        record.cell_ref == "CROSS_CUTTING.scientist_orchestration"
+        and record.refinement_route == "human_decision"
+        for record in run.constraint_store.constraint_records
+    )
+    assert posture.human_decision_request_ref in run.design_record.ledger_refs
+
+
+def test_s2_consumes_valid_s7_human_decision_without_production_authority() -> None:
+    posture = _delegation_posture(
+        disposition="recorded_valid_decision",
+        human_decision_record_ref="pdc://layer2/s7/ua-msme/human-decision-record",
+        decision_action_exercised="approve",
+        responsibility_integrity_status="pass",
+        governed_pilot_eligible=True,
+        actor_ref="principal://ua/policy-design-governance-reviewer",
+    )
+
+    run = run_s2_shadow_design_loop(
+        _input(),
+        blind_spot_posture=_s6_blind_spot_posture(
+            overall_posture="clear_fail_closed",
+            blocking_axis_refs=[],
+            limiting_axis_refs=[],
+            regime_reissue_required=False,
+            system_dynamics_handoff_required=False,
+        ),
+        delegation_posture=posture,
+    )
+
+    assert run.delegation_posture == posture
+    assert run.design_record.projection_status == "shadow"
+    assert "production_closeout_authority" in run.design_record.authority_boundary.may_not_use_for
+    assert posture.human_decision_record_ref in run.search_ledger.delegation_record_refs
+    assert posture.human_decision_record_ref in run.design_record.ledger_refs
+
+
+def test_s2_s7_wrong_role_record_blocks_self_approval() -> None:
+    posture = _delegation_posture(
+        disposition="blocked_wrong_role",
+        human_decision_record_ref="pdc://layer2/s7/ua-msme/wrong-role-record",
+        decision_action_exercised="approve",
+        responsibility_integrity_status="block",
+        required_role="technical_reviewer",
+        actor_ref="principal://ua/technical-reviewer",
+    )
+
+    run = run_s2_shadow_design_loop(_input(), delegation_posture=posture)
+
+    assert run.status in {"blocked", "governance_required"}
+    assert any(
+        record.cell_ref == "CROSS_CUTTING.scientist_orchestration" and record.status == "block"
+        for record in run.constraint_store.constraint_records
+    )
+    assert run.search_ledger.delegation_status == "blocked"
+
+
+def test_s2_s7_public_projection_is_decision_shaped_pull_first() -> None:
+    posture = _delegation_posture(disposition="request_human_decision")
+    run = run_s2_shadow_design_loop(_input(), delegation_posture=posture)
+
+    public_projection = project_s2_design_search(run, audiences=("PUBLIC",))["PUBLIC"]
+
+    assert public_projection["human_decision_needed"] is True
+    assert public_projection["accountable_role"] == "policy_design_governance_reviewer"
+    assert set(public_projection["available_decision_actions"]) == {
+        "request_evidence",
+        "approve",
+        "reject",
+        "revise_scope",
+        "escalate",
+    }
+    assert public_projection["delegation_limitation"]
+    assert "blocked_oversight_theater" not in json.dumps(public_projection)
+    assert "s7_disposition" not in public_projection
+
+
+def test_s2_s7_search_ledger_and_closeout_payload_include_decision_record_refs() -> None:
+    posture = _delegation_posture(
+        disposition="recorded_valid_decision",
+        human_decision_record_ref="pdc://layer2/s7/ua-msme/human-decision-record",
+        decision_action_exercised="approve",
+        responsibility_integrity_status="pass",
+        actor_ref="principal://ua/policy-design-governance-reviewer",
+    )
+
+    run = run_s2_shadow_design_loop(_input(), delegation_posture=posture)
+    payload = run.model_dump(mode="json")
+
+    assert posture.human_decision_request_ref in run.search_ledger.delegation_request_refs
+    assert posture.human_decision_record_ref in run.search_ledger.delegation_record_refs
+    assert posture.human_decision_record_ref in payload["design_record"]["ledger_refs"]
+    assert (
+        "production_claim_authority"
+        in payload["design_record"]["authority_boundary"]["may_not_use_for"]
+    )
+
+
+def test_s2_s7_persisted_search_ledger_round_trips_delegation_refs(tmp_path: Path) -> None:
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.pdc import load_s2_search_ledger, persist_s2_design_search_run
+
+    posture = _delegation_posture(
+        disposition="recorded_valid_decision",
+        human_decision_record_ref="pdc://layer2/s7/ua-msme/human-decision-record",
+        decision_action_exercised="approve",
+        responsibility_integrity_status="pass",
+        actor_ref="principal://ua/policy-design-governance-reviewer",
+    )
+    run = run_s2_shadow_design_loop(_input(), delegation_posture=posture)
+    store = FileSystemCAS(tmp_path / "cas")
+    refs = persist_s2_design_search_run(run, store=store)
+
+    loaded = load_s2_search_ledger(store=store, artifact_ref=refs["search_ledger"])
+
+    assert loaded.delegation_request_refs == [posture.human_decision_request_ref]
+    assert loaded.delegation_record_refs == [posture.human_decision_record_ref]
+    assert loaded.delegation_status == "recorded"
+
+
+def test_s2_s7_search_ledger_defaults_preserve_legacy_cas_payloads() -> None:
+    legacy_payload = run_s2_shadow_design_loop(_input()).search_ledger.model_dump(mode="json")
+    legacy_payload.pop("delegation_request_refs", None)
+    legacy_payload.pop("delegation_record_refs", None)
+    legacy_payload.pop("cluster_handoff_refs", None)
+    legacy_payload.pop("delegation_status", None)
+
+    loaded = SearchLedger.model_validate(legacy_payload)
+
+    assert loaded.delegation_request_refs == []
+    assert loaded.delegation_record_refs == []
+    assert loaded.cluster_handoff_refs == []
+    assert loaded.delegation_status == "not_applicable"
+
+
+def test_s2_s7_replay_key_unchanged_without_delegation_posture() -> None:
+    first = run_s2_shadow_design_loop(_input())
+    second = run_s2_shadow_design_loop(_input())
+
+    assert first.search_ledger.deterministic_replay_key == (
+        second.search_ledger.deterministic_replay_key
+    )
+    assert first.search_ledger.delegation_request_refs == []
+    assert first.search_ledger.delegation_status == "not_applicable"
+
+
+def test_s2_s7_replay_key_changes_when_delegation_record_changes() -> None:
+    first = run_s2_shadow_design_loop(
+        _input(),
+        delegation_posture=_delegation_posture(
+            disposition="recorded_valid_decision",
+            human_decision_record_ref="pdc://layer2/s7/ua-msme/human-decision-record-a",
+            decision_action_exercised="approve",
+            responsibility_integrity_status="pass",
+            actor_ref="principal://ua/policy-design-governance-reviewer",
+        ),
+    )
+    second = run_s2_shadow_design_loop(
+        _input(),
+        delegation_posture=_delegation_posture(
+            disposition="recorded_valid_decision",
+            human_decision_record_ref="pdc://layer2/s7/ua-msme/human-decision-record-b",
+            decision_action_exercised="revise_scope",
+            responsibility_integrity_status="pass",
+            actor_ref="principal://ua/policy-design-governance-reviewer",
+        ),
+    )
+
+    assert first.search_ledger.deterministic_replay_key != (
+        second.search_ledger.deterministic_replay_key
+    )
+
+
+def test_s2_s7_reviewer_projection_shows_p26_and_role_status() -> None:
+    posture = _delegation_posture(
+        disposition="recorded_valid_decision",
+        human_decision_record_ref="pdc://layer2/s7/ua-msme/human-decision-record",
+        decision_action_exercised="approve",
+        responsibility_integrity_status="pass",
+        actor_ref="principal://ua/policy-design-governance-reviewer",
+    )
+    run = run_s2_shadow_design_loop(_input(), delegation_posture=posture)
+
+    reviewer_projection = project_s2_design_search(run, audiences=("REVIEWER",))["REVIEWER"]
+
+    assert reviewer_projection["s7_decision_class_id"] == "a_spec_gap"
+    assert reviewer_projection["s7_required_role"] == "policy_design_governance_reviewer"
+    assert reviewer_projection["s7_interaction_mode"] == "request_driven"
+    assert reviewer_projection["s7_p26_firewall_status"] == "pass"
+    assert reviewer_projection["s7_decision_action_exercised"] == "approve"
+
+
+def test_s2_s7_expert_machine_projection_contains_refs_matrix_and_integrity() -> None:
+    posture = _delegation_posture(
+        disposition="recorded_valid_decision",
+        human_decision_record_ref="pdc://layer2/s7/ua-msme/human-decision-record",
+        decision_action_exercised="approve",
+        responsibility_integrity_status="pass",
+        actor_ref="principal://ua/policy-design-governance-reviewer",
+    )
+    run = run_s2_shadow_design_loop(_input(), delegation_posture=posture)
+
+    projections = project_s2_design_search(run, audiences=("EXPERT", "MACHINE"))
+
+    for projection in projections.values():
+        assert projection["delegation_contract_ref"] == posture.delegation_contract_ref
+        assert projection["decision_rights_matrix_ref"] == posture.decision_rights_matrix_ref
+        assert projection["human_decision_request_ref"] == posture.human_decision_request_ref
+        assert projection["human_decision_record_ref"] == posture.human_decision_record_ref
+        assert projection["decision_rights_matrix_row"]["required_role"] == posture.required_role
+        assert projection["responsibility_integrity_check"]["status"] == "pass"
+        assert projection["authority_boundary"]["may_not_use_for"]
+
+
+def test_s2_s7_governed_pilot_requires_s6_mandate_and_s7_valid_record() -> None:
+    valid_posture = _delegation_posture(
+        disposition="recorded_valid_decision",
+        human_decision_record_ref="pdc://layer2/s7/ua-msme/human-decision-record",
+        decision_action_exercised="approve",
+        responsibility_integrity_status="pass",
+        governed_pilot_eligible=True,
+        actor_ref="principal://ua/policy-design-governance-reviewer",
+    )
+    valid_run = run_s2_shadow_design_loop(
+        _input(),
+        blind_spot_posture=_s6_blind_spot_posture(
+            overall_posture="clear_fail_closed",
+            blocking_axis_refs=[],
+            limiting_axis_refs=[],
+            regime_reissue_required=False,
+            system_dynamics_handoff_required=False,
+        ),
+        delegation_posture=valid_posture,
+    )
+    blocked_run = run_s2_shadow_design_loop(
+        _input(),
+        blind_spot_posture=_s6_blind_spot_posture(),
+        delegation_posture=valid_posture,
+    )
+
+    valid_projection = project_s2_design_search(valid_run, audiences=("MACHINE",))["MACHINE"]
+    blocked_projection = project_s2_design_search(blocked_run, audiences=("MACHINE",))["MACHINE"]
+
+    assert valid_run.delegation_posture.governed_pilot_eligible is True
+    assert valid_projection["governed_pilot_eligible"] is True
+    assert blocked_projection["governed_pilot_eligible"] is False
+    assert valid_run.design_record.projection_status == "shadow"
+
+
+def test_s2_does_not_import_s7_runtime_quality_producer() -> None:
+    import inspect
+
+    import polisyos.pdc._impl.layer2_design_search as s2_design_search
+
+    source = inspect.getsource(s2_design_search)
+
+    assert "layer2_delegation" not in source
+    assert "build_decision_rights_matrix" not in source
+    assert "record_human_decision" not in source
+    assert "evaluate_delegation_for_case" not in source

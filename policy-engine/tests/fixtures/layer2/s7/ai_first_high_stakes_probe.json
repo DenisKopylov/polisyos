@@ -1,0 +1,34 @@
+{
+  "case_id": "ai_first_high_stakes_probe",
+  "rule_version_ref": "policyos.layer2.s7.delegation.v1",
+  "s6_mandate_posture": {
+    "mandate_legitimacy_record_ref": "pdc://layer2/s6/ai-first-high-stakes/mandate",
+    "firewall_disposition": "pass",
+    "mandate_source_refs": ["legal://ua/emergency-credit-mandate"]
+  },
+  "case_signals": {
+    "decision_class_id": "a_spec_gap",
+    "requested_interaction_mode": "ai_first",
+    "stakes_band": "high",
+    "value_laden": true,
+    "out_of_envelope": true,
+    "s6_mandate_record_ref": "pdc://layer2/s6/ai-first-high-stakes/mandate",
+    "s6_mandate_firewall_disposition": "pass",
+    "mandate_source_refs": ["legal://ua/emergency-credit-mandate"],
+    "budget_or_legal_use_required": false,
+    "acquisition_required": false,
+    "final_choice_required": false,
+    "voi_rank": 1,
+    "attention_cost_rank": 1,
+    "actor_role": "policy_design_governance_reviewer"
+  },
+  "expert_label": {
+    "expected_need_reasons": ["high_stakes", "value_laden", "out_of_envelope"],
+    "expected_interaction_mode": "request_driven",
+    "expected_disposition": "blocked_ai_first_forbidden",
+    "expected_required_role": "policy_design_governance_reviewer",
+    "expected_request_emitted": false,
+    "expected_record_valid": false,
+    "expected_governed_pilot_eligible": false
+  }
+}

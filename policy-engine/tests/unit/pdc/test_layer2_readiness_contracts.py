@@ -135,6 +135,27 @@ def test_certified_operation_envelope_separates_posture_from_epistemic_regime() 
         )
 
 
+def test_certified_operation_envelope_carries_cluster_authority_dimension_refs() -> None:
+    envelope = CertifiedOperationEnvelope(
+        envelope_id="envelope.ua_msme.shadow",
+        domains=["ukrainian_msme_credit"],
+        posture_scopes=["shadow"],
+        epistemic_regime_scopes=["ignorance"],
+        actor_scopes=["public_credit_program_operator"],
+        method_scopes=["design_record_schema_only"],
+        certified_for=["shadow_replay"],
+        not_certified_for=["publication_authority", "rollout_authority"],
+        cluster_authority_dimension_refs=[
+            "pdc://layer2/s6/ua-msme/cluster-authority-dimensions/measurability_adequacy"
+        ],
+        rule_version_ref="repo://architecture/policy_design_case/layer2_readiness_manifest.json",
+    )
+
+    assert envelope.cluster_authority_dimension_refs == [
+        "pdc://layer2/s6/ua-msme/cluster-authority-dimensions/measurability_adequacy"
+    ]
+
+
 def test_design_record_v0_rejects_extra_fields() -> None:
     with pytest.raises(ValidationError, match="Extra inputs are not permitted"):
         AuthorityBoundary(

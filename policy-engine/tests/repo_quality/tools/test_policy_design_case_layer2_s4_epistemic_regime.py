@@ -40,11 +40,11 @@ def _s4_labels() -> dict[str, object]:
     return dict(payload["cases"])
 
 
-def test_layer2_s4_manifest_is_valid_and_live_open_count_is_5() -> None:
+def test_layer2_s4_manifest_is_valid_and_live_open_count_is_4() -> None:
     validation = readiness.validate_layer2_readiness(REPO_ROOT)
 
     assert validation["status"] == "pass", validation["issues"]
-    assert validation["summary"]["open_cell_count"] == 5  # type: ignore[index]
+    assert validation["summary"]["open_cell_count"] == 4  # type: ignore[index]
     assert validation["summary"]["s4_w12_overblocking_hypothesis"] == "confirmed"  # type: ignore[index]
     assert validation["summary"]["s4_regime_accuracy"] == 1.0  # type: ignore[index]
     assert validation["summary"]["s4_expected_current_open_cell_count"] == 13  # type: ignore[index]

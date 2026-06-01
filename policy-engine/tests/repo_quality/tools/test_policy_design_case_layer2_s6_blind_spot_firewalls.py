@@ -112,14 +112,14 @@ def _s6_cells_from_cluster_map() -> dict[str, dict[str, Any]]:
     return cells
 
 
-def test_layer2_s6_manifest_is_valid_and_open_count_is_5() -> None:
+def test_layer2_s6_manifest_is_valid_and_open_count_is_4() -> None:
     validation = readiness.validate_layer2_readiness(REPO_ROOT)
     manifest = _s6()
 
     assert validation["status"] == "pass", validation["issues"]
     summary = validation["summary"]
-    assert summary["current_open_cell_count"] == 5
-    assert summary["inventory_artifact_count"] == 14
+    assert summary["current_open_cell_count"] == 4
+    assert summary["inventory_artifact_count"] == 15
     assert summary["s6_expected_current_open_cell_count"] == 5
     assert summary["s6_fail_closed_coverage"] == 1.0
     assert summary["s6_false_clear_count"] == 0
@@ -191,7 +191,7 @@ def test_layer2_s6_inventory_registration_exists() -> None:
     artifact = _inventory_artifact()
 
     assert validation["status"] == "pass", validation["issues"]
-    assert validation["summary"]["inventory_artifact_count"] == 14
+    assert validation["summary"]["inventory_artifact_count"] == 15
     assert artifact["id"] == "layer2_s6_blind_spot_firewalls_manifest"
     assert artifact["path"] == S6_MANIFEST_PATH
     assert artifact["kind"] == "layer2_s6_blind_spot_firewalls_manifest"

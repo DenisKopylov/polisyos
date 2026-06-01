@@ -69,6 +69,23 @@ ConstraintRefinementRoute = Literal[
     "block_candidate",
     "pending_consumer_constraint",
 ]
+S8ValueDisposition = Literal[
+    "authorized",
+    "advisory_only",
+    "contested_multi_principal",
+    "blocked_missing_value_provenance",
+    "blocked_mandate_not_pass",
+    "blocked_p20_normative_laundering",
+    "blocked_p22_mandate_laundering",
+    "shadow_scenario_only",
+]
+S8RankingMode = Literal[
+    "unranked_frontier_only",
+    "ranked_with_authorized_values",
+    "shadow_scenario_ranking",
+    "ranking_blocked",
+]
+S8FirewallStatus = Literal["pass", "limit", "block"]
 
 _COUNTEREXAMPLE_CLASS_VOCABULARY: list[str] = [
     "real_design_blocker",
@@ -105,6 +122,15 @@ _NON_POINT_OPTIMIZATION_STRATEGIES = frozenset(
         "precautionary_adaptive_pathway",
     }
 )
+_S8_VALUE_CHOICE_CELL_REF = "ACTOR.value_choice_provenance"
+_S8_REQUIRED_HANDOFF_MAY_NOT_USE_FOR = [
+    "production_recommendation",
+    "outcome_prediction_authority",
+    "forecast_calibration_authority",
+    "preference_learning_authority",
+    "s9_projection_authority",
+    "s9_projection_maturity",
+]
 
 
 class Layer2S2DesignSearchInputError(ValueError):
@@ -229,6 +255,44 @@ class Layer2S7DelegationPostureInput(Layer2ReadinessModel):
     constraint_store_updates: list[dict[str, object]] = Field(default_factory=list, max_length=40)
     handoff_rows: list[dict[str, object]] = Field(default_factory=list, max_length=40)
     limitation_summary: str = Field(..., min_length=1, max_length=500)
+
+
+class Layer2S8ValuePostureInput(Layer2ReadinessModel):
+    """Injected S8 value-choice posture consumed by the S2 shadow loop."""
+
+    value_choice_provenance_ref: str = Field(..., min_length=1, max_length=300)
+    authorized_value_schedule_ref: str | None = Field(default=None, max_length=300)
+    shadow_scenario_value_schedule_refs: list[str] = Field(default_factory=list, max_length=40)
+    objective_function_provenance_ref: str = Field(..., min_length=1, max_length=300)
+    pareto_archive_ref: str = Field(..., min_length=1, max_length=300)
+    value_tradeoff_disclosure_ref: str = Field(..., min_length=1, max_length=300)
+    mandate_record_ref: str = Field(..., min_length=1, max_length=300)
+    s6_mandate_firewall_disposition: str = Field(..., min_length=1, max_length=80)
+    ranking_mode: S8RankingMode
+    disposition: S8ValueDisposition
+    p20_firewall_status: S8FirewallStatus
+    p22_firewall_status: S8FirewallStatus
+    value_provenance_completeness: float = Field(ge=0.0, le=1.0)
+    principal_refs: list[str] = Field(default_factory=list, max_length=40)
+    conflict_rows: list[dict[str, object]] = Field(default_factory=list, max_length=40)
+    affected_group_rows: list[dict[str, object]] = Field(default_factory=list, max_length=40)
+    dissent_refs: list[str] = Field(default_factory=list, max_length=40)
+    blocking_rights_refs: list[str] = Field(default_factory=list, max_length=40)
+    alternative_schedule_sensitivity: list[dict[str, object]] = Field(
+        default_factory=list,
+        max_length=40,
+    )
+    rejected_nondominated_alternative_ids: list[str] = Field(
+        default_factory=list,
+        max_length=40,
+    )
+    social_weight_provenance_refs: list[str] = Field(default_factory=list, max_length=40)
+    delegation_refs: list[str] = Field(default_factory=list, max_length=40)
+    value_authorization_decision_refs: list[str] = Field(default_factory=list, max_length=40)
+    constraint_store_updates: list[dict[str, object]] = Field(default_factory=list, max_length=40)
+    handoff_rows: list[dict[str, object]] = Field(default_factory=list, max_length=40)
+    limitation_summary: str = Field(..., min_length=1, max_length=500)
+    authority_boundary: AuthorityBoundary
 
 
 class TypedDiagnosticRecord(Layer2ReadinessModel):
@@ -419,6 +483,12 @@ class SearchLedger(Layer2ReadinessModel):
         "blocked",
         "no_interrupt",
     ] = "not_applicable"
+    value_choice_provenance_refs: list[str] = Field(default_factory=list, max_length=40)
+    pareto_archive_refs: list[str] = Field(default_factory=list, max_length=40)
+    authorized_value_schedule_refs: list[str] = Field(default_factory=list, max_length=40)
+    shadow_scenario_value_schedule_refs: list[str] = Field(default_factory=list, max_length=40)
+    value_authorization_decision_refs: list[str] = Field(default_factory=list, max_length=40)
+    value_choice_status: str = Field(default="not_applicable", min_length=1, max_length=120)
     no_retry_without_new_grammar: bool
     search_incompleteness_note: str
 
@@ -466,6 +536,7 @@ class Layer2S2DesignSearchRun(Layer2ReadinessModel):
     composition_posture: Layer2S5CompositionPostureInput | None = None
     blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None
     delegation_posture: Layer2S7DelegationPostureInput | None = None
+    value_posture: Layer2S8ValuePostureInput | None = None
 
 
 def run_s2_shadow_design_loop(
@@ -479,6 +550,7 @@ def run_s2_shadow_design_loop(
     composition_posture: Layer2S5CompositionPostureInput | None = None,
     blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
     delegation_posture: Layer2S7DelegationPostureInput | None = None,
+    value_posture: Layer2S8ValuePostureInput | None = None,
 ) -> Layer2S2DesignSearchRun:
     """Run the deterministic S2 one-case shadow design-search loop."""
 
@@ -502,8 +574,13 @@ def run_s2_shadow_design_loop(
     constraint_store = _constraint_store(
         input,
         expansion=expansion,
+        ranked_value_choice_attempted=_attempts_ranked_value_choice(
+            design_strategy=design_strategy,
+            counterexample_class=input.forced_counterexample_class,
+        ),
         blind_spot_posture=blind_spot_posture,
         delegation_posture=delegation_posture,
+        value_posture=value_posture,
     )
     counterexample = _counterexample(input, candidate=candidate)
     decision = _refinement_decision(
@@ -512,9 +589,18 @@ def run_s2_shadow_design_loop(
         counterexample=counterexample,
         composition_posture=composition_posture,
         blind_spot_posture=blind_spot_posture,
+        value_posture=value_posture,
     )
     iteration_status = _iteration_status(input, decision)
     iteration_status = _s7_iteration_status(delegation_posture, fallback=iteration_status)
+    iteration_status = _s8_iteration_status(
+        value_posture,
+        ranked_value_choice_attempted=_attempts_ranked_value_choice(
+            design_strategy=design_strategy,
+            counterexample_class=input.forced_counterexample_class,
+        ),
+        fallback=iteration_status,
+    )
     ledger = _search_ledger(
         input,
         candidate=candidate,
@@ -524,6 +610,7 @@ def run_s2_shadow_design_loop(
         composition_posture=composition_posture,
         blind_spot_posture=blind_spot_posture,
         delegation_posture=delegation_posture,
+        value_posture=value_posture,
     )
     design_record = _design_record(
         input,
@@ -538,6 +625,7 @@ def run_s2_shadow_design_loop(
         composition_posture=composition_posture,
         blind_spot_posture=blind_spot_posture,
         delegation_posture=delegation_posture,
+        value_posture=value_posture,
     )
     status: S2RunStatus = (
         "governance_required"
@@ -551,6 +639,14 @@ def run_s2_shadow_design_loop(
         else "shadow_ready"
     )
     status = _s7_run_status(delegation_posture, fallback=status)
+    status = _s8_run_status(
+        value_posture,
+        ranked_value_choice_attempted=_attempts_ranked_value_choice(
+            design_strategy=design_strategy,
+            counterexample_class=input.forced_counterexample_class,
+        ),
+        fallback=status,
+    )
     return Layer2S2DesignSearchRun(
         run_id=run_id,
         status=status,
@@ -564,6 +660,7 @@ def run_s2_shadow_design_loop(
             boundary,
             composition_posture=composition_posture,
             blind_spot_posture=blind_spot_posture,
+            value_posture=value_posture,
         ),
         handoff_records=_handoff_records(
             candidate,
@@ -572,11 +669,13 @@ def run_s2_shadow_design_loop(
             composition_posture=composition_posture,
             blind_spot_posture=blind_spot_posture,
             delegation_posture=delegation_posture,
+            value_posture=value_posture,
         ),
         design_record=design_record,
         composition_posture=composition_posture,
         blind_spot_posture=blind_spot_posture,
         delegation_posture=delegation_posture,
+        value_posture=value_posture,
     )
 
 
@@ -607,6 +706,7 @@ def project_s2_design_search(
     s6_firewalls = [
         status for status in run.design_record.firewall_status if _is_s6_cell(status.cell_ref)
     ]
+    s8_firewall = _firewall_status(run.design_record, "ACTOR.value_choice_provenance")
     for audience in audiences:
         projection: dict[str, object] = {
             "schema_version": S2_DESIGN_SEARCH_SCHEMA_VERSION,
@@ -670,6 +770,17 @@ def project_s2_design_search(
             )
             if audience == "PUBLIC":
                 assert_s2_public_projection_has_delegation_request(projection)
+        if run.value_posture is not None:
+            projection.update(
+                _s8_projection_fields(
+                    audience,
+                    value_posture=run.value_posture,
+                    s8_firewall=s8_firewall,
+                    constraint_store=run.constraint_store,
+                )
+            )
+            if audience == "PUBLIC":
+                assert_s2_public_projection_has_value_tradeoff_disclosure(projection)
         projections[audience] = projection
     return projections
 
@@ -718,6 +829,30 @@ def assert_s2_public_projection_has_delegation_request(
             raise ValueError("PUBLIC S7 projection requires delegation limitation")
         if "s7_disposition" in projection:
             raise ValueError("PUBLIC S7 projection must not expose disposition labels")
+
+
+def assert_s2_public_projection_has_value_tradeoff_disclosure(
+    projection: Mapping[str, object],
+) -> None:
+    """Require value-tradeoff disclosure without raw weights on PUBLIC S8 projection."""
+
+    if not projection.get("value_tradeoff_disclosure_present"):
+        return
+    summary = projection.get("value_tradeoff_summary")
+    source_note = projection.get("frontier_value_source_note")
+    if not isinstance(summary, str) or not summary.strip():
+        raise ValueError("PUBLIC S8 projection requires value-tradeoff summary")
+    if not isinstance(source_note, str) or "authorized value source" not in source_note:
+        raise ValueError("PUBLIC S8 projection requires authorized value-source note")
+    forbidden = {
+        "raw_social_weights",
+        "authorized_value_schedule_ref",
+        "social_weight_provenance_refs",
+        "principal_conflict_rows",
+    }
+    leaked = sorted(forbidden & set(projection))
+    if leaked:
+        raise ValueError(f"PUBLIC S8 projection leaked raw value fields: {leaked}")
 
 
 def persist_s2_design_search_run(
@@ -888,12 +1023,20 @@ def _constraint_store(
     input: Layer2S2DesignSearchInput,
     *,
     expansion: DesignGrammarExpansion,
+    ranked_value_choice_attempted: bool = False,
     blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
     delegation_posture: Layer2S7DelegationPostureInput | None = None,
+    value_posture: Layer2S8ValuePostureInput | None = None,
 ) -> ConstraintStoreSnapshot:
     slug = _slug(input.case_id)
     s6_constraints = _s6_constraint_entries(blind_spot_posture)
     s7_constraints = _s7_constraint_entries(delegation_posture)
+    s8_constraints = _s8_constraint_entries(
+        value_posture,
+        case_slug=slug,
+        ranked_value_choice_attempted=ranked_value_choice_attempted,
+        rule_version_ref=input.rule_version_ref,
+    )
     base_constraint_ids = [
         "shadow_only",
         "authority_boundary_required",
@@ -901,12 +1044,18 @@ def _constraint_store(
     ]
     s6_constraint_ids = [entry.constraint_id for entry in s6_constraints]
     s7_constraint_ids = [entry.constraint_id for entry in s7_constraints]
-    constraint_records = [*s6_constraints, *s7_constraints]
+    s8_constraint_ids = [entry.constraint_id for entry in s8_constraints]
+    constraint_records = [*s6_constraints, *s7_constraints, *s8_constraints]
     return ConstraintStoreSnapshot(
         snapshot_id=f"layer2.s2.constraints.{slug}",
         snapshot_ref=f"pdc://layer2/s2/{slug}/constraint-store",
         grammar_expansion_ref=expansion.expansion_ref,
-        constraint_ids=[*base_constraint_ids, *s6_constraint_ids, *s7_constraint_ids],
+        constraint_ids=[
+            *base_constraint_ids,
+            *s6_constraint_ids,
+            *s7_constraint_ids,
+            *s8_constraint_ids,
+        ],
         hard_constraint_ids=[
             "shadow_only",
             "authority_boundary_required",
@@ -974,12 +1123,24 @@ def _refinement_decision(
     counterexample: CounterexampleRecord,
     composition_posture: Layer2S5CompositionPostureInput | None = None,
     blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
+    value_posture: Layer2S8ValuePostureInput | None = None,
 ) -> RefinementDecision:
+    s8_route = _s8_refinement_decision(
+        value_posture,
+        ranked_value_choice_attempted=_attempts_ranked_value_choice(
+            design_strategy=candidate.design_strategy,
+            counterexample_class=counterexample.counterexample_class,
+        ),
+    )
     s6_route = _s6_refinement_decision(blind_spot_posture)
-    if s6_route is not None:
+    if s8_route == "block_candidate":
+        decision: RefinementDecisionKind = s8_route
+    elif s6_route is not None:
         decision = s6_route
+    elif s8_route is not None:
+        decision = s8_route
     elif input.force_retry_same_candidate:
-        decision: RefinementDecisionKind = "block_candidate"
+        decision = "block_candidate"
     elif counterexample.counterexample_class == "a_spec_gap":
         decision = "human_decision"
     elif counterexample.counterexample_class == "substrate_gap":
@@ -1000,10 +1161,18 @@ def _refinement_decision(
     ):
         decision = "reframe"
 
-    governance_class = _governance_decision_class(input) if decision == "human_decision" else None
-    governance_ref = (
-        counterexample.counterexample_class if decision == "human_decision" else None
-    )
+    governance_ref: str | None = None
+    governance_class: GovernanceDecisionClass | None = None
+    if decision == "human_decision":
+        if value_posture is not None and value_posture.disposition in {
+            "advisory_only",
+            "contested_multi_principal",
+        }:
+            governance_ref = "value_authorization"
+            governance_class = _value_authorization_decision_class(input)
+        else:
+            governance_ref = counterexample.counterexample_class
+            governance_class = _governance_decision_class(input)
     return RefinementDecision(
         decision_id=f"layer2.s2.refinement.{_slug(input.case_id)}.001",
         decision_ref=f"pdc://layer2/s2/{_slug(input.case_id)}/refinement/001",
@@ -1037,6 +1206,7 @@ def _refinement_decision(
             design_strategy=candidate.design_strategy,
             composition_posture=composition_posture,
             blind_spot_posture=blind_spot_posture,
+            value_posture=value_posture,
         ),
     )
 
@@ -1080,6 +1250,7 @@ def _search_ledger(
     composition_posture: Layer2S5CompositionPostureInput | None = None,
     blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
     delegation_posture: Layer2S7DelegationPostureInput | None = None,
+    value_posture: Layer2S8ValuePostureInput | None = None,
 ) -> SearchLedger:
     slug = _slug(input.case_id)
     replay_key = _deterministic_replay_key(
@@ -1090,8 +1261,12 @@ def _search_ledger(
         composition_posture=composition_posture,
         blind_spot_posture=blind_spot_posture,
         delegation_posture=delegation_posture,
+        value_posture=value_posture,
     )
-    handoff_refs = _s7_handoff_refs(delegation_posture)
+    handoff_refs = [
+        *_s7_handoff_refs(delegation_posture),
+        *_s8_handoff_refs(value_posture),
+    ]
     return SearchLedger(
         ledger_id=f"layer2.s2.ledger.{slug}",
         ledger_ref=f"pdc://layer2/s2/{slug}/search-ledger",
@@ -1118,6 +1293,16 @@ def _search_ledger(
         delegation_record_refs=_s7_delegation_record_refs(delegation_posture),
         cluster_handoff_refs=handoff_refs,
         delegation_status=_s7_delegation_status(delegation_posture),
+        value_choice_provenance_refs=_s8_value_choice_provenance_refs(value_posture),
+        pareto_archive_refs=_s8_pareto_archive_refs(value_posture),
+        authorized_value_schedule_refs=_s8_authorized_value_schedule_refs(value_posture),
+        shadow_scenario_value_schedule_refs=_s8_shadow_scenario_value_schedule_refs(
+            value_posture
+        ),
+        value_authorization_decision_refs=_s8_value_authorization_decision_refs(
+            value_posture
+        ),
+        value_choice_status=_s8_value_choice_status(value_posture),
         no_retry_without_new_grammar=input.force_retry_same_candidate,
         search_incompleteness_note=_SEARCH_INCOMPLETENESS_NOTE,
     )
@@ -1137,6 +1322,7 @@ def _design_record(
     composition_posture: Layer2S5CompositionPostureInput | None = None,
     blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
     delegation_posture: Layer2S7DelegationPostureInput | None = None,
+    value_posture: Layer2S8ValuePostureInput | None = None,
 ) -> DesignRecordV0:
     slug = _slug(input.case_id)
     axis_positions = [
@@ -1254,6 +1440,12 @@ def _design_record(
         axis_positions.append(_s7_axis_position(delegation_posture, input.rule_version_ref))
         firewall_status.append(_s7_firewall_status(delegation_posture, input.rule_version_ref))
         ledger_refs.extend(_s7_ledger_refs(delegation_posture))
+        projection_audiences = ["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"]
+
+    if value_posture is not None:
+        axis_positions.append(_s8_axis_position(value_posture, input.rule_version_ref))
+        firewall_status.append(_s8_firewall_status(value_posture, input.rule_version_ref))
+        ledger_refs.extend(_s8_ledger_refs(value_posture))
         projection_audiences = ["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"]
 
     not_certified_for = list(_MAY_NOT_USE_FOR)
@@ -1641,6 +1833,106 @@ def _s7_projection_fields(
     return fields
 
 
+def _s8_projection_fields(
+    audience: Literal["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"],
+    *,
+    value_posture: Layer2S8ValuePostureInput,
+    s8_firewall: AxisFirewallStatus | None,
+    constraint_store: ConstraintStoreSnapshot,
+) -> dict[str, object]:
+    if audience == "PUBLIC":
+        return {
+            "value_tradeoff_disclosure_present": True,
+            "value_tradeoff_summary": value_posture.limitation_summary,
+            "frontier_value_source_note": (
+                "Pareto frontier and ranking context depend on an authorized value source; "
+                "S2 cannot turn value weights or tradeoffs into production recommendation "
+                "authority."
+            ),
+        }
+
+    action_route = _s8_action_route(value_posture)
+    fields: dict[str, object] = {
+        "s8_value_disposition": value_posture.disposition,
+        "s8_ranking_mode": value_posture.ranking_mode,
+        "s8_p20_firewall_status": value_posture.p20_firewall_status,
+        "s8_p22_firewall_status": value_posture.p22_firewall_status,
+        "s8_p12_firewall_status": "pass" if value_posture.handoff_rows else "limit",
+        "s8_p15_firewall_status": (
+            "pass"
+            if value_posture.authority_boundary.source_authority != "llm_candidate"
+            else "block"
+        ),
+        "s8_p26_firewall_status": (
+            "pass" if value_posture.value_authorization_decision_refs else "limit"
+        ),
+        "s8_action_route": action_route,
+        "s8_firewall_status": s8_firewall.status if s8_firewall else "limit",
+    }
+    if audience in {"EXPERT", "MACHINE"}:
+        fields.update(
+            {
+                "value_choice_provenance_ref": value_posture.value_choice_provenance_ref,
+                "authorized_value_schedule_ref": value_posture.authorized_value_schedule_ref,
+                "shadow_scenario_value_schedule_refs": list(
+                    value_posture.shadow_scenario_value_schedule_refs
+                ),
+                "objective_function_provenance_ref": (
+                    value_posture.objective_function_provenance_ref
+                ),
+                "pareto_archive_ref": value_posture.pareto_archive_ref,
+                "value_tradeoff_disclosure_ref": (
+                    value_posture.value_tradeoff_disclosure_ref
+                ),
+                "mandate_record_ref": value_posture.mandate_record_ref,
+                "s6_mandate_firewall_disposition": (
+                    value_posture.s6_mandate_firewall_disposition
+                ),
+                "principal_refs": list(value_posture.principal_refs),
+                "principal_conflict_rows": list(value_posture.conflict_rows),
+                "affected_group_rows": list(value_posture.affected_group_rows),
+                "dissent_refs": list(value_posture.dissent_refs),
+                "blocking_rights_refs": list(value_posture.blocking_rights_refs),
+                "alternative_schedule_sensitivity": list(
+                    value_posture.alternative_schedule_sensitivity
+                ),
+                "rejected_nondominated_alternative_ids": list(
+                    value_posture.rejected_nondominated_alternative_ids
+                ),
+                "value_provenance_completeness": (
+                    value_posture.value_provenance_completeness
+                ),
+                "integrity_status": _s8_integrity_status(value_posture),
+                "authority_boundary": value_posture.authority_boundary.model_dump(
+                    mode="json"
+                ),
+            }
+        )
+    if audience == "MACHINE":
+        fields.update(
+            {
+                "social_weight_provenance_refs": list(
+                    value_posture.social_weight_provenance_refs
+                ),
+                "delegation_refs": list(value_posture.delegation_refs),
+                "value_authorization_decision_refs": list(
+                    value_posture.value_authorization_decision_refs
+                ),
+                "s8_constraint_store_updates": [
+                    record.model_dump(mode="json")
+                    for record in constraint_store.constraint_records
+                    if record.cell_ref == _S8_VALUE_CHOICE_CELL_REF
+                ],
+                "s8_handoff_rows": [
+                    record.model_dump(mode="json")
+                    for record in _s8_handoff_records(value_posture)
+                ],
+                "deterministic_value_replay_refs": _s8_ledger_refs(value_posture),
+            }
+        )
+    return fields
+
+
 def _s6_axis_positions(
     blind_spot_posture: Layer2S6BlindSpotPostureInput,
     rule_version_ref: str,
@@ -1703,6 +1995,38 @@ def _s7_constraint_entries(
     return [
         ConstraintStoreEntry.model_validate(update)
         for update in delegation_posture.constraint_store_updates
+    ]
+
+
+def _s8_constraint_entries(
+    value_posture: Layer2S8ValuePostureInput | None,
+    *,
+    case_slug: str,
+    ranked_value_choice_attempted: bool,
+    rule_version_ref: str,
+) -> list[ConstraintStoreEntry]:
+    if value_posture is not None:
+        return [
+            ConstraintStoreEntry.model_validate(update)
+            for update in value_posture.constraint_store_updates
+        ]
+    if not ranked_value_choice_attempted:
+        return []
+    return [
+        ConstraintStoreEntry(
+            constraint_id=f"layer2.s8.{case_slug}.missing_value_provenance",
+            cell_ref=_S8_VALUE_CHOICE_CELL_REF,
+            status="block",
+            source_ref="pdc://layer2/s8/missing-value-choice-provenance",
+            consumer_ref="INTERVENTION.design_candidate",
+            refinement_route="block_candidate",
+            evidence_refs=[],
+            reason=(
+                "Ranked value choice attempted without injected S8 value-choice "
+                "provenance."
+            ),
+            rule_version_ref=rule_version_ref,
+        )
     ]
 
 
@@ -1797,6 +2121,95 @@ def _s7_delegation_status(
     return "requested"
 
 
+def _s8_refinement_decision(
+    value_posture: Layer2S8ValuePostureInput | None,
+    *,
+    ranked_value_choice_attempted: bool,
+) -> RefinementDecisionKind | None:
+    if value_posture is None:
+        return "block_candidate" if ranked_value_choice_attempted else None
+    if _s8_blocks_ranked_selection(value_posture):
+        return "block_candidate"
+    if value_posture.disposition in {"contested_multi_principal", "advisory_only"}:
+        return "human_decision"
+    if value_posture.disposition == "shadow_scenario_only" and value_posture.ranking_mode != (
+        "unranked_frontier_only"
+    ):
+        return "block_candidate"
+    return None
+
+
+def _s8_run_status(
+    value_posture: Layer2S8ValuePostureInput | None,
+    *,
+    ranked_value_choice_attempted: bool,
+    fallback: S2RunStatus,
+) -> S2RunStatus:
+    decision = _s8_refinement_decision(
+        value_posture,
+        ranked_value_choice_attempted=ranked_value_choice_attempted,
+    )
+    if decision == "block_candidate":
+        return "blocked"
+    if decision == "human_decision" and fallback == "shadow_ready":
+        return "governance_required"
+    return fallback
+
+
+def _s8_iteration_status(
+    value_posture: Layer2S8ValuePostureInput | None,
+    *,
+    ranked_value_choice_attempted: bool,
+    fallback: Literal[
+        "blocked",
+        "blocked_no_retry",
+        "governance_required",
+        "acquisition_required",
+        "abstained",
+        "refined_shadow",
+    ],
+) -> Literal[
+    "blocked",
+    "blocked_no_retry",
+    "governance_required",
+    "acquisition_required",
+    "abstained",
+    "refined_shadow",
+]:
+    decision = _s8_refinement_decision(
+        value_posture,
+        ranked_value_choice_attempted=ranked_value_choice_attempted,
+    )
+    if decision == "block_candidate":
+        return "blocked"
+    if decision == "human_decision" and fallback == "refined_shadow":
+        return "governance_required"
+    return fallback
+
+
+def _s8_blocks_ranked_selection(value_posture: Layer2S8ValuePostureInput) -> bool:
+    return (
+        value_posture.disposition.startswith("blocked_")
+        or value_posture.p20_firewall_status == "block"
+        or value_posture.p22_firewall_status == "block"
+        or (
+            value_posture.disposition == "shadow_scenario_only"
+            and value_posture.ranking_mode != "unranked_frontier_only"
+        )
+    )
+
+
+def _attempts_ranked_value_choice(
+    *,
+    design_strategy: str | None,
+    counterexample_class: str | None,
+) -> bool:
+    return (
+        design_strategy == "expected_welfare_optimization"
+        or counterexample_class == "value_gap"
+    )
+
+
 def _s7_run_status(
     delegation_posture: Layer2S7DelegationPostureInput | None,
     *,
@@ -1874,6 +2287,186 @@ def _s7_firewall_status(
         maturity="fail_closed",
         rule_version_ref=rule_version_ref,
     )
+
+
+def _s8_axis_position(
+    value_posture: Layer2S8ValuePostureInput,
+    rule_version_ref: str,
+) -> AxisPositionDeclaration:
+    return AxisPositionDeclaration(
+        cluster="ACTOR",
+        axis="value_choice_provenance",
+        position=f"{value_posture.disposition};ranking_mode={value_posture.ranking_mode}",
+        evidence_refs=_s8_ledger_refs(value_posture),
+        authority_purpose="authorized_value_choice_provenance",
+        rule_version_ref=rule_version_ref,
+    )
+
+
+def _s8_firewall_status(
+    value_posture: Layer2S8ValuePostureInput,
+    rule_version_ref: str,
+) -> AxisFirewallStatus:
+    if _s8_blocks_ranked_selection(value_posture):
+        status: Literal["pass", "warn", "limit", "block"] = "block"
+    elif (
+        value_posture.disposition in {"authorized"}
+        and value_posture.p20_firewall_status == "pass"
+    ):
+        status = "pass"
+    elif value_posture.disposition == "contested_multi_principal":
+        status = "limit"
+    else:
+        status = "limit"
+    return AxisFirewallStatus(
+        cell_ref=_S8_VALUE_CHOICE_CELL_REF,
+        status=status,
+        pattern_ids=["P20", "P22", "P12", "P15", "P26"],
+        reason=(
+            "S8 injected value-choice posture gates ranked value choices; S2 consumes "
+            "refs without selecting social weights or minting recommendation authority."
+        ),
+        maturity="fail_closed",
+        rule_version_ref=rule_version_ref,
+    )
+
+
+def _s8_ledger_refs(value_posture: Layer2S8ValuePostureInput) -> list[str]:
+    refs = [
+        value_posture.value_choice_provenance_ref,
+        value_posture.authorized_value_schedule_ref,
+        *value_posture.shadow_scenario_value_schedule_refs,
+        value_posture.objective_function_provenance_ref,
+        value_posture.pareto_archive_ref,
+        value_posture.value_tradeoff_disclosure_ref,
+        value_posture.mandate_record_ref,
+        *value_posture.social_weight_provenance_refs,
+        *value_posture.delegation_refs,
+        *value_posture.value_authorization_decision_refs,
+    ]
+    return [ref for ref in dict.fromkeys(refs) if ref is not None][:40]
+
+
+def _s8_value_choice_provenance_refs(
+    value_posture: Layer2S8ValuePostureInput | None,
+) -> list[str]:
+    if value_posture is None:
+        return []
+    return [value_posture.value_choice_provenance_ref]
+
+
+def _s8_pareto_archive_refs(value_posture: Layer2S8ValuePostureInput | None) -> list[str]:
+    if value_posture is None:
+        return []
+    return [value_posture.pareto_archive_ref]
+
+
+def _s8_authorized_value_schedule_refs(
+    value_posture: Layer2S8ValuePostureInput | None,
+) -> list[str]:
+    if value_posture is None or value_posture.authorized_value_schedule_ref is None:
+        return []
+    return [value_posture.authorized_value_schedule_ref]
+
+
+def _s8_shadow_scenario_value_schedule_refs(
+    value_posture: Layer2S8ValuePostureInput | None,
+) -> list[str]:
+    if value_posture is None:
+        return []
+    return list(value_posture.shadow_scenario_value_schedule_refs)
+
+
+def _s8_value_authorization_decision_refs(
+    value_posture: Layer2S8ValuePostureInput | None,
+) -> list[str]:
+    if value_posture is None:
+        return []
+    return list(value_posture.value_authorization_decision_refs)
+
+
+def _s8_value_choice_status(value_posture: Layer2S8ValuePostureInput | None) -> str:
+    if value_posture is None:
+        return "not_applicable"
+    return value_posture.disposition
+
+
+def _s8_handoff_refs(value_posture: Layer2S8ValuePostureInput | None) -> list[str]:
+    if value_posture is None:
+        return []
+    return [record.handoff_id for record in _s8_handoff_records(value_posture)][:40]
+
+
+def _s8_handoff_records(value_posture: Layer2S8ValuePostureInput) -> list[ClusterHandoffRecord]:
+    if not value_posture.handoff_rows:
+        return [
+            ClusterHandoffRecord(
+                handoff_id="layer2.s2.handoff.s8_value_choice_posture",
+                workflow_ref="workflow://layer2/s2/shadow-design-loop",
+                source_cell_ref=_S8_VALUE_CHOICE_CELL_REF,
+                target_cell_ref="INTERVENTION.design_candidate",
+                artifact_refs=[
+                    value_posture.value_choice_provenance_ref,
+                    value_posture.pareto_archive_ref,
+                ],
+                disposition=_s8_handoff_disposition(value_posture),
+                authority_purpose="s8_value_choice_firewall",
+                may_not_use_for=list(_S8_REQUIRED_HANDOFF_MAY_NOT_USE_FOR),
+            )
+        ]
+    records: list[ClusterHandoffRecord] = []
+    for row in value_posture.handoff_rows:
+        payload = dict(row)
+        payload.setdefault("source_cell_ref", _S8_VALUE_CHOICE_CELL_REF)
+        payload.setdefault("target_cell_ref", "INTERVENTION.design_candidate")
+        payload.setdefault("authority_purpose", "s8_value_choice_firewall")
+        payload["may_not_use_for"] = _merge_unique_strings(
+            payload.get("may_not_use_for"),
+            _S8_REQUIRED_HANDOFF_MAY_NOT_USE_FOR,
+        )
+        records.append(ClusterHandoffRecord.model_validate(payload))
+    return records
+
+
+def _s8_handoff_disposition(
+    value_posture: Layer2S8ValuePostureInput,
+) -> Literal["emitted", "consumed", "rejected", "blocked"]:
+    if _s8_blocks_ranked_selection(value_posture):
+        return "blocked"
+    if value_posture.disposition == "shadow_scenario_only":
+        return "rejected"
+    return "consumed"
+
+
+def _s8_action_route(value_posture: Layer2S8ValuePostureInput) -> str:
+    decision = _s8_refinement_decision(
+        value_posture,
+        ranked_value_choice_attempted=value_posture.ranking_mode
+        in {"ranked_with_authorized_values", "shadow_scenario_ranking"},
+    )
+    return decision or "none"
+
+
+def _s8_integrity_status(value_posture: Layer2S8ValuePostureInput) -> str:
+    if (
+        value_posture.p20_firewall_status == "block"
+        or value_posture.p22_firewall_status == "block"
+    ):
+        return "block"
+    if (
+        value_posture.disposition == "authorized"
+        and value_posture.value_provenance_completeness == 1
+    ):
+        return "pass"
+    return "limit"
+
+
+def _merge_unique_strings(value: object, required: list[str]) -> list[str]:
+    items: list[str] = []
+    if isinstance(value, list):
+        items.extend(str(item) for item in value if item)
+    items.extend(required)
+    return list(dict.fromkeys(items))[:40]
 
 
 def _s7_governed_pilot_eligible(
@@ -2031,6 +2624,7 @@ def _cluster_interfaces(
     *,
     composition_posture: Layer2S5CompositionPostureInput | None = None,
     blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
+    value_posture: Layer2S8ValuePostureInput | None = None,
 ) -> list[ClusterInterfaceContract]:
     contracts = [
         ClusterInterfaceContract(
@@ -2095,6 +2689,16 @@ def _cluster_interfaces(
                     authority_boundary=boundary,
                 )
             )
+    if value_posture is not None:
+        contracts.append(
+            ClusterInterfaceContract(
+                contract_id="layer2.s2.cluster.interface.value_choice_provenance",
+                cell_ref=_S8_VALUE_CHOICE_CELL_REF,
+                publishes=["Layer2S8ValuePostureInput", "ConstraintStoreEntry"],
+                consumes=["Layer2S8ValuePostureInput"],
+                authority_boundary=boundary,
+            )
+        )
     return contracts
 
 
@@ -2106,6 +2710,7 @@ def _handoff_records(
     composition_posture: Layer2S5CompositionPostureInput | None = None,
     blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
     delegation_posture: Layer2S7DelegationPostureInput | None = None,
+    value_posture: Layer2S8ValuePostureInput | None = None,
 ) -> list[ClusterHandoffRecord]:
     records = [
         ClusterHandoffRecord(
@@ -2158,6 +2763,8 @@ def _handoff_records(
             ClusterHandoffRecord.model_validate(row)
             for row in delegation_posture.handoff_rows
         )
+    if value_posture is not None:
+        records.extend(_s8_handoff_records(value_posture))
     return records
 
 
@@ -2178,6 +2785,30 @@ def _governance_decision_class(input: Layer2S2DesignSearchInput) -> GovernanceDe
     )
 
 
+def _value_authorization_decision_class(
+    input: Layer2S2DesignSearchInput,
+) -> GovernanceDecisionClass:
+    return GovernanceDecisionClass(
+        decision_class_id="value_authorization",
+        label="Value authorization",
+        required_role="principal",
+        default_posture="shadow",
+        high_stakes=True,
+        authority_boundary=AuthorityBoundary(
+            authoritative_for=["value_choice_routing"],
+            may_not_use_for=[
+                "production_recommendation",
+                "production_claim_authority",
+                "scalar_welfare_authority",
+                "preference_learning_authority",
+            ],
+            source_authority="human_governance",
+            posture="shadow",
+            rule_version_refs=[input.rule_version_ref],
+        ),
+    )
+
+
 def _deterministic_replay_key(
     input: Layer2S2DesignSearchInput,
     *,
@@ -2187,6 +2818,7 @@ def _deterministic_replay_key(
     composition_posture: Layer2S5CompositionPostureInput | None = None,
     blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
     delegation_posture: Layer2S7DelegationPostureInput | None = None,
+    value_posture: Layer2S8ValuePostureInput | None = None,
 ) -> str:
     payload = {
         "case_id": input.case_id,
@@ -2223,6 +2855,8 @@ def _deterministic_replay_key(
         payload["blind_spot_posture"] = blind_spot_posture.model_dump(mode="json")
     if delegation_posture is not None:
         payload["delegation_posture"] = delegation_posture.model_dump(mode="json")
+    if value_posture is not None:
+        payload["value_posture"] = value_posture.model_dump(mode="json")
     canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
@@ -2246,7 +2880,18 @@ def _decision_reason(
     design_strategy: str | None = None,
     composition_posture: Layer2S5CompositionPostureInput | None = None,
     blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
+    value_posture: Layer2S8ValuePostureInput | None = None,
 ) -> str:
+    if value_posture is not None and _s8_blocks_ranked_selection(value_posture):
+        return (
+            f"S8 {value_posture.disposition} value-choice posture blocks ranked "
+            "selection before S2 can scalarize or recommend a candidate."
+        )
+    if value_posture is not None and value_posture.disposition == "contested_multi_principal":
+        return (
+            "S8 contested multi-principal value posture routes to governance instead of "
+            "silent scalarization."
+        )
     if blind_spot_posture is not None and blind_spot_posture.overall_posture != "clear_fail_closed":
         return (
             f"S6 {blind_spot_posture.overall_posture} blind-spot posture routes "

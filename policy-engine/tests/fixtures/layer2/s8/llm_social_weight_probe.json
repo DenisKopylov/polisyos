@@ -1,0 +1,29 @@
+{
+  "case_id": "llm_social_weight_probe",
+  "rule_version_ref": "policyos.layer2.s8.value_choice.v1",
+  "social_weight_provenance_candidates": [
+    {
+      "provenance_id": "swp-llm-candidate",
+      "social_weight_ref": "swr://policy.welfare/llm-candidate#1",
+      "source_class": "llm_candidate",
+      "source_ref": "llm://drafted/social-weights/1",
+      "chosen_by": ["llm://policy-drafter"],
+      "mandate_ref": "pdc://layer2/s6/llm-social-weight/mandate",
+      "affected_group_refs": ["group://low-income-households"],
+      "review_status": "approved"
+    },
+    {
+      "provenance_id": "swp-corpus-derived",
+      "social_weight_ref": "swr://policy.welfare/corpus-derived#1",
+      "source_class": "corpus_derived",
+      "source_ref": "corpus://similar-case/social-weights",
+      "chosen_by": ["corpus://retrieval"],
+      "mandate_ref": "pdc://layer2/s6/corpus-social-weight/mandate",
+      "affected_group_refs": ["group://small-businesses"],
+      "review_status": "approved"
+    }
+  ],
+  "expected_disposition": "blocked_p20_normative_laundering",
+  "expected_failure_pattern": "P20",
+  "expected_false_clear": false
+}

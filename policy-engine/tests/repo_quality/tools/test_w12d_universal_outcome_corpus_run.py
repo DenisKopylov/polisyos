@@ -1105,6 +1105,114 @@ def test_w12d_s7_workflow_only_summary_probe_fails_p12(tmp_path: Path) -> None:
     )
 
 
+def test_w12d_emits_s8_value_choice_blocks_for_13_cases(tmp_path: Path) -> None:
+    report = _run_full_corpus_report(tmp_path)
+
+    assert report["summary"]["case_count"] == 13
+    assert report["s8_value_choice_summary"]["case_count"] == 13
+    s8_blocks = [case["s8_value_choice"] for case in report["cases"]]
+    assert len(s8_blocks) == 13
+    assert all(
+        block["schema_version"] == "policyos.policy_design_case.layer2_s8_value_choice.v1"
+        for block in s8_blocks
+    )
+    assert all(
+        block["value_choice_provenance_ref"].startswith("pdc://layer2/s8/")
+        for block in s8_blocks
+    )
+    assert all(
+        "production_recommendation" in block["may_not_use_for"] for block in s8_blocks
+    )
+    assert all(
+        block["canonical_outcome_effect"]
+        == "none_shadow_or_governed_pilot_value_context_only"
+        for block in s8_blocks
+    )
+
+
+def test_w12d_s8_negative_controls_have_zero_false_clears(tmp_path: Path) -> None:
+    report = _run_full_corpus_report(tmp_path)
+
+    summary = report["s8_value_choice_summary"]
+    assert summary["llm_weight_false_clear_count"] == 0
+    assert summary["corpus_weight_false_clear_count"] == 0
+    assert summary["blocked_mandate_value_choice_false_clear_count"] == 0
+    assert summary["pareto_ranking_without_value_source_false_clear_count"] == 0
+    assert summary["multi_principal_silent_average_false_clear_count"] == 0
+    assert summary["s7_decision_substitution_false_clear_count"] == 0
+    assert summary["shadow_scenario_authority_false_clear_count"] == 0
+    assert summary["missing_arrow_disclosure_false_clear_count"] == 0
+    assert set(summary["negative_control_results"]) >= {
+        "llm_social_weight_probe",
+        "blocked_mandate_value_choice_probe",
+        "pareto_ranking_without_value_source_probe",
+        "multi_principal_conflict_probe",
+        "s7_human_decision_substitution_probe",
+        "shadow_scenario_authority_spoof_probe",
+        "missing_arrow_disclosure_probe",
+    }
+
+
+def test_w12d_s8_ranked_recommendations_require_authorized_value_source(
+    tmp_path: Path,
+) -> None:
+    report = _run_full_corpus_report(tmp_path)
+
+    for case in report["cases"]:
+        block = case["s8_value_choice"]
+        if block["ranking_mode"] == "ranked_with_authorized_values":
+            assert block["authorized_value_schedule_ref"]
+            assert block["disposition"] == "authorized"
+            assert block["p20_firewall_status"] == "pass"
+            assert block["p22_firewall_status"] == "pass"
+        if block["ranking_mode"] == "ranking_blocked":
+            assert block["p20_firewall_status"] in {"limit", "block"}
+            assert block["authorized_value_schedule_ref"] is None
+
+
+def test_w12d_s8_pinned_s2_case_injects_value_posture(tmp_path: Path) -> None:
+    index_dir = tmp_path / "capability-index"
+    assert builder.main(["--mode", "fixture", "--output-dir", str(index_dir)]) == 0
+
+    report = w12d.run_w12d_universal_outcome_corpus(
+        repo_root=REPO_ROOT,
+        corpus_path=SINGLE_CASE_PATH,
+        graph_output_dir=tmp_path / "graphs",
+        hypothesis_ledger_output_dir=tmp_path / "ledgers",
+        mode="corpus_stub",
+        producer_stub_dir=REPO_ROOT / "tests/fixtures/universal-corpus/producer_stubs",
+        capability_index_path=index_dir / "capability_index_v1.duckdb",
+    )
+
+    case = report["cases"][0]
+    s2 = case["s2_design_search"]
+    s8 = case["s8_value_choice"]
+    assert (
+        s2["value_posture"]["value_choice_provenance_ref"]
+        == s8["value_choice_provenance_ref"]
+    )
+    assert s8["pareto_archive_ref"] in s2["search_ledger"]["pareto_archive_refs"]
+    assert (
+        s8["value_choice_provenance_ref"]
+        in s2["search_ledger"]["value_choice_provenance_refs"]
+    )
+    assert s8["value_choice_provenance_ref"] in s2["design_record"]["ledger_refs"]
+
+
+def test_w12d_s8_preserves_s2_shadow_only_outcome_effects(tmp_path: Path) -> None:
+    report = _run_full_corpus_report(tmp_path)
+
+    for case in report["cases"]:
+        s8 = case["s8_value_choice"]
+        assert (
+            s8["canonical_outcome_effect"]
+            == "none_shadow_or_governed_pilot_value_context_only"
+        )
+        if case["case_id"] == "ua-msme-affordable-loans-2022":
+            assert case["s2_design_search"]["canonical_outcome_effect"] == "none_shadow_only"
+    assert report["s8_value_choice_summary"]["s2_value_posture_injection_count"] == 1
+
+
 _S6_AXIS_CELLS = {
     "SYSTEM.measurability",
     "SYSTEM.subject_granularity",

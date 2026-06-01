@@ -276,3 +276,42 @@ def test_s7_does_not_import_production_approval_or_human_review_as_authority() -
         "import polisyos.scientist.governance.human_review",
     )
     assert not any(pattern in source for pattern in forbidden_authority_imports)
+
+
+def test_s7_registry_contains_value_authorization_decision_class() -> None:
+    registry = _registry()
+    by_id = {row.decision_class_id: row for row in registry}
+
+    assert "value_authorization" in by_id
+    value_authorization = by_id["value_authorization"]
+    assert value_authorization.required_role == "principal"
+    assert value_authorization.high_stakes is True
+    assert value_authorization.default_posture == "shadow"
+    assert "value_choice_authority" in value_authorization.authority_boundary.may_not_use_for
+
+
+def test_value_authorization_matrix_row_is_request_driven_and_non_autonomous() -> None:
+    matrix = _matrix()
+    row = matrix.row_for_decision_class("value_authorization")
+
+    assert row.required_role == "principal"
+    assert row.default_interaction_mode == "request_driven"
+    assert row.ai_first_allowed is False
+    assert row.delegated_autonomous_allowed is False
+    assert row.non_overridable is True
+    assert set(row.available_actions) == {
+        "request_evidence",
+        "approve",
+        "reject",
+        "revise_scope",
+        "escalate",
+    }
+
+    request = _request(
+        decision_class_id="value_authorization",
+        need_reasons=["high_stakes", "value_laden"],
+    )
+    assert request.required_role == "principal"
+    assert request.interaction_mode == "request_driven"
+    assert request.disposition == "request_human_decision"
+    assert "value_choice_authority" in request.authority_boundary.may_not_use_for

@@ -1,0 +1,10 @@
+{
+  "case_id": "shadow_scenario_authority_spoof_probe",
+  "rule_version_ref": "policyos.layer2.s8.value_choice.v1",
+  "shadow_scenario_value_schedule_ref": "pdc://layer2/s8/shadow-spoof/value-schedule/scenario",
+  "ranking_mode": "ranked_with_authorized_values",
+  "attempted_authority_class": "authorized_governance_schedule",
+  "expected_disposition": "shadow_scenario_only",
+  "expected_failure_pattern": "P20",
+  "expected_false_clear": false
+}

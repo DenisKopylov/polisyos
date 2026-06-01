@@ -1,0 +1,16 @@
+{
+  "case_id": "s7_human_decision_substitution_probe",
+  "rule_version_ref": "policyos.layer2.s8.value_choice.v1",
+  "delegation_refs": [
+    "pdc://layer2/s7/substitution/human-decision-request/final_choice",
+    "pdc://layer2/s7/substitution/human-decision-record/final_choice"
+  ],
+  "value_authorization_decision_refs": [
+    "pdc://layer2/s7/substitution/human-decision-record/final_choice"
+  ],
+  "authorized_value_schedule_ref": null,
+  "social_weight_source_class": "s7_value_authorization_record",
+  "expected_disposition": "blocked_p20_normative_laundering",
+  "expected_failure_pattern": "P26",
+  "expected_false_clear": false
+}

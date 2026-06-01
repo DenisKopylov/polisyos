@@ -345,6 +345,117 @@ def _delegation_posture(
     )
 
 
+def _s8_value_posture(
+    *,
+    disposition: str = "blocked_missing_value_provenance",
+    ranking_mode: str = "ranking_blocked",
+    authorized_value_schedule_ref: str | None = None,
+    p20_firewall_status: str = "block",
+    p22_firewall_status: str = "pass",
+    value_provenance_completeness: float = 1.0,
+    conflict_rows: list[dict[str, object]] | None = None,
+) -> object:
+    from polisyos import pdc
+
+    return pdc.Layer2S8ValuePostureInput(
+        value_choice_provenance_ref="pdc://layer2/s8/ua-msme/value-choice-provenance",
+        authorized_value_schedule_ref=authorized_value_schedule_ref,
+        shadow_scenario_value_schedule_refs=[
+            "pdc://layer2/s8/ua-msme/value-schedule/shadow-scenario"
+        ],
+        objective_function_provenance_ref="pdc://layer2/s8/ua-msme/objective-provenance",
+        pareto_archive_ref="pdc://layer2/s8/ua-msme/pareto-archive",
+        value_tradeoff_disclosure_ref="pdc://layer2/s8/ua-msme/value-tradeoff-disclosure",
+        mandate_record_ref="pdc://layer2/s6/ua-msme/mandate-legitimacy",
+        s6_mandate_firewall_disposition="pass",
+        ranking_mode=ranking_mode,
+        disposition=disposition,
+        p20_firewall_status=p20_firewall_status,
+        p22_firewall_status=p22_firewall_status,
+        value_provenance_completeness=value_provenance_completeness,
+        principal_refs=["principal://ua/ministry-of-economy"],
+        conflict_rows=conflict_rows or [],
+        affected_group_rows=[
+            {
+                "group_ref": "group://low-income-msmes",
+                "disclosure_ref": "pdc://layer2/s8/ua-msme/affected-groups",
+            }
+        ],
+        dissent_refs=["dissent://ua-msme/sme-panel"],
+        blocking_rights_refs=["rights://ua-msme/legal-equality"],
+        alternative_schedule_sensitivity=[
+            {
+                "scenario_schedule_ref": "pdc://layer2/s8/ua-msme/value-schedule/scenario",
+                "selected_alternative_ref": "alternative://cash-transfer",
+                "status": "shadow_scenario_only",
+            }
+        ],
+        rejected_nondominated_alternative_ids=["cash_transfer"],
+        social_weight_provenance_refs=[
+            "foundry://welfare/social-weight-provenance/public-budget-2026"
+        ],
+        delegation_refs=["pdc://layer2/s7/ua-msme/value-authorization-request"],
+        value_authorization_decision_refs=[
+            "pdc://layer2/s7/ua-msme/value-authorization-record"
+        ],
+        constraint_store_updates=[
+            {
+                "constraint_id": "layer2.s8.value_choice.blocked",
+                "cell_ref": "ACTOR.value_choice_provenance",
+                "status": "block" if p20_firewall_status == "block" else "limit",
+                "source_ref": "pdc://layer2/s8/ua-msme/value-choice-provenance",
+                "consumer_ref": "INTERVENTION.design_candidate",
+                "refinement_route": "block_candidate",
+                "evidence_refs": [
+                    "pdc://layer2/s8/ua-msme/value-choice-provenance",
+                    "pdc://layer2/s8/ua-msme/pareto-archive",
+                ],
+                "reason": "Ranked value choice requires authorized S8 provenance.",
+                "rule_version_ref": "policyos.layer2.s8.value_choice.v1",
+            }
+        ],
+        handoff_rows=[
+            {
+                "handoff_id": "layer2.s8.ua-msme.value-choice",
+                "workflow_ref": "scientist://workflow/ua-msme/value-choice",
+                "source_cell_ref": "ACTOR.value_choice_provenance",
+                "target_cell_ref": "INTERVENTION.design_candidate",
+                "artifact_refs": [
+                    "pdc://layer2/s8/ua-msme/value-choice-provenance",
+                    "pdc://layer2/s8/ua-msme/pareto-archive",
+                ],
+                "disposition": "blocked" if p20_firewall_status == "block" else "consumed",
+                "authority_purpose": "s8_value_choice_firewall",
+                "may_not_use_for": [
+                    "production_recommendation",
+                    "preference_learning_authority",
+                    "s9_projection_maturity",
+                ],
+            }
+        ],
+        limitation_summary=(
+            "Frontier facts are visible, but ranked value choices require an "
+            "authorized value schedule."
+        ),
+        authority_boundary={
+            "authoritative_for": [
+                "value_choice_provenance",
+                "shadow_design_search_replay",
+            ],
+            "may_not_use_for": [
+                "production_recommendation",
+                "production_claim_authority",
+                "publication_authority",
+                "scalar_welfare_authority",
+                "preference_learning_authority",
+            ],
+            "source_authority": "deterministic_producer",
+            "posture": "shadow",
+            "rule_version_refs": ["policyos.layer2.s8.value_choice.v1"],
+        },
+    )
+
+
 def test_s2_shadow_loop_emits_grammar_candidate_counterexample_refinement_and_record() -> None:
     run = run_s2_shadow_design_loop(_input())
 
@@ -1253,3 +1364,130 @@ def test_s2_does_not_import_s7_runtime_quality_producer() -> None:
     assert "build_decision_rights_matrix" not in source
     assert "record_human_decision" not in source
     assert "evaluate_delegation_for_case" not in source
+
+
+def test_s2_consumes_s8_value_posture_and_blocks_ranking_without_authorized_schedule() -> None:
+    posture = _s8_value_posture()
+
+    run = run_s2_shadow_design_loop(_input(), value_posture=posture)
+
+    assert run.value_posture == posture
+    assert run.status == "blocked"
+    assert any(
+        record.cell_ref == "ACTOR.value_choice_provenance"
+        and record.status == "block"
+        and record.refinement_route == "block_candidate"
+        for record in run.constraint_store.constraint_records
+    )
+    assert run.search_ledger.value_choice_status == "blocked_missing_value_provenance"
+
+
+def test_s2_value_gap_records_p20_constraint_and_ledger_refs() -> None:
+    posture = _s8_value_posture()
+
+    run = run_s2_shadow_design_loop(_input(), value_posture=posture)
+
+    p20_constraints = [
+        row
+        for row in run.constraint_store.constraint_records
+        if row.cell_ref == "ACTOR.value_choice_provenance"
+    ]
+    assert p20_constraints
+    assert p20_constraints[0].status == "block"
+    assert p20_constraints[0].source_ref == posture.value_choice_provenance_ref
+    assert posture.pareto_archive_ref in run.search_ledger.pareto_archive_refs
+    assert posture.value_choice_provenance_ref in run.search_ledger.value_choice_provenance_refs
+    assert posture.value_choice_provenance_ref in run.design_record.ledger_refs
+
+
+def test_s2_public_projection_exposes_value_tradeoff_summary_only() -> None:
+    posture = _s8_value_posture(
+        disposition="authorized",
+        ranking_mode="ranked_with_authorized_values",
+        authorized_value_schedule_ref="pdc://layer2/s8/ua-msme/value-schedule/authorized",
+        p20_firewall_status="pass",
+    )
+    run = run_s2_shadow_design_loop(_input(), value_posture=posture)
+
+    public_projection = project_s2_design_search(run, audiences=("PUBLIC",))["PUBLIC"]
+
+    assert public_projection["value_tradeoff_disclosure_present"] is True
+    assert public_projection["value_tradeoff_summary"]
+    assert public_projection["frontier_value_source_note"]
+    assert "raw_social_weights" not in public_projection
+    assert "authorized_value_schedule_ref" not in public_projection
+
+    from polisyos import pdc
+
+    pdc.assert_s2_public_projection_has_value_tradeoff_disclosure(public_projection)
+
+
+def test_s2_reviewer_projection_renders_value_class_status_and_firewalls() -> None:
+    posture = _s8_value_posture(
+        disposition="contested_multi_principal",
+        ranking_mode="ranking_blocked",
+        p20_firewall_status="limit",
+        conflict_rows=[
+            {
+                "principal_ref": "principal://ua/ministry-of-economy",
+                "incompatible_with": ["principal://ua/social-policy-ministry"],
+                "conflict_reason": "distributional schedule conflict",
+            }
+        ],
+    )
+    run = run_s2_shadow_design_loop(_input(), value_posture=posture)
+
+    reviewer_projection = project_s2_design_search(run, audiences=("REVIEWER",))["REVIEWER"]
+
+    assert reviewer_projection["s8_value_disposition"] == "contested_multi_principal"
+    assert reviewer_projection["s8_ranking_mode"] == "ranking_blocked"
+    assert reviewer_projection["s8_p20_firewall_status"] == "limit"
+    assert reviewer_projection["s8_p22_firewall_status"] == "pass"
+    assert reviewer_projection["s8_action_route"] in {"human_decision", "block_candidate"}
+
+
+def test_s2_expert_machine_projection_renders_value_refs_conflicts_and_integrity() -> None:
+    posture = _s8_value_posture(
+        disposition="contested_multi_principal",
+        ranking_mode="ranking_blocked",
+        p20_firewall_status="limit",
+        conflict_rows=[
+            {
+                "principal_ref": "principal://ua/ministry-of-economy",
+                "incompatible_with": ["principal://ua/social-policy-ministry"],
+                "conflict_reason": "distributional schedule conflict",
+            }
+        ],
+    )
+    run = run_s2_shadow_design_loop(_input(), value_posture=posture)
+
+    projections = project_s2_design_search(run, audiences=("EXPERT", "MACHINE"))
+
+    for projection in projections.values():
+        assert projection["value_choice_provenance_ref"] == posture.value_choice_provenance_ref
+        assert projection["pareto_archive_ref"] == posture.pareto_archive_ref
+        assert projection["shadow_scenario_value_schedule_refs"]
+        assert projection["principal_conflict_rows"] == posture.conflict_rows
+        assert projection["affected_group_rows"] == posture.affected_group_rows
+        assert projection["dissent_refs"] == posture.dissent_refs
+        assert projection["blocking_rights_refs"] == posture.blocking_rights_refs
+        assert projection["alternative_schedule_sensitivity"]
+        assert projection["value_provenance_completeness"] == 1.0
+        assert projection["authority_boundary"]["may_not_use_for"]
+
+
+def test_s2_does_not_treat_s8_as_production_recommendation_authority() -> None:
+    posture = _s8_value_posture(
+        disposition="authorized",
+        ranking_mode="ranked_with_authorized_values",
+        authorized_value_schedule_ref="pdc://layer2/s8/ua-msme/value-schedule/authorized",
+        p20_firewall_status="pass",
+    )
+
+    run = run_s2_shadow_design_loop(_input(), value_posture=posture)
+
+    assert run.design_record.projection_status == "shadow"
+    assert "production_recommendation" in run.design_record.authority_boundary.may_not_use_for
+    assert "production_claim_authority" in run.design_record.authority_boundary.may_not_use_for
+    assert run.value_posture.authority_boundary.posture == "shadow"
+    assert run.search_ledger.value_choice_status == "authorized"

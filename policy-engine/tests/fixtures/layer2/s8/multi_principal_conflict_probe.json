@@ -1,0 +1,35 @@
+{
+  "case_id": "multi_principal_conflict_probe",
+  "rule_version_ref": "policyos.layer2.s8.value_choice.v1",
+  "principal_refs": ["principal://tenant-board", "principal://landlord-board"],
+  "conflict_rows": [
+    {
+      "principal_ref": "principal://tenant-board",
+      "schedule_ref": "pdc://layer2/s8/conflict/tenant-schedule",
+      "incompatible_with": ["principal://landlord-board"],
+      "conflict_reason": "Tenant stability conflicts with owner exit-risk weighting."
+    },
+    {
+      "principal_ref": "principal://landlord-board",
+      "schedule_ref": "pdc://layer2/s8/conflict/landlord-schedule",
+      "incompatible_with": ["principal://tenant-board"],
+      "conflict_reason": "Owner solvency conflicts with tenant stability weighting."
+    }
+  ],
+  "affected_group_rows": [
+    {"group_ref": "group://tenants", "disclosure_ref": "pdc://layer2/s8/conflict/tenants"},
+    {"group_ref": "group://small-landlords", "disclosure_ref": "pdc://layer2/s8/conflict/owners"}
+  ],
+  "dissent_refs": ["dissent://tenant-board", "dissent://landlord-board"],
+  "blocking_rights_refs": ["rights://housing/non-discrimination"],
+  "alternative_schedule_sensitivity": [
+    {
+      "scenario_schedule_ref": "pdc://layer2/s8/conflict/tenant-schedule",
+      "selected_alternative_ref": "alternative://rent-freeze",
+      "status": "shadow_scenario_only"
+    }
+  ],
+  "expected_disposition": "contested_multi_principal",
+  "expected_failure_pattern": "P20",
+  "expected_false_clear": false
+}

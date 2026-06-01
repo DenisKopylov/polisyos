@@ -1,0 +1,20 @@
+{
+  "case_id": "missing_arrow_disclosure_probe",
+  "rule_version_ref": "policyos.layer2.s8.value_choice.v1",
+  "principal_refs": ["principal://tenant-board", "principal://landlord-board"],
+  "conflict_rows": [
+    {
+      "principal_ref": "principal://tenant-board",
+      "schedule_ref": "pdc://layer2/s8/missing-arrow/tenant-schedule",
+      "incompatible_with": ["principal://landlord-board"],
+      "conflict_reason": "Conflicting group priorities require disclosure rows."
+    }
+  ],
+  "affected_group_rows": [],
+  "dissent_refs": [],
+  "blocking_rights_refs": [],
+  "alternative_schedule_sensitivity": [],
+  "expected_disposition": "blocked_p20_normative_laundering",
+  "expected_failure_pattern": "P20",
+  "expected_false_clear": false
+}

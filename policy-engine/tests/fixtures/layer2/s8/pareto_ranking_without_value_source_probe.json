@@ -1,0 +1,12 @@
+{
+  "case_id": "pareto_ranking_without_value_source_probe",
+  "rule_version_ref": "policyos.layer2.s8.value_choice.v1",
+  "pareto_archive_ref": "pdc://layer2/s8/pareto-ranking-without-source/pareto-archive",
+  "frontier_refs": ["foundry://welfare/frontier/pareto-ranking-without-source"],
+  "nondominated_alternative_ids": ["targeted_credit", "cash_transfer"],
+  "ranking_mode": "ranked_with_authorized_values",
+  "authorized_value_schedule_ref": null,
+  "expected_disposition": "blocked_missing_value_provenance",
+  "expected_failure_pattern": "P20",
+  "expected_false_clear": false
+}

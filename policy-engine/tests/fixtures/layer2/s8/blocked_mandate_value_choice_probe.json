@@ -1,0 +1,13 @@
+{
+  "case_id": "blocked_mandate_value_choice_probe",
+  "rule_version_ref": "policyos.layer2.s8.value_choice.v1",
+  "mandate_record_ref": "pdc://layer2/s6/blocked-mandate/mandate-legitimacy",
+  "s6_mandate_firewall_disposition": "block",
+  "mandate_source_dispositions": ["candidate_unverified"],
+  "objective_refs": ["objective://credit-access", "objective://fiscal-cost"],
+  "social_weight_source_class": "authorized_governance_schedule",
+  "ranking_attempted": true,
+  "expected_disposition": "blocked_mandate_not_pass",
+  "expected_failure_pattern": "P22",
+  "expected_false_clear": false
+}

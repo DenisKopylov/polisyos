@@ -1,0 +1,108 @@
+{
+  "cases": {
+    "ua-msme-affordable-loans-2022": {
+      "expected_disposition": "authorized",
+      "expected_ranking_mode": "ranked_with_authorized_values",
+      "expected_p20_firewall_status": "pass",
+      "expected_p22_firewall_status": "pass",
+      "expected_authorized_value_schedule_present": true,
+      "coverage_labels": ["authorized_schedule_present", "high_stakes_value_laden_ranking"]
+    },
+    "w11a_berlin_rent_cap_2020": {
+      "expected_disposition": "contested_multi_principal",
+      "expected_ranking_mode": "ranking_blocked",
+      "expected_p20_firewall_status": "limit",
+      "expected_p22_firewall_status": "pass",
+      "expected_authorized_value_schedule_present": false,
+      "coverage_labels": ["multi_principal_conflict", "affected_groups", "dissent", "blocking_rights"]
+    },
+    "w11a_boston_operation_ceasefire_1996": {
+      "expected_disposition": "advisory_only",
+      "expected_ranking_mode": "unranked_frontier_only",
+      "expected_p20_firewall_status": "pass",
+      "expected_p22_firewall_status": "pass",
+      "expected_authorized_value_schedule_present": false,
+      "coverage_labels": ["frontier_only"]
+    },
+    "w11a_eu_temporary_protection_ukraine_2022": {
+      "expected_disposition": "blocked_mandate_not_pass",
+      "expected_ranking_mode": "ranking_blocked",
+      "expected_p20_firewall_status": "block",
+      "expected_p22_firewall_status": "block",
+      "expected_authorized_value_schedule_present": false,
+      "coverage_labels": ["mandate_limited_value_choice"]
+    },
+    "w11a_ghana_free_shs_2017": {
+      "expected_disposition": "authorized",
+      "expected_ranking_mode": "ranked_with_authorized_values",
+      "expected_p20_firewall_status": "pass",
+      "expected_p22_firewall_status": "pass",
+      "expected_authorized_value_schedule_present": true,
+      "coverage_labels": ["budget_legal_use_value_choice", "proxy_value_loss_disclosure"]
+    },
+    "w11a_india_aadhaar_dbt_2016": {
+      "expected_disposition": "shadow_scenario_only",
+      "expected_ranking_mode": "shadow_scenario_ranking",
+      "expected_p20_firewall_status": "limit",
+      "expected_p22_firewall_status": "pass",
+      "expected_authorized_value_schedule_present": false,
+      "coverage_labels": ["shadow_scenario_value_schedule", "rights_blocking"]
+    },
+    "w11a_mexico_ssb_tax_2014": {
+      "expected_disposition": "advisory_only",
+      "expected_ranking_mode": "unranked_frontier_only",
+      "expected_p20_firewall_status": "pass",
+      "expected_p22_firewall_status": "pass",
+      "expected_authorized_value_schedule_present": false,
+      "coverage_labels": ["no_value_ranking_needed"]
+    },
+    "w11a_netherlands_room_for_river_2007": {
+      "expected_disposition": "authorized",
+      "expected_ranking_mode": "ranked_with_authorized_values",
+      "expected_p20_firewall_status": "pass",
+      "expected_p22_firewall_status": "pass",
+      "expected_authorized_value_schedule_present": true,
+      "coverage_labels": ["acquisition_tradeoff", "participatory_process"]
+    },
+    "w11a_pakistan_ehsaas_cash_2020": {
+      "expected_disposition": "advisory_only",
+      "expected_ranking_mode": "unranked_frontier_only",
+      "expected_p20_firewall_status": "pass",
+      "expected_p22_firewall_status": "pass",
+      "expected_authorized_value_schedule_present": false,
+      "coverage_labels": ["frontier_only"]
+    },
+    "w11a_uk_levelling_up_fund_2021": {
+      "expected_disposition": "blocked_p20_normative_laundering",
+      "expected_ranking_mode": "ranking_blocked",
+      "expected_p20_firewall_status": "block",
+      "expected_p22_firewall_status": "pass",
+      "expected_authorized_value_schedule_present": false,
+      "coverage_labels": ["corpus_derived_weights", "final_choice_ranking"]
+    },
+    "w11a_uk_mtd_vat_2019": {
+      "expected_disposition": "advisory_only",
+      "expected_ranking_mode": "unranked_frontier_only",
+      "expected_p20_firewall_status": "pass",
+      "expected_p22_firewall_status": "pass",
+      "expected_authorized_value_schedule_present": false,
+      "coverage_labels": ["no_value_ranking_needed"]
+    },
+    "w11a_uk_work_programme_2011": {
+      "expected_disposition": "blocked_p22_mandate_laundering",
+      "expected_ranking_mode": "ranking_blocked",
+      "expected_p20_firewall_status": "block",
+      "expected_p22_firewall_status": "block",
+      "expected_authorized_value_schedule_present": false,
+      "coverage_labels": ["candidate_unverified_mandate_source"]
+    },
+    "w11a_us_ppp_2020": {
+      "expected_disposition": "blocked_p20_normative_laundering",
+      "expected_ranking_mode": "ranking_blocked",
+      "expected_p20_firewall_status": "block",
+      "expected_p22_firewall_status": "block",
+      "expected_authorized_value_schedule_present": false,
+      "coverage_labels": ["llm_proposed_weights", "blocked_mandate", "multi_principal_conflict"]
+    }
+  }
+}

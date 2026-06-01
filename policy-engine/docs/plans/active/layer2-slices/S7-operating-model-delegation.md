@@ -23,7 +23,7 @@ depends_on: [S2, S6]
 
 **Architecture:** S7 adds A-side runtime-quality delegation contracts and P26 responsibility-integrity checks, then injects a compact `Layer2S7DelegationPostureInput` into the S2/S4/S5/S6 shadow loop. The producer owns `DelegationContract`, `DecisionRightsMatrix`, `HumanDecisionRequest`, and `HumanDecisionRecord`; B consumes those records and can pause, request, route, or record a human decision, but cannot self-approve, choose values, infer mandate, or promote to production. S7 closes the S7-owned orchestration/delegation layer of `CROSS_CUTTING.scientist_orchestration` without claiming full S8 value-choice provenance, S13 oversight effectiveness, or production authority.
 
-**Tech Stack:** Python 3.14, Pydantic v2 strict models through S0 `Layer2ReadinessModel`, existing S0 `GovernanceDecisionClass`, `ValueOfInformationEstimate`, `AuthorityBoundary`, S2 `SearchLedger` / `ClusterHandoffRecord` / `RefinementDecision` / `ConstraintStoreSnapshot`, S6 `MandateLegitimacyRecord` posture, Scientist supervisor seeds in `scientist.agent.supervisor` and `scientist.agent.supervisor_eval`, participation/consultation mandate seeds, `run_universal_outcome_corpus.py`, pytest, and existing `tools.quality.validation` validators.
+**Tech Stack:** Python 3.14, Pydantic v2 strict models through S0 `Layer2ReadinessModel`, existing S0 `GovernanceDecisionClass`, `ValueOfInformationEstimate`, `AuthorityBoundary`, S2 `SearchLedger` / `ClusterHandoffRecord` / `RefinementDecision` / `ConstraintStoreSnapshot`, S6 `MandateLegitimacyRecord` posture, Scientist supervisor seeds in `scientist.agent.supervisor` and `scientist.agent.supervisor_eval`, Scientist/runtime human-review seeds as provenance only, participation/consultation mandate seeds, `run_universal_outcome_corpus.py`, pytest, and existing `tools.quality.validation` validators.
 
 ---
 
@@ -43,8 +43,9 @@ Open cell count delta:
 - Current cluster-map open cell count becomes `4` after S7 (was `5` after S6).
 - S7 records the closed orchestration/delegation cell in its manifest and edits `cluster_ownership_map.toml`:
   - set `[cell.CROSS_CUTTING.scientist_orchestration]` to `ratchet_state="implemented"` and `p01_chain="implemented"`;
-  - set `owner_module` to `src/polisyos/runtime/quality/layer2_delegation.py`;
-  - keep Scientist seed files as seeds only;
+  - set `owner_module` to `src/polisyos/runtime/quality/layer2_delegation.py` and keep `src/polisyos/pdc/_impl/layer2_design_search.py` as the consumer/ledger narrow waist;
+  - keep Scientist and existing human-review packages as seeds/provenance only;
+  - satisfy the existing open-cell closure contract with `ClusterHandoffRecord` plus a replay-visible handoff ledger keyed by workflow, candidate, cluster, and authority purpose;
   - set `gap="none_for_s7_delegation_scope"`;
   - remove `[open_cell_closure.CROSS_CUTTING.scientist_orchestration]`.
 - Do not mark `ACTOR.value_choice_provenance`, `KNOWLEDGE.calibration`, `KNOWLEDGE.ir_proof_carrying_analytics`, or `DESIGNER_ITSELF.envelope_growth` implemented.
@@ -61,8 +62,9 @@ First proving ground:
   - `wrong_role_approval_probe`: a role outside `DecisionRightsMatrix.required_role` approves; must invalidate the record.
   - `ai_first_high_stakes_probe`: high-stakes/value-laden/out-of-envelope decision defaults to AI-first; must block.
   - `mandate_absent_delegation_probe`: delegated-autonomous mode is requested without S6 mandate legitimacy; must block.
+  - `workflow_only_delegation_summary_probe`: a Scientist or human-review workflow summary has no typed cluster handoff or producer artifact refs; must fail P12.
 - `delegation_precision`, `delegation_recall`, and `responsibility_integrity_pass_rate` must be `1.0`.
-- `oversight_theater_false_clear_count` and `wrong_role_false_clear_count` must be `0`.
+- `oversight_theater_false_clear_count`, `wrong_role_false_clear_count`, and `workflow_only_summary_false_clear_count` must be `0`.
 
 S7 authority boundary:
 
@@ -94,6 +96,7 @@ Module placement:
 Import boundaries:
 
 - `runtime.quality.layer2_delegation` may import public S0 PDC contracts from `polisyos.pdc`, S6 mandate record shapes by public runtime-quality export, and Scientist supervisor evaluation records by public module.
+- `runtime.quality.layer2_delegation` must not treat `runtime.quality.approval`, `runtime.quality.human_review`, or `scientist.governance.human_review` packets as S7 authority. Those modules can supply provenance refs or negative-control fixture shapes only.
 - `pdc._impl.layer2_design_search` must not import `runtime.quality.layer2_delegation`, `scientist.agent.supervisor`, or `core.security.delegation`.
 - `run_universal_outcome_corpus.py` is the orchestrator: it calls S6 producers, builds S7 delegation records, then passes `Layer2S7DelegationPostureInput` into S2 for the pinned design case.
 - `core.security.delegation.DelegationTokenManager` is not the S7 PDC delegation record. A signed token can be a provenance ref, never an approval record.
@@ -137,7 +140,7 @@ Fail-closed delegation rule:
 - High-stakes, value-laden, out-of-envelope, mandate-limited, budget-required, acquisition-required, or final-choice decisions cannot default to `ai_first`.
 - For those decisions, the default interaction mode is `ai_follow` or `request_driven` according to the `DecisionRightsMatrix`; tests must prove only the `ai_first` default is forbidden.
 - `delegated_autonomous` requires:
-  - S6 mandate disposition is grounded;
+  - S6 `MandateLegitimacyRecord.firewall_disposition == "pass"`;
   - decision class allows delegated autonomy;
   - bounds are explicit;
   - active disconfirming evidence was shown or the class is low-risk/no-interrupt.
@@ -200,7 +203,7 @@ Acceptance signal:
 - S7 artifacts are strict, replayable, exported from `runtime.quality`, registered in traceability/manifest/inventory, and consumed by S2.
 - S2 can pause into `HumanDecisionRequest`, record a valid `HumanDecisionRecord`, or block invalid records without self-approval.
 - All 13 W12 cases have S7 blocks and metrics.
-- `delegation_precision=1.0`, `delegation_recall=1.0`, `responsibility_integrity_pass_rate=1.0`, `oversight_theater_false_clear_count=0`, and `wrong_role_false_clear_count=0`.
+- `delegation_precision=1.0`, `delegation_recall=1.0`, `responsibility_integrity_pass_rate=1.0`, `oversight_theater_false_clear_count=0`, `wrong_role_false_clear_count=0`, and `workflow_only_summary_false_clear_count=0`.
 - Cluster-map open cell count is `4`; remaining open cells are exactly `ACTOR.value_choice_provenance`, `KNOWLEDGE.calibration`, `KNOWLEDGE.ir_proof_carrying_analytics`, and `DESIGNER_ITSELF.envelope_growth`.
 
 ## Code-Grounded Reality Check
@@ -209,17 +212,23 @@ Existing strengths to reuse:
 
 - `GovernanceDecisionClass`, `ValueOfInformationEstimate`, `AuthorityBoundary`, `AxisPositionDeclaration`, `AxisFirewallStatus`, `CertifiedOperationEnvelope`, and `DesignRecordV0` already exist in `polisyos.pdc`.
 - `RefinementDecision` already routes `human_decision` and requires `governance_decision_class_ref`.
-- `ConstraintStoreSnapshot.constraint_records` and `ClusterHandoffRecord` already exist after S6 and are the correct bridge surface for S7.
-- S6 `MandateLegitimacyRecord` and `Layer2S6BlindSpotPostureInput` provide the mandate prerequisite. S7 should consume mandate refs and posture, not re-evaluate P22.
+- `ConstraintStoreSnapshot.constraint_records` and `ClusterHandoffRecord` already exist after S6 and are the correct bridge surface for S7. Reuse them instead of inventing a second handoff ledger type.
+- S6 `MandateLegitimacyRecord` and `Layer2S6BlindSpotPostureInput` provide the mandate prerequisite. S7 should consume `mandate_legitimacy_record_ref`, `firewall_disposition`, `mandate_sources`, `participation_provenance`, and `consultation_provenance`; it must not re-evaluate P22.
 - `scientist.agent.supervisor_eval` already contains delegation success / quorum / citation / budget evidence. S7 can reference these as seeds for no-interrupt or governed-pilot evidence, but not as a human decision record.
 - `scientist.agent.supervisor` and `scientist.agent.protocols.DelegationResult` provide worker-delegation runtime seeds. S7 wraps them into PDC handoff records; it does not expose workflow summaries as authority.
+- `scientist.governance.human_review` already has review packets, decisions, queues, VOI escalation, and oversight requirement seeds. These are useful for fixtures and provenance refs, but they are release/review workflows rather than S7 mandate-bounded PDC decision authority.
+- `runtime.quality.human_review` and `runtime.quality.approval` are production/advisory review surfaces. They are strong negative-control references for avoiding approval laundering; they must not be imported as S7 authority.
 - `core.security.delegation` signs service/user propagation tokens. S7 can cite `delegation_jti` as provenance, but the token is not a mandate or approval.
 - `participation_requirement`, `runtime.quality.consultation`, and S6 mandate checks already protect P20/P22 boundaries.
 
 Weak spots that make S7 more than a small DTO patch:
 
 - S7 has no single new cell in `layer2_slice_cell_matrix.toml`, but it is the closure owner for the split `CROSS_CUTTING.scientist_orchestration` cell. The plan must validate closure through the S7 manifest and cluster map, not by pretending S2 closed it.
+- `Layer2ReadinessModel` contracts are strict/frozen. Adding S7 fields to `SearchLedger` or `Layer2S2DesignSearchRun` is a schema/replay change and requires persistence/load/replay tests, not only constructor tests.
+- `GovernanceDecisionClass` is intentionally small and shared. S7 should put role, action, five-rights, and interaction-mode semantics in `DecisionRightsMatrixRow`, not mutate the S0 contract unless the code proves it is unavoidable.
+- `SearchLedger` currently persists and reloads as a CAS artifact with deterministic replay keys. S7 refs must round-trip through `persist_s2_design_search_run()` / `load_s2_search_ledger()` and influence the replay key when they affect governed routing.
 - `run_universal_outcome_corpus.py` is already carrying S4/S5/S6 route logic. S7 should mirror that pattern with small helpers and not refactor the route.
+- W12.D currently injects S2 only for the pinned `ua-msme-affordable-loans-2022` design case. S7 should emit blocks for all 13 cases, but only the pinned case needs S2 posture injection unless the route design changes deliberately.
 - PUBLIC projection must be decision-shaped and pull-first. It should not dump matrix rows, machine disposition labels, or role internals.
 - Governed-pilot posture is not production. Tests must assert production outcomes are unchanged while S7 decision refs become closeout-visible as non-production governance context.
 - S7 must keep S8 value-choice authority pending when human decisions touch objectives/social weights.
@@ -238,6 +247,7 @@ Weak spots that make S7 more than a small DTO patch:
 | S2 loop/projection narrow waist | `src/polisyos/pdc/_impl/layer2_design_search.py` |
 | S6 mandate prerequisite | `src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py` |
 | Scientist delegation seeds | `src/polisyos/scientist/agent/protocols.py`, `src/polisyos/scientist/agent/supervisor.py`, `src/polisyos/scientist/agent/supervisor_eval.py` |
+| Human-review seed/provenance only | `src/polisyos/scientist/governance/human_review/*`, `src/polisyos/runtime/quality/human_review.py`, `src/polisyos/runtime/quality/approval.py` |
 | Security delegation-token seed | `src/polisyos/core/security/delegation.py` |
 | Canonical corpus route | `tools/quality/validation/run_universal_outcome_corpus.py` |
 
@@ -255,6 +265,7 @@ Create:
 - `tests/fixtures/layer2/s7/wrong_role_approval_probe.json`
 - `tests/fixtures/layer2/s7/ai_first_high_stakes_probe.json`
 - `tests/fixtures/layer2/s7/mandate_absent_delegation_probe.json`
+- `tests/fixtures/layer2/s7/workflow_only_delegation_summary_probe.json`
 
 Modify:
 
@@ -300,6 +311,7 @@ Create `tests/unit/runtime/quality/test_layer2_s7_delegation.py` with these test
 - `test_ai_first_high_stakes_probe_blocks`
 - `test_mandate_absent_delegation_probe_blocks_delegated_autonomous`
 - `test_s7_delegation_integrity_metric_requires_precision_recall_and_responsibility`
+- `test_s7_does_not_import_production_approval_or_human_review_as_authority`
 
 Minimum red test content:
 
@@ -384,6 +396,8 @@ Extend `tests/unit/pdc/test_layer2_s2_design_search.py` with:
 - `test_s2_s7_wrong_role_record_blocks_self_approval`
 - `test_s2_s7_public_projection_is_decision_shaped_pull_first`
 - `test_s2_s7_search_ledger_and_closeout_payload_include_decision_record_refs`
+- `test_s2_s7_persisted_search_ledger_round_trips_delegation_refs`
+- `test_s2_s7_replay_key_changes_when_delegation_record_changes`
 - `test_s2_s7_reviewer_projection_shows_p26_and_role_status`
 - `test_s2_s7_expert_machine_projection_contains_refs_matrix_and_integrity`
 - `test_s2_s7_governed_pilot_requires_s6_mandate_and_s7_valid_record`
@@ -420,6 +434,7 @@ Extend `tests/repo_quality/tools/test_w12d_universal_outcome_corpus_run.py` with
 - `test_w12d_s7_pinned_case_injects_delegation_posture_into_s2`
 - `test_w12d_s7_decision_refs_are_closeout_visible_without_production_authority`
 - `test_w12d_s7_negative_controls_fail_closed`
+- `test_w12d_s7_workflow_only_summary_probe_fails_p12`
 
 Expected S7 summary assertions:
 
@@ -431,6 +446,7 @@ assert summary["delegation_recall"] == 1.0
 assert summary["responsibility_integrity_pass_rate"] == 1.0
 assert summary["oversight_theater_false_clear_count"] == 0
 assert summary["wrong_role_false_clear_count"] == 0
+assert summary["workflow_only_summary_false_clear_count"] == 0
 assert len(summary["per_case_delegation_table"]) == 13
 ```
 
@@ -493,16 +509,17 @@ Required fields:
 - every top-level artifact carries `authority_boundary`;
 - `DelegationContract` must carry `autonomous_decision_classes`, `approval_required_decision_classes`, `compute_budget_ref`, `acquisition_budget_ref`, `human_attention_budget_ref`, `maximum_stakes_band`, `maximum_reversibility_posture`, `value_policy_ref`, and `override_policy_ref`;
 - `DecisionRightsMatrixRow` must carry `decision_class_id`, `required_role`, `default_interaction_mode`, `ai_first_allowed`, `delegated_autonomous_allowed`, `non_overridable`, `available_actions`, and `five_rights_dimensions`;
-- `HumanDecisionRequest` must carry `decision_options`, `recommendation_ref`, `provenance_refs`, `material_limitations`, `disconfirming_evidence_refs`, `value_stakes_impact`, `what_changes_under_each_choice`, `five_rights_requirements`, `available_actions`, `attention_cost_rank`, and `voi_rank`;
-- `HumanDecisionRecord` must carry `actor_role`, `decision_action_exercised`, `evidence_summary_ref`, `disconfirming_evidence_refs`, `active_choice`, `accountability_statement`, `mandate_record_ref`, `five_rights_check`, and `responsibility_integrity`.
+- `HumanDecisionRequest` must carry `decision_options`, `recommendation_ref`, `provenance_refs`, `source_seed_refs`, `material_limitations`, `disconfirming_evidence_refs`, `value_stakes_impact`, `what_changes_under_each_choice`, `five_rights_requirements`, `available_actions`, `attention_cost_rank`, `voi_rank`, `s6_mandate_record_ref`, and `s6_mandate_firewall_disposition`;
+- `HumanDecisionRecord` must carry `actor_role`, `decision_action_exercised`, `evidence_summary_ref`, `disconfirming_evidence_refs`, `active_choice`, `accountability_statement`, `mandate_record_ref`, `mandate_source_refs`, `five_rights_check`, and `responsibility_integrity`.
+- no record may treat `runtime.quality.approval`, `runtime.quality.human_review`, or `scientist.governance.human_review` objects as approval authority; such refs go only in `source_seed_refs` / `provenance_refs`.
 
 - [ ] **Step 2: Implement producer functions**
 
 Add:
 
 - `build_decision_rights_matrix(case_id, rule_version_ref) -> DecisionRightsMatrix`
-- `build_delegation_contract(case_id, matrix, s6_mandate_record_ref, rule_version_ref) -> DelegationContract`
-- `build_human_decision_request(case_id, contract, decision_class_id, need_reasons, voi_rank, rule_version_ref) -> HumanDecisionRequest`
+- `build_delegation_contract(case_id, matrix, s6_mandate_record_ref, s6_mandate_firewall_disposition, rule_version_ref) -> DelegationContract`
+- `build_human_decision_request(case_id, contract, decision_class_id, need_reasons, voi_rank, s6_mandate_record_ref, s6_mandate_firewall_disposition, rule_version_ref) -> HumanDecisionRequest`
 - `record_human_decision(case_id, request, actor_role, decision_action_exercised, evidence_summary_ref, disconfirming_evidence_refs, active_choice, accountability_statement, five_rights_check, mandate_record_ref, rule_version_ref) -> HumanDecisionRecord`
 - `evaluate_delegation_for_case(case_id, s6_mandate_posture, case_signals, expert_label, rule_version_ref) -> DelegationIntegrityReport`
 - `s7_delegation_integrity(probe_results) -> dict[str, object]`
@@ -513,7 +530,8 @@ Core rules:
 - if `need_reasons == {"low_voi_no_interrupt"}`, disposition is `no_interrupt`;
 - if actor role does not match matrix row, raise `P26ResponsibilityIntegrityError("wrong_role_approval")`;
 - if active choice, evidence summary, disconfirming evidence, value/stakes disclosure, accountability statement, or any `FiveRightsCheck` dimension is missing for a required decision, raise `P26ResponsibilityIntegrityError("oversight_theater")`;
-- if delegated autonomy is requested without grounded S6 mandate, raise `P26ResponsibilityIntegrityError("delegated_autonomy_without_mandate")`.
+- if delegated autonomy is requested without S6 `firewall_disposition == "pass"`, raise `P26ResponsibilityIntegrityError("delegated_autonomy_without_mandate")`;
+- if a workflow/review summary lacks typed producer artifact refs and a `ClusterHandoffRecord`, mark it as `P12` failure rather than using it as evidence of approval.
 
 - [ ] **Step 3: Export S7 public surface**
 
@@ -586,6 +604,8 @@ Required fields:
 - `attention_cost_rank`
 - `responsibility_integrity_status`
 - `mandate_record_ref`
+- `s6_mandate_firewall_disposition`
+- `mandate_source_refs`
 - `voi_rank`
 - `need_reasons`
 - `authority_boundary`
@@ -604,7 +624,14 @@ When present:
 
 - include S7 constraint-store updates;
 - add S7 ledger refs to `DesignRecordV0.ledger_refs`;
-- add S7 request/record refs to `SearchLedger` through `delegation_request_refs`, `delegation_record_refs`, and `delegation_status`;
+- extend strict/frozen `SearchLedger` with backwards-compatible defaults:
+  - `delegation_request_refs: list[str] = Field(default_factory=list, max_length=40)`
+  - `delegation_record_refs: list[str] = Field(default_factory=list, max_length=40)`
+  - `cluster_handoff_refs: list[str] = Field(default_factory=list, max_length=40)`
+  - `delegation_status: Literal["not_applicable", "requested", "recorded", "blocked", "no_interrupt"] = "not_applicable"`
+- add S7 request/record/handoff refs to `SearchLedger` through those fields;
+- update deterministic replay-key construction so materially different S7 request/record refs change the S2 replay key;
+- update `persist_s2_design_search_run()` / `load_s2_search_ledger()` tests so S7 refs round-trip through CAS persistence;
 - include closeout-visible, non-production S7 refs in the run dump/projection so closeout can show who decided what without changing production authority;
 - add one `ClusterHandoffRecord` from `CROSS_CUTTING.scientist_orchestration` to `INTERVENTION.design_candidate`;
 - if disposition is `request_human_decision`, status is `governance_required`;
@@ -655,6 +682,7 @@ Run:
 ```bash
 uv run pytest tests/unit/pdc/test_layer2_s2_design_search.py -q
 rg -n "layer2_delegation|build_decision_rights_matrix|record_human_decision|evaluate_delegation_for_case" src/polisyos/pdc/_impl/layer2_design_search.py
+rg -n "^(from|import) .*?(runtime\\.quality\\.(approval|human_review)|scientist\\.governance\\.human_review)" src/polisyos/runtime/quality/layer2_delegation.py src/polisyos/pdc/_impl/layer2_design_search.py
 ```
 
 Expected:
@@ -662,6 +690,7 @@ Expected:
 ```text
 PDC S2 tests pass.
 The rg command returns no matches; B consumes only injected S7 posture.
+The production/advisory human-review import rg command returns no matches.
 PUBLIC projection is decision-shaped and does not expose machine-only disposition labels.
 ```
 
@@ -695,7 +724,9 @@ Create `s7_delegation_case_signals.json` with 13 cases. Each case entry includes
 - `stakes_band`
 - `value_laden`
 - `out_of_envelope`
-- `mandate_status`
+- `s6_mandate_record_ref`
+- `s6_mandate_firewall_disposition`
+- `mandate_source_refs`
 - `budget_or_legal_use_required`
 - `acquisition_required`
 - `final_choice_required`
@@ -705,6 +736,7 @@ Create `s7_delegation_case_signals.json` with 13 cases. Each case entry includes
 - `decision_options`
 - `recommendation_ref`
 - `provenance_refs`
+- `source_seed_refs`
 - `material_limitations`
 - `value_stakes_impact`
 - `what_changes_under_each_choice`
@@ -735,6 +767,7 @@ Ensure coverage includes:
 - at least 1 final-choice case;
 - at least 1 governed-pilot eligible case;
 - at least 1 wrong-role record in negative controls, not in positive corpus labels.
+- at least 1 workflow-only summary in negative controls, with no typed handoff or producer artifact refs.
 
 - [ ] **Step 2: Add S7 corpus route helpers**
 
@@ -755,6 +788,8 @@ S1/S2 base -> S4 -> S5 -> S6 -> S7 -> S2 pinned injection
 ```
 
 The S7 block must be added to each case as `s7_delegation`.
+
+All 13 cases get an `s7_delegation` block. Only the pinned `ua-msme-affordable-loans-2022` case should inject `delegation_posture` into S2 unless a separate route refactor deliberately expands S2 injection coverage.
 
 - [ ] **Step 3: Inject S7 posture into pinned S2 run**
 
@@ -781,7 +816,8 @@ Expected S2 summary additions:
 - `search_ledger.delegation_record_refs` includes the S7 record ref when present;
 - `design_record.ledger_refs` includes S7 refs;
 - closeout-visible payload includes S7 request/record refs but does not mark them as production authority;
-- `canonical_outcome_effect == "none_shadow_or_governed_pilot_only"`.
+- `s2_design_search["canonical_outcome_effect"] == "none_shadow_only"` stays unchanged for compatibility with the existing shadow-only S2 route;
+- `s7_delegation["canonical_outcome_effect"] == "none_shadow_or_governed_pilot_only"` records the S7-only promotion boundary.
 
 - [ ] **Step 4: Add corpus summary metrics**
 
@@ -796,6 +832,7 @@ The top-level W12.D report must include `s7_delegation_summary` with:
 - `wrong_role_false_clear_count`
 - `ai_first_high_stakes_false_clear_count`
 - `mandate_absent_delegation_false_clear_count`
+- `workflow_only_summary_false_clear_count`
 - `request_emitted_count`
 - `no_interrupt_count`
 - `valid_human_decision_record_count`
@@ -826,6 +863,7 @@ delegation_recall=1.0.
 responsibility_integrity_pass_rate=1.0.
 All S7 false-clear counts are 0.
 S7 decision refs are closeout-visible without changing production-posture outcomes or production closeout authority.
+Existing S2 `canonical_outcome_effect` remains `none_shadow_only`; S7 records governed-pilot eligibility in its own block only.
 ```
 
 - [ ] **Step 6: Commit Task 4**
@@ -877,6 +915,9 @@ Create `architecture/policy_design_case/layer2_s7_delegation_manifest.json`:
   "responsibility_integrity_pass_rate": 1.0,
   "oversight_theater_false_clear_count": 0,
   "wrong_role_false_clear_count": 0,
+  "workflow_only_summary_false_clear_count": 0,
+  "required_handoff_artifact": "ClusterHandoffRecord",
+  "replay_visible_handoff_ledger_required": true,
   "case_count": 13,
   "authority_scope": [
     "delegation_integrity",
@@ -927,6 +968,8 @@ Validator must check:
 - required firewalls include `P26`, `P20`, `P22`, `P12`, and `P15`;
 - `delegation_precision`, `delegation_recall`, and `responsibility_integrity_pass_rate` are at least `1.0`;
 - false-clear counts are zero;
+- `workflow_only_summary_false_clear_count == 0` and P12 workflow-only summaries cannot close the cell;
+- manifest records `required_handoff_artifact == "ClusterHandoffRecord"` and `replay_visible_handoff_ledger_required == true`;
 - inventory entry exists and matches manifest authority boundary.
 
 Summary keys:
@@ -937,6 +980,7 @@ Summary keys:
 - `s7_responsibility_integrity_pass_rate`
 - `s7_oversight_theater_false_clear_count`
 - `s7_wrong_role_false_clear_count`
+- `s7_workflow_only_summary_false_clear_count`
 - `s7_expected_current_open_cell_count`
 
 - [ ] **Step 3: Close cluster-map cell**
@@ -947,9 +991,13 @@ Update `[cell.CROSS_CUTTING.scientist_orchestration]`:
 owner_module = "src/polisyos/runtime/quality/layer2_delegation.py"
 seed_files = [
   "src/polisyos/runtime/quality/layer2_delegation.py",
+  "src/polisyos/pdc/_impl/layer2_design_search.py",
   "src/polisyos/scientist/agent/supervisor.py",
   "src/polisyos/scientist/agent/supervisor_eval.py",
   "src/polisyos/scientist/agent/protocols.py",
+  "src/polisyos/scientist/governance/human_review/models.py",
+  "src/polisyos/scientist/governance/human_review/voi_escalation.py",
+  "src/polisyos/scientist/governance/human_review/oversight_policy.py",
 ]
 ratchet_state = "implemented"
 p01_chain = "implemented"
@@ -964,7 +1012,7 @@ consumes = [
   "ACTOR.mandate_legitimacy",
 ]
 gap = "none_for_s7_delegation_scope"
-action = "S7 emits DelegationContract, DecisionRightsMatrix, HumanDecisionRequest, HumanDecisionRecord, and typed handoff records; S13 oversight effectiveness remains future work."
+action = "S7 emits DelegationContract, DecisionRightsMatrix, HumanDecisionRequest, HumanDecisionRecord, ClusterHandoffRecord rows, and SearchLedger handoff refs as a replay-visible handoff ledger; workflow-only summaries fail P12; S13 oversight effectiveness remains future work."
 ```
 
 Remove `[open_cell_closure.CROSS_CUTTING.scientist_orchestration]`.
@@ -1044,8 +1092,10 @@ Create `tests/repo_quality/tools/test_policy_design_case_layer2_s7_delegation.py
 - `test_layer2_s7_inventory_registration_exists`
 - `test_layer2_s7_inventory_and_manifest_authority_boundaries_match`
 - `test_layer2_s7_b_side_consumes_injected_posture_only`
+- `test_layer2_s7_search_ledger_refs_are_persisted_and_replay_visible`
 - `test_layer2_s7_public_projection_is_decision_shaped_pull_first`
 - `test_layer2_s7_negative_controls_fail_closed`
+- `test_layer2_s7_workflow_only_summary_cannot_close_p12`
 - `test_layer2_s7_manifest_metrics_match_generated_corpus_summary`
 - `test_layer2_s7_corpus_summary_records_precision_recall_and_integrity`
 - `test_layer2_s7_does_not_mark_s8_s10_s11_s12_s13_or_s14_cells_implemented`
@@ -1153,9 +1203,9 @@ Expected:
 ```text
 S7 unit + repo-quality tests pass.
 S1/S2/S3/S4/S5/S6 regression tests pass.
-W12.D route emits s4_epistemic_regime, s5_coupling_composition, s6_blind_spot_firewalls, and s7_delegation for all 13 cases.
+W12.D route emits s4_epistemic_regime, s5_coupling_composition, s6_blind_spot_firewalls, and s7_delegation for all 13 cases; only the pinned S2 case injects S7 posture unless deliberately expanded.
 S7 delegation precision, recall, and responsibility integrity are 1.0.
-Theater/wrong-role/AI-first-high-stakes/mandate-absent false-clear counts are 0.
+Theater/wrong-role/AI-first-high-stakes/mandate-absent/workflow-only-summary false-clear counts are 0.
 Layer 2 readiness validator: status pass; open_cell_count/current_open_cell_count 4.
 Cluster ownership validator: status pass; open_or_incomplete/open-cell count 4.
 Capability ratchet unchanged/green.
@@ -1173,6 +1223,7 @@ Record under this task:
 - `wrong_role_false_clear_count`
 - `ai_first_high_stakes_false_clear_count`
 - `mandate_absent_delegation_false_clear_count`
+- `workflow_only_summary_false_clear_count`
 - `request_emitted_count`
 - `no_interrupt_count`
 - `valid_human_decision_record_count`
@@ -1203,6 +1254,7 @@ for name in names:
     print(name, getattr(obj, "model_config", {}).get("extra"))
 PY
 rg -n "layer2_delegation|build_decision_rights_matrix|record_human_decision|evaluate_delegation_for_case" src/polisyos/pdc/_impl/layer2_design_search.py
+rg -n "^(from|import) .*?(runtime\\.quality\\.(approval|human_review)|scientist\\.governance\\.human_review)" src/polisyos/runtime/quality/layer2_delegation.py src/polisyos/pdc/_impl/layer2_design_search.py
 python3 - <<'PY'
 from polisyos.pdc import Layer2S7DelegationPostureInput
 print("delegation_contract_ref" in Layer2S7DelegationPostureInput.model_fields)
@@ -1225,6 +1277,7 @@ Expected:
 ```text
 All four S7 artifacts are exported from runtime.quality and use extra=forbid.
 The rg command returns no matches, proving B consumes only injected posture.
+The production/advisory human-review import rg command returns no matches.
 Layer2S7DelegationPostureInput is exported from polisyos.pdc.
 Open cells are exactly:
 ['ACTOR.value_choice_provenance', 'DESIGNER_ITSELF.envelope_growth', 'KNOWLEDGE.calibration', 'KNOWLEDGE.ir_proof_carrying_analytics']
@@ -1233,19 +1286,19 @@ Open cells are exactly:
 ## Done When
 
 1. `DelegationContract`, `DecisionRightsMatrix`, `HumanDecisionRequest`, and `HumanDecisionRecord` are strict, replayable, and exported from `runtime.quality`; nested `FiveRightsRequirement` and `FiveRightsCheck` records distinguish five-rights validity from decision actions.
-2. S7 consumes S6 mandate refs and cannot authorize delegated autonomy when mandate is absent, limited, or candidate-only.
-3. B consumes injected `Layer2S7DelegationPostureInput` and cannot self-approve or import S7 producers.
-4. `CROSS_CUTTING.scientist_orchestration` is implemented for S7 delegation/orchestration scope, with P01 chain implemented, and no wholesale Scientist authority claim.
+2. S7 consumes S6 mandate refs and exact `MandateLegitimacyRecord.firewall_disposition`; it cannot authorize delegated autonomy when mandate is absent, limited, blocked, or candidate-only.
+3. B consumes injected `Layer2S7DelegationPostureInput` and cannot self-approve, import S7 producers, or import production/advisory human-review/approval modules as S7 authority.
+4. `CROSS_CUTTING.scientist_orchestration` is implemented for S7 delegation/orchestration scope, with P01 chain implemented, `ClusterHandoffRecord` rows plus replay-visible `SearchLedger` handoff refs, and no wholesale Scientist authority claim.
 5. High-stakes, value-laden, out-of-envelope, mandate-limited, budget/legal-use, acquisition, and final-choice decisions surface `ai_follow` or `request_driven` handling, never default `ai_first`; low-VOI in-envelope actions do not interrupt.
 6. P26 fails closed: oversight theater, wrong-role approval, and missing five-rights dimensions invalidate the `HumanDecisionRecord`.
 7. P20/P22 remain bounded: S7 can route value/mandate decisions to humans but cannot choose social weights or invent mandate.
-8. S7 emits `AxisPositionDeclaration`, `AxisFirewallStatus`, typed `ConstraintStoreSnapshot.constraint_records`, S7 `ClusterHandoffRecord` rows, `SearchLedger` delegation refs, closeout-visible non-production decision refs, and DesignRecord ledger refs.
+8. S7 emits `AxisPositionDeclaration`, `AxisFirewallStatus`, typed `ConstraintStoreSnapshot.constraint_records`, S7 `ClusterHandoffRecord` rows, persisted/replayable `SearchLedger` delegation/handoff refs, closeout-visible non-production decision refs, and DesignRecord ledger refs.
 9. S7 posture renders in all four audience projections:
    - PUBLIC: decision-shaped, pull-first accountability summary only.
    - REVIEWER: decision class, role, mode, action, P26/P20/P22/P12/P15 status.
    - EXPERT/MACHINE: all refs, matrix rows, request/record details, integrity checks, VOI rank, authority boundary, and governed-pilot eligibility.
-10. All 13 corpus cases contain S7 blocks; precision/recall/integrity metrics include budget/legal-use, acquisition, and final-choice triggers; negative-control false-clear counts are zero.
-11. Production-posture outcomes are unchanged by S7; closeout is more transparent because S7 decision refs are visible, but S7 affects governed-pilot routing only and does not grant production authority.
+10. All 13 corpus cases contain S7 blocks; the pinned S2 case injects S7 posture; precision/recall/integrity metrics include budget/legal-use, acquisition, final-choice, and P12 workflow-only-summary triggers; negative-control false-clear counts are zero.
+11. Production-posture outcomes are unchanged by S7; existing S2 `canonical_outcome_effect` remains shadow-only, closeout is more transparent because S7 decision refs are visible, and S7 affects governed-pilot routing only without granting production authority.
 12. `s7_delegation_integrity` floor is recorded from the governed floor table; no denominator/floor is changed.
 13. Cluster-map open cell count is `4`; both validators pass; S7 manifest is registered in inventory.
 14. No attention ledger, S8 value-choice provenance, S10 forecast support, S11 calibration/predictive maturity, S12 envelope growth, S13 oversight effectiveness, production authority, calibrated prediction, rich simulation, portfolio optimization, or S14 universality battery cell is marked implemented.

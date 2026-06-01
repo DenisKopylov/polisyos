@@ -1,0 +1,50 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s6.capacity_fantasy_probe.v1",
+  "case_id": "capacity_fantasy_probe",
+  "expected_error": "P21CapacityFeasibilityError",
+  "expected_pattern_id": "P21",
+  "axis": "ACTOR.state_capacity_feasibility",
+  "blind_spot_axis": "state_capacity_feasibility",
+  "design_ref": "pdc://layer2/s6/capacity-fantasy/design",
+  "rule_version_ref": "repo://docs/reference/policy-design-case-failure-patterns.md#P21",
+  "declared_capacity_feasible": true,
+  "actor_ref": "actor://municipal-benefit-agency-low-capacity",
+  "source_actor_ref": "actor://national-tax-agency-high-capacity",
+  "jurisdiction_ref": "jurisdiction://ua/frontline-municipality",
+  "source_jurisdiction_ref": "jurisdiction://nordic-digital-tax-administration",
+  "instrument_ref": "instrument://real-time-income-verification",
+  "lifecycle_stage": "emergency-rollout",
+  "producer_evidence_refs": [
+    "fixture://layer2/s6/capacity/source-jurisdiction-admin-capacity",
+    "fixture://layer2/s6/capacity/frontline-enforcement-gap"
+  ],
+  "capacity_dimensions": [
+    {
+      "dimension": "administrative",
+      "required": true,
+      "disposition": "blocked",
+      "evidence_ref": null,
+      "copied_from_actor_ref": "actor://national-tax-agency-high-capacity",
+      "copied_from_jurisdiction_ref": "jurisdiction://nordic-digital-tax-administration",
+      "capacity_building_obligation_ref": null,
+      "reason": "caseworkers and records infrastructure absent in target jurisdiction"
+    },
+    {
+      "dimension": "enforcement",
+      "required": true,
+      "disposition": "limited",
+      "evidence_ref": "fixture://layer2/s6/capacity/frontline-enforcement-gap",
+      "copied_from_actor_ref": null,
+      "copied_from_jurisdiction_ref": null,
+      "capacity_building_obligation_ref": null,
+      "reason": "field enforcement capacity is documented as partial"
+    }
+  ],
+  "capacity_building_obligation_refs": [],
+  "expected_fail_closed_disposition": "block",
+  "expected_obligation_required": true,
+  "expected_blocker_refs": [
+    "blocker://layer2/s6/capacity/copied-administrative-capacity",
+    "blocker://layer2/s6/capacity/missing-capacity-building-obligation"
+  ]
+}

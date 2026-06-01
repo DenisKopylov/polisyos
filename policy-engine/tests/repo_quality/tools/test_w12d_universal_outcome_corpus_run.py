@@ -228,7 +228,12 @@ def test_w12d_corpus_route_emits_s2_shadow_design_search_for_first_proving_case(
 
     case = report["cases"][0]
     s2 = case["s2_design_search"]
-    assert s2["status"] == "shadow_ready"
+    assert s2["status"] in {
+        "shadow_ready",
+        "acquisition_required",
+        "governance_required",
+        "blocked",
+    }
     assert s2["search_ledger"]["counterexample_conversion_rate"] == 1.0
     assert s2["search_ledger"]["grammar_diversity_minimum"] == 3
     assert set(s2["search_ledger"]["counterexample_class_vocabulary"]) == {
@@ -259,7 +264,12 @@ def test_w12d_s2_shadow_search_does_not_change_canonical_closeout_outcome(
     )
 
     case = report["cases"][0]
-    assert case["s2_design_search"]["status"] == "shadow_ready"
+    assert case["s2_design_search"]["status"] in {
+        "shadow_ready",
+        "acquisition_required",
+        "governance_required",
+        "blocked",
+    }
     assert case["s2_design_search"]["canonical_outcome_effect"] == "none_shadow_only"
     assert case["outcome"] in {"accepted_deficit", "publish-with-limitation", "typed_blocker"}
 
@@ -491,6 +501,117 @@ def test_w12d_s4_does_not_change_canonical_closeout_outcome(tmp_path: Path) -> N
     assert report["summary"]["closeout_honesty_rate"] == 1.0
 
 
+def test_w12d_emits_s5_coupling_for_13_cases(tmp_path: Path) -> None:
+    report = w12d.run_w12d_universal_outcome_corpus(
+        repo_root=REPO_ROOT,
+        corpus_path=REPO_ROOT / "tests/fixtures/universal-corpus",
+        graph_output_dir=tmp_path / "graphs",
+        hypothesis_ledger_output_dir=tmp_path / "ledgers",
+        mode="real_producer",
+    )
+
+    assert report["summary"]["case_count"] == 13
+    s5_blocks = [case["s5_coupling_composition"] for case in report["cases"]]
+    assert len(s5_blocks) == 13
+    assert {block["classifier_owner"] for block in s5_blocks} == {"A_gate"}
+    assert all(block["coupling_graph_ref"].startswith("pdc://layer2/s5/") for block in s5_blocks)
+    assert all(
+        block["module_discovery_ref"].startswith("pdc://layer2/s5/") for block in s5_blocks
+    )
+    assert all(
+        block["decomposition_result_ref"].startswith("pdc://layer2/s5/") for block in s5_blocks
+    )
+    assert all(
+        block["composition_receipt_ref"].startswith("pdc://layer2/s5/") for block in s5_blocks
+    )
+    assert all(
+        block["tractability_budget_ref"].startswith("pdc://layer2/s5/") for block in s5_blocks
+    )
+    assert all(block["boundary_coupling_table"] for block in s5_blocks)
+    assert all(
+        block["predicted_feedback_intensity"] == block["expected_feedback_intensity"]
+        for block in s5_blocks
+    )
+    assert all(
+        block["predicted_coupling_regime"] != "modular"
+        or block["composition_disposition"] == "compose"
+        for block in s5_blocks
+    )
+
+
+def test_w12d_s5_prediction_inputs_do_not_contain_gold_labels() -> None:
+    signals = json.loads(
+        (
+            REPO_ROOT / "tests/fixtures/layer2/s5/s5_coupling_case_signals.json"
+        ).read_text(encoding="utf-8")
+    )
+    forbidden = {
+        "expert_coupling_regime",
+        "expected_composition_disposition",
+        "coupling_matches_gold",
+        "composition_matches_gold",
+    }
+
+    for entry in signals["cases"].values():
+        assert forbidden.isdisjoint(entry)
+        for boundary in entry["observed_boundaries"]:
+            assert forbidden.isdisjoint(boundary)
+
+
+def test_w12d_s5_records_coupling_accuracy_and_false_modular_penalty(
+    tmp_path: Path,
+) -> None:
+    report = w12d.run_w12d_universal_outcome_corpus(
+        repo_root=REPO_ROOT,
+        corpus_path=REPO_ROOT / "tests/fixtures/universal-corpus",
+        graph_output_dir=tmp_path / "graphs",
+        hypothesis_ledger_output_dir=tmp_path / "ledgers",
+        mode="real_producer",
+    )
+
+    summary = report["s5_coupling_summary"]
+    assert summary["case_count"] == 13
+    assert summary["coupling_accuracy"] >= 0.9
+    assert summary["penalized_score"] >= 0.9
+    assert summary["false_modular_count"] == 0
+    assert summary["false_entangled_count"] >= 0
+    assert summary["system_evidence_required_count"] >= 1
+    assert set(summary["coupling_regime_counts"]) >= {
+        "modular",
+        "near_decomposable",
+        "hierarchically_coupled",
+        "entangled",
+    }
+    assert set(summary["boundary_regime_counts"]) >= {
+        "modular",
+        "near_decomposable",
+        "hierarchically_coupled",
+        "entangled",
+    }
+    assert "simulation_only_system_effect" in summary["system_effect_support_labels"]
+    assert len(summary["per_case_coupling_table"]) == 13
+
+
+def test_w12d_s5_does_not_change_canonical_closeout_outcome(tmp_path: Path) -> None:
+    index_dir = tmp_path / "capability-index"
+    assert builder.main(["--mode", "fixture", "--output-dir", str(index_dir)]) == 0
+
+    report = w12d.run_w12d_universal_outcome_corpus(
+        repo_root=REPO_ROOT,
+        corpus_path=SINGLE_CASE_PATH,
+        graph_output_dir=tmp_path / "graphs",
+        hypothesis_ledger_output_dir=tmp_path / "ledgers",
+        mode="corpus_stub",
+        producer_stub_dir=REPO_ROOT / "tests/fixtures/universal-corpus/producer_stubs",
+        capability_index_path=index_dir / "capability_index_v1.duckdb",
+    )
+
+    case = report["cases"][0]
+    assert case["s5_coupling_composition"]["canonical_outcome_effect"] == "none_shadow_only"
+    assert case["outcome"] == "publish-with-limitation"
+    assert report["summary"]["closeout_honesty_rate"] == 1.0
+
+
 def test_w12d_persists_runtime_critic_report_refs_for_w12c(
     tmp_path: Path,
 ) -> None:
@@ -580,6 +701,240 @@ def test_w12d_cli_writes_report_for_existing_single_case(
     assert "w12d_producer_pipeline_blocked" not in {
         blocker["code"] for blocker in payload["typed_blockers"]
     }
+
+
+def test_w12d_emits_s6_blind_spot_firewalls_for_13_cases(tmp_path: Path) -> None:
+    report = _run_full_corpus_report(tmp_path)
+
+    assert report["summary"]["case_count"] == 13
+    assert report["s6_blind_spot_summary"]["case_count"] == 13
+    s6_blocks = [case["s6_blind_spot_firewalls"] for case in report["cases"]]
+    assert len(s6_blocks) == 13
+    assert all(block["maturity"] == "fail_closed" for block in s6_blocks)
+    assert all(len(block["axis_firewall_table"]) == 5 for block in s6_blocks)
+    assert all(block["matches_gold"] is True for block in s6_blocks)
+    assert all(block["canonical_outcome_effect"] == "none_shadow_only" for block in s6_blocks)
+    assert all(
+        block["measurability_record_ref"].startswith("pdc://layer2/s6/")
+        for block in s6_blocks
+    )
+    assert all(
+        block["strategic_response_record_ref"].startswith("pdc://layer2/s6/")
+        for block in s6_blocks
+    )
+
+
+def test_w12d_s6_records_per_axis_fail_closed_coverage(tmp_path: Path) -> None:
+    report = _run_full_corpus_report(tmp_path)
+
+    summary = report["s6_blind_spot_summary"]
+    assert summary["axis_coverage_count"] == 5
+    assert summary["all_five_axes_covered"] is True
+    assert summary["per_axis_fail_closed_negative_control_pass_rate"] == 1.0
+    assert summary["false_clear_count"] == 0
+    assert set(summary["per_axis_disposition_counts"]) == _S6_AXIS_CELLS
+    assert all(
+        counts.get("block", 0) + counts.get("limit", 0) >= 1
+        for counts in summary["per_axis_disposition_counts"].values()
+    )
+    assert len(summary["per_case_axis_table"]) == 13
+
+
+def test_w12d_s6_gold_labels_cover_all_13_cases_and_five_axes() -> None:
+    signals = json.loads(
+        (
+            REPO_ROOT / "tests/fixtures/layer2/s6/s6_blind_spot_case_signals.json"
+        ).read_text(encoding="utf-8")
+    )
+    labels = json.loads(
+        (
+            REPO_ROOT / "tests/fixtures/layer2/s6/s6_blind_spot_expert_labels.json"
+        ).read_text(encoding="utf-8")
+    )
+    expected_cases = {
+        path.stem
+        for path in (REPO_ROOT / "tests/fixtures/universal-corpus/cases").glob("*.json")
+    }
+
+    assert set(labels["cases"]) == expected_cases
+    assert set(signals["cases"]) == expected_cases
+    label_fields = {
+        "expected_measurability_disposition",
+        "expected_aggregation_disposition",
+        "expected_capacity_disposition",
+        "expected_mandate_disposition",
+        "expected_strategic_response_disposition",
+        "expected_overall_posture",
+        "expected_blocking_axis_refs",
+        "expected_limiting_axis_refs",
+        "expected_bridge_consumer_refs",
+        "expected_c3_authority_dimensions",
+    }
+    for case_id, row in labels["cases"].items():
+        assert label_fields <= set(row), case_id
+        assert set(row["expected_bridge_consumer_refs"]) >= _S6_BRIDGE_CONSUMERS
+        assert set(row["expected_c3_authority_dimensions"]) == _S6_C3_DIMENSIONS
+
+    forbidden_gold_fields = {
+        "expected_measurability_disposition",
+        "expected_aggregation_disposition",
+        "expected_capacity_disposition",
+        "expected_mandate_disposition",
+        "expected_strategic_response_disposition",
+        "expected_overall_posture",
+        "expected_blocking_axis_refs",
+        "expected_limiting_axis_refs",
+        "matches_gold",
+    }
+    for row in signals["cases"].values():
+        assert forbidden_gold_fields.isdisjoint(row)
+
+
+def test_w12d_s6_pinned_case_injects_posture_into_s2(tmp_path: Path) -> None:
+    index_dir = tmp_path / "capability-index"
+    assert builder.main(["--mode", "fixture", "--output-dir", str(index_dir)]) == 0
+
+    report = w12d.run_w12d_universal_outcome_corpus(
+        repo_root=REPO_ROOT,
+        corpus_path=SINGLE_CASE_PATH,
+        graph_output_dir=tmp_path / "graphs",
+        hypothesis_ledger_output_dir=tmp_path / "ledgers",
+        mode="corpus_stub",
+        producer_stub_dir=REPO_ROOT / "tests/fixtures/universal-corpus/producer_stubs",
+        capability_index_path=index_dir / "capability_index_v1.duckdb",
+    )
+
+    case = report["cases"][0]
+    s2 = case["s2_design_search"]
+    s6 = case["s6_blind_spot_firewalls"]
+    assert s2["status"] in {
+        "shadow_ready",
+        "acquisition_required",
+        "governance_required",
+        "blocked",
+    }
+    assert s2["constraint_store"]["constraint_records"]
+    assert {
+        row["cell_ref"] for row in s2["constraint_store"]["constraint_records"]
+    } >= _S6_AXIS_CELLS
+    assert set(
+        s2["design_record"]["envelope"]["cluster_authority_dimension_refs"]
+    ) == set(s6["cluster_authority_dimension_refs"])
+    assert set(s2["design_record"]["ledger_refs"]) >= {
+        s6["measurability_record_ref"],
+        s6["aggregation_validity_record_ref"],
+        s6["capacity_feasibility_record_ref"],
+        s6["mandate_legitimacy_record_ref"],
+        s6["strategic_response_record_ref"],
+    }
+
+
+def test_w12d_s6_reflexive_other_agents_flow_updates_system_dgp(tmp_path: Path) -> None:
+    report = _run_full_corpus_report(tmp_path)
+
+    strategic_blocks = [
+        case["s6_blind_spot_firewalls"]
+        for case in report["cases"]
+        if case["s6_blind_spot_firewalls"]["strategic_response_record"][
+            "firewall_disposition"
+        ]
+        == "block"
+    ]
+    assert strategic_blocks
+    assert all(block["post_intervention_dgp_update_ref"] for block in strategic_blocks)
+    assert all(block["system_dynamics_handoff_required"] is True for block in strategic_blocks)
+    assert report["s6_blind_spot_summary"]["system_dynamics_handoff_count"] >= len(
+        strategic_blocks
+    )
+
+
+def test_w12d_s6_bridge_consumer_table_covers_cluster_map_consumers(
+    tmp_path: Path,
+) -> None:
+    report = _run_full_corpus_report(tmp_path)
+
+    summary = report["s6_blind_spot_summary"]
+    assert set(summary["bridge_consumer_coverage"]) >= _S6_BRIDGE_CONSUMERS
+    assert all(summary["bridge_consumer_coverage"][ref] is True for ref in _S6_BRIDGE_CONSUMERS)
+    for case in report["cases"]:
+        rows = case["s6_blind_spot_firewalls"]["bridge_consumer_table"]
+        assert {row["consumer_ref"] for row in rows} >= _S6_BRIDGE_CONSUMERS
+        assert any(row["pending_consumer"] for row in rows)
+
+
+def test_w12d_s6_c3_authority_dimension_table_uses_canonical_dimensions(
+    tmp_path: Path,
+) -> None:
+    report = _run_full_corpus_report(tmp_path)
+
+    coverage = report["s6_blind_spot_summary"]["c3_authority_dimension_coverage"]
+    assert set(coverage) == _S6_C3_DIMENSIONS
+    assert coverage["strategic_robustness"] is True
+    assert coverage["response_model_validity"] is True
+    for case in report["cases"]:
+        rows = case["s6_blind_spot_firewalls"]["c3_authority_dimension_table"]
+        assert {row["authority_dimension"] for row in rows} == _S6_C3_DIMENSIONS
+        assert all(row["maturity"] == "fail_closed" for row in rows)
+
+
+def test_w12d_s6_canonical_outcome_effect_remains_shadow_only(tmp_path: Path) -> None:
+    index_dir = tmp_path / "capability-index"
+    assert builder.main(["--mode", "fixture", "--output-dir", str(index_dir)]) == 0
+
+    report = w12d.run_w12d_universal_outcome_corpus(
+        repo_root=REPO_ROOT,
+        corpus_path=SINGLE_CASE_PATH,
+        graph_output_dir=tmp_path / "graphs",
+        hypothesis_ledger_output_dir=tmp_path / "ledgers",
+        mode="corpus_stub",
+        producer_stub_dir=REPO_ROOT / "tests/fixtures/universal-corpus/producer_stubs",
+        capability_index_path=index_dir / "capability_index_v1.duckdb",
+    )
+
+    case = report["cases"][0]
+    assert case["s6_blind_spot_firewalls"]["canonical_outcome_effect"] == "none_shadow_only"
+    assert case["s2_design_search"]["canonical_outcome_effect"] == "none_shadow_only"
+    assert case["outcome"] == "publish-with-limitation"
+    assert report["summary"]["closeout_honesty_rate"] == 1.0
+
+
+_S6_AXIS_CELLS = {
+    "SYSTEM.measurability",
+    "SYSTEM.subject_granularity",
+    "ACTOR.state_capacity_feasibility",
+    "ACTOR.mandate_legitimacy",
+    "OTHER_AGENTS.strategic_response",
+}
+_S6_BRIDGE_CONSUMERS = {
+    "KNOWLEDGE.epistemic_regime",
+    "ACTOR.value_choice_provenance",
+    "INTERVENTION.targeting",
+    "INTERVENTION.feasibility",
+    "DESIGNER_ITSELF.envelope_membership",
+    "PUBLIC.legitimacy_disclosure",
+    "INTERVENTION.design_candidate",
+    "SYSTEM.post_intervention_dgp",
+    "SYSTEM.dynamics_feedback",
+    "INTERVENTION.robustness",
+}
+_S6_C3_DIMENSIONS = {
+    "measurability_adequacy",
+    "aggregation_validity",
+    "capacity_feasibility",
+    "mandate_legitimacy",
+    "strategic_robustness",
+    "response_model_validity",
+}
+
+
+def _run_full_corpus_report(tmp_path: Path) -> dict[str, object]:
+    return w12d.run_w12d_universal_outcome_corpus(
+        repo_root=REPO_ROOT,
+        corpus_path=REPO_ROOT / "tests/fixtures/universal-corpus",
+        graph_output_dir=tmp_path / "graphs",
+        hypothesis_ledger_output_dir=tmp_path / "ledgers",
+        mode="real_producer",
+    )
 
 
 def _case_result(

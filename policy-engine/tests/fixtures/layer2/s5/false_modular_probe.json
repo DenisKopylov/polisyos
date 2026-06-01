@@ -1,0 +1,38 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s5.false_modular_probe.v1",
+  "case_id": "s5_false_modular_probe",
+  "declared_coupling_regime": "modular",
+  "expected_error": "P17FalseModularityError",
+  "design_ref": "pdc://layer2/s5/false-modular/design",
+  "module_refs": [
+    "module://benefit-generosity",
+    "module://eligibility-enforcement",
+    "module://provider-incentives"
+  ],
+  "interaction_edges": [
+    {
+      "source_module_ref": "module://benefit-generosity",
+      "target_module_ref": "module://provider-incentives",
+      "relation": "incentive_feedback",
+      "interaction_strength": "strong",
+      "feedback": true,
+      "evidence_ref": "fixture://s5/false_modular/edge-1"
+    },
+    {
+      "source_module_ref": "module://provider-incentives",
+      "target_module_ref": "module://eligibility-enforcement",
+      "relation": "gaming_pressure",
+      "interaction_strength": "strong",
+      "feedback": true,
+      "evidence_ref": "fixture://s5/false_modular/edge-2"
+    },
+    {
+      "source_module_ref": "module://eligibility-enforcement",
+      "target_module_ref": "module://benefit-generosity",
+      "relation": "political_feedback",
+      "interaction_strength": "strong",
+      "feedback": true,
+      "evidence_ref": "fixture://s5/false_modular/edge-3"
+    }
+  ]
+}

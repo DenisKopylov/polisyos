@@ -1,0 +1,13 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s5.syntactic_decomposition_probe.v1",
+  "case_id": "s5_syntactic_decomposition_probe",
+  "expected_error": "P17SyntacticCompositionError",
+  "design_ref": "pdc://layer2/s5/syntactic-only/design",
+  "module_refs": [
+    "module://tax",
+    "module://transfer",
+    "module://administration"
+  ],
+  "coupling_graph_ref": null,
+  "decomposition_claim": "three named modules are enough to compose authority"
+}

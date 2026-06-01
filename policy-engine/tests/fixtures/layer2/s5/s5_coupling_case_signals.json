@@ -1,0 +1,169 @@
+{
+  "_meta": {
+    "schema_version": "policyos.policy_design_case.layer2_s5.coupling_case_signals.v1",
+    "status": "seeded_producer_inputs",
+    "may_not_use_for": [
+      "expert_gold_comparison",
+      "production_claim_authority",
+      "calibrated_equilibrium_prediction"
+    ]
+  },
+  "cases": {
+    "ua-msme-affordable-loans-2022": {
+      "observed_boundaries": [
+        {
+          "boundary_ref": "boundary://ua-msme/credit/fiscal",
+          "source_module_ref": "module://credit-program-enrollment",
+          "target_module_ref": "module://fiscal-burden-per-beneficiary",
+          "relation": "credit_fiscal_dependency",
+          "observed_interaction_strength": "weak",
+          "observed_feedback_intensity": "weak"
+        }
+      ]
+    },
+    "w11a_berlin_rent_cap_2020": {
+      "observed_boundaries": [
+        {
+          "boundary_ref": "boundary://berlin/rent-cap/supply-response",
+          "source_module_ref": "module://rent-control-rule",
+          "target_module_ref": "module://housing-supply-response",
+          "relation": "strategic_supply_feedback",
+          "observed_interaction_strength": "strong",
+          "observed_feedback_intensity": "high"
+        }
+      ]
+    },
+    "w11a_boston_operation_ceasefire_1996": {
+      "observed_boundaries": [
+        {
+          "boundary_ref": "boundary://boston/deterrence/community-legitimacy",
+          "source_module_ref": "module://focused-deterrence",
+          "target_module_ref": "module://community-legitimacy",
+          "relation": "legitimacy_deterrence_feedback",
+          "observed_interaction_strength": "strong",
+          "observed_feedback_intensity": "high"
+        }
+      ]
+    },
+    "w11a_eu_temporary_protection_ukraine_2022": {
+      "observed_boundaries": [
+        {
+          "boundary_ref": "boundary://eu-tpd/eu-framework/member-state-implementation",
+          "source_module_ref": "module://eu-temporary-protection-framework",
+          "target_module_ref": "module://member-state-implementation",
+          "relation": "framework_implementation_hierarchy",
+          "observed_interaction_strength": "strong",
+          "observed_feedback_intensity": "weak"
+        }
+      ]
+    },
+    "w11a_ghana_free_shs_2017": {
+      "observed_boundaries": [
+        {
+          "boundary_ref": "boundary://ghana/free-shs/enrollment/capacity",
+          "source_module_ref": "module://fee-removal",
+          "target_module_ref": "module://school-capacity",
+          "relation": "enrollment_capacity_hierarchy",
+          "observed_interaction_strength": "strong",
+          "observed_feedback_intensity": "medium"
+        }
+      ]
+    },
+    "w11a_india_aadhaar_dbt_2016": {
+      "observed_boundaries": [
+        {
+          "boundary_ref": "boundary://aadhaar/identity/payment-exclusion",
+          "source_module_ref": "module://digital-identity-authentication",
+          "target_module_ref": "module://benefit-payment-delivery",
+          "relation": "authentication_payment_feedback",
+          "observed_interaction_strength": "strong",
+          "observed_feedback_intensity": "high"
+        }
+      ]
+    },
+    "w11a_mexico_ssb_tax_2014": {
+      "observed_boundaries": [
+        {
+          "boundary_ref": "boundary://mexico-ssb/tax/consumption-response",
+          "source_module_ref": "module://excise-tax",
+          "target_module_ref": "module://consumer-substitution",
+          "relation": "tax_consumption_dependency",
+          "observed_interaction_strength": "weak",
+          "observed_feedback_intensity": "weak"
+        }
+      ]
+    },
+    "w11a_netherlands_room_for_river_2007": {
+      "observed_boundaries": [
+        {
+          "boundary_ref": "boundary://room-for-river/hydrology/land-use",
+          "source_module_ref": "module://floodplain-redesign",
+          "target_module_ref": "module://land-use-compensation",
+          "relation": "hydrology_land_use_feedback",
+          "observed_interaction_strength": "strong",
+          "observed_feedback_intensity": "high"
+        }
+      ]
+    },
+    "w11a_pakistan_ehsaas_cash_2020": {
+      "observed_boundaries": [
+        {
+          "boundary_ref": "boundary://ehsaas/eligibility/payment",
+          "source_module_ref": "module://eligibility-verification",
+          "target_module_ref": "module://cash-payment-rail",
+          "relation": "eligibility_payment_interface",
+          "observed_interaction_strength": "none",
+          "observed_feedback_intensity": "none"
+        }
+      ]
+    },
+    "w11a_uk_levelling_up_fund_2021": {
+      "observed_boundaries": [
+        {
+          "boundary_ref": "boundary://levelling-up/central-scoring/local-delivery",
+          "source_module_ref": "module://central-project-selection",
+          "target_module_ref": "module://local-delivery-capacity",
+          "relation": "central_local_delivery_hierarchy",
+          "observed_interaction_strength": "strong",
+          "observed_feedback_intensity": "medium"
+        }
+      ]
+    },
+    "w11a_uk_mtd_vat_2019": {
+      "observed_boundaries": [
+        {
+          "boundary_ref": "boundary://mtd-vat/software-filing/compliance",
+          "source_module_ref": "module://digital-recordkeeping",
+          "target_module_ref": "module://vat-filing-compliance",
+          "relation": "software_filing_interface",
+          "observed_interaction_strength": "none",
+          "observed_feedback_intensity": "none"
+        }
+      ]
+    },
+    "w11a_uk_work_programme_2011": {
+      "observed_boundaries": [
+        {
+          "boundary_ref": "boundary://work-programme/provider-incentives/participant-sorting",
+          "source_module_ref": "module://payment-by-results",
+          "target_module_ref": "module://participant-targeting",
+          "relation": "incentive_sorting_feedback",
+          "observed_interaction_strength": "strong",
+          "observed_feedback_intensity": "high"
+        }
+      ]
+    },
+    "w11a_us_ppp_2020": {
+      "observed_boundaries": [
+        {
+          "boundary_ref": "boundary://ppp/lender-incentives/firm-access",
+          "source_module_ref": "module://bank-origination-channel",
+          "target_module_ref": "module://small-business-access",
+          "relation": "lender_access_feedback",
+          "observed_interaction_strength": "strong",
+          "observed_feedback_intensity": "high"
+        }
+      ]
+    }
+  }
+}

@@ -35,6 +35,8 @@ from polisyos.obligation_graph import (  # noqa: E402
 from polisyos.obligation_rules import build_seed_obligation_rule_catalog  # noqa: E402
 from polisyos.pdc import (  # noqa: E402
     Layer2S2DesignSearchInput,
+    Layer2S5CompositionPostureInput,
+    Layer2S6BlindSpotPostureInput,
     run_s2_shadow_design_loop,
 )
 from polisyos.policy_grammar import (  # noqa: E402
@@ -64,6 +66,31 @@ from polisyos.runtime.quality.hypothesis_ledger import (  # noqa: E402
     HYPOTHESIS_LEDGER_SCHEMA_VERSION,
     HypothesisLedger,
     serialize_hypothesis_ledger,
+)
+from polisyos.runtime.quality.layer2_blind_spot_firewalls import (  # noqa: E402
+    build_s6_blind_spot_firewall_report,
+    evaluate_aggregation_validity,
+    evaluate_capacity_feasibility,
+    evaluate_mandate_legitimacy,
+    evaluate_measurability_adequacy,
+    evaluate_strategic_response,
+    s6_fail_closed_coverage,
+    s6_firewall_report_to_axis_positions,
+    s6_firewall_report_to_c3_dimension_records,
+    s6_firewall_report_to_constraint_store_updates,
+)
+from polisyos.runtime.quality.layer2_coupling_composition import (  # noqa: E402
+    CouplingEdge,
+    build_composition_receipt,
+    build_computational_tractability_budget,
+    build_coupling_graph,
+    build_system_dynamics_requirement,
+    build_system_effect_support,
+    classify_coupling,
+    coupling_accuracy,
+    decompose_design,
+    derive_recursive_design_graph,
+    discover_design_modules,
 )
 from polisyos.runtime.quality.layer2_epistemic_regime import (  # noqa: E402
     RegimeEvidenceBasis,
@@ -127,6 +154,10 @@ S3_ACQUISITION_SOURCE_FIXTURE = Path(
     "tests/fixtures/layer2/s3/ua_msme_credit_program_enrollment_source.json"
 )
 S4_EXPERT_LABELS_PATH = Path("tests/fixtures/layer2/s4/s4_expert_labels.json")
+S5_CASE_SIGNALS_PATH = Path("tests/fixtures/layer2/s5/s5_coupling_case_signals.json")
+S5_EXPERT_LABELS_PATH = Path("tests/fixtures/layer2/s5/s5_coupling_expert_labels.json")
+S6_CASE_SIGNALS_PATH = Path("tests/fixtures/layer2/s6/s6_blind_spot_case_signals.json")
+S6_EXPERT_LABELS_PATH = Path("tests/fixtures/layer2/s6/s6_blind_spot_expert_labels.json")
 S4_RULE_VERSION_REF = "repo://docs/adr/0174-policy-evidence-capability-graph.md"
 W12D_FORMULATOR_TOOL_REFS: tuple[str, ...] = (
     "tool:w12d.universal_outcome_corpus_run",
@@ -172,6 +203,40 @@ ACTIONABLE_CAPABILITY_BLOCKER_CODES = frozenset(
         "blocked_authority_boundary",
     }
 )
+S6_AXIS_CELLS: tuple[str, ...] = (
+    "SYSTEM.measurability",
+    "SYSTEM.subject_granularity",
+    "ACTOR.state_capacity_feasibility",
+    "ACTOR.mandate_legitimacy",
+    "OTHER_AGENTS.strategic_response",
+)
+S6_BRIDGE_CONSUMERS: tuple[str, ...] = (
+    "KNOWLEDGE.epistemic_regime",
+    "ACTOR.value_choice_provenance",
+    "INTERVENTION.targeting",
+    "INTERVENTION.feasibility",
+    "DESIGNER_ITSELF.envelope_membership",
+    "PUBLIC.legitimacy_disclosure",
+    "INTERVENTION.design_candidate",
+    "SYSTEM.post_intervention_dgp",
+    "SYSTEM.dynamics_feedback",
+    "INTERVENTION.robustness",
+)
+S6_C3_AUTHORITY_DIMENSIONS: tuple[str, ...] = (
+    "measurability_adequacy",
+    "aggregation_validity",
+    "capacity_feasibility",
+    "mandate_legitimacy",
+    "strategic_robustness",
+    "response_model_validity",
+)
+S6_NEGATIVE_CONTROL_PROBES: tuple[Path, ...] = (
+    Path("tests/fixtures/layer2/s6/streetlight_proxy_laundering_probe.json"),
+    Path("tests/fixtures/layer2/s6/aggregation_scope_drift_probe.json"),
+    Path("tests/fixtures/layer2/s6/capacity_fantasy_probe.json"),
+    Path("tests/fixtures/layer2/s6/mandate_speculation_probe.json"),
+    Path("tests/fixtures/layer2/s6/goodhart_post_intervention_probe.json"),
+)
 
 
 class W12DCaseRunError(ValueError):
@@ -199,6 +264,11 @@ def build_w12d_universal_outcome_corpus_report(
     ]
     summary = _summary(cases)
     s4_regime_summary = _s4_regime_summary(cases)
+    s5_coupling_summary = _s5_coupling_summary(cases)
+    s6_blind_spot_summary = _s6_blind_spot_corpus_summary(
+        cases,
+        repo_root=Path(repo_root),
+    )
     status = "blocked" if rollout_blockers else "pass"
     return {
         "schema_version": SCHEMA_VERSION,
@@ -213,6 +283,8 @@ def build_w12d_universal_outcome_corpus_report(
         "status": status,
         "summary": summary,
         "s4_regime_summary": s4_regime_summary,
+        "s5_coupling_summary": s5_coupling_summary,
+        "s6_blind_spot_summary": s6_blind_spot_summary,
         "cases": cases,
         "authority_level_metric_stratification": _authority_stratification(cases),
         "domain_authority_metric_stratification": _domain_authority_stratification(cases),
@@ -794,10 +866,22 @@ def _run_case(
         repo_root=repo_root,
         capability_graph_trace=capability_graph_trace,
     )
+    s5_coupling_composition = _s5_coupling_composition_summary(
+        case,
+        repo_root=repo_root,
+        s4_epistemic_regime=s4_epistemic_regime,
+    )
+    s6_blind_spot_firewalls = _s6_blind_spot_summary(
+        case,
+        repo_root=repo_root,
+        s5_coupling_composition=s5_coupling_composition,
+    )
     s2_design_search = _s2_design_search_summary(
         case,
         repo_root=repo_root,
         s4_epistemic_regime=s4_epistemic_regime,
+        s5_coupling_composition=s5_coupling_composition,
+        s6_blind_spot_firewalls=s6_blind_spot_firewalls,
     )
     return {
         "case_id": case_id,
@@ -816,6 +900,8 @@ def _run_case(
         "s1_graded_outcome": s1_graded_outcome,
         "s2_design_search": s2_design_search,
         "s4_epistemic_regime": s4_epistemic_regime,
+        "s5_coupling_composition": s5_coupling_composition,
+        "s6_blind_spot_firewalls": s6_blind_spot_firewalls,
         "expert_adjudication_delta": expert_delta,
         "authority_outcomes": authority_outcomes,
         "typed_blockers": typed_blockers,
@@ -828,6 +914,8 @@ def _s2_design_search_summary(
     *,
     repo_root: Path,
     s4_epistemic_regime: Mapping[str, Any] | None = None,
+    s5_coupling_composition: Mapping[str, Any] | None = None,
+    s6_blind_spot_firewalls: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     case_id = str(case.get("case_id") or case.get("id") or "")
     if case_id != "ua-msme-affordable-loans-2022":
@@ -857,6 +945,16 @@ def _s2_design_search_summary(
         generated_at=datetime.fromisoformat(GENERATED_AT.replace("Z", "+00:00")),
         rule_version_ref="policyos.layer2.s2.design_search.v1",
     )
+    composition_posture = (
+        _s5_composition_posture_input(s5_coupling_composition)
+        if s5_coupling_composition
+        else None
+    )
+    blind_spot_posture = (
+        _s6_blind_spot_posture_input(s6_blind_spot_firewalls)
+        if s6_blind_spot_firewalls
+        else None
+    )
     if s4_epistemic_regime:
         run = run_s2_shadow_design_loop(
             input_row,
@@ -869,16 +967,853 @@ def _s2_design_search_summary(
             commitment_stakes=_text(
                 _nested(s4_epistemic_regime, ("derived_commitment", "stakes"))
             ),  # type: ignore[arg-type]
+            composition_posture=composition_posture,
+            blind_spot_posture=blind_spot_posture,
         )
     else:
-        run = run_s2_shadow_design_loop(input_row)
+        run = run_s2_shadow_design_loop(
+            input_row,
+            composition_posture=composition_posture,
+            blind_spot_posture=blind_spot_posture,
+        )
     return {
         "status": run.status,
         "canonical_outcome_effect": "none_shadow_only",
         "search_ledger": run.search_ledger.model_dump(mode="json"),
         "design_record": run.design_record.model_dump(mode="json"),
+        "constraint_store": run.constraint_store.model_dump(mode="json"),
         "handoff_records": [row.model_dump(mode="json") for row in run.handoff_records],
     }
+
+
+def _s5_coupling_composition_summary(
+    case: Mapping[str, Any],
+    *,
+    repo_root: Path,
+    s4_epistemic_regime: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Build the S5 A-side coupling and composition block for one corpus case."""
+
+    del s4_epistemic_regime
+    case_id = _required_text(case.get("case_id") or case.get("id"), field_name="case_id")
+    signals = _s5_case_signals(repo_root).get(case_id)
+    labels = _s5_expert_labels(repo_root).get(case_id)
+    if not signals or not labels:
+        raise W12DCaseRunError(f"S5 coupling fixture missing for case {case_id}")
+
+    observed_boundaries = _sequence_of_mappings(signals.get("observed_boundaries"))
+    if not observed_boundaries:
+        raise W12DCaseRunError(f"S5 coupling fixture has no observed boundaries for {case_id}")
+
+    fixed_refs = _s5_fixed_refs(case_id)
+    module_refs = _s5_module_refs(observed_boundaries)
+    critical_path_module_refs = _s5_critical_path_module_refs(observed_boundaries)
+    discovered = discover_design_modules(
+        design_ref=f"pdc://layer2/s5/{case_id}/design",
+        candidate_module_refs=module_refs,
+        case_signal_refs=[f"fixture://layer2/s5/{case_id}/case-signals"],
+        rule_version_ref=S4_RULE_VERSION_REF,
+    ).model_copy(
+        update={
+            "discovery_id": f"layer2.s5.module_discovery.{case_id}",
+            "module_discovery_ref": fixed_refs["module_discovery_ref"],
+        }
+    )
+    edges = _s5_coupling_edges(case_id, observed_boundaries)
+    graph = build_coupling_graph(
+        design_ref=f"pdc://layer2/s5/{case_id}/design",
+        module_refs=discovered.discovered_module_refs,
+        module_discovery_ref=discovered.module_discovery_ref,
+        interaction_edges=edges,
+        rule_version_ref=S4_RULE_VERSION_REF,
+        seed_method_refs=[
+            "foundry.coupling.des_kernel",
+            "foundry.methods.catalog.causal.dynamic_graph_dscm",
+        ],
+    ).model_copy(
+        update={
+            "graph_id": f"layer2.s5.coupling_graph.{case_id}",
+            "graph_ref": fixed_refs["coupling_graph_ref"],
+        }
+    )
+    classification = classify_coupling(graph)
+    recursive = derive_recursive_design_graph(
+        design_ref=graph.design_ref,
+        module_refs=graph.module_refs,
+        parent_child_edges=[(graph.design_ref, module_ref) for module_ref in graph.module_refs],
+        typed_dependency_edges=[
+            {
+                "source_ref": _required_text(row.get("source_module_ref"), field_name="source"),
+                "target_ref": _required_text(row.get("target_module_ref"), field_name="target"),
+                "dependency_type": _required_text(row.get("relation"), field_name="relation"),
+                "interface_ref": _required_text(row.get("boundary_ref"), field_name="boundary"),
+            }
+            for row in observed_boundaries
+        ],
+        critical_path_module_refs=critical_path_module_refs,
+        interface_refs=[
+            _required_text(row.get("boundary_ref"), field_name="boundary_ref")
+            for row in observed_boundaries
+        ],
+        rule_version_ref=S4_RULE_VERSION_REF,
+    )
+    decomposition = decompose_design(
+        graph,
+        classification,
+        critical_path_module_refs=critical_path_module_refs,
+    ).model_copy(
+        update={
+            "decomposition_id": f"layer2.s5.decomposition.{case_id}",
+            "decomposition_ref": fixed_refs["decomposition_result_ref"],
+            "dynamics_requirement_ref": fixed_refs["dynamics_requirement_ref"]
+            if bool(labels.get("requires_system_dynamics"))
+            else None,
+        }
+    )
+    dynamics = None
+    if bool(labels.get("requires_system_dynamics")):
+        dynamics = build_system_dynamics_requirement(decomposition).model_copy(
+            update={
+                "requirement_id": f"layer2.s5.dynamics_requirement.{case_id}",
+                "requirement_ref": fixed_refs["dynamics_requirement_ref"],
+            }
+        )
+    forecast = _mapping(labels.get("forecast_support_scope"))
+    system_effect_support = build_system_effect_support(
+        base_origin=_required_text(forecast.get("base_origin"), field_name="base_origin"),  # type: ignore[arg-type]
+        claim_scope=_required_text(forecast.get("claim_scope"), field_name="claim_scope"),  # type: ignore[arg-type]
+        support_ref=fixed_refs["forecast_support_ref"],
+        rule_version_ref=S4_RULE_VERSION_REF,
+    )
+    tractability_budget = build_computational_tractability_budget(
+        design_ref=graph.design_ref,
+        search_space_size=_s5_search_space_size(labels),
+        approximation_mode="bounded_shadow_replay",
+        cutoff_reason="S5 corpus route records coupling classification without exhaustive search.",
+        rule_version_ref=S4_RULE_VERSION_REF,
+    ).model_copy(
+        update={
+            "budget_id": f"layer2.s5.tractability_budget.{case_id}",
+            "budget_ref": fixed_refs["tractability_budget_ref"],
+        }
+    )
+    receipt = build_composition_receipt(
+        decomposition,
+        dynamics_requirement=dynamics,
+        system_effect_support=system_effect_support,
+        tractability_budget=tractability_budget,
+    ).model_copy(
+        update={
+            "receipt_id": f"layer2.s5.composition_receipt.{case_id}",
+            "receipt_ref": fixed_refs["composition_receipt_ref"],
+        }
+    )
+    boundary_gold = list(_sequence_of_mappings(labels.get("boundary_gold")))
+    boundary_rows_match_gold = _s5_boundary_rows_match_gold(
+        classification.boundary_classifications,
+        boundary_gold,
+    )
+    expert_coupling_regime = _required_text(
+        labels.get("expert_coupling_regime"),
+        field_name="expert_coupling_regime",
+    )
+    expected_composition = _required_text(
+        labels.get("expected_composition_disposition"),
+        field_name="expected_composition_disposition",
+    )
+    expected_feedback = _required_text(
+        labels.get("expected_feedback_intensity"),
+        field_name="expected_feedback_intensity",
+    )
+    return {
+        "schema_version": "policyos.policy_design_case.layer2_s5.case_coupling_summary.v1",
+        "status": "pass",
+        "case_id": case_id,
+        "classifier_owner": "A_gate",
+        "predicted_coupling_regime": classification.coupling_regime,
+        "expert_coupling_regime": expert_coupling_regime,
+        "predicted_feedback_intensity": classification.feedback_intensity,
+        "expected_feedback_intensity": expected_feedback,
+        "coupling_matches_gold": classification.coupling_regime == expert_coupling_regime,
+        "boundary_coupling_table": [
+            row.model_dump(mode="json") for row in classification.boundary_classifications
+        ],
+        "boundary_gold": boundary_gold,
+        "boundary_rows_match_gold": boundary_rows_match_gold,
+        "scale_class": _text(labels.get("scale_class")),
+        "composition_disposition": decomposition.composition_disposition,
+        "expected_composition_disposition": expected_composition,
+        "composition_matches_gold": decomposition.composition_disposition == expected_composition,
+        "forecast_support_scope": system_effect_support.model_dump(mode="json"),
+        "tractability_budget": tractability_budget.model_dump(mode="json"),
+        "coupling_graph": graph.model_dump(mode="json"),
+        "coupling_classification": classification.model_dump(mode="json"),
+        "recursive_design_graph": recursive.model_dump(mode="json"),
+        "decomposition_result": decomposition.model_dump(mode="json"),
+        "system_dynamics_requirement": (
+            dynamics.model_dump(mode="json") if dynamics is not None else None
+        ),
+        "composition_receipt": receipt.model_dump(mode="json"),
+        **fixed_refs,
+        "dynamics_requirement_ref": fixed_refs["dynamics_requirement_ref"]
+        if dynamics is not None
+        else None,
+        "critical_path_module_refs": critical_path_module_refs,
+        "residual_interaction_risk": decomposition.residual_interaction_risk,
+        "authority_mode": receipt.authority_mode,
+        "canonical_outcome_effect": "none_shadow_only",
+    }
+
+
+def _s5_coupling_summary(cases: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+    """Aggregate S5 corpus accuracy and support labels."""
+
+    rows = [
+        _mapping(case.get("s5_coupling_composition"))
+        for case in cases
+        if isinstance(case.get("s5_coupling_composition"), Mapping)
+    ]
+    predicted = [str(row.get("predicted_coupling_regime")) for row in rows]
+    gold = [str(row.get("expert_coupling_regime")) for row in rows]
+    accuracy = (
+        coupling_accuracy(predicted=predicted, gold=gold)
+        if rows
+        else {
+            "accuracy": 0.0,
+            "false_modular_count": 0,
+            "false_entangled_count": 0,
+            "penalized_score": 0.0,
+        }
+    )
+    return {
+        "schema_version": "policyos.policy_design_case.layer2_s5.coupling_corpus_summary.v1",
+        "case_count": len(rows),
+        "coupling_accuracy": accuracy["accuracy"],
+        "false_modular_count": accuracy["false_modular_count"],
+        "false_entangled_count": accuracy["false_entangled_count"],
+        "penalized_score": accuracy["penalized_score"],
+        "system_evidence_required_count": sum(
+            1
+            for row in rows
+            if row.get("composition_disposition") == "system_evidence_required"
+        ),
+        "coupling_regime_counts": dict(
+            Counter(str(row.get("predicted_coupling_regime")) for row in rows)
+        ),
+        "boundary_regime_counts": dict(
+            Counter(
+                str(boundary.get("coupling_regime"))
+                for row in rows
+                for boundary in _sequence_of_mappings(row.get("boundary_coupling_table"))
+            )
+        ),
+        "system_effect_support_labels": sorted(
+            {
+                str(_nested(row, ("forecast_support_scope", "support_label")))
+                for row in rows
+                if _nested(row, ("forecast_support_scope", "support_label"))
+            }
+        ),
+        "per_case_coupling_table": [
+            {
+                "case_id": row.get("case_id"),
+                "predicted_coupling_regime": row.get("predicted_coupling_regime"),
+                "expert_coupling_regime": row.get("expert_coupling_regime"),
+                "composition_disposition": row.get("composition_disposition"),
+                "boundary_count": len(
+                    _sequence_of_mappings(row.get("boundary_coupling_table"))
+                ),
+            }
+            for row in rows
+        ],
+    }
+
+
+def _s5_composition_posture_input(
+    s5_coupling_composition: Mapping[str, Any],
+) -> Layer2S5CompositionPostureInput:
+    return Layer2S5CompositionPostureInput(
+        coupling_regime=_required_text(
+            s5_coupling_composition.get("predicted_coupling_regime"),
+            field_name="predicted_coupling_regime",
+        ),  # type: ignore[arg-type]
+        composition_disposition=_required_text(
+            s5_coupling_composition.get("composition_disposition"),
+            field_name="composition_disposition",
+        ),  # type: ignore[arg-type]
+        coupling_graph_ref=_required_text(
+            s5_coupling_composition.get("coupling_graph_ref"),
+            field_name="coupling_graph_ref",
+        ),
+        module_discovery_ref=_required_text(
+            s5_coupling_composition.get("module_discovery_ref"),
+            field_name="module_discovery_ref",
+        ),
+        decomposition_result_ref=_required_text(
+            s5_coupling_composition.get("decomposition_result_ref"),
+            field_name="decomposition_result_ref",
+        ),
+        composition_receipt_ref=_required_text(
+            s5_coupling_composition.get("composition_receipt_ref"),
+            field_name="composition_receipt_ref",
+        ),
+        dynamics_requirement_ref=_text(
+            s5_coupling_composition.get("dynamics_requirement_ref")
+        )
+        or None,
+        tractability_budget_ref=_text(s5_coupling_composition.get("tractability_budget_ref"))
+        or None,
+        boundary_coupling_rows=[
+            dict(row)
+            for row in _sequence_of_mappings(
+                s5_coupling_composition.get("boundary_coupling_table")
+            )
+        ],
+        forecast_support_label=_text(
+            _nested(s5_coupling_composition, ("forecast_support_scope", "support_label"))
+        )
+        or None,
+        critical_path_module_refs=[
+            str(ref) for ref in _sequence(s5_coupling_composition.get("critical_path_module_refs"))
+        ],
+        residual_interaction_risk=_text(
+            s5_coupling_composition.get("residual_interaction_risk")
+        )
+        or None,
+        authority_mode=_required_text(
+            s5_coupling_composition.get("authority_mode"),
+            field_name="authority_mode",
+        ),  # type: ignore[arg-type]
+    )
+
+
+def _s6_blind_spot_summary(
+    case: Mapping[str, object],
+    *,
+    repo_root: Path,
+    s5_coupling_composition: Mapping[str, object] | None = None,
+) -> dict[str, object]:
+    """Build the S6 fail-closed blind-spot block for one corpus case."""
+
+    case_id = _required_text(case.get("case_id") or case.get("id"), field_name="case_id")
+    signals = _s6_case_signals(repo_root).get(case_id)
+    labels = _s6_expert_labels(repo_root).get(case_id)
+    if not signals or not labels:
+        raise W12DCaseRunError(f"S6 blind-spot fixture missing for case {case_id}")
+
+    fixed_refs = _s6_fixed_refs(case_id)
+    design_ref = f"pdc://layer2/s6/{case_id}/design"
+    measurability = evaluate_measurability_adequacy(
+        case_id=case_id,
+        design_ref=design_ref,
+        construct_rows=_sequence_of_mappings(signals.get("construct_rows")),
+        semantic_binding_ledger={
+            "ledger_ref": signals.get("semantic_binding_ledger_ref"),
+            "declared_measurability_pass": False,
+        },
+        rule_version_ref=S4_RULE_VERSION_REF,
+    )
+    aggregation = evaluate_aggregation_validity(
+        case_id=case_id,
+        design_ref=design_ref,
+        claim_scope=_required_text(signals.get("claim_scope"), field_name="claim_scope"),  # type: ignore[arg-type]
+        evidence_scope=_required_text(
+            signals.get("evidence_scope"),
+            field_name="evidence_scope",
+        ),  # type: ignore[arg-type]
+        aggregation_rows=_sequence_of_mappings(signals.get("aggregation_rows")),
+        concept_spine_carrier={
+            "carrier_ref": signals.get("concept_spine_carrier_ref"),
+            "declared_aggregation_pass": False,
+        },
+        rule_version_ref=S4_RULE_VERSION_REF,
+    )
+    capacity = evaluate_capacity_feasibility(
+        case_id=case_id,
+        design_ref=design_ref,
+        actor_ref=_required_text(signals.get("actor_ref"), field_name="actor_ref"),
+        jurisdiction_ref=_required_text(
+            signals.get("jurisdiction_ref"),
+            field_name="jurisdiction_ref",
+        ),
+        instrument_ref=_required_text(
+            signals.get("instrument_ref"),
+            field_name="instrument_ref",
+        ),
+        capacity_dimensions=_sequence_of_mappings(signals.get("capacity_dimensions")),
+        rule_version_ref=S4_RULE_VERSION_REF,
+    )
+    mandate = evaluate_mandate_legitimacy(
+        case_id=case_id,
+        design_ref=design_ref,
+        objective_refs=[str(ref) for ref in _sequence(signals.get("objective_refs"))],
+        mandate_sources=_sequence_of_mappings(signals.get("mandate_sources")),
+        participation_evaluations=_sequence_of_mappings(
+            signals.get("participation_evaluations"),
+        ),
+        consultation_validations=_sequence_of_mappings(
+            signals.get("consultation_validations"),
+        ),
+        rule_version_ref=S4_RULE_VERSION_REF,
+    )
+    strategic_response = evaluate_strategic_response(
+        case_id=case_id,
+        design_ref=design_ref,
+        response_channels=_sequence_of_mappings(signals.get("response_channels")),
+        pre_policy_effect_refs=[
+            str(ref) for ref in _sequence(signals.get("pre_policy_effect_refs"))
+        ],
+        s5_composition_posture=_s6_s5_composition_payload(
+            signals,
+            s5_coupling_composition=s5_coupling_composition,
+        ),
+        strategic_response_entries=_sequence_of_mappings(
+            signals.get("strategic_response_entries"),
+        ),
+        rule_version_ref=S4_RULE_VERSION_REF,
+    )
+    report = build_s6_blind_spot_firewall_report(
+        case_id=case_id,
+        design_ref=design_ref,
+        measurability=measurability,
+        aggregation=aggregation,
+        capacity=capacity,
+        mandate=mandate,
+        strategic_response=strategic_response,
+        rule_version_ref=S4_RULE_VERSION_REF,
+    )
+    axis_positions, firewall_statuses = s6_firewall_report_to_axis_positions(report)
+    constraints = s6_firewall_report_to_constraint_store_updates(report)
+    c3_rows = s6_firewall_report_to_c3_dimension_records(report)
+    constraint_entries = [_s6_constraint_entry_payload(row.model_dump(mode="json")) for row in constraints]
+    c3_payloads = [row.model_dump(mode="json") for row in c3_rows]
+    bridge_payloads = [row.model_dump(mode="json") for row in report.bridge_consumer_rows]
+    record_payloads = {
+        "measurability_record": measurability.model_dump(mode="json"),
+        "aggregation_validity_record": aggregation.model_dump(mode="json"),
+        "capacity_feasibility_record": capacity.model_dump(mode="json"),
+        "mandate_legitimacy_record": mandate.model_dump(mode="json"),
+        "strategic_response_record": strategic_response.model_dump(mode="json"),
+    }
+    block = {
+        "schema_version": "policyos.policy_design_case.layer2_s6.case_blind_spot_summary.v1",
+        "case_id": case_id,
+        "overall_posture": report.overall_posture,
+        "maturity": report.maturity,
+        "axis_firewall_table": [
+            {
+                **firewall.model_dump(mode="json"),
+                "axis_position": position.model_dump(mode="json"),
+            }
+            for position, firewall in zip(axis_positions, firewall_statuses, strict=True)
+        ],
+        "axis_rows": list(report.axis_rows),
+        "measurability_record_ref": fixed_refs["measurability_record_ref"],
+        "aggregation_validity_record_ref": fixed_refs["aggregation_validity_record_ref"],
+        "capacity_feasibility_record_ref": fixed_refs["capacity_feasibility_record_ref"],
+        "mandate_legitimacy_record_ref": fixed_refs["mandate_legitimacy_record_ref"],
+        "strategic_response_record_ref": fixed_refs["strategic_response_record_ref"],
+        "cluster_authority_dimension_refs": [
+            str(row.get("dimension_ref")) for row in c3_payloads if row.get("dimension_ref")
+        ],
+        "bridge_consumer_table": bridge_payloads,
+        "constraint_store_update_table": [
+            row.model_dump(mode="json") for row in constraints
+        ],
+        "constraint_store_entry_table": constraint_entries,
+        "c3_authority_dimension_table": c3_payloads,
+        "post_intervention_dgp_update_ref": report.post_intervention_dgp_update_ref,
+        "system_dynamics_handoff_required": report.system_dynamics_handoff_required,
+        "regime_reissue_required": report.regime_reissue_required,
+        "blocking_axis_refs": list(report.blocking_axis_refs),
+        "limiting_axis_refs": list(report.limiting_axis_refs),
+        "false_clear_penalty": report.false_clear_penalty,
+        "limitation_summary": _s6_limitation_summary(report.axis_rows),
+        "canonical_outcome_effect": "none_shadow_only",
+        **record_payloads,
+    }
+    block["matches_gold"] = _s6_matches_gold(block, labels)
+    return block
+
+
+def _s6_blind_spot_corpus_summary(
+    cases: Sequence[Mapping[str, Any]],
+    *,
+    repo_root: Path,
+) -> dict[str, object]:
+    """Aggregate S6 corpus-route coverage and fail-closed probe metrics."""
+
+    rows = [
+        _mapping(case.get("s6_blind_spot_firewalls"))
+        for case in cases
+        if isinstance(case.get("s6_blind_spot_firewalls"), Mapping)
+    ]
+    axis_counts: dict[str, Counter[str]] = {
+        cell_ref: Counter() for cell_ref in S6_AXIS_CELLS
+    }
+    per_case_axis_table: list[dict[str, object]] = []
+    bridge_seen: set[str] = set()
+    c3_seen: set[str] = set()
+    for row in rows:
+        axis_statuses: dict[str, str] = {}
+        for axis_row in _sequence_of_mappings(row.get("axis_rows")):
+            cell_ref = str(axis_row.get("cell_ref") or "")
+            disposition = str(axis_row.get("disposition") or "")
+            if cell_ref:
+                axis_counts.setdefault(cell_ref, Counter())[disposition] += 1
+                axis_statuses[cell_ref] = disposition
+        per_case_axis_table.append(
+            {
+                "case_id": row.get("case_id"),
+                "overall_posture": row.get("overall_posture"),
+                "axis_statuses": axis_statuses,
+                "blocking_axis_refs": list(_sequence(row.get("blocking_axis_refs"))),
+                "limiting_axis_refs": list(_sequence(row.get("limiting_axis_refs"))),
+            }
+        )
+        bridge_seen.update(
+            str(bridge.get("consumer_ref"))
+            for bridge in _sequence_of_mappings(row.get("bridge_consumer_table"))
+            if bridge.get("consumer_ref")
+        )
+        c3_seen.update(
+            str(c3.get("authority_dimension"))
+            for c3 in _sequence_of_mappings(row.get("c3_authority_dimension_table"))
+            if c3.get("authority_dimension")
+        )
+    probe_coverage = s6_fail_closed_coverage(_s6_negative_control_probe_results(repo_root))
+    return {
+        "schema_version": "policyos.policy_design_case.layer2_s6.blind_spot_corpus_summary.v1",
+        "case_count": len(rows),
+        "axis_coverage_count": len(
+            {
+                cell_ref
+                for cell_ref, counts in axis_counts.items()
+                if cell_ref in S6_AXIS_CELLS and sum(counts.values()) > 0
+            }
+        ),
+        "all_five_axes_covered": all(
+            sum(axis_counts.get(cell_ref, Counter()).values()) > 0
+            for cell_ref in S6_AXIS_CELLS
+        ),
+        "per_axis_fail_closed_negative_control_pass_rate": probe_coverage[
+            "per_axis_fail_closed_negative_control_pass_rate"
+        ],
+        "false_clear_count": probe_coverage["false_clear_count"],
+        "per_axis_disposition_counts": {
+            cell_ref: dict(axis_counts.get(cell_ref, Counter()))
+            for cell_ref in S6_AXIS_CELLS
+        },
+        "bridge_consumer_coverage": {
+            consumer_ref: consumer_ref in bridge_seen for consumer_ref in S6_BRIDGE_CONSUMERS
+        },
+        "c3_authority_dimension_coverage": {
+            dimension: dimension in c3_seen for dimension in S6_C3_AUTHORITY_DIMENSIONS
+        },
+        "overall_posture_counts": dict(
+            Counter(str(row.get("overall_posture")) for row in rows)
+        ),
+        "system_dynamics_handoff_count": sum(
+            1 for row in rows if bool(row.get("system_dynamics_handoff_required"))
+        ),
+        "regime_reissue_required_count": sum(
+            1 for row in rows if bool(row.get("regime_reissue_required"))
+        ),
+        "per_case_axis_table": per_case_axis_table,
+    }
+
+
+def _s6_blind_spot_posture_input(
+    s6_block: Mapping[str, Any],
+) -> Layer2S6BlindSpotPostureInput:
+    """Map the W12.D S6 report block into the B-side compact posture DTO."""
+
+    return Layer2S6BlindSpotPostureInput(
+        overall_posture=_required_text(
+            s6_block.get("overall_posture"),
+            field_name="overall_posture",
+        ),  # type: ignore[arg-type]
+        maturity="fail_closed",
+        measurability_record_ref=_required_text(
+            s6_block.get("measurability_record_ref"),
+            field_name="measurability_record_ref",
+        ),
+        aggregation_validity_record_ref=_required_text(
+            s6_block.get("aggregation_validity_record_ref"),
+            field_name="aggregation_validity_record_ref",
+        ),
+        capacity_feasibility_record_ref=_required_text(
+            s6_block.get("capacity_feasibility_record_ref"),
+            field_name="capacity_feasibility_record_ref",
+        ),
+        mandate_legitimacy_record_ref=_required_text(
+            s6_block.get("mandate_legitimacy_record_ref"),
+            field_name="mandate_legitimacy_record_ref",
+        ),
+        strategic_response_record_ref=_required_text(
+            s6_block.get("strategic_response_record_ref"),
+            field_name="strategic_response_record_ref",
+        ),
+        cluster_authority_dimension_refs=[
+            str(ref) for ref in _sequence(s6_block.get("cluster_authority_dimension_refs"))
+        ],
+        bridge_consumer_rows=[
+            dict(row) for row in _sequence_of_mappings(s6_block.get("bridge_consumer_table"))
+        ],
+        constraint_store_updates=[
+            dict(row)
+            for row in _sequence_of_mappings(s6_block.get("constraint_store_entry_table"))
+        ],
+        c3_authority_dimension_rows=[
+            dict(row)
+            for row in _sequence_of_mappings(s6_block.get("c3_authority_dimension_table"))
+        ],
+        axis_rows=[dict(row) for row in _sequence_of_mappings(s6_block.get("axis_rows"))],
+        blocking_axis_refs=[
+            str(ref) for ref in _sequence(s6_block.get("blocking_axis_refs"))
+        ],
+        limiting_axis_refs=[
+            str(ref) for ref in _sequence(s6_block.get("limiting_axis_refs"))
+        ],
+        post_intervention_dgp_update_ref=_text(
+            s6_block.get("post_intervention_dgp_update_ref")
+        )
+        or None,
+        system_dynamics_handoff_required=bool(
+            s6_block.get("system_dynamics_handoff_required")
+        ),
+        regime_reissue_required=bool(s6_block.get("regime_reissue_required")),
+        limitation_summary=_required_text(
+            s6_block.get("limitation_summary"),
+            field_name="limitation_summary",
+        ),
+        false_clear_penalty=float(s6_block.get("false_clear_penalty") or 0.0),
+    )
+
+
+def _s6_case_signals(repo_root: Path) -> dict[str, dict[str, Any]]:
+    path = _resolve(repo_root, S6_CASE_SIGNALS_PATH)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    raw_cases = payload.get("cases") if isinstance(payload, Mapping) else {}
+    return {
+        str(case_id): dict(row)
+        for case_id, row in _mapping(raw_cases).items()
+        if isinstance(row, Mapping)
+    }
+
+
+def _s6_expert_labels(repo_root: Path) -> dict[str, dict[str, Any]]:
+    path = _resolve(repo_root, S6_EXPERT_LABELS_PATH)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    raw_cases = payload.get("cases") if isinstance(payload, Mapping) else {}
+    return {
+        str(case_id): dict(row)
+        for case_id, row in _mapping(raw_cases).items()
+        if isinstance(row, Mapping)
+    }
+
+
+def _s6_fixed_refs(case_id: str) -> dict[str, str]:
+    return {
+        "measurability_record_ref": f"pdc://layer2/s6/{case_id}/measurability-adequacy",
+        "aggregation_validity_record_ref": f"pdc://layer2/s6/{case_id}/aggregation-validity",
+        "capacity_feasibility_record_ref": f"pdc://layer2/s6/{case_id}/capacity-feasibility",
+        "mandate_legitimacy_record_ref": f"pdc://layer2/s6/{case_id}/mandate-legitimacy",
+        "strategic_response_record_ref": f"pdc://layer2/s6/{case_id}/strategic-response",
+        "cluster_authority_dimensions_ref": (
+            f"pdc://layer2/s6/{case_id}/cluster-authority-dimensions"
+        ),
+        "post_intervention_dgp_update_ref": (
+            f"pdc://layer2/s6/{case_id}/post-intervention-dgp"
+        ),
+    }
+
+
+def _s6_s5_composition_payload(
+    signals: Mapping[str, object],
+    *,
+    s5_coupling_composition: Mapping[str, object] | None,
+) -> dict[str, object]:
+    payload = dict(s5_coupling_composition or {})
+    for key, value in _mapping(signals.get("s5_composition_refs")).items():
+        if value is not None:
+            payload[key] = value
+    return payload
+
+
+def _s6_constraint_entry_payload(update: Mapping[str, Any]) -> dict[str, object]:
+    fields = (
+        "schema_version",
+        "constraint_id",
+        "cell_ref",
+        "status",
+        "source_ref",
+        "consumer_ref",
+        "refinement_route",
+        "evidence_refs",
+        "reason",
+        "rule_version_ref",
+    )
+    return {field: update[field] for field in fields if field in update}
+
+
+def _s6_matches_gold(block: Mapping[str, object], labels: Mapping[str, object]) -> bool:
+    actual_by_axis = {
+        str(row.get("cell_ref")): str(row.get("disposition"))
+        for row in _sequence_of_mappings(block.get("axis_rows"))
+    }
+    expected_by_axis = {
+        "SYSTEM.measurability": labels.get("expected_measurability_disposition"),
+        "SYSTEM.subject_granularity": labels.get("expected_aggregation_disposition"),
+        "ACTOR.state_capacity_feasibility": labels.get("expected_capacity_disposition"),
+        "ACTOR.mandate_legitimacy": labels.get("expected_mandate_disposition"),
+        "OTHER_AGENTS.strategic_response": labels.get(
+            "expected_strategic_response_disposition"
+        ),
+    }
+    bridge_consumers = {
+        str(row.get("consumer_ref"))
+        for row in _sequence_of_mappings(block.get("bridge_consumer_table"))
+    }
+    c3_dimensions = {
+        str(row.get("authority_dimension"))
+        for row in _sequence_of_mappings(block.get("c3_authority_dimension_table"))
+    }
+    return (
+        all(actual_by_axis.get(cell) == expected for cell, expected in expected_by_axis.items())
+        and block.get("overall_posture") == labels.get("expected_overall_posture")
+        and set(_sequence(block.get("blocking_axis_refs")))
+        == set(_sequence(labels.get("expected_blocking_axis_refs")))
+        and set(_sequence(block.get("limiting_axis_refs")))
+        == set(_sequence(labels.get("expected_limiting_axis_refs")))
+        and set(_sequence(labels.get("expected_bridge_consumer_refs"))) <= bridge_consumers
+        and set(_sequence(labels.get("expected_c3_authority_dimensions"))) == c3_dimensions
+    )
+
+
+def _s6_limitation_summary(axis_rows: Sequence[Mapping[str, object]]) -> str:
+    limited_or_blocked = [
+        f"{row.get('cell_ref')}={row.get('disposition')}"
+        for row in axis_rows
+        if row.get("disposition") in {"limit", "block"}
+    ]
+    if not limited_or_blocked:
+        return "S6 fail-closed blind-spot posture is clear for shadow routing."
+    return "S6 fail-closed blind-spot posture constrains: " + ", ".join(limited_or_blocked)
+
+
+def _s6_negative_control_probe_results(repo_root: Path) -> list[dict[str, object]]:
+    results: list[dict[str, object]] = []
+    for probe_path in S6_NEGATIVE_CONTROL_PROBES:
+        payload = json.loads(_resolve(repo_root, probe_path).read_text(encoding="utf-8"))
+        expected_error = str(payload.get("expected_error") or "")
+        observed_error: str | None = None
+        observed_disposition: str | None = None
+        try:
+            observed_disposition = _s6_run_negative_probe(payload)
+        except Exception as exc:  # noqa: BLE001 - probe records class-name outcomes.
+            observed_error = exc.__class__.__name__
+            observed_disposition = str(payload.get("expected_fail_closed_disposition") or "")
+        results.append(
+            {
+                "probe_ref": f"repo://{probe_path.as_posix()}",
+                "axis": payload.get("axis"),
+                "expected_error": expected_error,
+                "observed_error": observed_error,
+                "observed_disposition": observed_disposition,
+                "false_clear": observed_error != expected_error
+                or observed_disposition not in {"limit", "block"},
+            }
+        )
+    return results
+
+
+def _s6_run_negative_probe(payload: Mapping[str, object]) -> str:
+    case_id = _required_text(payload.get("case_id"), field_name="case_id")
+    design_ref = _required_text(payload.get("design_ref"), field_name="design_ref")
+    axis = _required_text(payload.get("blind_spot_axis"), field_name="blind_spot_axis")
+    rule_version_ref = _required_text(
+        payload.get("rule_version_ref"),
+        field_name="rule_version_ref",
+    )
+    if axis == "measurability":
+        record = evaluate_measurability_adequacy(
+            case_id=case_id,
+            design_ref=design_ref,
+            construct_rows=_sequence_of_mappings(payload.get("construct_rows")),
+            semantic_binding_ledger={
+                "ledger_ref": payload.get("semantic_binding_ledger_ref"),
+                "declared_measurability_pass": payload.get("declared_measurability_pass"),
+            },
+            rule_version_ref=rule_version_ref,
+        )
+    elif axis == "subject_granularity":
+        record = evaluate_aggregation_validity(
+            case_id=case_id,
+            design_ref=design_ref,
+            claim_scope=_required_text(payload.get("claim_scope"), field_name="claim_scope"),  # type: ignore[arg-type]
+            evidence_scope=_required_text(
+                payload.get("evidence_scope"),
+                field_name="evidence_scope",
+            ),  # type: ignore[arg-type]
+            aggregation_rows=_sequence_of_mappings(payload.get("aggregation_rows")),
+            concept_spine_carrier={
+                "carrier_ref": payload.get("concept_spine_carrier_ref"),
+                "declared_aggregation_pass": payload.get("declared_aggregation_pass"),
+            },
+            rule_version_ref=rule_version_ref,
+        )
+    elif axis == "state_capacity_feasibility":
+        record = evaluate_capacity_feasibility(
+            case_id=case_id,
+            design_ref=design_ref,
+            actor_ref=_required_text(payload.get("actor_ref"), field_name="actor_ref"),
+            jurisdiction_ref=_required_text(
+                payload.get("jurisdiction_ref"),
+                field_name="jurisdiction_ref",
+            ),
+            instrument_ref=_required_text(
+                payload.get("instrument_ref"),
+                field_name="instrument_ref",
+            ),
+            capacity_dimensions=_sequence_of_mappings(payload.get("capacity_dimensions")),
+            rule_version_ref=rule_version_ref,
+        )
+    elif axis == "mandate_legitimacy":
+        record = evaluate_mandate_legitimacy(
+            case_id=case_id,
+            design_ref=design_ref,
+            objective_refs=[str(ref) for ref in _sequence(payload.get("objective_refs"))],
+            mandate_sources=_sequence_of_mappings(payload.get("mandate_sources")),
+            participation_evaluations=_sequence_of_mappings(
+                payload.get("participation_evaluations"),
+            ),
+            consultation_validations=_sequence_of_mappings(
+                payload.get("consultation_validations"),
+            ),
+            rule_version_ref=rule_version_ref,
+        )
+    elif axis == "strategic_response":
+        entries = _sequence_of_mappings(payload.get("strategic_response_entries")) or (
+            {
+                "entry_ref": f"fixture://layer2/s6/{case_id}/unchanged-effect-claim",
+                "declared_unchanged_effect": payload.get("declared_unchanged_effect"),
+            },
+        )
+        record = evaluate_strategic_response(
+            case_id=case_id,
+            design_ref=design_ref,
+            response_channels=_sequence_of_mappings(payload.get("response_channels")),
+            pre_policy_effect_refs=[
+                str(ref) for ref in _sequence(payload.get("pre_policy_effect_refs"))
+            ],
+            s5_composition_posture=_mapping(payload.get("s5_composition_posture")),
+            strategic_response_entries=entries,
+            rule_version_ref=rule_version_ref,
+        )
+    else:
+        raise W12DCaseRunError(f"unknown S6 negative probe axis: {axis}")
+    return str(record.firewall_disposition)
 
 
 def _s4_epistemic_regime_summary(
@@ -1034,6 +1969,154 @@ def _s4_expert_labels(repo_root: Path) -> dict[str, dict[str, Any]]:
         for case_id, row in raw_labels.items()
         if isinstance(row, Mapping) and not str(case_id).startswith("_")
     }
+
+
+def _s5_case_signals(repo_root: Path) -> dict[str, dict[str, Any]]:
+    path = _resolve(repo_root, S5_CASE_SIGNALS_PATH)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    raw_cases = payload.get("cases") if isinstance(payload, Mapping) else {}
+    return {
+        str(case_id): dict(row)
+        for case_id, row in _mapping(raw_cases).items()
+        if isinstance(row, Mapping)
+    }
+
+
+def _s5_expert_labels(repo_root: Path) -> dict[str, dict[str, Any]]:
+    path = _resolve(repo_root, S5_EXPERT_LABELS_PATH)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    raw_cases = payload.get("cases") if isinstance(payload, Mapping) else {}
+    return {
+        str(case_id): dict(row)
+        for case_id, row in _mapping(raw_cases).items()
+        if isinstance(row, Mapping)
+    }
+
+
+def _s5_fixed_refs(case_id: str) -> dict[str, str]:
+    return {
+        "coupling_graph_ref": f"pdc://layer2/s5/{case_id}/coupling-graph",
+        "module_discovery_ref": f"pdc://layer2/s5/{case_id}/module-discovery",
+        "decomposition_result_ref": f"pdc://layer2/s5/{case_id}/decomposition-result",
+        "composition_receipt_ref": f"pdc://layer2/s5/{case_id}/composition-receipt",
+        "dynamics_requirement_ref": f"pdc://layer2/s5/{case_id}/system-dynamics-requirement",
+        "tractability_budget_ref": f"pdc://layer2/s5/{case_id}/tractability-budget",
+        "forecast_support_ref": f"pdc://layer2/s5/{case_id}/forecast-support-scope",
+    }
+
+
+def _s5_module_refs(observed_boundaries: Sequence[Mapping[str, Any]]) -> list[str]:
+    return sorted(
+        {
+            ref
+            for row in observed_boundaries
+            for ref in (
+                _required_text(row.get("source_module_ref"), field_name="source_module_ref"),
+                _required_text(row.get("target_module_ref"), field_name="target_module_ref"),
+            )
+        }
+    )
+
+
+def _s5_critical_path_module_refs(
+    observed_boundaries: Sequence[Mapping[str, Any]],
+) -> list[str]:
+    refs: list[str] = []
+    for row in observed_boundaries:
+        for key in ("source_module_ref", "target_module_ref"):
+            ref = _required_text(row.get(key), field_name=key)
+            if ref not in refs:
+                refs.append(ref)
+    return refs
+
+
+def _s5_coupling_edges(
+    case_id: str,
+    observed_boundaries: Sequence[Mapping[str, Any]],
+) -> list[CouplingEdge]:
+    edges: list[CouplingEdge] = []
+    for row in observed_boundaries:
+        boundary_ref = _required_text(row.get("boundary_ref"), field_name="boundary_ref")
+        source_ref = _required_text(row.get("source_module_ref"), field_name="source_module_ref")
+        target_ref = _required_text(row.get("target_module_ref"), field_name="target_module_ref")
+        relation = _required_text(row.get("relation"), field_name="relation")
+        strength = _required_text(
+            row.get("observed_interaction_strength"),
+            field_name="observed_interaction_strength",
+        )
+        intensity = _required_text(
+            row.get("observed_feedback_intensity"),
+            field_name="observed_feedback_intensity",
+        )
+        evidence_ref = f"fixture://layer2/s5/{case_id}/{boundary_ref}"
+        edges.append(
+            CouplingEdge(
+                boundary_ref=boundary_ref,
+                source_module_ref=source_ref,
+                target_module_ref=target_ref,
+                relation=relation,
+                interaction_strength=strength,  # type: ignore[arg-type]
+                feedback_intensity=intensity,  # type: ignore[arg-type]
+                feedback=intensity == "high",
+                evidence_ref=evidence_ref,
+            )
+        )
+        if intensity == "high":
+            edges.append(
+                CouplingEdge(
+                    boundary_ref=boundary_ref,
+                    source_module_ref=target_ref,
+                    target_module_ref=source_ref,
+                    relation="feedback_return_path",
+                    interaction_strength="strong",
+                    feedback_intensity="high",
+                    feedback=True,
+                    evidence_ref=evidence_ref,
+                )
+            )
+    return edges
+
+
+def _s5_boundary_rows_match_gold(
+    boundary_rows: Sequence[Any],
+    boundary_gold: Sequence[Mapping[str, Any]],
+) -> bool:
+    if len(boundary_rows) != len(boundary_gold):
+        return False
+    gold_by_boundary = {
+        _required_text(row.get("boundary_ref"), field_name="boundary_ref"): row
+        for row in boundary_gold
+    }
+    for row in boundary_rows:
+        gold = gold_by_boundary.get(row.boundary_ref)
+        if gold is None:
+            return False
+        dynamics_trigger = row.feedback_intensity == "high" or row.coupling_regime == "entangled"
+        if (
+            row.source_module_ref
+            != _required_text(gold.get("source_module_ref"), field_name="source_module_ref")
+            or row.target_module_ref
+            != _required_text(gold.get("target_module_ref"), field_name="target_module_ref")
+            or row.coupling_regime
+            != _required_text(gold.get("expert_coupling_regime"), field_name="expert_coupling")
+            or row.feedback_intensity
+            != _required_text(
+                gold.get("expected_feedback_intensity"),
+                field_name="expected_feedback_intensity",
+            )
+            or dynamics_trigger is not bool(gold.get("requires_system_dynamics"))
+        ):
+            return False
+    return True
+
+
+def _s5_search_space_size(labels: Mapping[str, Any]) -> str:
+    scale_class = _text(labels.get("scale_class"))
+    if scale_class.startswith("national") or scale_class.startswith("transnational"):
+        return "large"
+    if scale_class.startswith("river_basin") or scale_class.startswith("city"):
+        return "medium"
+    return "small"
 
 
 def _s4_case_expert_label(case: Mapping[str, Any]) -> str | None:

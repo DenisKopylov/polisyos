@@ -1,0 +1,44 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s6.mandate_speculation_probe.v1",
+  "case_id": "mandate_speculation_probe",
+  "expected_error": "P22MandateLegitimacyError",
+  "expected_pattern_id": "P22",
+  "axis": "ACTOR.mandate_legitimacy",
+  "blind_spot_axis": "mandate_legitimacy",
+  "design_ref": "pdc://layer2/s6/mandate-speculation/design",
+  "rule_version_ref": "repo://docs/reference/policy-design-case-failure-patterns.md#P22",
+  "declared_mandate_authorized": true,
+  "actor_ref": "actor://benefit-design-team",
+  "jurisdiction_ref": "jurisdiction://ua",
+  "instrument_ref": "instrument://benefit-objective-weighting",
+  "objective_refs": [
+    "objective://maximize-speed-over-appeal-rights",
+    "objective://social-weight-frontline-firms"
+  ],
+  "population_ref": "population://affected-benefit-applicants",
+  "producer_evidence_refs": [
+    "fixture://layer2/s6/mandate/llm-memo"
+  ],
+  "mandate_sources": [
+    {
+      "basis": "affected_person",
+      "source_authority": "llm_candidate",
+      "source_ref": "fixture://layer2/s6/mandate/llm-memo",
+      "provenance_ref": null,
+      "disposition": "candidate_unverified",
+      "authorized_objective_refs": [
+        "objective://maximize-speed-over-appeal-rights",
+        "objective://social-weight-frontline-firms"
+      ],
+      "reason": "LLM prose asserts affected-person mandate without participation evidence"
+    }
+  ],
+  "participation_evaluations": [],
+  "consultation_validations": [],
+  "expected_fail_closed_disposition": "block",
+  "expected_mandate_disposition": "candidate_unverified",
+  "expected_blocker_refs": [
+    "blocker://layer2/s6/mandate/llm-speculation-not-mandate",
+    "blocker://layer2/s6/mandate/no-participation-provenance"
+  ]
+}

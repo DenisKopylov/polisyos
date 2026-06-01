@@ -1,0 +1,45 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s6.aggregation_scope_drift_probe.v1",
+  "case_id": "aggregation_scope_drift_probe",
+  "expected_error": "P19AggregationLaunderingError",
+  "expected_pattern_id": "P19",
+  "axis": "SYSTEM.subject_granularity",
+  "blind_spot_axis": "subject_granularity",
+  "design_ref": "pdc://layer2/s6/aggregation-scope-drift/design",
+  "rule_version_ref": "repo://docs/reference/policy-design-case-failure-patterns.md#P19",
+  "declared_aggregation_pass": true,
+  "claim_ref": "claim://targeting/firm-level-credit-eligibility",
+  "claim_scope": "firm",
+  "evidence_scope": "jurisdiction",
+  "population_ref": "population://wartime-msmes",
+  "subgroup_ref": "population://frontline-micro-firms",
+  "jurisdiction_ref": "jurisdiction://ua",
+  "actor_ref": "actor://credit-program-operator",
+  "instrument_ref": "instrument://firm-level-eligibility-rule",
+  "concept_spine_carrier_ref": "fixture://layer2/s6/aggregation/concept-spine-carrier",
+  "producer_evidence_refs": [
+    "fixture://layer2/s6/aggregation/jurisdiction-average",
+    "fixture://layer2/s6/aggregation/frontline-subgroup-harm"
+  ],
+  "aggregation_rows": [
+    {
+      "claim_scope": "firm",
+      "evidence_scope": "jurisdiction",
+      "population_ref": "population://wartime-msmes",
+      "subgroup_ref": "population://frontline-micro-firms",
+      "aggregation_validity": "block_ecological_error",
+      "simpson_risk": true,
+      "subgroup_harm_hidden": true,
+      "validity_proof_ref": null,
+      "evidence_refs": [
+        "fixture://layer2/s6/aggregation/jurisdiction-average",
+        "fixture://layer2/s6/aggregation/frontline-subgroup-harm"
+      ]
+    }
+  ],
+  "expected_fail_closed_disposition": "block",
+  "expected_blocker_refs": [
+    "blocker://layer2/s6/aggregation/ecological-error",
+    "blocker://layer2/s6/aggregation/simpson-risk"
+  ]
+}

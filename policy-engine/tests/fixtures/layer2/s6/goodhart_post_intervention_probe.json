@@ -1,0 +1,60 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s6.goodhart_post_intervention_probe.v1",
+  "case_id": "goodhart_post_intervention_probe",
+  "expected_error": "P24StrategicResponseError",
+  "expected_pattern_id": "P24",
+  "axis": "OTHER_AGENTS.strategic_response",
+  "blind_spot_axis": "strategic_response",
+  "design_ref": "pdc://layer2/s6/goodhart-post-intervention/design",
+  "rule_version_ref": "repo://docs/reference/policy-design-case-failure-patterns.md#P24",
+  "declared_unchanged_effect": true,
+  "actor_ref": "actor://program-operator",
+  "jurisdiction_ref": "jurisdiction://ua",
+  "instrument_ref": "instrument://performance-bonus-target",
+  "target_metric_ref": "metric://processed-applications-within-48h",
+  "pre_policy_effect_refs": [
+    "effect://pre-policy/service-speed-improvement"
+  ],
+  "projected_post_policy_effect_ref": "effect://pre-policy/service-speed-improvement",
+  "producer_evidence_refs": [
+    "fixture://layer2/s6/strategic/goodhart-channel",
+    "fixture://layer2/s6/strategic/capture-channel"
+  ],
+  "response_channels": [
+    {
+      "channel": "goodhart",
+      "disposition": "system_dynamics_required",
+      "risk_level": "high",
+      "response_model_ref": null,
+      "post_intervention_dgp_update_ref": null,
+      "evidence_refs": [
+        "fixture://layer2/s6/strategic/goodhart-channel"
+      ],
+      "reason": "staff can optimize processing-time target while reducing review quality"
+    },
+    {
+      "channel": "capture",
+      "disposition": "limited",
+      "risk_level": "medium",
+      "response_model_ref": null,
+      "post_intervention_dgp_update_ref": null,
+      "evidence_refs": [
+        "fixture://layer2/s6/strategic/capture-channel"
+      ],
+      "reason": "regulated providers can pressure target definitions"
+    }
+  ],
+  "s5_composition_posture": {
+    "composition_disposition": "compose_with_limitations",
+    "system_dynamics_requirement_ref": null,
+    "residual_interaction_risk": "medium"
+  },
+  "strategic_response_entries": [],
+  "expected_fail_closed_disposition": "block",
+  "expected_post_intervention_dgp_update_required": true,
+  "expected_system_dynamics_handoff_required": true,
+  "expected_blocker_refs": [
+    "blocker://layer2/s6/strategic/unchanged-effect-under-goodhart",
+    "blocker://layer2/s6/strategic/missing-post-intervention-dgp"
+  ]
+}

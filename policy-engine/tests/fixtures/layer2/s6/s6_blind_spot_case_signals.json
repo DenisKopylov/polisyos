@@ -1,0 +1,2103 @@
+{
+  "cases": {
+    "ua-msme-affordable-loans-2022": {
+      "actor_ref": "actor://ua-msme-affordable-loans-2022/implementing-actor",
+      "aggregation_rows": [
+        {
+          "aggregation_validity": "block_ecological_error",
+          "claim_scope": "firm",
+          "evidence_refs": [
+            "fixture://layer2/s6/ua-msme-affordable-loans-2022/aggregation/evidence"
+          ],
+          "evidence_scope": "jurisdiction",
+          "population_ref": "population://ua-msme-affordable-loans-2022/covered-population",
+          "simpson_risk": true,
+          "subgroup_harm_hidden": true,
+          "subgroup_ref": "population://ua-msme-affordable-loans-2022/at-risk-subgroup",
+          "validity_proof_ref": null
+        }
+      ],
+      "bridge_consumer_expectations": [
+        "KNOWLEDGE.epistemic_regime",
+        "ACTOR.value_choice_provenance",
+        "INTERVENTION.targeting",
+        "INTERVENTION.feasibility",
+        "DESIGNER_ITSELF.envelope_membership",
+        "PUBLIC.legitimacy_disclosure",
+        "INTERVENTION.design_candidate",
+        "SYSTEM.post_intervention_dgp",
+        "SYSTEM.dynamics_feedback",
+        "INTERVENTION.robustness"
+      ],
+      "capacity_dimensions": [
+        {
+          "capacity_building_obligation_ref": "obligation://layer2/s6/ua-msme-affordable-loans-2022/build-delivery-capacity",
+          "copied_from_actor_ref": null,
+          "copied_from_jurisdiction_ref": null,
+          "dimension": "delivery",
+          "disposition": "capacity_building_required",
+          "evidence_ref": "fixture://layer2/s6/ua-msme-affordable-loans-2022/capacity/delivery-gap",
+          "reason": "delivery capacity is partial and must be built before rollout authority",
+          "required": true
+        }
+      ],
+      "claim_scope": "firm",
+      "concept_spine_carrier_ref": "fixture://layer2/s6/ua-msme-affordable-loans-2022/concept-spine-carrier",
+      "construct_refs": [
+        "construct://ua-msme-affordable-loans-2022/primary_outcome",
+        "construct://ua-msme-affordable-loans-2022/distributional_value"
+      ],
+      "construct_rows": [
+        {
+          "construct_label": "primary outcome",
+          "construct_ref": "construct://ua-msme-affordable-loans-2022/primary_outcome",
+          "declared_as_value_construct_complete": false,
+          "evidence_refs": [
+            "fixture://layer2/s6/ua-msme-affordable-loans-2022/measurability/observed-primary"
+          ],
+          "measurability_status": "observed",
+          "proxy_ref": null,
+          "proxy_validity": "not_applicable",
+          "value_loss_disclosure_ref": null
+        },
+        {
+          "construct_label": "distributional value",
+          "construct_ref": "construct://ua-msme-affordable-loans-2022/distributional_value",
+          "declared_as_value_construct_complete": false,
+          "evidence_refs": [
+            "fixture://layer2/s6/ua-msme-affordable-loans-2022/measurability/admin-proxy"
+          ],
+          "measurability_status": "proxy_only",
+          "proxy_ref": "construct://ua-msme-affordable-loans-2022/administrative_proxy",
+          "proxy_validity": "limited_proxy",
+          "value_loss_disclosure_ref": "fixture://layer2/s6/ua-msme-affordable-loans-2022/value-loss/distributional-value"
+        }
+      ],
+      "consultation_validations": [],
+      "evidence_scope": "jurisdiction",
+      "expected_c3_authority_dimensions": [
+        "measurability_adequacy",
+        "aggregation_validity",
+        "capacity_feasibility",
+        "mandate_legitimacy",
+        "strategic_robustness",
+        "response_model_validity"
+      ],
+      "expected_constraint_store_consumers": [
+        "KNOWLEDGE.epistemic_regime",
+        "ACTOR.value_choice_provenance",
+        "INTERVENTION.targeting",
+        "INTERVENTION.feasibility",
+        "DESIGNER_ITSELF.envelope_membership",
+        "PUBLIC.legitimacy_disclosure",
+        "INTERVENTION.design_candidate",
+        "SYSTEM.post_intervention_dgp",
+        "SYSTEM.dynamics_feedback",
+        "INTERVENTION.robustness"
+      ],
+      "instrument_ref": "instrument://ua-msme-affordable-loans-2022/policy-instrument",
+      "jurisdiction_ref": "jurisdiction://ua-msme-affordable-loans-2022",
+      "lifecycle_stage": "implementation",
+      "mandate_sources": [
+        {
+          "authorized_objective_refs": [
+            "objective://ua-msme-affordable-loans-2022/primary"
+          ],
+          "basis": "participatory",
+          "disposition": "candidate_unverified",
+          "provenance_ref": "fixture://layer2/s6/ua-msme-affordable-loans-2022/mandate/partial-provenance",
+          "reason": "mandate exists as candidate-unverified evidence and must limit authority",
+          "source_authority": "human_governance",
+          "source_ref": "fixture://layer2/s6/ua-msme-affordable-loans-2022/mandate/participation-summary"
+        }
+      ],
+      "objective_refs": [
+        "objective://ua-msme-affordable-loans-2022/primary",
+        "objective://ua-msme-affordable-loans-2022/distributional-integrity"
+      ],
+      "participation_evaluations": [
+        {
+          "blocker_refs": [],
+          "claim_use_allowed": true,
+          "provenance_ref": "fixture://layer2/s6/ua-msme-affordable-loans-2022/participation/limited",
+          "source_ref": "fixture://layer2/s6/ua-msme-affordable-loans-2022/consultation",
+          "unresolved_high_severity_objection": false
+        }
+      ],
+      "post_intervention_dgp_assumptions": [
+        "assumption://layer2/s6/ua-msme-affordable-loans-2022/post-intervention-dgp"
+      ],
+      "pre_policy_effect_refs": [
+        "effect://ua-msme-affordable-loans-2022/pre-policy-effect"
+      ],
+      "proxy_rows": [
+        {
+          "construct_label": "distributional value",
+          "construct_ref": "construct://ua-msme-affordable-loans-2022/distributional_value",
+          "declared_as_value_construct_complete": false,
+          "evidence_refs": [
+            "fixture://layer2/s6/ua-msme-affordable-loans-2022/measurability/admin-proxy"
+          ],
+          "measurability_status": "proxy_only",
+          "proxy_ref": "construct://ua-msme-affordable-loans-2022/administrative_proxy",
+          "proxy_validity": "limited_proxy",
+          "value_loss_disclosure_ref": "fixture://layer2/s6/ua-msme-affordable-loans-2022/value-loss/distributional-value"
+        }
+      ],
+      "response_channels": [
+        {
+          "channel": "goodhart",
+          "disposition": "system_dynamics_required",
+          "evidence_refs": [
+            "fixture://layer2/s6/ua-msme-affordable-loans-2022/strategic/goodhart-channel"
+          ],
+          "post_intervention_dgp_update_ref": "pdc://layer2/s6/ua-msme-affordable-loans-2022/post-intervention-dgp",
+          "reason": "incentive response can change the post-intervention DGP",
+          "response_model_ref": "fixture://layer2/s6/ua-msme-affordable-loans-2022/strategic/goodhart-trigger",
+          "risk_level": "high"
+        }
+      ],
+      "s5_composition_refs": {
+        "composition_receipt_ref": "pdc://layer2/s5/ua-msme-affordable-loans-2022/composition-receipt",
+        "dynamics_requirement_ref": "pdc://layer2/s5/ua-msme-affordable-loans-2022/system-dynamics-requirement"
+      },
+      "semantic_binding_ledger_ref": "fixture://layer2/s6/ua-msme-affordable-loans-2022/semantic-binding-ledger",
+      "strategic_response_entries": [
+        {
+          "declared_unchanged_effect": false,
+          "entry_ref": "fixture://layer2/s6/ua-msme-affordable-loans-2022/strategic/entry"
+        }
+      ],
+      "value_loss_notes": [
+        "fixture://layer2/s6/ua-msme-affordable-loans-2022/value-loss-note"
+      ]
+    },
+    "w11a_berlin_rent_cap_2020": {
+      "actor_ref": "actor://w11a_berlin_rent_cap_2020/implementing-actor",
+      "aggregation_rows": [
+        {
+          "aggregation_validity": "limited",
+          "claim_scope": "firm",
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_berlin_rent_cap_2020/aggregation/evidence"
+          ],
+          "evidence_scope": "group",
+          "population_ref": "population://w11a_berlin_rent_cap_2020/covered-population",
+          "simpson_risk": false,
+          "subgroup_harm_hidden": false,
+          "subgroup_ref": "population://w11a_berlin_rent_cap_2020/at-risk-subgroup",
+          "validity_proof_ref": "fixture://layer2/s6/w11a_berlin_rent_cap_2020/aggregation/scope-limitation"
+        }
+      ],
+      "bridge_consumer_expectations": [
+        "KNOWLEDGE.epistemic_regime",
+        "ACTOR.value_choice_provenance",
+        "INTERVENTION.targeting",
+        "INTERVENTION.feasibility",
+        "DESIGNER_ITSELF.envelope_membership",
+        "PUBLIC.legitimacy_disclosure",
+        "INTERVENTION.design_candidate",
+        "SYSTEM.post_intervention_dgp",
+        "SYSTEM.dynamics_feedback",
+        "INTERVENTION.robustness"
+      ],
+      "capacity_dimensions": [
+        {
+          "capacity_building_obligation_ref": null,
+          "copied_from_actor_ref": null,
+          "copied_from_jurisdiction_ref": null,
+          "dimension": "administrative",
+          "disposition": "grounded",
+          "evidence_ref": "fixture://layer2/s6/w11a_berlin_rent_cap_2020/capacity/administrative-grounded",
+          "reason": "target actor capacity is grounded for fail-closed corpus scope",
+          "required": true
+        }
+      ],
+      "claim_scope": "firm",
+      "concept_spine_carrier_ref": "fixture://layer2/s6/w11a_berlin_rent_cap_2020/concept-spine-carrier",
+      "construct_refs": [
+        "construct://w11a_berlin_rent_cap_2020/primary_outcome"
+      ],
+      "construct_rows": [
+        {
+          "construct_label": "primary outcome",
+          "construct_ref": "construct://w11a_berlin_rent_cap_2020/primary_outcome",
+          "declared_as_value_construct_complete": false,
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_berlin_rent_cap_2020/measurability/observed-primary"
+          ],
+          "measurability_status": "observed",
+          "proxy_ref": null,
+          "proxy_validity": "not_applicable",
+          "value_loss_disclosure_ref": null
+        }
+      ],
+      "consultation_validations": [],
+      "evidence_scope": "group",
+      "expected_c3_authority_dimensions": [
+        "measurability_adequacy",
+        "aggregation_validity",
+        "capacity_feasibility",
+        "mandate_legitimacy",
+        "strategic_robustness",
+        "response_model_validity"
+      ],
+      "expected_constraint_store_consumers": [
+        "KNOWLEDGE.epistemic_regime",
+        "ACTOR.value_choice_provenance",
+        "INTERVENTION.targeting",
+        "INTERVENTION.feasibility",
+        "DESIGNER_ITSELF.envelope_membership",
+        "PUBLIC.legitimacy_disclosure",
+        "INTERVENTION.design_candidate",
+        "SYSTEM.post_intervention_dgp",
+        "SYSTEM.dynamics_feedback",
+        "INTERVENTION.robustness"
+      ],
+      "instrument_ref": "instrument://w11a_berlin_rent_cap_2020/policy-instrument",
+      "jurisdiction_ref": "jurisdiction://w11a_berlin_rent_cap_2020",
+      "lifecycle_stage": "implementation",
+      "mandate_sources": [
+        {
+          "authorized_objective_refs": [],
+          "basis": "absent",
+          "disposition": "blocked",
+          "provenance_ref": null,
+          "reason": "objective authority is unresolved for the affected population",
+          "source_authority": "human_governance",
+          "source_ref": "fixture://layer2/s6/w11a_berlin_rent_cap_2020/mandate/unresolved"
+        }
+      ],
+      "objective_refs": [
+        "objective://w11a_berlin_rent_cap_2020/primary",
+        "objective://w11a_berlin_rent_cap_2020/distributional-integrity"
+      ],
+      "participation_evaluations": [
+        {
+          "blocker_refs": [
+            "blocker://layer2/s6/w11a_berlin_rent_cap_2020/participation"
+          ],
+          "claim_use_allowed": false,
+          "provenance_ref": "fixture://layer2/s6/w11a_berlin_rent_cap_2020/participation/blocked",
+          "source_ref": "fixture://layer2/s6/w11a_berlin_rent_cap_2020/consultation",
+          "unresolved_high_severity_objection": false
+        }
+      ],
+      "post_intervention_dgp_assumptions": [
+        "assumption://layer2/s6/w11a_berlin_rent_cap_2020/post-intervention-dgp"
+      ],
+      "pre_policy_effect_refs": [
+        "effect://w11a_berlin_rent_cap_2020/pre-policy-effect"
+      ],
+      "proxy_rows": [],
+      "response_channels": [
+        {
+          "channel": "goodhart",
+          "disposition": "system_dynamics_required",
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_berlin_rent_cap_2020/strategic/goodhart-channel"
+          ],
+          "post_intervention_dgp_update_ref": "pdc://layer2/s6/w11a_berlin_rent_cap_2020/post-intervention-dgp",
+          "reason": "incentive response can change the post-intervention DGP",
+          "response_model_ref": "fixture://layer2/s6/w11a_berlin_rent_cap_2020/strategic/goodhart-trigger",
+          "risk_level": "high"
+        }
+      ],
+      "s5_composition_refs": {
+        "composition_receipt_ref": "pdc://layer2/s5/w11a_berlin_rent_cap_2020/composition-receipt",
+        "dynamics_requirement_ref": "pdc://layer2/s5/w11a_berlin_rent_cap_2020/system-dynamics-requirement"
+      },
+      "semantic_binding_ledger_ref": "fixture://layer2/s6/w11a_berlin_rent_cap_2020/semantic-binding-ledger",
+      "strategic_response_entries": [
+        {
+          "declared_unchanged_effect": false,
+          "entry_ref": "fixture://layer2/s6/w11a_berlin_rent_cap_2020/strategic/entry"
+        }
+      ],
+      "value_loss_notes": [
+        "fixture://layer2/s6/w11a_berlin_rent_cap_2020/value-loss-note"
+      ]
+    },
+    "w11a_boston_operation_ceasefire_1996": {
+      "actor_ref": "actor://w11a_boston_operation_ceasefire_1996/implementing-actor",
+      "aggregation_rows": [
+        {
+          "aggregation_validity": "limited",
+          "claim_scope": "firm",
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_boston_operation_ceasefire_1996/aggregation/evidence"
+          ],
+          "evidence_scope": "group",
+          "population_ref": "population://w11a_boston_operation_ceasefire_1996/covered-population",
+          "simpson_risk": false,
+          "subgroup_harm_hidden": false,
+          "subgroup_ref": "population://w11a_boston_operation_ceasefire_1996/at-risk-subgroup",
+          "validity_proof_ref": "fixture://layer2/s6/w11a_boston_operation_ceasefire_1996/aggregation/scope-limitation"
+        }
+      ],
+      "bridge_consumer_expectations": [
+        "KNOWLEDGE.epistemic_regime",
+        "ACTOR.value_choice_provenance",
+        "INTERVENTION.targeting",
+        "INTERVENTION.feasibility",
+        "DESIGNER_ITSELF.envelope_membership",
+        "PUBLIC.legitimacy_disclosure",
+        "INTERVENTION.design_candidate",
+        "SYSTEM.post_intervention_dgp",
+        "SYSTEM.dynamics_feedback",
+        "INTERVENTION.robustness"
+      ],
+      "capacity_dimensions": [
+        {
+          "capacity_building_obligation_ref": "obligation://layer2/s6/w11a_boston_operation_ceasefire_1996/repair-capacity-blocker",
+          "copied_from_actor_ref": "actor://w11a_boston_operation_ceasefire_1996/source-high-capacity-actor",
+          "copied_from_jurisdiction_ref": "jurisdiction://w11a_boston_operation_ceasefire_1996/source-high-capacity-jurisdiction",
+          "dimension": "administrative",
+          "disposition": "blocked",
+          "evidence_ref": null,
+          "reason": "required administrative capacity is copied or absent in target jurisdiction",
+          "required": true
+        }
+      ],
+      "claim_scope": "firm",
+      "concept_spine_carrier_ref": "fixture://layer2/s6/w11a_boston_operation_ceasefire_1996/concept-spine-carrier",
+      "construct_refs": [
+        "construct://w11a_boston_operation_ceasefire_1996/primary_outcome",
+        "construct://w11a_boston_operation_ceasefire_1996/distributional_value"
+      ],
+      "construct_rows": [
+        {
+          "construct_label": "primary outcome",
+          "construct_ref": "construct://w11a_boston_operation_ceasefire_1996/primary_outcome",
+          "declared_as_value_construct_complete": false,
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_boston_operation_ceasefire_1996/measurability/observed-primary"
+          ],
+          "measurability_status": "observed",
+          "proxy_ref": null,
+          "proxy_validity": "not_applicable",
+          "value_loss_disclosure_ref": null
+        },
+        {
+          "construct_label": "distributional value",
+          "construct_ref": "construct://w11a_boston_operation_ceasefire_1996/distributional_value",
+          "declared_as_value_construct_complete": false,
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_boston_operation_ceasefire_1996/measurability/admin-proxy"
+          ],
+          "measurability_status": "proxy_only",
+          "proxy_ref": "construct://w11a_boston_operation_ceasefire_1996/administrative_proxy",
+          "proxy_validity": "limited_proxy",
+          "value_loss_disclosure_ref": "fixture://layer2/s6/w11a_boston_operation_ceasefire_1996/value-loss/distributional-value"
+        }
+      ],
+      "consultation_validations": [],
+      "evidence_scope": "group",
+      "expected_c3_authority_dimensions": [
+        "measurability_adequacy",
+        "aggregation_validity",
+        "capacity_feasibility",
+        "mandate_legitimacy",
+        "strategic_robustness",
+        "response_model_validity"
+      ],
+      "expected_constraint_store_consumers": [
+        "KNOWLEDGE.epistemic_regime",
+        "ACTOR.value_choice_provenance",
+        "INTERVENTION.targeting",
+        "INTERVENTION.feasibility",
+        "DESIGNER_ITSELF.envelope_membership",
+        "PUBLIC.legitimacy_disclosure",
+        "INTERVENTION.design_candidate",
+        "SYSTEM.post_intervention_dgp",
+        "SYSTEM.dynamics_feedback",
+        "INTERVENTION.robustness"
+      ],
+      "instrument_ref": "instrument://w11a_boston_operation_ceasefire_1996/policy-instrument",
+      "jurisdiction_ref": "jurisdiction://w11a_boston_operation_ceasefire_1996",
+      "lifecycle_stage": "implementation",
+      "mandate_sources": [
+        {
+          "authorized_objective_refs": [
+            "objective://w11a_boston_operation_ceasefire_1996/primary"
+          ],
+          "basis": "participatory",
+          "disposition": "candidate_unverified",
+          "provenance_ref": "fixture://layer2/s6/w11a_boston_operation_ceasefire_1996/mandate/partial-provenance",
+          "reason": "mandate exists as candidate-unverified evidence and must limit authority",
+          "source_authority": "human_governance",
+          "source_ref": "fixture://layer2/s6/w11a_boston_operation_ceasefire_1996/mandate/participation-summary"
+        }
+      ],
+      "objective_refs": [
+        "objective://w11a_boston_operation_ceasefire_1996/primary",
+        "objective://w11a_boston_operation_ceasefire_1996/distributional-integrity"
+      ],
+      "participation_evaluations": [
+        {
+          "blocker_refs": [],
+          "claim_use_allowed": true,
+          "provenance_ref": "fixture://layer2/s6/w11a_boston_operation_ceasefire_1996/participation/limited",
+          "source_ref": "fixture://layer2/s6/w11a_boston_operation_ceasefire_1996/consultation",
+          "unresolved_high_severity_objection": false
+        }
+      ],
+      "post_intervention_dgp_assumptions": [
+        "assumption://layer2/s6/w11a_boston_operation_ceasefire_1996/post-intervention-dgp"
+      ],
+      "pre_policy_effect_refs": [
+        "effect://w11a_boston_operation_ceasefire_1996/pre-policy-effect"
+      ],
+      "proxy_rows": [
+        {
+          "construct_label": "distributional value",
+          "construct_ref": "construct://w11a_boston_operation_ceasefire_1996/distributional_value",
+          "declared_as_value_construct_complete": false,
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_boston_operation_ceasefire_1996/measurability/admin-proxy"
+          ],
+          "measurability_status": "proxy_only",
+          "proxy_ref": "construct://w11a_boston_operation_ceasefire_1996/administrative_proxy",
+          "proxy_validity": "limited_proxy",
+          "value_loss_disclosure_ref": "fixture://layer2/s6/w11a_boston_operation_ceasefire_1996/value-loss/distributional-value"
+        }
+      ],
+      "response_channels": [
+        {
+          "channel": "compliance_response",
+          "disposition": "limited",
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_boston_operation_ceasefire_1996/strategic/partial-channel"
+          ],
+          "post_intervention_dgp_update_ref": "pdc://layer2/s6/w11a_boston_operation_ceasefire_1996/post-intervention-dgp",
+          "reason": "post-intervention response evidence is partial and limits robustness authority",
+          "response_model_ref": "fixture://layer2/s6/w11a_boston_operation_ceasefire_1996/strategic/partial-response-model",
+          "risk_level": "medium"
+        }
+      ],
+      "s5_composition_refs": {
+        "composition_receipt_ref": "pdc://layer2/s5/w11a_boston_operation_ceasefire_1996/composition-receipt",
+        "dynamics_requirement_ref": null
+      },
+      "semantic_binding_ledger_ref": "fixture://layer2/s6/w11a_boston_operation_ceasefire_1996/semantic-binding-ledger",
+      "strategic_response_entries": [
+        {
+          "declared_unchanged_effect": false,
+          "entry_ref": "fixture://layer2/s6/w11a_boston_operation_ceasefire_1996/strategic/entry"
+        }
+      ],
+      "value_loss_notes": [
+        "fixture://layer2/s6/w11a_boston_operation_ceasefire_1996/value-loss-note"
+      ]
+    },
+    "w11a_eu_temporary_protection_ukraine_2022": {
+      "actor_ref": "actor://w11a_eu_temporary_protection_ukraine_2022/implementing-actor",
+      "aggregation_rows": [
+        {
+          "aggregation_validity": "valid",
+          "claim_scope": "jurisdiction",
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_eu_temporary_protection_ukraine_2022/aggregation/evidence"
+          ],
+          "evidence_scope": "jurisdiction",
+          "population_ref": "population://w11a_eu_temporary_protection_ukraine_2022/covered-population",
+          "simpson_risk": false,
+          "subgroup_harm_hidden": false,
+          "subgroup_ref": "population://w11a_eu_temporary_protection_ukraine_2022/at-risk-subgroup",
+          "validity_proof_ref": "fixture://layer2/s6/w11a_eu_temporary_protection_ukraine_2022/aggregation/proof"
+        }
+      ],
+      "bridge_consumer_expectations": [
+        "KNOWLEDGE.epistemic_regime",
+        "ACTOR.value_choice_provenance",
+        "INTERVENTION.targeting",
+        "INTERVENTION.feasibility",
+        "DESIGNER_ITSELF.envelope_membership",
+        "PUBLIC.legitimacy_disclosure",
+        "INTERVENTION.design_candidate",
+        "SYSTEM.post_intervention_dgp",
+        "SYSTEM.dynamics_feedback",
+        "INTERVENTION.robustness"
+      ],
+      "capacity_dimensions": [
+        {
+          "capacity_building_obligation_ref": "obligation://layer2/s6/w11a_eu_temporary_protection_ukraine_2022/build-delivery-capacity",
+          "copied_from_actor_ref": null,
+          "copied_from_jurisdiction_ref": null,
+          "dimension": "delivery",
+          "disposition": "capacity_building_required",
+          "evidence_ref": "fixture://layer2/s6/w11a_eu_temporary_protection_ukraine_2022/capacity/delivery-gap",
+          "reason": "delivery capacity is partial and must be built before rollout authority",
+          "required": true
+        }
+      ],
+      "claim_scope": "jurisdiction",
+      "concept_spine_carrier_ref": "fixture://layer2/s6/w11a_eu_temporary_protection_ukraine_2022/concept-spine-carrier",
+      "construct_refs": [
+        "construct://w11a_eu_temporary_protection_ukraine_2022/primary_outcome"
+      ],
+      "construct_rows": [
+        {
+          "construct_label": "primary outcome",
+          "construct_ref": "construct://w11a_eu_temporary_protection_ukraine_2022/primary_outcome",
+          "declared_as_value_construct_complete": false,
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_eu_temporary_protection_ukraine_2022/measurability/observed-primary"
+          ],
+          "measurability_status": "observed",
+          "proxy_ref": null,
+          "proxy_validity": "not_applicable",
+          "value_loss_disclosure_ref": null
+        }
+      ],
+      "consultation_validations": [],
+      "evidence_scope": "jurisdiction",
+      "expected_c3_authority_dimensions": [
+        "measurability_adequacy",
+        "aggregation_validity",
+        "capacity_feasibility",
+        "mandate_legitimacy",
+        "strategic_robustness",
+        "response_model_validity"
+      ],
+      "expected_constraint_store_consumers": [
+        "KNOWLEDGE.epistemic_regime",
+        "ACTOR.value_choice_provenance",
+        "INTERVENTION.targeting",
+        "INTERVENTION.feasibility",
+        "DESIGNER_ITSELF.envelope_membership",
+        "PUBLIC.legitimacy_disclosure",
+        "INTERVENTION.design_candidate",
+        "SYSTEM.post_intervention_dgp",
+        "SYSTEM.dynamics_feedback",
+        "INTERVENTION.robustness"
+      ],
+      "instrument_ref": "instrument://w11a_eu_temporary_protection_ukraine_2022/policy-instrument",
+      "jurisdiction_ref": "jurisdiction://w11a_eu_temporary_protection_ukraine_2022",
+      "lifecycle_stage": "implementation",
+      "mandate_sources": [
+        {
+          "authorized_objective_refs": [
+            "objective://w11a_eu_temporary_protection_ukraine_2022/primary"
+          ],
+          "basis": "statutory",
+          "disposition": "grounded",
+          "provenance_ref": "fixture://layer2/s6/w11a_eu_temporary_protection_ukraine_2022/mandate/provenance",
+          "reason": "objective provenance is grounded for the corpus case",
+          "source_authority": "human_governance",
+          "source_ref": "fixture://layer2/s6/w11a_eu_temporary_protection_ukraine_2022/mandate/statute"
+        }
+      ],
+      "objective_refs": [
+        "objective://w11a_eu_temporary_protection_ukraine_2022/primary",
+        "objective://w11a_eu_temporary_protection_ukraine_2022/distributional-integrity"
+      ],
+      "participation_evaluations": [
+        {
+          "blocker_refs": [],
+          "claim_use_allowed": true,
+          "provenance_ref": "fixture://layer2/s6/w11a_eu_temporary_protection_ukraine_2022/participation/allowed",
+          "source_ref": "fixture://layer2/s6/w11a_eu_temporary_protection_ukraine_2022/consultation",
+          "unresolved_high_severity_objection": false
+        }
+      ],
+      "post_intervention_dgp_assumptions": [
+        "assumption://layer2/s6/w11a_eu_temporary_protection_ukraine_2022/post-intervention-dgp"
+      ],
+      "pre_policy_effect_refs": [
+        "effect://w11a_eu_temporary_protection_ukraine_2022/pre-policy-effect"
+      ],
+      "proxy_rows": [],
+      "response_channels": [
+        {
+          "channel": "compliance_response",
+          "disposition": "limited",
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_eu_temporary_protection_ukraine_2022/strategic/partial-channel"
+          ],
+          "post_intervention_dgp_update_ref": "pdc://layer2/s6/w11a_eu_temporary_protection_ukraine_2022/post-intervention-dgp",
+          "reason": "post-intervention response evidence is partial and limits robustness authority",
+          "response_model_ref": "fixture://layer2/s6/w11a_eu_temporary_protection_ukraine_2022/strategic/partial-response-model",
+          "risk_level": "medium"
+        }
+      ],
+      "s5_composition_refs": {
+        "composition_receipt_ref": "pdc://layer2/s5/w11a_eu_temporary_protection_ukraine_2022/composition-receipt",
+        "dynamics_requirement_ref": null
+      },
+      "semantic_binding_ledger_ref": "fixture://layer2/s6/w11a_eu_temporary_protection_ukraine_2022/semantic-binding-ledger",
+      "strategic_response_entries": [
+        {
+          "declared_unchanged_effect": false,
+          "entry_ref": "fixture://layer2/s6/w11a_eu_temporary_protection_ukraine_2022/strategic/entry"
+        }
+      ],
+      "value_loss_notes": [
+        "fixture://layer2/s6/w11a_eu_temporary_protection_ukraine_2022/value-loss-note"
+      ]
+    },
+    "w11a_ghana_free_shs_2017": {
+      "actor_ref": "actor://w11a_ghana_free_shs_2017/implementing-actor",
+      "aggregation_rows": [
+        {
+          "aggregation_validity": "valid",
+          "claim_scope": "jurisdiction",
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_ghana_free_shs_2017/aggregation/evidence"
+          ],
+          "evidence_scope": "jurisdiction",
+          "population_ref": "population://w11a_ghana_free_shs_2017/covered-population",
+          "simpson_risk": false,
+          "subgroup_harm_hidden": false,
+          "subgroup_ref": "population://w11a_ghana_free_shs_2017/at-risk-subgroup",
+          "validity_proof_ref": "fixture://layer2/s6/w11a_ghana_free_shs_2017/aggregation/proof"
+        }
+      ],
+      "bridge_consumer_expectations": [
+        "KNOWLEDGE.epistemic_regime",
+        "ACTOR.value_choice_provenance",
+        "INTERVENTION.targeting",
+        "INTERVENTION.feasibility",
+        "DESIGNER_ITSELF.envelope_membership",
+        "PUBLIC.legitimacy_disclosure",
+        "INTERVENTION.design_candidate",
+        "SYSTEM.post_intervention_dgp",
+        "SYSTEM.dynamics_feedback",
+        "INTERVENTION.robustness"
+      ],
+      "capacity_dimensions": [
+        {
+          "capacity_building_obligation_ref": "obligation://layer2/s6/w11a_ghana_free_shs_2017/repair-capacity-blocker",
+          "copied_from_actor_ref": "actor://w11a_ghana_free_shs_2017/source-high-capacity-actor",
+          "copied_from_jurisdiction_ref": "jurisdiction://w11a_ghana_free_shs_2017/source-high-capacity-jurisdiction",
+          "dimension": "administrative",
+          "disposition": "blocked",
+          "evidence_ref": null,
+          "reason": "required administrative capacity is copied or absent in target jurisdiction",
+          "required": true
+        }
+      ],
+      "claim_scope": "jurisdiction",
+      "concept_spine_carrier_ref": "fixture://layer2/s6/w11a_ghana_free_shs_2017/concept-spine-carrier",
+      "construct_refs": [
+        "construct://w11a_ghana_free_shs_2017/primary_outcome",
+        "construct://w11a_ghana_free_shs_2017/distributional_value"
+      ],
+      "construct_rows": [
+        {
+          "construct_label": "primary outcome",
+          "construct_ref": "construct://w11a_ghana_free_shs_2017/primary_outcome",
+          "declared_as_value_construct_complete": false,
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_ghana_free_shs_2017/measurability/observed-primary"
+          ],
+          "measurability_status": "observed",
+          "proxy_ref": null,
+          "proxy_validity": "not_applicable",
+          "value_loss_disclosure_ref": null
+        },
+        {
+          "construct_label": "distributional value",
+          "construct_ref": "construct://w11a_ghana_free_shs_2017/distributional_value",
+          "declared_as_value_construct_complete": false,
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_ghana_free_shs_2017/measurability/admin-proxy"
+          ],
+          "measurability_status": "proxy_only",
+          "proxy_ref": "construct://w11a_ghana_free_shs_2017/administrative_proxy",
+          "proxy_validity": "limited_proxy",
+          "value_loss_disclosure_ref": "fixture://layer2/s6/w11a_ghana_free_shs_2017/value-loss/distributional-value"
+        }
+      ],
+      "consultation_validations": [],
+      "evidence_scope": "jurisdiction",
+      "expected_c3_authority_dimensions": [
+        "measurability_adequacy",
+        "aggregation_validity",
+        "capacity_feasibility",
+        "mandate_legitimacy",
+        "strategic_robustness",
+        "response_model_validity"
+      ],
+      "expected_constraint_store_consumers": [
+        "KNOWLEDGE.epistemic_regime",
+        "ACTOR.value_choice_provenance",
+        "INTERVENTION.targeting",
+        "INTERVENTION.feasibility",
+        "DESIGNER_ITSELF.envelope_membership",
+        "PUBLIC.legitimacy_disclosure",
+        "INTERVENTION.design_candidate",
+        "SYSTEM.post_intervention_dgp",
+        "SYSTEM.dynamics_feedback",
+        "INTERVENTION.robustness"
+      ],
+      "instrument_ref": "instrument://w11a_ghana_free_shs_2017/policy-instrument",
+      "jurisdiction_ref": "jurisdiction://w11a_ghana_free_shs_2017",
+      "lifecycle_stage": "implementation",
+      "mandate_sources": [
+        {
+          "authorized_objective_refs": [
+            "objective://w11a_ghana_free_shs_2017/primary"
+          ],
+          "basis": "statutory",
+          "disposition": "grounded",
+          "provenance_ref": "fixture://layer2/s6/w11a_ghana_free_shs_2017/mandate/provenance",
+          "reason": "objective provenance is grounded for the corpus case",
+          "source_authority": "human_governance",
+          "source_ref": "fixture://layer2/s6/w11a_ghana_free_shs_2017/mandate/statute"
+        }
+      ],
+      "objective_refs": [
+        "objective://w11a_ghana_free_shs_2017/primary",
+        "objective://w11a_ghana_free_shs_2017/distributional-integrity"
+      ],
+      "participation_evaluations": [
+        {
+          "blocker_refs": [],
+          "claim_use_allowed": true,
+          "provenance_ref": "fixture://layer2/s6/w11a_ghana_free_shs_2017/participation/allowed",
+          "source_ref": "fixture://layer2/s6/w11a_ghana_free_shs_2017/consultation",
+          "unresolved_high_severity_objection": false
+        }
+      ],
+      "post_intervention_dgp_assumptions": [
+        "assumption://layer2/s6/w11a_ghana_free_shs_2017/post-intervention-dgp"
+      ],
+      "pre_policy_effect_refs": [
+        "effect://w11a_ghana_free_shs_2017/pre-policy-effect"
+      ],
+      "proxy_rows": [
+        {
+          "construct_label": "distributional value",
+          "construct_ref": "construct://w11a_ghana_free_shs_2017/distributional_value",
+          "declared_as_value_construct_complete": false,
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_ghana_free_shs_2017/measurability/admin-proxy"
+          ],
+          "measurability_status": "proxy_only",
+          "proxy_ref": "construct://w11a_ghana_free_shs_2017/administrative_proxy",
+          "proxy_validity": "limited_proxy",
+          "value_loss_disclosure_ref": "fixture://layer2/s6/w11a_ghana_free_shs_2017/value-loss/distributional-value"
+        }
+      ],
+      "response_channels": [
+        {
+          "channel": "goodhart",
+          "disposition": "system_dynamics_required",
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_ghana_free_shs_2017/strategic/goodhart-channel"
+          ],
+          "post_intervention_dgp_update_ref": "pdc://layer2/s6/w11a_ghana_free_shs_2017/post-intervention-dgp",
+          "reason": "incentive response can change the post-intervention DGP",
+          "response_model_ref": "fixture://layer2/s6/w11a_ghana_free_shs_2017/strategic/goodhart-trigger",
+          "risk_level": "high"
+        }
+      ],
+      "s5_composition_refs": {
+        "composition_receipt_ref": "pdc://layer2/s5/w11a_ghana_free_shs_2017/composition-receipt",
+        "dynamics_requirement_ref": "pdc://layer2/s5/w11a_ghana_free_shs_2017/system-dynamics-requirement"
+      },
+      "semantic_binding_ledger_ref": "fixture://layer2/s6/w11a_ghana_free_shs_2017/semantic-binding-ledger",
+      "strategic_response_entries": [
+        {
+          "declared_unchanged_effect": false,
+          "entry_ref": "fixture://layer2/s6/w11a_ghana_free_shs_2017/strategic/entry"
+        }
+      ],
+      "value_loss_notes": [
+        "fixture://layer2/s6/w11a_ghana_free_shs_2017/value-loss-note"
+      ]
+    },
+    "w11a_india_aadhaar_dbt_2016": {
+      "actor_ref": "actor://w11a_india_aadhaar_dbt_2016/implementing-actor",
+      "aggregation_rows": [
+        {
+          "aggregation_validity": "block_ecological_error",
+          "claim_scope": "firm",
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_india_aadhaar_dbt_2016/aggregation/evidence"
+          ],
+          "evidence_scope": "jurisdiction",
+          "population_ref": "population://w11a_india_aadhaar_dbt_2016/covered-population",
+          "simpson_risk": true,
+          "subgroup_harm_hidden": true,
+          "subgroup_ref": "population://w11a_india_aadhaar_dbt_2016/at-risk-subgroup",
+          "validity_proof_ref": null
+        }
+      ],
+      "bridge_consumer_expectations": [
+        "KNOWLEDGE.epistemic_regime",
+        "ACTOR.value_choice_provenance",
+        "INTERVENTION.targeting",
+        "INTERVENTION.feasibility",
+        "DESIGNER_ITSELF.envelope_membership",
+        "PUBLIC.legitimacy_disclosure",
+        "INTERVENTION.design_candidate",
+        "SYSTEM.post_intervention_dgp",
+        "SYSTEM.dynamics_feedback",
+        "INTERVENTION.robustness"
+      ],
+      "capacity_dimensions": [
+        {
+          "capacity_building_obligation_ref": "obligation://layer2/s6/w11a_india_aadhaar_dbt_2016/build-delivery-capacity",
+          "copied_from_actor_ref": null,
+          "copied_from_jurisdiction_ref": null,
+          "dimension": "delivery",
+          "disposition": "capacity_building_required",
+          "evidence_ref": "fixture://layer2/s6/w11a_india_aadhaar_dbt_2016/capacity/delivery-gap",
+          "reason": "delivery capacity is partial and must be built before rollout authority",
+          "required": true
+        }
+      ],
+      "claim_scope": "firm",
+      "concept_spine_carrier_ref": "fixture://layer2/s6/w11a_india_aadhaar_dbt_2016/concept-spine-carrier",
+      "construct_refs": [
+        "construct://w11a_india_aadhaar_dbt_2016/primary_outcome",
+        "construct://w11a_india_aadhaar_dbt_2016/excluded_value"
+      ],
+      "construct_rows": [
+        {
+          "construct_label": "primary outcome",
+          "construct_ref": "construct://w11a_india_aadhaar_dbt_2016/primary_outcome",
+          "declared_as_value_construct_complete": false,
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_india_aadhaar_dbt_2016/measurability/observed-primary"
+          ],
+          "measurability_status": "observed",
+          "proxy_ref": null,
+          "proxy_validity": "not_applicable",
+          "value_loss_disclosure_ref": null
+        },
+        {
+          "construct_label": "excluded value",
+          "construct_ref": "construct://w11a_india_aadhaar_dbt_2016/excluded_value",
+          "declared_as_value_construct_complete": false,
+          "evidence_refs": [],
+          "measurability_status": "missing",
+          "proxy_ref": "construct://w11a_india_aadhaar_dbt_2016/throughput_proxy",
+          "proxy_validity": "invalid_proxy",
+          "value_loss_disclosure_ref": null
+        }
+      ],
+      "consultation_validations": [],
+      "evidence_scope": "jurisdiction",
+      "expected_c3_authority_dimensions": [
+        "measurability_adequacy",
+        "aggregation_validity",
+        "capacity_feasibility",
+        "mandate_legitimacy",
+        "strategic_robustness",
+        "response_model_validity"
+      ],
+      "expected_constraint_store_consumers": [
+        "KNOWLEDGE.epistemic_regime",
+        "ACTOR.value_choice_provenance",
+        "INTERVENTION.targeting",
+        "INTERVENTION.feasibility",
+        "DESIGNER_ITSELF.envelope_membership",
+        "PUBLIC.legitimacy_disclosure",
+        "INTERVENTION.design_candidate",
+        "SYSTEM.post_intervention_dgp",
+        "SYSTEM.dynamics_feedback",
+        "INTERVENTION.robustness"
+      ],
+      "instrument_ref": "instrument://w11a_india_aadhaar_dbt_2016/policy-instrument",
+      "jurisdiction_ref": "jurisdiction://w11a_india_aadhaar_dbt_2016",
+      "lifecycle_stage": "implementation",
+      "mandate_sources": [
+        {
+          "authorized_objective_refs": [],
+          "basis": "absent",
+          "disposition": "blocked",
+          "provenance_ref": null,
+          "reason": "objective authority is unresolved for the affected population",
+          "source_authority": "human_governance",
+          "source_ref": "fixture://layer2/s6/w11a_india_aadhaar_dbt_2016/mandate/unresolved"
+        }
+      ],
+      "objective_refs": [
+        "objective://w11a_india_aadhaar_dbt_2016/primary",
+        "objective://w11a_india_aadhaar_dbt_2016/distributional-integrity"
+      ],
+      "participation_evaluations": [
+        {
+          "blocker_refs": [
+            "blocker://layer2/s6/w11a_india_aadhaar_dbt_2016/participation"
+          ],
+          "claim_use_allowed": false,
+          "provenance_ref": "fixture://layer2/s6/w11a_india_aadhaar_dbt_2016/participation/blocked",
+          "source_ref": "fixture://layer2/s6/w11a_india_aadhaar_dbt_2016/consultation",
+          "unresolved_high_severity_objection": false
+        }
+      ],
+      "post_intervention_dgp_assumptions": [
+        "assumption://layer2/s6/w11a_india_aadhaar_dbt_2016/post-intervention-dgp"
+      ],
+      "pre_policy_effect_refs": [
+        "effect://w11a_india_aadhaar_dbt_2016/pre-policy-effect"
+      ],
+      "proxy_rows": [
+        {
+          "construct_label": "excluded value",
+          "construct_ref": "construct://w11a_india_aadhaar_dbt_2016/excluded_value",
+          "declared_as_value_construct_complete": false,
+          "evidence_refs": [],
+          "measurability_status": "missing",
+          "proxy_ref": "construct://w11a_india_aadhaar_dbt_2016/throughput_proxy",
+          "proxy_validity": "invalid_proxy",
+          "value_loss_disclosure_ref": null
+        }
+      ],
+      "response_channels": [
+        {
+          "channel": "goodhart",
+          "disposition": "system_dynamics_required",
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_india_aadhaar_dbt_2016/strategic/goodhart-channel"
+          ],
+          "post_intervention_dgp_update_ref": "pdc://layer2/s6/w11a_india_aadhaar_dbt_2016/post-intervention-dgp",
+          "reason": "incentive response can change the post-intervention DGP",
+          "response_model_ref": "fixture://layer2/s6/w11a_india_aadhaar_dbt_2016/strategic/goodhart-trigger",
+          "risk_level": "high"
+        }
+      ],
+      "s5_composition_refs": {
+        "composition_receipt_ref": "pdc://layer2/s5/w11a_india_aadhaar_dbt_2016/composition-receipt",
+        "dynamics_requirement_ref": "pdc://layer2/s5/w11a_india_aadhaar_dbt_2016/system-dynamics-requirement"
+      },
+      "semantic_binding_ledger_ref": "fixture://layer2/s6/w11a_india_aadhaar_dbt_2016/semantic-binding-ledger",
+      "strategic_response_entries": [
+        {
+          "declared_unchanged_effect": false,
+          "entry_ref": "fixture://layer2/s6/w11a_india_aadhaar_dbt_2016/strategic/entry"
+        }
+      ],
+      "value_loss_notes": [
+        "fixture://layer2/s6/w11a_india_aadhaar_dbt_2016/value-loss-note"
+      ]
+    },
+    "w11a_mexico_ssb_tax_2014": {
+      "actor_ref": "actor://w11a_mexico_ssb_tax_2014/implementing-actor",
+      "aggregation_rows": [
+        {
+          "aggregation_validity": "limited",
+          "claim_scope": "firm",
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_mexico_ssb_tax_2014/aggregation/evidence"
+          ],
+          "evidence_scope": "group",
+          "population_ref": "population://w11a_mexico_ssb_tax_2014/covered-population",
+          "simpson_risk": false,
+          "subgroup_harm_hidden": false,
+          "subgroup_ref": "population://w11a_mexico_ssb_tax_2014/at-risk-subgroup",
+          "validity_proof_ref": "fixture://layer2/s6/w11a_mexico_ssb_tax_2014/aggregation/scope-limitation"
+        }
+      ],
+      "bridge_consumer_expectations": [
+        "KNOWLEDGE.epistemic_regime",
+        "ACTOR.value_choice_provenance",
+        "INTERVENTION.targeting",
+        "INTERVENTION.feasibility",
+        "DESIGNER_ITSELF.envelope_membership",
+        "PUBLIC.legitimacy_disclosure",
+        "INTERVENTION.design_candidate",
+        "SYSTEM.post_intervention_dgp",
+        "SYSTEM.dynamics_feedback",
+        "INTERVENTION.robustness"
+      ],
+      "capacity_dimensions": [
+        {
+          "capacity_building_obligation_ref": null,
+          "copied_from_actor_ref": null,
+          "copied_from_jurisdiction_ref": null,
+          "dimension": "administrative",
+          "disposition": "grounded",
+          "evidence_ref": "fixture://layer2/s6/w11a_mexico_ssb_tax_2014/capacity/administrative-grounded",
+          "reason": "target actor capacity is grounded for fail-closed corpus scope",
+          "required": true
+        }
+      ],
+      "claim_scope": "firm",
+      "concept_spine_carrier_ref": "fixture://layer2/s6/w11a_mexico_ssb_tax_2014/concept-spine-carrier",
+      "construct_refs": [
+        "construct://w11a_mexico_ssb_tax_2014/primary_outcome"
+      ],
+      "construct_rows": [
+        {
+          "construct_label": "primary outcome",
+          "construct_ref": "construct://w11a_mexico_ssb_tax_2014/primary_outcome",
+          "declared_as_value_construct_complete": false,
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_mexico_ssb_tax_2014/measurability/observed-primary"
+          ],
+          "measurability_status": "observed",
+          "proxy_ref": null,
+          "proxy_validity": "not_applicable",
+          "value_loss_disclosure_ref": null
+        }
+      ],
+      "consultation_validations": [],
+      "evidence_scope": "group",
+      "expected_c3_authority_dimensions": [
+        "measurability_adequacy",
+        "aggregation_validity",
+        "capacity_feasibility",
+        "mandate_legitimacy",
+        "strategic_robustness",
+        "response_model_validity"
+      ],
+      "expected_constraint_store_consumers": [
+        "KNOWLEDGE.epistemic_regime",
+        "ACTOR.value_choice_provenance",
+        "INTERVENTION.targeting",
+        "INTERVENTION.feasibility",
+        "DESIGNER_ITSELF.envelope_membership",
+        "PUBLIC.legitimacy_disclosure",
+        "INTERVENTION.design_candidate",
+        "SYSTEM.post_intervention_dgp",
+        "SYSTEM.dynamics_feedback",
+        "INTERVENTION.robustness"
+      ],
+      "instrument_ref": "instrument://w11a_mexico_ssb_tax_2014/policy-instrument",
+      "jurisdiction_ref": "jurisdiction://w11a_mexico_ssb_tax_2014",
+      "lifecycle_stage": "implementation",
+      "mandate_sources": [
+        {
+          "authorized_objective_refs": [
+            "objective://w11a_mexico_ssb_tax_2014/primary"
+          ],
+          "basis": "participatory",
+          "disposition": "candidate_unverified",
+          "provenance_ref": "fixture://layer2/s6/w11a_mexico_ssb_tax_2014/mandate/partial-provenance",
+          "reason": "mandate exists as candidate-unverified evidence and must limit authority",
+          "source_authority": "human_governance",
+          "source_ref": "fixture://layer2/s6/w11a_mexico_ssb_tax_2014/mandate/participation-summary"
+        }
+      ],
+      "objective_refs": [
+        "objective://w11a_mexico_ssb_tax_2014/primary",
+        "objective://w11a_mexico_ssb_tax_2014/distributional-integrity"
+      ],
+      "participation_evaluations": [
+        {
+          "blocker_refs": [],
+          "claim_use_allowed": true,
+          "provenance_ref": "fixture://layer2/s6/w11a_mexico_ssb_tax_2014/participation/limited",
+          "source_ref": "fixture://layer2/s6/w11a_mexico_ssb_tax_2014/consultation",
+          "unresolved_high_severity_objection": false
+        }
+      ],
+      "post_intervention_dgp_assumptions": [
+        "assumption://layer2/s6/w11a_mexico_ssb_tax_2014/post-intervention-dgp"
+      ],
+      "pre_policy_effect_refs": [
+        "effect://w11a_mexico_ssb_tax_2014/pre-policy-effect"
+      ],
+      "proxy_rows": [],
+      "response_channels": [
+        {
+          "channel": "goodhart",
+          "disposition": "system_dynamics_required",
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_mexico_ssb_tax_2014/strategic/goodhart-channel"
+          ],
+          "post_intervention_dgp_update_ref": "pdc://layer2/s6/w11a_mexico_ssb_tax_2014/post-intervention-dgp",
+          "reason": "incentive response can change the post-intervention DGP",
+          "response_model_ref": "fixture://layer2/s6/w11a_mexico_ssb_tax_2014/strategic/goodhart-trigger",
+          "risk_level": "high"
+        }
+      ],
+      "s5_composition_refs": {
+        "composition_receipt_ref": "pdc://layer2/s5/w11a_mexico_ssb_tax_2014/composition-receipt",
+        "dynamics_requirement_ref": "pdc://layer2/s5/w11a_mexico_ssb_tax_2014/system-dynamics-requirement"
+      },
+      "semantic_binding_ledger_ref": "fixture://layer2/s6/w11a_mexico_ssb_tax_2014/semantic-binding-ledger",
+      "strategic_response_entries": [
+        {
+          "declared_unchanged_effect": false,
+          "entry_ref": "fixture://layer2/s6/w11a_mexico_ssb_tax_2014/strategic/entry"
+        }
+      ],
+      "value_loss_notes": [
+        "fixture://layer2/s6/w11a_mexico_ssb_tax_2014/value-loss-note"
+      ]
+    },
+    "w11a_netherlands_room_for_river_2007": {
+      "actor_ref": "actor://w11a_netherlands_room_for_river_2007/implementing-actor",
+      "aggregation_rows": [
+        {
+          "aggregation_validity": "valid",
+          "claim_scope": "jurisdiction",
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_netherlands_room_for_river_2007/aggregation/evidence"
+          ],
+          "evidence_scope": "jurisdiction",
+          "population_ref": "population://w11a_netherlands_room_for_river_2007/covered-population",
+          "simpson_risk": false,
+          "subgroup_harm_hidden": false,
+          "subgroup_ref": "population://w11a_netherlands_room_for_river_2007/at-risk-subgroup",
+          "validity_proof_ref": "fixture://layer2/s6/w11a_netherlands_room_for_river_2007/aggregation/proof"
+        }
+      ],
+      "bridge_consumer_expectations": [
+        "KNOWLEDGE.epistemic_regime",
+        "ACTOR.value_choice_provenance",
+        "INTERVENTION.targeting",
+        "INTERVENTION.feasibility",
+        "DESIGNER_ITSELF.envelope_membership",
+        "PUBLIC.legitimacy_disclosure",
+        "INTERVENTION.design_candidate",
+        "SYSTEM.post_intervention_dgp",
+        "SYSTEM.dynamics_feedback",
+        "INTERVENTION.robustness"
+      ],
+      "capacity_dimensions": [
+        {
+          "capacity_building_obligation_ref": null,
+          "copied_from_actor_ref": null,
+          "copied_from_jurisdiction_ref": null,
+          "dimension": "administrative",
+          "disposition": "grounded",
+          "evidence_ref": "fixture://layer2/s6/w11a_netherlands_room_for_river_2007/capacity/administrative-grounded",
+          "reason": "target actor capacity is grounded for fail-closed corpus scope",
+          "required": true
+        }
+      ],
+      "claim_scope": "jurisdiction",
+      "concept_spine_carrier_ref": "fixture://layer2/s6/w11a_netherlands_room_for_river_2007/concept-spine-carrier",
+      "construct_refs": [
+        "construct://w11a_netherlands_room_for_river_2007/primary_outcome"
+      ],
+      "construct_rows": [
+        {
+          "construct_label": "primary outcome",
+          "construct_ref": "construct://w11a_netherlands_room_for_river_2007/primary_outcome",
+          "declared_as_value_construct_complete": false,
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_netherlands_room_for_river_2007/measurability/observed-primary"
+          ],
+          "measurability_status": "observed",
+          "proxy_ref": null,
+          "proxy_validity": "not_applicable",
+          "value_loss_disclosure_ref": null
+        }
+      ],
+      "consultation_validations": [],
+      "evidence_scope": "jurisdiction",
+      "expected_c3_authority_dimensions": [
+        "measurability_adequacy",
+        "aggregation_validity",
+        "capacity_feasibility",
+        "mandate_legitimacy",
+        "strategic_robustness",
+        "response_model_validity"
+      ],
+      "expected_constraint_store_consumers": [
+        "KNOWLEDGE.epistemic_regime",
+        "ACTOR.value_choice_provenance",
+        "INTERVENTION.targeting",
+        "INTERVENTION.feasibility",
+        "DESIGNER_ITSELF.envelope_membership",
+        "PUBLIC.legitimacy_disclosure",
+        "INTERVENTION.design_candidate",
+        "SYSTEM.post_intervention_dgp",
+        "SYSTEM.dynamics_feedback",
+        "INTERVENTION.robustness"
+      ],
+      "instrument_ref": "instrument://w11a_netherlands_room_for_river_2007/policy-instrument",
+      "jurisdiction_ref": "jurisdiction://w11a_netherlands_room_for_river_2007",
+      "lifecycle_stage": "implementation",
+      "mandate_sources": [
+        {
+          "authorized_objective_refs": [
+            "objective://w11a_netherlands_room_for_river_2007/primary"
+          ],
+          "basis": "statutory",
+          "disposition": "grounded",
+          "provenance_ref": "fixture://layer2/s6/w11a_netherlands_room_for_river_2007/mandate/provenance",
+          "reason": "objective provenance is grounded for the corpus case",
+          "source_authority": "human_governance",
+          "source_ref": "fixture://layer2/s6/w11a_netherlands_room_for_river_2007/mandate/statute"
+        }
+      ],
+      "objective_refs": [
+        "objective://w11a_netherlands_room_for_river_2007/primary",
+        "objective://w11a_netherlands_room_for_river_2007/distributional-integrity"
+      ],
+      "participation_evaluations": [
+        {
+          "blocker_refs": [],
+          "claim_use_allowed": true,
+          "provenance_ref": "fixture://layer2/s6/w11a_netherlands_room_for_river_2007/participation/allowed",
+          "source_ref": "fixture://layer2/s6/w11a_netherlands_room_for_river_2007/consultation",
+          "unresolved_high_severity_objection": false
+        }
+      ],
+      "post_intervention_dgp_assumptions": [
+        "assumption://layer2/s6/w11a_netherlands_room_for_river_2007/post-intervention-dgp"
+      ],
+      "pre_policy_effect_refs": [
+        "effect://w11a_netherlands_room_for_river_2007/pre-policy-effect"
+      ],
+      "proxy_rows": [],
+      "response_channels": [
+        {
+          "channel": "compliance_response",
+          "disposition": "limited",
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_netherlands_room_for_river_2007/strategic/partial-channel"
+          ],
+          "post_intervention_dgp_update_ref": "pdc://layer2/s6/w11a_netherlands_room_for_river_2007/post-intervention-dgp",
+          "reason": "post-intervention response evidence is partial and limits robustness authority",
+          "response_model_ref": "fixture://layer2/s6/w11a_netherlands_room_for_river_2007/strategic/partial-response-model",
+          "risk_level": "medium"
+        }
+      ],
+      "s5_composition_refs": {
+        "composition_receipt_ref": "pdc://layer2/s5/w11a_netherlands_room_for_river_2007/composition-receipt",
+        "dynamics_requirement_ref": null
+      },
+      "semantic_binding_ledger_ref": "fixture://layer2/s6/w11a_netherlands_room_for_river_2007/semantic-binding-ledger",
+      "strategic_response_entries": [
+        {
+          "declared_unchanged_effect": false,
+          "entry_ref": "fixture://layer2/s6/w11a_netherlands_room_for_river_2007/strategic/entry"
+        }
+      ],
+      "value_loss_notes": [
+        "fixture://layer2/s6/w11a_netherlands_room_for_river_2007/value-loss-note"
+      ]
+    },
+    "w11a_pakistan_ehsaas_cash_2020": {
+      "actor_ref": "actor://w11a_pakistan_ehsaas_cash_2020/implementing-actor",
+      "aggregation_rows": [
+        {
+          "aggregation_validity": "block_ecological_error",
+          "claim_scope": "firm",
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_pakistan_ehsaas_cash_2020/aggregation/evidence"
+          ],
+          "evidence_scope": "jurisdiction",
+          "population_ref": "population://w11a_pakistan_ehsaas_cash_2020/covered-population",
+          "simpson_risk": true,
+          "subgroup_harm_hidden": true,
+          "subgroup_ref": "population://w11a_pakistan_ehsaas_cash_2020/at-risk-subgroup",
+          "validity_proof_ref": null
+        }
+      ],
+      "bridge_consumer_expectations": [
+        "KNOWLEDGE.epistemic_regime",
+        "ACTOR.value_choice_provenance",
+        "INTERVENTION.targeting",
+        "INTERVENTION.feasibility",
+        "DESIGNER_ITSELF.envelope_membership",
+        "PUBLIC.legitimacy_disclosure",
+        "INTERVENTION.design_candidate",
+        "SYSTEM.post_intervention_dgp",
+        "SYSTEM.dynamics_feedback",
+        "INTERVENTION.robustness"
+      ],
+      "capacity_dimensions": [
+        {
+          "capacity_building_obligation_ref": "obligation://layer2/s6/w11a_pakistan_ehsaas_cash_2020/repair-capacity-blocker",
+          "copied_from_actor_ref": "actor://w11a_pakistan_ehsaas_cash_2020/source-high-capacity-actor",
+          "copied_from_jurisdiction_ref": "jurisdiction://w11a_pakistan_ehsaas_cash_2020/source-high-capacity-jurisdiction",
+          "dimension": "administrative",
+          "disposition": "blocked",
+          "evidence_ref": null,
+          "reason": "required administrative capacity is copied or absent in target jurisdiction",
+          "required": true
+        }
+      ],
+      "claim_scope": "firm",
+      "concept_spine_carrier_ref": "fixture://layer2/s6/w11a_pakistan_ehsaas_cash_2020/concept-spine-carrier",
+      "construct_refs": [
+        "construct://w11a_pakistan_ehsaas_cash_2020/primary_outcome",
+        "construct://w11a_pakistan_ehsaas_cash_2020/distributional_value"
+      ],
+      "construct_rows": [
+        {
+          "construct_label": "primary outcome",
+          "construct_ref": "construct://w11a_pakistan_ehsaas_cash_2020/primary_outcome",
+          "declared_as_value_construct_complete": false,
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_pakistan_ehsaas_cash_2020/measurability/observed-primary"
+          ],
+          "measurability_status": "observed",
+          "proxy_ref": null,
+          "proxy_validity": "not_applicable",
+          "value_loss_disclosure_ref": null
+        },
+        {
+          "construct_label": "distributional value",
+          "construct_ref": "construct://w11a_pakistan_ehsaas_cash_2020/distributional_value",
+          "declared_as_value_construct_complete": false,
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_pakistan_ehsaas_cash_2020/measurability/admin-proxy"
+          ],
+          "measurability_status": "proxy_only",
+          "proxy_ref": "construct://w11a_pakistan_ehsaas_cash_2020/administrative_proxy",
+          "proxy_validity": "limited_proxy",
+          "value_loss_disclosure_ref": "fixture://layer2/s6/w11a_pakistan_ehsaas_cash_2020/value-loss/distributional-value"
+        }
+      ],
+      "consultation_validations": [],
+      "evidence_scope": "jurisdiction",
+      "expected_c3_authority_dimensions": [
+        "measurability_adequacy",
+        "aggregation_validity",
+        "capacity_feasibility",
+        "mandate_legitimacy",
+        "strategic_robustness",
+        "response_model_validity"
+      ],
+      "expected_constraint_store_consumers": [
+        "KNOWLEDGE.epistemic_regime",
+        "ACTOR.value_choice_provenance",
+        "INTERVENTION.targeting",
+        "INTERVENTION.feasibility",
+        "DESIGNER_ITSELF.envelope_membership",
+        "PUBLIC.legitimacy_disclosure",
+        "INTERVENTION.design_candidate",
+        "SYSTEM.post_intervention_dgp",
+        "SYSTEM.dynamics_feedback",
+        "INTERVENTION.robustness"
+      ],
+      "instrument_ref": "instrument://w11a_pakistan_ehsaas_cash_2020/policy-instrument",
+      "jurisdiction_ref": "jurisdiction://w11a_pakistan_ehsaas_cash_2020",
+      "lifecycle_stage": "implementation",
+      "mandate_sources": [
+        {
+          "authorized_objective_refs": [
+            "objective://w11a_pakistan_ehsaas_cash_2020/primary"
+          ],
+          "basis": "participatory",
+          "disposition": "candidate_unverified",
+          "provenance_ref": "fixture://layer2/s6/w11a_pakistan_ehsaas_cash_2020/mandate/partial-provenance",
+          "reason": "mandate exists as candidate-unverified evidence and must limit authority",
+          "source_authority": "human_governance",
+          "source_ref": "fixture://layer2/s6/w11a_pakistan_ehsaas_cash_2020/mandate/participation-summary"
+        }
+      ],
+      "objective_refs": [
+        "objective://w11a_pakistan_ehsaas_cash_2020/primary",
+        "objective://w11a_pakistan_ehsaas_cash_2020/distributional-integrity"
+      ],
+      "participation_evaluations": [
+        {
+          "blocker_refs": [],
+          "claim_use_allowed": true,
+          "provenance_ref": "fixture://layer2/s6/w11a_pakistan_ehsaas_cash_2020/participation/limited",
+          "source_ref": "fixture://layer2/s6/w11a_pakistan_ehsaas_cash_2020/consultation",
+          "unresolved_high_severity_objection": false
+        }
+      ],
+      "post_intervention_dgp_assumptions": [
+        "assumption://layer2/s6/w11a_pakistan_ehsaas_cash_2020/post-intervention-dgp"
+      ],
+      "pre_policy_effect_refs": [
+        "effect://w11a_pakistan_ehsaas_cash_2020/pre-policy-effect"
+      ],
+      "proxy_rows": [
+        {
+          "construct_label": "distributional value",
+          "construct_ref": "construct://w11a_pakistan_ehsaas_cash_2020/distributional_value",
+          "declared_as_value_construct_complete": false,
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_pakistan_ehsaas_cash_2020/measurability/admin-proxy"
+          ],
+          "measurability_status": "proxy_only",
+          "proxy_ref": "construct://w11a_pakistan_ehsaas_cash_2020/administrative_proxy",
+          "proxy_validity": "limited_proxy",
+          "value_loss_disclosure_ref": "fixture://layer2/s6/w11a_pakistan_ehsaas_cash_2020/value-loss/distributional-value"
+        }
+      ],
+      "response_channels": [
+        {
+          "channel": "goodhart",
+          "disposition": "system_dynamics_required",
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_pakistan_ehsaas_cash_2020/strategic/goodhart-channel"
+          ],
+          "post_intervention_dgp_update_ref": "pdc://layer2/s6/w11a_pakistan_ehsaas_cash_2020/post-intervention-dgp",
+          "reason": "incentive response can change the post-intervention DGP",
+          "response_model_ref": "fixture://layer2/s6/w11a_pakistan_ehsaas_cash_2020/strategic/goodhart-trigger",
+          "risk_level": "high"
+        }
+      ],
+      "s5_composition_refs": {
+        "composition_receipt_ref": "pdc://layer2/s5/w11a_pakistan_ehsaas_cash_2020/composition-receipt",
+        "dynamics_requirement_ref": "pdc://layer2/s5/w11a_pakistan_ehsaas_cash_2020/system-dynamics-requirement"
+      },
+      "semantic_binding_ledger_ref": "fixture://layer2/s6/w11a_pakistan_ehsaas_cash_2020/semantic-binding-ledger",
+      "strategic_response_entries": [
+        {
+          "declared_unchanged_effect": false,
+          "entry_ref": "fixture://layer2/s6/w11a_pakistan_ehsaas_cash_2020/strategic/entry"
+        }
+      ],
+      "value_loss_notes": [
+        "fixture://layer2/s6/w11a_pakistan_ehsaas_cash_2020/value-loss-note"
+      ]
+    },
+    "w11a_uk_levelling_up_fund_2021": {
+      "actor_ref": "actor://w11a_uk_levelling_up_fund_2021/implementing-actor",
+      "aggregation_rows": [
+        {
+          "aggregation_validity": "limited",
+          "claim_scope": "firm",
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_uk_levelling_up_fund_2021/aggregation/evidence"
+          ],
+          "evidence_scope": "group",
+          "population_ref": "population://w11a_uk_levelling_up_fund_2021/covered-population",
+          "simpson_risk": false,
+          "subgroup_harm_hidden": false,
+          "subgroup_ref": "population://w11a_uk_levelling_up_fund_2021/at-risk-subgroup",
+          "validity_proof_ref": "fixture://layer2/s6/w11a_uk_levelling_up_fund_2021/aggregation/scope-limitation"
+        }
+      ],
+      "bridge_consumer_expectations": [
+        "KNOWLEDGE.epistemic_regime",
+        "ACTOR.value_choice_provenance",
+        "INTERVENTION.targeting",
+        "INTERVENTION.feasibility",
+        "DESIGNER_ITSELF.envelope_membership",
+        "PUBLIC.legitimacy_disclosure",
+        "INTERVENTION.design_candidate",
+        "SYSTEM.post_intervention_dgp",
+        "SYSTEM.dynamics_feedback",
+        "INTERVENTION.robustness"
+      ],
+      "capacity_dimensions": [
+        {
+          "capacity_building_obligation_ref": "obligation://layer2/s6/w11a_uk_levelling_up_fund_2021/repair-capacity-blocker",
+          "copied_from_actor_ref": "actor://w11a_uk_levelling_up_fund_2021/source-high-capacity-actor",
+          "copied_from_jurisdiction_ref": "jurisdiction://w11a_uk_levelling_up_fund_2021/source-high-capacity-jurisdiction",
+          "dimension": "administrative",
+          "disposition": "blocked",
+          "evidence_ref": null,
+          "reason": "required administrative capacity is copied or absent in target jurisdiction",
+          "required": true
+        }
+      ],
+      "claim_scope": "firm",
+      "concept_spine_carrier_ref": "fixture://layer2/s6/w11a_uk_levelling_up_fund_2021/concept-spine-carrier",
+      "construct_refs": [
+        "construct://w11a_uk_levelling_up_fund_2021/primary_outcome",
+        "construct://w11a_uk_levelling_up_fund_2021/distributional_value"
+      ],
+      "construct_rows": [
+        {
+          "construct_label": "primary outcome",
+          "construct_ref": "construct://w11a_uk_levelling_up_fund_2021/primary_outcome",
+          "declared_as_value_construct_complete": false,
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_uk_levelling_up_fund_2021/measurability/observed-primary"
+          ],
+          "measurability_status": "observed",
+          "proxy_ref": null,
+          "proxy_validity": "not_applicable",
+          "value_loss_disclosure_ref": null
+        },
+        {
+          "construct_label": "distributional value",
+          "construct_ref": "construct://w11a_uk_levelling_up_fund_2021/distributional_value",
+          "declared_as_value_construct_complete": false,
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_uk_levelling_up_fund_2021/measurability/admin-proxy"
+          ],
+          "measurability_status": "proxy_only",
+          "proxy_ref": "construct://w11a_uk_levelling_up_fund_2021/administrative_proxy",
+          "proxy_validity": "limited_proxy",
+          "value_loss_disclosure_ref": "fixture://layer2/s6/w11a_uk_levelling_up_fund_2021/value-loss/distributional-value"
+        }
+      ],
+      "consultation_validations": [],
+      "evidence_scope": "group",
+      "expected_c3_authority_dimensions": [
+        "measurability_adequacy",
+        "aggregation_validity",
+        "capacity_feasibility",
+        "mandate_legitimacy",
+        "strategic_robustness",
+        "response_model_validity"
+      ],
+      "expected_constraint_store_consumers": [
+        "KNOWLEDGE.epistemic_regime",
+        "ACTOR.value_choice_provenance",
+        "INTERVENTION.targeting",
+        "INTERVENTION.feasibility",
+        "DESIGNER_ITSELF.envelope_membership",
+        "PUBLIC.legitimacy_disclosure",
+        "INTERVENTION.design_candidate",
+        "SYSTEM.post_intervention_dgp",
+        "SYSTEM.dynamics_feedback",
+        "INTERVENTION.robustness"
+      ],
+      "instrument_ref": "instrument://w11a_uk_levelling_up_fund_2021/policy-instrument",
+      "jurisdiction_ref": "jurisdiction://w11a_uk_levelling_up_fund_2021",
+      "lifecycle_stage": "implementation",
+      "mandate_sources": [
+        {
+          "authorized_objective_refs": [],
+          "basis": "absent",
+          "disposition": "blocked",
+          "provenance_ref": null,
+          "reason": "objective authority is unresolved for the affected population",
+          "source_authority": "human_governance",
+          "source_ref": "fixture://layer2/s6/w11a_uk_levelling_up_fund_2021/mandate/unresolved"
+        }
+      ],
+      "objective_refs": [
+        "objective://w11a_uk_levelling_up_fund_2021/primary",
+        "objective://w11a_uk_levelling_up_fund_2021/distributional-integrity"
+      ],
+      "participation_evaluations": [
+        {
+          "blocker_refs": [
+            "blocker://layer2/s6/w11a_uk_levelling_up_fund_2021/participation"
+          ],
+          "claim_use_allowed": false,
+          "provenance_ref": "fixture://layer2/s6/w11a_uk_levelling_up_fund_2021/participation/blocked",
+          "source_ref": "fixture://layer2/s6/w11a_uk_levelling_up_fund_2021/consultation",
+          "unresolved_high_severity_objection": false
+        }
+      ],
+      "post_intervention_dgp_assumptions": [
+        "assumption://layer2/s6/w11a_uk_levelling_up_fund_2021/post-intervention-dgp"
+      ],
+      "pre_policy_effect_refs": [
+        "effect://w11a_uk_levelling_up_fund_2021/pre-policy-effect"
+      ],
+      "proxy_rows": [
+        {
+          "construct_label": "distributional value",
+          "construct_ref": "construct://w11a_uk_levelling_up_fund_2021/distributional_value",
+          "declared_as_value_construct_complete": false,
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_uk_levelling_up_fund_2021/measurability/admin-proxy"
+          ],
+          "measurability_status": "proxy_only",
+          "proxy_ref": "construct://w11a_uk_levelling_up_fund_2021/administrative_proxy",
+          "proxy_validity": "limited_proxy",
+          "value_loss_disclosure_ref": "fixture://layer2/s6/w11a_uk_levelling_up_fund_2021/value-loss/distributional-value"
+        }
+      ],
+      "response_channels": [
+        {
+          "channel": "goodhart",
+          "disposition": "system_dynamics_required",
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_uk_levelling_up_fund_2021/strategic/goodhart-channel"
+          ],
+          "post_intervention_dgp_update_ref": "pdc://layer2/s6/w11a_uk_levelling_up_fund_2021/post-intervention-dgp",
+          "reason": "incentive response can change the post-intervention DGP",
+          "response_model_ref": "fixture://layer2/s6/w11a_uk_levelling_up_fund_2021/strategic/goodhart-trigger",
+          "risk_level": "high"
+        }
+      ],
+      "s5_composition_refs": {
+        "composition_receipt_ref": "pdc://layer2/s5/w11a_uk_levelling_up_fund_2021/composition-receipt",
+        "dynamics_requirement_ref": "pdc://layer2/s5/w11a_uk_levelling_up_fund_2021/system-dynamics-requirement"
+      },
+      "semantic_binding_ledger_ref": "fixture://layer2/s6/w11a_uk_levelling_up_fund_2021/semantic-binding-ledger",
+      "strategic_response_entries": [
+        {
+          "declared_unchanged_effect": false,
+          "entry_ref": "fixture://layer2/s6/w11a_uk_levelling_up_fund_2021/strategic/entry"
+        }
+      ],
+      "value_loss_notes": [
+        "fixture://layer2/s6/w11a_uk_levelling_up_fund_2021/value-loss-note"
+      ]
+    },
+    "w11a_uk_mtd_vat_2019": {
+      "actor_ref": "actor://w11a_uk_mtd_vat_2019/implementing-actor",
+      "aggregation_rows": [
+        {
+          "aggregation_validity": "valid",
+          "claim_scope": "jurisdiction",
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_uk_mtd_vat_2019/aggregation/evidence"
+          ],
+          "evidence_scope": "jurisdiction",
+          "population_ref": "population://w11a_uk_mtd_vat_2019/covered-population",
+          "simpson_risk": false,
+          "subgroup_harm_hidden": false,
+          "subgroup_ref": "population://w11a_uk_mtd_vat_2019/at-risk-subgroup",
+          "validity_proof_ref": "fixture://layer2/s6/w11a_uk_mtd_vat_2019/aggregation/proof"
+        }
+      ],
+      "bridge_consumer_expectations": [
+        "KNOWLEDGE.epistemic_regime",
+        "ACTOR.value_choice_provenance",
+        "INTERVENTION.targeting",
+        "INTERVENTION.feasibility",
+        "DESIGNER_ITSELF.envelope_membership",
+        "PUBLIC.legitimacy_disclosure",
+        "INTERVENTION.design_candidate",
+        "SYSTEM.post_intervention_dgp",
+        "SYSTEM.dynamics_feedback",
+        "INTERVENTION.robustness"
+      ],
+      "capacity_dimensions": [
+        {
+          "capacity_building_obligation_ref": "obligation://layer2/s6/w11a_uk_mtd_vat_2019/build-delivery-capacity",
+          "copied_from_actor_ref": null,
+          "copied_from_jurisdiction_ref": null,
+          "dimension": "delivery",
+          "disposition": "capacity_building_required",
+          "evidence_ref": "fixture://layer2/s6/w11a_uk_mtd_vat_2019/capacity/delivery-gap",
+          "reason": "delivery capacity is partial and must be built before rollout authority",
+          "required": true
+        }
+      ],
+      "claim_scope": "jurisdiction",
+      "concept_spine_carrier_ref": "fixture://layer2/s6/w11a_uk_mtd_vat_2019/concept-spine-carrier",
+      "construct_refs": [
+        "construct://w11a_uk_mtd_vat_2019/primary_outcome"
+      ],
+      "construct_rows": [
+        {
+          "construct_label": "primary outcome",
+          "construct_ref": "construct://w11a_uk_mtd_vat_2019/primary_outcome",
+          "declared_as_value_construct_complete": false,
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_uk_mtd_vat_2019/measurability/observed-primary"
+          ],
+          "measurability_status": "observed",
+          "proxy_ref": null,
+          "proxy_validity": "not_applicable",
+          "value_loss_disclosure_ref": null
+        }
+      ],
+      "consultation_validations": [],
+      "evidence_scope": "jurisdiction",
+      "expected_c3_authority_dimensions": [
+        "measurability_adequacy",
+        "aggregation_validity",
+        "capacity_feasibility",
+        "mandate_legitimacy",
+        "strategic_robustness",
+        "response_model_validity"
+      ],
+      "expected_constraint_store_consumers": [
+        "KNOWLEDGE.epistemic_regime",
+        "ACTOR.value_choice_provenance",
+        "INTERVENTION.targeting",
+        "INTERVENTION.feasibility",
+        "DESIGNER_ITSELF.envelope_membership",
+        "PUBLIC.legitimacy_disclosure",
+        "INTERVENTION.design_candidate",
+        "SYSTEM.post_intervention_dgp",
+        "SYSTEM.dynamics_feedback",
+        "INTERVENTION.robustness"
+      ],
+      "instrument_ref": "instrument://w11a_uk_mtd_vat_2019/policy-instrument",
+      "jurisdiction_ref": "jurisdiction://w11a_uk_mtd_vat_2019",
+      "lifecycle_stage": "implementation",
+      "mandate_sources": [
+        {
+          "authorized_objective_refs": [
+            "objective://w11a_uk_mtd_vat_2019/primary"
+          ],
+          "basis": "statutory",
+          "disposition": "grounded",
+          "provenance_ref": "fixture://layer2/s6/w11a_uk_mtd_vat_2019/mandate/provenance",
+          "reason": "objective provenance is grounded for the corpus case",
+          "source_authority": "human_governance",
+          "source_ref": "fixture://layer2/s6/w11a_uk_mtd_vat_2019/mandate/statute"
+        }
+      ],
+      "objective_refs": [
+        "objective://w11a_uk_mtd_vat_2019/primary",
+        "objective://w11a_uk_mtd_vat_2019/distributional-integrity"
+      ],
+      "participation_evaluations": [
+        {
+          "blocker_refs": [],
+          "claim_use_allowed": true,
+          "provenance_ref": "fixture://layer2/s6/w11a_uk_mtd_vat_2019/participation/allowed",
+          "source_ref": "fixture://layer2/s6/w11a_uk_mtd_vat_2019/consultation",
+          "unresolved_high_severity_objection": false
+        }
+      ],
+      "post_intervention_dgp_assumptions": [
+        "assumption://layer2/s6/w11a_uk_mtd_vat_2019/post-intervention-dgp"
+      ],
+      "pre_policy_effect_refs": [
+        "effect://w11a_uk_mtd_vat_2019/pre-policy-effect"
+      ],
+      "proxy_rows": [],
+      "response_channels": [
+        {
+          "channel": "compliance_response",
+          "disposition": "limited",
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_uk_mtd_vat_2019/strategic/partial-channel"
+          ],
+          "post_intervention_dgp_update_ref": "pdc://layer2/s6/w11a_uk_mtd_vat_2019/post-intervention-dgp",
+          "reason": "post-intervention response evidence is partial and limits robustness authority",
+          "response_model_ref": "fixture://layer2/s6/w11a_uk_mtd_vat_2019/strategic/partial-response-model",
+          "risk_level": "medium"
+        }
+      ],
+      "s5_composition_refs": {
+        "composition_receipt_ref": "pdc://layer2/s5/w11a_uk_mtd_vat_2019/composition-receipt",
+        "dynamics_requirement_ref": null
+      },
+      "semantic_binding_ledger_ref": "fixture://layer2/s6/w11a_uk_mtd_vat_2019/semantic-binding-ledger",
+      "strategic_response_entries": [
+        {
+          "declared_unchanged_effect": false,
+          "entry_ref": "fixture://layer2/s6/w11a_uk_mtd_vat_2019/strategic/entry"
+        }
+      ],
+      "value_loss_notes": [
+        "fixture://layer2/s6/w11a_uk_mtd_vat_2019/value-loss-note"
+      ]
+    },
+    "w11a_uk_work_programme_2011": {
+      "actor_ref": "actor://w11a_uk_work_programme_2011/implementing-actor",
+      "aggregation_rows": [
+        {
+          "aggregation_validity": "limited",
+          "claim_scope": "firm",
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_uk_work_programme_2011/aggregation/evidence"
+          ],
+          "evidence_scope": "group",
+          "population_ref": "population://w11a_uk_work_programme_2011/covered-population",
+          "simpson_risk": false,
+          "subgroup_harm_hidden": false,
+          "subgroup_ref": "population://w11a_uk_work_programme_2011/at-risk-subgroup",
+          "validity_proof_ref": "fixture://layer2/s6/w11a_uk_work_programme_2011/aggregation/scope-limitation"
+        }
+      ],
+      "bridge_consumer_expectations": [
+        "KNOWLEDGE.epistemic_regime",
+        "ACTOR.value_choice_provenance",
+        "INTERVENTION.targeting",
+        "INTERVENTION.feasibility",
+        "DESIGNER_ITSELF.envelope_membership",
+        "PUBLIC.legitimacy_disclosure",
+        "INTERVENTION.design_candidate",
+        "SYSTEM.post_intervention_dgp",
+        "SYSTEM.dynamics_feedback",
+        "INTERVENTION.robustness"
+      ],
+      "capacity_dimensions": [
+        {
+          "capacity_building_obligation_ref": "obligation://layer2/s6/w11a_uk_work_programme_2011/build-delivery-capacity",
+          "copied_from_actor_ref": null,
+          "copied_from_jurisdiction_ref": null,
+          "dimension": "delivery",
+          "disposition": "capacity_building_required",
+          "evidence_ref": "fixture://layer2/s6/w11a_uk_work_programme_2011/capacity/delivery-gap",
+          "reason": "delivery capacity is partial and must be built before rollout authority",
+          "required": true
+        }
+      ],
+      "claim_scope": "firm",
+      "concept_spine_carrier_ref": "fixture://layer2/s6/w11a_uk_work_programme_2011/concept-spine-carrier",
+      "construct_refs": [
+        "construct://w11a_uk_work_programme_2011/primary_outcome",
+        "construct://w11a_uk_work_programme_2011/excluded_value"
+      ],
+      "construct_rows": [
+        {
+          "construct_label": "primary outcome",
+          "construct_ref": "construct://w11a_uk_work_programme_2011/primary_outcome",
+          "declared_as_value_construct_complete": false,
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_uk_work_programme_2011/measurability/observed-primary"
+          ],
+          "measurability_status": "observed",
+          "proxy_ref": null,
+          "proxy_validity": "not_applicable",
+          "value_loss_disclosure_ref": null
+        },
+        {
+          "construct_label": "excluded value",
+          "construct_ref": "construct://w11a_uk_work_programme_2011/excluded_value",
+          "declared_as_value_construct_complete": false,
+          "evidence_refs": [],
+          "measurability_status": "missing",
+          "proxy_ref": "construct://w11a_uk_work_programme_2011/throughput_proxy",
+          "proxy_validity": "invalid_proxy",
+          "value_loss_disclosure_ref": null
+        }
+      ],
+      "consultation_validations": [],
+      "evidence_scope": "group",
+      "expected_c3_authority_dimensions": [
+        "measurability_adequacy",
+        "aggregation_validity",
+        "capacity_feasibility",
+        "mandate_legitimacy",
+        "strategic_robustness",
+        "response_model_validity"
+      ],
+      "expected_constraint_store_consumers": [
+        "KNOWLEDGE.epistemic_regime",
+        "ACTOR.value_choice_provenance",
+        "INTERVENTION.targeting",
+        "INTERVENTION.feasibility",
+        "DESIGNER_ITSELF.envelope_membership",
+        "PUBLIC.legitimacy_disclosure",
+        "INTERVENTION.design_candidate",
+        "SYSTEM.post_intervention_dgp",
+        "SYSTEM.dynamics_feedback",
+        "INTERVENTION.robustness"
+      ],
+      "instrument_ref": "instrument://w11a_uk_work_programme_2011/policy-instrument",
+      "jurisdiction_ref": "jurisdiction://w11a_uk_work_programme_2011",
+      "lifecycle_stage": "implementation",
+      "mandate_sources": [
+        {
+          "authorized_objective_refs": [],
+          "basis": "absent",
+          "disposition": "blocked",
+          "provenance_ref": null,
+          "reason": "objective authority is unresolved for the affected population",
+          "source_authority": "human_governance",
+          "source_ref": "fixture://layer2/s6/w11a_uk_work_programme_2011/mandate/unresolved"
+        }
+      ],
+      "objective_refs": [
+        "objective://w11a_uk_work_programme_2011/primary",
+        "objective://w11a_uk_work_programme_2011/distributional-integrity"
+      ],
+      "participation_evaluations": [
+        {
+          "blocker_refs": [
+            "blocker://layer2/s6/w11a_uk_work_programme_2011/participation"
+          ],
+          "claim_use_allowed": false,
+          "provenance_ref": "fixture://layer2/s6/w11a_uk_work_programme_2011/participation/blocked",
+          "source_ref": "fixture://layer2/s6/w11a_uk_work_programme_2011/consultation",
+          "unresolved_high_severity_objection": false
+        }
+      ],
+      "post_intervention_dgp_assumptions": [
+        "assumption://layer2/s6/w11a_uk_work_programme_2011/post-intervention-dgp"
+      ],
+      "pre_policy_effect_refs": [
+        "effect://w11a_uk_work_programme_2011/pre-policy-effect"
+      ],
+      "proxy_rows": [
+        {
+          "construct_label": "excluded value",
+          "construct_ref": "construct://w11a_uk_work_programme_2011/excluded_value",
+          "declared_as_value_construct_complete": false,
+          "evidence_refs": [],
+          "measurability_status": "missing",
+          "proxy_ref": "construct://w11a_uk_work_programme_2011/throughput_proxy",
+          "proxy_validity": "invalid_proxy",
+          "value_loss_disclosure_ref": null
+        }
+      ],
+      "response_channels": [
+        {
+          "channel": "goodhart",
+          "disposition": "system_dynamics_required",
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_uk_work_programme_2011/strategic/goodhart-channel"
+          ],
+          "post_intervention_dgp_update_ref": "pdc://layer2/s6/w11a_uk_work_programme_2011/post-intervention-dgp",
+          "reason": "incentive response can change the post-intervention DGP",
+          "response_model_ref": "fixture://layer2/s6/w11a_uk_work_programme_2011/strategic/goodhart-trigger",
+          "risk_level": "high"
+        }
+      ],
+      "s5_composition_refs": {
+        "composition_receipt_ref": "pdc://layer2/s5/w11a_uk_work_programme_2011/composition-receipt",
+        "dynamics_requirement_ref": "pdc://layer2/s5/w11a_uk_work_programme_2011/system-dynamics-requirement"
+      },
+      "semantic_binding_ledger_ref": "fixture://layer2/s6/w11a_uk_work_programme_2011/semantic-binding-ledger",
+      "strategic_response_entries": [
+        {
+          "declared_unchanged_effect": false,
+          "entry_ref": "fixture://layer2/s6/w11a_uk_work_programme_2011/strategic/entry"
+        }
+      ],
+      "value_loss_notes": [
+        "fixture://layer2/s6/w11a_uk_work_programme_2011/value-loss-note"
+      ]
+    },
+    "w11a_us_ppp_2020": {
+      "actor_ref": "actor://w11a_us_ppp_2020/implementing-actor",
+      "aggregation_rows": [
+        {
+          "aggregation_validity": "block_ecological_error",
+          "claim_scope": "firm",
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_us_ppp_2020/aggregation/evidence"
+          ],
+          "evidence_scope": "jurisdiction",
+          "population_ref": "population://w11a_us_ppp_2020/covered-population",
+          "simpson_risk": true,
+          "subgroup_harm_hidden": true,
+          "subgroup_ref": "population://w11a_us_ppp_2020/at-risk-subgroup",
+          "validity_proof_ref": null
+        }
+      ],
+      "bridge_consumer_expectations": [
+        "KNOWLEDGE.epistemic_regime",
+        "ACTOR.value_choice_provenance",
+        "INTERVENTION.targeting",
+        "INTERVENTION.feasibility",
+        "DESIGNER_ITSELF.envelope_membership",
+        "PUBLIC.legitimacy_disclosure",
+        "INTERVENTION.design_candidate",
+        "SYSTEM.post_intervention_dgp",
+        "SYSTEM.dynamics_feedback",
+        "INTERVENTION.robustness"
+      ],
+      "capacity_dimensions": [
+        {
+          "capacity_building_obligation_ref": "obligation://layer2/s6/w11a_us_ppp_2020/repair-capacity-blocker",
+          "copied_from_actor_ref": "actor://w11a_us_ppp_2020/source-high-capacity-actor",
+          "copied_from_jurisdiction_ref": "jurisdiction://w11a_us_ppp_2020/source-high-capacity-jurisdiction",
+          "dimension": "administrative",
+          "disposition": "blocked",
+          "evidence_ref": null,
+          "reason": "required administrative capacity is copied or absent in target jurisdiction",
+          "required": true
+        }
+      ],
+      "claim_scope": "firm",
+      "concept_spine_carrier_ref": "fixture://layer2/s6/w11a_us_ppp_2020/concept-spine-carrier",
+      "construct_refs": [
+        "construct://w11a_us_ppp_2020/primary_outcome",
+        "construct://w11a_us_ppp_2020/distributional_value"
+      ],
+      "construct_rows": [
+        {
+          "construct_label": "primary outcome",
+          "construct_ref": "construct://w11a_us_ppp_2020/primary_outcome",
+          "declared_as_value_construct_complete": false,
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_us_ppp_2020/measurability/observed-primary"
+          ],
+          "measurability_status": "observed",
+          "proxy_ref": null,
+          "proxy_validity": "not_applicable",
+          "value_loss_disclosure_ref": null
+        },
+        {
+          "construct_label": "distributional value",
+          "construct_ref": "construct://w11a_us_ppp_2020/distributional_value",
+          "declared_as_value_construct_complete": false,
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_us_ppp_2020/measurability/admin-proxy"
+          ],
+          "measurability_status": "proxy_only",
+          "proxy_ref": "construct://w11a_us_ppp_2020/administrative_proxy",
+          "proxy_validity": "limited_proxy",
+          "value_loss_disclosure_ref": "fixture://layer2/s6/w11a_us_ppp_2020/value-loss/distributional-value"
+        }
+      ],
+      "consultation_validations": [],
+      "evidence_scope": "jurisdiction",
+      "expected_c3_authority_dimensions": [
+        "measurability_adequacy",
+        "aggregation_validity",
+        "capacity_feasibility",
+        "mandate_legitimacy",
+        "strategic_robustness",
+        "response_model_validity"
+      ],
+      "expected_constraint_store_consumers": [
+        "KNOWLEDGE.epistemic_regime",
+        "ACTOR.value_choice_provenance",
+        "INTERVENTION.targeting",
+        "INTERVENTION.feasibility",
+        "DESIGNER_ITSELF.envelope_membership",
+        "PUBLIC.legitimacy_disclosure",
+        "INTERVENTION.design_candidate",
+        "SYSTEM.post_intervention_dgp",
+        "SYSTEM.dynamics_feedback",
+        "INTERVENTION.robustness"
+      ],
+      "instrument_ref": "instrument://w11a_us_ppp_2020/policy-instrument",
+      "jurisdiction_ref": "jurisdiction://w11a_us_ppp_2020",
+      "lifecycle_stage": "implementation",
+      "mandate_sources": [
+        {
+          "authorized_objective_refs": [
+            "objective://w11a_us_ppp_2020/primary"
+          ],
+          "basis": "participatory",
+          "disposition": "candidate_unverified",
+          "provenance_ref": "fixture://layer2/s6/w11a_us_ppp_2020/mandate/partial-provenance",
+          "reason": "mandate exists as candidate-unverified evidence and must limit authority",
+          "source_authority": "human_governance",
+          "source_ref": "fixture://layer2/s6/w11a_us_ppp_2020/mandate/participation-summary"
+        }
+      ],
+      "objective_refs": [
+        "objective://w11a_us_ppp_2020/primary",
+        "objective://w11a_us_ppp_2020/distributional-integrity"
+      ],
+      "participation_evaluations": [
+        {
+          "blocker_refs": [],
+          "claim_use_allowed": true,
+          "provenance_ref": "fixture://layer2/s6/w11a_us_ppp_2020/participation/limited",
+          "source_ref": "fixture://layer2/s6/w11a_us_ppp_2020/consultation",
+          "unresolved_high_severity_objection": false
+        }
+      ],
+      "post_intervention_dgp_assumptions": [
+        "assumption://layer2/s6/w11a_us_ppp_2020/post-intervention-dgp"
+      ],
+      "pre_policy_effect_refs": [
+        "effect://w11a_us_ppp_2020/pre-policy-effect"
+      ],
+      "proxy_rows": [
+        {
+          "construct_label": "distributional value",
+          "construct_ref": "construct://w11a_us_ppp_2020/distributional_value",
+          "declared_as_value_construct_complete": false,
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_us_ppp_2020/measurability/admin-proxy"
+          ],
+          "measurability_status": "proxy_only",
+          "proxy_ref": "construct://w11a_us_ppp_2020/administrative_proxy",
+          "proxy_validity": "limited_proxy",
+          "value_loss_disclosure_ref": "fixture://layer2/s6/w11a_us_ppp_2020/value-loss/distributional-value"
+        }
+      ],
+      "response_channels": [
+        {
+          "channel": "goodhart",
+          "disposition": "system_dynamics_required",
+          "evidence_refs": [
+            "fixture://layer2/s6/w11a_us_ppp_2020/strategic/goodhart-channel"
+          ],
+          "post_intervention_dgp_update_ref": "pdc://layer2/s6/w11a_us_ppp_2020/post-intervention-dgp",
+          "reason": "incentive response can change the post-intervention DGP",
+          "response_model_ref": "fixture://layer2/s6/w11a_us_ppp_2020/strategic/goodhart-trigger",
+          "risk_level": "high"
+        }
+      ],
+      "s5_composition_refs": {
+        "composition_receipt_ref": "pdc://layer2/s5/w11a_us_ppp_2020/composition-receipt",
+        "dynamics_requirement_ref": "pdc://layer2/s5/w11a_us_ppp_2020/system-dynamics-requirement"
+      },
+      "semantic_binding_ledger_ref": "fixture://layer2/s6/w11a_us_ppp_2020/semantic-binding-ledger",
+      "strategic_response_entries": [
+        {
+          "declared_unchanged_effect": false,
+          "entry_ref": "fixture://layer2/s6/w11a_us_ppp_2020/strategic/entry"
+        }
+      ],
+      "value_loss_notes": [
+        "fixture://layer2/s6/w11a_us_ppp_2020/value-loss-note"
+      ]
+    }
+  },
+  "schema_version": "policyos.policy_design_case.layer2_s6.blind_spot_case_signals.v1"
+}

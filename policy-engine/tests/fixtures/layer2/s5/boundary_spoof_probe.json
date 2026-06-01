@@ -1,0 +1,19 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s5.boundary_spoof_probe.v1",
+  "case_id": "s5_boundary_spoof_probe",
+  "expected_error": "P17BoundarySpoofError",
+  "design_ref": "pdc://layer2/s5/boundary-spoof/design",
+  "user_supplied_module_refs": [
+    "module://politically-convenient-front-office",
+    "module://politically-convenient-back-office"
+  ],
+  "discovered_module_refs": [
+    "module://eligibility",
+    "module://delivery",
+    "module://appeals",
+    "module://provider-incentives"
+  ],
+  "spoofed_boundary_ref": "boundary://front-office/back-office",
+  "expected_boundary_regime": "entangled",
+  "reason": "user-supplied modules hide strong provider-incentive and appeals feedback across the proposed boundary"
+}

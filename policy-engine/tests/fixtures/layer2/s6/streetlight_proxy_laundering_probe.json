@@ -1,0 +1,83 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s6.streetlight_proxy_laundering_probe.v1",
+  "case_id": "streetlight_proxy_laundering_probe",
+  "expected_error": "P18StreetlightMeasurabilityError",
+  "expected_pattern_id": "P18",
+  "axis": "SYSTEM.measurability",
+  "blind_spot_axis": "measurability",
+  "design_ref": "pdc://layer2/s6/streetlight-proxy/design",
+  "rule_version_ref": "repo://docs/reference/policy-design-case-failure-patterns.md#P18",
+  "declared_measurability_pass": true,
+  "objective_refs": [
+    "objective://service-throughput-with-dignity",
+    "objective://trust-preserving-access"
+  ],
+  "construct_refs": [
+    "construct://administrative-throughput",
+    "construct://dignity",
+    "construct://trust",
+    "construct://access-fairness"
+  ],
+  "population_ref": "population://benefit-applicants",
+  "jurisdiction_ref": "jurisdiction://ua/municipal-services",
+  "actor_ref": "actor://municipal-service-agency",
+  "instrument_ref": "instrument://queue-automation-target",
+  "semantic_binding_ledger_ref": "fixture://layer2/s6/streetlight/semantic-binding-ledger",
+  "producer_evidence_refs": [
+    "fixture://layer2/s6/streetlight/admin-throughput-observed",
+    "fixture://layer2/s6/streetlight/applicant-interviews-missing"
+  ],
+  "construct_rows": [
+    {
+      "construct_ref": "construct://administrative-throughput",
+      "construct_label": "administrative throughput",
+      "measurability_status": "observed",
+      "proxy_validity": "not_applicable",
+      "proxy_ref": null,
+      "value_loss_disclosure_ref": null,
+      "evidence_refs": [
+        "fixture://layer2/s6/streetlight/admin-throughput-observed"
+      ],
+      "declared_as_value_construct_complete": true
+    },
+    {
+      "construct_ref": "construct://dignity",
+      "construct_label": "applicant dignity",
+      "measurability_status": "qualitative",
+      "proxy_validity": "not_applicable",
+      "proxy_ref": null,
+      "value_loss_disclosure_ref": null,
+      "evidence_refs": [],
+      "declared_as_value_construct_complete": true
+    },
+    {
+      "construct_ref": "construct://trust",
+      "construct_label": "institutional trust",
+      "measurability_status": "proxy_only",
+      "proxy_validity": "limited_proxy",
+      "proxy_ref": "construct://administrative-throughput",
+      "value_loss_disclosure_ref": null,
+      "evidence_refs": [
+        "fixture://layer2/s6/streetlight/admin-throughput-observed"
+      ],
+      "declared_as_value_construct_complete": true
+    },
+    {
+      "construct_ref": "construct://access-fairness",
+      "construct_label": "access fairness",
+      "measurability_status": "missing",
+      "proxy_validity": "invalid_proxy",
+      "proxy_ref": "construct://administrative-throughput",
+      "value_loss_disclosure_ref": null,
+      "evidence_refs": [],
+      "declared_as_value_construct_complete": true
+    }
+  ],
+  "expected_fail_closed_disposition": "block",
+  "expected_value_loss_disclosure_required": true,
+  "expected_limitation_refs": [
+    "limitation://layer2/s6/streetlight/unmeasured-dignity",
+    "limitation://layer2/s6/streetlight/proxy-trust-loss",
+    "limitation://layer2/s6/streetlight/missing-access-fairness"
+  ]
+}

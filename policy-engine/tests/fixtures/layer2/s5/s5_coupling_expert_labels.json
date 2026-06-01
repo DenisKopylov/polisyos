@@ -1,0 +1,307 @@
+{
+  "_meta": {
+    "schema_version": "policyos.policy_design_case.layer2_s5.coupling_expert_labels.v1",
+    "reviewer": "team-foundry-design-composition",
+    "adjudication_date": "2026-05-31",
+    "status": "seeded_for_confirmation",
+    "rule_version_ref": "repo://docs/adr/0174-policy-evidence-capability-graph.md",
+    "authority_boundary": {
+      "authoritative_for": [
+        "s5_corpus_coupling_gold_comparison",
+        "s5_scale_composition_gold_comparison"
+      ],
+      "may_not_use_for": [
+        "production_claim_authority",
+        "calibrated_equilibrium_prediction"
+      ]
+    }
+  },
+  "cases": {
+    "ua-msme-affordable-loans-2022": {
+      "expert_coupling_regime": "near_decomposable",
+      "expected_feedback_intensity": "weak",
+      "expected_composition_disposition": "compose_with_limitations",
+      "requires_system_dynamics": false,
+      "scale_class": "national_program",
+      "forecast_support_scope": {
+        "base_origin": "transported_scholar_estimate",
+        "claim_scope": "system_effect",
+        "support_label": "transported_with_heavy_limitation"
+      },
+      "boundary_gold": [
+        {
+          "boundary_ref": "boundary://ua-msme/credit/fiscal",
+          "source_module_ref": "module://credit-program-enrollment",
+          "target_module_ref": "module://fiscal-burden-per-beneficiary",
+          "expert_coupling_regime": "near_decomposable",
+          "expected_feedback_intensity": "weak",
+          "requires_system_dynamics": false
+        }
+      ]
+    },
+    "w11a_berlin_rent_cap_2020": {
+      "expert_coupling_regime": "entangled",
+      "expected_feedback_intensity": "high",
+      "expected_composition_disposition": "system_evidence_required",
+      "requires_system_dynamics": true,
+      "scale_class": "city_housing_market",
+      "forecast_support_scope": {
+        "base_origin": "equilibrium_contested",
+        "claim_scope": "system_effect",
+        "support_label": "equilibrium_contested"
+      },
+      "boundary_gold": [
+        {
+          "boundary_ref": "boundary://berlin/rent-cap/supply-response",
+          "source_module_ref": "module://rent-control-rule",
+          "target_module_ref": "module://housing-supply-response",
+          "expert_coupling_regime": "entangled",
+          "expected_feedback_intensity": "high",
+          "requires_system_dynamics": true
+        }
+      ]
+    },
+    "w11a_boston_operation_ceasefire_1996": {
+      "expert_coupling_regime": "entangled",
+      "expected_feedback_intensity": "high",
+      "expected_composition_disposition": "system_evidence_required",
+      "requires_system_dynamics": true,
+      "scale_class": "city_public_safety_network",
+      "forecast_support_scope": {
+        "base_origin": "historical_prior",
+        "claim_scope": "system_effect",
+        "support_label": "historical_prior_system_context"
+      },
+      "boundary_gold": [
+        {
+          "boundary_ref": "boundary://boston/deterrence/community-legitimacy",
+          "source_module_ref": "module://focused-deterrence",
+          "target_module_ref": "module://community-legitimacy",
+          "expert_coupling_regime": "entangled",
+          "expected_feedback_intensity": "high",
+          "requires_system_dynamics": true
+        }
+      ]
+    },
+    "w11a_eu_temporary_protection_ukraine_2022": {
+      "expert_coupling_regime": "hierarchically_coupled",
+      "expected_feedback_intensity": "weak",
+      "expected_composition_disposition": "compose_with_limitations",
+      "requires_system_dynamics": false,
+      "scale_class": "transnational_integration",
+      "forecast_support_scope": {
+        "base_origin": "historical_prior",
+        "claim_scope": "context_only",
+        "support_label": "historical_prior_system_context"
+      },
+      "boundary_gold": [
+        {
+          "boundary_ref": "boundary://eu-tpd/eu-framework/member-state-implementation",
+          "source_module_ref": "module://eu-temporary-protection-framework",
+          "target_module_ref": "module://member-state-implementation",
+          "expert_coupling_regime": "hierarchically_coupled",
+          "expected_feedback_intensity": "weak",
+          "requires_system_dynamics": false
+        }
+      ]
+    },
+    "w11a_ghana_free_shs_2017": {
+      "expert_coupling_regime": "hierarchically_coupled",
+      "expected_feedback_intensity": "medium",
+      "expected_composition_disposition": "compose_with_limitations",
+      "requires_system_dynamics": false,
+      "scale_class": "national_education_system",
+      "forecast_support_scope": {
+        "base_origin": "transported_scholar_estimate",
+        "claim_scope": "system_effect",
+        "support_label": "transported_with_heavy_limitation"
+      },
+      "boundary_gold": [
+        {
+          "boundary_ref": "boundary://ghana/free-shs/enrollment/capacity",
+          "source_module_ref": "module://fee-removal",
+          "target_module_ref": "module://school-capacity",
+          "expert_coupling_regime": "hierarchically_coupled",
+          "expected_feedback_intensity": "medium",
+          "requires_system_dynamics": false
+        }
+      ]
+    },
+    "w11a_india_aadhaar_dbt_2016": {
+      "expert_coupling_regime": "entangled",
+      "expected_feedback_intensity": "high",
+      "expected_composition_disposition": "system_evidence_required",
+      "requires_system_dynamics": true,
+      "scale_class": "national_digital_welfare_infrastructure",
+      "forecast_support_scope": {
+        "base_origin": "equilibrium_contested",
+        "claim_scope": "system_effect",
+        "support_label": "equilibrium_contested"
+      },
+      "boundary_gold": [
+        {
+          "boundary_ref": "boundary://aadhaar/identity/payment-exclusion",
+          "source_module_ref": "module://digital-identity-authentication",
+          "target_module_ref": "module://benefit-payment-delivery",
+          "expert_coupling_regime": "entangled",
+          "expected_feedback_intensity": "high",
+          "requires_system_dynamics": true
+        }
+      ]
+    },
+    "w11a_mexico_ssb_tax_2014": {
+      "expert_coupling_regime": "near_decomposable",
+      "expected_feedback_intensity": "weak",
+      "expected_composition_disposition": "compose_with_limitations",
+      "requires_system_dynamics": false,
+      "scale_class": "national_tax_public_health",
+      "forecast_support_scope": {
+        "base_origin": "historical_prior",
+        "claim_scope": "system_effect",
+        "support_label": "historical_prior_system_context"
+      },
+      "boundary_gold": [
+        {
+          "boundary_ref": "boundary://mexico-ssb/tax/consumption-response",
+          "source_module_ref": "module://excise-tax",
+          "target_module_ref": "module://consumer-substitution",
+          "expert_coupling_regime": "near_decomposable",
+          "expected_feedback_intensity": "weak",
+          "requires_system_dynamics": false
+        }
+      ]
+    },
+    "w11a_netherlands_room_for_river_2007": {
+      "expert_coupling_regime": "entangled",
+      "expected_feedback_intensity": "high",
+      "expected_composition_disposition": "system_evidence_required",
+      "requires_system_dynamics": true,
+      "scale_class": "river_basin_adaptation_system",
+      "forecast_support_scope": {
+        "base_origin": "validated_local_model",
+        "claim_scope": "system_effect",
+        "support_label": "validated_local_dynamic_model"
+      },
+      "boundary_gold": [
+        {
+          "boundary_ref": "boundary://room-for-river/hydrology/land-use",
+          "source_module_ref": "module://floodplain-redesign",
+          "target_module_ref": "module://land-use-compensation",
+          "expert_coupling_regime": "entangled",
+          "expected_feedback_intensity": "high",
+          "requires_system_dynamics": true
+        }
+      ]
+    },
+    "w11a_pakistan_ehsaas_cash_2020": {
+      "expert_coupling_regime": "modular",
+      "expected_feedback_intensity": "none",
+      "expected_composition_disposition": "compose",
+      "requires_system_dynamics": false,
+      "scale_class": "national_cash_transfer",
+      "forecast_support_scope": {
+        "base_origin": "historical_prior",
+        "claim_scope": "leaf_only",
+        "support_label": "leaf_only_no_system_claim"
+      },
+      "boundary_gold": [
+        {
+          "boundary_ref": "boundary://ehsaas/eligibility/payment",
+          "source_module_ref": "module://eligibility-verification",
+          "target_module_ref": "module://cash-payment-rail",
+          "expert_coupling_regime": "modular",
+          "expected_feedback_intensity": "none",
+          "requires_system_dynamics": false
+        }
+      ]
+    },
+    "w11a_uk_levelling_up_fund_2021": {
+      "expert_coupling_regime": "hierarchically_coupled",
+      "expected_feedback_intensity": "medium",
+      "expected_composition_disposition": "compose_with_limitations",
+      "requires_system_dynamics": false,
+      "scale_class": "national_portfolio_grant_program",
+      "forecast_support_scope": {
+        "base_origin": "transported_scholar_estimate",
+        "claim_scope": "routing_only",
+        "support_label": "transported_with_heavy_limitation"
+      },
+      "boundary_gold": [
+        {
+          "boundary_ref": "boundary://levelling-up/central-scoring/local-delivery",
+          "source_module_ref": "module://central-project-selection",
+          "target_module_ref": "module://local-delivery-capacity",
+          "expert_coupling_regime": "hierarchically_coupled",
+          "expected_feedback_intensity": "medium",
+          "requires_system_dynamics": false
+        }
+      ]
+    },
+    "w11a_uk_mtd_vat_2019": {
+      "expert_coupling_regime": "modular",
+      "expected_feedback_intensity": "none",
+      "expected_composition_disposition": "compose",
+      "requires_system_dynamics": false,
+      "scale_class": "national_tax_administration",
+      "forecast_support_scope": {
+        "base_origin": "historical_prior",
+        "claim_scope": "leaf_only",
+        "support_label": "leaf_only_no_system_claim"
+      },
+      "boundary_gold": [
+        {
+          "boundary_ref": "boundary://mtd-vat/software-filing/compliance",
+          "source_module_ref": "module://digital-recordkeeping",
+          "target_module_ref": "module://vat-filing-compliance",
+          "expert_coupling_regime": "modular",
+          "expected_feedback_intensity": "none",
+          "requires_system_dynamics": false
+        }
+      ]
+    },
+    "w11a_uk_work_programme_2011": {
+      "expert_coupling_regime": "entangled",
+      "expected_feedback_intensity": "high",
+      "expected_composition_disposition": "system_evidence_required",
+      "requires_system_dynamics": true,
+      "scale_class": "national_labor_market_program",
+      "forecast_support_scope": {
+        "base_origin": "equilibrium_contested",
+        "claim_scope": "system_effect",
+        "support_label": "equilibrium_contested"
+      },
+      "boundary_gold": [
+        {
+          "boundary_ref": "boundary://work-programme/provider-incentives/participant-sorting",
+          "source_module_ref": "module://payment-by-results",
+          "target_module_ref": "module://participant-targeting",
+          "expert_coupling_regime": "entangled",
+          "expected_feedback_intensity": "high",
+          "requires_system_dynamics": true
+        }
+      ]
+    },
+    "w11a_us_ppp_2020": {
+      "expert_coupling_regime": "entangled",
+      "expected_feedback_intensity": "high",
+      "expected_composition_disposition": "system_evidence_required",
+      "requires_system_dynamics": true,
+      "scale_class": "national_crisis_credit_program",
+      "forecast_support_scope": {
+        "base_origin": "simulation_only",
+        "claim_scope": "system_effect",
+        "support_label": "simulation_only_system_effect"
+      },
+      "boundary_gold": [
+        {
+          "boundary_ref": "boundary://ppp/lender-incentives/firm-access",
+          "source_module_ref": "module://bank-origination-channel",
+          "target_module_ref": "module://small-business-access",
+          "expert_coupling_regime": "entangled",
+          "expected_feedback_intensity": "high",
+          "requires_system_dynamics": true
+        }
+      ]
+    }
+  }
+}

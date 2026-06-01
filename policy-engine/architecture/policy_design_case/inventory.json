@@ -132,6 +132,74 @@
       "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py"
     },
     {
+      "id": "layer2_s5_coupling_composition_manifest",
+      "path": "architecture/policy_design_case/layer2_s5_coupling_composition_manifest.json",
+      "kind": "layer2_s5_coupling_composition_manifest",
+      "schema_version": "policyos.policy_design_case.layer2_s5_coupling_composition_manifest.v1",
+      "owner": "team-foundry-design-composition",
+      "status": "active",
+      "capability_reality_label": "implemented",
+      "authority_scope": [
+        "coupling_regime_classification",
+        "composition_gate",
+        "system_dynamics_requirement",
+        "boundary_coupling_classification",
+        "system_effect_support_scope",
+        "computational_tractability_budget"
+      ],
+      "may_not_use_for": [
+        "production_claim_authority",
+        "rollout_authority",
+        "publication_authority",
+        "equilibrium_prediction_authority",
+        "simulation_calibration_authority",
+        "whole_design_authority_without_coupling_graph",
+        "whole_design_authority_from_syntactic_decomposition",
+        "whole_design_authority_from_user_supplied_module_split",
+        "averaged_cross_level_authority",
+        "false_modular_decomposition",
+        "weakened_authority_from_tractability_cutoff"
+      ],
+      "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py",
+      "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py"
+    },
+    {
+      "id": "layer2_s6_blind_spot_firewalls_manifest",
+      "path": "architecture/policy_design_case/layer2_s6_blind_spot_firewalls_manifest.json",
+      "kind": "layer2_s6_blind_spot_firewalls_manifest",
+      "schema_version": "policyos.policy_design_case.layer2_s6_blind_spot_firewalls_manifest.v1",
+      "owner": "team-runtime-quality",
+      "status": "active",
+      "capability_reality_label": "implemented",
+      "maturity": "fail_closed",
+      "authority_scope": [
+        "measurability_adequacy",
+        "aggregation_validity",
+        "capacity_feasibility",
+        "mandate_legitimacy",
+        "strategic_robustness",
+        "response_model_validity",
+        "fail_closed_axis_firewall"
+      ],
+      "may_not_use_for": [
+        "production_claim_authority",
+        "rollout_authority",
+        "publication_authority",
+        "delegation_authority",
+        "value_choice_authority",
+        "outcome_prediction_authority",
+        "forecast_calibration_authority",
+        "rich_response_model_authority",
+        "capacity_transfer_authority",
+        "mandate_authority_from_llm",
+        "proxy_construct_equivalence_without_disclosure",
+        "aggregation_scope_transfer_without_validity",
+        "post_policy_effect_claim_without_response_model"
+      ],
+      "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py",
+      "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py"
+    },
+    {
       "id": "layer2_minimal_seed_manifest",
       "path": "architecture/policy_design_case/layer2_minimal_seed_manifest.json",
       "kind": "layer2_seed_manifest",

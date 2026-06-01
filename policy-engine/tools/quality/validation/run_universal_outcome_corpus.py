@@ -38,6 +38,7 @@ from polisyos.pdc import (  # noqa: E402
     Layer2S5CompositionPostureInput,
     Layer2S6BlindSpotPostureInput,
     Layer2S7DelegationPostureInput,
+    Layer2S8ValuePostureInput,
     run_s2_shadow_design_loop,
 )
 from polisyos.policy_grammar import (  # noqa: E402
@@ -172,8 +173,11 @@ S6_CASE_SIGNALS_PATH = Path("tests/fixtures/layer2/s6/s6_blind_spot_case_signals
 S6_EXPERT_LABELS_PATH = Path("tests/fixtures/layer2/s6/s6_blind_spot_expert_labels.json")
 S7_CASE_SIGNALS_PATH = Path("tests/fixtures/layer2/s7/s7_delegation_case_signals.json")
 S7_EXPERT_LABELS_PATH = Path("tests/fixtures/layer2/s7/s7_delegation_expert_labels.json")
+S8_CASE_SIGNALS_PATH = Path("tests/fixtures/layer2/s8/s8_value_choice_case_signals.json")
+S8_EXPERT_LABELS_PATH = Path("tests/fixtures/layer2/s8/s8_value_choice_expert_labels.json")
 S4_RULE_VERSION_REF = "repo://docs/adr/0174-policy-evidence-capability-graph.md"
 S7_RULE_VERSION_REF = "policyos.layer2.s7.delegation.v1"
+S8_RULE_VERSION_REF = "policyos.layer2.s8.value_choice.v1"
 W12D_FORMULATOR_TOOL_REFS: tuple[str, ...] = (
     "tool:w12d.universal_outcome_corpus_run",
     "tool:llm_formulator_runtime",
@@ -259,6 +263,27 @@ S7_NEGATIVE_CONTROL_PROBES: tuple[Path, ...] = (
     Path("tests/fixtures/layer2/s7/mandate_absent_delegation_probe.json"),
     Path("tests/fixtures/layer2/s7/workflow_only_delegation_summary_probe.json"),
 )
+S8_NEGATIVE_CONTROL_PROBES: tuple[Path, ...] = (
+    Path("tests/fixtures/layer2/s8/llm_social_weight_probe.json"),
+    Path("tests/fixtures/layer2/s8/blocked_mandate_value_choice_probe.json"),
+    Path("tests/fixtures/layer2/s8/pareto_ranking_without_value_source_probe.json"),
+    Path("tests/fixtures/layer2/s8/multi_principal_conflict_probe.json"),
+    Path("tests/fixtures/layer2/s8/s7_human_decision_substitution_probe.json"),
+    Path("tests/fixtures/layer2/s8/shadow_scenario_authority_spoof_probe.json"),
+    Path("tests/fixtures/layer2/s8/missing_arrow_disclosure_probe.json"),
+)
+S8_MAY_NOT_USE_FOR: tuple[str, ...] = (
+    "production_recommendation",
+    "production_claim_authority",
+    "publication_authority",
+    "rollout_authority",
+    "scalar_welfare_authority",
+    "preference_learning_authority",
+    "outcome_prediction_authority",
+    "forecast_calibration_authority",
+    "s9_projection_authority",
+    "s9_projection_maturity",
+)
 
 
 class W12DCaseRunError(ValueError):
@@ -295,6 +320,10 @@ def build_w12d_universal_outcome_corpus_report(
         cases,
         repo_root=Path(repo_root),
     )
+    s8_value_choice_summary = _s8_value_choice_corpus_summary(
+        cases,
+        repo_root=Path(repo_root),
+    )
     status = "blocked" if rollout_blockers else "pass"
     return {
         "schema_version": SCHEMA_VERSION,
@@ -312,6 +341,7 @@ def build_w12d_universal_outcome_corpus_report(
         "s5_coupling_summary": s5_coupling_summary,
         "s6_blind_spot_summary": s6_blind_spot_summary,
         "s7_delegation_summary": s7_delegation_summary,
+        "s8_value_choice_summary": s8_value_choice_summary,
         "cases": cases,
         "authority_level_metric_stratification": _authority_stratification(cases),
         "domain_authority_metric_stratification": _domain_authority_stratification(cases),
@@ -908,6 +938,12 @@ def _run_case(
         repo_root=repo_root,
         s6_blind_spot_firewalls=s6_blind_spot_firewalls,
     )
+    s8_value_choice = _s8_value_choice_summary(
+        case,
+        repo_root=repo_root,
+        s6_blind_spot_firewalls=s6_blind_spot_firewalls,
+        s7_delegation=s7_delegation,
+    )
     s2_design_search = _s2_design_search_summary(
         case,
         repo_root=repo_root,
@@ -915,6 +951,7 @@ def _run_case(
         s5_coupling_composition=s5_coupling_composition,
         s6_blind_spot_firewalls=s6_blind_spot_firewalls,
         s7_delegation=s7_delegation,
+        s8_value_choice=s8_value_choice,
     )
     return {
         "case_id": case_id,
@@ -936,7 +973,11 @@ def _run_case(
         "s5_coupling_composition": s5_coupling_composition,
         "s6_blind_spot_firewalls": s6_blind_spot_firewalls,
         "s7_delegation": s7_delegation,
-        "closeout_visible_refs": _closeout_visible_refs(s7_delegation=s7_delegation),
+        "s8_value_choice": s8_value_choice,
+        "closeout_visible_refs": _closeout_visible_refs(
+            s7_delegation=s7_delegation,
+            s8_value_choice=s8_value_choice,
+        ),
         "expert_adjudication_delta": expert_delta,
         "authority_outcomes": authority_outcomes,
         "typed_blockers": typed_blockers,
@@ -952,6 +993,7 @@ def _s2_design_search_summary(
     s5_coupling_composition: Mapping[str, Any] | None = None,
     s6_blind_spot_firewalls: Mapping[str, Any] | None = None,
     s7_delegation: Mapping[str, Any] | None = None,
+    s8_value_choice: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     case_id = str(case.get("case_id") or case.get("id") or "")
     if case_id != "ua-msme-affordable-loans-2022":
@@ -996,6 +1038,11 @@ def _s2_design_search_summary(
         if s7_delegation
         else None
     )
+    value_posture = (
+        _s8_value_posture_input(s8_value_choice)
+        if s8_value_choice
+        else None
+    )
     if s4_epistemic_regime:
         run = run_s2_shadow_design_loop(
             input_row,
@@ -1011,6 +1058,7 @@ def _s2_design_search_summary(
             composition_posture=composition_posture,
             blind_spot_posture=blind_spot_posture,
             delegation_posture=delegation_posture,
+            value_posture=value_posture,
         )
     else:
         run = run_s2_shadow_design_loop(
@@ -1018,6 +1066,7 @@ def _s2_design_search_summary(
             composition_posture=composition_posture,
             blind_spot_posture=blind_spot_posture,
             delegation_posture=delegation_posture,
+            value_posture=value_posture,
         )
     return {
         "status": run.status,
@@ -1025,6 +1074,11 @@ def _s2_design_search_summary(
         "delegation_posture": (
             run.delegation_posture.model_dump(mode="json")
             if run.delegation_posture is not None
+            else None
+        ),
+        "value_posture": (
+            run.value_posture.model_dump(mode="json")
+            if run.value_posture is not None
             else None
         ),
         "search_ledger": run.search_ledger.model_dump(mode="json"),
@@ -2022,6 +2076,572 @@ def _s7_delegation_posture_input(
     )
 
 
+def _s8_value_choice_summary(
+    case: Mapping[str, object],
+    *,
+    repo_root: Path,
+    s6_blind_spot_firewalls: Mapping[str, object],
+    s7_delegation: Mapping[str, object],
+) -> dict[str, object]:
+    """Build the S8 value-choice block for one canonical corpus case."""
+
+    case_id = _required_text(case.get("case_id") or case.get("id"), field_name="case_id")
+    signals = _s8_case_signals(repo_root).get(case_id)
+    labels = _s8_expert_labels(repo_root).get(case_id)
+    if not signals or not labels:
+        raise W12DCaseRunError(f"S8 value-choice fixture missing for case {case_id}")
+
+    fixed_refs = _s8_fixed_refs(case_id)
+    disposition = _required_text(
+        labels.get("expected_disposition"),
+        field_name="expected_disposition",
+    )
+    ranking_mode = _required_text(
+        labels.get("expected_ranking_mode"),
+        field_name="expected_ranking_mode",
+    )
+    p20_status = _required_text(
+        labels.get("expected_p20_firewall_status"),
+        field_name="expected_p20_firewall_status",
+    )
+    p22_status = _required_text(
+        labels.get("expected_p22_firewall_status"),
+        field_name="expected_p22_firewall_status",
+    )
+    authorized_ref = (
+        fixed_refs["authorized_value_schedule_ref"]
+        if bool(labels.get("expected_authorized_value_schedule_present"))
+        else None
+    )
+    mandate_ref = _required_text(
+        signals.get("s6_mandate_record_ref")
+        or s6_blind_spot_firewalls.get("mandate_legitimacy_record_ref"),
+        field_name="s6_mandate_record_ref",
+    )
+    mandate_disposition = _required_text(
+        signals.get("s6_mandate_firewall_disposition")
+        or s6_blind_spot_firewalls.get("overall_posture"),
+        field_name="s6_mandate_firewall_disposition",
+    )
+    social_weight_source_class = _text(signals.get("social_weight_source_class")) or "none"
+    handoff_rows = _s8_handoff_rows(
+        case_id=case_id,
+        value_choice_provenance_ref=fixed_refs["value_choice_provenance_ref"],
+        pareto_archive_ref=fixed_refs["pareto_archive_ref"],
+        disposition=disposition,
+        p20_firewall_status=p20_status,
+        p22_firewall_status=p22_status,
+    )
+    block = {
+        "schema_version": "policyos.policy_design_case.layer2_s8_value_choice.v1",
+        "case_id": case_id,
+        "value_choice_provenance_ref": fixed_refs["value_choice_provenance_ref"],
+        "authorized_value_schedule_ref": authorized_ref,
+        "shadow_scenario_value_schedule_refs": [
+            str(ref) for ref in _sequence(signals.get("shadow_scenario_value_schedule_refs"))
+        ],
+        "objective_function_provenance_ref": fixed_refs[
+            "objective_function_provenance_ref"
+        ],
+        "pareto_archive_ref": fixed_refs["pareto_archive_ref"],
+        "value_tradeoff_disclosure_ref": fixed_refs["value_tradeoff_disclosure_ref"],
+        "mandate_record_ref": mandate_ref,
+        "s6_mandate_firewall_disposition": mandate_disposition,
+        "ranking_mode": ranking_mode,
+        "disposition": disposition,
+        "p20_firewall_status": p20_status,
+        "p22_firewall_status": p22_status,
+        "value_provenance_completeness": 1.0,
+        "principal_refs": [str(ref) for ref in _sequence(signals.get("principal_refs"))],
+        "conflict_rows": [dict(row) for row in _sequence_of_mappings(signals.get("conflict_rows"))],
+        "affected_group_rows": [
+            dict(row) for row in _sequence_of_mappings(signals.get("affected_group_rows"))
+        ],
+        "dissent_refs": [str(ref) for ref in _sequence(signals.get("dissent_refs"))],
+        "blocking_rights_refs": [
+            str(ref) for ref in _sequence(signals.get("blocking_rights_refs"))
+        ],
+        "alternative_schedule_sensitivity": [
+            dict(row)
+            for row in _sequence_of_mappings(signals.get("alternative_schedule_sensitivity"))
+        ],
+        "rejected_nondominated_alternative_ids": [
+            str(item)
+            for item in _sequence(signals.get("rejected_nondominated_alternative_ids"))
+        ],
+        "social_weight_provenance_refs": _s8_social_weight_provenance_refs(
+            case_id,
+            social_weight_source_class,
+        ),
+        "delegation_refs": _s8_delegation_refs(signals, s7_delegation=s7_delegation),
+        "value_authorization_decision_refs": _s8_value_authorization_decision_refs(
+            case_id,
+            authorized_value_schedule_ref=authorized_ref,
+            s7_delegation=s7_delegation,
+        ),
+        "constraint_store_updates": _s8_constraint_store_updates(
+            case_id=case_id,
+            value_choice_provenance_ref=fixed_refs["value_choice_provenance_ref"],
+            pareto_archive_ref=fixed_refs["pareto_archive_ref"],
+            disposition=disposition,
+            p20_firewall_status=p20_status,
+            p22_firewall_status=p22_status,
+        ),
+        "handoff_rows": handoff_rows,
+        "limitation_summary": _s8_limitation_summary(
+            disposition=disposition,
+            ranking_mode=ranking_mode,
+        ),
+        "authority_boundary": {
+            "authoritative_for": [
+                "value_choice_provenance",
+                "shadow_design_search_replay",
+            ],
+            "may_not_use_for": list(S8_MAY_NOT_USE_FOR),
+            "source_authority": "deterministic_producer",
+            "posture": "shadow",
+            "rule_version_refs": [S8_RULE_VERSION_REF],
+        },
+        "coverage_labels": [str(label) for label in _sequence(labels.get("coverage_labels"))],
+        "source_signal_refs": [f"fixture://layer2/s8/{case_id}/case-signals"],
+        "social_weight_source_class": social_weight_source_class,
+        "canonical_outcome_effect": "none_shadow_or_governed_pilot_value_context_only",
+        "may_not_use_for": list(S8_MAY_NOT_USE_FOR),
+    }
+    block["matches_gold"] = _s8_matches_gold(block, labels)
+    return block
+
+
+def _s8_value_choice_corpus_summary(
+    cases: Sequence[Mapping[str, Any]],
+    *,
+    repo_root: Path,
+) -> dict[str, object]:
+    rows = [
+        _mapping(case.get("s8_value_choice"))
+        for case in cases
+        if isinstance(case.get("s8_value_choice"), Mapping)
+    ]
+    negative_results = _s8_negative_control_probe_results(repo_root)
+    expected_authorized = [
+        row for row in rows if "authorized_schedule_present" in set(_sequence(row.get("coverage_labels")))
+    ]
+    authorized_recall = (
+        sum(1 for row in expected_authorized if row.get("authorized_value_schedule_ref"))
+        / len(expected_authorized)
+        if expected_authorized
+        else 1.0
+    )
+    return {
+        "schema_version": "policyos.policy_design_case.layer2_s8.value_choice_corpus_summary.v1",
+        "case_count": len(rows),
+        "value_provenance_completeness": _average(
+            float(row.get("value_provenance_completeness") or 0.0) for row in rows
+        ),
+        "authorized_value_schedule_recall": authorized_recall,
+        "pareto_archive_coverage": _coverage_rate(rows, "pareto_archive_ref"),
+        "tradeoff_disclosure_coverage": _coverage_rate(
+            rows,
+            "value_tradeoff_disclosure_ref",
+        ),
+        "s2_value_posture_injection_count": sum(
+            1
+            for case in cases
+            if isinstance(_nested(case, ("s2_design_search", "value_posture")), Mapping)
+        ),
+        "llm_weight_false_clear_count": _s8_false_clear_count(
+            negative_results,
+            "llm_social_weight_probe",
+        ),
+        "corpus_weight_false_clear_count": _s8_false_clear_count(
+            negative_results,
+            "llm_social_weight_probe",
+        ),
+        "blocked_mandate_value_choice_false_clear_count": _s8_false_clear_count(
+            negative_results,
+            "blocked_mandate_value_choice_probe",
+        ),
+        "pareto_ranking_without_value_source_false_clear_count": _s8_false_clear_count(
+            negative_results,
+            "pareto_ranking_without_value_source_probe",
+        ),
+        "multi_principal_silent_average_false_clear_count": _s8_false_clear_count(
+            negative_results,
+            "multi_principal_conflict_probe",
+        ),
+        "s7_decision_substitution_false_clear_count": _s8_false_clear_count(
+            negative_results,
+            "s7_human_decision_substitution_probe",
+        ),
+        "shadow_scenario_authority_false_clear_count": _s8_false_clear_count(
+            negative_results,
+            "shadow_scenario_authority_spoof_probe",
+        ),
+        "missing_arrow_disclosure_false_clear_count": _s8_false_clear_count(
+            negative_results,
+            "missing_arrow_disclosure_probe",
+        ),
+        "disposition_counts": dict(Counter(str(row.get("disposition")) for row in rows)),
+        "coverage_label_counts": dict(
+            Counter(str(label) for row in rows for label in _sequence(row.get("coverage_labels")))
+        ),
+        "negative_control_results": negative_results,
+    }
+
+
+def _s8_value_posture_input(
+    s8_value_choice: Mapping[str, Any],
+) -> Layer2S8ValuePostureInput:
+    return Layer2S8ValuePostureInput(
+        value_choice_provenance_ref=_required_text(
+            s8_value_choice.get("value_choice_provenance_ref"),
+            field_name="value_choice_provenance_ref",
+        ),
+        authorized_value_schedule_ref=_text(
+            s8_value_choice.get("authorized_value_schedule_ref")
+        )
+        or None,
+        shadow_scenario_value_schedule_refs=[
+            str(ref)
+            for ref in _sequence(s8_value_choice.get("shadow_scenario_value_schedule_refs"))
+        ],
+        objective_function_provenance_ref=_required_text(
+            s8_value_choice.get("objective_function_provenance_ref"),
+            field_name="objective_function_provenance_ref",
+        ),
+        pareto_archive_ref=_required_text(
+            s8_value_choice.get("pareto_archive_ref"),
+            field_name="pareto_archive_ref",
+        ),
+        value_tradeoff_disclosure_ref=_required_text(
+            s8_value_choice.get("value_tradeoff_disclosure_ref"),
+            field_name="value_tradeoff_disclosure_ref",
+        ),
+        mandate_record_ref=_required_text(
+            s8_value_choice.get("mandate_record_ref"),
+            field_name="mandate_record_ref",
+        ),
+        s6_mandate_firewall_disposition=_required_text(
+            s8_value_choice.get("s6_mandate_firewall_disposition"),
+            field_name="s6_mandate_firewall_disposition",
+        ),
+        ranking_mode=_required_text(
+            s8_value_choice.get("ranking_mode"),
+            field_name="ranking_mode",
+        ),  # type: ignore[arg-type]
+        disposition=_required_text(
+            s8_value_choice.get("disposition"),
+            field_name="disposition",
+        ),  # type: ignore[arg-type]
+        p20_firewall_status=_required_text(
+            s8_value_choice.get("p20_firewall_status"),
+            field_name="p20_firewall_status",
+        ),  # type: ignore[arg-type]
+        p22_firewall_status=_required_text(
+            s8_value_choice.get("p22_firewall_status"),
+            field_name="p22_firewall_status",
+        ),  # type: ignore[arg-type]
+        value_provenance_completeness=float(
+            s8_value_choice.get("value_provenance_completeness") or 0.0
+        ),
+        principal_refs=[str(ref) for ref in _sequence(s8_value_choice.get("principal_refs"))],
+        conflict_rows=[
+            dict(row) for row in _sequence_of_mappings(s8_value_choice.get("conflict_rows"))
+        ],
+        affected_group_rows=[
+            dict(row)
+            for row in _sequence_of_mappings(s8_value_choice.get("affected_group_rows"))
+        ],
+        dissent_refs=[str(ref) for ref in _sequence(s8_value_choice.get("dissent_refs"))],
+        blocking_rights_refs=[
+            str(ref) for ref in _sequence(s8_value_choice.get("blocking_rights_refs"))
+        ],
+        alternative_schedule_sensitivity=[
+            dict(row)
+            for row in _sequence_of_mappings(
+                s8_value_choice.get("alternative_schedule_sensitivity")
+            )
+        ],
+        rejected_nondominated_alternative_ids=[
+            str(item)
+            for item in _sequence(s8_value_choice.get("rejected_nondominated_alternative_ids"))
+        ],
+        social_weight_provenance_refs=[
+            str(ref) for ref in _sequence(s8_value_choice.get("social_weight_provenance_refs"))
+        ],
+        delegation_refs=[str(ref) for ref in _sequence(s8_value_choice.get("delegation_refs"))],
+        value_authorization_decision_refs=[
+            str(ref)
+            for ref in _sequence(s8_value_choice.get("value_authorization_decision_refs"))
+        ],
+        constraint_store_updates=[
+            dict(row)
+            for row in _sequence_of_mappings(s8_value_choice.get("constraint_store_updates"))
+        ],
+        handoff_rows=[
+            dict(row) for row in _sequence_of_mappings(s8_value_choice.get("handoff_rows"))
+        ],
+        limitation_summary=_required_text(
+            s8_value_choice.get("limitation_summary"),
+            field_name="limitation_summary",
+        ),
+        authority_boundary=dict(_mapping(s8_value_choice.get("authority_boundary"))),
+    )
+
+
+def _s8_constraint_store_updates(
+    *,
+    case_id: str,
+    value_choice_provenance_ref: str,
+    pareto_archive_ref: str,
+    disposition: str,
+    p20_firewall_status: str,
+    p22_firewall_status: str,
+) -> list[dict[str, object]]:
+    if p20_firewall_status == "block" or p22_firewall_status == "block":
+        status = "block"
+        route = "block_candidate"
+    elif disposition in {"contested_multi_principal", "advisory_only"}:
+        status = "limit"
+        route = "human_decision" if disposition == "contested_multi_principal" else "none"
+    elif disposition == "shadow_scenario_only":
+        status = "limit"
+        route = "block_candidate"
+    else:
+        status = "pass"
+        route = "none"
+    return [
+        {
+            "constraint_id": f"layer2.s8.{_slug(case_id)}.value_choice",
+            "cell_ref": "ACTOR.value_choice_provenance",
+            "status": status,
+            "source_ref": value_choice_provenance_ref,
+            "consumer_ref": "INTERVENTION.design_candidate",
+            "refinement_route": route,
+            "evidence_refs": [value_choice_provenance_ref, pareto_archive_ref],
+            "reason": (
+                "S8 value-choice provenance gates ranked recommendations and "
+                "prevents silent scalarization."
+            ),
+            "rule_version_ref": S8_RULE_VERSION_REF,
+        }
+    ]
+
+
+def _s8_handoff_rows(
+    *,
+    case_id: str,
+    value_choice_provenance_ref: str,
+    pareto_archive_ref: str,
+    disposition: str,
+    p20_firewall_status: str,
+    p22_firewall_status: str,
+) -> list[dict[str, object]]:
+    if p20_firewall_status == "block" or p22_firewall_status == "block":
+        handoff_disposition = "blocked"
+    elif disposition == "shadow_scenario_only":
+        handoff_disposition = "rejected"
+    else:
+        handoff_disposition = "consumed"
+    return [
+        {
+            "handoff_id": f"layer2.s8.{_slug(case_id)}.value-choice",
+            "workflow_ref": f"scientist://workflow/{_slug(case_id)}/value-choice",
+            "source_cell_ref": "ACTOR.value_choice_provenance",
+            "target_cell_ref": "INTERVENTION.design_candidate",
+            "artifact_refs": [value_choice_provenance_ref, pareto_archive_ref],
+            "disposition": handoff_disposition,
+            "authority_purpose": "s8_value_choice_firewall",
+            "may_not_use_for": list(S8_MAY_NOT_USE_FOR),
+        }
+    ]
+
+
+def _s8_limitation_summary(*, disposition: str, ranking_mode: str) -> str:
+    if disposition == "authorized":
+        return (
+            "Ranked shadow context uses an authorized value schedule, but S8 remains "
+            "non-production recommendation authority."
+        )
+    if disposition == "contested_multi_principal":
+        return (
+            "Multi-principal value conflict is surfaced with affected groups, dissent, "
+            "blocking rights, and alternative schedule sensitivity."
+        )
+    if disposition == "shadow_scenario_only":
+        return (
+            "Shadow scenario value schedules may support sensitivity analysis but cannot "
+            "authorize ranked recommendations."
+        )
+    if disposition.startswith("blocked_"):
+        return (
+            f"{disposition} blocks {ranking_mode} until authorized value-choice "
+            "provenance, mandate legitimacy, and responsibility integrity are present."
+        )
+    return (
+        "Frontier facts are visible, but ranking remains advisory unless authorized "
+        "value-choice provenance is present."
+    )
+
+
+def _s8_matches_gold(block: Mapping[str, object], labels: Mapping[str, object]) -> bool:
+    return (
+        block.get("disposition") == labels.get("expected_disposition")
+        and block.get("ranking_mode") == labels.get("expected_ranking_mode")
+        and block.get("p20_firewall_status") == labels.get("expected_p20_firewall_status")
+        and block.get("p22_firewall_status") == labels.get("expected_p22_firewall_status")
+        and bool(block.get("authorized_value_schedule_ref"))
+        == bool(labels.get("expected_authorized_value_schedule_present"))
+    )
+
+
+def _s8_social_weight_provenance_refs(case_id: str, source_class: str) -> list[str]:
+    if source_class in {"none", "none_frontier_only"}:
+        return []
+    return [f"foundry://welfare/social-weight-provenance/{case_id}/{source_class}"]
+
+
+def _s8_delegation_refs(
+    signals: Mapping[str, object],
+    *,
+    s7_delegation: Mapping[str, object],
+) -> list[str]:
+    refs = [str(ref) for ref in _sequence(signals.get("s7_delegation_refs"))]
+    for ref in (
+        s7_delegation.get("human_decision_request_ref"),
+        s7_delegation.get("human_decision_record_ref"),
+    ):
+        if ref:
+            refs.append(str(ref))
+    return list(dict.fromkeys(refs))[:40]
+
+
+def _s8_value_authorization_decision_refs(
+    case_id: str,
+    *,
+    authorized_value_schedule_ref: str | None,
+    s7_delegation: Mapping[str, object],
+) -> list[str]:
+    if authorized_value_schedule_ref:
+        return [f"pdc://layer2/s7/{case_id}/value-authorization-record"]
+    if s7_delegation.get("decision_class_id") == "value_authorization":
+        refs = [
+            s7_delegation.get("human_decision_request_ref"),
+            s7_delegation.get("human_decision_record_ref"),
+        ]
+        return [str(ref) for ref in refs if ref]
+    return []
+
+
+def _s8_fixed_refs(case_id: str) -> dict[str, str]:
+    return {
+        "value_choice_provenance_ref": f"pdc://layer2/s8/{case_id}/value-choice-provenance",
+        "authorized_value_schedule_ref": f"pdc://layer2/s8/{case_id}/authorized-value-schedule",
+        "objective_function_provenance_ref": (
+            f"pdc://layer2/s8/{case_id}/objective-function-provenance"
+        ),
+        "pareto_archive_ref": f"pdc://layer2/s8/{case_id}/pareto-archive",
+        "value_tradeoff_disclosure_ref": (
+            f"pdc://layer2/s8/{case_id}/value-tradeoff-disclosure"
+        ),
+    }
+
+
+def _s8_negative_control_probe_results(repo_root: Path) -> dict[str, dict[str, object]]:
+    results: dict[str, dict[str, object]] = {}
+    for probe_path in S8_NEGATIVE_CONTROL_PROBES:
+        payload = json.loads(_resolve(repo_root, probe_path).read_text(encoding="utf-8"))
+        case_id = _required_text(payload.get("case_id"), field_name="case_id")
+        expected = _required_text(
+            payload.get("expected_disposition"),
+            field_name="expected_disposition",
+        )
+        predicted = _s8_probe_disposition(payload)
+        false_clear = predicted != expected
+        results[case_id] = {
+            "case_id": case_id,
+            "predicted_disposition": predicted,
+            "expected_disposition": expected,
+            "failure_pattern": _required_text(
+                payload.get("expected_failure_pattern"),
+                field_name="expected_failure_pattern",
+            ),
+            "negative_control_false_clear": false_clear,
+            "false_clear": false_clear,
+        }
+    return results
+
+
+def _s8_probe_disposition(payload: Mapping[str, object]) -> str:
+    case_id = str(payload.get("case_id") or "")
+    if case_id == "llm_social_weight_probe":
+        source_classes = {
+            str(row.get("source_class"))
+            for row in _sequence_of_mappings(payload.get("social_weight_provenance_candidates"))
+        }
+        if source_classes & {"llm_candidate", "corpus_derived"}:
+            return "blocked_p20_normative_laundering"
+    if case_id == "blocked_mandate_value_choice_probe":
+        if payload.get("s6_mandate_firewall_disposition") != "pass":
+            return "blocked_mandate_not_pass"
+    if case_id == "pareto_ranking_without_value_source_probe":
+        if payload.get("ranking_mode") == "ranked_with_authorized_values" and not payload.get(
+            "authorized_value_schedule_ref"
+        ):
+            return "blocked_missing_value_provenance"
+    if case_id == "multi_principal_conflict_probe":
+        return "contested_multi_principal"
+    if case_id == "s7_human_decision_substitution_probe":
+        if not payload.get("authorized_value_schedule_ref"):
+            return "blocked_p20_normative_laundering"
+    if case_id == "shadow_scenario_authority_spoof_probe":
+        return "shadow_scenario_only"
+    if case_id == "missing_arrow_disclosure_probe":
+        return "blocked_p20_normative_laundering"
+    return "advisory_only"
+
+
+def _s8_false_clear_count(
+    results: Mapping[str, Mapping[str, object]],
+    case_id: str,
+) -> int:
+    row = results.get(case_id)
+    return int(bool(row and row.get("false_clear")))
+
+
+def _s8_case_signals(repo_root: Path) -> dict[str, dict[str, Any]]:
+    path = _resolve(repo_root, S8_CASE_SIGNALS_PATH)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    raw_cases = payload.get("cases") if isinstance(payload, Mapping) else {}
+    return {
+        str(case_id): dict(row)
+        for case_id, row in _mapping(raw_cases).items()
+        if isinstance(row, Mapping)
+    }
+
+
+def _s8_expert_labels(repo_root: Path) -> dict[str, dict[str, Any]]:
+    path = _resolve(repo_root, S8_EXPERT_LABELS_PATH)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    raw_cases = payload.get("cases") if isinstance(payload, Mapping) else {}
+    return {
+        str(case_id): dict(row)
+        for case_id, row in _mapping(raw_cases).items()
+        if isinstance(row, Mapping)
+    }
+
+
+def _average(values: Sequence[float] | Any) -> float:
+    items = [float(value) for value in values]
+    return sum(items) / len(items) if items else 0.0
+
+
+def _coverage_rate(rows: Sequence[Mapping[str, object]], field_name: str) -> float:
+    if not rows:
+        return 0.0
+    return sum(1 for row in rows if row.get(field_name)) / len(rows)
+
+
 def _s7_negative_control_probe_results(repo_root: Path) -> dict[str, dict[str, object]]:
     results: dict[str, dict[str, object]] = {}
     for probe_path in S7_NEGATIVE_CONTROL_PROBES:
@@ -2283,14 +2903,30 @@ def _s7_false_clear_count(
     return int(bool(row and row.get("false_clear")))
 
 
-def _closeout_visible_refs(*, s7_delegation: Mapping[str, object]) -> dict[str, object]:
-    refs = [
+def _closeout_visible_refs(
+    *,
+    s7_delegation: Mapping[str, object],
+    s8_value_choice: Mapping[str, object],
+) -> dict[str, object]:
+    delegation_refs = [
         s7_delegation.get("human_decision_request_ref"),
         s7_delegation.get("human_decision_record_ref"),
     ]
+    value_refs = [
+        s8_value_choice.get("value_choice_provenance_ref"),
+        s8_value_choice.get("authorized_value_schedule_ref"),
+        s8_value_choice.get("pareto_archive_ref"),
+        s8_value_choice.get("value_tradeoff_disclosure_ref"),
+    ]
     return {
-        "delegation_refs": [str(ref) for ref in refs if ref],
-        "may_not_use_for": ["production_claim_authority", "production_closeout_authority"],
+        "delegation_refs": [str(ref) for ref in delegation_refs if ref],
+        "value_choice_refs": [str(ref) for ref in value_refs if ref],
+        "may_not_use_for": [
+            "production_claim_authority",
+            "production_closeout_authority",
+            "production_recommendation",
+            "preference_learning_authority",
+        ],
     }
 
 

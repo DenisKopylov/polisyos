@@ -49,6 +49,9 @@ DEFAULT_S5_COUPLING_COMPOSITION_MANIFEST_PATH = Path(
 DEFAULT_S6_BLIND_SPOT_FIREWALLS_MANIFEST_PATH = Path(
     "architecture/policy_design_case/layer2_s6_blind_spot_firewalls_manifest.json"
 )
+DEFAULT_S7_DELEGATION_MANIFEST_PATH = Path(
+    "architecture/policy_design_case/layer2_s7_delegation_manifest.json"
+)
 DEFAULT_INVENTORY_PATH = Path("architecture/policy_design_case/inventory.json")
 
 REQUIRED_SLICES = {f"S{number}" for number in range(15)}
@@ -167,6 +170,40 @@ S6_REQUIRED_DENY = {
     "aggregation_scope_transfer_without_validity",
     "post_policy_effect_claim_without_response_model",
 }
+S7_CLOSED_CELLS = {"CROSS_CUTTING.scientist_orchestration"}
+S7_REQUIRED_ARTIFACTS = {
+    "DelegationContract",
+    "DecisionRightsMatrix",
+    "HumanDecisionRequest",
+    "HumanDecisionRecord",
+}
+S7_REQUIRED_FIREWALLS = {"P26", "P20", "P22", "P12", "P15"}
+S7_REQUIRED_AUTHORITY_SCOPE = {
+    "delegation_integrity",
+    "decision_rights_matrix",
+    "human_decision_routing",
+    "human_decision_request_ranking",
+    "mandate_bounded_decision_record",
+    "responsibility_integrity_check",
+    "governed_pilot_promotion_gate",
+}
+S7_REQUIRED_DENY = {
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority",
+    "value_choice_authority",
+    "social_weight_selection",
+    "outcome_prediction_authority",
+    "forecast_calibration_authority",
+    "oversight_effectiveness_claim",
+    "attention_ledger_authority",
+    "resource_allocation_authority",
+    "human_approval_without_decision_record",
+    "ai_self_authorization",
+    "delegated_autonomy_without_mandate",
+    "s13_accountability_closure",
+}
+S7_INVENTORY_ID = "layer2_s7_delegation_manifest"
 
 
 def load_layer2_readiness_payloads(repo_root: Path | str = REPO_ROOT) -> dict[str, Any]:
@@ -194,6 +231,7 @@ def load_layer2_readiness_payloads(repo_root: Path | str = REPO_ROOT) -> dict[st
         "s6_blind_spot_firewalls": _load_optional_json(
             root / DEFAULT_S6_BLIND_SPOT_FIREWALLS_MANIFEST_PATH
         ),
+        "s7_delegation": _load_optional_json(root / DEFAULT_S7_DELEGATION_MANIFEST_PATH),
         "inventory": _load_json(root / DEFAULT_INVENTORY_PATH),
         "cluster_map": cluster_map.load_cluster_ownership_map(root),
     }
@@ -347,6 +385,16 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
         inventory=payloads["inventory"],
         issues=issues,
     )
+    _validate_s7_delegation(
+        s7=payloads.get("s7_delegation"),
+        floor_governance=payloads["floor_governance"],
+        artifact_traceability=payloads["artifact_traceability"],
+        cluster_map_payload=cluster_payload,
+        current_open_cells=current_open_cells,
+        assigned_cells=assigned_cells,
+        inventory=payloads["inventory"],
+        issues=issues,
+    )
     closed_since_s0 = sorted(assigned_cells - current_open_cells)
     s3 = payloads.get("s3_substrate_acquisition")
     s3_summary = (
@@ -413,6 +461,29 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
         if isinstance(s6, dict) and s6
         else {}
     )
+    s7 = payloads.get("s7_delegation")
+    s7_summary = (
+        {
+            "s7_case_count": s7.get("case_count"),
+            "s7_delegation_precision": s7.get("delegation_precision"),
+            "s7_delegation_recall": s7.get("delegation_recall"),
+            "s7_responsibility_integrity_pass_rate": s7.get(
+                "responsibility_integrity_pass_rate"
+            ),
+            "s7_oversight_theater_false_clear_count": s7.get(
+                "oversight_theater_false_clear_count"
+            ),
+            "s7_wrong_role_false_clear_count": s7.get("wrong_role_false_clear_count"),
+            "s7_workflow_only_summary_false_clear_count": s7.get(
+                "workflow_only_summary_false_clear_count"
+            ),
+            "s7_expected_current_open_cell_count": s7.get(
+                "expected_current_open_cell_count"
+            ),
+        }
+        if isinstance(s7, dict) and s7
+        else {}
+    )
 
     return _result(
         issues,
@@ -429,6 +500,7 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
             **s4_summary,
             **s5_summary,
             **s6_summary,
+            **s7_summary,
         },
     )
 
@@ -1005,11 +1077,11 @@ def _validate_s6_blind_spot_firewalls(
                 "S6 cells must be removed from open_cell_closure.",
             )
         )
-    if len(current_open_cells) != int(s6.get("expected_current_open_cell_count", -1)):
+    if len(current_open_cells) > int(s6.get("expected_current_open_cell_count", -1)):
         issues.append(
             _issue(
                 "layer2_s6_cluster_open_cell_count_mismatch",
-                "S6 manifest expected open-cell count must match the cluster map.",
+                "S6 manifest expected open-cell count must not be exceeded by the cluster map.",
             )
         )
     if not assigned_cells >= S6_CLOSED_CELLS:
@@ -1162,9 +1234,318 @@ def _validate_s6_blind_spot_firewalls(
             issues.append(
                 _issue(
                     "layer2_s6_inventory_maturity_invalid",
-                    "S6 inventory entry must carry maturity=fail_closed.",
+                "S6 inventory entry must carry maturity=fail_closed.",
+            )
+        )
+
+
+def _validate_s7_delegation(
+    *,
+    s7: object,
+    floor_governance: dict[str, Any],
+    artifact_traceability: dict[str, Any],
+    cluster_map_payload: dict[str, Any],
+    current_open_cells: set[str],
+    assigned_cells: set[str],
+    inventory: dict[str, Any],
+    issues: list[dict[str, str]],
+) -> None:
+    if not isinstance(s7, dict) or not s7:
+        issues.append(
+            _issue(
+                "layer2_s7_manifest_missing",
+                "S7 delegation manifest must be present.",
+            )
+        )
+        return
+    if s7.get("schema_version") != (
+        "policyos.policy_design_case.layer2_s7_delegation_manifest.v1"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s7_schema_version_invalid",
+                "S7 delegation manifest schema_version is invalid.",
+            )
+        )
+    if s7.get("status") != "active" or s7.get("owner") != "governance-board":
+        issues.append(
+            _issue(
+                "layer2_s7_status_or_owner_invalid",
+                "S7 delegation manifest must be active and owned by governance-board.",
+            )
+        )
+    if s7.get("depends_on") != ["S2", "S6"]:
+        issues.append(
+            _issue(
+                "layer2_s7_dependencies_invalid",
+                "S7 must depend on S2 and S6 in that order.",
+            )
+        )
+    if set(s7.get("cells_closed", [])) != S7_CLOSED_CELLS:
+        issues.append(
+            _issue(
+                "layer2_s7_cells_closed_invalid",
+                "S7 must close exactly CROSS_CUTTING.scientist_orchestration.",
+            )
+        )
+    if s7.get("expected_current_open_cell_count") != 4:
+        issues.append(
+            _issue(
+                "layer2_s7_open_cell_count_drift",
+                "S7 manifest must record expected_current_open_cell_count=4.",
+            )
+        )
+    if S7_CLOSED_CELLS & current_open_cells:
+        issues.append(
+            _issue(
+                "layer2_s7_cluster_map_not_closed",
+                "S7 delegation cell must be removed from open_cell_closure.",
+            )
+        )
+    if len(current_open_cells) != int(s7.get("expected_current_open_cell_count", -1)):
+        issues.append(
+            _issue(
+                "layer2_s7_cluster_open_cell_count_mismatch",
+                "S7 manifest expected open-cell count must match the cluster map.",
+            )
+        )
+    if not assigned_cells >= S7_CLOSED_CELLS:
+        issues.append(
+            _issue(
+                "layer2_s7_cells_not_assigned",
+                "S7 closed cells must be in the frozen slice-cell baseline.",
+            )
+        )
+
+    cell = cluster_map_payload.get("cell", {}).get(
+        "CROSS_CUTTING",
+        {},
+    ).get("scientist_orchestration", {})
+    if not isinstance(cell, dict) or cell.get("ratchet_state") != "implemented":
+        issues.append(
+            _issue(
+                "layer2_s7_cluster_cell_not_implemented",
+                "CROSS_CUTTING.scientist_orchestration must be implemented.",
+            )
+        )
+    else:
+        if cell.get("p01_chain") != "implemented":
+            issues.append(
+                _issue(
+                    "layer2_s7_cluster_cell_p01_chain_invalid",
+                    "S7 delegation cell must have p01_chain=implemented.",
                 )
             )
+        if cell.get("owner_module") != s7.get("producer_module"):
+            issues.append(
+                _issue(
+                    "layer2_s7_cluster_cell_owner_invalid",
+                    "S7 delegation cell owner_module must match the producer module.",
+                )
+            )
+        if cell.get("firewall") != "P26_responsibility_integrity_laundering":
+            issues.append(
+                _issue(
+                    "layer2_s7_cluster_cell_firewall_invalid",
+                    "S7 delegation cell must be guarded by the P26 responsibility firewall.",
+                )
+            )
+
+    trace_s7_artifacts = {
+        str(row.get("name", ""))
+        for row in artifact_traceability.get("artifact", [])
+        if isinstance(row, dict) and row.get("slice") == "S7"
+    }
+    if set(s7.get("required_artifacts", [])) != S7_REQUIRED_ARTIFACTS:
+        issues.append(
+            _issue(
+                "layer2_s7_required_artifacts_missing",
+                "S7 required_artifacts must list the four delegation artifacts.",
+            )
+        )
+    if trace_s7_artifacts != S7_REQUIRED_ARTIFACTS:
+        issues.append(
+            _issue(
+                "layer2_s7_traceability_missing",
+                "S7 artifacts must match layer2_artifact_traceability S7 rows.",
+            )
+        )
+    if not set(s7.get("required_firewalls", [])) >= S7_REQUIRED_FIREWALLS:
+        issues.append(
+            _issue(
+                "layer2_s7_firewalls_invalid",
+                "S7 must require P26, P20, P22, P12, and P15 firewalls.",
+            )
+        )
+
+    floor = _floor_by_id(floor_governance, "s7_delegation_integrity")
+    if (
+        s7.get("floor_id") != "s7_delegation_integrity"
+        or not floor
+        or floor.get("metric") != s7.get("floor_metric")
+        or floor.get("revision_rule")
+        != "decision_rights_matrix_change_requires_governance_owner"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s7_floor_governance_invalid",
+                "S7 floor must be governed by the decision-rights matrix revision rule.",
+            )
+        )
+    for field, code in (
+        ("delegation_precision", "layer2_s7_delegation_precision_below_floor"),
+        ("delegation_recall", "layer2_s7_delegation_recall_below_floor"),
+        (
+            "responsibility_integrity_pass_rate",
+            "layer2_s7_responsibility_integrity_pass_rate_below_floor",
+        ),
+    ):
+        if not _number_at_least(s7.get(field), 1.0):
+            issues.append(
+                _issue(
+                    code,
+                    f"S7 {field} must be at least 1.0.",
+                )
+            )
+    for field, code in (
+        (
+            "oversight_theater_false_clear_count",
+            "layer2_s7_oversight_theater_false_clear_count_nonzero",
+        ),
+        (
+            "wrong_role_false_clear_count",
+            "layer2_s7_wrong_role_false_clear_count_nonzero",
+        ),
+        (
+            "workflow_only_summary_false_clear_count",
+            "layer2_s7_workflow_only_summary_false_clear_count_nonzero",
+        ),
+    ):
+        if s7.get(field) != 0:
+            issues.append(
+                _issue(
+                    code,
+                    f"S7 {field} must stay zero.",
+                )
+            )
+    if (
+        s7.get("required_handoff_artifact") != "ClusterHandoffRecord"
+        or s7.get("replay_visible_handoff_ledger_required") is not True
+    ):
+        issues.append(
+            _issue(
+                "layer2_s7_handoff_ledger_invalid",
+                "S7 must require replay-visible ClusterHandoffRecord handoff ledger rows.",
+            )
+        )
+    if s7.get("case_count") != 13:
+        issues.append(
+            _issue(
+                "layer2_s7_case_count_invalid",
+                "S7 manifest must record all 13 universal corpus cases.",
+            )
+        )
+    if set(s7.get("authority_scope", [])) != S7_REQUIRED_AUTHORITY_SCOPE:
+        issues.append(
+            _issue(
+                "layer2_s7_authority_scope_invalid",
+                "S7 authority_scope must match the governed delegation scope.",
+            )
+        )
+    if not set(s7.get("may_not_use_for", [])) >= S7_REQUIRED_DENY:
+        issues.append(
+            _issue(
+                "layer2_s7_authority_deny_list_incomplete",
+                "S7 may_not_use_for must block production, value, prediction, and autonomy laundering.",
+            )
+        )
+    if s7.get("canonical_route") != "tools/quality/validation/run_universal_outcome_corpus.py":
+        issues.append(
+            _issue(
+                "layer2_s7_canonical_route_invalid",
+                "S7 manifest must point at the universal outcome corpus runner.",
+            )
+        )
+    if (
+        s7.get("validator")
+        != "tools/quality/validation/check_policy_design_case_layer2_readiness.py"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s7_validator_invalid",
+                "S7 manifest must point at the layer2 readiness validator.",
+            )
+        )
+
+    inventory_artifact = _inventory_artifact_by_id(inventory, S7_INVENTORY_ID)
+    if not inventory_artifact:
+        issues.append(
+            _issue(
+                "layer2_s7_manifest_missing_from_inventory",
+                "S7 manifest must be registered in the Policy Design Case inventory.",
+            )
+        )
+        return
+    if inventory_artifact.get("path") != DEFAULT_S7_DELEGATION_MANIFEST_PATH.as_posix():
+        issues.append(
+            _issue(
+                "layer2_s7_inventory_path_invalid",
+                "S7 inventory path must point at the governed manifest.",
+            )
+        )
+    if inventory_artifact.get("kind") != "layer2_s7_delegation_manifest":
+        issues.append(
+            _issue(
+                "layer2_s7_inventory_kind_invalid",
+                "S7 inventory entry must carry kind=layer2_s7_delegation_manifest.",
+            )
+        )
+    if inventory_artifact.get("schema_version") != s7.get("schema_version"):
+        issues.append(
+            _issue(
+                "layer2_s7_inventory_schema_version_invalid",
+                "S7 inventory schema_version must match the manifest.",
+            )
+        )
+    if (
+        inventory_artifact.get("owner") != s7.get("owner")
+        or inventory_artifact.get("status") != s7.get("status")
+        or inventory_artifact.get("capability_reality_label") != "implemented"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s7_inventory_status_invalid",
+                "S7 inventory entry must be active, implemented, and owned by governance-board.",
+            )
+        )
+    if inventory_artifact.get("authority_scope") != s7.get("authority_scope"):
+        issues.append(
+            _issue(
+                "layer2_s7_inventory_authority_scope_mismatch",
+                "S7 inventory authority_scope must match the manifest.",
+            )
+        )
+    if inventory_artifact.get("may_not_use_for") != s7.get("may_not_use_for"):
+        issues.append(
+            _issue(
+                "layer2_s7_inventory_deny_list_mismatch",
+                "S7 inventory may_not_use_for must match the manifest.",
+            )
+        )
+    if inventory_artifact.get("validator") != s7.get("validator"):
+        issues.append(
+            _issue(
+                "layer2_s7_inventory_validator_mismatch",
+                "S7 inventory validator must match the manifest.",
+            )
+        )
+    if inventory_artifact.get("canonical_route") != s7.get("canonical_route"):
+        issues.append(
+            _issue(
+                "layer2_s7_inventory_canonical_route_mismatch",
+                "S7 inventory canonical_route must match the manifest.",
+            )
+        )
 
 
 def _s6_bridge_consumers_from_cluster_map(payload: dict[str, Any]) -> set[str]:

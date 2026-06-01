@@ -22,7 +22,7 @@ def test_cluster_ownership_map_is_governed_and_valid() -> None:
     assert validation["status"] == "pass"
     assert validation["map_path"] == cluster_map.DEFAULT_MAP_PATH.as_posix()
     assert validation["summary"]["cell_count"] >= 24  # type: ignore[index]
-    assert validation["summary"]["open_or_incomplete_count"] >= 1  # type: ignore[index]
+    assert validation["summary"]["open_or_incomplete_count"] == 4  # type: ignore[index]
     architecture_core = validation["summary"]["architecture_core"]  # type: ignore[index]
     assert architecture_core["top_level_package_count"] == 25
     assert architecture_core["assigned_top_level_package_count"] == 25
@@ -35,7 +35,7 @@ def test_cluster_ownership_map_is_governed_and_valid() -> None:
     assert open_cell_closure["closure_contract_count"] == (  # type: ignore[index]
         validation["summary"]["open_or_incomplete_count"]  # type: ignore[index]
     )
-    assert open_cell_closure["open_cell_count"] == 5
+    assert open_cell_closure["open_cell_count"] == 4
 
 
 def test_cluster_ownership_map_uses_capability_ratchet_state_vocabulary() -> None:
@@ -116,6 +116,19 @@ def test_cluster_ownership_map_keeps_known_blind_spots_explicit() -> None:
     )
     assert payload["cell"]["INTERVENTION"]["design_candidate"]["ratchet_state"] == (
         "implemented"
+    )
+
+    scientist = payload["cell"]["CROSS_CUTTING"]["scientist_orchestration"]
+    assert scientist["owner_module"] == "src/polisyos/runtime/quality/layer2_delegation.py"
+    assert scientist["ratchet_state"] == "implemented"
+    assert scientist["p01_chain"] == "implemented"
+    assert scientist["authority_dim"] == "cluster_orchestration_integrity"
+    assert scientist["firewall"] == "P26_responsibility_integrity_laundering"
+    assert scientist["gap"] == "none_for_s7_delegation_scope"
+    assert "ACTOR.mandate_legitimacy" in scientist["consumes"]
+    assert (
+        "CROSS_CUTTING" not in payload["open_cell_closure"]
+        or "scientist_orchestration" not in payload["open_cell_closure"]["CROSS_CUTTING"]
     )
 
 

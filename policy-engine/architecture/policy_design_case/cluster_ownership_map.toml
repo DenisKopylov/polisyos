@@ -157,22 +157,6 @@ negative_test = "Governance-only artifact without producer/consumer chain must n
 acceptance_signal = "Envelope growth is monotonic, evidence-linked, and decreases or holds when cluster cells regress."
 next_action = "Teach the ratchet to compute envelope deltas from cluster cells, capability reality, acquisition, and corpus metrics."
 
-[open_cell_closure.CROSS_CUTTING.scientist_orchestration]
-cell_ref = "CROSS_CUTTING.scientist_orchestration"
-owner = "team-scientist-orchestration"
-reuse_classification = "consolidate_existing"
-current_state = "implemented_but_not_orchestrated"
-target_state = "implemented"
-missing_chain = ["persisted_artifact", "orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
-producer_artifact = "ClusterHandoffRecord proving which cluster artifact a Scientist workflow consumed, emitted, rejected, or blocked."
-persisted_artifact = "Replay-visible handoff ledger keyed by workflow, candidate, cluster, and authority purpose."
-bridge_consumer = "Cluster producers and DESIGNER closeout consume handoff records instead of workflow summaries."
-surface = "EXPERT/MACHINE projection exposes producer handoffs and prevents Scientist summaries from masquerading as authority."
-semantic_test = "Scientist orchestration summary cannot satisfy cluster authority without typed handoff and producer artifact refs."
-negative_test = "Workflow-only fixture with no cluster handoff must fail P12 producer-handshake check."
-acceptance_signal = "Scientist workflow emits typed cluster handoff records for generation, governance, feedback, validation, and publication."
-next_action = "Decompose Scientist workflow outputs into cluster handoff records and wire them to existing cluster consumers."
-
 [handshake_graph]
 audiences = ["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"]
 ports = [
@@ -1165,16 +1149,28 @@ gap = "cross-cluster matrix semantics are newly governed here and need future mi
 action = "keep cluster artifacts on existing status/authority/time contracts instead of introducing parallel enums."
 
 [cell.CROSS_CUTTING.scientist_orchestration]
-owner_module = "src/polisyos/scientist"
+owner_module = "src/polisyos/runtime/quality/layer2_delegation.py"
 seed_files = [
-  "src/polisyos/scientist/README.md",
-  "src/polisyos/scientist/policy_design/adversary.py",
+  "src/polisyos/runtime/quality/layer2_delegation.py",
+  "src/polisyos/pdc/_impl/layer2_design_search.py",
+  "src/polisyos/scientist/agent/supervisor.py",
+  "src/polisyos/scientist/agent/supervisor_eval.py",
+  "src/polisyos/scientist/agent/protocols.py",
+  "src/polisyos/scientist/governance/human_review/models.py",
+  "src/polisyos/scientist/governance/human_review/voi_escalation.py",
+  "src/polisyos/scientist/governance/human_review/oversight_policy.py",
 ]
-ratchet_state = "implemented_but_not_orchestrated"
-p01_chain = "bridge_missing"
+ratchet_state = "implemented"
+p01_chain = "implemented"
 authority_dim = "cluster_orchestration_integrity"
-firewall = "P12_producer_handshake_gap"
+firewall = "P26_responsibility_integrity_laundering"
 publishes = ["INTERVENTION.design_candidate", "DESIGNER_ITSELF.cluster_evidence"]
-consumes = ["SYSTEM.cluster_artifacts", "KNOWLEDGE.cluster_artifacts", "ACTOR.cluster_artifacts", "OTHER_AGENTS.cluster_artifacts"]
-gap = "Scientist spans orchestration, generation, methods, and governance; Pass 1 must split it by subpackage instead of assigning it whole."
-action = "decompose scientist subpackages into cluster cells and wire only typed producers into the design loop."
+consumes = [
+  "SYSTEM.cluster_artifacts",
+  "KNOWLEDGE.cluster_artifacts",
+  "ACTOR.cluster_artifacts",
+  "OTHER_AGENTS.cluster_artifacts",
+  "ACTOR.mandate_legitimacy",
+]
+gap = "none_for_s7_delegation_scope"
+action = "S7 emits DelegationContract, DecisionRightsMatrix, HumanDecisionRequest, HumanDecisionRecord, ClusterHandoffRecord rows, and SearchLedger handoff refs as a replay-visible handoff ledger; workflow-only summaries fail P12; S13 oversight effectiveness remains future work."

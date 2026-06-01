@@ -200,6 +200,42 @@
       "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py"
     },
     {
+      "id": "layer2_s7_delegation_manifest",
+      "path": "architecture/policy_design_case/layer2_s7_delegation_manifest.json",
+      "kind": "layer2_s7_delegation_manifest",
+      "schema_version": "policyos.policy_design_case.layer2_s7_delegation_manifest.v1",
+      "owner": "governance-board",
+      "status": "active",
+      "capability_reality_label": "implemented",
+      "authority_scope": [
+        "delegation_integrity",
+        "decision_rights_matrix",
+        "human_decision_routing",
+        "human_decision_request_ranking",
+        "mandate_bounded_decision_record",
+        "responsibility_integrity_check",
+        "governed_pilot_promotion_gate"
+      ],
+      "may_not_use_for": [
+        "production_claim_authority",
+        "rollout_authority",
+        "publication_authority",
+        "value_choice_authority",
+        "social_weight_selection",
+        "outcome_prediction_authority",
+        "forecast_calibration_authority",
+        "oversight_effectiveness_claim",
+        "attention_ledger_authority",
+        "resource_allocation_authority",
+        "human_approval_without_decision_record",
+        "ai_self_authorization",
+        "delegated_autonomy_without_mandate",
+        "s13_accountability_closure"
+      ],
+      "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py",
+      "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py"
+    },
+    {
       "id": "layer2_minimal_seed_manifest",
       "path": "architecture/policy_design_case/layer2_minimal_seed_manifest.json",
       "kind": "layer2_seed_manifest",

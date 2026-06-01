@@ -20,6 +20,10 @@ CELLS_CLOSED_THROUGH_S6 = [
     "SYSTEM.measurability",
     "SYSTEM.subject_granularity",
 ]
+CELLS_CLOSED_THROUGH_S7 = sorted([
+    *CELLS_CLOSED_THROUGH_S6,
+    "CROSS_CUTTING.scientist_orchestration",
+])
 
 
 def _issue_codes(validation: dict[str, object]) -> set[str]:
@@ -32,15 +36,23 @@ def test_layer2_s0_readiness_manifest_is_valid() -> None:
     assert validation["status"] == "pass", validation["issues"]
     assert validation["summary"]["open_cell_count_baseline"] == 17  # type: ignore[index]
     assert validation["summary"]["assigned_open_cell_count"] == 17  # type: ignore[index]
-    assert validation["summary"]["current_open_cell_count"] == 5  # type: ignore[index]
+    assert validation["summary"]["current_open_cell_count"] == 4  # type: ignore[index]
     assert validation["summary"]["s0_cells_closed"] == []  # type: ignore[index]
-    assert validation["summary"]["cells_closed_since_s0"] == CELLS_CLOSED_THROUGH_S6  # type: ignore[index]
+    assert validation["summary"]["cells_closed_since_s0"] == CELLS_CLOSED_THROUGH_S7  # type: ignore[index]
     assert validation["summary"]["s6_maturity"] == "fail_closed"  # type: ignore[index]
     assert validation["summary"]["s6_case_count"] == 13  # type: ignore[index]
     assert validation["summary"]["s6_axis_coverage_count"] == 5  # type: ignore[index]
     assert validation["summary"]["s6_fail_closed_coverage"] == 1.0  # type: ignore[index]
     assert validation["summary"]["s6_false_clear_count"] == 0  # type: ignore[index]
     assert validation["summary"]["s6_expected_current_open_cell_count"] == 5  # type: ignore[index]
+    assert validation["summary"]["s7_case_count"] == 13  # type: ignore[index]
+    assert validation["summary"]["s7_delegation_precision"] == 1.0  # type: ignore[index]
+    assert validation["summary"]["s7_delegation_recall"] == 1.0  # type: ignore[index]
+    assert validation["summary"]["s7_responsibility_integrity_pass_rate"] == 1.0  # type: ignore[index]
+    assert validation["summary"]["s7_oversight_theater_false_clear_count"] == 0  # type: ignore[index]
+    assert validation["summary"]["s7_wrong_role_false_clear_count"] == 0  # type: ignore[index]
+    assert validation["summary"]["s7_workflow_only_summary_false_clear_count"] == 0  # type: ignore[index]
+    assert validation["summary"]["s7_expected_current_open_cell_count"] == 4  # type: ignore[index]
 
 
 def test_layer2_slice_cell_matrix_preserves_baseline_and_current_open_subset() -> None:
@@ -53,7 +65,7 @@ def test_layer2_slice_cell_matrix_preserves_baseline_and_current_open_subset() -
 
     assert len(assigned) == 17
     assert current_open_cells < assigned
-    assert assigned - current_open_cells == set(CELLS_CLOSED_THROUGH_S6)
+    assert assigned - current_open_cells == set(CELLS_CLOSED_THROUGH_S7)
 
 
 def test_layer2_readiness_rejects_missing_open_cell_assignment() -> None:
@@ -125,7 +137,7 @@ def test_layer2_readiness_artifacts_are_in_policy_design_case_inventory() -> Non
     validation = readiness.validate_layer2_readiness(REPO_ROOT)
 
     assert validation["status"] == "pass", validation["issues"]
-    assert validation["summary"]["inventory_artifact_count"] == 14  # type: ignore[index]
+    assert validation["summary"]["inventory_artifact_count"] == 15  # type: ignore[index]
 
 
 def test_layer2_readiness_validates_s6_manifest_metrics_and_coverage() -> None:
@@ -144,3 +156,29 @@ def test_layer2_readiness_validates_s6_manifest_metrics_and_coverage() -> None:
 
     assert validation["status"] == "fail"
     assert "layer2_s6_false_clear_count_nonzero" in _issue_codes(validation)
+
+
+def test_layer2_readiness_validates_s7_manifest_metrics_and_authority_boundary() -> None:
+    payloads = readiness.load_layer2_readiness_payloads(REPO_ROOT)
+
+    validation = readiness.validate_layer2_readiness_payloads(payloads)
+
+    assert validation["status"] == "pass", validation["issues"]
+    s7 = payloads["s7_delegation"]
+    inventory_artifact = next(
+        artifact
+        for artifact in payloads["inventory"]["artifacts"]
+        if artifact["id"] == "layer2_s7_delegation_manifest"
+    )
+    assert inventory_artifact["capability_reality_label"] == "implemented"
+    assert inventory_artifact["authority_scope"] == s7["authority_scope"]
+    assert inventory_artifact["may_not_use_for"] == s7["may_not_use_for"]
+
+    payloads = copy.deepcopy(payloads)
+    payloads["s7_delegation"]["workflow_only_summary_false_clear_count"] = 1
+    validation = readiness.validate_layer2_readiness_payloads(payloads)
+
+    assert validation["status"] == "fail"
+    assert "layer2_s7_workflow_only_summary_false_clear_count_nonzero" in _issue_codes(
+        validation
+    )

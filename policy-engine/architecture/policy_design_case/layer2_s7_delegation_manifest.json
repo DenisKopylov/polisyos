@@ -1,0 +1,68 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s7_delegation_manifest.v1",
+  "slice": "S7",
+  "slice_label": "operating_model_delegation",
+  "status": "active",
+  "owner": "governance-board",
+  "depends_on": [
+    "S2",
+    "S6"
+  ],
+  "cells_closed": [
+    "CROSS_CUTTING.scientist_orchestration"
+  ],
+  "expected_current_open_cell_count": 4,
+  "required_artifacts": [
+    "DelegationContract",
+    "DecisionRightsMatrix",
+    "HumanDecisionRequest",
+    "HumanDecisionRecord"
+  ],
+  "required_firewalls": [
+    "P26",
+    "P20",
+    "P22",
+    "P12",
+    "P15"
+  ],
+  "floor_id": "s7_delegation_integrity",
+  "floor_metric": "delegation_precision_recall_and_responsibility_integrity",
+  "delegation_precision": 1.0,
+  "delegation_recall": 1.0,
+  "responsibility_integrity_pass_rate": 1.0,
+  "oversight_theater_false_clear_count": 0,
+  "wrong_role_false_clear_count": 0,
+  "workflow_only_summary_false_clear_count": 0,
+  "required_handoff_artifact": "ClusterHandoffRecord",
+  "replay_visible_handoff_ledger_required": true,
+  "case_count": 13,
+  "authority_scope": [
+    "delegation_integrity",
+    "decision_rights_matrix",
+    "human_decision_routing",
+    "human_decision_request_ranking",
+    "mandate_bounded_decision_record",
+    "responsibility_integrity_check",
+    "governed_pilot_promotion_gate"
+  ],
+  "may_not_use_for": [
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority",
+    "value_choice_authority",
+    "social_weight_selection",
+    "outcome_prediction_authority",
+    "forecast_calibration_authority",
+    "oversight_effectiveness_claim",
+    "attention_ledger_authority",
+    "resource_allocation_authority",
+    "human_approval_without_decision_record",
+    "ai_self_authorization",
+    "delegated_autonomy_without_mandate",
+    "s13_accountability_closure"
+  ],
+  "producer_module": "src/polisyos/runtime/quality/layer2_delegation.py",
+  "consumer_module": "src/polisyos/pdc/_impl/layer2_design_search.py",
+  "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py",
+  "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py"
+}

@@ -21,7 +21,7 @@ depends_on: [S2, S6]
 
 **Goal:** Make human-in-the-loop delegation a typed, mandate-bounded operating model where autonomy means `capable ∩ permitted ∩ within-bounds`, and where human approval is an accountable record rather than responsibility theater.
 
-**Architecture:** S7 adds A-side runtime-quality delegation contracts and P26 responsibility-integrity checks, then injects a compact `Layer2S7DelegationPostureInput` into the S2/S4/S5/S6 shadow loop. The producer owns `DelegationContract`, `DecisionRightsMatrix`, `HumanDecisionRequest`, and `HumanDecisionRecord`; B consumes those records and can pause, request, route, or record a human decision, but cannot self-approve, choose values, infer mandate, or promote to production. S7 closes the S7-owned orchestration/delegation layer of `CROSS_CUTTING.scientist_orchestration` without claiming full S8 value-choice provenance, S13 oversight effectiveness, or production authority.
+**Architecture:** S7 adds A-side runtime-quality delegation contracts and P26 responsibility-integrity checks, then injects a compact `Layer2S7DelegationPostureInput` into the S2/S4/S5/S6 shadow loop. The producer owns `DelegationContract`, `DecisionRightsMatrix`, `HumanDecisionRequest`, and `HumanDecisionRecord`; B consumes those refs and can pause, route, surface, or reflect a recorded human decision state, but cannot create approval authority, self-approve, choose values, infer mandate, or promote to production. S7 closes the S7-owned orchestration/delegation layer of `CROSS_CUTTING.scientist_orchestration` without claiming full S8 value-choice provenance, S13 oversight effectiveness, or production authority.
 
 **Tech Stack:** Python 3.14, Pydantic v2 strict models through S0 `Layer2ReadinessModel`, existing S0 `GovernanceDecisionClass`, `ValueOfInformationEstimate`, `AuthorityBoundary`, S2 `SearchLedger` / `ClusterHandoffRecord` / `RefinementDecision` / `ConstraintStoreSnapshot`, S6 `MandateLegitimacyRecord` posture, Scientist supervisor seeds in `scientist.agent.supervisor` and `scientist.agent.supervisor_eval`, Scientist/runtime human-review seeds as provenance only, participation/consultation mandate seeds, `run_universal_outcome_corpus.py`, pytest, and existing `tools.quality.validation` validators.
 
@@ -201,7 +201,7 @@ Missing capability labels before implementation:
 Acceptance signal:
 
 - S7 artifacts are strict, replayable, exported from `runtime.quality`, registered in traceability/manifest/inventory, and consumed by S2.
-- S2 can pause into `HumanDecisionRequest`, record a valid `HumanDecisionRecord`, or block invalid records without self-approval.
+- S2 can pause into `HumanDecisionRequest`, consume a valid `HumanDecisionRecord`, or block invalid records without self-approval.
 - All 13 W12 cases have S7 blocks and metrics.
 - `delegation_precision=1.0`, `delegation_recall=1.0`, `responsibility_integrity_pass_rate=1.0`, `oversight_theater_false_clear_count=0`, `wrong_role_false_clear_count=0`, and `workflow_only_summary_false_clear_count=0`.
 - Cluster-map open cell count is `4`; remaining open cells are exactly `ACTOR.value_choice_provenance`, `KNOWLEDGE.calibration`, `KNOWLEDGE.ir_proof_carrying_analytics`, and `DESIGNER_ITSELF.envelope_growth`.
@@ -302,6 +302,7 @@ Modify:
 Create `tests/unit/runtime/quality/test_layer2_s7_delegation.py` with these tests:
 
 - `test_s7_artifacts_are_strict_replayable_and_exported`
+- `test_delegation_contract_embeds_governance_decision_class_registry`
 - `test_decision_rights_matrix_maps_classes_to_roles_modes_actions_and_five_rights`
 - `test_high_stakes_value_laden_or_out_of_envelope_never_defaults_to_ai_first`
 - `test_ai_follow_is_valid_for_high_stakes_when_matrix_selects_it`
@@ -330,6 +331,7 @@ from polisyos.runtime.quality import (
     HumanDecisionRequest,
     P26ResponsibilityIntegrityError,
     build_decision_rights_matrix,
+    build_governance_decision_class_registry,
     build_human_decision_request,
     record_human_decision,
     s7_delegation_integrity,
@@ -353,8 +355,13 @@ def test_s7_artifacts_are_strict_replayable_and_exported() -> None:
 
 
 def test_decision_rights_matrix_maps_classes_to_roles_modes_actions_and_five_rights() -> None:
+    registry = build_governance_decision_class_registry(
+        case_id="ua-msme-affordable-loans-2022",
+        rule_version_ref="policyos.layer2.s7.delegation.v1",
+    )
     matrix = build_decision_rights_matrix(
         case_id="ua-msme-affordable-loans-2022",
+        governance_decision_classes=registry,
         rule_version_ref="policyos.layer2.s7.delegation.v1",
     )
 
@@ -392,7 +399,7 @@ Expected initial result: import errors or assertion failures because `layer2_del
 Extend `tests/unit/pdc/test_layer2_s2_design_search.py` with:
 
 - `test_s2_consumes_s7_delegation_posture_and_pauses_for_human_request`
-- `test_s2_records_valid_s7_human_decision_without_production_authority`
+- `test_s2_consumes_valid_s7_human_decision_without_production_authority`
 - `test_s2_s7_wrong_role_record_blocks_self_approval`
 - `test_s2_s7_public_projection_is_decision_shaped_pull_first`
 - `test_s2_s7_search_ledger_and_closeout_payload_include_decision_record_refs`
@@ -506,21 +513,23 @@ Required fields:
 
 - all records carry `schema_version="policyos.policy_design_case.layer2_s7_delegation.v1"`;
 - all top-level records carry `record_ref` or `*_ref`;
+- all top-level records carry `rule_version_ref`, `created_at`, and replay-stable provenance refs;
 - every top-level artifact carries `authority_boundary`;
-- `DelegationContract` must carry `autonomous_decision_classes`, `approval_required_decision_classes`, `compute_budget_ref`, `acquisition_budget_ref`, `human_attention_budget_ref`, `maximum_stakes_band`, `maximum_reversibility_posture`, `value_policy_ref`, and `override_policy_ref`;
-- `DecisionRightsMatrixRow` must carry `decision_class_id`, `required_role`, `default_interaction_mode`, `ai_first_allowed`, `delegated_autonomous_allowed`, `non_overridable`, `available_actions`, and `five_rights_dimensions`;
-- `HumanDecisionRequest` must carry `decision_options`, `recommendation_ref`, `provenance_refs`, `source_seed_refs`, `material_limitations`, `disconfirming_evidence_refs`, `value_stakes_impact`, `what_changes_under_each_choice`, `five_rights_requirements`, `available_actions`, `attention_cost_rank`, `voi_rank`, `s6_mandate_record_ref`, and `s6_mandate_firewall_disposition`;
-- `HumanDecisionRecord` must carry `actor_role`, `decision_action_exercised`, `evidence_summary_ref`, `disconfirming_evidence_refs`, `active_choice`, `accountability_statement`, `mandate_record_ref`, `mandate_source_refs`, `five_rights_check`, and `responsibility_integrity`.
+- `DelegationContract` must carry `governance_decision_classes`, `autonomous_decision_classes`, `approval_required_decision_classes`, `decision_rights_matrix_ref`, `compute_budget_ref`, `acquisition_budget_ref`, `human_attention_budget_ref`, `maximum_stakes_band`, `maximum_reversibility_posture`, `value_policy_ref`, and `override_policy_ref`;
+- `DecisionRightsMatrixRow` must carry `decision_class_id`, `governance_decision_class_ref`, `required_role`, `default_interaction_mode`, `ai_first_allowed`, `delegated_autonomous_allowed`, `non_overridable`, `available_actions`, and `five_rights_dimensions`;
+- `HumanDecisionRequest` must carry `requested_at`, `decision_due_at | None`, `decidable_until | None`, `decision_options`, `recommendation_ref`, `provenance_refs`, `source_seed_refs`, `material_limitations`, `disconfirming_evidence_refs`, `value_stakes_impact`, `what_changes_under_each_choice`, `five_rights_requirements`, `available_actions`, `attention_cost_rank`, `voi_rank`, `s6_mandate_record_ref`, and `s6_mandate_firewall_disposition`;
+- `HumanDecisionRecord` must carry `human_decision_request_ref`, `actor_ref`, `actor_role`, `decided_at`, `decision_action_exercised`, `evidence_summary_ref`, `disconfirming_evidence_refs`, `active_choice`, `accountability_statement`, `mandate_record_ref`, `mandate_source_refs`, `five_rights_check`, and `responsibility_integrity`.
 - no record may treat `runtime.quality.approval`, `runtime.quality.human_review`, or `scientist.governance.human_review` objects as approval authority; such refs go only in `source_seed_refs` / `provenance_refs`.
 
 - [ ] **Step 2: Implement producer functions**
 
 Add:
 
-- `build_decision_rights_matrix(case_id, rule_version_ref) -> DecisionRightsMatrix`
-- `build_delegation_contract(case_id, matrix, s6_mandate_record_ref, s6_mandate_firewall_disposition, rule_version_ref) -> DelegationContract`
+- `build_governance_decision_class_registry(case_id, rule_version_ref) -> list[GovernanceDecisionClass]`
+- `build_decision_rights_matrix(case_id, governance_decision_classes, rule_version_ref) -> DecisionRightsMatrix`
+- `build_delegation_contract(case_id, matrix, governance_decision_classes, s6_mandate_record_ref, s6_mandate_firewall_disposition, rule_version_ref) -> DelegationContract`
 - `build_human_decision_request(case_id, contract, decision_class_id, need_reasons, voi_rank, s6_mandate_record_ref, s6_mandate_firewall_disposition, rule_version_ref) -> HumanDecisionRequest`
-- `record_human_decision(case_id, request, actor_role, decision_action_exercised, evidence_summary_ref, disconfirming_evidence_refs, active_choice, accountability_statement, five_rights_check, mandate_record_ref, rule_version_ref) -> HumanDecisionRecord`
+- `record_human_decision(case_id, request, actor_ref, actor_role, decision_action_exercised, evidence_summary_ref, disconfirming_evidence_refs, active_choice, accountability_statement, five_rights_check, mandate_record_ref, rule_version_ref) -> HumanDecisionRecord`
 - `evaluate_delegation_for_case(case_id, s6_mandate_posture, case_signals, expert_label, rule_version_ref) -> DelegationIntegrityReport`
 - `s7_delegation_integrity(probe_results) -> dict[str, object]`
 
@@ -594,7 +603,8 @@ Required fields:
 - `disposition`
 - `available_actions`
 - `decision_action_exercised | None`
-- `five_rights_check`
+- `five_rights_requirement`
+- `five_rights_check | None`
 - `decision_options`
 - `recommendation_ref | None`
 - `provenance_refs`
@@ -606,6 +616,10 @@ Required fields:
 - `mandate_record_ref`
 - `s6_mandate_firewall_disposition`
 - `mandate_source_refs`
+- `requested_at`
+- `decision_due_at | None`
+- `decided_at | None`
+- `actor_ref | None`
 - `voi_rank`
 - `need_reasons`
 - `authority_boundary`
@@ -657,6 +671,7 @@ Extend `project_s2_design_search` with `_s7_projection_fields(audience, delegati
 - EXPERT/MACHINE keys:
   - all S7 refs;
   - `decision_rights_matrix_row`;
+  - `five_rights_requirement`;
   - `five_rights_check`;
   - `responsibility_integrity_check`;
   - `decision_options`;
@@ -721,6 +736,8 @@ Create `s7_delegation_case_signals.json` with 13 cases. Each case entry includes
 - `case_id`
 - `decision_class_id`
 - `requested_interaction_mode`
+- `requested_at`
+- `decision_due_at`
 - `stakes_band`
 - `value_laden`
 - `out_of_envelope`
@@ -744,8 +761,12 @@ Create `s7_delegation_case_signals.json` with 13 cases. Each case entry includes
 - `disconfirming_evidence_refs`
 - `active_choice`
 - `accountability_statement`
+- `actor_ref`
 - `five_rights_check`
+- `decided_at`
 - `decision_action_exercised`
+
+For request-only, blocked-before-record, or no-interrupt cases, record-time fields (`actor_ref`, `five_rights_check`, `decided_at`, `decision_action_exercised`) may be `null`; request-time fields must still be populated.
 
 Create `s7_delegation_expert_labels.json` with 13 matching cases. Each label entry includes:
 
@@ -1241,7 +1262,7 @@ Record under this task:
 Run:
 
 ```bash
-python3 - <<'PY'
+PYTHONPATH=src:. python3 - <<'PY'
 import polisyos.runtime.quality as rq
 names = [
     "DelegationContract",
@@ -1255,7 +1276,7 @@ for name in names:
 PY
 rg -n "layer2_delegation|build_decision_rights_matrix|record_human_decision|evaluate_delegation_for_case" src/polisyos/pdc/_impl/layer2_design_search.py
 rg -n "^(from|import) .*?(runtime\\.quality\\.(approval|human_review)|scientist\\.governance\\.human_review)" src/polisyos/runtime/quality/layer2_delegation.py src/polisyos/pdc/_impl/layer2_design_search.py
-python3 - <<'PY'
+PYTHONPATH=src:. python3 - <<'PY'
 from polisyos.pdc import Layer2S7DelegationPostureInput
 print("delegation_contract_ref" in Layer2S7DelegationPostureInput.model_fields)
 PY

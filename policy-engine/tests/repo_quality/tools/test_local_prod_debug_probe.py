@@ -663,7 +663,14 @@ def test_cli_missing_postgres_dsn_still_runs_static_production_data_checks(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    root = _production_data_root_with_credit_registry_contract(tmp_path)
+    root = _production_data_root_with_credit_registry_contract(
+        tmp_path,
+        source_families=(
+            "production_msme_panel",
+            "credit_program_registry",
+            "regional_displacement_indicators",
+        ),
+    )
     monkeypatch.delenv("POLISYOS_CONTROL_POSTGRES_DSN", raising=False)
     monkeypatch.setenv("POLISYOS_PRODUCTION_DATA_ROOT", str(root))
     monkeypatch.setattr(
@@ -697,7 +704,11 @@ def test_cli_missing_postgres_dsn_still_runs_static_production_data_checks(
     ] == []
 
 
-def _production_data_root_with_credit_registry_contract(tmp_path: Path) -> Path:
+def _production_data_root_with_credit_registry_contract(
+    tmp_path: Path,
+    *,
+    source_families: tuple[str, ...] = ("credit_program_registry",),
+) -> Path:
     root = tmp_path / "production_data"
     curated = root / "canonical/local_data_20260501/policy_engine_data/curated"
     curated.mkdir(parents=True)
@@ -718,63 +729,73 @@ def _production_data_root_with_credit_registry_contract(tmp_path: Path) -> Path:
             }
         },
     }
-    contract = {
-        "contract_id": "contract.credit_registry",
-        "source_family": "credit_program_registry",
-        "dataset_identity": "dataset:credit_program_registry:202605",
-        "source_contract_ref": "source-contract:credit_program_registry:v1",
-        "source_rights": "public_sector_reuse",
-        "dictionary_ref": "sha256:" + "d" * 64,
-        "schema_ref": "sha256:" + "s" * 64,
-        "field_refs": ["program_id", "firm_id", "region", "credit_amount"],
-        "unit_refs": ["uah", "firm"],
-        "geography_refs": ["UA", "oblast"],
-        "time_coverage_refs": ["2024-01-01/2026-05-01"],
-        "quality_refs": ["quality:credit-program-registry:v1"],
-        "missingness_refs": ["missingness:credit-program-registry:v1"],
-        "lineage_refs": ["lineage:ministry-credit-registry:v1"],
-        "transformation_refs": ["transform:normalize-credit-program-registry:v1"],
-        "derived_feature_bindings": ["feature:wartime_credit_intensity:v1"],
-        "freshness_ref": "freshness:2026-05-01",
-        "recency_ref": "as_of:2026-05-01",
-        "quality_assertion_refs": ["quality-assertion:credit-program-registry:v1"],
-        "construct_validity_refs": ["construct:credit-program-eligibility:v1"],
-        "outlier_refs": ["outliers:credit-program-registry:v1"],
-        "claim_bindability_refs": ["claim-bindability:credit-program-registry:v1"],
-    }
-    binding = {
-        "binding_id": "binding.credit_registry",
-        "contract_id": "contract.credit_registry",
-        "scenario_source_family": "credit_program_registry",
-        "connector_id": "ministry.credit_registry",
-        "dataset_id": "wartime_credit_programs",
+    scenario_source_families = list(source_families)
+
+    def _contract(source_family: str) -> dict[str, object]:
+        return {
+            "contract_id": f"contract.{source_family}",
+            "source_family": source_family,
+            "dataset_identity": f"dataset:{source_family}:202605",
+            "source_contract_ref": f"source-contract:{source_family}:v1",
+            "source_rights": "public_sector_reuse",
+            "dictionary_ref": "sha256:" + "d" * 64,
+            "schema_ref": "sha256:" + "s" * 64,
+            "field_refs": ["program_id", "firm_id", "region", "credit_amount"],
+            "unit_refs": ["uah", "firm"],
+            "geography_refs": ["UA", "oblast"],
+            "time_coverage_refs": ["2024-01-01/2026-05-01"],
+            "quality_refs": [f"quality:{source_family}:v1"],
+            "missingness_refs": [f"missingness:{source_family}:v1"],
+            "lineage_refs": [f"lineage:{source_family}:v1"],
+            "transformation_refs": [f"transform:{source_family}:v1"],
+            "derived_feature_bindings": ["feature:wartime_credit_intensity:v1"],
+            "freshness_ref": "freshness:2026-05-01",
+            "recency_ref": "as_of:2026-05-01",
+            "quality_assertion_refs": [f"quality-assertion:{source_family}:v1"],
+            "construct_validity_refs": [f"construct:{source_family}:v1"],
+            "outlier_refs": [f"outliers:{source_family}:v1"],
+            "claim_bindability_refs": [f"claim-bindability:{source_family}:v1"],
+        }
+
+    contracts = [_contract(source_family) for source_family in scenario_source_families]
+    bindings = [
+        {
+            "binding_id": f"binding.{source_family}",
+            "contract_id": f"contract.{source_family}",
+            "scenario_source_family": source_family,
+            "connector_id": f"fixture.{source_family}",
+            "dataset_id": f"{source_family}_snapshot",
+        }
+        for source_family in scenario_source_families
+    ]
+    source_contracts = {
+        f"source-contract:{source_family}:v1": {
+            "id": f"source-contract:{source_family}:v1",
+            "version": "1.1.0",
+            "status": "active",
+            "content_hash": "sha256:" + "c" * 64,
+            "contract": {
+                "id": f"source-contract:{source_family}:v1",
+                "version": "1.1.0",
+                "status": "active",
+            },
+        }
+        for source_family in scenario_source_families
     }
     (root / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
     (curated / "data_contracts.json").write_text(
-        json.dumps({"schema_version": "1.0", "contracts": [contract]}),
+        json.dumps({"schema_version": "1.0", "contracts": contracts}),
         encoding="utf-8",
     )
     (curated / "source_bindings.json").write_text(
-        json.dumps({"schema_version": "1.0", "bindings": [binding]}),
+        json.dumps({"schema_version": "1.0", "bindings": bindings}),
         encoding="utf-8",
     )
     (curated / "source_contracts_v2.json").write_text(
         json.dumps(
             {
                 "schema_version": "fabric.source_contract.v2",
-                "contracts": {
-                    "source-contract:credit_program_registry:v1": {
-                        "id": "source-contract:credit_program_registry:v1",
-                        "version": "1.1.0",
-                        "status": "active",
-                        "content_hash": "sha256:" + "c" * 64,
-                        "contract": {
-                            "id": "source-contract:credit_program_registry:v1",
-                            "version": "1.1.0",
-                            "status": "active",
-                        },
-                    }
-                },
+                "contracts": source_contracts,
             }
         ),
         encoding="utf-8",

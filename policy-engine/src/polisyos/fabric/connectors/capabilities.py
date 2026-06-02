@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ast
+import dis
 import inspect
 import textwrap
 from collections.abc import Callable
@@ -236,18 +237,24 @@ def _is_async_callable(method: Any, *, method_name: str | None = None) -> bool:
 
 def _is_protocol_stub(method: Any) -> bool:
     """Check if a method body is effectively a stub."""
+    unwrapped = inspect.unwrap(method)
     try:
-        source = textwrap.dedent(inspect.getsource(inspect.unwrap(method)))
+        source = textwrap.dedent(inspect.getsource(unwrapped))
         module = ast.parse(source)
     except (OSError, TypeError, SyntaxError):
-        return False
+        return _is_empty_return_stub(unwrapped)
 
-    function_def = next(
-        (node for node in module.body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))),
-        None,
-    )
+    function_defs = [
+        node
+        for node in ast.walk(module)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    ]
+    method_name = getattr(unwrapped, "__name__", "")
+    function_def = next((node for node in function_defs if node.name == method_name), None)
+    if function_def is None and len(function_defs) == 1:
+        function_def = function_defs[0]
     if function_def is None:
-        return False
+        return _is_empty_return_stub(unwrapped)
 
     body = list(function_def.body)
     if (
@@ -278,6 +285,35 @@ def _is_protocol_stub(method: Any) -> bool:
             exc = exc.func
         return isinstance(exc, ast.Name) and exc.id == "NotImplementedError"
     return False
+
+
+def _is_empty_return_stub(method: Any) -> bool:
+    try:
+        instructions = [
+            instruction
+            for instruction in dis.get_instructions(method)
+            if instruction.opname
+            not in {
+                "CACHE",
+                "CALL_INTRINSIC_1",
+                "COPY_FREE_VARS",
+                "EXTENDED_ARG",
+                "MAKE_CELL",
+                "NOP",
+                "POP_TOP",
+                "RERAISE",
+                "RESUME",
+                "RETURN_GENERATOR",
+            }
+        ]
+    except TypeError:
+        return False
+    return (
+        len(instructions) == 2
+        and instructions[0].opname == "LOAD_CONST"
+        and instructions[0].argval is None
+        and instructions[1].opname == "RETURN_VALUE"
+    )
 
 
 def _is_baseconnector_default(connector_class: type[SourceConnector], method_name: str) -> bool:

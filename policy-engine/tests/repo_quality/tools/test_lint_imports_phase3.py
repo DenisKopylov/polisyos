@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import ast
 import json
+import keyword
 import textwrap
 from pathlib import Path
 
@@ -83,7 +84,9 @@ def test_lint_imports_emits_structured_json_and_sarif(tmp_path: Path) -> None:
     assert sarif_payload["runs"][0]["results"][0]["ruleId"] == "ARCH002"
 
 
-_IDENTIFIER = st.from_regex(r"[a-z][a-z0-9_]{0,7}", fullmatch=True)
+_IDENTIFIER = st.from_regex(r"[a-z][a-z0-9_]{0,7}", fullmatch=True).filter(
+    lambda value: not keyword.iskeyword(value)
+)
 
 
 @given(

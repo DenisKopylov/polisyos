@@ -19,7 +19,7 @@ def _status_record(
     family: str,
     status: str,
     owner: str = "team-runtime-quality",
-    ttl: str = "2026-06-01T00:00:00+00:00",
+    ttl: str = "2099-01-01T00:00:00+00:00",
 ) -> dict[str, object]:
     return {
         "producer": f"producer.{family}",
@@ -50,7 +50,7 @@ def _deficit(
         "readiness_cap": "external_briefing",
         "max_audience": "public_with_limitation",
         "owner": "team-policy-semantics",
-        "expires_at": "2026-06-01T00:00:00+00:00",
+        "expires_at": "2099-01-01T00:00:00+00:00",
         "runtime_event_ref": "event://status-deficit/1",
         "evidence_ref": _sha("b"),
         "public_limitation_note": "Published result must disclose this limitation.",

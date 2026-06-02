@@ -57,6 +57,9 @@ DEFAULT_S9_PROJECTION_LOWERING_MANIFEST_PATH = Path(
 DEFAULT_S10_OUTCOME_PREDICTION_MANIFEST_PATH = Path(
     "architecture/policy_design_case/layer2_s10_outcome_prediction_manifest.json"
 )
+DEFAULT_S11_PREDICTIVE_KNOWLEDGE_MANIFEST_PATH = Path(
+    "architecture/policy_design_case/layer2_s11_predictive_knowledge_manifest.json"
+)
 DEFAULT_INVENTORY_PATH = Path("architecture/policy_design_case/inventory.json")
 
 REQUIRED_SLICES = {f"S{number}" for number in range(15)}
@@ -83,6 +86,9 @@ REQUIRED_ARTIFACT_NAMES = {
     "ClusterAuthorityDimensionRecord",
     "ForecastCalibrationRecord",
     "ProofCarryingAnalyticsRecord",
+    "PredictiveAxisCalibrationRecord",
+    "PredictiveAxisUpgradeRecord",
+    "S11PredictiveKnowledgeIntegrityReport",
     "CertifiedEnvelopeDelta",
 }
 MATURITY_QUALIFIERS = {"fail_closed", "predictive"}
@@ -313,7 +319,7 @@ S9_EXPECTED_OPEN_CELLS = {
     "KNOWLEDGE.calibration",
     "KNOWLEDGE.ir_proof_carrying_analytics",
 }
-S9_LATER_SLICES = {"S11", "S12", "S13", "S14"}
+S9_LATER_SLICES = {"S12", "S13", "S14"}
 S10_REQUIRED_ARTIFACTS = {"ForecastSupport", "ForecastCalibrationRecord"}
 S10_REQUIRED_AUTHORITY_SCOPE = {
     "forecast_support_tiering",
@@ -382,6 +388,63 @@ S10_FALSE_CLEAR_FIELDS = {
     "weakest_boundary_ignored_false_clear_count": "weakest_boundary_ignored",
 }
 S10_INVENTORY_ID = "layer2_s10_outcome_prediction_manifest"
+S11_CLOSED_CELLS = {
+    "KNOWLEDGE.calibration",
+    "KNOWLEDGE.ir_proof_carrying_analytics",
+}
+S11_EXPECTED_OPEN_CELLS = {"DESIGNER_ITSELF.envelope_growth"}
+S11_MATURITY_TRANSITION_CELLS = {
+    "OTHER_AGENTS.strategic_response",
+    "ACTOR.state_capacity_feasibility",
+    "SYSTEM.measurability",
+    "SYSTEM.subject_granularity",
+}
+S11_REQUIRED_ARTIFACTS = {
+    "PredictiveAxisCalibrationRecord",
+    "PredictiveAxisUpgradeRecord",
+    "ProofCarryingAnalyticsRecord",
+    "S11PredictiveKnowledgeIntegrityReport",
+}
+S11_REQUIRED_AUTHORITY_SCOPE = {
+    "per_axis_predictive_calibration",
+    "predictive_axis_maturity_upgrade",
+    "proof_carrying_analytics_validity",
+}
+S11_REQUIRED_DENY = {
+    "production_authority",
+    "production_recommendation",
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority",
+    "claim_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "calibrated_equilibrium_prediction",
+    "rich_simulation_authority",
+    "portfolio_optimization_authority",
+    "preference_learning_authority",
+    "s12_envelope_growth",
+    "s13_accountability_closure",
+    "s14_universality",
+    "mandate_legitimacy_predictive_upgrade",
+    "historical_prior_current_evidence",
+    "llm_method_authority",
+}
+S11_FALSE_CLEAR_FIELDS = (
+    "stale_calibration_relaxation",
+    "scope_mismatched_historical_prior",
+    "unbound_ir_analytics",
+    "negative_certificate_ignored",
+    "missing_method_validity",
+    "missing_s6_floor_ref",
+    "mandate_axis_predictive_upgrade",
+    "production_authority_from_predictive_upgrade",
+    "rich_simulation_authority_laundering",
+    "weakest_boundary_bypass",
+)
+S11_INVENTORY_ID = "layer2_s11_predictive_knowledge_manifest"
 
 
 def load_layer2_readiness_payloads(repo_root: Path | str = REPO_ROOT) -> dict[str, Any]:
@@ -416,6 +479,9 @@ def load_layer2_readiness_payloads(repo_root: Path | str = REPO_ROOT) -> dict[st
         ),
         "s10_outcome_prediction": _load_optional_json(
             root / DEFAULT_S10_OUTCOME_PREDICTION_MANIFEST_PATH
+        ),
+        "s11_predictive_knowledge": _load_optional_json(
+            root / DEFAULT_S11_PREDICTIVE_KNOWLEDGE_MANIFEST_PATH
         ),
         "inventory": _load_json(root / DEFAULT_INVENTORY_PATH),
         "cluster_map": cluster_map.load_cluster_ownership_map(root),
@@ -607,6 +673,16 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
         inventory=payloads["inventory"],
         issues=issues,
     )
+    _validate_s11_predictive_knowledge(
+        s11=payloads.get("s11_predictive_knowledge"),
+        floor_governance=payloads["floor_governance"],
+        artifact_traceability=payloads["artifact_traceability"],
+        cluster_map_payload=cluster_payload,
+        current_open_cells=current_open_cells,
+        inventory=payloads["inventory"],
+        slice_cell_matrix=matrix,
+        issues=issues,
+    )
     closed_since_s0 = sorted(assigned_cells - current_open_cells)
     s3 = payloads.get("s3_substrate_acquisition")
     s3_summary = (
@@ -777,6 +853,74 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
         if isinstance(s10, dict) and s10
         else {}
     )
+    s11 = payloads.get("s11_predictive_knowledge")
+    s11_false_clear_counts = (
+        {
+            field: s11.get(f"{field}_false_clear_count")
+            for field in S11_FALSE_CLEAR_FIELDS
+        }
+        if isinstance(s11, dict) and s11
+        else {}
+    )
+    s11_summary = (
+        {
+            "s11_case_count": s11.get("case_count"),
+            "s11_expected_current_open_cell_count": s11.get(
+                "expected_current_open_cell_count"
+            ),
+            "s11_axis_count": s11.get("axis_count"),
+            "s11_per_axis_predictive_calibration_threshold_ref": s11.get(
+                "per_axis_predictive_calibration_threshold_ref"
+            ),
+            "s11_per_axis_predictive_calibration_denominator": s11.get(
+                "per_axis_predictive_calibration_denominator"
+            ),
+            "s11_per_axis_predictive_calibration_numerator": s11.get(
+                "per_axis_predictive_calibration_numerator"
+            ),
+            "s11_per_axis_predictive_calibration_pass_rate": s11.get(
+                "per_axis_predictive_calibration_pass_rate"
+            ),
+            "s11_per_axis_predictive_calibration_status": s11.get(
+                "per_axis_predictive_calibration_status"
+            ),
+            "s11_per_axis_predictive_calibration_floor_passed": s11.get(
+                "per_axis_predictive_calibration_floor_passed"
+            ),
+            "s11_predictive_axis_count": s11.get("predictive_axis_count"),
+            "s11_reverted_fail_closed_axis_count": s11.get(
+                "reverted_fail_closed_axis_count"
+            ),
+            "s11_proof_bound_claim_count": s11.get("proof_bound_claim_count"),
+            "s11_unbound_analytics_rejected_count": s11.get(
+                "unbound_analytics_rejected_count"
+            ),
+            "s11_negative_certificate_block_count": s11.get(
+                "negative_certificate_block_count"
+            ),
+            "s11_forecast_quality_downgrade_count": s11.get(
+                "forecast_quality_downgrade_count"
+            ),
+            "s11_regime_strategy_constraint_count": s11.get(
+                "regime_strategy_constraint_count"
+            ),
+            "s11_method_infrastructure_consumed_count": s11.get(
+                "method_infrastructure_consumed_count"
+            ),
+            "s11_weakest_boundary_inheritance_count": s11.get(
+                "weakest_boundary_inheritance_count"
+            ),
+            "s11_false_clear_counts": s11_false_clear_counts,
+            **{
+                f"s11_{field}_false_clear_count": s11.get(
+                    f"{field}_false_clear_count"
+                )
+                for field in S11_FALSE_CLEAR_FIELDS
+            },
+        }
+        if isinstance(s11, dict) and s11
+        else {}
+    )
 
     return _result(
         issues,
@@ -798,6 +942,7 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
             **s8_summary,
             **s9_summary,
             **s10_summary,
+            **s11_summary,
         },
     )
 
@@ -1908,11 +2053,11 @@ def _validate_s8_value_choice(
                 "S8 value-choice cell must be removed from open_cell_closure.",
             )
         )
-    if len(current_open_cells) != int(s8.get("expected_current_open_cell_count", -1)):
+    if len(current_open_cells) > int(s8.get("expected_current_open_cell_count", -1)):
         issues.append(
             _issue(
                 "layer2_s8_cluster_open_cell_count_mismatch",
-                "S8 manifest expected open-cell count must match the cluster map.",
+                "S8 manifest expected open-cell count must not be exceeded by the cluster map.",
             )
         )
     if not assigned_cells >= S8_CLOSED_CELLS:
@@ -2216,11 +2361,11 @@ def _validate_s9_projection_lowering(
                 "S9 manifest must record expected_current_open_cell_count=3.",
             )
         )
-    if current_open_cells != S9_EXPECTED_OPEN_CELLS:
+    if not current_open_cells or not current_open_cells <= S9_EXPECTED_OPEN_CELLS:
         issues.append(
             _issue(
                 "layer2_s9_current_open_cells_invalid",
-                "S9 must leave only envelope_growth, calibration, and IR proof-carrying analytics open.",
+                "S9 live open cells must remain a non-empty subset of its manifest-local post-S8 open cells.",
             )
         )
 
@@ -2446,7 +2591,7 @@ def _validate_s9_projection_lowering(
         issues.append(
             _issue(
                 "layer2_s9_later_slice_maturity_invalid",
-                "S9 must not mark S11, S12, S13, or S14 artifacts implemented.",
+                "S9 must not mark S12, S13, or S14 artifacts implemented.",
             )
         )
 
@@ -2512,11 +2657,11 @@ def _validate_s10_outcome_prediction(
                 "S10 manifest must record expected_current_open_cell_count=3.",
             )
         )
-    if current_open_cells != S9_EXPECTED_OPEN_CELLS:
+    if current_open_cells not in (S9_EXPECTED_OPEN_CELLS, S11_EXPECTED_OPEN_CELLS):
         issues.append(
             _issue(
                 "layer2_s10_current_open_cells_invalid",
-                "S10 must leave envelope_growth, calibration, and IR proof-carrying analytics open.",
+                "S10 live open cells must be either its manifest-local post-S8 set or the post-S11 burned-down set.",
             )
         )
 
@@ -2697,11 +2842,11 @@ def _validate_s10_outcome_prediction(
                 "S10 manifest must point at the layer2 readiness validator.",
             )
         )
-    if _inventory_layer2_artifact_count(inventory) != 18:
+    if _inventory_layer2_artifact_count(inventory) < 18:
         issues.append(
             _issue(
                 "layer2_s10_inventory_artifact_count_invalid",
-                "Layer 2 inventory artifact count must be 18 after registering S10.",
+                "Layer 2 inventory artifact count must include at least the post-S10 registration.",
             )
         )
     inventory_artifact = _inventory_artifact_by_id(inventory, S10_INVENTORY_ID)
@@ -2785,9 +2930,436 @@ def _validate_s10_outcome_prediction(
         issues.append(
             _issue(
                 "layer2_s10_future_slice_maturity_invalid",
-                "S10 must not mark S11, S12, S13, or S14 artifacts implemented.",
+                "S10 must not mark S12, S13, or S14 artifacts implemented.",
             )
         )
+
+
+def _validate_s11_predictive_knowledge(
+    *,
+    s11: object,
+    floor_governance: dict[str, Any],
+    artifact_traceability: dict[str, Any],
+    cluster_map_payload: dict[str, Any],
+    current_open_cells: set[str],
+    inventory: dict[str, Any],
+    slice_cell_matrix: dict[str, Any],
+    issues: list[dict[str, str]],
+) -> None:
+    if not isinstance(s11, dict) or not s11:
+        issues.append(
+            _issue(
+                "layer2_s11_manifest_missing",
+                "S11 predictive-knowledge manifest must be present.",
+            )
+        )
+        return
+    if s11.get("schema_version") != (
+        "policyos.policy_design_case.layer2_s11_predictive_knowledge_manifest.v1"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s11_schema_version_invalid",
+                "S11 predictive-knowledge manifest schema_version is invalid.",
+            )
+        )
+    if s11.get("status") != "active" or s11.get("owner") != "team-research":
+        issues.append(
+            _issue(
+                "layer2_s11_status_or_owner_invalid",
+                "S11 predictive-knowledge manifest must be active and owned by team-research.",
+            )
+        )
+    if s11.get("slice") != "S11" or s11.get("depends_on") != ["S6", "S10"]:
+        issues.append(
+            _issue(
+                "layer2_s11_slice_or_dependencies_invalid",
+                "S11 must depend on S6 and S10 in that order.",
+            )
+        )
+    if set(s11.get("cells_closed", [])) != S11_CLOSED_CELLS:
+        issues.append(
+            _issue(
+                "layer2_s11_cells_closed_invalid",
+                "S11 must close calibration and proof-carrying analytics cells exactly.",
+            )
+        )
+    if set(s11.get("layer_cells_advanced", [])) != {
+        "CROSS_CUTTING.method_infrastructure"
+    }:
+        issues.append(
+            _issue(
+                "layer2_s11_layer_cells_advanced_invalid",
+                "S11 must advance only CROSS_CUTTING.method_infrastructure.",
+            )
+        )
+    if s11.get("expected_current_open_cell_count") != 1:
+        issues.append(
+            _issue(
+                "layer2_s11_open_cell_count_drift",
+                "S11 manifest must record expected_current_open_cell_count=1.",
+            )
+        )
+    if set(s11.get("remaining_open_cells", [])) != S11_EXPECTED_OPEN_CELLS:
+        issues.append(
+            _issue(
+                "layer2_s11_remaining_open_cells_invalid",
+                "S11 manifest must leave only DESIGNER_ITSELF.envelope_growth open.",
+            )
+        )
+    if current_open_cells != S11_EXPECTED_OPEN_CELLS:
+        issues.append(
+            _issue(
+                "layer2_s11_current_open_cells_invalid",
+                "S11 live readiness must leave only DESIGNER_ITSELF.envelope_growth open.",
+            )
+        )
+
+    matrix_transitions = [
+        {
+            "cell_ref": str(row.get("cell_ref")),
+            "from_maturity": str(row.get("from_maturity")),
+            "to_maturity": str(row.get("to_maturity")),
+            "slice": str(row.get("slice")),
+        }
+        for row in slice_cell_matrix.get("maturity_transition", [])
+        if isinstance(row, dict) and row.get("slice") == "S11"
+    ]
+    manifest_transitions = [
+        {
+            "cell_ref": str(row.get("cell_ref")),
+            "from_maturity": str(row.get("from_maturity")),
+            "to_maturity": str(row.get("to_maturity")),
+            "slice": str(row.get("slice")),
+        }
+        for row in s11.get("maturity_transitions", [])
+        if isinstance(row, dict)
+    ]
+    if matrix_transitions != manifest_transitions:
+        issues.append(
+            _issue(
+                "layer2_s11_maturity_transitions_invalid",
+                "S11 manifest maturity_transitions must match the slice-cell matrix rows.",
+            )
+        )
+    if {row["cell_ref"] for row in manifest_transitions} != S11_MATURITY_TRANSITION_CELLS:
+        issues.append(
+            _issue(
+                "layer2_s11_maturity_transition_cells_invalid",
+                "S11 maturity transitions must cover exactly the four governed predictive axes.",
+            )
+        )
+    if any(row["cell_ref"] == "ACTOR.mandate_legitimacy" for row in manifest_transitions):
+        issues.append(
+            _issue(
+                "layer2_s11_mandate_predictive_maturity_invalid",
+                "S11 must not mark ACTOR.mandate_legitimacy as predictive maturity.",
+            )
+        )
+
+    trace_s11_artifacts = {
+        str(row.get("name", "")): row.get("maturity")
+        for row in artifact_traceability.get("artifact", [])
+        if isinstance(row, dict) and row.get("slice") == "S11"
+    }
+    if set(s11.get("required_artifacts", [])) != S11_REQUIRED_ARTIFACTS:
+        issues.append(
+            _issue(
+                "layer2_s11_required_artifacts_missing",
+                "S11 required_artifacts must list calibration, upgrade, proof, and integrity records.",
+            )
+        )
+    if set(trace_s11_artifacts) != S11_REQUIRED_ARTIFACTS or any(
+        maturity != "implemented" for maturity in trace_s11_artifacts.values()
+    ):
+        issues.append(
+            _issue(
+                "layer2_s11_traceability_missing",
+                "S11 artifacts must all be implemented in layer2_artifact_traceability.",
+            )
+        )
+
+    floor = _floor_by_id(floor_governance, "s11_axis_calibration")
+    if (
+        s11.get("floor_id") != "s11_axis_calibration"
+        or not floor
+        or floor.get("metric") != s11.get("floor_metric")
+        or floor.get("floor_owner") != "team-research"
+        or floor.get("revision_rule")
+        != "model_relaxation_requires_calibration_before_relaxation"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s11_floor_governance_invalid",
+                "S11 floor must govern per-axis predictive calibration before relaxation.",
+            )
+        )
+    axis_count = s11.get("axis_count")
+    if axis_count != 52:
+        issues.append(
+            _issue(
+                "layer2_s11_axis_count_invalid",
+                "S11 axis_count must be 52 across the 13-case corpus.",
+            )
+        )
+    if s11.get("case_count") != 13:
+        issues.append(
+            _issue(
+                "layer2_s11_case_count_invalid",
+                "S11 manifest must record all 13 universal corpus cases.",
+            )
+        )
+    if not s11.get("per_axis_predictive_calibration_threshold_ref"):
+        issues.append(
+            _issue(
+                "layer2_s11_calibration_threshold_ref_missing",
+                "S11 per-axis calibration threshold ref must be present.",
+            )
+        )
+    threshold = s11.get("per_axis_predictive_calibration_threshold")
+    if not isinstance(threshold, (int, float)):
+        issues.append(
+            _issue(
+                "layer2_s11_calibration_threshold_missing",
+                "S11 per-axis calibration threshold must be numeric.",
+            )
+        )
+    if s11.get("per_axis_predictive_calibration_denominator") != axis_count:
+        issues.append(
+            _issue(
+                "layer2_s11_calibration_denominator_invalid",
+                "S11 per-axis calibration denominator must equal axis_count.",
+            )
+        )
+    if isinstance(threshold, (int, float)) and not _number_at_least(
+        s11.get("per_axis_predictive_calibration_pass_rate"),
+        float(threshold),
+    ):
+        issues.append(
+            _issue(
+                "layer2_s11_calibration_pass_rate_below_threshold",
+                "S11 per-axis calibration pass rate must meet the governed threshold.",
+            )
+        )
+    if s11.get("per_axis_predictive_calibration_status") != "pass":
+        issues.append(
+            _issue(
+                "layer2_s11_calibration_status_invalid",
+                "S11 per-axis calibration status must be pass.",
+            )
+        )
+    if s11.get("per_axis_predictive_calibration_floor_passed") is not True:
+        issues.append(
+            _issue(
+                "layer2_s11_calibration_floor_not_passed",
+                "S11 per-axis calibration floor-passed flag must be true.",
+            )
+        )
+    predictive_axis_count = s11.get("predictive_axis_count")
+    reverted_axis_count = s11.get("reverted_fail_closed_axis_count")
+    if (
+        not isinstance(predictive_axis_count, int)
+        or not isinstance(reverted_axis_count, int)
+        or predictive_axis_count + reverted_axis_count != axis_count
+    ):
+        issues.append(
+            _issue(
+                "layer2_s11_axis_partition_invalid",
+                "S11 predictive and reverted fail-closed axis counts must sum to axis_count.",
+            )
+        )
+    if not _number_at_least(s11.get("method_infrastructure_consumed_count"), 1):
+        issues.append(
+            _issue(
+                "layer2_s11_method_infrastructure_not_consumed",
+                "S11 method-infrastructure consumed count must be non-zero.",
+            )
+        )
+    if s11.get("weakest_boundary_inheritance_count") != axis_count:
+        issues.append(
+            _issue(
+                "layer2_s11_weakest_boundary_inheritance_count_invalid",
+                "S11 weakest-boundary inheritance count must cover every axis row.",
+            )
+        )
+    for field in S11_FALSE_CLEAR_FIELDS:
+        if s11.get(f"{field}_false_clear_count") != 0:
+            issues.append(
+                _issue(
+                    f"layer2_s11_{field}_false_clear_count_nonzero",
+                    f"S11 {field}_false_clear_count must stay zero.",
+                )
+            )
+    false_clear_counts = s11.get("false_clear_counts")
+    if not isinstance(false_clear_counts, dict) or set(false_clear_counts) != set(
+        S11_FALSE_CLEAR_FIELDS
+    ):
+        issues.append(
+            _issue(
+                "layer2_s11_false_clear_counts_invalid",
+                "S11 false_clear_counts must match the governed S11 false-clear fields.",
+            )
+        )
+    elif any(value != 0 for value in false_clear_counts.values()):
+        issues.append(
+            _issue(
+                "layer2_s11_false_clear_counts_nonzero",
+                "S11 nested false_clear_counts must all stay zero.",
+            )
+        )
+    if set(s11.get("authority_scope", [])) != S11_REQUIRED_AUTHORITY_SCOPE:
+        issues.append(
+            _issue(
+                "layer2_s11_authority_scope_invalid",
+                "S11 authority_scope must match governed predictive-knowledge scope.",
+            )
+        )
+    if not set(s11.get("may_not_use_for", [])) >= S11_REQUIRED_DENY:
+        issues.append(
+            _issue(
+                "layer2_s11_authority_deny_list_incomplete",
+                "S11 may_not_use_for must block production, future-slice, and model-authority laundering.",
+            )
+        )
+    authority_boundary = s11.get("authority_boundary")
+    if not isinstance(authority_boundary, dict) or set(
+        authority_boundary.get("authoritative_for", [])
+    ) != S11_REQUIRED_AUTHORITY_SCOPE:
+        issues.append(
+            _issue(
+                "layer2_s11_authority_boundary_invalid",
+                "S11 authority_boundary must expose only predictive-knowledge authority.",
+            )
+        )
+    if (
+        s11.get("canonical_route")
+        != "tools/quality/validation/run_universal_outcome_corpus.py"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s11_canonical_route_invalid",
+                "S11 manifest must point at the universal outcome corpus runner.",
+            )
+        )
+    if (
+        s11.get("validator")
+        != "tools/quality/validation/check_policy_design_case_layer2_readiness.py"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s11_validator_invalid",
+                "S11 manifest must point at the layer2 readiness validator.",
+            )
+        )
+
+    if _inventory_layer2_artifact_count(inventory) != 19:
+        issues.append(
+            _issue(
+                "layer2_s11_inventory_artifact_count_invalid",
+                "Layer 2 inventory artifact count must be 19 after registering S11.",
+            )
+        )
+    inventory_artifact = _inventory_artifact_by_id(inventory, S11_INVENTORY_ID)
+    if not inventory_artifact:
+        issues.append(
+            _issue(
+                "layer2_s11_manifest_missing_from_inventory",
+                "S11 manifest must be registered in the Policy Design Case inventory.",
+            )
+        )
+        return
+    if inventory_artifact.get("path") != DEFAULT_S11_PREDICTIVE_KNOWLEDGE_MANIFEST_PATH.as_posix():
+        issues.append(
+            _issue(
+                "layer2_s11_inventory_path_invalid",
+                "S11 inventory path must point at the governed manifest.",
+            )
+        )
+    if inventory_artifact.get("kind") != "layer2_s11_predictive_knowledge_manifest":
+        issues.append(
+            _issue(
+                "layer2_s11_inventory_kind_invalid",
+                "S11 inventory entry must carry kind=layer2_s11_predictive_knowledge_manifest.",
+            )
+        )
+    if inventory_artifact.get("schema_version") != s11.get("schema_version"):
+        issues.append(
+            _issue(
+                "layer2_s11_inventory_schema_version_invalid",
+                "S11 inventory schema_version must match the manifest.",
+            )
+        )
+    if (
+        inventory_artifact.get("owner") != s11.get("owner")
+        or inventory_artifact.get("status") != s11.get("status")
+        or inventory_artifact.get("capability_reality_label") != "implemented"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s11_inventory_status_invalid",
+                "S11 inventory entry must be active, implemented, and owned by team-research.",
+            )
+        )
+    if inventory_artifact.get("authority_scope") != s11.get("authority_scope"):
+        issues.append(
+            _issue(
+                "layer2_s11_inventory_authority_scope_mismatch",
+                "S11 inventory authority_scope must match the manifest.",
+            )
+        )
+    if inventory_artifact.get("may_not_use_for") != s11.get("may_not_use_for"):
+        issues.append(
+            _issue(
+                "layer2_s11_inventory_deny_list_mismatch",
+                "S11 inventory may_not_use_for must match the manifest.",
+            )
+        )
+
+    future_implemented = {
+        str(row.get("name", ""))
+        for row in artifact_traceability.get("artifact", [])
+        if isinstance(row, dict)
+        and row.get("slice") in {"S12", "S13", "S14"}
+        and row.get("maturity") == "implemented"
+    }
+    if future_implemented:
+        issues.append(
+            _issue(
+                "layer2_s11_future_slice_maturity_invalid",
+                "S11 must not mark S12, S13, or S14 artifacts implemented.",
+            )
+        )
+    assignments = {
+        str(row.get("cell_ref")): str(row.get("slice"))
+        for row in slice_cell_matrix.get("assignment", [])
+        if isinstance(row, dict)
+    }
+    future_cell_refs = {
+        cell_ref
+        for cell_ref, slice_name in assignments.items()
+        if slice_name in {"S12", "S13", "S14"}
+    }
+    production_authority_refs = {
+        f"{cluster}.{axis}"
+        for cluster, axes in cluster_map_payload.get("cell", {}).items()
+        if isinstance(axes, dict)
+        for axis, cell in axes.items()
+        if isinstance(cell, dict)
+        and (
+            "production_authority" in str(cell.get("authority_dim", ""))
+            or "production_authority" in str(cell.get("action", ""))
+        )
+    }
+    for cell_ref in sorted(future_cell_refs | production_authority_refs):
+        cluster, axis = cell_ref.split(".", maxsplit=1)
+        cell = cluster_map_payload.get("cell", {}).get(cluster, {}).get(axis, {})
+        if isinstance(cell, dict) and cell.get("ratchet_state") == "implemented":
+            issues.append(
+                _issue(
+                    "layer2_s11_future_or_production_cell_implemented",
+                    f"S11 must not mark future or production authority cell implemented: {cell_ref}.",
+                )
+            )
 
 
 def _validate_s8_s7_value_authorization_support(

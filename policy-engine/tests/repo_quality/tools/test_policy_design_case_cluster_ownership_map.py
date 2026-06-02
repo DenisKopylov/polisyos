@@ -22,7 +22,7 @@ def test_cluster_ownership_map_is_governed_and_valid() -> None:
     assert validation["status"] == "pass"
     assert validation["map_path"] == cluster_map.DEFAULT_MAP_PATH.as_posix()
     assert validation["summary"]["cell_count"] >= 24  # type: ignore[index]
-    assert validation["summary"]["open_or_incomplete_count"] == 3  # type: ignore[index]
+    assert validation["summary"]["open_or_incomplete_count"] == 1  # type: ignore[index]
     architecture_core = validation["summary"]["architecture_core"]  # type: ignore[index]
     assert architecture_core["top_level_package_count"] == 25
     assert architecture_core["assigned_top_level_package_count"] == 25
@@ -35,7 +35,7 @@ def test_cluster_ownership_map_is_governed_and_valid() -> None:
     assert open_cell_closure["closure_contract_count"] == (  # type: ignore[index]
         validation["summary"]["open_or_incomplete_count"]  # type: ignore[index]
     )
-    assert open_cell_closure["open_cell_count"] == 3
+    assert open_cell_closure["open_cell_count"] == 1
 
 
 def test_cluster_ownership_map_uses_capability_ratchet_state_vocabulary() -> None:
@@ -200,7 +200,8 @@ def test_architecture_core_split_required_packages_cover_immediate_subpackages()
 def test_cluster_ownership_validator_rejects_open_cell_without_gap() -> None:
     payload = cluster_map.load_cluster_ownership_map(REPO_ROOT)
     payload = copy.deepcopy(payload)
-    payload["cell"]["KNOWLEDGE"]["calibration"]["gap"] = "none_for_seed_scope"
+    cluster, axis, _closure = _remaining_open_closure(payload)
+    payload["cell"][cluster][axis]["gap"] = "none_for_seed_scope"
 
     validation = _validate_payload_without_inventory_mutation(payload)
 
@@ -261,7 +262,8 @@ def test_cluster_ownership_validator_rejects_broken_reflexive_response_flow() ->
 def test_cluster_ownership_validator_rejects_missing_open_cell_closure() -> None:
     payload = cluster_map.load_cluster_ownership_map(REPO_ROOT)
     payload = copy.deepcopy(payload)
-    del payload["open_cell_closure"]["KNOWLEDGE"]["calibration"]
+    cluster, axis, _closure = _remaining_open_closure(payload)
+    del payload["open_cell_closure"][cluster][axis]
 
     validation = _validate_payload_without_inventory_mutation(payload)
 
@@ -272,9 +274,8 @@ def test_cluster_ownership_validator_rejects_missing_open_cell_closure() -> None
 def test_cluster_ownership_validator_rejects_closure_state_mismatch() -> None:
     payload = cluster_map.load_cluster_ownership_map(REPO_ROOT)
     payload = copy.deepcopy(payload)
-    payload["open_cell_closure"]["KNOWLEDGE"]["calibration"][
-        "current_state"
-    ] = "producer_missing"
+    _cluster, _axis, closure = _remaining_open_closure(payload)
+    closure["current_state"] = "producer_missing"
 
     validation = _validate_payload_without_inventory_mutation(payload)
 
@@ -287,9 +288,8 @@ def test_cluster_ownership_validator_rejects_closure_state_mismatch() -> None:
 def test_cluster_ownership_validator_rejects_closure_without_semantic_gap() -> None:
     payload = cluster_map.load_cluster_ownership_map(REPO_ROOT)
     payload = copy.deepcopy(payload)
-    payload["open_cell_closure"]["KNOWLEDGE"]["calibration"]["missing_chain"].remove(
-        "semantic_test"
-    )
+    _cluster, _axis, closure = _remaining_open_closure(payload)
+    closure["missing_chain"].remove("semantic_test")
 
     validation = _validate_payload_without_inventory_mutation(payload)
 
@@ -359,6 +359,18 @@ def test_cluster_ownership_cli_can_write_json_output(tmp_path: Path) -> None:
     assert exit_code == 0
     assert payload["status"] == "pass"
     assert payload["map_path"] == cluster_map.DEFAULT_MAP_PATH.as_posix()
+
+
+def _remaining_open_closure(
+    payload: dict[str, object],
+) -> tuple[str, str, dict[str, object]]:
+    closures = [
+        (str(cluster), str(axis), closure)
+        for cluster, axes in payload["open_cell_closure"].items()  # type: ignore[index,union-attr]
+        for axis, closure in axes.items()
+    ]
+    assert len(closures) == 1
+    return closures[0]
 
 
 def _validate_payload_without_inventory_mutation(payload: dict[str, object]) -> dict[str, object]:

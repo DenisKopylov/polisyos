@@ -345,6 +345,44 @@
       "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py"
     },
     {
+      "id": "layer2_s11_predictive_knowledge_manifest",
+      "path": "architecture/policy_design_case/layer2_s11_predictive_knowledge_manifest.json",
+      "kind": "layer2_s11_predictive_knowledge_manifest",
+      "schema_version": "policyos.policy_design_case.layer2_s11_predictive_knowledge_manifest.v1",
+      "owner": "team-research",
+      "status": "active",
+      "capability_reality_label": "implemented",
+      "authority_scope": [
+        "per_axis_predictive_calibration",
+        "predictive_axis_maturity_upgrade",
+        "proof_carrying_analytics_validity"
+      ],
+      "may_not_use_for": [
+        "production_authority",
+        "production_recommendation",
+        "production_claim_authority",
+        "rollout_authority",
+        "publication_authority",
+        "claim_authority",
+        "closeout_authority",
+        "runtime_closeout_authority",
+        "approval_authority",
+        "scorecard_authority",
+        "calibrated_equilibrium_prediction",
+        "rich_simulation_authority",
+        "portfolio_optimization_authority",
+        "preference_learning_authority",
+        "s12_envelope_growth",
+        "s13_accountability_closure",
+        "s14_universality",
+        "mandate_legitimacy_predictive_upgrade",
+        "historical_prior_current_evidence",
+        "llm_method_authority"
+      ],
+      "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py",
+      "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py"
+    },
+    {
       "id": "layer2_minimal_seed_manifest",
       "path": "architecture/policy_design_case/layer2_minimal_seed_manifest.json",
       "kind": "layer2_seed_manifest",

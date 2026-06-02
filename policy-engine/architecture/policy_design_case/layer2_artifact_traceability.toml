@@ -315,7 +315,22 @@ maturity = "implemented"
 [[artifact]]
 name = "ProofCarryingAnalyticsRecord"
 slice = "S11"
-maturity = "planned"
+maturity = "implemented"
+
+[[artifact]]
+name = "PredictiveAxisCalibrationRecord"
+slice = "S11"
+maturity = "implemented"
+
+[[artifact]]
+name = "PredictiveAxisUpgradeRecord"
+slice = "S11"
+maturity = "implemented"
+
+[[artifact]]
+name = "S11PredictiveKnowledgeIntegrityReport"
+slice = "S11"
+maturity = "implemented"
 
 [[artifact]]
 name = "KnowledgeGovernanceThroughputLedger"

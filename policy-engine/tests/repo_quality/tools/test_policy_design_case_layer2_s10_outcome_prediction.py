@@ -76,8 +76,6 @@ S10_REQUIRED_DENY = {
 }
 EXPECTED_LIVE_OPEN_CELLS = {
     "DESIGNER_ITSELF.envelope_growth",
-    "KNOWLEDGE.calibration",
-    "KNOWLEDGE.ir_proof_carrying_analytics",
 }
 
 
@@ -98,7 +96,7 @@ def _inventory_artifact() -> dict[str, Any]:
     return dict(artifacts["layer2_s10_outcome_prediction_manifest"])
 
 
-def test_layer2_s10_manifest_exists_and_open_count_stays_3() -> None:
+def test_layer2_s10_manifest_local_open_count_stays_3_after_s11_burn_down() -> None:
     validation = readiness.validate_layer2_readiness(REPO_ROOT)
     manifest = _manifest()
 
@@ -116,11 +114,11 @@ def test_layer2_s10_manifest_exists_and_open_count_stays_3() -> None:
     ]
     assert manifest["expected_current_open_cell_count"] == 3
     summary = validation["summary"]
-    assert summary["current_open_cell_count"] == 3
+    assert set(summary["remaining_open_cells"]) == EXPECTED_LIVE_OPEN_CELLS
     assert summary["s10_case_count"] == 13
     assert summary["s10_expected_current_open_cell_count"] == 3
     assert summary["s10_observable_subset_calibration_threshold_ref"]
-    assert summary["inventory_artifact_count"] == 18
+    assert summary["inventory_artifact_count"] >= 18
 
 
 def test_layer2_s10_required_artifacts_are_traceable_and_exported() -> None:
@@ -212,7 +210,7 @@ def test_layer2_s10_does_not_mark_s11_s12_s13_or_s14_implemented() -> None:
 
     assert set(manifest["may_not_use_for"]) >= S10_REQUIRED_DENY
     assert set(summary["remaining_open_cells"]) == EXPECTED_LIVE_OPEN_CELLS
-    assert summary["current_open_cell_count"] == 3
+    assert summary["current_open_cell_count"] == len(EXPECTED_LIVE_OPEN_CELLS)
     for future_term in (
         "s11_calibration",
         "s12_envelope_growth",

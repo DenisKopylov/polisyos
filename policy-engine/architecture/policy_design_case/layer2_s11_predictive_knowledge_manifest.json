@@ -1,0 +1,159 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s11_predictive_knowledge_manifest.v1",
+  "status": "active",
+  "owner": "team-research",
+  "slice": "S11",
+  "depends_on": [
+    "S6",
+    "S10"
+  ],
+  "cells_closed": [
+    "KNOWLEDGE.calibration",
+    "KNOWLEDGE.ir_proof_carrying_analytics"
+  ],
+  "maturity_transitions": [
+    {
+      "cell_ref": "OTHER_AGENTS.strategic_response",
+      "from_maturity": "fail_closed",
+      "to_maturity": "predictive",
+      "slice": "S11"
+    },
+    {
+      "cell_ref": "ACTOR.state_capacity_feasibility",
+      "from_maturity": "fail_closed",
+      "to_maturity": "predictive",
+      "slice": "S11"
+    },
+    {
+      "cell_ref": "SYSTEM.measurability",
+      "from_maturity": "fail_closed",
+      "to_maturity": "predictive",
+      "slice": "S11"
+    },
+    {
+      "cell_ref": "SYSTEM.subject_granularity",
+      "from_maturity": "fail_closed",
+      "to_maturity": "predictive",
+      "slice": "S11"
+    }
+  ],
+  "layer_cells_advanced": [
+    "CROSS_CUTTING.method_infrastructure"
+  ],
+  "required_artifacts": [
+    "PredictiveAxisCalibrationRecord",
+    "PredictiveAxisUpgradeRecord",
+    "ProofCarryingAnalyticsRecord",
+    "S11PredictiveKnowledgeIntegrityReport"
+  ],
+  "floor_id": "s11_axis_calibration",
+  "floor_metric": "per_axis_predictive_calibration",
+  "case_count": 13,
+  "axis_count": 52,
+  "expected_current_open_cell_count": 1,
+  "remaining_open_cells": [
+    "DESIGNER_ITSELF.envelope_growth"
+  ],
+  "per_axis_predictive_calibration_denominator": 52,
+  "per_axis_predictive_calibration_numerator": 26,
+  "per_axis_predictive_calibration_pass_rate": 0.5,
+  "per_axis_predictive_calibration_threshold": 0.5,
+  "per_axis_predictive_calibration_threshold_ref": "repo://architecture/policy_design_case/layer2_floor_governance.toml#s11",
+  "per_axis_predictive_calibration_status": "pass",
+  "per_axis_predictive_calibration_floor_passed": true,
+  "predictive_axis_count": 26,
+  "reverted_fail_closed_axis_count": 26,
+  "proof_bound_claim_count": 13,
+  "unbound_analytics_rejected_count": 1,
+  "negative_certificate_block_count": 1,
+  "forecast_quality_downgrade_count": 52,
+  "regime_strategy_constraint_count": 52,
+  "method_infrastructure_consumed_count": 2,
+  "weakest_boundary_inheritance_count": 52,
+  "stale_calibration_relaxation_false_clear_count": 0,
+  "scope_mismatched_historical_prior_false_clear_count": 0,
+  "unbound_ir_analytics_false_clear_count": 0,
+  "negative_certificate_ignored_false_clear_count": 0,
+  "missing_method_validity_false_clear_count": 0,
+  "missing_s6_floor_ref_false_clear_count": 0,
+  "mandate_axis_predictive_upgrade_false_clear_count": 0,
+  "production_authority_from_predictive_upgrade_false_clear_count": 0,
+  "rich_simulation_authority_laundering_false_clear_count": 0,
+  "weakest_boundary_bypass_false_clear_count": 0,
+  "false_clear_counts": {
+    "stale_calibration_relaxation": 0,
+    "scope_mismatched_historical_prior": 0,
+    "unbound_ir_analytics": 0,
+    "negative_certificate_ignored": 0,
+    "missing_method_validity": 0,
+    "missing_s6_floor_ref": 0,
+    "mandate_axis_predictive_upgrade": 0,
+    "production_authority_from_predictive_upgrade": 0,
+    "rich_simulation_authority_laundering": 0,
+    "weakest_boundary_bypass": 0
+  },
+  "authority_scope": [
+    "per_axis_predictive_calibration",
+    "predictive_axis_maturity_upgrade",
+    "proof_carrying_analytics_validity"
+  ],
+  "authority_boundary": {
+    "authoritative_for": [
+      "per_axis_predictive_calibration",
+      "predictive_axis_maturity_upgrade",
+      "proof_carrying_analytics_validity"
+    ],
+    "may_not_use_for": [
+      "production_authority",
+      "production_recommendation",
+      "production_claim_authority",
+      "rollout_authority",
+      "publication_authority",
+      "claim_authority",
+      "closeout_authority",
+      "runtime_closeout_authority",
+      "approval_authority",
+      "scorecard_authority",
+      "calibrated_equilibrium_prediction",
+      "rich_simulation_authority",
+      "portfolio_optimization_authority",
+      "preference_learning_authority",
+      "s12_envelope_growth",
+      "s13_accountability_closure",
+      "s14_universality",
+      "mandate_legitimacy_predictive_upgrade",
+      "historical_prior_current_evidence",
+      "llm_method_authority"
+    ],
+    "source_authority": "deterministic_producer",
+    "posture": "shadow",
+    "rule_version_refs": [
+      "policyos.layer2.s11.predictive_knowledge.v1"
+    ]
+  },
+  "may_not_use_for": [
+    "production_authority",
+    "production_recommendation",
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority",
+    "claim_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "calibrated_equilibrium_prediction",
+    "rich_simulation_authority",
+    "portfolio_optimization_authority",
+    "preference_learning_authority",
+    "s12_envelope_growth",
+    "s13_accountability_closure",
+    "s14_universality",
+    "mandate_legitimacy_predictive_upgrade",
+    "historical_prior_current_evidence",
+    "llm_method_authority"
+  ],
+  "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py",
+  "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py",
+  "rule_version_ref": "policyos.layer2.s11.predictive_knowledge.v1"
+}

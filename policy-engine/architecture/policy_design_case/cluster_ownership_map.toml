@@ -93,38 +93,6 @@ closure_contracts_match_open_cell_states = true
 closure_contracts_name_missing_capability_chain = true
 controlled_gap_tokens = ["none_for_seed_scope", "none_for_ddm_scope"]
 
-[open_cell_closure.KNOWLEDGE.calibration]
-cell_ref = "KNOWLEDGE.calibration"
-owner = "team-calibration"
-reuse_classification = "wire_existing"
-current_state = "implemented_but_not_orchestrated"
-target_state = "implemented"
-missing_chain = ["orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
-producer_artifact = "ForecastCalibrationRecord tied to prediction family, context, time horizon, and observed outcome."
-persisted_artifact = "Calibration ledger entry linked to forecast, regime record, and evaluation case."
-bridge_consumer = "KNOWLEDGE.epistemic_regime and INTERVENTION.forecast_quality consume calibration outputs."
-surface = "EXPERT/MACHINE projection shows calibration status, uncertainty bands, and stale-history limitations."
-semantic_test = "Poorly calibrated forecast cannot support risk-regime optimization without downgrade."
-negative_test = "Fixture with historical prior outside context cannot improve current forecast authority."
-acceptance_signal = "Forecast quality and regime classification change when calibration evidence is absent, stale, or poor."
-next_action = "Wire calibration ledger outputs into forecast-tier and epistemic-regime gates."
-
-[open_cell_closure.KNOWLEDGE.ir_proof_carrying_analytics]
-cell_ref = "KNOWLEDGE.ir_proof_carrying_analytics"
-owner = "team-ir-analytics"
-reuse_classification = "wire_existing"
-current_state = "implemented_but_not_orchestrated"
-target_state = "implemented"
-missing_chain = ["orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
-producer_artifact = "ProofCarryingAnalyticsRecord with proof/certificate refs for baseline, alternative, and world-model assumptions."
-persisted_artifact = "Claim-bound IR artifact linked to evidence portfolio and design-comparison graph."
-bridge_consumer = "KNOWLEDGE.evidence_claims_portfolio and INTERVENTION.design_comparison consume proof-carrying analytics."
-surface = "EXPERT/MACHINE projection exposes proof refs, model assumptions, and rejected/limited analytics."
-semantic_test = "Design comparison cannot cite IR analytics unless proof/certificate refs bind to the compared claim."
-negative_test = "Unbound analytics fixture must not increase evidence strength or recommendation ranking."
-acceptance_signal = "Baseline/alternative comparison reads proof-carrying IR artifacts through claim-bound consumers."
-next_action = "Classify IR subpackages into proof, world, schema, loading, and governance producers, then bridge proof outputs into claims."
-
 [open_cell_closure.DESIGNER_ITSELF.envelope_growth]
 cell_ref = "DESIGNER_ITSELF.envelope_growth"
 owner = "team-architecture"
@@ -222,10 +190,10 @@ action = "keep BERL explanation reliability as an explicit DESIGNER_ITSELF surfa
 cell_ref = "KNOWLEDGE.calibration"
 paths = ["src/polisyos/calibration"]
 coverage_mode = "root_package"
-ratchet_state = "implemented_but_not_orchestrated"
-p01_chain = "bridge_missing"
-gap = "Calibration exists as a package but is not yet a cluster-level regime or prediction-quality producer in the design loop."
-action = "wire calibration records into epistemic-regime and forecast-quality gates."
+ratchet_state = "implemented"
+p01_chain = "implemented"
+gap = "S11 now routes calibration records into forecast quality, regime/design-loop constraints, claim records, and design comparison."
+action = "keep S11 per-axis calibration governed by layer2_s11_predictive_knowledge_manifest and deny production authority."
 
 [[architecture_core.package_group]]
 cell_ref = "CROSS_CUTTING.core_contracts"
@@ -294,10 +262,10 @@ action = "route only design-loop-consumed Foundry methods into cluster producers
 cell_ref = "KNOWLEDGE.ir_proof_carrying_analytics"
 paths = ["src/polisyos/ir"]
 coverage_mode = "split_by_subpackage"
-ratchet_state = "implemented_but_not_orchestrated"
-p01_chain = "bridge_missing"
-gap = "IR has proof-carrying seeds, but subpackages must be mapped to evidence, model, world, and schema roles."
-action = "wire proof-carrying IR outputs into claim/evidence and design-comparison consumers."
+ratchet_state = "implemented"
+p01_chain = "implemented"
+gap = "S11 now routes proof-carrying analytics into claim records, rejected-unbound analytics limits, and design-comparison consumers."
+action = "keep proof/certificate refs bound to claim and comparison records through layer2_s11_predictive_knowledge_manifest."
 
 [[architecture_core.package_group]]
 cell_ref = "ACTOR.legal_authority"
@@ -521,10 +489,10 @@ paths = [
   "src/polisyos/foundry/uncertainty",
   "src/polisyos/foundry/validation",
 ]
-ratchet_state = "implemented_but_not_orchestrated"
-p01_chain = "bridge_missing"
-gap = "Foundry analysis, calibration, uncertainty, and validation seeds are not yet a design-loop forecast-quality gate."
-action = "route these outputs into KNOWLEDGE calibration, uncertainty, and regime-appropriateness cells."
+ratchet_state = "implemented"
+p01_chain = "implemented"
+gap = "S11 consumes Foundry analysis, calibration, uncertainty, and validation refs as governed method infrastructure for forecast-quality downgrades."
+action = "preserve Foundry calibration/validation refs as consumed infrastructure, not standalone prediction or production authority."
 
 [[architecture_core.subpackage_group]]
 parent = "src/polisyos/foundry"
@@ -581,10 +549,10 @@ paths = [
   "src/polisyos/ir/trinity",
   "src/polisyos/ir/world",
 ]
-ratchet_state = "implemented_but_not_orchestrated"
-p01_chain = "bridge_missing"
-gap = "IR subpackages are enumerated but still need Pass 2 classification into proof, world, schema, loading, and governance producers."
-action = "wire proof-carrying analytics and portfolio/world structures into claim-bound evidence and design-comparison consumers."
+ratchet_state = "implemented"
+p01_chain = "implemented"
+gap = "S11 consumes IR analytics, proof/certificate, governance, schema, world, and loading refs through claim-bound proof-carrying analytics."
+action = "keep IR proof outputs bound to claim records, design comparison, and negative-certificate blockers."
 
 [[architecture_core.subpackage_group]]
 parent = "src/polisyos/lex"
@@ -802,7 +770,7 @@ firewall = "P18_streetlight_measurability_laundering"
 publishes = ["KNOWLEDGE.epistemic_regime", "ACTOR.value_choice_provenance"]
 consumes = ["INTERVENTION.objectives", "SYSTEM.domain_data"]
 gap = "none_for_s6_fail_closed_scope"
-action = "S6 fail-closed wrapper emits MeasurabilityAdequacyRecord and blocks proxy/value laundering; predictive upgrade remains S11."
+action = "S6 fail-closed wrapper emits MeasurabilityAdequacyRecord and blocks proxy/value laundering; S11 now governs predictive maturity through per-axis calibration and proof checks."
 
 [cell.SYSTEM.subject_granularity]
 owner_module = "src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py"
@@ -817,7 +785,7 @@ firewall = "P19_aggregation_laundering"
 publishes = ["INTERVENTION.targeting", "KNOWLEDGE.epistemic_regime"]
 consumes = ["SYSTEM.domain_data", "INTERVENTION.population_scope"]
 gap = "none_for_s6_fail_closed_scope"
-action = "S6 fail-closed wrapper emits AggregationValidityRecord before targeting or population-level claims close; predictive upgrade remains S11."
+action = "S6 fail-closed wrapper emits AggregationValidityRecord before targeting or population-level claims close; S11 now governs predictive maturity through per-axis calibration and proof checks."
 
 [cell.KNOWLEDGE.substrate_coverage]
 owner_module = "src/polisyos/runtime/quality/capability_resolver.py"
@@ -857,14 +825,14 @@ seed_files = [
   "src/polisyos/calibration/README.md",
   "src/polisyos/runtime/quality/calibration_ledger.py",
 ]
-ratchet_state = "implemented_but_not_orchestrated"
-p01_chain = "bridge_missing"
+ratchet_state = "implemented"
+p01_chain = "implemented"
 authority_dim = "prediction_calibration_validity"
 firewall = "P16_epistemic_regime_laundering"
-publishes = ["KNOWLEDGE.epistemic_regime", "INTERVENTION.forecast_quality"]
-consumes = ["INTERVENTION.forecast", "SYSTEM.outcome_observations"]
-gap = "calibration primitives exist but are not yet the design-loop gate for forecast quality or regime-appropriate evidence."
-action = "wire calibration outputs into forecast-tier, epistemic-regime, and D4 evaluation metrics."
+publishes = ["KNOWLEDGE.epistemic_regime", "INTERVENTION.forecast_quality", "INTERVENTION.strategy_constraints"]
+consumes = ["INTERVENTION.forecast", "SYSTEM.outcome_observations", "CROSS_CUTTING.method_infrastructure"]
+gap = "none_for_s11_predictive_knowledge_scope"
+action = "S11 routes PredictiveAxisCalibrationRecord outputs into forecast quality, regime/design-loop constraints, claim records, and design comparison without production authority."
 
 [cell.KNOWLEDGE.evidence_claims_portfolio]
 owner_module = "src/polisyos/evidence"
@@ -888,14 +856,14 @@ seed_files = [
   "src/polisyos/ir/README.md",
   "src/polisyos/ir/loading/portfolio.py",
 ]
-ratchet_state = "implemented_but_not_orchestrated"
-p01_chain = "bridge_missing"
+ratchet_state = "implemented"
+p01_chain = "implemented"
 authority_dim = "proof_carrying_analytics_validity"
 firewall = "P02_thin_orchestration"
 publishes = ["KNOWLEDGE.evidence_claims_portfolio", "INTERVENTION.design_comparison"]
-consumes = ["SYSTEM.domain_data", "INTERVENTION.method_requirements"]
-gap = "IR proof-carrying analytics and portfolio structures are not fully consumed by the universal design loop."
-action = "wire IR proof/certificate outputs into claim records, baseline comparison, and recursive design graph consumers."
+consumes = ["SYSTEM.domain_data", "INTERVENTION.method_requirements", "CROSS_CUTTING.method_infrastructure"]
+gap = "none_for_s11_predictive_knowledge_scope"
+action = "S11 binds ProofCarryingAnalyticsRecord refs to claim records, baseline/alternative comparison, rejected unbound analytics, and negative-certificate blockers."
 
 [cell.ACTOR.legal_authority]
 owner_module = "src/polisyos/lex"
@@ -940,7 +908,7 @@ firewall = "P21_capacity_feasibility_laundering"
 publishes = ["INTERVENTION.feasibility", "DESIGNER_ITSELF.envelope_membership"]
 consumes = ["INTERVENTION.design_candidate", "SYSTEM.jurisdiction"]
 gap = "none_for_s6_fail_closed_scope"
-action = "S6 fail-closed wrapper emits CapacityFeasibilityRecord and capacity-building obligations before implementability claims close; predictive upgrade remains S11."
+action = "S6 fail-closed wrapper emits CapacityFeasibilityRecord and capacity-building obligations before implementability claims close; S11 now governs predictive maturity through capacity grounding, per-axis calibration, and proof checks."
 
 [cell.ACTOR.mandate_legitimacy]
 owner_module = "src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py"
@@ -955,7 +923,7 @@ firewall = "P22_mandate_legitimacy_laundering"
 publishes = ["ACTOR.value_choice_provenance", "PUBLIC.legitimacy_disclosure", "INTERVENTION.design_candidate"]
 consumes = ["INTERVENTION.objectives", "SYSTEM.population_scope"]
 gap = "none_for_s6_fail_closed_scope"
-action = "S6 fail-closed wrapper emits MandateLegitimacyRecord before objectives, value choices, or design candidates can close; predictive upgrade remains S11."
+action = "S6 fail-closed wrapper emits MandateLegitimacyRecord before objectives, value choices, or design candidates can close; S11 keeps mandate legitimacy fail-closed and does not grant predictive maturity."
 
 [cell.INTERVENTION.requirement_compilers]
 owner_module = "src/polisyos/data_requirement"
@@ -1054,7 +1022,7 @@ firewall = "P24_goodhart_lucas_response_laundering"
 publishes = ["SYSTEM.post_intervention_dgp", "SYSTEM.dynamics_feedback", "INTERVENTION.robustness"]
 consumes = ["INTERVENTION.design_candidate", "SYSTEM.connectivity_modularity", "ACTOR.state_capacity_feasibility"]
 gap = "none_for_s6_fail_closed_scope"
-action = "S6 fail-closed wrapper emits StrategicResponseRecord and post-intervention DGP handoff while rich predictive response modeling remains S11."
+action = "S6 fail-closed wrapper emits StrategicResponseRecord and post-intervention DGP handoff; S11 now governs predictive maturity through response-channel rows, calibration, and proof checks."
 
 [cell.DESIGNER_ITSELF.closeout_projection_ratchet]
 owner_module = "src/polisyos/runtime/quality"
@@ -1117,7 +1085,7 @@ firewall = "P02_thin_orchestration"
 publishes = ["ALL.cluster_artifacts"]
 consumes = ["ALL.status_authority_time_contracts"]
 gap = "method infrastructure is mapped as substrate only; it cannot satisfy producer authority without a cluster-owned consumer."
-action = "keep compile, execute, runtime, compute, and reusable method search infrastructure distinct from authority-bearing design producers."
+action = "keep compile, execute, runtime, compute, and reusable method search infrastructure distinct from authority-bearing design producers; S11 consumes Foundry method/calibration/validation refs as infrastructure only."
 
 [cell.CROSS_CUTTING.core_contracts]
 owner_module = "src/polisyos/core"

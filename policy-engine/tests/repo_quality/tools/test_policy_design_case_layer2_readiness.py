@@ -32,6 +32,13 @@ CELLS_CLOSED_THROUGH_S8 = sorted(
         "ACTOR.value_choice_provenance",
     ]
 )
+CELLS_CLOSED_THROUGH_S11 = sorted(
+    [
+        *CELLS_CLOSED_THROUGH_S8,
+        "KNOWLEDGE.calibration",
+        "KNOWLEDGE.ir_proof_carrying_analytics",
+    ]
+)
 
 
 def _issue_codes(validation: dict[str, object]) -> set[str]:
@@ -44,9 +51,12 @@ def test_layer2_s0_readiness_manifest_is_valid() -> None:
     assert validation["status"] == "pass", validation["issues"]
     assert validation["summary"]["open_cell_count_baseline"] == 17  # type: ignore[index]
     assert validation["summary"]["assigned_open_cell_count"] == 17  # type: ignore[index]
-    assert validation["summary"]["current_open_cell_count"] == 3  # type: ignore[index]
+    assert validation["summary"]["current_open_cell_count"] == 1  # type: ignore[index]
+    assert validation["summary"]["remaining_open_cells"] == [  # type: ignore[index]
+        "DESIGNER_ITSELF.envelope_growth"
+    ]
     assert validation["summary"]["s0_cells_closed"] == []  # type: ignore[index]
-    assert validation["summary"]["cells_closed_since_s0"] == CELLS_CLOSED_THROUGH_S8  # type: ignore[index]
+    assert validation["summary"]["cells_closed_since_s0"] == CELLS_CLOSED_THROUGH_S11  # type: ignore[index]
     assert validation["summary"]["s6_maturity"] == "fail_closed"  # type: ignore[index]
     assert validation["summary"]["s6_case_count"] == 13  # type: ignore[index]
     assert validation["summary"]["s6_axis_coverage_count"] == 5  # type: ignore[index]
@@ -90,6 +100,16 @@ def test_layer2_s0_readiness_manifest_is_valid() -> None:
     assert validation["summary"]["s10_false_clear_counts"]["observed_outcome_without_credible_evaluation"] == 0  # type: ignore[index]
     assert validation["summary"]["s10_false_clear_counts"]["scalar_welfare_hides_pareto_tradeoff"] == 0  # type: ignore[index]
     assert validation["summary"]["s10_false_clear_counts"]["weakest_boundary_ignored"] == 0  # type: ignore[index]
+    assert validation["summary"]["s11_case_count"] == 13  # type: ignore[index]
+    assert validation["summary"]["s11_axis_count"] == 52  # type: ignore[index]
+    assert validation["summary"]["s11_expected_current_open_cell_count"] == 1  # type: ignore[index]
+    assert validation["summary"]["s11_per_axis_predictive_calibration_denominator"] == 52  # type: ignore[index]
+    assert validation["summary"]["s11_per_axis_predictive_calibration_numerator"] == 26  # type: ignore[index]
+    assert validation["summary"]["s11_per_axis_predictive_calibration_status"] == "pass"  # type: ignore[index]
+    assert validation["summary"]["s11_per_axis_predictive_calibration_floor_passed"] is True  # type: ignore[index]
+    assert validation["summary"]["s11_method_infrastructure_consumed_count"] > 0  # type: ignore[index]
+    assert validation["summary"]["s11_false_clear_counts"]["unbound_ir_analytics"] == 0  # type: ignore[index]
+    assert validation["summary"]["s11_false_clear_counts"]["weakest_boundary_bypass"] == 0  # type: ignore[index]
 
 
 def test_layer2_slice_cell_matrix_preserves_baseline_and_current_open_subset() -> None:
@@ -102,7 +122,7 @@ def test_layer2_slice_cell_matrix_preserves_baseline_and_current_open_subset() -
 
     assert len(assigned) == 17
     assert current_open_cells < assigned
-    assert assigned - current_open_cells == set(CELLS_CLOSED_THROUGH_S8)
+    assert assigned - current_open_cells == set(CELLS_CLOSED_THROUGH_S11)
 
 
 def test_layer2_readiness_rejects_missing_open_cell_assignment() -> None:
@@ -111,7 +131,7 @@ def test_layer2_readiness_rejects_missing_open_cell_assignment() -> None:
     payloads["slice_cell_matrix"]["assignment"] = [
         entry
         for entry in payloads["slice_cell_matrix"]["assignment"]
-        if entry["cell_ref"] != "KNOWLEDGE.calibration"
+        if entry["cell_ref"] != "DESIGNER_ITSELF.envelope_growth"
     ]
 
     validation = readiness.validate_layer2_readiness_payloads(payloads)
@@ -174,7 +194,7 @@ def test_layer2_readiness_artifacts_are_in_policy_design_case_inventory() -> Non
     validation = readiness.validate_layer2_readiness(REPO_ROOT)
 
     assert validation["status"] == "pass", validation["issues"]
-    assert validation["summary"]["inventory_artifact_count"] == 18  # type: ignore[index]
+    assert validation["summary"]["inventory_artifact_count"] == 19  # type: ignore[index]
 
 
 def test_layer2_readiness_validates_s6_manifest_metrics_and_coverage() -> None:

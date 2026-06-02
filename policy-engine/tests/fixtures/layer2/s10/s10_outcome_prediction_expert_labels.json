@@ -1,0 +1,215 @@
+{
+  "_meta": {
+    "schema_version": "policyos.policy_design_case.layer2_s10.expert_labels.v1",
+    "status": "seeded_gold_labels"
+  },
+  "cases": {
+    "ua-msme-affordable-loans-2022": {
+      "case_id": "ua-msme-affordable-loans-2022",
+      "coverage_labels": [
+        "s5_support_scope_preserved",
+        "s6_firewall_cap_preserved",
+        "s8_value_provenance_preserved",
+        "weakest_boundary_inherited",
+        "uncertainty_interval_visible",
+        "welfare_comparison_value_grounded",
+        "transported_estimate_limited",
+        "non_observable_honestly_downgraded"
+      ],
+      "expected_calibration_status": "not_applicable_non_observable",
+      "expected_floor_passed": false,
+      "expected_forecast_tier": "transported_limited"
+    },
+    "w11a_berlin_rent_cap_2020": {
+      "case_id": "w11a_berlin_rent_cap_2020",
+      "coverage_labels": [
+        "s5_support_scope_preserved",
+        "s6_firewall_cap_preserved",
+        "s8_value_provenance_preserved",
+        "weakest_boundary_inherited",
+        "uncertainty_interval_visible",
+        "welfare_comparison_value_grounded",
+        "equilibrium_contested_blocked",
+        "non_observable_honestly_downgraded"
+      ],
+      "expected_calibration_status": "not_applicable_non_observable",
+      "expected_floor_passed": false,
+      "expected_forecast_tier": "equilibrium_contested_blocked"
+    },
+    "w11a_boston_operation_ceasefire_1996": {
+      "case_id": "w11a_boston_operation_ceasefire_1996",
+      "coverage_labels": [
+        "s5_support_scope_preserved",
+        "s6_firewall_cap_preserved",
+        "s8_value_provenance_preserved",
+        "weakest_boundary_inherited",
+        "uncertainty_interval_visible",
+        "welfare_comparison_value_grounded",
+        "historical_prior_context_only",
+        "non_observable_honestly_downgraded"
+      ],
+      "expected_calibration_status": "not_applicable_non_observable",
+      "expected_floor_passed": false,
+      "expected_forecast_tier": "historical_prior_context"
+    },
+    "w11a_eu_temporary_protection_ukraine_2022": {
+      "case_id": "w11a_eu_temporary_protection_ukraine_2022",
+      "coverage_labels": [
+        "s5_support_scope_preserved",
+        "s6_firewall_cap_preserved",
+        "s8_value_provenance_preserved",
+        "weakest_boundary_inherited",
+        "uncertainty_interval_visible",
+        "welfare_comparison_value_grounded",
+        "historical_prior_context_only",
+        "non_observable_honestly_downgraded"
+      ],
+      "expected_calibration_status": "not_applicable_non_observable",
+      "expected_floor_passed": false,
+      "expected_forecast_tier": "historical_prior_context"
+    },
+    "w11a_ghana_free_shs_2017": {
+      "case_id": "w11a_ghana_free_shs_2017",
+      "coverage_labels": [
+        "s5_support_scope_preserved",
+        "s6_firewall_cap_preserved",
+        "s8_value_provenance_preserved",
+        "weakest_boundary_inherited",
+        "uncertainty_interval_visible",
+        "welfare_comparison_value_grounded",
+        "transported_estimate_limited",
+        "non_observable_honestly_downgraded"
+      ],
+      "expected_calibration_status": "not_applicable_non_observable",
+      "expected_floor_passed": false,
+      "expected_forecast_tier": "transported_limited"
+    },
+    "w11a_india_aadhaar_dbt_2016": {
+      "case_id": "w11a_india_aadhaar_dbt_2016",
+      "coverage_labels": [
+        "s5_support_scope_preserved",
+        "s6_firewall_cap_preserved",
+        "s8_value_provenance_preserved",
+        "weakest_boundary_inherited",
+        "uncertainty_interval_visible",
+        "welfare_comparison_value_grounded",
+        "equilibrium_contested_blocked",
+        "non_observable_honestly_downgraded"
+      ],
+      "expected_calibration_status": "not_applicable_non_observable",
+      "expected_floor_passed": false,
+      "expected_forecast_tier": "equilibrium_contested_blocked"
+    },
+    "w11a_mexico_ssb_tax_2014": {
+      "case_id": "w11a_mexico_ssb_tax_2014",
+      "coverage_labels": [
+        "s5_support_scope_preserved",
+        "s6_firewall_cap_preserved",
+        "s8_value_provenance_preserved",
+        "weakest_boundary_inherited",
+        "uncertainty_interval_visible",
+        "welfare_comparison_value_grounded",
+        "historical_prior_context_only",
+        "non_observable_honestly_downgraded"
+      ],
+      "expected_calibration_status": "not_applicable_non_observable",
+      "expected_floor_passed": false,
+      "expected_forecast_tier": "historical_prior_context"
+    },
+    "w11a_netherlands_room_for_river_2007": {
+      "case_id": "w11a_netherlands_room_for_river_2007",
+      "coverage_labels": [
+        "s5_support_scope_preserved",
+        "s6_firewall_cap_preserved",
+        "s8_value_provenance_preserved",
+        "weakest_boundary_inherited",
+        "uncertainty_interval_visible",
+        "welfare_comparison_value_grounded",
+        "observable_subset_calibrated"
+      ],
+      "expected_calibration_status": "pass",
+      "expected_floor_passed": true,
+      "expected_forecast_tier": "observable_calibrated"
+    },
+    "w11a_pakistan_ehsaas_cash_2020": {
+      "case_id": "w11a_pakistan_ehsaas_cash_2020",
+      "coverage_labels": [
+        "s5_support_scope_preserved",
+        "s6_firewall_cap_preserved",
+        "s8_value_provenance_preserved",
+        "weakest_boundary_inherited",
+        "uncertainty_interval_visible",
+        "welfare_comparison_value_grounded",
+        "historical_prior_context_only",
+        "non_observable_honestly_downgraded"
+      ],
+      "expected_calibration_status": "not_applicable_non_observable",
+      "expected_floor_passed": false,
+      "expected_forecast_tier": "historical_prior_context"
+    },
+    "w11a_uk_levelling_up_fund_2021": {
+      "case_id": "w11a_uk_levelling_up_fund_2021",
+      "coverage_labels": [
+        "s5_support_scope_preserved",
+        "s6_firewall_cap_preserved",
+        "s8_value_provenance_preserved",
+        "weakest_boundary_inherited",
+        "uncertainty_interval_visible",
+        "welfare_comparison_value_grounded",
+        "transported_estimate_limited",
+        "non_observable_honestly_downgraded"
+      ],
+      "expected_calibration_status": "not_applicable_non_observable",
+      "expected_floor_passed": false,
+      "expected_forecast_tier": "transported_limited"
+    },
+    "w11a_uk_mtd_vat_2019": {
+      "case_id": "w11a_uk_mtd_vat_2019",
+      "coverage_labels": [
+        "s5_support_scope_preserved",
+        "s6_firewall_cap_preserved",
+        "s8_value_provenance_preserved",
+        "weakest_boundary_inherited",
+        "uncertainty_interval_visible",
+        "welfare_comparison_value_grounded",
+        "historical_prior_context_only",
+        "non_observable_honestly_downgraded"
+      ],
+      "expected_calibration_status": "not_applicable_non_observable",
+      "expected_floor_passed": false,
+      "expected_forecast_tier": "historical_prior_context"
+    },
+    "w11a_uk_work_programme_2011": {
+      "case_id": "w11a_uk_work_programme_2011",
+      "coverage_labels": [
+        "s5_support_scope_preserved",
+        "s6_firewall_cap_preserved",
+        "s8_value_provenance_preserved",
+        "weakest_boundary_inherited",
+        "uncertainty_interval_visible",
+        "welfare_comparison_value_grounded",
+        "equilibrium_contested_blocked",
+        "non_observable_honestly_downgraded"
+      ],
+      "expected_calibration_status": "not_applicable_non_observable",
+      "expected_floor_passed": false,
+      "expected_forecast_tier": "equilibrium_contested_blocked"
+    },
+    "w11a_us_ppp_2020": {
+      "case_id": "w11a_us_ppp_2020",
+      "coverage_labels": [
+        "s5_support_scope_preserved",
+        "s6_firewall_cap_preserved",
+        "s8_value_provenance_preserved",
+        "weakest_boundary_inherited",
+        "uncertainty_interval_visible",
+        "welfare_comparison_value_grounded",
+        "simulation_only_advisory",
+        "non_observable_honestly_downgraded"
+      ],
+      "expected_calibration_status": "not_applicable_non_observable",
+      "expected_floor_passed": false,
+      "expected_forecast_tier": "simulation_only_advisory"
+    }
+  }
+}

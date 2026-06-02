@@ -1,0 +1,1300 @@
+{
+  "_meta": {
+    "may_not_use_for": [
+      "production_recommendation",
+      "production_claim_authority",
+      "s11_calibration"
+    ],
+    "schema_version": "policyos.policy_design_case.layer2_s10.case_signals.v1",
+    "status": "seeded_producer_inputs"
+  },
+  "cases": {
+    "ua-msme-affordable-loans-2022": {
+      "abstention_refs": [],
+      "alternative_design_refs": [
+        "alternative://ua-msme-affordable-loans-2022/bounded-alternative"
+      ],
+      "backtestable_observable": false,
+      "baseline_design_ref": "baseline://ua-msme-affordable-loans-2022/status-quo",
+      "calibration_denominator": 0,
+      "calibration_floor_passed": false,
+      "calibration_numerator": 0,
+      "calibration_record_ref": null,
+      "calibration_status": "not_applicable_non_observable",
+      "calibration_threshold_ref": "architecture://policy_design_case/layer2_floor_governance.toml#s10_calibration",
+      "candidate_design_ref": "candidate://ua-msme-affordable-loans-2022/primary-design",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "counterfactual_credibility": "not_applicable_non_observable",
+      "credible_evaluation_evidence_ref": null,
+      "design_graph_ref": "pdc://layer2/s5/ua-msme-affordable-loans-2022/recursive-design-graph",
+      "dynamic_equilibrium_check_ref": "pdc://layer2/s10/ua-msme-affordable-loans-2022/dynamic-equilibrium-check",
+      "equilibrium_caveat_refs": [],
+      "evaluation_design_ref": null,
+      "expected_authority_boundary": {
+        "authoritative_for": [
+          "forecast_support_tiering"
+        ],
+        "may_not_use_for": [
+          "production_recommendation",
+          "production_claim_authority",
+          "rollout_authority",
+          "publication_authority",
+          "claim_authority",
+          "closeout_authority",
+          "approval_authority",
+          "scorecard_authority",
+          "preference_learning_authority",
+          "s11_calibration",
+          "s12_envelope_growth",
+          "s13_accountability_closure",
+          "s14_universality"
+        ],
+        "posture": "shadow",
+        "rule_version_refs": [
+          "policyos.layer2.s10.outcome_prediction.v1"
+        ],
+        "source_authority": "deterministic_producer"
+      },
+      "forecast_authority_disposition_reason": "Transported estimate remains limited by source scope and S6/S5 boundary caveats.",
+      "forecast_support_input_ref": "fixture://layer2/s10/ua-msme-affordable-loans-2022/case-signals",
+      "forecast_tier": "transported_limited",
+      "historical_implementation_ref": null,
+      "jurisdiction_scope_ref": "jurisdiction://ua-msme-affordable-loans-2022",
+      "limitation_refs": [
+        "pdc://layer2/s10/ua-msme-affordable-loans-2022/forecast-limitation"
+      ],
+      "method_family": "foundry_causal",
+      "method_lineage_refs": [
+        "method-lineage://layer2/s10/ua-msme-affordable-loans-2022/lineage"
+      ],
+      "method_validity_ref": null,
+      "non_observable_downgrade_reason": "Transported estimate remains limited by source scope and S6/S5 boundary caveats.",
+      "observable_subset_ref": null,
+      "outcome_distribution_refs": [
+        "pdc://layer2/s10/ua-msme-affordable-loans-2022/outcome-distribution/primary"
+      ],
+      "policy_context_ref": "policy-context://ua-msme-affordable-loans-2022/canonical",
+      "prediction_context_ref": "pdc://layer2/s10/ua-msme-affordable-loans-2022/prediction-context",
+      "prediction_horizon_ref": "horizon://ua-msme-affordable-loans-2022/policy-relevant-window",
+      "s5_base_origin": "transported_scholar_estimate",
+      "s5_claim_scope": "system_effect",
+      "s5_forecast_support_ref": "pdc://layer2/s5/ua-msme-affordable-loans-2022/forecast-support-scope",
+      "s5_support_label": "transported_with_heavy_limitation",
+      "s6_firewall_status_refs": [
+        "pdc://layer2/s6/ua-msme-affordable-loans-2022/measurability-adequacy",
+        "pdc://layer2/s6/ua-msme-affordable-loans-2022/strategic-response"
+      ],
+      "s6_limitation_refs": [
+        "pdc://layer2/s6/ua-msme-affordable-loans-2022/limitation-summary"
+      ],
+      "s8_value_choice_provenance_ref": "pdc://layer2/s8/ua-msme-affordable-loans-2022/value-choice-provenance",
+      "s8_value_tradeoff_disclosure_ref": "pdc://layer2/s8/ua-msme-affordable-loans-2022/value-tradeoff-disclosure",
+      "sensitivity_analysis_ref": "pdc://layer2/s10/ua-msme-affordable-loans-2022/sensitivity-analysis",
+      "source_contract_ref": null,
+      "source_design_record_ref": "pdc://layer2/s2/ua-msme-affordable-loans-2022/design-record-v0",
+      "source_lineage_refs": [
+        "source-lineage://layer2/s10/ua-msme-affordable-loans-2022/lineage"
+      ],
+      "strategic_response_caveat_refs": [
+        "pdc://layer2/s6/ua-msme-affordable-loans-2022/strategic-response"
+      ],
+      "target_outcome_refs": [
+        "outcome://ua-msme-affordable-loans-2022/primary",
+        "outcome://ua-msme-affordable-loans-2022/distributional"
+      ],
+      "uncertainty_interval_refs": [
+        "pdc://layer2/s10/ua-msme-affordable-loans-2022/uncertainty-interval/95"
+      ],
+      "welfare_comparison_ref": "pdc://layer2/s10/ua-msme-affordable-loans-2022/welfare-comparison"
+    },
+    "w11a_berlin_rent_cap_2020": {
+      "abstention_refs": [
+        "pdc://layer2/s10/w11a_berlin_rent_cap_2020/abstention"
+      ],
+      "alternative_design_refs": [
+        "alternative://w11a_berlin_rent_cap_2020/bounded-alternative"
+      ],
+      "backtestable_observable": false,
+      "baseline_design_ref": "baseline://w11a_berlin_rent_cap_2020/status-quo",
+      "calibration_denominator": 0,
+      "calibration_floor_passed": false,
+      "calibration_numerator": 0,
+      "calibration_record_ref": null,
+      "calibration_status": "not_applicable_non_observable",
+      "calibration_threshold_ref": "architecture://policy_design_case/layer2_floor_governance.toml#s10_calibration",
+      "candidate_design_ref": "candidate://w11a_berlin_rent_cap_2020/primary-design",
+      "case_id": "w11a_berlin_rent_cap_2020",
+      "counterfactual_credibility": "not_applicable_non_observable",
+      "credible_evaluation_evidence_ref": null,
+      "design_graph_ref": "pdc://layer2/s5/w11a_berlin_rent_cap_2020/recursive-design-graph",
+      "dynamic_equilibrium_check_ref": null,
+      "equilibrium_caveat_refs": [
+        "pdc://layer2/s10/w11a_berlin_rent_cap_2020/equilibrium-caveat"
+      ],
+      "evaluation_design_ref": null,
+      "expected_authority_boundary": {
+        "authoritative_for": [
+          "forecast_support_tiering"
+        ],
+        "may_not_use_for": [
+          "production_recommendation",
+          "production_claim_authority",
+          "rollout_authority",
+          "publication_authority",
+          "claim_authority",
+          "closeout_authority",
+          "approval_authority",
+          "scorecard_authority",
+          "preference_learning_authority",
+          "s11_calibration",
+          "s12_envelope_growth",
+          "s13_accountability_closure",
+          "s14_universality"
+        ],
+        "posture": "shadow",
+        "rule_version_refs": [
+          "policyos.layer2.s10.outcome_prediction.v1"
+        ],
+        "source_authority": "deterministic_producer"
+      },
+      "forecast_authority_disposition_reason": "Equilibrium-contested system effect refuses a single forecast.",
+      "forecast_support_input_ref": "fixture://layer2/s10/w11a_berlin_rent_cap_2020/case-signals",
+      "forecast_tier": "equilibrium_contested_blocked",
+      "historical_implementation_ref": null,
+      "jurisdiction_scope_ref": "jurisdiction://w11a_berlin_rent_cap_2020",
+      "limitation_refs": [
+        "pdc://layer2/s10/w11a_berlin_rent_cap_2020/forecast-limitation"
+      ],
+      "method_family": "abstain",
+      "method_lineage_refs": [
+        "method-lineage://layer2/s10/w11a_berlin_rent_cap_2020/lineage"
+      ],
+      "method_validity_ref": null,
+      "non_observable_downgrade_reason": "Equilibrium-contested system effect refuses a single forecast.",
+      "observable_subset_ref": null,
+      "outcome_distribution_refs": [
+        "pdc://layer2/s10/w11a_berlin_rent_cap_2020/outcome-distribution/primary"
+      ],
+      "policy_context_ref": "policy-context://w11a_berlin_rent_cap_2020/canonical",
+      "prediction_context_ref": "pdc://layer2/s10/w11a_berlin_rent_cap_2020/prediction-context",
+      "prediction_horizon_ref": "horizon://w11a_berlin_rent_cap_2020/policy-relevant-window",
+      "s5_base_origin": "equilibrium_contested",
+      "s5_claim_scope": "system_effect",
+      "s5_forecast_support_ref": "pdc://layer2/s5/w11a_berlin_rent_cap_2020/forecast-support-scope",
+      "s5_support_label": "equilibrium_contested",
+      "s6_firewall_status_refs": [
+        "pdc://layer2/s6/w11a_berlin_rent_cap_2020/measurability-adequacy",
+        "pdc://layer2/s6/w11a_berlin_rent_cap_2020/strategic-response"
+      ],
+      "s6_limitation_refs": [
+        "pdc://layer2/s6/w11a_berlin_rent_cap_2020/limitation-summary"
+      ],
+      "s8_value_choice_provenance_ref": "pdc://layer2/s8/w11a_berlin_rent_cap_2020/value-choice-provenance",
+      "s8_value_tradeoff_disclosure_ref": "pdc://layer2/s8/w11a_berlin_rent_cap_2020/value-tradeoff-disclosure",
+      "sensitivity_analysis_ref": null,
+      "source_contract_ref": null,
+      "source_design_record_ref": "pdc://layer2/s2/w11a_berlin_rent_cap_2020/design-record-v0",
+      "source_lineage_refs": [
+        "source-lineage://layer2/s10/w11a_berlin_rent_cap_2020/lineage"
+      ],
+      "strategic_response_caveat_refs": [
+        "pdc://layer2/s6/w11a_berlin_rent_cap_2020/strategic-response"
+      ],
+      "target_outcome_refs": [
+        "outcome://w11a_berlin_rent_cap_2020/primary",
+        "outcome://w11a_berlin_rent_cap_2020/distributional"
+      ],
+      "uncertainty_interval_refs": [
+        "pdc://layer2/s10/w11a_berlin_rent_cap_2020/uncertainty-interval/95"
+      ],
+      "welfare_comparison_ref": "pdc://layer2/s10/w11a_berlin_rent_cap_2020/welfare-comparison"
+    },
+    "w11a_boston_operation_ceasefire_1996": {
+      "abstention_refs": [],
+      "alternative_design_refs": [
+        "alternative://w11a_boston_operation_ceasefire_1996/bounded-alternative"
+      ],
+      "backtestable_observable": false,
+      "baseline_design_ref": "baseline://w11a_boston_operation_ceasefire_1996/status-quo",
+      "calibration_denominator": 0,
+      "calibration_floor_passed": false,
+      "calibration_numerator": 0,
+      "calibration_record_ref": null,
+      "calibration_status": "not_applicable_non_observable",
+      "calibration_threshold_ref": "architecture://policy_design_case/layer2_floor_governance.toml#s10_calibration",
+      "candidate_design_ref": "candidate://w11a_boston_operation_ceasefire_1996/primary-design",
+      "case_id": "w11a_boston_operation_ceasefire_1996",
+      "counterfactual_credibility": "not_applicable_non_observable",
+      "credible_evaluation_evidence_ref": null,
+      "design_graph_ref": "pdc://layer2/s5/w11a_boston_operation_ceasefire_1996/recursive-design-graph",
+      "dynamic_equilibrium_check_ref": "pdc://layer2/s10/w11a_boston_operation_ceasefire_1996/dynamic-equilibrium-check",
+      "equilibrium_caveat_refs": [],
+      "evaluation_design_ref": null,
+      "expected_authority_boundary": {
+        "authoritative_for": [
+          "forecast_support_tiering"
+        ],
+        "may_not_use_for": [
+          "production_recommendation",
+          "production_claim_authority",
+          "rollout_authority",
+          "publication_authority",
+          "claim_authority",
+          "closeout_authority",
+          "approval_authority",
+          "scorecard_authority",
+          "preference_learning_authority",
+          "s11_calibration",
+          "s12_envelope_growth",
+          "s13_accountability_closure",
+          "s14_universality"
+        ],
+        "posture": "shadow",
+        "rule_version_refs": [
+          "policyos.layer2.s10.outcome_prediction.v1"
+        ],
+        "source_authority": "deterministic_producer"
+      },
+      "forecast_authority_disposition_reason": "Historical prior is retained as context only and cannot close a forecast claim.",
+      "forecast_support_input_ref": "fixture://layer2/s10/w11a_boston_operation_ceasefire_1996/case-signals",
+      "forecast_tier": "historical_prior_context",
+      "historical_implementation_ref": null,
+      "jurisdiction_scope_ref": "jurisdiction://w11a_boston_operation_ceasefire_1996",
+      "limitation_refs": [
+        "pdc://layer2/s10/w11a_boston_operation_ceasefire_1996/forecast-limitation"
+      ],
+      "method_family": "historical_prior",
+      "method_lineage_refs": [
+        "method-lineage://layer2/s10/w11a_boston_operation_ceasefire_1996/lineage"
+      ],
+      "method_validity_ref": null,
+      "non_observable_downgrade_reason": "Historical prior is retained as context only and cannot close a forecast claim.",
+      "observable_subset_ref": null,
+      "outcome_distribution_refs": [
+        "pdc://layer2/s10/w11a_boston_operation_ceasefire_1996/outcome-distribution/primary"
+      ],
+      "policy_context_ref": "policy-context://w11a_boston_operation_ceasefire_1996/canonical",
+      "prediction_context_ref": "pdc://layer2/s10/w11a_boston_operation_ceasefire_1996/prediction-context",
+      "prediction_horizon_ref": "horizon://w11a_boston_operation_ceasefire_1996/policy-relevant-window",
+      "s5_base_origin": "historical_prior",
+      "s5_claim_scope": "system_effect",
+      "s5_forecast_support_ref": "pdc://layer2/s5/w11a_boston_operation_ceasefire_1996/forecast-support-scope",
+      "s5_support_label": "historical_prior_system_context",
+      "s6_firewall_status_refs": [
+        "pdc://layer2/s6/w11a_boston_operation_ceasefire_1996/measurability-adequacy",
+        "pdc://layer2/s6/w11a_boston_operation_ceasefire_1996/strategic-response"
+      ],
+      "s6_limitation_refs": [
+        "pdc://layer2/s6/w11a_boston_operation_ceasefire_1996/limitation-summary"
+      ],
+      "s8_value_choice_provenance_ref": "pdc://layer2/s8/w11a_boston_operation_ceasefire_1996/value-choice-provenance",
+      "s8_value_tradeoff_disclosure_ref": "pdc://layer2/s8/w11a_boston_operation_ceasefire_1996/value-tradeoff-disclosure",
+      "sensitivity_analysis_ref": null,
+      "source_contract_ref": null,
+      "source_design_record_ref": "pdc://layer2/s2/w11a_boston_operation_ceasefire_1996/design-record-v0",
+      "source_lineage_refs": [
+        "source-lineage://layer2/s10/w11a_boston_operation_ceasefire_1996/lineage"
+      ],
+      "strategic_response_caveat_refs": [
+        "pdc://layer2/s6/w11a_boston_operation_ceasefire_1996/strategic-response"
+      ],
+      "target_outcome_refs": [
+        "outcome://w11a_boston_operation_ceasefire_1996/primary",
+        "outcome://w11a_boston_operation_ceasefire_1996/distributional"
+      ],
+      "uncertainty_interval_refs": [
+        "pdc://layer2/s10/w11a_boston_operation_ceasefire_1996/uncertainty-interval/95"
+      ],
+      "welfare_comparison_ref": "pdc://layer2/s10/w11a_boston_operation_ceasefire_1996/welfare-comparison"
+    },
+    "w11a_eu_temporary_protection_ukraine_2022": {
+      "abstention_refs": [],
+      "alternative_design_refs": [
+        "alternative://w11a_eu_temporary_protection_ukraine_2022/bounded-alternative"
+      ],
+      "backtestable_observable": false,
+      "baseline_design_ref": "baseline://w11a_eu_temporary_protection_ukraine_2022/status-quo",
+      "calibration_denominator": 0,
+      "calibration_floor_passed": false,
+      "calibration_numerator": 0,
+      "calibration_record_ref": null,
+      "calibration_status": "not_applicable_non_observable",
+      "calibration_threshold_ref": "architecture://policy_design_case/layer2_floor_governance.toml#s10_calibration",
+      "candidate_design_ref": "candidate://w11a_eu_temporary_protection_ukraine_2022/primary-design",
+      "case_id": "w11a_eu_temporary_protection_ukraine_2022",
+      "counterfactual_credibility": "not_applicable_non_observable",
+      "credible_evaluation_evidence_ref": null,
+      "design_graph_ref": "pdc://layer2/s5/w11a_eu_temporary_protection_ukraine_2022/recursive-design-graph",
+      "dynamic_equilibrium_check_ref": null,
+      "equilibrium_caveat_refs": [],
+      "evaluation_design_ref": null,
+      "expected_authority_boundary": {
+        "authoritative_for": [
+          "forecast_support_tiering"
+        ],
+        "may_not_use_for": [
+          "production_recommendation",
+          "production_claim_authority",
+          "rollout_authority",
+          "publication_authority",
+          "claim_authority",
+          "closeout_authority",
+          "approval_authority",
+          "scorecard_authority",
+          "preference_learning_authority",
+          "s11_calibration",
+          "s12_envelope_growth",
+          "s13_accountability_closure",
+          "s14_universality"
+        ],
+        "posture": "shadow",
+        "rule_version_refs": [
+          "policyos.layer2.s10.outcome_prediction.v1"
+        ],
+        "source_authority": "deterministic_producer"
+      },
+      "forecast_authority_disposition_reason": "Historical prior is retained as context only and cannot close a forecast claim.",
+      "forecast_support_input_ref": "fixture://layer2/s10/w11a_eu_temporary_protection_ukraine_2022/case-signals",
+      "forecast_tier": "historical_prior_context",
+      "historical_implementation_ref": null,
+      "jurisdiction_scope_ref": "jurisdiction://w11a_eu_temporary_protection_ukraine_2022",
+      "limitation_refs": [
+        "pdc://layer2/s10/w11a_eu_temporary_protection_ukraine_2022/forecast-limitation"
+      ],
+      "method_family": "historical_prior",
+      "method_lineage_refs": [
+        "method-lineage://layer2/s10/w11a_eu_temporary_protection_ukraine_2022/lineage"
+      ],
+      "method_validity_ref": null,
+      "non_observable_downgrade_reason": "Historical prior is retained as context only and cannot close a forecast claim.",
+      "observable_subset_ref": null,
+      "outcome_distribution_refs": [
+        "pdc://layer2/s10/w11a_eu_temporary_protection_ukraine_2022/outcome-distribution/primary"
+      ],
+      "policy_context_ref": "policy-context://w11a_eu_temporary_protection_ukraine_2022/canonical",
+      "prediction_context_ref": "pdc://layer2/s10/w11a_eu_temporary_protection_ukraine_2022/prediction-context",
+      "prediction_horizon_ref": "horizon://w11a_eu_temporary_protection_ukraine_2022/policy-relevant-window",
+      "s5_base_origin": "historical_prior",
+      "s5_claim_scope": "context_only",
+      "s5_forecast_support_ref": "pdc://layer2/s5/w11a_eu_temporary_protection_ukraine_2022/forecast-support-scope",
+      "s5_support_label": "historical_prior_system_context",
+      "s6_firewall_status_refs": [
+        "pdc://layer2/s6/w11a_eu_temporary_protection_ukraine_2022/measurability-adequacy",
+        "pdc://layer2/s6/w11a_eu_temporary_protection_ukraine_2022/strategic-response"
+      ],
+      "s6_limitation_refs": [
+        "pdc://layer2/s6/w11a_eu_temporary_protection_ukraine_2022/limitation-summary"
+      ],
+      "s8_value_choice_provenance_ref": "pdc://layer2/s8/w11a_eu_temporary_protection_ukraine_2022/value-choice-provenance",
+      "s8_value_tradeoff_disclosure_ref": "pdc://layer2/s8/w11a_eu_temporary_protection_ukraine_2022/value-tradeoff-disclosure",
+      "sensitivity_analysis_ref": null,
+      "source_contract_ref": null,
+      "source_design_record_ref": "pdc://layer2/s2/w11a_eu_temporary_protection_ukraine_2022/design-record-v0",
+      "source_lineage_refs": [
+        "source-lineage://layer2/s10/w11a_eu_temporary_protection_ukraine_2022/lineage"
+      ],
+      "strategic_response_caveat_refs": [
+        "pdc://layer2/s6/w11a_eu_temporary_protection_ukraine_2022/strategic-response"
+      ],
+      "target_outcome_refs": [
+        "outcome://w11a_eu_temporary_protection_ukraine_2022/primary",
+        "outcome://w11a_eu_temporary_protection_ukraine_2022/distributional"
+      ],
+      "uncertainty_interval_refs": [
+        "pdc://layer2/s10/w11a_eu_temporary_protection_ukraine_2022/uncertainty-interval/95"
+      ],
+      "welfare_comparison_ref": "pdc://layer2/s10/w11a_eu_temporary_protection_ukraine_2022/welfare-comparison"
+    },
+    "w11a_ghana_free_shs_2017": {
+      "abstention_refs": [],
+      "alternative_design_refs": [
+        "alternative://w11a_ghana_free_shs_2017/bounded-alternative"
+      ],
+      "backtestable_observable": false,
+      "baseline_design_ref": "baseline://w11a_ghana_free_shs_2017/status-quo",
+      "calibration_denominator": 0,
+      "calibration_floor_passed": false,
+      "calibration_numerator": 0,
+      "calibration_record_ref": null,
+      "calibration_status": "not_applicable_non_observable",
+      "calibration_threshold_ref": "architecture://policy_design_case/layer2_floor_governance.toml#s10_calibration",
+      "candidate_design_ref": "candidate://w11a_ghana_free_shs_2017/primary-design",
+      "case_id": "w11a_ghana_free_shs_2017",
+      "counterfactual_credibility": "not_applicable_non_observable",
+      "credible_evaluation_evidence_ref": null,
+      "design_graph_ref": "pdc://layer2/s5/w11a_ghana_free_shs_2017/recursive-design-graph",
+      "dynamic_equilibrium_check_ref": "pdc://layer2/s10/w11a_ghana_free_shs_2017/dynamic-equilibrium-check",
+      "equilibrium_caveat_refs": [],
+      "evaluation_design_ref": null,
+      "expected_authority_boundary": {
+        "authoritative_for": [
+          "forecast_support_tiering"
+        ],
+        "may_not_use_for": [
+          "production_recommendation",
+          "production_claim_authority",
+          "rollout_authority",
+          "publication_authority",
+          "claim_authority",
+          "closeout_authority",
+          "approval_authority",
+          "scorecard_authority",
+          "preference_learning_authority",
+          "s11_calibration",
+          "s12_envelope_growth",
+          "s13_accountability_closure",
+          "s14_universality"
+        ],
+        "posture": "shadow",
+        "rule_version_refs": [
+          "policyos.layer2.s10.outcome_prediction.v1"
+        ],
+        "source_authority": "deterministic_producer"
+      },
+      "forecast_authority_disposition_reason": "Transported estimate remains limited by source scope and S6/S5 boundary caveats.",
+      "forecast_support_input_ref": "fixture://layer2/s10/w11a_ghana_free_shs_2017/case-signals",
+      "forecast_tier": "transported_limited",
+      "historical_implementation_ref": null,
+      "jurisdiction_scope_ref": "jurisdiction://w11a_ghana_free_shs_2017",
+      "limitation_refs": [
+        "pdc://layer2/s10/w11a_ghana_free_shs_2017/forecast-limitation"
+      ],
+      "method_family": "foundry_causal",
+      "method_lineage_refs": [
+        "method-lineage://layer2/s10/w11a_ghana_free_shs_2017/lineage"
+      ],
+      "method_validity_ref": null,
+      "non_observable_downgrade_reason": "Transported estimate remains limited by source scope and S6/S5 boundary caveats.",
+      "observable_subset_ref": null,
+      "outcome_distribution_refs": [
+        "pdc://layer2/s10/w11a_ghana_free_shs_2017/outcome-distribution/primary"
+      ],
+      "policy_context_ref": "policy-context://w11a_ghana_free_shs_2017/canonical",
+      "prediction_context_ref": "pdc://layer2/s10/w11a_ghana_free_shs_2017/prediction-context",
+      "prediction_horizon_ref": "horizon://w11a_ghana_free_shs_2017/policy-relevant-window",
+      "s5_base_origin": "transported_scholar_estimate",
+      "s5_claim_scope": "system_effect",
+      "s5_forecast_support_ref": "pdc://layer2/s5/w11a_ghana_free_shs_2017/forecast-support-scope",
+      "s5_support_label": "transported_with_heavy_limitation",
+      "s6_firewall_status_refs": [
+        "pdc://layer2/s6/w11a_ghana_free_shs_2017/measurability-adequacy",
+        "pdc://layer2/s6/w11a_ghana_free_shs_2017/strategic-response"
+      ],
+      "s6_limitation_refs": [
+        "pdc://layer2/s6/w11a_ghana_free_shs_2017/limitation-summary"
+      ],
+      "s8_value_choice_provenance_ref": "pdc://layer2/s8/w11a_ghana_free_shs_2017/value-choice-provenance",
+      "s8_value_tradeoff_disclosure_ref": "pdc://layer2/s8/w11a_ghana_free_shs_2017/value-tradeoff-disclosure",
+      "sensitivity_analysis_ref": "pdc://layer2/s10/w11a_ghana_free_shs_2017/sensitivity-analysis",
+      "source_contract_ref": null,
+      "source_design_record_ref": "pdc://layer2/s2/w11a_ghana_free_shs_2017/design-record-v0",
+      "source_lineage_refs": [
+        "source-lineage://layer2/s10/w11a_ghana_free_shs_2017/lineage"
+      ],
+      "strategic_response_caveat_refs": [
+        "pdc://layer2/s6/w11a_ghana_free_shs_2017/strategic-response"
+      ],
+      "target_outcome_refs": [
+        "outcome://w11a_ghana_free_shs_2017/primary",
+        "outcome://w11a_ghana_free_shs_2017/distributional"
+      ],
+      "uncertainty_interval_refs": [
+        "pdc://layer2/s10/w11a_ghana_free_shs_2017/uncertainty-interval/95"
+      ],
+      "welfare_comparison_ref": "pdc://layer2/s10/w11a_ghana_free_shs_2017/welfare-comparison"
+    },
+    "w11a_india_aadhaar_dbt_2016": {
+      "abstention_refs": [
+        "pdc://layer2/s10/w11a_india_aadhaar_dbt_2016/abstention"
+      ],
+      "alternative_design_refs": [
+        "alternative://w11a_india_aadhaar_dbt_2016/bounded-alternative"
+      ],
+      "backtestable_observable": false,
+      "baseline_design_ref": "baseline://w11a_india_aadhaar_dbt_2016/status-quo",
+      "calibration_denominator": 0,
+      "calibration_floor_passed": false,
+      "calibration_numerator": 0,
+      "calibration_record_ref": null,
+      "calibration_status": "not_applicable_non_observable",
+      "calibration_threshold_ref": "architecture://policy_design_case/layer2_floor_governance.toml#s10_calibration",
+      "candidate_design_ref": "candidate://w11a_india_aadhaar_dbt_2016/primary-design",
+      "case_id": "w11a_india_aadhaar_dbt_2016",
+      "counterfactual_credibility": "not_applicable_non_observable",
+      "credible_evaluation_evidence_ref": null,
+      "design_graph_ref": "pdc://layer2/s5/w11a_india_aadhaar_dbt_2016/recursive-design-graph",
+      "dynamic_equilibrium_check_ref": null,
+      "equilibrium_caveat_refs": [
+        "pdc://layer2/s10/w11a_india_aadhaar_dbt_2016/equilibrium-caveat"
+      ],
+      "evaluation_design_ref": null,
+      "expected_authority_boundary": {
+        "authoritative_for": [
+          "forecast_support_tiering"
+        ],
+        "may_not_use_for": [
+          "production_recommendation",
+          "production_claim_authority",
+          "rollout_authority",
+          "publication_authority",
+          "claim_authority",
+          "closeout_authority",
+          "approval_authority",
+          "scorecard_authority",
+          "preference_learning_authority",
+          "s11_calibration",
+          "s12_envelope_growth",
+          "s13_accountability_closure",
+          "s14_universality"
+        ],
+        "posture": "shadow",
+        "rule_version_refs": [
+          "policyos.layer2.s10.outcome_prediction.v1"
+        ],
+        "source_authority": "deterministic_producer"
+      },
+      "forecast_authority_disposition_reason": "Equilibrium-contested system effect refuses a single forecast.",
+      "forecast_support_input_ref": "fixture://layer2/s10/w11a_india_aadhaar_dbt_2016/case-signals",
+      "forecast_tier": "equilibrium_contested_blocked",
+      "historical_implementation_ref": null,
+      "jurisdiction_scope_ref": "jurisdiction://w11a_india_aadhaar_dbt_2016",
+      "limitation_refs": [
+        "pdc://layer2/s10/w11a_india_aadhaar_dbt_2016/forecast-limitation"
+      ],
+      "method_family": "abstain",
+      "method_lineage_refs": [
+        "method-lineage://layer2/s10/w11a_india_aadhaar_dbt_2016/lineage"
+      ],
+      "method_validity_ref": null,
+      "non_observable_downgrade_reason": "Equilibrium-contested system effect refuses a single forecast.",
+      "observable_subset_ref": null,
+      "outcome_distribution_refs": [
+        "pdc://layer2/s10/w11a_india_aadhaar_dbt_2016/outcome-distribution/primary"
+      ],
+      "policy_context_ref": "policy-context://w11a_india_aadhaar_dbt_2016/canonical",
+      "prediction_context_ref": "pdc://layer2/s10/w11a_india_aadhaar_dbt_2016/prediction-context",
+      "prediction_horizon_ref": "horizon://w11a_india_aadhaar_dbt_2016/policy-relevant-window",
+      "s5_base_origin": "equilibrium_contested",
+      "s5_claim_scope": "system_effect",
+      "s5_forecast_support_ref": "pdc://layer2/s5/w11a_india_aadhaar_dbt_2016/forecast-support-scope",
+      "s5_support_label": "equilibrium_contested",
+      "s6_firewall_status_refs": [
+        "pdc://layer2/s6/w11a_india_aadhaar_dbt_2016/measurability-adequacy",
+        "pdc://layer2/s6/w11a_india_aadhaar_dbt_2016/strategic-response"
+      ],
+      "s6_limitation_refs": [
+        "pdc://layer2/s6/w11a_india_aadhaar_dbt_2016/limitation-summary"
+      ],
+      "s8_value_choice_provenance_ref": "pdc://layer2/s8/w11a_india_aadhaar_dbt_2016/value-choice-provenance",
+      "s8_value_tradeoff_disclosure_ref": "pdc://layer2/s8/w11a_india_aadhaar_dbt_2016/value-tradeoff-disclosure",
+      "sensitivity_analysis_ref": null,
+      "source_contract_ref": null,
+      "source_design_record_ref": "pdc://layer2/s2/w11a_india_aadhaar_dbt_2016/design-record-v0",
+      "source_lineage_refs": [
+        "source-lineage://layer2/s10/w11a_india_aadhaar_dbt_2016/lineage"
+      ],
+      "strategic_response_caveat_refs": [
+        "pdc://layer2/s6/w11a_india_aadhaar_dbt_2016/strategic-response"
+      ],
+      "target_outcome_refs": [
+        "outcome://w11a_india_aadhaar_dbt_2016/primary",
+        "outcome://w11a_india_aadhaar_dbt_2016/distributional"
+      ],
+      "uncertainty_interval_refs": [
+        "pdc://layer2/s10/w11a_india_aadhaar_dbt_2016/uncertainty-interval/95"
+      ],
+      "welfare_comparison_ref": "pdc://layer2/s10/w11a_india_aadhaar_dbt_2016/welfare-comparison"
+    },
+    "w11a_mexico_ssb_tax_2014": {
+      "abstention_refs": [],
+      "alternative_design_refs": [
+        "alternative://w11a_mexico_ssb_tax_2014/bounded-alternative"
+      ],
+      "backtestable_observable": false,
+      "baseline_design_ref": "baseline://w11a_mexico_ssb_tax_2014/status-quo",
+      "calibration_denominator": 0,
+      "calibration_floor_passed": false,
+      "calibration_numerator": 0,
+      "calibration_record_ref": null,
+      "calibration_status": "not_applicable_non_observable",
+      "calibration_threshold_ref": "architecture://policy_design_case/layer2_floor_governance.toml#s10_calibration",
+      "candidate_design_ref": "candidate://w11a_mexico_ssb_tax_2014/primary-design",
+      "case_id": "w11a_mexico_ssb_tax_2014",
+      "counterfactual_credibility": "not_applicable_non_observable",
+      "credible_evaluation_evidence_ref": null,
+      "design_graph_ref": "pdc://layer2/s5/w11a_mexico_ssb_tax_2014/recursive-design-graph",
+      "dynamic_equilibrium_check_ref": "pdc://layer2/s10/w11a_mexico_ssb_tax_2014/dynamic-equilibrium-check",
+      "equilibrium_caveat_refs": [],
+      "evaluation_design_ref": null,
+      "expected_authority_boundary": {
+        "authoritative_for": [
+          "forecast_support_tiering"
+        ],
+        "may_not_use_for": [
+          "production_recommendation",
+          "production_claim_authority",
+          "rollout_authority",
+          "publication_authority",
+          "claim_authority",
+          "closeout_authority",
+          "approval_authority",
+          "scorecard_authority",
+          "preference_learning_authority",
+          "s11_calibration",
+          "s12_envelope_growth",
+          "s13_accountability_closure",
+          "s14_universality"
+        ],
+        "posture": "shadow",
+        "rule_version_refs": [
+          "policyos.layer2.s10.outcome_prediction.v1"
+        ],
+        "source_authority": "deterministic_producer"
+      },
+      "forecast_authority_disposition_reason": "Historical prior is retained as context only and cannot close a forecast claim.",
+      "forecast_support_input_ref": "fixture://layer2/s10/w11a_mexico_ssb_tax_2014/case-signals",
+      "forecast_tier": "historical_prior_context",
+      "historical_implementation_ref": null,
+      "jurisdiction_scope_ref": "jurisdiction://w11a_mexico_ssb_tax_2014",
+      "limitation_refs": [
+        "pdc://layer2/s10/w11a_mexico_ssb_tax_2014/forecast-limitation"
+      ],
+      "method_family": "historical_prior",
+      "method_lineage_refs": [
+        "method-lineage://layer2/s10/w11a_mexico_ssb_tax_2014/lineage"
+      ],
+      "method_validity_ref": null,
+      "non_observable_downgrade_reason": "Historical prior is retained as context only and cannot close a forecast claim.",
+      "observable_subset_ref": null,
+      "outcome_distribution_refs": [
+        "pdc://layer2/s10/w11a_mexico_ssb_tax_2014/outcome-distribution/primary"
+      ],
+      "policy_context_ref": "policy-context://w11a_mexico_ssb_tax_2014/canonical",
+      "prediction_context_ref": "pdc://layer2/s10/w11a_mexico_ssb_tax_2014/prediction-context",
+      "prediction_horizon_ref": "horizon://w11a_mexico_ssb_tax_2014/policy-relevant-window",
+      "s5_base_origin": "historical_prior",
+      "s5_claim_scope": "system_effect",
+      "s5_forecast_support_ref": "pdc://layer2/s5/w11a_mexico_ssb_tax_2014/forecast-support-scope",
+      "s5_support_label": "historical_prior_system_context",
+      "s6_firewall_status_refs": [
+        "pdc://layer2/s6/w11a_mexico_ssb_tax_2014/measurability-adequacy",
+        "pdc://layer2/s6/w11a_mexico_ssb_tax_2014/strategic-response"
+      ],
+      "s6_limitation_refs": [
+        "pdc://layer2/s6/w11a_mexico_ssb_tax_2014/limitation-summary"
+      ],
+      "s8_value_choice_provenance_ref": "pdc://layer2/s8/w11a_mexico_ssb_tax_2014/value-choice-provenance",
+      "s8_value_tradeoff_disclosure_ref": "pdc://layer2/s8/w11a_mexico_ssb_tax_2014/value-tradeoff-disclosure",
+      "sensitivity_analysis_ref": null,
+      "source_contract_ref": null,
+      "source_design_record_ref": "pdc://layer2/s2/w11a_mexico_ssb_tax_2014/design-record-v0",
+      "source_lineage_refs": [
+        "source-lineage://layer2/s10/w11a_mexico_ssb_tax_2014/lineage"
+      ],
+      "strategic_response_caveat_refs": [
+        "pdc://layer2/s6/w11a_mexico_ssb_tax_2014/strategic-response"
+      ],
+      "target_outcome_refs": [
+        "outcome://w11a_mexico_ssb_tax_2014/primary",
+        "outcome://w11a_mexico_ssb_tax_2014/distributional"
+      ],
+      "uncertainty_interval_refs": [
+        "pdc://layer2/s10/w11a_mexico_ssb_tax_2014/uncertainty-interval/95"
+      ],
+      "welfare_comparison_ref": "pdc://layer2/s10/w11a_mexico_ssb_tax_2014/welfare-comparison"
+    },
+    "w11a_netherlands_room_for_river_2007": {
+      "abstention_refs": [],
+      "alternative_design_refs": [
+        "alternative://w11a_netherlands_room_for_river_2007/bounded-alternative"
+      ],
+      "backtestable_observable": true,
+      "baseline_design_ref": "baseline://w11a_netherlands_room_for_river_2007/status-quo",
+      "calibration_denominator": 4,
+      "calibration_floor_passed": true,
+      "calibration_numerator": 4,
+      "calibration_record_ref": "pdc://layer2/s10/w11a_netherlands_room_for_river_2007/forecast-calibration-record",
+      "calibration_status": "pass",
+      "calibration_threshold_ref": "architecture://policy_design_case/layer2_floor_governance.toml#s10_calibration",
+      "candidate_design_ref": "candidate://w11a_netherlands_room_for_river_2007/primary-design",
+      "case_id": "w11a_netherlands_room_for_river_2007",
+      "counterfactual_credibility": "credible_counterfactual_design",
+      "credible_evaluation_evidence_ref": "evidence://layer2/s10/w11a_netherlands_room_for_river_2007/credible-evaluation",
+      "design_graph_ref": "pdc://layer2/s5/w11a_netherlands_room_for_river_2007/recursive-design-graph",
+      "dynamic_equilibrium_check_ref": "pdc://layer2/s10/w11a_netherlands_room_for_river_2007/dynamic-equilibrium-check",
+      "equilibrium_caveat_refs": [],
+      "evaluation_design_ref": "evaluation-design://layer2/s10/w11a_netherlands_room_for_river_2007/credible-evaluation",
+      "expected_authority_boundary": {
+        "authoritative_for": [
+          "forecast_support_tiering",
+          "observable_subset_calibration"
+        ],
+        "may_not_use_for": [
+          "production_recommendation",
+          "production_claim_authority",
+          "rollout_authority",
+          "publication_authority",
+          "claim_authority",
+          "closeout_authority",
+          "approval_authority",
+          "scorecard_authority",
+          "preference_learning_authority",
+          "s11_calibration",
+          "s12_envelope_growth",
+          "s13_accountability_closure",
+          "s14_universality"
+        ],
+        "posture": "shadow",
+        "rule_version_refs": [
+          "policyos.layer2.s10.outcome_prediction.v1"
+        ],
+        "source_authority": "deterministic_producer"
+      },
+      "forecast_authority_disposition_reason": "Observable subset has governed calibration evidence and method/source validity refs.",
+      "forecast_support_input_ref": "fixture://layer2/s10/w11a_netherlands_room_for_river_2007/case-signals",
+      "forecast_tier": "observable_calibrated",
+      "historical_implementation_ref": "historical-implementation://layer2/s10/w11a_netherlands_room_for_river_2007/implementation",
+      "jurisdiction_scope_ref": "jurisdiction://w11a_netherlands_room_for_river_2007",
+      "limitation_refs": [],
+      "method_family": "foundry_causal",
+      "method_lineage_refs": [
+        "method-lineage://layer2/s10/w11a_netherlands_room_for_river_2007/lineage"
+      ],
+      "method_validity_ref": "method-validity://layer2/s10/w11a_netherlands_room_for_river_2007/method-validity",
+      "non_observable_downgrade_reason": null,
+      "observable_subset_ref": "pdc://layer2/s10/w11a_netherlands_room_for_river_2007/observable-subset",
+      "outcome_distribution_refs": [
+        "pdc://layer2/s10/w11a_netherlands_room_for_river_2007/outcome-distribution/primary"
+      ],
+      "policy_context_ref": "policy-context://w11a_netherlands_room_for_river_2007/canonical",
+      "prediction_context_ref": "pdc://layer2/s10/w11a_netherlands_room_for_river_2007/prediction-context",
+      "prediction_horizon_ref": "horizon://w11a_netherlands_room_for_river_2007/policy-relevant-window",
+      "s5_base_origin": "validated_local_model",
+      "s5_claim_scope": "system_effect",
+      "s5_forecast_support_ref": "pdc://layer2/s5/w11a_netherlands_room_for_river_2007/forecast-support-scope",
+      "s5_support_label": "validated_local_dynamic_model",
+      "s6_firewall_status_refs": [
+        "pdc://layer2/s6/w11a_netherlands_room_for_river_2007/measurability-adequacy",
+        "pdc://layer2/s6/w11a_netherlands_room_for_river_2007/strategic-response"
+      ],
+      "s6_limitation_refs": [
+        "pdc://layer2/s6/w11a_netherlands_room_for_river_2007/limitation-summary"
+      ],
+      "s8_value_choice_provenance_ref": "pdc://layer2/s8/w11a_netherlands_room_for_river_2007/value-choice-provenance",
+      "s8_value_tradeoff_disclosure_ref": "pdc://layer2/s8/w11a_netherlands_room_for_river_2007/value-tradeoff-disclosure",
+      "sensitivity_analysis_ref": "pdc://layer2/s10/w11a_netherlands_room_for_river_2007/sensitivity-analysis",
+      "source_contract_ref": "source-contract://layer2/s10/w11a_netherlands_room_for_river_2007/source-contract",
+      "source_design_record_ref": "pdc://layer2/s2/w11a_netherlands_room_for_river_2007/design-record-v0",
+      "source_lineage_refs": [
+        "source-lineage://layer2/s10/w11a_netherlands_room_for_river_2007/lineage"
+      ],
+      "strategic_response_caveat_refs": [
+        "pdc://layer2/s6/w11a_netherlands_room_for_river_2007/strategic-response"
+      ],
+      "target_outcome_refs": [
+        "outcome://w11a_netherlands_room_for_river_2007/primary",
+        "outcome://w11a_netherlands_room_for_river_2007/distributional"
+      ],
+      "uncertainty_interval_refs": [
+        "pdc://layer2/s10/w11a_netherlands_room_for_river_2007/uncertainty-interval/95"
+      ],
+      "welfare_comparison_ref": "pdc://layer2/s10/w11a_netherlands_room_for_river_2007/welfare-comparison"
+    },
+    "w11a_pakistan_ehsaas_cash_2020": {
+      "abstention_refs": [],
+      "alternative_design_refs": [
+        "alternative://w11a_pakistan_ehsaas_cash_2020/bounded-alternative"
+      ],
+      "backtestable_observable": false,
+      "baseline_design_ref": "baseline://w11a_pakistan_ehsaas_cash_2020/status-quo",
+      "calibration_denominator": 0,
+      "calibration_floor_passed": false,
+      "calibration_numerator": 0,
+      "calibration_record_ref": null,
+      "calibration_status": "not_applicable_non_observable",
+      "calibration_threshold_ref": "architecture://policy_design_case/layer2_floor_governance.toml#s10_calibration",
+      "candidate_design_ref": "candidate://w11a_pakistan_ehsaas_cash_2020/primary-design",
+      "case_id": "w11a_pakistan_ehsaas_cash_2020",
+      "counterfactual_credibility": "not_applicable_non_observable",
+      "credible_evaluation_evidence_ref": null,
+      "design_graph_ref": "pdc://layer2/s5/w11a_pakistan_ehsaas_cash_2020/recursive-design-graph",
+      "dynamic_equilibrium_check_ref": null,
+      "equilibrium_caveat_refs": [],
+      "evaluation_design_ref": null,
+      "expected_authority_boundary": {
+        "authoritative_for": [
+          "forecast_support_tiering"
+        ],
+        "may_not_use_for": [
+          "production_recommendation",
+          "production_claim_authority",
+          "rollout_authority",
+          "publication_authority",
+          "claim_authority",
+          "closeout_authority",
+          "approval_authority",
+          "scorecard_authority",
+          "preference_learning_authority",
+          "s11_calibration",
+          "s12_envelope_growth",
+          "s13_accountability_closure",
+          "s14_universality"
+        ],
+        "posture": "shadow",
+        "rule_version_refs": [
+          "policyos.layer2.s10.outcome_prediction.v1"
+        ],
+        "source_authority": "deterministic_producer"
+      },
+      "forecast_authority_disposition_reason": "Historical prior is retained as context only and cannot close a forecast claim.",
+      "forecast_support_input_ref": "fixture://layer2/s10/w11a_pakistan_ehsaas_cash_2020/case-signals",
+      "forecast_tier": "historical_prior_context",
+      "historical_implementation_ref": null,
+      "jurisdiction_scope_ref": "jurisdiction://w11a_pakistan_ehsaas_cash_2020",
+      "limitation_refs": [
+        "pdc://layer2/s10/w11a_pakistan_ehsaas_cash_2020/forecast-limitation"
+      ],
+      "method_family": "historical_prior",
+      "method_lineage_refs": [
+        "method-lineage://layer2/s10/w11a_pakistan_ehsaas_cash_2020/lineage"
+      ],
+      "method_validity_ref": null,
+      "non_observable_downgrade_reason": "Historical prior is retained as context only and cannot close a forecast claim.",
+      "observable_subset_ref": null,
+      "outcome_distribution_refs": [
+        "pdc://layer2/s10/w11a_pakistan_ehsaas_cash_2020/outcome-distribution/primary"
+      ],
+      "policy_context_ref": "policy-context://w11a_pakistan_ehsaas_cash_2020/canonical",
+      "prediction_context_ref": "pdc://layer2/s10/w11a_pakistan_ehsaas_cash_2020/prediction-context",
+      "prediction_horizon_ref": "horizon://w11a_pakistan_ehsaas_cash_2020/policy-relevant-window",
+      "s5_base_origin": "historical_prior",
+      "s5_claim_scope": "leaf_only",
+      "s5_forecast_support_ref": "pdc://layer2/s5/w11a_pakistan_ehsaas_cash_2020/forecast-support-scope",
+      "s5_support_label": "leaf_only_no_system_claim",
+      "s6_firewall_status_refs": [
+        "pdc://layer2/s6/w11a_pakistan_ehsaas_cash_2020/measurability-adequacy",
+        "pdc://layer2/s6/w11a_pakistan_ehsaas_cash_2020/strategic-response"
+      ],
+      "s6_limitation_refs": [
+        "pdc://layer2/s6/w11a_pakistan_ehsaas_cash_2020/limitation-summary"
+      ],
+      "s8_value_choice_provenance_ref": "pdc://layer2/s8/w11a_pakistan_ehsaas_cash_2020/value-choice-provenance",
+      "s8_value_tradeoff_disclosure_ref": "pdc://layer2/s8/w11a_pakistan_ehsaas_cash_2020/value-tradeoff-disclosure",
+      "sensitivity_analysis_ref": null,
+      "source_contract_ref": null,
+      "source_design_record_ref": "pdc://layer2/s2/w11a_pakistan_ehsaas_cash_2020/design-record-v0",
+      "source_lineage_refs": [
+        "source-lineage://layer2/s10/w11a_pakistan_ehsaas_cash_2020/lineage"
+      ],
+      "strategic_response_caveat_refs": [
+        "pdc://layer2/s6/w11a_pakistan_ehsaas_cash_2020/strategic-response"
+      ],
+      "target_outcome_refs": [
+        "outcome://w11a_pakistan_ehsaas_cash_2020/primary",
+        "outcome://w11a_pakistan_ehsaas_cash_2020/distributional"
+      ],
+      "uncertainty_interval_refs": [
+        "pdc://layer2/s10/w11a_pakistan_ehsaas_cash_2020/uncertainty-interval/95"
+      ],
+      "welfare_comparison_ref": "pdc://layer2/s10/w11a_pakistan_ehsaas_cash_2020/welfare-comparison"
+    },
+    "w11a_uk_levelling_up_fund_2021": {
+      "abstention_refs": [],
+      "alternative_design_refs": [
+        "alternative://w11a_uk_levelling_up_fund_2021/bounded-alternative"
+      ],
+      "backtestable_observable": false,
+      "baseline_design_ref": "baseline://w11a_uk_levelling_up_fund_2021/status-quo",
+      "calibration_denominator": 0,
+      "calibration_floor_passed": false,
+      "calibration_numerator": 0,
+      "calibration_record_ref": null,
+      "calibration_status": "not_applicable_non_observable",
+      "calibration_threshold_ref": "architecture://policy_design_case/layer2_floor_governance.toml#s10_calibration",
+      "candidate_design_ref": "candidate://w11a_uk_levelling_up_fund_2021/primary-design",
+      "case_id": "w11a_uk_levelling_up_fund_2021",
+      "counterfactual_credibility": "not_applicable_non_observable",
+      "credible_evaluation_evidence_ref": null,
+      "design_graph_ref": "pdc://layer2/s5/w11a_uk_levelling_up_fund_2021/recursive-design-graph",
+      "dynamic_equilibrium_check_ref": null,
+      "equilibrium_caveat_refs": [],
+      "evaluation_design_ref": null,
+      "expected_authority_boundary": {
+        "authoritative_for": [
+          "forecast_support_tiering"
+        ],
+        "may_not_use_for": [
+          "production_recommendation",
+          "production_claim_authority",
+          "rollout_authority",
+          "publication_authority",
+          "claim_authority",
+          "closeout_authority",
+          "approval_authority",
+          "scorecard_authority",
+          "preference_learning_authority",
+          "s11_calibration",
+          "s12_envelope_growth",
+          "s13_accountability_closure",
+          "s14_universality"
+        ],
+        "posture": "shadow",
+        "rule_version_refs": [
+          "policyos.layer2.s10.outcome_prediction.v1"
+        ],
+        "source_authority": "deterministic_producer"
+      },
+      "forecast_authority_disposition_reason": "Transported estimate remains limited by source scope and S6/S5 boundary caveats.",
+      "forecast_support_input_ref": "fixture://layer2/s10/w11a_uk_levelling_up_fund_2021/case-signals",
+      "forecast_tier": "transported_limited",
+      "historical_implementation_ref": null,
+      "jurisdiction_scope_ref": "jurisdiction://w11a_uk_levelling_up_fund_2021",
+      "limitation_refs": [
+        "pdc://layer2/s10/w11a_uk_levelling_up_fund_2021/forecast-limitation"
+      ],
+      "method_family": "foundry_causal",
+      "method_lineage_refs": [
+        "method-lineage://layer2/s10/w11a_uk_levelling_up_fund_2021/lineage"
+      ],
+      "method_validity_ref": null,
+      "non_observable_downgrade_reason": "Transported estimate remains limited by source scope and S6/S5 boundary caveats.",
+      "observable_subset_ref": null,
+      "outcome_distribution_refs": [
+        "pdc://layer2/s10/w11a_uk_levelling_up_fund_2021/outcome-distribution/primary"
+      ],
+      "policy_context_ref": "policy-context://w11a_uk_levelling_up_fund_2021/canonical",
+      "prediction_context_ref": "pdc://layer2/s10/w11a_uk_levelling_up_fund_2021/prediction-context",
+      "prediction_horizon_ref": "horizon://w11a_uk_levelling_up_fund_2021/policy-relevant-window",
+      "s5_base_origin": "transported_scholar_estimate",
+      "s5_claim_scope": "routing_only",
+      "s5_forecast_support_ref": "pdc://layer2/s5/w11a_uk_levelling_up_fund_2021/forecast-support-scope",
+      "s5_support_label": "transported_with_heavy_limitation",
+      "s6_firewall_status_refs": [
+        "pdc://layer2/s6/w11a_uk_levelling_up_fund_2021/measurability-adequacy",
+        "pdc://layer2/s6/w11a_uk_levelling_up_fund_2021/strategic-response"
+      ],
+      "s6_limitation_refs": [
+        "pdc://layer2/s6/w11a_uk_levelling_up_fund_2021/limitation-summary"
+      ],
+      "s8_value_choice_provenance_ref": "pdc://layer2/s8/w11a_uk_levelling_up_fund_2021/value-choice-provenance",
+      "s8_value_tradeoff_disclosure_ref": "pdc://layer2/s8/w11a_uk_levelling_up_fund_2021/value-tradeoff-disclosure",
+      "sensitivity_analysis_ref": "pdc://layer2/s10/w11a_uk_levelling_up_fund_2021/sensitivity-analysis",
+      "source_contract_ref": null,
+      "source_design_record_ref": "pdc://layer2/s2/w11a_uk_levelling_up_fund_2021/design-record-v0",
+      "source_lineage_refs": [
+        "source-lineage://layer2/s10/w11a_uk_levelling_up_fund_2021/lineage"
+      ],
+      "strategic_response_caveat_refs": [
+        "pdc://layer2/s6/w11a_uk_levelling_up_fund_2021/strategic-response"
+      ],
+      "target_outcome_refs": [
+        "outcome://w11a_uk_levelling_up_fund_2021/primary",
+        "outcome://w11a_uk_levelling_up_fund_2021/distributional"
+      ],
+      "uncertainty_interval_refs": [
+        "pdc://layer2/s10/w11a_uk_levelling_up_fund_2021/uncertainty-interval/95"
+      ],
+      "welfare_comparison_ref": "pdc://layer2/s10/w11a_uk_levelling_up_fund_2021/welfare-comparison"
+    },
+    "w11a_uk_mtd_vat_2019": {
+      "abstention_refs": [],
+      "alternative_design_refs": [
+        "alternative://w11a_uk_mtd_vat_2019/bounded-alternative"
+      ],
+      "backtestable_observable": false,
+      "baseline_design_ref": "baseline://w11a_uk_mtd_vat_2019/status-quo",
+      "calibration_denominator": 0,
+      "calibration_floor_passed": false,
+      "calibration_numerator": 0,
+      "calibration_record_ref": null,
+      "calibration_status": "not_applicable_non_observable",
+      "calibration_threshold_ref": "architecture://policy_design_case/layer2_floor_governance.toml#s10_calibration",
+      "candidate_design_ref": "candidate://w11a_uk_mtd_vat_2019/primary-design",
+      "case_id": "w11a_uk_mtd_vat_2019",
+      "counterfactual_credibility": "not_applicable_non_observable",
+      "credible_evaluation_evidence_ref": null,
+      "design_graph_ref": "pdc://layer2/s5/w11a_uk_mtd_vat_2019/recursive-design-graph",
+      "dynamic_equilibrium_check_ref": null,
+      "equilibrium_caveat_refs": [],
+      "evaluation_design_ref": null,
+      "expected_authority_boundary": {
+        "authoritative_for": [
+          "forecast_support_tiering"
+        ],
+        "may_not_use_for": [
+          "production_recommendation",
+          "production_claim_authority",
+          "rollout_authority",
+          "publication_authority",
+          "claim_authority",
+          "closeout_authority",
+          "approval_authority",
+          "scorecard_authority",
+          "preference_learning_authority",
+          "s11_calibration",
+          "s12_envelope_growth",
+          "s13_accountability_closure",
+          "s14_universality"
+        ],
+        "posture": "shadow",
+        "rule_version_refs": [
+          "policyos.layer2.s10.outcome_prediction.v1"
+        ],
+        "source_authority": "deterministic_producer"
+      },
+      "forecast_authority_disposition_reason": "Historical prior is retained as context only and cannot close a forecast claim.",
+      "forecast_support_input_ref": "fixture://layer2/s10/w11a_uk_mtd_vat_2019/case-signals",
+      "forecast_tier": "historical_prior_context",
+      "historical_implementation_ref": null,
+      "jurisdiction_scope_ref": "jurisdiction://w11a_uk_mtd_vat_2019",
+      "limitation_refs": [
+        "pdc://layer2/s10/w11a_uk_mtd_vat_2019/forecast-limitation"
+      ],
+      "method_family": "historical_prior",
+      "method_lineage_refs": [
+        "method-lineage://layer2/s10/w11a_uk_mtd_vat_2019/lineage"
+      ],
+      "method_validity_ref": null,
+      "non_observable_downgrade_reason": "Historical prior is retained as context only and cannot close a forecast claim.",
+      "observable_subset_ref": null,
+      "outcome_distribution_refs": [
+        "pdc://layer2/s10/w11a_uk_mtd_vat_2019/outcome-distribution/primary"
+      ],
+      "policy_context_ref": "policy-context://w11a_uk_mtd_vat_2019/canonical",
+      "prediction_context_ref": "pdc://layer2/s10/w11a_uk_mtd_vat_2019/prediction-context",
+      "prediction_horizon_ref": "horizon://w11a_uk_mtd_vat_2019/policy-relevant-window",
+      "s5_base_origin": "historical_prior",
+      "s5_claim_scope": "leaf_only",
+      "s5_forecast_support_ref": "pdc://layer2/s5/w11a_uk_mtd_vat_2019/forecast-support-scope",
+      "s5_support_label": "leaf_only_no_system_claim",
+      "s6_firewall_status_refs": [
+        "pdc://layer2/s6/w11a_uk_mtd_vat_2019/measurability-adequacy",
+        "pdc://layer2/s6/w11a_uk_mtd_vat_2019/strategic-response"
+      ],
+      "s6_limitation_refs": [
+        "pdc://layer2/s6/w11a_uk_mtd_vat_2019/limitation-summary"
+      ],
+      "s8_value_choice_provenance_ref": "pdc://layer2/s8/w11a_uk_mtd_vat_2019/value-choice-provenance",
+      "s8_value_tradeoff_disclosure_ref": "pdc://layer2/s8/w11a_uk_mtd_vat_2019/value-tradeoff-disclosure",
+      "sensitivity_analysis_ref": null,
+      "source_contract_ref": null,
+      "source_design_record_ref": "pdc://layer2/s2/w11a_uk_mtd_vat_2019/design-record-v0",
+      "source_lineage_refs": [
+        "source-lineage://layer2/s10/w11a_uk_mtd_vat_2019/lineage"
+      ],
+      "strategic_response_caveat_refs": [
+        "pdc://layer2/s6/w11a_uk_mtd_vat_2019/strategic-response"
+      ],
+      "target_outcome_refs": [
+        "outcome://w11a_uk_mtd_vat_2019/primary",
+        "outcome://w11a_uk_mtd_vat_2019/distributional"
+      ],
+      "uncertainty_interval_refs": [
+        "pdc://layer2/s10/w11a_uk_mtd_vat_2019/uncertainty-interval/95"
+      ],
+      "welfare_comparison_ref": "pdc://layer2/s10/w11a_uk_mtd_vat_2019/welfare-comparison"
+    },
+    "w11a_uk_work_programme_2011": {
+      "abstention_refs": [
+        "pdc://layer2/s10/w11a_uk_work_programme_2011/abstention"
+      ],
+      "alternative_design_refs": [
+        "alternative://w11a_uk_work_programme_2011/bounded-alternative"
+      ],
+      "backtestable_observable": false,
+      "baseline_design_ref": "baseline://w11a_uk_work_programme_2011/status-quo",
+      "calibration_denominator": 0,
+      "calibration_floor_passed": false,
+      "calibration_numerator": 0,
+      "calibration_record_ref": null,
+      "calibration_status": "not_applicable_non_observable",
+      "calibration_threshold_ref": "architecture://policy_design_case/layer2_floor_governance.toml#s10_calibration",
+      "candidate_design_ref": "candidate://w11a_uk_work_programme_2011/primary-design",
+      "case_id": "w11a_uk_work_programme_2011",
+      "counterfactual_credibility": "not_applicable_non_observable",
+      "credible_evaluation_evidence_ref": null,
+      "design_graph_ref": "pdc://layer2/s5/w11a_uk_work_programme_2011/recursive-design-graph",
+      "dynamic_equilibrium_check_ref": null,
+      "equilibrium_caveat_refs": [
+        "pdc://layer2/s10/w11a_uk_work_programme_2011/equilibrium-caveat"
+      ],
+      "evaluation_design_ref": null,
+      "expected_authority_boundary": {
+        "authoritative_for": [
+          "forecast_support_tiering"
+        ],
+        "may_not_use_for": [
+          "production_recommendation",
+          "production_claim_authority",
+          "rollout_authority",
+          "publication_authority",
+          "claim_authority",
+          "closeout_authority",
+          "approval_authority",
+          "scorecard_authority",
+          "preference_learning_authority",
+          "s11_calibration",
+          "s12_envelope_growth",
+          "s13_accountability_closure",
+          "s14_universality"
+        ],
+        "posture": "shadow",
+        "rule_version_refs": [
+          "policyos.layer2.s10.outcome_prediction.v1"
+        ],
+        "source_authority": "deterministic_producer"
+      },
+      "forecast_authority_disposition_reason": "Equilibrium-contested system effect refuses a single forecast.",
+      "forecast_support_input_ref": "fixture://layer2/s10/w11a_uk_work_programme_2011/case-signals",
+      "forecast_tier": "equilibrium_contested_blocked",
+      "historical_implementation_ref": null,
+      "jurisdiction_scope_ref": "jurisdiction://w11a_uk_work_programme_2011",
+      "limitation_refs": [
+        "pdc://layer2/s10/w11a_uk_work_programme_2011/forecast-limitation"
+      ],
+      "method_family": "abstain",
+      "method_lineage_refs": [
+        "method-lineage://layer2/s10/w11a_uk_work_programme_2011/lineage"
+      ],
+      "method_validity_ref": null,
+      "non_observable_downgrade_reason": "Equilibrium-contested system effect refuses a single forecast.",
+      "observable_subset_ref": null,
+      "outcome_distribution_refs": [
+        "pdc://layer2/s10/w11a_uk_work_programme_2011/outcome-distribution/primary"
+      ],
+      "policy_context_ref": "policy-context://w11a_uk_work_programme_2011/canonical",
+      "prediction_context_ref": "pdc://layer2/s10/w11a_uk_work_programme_2011/prediction-context",
+      "prediction_horizon_ref": "horizon://w11a_uk_work_programme_2011/policy-relevant-window",
+      "s5_base_origin": "equilibrium_contested",
+      "s5_claim_scope": "system_effect",
+      "s5_forecast_support_ref": "pdc://layer2/s5/w11a_uk_work_programme_2011/forecast-support-scope",
+      "s5_support_label": "equilibrium_contested",
+      "s6_firewall_status_refs": [
+        "pdc://layer2/s6/w11a_uk_work_programme_2011/measurability-adequacy",
+        "pdc://layer2/s6/w11a_uk_work_programme_2011/strategic-response"
+      ],
+      "s6_limitation_refs": [
+        "pdc://layer2/s6/w11a_uk_work_programme_2011/limitation-summary"
+      ],
+      "s8_value_choice_provenance_ref": "pdc://layer2/s8/w11a_uk_work_programme_2011/value-choice-provenance",
+      "s8_value_tradeoff_disclosure_ref": "pdc://layer2/s8/w11a_uk_work_programme_2011/value-tradeoff-disclosure",
+      "sensitivity_analysis_ref": null,
+      "source_contract_ref": null,
+      "source_design_record_ref": "pdc://layer2/s2/w11a_uk_work_programme_2011/design-record-v0",
+      "source_lineage_refs": [
+        "source-lineage://layer2/s10/w11a_uk_work_programme_2011/lineage"
+      ],
+      "strategic_response_caveat_refs": [
+        "pdc://layer2/s6/w11a_uk_work_programme_2011/strategic-response"
+      ],
+      "target_outcome_refs": [
+        "outcome://w11a_uk_work_programme_2011/primary",
+        "outcome://w11a_uk_work_programme_2011/distributional"
+      ],
+      "uncertainty_interval_refs": [
+        "pdc://layer2/s10/w11a_uk_work_programme_2011/uncertainty-interval/95"
+      ],
+      "welfare_comparison_ref": "pdc://layer2/s10/w11a_uk_work_programme_2011/welfare-comparison"
+    },
+    "w11a_us_ppp_2020": {
+      "abstention_refs": [
+        "pdc://layer2/s10/w11a_us_ppp_2020/abstention"
+      ],
+      "alternative_design_refs": [
+        "alternative://w11a_us_ppp_2020/bounded-alternative"
+      ],
+      "backtestable_observable": false,
+      "baseline_design_ref": "baseline://w11a_us_ppp_2020/status-quo",
+      "calibration_denominator": 0,
+      "calibration_floor_passed": false,
+      "calibration_numerator": 0,
+      "calibration_record_ref": null,
+      "calibration_status": "not_applicable_non_observable",
+      "calibration_threshold_ref": "architecture://policy_design_case/layer2_floor_governance.toml#s10_calibration",
+      "candidate_design_ref": "candidate://w11a_us_ppp_2020/primary-design",
+      "case_id": "w11a_us_ppp_2020",
+      "counterfactual_credibility": "not_applicable_non_observable",
+      "credible_evaluation_evidence_ref": null,
+      "design_graph_ref": "pdc://layer2/s5/w11a_us_ppp_2020/recursive-design-graph",
+      "dynamic_equilibrium_check_ref": null,
+      "equilibrium_caveat_refs": [],
+      "evaluation_design_ref": null,
+      "expected_authority_boundary": {
+        "authoritative_for": [
+          "forecast_support_tiering"
+        ],
+        "may_not_use_for": [
+          "production_recommendation",
+          "production_claim_authority",
+          "rollout_authority",
+          "publication_authority",
+          "claim_authority",
+          "closeout_authority",
+          "approval_authority",
+          "scorecard_authority",
+          "preference_learning_authority",
+          "s11_calibration",
+          "s12_envelope_growth",
+          "s13_accountability_closure",
+          "s14_universality"
+        ],
+        "posture": "shadow",
+        "rule_version_refs": [
+          "policyos.layer2.s10.outcome_prediction.v1"
+        ],
+        "source_authority": "deterministic_producer"
+      },
+      "forecast_authority_disposition_reason": "Simulation-only system effect is advisory and blocked from evidence authority.",
+      "forecast_support_input_ref": "fixture://layer2/s10/w11a_us_ppp_2020/case-signals",
+      "forecast_tier": "simulation_only_advisory",
+      "historical_implementation_ref": null,
+      "jurisdiction_scope_ref": "jurisdiction://w11a_us_ppp_2020",
+      "limitation_refs": [
+        "pdc://layer2/s10/w11a_us_ppp_2020/forecast-limitation"
+      ],
+      "method_family": "simulation",
+      "method_lineage_refs": [
+        "method-lineage://layer2/s10/w11a_us_ppp_2020/lineage"
+      ],
+      "method_validity_ref": null,
+      "non_observable_downgrade_reason": "Simulation-only system effect is advisory and blocked from evidence authority.",
+      "observable_subset_ref": null,
+      "outcome_distribution_refs": [
+        "pdc://layer2/s10/w11a_us_ppp_2020/outcome-distribution/primary"
+      ],
+      "policy_context_ref": "policy-context://w11a_us_ppp_2020/canonical",
+      "prediction_context_ref": "pdc://layer2/s10/w11a_us_ppp_2020/prediction-context",
+      "prediction_horizon_ref": "horizon://w11a_us_ppp_2020/policy-relevant-window",
+      "s5_base_origin": "simulation_only",
+      "s5_claim_scope": "system_effect",
+      "s5_forecast_support_ref": "pdc://layer2/s5/w11a_us_ppp_2020/forecast-support-scope",
+      "s5_support_label": "simulation_only_system_effect",
+      "s6_firewall_status_refs": [
+        "pdc://layer2/s6/w11a_us_ppp_2020/measurability-adequacy",
+        "pdc://layer2/s6/w11a_us_ppp_2020/strategic-response"
+      ],
+      "s6_limitation_refs": [
+        "pdc://layer2/s6/w11a_us_ppp_2020/limitation-summary"
+      ],
+      "s8_value_choice_provenance_ref": "pdc://layer2/s8/w11a_us_ppp_2020/value-choice-provenance",
+      "s8_value_tradeoff_disclosure_ref": "pdc://layer2/s8/w11a_us_ppp_2020/value-tradeoff-disclosure",
+      "sensitivity_analysis_ref": null,
+      "source_contract_ref": null,
+      "source_design_record_ref": "pdc://layer2/s2/w11a_us_ppp_2020/design-record-v0",
+      "source_lineage_refs": [
+        "source-lineage://layer2/s10/w11a_us_ppp_2020/lineage"
+      ],
+      "strategic_response_caveat_refs": [
+        "pdc://layer2/s6/w11a_us_ppp_2020/strategic-response"
+      ],
+      "target_outcome_refs": [
+        "outcome://w11a_us_ppp_2020/primary",
+        "outcome://w11a_us_ppp_2020/distributional"
+      ],
+      "uncertainty_interval_refs": [
+        "pdc://layer2/s10/w11a_us_ppp_2020/uncertainty-interval/95"
+      ],
+      "welfare_comparison_ref": "pdc://layer2/s10/w11a_us_ppp_2020/welfare-comparison"
+    }
+  }
+}

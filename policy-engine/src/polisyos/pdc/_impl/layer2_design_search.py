@@ -2661,12 +2661,11 @@ def _s10_design_record_ledger_refs(
 ) -> list[str]:
     refs = [
         forecast_posture.forecast_support_ref,
-        forecast_posture.forecast_calibration_record_ref,
-        forecast_posture.design_graph_ref,
-        forecast_posture.prediction_context_ref,
-        forecast_posture.welfare_comparison_ref,
+        forecast_posture.forecast_calibration_record_ref
+        or forecast_posture.welfare_comparison_ref
+        or forecast_posture.design_graph_ref,
     ]
-    return [ref for ref in dict.fromkeys(refs) if ref is not None][:10]
+    return [ref for ref in dict.fromkeys(refs) if ref is not None][:2]
 
 
 def _s8_handoff_refs(value_posture: Layer2S8ValuePostureInput | None) -> list[str]:

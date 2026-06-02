@@ -1,0 +1,58 @@
+{
+  "authority_boundary": {
+    "authoritative_for": [
+      "forecast_support_tiering",
+      "observable_subset_calibration"
+    ],
+    "may_not_use_for": [
+      "production_recommendation",
+      "production_claim_authority",
+      "rollout_authority",
+      "publication_authority",
+      "claim_authority",
+      "closeout_authority",
+      "approval_authority",
+      "scorecard_authority",
+      "preference_learning_authority",
+      "s11_calibration",
+      "s12_envelope_growth",
+      "s13_accountability_closure",
+      "s14_universality"
+    ],
+    "posture": "shadow",
+    "rule_version_refs": [
+      "policyos.layer2.s10.outcome_prediction.v1"
+    ],
+    "source_authority": "deterministic_producer"
+  },
+  "case_id": "weakest_boundary_ignored_probe",
+  "credible_evaluation_evidence_ref": "evidence://layer2/s10/w11a_netherlands_room_for_river_2007/credible-evaluation",
+  "design_graph_ref": "pdc://layer2/s5/w11a_netherlands_room_for_river_2007/recursive-design-graph",
+  "expected_disposition": "blocked_weakest_boundary_ignored",
+  "expected_false_clear": false,
+  "failure_pattern": "weakest_boundary_ignored",
+  "forecast_support_input_ref": "fixture://layer2/s10/w11a_netherlands_room_for_river_2007/case-signals",
+  "forecast_tier": "observable_calibrated",
+  "limitation_refs": [],
+  "method_validity_ref": "method-validity://layer2/s10/w11a_netherlands_room_for_river_2007/method-validity",
+  "policy_context_ref": "policy-context://w11a_netherlands_room_for_river_2007/canonical",
+  "prediction_context_ref": "pdc://layer2/s10/w11a_netherlands_room_for_river_2007/prediction-context",
+  "s5_base_origin": "validated_local_model",
+  "s5_claim_scope": "system_effect",
+  "s5_forecast_support_ref": "pdc://layer2/s5/w11a_netherlands_room_for_river_2007/forecast-support-scope",
+  "s5_support_label": "validated_local_dynamic_model",
+  "s6_firewall_status_refs": [
+    "pdc://layer2/s6/w11a_netherlands_room_for_river_2007/measurability-adequacy",
+    "pdc://layer2/s6/w11a_netherlands_room_for_river_2007/strategic-response"
+  ],
+  "s6_limitation_refs": [
+    "pdc://layer2/s6/w11a_netherlands_room_for_river_2007/limitation-summary"
+  ],
+  "s8_value_choice_provenance_ref": "pdc://layer2/s8/w11a_netherlands_room_for_river_2007/value-choice-provenance",
+  "s8_value_tradeoff_disclosure_ref": "pdc://layer2/s8/w11a_netherlands_room_for_river_2007/value-tradeoff-disclosure",
+  "source_contract_ref": "source-contract://layer2/s10/w11a_netherlands_room_for_river_2007/source-contract",
+  "uncertainty_interval_refs": [
+    "pdc://layer2/s10/w11a_netherlands_room_for_river_2007/uncertainty-interval/95"
+  ],
+  "weakest_boundary_inherited": false
+}

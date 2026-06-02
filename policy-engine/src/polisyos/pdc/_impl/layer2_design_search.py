@@ -683,11 +683,13 @@ def project_s2_design_search(
     run: Layer2S2DesignSearchRun,
     *,
     audiences: tuple[Literal["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"], ...],
+    s9_projection_context: Mapping[str, object] | None = None,
 ) -> dict[str, dict[str, object]]:
     """Project S2 search trace without minting recommendation authority."""
 
     projections: dict[str, dict[str, object]] = {}
     boundary = run.design_record.authority_boundary.model_dump(mode="json")
+    s9_context = _s9_projection_context_fields(s9_projection_context)
     regime_axis = _axis_position(run.design_record, "KNOWLEDGE.epistemic_regime")
     commitment_axis = _axis_position(
         run.design_record,
@@ -713,6 +715,8 @@ def project_s2_design_search(
             "audience": audience,
             "status": run.status,
             "design_record_id": run.design_record.record_id,
+            "projection_status": run.design_record.projection_status,
+            "canonical_outcome_effect": "none_shadow_only",
             "search_ledger_ref": run.search_ledger.ledger_ref,
             "candidate_refs": list(run.search_ledger.candidate_refs),
             "counterexample_refs": list(run.search_ledger.counterexample_refs),
@@ -781,8 +785,37 @@ def project_s2_design_search(
             )
             if audience == "PUBLIC":
                 assert_s2_public_projection_has_value_tradeoff_disclosure(projection)
+        projection.update(s9_context)
         projections[audience] = projection
     return projections
+
+
+def _s9_projection_context_fields(
+    context: Mapping[str, object] | None,
+) -> dict[str, object]:
+    if context is None:
+        return {}
+    allowed_keys = (
+        "canonical_design_record_ref",
+        "canonical_design_record_digest",
+        "canonical_design_record_schema_version",
+        "canonical_design_record_revision_ref",
+        "s9_projection_source_ref",
+        "s9_projection_policy",
+        "s9_projection_authority_boundary",
+        "s9_lowering_boundary",
+        "s9_source_revision_ref",
+        "s9_reissue_required",
+        "s9_faithfulness_ref",
+        "s9_faithfulness_status",
+        "s9_lowering_gate_ref",
+        "s9_lowering_gate_status",
+        "s9_design_record_maturity_report_ref",
+    )
+    fields = {key: context[key] for key in allowed_keys if key in context}
+    fields.setdefault("s9_projection_policy", "reads_canonical_design_record")
+    fields.setdefault("s9_lowering_boundary", "projection_only_until_grounded")
+    return fields
 
 
 def assert_s2_public_projection_has_regime_limitation(

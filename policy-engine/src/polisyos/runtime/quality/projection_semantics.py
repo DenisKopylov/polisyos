@@ -78,6 +78,24 @@ _MAY_BE_USED_FOR = (
 )
 _LEGACY_PROJECTION_POLICY = "reads_policy_design_case_only"
 _RUNTIME_GRAPH_PROJECTION_POLICY = "reads_runtime_policy_design_case_graph"
+_S9_CONSUMER_CONTRACT_REF = (
+    "policyos.runtime.policy_design_case.projection_contract_verification.v1"
+)
+_S9_REQUIRED_MAY_NOT_USE_FOR = frozenset(
+    {
+        "claim_authority",
+        "scorecard_authority",
+        "runtime_closeout_authority",
+    }
+)
+_S9_AUTHORITY_BOUNDARY_REQUIRED_MAY_NOT_USE_FOR = frozenset(
+    {
+        "claim_authority",
+        "scorecard_authority",
+        "runtime_closeout_authority",
+        "production_recommendation",
+    }
+)
 _ALLOWED_PROJECTION_POLICIES = frozenset(
     {_LEGACY_PROJECTION_POLICY, _RUNTIME_GRAPH_PROJECTION_POLICY}
 )
@@ -688,6 +706,447 @@ def verify_policy_design_case_projection_consumer_contract(
         "consumer_contracts": consumer_contracts,
         "issues": issues,
     }
+
+
+def verify_s9_projection_faithfulness_for_pdc_consumer_contract(
+    *,
+    projections: Mapping[str, Mapping[str, Any]],
+    expected_closeout_truth: Mapping[str, Any],
+    expected_contested_record_ids: Sequence[str] = (),
+    expected_deficit_codes: Sequence[str] = (),
+    expected_source_revision_ref: str | None = None,
+) -> dict[str, Any]:
+    """Verify S9 faithfulness while reusing the PDC projection consumer contract."""
+
+    adapted_projections: dict[str, dict[str, Any]] = {}
+    s9_records: dict[str, dict[str, Any]] = {}
+    for audience, projection in projections.items():
+        projection_payload = _mapping_from_record(projection)
+        faithfulness = _s9_faithfulness_record(projection_payload)
+        s9_records[audience] = faithfulness
+        adapted_projections[audience] = _s9_consumer_projection(
+            projection_payload,
+            faithfulness=faithfulness,
+            audience=audience,
+        )
+
+    base = verify_policy_design_case_projection_consumer_contract(
+        projections=adapted_projections,
+        expected_closeout_truth=expected_closeout_truth,
+        expected_contested_record_ids=expected_contested_record_ids,
+    )
+    issues = [dict(issue) for issue in _sequence(base.get("issues")) if isinstance(issue, Mapping)]
+    for audience, projection in projections.items():
+        projection_payload = _mapping_from_record(projection)
+        faithfulness = s9_records[audience]
+        issues.extend(
+            _s9_projection_issues(
+                audience=audience,
+                projection=projection_payload,
+                faithfulness=faithfulness,
+                expected_deficit_codes=expected_deficit_codes,
+                expected_source_revision_ref=expected_source_revision_ref,
+            )
+        )
+
+    issue_codes = _unique_texts(issue.get("code") for issue in issues)
+    first_record = next(iter(s9_records.values()), {})
+    return {
+        "schema_version": "policyos.runtime.policy_design_case.s9_projection_verification.v1",
+        "status": "fail" if issues else "pass",
+        "consumer_contract_ref": _S9_CONSUMER_CONTRACT_REF,
+        "consumer_contracts": list(base.get("consumer_contracts", [])),
+        "projection_contract_verification": base,
+        "s9_projection_faithfulness": first_record,
+        "issue_codes": issue_codes,
+        "issues": issues,
+    }
+
+
+def _s9_consumer_projection(
+    projection: Mapping[str, Any],
+    *,
+    faithfulness: Mapping[str, Any],
+    audience: str,
+) -> dict[str, Any]:
+    audience_value = _audience(projection.get("audience") or audience, surface="s9_projection")
+    closeout_truth = _s9_closeout_truth(_mapping(projection.get("closeout_truth")))
+    source_revision_ref = _text(
+        projection.get("source_revision_ref") or faithfulness.get("source_revision_ref")
+    )
+    canonical_ref = _text(
+        projection.get("canonical_design_record_ref")
+        or faithfulness.get("canonical_design_record_ref")
+    )
+    faithfulness_ref = _text(faithfulness.get("faithfulness_ref"))
+    source_ref = canonical_ref or _text(projection.get("source_ref"))
+    audit_refs = _unique_texts(
+        [
+            *_text_list(projection.get("audit_refs")),
+            faithfulness_ref,
+            _text(faithfulness.get("render_ref")),
+            _text(faithfulness.get("request_ref")),
+            canonical_ref,
+        ]
+    )
+    return {
+        "schema_version": POLICY_DESIGN_CASE_PROJECTION_SCHEMA_VERSION,
+        "generated_at": _utc(None).isoformat(),
+        "surface": "s9_projection_faithfulness",
+        "audience": audience_value.value,
+        "policy_design_case_id": _text(projection.get("policy_design_case_id")),
+        "run_id": _text(projection.get("run_id")),
+        "source_ref": source_ref,
+        "source_ref_fingerprint": _fingerprint(source_ref) if source_ref else None,
+        "primary_state": "blocked"
+        if closeout_truth.get("blocker_codes")
+        else "projection_only",
+        "states": [
+            "projection_only",
+            *(["blocked"] if closeout_truth.get("blocker_codes") else []),
+        ],
+        "labels": [
+            {
+                "state": "projection_only",
+                "label": "Projection only",
+                "authority_role": "projection_only",
+                "source_authority": "canonical_design_record",
+            }
+        ],
+        "closeout_truth": closeout_truth,
+        "projection_gaps": [
+            _normalize_gap(raw, audience=audience_value)
+            for raw in _sequence(projection.get("projection_gaps"))
+            if isinstance(raw, Mapping)
+        ],
+        "omission_manifest": [
+            _normalize_omission(raw, audience=audience_value)
+            for raw in _sequence(projection.get("omission_manifest"))
+            if isinstance(raw, Mapping)
+        ],
+        "contested_records": _contested_records(
+            source_payload=projection,
+            policy_design_case={},
+            audience=audience_value,
+            recourse_pointer=None,
+        ),
+        "recourse_pointer": None,
+        "deficit_register": _s9_deficit_register(projection),
+        "participation_requirements": [],
+        "invariant_summary": {},
+        "authority_role": "projection_only",
+        "projection_policy": _LEGACY_PROJECTION_POLICY,
+        "authoritative_for": [],
+        "evidence_class": _text(projection.get("evidence_class")) or "redacted_derived",
+        "provenance_kind": "runtime_projection",
+        "redacted": audience_value is contracts.PolicyDesignCaseAudience.PUBLIC,
+        "redaction_summary": _redaction_summary(projection, audience_value),
+        "audit_refs": audit_refs,
+        "source_authority_refs": {
+            "canonical_design_record_ref": canonical_ref,
+            "s9_faithfulness_ref": faithfulness_ref,
+        },
+        "source_state": {
+            "projection_policy": _text(projection.get("projection_policy"))
+            or "reads_canonical_design_record",
+            "source_revision_ref": source_revision_ref,
+            "canonical_design_record_ref": canonical_ref,
+            "canonical_design_record_digest": _text(
+                projection.get("canonical_design_record_digest")
+                or faithfulness.get("canonical_design_record_digest")
+            ),
+        },
+        "may_be_used_for": list(_MAY_BE_USED_FOR),
+        "may_not_be_used_for": _unique_texts(
+            [
+                *_text_list(projection.get("may_not_be_used_for")),
+                *_text_list(projection.get("may_not_use_for")),
+                *list(_S9_REQUIRED_MAY_NOT_USE_FOR),
+                "production_recommendation",
+            ]
+        ),
+        "capability_reality_state": "implemented",
+        "contract_verification_status": "not_verified",
+        "contract_verification_refs": [_S9_CONSUMER_CONTRACT_REF],
+    }
+
+
+def _s9_closeout_truth(closeout_truth: Mapping[str, Any]) -> dict[str, Any]:
+    blocker_codes = _text_list(closeout_truth.get("blocker_codes"))
+    blockers = [
+        {
+            "code": code,
+            "severity": "fail",
+            "message": code,
+        }
+        for code in blocker_codes
+    ]
+    for raw in _sequence(closeout_truth.get("blockers")):
+        if isinstance(raw, Mapping):
+            code = _text(raw.get("code") or raw.get("issue_code"))
+            if code:
+                blockers.append(
+                    {
+                        "code": code,
+                        "severity": _text(raw.get("severity")) or "fail",
+                        "message": _text(raw.get("message")) or code,
+                        "module_id": _text(raw.get("module_id")),
+                        "owner": _text(raw.get("owner")),
+                        "evidence_ref": _text(raw.get("evidence_ref")),
+                        "next_action": _text(raw.get("next_action")),
+                    }
+                )
+    return {
+        "status": _text(closeout_truth.get("status")) or "not_provided",
+        "verdict": _text(closeout_truth.get("verdict")) or "cannot_closeout",
+        "can_closeout": bool(closeout_truth.get("can_closeout")),
+        "blocker_codes": blocker_codes,
+        "limitation_codes": _text_list(closeout_truth.get("limitation_codes")),
+        "omission_codes": _text_list(closeout_truth.get("omission_codes")),
+        "contested_state": _text(closeout_truth.get("contested_state"))
+        or "not_contested",
+        "blockers": blockers,
+    }
+
+
+def _s9_deficit_register(projection: Mapping[str, Any]) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for row in _deficit_register(projection, {}):
+        rows.append(
+            {
+                **row,
+                "deficit_family": _text(row.get("deficit_family"))
+                or "projection_faithfulness",
+                "disposition": _text(row.get("disposition")) or "requires_review",
+            }
+        )
+    return rows
+
+
+def _s9_projection_issues(
+    *,
+    audience: str,
+    projection: Mapping[str, Any],
+    faithfulness: Mapping[str, Any],
+    expected_deficit_codes: Sequence[str],
+    expected_source_revision_ref: str | None,
+) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    for code in _s9_faithfulness_issue_codes(faithfulness):
+        issues.append(
+            _contract_issue(
+                code,
+                audience=audience,
+                message=f"S9 projection faithfulness failed: {code}.",
+            )
+        )
+    if _text(faithfulness.get("faithfulness_status")) != "pass" and not issues:
+        issues.append(
+            _contract_issue(
+                "s9_projection_faithfulness_failed",
+                audience=audience,
+                message="S9 projection faithfulness status is not pass.",
+            )
+        )
+    if _text(faithfulness.get("tradeoff_direction_status")) == "inverted":
+        issues.append(
+            _contract_issue(
+                "s9_tradeoff_inversion",
+                audience=audience,
+                message="S9 projection inverted a value-tradeoff direction.",
+            )
+        )
+    if _text(faithfulness.get("shadow_approval_status")) == "rendered_as_approved":
+        issues.append(
+            _contract_issue(
+                "s9_shadow_candidate_rendered_as_approved",
+                audience=audience,
+                message="S9 projection rendered a shadow candidate as approved.",
+            )
+        )
+    if _text_list(faithfulness.get("added_claim_refs")):
+        issues.append(
+            _contract_issue(
+                "s9_projection_added_claim",
+                audience=audience,
+                message="S9 projection added claim refs absent from the canonical record.",
+            )
+        )
+    hidden_blockers = _text_list(faithfulness.get("hidden_blocker_refs"))
+    if hidden_blockers and not _sequence(projection.get("omission_manifest")):
+        issues.append(
+            _contract_issue(
+                "s9_redaction_hides_blocker",
+                audience=audience,
+                message="S9 projection hid blocker refs without an omission manifest.",
+            )
+        )
+    issues.extend(
+        _s9_authority_issues(
+            audience=audience,
+            projection=projection,
+            faithfulness=faithfulness,
+        )
+    )
+    issues.extend(
+        _s9_revision_issues(
+            audience=audience,
+            projection=projection,
+            faithfulness=faithfulness,
+            expected_source_revision_ref=expected_source_revision_ref,
+        )
+    )
+    actual_deficit_codes = {
+        _text(row.get("deficit_code") or row.get("code"))
+        for row in _sequence(projection.get("deficit_register"))
+        if isinstance(row, Mapping)
+    }
+    missing_deficit_codes = sorted(
+        {_text(code) for code in expected_deficit_codes if _text(code)}
+        - actual_deficit_codes
+    )
+    for code in missing_deficit_codes:
+        issues.append(
+            _contract_issue(
+                "s9_projection_hides_deficit_record",
+                audience=audience,
+                message=f"S9 projection omitted deficit code {code}.",
+            )
+        )
+    return _dedupe_contract_issues(issues)
+
+
+def _s9_authority_issues(
+    *,
+    audience: str,
+    projection: Mapping[str, Any],
+    faithfulness: Mapping[str, Any],
+) -> list[dict[str, Any]]:
+    issues: list[dict[str, Any]] = []
+    if _text(projection.get("authority_role")).casefold() not in {"", "projection_only"}:
+        issues.append(
+            _contract_issue(
+                "s9_projection_mints_authority",
+                audience=audience,
+                message="S9 projection authority_role must remain projection_only.",
+            )
+        )
+    if _sequence(projection.get("authoritative_for")):
+        issues.append(
+            _contract_issue(
+                "s9_projection_mints_authority",
+                audience=audience,
+                message="S9 projection cannot satisfy authoritative_for slots.",
+            )
+        )
+    may_not = {
+        *_text_list(projection.get("may_not_be_used_for")),
+        *_text_list(projection.get("may_not_use_for")),
+    }
+    boundary = _mapping(faithfulness.get("authority_boundary"))
+    boundary_may_not = set(_text_list(boundary.get("may_not_use_for")))
+    boundary_authoritative_for = set(_text_list(boundary.get("authoritative_for")))
+    if not may_not >= _S9_REQUIRED_MAY_NOT_USE_FOR:
+        issues.append(
+            _contract_issue(
+                "s9_projection_mints_authority",
+                audience=audience,
+                message="S9 projection omitted claim/scorecard/closeout use limits.",
+            )
+        )
+    if not boundary_may_not >= _S9_AUTHORITY_BOUNDARY_REQUIRED_MAY_NOT_USE_FOR:
+        issues.append(
+            _contract_issue(
+                "s9_projection_mints_authority",
+                audience=audience,
+                message="S9 faithfulness authority boundary omitted forbidden uses.",
+            )
+        )
+    forbidden_authoritative_for = boundary_authoritative_for & {
+        "claim_authority",
+        "scorecard_authority",
+        "runtime_closeout_authority",
+        "approval_authority",
+        "publication_authority",
+    }
+    if forbidden_authoritative_for:
+        issues.append(
+            _contract_issue(
+                "s9_projection_mints_authority",
+                audience=audience,
+                message="S9 faithfulness boundary tried to fill authority slots.",
+            )
+        )
+    return issues
+
+
+def _s9_revision_issues(
+    *,
+    audience: str,
+    projection: Mapping[str, Any],
+    faithfulness: Mapping[str, Any],
+    expected_source_revision_ref: str | None,
+) -> list[dict[str, Any]]:
+    expected = _text(expected_source_revision_ref)
+    if not expected:
+        return []
+    actual = _text(
+        projection.get("source_revision_ref") or faithfulness.get("source_revision_ref")
+    )
+    if actual == expected:
+        return []
+    has_reissue_route = any(
+        _text(projection.get(key) or faithfulness.get(key))
+        for key in ("reissue_ref", "reopen_ref")
+    ) or bool(projection.get("s9_reissue_required"))
+    if has_reissue_route:
+        return []
+    return [
+        _contract_issue(
+            "s9_projection_source_revision_mismatch",
+            audience=audience,
+            message="S9 projection source revision changed without reissue/reopen route.",
+        )
+    ]
+
+
+def _s9_faithfulness_issue_codes(faithfulness: Mapping[str, Any]) -> list[str]:
+    codes = _text_list(faithfulness.get("issue_codes"))
+    if _text(faithfulness.get("faithfulness_status")) != "pass" and not codes:
+        codes.append("s9_projection_faithfulness_failed")
+    return codes
+
+
+def _s9_faithfulness_record(projection: Mapping[str, Any]) -> dict[str, Any]:
+    record = projection.get("s9_projection_faithfulness") or projection.get(
+        "projection_faithfulness"
+    )
+    if record is None and "faithfulness_status" in projection:
+        record = projection
+    return _mapping_from_record(record)
+
+
+def _mapping_from_record(value: object) -> dict[str, Any]:
+    if isinstance(value, Mapping):
+        return dict(value)
+    model_dump = getattr(value, "model_dump", None)
+    if callable(model_dump):
+        dumped = model_dump(mode="json")
+        if isinstance(dumped, Mapping):
+            return dict(dumped)
+    return {}
+
+
+def _dedupe_contract_issues(issues: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
+    deduped: list[dict[str, Any]] = []
+    seen: set[tuple[str, str]] = set()
+    for issue in issues:
+        key = (_text(issue.get("audience")), _text(issue.get("code")))
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(dict(issue))
+    return deduped
 
 
 def _source_authority_refs(authority_chain: Mapping[str, Any]) -> dict[str, str]:
@@ -1643,4 +2102,5 @@ __all__ = [
     "assert_policy_design_projection_not_authority",
     "build_policy_design_case_projection_from_runtime_graph",
     "build_policy_design_case_projection_semantics",
+    "verify_s9_projection_faithfulness_for_pdc_consumer_contract",
 ]

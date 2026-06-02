@@ -23,6 +23,7 @@ from polisyos.runtime.quality.projection_semantics import (
     build_policy_design_case_projection_from_runtime_graph,
     build_policy_design_case_projection_semantics,
     verify_policy_design_case_projection_consumer_contract,
+    verify_s9_projection_faithfulness_for_pdc_consumer_contract,
 )
 from polisyos.runtime.quality.rule_evolution import (
     RULE_EVOLUTION_PUBLIC_ANNOTATION_SCHEMA_VERSION,
@@ -245,6 +246,22 @@ def build_public_export_bundle(
         }
     else:
         projection_contract_verification = None
+    if projection_semantics is not None and projection_payload is not None:
+        projection_semantics, s9_verification = _apply_s9_projection_faithfulness(
+            projection_semantics=projection_semantics,
+            projection_payload=projection_payload,
+        )
+        if s9_verification is not None and projection_contract_verification is not None:
+            projection_contract_verification = {
+                **projection_contract_verification,
+                "s9_projection_faithfulness": s9_verification,
+                "status": "fail"
+                if (
+                    projection_contract_verification.get("status") == "fail"
+                    or s9_verification.get("status") == "fail"
+                )
+                else "pass",
+            }
     _assert_public_claim_omissions_manifested(sanitized_artifacts, projection_semantics)
     bundle = {
         "schema_version": PUBLIC_EXPORT_SCHEMA_VERSION,
@@ -291,6 +308,113 @@ def build_public_export_bundle(
         bundle["projection_semantics"] = projection_semantics
     assert_public_export_official_use_limits(bundle)
     return bundle
+
+
+def _apply_s9_projection_faithfulness(
+    *,
+    projection_semantics: Mapping[str, object],
+    projection_payload: Mapping[str, object],
+) -> tuple[dict[str, object], dict[str, object] | None]:
+    faithfulness = _s9_faithfulness_record(projection_payload)
+    if not faithfulness:
+        return dict(projection_semantics), None
+    verifier_payload = {
+        **dict(projection_semantics),
+        "projection_policy": "reads_canonical_design_record",
+        "source_revision_ref": _text(
+            projection_payload.get("source_revision_ref")
+            or faithfulness.get("source_revision_ref")
+        ),
+        "s9_projection_faithfulness": faithfulness,
+    }
+    if "omission_manifest" in projection_payload:
+        verifier_payload["omission_manifest"] = projection_payload["omission_manifest"]
+    verification = verify_s9_projection_faithfulness_for_pdc_consumer_contract(
+        projections={"public": verifier_payload},
+        expected_closeout_truth=dict(projection_semantics.get("closeout_truth") or {}),
+        expected_contested_record_ids=[
+            _text(record.get("contested_record_id"))
+            for record in _as_sequence(projection_semantics.get("contested_records"))
+            if isinstance(record, Mapping)
+        ],
+    )
+    if verification.get("status") != "pass":
+        code = _first_s9_issue_code(verification)
+        raise PublicExportRedactionError(
+            code,
+            "S9 projection faithfulness must pass before public release.",
+        )
+    enriched = dict(projection_semantics)
+    audit_refs = _unique_texts(
+        [
+            *_text_list(enriched.get("audit_refs")),
+            *_s9_audit_refs(faithfulness),
+            *_text_list(projection_payload.get("s9_lowering_append_refs")),
+            *_text_list(projection_payload.get("lowering_append_refs")),
+        ]
+    )
+    source_state = dict(enriched.get("source_state") or {})
+    source_state.update(
+        {
+            "s9_source_revision_ref": _text(faithfulness.get("source_revision_ref")),
+            "s9_canonical_design_record_ref": _text(
+                faithfulness.get("canonical_design_record_ref")
+            ),
+            "s9_canonical_design_record_digest": _text(
+                faithfulness.get("canonical_design_record_digest")
+            ),
+            "s9_projection_policy": "reads_canonical_design_record",
+        }
+    )
+    enriched.update(
+        {
+            "s9_projection_faithfulness": faithfulness,
+            "s9_projection_contract_verification_status": verification.get("status"),
+            "s9_projection_contract_verification_ref": verification.get(
+                "consumer_contract_ref"
+            ),
+            "audit_refs": audit_refs,
+            "source_state": source_state,
+        }
+    )
+    return enriched, verification
+
+
+def _s9_faithfulness_record(payload: Mapping[str, object]) -> dict[str, object]:
+    record = payload.get("s9_projection_faithfulness")
+    if record is None and isinstance(payload.get("s9_projection"), Mapping):
+        record = dict(payload["s9_projection"]).get("s9_projection_faithfulness")
+    if isinstance(record, Mapping):
+        return dict(record)
+    model_dump = getattr(record, "model_dump", None)
+    if callable(model_dump):
+        dumped = model_dump(mode="json")
+        if isinstance(dumped, Mapping):
+            return dict(dumped)
+    return {}
+
+
+def _s9_audit_refs(faithfulness: Mapping[str, object]) -> list[str]:
+    return _unique_texts(
+        [
+            faithfulness.get("faithfulness_ref"),
+            faithfulness.get("render_ref"),
+            faithfulness.get("request_ref"),
+            faithfulness.get("canonical_design_record_ref"),
+            faithfulness.get("source_revision_ref"),
+        ]
+    )
+
+
+def _first_s9_issue_code(verification: Mapping[str, object]) -> str:
+    for code in _text_list(verification.get("issue_codes")):
+        return code
+    for issue in _as_sequence(verification.get("issues")):
+        if isinstance(issue, Mapping):
+            code = _text(issue.get("code"))
+            if code:
+                return code
+    return "s9_projection_faithfulness_failed"
 
 
 def _assert_public_claim_omissions_manifested(
@@ -690,6 +814,25 @@ def _is_tenant_private_ref(value: str) -> bool:
 
 def _fingerprint(value: object) -> str:
     return "sha256:" + hashlib.sha256(str(value or "").encode("utf-8")).hexdigest()
+
+
+def _text(value: object) -> str:
+    if isinstance(value, str):
+        return value.strip()
+    return ""
+
+
+def _text_list(value: object) -> list[str]:
+    return _unique_texts(_as_sequence(value))
+
+
+def _unique_texts(values: Sequence[object]) -> list[str]:
+    result: list[str] = []
+    for value in values:
+        text = _text(value)
+        if text and text not in result:
+            result.append(text)
+    return result
 
 
 def _as_sequence(value: object) -> Sequence[object]:

@@ -782,6 +782,7 @@ from .projection_semantics import (
     build_policy_design_case_projection_contract_fixture,
     build_policy_design_case_projection_semantics,
     verify_policy_design_case_projection_consumer_contract,
+    verify_s9_projection_faithfulness_for_pdc_consumer_contract,
 )
 from .prompt_tool_ledger import (
     PromptToolParserAuthorityLedger,
@@ -1675,6 +1676,7 @@ __all__ = [
     "validate_run_cost_proportionality_ledger",
     "verify_policy_design_case_projection_consumer_contract",
     "verify_projection_faithfulness",
+    "verify_s9_projection_faithfulness_for_pdc_consumer_contract",
     "warning_lifecycle_summaries",
     "write_authority_envelope_json_schema",
 ]

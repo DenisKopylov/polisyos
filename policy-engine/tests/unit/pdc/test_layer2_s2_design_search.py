@@ -1961,6 +1961,58 @@ def test_s11_weakest_boundary_caps_search_ledger_projection() -> None:
     assert "production_recommendation_text" not in projection
 
 
+def test_s11_poor_calibration_downgrades_forecast_quality_without_reclassifying_s10_tier() -> None:
+    forecast_posture = _s10_forecast_posture(forecast_tier="observable_calibrated")
+    predictive_posture = _s11_predictive_posture(
+        per_axis_predictive_calibration_status="poor",
+        forecast_quality_disposition="downgraded_by_s11_calibration",
+    )
+
+    run = run_s2_shadow_design_loop(
+        _input(),
+        forecast_posture=forecast_posture,
+        predictive_posture=predictive_posture,
+    )
+
+    forecast_quality_rows = [
+        row
+        for row in run.constraint_store.constraint_records
+        if row.cell_ref == "INTERVENTION.forecast_quality"
+    ]
+    assert forecast_quality_rows
+    assert forecast_quality_rows[0].status == "limit"
+    assert "forecast_tier=observable_calibrated" in forecast_quality_rows[0].reason
+    assert run.forecast_posture is not None
+    assert run.forecast_posture.forecast_tier == "observable_calibrated"
+    assert run.search_ledger.forecast_authority_status == "observable_calibrated"
+
+
+def test_s2_records_s11_forecast_quality_constraint_without_rerunning_s4_or_s10() -> None:
+    forecast_posture = _s10_forecast_posture(forecast_tier="observable_calibrated")
+    predictive_posture = _s11_predictive_posture(
+        per_axis_predictive_calibration_status="poor",
+        forecast_quality_disposition="downgraded_by_s11_calibration",
+    )
+
+    run = run_s2_shadow_design_loop(
+        _input(),
+        regime="risk",
+        design_strategy="expected_welfare_optimization",
+        regime_claim_ref="pdc://layer2/s4/ua-msme/regime/risk",
+        forecast_posture=forecast_posture,
+        predictive_posture=predictive_posture,
+    )
+
+    assert run.candidates[0].regime == "risk"
+    assert run.candidates[0].design_strategy == "expected_welfare_optimization"
+    assert run.forecast_posture is not None
+    assert run.forecast_posture.forecast_tier == "observable_calibrated"
+    assert run.search_ledger.s11_forecast_quality_constraint_refs
+    assert run.search_ledger.s11_regime_strategy_constraint_refs == [
+        predictive_posture.regime_strategy_constraint_ref
+    ]
+
+
 def _s9_projection_context() -> dict[str, object]:
     return {
         "canonical_design_record_ref": "pdc://layer2/s9/ua-msme/canonical-design-record",

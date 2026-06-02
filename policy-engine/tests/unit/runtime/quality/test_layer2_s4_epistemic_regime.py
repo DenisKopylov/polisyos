@@ -18,6 +18,7 @@ from polisyos.runtime.quality.layer2_epistemic_regime import (
     P16PrecautionLaunderingError,
     P23StakesFloorError,
     RegimeEvidenceBasis,
+    build_s11_regime_strategy_constraint,
     classify_regime,
     regime_accuracy,
     regime_claim_to_axis_position,
@@ -144,6 +145,22 @@ def test_regime_strategy_mapping() -> None:
     )
     assert regime_design_strategy("ignorance", _reversible_low_stakes()) == (
         "precautionary_adaptive_pathway"
+    )
+
+
+def test_s11_stale_calibration_creates_regime_strategy_constraint() -> None:
+    constraint = build_s11_regime_strategy_constraint(
+        constraint_ref="constraint://s11/regime/strategic-response",
+        source_ref="pdc://layer2/s11/ua-msme/calibration/strategic-response",
+        calibration_status="stale",
+        rule_version_ref="policyos.layer2.s11.predictive_knowledge.v1",
+    )
+
+    assert constraint.cell_ref == "KNOWLEDGE.epistemic_regime"
+    assert constraint.status == "limit"
+    assert constraint.reruns_s4_producer is False
+    assert "epistemic_regime_classification" in (
+        constraint.authority_boundary.may_not_use_for
     )
 
 

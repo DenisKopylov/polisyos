@@ -25,6 +25,7 @@ from polisyos.runtime.quality.projection_semantics import (
     verify_policy_design_case_projection_consumer_contract,
     verify_s9_projection_faithfulness_for_pdc_consumer_contract,
     verify_s10_forecast_projection_consumer_contract,
+    verify_s11_predictive_projection_consumer_contract,
 )
 from polisyos.runtime.quality.rule_evolution import (
     RULE_EVOLUTION_PUBLIC_ANNOTATION_SCHEMA_VERSION,
@@ -189,6 +190,8 @@ def build_public_export_bundle(
     projection_contract_verification = None
     s10_verification = None
     s10_projection = None
+    s11_verification = None
+    s11_projection = None
     if runtime_pdc_graph is not None:
         projection_semantics = build_policy_design_case_projection_from_runtime_graph(
             runtime_pdc_graph=runtime_pdc_graph,
@@ -294,6 +297,36 @@ def build_public_export_bundle(
                     )
                     else "pass",
                 }
+        projection_semantics, s11_verification, s11_projection = (
+            _apply_s11_predictive_projection(
+                projection_semantics=projection_semantics,
+                projection_payload=projection_payload,
+            )
+        )
+        if s11_verification is not None:
+            if projection_contract_verification is None:
+                projection_contract_verification = {
+                    "schema_version": str(
+                        s11_verification.get("consumer_contract_ref")
+                        or (
+                            "policyos.runtime.policy_design_case."
+                            "s11_predictive_projection_verification.v1"
+                        )
+                    ),
+                    "status": str(s11_verification.get("status") or "fail"),
+                    "s11_predictive_projection": s11_verification,
+                }
+            else:
+                projection_contract_verification = {
+                    **projection_contract_verification,
+                    "s11_predictive_projection": s11_verification,
+                    "status": "fail"
+                    if (
+                        projection_contract_verification.get("status") == "fail"
+                        or s11_verification.get("status") == "fail"
+                    )
+                    else "pass",
+                }
     _assert_public_claim_omissions_manifested(sanitized_artifacts, projection_semantics)
     bundle = {
         "schema_version": PUBLIC_EXPORT_SCHEMA_VERSION,
@@ -319,6 +352,8 @@ def build_public_export_bundle(
             "public_revision_states": public_revision_states,
             "s10_forecast_projection": s10_projection,
             "s10_forecast_projection_contract_verification": s10_verification,
+            "s11_predictive_projection": s11_projection,
+            "s11_predictive_projection_contract_verification": s11_verification,
             "omission_manifest": list(
                 projection_semantics.get("omission_manifest", [])
                 if projection_semantics is not None
@@ -342,6 +377,91 @@ def build_public_export_bundle(
         bundle["projection_semantics"] = projection_semantics
     assert_public_export_official_use_limits(bundle)
     return bundle
+
+
+def _apply_s11_predictive_projection(
+    *,
+    projection_semantics: Mapping[str, object],
+    projection_payload: Mapping[str, object],
+) -> tuple[dict[str, object], dict[str, object] | None, dict[str, object] | None]:
+    s11_projection = _s11_predictive_projection_record(projection_payload)
+    if not s11_projection:
+        return dict(projection_semantics), None, None
+    verification = verify_s11_predictive_projection_consumer_contract(
+        projections={"public": s11_projection},
+    )
+    if verification.get("status") != "pass":
+        raise PublicExportRedactionError(
+            _first_s11_issue_code(verification),
+            "S11 predictive projection consumer contract must pass before public release.",
+        )
+    public_projection = dict(verification.get("public_projection") or {})
+    enriched = dict(projection_semantics)
+    s11_limitation = _text(
+        public_projection.get("s11_public_limitation")
+        or s11_projection.get("s11_public_limitation")
+    )
+    limitations = _unique_texts(
+        [
+            *_text_list(enriched.get("limitations")),
+            s11_limitation,
+            "S11 predictive relaxation remains calibration-limited and not authority.",
+        ]
+    )
+    audit_refs = _unique_texts(
+        [
+            *_text_list(enriched.get("audit_refs")),
+            s11_projection.get("s11_predictive_posture_ref"),
+            s11_projection.get("proof_carrying_analytics_ref"),
+            s11_projection.get("ir_analytics_bridge_ref"),
+            s11_projection.get("rule_version_ref"),
+            *_text_list(s11_projection.get("predictive_axis_upgrade_refs")),
+            *_text_list(s11_projection.get("residual_limitation_refs")),
+        ]
+    )
+    may_not = _unique_texts(
+        [
+            *_text_list(enriched.get("may_not_be_used_for")),
+            *_text_list(public_projection.get("may_not_be_used_for")),
+            "production_recommendation",
+            "production_claim_authority",
+            "publication_authority",
+            "claim_authority",
+            "runtime_closeout_authority",
+        ]
+    )
+    source_state = dict(enriched.get("source_state") or {})
+    source_state.update(
+        {
+            "s11_predictive_posture_ref": s11_projection.get(
+                "s11_predictive_posture_ref"
+            ),
+            "s11_projection_policy": "reads_predictive_posture_as_constraint",
+            "s11_effective_predictive_posture": s11_projection.get(
+                "effective_predictive_posture"
+            ),
+        }
+    )
+    enriched.update(
+        {
+            "effective_predictive_posture": s11_projection.get(
+                "effective_predictive_posture"
+            ),
+            "s11_public_limitation": s11_limitation,
+            "authority_role": "projection_only",
+            "may_not_be_used_for": may_not,
+            "limitations": limitations,
+            "audit_refs": audit_refs,
+            "source_state": source_state,
+            "s11_predictive_projection_contract_verification_status": (
+                verification.get("status")
+            ),
+            "s11_predictive_projection_contract_verification_ref": verification.get(
+                "consumer_contract_ref"
+            ),
+        }
+    )
+    return enriched, verification, s11_projection
 
 
 def _apply_s10_forecast_projection(
@@ -477,6 +597,73 @@ def _s10_forecast_projection_record(
     }
 
 
+def _s11_predictive_projection_record(
+    projection_payload: Mapping[str, object],
+) -> dict[str, object]:
+    if not (
+        _text(projection_payload.get("s11_predictive_posture_ref"))
+        or _text(projection_payload.get("predictive_knowledge_ref"))
+        or _as_sequence(projection_payload.get("predictive_axis_rows"))
+    ):
+        return {}
+    authority_boundary = dict(
+        projection_payload.get("authority_boundary")
+        if isinstance(projection_payload.get("authority_boundary"), Mapping)
+        else {}
+    )
+    return {
+        "audience": "PUBLIC",
+        "authority_role": "projection_only",
+        "projection_policy": "reads_predictive_posture_as_constraint",
+        "s11_predictive_posture_ref": _text(
+            projection_payload.get("s11_predictive_posture_ref")
+            or projection_payload.get("predictive_knowledge_ref")
+        ),
+        "effective_predictive_posture": _text(
+            projection_payload.get("effective_predictive_posture")
+            or projection_payload.get("predictive_authority_status")
+        ),
+        "predictive_axis_upgrade_refs": _text_list(
+            projection_payload.get("predictive_axis_upgrade_refs")
+            or projection_payload.get("axis_upgrade_refs")
+        ),
+        "predictive_axis_rows": [
+            dict(row)
+            for row in _as_sequence(projection_payload.get("predictive_axis_rows"))
+            if isinstance(row, Mapping)
+        ],
+        "per_axis_predictive_calibration_status": _text(
+            projection_payload.get("per_axis_predictive_calibration_status")
+        ),
+        "per_axis_predictive_calibration_threshold_ref": _text(
+            projection_payload.get("per_axis_predictive_calibration_threshold_ref")
+        ),
+        "proof_carrying_analytics_ref": _text(
+            projection_payload.get("proof_carrying_analytics_ref")
+        ),
+        "ir_analytics_bridge_ref": _text(
+            projection_payload.get("ir_analytics_bridge_ref")
+        ),
+        "residual_limitation_refs": _text_list(
+            projection_payload.get("residual_limitation_refs")
+        ),
+        "weakest_boundary_reason": _text(
+            projection_payload.get("weakest_boundary_reason")
+        ),
+        "s11_public_limitation": _text(
+            projection_payload.get("s11_public_limitation")
+        ),
+        "authority_boundary": authority_boundary,
+        "may_not_be_used_for": _unique_texts(
+            [
+                *_text_list(projection_payload.get("may_not_be_used_for")),
+                *_text_list(projection_payload.get("may_not_use_for")),
+            ]
+        ),
+        "rule_version_ref": _text(projection_payload.get("rule_version_ref")),
+    }
+
+
 def _s10_missing_machine_export_refs(
     s10_projection: Mapping[str, object],
 ) -> list[str]:
@@ -504,6 +691,17 @@ def _first_s10_issue_code(verification: Mapping[str, object]) -> str:
             if code:
                 return code
     return "s10_forecast_projection_failed"
+
+
+def _first_s11_issue_code(verification: Mapping[str, object]) -> str:
+    for code in _text_list(verification.get("issue_codes")):
+        return code
+    for issue in _as_sequence(verification.get("issues")):
+        if isinstance(issue, Mapping):
+            code = _text(issue.get("code"))
+            if code:
+                return code
+    return "s11_predictive_projection_failed"
 
 
 def _apply_s9_projection_faithfulness(

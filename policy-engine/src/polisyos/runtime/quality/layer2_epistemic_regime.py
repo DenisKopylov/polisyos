@@ -27,6 +27,13 @@ DesignStrategy = Literal[
     "frame_indexed_portfolio",
     "precautionary_adaptive_pathway",
 ]
+S11PredictiveCalibrationStatus = Literal[
+    "pass",
+    "absent",
+    "stale",
+    "poor",
+    "out_of_scope",
+]
 
 _EXACT_BINDING_STATUSES = frozenset({"selected_exact", "selected_derived"})
 _BLOCKED_BINDING_STATUSES = frozenset(
@@ -99,6 +106,19 @@ class EpistemicRegimeClaim(_S4Model):
     strategy_consequence: DesignStrategy
     classified_by: Literal["A_gate"] = "A_gate"
     b_side_preference_honored: bool = False
+    authority_boundary: AuthorityBoundary
+
+
+class S11RegimeStrategyConstraint(_S4Model):
+    """Consumer-side S11 constraint on regime strategy without reclassifying S4."""
+
+    constraint_ref: str = Field(min_length=1)
+    cell_ref: Literal["KNOWLEDGE.epistemic_regime"] = "KNOWLEDGE.epistemic_regime"
+    source_ref: str = Field(min_length=1)
+    calibration_status: S11PredictiveCalibrationStatus
+    status: Literal["pass", "limit", "block"]
+    reruns_s4_producer: bool = False
+    reason: str = Field(min_length=1)
     authority_boundary: AuthorityBoundary
 
 
@@ -196,6 +216,46 @@ def classify_regime(
     )
 
 
+def build_s11_regime_strategy_constraint(
+    *,
+    constraint_ref: str,
+    source_ref: str,
+    calibration_status: S11PredictiveCalibrationStatus,
+    rule_version_ref: str,
+) -> S11RegimeStrategyConstraint:
+    """Build an S11 regime-strategy consumer constraint without rerunning S4."""
+
+    status: Literal["pass", "limit", "block"]
+    if calibration_status == "pass":
+        status = "pass"
+    elif calibration_status in {"absent", "stale", "poor"}:
+        status = "limit"
+    else:
+        status = "block"
+    return S11RegimeStrategyConstraint(
+        constraint_ref=constraint_ref,
+        source_ref=source_ref,
+        calibration_status=calibration_status,
+        status=status,
+        reason=(
+            "S11 predictive calibration constrains regime strategy consumption; "
+            "S4 epistemic-regime classification is not rerun or reclassified."
+        ),
+        authority_boundary=AuthorityBoundary(
+            authoritative_for=["s11_regime_strategy_constraint"],
+            may_not_use_for=[
+                "epistemic_regime_classification",
+                "risk_regime_authority",
+                "production_claim_authority",
+                "production_recommendation",
+            ],
+            source_authority="deterministic_producer",
+            posture="shadow",
+            rule_version_refs=[rule_version_ref],
+        ),
+    )
+
+
 def regime_claim_to_axis_position(
     claim: EpistemicRegimeClaim,
 ) -> tuple[AxisPositionDeclaration, AxisFirewallStatus]:
@@ -273,6 +333,8 @@ __all__ = [
     "P16PrecautionLaunderingError",
     "P23StakesFloorError",
     "RegimeEvidenceBasis",
+    "S11RegimeStrategyConstraint",
+    "build_s11_regime_strategy_constraint",
     "classify_regime",
     "regime_accuracy",
     "regime_claim_to_axis_position",

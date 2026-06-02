@@ -94,6 +94,24 @@ S10ForecastTier = Literal[
     "equilibrium_contested_blocked",
     "blocked",
 ]
+S11PredictivePosture = Literal[
+    "not_applicable",
+    "limited_by_weakest_boundary",
+    "fail_closed",
+    "predictive_shadow_only",
+]
+S11ForecastQualityDisposition = Literal[
+    "unchanged_s10_tier_consumed",
+    "downgraded_by_s11_calibration",
+    "blocked_by_s11_calibration",
+]
+S11CalibrationStatus = Literal[
+    "pass",
+    "absent",
+    "stale",
+    "poor",
+    "out_of_scope",
+]
 
 _COUNTEREXAMPLE_CLASS_VOCABULARY: list[str] = [
     "real_design_blocker",
@@ -147,6 +165,18 @@ _S10_REQUIRED_HANDOFF_MAY_NOT_USE_FOR = [
     "closeout_authority",
     "s11_calibration",
 ]
+_S11_REQUIRED_HANDOFF_MAY_NOT_USE_FOR = [
+    "production_recommendation",
+    "recommendation_authority",
+    "production_claim_authority",
+    "claim_authority",
+    "publication_authority",
+    "closeout_authority",
+    "forecast_tier_reclassification",
+    "s10_forecast_authority",
+]
+_S11_REGIME_CELL_REF = "KNOWLEDGE.epistemic_regime"
+_S11_FORECAST_QUALITY_CELL_REF = "INTERVENTION.forecast_quality"
 
 
 class Layer2S2DesignSearchInputError(ValueError):
@@ -345,6 +375,59 @@ class Layer2S10ForecastPostureInput(Layer2ReadinessModel):
     authority_boundary: AuthorityBoundary
     may_not_use_for: list[str] = Field(default_factory=list, max_length=40)
     rule_version_ref: str = Field(..., min_length=1, max_length=300)
+
+
+class Layer2S11PredictivePostureInput(Layer2ReadinessModel):
+    """Injected S11 predictive-knowledge posture consumed by the S2 shadow loop."""
+
+    predictive_knowledge_ref: str = Field(..., min_length=1, max_length=300)
+    effective_predictive_posture: S11PredictivePosture
+    axis_upgrade_refs: list[str] = Field(default_factory=list, max_length=80)
+    predictive_axis_rows: list[dict[str, object]] = Field(default_factory=list, max_length=20)
+    proof_carrying_analytics_ref: str = Field(..., min_length=1, max_length=300)
+    ir_analytics_bridge_ref: str = Field(..., min_length=1, max_length=300)
+    s10_forecast_support_ref: str = Field(..., min_length=1, max_length=300)
+    s10_forecast_tier: S10ForecastTier
+    s6_floor_status_refs: list[str] = Field(default_factory=list, max_length=80)
+    s6_axis_rows: list[dict[str, object]] = Field(default_factory=list, max_length=20)
+    s6_bridge_consumer_rows: list[dict[str, object]] = Field(
+        default_factory=list,
+        max_length=40,
+    )
+    s6_constraint_store_update_refs: list[str] = Field(default_factory=list, max_length=80)
+    s6_c3_authority_dimension_refs: list[str] = Field(
+        default_factory=list,
+        max_length=40,
+    )
+    post_intervention_dgp_update_ref: str | None = Field(default=None, max_length=300)
+    system_dynamics_handoff_required: bool
+    s11_calibration_record_refs: list[str] = Field(default_factory=list, max_length=80)
+    method_infrastructure_refs: list[str] = Field(default_factory=list, max_length=80)
+    forecast_quality_disposition: S11ForecastQualityDisposition
+    regime_strategy_constraint_ref: str | None = Field(default=None, max_length=300)
+    residual_limitation_refs: list[str] = Field(default_factory=list, max_length=80)
+    per_axis_predictive_calibration_threshold_ref: str = Field(
+        ...,
+        min_length=1,
+        max_length=300,
+    )
+    per_axis_predictive_calibration_denominator: int = Field(ge=0)
+    per_axis_predictive_calibration_numerator: int = Field(ge=0)
+    per_axis_predictive_calibration_pass_rate: float = Field(ge=0.0, le=1.0)
+    per_axis_predictive_calibration_status: S11CalibrationStatus
+    weakest_boundary_reason: str = Field(..., min_length=1, max_length=800)
+    authority_boundary: AuthorityBoundary
+    may_not_use_for: list[str] = Field(default_factory=list, max_length=80)
+    rule_version_ref: str = Field(..., min_length=1, max_length=300)
+
+    @model_validator(mode="after")
+    def _validate_predictive_calibration_counts(self) -> Layer2S11PredictivePostureInput:
+        if (
+            self.per_axis_predictive_calibration_numerator
+            > self.per_axis_predictive_calibration_denominator
+        ):
+            raise ValueError("S11 calibration numerator cannot exceed denominator")
+        return self
 
 
 class TypedDiagnosticRecord(Layer2ReadinessModel):
@@ -550,6 +633,26 @@ class SearchLedger(Layer2ReadinessModel):
         max_length=120,
     )
     forecast_authority_boundary: AuthorityBoundary | None = None
+    predictive_knowledge_refs: list[str] = Field(default_factory=list, max_length=40)
+    predictive_axis_upgrade_refs: list[str] = Field(default_factory=list, max_length=40)
+    proof_carrying_analytics_refs: list[str] = Field(default_factory=list, max_length=40)
+    ir_analytics_bridge_refs: list[str] = Field(default_factory=list, max_length=40)
+    s11_calibration_record_refs: list[str] = Field(default_factory=list, max_length=40)
+    s11_forecast_quality_constraint_refs: list[str] = Field(
+        default_factory=list,
+        max_length=40,
+    )
+    s11_regime_strategy_constraint_refs: list[str] = Field(
+        default_factory=list,
+        max_length=40,
+    )
+    s11_residual_limitation_refs: list[str] = Field(default_factory=list, max_length=40)
+    predictive_authority_status: str = Field(
+        default="not_applicable",
+        min_length=1,
+        max_length=120,
+    )
+    predictive_authority_boundary: AuthorityBoundary | None = None
     no_retry_without_new_grammar: bool
     search_incompleteness_note: str
 
@@ -599,6 +702,7 @@ class Layer2S2DesignSearchRun(Layer2ReadinessModel):
     delegation_posture: Layer2S7DelegationPostureInput | None = None
     value_posture: Layer2S8ValuePostureInput | None = None
     forecast_posture: Layer2S10ForecastPostureInput | None = None
+    predictive_posture: Layer2S11PredictivePostureInput | None = None
 
 
 def run_s2_shadow_design_loop(
@@ -614,6 +718,7 @@ def run_s2_shadow_design_loop(
     delegation_posture: Layer2S7DelegationPostureInput | None = None,
     value_posture: Layer2S8ValuePostureInput | None = None,
     forecast_posture: Layer2S10ForecastPostureInput | None = None,
+    predictive_posture: Layer2S11PredictivePostureInput | None = None,
 ) -> Layer2S2DesignSearchRun:
     """Run the deterministic S2 one-case shadow design-search loop."""
 
@@ -644,6 +749,7 @@ def run_s2_shadow_design_loop(
         blind_spot_posture=blind_spot_posture,
         delegation_posture=delegation_posture,
         value_posture=value_posture,
+        predictive_posture=predictive_posture,
     )
     counterexample = _counterexample(input, candidate=candidate)
     decision = _refinement_decision(
@@ -653,6 +759,7 @@ def run_s2_shadow_design_loop(
         composition_posture=composition_posture,
         blind_spot_posture=blind_spot_posture,
         value_posture=value_posture,
+        predictive_posture=predictive_posture,
     )
     iteration_status = _iteration_status(input, decision)
     iteration_status = _s7_iteration_status(delegation_posture, fallback=iteration_status)
@@ -662,6 +769,10 @@ def run_s2_shadow_design_loop(
             design_strategy=design_strategy,
             counterexample_class=input.forced_counterexample_class,
         ),
+        fallback=iteration_status,
+    )
+    iteration_status = _s11_iteration_status(
+        predictive_posture,
         fallback=iteration_status,
     )
     ledger = _search_ledger(
@@ -675,6 +786,7 @@ def run_s2_shadow_design_loop(
         delegation_posture=delegation_posture,
         value_posture=value_posture,
         forecast_posture=forecast_posture,
+        predictive_posture=predictive_posture,
     )
     design_record = _design_record(
         input,
@@ -691,6 +803,7 @@ def run_s2_shadow_design_loop(
         delegation_posture=delegation_posture,
         value_posture=value_posture,
         forecast_posture=forecast_posture,
+        predictive_posture=predictive_posture,
     )
     status: S2RunStatus = (
         "governance_required"
@@ -712,6 +825,7 @@ def run_s2_shadow_design_loop(
         ),
         fallback=status,
     )
+    status = _s11_run_status(predictive_posture, fallback=status)
     return Layer2S2DesignSearchRun(
         run_id=run_id,
         status=status,
@@ -727,6 +841,7 @@ def run_s2_shadow_design_loop(
             blind_spot_posture=blind_spot_posture,
             value_posture=value_posture,
             forecast_posture=forecast_posture,
+            predictive_posture=predictive_posture,
         ),
         handoff_records=_handoff_records(
             candidate,
@@ -737,6 +852,7 @@ def run_s2_shadow_design_loop(
             delegation_posture=delegation_posture,
             value_posture=value_posture,
             forecast_posture=forecast_posture,
+            predictive_posture=predictive_posture,
         ),
         design_record=design_record,
         composition_posture=composition_posture,
@@ -744,6 +860,7 @@ def run_s2_shadow_design_loop(
         delegation_posture=delegation_posture,
         value_posture=value_posture,
         forecast_posture=forecast_posture,
+        predictive_posture=predictive_posture,
     )
 
 
@@ -856,6 +973,14 @@ def project_s2_design_search(
         if run.forecast_posture is not None:
             projection.update(
                 _s10_projection_fields(audience, forecast_posture=run.forecast_posture)
+            )
+        if run.predictive_posture is not None:
+            projection.update(
+                _s11_projection_fields(
+                    audience,
+                    predictive_posture=run.predictive_posture,
+                    constraint_store=run.constraint_store,
+                )
             )
         projection.update(s9_context)
         projections[audience] = projection
@@ -1132,6 +1257,7 @@ def _constraint_store(
     blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
     delegation_posture: Layer2S7DelegationPostureInput | None = None,
     value_posture: Layer2S8ValuePostureInput | None = None,
+    predictive_posture: Layer2S11PredictivePostureInput | None = None,
 ) -> ConstraintStoreSnapshot:
     slug = _slug(input.case_id)
     s6_constraints = _s6_constraint_entries(blind_spot_posture)
@@ -1142,6 +1268,7 @@ def _constraint_store(
         ranked_value_choice_attempted=ranked_value_choice_attempted,
         rule_version_ref=input.rule_version_ref,
     )
+    s11_constraints = _s11_constraint_entries(predictive_posture, case_slug=slug)
     base_constraint_ids = [
         "shadow_only",
         "authority_boundary_required",
@@ -1150,7 +1277,13 @@ def _constraint_store(
     s6_constraint_ids = [entry.constraint_id for entry in s6_constraints]
     s7_constraint_ids = [entry.constraint_id for entry in s7_constraints]
     s8_constraint_ids = [entry.constraint_id for entry in s8_constraints]
-    constraint_records = [*s6_constraints, *s7_constraints, *s8_constraints]
+    s11_constraint_ids = [entry.constraint_id for entry in s11_constraints]
+    constraint_records = [
+        *s6_constraints,
+        *s7_constraints,
+        *s8_constraints,
+        *s11_constraints,
+    ]
     return ConstraintStoreSnapshot(
         snapshot_id=f"layer2.s2.constraints.{slug}",
         snapshot_ref=f"pdc://layer2/s2/{slug}/constraint-store",
@@ -1160,6 +1293,7 @@ def _constraint_store(
             *s6_constraint_ids,
             *s7_constraint_ids,
             *s8_constraint_ids,
+            *s11_constraint_ids,
         ],
         hard_constraint_ids=[
             "shadow_only",
@@ -1229,6 +1363,7 @@ def _refinement_decision(
     composition_posture: Layer2S5CompositionPostureInput | None = None,
     blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
     value_posture: Layer2S8ValuePostureInput | None = None,
+    predictive_posture: Layer2S11PredictivePostureInput | None = None,
 ) -> RefinementDecision:
     s8_route = _s8_refinement_decision(
         value_posture,
@@ -1238,12 +1373,17 @@ def _refinement_decision(
         ),
     )
     s6_route = _s6_refinement_decision(blind_spot_posture)
+    s11_route = _s11_refinement_decision(predictive_posture)
     if s8_route == "block_candidate":
         decision: RefinementDecisionKind = s8_route
+    elif s11_route == "block_candidate":
+        decision = s11_route
     elif s6_route is not None:
         decision = s6_route
     elif s8_route is not None:
         decision = s8_route
+    elif s11_route is not None:
+        decision = s11_route
     elif input.force_retry_same_candidate:
         decision = "block_candidate"
     elif counterexample.counterexample_class == "a_spec_gap":
@@ -1312,6 +1452,7 @@ def _refinement_decision(
             composition_posture=composition_posture,
             blind_spot_posture=blind_spot_posture,
             value_posture=value_posture,
+            predictive_posture=predictive_posture,
         ),
     )
 
@@ -1357,6 +1498,7 @@ def _search_ledger(
     delegation_posture: Layer2S7DelegationPostureInput | None = None,
     value_posture: Layer2S8ValuePostureInput | None = None,
     forecast_posture: Layer2S10ForecastPostureInput | None = None,
+    predictive_posture: Layer2S11PredictivePostureInput | None = None,
 ) -> SearchLedger:
     slug = _slug(input.case_id)
     replay_key = _deterministic_replay_key(
@@ -1369,10 +1511,12 @@ def _search_ledger(
         delegation_posture=delegation_posture,
         value_posture=value_posture,
         forecast_posture=forecast_posture,
+        predictive_posture=predictive_posture,
     )
     handoff_refs = [
         *_s7_handoff_refs(delegation_posture),
         *_s8_handoff_refs(value_posture),
+        *_s11_handoff_refs(predictive_posture),
     ]
     return SearchLedger(
         ledger_id=f"layer2.s2.ledger.{slug}",
@@ -1419,6 +1563,32 @@ def _search_ledger(
         forecast_authority_boundary=(
             forecast_posture.authority_boundary if forecast_posture is not None else None
         ),
+        predictive_knowledge_refs=_s11_predictive_knowledge_refs(predictive_posture),
+        predictive_axis_upgrade_refs=_s11_predictive_axis_upgrade_refs(
+            predictive_posture
+        ),
+        proof_carrying_analytics_refs=_s11_proof_carrying_analytics_refs(
+            predictive_posture
+        ),
+        ir_analytics_bridge_refs=_s11_ir_analytics_bridge_refs(predictive_posture),
+        s11_calibration_record_refs=_s11_calibration_record_refs(predictive_posture),
+        s11_forecast_quality_constraint_refs=(
+            _s11_forecast_quality_constraint_refs(predictive_posture)
+        ),
+        s11_regime_strategy_constraint_refs=(
+            _s11_regime_strategy_constraint_refs(predictive_posture)
+        ),
+        s11_residual_limitation_refs=_s11_residual_limitation_refs(
+            predictive_posture
+        ),
+        predictive_authority_status=_s11_predictive_authority_status(
+            predictive_posture
+        ),
+        predictive_authority_boundary=(
+            predictive_posture.authority_boundary
+            if predictive_posture is not None
+            else None
+        ),
         no_retry_without_new_grammar=input.force_retry_same_candidate,
         search_incompleteness_note=_SEARCH_INCOMPLETENESS_NOTE,
     )
@@ -1440,6 +1610,7 @@ def _design_record(
     delegation_posture: Layer2S7DelegationPostureInput | None = None,
     value_posture: Layer2S8ValuePostureInput | None = None,
     forecast_posture: Layer2S10ForecastPostureInput | None = None,
+    predictive_posture: Layer2S11PredictivePostureInput | None = None,
 ) -> DesignRecordV0:
     slug = _slug(input.case_id)
     axis_positions = [
@@ -1571,9 +1742,20 @@ def _design_record(
         ledger_refs.extend(_s10_design_record_ledger_refs(forecast_posture))
         projection_audiences = ["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"]
 
+    if predictive_posture is not None:
+        axis_positions.append(_s11_axis_position(predictive_posture))
+        firewall_status.append(_s11_firewall_status(predictive_posture))
+        ledger_refs.extend(_s11_design_record_ledger_refs(predictive_posture))
+        projection_audiences = ["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"]
+
     not_certified_for = list(_MAY_NOT_USE_FOR)
     if blind_spot_posture is not None and blind_spot_posture.overall_posture == "blocked":
         not_certified_for.append("closeout_authority_blocked_by_s6")
+    if (
+        predictive_posture is not None
+        and predictive_posture.effective_predictive_posture == "fail_closed"
+    ):
+        not_certified_for.append("closeout_authority_blocked_by_s11")
 
     return DesignRecordV0(
         record_id=f"layer2.s2.design_record.{slug}",
@@ -2119,6 +2301,101 @@ def _s10_projection_fields(
     return fields
 
 
+def _s11_projection_fields(
+    audience: Literal["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"],
+    *,
+    predictive_posture: Layer2S11PredictivePostureInput,
+    constraint_store: ConstraintStoreSnapshot,
+) -> dict[str, object]:
+    if audience == "PUBLIC":
+        return {
+            "s11_public_limitation": (
+                "Predictive relaxation remains limited by calibration and weakest-boundary "
+                "checks; it is not recommendation or claim authority."
+            ),
+            "effective_predictive_posture": predictive_posture.effective_predictive_posture,
+            "may_not_be_used_for": _merge_unique_strings(
+                predictive_posture.may_not_use_for,
+                _S11_REQUIRED_HANDOFF_MAY_NOT_USE_FOR,
+            ),
+            "authority_role": "projection_only",
+        }
+
+    s11_constraints = [
+        record.model_dump(mode="json")
+        for record in constraint_store.constraint_records
+        if record.cell_ref
+        in {_S11_REGIME_CELL_REF, _S11_FORECAST_QUALITY_CELL_REF}
+    ]
+    fields: dict[str, object] = {
+        "s11_predictive_posture_ref": predictive_posture.predictive_knowledge_ref,
+        "effective_predictive_posture": predictive_posture.effective_predictive_posture,
+        "predictive_authority_status": predictive_posture.effective_predictive_posture,
+        "predictive_axis_upgrade_refs": list(predictive_posture.axis_upgrade_refs),
+        "predictive_axis_rows": list(predictive_posture.predictive_axis_rows),
+        "per_axis_predictive_calibration_status": (
+            predictive_posture.per_axis_predictive_calibration_status
+        ),
+        "per_axis_predictive_calibration_threshold_ref": (
+            predictive_posture.per_axis_predictive_calibration_threshold_ref
+        ),
+        "proof_carrying_analytics_ref": (
+            predictive_posture.proof_carrying_analytics_ref
+        ),
+        "ir_analytics_bridge_ref": predictive_posture.ir_analytics_bridge_ref,
+        "residual_limitation_refs": list(predictive_posture.residual_limitation_refs),
+        "weakest_boundary_reason": predictive_posture.weakest_boundary_reason,
+        "forecast_quality_disposition": (
+            predictive_posture.forecast_quality_disposition
+        ),
+        "s10_forecast_support_ref": predictive_posture.s10_forecast_support_ref,
+        "s10_forecast_tier": predictive_posture.s10_forecast_tier,
+        "s11_constraint_store_updates": s11_constraints,
+        "predictive_authority_boundary": (
+            predictive_posture.authority_boundary.model_dump(mode="json")
+        ),
+        "may_not_use_for": list(predictive_posture.may_not_use_for),
+    }
+    if audience in {"EXPERT", "MACHINE"}:
+        fields.update(
+            {
+                "s6_floor_status_refs": list(predictive_posture.s6_floor_status_refs),
+                "s6_axis_rows": list(predictive_posture.s6_axis_rows),
+                "s6_bridge_consumer_rows": list(
+                    predictive_posture.s6_bridge_consumer_rows
+                ),
+                "s6_constraint_store_update_refs": list(
+                    predictive_posture.s6_constraint_store_update_refs
+                ),
+                "s6_c3_authority_dimension_refs": list(
+                    predictive_posture.s6_c3_authority_dimension_refs
+                ),
+                "post_intervention_dgp_update_ref": (
+                    predictive_posture.post_intervention_dgp_update_ref
+                ),
+                "system_dynamics_handoff_required": (
+                    predictive_posture.system_dynamics_handoff_required
+                ),
+                "s11_calibration_record_refs": list(
+                    predictive_posture.s11_calibration_record_refs
+                ),
+                "method_infrastructure_refs": list(
+                    predictive_posture.method_infrastructure_refs
+                ),
+                "per_axis_predictive_calibration_denominator": (
+                    predictive_posture.per_axis_predictive_calibration_denominator
+                ),
+                "per_axis_predictive_calibration_numerator": (
+                    predictive_posture.per_axis_predictive_calibration_numerator
+                ),
+                "per_axis_predictive_calibration_pass_rate": (
+                    predictive_posture.per_axis_predictive_calibration_pass_rate
+                ),
+            }
+        )
+    return fields
+
+
 def _s6_axis_positions(
     blind_spot_posture: Layer2S6BlindSpotPostureInput,
     rule_version_ref: str,
@@ -2216,6 +2493,78 @@ def _s8_constraint_entries(
     ]
 
 
+def _s11_constraint_entries(
+    predictive_posture: Layer2S11PredictivePostureInput | None,
+    *,
+    case_slug: str,
+) -> list[ConstraintStoreEntry]:
+    if predictive_posture is None:
+        return []
+
+    status = _s11_constraint_status(predictive_posture)
+    route: ConstraintRefinementRoute = (
+        "block_candidate" if status == "block" else "pending_consumer_constraint"
+    )
+    refs = _s11_design_record_ledger_refs(predictive_posture)
+    entries: list[ConstraintStoreEntry] = []
+    if (
+        predictive_posture.regime_strategy_constraint_ref is not None
+        or _s11_calibration_limits_downstream(predictive_posture)
+        or predictive_posture.effective_predictive_posture == "fail_closed"
+    ):
+        entries.append(
+            ConstraintStoreEntry(
+                constraint_id=f"layer2.s11.{case_slug}.regime_strategy_constraint",
+                cell_ref=_S11_REGIME_CELL_REF,
+                status=status,
+                source_ref=(
+                    predictive_posture.regime_strategy_constraint_ref
+                    or f"constraint://s11/regime/{case_slug}"
+                ),
+                consumer_ref="Layer2S2DesignSearchRun.predictive_posture",
+                refinement_route=route,
+                evidence_refs=refs,
+                reason=(
+                    "S11 predictive posture constrains regime strategy without rerunning "
+                    "S4 classification."
+                ),
+                rule_version_ref=predictive_posture.rule_version_ref,
+            )
+        )
+    if (
+        predictive_posture.forecast_quality_disposition
+        != "unchanged_s10_tier_consumed"
+        or _s11_calibration_limits_downstream(predictive_posture)
+    ):
+        entries.append(
+            ConstraintStoreEntry(
+                constraint_id=f"layer2.s11.{case_slug}.forecast_quality_constraint",
+                cell_ref=_S11_FORECAST_QUALITY_CELL_REF,
+                status=(
+                    "block"
+                    if predictive_posture.forecast_quality_disposition
+                    == "blocked_by_s11_calibration"
+                    else "limit"
+                ),
+                source_ref=f"constraint://s11/forecast-quality/{case_slug}",
+                consumer_ref="Layer2S2DesignSearchRun.predictive_posture",
+                refinement_route=(
+                    "block_candidate"
+                    if predictive_posture.forecast_quality_disposition
+                    == "blocked_by_s11_calibration"
+                    else "pending_consumer_constraint"
+                ),
+                evidence_refs=refs,
+                reason=(
+                    "S11 calibration downgrades forecast-quality use while preserving "
+                    f"S10 forecast_tier={predictive_posture.s10_forecast_tier}."
+                ),
+                rule_version_ref=predictive_posture.rule_version_ref,
+            )
+        )
+    return entries
+
+
 def _s6_refinement_decision(
     blind_spot_posture: Layer2S6BlindSpotPostureInput | None,
 ) -> RefinementDecisionKind | None:
@@ -2237,6 +2586,20 @@ def _s6_refinement_decision(
     if blind_spot_posture.overall_posture == "blocked":
         return "block_candidate"
     return "acquire"
+
+
+def _s11_refinement_decision(
+    predictive_posture: Layer2S11PredictivePostureInput | None,
+) -> RefinementDecisionKind | None:
+    if predictive_posture is None:
+        return None
+    if (
+        predictive_posture.effective_predictive_posture == "fail_closed"
+        or predictive_posture.forecast_quality_disposition
+        == "blocked_by_s11_calibration"
+    ):
+        return "block_candidate"
+    return None
 
 
 def _s6_ledger_refs(blind_spot_posture: Layer2S6BlindSpotPostureInput) -> list[str]:
@@ -2556,6 +2919,102 @@ def _s10_firewall_status(
     )
 
 
+def _s11_axis_position(
+    predictive_posture: Layer2S11PredictivePostureInput,
+) -> AxisPositionDeclaration:
+    return AxisPositionDeclaration(
+        cluster="KNOWLEDGE",
+        axis="predictive_knowledge_relaxation",
+        position=(
+            f"effective_predictive_posture="
+            f"{predictive_posture.effective_predictive_posture};"
+            f"calibration_status="
+            f"{predictive_posture.per_axis_predictive_calibration_status}"
+        ),
+        evidence_refs=_s11_design_record_ledger_refs(predictive_posture),
+        authority_purpose="predictive_posture_constraint_consumption",
+        rule_version_ref=predictive_posture.rule_version_ref,
+    )
+
+
+def _s11_firewall_status(
+    predictive_posture: Layer2S11PredictivePostureInput,
+) -> AxisFirewallStatus:
+    status = _s11_constraint_status(predictive_posture)
+    return AxisFirewallStatus(
+        cell_ref="KNOWLEDGE.predictive_knowledge_relaxation",
+        status=status,
+        pattern_ids=["P05", "P10", "P18", "P21", "P24"],
+        reason=(
+            "S11 injected predictive posture is consumed as constraint data only; "
+            f"{predictive_posture.weakest_boundary_reason}"
+        ),
+        maturity="fail_closed",
+        rule_version_ref=predictive_posture.rule_version_ref,
+    )
+
+
+def _s11_constraint_status(
+    predictive_posture: Layer2S11PredictivePostureInput,
+) -> Literal["pass", "warn", "limit", "block"]:
+    if (
+        predictive_posture.effective_predictive_posture == "fail_closed"
+        or predictive_posture.forecast_quality_disposition
+        == "blocked_by_s11_calibration"
+    ):
+        return "block"
+    if _s11_calibration_limits_downstream(predictive_posture):
+        return "limit"
+    if predictive_posture.effective_predictive_posture == "limited_by_weakest_boundary":
+        return "limit"
+    return "pass"
+
+
+def _s11_calibration_limits_downstream(
+    predictive_posture: Layer2S11PredictivePostureInput,
+) -> bool:
+    return (
+        predictive_posture.per_axis_predictive_calibration_status
+        in {"absent", "stale", "poor", "out_of_scope"}
+        or predictive_posture.forecast_quality_disposition
+        != "unchanged_s10_tier_consumed"
+    )
+
+
+def _s11_run_status(
+    predictive_posture: Layer2S11PredictivePostureInput | None,
+    *,
+    fallback: S2RunStatus,
+) -> S2RunStatus:
+    if _s11_refinement_decision(predictive_posture) == "block_candidate":
+        return "blocked"
+    return fallback
+
+
+def _s11_iteration_status(
+    predictive_posture: Layer2S11PredictivePostureInput | None,
+    *,
+    fallback: Literal[
+        "blocked",
+        "blocked_no_retry",
+        "governance_required",
+        "acquisition_required",
+        "abstained",
+        "refined_shadow",
+    ],
+) -> Literal[
+    "blocked",
+    "blocked_no_retry",
+    "governance_required",
+    "acquisition_required",
+    "abstained",
+    "refined_shadow",
+]:
+    if _s11_refinement_decision(predictive_posture) == "block_candidate":
+        return "blocked"
+    return fallback
+
+
 def _s8_ledger_refs(value_posture: Layer2S8ValuePostureInput) -> list[str]:
     refs = [
         value_posture.value_choice_provenance_ref,
@@ -2668,10 +3127,129 @@ def _s10_design_record_ledger_refs(
     return [ref for ref in dict.fromkeys(refs) if ref is not None][:2]
 
 
+def _s11_design_record_ledger_refs(
+    predictive_posture: Layer2S11PredictivePostureInput,
+) -> list[str]:
+    refs = [
+        predictive_posture.predictive_knowledge_ref,
+        predictive_posture.proof_carrying_analytics_ref,
+        predictive_posture.ir_analytics_bridge_ref,
+        predictive_posture.s10_forecast_support_ref,
+        predictive_posture.post_intervention_dgp_update_ref,
+        *predictive_posture.axis_upgrade_refs,
+        *predictive_posture.s11_calibration_record_refs,
+        *predictive_posture.residual_limitation_refs,
+    ]
+    return [ref for ref in dict.fromkeys(refs) if ref is not None][:40]
+
+
+def _s11_predictive_knowledge_refs(
+    predictive_posture: Layer2S11PredictivePostureInput | None,
+) -> list[str]:
+    if predictive_posture is None:
+        return []
+    return [predictive_posture.predictive_knowledge_ref]
+
+
+def _s11_predictive_axis_upgrade_refs(
+    predictive_posture: Layer2S11PredictivePostureInput | None,
+) -> list[str]:
+    if predictive_posture is None:
+        return []
+    return list(predictive_posture.axis_upgrade_refs)
+
+
+def _s11_proof_carrying_analytics_refs(
+    predictive_posture: Layer2S11PredictivePostureInput | None,
+) -> list[str]:
+    if predictive_posture is None:
+        return []
+    return [predictive_posture.proof_carrying_analytics_ref]
+
+
+def _s11_ir_analytics_bridge_refs(
+    predictive_posture: Layer2S11PredictivePostureInput | None,
+) -> list[str]:
+    if predictive_posture is None:
+        return []
+    return [predictive_posture.ir_analytics_bridge_ref]
+
+
+def _s11_calibration_record_refs(
+    predictive_posture: Layer2S11PredictivePostureInput | None,
+) -> list[str]:
+    if predictive_posture is None:
+        return []
+    return list(predictive_posture.s11_calibration_record_refs)
+
+
+def _s11_forecast_quality_constraint_refs(
+    predictive_posture: Layer2S11PredictivePostureInput | None,
+) -> list[str]:
+    if predictive_posture is None:
+        return []
+    return [
+        entry.source_ref
+        for entry in _s11_constraint_entries(
+            predictive_posture,
+            case_slug=_slug(predictive_posture.predictive_knowledge_ref),
+        )
+        if entry.cell_ref == _S11_FORECAST_QUALITY_CELL_REF
+    ][:40]
+
+
+def _s11_regime_strategy_constraint_refs(
+    predictive_posture: Layer2S11PredictivePostureInput | None,
+) -> list[str]:
+    if predictive_posture is None:
+        return []
+    refs = [
+        entry.source_ref
+        for entry in _s11_constraint_entries(
+            predictive_posture,
+            case_slug=_slug(predictive_posture.predictive_knowledge_ref),
+        )
+        if entry.cell_ref == _S11_REGIME_CELL_REF
+    ]
+    return refs[:40]
+
+
+def _s11_residual_limitation_refs(
+    predictive_posture: Layer2S11PredictivePostureInput | None,
+) -> list[str]:
+    if predictive_posture is None:
+        return []
+    return list(predictive_posture.residual_limitation_refs)
+
+
+def _s11_predictive_posture_refs(
+    predictive_posture: Layer2S11PredictivePostureInput | None,
+) -> list[str]:
+    if predictive_posture is None:
+        return []
+    return _s11_design_record_ledger_refs(predictive_posture)
+
+
+def _s11_predictive_authority_status(
+    predictive_posture: Layer2S11PredictivePostureInput | None,
+) -> str:
+    if predictive_posture is None:
+        return "not_applicable"
+    return predictive_posture.effective_predictive_posture
+
+
 def _s8_handoff_refs(value_posture: Layer2S8ValuePostureInput | None) -> list[str]:
     if value_posture is None:
         return []
     return [record.handoff_id for record in _s8_handoff_records(value_posture)][:40]
+
+
+def _s11_handoff_refs(
+    predictive_posture: Layer2S11PredictivePostureInput | None,
+) -> list[str]:
+    if predictive_posture is None:
+        return []
+    return [_s11_handoff_record(predictive_posture).handoff_id]
 
 
 def _s8_handoff_records(value_posture: Layer2S8ValuePostureInput) -> list[ClusterHandoffRecord]:
@@ -2742,6 +3320,31 @@ def _s10_handoff_record(
         may_not_use_for=_merge_unique_strings(
             forecast_posture.may_not_use_for,
             _S10_REQUIRED_HANDOFF_MAY_NOT_USE_FOR,
+        ),
+    )
+
+
+def _s11_handoff_record(
+    predictive_posture: Layer2S11PredictivePostureInput,
+) -> ClusterHandoffRecord:
+    return ClusterHandoffRecord(
+        handoff_id="layer2.s2.handoff.s11_predictive_posture",
+        workflow_ref="workflow://layer2/s2/shadow-design-loop",
+        source_cell_ref="KNOWLEDGE.predictive_knowledge_relaxation",
+        target_cell_ref="INTERVENTION.design_candidate",
+        artifact_refs=_s11_predictive_posture_refs(predictive_posture),
+        disposition=(
+            "blocked"
+            if _s11_refinement_decision(predictive_posture) == "block_candidate"
+            else "consumed"
+        ),
+        authority_purpose=(
+            "Layer2S11PredictivePostureInput predictive_axis_maturity_upgrade "
+            "constraint_consumed"
+        ),
+        may_not_use_for=_merge_unique_strings(
+            predictive_posture.may_not_use_for,
+            _S11_REQUIRED_HANDOFF_MAY_NOT_USE_FOR,
         ),
     )
 
@@ -2934,6 +3537,7 @@ def _cluster_interfaces(
     blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
     value_posture: Layer2S8ValuePostureInput | None = None,
     forecast_posture: Layer2S10ForecastPostureInput | None = None,
+    predictive_posture: Layer2S11PredictivePostureInput | None = None,
 ) -> list[ClusterInterfaceContract]:
     contracts = [
         ClusterInterfaceContract(
@@ -3018,6 +3622,20 @@ def _cluster_interfaces(
                 authority_boundary=forecast_posture.authority_boundary,
             )
         )
+    if predictive_posture is not None:
+        contracts.append(
+            ClusterInterfaceContract(
+                contract_id="layer2.s2.cluster.interface.predictive_knowledge",
+                cell_ref="KNOWLEDGE.predictive_knowledge_relaxation",
+                publishes=[
+                    "SearchLedger",
+                    "ConstraintStoreEntry",
+                    "predictive_axis_maturity_upgrade",
+                ],
+                consumes=["Layer2S11PredictivePostureInput"],
+                authority_boundary=predictive_posture.authority_boundary,
+            )
+        )
     return contracts
 
 
@@ -3031,6 +3649,7 @@ def _handoff_records(
     delegation_posture: Layer2S7DelegationPostureInput | None = None,
     value_posture: Layer2S8ValuePostureInput | None = None,
     forecast_posture: Layer2S10ForecastPostureInput | None = None,
+    predictive_posture: Layer2S11PredictivePostureInput | None = None,
 ) -> list[ClusterHandoffRecord]:
     records = [
         ClusterHandoffRecord(
@@ -3087,6 +3706,8 @@ def _handoff_records(
         records.extend(_s8_handoff_records(value_posture))
     if forecast_posture is not None:
         records.append(_s10_handoff_record(forecast_posture))
+    if predictive_posture is not None:
+        records.append(_s11_handoff_record(predictive_posture))
     return records
 
 
@@ -3142,6 +3763,7 @@ def _deterministic_replay_key(
     delegation_posture: Layer2S7DelegationPostureInput | None = None,
     value_posture: Layer2S8ValuePostureInput | None = None,
     forecast_posture: Layer2S10ForecastPostureInput | None = None,
+    predictive_posture: Layer2S11PredictivePostureInput | None = None,
 ) -> str:
     payload = {
         "case_id": input.case_id,
@@ -3191,6 +3813,8 @@ def _deterministic_replay_key(
             "prediction_context_ref": forecast_posture.prediction_context_ref,
             "rule_version_ref": forecast_posture.rule_version_ref,
         }
+    if predictive_posture is not None:
+        payload["predictive_posture"] = predictive_posture.model_dump(mode="json")
     canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
@@ -3215,7 +3839,16 @@ def _decision_reason(
     composition_posture: Layer2S5CompositionPostureInput | None = None,
     blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
     value_posture: Layer2S8ValuePostureInput | None = None,
+    predictive_posture: Layer2S11PredictivePostureInput | None = None,
 ) -> str:
+    if (
+        predictive_posture is not None
+        and _s11_refinement_decision(predictive_posture) == "block_candidate"
+    ):
+        return (
+            "S11 predictive posture fails closed; S2 blocks candidate authority without "
+            "turning predictive confidence into recommendation authority."
+        )
     if value_posture is not None and _s8_blocks_ranked_selection(value_posture):
         return (
             f"S8 {value_posture.disposition} value-choice posture blocks ranked "

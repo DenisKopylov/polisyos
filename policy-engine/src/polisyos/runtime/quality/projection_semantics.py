@@ -84,6 +84,9 @@ _S9_CONSUMER_CONTRACT_REF = (
 _S10_CONSUMER_CONTRACT_REF = (
     "policyos.runtime.policy_design_case.s10_forecast_projection_verification.v1"
 )
+_S11_CONSUMER_CONTRACT_REF = (
+    "policyos.runtime.policy_design_case.s11_predictive_projection_verification.v1"
+)
 _S9_REQUIRED_MAY_NOT_USE_FOR = frozenset(
     {
         "claim_authority",
@@ -110,6 +113,28 @@ _S10_REQUIRED_MAY_NOT_USE_FOR = frozenset(
     }
 )
 _S10_FORBIDDEN_AUTHORITY_USES = frozenset(
+    {
+        "approval_authority",
+        "claim_authority",
+        "closeout_authority",
+        "publication_authority",
+        "production_claim_authority",
+        "production_recommendation",
+        "recommendation_authority",
+        "runtime_closeout_authority",
+        "scorecard_authority",
+    }
+)
+_S11_REQUIRED_MAY_NOT_USE_FOR = frozenset(
+    {
+        "production_recommendation",
+        "production_claim_authority",
+        "publication_authority",
+        "claim_authority",
+        "runtime_closeout_authority",
+    }
+)
+_S11_FORBIDDEN_AUTHORITY_USES = frozenset(
     {
         "approval_authority",
         "claim_authority",
@@ -842,6 +867,64 @@ def verify_s10_forecast_projection_consumer_contract(
     }
 
 
+def verify_s11_predictive_projection_consumer_contract(
+    *,
+    projections: Mapping[str, Mapping[str, Any]],
+) -> dict[str, Any]:
+    """Verify S11 predictive posture projections without authority promotion."""
+
+    issues: list[dict[str, Any]] = []
+    consumer_contracts: list[dict[str, Any]] = []
+    s11_records: dict[str, dict[str, Any]] = {}
+    public_projection: dict[str, Any] = {}
+    for audience, projection in projections.items():
+        projection_payload = _mapping_from_record(projection)
+        s11_record = _s11_predictive_projection_record(projection_payload)
+        s11_records[audience] = s11_record
+        audience_issues = _s11_projection_issues(
+            audience=audience,
+            projection=projection_payload,
+            s11_record=s11_record,
+        )
+        issues.extend(audience_issues)
+        if _audience(
+            projection_payload.get("audience") or audience,
+            surface="s11_predictive_projection",
+        ) is contracts.PolicyDesignCaseAudience.PUBLIC:
+            public_projection = _s11_public_projection(projection_payload, s11_record)
+        consumer_contracts.append(
+            {
+                "consumer": _text(audience),
+                "audience": _text(audience),
+                "status": "fail" if audience_issues else "pass",
+                "issue_codes": [issue["code"] for issue in audience_issues],
+                "verified_fields": [
+                    "s11_predictive_posture_ref",
+                    "predictive_axis_upgrade_refs",
+                    "predictive_axis_rows",
+                    "per_axis_predictive_calibration_status",
+                    "proof_carrying_analytics_ref",
+                    "ir_analytics_bridge_ref",
+                    "residual_limitation_refs",
+                    "weakest_boundary_reason",
+                    "authority_boundary",
+                ],
+            }
+        )
+    issue_codes = _unique_texts(issue.get("code") for issue in issues)
+    first_record = next(iter(s11_records.values()), {})
+    return {
+        "schema_version": _S11_CONSUMER_CONTRACT_REF,
+        "status": "fail" if issues else "pass",
+        "consumer_contract_ref": _S11_CONSUMER_CONTRACT_REF,
+        "consumer_contracts": consumer_contracts,
+        "s11_predictive_projection": first_record,
+        "public_projection": public_projection,
+        "issue_codes": issue_codes,
+        "issues": issues,
+    }
+
+
 def _s10_forecast_projection_record(projection: Mapping[str, Any]) -> dict[str, Any]:
     if not (
         _text(projection.get("forecast_support_ref"))
@@ -894,6 +977,170 @@ def _s10_forecast_projection_record(projection: Mapping[str, Any]) -> dict[str, 
             ]
         ),
         "rule_version_ref": _text(projection.get("rule_version_ref")),
+    }
+
+
+def _s11_predictive_projection_record(projection: Mapping[str, Any]) -> dict[str, Any]:
+    if not (
+        _text(projection.get("s11_predictive_posture_ref"))
+        or _text(projection.get("predictive_knowledge_ref"))
+        or _sequence(projection.get("predictive_axis_rows"))
+    ):
+        return {}
+    authority_boundary = _mapping(
+        projection.get("authority_boundary")
+        or projection.get("predictive_authority_boundary")
+    )
+    return {
+        "s11_predictive_posture_ref": _text(
+            projection.get("s11_predictive_posture_ref")
+            or projection.get("predictive_knowledge_ref")
+        ),
+        "effective_predictive_posture": _text(
+            projection.get("effective_predictive_posture")
+            or projection.get("predictive_authority_status")
+        ),
+        "predictive_axis_upgrade_refs": _text_list(
+            projection.get("predictive_axis_upgrade_refs")
+            or projection.get("axis_upgrade_refs")
+        ),
+        "predictive_axis_rows": [
+            _mapping(row)
+            for row in _sequence(projection.get("predictive_axis_rows"))
+            if isinstance(row, Mapping)
+        ],
+        "per_axis_predictive_calibration_status": _text(
+            projection.get("per_axis_predictive_calibration_status")
+        ),
+        "per_axis_predictive_calibration_threshold_ref": _text(
+            projection.get("per_axis_predictive_calibration_threshold_ref")
+        ),
+        "proof_carrying_analytics_ref": _text(
+            projection.get("proof_carrying_analytics_ref")
+        ),
+        "ir_analytics_bridge_ref": _text(projection.get("ir_analytics_bridge_ref")),
+        "residual_limitation_refs": _text_list(
+            projection.get("residual_limitation_refs")
+        ),
+        "weakest_boundary_reason": _text(projection.get("weakest_boundary_reason")),
+        "s11_public_limitation": _text(projection.get("s11_public_limitation")),
+        "authority_boundary": authority_boundary,
+        "may_not_be_used_for": _unique_texts(
+            [
+                *_text_list(projection.get("may_not_be_used_for")),
+                *_text_list(projection.get("may_not_use_for")),
+                *_text_list(authority_boundary.get("may_not_use_for")),
+            ]
+        ),
+        "authority_role": _text(projection.get("authority_role")) or "projection_only",
+        "rule_version_ref": _text(projection.get("rule_version_ref")),
+    }
+
+
+def _s11_projection_issues(
+    *,
+    audience: str,
+    projection: Mapping[str, Any],
+    s11_record: Mapping[str, Any],
+) -> list[dict[str, Any]]:
+    if not s11_record:
+        return [
+            _contract_issue(
+                "s11_predictive_projection_missing",
+                audience=audience,
+                message="S11 predictive posture projection fields are missing.",
+            )
+        ]
+    issues: list[dict[str, Any]] = []
+    audience_value = _audience(
+        projection.get("audience") or audience,
+        surface="s11_predictive_projection",
+    )
+    if audience_value is contracts.PolicyDesignCaseAudience.PUBLIC:
+        if not _text(s11_record.get("s11_public_limitation")):
+            issues.append(
+                _contract_issue(
+                    "s11_public_limitation_missing",
+                    audience=audience,
+                    message="PUBLIC S11 projection requires a high-level limitation.",
+                )
+            )
+    else:
+        required_fields = {
+            "s11_predictive_posture_ref": "S11 posture ref",
+            "predictive_axis_rows": "predictive axis rows",
+            "per_axis_predictive_calibration_status": "calibration status",
+            "per_axis_predictive_calibration_threshold_ref": "calibration threshold ref",
+            "proof_carrying_analytics_ref": "proof-carrying analytics ref",
+            "ir_analytics_bridge_ref": "IR analytics bridge ref",
+            "residual_limitation_refs": "residual limitation refs",
+            "weakest_boundary_reason": "weakest boundary reason",
+        }
+        for field_name, label in required_fields.items():
+            value = s11_record.get(field_name)
+            if not value:
+                issues.append(
+                    _contract_issue(
+                        "s11_predictive_projection_missing_audit_field",
+                        audience=audience,
+                        message=f"{label} missing from S11 projection.",
+                    )
+                )
+    if _s11_prediction_authority_laundered(projection, s11_record):
+        issues.append(
+            _contract_issue(
+                "s11_predictive_authority_laundering",
+                audience=audience,
+                message=(
+                    "S11 predictive posture projection crossed into recommendation "
+                    "or claim authority."
+                ),
+            )
+        )
+    return _dedupe_contract_issues(issues)
+
+
+def _s11_prediction_authority_laundered(
+    projection: Mapping[str, Any],
+    s11_record: Mapping[str, Any],
+) -> bool:
+    role = _text(projection.get("authority_role")).casefold()
+    if role not in {"", "projection_only"}:
+        return True
+    boundary = _mapping(s11_record.get("authority_boundary"))
+    authoritative_for = {
+        *_text_list(projection.get("authoritative_for")),
+        *_text_list(boundary.get("authoritative_for")),
+    }
+    if authoritative_for & _S11_FORBIDDEN_AUTHORITY_USES:
+        return True
+    may_not = {
+        *_text_list(s11_record.get("may_not_be_used_for")),
+        *_text_list(boundary.get("may_not_use_for")),
+    }
+    return not may_not >= _S11_REQUIRED_MAY_NOT_USE_FOR
+
+
+def _s11_public_projection(
+    projection: Mapping[str, Any],
+    s11_record: Mapping[str, Any],
+) -> dict[str, Any]:
+    may_not = _unique_texts(
+        [
+            *_text_list(s11_record.get("may_not_be_used_for")),
+            *_S11_REQUIRED_MAY_NOT_USE_FOR,
+        ]
+    )
+    return {
+        "authority_role": "projection_only",
+        "effective_predictive_posture": _text(
+            s11_record.get("effective_predictive_posture")
+        ),
+        "s11_public_limitation": _text(
+            projection.get("s11_public_limitation")
+            or s11_record.get("s11_public_limitation")
+        ),
+        "may_not_be_used_for": may_not,
     }
 
 
@@ -2424,4 +2671,5 @@ __all__ = [
     "build_policy_design_case_projection_semantics",
     "verify_s9_projection_faithfulness_for_pdc_consumer_contract",
     "verify_s10_forecast_projection_consumer_contract",
+    "verify_s11_predictive_projection_consumer_contract",
 ]

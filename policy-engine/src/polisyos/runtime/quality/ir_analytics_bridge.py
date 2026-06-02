@@ -57,6 +57,8 @@ class IRAnalyticsClaimBinding:
     proof_composability_statuses: tuple[str, ...] = ()
     uncertainty_refs: tuple[str, ...] = ()
     baseline_refs: tuple[str, ...] = ()
+    alternative_refs: tuple[str, ...] = ()
+    comparison_refs: tuple[str, ...] = ()
     conflict_refs: tuple[str, ...] = ()
     independence_refs: tuple[str, ...] = ()
     counter_evidence_refs: tuple[str, ...] = ()
@@ -82,6 +84,8 @@ class IRAnalyticsClaimBinding:
             "proof_composability_statuses": list(self.proof_composability_statuses),
             "uncertainty_refs": list(self.uncertainty_refs),
             "baseline_refs": list(self.baseline_refs),
+            "alternative_refs": list(self.alternative_refs),
+            "comparison_refs": list(self.comparison_refs),
             "conflict_refs": list(self.conflict_refs),
             "independence_refs": list(self.independence_refs),
             "counter_evidence_refs": list(self.counter_evidence_refs),
@@ -239,6 +243,8 @@ def merge_ir_analytics_binding_into_registry_entry(
         "proof_composability_refs",
         "uncertainty_refs",
         "baseline_refs",
+        "alternative_refs",
+        "comparison_refs",
         "conflict_refs",
         "independence_refs",
         "counter_evidence_refs",
@@ -458,7 +464,19 @@ def _normalize_binding(
         baseline_refs=tuple(
             _refs_for_aliases(
                 row,
-                ("baseline_refs", "baseline_ref", "alternative_refs", "comparison_refs"),
+                ("baseline_refs", "baseline_ref"),
+            )
+        ),
+        alternative_refs=tuple(
+            _refs_for_aliases(
+                row,
+                ("alternative_refs", "alternative_ref", "comparison_alternative_refs"),
+            )
+        ),
+        comparison_refs=tuple(
+            _refs_for_aliases(
+                row,
+                ("comparison_refs", "comparison_ref", "baseline_comparison_refs"),
             )
         ),
         conflict_refs=tuple(

@@ -27,8 +27,28 @@ S10_FALSE_CLEAR_FIELDS = {
     "welfare_without_value_provenance_false_clear_count": (
         "welfare_without_value_provenance"
     ),
+    "fail_closed_axis_prediction_promotion_false_clear_count": (
+        "fail_closed_axis_prediction_promotion"
+    ),
+    "regime_forecast_tier_laundering_false_clear_count": (
+        "regime_forecast_tier_laundering"
+    ),
+    "transported_estimate_without_limitation_false_clear_count": (
+        "transported_estimate_without_limitation"
+    ),
+    "hidden_uncertainty_interval_false_clear_count": "hidden_uncertainty_interval",
+    "non_observable_claim_as_calibrated_false_clear_count": (
+        "non_observable_claim_as_calibrated"
+    ),
+    "production_authority_from_forecast_false_clear_count": (
+        "production_authority_from_forecast"
+    ),
+    "missing_design_graph_context_false_clear_count": "missing_design_graph_context",
     "observed_outcome_without_credible_evaluation_false_clear_count": (
         "observed_outcome_without_credible_evaluation"
+    ),
+    "validated_local_model_without_method_validity_false_clear_count": (
+        "validated_local_model_without_method_validity"
     ),
     "scalar_welfare_hides_pareto_tradeoff_false_clear_count": (
         "scalar_welfare_hides_pareto_tradeoff"
@@ -36,15 +56,19 @@ S10_FALSE_CLEAR_FIELDS = {
     "weakest_boundary_ignored_false_clear_count": "weakest_boundary_ignored",
 }
 S10_REQUIRED_DENY = {
+    "production_authority",
     "production_recommendation",
     "production_claim_authority",
     "rollout_authority",
     "publication_authority",
     "claim_authority",
     "closeout_authority",
+    "runtime_closeout_authority",
     "approval_authority",
     "scorecard_authority",
     "preference_learning_authority",
+    "rich_simulation_authority",
+    "portfolio_optimization_authority",
     "s11_calibration",
     "s12_envelope_growth",
     "s13_accountability_closure",
@@ -95,6 +119,7 @@ def test_layer2_s10_manifest_exists_and_open_count_stays_3() -> None:
     assert summary["current_open_cell_count"] == 3
     assert summary["s10_case_count"] == 13
     assert summary["s10_expected_current_open_cell_count"] == 3
+    assert summary["s10_observable_subset_calibration_threshold_ref"]
     assert summary["inventory_artifact_count"] == 18
 
 
@@ -106,9 +131,18 @@ def test_layer2_s10_required_artifacts_are_traceable_and_exported() -> None:
         for row in payloads["artifact_traceability"]["artifact"]
         if row.get("slice") == "S10"
     }
+    trace_s10_maturity = {
+        str(row["name"]): row.get("maturity")
+        for row in payloads["artifact_traceability"]["artifact"]
+        if row.get("slice") == "S10"
+    }
 
     assert set(manifest["required_artifacts"]) == S10_REQUIRED_ARTIFACTS
     assert trace_s10_artifacts == S10_REQUIRED_ARTIFACTS
+    assert trace_s10_maturity == {
+        "ForecastSupport": "implemented",
+        "ForecastCalibrationRecord": "implemented",
+    }
     for artifact_name in S10_REQUIRED_ARTIFACTS:
         artifact = getattr(runtime_quality, artifact_name)
         assert artifact.model_config.get("extra") == "forbid", artifact_name
@@ -152,10 +186,17 @@ def test_layer2_s10_floor_and_false_clears_are_governed() -> None:
     )
     assert manifest["observable_subset_calibration_status"] == "pass"
     assert manifest["observable_subset_calibration_floor_passed"] is True
+    assert manifest["observable_subset_calibration_threshold_ref"]
+    assert manifest["observable_subset_calibration_pass_rate"] >= (
+        manifest["observable_subset_calibration_threshold"]
+    )
     assert manifest["non_observable_downgrade_count"] >= 1
     assert manifest["equilibrium_contested_single_forecast_block_count"] >= 1
     assert manifest["simulation_only_evidence_block_count"] >= 1
     assert manifest["weakest_boundary_inheritance_count"] == 13
+    assert summary["s10_equilibrium_contested_single_forecast_block_count"] >= 1
+    assert summary["s10_simulation_only_evidence_block_count"] >= 1
+    assert summary["s10_weakest_boundary_inheritance_count"] == 13
 
     for flat_field, nested_field in S10_FALSE_CLEAR_FIELDS.items():
         assert manifest[flat_field] == 0

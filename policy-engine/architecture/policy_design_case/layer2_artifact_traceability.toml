@@ -305,12 +305,12 @@ maturity = "implemented"
 [[artifact]]
 name = "ForecastSupport"
 slice = "S10"
-maturity = "planned"
+maturity = "implemented"
 
 [[artifact]]
 name = "ForecastCalibrationRecord"
 slice = "S10"
-maturity = "planned"
+maturity = "implemented"
 
 [[artifact]]
 name = "ProofCarryingAnalyticsRecord"

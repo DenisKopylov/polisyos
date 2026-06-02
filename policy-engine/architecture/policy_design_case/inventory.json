@@ -309,6 +309,42 @@
       "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py"
     },
     {
+      "id": "layer2_s10_outcome_prediction_manifest",
+      "path": "architecture/policy_design_case/layer2_s10_outcome_prediction_manifest.json",
+      "kind": "layer2_s10_outcome_prediction_manifest",
+      "schema_version": "policyos.policy_design_case.layer2_s10_outcome_prediction_manifest.v1",
+      "owner": "team-research",
+      "status": "active",
+      "capability_reality_label": "implemented",
+      "authority_scope": [
+        "forecast_support_tiering",
+        "observable_subset_calibration",
+        "value_grounded_welfare_comparison",
+        "advisory_uncertainty_routing"
+      ],
+      "may_not_use_for": [
+        "production_authority",
+        "production_recommendation",
+        "production_claim_authority",
+        "rollout_authority",
+        "publication_authority",
+        "claim_authority",
+        "closeout_authority",
+        "runtime_closeout_authority",
+        "approval_authority",
+        "scorecard_authority",
+        "preference_learning_authority",
+        "rich_simulation_authority",
+        "portfolio_optimization_authority",
+        "s11_calibration",
+        "s12_envelope_growth",
+        "s13_accountability_closure",
+        "s14_universality"
+      ],
+      "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py",
+      "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py"
+    },
+    {
       "id": "layer2_minimal_seed_manifest",
       "path": "architecture/policy_design_case/layer2_minimal_seed_manifest.json",
       "kind": "layer2_seed_manifest",

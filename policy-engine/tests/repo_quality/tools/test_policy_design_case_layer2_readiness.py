@@ -80,10 +80,16 @@ def test_layer2_s0_readiness_manifest_is_valid() -> None:
     assert validation["summary"]["s10_observable_subset_calibration_numerator"] == validation["summary"]["s10_observable_subset_calibration_denominator"]  # type: ignore[index]
     assert validation["summary"]["s10_observable_subset_calibration_status"] == "pass"  # type: ignore[index]
     assert validation["summary"]["s10_observable_subset_calibration_floor_passed"] is True  # type: ignore[index]
+    assert validation["summary"]["s10_observable_subset_calibration_threshold_ref"]  # type: ignore[index]
     assert validation["summary"]["s10_non_observable_downgrade_count"] >= 1  # type: ignore[index]
+    assert validation["summary"]["s10_equilibrium_contested_single_forecast_block_count"] >= 1  # type: ignore[index]
+    assert validation["summary"]["s10_simulation_only_evidence_block_count"] >= 1  # type: ignore[index]
+    assert validation["summary"]["s10_weakest_boundary_inheritance_count"] == 13  # type: ignore[index]
     assert validation["summary"]["s10_false_clear_counts"]["simulation_only_evidence_laundering"] == 0  # type: ignore[index]
+    assert validation["summary"]["s10_false_clear_counts"]["production_authority_from_forecast"] == 0  # type: ignore[index]
     assert validation["summary"]["s10_false_clear_counts"]["observed_outcome_without_credible_evaluation"] == 0  # type: ignore[index]
     assert validation["summary"]["s10_false_clear_counts"]["scalar_welfare_hides_pareto_tradeoff"] == 0  # type: ignore[index]
+    assert validation["summary"]["s10_false_clear_counts"]["weakest_boundary_ignored"] == 0  # type: ignore[index]
 
 
 def test_layer2_slice_cell_matrix_preserves_baseline_and_current_open_subset() -> None:

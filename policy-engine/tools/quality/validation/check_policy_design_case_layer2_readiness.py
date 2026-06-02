@@ -54,6 +54,9 @@ DEFAULT_S8_VALUE_CHOICE_MANIFEST_PATH = Path(
 DEFAULT_S9_PROJECTION_LOWERING_MANIFEST_PATH = Path(
     "architecture/policy_design_case/layer2_s9_projection_lowering_manifest.json"
 )
+DEFAULT_S10_OUTCOME_PREDICTION_MANIFEST_PATH = Path(
+    "architecture/policy_design_case/layer2_s10_outcome_prediction_manifest.json"
+)
 DEFAULT_INVENTORY_PATH = Path("architecture/policy_design_case/inventory.json")
 
 REQUIRED_SLICES = {f"S{number}" for number in range(15)}
@@ -310,7 +313,75 @@ S9_EXPECTED_OPEN_CELLS = {
     "KNOWLEDGE.calibration",
     "KNOWLEDGE.ir_proof_carrying_analytics",
 }
-S9_LATER_SLICES = {"S10", "S11", "S12", "S13", "S14"}
+S9_LATER_SLICES = {"S11", "S12", "S13", "S14"}
+S10_REQUIRED_ARTIFACTS = {"ForecastSupport", "ForecastCalibrationRecord"}
+S10_REQUIRED_AUTHORITY_SCOPE = {
+    "forecast_support_tiering",
+    "observable_subset_calibration",
+    "value_grounded_welfare_comparison",
+    "advisory_uncertainty_routing",
+}
+S10_REQUIRED_DENY = {
+    "production_authority",
+    "production_recommendation",
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority",
+    "claim_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "preference_learning_authority",
+    "rich_simulation_authority",
+    "portfolio_optimization_authority",
+    "s11_calibration",
+    "s12_envelope_growth",
+    "s13_accountability_closure",
+    "s14_universality",
+}
+S10_FALSE_CLEAR_FIELDS = {
+    "equilibrium_contested_single_forecast_false_clear_count": (
+        "equilibrium_contested_single_forecast"
+    ),
+    "simulation_only_evidence_laundering_false_clear_count": (
+        "simulation_only_evidence_laundering"
+    ),
+    "uncalibrated_observable_promotion_false_clear_count": (
+        "uncalibrated_observable_promotion"
+    ),
+    "welfare_without_value_provenance_false_clear_count": (
+        "welfare_without_value_provenance"
+    ),
+    "fail_closed_axis_prediction_promotion_false_clear_count": (
+        "fail_closed_axis_prediction_promotion"
+    ),
+    "regime_forecast_tier_laundering_false_clear_count": (
+        "regime_forecast_tier_laundering"
+    ),
+    "transported_estimate_without_limitation_false_clear_count": (
+        "transported_estimate_without_limitation"
+    ),
+    "hidden_uncertainty_interval_false_clear_count": "hidden_uncertainty_interval",
+    "non_observable_claim_as_calibrated_false_clear_count": (
+        "non_observable_claim_as_calibrated"
+    ),
+    "production_authority_from_forecast_false_clear_count": (
+        "production_authority_from_forecast"
+    ),
+    "missing_design_graph_context_false_clear_count": "missing_design_graph_context",
+    "observed_outcome_without_credible_evaluation_false_clear_count": (
+        "observed_outcome_without_credible_evaluation"
+    ),
+    "validated_local_model_without_method_validity_false_clear_count": (
+        "validated_local_model_without_method_validity"
+    ),
+    "scalar_welfare_hides_pareto_tradeoff_false_clear_count": (
+        "scalar_welfare_hides_pareto_tradeoff"
+    ),
+    "weakest_boundary_ignored_false_clear_count": "weakest_boundary_ignored",
+}
+S10_INVENTORY_ID = "layer2_s10_outcome_prediction_manifest"
 
 
 def load_layer2_readiness_payloads(repo_root: Path | str = REPO_ROOT) -> dict[str, Any]:
@@ -342,6 +413,9 @@ def load_layer2_readiness_payloads(repo_root: Path | str = REPO_ROOT) -> dict[st
         "s8_value_choice": _load_optional_json(root / DEFAULT_S8_VALUE_CHOICE_MANIFEST_PATH),
         "s9_projection_lowering": _load_optional_json(
             root / DEFAULT_S9_PROJECTION_LOWERING_MANIFEST_PATH
+        ),
+        "s10_outcome_prediction": _load_optional_json(
+            root / DEFAULT_S10_OUTCOME_PREDICTION_MANIFEST_PATH
         ),
         "inventory": _load_json(root / DEFAULT_INVENTORY_PATH),
         "cluster_map": cluster_map.load_cluster_ownership_map(root),
@@ -525,6 +599,14 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
         inventory=payloads["inventory"],
         issues=issues,
     )
+    _validate_s10_outcome_prediction(
+        s10=payloads.get("s10_outcome_prediction"),
+        floor_governance=payloads["floor_governance"],
+        artifact_traceability=payloads["artifact_traceability"],
+        current_open_cells=current_open_cells,
+        inventory=payloads["inventory"],
+        issues=issues,
+    )
     closed_since_s0 = sorted(assigned_cells - current_open_cells)
     s3 = payloads.get("s3_substrate_acquisition")
     s3_summary = (
@@ -641,11 +723,66 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
         if isinstance(s9, dict) and s9
         else {}
     )
+    s10 = payloads.get("s10_outcome_prediction")
+    s10_false_clear_counts = (
+        {
+            nested_name: s10.get(field_name)
+            for field_name, nested_name in S10_FALSE_CLEAR_FIELDS.items()
+        }
+        if isinstance(s10, dict) and s10
+        else {}
+    )
+    s10_summary = (
+        {
+            "s10_case_count": s10.get("case_count"),
+            "s10_expected_current_open_cell_count": s10.get(
+                "expected_current_open_cell_count"
+            ),
+            "s10_observable_subset_case_count": s10.get(
+                "observable_subset_case_count"
+            ),
+            "s10_observable_subset_calibration_denominator": s10.get(
+                "observable_subset_calibration_denominator"
+            ),
+            "s10_observable_subset_calibration_numerator": s10.get(
+                "observable_subset_calibration_numerator"
+            ),
+            "s10_observable_subset_calibration_pass_rate": s10.get(
+                "observable_subset_calibration_pass_rate"
+            ),
+            "s10_observable_subset_calibration_status": s10.get(
+                "observable_subset_calibration_status"
+            ),
+            "s10_observable_subset_calibration_floor_passed": s10.get(
+                "observable_subset_calibration_floor_passed"
+            ),
+            "s10_observable_subset_calibration_threshold_ref": s10.get(
+                "observable_subset_calibration_threshold_ref"
+            ),
+            "s10_non_observable_downgrade_count": s10.get(
+                "non_observable_downgrade_count"
+            ),
+            "s10_equilibrium_contested_single_forecast_block_count": s10.get(
+                "equilibrium_contested_single_forecast_block_count"
+            ),
+            "s10_simulation_only_evidence_block_count": s10.get(
+                "simulation_only_evidence_block_count"
+            ),
+            "s10_weakest_boundary_inheritance_count": s10.get(
+                "weakest_boundary_inheritance_count"
+            ),
+            "s10_false_clear_counts": s10_false_clear_counts,
+            **{f"s10_{field}": s10.get(field) for field in S10_FALSE_CLEAR_FIELDS},
+        }
+        if isinstance(s10, dict) and s10
+        else {}
+    )
 
     return _result(
         issues,
         summary={
             "open_cell_count": len(current_open_cells),
+            "remaining_open_cells": sorted(current_open_cells),
             "open_cell_count_baseline": open_cell_count_baseline,
             "current_open_cell_count": len(current_open_cells),
             "assigned_open_cell_count": len(assigned_cells),
@@ -660,6 +797,7 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
             **s7_summary,
             **s8_summary,
             **s9_summary,
+            **s10_summary,
         },
     )
 
@@ -1937,11 +2075,11 @@ def _validate_s8_value_choice(
     _validate_s8_s7_value_authorization_support(s7=s7, issues=issues)
     _validate_s8_runtime_negative_firewalls(issues)
 
-    if _inventory_layer2_artifact_count(inventory) != 17:
+    if _inventory_layer2_artifact_count(inventory) < 18:
         issues.append(
             _issue(
                 "layer2_s8_inventory_artifact_count_invalid",
-                "Layer 2 inventory artifact count must be 17 after registering S9.",
+                "Layer 2 inventory artifact count must include post-S10 registration.",
             )
         )
     inventory_artifact = _inventory_artifact_by_id(inventory, S8_INVENTORY_ID)
@@ -2220,11 +2358,11 @@ def _validate_s9_projection_lowering(
             )
         )
 
-    if _inventory_layer2_artifact_count(inventory) != 17:
+    if _inventory_layer2_artifact_count(inventory) < 18:
         issues.append(
             _issue(
                 "layer2_s9_inventory_artifact_count_invalid",
-                "Layer 2 inventory artifact count must be 17 after registering S9.",
+                "Layer 2 inventory artifact count must include post-S10 registration.",
             )
         )
     inventory_artifact = _inventory_artifact_by_id(inventory, S9_INVENTORY_ID)
@@ -2308,7 +2446,346 @@ def _validate_s9_projection_lowering(
         issues.append(
             _issue(
                 "layer2_s9_later_slice_maturity_invalid",
-                "S9 must not mark S10, S11, S12, S13, or S14 artifacts implemented.",
+                "S9 must not mark S11, S12, S13, or S14 artifacts implemented.",
+            )
+        )
+
+
+def _validate_s10_outcome_prediction(
+    *,
+    s10: object,
+    floor_governance: dict[str, Any],
+    artifact_traceability: dict[str, Any],
+    current_open_cells: set[str],
+    inventory: dict[str, Any],
+    issues: list[dict[str, str]],
+) -> None:
+    if not isinstance(s10, dict) or not s10:
+        issues.append(
+            _issue(
+                "layer2_s10_manifest_missing",
+                "S10 outcome-prediction manifest must be present.",
+            )
+        )
+        return
+    if s10.get("schema_version") != (
+        "policyos.policy_design_case.layer2_s10_outcome_prediction_manifest.v1"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s10_schema_version_invalid",
+                "S10 outcome-prediction manifest schema_version is invalid.",
+            )
+        )
+    if s10.get("status") != "active" or s10.get("owner") != "team-research":
+        issues.append(
+            _issue(
+                "layer2_s10_status_or_owner_invalid",
+                "S10 outcome-prediction manifest must be active and owned by team-research.",
+            )
+        )
+    if s10.get("slice") != "S10" or s10.get("depends_on") != ["S5", "S6", "S8"]:
+        issues.append(
+            _issue(
+                "layer2_s10_slice_or_dependencies_invalid",
+                "S10 must depend on S5, S6, and S8 without claiming S11 calibration.",
+            )
+        )
+    if s10.get("cells_closed") != []:
+        issues.append(
+            _issue(
+                "layer2_s10_cells_closed_invalid",
+                "S10 advances forecast support only; it closes no cluster cell.",
+            )
+        )
+    if s10.get("layer_cells_advanced") != ["outcome_prediction_welfare_comparison"]:
+        issues.append(
+            _issue(
+                "layer2_s10_layer_cells_advanced_invalid",
+                "S10 must advance only outcome_prediction_welfare_comparison.",
+            )
+        )
+    if s10.get("expected_current_open_cell_count") != 3:
+        issues.append(
+            _issue(
+                "layer2_s10_open_cell_count_drift",
+                "S10 manifest must record expected_current_open_cell_count=3.",
+            )
+        )
+    if current_open_cells != S9_EXPECTED_OPEN_CELLS:
+        issues.append(
+            _issue(
+                "layer2_s10_current_open_cells_invalid",
+                "S10 must leave envelope_growth, calibration, and IR proof-carrying analytics open.",
+            )
+        )
+
+    trace_s10_artifacts = {
+        str(row.get("name", ""))
+        for row in artifact_traceability.get("artifact", [])
+        if isinstance(row, dict) and row.get("slice") == "S10"
+    }
+    if set(s10.get("required_artifacts", [])) != S10_REQUIRED_ARTIFACTS:
+        issues.append(
+            _issue(
+                "layer2_s10_required_artifacts_missing",
+                "S10 required_artifacts must list ForecastSupport and ForecastCalibrationRecord.",
+            )
+        )
+    if trace_s10_artifacts != S10_REQUIRED_ARTIFACTS:
+        issues.append(
+            _issue(
+                "layer2_s10_traceability_missing",
+                "S10 artifacts must match layer2_artifact_traceability S10 rows.",
+            )
+        )
+
+    floor = _floor_by_id(floor_governance, "s10_calibration")
+    if (
+        s10.get("floor_id") != "s10_calibration"
+        or not floor
+        or floor.get("metric") != s10.get("floor_metric")
+        or floor.get("floor_owner") != "team-research"
+        or floor.get("revision_rule")
+        != "forecast_support_tier_change_requires_calibration_record"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s10_floor_governance_invalid",
+                "S10 floor must govern observable-subset calibration records.",
+            )
+        )
+    if s10.get("case_count") != 13:
+        issues.append(
+            _issue(
+                "layer2_s10_case_count_invalid",
+                "S10 manifest must record all 13 universal corpus cases.",
+            )
+        )
+    if not _number_at_least(s10.get("observable_subset_case_count"), 4):
+        issues.append(
+            _issue(
+                "layer2_s10_observable_subset_case_count_below_floor",
+                "S10 observable subset count must be at least 4.",
+            )
+        )
+    if not _number_at_least(
+        s10.get("observable_subset_calibration_denominator"),
+        4,
+    ):
+        issues.append(
+            _issue(
+                "layer2_s10_calibration_denominator_below_floor",
+                "S10 observable-subset calibration denominator must be at least 4.",
+            )
+        )
+    if s10.get("observable_subset_calibration_numerator") != s10.get(
+        "observable_subset_calibration_denominator"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s10_calibration_numerator_mismatch",
+                "S10 calibration numerator must equal denominator.",
+            )
+        )
+    if s10.get("observable_subset_calibration_status") != "pass":
+        issues.append(
+            _issue(
+                "layer2_s10_calibration_status_invalid",
+                "S10 observable-subset calibration status must be pass.",
+            )
+        )
+    if s10.get("observable_subset_calibration_floor_passed") is not True:
+        issues.append(
+            _issue(
+                "layer2_s10_calibration_floor_not_passed",
+                "S10 observable-subset calibration floor must be passed.",
+            )
+        )
+    if not s10.get("observable_subset_calibration_threshold_ref"):
+        issues.append(
+            _issue(
+                "layer2_s10_calibration_threshold_ref_missing",
+                "S10 calibration threshold ref must be present.",
+            )
+        )
+    threshold = s10.get("observable_subset_calibration_threshold")
+    if not isinstance(threshold, (int, float)):
+        issues.append(
+            _issue(
+                "layer2_s10_calibration_threshold_missing",
+                "S10 calibration threshold must be numeric.",
+            )
+        )
+    elif not _number_at_least(
+        s10.get("observable_subset_calibration_pass_rate"),
+        float(threshold),
+    ):
+        issues.append(
+            _issue(
+                "layer2_s10_calibration_pass_rate_below_threshold",
+                "S10 calibration pass rate must meet the governed threshold.",
+            )
+        )
+    if not _number_at_least(s10.get("non_observable_downgrade_count"), 1):
+        issues.append(
+            _issue(
+                "layer2_s10_non_observable_downgrade_missing",
+                "S10 must record at least one non-observable downgrade.",
+            )
+        )
+    if not _number_at_least(
+        s10.get("equilibrium_contested_single_forecast_block_count"),
+        1,
+    ):
+        issues.append(
+            _issue(
+                "layer2_s10_equilibrium_contested_block_missing",
+                "S10 must block at least one equilibrium-contested single forecast.",
+            )
+        )
+    if not _number_at_least(s10.get("simulation_only_evidence_block_count"), 1):
+        issues.append(
+            _issue(
+                "layer2_s10_simulation_only_evidence_block_missing",
+                "S10 must block at least one simulation-only evidence laundering case.",
+            )
+        )
+    if s10.get("weakest_boundary_inheritance_count") != 13:
+        issues.append(
+            _issue(
+                "layer2_s10_weakest_boundary_inheritance_count_invalid",
+                "S10 must inherit weakest-boundary posture for all 13 cases.",
+            )
+        )
+    for field in S10_FALSE_CLEAR_FIELDS:
+        if s10.get(field) != 0:
+            issues.append(
+                _issue(
+                    f"layer2_s10_{field}_nonzero",
+                    f"S10 {field} must stay zero.",
+                )
+            )
+    if set(s10.get("authority_scope", [])) != S10_REQUIRED_AUTHORITY_SCOPE:
+        issues.append(
+            _issue(
+                "layer2_s10_authority_scope_invalid",
+                "S10 authority_scope must match governed forecast-support scope.",
+            )
+        )
+    if not set(s10.get("may_not_use_for", [])) >= S10_REQUIRED_DENY:
+        issues.append(
+            _issue(
+                "layer2_s10_authority_deny_list_incomplete",
+                "S10 may_not_use_for must block production, S11-S14, and future authority.",
+            )
+        )
+    if s10.get("canonical_route") != "tools/quality/validation/run_universal_outcome_corpus.py":
+        issues.append(
+            _issue(
+                "layer2_s10_canonical_route_invalid",
+                "S10 manifest must point at the universal outcome corpus runner.",
+            )
+        )
+    if (
+        s10.get("validator")
+        != "tools/quality/validation/check_policy_design_case_layer2_readiness.py"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s10_validator_invalid",
+                "S10 manifest must point at the layer2 readiness validator.",
+            )
+        )
+    if _inventory_layer2_artifact_count(inventory) != 18:
+        issues.append(
+            _issue(
+                "layer2_s10_inventory_artifact_count_invalid",
+                "Layer 2 inventory artifact count must be 18 after registering S10.",
+            )
+        )
+    inventory_artifact = _inventory_artifact_by_id(inventory, S10_INVENTORY_ID)
+    if not inventory_artifact:
+        issues.append(
+            _issue(
+                "layer2_s10_manifest_missing_from_inventory",
+                "S10 manifest must be registered in the Policy Design Case inventory.",
+            )
+        )
+        return
+    if inventory_artifact.get("path") != DEFAULT_S10_OUTCOME_PREDICTION_MANIFEST_PATH.as_posix():
+        issues.append(
+            _issue(
+                "layer2_s10_inventory_path_invalid",
+                "S10 inventory path must point at the governed manifest.",
+            )
+        )
+    if inventory_artifact.get("kind") != "layer2_s10_outcome_prediction_manifest":
+        issues.append(
+            _issue(
+                "layer2_s10_inventory_kind_invalid",
+                "S10 inventory entry must carry kind=layer2_s10_outcome_prediction_manifest.",
+            )
+        )
+    if inventory_artifact.get("schema_version") != s10.get("schema_version"):
+        issues.append(
+            _issue(
+                "layer2_s10_inventory_schema_version_invalid",
+                "S10 inventory schema_version must match the manifest.",
+            )
+        )
+    if (
+        inventory_artifact.get("owner") != s10.get("owner")
+        or inventory_artifact.get("status") != s10.get("status")
+        or inventory_artifact.get("capability_reality_label") != "implemented"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s10_inventory_status_invalid",
+                "S10 inventory entry must be active, implemented, and owned by team-research.",
+            )
+        )
+    if inventory_artifact.get("authority_scope") != s10.get("authority_scope"):
+        issues.append(
+            _issue(
+                "layer2_s10_inventory_authority_scope_mismatch",
+                "S10 inventory authority_scope must match the manifest.",
+            )
+        )
+    if inventory_artifact.get("may_not_use_for") != s10.get("may_not_use_for"):
+        issues.append(
+            _issue(
+                "layer2_s10_inventory_deny_list_mismatch",
+                "S10 inventory may_not_use_for must match the manifest.",
+            )
+        )
+    if inventory_artifact.get("validator") != s10.get("validator"):
+        issues.append(
+            _issue(
+                "layer2_s10_inventory_validator_mismatch",
+                "S10 inventory validator must match the manifest.",
+            )
+        )
+    if inventory_artifact.get("canonical_route") != s10.get("canonical_route"):
+        issues.append(
+            _issue(
+                "layer2_s10_inventory_canonical_route_mismatch",
+                "S10 inventory canonical_route must match the manifest.",
+            )
+        )
+
+    future_implemented = {
+        str(row.get("name", ""))
+        for row in artifact_traceability.get("artifact", [])
+        if isinstance(row, dict)
+        and row.get("slice") in S9_LATER_SLICES
+        and row.get("maturity") == "implemented"
+    }
+    if future_implemented:
+        issues.append(
+            _issue(
+                "layer2_s10_future_slice_maturity_invalid",
+                "S10 must not mark S11, S12, S13, or S14 artifacts implemented.",
             )
         )
 

@@ -1,0 +1,14 @@
+{
+  "case_id": "universal_self_claim_without_s14_probe",
+  "failure_pattern": "universal_self_claim_without_s14",
+  "expected_disposition": "s9_universal_self_claim_without_s14_refs",
+  "expected_false_clear": false,
+  "source_fields": {
+    "canonical_design_record_ref": "pdc://layer2/s9/probe/canonical-design-record",
+    "s14_universality_assurance_refs": []
+  },
+  "projection_fields": {
+    "rendered_claim_refs": ["claim://probe/universal-policy-design-system"],
+    "self_description": "universal policy design engine"
+  }
+}

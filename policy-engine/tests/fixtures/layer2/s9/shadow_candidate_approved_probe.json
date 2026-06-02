@@ -1,0 +1,14 @@
+{
+  "case_id": "shadow_candidate_approved_probe",
+  "failure_pattern": "shadow_candidate_approval",
+  "expected_disposition": "s9_shadow_candidate_rendered_as_approved",
+  "expected_false_clear": false,
+  "source_fields": {
+    "projection_status": "shadow",
+    "candidate_ref": "pdc://layer2/s2/probe/candidate/shadow"
+  },
+  "projection_fields": {
+    "rendered_status_text": "Approved policy design",
+    "shadow_approval_status": "rendered_as_approved"
+  }
+}

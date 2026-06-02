@@ -1,0 +1,16 @@
+{
+  "case_id": "machine_projection_missing_refs_probe",
+  "failure_pattern": "machine_projection_missing_refs",
+  "expected_disposition": "s9_machine_projection_missing_refs",
+  "expected_false_clear": false,
+  "source_fields": {
+    "canonical_design_record_ref": "pdc://layer2/s9/probe/canonical-design-record",
+    "source_revision_ref": "git://policyos/layer2/s9/probe/revision/001"
+  },
+  "projection_fields": {
+    "audience": "MACHINE",
+    "source_ref": null,
+    "audit_refs": [],
+    "source_authority_refs": {}
+  }
+}

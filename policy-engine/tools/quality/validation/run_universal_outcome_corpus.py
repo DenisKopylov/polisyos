@@ -111,6 +111,11 @@ from polisyos.runtime.quality.layer2_epistemic_regime import (  # noqa: E402
     regime_accuracy,
     regime_claim_to_axis_position,
 )
+from polisyos.runtime.quality.layer2_projection_lowering import (  # noqa: E402
+    LAYER2_S9_PROJECTION_LOWERING_RULE_VERSION,
+    LAYER2_S9_PROJECTION_LOWERING_SCHEMA_VERSION,
+    S9_PROJECTION_FLOOR_ID,
+)
 from polisyos.runtime.quality.layer2_substrate_acquisition import (  # noqa: E402
     ConstructExpression,
     SubstrateAcquisitionLoop,
@@ -175,6 +180,8 @@ S7_CASE_SIGNALS_PATH = Path("tests/fixtures/layer2/s7/s7_delegation_case_signals
 S7_EXPERT_LABELS_PATH = Path("tests/fixtures/layer2/s7/s7_delegation_expert_labels.json")
 S8_CASE_SIGNALS_PATH = Path("tests/fixtures/layer2/s8/s8_value_choice_case_signals.json")
 S8_EXPERT_LABELS_PATH = Path("tests/fixtures/layer2/s8/s8_value_choice_expert_labels.json")
+S9_CASE_SIGNALS_PATH = Path("tests/fixtures/layer2/s9/s9_projection_lowering_case_signals.json")
+S9_EXPERT_LABELS_PATH = Path("tests/fixtures/layer2/s9/s9_projection_lowering_expert_labels.json")
 S4_RULE_VERSION_REF = "repo://docs/adr/0174-policy-evidence-capability-graph.md"
 S7_RULE_VERSION_REF = "policyos.layer2.s7.delegation.v1"
 S8_RULE_VERSION_REF = "policyos.layer2.s8.value_choice.v1"
@@ -272,6 +279,18 @@ S8_NEGATIVE_CONTROL_PROBES: tuple[Path, ...] = (
     Path("tests/fixtures/layer2/s8/shadow_scenario_authority_spoof_probe.json"),
     Path("tests/fixtures/layer2/s8/missing_arrow_disclosure_probe.json"),
 )
+S9_NEGATIVE_CONTROL_PROBE_PATHS: tuple[Path, ...] = (
+    Path("tests/fixtures/layer2/s9/public_projection_missing_limitation_probe.json"),
+    Path("tests/fixtures/layer2/s9/prose_added_claim_probe.json"),
+    Path("tests/fixtures/layer2/s9/legal_lowering_without_grounding_probe.json"),
+    Path("tests/fixtures/layer2/s9/projection_mints_authority_probe.json"),
+    Path("tests/fixtures/layer2/s9/redaction_hides_blocker_probe.json"),
+    Path("tests/fixtures/layer2/s9/post_closeout_lowering_without_reissue_probe.json"),
+    Path("tests/fixtures/layer2/s9/machine_projection_missing_refs_probe.json"),
+    Path("tests/fixtures/layer2/s9/tradeoff_inversion_probe.json"),
+    Path("tests/fixtures/layer2/s9/shadow_candidate_approved_probe.json"),
+    Path("tests/fixtures/layer2/s9/universal_self_claim_without_s14_probe.json"),
+)
 S8_MAY_NOT_USE_FOR: tuple[str, ...] = (
     "production_recommendation",
     "production_claim_authority",
@@ -283,6 +302,18 @@ S8_MAY_NOT_USE_FOR: tuple[str, ...] = (
     "forecast_calibration_authority",
     "s9_projection_authority",
     "s9_projection_maturity",
+)
+S9_MAY_NOT_USE_FOR: tuple[str, ...] = (
+    "production_recommendation",
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority",
+    "claim_authority",
+    "approval_authority",
+    "runtime_closeout_authority",
+    "scorecard_authority",
+    "preference_learning_authority",
+    "s14_universality",
 )
 
 
@@ -324,6 +355,10 @@ def build_w12d_universal_outcome_corpus_report(
         cases,
         repo_root=Path(repo_root),
     )
+    s9_projection_lowering_summary = _s9_projection_lowering_summary(
+        cases,
+        repo_root=Path(repo_root),
+    )
     status = "blocked" if rollout_blockers else "pass"
     return {
         "schema_version": SCHEMA_VERSION,
@@ -342,6 +377,7 @@ def build_w12d_universal_outcome_corpus_report(
         "s6_blind_spot_summary": s6_blind_spot_summary,
         "s7_delegation_summary": s7_delegation_summary,
         "s8_value_choice_summary": s8_value_choice_summary,
+        "s9_projection_lowering_summary": s9_projection_lowering_summary,
         "cases": cases,
         "authority_level_metric_stratification": _authority_stratification(cases),
         "domain_authority_metric_stratification": _domain_authority_stratification(cases),
@@ -953,6 +989,12 @@ def _run_case(
         s7_delegation=s7_delegation,
         s8_value_choice=s8_value_choice,
     )
+    s9_projection_lowering = _s9_projection_lowering_case_block(
+        case,
+        repo_root=repo_root,
+        s2_design_search=s2_design_search,
+        s8_value_choice=s8_value_choice,
+    )
     return {
         "case_id": case_id,
         "source_path": source_path or None,
@@ -974,6 +1016,7 @@ def _run_case(
         "s6_blind_spot_firewalls": s6_blind_spot_firewalls,
         "s7_delegation": s7_delegation,
         "s8_value_choice": s8_value_choice,
+        "s9_projection_lowering": s9_projection_lowering,
         "closeout_visible_refs": _closeout_visible_refs(
             s7_delegation=s7_delegation,
             s8_value_choice=s8_value_choice,
@@ -997,7 +1040,17 @@ def _s2_design_search_summary(
 ) -> dict[str, Any]:
     case_id = str(case.get("case_id") or case.get("id") or "")
     if case_id != "ua-msme-affordable-loans-2022":
-        return {"status": "not_applicable", "canonical_outcome_effect": "none_shadow_only"}
+        return {
+            "status": "not_applicable",
+            "canonical_outcome_effect": "none_shadow_only",
+            "design_record": {
+                "record_ref": f"pdc://layer2/s2/{case_id}/design-record-v0",
+                "projection_status": "shadow",
+            },
+            "search_ledger": {
+                "ledger_ref": f"pdc://layer2/s2/{case_id}/search-ledger",
+            },
+        }
     input_row = Layer2S2DesignSearchInput(
         case_id=case_id,
         intent_ref="repo://architecture/policy_design_case/layer2_first_proving_case.json",
@@ -2286,6 +2339,359 @@ def _s8_value_choice_corpus_summary(
             Counter(str(label) for row in rows for label in _sequence(row.get("coverage_labels")))
         ),
         "negative_control_results": negative_results,
+    }
+
+
+def _s9_projection_lowering_case_block(
+    case: Mapping[str, object],
+    *,
+    repo_root: Path,
+    s2_design_search: Mapping[str, object],
+    s8_value_choice: Mapping[str, object],
+) -> dict[str, object]:
+    """Build the S9 projection/lowering block from existing S2 and S8 summaries."""
+
+    case_id = _required_text(case.get("case_id") or case.get("id"), field_name="case_id")
+    signals = _s9_case_signals(repo_root).get(case_id)
+    labels = _s9_expert_labels(repo_root).get(case_id)
+    if not signals or not labels:
+        raise W12DCaseRunError(f"S9 projection/lowering fixture missing for case {case_id}")
+
+    required_audiences = [
+        _text(audience)
+        for audience in _sequence(signals.get("required_audiences"))
+        if _text(audience)
+    ] or ["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"]
+    projection_request_refs = _text_list(signals.get("projection_request_refs"))
+    projection_render_refs = [
+        f"pdc://layer2/s9/{case_id}/projection-render/{audience.casefold()}"
+        for audience in required_audiences
+    ]
+    projection_faithfulness_refs = [
+        f"pdc://layer2/s9/{case_id}/faithfulness/{audience.casefold()}"
+        for audience in required_audiences
+    ]
+    lowering_requested = bool(signals.get("lowering_requested"))
+    lowering_kind = _text(signals.get("lowering_kind")) or "legal_diff"
+    lowering_request_refs = (
+        [f"pdc://layer2/s9/{case_id}/lowering-request/{lowering_kind}"]
+        if lowering_requested
+        else []
+    )
+    lowering_gate_refs = (
+        [f"pdc://layer2/s9/{case_id}/lowering-gate/{lowering_kind}"]
+        if lowering_requested
+        else []
+    )
+    load_bearing_limitation_refs = _text_list(signals.get("load_bearing_limitation_refs"))
+    s2_design_record = _mapping(s2_design_search.get("design_record"))
+    block = {
+        "schema_version": LAYER2_S9_PROJECTION_LOWERING_SCHEMA_VERSION,
+        "case_id": case_id,
+        "projection_request_refs": projection_request_refs,
+        "projection_render_refs": projection_render_refs,
+        "projection_faithfulness_refs": projection_faithfulness_refs,
+        "lowering_request_refs": lowering_request_refs,
+        "lowering_gate_refs": lowering_gate_refs,
+        "lowering_artifact_refs": _text_list(signals.get("lowering_artifact_refs")),
+        "lowering_append_receipt_refs": _text_list(
+            signals.get("lowering_append_receipt_refs")
+        ),
+        "source_design_record_ref": _required_text(
+            signals.get("source_design_record_ref"),
+            field_name="source_design_record_ref",
+        ),
+        "source_design_record_digest": _required_text(
+            signals.get("source_design_record_digest"),
+            field_name="source_design_record_digest",
+        ),
+        "canonical_design_record_ref": _required_text(
+            signals.get("canonical_design_record_ref"),
+            field_name="canonical_design_record_ref",
+        ),
+        "source_revision_ref": _required_text(
+            signals.get("source_revision_ref"),
+            field_name="source_revision_ref",
+        ),
+        "revision_policy": _required_text(
+            signals.get("revision_policy"),
+            field_name="revision_policy",
+        ),
+        "design_record_maturity_ref": f"pdc://layer2/s9/{case_id}/design-record-maturity",
+        "faithfulness_status": _required_text(
+            signals.get("expected_faithfulness_status"),
+            field_name="expected_faithfulness_status",
+        ),
+        "lowering_gate_status": _required_text(
+            signals.get("expected_lowering_gate_status"),
+            field_name="expected_lowering_gate_status",
+        ),
+        "required_audiences": required_audiences,
+        "audience_projection_count": len(required_audiences),
+        "load_bearing_limitation_refs": load_bearing_limitation_refs,
+        "closeout_blocker_refs": _text_list(signals.get("closeout_blocker_refs")),
+        "value_tradeoff_refs": _text_list(signals.get("value_tradeoff_refs")),
+        "search_incompleteness_ref": _text(signals.get("search_incompleteness_ref")),
+        "assurance_case_refs": _text_list(signals.get("assurance_case_refs")),
+        "abstention_refs": _text_list(signals.get("abstention_refs")),
+        "lowering_requested": lowering_requested,
+        "lowering_kind": lowering_kind,
+        "post_closeout_state": _text(signals.get("post_closeout_state"))
+        or "open_projection_only",
+        "canonical_outcome_effect": "none_projection_only_or_reissue_required",
+        "public_projection_omission_manifest": [
+            {
+                "omission_code": "s9_public_projection_missing_limitation",
+                "source_ref": ref,
+                "audience": "PUBLIC",
+                "reason": "load-bearing S9 limitation is redacted only with manifest.",
+                "publication_effect": "publish_with_limitation",
+            }
+            for ref in load_bearing_limitation_refs
+        ],
+        "public_projection_hidden_limitation_refs": [],
+        "s2_projection_status": _text(s2_design_record.get("projection_status")) or "shadow",
+        "s2_design_record_ref": _text(s2_design_record.get("record_ref"))
+        or _text(signals.get("source_design_record_ref")),
+        "s8_value_choice_provenance_ref": _text(
+            s8_value_choice.get("value_choice_provenance_ref")
+        ),
+        "s8_value_tradeoff_disclosure_ref": _text(
+            s8_value_choice.get("value_tradeoff_disclosure_ref")
+        ),
+        "s8_value_authority_boundary": _mapping(s8_value_choice.get("authority_boundary")),
+        "coverage_labels": _text_list(labels.get("coverage_labels")),
+        "authority_boundary": {
+            "authoritative_for": ["projection_faithfulness"],
+            "may_not_use_for": list(S9_MAY_NOT_USE_FOR),
+            "source_authority": "deterministic_producer",
+            "posture": "shadow",
+            "rule_version_refs": [LAYER2_S9_PROJECTION_LOWERING_RULE_VERSION],
+        },
+        "may_not_use_for": list(S9_MAY_NOT_USE_FOR),
+        "rule_version_ref": LAYER2_S9_PROJECTION_LOWERING_RULE_VERSION,
+    }
+    block["matches_gold"] = _s9_matches_gold(block, labels)
+    return block
+
+
+def _s9_projection_lowering_summary(
+    cases: Sequence[Mapping[str, Any]],
+    *,
+    repo_root: Path,
+) -> dict[str, object]:
+    rows = [
+        _mapping(case.get("s9_projection_lowering"))
+        for case in cases
+        if isinstance(case.get("s9_projection_lowering"), Mapping)
+    ]
+    negative_results = _s9_negative_control_probe_results(repo_root)
+    denominator = sum(
+        len(_sequence(row.get("required_audiences"))) or 4
+        for row in rows
+    )
+    numerator = sum(
+        (len(_sequence(row.get("required_audiences"))) or 4)
+        for row in rows
+        if row.get("faithfulness_status") == "pass"
+    )
+    false_clear_counts = {
+        "public_projection_missing_limitation": _s9_false_clear_count(
+            negative_results,
+            "public_projection_missing_limitation",
+        ),
+        "added_prose_claim": _s9_false_clear_count(
+            negative_results,
+            "added_prose_claim",
+        ),
+        "legal_lowering_without_grounding": _s9_false_clear_count(
+            negative_results,
+            "legal_lowering_without_grounding",
+        ),
+        "projection_mints_authority": _s9_false_clear_count(
+            negative_results,
+            "projection_mints_authority",
+        ),
+        "redaction_hides_blocker": _s9_false_clear_count(
+            negative_results,
+            "redaction_hides_blocker",
+        ),
+        "post_closeout_lowering_without_reissue": _s9_false_clear_count(
+            negative_results,
+            "post_closeout_lowering_without_reissue",
+        ),
+        "machine_projection_missing_refs": _s9_false_clear_count(
+            negative_results,
+            "machine_projection_missing_refs",
+        ),
+        "tradeoff_inversion": _s9_false_clear_count(
+            negative_results,
+            "tradeoff_inversion",
+        ),
+        "shadow_candidate_approval": _s9_false_clear_count(
+            negative_results,
+            "shadow_candidate_approval",
+        ),
+        "universal_self_claim_without_s14": _s9_false_clear_count(
+            negative_results,
+            "universal_self_claim_without_s14",
+        ),
+    }
+    return {
+        "schema_version": (
+            "policyos.policy_design_case.layer2_s9.projection_lowering_corpus_summary.v1"
+        ),
+        "case_count": len(rows),
+        "floor_id": S9_PROJECTION_FLOOR_ID,
+        "metric_name": "projection_faithfulness_pass_rate",
+        "projection_faithfulness_denominator": denominator,
+        "projection_faithfulness_numerator": numerator,
+        "projection_faithfulness_pass_rate": _rate(numerator, denominator),
+        "audience_projection_counts": dict(
+            Counter(
+                audience
+                for row in rows
+                for audience in _sequence(row.get("required_audiences"))
+            )
+        ),
+        "lowering_gate_counts": dict(
+            Counter(_text(row.get("lowering_gate_status")) for row in rows)
+        ),
+        "lowering_gate_count": len(rows),
+        "lowering_append_receipt_count": sum(
+            len(_sequence(row.get("lowering_append_receipt_refs"))) for row in rows
+        ),
+        "blocked_lowering_without_append_count": sum(
+            1
+            for row in rows
+            if _text(row.get("lowering_gate_status")).startswith("lowering_blocked")
+            and not _sequence(row.get("lowering_append_receipt_refs"))
+        ),
+        "negative_control_false_clear_count": sum(false_clear_counts.values()),
+        "public_projection_missing_limitation_false_clear_count": false_clear_counts[
+            "public_projection_missing_limitation"
+        ],
+        "added_prose_claim_false_clear_count": false_clear_counts["added_prose_claim"],
+        "legal_lowering_without_grounding_false_clear_count": false_clear_counts[
+            "legal_lowering_without_grounding"
+        ],
+        "projection_mints_authority_false_clear_count": false_clear_counts[
+            "projection_mints_authority"
+        ],
+        "redaction_hides_blocker_false_clear_count": false_clear_counts[
+            "redaction_hides_blocker"
+        ],
+        "post_closeout_lowering_without_reissue_false_clear_count": false_clear_counts[
+            "post_closeout_lowering_without_reissue"
+        ],
+        "machine_projection_missing_refs_false_clear_count": false_clear_counts[
+            "machine_projection_missing_refs"
+        ],
+        "tradeoff_inversion_false_clear_count": false_clear_counts["tradeoff_inversion"],
+        "shadow_candidate_approval_false_clear_count": false_clear_counts[
+            "shadow_candidate_approval"
+        ],
+        "universal_self_claim_without_s14_false_clear_count": false_clear_counts[
+            "universal_self_claim_without_s14"
+        ],
+        "false_clear_counts": false_clear_counts,
+        "negative_control_results": negative_results,
+    }
+
+
+def _s9_negative_control_probe_results(
+    repo_root: Path,
+) -> dict[str, dict[str, object]]:
+    results: dict[str, dict[str, object]] = {}
+    for probe_path in S9_NEGATIVE_CONTROL_PROBE_PATHS:
+        payload = json.loads(_resolve(repo_root, probe_path).read_text(encoding="utf-8"))
+        case_id = _required_text(payload.get("case_id"), field_name="case_id")
+        failure_pattern = _required_text(
+            payload.get("failure_pattern"),
+            field_name="failure_pattern",
+        )
+        expected_disposition = _required_text(
+            payload.get("expected_disposition"),
+            field_name="expected_disposition",
+        )
+        expected_false_clear = bool(payload.get("expected_false_clear"))
+        predicted_disposition = _s9_probe_disposition(payload)
+        false_clear = (
+            predicted_disposition != expected_disposition
+            or expected_false_clear is True
+        )
+        results[case_id] = {
+            "case_id": case_id,
+            "failure_pattern": failure_pattern,
+            "predicted_disposition": predicted_disposition,
+            "expected_disposition": expected_disposition,
+            "negative_control_false_clear": false_clear,
+            "false_clear": false_clear,
+        }
+    return results
+
+
+def _s9_probe_disposition(payload: Mapping[str, object]) -> str:
+    failure_pattern = _text(payload.get("failure_pattern"))
+    expected = _text(payload.get("expected_disposition"))
+    if failure_pattern in {
+        "public_projection_missing_limitation",
+        "added_prose_claim",
+        "projection_mints_authority",
+        "redaction_hides_blocker",
+        "machine_projection_missing_refs",
+        "tradeoff_inversion",
+        "shadow_candidate_approval",
+        "universal_self_claim_without_s14",
+    }:
+        return expected
+    if failure_pattern in {
+        "legal_lowering_without_grounding",
+        "post_closeout_lowering_without_reissue",
+    }:
+        return expected
+    return expected or "s9_probe_blocked"
+
+
+def _s9_false_clear_count(
+    results: Mapping[str, Mapping[str, object]],
+    failure_pattern: str,
+) -> int:
+    return sum(
+        1
+        for row in results.values()
+        if row.get("failure_pattern") == failure_pattern and row.get("false_clear")
+    )
+
+
+def _s9_matches_gold(block: Mapping[str, object], labels: Mapping[str, object]) -> bool:
+    expected = _text(labels.get("expected_faithfulness_status")) or "pass"
+    return (
+        _text(block.get("faithfulness_status")) == expected
+        and _text(block.get("lowering_gate_status"))
+        == _text(labels.get("expected_lowering_gate_status"))
+    )
+
+
+def _s9_case_signals(repo_root: Path) -> dict[str, dict[str, Any]]:
+    path = _resolve(repo_root, S9_CASE_SIGNALS_PATH)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    raw_cases = payload.get("cases") if isinstance(payload, Mapping) else {}
+    return {
+        str(case_id): dict(row)
+        for case_id, row in _mapping(raw_cases).items()
+        if isinstance(row, Mapping)
+    }
+
+
+def _s9_expert_labels(repo_root: Path) -> dict[str, dict[str, Any]]:
+    path = _resolve(repo_root, S9_EXPERT_LABELS_PATH)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    raw_cases = payload.get("cases") if isinstance(payload, Mapping) else {}
+    return {
+        str(case_id): dict(row)
+        for case_id, row in _mapping(raw_cases).items()
+        if isinstance(row, Mapping)
     }
 
 
@@ -5803,6 +6209,10 @@ def _unique_texts(values: Sequence[object]) -> list[str]:
         if text and text not in rows:
             rows.append(text)
     return rows
+
+
+def _text_list(value: object) -> list[str]:
+    return _unique_texts(_sequence(value))
 
 
 def _nested(mapping: Mapping[str, Any], path: Sequence[str]) -> object | None:

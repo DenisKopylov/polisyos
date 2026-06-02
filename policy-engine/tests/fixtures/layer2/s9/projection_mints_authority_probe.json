@@ -1,0 +1,17 @@
+{
+  "case_id": "projection_mints_authority_probe",
+  "failure_pattern": "projection_mints_authority",
+  "expected_disposition": "s9_projection_mints_authority",
+  "expected_false_clear": false,
+  "source_fields": {
+    "canonical_design_record_ref": "pdc://layer2/s9/probe/canonical-design-record",
+    "authority_boundary": {
+      "posture": "shadow"
+    }
+  },
+  "projection_fields": {
+    "authority_role": "approval_input",
+    "authoritative_for": ["claim_authority"],
+    "may_not_use_for": []
+  }
+}

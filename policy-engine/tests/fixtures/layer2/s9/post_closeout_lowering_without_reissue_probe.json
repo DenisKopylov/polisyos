@@ -1,0 +1,16 @@
+{
+  "case_id": "post_closeout_lowering_without_reissue_probe",
+  "failure_pattern": "post_closeout_lowering_without_reissue",
+  "expected_disposition": "lowering_blocked_requires_reissue",
+  "expected_false_clear": false,
+  "source_fields": {
+    "source_revision_ref": "git://policyos/layer2/s9/probe/revision/001",
+    "post_closeout_state": "closed"
+  },
+  "lowering_fields": {
+    "source_revision_ref": "git://policyos/layer2/s9/probe/revision/002",
+    "revision_policy": "same_revision",
+    "reissue_ref": null,
+    "reopen_ref": null
+  }
+}

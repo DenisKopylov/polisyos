@@ -1,0 +1,15 @@
+{
+  "case_id": "redaction_hides_blocker_probe",
+  "failure_pattern": "redaction_hides_blocker",
+  "expected_disposition": "s9_redaction_hides_blocker",
+  "expected_false_clear": false,
+  "source_fields": {
+    "blocker_refs": ["pdc://layer2/s6/probe/blocker/strategic-response"]
+  },
+  "projection_fields": {
+    "audience": "PUBLIC",
+    "redaction": "public_redacted",
+    "hidden_blocker_refs": ["pdc://layer2/s6/probe/blocker/strategic-response"],
+    "omission_manifest": []
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "case_id": "legal_lowering_without_grounding_probe",
+  "failure_pattern": "legal_lowering_without_grounding",
+  "expected_disposition": "lowering_blocked_missing_grounding",
+  "expected_false_clear": false,
+  "source_fields": {
+    "canonical_design_record_ref": "pdc://layer2/s9/probe/canonical-design-record",
+    "projection_status": "shadow"
+  },
+  "lowering_fields": {
+    "lowering_kind": "legal_diff",
+    "requested_depth": "legal_budget_procedure",
+    "grounding_refs": []
+  }
+}

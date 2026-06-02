@@ -1,0 +1,14 @@
+{
+  "case_id": "tradeoff_inversion_probe",
+  "failure_pattern": "tradeoff_inversion",
+  "expected_disposition": "s9_tradeoff_inversion",
+  "expected_false_clear": false,
+  "source_fields": {
+    "value_tradeoff_refs": ["pdc://layer2/s8/probe/value-tradeoff-disclosure"],
+    "direction": "higher_targeting_reduces_fiscal_slack"
+  },
+  "projection_fields": {
+    "rendered_tradeoff_direction": "higher_targeting_increases_fiscal_slack",
+    "tradeoff_direction_status": "inverted"
+  }
+}

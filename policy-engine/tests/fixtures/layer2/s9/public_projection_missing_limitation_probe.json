@@ -1,0 +1,16 @@
+{
+  "case_id": "public_projection_missing_limitation_probe",
+  "failure_pattern": "public_projection_missing_limitation",
+  "expected_disposition": "s9_public_projection_missing_limitation",
+  "expected_false_clear": false,
+  "source_fields": {
+    "canonical_design_record_ref": "pdc://layer2/s9/probe/canonical-design-record",
+    "limitation_refs": ["pdc://layer2/s9/probe/limitation/load-bearing"]
+  },
+  "projection_fields": {
+    "audience": "PUBLIC",
+    "rendered_claim_refs": ["claim://probe/original"],
+    "omission_manifest": [],
+    "hidden_limitation_refs": ["pdc://layer2/s9/probe/limitation/load-bearing"]
+  }
+}

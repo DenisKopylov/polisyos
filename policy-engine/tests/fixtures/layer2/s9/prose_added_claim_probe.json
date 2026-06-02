@@ -1,0 +1,14 @@
+{
+  "case_id": "prose_added_claim_probe",
+  "failure_pattern": "added_prose_claim",
+  "expected_disposition": "s9_projection_added_claim",
+  "expected_false_clear": false,
+  "source_fields": {
+    "canonical_claim_refs": ["claim://probe/original"]
+  },
+  "projection_fields": {
+    "audience": "PUBLIC",
+    "rendered_claim_refs": ["claim://probe/original", "claim://probe/new-prose-benefit"],
+    "added_claim_refs": ["claim://probe/new-prose-benefit"]
+  }
+}

@@ -9,6 +9,9 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 ID_PATTERN = r"^[a-z][a-z0-9_.-]*$"
 
 LAYER2_READINESS_SCHEMA_VERSION = "policyos.policy_design_case.layer2_readiness.v1"
+CANONICAL_DESIGN_RECORD_SCHEMA_VERSION = (
+    "policyos.policy_design_case.layer2_s9_projection_lowering.v1"
+)
 
 Audience = Literal["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"]
 AuthorityPosture = Literal["shadow", "advisory", "governed", "production"]
@@ -135,6 +138,46 @@ class DesignRecordV0(Layer2ReadinessModel):
             )
         if self.projection_status == "production":
             raise ValueError("DesignRecordV0 cannot carry production authority")
+        return self
+
+
+class CanonicalDesignRecord(Layer2ReadinessModel):
+    """Replayable S9 narrow waist for faithful projections and governed lowering."""
+
+    schema_version: str = CANONICAL_DESIGN_RECORD_SCHEMA_VERSION
+    record_id: str = Field(..., pattern=ID_PATTERN)
+    record_ref: str = Field(..., min_length=1, max_length=300)
+    source_design_record_ref: str = Field(..., min_length=1, max_length=300)
+    source_design_record_digest: str = Field(..., min_length=1, max_length=300)
+    source_revision_ref: str = Field(..., min_length=1, max_length=300)
+    canonical_design_record_revision_ref: str = Field(..., min_length=1, max_length=300)
+    recursive_design_graph_refs: list[str] = Field(..., min_length=1, max_length=80)
+    claim_bound_evidence_portfolio_refs: list[str] = Field(
+        ...,
+        min_length=1,
+        max_length=80,
+    )
+    pareto_tradeoff_value_choice_refs: list[str] = Field(..., min_length=1, max_length=80)
+    axis_position_refs: list[str] = Field(..., min_length=1, max_length=80)
+    firewall_status_refs: list[str] = Field(..., min_length=1, max_length=80)
+    certified_envelope_ref: str = Field(..., min_length=1, max_length=300)
+    search_ledger_refs: list[str] = Field(..., min_length=1, max_length=80)
+    counterexample_refinement_refs: list[str] = Field(default_factory=list, max_length=80)
+    assurance_case_refs: list[str] = Field(..., min_length=1, max_length=80)
+    limitation_refs: list[str] = Field(..., min_length=1, max_length=80)
+    abstention_refs: list[str] = Field(default_factory=list, max_length=80)
+    lowering_artifact_refs: list[str] = Field(default_factory=list, max_length=80)
+    projection_audiences: list[Audience] = Field(..., min_length=1, max_length=4)
+    projection_status: AuthorityPosture
+    authority_boundary: AuthorityBoundary
+    rule_version_ref: str = Field(..., min_length=1, max_length=300)
+
+    @model_validator(mode="after")
+    def _validate_canonical_authority(self) -> CanonicalDesignRecord:
+        if self.projection_status == "production":
+            raise ValueError("CanonicalDesignRecord cannot carry production authority")
+        if self.authority_boundary.posture == "production":
+            raise ValueError("CanonicalDesignRecord cannot carry production authority")
         return self
 
 

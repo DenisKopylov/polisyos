@@ -1491,3 +1491,124 @@ def test_s2_does_not_treat_s8_as_production_recommendation_authority() -> None:
     assert "production_claim_authority" in run.design_record.authority_boundary.may_not_use_for
     assert run.value_posture.authority_boundary.posture == "shadow"
     assert run.search_ledger.value_choice_status == "authorized"
+
+
+def _s9_projection_context() -> dict[str, object]:
+    return {
+        "canonical_design_record_ref": "pdc://layer2/s9/ua-msme/canonical-design-record",
+        "canonical_design_record_digest": "sha256:" + "9" * 64,
+        "canonical_design_record_schema_version": (
+            "policyos.policy_design_case.layer2_s9_projection_lowering.v1"
+        ),
+        "canonical_design_record_revision_ref": (
+            "pdc://layer2/s9/ua-msme/canonical-design-record/revision/001"
+        ),
+        "s9_projection_source_ref": "pdc://layer2/s9/ua-msme/projection-source",
+        "s9_projection_policy": "reads_canonical_design_record",
+        "s9_projection_authority_boundary": {
+            "authoritative_for": ["projection_faithfulness"],
+            "may_not_use_for": [
+                "production_recommendation",
+                "production_claim_authority",
+                "publication_authority",
+                "claim_authority",
+                "scorecard_authority",
+                "runtime_closeout_authority",
+                "s14_universality",
+            ],
+            "source_authority": "deterministic_producer",
+            "posture": "shadow",
+            "rule_version_refs": ["policyos.layer2.s9.projection_lowering.v1"],
+        },
+        "s9_lowering_boundary": "projection_only_until_grounded",
+        "s9_source_revision_ref": "git://policyos/layer2/s9/red-first",
+        "s9_reissue_required": False,
+        "s9_faithfulness_ref": "pdc://layer2/s9/ua-msme/faithfulness/public",
+        "s9_lowering_gate_ref": "pdc://layer2/s9/ua-msme/lowering-gate/legal-diff",
+        "s9_lowering_gate_status": "lowering_blocked_missing_grounding",
+    }
+
+
+def test_s2_projection_feed_carries_s9_source_refs_without_authority() -> None:
+    run = run_s2_shadow_design_loop(_input(), value_posture=_s8_value_posture())
+    context = _s9_projection_context()
+
+    projections = project_s2_design_search(
+        run,
+        audiences=("MACHINE", "REVIEWER"),
+        s9_projection_context=context,
+    )
+
+    machine = projections["MACHINE"]
+    assert machine["s9_projection_source_ref"] == context["s9_projection_source_ref"]
+    assert machine["s9_projection_policy"] == "reads_canonical_design_record"
+    assert machine["canonical_design_record_ref"] == context["canonical_design_record_ref"]
+    assert machine["s9_source_revision_ref"] == context["s9_source_revision_ref"]
+    assert machine["s9_projection_authority_boundary"]["posture"] == "shadow"
+    assert "production_claim_authority" in machine["s9_projection_authority_boundary"][
+        "may_not_use_for"
+    ]
+
+
+def test_s2_public_projection_remains_shadow_when_s9_projection_passes() -> None:
+    posture = _s8_value_posture(
+        disposition="authorized",
+        ranking_mode="ranked_with_authorized_values",
+        authorized_value_schedule_ref="pdc://layer2/s8/ua-msme/value-schedule/authorized",
+        p20_firewall_status="pass",
+    )
+    run = run_s2_shadow_design_loop(_input(), value_posture=posture)
+    context = {
+        **_s9_projection_context(),
+        "s9_faithfulness_status": "pass",
+        "s9_lowering_gate_status": "projection_allowed",
+    }
+
+    public_projection = project_s2_design_search(
+        run,
+        audiences=("PUBLIC",),
+        s9_projection_context=context,
+    )["PUBLIC"]
+
+    assert run.design_record.projection_status == "shadow"
+    assert public_projection["projection_status"] == "shadow"
+    assert public_projection["canonical_outcome_effect"] == "none_shadow_only"
+    assert public_projection["s9_projection_policy"] == "reads_canonical_design_record"
+    assert public_projection["s9_lowering_boundary"] == "projection_only_until_grounded"
+    assert "production_recommendation" in public_projection["authority_boundary"][
+        "may_not_use_for"
+    ]
+
+
+def test_s2_machine_projection_exposes_s9_faithfulness_and_lowering_boundary() -> None:
+    run = run_s2_shadow_design_loop(_input(), value_posture=_s8_value_posture())
+    context = _s9_projection_context()
+
+    machine_projection = project_s2_design_search(
+        run,
+        audiences=("MACHINE",),
+        s9_projection_context=context,
+    )["MACHINE"]
+
+    assert machine_projection["s9_faithfulness_ref"] == context["s9_faithfulness_ref"]
+    assert machine_projection["s9_lowering_gate_ref"] == context["s9_lowering_gate_ref"]
+    assert machine_projection["s9_lowering_gate_status"] == (
+        "lowering_blocked_missing_grounding"
+    )
+    assert machine_projection["s9_lowering_boundary"] == "projection_only_until_grounded"
+    assert machine_projection["canonical_design_record_digest"] == (
+        context["canonical_design_record_digest"]
+    )
+
+
+def test_s2_does_not_import_s9_projection_lowering_producer() -> None:
+    import inspect
+
+    import polisyos.pdc._impl.layer2_design_search as s2_design_search
+
+    source = inspect.getsource(s2_design_search)
+
+    assert "runtime.quality.layer2_projection_lowering" not in source
+    assert "layer2_projection_lowering" not in source
+    assert "build_canonical_design_record" not in source
+    assert "verify_projection_faithfulness" not in source

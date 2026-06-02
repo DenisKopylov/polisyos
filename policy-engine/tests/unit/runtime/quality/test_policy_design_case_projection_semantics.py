@@ -5,6 +5,7 @@ from datetime import UTC, datetime
 
 import pytest
 
+import polisyos.runtime.quality.projection_semantics as projection_semantics_module
 from polisyos.core.contracts.policy_design_case_projection import (
     PolicyDesignCaseAudience,
     PolicyDesignCaseProjection,
@@ -25,6 +26,115 @@ from polisyos.runtime.quality.projection_semantics import (
     verify_policy_design_case_projection_consumer_contract,
 )
 from tests._helpers.policy_design_case_projection import policy_design_case, sha
+
+S9_RULE_VERSION_REF = "policyos.layer2.s9.projection_lowering.v1"
+S9_CANONICAL_REF = "pdc://layer2/s9/ua-msme/canonical-design-record"
+S9_SOURCE_REVISION_REF = "git://policyos/layer2/s9/red-first"
+
+
+def _s9_consumer_verifier() -> object:
+    return (
+        projection_semantics_module.verify_s9_projection_faithfulness_for_pdc_consumer_contract
+    )
+
+
+def _s9_faithfulness_payload(**overrides: object) -> dict[str, object]:
+    payload: dict[str, object] = {
+        "faithfulness_id": "layer2.s9.faithfulness.public",
+        "faithfulness_ref": "pdc://layer2/s9/ua-msme/faithfulness/public",
+        "render_ref": "pdc://layer2/s9/ua-msme/projection-render/public",
+        "request_ref": "pdc://layer2/s9/ua-msme/projection-request/public",
+        "canonical_design_record_ref": S9_CANONICAL_REF,
+        "canonical_design_record_digest": "sha256:" + "9" * 64,
+        "source_revision_ref": S9_SOURCE_REVISION_REF,
+        "faithfulness_status": "pass",
+        "issue_codes": [],
+        "added_claim_refs": [],
+        "hidden_blocker_refs": [],
+        "hidden_limitation_refs": [],
+        "tradeoff_direction_status": "preserved",
+        "shadow_approval_status": "not_approved",
+        "consumer_contract_ref": (
+            "policyos.runtime.policy_design_case.projection_contract_verification.v1"
+        ),
+        "authority_boundary": {
+            "authoritative_for": ["projection_faithfulness"],
+            "may_not_use_for": [
+                "production_recommendation",
+                "production_claim_authority",
+                "publication_authority",
+                "claim_authority",
+                "scorecard_authority",
+                "runtime_closeout_authority",
+                "s14_universality",
+            ],
+            "source_authority": "deterministic_producer",
+            "posture": "shadow",
+            "rule_version_refs": [S9_RULE_VERSION_REF],
+        },
+        "rule_version_ref": S9_RULE_VERSION_REF,
+    }
+    payload.update(overrides)
+    return payload
+
+
+def _s9_projection_payload(**overrides: object) -> dict[str, object]:
+    payload: dict[str, object] = {
+        "audience": "PUBLIC",
+        "authority_role": "projection_only",
+        "projection_policy": "reads_canonical_design_record",
+        "source_revision_ref": S9_SOURCE_REVISION_REF,
+        "s9_projection_faithfulness": _s9_faithfulness_payload(),
+        "closeout_truth": {
+            "status": "blocked",
+            "verdict": "cannot_closeout",
+            "can_closeout": False,
+            "blocker_codes": ["s6_strategic_response_blocker"],
+            "omission_codes": ["s9_public_projection_missing_limitation"],
+        },
+        "omission_manifest": [
+            {
+                "omission_code": "s9_public_projection_missing_limitation",
+                "claim_ids": ["rec_1"],
+                "reason": "load-bearing limitation must be disclosed.",
+            }
+        ],
+        "contested_records": [
+            {
+                "contested_record_id": "contest-s8-value-choice",
+                "contestability_status": "contested",
+            }
+        ],
+        "deficit_register": [
+            {
+                "deficit_id": "deficit-s8-value-provenance",
+                "deficit_code": "value_choice_contested",
+            }
+        ],
+        "projection_gaps": [
+            {
+                "gap_code": "s6_strategic_response_blocker",
+                "gap_family": "closeout_blocker",
+            }
+        ],
+        "may_not_be_used_for": [
+            "claim_authority",
+            "scorecard_authority",
+            "runtime_closeout_authority",
+            "production_recommendation",
+        ],
+    }
+    payload.update(overrides)
+    return payload
+
+
+def _issue_codes(result: dict[str, object]) -> set[str]:
+    issues = result.get("issues", [])
+    return {
+        str(issue.get("code"))
+        for issue in issues
+        if isinstance(issue, dict) and issue.get("code")
+    } | {str(code) for code in result.get("issue_codes", [])}
 
 
 def test_projection_semantics_labels_publishable_without_minting_authority() -> None:
@@ -647,3 +757,120 @@ def test_high_stakes_contested_projection_records_unreachable_recourse_as_public
     assert {blocker.code for blocker in typed.closeout_truth.blockers} >= {
         "public_export_recourse_pointer_unreachable"
     }
+
+
+def test_s9_projection_semantics_reuses_pdc_consumer_contract_for_closeout_truth() -> None:
+    verifier = _s9_consumer_verifier()
+    payload = _s9_projection_payload()
+
+    result = verifier(
+        projections={"public": payload},
+        expected_closeout_truth=payload["closeout_truth"],
+        expected_contested_record_ids=["contest-s8-value-choice"],
+    )
+
+    assert result["status"] == "pass"
+    assert result["consumer_contract_ref"] == (
+        "policyos.runtime.policy_design_case.projection_contract_verification.v1"
+    )
+    assert result["s9_projection_faithfulness"]["faithfulness_status"] == "pass"
+
+
+def test_s9_projection_faithfulness_rejects_missing_closeout_blocker() -> None:
+    verifier = _s9_consumer_verifier()
+    payload = _s9_projection_payload(
+        closeout_truth={
+            "status": "blocked",
+            "verdict": "cannot_closeout",
+            "can_closeout": False,
+            "blocker_codes": [],
+            "omission_codes": ["s9_public_projection_missing_limitation"],
+        }
+    )
+
+    result = verifier(
+        projections={"public": payload},
+        expected_closeout_truth={
+            "status": "blocked",
+            "verdict": "cannot_closeout",
+            "can_closeout": False,
+            "blocker_codes": ["s6_strategic_response_blocker"],
+            "omission_codes": ["s9_public_projection_missing_limitation"],
+        },
+    )
+
+    assert result["status"] == "fail"
+    assert "policy_design_projection_hides_closeout_blockers" in _issue_codes(result)
+
+
+def test_s9_projection_faithfulness_rejects_added_public_claim() -> None:
+    verifier = _s9_consumer_verifier()
+    payload = _s9_projection_payload(
+        s9_projection_faithfulness=_s9_faithfulness_payload(
+            faithfulness_status="fail",
+            issue_codes=["s9_projection_added_claim"],
+            added_claim_refs=["claim://ua-msme/new-public-benefit-claim"],
+        )
+    )
+
+    result = verifier(
+        projections={"public": payload},
+        expected_closeout_truth=payload["closeout_truth"],
+    )
+
+    assert result["status"] == "fail"
+    assert "s9_projection_added_claim" in _issue_codes(result)
+
+
+def test_s9_projection_faithfulness_rejects_tradeoff_inversion() -> None:
+    verifier = _s9_consumer_verifier()
+    payload = _s9_projection_payload(
+        s9_projection_faithfulness=_s9_faithfulness_payload(
+            faithfulness_status="fail",
+            issue_codes=["s9_tradeoff_inversion"],
+            tradeoff_direction_status="inverted",
+        )
+    )
+
+    result = verifier(
+        projections={"public": payload},
+        expected_closeout_truth=payload["closeout_truth"],
+    )
+
+    assert result["status"] == "fail"
+    assert "s9_tradeoff_inversion" in _issue_codes(result)
+
+
+def test_s9_projection_faithfulness_rejects_shadow_candidate_as_approved() -> None:
+    verifier = _s9_consumer_verifier()
+    payload = _s9_projection_payload(
+        s9_projection_faithfulness=_s9_faithfulness_payload(
+            faithfulness_status="fail",
+            issue_codes=["s9_shadow_candidate_rendered_as_approved"],
+            shadow_approval_status="rendered_as_approved",
+        )
+    )
+
+    result = verifier(
+        projections={"public": payload},
+        expected_closeout_truth=payload["closeout_truth"],
+    )
+
+    assert result["status"] == "fail"
+    assert "s9_shadow_candidate_rendered_as_approved" in _issue_codes(result)
+
+
+def test_s9_projection_faithfulness_preserves_contested_and_deficit_records() -> None:
+    verifier = _s9_consumer_verifier()
+    payload = _s9_projection_payload(contested_records=[], deficit_register=[])
+
+    result = verifier(
+        projections={"public": payload},
+        expected_closeout_truth=payload["closeout_truth"],
+        expected_contested_record_ids=["contest-s8-value-choice"],
+        expected_deficit_codes=["value_choice_contested"],
+    )
+
+    assert result["status"] == "fail"
+    assert "policy_design_projection_hides_contested_state" in _issue_codes(result)
+    assert "s9_projection_hides_deficit_record" in _issue_codes(result)

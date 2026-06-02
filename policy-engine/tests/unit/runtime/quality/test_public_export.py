@@ -15,6 +15,48 @@ from polisyos.runtime.quality.rule_evolution import build_rule_evolution_registr
 from tests._helpers.hds_quality import authority_envelope_for, sha
 from tests._helpers.policy_design_case_projection import policy_design_case
 
+S9_RULE_VERSION_REF = "policyos.layer2.s9.projection_lowering.v1"
+
+
+def _s9_public_faithfulness_payload(**overrides: object) -> dict[str, object]:
+    payload: dict[str, object] = {
+        "faithfulness_id": "layer2.s9.faithfulness.public",
+        "faithfulness_ref": "pdc://layer2/s9/ua-msme/faithfulness/public",
+        "render_ref": "pdc://layer2/s9/ua-msme/projection-render/public",
+        "request_ref": "pdc://layer2/s9/ua-msme/projection-request/public",
+        "canonical_design_record_ref": "pdc://layer2/s9/ua-msme/canonical-design-record",
+        "canonical_design_record_digest": "sha256:" + "9" * 64,
+        "source_revision_ref": "git://policyos/layer2/s9/red-first",
+        "faithfulness_status": "pass",
+        "issue_codes": [],
+        "added_claim_refs": [],
+        "hidden_blocker_refs": [],
+        "hidden_limitation_refs": [],
+        "tradeoff_direction_status": "preserved",
+        "shadow_approval_status": "not_approved",
+        "consumer_contract_ref": (
+            "policyos.runtime.policy_design_case.projection_contract_verification.v1"
+        ),
+        "authority_boundary": {
+            "authoritative_for": ["projection_faithfulness"],
+            "may_not_use_for": [
+                "production_recommendation",
+                "production_claim_authority",
+                "publication_authority",
+                "claim_authority",
+                "scorecard_authority",
+                "runtime_closeout_authority",
+                "s14_universality",
+            ],
+            "source_authority": "deterministic_producer",
+            "posture": "shadow",
+            "rule_version_refs": [S9_RULE_VERSION_REF],
+        },
+        "rule_version_ref": S9_RULE_VERSION_REF,
+    }
+    payload.update(overrides)
+    return payload
+
 
 def test_public_export_redacts_sensitive_payloads_and_preserves_audit_semantics() -> None:
     authority_envelope = authority_envelope_for(
@@ -457,3 +499,70 @@ def test_public_export_rejects_accepted_non_ready_replay_drift() -> None:
             },
             authority_envelopes=[],
         )
+
+
+def test_public_export_requires_s9_faithfulness_pass_for_projection_release() -> None:
+    with pytest.raises(
+        PublicExportRedactionError,
+        match=r"s9_projection_faithfulness_failed|s9_projection_added_claim",
+    ):
+        build_public_export_bundle(
+            run_id="run-public-s9-faithfulness",
+            artifacts={"public_summary": {"claim_refs": ["rec_1"]}},
+            authority_envelopes=[],
+            policy_design_case=policy_design_case(),
+            projection_payload={
+                "public_export_classification": "public_redacted_projection",
+                "decision_context": {"public_export_status": "publishable"},
+                "s9_projection_faithfulness": _s9_public_faithfulness_payload(
+                    faithfulness_status="fail",
+                    issue_codes=["s9_projection_added_claim"],
+                    added_claim_refs=["claim://ua-msme/new-public-benefit-claim"],
+                ),
+            },
+        )
+
+
+def test_public_export_blocks_s9_projection_that_hides_redacted_blocker() -> None:
+    with pytest.raises(
+        PublicExportRedactionError,
+        match="s9_redaction_hides_blocker",
+    ):
+        build_public_export_bundle(
+            run_id="run-public-s9-redaction-blocker",
+            artifacts={"public_summary": {"claim_refs": ["rec_1"]}},
+            authority_envelopes=[],
+            policy_design_case=policy_design_case(),
+            projection_payload={
+                "public_export_classification": "public_redacted_projection",
+                "decision_context": {"public_export_status": "publishable"},
+                "s9_projection_faithfulness": _s9_public_faithfulness_payload(
+                    faithfulness_status="fail",
+                    issue_codes=["s9_redaction_hides_blocker"],
+                    hidden_blocker_refs=[
+                        "pdc://layer2/s6/ua-msme/strategic-response-blocker"
+                    ],
+                ),
+                "omission_manifest": [],
+            },
+        )
+
+
+def test_public_export_without_s9_block_keeps_existing_projection_behavior() -> None:
+    public_bundle = build_public_export_bundle(
+        run_id="run-public-no-s9",
+        artifacts={"public_summary": {"claim_refs": ["rec_1"]}},
+        authority_envelopes=[],
+        policy_design_case=policy_design_case(),
+        projection_payload={
+            "public_export_classification": "public_redacted_projection",
+            "decision_context": {"public_export_status": "publishable"},
+            "publishability": "publishable",
+        },
+    )
+
+    projection = public_bundle["projection_semantics"]
+    assert projection["authority_role"] == "projection_only"
+    assert projection["contract_verification_status"] == "pass"
+    assert "s9_projection_faithfulness" not in projection
+    assert public_bundle["semantic_audit"]["projection_contract_verification"]["status"] == "pass"

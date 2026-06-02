@@ -4,6 +4,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from tools.quality.validation import build_policy_evidence_capability_index as builder
 from tools.quality.validation import run_universal_outcome_corpus as w12d
 
@@ -17,6 +19,22 @@ SINGLE_CASE_PATH = (
     REPO_ROOT
     / "tests/fixtures/universal-corpus/cases/ua-msme-affordable-loans-2022.json"
 )
+
+
+@pytest.fixture(scope="module")
+def w12d_s9_report(tmp_path_factory: pytest.TempPathFactory) -> dict[str, object]:
+    tmp_path = tmp_path_factory.mktemp("w12d-s9-corpus")
+    return w12d.run_w12d_universal_outcome_corpus(
+        repo_root=REPO_ROOT,
+        corpus_path=REPO_ROOT / "tests/fixtures/universal-corpus",
+        graph_output_dir=tmp_path / "graphs",
+        hypothesis_ledger_output_dir=tmp_path / "ledgers",
+        mode="real_producer",
+    )
+
+
+def _s9_blocks(report: dict[str, object]) -> list[dict[str, object]]:
+    return [dict(case["s9_projection_lowering"]) for case in report["cases"]]
 
 
 def test_w12d_manifest_is_deterministic_and_runs_real_corpus() -> None:
@@ -1331,3 +1349,79 @@ def _case_result(
         ),
         "issues": [],
     }
+
+
+def test_w12d_emits_s9_projection_lowering_blocks_for_13_cases(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    summary = dict(w12d_s9_report["s9_projection_lowering_summary"])
+    blocks = _s9_blocks(w12d_s9_report)
+
+    assert summary["case_count"] == 13
+    assert len(blocks) == 13
+    assert summary["projection_faithfulness_denominator"] >= 52
+    for block in blocks:
+        assert block["schema_version"] == (
+            "policyos.policy_design_case.layer2_s9_projection_lowering.v1"
+        )
+        assert block["canonical_design_record_ref"]
+        assert len(block["projection_render_refs"]) >= 4
+        assert len(block["projection_faithfulness_refs"]) >= 4
+
+
+def test_w12d_s9_negative_controls_have_zero_false_clears(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    summary = dict(w12d_s9_report["s9_projection_lowering_summary"])
+
+    assert summary["negative_control_false_clear_count"] == 0
+    assert summary["false_clear_counts"]["added_prose_claim"] == 0
+    assert summary["false_clear_counts"]["tradeoff_inversion"] == 0
+    assert summary["false_clear_counts"]["shadow_candidate_approval"] == 0
+    assert summary["false_clear_counts"]["universal_self_claim_without_s14"] == 0
+
+
+def test_w12d_s9_public_projection_faithfulness_preserves_load_bearing_limits(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    blocks = _s9_blocks(w12d_s9_report)
+
+    for block in blocks:
+        assert block["faithfulness_status"] == "pass"
+        assert block["load_bearing_limitation_refs"]
+        assert block["public_projection_omission_manifest"]
+        assert not block["public_projection_hidden_limitation_refs"]
+
+
+def test_w12d_s9_lowering_blocks_deeper_output_without_grounding(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    blocks = _s9_blocks(w12d_s9_report)
+    blocked = [
+        block
+        for block in blocks
+        if block["lowering_gate_status"] == "lowering_blocked_missing_grounding"
+    ]
+
+    assert blocked
+    for block in blocked:
+        assert block["faithfulness_status"] == "pass"
+        assert block["lowering_append_receipt_refs"] == []
+        assert "production_recommendation" in block["may_not_use_for"]
+
+
+def test_w12d_s9_preserves_s2_shadow_only_and_s8_value_context_boundaries(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    for case in w12d_s9_report["cases"]:
+        case = dict(case)
+        s2 = dict(case["s2_design_search"])
+        s8 = dict(case["s8_value_choice"])
+        s9 = dict(case["s9_projection_lowering"])
+
+        assert s2["canonical_outcome_effect"] == "none_shadow_only"
+        assert s9["canonical_outcome_effect"] == "none_projection_only_or_reissue_required"
+        assert s9["s2_projection_status"] == s2["design_record"]["projection_status"] == "shadow"
+        assert s9["s8_value_choice_provenance_ref"] == s8["value_choice_provenance_ref"]
+        assert s9["s8_value_tradeoff_disclosure_ref"] == s8["value_tradeoff_disclosure_ref"]
+        assert "preference_learning_authority" in s9["may_not_use_for"]

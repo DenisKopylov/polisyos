@@ -73,13 +73,13 @@ def _registered_payloads() -> dict[str, object]:
     return _payloads()
 
 
-def test_layer2_s5_manifest_is_valid_and_readiness_open_count_is_4_when_registered() -> None:
+def test_layer2_s5_manifest_is_valid_and_readiness_open_count_is_3_when_registered() -> None:
     validation = readiness.validate_layer2_readiness_payloads(_registered_payloads())
 
     assert validation["status"] == "pass", validation["issues"]
     summary = validation["summary"]  # type: ignore[index]
-    assert summary["open_cell_count"] == 4
-    assert summary["current_open_cell_count"] == 4
+    assert summary["open_cell_count"] == 3
+    assert summary["current_open_cell_count"] == 3
     assert summary["s5_expected_current_open_cell_count"] == 10
     assert summary["s5_coupling_accuracy"] == 1.0
     assert summary["s5_penalized_score"] == 1.0
@@ -280,7 +280,7 @@ def test_layer2_s5_manifest_is_registered_in_inventory() -> None:
 
     assert validation["status"] == "pass", validation["issues"]
     summary = validation["summary"]  # type: ignore[index]
-    assert summary["open_cell_count"] == 4
+    assert summary["open_cell_count"] == 3
     assert summary["s5_expected_current_open_cell_count"] == 10
 
     payloads = readiness.load_layer2_readiness_payloads(REPO_ROOT)

@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+import polisyos.pdc as pdc
 from polisyos.pdc import (
     S2_DESIGN_SEARCH_SCHEMA_VERSION,
     ConstraintStoreEntry,
@@ -454,6 +455,69 @@ def _s8_value_posture(
             "rule_version_refs": ["policyos.layer2.s8.value_choice.v1"],
         },
     )
+
+
+def _s10_forecast_posture(**overrides: object) -> object:
+    posture_model = pdc.Layer2S10ForecastPostureInput
+    payload: dict[str, object] = {
+        "forecast_support_ref": "pdc://layer2/s10/ua-msme/forecast-support",
+        "forecast_tier": "observable_calibrated",
+        "forecast_authority_disposition_reason": (
+            "Observable subset calibration supports bounded forecast posture."
+        ),
+        "forecast_support_label": "validated_local_dynamic_model",
+        "forecast_calibration_record_ref": "pdc://layer2/s10/ua-msme/calibration",
+        "design_graph_ref": "pdc://layer2/s5/ua-msme/recursive-design-graph",
+        "prediction_context_ref": "pdc://layer2/s10/ua-msme/prediction-context",
+        "policy_context_ref": "policy-context://ua-msme/2022",
+        "candidate_design_ref": "candidate://ua-msme/targeted-credit",
+        "baseline_design_ref": "baseline://ua-msme/no-new-credit",
+        "alternative_design_refs": ["alternative://ua-msme/cash-transfer"],
+        "prediction_horizon_ref": "horizon://12-months",
+        "observable_subset_ref": "pdc://layer2/s10/ua-msme/observable-subset",
+        "uncertainty_interval_refs": ["interval://ua-msme/credit-access/95"],
+        "welfare_comparison_ref": "pdc://layer2/s10/ua-msme/welfare-comparison",
+        "s5_forecast_support_ref": "pdc://layer2/s5/ua-msme/system-effect-support",
+        "s6_firewall_status_refs": [
+            "pdc://layer2/s6/ua-msme/measurability-adequacy",
+            "pdc://layer2/s6/ua-msme/strategic-response",
+        ],
+        "s8_value_choice_provenance_ref": "pdc://layer2/s8/ua-msme/value-choice",
+        "s8_value_tradeoff_disclosure_ref": "pdc://layer2/s8/ua-msme/tradeoff",
+        "source_contract_ref": "source-contract://ua-msme/panel",
+        "method_validity_ref": "method-validity://foundry/causal/local",
+        "credible_evaluation_evidence_ref": "evidence://ua-msme/credible-evaluation",
+        "dynamic_equilibrium_check_ref": "equilibrium-check://ua-msme/system-effect",
+        "sensitivity_analysis_ref": "sensitivity://ua-msme/credit-access",
+        "authority_boundary": {
+            "authoritative_for": [
+                "forecast_support_tiering",
+                "observable_subset_calibration",
+            ],
+            "may_not_use_for": [
+                "production_recommendation",
+                "production_claim_authority",
+                "publication_authority",
+                "claim_authority",
+                "closeout_authority",
+                "s11_calibration",
+            ],
+            "source_authority": "deterministic_producer",
+            "posture": "shadow",
+            "rule_version_refs": ["policyos.layer2.s10.outcome_prediction.v1"],
+        },
+        "may_not_use_for": [
+            "production_recommendation",
+            "production_claim_authority",
+            "publication_authority",
+            "claim_authority",
+            "closeout_authority",
+            "s11_calibration",
+        ],
+        "rule_version_ref": "policyos.layer2.s10.outcome_prediction.v1",
+    }
+    payload.update(overrides)
+    return posture_model(**payload)
 
 
 def test_s2_shadow_loop_emits_grammar_candidate_counterexample_refinement_and_record() -> None:
@@ -1491,6 +1555,142 @@ def test_s2_does_not_treat_s8_as_production_recommendation_authority() -> None:
     assert "production_claim_authority" in run.design_record.authority_boundary.may_not_use_for
     assert run.value_posture.authority_boundary.posture == "shadow"
     assert run.search_ledger.value_choice_status == "authorized"
+
+
+def test_s2_consumes_injected_s10_forecast_posture_without_recomputing_authority() -> None:
+    posture = _s10_forecast_posture()
+
+    run = run_s2_shadow_design_loop(_input(), forecast_posture=posture)
+
+    assert run.forecast_posture == posture
+    assert run.search_ledger.forecast_support_refs == [posture.forecast_support_ref]
+    assert run.search_ledger.forecast_calibration_record_refs == [
+        posture.forecast_calibration_record_ref
+    ]
+    assert run.search_ledger.forecast_authority_status == "observable_calibrated"
+    assert run.search_ledger.forecast_authority_boundary == posture.authority_boundary
+    assert posture.design_graph_ref in run.search_ledger.forecast_posture_refs
+    assert posture.prediction_context_ref in run.search_ledger.forecast_posture_refs
+    assert posture.source_contract_ref not in run.design_record.ledger_refs
+    assert posture.method_validity_ref not in run.design_record.ledger_refs
+    assert len(run.design_record.ledger_refs) <= 40
+
+
+def test_s2_s10_replay_digest_changes_only_when_forecast_posture_changes() -> None:
+    no_s10_first = run_s2_shadow_design_loop(_input())
+    no_s10_second = run_s2_shadow_design_loop(_input())
+    first = run_s2_shadow_design_loop(_input(), forecast_posture=_s10_forecast_posture())
+    second = run_s2_shadow_design_loop(_input(), forecast_posture=_s10_forecast_posture())
+    changed = run_s2_shadow_design_loop(
+        _input(),
+        forecast_posture=_s10_forecast_posture(
+            forecast_support_ref="pdc://layer2/s10/ua-msme/forecast-support/revision-2",
+            forecast_calibration_record_ref=(
+                "pdc://layer2/s10/ua-msme/calibration/revision-2"
+            ),
+        ),
+    )
+
+    assert no_s10_first.search_ledger.deterministic_replay_key == (
+        no_s10_second.search_ledger.deterministic_replay_key
+    )
+    assert no_s10_first.model_dump(mode="json") == no_s10_second.model_dump(mode="json")
+    assert first.search_ledger.deterministic_replay_key == (
+        second.search_ledger.deterministic_replay_key
+    )
+    assert first.search_ledger.deterministic_replay_key != (
+        changed.search_ledger.deterministic_replay_key
+    )
+
+
+def test_s2_s10_search_ledger_defaults_preserve_legacy_cas_payloads() -> None:
+    legacy_payload = run_s2_shadow_design_loop(_input()).search_ledger.model_dump(mode="json")
+    legacy_payload.pop("forecast_support_refs", None)
+    legacy_payload.pop("forecast_calibration_record_refs", None)
+    legacy_payload.pop("forecast_posture_refs", None)
+    legacy_payload.pop("forecast_authority_status", None)
+    legacy_payload.pop("forecast_authority_boundary", None)
+
+    loaded = SearchLedger.model_validate(legacy_payload)
+
+    assert loaded.forecast_support_refs == []
+    assert loaded.forecast_calibration_record_refs == []
+    assert loaded.forecast_posture_refs == []
+    assert loaded.forecast_authority_status == "not_applicable"
+    assert loaded.forecast_authority_boundary is None
+
+
+def test_s2_s10_handoff_records_consumed_posture_not_recommendation_authority() -> None:
+    posture = _s10_forecast_posture()
+    run = run_s2_shadow_design_loop(_input(), forecast_posture=posture)
+
+    rendered_interfaces = json.dumps(
+        [row.model_dump(mode="json") for row in run.cluster_interface_contracts],
+        sort_keys=True,
+    )
+    rendered_handoffs = json.dumps(
+        [row.model_dump(mode="json") for row in run.handoff_records],
+        sort_keys=True,
+    )
+
+    assert "Layer2S10ForecastPostureInput" in rendered_interfaces
+    assert "Layer2S10ForecastPostureInput" in rendered_handoffs
+    assert "recommendation_authority" not in rendered_interfaces
+    assert "production_recommendation" in rendered_handoffs
+
+
+def test_s2_does_not_import_or_call_s10_runtime_quality_producer() -> None:
+    import inspect
+
+    import polisyos.pdc._impl.layer2_design_search as s2_design_search
+
+    source = inspect.getsource(s2_design_search)
+
+    assert "polisyos.runtime.quality.layer2_outcome_prediction" not in source
+    assert "layer2_outcome_prediction" not in source
+    assert "build_forecast_support" not in source
+
+
+def test_s2_s10_public_projection_exposes_tier_and_limits_without_recommendation() -> None:
+    posture = _s10_forecast_posture(
+        forecast_tier="transported_limited",
+        forecast_authority_disposition_reason=(
+            "Transported estimate is limited by jurisdiction and response uncertainty."
+        ),
+    )
+    run = run_s2_shadow_design_loop(_input(), forecast_posture=posture)
+
+    public_projection = project_s2_design_search(run, audiences=("PUBLIC",))["PUBLIC"]
+
+    assert public_projection["forecast_tier"] == "transported_limited"
+    assert public_projection["forecast_limitations"]
+    assert "production_recommendation_text" not in public_projection
+    assert "recommendation_authority" not in json.dumps(public_projection)
+
+
+def test_s2_s10_expert_machine_projection_exposes_refs_and_weakest_boundary() -> None:
+    posture = _s10_forecast_posture()
+    run = run_s2_shadow_design_loop(_input(), forecast_posture=posture)
+
+    projections = project_s2_design_search(run, audiences=("EXPERT", "MACHINE"))
+
+    for projection in projections.values():
+        assert projection["forecast_support_ref"] == posture.forecast_support_ref
+        assert projection["forecast_calibration_record_ref"] == (
+            posture.forecast_calibration_record_ref
+        )
+        assert projection["design_graph_ref"] == posture.design_graph_ref
+        assert projection["prediction_context_ref"] == posture.prediction_context_ref
+        assert projection["source_contract_ref"] == posture.source_contract_ref
+        assert projection["method_validity_ref"] == posture.method_validity_ref
+        assert projection["credible_evaluation_evidence_ref"] == (
+            posture.credible_evaluation_evidence_ref
+        )
+        assert projection["uncertainty_interval_refs"] == posture.uncertainty_interval_refs
+        assert projection["forecast_authority_boundary"] == (
+            posture.authority_boundary.model_dump(mode="json")
+        )
+        assert projection["weakest_boundary_inherited"] is True
 
 
 def _s9_projection_context() -> dict[str, object]:

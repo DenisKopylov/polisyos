@@ -37,6 +37,10 @@ def _s9_blocks(report: dict[str, object]) -> list[dict[str, object]]:
     return [dict(case["s9_projection_lowering"]) for case in report["cases"]]
 
 
+def _s10_blocks(report: dict[str, object]) -> list[dict[str, object]]:
+    return [dict(case["s10_outcome_prediction"]) for case in report["cases"]]
+
+
 def test_w12d_manifest_is_deterministic_and_runs_real_corpus() -> None:
     manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
 
@@ -1425,3 +1429,87 @@ def test_w12d_s9_preserves_s2_shadow_only_and_s8_value_context_boundaries(
         assert s9["s8_value_choice_provenance_ref"] == s8["value_choice_provenance_ref"]
         assert s9["s8_value_tradeoff_disclosure_ref"] == s8["value_tradeoff_disclosure_ref"]
         assert "preference_learning_authority" in s9["may_not_use_for"]
+
+
+def test_w12d_emits_s10_outcome_prediction_blocks_for_13_cases(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    assert all("s10_outcome_prediction" in case for case in w12d_s9_report["cases"])
+    summary = dict(w12d_s9_report["s10_outcome_prediction_summary"])
+    blocks = _s10_blocks(w12d_s9_report)
+
+    assert summary["case_count"] == 13
+    assert len(blocks) == 13
+    assert {block["schema_version"] for block in blocks} == {
+        "policyos.policy_design_case.layer2_s10_outcome_prediction.v1"
+    }
+    assert any(block["forecast_tier"] == "observable_calibrated" for block in blocks)
+    assert any(block["forecast_tier"] == "simulation_only_advisory" for block in blocks)
+    assert any(block["forecast_tier"] == "equilibrium_contested_blocked" for block in blocks)
+
+
+def test_w12d_s10_blocks_consume_s5_s6_s8_without_rerunning_them(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    for case in w12d_s9_report["cases"]:
+        case = dict(case)
+        s5 = dict(case["s5_coupling_composition"])
+        s6 = dict(case["s6_blind_spot_firewalls"])
+        s8 = dict(case["s8_value_choice"])
+        s10 = dict(case["s10_outcome_prediction"])
+
+        assert s10["s5_forecast_support_ref"] == s5["forecast_support_ref"]
+        assert set(s10["s6_firewall_status_refs"]) >= {
+            s6["measurability_record_ref"],
+            s6["strategic_response_record_ref"],
+        }
+        assert s10["s8_value_choice_provenance_ref"] == s8["value_choice_provenance_ref"]
+        assert s10["s8_value_tradeoff_disclosure_ref"] == (
+            s8["value_tradeoff_disclosure_ref"]
+        )
+        assert s10["canonical_outcome_effect"] == (
+            "forecast_support_only_not_outcome_authority"
+        )
+
+
+def test_w12d_s10_injects_first_case_s2_posture_without_full_search_for_all_cases(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    first_case_count = 0
+    lightweight_case_count = 0
+
+    for case in w12d_s9_report["cases"]:
+        case = dict(case)
+        s2 = dict(case["s2_design_search"])
+        s10 = dict(case["s10_outcome_prediction"])
+        if case["case_id"] == "ua-msme-affordable-loans-2022":
+            first_case_count += 1
+            assert s2["forecast_posture"]["forecast_support_ref"] == (
+                s10["forecast_support_ref"]
+            )
+            assert s10["forecast_support_ref"] in s2["search_ledger"]["forecast_support_refs"]
+        else:
+            lightweight_case_count += 1
+            assert s2["status"] == "not_applicable"
+            assert s2["forecast_posture_ref"] == s10["forecast_support_ref"]
+            assert "search_ledger" not in s2
+
+    assert first_case_count == 1
+    assert lightweight_case_count == 12
+
+
+def test_w12d_s10_summary_records_calibration_and_negative_controls(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    summary = dict(w12d_s9_report["s10_outcome_prediction_summary"])
+
+    assert summary["case_count"] == 13
+    assert summary["observable_subset_calibration_denominator"] >= 4
+    assert summary["observable_subset_calibration_numerator"] == (
+        summary["observable_subset_calibration_denominator"]
+    )
+    assert summary["observable_subset_calibration_status"] == "pass"
+    assert summary["observable_subset_calibration_floor_passed"] is True
+    assert summary["non_observable_downgrade_count"] >= 1
+    assert summary["equilibrium_contested_single_forecast_false_clear_count"] == 0
+    assert summary["simulation_only_evidence_laundering_false_clear_count"] == 0

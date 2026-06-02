@@ -164,10 +164,10 @@ def test_layer2_s9_floor_is_governed_without_denominator_change() -> None:
     assert manifest["lowering_append_receipt_count"] >= 1
 
 
-def test_layer2_s9_inventory_count_is_17_after_registration() -> None:
+def test_layer2_s9_inventory_count_is_at_least_post_s10_floor() -> None:
     validation = readiness.validate_layer2_readiness(REPO_ROOT)
 
-    assert validation["summary"]["inventory_artifact_count"] == 17
+    assert validation["summary"]["inventory_artifact_count"] >= 18
 
 
 def test_layer2_s9_b_side_does_not_import_projection_lowering_producer() -> None:
@@ -229,7 +229,7 @@ def test_layer2_s9_verifier_reuse_blocks_universal_self_claim_without_s14_refs()
     }
 
 
-def test_layer2_s9_does_not_mark_s10_s11_s12_s13_or_s14_implemented() -> None:
+def test_layer2_s9_does_not_mark_s11_s12_s13_or_s14_implemented() -> None:
     payload = cluster_map.load_cluster_ownership_map(REPO_ROOT)
     current_open_cells = readiness._open_cell_refs(payload)  # type: ignore[attr-defined]
     manifest = _manifest()
@@ -237,7 +237,6 @@ def test_layer2_s9_does_not_mark_s10_s11_s12_s13_or_s14_implemented() -> None:
     assert current_open_cells == EXPECTED_LIVE_OPEN_CELLS
     assert set(manifest["may_not_use_for"]) >= S9_REQUIRED_DENY
     forbidden_terms = {
-        "s10_forecast_support",
         "s11_calibration",
         "s12_envelope_growth",
         "s13_accountability",

@@ -16,6 +16,7 @@ from tests._helpers.hds_quality import authority_envelope_for, sha
 from tests._helpers.policy_design_case_projection import policy_design_case
 
 S9_RULE_VERSION_REF = "policyos.layer2.s9.projection_lowering.v1"
+S10_RULE_VERSION_REF = "policyos.layer2.s10.outcome_prediction.v1"
 
 
 def _s9_public_faithfulness_payload(**overrides: object) -> dict[str, object]:
@@ -53,6 +54,52 @@ def _s9_public_faithfulness_payload(**overrides: object) -> dict[str, object]:
             "rule_version_refs": [S9_RULE_VERSION_REF],
         },
         "rule_version_ref": S9_RULE_VERSION_REF,
+    }
+    payload.update(overrides)
+    return payload
+
+
+def _s10_public_projection_payload(**overrides: object) -> dict[str, object]:
+    payload: dict[str, object] = {
+        "public_export_classification": "public_redacted_projection",
+        "decision_context": {"public_export_status": "publishable"},
+        "forecast_support_ref": "pdc://layer2/s10/ua-msme/forecast-support",
+        "forecast_tier": "observable_calibrated",
+        "forecast_authority_disposition_reason": (
+            "Observable subset calibration supports a bounded forecast tier."
+        ),
+        "observable_subset_calibration_status": "pass",
+        "forecast_calibration_record_ref": "pdc://layer2/s10/ua-msme/calibration",
+        "design_graph_ref": "pdc://layer2/s5/ua-msme/recursive-design-graph",
+        "prediction_context_ref": "pdc://layer2/s10/ua-msme/prediction-context",
+        "policy_context_ref": "policy-context://ua-msme/2022",
+        "source_contract_ref": "source-contract://ua-msme/panel",
+        "method_validity_ref": "method-validity://foundry/causal/local",
+        "credible_evaluation_evidence_ref": "evidence://ua-msme/credible-evaluation",
+        "uncertainty_interval_refs": ["interval://ua-msme/credit-access/95"],
+        "limitations": ["forecast support only; not recommendation authority"],
+        "authority_boundary": {
+            "authoritative_for": ["forecast_support_tiering"],
+            "may_not_use_for": [
+                "production_recommendation",
+                "production_claim_authority",
+                "publication_authority",
+                "claim_authority",
+                "closeout_authority",
+                "s11_calibration",
+            ],
+            "source_authority": "deterministic_producer",
+            "posture": "shadow",
+            "rule_version_refs": [S10_RULE_VERSION_REF],
+        },
+        "may_not_be_used_for": [
+            "production_recommendation",
+            "production_claim_authority",
+            "claim_authority",
+            "runtime_closeout_authority",
+            "s11_calibration",
+        ],
+        "rule_version_ref": S10_RULE_VERSION_REF,
     }
     payload.update(overrides)
     return payload
@@ -566,3 +613,65 @@ def test_public_export_without_s9_block_keeps_existing_projection_behavior() -> 
     assert projection["contract_verification_status"] == "pass"
     assert "s9_projection_faithfulness" not in projection
     assert public_bundle["semantic_audit"]["projection_contract_verification"]["status"] == "pass"
+
+
+def test_s10_public_export_shows_forecast_tier_without_recommendation_authority() -> None:
+    public_bundle = build_public_export_bundle(
+        run_id="run-public-s10-forecast",
+        artifacts={"public_summary": {"claim_refs": ["rec_1"]}},
+        authority_envelopes=[],
+        policy_design_case=policy_design_case(),
+        projection_payload=_s10_public_projection_payload(),
+    )
+
+    projection = public_bundle["projection_semantics"]
+    assert projection["forecast_tier"] == "observable_calibrated"
+    assert projection["observable_subset_calibration_status"] == "pass"
+    assert projection["uncertainty_interval_refs"] == ["interval://ua-msme/credit-access/95"]
+    assert projection["limitations"]
+    rendered = json.dumps(public_bundle, sort_keys=True)
+    assert "production_recommendation_text" not in rendered
+    assert "recommendation_authority" not in rendered
+
+
+def test_s10_machine_export_requires_calibration_and_source_refs() -> None:
+    with pytest.raises(
+        PublicExportRedactionError,
+        match="s10_machine_export_requires_calibration_and_source_refs",
+    ):
+        build_public_export_bundle(
+            run_id="run-public-s10-machine-missing-refs",
+            artifacts={"machine_summary": {"claim_refs": ["rec_1"]}},
+            authority_envelopes=[],
+            policy_design_case=policy_design_case(),
+            projection_payload=_s10_public_projection_payload(
+                forecast_calibration_record_ref=None,
+                source_contract_ref=None,
+                method_validity_ref=None,
+                credible_evaluation_evidence_ref=None,
+            ),
+        )
+
+
+def test_s10_machine_export_preserves_design_graph_context_and_method_validity_refs() -> None:
+    public_bundle = build_public_export_bundle(
+        run_id="run-public-s10-machine-refs",
+        artifacts={"machine_summary": {"claim_refs": ["rec_1"]}},
+        authority_envelopes=[],
+        policy_design_case=policy_design_case(),
+        projection_payload=_s10_public_projection_payload(),
+    )
+
+    s10_projection = public_bundle["semantic_audit"]["s10_forecast_projection"]
+    assert s10_projection["design_graph_ref"] == (
+        "pdc://layer2/s5/ua-msme/recursive-design-graph"
+    )
+    assert s10_projection["prediction_context_ref"] == (
+        "pdc://layer2/s10/ua-msme/prediction-context"
+    )
+    assert s10_projection["source_contract_ref"] == "source-contract://ua-msme/panel"
+    assert s10_projection["method_validity_ref"] == "method-validity://foundry/causal/local"
+    assert s10_projection["credible_evaluation_evidence_ref"] == (
+        "evidence://ua-msme/credible-evaluation"
+    )
+    assert s10_projection["authority_boundary"]["may_not_use_for"]

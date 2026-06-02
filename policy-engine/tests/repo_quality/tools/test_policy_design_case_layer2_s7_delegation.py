@@ -141,7 +141,7 @@ def test_layer2_s7_manifest_is_valid_and_live_open_count_is_3() -> None:
     assert validation["status"] == "pass", validation["issues"]
     summary = validation["summary"]
     assert summary["current_open_cell_count"] == 3
-    assert summary["inventory_artifact_count"] == 17
+    assert summary["inventory_artifact_count"] >= 18
     assert summary["s7_case_count"] == 13
     assert summary["s7_delegation_precision"] == 1.0
     assert summary["s7_delegation_recall"] == 1.0

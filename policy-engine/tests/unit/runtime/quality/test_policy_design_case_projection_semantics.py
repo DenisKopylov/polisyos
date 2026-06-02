@@ -30,6 +30,7 @@ from tests._helpers.policy_design_case_projection import policy_design_case, sha
 S9_RULE_VERSION_REF = "policyos.layer2.s9.projection_lowering.v1"
 S9_CANONICAL_REF = "pdc://layer2/s9/ua-msme/canonical-design-record"
 S9_SOURCE_REVISION_REF = "git://policyos/layer2/s9/red-first"
+S10_RULE_VERSION_REF = "policyos.layer2.s10.outcome_prediction.v1"
 
 
 def _s9_consumer_verifier() -> object:
@@ -123,6 +124,65 @@ def _s9_projection_payload(**overrides: object) -> dict[str, object]:
             "runtime_closeout_authority",
             "production_recommendation",
         ],
+    }
+    payload.update(overrides)
+    return payload
+
+
+def _s10_projection_payload(**overrides: object) -> dict[str, object]:
+    payload: dict[str, object] = {
+        "audience": "PUBLIC",
+        "authority_role": "projection_only",
+        "projection_policy": "reads_canonical_design_record",
+        "forecast_support_ref": "pdc://layer2/s10/ua-msme/forecast-support",
+        "forecast_tier": "observable_calibrated",
+        "forecast_authority_disposition_reason": (
+            "Observable subset calibration supports a bounded forecast tier."
+        ),
+        "forecast_calibration_record_ref": "pdc://layer2/s10/ua-msme/calibration",
+        "design_graph_ref": "pdc://layer2/s5/ua-msme/recursive-design-graph",
+        "prediction_context_ref": "pdc://layer2/s10/ua-msme/prediction-context",
+        "policy_context_ref": "policy-context://ua-msme/2022",
+        "source_contract_ref": "source-contract://ua-msme/panel",
+        "method_validity_ref": "method-validity://foundry/causal/local",
+        "credible_evaluation_evidence_ref": "evidence://ua-msme/credible-evaluation",
+        "uncertainty_interval_refs": ["interval://ua-msme/credit-access/95"],
+        "calibration_status": "pass",
+        "s5_forecast_support_ref": "pdc://layer2/s5/ua-msme/system-effect-support",
+        "s6_firewall_status_refs": ["pdc://layer2/s6/ua-msme/measurability-adequacy"],
+        "s8_value_choice_provenance_ref": "pdc://layer2/s8/ua-msme/value-choice",
+        "s8_value_tradeoff_disclosure_ref": "pdc://layer2/s8/ua-msme/tradeoff",
+        "welfare_comparison": {
+            "s8_value_choice_provenance_ref": "pdc://layer2/s8/ua-msme/value-choice",
+            "s8_value_tradeoff_disclosure_ref": "pdc://layer2/s8/ua-msme/tradeoff",
+            "scalar_summary_allowed": False,
+            "pareto_frontier_ref": "foundry://welfare/frontier/ua-msme",
+            "rejected_nondominated_alternative_refs": [
+                "alternative://ua-msme/cash-transfer"
+            ],
+        },
+        "authority_boundary": {
+            "authoritative_for": ["forecast_support_tiering"],
+            "may_not_use_for": [
+                "production_recommendation",
+                "production_claim_authority",
+                "publication_authority",
+                "claim_authority",
+                "closeout_authority",
+                "s11_calibration",
+            ],
+            "source_authority": "deterministic_producer",
+            "posture": "shadow",
+            "rule_version_refs": [S10_RULE_VERSION_REF],
+        },
+        "may_not_be_used_for": [
+            "production_recommendation",
+            "production_claim_authority",
+            "claim_authority",
+            "runtime_closeout_authority",
+            "s11_calibration",
+        ],
+        "rule_version_ref": S10_RULE_VERSION_REF,
     }
     payload.update(overrides)
     return payload
@@ -874,3 +934,52 @@ def test_s9_projection_faithfulness_preserves_contested_and_deficit_records() ->
     assert result["status"] == "fail"
     assert "policy_design_projection_hides_contested_state" in _issue_codes(result)
     assert "s9_projection_hides_deficit_record" in _issue_codes(result)
+
+
+def test_s10_projection_semantics_blocks_simulation_only_as_evidence() -> None:
+    verifier = projection_semantics_module.verify_s10_forecast_projection_consumer_contract
+    payload = _s10_projection_payload(
+        forecast_tier="simulation_only_advisory",
+        evidence_authority_claimed=True,
+        forecast_calibration_record_ref=None,
+        calibration_status="not_applicable_non_observable",
+    )
+
+    result = verifier(projections={"public": payload})
+
+    assert result["status"] == "fail"
+    assert "s10_simulation_only_laundered_as_evidence" in _issue_codes(result)
+
+
+def test_s10_projection_semantics_preserves_uncertainty_and_boundary() -> None:
+    verifier = projection_semantics_module.verify_s10_forecast_projection_consumer_contract
+    payload = _s10_projection_payload()
+
+    result = verifier(projections={"machine": {**payload, "audience": "MACHINE"}})
+
+    assert result["status"] == "pass"
+    assert result["s10_forecast_projection"]["uncertainty_interval_refs"] == (
+        payload["uncertainty_interval_refs"]
+    )
+    assert result["s10_forecast_projection"]["authority_boundary"] == (
+        payload["authority_boundary"]
+    )
+
+
+def test_s10_projection_semantics_blocks_scalar_welfare_tradeoff_hiding() -> None:
+    verifier = projection_semantics_module.verify_s10_forecast_projection_consumer_contract
+    payload = _s10_projection_payload(
+        welfare_comparison={
+            "s8_value_choice_provenance_ref": "pdc://layer2/s8/ua-msme/value-choice",
+            "s8_value_tradeoff_disclosure_ref": "pdc://layer2/s8/ua-msme/tradeoff",
+            "scalar_summary_allowed": True,
+            "scalar_welfare_summary_ref": "welfare://ua-msme/scalar-score",
+            "pareto_frontier_ref": None,
+            "rejected_nondominated_alternative_refs": [],
+        }
+    )
+
+    result = verifier(projections={"public": payload})
+
+    assert result["status"] == "fail"
+    assert "s10_scalar_welfare_hides_pareto_tradeoff" in _issue_codes(result)

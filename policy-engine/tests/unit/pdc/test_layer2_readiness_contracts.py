@@ -343,3 +343,58 @@ def test_design_record_v0_rejects_extra_fields() -> None:
             rule_version_refs=["repo://architecture/policy_design_case/cluster_ownership_map.toml"],
             unexpected="not allowed",
         )
+
+
+def test_layer2_s10_forecast_posture_input_is_strict_and_exported() -> None:
+    posture_model = pdc.Layer2S10ForecastPostureInput
+
+    assert posture_model.model_config.get("extra") == "forbid"
+
+    posture = posture_model(
+        forecast_support_ref="pdc://layer2/s10/ua-msme/forecast-support",
+        forecast_tier="observable_calibrated",
+        forecast_authority_disposition_reason=(
+            "Observable subset calibration supports a bounded forecast tier."
+        ),
+        forecast_support_label="validated_local_dynamic_model",
+        forecast_calibration_record_ref="pdc://layer2/s10/ua-msme/calibration",
+        design_graph_ref="pdc://layer2/s5/ua-msme/recursive-design-graph",
+        prediction_context_ref="pdc://layer2/s10/ua-msme/prediction-context",
+        policy_context_ref="policy-context://ua-msme/2022",
+        candidate_design_ref="candidate://ua-msme/targeted-credit",
+        baseline_design_ref="baseline://ua-msme/no-new-credit",
+        alternative_design_refs=["alternative://ua-msme/cash-transfer"],
+        prediction_horizon_ref="horizon://12-months",
+        observable_subset_ref="pdc://layer2/s10/ua-msme/observable-subset",
+        uncertainty_interval_refs=["interval://ua-msme/credit-access/95"],
+        welfare_comparison_ref="pdc://layer2/s10/ua-msme/welfare-comparison",
+        s5_forecast_support_ref="pdc://layer2/s5/ua-msme/system-effect-support",
+        s6_firewall_status_refs=["pdc://layer2/s6/ua-msme/measurability-adequacy"],
+        s8_value_choice_provenance_ref="pdc://layer2/s8/ua-msme/value-choice",
+        s8_value_tradeoff_disclosure_ref="pdc://layer2/s8/ua-msme/tradeoff",
+        source_contract_ref="source-contract://ua-msme/panel",
+        method_validity_ref="method-validity://foundry/causal/local",
+        credible_evaluation_evidence_ref="evidence://ua-msme/credible-evaluation",
+        dynamic_equilibrium_check_ref="equilibrium-check://ua-msme/system-effect",
+        sensitivity_analysis_ref="sensitivity://ua-msme/credit-access",
+        authority_boundary=_authority_boundary().model_dump(mode="json"),
+        may_not_use_for=[
+            "production_recommendation",
+            "production_claim_authority",
+            "publication_authority",
+            "s11_calibration",
+        ],
+        rule_version_ref="policyos.layer2.s10.outcome_prediction.v1",
+    )
+
+    assert posture.forecast_support_ref.endswith("/forecast-support")
+    assert posture.design_graph_ref.startswith("pdc://layer2/s5/")
+    assert posture.prediction_context_ref.startswith("pdc://layer2/s10/")
+
+    with pytest.raises(ValidationError, match="Extra inputs are not permitted"):
+        posture_model.model_validate(
+            {
+                **posture.model_dump(mode="json"),
+                "recommendation_authority": "publish",
+            }
+        )

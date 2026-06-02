@@ -162,7 +162,7 @@ def test_layer2_s8_manifest_is_valid_and_open_count_is_3() -> None:
     assert validation["status"] == "pass", validation["issues"]
     summary = validation["summary"]
     assert summary["current_open_cell_count"] == 3
-    assert summary["inventory_artifact_count"] == 17
+    assert summary["inventory_artifact_count"] >= 18
     assert summary["s8_case_count"] == 13
     assert summary["s8_value_provenance_completeness"] == 1.0
     assert summary["s8_expected_current_open_cell_count"] == 3

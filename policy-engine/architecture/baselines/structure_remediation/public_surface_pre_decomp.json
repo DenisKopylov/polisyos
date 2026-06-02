@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generated_at": "2026-05-28T17:00:50.719897+00:00",
+  "generated_at": "2026-06-01T18:33:26.667982+00:00",
   "packages": [
     {
       "package": "polisyos.berl",
@@ -27077,49 +27077,49 @@
               "name": "requires_capability",
               "fqn": "polisyos.fabric.connectors.capabilities.requires_capability",
               "signature": "(cap: ConnectorCapability, *, error_message: str | None=None)",
-              "line": 27
+              "line": 28
             },
             {
               "kind": "function",
               "name": "requires_any_capability",
               "fqn": "polisyos.fabric.connectors.capabilities.requires_any_capability",
               "signature": "(*caps: ConnectorCapability, error_message: str | None=None)",
-              "line": 82
+              "line": 83
             },
             {
               "kind": "function",
               "name": "validate_protocol_compliance",
               "fqn": "polisyos.fabric.connectors.capabilities.validate_protocol_compliance",
               "signature": "(connector_class: type[SourceConnector], *, strict: bool=True)",
-              "line": 162
+              "line": 163
             },
             {
               "kind": "function",
               "name": "check_capability_at_runtime",
               "fqn": "polisyos.fabric.connectors.capabilities.check_capability_at_runtime",
               "signature": "(connector: SourceConnector, required: ConnectorCapability)",
-              "line": 296
+              "line": 332
             },
             {
               "kind": "function",
               "name": "get_missing_capabilities",
               "fqn": "polisyos.fabric.connectors.capabilities.get_missing_capabilities",
               "signature": "(connector: SourceConnector, required: ConnectorCapability)",
-              "line": 305
+              "line": 341
             },
             {
               "kind": "function",
               "name": "describe_capabilities",
               "fqn": "polisyos.fabric.connectors.capabilities.describe_capabilities",
               "signature": "(caps: ConnectorCapability)",
-              "line": 325
+              "line": 361
             },
             {
               "kind": "function",
               "name": "capabilities_summary",
               "fqn": "polisyos.fabric.connectors.capabilities.capabilities_summary",
               "signature": "(caps: ConnectorCapability)",
-              "line": 363
+              "line": 399
             }
           ]
         },
@@ -90023,7 +90023,32 @@
           "module": "polisyos.pdc",
           "source_file": "src/polisyos/pdc/__init__.py",
           "__all__": [
+            "Audience",
+            "AuthorityBoundary",
+            "AxisFirewallStatus",
+            "AxisPositionDeclaration",
+            "CertifiedOperationEnvelope",
+            "ClusterHandoffRecord",
+            "ClusterInterfaceContract",
+            "ConstraintStoreEntry",
+            "ConstraintStoreSnapshot",
+            "CounterexampleRecord",
+            "DesignCandidateV0",
+            "DesignGrammarExpansion",
+            "DesignRecordV0",
+            "EpistemicRegime",
+            "GovernanceDecisionClass",
+            "Layer2ReadinessModel",
+            "Layer2S2DesignSearchInput",
+            "Layer2S2DesignSearchInputError",
+            "Layer2S2DesignSearchRun",
+            "Layer2S5CompositionPostureInput",
+            "Layer2S6BlindSpotPostureInput",
+            "Layer2S7DelegationPostureInput",
+            "Layer2S8ValuePostureInput",
+            "MinimalSeedManifest",
             "RUNTIME_POLICY_DESIGN_CASE_SCHEMA_VERSION",
+            "RefinementDecision",
             "RuntimePdcAuthorityEnvelope",
             "RuntimePdcClaimEdge",
             "RuntimePdcClaimGraph",
@@ -90032,8 +90057,20 @@
             "RuntimePdcWarrantStructure",
             "RuntimePolicyDesignCase",
             "RuntimePolicyDesignCaseCompilerError",
+            "S2_DESIGN_SEARCH_SCHEMA_VERSION",
+            "SearchLedger",
+            "TypedDiagnosticRecord",
+            "ValueOfInformationEstimate",
+            "assert_s2_public_projection_has_blind_spot_disclosure",
+            "assert_s2_public_projection_has_composition_limitation",
+            "assert_s2_public_projection_has_delegation_request",
+            "assert_s2_public_projection_has_value_tradeoff_disclosure",
             "compile_runtime_policy_design_case",
+            "load_s2_search_ledger",
             "persist_runtime_policy_design_case_graph",
+            "persist_s2_design_search_run",
+            "project_s2_design_search",
+            "run_s2_shadow_design_loop",
             "runtime_policy_design_case_projection_source"
           ],
           "objects": []
@@ -90163,6 +90200,353 @@
               "fqn": "polisyos.pdc._impl.compiler.claim_registry_rows_by_id",
               "signature": "(claim_registry: Mapping[str, Any] | None)",
               "line": 534
+            }
+          ]
+        },
+        {
+          "module": "polisyos.pdc._impl.layer2_design_search",
+          "source_file": "src/polisyos/pdc/_impl/layer2_design_search.py",
+          "__all__": [],
+          "objects": [
+            {
+              "kind": "class",
+              "name": "Layer2S2DesignSearchInputError",
+              "fqn": "polisyos.pdc._impl.layer2_design_search.Layer2S2DesignSearchInputError",
+              "bases": [
+                "ValueError"
+              ],
+              "pydantic": false,
+              "line": 136
+            },
+            {
+              "kind": "class",
+              "name": "Layer2S2DesignSearchInput",
+              "fqn": "polisyos.pdc._impl.layer2_design_search.Layer2S2DesignSearchInput",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 140
+            },
+            {
+              "kind": "class",
+              "name": "Layer2S5CompositionPostureInput",
+              "fqn": "polisyos.pdc._impl.layer2_design_search.Layer2S5CompositionPostureInput",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 163
+            },
+            {
+              "kind": "class",
+              "name": "Layer2S6BlindSpotPostureInput",
+              "fqn": "polisyos.pdc._impl.layer2_design_search.Layer2S6BlindSpotPostureInput",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 194
+            },
+            {
+              "kind": "class",
+              "name": "Layer2S7DelegationPostureInput",
+              "fqn": "polisyos.pdc._impl.layer2_design_search.Layer2S7DelegationPostureInput",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 221
+            },
+            {
+              "kind": "class",
+              "name": "Layer2S8ValuePostureInput",
+              "fqn": "polisyos.pdc._impl.layer2_design_search.Layer2S8ValuePostureInput",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 260
+            },
+            {
+              "kind": "class",
+              "name": "TypedDiagnosticRecord",
+              "fqn": "polisyos.pdc._impl.layer2_design_search.TypedDiagnosticRecord",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 298
+            },
+            {
+              "kind": "class",
+              "name": "DesignGrammarExpansion",
+              "fqn": "polisyos.pdc._impl.layer2_design_search.DesignGrammarExpansion",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 310
+            },
+            {
+              "kind": "class",
+              "name": "DesignCandidateV0",
+              "fqn": "polisyos.pdc._impl.layer2_design_search.DesignCandidateV0",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 327
+            },
+            {
+              "kind": "class",
+              "name": "ConstraintStoreEntry",
+              "fqn": "polisyos.pdc._impl.layer2_design_search.ConstraintStoreEntry",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 363
+            },
+            {
+              "kind": "class",
+              "name": "ConstraintStoreSnapshot",
+              "fqn": "polisyos.pdc._impl.layer2_design_search.ConstraintStoreSnapshot",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 378
+            },
+            {
+              "kind": "class",
+              "name": "CounterexampleRecord",
+              "fqn": "polisyos.pdc._impl.layer2_design_search.CounterexampleRecord",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 391
+            },
+            {
+              "kind": "class",
+              "name": "RefinementDecision",
+              "fqn": "polisyos.pdc._impl.layer2_design_search.RefinementDecision",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 411
+            },
+            {
+              "kind": "class",
+              "name": "SearchIteration",
+              "fqn": "polisyos.pdc._impl.layer2_design_search.SearchIteration",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 442
+            },
+            {
+              "kind": "class",
+              "name": "SearchLedger",
+              "fqn": "polisyos.pdc._impl.layer2_design_search.SearchLedger",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 459
+            },
+            {
+              "kind": "class",
+              "name": "ClusterInterfaceContract",
+              "fqn": "polisyos.pdc._impl.layer2_design_search.ClusterInterfaceContract",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 496
+            },
+            {
+              "kind": "class",
+              "name": "ClusterHandoffRecord",
+              "fqn": "polisyos.pdc._impl.layer2_design_search.ClusterHandoffRecord",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 507
+            },
+            {
+              "kind": "class",
+              "name": "Layer2S2DesignSearchRun",
+              "fqn": "polisyos.pdc._impl.layer2_design_search.Layer2S2DesignSearchRun",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 521
+            },
+            {
+              "kind": "function",
+              "name": "run_s2_shadow_design_loop",
+              "fqn": "polisyos.pdc._impl.layer2_design_search.run_s2_shadow_design_loop",
+              "signature": "(input: Layer2S2DesignSearchInput, *, regime: EpistemicRegime | None=None, design_strategy: str | None=None, regime_claim_ref: str | None=None, commitment_profile_ref: str | None=None, commitment_stakes: Literal['low', 'high', 'catastrophic'] | None=None, composition_posture: Layer2S5CompositionPostureInput | None=None, blind_spot_posture: Layer2S6BlindSpotPostureInput | None=None, delegation_posture: Layer2S7DelegationPostureInput | None=None, value_posture: Layer2S8ValuePostureInput | None=None)",
+              "line": 542
+            },
+            {
+              "kind": "function",
+              "name": "project_s2_design_search",
+              "fqn": "polisyos.pdc._impl.layer2_design_search.project_s2_design_search",
+              "signature": "(run: Layer2S2DesignSearchRun, *, audiences: tuple[Literal['PUBLIC', 'REVIEWER', 'EXPERT', 'MACHINE'], ...])",
+              "line": 682
+            },
+            {
+              "kind": "function",
+              "name": "assert_s2_public_projection_has_regime_limitation",
+              "fqn": "polisyos.pdc._impl.layer2_design_search.assert_s2_public_projection_has_regime_limitation",
+              "signature": "(projection: Mapping[str, object])",
+              "line": 788
+            },
+            {
+              "kind": "function",
+              "name": "assert_s2_public_projection_has_composition_limitation",
+              "fqn": "polisyos.pdc._impl.layer2_design_search.assert_s2_public_projection_has_composition_limitation",
+              "signature": "(projection: Mapping[str, object])",
+              "line": 799
+            },
+            {
+              "kind": "function",
+              "name": "assert_s2_public_projection_has_blind_spot_disclosure",
+              "fqn": "polisyos.pdc._impl.layer2_design_search.assert_s2_public_projection_has_blind_spot_disclosure",
+              "signature": "(projection: Mapping[str, object])",
+              "line": 810
+            },
+            {
+              "kind": "function",
+              "name": "assert_s2_public_projection_has_delegation_request",
+              "fqn": "polisyos.pdc._impl.layer2_design_search.assert_s2_public_projection_has_delegation_request",
+              "signature": "(projection: Mapping[str, object])",
+              "line": 821
+            },
+            {
+              "kind": "function",
+              "name": "assert_s2_public_projection_has_value_tradeoff_disclosure",
+              "fqn": "polisyos.pdc._impl.layer2_design_search.assert_s2_public_projection_has_value_tradeoff_disclosure",
+              "signature": "(projection: Mapping[str, object])",
+              "line": 834
+            },
+            {
+              "kind": "function",
+              "name": "persist_s2_design_search_run",
+              "fqn": "polisyos.pdc._impl.layer2_design_search.persist_s2_design_search_run",
+              "signature": "(run: Layer2S2DesignSearchRun, *, store: artifacts.FileSystemCAS)",
+              "line": 858
+            },
+            {
+              "kind": "function",
+              "name": "load_s2_search_ledger",
+              "fqn": "polisyos.pdc._impl.layer2_design_search.load_s2_search_ledger",
+              "signature": "(*, store: artifacts.FileSystemCAS, artifact_ref: artifacts.ArtifactRef)",
+              "line": 901
+            }
+          ]
+        },
+        {
+          "module": "polisyos.pdc._impl.layer2_readiness",
+          "source_file": "src/polisyos/pdc/_impl/layer2_readiness.py",
+          "__all__": [],
+          "objects": [
+            {
+              "kind": "class",
+              "name": "Layer2ReadinessModel",
+              "fqn": "polisyos.pdc._impl.layer2_readiness.Layer2ReadinessModel",
+              "bases": [
+                "BaseModel"
+              ],
+              "pydantic": true,
+              "line": 28
+            },
+            {
+              "kind": "class",
+              "name": "AuthorityBoundary",
+              "fqn": "polisyos.pdc._impl.layer2_readiness.AuthorityBoundary",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 34
+            },
+            {
+              "kind": "class",
+              "name": "ValueOfInformationEstimate",
+              "fqn": "polisyos.pdc._impl.layer2_readiness.ValueOfInformationEstimate",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 50
+            },
+            {
+              "kind": "class",
+              "name": "GovernanceDecisionClass",
+              "fqn": "polisyos.pdc._impl.layer2_readiness.GovernanceDecisionClass",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 61
+            },
+            {
+              "kind": "class",
+              "name": "AxisPositionDeclaration",
+              "fqn": "polisyos.pdc._impl.layer2_readiness.AxisPositionDeclaration",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 72
+            },
+            {
+              "kind": "class",
+              "name": "AxisFirewallStatus",
+              "fqn": "polisyos.pdc._impl.layer2_readiness.AxisFirewallStatus",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 89
+            },
+            {
+              "kind": "class",
+              "name": "CertifiedOperationEnvelope",
+              "fqn": "polisyos.pdc._impl.layer2_readiness.CertifiedOperationEnvelope",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 100
+            },
+            {
+              "kind": "class",
+              "name": "DesignRecordV0",
+              "fqn": "polisyos.pdc._impl.layer2_readiness.DesignRecordV0",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 115
+            },
+            {
+              "kind": "class",
+              "name": "MinimalSeedManifest",
+              "fqn": "polisyos.pdc._impl.layer2_readiness.MinimalSeedManifest",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 141
             }
           ]
         }
@@ -92563,8 +92947,14 @@
             "AcquisitionNextAction",
             "AcquisitionPlannerReport",
             "AcquisitionRequirementGap",
+            "AcquisitionState",
             "AcquisitionStrategy",
             "AcquisitionStrategyRecord",
+            "AcquisitionTaskRecord",
+            "AggregationClaimLevel",
+            "AggregationScopeRow",
+            "AggregationValidityDisposition",
+            "AggregationValidityRecord",
             "ArgumentGraphError",
             "AuthorityEnvelope",
             "AuthorityEnvelopeError",
@@ -92572,6 +92962,14 @@
             "AuthorityLevel",
             "AuthorityReconciliationError",
             "AuthorityReconciliationReport",
+            "AuthorizedValueSchedule",
+            "AxisFailClosedDisposition",
+            "BlindSpotAxis",
+            "BlindSpotBridgeConsumerRecord",
+            "BlindSpotConstraintStoreUpdate",
+            "BlindSpotFirewallReport",
+            "BlindSpotOverallPosture",
+            "BoundaryCouplingClassification",
             "C33_RULE_CHANGE_CLASS_TABLE",
             "CALIBRATION_LEDGER_CONTRACT_ID",
             "CALIBRATION_LEDGER_KIND",
@@ -92598,6 +92996,7 @@
             "CLOSEOUT_READER_CONTRACT_ID",
             "CLOSEOUT_READER_CONTRACT_VERSION",
             "CLOSEOUT_READER_SCHEMA_VERSION",
+            "COMMITMENT_PROFILE_SCHEMA_VERSION",
             "COMPLEXITY_GOVERNANCE_CONTRACT_ID",
             "COMPLEXITY_GOVERNANCE_CONTROL_ID",
             "COMPLEXITY_GOVERNANCE_FILENAME",
@@ -92642,26 +93041,48 @@
             "CapabilityLifecycle",
             "CapabilityScope",
             "CapabilitySourceAsset",
+            "CapacityBuildingObligation",
+            "CapacityDimension",
+            "CapacityDimensionAssessment",
+            "CapacityDisposition",
+            "CapacityFeasibilityRecord",
             "CaseMaturityIssue",
             "CaseMaturityValidationResult",
             "ClaimArgumentIssue",
             "ClaimArgumentValidationResult",
             "ClaimBindingRecord",
             "CloseoutModuleReaderSpec",
+            "ClusterAuthorityDimensionRecord",
             "ColumnBinding",
+            "CommitmentProfileRecord",
             "ComplexityGovernanceError",
+            "CompositionAuthorityMode",
+            "CompositionDisposition",
+            "CompositionLawCheck",
+            "CompositionReceipt",
+            "ComputationalTractabilityBudget",
             "ConceptNamespaceRef",
             "ConceptRelation",
             "ConfigReleaseHardeningIssue",
+            "ConstraintRefinementRoute",
+            "ConstraintStatus",
             "ConstructAliasDeprecation",
             "ConstructAuthorityRequirement",
             "ConstructCompatibilityAlias",
             "ConstructCorpusBinding",
+            "ConstructDemandLedger",
             "ConstructEntry",
+            "ConstructExpression",
+            "ConstructMeasurabilityRow",
+            "ConstructMeasurabilityStatus",
             "ConstructRegistry",
             "ConstructRegistryError",
             "ConstructValidityRequirements",
             "CostDegradationTelemetryError",
+            "CouplingEdge",
+            "CouplingGraph",
+            "CouplingRegime",
+            "CouplingRegimeClassification",
             "CoverageBinding",
             "DDM_EVENT_GROUPS",
             "DEFAULT_CAPABILITY_INDEX_REF",
@@ -92672,12 +93093,28 @@
             "DISCONFIRMING_EVIDENCE_LEDGER_SCHEMA_VERSION",
             "DORMANT_CAPABILITY_INVENTORY_RECORD_KEY",
             "DORMANT_CAPABILITY_INVENTORY_SCHEMA_VERSION",
+            "DecisionAction",
+            "DecisionNeedReason",
+            "DecisionOption",
+            "DecisionRightsMatrix",
+            "DecisionRightsMatrixRow",
+            "DecisionRole",
+            "DecompositionResult",
             "DegradationLedgerContractError",
             "DegradationLedgerRecord",
             "DegradationPolicyDecision",
+            "DelegationContract",
+            "DelegationDisposition",
+            "DelegationIntegrityReport",
+            "DelegationInteractionMode",
+            "DelegationNegativeControlResult",
+            "DelegationReferenceClass",
             "DerivedFeatureBinding",
+            "DesignInterfaceContract",
+            "DesignStrategy",
             "DiagnosticEventPayloadPolicy",
             "DisconfirmingEvidenceLedgerError",
+            "DynamicsRequirementLevel",
             "EVIDENCE_CAPABILITY_SCHEMA_VERSION",
             "EVIDENCE_GRAPH_THREATS",
             "EVIDENCE_GRAPH_THREAT_MODEL_RECORD_FAMILY",
@@ -92692,6 +93129,7 @@
             "EX_POST_LEARNING_CONTRACT_ID",
             "EX_POST_LEARNING_SCHEMA_VERSION",
             "EffectiveModeLedger",
+            "EpistemicRegimeClaim",
             "EvidenceAuthorityEnvelope",
             "EvidenceCapability",
             "EvidenceIndependenceError",
@@ -92703,10 +93141,23 @@
             "FULL_MODE_CAPABILITY_FLOORS",
             "FabricBindingRecord",
             "FailureModeNode",
+            "FeedbackIntensity",
+            "FirewallStatus",
+            "FiveRightsCheck",
+            "FiveRightsDimension",
+            "FiveRightsRequirement",
+            "FloorBand",
+            "ForecastClaimScope",
+            "ForecastSupportBaseOrigin",
+            "ForecastSupportScope",
             "FoundryBindingRecord",
             "FreshnessEnvelope",
+            "FrozenClosedCase",
             "GRADED_INDEPENDENCE_FEATURE_FLAG",
             "GovernanceMetadata",
+            "GradedOutcomeDecision",
+            "GradedOutcomeEvidenceInput",
+            "GradedOutcomeInputError",
             "HIGH_COST_LOW_IMPACT_COST_USD",
             "HIGH_COST_LOW_IMPACT_ELAPSED_SECONDS",
             "HIGH_COST_LOW_IMPACT_REVIEW_HOURS",
@@ -92716,6 +93167,8 @@
             "HYPOTHESIS_LEDGER_REF_KEY",
             "HYPOTHESIS_LEDGER_REPORT_KEY",
             "HYPOTHESIS_LEDGER_SCHEMA_VERSION",
+            "HumanDecisionRecord",
+            "HumanDecisionRequest",
             "HypothesisLedger",
             "HypothesisLedgerEntry",
             "IMPLEMENTATION_MONITORING_EVALUATION_CONTRACT_ID",
@@ -92728,8 +93181,18 @@
             "IR_ANALYTICS_CLAIM_BRIDGE_SCHEMA_VERSION",
             "ImplementationMonitoringEvaluationError",
             "IntentBindingRecord",
+            "InteractionStrength",
+            "LAYER2_S3_SUBSTRATE_ACQUISITION_SCHEMA_VERSION",
+            "LAYER2_S4_EPISTEMIC_REGIME_SCHEMA_VERSION",
+            "LAYER2_S5_COUPLING_COMPOSITION_SCHEMA_VERSION",
+            "LAYER2_S6_BLIND_SPOT_FIREWALLS_SCHEMA_VERSION",
+            "LAYER2_S7_DELEGATION_SCHEMA_VERSION",
+            "LAYER2_S8_VALUE_CHOICE_RULE_VERSION",
+            "LAYER2_S8_VALUE_CHOICE_SCHEMA_VERSION",
             "LEGACY_MIGRATION_SEMANTIC_LOSS",
+            "LegitimacyDisposition",
             "LexBindingRecord",
+            "LifecycleStage",
             "MEMORY_INFLUENCE_ADR_REF",
             "MEMORY_INFLUENCE_RECORD_KIND",
             "MEMORY_INFLUENCE_REF_PREFIXES",
@@ -92737,13 +93200,33 @@
             "MISSING_REALITY_STATES",
             "MULTIVERSE_SPECIFICATION_CURVE_CONTRACT_ID",
             "MULTIVERSE_SPECIFICATION_CURVE_SCHEMA_VERSION",
+            "MandateBasis",
+            "MandateLegitimacyRecord",
+            "MandateSourceRecord",
             "MandatoryGateState",
+            "MeasurabilityAdequacyRecord",
             "MemoryInfluenceRecord",
             "MetricBinding",
             "ModePolicyError",
             "ModePolicyViolation",
+            "ModuleDiscoveryResult",
             "MultiverseSpecificationCurveError",
             "NET_MAV_FORMULA",
+            "ObjectiveFunctionProvenanceRecord",
+            "P16OverconfidenceError",
+            "P16PrecautionLaunderingError",
+            "P17BoundarySpoofError",
+            "P17FalseModularityError",
+            "P17SyntacticCompositionError",
+            "P17SystemDynamicsRequiredError",
+            "P18StreetlightMeasurabilityError",
+            "P19AggregationLaunderingError",
+            "P20NormativeChoiceError",
+            "P21CapacityFeasibilityError",
+            "P22MandateLegitimacyError",
+            "P23StakesFloorError",
+            "P24StrategicResponseError",
+            "P26ResponsibilityIntegrityError",
             "PASS1B_HARDENING_READINESS_CHECK",
             "PASS1B_HARDENING_SCORECARD_GATE",
             "PASS1B_PDD_REQUIRED_SURFACES",
@@ -92786,6 +93269,8 @@
             "PRODUCER_SPINE_CONTEXT_SCHEMA_VERSION",
             "PROJECTION_STATES",
             "PURPOSE_MULTIPLIERS",
+            "ParetoArchive",
+            "ParticipationProvenanceRow",
             "PhaseBarrierBlocker",
             "PhaseBarrierId",
             "PhaseBarrierLedger",
@@ -92809,6 +93294,7 @@
             "PolicyDesignObservabilityStaticAuditIssue",
             "PolicyDesignPass1BHardeningError",
             "PolicyDesignPass1BHardeningIssue",
+            "PostInterventionDGPUpdate",
             "ProducerHandshakeBinding",
             "ProducerHandshakeValidationError",
             "ProducerIdentity",
@@ -92818,6 +93304,8 @@
             "ProducerWaitCondition",
             "PromptToolParserAuthorityLedger",
             "PromptToolParserAuthorityValidation",
+            "ProxyValidityDisposition",
+            "ProxyValidityRecord",
             "PublicExportRedactionError",
             "QualityScore",
             "REALITY_STATES",
@@ -92845,12 +93333,19 @@
             "RUN_COST_GATE_SCHEMA_VERSION",
             "RUN_COST_PROPORTIONALITY_LEDGER_CONTRACT_ID",
             "RUN_COST_PROPORTIONALITY_LEDGER_SCHEMA_VERSION",
+            "RankingMode",
             "ReconciledConcept",
             "RecordFamilyMaturity",
+            "RecursiveDesignGraph",
+            "RegimeEvidenceBasis",
             "RequirementGapFamily",
             "RequirementTimeWindow",
             "RequirementToCapabilityQuery",
             "RequirementToCapabilityResolver",
+            "RerunClosureReceipt",
+            "ResponsibilityIntegrityCheck",
+            "ResponsibilityIntegrityStatus",
+            "Reversibility",
             "RightsEnvelope",
             "RunCostGateError",
             "RunCostProportionalityError",
@@ -92860,6 +93355,9 @@
             "RunStateSnapshot",
             "RunStateTransitionError",
             "RuntimeDiagnosticEventLog",
+            "S1_GRADED_OUTCOME_SCHEMA_VERSION",
+            "S8_VALUE_CHOICE_CELL_REF",
+            "S8_VALUE_CHOICE_FLOOR_ID",
             "SEMANTIC_BINDING_SCHEMA_VERSION",
             "SEMANTIC_EVALUATION_PACK_CONTRACT_ID",
             "SEMANTIC_EVALUATION_PACK_SCHEMA_VERSION",
@@ -92874,7 +93372,26 @@
             "SemanticBindingEvaluation",
             "SemanticBindingIssue",
             "SemanticBindingLedger",
+            "SourceAuthority",
+            "SourceContract",
+            "SourceDiscoveryCandidate",
             "SourceFacetBinding",
+            "StakesBand",
+            "StrategicResponseChannel",
+            "StrategicResponseChannelAssessment",
+            "StrategicResponseDisposition",
+            "StrategicResponseRecord",
+            "SubstrateAcquisitionLoop",
+            "SubstrateCoverageSnapshot",
+            "SystemDynamicsRequirement",
+            "SystemEffectSupportLabel",
+            "ValueChoiceIntegrityReport",
+            "ValueChoiceProvenanceRecord",
+            "ValueDisposition",
+            "ValueLossDisclosure",
+            "ValueScheduleReviewStatus",
+            "ValueSourceClass",
+            "ValueTradeoffDisclosureRecord",
             "WAVE2_I2_MANIFEST_SCHEMA_VERSION",
             "WAVE2_I2_SCHEMA_VERSION",
             "acquisition_planner_reports_from_quality_evidence",
@@ -92888,6 +93405,7 @@
             "assert_barrier_passed",
             "assert_canary_bundle_closeout_allowed",
             "assert_capability_binding_purpose_allowed",
+            "assert_composition_laws_hold",
             "assert_final_decision_artifact_allowed",
             "assert_memory_influence_not_claim_evidence",
             "assert_no_candidate_authority_laundering",
@@ -92899,12 +93417,14 @@
             "assert_scenario_family_name_alone_does_not_grant_authority",
             "assert_serious_fallback_allowed",
             "assert_serious_mode_allowed",
+            "assert_stakes_floor_consistency",
             "authority_envelope_json_schema",
             "authority_envelopes_missing_semantic_binding_ref",
             "best_in_class_benchmarking_record_id",
             "build_argument_graph",
             "build_argument_graph_quality_evidence_surfaces",
             "build_assurance_case_for_scorecard",
+            "build_authorized_value_schedule",
             "build_berl_warrant_reliability_record",
             "build_calibration_ledger",
             "build_canary_performance_budget",
@@ -92915,10 +93435,16 @@
             "build_case_maturity_profile",
             "build_closeout_reader_skeleton",
             "build_closeout_reader_skeleton_from_bundle_dir",
+            "build_commitment_profile",
             "build_complexity_governance_report",
+            "build_composition_receipt",
+            "build_computational_tractability_budget",
             "build_concept_spine_bridge_authority_record",
             "build_cost_degradation_telemetry_from_quality_context",
+            "build_coupling_graph",
+            "build_decision_rights_matrix",
             "build_degradation_record",
+            "build_delegation_contract",
             "build_diagnostic_slo_report",
             "build_diagnostic_slo_report_from_quality_context",
             "build_disconfirming_evidence_ledger",
@@ -92927,6 +93453,8 @@
             "build_evidence_synthesis_report",
             "build_ex_post_learning_record",
             "build_freshness_policy_time_semantics_record",
+            "build_governance_decision_class_registry",
+            "build_human_decision_request",
             "build_human_review_calibration_report",
             "build_hybrid_concept_spine_carrier",
             "build_hypothesis_ledger_from_prompt_tool_ledger",
@@ -92935,6 +93463,8 @@
             "build_legacy_migration_sandbox",
             "build_memory_influence_record",
             "build_multiverse_specification_curve_record",
+            "build_objective_function_provenance",
+            "build_pareto_archive",
             "build_pass1b_tenant_cas_approval_governance_record",
             "build_policy_design_case_concept_spine",
             "build_policy_design_case_profile",
@@ -92962,9 +93492,14 @@
             "build_rule_replay_comparison_report",
             "build_run_cost_gate_report",
             "build_run_cost_proportionality_ledger_from_quality_context",
+            "build_s6_blind_spot_firewall_report",
             "build_semantic_binding_ledger",
+            "build_shadow_scenario_value_schedule",
             "build_skip_causality_ledger_record",
             "build_soft_gate_telemetry_report",
+            "build_system_dynamics_requirement",
+            "build_system_effect_support",
+            "build_value_choice_provenance_record",
             "build_wave2_policy_design_case_walking_skeleton",
             "calibration_influence_for_scope",
             "calibration_ledger_public_export",
@@ -92972,10 +93507,15 @@
             "candidate_refs_from_payload",
             "capability_binding_purpose_blockers",
             "classify_authority_role",
+            "classify_coupling",
+            "classify_regime",
+            "coerce_social_weight_provenance_for_s8",
             "comparison_failure_codes",
             "compile_capability_index",
             "complexity_governance_scorecard_gates",
             "compose_capability_authority",
+            "compose_graded_outcome",
+            "composition_to_axis_positions",
             "compute_net_mav",
             "construct_for_legacy_family",
             "construct_refs_for_alias",
@@ -92983,29 +93523,41 @@
             "construct_registry_public_surface",
             "cost_degradation_scorecard_gates",
             "cost_gate_scorecard_gates",
+            "coupling_accuracy",
             "create_capability_index_fixture_inputs",
+            "critical_path_regime",
+            "decompose_design",
             "default_diagnostic_slo_targets",
+            "derive_recursive_design_graph",
             "deserialize_authority_envelope",
             "deserialize_degradation_record",
             "deserialize_hypothesis_ledger",
             "deserialize_semantic_binding_ledger",
             "deterministic_review_fixtures",
             "diagnostic_slo_gates",
+            "discover_design_modules",
             "effective_independence_factor_for_capability",
+            "evaluate_aggregation_validity",
             "evaluate_blocking_frontier_control",
             "evaluate_capability_claim",
+            "evaluate_capacity_feasibility",
             "evaluate_degradation_policy",
+            "evaluate_delegation_for_case",
+            "evaluate_mandate_legitimacy",
+            "evaluate_measurability_adequacy",
             "evaluate_review_packet",
             "evaluate_schema_compatibility",
             "evaluate_semantic_binding_ledger",
             "evaluate_semantic_evaluation_pack",
             "evaluate_semantic_gold_card_fixture",
+            "evaluate_strategic_response",
             "evidence_line_record_id",
             "evidence_synthesis_refs_by_claim",
             "explain_mode_mismatch",
             "explain_replay_drift",
             "export_argument_graph",
             "export_claim_argument_case_mapping",
+            "graded_outcome_closeout_record",
             "historical_prior_claim_evidence_issues",
             "human_review_public_export",
             "inspect_argument_graph",
@@ -93013,11 +93565,13 @@
             "ir_analytics_claim_bindings_by_claim",
             "is_historical_prior_ref",
             "is_memory_influence_ref",
+            "is_production_claim_admissible",
             "legacy_compatible_payload",
             "legacy_family_for_construct",
             "load_acquisition_planner_report",
             "load_construct_registry",
             "logic_hash_for_rule",
+            "max_admissible_posture",
             "memory_influence_claim_evidence_issues",
             "merge_argument_graph_quality_evidence_surfaces",
             "merge_ir_analytics_binding_into_registry_entry",
@@ -93040,6 +93594,7 @@
             "persist_replay_manifest",
             "persist_rule_evolution_registry",
             "persist_rule_replay_comparison_report",
+            "persist_value_choice_provenance_bundle",
             "persist_wave2_policy_design_case_walking_skeleton",
             "plan_evidence_acquisition",
             "plan_requirement_gap_acquisition",
@@ -93050,19 +93605,32 @@
             "policy_design_jurisdiction_spine_json_schema",
             "policy_design_pass1b_hardening_scorecard_gates",
             "producer_spine_read_context_for",
+            "project_value_tradeoff_disclosure",
             "public_rule_evolution_annotation",
             "ratchet_templates",
             "reader_schema_ranges",
             "reconcile_authority_event",
             "reconcile_authority_ref",
+            "record_human_decision",
+            "regime_accuracy",
+            "regime_claim_to_axis_position",
+            "regime_design_strategy",
             "replay_under_new_rules",
             "replay_under_original_rules",
             "requirement_gaps_from_compiled_specs",
+            "resolve_expression",
             "review_controls_for_pruning",
             "run_cost_budget_policy_from_performance_budget",
             "run_cost_ledger_record_id",
             "run_eight_stage_producer_pipeline",
             "run_requirement_spec_producer_pipeline",
+            "s6_fail_closed_coverage",
+            "s6_firewall_report_to_axis_positions",
+            "s6_firewall_report_to_c3_dimension_records",
+            "s6_firewall_report_to_constraint_store_updates",
+            "s7_delegation_integrity",
+            "s8_value_provenance_integrity",
+            "select_floor",
             "semantic_evaluation_pack_json_schema",
             "semantic_gold_card_json_schema",
             "serialize_authority_envelope",
@@ -95043,13 +95611,33 @@
           "objects": [
             {
               "kind": "class",
+              "name": "CommitmentProfileRecord",
+              "fqn": "polisyos.runtime.quality.case_lifecycle.CommitmentProfileRecord",
+              "bases": [
+                "BaseModel"
+              ],
+              "pydantic": true,
+              "line": 131
+            },
+            {
+              "kind": "class",
+              "name": "P23StakesFloorError",
+              "fqn": "polisyos.runtime.quality.case_lifecycle.P23StakesFloorError",
+              "bases": [
+                "ValueError"
+              ],
+              "pydantic": false,
+              "line": 164
+            },
+            {
+              "kind": "class",
               "name": "PolicyDesignLifecycleError",
               "fqn": "polisyos.runtime.quality.case_lifecycle.PolicyDesignLifecycleError",
               "bases": [
                 "ValueError"
               ],
               "pydantic": false,
-              "line": 83
+              "line": 169
             },
             {
               "kind": "class",
@@ -95057,56 +95645,77 @@
               "fqn": "polisyos.runtime.quality.case_lifecycle.PolicyDesignLifecycleIssue",
               "bases": [],
               "pydantic": false,
-              "line": 95
+              "line": 181
+            },
+            {
+              "kind": "function",
+              "name": "build_commitment_profile",
+              "fqn": "polisyos.runtime.quality.case_lifecycle.build_commitment_profile",
+              "signature": "(*, candidate_ref: str, rule_version_ref: str, domain: str | None=None, instrument_type: str | None=None, policy_time: str | None=None, annotation: dict[str, str] | None=None, **overrides: str)",
+              "line": 205
+            },
+            {
+              "kind": "function",
+              "name": "select_floor",
+              "fqn": "polisyos.runtime.quality.case_lifecycle.select_floor",
+              "signature": "(profile: CommitmentProfileRecord)",
+              "line": 260
+            },
+            {
+              "kind": "function",
+              "name": "assert_stakes_floor_consistency",
+              "fqn": "polisyos.runtime.quality.case_lifecycle.assert_stakes_floor_consistency",
+              "signature": "(profile: CommitmentProfileRecord, *, selected_floor: str)",
+              "line": 270
             },
             {
               "kind": "function",
               "name": "build_case_lifecycle_record",
               "fqn": "polisyos.runtime.quality.case_lifecycle.build_case_lifecycle_record",
               "signature": "(*, ledger_id: str, case_id: str, current_state: str, events: Iterable[Mapping[str, Any]], continuous_governance_reports: Mapping[str, str], resolution_event_refs: Iterable[str]=(), evidence_ref: str, runtime_event_ref: str)",
-              "line": 119
+              "line": 287
             },
             {
               "kind": "function",
               "name": "validate_case_lifecycle_record",
               "fqn": "polisyos.runtime.quality.case_lifecycle.validate_case_lifecycle_record",
               "signature": "(record: Mapping[str, Any])",
-              "line": 147
+              "line": 315
             },
             {
               "kind": "function",
               "name": "build_ex_post_learning_record",
               "fqn": "polisyos.runtime.quality.case_lifecycle.build_ex_post_learning_record",
               "signature": "(*, record_id: str, case_id: str, claim_prediction_links: Iterable[Mapping[str, Any]], calibration: Mapping[str, Any], memory_contamination_check: Mapping[str, Any], learning_records: Iterable[Mapping[str, Any]], evidence_ref: str, runtime_event_ref: str)",
-              "line": 224
+              "line": 392
             },
             {
               "kind": "function",
               "name": "validate_ex_post_learning_record",
               "fqn": "polisyos.runtime.quality.case_lifecycle.validate_ex_post_learning_record",
               "signature": "(record: Mapping[str, Any], *, required_claim_ids: Iterable[str]=())",
-              "line": 252
+              "line": 420
             },
             {
               "kind": "function",
               "name": "build_lifecycle_reissue_report",
               "fqn": "polisyos.runtime.quality.case_lifecycle.build_lifecycle_reissue_report",
               "signature": "(*, report_id: str, case_id: str, claim_ids: Iterable[str], implementation_monitoring_evaluation: Mapping[str, Any] | None=None, rule_evolution_replay_context: Mapping[str, Any] | None=None, claim_requirement_bindings: Mapping[str, Iterable[str]] | None=None, legal_authority_report: Mapping[str, Any] | None=None, source_events: Iterable[Mapping[str, Any]]=(), participation_events: Iterable[Mapping[str, Any]]=(), policy_context_events: Iterable[Mapping[str, Any]]=(), evidence_ref: str | None=None, runtime_event_ref: str | None=None, generated_at: datetime | str | None=None)",
-              "line": 332
+              "line": 500
             },
             {
               "kind": "function",
               "name": "validate_lifecycle_reissue_report",
               "fqn": "polisyos.runtime.quality.case_lifecycle.validate_lifecycle_reissue_report",
               "signature": "(record: Mapping[str, Any])",
-              "line": 488
+              "line": 656
             },
             {
               "kind": "function",
               "name": "validate_policy_design_lifecycle_records",
               "fqn": "polisyos.runtime.quality.case_lifecycle.validate_policy_design_lifecycle_records",
               "signature": "(case: Mapping[str, Any], *, canary_kind: str='production')",
-              "line": 563
+              "line": 731
             }
           ]
         },
@@ -97095,6 +97704,57 @@
           ]
         },
         {
+          "module": "polisyos.runtime.quality.graded_outcomes",
+          "source_file": "src/polisyos/runtime/quality/graded_outcomes.py",
+          "__all__": [],
+          "objects": [
+            {
+              "kind": "class",
+              "name": "GradedOutcomeInputError",
+              "fqn": "polisyos.runtime.quality.graded_outcomes.GradedOutcomeInputError",
+              "bases": [
+                "ValueError"
+              ],
+              "pydantic": false,
+              "line": 32
+            },
+            {
+              "kind": "class",
+              "name": "GradedOutcomeEvidenceInput",
+              "fqn": "polisyos.runtime.quality.graded_outcomes.GradedOutcomeEvidenceInput",
+              "bases": [
+                "BaseModel"
+              ],
+              "pydantic": true,
+              "line": 36
+            },
+            {
+              "kind": "class",
+              "name": "GradedOutcomeDecision",
+              "fqn": "polisyos.runtime.quality.graded_outcomes.GradedOutcomeDecision",
+              "bases": [
+                "BaseModel"
+              ],
+              "pydantic": true,
+              "line": 101
+            },
+            {
+              "kind": "function",
+              "name": "compose_graded_outcome",
+              "fqn": "polisyos.runtime.quality.graded_outcomes.compose_graded_outcome",
+              "signature": "(input: GradedOutcomeEvidenceInput)",
+              "line": 124
+            },
+            {
+              "kind": "function",
+              "name": "graded_outcome_closeout_record",
+              "fqn": "polisyos.runtime.quality.graded_outcomes.graded_outcome_closeout_record",
+              "signature": "(decisions: Sequence[GradedOutcomeDecision], *, generated_at: datetime | None=None)",
+              "line": 176
+            }
+          ]
+        },
+        {
           "module": "polisyos.runtime.quality.human_review",
           "source_file": "src/polisyos/runtime/quality/human_review.py",
           "__all__": [
@@ -97503,6 +98163,1176 @@
               "fqn": "polisyos.runtime.quality.ir_analytics_bridge.ir_analytics_bridge_issues_for_claims",
               "signature": "(*, claims: Sequence[Mapping[str, Any]] | None, bridge: Mapping[str, Any] | None, registry_rows: Sequence[Mapping[str, Any]]=())",
               "line": 303
+            }
+          ]
+        },
+        {
+          "module": "polisyos.runtime.quality.layer2_blind_spot_firewalls",
+          "source_file": "src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py",
+          "__all__": [],
+          "objects": [
+            {
+              "kind": "class",
+              "name": "P18StreetlightMeasurabilityError",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.P18StreetlightMeasurabilityError",
+              "bases": [
+                "ValueError"
+              ],
+              "pydantic": false,
+              "line": 162
+            },
+            {
+              "kind": "class",
+              "name": "P19AggregationLaunderingError",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.P19AggregationLaunderingError",
+              "bases": [
+                "ValueError"
+              ],
+              "pydantic": false,
+              "line": 166
+            },
+            {
+              "kind": "class",
+              "name": "P21CapacityFeasibilityError",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.P21CapacityFeasibilityError",
+              "bases": [
+                "ValueError"
+              ],
+              "pydantic": false,
+              "line": 170
+            },
+            {
+              "kind": "class",
+              "name": "P22MandateLegitimacyError",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.P22MandateLegitimacyError",
+              "bases": [
+                "ValueError"
+              ],
+              "pydantic": false,
+              "line": 174
+            },
+            {
+              "kind": "class",
+              "name": "P24StrategicResponseError",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.P24StrategicResponseError",
+              "bases": [
+                "ValueError"
+              ],
+              "pydantic": false,
+              "line": 178
+            },
+            {
+              "kind": "class",
+              "name": "ConstructMeasurabilityRow",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.ConstructMeasurabilityRow",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 182
+            },
+            {
+              "kind": "class",
+              "name": "ProxyValidityRecord",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.ProxyValidityRecord",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 197
+            },
+            {
+              "kind": "class",
+              "name": "ValueLossDisclosure",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.ValueLossDisclosure",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 210
+            },
+            {
+              "kind": "class",
+              "name": "AggregationScopeRow",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.AggregationScopeRow",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 222
+            },
+            {
+              "kind": "class",
+              "name": "CapacityDimensionAssessment",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.CapacityDimensionAssessment",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 238
+            },
+            {
+              "kind": "class",
+              "name": "CapacityBuildingObligation",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.CapacityBuildingObligation",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 253
+            },
+            {
+              "kind": "class",
+              "name": "MandateSourceRecord",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.MandateSourceRecord",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 267
+            },
+            {
+              "kind": "class",
+              "name": "ParticipationProvenanceRow",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.ParticipationProvenanceRow",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 281
+            },
+            {
+              "kind": "class",
+              "name": "StrategicResponseChannelAssessment",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.StrategicResponseChannelAssessment",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 293
+            },
+            {
+              "kind": "class",
+              "name": "PostInterventionDGPUpdate",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.PostInterventionDGPUpdate",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 307
+            },
+            {
+              "kind": "class",
+              "name": "MeasurabilityAdequacyRecord",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.MeasurabilityAdequacyRecord",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 321
+            },
+            {
+              "kind": "class",
+              "name": "AggregationValidityRecord",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.AggregationValidityRecord",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 342
+            },
+            {
+              "kind": "class",
+              "name": "CapacityFeasibilityRecord",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.CapacityFeasibilityRecord",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 363
+            },
+            {
+              "kind": "class",
+              "name": "MandateLegitimacyRecord",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.MandateLegitimacyRecord",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 391
+            },
+            {
+              "kind": "class",
+              "name": "StrategicResponseRecord",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.StrategicResponseRecord",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 418
+            },
+            {
+              "kind": "class",
+              "name": "ClusterAuthorityDimensionRecord",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.ClusterAuthorityDimensionRecord",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 444
+            },
+            {
+              "kind": "class",
+              "name": "BlindSpotBridgeConsumerRecord",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.BlindSpotBridgeConsumerRecord",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 469
+            },
+            {
+              "kind": "class",
+              "name": "BlindSpotConstraintStoreUpdate",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.BlindSpotConstraintStoreUpdate",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 485
+            },
+            {
+              "kind": "class",
+              "name": "BlindSpotFirewallReport",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.BlindSpotFirewallReport",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 501
+            },
+            {
+              "kind": "function",
+              "name": "evaluate_measurability_adequacy",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.evaluate_measurability_adequacy",
+              "signature": "(*, case_id: str, design_ref: str, construct_rows: Sequence[Mapping[str, object]], semantic_binding_ledger: SemanticBindingLedger | Mapping[str, object] | None=None, rule_version_ref: str, authority_boundary: AuthorityBoundary | None=None)",
+              "line": 540
+            },
+            {
+              "kind": "function",
+              "name": "evaluate_aggregation_validity",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.evaluate_aggregation_validity",
+              "signature": "(*, case_id: str, design_ref: str, claim_scope: AggregationClaimLevel, evidence_scope: AggregationClaimLevel, aggregation_rows: Sequence[Mapping[str, object]], concept_spine_carrier: Mapping[str, object] | None=None, rule_version_ref: str, authority_boundary: AuthorityBoundary | None=None)",
+              "line": 635
+            },
+            {
+              "kind": "function",
+              "name": "evaluate_capacity_feasibility",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.evaluate_capacity_feasibility",
+              "signature": "(*, case_id: str, design_ref: str, actor_ref: str, jurisdiction_ref: str, instrument_ref: str, capacity_dimensions: Sequence[Mapping[str, object]], rule_version_ref: str, authority_boundary: AuthorityBoundary | None=None)",
+              "line": 705
+            },
+            {
+              "kind": "function",
+              "name": "evaluate_mandate_legitimacy",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.evaluate_mandate_legitimacy",
+              "signature": "(*, case_id: str, design_ref: str, objective_refs: Sequence[str], mandate_sources: Sequence[Mapping[str, object]], participation_evaluations: Sequence[Mapping[str, object]]=(), consultation_validations: Sequence[Mapping[str, object]]=(), rule_version_ref: str, authority_boundary: AuthorityBoundary | None=None)",
+              "line": 792
+            },
+            {
+              "kind": "function",
+              "name": "evaluate_strategic_response",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.evaluate_strategic_response",
+              "signature": "(*, case_id: str, design_ref: str, response_channels: Sequence[Mapping[str, object]], pre_policy_effect_refs: Sequence[str]=(), s5_composition_posture: Mapping[str, object] | None=None, strategic_response_entries: Sequence[Mapping[str, object]]=(), rule_version_ref: str, authority_boundary: AuthorityBoundary | None=None)",
+              "line": 872
+            },
+            {
+              "kind": "function",
+              "name": "build_s6_blind_spot_firewall_report",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.build_s6_blind_spot_firewall_report",
+              "signature": "(*, case_id: str, design_ref: str, measurability: MeasurabilityAdequacyRecord, aggregation: AggregationValidityRecord, capacity: CapacityFeasibilityRecord, mandate: MandateLegitimacyRecord, strategic_response: StrategicResponseRecord, rule_version_ref: str)",
+              "line": 987
+            },
+            {
+              "kind": "function",
+              "name": "s6_firewall_report_to_axis_positions",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.s6_firewall_report_to_axis_positions",
+              "signature": "(report: BlindSpotFirewallReport)",
+              "line": 1093
+            },
+            {
+              "kind": "function",
+              "name": "s6_firewall_report_to_constraint_store_updates",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.s6_firewall_report_to_constraint_store_updates",
+              "signature": "(report: BlindSpotFirewallReport)",
+              "line": 1123
+            },
+            {
+              "kind": "function",
+              "name": "s6_firewall_report_to_c3_dimension_records",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.s6_firewall_report_to_c3_dimension_records",
+              "signature": "(report: BlindSpotFirewallReport)",
+              "line": 1131
+            },
+            {
+              "kind": "function",
+              "name": "s6_fail_closed_coverage",
+              "fqn": "polisyos.runtime.quality.layer2_blind_spot_firewalls.s6_fail_closed_coverage",
+              "signature": "(probe_results: Sequence[Mapping[str, object]])",
+              "line": 1139
+            }
+          ]
+        },
+        {
+          "module": "polisyos.runtime.quality.layer2_coupling_composition",
+          "source_file": "src/polisyos/runtime/quality/layer2_coupling_composition.py",
+          "__all__": [
+            "BoundaryCouplingClassification",
+            "CompositionAuthorityMode",
+            "CompositionDisposition",
+            "CompositionLawCheck",
+            "CompositionReceipt",
+            "ComputationalTractabilityBudget",
+            "CouplingEdge",
+            "CouplingGraph",
+            "CouplingRegime",
+            "CouplingRegimeClassification",
+            "DecompositionResult",
+            "DesignInterfaceContract",
+            "DynamicsRequirementLevel",
+            "FeedbackIntensity",
+            "ForecastClaimScope",
+            "ForecastSupportBaseOrigin",
+            "ForecastSupportScope",
+            "InteractionStrength",
+            "LAYER2_S5_COUPLING_COMPOSITION_SCHEMA_VERSION",
+            "ModuleDiscoveryResult",
+            "P17BoundarySpoofError",
+            "P17FalseModularityError",
+            "P17SyntacticCompositionError",
+            "P17SystemDynamicsRequiredError",
+            "RecursiveDesignGraph",
+            "SystemDynamicsRequirement",
+            "SystemEffectSupportLabel",
+            "assert_composition_laws_hold",
+            "build_composition_receipt",
+            "build_computational_tractability_budget",
+            "build_coupling_graph",
+            "build_system_dynamics_requirement",
+            "build_system_effect_support",
+            "classify_coupling",
+            "composition_to_axis_positions",
+            "coupling_accuracy",
+            "critical_path_regime",
+            "decompose_design",
+            "derive_recursive_design_graph",
+            "discover_design_modules"
+          ],
+          "objects": [
+            {
+              "kind": "class",
+              "name": "P17FalseModularityError",
+              "fqn": "polisyos.runtime.quality.layer2_coupling_composition.P17FalseModularityError",
+              "bases": [
+                "ValueError"
+              ],
+              "pydantic": false,
+              "line": 94
+            },
+            {
+              "kind": "class",
+              "name": "P17SyntacticCompositionError",
+              "fqn": "polisyos.runtime.quality.layer2_coupling_composition.P17SyntacticCompositionError",
+              "bases": [
+                "ValueError"
+              ],
+              "pydantic": false,
+              "line": 98
+            },
+            {
+              "kind": "class",
+              "name": "P17SystemDynamicsRequiredError",
+              "fqn": "polisyos.runtime.quality.layer2_coupling_composition.P17SystemDynamicsRequiredError",
+              "bases": [
+                "ValueError"
+              ],
+              "pydantic": false,
+              "line": 102
+            },
+            {
+              "kind": "class",
+              "name": "P17BoundarySpoofError",
+              "fqn": "polisyos.runtime.quality.layer2_coupling_composition.P17BoundarySpoofError",
+              "bases": [
+                "ValueError"
+              ],
+              "pydantic": false,
+              "line": 106
+            },
+            {
+              "kind": "class",
+              "name": "CouplingEdge",
+              "fqn": "polisyos.runtime.quality.layer2_coupling_composition.CouplingEdge",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 110
+            },
+            {
+              "kind": "class",
+              "name": "BoundaryCouplingClassification",
+              "fqn": "polisyos.runtime.quality.layer2_coupling_composition.BoundaryCouplingClassification",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 124
+            },
+            {
+              "kind": "class",
+              "name": "ModuleDiscoveryResult",
+              "fqn": "polisyos.runtime.quality.layer2_coupling_composition.ModuleDiscoveryResult",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 140
+            },
+            {
+              "kind": "class",
+              "name": "CouplingGraph",
+              "fqn": "polisyos.runtime.quality.layer2_coupling_composition.CouplingGraph",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 155
+            },
+            {
+              "kind": "class",
+              "name": "CouplingRegimeClassification",
+              "fqn": "polisyos.runtime.quality.layer2_coupling_composition.CouplingRegimeClassification",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 171
+            },
+            {
+              "kind": "class",
+              "name": "RecursiveDesignGraph",
+              "fqn": "polisyos.runtime.quality.layer2_coupling_composition.RecursiveDesignGraph",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 194
+            },
+            {
+              "kind": "class",
+              "name": "DesignInterfaceContract",
+              "fqn": "polisyos.runtime.quality.layer2_coupling_composition.DesignInterfaceContract",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 211
+            },
+            {
+              "kind": "class",
+              "name": "SystemDynamicsRequirement",
+              "fqn": "polisyos.runtime.quality.layer2_coupling_composition.SystemDynamicsRequirement",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 228
+            },
+            {
+              "kind": "class",
+              "name": "DecompositionResult",
+              "fqn": "polisyos.runtime.quality.layer2_coupling_composition.DecompositionResult",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 243
+            },
+            {
+              "kind": "class",
+              "name": "ForecastSupportScope",
+              "fqn": "polisyos.runtime.quality.layer2_coupling_composition.ForecastSupportScope",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 263
+            },
+            {
+              "kind": "class",
+              "name": "ComputationalTractabilityBudget",
+              "fqn": "polisyos.runtime.quality.layer2_coupling_composition.ComputationalTractabilityBudget",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 276
+            },
+            {
+              "kind": "class",
+              "name": "CompositionReceipt",
+              "fqn": "polisyos.runtime.quality.layer2_coupling_composition.CompositionReceipt",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 290
+            },
+            {
+              "kind": "class",
+              "name": "CompositionLawCheck",
+              "fqn": "polisyos.runtime.quality.layer2_coupling_composition.CompositionLawCheck",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 313
+            },
+            {
+              "kind": "function",
+              "name": "discover_design_modules",
+              "fqn": "polisyos.runtime.quality.layer2_coupling_composition.discover_design_modules",
+              "signature": "(*, design_ref: str, candidate_module_refs: Sequence[str], case_signal_refs: Sequence[str], rule_version_ref: str, treat_candidate_as_proof: bool=False)",
+              "line": 329
+            },
+            {
+              "kind": "function",
+              "name": "derive_recursive_design_graph",
+              "fqn": "polisyos.runtime.quality.layer2_coupling_composition.derive_recursive_design_graph",
+              "signature": "(*, design_ref: str, module_refs: Sequence[str], parent_child_edges: Sequence[tuple[str, str]], rule_version_ref: str, typed_dependency_edges: Sequence[Mapping[str, str]] | None=None, critical_path_module_refs: Sequence[str] | None=None, interface_refs: Sequence[str] | None=None)",
+              "line": 370
+            },
+            {
+              "kind": "function",
+              "name": "build_coupling_graph",
+              "fqn": "polisyos.runtime.quality.layer2_coupling_composition.build_coupling_graph",
+              "signature": "(*, design_ref: str, module_refs: Sequence[str], module_discovery_ref: str | None, interaction_edges: Sequence[CouplingEdge], rule_version_ref: str, evidence_state: Literal['observed', 'absent', 'candidate']='observed', seed_method_refs: Sequence[str] | None=None)",
+              "line": 404
+            },
+            {
+              "kind": "function",
+              "name": "classify_coupling",
+              "fqn": "polisyos.runtime.quality.layer2_coupling_composition.classify_coupling",
+              "signature": "(graph: CouplingGraph | None, *, design_ref: str | None=None, module_refs: Sequence[str] | None=None, module_discovery_ref: str | None=None, rule_version_ref: str | None=None, declared_coupling_regime: CouplingRegime | None=None)",
+              "line": 435
+            },
+            {
+              "kind": "function",
+              "name": "decompose_design",
+              "fqn": "polisyos.runtime.quality.layer2_coupling_composition.decompose_design",
+              "signature": "(graph: CouplingGraph, classification: CouplingRegimeClassification, *, critical_path_module_refs: Sequence[str])",
+              "line": 473
+            },
+            {
+              "kind": "function",
+              "name": "build_system_dynamics_requirement",
+              "fqn": "polisyos.runtime.quality.layer2_coupling_composition.build_system_dynamics_requirement",
+              "signature": "(decomposition: DecompositionResult)",
+              "line": 515
+            },
+            {
+              "kind": "function",
+              "name": "build_system_effect_support",
+              "fqn": "polisyos.runtime.quality.layer2_coupling_composition.build_system_effect_support",
+              "signature": "(*, base_origin: ForecastSupportBaseOrigin, claim_scope: ForecastClaimScope, support_ref: str, rule_version_ref: str)",
+              "line": 554
+            },
+            {
+              "kind": "function",
+              "name": "build_computational_tractability_budget",
+              "fqn": "polisyos.runtime.quality.layer2_coupling_composition.build_computational_tractability_budget",
+              "signature": "(*, design_ref: str, search_space_size: str, approximation_mode: str, cutoff_reason: str, rule_version_ref: str)",
+              "line": 579
+            },
+            {
+              "kind": "function",
+              "name": "build_composition_receipt",
+              "fqn": "polisyos.runtime.quality.layer2_coupling_composition.build_composition_receipt",
+              "signature": "(decomposition: DecompositionResult, *, dynamics_requirement: SystemDynamicsRequirement | None=None, system_effect_support: ForecastSupportScope | None=None, tractability_budget: ComputationalTractabilityBudget | None=None, system_effect_claim_requested: bool=False, module_regimes: Mapping[str, EpistemicRegime] | None=None)",
+              "line": 606
+            },
+            {
+              "kind": "function",
+              "name": "assert_composition_laws_hold",
+              "fqn": "polisyos.runtime.quality.layer2_coupling_composition.assert_composition_laws_hold",
+              "signature": "(*, recursive_graph: RecursiveDesignGraph, coupling_graph: CouplingGraph, decomposition: DecompositionResult, receipt: CompositionReceipt)",
+              "line": 680
+            },
+            {
+              "kind": "function",
+              "name": "critical_path_regime",
+              "fqn": "polisyos.runtime.quality.layer2_coupling_composition.critical_path_regime",
+              "signature": "(*, module_regimes: Mapping[str, EpistemicRegime], critical_path_module_refs: Sequence[str])",
+              "line": 735
+            },
+            {
+              "kind": "function",
+              "name": "composition_to_axis_positions",
+              "fqn": "polisyos.runtime.quality.layer2_coupling_composition.composition_to_axis_positions",
+              "signature": "(*, graph: CouplingGraph, classification: CouplingRegimeClassification, decomposition: DecompositionResult, receipt: CompositionReceipt)",
+              "line": 748
+            },
+            {
+              "kind": "function",
+              "name": "coupling_accuracy",
+              "fqn": "polisyos.runtime.quality.layer2_coupling_composition.coupling_accuracy",
+              "signature": "(*, predicted: Sequence[str], gold: Sequence[str])",
+              "line": 809
+            }
+          ]
+        },
+        {
+          "module": "polisyos.runtime.quality.layer2_delegation",
+          "source_file": "src/polisyos/runtime/quality/layer2_delegation.py",
+          "__all__": [],
+          "objects": [
+            {
+              "kind": "class",
+              "name": "P26ResponsibilityIntegrityError",
+              "fqn": "polisyos.runtime.quality.layer2_delegation.P26ResponsibilityIntegrityError",
+              "bases": [
+                "ValueError"
+              ],
+              "pydantic": false,
+              "line": 116
+            },
+            {
+              "kind": "class",
+              "name": "DecisionRightsMatrixRow",
+              "fqn": "polisyos.runtime.quality.layer2_delegation.DecisionRightsMatrixRow",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 120
+            },
+            {
+              "kind": "class",
+              "name": "DecisionRightsMatrix",
+              "fqn": "polisyos.runtime.quality.layer2_delegation.DecisionRightsMatrix",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 148
+            },
+            {
+              "kind": "class",
+              "name": "DelegationContract",
+              "fqn": "polisyos.runtime.quality.layer2_delegation.DelegationContract",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 170
+            },
+            {
+              "kind": "class",
+              "name": "DecisionOption",
+              "fqn": "polisyos.runtime.quality.layer2_delegation.DecisionOption",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 204
+            },
+            {
+              "kind": "class",
+              "name": "FiveRightsRequirement",
+              "fqn": "polisyos.runtime.quality.layer2_delegation.FiveRightsRequirement",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 214
+            },
+            {
+              "kind": "class",
+              "name": "FiveRightsCheck",
+              "fqn": "polisyos.runtime.quality.layer2_delegation.FiveRightsCheck",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 225
+            },
+            {
+              "kind": "class",
+              "name": "ResponsibilityIntegrityCheck",
+              "fqn": "polisyos.runtime.quality.layer2_delegation.ResponsibilityIntegrityCheck",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 247
+            },
+            {
+              "kind": "class",
+              "name": "HumanDecisionRequest",
+              "fqn": "polisyos.runtime.quality.layer2_delegation.HumanDecisionRequest",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 258
+            },
+            {
+              "kind": "class",
+              "name": "HumanDecisionRecord",
+              "fqn": "polisyos.runtime.quality.layer2_delegation.HumanDecisionRecord",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 294
+            },
+            {
+              "kind": "class",
+              "name": "DelegationNegativeControlResult",
+              "fqn": "polisyos.runtime.quality.layer2_delegation.DelegationNegativeControlResult",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 320
+            },
+            {
+              "kind": "class",
+              "name": "DelegationIntegrityReport",
+              "fqn": "polisyos.runtime.quality.layer2_delegation.DelegationIntegrityReport",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 336
+            },
+            {
+              "kind": "function",
+              "name": "build_governance_decision_class_registry",
+              "fqn": "polisyos.runtime.quality.layer2_delegation.build_governance_decision_class_registry",
+              "signature": "(case_id: str, rule_version_ref: str)",
+              "line": 362
+            },
+            {
+              "kind": "function",
+              "name": "build_decision_rights_matrix",
+              "fqn": "polisyos.runtime.quality.layer2_delegation.build_decision_rights_matrix",
+              "signature": "(case_id: str, governance_decision_classes: Sequence[GovernanceDecisionClass], rule_version_ref: str)",
+              "line": 396
+            },
+            {
+              "kind": "function",
+              "name": "build_delegation_contract",
+              "fqn": "polisyos.runtime.quality.layer2_delegation.build_delegation_contract",
+              "signature": "(case_id: str, matrix: DecisionRightsMatrix, governance_decision_classes: Sequence[GovernanceDecisionClass], s6_mandate_record_ref: str, s6_mandate_firewall_disposition: str, rule_version_ref: str)",
+              "line": 428
+            },
+            {
+              "kind": "function",
+              "name": "build_human_decision_request",
+              "fqn": "polisyos.runtime.quality.layer2_delegation.build_human_decision_request",
+              "signature": "(case_id: str, contract: DelegationContract, decision_class_id: str, need_reasons: Sequence[str], voi_rank: int, s6_mandate_record_ref: str, s6_mandate_firewall_disposition: str, rule_version_ref: str)",
+              "line": 478
+            },
+            {
+              "kind": "function",
+              "name": "record_human_decision",
+              "fqn": "polisyos.runtime.quality.layer2_delegation.record_human_decision",
+              "signature": "(case_id: str, request: HumanDecisionRequest, actor_ref: str, actor_role: str, decision_action_exercised: str, evidence_summary_ref: str | None, disconfirming_evidence_refs: Sequence[str], active_choice: bool | None, accountability_statement: str | None, five_rights_check: FiveRightsCheck | Mapping[str, object], mandate_record_ref: str, rule_version_ref: str)",
+              "line": 558
+            },
+            {
+              "kind": "function",
+              "name": "evaluate_delegation_for_case",
+              "fqn": "polisyos.runtime.quality.layer2_delegation.evaluate_delegation_for_case",
+              "signature": "(case_id: str, s6_mandate_posture: Mapping[str, object], case_signals: Mapping[str, object], expert_label: Mapping[str, object], rule_version_ref: str)",
+              "line": 634
+            },
+            {
+              "kind": "function",
+              "name": "s7_delegation_integrity",
+              "fqn": "polisyos.runtime.quality.layer2_delegation.s7_delegation_integrity",
+              "signature": "(probe_results: Sequence[Mapping[str, object] | DelegationNegativeControlResult])",
+              "line": 718
+            }
+          ]
+        },
+        {
+          "module": "polisyos.runtime.quality.layer2_epistemic_regime",
+          "source_file": "src/polisyos/runtime/quality/layer2_epistemic_regime.py",
+          "__all__": [
+            "DesignStrategy",
+            "EpistemicRegimeClaim",
+            "LAYER2_S4_EPISTEMIC_REGIME_SCHEMA_VERSION",
+            "P16OverconfidenceError",
+            "P16PrecautionLaunderingError",
+            "P23StakesFloorError",
+            "RegimeEvidenceBasis",
+            "classify_regime",
+            "regime_accuracy",
+            "regime_claim_to_axis_position",
+            "regime_design_strategy"
+          ],
+          "objects": [
+            {
+              "kind": "class",
+              "name": "P16OverconfidenceError",
+              "fqn": "polisyos.runtime.quality.layer2_epistemic_regime.P16OverconfidenceError",
+              "bases": [
+                "ValueError"
+              ],
+              "pydantic": false,
+              "line": 44
+            },
+            {
+              "kind": "class",
+              "name": "P16PrecautionLaunderingError",
+              "fqn": "polisyos.runtime.quality.layer2_epistemic_regime.P16PrecautionLaunderingError",
+              "bases": [
+                "ValueError"
+              ],
+              "pydantic": false,
+              "line": 48
+            },
+            {
+              "kind": "class",
+              "name": "RegimeEvidenceBasis",
+              "fqn": "polisyos.runtime.quality.layer2_epistemic_regime.RegimeEvidenceBasis",
+              "bases": [
+                "_S4Model"
+              ],
+              "pydantic": false,
+              "line": 62
+            },
+            {
+              "kind": "class",
+              "name": "EpistemicRegimeClaim",
+              "fqn": "polisyos.runtime.quality.layer2_epistemic_regime.EpistemicRegimeClaim",
+              "bases": [
+                "_S4Model"
+              ],
+              "pydantic": false,
+              "line": 90
+            },
+            {
+              "kind": "function",
+              "name": "regime_design_strategy",
+              "fqn": "polisyos.runtime.quality.layer2_epistemic_regime.regime_design_strategy",
+              "signature": "(regime: EpistemicRegime, commitment: CommitmentProfileRecord)",
+              "line": 105
+            },
+            {
+              "kind": "function",
+              "name": "classify_regime",
+              "fqn": "polisyos.runtime.quality.layer2_epistemic_regime.classify_regime",
+              "signature": "(evidence: RegimeEvidenceBasis, commitment: CommitmentProfileRecord, *, declared_regime: EpistemicRegime | None=None)",
+              "line": 124
+            },
+            {
+              "kind": "function",
+              "name": "regime_claim_to_axis_position",
+              "fqn": "polisyos.runtime.quality.layer2_epistemic_regime.regime_claim_to_axis_position",
+              "signature": "(claim: EpistemicRegimeClaim)",
+              "line": 199
+            },
+            {
+              "kind": "function",
+              "name": "regime_accuracy",
+              "fqn": "polisyos.runtime.quality.layer2_epistemic_regime.regime_accuracy",
+              "signature": "(*, predicted: list[str], gold: list[str])",
+              "line": 222
+            }
+          ]
+        },
+        {
+          "module": "polisyos.runtime.quality.layer2_substrate_acquisition",
+          "source_file": "src/polisyos/runtime/quality/layer2_substrate_acquisition.py",
+          "__all__": [
+            "AcquisitionState",
+            "AcquisitionTaskRecord",
+            "ConstructDemandLedger",
+            "ConstructExpression",
+            "FrozenClosedCase",
+            "LAYER2_S3_SUBSTRATE_ACQUISITION_SCHEMA_VERSION",
+            "RerunClosureReceipt",
+            "SourceContract",
+            "SourceDiscoveryCandidate",
+            "SubstrateAcquisitionLoop",
+            "SubstrateCoverageSnapshot",
+            "is_production_claim_admissible",
+            "max_admissible_posture",
+            "resolve_expression"
+          ],
+          "objects": [
+            {
+              "kind": "class",
+              "name": "AcquisitionState",
+              "fqn": "polisyos.runtime.quality.layer2_substrate_acquisition.AcquisitionState",
+              "bases": [
+                "StrEnum"
+              ],
+              "pydantic": false,
+              "line": 79
+            },
+            {
+              "kind": "class",
+              "name": "ConstructExpression",
+              "fqn": "polisyos.runtime.quality.layer2_substrate_acquisition.ConstructExpression",
+              "bases": [
+                "_S3Model"
+              ],
+              "pydantic": false,
+              "line": 111
+            },
+            {
+              "kind": "class",
+              "name": "ConstructDemandLedger",
+              "fqn": "polisyos.runtime.quality.layer2_substrate_acquisition.ConstructDemandLedger",
+              "bases": [
+                "_S3Model"
+              ],
+              "pydantic": false,
+              "line": 146
+            },
+            {
+              "kind": "class",
+              "name": "SubstrateCoverageSnapshot",
+              "fqn": "polisyos.runtime.quality.layer2_substrate_acquisition.SubstrateCoverageSnapshot",
+              "bases": [
+                "_S3Model"
+              ],
+              "pydantic": false,
+              "line": 173
+            },
+            {
+              "kind": "class",
+              "name": "AcquisitionTaskRecord",
+              "fqn": "polisyos.runtime.quality.layer2_substrate_acquisition.AcquisitionTaskRecord",
+              "bases": [
+                "_S3Model"
+              ],
+              "pydantic": false,
+              "line": 204
+            },
+            {
+              "kind": "class",
+              "name": "SourceDiscoveryCandidate",
+              "fqn": "polisyos.runtime.quality.layer2_substrate_acquisition.SourceDiscoveryCandidate",
+              "bases": [
+                "_S3Model"
+              ],
+              "pydantic": false,
+              "line": 216
+            },
+            {
+              "kind": "class",
+              "name": "SourceContract",
+              "fqn": "polisyos.runtime.quality.layer2_substrate_acquisition.SourceContract",
+              "bases": [
+                "_S3Model"
+              ],
+              "pydantic": false,
+              "line": 225
+            },
+            {
+              "kind": "class",
+              "name": "FrozenClosedCase",
+              "fqn": "polisyos.runtime.quality.layer2_substrate_acquisition.FrozenClosedCase",
+              "bases": [
+                "_S3Model"
+              ],
+              "pydantic": false,
+              "line": 244
+            },
+            {
+              "kind": "class",
+              "name": "RerunClosureReceipt",
+              "fqn": "polisyos.runtime.quality.layer2_substrate_acquisition.RerunClosureReceipt",
+              "bases": [
+                "_S3Model"
+              ],
+              "pydantic": false,
+              "line": 253
+            },
+            {
+              "kind": "class",
+              "name": "SubstrateAcquisitionLoop",
+              "fqn": "polisyos.runtime.quality.layer2_substrate_acquisition.SubstrateAcquisitionLoop",
+              "bases": [],
+              "pydantic": false,
+              "line": 266
+            },
+            {
+              "kind": "function",
+              "name": "max_admissible_posture",
+              "fqn": "polisyos.runtime.quality.layer2_substrate_acquisition.max_admissible_posture",
+              "signature": "(status: str, posture: str)",
+              "line": 677
+            },
+            {
+              "kind": "function",
+              "name": "is_production_claim_admissible",
+              "fqn": "polisyos.runtime.quality.layer2_substrate_acquisition.is_production_claim_admissible",
+              "signature": "(status: str, posture: str)",
+              "line": 685
+            },
+            {
+              "kind": "function",
+              "name": "resolve_expression",
+              "fqn": "polisyos.runtime.quality.layer2_substrate_acquisition.resolve_expression",
+              "signature": "(expr: ConstructExpression, *, source: str | None=None, resolver: RequirementToCapabilityResolver | None=None)",
+              "line": 691
+            }
+          ]
+        },
+        {
+          "module": "polisyos.runtime.quality.layer2_value_choice",
+          "source_file": "src/polisyos/runtime/quality/layer2_value_choice.py",
+          "__all__": [],
+          "objects": [
+            {
+              "kind": "class",
+              "name": "P20NormativeChoiceError",
+              "fqn": "polisyos.runtime.quality.layer2_value_choice.P20NormativeChoiceError",
+              "bases": [
+                "ValueError"
+              ],
+              "pydantic": false,
+              "line": 102
+            },
+            {
+              "kind": "class",
+              "name": "AuthorizedValueSchedule",
+              "fqn": "polisyos.runtime.quality.layer2_value_choice.AuthorizedValueSchedule",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 106
+            },
+            {
+              "kind": "class",
+              "name": "ObjectiveFunctionProvenanceRecord",
+              "fqn": "polisyos.runtime.quality.layer2_value_choice.ObjectiveFunctionProvenanceRecord",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 150
+            },
+            {
+              "kind": "class",
+              "name": "ParetoArchive",
+              "fqn": "polisyos.runtime.quality.layer2_value_choice.ParetoArchive",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 173
+            },
+            {
+              "kind": "class",
+              "name": "ValueChoiceProvenanceRecord",
+              "fqn": "polisyos.runtime.quality.layer2_value_choice.ValueChoiceProvenanceRecord",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 199
+            },
+            {
+              "kind": "class",
+              "name": "ValueTradeoffDisclosureRecord",
+              "fqn": "polisyos.runtime.quality.layer2_value_choice.ValueTradeoffDisclosureRecord",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 230
+            },
+            {
+              "kind": "class",
+              "name": "ValueChoiceIntegrityReport",
+              "fqn": "polisyos.runtime.quality.layer2_value_choice.ValueChoiceIntegrityReport",
+              "bases": [
+                "Layer2ReadinessModel"
+              ],
+              "pydantic": false,
+              "line": 260
+            },
+            {
+              "kind": "function",
+              "name": "coerce_social_weight_provenance_for_s8",
+              "fqn": "polisyos.runtime.quality.layer2_value_choice.coerce_social_weight_provenance_for_s8",
+              "signature": "(provenance: Mapping[str, object] | object, *, authority_required: bool, rule_version_ref: str)",
+              "line": 279
+            },
+            {
+              "kind": "function",
+              "name": "build_authorized_value_schedule",
+              "fqn": "polisyos.runtime.quality.layer2_value_choice.build_authorized_value_schedule",
+              "signature": "(*, schedule_id: str, schedule_ref: str, case_id: str, mandate_record_ref: str | None, s6_mandate_firewall_disposition: str | None, principal_refs: Sequence[str], source_class: str, review_status: str, effective_at: AwareDatetime | str, social_weight_provenance_refs: Sequence[str]=(), authority_boundary: AuthorityBoundary | Mapping[str, object], may_not_use_for: Sequence[str]=(), rule_version_ref: str, mandate_source_dispositions: Sequence[str]=(), delegation_reference_class: str | None=None, s7_decision_rights_matrix_ref: str | None=None, s7_value_authorization_request_ref: str | None=None, s7_value_authorization_record_ref: str | None=None, s7_value_authorization_decision_class_id: str | None=None, s7_five_rights_passed: bool | None=None, **_: object)",
+              "line": 310
+            },
+            {
+              "kind": "function",
+              "name": "build_shadow_scenario_value_schedule",
+              "fqn": "polisyos.runtime.quality.layer2_value_choice.build_shadow_scenario_value_schedule",
+              "signature": "(*, schedule_ref: str, case_id: str, principal_refs: Sequence[str], social_weight_provenance_refs: Sequence[str], scenario_label: str, rule_version_ref: str)",
+              "line": 373
+            },
+            {
+              "kind": "function",
+              "name": "build_objective_function_provenance",
+              "fqn": "polisyos.runtime.quality.layer2_value_choice.build_objective_function_provenance",
+              "signature": "(**payload: object)",
+              "line": 409
+            },
+            {
+              "kind": "function",
+              "name": "build_pareto_archive",
+              "fqn": "polisyos.runtime.quality.layer2_value_choice.build_pareto_archive",
+              "signature": "(*, archive_id: str, archive_ref: str, case_id: str, ranking_mode: str, archive_status: str, value_schedule_ref: str | None=None, frontier_refs: Sequence[str]=(), nondominated_alternative_ids: Sequence[str]=(), rejected_nondominated_alternative_ids: Sequence[str]=(), objective_refs: Sequence[str]=(), scenario_value_schedule_refs: Sequence[str]=(), claim_refs: Sequence[str]=(), audit_refs: Sequence[str]=(), authority_boundary: AuthorityBoundary | Mapping[str, object], may_not_use_for: Sequence[str]=(), rule_version_ref: str, foundry_emission: Mapping[str, object] | object | None=None, frontier_record: Mapping[str, object] | object | None=None, **_: object)",
+              "line": 419
+            },
+            {
+              "kind": "function",
+              "name": "build_value_choice_provenance_record",
+              "fqn": "polisyos.runtime.quality.layer2_value_choice.build_value_choice_provenance_record",
+              "signature": "(**payload: object)",
+              "line": 482
+            },
+            {
+              "kind": "function",
+              "name": "project_value_tradeoff_disclosure",
+              "fqn": "polisyos.runtime.quality.layer2_value_choice.project_value_tradeoff_disclosure",
+              "signature": "(*, value_choice_record: ValueChoiceProvenanceRecord | Mapping[str, object], audience: str, rule_version_ref: str)",
+              "line": 502
+            },
+            {
+              "kind": "function",
+              "name": "s8_value_provenance_integrity",
+              "fqn": "polisyos.runtime.quality.layer2_value_choice.s8_value_provenance_integrity",
+              "signature": "(rows: Sequence[Mapping[str, object]], *, rule_version_ref: str=LAYER2_S8_VALUE_CHOICE_RULE_VERSION)",
+              "line": 566
+            },
+            {
+              "kind": "function",
+              "name": "persist_value_choice_provenance_bundle",
+              "fqn": "polisyos.runtime.quality.layer2_value_choice.persist_value_choice_provenance_bundle",
+              "signature": "(bundle: Mapping[str, object], *, store: artifacts.FileSystemCAS | None=None, rule_version_ref: str=LAYER2_S8_VALUE_CHOICE_RULE_VERSION)",
+              "line": 612
             }
           ]
         },

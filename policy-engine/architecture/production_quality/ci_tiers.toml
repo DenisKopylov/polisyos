@@ -693,3 +693,45 @@ path = "tests/unit/runtime/quality/test_wave7_requirement_pipeline_integration.p
 tier = "fast-pr"
 owner = "team-runtime-quality"
 purpose = "Wave 7 requirement-pipeline integration coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_layer2_graded_outcomes.py"
+tier = "fast-pr"
+owner = "team-quality-closeout"
+purpose = "Policy Design Case Layer 2 graded outcome coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_layer2_s3_substrate_acquisition.py"
+tier = "fast-pr"
+owner = "team-quality-closeout"
+purpose = "Policy Design Case Layer 2 S3 substrate acquisition coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_layer2_s4_epistemic_regime.py"
+tier = "fast-pr"
+owner = "team-quality-closeout"
+purpose = "Policy Design Case Layer 2 S4 epistemic regime coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_layer2_s5_coupling_composition.py"
+tier = "fast-pr"
+owner = "team-quality-closeout"
+purpose = "Policy Design Case Layer 2 S5 coupling composition coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_layer2_s6_blind_spot_firewalls.py"
+tier = "fast-pr"
+owner = "team-quality-closeout"
+purpose = "Policy Design Case Layer 2 S6 blind-spot firewall coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_layer2_s7_delegation.py"
+tier = "fast-pr"
+owner = "team-quality-closeout"
+purpose = "Policy Design Case Layer 2 S7 delegation coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_layer2_s8_value_choice.py"
+tier = "fast-pr"
+owner = "team-quality-closeout"
+purpose = "Policy Design Case Layer 2 S8 value-choice provenance coverage."

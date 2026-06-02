@@ -431,10 +431,10 @@
       {
         "exists": true,
         "extension_counts": {
-          ".json": 81,
-          ".md": 6
+          ".json": 142,
+          ".md": 7
         },
-        "file_count": 87,
+        "file_count": 149,
         "path": "tests/fixtures",
         "python_file_count": 0,
         "test_file_count": 0
@@ -844,7 +844,7 @@
       {
         "integration_path": null,
         "integration_test_file_count": 0,
-        "loose_name_mirror_ratio": 0.7152,
+        "loose_name_mirror_ratio": 0.6766,
         "loose_name_mirrored_source_count": 113,
         "missing_strict_mirror_sample": [
           "src/polisyos/runtime/api.py",
@@ -875,14 +875,14 @@
         "property_path": "tests/property/runtime",
         "property_test_file_count": 1,
         "source_exists": true,
-        "source_module_count": 158,
+        "source_module_count": 167,
         "source_path": "src/polisyos/runtime",
         "strict_mirrored_source_count": 65,
-        "strict_module_mirror_ratio": 0.4114,
+        "strict_module_mirror_ratio": 0.3892,
         "unit_exists": true,
         "unit_path": "tests/unit/runtime",
-        "unit_test_file_count": 178,
-        "unit_test_to_source_ratio": 1.1266
+        "unit_test_file_count": 187,
+        "unit_test_to_source_ratio": 1.1198
       },
       {
         "integration_path": null,
@@ -1345,7 +1345,9 @@
         "loose_name_mirror_ratio": 0.0,
         "loose_name_mirrored_source_count": 0,
         "missing_strict_mirror_sample": [
-          "src/polisyos/pdc/_impl/compiler.py"
+          "src/polisyos/pdc/_impl/compiler.py",
+          "src/polisyos/pdc/_impl/layer2_design_search.py",
+          "src/polisyos/pdc/_impl/layer2_readiness.py"
         ],
         "package": "pdc",
         "package_local_data_dir_count": 0,
@@ -1354,13 +1356,13 @@
         "property_path": "tests/property/pdc",
         "property_test_file_count": 0,
         "source_exists": true,
-        "source_module_count": 1,
+        "source_module_count": 3,
         "source_path": "src/polisyos/pdc",
         "strict_mirrored_source_count": 0,
         "strict_module_mirror_ratio": 0.0,
         "unit_exists": true,
         "unit_path": "tests/unit/pdc",
-        "unit_test_file_count": 1,
+        "unit_test_file_count": 3,
         "unit_test_to_source_ratio": 1.0
       },
       {
@@ -1514,7 +1516,7 @@
         "package": "runtime",
         "property_path": "tests/property/runtime",
         "property_test_file_count": 1,
-        "property_to_source_ratio": 0.0063
+        "property_to_source_ratio": 0.006
       },
       {
         "data_contract_heavy": true,
@@ -1736,6 +1738,11 @@
       "tests/repo_quality/tools/test_i7bis_universal_compilation_integration_realism_check.py",
       "tests/repo_quality/tools/test_lint_imports_phase3.py",
       "tests/repo_quality/tools/test_policy_design_case_capability_ratchet.py",
+      "tests/repo_quality/tools/test_policy_design_case_layer2_s4_epistemic_regime.py",
+      "tests/repo_quality/tools/test_policy_design_case_layer2_s5_coupling_composition.py",
+      "tests/repo_quality/tools/test_policy_design_case_layer2_s6_blind_spot_firewalls.py",
+      "tests/repo_quality/tools/test_policy_design_case_layer2_s7_delegation.py",
+      "tests/repo_quality/tools/test_policy_design_case_layer2_s8_value_choice.py",
       "tests/repo_quality/tools/test_policy_design_case_local_validation_ladder.py",
       "tests/repo_quality/tools/test_universal_compilation_smoke.py",
       "tests/repo_quality/tools/test_w12d_universal_outcome_corpus_run.py",
@@ -1804,7 +1811,7 @@
     ],
     "missing_data_contract_heavy_packages": [],
     "property_root": "tests/property",
-    "total_hypothesis_usage_files": 93,
+    "total_hypothesis_usage_files": 98,
     "total_property_test_files": 39
   },
   "pytest": {
@@ -2117,11 +2124,11 @@
       "unit_test_file_floor": 495
     },
     {
-      "mirror_floor": 0.4114,
+      "mirror_floor": 0.3892,
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "runtime",
       "property_file_floor": 1,
-      "unit_test_file_floor": 178
+      "unit_test_file_floor": 187
     },
     {
       "mirror_floor": 0.2059,
@@ -2233,7 +2240,7 @@
       "note": "Use current strict mirror ratio as the report-only no-regression floor; raise only after Phase 1.4 maps behavioral tests to source modules.",
       "package": "pdc",
       "property_file_floor": 0,
-      "unit_test_file_floor": 1
+      "unit_test_file_floor": 3
     },
     {
       "mirror_floor": 0.0,
@@ -2286,12 +2293,12 @@
     "pytest_collectable_data_like_tests": 3,
     "pytest_conftest_count": 30,
     "pytest_duplicate_fixture_name_count": 3,
-    "source_module_count": 2156,
+    "source_module_count": 2167,
     "strict_mirror_ratio_max": 1.0,
     "strict_mirror_ratio_min": 0.0,
-    "strict_mirror_ratio_weighted": 0.2801,
+    "strict_mirror_ratio_weighted": 0.2787,
     "tracked_package_count": 12,
-    "unit_test_file_count": 1825
+    "unit_test_file_count": 1836
   },
   "test_role_inventory": {
     "classification": {
@@ -2316,9 +2323,9 @@
         "conftest_count": 24,
         "exists": true,
         "path": "tests/unit",
-        "python_file_count": 1921,
+        "python_file_count": 1932,
         "role": "product_behavior",
-        "test_file_count": 1831
+        "test_file_count": 1842
       },
       {
         "conftest_count": 0,
@@ -2380,9 +2387,9 @@
         "conftest_count": 0,
         "exists": true,
         "path": "tests/repo_quality/tools",
-        "python_file_count": 153,
+        "python_file_count": 165,
         "role": "repository_quality",
-        "test_file_count": 153
+        "test_file_count": 165
       }
     ]
   }

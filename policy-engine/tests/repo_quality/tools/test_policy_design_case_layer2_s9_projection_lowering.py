@@ -97,7 +97,18 @@ def test_layer2_s9_manifest_is_valid_and_open_count_stays_3() -> None:
         "DESIGNER_ITSELF.closeout_projection_ratchet"
     ]
     assert manifest["expected_current_open_cell_count"] == 3
-    assert validation["summary"]["current_open_cell_count"] == 3
+    summary = validation["summary"]
+    assert summary["current_open_cell_count"] == 3
+    assert summary["s9_case_count"] == 13
+    assert summary["s9_projection_render_count"] >= 52
+    assert summary["s9_projection_faithfulness_denominator"] >= 52
+    assert summary["s9_projection_faithfulness_numerator"] == (
+        summary["s9_projection_faithfulness_denominator"]
+    )
+    assert summary["s9_projection_faithfulness_pass_rate"] == 1.0
+    assert summary["s9_lowering_gate_count"] >= 13
+    assert summary["s9_lowering_append_receipt_count"] >= 1
+    assert summary["s9_expected_current_open_cell_count"] == 3
 
 
 def test_layer2_s9_required_artifacts_are_traceable_and_exported() -> None:

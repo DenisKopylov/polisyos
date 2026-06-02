@@ -273,6 +273,42 @@
       "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py"
     },
     {
+      "id": "layer2_s9_projection_lowering_manifest",
+      "path": "architecture/policy_design_case/layer2_s9_projection_lowering_manifest.json",
+      "kind": "layer2_s9_projection_lowering_manifest",
+      "schema_version": "policyos.policy_design_case.layer2_s9_projection_lowering_manifest.v1",
+      "owner": "team-runtime-quality",
+      "status": "active",
+      "capability_reality_label": "implemented",
+      "authority_scope": [
+        "canonical_design_record_maturity",
+        "projection_faithfulness",
+        "lowering_faithfulness",
+        "verified_lowering_append_receipt",
+        "reissue_reopen_routing"
+      ],
+      "may_not_use_for": [
+        "production_authority",
+        "production_recommendation",
+        "production_claim_authority",
+        "rollout_authority",
+        "publication_authority",
+        "claim_authority",
+        "closeout_authority",
+        "runtime_closeout_authority",
+        "approval_authority",
+        "scorecard_authority",
+        "preference_learning_authority",
+        "s10_forecast_support",
+        "s11_calibration",
+        "s12_envelope_growth",
+        "s13_accountability_closure",
+        "s14_universality"
+      ],
+      "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py",
+      "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py"
+    },
+    {
       "id": "layer2_minimal_seed_manifest",
       "path": "architecture/policy_design_case/layer2_minimal_seed_manifest.json",
       "kind": "layer2_seed_manifest",

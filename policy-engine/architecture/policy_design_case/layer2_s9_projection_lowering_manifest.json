@@ -1,0 +1,79 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s9_projection_lowering_manifest.v1",
+  "status": "active",
+  "owner": "team-runtime-quality",
+  "slice": "S9",
+  "depends_on": [
+    "S2",
+    "S5",
+    "S8"
+  ],
+  "cells_closed": [],
+  "layer_cells_advanced": [
+    "DESIGNER_ITSELF.closeout_projection_ratchet"
+  ],
+  "producer_module": "src/polisyos/runtime/quality/layer2_projection_lowering.py",
+  "expected_current_open_cell_count": 3,
+  "floor_id": "s9_projection_faithfulness",
+  "floor_metric": "projection_faithfulness_pass_rate",
+  "required_artifacts": [
+    "CanonicalDesignRecord",
+    "ProjectionAlgebraRequest",
+    "ProjectionRenderRecord",
+    "ProjectionFaithfulnessRecord",
+    "LoweringRequestRecord",
+    "LoweringAuthorityGateRecord",
+    "LoweringArtifactRecord",
+    "LoweringAppendReceipt",
+    "DesignRecordMaturityReport",
+    "ProjectionLoweringIntegrityReport"
+  ],
+  "case_count": 13,
+  "projection_render_count": 52,
+  "projection_faithfulness_denominator": 52,
+  "projection_faithfulness_numerator": 52,
+  "projection_faithfulness_pass_rate": 1.0,
+  "lowering_gate_count": 13,
+  "lowering_append_receipt_count": 1,
+  "lowering_append_receipt_refs": [
+    "pdc://layer2/s9/ua-msme-affordable-loans-2022/lowering-append/machine-contract"
+  ],
+  "public_limitation_omission_false_clear_count": 0,
+  "added_prose_claim_false_clear_count": 0,
+  "tradeoff_inversion_false_clear_count": 0,
+  "shadow_candidate_approval_false_clear_count": 0,
+  "legal_lowering_without_grounding_false_clear_count": 0,
+  "projection_authority_laundering_false_clear_count": 0,
+  "redaction_hides_blocker_false_clear_count": 0,
+  "post_closeout_lowering_without_reissue_false_clear_count": 0,
+  "machine_ref_omission_false_clear_count": 0,
+  "revision_mismatch_false_clear_count": 0,
+  "universal_self_claim_without_s14_false_clear_count": 0,
+  "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py",
+  "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py",
+  "authority_scope": [
+    "canonical_design_record_maturity",
+    "projection_faithfulness",
+    "lowering_faithfulness",
+    "verified_lowering_append_receipt",
+    "reissue_reopen_routing"
+  ],
+  "may_not_use_for": [
+    "production_authority",
+    "production_recommendation",
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority",
+    "claim_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "preference_learning_authority",
+    "s10_forecast_support",
+    "s11_calibration",
+    "s12_envelope_growth",
+    "s13_accountability_closure",
+    "s14_universality"
+  ]
+}

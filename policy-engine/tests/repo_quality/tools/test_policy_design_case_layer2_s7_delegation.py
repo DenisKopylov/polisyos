@@ -20,9 +20,7 @@ from tools.quality.validation import check_policy_design_case_layer2_readiness a
 from tools.quality.validation import run_universal_outcome_corpus as w12d
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-S7_MANIFEST = (
-    REPO_ROOT / "architecture/policy_design_case/layer2_s7_delegation_manifest.json"
-)
+S7_MANIFEST = REPO_ROOT / "architecture/policy_design_case/layer2_s7_delegation_manifest.json"
 S7_MANIFEST_PATH = "architecture/policy_design_case/layer2_s7_delegation_manifest.json"
 S7_CASE_SIGNALS = REPO_ROOT / "tests/fixtures/layer2/s7/s7_delegation_case_signals.json"
 S7_EXPERT_LABELS = REPO_ROOT / "tests/fixtures/layer2/s7/s7_delegation_expert_labels.json"
@@ -56,7 +54,6 @@ S7_REQUIRED_DENY = {
     "s13_accountability_closure",
 }
 EXPECTED_LIVE_OPEN_CELLS = {
-    "ACTOR.value_choice_provenance",
     "DESIGNER_ITSELF.envelope_growth",
     "KNOWLEDGE.calibration",
     "KNOWLEDGE.ir_proof_carrying_analytics",
@@ -99,9 +96,7 @@ def _inventory_artifact() -> dict[str, Any]:
 
 def _pinned_case(report: dict[str, Any]) -> dict[str, Any]:
     return next(
-        dict(case)
-        for case in report["cases"]
-        if case["case_id"] == "ua-msme-affordable-loans-2022"
+        dict(case) for case in report["cases"] if case["case_id"] == "ua-msme-affordable-loans-2022"
     )
 
 
@@ -139,14 +134,14 @@ def _s2_input() -> Layer2S2DesignSearchInput:
     )
 
 
-def test_layer2_s7_manifest_is_valid_and_open_count_is_4() -> None:
+def test_layer2_s7_manifest_is_valid_and_live_open_count_is_3() -> None:
     validation = readiness.validate_layer2_readiness(REPO_ROOT)
     manifest = _s7()
 
     assert validation["status"] == "pass", validation["issues"]
     summary = validation["summary"]
-    assert summary["current_open_cell_count"] == 4
-    assert summary["inventory_artifact_count"] == 15
+    assert summary["current_open_cell_count"] == 3
+    assert summary["inventory_artifact_count"] == 17
     assert summary["s7_case_count"] == 13
     assert summary["s7_delegation_precision"] == 1.0
     assert summary["s7_delegation_recall"] == 1.0
@@ -320,9 +315,7 @@ def test_layer2_s7_workflow_only_summary_cannot_close_p12(
     w12d_s7_summary: dict[str, Any],
 ) -> None:
     probe = json.loads(S7_WORKFLOW_ONLY_PROBE.read_text(encoding="utf-8"))
-    result = w12d_s7_summary["negative_control_results"][
-        "workflow_only_delegation_summary_probe"
-    ]
+    result = w12d_s7_summary["negative_control_results"]["workflow_only_delegation_summary_probe"]
 
     assert probe["expected_failure_pattern"] == "P12"
     assert probe["typed_producer_artifact_refs"] == []
@@ -388,14 +381,14 @@ def test_layer2_s7_corpus_summary_records_precision_recall_and_integrity(
     }
 
 
-def test_layer2_s7_does_not_mark_s8_s10_s11_s12_s13_or_s14_cells_implemented() -> None:
+def test_layer2_s7_does_not_mark_s10_s11_s12_s13_or_s14_cells_implemented() -> None:
     payloads = _payloads()
     cluster_payload = payloads["cluster_map"]
     current_open_cells = readiness._open_cell_refs(cluster_payload)  # type: ignore[attr-defined]
     future_cells = {
         str(row["cell_ref"])
         for row in payloads["slice_cell_matrix"]["assignment"]
-        if row.get("slice") in {"S8", "S10", "S11", "S12", "S13", "S14"}
+        if row.get("slice") in {"S10", "S11", "S12", "S13", "S14"}
     }
 
     assert current_open_cells == EXPECTED_LIVE_OPEN_CELLS

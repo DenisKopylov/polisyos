@@ -20,10 +20,18 @@ CELLS_CLOSED_THROUGH_S6 = [
     "SYSTEM.measurability",
     "SYSTEM.subject_granularity",
 ]
-CELLS_CLOSED_THROUGH_S7 = sorted([
-    *CELLS_CLOSED_THROUGH_S6,
-    "CROSS_CUTTING.scientist_orchestration",
-])
+CELLS_CLOSED_THROUGH_S7 = sorted(
+    [
+        *CELLS_CLOSED_THROUGH_S6,
+        "CROSS_CUTTING.scientist_orchestration",
+    ]
+)
+CELLS_CLOSED_THROUGH_S8 = sorted(
+    [
+        *CELLS_CLOSED_THROUGH_S7,
+        "ACTOR.value_choice_provenance",
+    ]
+)
 
 
 def _issue_codes(validation: dict[str, object]) -> set[str]:
@@ -36,9 +44,9 @@ def test_layer2_s0_readiness_manifest_is_valid() -> None:
     assert validation["status"] == "pass", validation["issues"]
     assert validation["summary"]["open_cell_count_baseline"] == 17  # type: ignore[index]
     assert validation["summary"]["assigned_open_cell_count"] == 17  # type: ignore[index]
-    assert validation["summary"]["current_open_cell_count"] == 4  # type: ignore[index]
+    assert validation["summary"]["current_open_cell_count"] == 3  # type: ignore[index]
     assert validation["summary"]["s0_cells_closed"] == []  # type: ignore[index]
-    assert validation["summary"]["cells_closed_since_s0"] == CELLS_CLOSED_THROUGH_S7  # type: ignore[index]
+    assert validation["summary"]["cells_closed_since_s0"] == CELLS_CLOSED_THROUGH_S8  # type: ignore[index]
     assert validation["summary"]["s6_maturity"] == "fail_closed"  # type: ignore[index]
     assert validation["summary"]["s6_case_count"] == 13  # type: ignore[index]
     assert validation["summary"]["s6_axis_coverage_count"] == 5  # type: ignore[index]
@@ -53,6 +61,20 @@ def test_layer2_s0_readiness_manifest_is_valid() -> None:
     assert validation["summary"]["s7_wrong_role_false_clear_count"] == 0  # type: ignore[index]
     assert validation["summary"]["s7_workflow_only_summary_false_clear_count"] == 0  # type: ignore[index]
     assert validation["summary"]["s7_expected_current_open_cell_count"] == 4  # type: ignore[index]
+    assert validation["summary"]["s8_value_provenance_completeness"] == 1.0  # type: ignore[index]
+    assert validation["summary"]["s8_expected_current_open_cell_count"] == 3  # type: ignore[index]
+    assert validation["summary"]["s9_case_count"] == 13  # type: ignore[index]
+    assert validation["summary"]["s9_projection_render_count"] >= 52  # type: ignore[index]
+    assert validation["summary"]["s9_projection_faithfulness_denominator"] >= 52  # type: ignore[index]
+    assert validation["summary"]["s9_projection_faithfulness_numerator"] == validation["summary"]["s9_projection_faithfulness_denominator"]  # type: ignore[index]
+    assert validation["summary"]["s9_projection_faithfulness_pass_rate"] == 1.0  # type: ignore[index]
+    assert validation["summary"]["s9_lowering_gate_count"] >= 13  # type: ignore[index]
+    assert validation["summary"]["s9_lowering_append_receipt_count"] >= 1  # type: ignore[index]
+    assert validation["summary"]["s9_false_clear_counts"]["tradeoff_inversion"] == 0  # type: ignore[index]
+    assert validation["summary"]["s9_false_clear_counts"]["shadow_candidate_approval"] == 0  # type: ignore[index]
+    assert validation["summary"]["s9_false_clear_counts"]["revision_mismatch"] == 0  # type: ignore[index]
+    assert validation["summary"]["s9_false_clear_counts"]["universal_self_claim_without_s14"] == 0  # type: ignore[index]
+    assert validation["summary"]["s9_expected_current_open_cell_count"] == 3  # type: ignore[index]
 
 
 def test_layer2_slice_cell_matrix_preserves_baseline_and_current_open_subset() -> None:
@@ -65,7 +87,7 @@ def test_layer2_slice_cell_matrix_preserves_baseline_and_current_open_subset() -
 
     assert len(assigned) == 17
     assert current_open_cells < assigned
-    assert assigned - current_open_cells == set(CELLS_CLOSED_THROUGH_S7)
+    assert assigned - current_open_cells == set(CELLS_CLOSED_THROUGH_S8)
 
 
 def test_layer2_readiness_rejects_missing_open_cell_assignment() -> None:
@@ -97,9 +119,9 @@ def test_layer2_readiness_rejects_maturity_as_ratchet_state() -> None:
 def test_layer2_readiness_rejects_unsealed_corpus_partition() -> None:
     payloads = readiness.load_layer2_readiness_payloads(REPO_ROOT)
     payloads = copy.deepcopy(payloads)
-    payloads["corpus_partition"]["sealed_universality_battery"]["path"] = (
-        payloads["corpus_partition"]["dev_regression_corpus"]["path"]
-    )
+    payloads["corpus_partition"]["sealed_universality_battery"]["path"] = payloads[
+        "corpus_partition"
+    ]["dev_regression_corpus"]["path"]
 
     validation = readiness.validate_layer2_readiness_payloads(payloads)
 
@@ -137,7 +159,7 @@ def test_layer2_readiness_artifacts_are_in_policy_design_case_inventory() -> Non
     validation = readiness.validate_layer2_readiness(REPO_ROOT)
 
     assert validation["status"] == "pass", validation["issues"]
-    assert validation["summary"]["inventory_artifact_count"] == 15  # type: ignore[index]
+    assert validation["summary"]["inventory_artifact_count"] == 17  # type: ignore[index]
 
 
 def test_layer2_readiness_validates_s6_manifest_metrics_and_coverage() -> None:
@@ -179,6 +201,4 @@ def test_layer2_readiness_validates_s7_manifest_metrics_and_authority_boundary()
     validation = readiness.validate_layer2_readiness_payloads(payloads)
 
     assert validation["status"] == "fail"
-    assert "layer2_s7_workflow_only_summary_false_clear_count_nonzero" in _issue_codes(
-        validation
-    )
+    assert "layer2_s7_workflow_only_summary_false_clear_count_nonzero" in _issue_codes(validation)

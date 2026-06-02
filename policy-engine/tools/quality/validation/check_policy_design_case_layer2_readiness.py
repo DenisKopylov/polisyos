@@ -51,6 +51,9 @@ DEFAULT_S7_DELEGATION_MANIFEST_PATH = Path(
 DEFAULT_S8_VALUE_CHOICE_MANIFEST_PATH = Path(
     "architecture/policy_design_case/layer2_s8_value_choice_manifest.json"
 )
+DEFAULT_S9_PROJECTION_LOWERING_MANIFEST_PATH = Path(
+    "architecture/policy_design_case/layer2_s9_projection_lowering_manifest.json"
+)
 DEFAULT_INVENTORY_PATH = Path("architecture/policy_design_case/inventory.json")
 
 REQUIRED_SLICES = {f"S{number}" for number in range(15)}
@@ -250,6 +253,64 @@ S8_FALSE_CLEAR_FIELDS = (
     "missing_arrow_disclosure_false_clear_count",
 )
 S8_INVENTORY_ID = "layer2_s8_value_choice_manifest"
+S9_REQUIRED_ARTIFACTS = {
+    "CanonicalDesignRecord",
+    "ProjectionAlgebraRequest",
+    "ProjectionRenderRecord",
+    "ProjectionFaithfulnessRecord",
+    "LoweringRequestRecord",
+    "LoweringAuthorityGateRecord",
+    "LoweringArtifactRecord",
+    "LoweringAppendReceipt",
+    "DesignRecordMaturityReport",
+    "ProjectionLoweringIntegrityReport",
+}
+S9_REQUIRED_AUTHORITY_SCOPE = {
+    "canonical_design_record_maturity",
+    "projection_faithfulness",
+    "lowering_faithfulness",
+    "verified_lowering_append_receipt",
+    "reissue_reopen_routing",
+}
+S9_REQUIRED_DENY = {
+    "production_authority",
+    "production_recommendation",
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority",
+    "claim_authority",
+    "closeout_authority",
+    "approval_authority",
+    "s10_forecast_support",
+    "s11_calibration",
+    "s12_envelope_growth",
+    "s13_accountability_closure",
+    "s14_universality",
+}
+S9_FALSE_CLEAR_FIELDS = {
+    "public_limitation_omission_false_clear_count": "public_limitation_omission",
+    "added_prose_claim_false_clear_count": "added_prose_claim",
+    "tradeoff_inversion_false_clear_count": "tradeoff_inversion",
+    "shadow_candidate_approval_false_clear_count": "shadow_candidate_approval",
+    "legal_lowering_without_grounding_false_clear_count": "legal_lowering_without_grounding",
+    "projection_authority_laundering_false_clear_count": "projection_authority_laundering",
+    "redaction_hides_blocker_false_clear_count": "redaction_hides_blocker",
+    "post_closeout_lowering_without_reissue_false_clear_count": (
+        "post_closeout_lowering_without_reissue"
+    ),
+    "machine_ref_omission_false_clear_count": "machine_ref_omission",
+    "revision_mismatch_false_clear_count": "revision_mismatch",
+    "universal_self_claim_without_s14_false_clear_count": (
+        "universal_self_claim_without_s14"
+    ),
+}
+S9_INVENTORY_ID = "layer2_s9_projection_lowering_manifest"
+S9_EXPECTED_OPEN_CELLS = {
+    "DESIGNER_ITSELF.envelope_growth",
+    "KNOWLEDGE.calibration",
+    "KNOWLEDGE.ir_proof_carrying_analytics",
+}
+S9_LATER_SLICES = {"S10", "S11", "S12", "S13", "S14"}
 
 
 def load_layer2_readiness_payloads(repo_root: Path | str = REPO_ROOT) -> dict[str, Any]:
@@ -279,6 +340,9 @@ def load_layer2_readiness_payloads(repo_root: Path | str = REPO_ROOT) -> dict[st
         ),
         "s7_delegation": _load_optional_json(root / DEFAULT_S7_DELEGATION_MANIFEST_PATH),
         "s8_value_choice": _load_optional_json(root / DEFAULT_S8_VALUE_CHOICE_MANIFEST_PATH),
+        "s9_projection_lowering": _load_optional_json(
+            root / DEFAULT_S9_PROJECTION_LOWERING_MANIFEST_PATH
+        ),
         "inventory": _load_json(root / DEFAULT_INVENTORY_PATH),
         "cluster_map": cluster_map.load_cluster_ownership_map(root),
     }
@@ -453,6 +517,14 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
         inventory=payloads["inventory"],
         issues=issues,
     )
+    _validate_s9_projection_lowering(
+        s9=payloads.get("s9_projection_lowering"),
+        floor_governance=payloads["floor_governance"],
+        artifact_traceability=payloads["artifact_traceability"],
+        current_open_cells=current_open_cells,
+        inventory=payloads["inventory"],
+        issues=issues,
+    )
     closed_since_s0 = sorted(assigned_cells - current_open_cells)
     s3 = payloads.get("s3_substrate_acquisition")
     s3_summary = (
@@ -534,6 +606,41 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
         if isinstance(s8, dict) and s8
         else {}
     )
+    s9 = payloads.get("s9_projection_lowering")
+    s9_false_clear_counts = (
+        {
+            nested_name: s9.get(field_name)
+            for field_name, nested_name in S9_FALSE_CLEAR_FIELDS.items()
+        }
+        if isinstance(s9, dict) and s9
+        else {}
+    )
+    s9_summary = (
+        {
+            "s9_case_count": s9.get("case_count"),
+            "s9_projection_render_count": s9.get("projection_render_count"),
+            "s9_projection_faithfulness_denominator": s9.get(
+                "projection_faithfulness_denominator"
+            ),
+            "s9_projection_faithfulness_numerator": s9.get(
+                "projection_faithfulness_numerator"
+            ),
+            "s9_projection_faithfulness_pass_rate": s9.get(
+                "projection_faithfulness_pass_rate"
+            ),
+            "s9_lowering_gate_count": s9.get("lowering_gate_count"),
+            "s9_lowering_append_receipt_count": s9.get(
+                "lowering_append_receipt_count"
+            ),
+            "s9_expected_current_open_cell_count": s9.get(
+                "expected_current_open_cell_count"
+            ),
+            "s9_false_clear_counts": s9_false_clear_counts,
+            **{f"s9_{field}": s9.get(field) for field in S9_FALSE_CLEAR_FIELDS},
+        }
+        if isinstance(s9, dict) and s9
+        else {}
+    )
 
     return _result(
         issues,
@@ -552,6 +659,7 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
             **s6_summary,
             **s7_summary,
             **s8_summary,
+            **s9_summary,
         },
     )
 
@@ -1829,11 +1937,11 @@ def _validate_s8_value_choice(
     _validate_s8_s7_value_authorization_support(s7=s7, issues=issues)
     _validate_s8_runtime_negative_firewalls(issues)
 
-    if _inventory_layer2_artifact_count(inventory) != 16:
+    if _inventory_layer2_artifact_count(inventory) != 17:
         issues.append(
             _issue(
                 "layer2_s8_inventory_artifact_count_invalid",
-                "Layer 2 inventory artifact count must be 16 after registering S8.",
+                "Layer 2 inventory artifact count must be 17 after registering S9.",
             )
         )
     inventory_artifact = _inventory_artifact_by_id(inventory, S8_INVENTORY_ID)
@@ -1903,6 +2011,304 @@ def _validate_s8_value_choice(
             _issue(
                 "layer2_s8_inventory_canonical_route_mismatch",
                 "S8 inventory canonical_route must match the manifest.",
+            )
+        )
+
+
+def _validate_s9_projection_lowering(
+    *,
+    s9: object,
+    floor_governance: dict[str, Any],
+    artifact_traceability: dict[str, Any],
+    current_open_cells: set[str],
+    inventory: dict[str, Any],
+    issues: list[dict[str, str]],
+) -> None:
+    if not isinstance(s9, dict) or not s9:
+        issues.append(
+            _issue(
+                "layer2_s9_manifest_missing",
+                "S9 projection/lowering manifest must be present.",
+            )
+        )
+        return
+    if s9.get("schema_version") != (
+        "policyos.policy_design_case.layer2_s9_projection_lowering_manifest.v1"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s9_schema_version_invalid",
+                "S9 projection/lowering manifest schema_version is invalid.",
+            )
+        )
+    if s9.get("status") != "active" or s9.get("owner") != "team-runtime-quality":
+        issues.append(
+            _issue(
+                "layer2_s9_status_or_owner_invalid",
+                "S9 projection/lowering manifest must be active and owned by team-runtime-quality.",
+            )
+        )
+    if s9.get("slice") != "S9" or s9.get("depends_on") != ["S2", "S5", "S8"]:
+        issues.append(
+            _issue(
+                "layer2_s9_slice_or_dependencies_invalid",
+                "S9 must depend on S2, S5, and S8 without claiming a later layer.",
+            )
+        )
+    if s9.get("cells_closed") != []:
+        issues.append(
+            _issue(
+                "layer2_s9_cells_closed_invalid",
+                "S9 advances projection maturity only; it closes no cluster cell.",
+            )
+        )
+    if s9.get("layer_cells_advanced") != [
+        "DESIGNER_ITSELF.closeout_projection_ratchet"
+    ]:
+        issues.append(
+            _issue(
+                "layer2_s9_layer_cells_advanced_invalid",
+                "S9 must advance only the closeout projection ratchet.",
+            )
+        )
+    if s9.get("expected_current_open_cell_count") != 3:
+        issues.append(
+            _issue(
+                "layer2_s9_open_cell_count_drift",
+                "S9 manifest must record expected_current_open_cell_count=3.",
+            )
+        )
+    if current_open_cells != S9_EXPECTED_OPEN_CELLS:
+        issues.append(
+            _issue(
+                "layer2_s9_current_open_cells_invalid",
+                "S9 must leave only envelope_growth, calibration, and IR proof-carrying analytics open.",
+            )
+        )
+
+    trace_s9_artifacts = {
+        str(row.get("name", ""))
+        for row in artifact_traceability.get("artifact", [])
+        if isinstance(row, dict) and row.get("slice") == "S9"
+    }
+    if set(s9.get("required_artifacts", [])) != S9_REQUIRED_ARTIFACTS:
+        issues.append(
+            _issue(
+                "layer2_s9_required_artifacts_missing",
+                "S9 required_artifacts must list the ten projection/lowering artifacts.",
+            )
+        )
+    if trace_s9_artifacts != S9_REQUIRED_ARTIFACTS:
+        issues.append(
+            _issue(
+                "layer2_s9_traceability_missing",
+                "S9 artifacts must match layer2_artifact_traceability S9 rows.",
+            )
+        )
+
+    floor = _floor_by_id(floor_governance, "s9_projection_faithfulness")
+    if (
+        s9.get("floor_id") != "s9_projection_faithfulness"
+        or not floor
+        or floor.get("metric") != s9.get("floor_metric")
+        or floor.get("floor_owner") != "team-runtime-quality"
+        or floor.get("revision_rule") != "faithfulness_negative_controls_required"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s9_floor_governance_invalid",
+                "S9 floor must govern projection faithfulness through negative controls.",
+            )
+        )
+    if s9.get("case_count") != 13:
+        issues.append(
+            _issue(
+                "layer2_s9_case_count_invalid",
+                "S9 manifest must record all 13 universal corpus cases.",
+            )
+        )
+    if not _number_at_least(s9.get("projection_render_count"), 52):
+        issues.append(
+            _issue(
+                "layer2_s9_projection_render_count_below_floor",
+                "S9 projection_render_count must cover all four audiences across 13 cases.",
+            )
+        )
+    if not _number_at_least(s9.get("projection_faithfulness_denominator"), 52):
+        issues.append(
+            _issue(
+                "layer2_s9_projection_faithfulness_denominator_below_floor",
+                "S9 projection faithfulness denominator must be at least 52.",
+            )
+        )
+    if s9.get("projection_faithfulness_numerator") != s9.get(
+        "projection_faithfulness_denominator"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s9_projection_faithfulness_numerator_mismatch",
+                "S9 projection faithfulness numerator must equal its denominator.",
+            )
+        )
+    if s9.get("projection_faithfulness_pass_rate") != 1.0:
+        issues.append(
+            _issue(
+                "layer2_s9_projection_faithfulness_below_floor",
+                "S9 projection_faithfulness_pass_rate must remain 1.0.",
+            )
+        )
+    if not _number_at_least(s9.get("lowering_gate_count"), 13):
+        issues.append(
+            _issue(
+                "layer2_s9_lowering_gate_count_below_floor",
+                "S9 lowering_gate_count must cover every corpus case.",
+            )
+        )
+    append_refs = s9.get("lowering_append_receipt_refs", [])
+    append_ref_count = len(append_refs) if isinstance(append_refs, list) else -1
+    if not _number_at_least(s9.get("lowering_append_receipt_count"), 1):
+        issues.append(
+            _issue(
+                "layer2_s9_lowering_append_receipt_missing",
+                "S9 must persist at least one governed lowering append receipt.",
+            )
+        )
+    if s9.get("lowering_append_receipt_count") != append_ref_count:
+        issues.append(
+            _issue(
+                "layer2_s9_lowering_append_receipt_count_mismatch",
+                "S9 lowering_append_receipt_count must match persisted append receipt refs.",
+            )
+        )
+    for field in S9_FALSE_CLEAR_FIELDS:
+        if s9.get(field) != 0:
+            issues.append(
+                _issue(
+                    f"layer2_s9_{field}_nonzero",
+                    f"S9 {field} must stay zero.",
+                )
+            )
+    if set(s9.get("authority_scope", [])) != S9_REQUIRED_AUTHORITY_SCOPE:
+        issues.append(
+            _issue(
+                "layer2_s9_authority_scope_invalid",
+                "S9 authority_scope must match the governed projection/lowering scope.",
+            )
+        )
+    if not set(s9.get("may_not_use_for", [])) >= S9_REQUIRED_DENY:
+        issues.append(
+            _issue(
+                "layer2_s9_authority_deny_list_incomplete",
+                "S9 may_not_use_for must block production, closeout, and S10-S14 authority.",
+            )
+        )
+    if s9.get("canonical_route") != "tools/quality/validation/run_universal_outcome_corpus.py":
+        issues.append(
+            _issue(
+                "layer2_s9_canonical_route_invalid",
+                "S9 manifest must point at the universal outcome corpus runner.",
+            )
+        )
+    if (
+        s9.get("validator")
+        != "tools/quality/validation/check_policy_design_case_layer2_readiness.py"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s9_validator_invalid",
+                "S9 manifest must point at the layer2 readiness validator.",
+            )
+        )
+
+    if _inventory_layer2_artifact_count(inventory) != 17:
+        issues.append(
+            _issue(
+                "layer2_s9_inventory_artifact_count_invalid",
+                "Layer 2 inventory artifact count must be 17 after registering S9.",
+            )
+        )
+    inventory_artifact = _inventory_artifact_by_id(inventory, S9_INVENTORY_ID)
+    if not inventory_artifact:
+        issues.append(
+            _issue(
+                "layer2_s9_manifest_missing_from_inventory",
+                "S9 manifest must be registered in the Policy Design Case inventory.",
+            )
+        )
+        return
+    if inventory_artifact.get("path") != DEFAULT_S9_PROJECTION_LOWERING_MANIFEST_PATH.as_posix():
+        issues.append(
+            _issue(
+                "layer2_s9_inventory_path_invalid",
+                "S9 inventory path must point at the governed manifest.",
+            )
+        )
+    if inventory_artifact.get("kind") != "layer2_s9_projection_lowering_manifest":
+        issues.append(
+            _issue(
+                "layer2_s9_inventory_kind_invalid",
+                "S9 inventory entry must carry kind=layer2_s9_projection_lowering_manifest.",
+            )
+        )
+    if inventory_artifact.get("schema_version") != s9.get("schema_version"):
+        issues.append(
+            _issue(
+                "layer2_s9_inventory_schema_version_invalid",
+                "S9 inventory schema_version must match the manifest.",
+            )
+        )
+    if (
+        inventory_artifact.get("owner") != s9.get("owner")
+        or inventory_artifact.get("status") != s9.get("status")
+        or inventory_artifact.get("capability_reality_label") != "implemented"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s9_inventory_status_invalid",
+                "S9 inventory entry must be active, implemented, and owned by team-runtime-quality.",
+            )
+        )
+    if inventory_artifact.get("authority_scope") != s9.get("authority_scope"):
+        issues.append(
+            _issue(
+                "layer2_s9_inventory_authority_scope_mismatch",
+                "S9 inventory authority_scope must match the manifest.",
+            )
+        )
+    if inventory_artifact.get("may_not_use_for") != s9.get("may_not_use_for"):
+        issues.append(
+            _issue(
+                "layer2_s9_inventory_deny_list_mismatch",
+                "S9 inventory may_not_use_for must match the manifest.",
+            )
+        )
+    if inventory_artifact.get("validator") != s9.get("validator"):
+        issues.append(
+            _issue(
+                "layer2_s9_inventory_validator_mismatch",
+                "S9 inventory validator must match the manifest.",
+            )
+        )
+    if inventory_artifact.get("canonical_route") != s9.get("canonical_route"):
+        issues.append(
+            _issue(
+                "layer2_s9_inventory_canonical_route_mismatch",
+                "S9 inventory canonical_route must match the manifest.",
+            )
+        )
+
+    later_implemented = {
+        str(row.get("name", ""))
+        for row in artifact_traceability.get("artifact", [])
+        if isinstance(row, dict)
+        and row.get("slice") in S9_LATER_SLICES
+        and row.get("maturity") == "implemented"
+    }
+    if later_implemented:
+        issues.append(
+            _issue(
+                "layer2_s9_later_slice_maturity_invalid",
+                "S9 must not mark S10, S11, S12, S13, or S14 artifacts implemented.",
             )
         )
 

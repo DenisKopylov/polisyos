@@ -253,6 +253,56 @@ slice = "S8"
 maturity = "implemented"
 
 [[artifact]]
+name = "CanonicalDesignRecord"
+slice = "S9"
+maturity = "implemented"
+
+[[artifact]]
+name = "ProjectionAlgebraRequest"
+slice = "S9"
+maturity = "implemented"
+
+[[artifact]]
+name = "ProjectionRenderRecord"
+slice = "S9"
+maturity = "implemented"
+
+[[artifact]]
+name = "ProjectionFaithfulnessRecord"
+slice = "S9"
+maturity = "implemented"
+
+[[artifact]]
+name = "LoweringRequestRecord"
+slice = "S9"
+maturity = "implemented"
+
+[[artifact]]
+name = "LoweringAuthorityGateRecord"
+slice = "S9"
+maturity = "implemented"
+
+[[artifact]]
+name = "LoweringArtifactRecord"
+slice = "S9"
+maturity = "implemented"
+
+[[artifact]]
+name = "LoweringAppendReceipt"
+slice = "S9"
+maturity = "implemented"
+
+[[artifact]]
+name = "DesignRecordMaturityReport"
+slice = "S9"
+maturity = "implemented"
+
+[[artifact]]
+name = "ProjectionLoweringIntegrityReport"
+slice = "S9"
+maturity = "implemented"
+
+[[artifact]]
 name = "ForecastSupport"
 slice = "S10"
 maturity = "planned"

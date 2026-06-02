@@ -6,19 +6,11 @@ import hashlib
 import json
 from collections.abc import Mapping, Sequence
 from datetime import UTC, datetime
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import AwareDatetime, Field, model_validator
 
 from polisyos.core import artifacts, canon
-from polisyos.foundry.welfare.frontier_emitter import (
-    ParetoFrontierRecord as FoundryParetoFrontierRecord,
-)
-from polisyos.foundry.welfare.frontier_emitter import WelfareFrontierEmission
-from polisyos.foundry.welfare.social_weight_provenance import (
-    SocialWeightProvenance,
-    assert_social_weight_provenance_usable_for_value_choice,
-)
 from polisyos.pdc import AuthorityBoundary, Layer2ReadinessModel
 from polisyos.runtime.quality.layer2_blind_spot_firewalls import P22MandateLegitimacyError
 from polisyos.runtime.quality.layer2_delegation import P26ResponsibilityIntegrityError
@@ -285,31 +277,24 @@ class ValueChoiceIntegrityReport(Layer2ReadinessModel):
 
 
 def coerce_social_weight_provenance_for_s8(
-    provenance: SocialWeightProvenance | Mapping[str, object],
+    provenance: Mapping[str, object] | object,
     *,
     authority_required: bool,
     rule_version_ref: str,
 ) -> dict[str, object]:
     """Normalize foundry or mapping social-weight provenance for S8 use."""
 
-    if isinstance(provenance, SocialWeightProvenance):
-        payload = provenance.model_dump(mode="json")
-        source_class = provenance.source_class
-        if authority_required:
-            try:
-                assert_social_weight_provenance_usable_for_value_choice(provenance)
-            except Exception as exc:
-                raise P20NormativeChoiceError(
-                    f"P20 value authority blocked for social weight provenance: {exc}"
-                ) from exc
-    else:
-        payload = dict(provenance)
-        source_class = str(payload.get("source_class", ""))
+    payload = _model_payload(provenance)
+    source_class = str(payload.get("source_class", ""))
     if authority_required and (
         source_class in _UNAUTHORIZED_AUTHORITY_SOURCES or source_class in _LLM_SOURCE_CLASSES
     ):
         raise P20NormativeChoiceError(
             f"P20 value authority requires authorized social weights, got {source_class!r}"
+        )
+    if authority_required and payload.get("review_status") in {"rejected", "superseded"}:
+        raise P20NormativeChoiceError(
+            "P20 value authority requires active social-weight provenance"
         )
     payload.setdefault(
         "authority_boundary",
@@ -449,8 +434,8 @@ def build_pareto_archive(
     authority_boundary: AuthorityBoundary | Mapping[str, object],
     may_not_use_for: Sequence[str] = (),
     rule_version_ref: str,
-    foundry_emission: WelfareFrontierEmission | Mapping[str, object] | None = None,
-    frontier_record: FoundryParetoFrontierRecord | Mapping[str, object] | None = None,
+    foundry_emission: Mapping[str, object] | object | None = None,
+    frontier_record: Mapping[str, object] | object | None = None,
     **_: object,
 ) -> ParetoArchive:
     """Build a Pareto archive while blocking hidden ranked value choices."""
@@ -726,15 +711,16 @@ def _require_arrow_disclosure_rows(payload: Mapping[str, object]) -> None:
 
 def _frontier_payload(
     *,
-    foundry_emission: WelfareFrontierEmission | Mapping[str, object] | None,
-    frontier_record: FoundryParetoFrontierRecord | Mapping[str, object] | None,
+    foundry_emission: Mapping[str, object] | object | None,
+    frontier_record: Mapping[str, object] | object | None,
 ) -> dict[str, list[str]]:
-    frontier: FoundryParetoFrontierRecord | Mapping[str, object] | None = frontier_record
+    frontier: Mapping[str, object] | object | None = frontier_record
     if foundry_emission is not None:
-        frontier = (
-            foundry_emission.frontier
-            if isinstance(foundry_emission, WelfareFrontierEmission)
-            else foundry_emission.get("frontier")
+        emission_payload = _model_payload(foundry_emission)
+        frontier = emission_payload.get("frontier") or getattr(
+            foundry_emission,
+            "frontier",
+            None,
         )
     if frontier is None:
         return {
@@ -744,11 +730,7 @@ def _frontier_payload(
             "claim_refs": [],
             "audit_refs": [],
         }
-    payload = (
-        frontier.model_dump(mode="json")
-        if hasattr(frontier, "model_dump")
-        else dict(frontier)
-    )
+    payload = _model_payload(frontier)
     objective_specs = _sequence_of_mappings(payload.get("objective_specs"))
     return {
         "frontier_refs": [str(payload.get("frontier_id"))] if payload.get("frontier_id") else [],
@@ -798,6 +780,14 @@ def _as_authority_boundary(value: AuthorityBoundary | Mapping[str, object]) -> A
     if isinstance(value, AuthorityBoundary):
         return value
     return AuthorityBoundary.model_validate(value)
+
+
+def _model_payload(value: Mapping[str, object] | object) -> dict[str, Any]:
+    if isinstance(value, Mapping):
+        return dict(value)
+    if hasattr(value, "model_dump"):
+        return value.model_dump(mode="json")  # type: ignore[no-any-return, attr-defined]
+    raise TypeError(f"expected mapping-like payload, got {type(value).__name__}")
 
 
 def _authorized_may_not_use_for() -> list[str]:

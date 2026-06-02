@@ -24,6 +24,7 @@ from polisyos.runtime.quality.projection_semantics import (
     build_policy_design_case_projection_semantics,
     verify_policy_design_case_projection_consumer_contract,
     verify_s9_projection_faithfulness_for_pdc_consumer_contract,
+    verify_s10_forecast_projection_consumer_contract,
 )
 from polisyos.runtime.quality.rule_evolution import (
     RULE_EVOLUTION_PUBLIC_ANNOTATION_SCHEMA_VERSION,
@@ -185,6 +186,9 @@ def build_public_export_bundle(
     )
     authority_projections = [_authority_projection(envelope) for envelope in authority_envelopes]
     projection_semantics = None
+    projection_contract_verification = None
+    s10_verification = None
+    s10_projection = None
     if runtime_pdc_graph is not None:
         projection_semantics = build_policy_design_case_projection_from_runtime_graph(
             runtime_pdc_graph=runtime_pdc_graph,
@@ -244,8 +248,6 @@ def build_public_export_bundle(
                 "policyos.runtime.policy_design_case.projection_contract_verification.v1"
             ],
         }
-    else:
-        projection_contract_verification = None
     if projection_semantics is not None and projection_payload is not None:
         projection_semantics, s9_verification = _apply_s9_projection_faithfulness(
             projection_semantics=projection_semantics,
@@ -262,6 +264,36 @@ def build_public_export_bundle(
                 )
                 else "pass",
             }
+        projection_semantics, s10_verification, s10_projection = (
+            _apply_s10_forecast_projection(
+                projection_semantics=projection_semantics,
+                projection_payload=projection_payload,
+            )
+        )
+        if s10_verification is not None:
+            if projection_contract_verification is None:
+                projection_contract_verification = {
+                    "schema_version": str(
+                        s10_verification.get("consumer_contract_ref")
+                        or (
+                            "policyos.runtime.policy_design_case."
+                            "s10_forecast_projection_verification.v1"
+                        )
+                    ),
+                    "status": str(s10_verification.get("status") or "fail"),
+                    "s10_forecast_projection": s10_verification,
+                }
+            else:
+                projection_contract_verification = {
+                    **projection_contract_verification,
+                    "s10_forecast_projection": s10_verification,
+                    "status": "fail"
+                    if (
+                        projection_contract_verification.get("status") == "fail"
+                        or s10_verification.get("status") == "fail"
+                    )
+                    else "pass",
+                }
     _assert_public_claim_omissions_manifested(sanitized_artifacts, projection_semantics)
     bundle = {
         "schema_version": PUBLIC_EXPORT_SCHEMA_VERSION,
@@ -285,6 +317,8 @@ def build_public_export_bundle(
             "recourse_pointer": recourse_pointer,
             "rule_evolution_annotations": rule_evolution_annotations,
             "public_revision_states": public_revision_states,
+            "s10_forecast_projection": s10_projection,
+            "s10_forecast_projection_contract_verification": s10_verification,
             "omission_manifest": list(
                 projection_semantics.get("omission_manifest", [])
                 if projection_semantics is not None
@@ -308,6 +342,168 @@ def build_public_export_bundle(
         bundle["projection_semantics"] = projection_semantics
     assert_public_export_official_use_limits(bundle)
     return bundle
+
+
+def _apply_s10_forecast_projection(
+    *,
+    projection_semantics: Mapping[str, object],
+    projection_payload: Mapping[str, object],
+) -> tuple[dict[str, object], dict[str, object] | None, dict[str, object] | None]:
+    s10_projection = _s10_forecast_projection_record(projection_payload)
+    if not s10_projection:
+        return dict(projection_semantics), None, None
+    missing_refs = _s10_missing_machine_export_refs(s10_projection)
+    if missing_refs:
+        raise PublicExportRedactionError(
+            "s10_machine_export_requires_calibration_and_source_refs",
+            "S10 public export requires reconstructable calibration, source, and method refs.",
+        )
+    verification = verify_s10_forecast_projection_consumer_contract(
+        projections={"public": s10_projection},
+    )
+    if verification.get("status") != "pass":
+        raise PublicExportRedactionError(
+            _first_s10_issue_code(verification),
+            "S10 forecast projection consumer contract must pass before public release.",
+        )
+    enriched = dict(projection_semantics)
+    limitations = _unique_texts(
+        [
+            *_text_list(enriched.get("limitations")),
+            *_text_list(s10_projection.get("limitations")),
+            s10_projection.get("forecast_authority_disposition_reason"),
+            "forecast support only; not production recommendation authority",
+        ]
+    )
+    audit_refs = _unique_texts(
+        [
+            *_text_list(enriched.get("audit_refs")),
+            s10_projection.get("forecast_support_ref"),
+            s10_projection.get("forecast_calibration_record_ref"),
+            s10_projection.get("design_graph_ref"),
+            s10_projection.get("prediction_context_ref"),
+            s10_projection.get("source_contract_ref"),
+            s10_projection.get("method_validity_ref"),
+            s10_projection.get("credible_evaluation_evidence_ref"),
+            s10_projection.get("rule_version_ref"),
+        ]
+    )
+    source_state = dict(enriched.get("source_state") or {})
+    source_state.update(
+        {
+            "s10_forecast_support_ref": s10_projection.get("forecast_support_ref"),
+            "s10_design_graph_ref": s10_projection.get("design_graph_ref"),
+            "s10_prediction_context_ref": s10_projection.get("prediction_context_ref"),
+            "s10_projection_policy": "reads_forecast_support_posture",
+        }
+    )
+    enriched.update(
+        {
+            "forecast_tier": s10_projection.get("forecast_tier"),
+            "observable_subset_calibration_status": s10_projection.get(
+                "observable_subset_calibration_status"
+            ),
+            "uncertainty_interval_refs": list(
+                _as_sequence(s10_projection.get("uncertainty_interval_refs"))
+            ),
+            "limitations": limitations,
+            "audit_refs": audit_refs,
+            "source_state": source_state,
+            "s10_forecast_projection_contract_verification_status": verification.get(
+                "status"
+            ),
+            "s10_forecast_projection_contract_verification_ref": verification.get(
+                "consumer_contract_ref"
+            ),
+        }
+    )
+    return enriched, verification, s10_projection
+
+
+def _s10_forecast_projection_record(
+    projection_payload: Mapping[str, object],
+) -> dict[str, object]:
+    if not (
+        _text(projection_payload.get("forecast_support_ref"))
+        or _text(projection_payload.get("forecast_tier"))
+    ):
+        return {}
+    authority_boundary = dict(
+        projection_payload.get("authority_boundary")
+        if isinstance(projection_payload.get("authority_boundary"), Mapping)
+        else {}
+    )
+    return {
+        "audience": "PUBLIC",
+        "authority_role": "projection_only",
+        "projection_policy": "reads_forecast_support_posture",
+        "forecast_support_ref": _text(projection_payload.get("forecast_support_ref")),
+        "forecast_tier": _text(projection_payload.get("forecast_tier")),
+        "forecast_authority_disposition_reason": _text(
+            projection_payload.get("forecast_authority_disposition_reason")
+        ),
+        "forecast_support_label": _text(projection_payload.get("forecast_support_label")),
+        "forecast_calibration_record_ref": _text(
+            projection_payload.get("forecast_calibration_record_ref")
+        ),
+        "observable_subset_calibration_status": _text(
+            projection_payload.get("observable_subset_calibration_status")
+            or projection_payload.get("calibration_status")
+            or projection_payload.get("forecast_calibration_status")
+        ),
+        "design_graph_ref": _text(projection_payload.get("design_graph_ref")),
+        "prediction_context_ref": _text(projection_payload.get("prediction_context_ref")),
+        "policy_context_ref": _text(projection_payload.get("policy_context_ref")),
+        "source_contract_ref": _text(projection_payload.get("source_contract_ref")),
+        "method_validity_ref": _text(projection_payload.get("method_validity_ref")),
+        "credible_evaluation_evidence_ref": _text(
+            projection_payload.get("credible_evaluation_evidence_ref")
+        ),
+        "uncertainty_interval_refs": _text_list(
+            projection_payload.get("uncertainty_interval_refs")
+        ),
+        "welfare_comparison": dict(projection_payload.get("welfare_comparison") or {})
+        if isinstance(projection_payload.get("welfare_comparison"), Mapping)
+        else {},
+        "authority_boundary": authority_boundary,
+        "limitations": _text_list(projection_payload.get("limitations")),
+        "may_not_be_used_for": _unique_texts(
+            [
+                *_text_list(projection_payload.get("may_not_be_used_for")),
+                *_text_list(projection_payload.get("may_not_use_for")),
+            ]
+        ),
+        "rule_version_ref": _text(projection_payload.get("rule_version_ref")),
+    }
+
+
+def _s10_missing_machine_export_refs(
+    s10_projection: Mapping[str, object],
+) -> list[str]:
+    required = (
+        "forecast_calibration_record_ref",
+        "design_graph_ref",
+        "prediction_context_ref",
+        "source_contract_ref",
+        "method_validity_ref",
+        "credible_evaluation_evidence_ref",
+        "rule_version_ref",
+    )
+    missing = [key for key in required if not _text(s10_projection.get(key))]
+    if not isinstance(s10_projection.get("authority_boundary"), Mapping):
+        missing.append("authority_boundary")
+    return missing
+
+
+def _first_s10_issue_code(verification: Mapping[str, object]) -> str:
+    for code in _text_list(verification.get("issue_codes")):
+        return code
+    for issue in _as_sequence(verification.get("issues")):
+        if isinstance(issue, Mapping):
+            code = _text(issue.get("code"))
+            if code:
+                return code
+    return "s10_forecast_projection_failed"
 
 
 def _apply_s9_projection_faithfulness(

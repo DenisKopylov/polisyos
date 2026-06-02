@@ -81,6 +81,9 @@ _RUNTIME_GRAPH_PROJECTION_POLICY = "reads_runtime_policy_design_case_graph"
 _S9_CONSUMER_CONTRACT_REF = (
     "policyos.runtime.policy_design_case.projection_contract_verification.v1"
 )
+_S10_CONSUMER_CONTRACT_REF = (
+    "policyos.runtime.policy_design_case.s10_forecast_projection_verification.v1"
+)
 _S9_REQUIRED_MAY_NOT_USE_FOR = frozenset(
     {
         "claim_authority",
@@ -94,6 +97,29 @@ _S9_AUTHORITY_BOUNDARY_REQUIRED_MAY_NOT_USE_FOR = frozenset(
         "scorecard_authority",
         "runtime_closeout_authority",
         "production_recommendation",
+    }
+)
+_S10_REQUIRED_MAY_NOT_USE_FOR = frozenset(
+    {
+        "production_recommendation",
+        "production_claim_authority",
+        "publication_authority",
+        "claim_authority",
+        "closeout_authority",
+        "s11_calibration",
+    }
+)
+_S10_FORBIDDEN_AUTHORITY_USES = frozenset(
+    {
+        "approval_authority",
+        "claim_authority",
+        "closeout_authority",
+        "publication_authority",
+        "production_claim_authority",
+        "production_recommendation",
+        "recommendation_authority",
+        "runtime_closeout_authority",
+        "scorecard_authority",
     }
 )
 _ALLOWED_PROJECTION_POLICIES = frozenset(
@@ -761,6 +787,300 @@ def verify_s9_projection_faithfulness_for_pdc_consumer_contract(
         "issue_codes": issue_codes,
         "issues": issues,
     }
+
+
+def verify_s10_forecast_projection_consumer_contract(
+    *,
+    projections: Mapping[str, Mapping[str, Any]],
+) -> dict[str, Any]:
+    """Verify S10 forecast-support projections without minting recommendation authority."""
+
+    issues: list[dict[str, Any]] = []
+    consumer_contracts: list[dict[str, Any]] = []
+    s10_records: dict[str, dict[str, Any]] = {}
+    for audience, projection in projections.items():
+        projection_payload = _mapping_from_record(projection)
+        s10_record = _s10_forecast_projection_record(projection_payload)
+        s10_records[audience] = s10_record
+        audience_issues = _s10_projection_issues(
+            audience=audience,
+            projection=projection_payload,
+            s10_record=s10_record,
+        )
+        issues.extend(audience_issues)
+        consumer_contracts.append(
+            {
+                "consumer": _text(audience),
+                "audience": _text(audience),
+                "status": "fail" if audience_issues else "pass",
+                "issue_codes": [issue["code"] for issue in audience_issues],
+                "verified_fields": [
+                    "forecast_tier",
+                    "forecast_support_ref",
+                    "forecast_calibration_record_ref",
+                    "design_graph_ref",
+                    "prediction_context_ref",
+                    "source_contract_ref",
+                    "method_validity_ref",
+                    "credible_evaluation_evidence_ref",
+                    "uncertainty_interval_refs",
+                    "welfare_comparison",
+                    "authority_boundary",
+                ],
+            }
+        )
+    issue_codes = _unique_texts(issue.get("code") for issue in issues)
+    first_record = next(iter(s10_records.values()), {})
+    return {
+        "schema_version": _S10_CONSUMER_CONTRACT_REF,
+        "status": "fail" if issues else "pass",
+        "consumer_contract_ref": _S10_CONSUMER_CONTRACT_REF,
+        "consumer_contracts": consumer_contracts,
+        "s10_forecast_projection": first_record,
+        "issue_codes": issue_codes,
+        "issues": issues,
+    }
+
+
+def _s10_forecast_projection_record(projection: Mapping[str, Any]) -> dict[str, Any]:
+    if not (
+        _text(projection.get("forecast_support_ref"))
+        or _text(projection.get("forecast_tier"))
+        or _text(projection.get("forecast_calibration_record_ref"))
+    ):
+        return {}
+    authority_boundary = _mapping(
+        projection.get("authority_boundary")
+        or projection.get("forecast_authority_boundary")
+    )
+    calibration_status = _s10_calibration_status(projection)
+    return {
+        "forecast_support_ref": _text(projection.get("forecast_support_ref")),
+        "forecast_tier": _text(projection.get("forecast_tier")),
+        "forecast_authority_disposition_reason": _text(
+            projection.get("forecast_authority_disposition_reason")
+        ),
+        "forecast_support_label": _text(projection.get("forecast_support_label")),
+        "forecast_calibration_record_ref": _text(
+            projection.get("forecast_calibration_record_ref")
+        ),
+        "observable_subset_calibration_status": calibration_status,
+        "design_graph_ref": _text(projection.get("design_graph_ref")),
+        "prediction_context_ref": _text(projection.get("prediction_context_ref")),
+        "policy_context_ref": _text(projection.get("policy_context_ref")),
+        "source_contract_ref": _text(projection.get("source_contract_ref")),
+        "method_validity_ref": _text(projection.get("method_validity_ref")),
+        "credible_evaluation_evidence_ref": _text(
+            projection.get("credible_evaluation_evidence_ref")
+        ),
+        "uncertainty_interval_refs": _text_list(
+            projection.get("uncertainty_interval_refs")
+        ),
+        "s5_forecast_support_ref": _text(projection.get("s5_forecast_support_ref")),
+        "s6_firewall_status_refs": _text_list(projection.get("s6_firewall_status_refs")),
+        "s8_value_choice_provenance_ref": _text(
+            projection.get("s8_value_choice_provenance_ref")
+        ),
+        "s8_value_tradeoff_disclosure_ref": _text(
+            projection.get("s8_value_tradeoff_disclosure_ref")
+        ),
+        "welfare_comparison_ref": _text(projection.get("welfare_comparison_ref")),
+        "welfare_comparison": _mapping(projection.get("welfare_comparison")),
+        "authority_boundary": authority_boundary,
+        "may_not_be_used_for": _unique_texts(
+            [
+                *_text_list(projection.get("may_not_be_used_for")),
+                *_text_list(projection.get("may_not_use_for")),
+            ]
+        ),
+        "rule_version_ref": _text(projection.get("rule_version_ref")),
+    }
+
+
+def _s10_projection_issues(
+    *,
+    audience: str,
+    projection: Mapping[str, Any],
+    s10_record: Mapping[str, Any],
+) -> list[dict[str, Any]]:
+    if not s10_record:
+        return [
+            _contract_issue(
+                "s10_forecast_projection_missing",
+                audience=audience,
+                message="S10 forecast-support projection fields are missing.",
+            )
+        ]
+    issues: list[dict[str, Any]] = []
+    tier = _text(s10_record.get("forecast_tier"))
+    if not (
+        _text(s10_record.get("design_graph_ref"))
+        and _text(s10_record.get("prediction_context_ref"))
+    ):
+        issues.append(
+            _contract_issue(
+                "s10_missing_design_graph_or_prediction_context",
+                audience=audience,
+                message="S10 projection must preserve design graph and prediction context refs.",
+            )
+        )
+    if tier == "simulation_only_advisory" and bool(
+        projection.get("evidence_authority_claimed")
+    ):
+        issues.append(
+            _contract_issue(
+                "s10_simulation_only_laundered_as_evidence",
+                audience=audience,
+                message="Simulation-only forecasts cannot be rendered as evidence authority.",
+            )
+        )
+    if tier == "equilibrium_contested_blocked" and not _text_list(
+        s10_record.get("uncertainty_interval_refs")
+    ):
+        issues.append(
+            _contract_issue(
+                "s10_equilibrium_contested_single_forecast",
+                audience=audience,
+                message="Equilibrium-contested forecasts cannot be projected as a single forecast.",
+            )
+        )
+    calibration_status = _text(s10_record.get("observable_subset_calibration_status"))
+    if tier == "observable_calibrated" and (
+        not _text(s10_record.get("forecast_calibration_record_ref"))
+        or calibration_status != "pass"
+    ):
+        issues.append(
+            _contract_issue(
+                "s10_uncalibrated_observable_promotion",
+                audience=audience,
+                message="Observable calibrated tier requires a passing calibration record.",
+            )
+        )
+    if (
+        _text(projection.get("observed_outcome_ref"))
+        or _text(projection.get("outcome_observation_ref"))
+        or (tier == "observable_calibrated" and calibration_status == "pass")
+    ) and not _text(s10_record.get("credible_evaluation_evidence_ref")):
+        issues.append(
+            _contract_issue(
+                "s10_observed_outcome_without_credible_evaluation",
+                audience=audience,
+                message="Observed outcome support requires credible evaluation evidence refs.",
+            )
+        )
+    if tier == "observable_calibrated" and not (
+        _text(s10_record.get("source_contract_ref"))
+        and _text(s10_record.get("method_validity_ref"))
+    ):
+        issues.append(
+            _contract_issue(
+                "s10_validated_model_missing_source_or_method_validity",
+                audience=audience,
+                message=(
+                    "Validated local forecast projection requires source and "
+                    "method-validity refs."
+                ),
+            )
+        )
+    welfare = _mapping(s10_record.get("welfare_comparison"))
+    if (welfare or _text(s10_record.get("welfare_comparison_ref"))) and not (
+        (
+            _text(s10_record.get("s8_value_choice_provenance_ref"))
+            and _text(s10_record.get("s8_value_tradeoff_disclosure_ref"))
+        )
+        or (
+            _text(welfare.get("s8_value_choice_provenance_ref"))
+            and _text(welfare.get("s8_value_tradeoff_disclosure_ref"))
+        )
+    ):
+        issues.append(
+            _contract_issue(
+                "s10_missing_value_provenance",
+                audience=audience,
+                message="S10 welfare comparison must preserve S8 value provenance refs.",
+            )
+        )
+    if tier in {
+        "observable_calibrated",
+        "transported_limited",
+        "historical_prior_context",
+    } and not _text_list(s10_record.get("uncertainty_interval_refs")):
+        issues.append(
+            _contract_issue(
+                "s10_hidden_uncertainty_interval",
+                audience=audience,
+                message="S10 forecast projections must expose uncertainty interval refs.",
+            )
+        )
+    if _s10_scalar_welfare_hides_tradeoff(s10_record):
+        issues.append(
+            _contract_issue(
+                "s10_scalar_welfare_hides_pareto_tradeoff",
+                audience=audience,
+                message="Scalar welfare summaries require Pareto/tradeoff disclosure refs.",
+            )
+        )
+    if _s10_prediction_authority_laundered(projection, s10_record):
+        issues.append(
+            _contract_issue(
+                "s10_prediction_authority_laundering",
+                audience=audience,
+                message=(
+                    "S10 projection crossed from forecast support into "
+                    "recommendation authority."
+                ),
+            )
+        )
+    return _dedupe_contract_issues(issues)
+
+
+def _s10_calibration_status(projection: Mapping[str, Any]) -> str:
+    return _text(
+        projection.get("observable_subset_calibration_status")
+        or projection.get("calibration_status")
+        or projection.get("forecast_calibration_status")
+    )
+
+
+def _s10_scalar_welfare_hides_tradeoff(s10_record: Mapping[str, Any]) -> bool:
+    welfare = _mapping(s10_record.get("welfare_comparison"))
+    if not bool(welfare.get("scalar_summary_allowed")):
+        return False
+    has_frontier = bool(
+        _text(welfare.get("pareto_frontier_ref"))
+        or _text(welfare.get("frontier_ref"))
+        or _sequence(welfare.get("pareto_frontier"))
+        or _sequence(welfare.get("frontier"))
+    )
+    has_rejected_nondominated = bool(
+        _text_list(welfare.get("rejected_nondominated_alternative_refs"))
+    )
+    has_value_refs = bool(
+        _text(welfare.get("s8_value_choice_provenance_ref"))
+        and _text(welfare.get("s8_value_tradeoff_disclosure_ref"))
+    )
+    return not (has_frontier and (has_rejected_nondominated or has_value_refs))
+
+
+def _s10_prediction_authority_laundered(
+    projection: Mapping[str, Any],
+    s10_record: Mapping[str, Any],
+) -> bool:
+    role = _text(projection.get("authority_role")).casefold()
+    if role not in {"", "projection_only"}:
+        return True
+    boundary = _mapping(s10_record.get("authority_boundary"))
+    authoritative_for = {
+        *_text_list(projection.get("authoritative_for")),
+        *_text_list(boundary.get("authoritative_for")),
+    }
+    if authoritative_for & _S10_FORBIDDEN_AUTHORITY_USES:
+        return True
+    may_not = {
+        *_text_list(s10_record.get("may_not_be_used_for")),
+        *_text_list(boundary.get("may_not_use_for")),
+    }
+    return not may_not >= _S10_REQUIRED_MAY_NOT_USE_FOR
 
 
 def _s9_consumer_projection(
@@ -2103,4 +2423,5 @@ __all__ = [
     "build_policy_design_case_projection_from_runtime_graph",
     "build_policy_design_case_projection_semantics",
     "verify_s9_projection_faithfulness_for_pdc_consumer_contract",
+    "verify_s10_forecast_projection_consumer_contract",
 ]

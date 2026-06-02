@@ -86,6 +86,14 @@ S8RankingMode = Literal[
     "ranking_blocked",
 ]
 S8FirewallStatus = Literal["pass", "limit", "block"]
+S10ForecastTier = Literal[
+    "observable_calibrated",
+    "transported_limited",
+    "historical_prior_context",
+    "simulation_only_advisory",
+    "equilibrium_contested_blocked",
+    "blocked",
+]
 
 _COUNTEREXAMPLE_CLASS_VOCABULARY: list[str] = [
     "real_design_blocker",
@@ -130,6 +138,14 @@ _S8_REQUIRED_HANDOFF_MAY_NOT_USE_FOR = [
     "preference_learning_authority",
     "s9_projection_authority",
     "s9_projection_maturity",
+]
+_S10_REQUIRED_HANDOFF_MAY_NOT_USE_FOR = [
+    "production_recommendation",
+    "production_claim_authority",
+    "publication_authority",
+    "claim_authority",
+    "closeout_authority",
+    "s11_calibration",
 ]
 
 
@@ -293,6 +309,42 @@ class Layer2S8ValuePostureInput(Layer2ReadinessModel):
     handoff_rows: list[dict[str, object]] = Field(default_factory=list, max_length=40)
     limitation_summary: str = Field(..., min_length=1, max_length=500)
     authority_boundary: AuthorityBoundary
+
+
+class Layer2S10ForecastPostureInput(Layer2ReadinessModel):
+    """Injected S10 forecast-support posture consumed by the S2 shadow loop."""
+
+    forecast_support_ref: str = Field(..., min_length=1, max_length=300)
+    forecast_tier: S10ForecastTier
+    forecast_authority_disposition_reason: str = Field(..., min_length=1, max_length=800)
+    forecast_support_label: str = Field(..., min_length=1, max_length=160)
+    forecast_calibration_record_ref: str | None = Field(default=None, max_length=300)
+    design_graph_ref: str = Field(..., min_length=1, max_length=300)
+    prediction_context_ref: str = Field(..., min_length=1, max_length=300)
+    policy_context_ref: str = Field(..., min_length=1, max_length=300)
+    candidate_design_ref: str = Field(..., min_length=1, max_length=300)
+    baseline_design_ref: str = Field(..., min_length=1, max_length=300)
+    alternative_design_refs: list[str] = Field(default_factory=list, max_length=80)
+    prediction_horizon_ref: str = Field(..., min_length=1, max_length=300)
+    observable_subset_ref: str | None = Field(default=None, max_length=300)
+    uncertainty_interval_refs: list[str] = Field(default_factory=list, max_length=80)
+    welfare_comparison_ref: str | None = Field(default=None, max_length=300)
+    s5_forecast_support_ref: str = Field(..., min_length=1, max_length=300)
+    s6_firewall_status_refs: list[str] = Field(
+        default_factory=list,
+        min_length=1,
+        max_length=80,
+    )
+    s8_value_choice_provenance_ref: str = Field(..., min_length=1, max_length=300)
+    s8_value_tradeoff_disclosure_ref: str = Field(..., min_length=1, max_length=300)
+    source_contract_ref: str | None = Field(default=None, max_length=300)
+    method_validity_ref: str | None = Field(default=None, max_length=300)
+    credible_evaluation_evidence_ref: str | None = Field(default=None, max_length=300)
+    dynamic_equilibrium_check_ref: str | None = Field(default=None, max_length=300)
+    sensitivity_analysis_ref: str | None = Field(default=None, max_length=300)
+    authority_boundary: AuthorityBoundary
+    may_not_use_for: list[str] = Field(default_factory=list, max_length=40)
+    rule_version_ref: str = Field(..., min_length=1, max_length=300)
 
 
 class TypedDiagnosticRecord(Layer2ReadinessModel):
@@ -489,6 +541,15 @@ class SearchLedger(Layer2ReadinessModel):
     shadow_scenario_value_schedule_refs: list[str] = Field(default_factory=list, max_length=40)
     value_authorization_decision_refs: list[str] = Field(default_factory=list, max_length=40)
     value_choice_status: str = Field(default="not_applicable", min_length=1, max_length=120)
+    forecast_support_refs: list[str] = Field(default_factory=list, max_length=40)
+    forecast_calibration_record_refs: list[str] = Field(default_factory=list, max_length=40)
+    forecast_posture_refs: list[str] = Field(default_factory=list, max_length=40)
+    forecast_authority_status: str = Field(
+        default="not_applicable",
+        min_length=1,
+        max_length=120,
+    )
+    forecast_authority_boundary: AuthorityBoundary | None = None
     no_retry_without_new_grammar: bool
     search_incompleteness_note: str
 
@@ -537,6 +598,7 @@ class Layer2S2DesignSearchRun(Layer2ReadinessModel):
     blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None
     delegation_posture: Layer2S7DelegationPostureInput | None = None
     value_posture: Layer2S8ValuePostureInput | None = None
+    forecast_posture: Layer2S10ForecastPostureInput | None = None
 
 
 def run_s2_shadow_design_loop(
@@ -551,6 +613,7 @@ def run_s2_shadow_design_loop(
     blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
     delegation_posture: Layer2S7DelegationPostureInput | None = None,
     value_posture: Layer2S8ValuePostureInput | None = None,
+    forecast_posture: Layer2S10ForecastPostureInput | None = None,
 ) -> Layer2S2DesignSearchRun:
     """Run the deterministic S2 one-case shadow design-search loop."""
 
@@ -611,6 +674,7 @@ def run_s2_shadow_design_loop(
         blind_spot_posture=blind_spot_posture,
         delegation_posture=delegation_posture,
         value_posture=value_posture,
+        forecast_posture=forecast_posture,
     )
     design_record = _design_record(
         input,
@@ -626,6 +690,7 @@ def run_s2_shadow_design_loop(
         blind_spot_posture=blind_spot_posture,
         delegation_posture=delegation_posture,
         value_posture=value_posture,
+        forecast_posture=forecast_posture,
     )
     status: S2RunStatus = (
         "governance_required"
@@ -661,6 +726,7 @@ def run_s2_shadow_design_loop(
             composition_posture=composition_posture,
             blind_spot_posture=blind_spot_posture,
             value_posture=value_posture,
+            forecast_posture=forecast_posture,
         ),
         handoff_records=_handoff_records(
             candidate,
@@ -670,12 +736,14 @@ def run_s2_shadow_design_loop(
             blind_spot_posture=blind_spot_posture,
             delegation_posture=delegation_posture,
             value_posture=value_posture,
+            forecast_posture=forecast_posture,
         ),
         design_record=design_record,
         composition_posture=composition_posture,
         blind_spot_posture=blind_spot_posture,
         delegation_posture=delegation_posture,
         value_posture=value_posture,
+        forecast_posture=forecast_posture,
     )
 
 
@@ -785,6 +853,10 @@ def project_s2_design_search(
             )
             if audience == "PUBLIC":
                 assert_s2_public_projection_has_value_tradeoff_disclosure(projection)
+        if run.forecast_posture is not None:
+            projection.update(
+                _s10_projection_fields(audience, forecast_posture=run.forecast_posture)
+            )
         projection.update(s9_context)
         projections[audience] = projection
     return projections
@@ -1284,6 +1356,7 @@ def _search_ledger(
     blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
     delegation_posture: Layer2S7DelegationPostureInput | None = None,
     value_posture: Layer2S8ValuePostureInput | None = None,
+    forecast_posture: Layer2S10ForecastPostureInput | None = None,
 ) -> SearchLedger:
     slug = _slug(input.case_id)
     replay_key = _deterministic_replay_key(
@@ -1295,6 +1368,7 @@ def _search_ledger(
         blind_spot_posture=blind_spot_posture,
         delegation_posture=delegation_posture,
         value_posture=value_posture,
+        forecast_posture=forecast_posture,
     )
     handoff_refs = [
         *_s7_handoff_refs(delegation_posture),
@@ -1336,6 +1410,15 @@ def _search_ledger(
             value_posture
         ),
         value_choice_status=_s8_value_choice_status(value_posture),
+        forecast_support_refs=_s10_forecast_support_refs(forecast_posture),
+        forecast_calibration_record_refs=_s10_forecast_calibration_record_refs(
+            forecast_posture
+        ),
+        forecast_posture_refs=_s10_forecast_posture_refs(forecast_posture),
+        forecast_authority_status=_s10_forecast_authority_status(forecast_posture),
+        forecast_authority_boundary=(
+            forecast_posture.authority_boundary if forecast_posture is not None else None
+        ),
         no_retry_without_new_grammar=input.force_retry_same_candidate,
         search_incompleteness_note=_SEARCH_INCOMPLETENESS_NOTE,
     )
@@ -1356,6 +1439,7 @@ def _design_record(
     blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
     delegation_posture: Layer2S7DelegationPostureInput | None = None,
     value_posture: Layer2S8ValuePostureInput | None = None,
+    forecast_posture: Layer2S10ForecastPostureInput | None = None,
 ) -> DesignRecordV0:
     slug = _slug(input.case_id)
     axis_positions = [
@@ -1479,6 +1563,12 @@ def _design_record(
         axis_positions.append(_s8_axis_position(value_posture, input.rule_version_ref))
         firewall_status.append(_s8_firewall_status(value_posture, input.rule_version_ref))
         ledger_refs.extend(_s8_ledger_refs(value_posture))
+        projection_audiences = ["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"]
+
+    if forecast_posture is not None:
+        axis_positions.append(_s10_axis_position(forecast_posture))
+        firewall_status.append(_s10_firewall_status(forecast_posture))
+        ledger_refs.extend(_s10_design_record_ledger_refs(forecast_posture))
         projection_audiences = ["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"]
 
     not_certified_for = list(_MAY_NOT_USE_FOR)
@@ -1966,6 +2056,69 @@ def _s8_projection_fields(
     return fields
 
 
+def _s10_projection_fields(
+    audience: Literal["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"],
+    *,
+    forecast_posture: Layer2S10ForecastPostureInput,
+) -> dict[str, object]:
+    if audience == "PUBLIC":
+        return {
+            "forecast_tier": forecast_posture.forecast_tier,
+            "forecast_limitations": [
+                forecast_posture.forecast_authority_disposition_reason,
+                "forecast support only; not production recommendation authority",
+            ],
+        }
+
+    fields: dict[str, object] = {
+        "forecast_tier": forecast_posture.forecast_tier,
+        "forecast_authority_status": forecast_posture.forecast_tier,
+        "forecast_authority_disposition_reason": (
+            forecast_posture.forecast_authority_disposition_reason
+        ),
+        "forecast_support_label": forecast_posture.forecast_support_label,
+        "forecast_support_ref": forecast_posture.forecast_support_ref,
+        "forecast_calibration_record_ref": (
+            forecast_posture.forecast_calibration_record_ref
+        ),
+        "forecast_authority_boundary": forecast_posture.authority_boundary.model_dump(
+            mode="json"
+        ),
+        "weakest_boundary_inherited": True,
+    }
+    if audience in {"EXPERT", "MACHINE"}:
+        fields.update(
+            {
+                "design_graph_ref": forecast_posture.design_graph_ref,
+                "prediction_context_ref": forecast_posture.prediction_context_ref,
+                "policy_context_ref": forecast_posture.policy_context_ref,
+                "source_contract_ref": forecast_posture.source_contract_ref,
+                "method_validity_ref": forecast_posture.method_validity_ref,
+                "credible_evaluation_evidence_ref": (
+                    forecast_posture.credible_evaluation_evidence_ref
+                ),
+                "dynamic_equilibrium_check_ref": (
+                    forecast_posture.dynamic_equilibrium_check_ref
+                ),
+                "sensitivity_analysis_ref": forecast_posture.sensitivity_analysis_ref,
+                "uncertainty_interval_refs": list(
+                    forecast_posture.uncertainty_interval_refs
+                ),
+                "s5_forecast_support_ref": forecast_posture.s5_forecast_support_ref,
+                "s6_firewall_status_refs": list(forecast_posture.s6_firewall_status_refs),
+                "s8_value_choice_provenance_ref": (
+                    forecast_posture.s8_value_choice_provenance_ref
+                ),
+                "s8_value_tradeoff_disclosure_ref": (
+                    forecast_posture.s8_value_tradeoff_disclosure_ref
+                ),
+                "welfare_comparison_ref": forecast_posture.welfare_comparison_ref,
+                "may_not_use_for": list(forecast_posture.may_not_use_for),
+            }
+        )
+    return fields
+
+
 def _s6_axis_positions(
     blind_spot_posture: Layer2S6BlindSpotPostureInput,
     rule_version_ref: str,
@@ -2364,6 +2517,45 @@ def _s8_firewall_status(
     )
 
 
+def _s10_axis_position(
+    forecast_posture: Layer2S10ForecastPostureInput,
+) -> AxisPositionDeclaration:
+    return AxisPositionDeclaration(
+        cluster="KNOWLEDGE",
+        axis="outcome_prediction_welfare_comparison",
+        position=(
+            f"forecast_tier={forecast_posture.forecast_tier};"
+            f"support_label={forecast_posture.forecast_support_label}"
+        ),
+        evidence_refs=_s10_design_record_ledger_refs(forecast_posture),
+        authority_purpose="forecast_support_posture_consumption",
+        rule_version_ref=forecast_posture.rule_version_ref,
+    )
+
+
+def _s10_firewall_status(
+    forecast_posture: Layer2S10ForecastPostureInput,
+) -> AxisFirewallStatus:
+    status: Literal["pass", "warn", "limit", "block"]
+    if forecast_posture.forecast_tier in {"blocked", "equilibrium_contested_blocked"}:
+        status = "block"
+    elif forecast_posture.forecast_tier == "observable_calibrated":
+        status = "pass"
+    else:
+        status = "limit"
+    return AxisFirewallStatus(
+        cell_ref="KNOWLEDGE.outcome_prediction_welfare_comparison",
+        status=status,
+        pattern_ids=["P05", "P10", "P17", "P20", "P24", "P25"],
+        reason=(
+            "S10 injected forecast-support posture; S2 consumes refs without "
+            "recomputing forecast authority or creating recommendation authority."
+        ),
+        maturity="fail_closed",
+        rule_version_ref=forecast_posture.rule_version_ref,
+    )
+
+
 def _s8_ledger_refs(value_posture: Layer2S8ValuePostureInput) -> list[str]:
     refs = [
         value_posture.value_choice_provenance_ref,
@@ -2424,6 +2616,59 @@ def _s8_value_choice_status(value_posture: Layer2S8ValuePostureInput | None) -> 
     return value_posture.disposition
 
 
+def _s10_forecast_support_refs(
+    forecast_posture: Layer2S10ForecastPostureInput | None,
+) -> list[str]:
+    if forecast_posture is None:
+        return []
+    return [forecast_posture.forecast_support_ref]
+
+
+def _s10_forecast_calibration_record_refs(
+    forecast_posture: Layer2S10ForecastPostureInput | None,
+) -> list[str]:
+    if forecast_posture is None or forecast_posture.forecast_calibration_record_ref is None:
+        return []
+    return [forecast_posture.forecast_calibration_record_ref]
+
+
+def _s10_forecast_posture_refs(
+    forecast_posture: Layer2S10ForecastPostureInput | None,
+) -> list[str]:
+    if forecast_posture is None:
+        return []
+    refs = [
+        forecast_posture.design_graph_ref,
+        forecast_posture.prediction_context_ref,
+        forecast_posture.policy_context_ref,
+        forecast_posture.welfare_comparison_ref,
+        forecast_posture.observable_subset_ref,
+        *forecast_posture.uncertainty_interval_refs,
+    ]
+    return [ref for ref in dict.fromkeys(refs) if ref is not None][:40]
+
+
+def _s10_forecast_authority_status(
+    forecast_posture: Layer2S10ForecastPostureInput | None,
+) -> str:
+    if forecast_posture is None:
+        return "not_applicable"
+    return forecast_posture.forecast_tier
+
+
+def _s10_design_record_ledger_refs(
+    forecast_posture: Layer2S10ForecastPostureInput,
+) -> list[str]:
+    refs = [
+        forecast_posture.forecast_support_ref,
+        forecast_posture.forecast_calibration_record_ref,
+        forecast_posture.design_graph_ref,
+        forecast_posture.prediction_context_ref,
+        forecast_posture.welfare_comparison_ref,
+    ]
+    return [ref for ref in dict.fromkeys(refs) if ref is not None][:10]
+
+
 def _s8_handoff_refs(value_posture: Layer2S8ValuePostureInput | None) -> list[str]:
     if value_posture is None:
         return []
@@ -2469,6 +2714,37 @@ def _s8_handoff_disposition(
     if value_posture.disposition == "shadow_scenario_only":
         return "rejected"
     return "consumed"
+
+
+def _s10_handoff_record(
+    forecast_posture: Layer2S10ForecastPostureInput,
+) -> ClusterHandoffRecord:
+    return ClusterHandoffRecord(
+        handoff_id="layer2.s2.handoff.s10_forecast_posture",
+        workflow_ref="workflow://layer2/s2/shadow-design-loop",
+        source_cell_ref="KNOWLEDGE.outcome_prediction_welfare_comparison",
+        target_cell_ref="INTERVENTION.design_candidate",
+        artifact_refs=[
+            forecast_posture.forecast_support_ref,
+            *[
+                ref
+                for ref in (
+                    forecast_posture.forecast_calibration_record_ref,
+                    forecast_posture.design_graph_ref,
+                    forecast_posture.prediction_context_ref,
+                )
+                if ref is not None
+            ],
+        ],
+        disposition="consumed",
+        authority_purpose=(
+            "Layer2S10ForecastPostureInput forecast_support_posture_consumed"
+        ),
+        may_not_use_for=_merge_unique_strings(
+            forecast_posture.may_not_use_for,
+            _S10_REQUIRED_HANDOFF_MAY_NOT_USE_FOR,
+        ),
+    )
 
 
 def _s8_action_route(value_posture: Layer2S8ValuePostureInput) -> str:
@@ -2658,6 +2934,7 @@ def _cluster_interfaces(
     composition_posture: Layer2S5CompositionPostureInput | None = None,
     blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
     value_posture: Layer2S8ValuePostureInput | None = None,
+    forecast_posture: Layer2S10ForecastPostureInput | None = None,
 ) -> list[ClusterInterfaceContract]:
     contracts = [
         ClusterInterfaceContract(
@@ -2732,6 +3009,16 @@ def _cluster_interfaces(
                 authority_boundary=boundary,
             )
         )
+    if forecast_posture is not None:
+        contracts.append(
+            ClusterInterfaceContract(
+                contract_id="layer2.s2.cluster.interface.outcome_prediction",
+                cell_ref="KNOWLEDGE.outcome_prediction_welfare_comparison",
+                publishes=["SearchLedger"],
+                consumes=["Layer2S10ForecastPostureInput"],
+                authority_boundary=forecast_posture.authority_boundary,
+            )
+        )
     return contracts
 
 
@@ -2744,6 +3031,7 @@ def _handoff_records(
     blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
     delegation_posture: Layer2S7DelegationPostureInput | None = None,
     value_posture: Layer2S8ValuePostureInput | None = None,
+    forecast_posture: Layer2S10ForecastPostureInput | None = None,
 ) -> list[ClusterHandoffRecord]:
     records = [
         ClusterHandoffRecord(
@@ -2798,6 +3086,8 @@ def _handoff_records(
         )
     if value_posture is not None:
         records.extend(_s8_handoff_records(value_posture))
+    if forecast_posture is not None:
+        records.append(_s10_handoff_record(forecast_posture))
     return records
 
 
@@ -2852,6 +3142,7 @@ def _deterministic_replay_key(
     blind_spot_posture: Layer2S6BlindSpotPostureInput | None = None,
     delegation_posture: Layer2S7DelegationPostureInput | None = None,
     value_posture: Layer2S8ValuePostureInput | None = None,
+    forecast_posture: Layer2S10ForecastPostureInput | None = None,
 ) -> str:
     payload = {
         "case_id": input.case_id,
@@ -2890,6 +3181,17 @@ def _deterministic_replay_key(
         payload["delegation_posture"] = delegation_posture.model_dump(mode="json")
     if value_posture is not None:
         payload["value_posture"] = value_posture.model_dump(mode="json")
+    if forecast_posture is not None:
+        payload["forecast_posture"] = {
+            "forecast_support_ref": forecast_posture.forecast_support_ref,
+            "forecast_calibration_record_ref": (
+                forecast_posture.forecast_calibration_record_ref
+            ),
+            "forecast_tier": forecast_posture.forecast_tier,
+            "design_graph_ref": forecast_posture.design_graph_ref,
+            "prediction_context_ref": forecast_posture.prediction_context_ref,
+            "rule_version_ref": forecast_posture.rule_version_ref,
+        }
     canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 

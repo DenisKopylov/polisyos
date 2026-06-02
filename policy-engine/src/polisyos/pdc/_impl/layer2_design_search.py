@@ -1756,6 +1756,7 @@ def _design_record(
         and predictive_posture.effective_predictive_posture == "fail_closed"
     ):
         not_certified_for.append("closeout_authority_blocked_by_s11")
+    ledger_refs = list(dict.fromkeys(ledger_refs))[:40]
 
     return DesignRecordV0(
         record_id=f"layer2.s2.design_record.{slug}",

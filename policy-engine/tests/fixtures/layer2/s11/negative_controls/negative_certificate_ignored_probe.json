@@ -1,0 +1,8 @@
+{
+  "case_id": "ua-msme-affordable-loans-2022",
+  "expected_disposition": "proof_blocked",
+  "expected_false_clear_count": 0,
+  "false_clear_field": "negative_certificate_ignored",
+  "probe_id": "negative_certificate_ignored",
+  "why_it_must_not_clear": "negative_certificate_ignored must not relax S11 predictive authority in W12.D."
+}

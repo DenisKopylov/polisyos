@@ -1,0 +1,8 @@
+{
+  "case_id": "ua-msme-affordable-loans-2022",
+  "expected_disposition": "reverted_fail_closed",
+  "expected_false_clear_count": 0,
+  "false_clear_field": "stale_calibration_relaxation",
+  "probe_id": "stale_calibration_relaxation",
+  "why_it_must_not_clear": "stale_calibration_relaxation must not relax S11 predictive authority in W12.D."
+}

@@ -1,0 +1,8 @@
+{
+  "case_id": "ua-msme-affordable-loans-2022",
+  "expected_disposition": "reverted_fail_closed",
+  "expected_false_clear_count": 0,
+  "false_clear_field": "scope_mismatched_historical_prior",
+  "probe_id": "scope_mismatched_historical_prior",
+  "why_it_must_not_clear": "scope_mismatched_historical_prior must not relax S11 predictive authority in W12.D."
+}

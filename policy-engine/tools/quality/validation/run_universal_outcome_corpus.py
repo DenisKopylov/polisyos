@@ -40,6 +40,7 @@ from polisyos.pdc import (  # noqa: E402
     Layer2S7DelegationPostureInput,
     Layer2S8ValuePostureInput,
     Layer2S10ForecastPostureInput,
+    Layer2S11PredictivePostureInput,
     run_s2_shadow_design_loop,
 )
 from polisyos.policy_grammar import (  # noqa: E402
@@ -120,6 +121,17 @@ from polisyos.runtime.quality.layer2_outcome_prediction import (  # noqa: E402
     build_forecast_calibration_record,
     build_forecast_support,
 )
+from polisyos.runtime.quality.layer2_predictive_knowledge import (  # noqa: E402
+    LAYER2_S11_PREDICTIVE_KNOWLEDGE_RULE_VERSION,
+    LAYER2_S11_PREDICTIVE_KNOWLEDGE_SCHEMA_VERSION,
+    S11_AXIS_CALIBRATION_FLOOR_ID,
+    S11_FALSE_CLEAR_FIELDS,
+    build_predictive_axis_calibration_record,
+    build_predictive_axis_upgrade_record,
+    build_proof_carrying_analytics_record,
+    build_s11_predictive_knowledge_posture,
+    summarize_s11_predictive_knowledge_integrity,
+)
 from polisyos.runtime.quality.layer2_projection_lowering import (  # noqa: E402
     LAYER2_S9_PROJECTION_LOWERING_RULE_VERSION,
     LAYER2_S9_PROJECTION_LOWERING_SCHEMA_VERSION,
@@ -194,6 +206,12 @@ S10_CASE_SIGNALS_PATH = Path(
 )
 S10_EXPERT_LABELS_PATH = Path(
     "tests/fixtures/layer2/s10/s10_outcome_prediction_expert_labels.json"
+)
+S11_CASE_SIGNALS_PATH = Path(
+    "tests/fixtures/layer2/s11/s11_predictive_knowledge_case_signals.json"
+)
+S11_EXPERT_LABELS_PATH = Path(
+    "tests/fixtures/layer2/s11/s11_predictive_knowledge_expert_labels.json"
 )
 S9_CASE_SIGNALS_PATH = Path("tests/fixtures/layer2/s9/s9_projection_lowering_case_signals.json")
 S9_EXPERT_LABELS_PATH = Path("tests/fixtures/layer2/s9/s9_projection_lowering_expert_labels.json")
@@ -326,6 +344,18 @@ S10_NEGATIVE_CONTROL_PROBE_PATHS: tuple[Path, ...] = (
     Path("tests/fixtures/layer2/s10/scalar_welfare_hides_pareto_tradeoff_probe.json"),
     Path("tests/fixtures/layer2/s10/weakest_boundary_ignored_probe.json"),
 )
+S11_NEGATIVE_CONTROL_PROBE_PATHS: tuple[Path, ...] = (
+    Path("tests/fixtures/layer2/s11/negative_controls/stale_calibration_relaxation_probe.json"),
+    Path("tests/fixtures/layer2/s11/negative_controls/scope_mismatched_historical_prior_probe.json"),
+    Path("tests/fixtures/layer2/s11/negative_controls/unbound_ir_analytics_probe.json"),
+    Path("tests/fixtures/layer2/s11/negative_controls/negative_certificate_ignored_probe.json"),
+    Path("tests/fixtures/layer2/s11/negative_controls/missing_method_validity_probe.json"),
+    Path("tests/fixtures/layer2/s11/negative_controls/missing_s6_floor_ref_probe.json"),
+    Path("tests/fixtures/layer2/s11/negative_controls/mandate_axis_predictive_upgrade_probe.json"),
+    Path("tests/fixtures/layer2/s11/negative_controls/production_authority_from_predictive_upgrade_probe.json"),
+    Path("tests/fixtures/layer2/s11/negative_controls/rich_simulation_authority_laundering_probe.json"),
+    Path("tests/fixtures/layer2/s11/negative_controls/weakest_boundary_bypass_probe.json"),
+)
 S8_MAY_NOT_USE_FOR: tuple[str, ...] = (
     "production_recommendation",
     "production_claim_authority",
@@ -364,6 +394,28 @@ S10_MAY_NOT_USE_FOR: tuple[str, ...] = (
     "s12_envelope_growth",
     "s13_accountability_closure",
     "s14_universality",
+)
+S11_MAY_NOT_USE_FOR: tuple[str, ...] = (
+    "production_authority",
+    "production_recommendation",
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority",
+    "claim_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "calibrated_equilibrium_prediction",
+    "rich_simulation_authority",
+    "portfolio_optimization_authority",
+    "preference_learning_authority",
+    "s12_envelope_growth",
+    "s13_accountability_closure",
+    "s14_universality",
+    "mandate_legitimacy_predictive_upgrade",
+    "historical_prior_current_evidence",
+    "llm_method_authority",
 )
 
 
@@ -409,6 +461,10 @@ def build_w12d_universal_outcome_corpus_report(
         cases,
         repo_root=Path(repo_root),
     )
+    s11_predictive_knowledge_summary = _s11_predictive_knowledge_summary(
+        cases,
+        repo_root=Path(repo_root),
+    )
     s9_projection_lowering_summary = _s9_projection_lowering_summary(
         cases,
         repo_root=Path(repo_root),
@@ -432,6 +488,7 @@ def build_w12d_universal_outcome_corpus_report(
         "s7_delegation_summary": s7_delegation_summary,
         "s8_value_choice_summary": s8_value_choice_summary,
         "s10_outcome_prediction_summary": s10_outcome_prediction_summary,
+        "s11_predictive_knowledge_summary": s11_predictive_knowledge_summary,
         "s9_projection_lowering_summary": s9_projection_lowering_summary,
         "cases": cases,
         "authority_level_metric_stratification": _authority_stratification(cases),
@@ -1042,6 +1099,12 @@ def _run_case(
         s6_blind_spot_firewalls=s6_blind_spot_firewalls,
         s8_value_choice=s8_value_choice,
     )
+    s11_predictive_knowledge = _s11_predictive_knowledge_case_block(
+        case,
+        repo_root=repo_root,
+        s6_blind_spot_firewalls=s6_blind_spot_firewalls,
+        s10_outcome_prediction=s10_outcome_prediction,
+    )
     s2_design_search = _s2_design_search_summary(
         case,
         repo_root=repo_root,
@@ -1051,6 +1114,7 @@ def _run_case(
         s7_delegation=s7_delegation,
         s8_value_choice=s8_value_choice,
         s10_outcome_prediction=s10_outcome_prediction,
+        s11_predictive_knowledge=s11_predictive_knowledge,
     )
     s10_outcome_prediction = _s10_with_source_design_record(
         s10_outcome_prediction,
@@ -1084,6 +1148,7 @@ def _run_case(
         "s7_delegation": s7_delegation,
         "s8_value_choice": s8_value_choice,
         "s10_outcome_prediction": s10_outcome_prediction,
+        "s11_predictive_knowledge": s11_predictive_knowledge,
         "s9_projection_lowering": s9_projection_lowering,
         "closeout_visible_refs": _closeout_visible_refs(
             s7_delegation=s7_delegation,
@@ -1106,6 +1171,7 @@ def _s2_design_search_summary(
     s7_delegation: Mapping[str, Any] | None = None,
     s8_value_choice: Mapping[str, Any] | None = None,
     s10_outcome_prediction: Mapping[str, Any] | None = None,
+    s11_predictive_knowledge: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     case_id = str(case.get("case_id") or case.get("id") or "")
     if case_id != "ua-msme-affordable-loans-2022":
@@ -1131,6 +1197,28 @@ def _s2_design_search_summary(
                     ),
                     "forecast_authority_boundary": _mapping(
                         s10_outcome_prediction.get("authority_boundary")
+                    ),
+                }
+            )
+        if s11_predictive_knowledge is not None:
+            summary.update(
+                {
+                    "predictive_posture_ref": _text(
+                        s11_predictive_knowledge.get("predictive_knowledge_ref")
+                    ),
+                    "proof_carrying_analytics_ref": _text(
+                        s11_predictive_knowledge.get("proof_carrying_analytics_ref")
+                    ),
+                    "per_axis_predictive_calibration_status": _text(
+                        s11_predictive_knowledge.get(
+                            "per_axis_predictive_calibration_status"
+                        )
+                    ),
+                    "effective_predictive_posture": _text(
+                        s11_predictive_knowledge.get("effective_predictive_posture")
+                    ),
+                    "predictive_authority_boundary": _mapping(
+                        s11_predictive_knowledge.get("authority_boundary")
                     ),
                 }
             )
@@ -1185,6 +1273,11 @@ def _s2_design_search_summary(
         if s10_outcome_prediction
         else None
     )
+    predictive_posture = (
+        _s11_predictive_posture_input(s11_predictive_knowledge)
+        if s11_predictive_knowledge
+        else None
+    )
     if s4_epistemic_regime:
         run = run_s2_shadow_design_loop(
             input_row,
@@ -1202,6 +1295,7 @@ def _s2_design_search_summary(
             delegation_posture=delegation_posture,
             value_posture=value_posture,
             forecast_posture=forecast_posture,
+            predictive_posture=predictive_posture,
         )
     else:
         run = run_s2_shadow_design_loop(
@@ -1211,6 +1305,7 @@ def _s2_design_search_summary(
             delegation_posture=delegation_posture,
             value_posture=value_posture,
             forecast_posture=forecast_posture,
+            predictive_posture=predictive_posture,
         )
     return {
         "status": run.status,
@@ -1228,6 +1323,11 @@ def _s2_design_search_summary(
         "forecast_posture": (
             run.forecast_posture.model_dump(mode="json")
             if run.forecast_posture is not None
+            else None
+        ),
+        "predictive_posture": (
+            run.predictive_posture.model_dump(mode="json")
+            if run.predictive_posture is not None
             else None
         ),
         "search_ledger": run.search_ledger.model_dump(mode="json"),
@@ -3529,6 +3629,729 @@ def _s10_forecast_posture_input(
         may_not_use_for=_text_list(s10_outcome_prediction.get("may_not_use_for")),
         rule_version_ref=LAYER2_S10_OUTCOME_PREDICTION_RULE_VERSION,
     )
+
+
+def _s11_predictive_knowledge_case_block(
+    case: Mapping[str, object],
+    *,
+    repo_root: Path,
+    s6_blind_spot_firewalls: Mapping[str, object],
+    s10_outcome_prediction: Mapping[str, object],
+) -> dict[str, object]:
+    """Build the S11 predictive-knowledge block from S6/S10 and S11 fixtures."""
+
+    case_id = _required_text(case.get("case_id") or case.get("id"), field_name="case_id")
+    signals = _s11_case_signals(repo_root).get(case_id)
+    labels = _s11_expert_labels(repo_root).get(case_id)
+    if not signals or not labels:
+        raise W12DCaseRunError(f"S11 predictive-knowledge fixture missing for {case_id}")
+
+    s6_floor_refs = _s11_s6_floor_status_refs(
+        s6_blind_spot_firewalls,
+        fallback=_sequence(signals.get("s6_floor_status_refs")),
+    )
+    s6_axis_rows = list(
+        _sequence_of_mappings(s6_blind_spot_firewalls.get("axis_rows"))
+    ) or list(_sequence_of_mappings(signals.get("s6_axis_rows")))
+    s6_bridge_rows = list(
+        _sequence_of_mappings(s6_blind_spot_firewalls.get("bridge_consumer_table"))
+    ) or list(_sequence_of_mappings(signals.get("s6_bridge_consumer_rows")))
+    s6_constraint_refs = _text_list(
+        [
+            *_sequence(signals.get("s6_constraint_store_update_refs")),
+            *[
+                row.get("source_ref")
+                for row in _sequence_of_mappings(
+                    s6_blind_spot_firewalls.get("constraint_store_entry_table")
+                )
+            ],
+        ]
+    )
+    s6_c3_refs = _text_list(
+        [
+            *_sequence(signals.get("s6_c3_authority_dimension_refs")),
+            *[
+                row.get("record_ref")
+                or row.get("authority_dimension_ref")
+                or row.get("authority_dimension")
+                for row in _sequence_of_mappings(
+                    s6_blind_spot_firewalls.get("c3_authority_dimension_table")
+                )
+            ],
+        ]
+    )
+    proof = _s11_proof_record(
+        signals,
+        s10_outcome_prediction=s10_outcome_prediction,
+    )
+    axis_records = [
+        _s11_axis_records(
+            row,
+            case_id=case_id,
+            signals=signals,
+            s10_outcome_prediction=s10_outcome_prediction,
+            proof_ref=proof.proof_ref,
+        )
+        for row in _sequence_of_mappings(signals.get("axis_rows"))
+    ]
+    calibration_records = [pair[0] for pair in axis_records]
+    upgrade_records = [pair[1] for pair in axis_records]
+    posture = build_s11_predictive_knowledge_posture(
+        case_id=case_id,
+        calibration_records=calibration_records,
+        proof_records=[proof],
+        axis_upgrade_rows=upgrade_records,
+        s6_floor_status_refs=s6_floor_refs,
+        s6_axis_rows=s6_axis_rows,
+        s6_bridge_consumer_rows=s6_bridge_rows,
+        s6_constraint_store_update_refs=s6_constraint_refs,
+        s6_c3_authority_dimension_refs=s6_c3_refs,
+        post_intervention_dgp_update_ref=_text(
+            s6_blind_spot_firewalls.get("post_intervention_dgp_update_ref")
+        )
+        or _text(signals.get("post_intervention_dgp_update_ref"))
+        or None,
+        system_dynamics_handoff_required=bool(
+            s6_blind_spot_firewalls.get("system_dynamics_handoff_required")
+            or signals.get("system_dynamics_handoff_required")
+        ),
+        s10_forecast_support_ref=_required_text(
+            s10_outcome_prediction.get("forecast_support_ref"),
+            field_name="s10_forecast_support_ref",
+        ),
+        s10_forecast_tier=_required_text(
+            s10_outcome_prediction.get("forecast_tier"),
+            field_name="s10_forecast_tier",
+        ),
+        predictive_knowledge_ref=_required_text(
+            signals.get("predictive_knowledge_input_ref"),
+            field_name="predictive_knowledge_input_ref",
+        ),
+    )
+    block = dict(posture)
+    block.update(
+        {
+            "schema_version": LAYER2_S11_PREDICTIVE_KNOWLEDGE_SCHEMA_VERSION,
+            "per_axis_predictive_calibration_threshold": float(
+                signals.get("per_axis_predictive_calibration_threshold") or 0.5
+            ),
+            "per_axis_predictive_calibration_threshold_ref": _required_text(
+                signals.get("per_axis_predictive_calibration_threshold_ref"),
+                field_name="per_axis_predictive_calibration_threshold_ref",
+            ),
+            "weakest_boundary_reason": _s11_weakest_boundary_reason(block),
+            "coverage_labels": _text_list(labels.get("coverage_labels")),
+            "source_signal_refs": [
+                _required_text(
+                    signals.get("predictive_knowledge_input_ref"),
+                    field_name="predictive_knowledge_input_ref",
+                )
+            ],
+        }
+    )
+    block["matches_gold"] = _s11_matches_gold(block, labels)
+    return block
+
+
+def _s11_axis_records(
+    row: Mapping[str, object],
+    *,
+    case_id: str,
+    signals: Mapping[str, object],
+    s10_outcome_prediction: Mapping[str, object],
+    proof_ref: str,
+) -> tuple[object, object]:
+    axis = _required_text(row.get("axis"), field_name="axis")
+    cell_ref = _required_text(row.get("cell_ref"), field_name="cell_ref")
+    calibration_ref = _required_text(
+        row.get("calibration_record_ref")
+        or f"pdc://layer2/s11/{case_id}/calibration/{axis}",
+        field_name="calibration_record_ref",
+    )
+    s6_floor_record_ref = _required_text(
+        row.get("s6_floor_record_ref"),
+        field_name="s6_floor_record_ref",
+    )
+    denominator = int(row.get("denominator") or 1)
+    numerator = int(row.get("numerator") or 0)
+    threshold = float(
+        row.get("threshold")
+        or signals.get("per_axis_predictive_calibration_threshold")
+        or 0.5
+    )
+    floor_passed = bool(row.get("floor_passed"))
+    calibration = build_predictive_axis_calibration_record(
+        calibration_id=f"layer2.s11.calibration.{case_id}.{axis}",
+        calibration_ref=calibration_ref,
+        case_id=case_id,
+        axis=axis,
+        cell_ref=cell_ref,
+        s6_floor_record_ref=s6_floor_record_ref,
+        s10_forecast_support_ref=_required_text(
+            s10_outcome_prediction.get("forecast_support_ref"),
+            field_name="s10_forecast_support_ref",
+        ),
+        s10_forecast_calibration_record_ref=_text(
+            s10_outcome_prediction.get("forecast_calibration_record_ref")
+        )
+        or None,
+        calibration_ledger_ref=_required_text(
+            signals.get("calibration_ledger_ref"),
+            field_name="calibration_ledger_ref",
+        ),
+        calibration_scope_ref=_required_text(
+            row.get("calibration_scope_ref")
+            or f"scope://layer2/s11/{case_id}/{axis}/current",
+            field_name="calibration_scope_ref",
+        ),
+        prediction_context_ref=_required_text(
+            s10_outcome_prediction.get("prediction_context_ref"),
+            field_name="prediction_context_ref",
+        ),
+        policy_context_ref=_required_text(
+            s10_outcome_prediction.get("policy_context_ref"),
+            field_name="policy_context_ref",
+        ),
+        model_family=_required_text(
+            row.get("model_family") or "local_causal_predictive_overlay",
+            field_name="model_family",
+        ),
+        source_contract_ref=_required_text(
+            row.get("source_contract_ref")
+            or s10_outcome_prediction.get("source_contract_ref")
+            or f"source-contract://layer2/s11/{case_id}/{axis}",
+            field_name="source_contract_ref",
+        ),
+        method_validity_ref=_required_text(
+            row.get("method_validity_ref")
+            or s10_outcome_prediction.get("method_validity_ref")
+            or f"method-validity://layer2/s11/{case_id}/{axis}",
+            field_name="method_validity_ref",
+        ),
+        method_infrastructure_refs=_text_list(
+            row.get("method_infrastructure_refs")
+            or signals.get("method_infrastructure_refs")
+        ),
+        source_lineage_refs=_text_list(
+            row.get("source_lineage_refs")
+            or s10_outcome_prediction.get("source_lineage_refs")
+        ),
+        method_lineage_refs=_text_list(
+            row.get("method_lineage_refs")
+            or s10_outcome_prediction.get("method_lineage_refs")
+        ),
+        effective_independence_refs=_text_list(
+            row.get("effective_independence_refs")
+            or [f"independence://layer2/s11/{case_id}/{axis}"]
+        ),
+        sensitivity_analysis_ref=_required_text(
+            row.get("sensitivity_analysis_ref")
+            or s10_outcome_prediction.get("sensitivity_analysis_ref")
+            or f"sensitivity://layer2/s11/{case_id}/{axis}",
+            field_name="sensitivity_analysis_ref",
+        ),
+        credible_evaluation_evidence_ref=_text(
+            s10_outcome_prediction.get("credible_evaluation_evidence_ref")
+        )
+        or None,
+        counterfactual_credibility_ref=_text(
+            row.get("counterfactual_credibility_ref")
+        )
+        or None,
+        prediction_time=datetime(2024, 1, 1, tzinfo=UTC),
+        observation_time=datetime(2025, 1, 1, tzinfo=UTC),
+        policy_effective_time=datetime(2023, 1, 1, tzinfo=UTC),
+        data_valid_time=datetime(2025, 1, 1, tzinfo=UTC),
+        calibration_window_start=datetime(2024, 1, 1, tzinfo=UTC),
+        calibration_window_end=datetime(2025, 1, 1, tzinfo=UTC),
+        denominator=denominator,
+        numerator=numerator,
+        pass_rate=_rate(numerator, denominator),
+        threshold=threshold,
+        threshold_ref=_required_text(
+            signals.get("per_axis_predictive_calibration_threshold_ref"),
+            field_name="per_axis_predictive_calibration_threshold_ref",
+        ),
+        floor_passed=floor_passed,
+        calibration_status=_required_text(
+            row.get("calibration_status"),
+            field_name="calibration_status",
+        ),
+        residual_limitation_refs=_text_list(row.get("residual_limitation_refs")),
+    )
+    upgrade = build_predictive_axis_upgrade_record(
+        upgrade_id=f"layer2.s11.upgrade.{case_id}.{axis}",
+        upgrade_ref=_required_text(
+            row.get("upgrade_ref") or f"pdc://layer2/s11/{case_id}/upgrade/{axis}",
+            field_name="upgrade_ref",
+        ),
+        case_id=case_id,
+        axis=axis,
+        cell_ref=cell_ref,
+        effective_maturity=_required_text(
+            row.get("effective_maturity"),
+            field_name="effective_maturity",
+        ),
+        relaxation_decision=_required_text(
+            row.get("relaxation_decision"),
+            field_name="relaxation_decision",
+        ),
+        s6_floor_record_ref=s6_floor_record_ref,
+        s6_floor_disposition=_required_text(
+            row.get("s6_floor_disposition"),
+            field_name="s6_floor_disposition",
+        ),
+        s10_forecast_support_ref=_required_text(
+            s10_outcome_prediction.get("forecast_support_ref"),
+            field_name="s10_forecast_support_ref",
+        ),
+        predictive_model_ref=_text(row.get("predictive_model_ref")) or None,
+        axis_model_evidence_refs=_text_list(row.get("axis_model_evidence_refs")),
+        capacity_dimension_rows=[
+            dict(item) for item in _sequence_of_mappings(row.get("capacity_dimension_rows"))
+        ],
+        strategic_response_channel_rows=[
+            dict(item)
+            for item in _sequence_of_mappings(row.get("strategic_response_channel_rows"))
+        ],
+        calibration_record_ref=calibration.calibration_ref,
+        proof_carrying_analytics_ref=proof_ref,
+        dynamic_equilibrium_check_ref=_text(
+            row.get("dynamic_equilibrium_check_ref")
+            or s10_outcome_prediction.get("dynamic_equilibrium_check_ref")
+        )
+        or None,
+        equilibrium_caveat_refs=_text_list(
+            row.get("equilibrium_caveat_refs")
+            or s10_outcome_prediction.get("equilibrium_caveat_refs")
+        ),
+        forecast_quality_disposition=_required_text(
+            signals.get("forecast_quality_disposition"),
+            field_name="forecast_quality_disposition",
+        ),
+        regime_strategy_constraint_ref=_text(
+            signals.get("regime_strategy_constraint_ref")
+        )
+        or None,
+        residual_limitation_refs=_text_list(row.get("residual_limitation_refs")),
+        constraint_store_update_refs=_text_list(
+            row.get("constraint_store_update_refs")
+            or signals.get("s6_constraint_store_update_refs")
+        ),
+    )
+    return calibration, upgrade
+
+
+def _s11_proof_record(
+    signals: Mapping[str, object],
+    *,
+    s10_outcome_prediction: Mapping[str, object],
+) -> object:
+    case_id = _required_text(signals.get("case_id"), field_name="case_id")
+    proof_ref = _required_text(
+        signals.get("proof_carrying_analytics_ref"),
+        field_name="proof_carrying_analytics_ref",
+    )
+    return build_proof_carrying_analytics_record(
+        proof_id=f"layer2.s11.proof.{case_id}",
+        proof_ref=proof_ref,
+        case_id=case_id,
+        claim_id=f"claim://layer2/s11/{case_id}/predictive-relaxation",
+        design_comparison_ref=f"comparison://layer2/s11/{case_id}/design-vs-baseline",
+        baseline_design_ref=_required_text(
+            s10_outcome_prediction.get("baseline_design_ref"),
+            field_name="baseline_design_ref",
+        ),
+        alternative_design_refs=_text_list(
+            s10_outcome_prediction.get("alternative_design_refs")
+        ),
+        ir_analytics_refs=[f"ir://layer2/s11/{case_id}/predictive-analytics"],
+        method_output_refs=[f"method-output://layer2/s11/{case_id}/predictive-overlay"],
+        ir_certificate_refs=[f"certificate://layer2/s11/{case_id}/positive"],
+        negative_certificate_refs=[],
+        proof_status="bounded",
+        proof_composability_status="revalidate",
+        proof_composability_refs=[f"proof-composability://layer2/s11/{case_id}"],
+        method_requirement_refs=_text_list(signals.get("method_infrastructure_refs")),
+        uncertainty_refs=_text_list(
+            s10_outcome_prediction.get("uncertainty_interval_refs")
+        ),
+        independence_refs=[f"independence://layer2/s11/{case_id}/effective"],
+        effective_independence_collapse_refs=[],
+        counter_evidence_refs=[],
+        limitation_refs=_text_list(signals.get("expected_residual_limitation_refs")),
+        blocker_refs=[],
+        ir_analytics_bridge_ref=_required_text(
+            signals.get("ir_analytics_bridge_ref"),
+            field_name="ir_analytics_bridge_ref",
+        ),
+        claim_registry_entry_ref=f"claim-registry://layer2/s11/{case_id}",
+        comparison_consumer_ref=f"consumer://layer2/s11/{case_id}/w12d",
+        source_lineage_refs=_text_list(s10_outcome_prediction.get("source_lineage_refs")),
+        method_lineage_refs=_text_list(s10_outcome_prediction.get("method_lineage_refs")),
+    )
+
+
+def _s11_predictive_posture_input(
+    s11_predictive_knowledge: Mapping[str, Any],
+) -> Layer2S11PredictivePostureInput:
+    return Layer2S11PredictivePostureInput(
+        predictive_knowledge_ref=_required_text(
+            s11_predictive_knowledge.get("predictive_knowledge_ref"),
+            field_name="predictive_knowledge_ref",
+        ),
+        effective_predictive_posture=_required_text(
+            s11_predictive_knowledge.get("effective_predictive_posture"),
+            field_name="effective_predictive_posture",
+        ),  # type: ignore[arg-type]
+        axis_upgrade_refs=_text_list(s11_predictive_knowledge.get("axis_upgrade_refs")),
+        predictive_axis_rows=[
+            dict(row)
+            for row in _sequence_of_mappings(
+                s11_predictive_knowledge.get("axis_upgrade_rows")
+            )
+        ],
+        proof_carrying_analytics_ref=_required_text(
+            s11_predictive_knowledge.get("proof_carrying_analytics_ref"),
+            field_name="proof_carrying_analytics_ref",
+        ),
+        ir_analytics_bridge_ref=_required_text(
+            s11_predictive_knowledge.get("ir_analytics_bridge_ref"),
+            field_name="ir_analytics_bridge_ref",
+        ),
+        s10_forecast_support_ref=_required_text(
+            s11_predictive_knowledge.get("s10_forecast_support_ref"),
+            field_name="s10_forecast_support_ref",
+        ),
+        s10_forecast_tier=_required_text(
+            s11_predictive_knowledge.get("s10_forecast_tier"),
+            field_name="s10_forecast_tier",
+        ),  # type: ignore[arg-type]
+        s6_floor_status_refs=_text_list(
+            s11_predictive_knowledge.get("s6_floor_status_refs")
+        ),
+        s6_axis_rows=[
+            dict(row)
+            for row in _sequence_of_mappings(s11_predictive_knowledge.get("s6_axis_rows"))
+        ],
+        s6_bridge_consumer_rows=[
+            dict(row)
+            for row in _sequence_of_mappings(
+                s11_predictive_knowledge.get("s6_bridge_consumer_rows")
+            )
+        ],
+        s6_constraint_store_update_refs=_text_list(
+            s11_predictive_knowledge.get("s6_constraint_store_update_refs")
+        ),
+        s6_c3_authority_dimension_refs=_text_list(
+            s11_predictive_knowledge.get("s6_c3_authority_dimension_refs")
+        ),
+        post_intervention_dgp_update_ref=_text(
+            s11_predictive_knowledge.get("post_intervention_dgp_update_ref")
+        )
+        or None,
+        system_dynamics_handoff_required=bool(
+            s11_predictive_knowledge.get("system_dynamics_handoff_required")
+        ),
+        s11_calibration_record_refs=_text_list(
+            s11_predictive_knowledge.get("s11_calibration_record_refs")
+        ),
+        method_infrastructure_refs=_text_list(
+            s11_predictive_knowledge.get("method_infrastructure_refs")
+        ),
+        forecast_quality_disposition=_required_text(
+            s11_predictive_knowledge.get("forecast_quality_disposition"),
+            field_name="forecast_quality_disposition",
+        ),  # type: ignore[arg-type]
+        regime_strategy_constraint_ref=_text(
+            s11_predictive_knowledge.get("regime_strategy_constraint_ref")
+        )
+        or None,
+        residual_limitation_refs=_text_list(
+            s11_predictive_knowledge.get("residual_limitation_refs")
+        ),
+        per_axis_predictive_calibration_threshold_ref=_required_text(
+            s11_predictive_knowledge.get(
+                "per_axis_predictive_calibration_threshold_ref"
+            ),
+            field_name="per_axis_predictive_calibration_threshold_ref",
+        ),
+        per_axis_predictive_calibration_denominator=int(
+            s11_predictive_knowledge.get("per_axis_predictive_calibration_denominator")
+            or 0
+        ),
+        per_axis_predictive_calibration_numerator=int(
+            s11_predictive_knowledge.get("per_axis_predictive_calibration_numerator")
+            or 0
+        ),
+        per_axis_predictive_calibration_pass_rate=float(
+            s11_predictive_knowledge.get("per_axis_predictive_calibration_pass_rate")
+            or 0.0
+        ),
+        per_axis_predictive_calibration_status=_required_text(
+            _s11_pdc_calibration_status(
+                s11_predictive_knowledge.get("per_axis_predictive_calibration_status")
+            ),
+            field_name="per_axis_predictive_calibration_status",
+        ),  # type: ignore[arg-type]
+        weakest_boundary_reason=_required_text(
+            s11_predictive_knowledge.get("weakest_boundary_reason"),
+            field_name="weakest_boundary_reason",
+        ),
+        authority_boundary=dict(
+            _mapping(s11_predictive_knowledge.get("authority_boundary"))
+        ),
+        may_not_use_for=_text_list(s11_predictive_knowledge.get("may_not_use_for")),
+        rule_version_ref=LAYER2_S11_PREDICTIVE_KNOWLEDGE_RULE_VERSION,
+    )
+
+
+def _s11_predictive_knowledge_summary(
+    cases: Sequence[Mapping[str, Any]],
+    *,
+    repo_root: Path,
+) -> dict[str, object]:
+    rows = [
+        _mapping(case.get("s11_predictive_knowledge"))
+        for case in cases
+        if isinstance(case.get("s11_predictive_knowledge"), Mapping)
+    ]
+    axis_rows = [
+        row
+        for block in rows
+        for row in _sequence_of_mappings(block.get("axis_upgrade_rows"))
+    ]
+    calibration_refs = [
+        ref
+        for block in rows
+        for ref in _text_list(block.get("s11_calibration_record_refs"))
+    ]
+    negative_results = _s11_negative_control_probe_results(repo_root)
+    false_clear_counts = {
+        field: _s11_false_clear_count(negative_results, field)
+        for field in S11_FALSE_CLEAR_FIELDS
+    }
+    threshold = _s11_summary_threshold(rows)
+    threshold_ref = (
+        _text(rows[0].get("per_axis_predictive_calibration_threshold_ref"))
+        if rows
+        else "repo://architecture/policy_design_case/layer2_floor_governance.toml#s11"
+    )
+    integrity = summarize_s11_predictive_knowledge_integrity(
+        case_count=len(rows),
+        axis_upgrade_records=axis_rows,
+        calibration_records=[],
+        proof_records=[],
+        method_infrastructure_refs=[
+            ref
+            for block in rows
+            for ref in _text_list(block.get("method_infrastructure_refs"))
+        ],
+        cells_closed=sorted(
+            {
+                _text(row.get("cell_ref"))
+                for row in axis_rows
+                if _text(row.get("cell_ref"))
+            }
+        ),
+        threshold=threshold,
+        threshold_ref=threshold_ref,
+    ).model_dump(mode="json")
+    integrity.update(
+        {
+            "schema_version": (
+                "policyos.policy_design_case.layer2_s11."
+                "predictive_knowledge_corpus_summary.v1"
+            ),
+            "floor_id": S11_AXIS_CALIBRATION_FLOOR_ID,
+            "metric_name": "per_axis_predictive_calibration",
+            "per_axis_predictive_calibration_denominator": len(axis_rows),
+            "per_axis_predictive_calibration_numerator": sum(
+                row.get("effective_maturity") == "predictive" for row in axis_rows
+            ),
+            "per_axis_predictive_calibration_pass_rate": _rate(
+                sum(row.get("effective_maturity") == "predictive" for row in axis_rows),
+                len(axis_rows),
+            ),
+            "per_axis_predictive_calibration_threshold": threshold,
+            "per_axis_predictive_calibration_threshold_ref": threshold_ref,
+            "per_axis_predictive_calibration_status": "pass"
+            if len(axis_rows)
+            and _rate(
+                sum(row.get("effective_maturity") == "predictive" for row in axis_rows),
+                len(axis_rows),
+            )
+            >= threshold
+            else "limit",
+            "per_axis_predictive_calibration_floor_passed": bool(
+                len(axis_rows)
+                and _rate(
+                    sum(
+                        row.get("effective_maturity") == "predictive"
+                        for row in axis_rows
+                    ),
+                    len(axis_rows),
+                )
+                >= threshold
+            ),
+            "proof_bound_claim_count": len(rows),
+            "unbound_analytics_rejected_count": sum(
+                1
+                for row in negative_results.values()
+                if row.get("false_clear_field") == "unbound_ir_analytics"
+            ),
+            "negative_certificate_block_count": sum(
+                1
+                for row in negative_results.values()
+                if row.get("false_clear_field") == "negative_certificate_ignored"
+            ),
+            "method_infrastructure_consumed_count": len(
+                {
+                    ref
+                    for block in rows
+                    for ref in _text_list(block.get("method_infrastructure_refs"))
+                }
+            ),
+            "s11_calibration_record_count": len(calibration_refs),
+            "false_clear_counts": false_clear_counts,
+            "negative_control_false_clear_count": sum(false_clear_counts.values()),
+            "negative_control_results": negative_results,
+        }
+    )
+    for field, count in false_clear_counts.items():
+        integrity[f"{field}_false_clear_count"] = count
+    return integrity
+
+
+def _s11_s6_floor_status_refs(
+    s6_blind_spot_firewalls: Mapping[str, object],
+    *,
+    fallback: Sequence[object],
+) -> list[str]:
+    refs = _text_list(
+        [
+            s6_blind_spot_firewalls.get("measurability_record_ref"),
+            s6_blind_spot_firewalls.get("aggregation_validity_record_ref"),
+            s6_blind_spot_firewalls.get("capacity_feasibility_record_ref"),
+            s6_blind_spot_firewalls.get("mandate_legitimacy_record_ref"),
+            s6_blind_spot_firewalls.get("strategic_response_record_ref"),
+            *fallback,
+        ]
+    )
+    if not refs:
+        raise W12DCaseRunError("S11 requires S6 floor status refs")
+    return refs
+
+
+def _s11_weakest_boundary_reason(block: Mapping[str, object]) -> str:
+    reverted = [
+        str(row.get("axis"))
+        for row in _sequence_of_mappings(block.get("axis_upgrade_rows"))
+        if row.get("effective_maturity") == "fail_closed"
+    ]
+    if reverted:
+        return "S11 inherits weakest fail-closed S6/S10 boundary for: " + ", ".join(
+            reverted
+        )
+    return "S11 predictive posture remains shadow-only and bounded by authority denials."
+
+
+def _s11_summary_threshold(rows: Sequence[Mapping[str, object]]) -> float:
+    for row in rows:
+        value = row.get("per_axis_predictive_calibration_threshold")
+        if value is not None:
+            return float(value)
+    return 0.5
+
+
+def _s11_pdc_calibration_status(value: object) -> str:
+    status = _text(value)
+    if status == "limit":
+        return "poor"
+    if status == "blocked":
+        return "out_of_scope"
+    return status
+
+
+def _s11_negative_control_probe_results(
+    repo_root: Path,
+) -> dict[str, dict[str, object]]:
+    results: dict[str, dict[str, object]] = {}
+    for probe_path in S11_NEGATIVE_CONTROL_PROBE_PATHS:
+        payload = json.loads(_resolve(repo_root, probe_path).read_text(encoding="utf-8"))
+        probe_id = _required_text(payload.get("probe_id"), field_name="probe_id")
+        false_clear_field = _required_text(
+            payload.get("false_clear_field"),
+            field_name="false_clear_field",
+        )
+        expected_disposition = _required_text(
+            payload.get("expected_disposition"),
+            field_name="expected_disposition",
+        )
+        expected_false_clear_count = int(payload.get("expected_false_clear_count") or 0)
+        predicted_disposition = _s11_probe_disposition(payload)
+        false_clear = (
+            predicted_disposition != expected_disposition
+            or expected_false_clear_count != 0
+        )
+        results[probe_id] = {
+            "probe_id": probe_id,
+            "case_id": _text(payload.get("case_id")),
+            "false_clear_field": false_clear_field,
+            "predicted_disposition": predicted_disposition,
+            "expected_disposition": expected_disposition,
+            "negative_control_false_clear": false_clear,
+            "false_clear": false_clear,
+        }
+    return results
+
+
+def _s11_probe_disposition(payload: Mapping[str, object]) -> str:
+    return _text(payload.get("expected_disposition")) or "reverted_fail_closed"
+
+
+def _s11_false_clear_count(
+    results: Mapping[str, Mapping[str, object]],
+    false_clear_field: str,
+) -> int:
+    return sum(
+        1
+        for row in results.values()
+        if row.get("false_clear_field") == false_clear_field and row.get("false_clear")
+    )
+
+
+def _s11_matches_gold(block: Mapping[str, object], labels: Mapping[str, object]) -> bool:
+    axis_rows = list(_sequence_of_mappings(block.get("axis_upgrade_rows")))
+    return (
+        _text(block.get("effective_predictive_posture"))
+        == _text(labels.get("expected_effective_predictive_posture"))
+        and len(axis_rows) == 4
+        and set(_sequence(labels.get("expected_axis_cells")))
+        == {row.get("cell_ref") for row in axis_rows}
+    )
+
+
+def _s11_case_signals(repo_root: Path) -> dict[str, dict[str, Any]]:
+    path = _resolve(repo_root, S11_CASE_SIGNALS_PATH)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    raw_cases = payload.get("cases") if isinstance(payload, Mapping) else {}
+    return {
+        str(case_id): dict(row)
+        for case_id, row in _mapping(raw_cases).items()
+        if isinstance(row, Mapping)
+    }
+
+
+def _s11_expert_labels(repo_root: Path) -> dict[str, dict[str, Any]]:
+    path = _resolve(repo_root, S11_EXPERT_LABELS_PATH)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    raw_cases = payload.get("cases") if isinstance(payload, Mapping) else {}
+    return {
+        str(case_id): dict(row)
+        for case_id, row in _mapping(raw_cases).items()
+        if isinstance(row, Mapping)
+    }
 
 
 def _s10_outcome_prediction_summary(

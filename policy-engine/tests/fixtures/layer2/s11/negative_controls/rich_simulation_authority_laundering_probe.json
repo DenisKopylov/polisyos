@@ -1,0 +1,8 @@
+{
+  "case_id": "ua-msme-affordable-loans-2022",
+  "expected_disposition": "reverted_fail_closed",
+  "expected_false_clear_count": 0,
+  "false_clear_field": "rich_simulation_authority_laundering",
+  "probe_id": "rich_simulation_authority_laundering",
+  "why_it_must_not_clear": "rich_simulation_authority_laundering must not relax S11 predictive authority in W12.D."
+}

@@ -41,6 +41,10 @@ def _s10_blocks(report: dict[str, object]) -> list[dict[str, object]]:
     return [dict(case["s10_outcome_prediction"]) for case in report["cases"]]
 
 
+def _s11_blocks(report: dict[str, object]) -> list[dict[str, object]]:
+    return [dict(case["s11_predictive_knowledge"]) for case in report["cases"]]
+
+
 def test_w12d_manifest_is_deterministic_and_runs_real_corpus() -> None:
     manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
 
@@ -1513,3 +1517,108 @@ def test_w12d_s10_summary_records_calibration_and_negative_controls(
     assert summary["non_observable_downgrade_count"] >= 1
     assert summary["equilibrium_contested_single_forecast_false_clear_count"] == 0
     assert summary["simulation_only_evidence_laundering_false_clear_count"] == 0
+
+
+def test_w12d_emits_s11_predictive_knowledge_blocks_for_13_cases(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    assert all("s11_predictive_knowledge" in case for case in w12d_s9_report["cases"])
+    summary = dict(w12d_s9_report["s11_predictive_knowledge_summary"])
+    blocks = _s11_blocks(w12d_s9_report)
+
+    assert summary["case_count"] == 13
+    assert summary["axis_count"] == 52
+    assert len(blocks) == 13
+    assert {block["schema_version"] for block in blocks} == {
+        "policyos.policy_design_case.layer2_s11_predictive_knowledge.v1"
+    }
+    axis_rows = [row for block in blocks for row in block["axis_upgrade_rows"]]
+    assert len(axis_rows) == 52
+    assert any(row["effective_maturity"] == "predictive" for row in axis_rows)
+    assert any(row["effective_maturity"] == "fail_closed" for row in axis_rows)
+
+
+def test_w12d_s11_blocks_consume_s6_s10_and_ir_without_rerunning_them(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    for case in w12d_s9_report["cases"]:
+        case = dict(case)
+        s6 = dict(case["s6_blind_spot_firewalls"])
+        s10 = dict(case["s10_outcome_prediction"])
+        s11 = dict(case["s11_predictive_knowledge"])
+
+        assert set(s11["s6_floor_status_refs"]) >= {
+            s6["measurability_record_ref"],
+            s6["strategic_response_record_ref"],
+        }
+        assert s11["s10_forecast_support_ref"] == s10["forecast_support_ref"]
+        assert s11["s10_forecast_tier"] == s10["forecast_tier"]
+        assert s11["ir_analytics_bridge_ref"]
+        assert s11["proof_carrying_analytics_ref"]
+        assert s11["canonical_outcome_effect"] == (
+            "predictive_relaxation_only_not_production_authority"
+        )
+
+
+def test_w12d_s11_injects_first_case_s2_posture_without_full_search_for_all_cases(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    first_case_count = 0
+    lightweight_case_count = 0
+
+    for case in w12d_s9_report["cases"]:
+        case = dict(case)
+        s2 = dict(case["s2_design_search"])
+        s11 = dict(case["s11_predictive_knowledge"])
+        if case["case_id"] == "ua-msme-affordable-loans-2022":
+            first_case_count += 1
+            assert s2["predictive_posture"]["predictive_knowledge_ref"] == (
+                s11["predictive_knowledge_ref"]
+            )
+            assert s11["predictive_knowledge_ref"] in (
+                s2["search_ledger"]["predictive_knowledge_refs"]
+            )
+        else:
+            lightweight_case_count += 1
+            assert s2["status"] == "not_applicable"
+            assert s2["predictive_posture_ref"] == s11["predictive_knowledge_ref"]
+            assert "search_ledger" not in s2
+
+    assert first_case_count == 1
+    assert lightweight_case_count == 12
+
+
+def test_w12d_s11_summary_records_per_axis_calibration_floor_and_negative_controls(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    summary = dict(w12d_s9_report["s11_predictive_knowledge_summary"])
+
+    assert summary["case_count"] == 13
+    assert summary["axis_count"] == 52
+    assert summary["per_axis_predictive_calibration_denominator"] == (
+        summary["axis_count"]
+    )
+    assert summary["per_axis_predictive_calibration_numerator"] <= (
+        summary["per_axis_predictive_calibration_denominator"]
+    )
+    assert summary["predictive_axis_count"] + summary[
+        "reverted_fail_closed_axis_count"
+    ] == summary["axis_count"]
+    assert summary["per_axis_predictive_calibration_threshold_ref"]
+    for false_clear_field in w12d.S11_FALSE_CLEAR_FIELDS:
+        flat_field = f"{false_clear_field}_false_clear_count"
+        assert summary[flat_field] == 0
+        assert summary["false_clear_counts"][false_clear_field] == 0
+
+
+def test_w12d_s11_keeps_mandate_legitimacy_at_s6_floor(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    for case in w12d_s9_report["cases"]:
+        s6 = dict(case["s6_blind_spot_firewalls"])
+        s11 = dict(case["s11_predictive_knowledge"])
+        axis_cells = {row["cell_ref"] for row in s11["axis_upgrade_rows"]}
+
+        assert "ACTOR.mandate_legitimacy" not in axis_cells
+        assert s6["mandate_legitimacy_record_ref"] in s11["s6_floor_status_refs"]
+        assert "mandate_legitimacy_predictive_upgrade" in s11["may_not_use_for"]

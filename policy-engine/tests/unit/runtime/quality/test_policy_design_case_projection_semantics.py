@@ -31,6 +31,7 @@ S9_RULE_VERSION_REF = "policyos.layer2.s9.projection_lowering.v1"
 S9_CANONICAL_REF = "pdc://layer2/s9/ua-msme/canonical-design-record"
 S9_SOURCE_REVISION_REF = "git://policyos/layer2/s9/red-first"
 S10_RULE_VERSION_REF = "policyos.layer2.s10.outcome_prediction.v1"
+S11_RULE_VERSION_REF = "policyos.layer2.s11.predictive_knowledge.v1"
 
 
 def _s9_consumer_verifier() -> object:
@@ -183,6 +184,84 @@ def _s10_projection_payload(**overrides: object) -> dict[str, object]:
             "s11_calibration",
         ],
         "rule_version_ref": S10_RULE_VERSION_REF,
+    }
+    payload.update(overrides)
+    return payload
+
+
+def _s11_projection_payload(**overrides: object) -> dict[str, object]:
+    payload: dict[str, object] = {
+        "audience": "REVIEWER",
+        "authority_role": "projection_only",
+        "projection_policy": "reads_canonical_design_record",
+        "s11_predictive_posture_ref": "pdc://layer2/s11/ua-msme/predictive-knowledge",
+        "effective_predictive_posture": "limited_by_weakest_boundary",
+        "predictive_axis_upgrade_refs": [
+            "pdc://layer2/s11/ua-msme/upgrade/measurability",
+            "pdc://layer2/s11/ua-msme/upgrade/strategic-response",
+        ],
+        "predictive_axis_rows": [
+            {
+                "axis": "measurability",
+                "cell_ref": "SYSTEM.measurability",
+                "effective_maturity": "predictive",
+                "relaxation_decision": "relaxed_to_predictive",
+                "confidence": 0.78,
+            },
+            {
+                "axis": "strategic_response",
+                "cell_ref": "OTHER_AGENTS.strategic_response",
+                "effective_maturity": "fail_closed",
+                "relaxation_decision": "reverted_fail_closed",
+                "confidence": 0.41,
+            },
+        ],
+        "per_axis_predictive_calibration_status": "pass",
+        "per_axis_predictive_calibration_threshold_ref": (
+            "repo://architecture/policy_design_case/layer2_floor_governance.toml#s11"
+        ),
+        "proof_carrying_analytics_ref": "pdc://layer2/s11/ua-msme/proof/credit-access",
+        "ir_analytics_bridge_ref": "ir-analytics-bridge://ua-msme/credit-access",
+        "residual_limitation_refs": [
+            "limitation://s11/strategic-response/fail-closed",
+            "limitation://s11/calibration/current-run",
+        ],
+        "weakest_boundary_reason": "strategic_response remains fail_closed under S6.",
+        "s11_public_limitation": (
+            "Predictive relaxation is limited by per-axis calibration and proof checks."
+        ),
+        "authority_boundary": {
+            "authoritative_for": [
+                "per_axis_predictive_calibration",
+                "predictive_axis_maturity_upgrade",
+                "proof_carrying_analytics_validity",
+            ],
+            "may_not_use_for": [
+                "production_authority",
+                "production_recommendation",
+                "production_claim_authority",
+                "publication_authority",
+                "claim_authority",
+                "runtime_closeout_authority",
+                "rich_simulation_authority",
+                "s12_envelope_growth",
+                "s13_accountability_closure",
+                "s14_universality",
+            ],
+            "source_authority": "deterministic_producer",
+            "posture": "shadow",
+            "rule_version_refs": [S11_RULE_VERSION_REF],
+        },
+        "may_not_be_used_for": [
+            "production_authority",
+            "production_recommendation",
+            "production_claim_authority",
+            "publication_authority",
+            "claim_authority",
+            "runtime_closeout_authority",
+            "rich_simulation_authority",
+        ],
+        "rule_version_ref": S11_RULE_VERSION_REF,
     }
     payload.update(overrides)
     return payload
@@ -983,3 +1062,49 @@ def test_s10_projection_semantics_blocks_scalar_welfare_tradeoff_hiding() -> Non
 
     assert result["status"] == "fail"
     assert "s10_scalar_welfare_hides_pareto_tradeoff" in _issue_codes(result)
+
+
+def test_expert_and_machine_projection_surface_s11_confidence_and_residual_limits() -> None:
+    verifier = projection_semantics_module.verify_s11_predictive_projection_consumer_contract
+    expert = _s11_projection_payload(audience="EXPERT")
+    machine = _s11_projection_payload(audience="MACHINE")
+
+    result = verifier(projections={"expert": expert, "machine": machine})
+
+    assert result["status"] == "pass"
+    s11_projection = result["s11_predictive_projection"]
+    assert s11_projection["predictive_axis_rows"][0]["confidence"] == 0.78
+    assert s11_projection["residual_limitation_refs"] == (
+        expert["residual_limitation_refs"]
+    )
+    assert s11_projection["proof_carrying_analytics_ref"] == (
+        expert["proof_carrying_analytics_ref"]
+    )
+
+
+def test_reviewer_projection_surfaces_s11_proof_and_calibration_limitations() -> None:
+    verifier = projection_semantics_module.verify_s11_predictive_projection_consumer_contract
+    payload = _s11_projection_payload(audience="REVIEWER")
+
+    result = verifier(projections={"reviewer": payload})
+
+    assert result["status"] == "pass"
+    s11_projection = result["s11_predictive_projection"]
+    assert s11_projection["per_axis_predictive_calibration_status"] == "pass"
+    assert s11_projection["per_axis_predictive_calibration_threshold_ref"]
+    assert s11_projection["proof_carrying_analytics_ref"].startswith("pdc://layer2/s11/")
+    assert s11_projection["weakest_boundary_reason"]
+
+
+def test_public_projection_surfaces_required_s11_limitation_without_authority_promotion() -> None:
+    verifier = projection_semantics_module.verify_s11_predictive_projection_consumer_contract
+    payload = _s11_projection_payload(audience="PUBLIC")
+
+    result = verifier(projections={"public": payload})
+
+    assert result["status"] == "pass"
+    public_projection = result["public_projection"]
+    assert public_projection["s11_public_limitation"]
+    assert "proof_carrying_analytics_ref" not in public_projection
+    assert "production_recommendation" in public_projection["may_not_be_used_for"]
+    assert public_projection["authority_role"] == "projection_only"

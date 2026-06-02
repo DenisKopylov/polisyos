@@ -17,6 +17,7 @@ from tests._helpers.policy_design_case_projection import policy_design_case
 
 S9_RULE_VERSION_REF = "policyos.layer2.s9.projection_lowering.v1"
 S10_RULE_VERSION_REF = "policyos.layer2.s10.outcome_prediction.v1"
+S11_RULE_VERSION_REF = "policyos.layer2.s11.predictive_knowledge.v1"
 
 
 def _s9_public_faithfulness_payload(**overrides: object) -> dict[str, object]:
@@ -100,6 +101,79 @@ def _s10_public_projection_payload(**overrides: object) -> dict[str, object]:
             "s11_calibration",
         ],
         "rule_version_ref": S10_RULE_VERSION_REF,
+    }
+    payload.update(overrides)
+    return payload
+
+
+def _s11_public_projection_payload(**overrides: object) -> dict[str, object]:
+    payload: dict[str, object] = {
+        "public_export_classification": "public_redacted_projection",
+        "decision_context": {"public_export_status": "publishable"},
+        "s11_predictive_posture_ref": "pdc://layer2/s11/ua-msme/predictive-knowledge",
+        "effective_predictive_posture": "limited_by_weakest_boundary",
+        "predictive_axis_upgrade_refs": [
+            "pdc://layer2/s11/ua-msme/upgrade/measurability"
+        ],
+        "predictive_axis_rows": [
+            {
+                "axis": "measurability",
+                "cell_ref": "SYSTEM.measurability",
+                "effective_maturity": "predictive",
+                "relaxation_decision": "relaxed_to_predictive",
+            },
+            {
+                "axis": "strategic_response",
+                "cell_ref": "OTHER_AGENTS.strategic_response",
+                "effective_maturity": "fail_closed",
+                "relaxation_decision": "reverted_fail_closed",
+            },
+        ],
+        "per_axis_predictive_calibration_status": "pass",
+        "per_axis_predictive_calibration_threshold_ref": (
+            "repo://architecture/policy_design_case/layer2_floor_governance.toml#s11"
+        ),
+        "proof_carrying_analytics_ref": "pdc://layer2/s11/ua-msme/proof/credit-access",
+        "ir_analytics_bridge_ref": "ir-analytics-bridge://ua-msme/credit-access",
+        "residual_limitation_refs": ["limitation://s11/strategic-response/fail-closed"],
+        "s11_public_limitation": (
+            "Predictive relaxation is limited by calibration and proof-carrying checks."
+        ),
+        "weakest_boundary_reason": "strategic_response remains fail_closed under S6.",
+        "authority_boundary": {
+            "authoritative_for": [
+                "per_axis_predictive_calibration",
+                "predictive_axis_maturity_upgrade",
+            ],
+            "may_not_use_for": [
+                "production_authority",
+                "production_recommendation",
+                "production_claim_authority",
+                "publication_authority",
+                "claim_authority",
+                "runtime_closeout_authority",
+                "rich_simulation_authority",
+                "s12_envelope_growth",
+                "s13_accountability_closure",
+                "s14_universality",
+            ],
+            "source_authority": "deterministic_producer",
+            "posture": "shadow",
+            "rule_version_refs": [S11_RULE_VERSION_REF],
+        },
+        "may_not_be_used_for": [
+            "production_authority",
+            "production_recommendation",
+            "production_claim_authority",
+            "publication_authority",
+            "claim_authority",
+            "runtime_closeout_authority",
+            "rich_simulation_authority",
+        ],
+        "limitations": [
+            "S11 predictive relaxation remains calibration-limited and not authority."
+        ],
+        "rule_version_ref": S11_RULE_VERSION_REF,
     }
     payload.update(overrides)
     return payload
@@ -675,3 +749,26 @@ def test_s10_machine_export_preserves_design_graph_context_and_method_validity_r
         "evidence://ua-msme/credible-evaluation"
     )
     assert s10_projection["authority_boundary"]["may_not_use_for"]
+
+
+def test_public_projection_does_not_promote_s11_to_recommendation_authority() -> None:
+    public_bundle = build_public_export_bundle(
+        run_id="run-public-s11-predictive",
+        artifacts={"public_summary": {"claim_refs": ["rec_1"]}},
+        authority_envelopes=[],
+        policy_design_case=policy_design_case(),
+        projection_payload=_s11_public_projection_payload(),
+    )
+
+    projection = public_bundle["projection_semantics"]
+    assert projection["s11_public_limitation"]
+    assert "production_recommendation" in projection["may_not_be_used_for"]
+    assert projection["authority_role"] == "projection_only"
+
+    s11_projection = public_bundle["semantic_audit"]["s11_predictive_projection"]
+    assert s11_projection["effective_predictive_posture"] == "limited_by_weakest_boundary"
+    assert s11_projection["proof_carrying_analytics_ref"].startswith("pdc://layer2/s11/")
+
+    rendered = json.dumps(public_bundle, sort_keys=True)
+    assert "recommendation_authority" not in rendered
+    assert "production_recommendation_text" not in rendered

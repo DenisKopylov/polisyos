@@ -520,6 +520,128 @@ def _s10_forecast_posture(**overrides: object) -> object:
     return posture_model(**payload)
 
 
+def _s11_predictive_posture(**overrides: object) -> object:
+    posture_model = pdc.Layer2S11PredictivePostureInput
+    payload: dict[str, object] = {
+        "predictive_knowledge_ref": "pdc://layer2/s11/ua-msme/predictive-knowledge",
+        "effective_predictive_posture": "limited_by_weakest_boundary",
+        "axis_upgrade_refs": [
+            "pdc://layer2/s11/ua-msme/upgrade/measurability",
+            "pdc://layer2/s11/ua-msme/upgrade/strategic-response",
+        ],
+        "predictive_axis_rows": [
+            {
+                "axis": "measurability",
+                "cell_ref": "SYSTEM.measurability",
+                "effective_maturity": "predictive",
+                "relaxation_decision": "relaxed_to_predictive",
+            },
+            {
+                "axis": "strategic_response",
+                "cell_ref": "OTHER_AGENTS.strategic_response",
+                "effective_maturity": "fail_closed",
+                "relaxation_decision": "reverted_fail_closed",
+            },
+        ],
+        "proof_carrying_analytics_ref": "pdc://layer2/s11/ua-msme/proof/credit-access",
+        "ir_analytics_bridge_ref": "ir-analytics-bridge://ua-msme/credit-access",
+        "s10_forecast_support_ref": "pdc://layer2/s10/ua-msme/forecast-support",
+        "s10_forecast_tier": "observable_calibrated",
+        "s6_floor_status_refs": [
+            "pdc://layer2/s6/ua-msme/measurability-adequacy",
+            "pdc://layer2/s6/ua-msme/strategic-response",
+        ],
+        "s6_axis_rows": [
+            {
+                "axis": "measurability",
+                "cell_ref": "SYSTEM.measurability",
+                "record_ref": "pdc://layer2/s6/ua-msme/measurability-adequacy",
+                "disposition": "limit",
+            },
+            {
+                "axis": "strategic_response",
+                "cell_ref": "OTHER_AGENTS.strategic_response",
+                "record_ref": "pdc://layer2/s6/ua-msme/strategic-response",
+                "disposition": "block",
+            },
+        ],
+        "s6_bridge_consumer_rows": [
+            {
+                "cell_ref": "SYSTEM.measurability",
+                "consumer_ref": "KNOWLEDGE.epistemic_regime",
+                "producer_ref": "pdc://layer2/s6/ua-msme/measurability-adequacy",
+                "disposition": "limit",
+            }
+        ],
+        "s6_constraint_store_update_refs": [
+            "constraint://s6/measurability",
+            "constraint://s6/strategic-response",
+        ],
+        "s6_c3_authority_dimension_refs": [
+            "pdc://layer2/s6/ua-msme/cluster-authority-dimensions/measurability_adequacy",
+            "pdc://layer2/s6/ua-msme/cluster-authority-dimensions/strategic_robustness",
+        ],
+        "post_intervention_dgp_update_ref": "pdc://layer2/s6/ua-msme/post-intervention-dgp",
+        "system_dynamics_handoff_required": True,
+        "s11_calibration_record_refs": [
+            "pdc://layer2/s11/ua-msme/calibration/measurability",
+            "pdc://layer2/s11/ua-msme/calibration/strategic-response",
+        ],
+        "method_infrastructure_refs": ["foundry://methods/calibration/local-causal"],
+        "forecast_quality_disposition": "downgraded_by_s11_calibration",
+        "regime_strategy_constraint_ref": "constraint://s11/regime/strategic-response",
+        "residual_limitation_refs": [
+            "limitation://s11/strategic-response/fail-closed",
+            "limitation://s11/calibration/stale",
+        ],
+        "per_axis_predictive_calibration_threshold_ref": (
+            "repo://architecture/policy_design_case/layer2_floor_governance.toml#s11"
+        ),
+        "per_axis_predictive_calibration_denominator": 4,
+        "per_axis_predictive_calibration_numerator": 3,
+        "per_axis_predictive_calibration_pass_rate": 0.75,
+        "per_axis_predictive_calibration_status": "pass",
+        "weakest_boundary_reason": "strategic_response remains fail_closed under S6.",
+        "authority_boundary": {
+            "authoritative_for": [
+                "per_axis_predictive_calibration",
+                "predictive_axis_maturity_upgrade",
+                "proof_carrying_analytics_validity",
+            ],
+            "may_not_use_for": [
+                "production_authority",
+                "production_recommendation",
+                "production_claim_authority",
+                "publication_authority",
+                "claim_authority",
+                "rich_simulation_authority",
+                "s12_envelope_growth",
+                "s13_accountability_closure",
+                "s14_universality",
+                "mandate_legitimacy_predictive_upgrade",
+            ],
+            "source_authority": "deterministic_producer",
+            "posture": "shadow",
+            "rule_version_refs": ["policyos.layer2.s11.predictive_knowledge.v1"],
+        },
+        "may_not_use_for": [
+            "production_authority",
+            "production_recommendation",
+            "production_claim_authority",
+            "publication_authority",
+            "claim_authority",
+            "rich_simulation_authority",
+            "s12_envelope_growth",
+            "s13_accountability_closure",
+            "s14_universality",
+            "mandate_legitimacy_predictive_upgrade",
+        ],
+        "rule_version_ref": "policyos.layer2.s11.predictive_knowledge.v1",
+    }
+    payload.update(overrides)
+    return posture_model(**payload)
+
+
 def test_s2_shadow_loop_emits_grammar_candidate_counterexample_refinement_and_record() -> None:
     run = run_s2_shadow_design_loop(_input())
 
@@ -1691,6 +1813,152 @@ def test_s2_s10_expert_machine_projection_exposes_refs_and_weakest_boundary() ->
             posture.authority_boundary.model_dump(mode="json")
         )
         assert projection["weakest_boundary_inherited"] is True
+
+
+def test_s2_consumes_injected_s11_posture_without_runtime_producer_import() -> None:
+    posture = _s11_predictive_posture()
+
+    run = run_s2_shadow_design_loop(_input(), predictive_posture=posture)
+
+    assert run.predictive_posture == posture
+    assert run.search_ledger.predictive_knowledge_refs == [
+        posture.predictive_knowledge_ref
+    ]
+    assert run.search_ledger.predictive_axis_upgrade_refs == list(
+        posture.axis_upgrade_refs
+    )
+    assert run.search_ledger.proof_carrying_analytics_refs == [
+        posture.proof_carrying_analytics_ref
+    ]
+    assert run.search_ledger.ir_analytics_bridge_refs == [posture.ir_analytics_bridge_ref]
+    assert run.search_ledger.predictive_authority_status == (
+        posture.effective_predictive_posture
+    )
+    assert run.search_ledger.predictive_authority_boundary == posture.authority_boundary
+
+    source = (
+        REPO_ROOT / "src/polisyos/pdc/_impl/layer2_design_search.py"
+    ).read_text(encoding="utf-8")
+    assert "layer2_predictive_knowledge" not in source
+
+
+def test_s2_s11_replay_digest_changes_only_when_predictive_posture_changes() -> None:
+    no_s11_first = run_s2_shadow_design_loop(_input())
+    no_s11_second = run_s2_shadow_design_loop(_input())
+    first = run_s2_shadow_design_loop(_input(), predictive_posture=_s11_predictive_posture())
+    second = run_s2_shadow_design_loop(_input(), predictive_posture=_s11_predictive_posture())
+    changed = run_s2_shadow_design_loop(
+        _input(),
+        predictive_posture=_s11_predictive_posture(
+            predictive_knowledge_ref="pdc://layer2/s11/ua-msme/predictive-knowledge/revision-2",
+            s11_calibration_record_refs=[
+                "pdc://layer2/s11/ua-msme/calibration/measurability/revision-2"
+            ],
+        ),
+    )
+
+    assert no_s11_first.search_ledger.deterministic_replay_key == (
+        no_s11_second.search_ledger.deterministic_replay_key
+    )
+    assert no_s11_first.model_dump(mode="json") == no_s11_second.model_dump(mode="json")
+    assert first.search_ledger.deterministic_replay_key == (
+        second.search_ledger.deterministic_replay_key
+    )
+    assert first.search_ledger.deterministic_replay_key != (
+        changed.search_ledger.deterministic_replay_key
+    )
+
+
+def test_s2_s11_search_ledger_defaults_preserve_legacy_cas_payloads() -> None:
+    legacy_payload = run_s2_shadow_design_loop(_input()).search_ledger.model_dump(mode="json")
+    legacy_s11_fields = (
+        "predictive_knowledge_refs",
+        "predictive_axis_upgrade_refs",
+        "proof_carrying_analytics_refs",
+        "ir_analytics_bridge_refs",
+        "s11_calibration_record_refs",
+        "s11_forecast_quality_constraint_refs",
+        "s11_regime_strategy_constraint_refs",
+        "s11_residual_limitation_refs",
+        "predictive_authority_status",
+        "predictive_authority_boundary",
+    )
+    for field_name in legacy_s11_fields:
+        legacy_payload.pop(field_name, None)
+
+    loaded = SearchLedger.model_validate(legacy_payload)
+
+    assert loaded.predictive_knowledge_refs == []
+    assert loaded.predictive_axis_upgrade_refs == []
+    assert loaded.proof_carrying_analytics_refs == []
+    assert loaded.ir_analytics_bridge_refs == []
+    assert loaded.s11_calibration_record_refs == []
+    assert loaded.s11_forecast_quality_constraint_refs == []
+    assert loaded.s11_regime_strategy_constraint_refs == []
+    assert loaded.s11_residual_limitation_refs == []
+    assert loaded.predictive_authority_status == "not_applicable"
+    assert loaded.predictive_authority_boundary is None
+
+
+def test_s2_s11_handoff_records_consumed_posture_not_recommendation_authority() -> None:
+    posture = _s11_predictive_posture()
+    run = run_s2_shadow_design_loop(_input(), predictive_posture=posture)
+
+    rendered_interfaces = json.dumps(
+        [row.model_dump(mode="json") for row in run.cluster_interface_contracts],
+        sort_keys=True,
+    )
+    rendered_handoffs = json.dumps(
+        [row.model_dump(mode="json") for row in run.handoff_records],
+        sort_keys=True,
+    )
+
+    assert "Layer2S11PredictivePostureInput" in rendered_interfaces
+    assert "Layer2S11PredictivePostureInput" in rendered_handoffs
+    assert "predictive_axis_maturity_upgrade" in rendered_interfaces
+    assert "production_recommendation" in rendered_handoffs
+    assert "recommendation_authority" not in rendered_interfaces
+
+
+def test_s2_s11_persisted_search_ledger_round_trips_predictive_refs(
+    tmp_path: Path,
+) -> None:
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.pdc import load_s2_search_ledger, persist_s2_design_search_run
+
+    posture = _s11_predictive_posture()
+    run = run_s2_shadow_design_loop(_input(), predictive_posture=posture)
+    store = FileSystemCAS(tmp_path / "cas")
+    refs = persist_s2_design_search_run(run, store=store)
+
+    loaded = load_s2_search_ledger(store=store, artifact_ref=refs["search_ledger"])
+
+    assert loaded.predictive_knowledge_refs == [posture.predictive_knowledge_ref]
+    assert loaded.predictive_axis_upgrade_refs == list(posture.axis_upgrade_refs)
+    assert loaded.proof_carrying_analytics_refs == [
+        posture.proof_carrying_analytics_ref
+    ]
+    assert loaded.s11_calibration_record_refs == list(posture.s11_calibration_record_refs)
+    assert loaded.predictive_authority_status == posture.effective_predictive_posture
+
+
+def test_s11_weakest_boundary_caps_search_ledger_projection() -> None:
+    posture = _s11_predictive_posture(
+        effective_predictive_posture="fail_closed",
+        weakest_boundary_reason="stale calibration keeps strategic_response fail_closed.",
+        residual_limitation_refs=["limitation://s11/stale-calibration"],
+    )
+    run = run_s2_shadow_design_loop(_input(), predictive_posture=posture)
+
+    projection = project_s2_design_search(run, audiences=("REVIEWER",))["REVIEWER"]
+
+    assert run.search_ledger.predictive_authority_status == "fail_closed"
+    assert "limitation://s11/stale-calibration" in (
+        run.search_ledger.s11_residual_limitation_refs
+    )
+    assert projection["predictive_authority_status"] == "fail_closed"
+    assert projection["weakest_boundary_reason"] == posture.weakest_boundary_reason
+    assert "production_recommendation_text" not in projection
 
 
 def _s9_projection_context() -> dict[str, object]:

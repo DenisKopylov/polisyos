@@ -398,3 +398,110 @@ def test_layer2_s10_forecast_posture_input_is_strict_and_exported() -> None:
                 "recommendation_authority": "publish",
             }
         )
+
+
+def test_s11_predictive_posture_input_is_strict_and_exported() -> None:
+    posture_model = pdc.Layer2S11PredictivePostureInput
+
+    assert posture_model.model_config.get("extra") == "forbid"
+
+    posture = posture_model(
+        predictive_knowledge_ref="pdc://layer2/s11/ua-msme/predictive-knowledge",
+        effective_predictive_posture="limited_by_weakest_boundary",
+        axis_upgrade_refs=["pdc://layer2/s11/ua-msme/upgrade/measurability"],
+        predictive_axis_rows=[
+            {
+                "axis": "measurability",
+                "cell_ref": "SYSTEM.measurability",
+                "effective_maturity": "predictive",
+                "relaxation_decision": "relaxed_to_predictive",
+            }
+        ],
+        proof_carrying_analytics_ref="pdc://layer2/s11/ua-msme/proof/credit-access",
+        ir_analytics_bridge_ref="ir-analytics-bridge://ua-msme/credit-access",
+        s10_forecast_support_ref="pdc://layer2/s10/ua-msme/forecast-support",
+        s10_forecast_tier="observable_calibrated",
+        s6_floor_status_refs=["pdc://layer2/s6/ua-msme/measurability-adequacy"],
+        s6_axis_rows=[
+            {
+                "axis": "measurability",
+                "cell_ref": "SYSTEM.measurability",
+                "record_ref": "pdc://layer2/s6/ua-msme/measurability-adequacy",
+                "disposition": "limit",
+            }
+        ],
+        s6_bridge_consumer_rows=[
+            {
+                "cell_ref": "SYSTEM.measurability",
+                "consumer_ref": "KNOWLEDGE.epistemic_regime",
+                "producer_ref": "pdc://layer2/s6/ua-msme/measurability-adequacy",
+                "disposition": "limit",
+            }
+        ],
+        s6_constraint_store_update_refs=["constraint://s6/measurability"],
+        s6_c3_authority_dimension_refs=[
+            "pdc://layer2/s6/ua-msme/cluster-authority-dimensions/measurability_adequacy"
+        ],
+        post_intervention_dgp_update_ref="pdc://layer2/s6/ua-msme/post-intervention-dgp",
+        system_dynamics_handoff_required=True,
+        s11_calibration_record_refs=["pdc://layer2/s11/ua-msme/calibration/measurability"],
+        method_infrastructure_refs=["foundry://methods/calibration/local-causal"],
+        forecast_quality_disposition="unchanged_s10_tier_consumed",
+        regime_strategy_constraint_ref="constraint://s11/regime/measurability",
+        residual_limitation_refs=["limitation://s11/measurability/current-run"],
+        per_axis_predictive_calibration_threshold_ref=(
+            "repo://architecture/policy_design_case/layer2_floor_governance.toml#s11"
+        ),
+        per_axis_predictive_calibration_denominator=4,
+        per_axis_predictive_calibration_numerator=3,
+        per_axis_predictive_calibration_pass_rate=0.75,
+        per_axis_predictive_calibration_status="pass",
+        weakest_boundary_reason="S11 inherits S6 fail-closed limits for reverted axes.",
+        authority_boundary={
+            "authoritative_for": [
+                "per_axis_predictive_calibration",
+                "predictive_axis_maturity_upgrade",
+                "proof_carrying_analytics_validity",
+            ],
+            "may_not_use_for": [
+                "production_authority",
+                "production_recommendation",
+                "production_claim_authority",
+                "publication_authority",
+                "claim_authority",
+                "rich_simulation_authority",
+                "s12_envelope_growth",
+                "s13_accountability_closure",
+                "s14_universality",
+                "mandate_legitimacy_predictive_upgrade",
+            ],
+            "source_authority": "deterministic_producer",
+            "posture": "shadow",
+            "rule_version_refs": ["policyos.layer2.s11.predictive_knowledge.v1"],
+        },
+        may_not_use_for=[
+            "production_authority",
+            "production_recommendation",
+            "production_claim_authority",
+            "publication_authority",
+            "claim_authority",
+            "rich_simulation_authority",
+            "s12_envelope_growth",
+            "s13_accountability_closure",
+            "s14_universality",
+            "mandate_legitimacy_predictive_upgrade",
+        ],
+        rule_version_ref="policyos.layer2.s11.predictive_knowledge.v1",
+    )
+
+    assert posture.predictive_knowledge_ref.endswith("/predictive-knowledge")
+    assert posture.s10_forecast_support_ref.startswith("pdc://layer2/s10/")
+    assert "production_authority" in posture.may_not_use_for
+
+    with pytest.raises(ValidationError, match="Extra inputs are not permitted"):
+        posture_model.model_validate(
+            {
+                **posture.model_dump(mode="json"),
+                "recommendation_authority": "publish",
+            }
+        )

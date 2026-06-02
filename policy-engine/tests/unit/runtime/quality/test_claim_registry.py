@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import importlib
+from typing import Any
+
 from polisyos.runtime.quality.claim_registry import (
     build_runtime_claim_registry,
     claim_registry_rows_by_id,
@@ -12,6 +15,11 @@ from polisyos.runtime.quality.ir_analytics_bridge import (
 
 def _sha(char: str) -> str:
     return "sha256:" + char * 64
+
+
+def _s11(name: str) -> Any:
+    module = importlib.import_module("polisyos.runtime.quality")
+    return getattr(module, name)
 
 
 def _major_claim(**overrides: object) -> dict[str, object]:
@@ -49,6 +57,126 @@ def _hypothesis_ledger() -> dict[str, object]:
             }
         ],
     }
+
+
+def _claim_with_required_evidence(**overrides: object) -> dict[str, object]:
+    claim = _major_claim(
+        requires_ir_analytics=True,
+        scenario_requirement_refs=["scenario.req.credit_support"],
+        data_refs=["source.msme_panel"],
+        selected_norm_refs=["norm.ua.credit_guarantee"],
+        portfolio_refs=["portfolio.rec_credit_guarantee"],
+        argument_refs=["argument.rec_credit_guarantee"],
+        warrant_refs=["warrant.rec_credit_guarantee"],
+        rebuttal_refs=["rebuttal.rec_credit_guarantee"],
+        counter_evidence_refs=["counter.rec_credit_guarantee"],
+        limitation_refs=["limitation.rec_credit_guarantee"],
+        accepted_deficit_refs=["deficit.rec_credit_guarantee"],
+    )
+    claim.update(overrides)
+    return claim
+
+
+def _s11_authority_boundary() -> dict[str, object]:
+    return {
+        "authoritative_for": ["proof_carrying_analytics_validity"],
+        "may_not_use_for": [
+            "production_authority",
+            "production_recommendation",
+            "production_claim_authority",
+            "publication_authority",
+            "claim_authority",
+            "runtime_closeout_authority",
+            "rich_simulation_authority",
+            "s12_envelope_growth",
+            "s13_accountability_closure",
+            "s14_universality",
+        ],
+        "source_authority": "deterministic_producer",
+        "posture": "shadow",
+        "rule_version_refs": ["policyos.layer2.s11.predictive_knowledge.v1"],
+    }
+
+
+def _s11_proof_payload(**overrides: object) -> dict[str, object]:
+    payload: dict[str, object] = {
+        "proof_id": "layer2.s11.proof.ua-msme.credit-access",
+        "proof_ref": "pdc://layer2/s11/ua-msme/proof/credit-access",
+        "case_id": "ua-msme-affordable-loans-2022",
+        "claim_id": "rec_credit_guarantee",
+        "design_comparison_ref": "comparison://ua-msme/credit-vs-cash",
+        "baseline_design_ref": "baseline://ua-msme/no-new-credit",
+        "alternative_design_refs": ["alternative://ua-msme/cash-transfer"],
+        "ir_analytics_refs": ["ir.analytics.partial_id.msme_survival"],
+        "method_output_refs": ["ir.method.partial_identification.ate"],
+        "ir_certificate_refs": ["ir.certificate.dual.msme_survival"],
+        "negative_certificate_refs": [],
+        "proof_status": "identified",
+        "proof_composability_status": "reusable",
+        "proof_composability_refs": ["ir.proof_composability.msme_survival"],
+        "method_requirement_refs": ["method-requirement://partial-identification"],
+        "uncertainty_refs": ["ir.uncertainty.msme_survival"],
+        "independence_refs": ["independence://ua-msme/current-run"],
+        "effective_independence_collapse_refs": [],
+        "counter_evidence_refs": [],
+        "limitation_refs": ["limitation://proof/partial-identification"],
+        "blocker_refs": [],
+        "ir_analytics_bridge_ref": "ir-analytics-bridge://ua-msme/credit-access",
+        "claim_registry_entry_ref": "claim-registry://ua-msme/rec_credit_guarantee",
+        "comparison_consumer_ref": "design-comparison://ua-msme/credit-vs-cash",
+        "source_lineage_refs": ["lineage://ua-msme/source-contract"],
+        "method_lineage_refs": ["lineage://ua-msme/ir-analytics"],
+        "authority_boundary": _s11_authority_boundary(),
+        "may_not_use_for": _s11_authority_boundary()["may_not_use_for"],
+        "rule_version_ref": "policyos.layer2.s11.predictive_knowledge.v1",
+    }
+    payload.update(overrides)
+    return payload
+
+
+def _s11_proof_record(**overrides: object) -> Any:
+    return _s11("build_proof_carrying_analytics_record")(
+        **_s11_proof_payload(**overrides)
+    )
+
+
+def _record_field(record: Any, field_name: str) -> Any:
+    if hasattr(record, field_name):
+        return getattr(record, field_name)
+    return dict(record)[field_name]
+
+
+def _bridge_from_s11_proof(record: Any) -> dict[str, object]:
+    return build_ir_analytics_claim_bridge(
+        claim_bindings=[
+            {
+                "claim_id": _record_field(record, "claim_id"),
+                "analytics_ref": _record_field(record, "ir_analytics_refs")[0],
+                "method_output_refs": list(_record_field(record, "method_output_refs")),
+                "certificate_refs": list(_record_field(record, "ir_certificate_refs")),
+                "negative_certificate_refs": list(
+                    _record_field(record, "negative_certificate_refs")
+                ),
+                "proof_status": _record_field(record, "proof_status"),
+                "proof_composability_status": _record_field(
+                    record,
+                    "proof_composability_status",
+                ),
+                "proof_composability_refs": list(
+                    _record_field(record, "proof_composability_refs")
+                ),
+                "uncertainty_refs": list(_record_field(record, "uncertainty_refs")),
+                "baseline_refs": [_record_field(record, "baseline_design_ref")],
+                "comparison_refs": [_record_field(record, "design_comparison_ref")],
+                "alternative_refs": list(_record_field(record, "alternative_design_refs")),
+                "independence_refs": list(_record_field(record, "independence_refs")),
+                "limitation_refs": list(_record_field(record, "limitation_refs")),
+                "blocker_refs": list(_record_field(record, "blocker_refs")),
+            }
+        ],
+        run_id="run-s11-proof",
+        bridge_ref=_record_field(record, "ir_analytics_bridge_ref"),
+    )
 
 
 def test_runtime_claim_registry_rejects_global_pools_without_per_claim_entry() -> None:
@@ -355,3 +483,88 @@ def test_ir_analytics_negative_certificate_blocks_claim_registry_entry() -> None
     assert "ir.negative_certificate.hedge.msme" in row["blocker_refs"]
     assert "ir.negative_certificate.hedge.msme" in row["counter_evidence_refs"]
     assert row["rejected_method_refs"] == ["ir.method.identification.ate"]
+
+
+def test_s11_proof_carrying_record_projects_bridge_refs_into_claim_registry() -> None:
+    proof = _s11_proof_record()
+    bridge = _bridge_from_s11_proof(proof)
+
+    registry = build_runtime_claim_registry(
+        claims=[
+            _claim_with_required_evidence(
+                baseline_refs=[_record_field(proof, "baseline_design_ref")],
+                alternative_refs=list(_record_field(proof, "alternative_design_refs")),
+                comparison_refs=[_record_field(proof, "design_comparison_ref")],
+            )
+        ],
+        ir_analytics_bridge=bridge,
+        run_id="run-s11-proof",
+    )
+
+    row = claim_registry_rows_by_id(registry)["rec_credit_guarantee"]
+
+    assert registry["status"] == "pass"
+    assert row["ir_analytics_refs"] == ["ir.analytics.partial_id.msme_survival"]
+    assert row["method_output_refs"] == ["ir.method.partial_identification.ate"]
+    assert row["ir_certificate_refs"] == ["ir.certificate.dual.msme_survival"]
+    assert row["proof_composability_refs"] == ["ir.proof_composability.msme_survival"]
+    assert row["uncertainty_refs"] == ["ir.uncertainty.msme_survival"]
+    assert row["baseline_refs"] == ["baseline://ua-msme/no-new-credit"]
+    assert row["selected_producer_refs"]["ir_analytics"]
+
+
+def test_s11_proof_carrying_record_preserves_design_comparison_refs() -> None:
+    proof = _s11_proof_record()
+    bridge = _bridge_from_s11_proof(proof)
+
+    registry = build_runtime_claim_registry(
+        claims=[
+            _claim_with_required_evidence(
+                claim_use="superiority",
+                baseline_refs=[_record_field(proof, "baseline_design_ref")],
+                alternative_refs=list(_record_field(proof, "alternative_design_refs")),
+                comparison_refs=[_record_field(proof, "design_comparison_ref")],
+            )
+        ],
+        ir_analytics_bridge=bridge,
+        run_id="run-s11-proof-comparison",
+    )
+
+    row = claim_registry_rows_by_id(registry)["rec_credit_guarantee"]
+
+    assert registry["status"] == "pass"
+    assert row["baseline_refs"] == ["baseline://ua-msme/no-new-credit"]
+    assert row["alternative_refs"] == ["alternative://ua-msme/cash-transfer"]
+    assert row["comparison_refs"] == ["comparison://ua-msme/credit-vs-cash"]
+    assert row["ir_analytics_bridge_ref"] == "ir-analytics-bridge://ua-msme/credit-access"
+
+
+def test_s11_negative_certificate_blocks_claim_registry_evidence_upgrade() -> None:
+    proof = _s11_proof_record(
+        negative_certificate_refs=["ir.negative_certificate.hedge.msme"],
+        proof_status="not_identified",
+        proof_composability_status="rederive",
+        blocker_refs=["ir.negative_certificate.hedge.msme"],
+    )
+    bridge = _bridge_from_s11_proof(proof)
+
+    registry = build_runtime_claim_registry(
+        claims=[
+            _claim_with_required_evidence(
+                baseline_refs=[_record_field(proof, "baseline_design_ref")],
+                alternative_refs=list(_record_field(proof, "alternative_design_refs")),
+                comparison_refs=[_record_field(proof, "design_comparison_ref")],
+            )
+        ],
+        ir_analytics_bridge=bridge,
+        run_id="run-s11-proof-negative",
+    )
+
+    row = claim_registry_rows_by_id(registry)["rec_credit_guarantee"]
+    issue_codes = {issue["code"] for issue in registry["issues"]}
+
+    assert registry["status"] == "fail"
+    assert "runtime_claim_registry_ir_analytics_blocked" in issue_codes
+    assert row["negative_certificate_refs"] == ["ir.negative_certificate.hedge.msme"]
+    assert "ir.negative_certificate.hedge.msme" in row["blocker_refs"]
+    assert row["rejected_method_refs"] == ["ir.method.partial_identification.ate"]

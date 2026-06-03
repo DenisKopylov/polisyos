@@ -132,6 +132,23 @@ def test_cluster_ownership_map_keeps_known_blind_spots_explicit() -> None:
     )
 
 
+def test_cluster_ownership_envelope_growth_documents_s12_and_s13_without_open_cell() -> None:
+    payload = cluster_map.load_cluster_ownership_map(REPO_ROOT)
+    cell = payload["cell"]["DESIGNER_ITSELF"]["envelope_growth"]
+
+    assert cell["owner_module"] == (
+        "src/polisyos/runtime/quality/layer2_resource_economics.py"
+    )
+    assert cell["ratchet_state"] == "implemented"
+    assert cell["p01_chain"] == "implemented"
+    assert cell["gap"] == "none_for_s12_resource_economics_scope"
+    assert "S12" in cell["action"]
+    assert "S13" in cell["action"]
+    assert "allocation" in cell["action"]
+    assert "bidirectional" in cell["action"]
+    assert "DESIGNER_ITSELF" not in payload.get("open_cell_closure", {})
+
+
 def test_cluster_ownership_handshake_edges_are_declared_nodes() -> None:
     payload = cluster_map.load_cluster_ownership_map(REPO_ROOT)
     cell_ids = {

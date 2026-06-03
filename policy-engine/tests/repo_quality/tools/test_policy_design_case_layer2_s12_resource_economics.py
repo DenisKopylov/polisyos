@@ -189,6 +189,31 @@ def test_layer2_s12_inventory_count_accepts_post_s13_registration() -> None:
     assert validation["summary"]["inventory_artifact_count"] in {20, 21}
 
 
+def test_layer2_s12_snapshot_allows_registered_s13_artifacts() -> None:
+    payloads = _payloads()
+    trace_s13_maturity = {
+        str(row["name"]): row.get("maturity")
+        for row in payloads["artifact_traceability"]["artifact"]
+        if row.get("slice") == "S13"
+    }
+    inventory_ids = {
+        str(artifact["id"])
+        for artifact in payloads["inventory"]["artifacts"]
+        if isinstance(artifact, dict)
+    }
+
+    assert set(trace_s13_maturity) == {
+        "DeploymentDossier",
+        "DivergenceRecord",
+        "LearningUpdateProposal",
+        "EnvelopeRevision",
+        "CertifiedEnvelopeDelta",
+        "AssuranceCaseDelta",
+    }
+    assert set(trace_s13_maturity.values()) == {"implemented"}
+    assert "layer2_s13_post_deploy_accountability_manifest" in inventory_ids
+
+
 def test_layer2_s12_b_side_does_not_import_resource_economics_producer() -> None:
     source = (
         REPO_ROOT / "src/polisyos/pdc/_impl/layer2_design_search.py"
@@ -243,7 +268,7 @@ def test_layer2_s12_manifest_metrics_match_generated_corpus_summary(tmp_path: Pa
     assert manifest["false_clear_counts"] == summary["false_clear_counts"]
 
 
-def test_layer2_s12_does_not_mark_s13_or_s14_or_production_authority() -> None:
+def test_layer2_s12_manifest_denies_s13_s14_and_production_authority() -> None:
     manifest = _manifest()
     rendered_manifest = json.dumps(manifest, sort_keys=True)
 

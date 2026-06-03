@@ -200,7 +200,7 @@ def test_layer2_s10_floor_and_false_clears_are_governed() -> None:
         assert summary["s10_false_clear_counts"][nested_field] == 0
 
 
-def test_layer2_s10_does_not_mark_s11_s12_s13_or_s14_implemented() -> None:
+def test_layer2_s10_manifest_keeps_later_slice_authority_scoped() -> None:
     manifest = _manifest()
     validation = readiness.validate_layer2_readiness(REPO_ROOT)
     summary = validation["summary"]

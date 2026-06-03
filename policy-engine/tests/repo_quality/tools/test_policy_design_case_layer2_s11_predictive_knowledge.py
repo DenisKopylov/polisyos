@@ -181,7 +181,7 @@ def test_layer2_s11_floor_and_false_clears_are_governed() -> None:
         assert summary["s11_false_clear_counts"][nested_field] == 0
 
 
-def test_layer2_s11_does_not_mark_s12_s13_s14_or_production_authority() -> None:
+def test_layer2_s11_manifest_keeps_s12_s13_s14_and_production_authority_scoped() -> None:
     manifest = _manifest()
     validation = readiness.validate_layer2_readiness(REPO_ROOT)
     summary = validation["summary"]

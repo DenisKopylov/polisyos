@@ -63,6 +63,9 @@ DEFAULT_S11_PREDICTIVE_KNOWLEDGE_MANIFEST_PATH = Path(
 DEFAULT_S12_RESOURCE_ECONOMICS_MANIFEST_PATH = Path(
     "architecture/policy_design_case/layer2_s12_resource_economics_manifest.json"
 )
+DEFAULT_S13_POST_DEPLOY_ACCOUNTABILITY_MANIFEST_PATH = Path(
+    "architecture/policy_design_case/layer2_s13_post_deploy_accountability_manifest.json"
+)
 DEFAULT_INVENTORY_PATH = Path("architecture/policy_design_case/inventory.json")
 
 REQUIRED_SLICES = {f"S{number}" for number in range(15)}
@@ -322,7 +325,7 @@ S9_EXPECTED_OPEN_CELLS = {
     "KNOWLEDGE.calibration",
     "KNOWLEDGE.ir_proof_carrying_analytics",
 }
-S9_LATER_SLICES = {"S13", "S14"}
+S9_LATER_SLICES = {"S14"}
 S10_REQUIRED_ARTIFACTS = {"ForecastSupport", "ForecastCalibrationRecord"}
 S10_REQUIRED_AUTHORITY_SCOPE = {
     "forecast_support_tiering",
@@ -493,6 +496,52 @@ S12_FALSE_CLEAR_FIELDS = (
     "growth_without_envelope_delta",
 )
 S12_INVENTORY_ID = "layer2_s12_resource_economics_manifest"
+S13_REQUIRED_ARTIFACTS = {
+    "DeploymentDossier",
+    "DivergenceRecord",
+    "LearningUpdateProposal",
+    "EnvelopeRevision",
+    "CertifiedEnvelopeDelta",
+    "AssuranceCaseDelta",
+}
+S13_REQUIRED_AUTHORITY_SCOPE = {
+    "post_deploy_accountability",
+    "deployment_monitorability",
+    "divergence_attribution",
+    "learning_update_proposal",
+    "post_deploy_mape_k_trace",
+    "envelope_revision",
+    "assurance_case_delta",
+    "public_accountability_note",
+}
+S13_REQUIRED_DENY = {
+    "production_rollout_authority",
+    "recommendation_authority",
+    "publication_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "pre_policy_evidence",
+    "current_evidence_slot",
+    "preference_learning",
+    "automated_value_learning",
+    "naive_ml_update",
+    "s14_universality",
+    "llm_attribution_authority",
+    "local_governance_enum_for_reissue",
+}
+S13_FALSE_CLEAR_FIELDS = (
+    "post_policy_data_as_pre_policy_evidence",
+    "learned_prior_in_current_evidence_slot",
+    "unattributable_updates_model",
+    "silent_closed_case_rewrite",
+    "learning_without_attribution",
+    "envelope_shrink_without_assurance_delta",
+    "b_update_before_a_baseline",
+    "implementation_failure_as_theory_refutation",
+    "outcome_learning_without_counterfactual",
+    "s13_as_production_or_recommendation_authority",
+)
+S13_INVENTORY_ID = "layer2_s13_post_deploy_accountability_manifest"
 
 
 def load_layer2_readiness_payloads(repo_root: Path | str = REPO_ROOT) -> dict[str, Any]:
@@ -533,6 +582,9 @@ def load_layer2_readiness_payloads(repo_root: Path | str = REPO_ROOT) -> dict[st
         ),
         "s12_resource_economics": _load_optional_json(
             root / DEFAULT_S12_RESOURCE_ECONOMICS_MANIFEST_PATH
+        ),
+        "s13_post_deploy_accountability": _load_optional_json(
+            root / DEFAULT_S13_POST_DEPLOY_ACCOUNTABILITY_MANIFEST_PATH
         ),
         "inventory": _load_json(root / DEFAULT_INVENTORY_PATH),
         "cluster_map": cluster_map.load_cluster_ownership_map(root),
@@ -741,6 +793,15 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
         cluster_map_payload=cluster_payload,
         current_open_cells=current_open_cells,
         assigned_cells=assigned_cells,
+        inventory=payloads["inventory"],
+        issues=issues,
+    )
+    _validate_s13_post_deploy_accountability(
+        s13=payloads.get("s13_post_deploy_accountability"),
+        floor_governance=payloads["floor_governance"],
+        artifact_traceability=payloads["artifact_traceability"],
+        cluster_map_payload=cluster_payload,
+        current_open_cells=current_open_cells,
         inventory=payloads["inventory"],
         issues=issues,
     )
@@ -1021,6 +1082,61 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
         if isinstance(s12, dict) and s12
         else {}
     )
+    s13 = payloads.get("s13_post_deploy_accountability")
+    s13_false_clear_counts = (
+        {field: s13.get(f"{field}_false_clear_count") for field in S13_FALSE_CLEAR_FIELDS}
+        if isinstance(s13, dict) and s13
+        else {}
+    )
+    s13_summary = (
+        {
+            "s13_case_count": s13.get("case_count"),
+            "s13_expected_current_open_cell_count": s13.get(
+                "expected_current_open_cell_count"
+            ),
+            "s13_remaining_open_cells": s13.get("remaining_open_cells"),
+            "s13_burn_down_complete": s13.get("burn_down_complete"),
+            "s13_required_artifact_count": len(s13.get("required_artifacts", [])),
+            "s13_monitorability_rate": s13.get("monitorability_rate"),
+            "s13_a_before_b_ratio": s13.get("a_before_b_ratio"),
+            "s13_attribution_resolution_rate": s13.get(
+                "attribution_resolution_rate"
+            ),
+            "s13_envelope_shrink_count": s13.get("envelope_shrink_count"),
+            "s13_envelope_expansion_count": s13.get("envelope_expansion_count"),
+            "s13_envelope_shrink_latency_recorded_count": s13.get(
+                "envelope_shrink_latency_recorded_count"
+            ),
+            "s13_unattributable_accountability_without_training_count": s13.get(
+                "unattributable_accountability_without_training_count"
+            ),
+            "s13_mape_k_trace_completeness_rate": s13.get(
+                "mape_k_trace_completeness_rate"
+            ),
+            "s13_action_item_closure_rate": s13.get("action_item_closure_rate"),
+            "s13_oversight_effectiveness_link_rate": s13.get(
+                "oversight_effectiveness_link_rate"
+            ),
+            "s13_rubber_stamp_divergence_review_required_count": s13.get(
+                "rubber_stamp_divergence_review_required_count"
+            ),
+            "s13_learning_without_attribution_count": s13.get(
+                "learning_without_attribution_count"
+            ),
+            "s13_growth_without_assurance_delta_count": s13.get(
+                "growth_without_assurance_delta_count"
+            ),
+            "s13_false_clear_counts": s13_false_clear_counts,
+            **{
+                f"s13_{field}_false_clear_count": s13.get(
+                    f"{field}_false_clear_count"
+                )
+                for field in S13_FALSE_CLEAR_FIELDS
+            },
+        }
+        if isinstance(s13, dict) and s13
+        else {}
+    )
 
     return _result(
         issues,
@@ -1044,6 +1160,7 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
             **s10_summary,
             **s11_summary,
             **s12_summary,
+            **s13_summary,
         },
     )
 
@@ -2692,7 +2809,7 @@ def _validate_s9_projection_lowering(
         issues.append(
             _issue(
                 "layer2_s9_later_slice_maturity_invalid",
-                "S9/S12 burn-down must not mark S13 or S14 artifacts implemented.",
+                "S9/S12 burn-down must not mark S14 artifacts implemented.",
             )
         )
 
@@ -3035,7 +3152,7 @@ def _validate_s10_outcome_prediction(
         issues.append(
             _issue(
                 "layer2_s10_future_slice_maturity_invalid",
-                "S10/S12 burn-down must not mark S13 or S14 artifacts implemented.",
+                "S10/S12 burn-down must not mark S14 artifacts implemented.",
             )
         )
 
@@ -3357,11 +3474,11 @@ def _validate_s11_predictive_knowledge(
             )
         )
 
-    if _inventory_layer2_artifact_count(inventory) not in {19, 20}:
+    if _inventory_layer2_artifact_count(inventory) not in {19, 20, 21}:
         issues.append(
             _issue(
                 "layer2_s11_inventory_artifact_count_invalid",
-                "Layer 2 inventory artifact count must be 19 after S11 or 20 after S12.",
+                "Layer 2 inventory artifact count must be 19 after S11, 20 after S12, or 21 after S13.",
             )
         )
     inventory_artifact = _inventory_artifact_by_id(inventory, S11_INVENTORY_ID)
@@ -3424,14 +3541,14 @@ def _validate_s11_predictive_knowledge(
         str(row.get("name", ""))
         for row in artifact_traceability.get("artifact", [])
         if isinstance(row, dict)
-        and row.get("slice") in {"S13", "S14"}
+        and row.get("slice") in {"S14"}
         and row.get("maturity") == "implemented"
     }
     if future_implemented:
         issues.append(
             _issue(
                 "layer2_s11_future_slice_maturity_invalid",
-                "S11/S12 burn-down must not mark S13 or S14 artifacts implemented.",
+                "S11/S12 burn-down must not mark S14 artifacts implemented.",
             )
         )
     assignments = {
@@ -3442,7 +3559,7 @@ def _validate_s11_predictive_knowledge(
     future_cell_refs = {
         cell_ref
         for cell_ref, slice_name in assignments.items()
-        if slice_name in {"S13", "S14"}
+        if slice_name in {"S14"}
     }
     production_authority_refs = {
         f"{cluster}.{axis}"
@@ -3757,11 +3874,11 @@ def _validate_s12_resource_economics(
             )
         )
 
-    if _inventory_layer2_artifact_count(inventory) != 20:
+    if _inventory_layer2_artifact_count(inventory) not in {20, 21}:
         issues.append(
             _issue(
                 "layer2_s12_inventory_artifact_count_invalid",
-                "Layer 2 inventory artifact count must be 20 after registering S12.",
+                "Layer 2 inventory artifact count must be 20 after S12 or 21 after S13.",
             )
         )
     inventory_artifact = _inventory_artifact_by_id(inventory, S12_INVENTORY_ID)
@@ -3814,14 +3931,460 @@ def _validate_s12_resource_economics(
         str(row.get("name", ""))
         for row in artifact_traceability.get("artifact", [])
         if isinstance(row, dict)
-        and row.get("slice") in {"S13", "S14"}
+        and row.get("slice") in {"S14"}
         and row.get("maturity") == "implemented"
     }
     if future_implemented:
         issues.append(
             _issue(
                 "layer2_s12_future_slice_maturity_invalid",
-                "S12 must not mark S13 or S14 artifacts implemented.",
+                "S12 must not mark S14 artifacts implemented.",
+            )
+        )
+
+
+def _validate_s13_post_deploy_accountability(
+    *,
+    s13: object,
+    floor_governance: dict[str, Any],
+    artifact_traceability: dict[str, Any],
+    cluster_map_payload: dict[str, Any],
+    current_open_cells: set[str],
+    inventory: dict[str, Any],
+    issues: list[dict[str, str]],
+) -> None:
+    if not isinstance(s13, dict) or not s13:
+        issues.append(
+            _issue(
+                "layer2_s13_manifest_missing",
+                "S13 post-deploy accountability manifest must be present.",
+            )
+        )
+        return
+    if s13.get("schema_version") != (
+        "policyos.policy_design_case.layer2_s13_post_deploy_accountability_manifest.v1"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s13_schema_version_invalid",
+                "S13 post-deploy accountability manifest schema_version is invalid.",
+            )
+        )
+    if (
+        s13.get("status") != "active"
+        or s13.get("owner") != "governance-board"
+        or s13.get("slice") != "S13"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s13_status_owner_or_slice_invalid",
+                "S13 manifest must be active, governance-board-owned, and slice=S13.",
+            )
+        )
+    if s13.get("depends_on") != ["S7", "S9", "S12"]:
+        issues.append(
+            _issue(
+                "layer2_s13_dependencies_invalid",
+                "S13 must depend on S7, S9, and S12 in that order.",
+            )
+        )
+    if s13.get("slice_label") != "post_deploy_accountability_learning":
+        issues.append(
+            _issue(
+                "layer2_s13_slice_label_invalid",
+                "S13 slice_label must be post_deploy_accountability_learning.",
+            )
+        )
+    if s13.get("cells_closed") != []:
+        issues.append(
+            _issue(
+                "layer2_s13_cells_closed_invalid",
+                "S13 must advance envelope_growth without claiming a newly closed cell.",
+            )
+        )
+    if s13.get("layer_cells_advanced") != ["DESIGNER_ITSELF.envelope_growth"]:
+        issues.append(
+            _issue(
+                "layer2_s13_layer_cells_advanced_invalid",
+                "S13 must advance exactly DESIGNER_ITSELF.envelope_growth.",
+            )
+        )
+    if s13.get("expected_current_open_cell_count") != 0:
+        issues.append(
+            _issue(
+                "layer2_s13_open_cell_count_drift",
+                "S13 manifest must record expected_current_open_cell_count=0.",
+            )
+        )
+    if s13.get("remaining_open_cells") != [] or s13.get("burn_down_complete") is not True:
+        issues.append(
+            _issue(
+                "layer2_s13_burn_down_state_invalid",
+                "S13 must preserve burn_down_complete with no remaining open cells.",
+            )
+        )
+    if current_open_cells:
+        issues.append(
+            _issue(
+                "layer2_s13_live_open_cells_remaining",
+                "S13 live readiness must keep current_open_cells empty.",
+            )
+        )
+
+    cell = (
+        cluster_map_payload.get("cell", {})
+        .get("DESIGNER_ITSELF", {})
+        .get("envelope_growth", {})
+    )
+    if not isinstance(cell, dict) or cell.get("ratchet_state") != "implemented":
+        issues.append(
+            _issue(
+                "layer2_s13_cluster_cell_not_implemented",
+                "DESIGNER_ITSELF.envelope_growth must remain implemented.",
+            )
+        )
+    else:
+        if cell.get("owner_module") != (
+            "src/polisyos/runtime/quality/layer2_resource_economics.py"
+        ):
+            issues.append(
+                _issue(
+                    "layer2_s13_cluster_cell_owner_drift",
+                    "S13 must not move envelope_growth ownership away from S12 resource economics.",
+                )
+            )
+        if cell.get("p01_chain") != "implemented":
+            issues.append(
+                _issue(
+                    "layer2_s13_cluster_cell_p01_chain_invalid",
+                    "S13 envelope-growth advancement must preserve p01_chain=implemented.",
+                )
+            )
+        if cell.get("gap") != "none_for_s12_resource_economics_scope":
+            issues.append(
+                _issue(
+                    "layer2_s13_cluster_cell_gap_invalid",
+                    "S13 must preserve the S12-scoped envelope-growth gap marker.",
+                )
+            )
+        if cell.get("firewall") != "P13_governance_gravity":
+            issues.append(
+                _issue(
+                    "layer2_s13_cluster_cell_firewall_invalid",
+                    "S13 must preserve the P13 governance-gravity firewall.",
+                )
+            )
+        action = str(cell.get("action", ""))
+        if "S13" not in action or "bidirectional" not in action:
+            issues.append(
+                _issue(
+                    "layer2_s13_cluster_cell_action_missing_revision",
+                    "DESIGNER_ITSELF.envelope_growth action must mention S13 bidirectional envelope revision.",
+                )
+            )
+
+    trace_s13_artifacts = [
+        row
+        for row in artifact_traceability.get("artifact", [])
+        if isinstance(row, dict) and row.get("slice") == "S13"
+    ]
+    trace_names = [str(row.get("name", "")) for row in trace_s13_artifacts]
+    if set(s13.get("required_artifacts", [])) != S13_REQUIRED_ARTIFACTS:
+        issues.append(
+            _issue(
+                "layer2_s13_required_artifacts_invalid",
+                "S13 required_artifacts must list the six post-deploy accountability artifacts.",
+            )
+        )
+    if (
+        set(trace_names) != S13_REQUIRED_ARTIFACTS
+        or any(trace_names.count(name) != 1 for name in S13_REQUIRED_ARTIFACTS)
+        or any(row.get("maturity") != "implemented" for row in trace_s13_artifacts)
+    ):
+        issues.append(
+            _issue(
+                "layer2_s13_traceability_missing",
+                "S13 artifacts must be implemented exactly once in layer2_artifact_traceability.",
+            )
+        )
+    artifact_paths = s13.get("artifact_paths")
+    if not isinstance(artifact_paths, dict) or set(artifact_paths) != S13_REQUIRED_ARTIFACTS:
+        issues.append(
+            _issue(
+                "layer2_s13_artifact_paths_invalid",
+                "S13 manifest must bind exact artifact path refs for all six artifacts.",
+            )
+        )
+
+    floor = _floor_by_id(floor_governance, "s13_accountability")
+    if (
+        s13.get("floor_id") != "s13_accountability"
+        or s13.get("floor_metric") != "a_before_b_ratio_and_attribution_resolution"
+        or not floor
+        or floor.get("metric") != "a_before_b_ratio_and_attribution_resolution"
+        or floor.get("floor_owner") != "governance-board"
+        or floor.get("revision_rule") != "post_deploy_learning_requires_attribution_gate"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s13_floor_governance_invalid",
+                "S13 floor must govern A-before-B and attribution-gated accountability.",
+            )
+        )
+    exact_metrics = {
+        "case_count": 13,
+        "monitorability_rate": 1.0,
+        "a_before_b_ratio": 1.0,
+        "attribution_resolution_rate": 1.0,
+        "mape_k_trace_completeness_rate": 1.0,
+        "action_item_closure_rate": 1.0,
+        "oversight_effectiveness_link_rate": 1.0,
+        "learning_without_attribution_count": 0,
+        "growth_without_assurance_delta_count": 0,
+    }
+    for field, expected in exact_metrics.items():
+        if s13.get(field) != expected:
+            issues.append(
+                _issue(
+                    f"layer2_s13_{field}_invalid",
+                    f"S13 {field} must be {expected}.",
+                )
+            )
+    at_least_metrics = {
+        "envelope_shrink_count": 1,
+        "envelope_expansion_count": 1,
+        "envelope_shrink_latency_recorded_count": 1,
+        "unattributable_accountability_without_training_count": 1,
+        "rubber_stamp_divergence_review_required_count": 1,
+    }
+    for field, minimum in at_least_metrics.items():
+        if not _number_at_least(s13.get(field), minimum):
+            issues.append(
+                _issue(
+                    f"layer2_s13_{field}_below_floor",
+                    f"S13 {field} must be at least {minimum}.",
+                )
+            )
+
+    false_clear_counts = s13.get("false_clear_counts")
+    if not isinstance(false_clear_counts, dict) or tuple(false_clear_counts) != (
+        S13_FALSE_CLEAR_FIELDS
+    ):
+        issues.append(
+            _issue(
+                "layer2_s13_false_clear_counts_invalid",
+                "S13 false_clear_counts must match the governed anti-learning false-clear fields.",
+            )
+        )
+    elif any(value != 0 for value in false_clear_counts.values()):
+        issues.append(
+            _issue(
+                "layer2_s13_false_clear_counts_nonzero",
+                "S13 nested false_clear_counts must all stay zero.",
+            )
+        )
+    for field in S13_FALSE_CLEAR_FIELDS:
+        if s13.get(f"{field}_false_clear_count") != 0:
+            issues.append(
+                _issue(
+                    f"layer2_s13_{field}_false_clear_count_nonzero",
+                    f"S13 {field}_false_clear_count must stay zero.",
+                )
+            )
+
+    if set(s13.get("firewalls", [])) < {
+        "anti_learning_authority_boundary",
+        "c41_learned_prior_current_evidence_slot",
+        "a_before_b_sequence",
+        "closed_case_replay_integrity",
+        "lucas_post_policy_pre_policy_evidence",
+        "s7_governance_decision_bypass",
+    }:
+        issues.append(
+            _issue(
+                "layer2_s13_firewalls_incomplete",
+                "S13 manifest must declare all anti-learning and replay firewalls.",
+            )
+        )
+    if set(s13.get("surfaces", [])) < {
+        "public_accountability_note",
+        "expert_projection",
+        "machine_projection",
+        "reviewer_action_reissue_view",
+    }:
+        issues.append(
+            _issue(
+                "layer2_s13_surfaces_incomplete",
+                "S13 manifest must expose public, expert, machine, and reviewer surfaces.",
+            )
+        )
+    if set(s13.get("embedded_trace_requirements", [])) < {
+        "mape_k_monitor_refs",
+        "mape_k_analyze_refs",
+        "mape_k_plan_refs",
+        "mape_k_execute_refs",
+        "mape_k_knowledge_refs",
+        "typed_diagnostic_record_composition_refs",
+        "action_item_closure_refs",
+        "oversight_effectiveness_refs",
+        "oversight_accountability_state_coverage",
+        "public_revision_state_refs_as_accountability_notes",
+        "case_lifecycle_reissue_disposition_refs",
+    }:
+        issues.append(
+            _issue(
+                "layer2_s13_embedded_trace_requirements_incomplete",
+                "S13 manifest must declare MAPE-K, diagnostic, oversight, public revision, and lifecycle reissue trace refs.",
+            )
+        )
+
+    authority_scope = set(s13.get("authority_scope", []))
+    deny_list = set(s13.get("may_not_use_for", []))
+    if authority_scope != S13_REQUIRED_AUTHORITY_SCOPE:
+        issues.append(
+            _issue(
+                "layer2_s13_authority_scope_invalid",
+                "S13 authority_scope must match governed post-deploy accountability scope.",
+            )
+        )
+    if not deny_list >= S13_REQUIRED_DENY:
+        issues.append(
+            _issue(
+                "layer2_s13_authority_deny_list_incomplete",
+                "S13 may_not_use_for must block production, evidence-slot, learning, LLM, and S14 authority.",
+            )
+        )
+    forbidden_scope = {
+        "production_rollout_authority",
+        "production_authority",
+        "recommendation_authority",
+        "publication_authority",
+        "approval_authority",
+        "scorecard_authority",
+        "pre_policy_evidence",
+        "current_evidence_slot",
+        "preference_learning",
+        "automated_value_learning",
+        "naive_ml_update",
+        "s14_universality",
+        "universality",
+        "llm_attribution_authority",
+        "local_governance_enum_for_reissue",
+    }
+    if authority_scope & forbidden_scope:
+        issues.append(
+            _issue(
+                "layer2_s13_forbidden_authority_claimed",
+                "S13 must not claim production, evidence-slot, LLM attribution, local governance enum, or S14 universality authority.",
+            )
+        )
+    authority_boundary = s13.get("authority_boundary")
+    if (
+        not isinstance(authority_boundary, dict)
+        or set(authority_boundary.get("authoritative_for", [])) != S13_REQUIRED_AUTHORITY_SCOPE
+        or not set(authority_boundary.get("may_not_use_for", [])) >= S13_REQUIRED_DENY
+    ):
+        issues.append(
+            _issue(
+                "layer2_s13_authority_boundary_invalid",
+                "S13 authority_boundary must mirror S13 scope and anti-learning denials.",
+            )
+        )
+    if (
+        s13.get("canonical_route")
+        != "tools/quality/validation/run_universal_outcome_corpus.py"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s13_canonical_route_invalid",
+                "S13 manifest must point at the universal outcome corpus runner.",
+            )
+        )
+    if (
+        s13.get("validator")
+        != "tools/quality/validation/check_policy_design_case_layer2_readiness.py"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s13_validator_invalid",
+                "S13 manifest must point at the layer2 readiness validator.",
+            )
+        )
+
+    if _inventory_layer2_artifact_count(inventory) != 21:
+        issues.append(
+            _issue(
+                "layer2_s13_inventory_artifact_count_invalid",
+                "Layer 2 inventory artifact count must be 21 after registering S13.",
+            )
+        )
+    inventory_artifact = _inventory_artifact_by_id(inventory, S13_INVENTORY_ID)
+    if not inventory_artifact:
+        issues.append(
+            _issue(
+                "layer2_s13_manifest_missing_from_inventory",
+                "S13 manifest must be registered in the Policy Design Case inventory.",
+            )
+        )
+        return
+    if (
+        inventory_artifact.get("path")
+        != DEFAULT_S13_POST_DEPLOY_ACCOUNTABILITY_MANIFEST_PATH.as_posix()
+    ):
+        issues.append(
+            _issue(
+                "layer2_s13_inventory_path_invalid",
+                "S13 inventory path must point at the governed manifest.",
+            )
+        )
+    if inventory_artifact.get("kind") != "layer2_s13_post_deploy_accountability_manifest":
+        issues.append(
+            _issue(
+                "layer2_s13_inventory_kind_invalid",
+                "S13 inventory entry must carry kind=layer2_s13_post_deploy_accountability_manifest.",
+            )
+        )
+    if inventory_artifact.get("schema_version") != s13.get("schema_version"):
+        issues.append(
+            _issue(
+                "layer2_s13_inventory_schema_version_invalid",
+                "S13 inventory schema_version must match the manifest.",
+            )
+        )
+    for field in (
+        "owner",
+        "status",
+        "authority_scope",
+        "may_not_use_for",
+        "validator",
+        "canonical_route",
+    ):
+        if inventory_artifact.get(field) != s13.get(field):
+            issues.append(
+                _issue(
+                    f"layer2_s13_inventory_{field}_mismatch",
+                    f"S13 inventory {field} must match the manifest.",
+                )
+            )
+    if inventory_artifact.get("capability_reality_label") != "implemented":
+        issues.append(
+            _issue(
+                "layer2_s13_inventory_status_invalid",
+                "S13 inventory entry must carry capability_reality_label=implemented.",
+            )
+        )
+    if "s14_universality" not in set(inventory_artifact.get("may_not_use_for", [])):
+        issues.append(
+            _issue(
+                "layer2_s13_inventory_s14_denial_missing",
+                "S13 inventory must deny S14 universality authority.",
+            )
+        )
+    if "s14_universality" in set(inventory_artifact.get("authority_scope", [])):
+        issues.append(
+            _issue(
+                "layer2_s13_inventory_s14_authority_claimed",
+                "S13 inventory must not claim S14 universality authority.",
             )
         )
 

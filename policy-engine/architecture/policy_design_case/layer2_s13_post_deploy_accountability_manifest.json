@@ -1,0 +1,189 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s13_post_deploy_accountability_manifest.v1",
+  "runtime_summary_schema_version": "policyos.policy_design_case.layer2_s13_post_deploy_accountability.v1",
+  "status": "active",
+  "owner": "governance-board",
+  "slice": "S13",
+  "depends_on": [
+    "S7",
+    "S9",
+    "S12"
+  ],
+  "slice_label": "post_deploy_accountability_learning",
+  "cells_closed": [],
+  "layer_cells_advanced": [
+    "DESIGNER_ITSELF.envelope_growth"
+  ],
+  "expected_current_open_cell_count": 0,
+  "remaining_open_cells": [],
+  "burn_down_complete": true,
+  "floor_id": "s13_accountability",
+  "floor_metric": "a_before_b_ratio_and_attribution_resolution",
+  "producer_module": "src/polisyos/runtime/quality/layer2_post_deploy_accountability.py",
+  "bridge_modules": [
+    "src/polisyos/pdc/_impl/layer2_design_search.py",
+    "tools/quality/validation/run_universal_outcome_corpus.py"
+  ],
+  "consumer_modules": [
+    "src/polisyos/runtime/quality/projection_semantics.py",
+    "src/polisyos/runtime/quality/public_export.py"
+  ],
+  "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py",
+  "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py",
+  "required_artifacts": [
+    "DeploymentDossier",
+    "DivergenceRecord",
+    "LearningUpdateProposal",
+    "EnvelopeRevision",
+    "CertifiedEnvelopeDelta",
+    "AssuranceCaseDelta"
+  ],
+  "artifact_paths": {
+    "DeploymentDossier": "src/polisyos/runtime/quality/layer2_post_deploy_accountability.py",
+    "DivergenceRecord": "src/polisyos/runtime/quality/layer2_post_deploy_accountability.py",
+    "LearningUpdateProposal": "src/polisyos/runtime/quality/layer2_post_deploy_accountability.py",
+    "EnvelopeRevision": "src/polisyos/runtime/quality/layer2_post_deploy_accountability.py",
+    "CertifiedEnvelopeDelta": "src/polisyos/runtime/quality/layer2_post_deploy_accountability.py",
+    "AssuranceCaseDelta": "src/polisyos/runtime/quality/layer2_post_deploy_accountability.py"
+  },
+  "summary_id": "layer2.s13.post_deploy_accountability.w12d.summary",
+  "case_count": 13,
+  "monitorability_rate": 1.0,
+  "a_before_b_ratio": 1.0,
+  "attribution_resolution_rate": 1.0,
+  "envelope_shrink_count": 1,
+  "envelope_expansion_count": 2,
+  "envelope_shrink_latency_recorded_count": 2,
+  "unattributable_accountability_without_training_count": 1,
+  "mape_k_trace_completeness_rate": 1.0,
+  "action_item_closure_rate": 1.0,
+  "oversight_effectiveness_link_rate": 1.0,
+  "rubber_stamp_divergence_review_required_count": 2,
+  "learning_without_attribution_count": 0,
+  "growth_without_assurance_delta_count": 0,
+  "false_clear_counts": {
+    "post_policy_data_as_pre_policy_evidence": 0,
+    "learned_prior_in_current_evidence_slot": 0,
+    "unattributable_updates_model": 0,
+    "silent_closed_case_rewrite": 0,
+    "learning_without_attribution": 0,
+    "envelope_shrink_without_assurance_delta": 0,
+    "b_update_before_a_baseline": 0,
+    "implementation_failure_as_theory_refutation": 0,
+    "outcome_learning_without_counterfactual": 0,
+    "s13_as_production_or_recommendation_authority": 0
+  },
+  "post_policy_data_as_pre_policy_evidence_false_clear_count": 0,
+  "learned_prior_in_current_evidence_slot_false_clear_count": 0,
+  "unattributable_updates_model_false_clear_count": 0,
+  "silent_closed_case_rewrite_false_clear_count": 0,
+  "learning_without_attribution_false_clear_count": 0,
+  "envelope_shrink_without_assurance_delta_false_clear_count": 0,
+  "b_update_before_a_baseline_false_clear_count": 0,
+  "implementation_failure_as_theory_refutation_false_clear_count": 0,
+  "outcome_learning_without_counterfactual_false_clear_count": 0,
+  "s13_as_production_or_recommendation_authority_false_clear_count": 0,
+  "firewalls": [
+    "anti_learning_authority_boundary",
+    "c41_learned_prior_current_evidence_slot",
+    "a_before_b_sequence",
+    "closed_case_replay_integrity",
+    "lucas_post_policy_pre_policy_evidence",
+    "s7_governance_decision_bypass"
+  ],
+  "surfaces": [
+    "public_accountability_note",
+    "expert_projection",
+    "machine_projection",
+    "reviewer_action_reissue_view"
+  ],
+  "embedded_trace_requirements": [
+    "mape_k_monitor_refs",
+    "mape_k_analyze_refs",
+    "mape_k_plan_refs",
+    "mape_k_execute_refs",
+    "mape_k_knowledge_refs",
+    "typed_diagnostic_record_composition_refs",
+    "action_item_closure_refs",
+    "oversight_effectiveness_refs",
+    "oversight_accountability_state_coverage",
+    "public_revision_state_refs_as_accountability_notes",
+    "case_lifecycle_reissue_disposition_refs"
+  ],
+  "semantic_tests": [
+    "seeded_disconfirmation_shrinks_envelope",
+    "validated_reusable_learning_expands_envelope",
+    "unattributable_divergence_records_accountability_without_training",
+    "post_policy_data_cannot_fill_pre_policy_evidence",
+    "learned_prior_cannot_fill_current_evidence_slot"
+  ],
+  "authority_scope": [
+    "post_deploy_accountability",
+    "deployment_monitorability",
+    "divergence_attribution",
+    "learning_update_proposal",
+    "post_deploy_mape_k_trace",
+    "envelope_revision",
+    "assurance_case_delta",
+    "public_accountability_note"
+  ],
+  "may_not_use_for": [
+    "production_rollout_authority",
+    "recommendation_authority",
+    "publication_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "pre_policy_evidence",
+    "current_evidence_slot",
+    "preference_learning",
+    "automated_value_learning",
+    "naive_ml_update",
+    "s14_universality",
+    "llm_attribution_authority",
+    "local_governance_enum_for_reissue"
+  ],
+  "authority_boundary": {
+    "authoritative_for": [
+      "post_deploy_accountability",
+      "deployment_monitorability",
+      "divergence_attribution",
+      "learning_update_proposal",
+      "post_deploy_mape_k_trace",
+      "envelope_revision",
+      "assurance_case_delta",
+      "public_accountability_note"
+    ],
+    "may_not_use_for": [
+      "production_rollout_authority",
+      "recommendation_authority",
+      "publication_authority",
+      "approval_authority",
+      "scorecard_authority",
+      "pre_policy_evidence",
+      "current_evidence_slot",
+      "preference_learning",
+      "automated_value_learning",
+      "naive_ml_update",
+      "s14_universality",
+      "llm_attribution_authority",
+      "local_governance_enum_for_reissue"
+    ],
+    "source_authority": "deterministic_producer",
+    "posture": "shadow",
+    "rule_version_refs": [
+      "policyos.layer2.s13.post_deploy_accountability.v1"
+    ]
+  },
+  "rule_version_ref": "policyos.layer2.s13.post_deploy_accountability.v1",
+  "capability_reality_label": "implemented",
+  "missing_capability_labels": [],
+  "traceability_refs": {
+    "contract_ref": "repo://src/polisyos/runtime/quality/layer2_post_deploy_accountability.py",
+    "producer_ref": "repo://tools/quality/validation/run_universal_outcome_corpus.py#_s13_case_artifacts",
+    "persisted_artifact_ref": "repo://architecture/policy_design_case/layer2_s13_post_deploy_accountability_manifest.json",
+    "bridge_ref": "repo://src/polisyos/pdc/_impl/layer2_design_search.py#Layer2S13PostDeployAccountabilityPostureInput",
+    "consumer_ref": "repo://src/polisyos/runtime/quality/projection_semantics.py#verify_s13_post_deploy_accountability_projection_consumer_contract",
+    "surface_ref": "repo://src/polisyos/runtime/quality/public_export.py#_apply_s13_post_deploy_accountability_projection",
+    "semantic_test_ref": "repo://tests/repo_quality/tools/test_policy_design_case_layer2_s13_post_deploy_accountability.py"
+  }
+}

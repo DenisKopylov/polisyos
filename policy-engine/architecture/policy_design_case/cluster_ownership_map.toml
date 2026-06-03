@@ -1056,7 +1056,7 @@ firewall = "P13_governance_gravity"
 publishes = ["DESIGNER_ITSELF.certified_envelope_delta"]
 consumes = ["SYSTEM.nonstationarity", "KNOWLEDGE.substrate_coverage", "SYSTEM.measurability", "ACTOR.state_capacity_feasibility", "OTHER_AGENTS.strategic_response"]
 gap = "none_for_s12_resource_economics_scope"
-action = "S12 routes VOI allocation, growth thermometers, and the envelope-growth ledger through the corpus and S2 posture; envelope shrink and bidirectional revision remain S13 scope."
+action = "S12 routes VOI allocation, growth thermometers, and the envelope-growth ledger through the corpus and S2 posture; S13 registers attribution-gated bidirectional envelope revision without reopening the cell."
 
 [cell.CROSS_CUTTING.method_infrastructure]
 owner_module = "src/polisyos/foundry"

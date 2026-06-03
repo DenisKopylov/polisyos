@@ -421,6 +421,42 @@
       "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py"
     },
     {
+      "id": "layer2_s13_post_deploy_accountability_manifest",
+      "path": "architecture/policy_design_case/layer2_s13_post_deploy_accountability_manifest.json",
+      "kind": "layer2_s13_post_deploy_accountability_manifest",
+      "schema_version": "policyos.policy_design_case.layer2_s13_post_deploy_accountability_manifest.v1",
+      "owner": "governance-board",
+      "status": "active",
+      "capability_reality_label": "implemented",
+      "authority_scope": [
+        "post_deploy_accountability",
+        "deployment_monitorability",
+        "divergence_attribution",
+        "learning_update_proposal",
+        "post_deploy_mape_k_trace",
+        "envelope_revision",
+        "assurance_case_delta",
+        "public_accountability_note"
+      ],
+      "may_not_use_for": [
+        "production_rollout_authority",
+        "recommendation_authority",
+        "publication_authority",
+        "approval_authority",
+        "scorecard_authority",
+        "pre_policy_evidence",
+        "current_evidence_slot",
+        "preference_learning",
+        "automated_value_learning",
+        "naive_ml_update",
+        "s14_universality",
+        "llm_attribution_authority",
+        "local_governance_enum_for_reissue"
+      ],
+      "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py",
+      "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py"
+    },
+    {
       "id": "layer2_minimal_seed_manifest",
       "path": "architecture/policy_design_case/layer2_minimal_seed_manifest.json",
       "kind": "layer2_seed_manifest",

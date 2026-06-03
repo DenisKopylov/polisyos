@@ -360,29 +360,29 @@ maturity = "implemented"
 [[artifact]]
 name = "DeploymentDossier"
 slice = "S13"
-maturity = "planned"
+maturity = "implemented"
 
 [[artifact]]
 name = "DivergenceRecord"
 slice = "S13"
-maturity = "planned"
+maturity = "implemented"
 
 [[artifact]]
 name = "LearningUpdateProposal"
 slice = "S13"
-maturity = "planned"
+maturity = "implemented"
 
 [[artifact]]
 name = "EnvelopeRevision"
 slice = "S13"
-maturity = "planned"
+maturity = "implemented"
 
 [[artifact]]
 name = "CertifiedEnvelopeDelta"
 slice = "S13"
-maturity = "planned"
+maturity = "implemented"
 
 [[artifact]]
 name = "AssuranceCaseDelta"
 slice = "S13"
-maturity = "planned"
+maturity = "implemented"

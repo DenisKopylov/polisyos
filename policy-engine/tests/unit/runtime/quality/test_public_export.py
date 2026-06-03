@@ -18,6 +18,7 @@ from tests._helpers.policy_design_case_projection import policy_design_case
 S9_RULE_VERSION_REF = "policyos.layer2.s9.projection_lowering.v1"
 S10_RULE_VERSION_REF = "policyos.layer2.s10.outcome_prediction.v1"
 S11_RULE_VERSION_REF = "policyos.layer2.s11.predictive_knowledge.v1"
+S12_RULE_VERSION_REF = "policyos.layer2.s12.resource_economics.v1"
 
 
 def _s9_public_faithfulness_payload(**overrides: object) -> dict[str, object]:
@@ -174,6 +175,94 @@ def _s11_public_projection_payload(**overrides: object) -> dict[str, object]:
             "S11 predictive relaxation remains calibration-limited and not authority."
         ],
         "rule_version_ref": S11_RULE_VERSION_REF,
+    }
+    payload.update(overrides)
+    return payload
+
+
+def _s12_public_projection_payload(**overrides: object) -> dict[str, object]:
+    payload: dict[str, object] = {
+        "public_export_classification": "public_redacted_projection",
+        "decision_context": {"public_export_status": "publishable"},
+        "s12_resource_posture_ref": "pdc://layer2/s12/ua-msme/resource-posture",
+        "resource_allocation_policy_ref": (
+            "pdc://layer2/s12/ua-msme/resource-allocation-policy"
+        ),
+        "explore_exploit_posture": "balanced_governed",
+        "explore_exploit_dial_ref": "pdc://layer2/s7/ua-msme/explore-exploit-dial",
+        "voi_allocation_refs": [
+            "voi-allocation://ua-msme/acquisition",
+            "voi-allocation://ua-msme/refinement",
+            "voi-allocation://ua-msme/attention",
+        ],
+        "voi_site_count": 3,
+        "typed_budget_refs": [
+            "budget://ua-msme/compute",
+            "budget://ua-msme/acquisition",
+            "budget://ua-msme/expert-time",
+            "budget://ua-msme/human-attention",
+            "budget://ua-msme/legal-access",
+        ],
+        "pareto_archive_ref": "pdc://layer2/s8/ua-msme/allocation-pareto-archive",
+        "envelope_growth_ledger_ref": "pdc://layer2/s12/ua-msme/envelope-growth-ledger",
+        "growth_thermometer_ref": "pdc://layer2/s12/ua-msme/growth-thermometer",
+        "override_rate_trend": "flat",
+        "reuse_rate_trend": "improving",
+        "held_out_status": "pending_s14",
+        "resource_allocation_disposition": "advisory_only",
+        "s12_public_growth_limitation": (
+            "Resource allocation is a governed growth limitation, not a recommendation."
+        ),
+        "authority_boundary": {
+            "authoritative_for": [
+                "value_of_information_allocation",
+                "explore_exploit_posture",
+                "envelope_growth_ledger",
+                "growth_thermometers",
+                "knowledge_governance_throughput",
+                "allocation_priority_input",
+            ],
+            "may_not_use_for": [
+                "production_authority",
+                "production_recommendation",
+                "rollout_authority",
+                "publication_authority",
+                "claim_authority",
+                "closeout_authority",
+                "approval_authority",
+                "scorecard_authority",
+                "preference_learning_authority",
+                "mdp_bandit_optimizer_authority",
+                "budget_interchangeability",
+                "mission_or_value_self_authorization",
+                "floor_relaxation",
+                "s13_envelope_shrink",
+                "s13_accountability_closure",
+                "s14_universality",
+            ],
+            "source_authority": "deterministic_producer",
+            "posture": "shadow",
+            "rule_version_refs": [S12_RULE_VERSION_REF],
+        },
+        "may_not_be_used_for": [
+            "production_authority",
+            "production_recommendation",
+            "rollout_authority",
+            "publication_authority",
+            "claim_authority",
+            "closeout_authority",
+            "approval_authority",
+            "scorecard_authority",
+            "preference_learning_authority",
+            "mdp_bandit_optimizer_authority",
+            "budget_interchangeability",
+            "mission_or_value_self_authorization",
+            "floor_relaxation",
+            "s13_envelope_shrink",
+            "s13_accountability_closure",
+            "s14_universality",
+        ],
+        "rule_version_ref": S12_RULE_VERSION_REF,
     }
     payload.update(overrides)
     return payload
@@ -772,3 +861,26 @@ def test_public_projection_does_not_promote_s11_to_recommendation_authority() ->
     rendered = json.dumps(public_bundle, sort_keys=True)
     assert "recommendation_authority" not in rendered
     assert "production_recommendation_text" not in rendered
+
+
+def test_public_projection_shows_growth_limitation_without_allocation_authority() -> None:
+    public_bundle = build_public_export_bundle(
+        run_id="run-public-s12-resource-economics",
+        artifacts={"public_summary": {"claim_refs": ["rec_1"]}},
+        authority_envelopes=[],
+        policy_design_case=policy_design_case(),
+        projection_payload=_s12_public_projection_payload(),
+    )
+
+    projection = public_bundle["projection_semantics"]
+    assert projection["s12_public_growth_limitation"]
+    assert projection["explore_exploit_posture"] == "balanced_governed"
+    assert projection["override_rate_trend"] == "flat"
+    assert projection["reuse_rate_trend"] == "improving"
+    assert "production_recommendation" in projection["may_not_be_used_for"]
+    assert projection["authority_role"] == "projection_only"
+
+    rendered = json.dumps(public_bundle, sort_keys=True)
+    assert "allocation_recommendation_text" not in rendered
+    assert "selected_policy_ref" not in rendered
+    assert "allocation-policy://ua-msme/balanced-governed" not in rendered

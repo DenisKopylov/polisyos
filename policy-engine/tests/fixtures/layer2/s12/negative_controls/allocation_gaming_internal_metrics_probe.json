@@ -1,0 +1,18 @@
+{
+  "probe_id": "allocation_gaming_internal_metrics_probe",
+  "case_id": "ua-msme-affordable-loans-2022",
+  "false_clear_field": "allocation_gaming_internal_metrics",
+  "expected_false_clear_count": 0,
+  "expected_disposition": "blocked",
+  "trigger_fields": {
+    "optimized_metric": "internal_reuse_rate",
+    "ignored_user_demand_refs": [
+      "demand-act://ua-msme/value-authorization",
+      "demand-act://ua-msme/acquisition-approval"
+    ],
+    "ignored_hard_corner_evidence_refs": [
+      "evidence://ua-msme/hard-corner/legal-access-gap"
+    ],
+    "allocation_claimed_clear": true
+  }
+}

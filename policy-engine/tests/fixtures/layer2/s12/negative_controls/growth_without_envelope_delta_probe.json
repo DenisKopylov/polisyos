@@ -1,0 +1,13 @@
+{
+  "probe_id": "growth_without_envelope_delta_probe",
+  "case_id": "ua-msme-affordable-loans-2022",
+  "false_clear_field": "growth_without_envelope_delta",
+  "expected_false_clear_count": 0,
+  "expected_disposition": "blocked_no_envelope_delta",
+  "trigger_fields": {
+    "demand_act_ref": "demand-act://ua-msme/value-authorization",
+    "certified_envelope_delta_ref": null,
+    "pending_envelope_delta_ref": null,
+    "claimed_growth_counting_disposition": "counted_mechanism_growth"
+  }
+}

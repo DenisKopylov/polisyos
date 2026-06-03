@@ -642,6 +642,101 @@ def _s11_predictive_posture(**overrides: object) -> object:
     return posture_model(**payload)
 
 
+def _s12_resource_posture(**overrides: object) -> object:
+    posture_model = pdc.Layer2S12ResourceEconomicsPostureInput
+    payload: dict[str, object] = {
+        "resource_allocation_policy_ref": (
+            "pdc://layer2/s12/ua-msme/resource-allocation-policy"
+        ),
+        "explore_exploit_posture": "balanced_governed",
+        "explore_exploit_dial_ref": "pdc://layer2/s7/ua-msme/explore-exploit-dial",
+        "delegation_contract_ref": "pdc://layer2/s7/ua-msme/delegation-contract",
+        "voi_allocation_refs": [
+            "voi-allocation://ua-msme/acquisition",
+            "voi-allocation://ua-msme/refinement",
+            "voi-allocation://ua-msme/attention",
+        ],
+        "voi_site_count": 3,
+        "typed_budget_refs": [
+            "budget://ua-msme/compute",
+            "budget://ua-msme/acquisition",
+            "budget://ua-msme/expert-time",
+            "budget://ua-msme/human-attention",
+            "budget://ua-msme/legal-access",
+        ],
+        "pareto_archive_ref": "pdc://layer2/s8/ua-msme/allocation-pareto-archive",
+        "allocation_priority_rows": [
+            {
+                "priority_ref": "priority://ua-msme/acquisition/source-rights",
+                "site": "acquisition",
+                "budget_kind": "legal_access",
+                "reason": "Source-rights gap blocks admissible substrate use.",
+            }
+        ],
+        "envelope_growth_ledger_ref": "pdc://layer2/s12/ua-msme/envelope-growth-ledger",
+        "growth_thermometer_ref": "pdc://layer2/s12/ua-msme/growth-thermometer",
+        "override_rate_trend": "flat",
+        "reuse_rate_trend": "improving",
+        "held_out_status": "pending_s14",
+        "knowledge_governance_throughput_ledger_ref": (
+            "pdc://layer2/s12/ua-msme/knowledge-throughput-ledger"
+        ),
+        "residual_limitation_refs": ["limitation://s12/no-production-authority"],
+        "authority_boundary": {
+            "authoritative_for": [
+                "value_of_information_allocation",
+                "explore_exploit_posture",
+                "envelope_growth_ledger",
+                "growth_thermometers",
+                "knowledge_governance_throughput",
+                "allocation_priority_input",
+            ],
+            "may_not_use_for": [
+                "production_authority",
+                "production_recommendation",
+                "rollout_authority",
+                "publication_authority",
+                "claim_authority",
+                "closeout_authority",
+                "approval_authority",
+                "scorecard_authority",
+                "preference_learning_authority",
+                "mdp_bandit_optimizer_authority",
+                "budget_interchangeability",
+                "mission_or_value_self_authorization",
+                "floor_relaxation",
+                "s13_envelope_shrink",
+                "s13_accountability_closure",
+                "s14_universality",
+            ],
+            "source_authority": "deterministic_producer",
+            "posture": "shadow",
+            "rule_version_refs": ["policyos.layer2.s12.resource_economics.v1"],
+        },
+        "may_not_use_for": [
+            "production_authority",
+            "production_recommendation",
+            "rollout_authority",
+            "publication_authority",
+            "claim_authority",
+            "closeout_authority",
+            "approval_authority",
+            "scorecard_authority",
+            "preference_learning_authority",
+            "mdp_bandit_optimizer_authority",
+            "budget_interchangeability",
+            "mission_or_value_self_authorization",
+            "floor_relaxation",
+            "s13_envelope_shrink",
+            "s13_accountability_closure",
+            "s14_universality",
+        ],
+        "rule_version_ref": "policyos.layer2.s12.resource_economics.v1",
+    }
+    payload.update(overrides)
+    return posture_model(**payload)
+
+
 def test_s2_shadow_loop_emits_grammar_candidate_counterexample_refinement_and_record() -> None:
     run = run_s2_shadow_design_loop(_input())
 
@@ -1940,6 +2035,130 @@ def test_s2_s11_persisted_search_ledger_round_trips_predictive_refs(
     ]
     assert loaded.s11_calibration_record_refs == list(posture.s11_calibration_record_refs)
     assert loaded.predictive_authority_status == posture.effective_predictive_posture
+
+
+def test_s2_consumes_injected_s12_posture_without_runtime_producer_import() -> None:
+    posture = _s12_resource_posture()
+
+    run = run_s2_shadow_design_loop(_input(), resource_posture=posture)
+
+    assert run.resource_posture == posture
+    assert run.search_ledger.resource_allocation_policy_refs == [
+        posture.resource_allocation_policy_ref
+    ]
+    assert run.search_ledger.envelope_growth_ledger_refs == [
+        posture.envelope_growth_ledger_ref
+    ]
+    assert run.search_ledger.growth_thermometer_refs == [posture.growth_thermometer_ref]
+    assert run.search_ledger.voi_allocation_refs == list(posture.voi_allocation_refs)
+    assert run.search_ledger.explore_exploit_posture == posture.explore_exploit_posture
+    assert run.search_ledger.resource_authority_boundary == posture.authority_boundary
+
+
+def test_s2_s12_replay_digest_changes_only_when_resource_posture_changes() -> None:
+    no_s12_first = run_s2_shadow_design_loop(_input())
+    no_s12_second = run_s2_shadow_design_loop(_input())
+    first = run_s2_shadow_design_loop(_input(), resource_posture=_s12_resource_posture())
+    second = run_s2_shadow_design_loop(_input(), resource_posture=_s12_resource_posture())
+    changed = run_s2_shadow_design_loop(
+        _input(),
+        resource_posture=_s12_resource_posture(
+            resource_allocation_policy_ref=(
+                "pdc://layer2/s12/ua-msme/resource-allocation-policy/revision-2"
+            ),
+            voi_allocation_refs=[
+                "voi-allocation://ua-msme/acquisition/revision-2",
+                "voi-allocation://ua-msme/refinement",
+                "voi-allocation://ua-msme/attention",
+            ],
+        ),
+    )
+
+    assert no_s12_first.search_ledger.deterministic_replay_key == (
+        no_s12_second.search_ledger.deterministic_replay_key
+    )
+    assert no_s12_first.model_dump(mode="json") == no_s12_second.model_dump(mode="json")
+    assert first.search_ledger.deterministic_replay_key == (
+        second.search_ledger.deterministic_replay_key
+    )
+    assert first.search_ledger.deterministic_replay_key != (
+        changed.search_ledger.deterministic_replay_key
+    )
+
+
+def test_s2_s12_search_ledger_defaults_preserve_legacy_cas_payloads() -> None:
+    legacy_payload = run_s2_shadow_design_loop(_input()).search_ledger.model_dump(mode="json")
+    legacy_s12_fields = (
+        "resource_allocation_policy_refs",
+        "envelope_growth_ledger_refs",
+        "growth_thermometer_refs",
+        "voi_allocation_refs",
+        "explore_exploit_posture",
+        "resource_authority_boundary",
+    )
+    for field_name in legacy_s12_fields:
+        legacy_payload.pop(field_name, None)
+
+    loaded = SearchLedger.model_validate(legacy_payload)
+
+    assert loaded.resource_allocation_policy_refs == []
+    assert loaded.envelope_growth_ledger_refs == []
+    assert loaded.growth_thermometer_refs == []
+    assert loaded.voi_allocation_refs == []
+    assert loaded.explore_exploit_posture == "not_applicable"
+    assert loaded.resource_authority_boundary is None
+
+
+def test_s2_s12_persisted_search_ledger_round_trips_resource_refs(
+    tmp_path: Path,
+) -> None:
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.pdc import load_s2_search_ledger, persist_s2_design_search_run
+
+    posture = _s12_resource_posture()
+    run = run_s2_shadow_design_loop(_input(), resource_posture=posture)
+    store = FileSystemCAS(tmp_path / "cas")
+    refs = persist_s2_design_search_run(run, store=store)
+
+    loaded = load_s2_search_ledger(store=store, artifact_ref=refs["search_ledger"])
+
+    assert loaded.resource_allocation_policy_refs == [
+        posture.resource_allocation_policy_ref
+    ]
+    assert loaded.envelope_growth_ledger_refs == [posture.envelope_growth_ledger_ref]
+    assert loaded.growth_thermometer_refs == [posture.growth_thermometer_ref]
+    assert loaded.voi_allocation_refs == list(posture.voi_allocation_refs)
+    assert loaded.explore_exploit_posture == posture.explore_exploit_posture
+
+
+def test_s2_s12_handoff_records_consumed_posture_not_recommendation_authority() -> None:
+    posture = _s12_resource_posture()
+    run = run_s2_shadow_design_loop(_input(), resource_posture=posture)
+
+    rendered_interfaces = json.dumps(
+        [row.model_dump(mode="json") for row in run.cluster_interface_contracts],
+        sort_keys=True,
+    )
+    rendered_handoffs = json.dumps(
+        [row.model_dump(mode="json") for row in run.handoff_records],
+        sort_keys=True,
+    )
+
+    assert "Layer2S12ResourceEconomicsPostureInput" in rendered_interfaces
+    assert "Layer2S12ResourceEconomicsPostureInput" in rendered_handoffs
+    assert "allocation_priority_input" in rendered_interfaces
+    assert "production_recommendation" in rendered_handoffs
+    assert "recommendation_authority" not in rendered_interfaces
+
+
+def test_s2_does_not_import_layer2_resource_economics() -> None:
+    source = (
+        REPO_ROOT / "src/polisyos/pdc/_impl/layer2_design_search.py"
+    ).read_text(encoding="utf-8")
+
+    assert "polisyos.runtime.quality.layer2_resource_economics" not in source
+    assert "layer2_resource_economics" not in source
+    assert "build_s12_resource_economics_posture" not in source
 
 
 def test_s11_weakest_boundary_caps_search_ledger_projection() -> None:

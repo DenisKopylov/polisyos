@@ -1,0 +1,14 @@
+{
+  "probe_id": "floor_lowering_for_useful_design_rate_probe",
+  "case_id": "ua-msme-affordable-loans-2022",
+  "false_clear_field": "floor_lowering_for_useful_design_rate",
+  "expected_false_clear_count": 0,
+  "expected_disposition": "blocked",
+  "trigger_fields": {
+    "floor_id": "s12_growth_thermometers",
+    "metric": "reuse_rate_and_override_rate_trend",
+    "claimed_growth_source": "lowered_floor",
+    "previous_floor_ref": "repo://architecture/policy_design_case/layer2_floor_governance.toml#s12",
+    "revision_rule": "growth_counting_requires_envelope_delta"
+  }
+}

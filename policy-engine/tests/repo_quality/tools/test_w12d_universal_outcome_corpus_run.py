@@ -45,6 +45,10 @@ def _s11_blocks(report: dict[str, object]) -> list[dict[str, object]]:
     return [dict(case["s11_predictive_knowledge"]) for case in report["cases"]]
 
 
+def _s12_blocks(report: dict[str, object]) -> list[dict[str, object]]:
+    return [dict(case["s12_resource_economics"]) for case in report["cases"]]
+
+
 def test_w12d_manifest_is_deterministic_and_runs_real_corpus() -> None:
     manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
 
@@ -1622,3 +1626,98 @@ def test_w12d_s11_keeps_mandate_legitimacy_at_s6_floor(
         assert "ACTOR.mandate_legitimacy" not in axis_cells
         assert s6["mandate_legitimacy_record_ref"] in s11["s6_floor_status_refs"]
         assert "mandate_legitimacy_predictive_upgrade" in s11["may_not_use_for"]
+
+
+def test_w12d_emits_s12_resource_economics_blocks_for_13_cases(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    assert all("s12_resource_economics" in case for case in w12d_s9_report["cases"])
+    summary = dict(w12d_s9_report["s12_resource_economics_summary"])
+    blocks = _s12_blocks(w12d_s9_report)
+
+    assert summary["case_count"] == 13
+    assert summary["voi_site_count"] >= 3
+    assert summary["typed_budget_count"] == 5
+    assert summary["override_rate_trend"] in {"improving", "flat"}
+    assert summary["reuse_rate_trend"] in {"improving", "flat"}
+    assert summary["growth_without_envelope_delta_count"] == 0
+    assert summary["held_out_status"] == "pending_s14"
+    assert all(value == 0 for value in summary["false_clear_counts"].values())
+    assert len(summary["per_case_resource_table"]) == 13
+    assert len(blocks) == 13
+    assert {block["schema_version"] for block in blocks} == {
+        "policyos.policy_design_case.layer2_s12_resource_economics.v1"
+    }
+
+
+def test_w12d_s12_voi_allocation_covers_at_least_three_sites(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    summary = dict(w12d_s9_report["s12_resource_economics_summary"])
+    blocks = _s12_blocks(w12d_s9_report)
+
+    assert summary["voi_site_count"] >= 3
+    assert summary["typed_budget_count"] == 5
+    for block in blocks:
+        assert block["voi_site_count"] >= 3
+        assert len(block["voi_allocation_refs"]) >= 3
+        assert len(block["typed_budget_refs"]) == 5
+        assert block["pareto_archive_ref"]
+        assert block["canonical_outcome_effect"] == (
+            "resource_allocation_only_not_production_authority"
+        )
+
+
+def test_w12d_s12_growth_entries_cite_envelope_delta(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    for block in _s12_blocks(w12d_s9_report):
+        assert block["envelope_growth_ledger_ref"]
+        assert block["growth_entries"]
+        for entry in block["growth_entries"]:
+            assert entry.get("certified_envelope_delta_ref") or entry.get(
+                "pending_envelope_delta_ref"
+            )
+            assert entry["growth_counting_disposition"] != "blocked_no_envelope_delta"
+
+
+def test_w12d_s12_negative_controls_have_zero_false_clears(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    summary = dict(w12d_s9_report["s12_resource_economics_summary"])
+
+    assert summary["growth_without_envelope_delta_count"] == 0
+    assert all(value == 0 for value in summary["false_clear_counts"].values())
+    assert set(summary["negative_control_results"]) >= {
+        "bespoke_one_off_growth_probe",
+        "allocation_gaming_internal_metrics_probe",
+        "floor_lowering_for_useful_design_rate_probe",
+        "b_faster_than_a_growth_probe",
+        "meta_regress_past_principal_probe",
+        "interchangeable_budget_probe",
+        "growth_without_envelope_delta_probe",
+    }
+    for result in summary["negative_control_results"].values():
+        assert result["false_clear_count"] == 0
+        assert result["observed_disposition"] == result["expected_disposition"]
+
+
+def test_w12d_s12_preserves_s2_shadow_only_outcome_effects(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    for case in w12d_s9_report["cases"]:
+        case = dict(case)
+        s2 = dict(case["s2_design_search"])
+        s12 = dict(case["s12_resource_economics"])
+
+        assert s12["canonical_outcome_effect"] == (
+            "resource_allocation_only_not_production_authority"
+        )
+        if case["case_id"] == "ua-msme-affordable-loans-2022":
+            assert s2["resource_posture"]["resource_allocation_policy_ref"] == (
+                s12["resource_allocation_policy_ref"]
+            )
+            assert s2["canonical_outcome_effect"] == "none_shadow_only"
+        else:
+            assert s2["status"] == "not_applicable"
+            assert s2["resource_posture_ref"] == s12["resource_allocation_policy_ref"]

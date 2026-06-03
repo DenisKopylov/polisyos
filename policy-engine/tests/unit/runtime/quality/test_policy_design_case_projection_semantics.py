@@ -32,6 +32,7 @@ S9_CANONICAL_REF = "pdc://layer2/s9/ua-msme/canonical-design-record"
 S9_SOURCE_REVISION_REF = "git://policyos/layer2/s9/red-first"
 S10_RULE_VERSION_REF = "policyos.layer2.s10.outcome_prediction.v1"
 S11_RULE_VERSION_REF = "policyos.layer2.s11.predictive_knowledge.v1"
+S12_RULE_VERSION_REF = "policyos.layer2.s12.resource_economics.v1"
 
 
 def _s9_consumer_verifier() -> object:
@@ -262,6 +263,96 @@ def _s11_projection_payload(**overrides: object) -> dict[str, object]:
             "rich_simulation_authority",
         ],
         "rule_version_ref": S11_RULE_VERSION_REF,
+    }
+    payload.update(overrides)
+    return payload
+
+
+def _s12_projection_payload(**overrides: object) -> dict[str, object]:
+    payload: dict[str, object] = {
+        "audience": "EXPERT",
+        "authority_role": "projection_only",
+        "projection_policy": "reads_resource_economics_posture_as_constraint",
+        "s12_resource_posture_ref": "pdc://layer2/s12/ua-msme/resource-posture",
+        "resource_allocation_policy_ref": (
+            "pdc://layer2/s12/ua-msme/resource-allocation-policy"
+        ),
+        "explore_exploit_posture": "balanced_governed",
+        "explore_exploit_dial_ref": "pdc://layer2/s7/ua-msme/explore-exploit-dial",
+        "voi_allocation_refs": [
+            "voi-allocation://ua-msme/acquisition",
+            "voi-allocation://ua-msme/refinement",
+            "voi-allocation://ua-msme/attention",
+        ],
+        "voi_site_count": 3,
+        "typed_budget_refs": [
+            "budget://ua-msme/compute",
+            "budget://ua-msme/acquisition",
+            "budget://ua-msme/expert-time",
+            "budget://ua-msme/human-attention",
+            "budget://ua-msme/legal-access",
+        ],
+        "pareto_archive_ref": "pdc://layer2/s8/ua-msme/allocation-pareto-archive",
+        "envelope_growth_ledger_ref": "pdc://layer2/s12/ua-msme/envelope-growth-ledger",
+        "growth_thermometer_ref": "pdc://layer2/s12/ua-msme/growth-thermometer",
+        "override_rate_trend": "flat",
+        "reuse_rate_trend": "improving",
+        "held_out_status": "pending_s14",
+        "resource_allocation_disposition": "advisory_only",
+        "residual_limitation_refs": ["limitation://s12/no-production-authority"],
+        "s12_public_growth_limitation": (
+            "Resource allocation is a governed growth limitation, not a recommendation."
+        ),
+        "authority_boundary": {
+            "authoritative_for": [
+                "value_of_information_allocation",
+                "explore_exploit_posture",
+                "envelope_growth_ledger",
+                "growth_thermometers",
+                "knowledge_governance_throughput",
+                "allocation_priority_input",
+            ],
+            "may_not_use_for": [
+                "production_authority",
+                "production_recommendation",
+                "rollout_authority",
+                "publication_authority",
+                "claim_authority",
+                "closeout_authority",
+                "approval_authority",
+                "scorecard_authority",
+                "preference_learning_authority",
+                "mdp_bandit_optimizer_authority",
+                "budget_interchangeability",
+                "mission_or_value_self_authorization",
+                "floor_relaxation",
+                "s13_envelope_shrink",
+                "s13_accountability_closure",
+                "s14_universality",
+            ],
+            "source_authority": "deterministic_producer",
+            "posture": "shadow",
+            "rule_version_refs": [S12_RULE_VERSION_REF],
+        },
+        "may_not_be_used_for": [
+            "production_authority",
+            "production_recommendation",
+            "rollout_authority",
+            "publication_authority",
+            "claim_authority",
+            "closeout_authority",
+            "approval_authority",
+            "scorecard_authority",
+            "preference_learning_authority",
+            "mdp_bandit_optimizer_authority",
+            "budget_interchangeability",
+            "mission_or_value_self_authorization",
+            "floor_relaxation",
+            "s13_envelope_shrink",
+            "s13_accountability_closure",
+            "s14_universality",
+        ],
+        "rule_version_ref": S12_RULE_VERSION_REF,
     }
     payload.update(overrides)
     return payload
@@ -1108,3 +1199,40 @@ def test_public_projection_surfaces_required_s11_limitation_without_authority_pr
     assert "proof_carrying_analytics_ref" not in public_projection
     assert "production_recommendation" in public_projection["may_not_be_used_for"]
     assert public_projection["authority_role"] == "projection_only"
+
+
+def test_expert_machine_projection_surfaces_explore_exploit_and_thermometers() -> None:
+    verifier = projection_semantics_module.verify_s12_resource_projection_consumer_contract
+    expert = _s12_projection_payload(audience="EXPERT")
+    machine = _s12_projection_payload(audience="MACHINE")
+
+    result = verifier(projections={"expert": expert, "machine": machine})
+
+    assert result["status"] == "pass"
+    s12_projection = result["s12_resource_projection"]
+    assert s12_projection["explore_exploit_posture"] == "balanced_governed"
+    assert s12_projection["voi_site_count"] >= 3
+    assert len(s12_projection["typed_budget_refs"]) == 5
+    assert s12_projection["pareto_archive_ref"] == expert["pareto_archive_ref"]
+    assert s12_projection["growth_thermometer_ref"] == expert["growth_thermometer_ref"]
+    assert s12_projection["override_rate_trend"] in {"improving", "flat"}
+    assert s12_projection["reuse_rate_trend"] in {"improving", "flat"}
+
+
+def test_projection_semantics_blocks_allocation_as_recommendation_authority() -> None:
+    verifier = projection_semantics_module.verify_s12_resource_projection_consumer_contract
+    payload = _s12_projection_payload(
+        audience="PUBLIC",
+        authority_role="recommendation_authority",
+        allocation_recommendation_text="Allocate the next budget to the selected option.",
+        may_not_be_used_for=[
+            "rollout_authority",
+            "publication_authority",
+            "claim_authority",
+        ],
+    )
+
+    result = verifier(projections={"public": payload})
+
+    assert result["status"] == "fail"
+    assert "s12_allocation_as_recommendation_authority" in _issue_codes(result)

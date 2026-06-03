@@ -505,3 +505,112 @@ def test_s11_predictive_posture_input_is_strict_and_exported() -> None:
                 "recommendation_authority": "publish",
             }
         )
+
+
+def test_layer2_s12_resource_economics_posture_input_is_strict_and_exported() -> None:
+    posture_model = pdc.Layer2S12ResourceEconomicsPostureInput
+
+    assert posture_model.model_config.get("extra") == "forbid"
+
+    posture = posture_model(
+        resource_allocation_policy_ref=(
+            "pdc://layer2/s12/ua-msme/resource-allocation-policy"
+        ),
+        explore_exploit_posture="balanced_governed",
+        explore_exploit_dial_ref="pdc://layer2/s7/ua-msme/explore-exploit-dial",
+        delegation_contract_ref="pdc://layer2/s7/ua-msme/delegation-contract",
+        voi_allocation_refs=[
+            "voi-allocation://ua-msme/acquisition",
+            "voi-allocation://ua-msme/refinement",
+            "voi-allocation://ua-msme/attention",
+        ],
+        voi_site_count=3,
+        typed_budget_refs=[
+            "budget://ua-msme/compute",
+            "budget://ua-msme/acquisition",
+            "budget://ua-msme/expert-time",
+            "budget://ua-msme/human-attention",
+            "budget://ua-msme/legal-access",
+        ],
+        pareto_archive_ref="pdc://layer2/s8/ua-msme/allocation-pareto-archive",
+        allocation_priority_rows=[
+            {
+                "priority_ref": "priority://ua-msme/acquisition/source-rights",
+                "site": "acquisition",
+                "budget_kind": "legal_access",
+                "reason": "Source-rights gap blocks admissible substrate use.",
+            }
+        ],
+        envelope_growth_ledger_ref="pdc://layer2/s12/ua-msme/envelope-growth-ledger",
+        growth_thermometer_ref="pdc://layer2/s12/ua-msme/growth-thermometer",
+        override_rate_trend="flat",
+        reuse_rate_trend="improving",
+        held_out_status="pending_s14",
+        knowledge_governance_throughput_ledger_ref=(
+            "pdc://layer2/s12/ua-msme/knowledge-throughput-ledger"
+        ),
+        residual_limitation_refs=["limitation://s12/no-production-authority"],
+        authority_boundary={
+            "authoritative_for": [
+                "value_of_information_allocation",
+                "explore_exploit_posture",
+                "envelope_growth_ledger",
+                "growth_thermometers",
+                "knowledge_governance_throughput",
+                "allocation_priority_input",
+            ],
+            "may_not_use_for": [
+                "production_authority",
+                "production_recommendation",
+                "rollout_authority",
+                "publication_authority",
+                "claim_authority",
+                "closeout_authority",
+                "approval_authority",
+                "scorecard_authority",
+                "preference_learning_authority",
+                "mdp_bandit_optimizer_authority",
+                "budget_interchangeability",
+                "mission_or_value_self_authorization",
+                "floor_relaxation",
+                "s13_envelope_shrink",
+                "s13_accountability_closure",
+                "s14_universality",
+            ],
+            "source_authority": "deterministic_producer",
+            "posture": "shadow",
+            "rule_version_refs": ["policyos.layer2.s12.resource_economics.v1"],
+        },
+        may_not_use_for=[
+            "production_authority",
+            "production_recommendation",
+            "rollout_authority",
+            "publication_authority",
+            "claim_authority",
+            "closeout_authority",
+            "approval_authority",
+            "scorecard_authority",
+            "preference_learning_authority",
+            "mdp_bandit_optimizer_authority",
+            "budget_interchangeability",
+            "mission_or_value_self_authorization",
+            "floor_relaxation",
+            "s13_envelope_shrink",
+            "s13_accountability_closure",
+            "s14_universality",
+        ],
+        rule_version_ref="policyos.layer2.s12.resource_economics.v1",
+    )
+
+    assert posture.voi_site_count >= 3
+    assert len(posture.typed_budget_refs) == 5
+    assert posture.held_out_status == "pending_s14"
+    assert "production_recommendation" in posture.may_not_use_for
+
+    with pytest.raises(ValidationError, match="Extra inputs are not permitted"):
+        posture_model.model_validate(
+            {
+                **posture.model_dump(mode="json"),
+                "allocation_recommendation_authority": "publish",
+            }
+        )

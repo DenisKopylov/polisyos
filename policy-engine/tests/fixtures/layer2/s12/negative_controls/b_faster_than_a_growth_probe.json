@@ -1,0 +1,14 @@
+{
+  "probe_id": "b_faster_than_a_growth_probe",
+  "case_id": "ua-msme-affordable-loans-2022",
+  "false_clear_field": "b_faster_than_a_growth",
+  "expected_false_clear_count": 0,
+  "expected_disposition": "blocked",
+  "trigger_fields": {
+    "a_completeness_delta_ref": "delta://ua-msme/a-completeness/flat",
+    "b_capability_delta_ref": "delta://ua-msme/b-capability/expanded",
+    "same_envelope_ref": "envelope://layer2/s12/current",
+    "a_delta_direction": "flat",
+    "b_delta_direction": "growth"
+  }
+}

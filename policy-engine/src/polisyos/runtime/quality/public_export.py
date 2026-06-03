@@ -14,7 +14,12 @@ from polisyos.runtime.quality.authority import (
 from polisyos.runtime.quality.candidate_firewall import (
     candidate_firewall_issues_for_payload,
 )
-from polisyos.runtime.quality.case_lifecycle import PUBLIC_REVISION_STATE_SCHEMA_VERSION
+from polisyos.runtime.quality.case_lifecycle import (
+    LIFECYCLE_REISSUE_REPORT_SCHEMA_VERSION,
+    PUBLIC_REVISION_STATE_SCHEMA_VERSION,
+    PolicyDesignLifecycleError,
+    validate_lifecycle_reissue_report,
+)
 from polisyos.runtime.quality.contestability import (
     PolicyDesignContestabilityError,
     verified_recourse_pointer_for_publication,
@@ -27,6 +32,7 @@ from polisyos.runtime.quality.projection_semantics import (
     verify_s10_forecast_projection_consumer_contract,
     verify_s11_predictive_projection_consumer_contract,
     verify_s12_resource_projection_consumer_contract,
+    verify_s13_post_deploy_accountability_projection_consumer_contract,
 )
 from polisyos.runtime.quality.rule_evolution import (
     RULE_EVOLUTION_PUBLIC_ANNOTATION_SCHEMA_VERSION,
@@ -195,6 +201,9 @@ def build_public_export_bundle(
     s11_projection = None
     s12_verification = None
     s12_projection = None
+    s13_verification = None
+    s13_projection = None
+    s13_public_revision_state = None
     if runtime_pdc_graph is not None:
         projection_semantics = build_policy_design_case_projection_from_runtime_graph(
             runtime_pdc_graph=runtime_pdc_graph,
@@ -360,7 +369,40 @@ def build_public_export_bundle(
                     )
                     else "pass",
                 }
+        projection_semantics, s13_verification, s13_projection, s13_public_revision_state = (
+            _apply_s13_post_deploy_accountability_projection(
+                projection_semantics=projection_semantics,
+                projection_payload=projection_payload,
+            )
+        )
+        if s13_verification is not None:
+            if projection_contract_verification is None:
+                projection_contract_verification = {
+                    "schema_version": str(
+                        s13_verification.get("consumer_contract_ref")
+                        or (
+                            "policyos.runtime.policy_design_case."
+                            "s13_accountability_projection_verification.v1"
+                        )
+                    ),
+                    "status": str(s13_verification.get("status") or "fail"),
+                    "s13_post_deploy_accountability_projection": s13_verification,
+                }
+            else:
+                projection_contract_verification = {
+                    **projection_contract_verification,
+                    "s13_post_deploy_accountability_projection": s13_verification,
+                    "status": "fail"
+                    if (
+                        projection_contract_verification.get("status") == "fail"
+                        or s13_verification.get("status") == "fail"
+                    )
+                    else "pass",
+                }
     _assert_public_claim_omissions_manifested(sanitized_artifacts, projection_semantics)
+    exported_public_revision_states = list(public_revision_states)
+    if s13_public_revision_state is not None:
+        exported_public_revision_states.append(s13_public_revision_state)
     bundle = {
         "schema_version": PUBLIC_EXPORT_SCHEMA_VERSION,
         "generated_at": (generated_at or datetime.now(UTC)).replace(microsecond=0).isoformat(),
@@ -382,7 +424,7 @@ def build_public_export_bundle(
             "runtime_orchestration_continuity": orchestration_continuity,
             "recourse_pointer": recourse_pointer,
             "rule_evolution_annotations": rule_evolution_annotations,
-            "public_revision_states": public_revision_states,
+            "public_revision_states": exported_public_revision_states,
             "s10_forecast_projection": s10_projection,
             "s10_forecast_projection_contract_verification": s10_verification,
             "s11_predictive_projection": s11_projection,
@@ -408,10 +450,112 @@ def build_public_export_bundle(
             "upserted_redactions": redactions,
         },
     }
+    if s13_projection is not None or s13_verification is not None:
+        semantic_audit = dict(bundle["semantic_audit"])
+        semantic_audit["s13_post_deploy_accountability_projection"] = s13_projection
+        semantic_audit["s13_post_deploy_accountability_projection_contract_verification"] = (
+            s13_verification
+        )
+        bundle["semantic_audit"] = semantic_audit
     if projection_semantics is not None:
         bundle["projection_semantics"] = projection_semantics
     assert_public_export_official_use_limits(bundle)
     return bundle
+
+
+def _apply_s13_post_deploy_accountability_projection(
+    *,
+    projection_semantics: Mapping[str, object],
+    projection_payload: Mapping[str, object],
+) -> tuple[
+    dict[str, object],
+    dict[str, object] | None,
+    dict[str, object] | None,
+    dict[str, object] | None,
+]:
+    s13_projection = _s13_accountability_projection_record(projection_payload)
+    if not s13_projection:
+        return dict(projection_semantics), None, None, None
+    verification = verify_s13_post_deploy_accountability_projection_consumer_contract(
+        projections={"public": s13_projection},
+    )
+    if verification.get("status") != "pass":
+        raise PublicExportRedactionError(
+            _first_s13_issue_code(verification),
+            "S13 accountability projection consumer contract must pass before public release.",
+        )
+    revision_state = _s13_public_revision_state(projection_payload)
+    public_projection = dict(verification.get("public_projection") or {})
+    enriched = dict(projection_semantics)
+    accountability_note = _text(
+        public_projection.get("public_accountability_note")
+        or s13_projection.get("public_accountability_note")
+    )
+    may_not = _unique_texts(
+        [
+            *_text_list(enriched.get("may_not_be_used_for")),
+            *_text_list(public_projection.get("may_not_be_used_for")),
+            "current_evidence_slot",
+            "pre_policy_evidence",
+            "production_rollout_authority",
+            "recommendation_authority",
+            "approval_authority",
+            "scorecard_authority",
+            "s14_universality",
+        ]
+    )
+    audit_refs = _unique_texts(
+        [
+            *_text_list(enriched.get("audit_refs")),
+            s13_projection.get("accountability_posture_ref"),
+            s13_projection.get("deployment_dossier_ref"),
+            s13_projection.get("public_revision_state_ref"),
+            s13_projection.get("public_accountability_note_ref"),
+            s13_projection.get("rule_version_ref"),
+            *_text_list(s13_projection.get("divergence_record_refs")),
+            *_text_list(s13_projection.get("learning_update_proposal_refs")),
+        ]
+    )
+    source_state = dict(enriched.get("source_state") or {})
+    source_state.update(
+        {
+            "s13_accountability_posture_ref": s13_projection.get(
+                "accountability_posture_ref"
+            ),
+            "s13_projection_policy": (
+                "reads_post_deploy_accountability_posture_as_revision_note"
+            ),
+            "s13_public_revision_state_ref": s13_projection.get(
+                "public_revision_state_ref"
+            ),
+        }
+    )
+    enriched.update(
+        {
+            "public_accountability_note": accountability_note,
+            "public_accountability_note_ref": s13_projection.get(
+                "public_accountability_note_ref"
+            ),
+            "public_revision_state_ref": s13_projection.get("public_revision_state_ref"),
+            "envelope_revision_direction": s13_projection.get(
+                "envelope_revision_direction"
+            ),
+            "closed_case_historical_meaning": (
+                s13_projection.get("closed_case_historical_meaning") or "preserved"
+            ),
+            "authority_role": "projection_only",
+            "may_not_be_used_for": may_not,
+            "audit_refs": audit_refs,
+            "source_state": source_state,
+            "s13_post_deploy_accountability_projection_contract_verification_status": (
+                verification.get("status")
+            ),
+            "s13_post_deploy_accountability_projection_contract_verification_ref": (
+                verification.get("consumer_contract_ref")
+            ),
+        }
+    )
+    return enriched, verification, s13_projection, revision_state
 
 
 def _apply_s12_resource_projection(
@@ -849,6 +993,120 @@ def _s12_resource_projection_record(
     }
 
 
+def _s13_accountability_projection_record(
+    projection_payload: Mapping[str, object],
+) -> dict[str, object]:
+    if not (
+        _text(projection_payload.get("accountability_posture_ref"))
+        or _text(projection_payload.get("public_accountability_note_ref"))
+    ):
+        return {}
+    authority_boundary = dict(
+        projection_payload.get("authority_boundary")
+        if isinstance(projection_payload.get("authority_boundary"), Mapping)
+        else {}
+    )
+    return {
+        "audience": "PUBLIC",
+        "authority_role": "projection_only",
+        "projection_policy": "reads_s13_post_deploy_accountability_posture",
+        "accountability_posture_ref": _text(
+            projection_payload.get("accountability_posture_ref")
+        ),
+        "deployment_dossier_ref": _text(
+            projection_payload.get("deployment_dossier_ref")
+        ),
+        "divergence_record_refs": _text_list(
+            projection_payload.get("divergence_record_refs")
+        ),
+        "learning_update_proposal_refs": _text_list(
+            projection_payload.get("learning_update_proposal_refs")
+        ),
+        "envelope_revision_ref": _text(
+            projection_payload.get("envelope_revision_ref")
+        ),
+        "certified_envelope_delta_ref": _text(
+            projection_payload.get("certified_envelope_delta_ref")
+        ),
+        "assurance_case_delta_ref": _text(
+            projection_payload.get("assurance_case_delta_ref")
+        ),
+        "attribution_status": _text(projection_payload.get("attribution_status")),
+        "attribution_classes": _text_list(projection_payload.get("attribution_classes")),
+        "learning_change_control_classes": _text_list(
+            projection_payload.get("learning_change_control_classes")
+        ),
+        "lifecycle_reissue_disposition": _text(
+            projection_payload.get("lifecycle_reissue_disposition")
+        ),
+        "envelope_revision_direction": _text(
+            projection_payload.get("envelope_revision_direction")
+        ),
+        "assurance_case_change": _text(projection_payload.get("assurance_case_change")),
+        "mape_k_trace_ref": _text(projection_payload.get("mape_k_trace_ref")),
+        "public_revision_state_ref": _text(
+            projection_payload.get("public_revision_state_ref")
+        ),
+        "public_accountability_note_ref": _text(
+            projection_payload.get("public_accountability_note_ref")
+        ),
+        "public_accountability_note": _text(
+            projection_payload.get("public_accountability_note")
+        ),
+        "closed_case_historical_meaning": _text(
+            projection_payload.get("closed_case_historical_meaning")
+        ),
+        "authority_boundary": authority_boundary,
+        "may_not_be_used_for": _unique_texts(
+            [
+                *_text_list(projection_payload.get("may_not_be_used_for")),
+                *_text_list(projection_payload.get("may_not_use_for")),
+            ]
+        ),
+        "rule_version_ref": _text(projection_payload.get("rule_version_ref")),
+    }
+
+
+def _s13_public_revision_state(
+    projection_payload: Mapping[str, object],
+) -> dict[str, object] | None:
+    revision_state = projection_payload.get("public_revision_state")
+    if not isinstance(revision_state, Mapping):
+        return None
+    state = dict(revision_state)
+    claim_ids = _unique_texts(
+        [
+            *_text_list(state.get("affected_claim_ids")),
+            *_text_list(state.get("unaffected_claim_ids")),
+        ]
+    )
+    if not claim_ids:
+        claim_ids = ["unknown_claim"]
+    validation_state = dict(state)
+    if validation_state.get("silent_upgrade_allowed") is not False:
+        validation_state["authority_role"] = "projection_only"
+    report = {
+        "schema_version": LIFECYCLE_REISSUE_REPORT_SCHEMA_VERSION,
+        "report_id": "s13-public-revision-state-validation",
+        "case_id": "s13-post-deploy-accountability",
+        "claim_ids": claim_ids,
+        "event_impacts": [],
+        "claim_revision_states": [],
+        "public_revision_state": validation_state,
+        "issues": [],
+        "status": "review_required",
+        "evidence_ref": _text(projection_payload.get("public_revision_state_ref"))
+        or "projection_payload",
+        "runtime_event_ref": _text(projection_payload.get("accountability_posture_ref"))
+        or "projection_payload",
+    }
+    try:
+        validate_lifecycle_reissue_report(report)
+    except PolicyDesignLifecycleError as exc:
+        raise PublicExportRedactionError(exc.code, str(exc)) from exc
+    return state
+
+
 def _s10_missing_machine_export_refs(
     s10_projection: Mapping[str, object],
 ) -> list[str]:
@@ -898,6 +1156,17 @@ def _first_s12_issue_code(verification: Mapping[str, object]) -> str:
             if code:
                 return code
     return "s12_resource_projection_failed"
+
+
+def _first_s13_issue_code(verification: Mapping[str, object]) -> str:
+    for code in _text_list(verification.get("issue_codes")):
+        return code
+    for issue in _as_sequence(verification.get("issues")):
+        if isinstance(issue, Mapping):
+            code = _text(issue.get("code"))
+            if code:
+                return code
+    return "s13_accountability_projection_failed"
 
 
 def _apply_s9_projection_faithfulness(

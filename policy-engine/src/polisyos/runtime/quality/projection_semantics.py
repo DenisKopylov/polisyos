@@ -90,6 +90,9 @@ _S11_CONSUMER_CONTRACT_REF = (
 _S12_CONSUMER_CONTRACT_REF = (
     "policyos.runtime.policy_design_case.s12_resource_projection_verification.v1"
 )
+_S13_CONSUMER_CONTRACT_REF = (
+    "policyos.runtime.policy_design_case.s13_accountability_projection_verification.v1"
+)
 _S9_REQUIRED_MAY_NOT_USE_FOR = frozenset(
     {
         "claim_authority",
@@ -194,6 +197,37 @@ _S12_SCALAR_ALLOCATION_KEYS = frozenset(
         "numeric_voi_score",
         "selected_policy_score",
         "voi_score",
+    }
+)
+_S13_REQUIRED_MAY_NOT_USE_FOR = frozenset(
+    {
+        "production_rollout_authority",
+        "recommendation_authority",
+        "publication_authority",
+        "approval_authority",
+        "scorecard_authority",
+        "pre_policy_evidence",
+        "current_evidence_slot",
+        "preference_learning",
+        "automated_value_learning",
+        "naive_ml_update",
+        "s14_universality",
+        "llm_attribution_authority",
+        "local_governance_enum_for_reissue",
+    }
+)
+_S13_FORBIDDEN_AUTHORITY_USES = frozenset(
+    {
+        "approval_authority",
+        "current_evidence_slot",
+        "pre_policy_evidence",
+        "production_authority",
+        "production_recommendation",
+        "production_rollout_authority",
+        "recommendation_authority",
+        "runtime_closeout_authority",
+        "scorecard_authority",
+        "s14_universality",
     }
 )
 _ALLOWED_PROJECTION_POLICIES = frozenset(
@@ -1035,6 +1069,67 @@ def verify_s12_resource_projection_consumer_contract(
     }
 
 
+def verify_s13_post_deploy_accountability_projection_consumer_contract(
+    *,
+    projections: Mapping[str, Mapping[str, Any]],
+) -> dict[str, Any]:
+    """Verify S13 accountability projections without learning/production authority."""
+
+    issues: list[dict[str, Any]] = []
+    consumer_contracts: list[dict[str, Any]] = []
+    s13_records: dict[str, dict[str, Any]] = {}
+    public_projection: dict[str, Any] = {}
+    for audience, projection in projections.items():
+        projection_payload = _mapping_from_record(projection)
+        s13_record = _s13_accountability_projection_record(projection_payload)
+        s13_records[audience] = s13_record
+        audience_issues = _s13_projection_issues(
+            audience=audience,
+            projection=projection_payload,
+            s13_record=s13_record,
+        )
+        issues.extend(audience_issues)
+        if _audience(
+            projection_payload.get("audience") or audience,
+            surface="s13_accountability_projection",
+        ) is contracts.PolicyDesignCaseAudience.PUBLIC:
+            public_projection = _s13_public_projection(projection_payload, s13_record)
+        consumer_contracts.append(
+            {
+                "consumer": _text(audience),
+                "audience": _text(audience),
+                "status": "fail" if audience_issues else "pass",
+                "issue_codes": [issue["code"] for issue in audience_issues],
+                "verified_fields": [
+                    "accountability_posture_ref",
+                    "deployment_dossier_ref",
+                    "divergence_record_refs",
+                    "learning_update_proposal_refs",
+                    "envelope_revision_ref",
+                    "assurance_case_delta_ref",
+                    "public_accountability_note_ref",
+                    "mape_k_trace_ref",
+                    "action_item_closure_refs",
+                    "oversight_accountability_state",
+                    "replay_digest",
+                    "authority_boundary",
+                ],
+            }
+        )
+    issue_codes = _unique_texts(issue.get("code") for issue in issues)
+    first_record = next(iter(s13_records.values()), {})
+    return {
+        "schema_version": _S13_CONSUMER_CONTRACT_REF,
+        "status": "fail" if issues else "pass",
+        "consumer_contract_ref": _S13_CONSUMER_CONTRACT_REF,
+        "consumer_contracts": consumer_contracts,
+        "s13_post_deploy_accountability_projection": first_record,
+        "public_projection": public_projection,
+        "issue_codes": issue_codes,
+        "issues": issues,
+    }
+
+
 def _s10_forecast_projection_record(projection: Mapping[str, Any]) -> dict[str, Any]:
     if not (
         _text(projection.get("forecast_support_ref"))
@@ -1471,6 +1566,225 @@ def _s12_public_projection(
             projection.get("s12_public_growth_limitation")
             or s12_record.get("s12_public_growth_limitation")
         ),
+        "may_not_be_used_for": may_not,
+    }
+
+
+def _s13_accountability_projection_record(projection: Mapping[str, Any]) -> dict[str, Any]:
+    if not (
+        _text(projection.get("accountability_posture_ref"))
+        or _text(projection.get("public_accountability_note_ref"))
+        or _text(projection.get("envelope_revision_ref"))
+    ):
+        return {}
+    authority_boundary = _mapping(projection.get("authority_boundary"))
+    return {
+        "accountability_posture_ref": _text(projection.get("accountability_posture_ref")),
+        "deployment_dossier_ref": _text(projection.get("deployment_dossier_ref")),
+        "divergence_record_refs": _text_list(projection.get("divergence_record_refs")),
+        "learning_update_proposal_refs": _text_list(
+            projection.get("learning_update_proposal_refs")
+        ),
+        "envelope_revision_ref": _text(projection.get("envelope_revision_ref")),
+        "certified_envelope_delta_ref": _text(
+            projection.get("certified_envelope_delta_ref")
+        ),
+        "assurance_case_delta_ref": _text(projection.get("assurance_case_delta_ref")),
+        "attribution_status": _text(projection.get("attribution_status")),
+        "attribution_classes": _text_list(projection.get("attribution_classes")),
+        "learning_change_control_classes": _text_list(
+            projection.get("learning_change_control_classes")
+        ),
+        "lifecycle_reissue_disposition": _text(
+            projection.get("lifecycle_reissue_disposition")
+        ),
+        "envelope_revision_direction": _text(
+            projection.get("envelope_revision_direction")
+        ),
+        "assurance_case_change": _text(projection.get("assurance_case_change")),
+        "mape_k_trace_ref": _text(projection.get("mape_k_trace_ref")),
+        "public_revision_state_ref": _text(projection.get("public_revision_state_ref")),
+        "public_accountability_note_ref": _text(
+            projection.get("public_accountability_note_ref")
+        ),
+        "public_accountability_note": _text(
+            projection.get("public_accountability_note")
+        ),
+        "closed_case_historical_meaning": _text(
+            projection.get("closed_case_historical_meaning")
+        ),
+        "owner": _text(projection.get("owner")),
+        "deadline": _text(projection.get("deadline")),
+        "action_item_status": _text(projection.get("action_item_status")),
+        "action_item_closure_refs": _text_list(
+            projection.get("action_item_closure_refs")
+        ),
+        "oversight_effectiveness_ref": _text(
+            projection.get("oversight_effectiveness_ref")
+        ),
+        "oversight_accountability_state": _text(
+            projection.get("oversight_accountability_state")
+        ),
+        "reissue_actions": _text_list(projection.get("reissue_actions")),
+        "historical_prior_influence_refs": _text_list(
+            projection.get("historical_prior_influence_refs")
+        ),
+        "source_refs": _text_list(projection.get("source_refs")),
+        "replay_digest": _text(projection.get("replay_digest")),
+        "authority_boundary": authority_boundary,
+        "may_not_be_used_for": _unique_texts(
+            [
+                *_text_list(projection.get("may_not_be_used_for")),
+                *_text_list(projection.get("may_not_use_for")),
+                *_text_list(authority_boundary.get("may_not_use_for")),
+            ]
+        ),
+        "authority_role": _text(projection.get("authority_role")) or "projection_only",
+        "rule_version_ref": _text(projection.get("rule_version_ref")),
+    }
+
+
+def _s13_projection_issues(
+    *,
+    audience: str,
+    projection: Mapping[str, Any],
+    s13_record: Mapping[str, Any],
+) -> list[dict[str, Any]]:
+    if not s13_record:
+        return [
+            _contract_issue(
+                "s13_accountability_projection_missing",
+                audience=audience,
+                message="S13 accountability posture projection fields are missing.",
+            )
+        ]
+    issues: list[dict[str, Any]] = []
+    audience_value = _audience(
+        projection.get("audience") or audience,
+        surface="s13_accountability_projection",
+    )
+    if audience_value is contracts.PolicyDesignCaseAudience.PUBLIC:
+        if not _text(s13_record.get("public_accountability_note")):
+            issues.append(
+                _contract_issue(
+                    "s13_public_accountability_note_missing",
+                    audience=audience,
+                    message="PUBLIC S13 projection requires an accountability note.",
+                )
+            )
+    else:
+        required_fields = {
+            "accountability_posture_ref": "accountability posture ref",
+            "deployment_dossier_ref": "deployment dossier ref",
+            "divergence_record_refs": "divergence records",
+            "learning_update_proposal_refs": "learning update proposals",
+            "envelope_revision_ref": "envelope revision ref",
+            "assurance_case_delta_ref": "assurance delta ref",
+            "mape_k_trace_ref": "MAPE-K trace ref",
+            "action_item_closure_refs": "action-item closure refs",
+            "oversight_accountability_state": "oversight accountability state",
+            "replay_digest": "replay digest",
+        }
+        for field_name, label in required_fields.items():
+            if not s13_record.get(field_name):
+                issues.append(
+                    _contract_issue(
+                        "s13_accountability_projection_missing_audit_field",
+                        audience=audience,
+                        message=f"{label} missing from S13 projection.",
+                    )
+                )
+    if _s13_learning_update_as_current_evidence(projection, s13_record):
+        issues.append(
+            _contract_issue(
+                "s13_learning_update_as_current_evidence_authority",
+                audience=audience,
+                message=(
+                    "S13 learning updates cannot be projected as current evidence "
+                    "authority."
+                ),
+            )
+        )
+    if _s13_authority_laundered(projection, s13_record):
+        issues.append(
+            _contract_issue(
+                "s13_as_universality_or_production_authority",
+                audience=audience,
+                message=(
+                    "S13 accountability projection crossed into production, "
+                    "recommendation, approval, evidence, or universality authority."
+                ),
+            )
+        )
+    return _dedupe_contract_issues(issues)
+
+
+def _s13_learning_update_as_current_evidence(
+    projection: Mapping[str, Any],
+    s13_record: Mapping[str, Any],
+) -> bool:
+    current_refs = set(_text_list(projection.get("current_evidence_refs")))
+    learning_refs = set(_text_list(s13_record.get("learning_update_proposal_refs")))
+    if current_refs & learning_refs:
+        return True
+    return bool(current_refs) and "current_evidence_slot" not in set(
+        _text_list(s13_record.get("may_not_be_used_for"))
+    )
+
+
+def _s13_authority_laundered(
+    projection: Mapping[str, Any],
+    s13_record: Mapping[str, Any],
+) -> bool:
+    role = _text(projection.get("authority_role")).casefold()
+    if role not in {"", "projection_only"}:
+        return True
+    boundary = _mapping(s13_record.get("authority_boundary"))
+    authoritative_for = {
+        *_text_list(projection.get("authoritative_for")),
+        *_text_list(boundary.get("authoritative_for")),
+    }
+    if authoritative_for & _S13_FORBIDDEN_AUTHORITY_USES:
+        return True
+    may_not = {
+        *_text_list(s13_record.get("may_not_be_used_for")),
+        *_text_list(boundary.get("may_not_use_for")),
+    }
+    return not may_not >= _S13_REQUIRED_MAY_NOT_USE_FOR
+
+
+def _s13_public_projection(
+    projection: Mapping[str, Any],
+    s13_record: Mapping[str, Any],
+) -> dict[str, Any]:
+    may_not = _unique_texts(
+        [
+            *_text_list(s13_record.get("may_not_be_used_for")),
+            *_S13_REQUIRED_MAY_NOT_USE_FOR,
+        ]
+    )
+    return {
+        "authority_role": "projection_only",
+        "accountability_posture_ref": _text(
+            s13_record.get("accountability_posture_ref")
+        ),
+        "public_revision_state_ref": _text(
+            s13_record.get("public_revision_state_ref")
+        ),
+        "public_accountability_note_ref": _text(
+            s13_record.get("public_accountability_note_ref")
+        ),
+        "public_accountability_note": _text(
+            projection.get("public_accountability_note")
+            or s13_record.get("public_accountability_note")
+        ),
+        "envelope_revision_direction": _text(
+            s13_record.get("envelope_revision_direction")
+        ),
+        "closed_case_historical_meaning": _text(
+            s13_record.get("closed_case_historical_meaning")
+        )
+        or "preserved",
         "may_not_be_used_for": may_not,
     }
 
@@ -3004,4 +3318,5 @@ __all__ = [
     "verify_s10_forecast_projection_consumer_contract",
     "verify_s11_predictive_projection_consumer_contract",
     "verify_s12_resource_projection_consumer_contract",
+    "verify_s13_post_deploy_accountability_projection_consumer_contract",
 ]

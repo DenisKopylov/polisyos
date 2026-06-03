@@ -119,6 +119,7 @@ S12ExploreExploitPosture = Literal[
     "blocked",
 ]
 S12ThermometerTrend = Literal["improving", "flat", "regressing"]
+S13AccountabilityPhase = Literal["design_time_gate", "post_deploy_finalized"]
 
 _COUNTEREXAMPLE_CLASS_VOCABULARY: list[str] = [
     "real_design_blocker",
@@ -185,6 +186,7 @@ _S11_REQUIRED_HANDOFF_MAY_NOT_USE_FOR = [
 _S11_REGIME_CELL_REF = "KNOWLEDGE.epistemic_regime"
 _S11_FORECAST_QUALITY_CELL_REF = "INTERVENTION.forecast_quality"
 _S12_RESOURCE_ECONOMICS_CELL_REF = "INTERVENTION.resource_economics"
+_S13_ACCOUNTABILITY_CELL_REF = "DESIGNER_ITSELF.envelope_growth"
 _S12_REQUIRED_HANDOFF_MAY_NOT_USE_FOR = [
     "production_authority",
     "production_recommendation",
@@ -202,6 +204,38 @@ _S12_REQUIRED_HANDOFF_MAY_NOT_USE_FOR = [
     "s13_envelope_shrink",
     "s13_accountability_closure",
     "s14_universality",
+]
+_S13_REQUIRED_HANDOFF_MAY_NOT_USE_FOR = [
+    "production_rollout_authority",
+    "production_authority",
+    "production_recommendation",
+    "recommendation_authority",
+    "publication_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "pre_policy_evidence",
+    "current_evidence_slot",
+    "preference_learning",
+    "automated_value_learning",
+    "naive_ml_update",
+    "s14_universality",
+    "llm_attribution_authority",
+    "local_governance_enum_for_reissue",
+]
+_S13_REQUIRED_POSTURE_MAY_NOT_USE_FOR = [
+    "production_rollout_authority",
+    "recommendation_authority",
+    "publication_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "pre_policy_evidence",
+    "current_evidence_slot",
+    "preference_learning",
+    "automated_value_learning",
+    "naive_ml_update",
+    "s14_universality",
+    "llm_attribution_authority",
+    "local_governance_enum_for_reissue",
 ]
 
 
@@ -499,6 +533,90 @@ class Layer2S12ResourceEconomicsPostureInput(Layer2ReadinessModel):
         return self
 
 
+class Layer2S13PostDeployAccountabilityPostureInput(Layer2ReadinessModel):
+    """Injected S13 accountability posture consumed by the S2 shadow loop."""
+
+    phase: S13AccountabilityPhase
+    accountability_posture_ref: str = Field(..., min_length=1, max_length=300)
+    deployment_dossier_ref: str = Field(..., min_length=1, max_length=300)
+    divergence_record_refs: list[str] = Field(default_factory=list, max_length=80)
+    learning_update_proposal_refs: list[str] = Field(default_factory=list, max_length=80)
+    envelope_revision_ref: str | None = Field(default=None, max_length=300)
+    certified_envelope_delta_ref: str | None = Field(default=None, max_length=300)
+    assurance_case_delta_ref: str | None = Field(default=None, max_length=300)
+    attribution_status: str | None = Field(default=None, max_length=80)
+    attribution_classes: list[str] = Field(default_factory=list, max_length=20)
+    learning_change_control_classes: list[str] = Field(default_factory=list, max_length=20)
+    lifecycle_reissue_disposition: str | None = Field(default=None, max_length=80)
+    envelope_revision_direction: str | None = Field(default=None, max_length=80)
+    assurance_case_change: str | None = Field(default=None, max_length=80)
+    mape_k_trace_ref: str | None = Field(default=None, max_length=300)
+    public_revision_state_ref: str | None = Field(default=None, max_length=300)
+    public_accountability_note_ref: str | None = Field(default=None, max_length=300)
+    action_item_status: str | None = Field(default=None, max_length=80)
+    action_item_closure_refs: list[str] = Field(default_factory=list, max_length=80)
+    human_decision_request_refs: list[str] = Field(default_factory=list, max_length=80)
+    human_decision_record_refs: list[str] = Field(default_factory=list, max_length=80)
+    oversight_effectiveness_ref: str | None = Field(default=None, max_length=300)
+    oversight_accountability_state: str | None = Field(default=None, max_length=120)
+    a_before_b_status: str | None = Field(default=None, max_length=80)
+    historical_prior_influence_refs: list[str] = Field(default_factory=list, max_length=80)
+    replay_digest: str = Field(..., min_length=1, max_length=96)
+    authority_boundary: AuthorityBoundary
+    may_not_use_for: list[str] = Field(default_factory=list, max_length=40)
+    rule_version_ref: str = Field(..., min_length=1, max_length=300)
+
+    @model_validator(mode="after")
+    def _validate_accountability_posture(
+        self,
+    ) -> Layer2S13PostDeployAccountabilityPostureInput:
+        missing_denials = set(_S13_REQUIRED_POSTURE_MAY_NOT_USE_FOR) - set(
+            self.may_not_use_for
+        )
+        if missing_denials:
+            raise ValueError("S13 accountability posture missing may_not_use_for denials")
+        if set(self.authority_boundary.authoritative_for).intersection(
+            {
+                "production_rollout_authority",
+                "production_authority",
+                "production_recommendation",
+                "recommendation_authority",
+                "publication_authority",
+                "approval_authority",
+                "scorecard_authority",
+                "pre_policy_evidence",
+                "current_evidence_slot",
+                "s14_universality",
+            }
+        ):
+            raise ValueError("S13 accountability posture cannot mint production authority")
+        if self.phase == "design_time_gate" and any(
+            (
+                self.divergence_record_refs,
+                self.learning_update_proposal_refs,
+                self.envelope_revision_ref,
+                self.certified_envelope_delta_ref,
+                self.assurance_case_delta_ref,
+                self.attribution_status,
+                self.attribution_classes,
+                self.learning_change_control_classes,
+                self.lifecycle_reissue_disposition,
+                self.envelope_revision_direction,
+                self.assurance_case_change,
+                self.mape_k_trace_ref,
+                self.public_revision_state_ref,
+                self.public_accountability_note_ref,
+                self.action_item_status,
+                self.action_item_closure_refs,
+                self.oversight_accountability_state,
+                self.a_before_b_status,
+                self.historical_prior_influence_refs,
+            )
+        ):
+            raise ValueError("design_time_gate S13 posture cannot carry post_deploy refs")
+        return self
+
+
 class TypedDiagnosticRecord(Layer2ReadinessModel):
     """Design-time diagnostic carried by S2 counterexamples."""
 
@@ -732,6 +850,32 @@ class SearchLedger(Layer2ReadinessModel):
         max_length=120,
     )
     resource_authority_boundary: AuthorityBoundary | None = None
+    accountability_posture_refs: list[str] = Field(default_factory=list, max_length=40)
+    accountability_phase: str = Field(
+        default="not_applicable",
+        min_length=1,
+        max_length=120,
+    )
+    deployment_dossier_refs: list[str] = Field(default_factory=list, max_length=40)
+    divergence_record_refs: list[str] = Field(default_factory=list, max_length=40)
+    learning_update_proposal_refs: list[str] = Field(default_factory=list, max_length=40)
+    envelope_revision_refs: list[str] = Field(default_factory=list, max_length=40)
+    certified_envelope_delta_refs: list[str] = Field(default_factory=list, max_length=40)
+    assurance_case_delta_refs: list[str] = Field(default_factory=list, max_length=40)
+    mape_k_trace_refs: list[str] = Field(default_factory=list, max_length=40)
+    public_revision_state_refs: list[str] = Field(default_factory=list, max_length=40)
+    public_accountability_note_refs: list[str] = Field(default_factory=list, max_length=40)
+    action_item_statuses: list[str] = Field(default_factory=list, max_length=40)
+    action_item_closure_refs: list[str] = Field(default_factory=list, max_length=40)
+    human_decision_request_refs: list[str] = Field(default_factory=list, max_length=40)
+    human_decision_record_refs: list[str] = Field(default_factory=list, max_length=40)
+    historical_prior_influence_refs: list[str] = Field(default_factory=list, max_length=40)
+    attribution_status: str | None = Field(default=None, max_length=80)
+    lifecycle_reissue_dispositions: list[str] = Field(default_factory=list, max_length=40)
+    envelope_revision_direction: str | None = Field(default=None, max_length=80)
+    oversight_accountability_state: str | None = Field(default=None, max_length=120)
+    a_before_b_status: str | None = Field(default=None, max_length=80)
+    accountability_authority_boundary: AuthorityBoundary | None = None
     no_retry_without_new_grammar: bool
     search_incompleteness_note: str
 
@@ -783,6 +927,7 @@ class Layer2S2DesignSearchRun(Layer2ReadinessModel):
     forecast_posture: Layer2S10ForecastPostureInput | None = None
     predictive_posture: Layer2S11PredictivePostureInput | None = None
     resource_posture: Layer2S12ResourceEconomicsPostureInput | None = None
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput | None = None
 
 
 def run_s2_shadow_design_loop(
@@ -800,6 +945,7 @@ def run_s2_shadow_design_loop(
     forecast_posture: Layer2S10ForecastPostureInput | None = None,
     predictive_posture: Layer2S11PredictivePostureInput | None = None,
     resource_posture: Layer2S12ResourceEconomicsPostureInput | None = None,
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput | None = None,
 ) -> Layer2S2DesignSearchRun:
     """Run the deterministic S2 one-case shadow design-search loop."""
 
@@ -832,6 +978,7 @@ def run_s2_shadow_design_loop(
         value_posture=value_posture,
         predictive_posture=predictive_posture,
         resource_posture=resource_posture,
+        accountability_posture=accountability_posture,
     )
     counterexample = _counterexample(input, candidate=candidate)
     decision = _refinement_decision(
@@ -870,6 +1017,7 @@ def run_s2_shadow_design_loop(
         forecast_posture=forecast_posture,
         predictive_posture=predictive_posture,
         resource_posture=resource_posture,
+        accountability_posture=accountability_posture,
     )
     design_record = _design_record(
         input,
@@ -888,6 +1036,7 @@ def run_s2_shadow_design_loop(
         forecast_posture=forecast_posture,
         predictive_posture=predictive_posture,
         resource_posture=resource_posture,
+        accountability_posture=accountability_posture,
     )
     status: S2RunStatus = (
         "governance_required"
@@ -927,6 +1076,7 @@ def run_s2_shadow_design_loop(
             forecast_posture=forecast_posture,
             predictive_posture=predictive_posture,
             resource_posture=resource_posture,
+            accountability_posture=accountability_posture,
         ),
         handoff_records=_handoff_records(
             candidate,
@@ -939,6 +1089,7 @@ def run_s2_shadow_design_loop(
             forecast_posture=forecast_posture,
             predictive_posture=predictive_posture,
             resource_posture=resource_posture,
+            accountability_posture=accountability_posture,
         ),
         design_record=design_record,
         composition_posture=composition_posture,
@@ -948,6 +1099,7 @@ def run_s2_shadow_design_loop(
         forecast_posture=forecast_posture,
         predictive_posture=predictive_posture,
         resource_posture=resource_posture,
+        accountability_posture=accountability_posture,
     )
 
 
@@ -1079,6 +1231,17 @@ def project_s2_design_search(
             )
             if audience == "PUBLIC":
                 assert_s2_public_projection_has_growth_limitation(projection)
+        if run.accountability_posture is not None:
+            projection["authority_boundary"] = _s13_projection_authority_boundary(
+                projection["authority_boundary"],
+                run.accountability_posture,
+            )
+            projection.update(
+                _s13_projection_fields(
+                    audience,
+                    accountability_posture=run.accountability_posture,
+                )
+            )
         projection.update(s9_context)
         projections[audience] = projection
     return projections
@@ -1381,6 +1544,7 @@ def _constraint_store(
     value_posture: Layer2S8ValuePostureInput | None = None,
     predictive_posture: Layer2S11PredictivePostureInput | None = None,
     resource_posture: Layer2S12ResourceEconomicsPostureInput | None = None,
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput | None = None,
 ) -> ConstraintStoreSnapshot:
     slug = _slug(input.case_id)
     s6_constraints = _s6_constraint_entries(blind_spot_posture)
@@ -1393,6 +1557,7 @@ def _constraint_store(
     )
     s11_constraints = _s11_constraint_entries(predictive_posture, case_slug=slug)
     s12_constraints = _s12_constraint_entries(resource_posture, case_slug=slug)
+    s13_constraints = _s13_constraint_entries(accountability_posture, case_slug=slug)
     base_constraint_ids = [
         "shadow_only",
         "authority_boundary_required",
@@ -1403,12 +1568,14 @@ def _constraint_store(
     s8_constraint_ids = [entry.constraint_id for entry in s8_constraints]
     s11_constraint_ids = [entry.constraint_id for entry in s11_constraints]
     s12_constraint_ids = [entry.constraint_id for entry in s12_constraints]
+    s13_constraint_ids = [entry.constraint_id for entry in s13_constraints]
     constraint_records = [
         *s6_constraints,
         *s7_constraints,
         *s8_constraints,
         *s11_constraints,
         *s12_constraints,
+        *s13_constraints,
     ]
     return ConstraintStoreSnapshot(
         snapshot_id=f"layer2.s2.constraints.{slug}",
@@ -1421,6 +1588,7 @@ def _constraint_store(
             *s8_constraint_ids,
             *s11_constraint_ids,
             *s12_constraint_ids,
+            *s13_constraint_ids,
         ],
         hard_constraint_ids=[
             "shadow_only",
@@ -1627,6 +1795,7 @@ def _search_ledger(
     forecast_posture: Layer2S10ForecastPostureInput | None = None,
     predictive_posture: Layer2S11PredictivePostureInput | None = None,
     resource_posture: Layer2S12ResourceEconomicsPostureInput | None = None,
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput | None = None,
 ) -> SearchLedger:
     slug = _slug(input.case_id)
     replay_key = _deterministic_replay_key(
@@ -1641,12 +1810,14 @@ def _search_ledger(
         forecast_posture=forecast_posture,
         predictive_posture=predictive_posture,
         resource_posture=resource_posture,
+        accountability_posture=accountability_posture,
     )
     handoff_refs = [
         *_s7_handoff_refs(delegation_posture),
         *_s8_handoff_refs(value_posture),
         *_s11_handoff_refs(predictive_posture),
         *_s12_handoff_refs(resource_posture),
+        *_s13_handoff_refs(accountability_posture),
     ]
     return SearchLedger(
         ledger_id=f"layer2.s2.ledger.{slug}",
@@ -1731,6 +1902,66 @@ def _search_ledger(
             if resource_posture is not None
             else None
         ),
+        accountability_posture_refs=_s13_accountability_posture_refs(
+            accountability_posture
+        ),
+        accountability_phase=_s13_accountability_phase(accountability_posture),
+        deployment_dossier_refs=_s13_deployment_dossier_refs(accountability_posture),
+        divergence_record_refs=_s13_divergence_record_refs(accountability_posture),
+        learning_update_proposal_refs=_s13_learning_update_proposal_refs(
+            accountability_posture
+        ),
+        envelope_revision_refs=_s13_envelope_revision_refs(accountability_posture),
+        certified_envelope_delta_refs=_s13_certified_envelope_delta_refs(
+            accountability_posture
+        ),
+        assurance_case_delta_refs=_s13_assurance_case_delta_refs(accountability_posture),
+        mape_k_trace_refs=_s13_mape_k_trace_refs(accountability_posture),
+        public_revision_state_refs=_s13_public_revision_state_refs(
+            accountability_posture
+        ),
+        public_accountability_note_refs=_s13_public_accountability_note_refs(
+            accountability_posture
+        ),
+        action_item_statuses=_s13_action_item_statuses(accountability_posture),
+        action_item_closure_refs=_s13_action_item_closure_refs(accountability_posture),
+        human_decision_request_refs=_s13_human_decision_request_refs(
+            accountability_posture
+        ),
+        human_decision_record_refs=_s13_human_decision_record_refs(
+            accountability_posture
+        ),
+        historical_prior_influence_refs=_s13_historical_prior_influence_refs(
+            accountability_posture
+        ),
+        attribution_status=(
+            accountability_posture.attribution_status
+            if accountability_posture is not None
+            else None
+        ),
+        lifecycle_reissue_dispositions=_s13_lifecycle_reissue_dispositions(
+            accountability_posture
+        ),
+        envelope_revision_direction=(
+            accountability_posture.envelope_revision_direction
+            if accountability_posture is not None
+            else None
+        ),
+        oversight_accountability_state=(
+            accountability_posture.oversight_accountability_state
+            if accountability_posture is not None
+            else None
+        ),
+        a_before_b_status=(
+            accountability_posture.a_before_b_status
+            if accountability_posture is not None
+            else None
+        ),
+        accountability_authority_boundary=(
+            accountability_posture.authority_boundary
+            if accountability_posture is not None
+            else None
+        ),
         no_retry_without_new_grammar=input.force_retry_same_candidate,
         search_incompleteness_note=_SEARCH_INCOMPLETENESS_NOTE,
     )
@@ -1754,6 +1985,7 @@ def _design_record(
     forecast_posture: Layer2S10ForecastPostureInput | None = None,
     predictive_posture: Layer2S11PredictivePostureInput | None = None,
     resource_posture: Layer2S12ResourceEconomicsPostureInput | None = None,
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput | None = None,
 ) -> DesignRecordV0:
     slug = _slug(input.case_id)
     axis_positions = [
@@ -1897,6 +2129,12 @@ def _design_record(
         ledger_refs.extend(_s12_design_record_ledger_refs(resource_posture))
         projection_audiences = ["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"]
 
+    if accountability_posture is not None:
+        axis_positions.append(_s13_axis_position(accountability_posture))
+        firewall_status.append(_s13_firewall_status(accountability_posture))
+        ledger_refs.extend(_s13_design_record_ledger_refs(accountability_posture))
+        projection_audiences = ["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"]
+
     not_certified_for = list(_MAY_NOT_USE_FOR)
     if blind_spot_posture is not None and blind_spot_posture.overall_posture == "blocked":
         not_certified_for.append("closeout_authority_blocked_by_s6")
@@ -1909,6 +2147,11 @@ def _design_record(
         not_certified_for = _merge_unique_strings(
             not_certified_for,
             resource_posture.may_not_use_for,
+        )
+    if accountability_posture is not None:
+        not_certified_for = _merge_unique_strings(
+            not_certified_for,
+            accountability_posture.may_not_use_for,
         )
     ledger_refs = list(dict.fromkeys(ledger_refs))[:40]
 
@@ -2613,6 +2856,100 @@ def _s12_projection_fields(
     return fields
 
 
+def _s13_projection_fields(
+    audience: Literal["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"],
+    *,
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput,
+) -> dict[str, object]:
+    base: dict[str, object] = {
+        "projection_policy": "reads_s13_post_deploy_accountability_posture",
+        "authority_role": "projection_only",
+        "accountability_posture_ref": accountability_posture.accountability_posture_ref,
+        "deployment_dossier_ref": accountability_posture.deployment_dossier_ref,
+        "envelope_revision_direction": (
+            accountability_posture.envelope_revision_direction
+        ),
+        "public_revision_state_ref": accountability_posture.public_revision_state_ref,
+        "public_accountability_note_ref": (
+            accountability_posture.public_accountability_note_ref
+        ),
+        "closed_case_historical_meaning": "preserved",
+        "may_not_be_used_for": _merge_unique_strings(
+            accountability_posture.may_not_use_for,
+            _S13_REQUIRED_HANDOFF_MAY_NOT_USE_FOR,
+        ),
+    }
+    if audience == "PUBLIC":
+        return base
+
+    base.update(
+        {
+            "divergence_record_refs": list(
+                accountability_posture.divergence_record_refs
+            ),
+            "learning_update_proposal_refs": list(
+                accountability_posture.learning_update_proposal_refs
+            ),
+            "envelope_revision_ref": accountability_posture.envelope_revision_ref,
+            "certified_envelope_delta_ref": (
+                accountability_posture.certified_envelope_delta_ref
+            ),
+            "assurance_case_delta_ref": accountability_posture.assurance_case_delta_ref,
+            "attribution_status": accountability_posture.attribution_status,
+            "attribution_classes": list(accountability_posture.attribution_classes),
+            "learning_change_control_classes": list(
+                accountability_posture.learning_change_control_classes
+            ),
+            "lifecycle_reissue_disposition": (
+                accountability_posture.lifecycle_reissue_disposition
+            ),
+            "assurance_case_change": accountability_posture.assurance_case_change,
+            "mape_k_trace_ref": accountability_posture.mape_k_trace_ref,
+            "action_item_status": accountability_posture.action_item_status,
+            "action_item_closure_refs": list(
+                accountability_posture.action_item_closure_refs
+            ),
+            "human_decision_request_refs": list(
+                accountability_posture.human_decision_request_refs
+            ),
+            "human_decision_record_refs": list(
+                accountability_posture.human_decision_record_refs
+            ),
+            "oversight_effectiveness_ref": (
+                accountability_posture.oversight_effectiveness_ref
+            ),
+            "oversight_accountability_state": (
+                accountability_posture.oversight_accountability_state
+            ),
+            "a_before_b_status": accountability_posture.a_before_b_status,
+            "historical_prior_influence_refs": list(
+                accountability_posture.historical_prior_influence_refs
+            ),
+            "source_refs": _s13_design_record_ledger_refs(accountability_posture),
+            "replay_digest": accountability_posture.replay_digest,
+            "accountability_authority_boundary": (
+                accountability_posture.authority_boundary.model_dump(mode="json")
+            ),
+        }
+    )
+    return base
+
+
+def _s13_projection_authority_boundary(
+    authority_boundary: object,
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput,
+) -> dict[str, object]:
+    boundary = dict(authority_boundary) if isinstance(authority_boundary, dict) else {}
+    boundary["may_not_use_for"] = _merge_unique_strings(
+        boundary.get("may_not_use_for"),
+        _merge_unique_strings(
+            accountability_posture.may_not_use_for,
+            _S13_REQUIRED_HANDOFF_MAY_NOT_USE_FOR,
+        ),
+    )
+    return boundary
+
+
 def _s6_axis_positions(
     blind_spot_posture: Layer2S6BlindSpotPostureInput,
     rule_version_ref: str,
@@ -2810,6 +3147,31 @@ def _s12_constraint_entries(
             evidence_refs=_s12_design_record_ledger_refs(resource_posture),
             reason=reason,
             rule_version_ref=resource_posture.rule_version_ref,
+        )
+    ]
+
+
+def _s13_constraint_entries(
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput | None,
+    *,
+    case_slug: str,
+) -> list[ConstraintStoreEntry]:
+    if accountability_posture is None:
+        return []
+    return [
+        ConstraintStoreEntry(
+            constraint_id=f"layer2.s13.{case_slug}.accountability_constraint",
+            cell_ref=_S13_ACCOUNTABILITY_CELL_REF,
+            status="limit",
+            source_ref=accountability_posture.accountability_posture_ref,
+            consumer_ref="Layer2S2DesignSearchRun.accountability_posture",
+            refinement_route="pending_consumer_constraint",
+            evidence_refs=_s13_design_record_ledger_refs(accountability_posture),
+            reason=(
+                "S13 accountability posture is consumed as reissue/accountability "
+                "constraint and replay context only, not as recommendation authority."
+            ),
+            rule_version_ref=accountability_posture.rule_version_ref,
         )
     ]
 
@@ -3247,6 +3609,49 @@ def _s12_firewall_status(
     )
 
 
+def _s13_axis_position(
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput,
+) -> AxisPositionDeclaration:
+    return AxisPositionDeclaration(
+        cluster="DESIGNER_ITSELF",
+        axis="envelope_growth",
+        position=(
+            f"phase={accountability_posture.phase};"
+            f"attribution_status={accountability_posture.attribution_status or 'none'};"
+            f"envelope_revision={accountability_posture.envelope_revision_direction or 'none'}"
+        ),
+        evidence_refs=_s13_design_record_ledger_refs(accountability_posture),
+        authority_purpose="post_deploy_accountability_constraint_consumption",
+        rule_version_ref=accountability_posture.rule_version_ref,
+    )
+
+
+def _s13_firewall_status(
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput,
+) -> AxisFirewallStatus:
+    status: Literal["pass", "warn", "limit", "block"] = (
+        "warn" if accountability_posture.phase == "design_time_gate" else "limit"
+    )
+    if (
+        accountability_posture.a_before_b_status == "pass"
+        and accountability_posture.attribution_status == "attributed"
+        and accountability_posture.public_accountability_note_ref
+    ):
+        status = "pass"
+    return AxisFirewallStatus(
+        cell_ref=_S13_ACCOUNTABILITY_CELL_REF,
+        status=status,
+        pattern_ids=["P03", "P05", "P07", "P08", "P10", "P15", "P25", "P26"],
+        reason=(
+            "S13 posture is consumed only as accountability, reissue, and replay "
+            "context; it cannot authorize production, recommendation, evidence, or "
+            "universality claims."
+        ),
+        maturity="fail_closed",
+        rule_version_ref=accountability_posture.rule_version_ref,
+    )
+
+
 def _s11_constraint_status(
     predictive_posture: Layer2S11PredictivePostureInput,
 ) -> Literal["pass", "warn", "limit", "block"]:
@@ -3587,6 +3992,177 @@ def _s12_explore_exploit_posture(
     return resource_posture.explore_exploit_posture
 
 
+def _s13_design_record_ledger_refs(
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput,
+) -> list[str]:
+    refs = [
+        accountability_posture.accountability_posture_ref,
+        accountability_posture.deployment_dossier_ref,
+        *accountability_posture.divergence_record_refs,
+        *accountability_posture.learning_update_proposal_refs,
+        accountability_posture.envelope_revision_ref,
+        accountability_posture.certified_envelope_delta_ref,
+        accountability_posture.assurance_case_delta_ref,
+        accountability_posture.mape_k_trace_ref,
+        accountability_posture.public_revision_state_ref,
+        accountability_posture.public_accountability_note_ref,
+        *accountability_posture.action_item_closure_refs,
+        *accountability_posture.human_decision_request_refs,
+        *accountability_posture.human_decision_record_refs,
+        accountability_posture.oversight_effectiveness_ref,
+        *accountability_posture.historical_prior_influence_refs,
+    ]
+    return [ref for ref in dict.fromkeys(refs) if ref is not None][:40]
+
+
+def _s13_accountability_posture_refs(
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput | None,
+) -> list[str]:
+    if accountability_posture is None:
+        return []
+    return [accountability_posture.accountability_posture_ref]
+
+
+def _s13_accountability_phase(
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput | None,
+) -> str:
+    if accountability_posture is None:
+        return "not_applicable"
+    return accountability_posture.phase
+
+
+def _s13_deployment_dossier_refs(
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput | None,
+) -> list[str]:
+    if accountability_posture is None:
+        return []
+    return [accountability_posture.deployment_dossier_ref]
+
+
+def _s13_divergence_record_refs(
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput | None,
+) -> list[str]:
+    if accountability_posture is None:
+        return []
+    return list(accountability_posture.divergence_record_refs)
+
+
+def _s13_learning_update_proposal_refs(
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput | None,
+) -> list[str]:
+    if accountability_posture is None:
+        return []
+    return list(accountability_posture.learning_update_proposal_refs)
+
+
+def _s13_envelope_revision_refs(
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput | None,
+) -> list[str]:
+    if accountability_posture is None or accountability_posture.envelope_revision_ref is None:
+        return []
+    return [accountability_posture.envelope_revision_ref]
+
+
+def _s13_certified_envelope_delta_refs(
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput | None,
+) -> list[str]:
+    if (
+        accountability_posture is None
+        or accountability_posture.certified_envelope_delta_ref is None
+    ):
+        return []
+    return [accountability_posture.certified_envelope_delta_ref]
+
+
+def _s13_assurance_case_delta_refs(
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput | None,
+) -> list[str]:
+    if accountability_posture is None or accountability_posture.assurance_case_delta_ref is None:
+        return []
+    return [accountability_posture.assurance_case_delta_ref]
+
+
+def _s13_mape_k_trace_refs(
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput | None,
+) -> list[str]:
+    if accountability_posture is None or accountability_posture.mape_k_trace_ref is None:
+        return []
+    return [accountability_posture.mape_k_trace_ref]
+
+
+def _s13_public_revision_state_refs(
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput | None,
+) -> list[str]:
+    if (
+        accountability_posture is None
+        or accountability_posture.public_revision_state_ref is None
+    ):
+        return []
+    return [accountability_posture.public_revision_state_ref]
+
+
+def _s13_public_accountability_note_refs(
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput | None,
+) -> list[str]:
+    if (
+        accountability_posture is None
+        or accountability_posture.public_accountability_note_ref is None
+    ):
+        return []
+    return [accountability_posture.public_accountability_note_ref]
+
+
+def _s13_action_item_statuses(
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput | None,
+) -> list[str]:
+    if accountability_posture is None or accountability_posture.action_item_status is None:
+        return []
+    return [accountability_posture.action_item_status]
+
+
+def _s13_action_item_closure_refs(
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput | None,
+) -> list[str]:
+    if accountability_posture is None:
+        return []
+    return list(accountability_posture.action_item_closure_refs)
+
+
+def _s13_human_decision_request_refs(
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput | None,
+) -> list[str]:
+    if accountability_posture is None:
+        return []
+    return list(accountability_posture.human_decision_request_refs)
+
+
+def _s13_human_decision_record_refs(
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput | None,
+) -> list[str]:
+    if accountability_posture is None:
+        return []
+    return list(accountability_posture.human_decision_record_refs)
+
+
+def _s13_historical_prior_influence_refs(
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput | None,
+) -> list[str]:
+    if accountability_posture is None:
+        return []
+    return list(accountability_posture.historical_prior_influence_refs)
+
+
+def _s13_lifecycle_reissue_dispositions(
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput | None,
+) -> list[str]:
+    if (
+        accountability_posture is None
+        or accountability_posture.lifecycle_reissue_disposition is None
+    ):
+        return []
+    return [accountability_posture.lifecycle_reissue_disposition]
+
+
 def _s8_handoff_refs(value_posture: Layer2S8ValuePostureInput | None) -> list[str]:
     if value_posture is None:
         return []
@@ -3607,6 +4183,14 @@ def _s12_handoff_refs(
     if resource_posture is None:
         return []
     return [_s12_handoff_record(resource_posture).handoff_id]
+
+
+def _s13_handoff_refs(
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput | None,
+) -> list[str]:
+    if accountability_posture is None:
+        return []
+    return [_s13_handoff_record(accountability_posture).handoff_id]
 
 
 def _s8_handoff_records(value_posture: Layer2S8ValuePostureInput) -> list[ClusterHandoffRecord]:
@@ -3727,6 +4311,27 @@ def _s12_handoff_record(
         may_not_use_for=_merge_unique_strings(
             resource_posture.may_not_use_for,
             _S12_REQUIRED_HANDOFF_MAY_NOT_USE_FOR,
+        ),
+    )
+
+
+def _s13_handoff_record(
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput,
+) -> ClusterHandoffRecord:
+    return ClusterHandoffRecord(
+        handoff_id="layer2.s2.handoff.s13_accountability_posture",
+        workflow_ref="workflow://layer2/s2/shadow-design-loop",
+        source_cell_ref=_S13_ACCOUNTABILITY_CELL_REF,
+        target_cell_ref="INTERVENTION.design_candidate",
+        artifact_refs=_s13_design_record_ledger_refs(accountability_posture),
+        disposition="consumed",
+        authority_purpose=(
+            "Layer2S13PostDeployAccountabilityPostureInput "
+            "reissue_accountability_constraint_consumed"
+        ),
+        may_not_use_for=_merge_unique_strings(
+            accountability_posture.may_not_use_for,
+            _S13_REQUIRED_HANDOFF_MAY_NOT_USE_FOR,
         ),
     )
 
@@ -3921,6 +4526,7 @@ def _cluster_interfaces(
     forecast_posture: Layer2S10ForecastPostureInput | None = None,
     predictive_posture: Layer2S11PredictivePostureInput | None = None,
     resource_posture: Layer2S12ResourceEconomicsPostureInput | None = None,
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput | None = None,
 ) -> list[ClusterInterfaceContract]:
     contracts = [
         ClusterInterfaceContract(
@@ -4033,7 +4639,26 @@ def _cluster_interfaces(
                 authority_boundary=resource_posture.authority_boundary,
             )
         )
+    if accountability_posture is not None:
+        contracts.append(_s13_cluster_interface(accountability_posture, boundary=boundary))
     return contracts
+
+
+def _s13_cluster_interface(
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput,
+    *,
+    boundary: AuthorityBoundary,
+) -> ClusterInterfaceContract:
+    publishes = ["SearchLedger", "ConstraintStoreEntry"]
+    if accountability_posture.public_accountability_note_ref:
+        publishes.append("public_accountability_note_ref")
+    return ClusterInterfaceContract(
+        contract_id="layer2.s2.cluster.interface.s13_accountability",
+        cell_ref=_S13_ACCOUNTABILITY_CELL_REF,
+        publishes=publishes,
+        consumes=["Layer2S13PostDeployAccountabilityPostureInput"],
+        authority_boundary=boundary,
+    )
 
 
 def _handoff_records(
@@ -4048,6 +4673,7 @@ def _handoff_records(
     forecast_posture: Layer2S10ForecastPostureInput | None = None,
     predictive_posture: Layer2S11PredictivePostureInput | None = None,
     resource_posture: Layer2S12ResourceEconomicsPostureInput | None = None,
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput | None = None,
 ) -> list[ClusterHandoffRecord]:
     records = [
         ClusterHandoffRecord(
@@ -4108,6 +4734,8 @@ def _handoff_records(
         records.append(_s11_handoff_record(predictive_posture))
     if resource_posture is not None:
         records.append(_s12_handoff_record(resource_posture))
+    if accountability_posture is not None:
+        records.append(_s13_handoff_record(accountability_posture))
     return records
 
 
@@ -4165,6 +4793,7 @@ def _deterministic_replay_key(
     forecast_posture: Layer2S10ForecastPostureInput | None = None,
     predictive_posture: Layer2S11PredictivePostureInput | None = None,
     resource_posture: Layer2S12ResourceEconomicsPostureInput | None = None,
+    accountability_posture: Layer2S13PostDeployAccountabilityPostureInput | None = None,
 ) -> str:
     payload = {
         "case_id": input.case_id,
@@ -4218,6 +4847,8 @@ def _deterministic_replay_key(
         payload["predictive_posture"] = predictive_posture.model_dump(mode="json")
     if resource_posture is not None:
         payload["resource_posture"] = resource_posture.model_dump(mode="json")
+    if accountability_posture is not None:
+        payload["accountability_posture"] = accountability_posture.model_dump(mode="json")
     canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 

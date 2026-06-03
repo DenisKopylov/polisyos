@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 # ruff: noqa: S101
+import importlib
 import json
 import tomllib
 from pathlib import Path
@@ -117,6 +118,25 @@ def _manifest() -> dict[str, Any]:
     return json.loads(S14_MANIFEST.read_text(encoding="utf-8"))
 
 
+def _runner() -> Any:
+    return importlib.import_module("tools.quality.validation.run_layer2_s14_universality_battery")
+
+
+def _runner_payload() -> dict[str, Any]:
+    battery_root = (
+        REPO_ROOT
+        / "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/"
+        "layer2-sealed-universality-battery"
+    )
+    return dict(
+        _runner().run_layer2_s14_universality_battery(
+            repo_root=REPO_ROOT,
+            battery_root=battery_root,
+            allow_sealed_battery=True,
+        )
+    )
+
+
 def _payloads() -> dict[str, Any]:
     return readiness.load_layer2_readiness_payloads(REPO_ROOT)
 
@@ -198,6 +218,25 @@ def test_s14_manifest_registers_six_artifacts_and_firewalls() -> None:
     for artifact_name in S14_REQUIRED_ARTIFACTS:
         artifact = getattr(runtime_quality, artifact_name)
         assert artifact.model_config.get("extra") == "forbid", artifact_name
+
+
+def test_s14_manifest_capability_status_is_not_runner_claim_disposition() -> None:
+    manifest = _manifest()
+    runner_payload = _runner_payload()
+    summary = runner_payload["s14_universality_assurance_summary"]
+    public_summary = runner_payload["public_summary"]
+    gate_record = runner_payload["universality_claim_gate_record"]
+
+    assert manifest["universal_claim_gate_status"] == "pass"
+    assert "universal_claim_gate_status" not in summary
+    assert "universal_claim_gate_status" not in public_summary
+    assert summary["universal_claim_disposition"] == gate_record["disposition"]
+    assert public_summary["universal_claim_disposition"] == gate_record["disposition"]
+    assert summary["universal_claim_disposition"] in {
+        "universal_claim_blocked",
+        "universal_claim_limited",
+    }
+    assert summary["universal_claim_disposition"] != "universal_claim_allowed"
 
 
 def test_s14_manifest_registers_d4_corpus_oracle_breadth_supporting_records() -> None:

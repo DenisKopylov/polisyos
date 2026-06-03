@@ -593,7 +593,7 @@ class UniversalityAssuranceSummary(Layer2ReadinessModel):
     mechanism_generality_status: CoverageStatus
     sublinear_marginal_bespoke_cost_status: CoverageStatus
     sealed_battery_integrity_status: IntegrityStatus
-    universal_claim_gate_status: Literal["pass", "limited", "blocked"]
+    universal_claim_disposition: ClaimGateDisposition
     bare_universal_claim_block_count: int = Field(..., ge=0)
     untested_axis_out_of_envelope_count: int = Field(..., ge=0)
     aggregate_universal_number_block_count: int = Field(..., ge=0)
@@ -1139,8 +1139,6 @@ def verify_universality_claim_authority(payload: Mapping[str, object]) -> dict[s
 
     issue_codes: list[str] = []
     false_clear_field = _text(payload.get("false_clear_field"))
-    if false_clear_field in S14_FALSE_CLEAR_FIELDS:
-        issue_codes.append(false_clear_field)
     boundary = payload.get("authority_boundary")
     if isinstance(boundary, Mapping):
         authoritative_for = {str(item) for item in boundary.get("authoritative_for", [])}
@@ -1224,7 +1222,9 @@ def summarize_universality_assurance(
         "sealed_battery_integrity_status": (
             validated_battery.sealed_battery_integrity_status if validated_battery else "blocked"
         ),
-        "universal_claim_gate_status": _gate_summary_status(validated_gate),
+        "universal_claim_disposition": (
+            validated_gate.disposition if validated_gate else "universal_claim_blocked"
+        ),
         "bare_universal_claim_block_count": counts["bare_universal_claim_without_battery"],
         "untested_axis_out_of_envelope_count": (
             len(validated_scorecard.not_tested_axis_refs) if validated_scorecard else 0
@@ -1361,16 +1361,6 @@ def _as_summary(
     if isinstance(summary, UniversalityAssuranceSummary):
         return summary
     return UniversalityAssuranceSummary.model_validate(summary)
-
-
-def _gate_summary_status(
-    gate: UniversalityClaimGateRecord | None,
-) -> Literal["pass", "limited", "blocked"]:
-    if gate is None or gate.disposition == "universal_claim_blocked":
-        return "blocked"
-    if gate.disposition == "universal_claim_limited":
-        return "limited"
-    return "pass"
 
 
 def _contains_gold_label_leak(value: object) -> bool:

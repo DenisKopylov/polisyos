@@ -464,7 +464,7 @@ def _summary_payload(**overrides: object) -> dict[str, object]:
         "mechanism_generality_status": "pass",
         "sublinear_marginal_bespoke_cost_status": "pass",
         "sealed_battery_integrity_status": "pass",
-        "universal_claim_gate_status": "pass",
+        "universal_claim_disposition": "universal_claim_limited",
         "bare_universal_claim_block_count": 1,
         "untested_axis_out_of_envelope_count": 2,
         "aggregate_universal_number_block_count": 1,
@@ -964,6 +964,27 @@ def test_universality_assurance_cannot_mint_production_or_recommendation_authori
     assert "battery_result_as_production_authority" in {
         issue["code"] for issue in result["issues"]
     }
+
+
+def test_universality_authority_verifier_does_not_echo_probe_false_clear_field() -> None:
+    s14 = _s14()
+
+    result = s14.verify_universality_claim_authority(
+        {
+            "false_clear_field": "baseline_comparison_missing",
+            "baseline_comparison_ref": "pdc://layer2/s14/baseline-comparison",
+            "universality_baseline_comparison_ref": (
+                "pdc://layer2/s14/baseline-comparison"
+            ),
+            "s14_universality_assurance_refs": [
+                "pdc://layer2/s14/universality-assurance-case"
+            ],
+        }
+    )
+
+    assert result["status"] == "pass"
+    assert result["issues"] == []
+    assert result["false_clear_counts"]["baseline_comparison_missing"] == 0
 
 
 def test_gold_labels_cannot_appear_in_dev_signals_or_public_export() -> None:

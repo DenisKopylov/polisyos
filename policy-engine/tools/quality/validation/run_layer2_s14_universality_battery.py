@@ -582,7 +582,7 @@ def _public_summary(
         "expert_oracle_layer_count": summary.get("expert_oracle_layer_count"),
         "axis_scorecard_row_count": summary.get("axis_scorecard_row_count"),
         "skeptic_defeater_count": summary.get("skeptic_defeater_count"),
-        "universal_claim_gate_status": summary.get("universal_claim_gate_status"),
+        "universal_claim_disposition": summary.get("universal_claim_disposition"),
         "false_clear_counts": dict(summary.get("false_clear_counts") or {}),
         "limitation_refs": ["limitation://s14/public-summary-hidden-case-content-redacted"],
         "rule_version_ref": LAYER2_S14_UNIVERSALITY_ASSURANCE_RULE_VERSION,

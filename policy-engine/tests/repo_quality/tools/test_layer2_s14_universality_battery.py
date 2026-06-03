@@ -124,6 +124,24 @@ def test_s14_battery_runner_emits_required_substrate_reuse_refs() -> None:
     assert result["universality_claim_assurance_case"]["cae_defeater_refs"]
 
 
+def test_s14_battery_runner_reports_claim_disposition_not_capability_gate_status(
+) -> None:
+    result = _run_battery()
+    summary = result["s14_universality_assurance_summary"]
+    public_summary = result["public_summary"]
+    gate_record = result["universality_claim_gate_record"]
+
+    assert "universal_claim_gate_status" not in summary
+    assert "universal_claim_gate_status" not in public_summary
+    assert summary["universal_claim_disposition"] == gate_record["disposition"]
+    assert public_summary["universal_claim_disposition"] == gate_record["disposition"]
+    assert summary["universal_claim_disposition"] in {
+        "universal_claim_blocked",
+        "universal_claim_limited",
+    }
+    assert summary["universal_claim_disposition"] != "universal_claim_allowed"
+
+
 def test_s14_battery_runner_rejects_dev_corpus_as_sealed_result() -> None:
     result = _run_battery(battery_root=REPO_ROOT / "tests/fixtures/universal-corpus")
 

@@ -645,28 +645,38 @@ laundering move.
 
 | Design-doc commitment | Realized by | Done? |
 | --- | --- | --- |
-| D0 B-on-A shadow-first, two roles | doctrine + S7 promotion gates | ☐ |
-| D0 operational universality definition | S14 | ☐ |
-| D1 binding constraint (substrate) | S3 | ☐ |
-| D2.2 named artifacts traced | S0 artifact table + slices | ☐ |
-| D2.3 facet algebra / compositional constructs | S3 | ☐ |
-| D2.4 axis declaration + irregular envelope | S4-S6 + T0 | ☐ |
-| D2.5 epistemic-regime architecture | S4 | ☐ |
-| D2.6 coupling + design-composition + dynamics | S5 | ☐ |
-| D2.7 coverage machinery + bounded abstention | S3 | ☐ |
-| D2.8 closed acquisition loop (state machine) | S3 | ☐ |
-| D3.1 grammar-first candidate (anti-P15) | S2 | ☐ |
-| D3.2 counterexample-guided search control plane | S2 (+ S4/S5 conditioning) | ☐ |
-| D3.3 operating/delegation model | S7 | ☐ |
-| D3.4 normative firewall | S8 | ☐ |
-| D3.5 prediction/forecast boundary | S10 | ☐ |
-| D3.9 canonical design record + projection algebra | S2 (v0) + S9 (mature) | ☐ |
-| D3.10 cold-start + reflexive resource economics | S12 | ☐ |
-| D4.1-D4.5 evaluation redesign | S14 (+ each slice corpus) | ☐ |
-| D4.6 post-deploy accountability + learning | S13 | ☐ |
-| Blind-spot producers (capacity/strategic/measurability/mandate/aggregation) | S6 (thin) + S11 (rich) | ☐ |
-| Unifying Abstractions wired (not one-off) | all slices + doctrine | ☐ |
-| Graded outcomes (A-side near-term win) | S1 | ☐ |
+| D0 B-on-A shadow-first, two roles | doctrine + S7 promotion gates | ☑ |
+| D0 operational universality definition | S14 | ☑ |
+| D1 binding constraint (substrate) | S3 | ☑ |
+| D2.2 named artifacts traced | S0 artifact table + slices | ☑ |
+| D2.3 facet algebra / compositional constructs | S3 | ☑ |
+| D2.4 axis declaration + irregular envelope | S4-S6 + T0 | ☑ |
+| D2.5 epistemic-regime architecture | S4 | ☑ |
+| D2.6 coupling + design-composition + dynamics | S5 | ☑ |
+| D2.7 coverage machinery + bounded abstention | S3 | ☑ |
+| D2.8 closed acquisition loop (state machine) | S3 | ☑ |
+| D3.1 grammar-first candidate (anti-P15) | S2 | ☑ |
+| D3.2 counterexample-guided search control plane | S2 (+ S4/S5 conditioning) | ☑ |
+| D3.3 operating/delegation model | S7 | ☑ |
+| D3.4 normative firewall | S8 | ☑ |
+| D3.5 prediction/forecast boundary | S10 | ☑ |
+| D3.9 canonical design record + projection algebra | S2 (v0) + S9 (mature) | ☑ |
+| D3.10 cold-start + reflexive resource economics | S12 | ☑ |
+| D4.1-D4.5 evaluation redesign | S14 (+ each slice corpus) | ☑ v1; D4.4 re-basing follow-up tracked below |
+| D4.6 post-deploy accountability + learning | S13 | ☑ |
+| Blind-spot producers (capacity/strategic/measurability/mandate/aggregation) | S6 (thin) + S11 (rich) | ☑ |
+| Unifying Abstractions wired (not one-off) | all slices + doctrine | ☑ |
+| Graded outcomes (A-side near-term win) | S1 | ☑ |
+
+### Post-S14 Governance Follow-Ups
+
+- **D4.4 Corpus Re-Basing Rule** remains a post-S14 governance procedure, not a
+  hidden runtime claim. S14 v1 freezes and verifies the sealed battery, but it
+  does not yet persist a `re_basing` / `frozen_system_status` record for corpus
+  aging, re-annotation, and post-freeze retraining controls. Until that
+  follow-up lands, D4.4 must be cited as a limitation on future re-certification,
+  not as production, recommendation, claim, closeout, preference-learning, or
+  automated value-learning authority.
 
 ## Validation
 

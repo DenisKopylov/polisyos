@@ -22,7 +22,7 @@ def test_cluster_ownership_map_is_governed_and_valid() -> None:
     assert validation["status"] == "pass"
     assert validation["map_path"] == cluster_map.DEFAULT_MAP_PATH.as_posix()
     assert validation["summary"]["cell_count"] >= 24  # type: ignore[index]
-    assert validation["summary"]["open_or_incomplete_count"] == 1  # type: ignore[index]
+    assert validation["summary"]["open_or_incomplete_count"] == 0  # type: ignore[index]
     architecture_core = validation["summary"]["architecture_core"]  # type: ignore[index]
     assert architecture_core["top_level_package_count"] == 25
     assert architecture_core["assigned_top_level_package_count"] == 25
@@ -35,7 +35,7 @@ def test_cluster_ownership_map_is_governed_and_valid() -> None:
     assert open_cell_closure["closure_contract_count"] == (  # type: ignore[index]
         validation["summary"]["open_or_incomplete_count"]  # type: ignore[index]
     )
-    assert open_cell_closure["open_cell_count"] == 1
+    assert open_cell_closure["open_cell_count"] == 0
 
 
 def test_cluster_ownership_map_uses_capability_ratchet_state_vocabulary() -> None:
@@ -369,6 +369,53 @@ def _remaining_open_closure(
         for cluster, axes in payload["open_cell_closure"].items()  # type: ignore[index,union-attr]
         for axis, closure in axes.items()
     ]
+    if not closures:
+        cluster = "DESIGNER_ITSELF"
+        axis = "synthetic_open_cell_probe"
+        cell_ref = f"{cluster}.{axis}"
+        payload["cell"].setdefault(cluster, {})[axis] = {  # type: ignore[index,union-attr]
+            "owner_module": "",
+            "seed_files": ["docs/reference/policy-design-case-failure-patterns.md"],
+            "ratchet_state": "implemented_but_not_orchestrated",
+            "p01_chain": "bridge_missing",
+            "authority_dim": "synthetic_cluster_validator_probe",
+            "firewall": "P01_contract_only_capability",
+            "publishes": ["DESIGNER_ITSELF.certified_envelope_delta"],
+            "consumes": ["SYSTEM.nonstationarity"],
+            "gap": "synthetic_open_cell_for_empty_burn_down_negative_control",
+            "action": "Exercise open-cell validator behavior after S12 burns the real open set to zero.",
+        }
+        payload["open_cell_closure"].setdefault(cluster, {})[axis] = {  # type: ignore[index,union-attr]
+            "cell_ref": cell_ref,
+            "owner": "team-architecture",
+            "reuse_classification": "extend_existing",
+            "current_state": "implemented_but_not_orchestrated",
+            "target_state": "implemented",
+            "missing_chain": [
+                "producer",
+                "persisted_artifact",
+                "orchestration_bridge",
+                "consumer",
+                "verification",
+                "surface",
+                "semantic_test",
+            ],
+            "producer_artifact": "Synthetic producer artifact used only by cluster validator negative controls.",
+            "persisted_artifact": "Synthetic persisted artifact used only by cluster validator negative controls.",
+            "bridge_consumer": "Synthetic bridge consumer used only by cluster validator negative controls.",
+            "surface": "Synthetic surface used only by cluster validator negative controls.",
+            "semantic_test": "Synthetic semantic test used only by cluster validator negative controls.",
+            "negative_test": "Synthetic open-cell closure mutation must still fail validation.",
+            "acceptance_signal": "Cluster negative controls pass with an empty live open-cell set.",
+            "next_action": "No production action; remove only if validator no longer needs synthetic probes.",
+        }
+        closures = [
+            (
+                cluster,
+                axis,
+                payload["open_cell_closure"][cluster][axis],  # type: ignore[index]
+            )
+        ]
     assert len(closures) == 1
     return closures[0]
 

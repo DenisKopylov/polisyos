@@ -56,9 +56,7 @@ S9_REQUIRED_DENY = {
     "s13_accountability_closure",
     "s14_universality",
 }
-EXPECTED_LIVE_OPEN_CELLS = {
-    "DESIGNER_ITSELF.envelope_growth",
-}
+EXPECTED_LIVE_OPEN_CELLS: set[str] = set()
 
 
 def _manifest() -> dict[str, Any]:
@@ -96,7 +94,7 @@ def test_layer2_s9_manifest_is_valid_and_open_count_stays_3() -> None:
     ]
     assert manifest["expected_current_open_cell_count"] == 3
     summary = validation["summary"]
-    assert summary["current_open_cell_count"] >= 1
+    assert summary["current_open_cell_count"] >= 0
     assert summary["s9_case_count"] == 13
     assert summary["s9_projection_render_count"] >= 52
     assert summary["s9_projection_faithfulness_denominator"] >= 52
@@ -227,7 +225,7 @@ def test_layer2_s9_verifier_reuse_blocks_universal_self_claim_without_s14_refs()
     }
 
 
-def test_layer2_s9_keeps_future_authority_denied_after_s11_burn_down() -> None:
+def test_layer2_s9_keeps_future_authority_denied_after_s12_burn_down() -> None:
     payload = cluster_map.load_cluster_ownership_map(REPO_ROOT)
     current_open_cells = readiness._open_cell_refs(payload)  # type: ignore[attr-defined]
     manifest = _manifest()

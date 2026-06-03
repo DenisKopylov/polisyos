@@ -39,6 +39,12 @@ CELLS_CLOSED_THROUGH_S11 = sorted(
         "KNOWLEDGE.ir_proof_carrying_analytics",
     ]
 )
+CELLS_CLOSED_THROUGH_S12 = sorted(
+    [
+        *CELLS_CLOSED_THROUGH_S11,
+        "DESIGNER_ITSELF.envelope_growth",
+    ]
+)
 
 
 def _issue_codes(validation: dict[str, object]) -> set[str]:
@@ -51,12 +57,10 @@ def test_layer2_s0_readiness_manifest_is_valid() -> None:
     assert validation["status"] == "pass", validation["issues"]
     assert validation["summary"]["open_cell_count_baseline"] == 17  # type: ignore[index]
     assert validation["summary"]["assigned_open_cell_count"] == 17  # type: ignore[index]
-    assert validation["summary"]["current_open_cell_count"] == 1  # type: ignore[index]
-    assert validation["summary"]["remaining_open_cells"] == [  # type: ignore[index]
-        "DESIGNER_ITSELF.envelope_growth"
-    ]
+    assert validation["summary"]["current_open_cell_count"] == 0  # type: ignore[index]
+    assert validation["summary"]["remaining_open_cells"] == []  # type: ignore[index]
     assert validation["summary"]["s0_cells_closed"] == []  # type: ignore[index]
-    assert validation["summary"]["cells_closed_since_s0"] == CELLS_CLOSED_THROUGH_S11  # type: ignore[index]
+    assert validation["summary"]["cells_closed_since_s0"] == CELLS_CLOSED_THROUGH_S12  # type: ignore[index]
     assert validation["summary"]["s6_maturity"] == "fail_closed"  # type: ignore[index]
     assert validation["summary"]["s6_case_count"] == 13  # type: ignore[index]
     assert validation["summary"]["s6_axis_coverage_count"] == 5  # type: ignore[index]
@@ -122,10 +126,10 @@ def test_layer2_slice_cell_matrix_preserves_baseline_and_current_open_subset() -
 
     assert len(assigned) == 17
     assert current_open_cells < assigned
-    assert assigned - current_open_cells == set(CELLS_CLOSED_THROUGH_S11)
+    assert assigned - current_open_cells == set(CELLS_CLOSED_THROUGH_S12)
 
 
-def test_layer2_readiness_rejects_missing_open_cell_assignment() -> None:
+def test_layer2_readiness_rejects_missing_s12_cell_assignment() -> None:
     payloads = readiness.load_layer2_readiness_payloads(REPO_ROOT)
     payloads = copy.deepcopy(payloads)
     payloads["slice_cell_matrix"]["assignment"] = [
@@ -137,7 +141,7 @@ def test_layer2_readiness_rejects_missing_open_cell_assignment() -> None:
     validation = readiness.validate_layer2_readiness_payloads(payloads)
 
     assert validation["status"] == "fail"
-    assert "layer2_slice_cell_matrix_current_open_cell_not_assigned" in _issue_codes(validation)
+    assert "layer2_s12_cell_not_assigned" in _issue_codes(validation)
 
 
 def test_layer2_readiness_rejects_maturity_as_ratchet_state() -> None:
@@ -194,7 +198,7 @@ def test_layer2_readiness_artifacts_are_in_policy_design_case_inventory() -> Non
     validation = readiness.validate_layer2_readiness(REPO_ROOT)
 
     assert validation["status"] == "pass", validation["issues"]
-    assert validation["summary"]["inventory_artifact_count"] == 19  # type: ignore[index]
+    assert validation["summary"]["inventory_artifact_count"] == 20  # type: ignore[index]
 
 
 def test_layer2_readiness_validates_s6_manifest_metrics_and_coverage() -> None:

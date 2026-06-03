@@ -74,9 +74,7 @@ S10_REQUIRED_DENY = {
     "s13_accountability_closure",
     "s14_universality",
 }
-EXPECTED_LIVE_OPEN_CELLS = {
-    "DESIGNER_ITSELF.envelope_growth",
-}
+EXPECTED_LIVE_OPEN_CELLS: set[str] = set()
 
 
 def _manifest() -> dict[str, Any]:

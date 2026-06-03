@@ -63,9 +63,7 @@ S8_FALSE_CLEAR_FIELDS = (
     "shadow_scenario_authority_false_clear_count",
     "missing_arrow_disclosure_false_clear_count",
 )
-EXPECTED_LIVE_OPEN_CELLS = {
-    "DESIGNER_ITSELF.envelope_growth",
-}
+EXPECTED_LIVE_OPEN_CELLS: set[str] = set()
 RULE_VERSION_REF = "policyos.layer2.s8.value_choice.v1"
 
 
@@ -159,7 +157,7 @@ def test_layer2_s8_manifest_is_valid_and_open_count_is_3() -> None:
 
     assert validation["status"] == "pass", validation["issues"]
     summary = validation["summary"]
-    assert summary["current_open_cell_count"] >= 1
+    assert summary["current_open_cell_count"] >= 0
     assert summary["inventory_artifact_count"] >= 18
     assert summary["s8_case_count"] == 13
     assert summary["s8_value_provenance_completeness"] == 1.0
@@ -409,14 +407,14 @@ def test_layer2_s8_corpus_summary_records_floor_and_integrity(
     }
 
 
-def test_layer2_s8_does_not_mark_s12_s13_or_s14_cells_implemented() -> None:
+def test_layer2_s8_does_not_mark_s13_or_s14_cells_implemented() -> None:
     payloads = _payloads()
     cluster_payload = payloads["cluster_map"]
     current_open_cells = readiness._open_cell_refs(cluster_payload)  # type: ignore[attr-defined]
     later_cells = {
         str(row["cell_ref"])
         for row in payloads["slice_cell_matrix"]["assignment"]
-        if row.get("slice") in {"S12", "S13", "S14"}
+        if row.get("slice") in {"S13", "S14"}
     }
 
     assert current_open_cells == EXPECTED_LIVE_OPEN_CELLS

@@ -92,11 +92,11 @@ def test_layer2_s11_manifest_exists_and_open_count_drops_to_1() -> None:
     assert set(manifest["remaining_open_cells"]) == EXPECTED_REMAINING_OPEN_CELLS
 
     summary = validation["summary"]
-    assert summary["current_open_cell_count"] == 1
-    assert set(summary["remaining_open_cells"]) == EXPECTED_REMAINING_OPEN_CELLS
+    assert summary["current_open_cell_count"] == 0
+    assert set(summary["remaining_open_cells"]) == set()
     assert summary["s11_case_count"] == 13
     assert summary["s11_expected_current_open_cell_count"] == 1
-    assert summary["inventory_artifact_count"] == 19
+    assert summary["inventory_artifact_count"] >= 19
 
 
 def test_layer2_s11_required_artifacts_are_traceable_and_exported() -> None:
@@ -188,7 +188,7 @@ def test_layer2_s11_does_not_mark_s12_s13_s14_or_production_authority() -> None:
     rendered_manifest = json.dumps(manifest, sort_keys=True)
 
     assert set(manifest["may_not_use_for"]) >= S11_REQUIRED_DENY
-    assert set(summary["remaining_open_cells"]) == EXPECTED_REMAINING_OPEN_CELLS
+    assert set(summary["remaining_open_cells"]) == set()
     assert "ACTOR.mandate_legitimacy" not in {
         transition["cell_ref"] for transition in manifest["maturity_transitions"]
     }

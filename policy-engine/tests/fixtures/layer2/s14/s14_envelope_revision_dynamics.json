@@ -1,0 +1,18 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s14_envelope_revision_dynamics.v1",
+  "dynamics_status": "pass",
+  "dynamics_ref": "pdc://layer2/s14/envelope-revision-dynamics",
+  "s12_expansion_evidence_refs": [
+    "pdc://layer2/s12/ua-msme-affordable-loans-2022/envelope-growth-ledger",
+    "pdc://layer2/s12/w11a_boston_operation_ceasefire_1996/envelope-growth-ledger"
+  ],
+  "s13_shrink_or_split_refs": [
+    "pdc://layer2/s13/ua-msme-affordable-loans-2022/envelope-revision/shrink",
+    "pdc://layer2/s13/w11a_eu_temporary_protection_ukraine_2022/envelope-revision/split"
+  ],
+  "certified_envelope_delta_refs": [
+    "pdc://layer2/s13/ua-msme-affordable-loans-2022/certified-envelope-delta",
+    "pdc://layer2/s13/w11a_netherlands_room_for_river_2007/certified-envelope-delta"
+  ],
+  "frozen_once_defeater_status": "pass"
+}

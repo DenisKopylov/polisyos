@@ -1,0 +1,26 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s14_universality_baseline_comparison.v1",
+  "comparison_status": "pass",
+  "comparison_ref": "pdc://layer2/s14/baseline-comparison",
+  "baseline_rows": [
+    {
+      "baseline_id": "bespoke_tools",
+      "baseline_family": "bespoke_tool",
+      "comparison_refs": ["benchmark://s14/bespoke-tools/mechanism-boundary-authority"],
+      "policyos_dominates_on": ["mechanism_generality", "honest_boundary", "grounded_authority"]
+    },
+    {
+      "baseline_id": "raw_llm",
+      "baseline_family": "raw_llm",
+      "comparison_refs": ["benchmark://s14/raw-llm/false-in-envelope"],
+      "policyos_dominates_on": ["honest_boundary", "grounded_authority"]
+    },
+    {
+      "baseline_id": "expert_panel",
+      "baseline_family": "expert_panel",
+      "comparison_refs": ["benchmark://s14/expert-panel/first-call"],
+      "policyos_dominates_on": ["mechanism_generality", "replayable_boundary"]
+    }
+  ],
+  "limitation_refs": ["limitation://s14/baseline-comparison/held-out-pending"]
+}

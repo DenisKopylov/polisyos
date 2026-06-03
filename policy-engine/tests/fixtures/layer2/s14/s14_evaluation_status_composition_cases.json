@@ -1,0 +1,17 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s14_evaluation_status_composition_cases.v1",
+  "composition_status": "pass",
+  "composition_ref": "pdc://layer2/s14/evaluation-status-composition",
+  "status_cases": [
+    {"d4_label": "weak_gold", "effect": "seed_only", "existing_lattice_target": "review_required", "claim_effect": "limits_claim"},
+    {"d4_label": "shadow_candidate_pool", "effect": "seed_only", "existing_lattice_target": "review_required", "claim_effect": "limits_claim"},
+    {"d4_label": "outside_certified_envelope", "effect": "blocks_claim", "existing_lattice_target": "blocked", "claim_effect": "blocks_claim"},
+    {"d4_label": "a_spec_gap", "effect": "blocks_claim", "existing_lattice_target": "blocked", "claim_effect": "blocks_claim"},
+    {"d4_label": "search_incomplete", "effect": "limits_claim", "existing_lattice_target": "review_required", "claim_effect": "limits_claim"},
+    {"d4_label": "projection_only", "effect": "projection_only", "existing_lattice_target": "publish_with_limitation", "claim_effect": "limits_claim"},
+    {"d4_label": "bespoke_growth_detected", "effect": "blocks_claim", "existing_lattice_target": "blocked", "claim_effect": "blocks_claim"},
+    {"d4_label": "envelope_expanded", "effect": "advisory_only", "existing_lattice_target": "public_revalidation", "claim_effect": "limits_claim"},
+    {"d4_label": "envelope_shrunk", "effect": "advisory_only", "existing_lattice_target": "public_revalidation", "claim_effect": "limits_claim"},
+    {"d4_label": "historical_prior_only", "effect": "limits_claim", "existing_lattice_target": "review_required", "claim_effect": "limits_claim"}
+  ]
+}

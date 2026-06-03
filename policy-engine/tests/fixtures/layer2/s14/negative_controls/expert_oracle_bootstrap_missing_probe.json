@@ -1,0 +1,10 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s14_negative_control_probe.v1",
+  "probe_id": "expert_oracle_bootstrap_missing_probe",
+  "case_id": "w11a_india_aadhaar_dbt_2016",
+  "false_clear_field": "expert_oracle_bootstrap_missing",
+  "expected_disposition": "blocked",
+  "expert_oracle_bootstrap_ref": null,
+  "claimed_gate_disposition": "universal_claim_allowed",
+  "expected_false_clear_count": 0
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s14_negative_control_probe.v1",
+  "probe_id": "baseline_comparison_missing_probe",
+  "case_id": "w11a_boston_operation_ceasefire_1996",
+  "false_clear_field": "baseline_comparison_missing",
+  "expected_disposition": "blocked",
+  "universality_baseline_comparison_ref": null,
+  "claimed_gate_disposition": "universal_claim_allowed",
+  "expected_false_clear_count": 0
+}

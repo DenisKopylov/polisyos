@@ -1,0 +1,11 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s14_negative_control_probe.v1",
+  "probe_id": "grounded_authority_refs_missing_probe",
+  "case_id": "w11a_pakistan_ehsaas_cash_2020",
+  "false_clear_field": "grounded_authority_refs_missing",
+  "expected_disposition": "blocked",
+  "a_firewall_refs": [],
+  "claim_evidence_binding_refs": [],
+  "claimed_posture": "in_envelope",
+  "expected_false_clear_count": 0
+}

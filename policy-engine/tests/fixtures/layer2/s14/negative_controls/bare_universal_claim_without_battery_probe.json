@@ -1,0 +1,10 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s14_negative_control_probe.v1",
+  "probe_id": "bare_universal_claim_without_battery_probe",
+  "case_id": "ua-msme-affordable-loans-2022",
+  "false_clear_field": "bare_universal_claim_without_battery",
+  "expected_disposition": "blocked",
+  "claim_text": "PolicyOS is a universal policy designer.",
+  "s14_universality_assurance_refs": [],
+  "expected_false_clear_count": 0
+}

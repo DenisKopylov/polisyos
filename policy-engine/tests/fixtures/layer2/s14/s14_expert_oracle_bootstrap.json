@@ -1,0 +1,34 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s14_expert_oracle_bootstrap.v1",
+  "bootstrap_status": "pass",
+  "oracle_layers": [
+    {
+      "layer_id": "weak_gold",
+      "authority": "seed_only",
+      "allowed_uses": ["candidate_design_seed", "baseline_seed", "constraint_seed"],
+      "forbidden_uses": ["promotion_floor", "oracle_truth", "universal_claim_gate"],
+      "conflict_disclosure_refs": ["oracle-conflict://s14/weak-gold/disagreement-taxonomy"]
+    },
+    {
+      "layer_id": "expert_gold_seed",
+      "authority": "supporting_evidence",
+      "allowed_uses": ["expert_disagreement_taxonomy", "inter_rater_reliability_seed"],
+      "forbidden_uses": ["sole_promotion_floor", "uncontested_oracle_truth"],
+      "conflict_disclosure_refs": ["oracle-conflict://s14/expert-gold/inter-rater"]
+    },
+    {
+      "layer_id": "causal_support_seed",
+      "authority": "supporting_evidence",
+      "allowed_uses": ["backtestable_outcome_estimate_seed"],
+      "forbidden_uses": ["transport_without_limits", "production_recommendation"],
+      "conflict_disclosure_refs": ["oracle-conflict://s14/causal-support/transport-limits"]
+    },
+    {
+      "layer_id": "shadow_candidate_pool",
+      "authority": "seed_only",
+      "allowed_uses": ["recall_stress_test", "diversity_stress_test", "pruning_stress_test"],
+      "forbidden_uses": ["oracle_truth", "promotion_floor", "recommendation_authority"],
+      "conflict_disclosure_refs": ["oracle-conflict://s14/shadow-candidate-pool/not-oracle"]
+    }
+  ]
+}

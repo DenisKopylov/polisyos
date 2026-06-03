@@ -1,0 +1,34 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s14_sealed_universality_battery_manifest.v1",
+  "battery_id": "layer2-sealed-universality-battery",
+  "owner": "governance-board",
+  "access": "ci_gate_only",
+  "fixture_schema_version": "policyos.policy_design_case.layer2_s14_sealed_case.v1",
+  "hard_corner_case_ids": [
+    "s14_capacity_constrained_refugee_services",
+    "s14_entangled_river_basin_adaptation",
+    "s14_low_observability_health_equity",
+    "s14_multi_principal_social_protection",
+    "s14_strategic_tax_enforcement_response",
+    "s14_high_stakes_irreversible_climate"
+  ],
+  "skeptic_defeater_ids": [
+    "bespoke_disguise_defeater",
+    "confident_theater_defeater",
+    "failure_boundary_defeater",
+    "single_axis_universality_defeater",
+    "frozen_once_defeater",
+    "first_call_defeater"
+  ],
+  "attack_mapping": {
+    "bespoke_disguise_defeater": "This is bespoke in disguise.",
+    "confident_theater_defeater": "It is confident theater.",
+    "failure_boundary_defeater": "It does not know where it fails.",
+    "single_axis_universality_defeater": "It is universal only on one axis.",
+    "frozen_once_defeater": "It works once, then freezes.",
+    "first_call_defeater": "Why call it first?"
+  },
+  "case_file_count": 6,
+  "sealed_labels_redacted_from_public": true,
+  "gold_labels_dev_access_forbidden": true
+}

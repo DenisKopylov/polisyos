@@ -1,0 +1,10 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s14_sealed_case.v1",
+  "case_id": "s14_entangled_river_basin_adaptation",
+  "hard_corner_id": "entangled_river_basin_adaptation",
+  "axis_refs": ["SYSTEM.dynamics_feedback", "SYSTEM.connectivity_modularity", "INTERVENTION.scale_composition"],
+  "attack_refs": ["bespoke_disguise_defeater", "frozen_once_defeater"],
+  "input_condition_ref": "sealed-input://s14/entangled-river-basin-adaptation",
+  "sealed_gold_label_ref": "sealed-gold://s14/entangled-river-basin-adaptation",
+  "expected_boundary_disposition": "in_envelope"
+}

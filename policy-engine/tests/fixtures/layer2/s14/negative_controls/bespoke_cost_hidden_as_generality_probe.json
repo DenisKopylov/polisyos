@@ -1,0 +1,11 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s14_negative_control_probe.v1",
+  "probe_id": "bespoke_cost_hidden_as_generality_probe",
+  "case_id": "w11a_berlin_rent_cap_2020",
+  "false_clear_field": "bespoke_cost_hidden_as_generality",
+  "expected_disposition": "blocked",
+  "marginal_bespoke_cost_status": "fail",
+  "bespoke_patch_refs": ["one-off-template://s14/berlin-rent-cap/legal-boundary"],
+  "claimed_mechanism_generality_status": "pass",
+  "expected_false_clear_count": 0
+}

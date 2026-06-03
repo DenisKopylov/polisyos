@@ -1,0 +1,22 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s14_universality_breadth_floor_config.v1",
+  "floor_id": "s14_universality",
+  "status": "ratified",
+  "domain_target": ["social_protection", "tax", "climate_adaptation", "education", "health", "credit"],
+  "covered_domain_refs": ["domain://credit", "domain://social-protection", "domain://climate-adaptation"],
+  "excluded_domain_refs": ["domain://defense-targeting", "domain://individual-clinical-diagnosis"],
+  "jurisdiction_context_target": ["non_oecd", "oecd", "crisis", "low_data"],
+  "scale_class_target": ["leaf_intervention", "program", "transnational_integration"],
+  "epistemic_regime_target": ["observational", "quasi_experimental", "expert_seeded", "low_observability"],
+  "coupling_regime_target": ["modular", "near_decomposable", "entangled"],
+  "lifecycle_target": ["reversible", "adaptive", "irreversible_high_stakes"],
+  "state_capacity_target": ["high_capacity", "capacity_constrained"],
+  "authority_posture_target": ["mandated", "contested", "multi_principal"],
+  "instrument_family_target": ["cash_transfer", "tax_enforcement", "infrastructure", "service_delivery"],
+  "system_dynamics_target": ["feedback_sensitive", "strategic_response_sensitive"],
+  "inter_rater_target_ref": "oracle://s14/inter-rater-reliability/floor",
+  "owner": "governance-board",
+  "revision_rule": "floor_changes_require_new_freeze_hash_and_readiness_replay",
+  "threshold_refs": ["repo://architecture/policy_design_case/layer2_floor_governance.toml#s14_universality"],
+  "floor_setting_method": "governed_per_axis_posture_thresholds_and_breadth_floor"
+}

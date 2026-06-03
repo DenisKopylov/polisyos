@@ -1,0 +1,10 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s14_negative_control_probe.v1",
+  "probe_id": "d4_breadth_floor_missing_probe",
+  "case_id": "w11a_pakistan_ehsaas_cash_2020",
+  "false_clear_field": "d4_breadth_floor_missing",
+  "expected_disposition": "blocked",
+  "breadth_floor_config_ref": null,
+  "claimed_gate_disposition": "universal_claim_allowed",
+  "expected_false_clear_count": 0
+}

@@ -20,6 +20,7 @@ S10_RULE_VERSION_REF = "policyos.layer2.s10.outcome_prediction.v1"
 S11_RULE_VERSION_REF = "policyos.layer2.s11.predictive_knowledge.v1"
 S12_RULE_VERSION_REF = "policyos.layer2.s12.resource_economics.v1"
 S13_RULE_VERSION_REF = "policyos.layer2.s13.post_deploy_accountability.v1"
+S14_RULE_VERSION_REF = "policyos.layer2.s14.universality_assurance.v1"
 
 
 def _s9_public_faithfulness_payload(**overrides: object) -> dict[str, object]:
@@ -812,6 +813,180 @@ def test_public_export_rejects_accepted_non_ready_replay_drift() -> None:
                 },
             },
             authority_envelopes=[],
+        )
+
+
+def _s14_public_projection_payload(**overrides: object) -> dict[str, object]:
+    payload: dict[str, object] = {
+        "public_export_classification": "public_redacted_projection",
+        "decision_context": {"public_export_status": "publishable"},
+        "s14_universality_assurance_ref": "pdc://layer2/s14/universality-assurance-case",
+        "universality_claim_gate_ref": "pdc://layer2/s14/universality-claim-gate",
+        "universality_claim_disposition": "universal_claim_limited",
+        "declared_operation_envelope_ref": "pdc://layer2/s14/declared-envelope",
+        "d4_corpus_track_coverage_ref": "pdc://layer2/s14/d4-corpus-track-coverage",
+        "d4_corpus_track_coverage_status": "pass",
+        "expert_oracle_bootstrap_ref": "pdc://layer2/s14/expert-oracle-bootstrap",
+        "expert_oracle_seed_only_layer_refs": ["weak_gold", "shadow_candidate_pool"],
+        "breadth_floor_config_ref": "pdc://layer2/s14/breadth-floor-config",
+        "breadth_floor_status": "pass",
+        "excluded_domain_refs": ["domain://defense-targeting"],
+        "universality_baseline_comparison_ref": "pdc://layer2/s14/baseline-comparison",
+        "baseline_comparison_status": "pass",
+        "grounded_authority_coverage_ref": "pdc://layer2/s14/grounded-authority",
+        "grounded_authority_status": "pass",
+        "a_firewall_refs": ["pdc://layer2/s6/a-firewall/measurability"],
+        "claim_evidence_binding_refs": ["claim-binding://s14/universal-envelope/001"],
+        "value_choice_provenance_refs": ["value-choice://s8/s14/authorized-schedule"],
+        "mandate_legitimacy_refs": ["mandate://s14/governance-board/universality"],
+        "capacity_check_refs": ["capacity://s14/capacity-constrained-cases"],
+        "evaluation_status_composition_ref": "pdc://layer2/s14/status-composition",
+        "status_composition_limit_refs": ["limitation://s14/weak-gold-seed-only"],
+        "envelope_revision_dynamics_ref": "pdc://layer2/s14/envelope-revision-dynamics",
+        "envelope_revision_dynamics_status": "pass",
+        "axis_scorecard_ref": "pdc://layer2/s14/axis-scorecard",
+        "axis_scorecard_rows": [
+            {
+                "axis_ref": "ACTOR.state_capacity_feasibility",
+                "declared_posture": "limited",
+                "battery_status": "pass",
+                "limitation_refs": ["limitation://s14/capacity"],
+            }
+        ],
+        "out_of_envelope_axis_refs": ["SYSTEM.dynamics_feedback"],
+        "not_tested_axis_refs": ["SYSTEM.dynamics_feedback"],
+        "hard_corner_case_refs": ["sealed://s14/capacity-constrained-refugee-services"],
+        "sealed_battery_run_ref": "pdc://layer2/s14/sealed-battery-run",
+        "sealed_battery_freeze_hash": "sha256:" + "4" * 64,
+        "sealed_battery_integrity_status": "pass",
+        "mechanism_generality_report_ref": "pdc://layer2/s14/mechanism-generality",
+        "mechanism_generality_status": "pass",
+        "sublinear_marginal_bespoke_cost_status": "pass",
+        "skeptic_defeater_refs": [
+            "pdc://layer2/s14/defeater/bespoke_disguise_defeater",
+            "pdc://layer2/s14/defeater/confident_theater_defeater",
+            "pdc://layer2/s14/defeater/failure_boundary_defeater",
+            "pdc://layer2/s14/defeater/single_axis_universality_defeater",
+            "pdc://layer2/s14/defeater/frozen_once_defeater",
+            "pdc://layer2/s14/defeater/first_call_defeater",
+        ],
+        "skeptic_defeater_statuses": {
+            "bespoke_disguise_defeater": "pass",
+            "confident_theater_defeater": "pass",
+            "failure_boundary_defeater": "pass",
+            "single_axis_universality_defeater": "pass",
+            "frozen_once_defeater": "pass",
+            "first_call_defeater": "pass",
+        },
+        "s9_projection_faithfulness_refs": ["pdc://layer2/s9/faithfulness/public"],
+        "public_universality_limitation": (
+            "Scoped universality is projection-only and limited to the declared envelope."
+        ),
+        "authority_boundary": {
+            "authoritative_for": ["s14_universality_claim_gate"],
+            "may_not_use_for": [
+                "production_rollout_authority",
+                "production_recommendation",
+                "recommendation_authority",
+                "publication_authority",
+                "approval_authority",
+                "claim_authority",
+                "runtime_closeout_authority",
+                "scorecard_authority",
+                "preference_learning",
+                "automated_value_learning",
+                "aggregate_universal_score",
+            ],
+            "source_authority": "deterministic_producer",
+            "posture": "shadow",
+            "rule_version_refs": [S14_RULE_VERSION_REF],
+        },
+        "may_not_be_used_for": [
+            "production_rollout_authority",
+            "production_recommendation",
+            "recommendation_authority",
+            "publication_authority",
+            "approval_authority",
+            "claim_authority",
+            "runtime_closeout_authority",
+            "scorecard_authority",
+            "preference_learning",
+            "automated_value_learning",
+            "aggregate_universal_score",
+        ],
+        "rule_version_ref": S14_RULE_VERSION_REF,
+    }
+    payload.update(overrides)
+    return payload
+
+
+def test_public_export_surfaces_limited_universality_claim_as_projection_only() -> None:
+    bundle = build_public_export_bundle(
+        run_id="run-public-s14-universality",
+        artifacts={"public_summary": {"claim_refs": ["rec_1"]}},
+        authority_envelopes=[],
+        policy_design_case=policy_design_case(),
+        projection_payload=_s14_public_projection_payload(),
+    )
+
+    assert bundle["authority_role"] == "projection_only"
+    semantic_audit = bundle["semantic_audit"]
+    verification = semantic_audit["s14_universality_projection_contract_verification"]
+    assert verification["status"] == "pass"
+    projection = bundle["projection_semantics"]
+    assert projection["universality_claim_disposition"] == "universal_claim_limited"
+    assert projection["authority_role"] == "projection_only"
+    assert "production_recommendation" in projection["may_not_be_used_for"]
+
+
+def test_public_export_blocks_hidden_battery_material_and_gold_labels() -> None:
+    bundle = build_public_export_bundle(
+        run_id="run-public-s14-redaction",
+        artifacts={
+            "public_summary": {
+                "safe_ref": "pdc://layer2/s14/sealed-battery-run",
+                "sealed_fixture_contents": {"case_id": "s14-hidden"},
+                "gold_labels": ["sealed expected boundary"],
+                "expert_oracle_private_notes": "private oracle note",
+            }
+        },
+        authority_envelopes=[],
+        policy_design_case=policy_design_case(),
+        projection_payload=_s14_public_projection_payload(),
+    )
+
+    serialized = json.dumps(bundle)
+    assert "sealed_fixture_contents" not in serialized
+    assert "gold_labels" not in serialized
+    assert "expert_oracle_private_notes" not in serialized
+    assert bundle["redaction_summary"]["redacted_path_count"] >= 3
+
+
+def test_public_export_blocks_s14_as_production_or_recommendation_authority() -> None:
+    payload = _s14_public_projection_payload(
+        authority_boundary={
+            "authoritative_for": [
+                "s14_universality_claim_gate",
+                "production_rollout_authority",
+                "recommendation_authority",
+            ],
+            "may_not_use_for": ["claim_authority"],
+            "source_authority": "deterministic_producer",
+            "posture": "shadow",
+            "rule_version_refs": [S14_RULE_VERSION_REF],
+        }
+    )
+
+    with pytest.raises(
+        PublicExportRedactionError,
+        match="s14_as_production_or_recommendation_authority",
+    ):
+        build_public_export_bundle(
+            run_id="run-public-s14-authority-laundering",
+            artifacts={"public_summary": {"claim_refs": ["rec_1"]}},
+            authority_envelopes=[],
+            policy_design_case=policy_design_case(),
+            projection_payload=payload,
         )
 
 

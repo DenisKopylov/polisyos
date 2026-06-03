@@ -1,0 +1,14 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s14_grounded_authority_refs.v1",
+  "coverage_status": "pass",
+  "coverage_ref": "pdc://layer2/s14/grounded-authority-coverage",
+  "a_firewall_refs": ["pdc://layer2/s6/a-firewall/measurability", "pdc://layer2/s6/a-firewall/strategic-response"],
+  "claim_evidence_binding_refs": ["claim-binding://s14/universal-envelope/001"],
+  "value_choice_provenance_refs": ["value-choice://s8/s14/authorized-schedule"],
+  "mandate_legitimacy_refs": ["mandate://s14/governance-board/universality-claim"],
+  "capacity_check_refs": ["capacity://s14/capacity-constrained-cases"],
+  "regime_refs": ["regime://s14/epistemic-regime-stratification"],
+  "coupling_refs": ["coupling://s14/entangled-and-modular-cases"],
+  "projection_faithfulness_refs": ["pdc://layer2/s9/faithfulness/public-universal-claim"],
+  "in_envelope_axis_refs": ["SYSTEM.dynamics_feedback", "ACTOR.state_capacity_feasibility", "INTERVENTION.design_candidate"]
+}

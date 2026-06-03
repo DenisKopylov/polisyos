@@ -1,0 +1,32 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s14_d4_corpus_track_coverage.v1",
+  "coverage_status": "pass",
+  "track_rows": [
+    {"track_id": "grounding", "minimum_label_refs": ["label://d4/grounding/minimum"], "covered_case_refs": ["ua-msme-affordable-loans-2022", "w11a_pakistan_ehsaas_cash_2020"], "coverage_status": "pass", "limitation_refs": []},
+    {"track_id": "construct_demand", "minimum_label_refs": ["label://d4/construct-demand/minimum"], "covered_case_refs": ["ua-msme-affordable-loans-2022"], "coverage_status": "pass", "limitation_refs": []},
+    {"track_id": "acquisition_loop", "minimum_label_refs": ["label://d4/acquisition-loop/minimum"], "covered_case_refs": ["w11a_uk_mtd_vat_2019", "w11a_india_aadhaar_dbt_2016"], "coverage_status": "pass", "limitation_refs": []},
+    {"track_id": "epistemic_regime", "minimum_label_refs": ["label://d4/epistemic-regime/minimum"], "covered_case_refs": ["w11a_berlin_rent_cap_2020"], "coverage_status": "pass", "limitation_refs": []},
+    {"track_id": "coupling_modularity", "minimum_label_refs": ["label://d4/coupling-modularity/minimum"], "covered_case_refs": ["w11a_uk_mtd_vat_2019"], "coverage_status": "pass", "limitation_refs": []},
+    {"track_id": "axis_declaration", "minimum_label_refs": ["label://d4/axis-declaration/minimum"], "covered_case_refs": ["w11a_berlin_rent_cap_2020"], "coverage_status": "pass", "limitation_refs": []},
+    {"track_id": "cluster_ownership", "minimum_label_refs": ["label://d4/cluster-ownership/minimum"], "covered_case_refs": ["w11a_berlin_rent_cap_2020"], "coverage_status": "pass", "limitation_refs": []},
+    {"track_id": "scale_composition", "minimum_label_refs": ["label://d4/scale-composition/minimum"], "covered_case_refs": ["w11a_eu_temporary_protection_ukraine_2022"], "coverage_status": "pass", "limitation_refs": []},
+    {"track_id": "design_quality", "minimum_label_refs": ["label://d4/design-quality/minimum"], "covered_case_refs": ["w11a_uk_levelling_up_fund_2021", "w11a_netherlands_room_for_river_2007"], "coverage_status": "pass", "limitation_refs": []},
+    {"track_id": "search_control", "minimum_label_refs": ["label://d4/search-control/minimum"], "covered_case_refs": ["w11a_uk_levelling_up_fund_2021"], "coverage_status": "pass", "limitation_refs": []},
+    {"track_id": "delegation", "minimum_label_refs": ["label://d4/delegation/minimum"], "covered_case_refs": ["w11a_eu_temporary_protection_ukraine_2022"], "coverage_status": "pass", "limitation_refs": []},
+    {"track_id": "projection_lowering", "minimum_label_refs": ["label://d4/projection-lowering/minimum"], "covered_case_refs": ["ua-msme-affordable-loans-2022", "w11a_uk_mtd_vat_2019"], "coverage_status": "pass", "limitation_refs": []},
+    {"track_id": "bootstrap_resource", "minimum_label_refs": ["label://d4/bootstrap-resource/minimum"], "covered_case_refs": ["w11a_ghana_free_shs_2017", "w11a_us_ppp_2020"], "coverage_status": "pass", "limitation_refs": []},
+    {"track_id": "system_dynamics_backtest", "minimum_label_refs": ["label://d4/system-dynamics-backtest/minimum"], "covered_case_refs": ["w11a_boston_operation_ceasefire_1996", "w11a_netherlands_room_for_river_2007"], "coverage_status": "pass", "limitation_refs": []},
+    {"track_id": "post_deploy_accountability", "minimum_label_refs": ["label://d4/post-deploy-accountability/minimum"], "covered_case_refs": ["w11a_boston_operation_ceasefire_1996", "w11a_mexico_ssb_tax_2014"], "coverage_status": "pass", "limitation_refs": []},
+    {"track_id": "prediction_backtest", "minimum_label_refs": ["label://d4/prediction-backtest/minimum"], "covered_case_refs": ["w11a_mexico_ssb_tax_2014", "w11a_uk_work_programme_2011"], "coverage_status": "pass", "limitation_refs": []},
+    {"track_id": "adversarial", "minimum_label_refs": ["label://d4/adversarial/minimum"], "covered_case_refs": ["w11a_berlin_rent_cap_2020", "w11a_us_ppp_2020"], "coverage_status": "pass", "limitation_refs": []},
+    {"track_id": "odd_abstention", "minimum_label_refs": ["label://d4/odd-abstention/minimum"], "covered_case_refs": ["w11a_ghana_free_shs_2017", "w11a_uk_work_programme_2011"], "coverage_status": "pass", "limitation_refs": []},
+    {"track_id": "universality_battery", "minimum_label_refs": ["label://d4/universality-battery/minimum"], "covered_case_refs": ["w11a_eu_temporary_protection_ukraine_2022", "w11a_us_ppp_2020"], "coverage_status": "pass", "limitation_refs": []}
+  ],
+  "authority_boundary": {
+    "authoritative_for": ["d4_corpus_track_coverage"],
+    "may_not_use_for": ["production_recommendation", "claim_authority", "aggregate_universal_score"],
+    "source_authority": "deterministic_producer",
+    "posture": "shadow",
+    "rule_version_refs": ["policyos.layer2.s14.universality_assurance.v1"]
+  }
+}

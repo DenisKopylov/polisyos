@@ -1,0 +1,10 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s14_sealed_case.v1",
+  "case_id": "s14_strategic_tax_enforcement_response",
+  "hard_corner_id": "strategic_tax_enforcement_response",
+  "axis_refs": ["OTHER_AGENTS.strategic_response", "SYSTEM.nonstationarity", "KNOWLEDGE.calibration"],
+  "attack_refs": ["confident_theater_defeater", "first_call_defeater"],
+  "input_condition_ref": "sealed-input://s14/strategic-tax-enforcement-response",
+  "sealed_gold_label_ref": "sealed-gold://s14/strategic-tax-enforcement-response",
+  "expected_boundary_disposition": "limited_universal"
+}

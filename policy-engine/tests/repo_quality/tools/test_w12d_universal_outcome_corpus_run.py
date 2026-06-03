@@ -53,6 +53,10 @@ def _s13_blocks(report: dict[str, object]) -> list[dict[str, object]]:
     return [dict(case["s13_post_deploy_accountability"]) for case in report["cases"]]
 
 
+def _s14_blocks(report: dict[str, object]) -> list[dict[str, object]]:
+    return [dict(case["s14_universality_assurance"]) for case in report["cases"]]
+
+
 def test_w12d_manifest_is_deterministic_and_runs_real_corpus() -> None:
     manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
 
@@ -1884,3 +1888,142 @@ def test_w12d_s13_gold_labels_cover_all_13_cases_without_leaking_gold_into_signa
     }
     for row in signals["cases"].values():
         assert forbidden_gold_fields.isdisjoint(row)
+
+
+def test_w12d_emits_s14_dev_assurance_blocks_for_13_cases_without_sealed_access(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    assert all("s14_universality_assurance" in case for case in w12d_s9_report["cases"])
+    summary = dict(w12d_s9_report["s14_universality_assurance_summary"])
+    blocks = _s14_blocks(w12d_s9_report)
+
+    assert summary["case_count"] == 13
+    assert summary["sealed_battery_status"] == "not_accessed_in_dev"
+    assert summary["sealed_battery_access_attempted"] is False
+    assert summary["dev_sealed_battery_access_count"] == 0
+    assert summary["universal_claim_gate_status"] != "pass"
+    assert len(blocks) == 13
+    assert all(block["sealed_battery_status"] == "not_accessed_in_dev" for block in blocks)
+    assert all(block["sealed_battery_access_attempted"] is False for block in blocks)
+
+
+def test_w12d_s14_dev_route_preserves_s2_s9_s13_authority_boundaries(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    for case in w12d_s9_report["cases"]:
+        case = dict(case)
+        s2 = dict(case["s2_design_search"])
+        s9 = dict(case["s9_projection_lowering"])
+        s13 = dict(case["s13_post_deploy_accountability"])
+        s14 = dict(case["s14_universality_assurance"])
+
+        assert s14["canonical_outcome_effect"] == (
+            "universality_assurance_dev_shadow_only_not_claim_authority"
+        )
+        assert s14["authority_role"] == "projection_only"
+        assert "production_recommendation" in s14["may_not_use_for"]
+        assert "claim_authority" in s14["may_not_use_for"]
+        assert s9["authority_role"] == "projection_only"
+        assert s13["canonical_outcome_effect"] == (
+            "post_deploy_accountability_only_not_production_authority"
+        )
+        if case["case_id"] == "ua-msme-affordable-loans-2022":
+            assert s2["canonical_outcome_effect"] == "none_shadow_only"
+
+
+def test_w12d_s14_bare_universal_claim_negative_control_has_zero_false_clears(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    summary = dict(w12d_s9_report["s14_universality_assurance_summary"])
+
+    assert summary["bare_universal_claim_block_count"] >= 1
+    assert summary["aggregate_universal_number_block_count"] >= 1
+    assert summary["untested_axis_out_of_envelope_count"] >= 1
+    assert all(value == 0 for value in summary["false_clear_counts"].values())
+    assert set(summary["false_clear_counts"]) >= {
+        "bare_universal_claim_without_battery",
+        "sealed_battery_dev_access",
+        "aggregate_universal_number_laundering",
+        "gold_label_leak_into_dev_signal",
+    }
+    assert (
+        summary["negative_control_results"]["bare_universal_claim_without_battery_probe"][
+            "false_clear_count"
+        ]
+        == 0
+    )
+
+
+def test_w12d_s14_scorecard_refs_are_pending_sealed_not_passed_in_dev(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    summary = dict(w12d_s9_report["s14_universality_assurance_summary"])
+
+    assert summary["sealed_battery_status"] == "not_accessed_in_dev"
+    assert summary["universal_claim_gate_status"] != "pass"
+    for block in _s14_blocks(w12d_s9_report):
+        assert block["scorecard_status"] in {"pending_sealed", "not_tested", "limited"}
+        assert block["sealed_battery_ref"].startswith("partition://")
+        assert block["sealed_battery_status"] == "not_accessed_in_dev"
+        assert block["universal_claim_gate_status"] != "pass"
+
+
+def test_w12d_s14_gold_labels_cover_13_cases_without_leaking_into_signals() -> None:
+    labels = json.loads(
+        (
+            REPO_ROOT / "tests/fixtures/layer2/s14/s14_universality_expert_labels.json"
+        ).read_text(encoding="utf-8")
+    )
+    signals = json.loads(
+        (
+            REPO_ROOT / "tests/fixtures/layer2/s14/s14_universality_dev_signals.json"
+        ).read_text(encoding="utf-8")
+    )
+    expected_cases = {
+        path.stem for path in (REPO_ROOT / "tests/fixtures/universal-corpus/cases").glob("*.json")
+    }
+
+    assert set(labels["cases"]) == expected_cases
+    assert set(signals["cases"]) == expected_cases
+    assert any(
+        row["expected_declared_posture"] == "out_of_envelope"
+        for row in labels["cases"].values()
+    )
+
+    forbidden_gold_fields = {
+        "expected_declared_posture",
+        "expected_battery_status",
+        "expected_gate_disposition",
+        "expected_grounded_authority_status",
+        "expected_held_out_status",
+        "matches_gold",
+        "gold_label",
+        "answer_key",
+        "hidden_case_payload",
+        "sealed_fixture_contents",
+    }
+    for row in signals["cases"].values():
+        assert forbidden_gold_fields.isdisjoint(row)
+
+
+def test_w12d_s14_dev_route_emits_d4_status_composition_without_claim_authority(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    summary = dict(w12d_s9_report["s14_universality_assurance_summary"])
+
+    assert summary["d4_corpus_track_count"] == 19
+    assert summary["expert_oracle_layer_count"] == 4
+    assert summary["breadth_floor_status"] in {"pass", "limited", "blocked"}
+    assert summary["grounded_authority_coverage_status"] in {
+        "pass",
+        "limited",
+        "blocked",
+    }
+    assert summary["baseline_comparison_status"] in {"pass", "limited", "blocked"}
+    assert summary["evaluation_status_composition_status"] == "pass"
+    assert summary["envelope_revision_dynamics_status"] in {"pass", "limited", "blocked"}
+    for block in _s14_blocks(w12d_s9_report):
+        assert block["d4_corpus_track_coverage_ref"]
+        assert block["evaluation_status_composition_ref"]
+        assert block["authority_role"] == "projection_only"
+        assert "claim_authority" in block["may_not_use_for"]

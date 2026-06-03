@@ -1,0 +1,15 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s14_negative_control_probe.v1",
+  "probe_id": "battery_result_as_production_authority_probe",
+  "case_id": "w11a_netherlands_room_for_river_2007",
+  "false_clear_field": "battery_result_as_production_authority",
+  "expected_disposition": "blocked",
+  "authority_boundary": {
+    "authoritative_for": ["s14_universality_claim_gate", "production_rollout_authority"],
+    "may_not_use_for": ["claim_authority"],
+    "source_authority": "deterministic_producer",
+    "posture": "shadow",
+    "rule_version_refs": ["policyos.layer2.s14.universality_assurance.v1"]
+  },
+  "expected_false_clear_count": 0
+}

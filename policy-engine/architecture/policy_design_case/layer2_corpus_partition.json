@@ -11,7 +11,7 @@
     "path": "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery",
     "extensible": false,
     "access": "ci_gate_only",
-    "freeze_hash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "freeze_hash": "sha256:d9517e4b267f820cd85d6855cbfe000abdf62427882cfec5dd78d6eefdffb4d3",
     "owner": "governance-board"
   },
   "integrity_rule": "development code and fixtures must not read the sealed battery path"

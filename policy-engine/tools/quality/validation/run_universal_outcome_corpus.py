@@ -171,6 +171,12 @@ from polisyos.runtime.quality.layer2_substrate_acquisition import (  # noqa: E40
     ConstructExpression,
     SubstrateAcquisitionLoop,
 )
+from polisyos.runtime.quality.layer2_universality_assurance import (  # noqa: E402
+    LAYER2_S14_UNIVERSALITY_ASSURANCE_RULE_VERSION,
+    S14_FALSE_CLEAR_FIELDS,
+    build_s14_universality_authority_boundary,
+    verify_universality_claim_authority,
+)
 from polisyos.runtime.quality.producer_pipeline import (  # noqa: E402
     run_requirement_spec_producer_pipeline,
 )
@@ -254,6 +260,31 @@ S13_CASE_SIGNALS_PATH = Path(
 )
 S13_EXPERT_LABELS_PATH = Path(
     "tests/fixtures/layer2/s13/s13_post_deploy_expert_labels.json"
+)
+S14_DEV_SIGNALS_PATH = Path("tests/fixtures/layer2/s14/s14_universality_dev_signals.json")
+S14_EXPERT_LABELS_PATH = Path(
+    "tests/fixtures/layer2/s14/s14_universality_expert_labels.json"
+)
+S14_D4_TRACK_COVERAGE_PATH = Path(
+    "tests/fixtures/layer2/s14/s14_d4_corpus_track_coverage.json"
+)
+S14_ORACLE_BOOTSTRAP_PATH = Path(
+    "tests/fixtures/layer2/s14/s14_expert_oracle_bootstrap.json"
+)
+S14_BREADTH_FLOOR_PATH = Path(
+    "tests/fixtures/layer2/s14/s14_universality_breadth_floor_config.json"
+)
+S14_BASELINE_COMPARISON_PATH = Path(
+    "tests/fixtures/layer2/s14/s14_universality_baseline_comparison.json"
+)
+S14_GROUNDED_AUTHORITY_REFS_PATH = Path(
+    "tests/fixtures/layer2/s14/s14_grounded_authority_refs.json"
+)
+S14_STATUS_COMPOSITION_PATH = Path(
+    "tests/fixtures/layer2/s14/s14_evaluation_status_composition_cases.json"
+)
+S14_ENVELOPE_REVISION_DYNAMICS_PATH = Path(
+    "tests/fixtures/layer2/s14/s14_envelope_revision_dynamics.json"
 )
 S9_CASE_SIGNALS_PATH = Path("tests/fixtures/layer2/s9/s9_projection_lowering_case_signals.json")
 S9_EXPERT_LABELS_PATH = Path("tests/fixtures/layer2/s9/s9_projection_lowering_expert_labels.json")
@@ -420,6 +451,26 @@ S13_NEGATIVE_CONTROL_PROBE_PATHS: tuple[Path, ...] = (
     Path("tests/fixtures/layer2/s13/negative_controls/s13_as_production_or_recommendation_authority_probe.json"),
     Path("tests/fixtures/layer2/s13/negative_controls/monitoring_missing_for_deployable_probe.json"),
 )
+S14_NEGATIVE_CONTROL_PROBE_PATHS: tuple[Path, ...] = (
+    Path("tests/fixtures/layer2/s14/negative_controls/bare_universal_claim_without_battery_probe.json"),
+    Path("tests/fixtures/layer2/s14/negative_controls/sealed_battery_dev_access_probe.json"),
+    Path("tests/fixtures/layer2/s14/negative_controls/aggregate_universal_number_laundering_probe.json"),
+    Path("tests/fixtures/layer2/s14/negative_controls/untested_axis_combination_in_envelope_probe.json"),
+    Path("tests/fixtures/layer2/s14/negative_controls/bespoke_cost_hidden_as_generality_probe.json"),
+    Path("tests/fixtures/layer2/s14/negative_controls/skeptic_defeater_ignored_probe.json"),
+    Path("tests/fixtures/layer2/s14/negative_controls/faithfulness_claim_without_s9_probe.json"),
+    Path("tests/fixtures/layer2/s14/negative_controls/battery_result_as_production_authority_probe.json"),
+    Path("tests/fixtures/layer2/s14/negative_controls/gold_label_leak_into_dev_signal_probe.json"),
+    Path("tests/fixtures/layer2/s14/negative_controls/freeze_hash_mismatch_accepted_probe.json"),
+    Path("tests/fixtures/layer2/s14/negative_controls/d4_breadth_floor_missing_probe.json"),
+    Path("tests/fixtures/layer2/s14/negative_controls/expert_oracle_bootstrap_missing_probe.json"),
+    Path("tests/fixtures/layer2/s14/negative_controls/weak_gold_floor_laundering_probe.json"),
+    Path("tests/fixtures/layer2/s14/negative_controls/shadow_candidate_oracle_laundering_probe.json"),
+    Path("tests/fixtures/layer2/s14/negative_controls/grounded_authority_refs_missing_probe.json"),
+    Path("tests/fixtures/layer2/s14/negative_controls/status_composition_laundering_probe.json"),
+    Path("tests/fixtures/layer2/s14/negative_controls/envelope_revision_freeze_laundering_probe.json"),
+    Path("tests/fixtures/layer2/s14/negative_controls/baseline_comparison_missing_probe.json"),
+)
 S8_MAY_NOT_USE_FOR: tuple[str, ...] = (
     "production_recommendation",
     "production_claim_authority",
@@ -559,6 +610,10 @@ def build_w12d_universal_outcome_corpus_report(
         cases,
         repo_root=Path(repo_root),
     )
+    s14_universality_assurance_summary = _s14_universality_dev_summary(
+        cases,
+        repo_root=Path(repo_root),
+    )
     status = "blocked" if rollout_blockers else "pass"
     return {
         "schema_version": SCHEMA_VERSION,
@@ -582,6 +637,7 @@ def build_w12d_universal_outcome_corpus_report(
         "s12_resource_economics_summary": s12_resource_economics_summary,
         "s9_projection_lowering_summary": s9_projection_lowering_summary,
         "s13_post_deploy_accountability_summary": s13_post_deploy_accountability_summary,
+        "s14_universality_assurance_summary": s14_universality_assurance_summary,
         "cases": cases,
         "authority_level_metric_stratification": _authority_stratification(cases),
         "domain_authority_metric_stratification": _domain_authority_stratification(cases),
@@ -1237,6 +1293,13 @@ def _run_case(
         s9_projection_lowering=s9_projection_lowering,
         s12_resource_economics=s12_resource_economics,
     )
+    s14_universality_assurance = _s14_universality_dev_case_block(
+        case,
+        repo_root=repo_root,
+        s9_projection_lowering=s9_projection_lowering,
+        s12_resource_economics=s12_resource_economics,
+        s13_post_deploy_accountability=s13_post_deploy_accountability,
+    )
     return {
         "case_id": case_id,
         "source_path": source_path or None,
@@ -1263,6 +1326,7 @@ def _run_case(
         "s12_resource_economics": s12_resource_economics,
         "s9_projection_lowering": s9_projection_lowering,
         "s13_post_deploy_accountability": s13_post_deploy_accountability,
+        "s14_universality_assurance": s14_universality_assurance,
         "closeout_visible_refs": _closeout_visible_refs(
             s7_delegation=s7_delegation,
             s8_value_choice=s8_value_choice,
@@ -2800,6 +2864,7 @@ def _s9_projection_lowering_case_block(
         "post_closeout_state": _text(signals.get("post_closeout_state"))
         or "open_projection_only",
         "canonical_outcome_effect": "none_projection_only_or_reissue_required",
+        "authority_role": "projection_only",
         "public_projection_omission_manifest": [
             {
                 "omission_code": "s9_public_projection_missing_limitation",
@@ -5599,6 +5664,284 @@ def _s13_post_deploy_accountability_summary(
     for field, count in false_clear_counts.items():
         summary[f"{field}_false_clear_count"] = count
     return summary
+
+
+def _s14_universality_dev_case_block(
+    case: Mapping[str, object],
+    *,
+    repo_root: Path,
+    s9_projection_lowering: Mapping[str, object],
+    s12_resource_economics: Mapping[str, object],
+    s13_post_deploy_accountability: Mapping[str, object],
+) -> dict[str, object]:
+    """Build the W12.D S14 dev-shadow block without sealed battery access."""
+
+    case_id = _required_text(case.get("case_id") or case.get("id"), field_name="case_id")
+    signals = _s14_case_signals(repo_root).get(case_id)
+    labels = _s14_expert_labels(repo_root).get(case_id)
+    if not signals or not labels:
+        raise W12DCaseRunError(f"S14 universality dev fixture missing for {case_id}")
+
+    boundary = build_s14_universality_authority_boundary(
+        authoritative_for=["declared_operation_envelope"]
+    )
+    block = {
+        "schema_version": "policyos.policy_design_case.layer2_s14_dev_shadow.v1",
+        "case_id": case_id,
+        "s14_dev_signal_ref": _required_text(
+            signals.get("s14_dev_signal_ref"),
+            field_name="s14_dev_signal_ref",
+        ),
+        "sealed_battery_status": "not_accessed_in_dev",
+        "sealed_battery_access_attempted": False,
+        "sealed_battery_ref": _required_text(
+            _s14_dev_signals_payload(repo_root).get("sealed_battery_ref"),
+            field_name="sealed_battery_ref",
+        ),
+        "dev_shadow_run_mode": "dev_shadow_no_hidden_access",
+        "scorecard_status": _text(signals.get("scorecard_status")) or "pending_sealed",
+        "universal_claim_gate_status": "pending_sealed",
+        "claim_gate_disposition": _text(labels.get("expected_gate_disposition")),
+        "declared_posture": _text(labels.get("expected_declared_posture")) or "not_tested",
+        "battery_status": _text(labels.get("expected_battery_status")) or "not_tested",
+        "grounded_authority_status": (
+            _text(labels.get("expected_grounded_authority_status")) or "limited"
+        ),
+        "held_out_status": _text(labels.get("expected_held_out_status")) or "pending_s14",
+        "declared_axis_refs": _text_list(signals.get("declared_axis_refs")),
+        "d4_track_refs": _text_list(signals.get("d4_track_refs")),
+        "s9_projection_faithfulness_refs": _text_list(
+            signals.get("s9_projection_faithfulness_refs")
+        )
+        or _text_list(s9_projection_lowering.get("projection_render_refs")),
+        "grounded_authority_ref": _text(signals.get("grounded_authority_ref")) or None,
+        "capability_reality_report_ref": _text(
+            signals.get("capability_reality_report_ref")
+        )
+        or None,
+        "growth_thermometer_ref": _text(signals.get("growth_thermometer_ref"))
+        or _text(s12_resource_economics.get("growth_thermometer_ref"))
+        or None,
+        "envelope_growth_ledger_ref": _text(signals.get("envelope_growth_ledger_ref"))
+        or _text(s12_resource_economics.get("envelope_growth_ledger_ref"))
+        or None,
+        "envelope_revision_ref": _text(signals.get("envelope_revision_ref"))
+        or _text(s13_post_deploy_accountability.get("envelope_revision_ref"))
+        or None,
+        "certified_envelope_delta_ref": _text(signals.get("certified_envelope_delta_ref"))
+        or _text(s13_post_deploy_accountability.get("certified_envelope_delta_ref"))
+        or None,
+        "d4_corpus_track_coverage_ref": "pdc://layer2/s14/d4-corpus-track-coverage",
+        "expert_oracle_bootstrap_ref": "pdc://layer2/s14/expert-oracle-bootstrap",
+        "breadth_floor_config_ref": "pdc://layer2/s14/breadth-floor-config",
+        "baseline_comparison_ref": "pdc://layer2/s14/baseline-comparison",
+        "grounded_authority_coverage_ref": "pdc://layer2/s14/grounded-authority-coverage",
+        "evaluation_status_composition_ref": "pdc://layer2/s14/evaluation-status-composition",
+        "envelope_revision_dynamics_ref": "pdc://layer2/s14/envelope-revision-dynamics",
+        "signal_limitation_refs": _text_list(signals.get("signal_limitation_refs")),
+        "canonical_outcome_effect": (
+            "universality_assurance_dev_shadow_only_not_claim_authority"
+        ),
+        "authority_role": "projection_only",
+        "authority_boundary": boundary.model_dump(mode="json"),
+        "may_not_use_for": list(boundary.may_not_use_for),
+        "rule_version_ref": LAYER2_S14_UNIVERSALITY_ASSURANCE_RULE_VERSION,
+    }
+    block["matches_gold"] = _s14_matches_gold(block, labels)
+    return block
+
+
+def _s14_universality_dev_summary(
+    cases: Sequence[Mapping[str, Any]],
+    *,
+    repo_root: Path,
+) -> dict[str, object]:
+    rows = [
+        _mapping(case.get("s14_universality_assurance"))
+        for case in cases
+        if isinstance(case.get("s14_universality_assurance"), Mapping)
+    ]
+    d4 = _s14_fixture(repo_root, S14_D4_TRACK_COVERAGE_PATH)
+    oracle = _s14_fixture(repo_root, S14_ORACLE_BOOTSTRAP_PATH)
+    breadth = _s14_fixture(repo_root, S14_BREADTH_FLOOR_PATH)
+    grounded = _s14_fixture(repo_root, S14_GROUNDED_AUTHORITY_REFS_PATH)
+    baseline = _s14_fixture(repo_root, S14_BASELINE_COMPARISON_PATH)
+    composition = _s14_fixture(repo_root, S14_STATUS_COMPOSITION_PATH)
+    envelope = _s14_fixture(repo_root, S14_ENVELOPE_REVISION_DYNAMICS_PATH)
+    negative_results = _s14_negative_control_probe_results(repo_root)
+    false_clear_counts = {
+        field: _s14_false_clear_count(negative_results, field)
+        for field in S14_FALSE_CLEAR_FIELDS
+    }
+    universal_statuses = {_text(row.get("universal_claim_gate_status")) for row in rows}
+    universal_claim_gate_status = "pending_sealed"
+    if universal_statuses and universal_statuses <= {"blocked"}:
+        universal_claim_gate_status = "blocked"
+
+    summary: dict[str, object] = {
+        "schema_version": "policyos.policy_design_case.layer2_s14_dev_shadow_summary.v1",
+        "summary_id": "layer2.s14.universality_assurance.w12d.dev.summary",
+        "case_count": len(rows),
+        "sealed_battery_status": "not_accessed_in_dev",
+        "sealed_battery_access_attempted": False,
+        "dev_sealed_battery_access_count": sum(
+            1 for row in rows if row.get("sealed_battery_access_attempted") is True
+        ),
+        "universal_claim_gate_status": universal_claim_gate_status,
+        "d4_corpus_track_count": len(_sequence_of_mappings(d4.get("track_rows"))),
+        "expert_oracle_layer_count": len(_sequence_of_mappings(oracle.get("oracle_layers"))),
+        "breadth_floor_status": _s14_breadth_floor_status(breadth),
+        "grounded_authority_coverage_status": _text(grounded.get("coverage_status"))
+        or "blocked",
+        "baseline_comparison_status": _text(baseline.get("comparison_status"))
+        or "blocked",
+        "evaluation_status_composition_status": _text(composition.get("composition_status"))
+        or "blocked",
+        "envelope_revision_dynamics_status": _text(envelope.get("dynamics_status"))
+        or "blocked",
+        "bare_universal_claim_block_count": _s14_block_count(
+            negative_results,
+            "bare_universal_claim_without_battery",
+        ),
+        "aggregate_universal_number_block_count": _s14_block_count(
+            negative_results,
+            "aggregate_universal_number_laundering",
+        ),
+        "untested_axis_out_of_envelope_count": _s14_block_count(
+            negative_results,
+            "untested_axis_combination_in_envelope",
+        ),
+        "false_clear_counts": false_clear_counts,
+        "negative_control_results": negative_results,
+        "per_case_universality_table": [
+            {
+                "case_id": row.get("case_id"),
+                "sealed_battery_status": row.get("sealed_battery_status"),
+                "scorecard_status": row.get("scorecard_status"),
+                "universal_claim_gate_status": row.get("universal_claim_gate_status"),
+                "declared_posture": row.get("declared_posture"),
+                "grounded_authority_status": row.get("grounded_authority_status"),
+                "matches_gold": row.get("matches_gold"),
+            }
+            for row in rows
+        ],
+        "authority_boundary": build_s14_universality_authority_boundary(
+            authoritative_for=["declared_operation_envelope"]
+        ).model_dump(mode="json"),
+        "rule_version_ref": LAYER2_S14_UNIVERSALITY_ASSURANCE_RULE_VERSION,
+    }
+    for field, count in false_clear_counts.items():
+        summary[f"{field}_false_clear_count"] = count
+    return summary
+
+
+def _s14_negative_control_probe_results(
+    repo_root: Path,
+) -> dict[str, dict[str, object]]:
+    results: dict[str, dict[str, object]] = {}
+    for probe_path in S14_NEGATIVE_CONTROL_PROBE_PATHS:
+        payload = _s14_fixture(repo_root, probe_path)
+        probe_id = _required_text(payload.get("probe_id"), field_name="probe_id")
+        false_clear_field = _text(payload.get("false_clear_field")) or None
+        expected_disposition = _required_text(
+            payload.get("expected_disposition"),
+            field_name="expected_disposition",
+        )
+        expected_false_clear_count = int(payload.get("expected_false_clear_count") or 0)
+        verification = verify_universality_claim_authority(payload)
+        issue_codes = [
+            _text(issue.get("code"))
+            for issue in _sequence_of_mappings(verification.get("issues"))
+        ]
+        observed_disposition = _s14_probe_disposition(issue_codes)
+        negative_control_false_clear = observed_disposition != expected_disposition
+        false_clear_count = (
+            max(1, expected_false_clear_count)
+            if negative_control_false_clear and false_clear_field
+            else expected_false_clear_count
+        )
+        results[probe_id] = {
+            "probe_id": probe_id,
+            "case_id": _text(payload.get("case_id")),
+            "false_clear_field": false_clear_field,
+            "observed_disposition": observed_disposition,
+            "expected_disposition": expected_disposition,
+            "issue_codes": [code for code in issue_codes if code],
+            "false_clear_count": false_clear_count,
+            "expected_false_clear_count": expected_false_clear_count,
+            "negative_control_false_clear": (
+                negative_control_false_clear
+                or false_clear_count != expected_false_clear_count
+            ),
+        }
+    return results
+
+
+def _s14_probe_disposition(issue_codes: Sequence[str]) -> str:
+    return "blocked" if any(issue_codes) else "pass"
+
+
+def _s14_false_clear_count(
+    results: Mapping[str, Mapping[str, object]],
+    false_clear_field: str,
+) -> int:
+    return sum(
+        1
+        for row in results.values()
+        if row.get("false_clear_field") == false_clear_field
+        and row.get("negative_control_false_clear")
+    )
+
+
+def _s14_block_count(
+    results: Mapping[str, Mapping[str, object]],
+    false_clear_field: str,
+) -> int:
+    return sum(
+        1
+        for row in results.values()
+        if row.get("false_clear_field") == false_clear_field
+        and row.get("observed_disposition") == "blocked"
+    )
+
+
+def _s14_matches_gold(block: Mapping[str, object], labels: Mapping[str, object]) -> bool:
+    return (
+        _text(block.get("declared_posture")) == _text(labels.get("expected_declared_posture"))
+        and _text(block.get("battery_status")) == _text(labels.get("expected_battery_status"))
+        and _text(block.get("claim_gate_disposition"))
+        == _text(labels.get("expected_gate_disposition"))
+        and _text(block.get("grounded_authority_status"))
+        == _text(labels.get("expected_grounded_authority_status"))
+        and _text(block.get("held_out_status")) == _text(labels.get("expected_held_out_status"))
+    )
+
+
+def _s14_breadth_floor_status(payload: Mapping[str, object]) -> str:
+    status = _text(payload.get("status"))
+    if status == "ratified":
+        return "pass"
+    return status or "blocked"
+
+
+def _s14_case_signals(repo_root: Path) -> dict[str, dict[str, Any]]:
+    payload = _s14_dev_signals_payload(repo_root)
+    cases = _mapping(payload.get("cases"))
+    return {case_id: dict(row) for case_id, row in cases.items() if isinstance(row, Mapping)}
+
+
+def _s14_expert_labels(repo_root: Path) -> dict[str, dict[str, Any]]:
+    payload = _s14_fixture(repo_root, S14_EXPERT_LABELS_PATH)
+    cases = _mapping(payload.get("cases"))
+    return {case_id: dict(row) for case_id, row in cases.items() if isinstance(row, Mapping)}
+
+
+def _s14_dev_signals_payload(repo_root: Path) -> dict[str, Any]:
+    return _s14_fixture(repo_root, S14_DEV_SIGNALS_PATH)
+
+
+def _s14_fixture(repo_root: Path, path: Path) -> dict[str, Any]:
+    return json.loads(_resolve(repo_root, path).read_text(encoding="utf-8"))
 
 
 def _s13_negative_control_probe_results(

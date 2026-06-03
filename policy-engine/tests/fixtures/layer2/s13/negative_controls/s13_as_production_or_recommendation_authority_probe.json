@@ -1,0 +1,15 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s13_negative_control_probe.v1",
+  "probe_id": "s13_as_production_or_recommendation_authority_probe",
+  "case_id": "ua-msme-affordable-loans-2022",
+  "false_clear_field": "s13_as_production_or_recommendation_authority",
+  "expected_disposition": "blocked",
+  "authority_boundary": {
+    "authoritative_for": ["production_rollout_authority", "recommendation_authority"],
+    "may_not_use_for": ["publication_authority"],
+    "source_authority": "deterministic_producer",
+    "posture": "shadow",
+    "rule_version_refs": ["policyos.layer2.s13.post_deploy_accountability.v1"]
+  },
+  "expected_false_clear_count": 0
+}

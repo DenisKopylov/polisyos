@@ -1,0 +1,11 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s13_negative_control_probe.v1",
+  "probe_id": "learning_without_attribution_probe",
+  "case_id": "w11a_uk_levelling_up_fund_2021",
+  "false_clear_field": "learning_without_attribution",
+  "expected_disposition": "blocked",
+  "attribution_status": "pending",
+  "learning_allowed": true,
+  "learning_update_target": "envelope",
+  "expected_false_clear_count": 0
+}

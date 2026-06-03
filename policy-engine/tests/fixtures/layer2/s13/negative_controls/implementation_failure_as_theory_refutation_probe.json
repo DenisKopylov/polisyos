@@ -1,0 +1,11 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s13_negative_control_probe.v1",
+  "probe_id": "implementation_failure_as_theory_refutation_probe",
+  "case_id": "w11a_ghana_free_shs_2017",
+  "false_clear_field": "implementation_failure_as_theory_refutation",
+  "expected_disposition": "accountability_only",
+  "attribution_class": "implementation_failure",
+  "policy_theory_refuted": true,
+  "independent_theory_refutation_ref": null,
+  "expected_false_clear_count": 0
+}

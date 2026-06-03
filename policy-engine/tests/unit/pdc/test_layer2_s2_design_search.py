@@ -737,6 +737,92 @@ def _s12_resource_posture(**overrides: object) -> object:
     return posture_model(**payload)
 
 
+def _s13_accountability_posture(**overrides: object) -> object:
+    posture_model = pdc.Layer2S13PostDeployAccountabilityPostureInput
+    payload: dict[str, object] = {
+        "phase": "post_deploy_finalized",
+        "accountability_posture_ref": "pdc://layer2/s13/ua-msme/accountability-posture",
+        "deployment_dossier_ref": "pdc://layer2/s13/ua-msme/deployment-dossier",
+        "divergence_record_refs": [
+            "pdc://layer2/s13/ua-msme/divergence/seeded-disconfirmation"
+        ],
+        "learning_update_proposal_refs": [
+            "learning-proposal://ua-msme/envelope-shrink"
+        ],
+        "envelope_revision_ref": "envelope-revision://ua-msme/shrink/001",
+        "certified_envelope_delta_ref": "certified-envelope-delta://ua-msme/s12-growth",
+        "assurance_case_delta_ref": "assurance-delta://ua-msme/s13/weakened",
+        "attribution_status": "attributed",
+        "attribution_classes": ["design_error"],
+        "learning_change_control_classes": ["reissue_required"],
+        "lifecycle_reissue_disposition": "reissue_required",
+        "envelope_revision_direction": "shrink",
+        "assurance_case_change": "weakened",
+        "mape_k_trace_ref": "mape-k://ua-msme/post-deploy",
+        "public_revision_state_ref": "public-revision-state://ua-msme/s13/001",
+        "public_accountability_note_ref": "public-note://ua-msme/s13/accountability",
+        "action_item_status": "closed",
+        "action_item_closure_refs": ["closure://ua-msme/s13/action-item/001"],
+        "human_decision_request_refs": ["human-decision-request://ua-msme/s13/reissue"],
+        "human_decision_record_refs": ["human-decision-record://ua-msme/s13/reissue"],
+        "oversight_effectiveness_ref": "oversight://ua-msme/effectiveness/001",
+        "oversight_accountability_state": "rubber_stamp_divergence_review_required",
+        "a_before_b_status": "pass",
+        "historical_prior_influence_refs": [
+            "historical-prior-influence:ua-msme/default-risk-route"
+        ],
+        "replay_digest": "sha256:" + "a" * 64,
+        "authority_boundary": {
+            "authoritative_for": [
+                "post_deploy_accountability",
+                "deployment_monitorability",
+                "divergence_attribution",
+                "learning_update_proposal",
+                "post_deploy_mape_k_trace",
+                "envelope_revision",
+                "assurance_case_delta",
+                "public_accountability_note",
+            ],
+            "may_not_use_for": [
+                "production_rollout_authority",
+                "recommendation_authority",
+                "publication_authority",
+                "approval_authority",
+                "scorecard_authority",
+                "pre_policy_evidence",
+                "current_evidence_slot",
+                "preference_learning",
+                "automated_value_learning",
+                "naive_ml_update",
+                "s14_universality",
+                "llm_attribution_authority",
+                "local_governance_enum_for_reissue",
+            ],
+            "source_authority": "deterministic_producer",
+            "posture": "shadow",
+            "rule_version_refs": ["policyos.layer2.s13.post_deploy_accountability.v1"],
+        },
+        "may_not_use_for": [
+            "production_rollout_authority",
+            "recommendation_authority",
+            "publication_authority",
+            "approval_authority",
+            "scorecard_authority",
+            "pre_policy_evidence",
+            "current_evidence_slot",
+            "preference_learning",
+            "automated_value_learning",
+            "naive_ml_update",
+            "s14_universality",
+            "llm_attribution_authority",
+            "local_governance_enum_for_reissue",
+        ],
+        "rule_version_ref": "policyos.layer2.s13.post_deploy_accountability.v1",
+    }
+    payload.update(overrides)
+    return posture_model(**payload)
+
+
 def test_s2_shadow_loop_emits_grammar_candidate_counterexample_refinement_and_record() -> None:
     run = run_s2_shadow_design_loop(_input())
 
@@ -2159,6 +2245,193 @@ def test_s2_does_not_import_layer2_resource_economics() -> None:
     assert "polisyos.runtime.quality.layer2_resource_economics" not in source
     assert "layer2_resource_economics" not in source
     assert "build_s12_resource_economics_posture" not in source
+
+
+def test_s2_consumes_s13_posture_as_reissue_accountability_constraint_not_recommendation_authority() -> None:
+    posture = _s13_accountability_posture()
+
+    run = run_s2_shadow_design_loop(_input(), accountability_posture=posture)
+    public_projection = project_s2_design_search(run, audiences=("PUBLIC",))["PUBLIC"]
+
+    assert run.accountability_posture == posture
+    assert run.search_ledger.accountability_posture_refs == [
+        posture.accountability_posture_ref
+    ]
+    assert run.search_ledger.lifecycle_reissue_dispositions == [
+        posture.lifecycle_reissue_disposition
+    ]
+    assert "recommendation_authority" in public_projection["authority_boundary"][
+        "may_not_use_for"
+    ]
+    assert "production_recommendation_text" not in json.dumps(public_projection)
+
+
+def test_s2_s13_replay_digest_changes_only_when_accountability_posture_changes() -> None:
+    no_s13_first = run_s2_shadow_design_loop(_input())
+    no_s13_second = run_s2_shadow_design_loop(_input())
+    first = run_s2_shadow_design_loop(
+        _input(), accountability_posture=_s13_accountability_posture()
+    )
+    second = run_s2_shadow_design_loop(
+        _input(), accountability_posture=_s13_accountability_posture()
+    )
+    changed = run_s2_shadow_design_loop(
+        _input(),
+        accountability_posture=_s13_accountability_posture(
+            envelope_revision_ref="envelope-revision://ua-msme/split/002",
+            replay_digest="sha256:" + "b" * 64,
+        ),
+    )
+
+    assert no_s13_first.search_ledger.deterministic_replay_key == (
+        no_s13_second.search_ledger.deterministic_replay_key
+    )
+    assert first.search_ledger.deterministic_replay_key == (
+        second.search_ledger.deterministic_replay_key
+    )
+    assert first.search_ledger.deterministic_replay_key != (
+        changed.search_ledger.deterministic_replay_key
+    )
+
+
+def test_s2_s13_defaults_preserve_legacy_cas_payloads() -> None:
+    legacy_payload = run_s2_shadow_design_loop(_input()).search_ledger.model_dump(mode="json")
+    legacy_s13_fields = (
+        "accountability_posture_refs",
+        "accountability_phase",
+        "deployment_dossier_refs",
+        "divergence_record_refs",
+        "learning_update_proposal_refs",
+        "envelope_revision_refs",
+        "certified_envelope_delta_refs",
+        "assurance_case_delta_refs",
+        "mape_k_trace_refs",
+        "public_revision_state_refs",
+        "public_accountability_note_refs",
+        "action_item_statuses",
+        "action_item_closure_refs",
+        "human_decision_request_refs",
+        "human_decision_record_refs",
+        "historical_prior_influence_refs",
+        "attribution_status",
+        "lifecycle_reissue_dispositions",
+        "envelope_revision_direction",
+        "oversight_accountability_state",
+        "a_before_b_status",
+        "accountability_authority_boundary",
+    )
+    for field_name in legacy_s13_fields:
+        legacy_payload.pop(field_name, None)
+
+    loaded = SearchLedger.model_validate(legacy_payload)
+
+    assert loaded.accountability_posture_refs == []
+    assert loaded.deployment_dossier_refs == []
+    assert loaded.divergence_record_refs == []
+    assert loaded.accountability_phase == "not_applicable"
+    assert loaded.accountability_authority_boundary is None
+
+
+def test_s2_s13_persisted_search_ledger_round_trips_accountability_refs(
+    tmp_path: Path,
+) -> None:
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.pdc import load_s2_search_ledger, persist_s2_design_search_run
+
+    posture = _s13_accountability_posture()
+    run = run_s2_shadow_design_loop(_input(), accountability_posture=posture)
+    store = FileSystemCAS(tmp_path / "cas")
+    refs = persist_s2_design_search_run(run, store=store)
+
+    loaded = load_s2_search_ledger(store=store, artifact_ref=refs["search_ledger"])
+
+    assert loaded.accountability_posture_refs == [posture.accountability_posture_ref]
+    assert loaded.deployment_dossier_refs == [posture.deployment_dossier_ref]
+    assert loaded.divergence_record_refs == list(posture.divergence_record_refs)
+    assert loaded.envelope_revision_refs == [posture.envelope_revision_ref]
+    assert loaded.assurance_case_delta_refs == [posture.assurance_case_delta_ref]
+
+
+def test_s2_s13_design_time_gate_posture_is_gate_only_without_post_deploy_refs() -> None:
+    posture = _s13_accountability_posture(
+        phase="design_time_gate",
+        divergence_record_refs=[],
+        learning_update_proposal_refs=[],
+        envelope_revision_ref=None,
+        certified_envelope_delta_ref=None,
+        assurance_case_delta_ref=None,
+        attribution_status=None,
+        attribution_classes=[],
+        learning_change_control_classes=[],
+        lifecycle_reissue_disposition=None,
+        envelope_revision_direction=None,
+        assurance_case_change=None,
+        mape_k_trace_ref=None,
+        public_revision_state_ref=None,
+        public_accountability_note_ref=None,
+        action_item_status=None,
+        action_item_closure_refs=[],
+        oversight_accountability_state=None,
+        a_before_b_status=None,
+        historical_prior_influence_refs=[],
+    )
+
+    run = run_s2_shadow_design_loop(_input(), accountability_posture=posture)
+
+    assert run.accountability_posture.phase == "design_time_gate"
+    assert run.search_ledger.divergence_record_refs == []
+    assert run.search_ledger.learning_update_proposal_refs == []
+
+    with pytest.raises(Exception, match=r"design_time_gate|post_deploy"):
+        _s13_accountability_posture(
+            phase="design_time_gate",
+            divergence_record_refs=[
+                "pdc://layer2/s13/ua-msme/divergence/seeded-disconfirmation"
+            ],
+        )
+
+
+def test_s2_s13_handoff_records_accountability_refs_not_production_authority() -> None:
+    posture = _s13_accountability_posture()
+    run = run_s2_shadow_design_loop(_input(), accountability_posture=posture)
+
+    rendered_interfaces = json.dumps(
+        [row.model_dump(mode="json") for row in run.cluster_interface_contracts],
+        sort_keys=True,
+    )
+    rendered_handoffs = json.dumps(
+        [row.model_dump(mode="json") for row in run.handoff_records],
+        sort_keys=True,
+    )
+
+    assert "Layer2S13PostDeployAccountabilityPostureInput" in rendered_interfaces
+    assert "Layer2S13PostDeployAccountabilityPostureInput" in rendered_handoffs
+    assert posture.public_accountability_note_ref in rendered_handoffs
+    assert "production_rollout_authority" in rendered_handoffs
+    assert "recommendation_authority" not in rendered_interfaces
+
+
+def test_s2_s13_uses_existing_governance_decision_refs_without_local_reissue_enum() -> None:
+    posture = _s13_accountability_posture()
+    run = run_s2_shadow_design_loop(_input(), accountability_posture=posture)
+
+    rendered = json.dumps(run.model_dump(mode="json"), sort_keys=True)
+
+    assert posture.human_decision_request_refs
+    assert posture.human_decision_record_refs
+    assert "GovernanceDecisionClass" in rendered or "human-decision-record" in rendered
+    assert "local_s13_reissue_status" not in rendered
+    assert "local_governance_enum_for_reissue" in posture.may_not_use_for
+
+
+def test_s2_does_not_import_layer2_post_deploy_accountability() -> None:
+    source = (
+        REPO_ROOT / "src/polisyos/pdc/_impl/layer2_design_search.py"
+    ).read_text(encoding="utf-8")
+
+    assert "polisyos.runtime.quality.layer2_post_deploy_accountability" not in source
+    assert "layer2_post_deploy_accountability" not in source
+    assert "build_s13_post_deploy_accountability_posture" not in source
 
 
 def test_s11_weakest_boundary_caps_search_ledger_projection() -> None:

@@ -19,6 +19,7 @@ S9_RULE_VERSION_REF = "policyos.layer2.s9.projection_lowering.v1"
 S10_RULE_VERSION_REF = "policyos.layer2.s10.outcome_prediction.v1"
 S11_RULE_VERSION_REF = "policyos.layer2.s11.predictive_knowledge.v1"
 S12_RULE_VERSION_REF = "policyos.layer2.s12.resource_economics.v1"
+S13_RULE_VERSION_REF = "policyos.layer2.s13.post_deploy_accountability.v1"
 
 
 def _s9_public_faithfulness_payload(**overrides: object) -> dict[str, object]:
@@ -263,6 +264,109 @@ def _s12_public_projection_payload(**overrides: object) -> dict[str, object]:
             "s14_universality",
         ],
         "rule_version_ref": S12_RULE_VERSION_REF,
+    }
+    payload.update(overrides)
+    return payload
+
+
+def _s13_public_projection_payload(**overrides: object) -> dict[str, object]:
+    payload: dict[str, object] = {
+        "public_export_classification": "public_redacted_projection",
+        "decision_context": {"public_export_status": "publishable"},
+        "audience": "PUBLIC",
+        "authority_role": "projection_only",
+        "projection_policy": "reads_s13_post_deploy_accountability_posture",
+        "accountability_posture_ref": "pdc://layer2/s13/ua-msme/accountability-posture",
+        "deployment_dossier_ref": "pdc://layer2/s13/ua-msme/deployment-dossier",
+        "divergence_record_refs": [
+            "pdc://layer2/s13/ua-msme/divergence/seeded-disconfirmation"
+        ],
+        "learning_update_proposal_refs": [
+            "learning-proposal://ua-msme/envelope-shrink"
+        ],
+        "envelope_revision_ref": "envelope-revision://ua-msme/shrink/001",
+        "certified_envelope_delta_ref": "certified-envelope-delta://ua-msme/s12-growth",
+        "assurance_case_delta_ref": "assurance-delta://ua-msme/s13/weakened",
+        "attribution_status": "attributed",
+        "attribution_classes": ["design_error"],
+        "learning_change_control_classes": ["reissue_required"],
+        "lifecycle_reissue_disposition": "reissue_required",
+        "envelope_revision_direction": "shrink",
+        "assurance_case_change": "weakened",
+        "mape_k_trace_ref": "mape-k://ua-msme/post-deploy",
+        "public_revision_state_ref": "public-revision-state://ua-msme/s13/001",
+        "public_accountability_note_ref": "public-note://ua-msme/s13/accountability",
+        "public_accountability_note": (
+            "Post-deploy divergence is attributed and routed to reissue without "
+            "rewriting the closed case."
+        ),
+        "public_revision_state": {
+            "revision_state_id": "public-revision-state://ua-msme/s13/001",
+            "affected_claim_ids": ["rec_1"],
+            "unaffected_claim_ids": ["rec_2"],
+            "public_diffs": [
+                {
+                    "claim_id": "rec_1",
+                    "revision_kind": "post_deploy_accountability_note",
+                    "public_reason": "Post-deploy divergence attributed to design error.",
+                }
+            ],
+            "closed_case_historical_meaning": "preserved",
+            "silent_upgrade_allowed": False,
+            "authority_role": "projection_only",
+            "may_not_use_for": [
+                "claim_evidence_authority",
+                "current_evidence_slot",
+                "production_rollout_authority",
+            ],
+        },
+        "closed_case_historical_meaning": "preserved",
+        "authority_boundary": {
+            "authoritative_for": [
+                "post_deploy_accountability",
+                "deployment_monitorability",
+                "divergence_attribution",
+                "learning_update_proposal",
+                "post_deploy_mape_k_trace",
+                "envelope_revision",
+                "assurance_case_delta",
+                "public_accountability_note",
+            ],
+            "may_not_use_for": [
+                "production_rollout_authority",
+                "recommendation_authority",
+                "publication_authority",
+                "approval_authority",
+                "scorecard_authority",
+                "pre_policy_evidence",
+                "current_evidence_slot",
+                "preference_learning",
+                "automated_value_learning",
+                "naive_ml_update",
+                "s14_universality",
+                "llm_attribution_authority",
+                "local_governance_enum_for_reissue",
+            ],
+            "source_authority": "deterministic_producer",
+            "posture": "shadow",
+            "rule_version_refs": [S13_RULE_VERSION_REF],
+        },
+        "may_not_be_used_for": [
+            "production_rollout_authority",
+            "recommendation_authority",
+            "publication_authority",
+            "approval_authority",
+            "scorecard_authority",
+            "pre_policy_evidence",
+            "current_evidence_slot",
+            "preference_learning",
+            "automated_value_learning",
+            "naive_ml_update",
+            "s14_universality",
+            "llm_attribution_authority",
+            "local_governance_enum_for_reissue",
+        ],
+        "rule_version_ref": S13_RULE_VERSION_REF,
     }
     payload.update(overrides)
     return payload
@@ -884,3 +988,67 @@ def test_public_projection_shows_growth_limitation_without_allocation_authority(
     assert "allocation_recommendation_text" not in rendered
     assert "selected_policy_ref" not in rendered
     assert "allocation-policy://ua-msme/balanced-governed" not in rendered
+
+
+def test_public_projection_surfaces_accountability_note_and_preserves_historical_meaning() -> None:
+    public_bundle = build_public_export_bundle(
+        run_id="run-public-s13-accountability",
+        artifacts={"public_summary": {"claim_refs": ["rec_1", "rec_2"]}},
+        authority_envelopes=[],
+        policy_design_case=policy_design_case(),
+        projection_payload=_s13_public_projection_payload(),
+    )
+
+    projection = public_bundle["projection_semantics"]
+    assert projection["public_accountability_note"]
+    assert projection["envelope_revision_direction"] == "shrink"
+    assert projection["closed_case_historical_meaning"] == "preserved"
+    assert projection["authority_role"] == "projection_only"
+    assert "current_evidence_slot" in projection["may_not_be_used_for"]
+
+
+def test_public_accountability_note_projects_existing_public_revision_state() -> None:
+    public_bundle = build_public_export_bundle(
+        run_id="run-public-s13-revision-state",
+        artifacts={"public_summary": {"claim_refs": ["rec_1", "rec_2"]}},
+        authority_envelopes=[],
+        policy_design_case=policy_design_case(),
+        projection_payload=_s13_public_projection_payload(),
+    )
+
+    revision_states = public_bundle["semantic_audit"]["public_revision_states"]
+    accountability_projection = public_bundle["semantic_audit"][
+        "s13_post_deploy_accountability_projection"
+    ]
+
+    assert revision_states[0]["affected_claim_ids"] == ["rec_1"]
+    assert revision_states[0]["unaffected_claim_ids"] == ["rec_2"]
+    assert revision_states[0]["silent_upgrade_allowed"] is False
+    assert accountability_projection["public_revision_state_ref"] == (
+        "public-revision-state://ua-msme/s13/001"
+    )
+    assert accountability_projection["public_accountability_note_ref"] == (
+        "public-note://ua-msme/s13/accountability"
+    )
+
+
+def test_public_projection_reuses_public_revision_state_silent_upgrade_firewall() -> None:
+    with pytest.raises(PublicExportRedactionError, match="silent_upgrade"):
+        build_public_export_bundle(
+            run_id="run-public-s13-silent-upgrade",
+            artifacts={"public_summary": {"claim_refs": ["rec_1", "rec_2"]}},
+            authority_envelopes=[],
+            policy_design_case=policy_design_case(),
+            projection_payload=_s13_public_projection_payload(
+                public_revision_state={
+                    "revision_state_id": "public-revision-state://ua-msme/s13/bad",
+                    "affected_claim_ids": ["rec_1"],
+                    "unaffected_claim_ids": ["rec_2"],
+                    "public_diffs": [],
+                    "closed_case_historical_meaning": "changed",
+                    "silent_upgrade_allowed": True,
+                    "authority_role": "producer_authority",
+                    "may_not_use_for": [],
+                }
+            ),
+        )

@@ -1,0 +1,10 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s13_negative_control_probe.v1",
+  "probe_id": "monitoring_missing_for_deployable_probe",
+  "case_id": "ua-msme-affordable-loans-2022",
+  "expected_disposition": "blocked",
+  "deployment_readiness_disposition": "deployable",
+  "monitoring_design_ref": null,
+  "owner": "policy-design-accountability-owner",
+  "expected_false_clear_count": 0
+}

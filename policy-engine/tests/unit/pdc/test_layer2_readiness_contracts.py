@@ -614,3 +614,104 @@ def test_layer2_s12_resource_economics_posture_input_is_strict_and_exported() ->
                 "allocation_recommendation_authority": "publish",
             }
         )
+
+
+def test_layer2_s13_post_deploy_accountability_posture_input_is_strict_and_exported() -> None:
+    posture_model = pdc.Layer2S13PostDeployAccountabilityPostureInput
+
+    assert posture_model.model_config.get("extra") == "forbid"
+
+    posture = posture_model(
+        phase="post_deploy_finalized",
+        accountability_posture_ref="pdc://layer2/s13/ua-msme/accountability-posture",
+        deployment_dossier_ref="pdc://layer2/s13/ua-msme/deployment-dossier",
+        divergence_record_refs=[
+            "pdc://layer2/s13/ua-msme/divergence/seeded-disconfirmation"
+        ],
+        learning_update_proposal_refs=[
+            "learning-proposal://ua-msme/envelope-shrink"
+        ],
+        envelope_revision_ref="envelope-revision://ua-msme/shrink/001",
+        certified_envelope_delta_ref="certified-envelope-delta://ua-msme/s12-growth",
+        assurance_case_delta_ref="assurance-delta://ua-msme/s13/weakened",
+        attribution_status="attributed",
+        attribution_classes=["design_error"],
+        learning_change_control_classes=["reissue_required"],
+        lifecycle_reissue_disposition="reissue_required",
+        envelope_revision_direction="shrink",
+        assurance_case_change="weakened",
+        mape_k_trace_ref="mape-k://ua-msme/post-deploy",
+        public_revision_state_ref="public-revision-state://ua-msme/s13/001",
+        public_accountability_note_ref="public-note://ua-msme/s13/accountability",
+        action_item_status="closed",
+        action_item_closure_refs=["closure://ua-msme/s13/action-item/001"],
+        human_decision_request_refs=["human-decision-request://ua-msme/s13/reissue"],
+        human_decision_record_refs=["human-decision-record://ua-msme/s13/reissue"],
+        oversight_effectiveness_ref="oversight://ua-msme/effectiveness/001",
+        oversight_accountability_state="rubber_stamp_divergence_review_required",
+        a_before_b_status="pass",
+        historical_prior_influence_refs=[
+            "historical-prior-influence:ua-msme/default-risk-route"
+        ],
+        replay_digest="sha256:" + "a" * 64,
+        authority_boundary={
+            "authoritative_for": [
+                "post_deploy_accountability",
+                "deployment_monitorability",
+                "divergence_attribution",
+                "learning_update_proposal",
+                "post_deploy_mape_k_trace",
+                "envelope_revision",
+                "assurance_case_delta",
+                "public_accountability_note",
+            ],
+            "may_not_use_for": [
+                "production_rollout_authority",
+                "recommendation_authority",
+                "publication_authority",
+                "approval_authority",
+                "scorecard_authority",
+                "pre_policy_evidence",
+                "current_evidence_slot",
+                "preference_learning",
+                "automated_value_learning",
+                "naive_ml_update",
+                "s14_universality",
+                "llm_attribution_authority",
+                "local_governance_enum_for_reissue",
+            ],
+            "source_authority": "deterministic_producer",
+            "posture": "shadow",
+            "rule_version_refs": ["policyos.layer2.s13.post_deploy_accountability.v1"],
+        },
+        may_not_use_for=[
+            "production_rollout_authority",
+            "recommendation_authority",
+            "publication_authority",
+            "approval_authority",
+            "scorecard_authority",
+            "pre_policy_evidence",
+            "current_evidence_slot",
+            "preference_learning",
+            "automated_value_learning",
+            "naive_ml_update",
+            "s14_universality",
+            "llm_attribution_authority",
+            "local_governance_enum_for_reissue",
+        ],
+        rule_version_ref="policyos.layer2.s13.post_deploy_accountability.v1",
+    )
+
+    assert posture.phase == "post_deploy_finalized"
+    assert posture.lifecycle_reissue_disposition == "reissue_required"
+    assert posture.envelope_revision_direction == "shrink"
+    assert "current_evidence_slot" in posture.may_not_use_for
+    assert pdc.Layer2S13PostDeployAccountabilityPostureInput is posture_model
+
+    with pytest.raises(ValidationError, match="Extra inputs are not permitted"):
+        posture_model.model_validate(
+            {
+                **posture.model_dump(mode="json"),
+                "local_s13_reissue_enum": "publish",
+            }
+        )

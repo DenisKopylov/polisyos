@@ -1,0 +1,11 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s13_negative_control_probe.v1",
+  "probe_id": "envelope_shrink_without_assurance_delta_probe",
+  "case_id": "w11a_uk_work_programme_2011",
+  "false_clear_field": "envelope_shrink_without_assurance_delta",
+  "expected_disposition": "blocked",
+  "envelope_revision_direction": "shrink",
+  "assurance_case_delta_ref": null,
+  "shrink_latency_days": 44,
+  "expected_false_clear_count": 0
+}

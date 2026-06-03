@@ -49,6 +49,10 @@ def _s12_blocks(report: dict[str, object]) -> list[dict[str, object]]:
     return [dict(case["s12_resource_economics"]) for case in report["cases"]]
 
 
+def _s13_blocks(report: dict[str, object]) -> list[dict[str, object]]:
+    return [dict(case["s13_post_deploy_accountability"]) for case in report["cases"]]
+
+
 def test_w12d_manifest_is_deterministic_and_runs_real_corpus() -> None:
     manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
 
@@ -1721,3 +1725,162 @@ def test_w12d_s12_preserves_s2_shadow_only_outcome_effects(
         else:
             assert s2["status"] == "not_applicable"
             assert s2["resource_posture_ref"] == s12["resource_allocation_policy_ref"]
+
+
+def test_w12d_emits_s13_post_deploy_blocks_for_13_cases(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    assert all("s13_post_deploy_accountability" in case for case in w12d_s9_report["cases"])
+    summary = dict(w12d_s9_report["s13_post_deploy_accountability_summary"])
+    blocks = _s13_blocks(w12d_s9_report)
+
+    assert summary["case_count"] == 13
+    assert summary["monitorability_rate"] == 1.0
+    assert summary["mape_k_trace_completeness_rate"] == 1.0
+    assert len(blocks) == 13
+    assert {block["schema_version"] for block in blocks} == {
+        "policyos.policy_design_case.layer2_s13_post_deploy_accountability.v1"
+    }
+    assert all(block["deployment_dossier_ref"] for block in blocks)
+    assert all(block["public_accountability_note_ref"] for block in blocks)
+
+
+def test_w12d_s13_monitorability_floor_and_attribution_gate_pass(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    summary = dict(w12d_s9_report["s13_post_deploy_accountability_summary"])
+
+    assert summary["monitorability_rate"] == 1.0
+    assert summary["a_before_b_ratio"] == 1.0
+    assert summary["attribution_resolution_rate"] == 1.0
+    assert summary["learning_without_attribution_count"] == 0
+    for block in _s13_blocks(w12d_s9_report):
+        assert block["monitorability_floor_passed"] is True
+        if block["attribution_status"] in {"pending", "unattributable"}:
+            assert block["learning_allowed"] is False
+
+
+def test_w12d_s13_envelope_revision_includes_shrink_and_expand(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    summary = dict(w12d_s9_report["s13_post_deploy_accountability_summary"])
+    directions = {block["envelope_revision_direction"] for block in _s13_blocks(w12d_s9_report)}
+
+    assert summary["envelope_shrink_count"] >= 1
+    assert summary["envelope_expansion_count"] >= 1
+    assert "shrink" in directions or "split" in directions
+    assert "expand" in directions
+
+
+def test_w12d_s13_envelope_shrink_latency_is_recorded_for_seeded_disconfirmation(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    summary = dict(w12d_s9_report["s13_post_deploy_accountability_summary"])
+    disconfirmation_blocks = [
+        block for block in _s13_blocks(w12d_s9_report) if block["seeded_disconfirmation"]
+    ]
+
+    assert summary["envelope_shrink_latency_recorded_count"] >= 1
+    assert disconfirmation_blocks
+    assert any(block["shrink_latency_days"] for block in disconfirmation_blocks)
+    assert all(
+        block["assurance_case_delta_ref"]
+        for block in disconfirmation_blocks
+        if block["envelope_revision_direction"] in {"shrink", "split"}
+    )
+
+
+def test_w12d_s13_negative_controls_have_zero_false_clears(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    summary = dict(w12d_s9_report["s13_post_deploy_accountability_summary"])
+
+    assert all(value == 0 for value in summary["false_clear_counts"].values())
+    assert set(summary["negative_control_results"]) >= {
+        "post_policy_data_as_pre_policy_evidence_probe",
+        "learned_prior_in_current_evidence_slot_probe",
+        "unattributable_updates_model_probe",
+        "silent_closed_case_rewrite_probe",
+        "learning_without_attribution_probe",
+        "envelope_shrink_without_assurance_delta_probe",
+        "b_update_before_a_firewall_probe",
+        "implementation_failure_as_theory_refutation_probe",
+        "outcome_learning_without_counterfactual_probe",
+        "s13_as_production_or_recommendation_authority_probe",
+    }
+    for result in summary["negative_control_results"].values():
+        assert result["false_clear_count"] == 0
+        assert result["observed_disposition"] == result["expected_disposition"]
+
+
+def test_w12d_s13_preserves_s2_shadow_only_outcome_effects(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    for case in w12d_s9_report["cases"]:
+        case = dict(case)
+        s2 = dict(case["s2_design_search"])
+        s13 = dict(case["s13_post_deploy_accountability"])
+
+        assert s13["canonical_outcome_effect"] == (
+            "post_deploy_accountability_only_not_production_authority"
+        )
+        if case["case_id"] == "ua-msme-affordable-loans-2022":
+            assert s2["accountability_posture"]["phase"] == "design_time_gate"
+            assert s2["canonical_outcome_effect"] == "none_shadow_only"
+        else:
+            assert s2["status"] == "not_applicable"
+
+
+def test_w12d_s13_design_time_gate_posture_does_not_inject_post_deploy_learning_refs(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    case = next(
+        case
+        for case in w12d_s9_report["cases"]
+        if case["case_id"] == "ua-msme-affordable-loans-2022"
+    )
+    posture = case["s2_design_search"]["accountability_posture"]
+
+    assert posture["phase"] == "design_time_gate"
+    assert posture["divergence_record_refs"] == []
+    assert posture["learning_update_proposal_refs"] == []
+    assert posture["envelope_revision_ref"] is None
+    assert posture["a_before_b_status"] is None
+
+
+def test_w12d_s13_gold_labels_cover_all_13_cases_without_leaking_gold_into_signals() -> None:
+    labels = json.loads(
+        (
+            REPO_ROOT / "tests/fixtures/layer2/s13/s13_post_deploy_expert_labels.json"
+        ).read_text(encoding="utf-8")
+    )
+    signals = json.loads(
+        (
+            REPO_ROOT / "tests/fixtures/layer2/s13/s13_post_deploy_case_signals.json"
+        ).read_text(encoding="utf-8")
+    )
+    expected_cases = {
+        path.stem for path in (REPO_ROOT / "tests/fixtures/universal-corpus/cases").glob("*.json")
+    }
+
+    assert set(labels["cases"]) == expected_cases
+    assert set(signals["cases"]) == expected_cases
+    assert any(
+        row["expected_envelope_revision_direction"] in {"shrink", "split"}
+        for row in labels["cases"].values()
+    )
+    assert any(
+        row["expected_envelope_revision_direction"] == "expand"
+        for row in labels["cases"].values()
+    )
+
+    forbidden_gold_fields = {
+        "expected_attribution_class",
+        "expected_attribution_status",
+        "expected_envelope_revision_direction",
+        "expected_learning_allowed",
+        "expected_public_accountability_note",
+        "matches_gold",
+    }
+    for row in signals["cases"].values():
+        assert forbidden_gold_fields.isdisjoint(row)

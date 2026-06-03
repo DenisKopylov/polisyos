@@ -1,0 +1,11 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s13_negative_control_probe.v1",
+  "probe_id": "b_update_before_a_firewall_probe",
+  "case_id": "ua-msme-affordable-loans-2022",
+  "false_clear_field": "b_update_before_a_baseline",
+  "expected_disposition": "blocked",
+  "deployment_baseline_ref": null,
+  "post_deploy_signal_refs": ["post-policy-observation://ua-msme/default-rate-2023"],
+  "a_before_b_status": "fail",
+  "expected_false_clear_count": 0
+}

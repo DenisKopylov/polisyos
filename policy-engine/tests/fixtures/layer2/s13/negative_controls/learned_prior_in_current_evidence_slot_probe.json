@@ -1,0 +1,12 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s13_negative_control_probe.v1",
+  "probe_id": "learned_prior_in_current_evidence_slot_probe",
+  "case_id": "ua-msme-affordable-loans-2022",
+  "false_clear_field": "learned_prior_in_current_evidence_slot",
+  "expected_disposition": "blocked",
+  "claim_id": "rec_1",
+  "current_evidence_refs": ["historical-prior-influence:ua-msme/default-risk-route"],
+  "historical_prior_influence_refs": ["historical-prior-influence:ua-msme/default-risk-route"],
+  "expected_detector_code": "historical_prior_ref_not_admissible_as_claim_evidence",
+  "expected_false_clear_count": 0
+}

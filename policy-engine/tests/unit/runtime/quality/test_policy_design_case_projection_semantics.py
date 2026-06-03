@@ -33,6 +33,7 @@ S9_SOURCE_REVISION_REF = "git://policyos/layer2/s9/red-first"
 S10_RULE_VERSION_REF = "policyos.layer2.s10.outcome_prediction.v1"
 S11_RULE_VERSION_REF = "policyos.layer2.s11.predictive_knowledge.v1"
 S12_RULE_VERSION_REF = "policyos.layer2.s12.resource_economics.v1"
+S13_RULE_VERSION_REF = "policyos.layer2.s13.post_deploy_accountability.v1"
 
 
 def _s9_consumer_verifier() -> object:
@@ -353,6 +354,99 @@ def _s12_projection_payload(**overrides: object) -> dict[str, object]:
             "s14_universality",
         ],
         "rule_version_ref": S12_RULE_VERSION_REF,
+    }
+    payload.update(overrides)
+    return payload
+
+
+def _s13_projection_payload(**overrides: object) -> dict[str, object]:
+    payload: dict[str, object] = {
+        "audience": "REVIEWER",
+        "authority_role": "projection_only",
+        "projection_policy": "reads_s13_post_deploy_accountability_posture",
+        "accountability_posture_ref": "pdc://layer2/s13/ua-msme/accountability-posture",
+        "deployment_dossier_ref": "pdc://layer2/s13/ua-msme/deployment-dossier",
+        "divergence_record_refs": [
+            "pdc://layer2/s13/ua-msme/divergence/seeded-disconfirmation"
+        ],
+        "learning_update_proposal_refs": [
+            "learning-proposal://ua-msme/envelope-shrink"
+        ],
+        "envelope_revision_ref": "envelope-revision://ua-msme/shrink/001",
+        "certified_envelope_delta_ref": "certified-envelope-delta://ua-msme/s12-growth",
+        "assurance_case_delta_ref": "assurance-delta://ua-msme/s13/weakened",
+        "attribution_status": "attributed",
+        "attribution_classes": ["design_error"],
+        "learning_change_control_classes": ["reissue_required"],
+        "lifecycle_reissue_disposition": "reissue_required",
+        "envelope_revision_direction": "shrink",
+        "assurance_case_change": "weakened",
+        "mape_k_trace_ref": "mape-k://ua-msme/post-deploy",
+        "public_revision_state_ref": "public-revision-state://ua-msme/s13/001",
+        "public_accountability_note_ref": "public-note://ua-msme/s13/accountability",
+        "public_accountability_note": (
+            "Post-deploy divergence is attributed and routed to reissue without "
+            "rewriting the closed case."
+        ),
+        "closed_case_historical_meaning": "preserved",
+        "owner": "policy-design-accountability-owner",
+        "deadline": "2026-07-01",
+        "action_item_status": "closed",
+        "action_item_closure_refs": ["closure://ua-msme/s13/action-item/001"],
+        "oversight_effectiveness_ref": "oversight://ua-msme/effectiveness/001",
+        "oversight_accountability_state": "rubber_stamp_divergence_review_required",
+        "reissue_actions": ["open_reissue_packet", "publish_accountability_note"],
+        "historical_prior_influence_refs": [
+            "historical-prior-influence:ua-msme/default-risk-route"
+        ],
+        "source_refs": ["post-policy-observation://ua-msme/default-rate-2023"],
+        "replay_digest": "sha256:" + "a" * 64,
+        "authority_boundary": {
+            "authoritative_for": [
+                "post_deploy_accountability",
+                "deployment_monitorability",
+                "divergence_attribution",
+                "learning_update_proposal",
+                "post_deploy_mape_k_trace",
+                "envelope_revision",
+                "assurance_case_delta",
+                "public_accountability_note",
+            ],
+            "may_not_use_for": [
+                "production_rollout_authority",
+                "recommendation_authority",
+                "publication_authority",
+                "approval_authority",
+                "scorecard_authority",
+                "pre_policy_evidence",
+                "current_evidence_slot",
+                "preference_learning",
+                "automated_value_learning",
+                "naive_ml_update",
+                "s14_universality",
+                "llm_attribution_authority",
+                "local_governance_enum_for_reissue",
+            ],
+            "source_authority": "deterministic_producer",
+            "posture": "shadow",
+            "rule_version_refs": [S13_RULE_VERSION_REF],
+        },
+        "may_not_be_used_for": [
+            "production_rollout_authority",
+            "recommendation_authority",
+            "publication_authority",
+            "approval_authority",
+            "scorecard_authority",
+            "pre_policy_evidence",
+            "current_evidence_slot",
+            "preference_learning",
+            "automated_value_learning",
+            "naive_ml_update",
+            "s14_universality",
+            "llm_attribution_authority",
+            "local_governance_enum_for_reissue",
+        ],
+        "rule_version_ref": S13_RULE_VERSION_REF,
     }
     payload.update(overrides)
     return payload
@@ -1236,3 +1330,87 @@ def test_projection_semantics_blocks_allocation_as_recommendation_authority() ->
 
     assert result["status"] == "fail"
     assert "s12_allocation_as_recommendation_authority" in _issue_codes(result)
+
+
+def test_expert_machine_projection_surfaces_attribution_and_envelope_revision() -> None:
+    verifier = (
+        projection_semantics_module
+        .verify_s13_post_deploy_accountability_projection_consumer_contract
+    )
+    expert = _s13_projection_payload(audience="EXPERT")
+    machine = _s13_projection_payload(audience="MACHINE")
+
+    result = verifier(projections={"expert": expert, "machine": machine})
+
+    assert result["status"] == "pass"
+    s13_projection = result["s13_post_deploy_accountability_projection"]
+    assert s13_projection["attribution_status"] == "attributed"
+    assert s13_projection["attribution_classes"] == ["design_error"]
+    assert s13_projection["learning_change_control_classes"] == ["reissue_required"]
+    assert s13_projection["envelope_revision_direction"] == "shrink"
+    assert s13_projection["assurance_case_change"] == "weakened"
+    assert s13_projection["replay_digest"].startswith("sha256:")
+
+
+def test_reviewer_projection_surfaces_mape_k_trace_action_closure_oversight_state_and_existing_reissue_disposition() -> None:
+    verifier = (
+        projection_semantics_module
+        .verify_s13_post_deploy_accountability_projection_consumer_contract
+    )
+    reviewer = _s13_projection_payload(audience="REVIEWER")
+
+    result = verifier(projections={"reviewer": reviewer})
+
+    assert result["status"] == "pass"
+    s13_projection = result["s13_post_deploy_accountability_projection"]
+    assert s13_projection["mape_k_trace_ref"] == "mape-k://ua-msme/post-deploy"
+    assert s13_projection["action_item_status"] == "closed"
+    assert s13_projection["action_item_closure_refs"]
+    assert s13_projection["oversight_accountability_state"] == (
+        "rubber_stamp_divergence_review_required"
+    )
+    assert s13_projection["lifecycle_reissue_disposition"] == "reissue_required"
+
+
+def test_projection_blocks_learning_update_as_current_evidence_authority() -> None:
+    verifier = (
+        projection_semantics_module
+        .verify_s13_post_deploy_accountability_projection_consumer_contract
+    )
+    payload = _s13_projection_payload(
+        audience="MACHINE",
+        authority_role="projection_only",
+        current_evidence_refs=["learning-proposal://ua-msme/envelope-shrink"],
+        may_not_be_used_for=[
+            "production_rollout_authority",
+            "recommendation_authority",
+        ],
+    )
+
+    result = verifier(projections={"machine": payload})
+
+    assert result["status"] == "fail"
+    assert "s13_learning_update_as_current_evidence_authority" in _issue_codes(result)
+
+
+def test_projection_blocks_s13_as_universality_or_production_authority() -> None:
+    verifier = (
+        projection_semantics_module
+        .verify_s13_post_deploy_accountability_projection_consumer_contract
+    )
+    payload = _s13_projection_payload(
+        audience="PUBLIC",
+        authority_role="production_rollout_authority",
+        authority_boundary={
+            "authoritative_for": ["s14_universality", "production_rollout_authority"],
+            "may_not_use_for": ["publication_authority"],
+            "source_authority": "deterministic_producer",
+            "posture": "shadow",
+            "rule_version_refs": [S13_RULE_VERSION_REF],
+        },
+    )
+
+    result = verifier(projections={"public": payload})
+
+    assert result["status"] == "fail"
+    assert "s13_as_universality_or_production_authority" in _issue_codes(result)

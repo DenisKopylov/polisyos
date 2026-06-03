@@ -60,6 +60,9 @@ DEFAULT_S10_OUTCOME_PREDICTION_MANIFEST_PATH = Path(
 DEFAULT_S11_PREDICTIVE_KNOWLEDGE_MANIFEST_PATH = Path(
     "architecture/policy_design_case/layer2_s11_predictive_knowledge_manifest.json"
 )
+DEFAULT_S12_RESOURCE_ECONOMICS_MANIFEST_PATH = Path(
+    "architecture/policy_design_case/layer2_s12_resource_economics_manifest.json"
+)
 DEFAULT_INVENTORY_PATH = Path("architecture/policy_design_case/inventory.json")
 
 REQUIRED_SLICES = {f"S{number}" for number in range(15)}
@@ -319,7 +322,7 @@ S9_EXPECTED_OPEN_CELLS = {
     "KNOWLEDGE.calibration",
     "KNOWLEDGE.ir_proof_carrying_analytics",
 }
-S9_LATER_SLICES = {"S12", "S13", "S14"}
+S9_LATER_SLICES = {"S13", "S14"}
 S10_REQUIRED_ARTIFACTS = {"ForecastSupport", "ForecastCalibrationRecord"}
 S10_REQUIRED_AUTHORITY_SCOPE = {
     "forecast_support_tiering",
@@ -445,6 +448,51 @@ S11_FALSE_CLEAR_FIELDS = (
     "weakest_boundary_bypass",
 )
 S11_INVENTORY_ID = "layer2_s11_predictive_knowledge_manifest"
+S12_CLOSED_CELLS = {"DESIGNER_ITSELF.envelope_growth"}
+S12_REQUIRED_ARTIFACTS = {
+    "KnowledgeGovernanceThroughputLedger",
+    "EnvelopeGrowthLedger",
+    "ResourceAllocationPolicy",
+    "GrowthThermometerRecord",
+    "ResourceEconomicsIntegrityReport",
+}
+S12_REQUIRED_AUTHORITY_SCOPE = {
+    "value_of_information_allocation",
+    "explore_exploit_posture",
+    "envelope_growth_ledger",
+    "growth_thermometers",
+    "knowledge_governance_throughput",
+    "allocation_priority_input",
+}
+S12_REQUIRED_DENY = {
+    "production_authority",
+    "production_claim_authority",
+    "production_recommendation",
+    "rollout_authority",
+    "publication_authority",
+    "claim_authority",
+    "closeout_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "preference_learning_authority",
+    "mdp_bandit_optimizer_authority",
+    "budget_interchangeability",
+    "mission_or_value_self_authorization",
+    "floor_relaxation",
+    "s13_envelope_shrink",
+    "s13_accountability_closure",
+    "s14_universality",
+}
+S12_FALSE_CLEAR_FIELDS = (
+    "bespoke_one_off_growth",
+    "allocation_gaming_internal_metrics",
+    "floor_lowering_for_useful_design_rate",
+    "b_faster_than_a_growth",
+    "meta_regress_past_principal",
+    "interchangeable_budget",
+    "growth_without_envelope_delta",
+)
+S12_INVENTORY_ID = "layer2_s12_resource_economics_manifest"
 
 
 def load_layer2_readiness_payloads(repo_root: Path | str = REPO_ROOT) -> dict[str, Any]:
@@ -482,6 +530,9 @@ def load_layer2_readiness_payloads(repo_root: Path | str = REPO_ROOT) -> dict[st
         ),
         "s11_predictive_knowledge": _load_optional_json(
             root / DEFAULT_S11_PREDICTIVE_KNOWLEDGE_MANIFEST_PATH
+        ),
+        "s12_resource_economics": _load_optional_json(
+            root / DEFAULT_S12_RESOURCE_ECONOMICS_MANIFEST_PATH
         ),
         "inventory": _load_json(root / DEFAULT_INVENTORY_PATH),
         "cluster_map": cluster_map.load_cluster_ownership_map(root),
@@ -681,6 +732,16 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
         current_open_cells=current_open_cells,
         inventory=payloads["inventory"],
         slice_cell_matrix=matrix,
+        issues=issues,
+    )
+    _validate_s12_resource_economics(
+        s12=payloads.get("s12_resource_economics"),
+        floor_governance=payloads["floor_governance"],
+        artifact_traceability=payloads["artifact_traceability"],
+        cluster_map_payload=cluster_payload,
+        current_open_cells=current_open_cells,
+        assigned_cells=assigned_cells,
+        inventory=payloads["inventory"],
         issues=issues,
     )
     closed_since_s0 = sorted(assigned_cells - current_open_cells)
@@ -921,6 +982,45 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
         if isinstance(s11, dict) and s11
         else {}
     )
+    s12 = payloads.get("s12_resource_economics")
+    s12_false_clear_counts = (
+        {field: s12.get(f"{field}_false_clear_count") for field in S12_FALSE_CLEAR_FIELDS}
+        if isinstance(s12, dict) and s12
+        else {}
+    )
+    s12_summary = (
+        {
+            "s12_case_count": s12.get("case_count"),
+            "s12_expected_current_open_cell_count": s12.get(
+                "expected_current_open_cell_count"
+            ),
+            "s12_remaining_open_cells": s12.get("remaining_open_cells"),
+            "s12_burn_down_complete": s12.get("burn_down_complete"),
+            "s12_voi_site_count": s12.get("voi_site_count"),
+            "s12_typed_budget_count": s12.get("typed_budget_count"),
+            "s12_override_rate_trend": s12.get("override_rate_trend"),
+            "s12_reuse_rate_trend": s12.get("reuse_rate_trend"),
+            "s12_held_out_status": s12.get("held_out_status"),
+            "s12_counted_mechanism_growth_count": s12.get(
+                "counted_mechanism_growth_count"
+            ),
+            "s12_flagged_bespoke_one_off_count": s12.get(
+                "flagged_bespoke_one_off_count"
+            ),
+            "s12_growth_without_envelope_delta_count": s12.get(
+                "growth_without_envelope_delta_count"
+            ),
+            "s12_false_clear_counts": s12_false_clear_counts,
+            **{
+                f"s12_{field}_false_clear_count": s12.get(
+                    f"{field}_false_clear_count"
+                )
+                for field in S12_FALSE_CLEAR_FIELDS
+            },
+        }
+        if isinstance(s12, dict) and s12
+        else {}
+    )
 
     return _result(
         issues,
@@ -943,6 +1043,7 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
             **s9_summary,
             **s10_summary,
             **s11_summary,
+            **s12_summary,
         },
     )
 
@@ -2361,11 +2462,11 @@ def _validate_s9_projection_lowering(
                 "S9 manifest must record expected_current_open_cell_count=3.",
             )
         )
-    if not current_open_cells or not current_open_cells <= S9_EXPECTED_OPEN_CELLS:
+    if current_open_cells and not current_open_cells <= S9_EXPECTED_OPEN_CELLS:
         issues.append(
             _issue(
                 "layer2_s9_current_open_cells_invalid",
-                "S9 live open cells must remain a non-empty subset of its manifest-local post-S8 open cells.",
+                "S9 live open cells must remain a subset of its manifest-local post-S8 open cells.",
             )
         )
 
@@ -2591,7 +2692,7 @@ def _validate_s9_projection_lowering(
         issues.append(
             _issue(
                 "layer2_s9_later_slice_maturity_invalid",
-                "S9 must not mark S12, S13, or S14 artifacts implemented.",
+                "S9/S12 burn-down must not mark S13 or S14 artifacts implemented.",
             )
         )
 
@@ -2657,11 +2758,15 @@ def _validate_s10_outcome_prediction(
                 "S10 manifest must record expected_current_open_cell_count=3.",
             )
         )
-    if current_open_cells not in (S9_EXPECTED_OPEN_CELLS, S11_EXPECTED_OPEN_CELLS):
+    if current_open_cells not in (
+        set(),
+        S9_EXPECTED_OPEN_CELLS,
+        S11_EXPECTED_OPEN_CELLS,
+    ):
         issues.append(
             _issue(
                 "layer2_s10_current_open_cells_invalid",
-                "S10 live open cells must be either its manifest-local post-S8 set or the post-S11 burned-down set.",
+                "S10 live open cells must be the S9, post-S11, or post-S12 burn-down set.",
             )
         )
 
@@ -2930,7 +3035,7 @@ def _validate_s10_outcome_prediction(
         issues.append(
             _issue(
                 "layer2_s10_future_slice_maturity_invalid",
-                "S10 must not mark S12, S13, or S14 artifacts implemented.",
+                "S10/S12 burn-down must not mark S13 or S14 artifacts implemented.",
             )
         )
 
@@ -3007,11 +3112,11 @@ def _validate_s11_predictive_knowledge(
                 "S11 manifest must leave only DESIGNER_ITSELF.envelope_growth open.",
             )
         )
-    if current_open_cells != S11_EXPECTED_OPEN_CELLS:
+    if current_open_cells not in (set(), S11_EXPECTED_OPEN_CELLS):
         issues.append(
             _issue(
                 "layer2_s11_current_open_cells_invalid",
-                "S11 live readiness must leave only DESIGNER_ITSELF.envelope_growth open.",
+                "S11 live readiness must leave only DESIGNER_ITSELF.envelope_growth open or observe the post-S12 empty set.",
             )
         )
 
@@ -3252,11 +3357,11 @@ def _validate_s11_predictive_knowledge(
             )
         )
 
-    if _inventory_layer2_artifact_count(inventory) != 19:
+    if _inventory_layer2_artifact_count(inventory) not in {19, 20}:
         issues.append(
             _issue(
                 "layer2_s11_inventory_artifact_count_invalid",
-                "Layer 2 inventory artifact count must be 19 after registering S11.",
+                "Layer 2 inventory artifact count must be 19 after S11 or 20 after S12.",
             )
         )
     inventory_artifact = _inventory_artifact_by_id(inventory, S11_INVENTORY_ID)
@@ -3319,14 +3424,14 @@ def _validate_s11_predictive_knowledge(
         str(row.get("name", ""))
         for row in artifact_traceability.get("artifact", [])
         if isinstance(row, dict)
-        and row.get("slice") in {"S12", "S13", "S14"}
+        and row.get("slice") in {"S13", "S14"}
         and row.get("maturity") == "implemented"
     }
     if future_implemented:
         issues.append(
             _issue(
                 "layer2_s11_future_slice_maturity_invalid",
-                "S11 must not mark S12, S13, or S14 artifacts implemented.",
+                "S11/S12 burn-down must not mark S13 or S14 artifacts implemented.",
             )
         )
     assignments = {
@@ -3337,7 +3442,7 @@ def _validate_s11_predictive_knowledge(
     future_cell_refs = {
         cell_ref
         for cell_ref, slice_name in assignments.items()
-        if slice_name in {"S12", "S13", "S14"}
+        if slice_name in {"S13", "S14"}
     }
     production_authority_refs = {
         f"{cluster}.{axis}"
@@ -3360,6 +3465,365 @@ def _validate_s11_predictive_knowledge(
                     f"S11 must not mark future or production authority cell implemented: {cell_ref}.",
                 )
             )
+
+
+def _validate_s12_resource_economics(
+    *,
+    s12: object,
+    floor_governance: dict[str, Any],
+    artifact_traceability: dict[str, Any],
+    cluster_map_payload: dict[str, Any],
+    current_open_cells: set[str],
+    assigned_cells: set[str],
+    inventory: dict[str, Any],
+    issues: list[dict[str, str]],
+) -> None:
+    if not isinstance(s12, dict) or not s12:
+        issues.append(
+            _issue(
+                "layer2_s12_manifest_missing",
+                "S12 resource-economics manifest must be present.",
+            )
+        )
+        return
+    if s12.get("schema_version") != (
+        "policyos.policy_design_case.layer2_s12_resource_economics_manifest.v1"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s12_schema_version_invalid",
+                "S12 resource-economics manifest schema_version is invalid.",
+            )
+        )
+    if (
+        s12.get("status") != "active"
+        or s12.get("owner") != "principal-governance"
+        or s12.get("slice") != "S12"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s12_status_owner_or_slice_invalid",
+                "S12 manifest must be active, principal-owned, and slice=S12.",
+            )
+        )
+    if s12.get("depends_on") != ["S3", "S7"]:
+        issues.append(
+            _issue(
+                "layer2_s12_dependencies_invalid",
+                "S12 must depend on S3 and S7 in that order.",
+            )
+        )
+    if set(s12.get("cells_closed", [])) != S12_CLOSED_CELLS:
+        issues.append(
+            _issue(
+                "layer2_s12_cells_closed_invalid",
+                "S12 must close exactly DESIGNER_ITSELF.envelope_growth.",
+            )
+        )
+    if s12.get("expected_current_open_cell_count") != 0:
+        issues.append(
+            _issue(
+                "layer2_s12_open_cell_count_drift",
+                "S12 manifest must record expected_current_open_cell_count=0.",
+            )
+        )
+    if s12.get("remaining_open_cells") != [] or s12.get("burn_down_complete") is not True:
+        issues.append(
+            _issue(
+                "layer2_s12_burn_down_not_complete",
+                "S12 must declare burn_down_complete with no remaining open cells.",
+            )
+        )
+    if current_open_cells:
+        issues.append(
+            _issue(
+                "layer2_s12_live_open_cells_remaining",
+                "S12 live readiness must have an empty current_open_cells set.",
+            )
+        )
+    if S12_CLOSED_CELLS - assigned_cells:
+        issues.append(
+            _issue(
+                "layer2_s12_cell_not_assigned",
+                "S12 closed cell must be in the frozen slice-cell baseline.",
+            )
+        )
+
+    cell = (
+        cluster_map_payload.get("cell", {})
+        .get("DESIGNER_ITSELF", {})
+        .get("envelope_growth", {})
+    )
+    if not isinstance(cell, dict) or cell.get("ratchet_state") != "implemented":
+        issues.append(
+            _issue(
+                "layer2_s12_cluster_cell_not_implemented",
+                "DESIGNER_ITSELF.envelope_growth must be implemented.",
+            )
+        )
+    else:
+        if cell.get("p01_chain") != "implemented":
+            issues.append(
+                _issue(
+                    "layer2_s12_cluster_cell_p01_chain_invalid",
+                    "S12 envelope-growth cell must have p01_chain=implemented.",
+                )
+            )
+        if cell.get("owner_module") != (
+            "src/polisyos/runtime/quality/layer2_resource_economics.py"
+        ):
+            issues.append(
+                _issue(
+                    "layer2_s12_cluster_cell_owner_invalid",
+                    "S12 envelope-growth cell owner_module must be the resource-economics producer.",
+                )
+            )
+        if cell.get("gap") != "none_for_s12_resource_economics_scope":
+            issues.append(
+                _issue(
+                    "layer2_s12_cluster_cell_gap_invalid",
+                    "S12 envelope-growth cell must record no S12-scope gap.",
+                )
+            )
+        if cell.get("firewall") != "P13_governance_gravity":
+            issues.append(
+                _issue(
+                    "layer2_s12_cluster_cell_firewall_invalid",
+                    "S12 envelope-growth cell must keep the P13 governance-gravity firewall.",
+                )
+            )
+
+    trace_s12_artifacts = {
+        str(row.get("name", "")): row.get("maturity")
+        for row in artifact_traceability.get("artifact", [])
+        if isinstance(row, dict) and row.get("slice") == "S12"
+    }
+    if set(s12.get("required_artifacts", [])) != S12_REQUIRED_ARTIFACTS:
+        issues.append(
+            _issue(
+                "layer2_s12_required_artifacts_missing",
+                "S12 required_artifacts must list resource policy, growth, thermometer, throughput, and integrity artifacts.",
+            )
+        )
+    if set(trace_s12_artifacts) != S12_REQUIRED_ARTIFACTS or any(
+        maturity != "implemented" for maturity in trace_s12_artifacts.values()
+    ):
+        issues.append(
+            _issue(
+                "layer2_s12_traceability_missing",
+                "S12 artifacts must all be implemented in layer2_artifact_traceability.",
+            )
+        )
+
+    floor = _floor_by_id(floor_governance, "s12_growth_thermometers")
+    if (
+        s12.get("floor_id") != "s12_growth_thermometers"
+        or not floor
+        or floor.get("metric") != "reuse_rate_and_override_rate_trend"
+        or floor.get("floor_owner") != "principal-governance"
+        or floor.get("revision_rule") != "growth_counting_requires_envelope_delta"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s12_floor_governance_invalid",
+                "S12 floor must govern reuse/override thermometers and require envelope deltas for growth.",
+            )
+        )
+    if s12.get("case_count") != 13:
+        issues.append(
+            _issue(
+                "layer2_s12_case_count_invalid",
+                "S12 manifest must record all 13 universal corpus cases.",
+            )
+        )
+    if not _number_at_least(s12.get("voi_site_count"), 3):
+        issues.append(
+            _issue(
+                "layer2_s12_voi_site_count_below_floor",
+                "S12 must allocate VOI across at least three sites.",
+            )
+        )
+    if s12.get("typed_budget_count") != 5:
+        issues.append(
+            _issue(
+                "layer2_s12_typed_budget_count_invalid",
+                "S12 must carry all five typed budget kinds.",
+            )
+        )
+    if s12.get("override_rate_trend") not in {"improving", "flat"}:
+        issues.append(
+            _issue(
+                "layer2_s12_override_rate_trend_invalid",
+                "S12 override-rate trend must be improving or flat.",
+            )
+        )
+    if s12.get("reuse_rate_trend") not in {"improving", "flat"}:
+        issues.append(
+            _issue(
+                "layer2_s12_reuse_rate_trend_invalid",
+                "S12 reuse-rate trend must be improving or flat.",
+            )
+        )
+    if s12.get("held_out_status") != "pending_s14":
+        issues.append(
+            _issue(
+                "layer2_s12_held_out_status_invalid",
+                "S12 held-out battery status must remain pending_s14.",
+            )
+        )
+    if s12.get("growth_without_envelope_delta_count") != 0:
+        issues.append(
+            _issue(
+                "layer2_s12_growth_without_delta_nonzero",
+                "S12 must block growth without envelope deltas.",
+            )
+        )
+    false_clear_counts = s12.get("false_clear_counts")
+    if not isinstance(false_clear_counts, dict) or set(false_clear_counts) != set(
+        S12_FALSE_CLEAR_FIELDS
+    ):
+        issues.append(
+            _issue(
+                "layer2_s12_false_clear_counts_invalid",
+                "S12 false_clear_counts must match the governed S12 false-clear fields.",
+            )
+        )
+    elif any(value != 0 for value in false_clear_counts.values()):
+        issues.append(
+            _issue(
+                "layer2_s12_false_clear_counts_nonzero",
+                "S12 nested false_clear_counts must all stay zero.",
+            )
+        )
+    for field in S12_FALSE_CLEAR_FIELDS:
+        if s12.get(f"{field}_false_clear_count") != 0:
+            issues.append(
+                _issue(
+                    f"layer2_s12_{field}_false_clear_count_nonzero",
+                    f"S12 {field}_false_clear_count must stay zero.",
+                )
+            )
+
+    if set(s12.get("authority_scope", [])) != S12_REQUIRED_AUTHORITY_SCOPE:
+        issues.append(
+            _issue(
+                "layer2_s12_authority_scope_invalid",
+                "S12 authority_scope must match governed resource-economics scope.",
+            )
+        )
+    if not set(s12.get("may_not_use_for", [])) >= S12_REQUIRED_DENY:
+        issues.append(
+            _issue(
+                "layer2_s12_authority_deny_list_incomplete",
+                "S12 may_not_use_for must block production, future-slice, optimizer, and budget laundering.",
+            )
+        )
+    if (
+        set(s12.get("authority_scope", []))
+        & {
+            "production_authority",
+            "production_recommendation",
+            "preference_learning_authority",
+            "mdp_bandit_optimizer_authority",
+            "s13_envelope_shrink",
+            "s13_accountability_closure",
+            "s14_universality",
+        }
+    ):
+        issues.append(
+            _issue(
+                "layer2_s12_future_or_production_authority_claimed",
+                "S12 must not claim production, optimizer, S13, or S14 authority.",
+            )
+        )
+    if (
+        s12.get("canonical_route")
+        != "tools/quality/validation/run_universal_outcome_corpus.py"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s12_canonical_route_invalid",
+                "S12 manifest must point at the universal outcome corpus runner.",
+            )
+        )
+    if (
+        s12.get("validator")
+        != "tools/quality/validation/check_policy_design_case_layer2_readiness.py"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s12_validator_invalid",
+                "S12 manifest must point at the layer2 readiness validator.",
+            )
+        )
+
+    if _inventory_layer2_artifact_count(inventory) != 20:
+        issues.append(
+            _issue(
+                "layer2_s12_inventory_artifact_count_invalid",
+                "Layer 2 inventory artifact count must be 20 after registering S12.",
+            )
+        )
+    inventory_artifact = _inventory_artifact_by_id(inventory, S12_INVENTORY_ID)
+    if not inventory_artifact:
+        issues.append(
+            _issue(
+                "layer2_s12_manifest_missing_from_inventory",
+                "S12 manifest must be registered in the Policy Design Case inventory.",
+            )
+        )
+        return
+    if inventory_artifact.get("path") != DEFAULT_S12_RESOURCE_ECONOMICS_MANIFEST_PATH.as_posix():
+        issues.append(
+            _issue(
+                "layer2_s12_inventory_path_invalid",
+                "S12 inventory path must point at the governed manifest.",
+            )
+        )
+    if inventory_artifact.get("kind") != "layer2_s12_resource_economics_manifest":
+        issues.append(
+            _issue(
+                "layer2_s12_inventory_kind_invalid",
+                "S12 inventory entry must carry kind=layer2_s12_resource_economics_manifest.",
+            )
+        )
+    if inventory_artifact.get("schema_version") != s12.get("schema_version"):
+        issues.append(
+            _issue(
+                "layer2_s12_inventory_schema_version_invalid",
+                "S12 inventory schema_version must match the manifest.",
+            )
+        )
+    for field in ("owner", "status", "authority_scope", "may_not_use_for", "validator", "canonical_route"):
+        if inventory_artifact.get(field) != s12.get(field):
+            issues.append(
+                _issue(
+                    f"layer2_s12_inventory_{field}_mismatch",
+                    f"S12 inventory {field} must match the manifest.",
+                )
+            )
+    if inventory_artifact.get("capability_reality_label") != "implemented":
+        issues.append(
+            _issue(
+                "layer2_s12_inventory_status_invalid",
+                "S12 inventory entry must carry capability_reality_label=implemented.",
+            )
+        )
+
+    future_implemented = {
+        str(row.get("name", ""))
+        for row in artifact_traceability.get("artifact", [])
+        if isinstance(row, dict)
+        and row.get("slice") in {"S13", "S14"}
+        and row.get("maturity") == "implemented"
+    }
+    if future_implemented:
+        issues.append(
+            _issue(
+                "layer2_s12_future_slice_maturity_invalid",
+                "S12 must not mark S13 or S14 artifacts implemented.",
+            )
+        )
 
 
 def _validate_s8_s7_value_authorization_support(

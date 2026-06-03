@@ -383,6 +383,44 @@
       "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py"
     },
     {
+      "id": "layer2_s12_resource_economics_manifest",
+      "path": "architecture/policy_design_case/layer2_s12_resource_economics_manifest.json",
+      "kind": "layer2_s12_resource_economics_manifest",
+      "schema_version": "policyos.policy_design_case.layer2_s12_resource_economics_manifest.v1",
+      "owner": "principal-governance",
+      "status": "active",
+      "capability_reality_label": "implemented",
+      "authority_scope": [
+        "value_of_information_allocation",
+        "explore_exploit_posture",
+        "envelope_growth_ledger",
+        "growth_thermometers",
+        "knowledge_governance_throughput",
+        "allocation_priority_input"
+      ],
+      "may_not_use_for": [
+        "production_authority",
+        "production_claim_authority",
+        "production_recommendation",
+        "rollout_authority",
+        "publication_authority",
+        "claim_authority",
+        "closeout_authority",
+        "approval_authority",
+        "scorecard_authority",
+        "preference_learning_authority",
+        "mdp_bandit_optimizer_authority",
+        "budget_interchangeability",
+        "mission_or_value_self_authorization",
+        "floor_relaxation",
+        "s13_envelope_shrink",
+        "s13_accountability_closure",
+        "s14_universality"
+      ],
+      "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py",
+      "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py"
+    },
+    {
       "id": "layer2_minimal_seed_manifest",
       "path": "architecture/policy_design_case/layer2_minimal_seed_manifest.json",
       "kind": "layer2_seed_manifest",

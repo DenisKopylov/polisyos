@@ -1,0 +1,80 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s12_resource_economics_manifest.v1",
+  "status": "active",
+  "owner": "principal-governance",
+  "slice": "S12",
+  "depends_on": [
+    "S3",
+    "S7"
+  ],
+  "cells_closed": [
+    "DESIGNER_ITSELF.envelope_growth"
+  ],
+  "expected_current_open_cell_count": 0,
+  "remaining_open_cells": [],
+  "burn_down_complete": true,
+  "floor_id": "s12_growth_thermometers",
+  "floor_metric": "reuse_rate_and_override_rate_trend",
+  "required_artifacts": [
+    "KnowledgeGovernanceThroughputLedger",
+    "EnvelopeGrowthLedger",
+    "ResourceAllocationPolicy",
+    "GrowthThermometerRecord",
+    "ResourceEconomicsIntegrityReport"
+  ],
+  "case_count": 13,
+  "voi_site_count": 5,
+  "typed_budget_count": 5,
+  "override_rate_trend": "flat",
+  "reuse_rate_trend": "flat",
+  "held_out_status": "pending_s14",
+  "counted_mechanism_growth_count": 12,
+  "flagged_bespoke_one_off_count": 1,
+  "growth_without_envelope_delta_count": 0,
+  "blocked_growth_without_envelope_delta_count": 1,
+  "false_clear_counts": {
+    "bespoke_one_off_growth": 0,
+    "allocation_gaming_internal_metrics": 0,
+    "floor_lowering_for_useful_design_rate": 0,
+    "b_faster_than_a_growth": 0,
+    "meta_regress_past_principal": 0,
+    "interchangeable_budget": 0,
+    "growth_without_envelope_delta": 0
+  },
+  "bespoke_one_off_growth_false_clear_count": 0,
+  "allocation_gaming_internal_metrics_false_clear_count": 0,
+  "floor_lowering_for_useful_design_rate_false_clear_count": 0,
+  "b_faster_than_a_growth_false_clear_count": 0,
+  "meta_regress_past_principal_false_clear_count": 0,
+  "interchangeable_budget_false_clear_count": 0,
+  "growth_without_envelope_delta_false_clear_count": 0,
+  "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py",
+  "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py",
+  "authority_scope": [
+    "value_of_information_allocation",
+    "explore_exploit_posture",
+    "envelope_growth_ledger",
+    "growth_thermometers",
+    "knowledge_governance_throughput",
+    "allocation_priority_input"
+  ],
+  "may_not_use_for": [
+    "production_authority",
+    "production_claim_authority",
+    "production_recommendation",
+    "rollout_authority",
+    "publication_authority",
+    "claim_authority",
+    "closeout_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "preference_learning_authority",
+    "mdp_bandit_optimizer_authority",
+    "budget_interchangeability",
+    "mission_or_value_self_authorization",
+    "floor_relaxation",
+    "s13_envelope_shrink",
+    "s13_accountability_closure",
+    "s14_universality"
+  ]
+}

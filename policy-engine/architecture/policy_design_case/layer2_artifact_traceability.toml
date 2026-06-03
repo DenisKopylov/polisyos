@@ -335,7 +335,27 @@ maturity = "implemented"
 [[artifact]]
 name = "KnowledgeGovernanceThroughputLedger"
 slice = "S12"
-maturity = "planned"
+maturity = "implemented"
+
+[[artifact]]
+name = "EnvelopeGrowthLedger"
+slice = "S12"
+maturity = "implemented"
+
+[[artifact]]
+name = "ResourceAllocationPolicy"
+slice = "S12"
+maturity = "implemented"
+
+[[artifact]]
+name = "GrowthThermometerRecord"
+slice = "S12"
+maturity = "implemented"
+
+[[artifact]]
+name = "ResourceEconomicsIntegrityReport"
+slice = "S12"
+maturity = "implemented"
 
 [[artifact]]
 name = "DeploymentDossier"

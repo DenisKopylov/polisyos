@@ -93,21 +93,7 @@ closure_contracts_match_open_cell_states = true
 closure_contracts_name_missing_capability_chain = true
 controlled_gap_tokens = ["none_for_seed_scope", "none_for_ddm_scope"]
 
-[open_cell_closure.DESIGNER_ITSELF.envelope_growth]
-cell_ref = "DESIGNER_ITSELF.envelope_growth"
-owner = "team-architecture"
-reuse_classification = "extend_existing"
-current_state = "implemented_but_not_orchestrated"
-target_state = "implemented"
-missing_chain = ["producer", "persisted_artifact", "orchestration_bridge", "consumer", "verification", "surface", "semantic_test"]
-producer_artifact = "CertifiedEnvelopeDelta describing domain, scale, regime, actor, response, and method scope gained or lost."
-persisted_artifact = "Envelope-growth ledger tied to capability ratchet states, acquisition outputs, method additions, and firewall coverage."
-bridge_consumer = "Rollout decision, corpus evaluation, acquisition planner, and cluster ownership map consume certified envelope deltas."
-surface = "PUBLIC/REVIEWER see certified scope changes; EXPERT/MACHINE inspect per-cluster evidence and open cells."
-semantic_test = "Adding a source or method cannot expand certified envelope unless its cluster firewall and consumer path are present."
-negative_test = "Governance-only artifact without producer/consumer chain must not increase envelope scope."
-acceptance_signal = "Envelope growth is monotonic, evidence-linked, and decreases or holds when cluster cells regress."
-next_action = "Teach the ratchet to compute envelope deltas from cluster cells, capability reality, acquisition, and corpus metrics."
+[open_cell_closure]
 
 [handshake_graph]
 audiences = ["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"]
@@ -1058,19 +1044,19 @@ gap = "none_for_seed_scope"
 action = "use corpus fixtures to measure design quality, regime classification, coupling classification, and cluster-firewall adequacy."
 
 [cell.DESIGNER_ITSELF.envelope_growth]
-owner_module = ""
+owner_module = "src/polisyos/runtime/quality/layer2_resource_economics.py"
 seed_files = [
   "architecture/policy_design_case/capability_reality_report.json",
   "src/polisyos/runtime/quality/capability_ratchet.py",
 ]
-ratchet_state = "implemented_but_not_orchestrated"
-p01_chain = "bridge_missing"
+ratchet_state = "implemented"
+p01_chain = "implemented"
 authority_dim = "knowledge_governance_throughput"
 firewall = "P13_governance_gravity"
 publishes = ["DESIGNER_ITSELF.certified_envelope_delta"]
 consumes = ["SYSTEM.nonstationarity", "KNOWLEDGE.substrate_coverage", "SYSTEM.measurability", "ACTOR.state_capacity_feasibility", "OTHER_AGENTS.strategic_response"]
-gap = "capability ratchet measures reality states, but no process computes envelope growth across clusters and axes."
-action = "define envelope-growth deltas and make acquisition, method, and firewall additions update certified scope monotonically."
+gap = "none_for_s12_resource_economics_scope"
+action = "S12 routes VOI allocation, growth thermometers, and the envelope-growth ledger through the corpus and S2 posture; envelope shrink and bidirectional revision remain S13 scope."
 
 [cell.CROSS_CUTTING.method_infrastructure]
 owner_module = "src/polisyos/foundry"

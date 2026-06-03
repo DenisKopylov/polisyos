@@ -295,6 +295,11 @@ def test_s14_cluster_map_advances_evaluation_corpus_without_reopening_cell() -> 
     assert cell["p01_chain"] == "implemented"
     assert "S14" in cell["action"]
     assert "sealed battery" in cell["action"]
+    assert "D4 corpus coverage" in cell["action"]
+    assert "expert oracle bootstrap" in cell["action"]
+    assert "breadth floor" in cell["action"]
+    assert "grounded-authority coverage" in cell["action"]
+    assert "baseline comparison" in cell["action"]
     assert "universal-claim gate" in cell["action"]
     assert "DESIGNER_ITSELF" not in cluster_map.get("open_cell_closure", {})
 

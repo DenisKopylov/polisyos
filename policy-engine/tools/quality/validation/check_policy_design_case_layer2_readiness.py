@@ -916,6 +916,7 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
     )
     _validate_s11_predictive_knowledge(
         s11=payloads.get("s11_predictive_knowledge"),
+        s14=payloads.get("s14_universality_assurance"),
         floor_governance=payloads["floor_governance"],
         artifact_traceability=payloads["artifact_traceability"],
         cluster_map_payload=cluster_payload,
@@ -1365,6 +1366,53 @@ def _inventory_layer2_artifact_count(payload: dict[str, Any]) -> int:
         1
         for artifact in payload.get("artifacts", [])
         if str(artifact.get("id", "")).startswith("layer2_")
+    )
+
+
+def _s14_manifest_owns_inventory_count(
+    *,
+    s14: object,
+    inventory: dict[str, Any],
+) -> bool:
+    if not isinstance(s14, dict) or not s14:
+        return False
+    inventory_artifact = _inventory_artifact_by_id(inventory, S14_INVENTORY_ID)
+    if not inventory_artifact:
+        return False
+    if s14.get("schema_version") != (
+        "policyos.policy_design_case.layer2_s14_universality_assurance_manifest.v1"
+    ):
+        return False
+    if (
+        s14.get("status") != "active"
+        or s14.get("owner") != "governance-board"
+        or s14.get("slice") != "S14"
+        or s14.get("expected_current_open_cell_count") != 0
+    ):
+        return False
+    if set(s14.get("required_artifacts", [])) != S14_REQUIRED_ARTIFACTS:
+        return False
+    supporting = s14.get("supporting_records", {})
+    if not isinstance(supporting, dict) or set(supporting) != S14_REQUIRED_SUPPORTING_RECORDS:
+        return False
+    if s14.get("universal_claim_gate_status") != "pass":
+        return False
+    for field in (
+        "schema_version",
+        "owner",
+        "status",
+        "authority_scope",
+        "may_not_use_for",
+        "validator",
+        "canonical_route",
+    ):
+        if inventory_artifact.get(field) != s14.get(field):
+            return False
+    return (
+        inventory_artifact.get("path")
+        == DEFAULT_S14_UNIVERSALITY_ASSURANCE_MANIFEST_PATH.as_posix()
+        and inventory_artifact.get("kind") == "layer2_s14_universality_assurance_manifest"
+        and inventory_artifact.get("capability_reality_label") == "implemented"
     )
 
 
@@ -3347,6 +3395,7 @@ def _validate_s10_outcome_prediction(
 def _validate_s11_predictive_knowledge(
     *,
     s11: object,
+    s14: object,
     floor_governance: dict[str, Any],
     artifact_traceability: dict[str, Any],
     cluster_map_payload: dict[str, Any],
@@ -3661,11 +3710,22 @@ def _validate_s11_predictive_knowledge(
             )
         )
 
-    if _inventory_layer2_artifact_count(inventory) not in {19, 20, 21, 22}:
+    inventory_count = _inventory_layer2_artifact_count(inventory)
+    if inventory_count not in {19, 20, 21, 22}:
         issues.append(
             _issue(
                 "layer2_s11_inventory_artifact_count_invalid",
                 "Layer 2 inventory artifact count must be 19 after S11, 20 after S12, 21 after S13, or 22 after S14.",
+            )
+        )
+    if inventory_count == 22 and not _s14_manifest_owns_inventory_count(
+        s14=s14,
+        inventory=inventory,
+    ):
+        issues.append(
+            _issue(
+                "layer2_s11_post_s14_inventory_requires_valid_s14_manifest",
+                "S11 may accept inventory count 22 only when the S14 manifest is present, active, implemented, and registered.",
             )
         )
     inventory_artifact = _inventory_artifact_by_id(inventory, S11_INVENTORY_ID)

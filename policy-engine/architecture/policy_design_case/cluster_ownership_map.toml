@@ -1041,7 +1041,7 @@ firewall = "P10_semantic_adequacy_gap"
 publishes = ["DESIGNER_ITSELF.metric_floors", "EXPERT.adjudication_labels"]
 consumes = ["INTERVENTION.design_candidate", "KNOWLEDGE.evidence_claims_portfolio"]
 gap = "none_for_seed_scope"
-action = "use corpus fixtures to measure design quality, regime classification, coupling classification, cluster-firewall adequacy, and S14 sealed battery universal-claim gate readiness."
+action = "use corpus fixtures to measure design quality, regime classification, coupling classification, cluster-firewall adequacy, and S14 D4 corpus coverage, expert oracle bootstrap, breadth floor, sealed battery, grounded-authority coverage, baseline comparison, and universal-claim gate readiness."
 
 [cell.DESIGNER_ITSELF.envelope_growth]
 owner_module = "src/polisyos/runtime/quality/layer2_resource_economics.py"

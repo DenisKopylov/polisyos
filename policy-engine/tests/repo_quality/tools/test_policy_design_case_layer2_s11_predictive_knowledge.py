@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 import tomllib
 from pathlib import Path
@@ -204,6 +205,17 @@ def test_layer2_s11_manifest_keeps_s12_s13_s14_and_production_authority_scoped()
     ):
         assert future_term in rendered_manifest
         assert f'"{future_term}": "implemented"' not in rendered_manifest
+
+
+def test_layer2_s11_post_s14_inventory_count_requires_valid_s14_manifest() -> None:
+    payloads = copy.deepcopy(_payloads())
+    payloads["s14_universality_assurance"] = {}
+
+    validation = readiness.validate_layer2_readiness_payloads(payloads)
+    issue_codes = {issue["code"] for issue in validation["issues"]}
+
+    assert readiness._inventory_layer2_artifact_count(payloads["inventory"]) == 22
+    assert "layer2_s11_post_s14_inventory_requires_valid_s14_manifest" in issue_codes
 
 
 def test_layer2_s11_maturity_transitions_match_matrix() -> None:

@@ -225,6 +225,177 @@ def test_layer2_s9_verifier_reuse_blocks_universal_self_claim_without_s14_refs()
     }
 
 
+def test_layer2_s9_verifier_allows_scoped_universal_projection_with_s14_refs() -> None:
+    verifier = (
+        projection_semantics.verify_s9_projection_faithfulness_for_pdc_consumer_contract
+    )
+    s14_verifier = projection_semantics.verify_s14_universality_projection_consumer_contract
+    projection = {
+        "audience": "public",
+        "authority_role": "projection_only",
+        "projection_policy": "reads_canonical_design_record",
+        "policy_design_case_id": "layer2-s14-positive-gate",
+        "run_id": "layer2-s14-positive-gate",
+        "canonical_design_record_ref": "pdc://layer2/s9/canonical-design",
+        "source_revision_ref": "revision://layer2/s14/positive-gate",
+        "self_description_claim_refs": ["claim://policyos/universal-declared-envelope"],
+        "s14_universality_assurance_refs": [
+            "pdc://layer2/s14/universality-assurance-case",
+            "pdc://layer2/s14/universality-claim-gate",
+            "pdc://layer2/s14/axis-scorecard",
+        ],
+        "s9_projection_faithfulness": {
+            "faithfulness_status": "pass",
+            "faithfulness_ref": "pdc://layer2/s9/faithfulness/public-universal-claim",
+            "canonical_design_record_ref": "pdc://layer2/s9/canonical-design",
+            "source_revision_ref": "revision://layer2/s14/positive-gate",
+            "authority_boundary": {
+                "authoritative_for": [],
+                "may_not_use_for": [
+                    "claim_authority",
+                    "scorecard_authority",
+                    "runtime_closeout_authority",
+                    "production_recommendation",
+                    "s14_universality",
+                ],
+            },
+            "issue_codes": [],
+        },
+        "closeout_truth": {
+            "status": "limited",
+            "verdict": "publish_with_limitation",
+            "can_closeout": False,
+            "blocker_codes": [],
+            "omission_codes": [],
+        },
+        "may_not_be_used_for": [
+            "claim_authority",
+            "scorecard_authority",
+            "runtime_closeout_authority",
+            "production_recommendation",
+            "production_rollout_authority",
+            "recommendation_authority",
+            "publication_authority",
+            "approval_authority",
+            "preference_learning",
+            "automated_value_learning",
+            "aggregate_universal_score",
+        ],
+        "s14_universality_assurance_ref": "pdc://layer2/s14/universality-assurance-case",
+        "universality_claim_gate_ref": "pdc://layer2/s14/universality-claim-gate",
+        "universality_claim_disposition": "universal_claim_limited",
+        "declared_operation_envelope_ref": "pdc://layer2/s14/declared-envelope",
+        "d4_corpus_track_coverage_ref": "pdc://layer2/s14/d4-corpus-track-coverage",
+        "d4_corpus_track_coverage_status": "pass",
+        "expert_oracle_bootstrap_ref": "pdc://layer2/s14/expert-oracle-bootstrap",
+        "expert_oracle_seed_only_layer_refs": [
+            "oracle://s14/weak-gold",
+            "oracle://s14/shadow-candidate-pool",
+        ],
+        "breadth_floor_config_ref": "pdc://layer2/s14/breadth-floor-config",
+        "breadth_floor_status": "pass",
+        "universality_baseline_comparison_ref": "pdc://layer2/s14/baseline-comparison",
+        "baseline_comparison_status": "pass",
+        "grounded_authority_coverage_ref": "pdc://layer2/s14/grounded-authority-coverage",
+        "grounded_authority_status": "pass",
+        "a_firewall_refs": ["pdc://layer2/s6/a-firewall/measurability"],
+        "claim_evidence_binding_refs": ["claim-binding://s14/universal-envelope/001"],
+        "value_choice_provenance_refs": ["value-choice://s8/s14/authorized-schedule"],
+        "mandate_legitimacy_refs": ["mandate://s14/governance-board/universality-claim"],
+        "capacity_check_refs": ["capacity://s14/capacity-constrained-cases"],
+        "evaluation_status_composition_ref": (
+            "pdc://layer2/s14/evaluation-status-composition"
+        ),
+        "status_composition_limit_refs": ["status://s14/projection-only"],
+        "axis_scorecard_ref": "pdc://layer2/s14/axis-scorecard",
+        "axis_scorecard_rows": [
+            {
+                "axis_ref": "DESIGNER_ITSELF.evaluation_corpus",
+                "posture": "limited_universal",
+                "battery_status": "pass",
+            }
+        ],
+        "sealed_battery_run_ref": "pdc://layer2/s14/sealed-battery-run",
+        "sealed_battery_freeze_hash": (
+            "sha256:d9517e4b267f820cd85d6855cbfe000abdf62427882cfec5dd78d6eefdffb4d3"
+        ),
+        "sealed_battery_integrity_status": "pass",
+        "mechanism_generality_report_ref": "pdc://layer2/s14/mechanism-generality",
+        "mechanism_generality_status": "pass",
+        "sublinear_marginal_bespoke_cost_status": "pass",
+        "skeptic_defeater_refs": [
+            "pdc://layer2/s14/defeater/bespoke_disguise_defeater",
+            "pdc://layer2/s14/defeater/confident_theater_defeater",
+            "pdc://layer2/s14/defeater/failure_boundary_defeater",
+            "pdc://layer2/s14/defeater/single_axis_universality_defeater",
+            "pdc://layer2/s14/defeater/frozen_once_defeater",
+            "pdc://layer2/s14/defeater/first_call_defeater",
+        ],
+        "skeptic_defeater_statuses": {
+            "bespoke_disguise_defeater": "pass",
+            "confident_theater_defeater": "pass",
+            "failure_boundary_defeater": "pass",
+            "single_axis_universality_defeater": "pass",
+            "frozen_once_defeater": "pass",
+            "first_call_defeater": "pass",
+        },
+        "s9_projection_faithfulness_refs": [
+            "pdc://layer2/s9/faithfulness/public-universal-claim"
+        ],
+        "public_universality_limitation": "limited to the declared operation envelope",
+        "authority_boundary": {
+            "authoritative_for": ["s14_universality_claim_gate"],
+            "may_not_use_for": [
+                "production_rollout_authority",
+                "production_recommendation",
+                "recommendation_authority",
+                "publication_authority",
+                "approval_authority",
+                "claim_authority",
+                "runtime_closeout_authority",
+                "scorecard_authority",
+                "preference_learning",
+                "automated_value_learning",
+                "aggregate_universal_score",
+            ],
+        },
+    }
+
+    s9_result = verifier(
+        projections={"public": projection},
+        expected_closeout_truth={
+            "status": "limited",
+            "verdict": "publish_with_limitation",
+            "can_closeout": False,
+            "blocker_codes": [],
+            "omission_codes": [],
+        },
+        expected_source_revision_ref="revision://layer2/s14/positive-gate",
+    )
+    s14_result = s14_verifier(projections={"public": projection})
+
+    assert s9_result["status"] == "pass", s9_result["issues"]
+    assert s9_result["s9_projection_faithfulness"]["authority_boundary"][
+        "authoritative_for"
+    ] == []
+    assert s14_result["status"] == "pass", s14_result["issues"]
+    public_projection = s14_result["public_projection"]
+    assert public_projection["authority_role"] == "projection_only"
+    assert public_projection["universality_claim_gate_ref"] == (
+        "pdc://layer2/s14/universality-claim-gate"
+    )
+    assert public_projection["d4_corpus_track_coverage_ref"]
+    assert public_projection["expert_oracle_bootstrap_ref"]
+    assert public_projection["breadth_floor_config_ref"]
+    assert public_projection["grounded_authority_coverage_ref"]
+    assert public_projection["universality_baseline_comparison_ref"]
+    assert public_projection["evaluation_status_composition_ref"]
+    assert "production_recommendation" in public_projection["may_not_be_used_for"]
+    assert "recommendation_authority" not in set(
+        projection["authority_boundary"]["authoritative_for"]
+    )
+
+
 def test_layer2_s9_keeps_future_authority_denied_after_s12_burn_down() -> None:
     payload = cluster_map.load_cluster_ownership_map(REPO_ROOT)
     current_open_cells = readiness._open_cell_refs(payload)  # type: ignore[attr-defined]

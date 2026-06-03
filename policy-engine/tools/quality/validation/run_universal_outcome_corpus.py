@@ -41,6 +41,7 @@ from polisyos.pdc import (  # noqa: E402
     Layer2S8ValuePostureInput,
     Layer2S10ForecastPostureInput,
     Layer2S11PredictivePostureInput,
+    Layer2S12ResourceEconomicsPostureInput,
     run_s2_shadow_design_loop,
 )
 from polisyos.policy_grammar import (  # noqa: E402
@@ -137,6 +138,19 @@ from polisyos.runtime.quality.layer2_projection_lowering import (  # noqa: E402
     LAYER2_S9_PROJECTION_LOWERING_SCHEMA_VERSION,
     S9_PROJECTION_FLOOR_ID,
 )
+from polisyos.runtime.quality.layer2_resource_economics import (  # noqa: E402
+    LAYER2_S12_RESOURCE_ECONOMICS_RULE_VERSION,
+    LAYER2_S12_RESOURCE_ECONOMICS_SCHEMA_VERSION,
+    S12_FALSE_CLEAR_FIELDS,
+    S12_TYPED_BUDGETS,
+    S12_VOI_SITES,
+    build_envelope_growth_ledger,
+    build_growth_thermometers,
+    build_knowledge_governance_throughput_ledger,
+    build_resource_allocation_policy,
+    build_s12_resource_economics_posture,
+    verify_resource_authority_envelope,
+)
 from polisyos.runtime.quality.layer2_substrate_acquisition import (  # noqa: E402
     ConstructExpression,
     SubstrateAcquisitionLoop,
@@ -212,6 +226,12 @@ S11_CASE_SIGNALS_PATH = Path(
 )
 S11_EXPERT_LABELS_PATH = Path(
     "tests/fixtures/layer2/s11/s11_predictive_knowledge_expert_labels.json"
+)
+S12_CASE_SIGNALS_PATH = Path(
+    "tests/fixtures/layer2/s12/s12_resource_economics_case_signals.json"
+)
+S12_EXPERT_LABELS_PATH = Path(
+    "tests/fixtures/layer2/s12/s12_resource_economics_expert_labels.json"
 )
 S9_CASE_SIGNALS_PATH = Path("tests/fixtures/layer2/s9/s9_projection_lowering_case_signals.json")
 S9_EXPERT_LABELS_PATH = Path("tests/fixtures/layer2/s9/s9_projection_lowering_expert_labels.json")
@@ -356,6 +376,15 @@ S11_NEGATIVE_CONTROL_PROBE_PATHS: tuple[Path, ...] = (
     Path("tests/fixtures/layer2/s11/negative_controls/rich_simulation_authority_laundering_probe.json"),
     Path("tests/fixtures/layer2/s11/negative_controls/weakest_boundary_bypass_probe.json"),
 )
+S12_NEGATIVE_CONTROL_PROBE_PATHS: tuple[Path, ...] = (
+    Path("tests/fixtures/layer2/s12/negative_controls/bespoke_one_off_growth_probe.json"),
+    Path("tests/fixtures/layer2/s12/negative_controls/allocation_gaming_internal_metrics_probe.json"),
+    Path("tests/fixtures/layer2/s12/negative_controls/floor_lowering_for_useful_design_rate_probe.json"),
+    Path("tests/fixtures/layer2/s12/negative_controls/b_faster_than_a_growth_probe.json"),
+    Path("tests/fixtures/layer2/s12/negative_controls/meta_regress_past_principal_probe.json"),
+    Path("tests/fixtures/layer2/s12/negative_controls/interchangeable_budget_probe.json"),
+    Path("tests/fixtures/layer2/s12/negative_controls/growth_without_envelope_delta_probe.json"),
+)
 S8_MAY_NOT_USE_FOR: tuple[str, ...] = (
     "production_recommendation",
     "production_claim_authority",
@@ -417,6 +446,24 @@ S11_MAY_NOT_USE_FOR: tuple[str, ...] = (
     "historical_prior_current_evidence",
     "llm_method_authority",
 )
+S12_MAY_NOT_USE_FOR: tuple[str, ...] = (
+    "production_authority",
+    "production_recommendation",
+    "rollout_authority",
+    "publication_authority",
+    "claim_authority",
+    "closeout_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "preference_learning_authority",
+    "mdp_bandit_optimizer_authority",
+    "budget_interchangeability",
+    "mission_or_value_self_authorization",
+    "floor_relaxation",
+    "s13_envelope_shrink",
+    "s13_accountability_closure",
+    "s14_universality",
+)
 
 
 class W12DCaseRunError(ValueError):
@@ -465,6 +512,10 @@ def build_w12d_universal_outcome_corpus_report(
         cases,
         repo_root=Path(repo_root),
     )
+    s12_resource_economics_summary = _s12_resource_economics_summary(
+        cases,
+        repo_root=Path(repo_root),
+    )
     s9_projection_lowering_summary = _s9_projection_lowering_summary(
         cases,
         repo_root=Path(repo_root),
@@ -489,6 +540,7 @@ def build_w12d_universal_outcome_corpus_report(
         "s8_value_choice_summary": s8_value_choice_summary,
         "s10_outcome_prediction_summary": s10_outcome_prediction_summary,
         "s11_predictive_knowledge_summary": s11_predictive_knowledge_summary,
+        "s12_resource_economics_summary": s12_resource_economics_summary,
         "s9_projection_lowering_summary": s9_projection_lowering_summary,
         "cases": cases,
         "authority_level_metric_stratification": _authority_stratification(cases),
@@ -1105,6 +1157,13 @@ def _run_case(
         s6_blind_spot_firewalls=s6_blind_spot_firewalls,
         s10_outcome_prediction=s10_outcome_prediction,
     )
+    s12_resource_economics = _s12_resource_economics_case_block(
+        case,
+        repo_root=repo_root,
+        s7_delegation=s7_delegation,
+        s8_value_choice=s8_value_choice,
+        s11_predictive_knowledge=s11_predictive_knowledge,
+    )
     s2_design_search = _s2_design_search_summary(
         case,
         repo_root=repo_root,
@@ -1115,6 +1174,7 @@ def _run_case(
         s8_value_choice=s8_value_choice,
         s10_outcome_prediction=s10_outcome_prediction,
         s11_predictive_knowledge=s11_predictive_knowledge,
+        s12_resource_economics=s12_resource_economics,
     )
     s10_outcome_prediction = _s10_with_source_design_record(
         s10_outcome_prediction,
@@ -1149,6 +1209,7 @@ def _run_case(
         "s8_value_choice": s8_value_choice,
         "s10_outcome_prediction": s10_outcome_prediction,
         "s11_predictive_knowledge": s11_predictive_knowledge,
+        "s12_resource_economics": s12_resource_economics,
         "s9_projection_lowering": s9_projection_lowering,
         "closeout_visible_refs": _closeout_visible_refs(
             s7_delegation=s7_delegation,
@@ -1172,6 +1233,7 @@ def _s2_design_search_summary(
     s8_value_choice: Mapping[str, Any] | None = None,
     s10_outcome_prediction: Mapping[str, Any] | None = None,
     s11_predictive_knowledge: Mapping[str, Any] | None = None,
+    s12_resource_economics: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     case_id = str(case.get("case_id") or case.get("id") or "")
     if case_id != "ua-msme-affordable-loans-2022":
@@ -1219,6 +1281,20 @@ def _s2_design_search_summary(
                     ),
                     "predictive_authority_boundary": _mapping(
                         s11_predictive_knowledge.get("authority_boundary")
+                    ),
+                }
+            )
+        if s12_resource_economics is not None:
+            summary.update(
+                {
+                    "resource_posture_ref": _text(
+                        s12_resource_economics.get("resource_allocation_policy_ref")
+                    ),
+                    "explore_exploit_posture": _text(
+                        s12_resource_economics.get("explore_exploit_posture")
+                    ),
+                    "resource_authority_boundary": _mapping(
+                        s12_resource_economics.get("authority_boundary")
                     ),
                 }
             )
@@ -1278,6 +1354,11 @@ def _s2_design_search_summary(
         if s11_predictive_knowledge
         else None
     )
+    resource_posture = (
+        _s12_resource_posture_input(s12_resource_economics)
+        if s12_resource_economics
+        else None
+    )
     if s4_epistemic_regime:
         run = run_s2_shadow_design_loop(
             input_row,
@@ -1296,6 +1377,7 @@ def _s2_design_search_summary(
             value_posture=value_posture,
             forecast_posture=forecast_posture,
             predictive_posture=predictive_posture,
+            resource_posture=resource_posture,
         )
     else:
         run = run_s2_shadow_design_loop(
@@ -1306,6 +1388,7 @@ def _s2_design_search_summary(
             value_posture=value_posture,
             forecast_posture=forecast_posture,
             predictive_posture=predictive_posture,
+            resource_posture=resource_posture,
         )
     return {
         "status": run.status,
@@ -1328,6 +1411,11 @@ def _s2_design_search_summary(
         "predictive_posture": (
             run.predictive_posture.model_dump(mode="json")
             if run.predictive_posture is not None
+            else None
+        ),
+        "resource_posture": (
+            run.resource_posture.model_dump(mode="json")
+            if run.resource_posture is not None
             else None
         ),
         "search_ledger": run.search_ledger.model_dump(mode="json"),
@@ -4345,6 +4433,470 @@ def _s11_case_signals(repo_root: Path) -> dict[str, dict[str, Any]]:
 
 def _s11_expert_labels(repo_root: Path) -> dict[str, dict[str, Any]]:
     path = _resolve(repo_root, S11_EXPERT_LABELS_PATH)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    raw_cases = payload.get("cases") if isinstance(payload, Mapping) else {}
+    return {
+        str(case_id): dict(row)
+        for case_id, row in _mapping(raw_cases).items()
+        if isinstance(row, Mapping)
+    }
+
+
+def _s12_resource_economics_case_block(
+    case: Mapping[str, object],
+    *,
+    repo_root: Path,
+    s7_delegation: Mapping[str, object],
+    s8_value_choice: Mapping[str, object],
+    s11_predictive_knowledge: Mapping[str, object],
+) -> dict[str, object]:
+    """Build the S12 resource-economics block from S7/S8/S11 and S12 fixtures."""
+
+    case_id = _required_text(case.get("case_id") or case.get("id"), field_name="case_id")
+    signals = _s12_case_signals(repo_root).get(case_id)
+    labels = _s12_expert_labels(repo_root).get(case_id)
+    if not signals or not labels:
+        raise W12DCaseRunError(f"S12 resource-economics fixture missing for {case_id}")
+
+    budget_refs = _mapping(signals.get("typed_budget_refs"))
+    allocation_policy = build_resource_allocation_policy(
+        case_id=case_id,
+        delegation_contract_ref=_required_text(
+            s7_delegation.get("delegation_contract_ref")
+            or signals.get("delegation_contract_ref"),
+            field_name="delegation_contract_ref",
+        ),
+        explore_exploit_dial_ref=_required_text(
+            signals.get("explore_exploit_dial_ref")
+            or s7_delegation.get("human_decision_request_ref"),
+            field_name="explore_exploit_dial_ref",
+        ),
+        principal_ref=_required_text(signals.get("principal_ref"), field_name="principal_ref"),
+        mission_ref=_required_text(signals.get("mission_ref"), field_name="mission_ref"),
+        voi_estimates=_s12_voi_estimates(signals, case_id=case_id),
+        candidate_policy_refs=_text_list(signals.get("candidate_policy_refs")),
+        compute_budget_ref=_required_text(budget_refs.get("compute"), field_name="compute"),
+        acquisition_budget_ref=_required_text(
+            budget_refs.get("acquisition_money"),
+            field_name="acquisition_money",
+        ),
+        expert_time_budget_ref=_required_text(
+            budget_refs.get("expert_time"),
+            field_name="expert_time",
+        ),
+        human_attention_budget_ref=_required_text(
+            budget_refs.get("human_attention"),
+            field_name="human_attention",
+        ),
+        legal_access_budget_ref=_required_text(
+            budget_refs.get("legal_access"),
+            field_name="legal_access",
+        ),
+        rule_version_ref=LAYER2_S12_RESOURCE_ECONOMICS_RULE_VERSION,
+    ).model_copy(
+        update={"explore_exploit_posture": _s12_explore_exploit_posture(signals)}
+    )
+    growth_entries, blocked_growth_entries = _s12_growth_entries(signals, case_id=case_id)
+    envelope_growth_ledger = build_envelope_growth_ledger(
+        case_id=case_id,
+        growth_entries=growth_entries,
+        cluster_map_open_cell_count_before=int(
+            signals.get("cluster_map_open_cell_count_before") or 1
+        ),
+        cluster_map_open_cell_count_after=int(
+            signals.get("cluster_map_open_cell_count_after") or 0
+        ),
+        rule_version_ref=LAYER2_S12_RESOURCE_ECONOMICS_RULE_VERSION,
+    )
+    growth_thermometer = build_growth_thermometers(
+        case_id=case_id,
+        human_decision_records=_sequence_of_mappings(signals.get("override_decision_refs")),
+        required_question_count=int(signals.get("required_question_count") or 4),
+        reused_primitive_refs=_text_list(signals.get("reuse_evidence_refs")),
+        one_off_growth_refs=_text_list(signals.get("one_off_growth_refs")),
+        rule_version_ref=LAYER2_S12_RESOURCE_ECONOMICS_RULE_VERSION,
+    )
+    throughput_ledger = build_knowledge_governance_throughput_ledger(
+        case_id=case_id,
+        throughput_rows=_sequence_of_mappings(signals.get("throughput_rows")),
+        rule_version_ref=LAYER2_S12_RESOURCE_ECONOMICS_RULE_VERSION,
+    )
+    posture = build_s12_resource_economics_posture(
+        policy=allocation_policy,
+        envelope_growth_ledger=envelope_growth_ledger,
+        growth_thermometer=growth_thermometer,
+        throughput_ledger=throughput_ledger,
+        residual_limitation_refs=_text_list(signals.get("residual_limitation_refs")),
+        rule_version_ref=LAYER2_S12_RESOURCE_ECONOMICS_RULE_VERSION,
+    )
+    block = dict(posture)
+    block.update(
+        {
+            "schema_version": LAYER2_S12_RESOURCE_ECONOMICS_SCHEMA_VERSION,
+            "case_id": case_id,
+            "explore_exploit_posture": allocation_policy.explore_exploit_posture,
+            "voi_allocation_refs": [
+                row.voi_estimate_ref for row in allocation_policy.voi_allocations
+            ],
+            "voi_site_count": allocation_policy.voi_site_count,
+            "typed_budget_refs": [
+                row.budget_ref for row in allocation_policy.typed_budget_rows
+            ],
+            "pareto_archive_ref": allocation_policy.pareto_archive_ref,
+            "resource_allocation_policy_ref": allocation_policy.policy_ref,
+            "envelope_growth_ledger_ref": envelope_growth_ledger.ledger_ref,
+            "growth_thermometer_ref": growth_thermometer.thermometer_ref,
+            "override_rate_trend": growth_thermometer.override_rate_trend,
+            "reuse_rate_trend": growth_thermometer.reuse_rate_trend,
+            "held_out_status": growth_thermometer.held_out_status,
+            "knowledge_governance_throughput_ledger_ref": throughput_ledger.ledger_ref,
+            "counted_mechanism_growth_count": (
+                envelope_growth_ledger.counted_mechanism_growth_count
+            ),
+            "flagged_bespoke_one_off_count": (
+                envelope_growth_ledger.flagged_bespoke_one_off_count
+            ),
+            "growth_without_envelope_delta_count": 0,
+            "blocked_growth_entries": blocked_growth_entries,
+            "growth_entries": [
+                entry.model_dump(mode="json")
+                for entry in envelope_growth_ledger.growth_entries
+            ],
+            "allocation_priority_rows": [
+                row.model_dump(mode="json")
+                for row in allocation_policy.allocation_priority_rows
+            ],
+            "authority_boundary": allocation_policy.authority_boundary.model_dump(
+                mode="json"
+            ),
+            "may_not_use_for": list(S12_MAY_NOT_USE_FOR),
+            "s7_delegation_contract_ref": s7_delegation.get("delegation_contract_ref"),
+            "s8_pareto_archive_ref": s8_value_choice.get("pareto_archive_ref"),
+            "s11_predictive_knowledge_ref": s11_predictive_knowledge.get(
+                "predictive_knowledge_ref"
+            ),
+            "coverage_labels": _text_list(labels.get("coverage_labels")),
+            "source_signal_refs": [f"fixture://layer2/s12/{case_id}/case-signals"],
+            "rule_version_ref": LAYER2_S12_RESOURCE_ECONOMICS_RULE_VERSION,
+        }
+    )
+    block["matches_gold"] = _s12_matches_gold(block, labels)
+    return block
+
+
+def _s12_resource_posture_input(
+    s12_resource_economics: Mapping[str, Any],
+) -> Layer2S12ResourceEconomicsPostureInput:
+    return Layer2S12ResourceEconomicsPostureInput(
+        resource_allocation_policy_ref=_required_text(
+            s12_resource_economics.get("resource_allocation_policy_ref"),
+            field_name="resource_allocation_policy_ref",
+        ),
+        explore_exploit_posture=_required_text(
+            s12_resource_economics.get("explore_exploit_posture"),
+            field_name="explore_exploit_posture",
+        ),  # type: ignore[arg-type]
+        explore_exploit_dial_ref=_text(
+            s12_resource_economics.get("explore_exploit_dial_ref")
+        )
+        or None,
+        delegation_contract_ref=_required_text(
+            s12_resource_economics.get("delegation_contract_ref")
+            or s12_resource_economics.get("s7_delegation_contract_ref"),
+            field_name="delegation_contract_ref",
+        ),
+        voi_allocation_refs=_text_list(s12_resource_economics.get("voi_allocation_refs")),
+        voi_site_count=int(s12_resource_economics.get("voi_site_count") or 0),
+        typed_budget_refs=_text_list(s12_resource_economics.get("typed_budget_refs")),
+        pareto_archive_ref=_required_text(
+            s12_resource_economics.get("pareto_archive_ref"),
+            field_name="pareto_archive_ref",
+        ),
+        allocation_priority_rows=[
+            dict(row)
+            for row in _sequence_of_mappings(
+                s12_resource_economics.get("allocation_priority_rows")
+            )
+        ],
+        envelope_growth_ledger_ref=_required_text(
+            s12_resource_economics.get("envelope_growth_ledger_ref"),
+            field_name="envelope_growth_ledger_ref",
+        ),
+        growth_thermometer_ref=_required_text(
+            s12_resource_economics.get("growth_thermometer_ref"),
+            field_name="growth_thermometer_ref",
+        ),
+        override_rate_trend=_required_text(
+            s12_resource_economics.get("override_rate_trend"),
+            field_name="override_rate_trend",
+        ),  # type: ignore[arg-type]
+        reuse_rate_trend=_required_text(
+            s12_resource_economics.get("reuse_rate_trend"),
+            field_name="reuse_rate_trend",
+        ),  # type: ignore[arg-type]
+        held_out_status="pending_s14",
+        knowledge_governance_throughput_ledger_ref=_required_text(
+            s12_resource_economics.get("knowledge_governance_throughput_ledger_ref"),
+            field_name="knowledge_governance_throughput_ledger_ref",
+        ),
+        residual_limitation_refs=_text_list(
+            s12_resource_economics.get("residual_limitation_refs")
+        ),
+        authority_boundary=dict(_mapping(s12_resource_economics.get("authority_boundary"))),
+        may_not_use_for=_text_list(s12_resource_economics.get("may_not_use_for")),
+        rule_version_ref=LAYER2_S12_RESOURCE_ECONOMICS_RULE_VERSION,
+    )
+
+
+def _s12_resource_economics_summary(
+    cases: Sequence[Mapping[str, Any]],
+    *,
+    repo_root: Path,
+) -> dict[str, object]:
+    rows = [
+        _mapping(case.get("s12_resource_economics"))
+        for case in cases
+        if isinstance(case.get("s12_resource_economics"), Mapping)
+    ]
+    negative_results = _s12_negative_control_probe_results(repo_root)
+    false_clear_counts = {
+        field: _s12_false_clear_count(negative_results, field)
+        for field in S12_FALSE_CLEAR_FIELDS
+    }
+    counted = sum(int(row.get("counted_mechanism_growth_count") or 0) for row in rows)
+    flagged = sum(int(row.get("flagged_bespoke_one_off_count") or 0) for row in rows)
+    summary: dict[str, object] = {
+        "schema_version": (
+            "policyos.policy_design_case.layer2_s12."
+            "resource_economics_corpus_summary.v1"
+        ),
+        "case_count": len(rows),
+        "voi_site_count": max([int(row.get("voi_site_count") or 0) for row in rows], default=0),
+        "typed_budget_count": len(S12_TYPED_BUDGETS),
+        "voi_sites": list(S12_VOI_SITES),
+        "override_rate_trend": _s12_summary_trend(
+            [row.get("override_rate_trend") for row in rows]
+        ),
+        "reuse_rate_trend": _s12_summary_trend(
+            [row.get("reuse_rate_trend") for row in rows]
+        ),
+        "held_out_status": "pending_s14",
+        "counted_mechanism_growth_count": counted,
+        "flagged_bespoke_one_off_count": flagged,
+        "growth_without_envelope_delta_count": 0,
+        "blocked_growth_without_envelope_delta_count": sum(
+            len(_sequence(row.get("blocked_growth_entries"))) for row in rows
+        ),
+        "false_clear_counts": false_clear_counts,
+        "negative_control_false_clear_count": sum(false_clear_counts.values()),
+        "negative_control_results": negative_results,
+        "per_case_resource_table": [
+            {
+                "case_id": row.get("case_id"),
+                "resource_allocation_policy_ref": row.get(
+                    "resource_allocation_policy_ref"
+                ),
+                "explore_exploit_posture": row.get("explore_exploit_posture"),
+                "voi_site_count": row.get("voi_site_count"),
+                "typed_budget_count": len(_text_list(row.get("typed_budget_refs"))),
+                "counted_mechanism_growth_count": row.get(
+                    "counted_mechanism_growth_count"
+                ),
+                "flagged_bespoke_one_off_count": row.get(
+                    "flagged_bespoke_one_off_count"
+                ),
+                "matches_gold": row.get("matches_gold"),
+            }
+            for row in rows
+        ],
+        "may_not_use_for": list(S12_MAY_NOT_USE_FOR),
+        "rule_version_ref": LAYER2_S12_RESOURCE_ECONOMICS_RULE_VERSION,
+    }
+    for field, count in false_clear_counts.items():
+        summary[f"{field}_false_clear_count"] = count
+    return summary
+
+
+def _s12_negative_control_probe_results(
+    repo_root: Path,
+) -> dict[str, dict[str, object]]:
+    results: dict[str, dict[str, object]] = {}
+    for probe_path in S12_NEGATIVE_CONTROL_PROBE_PATHS:
+        payload = json.loads(_resolve(repo_root, probe_path).read_text(encoding="utf-8"))
+        probe_id = _required_text(payload.get("probe_id"), field_name="probe_id")
+        false_clear_field = _required_text(
+            payload.get("false_clear_field"),
+            field_name="false_clear_field",
+        )
+        expected_disposition = _required_text(
+            payload.get("expected_disposition"),
+            field_name="expected_disposition",
+        )
+        expected_false_clear_count = int(payload.get("expected_false_clear_count") or 0)
+        observed = verify_resource_authority_envelope(payload).model_dump(mode="json")
+        observed_disposition = _required_text(
+            observed.get("disposition"),
+            field_name="disposition",
+        )
+        false_clear_count = int(
+            _mapping(observed.get("false_clear_counts")).get(false_clear_field) or 0
+        )
+        results[probe_id] = {
+            "probe_id": probe_id,
+            "case_id": _text(payload.get("case_id")),
+            "false_clear_field": false_clear_field,
+            "observed_disposition": observed_disposition,
+            "expected_disposition": expected_disposition,
+            "false_clear_count": false_clear_count,
+            "expected_false_clear_count": expected_false_clear_count,
+            "negative_control_false_clear": (
+                observed_disposition != expected_disposition
+                or false_clear_count != expected_false_clear_count
+            ),
+        }
+    return results
+
+
+def _s12_voi_estimates(signals: Mapping[str, object], *, case_id: str) -> list[dict[str, object]]:
+    refs = _mapping(signals.get("voi_input_refs"))
+    site_markers = {
+        "acquisition": "layer2_s3_substrate_acquisition",
+        "refinement": "layer2.s2.shadow_design_loop",
+        "attention": "layer2.s7.attention",
+        "oracle": "layer2.oracle",
+        "allocation": "layer2.s12.resource_allocation",
+    }
+    site_budgets = {
+        "acquisition": ["acquisition_money", "legal_access"],
+        "refinement": ["compute"],
+        "attention": ["human_attention", "expert_time"],
+        "oracle": ["expert_time", "legal_access"],
+        "allocation": ["compute", "human_attention"],
+    }
+    estimates: list[dict[str, object]] = []
+    for site in S12_VOI_SITES:
+        estimate_ref = _required_text(refs.get(site), field_name=f"{site}_voi_ref")
+        estimates.append(
+            {
+                "estimate_id": estimate_ref.rsplit("/", 1)[-1].replace("-", "_"),
+                "purpose": f"S12 {site} value-of-information allocation for {case_id}.",
+                "budget_dimensions": site_budgets[site],
+                "used_by_sites": [site_markers[site]],
+                "owner": "principal-governance",
+                "rule_version_ref": LAYER2_S12_RESOURCE_ECONOMICS_RULE_VERSION,
+            }
+        )
+    return estimates
+
+
+def _s12_growth_entries(
+    signals: Mapping[str, object],
+    *,
+    case_id: str,
+) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
+    growth_entries: list[dict[str, object]] = []
+    blocked_entries: list[dict[str, object]] = []
+    for index, row in enumerate(_sequence_of_mappings(signals.get("growth_demands")), 1):
+        entry_kind = _text(row.get("entry_kind")) or "mechanism_growth"
+        certified_ref = _text(row.get("certified_envelope_delta_ref")) or None
+        pending_ref = _text(row.get("pending_envelope_delta_ref")) or None
+        disposition = (
+            "flagged_bespoke_one_off"
+            if entry_kind == "bespoke_one_off"
+            else "counted_mechanism_growth"
+        )
+        entry = {
+            "entry_ref": _text(row.get("entry_ref"))
+            or f"pdc://layer2/s12/{case_id}/growth-entry/{index:03d}",
+            "demand_act_ref": _required_text(
+                row.get("demand_act_ref"),
+                field_name="demand_act_ref",
+            ),
+            "certified_envelope_delta_ref": certified_ref,
+            "pending_envelope_delta_ref": pending_ref,
+            "growth_counting_disposition": disposition,
+            "reuse_evidence_refs": _text_list(
+                row.get("reuse_evidence_refs") or signals.get("reuse_evidence_refs")
+            ),
+            "bespoke_flag_reason": _text(row.get("bespoke_flag_reason")) or None,
+            "a_completeness_delta_ref": _text(row.get("a_completeness_delta_ref"))
+            or f"delta://layer2/s12/{case_id}/a-completeness",
+            "b_capability_delta_ref": _text(row.get("b_capability_delta_ref"))
+            or f"delta://layer2/s12/{case_id}/b-capability",
+        }
+        if not certified_ref and not pending_ref:
+            blocked = dict(entry)
+            blocked["growth_counting_disposition"] = "blocked_no_envelope_delta"
+            blocked_entries.append(blocked)
+            continue
+        if disposition == "flagged_bespoke_one_off" and not entry["bespoke_flag_reason"]:
+            entry["bespoke_flag_reason"] = "construct is not in the frozen seed primitive set"
+        growth_entries.append(entry)
+    return growth_entries, blocked_entries
+
+
+def _s12_explore_exploit_posture(signals: Mapping[str, object]) -> str:
+    pressure = _text(signals.get("allocation_pressure"))
+    if pressure == "exploit":
+        return "exploit_in_envelope"
+    if pressure == "invest":
+        return "invest_in_growth"
+    if pressure == "blocked":
+        return "blocked"
+    return "balanced_governed"
+
+
+def _s12_summary_trend(values: Sequence[object]) -> str:
+    trends = {_text(value) for value in values if _text(value)}
+    if "regressing" in trends:
+        return "regressing"
+    if "flat" in trends:
+        return "flat"
+    return "improving"
+
+
+def _s12_false_clear_count(
+    results: Mapping[str, Mapping[str, object]],
+    false_clear_field: str,
+) -> int:
+    return sum(
+        1
+        for row in results.values()
+        if row.get("false_clear_field") == false_clear_field
+        and row.get("negative_control_false_clear")
+    )
+
+
+def _s12_matches_gold(block: Mapping[str, object], labels: Mapping[str, object]) -> bool:
+    return (
+        _text(block.get("explore_exploit_posture"))
+        == _text(labels.get("expected_explore_exploit_posture"))
+        and _text(block.get("override_rate_trend"))
+        == _text(labels.get("expected_override_rate_trend"))
+        and _text(block.get("reuse_rate_trend"))
+        == _text(labels.get("expected_reuse_rate_trend"))
+        and int(block.get("counted_mechanism_growth_count") or 0)
+        == int(labels.get("expected_counted_mechanism_growth_count") or 0)
+        and int(block.get("flagged_bespoke_one_off_count") or 0)
+        == int(labels.get("expected_flagged_bespoke_one_off_count") or 0)
+        and len(_sequence(block.get("blocked_growth_entries")))
+        == int(labels.get("expected_blocked_no_envelope_delta_count") or 0)
+    )
+
+
+def _s12_case_signals(repo_root: Path) -> dict[str, dict[str, Any]]:
+    path = _resolve(repo_root, S12_CASE_SIGNALS_PATH)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    raw_cases = payload.get("cases") if isinstance(payload, Mapping) else {}
+    return {
+        str(case_id): dict(row)
+        for case_id, row in _mapping(raw_cases).items()
+        if isinstance(row, Mapping)
+    }
+
+
+def _s12_expert_labels(repo_root: Path) -> dict[str, dict[str, Any]]:
+    path = _resolve(repo_root, S12_EXPERT_LABELS_PATH)
     payload = json.loads(path.read_text(encoding="utf-8"))
     raw_cases = payload.get("cases") if isinstance(payload, Mapping) else {}
     return {

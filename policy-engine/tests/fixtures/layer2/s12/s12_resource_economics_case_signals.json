@@ -1,0 +1,760 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s12_resource_economics_case_signals.v1",
+  "cases": {
+    "ua-msme-affordable-loans-2022": {
+      "case_id": "ua-msme-affordable-loans-2022",
+      "allocation_pressure": "exploit",
+      "principal_ref": "principal://w12d/ukraine-ministry-of-economy",
+      "mission_ref": "mission://w12d/ua-msme-affordable-loans-2022/credit-access",
+      "explore_exploit_dial_ref": "pdc://layer2/s7/ua-msme-affordable-loans-2022/explore-exploit-dial",
+      "voi_input_refs": {
+        "acquisition": "voi-input://ua-msme-affordable-loans-2022/acquisition",
+        "refinement": "voi-input://ua-msme-affordable-loans-2022/refinement",
+        "attention": "voi-input://ua-msme-affordable-loans-2022/attention",
+        "oracle": "voi-input://ua-msme-affordable-loans-2022/oracle",
+        "allocation": "voi-input://ua-msme-affordable-loans-2022/allocation"
+      },
+      "typed_budget_refs": {
+        "compute": "budget://ua-msme-affordable-loans-2022/compute",
+        "acquisition_money": "budget://ua-msme-affordable-loans-2022/acquisition-money",
+        "expert_time": "budget://ua-msme-affordable-loans-2022/expert-time",
+        "human_attention": "budget://ua-msme-affordable-loans-2022/human-attention",
+        "legal_access": "budget://ua-msme-affordable-loans-2022/legal-access"
+      },
+      "candidate_policy_refs": [
+        "allocation-policy://ua-msme-affordable-loans-2022/exploit-certified-credit-program-binding",
+        "allocation-policy://ua-msme-affordable-loans-2022/balanced-substrate-governance"
+      ],
+      "demand_act_refs": [
+        "demand-act://ua-msme-affordable-loans-2022/s12-credit-program-enrollment-binding"
+      ],
+      "growth_demands": [
+        {
+          "entry_ref": "pdc://layer2/s12/ua-msme-affordable-loans-2022/growth-entry/credit-program-enrollment",
+          "entry_kind": "mechanism_growth",
+          "demand_act_ref": "demand-act://ua-msme-affordable-loans-2022/s12-credit-program-enrollment-binding",
+          "certified_envelope_delta_ref": "delta://layer2/s12/ua-msme-affordable-loans-2022/certified-credit-program-enrollment",
+          "a_completeness_delta_ref": "delta://layer2/s12/ua-msme-affordable-loans-2022/a-completeness-credit-program-enrollment",
+          "b_capability_delta_ref": "delta://layer2/s12/ua-msme-affordable-loans-2022/b-capability-credit-program-enrollment",
+          "reuse_evidence_refs": [
+            "reuse://layer2/s3/ua-msme-affordable-loans-2022/closed-acquisition-binding"
+          ]
+        }
+      ],
+      "reuse_evidence_refs": [
+        "reuse://layer2/s3/ua-msme-affordable-loans-2022/closed-acquisition-binding",
+        "reuse://layer2/s7/ua-msme-affordable-loans-2022/delegation-contract"
+      ],
+      "one_off_growth_refs": [],
+      "override_decision_refs": [
+        {
+          "decision_class_id": "final_choice",
+          "decision_action_exercised": "accept",
+          "decision_ref": "decision://layer2/s7/ua-msme-affordable-loans-2022/final-choice"
+        }
+      ],
+      "required_question_count": 4,
+      "residual_limitation_refs": [
+        "limitation://s12/ua-msme-affordable-loans-2022/resource-posture-shadow-only"
+      ]
+    },
+    "w11a_berlin_rent_cap_2020": {
+      "case_id": "w11a_berlin_rent_cap_2020",
+      "allocation_pressure": "invest",
+      "principal_ref": "principal://w12d/berlin-senate",
+      "mission_ref": "mission://w12d/w11a_berlin_rent_cap_2020/housing-affordability",
+      "explore_exploit_dial_ref": "pdc://layer2/s7/w11a_berlin_rent_cap_2020/explore-exploit-dial",
+      "voi_input_refs": {
+        "acquisition": "voi-input://w11a_berlin_rent_cap_2020/acquisition",
+        "refinement": "voi-input://w11a_berlin_rent_cap_2020/refinement",
+        "attention": "voi-input://w11a_berlin_rent_cap_2020/attention",
+        "oracle": "voi-input://w11a_berlin_rent_cap_2020/oracle",
+        "allocation": "voi-input://w11a_berlin_rent_cap_2020/allocation"
+      },
+      "typed_budget_refs": {
+        "compute": "budget://w11a_berlin_rent_cap_2020/compute",
+        "acquisition_money": "budget://w11a_berlin_rent_cap_2020/acquisition-money",
+        "expert_time": "budget://w11a_berlin_rent_cap_2020/expert-time",
+        "human_attention": "budget://w11a_berlin_rent_cap_2020/human-attention",
+        "legal_access": "budget://w11a_berlin_rent_cap_2020/legal-access"
+      },
+      "candidate_policy_refs": [
+        "allocation-policy://w11a_berlin_rent_cap_2020/tenant-price-frontier",
+        "allocation-policy://w11a_berlin_rent_cap_2020/invest-in-legal-and-supply-envelope"
+      ],
+      "demand_act_refs": [
+        "demand-act://w11a_berlin_rent_cap_2020/s12-tenant-supply-legal-envelope"
+      ],
+      "growth_demands": [
+        {
+          "entry_ref": "pdc://layer2/s12/w11a_berlin_rent_cap_2020/growth-entry/tenant-supply-bespoke",
+          "entry_kind": "bespoke_one_off",
+          "demand_act_ref": "demand-act://w11a_berlin_rent_cap_2020/s12-tenant-supply-legal-envelope",
+          "pending_envelope_delta_ref": "delta://layer2/s12/w11a_berlin_rent_cap_2020/pending-tenant-supply-legal-envelope",
+          "bespoke_flag_reason": "rent-cap legal boundary is outside the frozen primitive set",
+          "a_completeness_delta_ref": "delta://layer2/s12/w11a_berlin_rent_cap_2020/a-completeness-tenant-supply",
+          "b_capability_delta_ref": "delta://layer2/s12/w11a_berlin_rent_cap_2020/b-capability-tenant-supply",
+          "reuse_evidence_refs": [
+            "reuse://layer2/s8/w11a_berlin_rent_cap_2020/value-arrow-disclosure"
+          ]
+        }
+      ],
+      "reuse_evidence_refs": [
+        "reuse://layer2/s7/w11a_berlin_rent_cap_2020/delegation-contract",
+        "reuse://layer2/s8/w11a_berlin_rent_cap_2020/value-arrow-disclosure"
+      ],
+      "one_off_growth_refs": [
+        "one-off://w11a_berlin_rent_cap_2020/tenant-supply-legal-envelope"
+      ],
+      "override_decision_refs": [
+        {
+          "decision_class_id": "value_authorization",
+          "decision_action_exercised": "reject",
+          "decision_ref": "decision://layer2/s7/w11a_berlin_rent_cap_2020/value-authorization"
+        }
+      ],
+      "required_question_count": 4,
+      "residual_limitation_refs": [
+        "limitation://s12/w11a_berlin_rent_cap_2020/bespoke-growth-pending-envelope"
+      ]
+    },
+    "w11a_boston_operation_ceasefire_1996": {
+      "case_id": "w11a_boston_operation_ceasefire_1996",
+      "allocation_pressure": "balanced",
+      "principal_ref": "principal://w12d/boston-public-safety",
+      "mission_ref": "mission://w12d/w11a_boston_operation_ceasefire_1996/youth-violence-reduction",
+      "explore_exploit_dial_ref": "pdc://layer2/s7/w11a_boston_operation_ceasefire_1996/explore-exploit-dial",
+      "voi_input_refs": {
+        "acquisition": "voi-input://w11a_boston_operation_ceasefire_1996/acquisition",
+        "refinement": "voi-input://w11a_boston_operation_ceasefire_1996/refinement",
+        "attention": "voi-input://w11a_boston_operation_ceasefire_1996/attention",
+        "oracle": "voi-input://w11a_boston_operation_ceasefire_1996/oracle",
+        "allocation": "voi-input://w11a_boston_operation_ceasefire_1996/allocation"
+      },
+      "typed_budget_refs": {
+        "compute": "budget://w11a_boston_operation_ceasefire_1996/compute",
+        "acquisition_money": "budget://w11a_boston_operation_ceasefire_1996/acquisition-money",
+        "expert_time": "budget://w11a_boston_operation_ceasefire_1996/expert-time",
+        "human_attention": "budget://w11a_boston_operation_ceasefire_1996/human-attention",
+        "legal_access": "budget://w11a_boston_operation_ceasefire_1996/legal-access"
+      },
+      "candidate_policy_refs": [
+        "allocation-policy://w11a_boston_operation_ceasefire_1996/exploit-focused-deterrence",
+        "allocation-policy://w11a_boston_operation_ceasefire_1996/balanced-community-governance"
+      ],
+      "demand_act_refs": [
+        "demand-act://w11a_boston_operation_ceasefire_1996/s12-focused-deterrence-loop",
+        "demand-act://w11a_boston_operation_ceasefire_1996/s12-ungated-growth-claim"
+      ],
+      "growth_demands": [
+        {
+          "entry_ref": "pdc://layer2/s12/w11a_boston_operation_ceasefire_1996/growth-entry/focused-deterrence-loop",
+          "entry_kind": "mechanism_growth",
+          "demand_act_ref": "demand-act://w11a_boston_operation_ceasefire_1996/s12-focused-deterrence-loop",
+          "certified_envelope_delta_ref": "delta://layer2/s12/w11a_boston_operation_ceasefire_1996/certified-focused-deterrence-loop",
+          "a_completeness_delta_ref": "delta://layer2/s12/w11a_boston_operation_ceasefire_1996/a-completeness-focused-deterrence",
+          "b_capability_delta_ref": "delta://layer2/s12/w11a_boston_operation_ceasefire_1996/b-capability-focused-deterrence",
+          "reuse_evidence_refs": [
+            "reuse://layer2/s6/w11a_boston_operation_ceasefire_1996/strategic-response-floor"
+          ]
+        },
+        {
+          "entry_ref": "pdc://layer2/s12/w11a_boston_operation_ceasefire_1996/growth-entry/ungated-growth-claim",
+          "entry_kind": "mechanism_growth",
+          "demand_act_ref": "demand-act://w11a_boston_operation_ceasefire_1996/s12-ungated-growth-claim",
+          "a_completeness_delta_ref": "delta://layer2/s12/w11a_boston_operation_ceasefire_1996/a-completeness-ungated",
+          "b_capability_delta_ref": "delta://layer2/s12/w11a_boston_operation_ceasefire_1996/b-capability-ungated",
+          "reuse_evidence_refs": [
+            "reuse://layer2/s7/w11a_boston_operation_ceasefire_1996/delegation-contract"
+          ]
+        }
+      ],
+      "reuse_evidence_refs": [
+        "reuse://layer2/s6/w11a_boston_operation_ceasefire_1996/strategic-response-floor",
+        "reuse://layer2/s7/w11a_boston_operation_ceasefire_1996/delegation-contract"
+      ],
+      "one_off_growth_refs": [],
+      "override_decision_refs": [
+        {
+          "decision_class_id": "a_spec_gap",
+          "decision_action_exercised": "accept",
+          "decision_ref": "decision://layer2/s7/w11a_boston_operation_ceasefire_1996/a-spec-gap"
+        }
+      ],
+      "required_question_count": 4,
+      "residual_limitation_refs": [
+        "limitation://s12/w11a_boston_operation_ceasefire_1996/ungated-growth-blocked"
+      ]
+    },
+    "w11a_eu_temporary_protection_ukraine_2022": {
+      "case_id": "w11a_eu_temporary_protection_ukraine_2022",
+      "allocation_pressure": "exploit",
+      "principal_ref": "principal://w12d/eu-council",
+      "mission_ref": "mission://w12d/w11a_eu_temporary_protection_ukraine_2022/refugee-protection",
+      "explore_exploit_dial_ref": "pdc://layer2/s7/w11a_eu_temporary_protection_ukraine_2022/explore-exploit-dial",
+      "voi_input_refs": {
+        "acquisition": "voi-input://w11a_eu_temporary_protection_ukraine_2022/acquisition",
+        "refinement": "voi-input://w11a_eu_temporary_protection_ukraine_2022/refinement",
+        "attention": "voi-input://w11a_eu_temporary_protection_ukraine_2022/attention",
+        "oracle": "voi-input://w11a_eu_temporary_protection_ukraine_2022/oracle",
+        "allocation": "voi-input://w11a_eu_temporary_protection_ukraine_2022/allocation"
+      },
+      "typed_budget_refs": {
+        "compute": "budget://w11a_eu_temporary_protection_ukraine_2022/compute",
+        "acquisition_money": "budget://w11a_eu_temporary_protection_ukraine_2022/acquisition-money",
+        "expert_time": "budget://w11a_eu_temporary_protection_ukraine_2022/expert-time",
+        "human_attention": "budget://w11a_eu_temporary_protection_ukraine_2022/human-attention",
+        "legal_access": "budget://w11a_eu_temporary_protection_ukraine_2022/legal-access"
+      },
+      "candidate_policy_refs": [
+        "allocation-policy://w11a_eu_temporary_protection_ukraine_2022/exploit-existing-directive",
+        "allocation-policy://w11a_eu_temporary_protection_ukraine_2022/refine-host-capacity-governance"
+      ],
+      "demand_act_refs": [
+        "demand-act://w11a_eu_temporary_protection_ukraine_2022/s12-host-capacity-binding"
+      ],
+      "growth_demands": [
+        {
+          "entry_ref": "pdc://layer2/s12/w11a_eu_temporary_protection_ukraine_2022/growth-entry/host-capacity-binding",
+          "entry_kind": "mechanism_growth",
+          "demand_act_ref": "demand-act://w11a_eu_temporary_protection_ukraine_2022/s12-host-capacity-binding",
+          "certified_envelope_delta_ref": "delta://layer2/s12/w11a_eu_temporary_protection_ukraine_2022/certified-host-capacity-binding",
+          "a_completeness_delta_ref": "delta://layer2/s12/w11a_eu_temporary_protection_ukraine_2022/a-completeness-host-capacity",
+          "b_capability_delta_ref": "delta://layer2/s12/w11a_eu_temporary_protection_ukraine_2022/b-capability-host-capacity",
+          "reuse_evidence_refs": [
+            "reuse://layer2/s7/w11a_eu_temporary_protection_ukraine_2022/delegation-contract"
+          ]
+        }
+      ],
+      "reuse_evidence_refs": [
+        "reuse://layer2/s7/w11a_eu_temporary_protection_ukraine_2022/delegation-contract",
+        "reuse://layer2/s8/w11a_eu_temporary_protection_ukraine_2022/pareto-frontier"
+      ],
+      "one_off_growth_refs": [],
+      "override_decision_refs": [
+        {
+          "decision_class_id": "mandate_boundary",
+          "decision_action_exercised": "accept",
+          "decision_ref": "decision://layer2/s7/w11a_eu_temporary_protection_ukraine_2022/mandate-boundary"
+        }
+      ],
+      "required_question_count": 4,
+      "residual_limitation_refs": [
+        "limitation://s12/w11a_eu_temporary_protection_ukraine_2022/host-capacity-shadow-only"
+      ]
+    },
+    "w11a_ghana_free_shs_2017": {
+      "case_id": "w11a_ghana_free_shs_2017",
+      "allocation_pressure": "invest",
+      "principal_ref": "principal://w12d/ghana-education-ministry",
+      "mission_ref": "mission://w12d/w11a_ghana_free_shs_2017/school-capacity",
+      "explore_exploit_dial_ref": "pdc://layer2/s7/w11a_ghana_free_shs_2017/explore-exploit-dial",
+      "voi_input_refs": {
+        "acquisition": "voi-input://w11a_ghana_free_shs_2017/acquisition",
+        "refinement": "voi-input://w11a_ghana_free_shs_2017/refinement",
+        "attention": "voi-input://w11a_ghana_free_shs_2017/attention",
+        "oracle": "voi-input://w11a_ghana_free_shs_2017/oracle",
+        "allocation": "voi-input://w11a_ghana_free_shs_2017/allocation"
+      },
+      "typed_budget_refs": {
+        "compute": "budget://w11a_ghana_free_shs_2017/compute",
+        "acquisition_money": "budget://w11a_ghana_free_shs_2017/acquisition-money",
+        "expert_time": "budget://w11a_ghana_free_shs_2017/expert-time",
+        "human_attention": "budget://w11a_ghana_free_shs_2017/human-attention",
+        "legal_access": "budget://w11a_ghana_free_shs_2017/legal-access"
+      },
+      "candidate_policy_refs": [
+        "allocation-policy://w11a_ghana_free_shs_2017/exploit-existing-school-rollout",
+        "allocation-policy://w11a_ghana_free_shs_2017/invest-in-capacity-envelope"
+      ],
+      "demand_act_refs": [
+        "demand-act://w11a_ghana_free_shs_2017/s12-school-capacity-envelope"
+      ],
+      "growth_demands": [
+        {
+          "entry_ref": "pdc://layer2/s12/w11a_ghana_free_shs_2017/growth-entry/school-capacity-envelope",
+          "entry_kind": "mechanism_growth",
+          "demand_act_ref": "demand-act://w11a_ghana_free_shs_2017/s12-school-capacity-envelope",
+          "certified_envelope_delta_ref": "delta://layer2/s12/w11a_ghana_free_shs_2017/certified-school-capacity-envelope",
+          "a_completeness_delta_ref": "delta://layer2/s12/w11a_ghana_free_shs_2017/a-completeness-school-capacity",
+          "b_capability_delta_ref": "delta://layer2/s12/w11a_ghana_free_shs_2017/b-capability-school-capacity",
+          "reuse_evidence_refs": [
+            "reuse://layer2/s8/w11a_ghana_free_shs_2017/value-frontier"
+          ]
+        }
+      ],
+      "reuse_evidence_refs": [
+        "reuse://layer2/s7/w11a_ghana_free_shs_2017/delegation-contract",
+        "reuse://layer2/s8/w11a_ghana_free_shs_2017/value-frontier"
+      ],
+      "one_off_growth_refs": [],
+      "override_decision_refs": [
+        {
+          "decision_class_id": "final_choice",
+          "decision_action_exercised": "accept",
+          "decision_ref": "decision://layer2/s7/w11a_ghana_free_shs_2017/final-choice"
+        }
+      ],
+      "required_question_count": 4,
+      "residual_limitation_refs": [
+        "limitation://s12/w11a_ghana_free_shs_2017/capacity-investment-shadow-only"
+      ]
+    },
+    "w11a_india_aadhaar_dbt_2016": {
+      "case_id": "w11a_india_aadhaar_dbt_2016",
+      "allocation_pressure": "balanced",
+      "principal_ref": "principal://w12d/india-welfare-delivery",
+      "mission_ref": "mission://w12d/w11a_india_aadhaar_dbt_2016/benefit-delivery",
+      "explore_exploit_dial_ref": "pdc://layer2/s7/w11a_india_aadhaar_dbt_2016/explore-exploit-dial",
+      "voi_input_refs": {
+        "acquisition": "voi-input://w11a_india_aadhaar_dbt_2016/acquisition",
+        "refinement": "voi-input://w11a_india_aadhaar_dbt_2016/refinement",
+        "attention": "voi-input://w11a_india_aadhaar_dbt_2016/attention",
+        "oracle": "voi-input://w11a_india_aadhaar_dbt_2016/oracle",
+        "allocation": "voi-input://w11a_india_aadhaar_dbt_2016/allocation"
+      },
+      "typed_budget_refs": {
+        "compute": "budget://w11a_india_aadhaar_dbt_2016/compute",
+        "acquisition_money": "budget://w11a_india_aadhaar_dbt_2016/acquisition-money",
+        "expert_time": "budget://w11a_india_aadhaar_dbt_2016/expert-time",
+        "human_attention": "budget://w11a_india_aadhaar_dbt_2016/human-attention",
+        "legal_access": "budget://w11a_india_aadhaar_dbt_2016/legal-access"
+      },
+      "candidate_policy_refs": [
+        "allocation-policy://w11a_india_aadhaar_dbt_2016/exploit-existing-id-rails",
+        "allocation-policy://w11a_india_aadhaar_dbt_2016/balanced-rights-and-delivery"
+      ],
+      "demand_act_refs": [
+        "demand-act://w11a_india_aadhaar_dbt_2016/s12-rights-delivery-binding"
+      ],
+      "growth_demands": [
+        {
+          "entry_ref": "pdc://layer2/s12/w11a_india_aadhaar_dbt_2016/growth-entry/rights-delivery-binding",
+          "entry_kind": "mechanism_growth",
+          "demand_act_ref": "demand-act://w11a_india_aadhaar_dbt_2016/s12-rights-delivery-binding",
+          "certified_envelope_delta_ref": "delta://layer2/s12/w11a_india_aadhaar_dbt_2016/certified-rights-delivery-binding",
+          "a_completeness_delta_ref": "delta://layer2/s12/w11a_india_aadhaar_dbt_2016/a-completeness-rights-delivery",
+          "b_capability_delta_ref": "delta://layer2/s12/w11a_india_aadhaar_dbt_2016/b-capability-rights-delivery",
+          "reuse_evidence_refs": [
+            "reuse://layer2/s6/w11a_india_aadhaar_dbt_2016/rights-boundary-floor"
+          ]
+        }
+      ],
+      "reuse_evidence_refs": [
+        "reuse://layer2/s6/w11a_india_aadhaar_dbt_2016/rights-boundary-floor",
+        "reuse://layer2/s7/w11a_india_aadhaar_dbt_2016/delegation-contract"
+      ],
+      "one_off_growth_refs": [],
+      "override_decision_refs": [
+        {
+          "decision_class_id": "mandate_boundary",
+          "decision_action_exercised": "accept",
+          "decision_ref": "decision://layer2/s7/w11a_india_aadhaar_dbt_2016/mandate-boundary"
+        }
+      ],
+      "required_question_count": 4,
+      "residual_limitation_refs": [
+        "limitation://s12/w11a_india_aadhaar_dbt_2016/rights-delivery-shadow-only"
+      ]
+    },
+    "w11a_mexico_ssb_tax_2014": {
+      "case_id": "w11a_mexico_ssb_tax_2014",
+      "allocation_pressure": "exploit",
+      "principal_ref": "principal://w12d/mexico-health-and-finance",
+      "mission_ref": "mission://w12d/w11a_mexico_ssb_tax_2014/public-health-revenue",
+      "explore_exploit_dial_ref": "pdc://layer2/s7/w11a_mexico_ssb_tax_2014/explore-exploit-dial",
+      "voi_input_refs": {
+        "acquisition": "voi-input://w11a_mexico_ssb_tax_2014/acquisition",
+        "refinement": "voi-input://w11a_mexico_ssb_tax_2014/refinement",
+        "attention": "voi-input://w11a_mexico_ssb_tax_2014/attention",
+        "oracle": "voi-input://w11a_mexico_ssb_tax_2014/oracle",
+        "allocation": "voi-input://w11a_mexico_ssb_tax_2014/allocation"
+      },
+      "typed_budget_refs": {
+        "compute": "budget://w11a_mexico_ssb_tax_2014/compute",
+        "acquisition_money": "budget://w11a_mexico_ssb_tax_2014/acquisition-money",
+        "expert_time": "budget://w11a_mexico_ssb_tax_2014/expert-time",
+        "human_attention": "budget://w11a_mexico_ssb_tax_2014/human-attention",
+        "legal_access": "budget://w11a_mexico_ssb_tax_2014/legal-access"
+      },
+      "candidate_policy_refs": [
+        "allocation-policy://w11a_mexico_ssb_tax_2014/exploit-tax-admin-evidence",
+        "allocation-policy://w11a_mexico_ssb_tax_2014/refine-pass-through-envelope"
+      ],
+      "demand_act_refs": [
+        "demand-act://w11a_mexico_ssb_tax_2014/s12-tax-pass-through-binding"
+      ],
+      "growth_demands": [
+        {
+          "entry_ref": "pdc://layer2/s12/w11a_mexico_ssb_tax_2014/growth-entry/tax-pass-through-binding",
+          "entry_kind": "mechanism_growth",
+          "demand_act_ref": "demand-act://w11a_mexico_ssb_tax_2014/s12-tax-pass-through-binding",
+          "certified_envelope_delta_ref": "delta://layer2/s12/w11a_mexico_ssb_tax_2014/certified-tax-pass-through-binding",
+          "a_completeness_delta_ref": "delta://layer2/s12/w11a_mexico_ssb_tax_2014/a-completeness-tax-pass-through",
+          "b_capability_delta_ref": "delta://layer2/s12/w11a_mexico_ssb_tax_2014/b-capability-tax-pass-through",
+          "reuse_evidence_refs": [
+            "reuse://layer2/s10/w11a_mexico_ssb_tax_2014/observable-forecast-floor"
+          ]
+        }
+      ],
+      "reuse_evidence_refs": [
+        "reuse://layer2/s7/w11a_mexico_ssb_tax_2014/delegation-contract",
+        "reuse://layer2/s10/w11a_mexico_ssb_tax_2014/observable-forecast-floor"
+      ],
+      "one_off_growth_refs": [],
+      "override_decision_refs": [
+        {
+          "decision_class_id": "final_choice",
+          "decision_action_exercised": "accept",
+          "decision_ref": "decision://layer2/s7/w11a_mexico_ssb_tax_2014/final-choice"
+        }
+      ],
+      "required_question_count": 4,
+      "residual_limitation_refs": [
+        "limitation://s12/w11a_mexico_ssb_tax_2014/tax-pass-through-shadow-only"
+      ]
+    },
+    "w11a_netherlands_room_for_river_2007": {
+      "case_id": "w11a_netherlands_room_for_river_2007",
+      "allocation_pressure": "invest",
+      "principal_ref": "principal://w12d/netherlands-water-governance",
+      "mission_ref": "mission://w12d/w11a_netherlands_room_for_river_2007/flood-resilience",
+      "explore_exploit_dial_ref": "pdc://layer2/s7/w11a_netherlands_room_for_river_2007/explore-exploit-dial",
+      "voi_input_refs": {
+        "acquisition": "voi-input://w11a_netherlands_room_for_river_2007/acquisition",
+        "refinement": "voi-input://w11a_netherlands_room_for_river_2007/refinement",
+        "attention": "voi-input://w11a_netherlands_room_for_river_2007/attention",
+        "oracle": "voi-input://w11a_netherlands_room_for_river_2007/oracle",
+        "allocation": "voi-input://w11a_netherlands_room_for_river_2007/allocation"
+      },
+      "typed_budget_refs": {
+        "compute": "budget://w11a_netherlands_room_for_river_2007/compute",
+        "acquisition_money": "budget://w11a_netherlands_room_for_river_2007/acquisition-money",
+        "expert_time": "budget://w11a_netherlands_room_for_river_2007/expert-time",
+        "human_attention": "budget://w11a_netherlands_room_for_river_2007/human-attention",
+        "legal_access": "budget://w11a_netherlands_room_for_river_2007/legal-access"
+      },
+      "candidate_policy_refs": [
+        "allocation-policy://w11a_netherlands_room_for_river_2007/exploit-existing-water-works",
+        "allocation-policy://w11a_netherlands_room_for_river_2007/invest-in-spatial-resilience-envelope"
+      ],
+      "demand_act_refs": [
+        "demand-act://w11a_netherlands_room_for_river_2007/s12-spatial-resilience-envelope"
+      ],
+      "growth_demands": [
+        {
+          "entry_ref": "pdc://layer2/s12/w11a_netherlands_room_for_river_2007/growth-entry/spatial-resilience-envelope",
+          "entry_kind": "mechanism_growth",
+          "demand_act_ref": "demand-act://w11a_netherlands_room_for_river_2007/s12-spatial-resilience-envelope",
+          "certified_envelope_delta_ref": "delta://layer2/s12/w11a_netherlands_room_for_river_2007/certified-spatial-resilience-envelope",
+          "a_completeness_delta_ref": "delta://layer2/s12/w11a_netherlands_room_for_river_2007/a-completeness-spatial-resilience",
+          "b_capability_delta_ref": "delta://layer2/s12/w11a_netherlands_room_for_river_2007/b-capability-spatial-resilience",
+          "reuse_evidence_refs": [
+            "reuse://layer2/s5/w11a_netherlands_room_for_river_2007/coupling-graph"
+          ]
+        }
+      ],
+      "reuse_evidence_refs": [
+        "reuse://layer2/s5/w11a_netherlands_room_for_river_2007/coupling-graph",
+        "reuse://layer2/s7/w11a_netherlands_room_for_river_2007/delegation-contract"
+      ],
+      "one_off_growth_refs": [],
+      "override_decision_refs": [
+        {
+          "decision_class_id": "value_authorization",
+          "decision_action_exercised": "accept",
+          "decision_ref": "decision://layer2/s7/w11a_netherlands_room_for_river_2007/value-authorization"
+        }
+      ],
+      "required_question_count": 4,
+      "residual_limitation_refs": [
+        "limitation://s12/w11a_netherlands_room_for_river_2007/spatial-resilience-shadow-only"
+      ]
+    },
+    "w11a_pakistan_ehsaas_cash_2020": {
+      "case_id": "w11a_pakistan_ehsaas_cash_2020",
+      "allocation_pressure": "balanced",
+      "principal_ref": "principal://w12d/pakistan-social-protection",
+      "mission_ref": "mission://w12d/w11a_pakistan_ehsaas_cash_2020/emergency-cash-delivery",
+      "explore_exploit_dial_ref": "pdc://layer2/s7/w11a_pakistan_ehsaas_cash_2020/explore-exploit-dial",
+      "voi_input_refs": {
+        "acquisition": "voi-input://w11a_pakistan_ehsaas_cash_2020/acquisition",
+        "refinement": "voi-input://w11a_pakistan_ehsaas_cash_2020/refinement",
+        "attention": "voi-input://w11a_pakistan_ehsaas_cash_2020/attention",
+        "oracle": "voi-input://w11a_pakistan_ehsaas_cash_2020/oracle",
+        "allocation": "voi-input://w11a_pakistan_ehsaas_cash_2020/allocation"
+      },
+      "typed_budget_refs": {
+        "compute": "budget://w11a_pakistan_ehsaas_cash_2020/compute",
+        "acquisition_money": "budget://w11a_pakistan_ehsaas_cash_2020/acquisition-money",
+        "expert_time": "budget://w11a_pakistan_ehsaas_cash_2020/expert-time",
+        "human_attention": "budget://w11a_pakistan_ehsaas_cash_2020/human-attention",
+        "legal_access": "budget://w11a_pakistan_ehsaas_cash_2020/legal-access"
+      },
+      "candidate_policy_refs": [
+        "allocation-policy://w11a_pakistan_ehsaas_cash_2020/exploit-payment-rails",
+        "allocation-policy://w11a_pakistan_ehsaas_cash_2020/balanced-inclusion-governance"
+      ],
+      "demand_act_refs": [
+        "demand-act://w11a_pakistan_ehsaas_cash_2020/s12-inclusion-payment-binding"
+      ],
+      "growth_demands": [
+        {
+          "entry_ref": "pdc://layer2/s12/w11a_pakistan_ehsaas_cash_2020/growth-entry/inclusion-payment-binding",
+          "entry_kind": "mechanism_growth",
+          "demand_act_ref": "demand-act://w11a_pakistan_ehsaas_cash_2020/s12-inclusion-payment-binding",
+          "certified_envelope_delta_ref": "delta://layer2/s12/w11a_pakistan_ehsaas_cash_2020/certified-inclusion-payment-binding",
+          "a_completeness_delta_ref": "delta://layer2/s12/w11a_pakistan_ehsaas_cash_2020/a-completeness-inclusion-payment",
+          "b_capability_delta_ref": "delta://layer2/s12/w11a_pakistan_ehsaas_cash_2020/b-capability-inclusion-payment",
+          "reuse_evidence_refs": [
+            "reuse://layer2/s3/w11a_pakistan_ehsaas_cash_2020/payment-rails"
+          ]
+        }
+      ],
+      "reuse_evidence_refs": [
+        "reuse://layer2/s3/w11a_pakistan_ehsaas_cash_2020/payment-rails",
+        "reuse://layer2/s7/w11a_pakistan_ehsaas_cash_2020/delegation-contract"
+      ],
+      "one_off_growth_refs": [],
+      "override_decision_refs": [
+        {
+          "decision_class_id": "a_spec_gap",
+          "decision_action_exercised": "accept",
+          "decision_ref": "decision://layer2/s7/w11a_pakistan_ehsaas_cash_2020/a-spec-gap"
+        }
+      ],
+      "required_question_count": 4,
+      "residual_limitation_refs": [
+        "limitation://s12/w11a_pakistan_ehsaas_cash_2020/inclusion-payment-shadow-only"
+      ]
+    },
+    "w11a_uk_levelling_up_fund_2021": {
+      "case_id": "w11a_uk_levelling_up_fund_2021",
+      "allocation_pressure": "invest",
+      "principal_ref": "principal://w12d/uk-levelling-up-department",
+      "mission_ref": "mission://w12d/w11a_uk_levelling_up_fund_2021/regional-allocation",
+      "explore_exploit_dial_ref": "pdc://layer2/s7/w11a_uk_levelling_up_fund_2021/explore-exploit-dial",
+      "voi_input_refs": {
+        "acquisition": "voi-input://w11a_uk_levelling_up_fund_2021/acquisition",
+        "refinement": "voi-input://w11a_uk_levelling_up_fund_2021/refinement",
+        "attention": "voi-input://w11a_uk_levelling_up_fund_2021/attention",
+        "oracle": "voi-input://w11a_uk_levelling_up_fund_2021/oracle",
+        "allocation": "voi-input://w11a_uk_levelling_up_fund_2021/allocation"
+      },
+      "typed_budget_refs": {
+        "compute": "budget://w11a_uk_levelling_up_fund_2021/compute",
+        "acquisition_money": "budget://w11a_uk_levelling_up_fund_2021/acquisition-money",
+        "expert_time": "budget://w11a_uk_levelling_up_fund_2021/expert-time",
+        "human_attention": "budget://w11a_uk_levelling_up_fund_2021/human-attention",
+        "legal_access": "budget://w11a_uk_levelling_up_fund_2021/legal-access"
+      },
+      "candidate_policy_refs": [
+        "allocation-policy://w11a_uk_levelling_up_fund_2021/exploit-existing-scoring",
+        "allocation-policy://w11a_uk_levelling_up_fund_2021/invest-in-transparent-allocation-envelope"
+      ],
+      "demand_act_refs": [
+        "demand-act://w11a_uk_levelling_up_fund_2021/s12-transparent-allocation-envelope"
+      ],
+      "growth_demands": [
+        {
+          "entry_ref": "pdc://layer2/s12/w11a_uk_levelling_up_fund_2021/growth-entry/transparent-allocation-envelope",
+          "entry_kind": "mechanism_growth",
+          "demand_act_ref": "demand-act://w11a_uk_levelling_up_fund_2021/s12-transparent-allocation-envelope",
+          "certified_envelope_delta_ref": "delta://layer2/s12/w11a_uk_levelling_up_fund_2021/certified-transparent-allocation-envelope",
+          "a_completeness_delta_ref": "delta://layer2/s12/w11a_uk_levelling_up_fund_2021/a-completeness-transparent-allocation",
+          "b_capability_delta_ref": "delta://layer2/s12/w11a_uk_levelling_up_fund_2021/b-capability-transparent-allocation",
+          "reuse_evidence_refs": [
+            "reuse://layer2/s8/w11a_uk_levelling_up_fund_2021/pareto-frontier"
+          ]
+        }
+      ],
+      "reuse_evidence_refs": [
+        "reuse://layer2/s7/w11a_uk_levelling_up_fund_2021/delegation-contract",
+        "reuse://layer2/s8/w11a_uk_levelling_up_fund_2021/pareto-frontier"
+      ],
+      "one_off_growth_refs": [],
+      "override_decision_refs": [
+        {
+          "decision_class_id": "final_choice",
+          "decision_action_exercised": "accept",
+          "decision_ref": "decision://layer2/s7/w11a_uk_levelling_up_fund_2021/final-choice"
+        }
+      ],
+      "required_question_count": 4,
+      "residual_limitation_refs": [
+        "limitation://s12/w11a_uk_levelling_up_fund_2021/allocation-envelope-shadow-only"
+      ]
+    },
+    "w11a_uk_mtd_vat_2019": {
+      "case_id": "w11a_uk_mtd_vat_2019",
+      "allocation_pressure": "exploit",
+      "principal_ref": "principal://w12d/uk-hmrc",
+      "mission_ref": "mission://w12d/w11a_uk_mtd_vat_2019/tax-digital-compliance",
+      "explore_exploit_dial_ref": "pdc://layer2/s7/w11a_uk_mtd_vat_2019/explore-exploit-dial",
+      "voi_input_refs": {
+        "acquisition": "voi-input://w11a_uk_mtd_vat_2019/acquisition",
+        "refinement": "voi-input://w11a_uk_mtd_vat_2019/refinement",
+        "attention": "voi-input://w11a_uk_mtd_vat_2019/attention",
+        "oracle": "voi-input://w11a_uk_mtd_vat_2019/oracle",
+        "allocation": "voi-input://w11a_uk_mtd_vat_2019/allocation"
+      },
+      "typed_budget_refs": {
+        "compute": "budget://w11a_uk_mtd_vat_2019/compute",
+        "acquisition_money": "budget://w11a_uk_mtd_vat_2019/acquisition-money",
+        "expert_time": "budget://w11a_uk_mtd_vat_2019/expert-time",
+        "human_attention": "budget://w11a_uk_mtd_vat_2019/human-attention",
+        "legal_access": "budget://w11a_uk_mtd_vat_2019/legal-access"
+      },
+      "candidate_policy_refs": [
+        "allocation-policy://w11a_uk_mtd_vat_2019/exploit-digital-tax-rails",
+        "allocation-policy://w11a_uk_mtd_vat_2019/refine-small-business-burden"
+      ],
+      "demand_act_refs": [
+        "demand-act://w11a_uk_mtd_vat_2019/s12-small-business-burden-binding"
+      ],
+      "growth_demands": [
+        {
+          "entry_ref": "pdc://layer2/s12/w11a_uk_mtd_vat_2019/growth-entry/small-business-burden-binding",
+          "entry_kind": "mechanism_growth",
+          "demand_act_ref": "demand-act://w11a_uk_mtd_vat_2019/s12-small-business-burden-binding",
+          "certified_envelope_delta_ref": "delta://layer2/s12/w11a_uk_mtd_vat_2019/certified-small-business-burden-binding",
+          "a_completeness_delta_ref": "delta://layer2/s12/w11a_uk_mtd_vat_2019/a-completeness-small-business-burden",
+          "b_capability_delta_ref": "delta://layer2/s12/w11a_uk_mtd_vat_2019/b-capability-small-business-burden",
+          "reuse_evidence_refs": [
+            "reuse://layer2/s3/w11a_uk_mtd_vat_2019/digital-tax-rails"
+          ]
+        }
+      ],
+      "reuse_evidence_refs": [
+        "reuse://layer2/s3/w11a_uk_mtd_vat_2019/digital-tax-rails",
+        "reuse://layer2/s7/w11a_uk_mtd_vat_2019/delegation-contract"
+      ],
+      "one_off_growth_refs": [],
+      "override_decision_refs": [
+        {
+          "decision_class_id": "value_authorization",
+          "decision_action_exercised": "accept",
+          "decision_ref": "decision://layer2/s7/w11a_uk_mtd_vat_2019/value-authorization"
+        }
+      ],
+      "required_question_count": 4,
+      "residual_limitation_refs": [
+        "limitation://s12/w11a_uk_mtd_vat_2019/small-business-burden-shadow-only"
+      ]
+    },
+    "w11a_uk_work_programme_2011": {
+      "case_id": "w11a_uk_work_programme_2011",
+      "allocation_pressure": "balanced",
+      "principal_ref": "principal://w12d/uk-work-and-pensions",
+      "mission_ref": "mission://w12d/w11a_uk_work_programme_2011/employment-support",
+      "explore_exploit_dial_ref": "pdc://layer2/s7/w11a_uk_work_programme_2011/explore-exploit-dial",
+      "voi_input_refs": {
+        "acquisition": "voi-input://w11a_uk_work_programme_2011/acquisition",
+        "refinement": "voi-input://w11a_uk_work_programme_2011/refinement",
+        "attention": "voi-input://w11a_uk_work_programme_2011/attention",
+        "oracle": "voi-input://w11a_uk_work_programme_2011/oracle",
+        "allocation": "voi-input://w11a_uk_work_programme_2011/allocation"
+      },
+      "typed_budget_refs": {
+        "compute": "budget://w11a_uk_work_programme_2011/compute",
+        "acquisition_money": "budget://w11a_uk_work_programme_2011/acquisition-money",
+        "expert_time": "budget://w11a_uk_work_programme_2011/expert-time",
+        "human_attention": "budget://w11a_uk_work_programme_2011/human-attention",
+        "legal_access": "budget://w11a_uk_work_programme_2011/legal-access"
+      },
+      "candidate_policy_refs": [
+        "allocation-policy://w11a_uk_work_programme_2011/exploit-provider-contract-data",
+        "allocation-policy://w11a_uk_work_programme_2011/balanced-cream-skimming-firewall"
+      ],
+      "demand_act_refs": [
+        "demand-act://w11a_uk_work_programme_2011/s12-provider-incentive-binding"
+      ],
+      "growth_demands": [
+        {
+          "entry_ref": "pdc://layer2/s12/w11a_uk_work_programme_2011/growth-entry/provider-incentive-binding",
+          "entry_kind": "mechanism_growth",
+          "demand_act_ref": "demand-act://w11a_uk_work_programme_2011/s12-provider-incentive-binding",
+          "certified_envelope_delta_ref": "delta://layer2/s12/w11a_uk_work_programme_2011/certified-provider-incentive-binding",
+          "a_completeness_delta_ref": "delta://layer2/s12/w11a_uk_work_programme_2011/a-completeness-provider-incentive",
+          "b_capability_delta_ref": "delta://layer2/s12/w11a_uk_work_programme_2011/b-capability-provider-incentive",
+          "reuse_evidence_refs": [
+            "reuse://layer2/s6/w11a_uk_work_programme_2011/strategic-response-floor"
+          ]
+        }
+      ],
+      "reuse_evidence_refs": [
+        "reuse://layer2/s6/w11a_uk_work_programme_2011/strategic-response-floor",
+        "reuse://layer2/s7/w11a_uk_work_programme_2011/delegation-contract"
+      ],
+      "one_off_growth_refs": [],
+      "override_decision_refs": [
+        {
+          "decision_class_id": "final_choice",
+          "decision_action_exercised": "accept",
+          "decision_ref": "decision://layer2/s7/w11a_uk_work_programme_2011/final-choice"
+        }
+      ],
+      "required_question_count": 4,
+      "residual_limitation_refs": [
+        "limitation://s12/w11a_uk_work_programme_2011/provider-incentive-shadow-only"
+      ]
+    },
+    "w11a_us_ppp_2020": {
+      "case_id": "w11a_us_ppp_2020",
+      "allocation_pressure": "exploit",
+      "principal_ref": "principal://w12d/us-small-business-administration",
+      "mission_ref": "mission://w12d/w11a_us_ppp_2020/emergency-business-credit",
+      "explore_exploit_dial_ref": "pdc://layer2/s7/w11a_us_ppp_2020/explore-exploit-dial",
+      "voi_input_refs": {
+        "acquisition": "voi-input://w11a_us_ppp_2020/acquisition",
+        "refinement": "voi-input://w11a_us_ppp_2020/refinement",
+        "attention": "voi-input://w11a_us_ppp_2020/attention",
+        "oracle": "voi-input://w11a_us_ppp_2020/oracle",
+        "allocation": "voi-input://w11a_us_ppp_2020/allocation"
+      },
+      "typed_budget_refs": {
+        "compute": "budget://w11a_us_ppp_2020/compute",
+        "acquisition_money": "budget://w11a_us_ppp_2020/acquisition-money",
+        "expert_time": "budget://w11a_us_ppp_2020/expert-time",
+        "human_attention": "budget://w11a_us_ppp_2020/human-attention",
+        "legal_access": "budget://w11a_us_ppp_2020/legal-access"
+      },
+      "candidate_policy_refs": [
+        "allocation-policy://w11a_us_ppp_2020/exploit-emergency-credit-rails",
+        "allocation-policy://w11a_us_ppp_2020/refine-fraud-and-access-envelope"
+      ],
+      "demand_act_refs": [
+        "demand-act://w11a_us_ppp_2020/s12-fraud-access-binding"
+      ],
+      "growth_demands": [
+        {
+          "entry_ref": "pdc://layer2/s12/w11a_us_ppp_2020/growth-entry/fraud-access-binding",
+          "entry_kind": "mechanism_growth",
+          "demand_act_ref": "demand-act://w11a_us_ppp_2020/s12-fraud-access-binding",
+          "certified_envelope_delta_ref": "delta://layer2/s12/w11a_us_ppp_2020/certified-fraud-access-binding",
+          "a_completeness_delta_ref": "delta://layer2/s12/w11a_us_ppp_2020/a-completeness-fraud-access",
+          "b_capability_delta_ref": "delta://layer2/s12/w11a_us_ppp_2020/b-capability-fraud-access",
+          "reuse_evidence_refs": [
+            "reuse://layer2/s3/w11a_us_ppp_2020/emergency-credit-rails"
+          ]
+        }
+      ],
+      "reuse_evidence_refs": [
+        "reuse://layer2/s3/w11a_us_ppp_2020/emergency-credit-rails",
+        "reuse://layer2/s7/w11a_us_ppp_2020/delegation-contract"
+      ],
+      "one_off_growth_refs": [],
+      "override_decision_refs": [
+        {
+          "decision_class_id": "mandate_boundary",
+          "decision_action_exercised": "accept",
+          "decision_ref": "decision://layer2/s7/w11a_us_ppp_2020/mandate-boundary"
+        }
+      ],
+      "required_question_count": 4,
+      "residual_limitation_refs": [
+        "limitation://s12/w11a_us_ppp_2020/fraud-access-shadow-only"
+      ]
+    }
+  }
+}

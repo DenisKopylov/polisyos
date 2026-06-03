@@ -112,6 +112,13 @@ S11CalibrationStatus = Literal[
     "poor",
     "out_of_scope",
 ]
+S12ExploreExploitPosture = Literal[
+    "exploit_in_envelope",
+    "invest_in_growth",
+    "balanced_governed",
+    "blocked",
+]
+S12ThermometerTrend = Literal["improving", "flat", "regressing"]
 
 _COUNTEREXAMPLE_CLASS_VOCABULARY: list[str] = [
     "real_design_blocker",
@@ -177,6 +184,25 @@ _S11_REQUIRED_HANDOFF_MAY_NOT_USE_FOR = [
 ]
 _S11_REGIME_CELL_REF = "KNOWLEDGE.epistemic_regime"
 _S11_FORECAST_QUALITY_CELL_REF = "INTERVENTION.forecast_quality"
+_S12_RESOURCE_ECONOMICS_CELL_REF = "INTERVENTION.resource_economics"
+_S12_REQUIRED_HANDOFF_MAY_NOT_USE_FOR = [
+    "production_authority",
+    "production_recommendation",
+    "rollout_authority",
+    "publication_authority",
+    "claim_authority",
+    "closeout_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "preference_learning_authority",
+    "mdp_bandit_optimizer_authority",
+    "budget_interchangeability",
+    "mission_or_value_self_authorization",
+    "floor_relaxation",
+    "s13_envelope_shrink",
+    "s13_accountability_closure",
+    "s14_universality",
+]
 
 
 class Layer2S2DesignSearchInputError(ValueError):
@@ -430,6 +456,49 @@ class Layer2S11PredictivePostureInput(Layer2ReadinessModel):
         return self
 
 
+class Layer2S12ResourceEconomicsPostureInput(Layer2ReadinessModel):
+    """Injected S12 resource-economics posture consumed by the S2 shadow loop."""
+
+    resource_allocation_policy_ref: str = Field(..., min_length=1, max_length=300)
+    explore_exploit_posture: S12ExploreExploitPosture
+    explore_exploit_dial_ref: str | None = Field(default=None, max_length=300)
+    delegation_contract_ref: str = Field(..., min_length=1, max_length=300)
+    voi_allocation_refs: list[str] = Field(default_factory=list, max_length=80)
+    voi_site_count: int = Field(ge=0)
+    typed_budget_refs: list[str] = Field(default_factory=list, max_length=20)
+    pareto_archive_ref: str = Field(..., min_length=1, max_length=300)
+    allocation_priority_rows: list[dict[str, object]] = Field(
+        default_factory=list,
+        max_length=80,
+    )
+    envelope_growth_ledger_ref: str = Field(..., min_length=1, max_length=300)
+    growth_thermometer_ref: str = Field(..., min_length=1, max_length=300)
+    override_rate_trend: S12ThermometerTrend
+    reuse_rate_trend: S12ThermometerTrend
+    held_out_status: Literal["pending_s14"] = "pending_s14"
+    knowledge_governance_throughput_ledger_ref: str = Field(
+        ...,
+        min_length=1,
+        max_length=300,
+    )
+    residual_limitation_refs: list[str] = Field(default_factory=list, max_length=80)
+    authority_boundary: AuthorityBoundary
+    may_not_use_for: list[str] = Field(default_factory=list, max_length=80)
+    rule_version_ref: str = Field(..., min_length=1, max_length=300)
+
+    @model_validator(mode="after")
+    def _validate_resource_authority_boundary(
+        self,
+    ) -> Layer2S12ResourceEconomicsPostureInput:
+        if self.voi_site_count < 3:
+            raise ValueError("S12 resource posture requires VOI across at least three sites")
+        if len(self.typed_budget_refs) < 5:
+            raise ValueError("S12 resource posture requires all typed budget refs")
+        if not set(self.may_not_use_for) >= set(_S12_REQUIRED_HANDOFF_MAY_NOT_USE_FOR):
+            raise ValueError("S12 resource posture missing required may_not_use_for denials")
+        return self
+
+
 class TypedDiagnosticRecord(Layer2ReadinessModel):
     """Design-time diagnostic carried by S2 counterexamples."""
 
@@ -653,6 +722,16 @@ class SearchLedger(Layer2ReadinessModel):
         max_length=120,
     )
     predictive_authority_boundary: AuthorityBoundary | None = None
+    resource_allocation_policy_refs: list[str] = Field(default_factory=list, max_length=40)
+    envelope_growth_ledger_refs: list[str] = Field(default_factory=list, max_length=40)
+    growth_thermometer_refs: list[str] = Field(default_factory=list, max_length=40)
+    voi_allocation_refs: list[str] = Field(default_factory=list, max_length=80)
+    explore_exploit_posture: str = Field(
+        default="not_applicable",
+        min_length=1,
+        max_length=120,
+    )
+    resource_authority_boundary: AuthorityBoundary | None = None
     no_retry_without_new_grammar: bool
     search_incompleteness_note: str
 
@@ -703,6 +782,7 @@ class Layer2S2DesignSearchRun(Layer2ReadinessModel):
     value_posture: Layer2S8ValuePostureInput | None = None
     forecast_posture: Layer2S10ForecastPostureInput | None = None
     predictive_posture: Layer2S11PredictivePostureInput | None = None
+    resource_posture: Layer2S12ResourceEconomicsPostureInput | None = None
 
 
 def run_s2_shadow_design_loop(
@@ -719,6 +799,7 @@ def run_s2_shadow_design_loop(
     value_posture: Layer2S8ValuePostureInput | None = None,
     forecast_posture: Layer2S10ForecastPostureInput | None = None,
     predictive_posture: Layer2S11PredictivePostureInput | None = None,
+    resource_posture: Layer2S12ResourceEconomicsPostureInput | None = None,
 ) -> Layer2S2DesignSearchRun:
     """Run the deterministic S2 one-case shadow design-search loop."""
 
@@ -750,6 +831,7 @@ def run_s2_shadow_design_loop(
         delegation_posture=delegation_posture,
         value_posture=value_posture,
         predictive_posture=predictive_posture,
+        resource_posture=resource_posture,
     )
     counterexample = _counterexample(input, candidate=candidate)
     decision = _refinement_decision(
@@ -787,6 +869,7 @@ def run_s2_shadow_design_loop(
         value_posture=value_posture,
         forecast_posture=forecast_posture,
         predictive_posture=predictive_posture,
+        resource_posture=resource_posture,
     )
     design_record = _design_record(
         input,
@@ -804,6 +887,7 @@ def run_s2_shadow_design_loop(
         value_posture=value_posture,
         forecast_posture=forecast_posture,
         predictive_posture=predictive_posture,
+        resource_posture=resource_posture,
     )
     status: S2RunStatus = (
         "governance_required"
@@ -842,6 +926,7 @@ def run_s2_shadow_design_loop(
             value_posture=value_posture,
             forecast_posture=forecast_posture,
             predictive_posture=predictive_posture,
+            resource_posture=resource_posture,
         ),
         handoff_records=_handoff_records(
             candidate,
@@ -853,6 +938,7 @@ def run_s2_shadow_design_loop(
             value_posture=value_posture,
             forecast_posture=forecast_posture,
             predictive_posture=predictive_posture,
+            resource_posture=resource_posture,
         ),
         design_record=design_record,
         composition_posture=composition_posture,
@@ -861,6 +947,7 @@ def run_s2_shadow_design_loop(
         value_posture=value_posture,
         forecast_posture=forecast_posture,
         predictive_posture=predictive_posture,
+        resource_posture=resource_posture,
     )
 
 
@@ -982,6 +1069,16 @@ def project_s2_design_search(
                     constraint_store=run.constraint_store,
                 )
             )
+        if run.resource_posture is not None:
+            projection.update(
+                _s12_projection_fields(
+                    audience,
+                    resource_posture=run.resource_posture,
+                    constraint_store=run.constraint_store,
+                )
+            )
+            if audience == "PUBLIC":
+                assert_s2_public_projection_has_growth_limitation(projection)
         projection.update(s9_context)
         projections[audience] = projection
     return projections
@@ -1083,6 +1180,31 @@ def assert_s2_public_projection_has_value_tradeoff_disclosure(
     leaked = sorted(forbidden & set(projection))
     if leaked:
         raise ValueError(f"PUBLIC S8 projection leaked raw value fields: {leaked}")
+
+
+def assert_s2_public_projection_has_growth_limitation(
+    projection: Mapping[str, object],
+) -> None:
+    """Require PUBLIC S12 growth disclosure without allocation recommendation authority."""
+
+    if projection.get("audience") != "PUBLIC":
+        return
+    if not projection.get("s12_resource_posture_ref") and not projection.get(
+        "explore_exploit_posture"
+    ):
+        return
+    limitation = projection.get("s12_public_growth_limitation")
+    if not isinstance(limitation, str) or not limitation.strip():
+        raise ValueError("PUBLIC S12 projection requires growth limitation")
+    forbidden = {
+        "allocation_priority_rows",
+        "selected_policy_ref",
+        "allocation_recommendation_text",
+        "recommendation_authority",
+    }
+    leaked = sorted(forbidden & set(projection))
+    if leaked:
+        raise ValueError(f"PUBLIC S12 projection leaked allocation authority: {leaked}")
 
 
 def persist_s2_design_search_run(
@@ -1258,6 +1380,7 @@ def _constraint_store(
     delegation_posture: Layer2S7DelegationPostureInput | None = None,
     value_posture: Layer2S8ValuePostureInput | None = None,
     predictive_posture: Layer2S11PredictivePostureInput | None = None,
+    resource_posture: Layer2S12ResourceEconomicsPostureInput | None = None,
 ) -> ConstraintStoreSnapshot:
     slug = _slug(input.case_id)
     s6_constraints = _s6_constraint_entries(blind_spot_posture)
@@ -1269,6 +1392,7 @@ def _constraint_store(
         rule_version_ref=input.rule_version_ref,
     )
     s11_constraints = _s11_constraint_entries(predictive_posture, case_slug=slug)
+    s12_constraints = _s12_constraint_entries(resource_posture, case_slug=slug)
     base_constraint_ids = [
         "shadow_only",
         "authority_boundary_required",
@@ -1278,11 +1402,13 @@ def _constraint_store(
     s7_constraint_ids = [entry.constraint_id for entry in s7_constraints]
     s8_constraint_ids = [entry.constraint_id for entry in s8_constraints]
     s11_constraint_ids = [entry.constraint_id for entry in s11_constraints]
+    s12_constraint_ids = [entry.constraint_id for entry in s12_constraints]
     constraint_records = [
         *s6_constraints,
         *s7_constraints,
         *s8_constraints,
         *s11_constraints,
+        *s12_constraints,
     ]
     return ConstraintStoreSnapshot(
         snapshot_id=f"layer2.s2.constraints.{slug}",
@@ -1294,6 +1420,7 @@ def _constraint_store(
             *s7_constraint_ids,
             *s8_constraint_ids,
             *s11_constraint_ids,
+            *s12_constraint_ids,
         ],
         hard_constraint_ids=[
             "shadow_only",
@@ -1499,6 +1626,7 @@ def _search_ledger(
     value_posture: Layer2S8ValuePostureInput | None = None,
     forecast_posture: Layer2S10ForecastPostureInput | None = None,
     predictive_posture: Layer2S11PredictivePostureInput | None = None,
+    resource_posture: Layer2S12ResourceEconomicsPostureInput | None = None,
 ) -> SearchLedger:
     slug = _slug(input.case_id)
     replay_key = _deterministic_replay_key(
@@ -1512,11 +1640,13 @@ def _search_ledger(
         value_posture=value_posture,
         forecast_posture=forecast_posture,
         predictive_posture=predictive_posture,
+        resource_posture=resource_posture,
     )
     handoff_refs = [
         *_s7_handoff_refs(delegation_posture),
         *_s8_handoff_refs(value_posture),
         *_s11_handoff_refs(predictive_posture),
+        *_s12_handoff_refs(resource_posture),
     ]
     return SearchLedger(
         ledger_id=f"layer2.s2.ledger.{slug}",
@@ -1589,6 +1719,18 @@ def _search_ledger(
             if predictive_posture is not None
             else None
         ),
+        resource_allocation_policy_refs=_s12_resource_allocation_policy_refs(
+            resource_posture
+        ),
+        envelope_growth_ledger_refs=_s12_envelope_growth_ledger_refs(resource_posture),
+        growth_thermometer_refs=_s12_growth_thermometer_refs(resource_posture),
+        voi_allocation_refs=_s12_voi_allocation_refs(resource_posture),
+        explore_exploit_posture=_s12_explore_exploit_posture(resource_posture),
+        resource_authority_boundary=(
+            resource_posture.authority_boundary
+            if resource_posture is not None
+            else None
+        ),
         no_retry_without_new_grammar=input.force_retry_same_candidate,
         search_incompleteness_note=_SEARCH_INCOMPLETENESS_NOTE,
     )
@@ -1611,6 +1753,7 @@ def _design_record(
     value_posture: Layer2S8ValuePostureInput | None = None,
     forecast_posture: Layer2S10ForecastPostureInput | None = None,
     predictive_posture: Layer2S11PredictivePostureInput | None = None,
+    resource_posture: Layer2S12ResourceEconomicsPostureInput | None = None,
 ) -> DesignRecordV0:
     slug = _slug(input.case_id)
     axis_positions = [
@@ -1748,6 +1891,12 @@ def _design_record(
         ledger_refs.extend(_s11_design_record_ledger_refs(predictive_posture))
         projection_audiences = ["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"]
 
+    if resource_posture is not None:
+        axis_positions.append(_s12_axis_position(resource_posture))
+        firewall_status.append(_s12_firewall_status(resource_posture))
+        ledger_refs.extend(_s12_design_record_ledger_refs(resource_posture))
+        projection_audiences = ["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"]
+
     not_certified_for = list(_MAY_NOT_USE_FOR)
     if blind_spot_posture is not None and blind_spot_posture.overall_posture == "blocked":
         not_certified_for.append("closeout_authority_blocked_by_s6")
@@ -1756,6 +1905,11 @@ def _design_record(
         and predictive_posture.effective_predictive_posture == "fail_closed"
     ):
         not_certified_for.append("closeout_authority_blocked_by_s11")
+    if resource_posture is not None:
+        not_certified_for = _merge_unique_strings(
+            not_certified_for,
+            resource_posture.may_not_use_for,
+        )
     ledger_refs = list(dict.fromkeys(ledger_refs))[:40]
 
     return DesignRecordV0(
@@ -2397,6 +2551,68 @@ def _s11_projection_fields(
     return fields
 
 
+def _s12_projection_fields(
+    audience: Literal["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"],
+    *,
+    resource_posture: Layer2S12ResourceEconomicsPostureInput,
+    constraint_store: ConstraintStoreSnapshot,
+) -> dict[str, object]:
+    if audience == "PUBLIC":
+        return {
+            "s12_resource_posture_ref": resource_posture.resource_allocation_policy_ref,
+            "explore_exploit_posture": resource_posture.explore_exploit_posture,
+            "override_rate_trend": resource_posture.override_rate_trend,
+            "reuse_rate_trend": resource_posture.reuse_rate_trend,
+            "s12_public_growth_limitation": (
+                "Resource allocation is a governed growth limitation, not a "
+                "recommendation or claim authority."
+            ),
+            "may_not_be_used_for": _merge_unique_strings(
+                resource_posture.may_not_use_for,
+                _S12_REQUIRED_HANDOFF_MAY_NOT_USE_FOR,
+            ),
+            "authority_role": "projection_only",
+        }
+
+    fields: dict[str, object] = {
+        "s12_resource_posture_ref": resource_posture.resource_allocation_policy_ref,
+        "resource_allocation_policy_ref": resource_posture.resource_allocation_policy_ref,
+        "explore_exploit_posture": resource_posture.explore_exploit_posture,
+        "explore_exploit_dial_ref": resource_posture.explore_exploit_dial_ref,
+        "delegation_contract_ref": resource_posture.delegation_contract_ref,
+        "voi_allocation_refs": list(resource_posture.voi_allocation_refs),
+        "voi_site_count": resource_posture.voi_site_count,
+        "typed_budget_refs": list(resource_posture.typed_budget_refs),
+        "pareto_archive_ref": resource_posture.pareto_archive_ref,
+        "envelope_growth_ledger_ref": resource_posture.envelope_growth_ledger_ref,
+        "growth_thermometer_ref": resource_posture.growth_thermometer_ref,
+        "override_rate_trend": resource_posture.override_rate_trend,
+        "reuse_rate_trend": resource_posture.reuse_rate_trend,
+        "held_out_status": resource_posture.held_out_status,
+        "knowledge_governance_throughput_ledger_ref": (
+            resource_posture.knowledge_governance_throughput_ledger_ref
+        ),
+        "residual_limitation_refs": list(resource_posture.residual_limitation_refs),
+        "resource_allocation_disposition": (
+            "blocked"
+            if resource_posture.explore_exploit_posture == "blocked"
+            else "advisory_only"
+        ),
+        "resource_authority_boundary": resource_posture.authority_boundary.model_dump(
+            mode="json"
+        ),
+        "may_not_be_used_for": list(resource_posture.may_not_use_for),
+    }
+    if audience in {"EXPERT", "MACHINE"}:
+        fields["allocation_priority_rows"] = list(resource_posture.allocation_priority_rows)
+        fields["s12_constraint_store_updates"] = [
+            record.model_dump(mode="json")
+            for record in constraint_store.constraint_records
+            if record.cell_ref == _S12_RESOURCE_ECONOMICS_CELL_REF
+        ]
+    return fields
+
+
 def _s6_axis_positions(
     blind_spot_posture: Layer2S6BlindSpotPostureInput,
     rule_version_ref: str,
@@ -2564,6 +2780,38 @@ def _s11_constraint_entries(
             )
         )
     return entries
+
+
+def _s12_constraint_entries(
+    resource_posture: Layer2S12ResourceEconomicsPostureInput | None,
+    *,
+    case_slug: str,
+) -> list[ConstraintStoreEntry]:
+    if resource_posture is None:
+        return []
+    status: ConstraintRecordStatus = (
+        "block" if resource_posture.explore_exploit_posture == "blocked" else "limit"
+    )
+    route: ConstraintRefinementRoute = (
+        "block_candidate" if status == "block" else "pending_consumer_constraint"
+    )
+    reason = (
+        "S12 resource allocation posture is consumed as typed allocation priority "
+        "and growth limitation only, not as recommendation authority."
+    )
+    return [
+        ConstraintStoreEntry(
+            constraint_id=f"layer2.s12.{case_slug}.resource_allocation_constraint",
+            cell_ref=_S12_RESOURCE_ECONOMICS_CELL_REF,
+            status=status,
+            source_ref=resource_posture.resource_allocation_policy_ref,
+            consumer_ref="Layer2S2DesignSearchRun.resource_posture",
+            refinement_route=route,
+            evidence_refs=_s12_design_record_ledger_refs(resource_posture),
+            reason=reason,
+            rule_version_ref=resource_posture.rule_version_ref,
+        )
+    ]
 
 
 def _s6_refinement_decision(
@@ -2955,6 +3203,50 @@ def _s11_firewall_status(
     )
 
 
+def _s12_axis_position(
+    resource_posture: Layer2S12ResourceEconomicsPostureInput,
+) -> AxisPositionDeclaration:
+    return AxisPositionDeclaration(
+        cluster="INTERVENTION",
+        axis="resource_economics",
+        position=(
+            f"explore_exploit_posture={resource_posture.explore_exploit_posture};"
+            f"voi_site_count={resource_posture.voi_site_count};"
+            f"held_out_status={resource_posture.held_out_status}"
+        ),
+        evidence_refs=_s12_design_record_ledger_refs(resource_posture),
+        authority_purpose="resource_posture_constraint_consumption",
+        rule_version_ref=resource_posture.rule_version_ref,
+    )
+
+
+def _s12_firewall_status(
+    resource_posture: Layer2S12ResourceEconomicsPostureInput,
+) -> AxisFirewallStatus:
+    status: Literal["pass", "warn", "limit", "block"] = (
+        "block" if resource_posture.explore_exploit_posture == "blocked" else "limit"
+    )
+    if (
+        resource_posture.override_rate_trend in {"improving", "flat"}
+        and resource_posture.reuse_rate_trend in {"improving", "flat"}
+        and resource_posture.held_out_status == "pending_s14"
+        and resource_posture.explore_exploit_posture != "blocked"
+    ):
+        status = "pass"
+    return AxisFirewallStatus(
+        cell_ref=_S12_RESOURCE_ECONOMICS_CELL_REF,
+        status=status,
+        pattern_ids=["P03", "P04", "P05", "P10", "P13", "P15"],
+        reason=(
+            "S12 injected resource posture is consumed as constraint and allocation "
+            "priority data only; it cannot authorize recommendations, claims, S13 "
+            "shrinkage, or S14 universality."
+        ),
+        maturity="fail_closed",
+        rule_version_ref=resource_posture.rule_version_ref,
+    )
+
+
 def _s11_constraint_status(
     predictive_posture: Layer2S11PredictivePostureInput,
 ) -> Literal["pass", "warn", "limit", "block"]:
@@ -3239,6 +3531,62 @@ def _s11_predictive_authority_status(
     return predictive_posture.effective_predictive_posture
 
 
+def _s12_design_record_ledger_refs(
+    resource_posture: Layer2S12ResourceEconomicsPostureInput,
+) -> list[str]:
+    refs = [
+        resource_posture.resource_allocation_policy_ref,
+        resource_posture.pareto_archive_ref,
+        resource_posture.envelope_growth_ledger_ref,
+        resource_posture.growth_thermometer_ref,
+        resource_posture.knowledge_governance_throughput_ledger_ref,
+        *resource_posture.voi_allocation_refs,
+        *resource_posture.typed_budget_refs,
+        *resource_posture.residual_limitation_refs,
+    ]
+    return [ref for ref in dict.fromkeys(refs) if ref is not None][:40]
+
+
+def _s12_resource_allocation_policy_refs(
+    resource_posture: Layer2S12ResourceEconomicsPostureInput | None,
+) -> list[str]:
+    if resource_posture is None:
+        return []
+    return [resource_posture.resource_allocation_policy_ref]
+
+
+def _s12_envelope_growth_ledger_refs(
+    resource_posture: Layer2S12ResourceEconomicsPostureInput | None,
+) -> list[str]:
+    if resource_posture is None:
+        return []
+    return [resource_posture.envelope_growth_ledger_ref]
+
+
+def _s12_growth_thermometer_refs(
+    resource_posture: Layer2S12ResourceEconomicsPostureInput | None,
+) -> list[str]:
+    if resource_posture is None:
+        return []
+    return [resource_posture.growth_thermometer_ref]
+
+
+def _s12_voi_allocation_refs(
+    resource_posture: Layer2S12ResourceEconomicsPostureInput | None,
+) -> list[str]:
+    if resource_posture is None:
+        return []
+    return list(resource_posture.voi_allocation_refs)
+
+
+def _s12_explore_exploit_posture(
+    resource_posture: Layer2S12ResourceEconomicsPostureInput | None,
+) -> str:
+    if resource_posture is None:
+        return "not_applicable"
+    return resource_posture.explore_exploit_posture
+
+
 def _s8_handoff_refs(value_posture: Layer2S8ValuePostureInput | None) -> list[str]:
     if value_posture is None:
         return []
@@ -3251,6 +3599,14 @@ def _s11_handoff_refs(
     if predictive_posture is None:
         return []
     return [_s11_handoff_record(predictive_posture).handoff_id]
+
+
+def _s12_handoff_refs(
+    resource_posture: Layer2S12ResourceEconomicsPostureInput | None,
+) -> list[str]:
+    if resource_posture is None:
+        return []
+    return [_s12_handoff_record(resource_posture).handoff_id]
 
 
 def _s8_handoff_records(value_posture: Layer2S8ValuePostureInput) -> list[ClusterHandoffRecord]:
@@ -3346,6 +3702,31 @@ def _s11_handoff_record(
         may_not_use_for=_merge_unique_strings(
             predictive_posture.may_not_use_for,
             _S11_REQUIRED_HANDOFF_MAY_NOT_USE_FOR,
+        ),
+    )
+
+
+def _s12_handoff_record(
+    resource_posture: Layer2S12ResourceEconomicsPostureInput,
+) -> ClusterHandoffRecord:
+    return ClusterHandoffRecord(
+        handoff_id="layer2.s2.handoff.s12_resource_posture",
+        workflow_ref="workflow://layer2/s2/shadow-design-loop",
+        source_cell_ref=_S12_RESOURCE_ECONOMICS_CELL_REF,
+        target_cell_ref="INTERVENTION.design_candidate",
+        artifact_refs=_s12_design_record_ledger_refs(resource_posture),
+        disposition=(
+            "blocked"
+            if resource_posture.explore_exploit_posture == "blocked"
+            else "consumed"
+        ),
+        authority_purpose=(
+            "Layer2S12ResourceEconomicsPostureInput allocation_priority_input "
+            "constraint_consumed"
+        ),
+        may_not_use_for=_merge_unique_strings(
+            resource_posture.may_not_use_for,
+            _S12_REQUIRED_HANDOFF_MAY_NOT_USE_FOR,
         ),
     )
 
@@ -3539,6 +3920,7 @@ def _cluster_interfaces(
     value_posture: Layer2S8ValuePostureInput | None = None,
     forecast_posture: Layer2S10ForecastPostureInput | None = None,
     predictive_posture: Layer2S11PredictivePostureInput | None = None,
+    resource_posture: Layer2S12ResourceEconomicsPostureInput | None = None,
 ) -> list[ClusterInterfaceContract]:
     contracts = [
         ClusterInterfaceContract(
@@ -3637,6 +4019,20 @@ def _cluster_interfaces(
                 authority_boundary=predictive_posture.authority_boundary,
             )
         )
+    if resource_posture is not None:
+        contracts.append(
+            ClusterInterfaceContract(
+                contract_id="layer2.s2.cluster.interface.resource_economics",
+                cell_ref=_S12_RESOURCE_ECONOMICS_CELL_REF,
+                publishes=[
+                    "SearchLedger",
+                    "ConstraintStoreEntry",
+                    "allocation_priority_input",
+                ],
+                consumes=["Layer2S12ResourceEconomicsPostureInput"],
+                authority_boundary=resource_posture.authority_boundary,
+            )
+        )
     return contracts
 
 
@@ -3651,6 +4047,7 @@ def _handoff_records(
     value_posture: Layer2S8ValuePostureInput | None = None,
     forecast_posture: Layer2S10ForecastPostureInput | None = None,
     predictive_posture: Layer2S11PredictivePostureInput | None = None,
+    resource_posture: Layer2S12ResourceEconomicsPostureInput | None = None,
 ) -> list[ClusterHandoffRecord]:
     records = [
         ClusterHandoffRecord(
@@ -3709,6 +4106,8 @@ def _handoff_records(
         records.append(_s10_handoff_record(forecast_posture))
     if predictive_posture is not None:
         records.append(_s11_handoff_record(predictive_posture))
+    if resource_posture is not None:
+        records.append(_s12_handoff_record(resource_posture))
     return records
 
 
@@ -3765,6 +4164,7 @@ def _deterministic_replay_key(
     value_posture: Layer2S8ValuePostureInput | None = None,
     forecast_posture: Layer2S10ForecastPostureInput | None = None,
     predictive_posture: Layer2S11PredictivePostureInput | None = None,
+    resource_posture: Layer2S12ResourceEconomicsPostureInput | None = None,
 ) -> str:
     payload = {
         "case_id": input.case_id,
@@ -3816,6 +4216,8 @@ def _deterministic_replay_key(
         }
     if predictive_posture is not None:
         payload["predictive_posture"] = predictive_posture.model_dump(mode="json")
+    if resource_posture is not None:
+        payload["resource_posture"] = resource_posture.model_dump(mode="json")
     canonical = json.dumps(payload, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 

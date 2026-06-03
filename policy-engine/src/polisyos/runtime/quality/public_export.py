@@ -26,6 +26,7 @@ from polisyos.runtime.quality.projection_semantics import (
     verify_s9_projection_faithfulness_for_pdc_consumer_contract,
     verify_s10_forecast_projection_consumer_contract,
     verify_s11_predictive_projection_consumer_contract,
+    verify_s12_resource_projection_consumer_contract,
 )
 from polisyos.runtime.quality.rule_evolution import (
     RULE_EVOLUTION_PUBLIC_ANNOTATION_SCHEMA_VERSION,
@@ -192,6 +193,8 @@ def build_public_export_bundle(
     s10_projection = None
     s11_verification = None
     s11_projection = None
+    s12_verification = None
+    s12_projection = None
     if runtime_pdc_graph is not None:
         projection_semantics = build_policy_design_case_projection_from_runtime_graph(
             runtime_pdc_graph=runtime_pdc_graph,
@@ -327,6 +330,36 @@ def build_public_export_bundle(
                     )
                     else "pass",
                 }
+        projection_semantics, s12_verification, s12_projection = (
+            _apply_s12_resource_projection(
+                projection_semantics=projection_semantics,
+                projection_payload=projection_payload,
+            )
+        )
+        if s12_verification is not None:
+            if projection_contract_verification is None:
+                projection_contract_verification = {
+                    "schema_version": str(
+                        s12_verification.get("consumer_contract_ref")
+                        or (
+                            "policyos.runtime.policy_design_case."
+                            "s12_resource_projection_verification.v1"
+                        )
+                    ),
+                    "status": str(s12_verification.get("status") or "fail"),
+                    "s12_resource_projection": s12_verification,
+                }
+            else:
+                projection_contract_verification = {
+                    **projection_contract_verification,
+                    "s12_resource_projection": s12_verification,
+                    "status": "fail"
+                    if (
+                        projection_contract_verification.get("status") == "fail"
+                        or s12_verification.get("status") == "fail"
+                    )
+                    else "pass",
+                }
     _assert_public_claim_omissions_manifested(sanitized_artifacts, projection_semantics)
     bundle = {
         "schema_version": PUBLIC_EXPORT_SCHEMA_VERSION,
@@ -354,6 +387,8 @@ def build_public_export_bundle(
             "s10_forecast_projection_contract_verification": s10_verification,
             "s11_predictive_projection": s11_projection,
             "s11_predictive_projection_contract_verification": s11_verification,
+            "s12_resource_projection": s12_projection,
+            "s12_resource_projection_contract_verification": s12_verification,
             "omission_manifest": list(
                 projection_semantics.get("omission_manifest", [])
                 if projection_semantics is not None
@@ -377,6 +412,92 @@ def build_public_export_bundle(
         bundle["projection_semantics"] = projection_semantics
     assert_public_export_official_use_limits(bundle)
     return bundle
+
+
+def _apply_s12_resource_projection(
+    *,
+    projection_semantics: Mapping[str, object],
+    projection_payload: Mapping[str, object],
+) -> tuple[dict[str, object], dict[str, object] | None, dict[str, object] | None]:
+    s12_projection = _s12_resource_projection_record(projection_payload)
+    if not s12_projection:
+        return dict(projection_semantics), None, None
+    verification = verify_s12_resource_projection_consumer_contract(
+        projections={"public": s12_projection},
+    )
+    if verification.get("status") != "pass":
+        raise PublicExportRedactionError(
+            _first_s12_issue_code(verification),
+            "S12 resource projection consumer contract must pass before public release.",
+        )
+    public_projection = dict(verification.get("public_projection") or {})
+    enriched = dict(projection_semantics)
+    growth_limitation = _text(
+        public_projection.get("s12_public_growth_limitation")
+        or s12_projection.get("s12_public_growth_limitation")
+    )
+    limitations = _unique_texts(
+        [
+            *_text_list(enriched.get("limitations")),
+            growth_limitation,
+            "S12 resource allocation remains allocation-only, not recommendation authority.",
+        ]
+    )
+    audit_refs = _unique_texts(
+        [
+            *_text_list(enriched.get("audit_refs")),
+            s12_projection.get("resource_allocation_policy_ref"),
+            s12_projection.get("envelope_growth_ledger_ref"),
+            s12_projection.get("growth_thermometer_ref"),
+            s12_projection.get("rule_version_ref"),
+            *_text_list(s12_projection.get("voi_allocation_refs")),
+            *_text_list(s12_projection.get("residual_limitation_refs")),
+        ]
+    )
+    may_not = _unique_texts(
+        [
+            *_text_list(enriched.get("may_not_be_used_for")),
+            *_text_list(public_projection.get("may_not_be_used_for")),
+            "production_authority",
+            "production_recommendation",
+            "publication_authority",
+            "claim_authority",
+            "closeout_authority",
+            "recommendation_authority",
+        ]
+    )
+    source_state = dict(enriched.get("source_state") or {})
+    source_state.update(
+        {
+            "s12_resource_posture_ref": s12_projection.get(
+                "resource_allocation_policy_ref"
+            ),
+            "s12_projection_policy": "reads_resource_economics_posture_as_constraint",
+            "s12_explore_exploit_posture": s12_projection.get(
+                "explore_exploit_posture"
+            ),
+        }
+    )
+    enriched.update(
+        {
+            "explore_exploit_posture": s12_projection.get("explore_exploit_posture"),
+            "override_rate_trend": s12_projection.get("override_rate_trend"),
+            "reuse_rate_trend": s12_projection.get("reuse_rate_trend"),
+            "s12_public_growth_limitation": growth_limitation,
+            "authority_role": "projection_only",
+            "may_not_be_used_for": may_not,
+            "limitations": limitations,
+            "audit_refs": audit_refs,
+            "source_state": source_state,
+            "s12_resource_projection_contract_verification_status": verification.get(
+                "status"
+            ),
+            "s12_resource_projection_contract_verification_ref": verification.get(
+                "consumer_contract_ref"
+            ),
+        }
+    )
+    return enriched, verification, s12_projection
 
 
 def _apply_s11_predictive_projection(
@@ -664,6 +785,70 @@ def _s11_predictive_projection_record(
     }
 
 
+def _s12_resource_projection_record(
+    projection_payload: Mapping[str, object],
+) -> dict[str, object]:
+    if not (
+        _text(projection_payload.get("resource_allocation_policy_ref"))
+        or _text(projection_payload.get("s12_resource_posture_ref"))
+        or _text(projection_payload.get("explore_exploit_posture"))
+    ):
+        return {}
+    authority_boundary = dict(
+        projection_payload.get("authority_boundary")
+        if isinstance(projection_payload.get("authority_boundary"), Mapping)
+        else {}
+    )
+    return {
+        "audience": "PUBLIC",
+        "authority_role": "projection_only",
+        "projection_policy": "reads_resource_economics_posture_as_constraint",
+        "s12_resource_posture_ref": _text(
+            projection_payload.get("s12_resource_posture_ref")
+        ),
+        "resource_allocation_policy_ref": _text(
+            projection_payload.get("resource_allocation_policy_ref")
+            or projection_payload.get("s12_resource_posture_ref")
+        ),
+        "explore_exploit_posture": _text(
+            projection_payload.get("explore_exploit_posture")
+        ),
+        "explore_exploit_dial_ref": _text(
+            projection_payload.get("explore_exploit_dial_ref")
+        ),
+        "voi_allocation_refs": _text_list(projection_payload.get("voi_allocation_refs")),
+        "voi_site_count": _int(projection_payload.get("voi_site_count")),
+        "typed_budget_refs": _text_list(projection_payload.get("typed_budget_refs")),
+        "pareto_archive_ref": _text(projection_payload.get("pareto_archive_ref")),
+        "envelope_growth_ledger_ref": _text(
+            projection_payload.get("envelope_growth_ledger_ref")
+        ),
+        "growth_thermometer_ref": _text(
+            projection_payload.get("growth_thermometer_ref")
+        ),
+        "override_rate_trend": _text(projection_payload.get("override_rate_trend")),
+        "reuse_rate_trend": _text(projection_payload.get("reuse_rate_trend")),
+        "held_out_status": _text(projection_payload.get("held_out_status")),
+        "resource_allocation_disposition": _text(
+            projection_payload.get("resource_allocation_disposition")
+        ),
+        "residual_limitation_refs": _text_list(
+            projection_payload.get("residual_limitation_refs")
+        ),
+        "s12_public_growth_limitation": _text(
+            projection_payload.get("s12_public_growth_limitation")
+        ),
+        "authority_boundary": authority_boundary,
+        "may_not_be_used_for": _unique_texts(
+            [
+                *_text_list(projection_payload.get("may_not_be_used_for")),
+                *_text_list(projection_payload.get("may_not_use_for")),
+            ]
+        ),
+        "rule_version_ref": _text(projection_payload.get("rule_version_ref")),
+    }
+
+
 def _s10_missing_machine_export_refs(
     s10_projection: Mapping[str, object],
 ) -> list[str]:
@@ -702,6 +887,17 @@ def _first_s11_issue_code(verification: Mapping[str, object]) -> str:
             if code:
                 return code
     return "s11_predictive_projection_failed"
+
+
+def _first_s12_issue_code(verification: Mapping[str, object]) -> str:
+    for code in _text_list(verification.get("issue_codes")):
+        return code
+    for issue in _as_sequence(verification.get("issues")):
+        if isinstance(issue, Mapping):
+            code = _text(issue.get("code"))
+            if code:
+                return code
+    return "s12_resource_projection_failed"
 
 
 def _apply_s9_projection_faithfulness(
@@ -1218,6 +1414,13 @@ def _text(value: object) -> str:
 
 def _text_list(value: object) -> list[str]:
     return _unique_texts(_as_sequence(value))
+
+
+def _int(value: object) -> int:
+    try:
+        return max(0, int(value or 0))
+    except (TypeError, ValueError):
+        return 0
 
 
 def _unique_texts(values: Sequence[object]) -> list[str]:

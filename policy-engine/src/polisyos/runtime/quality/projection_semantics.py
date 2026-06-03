@@ -87,6 +87,9 @@ _S10_CONSUMER_CONTRACT_REF = (
 _S11_CONSUMER_CONTRACT_REF = (
     "policyos.runtime.policy_design_case.s11_predictive_projection_verification.v1"
 )
+_S12_CONSUMER_CONTRACT_REF = (
+    "policyos.runtime.policy_design_case.s12_resource_projection_verification.v1"
+)
 _S9_REQUIRED_MAY_NOT_USE_FOR = frozenset(
     {
         "claim_authority",
@@ -145,6 +148,52 @@ _S11_FORBIDDEN_AUTHORITY_USES = frozenset(
         "recommendation_authority",
         "runtime_closeout_authority",
         "scorecard_authority",
+    }
+)
+_S12_REQUIRED_MAY_NOT_USE_FOR = frozenset(
+    {
+        "production_authority",
+        "production_recommendation",
+        "rollout_authority",
+        "publication_authority",
+        "claim_authority",
+        "closeout_authority",
+        "approval_authority",
+        "scorecard_authority",
+        "preference_learning_authority",
+        "mdp_bandit_optimizer_authority",
+        "budget_interchangeability",
+        "mission_or_value_self_authorization",
+        "floor_relaxation",
+        "s13_envelope_shrink",
+        "s13_accountability_closure",
+        "s14_universality",
+    }
+)
+_S12_FORBIDDEN_AUTHORITY_USES = frozenset(
+    {
+        "approval_authority",
+        "claim_authority",
+        "closeout_authority",
+        "publication_authority",
+        "production_authority",
+        "production_claim_authority",
+        "production_recommendation",
+        "recommendation_authority",
+        "runtime_closeout_authority",
+        "scorecard_authority",
+        "s13_accountability_closure",
+        "s13_envelope_shrink",
+        "s14_universality",
+    }
+)
+_S12_SCALAR_ALLOCATION_KEYS = frozenset(
+    {
+        "allocation_score",
+        "hidden_scalar_score",
+        "numeric_voi_score",
+        "selected_policy_score",
+        "voi_score",
     }
 )
 _ALLOWED_PROJECTION_POLICIES = frozenset(
@@ -925,6 +974,67 @@ def verify_s11_predictive_projection_consumer_contract(
     }
 
 
+def verify_s12_resource_projection_consumer_contract(
+    *,
+    projections: Mapping[str, Mapping[str, Any]],
+) -> dict[str, Any]:
+    """Verify S12 resource-economics projections without allocation authority."""
+
+    issues: list[dict[str, Any]] = []
+    consumer_contracts: list[dict[str, Any]] = []
+    s12_records: dict[str, dict[str, Any]] = {}
+    public_projection: dict[str, Any] = {}
+    for audience, projection in projections.items():
+        projection_payload = _mapping_from_record(projection)
+        s12_record = _s12_resource_projection_record(projection_payload)
+        s12_records[audience] = s12_record
+        audience_issues = _s12_projection_issues(
+            audience=audience,
+            projection=projection_payload,
+            s12_record=s12_record,
+        )
+        issues.extend(audience_issues)
+        if _audience(
+            projection_payload.get("audience") or audience,
+            surface="s12_resource_projection",
+        ) is contracts.PolicyDesignCaseAudience.PUBLIC:
+            public_projection = _s12_public_projection(projection_payload, s12_record)
+        consumer_contracts.append(
+            {
+                "consumer": _text(audience),
+                "audience": _text(audience),
+                "status": "fail" if audience_issues else "pass",
+                "issue_codes": [issue["code"] for issue in audience_issues],
+                "verified_fields": [
+                    "resource_allocation_policy_ref",
+                    "explore_exploit_posture",
+                    "explore_exploit_dial_ref",
+                    "voi_allocation_refs",
+                    "typed_budget_refs",
+                    "pareto_archive_ref",
+                    "envelope_growth_ledger_ref",
+                    "growth_thermometer_ref",
+                    "override_rate_trend",
+                    "reuse_rate_trend",
+                    "residual_limitation_refs",
+                    "authority_boundary",
+                ],
+            }
+        )
+    issue_codes = _unique_texts(issue.get("code") for issue in issues)
+    first_record = next(iter(s12_records.values()), {})
+    return {
+        "schema_version": _S12_CONSUMER_CONTRACT_REF,
+        "status": "fail" if issues else "pass",
+        "consumer_contract_ref": _S12_CONSUMER_CONTRACT_REF,
+        "consumer_contracts": consumer_contracts,
+        "s12_resource_projection": first_record,
+        "public_projection": public_projection,
+        "issue_codes": issue_codes,
+        "issues": issues,
+    }
+
+
 def _s10_forecast_projection_record(projection: Mapping[str, Any]) -> dict[str, Any]:
     if not (
         _text(projection.get("forecast_support_ref"))
@@ -1139,6 +1249,227 @@ def _s11_public_projection(
         "s11_public_limitation": _text(
             projection.get("s11_public_limitation")
             or s11_record.get("s11_public_limitation")
+        ),
+        "may_not_be_used_for": may_not,
+    }
+
+
+def _s12_resource_projection_record(projection: Mapping[str, Any]) -> dict[str, Any]:
+    if not (
+        _text(projection.get("resource_allocation_policy_ref"))
+        or _text(projection.get("s12_resource_posture_ref"))
+        or _text(projection.get("explore_exploit_posture"))
+    ):
+        return {}
+    authority_boundary = _mapping(
+        projection.get("resource_authority_boundary")
+        or projection.get("authority_boundary")
+    )
+    return {
+        "s12_resource_posture_ref": _text(projection.get("s12_resource_posture_ref")),
+        "resource_allocation_policy_ref": _text(
+            projection.get("resource_allocation_policy_ref")
+            or projection.get("s12_resource_posture_ref")
+        ),
+        "explore_exploit_posture": _text(projection.get("explore_exploit_posture")),
+        "explore_exploit_dial_ref": _text(projection.get("explore_exploit_dial_ref")),
+        "delegation_contract_ref": _text(projection.get("delegation_contract_ref")),
+        "voi_allocation_refs": _text_list(projection.get("voi_allocation_refs")),
+        "voi_site_count": _int(projection.get("voi_site_count")),
+        "typed_budget_refs": _text_list(projection.get("typed_budget_refs")),
+        "pareto_archive_ref": _text(projection.get("pareto_archive_ref")),
+        "envelope_growth_ledger_ref": _text(
+            projection.get("envelope_growth_ledger_ref")
+        ),
+        "growth_thermometer_ref": _text(projection.get("growth_thermometer_ref")),
+        "override_rate_trend": _text(projection.get("override_rate_trend")),
+        "reuse_rate_trend": _text(projection.get("reuse_rate_trend")),
+        "held_out_status": _text(projection.get("held_out_status")),
+        "resource_allocation_disposition": _text(
+            projection.get("resource_allocation_disposition")
+        ),
+        "residual_limitation_refs": _text_list(
+            projection.get("residual_limitation_refs")
+        ),
+        "s12_public_growth_limitation": _text(
+            projection.get("s12_public_growth_limitation")
+        ),
+        "authority_boundary": authority_boundary,
+        "may_not_be_used_for": _unique_texts(
+            [
+                *_text_list(projection.get("may_not_be_used_for")),
+                *_text_list(projection.get("may_not_use_for")),
+                *_text_list(authority_boundary.get("may_not_use_for")),
+            ]
+        ),
+        "authority_role": _text(projection.get("authority_role")) or "projection_only",
+        "rule_version_ref": _text(projection.get("rule_version_ref")),
+    }
+
+
+def _s12_projection_issues(
+    *,
+    audience: str,
+    projection: Mapping[str, Any],
+    s12_record: Mapping[str, Any],
+) -> list[dict[str, Any]]:
+    if not s12_record:
+        return [
+            _contract_issue(
+                "s12_resource_projection_missing",
+                audience=audience,
+                message="S12 resource posture projection fields are missing.",
+            )
+        ]
+    issues: list[dict[str, Any]] = []
+    audience_value = _audience(
+        projection.get("audience") or audience,
+        surface="s12_resource_projection",
+    )
+    if audience_value is contracts.PolicyDesignCaseAudience.PUBLIC:
+        if not _text(s12_record.get("s12_public_growth_limitation")):
+            issues.append(
+                _contract_issue(
+                    "s12_public_growth_limitation_missing",
+                    audience=audience,
+                    message="PUBLIC S12 projection requires a high-level growth limitation.",
+                )
+            )
+    else:
+        required_fields = {
+            "resource_allocation_policy_ref": "resource allocation policy ref",
+            "explore_exploit_posture": "explore/exploit posture",
+            "voi_allocation_refs": "VOI allocation refs",
+            "typed_budget_refs": "typed budget refs",
+            "pareto_archive_ref": "Pareto archive ref",
+            "envelope_growth_ledger_ref": "envelope growth ledger ref",
+            "growth_thermometer_ref": "growth thermometer ref",
+            "override_rate_trend": "override trend",
+            "reuse_rate_trend": "reuse trend",
+        }
+        for field_name, label in required_fields.items():
+            if not s12_record.get(field_name):
+                issues.append(
+                    _contract_issue(
+                        "s12_resource_projection_missing_audit_field",
+                        audience=audience,
+                        message=f"{label} missing from S12 projection.",
+                    )
+                )
+        if _int(s12_record.get("voi_site_count")) < 3:
+            issues.append(
+                _contract_issue(
+                    "s12_resource_projection_missing_audit_field",
+                    audience=audience,
+                    message="S12 projection requires VOI refs across at least three sites.",
+                )
+            )
+        if len(_text_list(s12_record.get("typed_budget_refs"))) < 5:
+            issues.append(
+                _contract_issue(
+                    "s12_resource_projection_missing_audit_field",
+                    audience=audience,
+                    message="S12 projection requires all typed budget refs.",
+                )
+            )
+    if _s12_allocation_authority_laundered(projection, s12_record):
+        issues.append(
+            _contract_issue(
+                "s12_allocation_as_recommendation_authority",
+                audience=audience,
+                message=(
+                    "S12 resource allocation projection crossed into recommendation "
+                    "or production authority."
+                ),
+            )
+        )
+    if _s12_growth_without_delta_surfaced(projection):
+        issues.append(
+            _contract_issue(
+                "s12_growth_without_envelope_delta_surfaced_as_growth",
+                audience=audience,
+                message="S12 growth cannot be surfaced as mechanism growth without envelope delta.",
+            )
+        )
+    if _s12_explore_exploit_self_set(s12_record):
+        issues.append(
+            _contract_issue(
+                "s12_explore_exploit_self_set",
+                audience=audience,
+                message="S12 explore/exploit posture requires an S7 delegation dial ref.",
+            )
+        )
+    if _S12_SCALAR_ALLOCATION_KEYS & set(projection):
+        issues.append(
+            _contract_issue(
+                "s12_hidden_pareto_allocation_scalar",
+                audience=audience,
+                message=(
+                    "S12 allocation projection cannot hide the Pareto frontier "
+                    "behind a scalar."
+                ),
+            )
+        )
+    return _dedupe_contract_issues(issues)
+
+
+def _s12_allocation_authority_laundered(
+    projection: Mapping[str, Any],
+    s12_record: Mapping[str, Any],
+) -> bool:
+    role = _text(projection.get("authority_role")).casefold()
+    if role not in {"", "projection_only"}:
+        return True
+    if _text(projection.get("allocation_recommendation_text")) or _text(
+        projection.get("production_recommendation_text")
+    ):
+        return True
+    boundary = _mapping(s12_record.get("authority_boundary"))
+    authoritative_for = {
+        *_text_list(projection.get("authoritative_for")),
+        *_text_list(boundary.get("authoritative_for")),
+    }
+    if authoritative_for & _S12_FORBIDDEN_AUTHORITY_USES:
+        return True
+    may_not = {
+        *_text_list(s12_record.get("may_not_be_used_for")),
+        *_text_list(boundary.get("may_not_use_for")),
+    }
+    return not may_not >= _S12_REQUIRED_MAY_NOT_USE_FOR
+
+
+def _s12_growth_without_delta_surfaced(projection: Mapping[str, Any]) -> bool:
+    if _int(projection.get("growth_without_envelope_delta_count")) <= 0:
+        return False
+    disposition = _text(projection.get("growth_counting_disposition"))
+    return disposition in {"", "counted_mechanism_growth"}
+
+
+def _s12_explore_exploit_self_set(s12_record: Mapping[str, Any]) -> bool:
+    posture = _text(s12_record.get("explore_exploit_posture"))
+    if posture in {"", "blocked"}:
+        return False
+    return not _text(s12_record.get("explore_exploit_dial_ref"))
+
+
+def _s12_public_projection(
+    projection: Mapping[str, Any],
+    s12_record: Mapping[str, Any],
+) -> dict[str, Any]:
+    may_not = _unique_texts(
+        [
+            *_text_list(s12_record.get("may_not_be_used_for")),
+            *_S12_REQUIRED_MAY_NOT_USE_FOR,
+        ]
+    )
+    return {
+        "authority_role": "projection_only",
+        "explore_exploit_posture": _text(s12_record.get("explore_exploit_posture")),
+        "override_rate_trend": _text(s12_record.get("override_rate_trend")),
+        "reuse_rate_trend": _text(s12_record.get("reuse_rate_trend")),
+        "s12_public_growth_limitation": _text(
+            projection.get("s12_public_growth_limitation")
+            or s12_record.get("s12_public_growth_limitation")
         ),
         "may_not_be_used_for": may_not,
     }
@@ -2672,4 +3003,5 @@ __all__ = [
     "verify_s9_projection_faithfulness_for_pdc_consumer_contract",
     "verify_s10_forecast_projection_consumer_contract",
     "verify_s11_predictive_projection_consumer_contract",
+    "verify_s12_resource_projection_consumer_contract",
 ]

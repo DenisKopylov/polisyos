@@ -33,6 +33,7 @@ from polisyos.runtime.quality.projection_semantics import (
     verify_s11_predictive_projection_consumer_contract,
     verify_s12_resource_projection_consumer_contract,
     verify_s13_post_deploy_accountability_projection_consumer_contract,
+    verify_s14_universality_projection_consumer_contract,
 )
 from polisyos.runtime.quality.rule_evolution import (
     RULE_EVOLUTION_PUBLIC_ANNOTATION_SCHEMA_VERSION,
@@ -109,6 +110,7 @@ _FORBIDDEN_KEY_TOKENS = (
     "hidden_benchmark",
     "hidden_eval",
     "hidden_holdout",
+    "hidden_case_payload",
     "password",
     "private_prompt",
     "private_reviewer",
@@ -121,11 +123,20 @@ _FORBIDDEN_KEY_TOKENS = (
     "restricted_source",
     "reviewer_private",
     "secret",
+    "sealed_battery",
+    "sealed_case_payload",
+    "sealed_fixture",
+    "sealed_fixture_contents",
     "sensitive_data",
     "source_material",
     "system_prompt",
     "tenant",
     "tenant_id",
+    "gold_label",
+    "gold_labels",
+    "weak_gold_answer",
+    "expert_oracle_private_notes",
+    "oracle_private_notes",
 )
 _FORBIDDEN_VALUE_TOKENS = (
     "access_token",
@@ -133,14 +144,25 @@ _FORBIDDEN_VALUE_TOKENS = (
     "bearer ",
     "benchmark_answer",
     "gold answer",
+    "gold_label",
+    "gold_labels",
     "hidden_benchmark",
+    "hidden_case_payload",
     "password",
     "private system prompt",
+    "sealed_battery",
+    "sealed_case_payload",
+    "sealed_fixture",
+    "sealed_fixture_contents",
     "raw_sensitive",
     "restricted source",
     "secret-key",
     "sk-",
     "system_prompt",
+    "weak_gold_answer",
+    "expert_oracle_private_notes",
+    "oracle_private_notes",
+    "answer_key",
 )
 _SHA256_REF_RE = re.compile(r"^sha256:[0-9a-f]{64}$", re.IGNORECASE)
 _CAS_SHA256_REF_RE = re.compile(r"^cas://sha256/[0-9a-f]{64}$", re.IGNORECASE)
@@ -204,6 +226,8 @@ def build_public_export_bundle(
     s13_verification = None
     s13_projection = None
     s13_public_revision_state = None
+    s14_verification = None
+    s14_projection = None
     if runtime_pdc_graph is not None:
         projection_semantics = build_policy_design_case_projection_from_runtime_graph(
             runtime_pdc_graph=runtime_pdc_graph,
@@ -399,6 +423,36 @@ def build_public_export_bundle(
                     )
                     else "pass",
                 }
+        projection_semantics, s14_verification, s14_projection = (
+            _apply_s14_universality_projection(
+                projection_semantics=projection_semantics,
+                projection_payload=projection_payload,
+            )
+        )
+        if s14_verification is not None:
+            if projection_contract_verification is None:
+                projection_contract_verification = {
+                    "schema_version": str(
+                        s14_verification.get("consumer_contract_ref")
+                        or (
+                            "policyos.runtime.policy_design_case."
+                            "s14_universality_projection_verification.v1"
+                        )
+                    ),
+                    "status": str(s14_verification.get("status") or "fail"),
+                    "s14_universality_projection": s14_verification,
+                }
+            else:
+                projection_contract_verification = {
+                    **projection_contract_verification,
+                    "s14_universality_projection": s14_verification,
+                    "status": "fail"
+                    if (
+                        projection_contract_verification.get("status") == "fail"
+                        or s14_verification.get("status") == "fail"
+                    )
+                    else "pass",
+                }
     _assert_public_claim_omissions_manifested(sanitized_artifacts, projection_semantics)
     exported_public_revision_states = list(public_revision_states)
     if s13_public_revision_state is not None:
@@ -431,6 +485,8 @@ def build_public_export_bundle(
             "s11_predictive_projection_contract_verification": s11_verification,
             "s12_resource_projection": s12_projection,
             "s12_resource_projection_contract_verification": s12_verification,
+            "s14_universality_projection": s14_projection,
+            "s14_universality_projection_contract_verification": s14_verification,
             "omission_manifest": list(
                 projection_semantics.get("omission_manifest", [])
                 if projection_semantics is not None
@@ -461,6 +517,163 @@ def build_public_export_bundle(
         bundle["projection_semantics"] = projection_semantics
     assert_public_export_official_use_limits(bundle)
     return bundle
+
+
+def _apply_s14_universality_projection(
+    *,
+    projection_semantics: Mapping[str, object],
+    projection_payload: Mapping[str, object],
+) -> tuple[dict[str, object], dict[str, object] | None, dict[str, object] | None]:
+    if not _has_s14_universality_projection(projection_payload):
+        return dict(projection_semantics), None, None
+    verification = verify_s14_universality_projection_consumer_contract(
+        projections={"public": projection_payload},
+    )
+    if verification.get("status") != "pass":
+        raise PublicExportRedactionError(
+            _first_s14_issue_code(verification),
+            "S14 universality projection consumer contract must pass before public release.",
+        )
+    public_projection = dict(verification.get("public_projection") or {})
+    s14_projection = dict(verification.get("s14_universality_projection") or {})
+    enriched = dict(projection_semantics)
+    may_not = _unique_texts(
+        [
+            *_text_list(enriched.get("may_not_be_used_for")),
+            *_text_list(public_projection.get("may_not_be_used_for")),
+            "production_rollout_authority",
+            "production_recommendation",
+            "recommendation_authority",
+            "approval_authority",
+            "claim_authority",
+            "runtime_closeout_authority",
+            "scorecard_authority",
+            "aggregate_universal_score",
+        ]
+    )
+    limitations = _unique_texts(
+        [
+            *_text_list(enriched.get("limitations")),
+            public_projection.get("public_universality_limitation"),
+            "S14 universality is projection-only and limited to the declared envelope.",
+        ]
+    )
+    audit_refs = _unique_texts(
+        [
+            *_text_list(enriched.get("audit_refs")),
+            s14_projection.get("s14_universality_assurance_ref"),
+            s14_projection.get("universality_claim_gate_ref"),
+            s14_projection.get("declared_operation_envelope_ref"),
+            s14_projection.get("d4_corpus_track_coverage_ref"),
+            s14_projection.get("expert_oracle_bootstrap_ref"),
+            s14_projection.get("breadth_floor_config_ref"),
+            s14_projection.get("universality_baseline_comparison_ref"),
+            s14_projection.get("grounded_authority_coverage_ref"),
+            s14_projection.get("evaluation_status_composition_ref"),
+            s14_projection.get("axis_scorecard_ref"),
+            s14_projection.get("sealed_battery_run_ref"),
+            s14_projection.get("mechanism_generality_report_ref"),
+            s14_projection.get("rule_version_ref"),
+            *_text_list(s14_projection.get("skeptic_defeater_refs")),
+            *_text_list(s14_projection.get("s9_projection_faithfulness_refs")),
+        ]
+    )
+    source_state = dict(enriched.get("source_state") or {})
+    source_state.update(
+        {
+            "s14_universality_assurance_ref": s14_projection.get(
+                "s14_universality_assurance_ref"
+            ),
+            "s14_projection_policy": "reads_s14_universality_assurance_as_projection",
+            "universality_claim_gate_ref": s14_projection.get(
+                "universality_claim_gate_ref"
+            ),
+        }
+    )
+    enriched.update(
+        {
+            "authority_role": "projection_only",
+            "universality_claim_disposition": public_projection.get(
+                "universality_claim_disposition"
+            ),
+            "declared_operation_envelope_ref": public_projection.get(
+                "declared_operation_envelope_ref"
+            ),
+            "s14_universality_assurance_ref": public_projection.get(
+                "s14_universality_assurance_ref"
+            ),
+            "universality_claim_gate_ref": public_projection.get(
+                "universality_claim_gate_ref"
+            ),
+            "d4_corpus_track_coverage_ref": public_projection.get(
+                "d4_corpus_track_coverage_ref"
+            ),
+            "d4_corpus_track_coverage_status": public_projection.get(
+                "d4_corpus_track_coverage_status"
+            ),
+            "d4_breadth_limitation_summary": public_projection.get(
+                "d4_breadth_limitation_summary"
+            ),
+            "expert_oracle_bootstrap_ref": public_projection.get(
+                "expert_oracle_bootstrap_ref"
+            ),
+            "expert_oracle_seed_only_layer_refs": public_projection.get(
+                "expert_oracle_seed_only_layer_refs"
+            ),
+            "breadth_floor_config_ref": public_projection.get("breadth_floor_config_ref"),
+            "breadth_floor_status": public_projection.get("breadth_floor_status"),
+            "excluded_domain_refs": public_projection.get("excluded_domain_refs"),
+            "universality_baseline_comparison_ref": public_projection.get(
+                "universality_baseline_comparison_ref"
+            ),
+            "baseline_comparison_status": public_projection.get(
+                "baseline_comparison_status"
+            ),
+            "grounded_authority_coverage_ref": public_projection.get(
+                "grounded_authority_coverage_ref"
+            ),
+            "grounded_authority_status": public_projection.get(
+                "grounded_authority_status"
+            ),
+            "evaluation_status_composition_ref": public_projection.get(
+                "evaluation_status_composition_ref"
+            ),
+            "status_composition_limit_refs": public_projection.get(
+                "status_composition_limit_refs"
+            ),
+            "axis_scorecard_ref": public_projection.get("axis_scorecard_ref"),
+            "out_of_envelope_axis_refs": public_projection.get(
+                "out_of_envelope_axis_refs"
+            ),
+            "not_tested_axis_refs": public_projection.get("not_tested_axis_refs"),
+            "mechanism_generality_status": public_projection.get(
+                "mechanism_generality_status"
+            ),
+            "sublinear_marginal_bespoke_cost_status": public_projection.get(
+                "sublinear_marginal_bespoke_cost_status"
+            ),
+            "skeptic_defeater_statuses": public_projection.get(
+                "skeptic_defeater_statuses"
+            ),
+            "s9_projection_faithfulness_refs": public_projection.get(
+                "s9_projection_faithfulness_refs"
+            ),
+            "public_universality_limitation": public_projection.get(
+                "public_universality_limitation"
+            ),
+            "may_not_be_used_for": may_not,
+            "limitations": limitations,
+            "audit_refs": audit_refs,
+            "source_state": source_state,
+            "s14_universality_projection_contract_verification_status": (
+                verification.get("status")
+            ),
+            "s14_universality_projection_contract_verification_ref": (
+                verification.get("consumer_contract_ref")
+            ),
+        }
+    )
+    return enriched, verification, s14_projection
 
 
 def _apply_s13_post_deploy_accountability_projection(
@@ -1169,6 +1382,30 @@ def _first_s13_issue_code(verification: Mapping[str, object]) -> str:
     return "s13_accountability_projection_failed"
 
 
+def _first_s14_issue_code(verification: Mapping[str, object]) -> str:
+    for code in _text_list(verification.get("issue_codes")):
+        return code
+    for issue in _as_sequence(verification.get("issues")):
+        if isinstance(issue, Mapping):
+            code = _text(issue.get("code"))
+            if code:
+                return code
+    return "s14_universality_projection_failed"
+
+
+def _has_s14_universality_projection(payload: Mapping[str, object]) -> bool:
+    return any(
+        _text(payload.get(field_name))
+        for field_name in (
+            "s14_universality_assurance_ref",
+            "universality_claim_gate_ref",
+            "declared_operation_envelope_ref",
+            "axis_scorecard_ref",
+            "sealed_battery_run_ref",
+        )
+    )
+
+
 def _apply_s9_projection_faithfulness(
     *,
     projection_semantics: Mapping[str, object],
@@ -1612,7 +1849,12 @@ def _sanitize_public_payload(
             child_path = f"{path}.{key}"
             reason = _forbidden_key_reason(key)
             if reason is not None:
-                redactions.append({"path": child_path, "reason": reason})
+                redactions.append(
+                    {
+                        "path": _redaction_pointer(child_path),
+                        "reason": _redaction_reason(reason),
+                    }
+                )
                 continue
             sanitized_value = _sanitize_public_payload(
                 item,
@@ -1639,10 +1881,15 @@ def _sanitize_public_payload(
     if isinstance(value, str):
         reason = _forbidden_value_reason(value)
         if reason is not None:
-            redactions.append({"path": path, "reason": reason})
+            redactions.append(
+                {
+                    "path": _redaction_pointer(path),
+                    "reason": _redaction_reason(reason),
+                }
+            )
             return {
                 "redacted": True,
-                "reason": reason,
+                "reason": _redaction_reason(reason),
                 "fingerprint": _fingerprint(value),
             }
     return value
@@ -1664,6 +1911,15 @@ def _forbidden_value_reason(value: str) -> str | None:
         if token in lowered:
             return f"forbidden_value:{token}"
     return None
+
+
+def _redaction_pointer(path: str) -> str:
+    return "redacted_path:" + hashlib.sha256(path.encode("utf-8")).hexdigest()[:16]
+
+
+def _redaction_reason(reason: str) -> str:
+    category = reason.split(":", 1)[0]
+    return f"{category}:redacted_sensitive_token"
 
 
 def _is_tenant_private_ref(value: str) -> bool:

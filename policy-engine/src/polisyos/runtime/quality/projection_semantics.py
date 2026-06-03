@@ -93,6 +93,9 @@ _S12_CONSUMER_CONTRACT_REF = (
 _S13_CONSUMER_CONTRACT_REF = (
     "policyos.runtime.policy_design_case.s13_accountability_projection_verification.v1"
 )
+_S14_CONSUMER_CONTRACT_REF = (
+    "policyos.runtime.policy_design_case.s14_universality_projection_verification.v1"
+)
 _S9_REQUIRED_MAY_NOT_USE_FOR = frozenset(
     {
         "claim_authority",
@@ -228,6 +231,61 @@ _S13_FORBIDDEN_AUTHORITY_USES = frozenset(
         "runtime_closeout_authority",
         "scorecard_authority",
         "s14_universality",
+    }
+)
+_S14_REQUIRED_MAY_NOT_USE_FOR = frozenset(
+    {
+        "production_rollout_authority",
+        "production_recommendation",
+        "recommendation_authority",
+        "publication_authority",
+        "approval_authority",
+        "claim_authority",
+        "runtime_closeout_authority",
+        "scorecard_authority",
+        "preference_learning",
+        "automated_value_learning",
+        "aggregate_universal_score",
+    }
+)
+_S14_FORBIDDEN_AUTHORITY_USES = frozenset(
+    {
+        "approval_authority",
+        "claim_authority",
+        "publication_authority",
+        "production_authority",
+        "production_recommendation",
+        "production_rollout_authority",
+        "recommendation_authority",
+        "runtime_closeout_authority",
+        "scorecard_authority",
+    }
+)
+_S14_REQUIRED_REF_FIELDS: Mapping[str, str] = {
+    "s14_universality_assurance_ref": "S14 universality assurance ref",
+    "universality_claim_gate_ref": "universality claim gate ref",
+    "d4_corpus_track_coverage_ref": "D4 corpus track coverage ref",
+    "expert_oracle_bootstrap_ref": "expert oracle bootstrap ref",
+    "breadth_floor_config_ref": "breadth floor config ref",
+    "universality_baseline_comparison_ref": "baseline comparison ref",
+    "grounded_authority_coverage_ref": "grounded authority coverage ref",
+    "evaluation_status_composition_ref": "evaluation status composition ref",
+    "axis_scorecard_ref": "axis scorecard ref",
+    "sealed_battery_run_ref": "sealed battery run ref",
+    "mechanism_generality_report_ref": "mechanism generality report ref",
+}
+_S14_FORBIDDEN_PUBLIC_KEYS = frozenset(
+    {
+        "answer_key",
+        "expert_oracle_private_notes",
+        "gold_label",
+        "gold_labels",
+        "hidden_case_payload",
+        "sealed_battery",
+        "sealed_case_payload",
+        "sealed_fixture",
+        "sealed_fixture_contents",
+        "weak_gold_answer",
     }
 )
 _ALLOWED_PROJECTION_POLICIES = frozenset(
@@ -1130,6 +1188,70 @@ def verify_s13_post_deploy_accountability_projection_consumer_contract(
     }
 
 
+def verify_s14_universality_projection_consumer_contract(
+    *,
+    projections: Mapping[str, Mapping[str, Any]],
+) -> dict[str, Any]:
+    """Verify S14 universality projections without recommendation authority."""
+
+    issues: list[dict[str, Any]] = []
+    consumer_contracts: list[dict[str, Any]] = []
+    s14_records: dict[str, dict[str, Any]] = {}
+    public_projection: dict[str, Any] = {}
+    for audience, projection in projections.items():
+        projection_payload = _mapping_from_record(projection)
+        s14_record = _s14_universality_projection_record(projection_payload)
+        s14_records[audience] = s14_record
+        audience_issues = _s14_projection_issues(
+            audience=audience,
+            projection=projection_payload,
+            s14_record=s14_record,
+        )
+        issues.extend(audience_issues)
+        if _audience(
+            projection_payload.get("audience") or audience,
+            surface="s14_universality_projection",
+        ) is contracts.PolicyDesignCaseAudience.PUBLIC:
+            public_projection = _s14_public_projection(projection_payload, s14_record)
+        consumer_contracts.append(
+            {
+                "consumer": _text(audience),
+                "audience": _text(audience),
+                "status": "fail" if audience_issues else "pass",
+                "issue_codes": [issue["code"] for issue in audience_issues],
+                "verified_fields": [
+                    "s14_universality_assurance_ref",
+                    "universality_claim_gate_ref",
+                    "declared_operation_envelope_ref",
+                    "d4_corpus_track_coverage_ref",
+                    "expert_oracle_bootstrap_ref",
+                    "breadth_floor_config_ref",
+                    "universality_baseline_comparison_ref",
+                    "grounded_authority_coverage_ref",
+                    "evaluation_status_composition_ref",
+                    "axis_scorecard_ref",
+                    "sealed_battery_run_ref",
+                    "mechanism_generality_report_ref",
+                    "skeptic_defeater_refs",
+                    "s9_projection_faithfulness_refs",
+                    "authority_boundary",
+                ],
+            }
+        )
+    issue_codes = _unique_texts(issue.get("code") for issue in issues)
+    first_record = next(iter(s14_records.values()), {})
+    return {
+        "schema_version": _S14_CONSUMER_CONTRACT_REF,
+        "status": "fail" if issues else "pass",
+        "consumer_contract_ref": _S14_CONSUMER_CONTRACT_REF,
+        "consumer_contracts": consumer_contracts,
+        "s14_universality_projection": first_record,
+        "public_projection": public_projection,
+        "issue_codes": issue_codes,
+        "issues": issues,
+    }
+
+
 def _s10_forecast_projection_record(projection: Mapping[str, Any]) -> dict[str, Any]:
     if not (
         _text(projection.get("forecast_support_ref"))
@@ -1787,6 +1909,324 @@ def _s13_public_projection(
         or "preserved",
         "may_not_be_used_for": may_not,
     }
+
+
+def _s14_universality_projection_record(projection: Mapping[str, Any]) -> dict[str, Any]:
+    if not (
+        _text(projection.get("s14_universality_assurance_ref"))
+        or _text(projection.get("universality_claim_gate_ref"))
+        or _text(projection.get("axis_scorecard_ref"))
+    ):
+        return {}
+    authority_boundary = _mapping(projection.get("authority_boundary"))
+    return {
+        "authority_role": _text(projection.get("authority_role")) or "projection_only",
+        "s14_universality_assurance_ref": _text(
+            projection.get("s14_universality_assurance_ref")
+        ),
+        "universality_claim_gate_ref": _text(projection.get("universality_claim_gate_ref")),
+        "universality_claim_disposition": _text(
+            projection.get("universality_claim_disposition")
+        ),
+        "declared_operation_envelope_ref": _text(
+            projection.get("declared_operation_envelope_ref")
+        ),
+        "d4_corpus_track_coverage_ref": _text(
+            projection.get("d4_corpus_track_coverage_ref")
+        ),
+        "d4_corpus_track_coverage_status": _text(
+            projection.get("d4_corpus_track_coverage_status")
+        ),
+        "expert_oracle_bootstrap_ref": _text(projection.get("expert_oracle_bootstrap_ref")),
+        "expert_oracle_seed_only_layer_refs": _text_list(
+            projection.get("expert_oracle_seed_only_layer_refs")
+        ),
+        "breadth_floor_config_ref": _text(projection.get("breadth_floor_config_ref")),
+        "breadth_floor_status": _text(projection.get("breadth_floor_status")),
+        "excluded_domain_refs": _text_list(projection.get("excluded_domain_refs")),
+        "universality_baseline_comparison_ref": _text(
+            projection.get("universality_baseline_comparison_ref")
+        ),
+        "baseline_comparison_status": _text(projection.get("baseline_comparison_status")),
+        "grounded_authority_coverage_ref": _text(
+            projection.get("grounded_authority_coverage_ref")
+        ),
+        "grounded_authority_status": _text(projection.get("grounded_authority_status")),
+        "a_firewall_refs": _text_list(projection.get("a_firewall_refs")),
+        "claim_evidence_binding_refs": _text_list(
+            projection.get("claim_evidence_binding_refs")
+        ),
+        "value_choice_provenance_refs": _text_list(
+            projection.get("value_choice_provenance_refs")
+        ),
+        "mandate_legitimacy_refs": _text_list(projection.get("mandate_legitimacy_refs")),
+        "capacity_check_refs": _text_list(projection.get("capacity_check_refs")),
+        "evaluation_status_composition_ref": _text(
+            projection.get("evaluation_status_composition_ref")
+        ),
+        "status_composition_limit_refs": _text_list(
+            projection.get("status_composition_limit_refs")
+        ),
+        "envelope_revision_dynamics_ref": _text(
+            projection.get("envelope_revision_dynamics_ref")
+        ),
+        "envelope_revision_dynamics_status": _text(
+            projection.get("envelope_revision_dynamics_status")
+        ),
+        "axis_scorecard_ref": _text(projection.get("axis_scorecard_ref")),
+        "axis_scorecard_rows": [
+            _s14_axis_scorecard_row(row)
+            for row in _sequence(projection.get("axis_scorecard_rows"))
+            if isinstance(row, Mapping)
+        ],
+        "out_of_envelope_axis_refs": _text_list(
+            projection.get("out_of_envelope_axis_refs")
+        ),
+        "not_tested_axis_refs": _text_list(projection.get("not_tested_axis_refs")),
+        "hard_corner_case_refs": _text_list(projection.get("hard_corner_case_refs")),
+        "sealed_battery_run_ref": _text(projection.get("sealed_battery_run_ref")),
+        "sealed_battery_freeze_hash": _text(projection.get("sealed_battery_freeze_hash")),
+        "sealed_battery_integrity_status": _text(
+            projection.get("sealed_battery_integrity_status")
+        ),
+        "mechanism_generality_report_ref": _text(
+            projection.get("mechanism_generality_report_ref")
+        ),
+        "mechanism_generality_status": _text(projection.get("mechanism_generality_status")),
+        "sublinear_marginal_bespoke_cost_status": _text(
+            projection.get("sublinear_marginal_bespoke_cost_status")
+        ),
+        "skeptic_defeater_refs": _text_list(projection.get("skeptic_defeater_refs")),
+        "skeptic_defeater_statuses": _mapping(
+            projection.get("skeptic_defeater_statuses")
+        ),
+        "s9_projection_faithfulness_refs": _text_list(
+            projection.get("s9_projection_faithfulness_refs")
+        ),
+        "public_universality_limitation": _text(
+            projection.get("public_universality_limitation")
+        ),
+        "replay_digest": _text(projection.get("replay_digest")),
+        "authority_boundary": authority_boundary,
+        "may_not_be_used_for": _unique_texts(
+            [
+                *_text_list(projection.get("may_not_be_used_for")),
+                *_text_list(projection.get("may_not_use_for")),
+                *_text_list(authority_boundary.get("may_not_use_for")),
+            ]
+        ),
+        "rule_version_ref": _text(projection.get("rule_version_ref")),
+    }
+
+
+def _s14_projection_issues(
+    *,
+    audience: str,
+    projection: Mapping[str, Any],
+    s14_record: Mapping[str, Any],
+) -> list[dict[str, Any]]:
+    if not s14_record:
+        return [
+            _contract_issue(
+                "s14_universality_projection_missing",
+                audience=audience,
+                message="S14 universality projection fields are missing.",
+            )
+        ]
+    issues: list[dict[str, Any]] = []
+    if projection.get("aggregate_universal_score") is not None:
+        issues.append(
+            _contract_issue(
+                "s14_aggregate_universal_number_laundering",
+                audience=audience,
+                message="S14 projections must not publish an aggregate universal score.",
+            )
+        )
+    if not _text(s14_record.get("universality_claim_gate_ref")):
+        issues.append(
+            _contract_issue(
+                "s14_universal_claim_without_gate_record",
+                audience=audience,
+                message="Universal-claim wording requires an S14 gate record.",
+            )
+        )
+    for field_name, label in _S14_REQUIRED_REF_FIELDS.items():
+        if not _text(s14_record.get(field_name)):
+            issues.append(
+                _contract_issue(
+                    "s14_universality_projection_missing_required_ref",
+                    audience=audience,
+                    message=f"{label} missing from S14 projection.",
+                )
+            )
+    if not _text_list(s14_record.get("s9_projection_faithfulness_refs")):
+        issues.append(
+            _contract_issue(
+                "s14_projection_without_s9_faithfulness_refs",
+                audience=audience,
+                message="S14 public universality wording requires S9 faithfulness refs.",
+            )
+        )
+    if _s14_contains_hidden_or_gold_payload(projection):
+        issues.append(
+            _contract_issue(
+                "s14_hidden_or_gold_material_exposed",
+                audience=audience,
+                message="S14 projection exposed hidden battery or gold-label material.",
+            )
+        )
+    if _s14_authority_laundered(projection, s14_record):
+        issues.append(
+            _contract_issue(
+                "s14_as_production_or_recommendation_authority",
+                audience=audience,
+                message="S14 universality projection crossed into production authority.",
+            )
+        )
+    return _dedupe_contract_issues(issues)
+
+
+def _s14_authority_laundered(
+    projection: Mapping[str, Any],
+    s14_record: Mapping[str, Any],
+) -> bool:
+    role = _text(projection.get("authority_role")).casefold()
+    if role not in {"", "projection_only"}:
+        return True
+    boundary = _mapping(s14_record.get("authority_boundary"))
+    authoritative_for = {
+        *_text_list(projection.get("authoritative_for")),
+        *_text_list(boundary.get("authoritative_for")),
+    }
+    if authoritative_for & _S14_FORBIDDEN_AUTHORITY_USES:
+        return True
+    may_not = {
+        *_text_list(s14_record.get("may_not_be_used_for")),
+        *_text_list(boundary.get("may_not_use_for")),
+    }
+    return not may_not >= _S14_REQUIRED_MAY_NOT_USE_FOR
+
+
+def _s14_public_projection(
+    projection: Mapping[str, Any],
+    s14_record: Mapping[str, Any],
+) -> dict[str, Any]:
+    may_not = _unique_texts(
+        [
+            *_text_list(s14_record.get("may_not_be_used_for")),
+            *_S14_REQUIRED_MAY_NOT_USE_FOR,
+        ]
+    )
+    return {
+        "authority_role": "projection_only",
+        "universality_claim_disposition": _text(
+            s14_record.get("universality_claim_disposition")
+        ),
+        "declared_operation_envelope_ref": _text(
+            s14_record.get("declared_operation_envelope_ref")
+        ),
+        "s14_universality_assurance_ref": _text(
+            s14_record.get("s14_universality_assurance_ref")
+        ),
+        "universality_claim_gate_ref": _text(
+            s14_record.get("universality_claim_gate_ref")
+        ),
+        "d4_corpus_track_coverage_ref": _text(
+            s14_record.get("d4_corpus_track_coverage_ref")
+        ),
+        "d4_corpus_track_coverage_status": _text(
+            s14_record.get("d4_corpus_track_coverage_status")
+        ),
+        "d4_breadth_limitation_summary": _text(
+            s14_record.get("d4_corpus_track_coverage_status")
+        )
+        or "unknown",
+        "expert_oracle_bootstrap_ref": _text(
+            s14_record.get("expert_oracle_bootstrap_ref")
+        ),
+        "expert_oracle_seed_only_layer_refs": _text_list(
+            s14_record.get("expert_oracle_seed_only_layer_refs")
+        ),
+        "breadth_floor_config_ref": _text(s14_record.get("breadth_floor_config_ref")),
+        "breadth_floor_status": _text(s14_record.get("breadth_floor_status")),
+        "excluded_domain_refs": _text_list(s14_record.get("excluded_domain_refs")),
+        "grounded_authority_coverage_ref": _text(
+            s14_record.get("grounded_authority_coverage_ref")
+        ),
+        "grounded_authority_status": _text(
+            s14_record.get("grounded_authority_status")
+        ),
+        "universality_baseline_comparison_ref": _text(
+            s14_record.get("universality_baseline_comparison_ref")
+        ),
+        "baseline_comparison_status": _text(
+            s14_record.get("baseline_comparison_status")
+        ),
+        "evaluation_status_composition_ref": _text(
+            s14_record.get("evaluation_status_composition_ref")
+        ),
+        "status_composition_limit_refs": _text_list(
+            s14_record.get("status_composition_limit_refs")
+        ),
+        "axis_scorecard_ref": _text(s14_record.get("axis_scorecard_ref")),
+        "out_of_envelope_axis_refs": _text_list(
+            s14_record.get("out_of_envelope_axis_refs")
+        ),
+        "not_tested_axis_refs": _text_list(s14_record.get("not_tested_axis_refs")),
+        "mechanism_generality_status": _text(
+            s14_record.get("mechanism_generality_status")
+        ),
+        "sublinear_marginal_bespoke_cost_status": _text(
+            s14_record.get("sublinear_marginal_bespoke_cost_status")
+        ),
+        "skeptic_defeater_statuses": dict(
+            _mapping(s14_record.get("skeptic_defeater_statuses"))
+        ),
+        "s9_projection_faithfulness_refs": _text_list(
+            s14_record.get("s9_projection_faithfulness_refs")
+        ),
+        "public_universality_limitation": _text(
+            projection.get("public_universality_limitation")
+            or s14_record.get("public_universality_limitation")
+        ),
+        "may_not_be_used_for": may_not,
+    }
+
+
+def _s14_axis_scorecard_row(row: Mapping[str, Any]) -> dict[str, Any]:
+    return {
+        "axis_ref": _text(row.get("axis_ref")),
+        "declared_posture": _text(row.get("declared_posture")),
+        "battery_status": _text(row.get("battery_status")),
+        "limitation_refs": _text_list(row.get("limitation_refs")),
+    }
+
+
+def _s14_contains_hidden_or_gold_payload(value: object) -> bool:
+    if isinstance(value, Mapping):
+        for key, nested in value.items():
+            key_text = str(key).casefold().replace("-", "_")
+            if key_text in _S14_FORBIDDEN_PUBLIC_KEYS:
+                return True
+            if key_text.startswith(("gold_", "expected_")):
+                return True
+            if _s14_contains_hidden_or_gold_payload(nested):
+                return True
+    elif isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray):
+        return any(_s14_contains_hidden_or_gold_payload(item) for item in value)
+    elif isinstance(value, str):
+        lowered = value.casefold().replace("-", "_")
+        return any(
+            token in lowered
+            for token in (
+                "answer_key",
+                "gold_label",
+                "hidden_case_payload",
+                "sealed_case_payload",
+                "sealed_fixture_contents",
+            )
+        )
+    return False
 
 
 def _s10_projection_issues(
@@ -3319,4 +3759,5 @@ __all__ = [
     "verify_s11_predictive_projection_consumer_contract",
     "verify_s12_resource_projection_consumer_contract",
     "verify_s13_post_deploy_accountability_projection_consumer_contract",
+    "verify_s14_universality_projection_consumer_contract",
 ]

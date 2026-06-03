@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, Sequence
 from datetime import UTC, datetime
 from typing import Any
 
@@ -1553,6 +1553,88 @@ def build_assurance_case_for_scorecard(
         ),
         "owner": _required_text(owner, DEFAULT_OWNER),
         "next_diagnostic_command": next_command,
+    }
+
+
+def build_universality_assurance_case(
+    cae_scorecard: Mapping[str, Any],
+    *,
+    owner: str = DEFAULT_OWNER,
+    reviewer_attribution: Mapping[str, Any] | None = None,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    """Build a CAE view for S14 universality assurance without closeout authority."""
+
+    normalized = dict(cae_scorecard)
+    refs = normalized.get("evidence_refs")
+    if isinstance(refs, Sequence) and not isinstance(refs, str | bytes | Mapping):
+        normalized["evidence_refs"] = {
+            f"s14_evidence_{index}": str(ref) for index, ref in enumerate(refs)
+        }
+    generated_at = _utc(now)
+    blockers = _blockers(normalized)
+    warnings = _warnings(normalized)
+    evidence = _evidence(normalized)
+    claim_status = _claim_status(normalized, blockers=blockers)
+    non_overridable = sorted(
+        {
+            str(blocker["code"])
+            for blocker in blockers
+            if str(blocker.get("code") or "") in _NON_OVERRIDABLE_BLOCKER_CODES
+            or bool(blocker.get("non_overridable"))
+        }
+    )
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "generated_at": generated_at.isoformat(),
+        "claim": {
+            "claim_ref": "cae://s14/universality-claim",
+            "text": "S14 universality is limited to the declared tested operation envelope.",
+            "status": claim_status,
+            "quality_status": _text_or_none(normalized.get("quality_status")),
+        },
+        "subclaims": _subclaims(normalized)
+        or [
+            {
+                "claim": "S14 per-axis scorecard, sealed battery, and defeaters are bound.",
+                "status": "supported" if claim_status == "supported" else "qualified",
+                "stage": "layer2_s14_universality",
+                "gate_count": 0,
+                "blocking_codes": [str(blocker["code"]) for blocker in blockers],
+                "evidence_refs": [str(item["ref"]) for item in evidence],
+            }
+        ],
+        "argument": (
+            "The universality claim may be published only as a declared-envelope, "
+            "limitation-bearing projection over S14 evidence; it is not production, "
+            "recommendation, approval, or closeout authority."
+        ),
+        "argument_strategy": "s14_universality_authority_graph",
+        "evidence": evidence,
+        "assumptions": [
+            "S14 scorecards are per-axis evidence, not aggregate universal scores.",
+            "Sealed battery outcomes never expose hidden labels or development authority.",
+            "Weak-gold and shadow-candidate sources remain seed-only.",
+        ],
+        "contexts": {
+            "scorecard_generated_at": _text_or_none(normalized.get("generated_at")),
+            "quality_status": _text_or_none(normalized.get("quality_status")),
+        },
+        "defeaters": [*blockers, *warnings],
+        "blockers": blockers,
+        "unresolved_uncertainty": _unresolved_uncertainty(blockers, warnings),
+        "confidence_limits": _confidence_limits(claim_status, blockers, warnings),
+        "non_overridable_blockers": non_overridable,
+        "reviewer_attribution": dict(
+            reviewer_attribution
+            or {
+                "reviewer_id": "unassigned",
+                "reviewed_at": None,
+                "review_status": "pending",
+            }
+        ),
+        "owner": _required_text(owner, DEFAULT_OWNER),
+        "next_diagnostic_command": _next_diagnostic_command(blockers),
     }
 
 
@@ -5892,6 +5974,7 @@ __all__ = [
     "build_policy_design_case_walking_skeleton",
     "build_policy_design_jurisdiction_spine",
     "build_policy_intent_envelope",
+    "build_universality_assurance_case",
     "policy_design_concept_spine_json_schema",
     "policy_design_jurisdiction_spine_json_schema",
     "validate_capability_selection_ledger",

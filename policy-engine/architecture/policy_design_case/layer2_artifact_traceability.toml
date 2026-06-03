@@ -386,3 +386,33 @@ maturity = "implemented"
 name = "AssuranceCaseDelta"
 slice = "S13"
 maturity = "implemented"
+
+[[artifact]]
+name = "SealedUniversalityBatteryRun"
+slice = "S14"
+maturity = "implemented"
+
+[[artifact]]
+name = "UniversalityAxisScorecard"
+slice = "S14"
+maturity = "implemented"
+
+[[artifact]]
+name = "MechanismGeneralityReport"
+slice = "S14"
+maturity = "implemented"
+
+[[artifact]]
+name = "SkepticDefeaterRecord"
+slice = "S14"
+maturity = "implemented"
+
+[[artifact]]
+name = "UniversalityClaimAssuranceCase"
+slice = "S14"
+maturity = "implemented"
+
+[[artifact]]
+name = "UniversalityClaimGateRecord"
+slice = "S14"
+maturity = "implemented"

@@ -181,12 +181,12 @@ def test_layer2_s12_inventory_registration_exists() -> None:
     assert artifact["may_not_use_for"] == manifest["may_not_use_for"]
 
 
-def test_layer2_s12_inventory_count_accepts_post_s13_registration() -> None:
+def test_layer2_s12_inventory_count_accepts_post_s14_registration() -> None:
     payloads = _payloads()
     validation = readiness.validate_layer2_readiness(REPO_ROOT)
 
-    assert readiness._inventory_layer2_artifact_count(payloads["inventory"]) in {20, 21}
-    assert validation["summary"]["inventory_artifact_count"] in {20, 21}
+    assert readiness._inventory_layer2_artifact_count(payloads["inventory"]) in {20, 21, 22}
+    assert validation["summary"]["inventory_artifact_count"] in {20, 21, 22}
 
 
 def test_layer2_s12_snapshot_allows_registered_s13_artifacts() -> None:

@@ -198,7 +198,7 @@ def test_layer2_readiness_artifacts_are_in_policy_design_case_inventory() -> Non
     validation = readiness.validate_layer2_readiness(REPO_ROOT)
 
     assert validation["status"] == "pass", validation["issues"]
-    assert validation["summary"]["inventory_artifact_count"] == 20  # type: ignore[index]
+    assert validation["summary"]["inventory_artifact_count"] == 22  # type: ignore[index]
 
 
 def test_layer2_readiness_validates_s6_manifest_metrics_and_coverage() -> None:

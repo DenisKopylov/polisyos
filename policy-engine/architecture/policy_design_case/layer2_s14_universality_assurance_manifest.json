@@ -1,0 +1,391 @@
+{
+  "schema_version": "policyos.policy_design_case.layer2_s14_universality_assurance_manifest.v1",
+  "status": "active",
+  "owner": "governance-board",
+  "slice": "S14",
+  "slice_label": "evaluation_redesign_universality_assurance_battery",
+  "depends_on": [
+    "S0",
+    "S1",
+    "S2",
+    "S3",
+    "S4",
+    "S5",
+    "S6",
+    "S7",
+    "S8",
+    "S9",
+    "S10",
+    "S11",
+    "S12",
+    "S13"
+  ],
+  "cells_closed": [],
+  "layer_cells_advanced": [
+    "DESIGNER_ITSELF.evaluation_corpus"
+  ],
+  "expected_current_open_cell_count": 0,
+  "remaining_open_cells": [],
+  "burn_down_complete": true,
+  "floor_id": "s14_universality",
+  "floor_metric": "per_axis_posture_thresholds_and_breadth_floor",
+  "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py",
+  "canonical_route": "tools/quality/validation/run_layer2_s14_universality_battery.py",
+  "sealed_battery_runner_output_ref": "_build/.tmp/production-quality/layer2_s14_universality_battery.json",
+  "sealed_battery_run_ref": "pdc://layer2/s14/sealed-battery-run",
+  "sealed_battery_path": "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery",
+  "sealed_battery_access": "ci_gate_only",
+  "sealed_battery_owner": "governance-board",
+  "sealed_battery_freeze_hash": "sha256:d9517e4b267f820cd85d6855cbfe000abdf62427882cfec5dd78d6eefdffb4d3",
+  "sealed_battery_integrity_status": "pass",
+  "sealed_battery_case_count": 6,
+  "required_artifacts": [
+    "SealedUniversalityBatteryRun",
+    "UniversalityAxisScorecard",
+    "MechanismGeneralityReport",
+    "SkepticDefeaterRecord",
+    "UniversalityClaimAssuranceCase",
+    "UniversalityClaimGateRecord"
+  ],
+  "artifact_records": {
+    "SealedUniversalityBatteryRun": {
+      "record_ref": "pdc://layer2/s14/sealed-battery-run",
+      "status": "pass",
+      "replay_digest": "sha256:47cd38f1fbd7109eafc53622c05a1ac26b75261177017c3bb422835c2c771500"
+    },
+    "UniversalityAxisScorecard": {
+      "record_ref": "pdc://layer2/s14/axis-scorecard",
+      "status": "pass",
+      "row_count": 27,
+      "replay_digest": "sha256:d51ff0e8cd2481380a9c3b17864bd669a64f6fa864bd718bac15df58dfc28a01"
+    },
+    "MechanismGeneralityReport": {
+      "record_ref": "pdc://layer2/s14/mechanism-generality",
+      "status": "pass",
+      "growth_thermometer_ref": "pdc://layer2/s12/s14/growth-thermometer",
+      "s12_held_out_status": "pending_s14",
+      "replay_digest": "sha256:67ccab091915f99a63e91e0743a00fa5ffec13b1381821ca0fbc7f5d3bad91ab"
+    },
+    "SkepticDefeaterRecord": {
+      "record_ref": "pdc://layer2/s14/defeaters",
+      "status": "pass",
+      "defeater_count": 6
+    },
+    "UniversalityClaimAssuranceCase": {
+      "record_ref": "pdc://layer2/s14/universality-assurance-case",
+      "status": "pass",
+      "replay_digest": "sha256:196d28c8cdfeda783be05e24c8a0a0ed5790d7ef8cf172834a5c63763d20bf20"
+    },
+    "UniversalityClaimGateRecord": {
+      "record_ref": "pdc://layer2/s14/universality-claim-gate",
+      "status": "pass",
+      "scope": "declared_operation_envelope",
+      "blocked_unscoped_claim_disposition": "universal_claim_blocked",
+      "replay_digest": "sha256:85bd06a243a5a1e09d391c888f28cc18058a1d679f2da7c1481817ba07358c17"
+    }
+  },
+  "supporting_records": {
+    "D4CorpusTrackCoverage": {
+      "record_ref": "pdc://layer2/s14/d4-corpus-track-coverage",
+      "status": "pass",
+      "track_count": 19,
+      "replay_digest": "sha256:2020da0b65cf9f72a31beb450d81f8068d4632626f4dc98796e12f02fa43cb76"
+    },
+    "ExpertOracleBootstrapRecord": {
+      "record_ref": "pdc://layer2/s14/expert-oracle-bootstrap",
+      "status": "pass",
+      "layer_count": 4,
+      "replay_digest": "sha256:0f6293f22358f18704315ec04dc6e1edc5a2d2c58eefddcba6313cc39204fb93"
+    },
+    "UniversalityBreadthFloorConfig": {
+      "record_ref": "pdc://layer2/s14/breadth-floor-config",
+      "status": "ratified",
+      "dimension_count": 10,
+      "replay_digest": "sha256:28e6c7e201fe3fb1c3fd8c840b99170fef173c0e7e6ba5b6b5557426f8fee83c"
+    },
+    "UniversalityBaselineComparison": {
+      "record_ref": "pdc://layer2/s14/baseline-comparison",
+      "status": "pass",
+      "baseline_families": [
+        "bespoke_tool",
+        "raw_llm",
+        "expert_panel"
+      ],
+      "replay_digest": "sha256:5451df0b2e746d061d2e037ab67e009a10126bb53a335a336957e3da89bda2c7"
+    },
+    "GroundedAuthorityCoverageRecord": {
+      "record_ref": "pdc://layer2/s14/grounded-authority-coverage",
+      "status": "pass",
+      "ref_type_count": 8,
+      "replay_digest": "sha256:8a76ff76bbdf48f5259c0b1bccbc26200a131a5c159fa5170495b7c3af1fcfa0"
+    },
+    "EvaluationStatusCompositionRecord": {
+      "record_ref": "pdc://layer2/s14/evaluation-status-composition",
+      "status": "pass",
+      "case_count": 10,
+      "replay_digest": "sha256:c1714844bc1523cf2e56b32f940bea988b0a09d2b93b2bd179bd8793b0302fd8"
+    },
+    "EnvelopeRevisionDynamicsRecord": {
+      "record_ref": "pdc://layer2/s14/envelope-revision-dynamics",
+      "status": "pass",
+      "s12_expansion_ref_count": 2,
+      "s13_revision_ref_count": 2,
+      "s13_certified_delta_ref_count": 2,
+      "replay_digest": "sha256:f3105ae9fd26252f4410c3f3c27603837562488b87004a71ae91ff1efe62c1db"
+    }
+  },
+  "d4_corpus_track_coverage_ref": "pdc://layer2/s14/d4-corpus-track-coverage",
+  "d4_corpus_track_count": 19,
+  "expert_oracle_bootstrap_ref": "pdc://layer2/s14/expert-oracle-bootstrap",
+  "expert_oracle_layer_count": 4,
+  "breadth_floor_config_ref": "pdc://layer2/s14/breadth-floor-config",
+  "breadth_floor_config_status": "ratified",
+  "breadth_floor_dimensions": [
+    "domain_target",
+    "jurisdiction_context_target",
+    "scale_class_target",
+    "epistemic_regime_target",
+    "coupling_regime_target",
+    "lifecycle_target",
+    "state_capacity_target",
+    "authority_posture_target",
+    "instrument_family_target",
+    "system_dynamics_target"
+  ],
+  "baseline_comparison_ref": "pdc://layer2/s14/baseline-comparison",
+  "baseline_comparison_status": "pass",
+  "required_baseline_families": [
+    "bespoke_tool",
+    "raw_llm",
+    "expert_panel"
+  ],
+  "grounded_authority_coverage_ref": "pdc://layer2/s14/grounded-authority-coverage",
+  "grounded_authority_coverage_status": "pass",
+  "required_grounded_authority_ref_types": [
+    "a_firewall_refs",
+    "claim_evidence_binding_refs",
+    "value_choice_provenance_refs",
+    "mandate_legitimacy_refs",
+    "capacity_check_refs",
+    "regime_refs",
+    "coupling_refs",
+    "projection_faithfulness_refs"
+  ],
+  "evaluation_status_composition_ref": "pdc://layer2/s14/evaluation-status-composition",
+  "evaluation_status_composition_status": "pass",
+  "envelope_revision_dynamics_ref": "pdc://layer2/s14/envelope-revision-dynamics",
+  "envelope_revision_dynamics_status": "pass",
+  "mechanism_generality_report_ref": "pdc://layer2/s14/mechanism-generality",
+  "mechanism_generality_status": "pass",
+  "s12_growth_thermometer_ref": "pdc://layer2/s12/s14/growth-thermometer",
+  "s12_held_out_status": "pending_s14",
+  "s12_expansion_evidence_refs": [
+    "pdc://layer2/s12/ua-msme-affordable-loans-2022/envelope-growth-ledger",
+    "pdc://layer2/s12/w11a_boston_operation_ceasefire_1996/envelope-growth-ledger"
+  ],
+  "s13_envelope_revision_refs": [
+    "pdc://layer2/s13/ua-msme-affordable-loans-2022/envelope-revision/shrink",
+    "pdc://layer2/s13/w11a_eu_temporary_protection_ukraine_2022/envelope-revision/split"
+  ],
+  "s13_certified_envelope_delta_refs": [
+    "pdc://layer2/s13/ua-msme-affordable-loans-2022/certified-envelope-delta",
+    "pdc://layer2/s13/w11a_netherlands_room_for_river_2007/certified-envelope-delta"
+  ],
+  "axis_scorecard_ref": "pdc://layer2/s14/axis-scorecard",
+  "axis_scorecard_row_count": 27,
+  "skeptic_defeater_count": 6,
+  "skeptic_defeater_mapping": {
+    "bespoke_disguise_defeater": "This is bespoke in disguise.",
+    "confident_theater_defeater": "It is confident theater.",
+    "failure_boundary_defeater": "It does not know where it fails.",
+    "single_axis_universality_defeater": "It is universal only on one axis.",
+    "frozen_once_defeater": "It works once, then freezes.",
+    "first_call_defeater": "Why call it first?"
+  },
+  "universality_claim_assurance_case_ref": "pdc://layer2/s14/universality-assurance-case",
+  "universality_claim_gate_ref": "pdc://layer2/s14/universality-claim-gate",
+  "universal_claim_gate_status": "pass",
+  "universal_claim_gate_scope": "declared_operation_envelope",
+  "declared_operation_envelope_ref": "pdc://layer2/s14/declared-envelope",
+  "firewalls": [
+    "universality_claim_firewall",
+    "held_out_integrity_firewall",
+    "sealed_battery_freeze_hash_replay",
+    "d4_breadth_floor_firewall",
+    "expert_oracle_bootstrap_firewall",
+    "grounded_authority_coverage_firewall",
+    "evaluation_status_composition_firewall",
+    "baseline_comparison_firewall",
+    "envelope_revision_dynamics_firewall",
+    "s9_faithfulness_required",
+    "no_aggregate_universal_number",
+    "no_production_authority_from_battery",
+    "no_gold_label_or_hidden_fixture_leakage"
+  ],
+  "authority_scope": [
+    "s14_universality_claim_gate",
+    "sealed_battery_integrity",
+    "per_axis_universality_scorecard",
+    "mechanism_generality_assessment",
+    "skeptic_defeater_evaluation",
+    "d4_corpus_track_coverage",
+    "expert_oracle_bootstrap",
+    "universality_breadth_floor",
+    "baseline_comparison",
+    "grounded_authority_coverage",
+    "evaluation_status_composition",
+    "envelope_revision_dynamics",
+    "declared_operation_envelope"
+  ],
+  "may_not_use_for": [
+    "production_rollout_authority",
+    "production_recommendation",
+    "recommendation_authority",
+    "publication_authority",
+    "approval_authority",
+    "claim_authority",
+    "runtime_closeout_authority",
+    "scorecard_authority",
+    "preference_learning",
+    "automated_value_learning",
+    "sealed_battery_training",
+    "development_fixture_access",
+    "aggregate_universal_score",
+    "untested_axis_envelope_expansion",
+    "gold_label_authority",
+    "weak_gold_promotion_floor",
+    "shadow_candidate_oracle",
+    "baseline_free_universal_claim",
+    "grounded_authority_without_a_firewalls",
+    "status_composition_override"
+  ],
+  "authority_boundary": {
+    "authoritative_for": [
+      "s14_universality_claim_gate",
+      "sealed_battery_integrity",
+      "per_axis_universality_scorecard",
+      "mechanism_generality_assessment",
+      "skeptic_defeater_evaluation",
+      "d4_corpus_track_coverage",
+      "expert_oracle_bootstrap",
+      "universality_breadth_floor",
+      "baseline_comparison",
+      "grounded_authority_coverage",
+      "evaluation_status_composition",
+      "envelope_revision_dynamics",
+      "declared_operation_envelope"
+    ],
+    "may_not_use_for": [
+      "production_rollout_authority",
+      "production_recommendation",
+      "recommendation_authority",
+      "publication_authority",
+      "approval_authority",
+      "claim_authority",
+      "runtime_closeout_authority",
+      "scorecard_authority",
+      "preference_learning",
+      "automated_value_learning",
+      "sealed_battery_training",
+      "development_fixture_access",
+      "aggregate_universal_score",
+      "untested_axis_envelope_expansion",
+      "gold_label_authority",
+      "weak_gold_promotion_floor",
+      "shadow_candidate_oracle",
+      "baseline_free_universal_claim",
+      "grounded_authority_without_a_firewalls",
+      "status_composition_override"
+    ],
+    "source_authority": "deterministic_producer",
+    "posture": "shadow",
+    "rule_version_refs": [
+      "policyos.layer2.s14.universality_assurance.v1"
+    ]
+  },
+  "surfaces": {
+    "public": [
+      "projection://s14/public"
+    ],
+    "expert": [
+      "projection://s14/expert"
+    ],
+    "machine": [
+      "api://policy-design-case/layer2/s14/universality-assurance"
+    ],
+    "reviewer": [
+      "audit://layer2/s14/universality-assurance"
+    ],
+    "governance": [
+      "pdc://layer2/s14/readiness"
+    ]
+  },
+  "substrate_reuse_refs": [
+    "src/polisyos/runtime/quality/assurance_case.py#build_universality_assurance_case",
+    "src/polisyos/runtime/quality/assurance_case.py#build_assurance_case_for_scorecard",
+    "src/polisyos/runtime/quality/capability_ratchet.py#build_capability_reality_report",
+    "src/polisyos/runtime/quality/layer2_resource_economics.py#GrowthThermometerRecord",
+    "src/polisyos/runtime/quality/layer2_resource_economics.py#EnvelopeGrowthLedger",
+    "src/polisyos/runtime/quality/layer2_post_deploy_accountability.py#EnvelopeRevision",
+    "src/polisyos/runtime/quality/layer2_post_deploy_accountability.py#CertifiedEnvelopeDelta",
+    "src/polisyos/runtime/quality/case_lifecycle.py#status_lattice",
+    "src/polisyos/runtime/quality/approval.py#closeout_status_composition"
+  ],
+  "false_clear_counts": {
+    "bare_universal_claim_without_battery": 0,
+    "sealed_battery_dev_access": 0,
+    "aggregate_universal_number_laundering": 0,
+    "untested_axis_combination_in_envelope": 0,
+    "bespoke_cost_hidden_as_generality": 0,
+    "skeptic_defeater_ignored": 0,
+    "faithfulness_claim_without_s9": 0,
+    "battery_result_as_production_authority": 0,
+    "gold_label_leak_into_dev_signal": 0,
+    "freeze_hash_mismatch_accepted": 0,
+    "d4_breadth_floor_missing": 0,
+    "expert_oracle_bootstrap_missing": 0,
+    "weak_gold_floor_laundering": 0,
+    "shadow_candidate_oracle_laundering": 0,
+    "grounded_authority_refs_missing": 0,
+    "status_composition_laundering": 0,
+    "envelope_revision_freeze_laundering": 0,
+    "baseline_comparison_missing": 0
+  },
+  "bare_universal_claim_without_battery_false_clear_count": 0,
+  "sealed_battery_dev_access_false_clear_count": 0,
+  "aggregate_universal_number_laundering_false_clear_count": 0,
+  "untested_axis_combination_in_envelope_false_clear_count": 0,
+  "bespoke_cost_hidden_as_generality_false_clear_count": 0,
+  "skeptic_defeater_ignored_false_clear_count": 0,
+  "faithfulness_claim_without_s9_false_clear_count": 0,
+  "battery_result_as_production_authority_false_clear_count": 0,
+  "gold_label_leak_into_dev_signal_false_clear_count": 0,
+  "freeze_hash_mismatch_accepted_false_clear_count": 0,
+  "d4_breadth_floor_missing_false_clear_count": 0,
+  "expert_oracle_bootstrap_missing_false_clear_count": 0,
+  "weak_gold_floor_laundering_false_clear_count": 0,
+  "shadow_candidate_oracle_laundering_false_clear_count": 0,
+  "grounded_authority_refs_missing_false_clear_count": 0,
+  "status_composition_laundering_false_clear_count": 0,
+  "envelope_revision_freeze_laundering_false_clear_count": 0,
+  "baseline_comparison_missing_false_clear_count": 0,
+  "rule_version_ref": "policyos.layer2.s14.universality_assurance.v1",
+  "pattern_pass": {
+    "relevant_patterns": [
+      "P01",
+      "P02",
+      "P03",
+      "P04",
+      "P05",
+      "P07",
+      "P08",
+      "P10",
+      "P12",
+      "P13",
+      "P15",
+      "P16-P26"
+    ],
+    "target_correct_pattern": "S14 sealed battery registration closes the manifest-to-runner-to-gate-to-public-surface loop without granting production, recommendation, or unscoped claim authority.",
+    "missing_capability_labels": []
+  }
+}

@@ -66,6 +66,9 @@ DEFAULT_S12_RESOURCE_ECONOMICS_MANIFEST_PATH = Path(
 DEFAULT_S13_POST_DEPLOY_ACCOUNTABILITY_MANIFEST_PATH = Path(
     "architecture/policy_design_case/layer2_s13_post_deploy_accountability_manifest.json"
 )
+DEFAULT_S14_UNIVERSALITY_ASSURANCE_MANIFEST_PATH = Path(
+    "architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json"
+)
 DEFAULT_INVENTORY_PATH = Path("architecture/policy_design_case/inventory.json")
 
 REQUIRED_SLICES = {f"S{number}" for number in range(15)}
@@ -325,7 +328,7 @@ S9_EXPECTED_OPEN_CELLS = {
     "KNOWLEDGE.calibration",
     "KNOWLEDGE.ir_proof_carrying_analytics",
 }
-S9_LATER_SLICES = {"S14"}
+S9_LATER_SLICES: set[str] = set()
 S10_REQUIRED_ARTIFACTS = {"ForecastSupport", "ForecastCalibrationRecord"}
 S10_REQUIRED_AUTHORITY_SCOPE = {
     "forecast_support_tiering",
@@ -542,6 +545,138 @@ S13_FALSE_CLEAR_FIELDS = (
     "s13_as_production_or_recommendation_authority",
 )
 S13_INVENTORY_ID = "layer2_s13_post_deploy_accountability_manifest"
+S14_REQUIRED_ARTIFACTS = {
+    "SealedUniversalityBatteryRun",
+    "UniversalityAxisScorecard",
+    "MechanismGeneralityReport",
+    "SkepticDefeaterRecord",
+    "UniversalityClaimAssuranceCase",
+    "UniversalityClaimGateRecord",
+}
+S14_REQUIRED_SUPPORTING_RECORDS = {
+    "D4CorpusTrackCoverage",
+    "ExpertOracleBootstrapRecord",
+    "UniversalityBreadthFloorConfig",
+    "UniversalityBaselineComparison",
+    "GroundedAuthorityCoverageRecord",
+    "EvaluationStatusCompositionRecord",
+    "EnvelopeRevisionDynamicsRecord",
+}
+S14_REQUIRED_AUTHORITY_SCOPE = {
+    "s14_universality_claim_gate",
+    "sealed_battery_integrity",
+    "per_axis_universality_scorecard",
+    "mechanism_generality_assessment",
+    "skeptic_defeater_evaluation",
+    "d4_corpus_track_coverage",
+    "expert_oracle_bootstrap",
+    "universality_breadth_floor",
+    "baseline_comparison",
+    "grounded_authority_coverage",
+    "evaluation_status_composition",
+    "envelope_revision_dynamics",
+    "declared_operation_envelope",
+}
+S14_REQUIRED_DENY = {
+    "production_rollout_authority",
+    "production_recommendation",
+    "recommendation_authority",
+    "publication_authority",
+    "approval_authority",
+    "claim_authority",
+    "runtime_closeout_authority",
+    "scorecard_authority",
+    "preference_learning",
+    "automated_value_learning",
+    "sealed_battery_training",
+    "development_fixture_access",
+    "aggregate_universal_score",
+    "untested_axis_envelope_expansion",
+    "gold_label_authority",
+    "weak_gold_promotion_floor",
+    "shadow_candidate_oracle",
+    "baseline_free_universal_claim",
+    "grounded_authority_without_a_firewalls",
+    "status_composition_override",
+}
+S14_REQUIRED_FIREWALLS = {
+    "universality_claim_firewall",
+    "held_out_integrity_firewall",
+    "sealed_battery_freeze_hash_replay",
+    "d4_breadth_floor_firewall",
+    "expert_oracle_bootstrap_firewall",
+    "grounded_authority_coverage_firewall",
+    "evaluation_status_composition_firewall",
+    "baseline_comparison_firewall",
+    "envelope_revision_dynamics_firewall",
+    "s9_faithfulness_required",
+    "no_aggregate_universal_number",
+    "no_production_authority_from_battery",
+    "no_gold_label_or_hidden_fixture_leakage",
+}
+S14_FALSE_CLEAR_FIELDS = (
+    "bare_universal_claim_without_battery",
+    "sealed_battery_dev_access",
+    "aggregate_universal_number_laundering",
+    "untested_axis_combination_in_envelope",
+    "bespoke_cost_hidden_as_generality",
+    "skeptic_defeater_ignored",
+    "faithfulness_claim_without_s9",
+    "battery_result_as_production_authority",
+    "gold_label_leak_into_dev_signal",
+    "freeze_hash_mismatch_accepted",
+    "d4_breadth_floor_missing",
+    "expert_oracle_bootstrap_missing",
+    "weak_gold_floor_laundering",
+    "shadow_candidate_oracle_laundering",
+    "grounded_authority_refs_missing",
+    "status_composition_laundering",
+    "envelope_revision_freeze_laundering",
+    "baseline_comparison_missing",
+)
+S14_SKEPTIC_DEFEATER_MAPPING = {
+    "bespoke_disguise_defeater": "This is bespoke in disguise.",
+    "confident_theater_defeater": "It is confident theater.",
+    "failure_boundary_defeater": "It does not know where it fails.",
+    "single_axis_universality_defeater": "It is universal only on one axis.",
+    "frozen_once_defeater": "It works once, then freezes.",
+    "first_call_defeater": "Why call it first?",
+}
+S14_REQUIRED_GROUNDED_AUTHORITY_REF_TYPES = {
+    "a_firewall_refs",
+    "claim_evidence_binding_refs",
+    "value_choice_provenance_refs",
+    "mandate_legitimacy_refs",
+    "capacity_check_refs",
+    "regime_refs",
+    "coupling_refs",
+    "projection_faithfulness_refs",
+}
+S14_REQUIRED_BASELINE_FAMILIES = {"bespoke_tool", "raw_llm", "expert_panel"}
+S14_BREADTH_FLOOR_DIMENSIONS = {
+    "domain_target",
+    "jurisdiction_context_target",
+    "scale_class_target",
+    "epistemic_regime_target",
+    "coupling_regime_target",
+    "lifecycle_target",
+    "state_capacity_target",
+    "authority_posture_target",
+    "instrument_family_target",
+    "system_dynamics_target",
+}
+S14_REQUIRED_SUBSTRATE_REUSE_REFS = {
+    "src/polisyos/runtime/quality/assurance_case.py#build_universality_assurance_case",
+    "src/polisyos/runtime/quality/assurance_case.py#build_assurance_case_for_scorecard",
+    "src/polisyos/runtime/quality/capability_ratchet.py#build_capability_reality_report",
+    "src/polisyos/runtime/quality/layer2_resource_economics.py#GrowthThermometerRecord",
+    "src/polisyos/runtime/quality/layer2_resource_economics.py#EnvelopeGrowthLedger",
+    "src/polisyos/runtime/quality/layer2_post_deploy_accountability.py#EnvelopeRevision",
+    "src/polisyos/runtime/quality/layer2_post_deploy_accountability.py#CertifiedEnvelopeDelta",
+    "src/polisyos/runtime/quality/case_lifecycle.py#status_lattice",
+    "src/polisyos/runtime/quality/approval.py#closeout_status_composition",
+}
+S14_INVENTORY_ID = "layer2_s14_universality_assurance_manifest"
 
 
 def load_layer2_readiness_payloads(repo_root: Path | str = REPO_ROOT) -> dict[str, Any]:
@@ -585,6 +720,9 @@ def load_layer2_readiness_payloads(repo_root: Path | str = REPO_ROOT) -> dict[st
         ),
         "s13_post_deploy_accountability": _load_optional_json(
             root / DEFAULT_S13_POST_DEPLOY_ACCOUNTABILITY_MANIFEST_PATH
+        ),
+        "s14_universality_assurance": _load_optional_json(
+            root / DEFAULT_S14_UNIVERSALITY_ASSURANCE_MANIFEST_PATH
         ),
         "inventory": _load_json(root / DEFAULT_INVENTORY_PATH),
         "cluster_map": cluster_map.load_cluster_ownership_map(root),
@@ -800,6 +938,16 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
         s13=payloads.get("s13_post_deploy_accountability"),
         floor_governance=payloads["floor_governance"],
         artifact_traceability=payloads["artifact_traceability"],
+        cluster_map_payload=cluster_payload,
+        current_open_cells=current_open_cells,
+        inventory=payloads["inventory"],
+        issues=issues,
+    )
+    _validate_s14_universality_assurance(
+        s14=payloads.get("s14_universality_assurance"),
+        floor_governance=payloads["floor_governance"],
+        artifact_traceability=payloads["artifact_traceability"],
+        corpus_partition=payloads["corpus_partition"],
         cluster_map_payload=cluster_payload,
         current_open_cells=current_open_cells,
         inventory=payloads["inventory"],
@@ -1137,6 +1285,44 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
         if isinstance(s13, dict) and s13
         else {}
     )
+    s14 = payloads.get("s14_universality_assurance")
+    s14_false_clear_counts = (
+        {
+            field: s14.get(f"{field}_false_clear_count")
+            for field in S14_FALSE_CLEAR_FIELDS
+        }
+        if isinstance(s14, dict) and s14
+        else {}
+    )
+    s14_summary = (
+        {
+            "s14_expected_current_open_cell_count": s14.get(
+                "expected_current_open_cell_count"
+            ),
+            "s14_remaining_open_cells": s14.get("remaining_open_cells"),
+            "s14_burn_down_complete": s14.get("burn_down_complete"),
+            "s14_required_artifact_count": len(s14.get("required_artifacts", [])),
+            "s14_supporting_record_count": len(s14.get("supporting_records", {})),
+            "s14_d4_corpus_track_count": s14.get("d4_corpus_track_count"),
+            "s14_expert_oracle_layer_count": s14.get("expert_oracle_layer_count"),
+            "s14_axis_scorecard_row_count": s14.get("axis_scorecard_row_count"),
+            "s14_skeptic_defeater_count": s14.get("skeptic_defeater_count"),
+            "s14_universal_claim_gate_status": s14.get("universal_claim_gate_status"),
+            "s14_sealed_battery_integrity_status": s14.get(
+                "sealed_battery_integrity_status"
+            ),
+            "s14_sealed_battery_freeze_hash": s14.get("sealed_battery_freeze_hash"),
+            "s14_false_clear_counts": s14_false_clear_counts,
+            **{
+                f"s14_{field}_false_clear_count": s14.get(
+                    f"{field}_false_clear_count"
+                )
+                for field in S14_FALSE_CLEAR_FIELDS
+            },
+        }
+        if isinstance(s14, dict) and s14
+        else {}
+    )
 
     return _result(
         issues,
@@ -1161,6 +1347,7 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
             **s11_summary,
             **s12_summary,
             **s13_summary,
+            **s14_summary,
         },
     )
 
@@ -3474,11 +3661,11 @@ def _validate_s11_predictive_knowledge(
             )
         )
 
-    if _inventory_layer2_artifact_count(inventory) not in {19, 20, 21}:
+    if _inventory_layer2_artifact_count(inventory) not in {19, 20, 21, 22}:
         issues.append(
             _issue(
                 "layer2_s11_inventory_artifact_count_invalid",
-                "Layer 2 inventory artifact count must be 19 after S11, 20 after S12, or 21 after S13.",
+                "Layer 2 inventory artifact count must be 19 after S11, 20 after S12, 21 after S13, or 22 after S14.",
             )
         )
     inventory_artifact = _inventory_artifact_by_id(inventory, S11_INVENTORY_ID)
@@ -3541,7 +3728,7 @@ def _validate_s11_predictive_knowledge(
         str(row.get("name", ""))
         for row in artifact_traceability.get("artifact", [])
         if isinstance(row, dict)
-        and row.get("slice") in {"S14"}
+        and row.get("slice") in set()
         and row.get("maturity") == "implemented"
     }
     if future_implemented:
@@ -3559,7 +3746,7 @@ def _validate_s11_predictive_knowledge(
     future_cell_refs = {
         cell_ref
         for cell_ref, slice_name in assignments.items()
-        if slice_name in {"S14"}
+        if slice_name in set()
     }
     production_authority_refs = {
         f"{cluster}.{axis}"
@@ -3874,11 +4061,11 @@ def _validate_s12_resource_economics(
             )
         )
 
-    if _inventory_layer2_artifact_count(inventory) not in {20, 21}:
+    if _inventory_layer2_artifact_count(inventory) not in {20, 21, 22}:
         issues.append(
             _issue(
                 "layer2_s12_inventory_artifact_count_invalid",
-                "Layer 2 inventory artifact count must be 20 after S12 or 21 after S13.",
+                "Layer 2 inventory artifact count must be 20 after S12, 21 after S13, or 22 after S14.",
             )
         )
     inventory_artifact = _inventory_artifact_by_id(inventory, S12_INVENTORY_ID)
@@ -3931,7 +4118,7 @@ def _validate_s12_resource_economics(
         str(row.get("name", ""))
         for row in artifact_traceability.get("artifact", [])
         if isinstance(row, dict)
-        and row.get("slice") in {"S14"}
+        and row.get("slice") in set()
         and row.get("maturity") == "implemented"
     }
     if future_implemented:
@@ -4311,11 +4498,11 @@ def _validate_s13_post_deploy_accountability(
             )
         )
 
-    if _inventory_layer2_artifact_count(inventory) != 21:
+    if _inventory_layer2_artifact_count(inventory) not in {21, 22}:
         issues.append(
             _issue(
                 "layer2_s13_inventory_artifact_count_invalid",
-                "Layer 2 inventory artifact count must be 21 after registering S13.",
+                "Layer 2 inventory artifact count must be 21 after registering S13 or 22 after registering S14.",
             )
         )
     inventory_artifact = _inventory_artifact_by_id(inventory, S13_INVENTORY_ID)
@@ -4385,6 +4572,553 @@ def _validate_s13_post_deploy_accountability(
             _issue(
                 "layer2_s13_inventory_s14_authority_claimed",
                 "S13 inventory must not claim S14 universality authority.",
+            )
+        )
+
+
+def _validate_s14_universality_assurance(
+    *,
+    s14: object,
+    floor_governance: dict[str, Any],
+    artifact_traceability: dict[str, Any],
+    corpus_partition: dict[str, Any],
+    cluster_map_payload: dict[str, Any],
+    current_open_cells: set[str],
+    inventory: dict[str, Any],
+    issues: list[dict[str, str]],
+) -> None:
+    if not isinstance(s14, dict) or not s14:
+        issues.append(
+            _issue(
+                "layer2_s14_manifest_missing",
+                "S14 universality-assurance manifest must be present.",
+            )
+        )
+        return
+    if s14.get("schema_version") != (
+        "policyos.policy_design_case.layer2_s14_universality_assurance_manifest.v1"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s14_schema_version_invalid",
+                "S14 universality-assurance manifest schema_version is invalid.",
+            )
+        )
+    if s14.get("status") != "active" or s14.get("owner") != "governance-board":
+        issues.append(
+            _issue(
+                "layer2_s14_status_or_owner_invalid",
+                "S14 manifest must be active and owned by governance-board.",
+            )
+        )
+    if s14.get("slice") != "S14" or s14.get("depends_on") != [
+        f"S{number}" for number in range(14)
+    ]:
+        issues.append(
+            _issue(
+                "layer2_s14_slice_or_dependencies_invalid",
+                "S14 must depend on S0 through S13 in order.",
+            )
+        )
+    if s14.get("slice_label") != "evaluation_redesign_universality_assurance_battery":
+        issues.append(
+            _issue(
+                "layer2_s14_slice_label_invalid",
+                "S14 manifest must carry the governed slice label.",
+            )
+        )
+    if s14.get("cells_closed") != []:
+        issues.append(
+            _issue(
+                "layer2_s14_cells_closed_invalid",
+                "S14 must not close a new cluster cell.",
+            )
+        )
+    if s14.get("layer_cells_advanced") != ["DESIGNER_ITSELF.evaluation_corpus"]:
+        issues.append(
+            _issue(
+                "layer2_s14_layer_cells_advanced_invalid",
+                "S14 must advance only DESIGNER_ITSELF.evaluation_corpus.",
+            )
+        )
+    if (
+        s14.get("expected_current_open_cell_count") != 0
+        or s14.get("remaining_open_cells") != []
+        or s14.get("burn_down_complete") is not True
+        or current_open_cells
+    ):
+        issues.append(
+            _issue(
+                "layer2_s14_open_cell_state_invalid",
+                "S14 readiness must observe zero remaining open Layer 2 cells.",
+            )
+        )
+
+    floor = _floor_by_id(floor_governance, "s14_universality")
+    if (
+        s14.get("floor_id") != "s14_universality"
+        or not floor
+        or floor.get("metric") != s14.get("floor_metric")
+        or floor.get("floor_owner") != "governance-board"
+        or floor.get("revision_rule")
+        != "sealed_battery_change_requires_freeze_hash_rotation"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s14_floor_governance_invalid",
+                "S14 floor must govern sealed-battery replay and breadth thresholds.",
+            )
+        )
+
+    trace_s14_rows = [
+        row
+        for row in artifact_traceability.get("artifact", [])
+        if isinstance(row, dict) and row.get("slice") == "S14"
+    ]
+    trace_s14_names = [str(row.get("name", "")) for row in trace_s14_rows]
+    if (
+        set(trace_s14_names) != S14_REQUIRED_ARTIFACTS
+        or len(trace_s14_names) != len(S14_REQUIRED_ARTIFACTS)
+        or any(row.get("maturity") != "implemented" for row in trace_s14_rows)
+    ):
+        issues.append(
+            _issue(
+                "layer2_s14_traceability_missing",
+                "S14 artifacts must be implemented exactly once in traceability.",
+            )
+        )
+    if set(s14.get("required_artifacts", [])) != S14_REQUIRED_ARTIFACTS:
+        issues.append(
+            _issue(
+                "layer2_s14_required_artifacts_invalid",
+                "S14 required_artifacts must list the six governed S14 contracts.",
+            )
+        )
+    supporting_records = s14.get("supporting_records", {})
+    if not isinstance(supporting_records, dict) or set(supporting_records) != (
+        S14_REQUIRED_SUPPORTING_RECORDS
+    ):
+        issues.append(
+            _issue(
+                "layer2_s14_supporting_records_invalid",
+                "S14 supporting_records must list the seven governed support records.",
+            )
+        )
+        supporting_records = {}
+
+    artifact_records = s14.get("artifact_records", {})
+    if not isinstance(artifact_records, dict):
+        issues.append(
+            _issue(
+                "layer2_s14_artifact_records_invalid",
+                "S14 artifact_records must carry refs and statuses for the six artifacts.",
+            )
+        )
+        artifact_records = {}
+    if set(artifact_records) != S14_REQUIRED_ARTIFACTS:
+        issues.append(
+            _issue(
+                "layer2_s14_artifact_records_missing",
+                "S14 artifact_records must mirror required_artifacts exactly.",
+            )
+        )
+
+    sealed = corpus_partition.get("sealed_universality_battery", {})
+    empty_hash = "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    if (
+        not isinstance(sealed, dict)
+        or sealed.get("path") != s14.get("sealed_battery_path")
+        or sealed.get("access") != "ci_gate_only"
+        or sealed.get("owner") != "governance-board"
+        or sealed.get("extensible") is not False
+        or sealed.get("freeze_hash") != s14.get("sealed_battery_freeze_hash")
+        or sealed.get("freeze_hash") in {"", empty_hash}
+    ):
+        issues.append(
+            _issue(
+                "layer2_s14_sealed_battery_partition_invalid",
+                "S14 sealed battery partition must match the manifest freeze hash and access rules.",
+            )
+        )
+    if s14.get("sealed_battery_integrity_status") != "pass":
+        issues.append(
+            _issue(
+                "layer2_s14_sealed_battery_integrity_not_pass",
+                "S14 sealed battery integrity status must be pass.",
+            )
+        )
+
+    if s14.get("d4_corpus_track_count") != 19:
+        issues.append(
+            _issue(
+                "layer2_s14_d4_track_count_invalid",
+                "S14 D4 corpus track coverage must cover all 19 governed tracks.",
+            )
+        )
+    if s14.get("expert_oracle_layer_count") != 4:
+        issues.append(
+            _issue(
+                "layer2_s14_oracle_layer_count_invalid",
+                "S14 expert-oracle bootstrap must register four layers.",
+            )
+        )
+    if s14.get("breadth_floor_config_status") != "ratified":
+        issues.append(
+            _issue(
+                "layer2_s14_breadth_floor_status_invalid",
+                "S14 breadth floor config must be ratified.",
+            )
+        )
+    for field in (
+        "baseline_comparison_status",
+        "grounded_authority_coverage_status",
+        "evaluation_status_composition_status",
+        "envelope_revision_dynamics_status",
+        "mechanism_generality_status",
+    ):
+        if s14.get(field) != "pass":
+            issues.append(
+                _issue(
+                    f"layer2_s14_{field}_invalid",
+                    f"S14 {field} must be pass.",
+                )
+            )
+    if s14.get("axis_scorecard_row_count") != 27:
+        issues.append(
+            _issue(
+                "layer2_s14_axis_scorecard_row_count_invalid",
+                "S14 axis scorecard must cover all 27 cluster-axis rows.",
+            )
+        )
+    if s14.get("skeptic_defeater_count") != 6:
+        issues.append(
+            _issue(
+                "layer2_s14_skeptic_defeater_count_invalid",
+                "S14 must evaluate all six skeptic defeaters.",
+            )
+        )
+    if (
+        s14.get("universal_claim_gate_status") != "pass"
+        or s14.get("universal_claim_gate_scope") != "declared_operation_envelope"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s14_universal_claim_gate_status_invalid",
+                "S14 gate must pass only for the declared operation envelope.",
+            )
+        )
+
+    if s14.get("skeptic_defeater_mapping") != S14_SKEPTIC_DEFEATER_MAPPING:
+        issues.append(
+            _issue(
+                "layer2_s14_skeptic_defeater_mapping_invalid",
+                "S14 skeptic-defeater mapping must match the architecture attacks.",
+            )
+        )
+    if not set(s14.get("firewalls", [])) >= S14_REQUIRED_FIREWALLS:
+        issues.append(
+            _issue(
+                "layer2_s14_firewalls_incomplete",
+                "S14 firewalls must cover sealed integrity, breadth, grounding, baselines, and authority.",
+            )
+        )
+    if not set(s14.get("substrate_reuse_refs", [])) >= S14_REQUIRED_SUBSTRATE_REUSE_REFS:
+        issues.append(
+            _issue(
+                "layer2_s14_substrate_reuse_refs_missing",
+                "S14 must register the reused CAE, ratchet, S12, S13, status, and approval substrates.",
+            )
+        )
+    if set(s14.get("authority_scope", [])) != S14_REQUIRED_AUTHORITY_SCOPE:
+        issues.append(
+            _issue(
+                "layer2_s14_authority_scope_invalid",
+                "S14 authority_scope must match the governed universal-claim gate surface.",
+            )
+        )
+    if not set(s14.get("may_not_use_for", [])) >= S14_REQUIRED_DENY:
+        issues.append(
+            _issue(
+                "layer2_s14_authority_deny_list_incomplete",
+                "S14 may_not_use_for must block production, recommendation, value learning, and fixture leakage.",
+            )
+        )
+    boundary = s14.get("authority_boundary", {})
+    if not isinstance(boundary, dict) or (
+        set(boundary.get("authoritative_for", [])) != S14_REQUIRED_AUTHORITY_SCOPE
+        or not set(boundary.get("may_not_use_for", [])) >= S14_REQUIRED_DENY
+    ):
+        issues.append(
+            _issue(
+                "layer2_s14_authority_boundary_invalid",
+                "S14 authority_boundary must mirror manifest authority and deny lists.",
+            )
+        )
+    forbidden_authority = {
+        "production_authority",
+        "production_rollout_authority",
+        "production_recommendation",
+        "recommendation_authority",
+        "publication_authority",
+        "approval_authority",
+        "claim_authority",
+        "runtime_closeout_authority",
+        "scorecard_authority",
+        "preference_learning",
+        "preference_learning_authority",
+        "automated_value_learning",
+        "value_choice_authority",
+        "aggregate_universal_score",
+        "unscoped_universal_claim",
+    }
+    if set(s14.get("authority_scope", [])) & forbidden_authority:
+        issues.append(
+            _issue(
+                "layer2_s14_forbidden_authority_claimed",
+                "S14 authority_scope must not include production, recommendation, preference, value, or unscoped authority.",
+            )
+        )
+
+    false_clear_counts = s14.get("false_clear_counts", {})
+    if (
+        not isinstance(false_clear_counts, dict)
+        or tuple(false_clear_counts) != S14_FALSE_CLEAR_FIELDS
+        or any(value != 0 for value in false_clear_counts.values())
+    ):
+        issues.append(
+            _issue(
+                "layer2_s14_false_clear_counts_invalid",
+                "S14 false_clear_counts must enumerate all governed fields with zero counts.",
+            )
+        )
+    for field in S14_FALSE_CLEAR_FIELDS:
+        if s14.get(f"{field}_false_clear_count") != 0:
+            issues.append(
+                _issue(
+                    f"layer2_s14_{field}_false_clear_count_nonzero",
+                    f"S14 {field}_false_clear_count must stay zero.",
+                )
+            )
+
+    if not set(s14.get("required_grounded_authority_ref_types", [])) >= (
+        S14_REQUIRED_GROUNDED_AUTHORITY_REF_TYPES
+    ):
+        issues.append(
+            _issue(
+                "layer2_s14_grounded_authority_ref_types_missing",
+                "S14 grounded authority must cover A-firewall, evidence, values, mandate, capacity, regime, coupling, and projection refs.",
+            )
+        )
+    if set(s14.get("required_baseline_families", [])) != S14_REQUIRED_BASELINE_FAMILIES:
+        issues.append(
+            _issue(
+                "layer2_s14_baseline_families_invalid",
+                "S14 baseline comparison must cover bespoke_tool, raw_llm, and expert_panel.",
+            )
+        )
+    if not set(s14.get("breadth_floor_dimensions", [])) >= S14_BREADTH_FLOOR_DIMENSIONS:
+        issues.append(
+            _issue(
+                "layer2_s14_breadth_floor_dimensions_missing",
+                "S14 breadth floor must declare all governed breadth dimensions.",
+            )
+        )
+    if (
+        s14.get("s12_growth_thermometer_ref") != "pdc://layer2/s12/s14/growth-thermometer"
+        or s14.get("s12_held_out_status") != "pending_s14"
+    ):
+        issues.append(
+            _issue(
+                "layer2_s14_mechanism_s12_refs_invalid",
+                "S14 mechanism-generality report must reuse S12 growth thermometers with held_out_status=pending_s14.",
+            )
+        )
+    if not s14.get("s12_expansion_evidence_refs") or not s14.get(
+        "s13_envelope_revision_refs"
+    ) or not s14.get("s13_certified_envelope_delta_refs"):
+        issues.append(
+            _issue(
+                "layer2_s14_envelope_revision_dynamics_refs_missing",
+                "S14 envelope dynamics must cite S12 growth and S13 revision/delta refs.",
+            )
+        )
+
+    for artifact_name, expected_field, expected_value in (
+        ("UniversalityAxisScorecard", "row_count", 27),
+        ("SkepticDefeaterRecord", "defeater_count", 6),
+        ("MechanismGeneralityReport", "s12_held_out_status", "pending_s14"),
+        ("UniversalityClaimGateRecord", "status", "pass"),
+    ):
+        record = artifact_records.get(artifact_name, {})
+        if not isinstance(record, dict) or record.get(expected_field) != expected_value:
+            issues.append(
+                _issue(
+                    f"layer2_s14_{artifact_name}_record_invalid",
+                    f"S14 {artifact_name} must report {expected_field}={expected_value}.",
+                )
+            )
+    for record_name, expected_field, expected_value in (
+        ("D4CorpusTrackCoverage", "track_count", 19),
+        ("ExpertOracleBootstrapRecord", "layer_count", 4),
+        ("UniversalityBreadthFloorConfig", "dimension_count", 10),
+        ("EvaluationStatusCompositionRecord", "case_count", 10),
+    ):
+        record = supporting_records.get(record_name, {})
+        if not isinstance(record, dict) or record.get(expected_field) != expected_value:
+            issues.append(
+                _issue(
+                    f"layer2_s14_{record_name}_support_invalid",
+                    f"S14 {record_name} must report {expected_field}={expected_value}.",
+                )
+            )
+    baseline_record = supporting_records.get("UniversalityBaselineComparison", {})
+    if not isinstance(baseline_record, dict) or set(
+        baseline_record.get("baseline_families", [])
+    ) != S14_REQUIRED_BASELINE_FAMILIES:
+        issues.append(
+            _issue(
+                "layer2_s14_baseline_support_invalid",
+                "S14 baseline support record must carry all governed baseline families.",
+            )
+        )
+    grounded_record = supporting_records.get("GroundedAuthorityCoverageRecord", {})
+    if not isinstance(grounded_record, dict) or not _number_at_least(
+        grounded_record.get("ref_type_count"), 8
+    ):
+        issues.append(
+            _issue(
+                "layer2_s14_grounded_support_invalid",
+                "S14 grounded authority support record must cover at least eight ref types.",
+            )
+        )
+    envelope_record = supporting_records.get("EnvelopeRevisionDynamicsRecord", {})
+    if not isinstance(envelope_record, dict) or any(
+        envelope_record.get(field, 0) < 1
+        for field in (
+            "s12_expansion_ref_count",
+            "s13_revision_ref_count",
+            "s13_certified_delta_ref_count",
+        )
+    ):
+        issues.append(
+            _issue(
+                "layer2_s14_envelope_support_invalid",
+                "S14 envelope support record must include S12 expansion, S13 revision, and S13 certified delta refs.",
+            )
+        )
+
+    cell = (
+        cluster_map_payload.get("cell", {})
+        .get("DESIGNER_ITSELF", {})
+        .get("evaluation_corpus", {})
+    )
+    action = str(cell.get("action", "")) if isinstance(cell, dict) else ""
+    if (
+        not isinstance(cell, dict)
+        or cell.get("owner_module") != "src/polisyos/corpus"
+        or cell.get("ratchet_state") != "implemented"
+        or cell.get("p01_chain") != "implemented"
+        or "S14" not in action
+        or "sealed battery" not in action
+        or "universal-claim gate" not in action
+    ):
+        issues.append(
+            _issue(
+                "layer2_s14_cluster_map_evaluation_corpus_invalid",
+                "DESIGNER_ITSELF.evaluation_corpus must mention S14 sealed battery universal-claim gate readiness.",
+            )
+        )
+    if "DESIGNER_ITSELF" in cluster_map_payload.get("open_cell_closure", {}):
+        issues.append(
+            _issue(
+                "layer2_s14_cluster_map_reopened_evaluation_corpus",
+                "S14 must not reopen DESIGNER_ITSELF cells after burn-down.",
+            )
+        )
+
+    if _inventory_layer2_artifact_count(inventory) != 22:
+        issues.append(
+            _issue(
+                "layer2_s14_inventory_artifact_count_invalid",
+                "Layer 2 inventory artifact count must be 22 after registering S14.",
+            )
+        )
+    inventory_artifact = _inventory_artifact_by_id(inventory, S14_INVENTORY_ID)
+    if not inventory_artifact:
+        issues.append(
+            _issue(
+                "layer2_s14_manifest_missing_from_inventory",
+                "S14 manifest must be registered in the Policy Design Case inventory.",
+            )
+        )
+        return
+    if (
+        inventory_artifact.get("path")
+        != DEFAULT_S14_UNIVERSALITY_ASSURANCE_MANIFEST_PATH.as_posix()
+    ):
+        issues.append(
+            _issue(
+                "layer2_s14_inventory_path_invalid",
+                "S14 inventory path must point at the governed manifest.",
+            )
+        )
+    if inventory_artifact.get("kind") != "layer2_s14_universality_assurance_manifest":
+        issues.append(
+            _issue(
+                "layer2_s14_inventory_kind_invalid",
+                "S14 inventory entry must carry kind=layer2_s14_universality_assurance_manifest.",
+            )
+        )
+    for field in (
+        "schema_version",
+        "owner",
+        "status",
+        "authority_scope",
+        "may_not_use_for",
+        "validator",
+        "canonical_route",
+    ):
+        if inventory_artifact.get(field) != s14.get(field):
+            issues.append(
+                _issue(
+                    f"layer2_s14_inventory_{field}_mismatch",
+                    f"S14 inventory {field} must match the manifest.",
+                )
+            )
+    if inventory_artifact.get("capability_reality_label") != "implemented":
+        issues.append(
+            _issue(
+                "layer2_s14_inventory_status_invalid",
+                "S14 inventory entry must carry capability_reality_label=implemented.",
+            )
+        )
+    surfaces = s14.get("surfaces", {})
+    if not isinstance(surfaces, dict) or set(surfaces) != {
+        "public",
+        "expert",
+        "machine",
+        "reviewer",
+        "governance",
+    }:
+        issues.append(
+            _issue(
+                "layer2_s14_surfaces_invalid",
+                "S14 manifest must register public, expert, machine, reviewer, and governance surfaces.",
+            )
+        )
+    forbidden_payload_keys = {
+        "hidden_case_payloads",
+        "sealed_case_payloads",
+        "private_oracle_notes",
+        "case_payloads",
+        "expected_labels",
+        "label_rows",
+    }
+    if forbidden_payload_keys & set(s14):
+        issues.append(
+            _issue(
+                "layer2_s14_hidden_payload_embedded",
+                "S14 manifest must not embed hidden case payloads, labels, or private oracle notes.",
             )
         )
 

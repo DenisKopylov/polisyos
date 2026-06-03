@@ -42,6 +42,7 @@ from polisyos.pdc import (  # noqa: E402
     Layer2S10ForecastPostureInput,
     Layer2S11PredictivePostureInput,
     Layer2S12ResourceEconomicsPostureInput,
+    Layer2S13PostDeployAccountabilityPostureInput,
     run_s2_shadow_design_loop,
 )
 from polisyos.policy_grammar import (  # noqa: E402
@@ -121,6 +122,21 @@ from polisyos.runtime.quality.layer2_outcome_prediction import (  # noqa: E402
     S10_FALSE_CLEAR_FIELDS,
     build_forecast_calibration_record,
     build_forecast_support,
+)
+from polisyos.runtime.quality.layer2_post_deploy_accountability import (  # noqa: E402
+    LAYER2_S13_POST_DEPLOY_ACCOUNTABILITY_RULE_VERSION,
+    S13_FALSE_CLEAR_FIELDS,
+    build_assurance_case_delta,
+    build_certified_envelope_delta,
+    build_deployment_dossier,
+    build_envelope_revision,
+    build_learning_update_proposal,
+    build_post_deploy_mape_k_trace,
+    build_s13_accountability_authority_boundary,
+    build_s13_post_deploy_accountability_posture,
+    classify_post_deploy_divergence,
+    summarize_post_deploy_accountability,
+    verify_post_deploy_learning_authority,
 )
 from polisyos.runtime.quality.layer2_predictive_knowledge import (  # noqa: E402
     LAYER2_S11_PREDICTIVE_KNOWLEDGE_RULE_VERSION,
@@ -232,6 +248,12 @@ S12_CASE_SIGNALS_PATH = Path(
 )
 S12_EXPERT_LABELS_PATH = Path(
     "tests/fixtures/layer2/s12/s12_resource_economics_expert_labels.json"
+)
+S13_CASE_SIGNALS_PATH = Path(
+    "tests/fixtures/layer2/s13/s13_post_deploy_case_signals.json"
+)
+S13_EXPERT_LABELS_PATH = Path(
+    "tests/fixtures/layer2/s13/s13_post_deploy_expert_labels.json"
 )
 S9_CASE_SIGNALS_PATH = Path("tests/fixtures/layer2/s9/s9_projection_lowering_case_signals.json")
 S9_EXPERT_LABELS_PATH = Path("tests/fixtures/layer2/s9/s9_projection_lowering_expert_labels.json")
@@ -385,6 +407,19 @@ S12_NEGATIVE_CONTROL_PROBE_PATHS: tuple[Path, ...] = (
     Path("tests/fixtures/layer2/s12/negative_controls/interchangeable_budget_probe.json"),
     Path("tests/fixtures/layer2/s12/negative_controls/growth_without_envelope_delta_probe.json"),
 )
+S13_NEGATIVE_CONTROL_PROBE_PATHS: tuple[Path, ...] = (
+    Path("tests/fixtures/layer2/s13/negative_controls/post_policy_data_as_pre_policy_evidence_probe.json"),
+    Path("tests/fixtures/layer2/s13/negative_controls/learned_prior_in_current_evidence_slot_probe.json"),
+    Path("tests/fixtures/layer2/s13/negative_controls/unattributable_updates_model_probe.json"),
+    Path("tests/fixtures/layer2/s13/negative_controls/silent_closed_case_rewrite_probe.json"),
+    Path("tests/fixtures/layer2/s13/negative_controls/learning_without_attribution_probe.json"),
+    Path("tests/fixtures/layer2/s13/negative_controls/envelope_shrink_without_assurance_delta_probe.json"),
+    Path("tests/fixtures/layer2/s13/negative_controls/b_update_before_a_firewall_probe.json"),
+    Path("tests/fixtures/layer2/s13/negative_controls/implementation_failure_as_theory_refutation_probe.json"),
+    Path("tests/fixtures/layer2/s13/negative_controls/outcome_learning_without_counterfactual_probe.json"),
+    Path("tests/fixtures/layer2/s13/negative_controls/s13_as_production_or_recommendation_authority_probe.json"),
+    Path("tests/fixtures/layer2/s13/negative_controls/monitoring_missing_for_deployable_probe.json"),
+)
 S8_MAY_NOT_USE_FOR: tuple[str, ...] = (
     "production_recommendation",
     "production_claim_authority",
@@ -520,6 +555,10 @@ def build_w12d_universal_outcome_corpus_report(
         cases,
         repo_root=Path(repo_root),
     )
+    s13_post_deploy_accountability_summary = _s13_post_deploy_accountability_summary(
+        cases,
+        repo_root=Path(repo_root),
+    )
     status = "blocked" if rollout_blockers else "pass"
     return {
         "schema_version": SCHEMA_VERSION,
@@ -542,6 +581,7 @@ def build_w12d_universal_outcome_corpus_report(
         "s11_predictive_knowledge_summary": s11_predictive_knowledge_summary,
         "s12_resource_economics_summary": s12_resource_economics_summary,
         "s9_projection_lowering_summary": s9_projection_lowering_summary,
+        "s13_post_deploy_accountability_summary": s13_post_deploy_accountability_summary,
         "cases": cases,
         "authority_level_metric_stratification": _authority_stratification(cases),
         "domain_authority_metric_stratification": _domain_authority_stratification(cases),
@@ -1164,6 +1204,10 @@ def _run_case(
         s8_value_choice=s8_value_choice,
         s11_predictive_knowledge=s11_predictive_knowledge,
     )
+    s13_accountability_posture = _s13_accountability_posture_input(
+        case,
+        repo_root=repo_root,
+    )
     s2_design_search = _s2_design_search_summary(
         case,
         repo_root=repo_root,
@@ -1175,6 +1219,7 @@ def _run_case(
         s10_outcome_prediction=s10_outcome_prediction,
         s11_predictive_knowledge=s11_predictive_knowledge,
         s12_resource_economics=s12_resource_economics,
+        s13_accountability_posture=s13_accountability_posture,
     )
     s10_outcome_prediction = _s10_with_source_design_record(
         s10_outcome_prediction,
@@ -1185,6 +1230,12 @@ def _run_case(
         repo_root=repo_root,
         s2_design_search=s2_design_search,
         s8_value_choice=s8_value_choice,
+    )
+    s13_post_deploy_accountability = _s13_post_deploy_accountability_case_block(
+        case,
+        repo_root=repo_root,
+        s9_projection_lowering=s9_projection_lowering,
+        s12_resource_economics=s12_resource_economics,
     )
     return {
         "case_id": case_id,
@@ -1211,6 +1262,7 @@ def _run_case(
         "s11_predictive_knowledge": s11_predictive_knowledge,
         "s12_resource_economics": s12_resource_economics,
         "s9_projection_lowering": s9_projection_lowering,
+        "s13_post_deploy_accountability": s13_post_deploy_accountability,
         "closeout_visible_refs": _closeout_visible_refs(
             s7_delegation=s7_delegation,
             s8_value_choice=s8_value_choice,
@@ -1234,6 +1286,7 @@ def _s2_design_search_summary(
     s10_outcome_prediction: Mapping[str, Any] | None = None,
     s11_predictive_knowledge: Mapping[str, Any] | None = None,
     s12_resource_economics: Mapping[str, Any] | None = None,
+    s13_accountability_posture: Layer2S13PostDeployAccountabilityPostureInput | None = None,
 ) -> dict[str, Any]:
     case_id = str(case.get("case_id") or case.get("id") or "")
     if case_id != "ua-msme-affordable-loans-2022":
@@ -1295,6 +1348,23 @@ def _s2_design_search_summary(
                     ),
                     "resource_authority_boundary": _mapping(
                         s12_resource_economics.get("authority_boundary")
+                    ),
+                }
+            )
+        if s13_accountability_posture is not None:
+            summary.update(
+                {
+                    "accountability_posture_ref": (
+                        s13_accountability_posture.accountability_posture_ref
+                    ),
+                    "accountability_phase": s13_accountability_posture.phase,
+                    "deployment_dossier_ref": (
+                        s13_accountability_posture.deployment_dossier_ref
+                    ),
+                    "accountability_authority_boundary": (
+                        s13_accountability_posture.authority_boundary.model_dump(
+                            mode="json"
+                        )
                     ),
                 }
             )
@@ -1378,6 +1448,7 @@ def _s2_design_search_summary(
             forecast_posture=forecast_posture,
             predictive_posture=predictive_posture,
             resource_posture=resource_posture,
+            accountability_posture=s13_accountability_posture,
         )
     else:
         run = run_s2_shadow_design_loop(
@@ -1389,6 +1460,7 @@ def _s2_design_search_summary(
             forecast_posture=forecast_posture,
             predictive_posture=predictive_posture,
             resource_posture=resource_posture,
+            accountability_posture=s13_accountability_posture,
         )
     return {
         "status": run.status,
@@ -1416,6 +1488,11 @@ def _s2_design_search_summary(
         "resource_posture": (
             run.resource_posture.model_dump(mode="json")
             if run.resource_posture is not None
+            else None
+        ),
+        "accountability_posture": (
+            run.accountability_posture.model_dump(mode="json")
+            if run.accountability_posture is not None
             else None
         ),
         "search_ledger": run.search_ledger.model_dump(mode="json"),
@@ -4897,6 +4974,917 @@ def _s12_case_signals(repo_root: Path) -> dict[str, dict[str, Any]]:
 
 def _s12_expert_labels(repo_root: Path) -> dict[str, dict[str, Any]]:
     path = _resolve(repo_root, S12_EXPERT_LABELS_PATH)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    raw_cases = payload.get("cases") if isinstance(payload, Mapping) else {}
+    return {
+        str(case_id): dict(row)
+        for case_id, row in _mapping(raw_cases).items()
+        if isinstance(row, Mapping)
+    }
+
+
+def _s13_accountability_posture_input(
+    case: Mapping[str, object],
+    *,
+    repo_root: Path,
+) -> Layer2S13PostDeployAccountabilityPostureInput:
+    case_id = _required_text(case.get("case_id") or case.get("id"), field_name="case_id")
+    signals = _s13_case_signals(repo_root).get(case_id)
+    labels = _s13_expert_labels(repo_root).get(case_id)
+    if not signals or not labels:
+        raise W12DCaseRunError(f"S13 post-deploy fixture missing for {case_id}")
+
+    dossier = _s13_deployment_dossier(
+        case_id=case_id,
+        signals=signals,
+        labels=labels,
+    )
+    posture = build_s13_post_deploy_accountability_posture(
+        deployment_dossier=dossier,
+        phase="design_time_gate",
+    )
+    posture_input = dict(posture)
+    posture_input.pop("schema_version", None)
+    posture_input.pop("canonical_outcome_effect", None)
+    return Layer2S13PostDeployAccountabilityPostureInput.model_validate(posture_input)
+
+
+def _s13_post_deploy_accountability_case_block(
+    case: Mapping[str, object],
+    *,
+    repo_root: Path,
+    s9_projection_lowering: Mapping[str, object],
+    s12_resource_economics: Mapping[str, object],
+) -> dict[str, object]:
+    """Build the finalized S13 accountability block after S9 projection records exist."""
+
+    case_id = _required_text(case.get("case_id") or case.get("id"), field_name="case_id")
+    signals = _s13_case_signals(repo_root).get(case_id)
+    labels = _s13_expert_labels(repo_root).get(case_id)
+    if not signals or not labels:
+        raise W12DCaseRunError(f"S13 post-deploy fixture missing for {case_id}")
+
+    artifacts = _s13_case_artifacts(
+        case_id=case_id,
+        signals=signals,
+        labels=labels,
+        s9_projection_lowering=s9_projection_lowering,
+        s12_resource_economics=s12_resource_economics,
+    )
+    dossier = artifacts["deployment_dossier"]
+    divergence = artifacts["divergence_record"]
+    proposal = artifacts.get("learning_update_proposal")
+    certified_delta = artifacts.get("certified_envelope_delta")
+    assurance_delta = artifacts.get("assurance_case_delta")
+    envelope_revision = artifacts["envelope_revision"]
+    mape_k_trace = artifacts["mape_k_trace"]
+    posture = build_s13_post_deploy_accountability_posture(
+        deployment_dossier=dossier,
+        divergences=[divergence],
+        learning_update_proposals=[proposal] if proposal is not None else [],
+        envelope_revision=envelope_revision,
+        certified_envelope_delta=certified_delta,
+        assurance_case_delta=assurance_delta,
+        mape_k_trace=mape_k_trace,
+        phase="post_deploy_finalized",
+    )
+    block: dict[str, object] = dict(posture)
+    block.update(
+        {
+            "case_id": case_id,
+            "deployment_dossier_ref": dossier.dossier_ref,
+            "divergence_record_ref": divergence.divergence_ref,
+            "learning_update_proposal_ref": (
+                proposal.proposal_ref if proposal is not None else None
+            ),
+            "certified_envelope_delta_ref": (
+                certified_delta.delta_ref if certified_delta is not None else None
+            ),
+            "assurance_case_delta_ref": (
+                assurance_delta.delta_ref if assurance_delta is not None else None
+            ),
+            "envelope_revision_ref": envelope_revision.revision_ref,
+            "mape_k_trace_ref": mape_k_trace.trace_ref,
+            "monitorability_floor_passed": dossier.monitorability_floor_passed,
+            "learning_allowed": _s13_learning_allowed(signals, labels),
+            "attribution_class": divergence.attribution_class,
+            "attribution_status": divergence.attribution_status,
+            "learning_change_control_class": _required_text(
+                signals.get("learning_change_control_class"),
+                field_name="learning_change_control_class",
+            ),
+            "learning_update_target": _required_text(
+                signals.get("learning_update_target"),
+                field_name="learning_update_target",
+            ),
+            "envelope_revision_direction": envelope_revision.direction,
+            "assurance_case_change": _text(signals.get("assurance_case_change"))
+            or None,
+            "seeded_disconfirmation": bool(signals.get("seeded_disconfirmation")),
+            "validated_reuse": bool(signals.get("validated_reuse")),
+            "unattributable": bool(signals.get("unattributable")),
+            "implementation_failure": bool(signals.get("implementation_failure")),
+            "strategic_response_lucas_firewall": bool(
+                signals.get("strategic_response_lucas_firewall")
+            ),
+            "a_before_b_status": _text(signals.get("a_before_b_status")) or None,
+            "action_item_status": divergence.action_item_status,
+            "action_item_closure_ref": divergence.action_item_closure_ref,
+            "oversight_effectiveness_ref": divergence.oversight_effectiveness_ref,
+            "effective_oversight": divergence.effective_oversight,
+            "oversight_accountability_state": divergence.oversight_accountability_state,
+            "human_decision_request_refs": _text_list(
+                signals.get("human_decision_request_refs")
+            ),
+            "human_decision_record_refs": _text_list(
+                signals.get("human_decision_record_refs")
+            ),
+            "historical_prior_influence_refs": _text_list(
+                signals.get("historical_prior_influence_refs")
+            ),
+            "public_accountability_note_ref": _required_text(
+                signals.get("public_accountability_note_ref"),
+                field_name="public_accountability_note_ref",
+            ),
+            "public_revision_state_ref": _text(signals.get("public_revision_state_ref"))
+            or None,
+            "shrink_latency_days": signals.get("shrink_latency_days"),
+            "s9_projection_render_refs": _text_list(
+                s9_projection_lowering.get("projection_render_refs")
+            ),
+            "s9_source_revision_ref": _text(
+                s9_projection_lowering.get("source_revision_ref")
+            )
+            or None,
+            "artifacts": {
+                "deployment_dossier": dossier.model_dump(mode="json"),
+                "divergence_record": divergence.model_dump(mode="json"),
+                "learning_update_proposal": (
+                    proposal.model_dump(mode="json")
+                    if proposal is not None
+                    else None
+                ),
+                "certified_envelope_delta": (
+                    certified_delta.model_dump(mode="json")
+                    if certified_delta is not None
+                    else None
+                ),
+                "assurance_case_delta": (
+                    assurance_delta.model_dump(mode="json")
+                    if assurance_delta is not None
+                    else None
+                ),
+                "envelope_revision": envelope_revision.model_dump(mode="json"),
+                "mape_k_trace": mape_k_trace.model_dump(mode="json"),
+            },
+            "source_signal_refs": [f"fixture://layer2/s13/{case_id}/case-signals"],
+            "rule_version_ref": LAYER2_S13_POST_DEPLOY_ACCOUNTABILITY_RULE_VERSION,
+        }
+    )
+    block["matches_gold"] = _s13_matches_gold(block, labels)
+    return block
+
+
+def _s13_case_artifacts(
+    *,
+    case_id: str,
+    signals: Mapping[str, object],
+    labels: Mapping[str, object],
+    s9_projection_lowering: Mapping[str, object],
+    s12_resource_economics: Mapping[str, object],
+) -> dict[str, Any]:
+    dossier = _s13_deployment_dossier(case_id=case_id, signals=signals, labels=labels)
+    divergence = _s13_divergence_record(
+        case_id=case_id,
+        signals=signals,
+        labels=labels,
+        deployment_dossier_ref=dossier.dossier_ref,
+    )
+    learning_allowed = _s13_learning_allowed(signals, labels)
+    assurance_delta = (
+        _s13_assurance_case_delta(case_id=case_id, signals=signals)
+        if learning_allowed or _text(signals.get("envelope_revision_direction")) != "hold"
+        else None
+    )
+    certified_delta = (
+        _s13_certified_envelope_delta(
+            case_id=case_id,
+            signals=signals,
+            s12_resource_economics=s12_resource_economics,
+        )
+        if _text(signals.get("envelope_revision_direction")) == "expand"
+        else None
+    )
+    proposal = (
+        _s13_learning_update_proposal(
+            case_id=case_id,
+            signals=signals,
+            labels=labels,
+            divergence_record_ref=divergence.divergence_ref,
+            assurance_case_delta_ref=(
+                assurance_delta.delta_ref if assurance_delta is not None else None
+            ),
+        )
+        if learning_allowed
+        else None
+    )
+    envelope_revision = _s13_envelope_revision(
+        case_id=case_id,
+        signals=signals,
+        divergence_record_ref=divergence.divergence_ref,
+        learning_update_proposal_ref=(
+            proposal.proposal_ref if proposal is not None else None
+        ),
+        assurance_case_delta_ref=(
+            assurance_delta.delta_ref if assurance_delta is not None else None
+        ),
+        certified_envelope_delta_ref=(
+            certified_delta.delta_ref if certified_delta is not None else None
+        ),
+    )
+    mape_k_trace = _s13_mape_k_trace(
+        case_id=case_id,
+        signals=signals,
+        deployment_dossier_ref=dossier.dossier_ref,
+        divergence_record_ref=divergence.divergence_ref,
+        learning_update_proposal_ref=(
+            proposal.proposal_ref if proposal is not None else None
+        ),
+        envelope_revision_ref=envelope_revision.revision_ref,
+        s9_projection_lowering=s9_projection_lowering,
+    )
+    return {
+        "deployment_dossier": dossier,
+        "divergence_record": divergence,
+        "learning_update_proposal": proposal,
+        "certified_envelope_delta": certified_delta,
+        "assurance_case_delta": assurance_delta,
+        "envelope_revision": envelope_revision,
+        "mape_k_trace": mape_k_trace,
+    }
+
+
+def _s13_deployment_dossier(
+    *,
+    case_id: str,
+    signals: Mapping[str, object],
+    labels: Mapping[str, object],
+) -> Any:
+    slug = _s13_signal_slug(signals, case_id=case_id)
+    boundary = build_s13_accountability_authority_boundary()
+    return build_deployment_dossier(
+        dossier_id=f"s13.deployment-dossier.{slug}",
+        dossier_ref=_required_text(
+            signals.get("deployment_dossier_ref"),
+            field_name="deployment_dossier_ref",
+        ),
+        case_id=case_id,
+        deployment_ref=f"deployment://{slug}/post-deploy-accountability",
+        deployment_time="2022-01-01T00:00:00+00:00",
+        observation_start_time="2023-01-01T00:00:00+00:00",
+        detection_time="2023-05-01T00:00:00+00:00",
+        attribution_due_time="2023-05-15T00:00:00+00:00",
+        reissue_due_time="2023-06-01T00:00:00+00:00",
+        replay_time="2026-06-01T00:00:00+00:00",
+        monitoring_design_ref=f"monitoring://{slug}/s13/post-deploy",
+        implementation_monitoring_evaluation_ref=f"ddm://{slug}/s13/ime",
+        signpost_refs=[f"signpost://{slug}/s13/post-deploy-divergence"],
+        complaint_intake_ref=f"intake://{slug}/s13/complaints",
+        near_miss_intake_ref=f"intake://{slug}/s13/near-misses",
+        attribution_plan_ref=f"attribution-plan://{slug}/s13/post-deploy",
+        reissue_path_ref=f"reissue://{slug}/s13/pdc",
+        rollback_path_ref=f"rollback://{slug}/s13/deployment",
+        owner="policy-design-accountability-owner",
+        owner_due_date="2026-07-01",
+        readiness_disposition="deployable",
+        monitorability_floor_passed=bool(signals.get("monitorability_floor_passed")),
+        learning_allowed=_s13_learning_allowed(signals, labels),
+        mape_k_trace_ref=_required_text(
+            signals.get("mape_k_trace_ref"),
+            field_name="mape_k_trace_ref",
+        ),
+        authority_boundary=boundary.model_dump(mode="json"),
+        may_not_use_for=list(boundary.may_not_use_for),
+        rule_version_ref=LAYER2_S13_POST_DEPLOY_ACCOUNTABILITY_RULE_VERSION,
+    )
+
+
+def _s13_divergence_record(
+    *,
+    case_id: str,
+    signals: Mapping[str, object],
+    labels: Mapping[str, object],
+    deployment_dossier_ref: str,
+) -> Any:
+    slug = _s13_signal_slug(signals, case_id=case_id)
+    boundary = build_s13_accountability_authority_boundary()
+    learning_allowed = _s13_learning_allowed(signals, labels)
+    attribution_status = _required_text(
+        signals.get("attribution_status"),
+        field_name="attribution_status",
+    )
+    return classify_post_deploy_divergence(
+        divergence_id=f"s13.divergence.{slug}",
+        divergence_ref=_required_text(
+            signals.get("divergence_record_ref"),
+            field_name="divergence_record_ref",
+        ),
+        case_id=case_id,
+        deployment_dossier_ref=deployment_dossier_ref,
+        diagnostic={
+            "diagnostic_id": f"s13-diagnostic-{slug}",
+            "code": f"s13_{_text(signals.get('attribution_class'))}_divergence",
+            "severity": "governance_required",
+            "message": "Post-deploy divergence requires S13 accountability handling.",
+            "authority_purpose": "post_deploy_accountability_not_claim_authority",
+            "owner": "policy-design-accountability-owner",
+            "rule_version_ref": LAYER2_S13_POST_DEPLOY_ACCOUNTABILITY_RULE_VERSION,
+        },
+        attribution_class=_required_text(
+            signals.get("attribution_class"),
+            field_name="attribution_class",
+        ),
+        attribution_status=attribution_status,
+        severity="governance_required",
+        failed_axis="DESIGNER_ITSELF.envelope_growth",
+        failed_firewall=_s13_failed_firewall(signals),
+        evidence_refs=[_s13_post_deploy_signal_ref(signals, case_id=case_id)],
+        attribution_owner=(
+            "policy-design-accountability-owner"
+            if learning_allowed or attribution_status == "attributed"
+            else None
+        ),
+        allowed_moves=_s13_allowed_moves(signals, learning_allowed=learning_allowed),
+        learning_eligible=learning_allowed,
+        authority_boundary=boundary.model_dump(mode="json"),
+        replay_refs=[f"replay://{slug}/s13/a-before-b"],
+        b_may_learn_from_divergence=learning_allowed,
+        a_repair_required_before_b_learning=False,
+        observation_time="2023-05-01T00:00:00+00:00",
+        detection_time="2023-05-02T00:00:00+00:00",
+        attribution_time="2023-05-15T00:00:00+00:00"
+        if attribution_status == "attributed"
+        else None,
+        replay_time="2026-06-01T00:00:00+00:00",
+        action_item_owner="policy-design-accountability-owner",
+        action_item_due_date="2026-07-01",
+        action_item_status=_text(signals.get("action_item_status")) or "closed",
+        action_item_closure_ref=_text(signals.get("action_item_closure_ref")) or None,
+        human_review_ref=(
+            f"human-review://{slug}/s13/accountability"
+            if _text(signals.get("oversight_effectiveness_ref"))
+            else None
+        ),
+        oversight_effectiveness_ref=_text(signals.get("oversight_effectiveness_ref"))
+        or None,
+        effective_oversight=signals.get("effective_oversight"),
+        rubber_stamp_risk=_text(signals.get("rubber_stamp_risk")) or None,
+        oversight_accountability_state=_text(
+            signals.get("oversight_accountability_state")
+        )
+        or "not_applicable",
+        policy_theory_refuted=False,
+        rule_version_ref=LAYER2_S13_POST_DEPLOY_ACCOUNTABILITY_RULE_VERSION,
+    )
+
+
+def _s13_learning_update_proposal(
+    *,
+    case_id: str,
+    signals: Mapping[str, object],
+    labels: Mapping[str, object],
+    divergence_record_ref: str,
+    assurance_case_delta_ref: str | None,
+) -> Any:
+    slug = _s13_signal_slug(signals, case_id=case_id)
+    boundary = build_s13_accountability_authority_boundary()
+    historical_prior_refs = _text_list(signals.get("historical_prior_influence_refs"))
+    return build_learning_update_proposal(
+        proposal_id=f"s13.learning-proposal.{slug}",
+        proposal_ref=f"learning-proposal://{slug}/s13/{_s13_learning_target(signals)}",
+        case_id=case_id,
+        divergence_record_ref=divergence_record_ref,
+        ex_post_learning_record=_s13_ex_post_learning_record(
+            case_id=case_id,
+            slug=slug,
+        ),
+        attribution_class=_required_text(
+            signals.get("attribution_class"),
+            field_name="attribution_class",
+        ),
+        attribution_status=_required_text(
+            signals.get("attribution_status"),
+            field_name="attribution_status",
+        ),
+        change_control_class=_required_text(
+            signals.get("learning_change_control_class"),
+            field_name="learning_change_control_class",
+        ),
+        learning_update_target=_s13_learning_target(signals),
+        learning_allowed=_s13_learning_allowed(signals, labels),
+        a_before_b_status=_required_text(
+            signals.get("a_before_b_status"),
+            field_name="a_before_b_status",
+        ),
+        deployment_baseline_ref=f"baseline://{slug}/pre-deploy",
+        post_deploy_signal_refs=[_s13_post_deploy_signal_ref(signals, case_id=case_id)],
+        governance_decision_class_ref=_s13_governance_decision_class_ref(signals),
+        human_decision_request_refs=_text_list(signals.get("human_decision_request_refs")),
+        human_decision_record_refs=_text_list(signals.get("human_decision_record_refs")),
+        historical_prior_influence_refs=historical_prior_refs,
+        historical_prior_provenance_ref=(
+            f"provenance://{slug}/s13/historical-prior"
+            if historical_prior_refs
+            else None
+        ),
+        historical_prior_ttl="P180D" if historical_prior_refs else None,
+        historical_prior_decay="linear" if historical_prior_refs else None,
+        contamination_control_refs=(
+            [f"memory-contamination-check://{slug}/s13/clean"]
+            if historical_prior_refs
+            else []
+        ),
+        lifecycle_reissue_disposition=_s13_lifecycle_reissue_disposition(signals),
+        assurance_case_delta_ref=assurance_case_delta_ref,
+        public_accountability_note_ref=_required_text(
+            signals.get("public_accountability_note_ref"),
+            field_name="public_accountability_note_ref",
+        ),
+        observation_time="2023-05-01T00:00:00+00:00",
+        detection_time="2023-05-02T00:00:00+00:00",
+        attribution_time="2023-05-15T00:00:00+00:00",
+        reissue_time="2023-06-01T00:00:00+00:00",
+        replay_time="2026-06-01T00:00:00+00:00",
+        authority_boundary=boundary.model_dump(mode="json"),
+        may_not_use_for=list(boundary.may_not_use_for),
+        rule_version_ref=LAYER2_S13_POST_DEPLOY_ACCOUNTABILITY_RULE_VERSION,
+    )
+
+
+def _s13_certified_envelope_delta(
+    *,
+    case_id: str,
+    signals: Mapping[str, object],
+    s12_resource_economics: Mapping[str, object],
+) -> Any:
+    slug = _s13_signal_slug(signals, case_id=case_id)
+    boundary = build_s13_accountability_authority_boundary()
+    growth_entry = _s13_s12_growth_entry(s12_resource_economics)
+    s12_delta_ref = _text(growth_entry.get("certified_envelope_delta_ref")) or None
+    return build_certified_envelope_delta(
+        delta_id=f"s13.certified-envelope-delta.{slug}",
+        delta_ref=f"certified-envelope-delta://{slug}/s13/expand",
+        case_id=case_id,
+        s12_certified_envelope_delta_ref=s12_delta_ref,
+        materialized_from_s12_growth_entry_ref=(
+            _text(growth_entry.get("entry_ref")) if s12_delta_ref else None
+        ),
+        direction="expand",
+        certified_scope_refs=[
+            f"facet://{slug}/instrument",
+            f"facet://{slug}/population",
+        ],
+        authority_boundary=boundary.model_dump(mode="json"),
+        rule_version_ref=LAYER2_S13_POST_DEPLOY_ACCOUNTABILITY_RULE_VERSION,
+    )
+
+
+def _s13_assurance_case_delta(
+    *,
+    case_id: str,
+    signals: Mapping[str, object],
+) -> Any:
+    slug = _s13_signal_slug(signals, case_id=case_id)
+    boundary = build_s13_accountability_authority_boundary()
+    change = _text(signals.get("assurance_case_change")) or "unchanged"
+    return build_assurance_case_delta(
+        delta_id=f"s13.assurance-delta.{slug}.{change}",
+        delta_ref=f"assurance-delta://{slug}/s13/{change}",
+        case_id=case_id,
+        assurance_case_change=change,
+        affected_claim_refs=[f"claim://{slug}/post-deploy-accountability"],
+        unaffected_claim_refs=[f"claim://{slug}/closed-case-historical-meaning"],
+        public_revision_state_ref=_text(signals.get("public_revision_state_ref")) or None,
+        closed_case_historical_meaning="preserved",
+        silent_upgrade_allowed=False,
+        authority_boundary=boundary.model_dump(mode="json"),
+        rule_version_ref=LAYER2_S13_POST_DEPLOY_ACCOUNTABILITY_RULE_VERSION,
+    )
+
+
+def _s13_envelope_revision(
+    *,
+    case_id: str,
+    signals: Mapping[str, object],
+    divergence_record_ref: str,
+    learning_update_proposal_ref: str | None,
+    assurance_case_delta_ref: str | None,
+    certified_envelope_delta_ref: str | None,
+) -> Any:
+    slug = _s13_signal_slug(signals, case_id=case_id)
+    boundary = build_s13_accountability_authority_boundary()
+    direction = _required_text(
+        signals.get("envelope_revision_direction"),
+        field_name="envelope_revision_direction",
+    )
+    shrink_latency = signals.get("shrink_latency_days")
+    return build_envelope_revision(
+        revision_id=f"s13.envelope-revision.{slug}.{direction}",
+        revision_ref=f"envelope-revision://{slug}/s13/{direction}",
+        case_id=case_id,
+        direction=direction,
+        reason=_s13_envelope_revision_reason(signals),
+        divergence_record_ref=divergence_record_ref,
+        learning_update_proposal_ref=learning_update_proposal_ref,
+        assurance_case_delta_ref=assurance_case_delta_ref,
+        certified_envelope_delta_ref=certified_envelope_delta_ref,
+        disconfirming_signal_time=(
+            "2023-05-01T00:00:00+00:00"
+            if direction in {"shrink", "split"}
+            else None
+        ),
+        revision_effective_time=_s13_revision_effective_time(direction),
+        shrink_latency_days=int(shrink_latency) if shrink_latency is not None else None,
+        authority_boundary=boundary.model_dump(mode="json"),
+        rule_version_ref=LAYER2_S13_POST_DEPLOY_ACCOUNTABILITY_RULE_VERSION,
+    )
+
+
+def _s13_mape_k_trace(
+    *,
+    case_id: str,
+    signals: Mapping[str, object],
+    deployment_dossier_ref: str,
+    divergence_record_ref: str,
+    learning_update_proposal_ref: str | None,
+    envelope_revision_ref: str,
+    s9_projection_lowering: Mapping[str, object],
+) -> Any:
+    public_note_ref = _required_text(
+        signals.get("public_accountability_note_ref"),
+        field_name="public_accountability_note_ref",
+    )
+    return build_post_deploy_mape_k_trace(
+        trace_id=f"s13.mape-k.{_s13_signal_slug(signals, case_id=case_id)}",
+        trace_ref=_required_text(signals.get("mape_k_trace_ref"), field_name="mape_k"),
+        case_id=case_id,
+        monitor_refs=[
+            deployment_dossier_ref,
+            _s13_post_deploy_signal_ref(signals, case_id=case_id),
+        ],
+        analyze_refs=[divergence_record_ref],
+        plan_refs=[learning_update_proposal_ref or public_note_ref],
+        execute_refs=[
+            envelope_revision_ref,
+            _text(s9_projection_lowering.get("source_revision_ref"))
+            or f"pdc://layer2/s9/{case_id}/source-revision",
+        ],
+        knowledge_refs=[
+            *(_text_list(signals.get("historical_prior_influence_refs")) or [public_note_ref]),
+            public_note_ref,
+        ],
+        rule_version_ref=LAYER2_S13_POST_DEPLOY_ACCOUNTABILITY_RULE_VERSION,
+    )
+
+
+def _s13_post_deploy_accountability_summary(
+    cases: Sequence[Mapping[str, Any]],
+    *,
+    repo_root: Path,
+) -> dict[str, object]:
+    rows = [
+        _mapping(case.get("s13_post_deploy_accountability"))
+        for case in cases
+        if isinstance(case.get("s13_post_deploy_accountability"), Mapping)
+    ]
+    artifacts = [_mapping(row.get("artifacts")) for row in rows]
+    summary = summarize_post_deploy_accountability(
+        dossiers=_s13_artifact_rows(artifacts, "deployment_dossier"),
+        divergences=_s13_artifact_rows(artifacts, "divergence_record"),
+        learning_update_proposals=_s13_artifact_rows(
+            artifacts,
+            "learning_update_proposal",
+        ),
+        envelope_revisions=_s13_artifact_rows(artifacts, "envelope_revision"),
+        assurance_case_deltas=_s13_artifact_rows(artifacts, "assurance_case_delta"),
+        certified_envelope_deltas=_s13_artifact_rows(
+            artifacts,
+            "certified_envelope_delta",
+        ),
+        mape_k_traces=_s13_artifact_rows(artifacts, "mape_k_trace"),
+        case_count=len(rows),
+        summary_id="layer2.s13.post_deploy_accountability.w12d.summary",
+    ).model_dump(mode="json")
+    negative_results = _s13_negative_control_probe_results(repo_root)
+    false_clear_counts = {
+        field: _s13_false_clear_count(negative_results, field)
+        for field in S13_FALSE_CLEAR_FIELDS
+    }
+    summary["false_clear_counts"] = false_clear_counts
+    summary["negative_control_false_clear_count"] = sum(false_clear_counts.values())
+    summary["negative_control_results"] = negative_results
+    summary["per_case_accountability_table"] = [
+        {
+            "case_id": row.get("case_id"),
+            "deployment_dossier_ref": row.get("deployment_dossier_ref"),
+            "divergence_record_ref": row.get("divergence_record_ref"),
+            "attribution_status": row.get("attribution_status"),
+            "learning_allowed": row.get("learning_allowed"),
+            "envelope_revision_direction": row.get("envelope_revision_direction"),
+            "public_accountability_note_ref": row.get("public_accountability_note_ref"),
+            "matches_gold": row.get("matches_gold"),
+        }
+        for row in rows
+    ]
+    for field, count in false_clear_counts.items():
+        summary[f"{field}_false_clear_count"] = count
+    return summary
+
+
+def _s13_negative_control_probe_results(
+    repo_root: Path,
+) -> dict[str, dict[str, object]]:
+    results: dict[str, dict[str, object]] = {}
+    for probe_path in S13_NEGATIVE_CONTROL_PROBE_PATHS:
+        payload = json.loads(_resolve(repo_root, probe_path).read_text(encoding="utf-8"))
+        probe_id = _required_text(payload.get("probe_id"), field_name="probe_id")
+        false_clear_field = _text(payload.get("false_clear_field")) or None
+        expected_disposition = _required_text(
+            payload.get("expected_disposition"),
+            field_name="expected_disposition",
+        )
+        expected_false_clear_count = int(payload.get("expected_false_clear_count") or 0)
+        issue_codes = verify_post_deploy_learning_authority(payload)
+        observed_disposition = _s13_probe_disposition(payload, issue_codes)
+        negative_control_false_clear = observed_disposition != expected_disposition
+        false_clear_count = (
+            max(1, expected_false_clear_count)
+            if negative_control_false_clear and false_clear_field
+            else expected_false_clear_count
+        )
+        results[probe_id] = {
+            "probe_id": probe_id,
+            "case_id": _text(payload.get("case_id")),
+            "false_clear_field": false_clear_field,
+            "observed_disposition": observed_disposition,
+            "expected_disposition": expected_disposition,
+            "issue_codes": list(issue_codes),
+            "false_clear_count": false_clear_count,
+            "expected_false_clear_count": expected_false_clear_count,
+            "negative_control_false_clear": (
+                negative_control_false_clear
+                or false_clear_count != expected_false_clear_count
+            ),
+        }
+    return results
+
+
+def _s13_probe_disposition(
+    payload: Mapping[str, object],
+    issue_codes: Sequence[str],
+) -> str:
+    issues = set(issue_codes)
+    if _s13_monitoring_missing_for_deployable(payload):
+        return "blocked"
+    accountability_only_issues = {
+        "unattributable_updates_model",
+        "implementation_failure_as_theory_refutation",
+    }
+    false_clear_field = _text(payload.get("false_clear_field"))
+    if false_clear_field in accountability_only_issues and false_clear_field in issues:
+        return "accountability_only"
+    if issues - accountability_only_issues:
+        return "blocked"
+    if issues.intersection(accountability_only_issues):
+        return "accountability_only"
+    if issues:
+        return "blocked"
+    return "pass"
+
+
+def _s13_false_clear_count(
+    results: Mapping[str, Mapping[str, object]],
+    false_clear_field: str,
+) -> int:
+    return sum(
+        1
+        for row in results.values()
+        if row.get("false_clear_field") == false_clear_field
+        and row.get("negative_control_false_clear")
+    )
+
+
+def _s13_matches_gold(block: Mapping[str, object], labels: Mapping[str, object]) -> bool:
+    return (
+        _text(block.get("attribution_class"))
+        == _text(labels.get("expected_attribution_class"))
+        and _text(block.get("attribution_status"))
+        == _text(labels.get("expected_attribution_status"))
+        and _text(block.get("envelope_revision_direction"))
+        == _text(labels.get("expected_envelope_revision_direction"))
+        and bool(block.get("learning_allowed"))
+        is bool(labels.get("expected_learning_allowed"))
+        and bool(block.get("public_accountability_note_ref"))
+        is bool(labels.get("expected_public_accountability_note"))
+    )
+
+
+def _s13_artifact_rows(
+    artifacts: Sequence[Mapping[str, object]],
+    key: str,
+) -> list[Mapping[str, object]]:
+    return [
+        dict(row)
+        for artifact in artifacts
+        for row in [_mapping(artifact.get(key))]
+        if row
+    ]
+
+
+def _s13_learning_allowed(
+    signals: Mapping[str, object],
+    labels: Mapping[str, object],
+) -> bool:
+    expected = labels.get("expected_learning_allowed")
+    if isinstance(expected, bool):
+        return expected
+    return (
+        _text(signals.get("attribution_status")) == "attributed"
+        and _text(signals.get("attribution_class")) != "implementation_failure"
+    )
+
+
+def _s13_allowed_moves(
+    signals: Mapping[str, object],
+    *,
+    learning_allowed: bool,
+) -> list[str]:
+    if not learning_allowed:
+        return ["public_accountability_note"]
+    direction = _text(signals.get("envelope_revision_direction"))
+    target = _s13_learning_target(signals)
+    moves = ["public_accountability_note", target]
+    if direction in {"shrink", "split"}:
+        moves.append("envelope_shrink")
+    if direction == "expand":
+        moves.append("envelope_expand")
+    return _unique_texts(moves)
+
+
+def _s13_failed_firewall(signals: Mapping[str, object]) -> str | None:
+    if _text(signals.get("attribution_status")) in {"pending", "unattributable"}:
+        return "attribution_before_learning"
+    if bool(signals.get("strategic_response_lucas_firewall")):
+        return "lucas_post_policy_pre_policy_evidence"
+    if _text(signals.get("envelope_revision_direction")) in {"shrink", "split"}:
+        return "a_before_b_sequence"
+    return None
+
+
+def _s13_learning_target(signals: Mapping[str, object]) -> str:
+    return _required_text(
+        signals.get("learning_update_target"),
+        field_name="learning_update_target",
+    )
+
+
+def _s13_governance_decision_class_ref(signals: Mapping[str, object]) -> str | None:
+    change_control = _text(signals.get("learning_change_control_class"))
+    if change_control == "reissue_required":
+        return "GovernanceDecisionClass.reissue_required"
+    if change_control == "envelope_shrink":
+        return "GovernanceDecisionClass.envelope_revision_required"
+    return None
+
+
+def _s13_lifecycle_reissue_disposition(signals: Mapping[str, object]) -> str | None:
+    change_control = _text(signals.get("learning_change_control_class"))
+    if change_control == "reissue_required":
+        return "reissue_required"
+    if change_control == "envelope_shrink":
+        return "review_required"
+    return None
+
+
+def _s13_revision_effective_time(direction: str) -> str | None:
+    if direction == "split":
+        return "2023-06-14T00:00:00+00:00"
+    if direction in {"shrink", "expand"}:
+        return "2023-06-01T00:00:00+00:00"
+    return None
+
+
+def _s13_ex_post_learning_record(*, case_id: str, slug: str) -> dict[str, object]:
+    return {
+        "schema_version": "policyos.runtime.policy_design_case.ex_post_learning.v1",
+        "record_id": f"s13-ex-post-learning-{slug}",
+        "case_id": case_id,
+        "claim_prediction_links": [
+            {
+                "link_id": f"s13-link-{slug}",
+                "claim_id": f"claim-{slug}",
+                "prediction_ref": f"prediction://{slug}/s13/pre-deploy",
+                "observed_outcome_ref": f"observed-outcome://{slug}/s13/post-deploy",
+                "reassessment_ref": f"reassessment://{slug}/s13",
+                "reassessment_status": "confirmed",
+                "future_method_prior_ref": f"future-prior://{slug}/s13/method",
+                "future_uncertainty_prior_ref": (
+                    f"future-prior://{slug}/s13/uncertainty"
+                ),
+                "evidence_ref": "sha256:" + "a" * 64,
+                "runtime_event_ref": f"event://{slug}/s13/outcome-link",
+            }
+        ],
+        "calibration": {
+            "calibration_report_refs": ["sha256:" + "b" * 64],
+            "backtesting_report_refs": ["sha256:" + "c" * 64],
+            "calibration_leaderboard_ref": "sha256:" + "d" * 64,
+            "track_record_ref": "sha256:" + "e" * 64,
+        },
+        "memory_contamination_check": {
+            "status": "clean",
+            "policy": {"hidden_ref_ids": [], "hidden_suite_ids": [], "canary_tokens": []},
+            "findings": [],
+            "evidence_ref": "sha256:" + "f" * 64,
+            "runtime_event_ref": f"event://{slug}/s13/memory-clean",
+        },
+        "learning_records": [
+            {
+                "learning_id": f"s13-learning-{slug}",
+                "scope": f"{slug}_post_deploy_accountability",
+                "applicability": [case_id],
+                "revocation_conditions": ["new legal regime", "data schema change"],
+                "memory_contamination_controls": ["hidden_eval_scan_clean"],
+                "evidence_ref": "sha256:" + "0" * 64,
+            }
+        ],
+        "evidence_ref": "sha256:" + "1" * 64,
+        "runtime_event_ref": f"event://{slug}/s13/ex-post",
+    }
+
+
+def _s13_envelope_revision_reason(signals: Mapping[str, object]) -> str:
+    direction = _text(signals.get("envelope_revision_direction"))
+    if direction == "expand":
+        return "Validated reusable post-deploy learning expands future envelope scope."
+    if direction == "shrink":
+        return "Seeded post-deploy disconfirmation shrinks the admissible envelope."
+    if direction == "split":
+        return "Disconfirming post-deploy evidence splits the prior envelope boundary."
+    return "Post-deploy accountability records divergence without envelope movement."
+
+
+def _s13_s12_growth_entry(
+    s12_resource_economics: Mapping[str, object],
+) -> Mapping[str, object]:
+    for row in _sequence_of_mappings(s12_resource_economics.get("growth_entries")):
+        if _text(row.get("certified_envelope_delta_ref")):
+            return row
+    for row in _sequence_of_mappings(s12_resource_economics.get("growth_entries")):
+        return row
+    return {}
+
+
+def _s13_post_deploy_signal_ref(
+    signals: Mapping[str, object],
+    *,
+    case_id: str,
+) -> str:
+    slug = _s13_signal_slug(signals, case_id=case_id)
+    return f"post-policy-observation://{slug}/s13/divergence"
+
+
+def _s13_signal_slug(signals: Mapping[str, object], *, case_id: str) -> str:
+    ref = _text(signals.get("deployment_dossier_ref"))
+    marker = "/s13/"
+    if marker in ref:
+        return ref.split(marker, 1)[1].split("/", 1)[0]
+    return _slug(case_id)
+
+
+def _s13_monitoring_missing_for_deployable(payload: Mapping[str, object]) -> bool:
+    disposition = _text(
+        payload.get("deployment_readiness_disposition")
+        or payload.get("readiness_disposition")
+    )
+    return disposition == "deployable" and not (
+        _text(payload.get("monitoring_design_ref")) and _text(payload.get("owner"))
+    )
+
+
+def _s13_case_signals(repo_root: Path) -> dict[str, dict[str, Any]]:
+    path = _resolve(repo_root, S13_CASE_SIGNALS_PATH)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    raw_cases = payload.get("cases") if isinstance(payload, Mapping) else {}
+    return {
+        str(case_id): dict(row)
+        for case_id, row in _mapping(raw_cases).items()
+        if isinstance(row, Mapping)
+    }
+
+
+def _s13_expert_labels(repo_root: Path) -> dict[str, dict[str, Any]]:
+    path = _resolve(repo_root, S13_EXPERT_LABELS_PATH)
     payload = json.loads(path.read_text(encoding="utf-8"))
     raw_cases = payload.get("cases") if isinstance(payload, Mapping) else {}
     return {

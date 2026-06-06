@@ -20,5 +20,9 @@ Boundary notes:
   packages need DTOs or protocols.
 - Keep runtime-only persistence, ledger, replay, and validation wiring in this
   package.
+- `layer3_grounding_inventory.py` is the internal G0 pre-adapter inventory and
+  firewall producer. It reads repository architecture/data artifacts, registers
+  source touchpoints in shadow form, and enforces quarantine/status/import
+  checks without admitting adapters or exporting a stable public facade.
 - Public experimental exports must be reflected in the public-surface
   inventory and release fragments before release promotion.

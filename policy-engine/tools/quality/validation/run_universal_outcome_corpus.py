@@ -177,6 +177,13 @@ from polisyos.runtime.quality.layer2_universality_assurance import (  # noqa: E4
     build_s14_universality_authority_boundary,
     verify_universality_claim_authority,
 )
+from polisyos.runtime.quality.layer3_grounding_inventory import (  # noqa: E402
+    FIRST_VERTICAL_CONSTRUCT_BUNDLE_ID,
+    FIRST_VERTICAL_CORPUS_CASE_ID,
+    LAYER3_G0_RULE_VERSION,
+    LAYER3_G0_SCHEMA_VERSION,
+    build_layer3_g0_bundle,
+)
 from polisyos.runtime.quality.producer_pipeline import (  # noqa: E402
     run_requirement_spec_producer_pipeline,
 )
@@ -566,7 +573,11 @@ def build_w12d_universal_outcome_corpus_report(
 ) -> dict[str, Any]:
     """Build the canonical W12.D corpus evidence report from case results."""
 
-    cases = [dict(result) for result in case_results]
+    g0_context = _layer3_g0_grounding_context(Path(repo_root))
+    cases = [
+        _with_layer3_g0_grounding_gate(dict(result), g0_context=g0_context)
+        for result in case_results
+    ]
     typed_blockers = [
         _typed_blocker_from_case(blocker, case)
         for case in cases
@@ -647,6 +658,7 @@ def build_w12d_universal_outcome_corpus_report(
             "useful_design_outcomes": list(USEFUL_DESIGN_OUTCOMES),
             "typed_blockers_count_as_useful_design": False,
             "accepted_deficits_count_as_useful_design": False,
+            "layer3_g0_pre_adapter_blocks_count_as_useful_design": False,
             "synthetic_fixtures_count_as_canonical_evidence": False,
             "pdc_graph_authoritative_for": ["pdc_graph_structure"],
             "pdc_graph_may_not_use_for": ["projection_authority", "claim_authority"],
@@ -8988,6 +9000,15 @@ def _summary(cases: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
             not _expected_negative_control_case(case),
         )
     )
+    g0_gates = [_mapping(case.get("layer3_g0_grounding_gate")) for case in cases]
+    grounded_conversion_count = sum(
+        int(gate.get("grounded_conversion_count") or 0) for gate in g0_gates
+    )
+    layer3_g0_pre_adapter_block_count = sum(
+        1
+        for gate in g0_gates
+        if gate.get("conversion_outcome") == "not_attempted_g0_pre_adapter"
+    )
     return {
         "case_count": len(cases),
         "outcome_counts": {key: outcome_counts[key] for key in sorted(outcome_counts)},
@@ -9022,6 +9043,107 @@ def _summary(cases: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         "expected_negative_control_count": expected_negative_control_count,
         "unexpected_typed_blocker_count": unexpected_typed_blocker_count,
         "rollout_blocker_count": rollout_blocker_count,
+        "grounded_conversion_count": grounded_conversion_count,
+        "layer3_g0_pre_adapter_block_count": layer3_g0_pre_adapter_block_count,
+        "first_vertical_corpus_case_id": FIRST_VERTICAL_CORPUS_CASE_ID,
+        "first_vertical_construct_bundle_id": FIRST_VERTICAL_CONSTRUCT_BUNDLE_ID,
+    }
+
+
+def _layer3_g0_grounding_context(repo_root: Path) -> dict[str, Any]:
+    bundle = build_layer3_g0_bundle(repo_root)
+    counts = dict(bundle.readiness_manifest.counts)
+    return {
+        "schema_version": LAYER3_G0_SCHEMA_VERSION,
+        "rule_version": LAYER3_G0_RULE_VERSION,
+        "readiness_manifest_id": bundle.readiness_manifest.manifest_id,
+        "readiness_manifest_ref": (
+            "repo://architecture/policy_design_case/layer3_g0_readiness_manifest.json"
+        ),
+        "admitted_adapter_count": int(counts.get("admitted_adapter_count") or 0),
+        "source_truth_adapter_path_count": int(
+            counts.get("source_truth_adapter_path_count") or 0
+        ),
+        "runtime_quality_touchpoint_count": int(
+            counts.get("runtime_quality_touchpoint_count") or 0
+        ),
+        "first_vertical_corpus_case_id": FIRST_VERTICAL_CORPUS_CASE_ID,
+        "first_vertical_construct_bundle_id": FIRST_VERTICAL_CONSTRUCT_BUNDLE_ID,
+    }
+
+
+def _with_layer3_g0_grounding_gate(
+    case: dict[str, Any],
+    *,
+    g0_context: Mapping[str, Any],
+) -> dict[str, Any]:
+    gate = _mapping(case.get("layer3_g0_grounding_gate"))
+    if not gate:
+        gate = _layer3_g0_grounding_gate(case, g0_context=g0_context)
+    else:
+        gate = dict(gate)
+    case["layer3_g0_grounding_gate"] = gate
+    case["conversion_outcome"] = str(
+        gate.get("conversion_outcome") or "not_attempted_g0_pre_adapter"
+    )
+    return case
+
+
+def _layer3_g0_grounding_gate(
+    case: Mapping[str, Any],
+    *,
+    g0_context: Mapping[str, Any],
+) -> dict[str, Any]:
+    admitted_adapter_count = int(g0_context.get("admitted_adapter_count") or 0)
+    blocked_pre_adapter = admitted_adapter_count == 0
+    conversion_outcome = (
+        "not_attempted_g0_pre_adapter"
+        if blocked_pre_adapter
+        else "adapter_admitted_conversion_requires_g1_grounding"
+    )
+    case_id = str(case.get("case_id") or "unknown-case")
+    return {
+        "schema_version": "policyos.policy_design_case.layer3_g0_grounding_gate.v1",
+        "bundle_schema_version": str(g0_context.get("schema_version") or ""),
+        "rule_version": str(g0_context.get("rule_version") or ""),
+        "gate_id": "layer3.g0.grounding_gate",
+        "case_id": case_id,
+        "status": "blocked_pre_adapter"
+        if blocked_pre_adapter
+        else "adapter_grounding_required",
+        "conversion_outcome": conversion_outcome,
+        "grounded_conversion_count": 0,
+        "admitted_adapter_count": admitted_adapter_count,
+        "source_truth_adapter_path_count": int(
+            g0_context.get("source_truth_adapter_path_count") or 0
+        ),
+        "runtime_quality_touchpoint_count": int(
+            g0_context.get("runtime_quality_touchpoint_count") or 0
+        ),
+        "first_vertical_corpus_case_id": str(
+            g0_context.get("first_vertical_corpus_case_id") or FIRST_VERTICAL_CORPUS_CASE_ID
+        ),
+        "first_vertical_construct_bundle_id": str(
+            g0_context.get("first_vertical_construct_bundle_id")
+            or FIRST_VERTICAL_CONSTRUCT_BUNDLE_ID
+        ),
+        "counts_as_useful_design": False,
+        "counts_toward_useful_design": False,
+        "canonical_outcome_effect": "none_pre_adapter_conversion_only",
+        "blocker_code": "layer3_g0_pre_adapter_conversion_blocked",
+        "readiness_manifest_ref": str(g0_context.get("readiness_manifest_ref") or ""),
+        "readiness_manifest_id": str(g0_context.get("readiness_manifest_id") or ""),
+        "authority_boundary": {
+            "authoritative_for": ["layer3_g0_pre_adapter_conversion_gate"],
+            "may_not_use_for": [
+                "useful_design_outcome",
+                "grounded_conversion",
+                "publication_authority",
+                "claim_authority",
+                "production_recommendation",
+                "adapter_admission",
+            ],
+        },
     }
 
 

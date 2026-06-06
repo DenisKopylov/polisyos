@@ -57,6 +57,10 @@ def _s14_blocks(report: dict[str, object]) -> list[dict[str, object]]:
     return [dict(case["s14_universality_assurance"]) for case in report["cases"]]
 
 
+def _g0_blocks(report: dict[str, object]) -> list[dict[str, object]]:
+    return [dict(case["layer3_g0_grounding_gate"]) for case in report["cases"]]
+
+
 def test_w12d_manifest_is_deterministic_and_runs_real_corpus() -> None:
     manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
 
@@ -203,8 +207,57 @@ def test_w12d_corpus_stub_mode_can_produce_useful_design_without_production_auth
     case = report["cases"][0]
     assert case["producer_pipeline"]["status"] == "pass"
     assert case["outcome"] == "publish-with-limitation"
+    assert case["conversion_outcome"] == "not_attempted_g0_pre_adapter"
+    assert case["layer3_g0_grounding_gate"]["counts_as_useful_design"] is False
+    assert report["summary"]["grounded_conversion_count"] == 0
     assert case["corpus_stub"]["max_authority_posture"] == "governed-pilot"
     assert "production_closeout_authority" in case["corpus_stub"]["may_not_use_for"]
+
+
+def test_w12d_layer3_g0_blocks_all_corpus_conversion_without_useful_design_credit(
+    tmp_path: Path,
+) -> None:
+    report = _run_full_corpus_report(tmp_path)
+    gates = _g0_blocks(report)
+
+    assert report["summary"]["case_count"] == 13
+    assert report["summary"]["grounded_conversion_count"] == 0
+    assert report["summary"]["layer3_g0_pre_adapter_block_count"] == 13
+    assert report["summary"]["first_vertical_corpus_case_id"] == (
+        "ua-msme-affordable-loans-2022"
+    )
+    assert report["summary"]["first_vertical_construct_bundle_id"] == (
+        "ukrainian_msme_credit_constructs"
+    )
+    assert len(gates) == 13
+    assert all(gate["status"] == "blocked_pre_adapter" for gate in gates)
+    assert all(
+        gate["conversion_outcome"] == "not_attempted_g0_pre_adapter"
+        for gate in gates
+    )
+    assert all(gate["admitted_adapter_count"] == 0 for gate in gates)
+    assert all(gate["grounded_conversion_count"] == 0 for gate in gates)
+    assert all(gate["counts_as_useful_design"] is False for gate in gates)
+    assert all(
+        gate["first_vertical_corpus_case_id"] == "ua-msme-affordable-loans-2022"
+        for gate in gates
+    )
+    assert all(
+        gate["first_vertical_construct_bundle_id"]
+        == "ukrainian_msme_credit_constructs"
+        for gate in gates
+    )
+    assert all(
+        case["conversion_outcome"] == "not_attempted_g0_pre_adapter"
+        for case in report["cases"]
+    )
+    assert all(
+        blocker["counts_as_useful_design"] is False
+        for blocker in report["typed_blockers"]
+    )
+    assert report["summary"]["runtime_useful_design_count"] == report["summary"][
+        "useful_design_count"
+    ]
 
 
 def test_w12d_canonical_outcome_consumes_s1_governed_closeout_downgrade(

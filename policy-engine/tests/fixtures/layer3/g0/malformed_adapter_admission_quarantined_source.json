@@ -1,0 +1,66 @@
+{
+  "schema_version": "policyos.layer3.g0.malformed_fixture.v1",
+  "fixture_id": "malformed_adapter_admission_quarantined_source",
+  "mutation": "scenario_family_authority_selector is present in quarantine but an adapter admission record admits it and the firewall artifact allows an ir import",
+  "expected_issue_codes": [
+    "layer3_g0_quarantined_source_admitted",
+    "layer3_g0_pdc_non_waist_import"
+  ],
+  "payload": {
+    "quarantine_registry": {
+      "entries": [
+        {
+          "target_id": "scenario_family_authority_selector",
+          "target_kind": "source_touchpoint",
+          "reason": "Scenario-family projection is not source authority.",
+          "pattern_ids": [
+            "P05",
+            "P06",
+            "P15"
+          ],
+          "blocker_codes": [
+            "layer3_g0_quarantined_source_admitted"
+          ],
+          "enforcement_surface": "adapter_admission_registry",
+          "release_condition": "source-truth adapter path and human retriage required"
+        }
+      ]
+    },
+    "adapter_admission_registry": {
+      "records": [
+        {
+          "adapter_id": "scenario-family-shadow-adapter",
+          "source_ids": [
+            "scenario_family_authority_selector"
+          ],
+          "port_ids": [
+            "evidence.source_quality"
+          ],
+          "maturity": "predictive",
+          "promotion_state": "governed_promoted",
+          "conformance_status": "not_run_pre_adapter",
+          "quarantine_check": "not_blocked",
+          "admission_state": "admitted",
+          "admitted": true,
+          "adapter_contract_path_refs": [],
+          "source_touchpoint_refs": [
+            "touchpoint://runtime-quality/scenario-family"
+          ]
+        }
+      ]
+    },
+    "import_firewall_lint": {
+      "allowlist_roots": [
+        "core"
+      ],
+      "violations": [
+        {
+          "file": "src/polisyos/pdc/_impl/example.py",
+          "line": 12,
+          "import_root": "ir",
+          "issue_code": "layer3_g0_pdc_non_waist_import"
+        }
+      ]
+    }
+  }
+}

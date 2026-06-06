@@ -1,0 +1,22 @@
+{
+  "schema_version": "policyos.layer3.g0.malformed_fixture.v1",
+  "fixture_id": "malformed_touchpoint_missing_registration",
+  "mutation": "runtime/quality local import is discovered but no SourceTouchpointRegistration is attached",
+  "expected_issue_codes": [
+    "layer3_g0_source_touchpoint_registration_missing"
+  ],
+  "payload": {
+    "scan_mode": "ast_top_level_and_local_imports",
+    "discovered_touchpoints": [
+      {
+        "touchpoint_id": "src/polisyos/runtime/quality/producer_pipeline.py:2080:lex",
+        "file": "src/polisyos/runtime/quality/producer_pipeline.py",
+        "line": 2080,
+        "import_root": "lex",
+        "source_module": "polisyos.lex",
+        "local_import": true
+      }
+    ],
+    "registrations": []
+  }
+}

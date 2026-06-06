@@ -1,0 +1,22 @@
+{
+  "schema_version": "policyos.layer3.g0.malformed_fixture.v1",
+  "fixture_id": "malformed_adr_missing_human_acceptance",
+  "mutation": "ADR-0175 is marked Accepted by status string but omits human-principal acceptance fields",
+  "expected_issue_codes": [
+    "layer3_g0_adr_human_acceptance_missing"
+  ],
+  "payload": {
+    "adr": {
+      "adr_id": "0175",
+      "title": "Layer 3 Grounding Subordination Discipline",
+      "status": "Accepted",
+      "accepted_by": "",
+      "accepted_at": "",
+      "acceptance_ref": "",
+      "open_questions_mode": "tracked_empirically_open",
+      "import_policy_constitution_conflict_recorded": true,
+      "policy_toml_pdc_allowlist_narrowing_followup_recorded": true,
+      "registry_crosswalk_clarification_recorded": true
+    }
+  }
+}

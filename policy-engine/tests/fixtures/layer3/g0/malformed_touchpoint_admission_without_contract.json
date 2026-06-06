@@ -1,0 +1,34 @@
+{
+  "schema_version": "policyos.layer3.g0.malformed_fixture.v1",
+  "fixture_id": "malformed_touchpoint_admission_without_contract",
+  "mutation": "a runtime/quality touchpoint is marked admission_allowed without an existing source-truth adapter path reference",
+  "expected_issue_codes": [
+    "layer3_g0_touchpoint_admission_without_contract"
+  ],
+  "payload": {
+    "scan_mode": "ast_top_level_and_local_imports",
+    "discovered_touchpoints": [
+      {
+        "touchpoint_id": "src/polisyos/runtime/quality/producer_pipeline.py:2107:foundry",
+        "file": "src/polisyos/runtime/quality/producer_pipeline.py",
+        "line": 2107,
+        "import_root": "foundry",
+        "source_module": "polisyos.foundry",
+        "local_import": true
+      }
+    ],
+    "registrations": [
+      {
+        "touchpoint_id": "src/polisyos/runtime/quality/producer_pipeline.py:2107:foundry",
+        "file": "src/polisyos/runtime/quality/producer_pipeline.py",
+        "line": 2107,
+        "import_root": "foundry",
+        "source_module": "polisyos.foundry",
+        "registration_status": "registered_pre_admission",
+        "existing_source_truth_adapter_path_ref": null,
+        "quarantine_check_result": "not_blocked",
+        "admission_allowed": true
+      }
+    ]
+  }
+}

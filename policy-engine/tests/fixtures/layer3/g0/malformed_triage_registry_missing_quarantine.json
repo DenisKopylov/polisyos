@@ -1,0 +1,31 @@
+{
+  "schema_version": "policyos.layer3.g0.malformed_fixture.v1",
+  "fixture_id": "malformed_triage_registry_missing_quarantine",
+  "mutation": "scenario_family_authority_selector triage exists but quarantine_ref and matching quarantine registry entry are removed",
+  "expected_issue_codes": [
+    "layer3_g0_quarantine_missing_required_entry",
+    "layer3_g0_triage_missing_entry"
+  ],
+  "payload": {
+    "triage_registry": {
+      "records": [
+        {
+          "capability_id": "scenario_family_authority_selector",
+          "disposition": "quarantine",
+          "rationale": "Projection-only scenario-family selectors must not become authority.",
+          "evidence_refs": [
+            "repo://src/polisyos/runtime/quality/scenario_evidence_contract.py#L349"
+          ],
+          "missing_capability_labels": [
+            "verification_missing"
+          ],
+          "quarantine_ref": null,
+          "adapter_admissibility": "blocked"
+        }
+      ]
+    },
+    "quarantine_registry": {
+      "entries": []
+    }
+  }
+}

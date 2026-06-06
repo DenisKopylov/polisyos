@@ -1,0 +1,22 @@
+{
+  "schema_version": "policyos.layer3.g0.malformed_fixture.v1",
+  "fixture_id": "malformed_adr_missing_open_questions",
+  "mutation": "ADR-0175 records G0 discipline but omits tracked_empirically_open treatment for constitution open questions",
+  "expected_issue_codes": [
+    "layer3_g0_adr_open_questions_missing"
+  ],
+  "payload": {
+    "adr": {
+      "adr_id": "0175",
+      "title": "Layer 3 Grounding Subordination Discipline",
+      "status": "Accepted",
+      "accepted_by": "principal-governance",
+      "accepted_at": "2026-06-06",
+      "acceptance_ref": "governance://principal/layer3-g0/acceptance",
+      "open_questions_mode": "resolved_by_implementation",
+      "import_policy_constitution_conflict_recorded": true,
+      "policy_toml_pdc_allowlist_narrowing_followup_recorded": true,
+      "registry_crosswalk_clarification_recorded": true
+    }
+  }
+}

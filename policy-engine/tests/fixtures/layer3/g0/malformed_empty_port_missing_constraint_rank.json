@@ -1,0 +1,35 @@
+{
+  "schema_version": "policyos.layer3.g0.malformed_fixture.v1",
+  "fixture_id": "malformed_empty_port_missing_constraint_rank",
+  "mutation": "empty-port map omits binding_constraint_rank and adapter-cost map omits near-typed/raw classification",
+  "expected_issue_codes": [
+    "layer3_g0_empty_port_map_missing_constraint_rank",
+    "layer3_g0_adapter_cost_map_missing_near_typed_score"
+  ],
+  "payload": {
+    "empty_port_map": {
+      "entries": [
+        {
+          "port_id": "evidence.legal_authority",
+          "proving_ground_case_id": "ua-msme-affordable-loans-2022",
+          "blocker_cause": "Lex binary projection requires retriage before adapter admission",
+          "binding_constraint_rank": null,
+          "next_adapter_dependency": "lex_binary_status_candidate"
+        }
+      ]
+    },
+    "adapter_cost_map": {
+      "entries": [
+        {
+          "source_id": "lex_binary_status_candidate",
+          "port_id": "evidence.legal_authority",
+          "near_typed_raw_classification": null,
+          "existing_contract_refs": [],
+          "adapter_effort_tier": "medium",
+          "semantic_loss_risk": "binary_status_overclaim",
+          "sequencing_priority": 1
+        }
+      ]
+    }
+  }
+}

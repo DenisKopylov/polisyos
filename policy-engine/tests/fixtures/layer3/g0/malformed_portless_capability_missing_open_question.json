@@ -1,0 +1,26 @@
+{
+  "schema_version": "policyos.layer3.g0.malformed_fixture.v1",
+  "fixture_id": "malformed_portless_capability_missing_open_question",
+  "mutation": "a discovered capability source has no current Port mapping and the governed waist-change open question is removed",
+  "expected_issue_codes": [
+    "layer3_g0_portless_capability_missing_open_question"
+  ],
+  "payload": {
+    "capability_inventory": {
+      "entries": [
+        {
+          "capability_id": "lex_binary_status_candidate",
+          "package_kind": "source_package",
+          "path": "src/polisyos/lex/legal_evaluation/backends/simple_v1.py",
+          "owner_evidence_ref": "repo://src/polisyos/lex/legal_evaluation/backends/simple_v1.py#L15",
+          "current_capability_label": "verification_missing",
+          "mapped_port_ids": [],
+          "source_refs": [
+            "repo://src/polisyos/lex/legal_evaluation/backends/simple_v1.py#L15"
+          ]
+        }
+      ],
+      "portless_open_questions": []
+    }
+  }
+}

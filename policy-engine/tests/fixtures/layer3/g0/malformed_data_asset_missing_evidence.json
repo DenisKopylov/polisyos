@@ -1,0 +1,49 @@
+{
+  "schema_version": "policyos.layer3.g0.malformed_fixture.v1",
+  "fixture_id": "malformed_data_asset_missing_evidence",
+  "mutation": "asset-level data port omits rights, freshness, fitness, and contamination refs and treats universal corpus fixtures as runtime authority",
+  "expected_issue_codes": [
+    "layer3_g0_data_asset_evidence_missing",
+    "layer3_g0_manifest_backed_data_scan_bypassed"
+  ],
+  "payload": {
+    "data_asset_inventory": {
+      "scan_mode": "recursive_raw_scan",
+      "required_roots": [
+        "production_data",
+        "tests/fixtures/universal-corpus/cases"
+      ],
+      "data_assets": [
+        {
+          "asset_id": "universal-corpus-cases-as-authority",
+          "data_kind": "data_asset",
+          "path": "tests/fixtures/universal-corpus/cases",
+          "owning_root": "tests/fixtures/universal-corpus/cases",
+          "owner_evidence_ref": "repo://tests/fixtures/universal-corpus/README.md#semantic-expectations-only",
+          "lineage_evidence_ref": "",
+          "rights_evidence_ref": "",
+          "freshness_evidence_ref": "",
+          "fitness_evidence_ref": "",
+          "contamination_check_ref": "",
+          "authority_claim": "runtime_evidence_authority"
+        }
+      ],
+      "processing_transforms": []
+    },
+    "data_asset_ports": [
+      {
+        "asset_id": "universal-corpus-cases-as-authority",
+        "data_kind": "data_asset",
+        "path": "tests/fixtures/universal-corpus/cases",
+        "lineage_ref": "",
+        "rights_ref": "",
+        "freshness_ref": "",
+        "fitness_ref": "",
+        "contamination_check_ref": "",
+        "port_ids": [
+          "evidence.source_quality"
+        ]
+      }
+    ]
+  }
+}

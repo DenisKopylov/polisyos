@@ -33,6 +33,7 @@ claims live in the linked child reference pages.
 | [Generated Artifacts](generated-artifacts.md)                        | Authoritative source map, regeneration commands, and freshness rules                                   |
 | [Policy Design Case Failure And Repair Patterns](policy-design-case-failure-patterns.md) | Agent-facing anti-pattern and correct-pattern register for governance, evidence, runtime-quality, and PDC closeout |
 | [Policy Design Case Capability Ratchet](policy-design-case-capability-ratchet.md) | W1.A capability reality report, debt algebra, purpose multipliers, readiness bands, and burn-down templates |
+| [Policy Design Case Layer 3 Grounding Inventory](policy-design-case-layer3-grounding-inventory.md) | G0 pre-adapter audit surface for capability/data inventory, zero adapter admission, health metrics, and ADR-0175 gates |
 | [Policy Design Case Source Ownership](policy-design-case-source-ownership.md) | W0.G repo-owned source chain from raw research to synthesis, C/E/P ids, ADRs, and implementation gates |
 | [Policy Design Case Evidence Paths](policy-design-case-evidence-paths.md) | W1.E canonical paths for raw sources, synthesis, ADRs, validation commands, command evidence, and closeout notes |
 | [Policy Design Case Structural ADR Registry](policy-design-case-structural-adr-registry.md) | W0.H `docs/reference/policy-design-case-structural-adr-registry.md` map from C0-C41 structural decisions to ADRs, blockers, or explicit no-ADR rationales |

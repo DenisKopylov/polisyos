@@ -1,0 +1,311 @@
+{
+  "port_map": {
+    "portless_capability_open_questions": [
+      {
+        "capability_id": "lex_binary_status_candidate",
+        "evidence_refs": [
+          "repo://src/polisyos/lex/legal_evaluation/backends/simple_v1.py#L15",
+          "repo://src/polisyos/lex/normpack/legal_authority.py#L303"
+        ],
+        "missing_port_rationale": "Binary legal status is a projection risk, not a package-wide Layer 3 port.",
+        "owner": "principal-governance",
+        "proposed_waist_change_question": "Should a future Layer 3 slice add a legal-authority adapter port after graded Lex evidence is proven?",
+        "status": "governed_open_question",
+        "why_existing_ports_cannot_express_it": "Existing ports can carry legal authority only after graded Lex authority and adapter-loss evidence are bound."
+      }
+    ],
+    "ports": [
+      {
+        "cluster": "SYSTEM",
+        "consumes": [
+          "ACTOR.legal_authority",
+          "ACTOR.state_capacity_feasibility"
+        ],
+        "facet": "jurisdiction",
+        "port_id": "SYSTEM.jurisdiction",
+        "publishes": [],
+        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L101"
+      },
+      {
+        "cluster": "SYSTEM",
+        "consumes": [
+          "KNOWLEDGE.calibration"
+        ],
+        "facet": "outcome_observations",
+        "port_id": "SYSTEM.outcome_observations",
+        "publishes": [],
+        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L102"
+      },
+      {
+        "cluster": "SYSTEM",
+        "consumes": [
+          "ACTOR.mandate_legitimacy"
+        ],
+        "facet": "population_scope",
+        "port_id": "SYSTEM.population_scope",
+        "publishes": [],
+        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L103"
+      },
+      {
+        "cluster": "SYSTEM",
+        "consumes": [
+          "SYSTEM.dynamics_feedback"
+        ],
+        "facet": "post_intervention_dgp",
+        "port_id": "SYSTEM.post_intervention_dgp",
+        "publishes": [
+          "OTHER_AGENTS.strategic_response"
+        ],
+        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L104"
+      },
+      {
+        "cluster": "KNOWLEDGE",
+        "consumes": [],
+        "facet": "evidence_half_life",
+        "port_id": "KNOWLEDGE.evidence_half_life",
+        "publishes": [
+          "SYSTEM.nonstationarity"
+        ],
+        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L105"
+      },
+      {
+        "cluster": "INTERVENTION",
+        "consumes": [
+          "KNOWLEDGE.substrate_coverage",
+          "SYSTEM.domain_data"
+        ],
+        "facet": "construct_demand",
+        "port_id": "INTERVENTION.construct_demand",
+        "publishes": [
+          "INTERVENTION.design_grammar"
+        ],
+        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L106"
+      },
+      {
+        "cluster": "INTERVENTION",
+        "consumes": [],
+        "facet": "design_strategy",
+        "port_id": "INTERVENTION.design_strategy",
+        "publishes": [
+          "KNOWLEDGE.epistemic_regime"
+        ],
+        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L107"
+      },
+      {
+        "cluster": "INTERVENTION",
+        "consumes": [],
+        "facet": "requirements",
+        "port_id": "INTERVENTION.requirements",
+        "publishes": [
+          "INTERVENTION.design_candidate",
+          "INTERVENTION.requirement_compilers",
+          "INTERVENTION.scale_composition"
+        ],
+        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L108"
+      },
+      {
+        "cluster": "INTERVENTION",
+        "consumes": [
+          "KNOWLEDGE.ir_proof_carrying_analytics"
+        ],
+        "facet": "method_requirements",
+        "port_id": "INTERVENTION.method_requirements",
+        "publishes": [],
+        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L109"
+      },
+      {
+        "cluster": "INTERVENTION",
+        "consumes": [
+          "ACTOR.mandate_legitimacy",
+          "SYSTEM.measurability"
+        ],
+        "facet": "objectives",
+        "port_id": "INTERVENTION.objectives",
+        "publishes": [],
+        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L110"
+      },
+      {
+        "cluster": "INTERVENTION",
+        "consumes": [],
+        "facet": "objective_function",
+        "port_id": "INTERVENTION.objective_function",
+        "publishes": [
+          "ACTOR.value_choice_provenance"
+        ],
+        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L111"
+      },
+      {
+        "cluster": "INTERVENTION",
+        "consumes": [
+          "ACTOR.value_choice_provenance"
+        ],
+        "facet": "tradeoffs",
+        "port_id": "INTERVENTION.tradeoffs",
+        "publishes": [],
+        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L112"
+      },
+      {
+        "cluster": "INTERVENTION",
+        "consumes": [],
+        "facet": "targeting",
+        "port_id": "INTERVENTION.targeting",
+        "publishes": [
+          "SYSTEM.subject_granularity"
+        ],
+        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L113"
+      },
+      {
+        "cluster": "INTERVENTION",
+        "consumes": [
+          "SYSTEM.subject_granularity"
+        ],
+        "facet": "population_scope",
+        "port_id": "INTERVENTION.population_scope",
+        "publishes": [],
+        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L114"
+      },
+      {
+        "cluster": "INTERVENTION",
+        "consumes": [
+          "KNOWLEDGE.calibration"
+        ],
+        "facet": "forecast",
+        "port_id": "INTERVENTION.forecast",
+        "publishes": [],
+        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L115"
+      },
+      {
+        "cluster": "INTERVENTION",
+        "consumes": [],
+        "facet": "forecast_quality",
+        "port_id": "INTERVENTION.forecast_quality",
+        "publishes": [
+          "KNOWLEDGE.calibration"
+        ],
+        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L116"
+      },
+      {
+        "cluster": "INTERVENTION",
+        "consumes": [],
+        "facet": "system_level_forecast",
+        "port_id": "INTERVENTION.system_level_forecast",
+        "publishes": [
+          "SYSTEM.dynamics_feedback"
+        ],
+        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L117"
+      },
+      {
+        "cluster": "INTERVENTION",
+        "consumes": [],
+        "facet": "feasibility",
+        "port_id": "INTERVENTION.feasibility",
+        "publishes": [
+          "ACTOR.legal_authority",
+          "ACTOR.state_capacity_feasibility"
+        ],
+        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L118"
+      },
+      {
+        "cluster": "INTERVENTION",
+        "consumes": [],
+        "facet": "design_comparison",
+        "port_id": "INTERVENTION.design_comparison",
+        "publishes": [
+          "INTERVENTION.design_candidate",
+          "KNOWLEDGE.ir_proof_carrying_analytics"
+        ],
+        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L119"
+      },
+      {
+        "cluster": "INTERVENTION",
+        "consumes": [],
+        "facet": "strategy_constraints",
+        "port_id": "INTERVENTION.strategy_constraints",
+        "publishes": [
+          "INTERVENTION.reversibility_lifecycle_stakes",
+          "KNOWLEDGE.calibration"
+        ],
+        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L120"
+      },
+      {
+        "cluster": "INTERVENTION",
+        "consumes": [],
+        "facet": "robustness",
+        "port_id": "INTERVENTION.robustness",
+        "publishes": [
+          "OTHER_AGENTS.strategic_response"
+        ],
+        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L121"
+      },
+      {
+        "cluster": "OTHER_AGENTS",
+        "consumes": [],
+        "facet": "response_model",
+        "port_id": "OTHER_AGENTS.response_model",
+        "publishes": [
+          "INTERVENTION.design_candidate",
+          "SYSTEM.dynamics_feedback"
+        ],
+        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L122"
+      },
+      {
+        "cluster": "DESIGNER_ITSELF",
+        "consumes": [],
+        "facet": "closeout",
+        "port_id": "DESIGNER_ITSELF.closeout",
+        "publishes": [
+          "ACTOR.legal_authority",
+          "KNOWLEDGE.evidence_claims_portfolio"
+        ],
+        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L123"
+      },
+      {
+        "cluster": "DESIGNER_ITSELF",
+        "consumes": [],
+        "facet": "envelope_membership",
+        "port_id": "DESIGNER_ITSELF.envelope_membership",
+        "publishes": [
+          "ACTOR.state_capacity_feasibility",
+          "KNOWLEDGE.epistemic_regime"
+        ],
+        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L124"
+      },
+      {
+        "cluster": "DESIGNER_ITSELF",
+        "consumes": [],
+        "facet": "metric_floors",
+        "port_id": "DESIGNER_ITSELF.metric_floors",
+        "publishes": [
+          "DESIGNER_ITSELF.evaluation_corpus"
+        ],
+        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L125"
+      },
+      {
+        "cluster": "DESIGNER_ITSELF",
+        "consumes": [],
+        "facet": "certified_envelope_delta",
+        "port_id": "DESIGNER_ITSELF.certified_envelope_delta",
+        "publishes": [
+          "DESIGNER_ITSELF.envelope_growth"
+        ],
+        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L126"
+      },
+      {
+        "cluster": "DESIGNER_ITSELF",
+        "consumes": [],
+        "facet": "cluster_evidence",
+        "port_id": "DESIGNER_ITSELF.cluster_evidence",
+        "publishes": [
+          "CROSS_CUTTING.scientist_orchestration"
+        ],
+        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L127"
+      }
+    ],
+    "summary": {
+      "port_count": 27,
+      "source": "architecture/policy_design_case/cluster_ownership_map.toml"
+    }
+  },
+  "rule_version": "policyos.layer3.g0.grounding_subordination.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g0_grounding_inventory.v1"
+}

@@ -1,0 +1,10 @@
+{
+  "first_vertical_case": {
+    "authority_posture": "not_attempted_g0_pre_adapter",
+    "case_ref": "architecture/policy_design_case/layer3_first_vertical_case.json",
+    "first_vertical_construct_bundle_id": "ukrainian_msme_credit_constructs",
+    "first_vertical_corpus_case_id": "ua-msme-affordable-loans-2022"
+  },
+  "rule_version": "policyos.layer3.g0.grounding_subordination.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g0_grounding_inventory.v1"
+}

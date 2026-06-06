@@ -1,0 +1,34 @@
+schema_version = "policyos.policy_design_case.layer3_g0_grounding_inventory.v1"
+rule_version = "policyos.layer3.g0.grounding_subordination.v1"
+
+[[health_metric_ledgers]]
+freeze_value = { g0_admitted_adapter_count = 0 }
+metric_id = "envelope-expansion-rate"
+next_update_rule = "Recompute when a G1+ adapter slice writes governed artifacts."
+owner = "team-runtime-quality"
+per_slice_delta_rule = "Later slices may change only after admitted adapter evidence."
+trend_vocabulary = ["expanding", "flat", "shrinking"]
+
+[[health_metric_ledgers]]
+freeze_value = { semantic_loss_events = 0 }
+metric_id = "adapter-semantic-loss"
+next_update_rule = "Recompute from conformance harness outputs."
+owner = "team-runtime-quality"
+per_slice_delta_rule = "Any AdapterLossBlocker event increments lossy evidence."
+trend_vocabulary = ["clean", "lossy"]
+
+[[health_metric_ledgers]]
+freeze_value = { accepted_adr_count = 0, open_human_gate_count = 1 }
+metric_id = "governance-throughput"
+next_update_rule = "Recompute at ADR-0175 acceptance."
+owner = "principal-governance"
+per_slice_delta_rule = "Human acceptance gates move throughput only with acceptance refs."
+trend_vocabulary = ["flowing", "stalled"]
+
+[[health_metric_ledgers]]
+freeze_value = { grounded_conversion_count = 0 }
+metric_id = "demand-pull-vs-abstention"
+next_update_rule = "Recompute from universal corpus G0 route."
+owner = "team-runtime-quality"
+per_slice_delta_rule = "Demand pull cannot count until a grounded adapter admits evidence."
+trend_vocabulary = ["responding", "abstention_inertia"]

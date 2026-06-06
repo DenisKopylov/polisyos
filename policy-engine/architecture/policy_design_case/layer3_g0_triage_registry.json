@@ -1,0 +1,380 @@
+{
+  "quarantine_registry": {
+    "entries": [
+      {
+        "blocker_codes": [
+          "layer3_g0_quarantined_source_admitted"
+        ],
+        "enforcement_surface": "adapter_admission_registry",
+        "pattern_ids": [
+          "P05",
+          "P06",
+          "P15"
+        ],
+        "reason": "Scenario-family projection is not source authority.",
+        "release_condition": "source-truth adapter path and human retriage required",
+        "target_id": "scenario_family_authority_selector",
+        "target_kind": "source_touchpoint"
+      }
+    ]
+  },
+  "rule_version": "policyos.layer3.g0.grounding_subordination.v1",
+  "runtime_quality_touchpoints": {
+    "registrations": [
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/case_lifecycle.py",
+        "import_root": "scientist",
+        "line": 19,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.scientist.orchestration.memory.contamination",
+        "touchpoint_id": "src/polisyos/runtime/quality/case_lifecycle.py:19:scientist"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/compliance.py",
+        "import_root": "data_forge",
+        "line": 8,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.data_forge.read_api",
+        "touchpoint_id": "src/polisyos/runtime/quality/compliance.py:8:data_forge"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/data_forge_binding.py",
+        "import_root": "data_forge",
+        "line": 10,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.data_forge.read_api",
+        "touchpoint_id": "src/polisyos/runtime/quality/data_forge_binding.py:10:data_forge"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/data_forge_binding.py",
+        "import_root": "data_forge",
+        "line": 11,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.data_forge.read_api.surfaces",
+        "touchpoint_id": "src/polisyos/runtime/quality/data_forge_binding.py:11:data_forge"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/ir_analytics_bridge.py",
+        "import_root": "method_requirement",
+        "line": 12,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.method_requirement",
+        "touchpoint_id": "src/polisyos/runtime/quality/ir_analytics_bridge.py:12:method_requirement"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/metamorphic_controls.py",
+        "import_root": "scholar",
+        "line": 14,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.scholar",
+        "touchpoint_id": "src/polisyos/runtime/quality/metamorphic_controls.py:14:scholar"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/metamorphic_controls.py",
+        "import_root": "scientist",
+        "line": 15,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.scientist.validation.policy_grounding",
+        "touchpoint_id": "src/polisyos/runtime/quality/metamorphic_controls.py:15:scientist"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/producer_pipeline.py",
+        "import_root": "fabric",
+        "line": 2058,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.fabric",
+        "touchpoint_id": "src/polisyos/runtime/quality/producer_pipeline.py:2058:fabric"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/producer_pipeline.py",
+        "import_root": "lex",
+        "line": 2080,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.lex",
+        "touchpoint_id": "src/polisyos/runtime/quality/producer_pipeline.py:2080:lex"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/producer_pipeline.py",
+        "import_root": "foundry",
+        "line": 2107,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.foundry",
+        "touchpoint_id": "src/polisyos/runtime/quality/producer_pipeline.py:2107:foundry"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/producer_pipeline.py",
+        "import_root": "scholar_requirement",
+        "line": 2125,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.scholar_requirement",
+        "touchpoint_id": "src/polisyos/runtime/quality/producer_pipeline.py:2125:scholar_requirement"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/producer_pipeline.py",
+        "import_root": "scholar",
+        "line": 2155,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.scholar",
+        "touchpoint_id": "src/polisyos/runtime/quality/producer_pipeline.py:2155:scholar"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/producer_pipeline.py",
+        "import_root": "participation_requirement",
+        "line": 2188,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.participation_requirement",
+        "touchpoint_id": "src/polisyos/runtime/quality/producer_pipeline.py:2188:participation_requirement"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/production_data_contract_index.py",
+        "import_root": "data_requirement",
+        "line": 12,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.data_requirement",
+        "touchpoint_id": "src/polisyos/runtime/quality/production_data_contract_index.py:12:data_requirement"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/rule_replay_engine.py",
+        "import_root": "scientist",
+        "line": 792,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.scientist.methods.research_dag",
+        "touchpoint_id": "src/polisyos/runtime/quality/rule_replay_engine.py:792:scientist"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/scenario_evidence_contract.py",
+        "import_root": "data_requirement",
+        "line": 9,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.data_requirement",
+        "touchpoint_id": "src/polisyos/runtime/quality/scenario_evidence_contract.py:9:data_requirement"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/scholar_academic_evidence.py",
+        "import_root": "scholar",
+        "line": 10,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.scholar",
+        "touchpoint_id": "src/polisyos/runtime/quality/scholar_academic_evidence.py:10:scholar"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/scorecard.py",
+        "import_root": "fabric",
+        "line": 12,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.fabric.catalog.source_selection_audit",
+        "touchpoint_id": "src/polisyos/runtime/quality/scorecard.py:12:fabric"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/scorecard.py",
+        "import_root": "foundry",
+        "line": 13,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.foundry.validation.method_quality",
+        "touchpoint_id": "src/polisyos/runtime/quality/scorecard.py:13:foundry"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/scorecard.py",
+        "import_root": "lex",
+        "line": 14,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.lex.normpack.applicability_report",
+        "touchpoint_id": "src/polisyos/runtime/quality/scorecard.py:14:lex"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/scorecard.py",
+        "import_root": "lex",
+        "line": 17,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.lex.normpack.conflict_check",
+        "touchpoint_id": "src/polisyos/runtime/quality/scorecard.py:17:lex"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/scorecard.py",
+        "import_root": "scientist",
+        "line": 232,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.scientist.validation.policy_grounding",
+        "touchpoint_id": "src/polisyos/runtime/quality/scorecard.py:232:scientist"
+      }
+    ],
+    "scan_mode": "ast_top_level_and_local_imports",
+    "summary": {
+      "runtime_quality_touchpoint_admission_allowed_without_contract_count": 0,
+      "runtime_quality_touchpoint_count": 22,
+      "runtime_quality_touchpoints_without_registration": 0
+    }
+  },
+  "schema_version": "policyos.policy_design_case.layer3_g0_grounding_inventory.v1",
+  "status_composition_matrix": {
+    "rules": [
+      {
+        "composed_result": "blocked",
+        "inputs": [
+          "quarantine_check",
+          "admission_state"
+        ],
+        "issue_code": "layer3_g0_quarantined_source_admitted",
+        "negative_fixture_ref": "tests/fixtures/layer3/g0/malformed_adapter_admission_quarantined_source.json",
+        "rule_id": "quarantine_dominates_admission"
+      },
+      {
+        "composed_result": "candidate_shadow_only",
+        "inputs": [
+          "conformance_status",
+          "admitted"
+        ],
+        "issue_code": "layer3_g0_status_composition_missing",
+        "negative_fixture_ref": "tests/fixtures/layer3/g0/malformed_adapter_admission_quarantined_source.json",
+        "rule_id": "pre_adapter_conformance_cannot_admit_authority"
+      },
+      {
+        "composed_result": "fail_closed",
+        "inputs": [
+          "maturity",
+          "conformance_status"
+        ],
+        "issue_code": "layer3_g0_adapter_maturity_overclaim",
+        "negative_fixture_ref": "tests/fixtures/layer3/g0/malformed_adapter_admission_quarantined_source.json",
+        "rule_id": "maturity_cannot_exceed_evidence"
+      },
+      {
+        "composed_result": "promotion_blocked",
+        "inputs": [
+          "promotion_state",
+          "slice"
+        ],
+        "issue_code": "layer3_g0_status_composition_missing",
+        "negative_fixture_ref": "tests/fixtures/layer3/g0/malformed_adapter_admission_quarantined_source.json",
+        "rule_id": "promotion_blocked_before_g4"
+      }
+    ]
+  },
+  "triage_registry": {
+    "records": [
+      {
+        "adapter_admissibility": "blocked",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.grounding_subordination.v1"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "scenario_family_authority_selector",
+        "disposition": "quarantine",
+        "evidence_refs": [
+          "repo://src/polisyos/runtime/quality/scenario_evidence_contract.py#L349",
+          "repo://architecture/shims.toml#L176"
+        ],
+        "missing_capability_labels": [
+          "verification_missing"
+        ],
+        "quarantine_ref": "quarantine://layer3-g0/scenario-family-authority-selector",
+        "rationale": "Scenario-family selectors are projection-only and cannot be adapter authority."
+      },
+      {
+        "adapter_admissibility": "blocked_until_retriage",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.grounding_subordination.v1"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "lex_binary_status_candidate",
+        "disposition": "wrap_then_strangle",
+        "evidence_refs": [
+          "repo://src/polisyos/lex/legal_evaluation/backends/simple_v1.py#L15",
+          "repo://src/polisyos/lex/normpack/legal_authority.py#L303"
+        ],
+        "missing_capability_labels": [
+          "verification_missing",
+          "semantic_test_missing"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Only the simple_v1 binary projection path is triage-required; graded Lex authority remains the stronger seam."
+      }
+    ]
+  }
+}

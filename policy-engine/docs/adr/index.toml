@@ -1745,6 +1745,17 @@ superseded_by = []
 related = ["0147", "0152", "0156", "0158", "0159", "0160", "0166", "0168", "0172", "0173"]
 
 [[adr]]
+id = "0175"
+title = "Layer 3 Grounding Subordination Discipline"
+status = "accepted"
+topic = "runtime-state"
+package = "polisyos.runtime"
+path = "docs/adr/0175-layer3-grounding-subordination-discipline.md"
+supersedes = []
+superseded_by = []
+related = ["0156", "0173", "0174"]
+
+[[adr]]
 id = "ADR-004"
 title = "Trinity-Only IR Runtime"
 status = "completed"

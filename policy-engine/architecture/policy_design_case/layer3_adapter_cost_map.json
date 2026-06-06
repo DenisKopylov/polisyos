@@ -1,0 +1,19 @@
+{
+  "adapter_cost_map": {
+    "entries": [
+      {
+        "adapter_effort_tier": "medium",
+        "existing_contract_refs": [
+          "repo://src/polisyos/lex/normpack/legal_authority.py#L303"
+        ],
+        "near_typed_raw_classification": "near_typed",
+        "port_id": "INTERVENTION.requirements",
+        "semantic_loss_risk": "binary_status_projection_overclaim",
+        "sequencing_priority": 1,
+        "source_id": "lex_binary_status_candidate"
+      }
+    ]
+  },
+  "rule_version": "policyos.layer3.g0.grounding_subordination.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g0_grounding_inventory.v1"
+}

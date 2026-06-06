@@ -512,7 +512,8 @@
       "rule_version": "policyos.layer3.g0.grounding_subordination.v1",
       "owner": "team-runtime-quality",
       "status": "active_pre_adapter_surface",
-      "capability_reality_label": "artifact_missing",
+      "capability_reality_label": "implemented",
+      "closure_state": "persisted_and_human_accepted",
       "authority_scope": [
         "layer3_g0_pre_adapter_inventory",
         "layer3_g0_triage_projection",
@@ -538,11 +539,14 @@
         "MACHINE"
       ],
       "producer": "src/polisyos/runtime/quality/layer3_grounding_inventory.py",
-      "validator": "polisyos.runtime.quality.layer3_grounding_inventory.validate_layer3_g0_bundle",
+      "validator": "tools/quality/validation/check_policy_design_case_layer3_g0_readiness.py",
+      "runtime_validator": "polisyos.runtime.quality.layer3_grounding_inventory.validate_layer3_g0_bundle",
       "canonical_route": "docs/reference/policy-design-case-layer3-grounding-inventory.md",
       "adr_ref": "docs/adr/0175-layer3-grounding-subordination-discipline.md",
-      "planned_readiness_manifest": "architecture/policy_design_case/layer3_g0_readiness_manifest.json",
-      "planned_closure_artifact_paths": [
+      "readiness_manifest": "architecture/policy_design_case/layer3_g0_readiness_manifest.json",
+      "closure_artifacts_status": "persisted_and_human_accepted",
+      "human_governance_gate": "ADR-0175 Accepted with accepted_by, accepted_at, and acceptance_ref.",
+      "closure_artifact_paths": [
         "architecture/policy_design_case/layer3_g0_capability_data_inventory.json",
         "architecture/policy_design_case/layer3_g0_triage_registry.json",
         "architecture/policy_design_case/layer3_g0_port_map.json",

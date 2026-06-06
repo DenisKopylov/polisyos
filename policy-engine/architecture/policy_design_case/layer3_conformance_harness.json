@@ -1,0 +1,27 @@
+{
+  "conformance_harness": {
+    "adapter_loss_blocker_refs": [
+      "AdapterLossBlocker",
+      "validate_adapter_preservation"
+    ],
+    "existing_source_truth_adapter_path_refs": [
+      "runtime_to_cas",
+      "runtime_to_progress",
+      "progress_to_api",
+      "runtime_to_canary_bundle",
+      "bundle_to_scorecard",
+      "scorecard_to_readiness",
+      "readiness_to_approval",
+      "api_to_dashboard",
+      "public_export"
+    ],
+    "harness_id": "layer3-g0-pre-adapter-conformance",
+    "negative_fixtures": [
+      "tests/unit/runtime/quality/test_source_truth_lattice.py",
+      "tests/fixtures/layer3/g0/malformed_adapter_admission_quarantined_source.json"
+    ],
+    "status": "not_run_pre_adapter"
+  },
+  "rule_version": "policyos.layer3.g0.grounding_subordination.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g0_grounding_inventory.v1"
+}

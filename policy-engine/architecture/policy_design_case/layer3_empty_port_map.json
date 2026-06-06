@@ -1,0 +1,15 @@
+{
+  "empty_port_map": {
+    "entries": [
+      {
+        "binding_constraint_rank": "causal_support",
+        "blocker_cause": "Method source adapter is not admitted in G0.",
+        "next_adapter_dependency": "foundry_method_candidate_shadow_adapter",
+        "port_id": "INTERVENTION.method_requirements",
+        "proving_ground_case_id": "ua-msme-affordable-loans-2022"
+      }
+    ]
+  },
+  "rule_version": "policyos.layer3.g0.grounding_subordination.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g0_grounding_inventory.v1"
+}

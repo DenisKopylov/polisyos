@@ -9,7 +9,7 @@
 | `repository-structure` | Repository topology, package layout, import boundaries, docs governance, and workspace hygiene. | 32 |
 | `observation` | Observability, causal evidence, scientist workflows, measurement, confidence, and validity. | 49 |
 | `security` | Tenant isolation, signing, secrets, trust stores, and other security controls. | 4 |
-| `runtime-state` | Runtime state, replay, idempotency, CAS, snapshots, persistence, and lifecycle behavior. | 19 |
+| `runtime-state` | Runtime state, replay, idempotency, CAS, snapshots, persistence, and lifecycle behavior. | 20 |
 | `schemas` | IR, API, schema, serialization, registry, metadata, and compatibility contracts. | 16 |
 | `testing` | Test topology, fixtures, golden data, drift checks, and reproducibility gates. | 4 |
 | `release` | Release trains, SemVer, versioning, deprecation, migration, and retraction policy. | 6 |
@@ -140,6 +140,7 @@
 | [0163](0163-lifecycle-ddm-ex-post-calibration.md) | `accepted` | `repository` | Lifecycle, DDM, Ex-Post Outcomes, And Calibration | 0149, 0150, 0154, 0156, 0160, 0161, 0162, 0164 |
 | [0169](0169-bounded-liveness-and-runtime-escalation.md) | `accepted` | `polisyos.runtime` | Bounded Liveness And Runtime Escalation | 0006, 0011, 0097, 0148, 0153, 0154, 0156, 0164, 0165, 0166 |
 | [0170](0170-contestability-and-recourse-boundaries.md) | `accepted` | `repository` | Contestability And Recourse Boundaries | 0147, 0150, 0153, 0156, 0157, 0162, 0163, 0166 |
+| [0175](0175-layer3-grounding-subordination-discipline.md) | `accepted` | `polisyos.runtime` | Layer 3 Grounding Subordination Discipline | 0156, 0173, 0174 |
 | [ADR-004](ADR-004-policy-surface-removal.md) | `completed` | `polisyos.ir` | Trinity-Only IR Runtime | - |
 
 ### schemas

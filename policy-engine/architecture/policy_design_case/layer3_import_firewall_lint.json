@@ -1,0 +1,42 @@
+{
+  "import_firewall_lint": {
+    "allowlist_rationale": "core is shared primitive/DTO infrastructure, not a capability source",
+    "allowlist_roots": [
+      "core"
+    ],
+    "forbidden_roots": [
+      "berl",
+      "calibration",
+      "common",
+      "corpus",
+      "data_forge",
+      "data_requirement",
+      "ddm",
+      "evidence",
+      "fabric",
+      "foundry",
+      "ir",
+      "legal_requirement",
+      "lex",
+      "method_requirement",
+      "obligation_graph",
+      "obligation_rules",
+      "participation_requirement",
+      "policy_grammar",
+      "runtime",
+      "schemas",
+      "scholar",
+      "scholar_requirement",
+      "scientist"
+    ],
+    "summary": {
+      "allowlist_roots": [
+        "core"
+      ],
+      "pdc_non_waist_import_count": 0
+    },
+    "violations": []
+  },
+  "rule_version": "policyos.layer3.g0.grounding_subordination.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g0_grounding_inventory.v1"
+}

@@ -8,7 +8,7 @@ Theme navigation: [ADRs By Topic](by-topic.md).
 
 | Status | Count |
 | --- | --- |
-| `accepted` | 86 |
+| `accepted` | 87 |
 | `approved` | 6 |
 | `completed` | 1 |
 | `proposed` | 91 |
@@ -91,6 +91,7 @@ Theme navigation: [ADRs By Topic](by-topic.md).
 | [0172](0172-balanced-memory-influence-ledger.md) | `accepted` | `observation` | `repository` | Balanced Memory Influence Ledger | - |
 | [0173](0173-obligation-frontier-and-bundle-control.md) | `accepted` | `observation` | `repository` | Obligation Frontier And Bundle Control | - |
 | [0174](0174-policy-evidence-capability-graph.md) | `accepted` | `observation` | `repository` | Policy Evidence Capability Graph | 0147, 0152, 0156, 0158, 0159, 0160, 0166, 0168, 0172, 0173 |
+| [0175](0175-layer3-grounding-subordination-discipline.md) | `accepted` | `runtime-state` | `polisyos.runtime` | Layer 3 Grounding Subordination Discipline | 0156, 0173, 0174 |
 | [RSR-0130](repository-structure-0130-workspace-boundary.md) | `accepted` | `repository-structure` | `repository` | Workspace Boundary | 0096, 0111 |
 | [RSR-0135](repository-structure-0135-versioning-out-of-package-names.md) | `accepted` | `repository-structure` | `repository` | Versioning Out of Package Names And Compatibility Contracts | 0118 |
 | [RSR-0136](repository-structure-0136-foundry-methods-flat-vs-catalog.md) | `accepted` | `repository-structure` | `polisyos.foundry` | Foundry Methods Flat vs Catalog | RSR-0129 |

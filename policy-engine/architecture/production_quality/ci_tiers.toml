@@ -753,3 +753,27 @@ path = "tests/unit/runtime/quality/test_layer2_s11_predictive_knowledge.py"
 tier = "fast-pr"
 owner = "team-quality-closeout"
 purpose = "Policy Design Case Layer 2 S11 predictive knowledge coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_layer2_s12_resource_economics.py"
+tier = "fast-pr"
+owner = "team-quality-closeout"
+purpose = "Policy Design Case Layer 2 S12 resource economics coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_layer2_s13_post_deploy_accountability.py"
+tier = "fast-pr"
+owner = "team-quality-closeout"
+purpose = "Policy Design Case Layer 2 S13 post-deploy accountability coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_layer2_s14_universality_assurance.py"
+tier = "fast-pr"
+owner = "team-quality-closeout"
+purpose = "Policy Design Case Layer 2 S14 universality assurance coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_layer3_g0_grounding_inventory.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Policy Design Case Layer 3 G0 grounding inventory coverage."

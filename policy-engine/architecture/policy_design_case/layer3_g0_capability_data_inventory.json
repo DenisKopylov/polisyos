@@ -1,0 +1,2550 @@
+{
+  "capability_inventory": {
+    "entries": [
+      {
+        "capability_id": "berl",
+        "current_capability_label": "implemented",
+        "current_imports": [
+          "berl"
+        ],
+        "file_count": 31,
+        "loc": 3231,
+        "mapped_port_ids": [],
+        "owner_evidence_ref": "repo://src/polisyos/berl/README.md",
+        "package_kind": "support_package",
+        "path": "src/polisyos/berl",
+        "source_refs": [
+          "repo://src/polisyos/berl/README.md"
+        ]
+      },
+      {
+        "capability_id": "calibration",
+        "current_capability_label": "implemented",
+        "current_imports": [
+          "calibration",
+          "ir"
+        ],
+        "file_count": 8,
+        "loc": 2482,
+        "mapped_port_ids": [],
+        "owner_evidence_ref": "repo://src/polisyos/calibration/README.md",
+        "package_kind": "support_package",
+        "path": "src/polisyos/calibration",
+        "source_refs": [
+          "repo://src/polisyos/calibration/README.md"
+        ]
+      },
+      {
+        "capability_id": "common",
+        "current_capability_label": "surface_out_of_scope",
+        "current_imports": [
+          "common"
+        ],
+        "file_count": 11,
+        "loc": 1360,
+        "mapped_port_ids": [],
+        "owner_evidence_ref": "repo://src/polisyos/common/README.md",
+        "package_kind": "support_package",
+        "path": "src/polisyos/common",
+        "source_refs": [
+          "repo://src/polisyos/common/README.md"
+        ]
+      },
+      {
+        "capability_id": "core",
+        "current_capability_label": "implemented",
+        "current_imports": [],
+        "file_count": 196,
+        "loc": 46789,
+        "mapped_port_ids": [],
+        "owner_evidence_ref": "repo://src/polisyos/core/README.md",
+        "package_kind": "support_package",
+        "path": "src/polisyos/core",
+        "source_refs": [
+          "repo://src/polisyos/core/README.md"
+        ]
+      },
+      {
+        "capability_id": "corpus",
+        "current_capability_label": "implemented",
+        "current_imports": [],
+        "file_count": 5,
+        "loc": 2068,
+        "mapped_port_ids": [],
+        "owner_evidence_ref": "repo://src/polisyos/corpus/README.md",
+        "package_kind": "support_package",
+        "path": "src/polisyos/corpus",
+        "source_refs": [
+          "repo://src/polisyos/corpus/README.md"
+        ]
+      },
+      {
+        "capability_id": "data_forge",
+        "current_capability_label": "implemented_but_not_orchestrated",
+        "current_imports": [],
+        "file_count": 260,
+        "loc": 110306,
+        "mapped_port_ids": [],
+        "owner_evidence_ref": "repo://src/polisyos/data_forge/README.md",
+        "package_kind": "source_package",
+        "path": "src/polisyos/data_forge",
+        "source_refs": [
+          "repo://src/polisyos/data_forge/README.md"
+        ]
+      },
+      {
+        "capability_id": "data_requirement",
+        "current_capability_label": "implemented_but_not_orchestrated",
+        "current_imports": [
+          "core",
+          "ir",
+          "obligation_graph",
+          "obligation_rules",
+          "policy_grammar"
+        ],
+        "file_count": 4,
+        "loc": 1471,
+        "mapped_port_ids": [],
+        "owner_evidence_ref": "repo://src/polisyos/data_requirement/README.md",
+        "package_kind": "source_package",
+        "path": "src/polisyos/data_requirement",
+        "source_refs": [
+          "repo://src/polisyos/data_requirement/README.md"
+        ]
+      },
+      {
+        "capability_id": "ddm",
+        "current_capability_label": "implemented",
+        "current_imports": [
+          "ddm"
+        ],
+        "file_count": 17,
+        "loc": 2452,
+        "mapped_port_ids": [],
+        "owner_evidence_ref": "repo://src/polisyos/ddm/README.md",
+        "package_kind": "support_package",
+        "path": "src/polisyos/ddm",
+        "source_refs": [
+          "repo://src/polisyos/ddm/README.md"
+        ]
+      },
+      {
+        "capability_id": "evidence",
+        "current_capability_label": "implemented",
+        "current_imports": [
+          "evidence"
+        ],
+        "file_count": 6,
+        "loc": 2578,
+        "mapped_port_ids": [],
+        "owner_evidence_ref": "repo://src/polisyos/evidence/README.md",
+        "package_kind": "support_package",
+        "path": "src/polisyos/evidence",
+        "source_refs": [
+          "repo://src/polisyos/evidence/README.md"
+        ]
+      },
+      {
+        "capability_id": "fabric",
+        "current_capability_label": "implemented_but_not_orchestrated",
+        "current_imports": [
+          "common",
+          "fabric",
+          "ir"
+        ],
+        "file_count": 296,
+        "loc": 81380,
+        "mapped_port_ids": [],
+        "owner_evidence_ref": "repo://src/polisyos/fabric/README.md",
+        "package_kind": "source_package",
+        "path": "src/polisyos/fabric",
+        "source_refs": [
+          "repo://src/polisyos/fabric/README.md"
+        ]
+      },
+      {
+        "capability_id": "foundry",
+        "current_capability_label": "implemented_but_not_orchestrated",
+        "current_imports": [
+          "core",
+          "foundry",
+          "ir"
+        ],
+        "file_count": 596,
+        "loc": 308872,
+        "mapped_port_ids": [],
+        "owner_evidence_ref": "repo://src/polisyos/foundry/README.md",
+        "package_kind": "source_package",
+        "path": "src/polisyos/foundry",
+        "source_refs": [
+          "repo://src/polisyos/foundry/README.md"
+        ]
+      },
+      {
+        "capability_id": "ir",
+        "current_capability_label": "implemented",
+        "current_imports": [
+          "ir"
+        ],
+        "file_count": 191,
+        "loc": 79165,
+        "mapped_port_ids": [],
+        "owner_evidence_ref": "repo://src/polisyos/ir/README.md",
+        "package_kind": "support_package",
+        "path": "src/polisyos/ir",
+        "source_refs": [
+          "repo://src/polisyos/ir/README.md"
+        ]
+      },
+      {
+        "capability_id": "legal_requirement",
+        "current_capability_label": "implemented",
+        "current_imports": [
+          "legal_requirement"
+        ],
+        "file_count": 4,
+        "loc": 974,
+        "mapped_port_ids": [],
+        "owner_evidence_ref": "repo://src/polisyos/legal_requirement/README.md",
+        "package_kind": "support_package",
+        "path": "src/polisyos/legal_requirement",
+        "source_refs": [
+          "repo://src/polisyos/legal_requirement/README.md"
+        ]
+      },
+      {
+        "capability_id": "lex",
+        "current_capability_label": "implemented_but_not_orchestrated",
+        "current_imports": [
+          "common",
+          "core",
+          "data_forge",
+          "fabric",
+          "foundry",
+          "ir",
+          "lex",
+          "scientist"
+        ],
+        "file_count": 41,
+        "loc": 15823,
+        "mapped_port_ids": [],
+        "owner_evidence_ref": "repo://src/polisyos/lex/README.md",
+        "package_kind": "source_package",
+        "path": "src/polisyos/lex",
+        "source_refs": [
+          "repo://src/polisyos/lex/README.md"
+        ]
+      },
+      {
+        "capability_id": "method_requirement",
+        "current_capability_label": "implemented_but_not_orchestrated",
+        "current_imports": [],
+        "file_count": 4,
+        "loc": 775,
+        "mapped_port_ids": [],
+        "owner_evidence_ref": "repo://src/polisyos/method_requirement/README.md",
+        "package_kind": "source_package",
+        "path": "src/polisyos/method_requirement",
+        "source_refs": [
+          "repo://src/polisyos/method_requirement/README.md"
+        ]
+      },
+      {
+        "capability_id": "obligation_graph",
+        "current_capability_label": "implemented",
+        "current_imports": [],
+        "file_count": 4,
+        "loc": 1579,
+        "mapped_port_ids": [],
+        "owner_evidence_ref": "repo://src/polisyos/obligation_graph/README.md",
+        "package_kind": "support_package",
+        "path": "src/polisyos/obligation_graph",
+        "source_refs": [
+          "repo://src/polisyos/obligation_graph/README.md"
+        ]
+      },
+      {
+        "capability_id": "obligation_rules",
+        "current_capability_label": "implemented",
+        "current_imports": [
+          "core"
+        ],
+        "file_count": 2,
+        "loc": 1775,
+        "mapped_port_ids": [],
+        "owner_evidence_ref": "repo://src/polisyos/obligation_rules/README.md",
+        "package_kind": "support_package",
+        "path": "src/polisyos/obligation_rules",
+        "source_refs": [
+          "repo://src/polisyos/obligation_rules/README.md"
+        ]
+      },
+      {
+        "capability_id": "participation_requirement",
+        "current_capability_label": "implemented_but_not_orchestrated",
+        "current_imports": [],
+        "file_count": 1,
+        "loc": 1326,
+        "mapped_port_ids": [],
+        "owner_evidence_ref": "repo://src/polisyos/participation_requirement/README.md",
+        "package_kind": "source_package",
+        "path": "src/polisyos/participation_requirement",
+        "source_refs": [
+          "repo://src/polisyos/participation_requirement/README.md"
+        ]
+      },
+      {
+        "capability_id": "pdc",
+        "current_capability_label": "implemented",
+        "current_imports": [],
+        "file_count": 5,
+        "loc": 6162,
+        "mapped_port_ids": [],
+        "owner_evidence_ref": "repo://src/polisyos/pdc/README.md",
+        "package_kind": "narrow_waist",
+        "path": "src/polisyos/pdc",
+        "source_refs": [
+          "repo://src/polisyos/pdc/README.md"
+        ]
+      },
+      {
+        "capability_id": "policy_grammar",
+        "current_capability_label": "implemented",
+        "current_imports": [
+          "core"
+        ],
+        "file_count": 9,
+        "loc": 1018,
+        "mapped_port_ids": [],
+        "owner_evidence_ref": "repo://src/polisyos/policy_grammar/README.md",
+        "package_kind": "support_package",
+        "path": "src/polisyos/policy_grammar",
+        "source_refs": [
+          "repo://src/polisyos/policy_grammar/README.md"
+        ]
+      },
+      {
+        "capability_id": "runtime",
+        "current_capability_label": "implemented",
+        "current_imports": [
+          "common",
+          "core",
+          "foundry",
+          "runtime",
+          "scientist"
+        ],
+        "file_count": 179,
+        "loc": 161395,
+        "mapped_port_ids": [
+          "DESIGNER_ITSELF.closeout"
+        ],
+        "owner_evidence_ref": "repo://src/polisyos/runtime/README.md",
+        "package_kind": "runtime_quality_surface",
+        "path": "src/polisyos/runtime",
+        "source_refs": [
+          "repo://src/polisyos/runtime/README.md"
+        ]
+      },
+      {
+        "capability_id": "schemas",
+        "current_capability_label": "surface_out_of_scope",
+        "current_imports": [],
+        "file_count": 2,
+        "loc": 804,
+        "mapped_port_ids": [],
+        "owner_evidence_ref": "repo://src/polisyos/schemas",
+        "package_kind": "support_package",
+        "path": "src/polisyos/schemas",
+        "source_refs": [
+          "repo://src/polisyos/schemas"
+        ]
+      },
+      {
+        "capability_id": "scholar",
+        "current_capability_label": "implemented_but_not_orchestrated",
+        "current_imports": [
+          "common",
+          "core",
+          "fabric",
+          "ir",
+          "scholar",
+          "scholar_requirement"
+        ],
+        "file_count": 28,
+        "loc": 8174,
+        "mapped_port_ids": [],
+        "owner_evidence_ref": "repo://src/polisyos/scholar/README.md",
+        "package_kind": "source_package",
+        "path": "src/polisyos/scholar",
+        "source_refs": [
+          "repo://src/polisyos/scholar/README.md"
+        ]
+      },
+      {
+        "capability_id": "scholar_requirement",
+        "current_capability_label": "implemented_but_not_orchestrated",
+        "current_imports": [
+          "scholar_requirement"
+        ],
+        "file_count": 3,
+        "loc": 768,
+        "mapped_port_ids": [],
+        "owner_evidence_ref": "repo://src/polisyos/scholar_requirement/README.md",
+        "package_kind": "source_package",
+        "path": "src/polisyos/scholar_requirement",
+        "source_refs": [
+          "repo://src/polisyos/scholar_requirement/README.md"
+        ]
+      },
+      {
+        "capability_id": "scientist",
+        "current_capability_label": "implemented_but_not_orchestrated",
+        "current_imports": [
+          "core",
+          "scientist"
+        ],
+        "file_count": 580,
+        "loc": 202421,
+        "mapped_port_ids": [],
+        "owner_evidence_ref": "repo://src/polisyos/scientist/README.md",
+        "package_kind": "source_package",
+        "path": "src/polisyos/scientist",
+        "source_refs": [
+          "repo://src/polisyos/scientist/README.md"
+        ]
+      },
+      {
+        "capability_id": "production-data",
+        "current_capability_label": "artifact_missing",
+        "current_imports": [],
+        "file_count": 6551,
+        "loc": 0,
+        "mapped_port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "owner_evidence_ref": "repo://production_data",
+        "package_kind": "data_corpus_root",
+        "path": "production_data",
+        "source_refs": [
+          "repo://production_data"
+        ]
+      },
+      {
+        "capability_id": "tools-ops-runners-ukraine-data",
+        "current_capability_label": "artifact_missing",
+        "current_imports": [],
+        "file_count": 14,
+        "loc": 0,
+        "mapped_port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "owner_evidence_ref": "repo://tools/ops_runners/ukraine_data/README.md",
+        "package_kind": "data_corpus_root",
+        "path": "tools/ops_runners/ukraine_data",
+        "source_refs": [
+          "repo://tools/ops_runners/ukraine_data"
+        ]
+      },
+      {
+        "capability_id": "tests-fixtures-universal-corpus-cases",
+        "current_capability_label": "artifact_missing",
+        "current_imports": [],
+        "file_count": 13,
+        "loc": 0,
+        "mapped_port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "owner_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "package_kind": "data_corpus_root",
+        "path": "tests/fixtures/universal-corpus/cases",
+        "source_refs": [
+          "repo://tests/fixtures/universal-corpus/cases"
+        ]
+      },
+      {
+        "capability_id": "tests-fixtures-universal-corpus-producer-stubs",
+        "current_capability_label": "artifact_missing",
+        "current_imports": [],
+        "file_count": 13,
+        "loc": 0,
+        "mapped_port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "owner_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "package_kind": "data_corpus_root",
+        "path": "tests/fixtures/universal-corpus/producer_stubs",
+        "source_refs": [
+          "repo://tests/fixtures/universal-corpus/producer_stubs"
+        ]
+      },
+      {
+        "capability_id": "tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery",
+        "current_capability_label": "artifact_missing",
+        "current_imports": [],
+        "file_count": 7,
+        "loc": 0,
+        "mapped_port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "owner_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery",
+        "package_kind": "data_corpus_root",
+        "path": "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery",
+        "source_refs": [
+          "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery"
+        ]
+      },
+      {
+        "capability_id": "docs-research-universal-policy-design-outcome-corpus",
+        "current_capability_label": "artifact_missing",
+        "current_imports": [],
+        "file_count": 30,
+        "loc": 0,
+        "mapped_port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "owner_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "package_kind": "data_corpus_root",
+        "path": "docs/research/universal-policy-design/outcome-corpus",
+        "source_refs": [
+          "repo://docs/research/universal-policy-design/outcome-corpus"
+        ]
+      }
+    ],
+    "summary": {
+      "required_data_asset_root_count": 6,
+      "source_package_count": 25
+    }
+  },
+  "data_asset_inventory": {
+    "data_assets": [
+      {
+        "asset_id": "production-data-curated",
+        "contamination_check_ref": "repo://production_data/manifest.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/manifest.json",
+        "freshness_evidence_ref": "repo://production_data/manifest.json",
+        "lineage_evidence_ref": "repo://production_data/manifest.json",
+        "owner_evidence_ref": "repo://production_data/manifest.json",
+        "owning_root": "production_data",
+        "path": "production_data/canonical/local_data_20260501/policy_engine_data/curated",
+        "rights_evidence_ref": "repo://production_data/manifest.json",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "production-data-datasets",
+        "contamination_check_ref": "repo://production_data/manifest.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/manifest.json",
+        "freshness_evidence_ref": "repo://production_data/manifest.json",
+        "lineage_evidence_ref": "repo://production_data/manifest.json",
+        "owner_evidence_ref": "repo://production_data/manifest.json",
+        "owning_root": "production_data",
+        "path": "production_data/datasets_full_phase3full_20260327_183054",
+        "rights_evidence_ref": "repo://production_data/manifest.json",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "production-data-lex",
+        "contamination_check_ref": "repo://production_data/manifest.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/manifest.json",
+        "freshness_evidence_ref": "repo://production_data/manifest.json",
+        "lineage_evidence_ref": "repo://production_data/manifest.json",
+        "owner_evidence_ref": "repo://production_data/manifest.json",
+        "owning_root": "production_data",
+        "path": "production_data/lex/lex-amendment-only-optimized-20260501-v3",
+        "rights_evidence_ref": "repo://production_data/manifest.json",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "production-data-academic",
+        "contamination_check_ref": "repo://production_data/manifest.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/manifest.json",
+        "freshness_evidence_ref": "repo://production_data/manifest.json",
+        "lineage_evidence_ref": "repo://production_data/manifest.json",
+        "owner_evidence_ref": "repo://production_data/manifest.json",
+        "owning_root": "production_data",
+        "path": "production_data/policyos_academic_runtime_slim_20260411T112032Z",
+        "rights_evidence_ref": "repo://production_data/manifest.json",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "production-data-ukraine-simulation",
+        "contamination_check_ref": "repo://production_data/manifest.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/manifest.json",
+        "freshness_evidence_ref": "repo://production_data/manifest.json",
+        "lineage_evidence_ref": "repo://production_data/manifest.json",
+        "owner_evidence_ref": "repo://production_data/manifest.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410",
+        "rights_evidence_ref": "repo://production_data/manifest.json",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "ukraine-simulation-readme-txt",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/README.txt",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 504
+      },
+      {
+        "asset_id": "ukraine-simulation-heavy-graph-addon-budget-graph-sparse-npz",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/heavy_graph_addon/budget_graph_sparse.npz",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 633853657
+      },
+      {
+        "asset_id": "ukraine-simulation-heavy-graph-addon-distress-graph-sparse-npz",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/heavy_graph_addon/distress_graph_sparse.npz",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 5797114
+      },
+      {
+        "asset_id": "ukraine-simulation-heavy-graph-addon-procurement-graph-sparse-npz",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/heavy_graph_addon/procurement_graph_sparse.npz",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 11907282
+      },
+      {
+        "asset_id": "ukraine-simulation-heavy-graph-addon-public-service-graph-sparse-npz",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/heavy_graph_addon/public_service_graph_sparse.npz",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 3499926
+      },
+      {
+        "asset_id": "ukraine-simulation-heavy-graph-addon-trade-graph-sparse-npz",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/heavy_graph_addon/trade_graph_sparse.npz",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 4631254
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-inventory-txt",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/INVENTORY.txt",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 260
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-bundles-calibration-bundle-v1-calibration-bundle-manifest-json",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/calibration_bundle_v1/calibration_bundle_manifest.json",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 11579
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-bundles-calibration-bundle-v1-calibration-run-manifest-json",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/calibration_bundle_v1/calibration_run_manifest.json",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 971
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-bundles-calibration-bundle-v1-holdout-scores-json",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/calibration_bundle_v1/holdout_scores.json",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 102
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-bundles-calibration-bundle-v1-observation-panel-annual-parquet",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/calibration_bundle_v1/observation_panel_annual.parquet",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 12209
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-bundles-calibration-bundle-v1-observation-panel-monthly-parquet",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/calibration_bundle_v1/observation_panel_monthly.parquet",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 674602018
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-bundles-embedding-bundle-v1-agent-embedding-32d-npz",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/embedding_bundle_v1/agent_embedding_32d.npz",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 5068544
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-bundles-embedding-bundle-v1-cell-prototype-embeddings-npz",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/embedding_bundle_v1/cell_prototype_embeddings.npz",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 19550
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-bundles-embedding-bundle-v1-graph-compression-bundle-json",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/embedding_bundle_v1/graph_compression_bundle.json",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 196
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-bundles-governance-report-v1-calibration-leaderboard-json",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/governance_report_v1/calibration_leaderboard.json",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 180
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-bundles-governance-report-v1-governance-report-v1-json",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/governance_report_v1/governance_report_v1.json",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 2175
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-bundles-governance-report-v1-shock-scenario-scores-json",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/governance_report_v1/shock_scenario_scores.json",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 140
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-bundles-intervention-bundle-v1-intervention-knob-dictionary-json",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 268
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-bundles-intervention-bundle-v1-lex-intervention-map-json",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/lex_intervention_map.json",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 178
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-bundles-intervention-bundle-v1-policy-scenario-templates-json",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/policy_scenario_templates.json",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 125
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-bundles-intervention-bundle-v1-provision-to-program-crosswalk-parquet",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/provision_to_program_crosswalk.parquet",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 1827
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-bundles-intervention-bundle-v1-temporal-intervention-sequences-json",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/temporal_intervention_sequences.json",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 251
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-bundles-method-contract-bundle-v1-backtest-plan-bundle-json",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/method_contract_bundle_v1/backtest_plan_bundle.json",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 131
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-bundles-method-contract-bundle-v1-bounds-estimation-bundle-v1-json",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/method_contract_bundle_v1/bounds_estimation_bundle_v1.json",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 184
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-bundles-method-contract-bundle-v1-network-causal-contract-bundle-v1-json",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/method_contract_bundle_v1/network_causal_contract_bundle_v1.json",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 162
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-bundles-method-contract-bundle-v1-network-contract-bundle-v1-json",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/method_contract_bundle_v1/network_contract_bundle_v1.json",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 148
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-bundles-method-contract-bundle-v1-observation-to-contract-manifest-json",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/method_contract_bundle_v1/observation_to_contract_manifest.json",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 3021
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-bundles-runtime-bundle-v1-agent-registry-runtime-parquet",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/runtime_bundle_v1/agent_registry_runtime.parquet",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 11301616
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-bundles-runtime-bundle-v1-cell-registry-region-sector-parquet",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/runtime_bundle_v1/cell_registry_region_sector.parquet",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 17531
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-bundles-runtime-bundle-v1-geo-index-runtime-parquet",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/runtime_bundle_v1/geo_index_runtime.parquet",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 7521057
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-bundles-runtime-bundle-v1-runtime-bundle-manifest-json",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/runtime_bundle_v1/runtime_bundle_manifest.json",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 3857
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-bundles-runtime-bundle-v1-slot-family-manifest-json",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/runtime_bundle_v1/slot_family_manifest.json",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 1817
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-manifests-build-run-d0-p0-json",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/manifests/build_run_d0_p0.json",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 7316
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-manifests-build-run-d1-json",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/manifests/build_run_d1.json",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 7679
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-manifests-build-run-d2-json",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/manifests/build_run_d2.json",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 11224
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-manifests-build-run-d3-json",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/manifests/build_run_d3.json",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 4988
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-manifests-build-run-d4-json",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/manifests/build_run_d4.json",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 1196
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-manifests-build-run-d5-json",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/manifests/build_run_d5.json",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 4335
+      },
+      {
+        "asset_id": "ukraine-simulation-production-bundle-manifests-release-manifest-v1-json",
+        "contamination_check_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/manifests/release_manifest_v1.json",
+        "rights_evidence_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json",
+        "size_bytes": 2136
+      },
+      {
+        "asset_id": "academic-runtime-academic-ac-work-embeddings-npz",
+        "contamination_check_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/ac_work_embeddings.npz",
+        "rights_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "academic-runtime-academic-ac-work-index-hnsw",
+        "contamination_check_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/ac_work_index.hnsw",
+        "rights_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "academic-runtime-academic-benchmark-report-json",
+        "contamination_check_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/benchmark_report.json",
+        "rights_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "academic-runtime-academic-benchmark-suite-json",
+        "contamination_check_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/benchmark_suite.json",
+        "rights_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "academic-runtime-academic-graph-scholar-knowledge-duckdb",
+        "contamination_check_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb",
+        "rights_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "academic-runtime-academic-manifests-benchmark-json",
+        "contamination_check_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/manifests/benchmark.json",
+        "rights_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "academic-runtime-academic-manifests-embed-json",
+        "contamination_check_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/manifests/embed.json",
+        "rights_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "academic-runtime-academic-manifests-graph-index-json",
+        "contamination_check_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/manifests/graph_index.json",
+        "rights_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "academic-runtime-academic-manifests-publish-json",
+        "contamination_check_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/manifests/publish.json",
+        "rights_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "academic-runtime-academic-manifests-qc-json",
+        "contamination_check_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/manifests/qc.json",
+        "rights_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "academic-runtime-academic-manifests-transport-score-json",
+        "contamination_check_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/manifests/transport_score.json",
+        "rights_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "academic-runtime-academic-publish-academic-pipeline-readiness-json",
+        "contamination_check_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/publish/academic_pipeline_readiness.json",
+        "rights_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "academic-runtime-academic-publish-manifest-json",
+        "contamination_check_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/publish/manifest.json",
+        "rights_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "academic-runtime-academic-qc-report-json",
+        "contamination_check_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/qc_report.json",
+        "rights_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "academic-runtime-academic-runtime-demand-backlog-jsonl",
+        "contamination_check_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/runtime_demand_backlog.jsonl",
+        "rights_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "academic-runtime-academic-transport-scores-jsonl",
+        "contamination_check_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/transport_scores.jsonl",
+        "rights_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "academic-runtime-meta-assembly-manifest-json",
+        "contamination_check_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/policyos_academic_runtime_slim_20260411T112032Z/meta/assembly_manifest.json",
+        "rights_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "academic-runtime-meta-promotion-report-json",
+        "contamination_check_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/policyos_academic_runtime_slim_20260411T112032Z/meta/promotion_report.json",
+        "rights_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "academic-runtime-meta-runtime-evidence-sources-json",
+        "contamination_check_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/policyos_academic_runtime_slim_20260411T112032Z/meta/runtime_evidence_sources.json",
+        "rights_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "academic-runtime-meta-source-lineage-json",
+        "contamination_check_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "freshness_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "lineage_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owner_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "owning_root": "production_data",
+        "path": "production_data/policyos_academic_runtime_slim_20260411T112032Z/meta/source_lineage.json",
+        "rights_evidence_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "ukraine-ops-runner-root",
+        "contamination_check_ref": "repo://tools/ops_runners/ukraine_data/README.md",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tools/ops_runners/ukraine_data/README.md",
+        "freshness_evidence_ref": "repo://tools/ops_runners/ukraine_data/README.md",
+        "lineage_evidence_ref": "repo://tools/ops_runners/ukraine_data/README.md",
+        "owner_evidence_ref": "repo://tools/ops_runners/ukraine_data/README.md",
+        "owning_root": "tools/ops_runners/ukraine_data",
+        "path": "tools/ops_runners/ukraine_data",
+        "rights_evidence_ref": "repo://tools/ops_runners/ukraine_data/README.md",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "tests-fixtures-universal-corpus-cases-tests-fixtures-universal-corpus-cases-ua-msme-affordable-loans-2022-json",
+        "contamination_check_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "freshness_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "lineage_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "owner_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "owning_root": "tests/fixtures/universal-corpus/cases",
+        "path": "tests/fixtures/universal-corpus/cases/ua-msme-affordable-loans-2022.json",
+        "rights_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "tests-fixtures-universal-corpus-cases-tests-fixtures-universal-corpus-cases-w11a-berlin-rent-cap-2020-json",
+        "contamination_check_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "freshness_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "lineage_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "owner_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "owning_root": "tests/fixtures/universal-corpus/cases",
+        "path": "tests/fixtures/universal-corpus/cases/w11a_berlin_rent_cap_2020.json",
+        "rights_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "tests-fixtures-universal-corpus-cases-tests-fixtures-universal-corpus-cases-w11a-boston-operation-ceasefire-1996-json",
+        "contamination_check_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "freshness_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "lineage_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "owner_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "owning_root": "tests/fixtures/universal-corpus/cases",
+        "path": "tests/fixtures/universal-corpus/cases/w11a_boston_operation_ceasefire_1996.json",
+        "rights_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "tests-fixtures-universal-corpus-cases-tests-fixtures-universal-corpus-cases-w11a-eu-temporary-protection-ukraine-2022-json",
+        "contamination_check_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "freshness_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "lineage_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "owner_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "owning_root": "tests/fixtures/universal-corpus/cases",
+        "path": "tests/fixtures/universal-corpus/cases/w11a_eu_temporary_protection_ukraine_2022.json",
+        "rights_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "tests-fixtures-universal-corpus-cases-tests-fixtures-universal-corpus-cases-w11a-ghana-free-shs-2017-json",
+        "contamination_check_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "freshness_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "lineage_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "owner_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "owning_root": "tests/fixtures/universal-corpus/cases",
+        "path": "tests/fixtures/universal-corpus/cases/w11a_ghana_free_shs_2017.json",
+        "rights_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "tests-fixtures-universal-corpus-cases-tests-fixtures-universal-corpus-cases-w11a-india-aadhaar-dbt-2016-json",
+        "contamination_check_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "freshness_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "lineage_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "owner_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "owning_root": "tests/fixtures/universal-corpus/cases",
+        "path": "tests/fixtures/universal-corpus/cases/w11a_india_aadhaar_dbt_2016.json",
+        "rights_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "tests-fixtures-universal-corpus-cases-tests-fixtures-universal-corpus-cases-w11a-mexico-ssb-tax-2014-json",
+        "contamination_check_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "freshness_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "lineage_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "owner_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "owning_root": "tests/fixtures/universal-corpus/cases",
+        "path": "tests/fixtures/universal-corpus/cases/w11a_mexico_ssb_tax_2014.json",
+        "rights_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "tests-fixtures-universal-corpus-cases-tests-fixtures-universal-corpus-cases-w11a-netherlands-room-for-river-2007-json",
+        "contamination_check_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "freshness_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "lineage_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "owner_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "owning_root": "tests/fixtures/universal-corpus/cases",
+        "path": "tests/fixtures/universal-corpus/cases/w11a_netherlands_room_for_river_2007.json",
+        "rights_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "tests-fixtures-universal-corpus-cases-tests-fixtures-universal-corpus-cases-w11a-pakistan-ehsaas-cash-2020-json",
+        "contamination_check_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "freshness_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "lineage_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "owner_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "owning_root": "tests/fixtures/universal-corpus/cases",
+        "path": "tests/fixtures/universal-corpus/cases/w11a_pakistan_ehsaas_cash_2020.json",
+        "rights_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "tests-fixtures-universal-corpus-cases-tests-fixtures-universal-corpus-cases-w11a-uk-levelling-up-fund-2021-json",
+        "contamination_check_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "freshness_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "lineage_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "owner_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "owning_root": "tests/fixtures/universal-corpus/cases",
+        "path": "tests/fixtures/universal-corpus/cases/w11a_uk_levelling_up_fund_2021.json",
+        "rights_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "tests-fixtures-universal-corpus-cases-tests-fixtures-universal-corpus-cases-w11a-uk-mtd-vat-2019-json",
+        "contamination_check_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "freshness_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "lineage_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "owner_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "owning_root": "tests/fixtures/universal-corpus/cases",
+        "path": "tests/fixtures/universal-corpus/cases/w11a_uk_mtd_vat_2019.json",
+        "rights_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "tests-fixtures-universal-corpus-cases-tests-fixtures-universal-corpus-cases-w11a-uk-work-programme-2011-json",
+        "contamination_check_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "freshness_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "lineage_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "owner_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "owning_root": "tests/fixtures/universal-corpus/cases",
+        "path": "tests/fixtures/universal-corpus/cases/w11a_uk_work_programme_2011.json",
+        "rights_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "tests-fixtures-universal-corpus-cases-tests-fixtures-universal-corpus-cases-w11a-us-ppp-2020-json",
+        "contamination_check_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "freshness_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "lineage_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "owner_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "owning_root": "tests/fixtures/universal-corpus/cases",
+        "path": "tests/fixtures/universal-corpus/cases/w11a_us_ppp_2020.json",
+        "rights_evidence_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "tests-fixtures-universal-corpus-producer-stubs-tests-fixtures-universal-corpus-producer-stubs-ua-msme-affordable-loans-2022-producer-stubs-json",
+        "contamination_check_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "freshness_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "lineage_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "owner_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "owning_root": "tests/fixtures/universal-corpus/producer_stubs",
+        "path": "tests/fixtures/universal-corpus/producer_stubs/ua-msme-affordable-loans-2022.producer_stubs.json",
+        "rights_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "tests-fixtures-universal-corpus-producer-stubs-tests-fixtures-universal-corpus-producer-stubs-w11a-berlin-rent-cap-2020-producer-stubs-json",
+        "contamination_check_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "freshness_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "lineage_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "owner_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "owning_root": "tests/fixtures/universal-corpus/producer_stubs",
+        "path": "tests/fixtures/universal-corpus/producer_stubs/w11a_berlin_rent_cap_2020.producer_stubs.json",
+        "rights_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "tests-fixtures-universal-corpus-producer-stubs-tests-fixtures-universal-corpus-producer-stubs-w11a-boston-operation-ceasefire-1996-producer-stubs-json",
+        "contamination_check_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "freshness_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "lineage_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "owner_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "owning_root": "tests/fixtures/universal-corpus/producer_stubs",
+        "path": "tests/fixtures/universal-corpus/producer_stubs/w11a_boston_operation_ceasefire_1996.producer_stubs.json",
+        "rights_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "tests-fixtures-universal-corpus-producer-stubs-tests-fixtures-universal-corpus-producer-stubs-w11a-eu-temporary-protection-ukraine-2022-producer-stubs-json",
+        "contamination_check_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "freshness_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "lineage_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "owner_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "owning_root": "tests/fixtures/universal-corpus/producer_stubs",
+        "path": "tests/fixtures/universal-corpus/producer_stubs/w11a_eu_temporary_protection_ukraine_2022.producer_stubs.json",
+        "rights_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "tests-fixtures-universal-corpus-producer-stubs-tests-fixtures-universal-corpus-producer-stubs-w11a-ghana-free-shs-2017-producer-stubs-json",
+        "contamination_check_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "freshness_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "lineage_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "owner_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "owning_root": "tests/fixtures/universal-corpus/producer_stubs",
+        "path": "tests/fixtures/universal-corpus/producer_stubs/w11a_ghana_free_shs_2017.producer_stubs.json",
+        "rights_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "tests-fixtures-universal-corpus-producer-stubs-tests-fixtures-universal-corpus-producer-stubs-w11a-india-aadhaar-dbt-2016-producer-stubs-json",
+        "contamination_check_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "freshness_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "lineage_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "owner_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "owning_root": "tests/fixtures/universal-corpus/producer_stubs",
+        "path": "tests/fixtures/universal-corpus/producer_stubs/w11a_india_aadhaar_dbt_2016.producer_stubs.json",
+        "rights_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "tests-fixtures-universal-corpus-producer-stubs-tests-fixtures-universal-corpus-producer-stubs-w11a-mexico-ssb-tax-2014-producer-stubs-json",
+        "contamination_check_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "freshness_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "lineage_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "owner_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "owning_root": "tests/fixtures/universal-corpus/producer_stubs",
+        "path": "tests/fixtures/universal-corpus/producer_stubs/w11a_mexico_ssb_tax_2014.producer_stubs.json",
+        "rights_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "tests-fixtures-universal-corpus-producer-stubs-tests-fixtures-universal-corpus-producer-stubs-w11a-netherlands-room-for-river-2007-producer-stubs-json",
+        "contamination_check_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "freshness_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "lineage_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "owner_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "owning_root": "tests/fixtures/universal-corpus/producer_stubs",
+        "path": "tests/fixtures/universal-corpus/producer_stubs/w11a_netherlands_room_for_river_2007.producer_stubs.json",
+        "rights_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "tests-fixtures-universal-corpus-producer-stubs-tests-fixtures-universal-corpus-producer-stubs-w11a-pakistan-ehsaas-cash-2020-producer-stubs-json",
+        "contamination_check_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "freshness_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "lineage_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "owner_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "owning_root": "tests/fixtures/universal-corpus/producer_stubs",
+        "path": "tests/fixtures/universal-corpus/producer_stubs/w11a_pakistan_ehsaas_cash_2020.producer_stubs.json",
+        "rights_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "tests-fixtures-universal-corpus-producer-stubs-tests-fixtures-universal-corpus-producer-stubs-w11a-uk-levelling-up-fund-2021-producer-stubs-json",
+        "contamination_check_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "freshness_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "lineage_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "owner_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "owning_root": "tests/fixtures/universal-corpus/producer_stubs",
+        "path": "tests/fixtures/universal-corpus/producer_stubs/w11a_uk_levelling_up_fund_2021.producer_stubs.json",
+        "rights_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "tests-fixtures-universal-corpus-producer-stubs-tests-fixtures-universal-corpus-producer-stubs-w11a-uk-mtd-vat-2019-producer-stubs-json",
+        "contamination_check_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "freshness_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "lineage_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "owner_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "owning_root": "tests/fixtures/universal-corpus/producer_stubs",
+        "path": "tests/fixtures/universal-corpus/producer_stubs/w11a_uk_mtd_vat_2019.producer_stubs.json",
+        "rights_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "tests-fixtures-universal-corpus-producer-stubs-tests-fixtures-universal-corpus-producer-stubs-w11a-uk-work-programme-2011-producer-stubs-json",
+        "contamination_check_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "freshness_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "lineage_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "owner_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "owning_root": "tests/fixtures/universal-corpus/producer_stubs",
+        "path": "tests/fixtures/universal-corpus/producer_stubs/w11a_uk_work_programme_2011.producer_stubs.json",
+        "rights_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "tests-fixtures-universal-corpus-producer-stubs-tests-fixtures-universal-corpus-producer-stubs-w11a-us-ppp-2020-producer-stubs-json",
+        "contamination_check_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "freshness_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "lineage_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "owner_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "owning_root": "tests/fixtures/universal-corpus/producer_stubs",
+        "path": "tests/fixtures/universal-corpus/producer_stubs/w11a_us_ppp_2020.producer_stubs.json",
+        "rights_evidence_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery-tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery-a21c33420f04e61b",
+        "contamination_check_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "freshness_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "lineage_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "owner_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "owning_root": "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery",
+        "path": "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/cases/s14_capacity_constrained_refugee_services.json",
+        "rights_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery-tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery-356224ea09b0d29d",
+        "contamination_check_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "freshness_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "lineage_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "owner_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "owning_root": "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery",
+        "path": "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/cases/s14_entangled_river_basin_adaptation.json",
+        "rights_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery-tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery-ad6c5fdfa3dd7c6e",
+        "contamination_check_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "freshness_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "lineage_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "owner_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "owning_root": "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery",
+        "path": "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/cases/s14_high_stakes_irreversible_climate.json",
+        "rights_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery-tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery-ef37d8481854cd6e",
+        "contamination_check_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "freshness_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "lineage_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "owner_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "owning_root": "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery",
+        "path": "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/cases/s14_low_observability_health_equity.json",
+        "rights_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery-tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery-7a7cd91eeab39372",
+        "contamination_check_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "freshness_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "lineage_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "owner_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "owning_root": "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery",
+        "path": "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/cases/s14_multi_principal_social_protection.json",
+        "rights_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery-tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery-398c805ed131728d",
+        "contamination_check_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "freshness_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "lineage_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "owner_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "owning_root": "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery",
+        "path": "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/cases/s14_strategic_tax_enforcement_response.json",
+        "rights_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery-tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery-manifest-json",
+        "contamination_check_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "freshness_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "lineage_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "owner_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "owning_root": "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery",
+        "path": "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "rights_evidence_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-readme-md",
+        "contamination_check_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "freshness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "lineage_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owner_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owning_root": "docs/research/universal-policy-design/outcome-corpus",
+        "path": "docs/research/universal-policy-design/outcome-corpus/README.md",
+        "rights_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-adjudications-readme-md",
+        "contamination_check_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "freshness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "lineage_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owner_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owning_root": "docs/research/universal-policy-design/outcome-corpus",
+        "path": "docs/research/universal-policy-design/outcome-corpus/adjudications/README.md",
+        "rights_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-adjudications-housing-rent-stabilization-001-adjudication-json",
+        "contamination_check_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "freshness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "lineage_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owner_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owning_root": "docs/research/universal-policy-design/outcome-corpus",
+        "path": "docs/research/universal-policy-design/outcome-corpus/adjudications/housing-rent-stabilization-001.adjudication.json",
+        "rights_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-adjudications-public-health-outreach-001-adjudication-json",
+        "contamination_check_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "freshness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "lineage_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owner_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owning_root": "docs/research/universal-policy-design/outcome-corpus",
+        "path": "docs/research/universal-policy-design/outcome-corpus/adjudications/public-health-outreach-001.adjudication.json",
+        "rights_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-adjudications-ua-msme-affordable-loans-2022-adjudication-json",
+        "contamination_check_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "freshness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "lineage_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owner_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owning_root": "docs/research/universal-policy-design/outcome-corpus",
+        "path": "docs/research/universal-policy-design/outcome-corpus/adjudications/ua-msme-affordable-loans-2022.adjudication.json",
+        "rights_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-adjudications-w11a-berlin-rent-cap-2020-adjudication-json",
+        "contamination_check_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "freshness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "lineage_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owner_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owning_root": "docs/research/universal-policy-design/outcome-corpus",
+        "path": "docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_berlin_rent_cap_2020.adjudication.json",
+        "rights_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-adjudications-w11a-boston-operation-ceasefire-1996-adjudication-json",
+        "contamination_check_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "freshness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "lineage_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owner_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owning_root": "docs/research/universal-policy-design/outcome-corpus",
+        "path": "docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_boston_operation_ceasefire_1996.adjudication.json",
+        "rights_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-adjudications-w11a-eu-temporary-protection-ukraine-2022-adjudication-json",
+        "contamination_check_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "freshness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "lineage_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owner_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owning_root": "docs/research/universal-policy-design/outcome-corpus",
+        "path": "docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_eu_temporary_protection_ukraine_2022.adjudication.json",
+        "rights_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-adjudications-w11a-ghana-free-shs-2017-adjudication-json",
+        "contamination_check_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "freshness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "lineage_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owner_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owning_root": "docs/research/universal-policy-design/outcome-corpus",
+        "path": "docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_ghana_free_shs_2017.adjudication.json",
+        "rights_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-adjudications-w11a-india-aadhaar-dbt-2016-adjudication-json",
+        "contamination_check_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "freshness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "lineage_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owner_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owning_root": "docs/research/universal-policy-design/outcome-corpus",
+        "path": "docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_india_aadhaar_dbt_2016.adjudication.json",
+        "rights_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-adjudications-w11a-mexico-ssb-tax-2014-adjudication-json",
+        "contamination_check_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "freshness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "lineage_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owner_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owning_root": "docs/research/universal-policy-design/outcome-corpus",
+        "path": "docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_mexico_ssb_tax_2014.adjudication.json",
+        "rights_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-adjudications-w11a-netherlands-room-for-river-2007-adjudication-json",
+        "contamination_check_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "freshness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "lineage_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owner_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owning_root": "docs/research/universal-policy-design/outcome-corpus",
+        "path": "docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_netherlands_room_for_river_2007.adjudication.json",
+        "rights_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-adjudications-w11a-pakistan-ehsaas-cash-2020-adjudication-json",
+        "contamination_check_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "freshness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "lineage_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owner_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owning_root": "docs/research/universal-policy-design/outcome-corpus",
+        "path": "docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_pakistan_ehsaas_cash_2020.adjudication.json",
+        "rights_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-adjudications-w11a-uk-levelling-up-fund-2021-adjudication-json",
+        "contamination_check_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "freshness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "lineage_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owner_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owning_root": "docs/research/universal-policy-design/outcome-corpus",
+        "path": "docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_uk_levelling_up_fund_2021.adjudication.json",
+        "rights_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-adjudications-w11a-uk-mtd-vat-2019-adjudication-json",
+        "contamination_check_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "freshness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "lineage_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owner_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owning_root": "docs/research/universal-policy-design/outcome-corpus",
+        "path": "docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_uk_mtd_vat_2019.adjudication.json",
+        "rights_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-adjudications-w11a-uk-work-programme-2011-adjudication-json",
+        "contamination_check_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "freshness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "lineage_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owner_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owning_root": "docs/research/universal-policy-design/outcome-corpus",
+        "path": "docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_uk_work_programme_2011.adjudication.json",
+        "rights_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-adjudications-w11a-us-ppp-2020-adjudication-json",
+        "contamination_check_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "freshness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "lineage_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owner_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owning_root": "docs/research/universal-policy-design/outcome-corpus",
+        "path": "docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_us_ppp_2020.adjudication.json",
+        "rights_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-berlin-rent-cap-2020-housing-md",
+        "contamination_check_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "freshness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "lineage_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owner_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owning_root": "docs/research/universal-policy-design/outcome-corpus",
+        "path": "docs/research/universal-policy-design/outcome-corpus/berlin-rent-cap-2020-housing.md",
+        "rights_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-boston-operation-ceasefire-1996-public-safety-md",
+        "contamination_check_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "freshness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "lineage_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owner_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owning_root": "docs/research/universal-policy-design/outcome-corpus",
+        "path": "docs/research/universal-policy-design/outcome-corpus/boston-operation-ceasefire-1996-public-safety.md",
+        "rights_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-eu-temporary-protection-ukraine-2022-migration-md",
+        "contamination_check_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "freshness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "lineage_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owner_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owning_root": "docs/research/universal-policy-design/outcome-corpus",
+        "path": "docs/research/universal-policy-design/outcome-corpus/eu-temporary-protection-ukraine-2022-migration.md",
+        "rights_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-ghana-free-shs-2017-education-access-md",
+        "contamination_check_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "freshness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "lineage_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owner_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owning_root": "docs/research/universal-policy-design/outcome-corpus",
+        "path": "docs/research/universal-policy-design/outcome-corpus/ghana-free-shs-2017-education-access.md",
+        "rights_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-india-aadhaar-dbt-2016-digital-public-service-md",
+        "contamination_check_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "freshness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "lineage_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owner_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owning_root": "docs/research/universal-policy-design/outcome-corpus",
+        "path": "docs/research/universal-policy-design/outcome-corpus/india-aadhaar-dbt-2016-digital-public-service.md",
+        "rights_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-mexico-ssb-tax-2014-public-health-md",
+        "contamination_check_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "freshness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "lineage_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owner_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owning_root": "docs/research/universal-policy-design/outcome-corpus",
+        "path": "docs/research/universal-policy-design/outcome-corpus/mexico-ssb-tax-2014-public-health.md",
+        "rights_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-netherlands-room-for-the-river-2007-climate-adaptation-md",
+        "contamination_check_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "freshness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "lineage_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owner_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owning_root": "docs/research/universal-policy-design/outcome-corpus",
+        "path": "docs/research/universal-policy-design/outcome-corpus/netherlands-room-for-the-river-2007-climate-adaptation.md",
+        "rights_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-pakistan-ehsaas-emergency-cash-2020-social-protection-md",
+        "contamination_check_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "freshness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "lineage_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owner_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owning_root": "docs/research/universal-policy-design/outcome-corpus",
+        "path": "docs/research/universal-policy-design/outcome-corpus/pakistan-ehsaas-emergency-cash-2020-social-protection.md",
+        "rights_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-ua-msme-affordable-loans-2022-md",
+        "contamination_check_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "freshness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "lineage_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owner_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owning_root": "docs/research/universal-policy-design/outcome-corpus",
+        "path": "docs/research/universal-policy-design/outcome-corpus/ua-msme-affordable-loans-2022.md",
+        "rights_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-uk-levelling-up-fund-2021-infrastructure-md",
+        "contamination_check_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "freshness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "lineage_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owner_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owning_root": "docs/research/universal-policy-design/outcome-corpus",
+        "path": "docs/research/universal-policy-design/outcome-corpus/uk-levelling-up-fund-2021-infrastructure.md",
+        "rights_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-uk-making-tax-digital-vat-2019-tax-enforcement-md",
+        "contamination_check_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "freshness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "lineage_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owner_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owning_root": "docs/research/universal-policy-design/outcome-corpus",
+        "path": "docs/research/universal-policy-design/outcome-corpus/uk-making-tax-digital-vat-2019-tax-enforcement.md",
+        "rights_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-uk-work-programme-2011-labour-activation-md",
+        "contamination_check_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "freshness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "lineage_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owner_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owning_root": "docs/research/universal-policy-design/outcome-corpus",
+        "path": "docs/research/universal-policy-design/outcome-corpus/uk-work-programme-2011-labour-activation.md",
+        "rights_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "size_bytes": null
+      },
+      {
+        "asset_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-us-ppp-2020-msme-emergency-credit-md",
+        "contamination_check_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "data_kind": "data_asset",
+        "fitness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "freshness_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "lineage_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owner_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "owning_root": "docs/research/universal-policy-design/outcome-corpus",
+        "path": "docs/research/universal-policy-design/outcome-corpus/us-ppp-2020-msme-emergency-credit.md",
+        "rights_evidence_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "size_bytes": null
+      }
+    ],
+    "processing_transforms": [
+      {
+        "contamination_risk_refs": [
+          "repo://tools/ops_runners/ukraine_data/README.md"
+        ],
+        "output_asset_refs": [
+          "tools/ops_runners/ukraine_data"
+        ],
+        "owner_evidence_ref": "repo://tools/ops_runners/ukraine_data/README.md",
+        "replay_command_ref": "uv run python tools/ops_runners/ukraine_data/build_edr_identity_seed_candidates.py",
+        "source_root": "tools/ops_runners/ukraine_data",
+        "transform_id": "ukraine-ops-build-edr-identity-seed-candidates",
+        "transform_script_refs": [
+          "tools/ops_runners/ukraine_data/build_edr_identity_seed_candidates.py"
+        ]
+      },
+      {
+        "contamination_risk_refs": [
+          "repo://tools/ops_runners/ukraine_data/README.md"
+        ],
+        "output_asset_refs": [
+          "tools/ops_runners/ukraine_data"
+        ],
+        "owner_evidence_ref": "repo://tools/ops_runners/ukraine_data/README.md",
+        "replay_command_ref": "uv run python tools/ops_runners/ukraine_data/build_p1_source_bindings.py",
+        "source_root": "tools/ops_runners/ukraine_data",
+        "transform_id": "ukraine-ops-build-p1-source-bindings",
+        "transform_script_refs": [
+          "tools/ops_runners/ukraine_data/build_p1_source_bindings.py"
+        ]
+      },
+      {
+        "contamination_risk_refs": [
+          "repo://tools/ops_runners/ukraine_data/README.md"
+        ],
+        "output_asset_refs": [
+          "tools/ops_runners/ukraine_data"
+        ],
+        "owner_evidence_ref": "repo://tools/ops_runners/ukraine_data/README.md",
+        "replay_command_ref": "uv run python tools/ops_runners/ukraine_data/build_spending_contracts_procurement_proxy.py",
+        "source_root": "tools/ops_runners/ukraine_data",
+        "transform_id": "ukraine-ops-build-spending-contracts-procurement-proxy",
+        "transform_script_refs": [
+          "tools/ops_runners/ukraine_data/build_spending_contracts_procurement_proxy.py"
+        ]
+      },
+      {
+        "contamination_risk_refs": [
+          "repo://tools/ops_runners/ukraine_data/README.md"
+        ],
+        "output_asset_refs": [
+          "tools/ops_runners/ukraine_data"
+        ],
+        "owner_evidence_ref": "repo://tools/ops_runners/ukraine_data/README.md",
+        "replay_command_ref": "uv run python tools/ops_runners/ukraine_data/fetch_p0_sources.py",
+        "source_root": "tools/ops_runners/ukraine_data",
+        "transform_id": "ukraine-ops-fetch-p0-sources",
+        "transform_script_refs": [
+          "tools/ops_runners/ukraine_data/fetch_p0_sources.py"
+        ]
+      },
+      {
+        "contamination_risk_refs": [
+          "repo://tools/ops_runners/ukraine_data/README.md"
+        ],
+        "output_asset_refs": [
+          "tools/ops_runners/ukraine_data"
+        ],
+        "owner_evidence_ref": "repo://tools/ops_runners/ukraine_data/README.md",
+        "replay_command_ref": "uv run python tools/ops_runners/ukraine_data/fetch_p1_p2_public_sources.py",
+        "source_root": "tools/ops_runners/ukraine_data",
+        "transform_id": "ukraine-ops-fetch-p1-p2-public-sources",
+        "transform_script_refs": [
+          "tools/ops_runners/ukraine_data/fetch_p1_p2_public_sources.py"
+        ]
+      },
+      {
+        "contamination_risk_refs": [
+          "repo://tools/ops_runners/ukraine_data/README.md"
+        ],
+        "output_asset_refs": [
+          "tools/ops_runners/ukraine_data"
+        ],
+        "owner_evidence_ref": "repo://tools/ops_runners/ukraine_data/README.md",
+        "replay_command_ref": "uv run python tools/ops_runners/ukraine_data/harvest_prozorro_contract_details.py",
+        "source_root": "tools/ops_runners/ukraine_data",
+        "transform_id": "ukraine-ops-harvest-prozorro-contract-details",
+        "transform_script_refs": [
+          "tools/ops_runners/ukraine_data/harvest_prozorro_contract_details.py"
+        ]
+      },
+      {
+        "contamination_risk_refs": [
+          "repo://tools/ops_runners/ukraine_data/README.md"
+        ],
+        "output_asset_refs": [
+          "tools/ops_runners/ukraine_data"
+        ],
+        "owner_evidence_ref": "repo://tools/ops_runners/ukraine_data/README.md",
+        "replay_command_ref": "uv run python tools/ops_runners/ukraine_data/harvest_prozorro_contract_feed.py",
+        "source_root": "tools/ops_runners/ukraine_data",
+        "transform_id": "ukraine-ops-harvest-prozorro-contract-feed",
+        "transform_script_refs": [
+          "tools/ops_runners/ukraine_data/harvest_prozorro_contract_feed.py"
+        ]
+      },
+      {
+        "contamination_risk_refs": [
+          "repo://tools/ops_runners/ukraine_data/README.md"
+        ],
+        "output_asset_refs": [
+          "tools/ops_runners/ukraine_data"
+        ],
+        "owner_evidence_ref": "repo://tools/ops_runners/ukraine_data/README.md",
+        "replay_command_ref": "uv run python tools/ops_runners/ukraine_data/harvest_spending_contracts_by_disposer.py",
+        "source_root": "tools/ops_runners/ukraine_data",
+        "transform_id": "ukraine-ops-harvest-spending-contracts-by-disposer",
+        "transform_script_refs": [
+          "tools/ops_runners/ukraine_data/harvest_spending_contracts_by_disposer.py"
+        ]
+      },
+      {
+        "contamination_risk_refs": [
+          "repo://tools/ops_runners/ukraine_data/README.md"
+        ],
+        "output_asset_refs": [
+          "tools/ops_runners/ukraine_data"
+        ],
+        "owner_evidence_ref": "repo://tools/ops_runners/ukraine_data/README.md",
+        "replay_command_ref": "uv run python tools/ops_runners/ukraine_data/harvest_spending_daily.py",
+        "source_root": "tools/ops_runners/ukraine_data",
+        "transform_id": "ukraine-ops-harvest-spending-daily",
+        "transform_script_refs": [
+          "tools/ops_runners/ukraine_data/harvest_spending_daily.py"
+        ]
+      },
+      {
+        "contamination_risk_refs": [
+          "repo://tools/ops_runners/ukraine_data/README.md"
+        ],
+        "output_asset_refs": [
+          "tools/ops_runners/ukraine_data"
+        ],
+        "owner_evidence_ref": "repo://tools/ops_runners/ukraine_data/README.md",
+        "replay_command_ref": "uv run python tools/ops_runners/ukraine_data/pre_shard_lex_corpus.py",
+        "source_root": "tools/ops_runners/ukraine_data",
+        "transform_id": "ukraine-ops-pre-shard-lex-corpus",
+        "transform_script_refs": [
+          "tools/ops_runners/ukraine_data/pre_shard_lex_corpus.py"
+        ]
+      }
+    ],
+    "required_roots": [
+      {
+        "discovered_assets": [
+          "production_data/canonical/local_data_20260501/policy_engine_data/curated",
+          "production_data/datasets_full_phase3full_20260327_183054",
+          "production_data/lex/lex-amendment-only-optimized-20260501-v3",
+          "production_data/policyos_academic_runtime_slim_20260411T112032Z",
+          "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/ac_work_embeddings.npz",
+          "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/ac_work_index.hnsw",
+          "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/benchmark_report.json",
+          "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/benchmark_suite.json",
+          "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb",
+          "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/manifests/benchmark.json",
+          "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/manifests/embed.json",
+          "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/manifests/graph_index.json",
+          "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/manifests/publish.json",
+          "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/manifests/qc.json",
+          "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/manifests/transport_score.json",
+          "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/publish/academic_pipeline_readiness.json",
+          "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/publish/manifest.json",
+          "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/qc_report.json",
+          "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/runtime_demand_backlog.jsonl",
+          "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/transport_scores.jsonl",
+          "production_data/policyos_academic_runtime_slim_20260411T112032Z/meta/assembly_manifest.json",
+          "production_data/policyos_academic_runtime_slim_20260411T112032Z/meta/promotion_report.json",
+          "production_data/policyos_academic_runtime_slim_20260411T112032Z/meta/runtime_evidence_sources.json",
+          "production_data/policyos_academic_runtime_slim_20260411T112032Z/meta/source_lineage.json",
+          "production_data/ukraine_agent_simulation_baseline_20260410",
+          "production_data/ukraine_agent_simulation_baseline_20260410/README.txt",
+          "production_data/ukraine_agent_simulation_baseline_20260410/heavy_graph_addon/budget_graph_sparse.npz",
+          "production_data/ukraine_agent_simulation_baseline_20260410/heavy_graph_addon/distress_graph_sparse.npz",
+          "production_data/ukraine_agent_simulation_baseline_20260410/heavy_graph_addon/procurement_graph_sparse.npz",
+          "production_data/ukraine_agent_simulation_baseline_20260410/heavy_graph_addon/public_service_graph_sparse.npz",
+          "production_data/ukraine_agent_simulation_baseline_20260410/heavy_graph_addon/trade_graph_sparse.npz",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/INVENTORY.txt",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/calibration_bundle_v1/calibration_bundle_manifest.json",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/calibration_bundle_v1/calibration_run_manifest.json",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/calibration_bundle_v1/holdout_scores.json",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/calibration_bundle_v1/observation_panel_annual.parquet",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/calibration_bundle_v1/observation_panel_monthly.parquet",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/embedding_bundle_v1/agent_embedding_32d.npz",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/embedding_bundle_v1/cell_prototype_embeddings.npz",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/embedding_bundle_v1/graph_compression_bundle.json",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/governance_report_v1/calibration_leaderboard.json",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/governance_report_v1/governance_report_v1.json",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/governance_report_v1/shock_scenario_scores.json",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/lex_intervention_map.json",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/policy_scenario_templates.json",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/provision_to_program_crosswalk.parquet",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/temporal_intervention_sequences.json",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/method_contract_bundle_v1/backtest_plan_bundle.json",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/method_contract_bundle_v1/bounds_estimation_bundle_v1.json",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/method_contract_bundle_v1/network_causal_contract_bundle_v1.json",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/method_contract_bundle_v1/network_contract_bundle_v1.json",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/method_contract_bundle_v1/observation_to_contract_manifest.json",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/runtime_bundle_v1/agent_registry_runtime.parquet",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/runtime_bundle_v1/cell_registry_region_sector.parquet",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/runtime_bundle_v1/geo_index_runtime.parquet",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/runtime_bundle_v1/runtime_bundle_manifest.json",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/runtime_bundle_v1/slot_family_manifest.json",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/manifests/build_run_d0_p0.json",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/manifests/build_run_d1.json",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/manifests/build_run_d2.json",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/manifests/build_run_d3.json",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/manifests/build_run_d4.json",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/manifests/build_run_d5.json",
+          "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/manifests/release_manifest_v1.json"
+        ],
+        "discovered_transforms": [],
+        "path": "production_data",
+        "root_id": "production_data"
+      },
+      {
+        "discovered_assets": [
+          "tools/ops_runners/ukraine_data"
+        ],
+        "discovered_transforms": [
+          "tools/ops_runners/ukraine_data/build_edr_identity_seed_candidates.py",
+          "tools/ops_runners/ukraine_data/build_p1_source_bindings.py",
+          "tools/ops_runners/ukraine_data/build_spending_contracts_procurement_proxy.py",
+          "tools/ops_runners/ukraine_data/fetch_p0_sources.py",
+          "tools/ops_runners/ukraine_data/fetch_p1_p2_public_sources.py",
+          "tools/ops_runners/ukraine_data/harvest_prozorro_contract_details.py",
+          "tools/ops_runners/ukraine_data/harvest_prozorro_contract_feed.py",
+          "tools/ops_runners/ukraine_data/harvest_spending_contracts_by_disposer.py",
+          "tools/ops_runners/ukraine_data/harvest_spending_daily.py",
+          "tools/ops_runners/ukraine_data/pre_shard_lex_corpus.py"
+        ],
+        "path": "tools/ops_runners/ukraine_data",
+        "root_id": "ukraine_ops_runners"
+      },
+      {
+        "discovered_assets": [
+          "tests/fixtures/universal-corpus/cases/ua-msme-affordable-loans-2022.json",
+          "tests/fixtures/universal-corpus/cases/w11a_berlin_rent_cap_2020.json",
+          "tests/fixtures/universal-corpus/cases/w11a_boston_operation_ceasefire_1996.json",
+          "tests/fixtures/universal-corpus/cases/w11a_eu_temporary_protection_ukraine_2022.json",
+          "tests/fixtures/universal-corpus/cases/w11a_ghana_free_shs_2017.json",
+          "tests/fixtures/universal-corpus/cases/w11a_india_aadhaar_dbt_2016.json",
+          "tests/fixtures/universal-corpus/cases/w11a_mexico_ssb_tax_2014.json",
+          "tests/fixtures/universal-corpus/cases/w11a_netherlands_room_for_river_2007.json",
+          "tests/fixtures/universal-corpus/cases/w11a_pakistan_ehsaas_cash_2020.json",
+          "tests/fixtures/universal-corpus/cases/w11a_uk_levelling_up_fund_2021.json",
+          "tests/fixtures/universal-corpus/cases/w11a_uk_mtd_vat_2019.json",
+          "tests/fixtures/universal-corpus/cases/w11a_uk_work_programme_2011.json",
+          "tests/fixtures/universal-corpus/cases/w11a_us_ppp_2020.json"
+        ],
+        "discovered_transforms": [],
+        "path": "tests/fixtures/universal-corpus/cases",
+        "root_id": "tests-fixtures-universal-corpus-cases"
+      },
+      {
+        "discovered_assets": [
+          "tests/fixtures/universal-corpus/producer_stubs/ua-msme-affordable-loans-2022.producer_stubs.json",
+          "tests/fixtures/universal-corpus/producer_stubs/w11a_berlin_rent_cap_2020.producer_stubs.json",
+          "tests/fixtures/universal-corpus/producer_stubs/w11a_boston_operation_ceasefire_1996.producer_stubs.json",
+          "tests/fixtures/universal-corpus/producer_stubs/w11a_eu_temporary_protection_ukraine_2022.producer_stubs.json",
+          "tests/fixtures/universal-corpus/producer_stubs/w11a_ghana_free_shs_2017.producer_stubs.json",
+          "tests/fixtures/universal-corpus/producer_stubs/w11a_india_aadhaar_dbt_2016.producer_stubs.json",
+          "tests/fixtures/universal-corpus/producer_stubs/w11a_mexico_ssb_tax_2014.producer_stubs.json",
+          "tests/fixtures/universal-corpus/producer_stubs/w11a_netherlands_room_for_river_2007.producer_stubs.json",
+          "tests/fixtures/universal-corpus/producer_stubs/w11a_pakistan_ehsaas_cash_2020.producer_stubs.json",
+          "tests/fixtures/universal-corpus/producer_stubs/w11a_uk_levelling_up_fund_2021.producer_stubs.json",
+          "tests/fixtures/universal-corpus/producer_stubs/w11a_uk_mtd_vat_2019.producer_stubs.json",
+          "tests/fixtures/universal-corpus/producer_stubs/w11a_uk_work_programme_2011.producer_stubs.json",
+          "tests/fixtures/universal-corpus/producer_stubs/w11a_us_ppp_2020.producer_stubs.json"
+        ],
+        "discovered_transforms": [],
+        "path": "tests/fixtures/universal-corpus/producer_stubs",
+        "root_id": "tests-fixtures-universal-corpus-producer-stubs"
+      },
+      {
+        "discovered_assets": [
+          "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/cases/s14_capacity_constrained_refugee_services.json",
+          "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/cases/s14_entangled_river_basin_adaptation.json",
+          "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/cases/s14_high_stakes_irreversible_climate.json",
+          "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/cases/s14_low_observability_health_equity.json",
+          "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/cases/s14_multi_principal_social_protection.json",
+          "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/cases/s14_strategic_tax_enforcement_response.json",
+          "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json"
+        ],
+        "discovered_transforms": [],
+        "path": "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery",
+        "root_id": "tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery"
+      },
+      {
+        "discovered_assets": [
+          "docs/research/universal-policy-design/outcome-corpus/README.md",
+          "docs/research/universal-policy-design/outcome-corpus/adjudications/README.md",
+          "docs/research/universal-policy-design/outcome-corpus/adjudications/housing-rent-stabilization-001.adjudication.json",
+          "docs/research/universal-policy-design/outcome-corpus/adjudications/public-health-outreach-001.adjudication.json",
+          "docs/research/universal-policy-design/outcome-corpus/adjudications/ua-msme-affordable-loans-2022.adjudication.json",
+          "docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_berlin_rent_cap_2020.adjudication.json",
+          "docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_boston_operation_ceasefire_1996.adjudication.json",
+          "docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_eu_temporary_protection_ukraine_2022.adjudication.json",
+          "docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_ghana_free_shs_2017.adjudication.json",
+          "docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_india_aadhaar_dbt_2016.adjudication.json",
+          "docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_mexico_ssb_tax_2014.adjudication.json",
+          "docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_netherlands_room_for_river_2007.adjudication.json",
+          "docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_pakistan_ehsaas_cash_2020.adjudication.json",
+          "docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_uk_levelling_up_fund_2021.adjudication.json",
+          "docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_uk_mtd_vat_2019.adjudication.json",
+          "docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_uk_work_programme_2011.adjudication.json",
+          "docs/research/universal-policy-design/outcome-corpus/adjudications/w11a_us_ppp_2020.adjudication.json",
+          "docs/research/universal-policy-design/outcome-corpus/berlin-rent-cap-2020-housing.md",
+          "docs/research/universal-policy-design/outcome-corpus/boston-operation-ceasefire-1996-public-safety.md",
+          "docs/research/universal-policy-design/outcome-corpus/eu-temporary-protection-ukraine-2022-migration.md",
+          "docs/research/universal-policy-design/outcome-corpus/ghana-free-shs-2017-education-access.md",
+          "docs/research/universal-policy-design/outcome-corpus/india-aadhaar-dbt-2016-digital-public-service.md",
+          "docs/research/universal-policy-design/outcome-corpus/mexico-ssb-tax-2014-public-health.md",
+          "docs/research/universal-policy-design/outcome-corpus/netherlands-room-for-the-river-2007-climate-adaptation.md",
+          "docs/research/universal-policy-design/outcome-corpus/pakistan-ehsaas-emergency-cash-2020-social-protection.md",
+          "docs/research/universal-policy-design/outcome-corpus/ua-msme-affordable-loans-2022.md",
+          "docs/research/universal-policy-design/outcome-corpus/uk-levelling-up-fund-2021-infrastructure.md",
+          "docs/research/universal-policy-design/outcome-corpus/uk-making-tax-digital-vat-2019-tax-enforcement.md",
+          "docs/research/universal-policy-design/outcome-corpus/uk-work-programme-2011-labour-activation.md",
+          "docs/research/universal-policy-design/outcome-corpus/us-ppp-2020-msme-emergency-credit.md"
+        ],
+        "discovered_transforms": [],
+        "path": "docs/research/universal-policy-design/outcome-corpus",
+        "root_id": "docs-research-universal-policy-design-outcome-corpus"
+      }
+    ],
+    "scan_mode": "manifest_backed_lightweight",
+    "summary": {
+      "academic_runtime_slim_split_file_count": 20,
+      "data_asset_count": 129,
+      "data_asset_inventory_unclassified_discovered_count": 0,
+      "processing_transform_count": 10,
+      "processing_transform_inventory_unclassified_discovered_count": 0,
+      "production_data_manifest_bundle_count": 5,
+      "required_data_asset_root_count": 6,
+      "ukraine_ops_runner_script_count": 10,
+      "ukraine_simulation_manifest_file_count": 40,
+      "universal_corpus_fixture_count": 13
+    }
+  },
+  "rule_version": "policyos.layer3.g0.grounding_subordination.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g0_grounding_inventory.v1"
+}

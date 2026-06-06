@@ -1,0 +1,443 @@
+{
+  "adapter_admission_registry": {
+    "records": [
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-case-lifecycle-py-19-scientist",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/case_lifecycle.py:19:scientist"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/case_lifecycle.py:19:scientist"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-compliance-py-8-data-forge",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/compliance.py:8:data_forge"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/compliance.py:8:data_forge"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-data-forge-binding-py-10-data-forge",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/data_forge_binding.py:10:data_forge"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/data_forge_binding.py:10:data_forge"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-data-forge-binding-py-11-data-forge",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/data_forge_binding.py:11:data_forge"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/data_forge_binding.py:11:data_forge"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-ir-analytics-bridge-py-12-method-requirement",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/ir_analytics_bridge.py:12:method_requirement"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/ir_analytics_bridge.py:12:method_requirement"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-metamorphic-controls-py-14-scholar",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/metamorphic_controls.py:14:scholar"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/metamorphic_controls.py:14:scholar"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-metamorphic-controls-py-15-scientist",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/metamorphic_controls.py:15:scientist"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/metamorphic_controls.py:15:scientist"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-producer-pipeline-py-2058-fabric",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/producer_pipeline.py:2058:fabric"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/producer_pipeline.py:2058:fabric"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-producer-pipeline-py-2080-lex",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/producer_pipeline.py:2080:lex"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/producer_pipeline.py:2080:lex"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-producer-pipeline-py-2107-foundry",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/producer_pipeline.py:2107:foundry"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/producer_pipeline.py:2107:foundry"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-producer-pipeline-py-2125-scholar-requirement",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/producer_pipeline.py:2125:scholar_requirement"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/producer_pipeline.py:2125:scholar_requirement"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-producer-pipeline-py-2155-scholar",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/producer_pipeline.py:2155:scholar"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/producer_pipeline.py:2155:scholar"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-producer-pipeline-py-2188-participation-requirement",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/producer_pipeline.py:2188:participation_requirement"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/producer_pipeline.py:2188:participation_requirement"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-production-data-contract-index-py-12-data-requirement",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/production_data_contract_index.py:12:data_requirement"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/production_data_contract_index.py:12:data_requirement"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-rule-replay-engine-py-792-scientist",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/rule_replay_engine.py:792:scientist"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/rule_replay_engine.py:792:scientist"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-scenario-evidence-contract-py-9-data-requirement",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/scenario_evidence_contract.py:9:data_requirement"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/scenario_evidence_contract.py:9:data_requirement"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-scholar-academic-evidence-py-10-scholar",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/scholar_academic_evidence.py:10:scholar"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/scholar_academic_evidence.py:10:scholar"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-scorecard-py-12-fabric",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/scorecard.py:12:fabric"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/scorecard.py:12:fabric"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-scorecard-py-13-foundry",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/scorecard.py:13:foundry"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/scorecard.py:13:foundry"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-scorecard-py-14-lex",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/scorecard.py:14:lex"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/scorecard.py:14:lex"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-scorecard-py-17-lex",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/scorecard.py:17:lex"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/scorecard.py:17:lex"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-scorecard-py-232-scientist",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/scorecard.py:232:scientist"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/scorecard.py:232:scientist"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "scenario-family-authority-selector-blocked",
+        "admission_state": "blocked",
+        "admitted": false,
+        "conformance_status": "blocked",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "promotion_blocked",
+        "quarantine_check": "blocked",
+        "source_ids": [
+          "scenario_family_authority_selector"
+        ],
+        "source_touchpoint_refs": []
+      }
+    ]
+  },
+  "rule_version": "policyos.layer3.g0.grounding_subordination.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g0_grounding_inventory.v1"
+}

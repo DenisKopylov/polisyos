@@ -1,0 +1,35 @@
+{
+  "coverage_lineage_abstention_surface": {
+    "authoritative_for": [
+      "layer3_g1_construct_grounding_audit",
+      "layer3_g1_lineage_contamination_audit"
+    ],
+    "may_not_use_for": [
+      "claim_authority",
+      "causal_effect",
+      "policy_recommendation",
+      "publishability",
+      "adapter_promotion",
+      "useful_design_credit",
+      "production_authority",
+      "search_hit_as_authority"
+    ],
+    "surface_audiences": [
+      "EXPERT",
+      "MACHINE"
+    ],
+    "surface_id": "layer3_g1_substrate_grounding_audit_surface",
+    "surface_out_of_scope": [
+      {
+        "audience": "PUBLIC",
+        "rationale": "G1 surfaces grounding audit only; public/reviewer claim projection waits for G4/G5 promotion."
+      },
+      {
+        "audience": "REVIEWER",
+        "rationale": "G1 surfaces grounding audit only; public/reviewer claim projection waits for G4/G5 promotion."
+      }
+    ]
+  },
+  "rule_version": "policyos.layer3.g1.substrate_grounding_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1"
+}

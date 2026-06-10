@@ -1,0 +1,18 @@
+{
+  "schema_version": "policyos.tests.layer3.g1.fixture.v1",
+  "fixture_id": "layer3-g1-free-growth-metric-binding-fixture",
+  "purpose": "A synthetic metric/source binding must become discoverable through the L1 route after index refresh with no code change.",
+  "expected_issue_codes": [],
+  "payload": {
+    "metric_binding": {
+      "metric_id": "synthetic_g1_msme_working_capital_continuity_rate",
+      "construct_ref": "firm_survival",
+      "source_ref": "source-contract://layer3.ua_msme.firm_survival.synthetic_free_growth",
+      "dataset_catalog_ref": "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings",
+      "request_shape": "construct_to_metric_binding",
+      "requires_code_change": false
+    },
+    "expected_search_route": "l1_dcat_ds_metric_bindings",
+    "index_refresh_required": true
+  }
+}

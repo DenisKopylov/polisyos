@@ -1,0 +1,15 @@
+{
+  "schema_version": "policyos.tests.layer3.g1.fixture.v1",
+  "fixture_id": "layer3-g1-raw-data-forge-output-without-adapter",
+  "purpose": "Raw data_forge or Fabric-like output cannot satisfy a construct slot without the G1 adapter envelope.",
+  "expected_issue_codes": ["layer3_g1_raw_output_without_adapter"],
+  "payload": {
+    "case_id": "ua-msme-affordable-loans-2022",
+    "construct_ref": "firm_survival",
+    "raw_payload_kind": "data_forge_manifest_slice",
+    "adapter_envelope": null,
+    "source_contract_ref": "source-contract://layer3.ua_msme.firm_survival.raw_echo",
+    "grounding_claim": "grounded_binding",
+    "authoritative_for": ["layer3_g1_construct_grounding_audit"]
+  }
+}

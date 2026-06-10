@@ -1,0 +1,17 @@
+{
+  "schema_version": "policyos.tests.layer3.g1.fixture.v1",
+  "fixture_id": "layer3-g1-unjustified-l1-surrogate",
+  "purpose": "A surrogate L1 route is unjustified when production ds_metric_bindings exists.",
+  "expected_issue_codes": ["layer3_g1_unjustified_l1_surrogate"],
+  "payload": {
+    "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1",
+    "rule_version": "policyos.layer3.g1.substrate_grounding_search.v1",
+    "l1_l5_l6_index_coverage": {
+      "status": "pass",
+      "production_dcat_exists": true,
+      "production_dcat_ref": "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings",
+      "l1_query_refs": ["fixture://hand-curated-metric-bindings-subset"],
+      "coverage_claim": "l1_dcat_ds_metric_bindings"
+    }
+  }
+}

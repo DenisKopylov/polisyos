@@ -1,0 +1,24 @@
+{
+  "schema_version": "policyos.tests.layer3.g1.fixture.v1",
+  "fixture_id": "layer3-g1-contaminated-data-asset-port",
+  "purpose": "Fixture, simulation, or training lineage must not ground real Ukraine evidence.",
+  "expected_issue_codes": ["layer3_g1_contaminated_lineage"],
+  "payload": {
+    "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1",
+    "rule_version": "policyos.layer3.g1.substrate_grounding_search.v1",
+    "data_asset_port": {
+      "port_id": "g1-port:contaminated-fixture-ua-msme",
+      "source_ref": "fixture://tests/fixtures/layer3/g1/contaminated_data_asset_port.json",
+      "lineage_refs": ["fixture://training/simulated-ukraine-panel"],
+      "rights_ref": "repo://docs/reference/policy-design-case-layer3-substrate-grounding.md#fixture-rights",
+      "freshness_ref": "fixture://freshness/current",
+      "fitness_ref": "fixture://fitness/proxy-only",
+      "contamination_check_ref": "contamination://fixture-or-simulation-only",
+      "contamination_status": "contaminated"
+    },
+    "grounding_attempt": {
+      "construct_ref": "firm_survival",
+      "grounding_status": "grounded_binding"
+    }
+  }
+}

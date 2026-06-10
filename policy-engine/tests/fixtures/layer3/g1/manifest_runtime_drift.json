@@ -1,0 +1,24 @@
+{
+  "schema_version": "policyos.tests.layer3.g1.fixture.v1",
+  "fixture_id": "layer3-g1-manifest-runtime-drift",
+  "purpose": "Persisted G1 manifest counts must match runtime builder counts.",
+  "expected_issue_codes": ["layer3_g1_manifest_runtime_drift"],
+  "payload": {
+    "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1",
+    "rule_version": "policyos.layer3.g1.substrate_grounding_search.v1",
+    "readiness_manifest": {
+      "manifest_id": "layer3-g1-readiness",
+      "counts": {
+        "g1_substrate_search_ledger_count": 1,
+        "g1_adapter_contract_path_count": 2,
+        "source_contract_snapshot_count": 1
+      }
+    },
+    "runtime_counts": {
+      "g1_substrate_search_ledger_count": 2,
+      "g1_adapter_contract_path_count": 2,
+      "source_contract_snapshot_count": 1
+    },
+    "drifted_metric": "g1_substrate_search_ledger_count"
+  }
+}

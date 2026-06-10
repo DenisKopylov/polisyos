@@ -1,0 +1,23 @@
+{
+  "l1_l5_l6_index_coverage": {
+    "bounded_surrogate": false,
+    "capability_index_refs": [],
+    "coverage_claim": "l1_dcat_ds_metric_bindings",
+    "l1_query_refs": [
+      "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings?construct=firm_survival&query=select_metric_bindings&row_count=56846"
+    ],
+    "l1_row_count": 56846,
+    "l5_calibration_refs": [
+      "repo://architecture/policy_design_case/layer3_health_metric_ledgers.toml#search-recall@known-seeds+index-staleness",
+      "capability-index-transition://firm-survival-l5-calibration"
+    ],
+    "l6_routing_refs": [
+      "repo://architecture/policy_design_case/layer3_discovery_search_discipline.json#routing"
+    ],
+    "production_dcat_exists": true,
+    "report_id": "layer3-g1-l1-l5-l6-index-coverage",
+    "status": "pass"
+  },
+  "rule_version": "policyos.layer3.g1.substrate_grounding_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1"
+}

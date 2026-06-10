@@ -1,0 +1,21 @@
+{
+  "rule_version": "policyos.layer3.g1.substrate_grounding_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1",
+  "search_engineering_quality": {
+    "broad_fail_open_error_handling": false,
+    "deterministic_replay": true,
+    "eager_full_corpus_scan": false,
+    "full_parquet_scan_count": 0,
+    "index_backed": true,
+    "lazy_or_streaming": true,
+    "named_library_refs": [
+      "duckdb",
+      "pyarrow.metadata_only",
+      "pydantic"
+    ],
+    "parquet_profile_mode": "metadata_only",
+    "report_id": "layer3-g1-search-engineering-quality",
+    "search_scaling_fixture_status": "pass",
+    "status": "pass"
+  }
+}

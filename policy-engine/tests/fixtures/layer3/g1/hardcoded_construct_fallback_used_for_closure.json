@@ -1,0 +1,18 @@
+{
+  "schema_version": "policyos.tests.layer3.g1.fixture.v1",
+  "fixture_id": "layer3-g1-hardcoded-construct-fallback-used-for-closure",
+  "purpose": "G1 cannot close by relying on G0 hardcode backlog entries.",
+  "expected_issue_codes": ["layer3_g1_hardcode_fallback_used_for_closure"],
+  "payload": {
+    "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1",
+    "rule_version": "policyos.layer3.g1.substrate_grounding_search.v1",
+    "grounding_closure_outcome": "grounded_or_uncertain",
+    "hardcode_strangle_delta": {
+      "fallback_closure_count": 1,
+      "used_fallback_refs": [
+        "capability_index_compiler.KNOWN_CONSTRUCTS"
+      ],
+      "search_backed_replacement_refs": []
+    }
+  }
+}

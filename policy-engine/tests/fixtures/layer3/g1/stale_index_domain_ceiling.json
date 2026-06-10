@@ -1,0 +1,20 @@
+{
+  "schema_version": "policyos.tests.layer3.g1.fixture.v1",
+  "fixture_id": "layer3-g1-stale-index-domain-ceiling",
+  "purpose": "Stale indexes must produce search-ceiling repair, not data domain ceiling.",
+  "expected_issue_codes": [
+    "layer3_g1_stale_index_blocks_domain_ceiling",
+    "layer3_g1_search_ceiling_not_domain_ceiling"
+  ],
+  "payload": {
+    "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1",
+    "rule_version": "policyos.layer3.g1.substrate_grounding_search.v1",
+    "grounding_closure_outcome": "grounded_abstention_domain_ceiling",
+    "search_recall_freshness": {
+      "search_recall_status": "pass",
+      "index_freshness_status": "fail",
+      "stale_index_refs": ["g1-index:l1-dcat-ds-metric-bindings"],
+      "freshness_cutoff": "P7D"
+    }
+  }
+}

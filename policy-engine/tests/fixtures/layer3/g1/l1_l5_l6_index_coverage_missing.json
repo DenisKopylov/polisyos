@@ -1,0 +1,17 @@
+{
+  "schema_version": "policyos.tests.layer3.g1.fixture.v1",
+  "fixture_id": "layer3-g1-l1-l5-l6-index-coverage-missing",
+  "purpose": "Successful G1 search closure requires direct L1 DCAT plus L5 and L6 refs.",
+  "expected_issue_codes": ["layer3_g1_l1_l5_l6_index_coverage_missing"],
+  "payload": {
+    "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1",
+    "rule_version": "policyos.layer3.g1.substrate_grounding_search.v1",
+    "l1_l5_l6_index_coverage": {
+      "status": "fail",
+      "l1_query_refs": [],
+      "l5_calibration_refs": ["repo://architecture/policy_design_case/layer3_health_metric_ledgers.toml"],
+      "l6_routing_refs": [],
+      "coverage_claim": "full_dcat_scale"
+    }
+  }
+}

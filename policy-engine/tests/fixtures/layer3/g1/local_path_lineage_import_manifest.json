@@ -1,0 +1,23 @@
+{
+  "schema_version": "policyos.tests.layer3.g1.fixture.v1",
+  "fixture_id": "layer3-g1-local-path-lineage-import-manifest",
+  "purpose": "Workstation-local import paths must be canonicalized before lineage authority is recorded.",
+  "expected_issue_codes": ["layer3_g1_local_path_lineage_ref"],
+  "payload": {
+    "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1",
+    "rule_version": "policyos.layer3.g1.substrate_grounding_search.v1",
+    "lineage_contamination_ledger": {
+      "records": [
+        {
+          "record_id": "g1-lineage:local-users-path",
+          "construct_ref": "firm_survival",
+          "lineage_refs": [
+            "/Users/deniskopylov/polisyos/policy-engine/production_data/canonical/local_data_20260501/ukraine_server_support_20260410/raw_panel.parquet"
+          ],
+          "canonicalized": false,
+          "contamination_status": "clean"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "schema_version": "policyos.tests.layer3.g1.fixture.v1",
+  "fixture_id": "layer3-g1-mechanism-generality-single-request",
+  "purpose": "The G1 search mechanism must support at least two substrate request shapes.",
+  "expected_issue_codes": ["layer3_g1_mechanism_generality_single_request"],
+  "payload": {
+    "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1",
+    "rule_version": "policyos.layer3.g1.substrate_grounding_search.v1",
+    "mechanism_generality": {
+      "request_shape_count": 1,
+      "request_shapes": ["construct_to_metric_binding"],
+      "shared_search_mechanism_ref": "g1-substrate-search:v1"
+    }
+  }
+}

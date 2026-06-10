@@ -1,0 +1,15 @@
+{
+  "conformance_report": {
+    "adapter_contract_path_count": 2,
+    "adapter_path_ids": [
+      "layer3_data_asset_port_to_source_contract",
+      "layer3_fabric_acquisition_to_source_contract"
+    ],
+    "issue_codes": [],
+    "report_id": "layer3-g1-conformance-report",
+    "semantic_loss_event_count": 0,
+    "status": "pass"
+  },
+  "rule_version": "policyos.layer3.g1.substrate_grounding_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1"
+}

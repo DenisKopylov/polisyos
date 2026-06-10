@@ -1,0 +1,27 @@
+{
+  "schema_version": "policyos.tests.layer3.g1.fixture.v1",
+  "fixture_id": "layer3-g1-lossy-source-contract-projection",
+  "purpose": "Adapter preservation must block projections that drop source, lineage, rights, or authority fields.",
+  "expected_issue_codes": ["layer3_g1_semantic_loss"],
+  "payload": {
+    "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1",
+    "rule_version": "policyos.layer3.g1.substrate_grounding_search.v1",
+    "adapter_projection": {
+      "adapter_path_id": "layer3_data_asset_port_to_source_contract",
+      "source_surface": {
+        "source_contract_ref": "source-contract://layer3.ua_msme.firm_survival",
+        "lineage_refs": ["repo://production_data/ukraine/manifest.json"],
+        "rights_ref": "rights://aggregate-only",
+        "may_not_use_for": ["claim_authority", "production_authority"]
+      },
+      "target_surface": {
+        "source_contract_ref": "source-contract://layer3.ua_msme.firm_survival"
+      },
+      "dropped_field_paths": [
+        "$.lineage_refs",
+        "$.rights_ref",
+        "$.may_not_use_for"
+      ]
+    }
+  }
+}

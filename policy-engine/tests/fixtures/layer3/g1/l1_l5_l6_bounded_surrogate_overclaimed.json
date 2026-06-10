@@ -1,0 +1,19 @@
+{
+  "schema_version": "policyos.tests.layer3.g1.fixture.v1",
+  "fixture_id": "layer3-g1-l1-l5-l6-bounded-surrogate-overclaimed",
+  "purpose": "A bounded surrogate cannot be reported as full DCAT-scale L1 coverage.",
+  "expected_issue_codes": ["layer3_g1_l1_l5_l6_bounded_surrogate_overclaimed"],
+  "payload": {
+    "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1",
+    "rule_version": "policyos.layer3.g1.substrate_grounding_search.v1",
+    "l1_l5_l6_index_coverage": {
+      "status": "pass",
+      "l1_query_refs": ["fixture://bounded-dcat-subset#ds_metric_bindings"],
+      "l5_calibration_refs": ["fixture://bounded-l5"],
+      "l6_routing_refs": ["fixture://bounded-l6"],
+      "coverage_claim": "full_dcat_scale",
+      "bounded_surrogate": true,
+      "omitted_full_scale_coverage": true
+    }
+  }
+}

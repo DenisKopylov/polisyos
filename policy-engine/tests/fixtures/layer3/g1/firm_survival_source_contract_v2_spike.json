@@ -1,0 +1,36 @@
+{
+  "schema_version": "policyos.tests.layer3.g1.fixture.v1",
+  "fixture_id": "layer3-g1-firm-survival-source-contract-v2-spike",
+  "purpose": "Pin the first UA-MSME source-contract spike shape for firm_survival.",
+  "expected_issue_codes": [],
+  "payload": {
+    "construct_ref": "firm_survival",
+    "acceptable_groundability_statuses": [
+      "valid_source_contract",
+      "domain_ceiling_data_insufficiency"
+    ],
+    "minimum_valid_snapshot_fields": [
+      "schema_version",
+      "id",
+      "version",
+      "owner",
+      "source",
+      "schema",
+      "semantics",
+      "security",
+      "quality",
+      "terms",
+      "replay",
+      "lineage",
+      "processing",
+      "retention",
+      "status",
+      "content_hash"
+    ],
+    "domain_ceiling_status": "domain_ceiling_data_insufficiency",
+    "blocker_evidence_refs": [
+      "repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/LOCAL_IMPORT_MANIFEST.json",
+      "repo://architecture/policy_design_case/layer3_data_asset_ports.json"
+    ]
+  }
+}

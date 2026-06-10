@@ -1,0 +1,21 @@
+{
+  "schema_version": "policyos.tests.layer3.g1.fixture.v1",
+  "fixture_id": "layer3-g1-hardcoded-fallback-not-deleted",
+  "purpose": "A search replacement does not close G1 while executable hardcoded fallback remains.",
+  "expected_issue_codes": ["layer3_g1_hardcode_fallback_not_deleted"],
+  "payload": {
+    "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1",
+    "rule_version": "policyos.layer3.g1.substrate_grounding_search.v1",
+    "hardcode_strangle_delta": {
+      "fallback_deletion_status": "still_executable",
+      "delta_records": [
+        {
+          "backlog_ref": "capability_resolver.REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS",
+          "search_backed_replacement_ref": "g1-resource-discovery:scenario-family-source-contract",
+          "fallback_deleted_or_disabled": false,
+          "no_fallback_proof_ref": null
+        }
+      ]
+    }
+  }
+}

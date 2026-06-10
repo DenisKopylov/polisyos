@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from importlib import import_module
+from pathlib import Path
+
 import pytest
 from pydantic import ValidationError
 
@@ -24,6 +27,7 @@ SEED_FACETS = [
     "time_role",
     "evidence_status",
 ]
+REPO_ROOT = Path(__file__).resolve().parents[4]
 
 
 def _expression(construct: str = PINNED) -> ConstructExpression:
@@ -156,3 +160,17 @@ def test_index_delta_does_not_mutate_closed_case_replay() -> None:
     loop.run_to_closure()
 
     assert loop.replay_closed_case(frozen) == frozen.outcome
+
+
+def test_s3_substrate_consumes_g1_grounded_binding_through_existing_resolver_port() -> None:
+    g1 = import_module("polisyos.runtime.quality.layer3_substrate_grounding")
+    resolver = g1.build_g1_requirement_to_capability_resolver(REPO_ROOT)
+
+    binding = resolve_expression(_expression("firm_survival"), resolver=resolver)
+
+    assert isinstance(binding, CapabilityBindingResult)
+    assert binding.construct_ref == "firm_survival"
+    assert str(binding.capability_index_ref).startswith("layer3-g1:")
+    assert binding.lineage_refs
+    assert "claim_authority" in binding.may_not_use_for
+    assert "production_authority" in binding.may_not_use_for

@@ -1,0 +1,24 @@
+{
+  "schema_version": "policyos.tests.layer3.g1.fixture.v1",
+  "fixture_id": "layer3-g1-active-flag-only-source-contract",
+  "purpose": "A status-active echo is not Fabric SourceContract v2 validation evidence.",
+  "expected_issue_codes": ["layer3_g1_source_contract_validation_echo"],
+  "payload": {
+    "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1",
+    "rule_version": "policyos.layer3.g1.substrate_grounding_search.v1",
+    "source_contract_snapshot": {
+      "id": "source-contract-active-echo",
+      "status": "active",
+      "content_hash": "sha256:active-flag-only",
+      "schema": null,
+      "quality": null,
+      "replay": null,
+      "lineage": null,
+      "terms": null
+    },
+    "binding": {
+      "construct_ref": "firm_survival",
+      "grounding_status": "observed_but_uncertain"
+    }
+  }
+}

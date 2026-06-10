@@ -1,0 +1,62 @@
+{
+  "adapter_admission_registry": {
+    "records": [
+      {
+        "adapter_id": "layer3-substrate-data-binding-to-source-contract",
+        "admission_purpose": "binding",
+        "admitted_for_binding": true,
+        "admitted_for_gap_routing": false,
+        "g0_admission_record": {
+          "adapter_contract_path_refs": [
+            "layer3_data_asset_port_to_source_contract"
+          ],
+          "adapter_id": "layer3-substrate-data-binding-to-source-contract",
+          "admission_state": "admitted",
+          "admitted": true,
+          "conformance_status": "pass",
+          "maturity": "predictive",
+          "port_ids": [
+            "layer3.substrate_grounding_search_adapter"
+          ],
+          "promotion_state": "shadow",
+          "quarantine_check": "not_blocked",
+          "source_ids": [
+            "layer3-substrate-grounding-search"
+          ],
+          "source_touchpoint_refs": [
+            "touchpoint://runtime-quality/layer3-g1-substrate"
+          ]
+        }
+      },
+      {
+        "adapter_id": "layer3-fabric-acquisition-to-source-contract",
+        "admission_purpose": "gap_routing",
+        "admitted_for_binding": false,
+        "admitted_for_gap_routing": true,
+        "g0_admission_record": {
+          "adapter_contract_path_refs": [
+            "layer3_fabric_acquisition_to_source_contract"
+          ],
+          "adapter_id": "layer3-fabric-acquisition-to-source-contract",
+          "admission_state": "admitted",
+          "admitted": true,
+          "conformance_status": "pass",
+          "maturity": "fail_closed",
+          "port_ids": [
+            "layer3.g1_corpus_route"
+          ],
+          "promotion_state": "shadow",
+          "quarantine_check": "not_blocked",
+          "source_ids": [
+            "layer3-fabric-acquisition-gap"
+          ],
+          "source_touchpoint_refs": [
+            "touchpoint://runtime-quality/layer3-g1-acquisition"
+          ]
+        }
+      }
+    ]
+  },
+  "rule_version": "policyos.layer3.g1.substrate_grounding_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1"
+}

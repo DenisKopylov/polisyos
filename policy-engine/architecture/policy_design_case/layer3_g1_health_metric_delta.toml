@@ -1,0 +1,10 @@
+schema_version = "policyos.policy_design_case.layer3_g1_substrate_grounding.v1"
+rule_version = "policyos.layer3.g1.substrate_grounding_search.v1"
+
+[health_metric_delta]
+metric_ids = ["envelope-expansion-rate", "adapter-semantic-loss", "governance-throughput", "demand-pull-vs-abstention", "search-recall@known-seeds+index-staleness"]
+readings."adapter-semantic-loss" = { delta = 0, status = "pass" }
+readings."demand-pull-vs-abstention" = "not_authority_stage"
+readings."envelope-expansion-rate" = "no_change"
+readings."governance-throughput" = { promotion_attempt_count = 0 }
+readings."search-recall@known-seeds+index-staleness" = { index_freshness_status = "pass", search_recall_status = "pass" }

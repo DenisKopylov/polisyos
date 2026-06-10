@@ -1,0 +1,15 @@
+{
+  "rule_version": "policyos.layer3.g1.substrate_grounding_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1",
+  "search_recall_freshness": {
+    "index_freshness_status": "pass",
+    "known_groundable_seed_refs": [
+      "g1-recall-seed:source-contract-discovery",
+      "g1-recall-seed:ua-msme-firm-survival"
+    ],
+    "missed_seed_refs": [],
+    "report_id": "layer3-g1-search-recall-freshness",
+    "search_recall_status": "pass",
+    "stale_index_refs": []
+  }
+}

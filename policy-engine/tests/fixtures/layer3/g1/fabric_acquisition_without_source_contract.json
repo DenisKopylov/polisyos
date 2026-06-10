@@ -1,0 +1,25 @@
+{
+  "schema_version": "policyos.tests.layer3.g1.fixture.v1",
+  "fixture_id": "layer3-g1-fabric-acquisition-without-source-contract",
+  "purpose": "Acquisition strategy records are fail-closed gap records until SourceContract v2 validates.",
+  "expected_issue_codes": [
+    "layer3_g1_missing_source_contract",
+    "layer3_g1_acquisition_gap_overclaimed"
+  ],
+  "payload": {
+    "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1",
+    "rule_version": "policyos.layer3.g1.substrate_grounding_search.v1",
+    "acquisition_grounding_records": [
+      {
+        "record_id": "g1-acquisition:credit-program-enrollment:no-contract",
+        "construct_ref": "credit_program_enrollment",
+        "strategy_refs": ["acquisition:acquire_from_nbu_registry"],
+        "source_contract_ref": null,
+        "source_contract_snapshot_ref": null,
+        "gap_status": "candidate_strategy",
+        "coverage_claimed": true,
+        "grounding_status": "grounded_binding"
+      }
+    ]
+  }
+}

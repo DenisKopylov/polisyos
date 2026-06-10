@@ -1,0 +1,20 @@
+{
+  "schema_version": "policyos.tests.layer3.g1.fixture.v1",
+  "fixture_id": "layer3-g1-stale-or-missing-g0-v2-dependency-artifact",
+  "purpose": "G1 must fail before grounding when G0 v2 dependency evidence is stale or absent.",
+  "expected_issue_codes": ["layer3_g1_g0_dependency_not_ready"],
+  "payload": {
+    "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1",
+    "rule_version": "policyos.layer3.g1.substrate_grounding_search.v1",
+    "g0_dependency_gate": {
+      "status": "fail",
+      "schema_version": "policyos.policy_design_case.layer3_g0_discovery_search.v1",
+      "rule_version": "policyos.layer3.g0.discovery_search_free_growth.v1",
+      "missing_artifact_refs": [
+        "repo://architecture/policy_design_case/layer3_discovery_search_discipline.json"
+      ],
+      "g1_dependency_requirements_status": "missing"
+    },
+    "grounding_closure_outcome": "blocked_g0_dependency"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": "policyos.tests.layer3.g1.fixture.v1",
+  "fixture_id": "layer3-g1-capability-index-used-as-l1-search",
+  "purpose": "Capability-index transition outputs may not masquerade as the L1 DCAT search route.",
+  "expected_issue_codes": ["layer3_g1_capability_index_used_as_l1_search"],
+  "payload": {
+    "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1",
+    "rule_version": "policyos.layer3.g1.substrate_grounding_search.v1",
+    "l1_l5_l6_index_coverage": {
+      "status": "pass",
+      "l1_query_refs": [
+        "capability-index://_build/.tmp/production-quality/capability-index/capability_index_v1.duckdb#capabilities"
+      ],
+      "transition_evidence_refs": [
+        "capability-index://_build/.tmp/production-quality/capability-index/capability_index_v1.duckdb#capabilities"
+      ],
+      "coverage_claim": "l1_dcat_ds_metric_bindings"
+    }
+  }
+}

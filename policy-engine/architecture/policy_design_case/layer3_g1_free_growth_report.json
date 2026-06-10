@@ -1,0 +1,14 @@
+{
+  "free_growth_report": {
+    "code_change_required": false,
+    "discovered_metric_ids": [
+      "synthetic_g1_msme_working_capital_continuity_rate"
+    ],
+    "free_growth_fixture_count": 1,
+    "report_id": "layer3-g1-free-growth-report",
+    "search_route": "l1_dcat_ds_metric_bindings",
+    "status": "pass"
+  },
+  "rule_version": "policyos.layer3.g1.substrate_grounding_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1"
+}

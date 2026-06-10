@@ -1,0 +1,26 @@
+{
+  "schema_version": "policyos.tests.layer3.g1.fixture.v1",
+  "fixture_id": "layer3-g1-search-no-ledger-abstention",
+  "purpose": "No-hit abstention cannot become domain ceiling without replayable search frontier.",
+  "expected_issue_codes": [
+    "layer3_g1_search_ledger_missing",
+    "layer3_g1_no_hit_without_replayable_frontier"
+  ],
+  "payload": {
+    "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1",
+    "rule_version": "policyos.layer3.g1.substrate_grounding_search.v1",
+    "search_results": [
+      {
+        "result_id": "g1-result:no-hit-without-ledger",
+        "case_id": "ua-msme-affordable-loans-2022",
+        "construct_bundle_id": "ukrainian_msme_credit_constructs",
+        "construct_ref": "credit_program_enrollment",
+        "grounding_status": "grounded_abstention_domain_ceiling",
+        "abstention_reason": "data_insufficiency_domain_ceiling",
+        "search_ledger_refs": [],
+        "replayable_frontier_ref": null
+      }
+    ],
+    "search_ledgers": []
+  }
+}

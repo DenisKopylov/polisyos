@@ -1,0 +1,32 @@
+{
+  "schema_version": "policyos.tests.layer3.g1.fixture.v1",
+  "fixture_id": "layer3-g1-missing-rights-source-contract",
+  "purpose": "SourceContract-like payload without legal use rights must fail closed.",
+  "expected_issue_codes": ["layer3_g1_missing_rights"],
+  "payload": {
+    "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1",
+    "rule_version": "policyos.layer3.g1.substrate_grounding_search.v1",
+    "source_contract_snapshot": {
+      "schema_version": "fabric.source_contract.v2",
+      "id": "layer3.ua_msme.firm_survival.missing_rights",
+      "status": "active",
+      "schema": {
+        "fields": [
+          {
+            "name": "firm_id",
+            "type": "string"
+          }
+        ]
+      },
+      "terms": {
+        "allowed_uses": [],
+        "disallowed_uses": ["public_row_level_release"]
+      },
+      "rights_ref": null
+    },
+    "binding": {
+      "construct_ref": "firm_survival",
+      "grounding_status": "grounded_binding"
+    }
+  }
+}

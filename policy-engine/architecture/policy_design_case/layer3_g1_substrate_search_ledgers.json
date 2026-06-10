@@ -1,0 +1,94 @@
+{
+  "rule_version": "policyos.layer3.g1.substrate_grounding_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1",
+  "search_ledgers": [
+    {
+      "absence_or_incompleteness_reason": null,
+      "authoritative_for": [],
+      "completeness_status": "complete",
+      "cutoff_budget_ref": "budget://layer3-g1/targeted-unit-search",
+      "event_type": "selected_candidate",
+      "g0_ledger_ref": "repo://architecture/policy_design_case/layer3_discovery_search_discipline.json#grounding_search_ledgers",
+      "index_freshness_refs": [
+        "g1-index-freshness:l1-dcat"
+      ],
+      "index_version_refs": [
+        "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings?construct=firm_survival&query=select_metric_bindings&row_count=56846"
+      ],
+      "known_seed_refs": [
+        "g1-recall-seed:ua-msme-firm-survival"
+      ],
+      "ledger_id": "g1-ledger:construct_to_metric_binding:firm_survival",
+      "may_not_use_for": [
+        "claim_authority",
+        "causal_effect",
+        "policy_recommendation",
+        "publishability",
+        "adapter_promotion",
+        "useful_design_credit",
+        "production_authority",
+        "search_hit_as_authority"
+      ],
+      "normalized_query_refs": [
+        "construct:firm_survival"
+      ],
+      "ranking_policy_ref": "policyos.layer3.g1.rank.source_contract_readiness.v1",
+      "rejected_candidate_refs": [
+        "capability-index-transition:not-l1-authority"
+      ],
+      "replay_key": "layer3-g1:construct_to_metric_binding:firm_survival:2026-06-07",
+      "searched_index_refs": [
+        "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings",
+        "repo://architecture/policy_design_case/layer3_discovery_search_discipline.json"
+      ],
+      "selected_candidate_refs": [
+        "capability:layer3-g1:firm_survival:source-contract"
+      ],
+      "typed_request_ref": "g1-request:construct-to-metric-binding:firm-survival"
+    },
+    {
+      "absence_or_incompleteness_reason": null,
+      "authoritative_for": [],
+      "completeness_status": "complete",
+      "cutoff_budget_ref": "budget://layer3-g1/targeted-unit-search",
+      "event_type": "selected_candidate",
+      "g0_ledger_ref": "repo://architecture/policy_design_case/layer3_discovery_search_discipline.json#grounding_search_ledgers",
+      "index_freshness_refs": [
+        "g1-index-freshness:l1-dcat"
+      ],
+      "index_version_refs": [
+        "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings?construct=firm_survival&query=select_metric_bindings&row_count=56846"
+      ],
+      "known_seed_refs": [
+        "g1-recall-seed:ua-msme-firm-survival"
+      ],
+      "ledger_id": "g1-ledger:scenario_family_to_source_contract:firm_survival",
+      "may_not_use_for": [
+        "claim_authority",
+        "causal_effect",
+        "policy_recommendation",
+        "publishability",
+        "adapter_promotion",
+        "useful_design_credit",
+        "production_authority",
+        "search_hit_as_authority"
+      ],
+      "normalized_query_refs": [
+        "construct:firm_survival"
+      ],
+      "ranking_policy_ref": "policyos.layer3.g1.rank.source_contract_readiness.v1",
+      "rejected_candidate_refs": [
+        "capability-index-transition:not-l1-authority"
+      ],
+      "replay_key": "layer3-g1:scenario_family_to_source_contract:firm_survival:2026-06-07",
+      "searched_index_refs": [
+        "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings",
+        "repo://architecture/policy_design_case/layer3_discovery_search_discipline.json"
+      ],
+      "selected_candidate_refs": [
+        "capability:layer3-g1:firm_survival:source-contract"
+      ],
+      "typed_request_ref": "g1-request:scenario-family-to-source-contract:firm-survival"
+    }
+  ]
+}

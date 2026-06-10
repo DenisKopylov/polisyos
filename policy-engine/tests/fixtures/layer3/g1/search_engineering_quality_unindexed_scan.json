@@ -1,0 +1,19 @@
+{
+  "schema_version": "policyos.tests.layer3.g1.fixture.v1",
+  "fixture_id": "layer3-g1-search-engineering-quality-unindexed-scan",
+  "purpose": "G1 search must be index-backed, lazy, deterministic, and fail-closed.",
+  "expected_issue_codes": ["layer3_g1_search_engineering_quality_failed"],
+  "payload": {
+    "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1",
+    "rule_version": "policyos.layer3.g1.substrate_grounding_search.v1",
+    "search_engineering_quality": {
+      "status": "fail",
+      "named_library_refs": [],
+      "index_backed": false,
+      "lazy_or_streaming": false,
+      "deterministic_replay": false,
+      "eager_full_corpus_scan": true,
+      "broad_fail_open_error_handling": true
+    }
+  }
+}

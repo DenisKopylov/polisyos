@@ -1,0 +1,68 @@
+{
+  "public_export_projection_refs": {
+    "authority_boundary": {
+      "authoritative_for": [
+        "g3_projection_audit"
+      ],
+      "may_not_use_for": [
+        "claim_authority",
+        "causal_effect_authority_without_adapter_validation",
+        "policy_recommendation",
+        "closeout_authority",
+        "publication_authority",
+        "useful_design_credit",
+        "production_authority",
+        "search_hit_as_certificate",
+        "search_frontier_as_proof_authority"
+      ],
+      "posture": "shadow",
+      "rule_version_refs": [
+        "policyos.layer3.g3.analytics_search.v1"
+      ],
+      "source_authority": "deterministic_producer"
+    },
+    "authority_role": "projection_only",
+    "blocked_certificate_count": 0,
+    "certificate_resolution_report_ref": "repo://architecture/policy_design_case/layer3_g3_certificate_resolution_report.json",
+    "ir_analytics_bridge_refs": [
+      "sha256:c0bac918d049131c1c73e4bf60b0025258d19215593d0372977fd8edf9c6c76e"
+    ],
+    "issue_codes": [],
+    "may_not_use_for": [
+      "claim_authority",
+      "causal_effect_authority_without_adapter_validation",
+      "policy_recommendation",
+      "closeout_authority",
+      "publication_authority",
+      "useful_design_credit",
+      "production_authority",
+      "search_hit_as_certificate",
+      "search_frontier_as_proof_authority"
+    ],
+    "method_requirement_refs": [
+      "method-requirement://layer3/g3/default"
+    ],
+    "projection_ref": "pdc://layer3/g3/public-export-projection",
+    "proof_carrying_analytics_refs": [
+      "pdc://layer3/g3/ua-msme-affordable-loans-2022/proof/7b90e79ae57710f75add190e"
+    ],
+    "public_payload_redaction_status": "pass",
+    "raw_cas_manifest_exported": false,
+    "raw_proof_payload_exported": false,
+    "raw_query_ledger_exported": false,
+    "record_id": "layer3-g3-public-export-projection-refs",
+    "redacted_search_frontier_refs": [
+      "g3-search-frontier://layer3/g3/resolved-proof-candidates"
+    ],
+    "resolved_certificate_count": 1,
+    "s11_predictive_posture_refs": [
+      "pdc://layer3/g3/ua-msme-affordable-loans-2022/s11/predictive-knowledge"
+    ],
+    "search_ledger_refs": [
+      "repo://architecture/policy_design_case/layer3_g3_ir_analytics_search_ledgers.json#g3-ir-analytics-search-ledger:996e76f3800bce22e3f639dc"
+    ],
+    "status": "pass"
+  },
+  "rule_version": "policyos.layer3.g3.analytics_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g3_analytics_search.v1"
+}

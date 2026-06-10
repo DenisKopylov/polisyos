@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 # ruff: noqa: S101
+import importlib
 from typing import TYPE_CHECKING
 
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -244,3 +245,112 @@ def test_superiority_publication_and_registry_fail_without_w8c_comparison_record
         issue["code"] == "runtime_claim_registry_superiority_comparison_refs_missing"
         for issue in registry["issues"]
     )
+
+
+def test_layer3_g3_bridge_is_baseline_comparison_evidence_without_authority_escalation(
+    tmp_path: Path,
+) -> None:
+    g3 = importlib.import_module("polisyos.runtime.quality.layer3_analytics_search")
+    ledger = _claim_ledger()
+    superiority_claim = next(
+        claim for claim in ledger.claims if claim.claim_use is ClaimUse.SUPERIORITY
+    )
+    alternative_ref = sorted(superiority_claim.alternative_refs)[0]
+    request, proof_bindings, bridge_binding = _g3_comparison_bridge(
+        g3,
+        tmp_path,
+        superiority_claim.claim_id,
+        baseline_ref=sorted(superiority_claim.baseline_refs)[0],
+        alternative_ref=alternative_ref,
+    )
+
+    gate = g3.build_g3_baseline_comparison_consumer_gate(
+        request=request,
+        claim_ledger=ledger,
+        ir_analytics_bridge=bridge_binding,
+        selected_option_ref="selected:msme-credit-guarantee",
+        selected_option_label="MSME credit guarantee",
+        option_metric_values={
+            "selected:msme-credit-guarantee": {"credit_access_gain": 0.34},
+            alternative_ref: {"credit_access_gain": 0.22},
+        },
+        objective_directions={"credit_access_gain": "maximize"},
+    )
+
+    comparison = gate.compiled_ledger_payload["comparison_records"][0]
+    evidence_refs = {
+        evidence["evidence_ref"] for evidence in comparison["comparison_evidence"]
+    }
+
+    assert gate.status == "pass"
+    assert gate.comparison_record_count == 1
+    assert proof_bindings[0].s11_record["ir_analytics_refs"][0] in evidence_refs
+    assert bridge_binding.bridge_ref in gate.ir_analytics_bridge_refs
+    assert "ir_causal_analytics" in comparison["producer_refs"]
+    assert "policy_recommendation" not in comparison["authority_boundary"]["authoritative_for"]
+    assert "closeout_pass" in comparison["authority_boundary"]["may_not_use_for"]
+    assert "policy_recommendation" in gate.may_not_use_for
+    assert "closeout_authority" in gate.may_not_use_for
+
+
+def _g3_comparison_bridge(
+    g3: object,
+    tmp_path: Path,
+    claim_id: str,
+    *,
+    baseline_ref: str,
+    alternative_ref: str,
+) -> tuple[object, tuple[object, ...], object]:
+    request = g3.Layer3G3AnalyticsRequest(
+        request_id="g3-request:task5:baseline-comparison",
+        claim_id=claim_id,
+        case_id="ua-msme-affordable-loans-2022",
+        cause="agriculture.fertilizer_use",
+        effect="agriculture.food_nutritional_quality",
+        comparison_ref="comparison://g3/task5/baseline-comparison",
+        baseline_ref=baseline_ref,
+        alternative_refs=(alternative_ref,),
+        concept_refs=("concept://g3/task5/baseline-comparison",),
+        semantic_spine_refs=("semantic-spine://g3/task5/baseline-comparison",),
+        method_requirement_refs=("g3-method-req:baseline-comparison",),
+        certificate_kinds=("proof_bundle",),
+    )
+    store = FileSystemCAS(tmp_path / "g3-cas")
+    candidates = g3.produce_g3_deterministic_first_case_certificate(request, store=store)
+    artifact_index = g3.build_g3_ir_artifact_store_index(
+        store=store,
+        selected_candidates=candidates,
+    )
+    certificate_report = g3.build_g3_certificate_resolution_report(
+        candidates=candidates,
+        artifact_index=artifact_index,
+        store=store,
+    )
+    method_bindings = g3.build_g3_method_requirement_bindings(
+        request=request,
+        method_requirements=(
+            {
+                "requirement_id": request.method_requirement_refs[0],
+                "run_id": request.case_id,
+                "claim_id": request.claim_id,
+                "identification_class": "point",
+                "method_expectations": ["causal_identification"],
+                "required_method_families": ["causal_identification"],
+                "requires_uncertainty_envelope": False,
+                "requires_limitation_refs": False,
+                "baseline_refs": [request.baseline_ref],
+                "alternative_refs": list(request.alternative_refs),
+            },
+        ),
+        selected_method_refs=("ir.method.g3.task5.baseline_comparison",),
+    )
+    proof_bindings = g3.build_g3_proof_carrying_analytics_bindings(
+        request=request,
+        certificate_resolution_report=certificate_report,
+        method_requirement_bindings=method_bindings,
+    )
+    bridge_binding = g3.build_g3_ir_analytics_bridge_bindings(
+        proof_carrying_analytics_records=proof_bindings,
+        method_requirement_bindings=method_bindings,
+    )
+    return request, proof_bindings, bridge_binding

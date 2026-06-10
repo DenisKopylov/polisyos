@@ -1,0 +1,10 @@
+schema_version = "policyos.policy_design_case.layer3_g3_analytics_search.v1"
+rule_version = "policyos.layer3.g3.analytics_search.v1"
+
+[health_metric_delta]
+metric_ids = ["envelope-expansion-rate", "adapter-semantic-loss", "governance-throughput", "demand-pull-vs-abstention", "search-recall@known-seeds+index-staleness"]
+readings."adapter-semantic-loss" = "0"
+readings."demand-pull-vs-abstention" = "w12d_first_case_full_route"
+readings."envelope-expansion-rate" = "0"
+readings."governance-throughput" = "g3_readiness_bundle_emitted"
+readings."search-recall@known-seeds+index-staleness" = "task1_catalog_search_ready"

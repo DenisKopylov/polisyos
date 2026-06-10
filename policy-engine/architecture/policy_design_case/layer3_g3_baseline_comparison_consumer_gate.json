@@ -1,0 +1,951 @@
+{
+  "baseline_comparison_consumer_gate": {
+    "authority_boundary": {
+      "authoritative_for": [
+        "baseline_alternative_comparison_records",
+        "superiority_claim_comparison_preconditions",
+        "rejected_option_reason_records",
+        "dominated_frontier_records"
+      ],
+      "may_not_use_for": [
+        "legal_authority",
+        "data_source_truth",
+        "method_validity_truth",
+        "scholar_support_truth",
+        "projection_authority",
+        "closeout_pass"
+      ]
+    },
+    "case_id": "ua-msme-affordable-loans-2022",
+    "claim_id": "claim_e4838289c699c353",
+    "comparison_evidence_refs": [
+      "sha256:ed68661e66580eb78cf089b0c84972861c80440a605cc12b38aef0c52c416494",
+      "ir.method.g3.default_analytics_search"
+    ],
+    "comparison_method_refs": [
+      "ir.method.g3.default_analytics_search",
+      "sha256:ed68661e66580eb78cf089b0c84972861c80440a605cc12b38aef0c52c416494"
+    ],
+    "comparison_record_count": 1,
+    "compiled_ledger_payload": {
+      "alternative_records": [
+        {
+          "alternative_id": "alt_direct_grants",
+          "authority_profile_refs": [
+            "authority.fiscal_delegated"
+          ],
+          "concept_spine_refs": [
+            "concept.msme_credit_guarantee",
+            "concept.credit_access"
+          ],
+          "description": "Provide direct grants instead of guarantees.",
+          "facet_refs": [
+            "facet_instrument",
+            "facet_outcome"
+          ],
+          "label": "Direct MSME grants",
+          "metadata": {},
+          "obligation_refs": [
+            "obl_compare"
+          ],
+          "rejected_reasons": [],
+          "run_id": "run_layer3_g3_default",
+          "schema_version": "1.0",
+          "source_class": "deterministic_compiler",
+          "status": "seed"
+        }
+      ],
+      "baseline_records": [
+        {
+          "authority_profile_refs": [
+            "authority.fiscal_delegated"
+          ],
+          "baseline_id": "baseline_17861029c844d160",
+          "baseline_type": "no_action",
+          "concept_spine_refs": [
+            "concept.msme_credit_guarantee",
+            "concept.credit_access"
+          ],
+          "description": "No new policy intervention is implemented.",
+          "facet_refs": [
+            "facet_instrument",
+            "facet_outcome"
+          ],
+          "label": "No action",
+          "metadata": {},
+          "obligation_refs": [
+            "obl_compare"
+          ],
+          "run_id": "run_layer3_g3_default",
+          "schema_version": "1.0",
+          "source_class": "deterministic_compiler"
+        },
+        {
+          "authority_profile_refs": [
+            "authority.fiscal_delegated"
+          ],
+          "baseline_id": "baseline_def7605074b2e8a4",
+          "baseline_type": "status_quo",
+          "concept_spine_refs": [
+            "concept.msme_credit_guarantee",
+            "concept.credit_access"
+          ],
+          "description": "Current policy and administrative practice continue.",
+          "facet_refs": [
+            "facet_instrument",
+            "facet_outcome"
+          ],
+          "label": "Status quo",
+          "metadata": {},
+          "obligation_refs": [
+            "obl_compare"
+          ],
+          "run_id": "run_layer3_g3_default",
+          "schema_version": "1.0",
+          "source_class": "deterministic_compiler"
+        },
+        {
+          "authority_profile_refs": [
+            "authority.fiscal_delegated"
+          ],
+          "baseline_id": "baseline_b5c67bd47047cfda",
+          "baseline_type": "business_as_usual",
+          "concept_spine_refs": [
+            "concept.msme_credit_guarantee",
+            "concept.credit_access"
+          ],
+          "description": "Expected trajectory continues without the proposed design change.",
+          "facet_refs": [
+            "facet_instrument",
+            "facet_outcome"
+          ],
+          "label": "Business as usual",
+          "metadata": {},
+          "obligation_refs": [
+            "obl_compare"
+          ],
+          "run_id": "run_layer3_g3_default",
+          "schema_version": "1.0",
+          "source_class": "deterministic_compiler"
+        },
+        {
+          "authority_profile_refs": [
+            "authority.fiscal_delegated"
+          ],
+          "baseline_id": "baseline_f9c117a4639f5d61",
+          "baseline_type": "named_alternative",
+          "concept_spine_refs": [
+            "concept.msme_credit_guarantee",
+            "concept.credit_access"
+          ],
+          "description": "Provide direct grants instead of guarantees.",
+          "facet_refs": [
+            "facet_instrument",
+            "facet_outcome"
+          ],
+          "label": "Direct MSME grants",
+          "metadata": {},
+          "obligation_refs": [
+            "obl_compare"
+          ],
+          "run_id": "run_layer3_g3_default",
+          "schema_version": "1.0",
+          "source_class": "deterministic_compiler"
+        }
+      ],
+      "claims": [
+        {
+          "alternative_refs": [],
+          "authority_profile_refs": [
+            "authority.fiscal_delegated"
+          ],
+          "baseline_refs": [],
+          "blocked_reasons": [],
+          "claim_family": "preference",
+          "claim_id": "claim_7b07524f60a9bac0",
+          "claim_type": "normative",
+          "claim_use": "decision_support",
+          "comparison_refs": [],
+          "concept_spine_refs": [
+            "concept.msme_credit_guarantee"
+          ],
+          "counterevidence_refs": [],
+          "decomposition_source_class": "deterministic_compiler",
+          "evidence_refs": [],
+          "facet_refs": [
+            "facet_instrument"
+          ],
+          "metadata": {
+            "source_label": "claim_decomposition.facet.facet_instrument"
+          },
+          "method_need_preconditions": [
+            {
+              "claim_id": "claim_7b07524f60a9bac0",
+              "claim_type": "normative",
+              "facet_refs": [
+                "facet_instrument"
+              ],
+              "metadata": {},
+              "method_need": "preference_elicitation_validity",
+              "obligation_refs": [
+                "obl_compare"
+              ],
+              "precondition_id": "method_need_1ee79f58e67b3960",
+              "reason": "preference claims require preference_elicitation_validity before method admission.",
+              "source": "claim_decomposition"
+            }
+          ],
+          "normalized_subject": null,
+          "obligation_refs": [
+            "obl_compare"
+          ],
+          "provenance_ref": null,
+          "publishability": "draft",
+          "readiness_level": "research_artifact",
+          "reviewer_refs": [],
+          "run_id": "run_layer3_g3_default",
+          "schema_version": "1.0",
+          "source_attribution": [
+            "claim_decomposition"
+          ],
+          "support_status": "unsupported",
+          "text": "Facet instrument_type requires claim coverage for credit guarantee.",
+          "uncertainty_profile_ref": null
+        },
+        {
+          "alternative_refs": [],
+          "authority_profile_refs": [
+            "authority.fiscal_delegated"
+          ],
+          "baseline_refs": [],
+          "blocked_reasons": [],
+          "claim_family": "causal",
+          "claim_id": "claim_345b278236dd77fa",
+          "claim_type": "causal",
+          "claim_use": "decision_support",
+          "comparison_refs": [],
+          "concept_spine_refs": [
+            "concept.credit_access"
+          ],
+          "counterevidence_refs": [],
+          "decomposition_source_class": "deterministic_compiler",
+          "evidence_refs": [],
+          "facet_refs": [
+            "facet_outcome"
+          ],
+          "metadata": {
+            "source_label": "claim_decomposition.facet.facet_outcome"
+          },
+          "method_need_preconditions": [
+            {
+              "claim_id": "claim_345b278236dd77fa",
+              "claim_type": "causal",
+              "facet_refs": [
+                "facet_outcome"
+              ],
+              "metadata": {},
+              "method_need": "causal_identification",
+              "obligation_refs": [
+                "obl_compare"
+              ],
+              "precondition_id": "method_need_80292fd5854bf114",
+              "reason": "causal claims require causal_identification before method admission.",
+              "source": "claim_decomposition"
+            }
+          ],
+          "normalized_subject": null,
+          "obligation_refs": [
+            "obl_compare"
+          ],
+          "provenance_ref": null,
+          "publishability": "draft",
+          "readiness_level": "research_artifact",
+          "reviewer_refs": [],
+          "run_id": "run_layer3_g3_default",
+          "schema_version": "1.0",
+          "source_attribution": [
+            "claim_decomposition"
+          ],
+          "support_status": "unsupported",
+          "text": "Facet outcome_channel requires claim coverage for credit access.",
+          "uncertainty_profile_ref": null
+        },
+        {
+          "alternative_refs": [],
+          "authority_profile_refs": [
+            "authority.fiscal_delegated"
+          ],
+          "baseline_refs": [],
+          "blocked_reasons": [],
+          "claim_family": "welfare",
+          "claim_id": "claim_5dc3e6720221e93c",
+          "claim_type": "welfare",
+          "claim_use": "decision_support",
+          "comparison_refs": [],
+          "concept_spine_refs": [
+            "concept.credit_access"
+          ],
+          "counterevidence_refs": [],
+          "decomposition_source_class": "deterministic_compiler",
+          "evidence_refs": [],
+          "facet_refs": [
+            "facet_instrument",
+            "facet_outcome"
+          ],
+          "metadata": {
+            "source_label": "claim_decomposition.obligation.obl_compare"
+          },
+          "method_need_preconditions": [
+            {
+              "claim_id": "claim_5dc3e6720221e93c",
+              "claim_type": "welfare",
+              "facet_refs": [
+                "facet_instrument",
+                "facet_outcome"
+              ],
+              "metadata": {},
+              "method_need": "welfare_weight_sensitivity",
+              "obligation_refs": [
+                "obl_compare"
+              ],
+              "precondition_id": "method_need_6a06939168805be0",
+              "reason": "welfare claims require welfare_weight_sensitivity before method admission.",
+              "source": "claim_decomposition"
+            }
+          ],
+          "normalized_subject": null,
+          "obligation_refs": [
+            "obl_compare"
+          ],
+          "provenance_ref": null,
+          "publishability": "draft",
+          "readiness_level": "research_artifact",
+          "reviewer_refs": [],
+          "run_id": "run_layer3_g3_default",
+          "schema_version": "1.0",
+          "source_attribution": [
+            "claim_decomposition"
+          ],
+          "support_status": "unsupported",
+          "text": "Obligation obl_compare: Compare selected option against baselines and alternatives.",
+          "uncertainty_profile_ref": null
+        },
+        {
+          "alternative_refs": [
+            "alt_direct_grants"
+          ],
+          "authority_profile_refs": [
+            "authority.fiscal_delegated"
+          ],
+          "baseline_refs": [
+            "baseline_17861029c844d160",
+            "baseline_def7605074b2e8a4",
+            "baseline_b5c67bd47047cfda",
+            "baseline_f9c117a4639f5d61"
+          ],
+          "blocked_reasons": [],
+          "claim_family": "welfare",
+          "claim_id": "claim_e4838289c699c353",
+          "claim_type": "welfare",
+          "claim_use": "superiority",
+          "comparison_refs": [
+            "baseline_comparison_97fb6a5619334410"
+          ],
+          "concept_spine_refs": [
+            "concept.msme_credit_guarantee",
+            "concept.credit_access"
+          ],
+          "counterevidence_refs": [],
+          "decomposition_source_class": "deterministic_compiler",
+          "evidence_refs": [],
+          "facet_refs": [
+            "facet_instrument",
+            "facet_outcome"
+          ],
+          "metadata": {
+            "source_label": "claim_decomposition.superiority"
+          },
+          "method_need_preconditions": [
+            {
+              "claim_id": "claim_e4838289c699c353",
+              "claim_type": "welfare",
+              "facet_refs": [
+                "facet_instrument",
+                "facet_outcome"
+              ],
+              "metadata": {},
+              "method_need": "welfare_weight_sensitivity",
+              "obligation_refs": [
+                "obl_compare"
+              ],
+              "precondition_id": "method_need_6c6fbde9b7d97543",
+              "reason": "welfare claims require welfare_weight_sensitivity before method admission.",
+              "source": "claim_decomposition"
+            },
+            {
+              "claim_id": "claim_e4838289c699c353",
+              "claim_type": "welfare",
+              "facet_refs": [
+                "facet_instrument",
+                "facet_outcome"
+              ],
+              "metadata": {},
+              "method_need": "frontier_comparison",
+              "obligation_refs": [
+                "obl_compare"
+              ],
+              "precondition_id": "method_need_05d233f5e1774ed3",
+              "reason": "welfare claims require frontier_comparison before method admission.",
+              "source": "claim_decomposition"
+            }
+          ],
+          "normalized_subject": null,
+          "obligation_refs": [
+            "obl_compare"
+          ],
+          "provenance_ref": null,
+          "publishability": "draft",
+          "readiness_level": "research_artifact",
+          "reviewer_refs": [],
+          "run_id": "run_layer3_g3_default",
+          "schema_version": "1.0",
+          "source_attribution": [
+            "claim_decomposition"
+          ],
+          "support_status": "unsupported",
+          "text": "Selected policy option must be compared against no-action, status quo, business-as-usual, and named alternatives before superiority is claimed.",
+          "uncertainty_profile_ref": null
+        }
+      ],
+      "comparison_records": [
+        {
+          "alternative_refs": [
+            "alt_direct_grants"
+          ],
+          "authority_boundary": {
+            "authoritative_for": [
+              "baseline_alternative_comparison_records",
+              "superiority_claim_comparison_preconditions",
+              "rejected_option_reason_records",
+              "dominated_frontier_records"
+            ],
+            "may_not_use_for": [
+              "legal_authority",
+              "data_source_truth",
+              "method_validity_truth",
+              "scholar_support_truth",
+              "projection_authority",
+              "closeout_pass"
+            ]
+          },
+          "baseline_refs": [
+            "baseline_def7605074b2e8a4",
+            "baseline_b5c67bd47047cfda",
+            "baseline_17861029c844d160",
+            "baseline_f9c117a4639f5d61"
+          ],
+          "baseline_types_covered": [
+            "no_action",
+            "status_quo",
+            "business_as_usual",
+            "named_alternative"
+          ],
+          "claim_id": "claim_e4838289c699c353",
+          "comparison_evidence": [
+            {
+              "claim_id": "claim_e4838289c699c353",
+              "effective_support_count": null,
+              "evidence_ref": "sha256:ed68661e66580eb78cf089b0c84972861c80440a605cc12b38aef0c52c416494",
+              "metadata": {},
+              "option_ref": "selected:layer3-g3-msme-credit-guarantee",
+              "producer_family": "ir_causal_analytics",
+              "raw_support_count": null,
+              "role": "ir_analytics_or_certificate"
+            },
+            {
+              "claim_id": "claim_e4838289c699c353",
+              "effective_support_count": null,
+              "evidence_ref": "ir.method.g3.default_analytics_search",
+              "metadata": {},
+              "option_ref": "selected:layer3-g3-msme-credit-guarantee",
+              "producer_family": "ir_causal_analytics",
+              "raw_support_count": null,
+              "role": "ir_analytics_or_certificate"
+            }
+          ],
+          "comparison_id": "baseline_comparison_97fb6a5619334410",
+          "comparison_limitation_refs": [
+            "comparison-option-evidence-missing:77d3db9401512e07",
+            "comparison-option-evidence-missing:8aeb7eb227921fb3",
+            "comparison-option-evidence-missing:e0293702e292eaf5",
+            "comparison-option-evidence-missing:059a40d69cfb0d93"
+          ],
+          "comparison_method_refs": [
+            "ir.method.g3.default_analytics_search",
+            "sha256:ed68661e66580eb78cf089b0c84972861c80440a605cc12b38aef0c52c416494"
+          ],
+          "comparison_status": "limited",
+          "dominated_frontier_records": [
+            {
+              "claim_id": "claim_e4838289c699c353",
+              "dominance_status": "selected_dominates",
+              "dominated_option_ref": "alt_direct_grants",
+              "dominated_record_id": "dominated_frontier_67c9f0773ff5cd85",
+              "dominating_option_ref": "selected:layer3-g3-msme-credit-guarantee",
+              "evidence_refs": [],
+              "limitation_refs": [],
+              "metadata": {},
+              "method_refs": [
+                "ir.method.g3.default_analytics_search",
+                "sha256:ed68661e66580eb78cf089b0c84972861c80440a605cc12b38aef0c52c416494"
+              ],
+              "metric_deltas": {
+                "credit_access_gain": 0.12000000000000002
+              }
+            }
+          ],
+          "metadata": {
+            "compiler": "polisyos.scientist.policy_design.baseline_compiler",
+            "layer3_g3_request_ref": "g3-request:default-analytics-search",
+            "pattern_guards": [
+              "P10",
+              "P14"
+            ],
+            "source_claim_use": "superiority"
+          },
+          "option_comparisons": [
+            {
+              "counterevidence_refs": [],
+              "data_refs": [],
+              "dominance_status": "unknown",
+              "effective_independent_support_count": 0,
+              "evidence_refs": [
+                "sha256:ed68661e66580eb78cf089b0c84972861c80440a605cc12b38aef0c52c416494"
+              ],
+              "ir_analytics_refs": [
+                "sha256:ed68661e66580eb78cf089b0c84972861c80440a605cc12b38aef0c52c416494"
+              ],
+              "label": "Layer 3 G3 deterministic proof-supported option",
+              "limitation_refs": [],
+              "metadata": {
+                "claim_id": "claim_e4838289c699c353"
+              },
+              "method_refs": [
+                "ir.method.g3.default_analytics_search",
+                "sha256:ed68661e66580eb78cf089b0c84972861c80440a605cc12b38aef0c52c416494"
+              ],
+              "metric_values": {
+                "credit_access_gain": 0.34
+              },
+              "option_kind": "selected_option",
+              "option_ref": "selected:layer3-g3-msme-credit-guarantee",
+              "raw_support_count": 0,
+              "rejected_reasons": [],
+              "scholar_refs": [],
+              "status": "compared"
+            },
+            {
+              "counterevidence_refs": [],
+              "data_refs": [],
+              "dominance_status": "unknown",
+              "effective_independent_support_count": 0,
+              "evidence_refs": [],
+              "ir_analytics_refs": [],
+              "label": "No action",
+              "limitation_refs": [
+                "comparison-option-evidence-missing:8aeb7eb227921fb3"
+              ],
+              "metadata": {
+                "claim_id": "claim_e4838289c699c353"
+              },
+              "method_refs": [],
+              "metric_values": {},
+              "option_kind": "baseline",
+              "option_ref": "baseline_17861029c844d160",
+              "raw_support_count": 0,
+              "rejected_reasons": [],
+              "scholar_refs": [],
+              "status": "limited"
+            },
+            {
+              "counterevidence_refs": [],
+              "data_refs": [],
+              "dominance_status": "unknown",
+              "effective_independent_support_count": 0,
+              "evidence_refs": [],
+              "ir_analytics_refs": [],
+              "label": "Status quo",
+              "limitation_refs": [
+                "comparison-option-evidence-missing:059a40d69cfb0d93"
+              ],
+              "metadata": {
+                "claim_id": "claim_e4838289c699c353"
+              },
+              "method_refs": [],
+              "metric_values": {},
+              "option_kind": "baseline",
+              "option_ref": "baseline_def7605074b2e8a4",
+              "raw_support_count": 0,
+              "rejected_reasons": [],
+              "scholar_refs": [],
+              "status": "limited"
+            },
+            {
+              "counterevidence_refs": [],
+              "data_refs": [],
+              "dominance_status": "unknown",
+              "effective_independent_support_count": 0,
+              "evidence_refs": [],
+              "ir_analytics_refs": [],
+              "label": "Business as usual",
+              "limitation_refs": [
+                "comparison-option-evidence-missing:77d3db9401512e07"
+              ],
+              "metadata": {
+                "claim_id": "claim_e4838289c699c353"
+              },
+              "method_refs": [],
+              "metric_values": {},
+              "option_kind": "baseline",
+              "option_ref": "baseline_b5c67bd47047cfda",
+              "raw_support_count": 0,
+              "rejected_reasons": [],
+              "scholar_refs": [],
+              "status": "limited"
+            },
+            {
+              "counterevidence_refs": [],
+              "data_refs": [],
+              "dominance_status": "unknown",
+              "effective_independent_support_count": 0,
+              "evidence_refs": [],
+              "ir_analytics_refs": [],
+              "label": "Direct MSME grants",
+              "limitation_refs": [
+                "comparison-option-evidence-missing:e0293702e292eaf5"
+              ],
+              "metadata": {
+                "claim_id": "claim_e4838289c699c353"
+              },
+              "method_refs": [],
+              "metric_values": {},
+              "option_kind": "baseline",
+              "option_ref": "baseline_f9c117a4639f5d61",
+              "raw_support_count": 0,
+              "rejected_reasons": [],
+              "scholar_refs": [],
+              "status": "limited"
+            },
+            {
+              "counterevidence_refs": [],
+              "data_refs": [],
+              "dominance_status": "selected_dominates",
+              "effective_independent_support_count": 0,
+              "evidence_refs": [],
+              "ir_analytics_refs": [],
+              "label": "Direct MSME grants",
+              "limitation_refs": [],
+              "metadata": {
+                "claim_id": "claim_e4838289c699c353"
+              },
+              "method_refs": [],
+              "metric_values": {
+                "credit_access_gain": 0.22
+              },
+              "option_kind": "alternative",
+              "option_ref": "alt_direct_grants",
+              "raw_support_count": 0,
+              "rejected_reasons": [
+                "dominated_frontier"
+              ],
+              "scholar_refs": [],
+              "status": "rejected"
+            }
+          ],
+          "producer_refs": [
+            "ir_causal_analytics"
+          ],
+          "rejected_option_reasons": [
+            {
+              "claim_id": "claim_e4838289c699c353",
+              "metadata": {},
+              "option_ref": "alt_direct_grants",
+              "producer_family": "runtime_compiler",
+              "reason": "dominated_frontier",
+              "reason_record_id": "rejected_option_reason_a50dd1b6243c8803",
+              "source_refs": [
+                "dominated_frontier_67c9f0773ff5cd85"
+              ]
+            }
+          ],
+          "run_id": "run_layer3_g3_default",
+          "schema_version": "1.0",
+          "selected_option_evidence_refs": [
+            "sha256:ed68661e66580eb78cf089b0c84972861c80440a605cc12b38aef0c52c416494"
+          ],
+          "selected_option_label": "Layer 3 G3 deterministic proof-supported option",
+          "selected_option_ref": "selected:layer3-g3-msme-credit-guarantee"
+        }
+      ],
+      "created_by_node_id": "polisyos.scientist.policy_design.claim_decomposition.ClaimDecompositionCompiler",
+      "decision_readiness_ref": null,
+      "family_assignments": [
+        {
+          "alternative_refs": [],
+          "assignment_id": "claim_family_assignment_1e5264a328ca7d8a",
+          "authority_profile_refs": [
+            "authority.fiscal_delegated"
+          ],
+          "baseline_refs": [],
+          "claim_family": "preference",
+          "claim_id": "claim_7b07524f60a9bac0",
+          "claim_type": "normative",
+          "claim_use": "decision_support",
+          "comparison_refs": [],
+          "concept_spine_refs": [
+            "concept.msme_credit_guarantee"
+          ],
+          "facet_refs": [
+            "facet_instrument"
+          ],
+          "metadata": {
+            "source_label": "claim_decomposition.facet.facet_instrument"
+          },
+          "method_need_preconditions": [
+            {
+              "claim_id": "claim_7b07524f60a9bac0",
+              "claim_type": "normative",
+              "facet_refs": [
+                "facet_instrument"
+              ],
+              "metadata": {},
+              "method_need": "preference_elicitation_validity",
+              "obligation_refs": [
+                "obl_compare"
+              ],
+              "precondition_id": "method_need_1ee79f58e67b3960",
+              "reason": "preference claims require preference_elicitation_validity before method admission.",
+              "source": "claim_decomposition"
+            }
+          ],
+          "obligation_refs": [
+            "obl_compare"
+          ],
+          "run_id": "run_layer3_g3_default",
+          "schema_version": "1.0",
+          "source_class": "deterministic_compiler"
+        },
+        {
+          "alternative_refs": [],
+          "assignment_id": "claim_family_assignment_f8a35c60bbb4ea25",
+          "authority_profile_refs": [
+            "authority.fiscal_delegated"
+          ],
+          "baseline_refs": [],
+          "claim_family": "causal",
+          "claim_id": "claim_345b278236dd77fa",
+          "claim_type": "causal",
+          "claim_use": "decision_support",
+          "comparison_refs": [],
+          "concept_spine_refs": [
+            "concept.credit_access"
+          ],
+          "facet_refs": [
+            "facet_outcome"
+          ],
+          "metadata": {
+            "source_label": "claim_decomposition.facet.facet_outcome"
+          },
+          "method_need_preconditions": [
+            {
+              "claim_id": "claim_345b278236dd77fa",
+              "claim_type": "causal",
+              "facet_refs": [
+                "facet_outcome"
+              ],
+              "metadata": {},
+              "method_need": "causal_identification",
+              "obligation_refs": [
+                "obl_compare"
+              ],
+              "precondition_id": "method_need_80292fd5854bf114",
+              "reason": "causal claims require causal_identification before method admission.",
+              "source": "claim_decomposition"
+            }
+          ],
+          "obligation_refs": [
+            "obl_compare"
+          ],
+          "run_id": "run_layer3_g3_default",
+          "schema_version": "1.0",
+          "source_class": "deterministic_compiler"
+        },
+        {
+          "alternative_refs": [],
+          "assignment_id": "claim_family_assignment_0ead4a7551c5b1e6",
+          "authority_profile_refs": [
+            "authority.fiscal_delegated"
+          ],
+          "baseline_refs": [],
+          "claim_family": "welfare",
+          "claim_id": "claim_5dc3e6720221e93c",
+          "claim_type": "welfare",
+          "claim_use": "decision_support",
+          "comparison_refs": [],
+          "concept_spine_refs": [
+            "concept.credit_access"
+          ],
+          "facet_refs": [
+            "facet_instrument",
+            "facet_outcome"
+          ],
+          "metadata": {
+            "source_label": "claim_decomposition.obligation.obl_compare"
+          },
+          "method_need_preconditions": [
+            {
+              "claim_id": "claim_5dc3e6720221e93c",
+              "claim_type": "welfare",
+              "facet_refs": [
+                "facet_instrument",
+                "facet_outcome"
+              ],
+              "metadata": {},
+              "method_need": "welfare_weight_sensitivity",
+              "obligation_refs": [
+                "obl_compare"
+              ],
+              "precondition_id": "method_need_6a06939168805be0",
+              "reason": "welfare claims require welfare_weight_sensitivity before method admission.",
+              "source": "claim_decomposition"
+            }
+          ],
+          "obligation_refs": [
+            "obl_compare"
+          ],
+          "run_id": "run_layer3_g3_default",
+          "schema_version": "1.0",
+          "source_class": "deterministic_compiler"
+        },
+        {
+          "alternative_refs": [
+            "alt_direct_grants"
+          ],
+          "assignment_id": "claim_family_assignment_97fb6a5619334410",
+          "authority_profile_refs": [
+            "authority.fiscal_delegated"
+          ],
+          "baseline_refs": [
+            "baseline_17861029c844d160",
+            "baseline_def7605074b2e8a4",
+            "baseline_b5c67bd47047cfda",
+            "baseline_f9c117a4639f5d61"
+          ],
+          "claim_family": "welfare",
+          "claim_id": "claim_e4838289c699c353",
+          "claim_type": "welfare",
+          "claim_use": "superiority",
+          "comparison_refs": [],
+          "concept_spine_refs": [
+            "concept.msme_credit_guarantee",
+            "concept.credit_access"
+          ],
+          "facet_refs": [
+            "facet_instrument",
+            "facet_outcome"
+          ],
+          "metadata": {
+            "source_label": "claim_decomposition.superiority"
+          },
+          "method_need_preconditions": [
+            {
+              "claim_id": "claim_e4838289c699c353",
+              "claim_type": "welfare",
+              "facet_refs": [
+                "facet_instrument",
+                "facet_outcome"
+              ],
+              "metadata": {},
+              "method_need": "welfare_weight_sensitivity",
+              "obligation_refs": [
+                "obl_compare"
+              ],
+              "precondition_id": "method_need_6c6fbde9b7d97543",
+              "reason": "welfare claims require welfare_weight_sensitivity before method admission.",
+              "source": "claim_decomposition"
+            },
+            {
+              "claim_id": "claim_e4838289c699c353",
+              "claim_type": "welfare",
+              "facet_refs": [
+                "facet_instrument",
+                "facet_outcome"
+              ],
+              "metadata": {},
+              "method_need": "frontier_comparison",
+              "obligation_refs": [
+                "obl_compare"
+              ],
+              "precondition_id": "method_need_05d233f5e1774ed3",
+              "reason": "welfare claims require frontier_comparison before method admission.",
+              "source": "claim_decomposition"
+            }
+          ],
+          "obligation_refs": [
+            "obl_compare"
+          ],
+          "run_id": "run_layer3_g3_default",
+          "schema_version": "1.0",
+          "source_class": "deterministic_compiler"
+        }
+      ],
+      "metadata": {
+        "baseline_comparison_compiler": {
+          "capability_reality_label": "implemented",
+          "comparison_record_count": 1,
+          "pattern_guards": [
+            "P10",
+            "P14"
+          ],
+          "producer": "baseline_comparison_compiler"
+        },
+        "capability_reality_label": "implemented",
+        "intent_digest": "11ed6a0058360c90c9aa77438ee9f28dee088e12018fa718fce77840caeccf92",
+        "pattern_guards": [
+          "P02",
+          "P15"
+        ],
+        "producer": "claim_decomposition_compiler"
+      },
+      "run_id": "run_layer3_g3_default",
+      "schema_version": "1.0",
+      "source_artifact_refs": []
+    },
+    "ir_analytics_bridge_refs": [
+      "sha256:c0bac918d049131c1c73e4bf60b0025258d19215593d0372977fd8edf9c6c76e"
+    ],
+    "issue_codes": [],
+    "may_not_use_for": [
+      "legal_authority",
+      "data_source_truth",
+      "method_validity_truth",
+      "scholar_support_truth",
+      "projection_authority",
+      "closeout_pass",
+      "claim_authority",
+      "causal_effect_authority_without_adapter_validation",
+      "policy_recommendation",
+      "closeout_authority",
+      "publication_authority",
+      "useful_design_credit",
+      "production_authority",
+      "search_hit_as_certificate",
+      "search_frontier_as_proof_authority"
+    ],
+    "record_id": "layer3-g3-baseline-comparison-consumer-gate",
+    "request_ref": "g3-request:default-analytics-search",
+    "status": "pass"
+  },
+  "rule_version": "policyos.layer3.g3.analytics_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g3_analytics_search.v1"
+}

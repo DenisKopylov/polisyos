@@ -1,0 +1,55 @@
+{
+  "l2_skg_proof_candidate_bindings": [
+    {
+      "authoritative_for": [],
+      "binding_id": "g3-l2-skg-proof-candidate-binding:a8544a6aa74f3344fd605279",
+      "candidate_role": "control_plane_provenance",
+      "canonical_l2_route": "scholar_knowledge.duckdb",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "certificate_refs": [],
+      "claim_id": "claim_e4838289c699c353",
+      "concept_refs": [
+        "concept://layer3/g3/default-analytics-search"
+      ],
+      "g2_query_trace_refs": [
+        "g2-skg-query-trace:e7a846b8d35e1d29de6fd4d5",
+        "g2-skg-query-trace:ff1ee66cbc7204f652067f7e"
+      ],
+      "issue_codes": [],
+      "may_not_use_for": [
+        "claim_authority",
+        "causal_effect_authority_without_adapter_validation",
+        "policy_recommendation",
+        "closeout_authority",
+        "publication_authority",
+        "useful_design_credit",
+        "production_authority",
+        "search_hit_as_certificate",
+        "search_frontier_as_proof_authority"
+      ],
+      "method_requirement_refs": [
+        "method-requirement://layer3/g3/default"
+      ],
+      "request_ref": "g3-request:default-analytics-search",
+      "search_frontier_refs": [
+        "g2-skg-search-ledger:2a5fe403f11b0189ce13d34a",
+        "g2-skg-query-trace:e7a846b8d35e1d29de6fd4d5",
+        "g2-skg-query-trace:ff1ee66cbc7204f652067f7e"
+      ],
+      "semantic_spine_refs": [
+        "semantic-spine://layer3/g2/default"
+      ],
+      "skg_ledger_ref": "g2-skg-search-ledger:2a5fe403f11b0189ce13d34a",
+      "skg_row_refs": [
+        "skg-edge://06fb46cd681818bc52d1cc01",
+        "skg-transport://06fb46cd681818bc52d1cc01:UA"
+      ],
+      "status": "pass",
+      "transport_parameter_refs": [
+        "skg-transport://06fb46cd681818bc52d1cc01:UA"
+      ]
+    }
+  ],
+  "rule_version": "policyos.layer3.g3.analytics_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g3_analytics_search.v1"
+}

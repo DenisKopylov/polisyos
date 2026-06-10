@@ -1,0 +1,79 @@
+{
+  "rule_version": "policyos.layer3.g3.analytics_search.v1",
+  "s11_prerequisite_bindings": [
+    {
+      "binding_id": "g3-s11-prerequisite-binding:6e7d768fd3991b751f19f003",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "claim_id": "claim_e4838289c699c353",
+      "g2_forecast_support_binding_ref": "g2-forecast-support-binding:d65f61522884e1cd85048188",
+      "issue_codes": [],
+      "may_not_use_for": [
+        "claim_authority",
+        "causal_effect_authority_without_adapter_validation",
+        "policy_recommendation",
+        "closeout_authority",
+        "publication_authority",
+        "useful_design_credit",
+        "production_authority",
+        "search_hit_as_certificate",
+        "search_frontier_as_proof_authority"
+      ],
+      "method_validity_refs": [
+        "method-validity://layer3/g3/default",
+        "method-validity://foundry/causal/local",
+        "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+        "method-requirement://layer3/g3/default"
+      ],
+      "post_intervention_dgp_update_ref": "pdc://layer3/g3/ua-msme-affordable-loans-2022/post-intervention-dgp",
+      "request_ref": "g3-request:default-analytics-search",
+      "s10_forecast_calibration_record_ref": "pdc://layer3/g3/ua-msme-affordable-loans-2022/forecast-calibration",
+      "s10_forecast_support_ref": "pdc://layer3/g3/ua-msme-affordable-loans-2022/forecast-support",
+      "s10_forecast_tier": "observable_calibrated",
+      "s6_axis_rows": [
+        {
+          "axis": "measurability",
+          "cell_ref": "SYSTEM.measurability",
+          "disposition": "limit",
+          "record_ref": "pdc://layer2/s6/g3/measurability"
+        },
+        {
+          "axis": "strategic_response",
+          "cell_ref": "OTHER_AGENTS.strategic_response",
+          "disposition": "block",
+          "record_ref": "pdc://layer2/s6/g3/strategic-response"
+        }
+      ],
+      "s6_bridge_consumer_rows": [
+        {
+          "cell_ref": "SYSTEM.measurability",
+          "consumer_ref": "KNOWLEDGE.epistemic_regime",
+          "disposition": "limit",
+          "producer_ref": "pdc://layer2/s6/g3/measurability"
+        }
+      ],
+      "s6_c3_authority_dimension_refs": [
+        "pdc://layer2/s6/g3/c3/measurability"
+      ],
+      "s6_constraint_store_update_refs": [
+        "constraint://s6/g3/measurability"
+      ],
+      "s6_floor_status_refs": [
+        "pdc://layer2/s6/g3/measurability",
+        "pdc://layer2/s6/g3/strategic-response"
+      ],
+      "source_contract_refs": [
+        "source-contract://layer3/g3/default",
+        "source-contract://ua-msme/server-support"
+      ],
+      "status": "pass",
+      "system_dynamics_handoff_required": true
+    }
+  ],
+  "schema_version": "policyos.policy_design_case.layer3_g3_analytics_search.v1"
+}

@@ -1,0 +1,420 @@
+[metadata]
+schema_version = "policyos.source_truth_lattice.v1"
+owner = "team-runtime-quality"
+next_diagnostic_command = "uv run pytest tests/unit/runtime/quality/test_layer3_g3_analytics_search.py -k task6 -q"
+
+[semantic_preservation]
+required_fields = [
+  "status",
+  "provenance",
+  "owner",
+  "schema",
+  "rule_version",
+  "lineage",
+  "tenant",
+  "time_context",
+  "jurisdiction",
+  "source_family",
+  "method_expectation",
+  "claim_sets",
+  "rights",
+  "freshness",
+  "contamination",
+  "authority_boundary",
+]
+
+[losing_authority_record_format]
+schema = "policyos.runtime.quality.losing_authority_record.v1"
+required_fields = [
+  "record_schema",
+  "field_family",
+  "authoritative_producer",
+  "authoritative_surface",
+  "losing_surface",
+  "lost_fields",
+  "failure_code",
+  "owner",
+  "next_diagnostic_command",
+]
+
+[[field_families]]
+id = "runtime_refs"
+description = "G3 runtime artifact refs crossing search, proof, S11, bridge, and W12D consumers."
+authoritative_producer = "polisyos.runtime.quality.layer3_analytics_search"
+owner = "team-runtime-quality"
+allowed_projection_surfaces = [
+  "layer3.g3.l2_skg",
+  "layer3.g3.ir_catalog",
+  "layer3.g3.artifact_index",
+  "layer3.g3.certificate_resolution",
+  "layer3.g3.proof_record",
+  "layer3.g3.ir_analytics_bridge",
+  "layer3.g3.w12d_consumer_gate",
+  "layer3.g3.audit_surface",
+]
+allowed_package_surfaces = ["layer3.g3.readiness", "layer3.g3.machine_surface"]
+conflict_failure_code = "layer3_g3_runtime_ref_authority_conflict"
+required_semantic_fields = ["lineage", "schema", "rule_version"]
+adapter_semantic_preservation_requirements = [
+  "preserve G3 artifact refs and schema/rule versions",
+  "preserve search/proof lineage before adapter admission",
+]
+
+[[field_families]]
+id = "final_claims"
+description = "Claim ids and claim-set boundaries carried as evidence context, not claim authority."
+authoritative_producer = "scientist.claim_compiler"
+owner = "team-policy-semantics"
+allowed_projection_surfaces = [
+  "layer3.g3.l2_skg",
+  "layer3.g3.ir_catalog",
+  "layer3.g3.certificate_resolution",
+  "layer3.g3.proof_record",
+  "layer3.g3.ir_analytics_bridge",
+  "layer3.g3.w12d_consumer_gate",
+  "layer3.g3.audit_surface",
+]
+allowed_package_surfaces = ["layer3.g3.readiness", "layer3.g3.machine_surface"]
+conflict_failure_code = "layer3_g3_claim_authority_conflict"
+required_semantic_fields = ["claim_sets", "authority_boundary"]
+adapter_semantic_preservation_requirements = [
+  "preserve claim ids as evidence bindings only",
+  "preserve may-not-use boundaries blocking claim authority",
+]
+
+[[field_families]]
+id = "source_data_context"
+description = "Source family, lineage, freshness, rights, and contamination for proof-search context."
+authoritative_producer = "polisyos.ir.analytics"
+owner = "team-runtime-quality"
+allowed_projection_surfaces = [
+  "layer3.g3.l2_skg",
+  "layer3.g3.ir_catalog",
+  "layer3.g3.artifact_index",
+  "layer3.g3.certificate_resolution",
+  "layer3.g3.proof_record",
+  "layer3.g3.audit_surface",
+]
+allowed_package_surfaces = ["layer3.g3.readiness", "layer3.g3.machine_surface"]
+conflict_failure_code = "layer3_g3_source_context_authority_conflict"
+required_semantic_fields = ["source_family", "lineage", "rights", "freshness", "contamination"]
+adapter_semantic_preservation_requirements = [
+  "preserve proof-source provenance",
+  "block raw CAS/search payload promotion to public surfaces",
+]
+
+[[field_families]]
+id = "legal_context"
+description = "Jurisdiction and rights context attached to G3 audit refs."
+authoritative_producer = "polisyos.runtime.quality.layer3_analytics_search"
+owner = "team-policy-semantics"
+allowed_projection_surfaces = [
+  "layer3.g3.l2_skg",
+  "layer3.g3.ir_catalog",
+  "layer3.g3.certificate_resolution",
+  "layer3.g3.proof_record",
+  "layer3.g3.audit_surface",
+]
+allowed_package_surfaces = ["layer3.g3.readiness", "layer3.g3.machine_surface"]
+conflict_failure_code = "layer3_g3_legal_context_authority_conflict"
+required_semantic_fields = ["jurisdiction", "rights", "time_context", "lineage"]
+adapter_semantic_preservation_requirements = [
+  "preserve jurisdiction and legal-use limits",
+  "block projection if rights are weakened",
+]
+
+[[field_families]]
+id = "foundry_method_context"
+description = "Method expectation, certificate, uncertainty, and proof-composability boundaries."
+authoritative_producer = "polisyos.method_requirement"
+owner = "team-runtime-quality"
+allowed_projection_surfaces = [
+  "layer3.g3.ir_catalog",
+  "layer3.g3.certificate_resolution",
+  "layer3.g3.proof_record",
+  "layer3.g3.ir_analytics_bridge",
+  "layer3.g3.w12d_consumer_gate",
+  "layer3.g3.audit_surface",
+]
+allowed_package_surfaces = ["layer3.g3.readiness", "layer3.g3.machine_surface"]
+conflict_failure_code = "layer3_g3_method_context_authority_conflict"
+required_semantic_fields = ["method_expectation", "authority_boundary", "lineage"]
+adapter_semantic_preservation_requirements = [
+  "preserve method requirements and proof-composability limits",
+  "preserve that search hits are never certificates",
+]
+
+[[field_families]]
+id = "scorecard_identity_and_gates"
+description = "G3 gate status and blocker semantics for readiness and W12D surfaces."
+authoritative_producer = "polisyos.runtime.quality.layer3_analytics_search"
+owner = "team-quality-closeout"
+allowed_projection_surfaces = [
+  "layer3.g3.certificate_resolution",
+  "layer3.g3.proof_record",
+  "layer3.g3.ir_analytics_bridge",
+  "layer3.g3.w12d_consumer_gate",
+  "layer3.g3.audit_surface",
+]
+allowed_package_surfaces = ["layer3.g3.readiness", "layer3.g3.machine_surface"]
+conflict_failure_code = "layer3_g3_scorecard_identity_conflict"
+required_semantic_fields = ["status", "schema", "rule_version", "authority_boundary"]
+adapter_semantic_preservation_requirements = [
+  "preserve pass/fail status and blocker semantics",
+  "block adapter promotion from projection-only evidence",
+]
+
+[[field_families]]
+id = "approval_readiness_public_status"
+description = "Readiness status and projection-only public/reviewer visibility for G3."
+authoritative_producer = "runtime.approval"
+owner = "team-quality-closeout"
+allowed_projection_surfaces = [
+  "layer3.g3.proof_record",
+  "layer3.g3.ir_analytics_bridge",
+  "layer3.g3.w12d_consumer_gate",
+  "layer3.g3.audit_surface",
+]
+allowed_package_surfaces = ["layer3.g3.readiness", "layer3.g3.machine_surface"]
+conflict_failure_code = "layer3_g3_approval_readiness_authority_conflict"
+required_semantic_fields = ["status", "authority_boundary", "schema", "rule_version"]
+adapter_semantic_preservation_requirements = [
+  "preserve that G3 does not publish or approve",
+  "preserve public export redaction boundaries",
+]
+
+[[field_families]]
+id = "mode_and_fallback_records"
+description = "Search frontier, no-hit, fixture, and fail-closed gap routing records."
+authoritative_producer = "polisyos.runtime.quality.layer3_analytics_search"
+owner = "team-runtime-quality"
+allowed_projection_surfaces = [
+  "layer3.g3.l2_skg",
+  "layer3.g3.ir_catalog",
+  "layer3.g3.artifact_index",
+  "layer3.g3.certificate_resolution",
+  "layer3.g3.audit_surface",
+]
+allowed_package_surfaces = ["layer3.g3.readiness", "layer3.g3.machine_surface"]
+conflict_failure_code = "layer3_g3_mode_fallback_authority_conflict"
+required_semantic_fields = ["status", "method_expectation", "authority_boundary"]
+adapter_semantic_preservation_requirements = [
+  "preserve fail-closed search/frontier status",
+  "block fixture refs from counting as certificate closure",
+]
+
+[[adapter_paths]]
+id = "layer3_g3_l2_skg_to_proof_candidate_binding"
+source_surface = "layer3.g3.l2_skg"
+target_surface = "layer3.g3.ir_catalog"
+field_families = [
+  "runtime_refs",
+  "final_claims",
+  "source_data_context",
+  "legal_context",
+  "foundry_method_context",
+  "scorecard_identity_and_gates",
+  "approval_readiness_public_status",
+  "mode_and_fallback_records",
+]
+required_semantic_fields = [
+  "status",
+  "provenance",
+  "owner",
+  "schema",
+  "rule_version",
+  "lineage",
+  "tenant",
+  "time_context",
+  "jurisdiction",
+  "source_family",
+  "method_expectation",
+  "claim_sets",
+  "rights",
+  "freshness",
+  "contamination",
+  "authority_boundary",
+]
+blocker_code = "layer3_g3_adapter_contract_registry_missing"
+owner = "team-runtime-quality"
+next_diagnostic_command = "uv run pytest tests/unit/runtime/quality/test_layer3_g3_analytics_search.py -k task6 -q"
+
+[[adapter_paths]]
+id = "layer3_g3_ir_catalog_to_search_ledger"
+source_surface = "layer3.g3.ir_catalog"
+target_surface = "layer3.g3.artifact_index"
+field_families = [
+  "runtime_refs",
+  "final_claims",
+  "source_data_context",
+  "legal_context",
+  "foundry_method_context",
+  "scorecard_identity_and_gates",
+  "approval_readiness_public_status",
+  "mode_and_fallback_records",
+]
+required_semantic_fields = [
+  "status",
+  "provenance",
+  "owner",
+  "schema",
+  "rule_version",
+  "lineage",
+  "tenant",
+  "time_context",
+  "jurisdiction",
+  "source_family",
+  "method_expectation",
+  "claim_sets",
+  "rights",
+  "freshness",
+  "contamination",
+  "authority_boundary",
+]
+blocker_code = "layer3_g3_adapter_contract_registry_missing"
+owner = "team-runtime-quality"
+next_diagnostic_command = "uv run pytest tests/unit/runtime/quality/test_layer3_g3_analytics_search.py -k task6 -q"
+
+[[adapter_paths]]
+id = "layer3_g3_artifact_index_to_certificate_resolution"
+source_surface = "layer3.g3.artifact_index"
+target_surface = "layer3.g3.certificate_resolution"
+field_families = [
+  "runtime_refs",
+  "final_claims",
+  "source_data_context",
+  "legal_context",
+  "foundry_method_context",
+  "scorecard_identity_and_gates",
+  "approval_readiness_public_status",
+  "mode_and_fallback_records",
+]
+required_semantic_fields = [
+  "status",
+  "provenance",
+  "owner",
+  "schema",
+  "rule_version",
+  "lineage",
+  "tenant",
+  "time_context",
+  "jurisdiction",
+  "source_family",
+  "method_expectation",
+  "claim_sets",
+  "rights",
+  "freshness",
+  "contamination",
+  "authority_boundary",
+]
+blocker_code = "layer3_g3_adapter_contract_registry_missing"
+owner = "team-runtime-quality"
+next_diagnostic_command = "uv run pytest tests/unit/runtime/quality/test_layer3_g3_analytics_search.py -k task6 -q"
+
+[[adapter_paths]]
+id = "layer3_g3_certificate_resolution_to_proof_record"
+source_surface = "layer3.g3.certificate_resolution"
+target_surface = "layer3.g3.proof_record"
+field_families = [
+  "runtime_refs",
+  "final_claims",
+  "source_data_context",
+  "legal_context",
+  "foundry_method_context",
+  "scorecard_identity_and_gates",
+  "approval_readiness_public_status",
+  "mode_and_fallback_records",
+]
+required_semantic_fields = [
+  "status",
+  "provenance",
+  "owner",
+  "schema",
+  "rule_version",
+  "lineage",
+  "tenant",
+  "time_context",
+  "jurisdiction",
+  "source_family",
+  "method_expectation",
+  "claim_sets",
+  "rights",
+  "freshness",
+  "contamination",
+  "authority_boundary",
+]
+blocker_code = "layer3_g3_adapter_contract_registry_missing"
+owner = "team-runtime-quality"
+next_diagnostic_command = "uv run pytest tests/unit/runtime/quality/test_layer3_g3_analytics_search.py -k task6 -q"
+
+[[adapter_paths]]
+id = "layer3_g3_proof_record_to_ir_analytics_bridge"
+source_surface = "layer3.g3.proof_record"
+target_surface = "layer3.g3.ir_analytics_bridge"
+field_families = [
+  "runtime_refs",
+  "final_claims",
+  "source_data_context",
+  "legal_context",
+  "foundry_method_context",
+  "scorecard_identity_and_gates",
+  "approval_readiness_public_status",
+  "mode_and_fallback_records",
+]
+required_semantic_fields = [
+  "status",
+  "provenance",
+  "owner",
+  "schema",
+  "rule_version",
+  "lineage",
+  "tenant",
+  "time_context",
+  "jurisdiction",
+  "source_family",
+  "method_expectation",
+  "claim_sets",
+  "rights",
+  "freshness",
+  "contamination",
+  "authority_boundary",
+]
+blocker_code = "layer3_g3_adapter_contract_registry_missing"
+owner = "team-runtime-quality"
+next_diagnostic_command = "uv run pytest tests/unit/runtime/quality/test_layer3_g3_analytics_search.py -k task6 -q"
+
+[[adapter_paths]]
+id = "layer3_g3_bridge_to_w12d_consumer_gate"
+source_surface = "layer3.g3.ir_analytics_bridge"
+target_surface = "layer3.g3.w12d_consumer_gate"
+field_families = [
+  "runtime_refs",
+  "final_claims",
+  "source_data_context",
+  "legal_context",
+  "foundry_method_context",
+  "scorecard_identity_and_gates",
+  "approval_readiness_public_status",
+  "mode_and_fallback_records",
+]
+required_semantic_fields = [
+  "status",
+  "provenance",
+  "owner",
+  "schema",
+  "rule_version",
+  "lineage",
+  "tenant",
+  "time_context",
+  "jurisdiction",
+  "source_family",
+  "method_expectation",
+  "claim_sets",
+  "rights",
+  "freshness",
+  "contamination",
+  "authority_boundary",
+]
+blocker_code = "layer3_g3_adapter_contract_registry_missing"
+owner = "team-runtime-quality"
+next_diagnostic_command = "uv run pytest tests/unit/runtime/quality/test_layer3_g3_analytics_search.py -k task6 -q"

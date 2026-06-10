@@ -1,0 +1,108 @@
+{
+  "method_requirement_bindings": [
+    {
+      "authority_boundary": {
+        "authoritative_for": [
+          "method_validity_requirements",
+          "method_selection_preconditions",
+          "ir_analytics_requirement_binding"
+        ],
+        "may_not_use_for": [
+          "legal_authority",
+          "source_family_satisfaction",
+          "academic_support_strength",
+          "participation_representativeness",
+          "claim_authority",
+          "closeout_pass"
+        ]
+      },
+      "binding_id": "g3-method-requirement-binding:86fb0d0602e4b10153652fd0",
+      "claim_id": "claim_e4838289c699c353",
+      "issue_codes": [],
+      "may_not_use_for": [
+        "legal_authority",
+        "source_family_satisfaction",
+        "academic_support_strength",
+        "participation_representativeness",
+        "claim_authority",
+        "closeout_pass",
+        "causal_effect_authority_without_adapter_validation",
+        "policy_recommendation",
+        "closeout_authority",
+        "publication_authority",
+        "useful_design_credit",
+        "production_authority",
+        "search_hit_as_certificate",
+        "search_frontier_as_proof_authority"
+      ],
+      "method_requirement_refs": [
+        "method-requirement://layer3/g3/default"
+      ],
+      "method_requirement_specs": [
+        {
+          "alternative_refs": [
+            "alt_direct_grants"
+          ],
+          "assumption_validation_needs": [],
+          "authority_profile_refs": [],
+          "baseline_refs": [
+            "baseline_17861029c844d160"
+          ],
+          "claim_id": "claim_e4838289c699c353",
+          "concept_spine_refs": [],
+          "facet_refs": [
+            "concept://layer3/g3/default-analytics-search"
+          ],
+          "fairness_decomposition_need": "none",
+          "identification_class": "point",
+          "metadata": {
+            "g3_claim_id": "claim_e4838289c699c353",
+            "g3_request_ref": "g3-request:default-analytics-search",
+            "source_requirement_id": "method-requirement://layer3/g3/default"
+          },
+          "method_expectations": [
+            "causal_identification"
+          ],
+          "obligation_refs": [
+            "obligation://claim_e4838289c699c353"
+          ],
+          "producer_ref": "polisyos.method_requirement.compiler",
+          "required_method_families": [
+            "causal_identification"
+          ],
+          "requirement_id": "method-requirement://layer3/g3/default",
+          "requires_ir_analytics": true,
+          "requires_limitation_refs": false,
+          "requires_method_output": true,
+          "requires_negative_certificate": false,
+          "requires_runtime_assumption_gates": true,
+          "requires_uncertainty_envelope": false,
+          "run_id": "ua-msme-affordable-loans-2022",
+          "schema_version": "1.0",
+          "simulation_dgp_requirements": {
+            "behavioral_response_required": false,
+            "calibration_required": false,
+            "dgp_lineage_required": false,
+            "rationale": "",
+            "required": false,
+            "required_refs": []
+          },
+          "source_precondition_refs": [],
+          "strategic_response_sensitivity": "none",
+          "transportability_requirement": "none",
+          "uncertainty_class": "none"
+        }
+      ],
+      "rejected_method_refs": [],
+      "request_ref": "g3-request:default-analytics-search",
+      "selected_method_refs": [
+        "ir.method.g3.default_analytics_search"
+      ],
+      "source_binding_refs": [],
+      "source_route": "explicit",
+      "status": "pass"
+    }
+  ],
+  "rule_version": "policyos.layer3.g3.analytics_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g3_analytics_search.v1"
+}

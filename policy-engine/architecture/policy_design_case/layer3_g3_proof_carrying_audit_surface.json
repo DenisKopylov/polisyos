@@ -1,0 +1,101 @@
+{
+  "proof_carrying_audit_surface": {
+    "authority_boundary": {
+      "authoritative_for": [
+        "g3_projection_audit"
+      ],
+      "may_not_use_for": [
+        "claim_authority",
+        "causal_effect_authority_without_adapter_validation",
+        "policy_recommendation",
+        "closeout_authority",
+        "publication_authority",
+        "useful_design_credit",
+        "production_authority",
+        "search_hit_as_certificate",
+        "search_frontier_as_proof_authority"
+      ],
+      "posture": "shadow",
+      "rule_version_refs": [
+        "policyos.layer3.g3.analytics_search.v1"
+      ],
+      "source_authority": "deterministic_producer"
+    },
+    "blocker_refs": [],
+    "certificate_resolution_report_ref": "repo://architecture/policy_design_case/layer3_g3_certificate_resolution_report.json",
+    "expert_fields": [
+      "proof_carrying_analytics_refs",
+      "certificate_resolution_report_ref",
+      "ir_analytics_bridge_refs",
+      "method_requirement_refs",
+      "s11_predictive_posture_refs",
+      "blocker_refs",
+      "limitation_refs",
+      "authority_boundary"
+    ],
+    "ir_analytics_bridge_refs": [
+      "sha256:c0bac918d049131c1c73e4bf60b0025258d19215593d0372977fd8edf9c6c76e"
+    ],
+    "issue_codes": [],
+    "limitation_refs": [],
+    "machine_fields": [
+      "search_frontier_refs",
+      "certificate_resolution_report_ref",
+      "proof_carrying_analytics_refs",
+      "ir_analytics_bridge_refs",
+      "method_requirement_refs",
+      "s11_predictive_posture_refs",
+      "may_not_use_for",
+      "issue_codes"
+    ],
+    "may_not_use_for": [
+      "claim_authority",
+      "causal_effect_authority_without_adapter_validation",
+      "policy_recommendation",
+      "closeout_authority",
+      "publication_authority",
+      "useful_design_credit",
+      "production_authority",
+      "search_hit_as_certificate",
+      "search_frontier_as_proof_authority"
+    ],
+    "method_requirement_refs": [
+      "method-requirement://layer3/g3/default"
+    ],
+    "proof_carrying_analytics_refs": [
+      "pdc://layer3/g3/ua-msme-affordable-loans-2022/proof/7b90e79ae57710f75add190e"
+    ],
+    "proof_posture": "projection_only_resolved_proof_refs",
+    "public_fields": [
+      "status",
+      "proof_posture",
+      "limitation_refs",
+      "may_not_use_for"
+    ],
+    "record_id": "layer3-g3-proof-carrying-audit-surface",
+    "reviewer_fields": [
+      "status",
+      "proof_posture",
+      "certificate_resolution_status",
+      "consumer_gate_status",
+      "limitation_refs",
+      "may_not_use_for"
+    ],
+    "s11_predictive_posture_refs": [
+      "pdc://layer3/g3/ua-msme-affordable-loans-2022/s11/predictive-knowledge"
+    ],
+    "search_frontier_refs": [
+      "g3-search-frontier://layer3/g3/resolved-proof-candidates"
+    ],
+    "status": "pass",
+    "surface_audiences": [
+      "PUBLIC",
+      "REVIEWER",
+      "EXPERT",
+      "MACHINE"
+    ],
+    "surface_id": "layer3_g3_proof_carrying_audit_surface"
+  },
+  "rule_version": "policyos.layer3.g3.analytics_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g3_analytics_search.v1"
+}

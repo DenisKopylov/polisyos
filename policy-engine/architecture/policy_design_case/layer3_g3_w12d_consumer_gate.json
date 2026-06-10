@@ -1,0 +1,51 @@
+{
+  "rule_version": "policyos.layer3.g3.analytics_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g3_analytics_search.v1",
+  "w12d_consumer_gate": {
+    "authoritative_for": [
+      "w12d_g3_analytics_search_gate"
+    ],
+    "case_id": "ua-msme-affordable-loans-2022",
+    "consumer_assertions": {
+      "axis_position_declared": true,
+      "firewall_status_consumed": true,
+      "projection_fields_present": true,
+      "refinement_status_consumed": true,
+      "s11_constraint_store_entries_consumed": true,
+      "search_ledger_g3_proof_ref_consumed": true,
+      "search_ledger_predictive_knowledge_ref_consumed": true
+    },
+    "fixture_certificate_closure_count": 0,
+    "fixture_s11_regression_context_ref": null,
+    "full_consumer_case_count": 1,
+    "full_s2_consumer_case_refs": [
+      "ua-msme-affordable-loans-2022"
+    ],
+    "g3_closure_count": 1,
+    "g3_ir_analytics_bridge_ref": "sha256:c0bac918d049131c1c73e4bf60b0025258d19215593d0372977fd8edf9c6c76e",
+    "g3_proof_carrying_analytics_ref": "pdc://layer3/g3/ua-msme-affordable-loans-2022/proof/7b90e79ae57710f75add190e",
+    "gate_id": "layer3.g3.w12d.analytics_search_gate",
+    "issue_codes": [],
+    "lightweight_case_refs": [],
+    "lightweight_posture_ref": null,
+    "lightweight_posture_ref_count": 0,
+    "may_not_use_for": [
+      "claim_authority",
+      "causal_effect_authority_without_adapter_validation",
+      "policy_recommendation",
+      "closeout_authority",
+      "publication_authority",
+      "useful_design_credit",
+      "production_authority",
+      "search_hit_as_certificate",
+      "search_frontier_as_proof_authority"
+    ],
+    "negative_certificate_block_count": 0,
+    "posture_consumed": true,
+    "predictive_knowledge_ref": "pdc://layer3/g3/ua-msme-affordable-loans-2022/s11/predictive-knowledge",
+    "record_id": "layer3-g3-w12d-consumer-gate",
+    "route_kind": "full_s11_s2_consumer",
+    "status": "pass",
+    "useful_design_delta_count": 0
+  }
+}

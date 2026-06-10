@@ -1,0 +1,106 @@
+{
+  "rule_version": "policyos.layer3.g3.analytics_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g3_analytics_search.v1",
+  "search_recall_freshness": {
+    "artifact_snapshot_hash_ref": "sha256:ead78f78eedfa6b712e1384c4635795f9dc37fd36af8b70bed9103d718fe7686",
+    "authoritative_for": [],
+    "catalog_snapshot_hash_ref": "sha256:5eacd5932f356566f3b8dd15c60a9a88fe60efe6a692dbc5af1586fa81b86d89",
+    "certificate_resolution_seed_status": "pass",
+    "freshness_evidence_refs": [
+      "architecture/policy_design_case/layer3_g2_l2_skg_search_ledgers.json",
+      "architecture/policy_design_case/layer3_g2_l2_skg_query_traces.json",
+      "architecture/policy_design_case/layer3_g2_l2_skg_index_coverage.json",
+      "architecture/policy_design_case/layer3_g2_search_recall_freshness.json",
+      "sha256:5eacd5932f356566f3b8dd15c60a9a88fe60efe6a692dbc5af1586fa81b86d89",
+      "sha256:ead78f78eedfa6b712e1384c4635795f9dc37fd36af8b70bed9103d718fe7686",
+      "sha256:ed68661e66580eb78cf089b0c84972861c80440a605cc12b38aef0c52c416494"
+    ],
+    "freshness_status": "pass",
+    "ir_catalog_seed_status": "pass",
+    "issue_codes": [],
+    "known_seed_count": 3,
+    "l2_skg_seed_status": "pass",
+    "may_not_use_for": [
+      "claim_authority",
+      "causal_effect_authority_without_adapter_validation",
+      "policy_recommendation",
+      "closeout_authority",
+      "publication_authority",
+      "useful_design_credit",
+      "production_authority",
+      "search_hit_as_certificate",
+      "search_frontier_as_proof_authority"
+    ],
+    "missed_seed_count": 0,
+    "payload_fingerprint_refs": [
+      "sha256:ed68661e66580eb78cf089b0c84972861c80440a605cc12b38aef0c52c416494"
+    ],
+    "query_trace_refs": [
+      "g3-ir-catalog-query-trace:2bfa1083b678dff1748e773a"
+    ],
+    "recalled_seed_count": 3,
+    "report_id": "layer3-g3-search-recall-freshness",
+    "search_ledger_refs": [
+      "g3-ir-analytics-search-ledger:996e76f3800bce22e3f639dc"
+    ],
+    "seed_records": [
+      {
+        "evidence_refs": [
+          "architecture/policy_design_case/layer3_g2_l2_skg_search_ledgers.json",
+          "architecture/policy_design_case/layer3_g2_l2_skg_query_traces.json",
+          "architecture/policy_design_case/layer3_g2_l2_skg_index_coverage.json",
+          "architecture/policy_design_case/layer3_g2_search_recall_freshness.json",
+          "g2-skg-search-ledger:2a5fe403f11b0189ce13d34a",
+          "g2-skg-query-trace:e7a846b8d35e1d29de6fd4d5",
+          "g2-skg-query-trace:ff1ee66cbc7204f652067f7e"
+        ],
+        "expected_route": "scholar_knowledge.duckdb",
+        "issue_codes": [],
+        "seed_id": "g3-known-seed:l2-skg-proof-candidate-route",
+        "seed_kind": "l2_skg_dependency",
+        "status": "pass"
+      },
+      {
+        "evidence_refs": [
+          "sha256:5eacd5932f356566f3b8dd15c60a9a88fe60efe6a692dbc5af1586fa81b86d89",
+          "g3-ir-analytics-search-ledger:996e76f3800bce22e3f639dc",
+          "g3-ir-catalog-query-trace:2bfa1083b678dff1748e773a",
+          "ir-analytics-catalog-entry:e306e4461710d6a73298ad49",
+          "ir-analytics-catalog-entry:862dacf5f5007663930b0eda",
+          "ir-analytics-catalog-entry:077bb5d443aeddd2a279dc3a",
+          "ir-analytics-catalog-entry:d345a826e5ce81c7d8ab4746",
+          "ir-analytics-catalog-entry:09a9c0ec10fdbe34338ec778",
+          "ir-analytics-catalog-entry:1c79b411116ab2b1dacc6a52",
+          "ir-analytics-catalog-entry:2f922ef6cb40e8bcba9ab14e",
+          "ir-analytics-catalog-entry:339d6443ec9de9e78c594c8c",
+          "ir-analytics-catalog-entry:377dd253513427218faa015c",
+          "ir-analytics-catalog-entry:6234a4327f56ee3e88944000",
+          "ir-analytics-catalog-entry:837c6369f3a5f3e46a7ebc42",
+          "ir-analytics-catalog-entry:8499cf59e85f210376872a1d",
+          "ir-analytics-catalog-entry:940cc08fed97a9c7e89b46a1",
+          "ir-analytics-catalog-entry:9934788659bdc496cfdabcb0",
+          "ir-analytics-catalog-entry:b06ccb24bd6544818d667dcb",
+          "ir-analytics-catalog-entry:b9a7aa22919c7d24bc29d128"
+        ],
+        "expected_route": "ir_schema_catalog_duckdb_materialized",
+        "issue_codes": [],
+        "seed_id": "g3-known-seed:ir-analytics-proof-catalog",
+        "seed_kind": "ir_catalog_search",
+        "status": "pass"
+      },
+      {
+        "evidence_refs": [
+          "sha256:ead78f78eedfa6b712e1384c4635795f9dc37fd36af8b70bed9103d718fe7686",
+          "g3-certificate-resolution:19e311ab9cfd45a1ad223fe5",
+          "sha256:ed68661e66580eb78cf089b0c84972861c80440a605cc12b38aef0c52c416494"
+        ],
+        "expected_route": "ir_artifact_store:selected_refs",
+        "issue_codes": [],
+        "seed_id": "g3-known-seed:resolved-proof-certificate",
+        "seed_kind": "certificate_resolution",
+        "status": "pass"
+      }
+    ],
+    "status": "pass"
+  }
+}

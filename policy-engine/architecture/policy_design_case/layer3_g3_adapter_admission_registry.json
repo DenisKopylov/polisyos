@@ -1,0 +1,137 @@
+{
+  "adapter_admission_registry": {
+    "issue_codes": [],
+    "record_id": "layer3-g3-adapter-admission-registry",
+    "records": [
+      {
+        "adapter_contract_path_refs": [
+          "layer3_g3_artifact_index_to_certificate_resolution"
+        ],
+        "adapter_id": "layer3_g3_artifact_index_to_certificate_resolution",
+        "admission_state": "admitted",
+        "admitted": true,
+        "conformance_status": "pass",
+        "maturity": "predictive",
+        "port_ids": [
+          "layer3.analytics_search_adapter"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "layer3-g3-analytics-search"
+        ],
+        "source_touchpoint_refs": [
+          "touchpoint://runtime-quality/layer3-g3-artifact-index-to-certificate-resolution"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [
+          "layer3_g3_bridge_to_w12d_consumer_gate"
+        ],
+        "adapter_id": "layer3_g3_bridge_to_w12d_consumer_gate",
+        "admission_state": "admitted",
+        "admitted": true,
+        "conformance_status": "pass",
+        "maturity": "predictive",
+        "port_ids": [
+          "layer3.analytics_search_adapter"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "layer3-g3-analytics-search"
+        ],
+        "source_touchpoint_refs": [
+          "touchpoint://runtime-quality/layer3-g3-bridge-to-w12d-consumer-gate"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [
+          "layer3_g3_certificate_resolution_to_proof_record"
+        ],
+        "adapter_id": "layer3_g3_certificate_resolution_to_proof_record",
+        "admission_state": "admitted",
+        "admitted": true,
+        "conformance_status": "pass",
+        "maturity": "predictive",
+        "port_ids": [
+          "layer3.analytics_search_adapter"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "layer3-g3-analytics-search"
+        ],
+        "source_touchpoint_refs": [
+          "touchpoint://runtime-quality/layer3-g3-certificate-resolution-to-proof-record"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [
+          "layer3_g3_ir_catalog_to_search_ledger"
+        ],
+        "adapter_id": "layer3_g3_ir_catalog_to_search_ledger",
+        "admission_state": "admitted",
+        "admitted": true,
+        "conformance_status": "pass",
+        "maturity": "predictive",
+        "port_ids": [
+          "layer3.analytics_search_adapter"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "layer3-g3-analytics-search"
+        ],
+        "source_touchpoint_refs": [
+          "touchpoint://runtime-quality/layer3-g3-ir-catalog-to-search-ledger"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [
+          "layer3_g3_l2_skg_to_proof_candidate_binding"
+        ],
+        "adapter_id": "layer3_g3_l2_skg_to_proof_candidate_binding",
+        "admission_state": "admitted",
+        "admitted": true,
+        "conformance_status": "pass",
+        "maturity": "predictive",
+        "port_ids": [
+          "layer3.analytics_search_adapter"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "layer3-g3-analytics-search"
+        ],
+        "source_touchpoint_refs": [
+          "touchpoint://runtime-quality/layer3-g3-l2-skg-to-proof-candidate-binding"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [
+          "layer3_g3_proof_record_to_ir_analytics_bridge"
+        ],
+        "adapter_id": "layer3_g3_proof_record_to_ir_analytics_bridge",
+        "admission_state": "admitted",
+        "admitted": true,
+        "conformance_status": "pass",
+        "maturity": "predictive",
+        "port_ids": [
+          "layer3.analytics_search_adapter"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "layer3-g3-analytics-search"
+        ],
+        "source_touchpoint_refs": [
+          "touchpoint://runtime-quality/layer3-g3-proof-record-to-ir-analytics-bridge"
+        ]
+      }
+    ],
+    "status": "pass"
+  },
+  "rule_version": "policyos.layer3.g3.analytics_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g3_analytics_search.v1"
+}

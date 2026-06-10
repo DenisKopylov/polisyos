@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import importlib
+from pathlib import Path
 from typing import Any
 
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.runtime.quality.claim_registry import (
     build_runtime_claim_registry,
     claim_registry_rows_by_id,
@@ -568,3 +570,89 @@ def test_s11_negative_certificate_blocks_claim_registry_evidence_upgrade() -> No
     assert row["negative_certificate_refs"] == ["ir.negative_certificate.hedge.msme"]
     assert "ir.negative_certificate.hedge.msme" in row["blocker_refs"]
     assert row["rejected_method_refs"] == ["ir.method.partial_identification.ate"]
+
+
+def test_layer3_g3_resolved_bridge_reaches_claim_registry_consumer_gate(
+    tmp_path: Path,
+) -> None:
+    g3 = importlib.import_module("polisyos.runtime.quality.layer3_analytics_search")
+    request, proof_bindings, bridge_binding = _g3_resolved_bridge(g3, tmp_path)
+
+    gate = g3.build_g3_claim_registry_consumer_gate(
+        request=request,
+        ir_analytics_bridge=bridge_binding,
+        proof_carrying_analytics_records=proof_bindings,
+        claims=(
+            _claim_with_required_evidence(
+                claim_id=request.claim_id,
+                baseline_refs=(request.baseline_ref,),
+                alternative_refs=request.alternative_refs,
+                comparison_refs=(request.comparison_ref,),
+            ),
+        ),
+    )
+
+    assert gate.status == "pass"
+    assert gate.claim_registry_status == "pass"
+    assert gate.ir_analytics_bridge_ref == bridge_binding.bridge_ref
+    assert gate.proof_carrying_analytics_refs == (proof_bindings[0].proof_ref,)
+    assert gate.claim_registry_payload["summary"]["ir_analytics_binding_count"] == 1
+    row = claim_registry_rows_by_id(gate.claim_registry_payload)[request.claim_id]
+    assert row["ir_analytics_bridge_ref"] == bridge_binding.bridge_ref
+    assert row["ir_analytics_refs"] == proof_bindings[0].s11_record["ir_analytics_refs"]
+
+
+def _g3_resolved_bridge(g3: Any, tmp_path: Path) -> tuple[Any, tuple[Any, ...], Any]:
+    request = g3.Layer3G3AnalyticsRequest(
+        request_id="g3-request:task5:claim-registry",
+        claim_id="rec_credit_guarantee",
+        case_id="ua-msme-affordable-loans-2022",
+        cause="agriculture.fertilizer_use",
+        effect="agriculture.food_nutritional_quality",
+        comparison_ref="comparison://g3/task5/claim-registry",
+        baseline_ref="baseline://g3/task5/claim-registry",
+        alternative_refs=("alternative://g3/task5/claim-registry",),
+        concept_refs=("concept://g3/task5/claim-registry",),
+        semantic_spine_refs=("semantic-spine://g3/task5/claim-registry",),
+        method_requirement_refs=("g3-method-req:claim-registry",),
+        certificate_kinds=("proof_bundle",),
+    )
+    store = FileSystemCAS(tmp_path / "g3-cas")
+    candidates = g3.produce_g3_deterministic_first_case_certificate(request, store=store)
+    artifact_index = g3.build_g3_ir_artifact_store_index(
+        store=store,
+        selected_candidates=candidates,
+    )
+    certificate_report = g3.build_g3_certificate_resolution_report(
+        candidates=candidates,
+        artifact_index=artifact_index,
+        store=store,
+    )
+    method_bindings = g3.build_g3_method_requirement_bindings(
+        request=request,
+        method_requirements=(
+            {
+                "requirement_id": request.method_requirement_refs[0],
+                "run_id": request.case_id,
+                "claim_id": request.claim_id,
+                "identification_class": "point",
+                "method_expectations": ["causal_identification"],
+                "required_method_families": ["causal_identification"],
+                "requires_uncertainty_envelope": False,
+                "requires_limitation_refs": False,
+                "baseline_refs": [request.baseline_ref],
+                "alternative_refs": list(request.alternative_refs),
+            },
+        ),
+        selected_method_refs=("ir.method.g3.task5.claim_registry",),
+    )
+    proof_bindings = g3.build_g3_proof_carrying_analytics_bindings(
+        request=request,
+        certificate_resolution_report=certificate_report,
+        method_requirement_bindings=method_bindings,
+    )
+    bridge_binding = g3.build_g3_ir_analytics_bridge_bindings(
+        proof_carrying_analytics_records=proof_bindings,
+        method_requirement_bindings=method_bindings,
+    )
+    return request, proof_bindings, bridge_binding

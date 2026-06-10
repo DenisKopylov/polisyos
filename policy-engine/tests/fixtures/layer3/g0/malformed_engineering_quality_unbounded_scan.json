@@ -1,0 +1,22 @@
+{
+  "schema_version": "policyos.layer3.g0.discovery_search_fixture.v2",
+  "fixture_id": "malformed_engineering_quality_unbounded_scan",
+  "mutation": "the builder claims pass while using an eager full-corpus scan and ad hoc parsing",
+  "expected_issue_codes": [
+    "layer3_g0_engineering_quality_unbounded_scan"
+  ],
+  "payload": {
+    "engineering_quality_check": {
+      "status": "pass",
+      "named_libraries_parsers_indexes": [
+        "json",
+        "tomllib"
+      ],
+      "scan_strategy": "recursive_eager_full_payload_scan",
+      "bounded_work_proof": "",
+      "scaling_perf_check_ref": "",
+      "deterministic_ordering_ref": "sorted-paths",
+      "fail_closed_error_handling_policy": "broad-except-and-continue"
+    }
+  }
+}

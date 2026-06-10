@@ -12,6 +12,8 @@ from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
+from pydantic import ValidationError
+
 from polisyos.runtime.quality import layer3_grounding_inventory as g0
 from tools.lib.fs import atomic_write_text
 
@@ -35,6 +37,15 @@ IMPORT_FIREWALL_LINT_PATH = POLICY_DESIGN_CASE_DIR / "layer3_import_firewall_lin
 EMPTY_PORT_MAP_PATH = POLICY_DESIGN_CASE_DIR / "layer3_empty_port_map.json"
 ADAPTER_COST_MAP_PATH = POLICY_DESIGN_CASE_DIR / "layer3_adapter_cost_map.json"
 FIRST_VERTICAL_CASE_PATH = POLICY_DESIGN_CASE_DIR / "layer3_first_vertical_case.json"
+DISCOVERY_SEARCH_DISCIPLINE_PATH = (
+    POLICY_DESIGN_CASE_DIR / "layer3_discovery_search_discipline.json"
+)
+HARDCODE_ENUMERATION_BACKLOG_PATH = (
+    POLICY_DESIGN_CASE_DIR / "layer3_hardcode_enumeration_backlog.json"
+)
+ENGINEERING_QUALITY_CHECK_PATH = (
+    POLICY_DESIGN_CASE_DIR / "layer3_engineering_quality_check.json"
+)
 
 JSON_ARTIFACT_PATHS: tuple[Path, ...] = (
     CAPABILITY_DATA_INVENTORY_PATH,
@@ -47,6 +58,9 @@ JSON_ARTIFACT_PATHS: tuple[Path, ...] = (
     EMPTY_PORT_MAP_PATH,
     ADAPTER_COST_MAP_PATH,
     FIRST_VERTICAL_CASE_PATH,
+    DISCOVERY_SEARCH_DISCIPLINE_PATH,
+    HARDCODE_ENUMERATION_BACKLOG_PATH,
+    ENGINEERING_QUALITY_CHECK_PATH,
     READINESS_MANIFEST_PATH,
 )
 TOML_ARTIFACT_PATHS: tuple[Path, ...] = (HEALTH_METRIC_LEDGERS_PATH,)
@@ -62,9 +76,13 @@ PERSISTED_BUNDLE_PATHS: tuple[Path, ...] = (
     EMPTY_PORT_MAP_PATH,
     ADAPTER_COST_MAP_PATH,
     FIRST_VERTICAL_CASE_PATH,
+    DISCOVERY_SEARCH_DISCIPLINE_PATH,
+    HARDCODE_ENUMERATION_BACKLOG_PATH,
+    ENGINEERING_QUALITY_CHECK_PATH,
     READINESS_MANIFEST_PATH,
 )
 CLOSURE_ARTIFACT_PATHS: tuple[Path, ...] = (
+    READINESS_MANIFEST_PATH,
     CAPABILITY_DATA_INVENTORY_PATH,
     TRIAGE_REGISTRY_PATH,
     PORT_MAP_PATH,
@@ -76,6 +94,9 @@ CLOSURE_ARTIFACT_PATHS: tuple[Path, ...] = (
     EMPTY_PORT_MAP_PATH,
     ADAPTER_COST_MAP_PATH,
     FIRST_VERTICAL_CASE_PATH,
+    DISCOVERY_SEARCH_DISCIPLINE_PATH,
+    HARDCODE_ENUMERATION_BACKLOG_PATH,
+    ENGINEERING_QUALITY_CHECK_PATH,
     ADR_PATH,
 )
 
@@ -111,6 +132,19 @@ ALL_ISSUE_CODES: tuple[str, ...] = (
     "layer3_g0_adapter_cost_map_missing_near_typed_score",
     "layer3_g0_status_composition_missing",
     "layer3_g0_first_case_id_mismatch",
+    "layer3_g0_grounding_search_ledger_missing",
+    "layer3_g0_search_recall_seed_miss_blocks_domain_ceiling",
+    "layer3_g0_stale_index_blocks_abstention",
+    "layer3_g0_stale_index_blocks_free_growth",
+    "layer3_g0_free_growth_executable_use_missing",
+    "layer3_g0_mechanism_generality_requires_two_request_shapes",
+    "layer3_g0_data_asset_source_contract_readiness_missing",
+    "layer3_g0_engineering_quality_unbounded_scan",
+    "layer3_g0_hardcode_enumeration_unregistered",
+    "layer3_g0_search_ledger_authority_boundary_leak",
+    "layer3_g0_discoverable_resource_admitted_authority",
+    "layer3_g0_executable_resource_admitted_authority",
+    "layer3_g0_admitted_authority_invalid_in_g0",
 )
 
 
@@ -142,7 +176,19 @@ def validate_layer3_g0_readiness(repo_root: Path, *, write: bool = False) -> dic
                 )
             )
 
-    runtime_report = g0.validate_layer3_g0_bundle(root, persisted).model_dump(mode="json")
+    try:
+        runtime_report = g0.validate_layer3_g0_bundle(root, persisted).model_dump(mode="json")
+    except ValidationError as error:
+        runtime_report = g0.validate_layer3_g0_bundle(root, runtime_bundle).model_dump(
+            mode="json"
+        )
+        issues.append(
+            _issue(
+                "layer3_g0_manifest_runtime_drift",
+                "$.persisted_bundle",
+                f"persisted Layer 3 G0 artifacts are not v2-compatible: {error}",
+            )
+        )
     issues.extend(runtime_report["issues"])
 
     adr_payload = _adr_payload(root)
@@ -235,6 +281,24 @@ def _write_artifacts(repo_root: Path, bundle: g0.Layer3G0Bundle) -> None:
         {**base, "import_firewall_lint": _dump(bundle.import_firewall_lint)},
     )
     _write_json(
+        repo_root / DISCOVERY_SEARCH_DISCIPLINE_PATH,
+        {
+            **base,
+            "discovery_index_inventory": _dump(bundle.discovery_index_inventory),
+            "resource_discovery_inventory": _dump(bundle.resource_discovery_inventory),
+            "grounding_search_discipline": _dump(bundle.grounding_search_discipline),
+            "no_hardcode_enumeration_lint": _dump(bundle.no_hardcode_enumeration_lint),
+        },
+    )
+    _write_json(
+        repo_root / HARDCODE_ENUMERATION_BACKLOG_PATH,
+        {**base, "hardcode_enumeration_backlog": _dump(bundle.hardcode_enumeration_backlog)},
+    )
+    _write_json(
+        repo_root / ENGINEERING_QUALITY_CHECK_PATH,
+        {**base, "engineering_quality_check": _dump(bundle.engineering_quality_check)},
+    )
+    _write_json(
         repo_root / EMPTY_PORT_MAP_PATH,
         {**base, "empty_port_map": {"entries": _dump(bundle.empty_port_map)}},
     )
@@ -252,12 +316,18 @@ def _write_artifacts(repo_root: Path, bundle: g0.Layer3G0Bundle) -> None:
 def _load_persisted_bundle(repo_root: Path) -> dict[str, Any]:
     capability_data = _read_json(repo_root / CAPABILITY_DATA_INVENTORY_PATH)
     triage = _read_json(repo_root / TRIAGE_REGISTRY_PATH)
+    discovery_search = _read_json(repo_root / DISCOVERY_SEARCH_DISCIPLINE_PATH)
+    hardcode_backlog = _read_json(repo_root / HARDCODE_ENUMERATION_BACKLOG_PATH)
+    engineering_quality = _read_json(repo_root / ENGINEERING_QUALITY_CHECK_PATH)
     health_ledgers = _read_toml(repo_root / HEALTH_METRIC_LEDGERS_PATH).get(
         "health_metric_ledgers", []
     )
     return {
         "capability_inventory": capability_data["capability_inventory"],
         "data_asset_inventory": capability_data["data_asset_inventory"],
+        "discovery_index_inventory": discovery_search["discovery_index_inventory"],
+        "resource_discovery_inventory": discovery_search["resource_discovery_inventory"],
+        "grounding_search_discipline": discovery_search["grounding_search_discipline"],
         "triage_registry": _records(triage["triage_registry"]),
         "quarantine_registry": _entries(triage["quarantine_registry"]),
         "port_map": _read_json(repo_root / PORT_MAP_PATH)["port_map"],
@@ -277,6 +347,9 @@ def _load_persisted_bundle(repo_root: Path) -> dict[str, Any]:
         "import_firewall_lint": _read_json(repo_root / IMPORT_FIREWALL_LINT_PATH)[
             "import_firewall_lint"
         ],
+        "hardcode_enumeration_backlog": hardcode_backlog["hardcode_enumeration_backlog"],
+        "no_hardcode_enumeration_lint": discovery_search["no_hardcode_enumeration_lint"],
+        "engineering_quality_check": engineering_quality["engineering_quality_check"],
         "status_composition_matrix": triage["status_composition_matrix"],
         "empty_port_map": _entries(_read_json(repo_root / EMPTY_PORT_MAP_PATH)["empty_port_map"]),
         "adapter_cost_map": _entries(
@@ -369,6 +442,11 @@ def _adr_payload(repo_root: Path) -> dict[str, Any]:
                 "import_policy_constitution_conflict_recorded": False,
                 "policy_toml_pdc_allowlist_narrowing_followup_recorded": False,
                 "registry_crosswalk_clarification_recorded": False,
+                "v2_amendment_recorded": False,
+                "organizing_rules_recorded": False,
+                "rule12_t7_recorded": False,
+                "impact_note_recorded": False,
+                "rule_version_refs_recorded": False,
             }
         }
 
@@ -394,6 +472,21 @@ def _adr_payload(repo_root: Path) -> dict[str, Any]:
             and "narrow" in text,
             "registry_crosswalk_clarification_recorded": "preservation registry" in text
             and "admission registry" in text,
+            "v2_amendment_recorded": "v2 discovery/search amendment" in text
+            and "supplemental acceptance" in text,
+            "organizing_rules_recorded": "§5 organizing rules" in text
+            and "§7 ports/adapters/registry/conformance" in text,
+            "rule12_t7_recorded": "Rule 12/T7" in text
+            and "search-recall@known-seeds + index-staleness" in text,
+            "impact_note_recorded": "status lattice" in text
+            and "authority boundaries" in text
+            and "replay behavior" in text
+            and "affected slice plans" in text
+            and "health signals" in text
+            and "enforcement surfaces" in text,
+            "rule_version_refs_recorded": "policyos.layer3.g0.discovery_search_free_growth.v2"
+            in text
+            and "policyos.policy_design_case.layer3_g0_discovery_search.v2" in text,
         }
     }
 
@@ -443,6 +536,11 @@ def _adr_summary(adr_payload: Mapping[str, Any]) -> dict[str, Any]:
         "registry_crosswalk_clarification_recorded": bool(
             adr.get("registry_crosswalk_clarification_recorded")
         ),
+        "v2_amendment_recorded": bool(adr.get("v2_amendment_recorded")),
+        "organizing_rules_recorded": bool(adr.get("organizing_rules_recorded")),
+        "rule12_t7_recorded": bool(adr.get("rule12_t7_recorded")),
+        "impact_note_recorded": bool(adr.get("impact_note_recorded")),
+        "rule_version_refs_recorded": bool(adr.get("rule_version_refs_recorded")),
     }
 
 
@@ -579,7 +677,7 @@ def _issue(code: str, path: str, message: str) -> dict[str, str]:
 
 def _render_text_report(report: Mapping[str, Any]) -> str:
     summary = report.get("summary", {})
-    lines = [f"status={report.get('status', '')}"]
+    lines = [f"layer3_g0_readiness_status={report.get('status', '')}"]
     if isinstance(summary, Mapping):
         for key in sorted(summary):
             lines.append(f"{key}={_display_value(summary[key])}")

@@ -1,5 +1,5 @@
-schema_version = "policyos.policy_design_case.layer3_g0_grounding_inventory.v1"
-rule_version = "policyos.layer3.g0.grounding_subordination.v1"
+schema_version = "policyos.policy_design_case.layer3_g0_discovery_search.v2"
+rule_version = "policyos.layer3.g0.discovery_search_free_growth.v2"
 
 [[health_metric_ledgers]]
 freeze_value = { g0_admitted_adapter_count = 0 }
@@ -32,3 +32,11 @@ next_update_rule = "Recompute from universal corpus G0 route."
 owner = "team-runtime-quality"
 per_slice_delta_rule = "Demand pull cannot count until a grounded adapter admits evidence."
 trend_vocabulary = ["responding", "abstention_inertia"]
+
+[[health_metric_ledgers]]
+freeze_value = { known_groundable_seed_miss_count = 0, stale_required_index_count = 0 }
+metric_id = "search-recall@known-seeds+index-staleness"
+next_update_rule = "Recompute from GroundingSearchDiscipline recall/freshness records."
+owner = "team-runtime-quality"
+per_slice_delta_rule = "Recall misses or stale required indexes block domain-ceiling and no-hit claims."
+trend_vocabulary = ["fresh_recall_ok", "search_ceiling"]

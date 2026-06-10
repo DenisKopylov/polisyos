@@ -34,6 +34,9 @@ def test_layer3_g0_readiness_cli_delegates_to_runtime_validator_and_reports_issu
             "summary": {
                 "source_package_count": 0,
                 "closure_artifact_count": 0,
+                "schema_version": "policyos.policy_design_case.layer3_g0_discovery_search.v2",
+                "health_metric_ledger_count": 5,
+                "search_recall_seed_status": "pass",
             },
             "write": write,
         }
@@ -61,5 +64,7 @@ def test_layer3_g0_readiness_cli_delegates_to_runtime_validator_and_reports_issu
     assert exit_code == 1
     assert calls == [REPO_ROOT]
     assert payload["status"] == "fail"
+    assert payload["summary"]["schema_version"].endswith(".v2")
+    assert payload["summary"]["search_recall_seed_status"] == "pass"
     assert payload["issues"][0]["code"] == "layer3_g0_inventory_missing_capability_source"
     assert "layer3_g0_inventory_missing_capability_source" in stdout

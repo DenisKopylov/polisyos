@@ -5,6 +5,6 @@
     "first_vertical_construct_bundle_id": "ukrainian_msme_credit_constructs",
     "first_vertical_corpus_case_id": "ua-msme-affordable-loans-2022"
   },
-  "rule_version": "policyos.layer3.g0.grounding_subordination.v1",
-  "schema_version": "policyos.policy_design_case.layer3_g0_grounding_inventory.v1"
+  "rule_version": "policyos.layer3.g0.discovery_search_free_growth.v2",
+  "schema_version": "policyos.policy_design_case.layer3_g0_discovery_search.v2"
 }

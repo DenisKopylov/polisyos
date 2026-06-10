@@ -1,0 +1,38 @@
+{
+  "schema_version": "policyos.layer3.g0.discovery_search_fixture.v2",
+  "fixture_id": "malformed_search_no_ledger_abstention",
+  "mutation": "a complete no-hit is projected as grounded abstention without a replayable grounding search ledger",
+  "expected_issue_codes": [
+    "layer3_g0_grounding_search_ledger_missing"
+  ],
+  "payload": {
+    "grounding_search_ledgers": [],
+    "search_claims": [
+      {
+        "claim_id": "ua-msme-no-hit-abstention",
+        "typed_request_ref": "request://layer3-g0/ua-msme/legal-threshold",
+        "grounding_disposition": "grounded_abstention",
+        "ledger_ref": null,
+        "completeness_status": "complete_no_candidate",
+        "ceiling_diagnosis": "domain_ceiling",
+        "authoritative_for": [
+          "grounded_abstention"
+        ]
+      }
+    ],
+    "index_freshness_records": [
+      {
+        "index_id": "fixture-legal-threshold-index",
+        "staleness_status": "fresh",
+        "blocked_authority_effects": []
+      }
+    ],
+    "recall_seeds": [
+      {
+        "seed_id": "ua-msme-known-legal-threshold",
+        "target_resource_ref": "resource://legal_norm/ua-msme-threshold",
+        "observed_status": "found"
+      }
+    ]
+  }
+}

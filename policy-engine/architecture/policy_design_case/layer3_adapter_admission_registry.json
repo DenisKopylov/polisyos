@@ -98,6 +98,253 @@
       },
       {
         "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-analytics-search-py-3876-method-requirement",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/layer3_analytics_search.py:3876:method_requirement"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/layer3_analytics_search.py:3876:method_requirement"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-analytics-search-py-3926-method-requirement",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/layer3_analytics_search.py:3926:method_requirement"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/layer3_analytics_search.py:3926:method_requirement"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-causal-forecast-py-21-method-requirement",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/layer3_causal_forecast.py:21:method_requirement"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/layer3_causal_forecast.py:21:method_requirement"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-causal-forecast-py-1050-data-forge",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/layer3_causal_forecast.py:1050:data_forge"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/layer3_causal_forecast.py:1050:data_forge"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-causal-forecast-py-1111-data-forge",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/layer3_causal_forecast.py:1111:data_forge"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/layer3_causal_forecast.py:1111:data_forge"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-causal-forecast-py-2560-foundry",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/layer3_causal_forecast.py:2560:foundry"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/layer3_causal_forecast.py:2560:foundry"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-causal-forecast-py-2633-foundry",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/layer3_causal_forecast.py:2633:foundry"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/layer3_causal_forecast.py:2633:foundry"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-causal-forecast-py-4575-foundry",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/layer3_causal_forecast.py:4575:foundry"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/layer3_causal_forecast.py:4575:foundry"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-causal-forecast-py-4576-foundry",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/layer3_causal_forecast.py:4576:foundry"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/layer3_causal_forecast.py:4576:foundry"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-legal-mandate-search-py-1609-lex",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/layer3_legal_mandate_search.py:1609:lex"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/layer3_legal_mandate_search.py:1609:lex"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-legal-mandate-search-py-1924-lex",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/layer3_legal_mandate_search.py:1924:lex"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/layer3_legal_mandate_search.py:1924:lex"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-legal-mandate-search-py-3031-lex",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/layer3_legal_mandate_search.py:3031:lex"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/layer3_legal_mandate_search.py:3031:lex"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-substrate-grounding-py-20-fabric",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/layer3_substrate_grounding.py:20:fabric"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/layer3_substrate_grounding.py:20:fabric"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
         "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-metamorphic-controls-py-14-scholar",
         "admission_state": "candidate_shadow_only",
         "admitted": false,
@@ -438,6 +685,6 @@
       }
     ]
   },
-  "rule_version": "policyos.layer3.g0.grounding_subordination.v1",
-  "schema_version": "policyos.policy_design_case.layer3_g0_grounding_inventory.v1"
+  "rule_version": "policyos.layer3.g0.discovery_search_free_growth.v2",
+  "schema_version": "policyos.policy_design_case.layer3_g0_discovery_search.v2"
 }

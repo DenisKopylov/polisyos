@@ -1,0 +1,76 @@
+{
+  "schema_version": "policyos.layer3.g0.discovery_search_fixture.v2",
+  "fixture_id": "valid_discovery_search_minimal_bundle",
+  "mutation": "minimal v2 discovery/search discipline fixture with governed vocabulary exception only",
+  "expected_issue_codes": [],
+  "payload": {
+    "discovery_search_discipline": {
+      "grounding_search_ledgers": [
+        {
+          "ledger_id": "ledger://layer3-g0/minimal-dataset-search",
+          "typed_request_ref": "request://layer3-g0/minimal/dataset",
+          "normalized_query_refs": [
+            "query://layer3-g0/minimal/dataset"
+          ],
+          "searched_index_refs": [
+            "fixture-resource-index@v2"
+          ],
+          "ranking_policy_ref": "policy://layer3-g0/fixture-ranking",
+          "selected_candidate_refs": [
+            "resource://dataset/minimal-metric-binding"
+          ],
+          "rejected_candidate_refs": [],
+          "cutoff_budget_ref": "budget://layer3-g0/fixture-small",
+          "absence_or_incompleteness_reason": "none",
+          "completeness_status": "complete_with_candidates",
+          "deterministic_replay_key": "sha256:fixture-minimal-search",
+          "authoritative_for": [],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ]
+        }
+      ],
+      "recall_seeds": [
+        {
+          "seed_id": "minimal-metric-binding-seed",
+          "target_resource_ref": "resource://dataset/minimal-metric-binding",
+          "expected_query_shape": "metric_binding_by_policy_case",
+          "required_index_refs": [
+            "fixture-resource-index"
+          ],
+          "expected_minimum_discovery_posture": "discoverable",
+          "refresh_requirement": "fresh_index_required",
+          "observed_status": "found",
+          "failure_issue_code": "layer3_g0_search_recall_seed_miss_blocks_domain_ceiling"
+        }
+      ],
+      "index_freshness_records": [
+        {
+          "index_id": "fixture-resource-index",
+          "corpus_snapshot_ref": "snapshot://fixtures/layer3/g0/resource-index/v2",
+          "last_refresh_ref": "receipt://fixtures/layer3/g0/resource-index/2026-06-06",
+          "expected_freshness_window": "P7D",
+          "staleness_status": "fresh",
+          "blocked_authority_effects": []
+        }
+      ]
+    },
+    "no_hardcode_lint_report": {
+      "status": "pass",
+      "scanned_paths": [
+        "src/polisyos/runtime/quality/capability_ratchet.py"
+      ],
+      "violations": [],
+      "governed_vocabulary_exceptions": [
+        {
+          "file": "src/polisyos/runtime/quality/layer3_grounding_inventory.py",
+          "pattern": "DiscoveryPosture",
+          "enumeration_kind": "governed_vocabulary_exception",
+          "governed_vocabulary_exception": true,
+          "rationale": "schema vocabulary is governed contract language, not a capability fallback list"
+        }
+      ]
+    }
+  }
+}

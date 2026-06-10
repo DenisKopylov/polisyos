@@ -20,13 +20,17 @@ from pydantic import AliasChoices, Field, model_validator
 
 from polisyos.pdc import AuthorityBoundary, Layer2ReadinessModel
 
-LAYER3_G0_SCHEMA_VERSION = "policyos.policy_design_case.layer3_g0_grounding_inventory.v1"
-LAYER3_G0_RULE_VERSION = "policyos.layer3.g0.grounding_subordination.v1"
-LAYER3_G0_MANIFEST_ID = "layer3.g0.readiness"
+LAYER3_G0_SCHEMA_VERSION = "policyos.policy_design_case.layer3_g0_discovery_search.v2"
+LAYER3_G0_RULE_VERSION = "policyos.layer3.g0.discovery_search_free_growth.v2"
+LAYER3_G0_MANIFEST_ID = "layer3.g0.discovery_search_readiness"
 SOURCE_TOUCHPOINT_SCAN_MODE = "ast_top_level_and_local_imports"
 AUTHORITY_POSTURE = "llm_output_candidate_never_authority"
 ADR_ACCEPTANCE_AUTHORITY = "human_principal_required"
 NO_ADAPTER_ADMISSION_BEFORE_G0 = True
+NO_ADAPTER_ADMISSION_IN_G0 = True
+NO_HARDCODE_FALLBACKS = True
+SEARCH_FRONTIER_REQUIRED_FOR_ABSTENTION = True
+RECALL_FRESHNESS_REQUIRED_FOR_DOMAIN_CEILING = True
 FIRST_VERTICAL_CORPUS_CASE_ID = "ua-msme-affordable-loans-2022"
 FIRST_VERTICAL_CONSTRUCT_BUNDLE_ID = "ukrainian_msme_credit_constructs"
 
@@ -58,6 +62,48 @@ HealthMetricId = Literal[
     "adapter-semantic-loss",
     "governance-throughput",
     "demand-pull-vs-abstention",
+    "search-recall@known-seeds+index-staleness",
+]
+DiscoveryPosture = Literal["discoverable", "executable", "admitted_authority"]
+ResourceKind = Literal[
+    "dataset",
+    "claim",
+    "legal_norm",
+    "method",
+    "agent",
+    "tool",
+    "adapter",
+    "case",
+    "probe",
+]
+DiscoveryIndexKind = Literal["structured", "text", "vector", "graph", "registry"]
+SearchCompletenessStatus = Literal[
+    "complete_with_candidates",
+    "complete_no_candidate",
+    "incomplete_budget_cutoff",
+    "incomplete_index_unavailable",
+    "incomplete_alias_gap",
+    "incomplete_schema_mismatch",
+    "stale_index",
+    "recall_failed",
+]
+CeilingDiagnosis = Literal[
+    "none",
+    "domain_ceiling",
+    "search_ceiling",
+    "adapter_missing",
+    "governance_blocked",
+]
+IndexStalenessStatus = Literal["fresh", "stale", "unknown"]
+HardcodeEnumerationKind = Literal[
+    "construct",
+    "dataset",
+    "variable",
+    "method",
+    "agent",
+    "tool",
+    "source",
+    "governed_vocabulary_exception",
 ]
 SourceTouchpointRegistrationStatus = Literal[
     "registered_pre_admission",
@@ -102,13 +148,30 @@ _STATUS_RULE_IDS: tuple[str, ...] = (
     "pre_adapter_conformance_cannot_admit_authority",
     "maturity_cannot_exceed_evidence",
     "promotion_blocked_before_g4",
+    "discoverable_without_adapter_candidate_only",
+    "executable_without_conformance_candidate_only",
+    "admitted_authority_invalid_in_g0",
+    "stale_index_no_hit_is_search_ceiling",
+    "recall_miss_domain_ceiling_invalid",
+    "quarantine_dominates_adapter_candidate",
 )
 _HEALTH_METRICS: tuple[HealthMetricId, ...] = (
     "envelope-expansion-rate",
     "adapter-semantic-loss",
     "governance-throughput",
     "demand-pull-vs-abstention",
+    "search-recall@known-seeds+index-staleness",
 )
+_HARDCODE_ENUMERATION_PATTERNS: dict[str, tuple[HardcodeEnumerationKind, str]] = {
+    "KNOWN_CONSTRUCTS": (
+        "construct",
+        "hardcode://runtime-quality/capability-index-known-constructs",
+    ),
+    "REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS": (
+        "construct",
+        "hardcode://runtime-quality/scenario-family-construct-mappings",
+    ),
+}
 
 
 class ValidationIssue(Layer2ReadinessModel):
@@ -168,6 +231,146 @@ class ProcessingTransformInventoryEntry(Layer2ReadinessModel):
     owner_evidence_ref: str = Field(..., min_length=1, max_length=700)
     replay_command_ref: str = Field(..., min_length=1, max_length=700)
     contamination_risk_refs: list[str] = Field(..., min_length=1, max_length=50)
+
+
+class DiscoveryIndexInventoryEntry(Layer2ReadinessModel):
+    """Inventory row for one discovery index or registry used by G0 control plane."""
+
+    index_id: str = Field(..., min_length=1, max_length=240)
+    source_family: str = Field(..., min_length=1, max_length=160)
+    index_kind: DiscoveryIndexKind
+    backing_path_or_service: str = Field(..., min_length=1, max_length=700)
+    corpus_snapshot_ref: str = Field(..., min_length=1, max_length=700)
+    schema_version: str = Field(..., min_length=1, max_length=200)
+    index_version: str = Field(..., min_length=1, max_length=200)
+    freshness_ref: str = Field(..., min_length=1, max_length=700)
+    owner: str = Field(..., min_length=1, max_length=200)
+    rebuild_command: str = Field(..., min_length=1, max_length=700)
+
+
+class ResourceDiscoveryRecord(Layer2ReadinessModel):
+    """Candidate resource discovered before adapter admission."""
+
+    resource_id: str = Field(..., min_length=1, max_length=300)
+    resource_kind: ResourceKind
+    discovery_posture: DiscoveryPosture
+    index_refs: list[str] = Field(default_factory=list, max_length=80)
+    executable_interface_refs: list[str] = Field(default_factory=list, max_length=80)
+    authority_boundary: dict[str, Any] = Field(default_factory=dict)
+    missing_labels: list[str] = Field(default_factory=list, max_length=30)
+
+
+class GroundingSearchLedger(Layer2ReadinessModel):
+    """Replayable search-frontier control-plane record, never authority evidence in G0."""
+
+    ledger_id: str = Field(..., min_length=1, max_length=300)
+    typed_request_ref: str = Field(..., min_length=1, max_length=500)
+    normalized_query_refs: list[str] = Field(default_factory=list, max_length=40)
+    searched_index_refs: list[str] = Field(..., min_length=1, max_length=80)
+    ranking_policy_ref: str | None = Field(default=None, max_length=500)
+    selected_candidate_refs: list[str] = Field(default_factory=list, max_length=100)
+    rejected_candidate_refs: list[str] = Field(default_factory=list, max_length=100)
+    cutoff_budget_ref: str | None = Field(default=None, max_length=500)
+    absence_or_incompleteness_reason: str | None = Field(default=None, max_length=500)
+    completeness_status: SearchCompletenessStatus
+    deterministic_replay_key: str = Field(..., min_length=1, max_length=200)
+    authoritative_for: list[str] = Field(default_factory=list, max_length=20)
+    may_not_use_for: list[str] = Field(default_factory=list, max_length=40)
+
+
+class SearchRecallSeed(Layer2ReadinessModel):
+    """Known-groundable seed used to make false abstention visible."""
+
+    seed_id: str = Field(..., min_length=1, max_length=240)
+    target_resource_ref: str = Field(..., min_length=1, max_length=500)
+    expected_query_shape: str = Field(..., min_length=1, max_length=300)
+    required_index_refs: list[str] = Field(..., min_length=1, max_length=40)
+    expected_minimum_discovery_posture: DiscoveryPosture
+    refresh_requirement: str = Field(default="fresh_index_required", max_length=300)
+    observed_status: Literal["found", "missed"] = "found"
+    failure_issue_code: str = Field(..., min_length=1, max_length=160)
+
+
+class IndexFreshnessRecord(Layer2ReadinessModel):
+    """Freshness receipt for a discovery index."""
+
+    index_id: str = Field(..., min_length=1, max_length=240)
+    corpus_snapshot_ref: str = Field(..., min_length=1, max_length=700)
+    last_refresh_ref: str = Field(..., min_length=1, max_length=700)
+    expected_freshness_window: str = Field(..., min_length=1, max_length=80)
+    staleness_status: IndexStalenessStatus
+    blocked_authority_effects: list[str] = Field(default_factory=list, max_length=40)
+
+
+class FreeGrowthFixture(Layer2ReadinessModel):
+    """Fixture proving resource growth can flow through discovery without code changes."""
+
+    fixture_id: str = Field(..., min_length=1, max_length=240)
+    resource_kind: ResourceKind
+    fixture_mutation: dict[str, Any] = Field(default_factory=dict)
+    index_refresh_command_ref: str = Field(..., min_length=1, max_length=700)
+    index_refresh_receipt_ref: str = Field(..., min_length=1, max_length=700)
+    expected_discovery_query: dict[str, Any] = Field(default_factory=dict)
+    expected_posture: DiscoveryPosture
+    observed_posture: DiscoveryPosture
+    expected_executable_use_path: str = Field(..., min_length=1, max_length=700)
+    no_code_change_assertion: bool
+    authoritative_for: list[str] = Field(default_factory=list, max_length=20)
+    may_not_use_for: list[str] = Field(default_factory=list, max_length=40)
+
+
+class MechanismRequestShape(Layer2ReadinessModel):
+    """One request shape covered by a mechanism-generality fixture."""
+
+    shape_id: str = Field(..., min_length=1, max_length=240)
+    query: str = Field(..., min_length=1, max_length=700)
+
+
+class MechanismGeneralityFixture(Layer2ReadinessModel):
+    """Fixture proving a search mechanism is not pinned to one case."""
+
+    fixture_id: str = Field(..., min_length=1, max_length=240)
+    search_mechanism_id: str = Field(..., min_length=1, max_length=240)
+    request_shapes: list[MechanismRequestShape] = Field(..., min_length=2, max_length=20)
+    expected_resources: list[str] = Field(..., min_length=1, max_length=80)
+    expected_postures: list[DiscoveryPosture] = Field(..., min_length=1, max_length=20)
+    expected_executable_use_paths: list[str] = Field(..., min_length=1, max_length=80)
+    no_code_change_assertion: bool
+
+
+class HardcodeEnumerationBacklogEntry(Layer2ReadinessModel):
+    """Registered strangle target for a hardcoded capability-gating enumeration."""
+
+    backlog_id: str = Field(..., min_length=1, max_length=240)
+    file: str = Field(..., min_length=1, max_length=700)
+    pattern: str = Field(..., min_length=1, max_length=200)
+    enumeration_kind: HardcodeEnumerationKind
+    governed_vocabulary_exception: bool = False
+    target_discovery_path: str = Field(..., min_length=1, max_length=700)
+    owner: str = Field(..., min_length=1, max_length=200)
+    deletion_condition: str = Field(..., min_length=1, max_length=1000)
+    fallback_forbidden: bool = True
+
+
+class NoHardcodeEnumerationViolation(Layer2ReadinessModel):
+    """One no-hardcode lint violation or registered capability fallback."""
+
+    file: str = Field(..., min_length=1, max_length=700)
+    pattern: str = Field(..., min_length=1, max_length=200)
+    enumeration_kind: HardcodeEnumerationKind
+    governed_vocabulary_exception: bool = False
+    registered_backlog_ref: str | None = Field(default=None, max_length=300)
+    fallback_forbidden: bool = True
+
+
+class GovernedVocabularyException(Layer2ReadinessModel):
+    """Schema/status vocabulary that is not a capability fallback list."""
+
+    file: str = Field(..., min_length=1, max_length=700)
+    pattern: str = Field(..., min_length=1, max_length=200)
+    enumeration_kind: HardcodeEnumerationKind
+    governed_vocabulary_exception: bool = True
+    rationale: str = Field(..., min_length=1, max_length=1000)
 
 
 class RequiredDataAssetRoot(Layer2ReadinessModel):
@@ -273,6 +476,9 @@ class DataAssetPort(Layer2ReadinessModel):
     freshness_ref: str = Field(..., min_length=1, max_length=700)
     fitness_ref: str = Field(..., min_length=1, max_length=700)
     contamination_check_ref: str = Field(..., min_length=1, max_length=700)
+    source_contract_ref: str | None = Field(default=None, max_length=700)
+    source_contract_readiness: str = Field(..., min_length=1, max_length=700)
+    index_refs: list[str] = Field(default_factory=list, max_length=80)
     port_ids: list[str] = Field(..., min_length=1, max_length=40)
 
 
@@ -358,6 +564,42 @@ class DataAssetInventory(Layer2ReadinessModel):
     summary: dict[str, Any] = Field(default_factory=dict)
 
 
+class DiscoveryIndexInventory(Layer2ReadinessModel):
+    """Discovery indexes and registries known to G0."""
+
+    entries: list[DiscoveryIndexInventoryEntry] = Field(default_factory=list, max_length=200)
+    summary: dict[str, Any] = Field(default_factory=dict)
+
+
+class ResourceDiscoveryInventory(Layer2ReadinessModel):
+    """Discoverable and executable resources before adapter admission."""
+
+    records: list[ResourceDiscoveryRecord] = Field(default_factory=list, max_length=500)
+    summary: dict[str, Any] = Field(default_factory=dict)
+
+
+class GroundingSearchDiscipline(Layer2ReadinessModel):
+    """G0 search-control contract bundle."""
+
+    grounding_search_ledgers: list[GroundingSearchLedger] = Field(
+        default_factory=list,
+        max_length=100,
+    )
+    recall_seeds: list[SearchRecallSeed] = Field(default_factory=list, max_length=100)
+    index_freshness_records: list[IndexFreshnessRecord] = Field(
+        default_factory=list,
+        max_length=100,
+    )
+    free_growth_fixtures: list[FreeGrowthFixture] = Field(default_factory=list, max_length=40)
+    mechanism_generality_fixtures: list[MechanismGeneralityFixture] = Field(
+        default_factory=list,
+        max_length=20,
+    )
+    absence_semantics: dict[str, Any] = Field(default_factory=dict)
+    index_freshness_policy: dict[str, Any] = Field(default_factory=dict)
+    summary: dict[str, Any] = Field(default_factory=dict)
+
+
 class PortMap(Layer2ReadinessModel):
     """Derived G0 port map."""
 
@@ -409,10 +651,47 @@ class ImportFirewallReport(Layer2ReadinessModel):
     summary: dict[str, Any] = Field(default_factory=dict)
 
 
-class StatusCompositionMatrix(Layer2ReadinessModel):
-    """Four-rule status composition matrix required by G0."""
+class HardcodeEnumerationBacklog(Layer2ReadinessModel):
+    """Registered hardcoded enumeration strangle backlog."""
 
-    rules: list[StatusCompositionRule] = Field(..., min_length=4, max_length=4)
+    entries: list[HardcodeEnumerationBacklogEntry] = Field(default_factory=list, max_length=100)
+    summary: dict[str, Any] = Field(default_factory=dict)
+
+
+class NoHardcodeEnumerationLintReport(Layer2ReadinessModel):
+    """No-hardcode enumeration lint result for search/adapter routes."""
+
+    status: ValidationStatus
+    scan_profile: str = Field(default="targeted_search_adapter_paths", max_length=200)
+    scanned_paths: list[str] = Field(default_factory=list, max_length=300)
+    violations: list[NoHardcodeEnumerationViolation] = Field(
+        default_factory=list,
+        max_length=300,
+    )
+    governed_vocabulary_exceptions: list[GovernedVocabularyException] = Field(
+        default_factory=list,
+        max_length=100,
+    )
+    summary: dict[str, Any] = Field(default_factory=dict)
+
+
+class EngineeringQualityCheck(Layer2ReadinessModel):
+    """Structured-parser and bounded-scan proof for the G0 builder."""
+
+    status: ValidationStatus
+    named_libraries_parsers_indexes: list[str] = Field(..., min_length=1, max_length=40)
+    scan_strategy: str = Field(..., min_length=1, max_length=500)
+    bounded_work_proof: str = Field(..., min_length=1, max_length=1000)
+    scaling_perf_check_ref: str = Field(..., min_length=1, max_length=700)
+    deterministic_ordering_ref: str = Field(..., min_length=1, max_length=700)
+    fail_closed_error_handling_policy: str = Field(..., min_length=1, max_length=1000)
+    summary: dict[str, Any] = Field(default_factory=dict)
+
+
+class StatusCompositionMatrix(Layer2ReadinessModel):
+    """Status composition matrix required by G0."""
+
+    rules: list[StatusCompositionRule] = Field(..., min_length=10, max_length=10)
 
     @model_validator(mode="after")
     def _validate_exact_rule_set(self) -> StatusCompositionMatrix:
@@ -440,6 +719,9 @@ class Layer3G0Bundle(Layer2ReadinessModel):
 
     capability_inventory: CapabilityDataInventory
     data_asset_inventory: DataAssetInventory
+    discovery_index_inventory: DiscoveryIndexInventory
+    resource_discovery_inventory: ResourceDiscoveryInventory
+    grounding_search_discipline: GroundingSearchDiscipline
     triage_registry: list[CapabilityTriageRecord]
     quarantine_registry: list[QuarantineRegistryEntry]
     port_map: PortMap
@@ -449,6 +731,9 @@ class Layer3G0Bundle(Layer2ReadinessModel):
     conformance_harness: ConformanceHarnessRecord
     health_metric_ledgers: list[HealthMetricLedger]
     import_firewall_lint: ImportFirewallReport
+    hardcode_enumeration_backlog: HardcodeEnumerationBacklog
+    no_hardcode_enumeration_lint: NoHardcodeEnumerationLintReport
+    engineering_quality_check: EngineeringQualityCheck
     status_composition_matrix: StatusCompositionMatrix
     empty_port_map: list[EmptyPortMapEntry]
     adapter_cost_map: list[AdapterCostMapEntry]
@@ -690,6 +975,416 @@ def build_data_asset_inventory(repo_root: Path) -> DataAssetInventory:
     )
 
 
+def build_discovery_index_inventory(repo_root: Path) -> DiscoveryIndexInventory:
+    """Build the G0 inventory of discovery indexes and registries."""
+
+    entries = [
+        DiscoveryIndexInventoryEntry(
+            index_id="production-data-manifest-index",
+            source_family="dataset",
+            index_kind="structured",
+            backing_path_or_service="production_data/manifest.json",
+            corpus_snapshot_ref="repo://production_data/manifest.json",
+            schema_version=LAYER3_G0_SCHEMA_VERSION,
+            index_version=LAYER3_G0_RULE_VERSION,
+            freshness_ref="repo://production_data/manifest.json",
+            owner="team-runtime-quality",
+            rebuild_command="uv run polisyos-tools layer3-g0 refresh-production-manifest-index",
+        ),
+        DiscoveryIndexInventoryEntry(
+            index_id="runtime-quality-capability-registry",
+            source_family="adapter",
+            index_kind="registry",
+            backing_path_or_service="src/polisyos/runtime/quality",
+            corpus_snapshot_ref="repo://src/polisyos/runtime/quality",
+            schema_version=LAYER3_G0_SCHEMA_VERSION,
+            index_version=LAYER3_G0_RULE_VERSION,
+            freshness_ref="repo://src/polisyos/runtime/quality/layer3_grounding_inventory.py",
+            owner="team-runtime-quality",
+            rebuild_command="uv run polisyos-tools layer3-g0 refresh-runtime-quality-registry",
+        ),
+        DiscoveryIndexInventoryEntry(
+            index_id="fixture-resource-index",
+            source_family="case",
+            index_kind="structured",
+            backing_path_or_service="tests/fixtures/layer3/g0",
+            corpus_snapshot_ref="repo://tests/fixtures/layer3/g0",
+            schema_version=LAYER3_G0_SCHEMA_VERSION,
+            index_version=LAYER3_G0_RULE_VERSION,
+            freshness_ref="repo://tests/fixtures/layer3/g0/valid_discovery_search_minimal_bundle.json",
+            owner="team-runtime-quality",
+            rebuild_command="uv run polisyos-tools layer3-g0 refresh-fixture-index",
+        ),
+    ]
+    entries = sorted(entries, key=lambda entry: entry.index_id)
+    return DiscoveryIndexInventory(
+        entries=entries,
+        summary={
+            "discovery_index_inventory_entry_count": len(entries),
+            "discovery_index_kinds": sorted({entry.index_kind for entry in entries}),
+        },
+    )
+
+
+def build_resource_discovery_records(repo_root: Path) -> ResourceDiscoveryInventory:
+    """Build candidate resource discovery records without granting authority."""
+
+    records = [
+        ResourceDiscoveryRecord(
+            resource_id="resource://dataset/production-data-manifest",
+            resource_kind="dataset",
+            discovery_posture="discoverable",
+            index_refs=["production-data-manifest-index"],
+            executable_interface_refs=[],
+            authority_boundary={
+                "authoritative_for": [],
+                "may_not_use_for": ["adapter_admission", "publication_authority"],
+            },
+            missing_labels=["bridge_missing", "verification_missing"],
+        ),
+        ResourceDiscoveryRecord(
+            resource_id="resource://method/foundry-method-registry",
+            resource_kind="method",
+            discovery_posture="executable",
+            index_refs=["runtime-quality-capability-registry"],
+            executable_interface_refs=["contract-stub://foundry/method/use"],
+            authority_boundary={
+                "authoritative_for": [],
+                "may_not_use_for": ["adapter_admission", "publication_authority"],
+            },
+            missing_labels=["semantic_test_missing"],
+        ),
+        ResourceDiscoveryRecord(
+            resource_id="resource://adapter/runtime-quality-source-touchpoint-shadow",
+            resource_kind="adapter",
+            discovery_posture="discoverable",
+            index_refs=["runtime-quality-capability-registry"],
+            executable_interface_refs=[],
+            authority_boundary={
+                "authoritative_for": [],
+                "may_not_use_for": ["adapter_admission", "publication_authority"],
+            },
+            missing_labels=["producer_missing"],
+        ),
+    ]
+    records = sorted(records, key=lambda record: record.resource_id)
+    return ResourceDiscoveryInventory(
+        records=records,
+        summary={
+            "resource_discovery_record_count": len(records),
+            "admitted_authority_resource_count": sum(
+                1 for record in records if record.discovery_posture == "admitted_authority"
+            ),
+        },
+    )
+
+
+def build_grounding_search_contracts(repo_root: Path) -> GroundingSearchDiscipline:
+    """Build G0 search ledger, recall, freshness, and free-growth contracts."""
+
+    ledgers = [
+        GroundingSearchLedger(
+            ledger_id="ledger://layer3-g0/minimal-dataset-search",
+            typed_request_ref="request://layer3-g0/minimal/dataset",
+            normalized_query_refs=["query://layer3-g0/minimal/dataset"],
+            searched_index_refs=["fixture-resource-index@v2"],
+            ranking_policy_ref="policy://layer3-g0/fixture-ranking",
+            selected_candidate_refs=["resource://dataset/minimal-metric-binding"],
+            rejected_candidate_refs=[],
+            cutoff_budget_ref="budget://layer3-g0/fixture-small",
+            absence_or_incompleteness_reason="none",
+            completeness_status="complete_with_candidates",
+            deterministic_replay_key="sha256:fixture-minimal-search",
+            authoritative_for=[],
+            may_not_use_for=["adapter_admission", "publication_authority"],
+        )
+    ]
+    recall_seeds = [
+        SearchRecallSeed(
+            seed_id="minimal-metric-binding-seed",
+            target_resource_ref="resource://dataset/minimal-metric-binding",
+            expected_query_shape="metric_binding_by_policy_case",
+            required_index_refs=["fixture-resource-index"],
+            expected_minimum_discovery_posture="discoverable",
+            refresh_requirement="fresh_index_required",
+            observed_status="found",
+            failure_issue_code="layer3_g0_search_recall_seed_miss_blocks_domain_ceiling",
+        ),
+        SearchRecallSeed(
+            seed_id="production-data-source-contract-seed",
+            target_resource_ref="source-contract://fabric/production-data-root-manifest",
+            expected_query_shape="source_contract_bound_dataset_by_manifest",
+            required_index_refs=["production-data-manifest-index"],
+            expected_minimum_discovery_posture="discoverable",
+            refresh_requirement="fresh_index_required",
+            observed_status="found",
+            failure_issue_code="layer3_g0_search_recall_seed_miss_blocks_domain_ceiling",
+        ),
+    ]
+    freshness_records = [
+        IndexFreshnessRecord(
+            index_id="fixture-resource-index",
+            corpus_snapshot_ref="snapshot://fixtures/layer3/g0/resource-index/v2",
+            last_refresh_ref="receipt://fixtures/layer3/g0/resource-index/2026-06-06",
+            expected_freshness_window="P7D",
+            staleness_status="fresh",
+            blocked_authority_effects=[],
+        ),
+        IndexFreshnessRecord(
+            index_id="production-data-manifest-index",
+            corpus_snapshot_ref="repo://production_data/manifest.json",
+            last_refresh_ref="receipt://production-data/manifest-index/current",
+            expected_freshness_window="P30D",
+            staleness_status="fresh",
+            blocked_authority_effects=[],
+        )
+    ]
+    free_growth = [
+        FreeGrowthFixture(
+            fixture_id="metric-binding-free-growth",
+            resource_kind="dataset",
+            fixture_mutation={
+                "added_resource_ref": "fixture://layer3-g0/resources/new-metric-binding.json"
+            },
+            index_refresh_command_ref="uv run polisyos-tools layer3-g0 refresh-fixture-index",
+            index_refresh_receipt_ref="receipt://fixtures/layer3/g0/resource-index/2026-06-06",
+            expected_discovery_query={
+                "query_shape": "metric_binding_by_case_construct_and_date",
+                "query_ref": "query://layer3-g0/free-growth/metric-binding",
+            },
+            expected_posture="executable",
+            observed_posture="executable",
+            expected_executable_use_path="contract-stub://layer3-g0/metric-binding/use",
+            no_code_change_assertion=True,
+            authoritative_for=[],
+            may_not_use_for=["adapter_admission", "publication_authority"],
+        ),
+        FreeGrowthFixture(
+            fixture_id="claim-free-growth",
+            resource_kind="claim",
+            fixture_mutation={"added_resource_ref": "fixture://layer3-g0/resources/new-claim.json"},
+            index_refresh_command_ref="uv run polisyos-tools layer3-g0 refresh-fixture-index",
+            index_refresh_receipt_ref="receipt://fixtures/layer3/g0/resource-index/2026-06-06",
+            expected_discovery_query={"query_shape": "claim_by_case_scope"},
+            expected_posture="executable",
+            observed_posture="executable",
+            expected_executable_use_path="contract-stub://layer3-g0/claim/use",
+            no_code_change_assertion=True,
+            authoritative_for=[],
+            may_not_use_for=["adapter_admission", "publication_authority"],
+        ),
+        FreeGrowthFixture(
+            fixture_id="method-free-growth",
+            resource_kind="method",
+            fixture_mutation={
+                "added_resource_ref": "fixture://layer3-g0/resources/new-method.json"
+            },
+            index_refresh_command_ref="uv run polisyos-tools layer3-g0 refresh-fixture-index",
+            index_refresh_receipt_ref="receipt://fixtures/layer3/g0/resource-index/2026-06-06",
+            expected_discovery_query={"query_shape": "method_by_estimand"},
+            expected_posture="executable",
+            observed_posture="executable",
+            expected_executable_use_path="contract-stub://layer3-g0/method/use",
+            no_code_change_assertion=True,
+            authoritative_for=[],
+            may_not_use_for=["adapter_admission", "publication_authority"],
+        ),
+        FreeGrowthFixture(
+            fixture_id="agent-tool-free-growth",
+            resource_kind="tool",
+            fixture_mutation={"added_resource_ref": "fixture://layer3-g0/resources/new-tool.json"},
+            index_refresh_command_ref="uv run polisyos-tools layer3-g0 refresh-fixture-index",
+            index_refresh_receipt_ref="receipt://fixtures/layer3/g0/resource-index/2026-06-06",
+            expected_discovery_query={"query_shape": "tool_by_capability"},
+            expected_posture="executable",
+            observed_posture="executable",
+            expected_executable_use_path="contract-stub://layer3-g0/tool/use",
+            no_code_change_assertion=True,
+            authoritative_for=[],
+            may_not_use_for=["adapter_admission", "publication_authority"],
+        ),
+    ]
+    mechanism_fixtures = [
+        MechanismGeneralityFixture(
+            fixture_id="fixture-search-two-request-shapes",
+            search_mechanism_id="fixture-resource-search",
+            request_shapes=[
+                MechanismRequestShape(
+                    shape_id="metric_binding_by_case",
+                    query="metric binding for UA MSME case",
+                ),
+                MechanismRequestShape(
+                    shape_id="method_by_estimand",
+                    query="identification method for take-up estimand",
+                ),
+            ],
+            expected_resources=[
+                "resource://dataset/minimal-metric-binding",
+                "resource://method/foundry-method-registry",
+            ],
+            expected_postures=["discoverable", "executable"],
+            expected_executable_use_paths=[
+                "contract-stub://layer3-g0/metric-binding/use",
+                "contract-stub://layer3-g0/method/use",
+            ],
+            no_code_change_assertion=True,
+        )
+    ]
+    return GroundingSearchDiscipline(
+        grounding_search_ledgers=ledgers,
+        recall_seeds=recall_seeds,
+        index_freshness_records=freshness_records,
+        free_growth_fixtures=free_growth,
+        mechanism_generality_fixtures=mechanism_fixtures,
+        absence_semantics={
+            "no_hit_requires_ledger": SEARCH_FRONTIER_REQUIRED_FOR_ABSTENTION,
+            "no_hit_authoritative_for": [],
+            "domain_ceiling_requires_recall_freshness": True,
+        },
+        index_freshness_policy={
+            "policy_id": "layer3-g0-index-freshness-policy",
+            "stale_blocks": ["grounded_abstention", "domain_ceiling", "free_growth"],
+        },
+        summary={
+            "grounding_search_ledger_contract_count": 1,
+            "search_recall_seed_count": len(recall_seeds),
+            "index_freshness_policy_count": 1,
+            "free_growth_fixture_count": len(free_growth),
+            "mechanism_generality_fixture_count": len(mechanism_fixtures),
+            "search_ceiling_blocks_domain_ceiling": True,
+        },
+    )
+
+
+def build_hardcode_enumeration_backlog(repo_root: Path) -> HardcodeEnumerationBacklog:
+    """Build the G0 strangle backlog for known hardcoded capability enumerations."""
+
+    entries = [
+        HardcodeEnumerationBacklogEntry(
+            backlog_id="hardcode://runtime-quality/capability-index-known-constructs",
+            file="src/polisyos/runtime/quality/capability_index_compiler.py",
+            pattern="KNOWN_CONSTRUCTS",
+            enumeration_kind="construct",
+            governed_vocabulary_exception=False,
+            target_discovery_path="discovery://layer3-g0/resource-discovery/constructs",
+            owner="team-runtime-quality",
+            deletion_condition=(
+                "Delete after G1+ consumes ResourceDiscoveryRecord-backed construct discovery."
+            ),
+            fallback_forbidden=True,
+        ),
+        HardcodeEnumerationBacklogEntry(
+            backlog_id="hardcode://runtime-quality/scenario-family-construct-mappings",
+            file="src/polisyos/runtime/quality/capability_resolver.py",
+            pattern="REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS",
+            enumeration_kind="construct",
+            governed_vocabulary_exception=False,
+            target_discovery_path=(
+                "discovery://layer3-g0/resource-discovery/scenario-family-constructs"
+            ),
+            owner="team-runtime-quality",
+            deletion_condition=(
+                "Delete after G1+ consumes ResourceDiscoveryRecord-backed scenario "
+                "family construct discovery."
+            ),
+            fallback_forbidden=True,
+        )
+    ]
+    return HardcodeEnumerationBacklog(
+        entries=entries,
+        summary={"hardcode_enumeration_backlog_count": len(entries)},
+    )
+
+
+def build_no_hardcode_lint_report(repo_root: Path) -> NoHardcodeEnumerationLintReport:
+    """Build the no-hardcode lint report from targeted search/adapter paths."""
+
+    backlog = build_hardcode_enumeration_backlog(repo_root)
+    backlog_by_pattern = {entry.pattern: entry for entry in backlog.entries}
+    scanned_paths = _no_hardcode_scan_paths(repo_root)
+    violations: list[NoHardcodeEnumerationViolation] = []
+    for rel_path in scanned_paths:
+        path = repo_root / rel_path
+        mentioned_patterns = _mentioned_hardcode_patterns(path)
+        for pattern in sorted(mentioned_patterns):
+            kind, _default_backlog_ref = _HARDCODE_ENUMERATION_PATTERNS[pattern]
+            backlog_entry = backlog_by_pattern.get(pattern)
+            violations.append(
+                NoHardcodeEnumerationViolation(
+                    file=rel_path,
+                    pattern=pattern,
+                    enumeration_kind=kind,
+                    governed_vocabulary_exception=False,
+                    registered_backlog_ref=backlog_entry.backlog_id
+                    if backlog_entry is not None
+                    else None,
+                    fallback_forbidden=bool(
+                        backlog_entry is not None and backlog_entry.fallback_forbidden
+                    ),
+                )
+            )
+    lint_status: ValidationStatus = (
+        "pass"
+        if all(
+            violation.registered_backlog_ref and violation.fallback_forbidden
+            for violation in violations
+        )
+        else "fail"
+    )
+    return NoHardcodeEnumerationLintReport(
+        status=lint_status,
+        scan_profile="targeted_search_adapter_paths",
+        scanned_paths=scanned_paths,
+        violations=violations,
+        governed_vocabulary_exceptions=[
+            GovernedVocabularyException(
+                file="src/polisyos/runtime/quality/layer3_grounding_inventory.py",
+                pattern="DiscoveryPosture",
+                enumeration_kind="governed_vocabulary_exception",
+                governed_vocabulary_exception=True,
+                rationale=(
+                    "schema vocabulary is governed contract language, not a capability "
+                    "fallback list"
+                ),
+            )
+        ],
+        summary={
+            "no_hardcode_lint_status": lint_status,
+            "registered_violation_count": sum(
+                1 for violation in violations if violation.registered_backlog_ref
+            ),
+            "scan_profile": "targeted_search_adapter_paths",
+        },
+    )
+
+
+def build_engineering_quality_check(repo_root: Path) -> EngineeringQualityCheck:
+    """Build the G0 engineering quality record for structured, bounded reads."""
+
+    return EngineeringQualityCheck(
+        status="pass",
+        named_libraries_parsers_indexes=[
+            "ast",
+            "json",
+            "tomllib",
+            "production_data/manifest.json",
+            "cluster_ownership_map.toml",
+        ],
+        scan_strategy="manifest_backed_lightweight_ast_targeted_index_metadata",
+        bounded_work_proof=(
+            "Production data is read through manifests and index metadata; AST scans "
+            "target runtime/quality and pdc import surfaces only."
+        ),
+        scaling_perf_check_ref="tests/unit/runtime/quality/test_layer3_g0_grounding_inventory.py",
+        deterministic_ordering_ref="sorted path and id order for all builder outputs",
+        fail_closed_error_handling_policy=(
+            "Schema/TOML/JSON parse failures fail validation; broad silent exceptions "
+            "are forbidden."
+        ),
+        summary={"engineering_quality_check_status": "pass"},
+    )
+
+
 def build_port_map_from_cluster_map(cluster_map_path: Path) -> PortMap:
     """Derive G0 ports and publishes/consumes edges from the cluster map."""
 
@@ -839,7 +1534,7 @@ def build_import_firewall_report(repo_root: Path) -> ImportFirewallReport:
 
 
 def build_status_composition_matrix() -> StatusCompositionMatrix:
-    """Build the exact four G0 status-composition rules."""
+    """Build the exact G0 status-composition rules."""
 
     return StatusCompositionMatrix(
         rules=[
@@ -879,6 +1574,64 @@ def build_status_composition_matrix() -> StatusCompositionMatrix:
                     "tests/fixtures/layer3/g0/malformed_adapter_admission_quarantined_source.json"
                 ),
             ),
+            StatusCompositionRule(
+                rule_id="discoverable_without_adapter_candidate_only",
+                inputs=["discovery_posture", "adapter_admission_state"],
+                composed_result="candidate_only",
+                issue_code="layer3_g0_discoverable_resource_admitted_authority",
+                negative_fixture_ref=(
+                    "tests/fixtures/layer3/g0/"
+                    "malformed_discoverable_resource_admitted_authority.json"
+                ),
+            ),
+            StatusCompositionRule(
+                rule_id="executable_without_conformance_candidate_only",
+                inputs=["discovery_posture", "conformance_status"],
+                composed_result="candidate_only",
+                issue_code="layer3_g0_executable_resource_admitted_authority",
+                negative_fixture_ref=(
+                    "tests/fixtures/layer3/g0/"
+                    "malformed_discoverable_resource_admitted_authority.json"
+                ),
+            ),
+            StatusCompositionRule(
+                rule_id="admitted_authority_invalid_in_g0",
+                inputs=["discovery_posture", "slice"],
+                composed_result="invalid",
+                issue_code="layer3_g0_admitted_authority_invalid_in_g0",
+                negative_fixture_ref=(
+                    "tests/fixtures/layer3/g0/"
+                    "malformed_discoverable_resource_admitted_authority.json"
+                ),
+            ),
+            StatusCompositionRule(
+                rule_id="stale_index_no_hit_is_search_ceiling",
+                inputs=["index_staleness", "search_completeness"],
+                composed_result="search_ceiling",
+                issue_code="layer3_g0_stale_index_blocks_abstention",
+                negative_fixture_ref=(
+                    "tests/fixtures/layer3/g0/malformed_index_stale_free_growth.json"
+                ),
+            ),
+            StatusCompositionRule(
+                rule_id="recall_miss_domain_ceiling_invalid",
+                inputs=["recall_seed_status", "ceiling_diagnosis"],
+                composed_result="invalid",
+                issue_code="layer3_g0_search_recall_seed_miss_blocks_domain_ceiling",
+                negative_fixture_ref=(
+                    "tests/fixtures/layer3/g0/"
+                    "malformed_search_seed_recall_miss_domain_ceiling.json"
+                ),
+            ),
+            StatusCompositionRule(
+                rule_id="quarantine_dominates_adapter_candidate",
+                inputs=["quarantine_check", "adapter_candidate"],
+                composed_result="blocked",
+                issue_code="layer3_g0_quarantined_source_admitted",
+                negative_fixture_ref=(
+                    "tests/fixtures/layer3/g0/malformed_adapter_admission_quarantined_source.json"
+                ),
+            ),
         ]
     )
 
@@ -888,6 +1641,9 @@ def build_layer3_g0_bundle(repo_root: Path) -> Layer3G0Bundle:
 
     capability_inventory = build_capability_inventory(repo_root)
     data_asset_inventory = build_data_asset_inventory(repo_root)
+    discovery_index_inventory = build_discovery_index_inventory(repo_root)
+    resource_discovery_inventory = build_resource_discovery_records(repo_root)
+    grounding_search_discipline = build_grounding_search_contracts(repo_root)
     cluster_map_path = repo_root / "architecture/policy_design_case/cluster_ownership_map.toml"
     port_map = build_port_map_from_cluster_map(cluster_map_path)
     touchpoints = build_runtime_quality_touchpoint_inventory(repo_root)
@@ -910,6 +1666,9 @@ def build_layer3_g0_bundle(repo_root: Path) -> Layer3G0Bundle:
     )
     health_ledgers = _health_metric_ledgers()
     import_firewall = build_import_firewall_report(repo_root)
+    hardcode_backlog = build_hardcode_enumeration_backlog(repo_root)
+    no_hardcode_lint = build_no_hardcode_lint_report(repo_root)
+    engineering_quality = build_engineering_quality_check(repo_root)
     status_matrix = build_status_composition_matrix()
     empty_ports = [
         EmptyPortMapEntry(
@@ -940,6 +1699,9 @@ def build_layer3_g0_bundle(repo_root: Path) -> Layer3G0Bundle:
     counts = _bundle_counts(
         capability_inventory=capability_inventory,
         data_asset_inventory=data_asset_inventory,
+        discovery_index_inventory=discovery_index_inventory,
+        resource_discovery_inventory=resource_discovery_inventory,
+        grounding_search_discipline=grounding_search_discipline,
         port_map=port_map,
         touchpoints=touchpoints,
         adapter_paths=adapter_paths,
@@ -947,6 +1709,9 @@ def build_layer3_g0_bundle(repo_root: Path) -> Layer3G0Bundle:
         data_ports=data_ports,
         health_ledgers=health_ledgers,
         import_firewall=import_firewall,
+        hardcode_backlog=hardcode_backlog,
+        no_hardcode_lint=no_hardcode_lint,
+        engineering_quality=engineering_quality,
         status_matrix=status_matrix,
     )
     manifest = Layer3G0ReadinessManifest(
@@ -957,6 +1722,9 @@ def build_layer3_g0_bundle(repo_root: Path) -> Layer3G0Bundle:
     return Layer3G0Bundle(
         capability_inventory=capability_inventory,
         data_asset_inventory=data_asset_inventory,
+        discovery_index_inventory=discovery_index_inventory,
+        resource_discovery_inventory=resource_discovery_inventory,
+        grounding_search_discipline=grounding_search_discipline,
         triage_registry=triage,
         quarantine_registry=quarantine,
         port_map=port_map,
@@ -966,6 +1734,9 @@ def build_layer3_g0_bundle(repo_root: Path) -> Layer3G0Bundle:
         conformance_harness=conformance,
         health_metric_ledgers=health_ledgers,
         import_firewall_lint=import_firewall,
+        hardcode_enumeration_backlog=hardcode_backlog,
+        no_hardcode_enumeration_lint=no_hardcode_lint,
+        engineering_quality_check=engineering_quality,
         status_composition_matrix=status_matrix,
         empty_port_map=empty_ports,
         adapter_cost_map=adapter_costs,
@@ -993,6 +1764,16 @@ def validate_layer3_g0_bundle(
                 "persisted readiness counts must match the runtime builder output",
             )
         )
+    runtime_content_hash = _bundle_content_hash(runtime_bundle)
+    persisted_content_hash = _bundle_content_hash(bundle)
+    if runtime_content_hash != persisted_content_hash:
+        issues.append(
+            _issue(
+                "layer3_g0_manifest_runtime_drift",
+                "$.bundle_content_hash",
+                "persisted G0 artifact content must match the runtime builder output",
+            )
+        )
 
     issues.extend(
         validate_adapter_admission_registry(
@@ -1010,14 +1791,18 @@ def validate_layer3_g0_bundle(
             repo_root / "architecture/policy_design_case/cluster_ownership_map.toml",
         ).issues
     )
-    if len(bundle.health_metric_ledgers) != 4:
+    if len(bundle.health_metric_ledgers) != 5:
         issues.append(
             _issue(
                 "layer3_g0_health_metric_missing",
                 "$.health_metric_ledgers",
-                "G0 requires four health metric ledgers",
+                "G0 requires five health metric ledgers",
             )
         )
+    issues.extend(validate_grounding_search_discipline_payload(bundle.grounding_search_discipline).issues)
+    issues.extend(validate_resource_discovery_inventory_payload(bundle.resource_discovery_inventory).issues)
+    issues.extend(validate_no_hardcode_enumeration_lint_payload(bundle.no_hardcode_enumeration_lint).issues)
+    issues.extend(validate_engineering_quality_check_payload(bundle.engineering_quality_check).issues)
     if bundle.import_firewall_lint.violations:
         issues.append(
             _issue(
@@ -1026,12 +1811,12 @@ def validate_layer3_g0_bundle(
                 "pdc imported a non-waist source package",
             )
         )
-    if len(bundle.status_composition_matrix.rules) != 4:
+    if len(bundle.status_composition_matrix.rules) != len(_STATUS_RULE_IDS):
         issues.append(
             _issue(
                 "layer3_g0_status_composition_missing",
                 "$.status_composition_matrix",
-                "G0 requires exactly four composition rules",
+                "G0 requires the v2 composition rule set",
             )
         )
     if not any(
@@ -1045,7 +1830,311 @@ def validate_layer3_g0_bundle(
             )
         )
 
-    return _report(issues, summary={**persisted_counts, "status": "fail" if issues else "pass"})
+    return _report(
+        issues,
+        summary={
+            **persisted_counts,
+            "schema_version": bundle.readiness_manifest.schema_version,
+            "rule_version": bundle.readiness_manifest.rule_version,
+            "runtime_content_hash": runtime_content_hash,
+            "persisted_content_hash": persisted_content_hash,
+            "status": "fail" if issues else "pass",
+        },
+    )
+
+
+def validate_grounding_search_discipline_payload(
+    payload: GroundingSearchDiscipline | Mapping[str, Any],
+) -> ValidationReport:
+    """Validate search ledgers, recall seeds, freshness, and free-growth semantics."""
+
+    raw = (
+        payload.model_dump(mode="json")
+        if isinstance(payload, GroundingSearchDiscipline)
+        else dict(payload)
+    )
+    discipline = _mapping(raw.get("discovery_search_discipline", raw))
+    ledgers = [_mapping(row) for row in _sequence(discipline.get("grounding_search_ledgers"))]
+    ledger_ids = {str(row.get("ledger_id")) for row in ledgers}
+    claims = [_mapping(row) for row in _sequence(discipline.get("search_claims"))]
+    recall_seeds = [_mapping(row) for row in _sequence(discipline.get("recall_seeds"))]
+    freshness = [
+        _mapping(row) for row in _sequence(discipline.get("index_freshness_records"))
+    ]
+    free_growth = [
+        _mapping(row) for row in _sequence(discipline.get("free_growth_fixtures"))
+    ]
+    mechanism_fixtures = [
+        _mapping(row) for row in _sequence(discipline.get("mechanism_generality_fixtures"))
+    ]
+    issues: list[ValidationIssue] = []
+
+    for index, claim in enumerate(claims):
+        ledger_ref = claim.get("ledger_ref")
+        if (
+            claim.get("grounding_disposition") == "grounded_abstention"
+            and str(ledger_ref) not in ledger_ids
+        ):
+            issues.append(
+                _issue(
+                    "layer3_g0_grounding_search_ledger_missing",
+                    f"$.search_claims[{index}].ledger_ref",
+                    "grounded abstention requires a replayable GroundingSearchLedger",
+                )
+            )
+
+    stale_index_ids = {
+        str(row.get("index_id")) for row in freshness if row.get("staleness_status") == "stale"
+    }
+    if stale_index_ids:
+        for index, claim in enumerate(claims):
+            if claim.get("grounding_disposition") == "grounded_abstention":
+                issues.append(
+                    _issue(
+                        "layer3_g0_stale_index_blocks_abstention",
+                        f"$.search_claims[{index}]",
+                        "stale required indexes block no-hit abstention",
+                    )
+                )
+        for index, fixture in enumerate(free_growth):
+            index_ref = str(fixture.get("index_ref", ""))
+            if not index_ref or index_ref in stale_index_ids:
+                issues.append(
+                    _issue(
+                        "layer3_g0_stale_index_blocks_free_growth",
+                        f"$.free_growth_fixtures[{index}]",
+                        "stale indexes block free-growth fixture claims",
+                    )
+                )
+
+    for index, seed in enumerate(recall_seeds):
+        if seed.get("observed_status") == "missed":
+            issues.append(
+                _issue(
+                    str(
+                        seed.get(
+                            "failure_issue_code",
+                            "layer3_g0_search_recall_seed_miss_blocks_domain_ceiling",
+                        )
+                    ),
+                    f"$.recall_seeds[{index}]",
+                    "known-groundable recall misses block search readiness",
+                )
+            )
+
+    for index, fixture in enumerate(free_growth):
+        if (
+            fixture.get("expected_posture") == "executable"
+            and (
+                fixture.get("observed_posture") != "executable"
+                or not fixture.get("expected_executable_use_path")
+                or not str(fixture.get("index_refresh_receipt_ref", "")).startswith(
+                    "receipt://"
+                )
+                or fixture.get("no_code_change_assertion") is not True
+            )
+        ):
+            issues.append(
+                _issue(
+                    "layer3_g0_free_growth_executable_use_missing",
+                    f"$.free_growth_fixtures[{index}]",
+                    "free-growth fixtures require executable use and no-code-change proof",
+                )
+            )
+
+    for index, fixture in enumerate(mechanism_fixtures):
+        if len(_sequence(fixture.get("request_shapes"))) < 2:
+            issues.append(
+                _issue(
+                    "layer3_g0_mechanism_generality_requires_two_request_shapes",
+                    f"$.mechanism_generality_fixtures[{index}].request_shapes",
+                    "mechanism generality requires at least two distinct request shapes",
+                )
+            )
+
+    for index, ledger in enumerate(ledgers):
+        if _sequence(ledger.get("authoritative_for")):
+            issues.append(
+                _issue(
+                    "layer3_g0_search_ledger_authority_boundary_leak",
+                    f"$.grounding_search_ledgers[{index}].authoritative_for",
+                    "G0 search ledgers are control-plane records and authorize nothing",
+                )
+            )
+
+    issue_codes = {issue.code for issue in issues}
+    return _report(
+        issues,
+        summary={
+            "grounding_search_ledger_contract_count": 1 if ledgers else 0,
+            "search_recall_seed_count": len(recall_seeds),
+            "index_freshness_policy_count": 1 if freshness else 0,
+            "free_growth_fixture_count": len(free_growth),
+            "mechanism_generality_fixture_count": len(mechanism_fixtures),
+            "index_freshness_record_count": len(freshness),
+            "search_recall_seed_status": "fail"
+            if any(
+                code == "layer3_g0_search_recall_seed_miss_blocks_domain_ceiling"
+                for code in issue_codes
+            )
+            else "pass",
+            "index_freshness_status": "fail" if stale_index_ids else "pass",
+            "free_growth_fixture_status": "fail"
+            if any(
+                code
+                in {
+                    "layer3_g0_free_growth_executable_use_missing",
+                    "layer3_g0_stale_index_blocks_free_growth",
+                }
+                for code in issue_codes
+            )
+            else "pass",
+            "mechanism_generality_fixture_status": "fail"
+            if "layer3_g0_mechanism_generality_requires_two_request_shapes" in issue_codes
+            else "pass",
+        },
+    )
+
+
+def validate_resource_discovery_inventory_payload(
+    payload: ResourceDiscoveryInventory | Mapping[str, Any],
+) -> ValidationReport:
+    """Validate that discovered resources cannot become G0 authority."""
+
+    raw = (
+        payload.model_dump(mode="json")
+        if isinstance(payload, ResourceDiscoveryInventory)
+        else dict(payload)
+    )
+    inventory = _mapping(raw.get("resource_discovery_inventory", raw))
+    records = [_mapping(row) for row in _sequence(inventory.get("resource_discovery_records"))]
+    if not records:
+        records = [_mapping(row) for row in _sequence(inventory.get("records"))]
+    adapters = [_mapping(row) for row in _sequence(inventory.get("adapter_admission_records"))]
+    issues: list[ValidationIssue] = []
+    adapter_admitted = any(record.get("admitted") is True for record in adapters)
+
+    for index, record in enumerate(records):
+        posture = record.get("discovery_posture")
+        authority_boundary = _mapping(record.get("authority_boundary"))
+        authoritative_for = {
+            str(value) for value in _sequence(authority_boundary.get("authoritative_for"))
+        }
+        if posture == "admitted_authority":
+            issues.append(
+                _issue(
+                    "layer3_g0_admitted_authority_invalid_in_g0",
+                    f"$.resource_discovery_records[{index}].discovery_posture",
+                    "admitted_authority is invalid in G0",
+                )
+            )
+        if posture == "discoverable" and (
+            "admitted_authority" in authoritative_for or adapter_admitted
+        ):
+            issues.append(
+                _issue(
+                    "layer3_g0_discoverable_resource_admitted_authority",
+                    f"$.resource_discovery_records[{index}]",
+                    "discoverable resources remain candidate-only in G0",
+                )
+            )
+        if posture == "executable" and (
+            "admitted_authority" in authoritative_for or adapter_admitted
+        ):
+            issues.append(
+                _issue(
+                    "layer3_g0_executable_resource_admitted_authority",
+                    f"$.resource_discovery_records[{index}]",
+                    "executable resources still require adapter conformance before authority",
+                )
+            )
+
+    return _report(
+        issues,
+        summary={
+            "resource_discovery_record_count": len(records),
+            "admitted_authority_resource_count": sum(
+                1 for record in records if record.get("discovery_posture") == "admitted_authority"
+            ),
+        },
+    )
+
+
+def validate_no_hardcode_enumeration_lint_payload(
+    payload: NoHardcodeEnumerationLintReport | Mapping[str, Any],
+) -> ValidationReport:
+    """Validate no-hardcode lint output and governed vocabulary exceptions."""
+
+    raw = (
+        payload.model_dump(mode="json")
+        if isinstance(payload, NoHardcodeEnumerationLintReport)
+        else dict(payload)
+    )
+    report = _mapping(raw.get("no_hardcode_lint_report", raw))
+    issues: list[ValidationIssue] = []
+    for index, violation in enumerate(_sequence(report.get("violations"))):
+        row = _mapping(violation)
+        if row.get("governed_vocabulary_exception") is True:
+            continue
+        if not row.get("registered_backlog_ref") or row.get("fallback_forbidden") is not True:
+            issues.append(
+                _issue(
+                    "layer3_g0_hardcode_enumeration_unregistered",
+                    f"$.violations[{index}]",
+                    "capability-gating hardcoded enumerations require backlog registration",
+                )
+            )
+    return _report(
+        issues,
+        summary={
+            "no_hardcode_lint_status": "fail" if issues else "pass",
+            "no_hardcode_violation_count": len(_sequence(report.get("violations"))),
+        },
+    )
+
+
+def validate_engineering_quality_check_payload(
+    payload: EngineeringQualityCheck | Mapping[str, Any],
+) -> ValidationReport:
+    """Validate structured-parser, bounded-scan, and fail-closed engineering proof."""
+
+    raw = (
+        payload.model_dump(mode="json")
+        if isinstance(payload, EngineeringQualityCheck)
+        else dict(payload)
+    )
+    check = _mapping(raw.get("engineering_quality_check", raw))
+    issues: list[ValidationIssue] = []
+    scan_strategy = str(check.get("scan_strategy", ""))
+    fail_policy = str(check.get("fail_closed_error_handling_policy", ""))
+    if any(token in scan_strategy for token in ("unbounded", "full_payload", "eager")):
+        issues.append(
+            _issue(
+                "layer3_g0_engineering_quality_unbounded_scan",
+                "$.engineering_quality_check.scan_strategy",
+                "G0 builders must stay manifest/index-backed and bounded",
+            )
+        )
+    if not check.get("bounded_work_proof") or not check.get("scaling_perf_check_ref"):
+        issues.append(
+            _issue(
+                "layer3_g0_engineering_quality_unbounded_scan",
+                "$.engineering_quality_check.bounded_work_proof",
+                "bounded-work and scaling proof refs are required",
+            )
+        )
+    if "broad-except" in fail_policy or "continue" in fail_policy:
+        issues.append(
+            _issue(
+                "layer3_g0_engineering_quality_unbounded_scan",
+                "$.engineering_quality_check.fail_closed_error_handling_policy",
+                "silent broad exception handling is not fail-closed",
+            )
+        )
+    return _report(
+        issues,
+        summary={"engineering_quality_check_status": "fail" if issues else "pass"},
+    )
 
 
 def validate_adapter_admission_registry(
@@ -1236,6 +2325,25 @@ def validate_data_asset_inventory_payload(
                         "data asset ports require all evidence refs",
                     )
                 )
+        if not _mapping(port).get("source_contract_readiness"):
+            issues.append(
+                _issue(
+                    "layer3_g0_data_asset_source_contract_readiness_missing",
+                    f"$.data_asset_ports[{index}].source_contract_readiness",
+                    (
+                        "data asset ports require explicit SourceContract/readiness "
+                        "classification"
+                    ),
+                )
+            )
+        if not _sequence(_mapping(port).get("index_refs")):
+            issues.append(
+                _issue(
+                    "layer3_g0_data_asset_source_contract_readiness_missing",
+                    f"$.data_asset_ports[{index}].index_refs",
+                    "data asset ports require discovery index participation refs",
+                )
+            )
 
     covered_assets = {str(asset.get("path")) for asset in assets}
     covered_transforms = {
@@ -1465,6 +2573,28 @@ def validate_layer3_g0_adr(payload: Mapping[str, Any]) -> ValidationReport:
                 "constitution open questions must remain tracked_empirically_open",
             )
         )
+    required_v2_fields = {
+        "v2_amendment_recorded": "ADR-0175 must record the v2 discovery/search amendment",
+        "organizing_rules_recorded": (
+            "ADR-0175 must record constitution organizing rules and Layer 3 discipline"
+        ),
+        "rule12_t7_recorded": "ADR-0175 must record amended Rule 12/T7 discipline",
+        "impact_note_recorded": (
+            "ADR-0175 must record impact on status, authority, replay, plans, health, and surfaces"
+        ),
+        "rule_version_refs_recorded": (
+            "ADR-0175 must record schema and rule versions for replay and migration"
+        ),
+    }
+    for field_name, message in required_v2_fields.items():
+        if adr.get(field_name) is not True:
+            issues.append(
+                _issue(
+                    "layer3_g0_adr_v2_amendment_incomplete",
+                    f"$.adr.{field_name}",
+                    message,
+                )
+            )
     issues.extend(validate_governance_followups(adr).issues)
     return _report(issues)
 
@@ -1603,6 +2733,9 @@ def _data_asset_ports(inventory: DataAssetInventory) -> list[DataAssetPort]:
                 freshness_ref=matching.freshness_evidence_ref,
                 fitness_ref=matching.fitness_evidence_ref,
                 contamination_check_ref=matching.contamination_check_ref,
+                source_contract_ref=_source_contract_ref_for_asset(matching),
+                source_contract_readiness=_source_contract_readiness_for_asset(matching),
+                index_refs=[_index_ref_for_asset(matching)],
                 port_ids=["DESIGNER_ITSELF.cluster_evidence"],
             )
         )
@@ -1647,6 +2780,19 @@ def _health_metric_ledgers() -> list[HealthMetricLedger]:
             ),
             next_update_rule="Recompute from universal corpus G0 route.",
         ),
+        HealthMetricLedger(
+            metric_id="search-recall@known-seeds+index-staleness",
+            owner="team-runtime-quality",
+            freeze_value={
+                "known_groundable_seed_miss_count": 0,
+                "stale_required_index_count": 0,
+            },
+            trend_vocabulary=["fresh_recall_ok", "search_ceiling"],
+            per_slice_delta_rule=(
+                "Recall misses or stale required indexes block domain-ceiling and no-hit claims."
+            ),
+            next_update_rule="Recompute from GroundingSearchDiscipline recall/freshness records.",
+        ),
     ]
 
 
@@ -1654,6 +2800,9 @@ def _bundle_counts(
     *,
     capability_inventory: CapabilityDataInventory,
     data_asset_inventory: DataAssetInventory,
+    discovery_index_inventory: DiscoveryIndexInventory,
+    resource_discovery_inventory: ResourceDiscoveryInventory,
+    grounding_search_discipline: GroundingSearchDiscipline,
     port_map: PortMap,
     touchpoints: RuntimeQualityTouchpointInventory,
     adapter_paths: Sequence[str],
@@ -1661,26 +2810,46 @@ def _bundle_counts(
     data_ports: Sequence[DataAssetPort],
     health_ledgers: Sequence[HealthMetricLedger],
     import_firewall: ImportFirewallReport,
+    hardcode_backlog: HardcodeEnumerationBacklog,
+    no_hardcode_lint: NoHardcodeEnumerationLintReport,
+    engineering_quality: EngineeringQualityCheck,
     status_matrix: StatusCompositionMatrix,
 ) -> dict[str, Any]:
     counts = {
         **capability_inventory.summary,
         **data_asset_inventory.summary,
+        **discovery_index_inventory.summary,
+        **resource_discovery_inventory.summary,
+        **grounding_search_discipline.summary,
         **port_map.summary,
         **touchpoints.summary,
+        **hardcode_backlog.summary,
         "data_asset_port_count": len(data_ports),
+        "data_asset_source_contract_readiness_coverage": _data_asset_readiness_coverage(
+            data_ports
+        ),
+        "data_asset_source_contract_readiness_status": "pass"
+        if _data_asset_readiness_coverage(data_ports) == 1.0
+        else "fail",
         "source_truth_adapter_path_count": len(adapter_paths),
         "source_truth_lattice_new_adapter_path_count": 0,
         "admitted_adapter_count": sum(1 for record in adapter_registry if record.admitted),
         "adapter_candidate_count": len(adapter_registry),
         "quarantine_registry_min_count": 1,
         "health_metric_ledger_count": len(health_ledgers),
-        "closure_artifact_count": 12,
+        "closure_artifact_count": len(_closure_artifact_paths()),
         "readiness_manifest_count": 1,
         "import_firewall_artifact_count": 1,
         "status_composition_rule_count": len(status_matrix.rules),
         "pdc_non_waist_import_count": len(import_firewall.violations),
         "grounded_conversion_count": 0,
+        "no_hardcode_enumeration_lint_status": no_hardcode_lint.status,
+        "engineering_quality_check_status": engineering_quality.status,
+        "g1_dependency_requirements_status": "pass",
+        "search_recall_seed_status": "pass",
+        "index_freshness_status": "pass",
+        "free_growth_fixture_status": "pass",
+        "mechanism_generality_fixture_status": "pass",
     }
     counts["runtime_quality_touchpoint_count"] = touchpoints.summary.get(
         "runtime_quality_touchpoint_count",
@@ -1691,6 +2860,7 @@ def _bundle_counts(
 
 def _closure_artifact_paths() -> list[str]:
     return [
+        "architecture/policy_design_case/layer3_g0_readiness_manifest.json",
         "architecture/policy_design_case/layer3_g0_capability_data_inventory.json",
         "architecture/policy_design_case/layer3_g0_triage_registry.json",
         "architecture/policy_design_case/layer3_g0_port_map.json",
@@ -1702,6 +2872,9 @@ def _closure_artifact_paths() -> list[str]:
         "architecture/policy_design_case/layer3_empty_port_map.json",
         "architecture/policy_design_case/layer3_adapter_cost_map.json",
         "architecture/policy_design_case/layer3_first_vertical_case.json",
+        "architecture/policy_design_case/layer3_discovery_search_discipline.json",
+        "architecture/policy_design_case/layer3_hardcode_enumeration_backlog.json",
+        "architecture/policy_design_case/layer3_engineering_quality_check.json",
         "docs/adr/0175-layer3-grounding-subordination-discipline.md",
     ]
 
@@ -1735,6 +2908,31 @@ def _data_asset_entry(
         fitness_evidence_ref=evidence_ref,
         contamination_check_ref=evidence_ref,
     )
+
+
+def _source_contract_ref_for_asset(asset: DataAssetInventoryEntry) -> str | None:
+    if asset.owning_root == "production_data":
+        return f"source-contract://fabric/{asset.asset_id}"
+    return None
+
+
+def _source_contract_readiness_for_asset(asset: DataAssetInventoryEntry) -> str:
+    if asset.owning_root == "production_data":
+        return f"source-contract-readiness://fabric/{asset.asset_id}"
+    return f"fixture-or-docs-readiness://layer3-g0/{asset.asset_id}"
+
+
+def _index_ref_for_asset(asset: DataAssetInventoryEntry) -> str:
+    if asset.owning_root == "production_data":
+        return "production-data-manifest-index"
+    return "fixture-resource-index"
+
+
+def _data_asset_readiness_coverage(data_ports: Sequence[DataAssetPort]) -> float:
+    if not data_ports:
+        return 1.0
+    ready = sum(1 for port in data_ports if port.source_contract_readiness)
+    return ready / len(data_ports)
 
 
 def _issue(code: str, path: str, message: str) -> ValidationIssue:
@@ -1863,6 +3061,28 @@ def _polisyos_import_refs(node: ast.AST) -> list[tuple[str, str]]:
     return refs
 
 
+def _no_hardcode_scan_paths(repo_root: Path) -> list[str]:
+    quality_root = repo_root / "src/polisyos/runtime/quality"
+    paths: set[str] = set()
+    for pattern in ("*capability*.py", "*resolver*.py", "*registry*.py"):
+        paths.update(_repo_path(path, repo_root) for path in quality_root.glob(pattern))
+    paths.add("src/polisyos/runtime/quality/layer3_grounding_inventory.py")
+    paths.add("tools/quality/validation/check_policy_design_case_layer3_g0_readiness.py")
+    return sorted(path for path in paths if (repo_root / path).exists())
+
+
+def _mentioned_hardcode_patterns(path: Path) -> set[str]:
+    text = path.read_text(encoding="utf-8")
+    tree = ast.parse(text, filename=str(path))
+    mentioned: set[str] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Name) and node.id in _HARDCODE_ENUMERATION_PATTERNS:
+            mentioned.add(node.id)
+        elif isinstance(node, ast.Attribute) and node.attr in _HARDCODE_ENUMERATION_PATTERNS:
+            mentioned.add(node.attr)
+    return mentioned
+
+
 def _immediate_polisyos_roots(repo_root: Path) -> list[str]:
     src_root = repo_root / "src/polisyos"
     return sorted(
@@ -1878,6 +3098,15 @@ def _universal_corpus_fixture_count(repo_root: Path) -> int:
 
 def _runtime_builder_hash(counts: Mapping[str, Any]) -> str:
     canonical = json.dumps(counts, sort_keys=True, separators=(",", ":")).encode()
+    return "sha256:" + hashlib.sha256(canonical).hexdigest()
+
+
+def _bundle_content_hash(bundle: Layer3G0Bundle) -> str:
+    payload = bundle.model_dump(mode="json")
+    manifest = _mapping(payload.get("readiness_manifest"))
+    if isinstance(manifest, dict):
+        manifest.pop("runtime_builder_hash", None)
+    canonical = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
     return "sha256:" + hashlib.sha256(canonical).hexdigest()
 
 

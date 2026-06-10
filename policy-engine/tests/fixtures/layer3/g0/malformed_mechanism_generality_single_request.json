@@ -1,0 +1,32 @@
+{
+  "schema_version": "policyos.layer3.g0.discovery_search_fixture.v2",
+  "fixture_id": "malformed_mechanism_generality_single_request",
+  "mutation": "a mechanism generality fixture proves only one pinned request shape",
+  "expected_issue_codes": [
+    "layer3_g0_mechanism_generality_requires_two_request_shapes"
+  ],
+  "payload": {
+    "mechanism_generality_fixtures": [
+      {
+        "fixture_id": "ua-msme-pinned-route-only",
+        "search_mechanism_id": "fixture-search-mechanism",
+        "request_shapes": [
+          {
+            "shape_id": "ua_msme_metric_binding_only",
+            "query": "UA MSME affordable loans 2022"
+          }
+        ],
+        "expected_resources": [
+          "resource://dataset/ua-msme-affordable-loans-2022"
+        ],
+        "expected_postures": [
+          "discoverable"
+        ],
+        "expected_executable_use_paths": [
+          "contract-stub://metric-binding/use"
+        ],
+        "no_code_change_assertion": true
+      }
+    ]
+  }
+}

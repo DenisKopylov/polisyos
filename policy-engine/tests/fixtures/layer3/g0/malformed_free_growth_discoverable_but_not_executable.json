@@ -1,0 +1,32 @@
+{
+  "schema_version": "policyos.layer3.g0.discovery_search_fixture.v2",
+  "fixture_id": "malformed_free_growth_discoverable_but_not_executable",
+  "mutation": "a new resource becomes discoverable after refresh but never executable or usable through a declared path",
+  "expected_issue_codes": [
+    "layer3_g0_free_growth_executable_use_missing"
+  ],
+  "payload": {
+    "free_growth_fixtures": [
+      {
+        "fixture_id": "new-method-resource-discoverable-only",
+        "resource_kind": "method",
+        "fixture_mutation": {
+          "added_resource_ref": "fixture://layer3-g0/methods/new-identification-method"
+        },
+        "index_refresh_command_ref": "uv run polisyos-tools layer3-g0 refresh-fixture-index",
+        "expected_discovery_query": {
+          "query_shape": "method_by_estimand_and_data_requirements"
+        },
+        "expected_posture": "executable",
+        "observed_posture": "discoverable",
+        "expected_executable_use_path": "",
+        "no_code_change_assertion": true,
+        "authoritative_for": [],
+        "may_not_use_for": [
+          "adapter_admission",
+          "publication_authority"
+        ]
+      }
+    ]
+  }
+}

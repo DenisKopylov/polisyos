@@ -1,0 +1,33 @@
+{
+  "hardcode_enumeration_backlog": {
+    "entries": [
+      {
+        "backlog_id": "hardcode://runtime-quality/capability-index-known-constructs",
+        "deletion_condition": "Delete after G1+ consumes ResourceDiscoveryRecord-backed construct discovery.",
+        "enumeration_kind": "construct",
+        "fallback_forbidden": true,
+        "file": "src/polisyos/runtime/quality/capability_index_compiler.py",
+        "governed_vocabulary_exception": false,
+        "owner": "team-runtime-quality",
+        "pattern": "KNOWN_CONSTRUCTS",
+        "target_discovery_path": "discovery://layer3-g0/resource-discovery/constructs"
+      },
+      {
+        "backlog_id": "hardcode://runtime-quality/scenario-family-construct-mappings",
+        "deletion_condition": "Delete after G1+ consumes ResourceDiscoveryRecord-backed scenario family construct discovery.",
+        "enumeration_kind": "construct",
+        "fallback_forbidden": true,
+        "file": "src/polisyos/runtime/quality/capability_resolver.py",
+        "governed_vocabulary_exception": false,
+        "owner": "team-runtime-quality",
+        "pattern": "REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS",
+        "target_discovery_path": "discovery://layer3-g0/resource-discovery/scenario-family-constructs"
+      }
+    ],
+    "summary": {
+      "hardcode_enumeration_backlog_count": 2
+    }
+  },
+  "rule_version": "policyos.layer3.g0.discovery_search_free_growth.v2",
+  "schema_version": "policyos.policy_design_case.layer3_g0_discovery_search.v2"
+}

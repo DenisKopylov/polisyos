@@ -1,0 +1,64 @@
+{
+  "schema_version": "policyos.layer3.g0.discovery_search_fixture.v2",
+  "fixture_id": "malformed_index_stale_free_growth",
+  "mutation": "a stale index is used for no-hit abstention and a free-growth fixture",
+  "expected_issue_codes": [
+    "layer3_g0_stale_index_blocks_abstention",
+    "layer3_g0_stale_index_blocks_free_growth"
+  ],
+  "payload": {
+    "grounding_search_ledgers": [
+      {
+        "ledger_id": "ledger://layer3-g0/stale-no-hit",
+        "typed_request_ref": "request://layer3-g0/new-metric-binding",
+        "searched_index_refs": [
+          "fixture-resource-index@stale"
+        ],
+        "selected_candidate_refs": [],
+        "rejected_candidate_refs": [],
+        "completeness_status": "stale_index",
+        "deterministic_replay_key": "sha256:fixture-stale-no-hit",
+        "authoritative_for": [],
+        "may_not_use_for": [
+          "grounded_abstention",
+          "domain_ceiling",
+          "free_growth"
+        ]
+      }
+    ],
+    "search_claims": [
+      {
+        "claim_id": "stale-no-hit-abstention",
+        "grounding_disposition": "grounded_abstention",
+        "ledger_ref": "ledger://layer3-g0/stale-no-hit",
+        "ceiling_diagnosis": "search_ceiling"
+      }
+    ],
+    "index_freshness_records": [
+      {
+        "index_id": "fixture-resource-index",
+        "corpus_snapshot_ref": "snapshot://fixtures/layer3/g0/resource-index/old",
+        "last_refresh_ref": "receipt://fixtures/layer3/g0/resource-index/2026-01-01",
+        "expected_freshness_window": "P7D",
+        "staleness_status": "stale",
+        "blocked_authority_effects": [
+          "grounded_abstention",
+          "domain_ceiling",
+          "free_growth"
+        ]
+      }
+    ],
+    "free_growth_fixtures": [
+      {
+        "fixture_id": "metric-binding-growth-stale-index",
+        "resource_kind": "dataset",
+        "index_ref": "fixture-resource-index",
+        "index_refresh_command_ref": "missing",
+        "expected_posture": "executable",
+        "observed_posture": "discoverable",
+        "expected_executable_use_path": "contract-stub://metric-binding/use",
+        "no_code_change_assertion": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,376 @@
+{
+  "discovery_index_inventory": {
+    "entries": [
+      {
+        "backing_path_or_service": "tests/fixtures/layer3/g0",
+        "corpus_snapshot_ref": "repo://tests/fixtures/layer3/g0",
+        "freshness_ref": "repo://tests/fixtures/layer3/g0/valid_discovery_search_minimal_bundle.json",
+        "index_id": "fixture-resource-index",
+        "index_kind": "structured",
+        "index_version": "policyos.layer3.g0.discovery_search_free_growth.v2",
+        "owner": "team-runtime-quality",
+        "rebuild_command": "uv run polisyos-tools layer3-g0 refresh-fixture-index",
+        "schema_version": "policyos.policy_design_case.layer3_g0_discovery_search.v2",
+        "source_family": "case"
+      },
+      {
+        "backing_path_or_service": "production_data/manifest.json",
+        "corpus_snapshot_ref": "repo://production_data/manifest.json",
+        "freshness_ref": "repo://production_data/manifest.json",
+        "index_id": "production-data-manifest-index",
+        "index_kind": "structured",
+        "index_version": "policyos.layer3.g0.discovery_search_free_growth.v2",
+        "owner": "team-runtime-quality",
+        "rebuild_command": "uv run polisyos-tools layer3-g0 refresh-production-manifest-index",
+        "schema_version": "policyos.policy_design_case.layer3_g0_discovery_search.v2",
+        "source_family": "dataset"
+      },
+      {
+        "backing_path_or_service": "src/polisyos/runtime/quality",
+        "corpus_snapshot_ref": "repo://src/polisyos/runtime/quality",
+        "freshness_ref": "repo://src/polisyos/runtime/quality/layer3_grounding_inventory.py",
+        "index_id": "runtime-quality-capability-registry",
+        "index_kind": "registry",
+        "index_version": "policyos.layer3.g0.discovery_search_free_growth.v2",
+        "owner": "team-runtime-quality",
+        "rebuild_command": "uv run polisyos-tools layer3-g0 refresh-runtime-quality-registry",
+        "schema_version": "policyos.policy_design_case.layer3_g0_discovery_search.v2",
+        "source_family": "adapter"
+      }
+    ],
+    "summary": {
+      "discovery_index_inventory_entry_count": 3,
+      "discovery_index_kinds": [
+        "registry",
+        "structured"
+      ]
+    }
+  },
+  "grounding_search_discipline": {
+    "absence_semantics": {
+      "domain_ceiling_requires_recall_freshness": true,
+      "no_hit_authoritative_for": [],
+      "no_hit_requires_ledger": true
+    },
+    "free_growth_fixtures": [
+      {
+        "authoritative_for": [],
+        "expected_discovery_query": {
+          "query_ref": "query://layer3-g0/free-growth/metric-binding",
+          "query_shape": "metric_binding_by_case_construct_and_date"
+        },
+        "expected_executable_use_path": "contract-stub://layer3-g0/metric-binding/use",
+        "expected_posture": "executable",
+        "fixture_id": "metric-binding-free-growth",
+        "fixture_mutation": {
+          "added_resource_ref": "fixture://layer3-g0/resources/new-metric-binding.json"
+        },
+        "index_refresh_command_ref": "uv run polisyos-tools layer3-g0 refresh-fixture-index",
+        "index_refresh_receipt_ref": "receipt://fixtures/layer3/g0/resource-index/2026-06-06",
+        "may_not_use_for": [
+          "adapter_admission",
+          "publication_authority"
+        ],
+        "no_code_change_assertion": true,
+        "observed_posture": "executable",
+        "resource_kind": "dataset"
+      },
+      {
+        "authoritative_for": [],
+        "expected_discovery_query": {
+          "query_shape": "claim_by_case_scope"
+        },
+        "expected_executable_use_path": "contract-stub://layer3-g0/claim/use",
+        "expected_posture": "executable",
+        "fixture_id": "claim-free-growth",
+        "fixture_mutation": {
+          "added_resource_ref": "fixture://layer3-g0/resources/new-claim.json"
+        },
+        "index_refresh_command_ref": "uv run polisyos-tools layer3-g0 refresh-fixture-index",
+        "index_refresh_receipt_ref": "receipt://fixtures/layer3/g0/resource-index/2026-06-06",
+        "may_not_use_for": [
+          "adapter_admission",
+          "publication_authority"
+        ],
+        "no_code_change_assertion": true,
+        "observed_posture": "executable",
+        "resource_kind": "claim"
+      },
+      {
+        "authoritative_for": [],
+        "expected_discovery_query": {
+          "query_shape": "method_by_estimand"
+        },
+        "expected_executable_use_path": "contract-stub://layer3-g0/method/use",
+        "expected_posture": "executable",
+        "fixture_id": "method-free-growth",
+        "fixture_mutation": {
+          "added_resource_ref": "fixture://layer3-g0/resources/new-method.json"
+        },
+        "index_refresh_command_ref": "uv run polisyos-tools layer3-g0 refresh-fixture-index",
+        "index_refresh_receipt_ref": "receipt://fixtures/layer3/g0/resource-index/2026-06-06",
+        "may_not_use_for": [
+          "adapter_admission",
+          "publication_authority"
+        ],
+        "no_code_change_assertion": true,
+        "observed_posture": "executable",
+        "resource_kind": "method"
+      },
+      {
+        "authoritative_for": [],
+        "expected_discovery_query": {
+          "query_shape": "tool_by_capability"
+        },
+        "expected_executable_use_path": "contract-stub://layer3-g0/tool/use",
+        "expected_posture": "executable",
+        "fixture_id": "agent-tool-free-growth",
+        "fixture_mutation": {
+          "added_resource_ref": "fixture://layer3-g0/resources/new-tool.json"
+        },
+        "index_refresh_command_ref": "uv run polisyos-tools layer3-g0 refresh-fixture-index",
+        "index_refresh_receipt_ref": "receipt://fixtures/layer3/g0/resource-index/2026-06-06",
+        "may_not_use_for": [
+          "adapter_admission",
+          "publication_authority"
+        ],
+        "no_code_change_assertion": true,
+        "observed_posture": "executable",
+        "resource_kind": "tool"
+      }
+    ],
+    "grounding_search_ledgers": [
+      {
+        "absence_or_incompleteness_reason": "none",
+        "authoritative_for": [],
+        "completeness_status": "complete_with_candidates",
+        "cutoff_budget_ref": "budget://layer3-g0/fixture-small",
+        "deterministic_replay_key": "sha256:fixture-minimal-search",
+        "ledger_id": "ledger://layer3-g0/minimal-dataset-search",
+        "may_not_use_for": [
+          "adapter_admission",
+          "publication_authority"
+        ],
+        "normalized_query_refs": [
+          "query://layer3-g0/minimal/dataset"
+        ],
+        "ranking_policy_ref": "policy://layer3-g0/fixture-ranking",
+        "rejected_candidate_refs": [],
+        "searched_index_refs": [
+          "fixture-resource-index@v2"
+        ],
+        "selected_candidate_refs": [
+          "resource://dataset/minimal-metric-binding"
+        ],
+        "typed_request_ref": "request://layer3-g0/minimal/dataset"
+      }
+    ],
+    "index_freshness_policy": {
+      "policy_id": "layer3-g0-index-freshness-policy",
+      "stale_blocks": [
+        "grounded_abstention",
+        "domain_ceiling",
+        "free_growth"
+      ]
+    },
+    "index_freshness_records": [
+      {
+        "blocked_authority_effects": [],
+        "corpus_snapshot_ref": "snapshot://fixtures/layer3/g0/resource-index/v2",
+        "expected_freshness_window": "P7D",
+        "index_id": "fixture-resource-index",
+        "last_refresh_ref": "receipt://fixtures/layer3/g0/resource-index/2026-06-06",
+        "staleness_status": "fresh"
+      },
+      {
+        "blocked_authority_effects": [],
+        "corpus_snapshot_ref": "repo://production_data/manifest.json",
+        "expected_freshness_window": "P30D",
+        "index_id": "production-data-manifest-index",
+        "last_refresh_ref": "receipt://production-data/manifest-index/current",
+        "staleness_status": "fresh"
+      }
+    ],
+    "mechanism_generality_fixtures": [
+      {
+        "expected_executable_use_paths": [
+          "contract-stub://layer3-g0/metric-binding/use",
+          "contract-stub://layer3-g0/method/use"
+        ],
+        "expected_postures": [
+          "discoverable",
+          "executable"
+        ],
+        "expected_resources": [
+          "resource://dataset/minimal-metric-binding",
+          "resource://method/foundry-method-registry"
+        ],
+        "fixture_id": "fixture-search-two-request-shapes",
+        "no_code_change_assertion": true,
+        "request_shapes": [
+          {
+            "query": "metric binding for UA MSME case",
+            "shape_id": "metric_binding_by_case"
+          },
+          {
+            "query": "identification method for take-up estimand",
+            "shape_id": "method_by_estimand"
+          }
+        ],
+        "search_mechanism_id": "fixture-resource-search"
+      }
+    ],
+    "recall_seeds": [
+      {
+        "expected_minimum_discovery_posture": "discoverable",
+        "expected_query_shape": "metric_binding_by_policy_case",
+        "failure_issue_code": "layer3_g0_search_recall_seed_miss_blocks_domain_ceiling",
+        "observed_status": "found",
+        "refresh_requirement": "fresh_index_required",
+        "required_index_refs": [
+          "fixture-resource-index"
+        ],
+        "seed_id": "minimal-metric-binding-seed",
+        "target_resource_ref": "resource://dataset/minimal-metric-binding"
+      },
+      {
+        "expected_minimum_discovery_posture": "discoverable",
+        "expected_query_shape": "source_contract_bound_dataset_by_manifest",
+        "failure_issue_code": "layer3_g0_search_recall_seed_miss_blocks_domain_ceiling",
+        "observed_status": "found",
+        "refresh_requirement": "fresh_index_required",
+        "required_index_refs": [
+          "production-data-manifest-index"
+        ],
+        "seed_id": "production-data-source-contract-seed",
+        "target_resource_ref": "source-contract://fabric/production-data-root-manifest"
+      }
+    ],
+    "summary": {
+      "free_growth_fixture_count": 4,
+      "grounding_search_ledger_contract_count": 1,
+      "index_freshness_policy_count": 1,
+      "mechanism_generality_fixture_count": 1,
+      "search_ceiling_blocks_domain_ceiling": true,
+      "search_recall_seed_count": 2
+    }
+  },
+  "no_hardcode_enumeration_lint": {
+    "governed_vocabulary_exceptions": [
+      {
+        "enumeration_kind": "governed_vocabulary_exception",
+        "file": "src/polisyos/runtime/quality/layer3_grounding_inventory.py",
+        "governed_vocabulary_exception": true,
+        "pattern": "DiscoveryPosture",
+        "rationale": "schema vocabulary is governed contract language, not a capability fallback list"
+      }
+    ],
+    "scan_profile": "targeted_search_adapter_paths",
+    "scanned_paths": [
+      "src/polisyos/runtime/quality/capability_authority.py",
+      "src/polisyos/runtime/quality/capability_index.py",
+      "src/polisyos/runtime/quality/capability_index_compiler.py",
+      "src/polisyos/runtime/quality/capability_ratchet.py",
+      "src/polisyos/runtime/quality/capability_resolver.py",
+      "src/polisyos/runtime/quality/capability_white_space.py",
+      "src/polisyos/runtime/quality/claim_registry.py",
+      "src/polisyos/runtime/quality/construct_registry.py",
+      "src/polisyos/runtime/quality/layer3_grounding_inventory.py",
+      "tools/quality/validation/check_policy_design_case_layer3_g0_readiness.py"
+    ],
+    "status": "pass",
+    "summary": {
+      "no_hardcode_lint_status": "pass",
+      "registered_violation_count": 2,
+      "scan_profile": "targeted_search_adapter_paths"
+    },
+    "violations": [
+      {
+        "enumeration_kind": "construct",
+        "fallback_forbidden": true,
+        "file": "src/polisyos/runtime/quality/capability_index_compiler.py",
+        "governed_vocabulary_exception": false,
+        "pattern": "KNOWN_CONSTRUCTS",
+        "registered_backlog_ref": "hardcode://runtime-quality/capability-index-known-constructs"
+      },
+      {
+        "enumeration_kind": "construct",
+        "fallback_forbidden": true,
+        "file": "src/polisyos/runtime/quality/capability_resolver.py",
+        "governed_vocabulary_exception": false,
+        "pattern": "REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS",
+        "registered_backlog_ref": "hardcode://runtime-quality/scenario-family-construct-mappings"
+      }
+    ]
+  },
+  "resource_discovery_inventory": {
+    "records": [
+      {
+        "authority_boundary": {
+          "authoritative_for": [],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ]
+        },
+        "discovery_posture": "discoverable",
+        "executable_interface_refs": [],
+        "index_refs": [
+          "runtime-quality-capability-registry"
+        ],
+        "missing_labels": [
+          "producer_missing"
+        ],
+        "resource_id": "resource://adapter/runtime-quality-source-touchpoint-shadow",
+        "resource_kind": "adapter"
+      },
+      {
+        "authority_boundary": {
+          "authoritative_for": [],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ]
+        },
+        "discovery_posture": "discoverable",
+        "executable_interface_refs": [],
+        "index_refs": [
+          "production-data-manifest-index"
+        ],
+        "missing_labels": [
+          "bridge_missing",
+          "verification_missing"
+        ],
+        "resource_id": "resource://dataset/production-data-manifest",
+        "resource_kind": "dataset"
+      },
+      {
+        "authority_boundary": {
+          "authoritative_for": [],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ]
+        },
+        "discovery_posture": "executable",
+        "executable_interface_refs": [
+          "contract-stub://foundry/method/use"
+        ],
+        "index_refs": [
+          "runtime-quality-capability-registry"
+        ],
+        "missing_labels": [
+          "semantic_test_missing"
+        ],
+        "resource_id": "resource://method/foundry-method-registry",
+        "resource_kind": "method"
+      }
+    ],
+    "summary": {
+      "admitted_authority_resource_count": 0,
+      "resource_discovery_record_count": 3
+    }
+  },
+  "rule_version": "policyos.layer3.g0.discovery_search_free_growth.v2",
+  "schema_version": "policyos.policy_design_case.layer3_g0_discovery_search.v2"
+}

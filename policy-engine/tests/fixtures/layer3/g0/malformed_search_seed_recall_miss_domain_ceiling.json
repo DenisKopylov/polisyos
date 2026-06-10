@@ -1,0 +1,54 @@
+{
+  "schema_version": "policyos.layer3.g0.discovery_search_fixture.v2",
+  "fixture_id": "malformed_search_seed_recall_miss_domain_ceiling",
+  "mutation": "a known-groundable seed is missed while a domain-ceiling claim is allowed",
+  "expected_issue_codes": [
+    "layer3_g0_search_recall_seed_miss_blocks_domain_ceiling"
+  ],
+  "payload": {
+    "grounding_search_ledgers": [
+      {
+        "ledger_id": "ledger://layer3-g0/ua-msme-domain-ceiling",
+        "typed_request_ref": "request://layer3-g0/ua-msme/legal-threshold",
+        "searched_index_refs": [
+          "fixture-legal-threshold-index@v1"
+        ],
+        "selected_candidate_refs": [],
+        "rejected_candidate_refs": [],
+        "completeness_status": "recall_failed",
+        "deterministic_replay_key": "sha256:fixture-recall-miss",
+        "authoritative_for": [],
+        "may_not_use_for": [
+          "domain_ceiling"
+        ]
+      }
+    ],
+    "domain_ceiling_claims": [
+      {
+        "claim_id": "ua-msme-domain-ceiling",
+        "ceiling_diagnosis": "domain_ceiling",
+        "ledger_ref": "ledger://layer3-g0/ua-msme-domain-ceiling"
+      }
+    ],
+    "recall_seeds": [
+      {
+        "seed_id": "ua-msme-known-legal-threshold",
+        "target_resource_ref": "resource://legal_norm/ua-msme-threshold",
+        "expected_query_shape": "legal_threshold_by_case_and_date",
+        "required_index_refs": [
+          "fixture-legal-threshold-index"
+        ],
+        "expected_minimum_discovery_posture": "discoverable",
+        "observed_status": "missed",
+        "failure_issue_code": "layer3_g0_search_recall_seed_miss_blocks_domain_ceiling"
+      }
+    ],
+    "index_freshness_records": [
+      {
+        "index_id": "fixture-legal-threshold-index",
+        "staleness_status": "fresh",
+        "blocked_authority_effects": []
+      }
+    ]
+  }
+}

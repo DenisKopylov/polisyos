@@ -1,0 +1,32 @@
+{
+  "schema_version": "policyos.layer3.g0.discovery_search_fixture.v2",
+  "fixture_id": "valid_free_growth_metric_binding_fixture",
+  "mutation": "metric-binding resource becomes discoverable and executable after fixture index refresh without code changes",
+  "expected_issue_codes": [],
+  "payload": {
+    "free_growth_fixtures": [
+      {
+        "fixture_id": "metric-binding-free-growth",
+        "resource_kind": "dataset",
+        "fixture_mutation": {
+          "added_resource_ref": "fixture://layer3-g0/resources/new-metric-binding.json"
+        },
+        "index_refresh_command_ref": "uv run polisyos-tools layer3-g0 refresh-fixture-index",
+        "index_refresh_receipt_ref": "receipt://fixtures/layer3/g0/resource-index/2026-06-06",
+        "expected_discovery_query": {
+          "query_shape": "metric_binding_by_case_construct_and_date",
+          "query_ref": "query://layer3-g0/free-growth/metric-binding"
+        },
+        "expected_posture": "executable",
+        "observed_posture": "executable",
+        "expected_executable_use_path": "contract-stub://layer3-g0/metric-binding/use",
+        "no_code_change_assertion": true,
+        "authoritative_for": [],
+        "may_not_use_for": [
+          "adapter_admission",
+          "publication_authority"
+        ]
+      }
+    ]
+  }
+}

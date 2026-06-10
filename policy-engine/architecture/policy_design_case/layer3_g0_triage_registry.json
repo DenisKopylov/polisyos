@@ -18,7 +18,7 @@
       }
     ]
   },
-  "rule_version": "policyos.layer3.g0.grounding_subordination.v1",
+  "rule_version": "policyos.layer3.g0.discovery_search_free_growth.v2",
   "runtime_quality_touchpoints": {
     "registrations": [
       {
@@ -75,6 +75,149 @@
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.method_requirement",
         "touchpoint_id": "src/polisyos/runtime/quality/ir_analytics_bridge.py:12:method_requirement"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/layer3_analytics_search.py",
+        "import_root": "method_requirement",
+        "line": 3876,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.method_requirement",
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_analytics_search.py:3876:method_requirement"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/layer3_analytics_search.py",
+        "import_root": "method_requirement",
+        "line": 3926,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.method_requirement",
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_analytics_search.py:3926:method_requirement"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/layer3_causal_forecast.py",
+        "import_root": "method_requirement",
+        "line": 21,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.method_requirement",
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:21:method_requirement"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/layer3_causal_forecast.py",
+        "import_root": "data_forge",
+        "line": 1050,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.data_forge.read_api.academic",
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:1050:data_forge"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/layer3_causal_forecast.py",
+        "import_root": "data_forge",
+        "line": 1111,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.data_forge.read_api.academic",
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:1111:data_forge"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/layer3_causal_forecast.py",
+        "import_root": "foundry",
+        "line": 2560,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.foundry.methods.selection.requirements",
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:2560:foundry"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/layer3_causal_forecast.py",
+        "import_root": "foundry",
+        "line": 2633,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.foundry.validation.method_quality",
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:2633:foundry"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/layer3_causal_forecast.py",
+        "import_root": "foundry",
+        "line": 4575,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.foundry.methods.catalog",
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:4575:foundry"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/layer3_causal_forecast.py",
+        "import_root": "foundry",
+        "line": 4576,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.foundry.methods.selection.registry",
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:4576:foundry"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/layer3_legal_mandate_search.py",
+        "import_root": "lex",
+        "line": 1609,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.lex",
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_legal_mandate_search.py:1609:lex"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/layer3_legal_mandate_search.py",
+        "import_root": "lex",
+        "line": 1924,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.lex",
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_legal_mandate_search.py:1924:lex"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/layer3_legal_mandate_search.py",
+        "import_root": "lex",
+        "line": 3031,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.lex",
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_legal_mandate_search.py:3031:lex"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/layer3_substrate_grounding.py",
+        "import_root": "fabric",
+        "line": 20,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.fabric",
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_substrate_grounding.py:20:fabric"
       },
       {
         "admission_allowed": false,
@@ -267,11 +410,11 @@
     "scan_mode": "ast_top_level_and_local_imports",
     "summary": {
       "runtime_quality_touchpoint_admission_allowed_without_contract_count": 0,
-      "runtime_quality_touchpoint_count": 22,
+      "runtime_quality_touchpoint_count": 35,
       "runtime_quality_touchpoints_without_registration": 0
     }
   },
-  "schema_version": "policyos.policy_design_case.layer3_g0_grounding_inventory.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g0_discovery_search.v2",
   "status_composition_matrix": {
     "rules": [
       {
@@ -313,6 +456,66 @@
         "issue_code": "layer3_g0_status_composition_missing",
         "negative_fixture_ref": "tests/fixtures/layer3/g0/malformed_adapter_admission_quarantined_source.json",
         "rule_id": "promotion_blocked_before_g4"
+      },
+      {
+        "composed_result": "candidate_only",
+        "inputs": [
+          "discovery_posture",
+          "adapter_admission_state"
+        ],
+        "issue_code": "layer3_g0_discoverable_resource_admitted_authority",
+        "negative_fixture_ref": "tests/fixtures/layer3/g0/malformed_discoverable_resource_admitted_authority.json",
+        "rule_id": "discoverable_without_adapter_candidate_only"
+      },
+      {
+        "composed_result": "candidate_only",
+        "inputs": [
+          "discovery_posture",
+          "conformance_status"
+        ],
+        "issue_code": "layer3_g0_executable_resource_admitted_authority",
+        "negative_fixture_ref": "tests/fixtures/layer3/g0/malformed_discoverable_resource_admitted_authority.json",
+        "rule_id": "executable_without_conformance_candidate_only"
+      },
+      {
+        "composed_result": "invalid",
+        "inputs": [
+          "discovery_posture",
+          "slice"
+        ],
+        "issue_code": "layer3_g0_admitted_authority_invalid_in_g0",
+        "negative_fixture_ref": "tests/fixtures/layer3/g0/malformed_discoverable_resource_admitted_authority.json",
+        "rule_id": "admitted_authority_invalid_in_g0"
+      },
+      {
+        "composed_result": "search_ceiling",
+        "inputs": [
+          "index_staleness",
+          "search_completeness"
+        ],
+        "issue_code": "layer3_g0_stale_index_blocks_abstention",
+        "negative_fixture_ref": "tests/fixtures/layer3/g0/malformed_index_stale_free_growth.json",
+        "rule_id": "stale_index_no_hit_is_search_ceiling"
+      },
+      {
+        "composed_result": "invalid",
+        "inputs": [
+          "recall_seed_status",
+          "ceiling_diagnosis"
+        ],
+        "issue_code": "layer3_g0_search_recall_seed_miss_blocks_domain_ceiling",
+        "negative_fixture_ref": "tests/fixtures/layer3/g0/malformed_search_seed_recall_miss_domain_ceiling.json",
+        "rule_id": "recall_miss_domain_ceiling_invalid"
+      },
+      {
+        "composed_result": "blocked",
+        "inputs": [
+          "quarantine_check",
+          "adapter_candidate"
+        ],
+        "issue_code": "layer3_g0_quarantined_source_admitted",
+        "negative_fixture_ref": "tests/fixtures/layer3/g0/malformed_adapter_admission_quarantined_source.json",
+        "rule_id": "quarantine_dominates_adapter_candidate"
       }
     ]
   },
@@ -330,7 +533,7 @@
           ],
           "posture": "shadow",
           "rule_version_refs": [
-            "policyos.layer3.g0.grounding_subordination.v1"
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
           ],
           "source_authority": "deterministic_producer"
         },
@@ -358,7 +561,7 @@
           ],
           "posture": "shadow",
           "rule_version_refs": [
-            "policyos.layer3.g0.grounding_subordination.v1"
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
           ],
           "source_authority": "deterministic_producer"
         },

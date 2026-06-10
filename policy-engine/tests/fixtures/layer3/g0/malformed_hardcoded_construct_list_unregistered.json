@@ -1,0 +1,27 @@
+{
+  "schema_version": "policyos.layer3.g0.discovery_search_fixture.v2",
+  "fixture_id": "malformed_hardcoded_construct_list_unregistered",
+  "mutation": "a capability-gating construct list is detected but not registered in the strangle backlog",
+  "expected_issue_codes": [
+    "layer3_g0_hardcode_enumeration_unregistered"
+  ],
+  "payload": {
+    "no_hardcode_lint_report": {
+      "status": "fail",
+      "scanned_paths": [
+        "src/polisyos/runtime/quality/capability_index_compiler.py"
+      ],
+      "violations": [
+        {
+          "file": "src/polisyos/runtime/quality/capability_index_compiler.py",
+          "pattern": "KNOWN_CONSTRUCTS",
+          "enumeration_kind": "construct",
+          "governed_vocabulary_exception": false,
+          "registered_backlog_ref": null,
+          "fallback_forbidden": false
+        }
+      ],
+      "governed_vocabulary_exceptions": []
+    }
+  }
+}

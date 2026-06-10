@@ -1,0 +1,56 @@
+{
+  "schema_version": "policyos.layer3.g0.discovery_search_fixture.v2",
+  "fixture_id": "malformed_data_asset_missing_source_contract_readiness",
+  "mutation": "a data asset port carries old evidence refs but omits SourceContract/readiness classification",
+  "expected_issue_codes": [
+    "layer3_g0_data_asset_source_contract_readiness_missing"
+  ],
+  "payload": {
+    "data_asset_inventory": {
+      "scan_mode": "manifest_backed_lightweight",
+      "required_roots": [
+        {
+          "root_id": "production_data",
+          "path": "production_data",
+          "discovered_assets": [
+            "production_data/manifest.json"
+          ],
+          "discovered_transforms": []
+        }
+      ],
+      "data_assets": [
+        {
+          "asset_id": "production-data-root-manifest",
+          "data_kind": "data_asset",
+          "path": "production_data/manifest.json",
+          "owning_root": "production_data",
+          "owner_evidence_ref": "repo://production_data/manifest.json",
+          "lineage_evidence_ref": "repo://production_data/manifest.json",
+          "rights_evidence_ref": "repo://production_data/manifest.json",
+          "freshness_evidence_ref": "repo://production_data/manifest.json",
+          "fitness_evidence_ref": "repo://production_data/manifest.json",
+          "contamination_check_ref": "repo://production_data/manifest.json"
+        }
+      ],
+      "processing_transforms": []
+    },
+    "data_asset_ports": [
+      {
+        "asset_id": "production-data-root-manifest",
+        "data_kind": "data_asset",
+        "path": "production_data/manifest.json",
+        "lineage_ref": "repo://production_data/manifest.json",
+        "rights_ref": "repo://production_data/manifest.json",
+        "freshness_ref": "repo://production_data/manifest.json",
+        "fitness_ref": "repo://production_data/manifest.json",
+        "contamination_check_ref": "repo://production_data/manifest.json",
+        "index_refs": [
+          "index://production-data/manifest"
+        ],
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ]
+      }
+    ]
+  }
+}

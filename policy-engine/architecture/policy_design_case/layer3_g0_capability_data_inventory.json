@@ -153,7 +153,7 @@
           "ir"
         ],
         "file_count": 296,
-        "loc": 81380,
+        "loc": 81393,
         "mapped_port_ids": [],
         "owner_evidence_ref": "repo://src/polisyos/fabric/README.md",
         "package_kind": "source_package",
@@ -226,7 +226,7 @@
           "scientist"
         ],
         "file_count": 41,
-        "loc": 15823,
+        "loc": 15826,
         "mapped_port_ids": [],
         "owner_evidence_ref": "repo://src/polisyos/lex/README.md",
         "package_kind": "source_package",
@@ -333,8 +333,8 @@
           "runtime",
           "scientist"
         ],
-        "file_count": 179,
-        "loc": 161395,
+        "file_count": 184,
+        "loc": 184854,
         "mapped_port_ids": [
           "DESIGNER_ITSELF.closeout"
         ],
@@ -2545,6 +2545,6 @@
       "universal_corpus_fixture_count": 13
     }
   },
-  "rule_version": "policyos.layer3.g0.grounding_subordination.v1",
-  "schema_version": "policyos.policy_design_case.layer3_g0_grounding_inventory.v1"
+  "rule_version": "policyos.layer3.g0.discovery_search_free_growth.v2",
+  "schema_version": "policyos.policy_design_case.layer3_g0_discovery_search.v2"
 }

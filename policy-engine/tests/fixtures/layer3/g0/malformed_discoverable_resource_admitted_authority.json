@@ -1,0 +1,63 @@
+{
+  "schema_version": "policyos.layer3.g0.discovery_search_fixture.v2",
+  "fixture_id": "malformed_discoverable_resource_admitted_authority",
+  "mutation": "discoverable and executable resources are projected into admitted authority before adapter conformance",
+  "expected_issue_codes": [
+    "layer3_g0_discoverable_resource_admitted_authority",
+    "layer3_g0_executable_resource_admitted_authority"
+  ],
+  "payload": {
+    "resource_discovery_records": [
+      {
+        "resource_id": "resource://dataset/ua-msme-affordable-loans-2022",
+        "resource_kind": "dataset",
+        "discovery_posture": "discoverable",
+        "index_refs": [
+          "index://fixtures/ua-msme"
+        ],
+        "executable_interface_refs": [],
+        "authority_boundary": {
+          "authoritative_for": [
+            "admitted_authority"
+          ],
+          "may_not_use_for": []
+        },
+        "missing_labels": [
+          "bridge_missing",
+          "verification_missing"
+        ]
+      },
+      {
+        "resource_id": "resource://method/synthetic-policy-effect",
+        "resource_kind": "method",
+        "discovery_posture": "executable",
+        "index_refs": [
+          "index://fixtures/method-registry"
+        ],
+        "executable_interface_refs": [
+          "contract-stub://foundry/method/use"
+        ],
+        "authority_boundary": {
+          "authoritative_for": [
+            "admitted_authority"
+          ],
+          "may_not_use_for": []
+        },
+        "missing_labels": [
+          "semantic_test_missing"
+        ]
+      }
+    ],
+    "adapter_admission_records": [
+      {
+        "adapter_id": "fixture-authority-overclaim",
+        "source_ids": [
+          "resource://dataset/ua-msme-affordable-loans-2022",
+          "resource://method/synthetic-policy-effect"
+        ],
+        "admitted": true,
+        "conformance_status": "not_run_pre_adapter"
+      }
+    ]
+  }
+}

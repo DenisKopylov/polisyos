@@ -22,6 +22,10 @@ def _g0() -> Any:
     return import_module("polisyos.runtime.quality.layer3_grounding_inventory")
 
 
+def _validator() -> Any:
+    return import_module("tools.quality.validation.check_policy_design_case_layer3_g0_readiness")
+
+
 def _fixture(name: str) -> dict[str, Any]:
     return json.loads((FIXTURE_DIR / name).read_text(encoding="utf-8"))
 
@@ -85,6 +89,17 @@ def _extend_surface_issues(issues: list[dict[str, Any]]) -> None:
         "REVIEWER",
         "EXPERT",
         "MACHINE",
+        "policyos.policy_design_case.layer3_g0_discovery_search.v2",
+        "policyos.layer3.g0.discovery_search_free_growth.v2",
+        "discovery/search posture",
+        "known-groundable recall seeds",
+        "index freshness policy",
+        "no-hardcode lint",
+        "strangle backlog",
+        "SourceContract readiness",
+        "engineering-quality check",
+        "zero-admission adapter registry",
+        "quarantine and portless open questions",
         "SourceTouchpointRegistration",
         "source-truth adapter paths",
         "universal corpus fixtures",
@@ -101,12 +116,35 @@ def _extend_surface_issues(issues: list[dict[str, Any]]) -> None:
 
     entry = _inventory_entry()
     audiences = set(entry.get("surface_audiences", [])) if entry else set()
+    review_surface = set(entry.get("task5_review_surface", {}).keys()) if entry else set()
+    expected_review_surface = {
+        "discovery_search_posture",
+        "known_groundable_recall_seeds",
+        "index_freshness_policy",
+        "no_hardcode_lint",
+        "strangle_backlog",
+        "five_health_metrics",
+        "data_asset_source_contract_readiness",
+        "engineering_quality_check",
+        "zero_admission_adapter_registry",
+        "quarantine_and_portless_open_questions",
+    }
     if (
         not entry
         or entry.get("path")
         != "docs/reference/policy-design-case-layer3-grounding-inventory.md"
+        or entry.get("schema_version")
+        != "policyos.policy_design_case.layer3_g0_discovery_search.v2"
+        or entry.get("rule_version")
+        != "policyos.layer3.g0.discovery_search_free_growth.v2"
         or audiences != EXPECTED_SURFACE_AUDIENCES
-        or entry.get("capability_reality_label") not in {"artifact_missing", "implemented"}
+        or entry.get("capability_reality_label") != "implemented"
+        or set(entry.get("closure_artifact_paths", []))
+        != set(_bundle().readiness_manifest.closure_artifact_paths)
+        or review_surface != expected_review_surface
+        or "domain_ceiling_claim_without_g1_search_adapter" not in entry.get(
+            "may_not_use_for", []
+        )
     ):
         issues.append(
             _issue(
@@ -167,6 +205,11 @@ def _extend_adr_issues(issues: list[dict[str, Any]], summary: dict[str, Any]) ->
             "registry_crosswalk_clarification_recorded": adr[
                 "registry_crosswalk_clarification_recorded"
             ],
+            "v2_amendment_recorded": adr["v2_amendment_recorded"],
+            "organizing_rules_recorded": adr["organizing_rules_recorded"],
+            "rule12_t7_recorded": adr["rule12_t7_recorded"],
+            "impact_note_recorded": adr["impact_note_recorded"],
+            "rule_version_refs_recorded": adr["rule_version_refs_recorded"],
         }
     )
 
@@ -184,6 +227,27 @@ def _extend_adr_issues(issues: list[dict[str, Any]], summary: dict[str, Any]) ->
                 "Task 5 must record human-principal acceptance fields for ADR-0175.",
             )
         )
+    for field, message in {
+        "v2_amendment_recorded": "ADR-0175 must record the v2 discovery/search amendment.",
+        "organizing_rules_recorded": (
+            "ADR-0175 must record constitution §5 and §7 Layer 3 discipline."
+        ),
+        "rule12_t7_recorded": "ADR-0175 must record amended Rule 12/T7 discipline.",
+        "impact_note_recorded": (
+            "ADR-0175 must include the constitution-required impact note."
+        ),
+        "rule_version_refs_recorded": (
+            "ADR-0175 must include schema/rule version refs for replay and migration."
+        ),
+    }.items():
+        if not adr.get(field):
+            issues.append(
+                _issue(
+                    "layer3_g0_adr_v2_amendment_incomplete",
+                    "docs/adr/0175-layer3-grounding-subordination-discipline.md",
+                    message,
+                )
+            )
 
 
 def _adr_payload() -> dict[str, Any]:
@@ -226,6 +290,21 @@ def _adr_payload() -> dict[str, Any]:
             and "narrow" in text,
             "registry_crosswalk_clarification_recorded": "preservation registry" in text
             and "admission registry" in text,
+            "v2_amendment_recorded": "v2 discovery/search amendment" in text
+            and "supplemental acceptance" in text,
+            "organizing_rules_recorded": "§5 organizing rules" in text
+            and "§7 ports/adapters/registry/conformance" in text,
+            "rule12_t7_recorded": "Rule 12/T7" in text
+            and "search-recall@known-seeds + index-staleness" in text,
+            "impact_note_recorded": "status lattice" in text
+            and "authority boundaries" in text
+            and "replay behavior" in text
+            and "affected slice plans" in text
+            and "health signals" in text
+            and "enforcement surfaces" in text,
+            "rule_version_refs_recorded": "policyos.layer3.g0.discovery_search_free_growth.v2"
+            in text
+            and "policyos.policy_design_case.layer3_g0_discovery_search.v2" in text,
         }
     }
 
@@ -275,8 +354,17 @@ def test_layer3_g0_readiness_fails_until_inventory_triage_ports_and_ledgers_are_
     validation = _surface_validation()
     summary = validation["summary"]
 
-    assert summary["closure_artifact_count"] == 12
-    assert summary["health_metric_ledger_count"] == 4
+    assert summary["closure_artifact_count"] == 16
+    assert summary["health_metric_ledger_count"] == 5
+    assert summary["schema_version"] == "policyos.policy_design_case.layer3_g0_discovery_search.v2"
+    assert summary["rule_version"] == "policyos.layer3.g0.discovery_search_free_growth.v2"
+    assert summary["grounding_search_ledger_contract_count"] == 1
+    assert summary["search_recall_seed_status"] == "pass"
+    assert summary["index_freshness_status"] == "pass"
+    assert summary["free_growth_fixture_status"] == "pass"
+    assert summary["mechanism_generality_fixture_status"] == "pass"
+    assert summary["no_hardcode_enumeration_lint_status"] == "pass"
+    assert summary["engineering_quality_check_status"] == "pass"
     assert summary["admitted_adapter_count"] == 0
     assert summary["grounded_conversion_count"] == 0
     assert validation["status"] == "pass", validation["issues"]
@@ -352,6 +440,38 @@ def test_layer3_g0_manifest_metrics_match_runtime_builder_output() -> None:
     assert "layer3_g0_manifest_runtime_drift" in _issue_codes(report)
 
 
+def test_layer3_g0_validator_loads_v2_persisted_artifacts_and_search_gate_statuses() -> None:
+    validator = _validator()
+
+    report = validator.validate_layer3_g0_readiness(REPO_ROOT)
+    summary = report["summary"]
+    manifest = json.loads(READINESS_MANIFEST_PATH.read_text(encoding="utf-8"))
+
+    assert report["status"] == "pass", report["issues"]
+    assert summary["schema_version"] == "policyos.policy_design_case.layer3_g0_discovery_search.v2"
+    assert summary["rule_version"] == "policyos.layer3.g0.discovery_search_free_growth.v2"
+    assert summary["persisted_closure_artifact_count"] == 16
+    assert summary["health_metric_ledger_count"] == 5
+    assert summary["search_recall_seed_status"] == "pass"
+    assert summary["index_freshness_status"] == "pass"
+    assert summary["free_growth_fixture_status"] == "pass"
+    assert summary["mechanism_generality_fixture_status"] == "pass"
+    assert summary["data_asset_source_contract_readiness_status"] == "pass"
+    assert summary["engineering_quality_check_status"] == "pass"
+    assert (
+        "architecture/policy_design_case/layer3_discovery_search_discipline.json"
+        in manifest["closure_artifact_paths"]
+    )
+    assert (
+        "architecture/policy_design_case/layer3_hardcode_enumeration_backlog.json"
+        in manifest["closure_artifact_paths"]
+    )
+    assert (
+        "architecture/policy_design_case/layer3_engineering_quality_check.json"
+        in manifest["closure_artifact_paths"]
+    )
+
+
 def test_layer3_g0_import_firewall_artifact_is_persisted_and_blocks_all_non_allowlisted_pdc_imports() -> None:
     validation = _runtime_validation()
     summary = validation["summary"]
@@ -403,6 +523,25 @@ def test_layer3_g0_adr_tracks_constitution_open_questions_and_human_acceptance()
     )
 
 
+def test_layer3_g0_adr_validator_fails_without_v2_amendment_metadata() -> None:
+    g0 = _g0()
+    payload = _adr_payload()
+    payload["adr"].update(
+        {
+            "v2_amendment_recorded": False,
+            "organizing_rules_recorded": False,
+            "rule12_t7_recorded": False,
+            "impact_note_recorded": False,
+            "rule_version_refs_recorded": False,
+        }
+    )
+
+    report = g0.validate_layer3_g0_adr(payload)
+
+    assert report.status == "fail"
+    assert "layer3_g0_adr_v2_amendment_incomplete" in _issue_codes(report)
+
+
 def test_layer3_g0_policy_and_registry_governance_followups_are_recorded() -> None:
     validation = _surface_validation()
     summary = validation["summary"]
@@ -418,3 +557,56 @@ def test_layer3_g0_policy_and_registry_governance_followups_are_recorded() -> No
     assert summary["adr_human_acceptance_ref_present"] is True, _issues_with(
         validation, "layer3_g0_adr_human_acceptance_missing"
     )
+
+
+def test_layer3_g0_task5_audit_surface_exposes_v2_reviewable_artifacts() -> None:
+    validation = _surface_validation()
+    entry = _inventory_entry()
+    doc_text = REFERENCE_DOC.read_text(encoding="utf-8")
+
+    assert validation["status"] == "pass", validation["issues"]
+    assert entry is not None
+    assert entry["schema_version"] == "policyos.policy_design_case.layer3_g0_discovery_search.v2"
+    assert entry["rule_version"] == "policyos.layer3.g0.discovery_search_free_growth.v2"
+    assert len(entry["closure_artifact_paths"]) == 16
+    assert set(entry["closure_artifact_paths"]) == set(
+        _bundle().readiness_manifest.closure_artifact_paths
+    )
+    assert set(entry["task5_review_surface"]) == {
+        "discovery_search_posture",
+        "known_groundable_recall_seeds",
+        "index_freshness_policy",
+        "no_hardcode_lint",
+        "strangle_backlog",
+        "five_health_metrics",
+        "data_asset_source_contract_readiness",
+        "engineering_quality_check",
+        "zero_admission_adapter_registry",
+        "quarantine_and_portless_open_questions",
+    }
+    assert "domain_ceiling_claim_without_g1_search_adapter" in entry["may_not_use_for"]
+    for token in [
+        "discovery/search posture",
+        "known-groundable recall seeds",
+        "index freshness policy",
+        "no-hardcode lint",
+        "strangle backlog",
+        "SourceContract readiness",
+        "engineering-quality check",
+        "zero-admission adapter registry",
+        "quarantine and portless open questions",
+    ]:
+        assert token in doc_text
+
+
+def test_layer3_g0_adr_records_v2_amendment_rule12_t7_and_impact_note() -> None:
+    validation = _surface_validation()
+    adr = _adr_payload()["adr"]
+
+    assert validation["status"] == "pass", validation["issues"]
+    assert adr["status"] == "Accepted"
+    assert adr["v2_amendment_recorded"] is True
+    assert adr["organizing_rules_recorded"] is True
+    assert adr["rule12_t7_recorded"] is True
+    assert adr["impact_note_recorded"] is True
+    assert adr["rule_version_refs_recorded"] is True

@@ -7,12 +7,17 @@
         "data_kind": "data_asset",
         "fitness_ref": "repo://production_data/manifest.json",
         "freshness_ref": "repo://production_data/manifest.json",
+        "index_refs": [
+          "production-data-manifest-index"
+        ],
         "lineage_ref": "repo://production_data/manifest.json",
         "path": "production_data/canonical/local_data_20260501/policy_engine_data/curated",
         "port_ids": [
           "DESIGNER_ITSELF.cluster_evidence"
         ],
-        "rights_ref": "repo://production_data/manifest.json"
+        "rights_ref": "repo://production_data/manifest.json",
+        "source_contract_readiness": "source-contract-readiness://fabric/production-data-curated",
+        "source_contract_ref": "source-contract://fabric/production-data-curated"
       },
       {
         "asset_id": "ukraine-ops-runner-root",
@@ -20,12 +25,17 @@
         "data_kind": "data_asset",
         "fitness_ref": "repo://tools/ops_runners/ukraine_data/README.md",
         "freshness_ref": "repo://tools/ops_runners/ukraine_data/README.md",
+        "index_refs": [
+          "fixture-resource-index"
+        ],
         "lineage_ref": "repo://tools/ops_runners/ukraine_data/README.md",
         "path": "tools/ops_runners/ukraine_data",
         "port_ids": [
           "DESIGNER_ITSELF.cluster_evidence"
         ],
-        "rights_ref": "repo://tools/ops_runners/ukraine_data/README.md"
+        "rights_ref": "repo://tools/ops_runners/ukraine_data/README.md",
+        "source_contract_readiness": "fixture-or-docs-readiness://layer3-g0/ukraine-ops-runner-root",
+        "source_contract_ref": null
       },
       {
         "asset_id": "tests-fixtures-universal-corpus-cases-tests-fixtures-universal-corpus-cases-ua-msme-affordable-loans-2022-json",
@@ -33,12 +43,17 @@
         "data_kind": "data_asset",
         "fitness_ref": "repo://tests/fixtures/universal-corpus/cases",
         "freshness_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "index_refs": [
+          "fixture-resource-index"
+        ],
         "lineage_ref": "repo://tests/fixtures/universal-corpus/cases",
         "path": "tests/fixtures/universal-corpus/cases/ua-msme-affordable-loans-2022.json",
         "port_ids": [
           "DESIGNER_ITSELF.cluster_evidence"
         ],
-        "rights_ref": "repo://tests/fixtures/universal-corpus/cases"
+        "rights_ref": "repo://tests/fixtures/universal-corpus/cases",
+        "source_contract_readiness": "fixture-or-docs-readiness://layer3-g0/tests-fixtures-universal-corpus-cases-tests-fixtures-universal-corpus-cases-ua-msme-affordable-loans-2022-json",
+        "source_contract_ref": null
       },
       {
         "asset_id": "tests-fixtures-universal-corpus-producer-stubs-tests-fixtures-universal-corpus-producer-stubs-ua-msme-affordable-loans-2022-producer-stubs-json",
@@ -46,12 +61,17 @@
         "data_kind": "data_asset",
         "fitness_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
         "freshness_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "index_refs": [
+          "fixture-resource-index"
+        ],
         "lineage_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
         "path": "tests/fixtures/universal-corpus/producer_stubs/ua-msme-affordable-loans-2022.producer_stubs.json",
         "port_ids": [
           "DESIGNER_ITSELF.cluster_evidence"
         ],
-        "rights_ref": "repo://tests/fixtures/universal-corpus/producer_stubs"
+        "rights_ref": "repo://tests/fixtures/universal-corpus/producer_stubs",
+        "source_contract_readiness": "fixture-or-docs-readiness://layer3-g0/tests-fixtures-universal-corpus-producer-stubs-tests-fixtures-universal-corpus-producer-stubs-ua-msme-affordable-loans-2022-producer-stubs-json",
+        "source_contract_ref": null
       },
       {
         "asset_id": "tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery-tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery-a21c33420f04e61b",
@@ -59,12 +79,17 @@
         "data_kind": "data_asset",
         "fitness_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
         "freshness_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "index_refs": [
+          "fixture-resource-index"
+        ],
         "lineage_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
         "path": "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/cases/s14_capacity_constrained_refugee_services.json",
         "port_ids": [
           "DESIGNER_ITSELF.cluster_evidence"
         ],
-        "rights_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json"
+        "rights_ref": "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json",
+        "source_contract_readiness": "fixture-or-docs-readiness://layer3-g0/tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery-tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery-a21c33420f04e61b",
+        "source_contract_ref": null
       },
       {
         "asset_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-readme-md",
@@ -72,15 +97,20 @@
         "data_kind": "data_asset",
         "fitness_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
         "freshness_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "index_refs": [
+          "fixture-resource-index"
+        ],
         "lineage_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
         "path": "docs/research/universal-policy-design/outcome-corpus/README.md",
         "port_ids": [
           "DESIGNER_ITSELF.cluster_evidence"
         ],
-        "rights_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md"
+        "rights_ref": "repo://docs/research/universal-policy-design/outcome-corpus/README.md",
+        "source_contract_readiness": "fixture-or-docs-readiness://layer3-g0/docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-readme-md",
+        "source_contract_ref": null
       }
     ]
   },
-  "rule_version": "policyos.layer3.g0.grounding_subordination.v1",
-  "schema_version": "policyos.policy_design_case.layer3_g0_grounding_inventory.v1"
+  "rule_version": "policyos.layer3.g0.discovery_search_free_growth.v2",
+  "schema_version": "policyos.policy_design_case.layer3_g0_discovery_search.v2"
 }

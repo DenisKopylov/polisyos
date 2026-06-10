@@ -1,0 +1,19 @@
+{
+  "schema_version": "policyos.tests.layer3.g4.fixture.v1",
+  "fixture_id": "layer3-g4-public-export-hook-overclaimed",
+  "description": "A projection-ref artifact alone cannot claim the public export hook is implemented.",
+  "pattern_ids": ["P01", "P03", "P05", "P10"],
+  "capability_labels": ["surface_missing", "semantic_test_missing"],
+  "payload": {
+    "schema_version": "policyos.policy_design_case.layer3_g4_promotion_gate.v1",
+    "rule_version": "policyos.layer3.g4.shadow_to_governed_promotion.v1",
+    "public_export_projection_refs": {
+      "surface_id": "layer3_g4_shadow_to_governed_promotion_surface",
+      "projection_mode": "projection_only",
+      "public_export_hook_status": "implemented",
+      "public_export_bundle_route_registered": false,
+      "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_g4_public_export_projection_refs.json"
+    }
+  },
+  "expected_issue_codes": ["layer3_g4_public_export_hook_overclaimed"]
+}

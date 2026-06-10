@@ -1,0 +1,39 @@
+{
+  "schema_version": "policyos.tests.layer3.g4.fixture.v1",
+  "fixture_id": "layer3-g4-source-design-record-standalone-json-assumption",
+  "description": "A resolver that assumes a standalone layer2_s2_design_record.json must fail closed.",
+  "pattern_ids": ["P01", "P06", "P10", "P15"],
+  "capability_labels": ["bridge_missing", "semantic_test_missing"],
+  "payload": {
+    "schema_version": "policyos.policy_design_case.layer3_g4_promotion_gate.v1",
+    "rule_version": "policyos.layer3.g4.shadow_to_governed_promotion.v1",
+    "promotion_requests": [
+      {
+        "request_id": "g4-request:standalone-s2-json-assumption",
+        "case_id": "ua-msme-affordable-loans-2022",
+        "candidate_ref": "s2-design-candidate:manifest-only",
+        "candidate_source": "shadow_design_record_v0",
+        "incoming_projection_status": "shadow",
+        "source_design_record": {
+          "ref": "repo://architecture/policy_design_case/layer2_s2_design_record.json",
+          "replay_ref": null,
+          "digest": null,
+          "payload_status": "unresolved",
+          "resolution_strategy": "hardcoded_standalone_s2_json"
+        },
+        "promotion_scope": {
+          "authority_purpose": "layer3_g4_governed_promotion_state",
+          "claim_families": ["source_data"],
+          "high_stakes": false
+        },
+        "claim_refs": ["claim://ua-msme/firm-survival/source-data-grounding"],
+        "envelope_ref": "envelope://ua-msme/source-data-bounded",
+        "required_contract_families": ["g1_source_contract"]
+      }
+    ]
+  },
+  "expected_issue_codes": [
+    "layer3_g4_source_design_record_unresolved",
+    "layer3_g4_source_design_record_digest_missing"
+  ]
+}

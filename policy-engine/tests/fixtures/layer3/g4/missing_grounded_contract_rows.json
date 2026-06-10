@@ -1,0 +1,44 @@
+{
+  "schema_version": "policyos.tests.layer3.g4.fixture.v1",
+  "fixture_id": "layer3-g4-missing-grounded-contract-rows",
+  "description": "G1 readiness pass without actual grounded source contract rows cannot promote.",
+  "pattern_ids": ["P01", "P02", "P10"],
+  "capability_labels": ["bridge_missing", "semantic_test_missing"],
+  "payload": {
+    "schema_version": "policyos.policy_design_case.layer3_g4_promotion_gate.v1",
+    "rule_version": "policyos.layer3.g4.shadow_to_governed_promotion.v1",
+    "dependency_readiness": {
+      "g0_dependency_status": "pass",
+      "g1_dependency_status": "pass"
+    },
+    "promotion_requests": [
+      {
+        "request_id": "g4-request:missing-g1-rows",
+        "case_id": "ua-msme-affordable-loans-2022",
+        "candidate_ref": "s2-design-candidate:ua-msme-credit-support",
+        "candidate_source": "shadow_design_record_v0",
+        "incoming_projection_status": "shadow",
+        "source_design_record": {
+          "ref": "cas://s2/design-record/ua-msme-credit-support",
+          "replay_ref": "cas://s2/search-run/ua-msme-credit-support",
+          "digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+          "payload_status": "full_payload"
+        },
+        "promotion_scope": {
+          "authority_purpose": "layer3_g4_governed_promotion_state",
+          "claim_families": ["source_data"],
+          "high_stakes": false
+        },
+        "claim_refs": ["claim://ua-msme/firm-survival/source-data-grounding"],
+        "envelope_ref": "envelope://ua-msme/source-data-bounded",
+        "required_contract_families": ["g1_source_contract"],
+        "grounded_contract_rows": []
+      }
+    ]
+  },
+  "expected_issue_codes": [
+    "layer3_g4_grounded_contract_ref_missing",
+    "layer3_g4_missing_g1_grounded_source_contract",
+    "layer3_g4_a_completeness_failed"
+  ]
+}

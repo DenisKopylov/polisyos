@@ -1,0 +1,50 @@
+{
+  "schema_version": "policyos.tests.layer3.g4.fixture.v1",
+  "fixture_id": "layer3-g4-valid-source-only-promotion-input",
+  "description": "Future green fixture for a narrow source/data-only promotion with explicit DesignRecordV0 replay digest and G1 rows.",
+  "pattern_ids": ["P01", "P02", "P05", "P10"],
+  "capability_labels": ["semantic_test_missing"],
+  "payload": {
+    "schema_version": "policyos.policy_design_case.layer3_g4_promotion_gate.v1",
+    "rule_version": "policyos.layer3.g4.shadow_to_governed_promotion.v1",
+    "promotion_requests": [
+      {
+        "request_id": "g4-request:ua-msme-source-only-valid",
+        "case_id": "ua-msme-affordable-loans-2022",
+        "candidate_ref": "s2-design-candidate:ua-msme-credit-support",
+        "candidate_source": "shadow_design_record_v0",
+        "incoming_projection_status": "shadow",
+        "source_design_record": {
+          "ref": "cas://s2/design-record/ua-msme-credit-support",
+          "replay_ref": "cas://s2/search-run/ua-msme-credit-support",
+          "digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+          "payload_status": "full_payload",
+          "authority_posture": "shadow"
+        },
+        "promotion_scope": {
+          "authority_purpose": "layer3_g4_governed_promotion_state",
+          "claim_families": ["source_data"],
+          "requires_legal_or_mandate_authority": false,
+          "high_stakes": false
+        },
+        "claim_refs": ["claim://ua-msme/firm-survival/source-data-grounding"],
+        "envelope_ref": "envelope://ua-msme/source-data-bounded",
+        "required_contract_families": ["g1_source_contract"],
+        "human_decision_policy": {
+          "human_decision_required": false,
+          "rationale": "Non-high-stakes source/data-only promotion within a bounded envelope."
+        },
+        "grounded_contract_rows": [
+          {
+            "family": "g1_source_contract",
+            "ref": "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json#bindings/firm_survival",
+            "authoritative_for": ["layer3_g1_construct_grounding_audit"],
+            "may_not_use_for": ["claim_authority", "production_authority"]
+          }
+        ]
+      }
+    ]
+  },
+  "expected_issue_codes": [],
+  "expected_promotion_state": "governed_promoted"
+}

@@ -1,0 +1,48 @@
+{
+  "schema_version": "policyos.tests.layer3.g4.fixture.v1",
+  "fixture_id": "layer3-g4-s7-manifest-s2-ledger-only-human-decision",
+  "description": "S7 manifest pass and S2 ledger refs are locators, not a case-specific HumanDecisionRecord payload.",
+  "pattern_ids": ["P01", "P02", "P10", "P26"],
+  "capability_labels": ["bridge_missing", "semantic_test_missing"],
+  "payload": {
+    "schema_version": "policyos.policy_design_case.layer3_g4_promotion_gate.v1",
+    "rule_version": "policyos.layer3.g4.shadow_to_governed_promotion.v1",
+    "promotion_requests": [
+      {
+        "request_id": "g4-request:s7-manifest-s2-ledger-only",
+        "case_id": "ua-msme-affordable-loans-2022",
+        "candidate_ref": "s2-design-candidate:ua-msme-human-gated",
+        "candidate_source": "shadow_design_record_v0",
+        "incoming_projection_status": "shadow",
+        "source_design_record": {
+          "ref": "cas://s2/design-record/ua-msme-human-gated",
+          "replay_ref": "cas://s2/search-run/ua-msme-human-gated",
+          "digest": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+          "payload_status": "full_payload"
+        },
+        "promotion_scope": {
+          "authority_purpose": "layer3_g4_governed_promotion_state",
+          "claim_families": ["source_data"],
+          "high_stakes": true,
+          "accountability_sensitive": true
+        },
+        "claim_refs": ["claim://ua-msme/human-gated-source-claim"],
+        "envelope_ref": "envelope://ua-msme/human-gated",
+        "required_contract_families": ["g1_source_contract"],
+        "human_decision_policy": {
+          "human_decision_required": true,
+          "s7_manifest_ref": "repo://architecture/policy_design_case/layer2_s7_delegation_manifest.json",
+          "s2_delegation_ledger_refs": [
+            "cas://s2/search-ledger/ua-msme-human-gated#delegation_record_refs/0"
+          ],
+          "human_decision_record_payloads": []
+        }
+      }
+    ]
+  },
+  "expected_issue_codes": [
+    "layer3_g4_s7_manifest_only_human_decision",
+    "layer3_g4_s2_ledger_ref_only_human_decision",
+    "layer3_g4_human_decision_record_missing"
+  ]
+}

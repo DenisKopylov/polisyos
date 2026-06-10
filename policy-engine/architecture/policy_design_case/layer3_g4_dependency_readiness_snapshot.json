@@ -1,0 +1,35 @@
+{
+  "g0_dependency_status": "pass",
+  "g1_dependency_status": "pass",
+  "g2_context_status": "pass",
+  "g3_context_status": "pass",
+  "generated_artifacts_ref": "architecture/generated_artifacts.toml",
+  "gl_context_status": "pass",
+  "inventory_ref": "architecture/policy_design_case/inventory.json",
+  "issue_codes": [],
+  "loaded_artifact_paths": [
+    "architecture/generated_artifacts.toml",
+    "architecture/policy_design_case/inventory.json",
+    "architecture/policy_design_case/layer3_g0_readiness_manifest.json",
+    "architecture/policy_design_case/layer3_discovery_search_discipline.json",
+    "architecture/policy_design_case/layer3_engineering_quality_check.json",
+    "architecture/policy_design_case/layer3_g1_readiness_manifest.json",
+    "architecture/policy_design_case/layer3_g1_grounded_source_contracts.json",
+    "architecture/policy_design_case/layer3_g2_readiness_manifest.json",
+    "architecture/policy_design_case/layer3_g3_readiness_manifest.json",
+    "architecture/policy_design_case/layer3_gl_readiness_manifest.json"
+  ],
+  "manifest_drift_inputs": {
+    "g0_manifest_ref": "architecture/policy_design_case/layer3_g0_readiness_manifest.json",
+    "g1_manifest_ref": "architecture/policy_design_case/layer3_g1_readiness_manifest.json",
+    "g2_manifest_ref": "architecture/policy_design_case/layer3_g2_readiness_manifest.json",
+    "g3_manifest_ref": "architecture/policy_design_case/layer3_g3_readiness_manifest.json",
+    "generated_artifacts_ref": "architecture/generated_artifacts.toml",
+    "gl_manifest_ref": "architecture/policy_design_case/layer3_gl_readiness_manifest.json",
+    "inventory_ref": "architecture/policy_design_case/inventory.json"
+  },
+  "missing_artifact_paths": [],
+  "rule_version": "policyos.layer3.g4.shadow_to_governed_promotion.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g4_promotion_gate.v1",
+  "status": "pass"
+}

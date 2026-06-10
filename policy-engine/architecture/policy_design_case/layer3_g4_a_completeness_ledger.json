@@ -1,0 +1,20 @@
+{
+  "blocker_refs": [],
+  "issue_codes": [],
+  "limitation_refs": [],
+  "missing_requirement_count": 0,
+  "requirements": [
+    {
+      "blocker_refs": [],
+      "claim_ref": "claim://ua-msme/firm-survival/source-data-grounding",
+      "issue_codes": [],
+      "limitation_refs": [],
+      "required_family": "g1_source_contract",
+      "status": "pass",
+      "supporting_refs": [
+        "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json#bindings/firm_survival"
+      ]
+    }
+  ],
+  "status": "pass"
+}

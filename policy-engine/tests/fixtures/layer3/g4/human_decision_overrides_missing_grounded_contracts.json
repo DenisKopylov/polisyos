@@ -1,0 +1,52 @@
+{
+  "schema_version": "policyos.tests.layer3.g4.fixture.v1",
+  "fixture_id": "layer3-g4-human-decision-overrides-missing-grounded-contracts",
+  "description": "Human approval may satisfy accountability, but cannot override A-incompleteness.",
+  "pattern_ids": ["P05", "P10", "P26"],
+  "capability_labels": ["semantic_test_missing"],
+  "payload": {
+    "schema_version": "policyos.policy_design_case.layer3_g4_promotion_gate.v1",
+    "rule_version": "policyos.layer3.g4.shadow_to_governed_promotion.v1",
+    "promotion_requests": [
+      {
+        "request_id": "g4-request:human-override-a-gap",
+        "case_id": "ua-msme-affordable-loans-2022",
+        "candidate_ref": "s2-design-candidate:ua-msme-human-approved",
+        "candidate_source": "shadow_design_record_v0",
+        "incoming_projection_status": "shadow",
+        "source_design_record": {
+          "ref": "cas://s2/design-record/ua-msme-human-approved",
+          "replay_ref": "cas://s2/search-run/ua-msme-human-approved",
+          "digest": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+          "payload_status": "full_payload"
+        },
+        "promotion_scope": {
+          "authority_purpose": "layer3_g4_governed_promotion_state",
+          "claim_families": ["source_data"],
+          "high_stakes": true
+        },
+        "claim_refs": ["claim://ua-msme/human-approved-missing-source-contract"],
+        "envelope_ref": "envelope://ua-msme/human-approved",
+        "required_contract_families": ["g1_source_contract"],
+        "grounded_contract_rows": [],
+        "human_decision_policy": {
+          "human_decision_required": true,
+          "human_decision_record_payloads": [
+            {
+              "record_ref": "s7-human-decision://ua-msme/human-approved",
+              "case_id": "ua-msme-affordable-loans-2022",
+              "candidate_ref": "s2-design-candidate:ua-msme-human-approved",
+              "active_choice": true,
+              "responsibility_integrity_status": "pass",
+              "five_rights_status": "pass"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "expected_issue_codes": [
+    "layer3_g4_human_decision_overrides_a_incompleteness",
+    "layer3_g4_missing_g1_grounded_source_contract"
+  ]
+}

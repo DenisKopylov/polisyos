@@ -1,0 +1,128 @@
+{
+  "promotion_records": [
+    {
+      "a_completeness_ledger_ref": "repo://architecture/policy_design_case/layer3_g4_a_completeness_ledger.json",
+      "authoritative_for": [
+        "promotion_decision_replay",
+        "governed_promotion_state_for_declared_scope",
+        "closeout_pdc_compiler_g5_promotion_state_input_refs"
+      ],
+      "blocker_refs": [],
+      "candidate_ref": "s2-design-candidate:ua-msme-credit-support",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "closeout_consumer_gate_ref": "repo://architecture/policy_design_case/layer3_g4_closeout_consumer_gate.json",
+      "g5_handoff_ref": "repo://architecture/policy_design_case/layer3_g4_g5_promotion_handoff.json",
+      "grounded_contract_set_ref": "repo://architecture/policy_design_case/layer3_g4_grounded_contract_set.json",
+      "human_decision_integrity_gate_ref": "repo://architecture/policy_design_case/layer3_g4_human_decision_integrity_gate.json",
+      "limitation_refs": [],
+      "may_not_use_for": [
+        "production_authority",
+        "production_claim_authority",
+        "rollout_authority",
+        "publication_authority",
+        "approval_authority",
+        "scorecard_authority",
+        "closeout_authority",
+        "runtime_closeout_authority",
+        "closeout_verdict",
+        "claim_authority",
+        "claim_authority_without_upstream_grounding",
+        "source_data_truth_authority",
+        "public_recommendation",
+        "policy_recommendation",
+        "useful_design_credit_before_g5",
+        "causal_effect_authority_without_g2",
+        "proof_authority_without_g3",
+        "legal_authority_without_gl",
+        "human_override_of_a_incompleteness"
+      ],
+      "pdc_compiler_consumer_gate_ref": "repo://architecture/policy_design_case/layer3_g4_pdc_compiler_consumer_gate.json",
+      "promotion_record_id": "g4-promotion-record:g4-request:ua-msme-source-only-valid",
+      "promotion_scope": {
+        "authority_purpose": "layer3_g4_governed_promotion_state",
+        "claim_families": [
+          "source_data"
+        ],
+        "high_stakes": false,
+        "requested_boundary": "bounded",
+        "requires_legal_or_mandate_authority": false,
+        "routine_in_envelope": true
+      },
+      "promotion_state": "governed_promoted",
+      "registry_ratchet_delta_ref": "repo://architecture/policy_design_case/layer3_g4_registry_ratchet_delta.json",
+      "rule_version": "policyos.layer3.g4.shadow_to_governed_promotion.v1",
+      "schema_version": "policyos.policy_design_case.layer3_g4_promotion_gate.v1",
+      "source_design_record_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "source_design_record_ref": "cas://s2/design-record/ua-msme-credit-support",
+      "upstream_contract_refs": [
+        "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json#bindings/firm_survival"
+      ],
+      "weakest_boundary_composition_ref": "repo://architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json"
+    },
+    {
+      "a_completeness_ledger_ref": "repo://architecture/policy_design_case/layer3_g4_a_completeness_ledger.json",
+      "authoritative_for": [
+        "promotion_decision_replay",
+        "governed_promotion_state_for_declared_scope",
+        "closeout_pdc_compiler_g5_promotion_state_input_refs"
+      ],
+      "blocker_refs": [
+        "layer3_g4_missing_g2_calibration_ref",
+        "layer3_g4_missing_g2_forecast_support"
+      ],
+      "candidate_ref": "s2-design-candidate:blocked-effect",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "closeout_consumer_gate_ref": "repo://architecture/policy_design_case/layer3_g4_closeout_consumer_gate.json",
+      "g5_handoff_ref": "repo://architecture/policy_design_case/layer3_g4_g5_promotion_handoff.json",
+      "grounded_contract_set_ref": "repo://architecture/policy_design_case/layer3_g4_grounded_contract_set.json",
+      "human_decision_integrity_gate_ref": "repo://architecture/policy_design_case/layer3_g4_human_decision_integrity_gate.json",
+      "limitation_refs": [],
+      "may_not_use_for": [
+        "production_authority",
+        "production_claim_authority",
+        "rollout_authority",
+        "publication_authority",
+        "approval_authority",
+        "scorecard_authority",
+        "closeout_authority",
+        "runtime_closeout_authority",
+        "closeout_verdict",
+        "claim_authority",
+        "claim_authority_without_upstream_grounding",
+        "source_data_truth_authority",
+        "public_recommendation",
+        "policy_recommendation",
+        "useful_design_credit_before_g5",
+        "causal_effect_authority_without_g2",
+        "proof_authority_without_g3",
+        "legal_authority_without_gl",
+        "human_override_of_a_incompleteness"
+      ],
+      "pdc_compiler_consumer_gate_ref": "repo://architecture/policy_design_case/layer3_g4_pdc_compiler_consumer_gate.json",
+      "promotion_record_id": "g4-promotion-record:g4-request:blocked-effect",
+      "promotion_scope": {
+        "authority_purpose": "layer3_g4_governed_promotion_state",
+        "claim_families": [
+          "causal_forecast"
+        ],
+        "high_stakes": false,
+        "requested_boundary": "bounded",
+        "requires_causal_or_forecast_authority": true,
+        "requires_legal_or_mandate_authority": false,
+        "routine_in_envelope": true
+      },
+      "promotion_state": "promotion_blocked",
+      "registry_ratchet_delta_ref": "repo://architecture/policy_design_case/layer3_g4_registry_ratchet_delta.json",
+      "rule_version": "policyos.layer3.g4.shadow_to_governed_promotion.v1",
+      "schema_version": "policyos.policy_design_case.layer3_g4_promotion_gate.v1",
+      "source_design_record_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+      "source_design_record_ref": "cas://s2/design-record/ua-msme-credit-support",
+      "upstream_contract_refs": [
+        "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json#bindings/firm_survival"
+      ],
+      "weakest_boundary_composition_ref": "repo://architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json"
+    }
+  ],
+  "rule_version": "policyos.layer3.g4.shadow_to_governed_promotion.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g4_promotion_gate.v1"
+}

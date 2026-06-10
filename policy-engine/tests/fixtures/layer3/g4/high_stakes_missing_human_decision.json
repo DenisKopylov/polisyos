@@ -1,0 +1,44 @@
+{
+  "schema_version": "policyos.tests.layer3.g4.fixture.v1",
+  "fixture_id": "layer3-g4-high-stakes-missing-human-decision",
+  "description": "High-stakes promotion needs a concrete S7 HumanDecisionRecord.",
+  "pattern_ids": ["P05", "P10", "P26"],
+  "capability_labels": ["bridge_missing", "semantic_test_missing"],
+  "payload": {
+    "schema_version": "policyos.policy_design_case.layer3_g4_promotion_gate.v1",
+    "rule_version": "policyos.layer3.g4.shadow_to_governed_promotion.v1",
+    "promotion_requests": [
+      {
+        "request_id": "g4-request:high-stakes-no-human",
+        "case_id": "ua-msme-affordable-loans-2022",
+        "candidate_ref": "s2-design-candidate:ua-msme-high-stakes-credit",
+        "candidate_source": "shadow_design_record_v0",
+        "incoming_projection_status": "shadow",
+        "source_design_record": {
+          "ref": "cas://s2/design-record/ua-msme-high-stakes-credit",
+          "replay_ref": "cas://s2/search-run/ua-msme-high-stakes-credit",
+          "digest": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+          "payload_status": "full_payload"
+        },
+        "promotion_scope": {
+          "authority_purpose": "layer3_g4_governed_promotion_state",
+          "claim_families": ["source_data"],
+          "high_stakes": true,
+          "value_laden": true,
+          "accountability_sensitive": true
+        },
+        "claim_refs": ["claim://ua-msme/high-stakes-credit-eligibility"],
+        "envelope_ref": "envelope://ua-msme/high-stakes-credit",
+        "required_contract_families": ["g1_source_contract"],
+        "human_decision_policy": {
+          "human_decision_required": true,
+          "human_decision_record_refs": []
+        }
+      }
+    ]
+  },
+  "expected_issue_codes": [
+    "layer3_g4_human_decision_required",
+    "layer3_g4_human_decision_record_missing"
+  ]
+}

@@ -1,0 +1,141 @@
+schema_version = "policyos.policy_design_case.layer3_g4_promotion_gate.v1"
+rule_version = "policyos.layer3.g4.shadow_to_governed_promotion.v1"
+status = "pass"
+adapter_path_ids = ["layer3_g4_s2_source_resolution_to_promotion_input", "layer3_g4_design_record_to_promotion_input", "layer3_g4_dependency_manifests_to_grounded_contract_set", "layer3_g4_grounded_contract_set_to_a_completeness_ledger", "layer3_g4_a_completeness_to_weakest_boundary", "layer3_g4_s7_human_decision_to_p26_gate", "layer3_g4_weakest_boundary_to_promotion_record", "layer3_g4_promotion_record_to_closeout_consumer_gate", "layer3_g4_promotion_record_to_pdc_compiler_consumer_gate", "layer3_g4_promotion_record_to_g5_handoff", "layer3_g4_promotion_record_to_public_projection_refs"]
+adapter_path_count = 11
+bridge_record_count = 11
+semantic_loss_status = "no_loss_for_promotion_state_refs"
+authoritative_for = ["promotion_decision_replay", "governed_promotion_state_for_declared_scope", "closeout_pdc_compiler_g5_promotion_state_input_refs"]
+may_not_use_for = ["production_authority", "production_claim_authority", "rollout_authority", "publication_authority", "approval_authority", "scorecard_authority", "closeout_authority", "runtime_closeout_authority", "closeout_verdict", "claim_authority", "claim_authority_without_upstream_grounding", "source_data_truth_authority", "public_recommendation", "policy_recommendation", "useful_design_credit_before_g5", "causal_effect_authority_without_g2", "proof_authority_without_g3", "legal_authority_without_gl", "human_override_of_a_incompleteness"]
+
+[[bridge_records]]
+authoritative_for = ["promotion_decision_replay", "governed_promotion_state_for_declared_scope", "closeout_pdc_compiler_g5_promotion_state_input_refs"]
+authority_purpose = "layer3_g4_governed_promotion_state"
+bridge_id = "layer3_g4_s2_source_resolution_to_promotion_input"
+conformance_negative_refs = ["g4-conformance-negative:source_design_record_ref_only_promoted"]
+consumer = "resolve_g4_source_design_record"
+may_not_use_for = ["production_authority", "production_claim_authority", "rollout_authority", "publication_authority", "approval_authority", "scorecard_authority", "closeout_authority", "runtime_closeout_authority", "closeout_verdict", "claim_authority", "claim_authority_without_upstream_grounding", "source_data_truth_authority", "public_recommendation", "policy_recommendation", "useful_design_credit_before_g5", "causal_effect_authority_without_g2", "proof_authority_without_g3", "legal_authority_without_gl", "human_override_of_a_incompleteness"]
+producer_artifact_family = "layer2_s2_design_record"
+producer_artifact_ref = "repo://architecture/policy_design_case/layer2_s2_design_search_manifest.json"
+semantic_loss_status = "no_loss_for_promotion_state_refs"
+verification_refs = ["repo://tests/unit/runtime/quality/test_layer3_g4_promotion_gate.py#test_adapter_contract_registry_records_semantic_bridge_details", "repo://tests/repo_quality/tools/test_policy_design_case_layer3_g4_readiness.py#test_layer3_g4_persisted_adapter_registry_and_throughput_are_semantic"]
+
+[[bridge_records]]
+authoritative_for = ["promotion_decision_replay", "governed_promotion_state_for_declared_scope", "closeout_pdc_compiler_g5_promotion_state_input_refs"]
+authority_purpose = "layer3_g4_governed_promotion_state"
+bridge_id = "layer3_g4_design_record_to_promotion_input"
+conformance_negative_refs = ["g4-conformance-negative:shadow_design_record_self_promotes"]
+consumer = "build_g4_promotion_input_set"
+may_not_use_for = ["production_authority", "production_claim_authority", "rollout_authority", "publication_authority", "approval_authority", "scorecard_authority", "closeout_authority", "runtime_closeout_authority", "closeout_verdict", "claim_authority", "claim_authority_without_upstream_grounding", "source_data_truth_authority", "public_recommendation", "policy_recommendation", "useful_design_credit_before_g5", "causal_effect_authority_without_g2", "proof_authority_without_g3", "legal_authority_without_gl", "human_override_of_a_incompleteness"]
+producer_artifact_family = "shadow_design_record"
+producer_artifact_ref = "repo://architecture/policy_design_case/layer3_g4_promotion_input_set.json"
+semantic_loss_status = "no_loss_for_promotion_state_refs"
+verification_refs = ["repo://tests/unit/runtime/quality/test_layer3_g4_promotion_gate.py#test_adapter_contract_registry_records_semantic_bridge_details", "repo://tests/repo_quality/tools/test_policy_design_case_layer3_g4_readiness.py#test_layer3_g4_persisted_adapter_registry_and_throughput_are_semantic"]
+
+[[bridge_records]]
+authoritative_for = ["promotion_decision_replay", "governed_promotion_state_for_declared_scope", "closeout_pdc_compiler_g5_promotion_state_input_refs"]
+authority_purpose = "layer3_g4_governed_promotion_state"
+bridge_id = "layer3_g4_dependency_manifests_to_grounded_contract_set"
+conformance_negative_refs = ["g4-conformance-negative:readiness_summary_only_promoted"]
+consumer = "build_g4_grounded_contract_set"
+may_not_use_for = ["production_authority", "production_claim_authority", "rollout_authority", "publication_authority", "approval_authority", "scorecard_authority", "closeout_authority", "runtime_closeout_authority", "closeout_verdict", "claim_authority", "claim_authority_without_upstream_grounding", "source_data_truth_authority", "public_recommendation", "policy_recommendation", "useful_design_credit_before_g5", "causal_effect_authority_without_g2", "proof_authority_without_g3", "legal_authority_without_gl", "human_override_of_a_incompleteness"]
+producer_artifact_family = "layer3_dependency_artifacts"
+producer_artifact_ref = "repo://architecture/policy_design_case/layer3_g4_dependency_readiness_snapshot.json"
+semantic_loss_status = "no_loss_for_promotion_state_refs"
+verification_refs = ["repo://tests/unit/runtime/quality/test_layer3_g4_promotion_gate.py#test_adapter_contract_registry_records_semantic_bridge_details", "repo://tests/repo_quality/tools/test_policy_design_case_layer3_g4_readiness.py#test_layer3_g4_persisted_adapter_registry_and_throughput_are_semantic"]
+
+[[bridge_records]]
+authoritative_for = ["promotion_decision_replay", "governed_promotion_state_for_declared_scope", "closeout_pdc_compiler_g5_promotion_state_input_refs"]
+authority_purpose = "layer3_g4_governed_promotion_state"
+bridge_id = "layer3_g4_grounded_contract_set_to_a_completeness_ledger"
+conformance_negative_refs = ["g4-conformance-negative:promotion_without_g1_grounded_source_contract"]
+consumer = "build_g4_a_completeness_ledger"
+may_not_use_for = ["production_authority", "production_claim_authority", "rollout_authority", "publication_authority", "approval_authority", "scorecard_authority", "closeout_authority", "runtime_closeout_authority", "closeout_verdict", "claim_authority", "claim_authority_without_upstream_grounding", "source_data_truth_authority", "public_recommendation", "policy_recommendation", "useful_design_credit_before_g5", "causal_effect_authority_without_g2", "proof_authority_without_g3", "legal_authority_without_gl", "human_override_of_a_incompleteness"]
+producer_artifact_family = "layer3_g4_grounded_contract_set"
+producer_artifact_ref = "repo://architecture/policy_design_case/layer3_g4_grounded_contract_set.json"
+semantic_loss_status = "no_loss_for_promotion_state_refs"
+verification_refs = ["repo://tests/unit/runtime/quality/test_layer3_g4_promotion_gate.py#test_adapter_contract_registry_records_semantic_bridge_details", "repo://tests/repo_quality/tools/test_policy_design_case_layer3_g4_readiness.py#test_layer3_g4_persisted_adapter_registry_and_throughput_are_semantic"]
+
+[[bridge_records]]
+authoritative_for = ["promotion_decision_replay", "governed_promotion_state_for_declared_scope", "closeout_pdc_compiler_g5_promotion_state_input_refs"]
+authority_purpose = "layer3_g4_governed_promotion_state"
+bridge_id = "layer3_g4_a_completeness_to_weakest_boundary"
+conformance_negative_refs = ["g4-conformance-negative:missing_a_firewall_ref_promoted"]
+consumer = "build_g4_weakest_boundary_composition"
+may_not_use_for = ["production_authority", "production_claim_authority", "rollout_authority", "publication_authority", "approval_authority", "scorecard_authority", "closeout_authority", "runtime_closeout_authority", "closeout_verdict", "claim_authority", "claim_authority_without_upstream_grounding", "source_data_truth_authority", "public_recommendation", "policy_recommendation", "useful_design_credit_before_g5", "causal_effect_authority_without_g2", "proof_authority_without_g3", "legal_authority_without_gl", "human_override_of_a_incompleteness"]
+producer_artifact_family = "layer3_g4_a_completeness_ledger"
+producer_artifact_ref = "repo://architecture/policy_design_case/layer3_g4_a_completeness_ledger.json"
+semantic_loss_status = "no_loss_for_promotion_state_refs"
+verification_refs = ["repo://tests/unit/runtime/quality/test_layer3_g4_promotion_gate.py#test_adapter_contract_registry_records_semantic_bridge_details", "repo://tests/repo_quality/tools/test_policy_design_case_layer3_g4_readiness.py#test_layer3_g4_persisted_adapter_registry_and_throughput_are_semantic"]
+
+[[bridge_records]]
+authoritative_for = ["promotion_decision_replay", "governed_promotion_state_for_declared_scope", "closeout_pdc_compiler_g5_promotion_state_input_refs"]
+authority_purpose = "layer3_g4_governed_promotion_state"
+bridge_id = "layer3_g4_s7_human_decision_to_p26_gate"
+conformance_negative_refs = ["g4-conformance-negative:human_decision_missing_for_high_stakes"]
+consumer = "build_g4_human_decision_integrity_gate"
+may_not_use_for = ["production_authority", "production_claim_authority", "rollout_authority", "publication_authority", "approval_authority", "scorecard_authority", "closeout_authority", "runtime_closeout_authority", "closeout_verdict", "claim_authority", "claim_authority_without_upstream_grounding", "source_data_truth_authority", "public_recommendation", "policy_recommendation", "useful_design_credit_before_g5", "causal_effect_authority_without_g2", "proof_authority_without_g3", "legal_authority_without_gl", "human_override_of_a_incompleteness"]
+producer_artifact_family = "layer2_s7_human_decision_record"
+producer_artifact_ref = "repo://architecture/policy_design_case/layer2_s7_delegation_manifest.json"
+semantic_loss_status = "no_loss_for_promotion_state_refs"
+verification_refs = ["repo://tests/unit/runtime/quality/test_layer3_g4_promotion_gate.py#test_adapter_contract_registry_records_semantic_bridge_details", "repo://tests/repo_quality/tools/test_policy_design_case_layer3_g4_readiness.py#test_layer3_g4_persisted_adapter_registry_and_throughput_are_semantic"]
+
+[[bridge_records]]
+authoritative_for = ["promotion_decision_replay", "governed_promotion_state_for_declared_scope", "closeout_pdc_compiler_g5_promotion_state_input_refs"]
+authority_purpose = "layer3_g4_governed_promotion_state"
+bridge_id = "layer3_g4_weakest_boundary_to_promotion_record"
+conformance_negative_refs = ["g4-conformance-negative:weakest_boundary_ignored"]
+consumer = "build_g4_promotion_records"
+may_not_use_for = ["production_authority", "production_claim_authority", "rollout_authority", "publication_authority", "approval_authority", "scorecard_authority", "closeout_authority", "runtime_closeout_authority", "closeout_verdict", "claim_authority", "claim_authority_without_upstream_grounding", "source_data_truth_authority", "public_recommendation", "policy_recommendation", "useful_design_credit_before_g5", "causal_effect_authority_without_g2", "proof_authority_without_g3", "legal_authority_without_gl", "human_override_of_a_incompleteness"]
+producer_artifact_family = "layer3_g4_weakest_boundary_composition"
+producer_artifact_ref = "repo://architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json"
+semantic_loss_status = "no_loss_for_promotion_state_refs"
+verification_refs = ["repo://tests/unit/runtime/quality/test_layer3_g4_promotion_gate.py#test_adapter_contract_registry_records_semantic_bridge_details", "repo://tests/repo_quality/tools/test_policy_design_case_layer3_g4_readiness.py#test_layer3_g4_persisted_adapter_registry_and_throughput_are_semantic"]
+
+[[bridge_records]]
+authoritative_for = ["promotion_decision_replay", "governed_promotion_state_for_declared_scope", "closeout_pdc_compiler_g5_promotion_state_input_refs"]
+authority_purpose = "layer3_g4_governed_promotion_state"
+bridge_id = "layer3_g4_promotion_record_to_closeout_consumer_gate"
+conformance_negative_refs = ["g4-conformance-negative:promotion_record_claims_closeout"]
+consumer = "build_g4_closeout_consumer_gate"
+may_not_use_for = ["production_authority", "production_claim_authority", "rollout_authority", "publication_authority", "approval_authority", "scorecard_authority", "closeout_authority", "runtime_closeout_authority", "closeout_verdict", "claim_authority", "claim_authority_without_upstream_grounding", "source_data_truth_authority", "public_recommendation", "policy_recommendation", "useful_design_credit_before_g5", "causal_effect_authority_without_g2", "proof_authority_without_g3", "legal_authority_without_gl", "human_override_of_a_incompleteness"]
+producer_artifact_family = "layer3_g4_promotion_records"
+producer_artifact_ref = "repo://architecture/policy_design_case/layer3_g4_promotion_records.json"
+semantic_loss_status = "no_loss_for_promotion_state_refs"
+verification_refs = ["repo://tests/unit/runtime/quality/test_layer3_g4_promotion_gate.py#test_adapter_contract_registry_records_semantic_bridge_details", "repo://tests/repo_quality/tools/test_policy_design_case_layer3_g4_readiness.py#test_layer3_g4_persisted_adapter_registry_and_throughput_are_semantic"]
+
+[[bridge_records]]
+authoritative_for = ["promotion_decision_replay", "governed_promotion_state_for_declared_scope", "closeout_pdc_compiler_g5_promotion_state_input_refs"]
+authority_purpose = "layer3_g4_governed_promotion_state"
+bridge_id = "layer3_g4_promotion_record_to_pdc_compiler_consumer_gate"
+conformance_negative_refs = ["g4-conformance-negative:promotion_record_claims_pdc_compile_authority"]
+consumer = "build_g4_pdc_compiler_consumer_gate"
+may_not_use_for = ["production_authority", "production_claim_authority", "rollout_authority", "publication_authority", "approval_authority", "scorecard_authority", "closeout_authority", "runtime_closeout_authority", "closeout_verdict", "claim_authority", "claim_authority_without_upstream_grounding", "source_data_truth_authority", "public_recommendation", "policy_recommendation", "useful_design_credit_before_g5", "causal_effect_authority_without_g2", "proof_authority_without_g3", "legal_authority_without_gl", "human_override_of_a_incompleteness"]
+producer_artifact_family = "layer3_g4_promotion_records"
+producer_artifact_ref = "repo://architecture/policy_design_case/layer3_g4_promotion_records.json"
+semantic_loss_status = "no_loss_for_promotion_state_refs"
+verification_refs = ["repo://tests/unit/runtime/quality/test_layer3_g4_promotion_gate.py#test_adapter_contract_registry_records_semantic_bridge_details", "repo://tests/repo_quality/tools/test_policy_design_case_layer3_g4_readiness.py#test_layer3_g4_persisted_adapter_registry_and_throughput_are_semantic"]
+
+[[bridge_records]]
+authoritative_for = ["promotion_decision_replay", "governed_promotion_state_for_declared_scope", "closeout_pdc_compiler_g5_promotion_state_input_refs"]
+authority_purpose = "layer3_g4_governed_promotion_state"
+bridge_id = "layer3_g4_promotion_record_to_g5_handoff"
+conformance_negative_refs = ["g4-conformance-negative:promotion_record_claims_useful_design_credit"]
+consumer = "build_g4_g5_promotion_handoff"
+may_not_use_for = ["production_authority", "production_claim_authority", "rollout_authority", "publication_authority", "approval_authority", "scorecard_authority", "closeout_authority", "runtime_closeout_authority", "closeout_verdict", "claim_authority", "claim_authority_without_upstream_grounding", "source_data_truth_authority", "public_recommendation", "policy_recommendation", "useful_design_credit_before_g5", "causal_effect_authority_without_g2", "proof_authority_without_g3", "legal_authority_without_gl", "human_override_of_a_incompleteness"]
+producer_artifact_family = "layer3_g4_promotion_records"
+producer_artifact_ref = "repo://architecture/policy_design_case/layer3_g4_promotion_records.json"
+semantic_loss_status = "no_loss_for_promotion_state_refs"
+verification_refs = ["repo://tests/unit/runtime/quality/test_layer3_g4_promotion_gate.py#test_adapter_contract_registry_records_semantic_bridge_details", "repo://tests/repo_quality/tools/test_policy_design_case_layer3_g4_readiness.py#test_layer3_g4_persisted_adapter_registry_and_throughput_are_semantic"]
+
+[[bridge_records]]
+authoritative_for = ["promotion_decision_replay", "governed_promotion_state_for_declared_scope", "closeout_pdc_compiler_g5_promotion_state_input_refs"]
+authority_purpose = "layer3_g4_governed_promotion_state"
+bridge_id = "layer3_g4_promotion_record_to_public_projection_refs"
+conformance_negative_refs = ["g4-conformance-negative:public_projection_raw_payload_leak"]
+consumer = "build_g4_public_export_projection_refs"
+may_not_use_for = ["production_authority", "production_claim_authority", "rollout_authority", "publication_authority", "approval_authority", "scorecard_authority", "closeout_authority", "runtime_closeout_authority", "closeout_verdict", "claim_authority", "claim_authority_without_upstream_grounding", "source_data_truth_authority", "public_recommendation", "policy_recommendation", "useful_design_credit_before_g5", "causal_effect_authority_without_g2", "proof_authority_without_g3", "legal_authority_without_gl", "human_override_of_a_incompleteness"]
+producer_artifact_family = "layer3_g4_promotion_records"
+producer_artifact_ref = "repo://architecture/policy_design_case/layer3_g4_promotion_records.json"
+semantic_loss_status = "no_loss_for_promotion_state_refs"
+verification_refs = ["repo://tests/unit/runtime/quality/test_layer3_g4_promotion_gate.py#test_adapter_contract_registry_records_semantic_bridge_details", "repo://tests/repo_quality/tools/test_policy_design_case_layer3_g4_readiness.py#test_layer3_g4_persisted_adapter_registry_and_throughput_are_semantic"]

@@ -1,0 +1,129 @@
+{
+  "schema_version": "policyos.tests.layer3.g4.dependency_audit.v1",
+  "audit_id": "layer3-g4-task0-red-baseline-dependency-audit",
+  "plan_ref": "docs/plans/active/layer3-slices/G4-shadow-to-governed-promotion-gate.md#task-0---red-baseline-and-dependency-audit",
+  "pattern_ids": ["P01", "P02", "P03", "P05", "P10", "P15", "P26"],
+  "capability_state_before_g4": {
+    "d3_8_promotion_gate": [
+      "producer_missing",
+      "artifact_missing",
+      "bridge_missing",
+      "consumer_missing",
+      "surface_missing",
+      "semantic_test_missing"
+    ]
+  },
+  "hard_requirements_for_first_passing_promotion": [
+    {
+      "id": "g0_readiness_manifest",
+      "artifact_ref": "architecture/policy_design_case/layer3_g0_readiness_manifest.json",
+      "why": "Layer 3 discipline is a hard dependency before any G4 gate can promote."
+    },
+    {
+      "id": "g0_discovery_search_discipline",
+      "artifact_ref": "architecture/policy_design_case/layer3_discovery_search_discipline.json",
+      "why": "Search/discovery health is required so stale or frontier-only upstream evidence cannot promote."
+    },
+    {
+      "id": "g0_engineering_quality_check",
+      "artifact_ref": "architecture/policy_design_case/layer3_engineering_quality_check.json",
+      "why": "G4 must fail closed on unbounded scans, hardcoded refs, and request-path builder reruns."
+    },
+    {
+      "id": "layer3_health_metric_ledgers",
+      "artifact_ref": "architecture/policy_design_case/layer3_health_metric_ledgers.toml",
+      "why": "Governance-throughput and search-health deltas must remain replay-visible."
+    },
+    {
+      "id": "g1_readiness_manifest",
+      "artifact_ref": "architecture/policy_design_case/layer3_g1_readiness_manifest.json",
+      "why": "At least one G1 grounded source contract family must be ready."
+    },
+    {
+      "id": "g1_grounded_source_contract_rows",
+      "artifact_ref": "architecture/policy_design_case/layer3_g1_grounded_source_contracts.json",
+      "required_shape": "grounded_source_contracts.bindings",
+      "why": "Readiness summaries are not enough; the promoted claim must bind to actual G1 rows."
+    },
+    {
+      "id": "g1_adapter_admission_registry",
+      "artifact_ref": "architecture/policy_design_case/layer3_g1_adapter_admission_registry.json",
+      "why": "The source contract rows must come through admitted adapter paths."
+    },
+    {
+      "id": "g1_conformance_report",
+      "artifact_ref": "architecture/policy_design_case/layer3_g1_conformance_report.json",
+      "why": "G4 cannot promote grounded rows whose upstream conformance failed."
+    },
+    {
+      "id": "source_design_record_replay_ref_and_digest",
+      "artifact_ref": "explicit PromotionInputSet source payload or replayable S2/W12D/G2 S10 ref",
+      "why": "A shadow DesignRecordV0/B candidate must be replayable and digest-bound before promotion."
+    }
+  ],
+  "context_only_or_conditional_dependencies": [
+    {
+      "id": "g2_forecast_contract_families",
+      "artifact_refs": [
+        "architecture/policy_design_case/layer3_g2_grounded_forecast_handoffs.json",
+        "architecture/policy_design_case/layer3_g2_forecast_support_bindings.json",
+        "architecture/policy_design_case/layer3_g2_s10_prerequisite_bindings.json"
+      ],
+      "required_when": ["promotion_scope.requires_causal_or_forecast_authority"],
+      "why": "G2 is context-only for source/data-only promotion but hard for effect claims."
+    },
+    {
+      "id": "g3_proof_carrying_contract_families",
+      "artifact_refs": [
+        "architecture/policy_design_case/layer3_g3_proof_carrying_analytics_records.json",
+        "architecture/policy_design_case/layer3_g3_s11_predictive_posture_bindings.json"
+      ],
+      "required_when": ["promotion_scope.requires_proof_or_analytics_authority"],
+      "why": "G3 is context-only unless the promotion names proof/analytics claims."
+    },
+    {
+      "id": "gl_legal_mandate_contract_families",
+      "artifact_refs": [
+        "architecture/policy_design_case/layer3_gl_promotion_gate_handoff.json",
+        "architecture/policy_design_case/layer3_gl_legal_authority_report.json",
+        "architecture/policy_design_case/layer3_gl_temporal_competence_records.json",
+        "architecture/policy_design_case/layer3_gl_amendment_lineage_records.json",
+        "architecture/policy_design_case/layer3_gl_reference_resolution_records.json"
+      ],
+      "required_when": ["promotion_scope.requires_legal_or_mandate_authority"],
+      "why": "GL G4 compatibility is read-compatibility, not legal authority."
+    },
+    {
+      "id": "s7_human_decision_record",
+      "artifact_ref": "case-specific S7 HumanDecisionRecord payload",
+      "required_when": [
+        "promotion_scope.high_stakes",
+        "promotion_scope.value_laden",
+        "promotion_scope.accountability_sensitive",
+        "promotion_scope.out_of_routine"
+      ],
+      "why": "S7 manifest pass is health only; high-stakes promotion requires a case-specific record."
+    },
+    {
+      "id": "w12d_full_report_payload",
+      "artifact_ref": "materialized W12D report payload, not wave12d command manifest",
+      "required_when": ["used_as_source_design_record_or_s7_replay_fixture"],
+      "why": "The committed W12D command manifest cannot satisfy source payload or human-decision evidence."
+    }
+  ],
+  "non_input_naming_collisions": [
+    {
+      "id": "runtime_http_promotion_lane",
+      "refs": [
+        "src/polisyos/runtime/http/routes/control.py#/data/promotion",
+        "src/polisyos/fabric/retrieval/service.py#PromotionLane"
+      ],
+      "why": "Data source-binding promotion is not Layer 3 G4 governed promotion."
+    },
+    {
+      "id": "generated_artifact_promotion_target",
+      "refs": ["architecture/generated_artifacts.toml#promotion_target"],
+      "why": "Generated-artifact lifecycle promotion_target is not G4 promotion_state."
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "schema_version": "policyos.tests.layer3.g4.fixture.v1",
+  "fixture_id": "layer3-g4-runtime-http-promotion-lane-collision",
+  "description": "Runtime HTTP PromotionLane is data source-binding promotion, not G4 governed promotion.",
+  "pattern_ids": ["P05", "P06", "P10"],
+  "capability_labels": ["semantic_test_missing"],
+  "payload": {
+    "schema_version": "policyos.policy_design_case.layer3_g4_promotion_gate.v1",
+    "rule_version": "policyos.layer3.g4.shadow_to_governed_promotion.v1",
+    "promotion_requests": [
+      {
+        "request_id": "g4-request:http-promotion-lane-collision",
+        "case_id": "ua-msme-affordable-loans-2022",
+        "candidate_ref": "runtime-http://api/v1/control/data/promotion/candidates/ua-msme",
+        "candidate_source": "runtime_http_promotion_lane",
+        "incoming_projection_status": "data_source_binding_candidate",
+        "promotion_mechanism_ref": "POST /api/v1/control/data/promotion/{promotion_id}/approve",
+        "promotion_scope": {
+          "authority_purpose": "layer3_g4_governed_promotion_state",
+          "claim_families": ["source_data"],
+          "high_stakes": false
+        },
+        "claim_refs": ["claim://ua-msme/http-promotion-lane-confused"],
+        "envelope_ref": "envelope://ua-msme/http-promotion-lane",
+        "required_contract_families": ["g1_source_contract"]
+      }
+    ]
+  },
+  "expected_issue_codes": ["layer3_g4_data_promotion_lane_confused"]
+}

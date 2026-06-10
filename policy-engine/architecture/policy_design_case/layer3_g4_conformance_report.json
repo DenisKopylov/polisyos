@@ -1,0 +1,900 @@
+{
+  "issue_codes": [],
+  "negative_ids": [
+    "shadow_design_record_self_promotes",
+    "promotion_without_g1_grounded_source_contract",
+    "source_design_record_resolution_unresolved",
+    "source_design_record_digest_missing",
+    "dependency_artifact_shape_mismatch",
+    "effect_claim_without_g2_forecast_support",
+    "proof_claim_without_g3_proof_record",
+    "legal_claim_without_gl_legal_authority",
+    "missing_a_firewall_ref_promoted",
+    "gl_reissue_required_promoted",
+    "gl_g4_compatibility_gate_overclaimed_as_legal_authority",
+    "readiness_summary_only_promoted",
+    "search_ledger_only_promoted",
+    "s7_manifest_only_promoted",
+    "s2_ledger_ref_only_human_decision",
+    "w12d_manifest_only_source_payload",
+    "source_design_record_ref_only_promoted",
+    "data_promotion_lane_reused_for_g4",
+    "generated_artifact_promotion_target_reused_for_g4",
+    "upstream_builder_rerun_in_request_path",
+    "upstream_may_not_use_for_ignored",
+    "weakest_boundary_ignored",
+    "human_decision_missing_for_high_stakes",
+    "high_stakes_human_decision_not_required_bypass",
+    "human_decision_scope_mismatch",
+    "human_decision_overrides_a_incompleteness",
+    "promotion_record_claims_closeout",
+    "promotion_record_rewrites_closeout_reader",
+    "promotion_record_claims_pdc_compile_authority",
+    "promotion_record_rewrites_pdc_compiler",
+    "promotion_record_claims_production",
+    "promotion_record_claims_publication",
+    "promotion_record_claims_approval",
+    "promotion_record_claims_scorecard",
+    "promotion_record_claims_useful_design_credit",
+    "promotion_record_incomplete_may_not_use_for",
+    "public_projection_raw_payload_leak",
+    "public_export_hook_overclaimed",
+    "policy_design_case_projection_authority_leak",
+    "manifest_runtime_drift",
+    "promotion_state_vocab_drops_shadow",
+    "promotion_gate_admission_without_conformance"
+  ],
+  "negative_results": [
+    {
+      "capability_labels": [
+        "consumer_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_shadow_self_promotion"
+      ],
+      "fixture_ref": "g4-conformance-negative:shadow_design_record_self_promotes",
+      "negative_id": "shadow_design_record_self_promotes",
+      "observed_issue_codes": [
+        "layer3_g4_shadow_self_promotion"
+      ],
+      "pattern_ids": [
+        "P01",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_grounded_contract_ref_missing",
+        "layer3_g4_missing_g1_grounded_source_contract"
+      ],
+      "fixture_ref": "g4-conformance-negative:promotion_without_g1_grounded_source_contract",
+      "negative_id": "promotion_without_g1_grounded_source_contract",
+      "observed_issue_codes": [
+        "layer3_g4_grounded_contract_ref_missing",
+        "layer3_g4_missing_g1_grounded_source_contract",
+        "layer3_g4_a_completeness_failed"
+      ],
+      "pattern_ids": [
+        "P01",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "consumer_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_source_design_record_unresolved"
+      ],
+      "fixture_ref": "g4-conformance-negative:source_design_record_resolution_unresolved",
+      "negative_id": "source_design_record_resolution_unresolved",
+      "observed_issue_codes": [
+        "layer3_g4_source_design_record_unresolved"
+      ],
+      "pattern_ids": [
+        "P01",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "consumer_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_source_design_record_digest_missing"
+      ],
+      "fixture_ref": "g4-conformance-negative:source_design_record_digest_missing",
+      "negative_id": "source_design_record_digest_missing",
+      "observed_issue_codes": [
+        "layer3_g4_source_design_record_digest_missing",
+        "layer3_g4_grounded_contract_ref_missing"
+      ],
+      "pattern_ids": [
+        "P01",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "artifact_missing",
+        "verification_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_dependency_artifact_shape_mismatch"
+      ],
+      "fixture_ref": "g4-conformance-negative:dependency_artifact_shape_mismatch",
+      "negative_id": "dependency_artifact_shape_mismatch",
+      "observed_issue_codes": [
+        "layer3_g4_dependency_artifact_shape_mismatch"
+      ],
+      "pattern_ids": [
+        "P01",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_missing_g2_forecast_support"
+      ],
+      "fixture_ref": "g4-conformance-negative:effect_claim_without_g2_forecast_support",
+      "negative_id": "effect_claim_without_g2_forecast_support",
+      "observed_issue_codes": [
+        "layer3_g4_missing_g2_forecast_support",
+        "layer3_g4_missing_g2_calibration_ref",
+        "layer3_g4_a_completeness_failed"
+      ],
+      "pattern_ids": [
+        "P01",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "consumer_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_missing_g3_proof_record"
+      ],
+      "fixture_ref": "g4-conformance-negative:proof_claim_without_g3_proof_record",
+      "negative_id": "proof_claim_without_g3_proof_record",
+      "observed_issue_codes": [
+        "layer3_g4_missing_g3_proof_record",
+        "layer3_g4_missing_g3_certificate_resolution",
+        "layer3_g4_a_completeness_failed"
+      ],
+      "pattern_ids": [
+        "P01",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_missing_gl_legal_authority"
+      ],
+      "fixture_ref": "g4-conformance-negative:legal_claim_without_gl_legal_authority",
+      "negative_id": "legal_claim_without_gl_legal_authority",
+      "observed_issue_codes": [
+        "layer3_g4_missing_gl_legal_authority",
+        "layer3_g4_a_completeness_failed"
+      ],
+      "pattern_ids": [
+        "P05",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_missing_a_firewall_ref"
+      ],
+      "fixture_ref": "g4-conformance-negative:missing_a_firewall_ref_promoted",
+      "negative_id": "missing_a_firewall_ref_promoted",
+      "observed_issue_codes": [
+        "layer3_g4_missing_a_firewall_ref",
+        "layer3_g4_a_completeness_failed"
+      ],
+      "pattern_ids": [
+        "P01",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_gl_reissue_required_blocks_promotion"
+      ],
+      "fixture_ref": "g4-conformance-negative:gl_reissue_required_promoted",
+      "negative_id": "gl_reissue_required_promoted",
+      "observed_issue_codes": [
+        "layer3_g4_adapter_admission_missing",
+        "layer3_g4_adapter_conformance_missing",
+        "layer3_g4_gl_reissue_required_blocks_promotion",
+        "layer3_g4_gl_reference_resolution_blocks_promotion",
+        "layer3_g4_a_completeness_failed"
+      ],
+      "pattern_ids": [
+        "P01",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "consumer_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_gl_compatibility_gate_overclaimed"
+      ],
+      "fixture_ref": "g4-conformance-negative:gl_g4_compatibility_gate_overclaimed_as_legal_authority",
+      "negative_id": "gl_g4_compatibility_gate_overclaimed_as_legal_authority",
+      "observed_issue_codes": [
+        "layer3_g4_gl_compatibility_gate_overclaimed",
+        "layer3_g4_missing_gl_legal_authority",
+        "layer3_g4_a_completeness_failed"
+      ],
+      "pattern_ids": [
+        "P05",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_readiness_summary_only_promotion"
+      ],
+      "fixture_ref": "g4-conformance-negative:readiness_summary_only_promoted",
+      "negative_id": "readiness_summary_only_promoted",
+      "observed_issue_codes": [
+        "layer3_g4_grounded_contract_ref_missing",
+        "layer3_g4_missing_g1_grounded_source_contract",
+        "layer3_g4_a_completeness_failed",
+        "layer3_g4_readiness_summary_only_promotion"
+      ],
+      "pattern_ids": [
+        "P01",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_search_ledger_only_promotion"
+      ],
+      "fixture_ref": "g4-conformance-negative:search_ledger_only_promoted",
+      "negative_id": "search_ledger_only_promoted",
+      "observed_issue_codes": [
+        "layer3_g4_grounded_contract_ref_missing",
+        "layer3_g4_missing_g1_grounded_source_contract",
+        "layer3_g4_a_completeness_failed",
+        "layer3_g4_search_ledger_only_promotion"
+      ],
+      "pattern_ids": [
+        "P25",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "artifact_missing",
+        "verification_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_s7_manifest_only_human_decision"
+      ],
+      "fixture_ref": "g4-conformance-negative:s7_manifest_only_promoted",
+      "negative_id": "s7_manifest_only_promoted",
+      "observed_issue_codes": [
+        "layer3_g4_human_decision_required",
+        "layer3_g4_human_decision_record_missing",
+        "layer3_g4_s7_manifest_only_human_decision"
+      ],
+      "pattern_ids": [
+        "P26",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_s2_ledger_ref_only_human_decision"
+      ],
+      "fixture_ref": "g4-conformance-negative:s2_ledger_ref_only_human_decision",
+      "negative_id": "s2_ledger_ref_only_human_decision",
+      "observed_issue_codes": [
+        "layer3_g4_human_decision_required",
+        "layer3_g4_human_decision_record_missing",
+        "layer3_g4_s2_ledger_ref_only_human_decision"
+      ],
+      "pattern_ids": [
+        "P26",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "artifact_missing",
+        "verification_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_w12d_manifest_only_not_payload"
+      ],
+      "fixture_ref": "g4-conformance-negative:w12d_manifest_only_source_payload",
+      "negative_id": "w12d_manifest_only_source_payload",
+      "observed_issue_codes": [
+        "layer3_g4_w12d_manifest_only_not_payload"
+      ],
+      "pattern_ids": [
+        "P07",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "consumer_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_source_design_record_payload_ref_only"
+      ],
+      "fixture_ref": "g4-conformance-negative:source_design_record_ref_only_promoted",
+      "negative_id": "source_design_record_ref_only_promoted",
+      "observed_issue_codes": [
+        "layer3_g4_source_design_record_payload_ref_only"
+      ],
+      "pattern_ids": [
+        "P01",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_data_promotion_lane_confused"
+      ],
+      "fixture_ref": "g4-conformance-negative:data_promotion_lane_reused_for_g4",
+      "negative_id": "data_promotion_lane_reused_for_g4",
+      "observed_issue_codes": [
+        "layer3_g4_data_promotion_lane_confused"
+      ],
+      "pattern_ids": [
+        "P01",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "artifact_missing",
+        "verification_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_generated_artifact_promotion_target_confused"
+      ],
+      "fixture_ref": "g4-conformance-negative:generated_artifact_promotion_target_reused_for_g4",
+      "negative_id": "generated_artifact_promotion_target_reused_for_g4",
+      "observed_issue_codes": [
+        "layer3_g4_generated_artifact_promotion_target_confused"
+      ],
+      "pattern_ids": [
+        "P01",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_upstream_builder_rerun_in_request_path"
+      ],
+      "fixture_ref": "g4-conformance-negative:upstream_builder_rerun_in_request_path",
+      "negative_id": "upstream_builder_rerun_in_request_path",
+      "observed_issue_codes": [
+        "layer3_g4_upstream_builder_rerun_in_request_path"
+      ],
+      "pattern_ids": [
+        "P01",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_upstream_may_not_use_for_ignored"
+      ],
+      "fixture_ref": "g4-conformance-negative:upstream_may_not_use_for_ignored",
+      "negative_id": "upstream_may_not_use_for_ignored",
+      "observed_issue_codes": [
+        "layer3_g4_upstream_may_not_use_for_ignored",
+        "layer3_g4_a_completeness_failed"
+      ],
+      "pattern_ids": [
+        "P01",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_weakest_boundary_ignored"
+      ],
+      "fixture_ref": "g4-conformance-negative:weakest_boundary_ignored",
+      "negative_id": "weakest_boundary_ignored",
+      "observed_issue_codes": [
+        "layer3_g4_weakest_boundary_ignored"
+      ],
+      "pattern_ids": [
+        "P01",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_human_decision_required",
+        "layer3_g4_human_decision_record_missing"
+      ],
+      "fixture_ref": "g4-conformance-negative:human_decision_missing_for_high_stakes",
+      "negative_id": "human_decision_missing_for_high_stakes",
+      "observed_issue_codes": [
+        "layer3_g4_human_decision_required",
+        "layer3_g4_human_decision_record_missing"
+      ],
+      "pattern_ids": [
+        "P26",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_high_stakes_human_decision_not_required_bypass"
+      ],
+      "fixture_ref": "g4-conformance-negative:high_stakes_human_decision_not_required_bypass",
+      "negative_id": "high_stakes_human_decision_not_required_bypass",
+      "observed_issue_codes": [
+        "layer3_g4_high_stakes_human_decision_not_required_bypass",
+        "layer3_g4_human_decision_required",
+        "layer3_g4_human_decision_record_missing"
+      ],
+      "pattern_ids": [
+        "P26",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_human_decision_scope_mismatch"
+      ],
+      "fixture_ref": "g4-conformance-negative:human_decision_scope_mismatch",
+      "negative_id": "human_decision_scope_mismatch",
+      "observed_issue_codes": [
+        "layer3_g4_human_decision_scope_mismatch",
+        "layer3_g4_human_decision_required",
+        "layer3_g4_human_decision_record_missing"
+      ],
+      "pattern_ids": [
+        "P26",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_human_decision_overrides_a_incompleteness"
+      ],
+      "fixture_ref": "g4-conformance-negative:human_decision_overrides_a_incompleteness",
+      "negative_id": "human_decision_overrides_a_incompleteness",
+      "observed_issue_codes": [
+        "layer3_g4_grounded_contract_ref_missing",
+        "layer3_g4_missing_g1_grounded_source_contract",
+        "layer3_g4_a_completeness_failed",
+        "layer3_g4_human_decision_overrides_a_incompleteness"
+      ],
+      "pattern_ids": [
+        "P26",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "consumer_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_closeout_authority_leak"
+      ],
+      "fixture_ref": "g4-conformance-negative:promotion_record_claims_closeout",
+      "negative_id": "promotion_record_claims_closeout",
+      "observed_issue_codes": [
+        "layer3_g4_closeout_authority_leak"
+      ],
+      "pattern_ids": [
+        "P05",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "consumer_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_closeout_reader_rewrite_attempt"
+      ],
+      "fixture_ref": "g4-conformance-negative:promotion_record_rewrites_closeout_reader",
+      "negative_id": "promotion_record_rewrites_closeout_reader",
+      "observed_issue_codes": [
+        "layer3_g4_closeout_reader_rewrite_attempt"
+      ],
+      "pattern_ids": [
+        "P05",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "consumer_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_pdc_compile_authority_leak"
+      ],
+      "fixture_ref": "g4-conformance-negative:promotion_record_claims_pdc_compile_authority",
+      "negative_id": "promotion_record_claims_pdc_compile_authority",
+      "observed_issue_codes": [
+        "layer3_g4_pdc_compile_authority_leak"
+      ],
+      "pattern_ids": [
+        "P05",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "consumer_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_pdc_compiler_graph_rewrite_attempt"
+      ],
+      "fixture_ref": "g4-conformance-negative:promotion_record_rewrites_pdc_compiler",
+      "negative_id": "promotion_record_rewrites_pdc_compiler",
+      "observed_issue_codes": [
+        "layer3_g4_pdc_compiler_graph_rewrite_attempt"
+      ],
+      "pattern_ids": [
+        "P01",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "consumer_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_production_authority_leak"
+      ],
+      "fixture_ref": "g4-conformance-negative:promotion_record_claims_production",
+      "negative_id": "promotion_record_claims_production",
+      "observed_issue_codes": [
+        "layer3_g4_production_authority_leak"
+      ],
+      "pattern_ids": [
+        "P05",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "surface_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_publication_authority_leak"
+      ],
+      "fixture_ref": "g4-conformance-negative:promotion_record_claims_publication",
+      "negative_id": "promotion_record_claims_publication",
+      "observed_issue_codes": [
+        "layer3_g4_publication_authority_leak"
+      ],
+      "pattern_ids": [
+        "P05",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "consumer_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_approval_authority_leak"
+      ],
+      "fixture_ref": "g4-conformance-negative:promotion_record_claims_approval",
+      "negative_id": "promotion_record_claims_approval",
+      "observed_issue_codes": [
+        "layer3_g4_approval_authority_leak"
+      ],
+      "pattern_ids": [
+        "P05",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "consumer_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_scorecard_authority_leak"
+      ],
+      "fixture_ref": "g4-conformance-negative:promotion_record_claims_scorecard",
+      "negative_id": "promotion_record_claims_scorecard",
+      "observed_issue_codes": [
+        "layer3_g4_scorecard_authority_leak"
+      ],
+      "pattern_ids": [
+        "P05",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "consumer_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_useful_design_credit_leak"
+      ],
+      "fixture_ref": "g4-conformance-negative:promotion_record_claims_useful_design_credit",
+      "negative_id": "promotion_record_claims_useful_design_credit",
+      "observed_issue_codes": [
+        "layer3_g4_useful_design_credit_leak"
+      ],
+      "pattern_ids": [
+        "P01",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "consumer_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_may_not_use_for_incomplete"
+      ],
+      "fixture_ref": "g4-conformance-negative:promotion_record_incomplete_may_not_use_for",
+      "negative_id": "promotion_record_incomplete_may_not_use_for",
+      "observed_issue_codes": [
+        "layer3_g4_may_not_use_for_incomplete"
+      ],
+      "pattern_ids": [
+        "P01",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "surface_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_public_raw_payload_leak"
+      ],
+      "fixture_ref": "g4-conformance-negative:public_projection_raw_payload_leak",
+      "negative_id": "public_projection_raw_payload_leak",
+      "observed_issue_codes": [
+        "layer3_g4_public_raw_payload_leak"
+      ],
+      "pattern_ids": [
+        "P05",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "surface_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_public_export_hook_overclaimed"
+      ],
+      "fixture_ref": "g4-conformance-negative:public_export_hook_overclaimed",
+      "negative_id": "public_export_hook_overclaimed",
+      "observed_issue_codes": [
+        "layer3_g4_public_export_hook_overclaimed"
+      ],
+      "pattern_ids": [
+        "P05",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_policy_projection_authority_leak"
+      ],
+      "fixture_ref": "g4-conformance-negative:policy_design_case_projection_authority_leak",
+      "negative_id": "policy_design_case_projection_authority_leak",
+      "observed_issue_codes": [
+        "layer3_g4_policy_projection_authority_leak"
+      ],
+      "pattern_ids": [
+        "P05",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "artifact_missing",
+        "verification_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_manifest_runtime_drift"
+      ],
+      "fixture_ref": "g4-conformance-negative:manifest_runtime_drift",
+      "negative_id": "manifest_runtime_drift",
+      "observed_issue_codes": [
+        "layer3_g4_manifest_runtime_drift"
+      ],
+      "pattern_ids": [
+        "P07",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_shared_promotion_state_vocabulary_dropped_shadow"
+      ],
+      "fixture_ref": "g4-conformance-negative:promotion_state_vocab_drops_shadow",
+      "negative_id": "promotion_state_vocab_drops_shadow",
+      "observed_issue_codes": [
+        "layer3_g4_shared_promotion_state_vocabulary_dropped_shadow"
+      ],
+      "pattern_ids": [
+        "P01",
+        "P10"
+      ],
+      "status": "pass"
+    },
+    {
+      "capability_labels": [
+        "consumer_missing",
+        "semantic_test_missing"
+      ],
+      "expected_issue_codes": [
+        "layer3_g4_promotion_gate_admission_without_conformance"
+      ],
+      "fixture_ref": "g4-conformance-negative:promotion_gate_admission_without_conformance",
+      "negative_id": "promotion_gate_admission_without_conformance",
+      "observed_issue_codes": [
+        "layer3_g4_promotion_gate_admission_without_conformance"
+      ],
+      "pattern_ids": [
+        "P01",
+        "P10"
+      ],
+      "status": "pass"
+    }
+  ],
+  "performance_contract": {
+    "bounded_artifact_path_count": 24,
+    "bounded_artifact_resolution_status": "pass",
+    "checked_source_refs": [
+      "src/polisyos/runtime/quality/layer3_promotion_gate.py",
+      "tools/quality/validation/check_policy_design_case_layer3_g4_readiness.py"
+    ],
+    "declared_family_count": 4,
+    "domain_corpus_duckdb_scan_status": "pass",
+    "issue_codes": [],
+    "json_artifact_load_scope_status": "pass",
+    "mutable_global_cache_status": "pass",
+    "recursive_repo_scan_status": "pass",
+    "status": "pass",
+    "upstream_builder_rerun_status": "pass"
+  },
+  "status": "pass"
+}

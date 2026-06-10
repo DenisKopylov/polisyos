@@ -1,0 +1,37 @@
+{
+  "authoritative_for": [
+    "pdc_graph_assembly_promotion_state_input_refs"
+  ],
+  "compiler_graph_rewrite_attempted": false,
+  "issue_codes": [],
+  "may_not_use_for": [
+    "production_authority",
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "closeout_verdict",
+    "claim_authority",
+    "claim_authority_without_upstream_grounding",
+    "source_data_truth_authority",
+    "public_recommendation",
+    "policy_recommendation",
+    "useful_design_credit_before_g5",
+    "causal_effect_authority_without_g2",
+    "proof_authority_without_g3",
+    "legal_authority_without_gl",
+    "human_override_of_a_incompleteness"
+  ],
+  "promotion_record_refs": [
+    "g4-promotion-record:g4-request:ua-msme-source-only-valid",
+    "g4-promotion-record:g4-request:blocked-effect"
+  ],
+  "promotion_state_input_refs": [
+    "g4-promotion-record:g4-request:ua-msme-source-only-valid",
+    "g4-promotion-record:g4-request:blocked-effect"
+  ],
+  "status": "pass"
+}

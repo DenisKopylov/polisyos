@@ -1,0 +1,16 @@
+{
+  "admitted_count": 1,
+  "block_reason_counts": {
+    "hard_a_incompleteness": 1
+  },
+  "blocked_count": 1,
+  "human_review_routed_count": 0,
+  "stall_reason_counts": {
+    "human_decision_stall": 0,
+    "legal_reissue_stall": 0,
+    "search_health_stall": 0,
+    "stale_index_stall": 0
+  },
+  "stalled_count": 0,
+  "status": "pass"
+}

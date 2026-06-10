@@ -1,0 +1,120 @@
+{
+  "grounded_contract_refs": [
+    {
+      "a_firewall_refs": [],
+      "adapter_admission_refs": [
+        "repo://architecture/policy_design_case/layer3_g1_adapter_admission_registry.json#g1"
+      ],
+      "adapter_admission_status": "pass",
+      "adapter_conformance_status": "pass",
+      "amendment_lineage_status": null,
+      "authoritative_for": [
+        "layer3_g1_construct_grounding_audit"
+      ],
+      "calibration_refs": [],
+      "certificate_resolution_refs": [],
+      "conformance_refs": [
+        "repo://architecture/policy_design_case/layer3_g1_conformance_report.json#g1"
+      ],
+      "coverage_refs": [
+        "coverage-period://ua-msme/2022-02-open"
+      ],
+      "family": "g1_source_contract",
+      "forecast_support_binding_ref": null,
+      "freshness_refs": [
+        "freshness://ukraine_server_support_20260410"
+      ],
+      "g4_compatibility_ref": null,
+      "grounded_forecast_handoff_ref": null,
+      "index_freshness_status": null,
+      "issue_codes": [],
+      "legal_authority_refs": [],
+      "limitation_refs": [],
+      "lineage_refs": [
+        "repo://production_data/ua-msme/source-contract.json"
+      ],
+      "mandate_refs": [],
+      "may_not_use_for": [
+        "claim_authority",
+        "production_authority"
+      ],
+      "method_requirement_refs": [],
+      "method_validity_refs": [],
+      "proof_ref": null,
+      "ref": "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json#bindings/firm_survival",
+      "reference_resolution_status": null,
+      "s10_prerequisite_refs": [],
+      "s11_predictive_posture_refs": [],
+      "s12_resource_economics_refs": [],
+      "s13_accountability_learning_refs": [],
+      "s6_mandate_refs": [],
+      "s8_value_choice_refs": [],
+      "search_recall_status": null,
+      "source_binding_ref": "g1-binding:firm-survival",
+      "temporal_competence_refs": [],
+      "threshold_refs": [],
+      "transport_limitation_refs": [],
+      "uncertainty_refs": []
+    },
+    {
+      "a_firewall_refs": [],
+      "adapter_admission_refs": [
+        "repo://architecture/policy_design_case/layer3_g1_adapter_admission_registry.json#g1"
+      ],
+      "adapter_admission_status": "pass",
+      "adapter_conformance_status": "pass",
+      "amendment_lineage_status": null,
+      "authoritative_for": [
+        "layer3_g1_construct_grounding_audit"
+      ],
+      "calibration_refs": [],
+      "certificate_resolution_refs": [],
+      "conformance_refs": [
+        "repo://architecture/policy_design_case/layer3_g1_conformance_report.json#g1"
+      ],
+      "coverage_refs": [
+        "coverage-period://ua-msme/2022-02-open"
+      ],
+      "family": "g1_source_contract",
+      "forecast_support_binding_ref": null,
+      "freshness_refs": [
+        "freshness://ukraine_server_support_20260410"
+      ],
+      "g4_compatibility_ref": null,
+      "grounded_forecast_handoff_ref": null,
+      "index_freshness_status": null,
+      "issue_codes": [],
+      "legal_authority_refs": [],
+      "limitation_refs": [],
+      "lineage_refs": [
+        "repo://production_data/ua-msme/source-contract.json"
+      ],
+      "mandate_refs": [],
+      "may_not_use_for": [
+        "claim_authority",
+        "production_authority"
+      ],
+      "method_requirement_refs": [],
+      "method_validity_refs": [],
+      "proof_ref": null,
+      "ref": "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json#bindings/firm_survival",
+      "reference_resolution_status": null,
+      "s10_prerequisite_refs": [],
+      "s11_predictive_posture_refs": [],
+      "s12_resource_economics_refs": [],
+      "s13_accountability_learning_refs": [],
+      "s6_mandate_refs": [],
+      "s8_value_choice_refs": [],
+      "search_recall_status": null,
+      "source_binding_ref": "g1-binding:firm-survival",
+      "temporal_competence_refs": [],
+      "threshold_refs": [],
+      "transport_limitation_refs": [],
+      "uncertainty_refs": []
+    }
+  ],
+  "issue_codes": [],
+  "rule_version": "policyos.layer3.g4.shadow_to_governed_promotion.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g4_promotion_gate.v1",
+  "status": "pass"
+}

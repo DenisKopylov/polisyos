@@ -1,0 +1,56 @@
+{
+  "audit_id": "layer3-g6://orchestration-choice-audit/req-layer3-g6-readiness",
+  "authoritative_for": [
+    "layer3_g6_agent_orchestration_audit",
+    "layer3_g6_g5_routing_decision",
+    "layer3_g6_demand_pull_vs_abstention_reading"
+  ],
+  "budget_cutoff_reason": "single_g5_route_budget",
+  "counterexample_probe_refs": [
+    "candidate://g6/req-layer3-g6-readiness/counterexample/legal-authority"
+  ],
+  "framing_choices": [
+    "frame_as_g5_route_not_policy_recommendation"
+  ],
+  "hypothesis_ledger_ref": "layer3-g6://hypothesis-ledger/layer3-g6-run:req-layer3-g6-readiness",
+  "issue_codes": [],
+  "may_not_use_for": [
+    "production_authority",
+    "rollout_authority",
+    "publication_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "public_recommendation",
+    "policy_recommendation",
+    "legal_advice",
+    "claim_authority",
+    "obligation_authority",
+    "causal_effect_authority",
+    "proof_authority",
+    "legal_authority",
+    "g5_conversion_authority_without_g5",
+    "g7_region_widening"
+  ],
+  "prompt_tool_ledger_ref": "layer3-g6://prompt-tool-ledger/layer3-g6-run:req-layer3-g6-readiness",
+  "rejected_branch_refs": [
+    "candidate://g6/req-layer3-g6-readiness/rejected/legal-advice-answer"
+  ],
+  "rejected_tool_names": [
+    "unbounded_web_search"
+  ],
+  "replay_fingerprint": "sha256:738af285f1f1183255c14f88dd5042d58d0a6dfb04232a2f13f7784926dc75dc",
+  "replayable": true,
+  "request_id": "req-layer3-g6-readiness",
+  "selected_evidence_refs": [
+    "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json",
+    "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
+    "repo://architecture/policy_design_case/layer3_g5_w12d_consumer_gate.json"
+  ],
+  "selected_tool_names": [
+    "layer3_g6_build_g5_bundle"
+  ],
+  "status": "pass",
+  "tool_contract_summary_ref": "layer3-g6-tool-contract-summary:default"
+}

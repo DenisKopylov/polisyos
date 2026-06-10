@@ -31,6 +31,9 @@ governance, and publishes replayable decision artifacts across the `ir`,
 - Search/discovery/research DAG canonical imports in [`methods/`](methods/): legacy `search`, `discovery`, and `research_dag` packages are compatibility shims
 - Governance helpers in [`governance/preflight.py`](governance/preflight.py) and [`governance/postflight.py`](governance/postflight.py): pre/post-flight validation surfaces
 - Governance pass discovery via `load_governance_passes()` and `build_governance_pipeline()` in [`api.py`](api.py): explicit `polisyos.scientist_governance_passes` extension path with builtin fallbacks
+- Bounded agent adapter support via the root facade: `ToolRegistry`,
+  `ToolDefinition`, `run_tool_loop`, `ToolLoopResult`,
+  `create_traced_gateway_client`, and tool-contract summary helpers
 - Governance lifecycle hubs in [`governance/continuous/`](governance/continuous/) and [`governance/human_review/`](governance/human_review/): post-publication validity, reissue, withdrawal, and human oversight
 - Validation hubs in [`validation/decision_validity.py`](validation/decision_validity.py), [`validation/policy_verified/`](validation/policy_verified/), and [`validation/verification/`](validation/verification/): decision lifecycle validation, verified-policy models/services, and proof-carrying verification
 - `builtin_nodes()` and `discover_scientist_nodes()` in [`nodes/__init__.py`](nodes/__init__.py): builtin node inventory and explicit `polisyos.scientist_nodes` component discovery
@@ -123,4 +126,4 @@ Run node and workflow tests together when state aliases or DAG routing change.
 
 ## Last Updated
 
-- Last updated: 2026-05-06
+- Last updated: 2026-06-10

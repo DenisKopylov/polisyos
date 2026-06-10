@@ -1,0 +1,61 @@
+{
+  "allowed_tool_names": [
+    "layer3_g6_classify_request",
+    "layer3_g6_build_g5_bundle",
+    "layer3_g6_read_g5_conversion",
+    "layer3_g6_probe_counterexample",
+    "layer3_g6_probe_envelope_match"
+  ],
+  "authoritative_for": [
+    "layer3_g6_agent_orchestration_audit",
+    "layer3_g6_g5_routing_decision",
+    "layer3_g6_demand_pull_vs_abstention_reading"
+  ],
+  "blocker_codes": [],
+  "issue_codes": [],
+  "may_not_use_for": [
+    "production_authority",
+    "rollout_authority",
+    "publication_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "public_recommendation",
+    "policy_recommendation",
+    "legal_advice",
+    "claim_authority",
+    "obligation_authority",
+    "causal_effect_authority",
+    "proof_authority",
+    "legal_authority",
+    "g5_conversion_authority_without_g5",
+    "g7_region_widening"
+  ],
+  "observed_tool_names": [
+    "layer3_g6_classify_request",
+    "layer3_g6_build_g5_bundle",
+    "layer3_g6_read_g5_conversion",
+    "layer3_g6_probe_counterexample",
+    "layer3_g6_probe_envelope_match"
+  ],
+  "status": "pass",
+  "summary_id": "layer3-g6-tool-contract-summary:default",
+  "tool_contract_summary": {
+    "error_types": [
+      "unknown_tool",
+      "invalid_arguments",
+      "timeout",
+      "handler_error",
+      "circuit_breaker_open"
+    ],
+    "invalid_tool_count": 0,
+    "issues": [],
+    "response_cap_max_chars": 120000,
+    "runtime_caps_ready": true,
+    "schema_ready": true,
+    "schema_version": "1.0",
+    "structured_error_taxonomy_ready": true,
+    "tool_count": 5
+  }
+}

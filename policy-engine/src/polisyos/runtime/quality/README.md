@@ -28,5 +28,12 @@ Boundary notes:
   conversion resolver. It reads bounded Layer 3 persisted artifacts and G4
   handoff records to classify conversion inputs without rerunning upstream
   builders or widening authority.
+- `layer3_bounded_agent.py` is the G6 bounded arbitrary-request adapter. It
+  consumes policy-grammar projections, runs an allowlisted tool loop, bridges
+  same-class requests to G5, and emits replay/continuity audit surfaces for a
+  grounded result or abstention without claiming policy authority.
+- `runtime.quality` does not eagerly export G0, G5, or G6 modules. Import these
+  internal audit producers by canonical module path when a validator or
+  reference workflow needs them.
 - Public experimental exports must be reflected in the public-surface
   inventory and release fragments before release promotion.

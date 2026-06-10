@@ -1,0 +1,828 @@
+{
+  "agent_run_records": [
+    {
+      "authoritative_for": [
+        "layer3_g6_agent_orchestration_audit",
+        "layer3_g6_g5_routing_decision",
+        "layer3_g6_demand_pull_vs_abstention_reading"
+      ],
+      "engineering_readiness_status": "pass",
+      "envelope_match_status": "same_class_as_g5_pinned_case",
+      "g5_conversion_outcome": "unchanged_blocker",
+      "g5_invocation_plan": {
+        "authoritative_for": [
+          "layer3_g6_agent_orchestration_audit",
+          "layer3_g6_g5_routing_decision",
+          "layer3_g6_demand_pull_vs_abstention_reading"
+        ],
+        "demand_signal_refs": [],
+        "envelope_match_status": "same_class_as_g5_pinned_case",
+        "g5_bundle_ref": "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json",
+        "g5_bypass_detected": false,
+        "g5_case_id": "ua-msme-affordable-loans-2022",
+        "g5_conversion_outcome": "unchanged_blocker",
+        "g5_conversion_record_ref": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
+        "g5_grounding_disposition": "ungrounded_blocked",
+        "g5_w12d_consumer_gate_ref": "repo://architecture/policy_design_case/layer3_g5_w12d_consumer_gate.json",
+        "g5_w12d_consumer_gate_status": "pass",
+        "invocation_plan_id": "layer3-g6://g5-invocation-plan/req-layer3-g6-readiness",
+        "issue_codes": [],
+        "may_not_use_for": [
+          "production_authority",
+          "rollout_authority",
+          "publication_authority",
+          "approval_authority",
+          "scorecard_authority",
+          "closeout_authority",
+          "runtime_closeout_authority",
+          "public_recommendation",
+          "policy_recommendation",
+          "legal_advice",
+          "claim_authority",
+          "obligation_authority",
+          "causal_effect_authority",
+          "proof_authority",
+          "legal_authority",
+          "g5_conversion_authority_without_g5",
+          "g7_region_widening"
+        ],
+        "request_id": "req-layer3-g6-readiness",
+        "requested_authority_from_g5": [],
+        "requested_case_id": "ua-msme-affordable-loans-2022",
+        "search_health_refs": [],
+        "status": "pass"
+      },
+      "grammar_expansion_candidate": {
+        "authority_state": "candidate_unverified",
+        "candidate_id": "layer3-g6-grammar-candidate:req-layer3-g6-readiness:675b29bdbedad5c4",
+        "candidate_problem_frame": {
+          "envelope_match_status": "same_class_as_g5_pinned_case",
+          "facet_match_record": {
+            "compared_facets": {
+              "instrument": "concessional_credit",
+              "jurisdiction": "UA",
+              "policy_family": "ua_msme_support",
+              "subject": "wartime_msmes",
+              "time_context": "wartime"
+            },
+            "envelope_match_status": "same_class_as_g5_pinned_case",
+            "matched_envelope_refs": [
+              "layer3-g5-envelope://ua-msme-affordable-loans-2022",
+              "layer3-g5-claim-family://ua-msme-support"
+            ],
+            "required_g5_envelope_refs_present": true,
+            "source": "policy_grammar_projection"
+          },
+          "matched_envelope_refs": [
+            "layer3-g5-envelope://ua-msme-affordable-loans-2022",
+            "layer3-g5-claim-family://ua-msme-support"
+          ],
+          "policy_grammar_projection_ref": "layer3-g6-policy-grammar:req-layer3-g6-readiness",
+          "request_class": "ua_msme_support",
+          "request_id": "req-layer3-g6-readiness"
+        },
+        "may_not_use_for": [
+          "production_authority",
+          "rollout_authority",
+          "publication_authority",
+          "approval_authority",
+          "scorecard_authority",
+          "closeout_authority",
+          "runtime_closeout_authority",
+          "public_recommendation",
+          "policy_recommendation",
+          "legal_advice",
+          "claim_authority",
+          "obligation_authority",
+          "causal_effect_authority",
+          "proof_authority",
+          "legal_authority",
+          "g5_conversion_authority_without_g5",
+          "g7_region_widening"
+        ],
+        "request_id": "req-layer3-g6-readiness",
+        "source_class": "deterministic_grammar",
+        "target_authority_slots": [
+          "claim_authority"
+        ]
+      },
+      "grounded_value_closure_status": "blocked_by_current_g5_unchanged_blocker",
+      "grounding_demand_record": {
+        "authoritative_for": [
+          "layer3_g6_agent_orchestration_audit",
+          "layer3_g6_g5_routing_decision",
+          "layer3_g6_demand_pull_vs_abstention_reading"
+        ],
+        "demand_record_id": "layer3-g6-grounding-demand:req-layer3-g6-readiness",
+        "demand_signal_refs": [],
+        "envelope_match_status": "same_class_as_g5_pinned_case",
+        "grounding_scope_refs": [
+          "layer3-g5-envelope://ua-msme-affordable-loans-2022",
+          "layer3-g5-claim-family://ua-msme-support",
+          "universal-policy-design-case:layer3-g6:req-layer3-g6-readiness"
+        ],
+        "issue_codes": [],
+        "may_not_use_for": [
+          "production_authority",
+          "rollout_authority",
+          "publication_authority",
+          "approval_authority",
+          "scorecard_authority",
+          "closeout_authority",
+          "runtime_closeout_authority",
+          "public_recommendation",
+          "policy_recommendation",
+          "legal_advice",
+          "claim_authority",
+          "obligation_authority",
+          "causal_effect_authority",
+          "proof_authority",
+          "legal_authority",
+          "g5_conversion_authority_without_g5",
+          "g7_region_widening"
+        ],
+        "request_id": "req-layer3-g6-readiness",
+        "required_grounding_families": [
+          "policy_grammar_projection",
+          "declared_g5_envelope",
+          "search_recall_freshness",
+          "g1_source_contracts",
+          "g4_promotion_handoff",
+          "g5_conversion_record"
+        ],
+        "status": "route_to_g5"
+      },
+      "grounding_disposition": "ungrounded_blocked",
+      "hypothesis_ledger": {
+        "entries": [
+          {
+            "admission_ref": null,
+            "admission_state": "candidate_unverified",
+            "admitted_by": null,
+            "authority_envelope": {
+              "authoritative_for": [
+                "candidate_hypothesis"
+              ],
+              "may_not_use_for": [
+                "legal_authority",
+                "data_authority",
+                "method_authority",
+                "participation_authority",
+                "closeout_authority",
+                "projection_authority",
+                "claim_authority",
+                "obligation_authority"
+              ]
+            },
+            "candidate_id": "hypothesis-candidate:layer3-g6:req-layer3-g6-readiness:14376ebd4aba71cc",
+            "candidate_kind": "request_parse",
+            "candidate_ref": "hypothesis-candidate:layer3-g6:req-layer3-g6-readiness:14376ebd4aba71cc",
+            "content": {
+              "envelope_match_status": "same_class_as_g5_pinned_case",
+              "facet_match_record": {
+                "compared_facets": {
+                  "instrument": "concessional_credit",
+                  "jurisdiction": "UA",
+                  "policy_family": "ua_msme_support",
+                  "subject": "wartime_msmes",
+                  "time_context": "wartime"
+                },
+                "envelope_match_status": "same_class_as_g5_pinned_case",
+                "matched_envelope_refs": [
+                  "layer3-g5-envelope://ua-msme-affordable-loans-2022",
+                  "layer3-g5-claim-family://ua-msme-support"
+                ],
+                "required_g5_envelope_refs_present": true,
+                "source": "policy_grammar_projection"
+              },
+              "matched_envelope_refs": [
+                "layer3-g5-envelope://ua-msme-affordable-loans-2022",
+                "layer3-g5-claim-family://ua-msme-support"
+              ],
+              "policy_grammar_projection_ref": "layer3-g6-policy-grammar:req-layer3-g6-readiness",
+              "request_class": "ua_msme_support",
+              "request_id": "req-layer3-g6-readiness"
+            },
+            "emitted_at": "2026-06-10T09:12:37.738166Z",
+            "producer_validation_refs": [],
+            "prompt_fingerprint": "sha256:6a125f5184963fab0aea620abdde2bcf906aeb3fd1048643fadb7f175cd9ce75",
+            "prompt_tool_ledger_ref": "layer3-g6://prompt-tool-ledger/layer3-g6-run:req-layer3-g6-readiness",
+            "provenance": {
+              "producer": "polisyos.runtime.quality.layer3_bounded_agent",
+              "source_candidate_id": "layer3-g6-grammar-candidate:req-layer3-g6-readiness:675b29bdbedad5c4"
+            },
+            "reader_validation_refs": [],
+            "repair_decision_lineage": [
+              "layer3-g6-agent-orchestration:req-layer3-g6-readiness:candidate_branch_not_admitted_to_authority:not_applicable"
+            ],
+            "source_class": "deterministic_producer",
+            "target_authority_slots": [
+              "claim_authority"
+            ],
+            "target_claim_ids": [],
+            "tool_refs": [
+              "layer3-g6://tool-call/req-layer3-g6-readiness/layer3_g6_build_g5_bundle",
+              "repo://src/polisyos/runtime/quality/layer3_bounded_agent.py#tool/layer3_g6_classify_request",
+              "repo://src/polisyos/runtime/quality/layer3_bounded_agent.py#tool/layer3_g6_build_g5_bundle",
+              "repo://src/polisyos/runtime/quality/layer3_bounded_agent.py#tool/layer3_g6_read_g5_conversion",
+              "repo://src/polisyos/runtime/quality/layer3_bounded_agent.py#tool/layer3_g6_probe_counterexample",
+              "repo://src/polisyos/runtime/quality/layer3_bounded_agent.py#tool/layer3_g6_probe_envelope_match"
+            ]
+          }
+        ],
+        "generated_at": "2026-06-10T09:12:37.738135Z",
+        "hypothesis_ledger_ref": "layer3-g6://hypothesis-ledger/layer3-g6-run:req-layer3-g6-readiness",
+        "job_id": "layer3-g6-job:req-layer3-g6-readiness",
+        "prompt_tool_ledger_ref": "layer3-g6://prompt-tool-ledger/layer3-g6-run:req-layer3-g6-readiness",
+        "run_id": "layer3-g6-run:req-layer3-g6-readiness",
+        "schema_version": "policyos.runtime.hypothesis_ledger.v1",
+        "summary": {
+          "admission_states": [
+            "candidate_unverified"
+          ],
+          "admitted_count": 0,
+          "candidate_unverified_count": 1,
+          "entry_count": 1,
+          "lineage_complete_count": 1,
+          "source_classes": [
+            "deterministic_producer"
+          ],
+          "target_authority_slots": [
+            "claim_authority"
+          ]
+        }
+      },
+      "issue_codes": [],
+      "may_not_use_for": [
+        "production_authority",
+        "rollout_authority",
+        "publication_authority",
+        "approval_authority",
+        "scorecard_authority",
+        "closeout_authority",
+        "runtime_closeout_authority",
+        "public_recommendation",
+        "policy_recommendation",
+        "legal_advice",
+        "claim_authority",
+        "obligation_authority",
+        "causal_effect_authority",
+        "proof_authority",
+        "legal_authority",
+        "g5_conversion_authority_without_g5",
+        "g7_region_widening"
+      ],
+      "orchestration_choice_audit": {
+        "audit_id": "layer3-g6://orchestration-choice-audit/req-layer3-g6-readiness",
+        "authoritative_for": [
+          "layer3_g6_agent_orchestration_audit",
+          "layer3_g6_g5_routing_decision",
+          "layer3_g6_demand_pull_vs_abstention_reading"
+        ],
+        "budget_cutoff_reason": "single_g5_route_budget",
+        "counterexample_probe_refs": [
+          "candidate://g6/req-layer3-g6-readiness/counterexample/legal-authority"
+        ],
+        "framing_choices": [
+          "frame_as_g5_route_not_policy_recommendation"
+        ],
+        "hypothesis_ledger_ref": "layer3-g6://hypothesis-ledger/layer3-g6-run:req-layer3-g6-readiness",
+        "issue_codes": [],
+        "may_not_use_for": [
+          "production_authority",
+          "rollout_authority",
+          "publication_authority",
+          "approval_authority",
+          "scorecard_authority",
+          "closeout_authority",
+          "runtime_closeout_authority",
+          "public_recommendation",
+          "policy_recommendation",
+          "legal_advice",
+          "claim_authority",
+          "obligation_authority",
+          "causal_effect_authority",
+          "proof_authority",
+          "legal_authority",
+          "g5_conversion_authority_without_g5",
+          "g7_region_widening"
+        ],
+        "prompt_tool_ledger_ref": "layer3-g6://prompt-tool-ledger/layer3-g6-run:req-layer3-g6-readiness",
+        "rejected_branch_refs": [
+          "candidate://g6/req-layer3-g6-readiness/rejected/legal-advice-answer"
+        ],
+        "rejected_tool_names": [
+          "unbounded_web_search"
+        ],
+        "replay_fingerprint": "sha256:738af285f1f1183255c14f88dd5042d58d0a6dfb04232a2f13f7784926dc75dc",
+        "replayable": true,
+        "request_id": "req-layer3-g6-readiness",
+        "selected_evidence_refs": [
+          "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json",
+          "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
+          "repo://architecture/policy_design_case/layer3_g5_w12d_consumer_gate.json"
+        ],
+        "selected_tool_names": [
+          "layer3_g6_build_g5_bundle"
+        ],
+        "status": "pass",
+        "tool_contract_summary_ref": "layer3-g6-tool-contract-summary:default"
+      },
+      "outcome": "g5_unchanged_blocker",
+      "policy_grammar_projection": {
+        "authoritative_for": [
+          "layer3_g6_policy_grammar_routing_facets"
+        ],
+        "authority_state": "compilation_facets_only",
+        "compiled_case_ref": "universal-policy-design-case:layer3-g6:req-layer3-g6-readiness",
+        "compiled_case_status": "compiled",
+        "concept_spine_refs": {
+          "concept_spine_ref": "cas://concept-spine/layer3-g6/req-layer3-g6-readiness",
+          "jurisdiction_spine_ref": "cas://jurisdiction-spine/layer3-g6/req-layer3-g6-readiness"
+        },
+        "facet_summary": {
+          "instrument": "concessional_credit",
+          "jurisdiction": "UA",
+          "policy_family": "ua_msme_support",
+          "subject": "wartime_msmes",
+          "time_context": "wartime"
+        },
+        "intent_ref": "policy-grammar-intent://layer3-g6/req-layer3-g6-readiness",
+        "issue_codes": [],
+        "may_not_use_for": [
+          "legal_authority",
+          "claim_authority",
+          "closeout_authority"
+        ],
+        "projection_id": "layer3-g6-policy-grammar:req-layer3-g6-readiness",
+        "request_id": "req-layer3-g6-readiness",
+        "status": "pass"
+      },
+      "prompt_tool_ledger_projection": {
+        "authoritative_for": [
+          "layer3_g6_prompt_tool_lineage"
+        ],
+        "candidate_refs": [
+          "hypothesis-candidate:layer3-g6:req-layer3-g6-readiness:14376ebd4aba71cc"
+        ],
+        "issue_codes": [],
+        "may_not_use_for": [
+          "production_authority",
+          "rollout_authority",
+          "publication_authority",
+          "approval_authority",
+          "scorecard_authority",
+          "closeout_authority",
+          "runtime_closeout_authority",
+          "public_recommendation",
+          "policy_recommendation",
+          "legal_advice",
+          "claim_authority",
+          "obligation_authority",
+          "causal_effect_authority",
+          "proof_authority",
+          "legal_authority",
+          "g5_conversion_authority_without_g5",
+          "g7_region_widening"
+        ],
+        "projection_id": "layer3-g6-prompt-tool-ledger-projection:layer3-g6-run:req-layer3-g6-readiness",
+        "prompt_tool_ledger": {
+          "findings": [],
+          "generated_at": "2026-06-10T09:12:37.737940Z",
+          "job_id": "layer3-g6-job:req-layer3-g6-readiness",
+          "model_variant_id": "layer3-g6-bounded-agent-candidate",
+          "prompt_tool_ledger_ref": "layer3-g6://prompt-tool-ledger/layer3-g6-run:req-layer3-g6-readiness",
+          "run_id": "layer3-g6-run:req-layer3-g6-readiness",
+          "schema_version": "policyos.prompt_tool_parser_authority_ledger.v1",
+          "steps": [
+            {
+              "authority_handoff_refs": [
+                {
+                  "consumer": "polisyos.runtime.quality.layer3_bounded_agent",
+                  "handoff_ref": "layer3-g6://authority-handoff/not-applicable",
+                  "scope": "claims",
+                  "status": "not_applicable"
+                }
+              ],
+              "authority_scopes": [
+                "claims"
+              ],
+              "model_provider": {
+                "max_tokens": 0,
+                "model": "candidate-control-plane",
+                "model_fingerprint": "policyos.layer3.g6.bounded_agent.v1",
+                "provider": "polisyos-g6-local",
+                "provider_config_ref": "layer3-g6://model-profile/candidate-only",
+                "response_format": {
+                  "type": "json_object"
+                },
+                "temperature": 0.0
+              },
+              "output_refs": [
+                "layer3-g6://candidate-output/req-layer3-g6-readiness/1"
+              ],
+              "parser_contract": {
+                "contract_ref": "repo://src/polisyos/runtime/quality/layer3_bounded_agent.py#Layer3G6GrammarExpansionCandidate",
+                "input_schema_ref": "repo://src/polisyos/runtime/quality/layer3_bounded_agent.py#Layer3G6RequestEnvelope",
+                "output_schema_ref": "repo://src/polisyos/runtime/quality/layer3_bounded_agent.py#Layer3G6GrammarExpansionCandidate",
+                "parser_id": "layer3_g6_candidate_parser",
+                "parser_version": "policyos.policy_design_case.layer3_g6_bounded_agent.v1"
+              },
+              "prompt": {
+                "prompt_fingerprint": "sha256:6a125f5184963fab0aea620abdde2bcf906aeb3fd1048643fadb7f175cd9ce75",
+                "rendered_input_refs": [
+                  "layer3-g6://request/req-layer3-g6-readiness/raw",
+                  "layer3-g6-policy-grammar:req-layer3-g6-readiness"
+                ],
+                "rendered_prompt_ref": "layer3-g6://request/req-layer3-g6-readiness/rendered-prompt",
+                "template_id": "layer3_g6_agent_orchestration_candidate",
+                "template_ref": "repo://src/polisyos/runtime/quality/layer3_bounded_agent.py#prompt-template",
+                "template_variables_fingerprint": "sha256:a8369984956857f1053d0b905bd27c04a475d1112a7839eaca9b65693be1e9ff",
+                "template_version": "policyos.layer3.g6.bounded_agent.v1"
+              },
+              "repair_decisions": [
+                {
+                  "approved_by": null,
+                  "decision": "candidate_branch_not_admitted_to_authority",
+                  "fmea_annotation": null,
+                  "reason": "G6 prompt/tool output remains candidate-only lineage.",
+                  "repair_ref": null,
+                  "status": "not_applicable"
+                }
+              ],
+              "step_id": "layer3-g6-agent-orchestration:req-layer3-g6-readiness",
+              "step_kind": "layer3_g6_agent_orchestration_candidate",
+              "tool_allowlist": [
+                "layer3_g6_classify_request",
+                "layer3_g6_build_g5_bundle",
+                "layer3_g6_read_g5_conversion",
+                "layer3_g6_probe_counterexample",
+                "layer3_g6_probe_envelope_match"
+              ],
+              "tool_call_refs": [
+                {
+                  "call_ref": "layer3-g6://tool-call/layer3-g6-run:req-layer3-g6-readiness/1",
+                  "output_ref": "layer3-g6://tool-call/req-layer3-g6-readiness/layer3_g6_build_g5_bundle",
+                  "rejection_ref": null,
+                  "status": "pass",
+                  "tool_name": "layer3_g6_build_g5_bundle"
+                }
+              ],
+              "tool_schemas": [
+                {
+                  "json_schema": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "request_id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "request_id"
+                    ],
+                    "type": "object"
+                  },
+                  "schema_fingerprint": "sha256:b71072e8e7629e7f8dff6db7d31986c989e0860b300b14854c0e719b1659830a",
+                  "schema_ref": "repo://src/polisyos/runtime/quality/layer3_bounded_agent.py#tool/layer3_g6_classify_request",
+                  "tool_name": "layer3_g6_classify_request"
+                },
+                {
+                  "json_schema": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "request_id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "request_id"
+                    ],
+                    "type": "object"
+                  },
+                  "schema_fingerprint": "sha256:778e9d10e3a520aa7d02a116b9d0ad60e8ee6743e039e062d2b56fd96d3fcff1",
+                  "schema_ref": "repo://src/polisyos/runtime/quality/layer3_bounded_agent.py#tool/layer3_g6_build_g5_bundle",
+                  "tool_name": "layer3_g6_build_g5_bundle"
+                },
+                {
+                  "json_schema": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "request_id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "request_id"
+                    ],
+                    "type": "object"
+                  },
+                  "schema_fingerprint": "sha256:e4954e2e5405e403aa78d4a60939c0cfd1f0e03dedf45e6e8b2ff86f52434f1a",
+                  "schema_ref": "repo://src/polisyos/runtime/quality/layer3_bounded_agent.py#tool/layer3_g6_read_g5_conversion",
+                  "tool_name": "layer3_g6_read_g5_conversion"
+                },
+                {
+                  "json_schema": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "request_id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "request_id"
+                    ],
+                    "type": "object"
+                  },
+                  "schema_fingerprint": "sha256:a7084113ee5e736b78dffca168640d9a8bba9e592e7c52510589a3c0fa1cd508",
+                  "schema_ref": "repo://src/polisyos/runtime/quality/layer3_bounded_agent.py#tool/layer3_g6_probe_counterexample",
+                  "tool_name": "layer3_g6_probe_counterexample"
+                },
+                {
+                  "json_schema": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "request_id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "request_id"
+                    ],
+                    "type": "object"
+                  },
+                  "schema_fingerprint": "sha256:f26eadec02ab5e91601ed5bc5930aebdb03a371ea2812520f3b69ce170bc6346",
+                  "schema_ref": "repo://src/polisyos/runtime/quality/layer3_bounded_agent.py#tool/layer3_g6_probe_envelope_match",
+                  "tool_name": "layer3_g6_probe_envelope_match"
+                }
+              ],
+              "validation_refs": [
+                {
+                  "status": "pass",
+                  "validation_ref": "layer3-g6://validation/candidate-only",
+                  "validator_id": "layer3_g6_candidate_only_boundary"
+                }
+              ]
+            }
+          ],
+          "summary": {
+            "authority_scopes": [
+              "claims"
+            ],
+            "finding_count": 0,
+            "repair_decision_count": 1,
+            "repair_fmea_annotation_count": 0,
+            "repair_fmea_machinery_failure_count": 0,
+            "repair_fmea_max_rpn": null,
+            "repair_fmea_unannotated_count": 1,
+            "status": "fail",
+            "step_count": 1,
+            "tool_count": 5,
+            "tool_names": [
+              "layer3_g6_build_g5_bundle",
+              "layer3_g6_classify_request",
+              "layer3_g6_probe_counterexample",
+              "layer3_g6_probe_envelope_match",
+              "layer3_g6_read_g5_conversion"
+            ],
+            "upstream_spine_blocker_refs": []
+          }
+        },
+        "prompt_tool_ledger_ref": "layer3-g6://prompt-tool-ledger/layer3-g6-run:req-layer3-g6-readiness",
+        "status": "pass",
+        "tool_call_refs": [
+          "layer3-g6://tool-call/req-layer3-g6-readiness/layer3_g6_build_g5_bundle"
+        ]
+      },
+      "raw_request_fingerprint": "sha256:6ce93c1954aba774f7f771c45129f52801db2eb7826acf0001b8ac1b7192f7a6",
+      "raw_request_ref": "layer3-g6://request/req-layer3-g6-readiness/raw",
+      "replay_fingerprint": "sha256:3e9c9ac3f0779b39c1267183368f15f89fdcdb2d2a6267d5eb7cf27db791116e",
+      "request_class": "ua_msme_support",
+      "request_envelope": {
+        "authoritative_for": [
+          "layer3_g6_agent_orchestration_audit",
+          "layer3_g6_g5_routing_decision",
+          "layer3_g6_demand_pull_vs_abstention_reading"
+        ],
+        "compiled_policy_case_ref": "universal-policy-design-case:layer3-g6:req-layer3-g6-readiness",
+        "demand_signal_refs": [],
+        "envelope_match_status": "same_class_as_g5_pinned_case",
+        "facet_match_record": {
+          "compared_facets": {
+            "instrument": "concessional_credit",
+            "jurisdiction": "UA",
+            "policy_family": "ua_msme_support",
+            "subject": "wartime_msmes",
+            "time_context": "wartime"
+          },
+          "envelope_match_status": "same_class_as_g5_pinned_case",
+          "matched_envelope_refs": [
+            "layer3-g5-envelope://ua-msme-affordable-loans-2022",
+            "layer3-g5-claim-family://ua-msme-support"
+          ],
+          "required_g5_envelope_refs_present": true,
+          "source": "policy_grammar_projection"
+        },
+        "issue_codes": [],
+        "matched_envelope_refs": [
+          "layer3-g5-envelope://ua-msme-affordable-loans-2022",
+          "layer3-g5-claim-family://ua-msme-support"
+        ],
+        "may_not_use_for": [
+          "production_authority",
+          "rollout_authority",
+          "publication_authority",
+          "approval_authority",
+          "scorecard_authority",
+          "closeout_authority",
+          "runtime_closeout_authority",
+          "public_recommendation",
+          "policy_recommendation",
+          "legal_advice",
+          "claim_authority",
+          "obligation_authority",
+          "causal_effect_authority",
+          "proof_authority",
+          "legal_authority",
+          "g5_conversion_authority_without_g5",
+          "g7_region_widening"
+        ],
+        "policy_grammar_blocker_codes": [],
+        "policy_grammar_projection_ref": "layer3-g6-policy-grammar:req-layer3-g6-readiness",
+        "raw_request_fingerprint": "sha256:6ce93c1954aba774f7f771c45129f52801db2eb7826acf0001b8ac1b7192f7a6",
+        "raw_request_ref": "layer3-g6://request/req-layer3-g6-readiness/raw",
+        "request_class": "ua_msme_support",
+        "request_id": "req-layer3-g6-readiness",
+        "request_received_at": "2026-06-10T09:12:37.733243Z",
+        "requested_audience": "REVIEWER",
+        "rule_version": "policyos.layer3.g6.bounded_agent.v1",
+        "schema_version": "policyos.policy_design_case.layer3_g6_bounded_agent.v1"
+      },
+      "request_id": "req-layer3-g6-readiness",
+      "result_projection": {
+        "abstention_reason_refs": [],
+        "authoritative_for": [
+          "layer3_g6_agent_orchestration_audit",
+          "layer3_g6_g5_routing_decision",
+          "layer3_g6_demand_pull_vs_abstention_reading"
+        ],
+        "envelope_match_status": "same_class_as_g5_pinned_case",
+        "g5_conversion_outcome": "unchanged_blocker",
+        "g5_record_refs": [
+          "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker"
+        ],
+        "grounding_disposition": "ungrounded_blocked",
+        "issue_codes": [],
+        "may_not_use_for": [
+          "production_authority",
+          "rollout_authority",
+          "publication_authority",
+          "approval_authority",
+          "scorecard_authority",
+          "closeout_authority",
+          "runtime_closeout_authority",
+          "public_recommendation",
+          "policy_recommendation",
+          "legal_advice",
+          "claim_authority",
+          "obligation_authority",
+          "causal_effect_authority",
+          "proof_authority",
+          "legal_authority",
+          "g5_conversion_authority_without_g5",
+          "g7_region_widening"
+        ],
+        "outcome": "g5_unchanged_blocker",
+        "request_id": "req-layer3-g6-readiness",
+        "result_id": "layer3-g6://result-or-abstention/req-layer3-g6-readiness"
+      },
+      "run_record_id": "layer3-g6://agent-run-record/req-layer3-g6-readiness",
+      "search_ledger": {
+        "absence_or_incompleteness_reason": null,
+        "authoritative_for": [],
+        "completeness_status": "partial_budget_cutoff",
+        "cutoff_budget_ref": "layer3-g6://budget/single-g5-route",
+        "deterministic_replay_key": "sha256:6315e56aa17bdbb7a5bd1ac47b3ea23b2bdb608fbd8d3573d300d28e38c3717d",
+        "issue_codes": [],
+        "ledger_id": "layer3-g6://search-ledger/req-layer3-g6-readiness",
+        "may_not_use_for": [
+          "production_authority",
+          "rollout_authority",
+          "publication_authority",
+          "approval_authority",
+          "scorecard_authority",
+          "closeout_authority",
+          "runtime_closeout_authority",
+          "public_recommendation",
+          "policy_recommendation",
+          "legal_advice",
+          "claim_authority",
+          "obligation_authority",
+          "causal_effect_authority",
+          "proof_authority",
+          "legal_authority",
+          "g5_conversion_authority_without_g5",
+          "g7_region_widening"
+        ],
+        "normalized_query_refs": [
+          "query://g6/req-layer3-g6-readiness/grammar-facets"
+        ],
+        "ranking_policy_ref": "layer3-g6://ranking-policy/grammar-first-g5-envelope",
+        "rejected_candidate_refs": [
+          "candidate://g6/req-layer3-g6-readiness/rejected/legal-advice-answer"
+        ],
+        "rejected_tool_names": [
+          "unbounded_web_search"
+        ],
+        "request_id": "req-layer3-g6-readiness",
+        "search_health_refs": [
+          "layer3-g6://search-health/same-class-g5-route"
+        ],
+        "searched_index_refs": [
+          "repo://architecture/policy_design_case/inventory.json",
+          "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json"
+        ],
+        "selected_candidate_refs": [
+          "layer3-g6-grammar-candidate:req-layer3-g6-readiness:675b29bdbedad5c4"
+        ],
+        "selected_evidence_refs": [
+          "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json",
+          "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
+          "repo://architecture/policy_design_case/layer3_g5_w12d_consumer_gate.json"
+        ],
+        "selected_tool_names": [
+          "layer3_g6_build_g5_bundle"
+        ],
+        "status": "pass",
+        "typed_request_ref": "layer3-g6://request/req-layer3-g6-readiness"
+      },
+      "selected_g5_invocation_input_refs": [
+        "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json",
+        "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
+        "repo://architecture/policy_design_case/layer3_g5_w12d_consumer_gate.json"
+      ],
+      "tool_contract_summary": {
+        "allowed_tool_names": [
+          "layer3_g6_classify_request",
+          "layer3_g6_build_g5_bundle",
+          "layer3_g6_read_g5_conversion",
+          "layer3_g6_probe_counterexample",
+          "layer3_g6_probe_envelope_match"
+        ],
+        "authoritative_for": [
+          "layer3_g6_agent_orchestration_audit",
+          "layer3_g6_g5_routing_decision",
+          "layer3_g6_demand_pull_vs_abstention_reading"
+        ],
+        "blocker_codes": [],
+        "issue_codes": [],
+        "may_not_use_for": [
+          "production_authority",
+          "rollout_authority",
+          "publication_authority",
+          "approval_authority",
+          "scorecard_authority",
+          "closeout_authority",
+          "runtime_closeout_authority",
+          "public_recommendation",
+          "policy_recommendation",
+          "legal_advice",
+          "claim_authority",
+          "obligation_authority",
+          "causal_effect_authority",
+          "proof_authority",
+          "legal_authority",
+          "g5_conversion_authority_without_g5",
+          "g7_region_widening"
+        ],
+        "observed_tool_names": [
+          "layer3_g6_classify_request",
+          "layer3_g6_build_g5_bundle",
+          "layer3_g6_read_g5_conversion",
+          "layer3_g6_probe_counterexample",
+          "layer3_g6_probe_envelope_match"
+        ],
+        "status": "pass",
+        "summary_id": "layer3-g6-tool-contract-summary:default",
+        "tool_contract_summary": {
+          "error_types": [
+            "unknown_tool",
+            "invalid_arguments",
+            "timeout",
+            "handler_error",
+            "circuit_breaker_open"
+          ],
+          "invalid_tool_count": 0,
+          "issues": [],
+          "response_cap_max_chars": 120000,
+          "runtime_caps_ready": true,
+          "schema_ready": true,
+          "schema_version": "1.0",
+          "structured_error_taxonomy_ready": true,
+          "tool_count": 5
+        }
+      }
+    }
+  ],
+  "rule_version": "policyos.layer3.g6.bounded_agent.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g6_bounded_agent.v1"
+}

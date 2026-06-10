@@ -623,15 +623,23 @@
         "polisyos.scientist.methods.research_dag"
       ],
       "major_subsystem": true,
-      "export_count": 7,
+      "export_count": 15,
       "exports": [
         "ExperimentState",
+        "ToolContractSummary",
+        "ToolDefinition",
+        "ToolLoopResult",
+        "ToolRegistry",
         "build_governance_pipeline",
+        "create_traced_gateway_client",
         "discover_scientist_nodes",
         "get_metrics",
         "get_tracer",
         "load_governance_passes",
-        "run_experiment"
+        "run_experiment",
+        "run_tool_loop",
+        "summarize_tool_contracts",
+        "tool_contract_default_blockers"
       ],
       "has___getattr__": true,
       "has___dir__": true,

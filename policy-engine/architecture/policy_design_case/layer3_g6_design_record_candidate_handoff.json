@@ -1,0 +1,103 @@
+{
+  "authoritative_for": [
+    "layer3_g6_candidate_handoff_audit"
+  ],
+  "candidate_problem_frame": {
+    "policy_family": "ua_msme_support"
+  },
+  "composed_loop_consumer_ref": "layer3-g6://consumer/g5-invocation",
+  "counterexample_refinement_refs": [
+    "candidate://g6/req-layer3-g6-readiness/counterexample/legal-authority"
+  ],
+  "design_record_candidate_ref": "hypothesis-candidate:layer3-g6-design-record:req-layer3-g6-readiness:59e1eddfebadbe31",
+  "g5_invocation_plan_ref": "layer3-g6://g5-invocation-plan/req-layer3-g6-readiness",
+  "handoff_id": "layer3-g6://design-record-candidate-handoff/req-layer3-g6-readiness",
+  "hypothesis_ledger": {
+    "entries": [
+      {
+        "admission_ref": null,
+        "admission_state": "candidate_unverified",
+        "admitted_by": null,
+        "authority_envelope": {
+          "authoritative_for": [
+            "candidate_hypothesis"
+          ],
+          "may_not_use_for": [
+            "legal_authority",
+            "data_authority",
+            "method_authority",
+            "participation_authority",
+            "closeout_authority",
+            "projection_authority",
+            "claim_authority",
+            "obligation_authority"
+          ]
+        },
+        "candidate_id": "hypothesis-candidate:layer3-g6-design-record:req-layer3-g6-readiness:59e1eddfebadbe31",
+        "candidate_kind": "design_record_candidate",
+        "candidate_ref": "hypothesis-candidate:layer3-g6-design-record:req-layer3-g6-readiness:59e1eddfebadbe31",
+        "content": {
+          "policy_family": "ua_msme_support"
+        },
+        "emitted_at": "2026-06-10T09:12:37.743017Z",
+        "producer_validation_refs": [],
+        "prompt_fingerprint": null,
+        "prompt_tool_ledger_ref": null,
+        "provenance": {
+          "composed_loop_consumer_ref": "layer3-g6://consumer/g5-invocation",
+          "producer": "polisyos.runtime.quality.layer3_bounded_agent"
+        },
+        "reader_validation_refs": [],
+        "repair_decision_lineage": [],
+        "source_class": "deterministic_producer",
+        "target_authority_slots": [
+          "claim_authority"
+        ],
+        "target_claim_ids": [],
+        "tool_refs": []
+      }
+    ],
+    "generated_at": "2026-06-10T09:12:37.742994Z",
+    "hypothesis_ledger_ref": "layer3-g6://hypothesis-ledger/design-record/req-layer3-g6-readiness",
+    "job_id": "layer3-g6-design-record-handoff:req-layer3-g6-readiness",
+    "prompt_tool_ledger_ref": null,
+    "run_id": "layer3-g6-design-record-handoff:req-layer3-g6-readiness",
+    "schema_version": "policyos.runtime.hypothesis_ledger.v1",
+    "summary": {
+      "admission_states": [
+        "candidate_unverified"
+      ],
+      "admitted_count": 0,
+      "candidate_unverified_count": 1,
+      "entry_count": 1,
+      "lineage_complete_count": 0,
+      "source_classes": [
+        "deterministic_producer"
+      ],
+      "target_authority_slots": [
+        "claim_authority"
+      ]
+    }
+  },
+  "may_not_use_for": [
+    "production_authority",
+    "rollout_authority",
+    "publication_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "public_recommendation",
+    "policy_recommendation",
+    "legal_advice",
+    "claim_authority",
+    "obligation_authority",
+    "causal_effect_authority",
+    "proof_authority",
+    "legal_authority",
+    "g5_conversion_authority_without_g5",
+    "g7_region_widening"
+  ],
+  "request_id": "req-layer3-g6-readiness",
+  "status": "candidate_only"
+}

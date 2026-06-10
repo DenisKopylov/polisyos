@@ -1,0 +1,48 @@
+{
+  "accountable_principal_refs": [
+    "principal://runtime-quality-reviewer"
+  ],
+  "authoritative_for": [
+    "layer3_g6_demand_pull_vs_abstention_reading"
+  ],
+  "counts": {
+    "g5_grounded_abstention_count": 0,
+    "g5_grounded_result_count": 0,
+    "g5_routed_count": 1,
+    "g5_unchanged_blocker_count": 1,
+    "out_of_envelope_abstention_count": 1,
+    "request_count": 2
+  },
+  "delta_id": "layer3-g6://health-delta/demand-pull-vs-abstention",
+  "demand_source_refs": [
+    "s12-demand://layer3-g6/outside-envelope"
+  ],
+  "issue_codes": [],
+  "may_not_use_for": [
+    "production_authority",
+    "rollout_authority",
+    "publication_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "public_recommendation",
+    "policy_recommendation",
+    "legal_advice",
+    "claim_authority",
+    "obligation_authority",
+    "causal_effect_authority",
+    "proof_authority",
+    "legal_authority",
+    "g5_conversion_authority_without_g5",
+    "g7_region_widening"
+  ],
+  "readings": {
+    "abstention_or_blocker_rate": 1.0,
+    "demand_reached_g5_rate": 0.5,
+    "g5_grounded_abstention_rate": 0.0,
+    "grounded_result_rate": 0.0,
+    "out_of_envelope_abstention_rate": 0.5
+  },
+  "status": "pass"
+}

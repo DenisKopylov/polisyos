@@ -1,0 +1,60 @@
+{
+  "authoritative_for": [
+    "layer3_g6_agent_orchestration_audit",
+    "layer3_g6_g5_routing_decision",
+    "layer3_g6_demand_pull_vs_abstention_reading"
+  ],
+  "compiled_policy_case_ref": "universal-policy-design-case:layer3-g6:req-layer3-g6-readiness",
+  "demand_signal_refs": [],
+  "envelope_match_status": "same_class_as_g5_pinned_case",
+  "facet_match_record": {
+    "compared_facets": {
+      "instrument": "concessional_credit",
+      "jurisdiction": "UA",
+      "policy_family": "ua_msme_support",
+      "subject": "wartime_msmes",
+      "time_context": "wartime"
+    },
+    "envelope_match_status": "same_class_as_g5_pinned_case",
+    "matched_envelope_refs": [
+      "layer3-g5-envelope://ua-msme-affordable-loans-2022",
+      "layer3-g5-claim-family://ua-msme-support"
+    ],
+    "required_g5_envelope_refs_present": true,
+    "source": "policy_grammar_projection"
+  },
+  "issue_codes": [],
+  "matched_envelope_refs": [
+    "layer3-g5-envelope://ua-msme-affordable-loans-2022",
+    "layer3-g5-claim-family://ua-msme-support"
+  ],
+  "may_not_use_for": [
+    "production_authority",
+    "rollout_authority",
+    "publication_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "public_recommendation",
+    "policy_recommendation",
+    "legal_advice",
+    "claim_authority",
+    "obligation_authority",
+    "causal_effect_authority",
+    "proof_authority",
+    "legal_authority",
+    "g5_conversion_authority_without_g5",
+    "g7_region_widening"
+  ],
+  "policy_grammar_blocker_codes": [],
+  "policy_grammar_projection_ref": "layer3-g6-policy-grammar:req-layer3-g6-readiness",
+  "raw_request_fingerprint": "sha256:6ce93c1954aba774f7f771c45129f52801db2eb7826acf0001b8ac1b7192f7a6",
+  "raw_request_ref": "layer3-g6://request/req-layer3-g6-readiness/raw",
+  "request_class": "ua_msme_support",
+  "request_id": "req-layer3-g6-readiness",
+  "request_received_at": "2026-06-10T09:12:37.733243Z",
+  "requested_audience": "REVIEWER",
+  "rule_version": "policyos.layer3.g6.bounded_agent.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g6_bounded_agent.v1"
+}

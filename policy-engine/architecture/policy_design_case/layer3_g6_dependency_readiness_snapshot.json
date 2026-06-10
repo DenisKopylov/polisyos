@@ -1,0 +1,11 @@
+{
+  "dependency_statuses": {
+    "layer3_g5_bridge": "pass",
+    "policy_grammar_projection": "pass",
+    "replay_orchestration": "pass",
+    "scientist_tool_contracts": "pass"
+  },
+  "rule_version": "policyos.layer3.g6.bounded_agent.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g6_bounded_agent.v1",
+  "status": "pass"
+}

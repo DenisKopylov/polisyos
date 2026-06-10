@@ -1,0 +1,249 @@
+{
+  "EXPERT": {
+    "candidate_firewall_refs": [
+      "layer3-g6-grammar-candidate:req-layer3-g6-readiness:675b29bdbedad5c4",
+      "candidate://g6/req-layer3-g6-readiness/rejected/legal-advice-answer"
+    ],
+    "conformance_refs": [
+      "layer3-g6://conformance/report"
+    ],
+    "hypothesis_ledger_refs": [
+      "layer3-g6://hypothesis-ledger/layer3-g6-run:req-layer3-g6-readiness"
+    ],
+    "may_not_use_for": [
+      "production_authority",
+      "rollout_authority",
+      "publication_authority",
+      "approval_authority",
+      "scorecard_authority",
+      "closeout_authority",
+      "runtime_closeout_authority",
+      "public_recommendation",
+      "policy_recommendation",
+      "legal_advice",
+      "claim_authority",
+      "obligation_authority",
+      "causal_effect_authority",
+      "proof_authority",
+      "legal_authority",
+      "g5_conversion_authority_without_g5",
+      "g7_region_widening",
+      "recommendation_authority"
+    ],
+    "prompt_tool_ledger_refs": [
+      "layer3-g6://prompt-tool-ledger/layer3-g6-run:req-layer3-g6-readiness"
+    ],
+    "tool_contract_summary_refs": [
+      "layer3-g6-tool-contract-summary:default"
+    ]
+  },
+  "MACHINE": {
+    "agent_run_record_refs": [
+      "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+    ],
+    "drift_keys": {
+      "envelope_match_status": "same_class_as_g5_pinned_case",
+      "g5_conversion_outcome": "unchanged_blocker",
+      "outcome": "g5_unchanged_blocker",
+      "request_fingerprint": "sha256:6ce93c1954aba774f7f771c45129f52801db2eb7826acf0001b8ac1b7192f7a6"
+    },
+    "generated_artifact_paths": [
+      "architecture/policy_design_case/layer3_g6_agent_run_record.json",
+      "architecture/policy_design_case/layer3_g6_replay_manifest.json",
+      "architecture/policy_design_case/layer3_g6_agent_audit_surface.json",
+      "architecture/policy_design_case/layer3_g6_health_delta.json"
+    ],
+    "may_not_use_for": [
+      "production_authority",
+      "rollout_authority",
+      "publication_authority",
+      "approval_authority",
+      "scorecard_authority",
+      "closeout_authority",
+      "runtime_closeout_authority",
+      "public_recommendation",
+      "policy_recommendation",
+      "legal_advice",
+      "claim_authority",
+      "obligation_authority",
+      "causal_effect_authority",
+      "proof_authority",
+      "legal_authority",
+      "g5_conversion_authority_without_g5",
+      "g7_region_widening",
+      "recommendation_authority"
+    ],
+    "replay_fingerprint": "sha256:3e9c9ac3f0779b39c1267183368f15f89fdcdb2d2a6267d5eb7cf27db791116e",
+    "rule_version": "policyos.layer3.g6.bounded_agent.v1",
+    "safe_g5_refs": [
+      "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json",
+      "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
+      "repo://architecture/policy_design_case/layer3_g5_w12d_consumer_gate.json"
+    ],
+    "schema_version": "policyos.policy_design_case.layer3_g6_bounded_agent.v1"
+  },
+  "PUBLIC": {
+    "authoritative_for": [],
+    "authority_role": "projection_only",
+    "denied_uses": [
+      "production_authority",
+      "rollout_authority",
+      "publication_authority",
+      "approval_authority",
+      "scorecard_authority",
+      "closeout_authority",
+      "runtime_closeout_authority",
+      "public_recommendation",
+      "policy_recommendation",
+      "legal_advice",
+      "claim_authority",
+      "obligation_authority",
+      "causal_effect_authority",
+      "proof_authority",
+      "legal_authority",
+      "g5_conversion_authority_without_g5",
+      "g7_region_widening",
+      "recommendation_authority"
+    ],
+    "envelope_match_status": "same_class_as_g5_pinned_case",
+    "g5_conversion_outcome": "unchanged_blocker",
+    "may_not_be_used_for": [
+      "production_authority",
+      "rollout_authority",
+      "publication_authority",
+      "approval_authority",
+      "scorecard_authority",
+      "closeout_authority",
+      "runtime_closeout_authority",
+      "public_recommendation",
+      "policy_recommendation",
+      "legal_advice",
+      "claim_authority",
+      "obligation_authority",
+      "causal_effect_authority",
+      "proof_authority",
+      "legal_authority",
+      "g5_conversion_authority_without_g5",
+      "g7_region_widening",
+      "recommendation_authority"
+    ],
+    "outcome": "g5_unchanged_blocker",
+    "projection_policy": "reads_policy_design_case_only",
+    "request_class": "ua_msme_support",
+    "request_fingerprint": "sha256:6ce93c1954aba774f7f771c45129f52801db2eb7826acf0001b8ac1b7192f7a6",
+    "safe_g5_refs": [
+      "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json",
+      "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
+      "repo://architecture/policy_design_case/layer3_g5_w12d_consumer_gate.json"
+    ],
+    "surface_id": "layer3_g6_bounded_agent_surface"
+  },
+  "REVIEWER": {
+    "abstention_refs": [],
+    "agent_run_record_refs": [
+      "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+    ],
+    "blocker_refs": [],
+    "g5_invocation_refs": [
+      "layer3-g6://g5-invocation-plan/req-layer3-g6-readiness",
+      "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json",
+      "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
+      "repo://architecture/policy_design_case/layer3_g5_w12d_consumer_gate.json"
+    ],
+    "may_not_use_for": [
+      "production_authority",
+      "rollout_authority",
+      "publication_authority",
+      "approval_authority",
+      "scorecard_authority",
+      "closeout_authority",
+      "runtime_closeout_authority",
+      "public_recommendation",
+      "policy_recommendation",
+      "legal_advice",
+      "claim_authority",
+      "obligation_authority",
+      "causal_effect_authority",
+      "proof_authority",
+      "legal_authority",
+      "g5_conversion_authority_without_g5",
+      "g7_region_widening",
+      "recommendation_authority"
+    ],
+    "orchestration_choice_audit_refs": [
+      "layer3-g6://orchestration-choice-audit/req-layer3-g6-readiness"
+    ]
+  },
+  "audiences": [
+    "PUBLIC",
+    "REVIEWER",
+    "EXPERT",
+    "MACHINE"
+  ],
+  "authoritative_for": [
+    "layer3_g6_agent_orchestration_audit"
+  ],
+  "issue_codes": [],
+  "may_not_use_for": [
+    "production_authority",
+    "rollout_authority",
+    "publication_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "public_recommendation",
+    "policy_recommendation",
+    "legal_advice",
+    "claim_authority",
+    "obligation_authority",
+    "causal_effect_authority",
+    "proof_authority",
+    "legal_authority",
+    "g5_conversion_authority_without_g5",
+    "g7_region_widening",
+    "recommendation_authority"
+  ],
+  "public_projection_contract_verification": {
+    "checked_schema_version": "policyos.runtime.policy_design_case.projection.v1",
+    "issue_codes": [],
+    "observed_denied_uses": [
+      "approval_authority",
+      "causal_effect_authority",
+      "claim_authority",
+      "closeout_authority",
+      "g5_conversion_authority_without_g5",
+      "g7_region_widening",
+      "legal_advice",
+      "legal_authority",
+      "obligation_authority",
+      "policy_recommendation",
+      "production_authority",
+      "proof_authority",
+      "public_recommendation",
+      "publication_authority",
+      "recommendation_authority",
+      "rollout_authority",
+      "runtime_closeout_authority",
+      "scorecard_authority"
+    ],
+    "projection_contract_ref": "layer3-g6://public-projection-contract",
+    "required_denied_uses": [
+      "claim_authority",
+      "policy_recommendation",
+      "recommendation_authority",
+      "runtime_closeout_authority",
+      "scorecard_authority"
+    ],
+    "status": "pass"
+  },
+  "request_id": "req-layer3-g6-readiness",
+  "status": "pass",
+  "surface_audiences": [
+    "PUBLIC",
+    "REVIEWER",
+    "EXPERT",
+    "MACHINE"
+  ],
+  "surface_id": "layer3_g6_bounded_agent_surface"
+}

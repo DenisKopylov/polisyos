@@ -1,0 +1,45 @@
+{
+  "authoritative_for": [
+    "layer3_g6_agent_orchestration_audit",
+    "layer3_g6_g5_routing_decision",
+    "layer3_g6_demand_pull_vs_abstention_reading"
+  ],
+  "demand_record_id": "layer3-g6-grounding-demand:req-layer3-g6-readiness",
+  "demand_signal_refs": [],
+  "envelope_match_status": "same_class_as_g5_pinned_case",
+  "grounding_scope_refs": [
+    "layer3-g5-envelope://ua-msme-affordable-loans-2022",
+    "layer3-g5-claim-family://ua-msme-support",
+    "universal-policy-design-case:layer3-g6:req-layer3-g6-readiness"
+  ],
+  "issue_codes": [],
+  "may_not_use_for": [
+    "production_authority",
+    "rollout_authority",
+    "publication_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "public_recommendation",
+    "policy_recommendation",
+    "legal_advice",
+    "claim_authority",
+    "obligation_authority",
+    "causal_effect_authority",
+    "proof_authority",
+    "legal_authority",
+    "g5_conversion_authority_without_g5",
+    "g7_region_widening"
+  ],
+  "request_id": "req-layer3-g6-readiness",
+  "required_grounding_families": [
+    "policy_grammar_projection",
+    "declared_g5_envelope",
+    "search_recall_freshness",
+    "g1_source_contracts",
+    "g4_promotion_handoff",
+    "g5_conversion_record"
+  ],
+  "status": "route_to_g5"
+}

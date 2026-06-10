@@ -1,0 +1,29 @@
+{
+  "authoritative_for": [
+    "layer3_g6_policy_grammar_routing_facets"
+  ],
+  "authority_state": "compilation_facets_only",
+  "compiled_case_ref": "universal-policy-design-case:layer3-g6:req-layer3-g6-readiness",
+  "compiled_case_status": "compiled",
+  "concept_spine_refs": {
+    "concept_spine_ref": "cas://concept-spine/layer3-g6/req-layer3-g6-readiness",
+    "jurisdiction_spine_ref": "cas://jurisdiction-spine/layer3-g6/req-layer3-g6-readiness"
+  },
+  "facet_summary": {
+    "instrument": "concessional_credit",
+    "jurisdiction": "UA",
+    "policy_family": "ua_msme_support",
+    "subject": "wartime_msmes",
+    "time_context": "wartime"
+  },
+  "intent_ref": "policy-grammar-intent://layer3-g6/req-layer3-g6-readiness",
+  "issue_codes": [],
+  "may_not_use_for": [
+    "legal_authority",
+    "claim_authority",
+    "closeout_authority"
+  ],
+  "projection_id": "layer3-g6-policy-grammar:req-layer3-g6-readiness",
+  "request_id": "req-layer3-g6-readiness",
+  "status": "pass"
+}

@@ -1,0 +1,37 @@
+{
+  "abstention_reason_refs": [],
+  "authoritative_for": [
+    "layer3_g6_agent_orchestration_audit",
+    "layer3_g6_g5_routing_decision",
+    "layer3_g6_demand_pull_vs_abstention_reading"
+  ],
+  "envelope_match_status": "same_class_as_g5_pinned_case",
+  "g5_conversion_outcome": "unchanged_blocker",
+  "g5_record_refs": [
+    "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker"
+  ],
+  "grounding_disposition": "ungrounded_blocked",
+  "issue_codes": [],
+  "may_not_use_for": [
+    "production_authority",
+    "rollout_authority",
+    "publication_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "public_recommendation",
+    "policy_recommendation",
+    "legal_advice",
+    "claim_authority",
+    "obligation_authority",
+    "causal_effect_authority",
+    "proof_authority",
+    "legal_authority",
+    "g5_conversion_authority_without_g5",
+    "g7_region_widening"
+  ],
+  "outcome": "g5_unchanged_blocker",
+  "request_id": "req-layer3-g6-readiness",
+  "result_id": "layer3-g6://result-or-abstention/req-layer3-g6-readiness"
+}

@@ -1,0 +1,10 @@
+schema_version = "policyos.policy_design_case.layer3_g6_bounded_agent.v1"
+rule_version = "policyos.layer3.g6.bounded_agent.v1"
+status = "pass"
+
+[readings]
+abstention_or_blocker_rate = 1.0
+demand_reached_g5_rate = 0.5
+g5_grounded_abstention_rate = 0.0
+grounded_result_rate = 0.0
+out_of_envelope_abstention_rate = 0.5

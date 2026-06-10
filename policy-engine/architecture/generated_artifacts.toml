@@ -332,6 +332,66 @@ check_command = [
 ]
 
 [[family]]
+id = "policy-design-case-layer3-g6-bounded-agent-artifacts"
+label = "Policy Design Case Layer 3 G6 bounded-agent artifacts"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+generator = "Layer 3 G6 readiness validator write mode"
+verifier = "Layer 3 G6 readiness validator and architecture guardrails"
+promotion_target = "registered Policy Design Case G6 bounded-agent audit surface artifacts"
+stale_output_behavior = "fail"
+source_of_truth = "src/polisyos/runtime/quality/layer3_bounded_agent.py and tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py"
+outputs = [
+  "architecture/policy_design_case/layer3_g6_dependency_readiness_snapshot.json",
+  "architecture/policy_design_case/layer3_g6_request_envelope.json",
+  "architecture/policy_design_case/layer3_g6_request_classification.json",
+  "architecture/policy_design_case/layer3_g6_policy_grammar_projection.json",
+  "architecture/policy_design_case/layer3_g6_grammar_expansion_candidates.json",
+  "architecture/policy_design_case/layer3_g6_grounding_demand_record.json",
+  "architecture/policy_design_case/layer3_g6_tool_contract_summary.json",
+  "architecture/policy_design_case/layer3_g6_prompt_tool_ledger_projection.json",
+  "architecture/policy_design_case/layer3_g6_hypothesis_ledger_projection.json",
+  "architecture/policy_design_case/layer3_g6_search_ledger.json",
+  "architecture/policy_design_case/layer3_g6_orchestration_choice_audit.json",
+  "architecture/policy_design_case/layer3_g6_counterexample_refinement_record.json",
+  "architecture/policy_design_case/layer3_g6_design_record_candidate_handoff.json",
+  "architecture/policy_design_case/layer3_g6_candidate_authority_firewall_report.json",
+  "architecture/policy_design_case/layer3_g6_g5_invocation_plan.json",
+  "architecture/policy_design_case/layer3_g6_g5_consumer_gate.json",
+  "architecture/policy_design_case/layer3_g6_orchestration_continuity.json",
+  "architecture/policy_design_case/layer3_g6_replay_manifest.json",
+  "architecture/policy_design_case/layer3_g6_agent_run_records.json",
+  "architecture/policy_design_case/layer3_g6_grounded_result_or_abstention.json",
+  "architecture/policy_design_case/layer3_g6_demand_pull_vs_abstention_delta.json",
+  "architecture/policy_design_case/layer3_g6_agent_audit_surface.json",
+  "architecture/policy_design_case/layer3_g6_public_export_projection_refs.json",
+  "architecture/policy_design_case/layer3_g6_conformance_report.json",
+  "architecture/policy_design_case/layer3_g6_health_metric_delta.toml",
+  "architecture/policy_design_case/layer3_g6_agent_route_contract_registry.toml",
+  "architecture/policy_design_case/layer3_g6_registry_ratchet_delta.json",
+  "architecture/policy_design_case/layer3_g6_readiness_manifest.json",
+]
+regenerate_commands = [
+  "uv run python tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py --repo-root . --write --output-format json",
+]
+commit_policy = "committed_after_task10_write"
+freshness_rule = "Regenerate and commit whenever the Layer 3 G6 bounded-agent runtime builder, validator, route registry, public projection refs, G5 bridge, or orchestration-choice audit rules change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py"
+check_cwd = "."
+check_command = [
+  "uv",
+  "run",
+  "python",
+  "tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py",
+  "--repo-root",
+  ".",
+  "--output-format",
+  "json",
+]
+
+[[family]]
 id = "abi-schema-snapshots"
 label = "ABI schema snapshots"
 owner = "team-polisyos"

@@ -31,6 +31,16 @@ publishes conversion-record refs, blocker/limitation refs, and projection-only
 public refs; `layer3_g5_public_export_projection_refs.json` records
 `out_of_scope_reference_only` and does not register a public-export bundle route.
 
+`layer3_g6_bounded_agent_surface` is a generated PUBLIC/REVIEWER/EXPERT/MACHINE
+Policy Design Case audit surface documented in
+`docs/reference/policy-design-case-layer3-bounded-agent.md`. It publishes
+agent-run refs, policy-grammar projection refs, G5 invocation refs,
+search-ledger refs, replay-manifest refs, orchestration-continuity refs,
+candidate DesignRecord handoff refs, orchestration-choice audit refs, and
+projection-only public refs;
+`layer3_g6_public_export_projection_refs.json` records
+`out_of_scope_reference_only` and does not register a public-export bundle route.
+
 | Package | Classification | Facade | Exports | Owner | README |
 | --- | --- | --- | ---: | --- | --- |
 | `polisyos.common` | `public_stable` | `lazy_facade` | 7 | `team-polisyos` | `src/polisyos/common/README.md` |
@@ -42,7 +52,7 @@ public refs; `layer3_g5_public_export_projection_refs.json` records
 | `polisyos.participation_requirement` | `internal` | `eager_exports` | 23 | `team-policyos-runtime` | `src/polisyos/participation_requirement/README.md` |
 | `polisyos.fabric` | `public_stable` | `lazy_facade` | 36 | `team-polisyos` | `src/polisyos/fabric/README.md` |
 | `polisyos.foundry` | `public_stable` | `lazy_facade` | 4 | `team-polisyos` | `src/polisyos/foundry/README.md` |
-| `polisyos.scientist` | `public_stable` | `lazy_facade` | 7 | `team-polisyos` | `src/polisyos/scientist/README.md` |
+| `polisyos.scientist` | `public_stable` | `lazy_facade` | 15 | `team-polisyos` | `src/polisyos/scientist/README.md` |
 | `polisyos.evidence` | `internal` | `eager_exports` | 19 | `team-policyos-runtime` | `src/polisyos/evidence/README.md` |
 | `polisyos.runtime` | `public_stable` | `lazy_facade` | 10 | `team-polisyos` | `src/polisyos/runtime/README.md` |
 | `polisyos.lex` | `public_stable` | `lazy_facade` | 53 | `team-polisyos` | `src/polisyos/lex/README.md` |
@@ -640,16 +650,24 @@ select_method_candidates_for_requirements
 - Notes: Workflow orchestration facade for experiment execution and shared observability hooks.
 - Summary: Stable Scientist package facade for workflow execution and run observability.
 
-<details><summary>Supported exports (7)</summary>
+<details><summary>Supported exports (15)</summary>
 
 ```text
 ExperimentState
+ToolContractSummary
+ToolDefinition
+ToolLoopResult
+ToolRegistry
 build_governance_pipeline
+create_traced_gateway_client
 discover_scientist_nodes
 get_metrics
 get_tracer
 load_governance_passes
 run_experiment
+run_tool_loop
+summarize_tool_contracts
+tool_contract_default_blockers
 ```
 
 </details>

@@ -1,0 +1,19 @@
+{
+  "block_keys": [
+    "s4_epistemic_regime",
+    "s5_coupling_composition",
+    "s6_blind_spot_firewalls",
+    "s7_delegation",
+    "s8_value_choice",
+    "s9_projection_lowering",
+    "s10_outcome_prediction",
+    "s11_predictive_knowledge",
+    "s12_resource_economics",
+    "s13_post_deploy_accountability",
+    "s14_universality_assurance"
+  ],
+  "case_id": "ua-msme-affordable-loans-2022",
+  "issue_codes": [],
+  "missing_block_keys": [],
+  "status": "pass"
+}

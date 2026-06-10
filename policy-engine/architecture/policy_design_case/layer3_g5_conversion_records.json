@@ -1,0 +1,50 @@
+{
+  "conversion_records": [
+    {
+      "authoritative_for": [
+        "layer3_g5_proving_ground_conversion_classification",
+        "layer3_g5_envelope_expansion_reading",
+        "w12d_layer3_conversion_gate"
+      ],
+      "blocker_refs": [
+        "layer3_g5_blocked_promotion_used_as_conversion",
+        "layer3_g5_g1_observed_but_uncertain_overclaimed",
+        "layer3_g5_g2_s2_replay_key_ref_missing",
+        "layer3_g5_g2_source_contract_ref_mismatch",
+        "layer3_g5_g3_proof_status_overclaimed",
+        "layer3_g5_duplicate_source_lineage_ref_inflates_independence",
+        "layer3_g5_gl_pass_with_reissue_required",
+        "layer3_g5_s14_pending_sealed_overclaimed"
+      ],
+      "case_id": "ua-msme-affordable-loans-2022",
+      "conversion_outcome": "unchanged_blocker",
+      "conversion_record_id": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
+      "grounding_disposition": "ungrounded_blocked",
+      "limitation_refs": [],
+      "may_not_use_for": [
+        "production_authority",
+        "production_claim_authority",
+        "rollout_authority",
+        "publication_authority",
+        "approval_authority",
+        "scorecard_authority",
+        "closeout_authority",
+        "runtime_closeout_authority",
+        "public_recommendation",
+        "policy_recommendation",
+        "legal_advice",
+        "claim_authority_without_upstream_grounding",
+        "causal_effect_authority_without_g2",
+        "proof_authority_without_g3",
+        "legal_authority_without_gl",
+        "useful_design_rate_floor_relaxation",
+        "g6_arbitrary_request_orchestration",
+        "g7_region_widening"
+      ],
+      "rule_version": "policyos.layer3.g5.first_proving_ground_conversion.v1",
+      "schema_version": "policyos.policy_design_case.layer3_g5_proving_ground_conversion.v1"
+    }
+  ],
+  "rule_version": "policyos.layer3.g5.first_proving_ground_conversion.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g5_proving_ground_conversion.v1"
+}

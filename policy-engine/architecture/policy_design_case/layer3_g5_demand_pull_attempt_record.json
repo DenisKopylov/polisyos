@@ -1,0 +1,34 @@
+{
+  "accountable_principal_refs": [
+    "principal://ua-msme/ministry-economy"
+  ],
+  "attempted_grounding_path_refs": [
+    "layer3-g5://readiness/demand-pull"
+  ],
+  "demand_pull_refs": [
+    "s3-demand-pull://ua-msme/first-proving-ground",
+    "demand-act://ua-msme/principal",
+    "s12-growth-entry://ua-msme/first-proving-ground",
+    "envelope-delta://ua-msme/first",
+    "voi://ua-msme/layer3-g5",
+    "reuse-acquisition://ua-msme/layer3-g5",
+    "layer3-g5://readiness/demand-pull"
+  ],
+  "issue_codes": [],
+  "s12_demand_act_refs": [
+    "demand-act://ua-msme/principal"
+  ],
+  "s12_growth_entry_refs": [
+    "s12-growth-entry://ua-msme/first-proving-ground"
+  ],
+  "s12_reuse_acquisition_refs": [
+    "reuse-acquisition://ua-msme/layer3-g5"
+  ],
+  "s12_voi_refs": [
+    "voi://ua-msme/layer3-g5"
+  ],
+  "s3_demand_pull_refs": [
+    "s3-demand-pull://ua-msme/first-proving-ground"
+  ],
+  "status": "pass"
+}

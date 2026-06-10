@@ -1,0 +1,90 @@
+{
+  "case_id": "ua-msme-affordable-loans-2022",
+  "issue_codes": [],
+  "layer2_status_readings": [
+    {
+      "block_key": "s4_epistemic_regime",
+      "refs": [
+        "s4://ua-msme"
+      ],
+      "status": "pass"
+    },
+    {
+      "block_key": "s5_coupling_composition",
+      "refs": [
+        "s5://ua-msme"
+      ],
+      "status": "pass"
+    },
+    {
+      "block_key": "s6_blind_spot_firewalls",
+      "refs": [
+        "s6://ua-msme"
+      ],
+      "status": "pass"
+    },
+    {
+      "block_key": "s7_delegation",
+      "refs": [
+        "human-decision-record://ua-msme/final-choice",
+        "human-decision-request://ua-msme/final-choice"
+      ],
+      "status": "pass"
+    },
+    {
+      "block_key": "s8_value_choice",
+      "refs": [
+        "s8://ua-msme"
+      ],
+      "status": "pass"
+    },
+    {
+      "block_key": "s9_projection_lowering",
+      "refs": [
+        "s9://ua-msme"
+      ],
+      "status": "pass"
+    },
+    {
+      "block_key": "s10_outcome_prediction",
+      "refs": [
+        "pdc://layer3/g2/forecast-support"
+      ],
+      "status": "pass"
+    },
+    {
+      "block_key": "s11_predictive_knowledge",
+      "refs": [
+        "pdc://layer2/s11/ua-msme"
+      ],
+      "status": "pass"
+    },
+    {
+      "block_key": "s12_resource_economics",
+      "refs": [
+        "demand-act://ua-msme/principal",
+        "voi://ua-msme/site-1"
+      ],
+      "status": "pass"
+    },
+    {
+      "block_key": "s13_post_deploy_accountability",
+      "refs": [
+        "s13://ua-msme"
+      ],
+      "status": "pass"
+    },
+    {
+      "block_key": "s14_universality_assurance",
+      "refs": [
+        "envelope://ua-msme/declared-limited"
+      ],
+      "status": "pass"
+    }
+  ],
+  "missing_block_keys": [],
+  "s14_grounded_authority_status": "pass",
+  "s14_universal_claim_gate_status": "pending_sealed",
+  "source_context": "g5_readiness_writer",
+  "status": "pass"
+}

@@ -1,0 +1,12 @@
+{
+  "conformance_refs": [
+    "layer3_g5_conformance_report.json#task7-negatives"
+  ],
+  "conversion_route_contract_registry_ref": "repo://architecture/policy_design_case/layer3_g5_conversion_route_contract_registry.toml",
+  "generated_artifact_family_id": "policy-design-case-layer3-g5-proving-ground-conversion-artifacts",
+  "issue_codes": [],
+  "missing_labels": [],
+  "rule_version": "policyos.layer3.g5.first_proving_ground_conversion.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g5_proving_ground_conversion.v1",
+  "status": "pass"
+}

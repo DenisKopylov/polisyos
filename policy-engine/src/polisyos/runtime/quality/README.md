@@ -24,5 +24,9 @@ Boundary notes:
   firewall producer. It reads repository architecture/data artifacts, registers
   source touchpoints in shadow form, and enforces quarantine/status/import
   checks without admitting adapters or exporting a stable public facade.
+- `layer3_proving_ground_conversion.py` is the G5 first proving-ground
+  conversion resolver. It reads bounded Layer 3 persisted artifacts and G4
+  handoff records to classify conversion inputs without rerunning upstream
+  builders or widening authority.
 - Public experimental exports must be reflected in the public-surface
   inventory and release fragments before release promotion.

@@ -1,0 +1,58 @@
+{
+  "health_toml": {
+    "envelope-expansion-rate": {
+      "conversion_reason": "unchanged_blocker_readiness_surface_no_expansion",
+      "demand_pull_refs": [
+        "s3-demand-pull://ua-msme/first-proving-ground",
+        "demand-act://ua-msme/principal",
+        "s12-growth-entry://ua-msme/first-proving-ground",
+        "envelope-delta://ua-msme/first",
+        "voi://ua-msme/layer3-g5",
+        "reuse-acquisition://ua-msme/layer3-g5",
+        "layer3-g5://readiness/demand-pull"
+      ],
+      "denominator": 1,
+      "effort_refs": [
+        "s3-demand-pull://ua-msme/first-proving-ground",
+        "layer3-g5://readiness/demand-pull",
+        "reuse-acquisition://ua-msme/layer3-g5"
+      ],
+      "envelope_ref": "envelope://ua-msme/declared-limited",
+      "numerator": 0,
+      "region_ref": "region://ua",
+      "search_health_refs": [
+        "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json"
+      ],
+      "trend": "flat",
+      "value": 0.0
+    },
+    "upstream": {
+      "adapter-semantic-loss": {
+        "reading_ref": "layer3-g5://health/adapter-semantic-loss",
+        "status": "pass",
+        "value": 0
+      },
+      "demand-pull-vs-abstention": {
+        "reading_ref": "layer3-g5://health/demand-pull-vs-abstention",
+        "status": "pass"
+      },
+      "governance-throughput": {
+        "reading_ref": "layer3-g4://health/governance-throughput",
+        "status": "pass"
+      },
+      "search-recall@known-seeds + index-staleness": {
+        "reading_ref": "layer3-g1://health/search-recall-freshness",
+        "status": "pass"
+      }
+    }
+  },
+  "issue_codes": [],
+  "metric_statuses": {
+    "adapter-semantic-loss": "pass",
+    "demand-pull-vs-abstention": "pass",
+    "envelope-expansion-rate": "flat",
+    "governance-throughput": "pass",
+    "search-recall@known-seeds + index-staleness": "pass"
+  },
+  "status": "pass"
+}

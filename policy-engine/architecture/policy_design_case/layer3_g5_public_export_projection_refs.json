@@ -1,0 +1,645 @@
+{
+  "EXPERT": {
+    "audience": "expert",
+    "audit_refs": [
+      "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker"
+    ],
+    "authoritative_for": [],
+    "authority_role": "projection_only",
+    "capability_reality_state": "implemented_but_not_orchestrated",
+    "closeout_truth": {
+      "blocker_codes": [
+        "layer3_g5_blocked_promotion_used_as_conversion",
+        "layer3_g5_g1_observed_but_uncertain_overclaimed",
+        "layer3_g5_g2_s2_replay_key_ref_missing",
+        "layer3_g5_g2_source_contract_ref_mismatch",
+        "layer3_g5_g3_proof_status_overclaimed",
+        "layer3_g5_duplicate_source_lineage_ref_inflates_independence",
+        "layer3_g5_gl_pass_with_reissue_required",
+        "layer3_g5_s14_pending_sealed_overclaimed"
+      ],
+      "can_closeout": false,
+      "status": "blocked",
+      "verdict": "cannot_closeout"
+    },
+    "contract_verification_refs": [
+      "policyos.runtime.policy_design_case.projection_contract_verification.v1"
+    ],
+    "contract_verification_status": "pass",
+    "evidence_class": "diagnostic_supporting",
+    "generated_at": "2026-06-09T00:00:00Z",
+    "invariant_summary": {},
+    "labels": [
+      {
+        "authority_role": "projection_only",
+        "label": "G5 conversion remains bounded by upstream blockers.",
+        "source_authority": "layer3_g5_conversion_record",
+        "state": "blocked"
+      }
+    ],
+    "may_be_used_for": [
+      "api_display",
+      "dashboard_display",
+      "external_explanation",
+      "operator_triage",
+      "public_audit"
+    ],
+    "may_not_be_used_for": [
+      "claim_authority",
+      "scorecard_authority",
+      "runtime_closeout_authority",
+      "recommendation_authority",
+      "production_authority",
+      "policy_recommendation",
+      "useful_design_credit"
+    ],
+    "policy_design_case_id": "ua-msme-affordable-loans-2022",
+    "primary_state": "blocked",
+    "projection_policy": "reads_policy_design_case_only",
+    "redaction_summary": {
+      "raw_payload_redacted": true
+    },
+    "run_id": "layer3-g5-readiness",
+    "schema_version": "policyos.runtime.policy_design_case.projection.v1",
+    "source_authority_refs": {
+      "g5_conversion_record_ref": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker"
+    },
+    "source_ref": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
+    "source_state": {
+      "g5_conversion_outcome": "unchanged_blocker",
+      "g5_grounding_disposition": "ungrounded_blocked"
+    },
+    "states": [
+      "blocked",
+      "projection_only"
+    ],
+    "surface": "layer3_g5_conversion_projection"
+  },
+  "MACHINE": {
+    "audience": "machine",
+    "audit_refs": [
+      "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker"
+    ],
+    "authoritative_for": [],
+    "authority_role": "projection_only",
+    "capability_reality_state": "implemented_but_not_orchestrated",
+    "closeout_truth": {
+      "blocker_codes": [
+        "layer3_g5_blocked_promotion_used_as_conversion",
+        "layer3_g5_g1_observed_but_uncertain_overclaimed",
+        "layer3_g5_g2_s2_replay_key_ref_missing",
+        "layer3_g5_g2_source_contract_ref_mismatch",
+        "layer3_g5_g3_proof_status_overclaimed",
+        "layer3_g5_duplicate_source_lineage_ref_inflates_independence",
+        "layer3_g5_gl_pass_with_reissue_required",
+        "layer3_g5_s14_pending_sealed_overclaimed"
+      ],
+      "can_closeout": false,
+      "status": "blocked",
+      "verdict": "cannot_closeout"
+    },
+    "contract_verification_refs": [
+      "policyos.runtime.policy_design_case.projection_contract_verification.v1"
+    ],
+    "contract_verification_status": "pass",
+    "evidence_class": "diagnostic_supporting",
+    "generated_at": "2026-06-09T00:00:00Z",
+    "invariant_summary": {},
+    "labels": [
+      {
+        "authority_role": "projection_only",
+        "label": "G5 conversion remains bounded by upstream blockers.",
+        "source_authority": "layer3_g5_conversion_record",
+        "state": "blocked"
+      }
+    ],
+    "may_be_used_for": [
+      "api_display",
+      "dashboard_display",
+      "external_explanation",
+      "operator_triage",
+      "public_audit"
+    ],
+    "may_not_be_used_for": [
+      "claim_authority",
+      "scorecard_authority",
+      "runtime_closeout_authority",
+      "recommendation_authority",
+      "production_authority",
+      "policy_recommendation",
+      "useful_design_credit"
+    ],
+    "policy_design_case_id": "ua-msme-affordable-loans-2022",
+    "primary_state": "blocked",
+    "projection_policy": "reads_policy_design_case_only",
+    "redaction_summary": {
+      "raw_payload_redacted": true
+    },
+    "run_id": "layer3-g5-readiness",
+    "schema_version": "policyos.runtime.policy_design_case.projection.v1",
+    "source_authority_refs": {
+      "g5_conversion_record_ref": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker"
+    },
+    "source_ref": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
+    "source_state": {
+      "g5_conversion_outcome": "unchanged_blocker",
+      "g5_grounding_disposition": "ungrounded_blocked"
+    },
+    "states": [
+      "blocked",
+      "projection_only"
+    ],
+    "surface": "layer3_g5_conversion_projection"
+  },
+  "PUBLIC": {
+    "audience": "public",
+    "audit_refs": [
+      "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker"
+    ],
+    "authoritative_for": [],
+    "authority_role": "projection_only",
+    "capability_reality_state": "implemented_but_not_orchestrated",
+    "closeout_truth": {
+      "blocker_codes": [
+        "layer3_g5_blocked_promotion_used_as_conversion",
+        "layer3_g5_g1_observed_but_uncertain_overclaimed",
+        "layer3_g5_g2_s2_replay_key_ref_missing",
+        "layer3_g5_g2_source_contract_ref_mismatch",
+        "layer3_g5_g3_proof_status_overclaimed",
+        "layer3_g5_duplicate_source_lineage_ref_inflates_independence",
+        "layer3_g5_gl_pass_with_reissue_required",
+        "layer3_g5_s14_pending_sealed_overclaimed"
+      ],
+      "blockers": [],
+      "can_closeout": false,
+      "contested_state": "not_contested",
+      "limitation_codes": [],
+      "omission_codes": [],
+      "status": "blocked",
+      "verdict": "cannot_closeout"
+    },
+    "contested_records": [],
+    "contract_verification_refs": [
+      "policyos.runtime.policy_design_case.projection_contract_verification.v1"
+    ],
+    "contract_verification_status": "pass",
+    "deficit_register": [],
+    "evidence_class": "diagnostic_supporting",
+    "g5_conversion_outcome": "unchanged_blocker",
+    "g5_conversion_record_ref": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
+    "g5_envelope_expansion_rate": 0.0,
+    "generated_at": "2026-06-09T00:00:00Z",
+    "invariant_summary": {
+      "blocker_codes": [],
+      "details": {},
+      "evidence_refs": [],
+      "failing_count": 0,
+      "passing_count": 0,
+      "status": "not_provided"
+    },
+    "labels": [
+      {
+        "authority_role": "projection_only",
+        "label": "G5 conversion remains bounded by upstream blockers.",
+        "source_authority": "layer3_g5_conversion_record",
+        "state": "blocked"
+      }
+    ],
+    "may_be_used_for": [
+      "api_display",
+      "dashboard_display",
+      "external_explanation",
+      "operator_triage",
+      "public_audit"
+    ],
+    "may_not_be_used_for": [
+      "claim_authority",
+      "scorecard_authority",
+      "runtime_closeout_authority",
+      "recommendation_authority",
+      "production_authority",
+      "policy_recommendation",
+      "useful_design_credit"
+    ],
+    "omission_manifest": [],
+    "participation_requirements": [],
+    "policy_design_case_id": "ua-msme-affordable-loans-2022",
+    "primary_state": "blocked",
+    "projection_gaps": [],
+    "projection_policy": "reads_policy_design_case_only",
+    "provenance_kind": "runtime_projection",
+    "redacted": false,
+    "redaction_summary": {
+      "raw_payload_redacted": true
+    },
+    "run_id": "layer3-g5-readiness",
+    "s12_public_growth_limitation": "G5 demand/growth refs are diagnostic and cannot allocate budget.",
+    "schema_version": "policyos.runtime.policy_design_case.projection.v1",
+    "source_authority_refs": {
+      "g5_conversion_record_ref": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker"
+    },
+    "source_ref": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
+    "source_state": {
+      "g5_conversion_outcome": "unchanged_blocker",
+      "g5_grounding_disposition": "ungrounded_blocked"
+    },
+    "states": [
+      "blocked",
+      "projection_only"
+    ],
+    "surface": "layer3_g5_conversion_projection"
+  },
+  "REVIEWER": {
+    "audience": "reviewer",
+    "audit_refs": [
+      "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker"
+    ],
+    "authoritative_for": [],
+    "authority_role": "projection_only",
+    "capability_reality_state": "implemented_but_not_orchestrated",
+    "closeout_truth": {
+      "blocker_codes": [
+        "layer3_g5_blocked_promotion_used_as_conversion",
+        "layer3_g5_g1_observed_but_uncertain_overclaimed",
+        "layer3_g5_g2_s2_replay_key_ref_missing",
+        "layer3_g5_g2_source_contract_ref_mismatch",
+        "layer3_g5_g3_proof_status_overclaimed",
+        "layer3_g5_duplicate_source_lineage_ref_inflates_independence",
+        "layer3_g5_gl_pass_with_reissue_required",
+        "layer3_g5_s14_pending_sealed_overclaimed"
+      ],
+      "can_closeout": false,
+      "status": "blocked",
+      "verdict": "cannot_closeout"
+    },
+    "contract_verification_refs": [
+      "policyos.runtime.policy_design_case.projection_contract_verification.v1"
+    ],
+    "contract_verification_status": "pass",
+    "evidence_class": "diagnostic_supporting",
+    "generated_at": "2026-06-09T00:00:00Z",
+    "invariant_summary": {},
+    "labels": [
+      {
+        "authority_role": "projection_only",
+        "label": "G5 conversion remains bounded by upstream blockers.",
+        "source_authority": "layer3_g5_conversion_record",
+        "state": "blocked"
+      }
+    ],
+    "may_be_used_for": [
+      "api_display",
+      "dashboard_display",
+      "external_explanation",
+      "operator_triage",
+      "public_audit"
+    ],
+    "may_not_be_used_for": [
+      "claim_authority",
+      "scorecard_authority",
+      "runtime_closeout_authority",
+      "recommendation_authority",
+      "production_authority",
+      "policy_recommendation",
+      "useful_design_credit"
+    ],
+    "policy_design_case_id": "ua-msme-affordable-loans-2022",
+    "primary_state": "blocked",
+    "projection_policy": "reads_policy_design_case_only",
+    "redaction_summary": {
+      "raw_payload_redacted": true
+    },
+    "run_id": "layer3-g5-readiness",
+    "schema_version": "policyos.runtime.policy_design_case.projection.v1",
+    "source_authority_refs": {
+      "g5_conversion_record_ref": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker"
+    },
+    "source_ref": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
+    "source_state": {
+      "g5_conversion_outcome": "unchanged_blocker",
+      "g5_grounding_disposition": "ungrounded_blocked"
+    },
+    "states": [
+      "blocked",
+      "projection_only"
+    ],
+    "surface": "layer3_g5_conversion_projection"
+  },
+  "audiences": [
+    "PUBLIC",
+    "REVIEWER",
+    "EXPERT",
+    "MACHINE"
+  ],
+  "issue_codes": [],
+  "may_not_use_for": [
+    "production_authority",
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "public_recommendation",
+    "policy_recommendation",
+    "legal_advice",
+    "claim_authority_without_upstream_grounding",
+    "causal_effect_authority_without_g2",
+    "proof_authority_without_g3",
+    "legal_authority_without_gl",
+    "useful_design_rate_floor_relaxation",
+    "g6_arbitrary_request_orchestration",
+    "g7_region_widening"
+  ],
+  "projection_contract_verification": {
+    "consumer_contract_ref": "policyos.runtime.policy_design_case.projection_contract_verification.v1",
+    "consumer_contracts": [
+      {
+        "audience": "PUBLIC",
+        "consumer": "PUBLIC",
+        "issue_codes": [],
+        "status": "pass",
+        "verified_fields": [
+          "closeout_truth",
+          "blockers",
+          "limitations",
+          "omissions",
+          "contested_records"
+        ]
+      }
+    ],
+    "issues": [],
+    "schema_version": "policyos.runtime.policy_design_case.projection_contract_verification.v1",
+    "status": "pass"
+  },
+  "projection_mode": "projection_only",
+  "public_export_bundle_route_registered": false,
+  "public_export_hook_status": "out_of_scope_reference_only",
+  "rule_version": "policyos.layer3.g5.first_proving_ground_conversion.v1",
+  "s12_projection_contract_verification": {
+    "consumer_contract_ref": "policyos.runtime.policy_design_case.s12_resource_projection_verification.v1",
+    "consumer_contracts": [
+      {
+        "audience": "PUBLIC",
+        "consumer": "PUBLIC",
+        "issue_codes": [],
+        "status": "pass",
+        "verified_fields": [
+          "resource_allocation_policy_ref",
+          "explore_exploit_posture",
+          "explore_exploit_dial_ref",
+          "voi_allocation_refs",
+          "typed_budget_refs",
+          "pareto_archive_ref",
+          "envelope_growth_ledger_ref",
+          "growth_thermometer_ref",
+          "override_rate_trend",
+          "reuse_rate_trend",
+          "residual_limitation_refs",
+          "authority_boundary"
+        ]
+      }
+    ],
+    "issue_codes": [],
+    "issues": [],
+    "public_projection": {
+      "authority_role": "projection_only",
+      "explore_exploit_posture": "explore",
+      "may_not_be_used_for": [
+        "production_authority",
+        "production_recommendation",
+        "rollout_authority",
+        "publication_authority",
+        "claim_authority",
+        "closeout_authority",
+        "approval_authority",
+        "scorecard_authority",
+        "preference_learning_authority",
+        "mdp_bandit_optimizer_authority",
+        "budget_interchangeability",
+        "mission_or_value_self_authorization",
+        "floor_relaxation",
+        "s13_envelope_shrink",
+        "s13_accountability_closure",
+        "s14_universality"
+      ],
+      "override_rate_trend": "",
+      "reuse_rate_trend": "",
+      "s12_public_growth_limitation": "G5 demand-pull and growth refs disclose pressure only; they do not recommend allocation or relax useful-design floors."
+    },
+    "s12_resource_projection": {
+      "authority_boundary": {
+        "may_not_use_for": [
+          "production_authority",
+          "production_recommendation",
+          "rollout_authority",
+          "publication_authority",
+          "claim_authority",
+          "closeout_authority",
+          "approval_authority",
+          "scorecard_authority",
+          "preference_learning_authority",
+          "mdp_bandit_optimizer_authority",
+          "budget_interchangeability",
+          "mission_or_value_self_authorization",
+          "floor_relaxation",
+          "s13_envelope_shrink",
+          "s13_accountability_closure",
+          "s14_universality"
+        ]
+      },
+      "authority_role": "projection_only",
+      "delegation_contract_ref": "human-decision-record://ua-msme/final-choice",
+      "envelope_growth_ledger_ref": "",
+      "explore_exploit_dial_ref": "s7://layer3-g5/delegation-dial",
+      "explore_exploit_posture": "explore",
+      "growth_thermometer_ref": "",
+      "held_out_status": "",
+      "may_not_be_used_for": [
+        "production_authority",
+        "production_recommendation",
+        "rollout_authority",
+        "publication_authority",
+        "claim_authority",
+        "closeout_authority",
+        "approval_authority",
+        "scorecard_authority",
+        "preference_learning_authority",
+        "mdp_bandit_optimizer_authority",
+        "budget_interchangeability",
+        "mission_or_value_self_authorization",
+        "floor_relaxation",
+        "s13_envelope_shrink",
+        "s13_accountability_closure",
+        "s14_universality"
+      ],
+      "override_rate_trend": "",
+      "pareto_archive_ref": "",
+      "residual_limitation_refs": [],
+      "resource_allocation_disposition": "",
+      "resource_allocation_policy_ref": "s12://layer3-g5/resource-economics",
+      "reuse_rate_trend": "",
+      "rule_version_ref": "",
+      "s12_public_growth_limitation": "G5 demand-pull and growth refs disclose pressure only; they do not recommend allocation or relax useful-design floors.",
+      "s12_resource_posture_ref": "s12://layer3-g5/resource-economics",
+      "typed_budget_refs": [],
+      "voi_allocation_refs": [],
+      "voi_site_count": 0
+    },
+    "schema_version": "policyos.runtime.policy_design_case.s12_resource_projection_verification.v1",
+    "status": "pass"
+  },
+  "s14_projection_contract_verification": {
+    "consumer_contract_ref": "policyos.runtime.policy_design_case.s14_universality_projection_verification.v1",
+    "consumer_contracts": [
+      {
+        "audience": "PUBLIC",
+        "consumer": "PUBLIC",
+        "issue_codes": [],
+        "status": "pass",
+        "verified_fields": [
+          "s14_universality_assurance_ref",
+          "universality_claim_gate_ref",
+          "declared_operation_envelope_ref",
+          "d4_corpus_track_coverage_ref",
+          "expert_oracle_bootstrap_ref",
+          "breadth_floor_config_ref",
+          "universality_baseline_comparison_ref",
+          "grounded_authority_coverage_ref",
+          "evaluation_status_composition_ref",
+          "axis_scorecard_ref",
+          "sealed_battery_run_ref",
+          "mechanism_generality_report_ref",
+          "skeptic_defeater_refs",
+          "s9_projection_faithfulness_refs",
+          "authority_boundary"
+        ]
+      }
+    ],
+    "issue_codes": [],
+    "issues": [],
+    "public_projection": {
+      "authority_role": "projection_only",
+      "axis_scorecard_ref": "axis-scorecard://layer3-g5",
+      "baseline_comparison_status": "",
+      "breadth_floor_config_ref": "breadth-floor://layer3-g5/config",
+      "breadth_floor_status": "",
+      "d4_breadth_limitation_summary": "unknown",
+      "d4_corpus_track_coverage_ref": "d4://layer3-g5/corpus-track-coverage",
+      "d4_corpus_track_coverage_status": "",
+      "declared_operation_envelope_ref": "envelope://ua-msme/declared-limited",
+      "evaluation_status_composition_ref": "status-composition://layer3-g5/evaluation",
+      "excluded_domain_refs": [],
+      "expert_oracle_bootstrap_ref": "expert-oracle://layer3-g5/bootstrap",
+      "expert_oracle_seed_only_layer_refs": [],
+      "grounded_authority_coverage_ref": "grounded-authority://layer3-g5/coverage",
+      "grounded_authority_status": "",
+      "may_not_be_used_for": [
+        "production_rollout_authority",
+        "production_recommendation",
+        "recommendation_authority",
+        "publication_authority",
+        "approval_authority",
+        "claim_authority",
+        "runtime_closeout_authority",
+        "scorecard_authority",
+        "preference_learning",
+        "automated_value_learning",
+        "aggregate_universal_score"
+      ],
+      "mechanism_generality_status": "",
+      "not_tested_axis_refs": [],
+      "out_of_envelope_axis_refs": [],
+      "public_universality_limitation": "G5 may project the declared envelope only; it cannot claim universal performance or production rollout authority.",
+      "s14_universality_assurance_ref": "s14://layer3-g5/universality-assurance",
+      "s9_projection_faithfulness_refs": [
+        "s9://layer3-g5/faithfulness"
+      ],
+      "skeptic_defeater_statuses": {},
+      "status_composition_limit_refs": [],
+      "sublinear_marginal_bespoke_cost_status": "",
+      "universality_baseline_comparison_ref": "universality-baseline://layer3-g5/comparison",
+      "universality_claim_disposition": "",
+      "universality_claim_gate_ref": "s14://layer3-g5/universality-claim-gate"
+    },
+    "s14_universality_projection": {
+      "a_firewall_refs": [],
+      "authority_boundary": {
+        "may_not_use_for": [
+          "production_rollout_authority",
+          "production_recommendation",
+          "recommendation_authority",
+          "publication_authority",
+          "approval_authority",
+          "claim_authority",
+          "runtime_closeout_authority",
+          "scorecard_authority",
+          "preference_learning",
+          "automated_value_learning",
+          "aggregate_universal_score"
+        ]
+      },
+      "authority_role": "projection_only",
+      "axis_scorecard_ref": "axis-scorecard://layer3-g5",
+      "axis_scorecard_rows": [],
+      "baseline_comparison_status": "",
+      "breadth_floor_config_ref": "breadth-floor://layer3-g5/config",
+      "breadth_floor_status": "",
+      "capacity_check_refs": [],
+      "claim_evidence_binding_refs": [],
+      "d4_corpus_track_coverage_ref": "d4://layer3-g5/corpus-track-coverage",
+      "d4_corpus_track_coverage_status": "",
+      "declared_operation_envelope_ref": "envelope://ua-msme/declared-limited",
+      "envelope_revision_dynamics_ref": "",
+      "envelope_revision_dynamics_status": "",
+      "evaluation_status_composition_ref": "status-composition://layer3-g5/evaluation",
+      "excluded_domain_refs": [],
+      "expert_oracle_bootstrap_ref": "expert-oracle://layer3-g5/bootstrap",
+      "expert_oracle_seed_only_layer_refs": [],
+      "grounded_authority_coverage_ref": "grounded-authority://layer3-g5/coverage",
+      "grounded_authority_status": "",
+      "hard_corner_case_refs": [],
+      "mandate_legitimacy_refs": [],
+      "may_not_be_used_for": [
+        "production_rollout_authority",
+        "production_recommendation",
+        "recommendation_authority",
+        "publication_authority",
+        "approval_authority",
+        "claim_authority",
+        "runtime_closeout_authority",
+        "scorecard_authority",
+        "preference_learning",
+        "automated_value_learning",
+        "aggregate_universal_score"
+      ],
+      "mechanism_generality_report_ref": "mechanism-generality://layer3-g5/report",
+      "mechanism_generality_status": "",
+      "not_tested_axis_refs": [],
+      "out_of_envelope_axis_refs": [],
+      "public_universality_limitation": "G5 may project the declared envelope only; it cannot claim universal performance or production rollout authority.",
+      "replay_digest": "",
+      "rule_version_ref": "",
+      "s14_universality_assurance_ref": "s14://layer3-g5/universality-assurance",
+      "s9_projection_faithfulness_refs": [
+        "s9://layer3-g5/faithfulness"
+      ],
+      "sealed_battery_freeze_hash": "",
+      "sealed_battery_integrity_status": "",
+      "sealed_battery_run_ref": "sealed-battery://layer3-g5/not-accessed",
+      "skeptic_defeater_refs": [],
+      "skeptic_defeater_statuses": {},
+      "status_composition_limit_refs": [],
+      "sublinear_marginal_bespoke_cost_status": "",
+      "universality_baseline_comparison_ref": "universality-baseline://layer3-g5/comparison",
+      "universality_claim_disposition": "",
+      "universality_claim_gate_ref": "s14://layer3-g5/universality-claim-gate",
+      "value_choice_provenance_refs": []
+    },
+    "schema_version": "policyos.runtime.policy_design_case.s14_universality_projection_verification.v1",
+    "status": "pass"
+  },
+  "schema_version": "policyos.policy_design_case.layer3_g5_proving_ground_conversion.v1",
+  "status": "pass"
+}

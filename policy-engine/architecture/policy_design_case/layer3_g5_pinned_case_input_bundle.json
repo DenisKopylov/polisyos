@@ -1,0 +1,163 @@
+{
+  "authority_outcome_refs": [
+    "authority-outcome://production/typed_blocker"
+  ],
+  "case_digest": "sha256:ffcf1a195fa1c4becae327d675811cc40a3b60e222a937883cf587520e72f2d8",
+  "case_id": "ua-msme-affordable-loans-2022",
+  "composed_loop_completeness_gate": {
+    "case_id": "ua-msme-affordable-loans-2022",
+    "issue_codes": [],
+    "layer2_status_readings": [
+      {
+        "block_key": "s4_epistemic_regime",
+        "refs": [
+          "s4://ua-msme"
+        ],
+        "status": "pass"
+      },
+      {
+        "block_key": "s5_coupling_composition",
+        "refs": [
+          "s5://ua-msme"
+        ],
+        "status": "pass"
+      },
+      {
+        "block_key": "s6_blind_spot_firewalls",
+        "refs": [
+          "s6://ua-msme"
+        ],
+        "status": "pass"
+      },
+      {
+        "block_key": "s7_delegation",
+        "refs": [
+          "human-decision-record://ua-msme/final-choice",
+          "human-decision-request://ua-msme/final-choice"
+        ],
+        "status": "pass"
+      },
+      {
+        "block_key": "s8_value_choice",
+        "refs": [
+          "s8://ua-msme"
+        ],
+        "status": "pass"
+      },
+      {
+        "block_key": "s9_projection_lowering",
+        "refs": [
+          "s9://ua-msme"
+        ],
+        "status": "pass"
+      },
+      {
+        "block_key": "s10_outcome_prediction",
+        "refs": [
+          "pdc://layer3/g2/forecast-support"
+        ],
+        "status": "pass"
+      },
+      {
+        "block_key": "s11_predictive_knowledge",
+        "refs": [
+          "pdc://layer2/s11/ua-msme"
+        ],
+        "status": "pass"
+      },
+      {
+        "block_key": "s12_resource_economics",
+        "refs": [
+          "demand-act://ua-msme/principal",
+          "voi://ua-msme/site-1"
+        ],
+        "status": "pass"
+      },
+      {
+        "block_key": "s13_post_deploy_accountability",
+        "refs": [
+          "s13://ua-msme"
+        ],
+        "status": "pass"
+      },
+      {
+        "block_key": "s14_universality_assurance",
+        "refs": [
+          "envelope://ua-msme/declared-limited"
+        ],
+        "status": "pass"
+      }
+    ],
+    "missing_block_keys": [],
+    "s14_grounded_authority_status": "pass",
+    "s14_universal_claim_gate_status": "pending_sealed",
+    "source_context": "g5_readiness_writer",
+    "status": "pass"
+  },
+  "constraint_store_statuses": [
+    "pass"
+  ],
+  "design_record_firewall_statuses": [
+    "pass"
+  ],
+  "design_record_ref": "pdc://layer2/s2/ua-msme/design-record-v0",
+  "issue_codes": [
+    "layer3_g5_s14_pending_sealed_overclaimed"
+  ],
+  "layer3_gate_statuses": {
+    "layer3_g0_grounding_gate": "pass",
+    "layer3_g1_grounding_gate": "pass",
+    "layer3_g2_forecast_gate": "pass",
+    "layer3_g3_analytics_search_gate": "pass"
+  },
+  "replay_refs": [
+    "repo://tests/fixtures/universal-corpus/cases/ua-msme-affordable-loans-2022.json",
+    "replay://layer2/s2/ua-msme",
+    "pdc://layer2/s2/ua-msme/design-record-v0",
+    "repo://tools/quality/validation/check_policy_design_case_layer3_g5_readiness.py#readiness-payload",
+    "w12d://case/ua-msme-affordable-loans-2022/sha256:ffcf1a195fa1c4becae327d675811cc40a3b60e222a937883cf587520e72f2d8"
+  ],
+  "rule_version": "policyos.layer3.g5.first_proving_ground_conversion.v1",
+  "s12_certified_envelope_delta_refs": [
+    "envelope-delta://ua-msme/first"
+  ],
+  "s12_demand_act_refs": [
+    "demand-act://ua-msme/principal"
+  ],
+  "s14_declared_envelope_ref": "envelope://ua-msme/declared-limited",
+  "s14_grounded_authority_status": "pass",
+  "s14_universal_claim_gate_status": "pending_sealed",
+  "s2_acquisition_branch_state": "resolved",
+  "s2_status": "shadow_ready",
+  "s7_delegation_record_refs": [
+    "human-decision-record://ua-msme/final-choice"
+  ],
+  "s7_human_decision_record_ref": "human-decision-record://ua-msme/final-choice",
+  "s7_human_decision_request_ref": "human-decision-request://ua-msme/final-choice",
+  "schema_version": "policyos.policy_design_case.layer3_g5_proving_ground_conversion.v1",
+  "status": "pass",
+  "typed_blocker_codes": [
+    "w12d_typed_blocker"
+  ],
+  "w12d_case_block_index": {
+    "block_keys": [
+      "s4_epistemic_regime",
+      "s5_coupling_composition",
+      "s6_blind_spot_firewalls",
+      "s7_delegation",
+      "s8_value_choice",
+      "s9_projection_lowering",
+      "s10_outcome_prediction",
+      "s11_predictive_knowledge",
+      "s12_resource_economics",
+      "s13_post_deploy_accountability",
+      "s14_universality_assurance"
+    ],
+    "case_id": "ua-msme-affordable-loans-2022",
+    "issue_codes": [],
+    "missing_block_keys": [],
+    "status": "pass"
+  },
+  "w12d_payload_ref": "repo://tools/quality/validation/check_policy_design_case_layer3_g5_readiness.py#readiness-payload",
+  "w12d_payload_status": "explicit_payload"
+}

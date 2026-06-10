@@ -1,0 +1,25 @@
+{
+  "blocker_refs": [
+    "layer3_g5_blocked_promotion_used_as_conversion",
+    "layer3_g5_g1_observed_but_uncertain_overclaimed",
+    "layer3_g5_g2_s2_replay_key_ref_missing",
+    "layer3_g5_g2_source_contract_ref_mismatch",
+    "layer3_g5_g3_proof_status_overclaimed",
+    "layer3_g5_duplicate_source_lineage_ref_inflates_independence",
+    "layer3_g5_gl_pass_with_reissue_required",
+    "layer3_g5_s14_pending_sealed_overclaimed"
+  ],
+  "conversion_outcome": "unchanged_blocker",
+  "g4_design_scope_status": "blocked",
+  "grounding_disposition": "ungrounded_blocked",
+  "issue_codes": [],
+  "limitation_refs": [],
+  "mixed_upstream_statuses": [
+    "limited"
+  ],
+  "requested_claim_families": [],
+  "status": "pass",
+  "useful_design_credit_requested": false,
+  "weakest_boundary_reason": "unchanged_blocker_first_readiness_surface",
+  "weakest_boundary_status": "limited"
+}

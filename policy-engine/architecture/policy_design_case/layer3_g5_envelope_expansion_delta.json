@@ -1,0 +1,31 @@
+{
+  "conversion_reason": "unchanged_blocker_readiness_surface_no_expansion",
+  "demand_pull_refs": [
+    "s3-demand-pull://ua-msme/first-proving-ground",
+    "demand-act://ua-msme/principal",
+    "s12-growth-entry://ua-msme/first-proving-ground",
+    "envelope-delta://ua-msme/first",
+    "voi://ua-msme/layer3-g5",
+    "reuse-acquisition://ua-msme/layer3-g5",
+    "layer3-g5://readiness/demand-pull"
+  ],
+  "denominator": 1,
+  "effort_refs": [
+    "s3-demand-pull://ua-msme/first-proving-ground",
+    "layer3-g5://readiness/demand-pull",
+    "reuse-acquisition://ua-msme/layer3-g5"
+  ],
+  "envelope_delta_refs": [
+    "envelope-delta://ua-msme/first"
+  ],
+  "envelope_expansion_rate": 0.0,
+  "envelope_ref": "envelope://ua-msme/declared-limited",
+  "issue_codes": [],
+  "numerator": 0,
+  "region_ref": "region://ua",
+  "search_health_refs": [
+    "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json"
+  ],
+  "status": "flat",
+  "trend": "flat"
+}

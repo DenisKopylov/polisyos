@@ -2226,7 +2226,10 @@ def _g2_validate_semantic_and_s10_acceptance(
                 _issue(
                     "layer3_g2_regime_forecast_tier_laundering",
                     f"$.forecast_support_bindings[{idx}].epistemic_regime",
-                    "Precautionary or contested regimes need explicit limitations for governed tiers.",
+                    (
+                        "Precautionary or contested regimes need explicit limitations "
+                        "for governed tiers."
+                    ),
                 )
             )
         if _g2_is_effect_independence_inflated(binding):

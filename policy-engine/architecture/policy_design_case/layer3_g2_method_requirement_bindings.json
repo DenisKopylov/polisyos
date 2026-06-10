@@ -1,0 +1,146 @@
+{
+  "method_requirement_bindings": [
+    {
+      "authority_boundary": {
+        "authoritative_for": [
+          "method_validity_requirements",
+          "method_selection_preconditions",
+          "ir_analytics_requirement_binding"
+        ],
+        "may_not_use_for": [
+          "legal_authority",
+          "source_family_satisfaction",
+          "academic_support_strength",
+          "participation_representativeness",
+          "closeout_pass"
+        ]
+      },
+      "binding_id": "g2-method-requirement-binding:db5513b75f266e53fa5d1541",
+      "candidate_method_refs": [
+        "foundry-method://causal.space_time.fem_spde_g_computation@1.0.0",
+        "foundry-method://causal.inference.did.staggered@1.0.0",
+        "foundry-method://causal.inference.did.standard@1.0.0",
+        "foundry-method://causal.bounds.imbens_manski@1.0.0",
+        "foundry-method://causal.inference.structural_time_series@1.0.0",
+        "foundry-method://econometrics.panel.nonstationary_garch@1.0.0",
+        "foundry-method://causal.diagnostics.parallel_trends_check@1.0.0",
+        "foundry-method://causal.inference.did.borusyak_jaravel_spiess@1.0.0",
+        "causal.did.readiness"
+      ],
+      "issue_codes": [],
+      "method_requirement_refs": [
+        "g2-method-req:fertilizer-use-agriculture-food-nutritional-quality"
+      ],
+      "method_requirement_specs": [
+        {
+          "alternative_refs": [],
+          "assumption_validation_needs": [
+            {
+              "assumption_id": "identification_strategy",
+              "gate_required": true,
+              "rationale": "",
+              "required_statuses": [
+                "pass"
+              ]
+            },
+            {
+              "assumption_id": "overlap_or_support",
+              "gate_required": true,
+              "rationale": "",
+              "required_statuses": [
+                "pass"
+              ]
+            },
+            {
+              "assumption_id": "transportability",
+              "gate_required": true,
+              "rationale": "",
+              "required_statuses": [
+                "pass"
+              ]
+            }
+          ],
+          "authority_profile_refs": [],
+          "baseline_refs": [],
+          "claim_id": "g2-request:default-causal-forecast-method-search",
+          "concept_spine_refs": [
+            "source-contract://ua-msme/server-support"
+          ],
+          "facet_refs": [
+            "g2-request-facet:g2-request:default-causal-forecast-method-search:causal-forecast"
+          ],
+          "fairness_decomposition_need": "subgroup",
+          "identification_class": "point",
+          "metadata": {
+            "cause": "agriculture.fertilizer_use",
+            "data_modality": "panel",
+            "effect": "agriculture.food_nutritional_quality",
+            "required_diagnostics": [
+              "identification",
+              "transportability",
+              "uncertainty"
+            ],
+            "target_context_id": "UA"
+          },
+          "method_expectations": [
+            "causal_effect_estimation"
+          ],
+          "obligation_refs": [
+            "g2-method-obligation:g2-request:default-causal-forecast-method-search"
+          ],
+          "producer_ref": "polisyos.method_requirement.compiler",
+          "required_method_families": [
+            "causal_effect_estimation"
+          ],
+          "requirement_id": "g2-method-req:fertilizer-use-agriculture-food-nutritional-quality",
+          "requires_ir_analytics": true,
+          "requires_limitation_refs": true,
+          "requires_method_output": true,
+          "requires_negative_certificate": false,
+          "requires_runtime_assumption_gates": true,
+          "requires_uncertainty_envelope": true,
+          "run_id": "ua-msme-affordable-loans-2022",
+          "schema_version": "1.0",
+          "simulation_dgp_requirements": {
+            "behavioral_response_required": false,
+            "calibration_required": false,
+            "dgp_lineage_required": false,
+            "rationale": "",
+            "required": false,
+            "required_refs": []
+          },
+          "source_precondition_refs": [
+            "source-contract://ua-msme/server-support"
+          ],
+          "strategic_response_sensitivity": "monitor",
+          "transportability_requirement": "target_population_limits",
+          "uncertainty_class": "interval"
+        }
+      ],
+      "method_requirement_statuses": {
+        "g2-method-req:fertilizer-use-agriculture-food-nutritional-quality": "satisfied"
+      },
+      "rejected_method_refs": [
+        "foundry-method://causal.space_time.fem_spde_g_computation@1.0.0",
+        "foundry-method://causal.inference.did.staggered@1.0.0",
+        "foundry-method://causal.inference.did.standard@1.0.0",
+        "foundry-method://causal.bounds.imbens_manski@1.0.0",
+        "foundry-method://causal.inference.structural_time_series@1.0.0",
+        "foundry-method://econometrics.panel.nonstationary_garch@1.0.0",
+        "foundry-method://causal.diagnostics.parallel_trends_check@1.0.0",
+        "foundry-method://causal.inference.did.borusyak_jaravel_spiess@1.0.0"
+      ],
+      "request_ref": "g2-request:default-causal-forecast-method-search",
+      "search_report_ref": "layer3-g2-foundry-method-registry-search",
+      "selected_method_refs": [
+        "causal.did.readiness"
+      ],
+      "selection_issue_codes": [],
+      "selection_report_ref": "g2-method-requirement-selection:e755ff32f6fb5ebbd9589cb5",
+      "selection_status": "pass",
+      "status": "pass"
+    }
+  ],
+  "rule_version": "policyos.layer3.g2.causal_forecast_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g2_causal_forecast.v1"
+}

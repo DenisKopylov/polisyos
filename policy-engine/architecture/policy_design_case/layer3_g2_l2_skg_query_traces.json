@@ -1,0 +1,82 @@
+{
+  "l2_skg_query_traces": [
+    {
+      "canonical_l2_route": "scholar_knowledge.duckdb",
+      "direct_sql_read_only": true,
+      "limit": 8,
+      "matched_moderators": [],
+      "normalization_diagnostics": [],
+      "predicates": {
+        "cause": "agriculture.fertilizer_use",
+        "effect": "agriculture.food_nutritional_quality",
+        "min_confidence": 0.25,
+        "support_mode": "hybrid"
+      },
+      "quality_flags": [],
+      "query_api_route": "polisyos.data_forge.read_api.academic.SKGQuery",
+      "query_vector_producer_ref": null,
+      "rejected_candidate_refs": [],
+      "result_count": 1,
+      "row_refs": [
+        "skg-edge://06fb46cd681818bc52d1cc01"
+      ],
+      "selected_candidate_refs": [
+        "skg-edge://06fb46cd681818bc52d1cc01"
+      ],
+      "semantic_retrieval_required": false,
+      "skg_snapshot_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb#v1",
+      "skg_version_id": 1,
+      "sql_description": null,
+      "table_refs": [
+        "ac_skg_edges",
+        "ac_skg_edge_evidence",
+        "ac_causal_claims"
+      ],
+      "trace_id": "g2-skg-query-trace:e7a846b8d35e1d29de6fd4d5",
+      "transport_notes": [],
+      "uncertainty_sources": [],
+      "used_skg_query": true
+    },
+    {
+      "canonical_l2_route": "scholar_knowledge.duckdb",
+      "direct_sql_read_only": true,
+      "limit": 8,
+      "matched_moderators": [
+        "06fb46cd681818bc52d1cc01:5"
+      ],
+      "normalization_diagnostics": [],
+      "predicates": {
+        "edge_ids": [
+          "06fb46cd681818bc52d1cc01"
+        ],
+        "target_context_id": "UA"
+      },
+      "quality_flags": [],
+      "query_api_route": "polisyos.data_forge.read_api.academic.SKGQuery",
+      "query_vector_producer_ref": null,
+      "rejected_candidate_refs": [],
+      "result_count": 1,
+      "row_refs": [
+        "skg-transport://06fb46cd681818bc52d1cc01:UA"
+      ],
+      "selected_candidate_refs": [
+        "skg-transport://06fb46cd681818bc52d1cc01:UA"
+      ],
+      "semantic_retrieval_required": false,
+      "skg_snapshot_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb#v1",
+      "skg_version_id": 1,
+      "sql_description": null,
+      "table_refs": [
+        "ac_skg_transport_scores"
+      ],
+      "trace_id": "g2-skg-query-trace:ff1ee66cbc7204f652067f7e",
+      "transport_notes": [
+        "claim_ref:0.780"
+      ],
+      "uncertainty_sources": [],
+      "used_skg_query": true
+    }
+  ],
+  "rule_version": "policyos.layer3.g2.causal_forecast_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g2_causal_forecast.v1"
+}

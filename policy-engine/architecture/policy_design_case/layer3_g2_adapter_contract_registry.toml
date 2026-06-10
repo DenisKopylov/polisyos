@@ -1,0 +1,8 @@
+schema_version = "policyos.policy_design_case.layer3_g2_causal_forecast.v1"
+rule_version = "policyos.layer3.g2.causal_forecast_search.v1"
+status = "pass"
+registry_id = "layer3-g2-adapter-contract-registry"
+
+[adapter_contract_registry]
+adapter_contract_refs = ["adapter-contract://layer3/g2/skg-search-ledger", "adapter-contract://layer3/g2/foundry-method-validity", "adapter-contract://layer3/g2/s10-forecast-support", "adapter-contract://layer3/g2/w12d-consumer-gate"]
+capability_reality_label = "implemented"

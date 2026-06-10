@@ -1,0 +1,925 @@
+{
+  "foundry_method_registry_search": {
+    "candidate_methods": [
+      {
+        "data_modalities": [
+          "spatial",
+          "time-series"
+        ],
+        "input_slot_refs": [
+          "outcome_field",
+          "space_grid",
+          "time_grid",
+          "treatment_field"
+        ],
+        "match_predicates": {
+          "data_modalities": [
+            "time"
+          ],
+          "diagnostics": [
+            "causal",
+            "identification"
+          ],
+          "slots": [
+            "outcome",
+            "treatment"
+          ],
+          "tags": [
+            "causal",
+            "diagnostics",
+            "effect",
+            "estimation",
+            "time-series",
+            "treatment"
+          ]
+        },
+        "match_score": 19,
+        "method_contract_targets": [
+          "convergence_diagnostics",
+          "effect_surface",
+          "envelope",
+          "green_kernel_summary",
+          "identification_certificate",
+          "ipw_result",
+          "positivity_report",
+          "report",
+          "result",
+          "spde_estimator",
+          "spillover_impulse_response",
+          "warnings"
+        ],
+        "method_expectations": [
+          "causal_effect_estimation",
+          "causal",
+          "diagnostics",
+          "effect",
+          "estimation",
+          "time-series",
+          "treatment"
+        ],
+        "method_family": "causal_effect_estimation",
+        "method_fqn": "causal.space_time.fem_spde_g_computation@1.0.0",
+        "method_ref": "foundry-method://causal.space_time.fem_spde_g_computation@1.0.0",
+        "name": "fem_spde_g_computation",
+        "namespace": "causal.space_time",
+        "output_slot_refs": [
+          "convergence_diagnostics",
+          "effect_surface",
+          "envelope",
+          "green_kernel_summary",
+          "identification_certificate",
+          "ipw_result",
+          "positivity_report",
+          "report",
+          "result",
+          "spde_estimator",
+          "spillover_impulse_response",
+          "warnings"
+        ],
+        "registry_entry_ref": "foundry-registry-entry:2291f673c520f99cb6cd4250",
+        "tags": [
+          "builtin",
+          "causal",
+          "domain:causal",
+          "dscm",
+          "estimation",
+          "family:causal",
+          "g-computation",
+          "space-time",
+          "spatial",
+          "spde",
+          "spillover",
+          "time-series"
+        ],
+        "truthfulness_status": "registry_candidate_only",
+        "version": "1.0.0"
+      },
+      {
+        "data_modalities": [
+          "cross-section",
+          "panel"
+        ],
+        "input_slot_refs": [
+          "outcome",
+          "time_treatment",
+          "treatment",
+          "treatment_timing"
+        ],
+        "match_predicates": {
+          "data_modalities": [
+            "panel",
+            "time"
+          ],
+          "diagnostics": [
+            "causal",
+            "uncertainty"
+          ],
+          "slots": [
+            "outcome",
+            "treatment"
+          ],
+          "tags": [
+            "causal",
+            "estimation",
+            "treatment",
+            "uncertainty"
+          ]
+        },
+        "match_score": 18,
+        "method_contract_targets": [
+          "result",
+          "uncertainty_envelope",
+          "warnings"
+        ],
+        "method_expectations": [
+          "causal_effect_estimation",
+          "causal",
+          "estimation",
+          "treatment",
+          "uncertainty"
+        ],
+        "method_family": "causal_effect_estimation",
+        "method_fqn": "causal.inference.did.staggered@1.0.0",
+        "method_ref": "foundry-method://causal.inference.did.staggered@1.0.0",
+        "name": "staggered",
+        "namespace": "causal.inference.did",
+        "output_slot_refs": [
+          "result",
+          "uncertainty_envelope",
+          "warnings"
+        ],
+        "registry_entry_ref": "foundry-registry-entry:4b4c628435365ece6bec2cbc",
+        "tags": [
+          "builtin",
+          "causal",
+          "cross-section",
+          "difference-in-differences",
+          "domain:causal",
+          "estimation",
+          "family:causal",
+          "panel",
+          "uncertainty"
+        ],
+        "truthfulness_status": "registry_candidate_only",
+        "version": "1.0.0"
+      },
+      {
+        "data_modalities": [
+          "cross-section",
+          "panel"
+        ],
+        "input_slot_refs": [
+          "outcome",
+          "time_treatment",
+          "treatment"
+        ],
+        "match_predicates": {
+          "data_modalities": [
+            "panel",
+            "time"
+          ],
+          "diagnostics": [
+            "causal",
+            "uncertainty"
+          ],
+          "slots": [
+            "outcome",
+            "treatment"
+          ],
+          "tags": [
+            "causal",
+            "estimation",
+            "treatment",
+            "uncertainty"
+          ]
+        },
+        "match_score": 18,
+        "method_contract_targets": [
+          "result",
+          "uncertainty_envelope",
+          "warnings"
+        ],
+        "method_expectations": [
+          "causal_effect_estimation",
+          "causal",
+          "estimation",
+          "treatment",
+          "uncertainty"
+        ],
+        "method_family": "causal_effect_estimation",
+        "method_fqn": "causal.inference.did.standard@1.0.0",
+        "method_ref": "foundry-method://causal.inference.did.standard@1.0.0",
+        "name": "standard",
+        "namespace": "causal.inference.did",
+        "output_slot_refs": [
+          "result",
+          "uncertainty_envelope",
+          "warnings"
+        ],
+        "registry_entry_ref": "foundry-registry-entry:ca6398082c4c2ddc675943a6",
+        "tags": [
+          "builtin",
+          "causal",
+          "cross-section",
+          "difference-in-differences",
+          "domain:causal",
+          "estimation",
+          "family:causal",
+          "panel",
+          "uncertainty"
+        ],
+        "truthfulness_status": "registry_candidate_only",
+        "version": "1.0.0"
+      },
+      {
+        "data_modalities": [
+          "cross-section"
+        ],
+        "input_slot_refs": [
+          "outcome",
+          "treatment"
+        ],
+        "match_predicates": {
+          "diagnostics": [
+            "bounds",
+            "causal",
+            "identification",
+            "interval"
+          ],
+          "slots": [
+            "outcome",
+            "treatment"
+          ],
+          "tags": [
+            "bounds",
+            "causal",
+            "estimation",
+            "interval",
+            "treatment"
+          ]
+        },
+        "match_score": 17,
+        "method_contract_targets": [
+          "result"
+        ],
+        "method_expectations": [
+          "causal_effect_estimation",
+          "bounds",
+          "causal",
+          "estimation",
+          "interval",
+          "treatment"
+        ],
+        "method_family": "causal_effect_estimation",
+        "method_fqn": "causal.bounds.imbens_manski@1.0.0",
+        "method_ref": "foundry-method://causal.bounds.imbens_manski@1.0.0",
+        "name": "imbens_manski",
+        "namespace": "causal.bounds",
+        "output_slot_refs": [
+          "result"
+        ],
+        "registry_entry_ref": "foundry-registry-entry:702885b18b560b84679c083f",
+        "tags": [
+          "bounds",
+          "builtin",
+          "causal",
+          "confidence-interval",
+          "cross-section",
+          "domain:causal",
+          "estimation",
+          "family:causal",
+          "manski",
+          "partial-identification"
+        ],
+        "truthfulness_status": "registry_candidate_only",
+        "version": "1.0.0"
+      },
+      {
+        "data_modalities": [
+          "panel"
+        ],
+        "input_slot_refs": [
+          "outcome_panel",
+          "treatment_indicator"
+        ],
+        "match_predicates": {
+          "data_modalities": [
+            "panel",
+            "time"
+          ],
+          "diagnostics": [
+            "causal"
+          ],
+          "slots": [
+            "outcome",
+            "treatment"
+          ],
+          "tags": [
+            "causal",
+            "effect",
+            "estimation",
+            "treatment"
+          ]
+        },
+        "match_score": 17,
+        "method_contract_targets": [
+          "causal_effect_report"
+        ],
+        "method_expectations": [
+          "causal_effect_estimation",
+          "causal",
+          "effect",
+          "estimation",
+          "treatment"
+        ],
+        "method_family": "causal_effect_estimation",
+        "method_fqn": "causal.inference.structural_time_series@1.0.0",
+        "method_ref": "foundry-method://causal.inference.structural_time_series@1.0.0",
+        "name": "structural_time_series",
+        "namespace": "causal.inference",
+        "output_slot_refs": [
+          "causal_effect_report"
+        ],
+        "registry_entry_ref": "foundry-registry-entry:308b85e527cbcbe5a29c6ee2",
+        "tags": [
+          "bsts-approximation",
+          "builtin",
+          "causal",
+          "causal-impact",
+          "domain:causal",
+          "estimation",
+          "family:causal",
+          "panel",
+          "structural-time-series"
+        ],
+        "truthfulness_status": "registry_candidate_only",
+        "version": "1.0.0"
+      },
+      {
+        "data_modalities": [
+          "panel",
+          "tabular"
+        ],
+        "input_slot_refs": [
+          "dependent",
+          "entity_ids",
+          "exog",
+          "time_ids"
+        ],
+        "match_predicates": {
+          "data_modalities": [
+            "entity",
+            "panel",
+            "time"
+          ],
+          "diagnostics": [
+            "uncertainty"
+          ],
+          "slots": [
+            "policy"
+          ],
+          "tags": [
+            "estimation",
+            "forecasting",
+            "uncertainty"
+          ]
+        },
+        "match_score": 17,
+        "method_contract_targets": [
+          "forecasting_uncertainty_bundle",
+          "result",
+          "uncertainty_envelope"
+        ],
+        "method_expectations": [
+          "forecasting",
+          "estimation",
+          "uncertainty"
+        ],
+        "method_family": "forecasting",
+        "method_fqn": "econometrics.panel.nonstationary_garch@1.0.0",
+        "method_ref": "foundry-method://econometrics.panel.nonstationary_garch@1.0.0",
+        "name": "nonstationary_garch",
+        "namespace": "econometrics.panel",
+        "output_slot_refs": [
+          "forecasting_uncertainty_bundle",
+          "result",
+          "uncertainty_envelope"
+        ],
+        "registry_entry_ref": "foundry-registry-entry:9addb02ee9265f1fcda0dddd",
+        "tags": [
+          "builtin",
+          "domain:econometrics",
+          "econometrics",
+          "estimation",
+          "family:econometrics",
+          "garch",
+          "panel",
+          "policy-risk",
+          "structural-break",
+          "tabular",
+          "uncertainty"
+        ],
+        "truthfulness_status": "registry_candidate_only",
+        "version": "1.0.0"
+      },
+      {
+        "data_modalities": [
+          "cross-section",
+          "panel"
+        ],
+        "input_slot_refs": [
+          "outcome",
+          "time_treatment",
+          "treatment"
+        ],
+        "match_predicates": {
+          "data_modalities": [
+            "panel",
+            "time"
+          ],
+          "diagnostics": [
+            "causal"
+          ],
+          "slots": [
+            "outcome",
+            "treatment"
+          ],
+          "tags": [
+            "causal",
+            "diagnostics",
+            "treatment"
+          ]
+        },
+        "match_score": 16,
+        "method_contract_targets": [
+          "result"
+        ],
+        "method_expectations": [
+          "causal_effect_estimation",
+          "causal",
+          "diagnostics",
+          "treatment"
+        ],
+        "method_family": "causal_effect_estimation",
+        "method_fqn": "causal.diagnostics.parallel_trends_check@1.0.0",
+        "method_ref": "foundry-method://causal.diagnostics.parallel_trends_check@1.0.0",
+        "name": "parallel_trends_check",
+        "namespace": "causal.diagnostics",
+        "output_slot_refs": [
+          "result"
+        ],
+        "registry_entry_ref": "foundry-registry-entry:c131e147fea1b303763e02f9",
+        "tags": [
+          "builtin",
+          "causal",
+          "cross-section",
+          "diagnostics",
+          "domain:causal",
+          "family:causal",
+          "panel",
+          "parallel-trends"
+        ],
+        "truthfulness_status": "registry_candidate_only",
+        "version": "1.0.0"
+      },
+      {
+        "data_modalities": [
+          "cross-section"
+        ],
+        "input_slot_refs": [
+          "outcome",
+          "time_id",
+          "treatment_timing",
+          "unit_id"
+        ],
+        "match_predicates": {
+          "data_modalities": [
+            "time"
+          ],
+          "diagnostics": [
+            "causal",
+            "id"
+          ],
+          "slots": [
+            "outcome",
+            "treatment"
+          ],
+          "tags": [
+            "causal",
+            "estimation",
+            "treatment"
+          ]
+        },
+        "match_score": 16,
+        "method_contract_targets": [
+          "result"
+        ],
+        "method_expectations": [
+          "causal_effect_estimation",
+          "causal",
+          "estimation",
+          "treatment"
+        ],
+        "method_family": "causal_effect_estimation",
+        "method_fqn": "causal.inference.did.borusyak_jaravel_spiess@1.0.0",
+        "method_ref": "foundry-method://causal.inference.did.borusyak_jaravel_spiess@1.0.0",
+        "name": "borusyak_jaravel_spiess",
+        "namespace": "causal.inference.did",
+        "output_slot_refs": [
+          "result"
+        ],
+        "registry_entry_ref": "foundry-registry-entry:57c46992dccdcb7d5d35b7a9",
+        "tags": [
+          "borusyak",
+          "borusyak-jaravel-spiess",
+          "builtin",
+          "causal",
+          "cross-section",
+          "did",
+          "domain:causal",
+          "estimation",
+          "family:causal",
+          "imputation",
+          "staggered"
+        ],
+        "truthfulness_status": "registry_candidate_only",
+        "version": "1.0.0"
+      }
+    ],
+    "data_affinity_predicates": {
+      "data_modality": "panel",
+      "outcome_type": "food_quality",
+      "represented_by": [
+        "MethodSignature.input_slots",
+        "MethodSignature.data_modalities",
+        "MethodMetadata.tags"
+      ],
+      "required_diagnostics": [
+        "identification",
+        "transportability",
+        "uncertainty"
+      ],
+      "treatment_structure": "continuous_policy"
+    },
+    "hardcoded_fqn_closure": false,
+    "issue_codes": [],
+    "registry_api_route": "polisyos.foundry.methods.selection.registry.MethodRegistry",
+    "registry_discovery_refs": [
+      "foundry-method-discovery:builtins",
+      "foundry-method-discovery:entry-points",
+      "foundry-method-discovery:dev-scan"
+    ],
+    "registry_snapshot_ref": "foundry-method-registry-snapshot:3b4c1a510f120887169c7664",
+    "rejected_methods": [
+      {
+        "method_ref": "foundry-method://econometrics.selection.tobit@1.0.0",
+        "reason_code": "method_registry_predicate_mismatch"
+      },
+      {
+        "method_ref": "foundry-method://econometrics.selection.truncated@1.0.0",
+        "reason_code": "method_registry_predicate_mismatch"
+      },
+      {
+        "method_ref": "foundry-method://microsim.imputation.imputation_model@1.0.0",
+        "reason_code": "method_registry_predicate_mismatch"
+      },
+      {
+        "method_ref": "foundry-method://simulation.agent_based.population_dynamics@1.0.0",
+        "reason_code": "method_registry_predicate_mismatch"
+      },
+      {
+        "method_ref": "foundry-method://simulation.compartmental.seir@1.0.0",
+        "reason_code": "method_registry_predicate_mismatch"
+      },
+      {
+        "method_ref": "foundry-method://simulation.compartmental.sir@1.0.0",
+        "reason_code": "method_registry_predicate_mismatch"
+      },
+      {
+        "method_ref": "foundry-method://simulation.discrete_event.queue@1.0.0",
+        "reason_code": "method_registry_predicate_mismatch"
+      },
+      {
+        "method_ref": "foundry-method://simulation.inference.bootstrap@1.0.0",
+        "reason_code": "method_registry_predicate_mismatch"
+      }
+    ],
+    "report_id": "layer3-g2-foundry-method-registry-search",
+    "request_ref": "g2-request:default-causal-forecast-method-search",
+    "search_ledger_refs": [
+      "g2-foundry-method-search-ledger:dab6972120bf218b1618217e"
+    ],
+    "search_strategy": "registry_metadata_predicate_search",
+    "selected_methods": [
+      {
+        "data_modalities": [
+          "spatial",
+          "time-series"
+        ],
+        "input_slot_refs": [
+          "outcome_field",
+          "space_grid",
+          "time_grid",
+          "treatment_field"
+        ],
+        "match_predicates": {
+          "data_modalities": [
+            "time"
+          ],
+          "diagnostics": [
+            "causal",
+            "identification"
+          ],
+          "slots": [
+            "outcome",
+            "treatment"
+          ],
+          "tags": [
+            "causal",
+            "diagnostics",
+            "effect",
+            "estimation",
+            "time-series",
+            "treatment"
+          ]
+        },
+        "match_score": 19,
+        "method_contract_targets": [
+          "convergence_diagnostics",
+          "effect_surface",
+          "envelope",
+          "green_kernel_summary",
+          "identification_certificate",
+          "ipw_result",
+          "positivity_report",
+          "report",
+          "result",
+          "spde_estimator",
+          "spillover_impulse_response",
+          "warnings"
+        ],
+        "method_expectations": [
+          "causal_effect_estimation",
+          "causal",
+          "diagnostics",
+          "effect",
+          "estimation",
+          "time-series",
+          "treatment"
+        ],
+        "method_family": "causal_effect_estimation",
+        "method_fqn": "causal.space_time.fem_spde_g_computation@1.0.0",
+        "method_ref": "foundry-method://causal.space_time.fem_spde_g_computation@1.0.0",
+        "name": "fem_spde_g_computation",
+        "namespace": "causal.space_time",
+        "output_slot_refs": [
+          "convergence_diagnostics",
+          "effect_surface",
+          "envelope",
+          "green_kernel_summary",
+          "identification_certificate",
+          "ipw_result",
+          "positivity_report",
+          "report",
+          "result",
+          "spde_estimator",
+          "spillover_impulse_response",
+          "warnings"
+        ],
+        "registry_entry_ref": "foundry-registry-entry:2291f673c520f99cb6cd4250",
+        "tags": [
+          "builtin",
+          "causal",
+          "domain:causal",
+          "dscm",
+          "estimation",
+          "family:causal",
+          "g-computation",
+          "space-time",
+          "spatial",
+          "spde",
+          "spillover",
+          "time-series"
+        ],
+        "truthfulness_status": "registry_candidate_only",
+        "version": "1.0.0"
+      },
+      {
+        "data_modalities": [
+          "cross-section",
+          "panel"
+        ],
+        "input_slot_refs": [
+          "outcome",
+          "time_treatment",
+          "treatment",
+          "treatment_timing"
+        ],
+        "match_predicates": {
+          "data_modalities": [
+            "panel",
+            "time"
+          ],
+          "diagnostics": [
+            "causal",
+            "uncertainty"
+          ],
+          "slots": [
+            "outcome",
+            "treatment"
+          ],
+          "tags": [
+            "causal",
+            "estimation",
+            "treatment",
+            "uncertainty"
+          ]
+        },
+        "match_score": 18,
+        "method_contract_targets": [
+          "result",
+          "uncertainty_envelope",
+          "warnings"
+        ],
+        "method_expectations": [
+          "causal_effect_estimation",
+          "causal",
+          "estimation",
+          "treatment",
+          "uncertainty"
+        ],
+        "method_family": "causal_effect_estimation",
+        "method_fqn": "causal.inference.did.staggered@1.0.0",
+        "method_ref": "foundry-method://causal.inference.did.staggered@1.0.0",
+        "name": "staggered",
+        "namespace": "causal.inference.did",
+        "output_slot_refs": [
+          "result",
+          "uncertainty_envelope",
+          "warnings"
+        ],
+        "registry_entry_ref": "foundry-registry-entry:4b4c628435365ece6bec2cbc",
+        "tags": [
+          "builtin",
+          "causal",
+          "cross-section",
+          "difference-in-differences",
+          "domain:causal",
+          "estimation",
+          "family:causal",
+          "panel",
+          "uncertainty"
+        ],
+        "truthfulness_status": "registry_candidate_only",
+        "version": "1.0.0"
+      },
+      {
+        "data_modalities": [
+          "cross-section",
+          "panel"
+        ],
+        "input_slot_refs": [
+          "outcome",
+          "time_treatment",
+          "treatment"
+        ],
+        "match_predicates": {
+          "data_modalities": [
+            "panel",
+            "time"
+          ],
+          "diagnostics": [
+            "causal",
+            "uncertainty"
+          ],
+          "slots": [
+            "outcome",
+            "treatment"
+          ],
+          "tags": [
+            "causal",
+            "estimation",
+            "treatment",
+            "uncertainty"
+          ]
+        },
+        "match_score": 18,
+        "method_contract_targets": [
+          "result",
+          "uncertainty_envelope",
+          "warnings"
+        ],
+        "method_expectations": [
+          "causal_effect_estimation",
+          "causal",
+          "estimation",
+          "treatment",
+          "uncertainty"
+        ],
+        "method_family": "causal_effect_estimation",
+        "method_fqn": "causal.inference.did.standard@1.0.0",
+        "method_ref": "foundry-method://causal.inference.did.standard@1.0.0",
+        "name": "standard",
+        "namespace": "causal.inference.did",
+        "output_slot_refs": [
+          "result",
+          "uncertainty_envelope",
+          "warnings"
+        ],
+        "registry_entry_ref": "foundry-registry-entry:ca6398082c4c2ddc675943a6",
+        "tags": [
+          "builtin",
+          "causal",
+          "cross-section",
+          "difference-in-differences",
+          "domain:causal",
+          "estimation",
+          "family:causal",
+          "panel",
+          "uncertainty"
+        ],
+        "truthfulness_status": "registry_candidate_only",
+        "version": "1.0.0"
+      },
+      {
+        "data_modalities": [
+          "cross-section"
+        ],
+        "input_slot_refs": [
+          "outcome",
+          "treatment"
+        ],
+        "match_predicates": {
+          "diagnostics": [
+            "bounds",
+            "causal",
+            "identification",
+            "interval"
+          ],
+          "slots": [
+            "outcome",
+            "treatment"
+          ],
+          "tags": [
+            "bounds",
+            "causal",
+            "estimation",
+            "interval",
+            "treatment"
+          ]
+        },
+        "match_score": 17,
+        "method_contract_targets": [
+          "result"
+        ],
+        "method_expectations": [
+          "causal_effect_estimation",
+          "bounds",
+          "causal",
+          "estimation",
+          "interval",
+          "treatment"
+        ],
+        "method_family": "causal_effect_estimation",
+        "method_fqn": "causal.bounds.imbens_manski@1.0.0",
+        "method_ref": "foundry-method://causal.bounds.imbens_manski@1.0.0",
+        "name": "imbens_manski",
+        "namespace": "causal.bounds",
+        "output_slot_refs": [
+          "result"
+        ],
+        "registry_entry_ref": "foundry-registry-entry:702885b18b560b84679c083f",
+        "tags": [
+          "bounds",
+          "builtin",
+          "causal",
+          "confidence-interval",
+          "cross-section",
+          "domain:causal",
+          "estimation",
+          "family:causal",
+          "manski",
+          "partial-identification"
+        ],
+        "truthfulness_status": "registry_candidate_only",
+        "version": "1.0.0"
+      }
+    ],
+    "status": "pass",
+    "task_affinity_predicates": {
+      "represented_by": [
+        "MethodSignature.namespace",
+        "MethodSignature.output_slots",
+        "MethodMetadata.tags"
+      ],
+      "requested_task_tags": [
+        "causal_effect_estimation",
+        "forecasting",
+        "uncertainty",
+        "validation"
+      ]
+    }
+  },
+  "rule_version": "policyos.layer3.g2.causal_forecast_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g2_causal_forecast.v1"
+}

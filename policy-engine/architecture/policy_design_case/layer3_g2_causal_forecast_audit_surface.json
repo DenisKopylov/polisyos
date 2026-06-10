@@ -1,0 +1,74 @@
+{
+  "causal_forecast_audit_surface": {
+    "denied_use_visibility": true,
+    "forecast_support_refs": [
+      "pdc://layer3/g2/ua-msme-affordable-loans-2022/forecast-support/d65f61522884e1cd85048188"
+    ],
+    "forecast_tiers": [
+      "observable_calibrated"
+    ],
+    "handoff_refs": [
+      "g2-grounded-forecast-handoff:f736412ede9cc6b1a9617a45"
+    ],
+    "issue_codes": [],
+    "limitation_refs": [
+      "limitation://forecast/support-only"
+    ],
+    "may_not_use_for": [
+      "claim_authority",
+      "causal_effect_authority_without_adapter_validation",
+      "policy_recommendation",
+      "closeout_authority",
+      "publication_authority",
+      "useful_design_credit",
+      "production_authority",
+      "search_hit_as_authority",
+      "production_recommendation",
+      "production_claim_authority",
+      "rollout_authority",
+      "approval_authority",
+      "scorecard_authority",
+      "s11_calibration",
+      "s12_envelope_growth",
+      "s13_accountability_closure",
+      "s14_universality",
+      "preference_learning_authority"
+    ],
+    "public_forecast_tier_visibility": true,
+    "public_limitation_visibility": true,
+    "public_uncertainty_visibility": true,
+    "raw_query_ledger_audiences": [
+      "EXPERT",
+      "MACHINE"
+    ],
+    "raw_query_ledger_refs": [
+      "g2-skg-search-ledger:2a5fe403f11b0189ce13d34a"
+    ],
+    "record_id": "layer3-g2-causal-forecast-audit-surface",
+    "replay_field_refs": [
+      "source_contract_ref",
+      "method_validity_refs",
+      "method_requirement_refs",
+      "search_ledger_refs",
+      "skg_query_trace_refs",
+      "calibration_record_refs",
+      "uncertainty_interval_refs",
+      "limitation_refs"
+    ],
+    "rule_version": "policyos.layer3.g2.causal_forecast_search.v1",
+    "schema_version": "policyos.policy_design_case.layer3_g2_causal_forecast.v1",
+    "status": "pass",
+    "surface_audiences": [
+      "PUBLIC",
+      "REVIEWER",
+      "EXPERT",
+      "MACHINE"
+    ],
+    "surface_id": "layer3_g2_causal_forecast_audit_surface",
+    "uncertainty_interval_refs": [
+      "interval://ua-msme/fertilizer-support/95"
+    ]
+  },
+  "rule_version": "policyos.layer3.g2.causal_forecast_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g2_causal_forecast.v1"
+}

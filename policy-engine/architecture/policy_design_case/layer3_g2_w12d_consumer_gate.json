@@ -1,0 +1,72 @@
+{
+  "rule_version": "policyos.layer3.g2.causal_forecast_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g2_causal_forecast.v1",
+  "w12d_consumer_gate": {
+    "authoritative_for": [
+      "w12d_forecast_support_gate"
+    ],
+    "claim_authority_claimed": false,
+    "closeout_claimed": false,
+    "consumed_forecast_posture_refs": [
+      "pdc://layer3/g2/ua-msme-affordable-loans-2022/forecast-support/d65f61522884e1cd85048188"
+    ],
+    "domain_ceiling_status": null,
+    "forecast_calibration_record_refs": [
+      "pdc://layer3/g2/ua-msme/calibration/observable-subset"
+    ],
+    "forecast_support_refs": [
+      "pdc://layer3/g2/ua-msme-affordable-loans-2022/forecast-support/d65f61522884e1cd85048188"
+    ],
+    "forecast_tiers": [
+      "observable_calibrated"
+    ],
+    "full_s2_consumer_case_count": 1,
+    "full_s2_consumer_case_refs": [
+      "ua-msme-affordable-loans-2022"
+    ],
+    "gate_id": "layer3.g2.w12d.forecast_gate",
+    "issue_codes": [],
+    "layer3_g1_grounding_gate_ref": "layer3.g1.grounding_gate",
+    "layer3_g2_gate_injection_order": "after_g1_before_summary",
+    "lightweight_case_refs": [
+      "w12d-lightweight-ref:g2-forecast-posture"
+    ],
+    "lightweight_forecast_posture_ref_count": 1,
+    "lightweight_posture_ref": null,
+    "may_not_use_for": [
+      "claim_authority",
+      "causal_effect_authority_without_adapter_validation",
+      "policy_recommendation",
+      "closeout_authority",
+      "publication_authority",
+      "useful_design_credit",
+      "production_authority",
+      "search_hit_as_authority",
+      "production_recommendation",
+      "production_claim_authority",
+      "rollout_authority",
+      "approval_authority",
+      "scorecard_authority",
+      "s11_calibration",
+      "s12_envelope_growth",
+      "s13_accountability_closure",
+      "s14_universality",
+      "preference_learning_authority"
+    ],
+    "method_validity_refs": [
+      "method-validity://foundry/causal/local"
+    ],
+    "posture_consumed": true,
+    "recommendation_authority_claimed": false,
+    "record_id": "layer3-g2-w12d-consumer-gate",
+    "schema_version": "policyos.policy_design_case.layer3_g2_forecast_gate.v1",
+    "source_contract_refs": [
+      "source-contract://ua-msme/server-support"
+    ],
+    "status": "pass",
+    "uncertainty_interval_refs": [
+      "interval://ua-msme/fertilizer-support/95"
+    ],
+    "useful_design_delta_count": 0
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "l2_skg_index_coverage": {
+    "canonical_l2_route": "scholar_knowledge.duckdb",
+    "db_path": "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb",
+    "embedding_path_status": "pass",
+    "hnsw_assets_status": "pass",
+    "hnsw_index_path_status": "pass",
+    "index_dir": "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic",
+    "index_dir_status": "pass",
+    "issue_codes": [],
+    "manifest_refs": [
+      "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/manifests/graph_index.json",
+      "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/manifests/qc.json",
+      "production_data/policyos_academic_runtime_slim_20260411T112032Z/meta/source_lineage.json"
+    ],
+    "missing_tables": [],
+    "report_id": "layer3-g2-l2-skg-index-coverage",
+    "required_table_counts": {
+      "ac_causal_claims": 7868,
+      "ac_parameter_estimates": 62248,
+      "ac_skg_contested_edges": 723,
+      "ac_skg_edge_evidence": 7868,
+      "ac_skg_edges": 7607,
+      "ac_skg_parameters": 51908,
+      "ac_skg_transport_scores": 7607,
+      "ac_skg_variable_synonyms": 407,
+      "ac_skg_variables": 55176,
+      "ac_skg_versions": 1
+    },
+    "required_tables_present": true,
+    "skg_query_api_route": "polisyos.data_forge.read_api.academic.SKGQuery",
+    "skg_query_construction_status": "pass",
+    "skg_snapshot_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb#v1",
+    "skg_version_id": 1,
+    "snapshot_hash_ref": "sha256:bc03583dc1cd4eea716a1cc0628aa4a3d06d0f8fea68debed84d3b5ae6b293f8",
+    "status": "pass"
+  },
+  "rule_version": "policyos.layer3.g2.causal_forecast_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g2_causal_forecast.v1"
+}

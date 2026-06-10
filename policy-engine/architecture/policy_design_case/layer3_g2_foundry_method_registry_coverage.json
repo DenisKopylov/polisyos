@@ -1,0 +1,54 @@
+{
+  "foundry_method_registry_coverage": {
+    "built_in_catalog_bootstrap_refs": [
+      "polisyos.foundry.methods.catalog.ensure_all_methods_registered",
+      "polisyos.foundry.methods.catalog.ensure_causal_methods_registered",
+      "polisyos.foundry.methods.catalog.ensure_forecasting_methods_registered",
+      "polisyos.foundry.methods.catalog.ensure_econometric_methods_registered",
+      "polisyos.foundry.methods.catalog.ensure_sensitivity_methods_registered",
+      "polisyos.foundry.methods.catalog.ensure_validation_methods_registered"
+    ],
+    "discovery_errors": [],
+    "discovery_refresh_status": "pass",
+    "discovery_source_roots": [
+      "polisyos.foundry.methods.catalog",
+      "polisyos.foundry.extensions.discovery",
+      "entry_points",
+      "dev_scan"
+    ],
+    "duplicate_method_refs": [],
+    "entry_point_groups": [
+      "polisyos.foundry.methods",
+      "polisyos.foundry.method_plugins"
+    ],
+    "family_method_counts": {
+      "causal": 151,
+      "econometrics": 46,
+      "forecasting": 10,
+      "sensitivity": 8,
+      "validation": 4
+    },
+    "freshness_status": "pass",
+    "issue_codes": [],
+    "registered_method_count": 390,
+    "registry_api_route": "polisyos.foundry.methods.selection.registry.MethodRegistry",
+    "registry_snapshot_ref": "foundry-method-registry-snapshot:3b4c1a510f120887169c7664",
+    "registry_stats": {
+      "base_names": 386,
+      "input_slots": 293,
+      "last_modified": 1780949641.6024299,
+      "lazy_methods": 390,
+      "loaded_methods": 0,
+      "namespaces": 158,
+      "output_slots": 121,
+      "registrations": 390,
+      "tags": 718,
+      "total_methods": 390
+    },
+    "registry_version_ref": "foundry-method-registry-version:3b4c1a510f12",
+    "report_id": "layer3-g2-foundry-method-registry-coverage",
+    "status": "pass"
+  },
+  "rule_version": "policyos.layer3.g2.causal_forecast_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g2_causal_forecast.v1"
+}

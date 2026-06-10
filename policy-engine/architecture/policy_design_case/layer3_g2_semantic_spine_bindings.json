@@ -1,0 +1,206 @@
+{
+  "rule_version": "policyos.layer3.g2.causal_forecast_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g2_causal_forecast.v1",
+  "semantic_spine_bindings": [
+    {
+      "authoritative_for": [],
+      "binding_id": "g2-semantic-spine-binding:5588542ea2e0bf122cb48086",
+      "candidate_spine_binding_refs": [
+        "spine-binding:scholar:concept://agriculture.fertilizer_use:jurisdiction://UA:0eb04cf3cee4ee4b",
+        "spine-binding:scholar:concept://agriculture.food_nutritional_quality:jurisdiction://UA:0eb04cf3cee4ee4b",
+        "spine-binding:scholar:concept://agriculture.fertilizer_use:jurisdiction://UA:7342bd48a55c28c8",
+        "spine-binding:scholar:concept://agriculture.food_nutritional_quality:jurisdiction://UA:7342bd48a55c28c8",
+        "spine-binding:scholar:concept://agriculture.fertilizer_use:jurisdiction://UA:6667cd0045243d20",
+        "spine-binding:scholar:concept://agriculture.food_nutritional_quality:jurisdiction://UA:6667cd0045243d20",
+        "spine-binding:scholar:concept://agriculture.fertilizer_use:jurisdiction://UA:0fd618aa41e24fce",
+        "spine-binding:scholar:concept://agriculture.food_nutritional_quality:jurisdiction://UA:0fd618aa41e24fce",
+        "spine-binding:scholar:concept://agriculture.fertilizer_use:jurisdiction://UA:0e26dd5b26d59f3e",
+        "spine-binding:scholar:concept://agriculture.food_nutritional_quality:jurisdiction://UA:0e26dd5b26d59f3e"
+      ],
+      "canonical_concept_refs": [
+        "concept://agriculture.fertilizer_use",
+        "concept://agriculture.food_nutritional_quality"
+      ],
+      "capability_reality_label": "implemented",
+      "consumed_concept_spine_ref": "concept-spine://g2/agriculture-fertilizer-food-quality",
+      "consumed_jurisdiction_spine_ref": "jurisdiction-spine://UA",
+      "direct_semantic_grounding_allowed": true,
+      "geography_refs": [
+        "geo://UA"
+      ],
+      "governed_namespace_refs": [
+        "namespace://g1/source-contract/ua-msme",
+        "namespace://skg/academic",
+        "namespace://foundry/methods",
+        "namespace://layer2/s10"
+      ],
+      "issue_codes": [],
+      "jurisdiction_refs": [
+        "jurisdiction://UA"
+      ],
+      "may_not_use_for": [
+        "claim_authority",
+        "causal_effect_authority_without_adapter_validation",
+        "policy_recommendation",
+        "closeout_authority",
+        "publication_authority",
+        "useful_design_credit",
+        "production_authority",
+        "search_hit_as_authority"
+      ],
+      "parallel_concept_lattice_declared": false,
+      "period_refs": [
+        "period://2022-2024"
+      ],
+      "producer_handshake_refs": [
+        "producer-handshake://g1-skg-foundry-s10/fertilizer-food-quality"
+      ],
+      "producer_spine_binding_fields": {
+        "candidate_spine_binding_refs": [
+          "spine-binding:scholar:concept://agriculture.fertilizer_use:jurisdiction://UA:0eb04cf3cee4ee4b",
+          "spine-binding:scholar:concept://agriculture.food_nutritional_quality:jurisdiction://UA:0eb04cf3cee4ee4b",
+          "spine-binding:scholar:concept://agriculture.fertilizer_use:jurisdiction://UA:7342bd48a55c28c8",
+          "spine-binding:scholar:concept://agriculture.food_nutritional_quality:jurisdiction://UA:7342bd48a55c28c8",
+          "spine-binding:scholar:concept://agriculture.fertilizer_use:jurisdiction://UA:6667cd0045243d20",
+          "spine-binding:scholar:concept://agriculture.food_nutritional_quality:jurisdiction://UA:6667cd0045243d20",
+          "spine-binding:scholar:concept://agriculture.fertilizer_use:jurisdiction://UA:0fd618aa41e24fce",
+          "spine-binding:scholar:concept://agriculture.food_nutritional_quality:jurisdiction://UA:0fd618aa41e24fce",
+          "spine-binding:scholar:concept://agriculture.fertilizer_use:jurisdiction://UA:0e26dd5b26d59f3e",
+          "spine-binding:scholar:concept://agriculture.food_nutritional_quality:jurisdiction://UA:0e26dd5b26d59f3e"
+        ],
+        "canonical_concept_refs": [
+          "concept://agriculture.fertilizer_use",
+          "concept://agriculture.food_nutritional_quality"
+        ],
+        "consumed_concept_spine_ref": "concept-spine://g2/agriculture-fertilizer-food-quality",
+        "consumed_jurisdiction_spine_ref": "jurisdiction-spine://UA",
+        "geography_refs": [
+          "geo://UA"
+        ],
+        "jurisdiction_refs": [
+          "jurisdiction://UA"
+        ],
+        "local_labels": [],
+        "period_refs": [
+          "period://2022-2024"
+        ],
+        "spine_blocker_refs": [],
+        "unit_refs": [
+          "unit://farm-household"
+        ]
+      },
+      "producer_spine_context": {
+        "canonical_concept_refs": [
+          "concept://agriculture.fertilizer_use",
+          "concept://agriculture.food_nutritional_quality"
+        ],
+        "concept_spine_ref": "concept-spine://g2/agriculture-fertilizer-food-quality",
+        "consumer_components": [
+          "lex",
+          "fabric",
+          "scholar",
+          "foundry",
+          "scientist",
+          "final_compiler"
+        ],
+        "context_id": "g2-spine-context:db5513b75f266e53fa5d1541",
+        "geography_refs": [
+          "geo://UA"
+        ],
+        "jurisdiction_refs": [
+          "jurisdiction://UA"
+        ],
+        "jurisdiction_spine_ref": "jurisdiction-spine://UA",
+        "period_refs": [
+          "period://2022-2024"
+        ],
+        "schema_version": "policyos.producer_spine_context.v1",
+        "unit_refs": [
+          "unit://farm-household"
+        ]
+      },
+      "producer_spine_context_ref": "g2-spine-context:db5513b75f266e53fa5d1541",
+      "producer_spine_views": [
+        {
+          "canonical_concept_refs": [
+            "concept://agriculture.fertilizer_use",
+            "concept://agriculture.food_nutritional_quality"
+          ],
+          "concept_spine_ref": "concept-spine://g2/agriculture-fertilizer-food-quality",
+          "consumer_component": "scholar",
+          "context_id": "g2-spine-context:db5513b75f266e53fa5d1541",
+          "geography_refs": [
+            "geo://UA"
+          ],
+          "jurisdiction_refs": [
+            "jurisdiction://UA"
+          ],
+          "jurisdiction_spine_ref": "jurisdiction-spine://UA",
+          "period_refs": [
+            "period://2022-2024"
+          ],
+          "schema_version": "policyos.producer_spine_context.v1",
+          "unit_refs": [
+            "unit://farm-household"
+          ]
+        },
+        {
+          "canonical_concept_refs": [
+            "concept://agriculture.fertilizer_use",
+            "concept://agriculture.food_nutritional_quality"
+          ],
+          "concept_spine_ref": "concept-spine://g2/agriculture-fertilizer-food-quality",
+          "consumer_component": "foundry",
+          "context_id": "g2-spine-context:db5513b75f266e53fa5d1541",
+          "geography_refs": [
+            "geo://UA"
+          ],
+          "jurisdiction_refs": [
+            "jurisdiction://UA"
+          ],
+          "jurisdiction_spine_ref": "jurisdiction-spine://UA",
+          "period_refs": [
+            "period://2022-2024"
+          ],
+          "schema_version": "policyos.producer_spine_context.v1",
+          "unit_refs": [
+            "unit://farm-household"
+          ]
+        },
+        {
+          "canonical_concept_refs": [
+            "concept://agriculture.fertilizer_use",
+            "concept://agriculture.food_nutritional_quality"
+          ],
+          "concept_spine_ref": "concept-spine://g2/agriculture-fertilizer-food-quality",
+          "consumer_component": "scientist",
+          "context_id": "g2-spine-context:db5513b75f266e53fa5d1541",
+          "geography_refs": [
+            "geo://UA"
+          ],
+          "jurisdiction_refs": [
+            "jurisdiction://UA"
+          ],
+          "jurisdiction_spine_ref": "jurisdiction-spine://UA",
+          "period_refs": [
+            "period://2022-2024"
+          ],
+          "schema_version": "policyos.producer_spine_context.v1",
+          "unit_refs": [
+            "unit://farm-household"
+          ]
+        }
+      ],
+      "reconciled_concept_statuses": {
+        "agriculture.fertilizer_use": "reconciled",
+        "agriculture.food_nutritional_quality": "reconciled"
+      },
+      "request_ref": "g2-request:default-causal-forecast-method-search",
+      "spine_blocker_refs": [],
+      "status": "pass",
+      "unit_refs": [
+        "unit://farm-household"
+      ]
+    }
+  ]
+}

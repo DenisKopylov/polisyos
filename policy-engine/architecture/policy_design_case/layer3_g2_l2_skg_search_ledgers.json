@@ -1,0 +1,47 @@
+{
+  "l2_skg_search_ledgers": [
+    {
+      "authoritative_for": [],
+      "canonical_l2_route": "scholar_knowledge.duckdb",
+      "cutoff_limit": 8,
+      "duckdb_validated_candidate_refs": [
+        "skg-edge://06fb46cd681818bc52d1cc01"
+      ],
+      "event_type": "selected_candidate",
+      "forecast_support_refs": [],
+      "hnsw_candidate_refs": [],
+      "ledger_id": "g2-skg-search-ledger:2a5fe403f11b0189ce13d34a",
+      "may_not_use_for": [
+        "claim_authority",
+        "causal_effect_authority_without_adapter_validation",
+        "policy_recommendation",
+        "closeout_authority",
+        "publication_authority",
+        "useful_design_credit",
+        "production_authority",
+        "search_hit_as_authority"
+      ],
+      "query_trace_refs": [
+        "g2-skg-query-trace:e7a846b8d35e1d29de6fd4d5",
+        "g2-skg-query-trace:ff1ee66cbc7204f652067f7e"
+      ],
+      "query_vector_producer_ref": null,
+      "rejected_candidate_refs": [],
+      "replay_key": "633d6b3009b4b1bc03632775",
+      "request_ref": "g2-request:default-causal-forecast-method-search",
+      "result_count": 1,
+      "searched_table_refs": [
+        "ac_skg_edges",
+        "ac_skg_edge_evidence",
+        "ac_causal_claims",
+        "ac_skg_transport_scores"
+      ],
+      "selected_candidate_refs": [
+        "skg-edge://06fb46cd681818bc52d1cc01"
+      ],
+      "semantic_retrieval_required": false
+    }
+  ],
+  "rule_version": "policyos.layer3.g2.causal_forecast_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g2_causal_forecast.v1"
+}

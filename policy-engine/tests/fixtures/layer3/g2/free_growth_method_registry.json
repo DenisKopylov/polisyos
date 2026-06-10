@@ -1,0 +1,7 @@
+{
+  "methods": [
+    {
+      "method_ref": "method://fixture.synthetic-causal-forecast"
+    }
+  ]
+}

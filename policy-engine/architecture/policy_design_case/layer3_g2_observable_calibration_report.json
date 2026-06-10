@@ -1,0 +1,47 @@
+{
+  "observable_calibration_report": {
+    "adapter_maturity": "calibrated",
+    "authority_envelope_refs": [
+      "pdc://layer3/g2/ua-msme-affordable-loans-2022/forecast-support/d65f61522884e1cd85048188/authority-envelope"
+    ],
+    "calibration_floor_passed": true,
+    "calibration_record_refs": [
+      "pdc://layer3/g2/ua-msme/calibration/observable-subset"
+    ],
+    "calibration_threshold_ref": "repo://architecture/policy_design_case/layer2_floor_governance.toml#s10",
+    "counterfactual_credibility_refs": [
+      "credible"
+    ],
+    "credible_evaluation_evidence_refs": [
+      "evidence://ua-msme/credible-evaluation"
+    ],
+    "forecast_support_binding_refs": [
+      "g2-forecast-support-binding:d65f61522884e1cd85048188"
+    ],
+    "forecast_support_refs": [
+      "pdc://layer3/g2/ua-msme-affordable-loans-2022/forecast-support/d65f61522884e1cd85048188"
+    ],
+    "issue_codes": [],
+    "observable_subset_calibration_denominator": 4,
+    "observable_subset_calibration_numerator": 4,
+    "observable_subset_calibration_pass_rate": 1.0,
+    "observable_subset_refs": [
+      "observable-subset://ua-msme/local-panel"
+    ],
+    "observed_outcome_refs": [
+      "outcome://ua-msme/fertilizer-support/observed"
+    ],
+    "report_id": "layer3-g2-observable-calibration-report",
+    "status": "pass",
+    "time_role_refs": [
+      "prediction_time",
+      "observation_time",
+      "policy_effective_time",
+      "data_valid_time",
+      "calibration_window_start",
+      "calibration_window_end"
+    ]
+  },
+  "rule_version": "policyos.layer3.g2.causal_forecast_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g2_causal_forecast.v1"
+}

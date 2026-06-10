@@ -1,0 +1,10 @@
+{
+  "adapter_admission_registry": {
+    "issue_codes": [],
+    "record_id": "layer3-g2-adapter-admission-registry",
+    "refs": [],
+    "status": "pass"
+  },
+  "rule_version": "policyos.layer3.g2.causal_forecast_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g2_causal_forecast.v1"
+}

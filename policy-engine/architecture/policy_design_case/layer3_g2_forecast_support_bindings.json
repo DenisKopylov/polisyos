@@ -1,0 +1,481 @@
+{
+  "forecast_support_bindings": [
+    {
+      "adapter_maturity": "calibrated",
+      "adapter_validation_ref": "adapter-validation://g2/s10/d65f61522884e1cd85048188",
+      "authoritative_for": [
+        "g2_forecast_support_binding_audit"
+      ],
+      "authority_envelope": {
+        "authority_boundary": {
+          "authoritative_for": [
+            "forecast_support_tiering"
+          ],
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect_authority_without_adapter_validation",
+            "policy_recommendation",
+            "closeout_authority",
+            "publication_authority",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority",
+            "production_recommendation",
+            "production_claim_authority",
+            "rollout_authority",
+            "approval_authority",
+            "scorecard_authority",
+            "s11_calibration",
+            "s12_envelope_growth",
+            "s13_accountability_closure",
+            "s14_universality",
+            "preference_learning_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer2.s10.outcome_prediction.v1"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "calibration_record_ref": "pdc://layer3/g2/ua-msme/calibration/observable-subset",
+        "calibration_status": "pass",
+        "case_id": "ua-msme-affordable-loans-2022",
+        "coupling_boundary_ref": "pdc://layer2/s5/ua-msme/system-effect-support",
+        "credible_evaluation_evidence_ref": "evidence://ua-msme/credible-evaluation",
+        "data_boundary_ref": null,
+        "denies_claim_authority": true,
+        "denies_closeout_authority": true,
+        "denies_production_authority": true,
+        "denies_recommendation_authority": true,
+        "denies_s11_authority": true,
+        "envelope_id": "layer2.s10.prediction_envelope.layer3-g2-ua-msme-affordable-loans-2022-forecast-support-d65f61522884e1cd85048188",
+        "envelope_ref": "pdc://layer3/g2/ua-msme-affordable-loans-2022/forecast-support/d65f61522884e1cd85048188/authority-envelope",
+        "envelope_status": "pass",
+        "epistemic_regime_boundary_ref": null,
+        "forecast_authority_disposition_reason": "G2 translated bounded causal/forecast search through existing S10 support.",
+        "forecast_support_ref": "pdc://layer3/g2/ua-msme-affordable-loans-2022/forecast-support/d65f61522884e1cd85048188",
+        "forecast_tier": "observable_calibrated",
+        "issue_codes": [],
+        "legal_boundary_ref": null,
+        "may_not_use_for": [
+          "claim_authority",
+          "causal_effect_authority_without_adapter_validation",
+          "policy_recommendation",
+          "closeout_authority",
+          "publication_authority",
+          "useful_design_credit",
+          "production_authority",
+          "search_hit_as_authority",
+          "production_recommendation",
+          "production_claim_authority",
+          "rollout_authority",
+          "approval_authority",
+          "scorecard_authority",
+          "s11_calibration",
+          "s12_envelope_growth",
+          "s13_accountability_closure",
+          "s14_universality",
+          "preference_learning_authority"
+        ],
+        "method_boundary_ref": "method-validity://foundry/causal/local",
+        "method_validity_ref": "method-validity://foundry/causal/local",
+        "observable_subset_ref": "observable-subset://ua-msme/local-panel",
+        "participation_boundary_ref": null,
+        "prediction_boundary_ref": "pdc://layer3/g2/ua-msme-affordable-loans-2022/forecast-support/d65f61522884e1cd85048188",
+        "reversibility_stakes_boundary_ref": null,
+        "rule_version_ref": "policyos.layer2.s10.outcome_prediction.v1",
+        "schema_version": "policyos.policy_design_case.layer2_s10_outcome_prediction.v1",
+        "source_contract_ref": "source-contract://ua-msme/server-support",
+        "state_capacity_boundary_ref": null,
+        "strategic_response_boundary_ref": "caveat://strategic-response",
+        "weakest_boundary_source": "prediction_boundary",
+        "welfare_value_choice_boundary_ref": "pdc://layer2/s8/ua-msme/value-choice-provenance"
+      },
+      "authority_envelope_builder_ref": "polisyos.runtime.quality.layer2_outcome_prediction.verify_prediction_authority_envelope",
+      "authority_envelope_ref": "pdc://layer3/g2/ua-msme-affordable-loans-2022/forecast-support/d65f61522884e1cd85048188/authority-envelope",
+      "binding_id": "g2-forecast-support-binding:d65f61522884e1cd85048188",
+      "calibrated_dynamics_producer_ref": "producer://layer3/g2/readiness/calibrated-dynamics",
+      "calibration_attempt": {
+        "calibration_error_metric": 0.0,
+        "calibration_id": "layer3.g2.calibration.ua-msme.observable",
+        "calibration_ref": "pdc://layer3/g2/ua-msme/calibration/observable-subset",
+        "calibration_status": "pass",
+        "calibration_threshold_ref": "repo://architecture/policy_design_case/layer2_floor_governance.toml#s10",
+        "calibration_window_end": "2026-06-02T00:00:00Z",
+        "calibration_window_start": "2026-06-02T00:00:00Z",
+        "case_id": "ua-msme-affordable-loans-2022",
+        "counterfactual_credibility": "credible",
+        "credible_evaluation_evidence_ref": "evidence://ua-msme/credible-evaluation",
+        "data_valid_time": "2026-06-02T00:00:00Z",
+        "denominator": 4,
+        "evaluation_design_ref": "eval://ua-msme/credible-counterfactual",
+        "floor_passed": true,
+        "forecast_support_ref": "pdc://layer3/g2/ua-msme-affordable-loans-2022/forecast-support/d65f61522884e1cd85048188",
+        "historical_implementation_ref": "implementation://ua-msme/fertilizer-2022",
+        "interval_coverage_metric": 1.0,
+        "method_lineage_refs": [
+          "lineage://ua-msme/foundry-causal"
+        ],
+        "numerator": 4,
+        "observable_subset_ref": "observable-subset://ua-msme/local-panel",
+        "observation_time": "2026-06-02T00:00:00Z",
+        "observed_outcome_ref": "outcome://ua-msme/fertilizer-support/observed",
+        "pass_rate": 1.0,
+        "policy_effective_time": "2026-06-02T00:00:00Z",
+        "prediction_ref": "forecast://ua-msme/fertilizer-support/prediction",
+        "prediction_time": "2026-06-02T00:00:00Z",
+        "source_lineage_refs": [
+          "lineage://ua-msme/source-contract"
+        ]
+      },
+      "calibration_builder_ref": "polisyos.runtime.quality.layer2_outcome_prediction.build_forecast_calibration_record",
+      "calibration_record": {
+        "authority_boundary": {
+          "authoritative_for": [
+            "observable_subset_calibration"
+          ],
+          "may_not_use_for": [
+            "production_recommendation",
+            "production_claim_authority",
+            "rollout_authority",
+            "publication_authority",
+            "claim_authority",
+            "closeout_authority",
+            "approval_authority",
+            "scorecard_authority",
+            "preference_learning_authority",
+            "s11_calibration",
+            "s12_envelope_growth",
+            "s13_accountability_closure",
+            "s14_universality"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer2.s10.outcome_prediction.v1"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "calibration_error_metric": 0.0,
+        "calibration_id": "layer3.g2.calibration.ua-msme.observable",
+        "calibration_ref": "pdc://layer3/g2/ua-msme/calibration/observable-subset",
+        "calibration_status": "pass",
+        "calibration_threshold_ref": "repo://architecture/policy_design_case/layer2_floor_governance.toml#s10",
+        "calibration_window_end": "2026-06-02T00:00:00Z",
+        "calibration_window_start": "2026-06-02T00:00:00Z",
+        "case_id": "ua-msme-affordable-loans-2022",
+        "counterfactual_credibility": "credible",
+        "credible_evaluation_evidence_ref": "evidence://ua-msme/credible-evaluation",
+        "data_valid_time": "2026-06-02T00:00:00Z",
+        "denominator": 4,
+        "evaluation_design_ref": "eval://ua-msme/credible-counterfactual",
+        "floor_id": "s10_calibration",
+        "floor_passed": true,
+        "forecast_support_ref": "pdc://layer3/g2/ua-msme-affordable-loans-2022/forecast-support/d65f61522884e1cd85048188",
+        "historical_implementation_ref": "implementation://ua-msme/fertilizer-2022",
+        "interval_coverage_metric": 1.0,
+        "may_not_use_for": [
+          "production_recommendation",
+          "production_claim_authority",
+          "rollout_authority",
+          "publication_authority",
+          "claim_authority",
+          "closeout_authority",
+          "approval_authority",
+          "scorecard_authority",
+          "preference_learning_authority",
+          "s11_calibration",
+          "s12_envelope_growth",
+          "s13_accountability_closure",
+          "s14_universality"
+        ],
+        "method_lineage_refs": [
+          "lineage://ua-msme/foundry-causal"
+        ],
+        "metric_name": "observable_subset_calibration",
+        "numerator": 4,
+        "observable_subset_ref": "observable-subset://ua-msme/local-panel",
+        "observation_time": "2026-06-02T00:00:00Z",
+        "observed_outcome_ref": "outcome://ua-msme/fertilizer-support/observed",
+        "pass_rate": 1.0,
+        "policy_effective_time": "2026-06-02T00:00:00Z",
+        "prediction_ref": "forecast://ua-msme/fertilizer-support/prediction",
+        "prediction_time": "2026-06-02T00:00:00Z",
+        "rule_version_ref": "policyos.layer2.s10.outcome_prediction.v1",
+        "schema_version": "policyos.policy_design_case.layer2_s10_outcome_prediction.v1",
+        "source_lineage_refs": [
+          "lineage://ua-msme/source-contract"
+        ]
+      },
+      "calibration_record_ref": "pdc://layer3/g2/ua-msme/calibration/observable-subset",
+      "concept_alignment_ref": "g2-concept-alignment:9fd202376b77bfd48b173651",
+      "contested_edge_refs": [],
+      "equilibrium_blocker_refs": [],
+      "g1_binding_refs": [
+        "source-contract://ua-msme/server-support"
+      ],
+      "integrity_summary": {
+        "authority_boundary": {
+          "authoritative_for": [
+            "forecast_support_integrity"
+          ],
+          "may_not_use_for": [
+            "production_recommendation",
+            "production_claim_authority",
+            "rollout_authority",
+            "publication_authority",
+            "claim_authority",
+            "closeout_authority",
+            "approval_authority",
+            "scorecard_authority",
+            "preference_learning_authority",
+            "s11_calibration",
+            "s12_envelope_growth",
+            "s13_accountability_closure",
+            "s14_universality"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer2.s10.outcome_prediction.v1"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "case_count": 1,
+        "equilibrium_contested_single_forecast_block_count": 0,
+        "false_clear_counts": {
+          "equilibrium_contested_single_forecast_false_clear_count": 0,
+          "fail_closed_axis_prediction_promotion_false_clear_count": 0,
+          "hidden_uncertainty_interval_false_clear_count": 0,
+          "missing_design_graph_context_false_clear_count": 0,
+          "non_observable_claim_as_calibrated_false_clear_count": 0,
+          "observed_outcome_without_credible_evaluation_false_clear_count": 0,
+          "production_authority_from_forecast_false_clear_count": 0,
+          "regime_forecast_tier_laundering_false_clear_count": 0,
+          "scalar_welfare_hides_pareto_tradeoff_false_clear_count": 0,
+          "simulation_only_evidence_laundering_false_clear_count": 0,
+          "transported_estimate_without_limitation_false_clear_count": 0,
+          "uncalibrated_observable_promotion_false_clear_count": 0,
+          "validated_local_model_without_method_validity_false_clear_count": 0,
+          "weakest_boundary_ignored_false_clear_count": 0,
+          "welfare_without_value_provenance_false_clear_count": 0
+        },
+        "forecast_calibration_record_refs": [
+          "pdc://layer3/g2/ua-msme/calibration/observable-subset"
+        ],
+        "forecast_support_refs": [
+          "pdc://layer3/g2/ua-msme-affordable-loans-2022/forecast-support/d65f61522884e1cd85048188"
+        ],
+        "issue_codes": [],
+        "may_not_use_for": [
+          "production_recommendation",
+          "production_claim_authority",
+          "rollout_authority",
+          "publication_authority",
+          "claim_authority",
+          "closeout_authority",
+          "approval_authority",
+          "scorecard_authority",
+          "preference_learning_authority",
+          "s11_calibration",
+          "s12_envelope_growth",
+          "s13_accountability_closure",
+          "s14_universality"
+        ],
+        "non_observable_downgrade_count": 0,
+        "observable_subset_calibration_denominator": 4,
+        "observable_subset_calibration_floor_passed": true,
+        "observable_subset_calibration_numerator": 4,
+        "observable_subset_calibration_pass_rate": 1.0,
+        "observable_subset_calibration_status": "pass",
+        "observable_subset_calibration_threshold_ref": null,
+        "report_id": "layer3.g2.forecast-support.integrity.d65f61522884e1cd85048188",
+        "report_ref": "pdc://layer3/g2/ua-msme-affordable-loans-2022/forecast-support/d65f61522884e1cd85048188/integrity",
+        "rule_version_ref": "policyos.layer2.s10.outcome_prediction.v1",
+        "schema_version": "policyos.policy_design_case.layer2_s10_outcome_prediction.v1",
+        "simulation_only_evidence_block_count": 0,
+        "weakest_boundary_inheritance_count": 1
+      },
+      "integrity_summary_builder_ref": "polisyos.runtime.quality.layer2_outcome_prediction.summarize_forecast_support_integrity",
+      "integrity_summary_ref": "pdc://layer3/g2/ua-msme-affordable-loans-2022/forecast-support/d65f61522884e1cd85048188/integrity",
+      "issue_codes": [],
+      "limitation_refs": [
+        "limitation://forecast/support-only"
+      ],
+      "maturity_blocker_refs": [],
+      "may_not_use_for": [
+        "claim_authority",
+        "causal_effect_authority_without_adapter_validation",
+        "policy_recommendation",
+        "closeout_authority",
+        "publication_authority",
+        "useful_design_credit",
+        "production_authority",
+        "search_hit_as_authority",
+        "production_recommendation",
+        "production_claim_authority",
+        "rollout_authority",
+        "approval_authority",
+        "scorecard_authority",
+        "s11_calibration",
+        "s12_envelope_growth",
+        "s13_accountability_closure",
+        "s14_universality",
+        "preference_learning_authority"
+      ],
+      "method_validity_refs": [
+        "method-validity://foundry/causal/local",
+        "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+      ],
+      "publish_blocker_refs": [],
+      "request_ref": "g2-request:default-causal-forecast-method-search",
+      "requested_adapter_maturity": "calibrated",
+      "requested_forecast_tier": "observable_calibrated",
+      "s10_builder_ref": "polisyos.runtime.quality.layer2_outcome_prediction.build_forecast_support",
+      "s10_forecast_support": {
+        "abstention_refs": [],
+        "alternative_design_refs": [
+          "alternative://ua-msme/cash-transfer"
+        ],
+        "authority_boundary": {
+          "authoritative_for": [
+            "forecast_support_tiering"
+          ],
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect_authority_without_adapter_validation",
+            "policy_recommendation",
+            "closeout_authority",
+            "publication_authority",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority",
+            "production_recommendation",
+            "production_claim_authority",
+            "rollout_authority",
+            "approval_authority",
+            "scorecard_authority",
+            "s11_calibration",
+            "s12_envelope_growth",
+            "s13_accountability_closure",
+            "s14_universality",
+            "preference_learning_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer2.s10.outcome_prediction.v1"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "baseline_design_ref": "baseline://ua-msme/no-new-fertilizer-support",
+        "calibration_record_ref": "pdc://layer3/g2/ua-msme/calibration/observable-subset",
+        "candidate_design_ref": "candidate://ua-msme/fertilizer-support",
+        "case_id": "ua-msme-affordable-loans-2022",
+        "credible_evaluation_evidence_ref": "evidence://ua-msme/credible-evaluation",
+        "design_graph_ref": "pdc://layer2/s5/ua-msme/recursive-design-graph",
+        "dynamic_equilibrium_check_ref": "equilibrium-check://ua-msme/system-effect",
+        "equilibrium_caveat_refs": [
+          "caveat://partial-equilibrium"
+        ],
+        "forecast_authority_disposition_reason": "G2 translated bounded causal/forecast search through existing S10 support.",
+        "forecast_tier": "observable_calibrated",
+        "jurisdiction_scope_ref": "jurisdiction://UA",
+        "limitation_refs": [
+          "limitation://forecast/support-only"
+        ],
+        "may_not_use_for": [
+          "claim_authority",
+          "causal_effect_authority_without_adapter_validation",
+          "policy_recommendation",
+          "closeout_authority",
+          "publication_authority",
+          "useful_design_credit",
+          "production_authority",
+          "search_hit_as_authority",
+          "production_recommendation",
+          "production_claim_authority",
+          "rollout_authority",
+          "approval_authority",
+          "scorecard_authority",
+          "s11_calibration",
+          "s12_envelope_growth",
+          "s13_accountability_closure",
+          "s14_universality",
+          "preference_learning_authority"
+        ],
+        "method_family": "foundry_causal",
+        "method_lineage_refs": [
+          "lineage://ua-msme/foundry-causal"
+        ],
+        "method_validity_ref": "method-validity://foundry/causal/local",
+        "observable_subset_ref": "observable-subset://ua-msme/local-panel",
+        "outcome_distribution_refs": [
+          "distribution://ua-msme/fertilizer-support"
+        ],
+        "policy_context_ref": "policy-context://ua-msme/2022",
+        "prediction_context_ref": "pdc://layer2/s10/ua-msme/prediction-context",
+        "prediction_horizon_ref": "horizon://12-months",
+        "rule_version_ref": "policyos.layer2.s10.outcome_prediction.v1",
+        "s5_base_origin": "validated_local_model",
+        "s5_claim_scope": "system_effect",
+        "s5_forecast_support_ref": "pdc://layer2/s5/ua-msme/system-effect-support",
+        "s5_support_label": "validated_local_dynamic_model",
+        "s6_firewall_status_refs": [
+          "pdc://layer2/s6/ua-msme/measurability-adequacy"
+        ],
+        "s6_limitation_refs": [
+          "pdc://layer2/s6/ua-msme/strategic-response-limitation"
+        ],
+        "s8_value_choice_provenance_ref": "pdc://layer2/s8/ua-msme/value-choice-provenance",
+        "s8_value_tradeoff_disclosure_ref": "pdc://layer2/s8/ua-msme/value-tradeoff-disclosure",
+        "schema_version": "policyos.policy_design_case.layer2_s10_outcome_prediction.v1",
+        "sensitivity_analysis_ref": "sensitivity://ua-msme/fertilizer-support",
+        "source_contract_ref": "source-contract://ua-msme/server-support",
+        "source_design_record_ref": "pdc://layer2/s2/ua-msme/design-record-v0",
+        "source_lineage_refs": [
+          "lineage://ua-msme/source-contract"
+        ],
+        "strategic_response_caveat_refs": [
+          "caveat://strategic-response"
+        ],
+        "support_id": "layer3.g2.forecast-support.9f6f6ccc47551f952efa5ecd",
+        "support_ref": "pdc://layer3/g2/ua-msme-affordable-loans-2022/forecast-support/d65f61522884e1cd85048188",
+        "target_outcome_refs": [
+          "outcome://food-nutritional-quality"
+        ],
+        "uncertainty_interval_refs": [
+          "interval://ua-msme/fertilizer-support/95"
+        ],
+        "welfare_comparison_ref": "welfare://ua-msme/value-grounded"
+      },
+      "s10_forecast_support_ref": "pdc://layer3/g2/ua-msme-affordable-loans-2022/forecast-support/d65f61522884e1cd85048188",
+      "s10_forecast_tier": "observable_calibrated",
+      "s10_prerequisite_binding_ref": "g2-s10-prerequisite-binding:ac75cc8a10826b5b5a4a9867",
+      "search_ledger_refs": [
+        "g2-skg-search-ledger:2a5fe403f11b0189ce13d34a"
+      ],
+      "semantic_spine_binding_ref": "g2-semantic-spine-binding:5588542ea2e0bf122cb48086",
+      "skg_claim_refs": [],
+      "skg_edge_refs": [
+        "skg-edge://06fb46cd681818bc52d1cc01"
+      ],
+      "skg_parameter_refs": [],
+      "skg_transport_confidence_by_ref": {
+        "skg-transport://06fb46cd681818bc52d1cc01:UA": 0.78
+      },
+      "skg_transport_refs": [
+        "skg-transport://06fb46cd681818bc52d1cc01:UA"
+      ],
+      "status": "pass",
+      "uncertainty_interval_refs": [
+        "interval://ua-msme/fertilizer-support/95"
+      ]
+    }
+  ],
+  "rule_version": "policyos.layer3.g2.causal_forecast_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g2_causal_forecast.v1"
+}

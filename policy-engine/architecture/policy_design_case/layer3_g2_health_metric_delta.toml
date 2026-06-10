@@ -1,0 +1,10 @@
+schema_version = "policyos.policy_design_case.layer3_g2_causal_forecast.v1"
+rule_version = "policyos.layer3.g2.causal_forecast_search.v1"
+
+[health_metric_delta]
+metric_ids = ["envelope-expansion-rate", "adapter-semantic-loss", "governance-throughput", "demand-pull-vs-abstention", "search-recall@known-seeds+index-staleness"]
+readings."adapter-semantic-loss" = "forecast_support_bound_to_semantic_spine"
+readings."demand-pull-vs-abstention" = "domain_ceiling_available_not_used"
+readings."envelope-expansion-rate" = "bounded_search_only"
+readings."governance-throughput" = "s10_w12d_bridge_pass"
+readings."search-recall@known-seeds+index-staleness" = "pass"

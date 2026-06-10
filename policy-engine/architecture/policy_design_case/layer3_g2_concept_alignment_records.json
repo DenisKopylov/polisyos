@@ -1,0 +1,52 @@
+{
+  "concept_alignment_records": [
+    {
+      "alignment_id": "g2-concept-alignment:9fd202376b77bfd48b173651",
+      "alignment_status": "direct",
+      "authoritative_for": [],
+      "direct_grounding_claimed": true,
+      "downgrade_disposition": "direct_grounding",
+      "foundry_input_slot_refs": [
+        "foundry-slot://treatment",
+        "foundry-slot://panel-data"
+      ],
+      "foundry_output_slot_refs": [
+        "foundry-slot://effect-estimate"
+      ],
+      "g1_metric_refs": [
+        "metric://food-nutritional-quality"
+      ],
+      "g1_target_outcome_refs": [
+        "source-contract://ua-msme/server-support#food-nutritional-quality"
+      ],
+      "issue_codes": [],
+      "may_not_use_for": [
+        "claim_authority",
+        "causal_effect_authority_without_adapter_validation",
+        "policy_recommendation",
+        "closeout_authority",
+        "publication_authority",
+        "useful_design_credit",
+        "production_authority",
+        "search_hit_as_authority"
+      ],
+      "proxy_disclosed": false,
+      "request_ref": "g2-request:default-causal-forecast-method-search",
+      "s10_target_outcome_refs": [
+        "outcome://food-nutritional-quality"
+      ],
+      "semantic_spine_binding_ref": "g2-semantic-spine-binding:5588542ea2e0bf122cb48086",
+      "skg_cause_variable_ref": "skg-variable://agriculture.fertilizer_use",
+      "skg_effect_variable_ref": "skg-variable://agriculture.food_nutritional_quality",
+      "skg_parameter_refs": [
+        "skg-parameter://06fb46cd681818bc52d1cc01"
+      ],
+      "source_contract_refs": [
+        "source-contract://ua-msme/server-support"
+      ],
+      "status": "pass"
+    }
+  ],
+  "rule_version": "policyos.layer3.g2.causal_forecast_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g2_causal_forecast.v1"
+}

@@ -1,0 +1,98 @@
+{
+  "rule_version": "policyos.layer3.g2.causal_forecast_search.v1",
+  "s10_prerequisite_bindings": [
+    {
+      "alternative_design_refs": [
+        "alternative://ua-msme/cash-transfer"
+      ],
+      "authoritative_for": [],
+      "baseline_design_ref": "baseline://ua-msme/no-new-fertilizer-support",
+      "binding_id": "g2-s10-prerequisite-binding:ac75cc8a10826b5b5a4a9867",
+      "candidate_design_ref": "candidate://ua-msme/fertilizer-support",
+      "capability_reality_label": "implemented",
+      "concept_alignment_ref": "g2-concept-alignment:9fd202376b77bfd48b173651",
+      "credible_evaluation_evidence_ref": "evidence://ua-msme/credible-evaluation",
+      "design_graph_ref": "pdc://layer2/s5/ua-msme/recursive-design-graph",
+      "dynamic_equilibrium_check_ref": "equilibrium-check://ua-msme/system-effect",
+      "equilibrium_caveat_refs": [
+        "caveat://partial-equilibrium"
+      ],
+      "forecast_authority_disposition_reason": "G2 translated bounded causal/forecast search through existing S10 support.",
+      "issue_codes": [],
+      "jurisdiction_scope_ref": "jurisdiction://UA",
+      "limitation_refs": [
+        "limitation://forecast/support-only"
+      ],
+      "may_not_use_for": [
+        "claim_authority",
+        "causal_effect_authority_without_adapter_validation",
+        "policy_recommendation",
+        "closeout_authority",
+        "publication_authority",
+        "useful_design_credit",
+        "production_authority",
+        "search_hit_as_authority"
+      ],
+      "method_family": "foundry_causal",
+      "method_lineage_refs": [
+        "lineage://ua-msme/foundry-causal"
+      ],
+      "method_validity_ref": "method-validity://foundry/causal/local",
+      "method_validity_refs": [
+        "method-validity://foundry/causal/local",
+        "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+        "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+      ],
+      "observable_subset_ref": "observable-subset://ua-msme/local-panel",
+      "outcome_distribution_refs": [
+        "distribution://ua-msme/fertilizer-support"
+      ],
+      "policy_context_ref": "policy-context://ua-msme/2022",
+      "prediction_context_ref": "pdc://layer2/s10/ua-msme/prediction-context",
+      "prediction_horizon_ref": "horizon://12-months",
+      "request_ref": "g2-request:default-causal-forecast-method-search",
+      "s5_base_origin": "validated_local_model",
+      "s5_claim_scope": "system_effect",
+      "s5_forecast_support_ref": "pdc://layer2/s5/ua-msme/system-effect-support",
+      "s5_s6_s8_refs": [
+        "pdc://layer2/s5/ua-msme/system-effect-support",
+        "pdc://layer2/s6/ua-msme/measurability-adequacy",
+        "pdc://layer2/s8/ua-msme/value-choice-provenance",
+        "pdc://layer2/s8/ua-msme/value-tradeoff-disclosure"
+      ],
+      "s5_support_label": "validated_local_dynamic_model",
+      "s6_firewall_status_refs": [
+        "pdc://layer2/s6/ua-msme/measurability-adequacy"
+      ],
+      "s6_limitation_refs": [
+        "pdc://layer2/s6/ua-msme/strategic-response-limitation"
+      ],
+      "s8_value_choice_provenance_ref": "pdc://layer2/s8/ua-msme/value-choice-provenance",
+      "s8_value_tradeoff_disclosure_ref": "pdc://layer2/s8/ua-msme/value-tradeoff-disclosure",
+      "semantic_spine_binding_ref": "g2-semantic-spine-binding:5588542ea2e0bf122cb48086",
+      "sensitivity_analysis_ref": "sensitivity://ua-msme/fertilizer-support",
+      "source_contract_ref": "source-contract://ua-msme/server-support",
+      "source_design_record_ref": "pdc://layer2/s2/ua-msme/design-record-v0",
+      "source_lineage_refs": [
+        "lineage://ua-msme/source-contract"
+      ],
+      "status": "pass",
+      "strategic_response_caveat_refs": [
+        "caveat://strategic-response"
+      ],
+      "target_outcome_refs": [
+        "outcome://food-nutritional-quality"
+      ],
+      "uncertainty_interval_refs": [
+        "interval://ua-msme/fertilizer-support/95"
+      ],
+      "welfare_comparison_ref": "welfare://ua-msme/value-grounded"
+    }
+  ],
+  "schema_version": "policyos.policy_design_case.layer3_g2_causal_forecast.v1"
+}

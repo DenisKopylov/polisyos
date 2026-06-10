@@ -1,0 +1,76 @@
+{
+  "rule_version": "policyos.layer3.g2.causal_forecast_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g2_causal_forecast.v1",
+  "search_recall_freshness": {
+    "freshness_records": [
+      {
+        "artifact_ref": "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/manifests/graph_index.json",
+        "generated_at_ref": null,
+        "issue_codes": [],
+        "status": "pass"
+      },
+      {
+        "artifact_ref": "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/manifests/qc.json",
+        "generated_at_ref": null,
+        "issue_codes": [],
+        "status": "pass"
+      },
+      {
+        "artifact_ref": "production_data/policyos_academic_runtime_slim_20260411T112032Z/meta/source_lineage.json",
+        "generated_at_ref": "2026-04-11T15:56:21.417044+00:00",
+        "issue_codes": [],
+        "status": "pass"
+      },
+      {
+        "artifact_ref": "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/ac_work_index.hnsw",
+        "generated_at_ref": null,
+        "issue_codes": [],
+        "status": "not_required_for_request"
+      },
+      {
+        "artifact_ref": "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/ac_work_embeddings.npz",
+        "generated_at_ref": null,
+        "issue_codes": [],
+        "status": "not_required_for_request"
+      }
+    ],
+    "hnsw_freshness_status": "not_required_for_request",
+    "hnsw_query_vector_producer_status": "not_required_for_request",
+    "hnsw_settings": {},
+    "index_freshness_status": "pass",
+    "issue_codes": [],
+    "missed_seed_refs": [],
+    "post_hnsw_duckdb_validation_trace_refs": [],
+    "query_vector_producer_ref": null,
+    "query_vector_ref": null,
+    "recalled_seed_refs": [
+      "g2-recall-seed:canonical-edge:fertilizer-use-food-nutritional-quality",
+      "g2-recall-seed:transport-score:fertilizer-use-food-nutritional-quality:UA"
+    ],
+    "report_id": "layer3-g2-search-recall-freshness",
+    "search_recall_status": "pass",
+    "seed_records": [
+      {
+        "cause": "agriculture.fertilizer_use",
+        "effect": "agriculture.food_nutritional_quality",
+        "expected_row_refs": [
+          "skg-edge://06fb46cd681818bc52d1cc01"
+        ],
+        "requires_semantic_retrieval": false,
+        "seed_id": "g2-recall-seed:canonical-edge:fertilizer-use-food-nutritional-quality"
+      },
+      {
+        "cause": "agriculture.fertilizer_use",
+        "effect": "agriculture.food_nutritional_quality",
+        "expected_row_refs": [
+          "skg-transport://06fb46cd681818bc52d1cc01:UA"
+        ],
+        "requires_semantic_retrieval": false,
+        "seed_id": "g2-recall-seed:transport-score:fertilizer-use-food-nutritional-quality:UA"
+      }
+    ],
+    "semantic_candidate_row_refs": [],
+    "semantic_retrieval_required": false,
+    "status": "pass"
+  }
+}

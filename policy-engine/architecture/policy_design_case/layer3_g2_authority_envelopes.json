@@ -1,0 +1,16 @@
+{
+  "authority_envelopes": [
+    {
+      "issue_codes": [],
+      "record_id": "layer3-g2-authority-envelope:d2e200eeba7556ddca1aaec3",
+      "refs": [
+        "pdc://layer3/g2/ua-msme-affordable-loans-2022/forecast-support/d65f61522884e1cd85048188/authority-envelope",
+        "pdc://layer3/g2/ua-msme-affordable-loans-2022/forecast-support/d65f61522884e1cd85048188",
+        "pdc://layer3/g2/ua-msme/calibration/observable-subset"
+      ],
+      "status": "pass"
+    }
+  ],
+  "rule_version": "policyos.layer3.g2.causal_forecast_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g2_causal_forecast.v1"
+}

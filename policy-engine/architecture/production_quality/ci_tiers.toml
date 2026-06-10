@@ -777,3 +777,33 @@ path = "tests/unit/runtime/quality/test_layer3_g0_grounding_inventory.py"
 tier = "fast-pr"
 owner = "team-runtime-quality"
 purpose = "Policy Design Case Layer 3 G0 grounding inventory coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_layer3_g1_substrate_grounding.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Policy Design Case Layer 3 G1 substrate grounding search coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_layer3_g2_causal_forecast.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Policy Design Case Layer 3 G2 causal forecast search coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_layer3_g3_analytics_search.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Policy Design Case Layer 3 G3 analytics search coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_layer3_g4_promotion_gate.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Policy Design Case Layer 3 G4 promotion gate coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_layer3_gl_legal_mandate_search.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Policy Design Case Layer 3 GL legal mandate search coverage."

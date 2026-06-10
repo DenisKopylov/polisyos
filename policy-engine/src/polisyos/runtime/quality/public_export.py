@@ -228,6 +228,8 @@ def build_public_export_bundle(
     s13_public_revision_state = None
     s14_verification = None
     s14_projection = None
+    g3_verification = None
+    g3_projection = None
     if runtime_pdc_graph is not None:
         projection_semantics = build_policy_design_case_projection_from_runtime_graph(
             runtime_pdc_graph=runtime_pdc_graph,
@@ -453,6 +455,36 @@ def build_public_export_bundle(
                     )
                     else "pass",
                 }
+        projection_semantics, g3_verification, g3_projection = (
+            _apply_layer3_g3_analytics_search_projection(
+                projection_semantics=projection_semantics,
+                projection_payload=projection_payload,
+            )
+        )
+        if g3_verification is not None:
+            if projection_contract_verification is None:
+                projection_contract_verification = {
+                    "schema_version": str(
+                        g3_verification.get("consumer_contract_ref")
+                        or (
+                            "policyos.runtime.policy_design_case."
+                            "layer3_g3_projection_verification.v1"
+                        )
+                    ),
+                    "status": str(g3_verification.get("status") or "fail"),
+                    "layer3_g3_analytics_search_projection": g3_verification,
+                }
+            else:
+                projection_contract_verification = {
+                    **projection_contract_verification,
+                    "layer3_g3_analytics_search_projection": g3_verification,
+                    "status": "fail"
+                    if (
+                        projection_contract_verification.get("status") == "fail"
+                        or g3_verification.get("status") == "fail"
+                    )
+                    else "pass",
+                }
     _assert_public_claim_omissions_manifested(sanitized_artifacts, projection_semantics)
     exported_public_revision_states = list(public_revision_states)
     if s13_public_revision_state is not None:
@@ -487,6 +519,10 @@ def build_public_export_bundle(
             "s12_resource_projection_contract_verification": s12_verification,
             "s14_universality_projection": s14_projection,
             "s14_universality_projection_contract_verification": s14_verification,
+            "layer3_g3_analytics_search_projection": g3_projection,
+            "layer3_g3_analytics_search_projection_contract_verification": (
+                g3_verification
+            ),
             "omission_manifest": list(
                 projection_semantics.get("omission_manifest", [])
                 if projection_semantics is not None
@@ -942,6 +978,85 @@ def _apply_s11_predictive_projection(
     return enriched, verification, s11_projection
 
 
+def _apply_layer3_g3_analytics_search_projection(
+    *,
+    projection_semantics: Mapping[str, object],
+    projection_payload: Mapping[str, object],
+) -> tuple[dict[str, object], dict[str, object] | None, dict[str, object] | None]:
+    g3_projection = _layer3_g3_analytics_search_projection_record(projection_payload)
+    if not g3_projection:
+        return dict(projection_semantics), None, None
+    verification = {
+        "consumer_contract_ref": (
+            "policyos.runtime.policy_design_case."
+            "layer3_g3_public_projection_verification.v1"
+        ),
+        "status": "pass",
+        "public_projection": g3_projection,
+    }
+    enriched = dict(projection_semantics)
+    may_not = _unique_texts(
+        [
+            *_text_list(enriched.get("may_not_be_used_for")),
+            *_text_list(g3_projection.get("may_not_use_for")),
+            "claim_authority",
+            "policy_recommendation",
+            "closeout_authority",
+            "publication_authority",
+            "search_hit_as_certificate",
+        ]
+    )
+    audit_refs = _unique_texts(
+        [
+            *_text_list(enriched.get("audit_refs")),
+            g3_projection.get("certificate_resolution_report_ref"),
+            *_text_list(g3_projection.get("search_ledger_refs")),
+            *_text_list(g3_projection.get("redacted_search_frontier_refs")),
+            *_text_list(g3_projection.get("proof_carrying_analytics_refs")),
+            *_text_list(g3_projection.get("ir_analytics_bridge_refs")),
+            *_text_list(g3_projection.get("method_requirement_refs")),
+            *_text_list(g3_projection.get("s11_predictive_posture_refs")),
+        ]
+    )
+    source_state = dict(enriched.get("source_state") or {})
+    source_state.update(
+        {
+            "layer3_g3_projection_policy": "reads_projection_only_search_resolution_refs",
+            "layer3_g3_certificate_resolution_report_ref": g3_projection.get(
+                "certificate_resolution_report_ref"
+            ),
+            "layer3_g3_public_export_projection_ref": g3_projection.get(
+                "projection_ref"
+            ),
+        }
+    )
+    enriched.update(
+        {
+            "layer3_g3_public_export_projection_status": g3_projection.get("status"),
+            "layer3_g3_certificate_resolution_report_ref": g3_projection.get(
+                "certificate_resolution_report_ref"
+            ),
+            "layer3_g3_resolved_certificate_count": g3_projection.get(
+                "resolved_certificate_count"
+            ),
+            "layer3_g3_blocked_certificate_count": g3_projection.get(
+                "blocked_certificate_count"
+            ),
+            "authority_role": "projection_only",
+            "may_not_be_used_for": may_not,
+            "audit_refs": audit_refs,
+            "source_state": source_state,
+            "layer3_g3_analytics_search_projection_contract_verification_status": (
+                verification["status"]
+            ),
+            "layer3_g3_analytics_search_projection_contract_verification_ref": (
+                verification["consumer_contract_ref"]
+            ),
+        }
+    )
+    return enriched, verification, g3_projection
+
+
 def _apply_s10_forecast_projection(
     *,
     projection_semantics: Mapping[str, object],
@@ -1139,6 +1254,53 @@ def _s11_predictive_projection_record(
             ]
         ),
         "rule_version_ref": _text(projection_payload.get("rule_version_ref")),
+    }
+
+
+def _layer3_g3_analytics_search_projection_record(
+    projection_payload: Mapping[str, object],
+) -> dict[str, object]:
+    raw = projection_payload.get("layer3_g3_public_export_projection")
+    if not isinstance(raw, Mapping):
+        return {}
+    authority_boundary = dict(
+        raw.get("authority_boundary") if isinstance(raw.get("authority_boundary"), Mapping) else {}
+    )
+    may_not = _unique_texts(
+        [
+            *_text_list(raw.get("may_not_use_for")),
+            *_text_list(raw.get("may_not_be_used_for")),
+            *_text_list(authority_boundary.get("may_not_use_for")),
+        ]
+    )
+    return {
+        "audience": "PUBLIC",
+        "authority_role": "projection_only",
+        "projection_policy": "reads_layer3_g3_resolution_status_as_audit_refs",
+        "projection_ref": _text(raw.get("projection_ref")),
+        "status": _text(raw.get("status")) or "unknown",
+        "certificate_resolution_report_ref": _text(
+            raw.get("certificate_resolution_report_ref")
+        ),
+        "search_ledger_refs": _text_list(raw.get("search_ledger_refs")),
+        "redacted_search_frontier_refs": _text_list(
+            raw.get("redacted_search_frontier_refs")
+        ),
+        "proof_carrying_analytics_refs": _text_list(
+            raw.get("proof_carrying_analytics_refs")
+        ),
+        "ir_analytics_bridge_refs": _text_list(raw.get("ir_analytics_bridge_refs")),
+        "method_requirement_refs": _text_list(raw.get("method_requirement_refs")),
+        "s11_predictive_posture_refs": _text_list(
+            raw.get("s11_predictive_posture_refs")
+        ),
+        "resolved_certificate_count": _int(raw.get("resolved_certificate_count")),
+        "blocked_certificate_count": _int(raw.get("blocked_certificate_count")),
+        "authority_boundary": authority_boundary,
+        "may_not_use_for": may_not,
+        "raw_proof_payload_exported": False,
+        "raw_cas_manifest_exported": False,
+        "raw_query_ledger_exported": False,
     }
 
 

@@ -19,6 +19,7 @@ SINGLE_CASE_PATH = (
     REPO_ROOT
     / "tests/fixtures/universal-corpus/cases/ua-msme-affordable-loans-2022.json"
 )
+G1_FIXTURE_DIR = REPO_ROOT / "tests/fixtures/layer3/g1"
 
 
 @pytest.fixture(scope="module")
@@ -61,6 +62,10 @@ def _g0_blocks(report: dict[str, object]) -> list[dict[str, object]]:
     return [dict(case["layer3_g0_grounding_gate"]) for case in report["cases"]]
 
 
+def _g1_fixture(name: str) -> dict[str, object]:
+    return json.loads((G1_FIXTURE_DIR / name).read_text(encoding="utf-8"))
+
+
 def test_w12d_manifest_is_deterministic_and_runs_real_corpus() -> None:
     manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
 
@@ -79,6 +84,26 @@ def test_w12d_manifest_is_deterministic_and_runs_real_corpus() -> None:
         "publish-with-limitation",
     ]
     assert manifest["metric_policy"]["typed_blockers_count_as_useful_design"] is False
+    assert (
+        manifest["metric_policy"]["layer3_g0_pre_adapter_blocks_count_as_useful_design"]
+        is False
+    )
+    assert (
+        manifest["metric_policy"][
+            "no_hit_domain_ceiling_requires_g1_search_adapter"
+        ]
+        is True
+    )
+    assert manifest["layer3_g0_pre_adapter_readiness"] == {
+        "readiness_gate_ref": (
+            "repo://architecture/policy_design_case/layer3_g0_readiness_manifest.json"
+        ),
+        "schema_version": "policyos.policy_design_case.layer3_g0_discovery_search.v2",
+        "rule_version": "policyos.layer3.g0.discovery_search_free_growth.v2",
+        "not_grounded_conversion_slice": True,
+        "no_hit_domain_ceiling_summary_allowed_before_g1": False,
+        "g1_search_adapter_required_for_no_hit_domain_ceiling": True,
+    }
     assert manifest["w6_w7_w8_chain"] == {
         "universal_compilation_kernel": "W6",
         "producer_pipeline": "W7",
@@ -258,6 +283,246 @@ def test_w12d_layer3_g0_blocks_all_corpus_conversion_without_useful_design_credi
     assert report["summary"]["runtime_useful_design_count"] == report["summary"][
         "useful_design_count"
     ]
+
+
+def test_w12d_layer3_g0_readiness_blocks_no_hit_domain_ceiling_summaries() -> None:
+    report = w12d.build_w12d_universal_outcome_corpus_report(
+        case_results=[
+            _case_result(
+                case_id="blocked-case",
+                domain="housing",
+                authority_level="production",
+                outcome="typed_blocker",
+                expert_label="false_pass",
+                runtime_pdc_graph_status="blocked",
+            )
+        ],
+        repo_root=REPO_ROOT,
+        corpus_ref="repo://tests/fixtures/universal-corpus",
+    )
+
+    readiness = report["layer3_g0_pre_adapter_readiness"]
+    gate = report["cases"][0]["layer3_g0_grounding_gate"]
+
+    assert readiness["not_grounded_conversion_slice"] is True
+    assert readiness["search_recall_seed_status"] == "pass"
+    assert readiness["index_freshness_status"] == "pass"
+    assert readiness["free_growth_fixture_status"] == "pass"
+    assert readiness["mechanism_generality_fixture_status"] == "pass"
+    assert readiness["no_hit_domain_ceiling_summary_allowed_before_g1"] is False
+    assert readiness["g1_search_adapter_required_for_no_hit_domain_ceiling"] is True
+    assert report["summary"]["no_hit_domain_ceiling_summary_allowed"] is False
+    assert report["summary"]["g1_search_adapter_required_for_no_hit_domain_ceiling"] is True
+    assert gate["no_hit_domain_ceiling_summary_allowed"] is False
+    assert gate["search_ceiling_blocks_domain_ceiling"] is True
+    assert "domain_ceiling" in gate["authority_boundary"]["may_not_use_for"]
+
+
+def test_w12d_layer3_g1_records_first_vertical_grounding_without_claim_authority() -> None:
+    report = w12d.build_w12d_universal_outcome_corpus_report(
+        case_results=[
+            _case_result(
+                case_id="ua-msme-affordable-loans-2022",
+                domain="fiscal_support",
+                authority_level="production",
+                outcome="typed_blocker",
+                expert_label="limitation_required",
+                runtime_pdc_graph_status="blocked",
+            )
+        ],
+        repo_root=REPO_ROOT,
+        corpus_ref="repo://tests/fixtures/universal-corpus",
+    )
+
+    case = report["cases"][0]
+    gate = case["layer3_g1_grounding_gate"]
+
+    assert gate["schema_version"] == "policyos.policy_design_case.layer3_g1_grounding_gate.v1"
+    assert gate["case_id"] == "ua-msme-affordable-loans-2022"
+    assert gate["construct_bundle_id"] == "ukrainian_msme_credit_constructs"
+    assert gate["counts_as_useful_design"] is False
+    assert gate["production_claim_authority_count"] == 0
+    assert gate["useful_design_credit_count"] == 0
+    assert "claim_authority" in gate["may_not_use_for"]
+    assert "search_hit_as_authority" in gate["may_not_use_for"]
+    assert report["summary"]["layer3_g1_useful_design_credit_count"] == 0
+    assert report["summary"]["layer3_g1_claim_authority_leak_count"] == 0
+
+
+def test_w12d_layer3_g1_raw_fixture_binding_does_not_count_as_grounded() -> None:
+    case = _case_result(
+        case_id="ua-msme-affordable-loans-2022",
+        domain="fiscal_support",
+        authority_level="production",
+        outcome="typed_blocker",
+        expert_label="limitation_required",
+        runtime_pdc_graph_status="blocked",
+    )
+    case["layer3_g1_candidate_fixture"] = _g1_fixture(
+        "raw_data_forge_output_without_adapter.json"
+    )["payload"]
+
+    report = w12d.build_w12d_universal_outcome_corpus_report(
+        case_results=[case],
+        repo_root=REPO_ROOT,
+        corpus_ref="repo://tests/fixtures/universal-corpus",
+    )
+
+    gate = report["cases"][0]["layer3_g1_grounding_gate"]
+
+    assert gate["grounded_construct_refs"] == []
+    assert gate["grounded_or_uncertain_construct_count"] == 0
+    assert gate["counts_as_useful_design"] is False
+    assert "layer3_g1_raw_output_without_adapter" in gate["issue_codes"]
+    assert report["summary"]["layer3_g1_grounded_or_uncertain_construct_count"] == 0
+
+
+def test_w12d_layer3_g1_gate_is_inserted_before_summary_without_overwriting_g0_conversion_outcome() -> None:
+    report = w12d.build_w12d_universal_outcome_corpus_report(
+        case_results=[
+            _case_result(
+                case_id="ua-msme-affordable-loans-2022",
+                domain="fiscal_support",
+                authority_level="production",
+                outcome="typed_blocker",
+                expert_label="limitation_required",
+                runtime_pdc_graph_status="blocked",
+            )
+        ],
+        repo_root=REPO_ROOT,
+        corpus_ref="repo://tests/fixtures/universal-corpus",
+    )
+
+    case = report["cases"][0]
+    gate = case["layer3_g1_grounding_gate"]
+
+    assert case["conversion_outcome"] == "not_attempted_g0_pre_adapter"
+    assert case["layer3_g0_grounding_gate"]["conversion_outcome"] == (
+        "not_attempted_g0_pre_adapter"
+    )
+    assert gate["layer3_g1_grounding_outcome"] == report["summary"][
+        "layer3_g1_grounding_closure_outcome"
+    ]
+    assert report["summary"]["layer3_g1_w12d_conversion_outcome_overwrite_count"] == 0
+    assert report["summary"]["layer3_g1_w12d_gate_injection_order"] == (
+        "after_g0_before_summary"
+    )
+
+
+def test_w12d_layer3_g2_forecast_gate_consumes_posture_after_g1_without_authority() -> None:
+    report = w12d.build_w12d_universal_outcome_corpus_report(
+        case_results=[
+            _case_result(
+                case_id="ua-msme-affordable-loans-2022",
+                domain="fiscal_support",
+                authority_level="production",
+                outcome="typed_blocker",
+                expert_label="limitation_required",
+                runtime_pdc_graph_status="blocked",
+            ),
+            _case_result(
+                case_id="housing-affordability-2024",
+                domain="housing",
+                authority_level="research",
+                outcome="typed_blocker",
+                expert_label="limitation_required",
+                runtime_pdc_graph_status="blocked",
+            ),
+        ],
+        repo_root=REPO_ROOT,
+        corpus_ref="repo://tests/fixtures/universal-corpus",
+    )
+
+    first_case = report["cases"][0]
+    lightweight_case = report["cases"][1]
+    gate = first_case["layer3_g2_forecast_gate"]
+
+    assert list(first_case).index("layer3_g2_forecast_gate") > list(first_case).index(
+        "layer3_g1_grounding_gate"
+    )
+    assert gate["schema_version"] == "policyos.policy_design_case.layer3_g2_forecast_gate.v1"
+    assert gate["status"] == "pass"
+    assert gate["posture_consumed"] is True
+    assert gate["forecast_tiers"] == ["observable_calibrated"]
+    assert gate["forecast_support_refs"]
+    assert gate["forecast_calibration_record_refs"]
+    assert gate["source_contract_refs"]
+    assert gate["method_validity_refs"]
+    assert gate["uncertainty_interval_refs"]
+    assert gate["full_s2_consumer_case_count"] == 1
+    assert gate["lightweight_forecast_posture_ref_count"] == 1
+    assert gate["useful_design_delta_count"] == 0
+    assert gate["closeout_claimed"] is False
+    assert gate["recommendation_authority_claimed"] is False
+    assert gate["claim_authority_claimed"] is False
+    assert "claim_authority" in gate["may_not_use_for"]
+    assert first_case["conversion_outcome"] == first_case["layer3_g0_grounding_gate"][
+        "conversion_outcome"
+    ]
+    assert lightweight_case["layer3_g2_forecast_gate"]["status"] == "pass"
+    assert lightweight_case["layer3_g2_forecast_gate"]["posture_consumed"] is False
+    assert lightweight_case["layer3_g2_forecast_gate"]["lightweight_posture_ref"]
+    assert report["summary"]["layer3_g2_w12d_gate_injection_order"] == (
+        "after_g1_before_summary"
+    )
+    assert report["summary"]["layer3_g2_full_s2_consumer_case_count"] == 1
+    assert report["summary"]["layer3_g2_useful_design_delta_count"] == 0
+
+
+def test_w12d_layer3_g2_domain_ceiling_still_routes_after_g1_without_consumption() -> None:
+    case = _case_result(
+        case_id="ua-msme-affordable-loans-2022",
+        domain="fiscal_support",
+        authority_level="production",
+        outcome="typed_blocker",
+        expert_label="limitation_required",
+        runtime_pdc_graph_status="blocked",
+    )
+    case["layer3_g2_domain_ceiling_status"] = "causal_forecast_domain_ceiling"
+
+    report = w12d.build_w12d_universal_outcome_corpus_report(
+        case_results=[case],
+        repo_root=REPO_ROOT,
+        corpus_ref="repo://tests/fixtures/universal-corpus",
+    )
+
+    gate = report["cases"][0]["layer3_g2_forecast_gate"]
+
+    assert "layer3_g1_grounding_gate" in report["cases"][0]
+    assert gate["status"] == "pass"
+    assert gate["posture_consumed"] is False
+    assert gate["domain_ceiling_status"] == "causal_forecast_domain_ceiling"
+    assert gate["layer3_g2_gate_injection_order"] == "after_g1_before_summary"
+    assert report["summary"]["layer3_g2_domain_ceiling_gate_count"] == 1
+    assert report["summary"]["layer3_g2_w12d_not_routed_count"] == 0
+
+
+def test_w12d_layer3_g1_search_ceiling_does_not_count_as_domain_ceiling() -> None:
+    case = _case_result(
+        case_id="ua-msme-affordable-loans-2022",
+        domain="fiscal_support",
+        authority_level="production",
+        outcome="typed_blocker",
+        expert_label="limitation_required",
+        runtime_pdc_graph_status="blocked",
+    )
+    case["layer3_g1_candidate_fixture"] = _g1_fixture(
+        "search_recall_seed_miss_domain_ceiling.json"
+    )["payload"]
+
+    report = w12d.build_w12d_universal_outcome_corpus_report(
+        case_results=[case],
+        repo_root=REPO_ROOT,
+        corpus_ref="repo://tests/fixtures/universal-corpus",
+    )
+
+    gate = report["cases"][0]["layer3_g1_grounding_gate"]
+
+    assert gate["layer3_g1_grounding_outcome"] == "search_ceiling_repair_required"
+    assert gate["grounded_abstention_domain_ceiling_refs"] == []
+    assert gate["counts_as_useful_design"] is False
+    assert report["summary"]["layer3_g1_grounded_abstention_domain_ceiling_count"] == 0
+    assert report["summary"]["layer3_g1_search_ceiling_repair_required_count"] == 1
 
 
 def test_w12d_canonical_outcome_consumes_s1_governed_closeout_downgrade(
@@ -1651,6 +1916,276 @@ def test_w12d_s11_injects_first_case_s2_posture_without_full_search_for_all_case
 
     assert first_case_count == 1
     assert lightweight_case_count == 12
+
+
+def test_w12d_layer3_g3_consumes_resolved_first_case_proof_in_s11_s2_route(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    summary = dict(w12d_s9_report["layer3_g3_analytics_search_summary"])
+    first = next(
+        dict(case)
+        for case in w12d_s9_report["cases"]
+        if case["case_id"] == "ua-msme-affordable-loans-2022"
+    )
+    gate = dict(first["layer3_g3_analytics_search_gate"])
+    s11 = dict(first["s11_predictive_knowledge"])
+    s2 = dict(first["s2_design_search"])
+    search_ledger = dict(s2["search_ledger"])
+    design_record = dict(s2["design_record"])
+    s11_constraints = [
+        dict(row)
+        for row in s2["constraint_store"]["constraint_records"]
+        if str(row["constraint_id"]).startswith("layer2.s11.")
+    ]
+    axis_positions = [
+        dict(row)
+        for row in design_record["axis_positions"]
+        if row["axis"] == "predictive_knowledge_relaxation"
+    ]
+    firewall_statuses = [
+        dict(row)
+        for row in design_record["firewall_status"]
+        if row["cell_ref"] == "KNOWLEDGE.predictive_knowledge_relaxation"
+    ]
+
+    assert summary["g3_consumer_gate_count"] == 13
+    assert summary["full_consumer_case_count"] == 1
+    assert summary["lightweight_posture_ref_count"] == 12
+    assert summary["fixture_certificate_closure_count"] == 0
+    assert summary["useful_design_delta_count"] == 0
+    assert gate["status"] == "pass"
+    assert gate["route_kind"] == "full_s11_s2_consumer"
+    assert gate["g3_closure_count"] == 1
+    assert gate["g3_proof_carrying_analytics_ref"].startswith("pdc://layer3/g3/")
+    assert s11["proof_carrying_analytics_ref"] == gate["g3_proof_carrying_analytics_ref"]
+    assert s11["predictive_knowledge_ref"] in search_ledger["predictive_knowledge_refs"]
+    assert gate["g3_proof_carrying_analytics_ref"] in (
+        search_ledger["proof_carrying_analytics_refs"]
+    )
+    assert s11_constraints
+    assert all(
+        gate["g3_proof_carrying_analytics_ref"] in row["evidence_refs"]
+        for row in s11_constraints
+    )
+    assert axis_positions
+    assert gate["g3_proof_carrying_analytics_ref"] in axis_positions[0]["evidence_refs"]
+    assert firewall_statuses and firewall_statuses[0]["status"] in {"limit", "block"}
+    assert set(design_record["projection_audiences"]) == {
+        "PUBLIC",
+        "REVIEWER",
+        "EXPERT",
+        "MACHINE",
+    }
+    assert gate["consumer_assertions"] == {
+        "search_ledger_predictive_knowledge_ref_consumed": True,
+        "search_ledger_g3_proof_ref_consumed": True,
+        "s11_constraint_store_entries_consumed": True,
+        "refinement_status_consumed": True,
+        "axis_position_declared": True,
+        "firewall_status_consumed": True,
+        "projection_fields_present": True,
+    }
+
+
+def test_w12d_layer3_g3_fixture_s11_refs_are_regression_context_not_closure(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    summary = dict(w12d_s9_report["layer3_g3_analytics_search_summary"])
+    lightweight_gates = [
+        dict(case["layer3_g3_analytics_search_gate"])
+        for case in w12d_s9_report["cases"]
+        if case["case_id"] != "ua-msme-affordable-loans-2022"
+    ]
+
+    assert len(lightweight_gates) == 12
+    assert summary["fixture_certificate_closure_count"] == 0
+    assert all(gate["route_kind"] == "lightweight_s11_posture_ref" for gate in lightweight_gates)
+    assert all(gate["g3_closure_count"] == 0 for gate in lightweight_gates)
+    assert all(gate["fixture_s11_regression_context_ref"] for gate in lightweight_gates)
+
+
+def test_w12d_layer3_g3_gate_does_not_overwrite_g0_g1_g2_or_useful_design(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    summary = dict(w12d_s9_report["layer3_g3_analytics_search_summary"])
+
+    assert summary["useful_design_delta_count"] == 0
+    assert summary["g0_conversion_outcome_overwrite_count"] == 0
+    assert summary["g1_conversion_outcome_overwrite_count"] == 0
+    assert summary["g2_conversion_outcome_overwrite_count"] == 0
+    assert all(
+        case["counts_toward_useful_design"]
+        == (case["outcome"] in w12d.USEFUL_DESIGN_OUTCOMES)
+        for case in w12d_s9_report["cases"]
+    )
+
+
+def test_w12d_layer3_g5_red_baseline_missing_hook_keeps_pre_g5_grounded_count(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    """P01/P02/P04 red baseline: G5 is absent until W12.D consumes the overlay."""
+
+    pinned = next(
+        dict(case)
+        for case in w12d_s9_report["cases"]
+        if case["case_id"] == "ua-msme-affordable-loans-2022"
+    )
+
+    assert w12d_s9_report["summary"]["grounded_conversion_count"] == 0
+    assert "layer3_g5_conversion_gate" in pinned
+
+
+def test_w12d_layer3_g5_gate_is_inserted_after_g3_before_summary(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    pinned = next(
+        dict(case)
+        for case in w12d_s9_report["cases"]
+        if case["case_id"] == "ua-msme-affordable-loans-2022"
+    )
+    summary = dict(w12d_s9_report["summary"])
+
+    assert "layer3_g3_analytics_search_gate" in pinned
+    assert "layer3_g5_conversion_gate" in pinned
+    assert summary["layer3_g5_gate_injection_order"] == "after_g3_before_summary"
+    assert summary["layer3_g5_gate_count"] == 1
+
+
+def test_w12d_layer3_g5_handles_g3_summary_top_level_not_inside_summary(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    summary = dict(w12d_s9_report["summary"])
+
+    assert "layer3_g3_analytics_search_summary" in w12d_s9_report
+    assert "layer3_g3_analytics_search_summary" not in summary
+    assert summary["layer3_g5_g3_summary_location"] == "top_level_report_field"
+
+
+def test_w12d_layer3_g5_emits_pinned_case_conversion_classification(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    pinned = next(
+        dict(case)
+        for case in w12d_s9_report["cases"]
+        if case["case_id"] == "ua-msme-affordable-loans-2022"
+    )
+    gate = dict(pinned["layer3_g5_conversion_gate"])
+
+    assert gate["case_id"] == "ua-msme-affordable-loans-2022"
+    assert gate["status"] == "not_routed"
+    assert gate["conversion_classification"] == "unchanged_blocker"
+    assert "layer3_g5_w12d_consumer_gate_missing" in gate["issue_codes"]
+
+
+def test_w12d_layer3_g5_grounded_conversion_count_is_g5_owned(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    summary = dict(w12d_s9_report["summary"])
+
+    assert summary["layer3_g0_grounded_conversion_count"] == 0
+    assert summary["layer3_g5_grounded_conversion_count"] == 0
+    assert summary["grounded_conversion_count"] == summary["layer3_g5_grounded_conversion_count"]
+    assert summary["grounded_conversion_count_source"] == "layer3_g5_conversion_gate"
+
+
+def test_w12d_layer3_g5_does_not_overwrite_g0_g1_g2_g3_histories(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    pinned = next(
+        dict(case)
+        for case in w12d_s9_report["cases"]
+        if case["case_id"] == "ua-msme-affordable-loans-2022"
+    )
+    summary = dict(w12d_s9_report["summary"])
+
+    assert all(
+        key in pinned
+        for key in (
+            "layer3_g0_grounding_gate",
+            "layer3_g1_grounding_gate",
+            "layer3_g2_forecast_gate",
+            "layer3_g3_analytics_search_gate",
+            "layer3_g5_conversion_gate",
+        )
+    )
+    assert summary["layer3_g5_g0_g1_g2_g3_history_overwrite_count"] == 0
+
+
+def test_w12d_layer3_g5_preserves_pre_g5_closed_case_replay(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    pinned = next(
+        dict(case)
+        for case in w12d_s9_report["cases"]
+        if case["case_id"] == "ua-msme-affordable-loans-2022"
+    )
+    gate = dict(pinned["layer3_g5_conversion_gate"])
+
+    assert pinned["outcome"] == gate["pre_g5_outcome"]
+    assert pinned["conversion_outcome"] == gate["pre_g5_conversion_outcome"]
+    assert gate["pre_g5_replay_mutated"] is False
+
+
+def test_w12d_layer3_g5_grounded_abstention_does_not_count_as_useful_design() -> None:
+    summary = w12d._layer3_g5_summary(  # noqa: SLF001
+        [
+            {
+                "layer3_g5_conversion_gate": {
+                    "status": "pass",
+                    "conversion_classification": "typed_blocker -> grounded_abstention",
+                    "counts_toward_useful_design": False,
+                    "grounded_conversion_count": 1,
+                    "useful_design_credit_count": 0,
+                }
+            }
+        ]
+    )
+
+    assert summary["layer3_g5_grounded_abstention_count"] == 1
+    assert summary["layer3_g5_grounded_conversion_count"] == 1
+    assert summary["layer3_g5_runtime_useful_design_credit_count"] == 0
+
+
+def test_w12d_layer3_g5_grounded_limited_counts_only_with_status_composition() -> None:
+    summary = w12d._layer3_g5_summary(  # noqa: SLF001
+        [
+            {
+                "layer3_g5_conversion_gate": {
+                    "status": "pass",
+                    "conversion_classification": "typed_blocker -> grounded_limited",
+                    "counts_toward_useful_design": True,
+                    "grounded_conversion_count": 1,
+                    "useful_design_credit_count": 1,
+                    "status_composition_status": "pass",
+                }
+            },
+            {
+                "layer3_g5_conversion_gate": {
+                    "status": "pass",
+                    "conversion_classification": "typed_blocker -> grounded_limited",
+                    "counts_toward_useful_design": True,
+                    "grounded_conversion_count": 1,
+                    "useful_design_credit_count": 1,
+                    "status_composition_status": "missing",
+                }
+            },
+        ]
+    )
+
+    assert summary["layer3_g5_grounded_limited_count"] == 2
+    assert summary["layer3_g5_grounded_limited_status_composed_count"] == 1
+    assert summary["layer3_g5_runtime_useful_design_credit_count"] == 1
+
+
+def test_w12d_layer3_g5_preserves_runtime_vs_expert_useful_design_metrics(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    summary = dict(w12d_s9_report["summary"])
+
+    assert summary["runtime_useful_design_count"] == summary["useful_design_count"]
+    assert summary["expert_useful_design_ceiling_count"] >= summary["runtime_useful_design_count"]
+    assert summary["layer3_g5_runtime_useful_design_credit_count"] == 0
+    assert "layer3_g5_expert_useful_design_ceiling_count" not in summary
 
 
 def test_w12d_s11_summary_records_per_axis_calibration_floor_and_negative_controls(

@@ -29,7 +29,17 @@
     ],
     "typed_blockers_count_as_useful_design": false,
     "accepted_deficits_count_as_useful_design": false,
+    "layer3_g0_pre_adapter_blocks_count_as_useful_design": false,
+    "no_hit_domain_ceiling_requires_g1_search_adapter": true,
     "synthetic_fixtures_count_as_canonical_evidence": false
+  },
+  "layer3_g0_pre_adapter_readiness": {
+    "readiness_gate_ref": "repo://architecture/policy_design_case/layer3_g0_readiness_manifest.json",
+    "schema_version": "policyos.policy_design_case.layer3_g0_discovery_search.v2",
+    "rule_version": "policyos.layer3.g0.discovery_search_free_growth.v2",
+    "not_grounded_conversion_slice": true,
+    "no_hit_domain_ceiling_summary_allowed_before_g1": false,
+    "g1_search_adapter_required_for_no_hit_domain_ceiling": true
   },
   "pattern_pass": {
     "relevant_patterns": [
@@ -40,7 +50,9 @@
       "P10",
       "P12",
       "P13",
-      "P15"
+      "P15",
+      "P25",
+      "T7"
     ],
     "target_correct_pattern": "W12.D is the canonical real-corpus run over W6/W7/W8 with expert-adjudication deltas and authority-level stratification.",
     "missing_capability_labels": []

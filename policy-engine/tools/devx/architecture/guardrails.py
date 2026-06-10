@@ -12,6 +12,7 @@ import re
 import shlex
 import subprocess
 import tomllib
+from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -241,12 +242,14 @@ def _ensure_relative(path_str: str) -> Path:
     return path if path.is_absolute() else REPO_ROOT / path
 
 
-def _parse_check_command(value: Any) -> tuple[str, ...] | None:
+def _parse_check_command(value: object) -> tuple[str, ...] | None:
     if value is None:
         return None
     if isinstance(value, str):
         return tuple(shlex.split(value))
-    return tuple(str(part) for part in value)
+    if isinstance(value, Sequence):
+        return tuple(str(part) for part in value)
+    return (str(value),)
 
 
 def _parse_public_surface(path: Path) -> list[PackagePolicy]:
@@ -586,6 +589,21 @@ def render_public_surface_markdown(inventory: list[PackageInventory]) -> str:
         "- `public_stable`: supported entrypoint with normal compatibility, release-note, and migration expectations.",
         "- `public_experimental`: documented entrypoint that should stay visible in docs and release notes when touched, but it does not promise long-term compatibility.",
         "- `internal`: any `polisyos.*` path not listed here; keep it out of public docs and release notes unless operators must care.",
+        "",
+        "## Policy Design Case Generated Audit Surfaces",
+        "",
+        "`layer3_g4_shadow_to_governed_promotion_surface` is a generated",
+        "PUBLIC/REVIEWER/EXPERT/MACHINE Policy Design Case audit surface documented in",
+        "`docs/reference/policy-design-case-layer3-promotion-gate.md`. It is",
+        "projection-only for public export: `layer3_g4_public_export_projection_refs.json`",
+        "records `out_of_scope_reference_only` rather than a runtime public-export route.",
+        "",
+        "`layer3_g5_first_proving_ground_conversion_surface` is a generated",
+        "PUBLIC/REVIEWER/EXPERT/MACHINE Policy Design Case audit surface documented in",
+        "`docs/reference/policy-design-case-layer3-proving-ground-conversion.md`. It",
+        "publishes conversion-record refs, blocker/limitation refs, and projection-only",
+        "public refs; `layer3_g5_public_export_projection_refs.json` records",
+        "`out_of_scope_reference_only` and does not register a public-export bundle route.",
         "",
         "| Package | Classification | Facade | Exports | Owner | README |",
         "| --- | --- | --- | ---: | --- | --- |",

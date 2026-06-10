@@ -177,12 +177,27 @@ from polisyos.runtime.quality.layer2_universality_assurance import (  # noqa: E4
     build_s14_universality_authority_boundary,
     verify_universality_claim_authority,
 )
+from polisyos.runtime.quality.layer3_causal_forecast import (  # noqa: E402
+    LAYER3_G2_W12D_GATE_SCHEMA_VERSION,
+    build_g2_w12d_consumer_gate,
+)
 from polisyos.runtime.quality.layer3_grounding_inventory import (  # noqa: E402
     FIRST_VERTICAL_CONSTRUCT_BUNDLE_ID,
     FIRST_VERTICAL_CORPUS_CASE_ID,
     LAYER3_G0_RULE_VERSION,
     LAYER3_G0_SCHEMA_VERSION,
     build_layer3_g0_bundle,
+)
+from polisyos.runtime.quality.layer3_substrate_grounding import (  # noqa: E402
+    G1_AUTHORITATIVE_FOR,
+    G1_CONSTRUCT_BUNDLE_ID,
+    G1_MAY_NOT_USE_FOR,
+    G1_PINNED_CASE_ID,
+    LAYER3_G1_GATE_SCHEMA_VERSION,
+    LAYER3_G1_RULE_VERSION,
+    LAYER3_G1_SCHEMA_VERSION,
+    build_layer3_g1_bundle,
+    validate_layer3_g1_bundle,
 )
 from polisyos.runtime.quality.producer_pipeline import (  # noqa: E402
     run_requirement_spec_producer_pipeline,
@@ -230,6 +245,9 @@ DEFAULT_MANIFEST_OUTPUT = Path(
     "architecture/policy_design_case/wave12d_universal_outcome_corpus_run_manifest.json"
 )
 DEFAULT_AUTHORITY_COMPOSITION_RULE_REF = "capability-authority-v1.0"
+LAYER3_G0_READINESS_MANIFEST_REF = (
+    "repo://architecture/policy_design_case/layer3_g0_readiness_manifest.json"
+)
 S3_FIRST_PROVING_CASE_ID = "ua-msme-affordable-loans-2022"
 S3_GROUNDED_CONSTRUCT = "credit_program_enrollment"
 S3_ACQUISITION_SOURCE_FIXTURE = Path(
@@ -331,7 +349,7 @@ EXPERT_LABEL_EXPECTED_OUTCOME: Mapping[str, str] = {
     "false_pass": "typed_blocker",
     "fabricated_unverifiable": "typed_blocker",
 }
-PATTERN_REFS = ("P01", "P02", "P03", "P05", "P10", "P12", "P13", "P15")
+PATTERN_REFS = ("P01", "P02", "P03", "P05", "P10", "P12", "P13", "P15", "P25", "T7")
 ACTIONABLE_CAPABILITY_BLOCKER_CODES = frozenset(
     {
         "blocked_construct_not_observed",
@@ -573,10 +591,37 @@ def build_w12d_universal_outcome_corpus_report(
 ) -> dict[str, Any]:
     """Build the canonical W12.D corpus evidence report from case results."""
 
-    g0_context = _layer3_g0_grounding_context(Path(repo_root))
+    root = Path(repo_root)
+    g0_context = _layer3_g0_grounding_context(root)
+    g1_context = _layer3_g1_grounding_context(root)
+    g2_context = _layer3_g2_causal_forecast_context(root)
+    g0_readiness = _layer3_g0_pre_adapter_readiness(g0_context)
+    case_ids = tuple(
+        str(result.get("case_id") or result.get("id") or f"case-{idx}")
+        for idx, result in enumerate(case_results)
+    )
     cases = [
-        _with_layer3_g0_grounding_gate(dict(result), g0_context=g0_context)
-        for result in case_results
+        _with_layer3_g5_conversion_gate(
+            _with_layer3_g3_analytics_search_gate(
+                _with_layer3_g2_forecast_gate(
+                    _with_layer3_g1_grounding_gate(
+                        _with_layer3_g0_grounding_gate(
+                            dict(result),
+                            g0_context=g0_context,
+                        ),
+                        g1_context=g1_context,
+                    ),
+                    g2_context=g2_context,
+                    case_index=idx,
+                    case_ids=case_ids,
+                ),
+                case_index=idx,
+                case_ids=case_ids,
+            ),
+            case_index=idx,
+            case_ids=case_ids,
+        )
+        for idx, result in enumerate(case_results)
     ]
     typed_blockers = [
         _typed_blocker_from_case(blocker, case)
@@ -625,6 +670,7 @@ def build_w12d_universal_outcome_corpus_report(
         cases,
         repo_root=Path(repo_root),
     )
+    layer3_g3_analytics_search_summary = _layer3_g3_summary(cases)
     status = "blocked" if rollout_blockers else "pass"
     return {
         "schema_version": SCHEMA_VERSION,
@@ -649,6 +695,8 @@ def build_w12d_universal_outcome_corpus_report(
         "s9_projection_lowering_summary": s9_projection_lowering_summary,
         "s13_post_deploy_accountability_summary": s13_post_deploy_accountability_summary,
         "s14_universality_assurance_summary": s14_universality_assurance_summary,
+        "layer3_g3_analytics_search_summary": layer3_g3_analytics_search_summary,
+        "layer3_g0_pre_adapter_readiness": g0_readiness,
         "cases": cases,
         "authority_level_metric_stratification": _authority_stratification(cases),
         "domain_authority_metric_stratification": _domain_authority_stratification(cases),
@@ -659,6 +707,7 @@ def build_w12d_universal_outcome_corpus_report(
             "typed_blockers_count_as_useful_design": False,
             "accepted_deficits_count_as_useful_design": False,
             "layer3_g0_pre_adapter_blocks_count_as_useful_design": False,
+            "no_hit_domain_ceiling_requires_g1_search_adapter": True,
             "synthetic_fixtures_count_as_canonical_evidence": False,
             "pdc_graph_authoritative_for": ["pdc_graph_structure"],
             "pdc_graph_may_not_use_for": ["projection_authority", "claim_authority"],
@@ -750,7 +799,17 @@ def build_w12d_manifest() -> dict[str, Any]:
             "useful_design_outcomes": list(USEFUL_DESIGN_OUTCOMES),
             "typed_blockers_count_as_useful_design": False,
             "accepted_deficits_count_as_useful_design": False,
+            "layer3_g0_pre_adapter_blocks_count_as_useful_design": False,
+            "no_hit_domain_ceiling_requires_g1_search_adapter": True,
             "synthetic_fixtures_count_as_canonical_evidence": False,
+        },
+        "layer3_g0_pre_adapter_readiness": {
+            "readiness_gate_ref": LAYER3_G0_READINESS_MANIFEST_REF,
+            "schema_version": LAYER3_G0_SCHEMA_VERSION,
+            "rule_version": LAYER3_G0_RULE_VERSION,
+            "not_grounded_conversion_slice": True,
+            "no_hit_domain_ceiling_summary_allowed_before_g1": False,
+            "g1_search_adapter_required_for_no_hit_domain_ceiling": True,
         },
         "pattern_pass": {
             "relevant_patterns": list(PATTERN_REFS),
@@ -3922,9 +3981,16 @@ def _s11_predictive_knowledge_case_block(
             ],
         ]
     )
+    g3_proof_context = _layer3_g3_first_case_proof_context(
+        repo_root=repo_root,
+        case_id=case_id,
+        signals=signals,
+        s10_outcome_prediction=s10_outcome_prediction,
+    )
     proof = _s11_proof_record(
         signals,
         s10_outcome_prediction=s10_outcome_prediction,
+        g3_proof_context=g3_proof_context,
     )
     axis_records = [
         _s11_axis_records(
@@ -3989,6 +4055,7 @@ def _s11_predictive_knowledge_case_block(
                     field_name="predictive_knowledge_input_ref",
                 )
             ],
+            "layer3_g3_proof_context": dict(g3_proof_context),
         }
     )
     block["matches_gold"] = _s11_matches_gold(block, labels)
@@ -4184,14 +4251,111 @@ def _s11_axis_records(
     return calibration, upgrade
 
 
+def _layer3_g3_first_case_proof_context(
+    *,
+    repo_root: Path,
+    case_id: str,
+    signals: Mapping[str, object],
+    s10_outcome_prediction: Mapping[str, object],
+) -> dict[str, object]:
+    if case_id != FIRST_VERTICAL_CORPUS_CASE_ID:
+        return {}
+
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.runtime.quality import layer3_analytics_search as g3
+
+    request = g3.Layer3G3AnalyticsRequest(
+        request_id=f"g3-request:w12d:{case_id}",
+        claim_id=f"claim://layer2/s11/{case_id}/predictive-relaxation",
+        case_id=case_id,
+        cause="agriculture.fertilizer_use",
+        effect="agriculture.food_nutritional_quality",
+        comparison_ref=f"comparison://layer2/s11/{case_id}/design-vs-baseline",
+        baseline_ref=_required_text(
+            s10_outcome_prediction.get("baseline_design_ref"),
+            field_name="baseline_design_ref",
+        ),
+        alternative_refs=tuple(_text_list(s10_outcome_prediction.get("alternative_design_refs"))),
+        concept_refs=(f"concept://layer2/s11/{case_id}/predictive-relaxation",),
+        semantic_spine_refs=(f"semantic-spine://layer2/s11/{case_id}",),
+        method_requirement_refs=(f"g3-method-req:w12d:{case_id}",),
+        certificate_kinds=("proof_bundle",),
+    )
+    store = FileSystemCAS(repo_root / "_build/.tmp/production-quality/w12d-g3-cas")
+    candidates = g3.produce_g3_deterministic_first_case_certificate(request, store=store)
+    artifact_index = g3.build_g3_ir_artifact_store_index(
+        store=store,
+        selected_candidates=candidates,
+    )
+    certificate_report = g3.build_g3_certificate_resolution_report(
+        candidates=candidates,
+        artifact_index=artifact_index,
+        store=store,
+    )
+    method_bindings = g3.build_g3_method_requirement_bindings(
+        request=request,
+        method_requirements=(
+            {
+                "requirement_id": request.method_requirement_refs[0],
+                "run_id": request.case_id,
+                "claim_id": request.claim_id,
+                "identification_class": "point",
+                "method_expectations": ["causal_identification"],
+                "required_method_families": ["causal_identification"],
+                "requires_uncertainty_envelope": False,
+                "requires_limitation_refs": False,
+                "baseline_refs": [request.baseline_ref],
+                "alternative_refs": list(request.alternative_refs),
+                "facet_refs": list(request.concept_refs),
+                "obligation_refs": [f"obligation://layer2/s11/{case_id}"],
+            },
+        ),
+        selected_method_refs=("ir.method.g3.w12d.first_case",),
+    )
+    proof_bindings = g3.build_g3_proof_carrying_analytics_bindings(
+        request=request,
+        certificate_resolution_report=certificate_report,
+        method_requirement_bindings=method_bindings,
+    )
+    bridge_binding = g3.build_g3_ir_analytics_bridge_bindings(
+        proof_carrying_analytics_records=proof_bindings,
+        method_requirement_bindings=method_bindings,
+    )
+    proof = proof_bindings[0] if proof_bindings else None
+    if (
+        proof is None
+        or proof.status != "pass"
+        or not proof.proof_ref
+        or bridge_binding.status != "pass"
+    ):
+        raise W12DCaseRunError("Layer3 G3 first-case proof resolution did not pass.")
+    return {
+        "source": "layer3_g3_resolved_cas_certificate",
+        "request_ref": request.request_id,
+        "proof_ref": proof.proof_ref,
+        "ir_analytics_bridge_ref": bridge_binding.bridge_ref,
+        "ir_analytics_refs": list(proof.s11_record.get("ir_analytics_refs", ())),
+        "method_output_refs": list(proof.s11_record.get("method_output_refs", ())),
+        "ir_certificate_refs": list(proof.s11_record.get("ir_certificate_refs", ())),
+        "certificate_resolution_record_refs": list(
+            proof.certificate_resolution_record_refs
+        ),
+        "fixture_s11_regression_context_ref": _text(
+            signals.get("proof_carrying_analytics_ref")
+        ),
+    }
+
+
 def _s11_proof_record(
     signals: Mapping[str, object],
     *,
     s10_outcome_prediction: Mapping[str, object],
+    g3_proof_context: Mapping[str, object] | None = None,
 ) -> object:
     case_id = _required_text(signals.get("case_id"), field_name="case_id")
+    g3_context = _mapping(g3_proof_context)
     proof_ref = _required_text(
-        signals.get("proof_carrying_analytics_ref"),
+        _text(g3_context.get("proof_ref")) or signals.get("proof_carrying_analytics_ref"),
         field_name="proof_carrying_analytics_ref",
     )
     return build_proof_carrying_analytics_record(
@@ -4207,9 +4371,12 @@ def _s11_proof_record(
         alternative_design_refs=_text_list(
             s10_outcome_prediction.get("alternative_design_refs")
         ),
-        ir_analytics_refs=[f"ir://layer2/s11/{case_id}/predictive-analytics"],
-        method_output_refs=[f"method-output://layer2/s11/{case_id}/predictive-overlay"],
-        ir_certificate_refs=[f"certificate://layer2/s11/{case_id}/positive"],
+        ir_analytics_refs=_text_list(g3_context.get("ir_analytics_refs"))
+        or [f"ir://layer2/s11/{case_id}/predictive-analytics"],
+        method_output_refs=_text_list(g3_context.get("method_output_refs"))
+        or [f"method-output://layer2/s11/{case_id}/predictive-overlay"],
+        ir_certificate_refs=_text_list(g3_context.get("ir_certificate_refs"))
+        or [f"certificate://layer2/s11/{case_id}/positive"],
         negative_certificate_refs=[],
         proof_status="bounded",
         proof_composability_status="revalidate",
@@ -4224,7 +4391,8 @@ def _s11_proof_record(
         limitation_refs=_text_list(signals.get("expected_residual_limitation_refs")),
         blocker_refs=[],
         ir_analytics_bridge_ref=_required_text(
-            signals.get("ir_analytics_bridge_ref"),
+            _text(g3_context.get("ir_analytics_bridge_ref"))
+            or signals.get("ir_analytics_bridge_ref"),
             field_name="ir_analytics_bridge_ref",
         ),
         claim_registry_entry_ref=f"claim-registry://layer2/s11/{case_id}",
@@ -9001,13 +9169,27 @@ def _summary(cases: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         )
     )
     g0_gates = [_mapping(case.get("layer3_g0_grounding_gate")) for case in cases]
-    grounded_conversion_count = sum(
+    layer3_g0_grounded_conversion_count = sum(
         int(gate.get("grounded_conversion_count") or 0) for gate in g0_gates
     )
     layer3_g0_pre_adapter_block_count = sum(
         1
         for gate in g0_gates
         if gate.get("conversion_outcome") == "not_attempted_g0_pre_adapter"
+    )
+    layer3_g1_summary = _layer3_g1_summary(cases)
+    layer3_g2_summary = _layer3_g2_summary(cases)
+    layer3_g5_summary = _layer3_g5_summary(cases)
+    layer3_g5_routed = int(layer3_g5_summary["layer3_g5_gate_count"]) > 0
+    grounded_conversion_count = (
+        int(layer3_g5_summary["layer3_g5_grounded_conversion_count"])
+        if layer3_g5_routed
+        else layer3_g0_grounded_conversion_count
+    )
+    grounded_conversion_count_source = (
+        "layer3_g5_conversion_gate"
+        if layer3_g5_routed
+        else "layer3_g0_grounding_gate"
     )
     return {
         "case_count": len(cases),
@@ -9044,9 +9226,16 @@ def _summary(cases: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         "unexpected_typed_blocker_count": unexpected_typed_blocker_count,
         "rollout_blocker_count": rollout_blocker_count,
         "grounded_conversion_count": grounded_conversion_count,
+        "grounded_conversion_count_source": grounded_conversion_count_source,
+        "layer3_g0_grounded_conversion_count": layer3_g0_grounded_conversion_count,
         "layer3_g0_pre_adapter_block_count": layer3_g0_pre_adapter_block_count,
+        "no_hit_domain_ceiling_summary_allowed": False,
+        "g1_search_adapter_required_for_no_hit_domain_ceiling": True,
         "first_vertical_corpus_case_id": FIRST_VERTICAL_CORPUS_CASE_ID,
         "first_vertical_construct_bundle_id": FIRST_VERTICAL_CONSTRUCT_BUNDLE_ID,
+        **layer3_g1_summary,
+        **layer3_g2_summary,
+        **layer3_g5_summary,
     }
 
 
@@ -9057,9 +9246,7 @@ def _layer3_g0_grounding_context(repo_root: Path) -> dict[str, Any]:
         "schema_version": LAYER3_G0_SCHEMA_VERSION,
         "rule_version": LAYER3_G0_RULE_VERSION,
         "readiness_manifest_id": bundle.readiness_manifest.manifest_id,
-        "readiness_manifest_ref": (
-            "repo://architecture/policy_design_case/layer3_g0_readiness_manifest.json"
-        ),
+        "readiness_manifest_ref": LAYER3_G0_READINESS_MANIFEST_REF,
         "admitted_adapter_count": int(counts.get("admitted_adapter_count") or 0),
         "source_truth_adapter_path_count": int(
             counts.get("source_truth_adapter_path_count") or 0
@@ -9069,6 +9256,717 @@ def _layer3_g0_grounding_context(repo_root: Path) -> dict[str, Any]:
         ),
         "first_vertical_corpus_case_id": FIRST_VERTICAL_CORPUS_CASE_ID,
         "first_vertical_construct_bundle_id": FIRST_VERTICAL_CONSTRUCT_BUNDLE_ID,
+        "not_grounded_conversion_slice": True,
+        "no_hit_domain_ceiling_summary_allowed_before_g1": False,
+        "g1_search_adapter_required_for_no_hit_domain_ceiling": True,
+        "search_ceiling_blocks_domain_ceiling": bool(
+            counts.get("search_ceiling_blocks_domain_ceiling", True)
+        ),
+        "search_recall_seed_status": str(counts.get("search_recall_seed_status") or ""),
+        "index_freshness_status": str(counts.get("index_freshness_status") or ""),
+        "free_growth_fixture_status": str(counts.get("free_growth_fixture_status") or ""),
+        "mechanism_generality_fixture_status": str(
+            counts.get("mechanism_generality_fixture_status") or ""
+        ),
+        "no_hardcode_enumeration_lint_status": str(
+            counts.get("no_hardcode_enumeration_lint_status") or ""
+        ),
+        "engineering_quality_check_status": str(
+            counts.get("engineering_quality_check_status") or ""
+        ),
+    }
+
+
+def _layer3_g0_pre_adapter_readiness(g0_context: Mapping[str, Any]) -> dict[str, Any]:
+    return {
+        "readiness_gate_ref": str(g0_context.get("readiness_manifest_ref") or ""),
+        "readiness_manifest_id": str(g0_context.get("readiness_manifest_id") or ""),
+        "schema_version": str(g0_context.get("schema_version") or ""),
+        "rule_version": str(g0_context.get("rule_version") or ""),
+        "not_grounded_conversion_slice": bool(
+            g0_context.get("not_grounded_conversion_slice", True)
+        ),
+        "admitted_adapter_count": int(g0_context.get("admitted_adapter_count") or 0),
+        "search_recall_seed_status": str(g0_context.get("search_recall_seed_status") or ""),
+        "index_freshness_status": str(g0_context.get("index_freshness_status") or ""),
+        "free_growth_fixture_status": str(g0_context.get("free_growth_fixture_status") or ""),
+        "mechanism_generality_fixture_status": str(
+            g0_context.get("mechanism_generality_fixture_status") or ""
+        ),
+        "no_hardcode_enumeration_lint_status": str(
+            g0_context.get("no_hardcode_enumeration_lint_status") or ""
+        ),
+        "engineering_quality_check_status": str(
+            g0_context.get("engineering_quality_check_status") or ""
+        ),
+        "search_ceiling_blocks_domain_ceiling": bool(
+            g0_context.get("search_ceiling_blocks_domain_ceiling", True)
+        ),
+        "no_hit_domain_ceiling_summary_allowed_before_g1": bool(
+            g0_context.get("no_hit_domain_ceiling_summary_allowed_before_g1", False)
+        ),
+        "g1_search_adapter_required_for_no_hit_domain_ceiling": bool(
+            g0_context.get("g1_search_adapter_required_for_no_hit_domain_ceiling", True)
+        ),
+    }
+
+
+def _layer3_g1_grounding_context(repo_root: Path) -> dict[str, Any]:
+    bundle = build_layer3_g1_bundle(repo_root)
+    counts = dict(bundle.readiness_manifest.counts)
+    source_contracts = _mapping(bundle.grounded_source_contracts)
+    binding_refs = _grounded_source_contract_binding_refs(source_contracts)
+    search_ledger_refs = [ledger.ledger_id for ledger in bundle.search_ledgers]
+    return {
+        "repo_root": repo_root,
+        "schema_version": LAYER3_G1_SCHEMA_VERSION,
+        "gate_schema_version": LAYER3_G1_GATE_SCHEMA_VERSION,
+        "rule_version": LAYER3_G1_RULE_VERSION,
+        "readiness_manifest_id": bundle.readiness_manifest.manifest_id,
+        "case_id": G1_PINNED_CASE_ID,
+        "construct_bundle_id": G1_CONSTRUCT_BUNDLE_ID,
+        "grounding_closure_outcome": str(
+            counts.get("grounding_closure_outcome") or "grounded_or_uncertain"
+        ),
+        "grounded_construct_refs": binding_refs,
+        "grounded_or_uncertain_construct_count": int(
+            counts.get("grounded_or_uncertain_construct_count") or len(binding_refs)
+        ),
+        "grounded_abstention_domain_ceiling_refs": [],
+        "grounded_abstention_domain_ceiling_count": 0,
+        "search_ceiling_repair_required_count": int(
+            counts.get("g1_search_ceiling_repair_required_count") or 0
+        ),
+        "search_ledger_refs": search_ledger_refs,
+        "search_ledger_count": int(
+            counts.get("g1_substrate_search_ledger_count") or len(search_ledger_refs)
+        ),
+        "l1_l5_l6_index_coverage_status": str(
+            counts.get("g1_l1_l5_l6_index_coverage_status") or "unknown"
+        ),
+        "search_recall_status": str(
+            counts.get("g1_search_recall_status") or "unknown"
+        ),
+        "index_freshness_status": str(
+            counts.get("g1_index_freshness_status") or "unknown"
+        ),
+        "search_engineering_quality_status": str(
+            counts.get("g1_search_engineering_quality_status") or "unknown"
+        ),
+        "acquisition_gap_record_count": int(
+            counts.get("acquisition_gap_record_count") or 0
+        ),
+        "hardcode_fallback_deletion_status": str(
+            counts.get("g1_hardcode_fallback_deletion_status") or "unknown"
+        ),
+        "hardcode_fallback_closure_count": int(
+            counts.get("g1_hardcode_fallback_closure_count") or 0
+        ),
+        "production_claim_authority_count": int(
+            counts.get("production_claim_authority_count") or 0
+        ),
+        "useful_design_credit_count": int(counts.get("useful_design_credit_count") or 0),
+        "claim_authority_leak_count": int(
+            counts.get("layer3_g1_claim_authority_leak_count") or 0
+        ),
+        "authoritative_for": list(G1_AUTHORITATIVE_FOR),
+        "may_not_use_for": list(G1_MAY_NOT_USE_FOR),
+    }
+
+
+def _grounded_source_contract_binding_refs(
+    source_contracts: Mapping[str, Any],
+) -> list[str]:
+    refs: list[str] = []
+    for binding in _sequence_of_mappings(source_contracts.get("bindings")):
+        construct_ref = str(binding.get("construct_ref") or "")
+        if not construct_ref:
+            continue
+        if str(binding.get("grounding_status") or "") not in {
+            "grounded_binding",
+            "observed_but_uncertain",
+        }:
+            continue
+        refs.append(construct_ref)
+    return sorted(set(refs))
+
+
+def _with_layer3_g1_grounding_gate(
+    case: dict[str, Any],
+    *,
+    g1_context: Mapping[str, Any],
+) -> dict[str, Any]:
+    if str(case.get("case_id") or "") != G1_PINNED_CASE_ID:
+        return case
+    gate = _mapping(case.get("layer3_g1_grounding_gate"))
+    if not gate:
+        gate = _layer3_g1_grounding_gate(case, g1_context=g1_context)
+    else:
+        gate = dict(gate)
+    case["layer3_g1_grounding_gate"] = gate
+    return case
+
+
+def _layer3_g1_grounding_gate(
+    case: Mapping[str, Any],
+    *,
+    g1_context: Mapping[str, Any],
+) -> dict[str, Any]:
+    candidate_fixture = _mapping(case.get("layer3_g1_candidate_fixture"))
+    validation_issue_codes: list[str] = []
+    if candidate_fixture:
+        repo_root = Path(g1_context.get("repo_root") or REPO_ROOT)
+        validation = validate_layer3_g1_bundle(repo_root, candidate_fixture)
+        validation_issue_codes = sorted({issue.code for issue in validation.issues})
+
+    issue_codes = _layer3_g1_gate_issue_codes(validation_issue_codes)
+    search_ceiling_repair_required = any(
+        code
+        in {
+            "layer3_g1_search_recall_seed_miss_blocks_domain_ceiling",
+            "layer3_g1_stale_index_blocks_domain_ceiling",
+            "layer3_g1_search_ceiling_not_domain_ceiling",
+        }
+        for code in issue_codes
+    )
+    fixture_failed_closed = bool(issue_codes)
+    grounding_outcome = (
+        "search_ceiling_repair_required"
+        if search_ceiling_repair_required
+        else (
+            "fixture_validation_failed_closed"
+            if fixture_failed_closed
+            else str(
+                g1_context.get("grounding_closure_outcome")
+                or "grounded_or_uncertain"
+            )
+        )
+    )
+    grounded_construct_refs = (
+        []
+        if fixture_failed_closed
+        else list(_sequence(g1_context.get("grounded_construct_refs")))
+    )
+    grounded_abstention_domain_ceiling_refs: list[str] = []
+    claim_authority_leak_count = sum(
+        1 for code in issue_codes if code == "layer3_g1_claim_authority_leak"
+    )
+    useful_design_credit_count = sum(
+        1 for code in issue_codes if code == "layer3_g1_useful_design_credit_leak"
+    )
+    return {
+        "schema_version": LAYER3_G1_GATE_SCHEMA_VERSION,
+        "bundle_schema_version": str(g1_context.get("schema_version") or ""),
+        "rule_version": str(g1_context.get("rule_version") or ""),
+        "gate_id": "layer3.g1.grounding_gate",
+        "case_id": str(case.get("case_id") or G1_PINNED_CASE_ID),
+        "construct_bundle_id": str(
+            g1_context.get("construct_bundle_id") or G1_CONSTRUCT_BUNDLE_ID
+        ),
+        "readiness_manifest_id": str(g1_context.get("readiness_manifest_id") or ""),
+        "status": "fail_closed" if fixture_failed_closed else "routed",
+        "layer3_g1_grounding_outcome": grounding_outcome,
+        "grounded_construct_refs": grounded_construct_refs,
+        "grounded_or_uncertain_construct_count": len(grounded_construct_refs),
+        "grounded_abstention_domain_ceiling_refs": grounded_abstention_domain_ceiling_refs,
+        "grounded_abstention_domain_ceiling_count": 0,
+        "search_ceiling_repair_required_count": 1
+        if search_ceiling_repair_required
+        else int(g1_context.get("search_ceiling_repair_required_count") or 0),
+        "search_ledger_refs": list(_sequence(g1_context.get("search_ledger_refs"))),
+        "search_ledger_count": int(g1_context.get("search_ledger_count") or 0),
+        "l1_l5_l6_index_coverage_status": str(
+            g1_context.get("l1_l5_l6_index_coverage_status") or "unknown"
+        ),
+        "search_recall_status": str(
+            "fail"
+            if "layer3_g1_search_recall_seed_miss_blocks_domain_ceiling" in issue_codes
+            else g1_context.get("search_recall_status") or "unknown"
+        ),
+        "index_freshness_status": str(
+            "fail"
+            if "layer3_g1_stale_index_blocks_domain_ceiling" in issue_codes
+            else g1_context.get("index_freshness_status") or "unknown"
+        ),
+        "search_engineering_quality_status": str(
+            "fail"
+            if "layer3_g1_search_engineering_quality_failed" in issue_codes
+            else g1_context.get("search_engineering_quality_status") or "unknown"
+        ),
+        "acquisition_gap_record_count": int(
+            g1_context.get("acquisition_gap_record_count") or 0
+        ),
+        "hardcode_fallback_deletion_status": str(
+            g1_context.get("hardcode_fallback_deletion_status") or "unknown"
+        ),
+        "hardcode_fallback_closure_count": int(
+            g1_context.get("hardcode_fallback_closure_count") or 0
+        ),
+        "production_claim_authority_count": int(
+            g1_context.get("production_claim_authority_count") or 0
+        ),
+        "useful_design_credit_count": useful_design_credit_count,
+        "claim_authority_leak_count": claim_authority_leak_count,
+        "counts_as_useful_design": False,
+        "counts_toward_useful_design": False,
+        "authoritative_for": list(_sequence(g1_context.get("authoritative_for"))),
+        "may_not_use_for": list(_sequence(g1_context.get("may_not_use_for"))),
+        "issue_codes": issue_codes,
+    }
+
+
+def _layer3_g1_gate_issue_codes(issue_codes: Sequence[str]) -> list[str]:
+    normalized = sorted({str(code) for code in issue_codes if str(code)})
+    if "layer3_g1_raw_output_without_adapter" in normalized:
+        return ["layer3_g1_raw_output_without_adapter"]
+    return normalized
+
+
+def _layer3_g1_summary(cases: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+    gates = [_mapping(case.get("layer3_g1_grounding_gate")) for case in cases]
+    gates = [gate for gate in gates if gate]
+    first_gate = gates[0] if gates else {}
+    conversion_overwrite_count = 0
+    for case in cases:
+        gate = _mapping(case.get("layer3_g1_grounding_gate"))
+        g0_gate = _mapping(case.get("layer3_g0_grounding_gate"))
+        if gate and case.get("conversion_outcome") != g0_gate.get("conversion_outcome"):
+            conversion_overwrite_count += 1
+    return {
+        "layer3_g1_grounding_closure_outcome": str(
+            first_gate.get("layer3_g1_grounding_outcome") or "not_routed"
+        ),
+        "layer3_g1_grounded_or_uncertain_construct_count": sum(
+            int(gate.get("grounded_or_uncertain_construct_count") or 0)
+            for gate in gates
+        ),
+        "layer3_g1_grounded_abstention_domain_ceiling_count": sum(
+            int(gate.get("grounded_abstention_domain_ceiling_count") or 0)
+            for gate in gates
+        ),
+        "layer3_g1_search_ceiling_repair_required_count": sum(
+            int(gate.get("search_ceiling_repair_required_count") or 0)
+            for gate in gates
+        ),
+        "layer3_g1_search_ledger_count": sum(
+            int(gate.get("search_ledger_count") or 0) for gate in gates
+        ),
+        "layer3_g1_l1_l5_l6_index_coverage_status": str(
+            first_gate.get("l1_l5_l6_index_coverage_status") or "not_routed"
+        ),
+        "layer3_g1_search_recall_status": str(
+            first_gate.get("search_recall_status") or "not_routed"
+        ),
+        "layer3_g1_index_freshness_status": str(
+            first_gate.get("index_freshness_status") or "not_routed"
+        ),
+        "layer3_g1_search_engineering_quality_status": str(
+            first_gate.get("search_engineering_quality_status") or "not_routed"
+        ),
+        "layer3_g1_acquisition_gap_record_count": sum(
+            int(gate.get("acquisition_gap_record_count") or 0) for gate in gates
+        ),
+        "layer3_g1_useful_design_credit_count": sum(
+            int(gate.get("useful_design_credit_count") or 0) for gate in gates
+        ),
+        "layer3_g1_claim_authority_leak_count": sum(
+            int(gate.get("claim_authority_leak_count") or 0) for gate in gates
+        ),
+        "layer3_g1_hardcode_fallback_deletion_status": str(
+            first_gate.get("hardcode_fallback_deletion_status") or "not_routed"
+        ),
+        "layer3_g1_hardcode_fallback_closure_count": sum(
+            int(gate.get("hardcode_fallback_closure_count") or 0) for gate in gates
+        ),
+        "layer3_g1_w12d_conversion_outcome_overwrite_count": conversion_overwrite_count,
+        "layer3_g1_w12d_gate_injection_order": "after_g0_before_summary"
+        if gates
+        else "not_routed",
+    }
+
+
+def _layer3_g2_causal_forecast_context(repo_root: Path) -> dict[str, Any]:
+    """Build the deterministic W12D G2 forecast-support consumer context."""
+
+    _ = repo_root
+    forecast_support_ref = (
+        "pdc://layer3/g2/ua-msme-affordable-loans-2022/forecast-support/w12d"
+    )
+    posture = Layer2S10ForecastPostureInput(
+        forecast_support_ref=forecast_support_ref,
+        forecast_tier="observable_calibrated",
+        forecast_authority_disposition_reason=(
+            "G2 W12D route consumes bounded causal forecast support only."
+        ),
+        forecast_support_label="g2_bounded_causal_forecast_support",
+        forecast_calibration_record_ref=(
+            "pdc://layer3/g2/ua-msme-affordable-loans-2022/calibration/w12d"
+        ),
+        design_graph_ref="pdc://layer2/s5/ua-msme/recursive-design-graph",
+        prediction_context_ref="pdc://layer2/s10/ua-msme/prediction-context",
+        policy_context_ref="policy-context://ua-msme/2022",
+        candidate_design_ref="candidate://ua-msme/targeted-credit",
+        baseline_design_ref="baseline://ua-msme/no-new-credit",
+        alternative_design_refs=["alternative://ua-msme/cash-transfer"],
+        prediction_horizon_ref="horizon://12-months",
+        observable_subset_ref="observable-subset://ua-msme/local-panel",
+        uncertainty_interval_refs=["interval://ua-msme/credit-access/95"],
+        welfare_comparison_ref="welfare://ua-msme/value-grounded",
+        s5_forecast_support_ref="pdc://layer2/s5/ua-msme/system-effect-support",
+        s6_firewall_status_refs=[
+            "pdc://layer2/s6/ua-msme/measurability-adequacy"
+        ],
+        s8_value_choice_provenance_ref=(
+            "pdc://layer2/s8/ua-msme/value-choice-provenance"
+        ),
+        s8_value_tradeoff_disclosure_ref=(
+            "pdc://layer2/s8/ua-msme/value-tradeoff-disclosure"
+        ),
+        source_contract_ref="source-contract://ua-msme/server-support",
+        method_validity_ref="method-validity://foundry/causal/local",
+        credible_evaluation_evidence_ref="evidence://ua-msme/credible-evaluation",
+        dynamic_equilibrium_check_ref="equilibrium-check://ua-msme/system-effect",
+        sensitivity_analysis_ref="sensitivity://ua-msme/credit-access",
+        authority_boundary={
+            "authoritative_for": ["forecast_support_tiering"],
+            "may_not_use_for": list(S10_MAY_NOT_USE_FOR),
+            "source_authority": "deterministic_producer",
+            "posture": "shadow",
+            "rule_version_refs": [LAYER2_S10_OUTCOME_PREDICTION_RULE_VERSION],
+        },
+        may_not_use_for=list(
+            dict.fromkeys(
+                [
+                    *S10_MAY_NOT_USE_FOR,
+                    "policy_recommendation",
+                    "closeout_authority",
+                    "useful_design_credit",
+                    "search_hit_as_authority",
+                ]
+            )
+        ),
+        rule_version_ref=LAYER2_S10_OUTCOME_PREDICTION_RULE_VERSION,
+    )
+    return {
+        "schema_version": LAYER3_G2_W12D_GATE_SCHEMA_VERSION,
+        "forecast_posture": posture.model_dump(mode="json"),
+        "forecast_posture_ref": forecast_support_ref,
+    }
+
+
+def _with_layer3_g2_forecast_gate(
+    case: dict[str, Any],
+    *,
+    g2_context: Mapping[str, Any],
+    case_index: int,
+    case_ids: Sequence[str],
+) -> dict[str, Any]:
+    gate = _mapping(case.get("layer3_g2_forecast_gate"))
+    if not gate:
+        gate = _layer3_g2_forecast_gate(
+            case,
+            g2_context=g2_context,
+            case_index=case_index,
+            case_ids=case_ids,
+        )
+    else:
+        gate = dict(gate)
+    case["layer3_g2_forecast_gate"] = gate
+    return case
+
+
+def _layer3_g2_forecast_gate(
+    case: Mapping[str, Any],
+    *,
+    g2_context: Mapping[str, Any],
+    case_index: int,
+    case_ids: Sequence[str],
+) -> dict[str, Any]:
+    case_id = str(case.get("case_id") or case.get("id") or f"case-{case_index}")
+    g1_gate = _mapping(case.get("layer3_g1_grounding_gate"))
+    g1_gate_ref = str(g1_gate.get("gate_id") or "layer3.g1.grounding_gate")
+    domain_ceiling_status = _text(case.get("layer3_g2_domain_ceiling_status")) or None
+    if domain_ceiling_status in {
+        "causal_forecast_domain_ceiling",
+        "search_ceiling_repair_required",
+    }:
+        gate = build_g2_w12d_consumer_gate(
+            layer3_g1_grounding_gate_ref=g1_gate_ref,
+            domain_ceiling_status=domain_ceiling_status,
+        ).model_dump(mode="json")
+    elif case_index == 0:
+        lightweight_refs = tuple(ref for ref in case_ids[1:] if ref)
+        gate = build_g2_w12d_consumer_gate(
+            forecast_postures=(_mapping(g2_context.get("forecast_posture")),),
+            layer3_g1_grounding_gate_ref=g1_gate_ref,
+            full_s2_consumer_case_refs=(case_id,),
+            lightweight_case_refs=lightweight_refs,
+        ).model_dump(mode="json")
+    else:
+        gate = build_g2_w12d_consumer_gate(
+            layer3_g1_grounding_gate_ref=g1_gate_ref,
+            lightweight_case_refs=(case_id,),
+            lightweight_posture_ref=str(g2_context.get("forecast_posture_ref") or ""),
+        ).model_dump(mode="json")
+    gate["case_id"] = case_id
+    return gate
+
+
+def _layer3_g2_summary(cases: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+    gates = [_mapping(case.get("layer3_g2_forecast_gate")) for case in cases]
+    gates = [gate for gate in gates if gate]
+    conversion_overwrite_count = 0
+    for case in cases:
+        gate = _mapping(case.get("layer3_g2_forecast_gate"))
+        g0_gate = _mapping(case.get("layer3_g0_grounding_gate"))
+        if gate and case.get("conversion_outcome") != g0_gate.get("conversion_outcome"):
+            conversion_overwrite_count += 1
+    return {
+        "layer3_g2_w12d_gate_injection_order": "after_g1_before_summary"
+        if gates
+        else "not_routed",
+        "layer3_g2_w12d_gate_count": len(gates),
+        "layer3_g2_full_s2_consumer_case_count": sum(
+            int(gate.get("full_s2_consumer_case_count") or 0) for gate in gates
+        ),
+        "layer3_g2_lightweight_forecast_posture_ref_count": sum(
+            int(gate.get("lightweight_forecast_posture_ref_count") or 0)
+            for gate in gates
+        ),
+        "layer3_g2_useful_design_delta_count": sum(
+            int(gate.get("useful_design_delta_count") or 0) for gate in gates
+        ),
+        "layer3_g2_domain_ceiling_gate_count": sum(
+            1
+            for gate in gates
+            if gate.get("domain_ceiling_status")
+            in {"causal_forecast_domain_ceiling", "search_ceiling_repair_required"}
+        ),
+        "layer3_g2_w12d_not_routed_count": sum(
+            1
+            for gate in gates
+            if "layer3_g2_w12d_not_routed_closeout"
+            in _sequence(gate.get("issue_codes"))
+        ),
+        "layer3_g2_w12d_conversion_outcome_overwrite_count": conversion_overwrite_count,
+    }
+
+
+def _with_layer3_g3_analytics_search_gate(
+    case: dict[str, Any],
+    *,
+    case_index: int,
+    case_ids: Sequence[str],
+) -> dict[str, Any]:
+    from polisyos.runtime.quality.layer3_analytics_search import (
+        build_g3_w12d_consumer_gate,
+    )
+
+    case_id = str(case.get("case_id") or f"case-{case_index}")
+    s11 = _mapping(case.get("s11_predictive_knowledge"))
+    full_refs = (case_id,) if case_index == 0 else ()
+    lightweight_refs = () if case_index == 0 else (case_id,)
+    gate = build_g3_w12d_consumer_gate(
+        case_id=case_id,
+        s2_design_search=_mapping(case.get("s2_design_search")),
+        s11_predictive_knowledge=s11,
+        full_s2_consumer_case_refs=full_refs,
+        lightweight_case_refs=lightweight_refs,
+        lightweight_posture_ref=None
+        if case_index == 0
+        else _text(s11.get("predictive_knowledge_ref")),
+        useful_design_before=bool(case.get("counts_toward_useful_design")),
+        useful_design_after=bool(case.get("counts_toward_useful_design")),
+    ).model_dump(mode="json")
+    gate["case_id"] = case_id
+    gate["all_w12d_case_count"] = len(case_ids)
+    case["layer3_g3_analytics_search_gate"] = gate
+    return case
+
+
+def _layer3_g3_summary(cases: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+    gates = [_mapping(case.get("layer3_g3_analytics_search_gate")) for case in cases]
+    gates = [gate for gate in gates if gate]
+    return {
+        "layer3_g3_gate_injection_order": "after_g2_before_summary"
+        if gates
+        else "not_routed",
+        "g3_consumer_gate_count": len(gates),
+        "full_consumer_case_count": sum(
+            int(gate.get("full_consumer_case_count") or 0) for gate in gates
+        ),
+        "lightweight_posture_ref_count": sum(
+            int(gate.get("lightweight_posture_ref_count") or 0) for gate in gates
+        ),
+        "fixture_certificate_closure_count": sum(
+            int(gate.get("fixture_certificate_closure_count") or 0) for gate in gates
+        ),
+        "negative_certificate_block_count": sum(
+            int(gate.get("negative_certificate_block_count") or 0) for gate in gates
+        ),
+        "useful_design_delta_count": sum(
+            int(gate.get("useful_design_delta_count") or 0) for gate in gates
+        ),
+        "g3_closure_count": sum(int(gate.get("g3_closure_count") or 0) for gate in gates),
+        "g0_conversion_outcome_overwrite_count": 0,
+        "g1_conversion_outcome_overwrite_count": 0,
+        "g2_conversion_outcome_overwrite_count": 0,
+    }
+
+
+def _with_layer3_g5_conversion_gate(
+    case: dict[str, Any],
+    *,
+    case_index: int,
+    case_ids: Sequence[str],
+) -> dict[str, Any]:
+    from polisyos.runtime.quality.layer3_proving_ground_conversion import (
+        G5_PINNED_CASE_ID,
+        S4_S14_CASE_BLOCK_KEYS,
+        build_g5_w12d_consumer_gate,
+    )
+
+    case_id = str(case.get("case_id") or case.get("id") or f"case-{case_index}")
+    if case_id != G5_PINNED_CASE_ID:
+        return case
+
+    gate = build_g5_w12d_consumer_gate(
+        case,
+        conversion_records=(),
+    ).model_dump(mode="json")
+    conversion_classification = str(
+        gate.get("conversion_classification") or "unchanged_blocker"
+    )
+    status_composition_status = str(
+        gate.get("status_composition_status") or gate.get("status") or "missing"
+    )
+    grounded_conversion_count = (
+        1
+        if gate.get("status") == "pass"
+        and conversion_classification
+        in {
+            "typed_blocker -> grounded_limited",
+            "typed_blocker -> grounded_abstention",
+        }
+        else 0
+    )
+    useful_design_credit_count = (
+        1
+        if conversion_classification == "typed_blocker -> grounded_limited"
+        and status_composition_status == "pass"
+        and bool(gate.get("counts_toward_useful_design"))
+        else 0
+    )
+    s4_s14_block_keys = [
+        key for key in S4_S14_CASE_BLOCK_KEYS if _mapping(case.get(key))
+    ]
+    missing_s4_s14_block_keys = [
+        key for key in S4_S14_CASE_BLOCK_KEYS if key not in s4_s14_block_keys
+    ]
+    gate.update(
+        {
+            "gate_id": "layer3.g5.conversion_gate",
+            "case_id": case_id,
+            "all_w12d_case_count": len(case_ids),
+            "injection_order": "after_g3_before_summary",
+            "g3_summary_location": "top_level_report_field",
+            "pre_g5_outcome": str(case.get("outcome") or ""),
+            "pre_g5_conversion_outcome": str(case.get("conversion_outcome") or ""),
+            "pre_g5_replay_mutated": False,
+            "grounded_conversion_count": grounded_conversion_count,
+            "status_composition_status": status_composition_status,
+            "per_case_s4_s14_block_keys": s4_s14_block_keys,
+            "missing_per_case_s4_s14_block_keys": missing_s4_s14_block_keys,
+            "per_case_s4_s14_block_count": len(s4_s14_block_keys),
+            "counts_toward_useful_design": bool(
+                gate.get("counts_toward_useful_design")
+            ),
+            "useful_design_credit_count": useful_design_credit_count,
+            "g0_g1_g2_g3_history_overwrite_count": 0,
+            "upstream_gate_keys": [
+                key
+                for key in (
+                    "layer3_g0_grounding_gate",
+                    "layer3_g1_grounding_gate",
+                    "layer3_g2_forecast_gate",
+                    "layer3_g3_analytics_search_gate",
+                )
+                if key in case
+            ],
+        }
+    )
+    case["layer3_g5_conversion_gate"] = gate
+    return case
+
+
+def _layer3_g5_summary(cases: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+    gates = [_mapping(case.get("layer3_g5_conversion_gate")) for case in cases]
+    gates = [gate for gate in gates if gate]
+    grounded_conversion_count = sum(
+        int(gate.get("grounded_conversion_count") or 0) for gate in gates
+    )
+    grounded_limited_count = sum(
+        1
+        for gate in gates
+        if gate.get("conversion_classification")
+        == "typed_blocker -> grounded_limited"
+    )
+    grounded_abstention_count = sum(
+        1
+        for gate in gates
+        if gate.get("conversion_classification")
+        == "typed_blocker -> grounded_abstention"
+    )
+    grounded_limited_status_composed_count = sum(
+        1
+        for gate in gates
+        if gate.get("conversion_classification")
+        == "typed_blocker -> grounded_limited"
+        and gate.get("status_composition_status") == "pass"
+    )
+    runtime_useful_design_credit_count = sum(
+        int(gate.get("useful_design_credit_count") or 0)
+        for gate in gates
+        if gate.get("conversion_classification")
+        == "typed_blocker -> grounded_limited"
+        and gate.get("status_composition_status") == "pass"
+        and bool(gate.get("counts_toward_useful_design"))
+    )
+    return {
+        "layer3_g5_gate_injection_order": "after_g3_before_summary"
+        if gates
+        else "not_routed",
+        "layer3_g5_gate_count": len(gates),
+        "layer3_g5_routed_count": sum(
+            1 for gate in gates if gate.get("status") == "pass"
+        ),
+        "layer3_g5_not_routed_count": sum(
+            1 for gate in gates if gate.get("status") == "not_routed"
+        ),
+        "layer3_g5_fail_count": sum(
+            1 for gate in gates if gate.get("status") == "fail"
+        ),
+        "layer3_g5_grounded_limited_count": grounded_limited_count,
+        "layer3_g5_grounded_abstention_count": grounded_abstention_count,
+        "layer3_g5_unchanged_blocker_count": sum(
+            1
+            for gate in gates
+            if gate.get("conversion_classification") == "unchanged_blocker"
+        ),
+        "layer3_g5_grounded_conversion_count": grounded_conversion_count,
+        "layer3_g5_grounded_limited_status_composed_count": (
+            grounded_limited_status_composed_count
+        ),
+        "layer3_g5_runtime_useful_design_credit_count": (
+            runtime_useful_design_credit_count
+        ),
+        "layer3_g5_g3_summary_location": "top_level_report_field"
+        if gates
+        else "not_routed",
+        "layer3_g5_g0_g1_g2_g3_history_overwrite_count": sum(
+            int(gate.get("g0_g1_g2_g3_history_overwrite_count") or 0)
+            for gate in gates
+        ),
     }
 
 
@@ -9129,6 +10027,14 @@ def _layer3_g0_grounding_gate(
         ),
         "counts_as_useful_design": False,
         "counts_toward_useful_design": False,
+        "not_grounded_conversion_slice": True,
+        "no_hit_domain_ceiling_summary_allowed": False,
+        "g1_search_adapter_required_for_no_hit_domain_ceiling": True,
+        "search_ceiling_blocks_domain_ceiling": bool(
+            g0_context.get("search_ceiling_blocks_domain_ceiling", True)
+        ),
+        "search_recall_seed_status": str(g0_context.get("search_recall_seed_status") or ""),
+        "index_freshness_status": str(g0_context.get("index_freshness_status") or ""),
         "canonical_outcome_effect": "none_pre_adapter_conversion_only",
         "blocker_code": "layer3_g0_pre_adapter_conversion_blocked",
         "readiness_manifest_ref": str(g0_context.get("readiness_manifest_ref") or ""),
@@ -9142,6 +10048,9 @@ def _layer3_g0_grounding_gate(
                 "claim_authority",
                 "production_recommendation",
                 "adapter_admission",
+                "domain_ceiling",
+                "no_hit_summary",
+                "grounded_abstention",
             ],
         },
     }

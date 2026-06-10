@@ -8,6 +8,12 @@ Every committed generated artifact family must have a source of truth, a regener
 
 | Family | Lifecycle | Commit policy | Drift gate | Owner | Outputs |
 | --- | --- | --- | --- | --- | --- |
+| `Policy Design Case Layer 3 G1 substrate grounding artifacts` | `generated_committed` | `committed_after_task5_write` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_g1_adapter_admission_registry.json`<br/>`architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json`<br/>`architecture/policy_design_case/layer3_g1_l1_l5_l6_index_coverage.json`<br/>`architecture/policy_design_case/layer3_g1_search_recall_freshness.json`<br/>`architecture/policy_design_case/layer3_g1_hardcode_strangle_delta.json`<br/>`architecture/policy_design_case/layer3_g1_free_growth_report.json`<br/>`architecture/policy_design_case/layer3_g1_search_engineering_quality_report.json`<br/>`architecture/policy_design_case/layer3_g1_grounded_source_contracts.json`<br/>`architecture/policy_design_case/layer3_g1_lineage_contamination_ledger.json`<br/>`architecture/policy_design_case/layer3_g1_conformance_report.json`<br/>`architecture/policy_design_case/layer3_g1_coverage_lineage_abstention_surface.json`<br/>`architecture/policy_design_case/layer3_g1_health_metric_delta.toml`<br/>`architecture/policy_design_case/layer3_g1_adapter_contract_registry.toml`<br/>`architecture/policy_design_case/layer3_g1_readiness_manifest.json` |
+| `Policy Design Case Layer 3 G2 causal forecast artifacts` | `generated_committed` | `committed_after_task7_write` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_g2_adapter_admission_registry.json`<br/>`architecture/policy_design_case/layer3_g2_l2_skg_search_ledgers.json`<br/>`architecture/policy_design_case/layer3_g2_l2_skg_query_traces.json`<br/>`architecture/policy_design_case/layer3_g2_l2_skg_index_coverage.json`<br/>`architecture/policy_design_case/layer3_g2_search_recall_freshness.json`<br/>`architecture/policy_design_case/layer3_g2_foundry_method_registry_coverage.json`<br/>`architecture/policy_design_case/layer3_g2_foundry_method_registry_search.json`<br/>`architecture/policy_design_case/layer3_g2_method_requirement_bindings.json`<br/>`architecture/policy_design_case/layer3_g2_method_validity_transport.json`<br/>`architecture/policy_design_case/layer3_g2_semantic_spine_bindings.json`<br/>`architecture/policy_design_case/layer3_g2_concept_alignment_records.json`<br/>`architecture/policy_design_case/layer3_g2_s10_prerequisite_bindings.json`<br/>`architecture/policy_design_case/layer3_g2_forecast_support_bindings.json`<br/>`architecture/policy_design_case/layer3_g2_grounded_forecast_handoffs.json`<br/>`architecture/policy_design_case/layer3_g2_observable_calibration_report.json`<br/>`architecture/policy_design_case/layer3_g2_transport_limit_declarations.json`<br/>`architecture/policy_design_case/layer3_g2_authority_envelopes.json`<br/>`architecture/policy_design_case/layer3_g2_conformance_report.json`<br/>`architecture/policy_design_case/layer3_g2_w12d_consumer_gate.json`<br/>`architecture/policy_design_case/layer3_g2_causal_forecast_audit_surface.json`<br/>`architecture/policy_design_case/layer3_g2_health_metric_delta.toml`<br/>`architecture/policy_design_case/layer3_g2_adapter_contract_registry.toml`<br/>`architecture/policy_design_case/layer3_g2_readiness_manifest.json` |
+| `Policy Design Case Layer 3 G3 analytics search artifacts` | `generated_committed` | `committed_after_task6_write` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_g3_adapter_admission_registry.json`<br/>`architecture/policy_design_case/layer3_g3_l2_skg_proof_candidate_bindings.json`<br/>`architecture/policy_design_case/layer3_g3_ir_analytics_search_ledgers.json`<br/>`architecture/policy_design_case/layer3_g3_ir_analytics_query_traces.json`<br/>`architecture/policy_design_case/layer3_g3_ir_catalog_coverage.json`<br/>`architecture/policy_design_case/layer3_g3_ir_artifact_store_index.json`<br/>`architecture/policy_design_case/layer3_g3_certificate_resolution_report.json`<br/>`architecture/policy_design_case/layer3_g3_search_recall_freshness.json`<br/>`architecture/policy_design_case/layer3_g3_method_requirement_bindings.json`<br/>`architecture/policy_design_case/layer3_g3_semantic_spine_bindings.json`<br/>`architecture/policy_design_case/layer3_g3_proof_carrying_analytics_records.json`<br/>`architecture/policy_design_case/layer3_g3_ir_analytics_claim_bridge.json`<br/>`architecture/policy_design_case/layer3_g3_s11_prerequisite_bindings.json`<br/>`architecture/policy_design_case/layer3_g3_s11_calibration_bindings.json`<br/>`architecture/policy_design_case/layer3_g3_s11_predictive_posture_bindings.json`<br/>`architecture/policy_design_case/layer3_g3_claim_registry_consumer_gate.json`<br/>`architecture/policy_design_case/layer3_g3_baseline_comparison_consumer_gate.json`<br/>`architecture/policy_design_case/layer3_g3_w12d_consumer_gate.json`<br/>`architecture/policy_design_case/layer3_g3_public_export_projection_refs.json`<br/>`architecture/policy_design_case/layer3_g3_proof_carrying_audit_surface.json`<br/>`architecture/policy_design_case/layer3_g3_conformance_report.json`<br/>`architecture/policy_design_case/layer3_g3_health_metric_delta.toml`<br/>`architecture/policy_design_case/layer3_g3_adapter_contract_registry.toml`<br/>`architecture/policy_design_case/layer3_g3_readiness_manifest.json` |
+| `Policy Design Case Layer 3 GL legal mandate search artifacts` | `generated_committed` | `committed_after_task7_write` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gl_adapter_admission_registry.json`<br/>`architecture/policy_design_case/layer3_gl_l3_legal_kg_index_coverage.json`<br/>`architecture/policy_design_case/layer3_gl_l3_legal_kg_search_ledgers.json`<br/>`architecture/policy_design_case/layer3_gl_l3_legal_kg_query_traces.json`<br/>`architecture/policy_design_case/layer3_gl_search_recall_freshness.json`<br/>`architecture/policy_design_case/layer3_gl_l5_calibration_bindings.json`<br/>`architecture/policy_design_case/layer3_gl_legal_requirement_bindings.json`<br/>`architecture/policy_design_case/layer3_gl_authority_facet_bindings.json`<br/>`architecture/policy_design_case/layer3_gl_norm_candidate_bindings.json`<br/>`architecture/policy_design_case/layer3_gl_threshold_authority_records.json`<br/>`architecture/policy_design_case/layer3_gl_mandate_authority_records.json`<br/>`architecture/policy_design_case/layer3_gl_temporal_competence_records.json`<br/>`architecture/policy_design_case/layer3_gl_amendment_lineage_records.json`<br/>`architecture/policy_design_case/layer3_gl_reference_resolution_records.json`<br/>`architecture/policy_design_case/layer3_gl_legal_authority_report.json`<br/>`architecture/policy_design_case/layer3_gl_lex_intervention_map_bindings.json`<br/>`architecture/policy_design_case/layer3_gl_claim_registry_consumer_gate.json`<br/>`architecture/policy_design_case/layer3_gl_semantic_binding_consumer_gate.json`<br/>`architecture/policy_design_case/layer3_gl_argument_graph_readiness_consumer_gate.json`<br/>`architecture/policy_design_case/layer3_gl_s6_mandate_consumer_gate.json`<br/>`architecture/policy_design_case/layer3_gl_s7_delegation_consumer_gate.json`<br/>`architecture/policy_design_case/layer3_gl_s8_value_choice_consumer_gate.json`<br/>`architecture/policy_design_case/layer3_gl_pdc_compiler_consumer_gate.json`<br/>`architecture/policy_design_case/layer3_gl_design_constraint_consumer_gate.json`<br/>`architecture/policy_design_case/layer3_gl_g4_promotion_gate_consumer_gate.json`<br/>`architecture/policy_design_case/layer3_gl_promotion_gate_handoff.json`<br/>`architecture/policy_design_case/layer3_gl_legal_mandate_audit_surface.json`<br/>`architecture/policy_design_case/layer3_gl_public_export_projection_refs.json`<br/>`architecture/policy_design_case/layer3_gl_conformance_report.json`<br/>`architecture/policy_design_case/layer3_gl_health_metric_delta.toml`<br/>`architecture/policy_design_case/layer3_gl_adapter_contract_registry.toml`<br/>`architecture/policy_design_case/layer3_gl_readiness_manifest.json` |
+| `Policy Design Case Layer 3 G4 promotion gate artifacts` | `generated_committed` | `committed_after_task6_write` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_g4_dependency_readiness_snapshot.json`<br/>`architecture/policy_design_case/layer3_g4_promotion_input_set.json`<br/>`architecture/policy_design_case/layer3_g4_grounded_contract_set.json`<br/>`architecture/policy_design_case/layer3_g4_a_completeness_ledger.json`<br/>`architecture/policy_design_case/layer3_g4_human_decision_integrity_gate.json`<br/>`architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json`<br/>`architecture/policy_design_case/layer3_g4_promotion_records.json`<br/>`architecture/policy_design_case/layer3_g4_closeout_consumer_gate.json`<br/>`architecture/policy_design_case/layer3_g4_pdc_compiler_consumer_gate.json`<br/>`architecture/policy_design_case/layer3_g4_g5_promotion_handoff.json`<br/>`architecture/policy_design_case/layer3_g4_governance_throughput_delta.json`<br/>`architecture/policy_design_case/layer3_g4_promotion_audit_surface.json`<br/>`architecture/policy_design_case/layer3_g4_public_export_projection_refs.json`<br/>`architecture/policy_design_case/layer3_g4_conformance_report.json`<br/>`architecture/policy_design_case/layer3_g4_health_metric_delta.toml`<br/>`architecture/policy_design_case/layer3_g4_adapter_contract_registry.toml`<br/>`architecture/policy_design_case/layer3_g4_registry_ratchet_delta.json`<br/>`architecture/policy_design_case/layer3_g4_readiness_manifest.json` |
+| `Policy Design Case Layer 3 G5 proving-ground conversion artifacts` | `generated_committed` | `committed_after_task6_write` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_g5_dependency_readiness_snapshot.json`<br/>`architecture/policy_design_case/layer3_g5_pinned_case_input_bundle.json`<br/>`architecture/policy_design_case/layer3_g5_w12d_case_block_index.json`<br/>`architecture/policy_design_case/layer3_g5_composed_loop_completeness_gate.json`<br/>`architecture/policy_design_case/layer3_g5_g4_handoff_resolution.json`<br/>`architecture/policy_design_case/layer3_g5_g4_promotion_record_resolution.json`<br/>`architecture/policy_design_case/layer3_g5_upstream_scope_join_matrix.json`<br/>`architecture/policy_design_case/layer3_g5_grounded_result_evidence_set.json`<br/>`architecture/policy_design_case/layer3_g5_effective_evidence_independence.json`<br/>`architecture/policy_design_case/layer3_g5_useful_design_metric_eligibility_join.json`<br/>`architecture/policy_design_case/layer3_g5_conversion_eligibility_ledger.json`<br/>`architecture/policy_design_case/layer3_g5_status_composition_ledger.json`<br/>`architecture/policy_design_case/layer3_g5_grounded_abstention_quality_record.json`<br/>`architecture/policy_design_case/layer3_g5_demand_pull_attempt_record.json`<br/>`architecture/policy_design_case/layer3_g5_dependency_health_metric_snapshot.json`<br/>`architecture/policy_design_case/layer3_g5_envelope_expansion_delta.json`<br/>`architecture/policy_design_case/layer3_g5_conversion_records.json`<br/>`architecture/policy_design_case/layer3_g5_w12d_consumer_gate.json`<br/>`architecture/policy_design_case/layer3_g5_conversion_audit_surface.json`<br/>`architecture/policy_design_case/layer3_g5_public_export_projection_refs.json`<br/>`architecture/policy_design_case/layer3_g5_conformance_report.json`<br/>`architecture/policy_design_case/layer3_g5_health_metric_delta.toml`<br/>`architecture/policy_design_case/layer3_g5_conversion_route_contract_registry.toml`<br/>`architecture/policy_design_case/layer3_g5_registry_ratchet_delta.json`<br/>`architecture/policy_design_case/layer3_g5_readiness_manifest.json` |
 | `ABI schema snapshots` | `generated_committed` | `committed` | `automated` | `team-polisyos` | `schemas/snapshots/ir`<br/>`schemas/snapshots/fabric/edge_kind.schema.json`<br/>`schemas/snapshots/fabric/node_kind.schema.json`<br/>`schemas/snapshots/fabric/_manifest.json` |
 | `Fabric connector contract registry` | `generated_committed` | `committed` | `automated` | `team-polisyos` | `schemas/snapshots/fabric/connector_contract_registry.json`<br/>`schemas/snapshots/fabric/source_contracts_v2.json`<br/>`schemas/snapshots/fabric/source_scorecards.json` |
 | `Runtime OpenAPI snapshot` | `generated_committed` | `committed` | `automated` | `team-polisyos` | `schemas/runtime_api_v1.openapi.json` |
@@ -42,6 +48,280 @@ Every committed generated artifact family must have a source of truth, a regener
 | `Ops observability baselines` | `source_committed` | `committed` | `manual_review` | `team-observability` | `ops/observability/otel/baseline.yaml`<br/>`ops/observability/slo`<br/>`ops/observability/prometheus`<br/>`ops/observability/grafana/dashboards` |
 | `Ops security and release baselines` | `source_committed` | `committed` | `manual_review` | `team-security` | `ops/security/gitleaks.toml`<br/>`ops/security/trufflehog.yaml`<br/>`ops/security/osv-scanner.toml`<br/>`ops/security/sbom.toml`<br/>`ops/security/secrets-baseline.toml`<br/>`ops/release/release-fragment-policy.toml`<br/>`ops/release/commit-policy.toml`<br/>`ops/release/deployment-topology.toml`<br/>`ops/release/promotion-gates.toml` |
 | `Ops runtime and migration baselines` | `source_committed` | `committed` | `manual_review` | `team-platform` | `ops/runtime/runtime-contracts.toml`<br/>`ops/migrations/README.md`<br/>`ops/migrations/migration-contracts.toml`<br/>`ops/migrations/db/README.md`<br/>`ops/migrations/db/001_tenant_columns.sql`<br/>`ops/migrations/db/002_tenant_backfill.sql`<br/>`ops/migrations/db/003_rls_enable.sql`<br/>`ops/migrations/db/003_rls_disable_rollback.sql`<br/>`ops/migrations/db/004_roles_grants.sql`<br/>`ops/migrations/runtime_state/README.md`<br/>`ops/migrations/api_schemas/README.md`<br/>`ops/migrations/ir/README.md` |
+
+## `Policy Design Case Layer 3 G1 substrate grounding artifacts`
+
+- Family id: `policy-design-case-layer3-g1-substrate-grounding-artifacts`
+- Lifecycle: `generated_committed`
+- Source of truth: src/polisyos/runtime/quality/layer3_substrate_grounding.py and tools/quality/validation/check_policy_design_case_layer3_g1_readiness.py
+- Generator: Layer 3 G1 readiness validator write mode
+- Verifier: Layer 3 G1 readiness validator and architecture guardrails
+- Promotion target: registered Policy Design Case G1 audit surface artifacts
+- Commit policy: `committed_after_task5_write`
+- Freshness rule: Regenerate and commit whenever the Layer 3 G1 substrate grounding runtime builder, validator, adapter registry, or authority/search-health rules change.
+- Stale output behavior: `fail`
+- Drift gate: `automated`
+- Owner: `team-runtime-quality`
+- Approval owner: `team-runtime-quality`
+- Related workflow/config: `tools/quality/validation/check_policy_design_case_layer3_g1_readiness.py`
+- Outputs:
+  - `architecture/policy_design_case/layer3_g1_adapter_admission_registry.json`
+  - `architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json`
+  - `architecture/policy_design_case/layer3_g1_l1_l5_l6_index_coverage.json`
+  - `architecture/policy_design_case/layer3_g1_search_recall_freshness.json`
+  - `architecture/policy_design_case/layer3_g1_hardcode_strangle_delta.json`
+  - `architecture/policy_design_case/layer3_g1_free_growth_report.json`
+  - `architecture/policy_design_case/layer3_g1_search_engineering_quality_report.json`
+  - `architecture/policy_design_case/layer3_g1_grounded_source_contracts.json`
+  - `architecture/policy_design_case/layer3_g1_lineage_contamination_ledger.json`
+  - `architecture/policy_design_case/layer3_g1_conformance_report.json`
+  - `architecture/policy_design_case/layer3_g1_coverage_lineage_abstention_surface.json`
+  - `architecture/policy_design_case/layer3_g1_health_metric_delta.toml`
+  - `architecture/policy_design_case/layer3_g1_adapter_contract_registry.toml`
+  - `architecture/policy_design_case/layer3_g1_readiness_manifest.json`
+
+Canonical regeneration commands:
+
+```bash
+uv run python tools/quality/validation/check_policy_design_case_layer3_g1_readiness.py --repo-root . --write --output-format json
+```
+
+## `Policy Design Case Layer 3 G2 causal forecast artifacts`
+
+- Family id: `policy-design-case-layer3-g2-causal-forecast-artifacts`
+- Lifecycle: `generated_committed`
+- Source of truth: src/polisyos/runtime/quality/layer3_causal_forecast.py and tools/quality/validation/check_policy_design_case_layer3_g2_readiness.py
+- Generator: Layer 3 G2 readiness validator write mode
+- Verifier: Layer 3 G2 readiness validator and architecture guardrails
+- Promotion target: registered Policy Design Case G2 causal forecast audit/tier surface artifacts
+- Commit policy: `committed_after_task7_write`
+- Freshness rule: Regenerate and commit whenever the Layer 3 G2 causal forecast runtime builder, validator, adapter registry, public tier surface, or S10/W12D bridge rules change.
+- Stale output behavior: `fail`
+- Drift gate: `automated`
+- Owner: `team-runtime-quality`
+- Approval owner: `team-runtime-quality`
+- Related workflow/config: `tools/quality/validation/check_policy_design_case_layer3_g2_readiness.py`
+- Outputs:
+  - `architecture/policy_design_case/layer3_g2_adapter_admission_registry.json`
+  - `architecture/policy_design_case/layer3_g2_l2_skg_search_ledgers.json`
+  - `architecture/policy_design_case/layer3_g2_l2_skg_query_traces.json`
+  - `architecture/policy_design_case/layer3_g2_l2_skg_index_coverage.json`
+  - `architecture/policy_design_case/layer3_g2_search_recall_freshness.json`
+  - `architecture/policy_design_case/layer3_g2_foundry_method_registry_coverage.json`
+  - `architecture/policy_design_case/layer3_g2_foundry_method_registry_search.json`
+  - `architecture/policy_design_case/layer3_g2_method_requirement_bindings.json`
+  - `architecture/policy_design_case/layer3_g2_method_validity_transport.json`
+  - `architecture/policy_design_case/layer3_g2_semantic_spine_bindings.json`
+  - `architecture/policy_design_case/layer3_g2_concept_alignment_records.json`
+  - `architecture/policy_design_case/layer3_g2_s10_prerequisite_bindings.json`
+  - `architecture/policy_design_case/layer3_g2_forecast_support_bindings.json`
+  - `architecture/policy_design_case/layer3_g2_grounded_forecast_handoffs.json`
+  - `architecture/policy_design_case/layer3_g2_observable_calibration_report.json`
+  - `architecture/policy_design_case/layer3_g2_transport_limit_declarations.json`
+  - `architecture/policy_design_case/layer3_g2_authority_envelopes.json`
+  - `architecture/policy_design_case/layer3_g2_conformance_report.json`
+  - `architecture/policy_design_case/layer3_g2_w12d_consumer_gate.json`
+  - `architecture/policy_design_case/layer3_g2_causal_forecast_audit_surface.json`
+  - `architecture/policy_design_case/layer3_g2_health_metric_delta.toml`
+  - `architecture/policy_design_case/layer3_g2_adapter_contract_registry.toml`
+  - `architecture/policy_design_case/layer3_g2_readiness_manifest.json`
+
+Canonical regeneration commands:
+
+```bash
+uv run python tools/quality/validation/check_policy_design_case_layer3_g2_readiness.py --repo-root . --write --output-format json
+```
+
+## `Policy Design Case Layer 3 G3 analytics search artifacts`
+
+- Family id: `policy-design-case-layer3-g3-analytics-search-artifacts`
+- Lifecycle: `generated_committed`
+- Source of truth: src/polisyos/runtime/quality/layer3_analytics_search.py and tools/quality/validation/check_policy_design_case_layer3_g3_readiness.py
+- Generator: Layer 3 G3 readiness validator write mode
+- Verifier: Layer 3 G3 readiness validator and architecture guardrails
+- Promotion target: registered Policy Design Case G3 proof-carrying analytics audit surface artifacts
+- Commit policy: `committed_after_task6_write`
+- Freshness rule: Regenerate and commit whenever the Layer 3 G3 analytics-search runtime builder, validator, adapter registry, proof-resolution bridge, public audit surface, or W12D consumer gate rules change.
+- Stale output behavior: `fail`
+- Drift gate: `automated`
+- Owner: `team-runtime-quality`
+- Approval owner: `team-runtime-quality`
+- Related workflow/config: `tools/quality/validation/check_policy_design_case_layer3_g3_readiness.py`
+- Outputs:
+  - `architecture/policy_design_case/layer3_g3_adapter_admission_registry.json`
+  - `architecture/policy_design_case/layer3_g3_l2_skg_proof_candidate_bindings.json`
+  - `architecture/policy_design_case/layer3_g3_ir_analytics_search_ledgers.json`
+  - `architecture/policy_design_case/layer3_g3_ir_analytics_query_traces.json`
+  - `architecture/policy_design_case/layer3_g3_ir_catalog_coverage.json`
+  - `architecture/policy_design_case/layer3_g3_ir_artifact_store_index.json`
+  - `architecture/policy_design_case/layer3_g3_certificate_resolution_report.json`
+  - `architecture/policy_design_case/layer3_g3_search_recall_freshness.json`
+  - `architecture/policy_design_case/layer3_g3_method_requirement_bindings.json`
+  - `architecture/policy_design_case/layer3_g3_semantic_spine_bindings.json`
+  - `architecture/policy_design_case/layer3_g3_proof_carrying_analytics_records.json`
+  - `architecture/policy_design_case/layer3_g3_ir_analytics_claim_bridge.json`
+  - `architecture/policy_design_case/layer3_g3_s11_prerequisite_bindings.json`
+  - `architecture/policy_design_case/layer3_g3_s11_calibration_bindings.json`
+  - `architecture/policy_design_case/layer3_g3_s11_predictive_posture_bindings.json`
+  - `architecture/policy_design_case/layer3_g3_claim_registry_consumer_gate.json`
+  - `architecture/policy_design_case/layer3_g3_baseline_comparison_consumer_gate.json`
+  - `architecture/policy_design_case/layer3_g3_w12d_consumer_gate.json`
+  - `architecture/policy_design_case/layer3_g3_public_export_projection_refs.json`
+  - `architecture/policy_design_case/layer3_g3_proof_carrying_audit_surface.json`
+  - `architecture/policy_design_case/layer3_g3_conformance_report.json`
+  - `architecture/policy_design_case/layer3_g3_health_metric_delta.toml`
+  - `architecture/policy_design_case/layer3_g3_adapter_contract_registry.toml`
+  - `architecture/policy_design_case/layer3_g3_readiness_manifest.json`
+
+Canonical regeneration commands:
+
+```bash
+uv run python tools/quality/validation/check_policy_design_case_layer3_g3_readiness.py --repo-root . --write --output-format json
+```
+
+## `Policy Design Case Layer 3 GL legal mandate search artifacts`
+
+- Family id: `policy-design-case-layer3-gl-legal-mandate-artifacts`
+- Lifecycle: `generated_committed`
+- Source of truth: src/polisyos/runtime/quality/layer3_legal_mandate_search.py and tools/quality/validation/check_policy_design_case_layer3_gl_readiness.py
+- Generator: Layer 3 GL readiness validator write mode
+- Verifier: Layer 3 GL readiness validator and architecture guardrails
+- Promotion target: registered Policy Design Case GL legal mandate audit/reference surface artifacts
+- Commit policy: `committed_after_task7_write`
+- Freshness rule: Regenerate and commit whenever the Layer 3 GL legal mandate runtime builder, validator, adapter registry, audit/reference surface, or consumer gate bridge rules change.
+- Stale output behavior: `fail`
+- Drift gate: `automated`
+- Owner: `team-runtime-quality`
+- Approval owner: `team-runtime-quality`
+- Related workflow/config: `tools/quality/validation/check_policy_design_case_layer3_gl_readiness.py`
+- Outputs:
+  - `architecture/policy_design_case/layer3_gl_adapter_admission_registry.json`
+  - `architecture/policy_design_case/layer3_gl_l3_legal_kg_index_coverage.json`
+  - `architecture/policy_design_case/layer3_gl_l3_legal_kg_search_ledgers.json`
+  - `architecture/policy_design_case/layer3_gl_l3_legal_kg_query_traces.json`
+  - `architecture/policy_design_case/layer3_gl_search_recall_freshness.json`
+  - `architecture/policy_design_case/layer3_gl_l5_calibration_bindings.json`
+  - `architecture/policy_design_case/layer3_gl_legal_requirement_bindings.json`
+  - `architecture/policy_design_case/layer3_gl_authority_facet_bindings.json`
+  - `architecture/policy_design_case/layer3_gl_norm_candidate_bindings.json`
+  - `architecture/policy_design_case/layer3_gl_threshold_authority_records.json`
+  - `architecture/policy_design_case/layer3_gl_mandate_authority_records.json`
+  - `architecture/policy_design_case/layer3_gl_temporal_competence_records.json`
+  - `architecture/policy_design_case/layer3_gl_amendment_lineage_records.json`
+  - `architecture/policy_design_case/layer3_gl_reference_resolution_records.json`
+  - `architecture/policy_design_case/layer3_gl_legal_authority_report.json`
+  - `architecture/policy_design_case/layer3_gl_lex_intervention_map_bindings.json`
+  - `architecture/policy_design_case/layer3_gl_claim_registry_consumer_gate.json`
+  - `architecture/policy_design_case/layer3_gl_semantic_binding_consumer_gate.json`
+  - `architecture/policy_design_case/layer3_gl_argument_graph_readiness_consumer_gate.json`
+  - `architecture/policy_design_case/layer3_gl_s6_mandate_consumer_gate.json`
+  - `architecture/policy_design_case/layer3_gl_s7_delegation_consumer_gate.json`
+  - `architecture/policy_design_case/layer3_gl_s8_value_choice_consumer_gate.json`
+  - `architecture/policy_design_case/layer3_gl_pdc_compiler_consumer_gate.json`
+  - `architecture/policy_design_case/layer3_gl_design_constraint_consumer_gate.json`
+  - `architecture/policy_design_case/layer3_gl_g4_promotion_gate_consumer_gate.json`
+  - `architecture/policy_design_case/layer3_gl_promotion_gate_handoff.json`
+  - `architecture/policy_design_case/layer3_gl_legal_mandate_audit_surface.json`
+  - `architecture/policy_design_case/layer3_gl_public_export_projection_refs.json`
+  - `architecture/policy_design_case/layer3_gl_conformance_report.json`
+  - `architecture/policy_design_case/layer3_gl_health_metric_delta.toml`
+  - `architecture/policy_design_case/layer3_gl_adapter_contract_registry.toml`
+  - `architecture/policy_design_case/layer3_gl_readiness_manifest.json`
+
+Canonical regeneration commands:
+
+```bash
+uv run python tools/quality/validation/check_policy_design_case_layer3_gl_readiness.py --repo-root . --write --output-format json
+```
+
+## `Policy Design Case Layer 3 G4 promotion gate artifacts`
+
+- Family id: `policy-design-case-layer3-g4-promotion-gate-artifacts`
+- Lifecycle: `generated_committed`
+- Source of truth: src/polisyos/runtime/quality/layer3_promotion_gate.py and tools/quality/validation/check_policy_design_case_layer3_g4_readiness.py
+- Generator: Layer 3 G4 readiness validator write mode
+- Verifier: Layer 3 G4 readiness validator and architecture guardrails
+- Promotion target: registered Policy Design Case G4 shadow-to-governed promotion audit surface artifacts
+- Commit policy: `committed_after_task6_write`
+- Freshness rule: Regenerate and commit whenever the Layer 3 G4 promotion-gate runtime builder, validator, adapter registry, promotion surface, public projection refs, or consumer gate bridge rules change.
+- Stale output behavior: `fail`
+- Drift gate: `automated`
+- Owner: `team-runtime-quality`
+- Approval owner: `team-runtime-quality`
+- Related workflow/config: `tools/quality/validation/check_policy_design_case_layer3_g4_readiness.py`
+- Outputs:
+  - `architecture/policy_design_case/layer3_g4_dependency_readiness_snapshot.json`
+  - `architecture/policy_design_case/layer3_g4_promotion_input_set.json`
+  - `architecture/policy_design_case/layer3_g4_grounded_contract_set.json`
+  - `architecture/policy_design_case/layer3_g4_a_completeness_ledger.json`
+  - `architecture/policy_design_case/layer3_g4_human_decision_integrity_gate.json`
+  - `architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json`
+  - `architecture/policy_design_case/layer3_g4_promotion_records.json`
+  - `architecture/policy_design_case/layer3_g4_closeout_consumer_gate.json`
+  - `architecture/policy_design_case/layer3_g4_pdc_compiler_consumer_gate.json`
+  - `architecture/policy_design_case/layer3_g4_g5_promotion_handoff.json`
+  - `architecture/policy_design_case/layer3_g4_governance_throughput_delta.json`
+  - `architecture/policy_design_case/layer3_g4_promotion_audit_surface.json`
+  - `architecture/policy_design_case/layer3_g4_public_export_projection_refs.json`
+  - `architecture/policy_design_case/layer3_g4_conformance_report.json`
+  - `architecture/policy_design_case/layer3_g4_health_metric_delta.toml`
+  - `architecture/policy_design_case/layer3_g4_adapter_contract_registry.toml`
+  - `architecture/policy_design_case/layer3_g4_registry_ratchet_delta.json`
+  - `architecture/policy_design_case/layer3_g4_readiness_manifest.json`
+
+Canonical regeneration commands:
+
+```bash
+uv run python tools/quality/validation/check_policy_design_case_layer3_g4_readiness.py --repo-root . --write --output-format json
+```
+
+## `Policy Design Case Layer 3 G5 proving-ground conversion artifacts`
+
+- Family id: `policy-design-case-layer3-g5-proving-ground-conversion-artifacts`
+- Lifecycle: `generated_committed`
+- Source of truth: src/polisyos/runtime/quality/layer3_proving_ground_conversion.py and tools/quality/validation/check_policy_design_case_layer3_g5_readiness.py
+- Generator: Layer 3 G5 readiness validator write mode
+- Verifier: Layer 3 G5 readiness validator and architecture guardrails
+- Promotion target: registered Policy Design Case G5 first proving-ground conversion audit surface artifacts
+- Commit policy: `committed_after_task6_write`
+- Freshness rule: Regenerate and commit whenever the Layer 3 G5 proving-ground conversion runtime builder, validator, conversion-route registry, public projection refs, W12.D gate, or health metric rules change.
+- Stale output behavior: `fail`
+- Drift gate: `automated`
+- Owner: `team-runtime-quality`
+- Approval owner: `team-runtime-quality`
+- Related workflow/config: `tools/quality/validation/check_policy_design_case_layer3_g5_readiness.py`
+- Outputs:
+  - `architecture/policy_design_case/layer3_g5_dependency_readiness_snapshot.json`
+  - `architecture/policy_design_case/layer3_g5_pinned_case_input_bundle.json`
+  - `architecture/policy_design_case/layer3_g5_w12d_case_block_index.json`
+  - `architecture/policy_design_case/layer3_g5_composed_loop_completeness_gate.json`
+  - `architecture/policy_design_case/layer3_g5_g4_handoff_resolution.json`
+  - `architecture/policy_design_case/layer3_g5_g4_promotion_record_resolution.json`
+  - `architecture/policy_design_case/layer3_g5_upstream_scope_join_matrix.json`
+  - `architecture/policy_design_case/layer3_g5_grounded_result_evidence_set.json`
+  - `architecture/policy_design_case/layer3_g5_effective_evidence_independence.json`
+  - `architecture/policy_design_case/layer3_g5_useful_design_metric_eligibility_join.json`
+  - `architecture/policy_design_case/layer3_g5_conversion_eligibility_ledger.json`
+  - `architecture/policy_design_case/layer3_g5_status_composition_ledger.json`
+  - `architecture/policy_design_case/layer3_g5_grounded_abstention_quality_record.json`
+  - `architecture/policy_design_case/layer3_g5_demand_pull_attempt_record.json`
+  - `architecture/policy_design_case/layer3_g5_dependency_health_metric_snapshot.json`
+  - `architecture/policy_design_case/layer3_g5_envelope_expansion_delta.json`
+  - `architecture/policy_design_case/layer3_g5_conversion_records.json`
+  - `architecture/policy_design_case/layer3_g5_w12d_consumer_gate.json`
+  - `architecture/policy_design_case/layer3_g5_conversion_audit_surface.json`
+  - `architecture/policy_design_case/layer3_g5_public_export_projection_refs.json`
+  - `architecture/policy_design_case/layer3_g5_conformance_report.json`
+  - `architecture/policy_design_case/layer3_g5_health_metric_delta.toml`
+  - `architecture/policy_design_case/layer3_g5_conversion_route_contract_registry.toml`
+  - `architecture/policy_design_case/layer3_g5_registry_ratchet_delta.json`
+  - `architecture/policy_design_case/layer3_g5_readiness_manifest.json`
+
+Canonical regeneration commands:
+
+```bash
+uv run python tools/quality/validation/check_policy_design_case_layer3_g5_readiness.py --repo-root . --write --output-format json
+```
 
 ## `ABI schema snapshots`
 

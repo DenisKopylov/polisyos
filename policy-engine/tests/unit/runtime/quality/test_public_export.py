@@ -182,6 +182,63 @@ def _s11_public_projection_payload(**overrides: object) -> dict[str, object]:
     return payload
 
 
+def _g3_public_projection_payload(**overrides: object) -> dict[str, object]:
+    payload = _s11_public_projection_payload(
+        proof_carrying_analytics_ref="pdc://layer3/g3/ua-msme/proof/credit-access",
+        ir_analytics_bridge_ref="ir-analytics-bridge://layer3/g3/ua-msme",
+    )
+    payload["layer3_g3_public_export_projection"] = {
+        "projection_ref": "pdc://layer3/g3/ua-msme/public-export-projection",
+        "status": "pass",
+        "certificate_resolution_report_ref": (
+            "repo://architecture/policy_design_case/"
+            "layer3_g3_certificate_resolution_report.json"
+        ),
+        "search_ledger_refs": [
+            "repo://architecture/policy_design_case/"
+            "layer3_g3_ir_analytics_search_ledgers.json"
+        ],
+        "redacted_search_frontier_refs": [
+            "g3-search-frontier://ua-msme/resolved-proof-candidates"
+        ],
+        "proof_carrying_analytics_refs": [
+            "pdc://layer3/g3/ua-msme/proof/credit-access"
+        ],
+        "ir_analytics_bridge_refs": [
+            "ir-analytics-bridge://layer3/g3/ua-msme"
+        ],
+        "method_requirement_refs": ["method-requirement://layer3/g3/ua-msme"],
+        "s11_predictive_posture_refs": [
+            "pdc://layer2/s11/ua-msme/predictive-knowledge"
+        ],
+        "resolved_certificate_count": 1,
+        "blocked_certificate_count": 0,
+        "authority_boundary": {
+            "authoritative_for": ["g3_public_projection_audit"],
+            "may_not_use_for": [
+                "claim_authority",
+                "policy_recommendation",
+                "closeout_authority",
+                "publication_authority",
+            ],
+        },
+        "may_not_use_for": [
+            "claim_authority",
+            "policy_recommendation",
+            "closeout_authority",
+            "publication_authority",
+            "search_hit_as_certificate",
+        ],
+        "raw_proof_payload": {
+            "theorem_family": "raw material must not reach PUBLIC"
+        },
+        "raw_cas_manifest": {"artifact_ids": ["secret-cas-id"]},
+        "raw_query_ledger": {"sql": "select * from hidden_ir_catalog"},
+    }
+    payload.update(overrides)
+    return payload
+
+
 def _s12_public_projection_payload(**overrides: object) -> dict[str, object]:
     payload: dict[str, object] = {
         "public_export_classification": "public_redacted_projection",
@@ -1140,6 +1197,36 @@ def test_public_projection_does_not_promote_s11_to_recommendation_authority() ->
     rendered = json.dumps(public_bundle, sort_keys=True)
     assert "recommendation_authority" not in rendered
     assert "production_recommendation_text" not in rendered
+
+
+def test_public_export_projects_g3_audit_refs_without_raw_proof_or_search_payloads() -> None:
+    public_bundle = build_public_export_bundle(
+        run_id="run-public-g3-analytics-search",
+        artifacts={"public_summary": {"claim_refs": ["rec_1"]}},
+        authority_envelopes=[],
+        policy_design_case=policy_design_case(),
+        projection_payload=_g3_public_projection_payload(),
+    )
+
+    projection = public_bundle["projection_semantics"]
+    g3_projection = public_bundle["semantic_audit"]["layer3_g3_analytics_search_projection"]
+
+    assert projection["layer3_g3_public_export_projection_status"] == "pass"
+    assert projection["layer3_g3_certificate_resolution_report_ref"].endswith(
+        "layer3_g3_certificate_resolution_report.json"
+    )
+    assert projection["layer3_g3_resolved_certificate_count"] == 1
+    assert "claim_authority" in projection["may_not_be_used_for"]
+    assert g3_projection["authority_role"] == "projection_only"
+    assert g3_projection["resolved_certificate_count"] == 1
+    assert g3_projection["raw_proof_payload_exported"] is False
+    assert g3_projection["raw_cas_manifest_exported"] is False
+    assert g3_projection["raw_query_ledger_exported"] is False
+
+    rendered = json.dumps(public_bundle, sort_keys=True)
+    assert "raw material must not reach PUBLIC" not in rendered
+    assert "secret-cas-id" not in rendered
+    assert "select * from hidden_ir_catalog" not in rendered
 
 
 def test_public_projection_shows_growth_limitation_without_allocation_authority() -> None:

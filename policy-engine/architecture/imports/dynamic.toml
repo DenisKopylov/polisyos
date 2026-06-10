@@ -724,10 +724,10 @@ allowed_targets = ["polisyos.scientist.policy_design"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-23c9e5564aac"
+id = "dynamic-6ba0892c3c84"
 pattern = "self.__dict__['_target_fqn']"
 source_file = "src/polisyos/fabric/__init__.py"
-line = 87
+line = 92
 call = "importlib.import_module"
 owner = "team-architecture"
 target = "self.__dict__['_target_fqn']"
@@ -736,10 +736,10 @@ allowed_targets = []
 notes = "Dynamic pattern has no static in-repo target."
 
 [[pattern]]
-id = "dynamic-cc9d4043dd53"
+id = "dynamic-d6cd620e6581"
 pattern = "polisyos.fabric.world"
 source_file = "src/polisyos/fabric/__init__.py"
-line = 270
+line = 283
 call = "importlib.import_module"
 owner = "team-architecture"
 target = "polisyos.fabric.world"
@@ -748,10 +748,10 @@ allowed_targets = ["polisyos.fabric.world"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-5b10fe25da19"
+id = "dynamic-e1ef618a7208"
 pattern = "module_name"
 source_file = "src/polisyos/fabric/__init__.py"
-line = 275
+line = 288
 call = "importlib.import_module"
 owner = "team-architecture"
 target = "module_name"
@@ -1447,7 +1447,7 @@ notes = "Dynamic pattern has no static in-repo target."
 id = "dynamic-a8e22f052949"
 pattern = "module_name"
 source_file = "src/polisyos/lex/__init__.py"
-line = 189
+line = 199
 call = "importlib.import_module"
 owner = "team-architecture"
 target = "module_name"
@@ -1490,6 +1490,222 @@ target = "psycopg"
 verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
 allowed_targets = []
 notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-6cb3648c3c8d"
+pattern = "polisyos.ir.schemas.catalog"
+source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+line = 1021
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.ir.schemas.catalog"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.ir.schemas.catalog"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-a62376380851"
+pattern = "polisyos.core.artifacts.store"
+source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+line = 1203
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.core.artifacts.store"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.core.artifacts.store"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-df9ef897884f"
+pattern = "polisyos.ir.analytics.causal"
+source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+line = 1471
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.ir.analytics.causal"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.ir.analytics.causal"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-c9af37703c41"
+pattern = "polisyos.scientist.policy_design.baseline_compiler"
+source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+line = 3093
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.scientist.policy_design.baseline_compiler"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist.policy_design.baseline_compiler"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-9caf2019d3bf"
+pattern = "polisyos.ir.analytics.causal"
+source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+line = 4058
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.ir.analytics.causal"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.ir.analytics.causal"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-3e1b61a1701a"
+pattern = "polisyos.ir.registry.refs"
+source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+line = 4059
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.ir.registry.refs"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.ir.registry.refs"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-947238fd6e03"
+pattern = "polisyos.ir.analytics.negative_certificate"
+source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+line = 4070
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.ir.analytics.negative_certificate"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.ir.analytics.negative_certificate"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-1b901e84b45e"
+pattern = "polisyos.ir.registry.refs"
+source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+line = 4073
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.ir.registry.refs"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.ir.registry.refs"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-4c089ec5889f"
+pattern = "polisyos.ir.analytics.proof_composability"
+source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+line = 4087
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.ir.analytics.proof_composability"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.ir.analytics.proof_composability"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-b2d93c033d5c"
+pattern = "polisyos.ir.registry.refs"
+source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+line = 4090
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.ir.registry.refs"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.ir.registry.refs"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-95313aa19d8e"
+pattern = "polisyos.ir.analytics.partial_identification"
+source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+line = 4105
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.ir.analytics.partial_identification"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.ir.analytics.partial_identification"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-656b795323ca"
+pattern = "polisyos.ir.registry.refs"
+source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+line = 4108
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.ir.registry.refs"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.ir.registry.refs"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-19e35e20b9fb"
+pattern = "polisyos.ir.analytics.dual_certificate"
+source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+line = 4119
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.ir.analytics.dual_certificate"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.ir.analytics.dual_certificate"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-3b67011d15c0"
+pattern = "polisyos.ir.registry.refs"
+source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+line = 4120
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.ir.registry.refs"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.ir.registry.refs"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-afb3ea23b091"
+pattern = "module_name"
+source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+line = 4539
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-b0cd192386c5"
+pattern = "module_name"
+source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+line = 4559
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-3979455daa2b"
+pattern = "polisyos.scientist.evidence.claims.models"
+source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+line = 4808
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.scientist.evidence.claims.models"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist.evidence.claims.models"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-b7c152c1407f"
+pattern = "polisyos.scientist.policy_design.claim_decomposition"
+source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+line = 4809
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.scientist.policy_design.claim_decomposition"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist.policy_design.claim_decomposition"]
+notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
 id = "dynamic-754da9e1b0fd"

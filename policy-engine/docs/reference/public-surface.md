@@ -16,6 +16,21 @@ Classification policy:
 - `public_experimental`: documented entrypoint that should stay visible in docs and release notes when touched, but it does not promise long-term compatibility.
 - `internal`: any `polisyos.*` path not listed here; keep it out of public docs and release notes unless operators must care.
 
+## Policy Design Case Generated Audit Surfaces
+
+`layer3_g4_shadow_to_governed_promotion_surface` is a generated
+PUBLIC/REVIEWER/EXPERT/MACHINE Policy Design Case audit surface documented in
+`docs/reference/policy-design-case-layer3-promotion-gate.md`. It is
+projection-only for public export: `layer3_g4_public_export_projection_refs.json`
+records `out_of_scope_reference_only` rather than a runtime public-export route.
+
+`layer3_g5_first_proving_ground_conversion_surface` is a generated
+PUBLIC/REVIEWER/EXPERT/MACHINE Policy Design Case audit surface documented in
+`docs/reference/policy-design-case-layer3-proving-ground-conversion.md`. It
+publishes conversion-record refs, blocker/limitation refs, and projection-only
+public refs; `layer3_g5_public_export_projection_refs.json` records
+`out_of_scope_reference_only` and does not register a public-export bundle route.
+
 | Package | Classification | Facade | Exports | Owner | README |
 | --- | --- | --- | ---: | --- | --- |
 | `polisyos.common` | `public_stable` | `lazy_facade` | 7 | `team-polisyos` | `src/polisyos/common/README.md` |
@@ -25,12 +40,12 @@ Classification policy:
 | `polisyos.obligation_graph` | `internal` | `eager_exports` | 20 | `team-policyos-runtime` | `src/polisyos/obligation_graph/README.md` |
 | `polisyos.method_requirement` | `internal` | `eager_exports` | 14 | `team-policyos-runtime` | `src/polisyos/method_requirement/README.md` |
 | `polisyos.participation_requirement` | `internal` | `eager_exports` | 23 | `team-policyos-runtime` | `src/polisyos/participation_requirement/README.md` |
-| `polisyos.fabric` | `public_stable` | `lazy_facade` | 31 | `team-polisyos` | `src/polisyos/fabric/README.md` |
+| `polisyos.fabric` | `public_stable` | `lazy_facade` | 36 | `team-polisyos` | `src/polisyos/fabric/README.md` |
 | `polisyos.foundry` | `public_stable` | `lazy_facade` | 4 | `team-polisyos` | `src/polisyos/foundry/README.md` |
 | `polisyos.scientist` | `public_stable` | `lazy_facade` | 7 | `team-polisyos` | `src/polisyos/scientist/README.md` |
 | `polisyos.evidence` | `internal` | `eager_exports` | 19 | `team-policyos-runtime` | `src/polisyos/evidence/README.md` |
 | `polisyos.runtime` | `public_stable` | `lazy_facade` | 10 | `team-polisyos` | `src/polisyos/runtime/README.md` |
-| `polisyos.lex` | `public_stable` | `lazy_facade` | 51 | `team-polisyos` | `src/polisyos/lex/README.md` |
+| `polisyos.lex` | `public_stable` | `lazy_facade` | 53 | `team-polisyos` | `src/polisyos/lex/README.md` |
 | `polisyos.scholar` | `public_experimental` | `lazy_facade` | 25 | `team-polisyos` | `src/polisyos/scholar/README.md` |
 | `polisyos.data_forge` | `public_experimental` | `lazy_facade` | 49 | `team-data-forge` | `src/polisyos/data_forge/README.md` |
 | `polisyos.berl` | `public_experimental` | `eager_exports` | 11 | `team-scientist` | `src/polisyos/berl/README.md` |
@@ -549,20 +564,25 @@ write_participation_requirement_bundle
 - Notes: Connector-backed ingestion, world queries, and catalog surfaces.
 - Summary: Stable Fabric facade for connector ingestion, world-query, and catalog APIs.
 
-<details><summary>Supported exports (31)</summary>
+<details><summary>Supported exports (36)</summary>
 
 ```text
 AccessRef
 AuthoredText
 ConnectorRegistryLike
+ConnectorSchemaContract
+DataSchema
 FabricDecisionData
 FabricDecisionDataCoverage
 FabricDecisionDataResponse
+FieldSpec
 LineageRef
 ProcessingGuarantee
 ProcessingGuaranteeContract
 QualityRef
 ReplayRef
+SchemaType
+SourceContract
 SourceContractRef
 TemporalRef
 TypedGap
@@ -710,7 +730,7 @@ verify_replay
 - Notes: Stable runtime Lex facade for NormPack assembly, legal evaluation, simulator, interventions, and read-only legal knowledge APIs. Offline legal preprocessing is owned by polisyos.data_forge.domains.legal.
 - Summary: Stable Lex facade for runtime legal evaluation, NormPack assembly, and interventions.
 
-<details><summary>Supported exports (51)</summary>
+<details><summary>Supported exports (53)</summary>
 
 ```text
 ActiveVersionResult
@@ -759,6 +779,8 @@ TemporalInterventionStepInput
 WorldEventRefLike
 assemble_norm_pack
 build_legal_authority_report
+build_legal_authority_requirement_artifact
+build_normative_applicability_report
 diff_norm_packs
 evaluate_legality
 lex_evidence_from_fabric_decision_data

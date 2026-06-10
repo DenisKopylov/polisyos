@@ -81,22 +81,22 @@
         "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_analytics_search.py",
         "import_root": "method_requirement",
-        "line": 3876,
+        "line": 4207,
         "quarantine_check_result": "not_blocked",
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.method_requirement",
-        "touchpoint_id": "src/polisyos/runtime/quality/layer3_analytics_search.py:3876:method_requirement"
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_analytics_search.py:4207:method_requirement"
       },
       {
         "admission_allowed": false,
         "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_analytics_search.py",
         "import_root": "method_requirement",
-        "line": 3926,
+        "line": 4257,
         "quarantine_check_result": "not_blocked",
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.method_requirement",
-        "touchpoint_id": "src/polisyos/runtime/quality/layer3_analytics_search.py:3926:method_requirement"
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_analytics_search.py:4257:method_requirement"
       },
       {
         "admission_allowed": false,
@@ -136,44 +136,44 @@
         "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_causal_forecast.py",
         "import_root": "foundry",
-        "line": 2560,
+        "line": 2701,
         "quarantine_check_result": "not_blocked",
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.foundry.methods.selection.requirements",
-        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:2560:foundry"
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:2701:foundry"
       },
       {
         "admission_allowed": false,
         "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_causal_forecast.py",
         "import_root": "foundry",
-        "line": 2633,
+        "line": 2774,
         "quarantine_check_result": "not_blocked",
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.foundry.validation.method_quality",
-        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:2633:foundry"
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:2774:foundry"
       },
       {
         "admission_allowed": false,
         "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_causal_forecast.py",
         "import_root": "foundry",
-        "line": 4575,
+        "line": 4716,
         "quarantine_check_result": "not_blocked",
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.foundry.methods.catalog",
-        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:4575:foundry"
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:4716:foundry"
       },
       {
         "admission_allowed": false,
         "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_causal_forecast.py",
         "import_root": "foundry",
-        "line": 4576,
+        "line": 4717,
         "quarantine_check_result": "not_blocked",
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.foundry.methods.selection.registry",
-        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:4576:foundry"
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:4717:foundry"
       },
       {
         "admission_allowed": false,

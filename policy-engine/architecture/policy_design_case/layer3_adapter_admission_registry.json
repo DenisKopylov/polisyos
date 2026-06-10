@@ -98,7 +98,7 @@
       },
       {
         "adapter_contract_path_refs": [],
-        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-analytics-search-py-3876-method-requirement",
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-analytics-search-py-4207-method-requirement",
         "admission_state": "candidate_shadow_only",
         "admitted": false,
         "conformance_status": "not_run_pre_adapter",
@@ -109,15 +109,15 @@
         "promotion_state": "shadow",
         "quarantine_check": "not_blocked",
         "source_ids": [
-          "src/polisyos/runtime/quality/layer3_analytics_search.py:3876:method_requirement"
+          "src/polisyos/runtime/quality/layer3_analytics_search.py:4207:method_requirement"
         ],
         "source_touchpoint_refs": [
-          "src/polisyos/runtime/quality/layer3_analytics_search.py:3876:method_requirement"
+          "src/polisyos/runtime/quality/layer3_analytics_search.py:4207:method_requirement"
         ]
       },
       {
         "adapter_contract_path_refs": [],
-        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-analytics-search-py-3926-method-requirement",
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-analytics-search-py-4257-method-requirement",
         "admission_state": "candidate_shadow_only",
         "admitted": false,
         "conformance_status": "not_run_pre_adapter",
@@ -128,10 +128,10 @@
         "promotion_state": "shadow",
         "quarantine_check": "not_blocked",
         "source_ids": [
-          "src/polisyos/runtime/quality/layer3_analytics_search.py:3926:method_requirement"
+          "src/polisyos/runtime/quality/layer3_analytics_search.py:4257:method_requirement"
         ],
         "source_touchpoint_refs": [
-          "src/polisyos/runtime/quality/layer3_analytics_search.py:3926:method_requirement"
+          "src/polisyos/runtime/quality/layer3_analytics_search.py:4257:method_requirement"
         ]
       },
       {
@@ -193,7 +193,7 @@
       },
       {
         "adapter_contract_path_refs": [],
-        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-causal-forecast-py-2560-foundry",
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-causal-forecast-py-2701-foundry",
         "admission_state": "candidate_shadow_only",
         "admitted": false,
         "conformance_status": "not_run_pre_adapter",
@@ -204,15 +204,15 @@
         "promotion_state": "shadow",
         "quarantine_check": "not_blocked",
         "source_ids": [
-          "src/polisyos/runtime/quality/layer3_causal_forecast.py:2560:foundry"
+          "src/polisyos/runtime/quality/layer3_causal_forecast.py:2701:foundry"
         ],
         "source_touchpoint_refs": [
-          "src/polisyos/runtime/quality/layer3_causal_forecast.py:2560:foundry"
+          "src/polisyos/runtime/quality/layer3_causal_forecast.py:2701:foundry"
         ]
       },
       {
         "adapter_contract_path_refs": [],
-        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-causal-forecast-py-2633-foundry",
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-causal-forecast-py-2774-foundry",
         "admission_state": "candidate_shadow_only",
         "admitted": false,
         "conformance_status": "not_run_pre_adapter",
@@ -223,15 +223,15 @@
         "promotion_state": "shadow",
         "quarantine_check": "not_blocked",
         "source_ids": [
-          "src/polisyos/runtime/quality/layer3_causal_forecast.py:2633:foundry"
+          "src/polisyos/runtime/quality/layer3_causal_forecast.py:2774:foundry"
         ],
         "source_touchpoint_refs": [
-          "src/polisyos/runtime/quality/layer3_causal_forecast.py:2633:foundry"
+          "src/polisyos/runtime/quality/layer3_causal_forecast.py:2774:foundry"
         ]
       },
       {
         "adapter_contract_path_refs": [],
-        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-causal-forecast-py-4575-foundry",
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-causal-forecast-py-4716-foundry",
         "admission_state": "candidate_shadow_only",
         "admitted": false,
         "conformance_status": "not_run_pre_adapter",
@@ -242,15 +242,15 @@
         "promotion_state": "shadow",
         "quarantine_check": "not_blocked",
         "source_ids": [
-          "src/polisyos/runtime/quality/layer3_causal_forecast.py:4575:foundry"
+          "src/polisyos/runtime/quality/layer3_causal_forecast.py:4716:foundry"
         ],
         "source_touchpoint_refs": [
-          "src/polisyos/runtime/quality/layer3_causal_forecast.py:4575:foundry"
+          "src/polisyos/runtime/quality/layer3_causal_forecast.py:4716:foundry"
         ]
       },
       {
         "adapter_contract_path_refs": [],
-        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-causal-forecast-py-4576-foundry",
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-causal-forecast-py-4717-foundry",
         "admission_state": "candidate_shadow_only",
         "admitted": false,
         "conformance_status": "not_run_pre_adapter",
@@ -261,10 +261,10 @@
         "promotion_state": "shadow",
         "quarantine_check": "not_blocked",
         "source_ids": [
-          "src/polisyos/runtime/quality/layer3_causal_forecast.py:4576:foundry"
+          "src/polisyos/runtime/quality/layer3_causal_forecast.py:4717:foundry"
         ],
         "source_touchpoint_refs": [
-          "src/polisyos/runtime/quality/layer3_causal_forecast.py:4576:foundry"
+          "src/polisyos/runtime/quality/layer3_causal_forecast.py:4717:foundry"
         ]
       },
       {

@@ -1,0 +1,84 @@
+{
+  "records": [
+    {
+      "amendment_lineage_refs": [],
+      "applies_to": "25 percent",
+      "authoritative_for": [],
+      "authority_boundary": {
+        "authoritative_for": [],
+        "may_not_use_for": [
+          "recommendation_substance",
+          "closeout_authority",
+          "publication_authority",
+          "agent_authority",
+          "legal_authority_without_claim_level_adapter",
+          "mandate_authority_without_temporal_competence",
+          "s6_mandate_pass_without_s6_evaluation",
+          "ranked_value_choice_without_s8_authorization"
+        ]
+      },
+      "authority_facet_binding_refs": [],
+      "authority_grade": "selected_authority",
+      "authority_level": null,
+      "blocker_refs": [],
+      "claim_id": "gl_canonical_threshold_seed",
+      "effective_from": null,
+      "effective_to": null,
+      "hydrated_from_table": "lex_rule_thresholds",
+      "issue_codes": [],
+      "jurisdiction": "UA",
+      "l5_calibration_refs": [],
+      "legal_admissibility_grade": "admissible",
+      "legal_as_of": "2022-03-01",
+      "legal_authority_record_refs": [
+        "legal-authority-record:gl_canonical_threshold_seed:implementing:ccc3c2e6098cfd13"
+      ],
+      "legal_effective_window": {
+        "end": "2022-12-31",
+        "start": "2022-03-01"
+      },
+      "legal_kg_snapshot_ref": "sha256:33f486da808f6eaaf0335a3c",
+      "legal_requirement_artifact_ref": null,
+      "limitation_refs": [],
+      "may_not_use_for": [
+        "recommendation_substance",
+        "closeout_authority",
+        "publication_authority",
+        "agent_authority",
+        "legal_authority_without_claim_level_adapter",
+        "mandate_authority_without_temporal_competence",
+        "s6_mandate_pass_without_s6_evaluation",
+        "ranked_value_choice_without_s8_authorization"
+      ],
+      "metric": "percent",
+      "operator": "lte",
+      "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
+      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "provenance_refs": [],
+      "query_trace_refs": [
+        "gl-query-trace:threshold:c19bfbbe159c0cbb3eccbd2e"
+      ],
+      "record_id": "gl-threshold:c61def5591e7b49c9e1b7219",
+      "reference_resolution_status": null,
+      "requirement_ref": "legal-requirement:layer3-gl-canonical-legal-mandate:gl_canonical_threshold_seed",
+      "rule_version": "policyos.layer3.gl.legal_mandate_search.v1",
+      "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1",
+      "search_ledger_refs": [
+        "gl-ledger:threshold:gl-request-canonical-threshold-seed"
+      ],
+      "source_authority": "lex_rule_thresholds:65b40d9e0f890cdb2883ffbb",
+      "source_fact_ref": "lex_normative_ready_facts:ef64d4844594c3112281",
+      "source_norm_ref": "gl-norm:52090c7349cd02e7d04e582c",
+      "source_provision_ref": "lex_rule_thresholds:a5429abb6621acb11ed10b20",
+      "status": "pass",
+      "temporal_resolution_status": null,
+      "threshold_row_ref": "lex_rule_thresholds:a5429abb6621acb11ed10b20",
+      "threshold_source_field": "lex_rule_thresholds",
+      "unit": "percent",
+      "value_decimal": "25",
+      "value_text": "25"
+    }
+  ],
+  "rule_version": "policyos.layer3.gl.legal_mandate_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1"
+}

@@ -1,0 +1,190 @@
+{
+  "amendment_lineage_refs": [],
+  "authoritative_for": [],
+  "authority_boundary": {
+    "authoritative_for": [],
+    "may_not_use_for": [
+      "recommendation_substance",
+      "closeout_authority",
+      "publication_authority",
+      "agent_authority",
+      "legal_authority_without_claim_level_adapter",
+      "mandate_authority_without_temporal_competence",
+      "s6_mandate_pass_without_s6_evaluation",
+      "ranked_value_choice_without_s8_authorization"
+    ]
+  },
+  "authority_facet_binding_refs": [],
+  "authority_level": null,
+  "canonical_kg_path": "production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb",
+  "claim_id": null,
+  "companion_file_refs": [
+    "repo://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/qc_report.json#1044ab755d5ad3911697b682",
+    "repo://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/benchmark_report.json#c9ace7b6df8869c07147983b",
+    "repo://production_data/lex/lex-amendment-only-optimized-20260501-v3/amendment_only_summary.json#d1f39ba2292b9cb8f49b5827",
+    "repo://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/claim_exports/normative_claims_summary.json#dd00747aa801ddf62528cfc0"
+  ],
+  "companion_freshness_status": "pass",
+  "domain_ceiling_allowed": false,
+  "effective_from": null,
+  "effective_to": null,
+  "false_abstention_disposition": "typed_legal_no_ground_blocker_allowed",
+  "generated_ledger_snapshot_refs": [
+    "sha256:33f486da808f6eaaf0335a3c"
+  ],
+  "honest_legal_no_ground_allowed": true,
+  "index_freshness_status": "pass",
+  "issue_codes": [],
+  "jurisdiction": null,
+  "kg_identity": {
+    "mtime_ns": 1777622991000000000,
+    "path": "production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb",
+    "size_bytes": 19336278016,
+    "snapshot_ref": "sha256:33f486da808f6eaaf0335a3c"
+  },
+  "known_seed_results": {
+    "known_amendment_seed": {
+      "candidate_count": 5,
+      "expected_candidate_paths": [
+        "amendment_lineage"
+      ],
+      "search_ledger_refs": [
+        "gl-ledger:amendment-lineage:gl-request-canonical-threshold-seed"
+      ],
+      "source_row_refs": [
+        "lex_amendments:4347c5a8970795608927054c",
+        "lex_amendments:4c4b53cf44b4126a32ef50b0",
+        "lex_amendments:5728a27a3ceb873209d4c6f5",
+        "lex_amendments:6ad759a93a8795845f45b838",
+        "lex_amendments:b54e6771cbe95f6d0029b20e"
+      ],
+      "status": "pass"
+    },
+    "known_mapping_seed": {
+      "candidate_count": 5,
+      "expected_candidate_paths": [
+        "intervention_map_candidate"
+      ],
+      "search_ledger_refs": [
+        "gl-ledger:intervention-map:gl-request-canonical-threshold-seed"
+      ],
+      "source_row_refs": [
+        "lex_normative_ready_facts:1a8e8f13f18377929934",
+        "lex_normative_ready_facts:43dd79e005f33fdbb73c",
+        "lex_normative_ready_facts:d7ce7763551f5f29e9dc",
+        "lex_normative_ready_facts:eea8abb765c0c3caf210",
+        "lex_normative_ready_facts:ef64d4844594c3112281"
+      ],
+      "status": "pass"
+    },
+    "known_norm_seed": {
+      "candidate_count": 5,
+      "expected_candidate_paths": [
+        "normative_fact"
+      ],
+      "search_ledger_refs": [
+        "gl-ledger:normative-fact:gl-request-canonical-threshold-seed"
+      ],
+      "source_row_refs": [
+        "lex_normative_ready_facts:1a8e8f13f18377929934",
+        "lex_normative_ready_facts:43dd79e005f33fdbb73c",
+        "lex_normative_ready_facts:d7ce7763551f5f29e9dc",
+        "lex_normative_ready_facts:eea8abb765c0c3caf210",
+        "lex_normative_ready_facts:ef64d4844594c3112281"
+      ],
+      "status": "pass"
+    },
+    "known_reference_seed": {
+      "candidate_count": 5,
+      "expected_candidate_paths": [
+        "reference_resolution"
+      ],
+      "search_ledger_refs": [
+        "gl-ledger:reference-resolution:gl-request-canonical-threshold-seed"
+      ],
+      "source_row_refs": [
+        "lex_reference_edges:321b0e1e55ee084a7fda82b4",
+        "lex_reference_edges:7b1083e8dc858294c1f1c341",
+        "lex_reference_edges:7f0e1064aaa64458ea007024",
+        "lex_reference_edges:a62f7c4f002d587ca38d9dca",
+        "lex_reference_edges:bd49a4b248933270259a7e7b"
+      ],
+      "status": "pass"
+    },
+    "known_temporal_seed": {
+      "candidate_count": 5,
+      "expected_candidate_paths": [
+        "provision_source_bundle"
+      ],
+      "search_ledger_refs": [
+        "gl-ledger:provision-source:gl-request-canonical-threshold-seed"
+      ],
+      "source_row_refs": [
+        "lex_doc_versions:59d56c032ef22f2b7593e9e7",
+        "lex_doc_versions:b52dbaf1714b3319ed1d8b70",
+        "lex_doc_versions:c367dc32cf003b4c5f5c0963",
+        "lex_doc_versions:d05bb5786ba3108ef4fab3f1",
+        "lex_doc_versions:f3e853791d73144d4e1386ed"
+      ],
+      "status": "pass"
+    },
+    "known_threshold_seed": {
+      "candidate_count": 5,
+      "expected_candidate_paths": [
+        "threshold_metric_operator_value_unit"
+      ],
+      "search_ledger_refs": [
+        "gl-ledger:threshold:gl-request-canonical-threshold-seed"
+      ],
+      "source_row_refs": [
+        "lex_rule_thresholds:5a6922fab9932615678509d3",
+        "lex_rule_thresholds:5e343db22fc414c1350957b9",
+        "lex_rule_thresholds:a5429abb6621acb11ed10b20",
+        "lex_rule_thresholds:b8a18d6bad25bfba3cf9496a",
+        "lex_rule_thresholds:f337e1f2b37b58ecf470f7c8"
+      ],
+      "status": "pass"
+    }
+  },
+  "known_seed_status": "pass",
+  "l5_calibration_refs": [],
+  "legal_as_of": null,
+  "legal_kg_snapshot_ref": "sha256:33f486da808f6eaaf0335a3c",
+  "legal_requirement_artifact_ref": null,
+  "may_not_use_for": [
+    "recommendation_substance",
+    "closeout_authority",
+    "publication_authority",
+    "agent_authority",
+    "legal_authority_without_claim_level_adapter",
+    "mandate_authority_without_temporal_competence",
+    "s6_mandate_pass_without_s6_evaluation",
+    "ranked_value_choice_without_s8_authorization"
+  ],
+  "missed_known_seed_classes": [],
+  "missing_snapshot_ledger_refs": [],
+  "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
+  "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+  "provenance_refs": [],
+  "query_trace_refs": [],
+  "reference_resolution_status": null,
+  "requirement_ref": null,
+  "rule_version": "policyos.layer3.gl.legal_mandate_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1",
+  "search_ceiling_repair_required": false,
+  "search_ledger_refs": [
+    "gl-ledger:threshold:gl-request-canonical-threshold-seed",
+    "gl-ledger:normative-fact:gl-request-canonical-threshold-seed",
+    "gl-ledger:amendment-lineage:gl-request-canonical-threshold-seed",
+    "gl-ledger:provision-source:gl-request-canonical-threshold-seed",
+    "gl-ledger:reference-resolution:gl-request-canonical-threshold-seed",
+    "gl-ledger:intervention-map:gl-request-canonical-threshold-seed",
+    "gl-ledger:no-hit:gl-request-canonical-threshold-seed"
+  ],
+  "snapshot_consistency_status": "pass",
+  "source_authority": null,
+  "stale_snapshot_refs": [],
+  "status": "pass",
+  "temporal_resolution_status": null,
+  "typed_no_ground_blocker": "legal_no_ground_after_fresh_known_seed_recall"
+}

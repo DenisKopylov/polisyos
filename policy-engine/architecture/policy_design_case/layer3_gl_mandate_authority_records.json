@@ -1,0 +1,115 @@
+{
+  "records": [
+    {
+      "amendment_lineage_refs": [],
+      "authoritative_for": [],
+      "authority_boundary": {
+        "authoritative_for": [],
+        "may_not_use_for": [
+          "recommendation_substance",
+          "closeout_authority",
+          "publication_authority",
+          "agent_authority",
+          "legal_authority_without_claim_level_adapter",
+          "mandate_authority_without_temporal_competence",
+          "s6_mandate_pass_without_s6_evaluation",
+          "ranked_value_choice_without_s8_authorization"
+        ]
+      },
+      "authority_facet_binding_refs": [],
+      "authority_level": null,
+      "authority_type": "implementing",
+      "blocker_refs": [],
+      "claim_id": "gl_canonical_threshold_seed",
+      "competent_actor_ref": "cabinet_ministers_ua",
+      "effective_from": null,
+      "effective_to": null,
+      "instrument_types": [
+        "resolution"
+      ],
+      "issue_codes": [],
+      "jurisdiction": "UA",
+      "l5_calibration_refs": [],
+      "legal_as_of": "2022-03-01",
+      "legal_authority_record_refs": [
+        "legal-authority-record:gl_canonical_threshold_seed:implementing:ccc3c2e6098cfd13"
+      ],
+      "legal_effective_window": {
+        "end": "2022-12-31",
+        "start": "2022-03-01"
+      },
+      "legal_kg_snapshot_ref": "sha256:33f486da808f6eaaf0335a3c",
+      "legal_requirement_artifact_ref": null,
+      "limitation_refs": [
+        "gl-limitation:s6-evaluation-required"
+      ],
+      "mandate_record_ref": "gl-mandate-source:e6adfaaccb2dcc3cc04d942a",
+      "mandate_source_payloads": [
+        {
+          "authority_type": "implementing",
+          "compatibility_status": "requires_s6_evaluation",
+          "competent_actor_ref": "cabinet_ministers_ua",
+          "instrument_types": [
+            "resolution"
+          ],
+          "legal_as_of": "2022-03-01",
+          "legal_authority_record_refs": [
+            "legal-authority-record:gl_canonical_threshold_seed:implementing:ccc3c2e6098cfd13"
+          ],
+          "mandate_source_ref": "gl-mandate-source:e6adfaaccb2dcc3cc04d942a",
+          "mandate_source_refs": [
+            "lex_rule_thresholds:a5429abb6621acb11ed10b20",
+            "lex_rule_thresholds:a5429abb6621acb11ed10b20",
+            "legal-requirement:layer3-gl-canonical-legal-mandate:gl_canonical_threshold_seed"
+          ],
+          "may_not_use_for": [
+            "s6_pass",
+            "mandate_legitimacy_without_s6_evaluation"
+          ],
+          "source_norm_ref": "gl-norm:52090c7349cd02e7d04e582c"
+        }
+      ],
+      "mandate_source_refs": [
+        "lex_rule_thresholds:a5429abb6621acb11ed10b20",
+        "lex_rule_thresholds:a5429abb6621acb11ed10b20",
+        "legal-requirement:layer3-gl-canonical-legal-mandate:gl_canonical_threshold_seed"
+      ],
+      "may_not_use_for": [
+        "recommendation_substance",
+        "closeout_authority",
+        "publication_authority",
+        "agent_authority",
+        "legal_authority_without_claim_level_adapter",
+        "mandate_authority_without_temporal_competence",
+        "s6_mandate_pass_without_s6_evaluation",
+        "ranked_value_choice_without_s8_authorization"
+      ],
+      "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
+      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "provenance_refs": [],
+      "query_trace_refs": [
+        "gl-query-trace:threshold:c19bfbbe159c0cbb3eccbd2e"
+      ],
+      "record_id": "gl-mandate:5fe78d6a55dd3ffe82e706b9",
+      "reference_resolution_status": null,
+      "requirement_ref": "legal-requirement:layer3-gl-canonical-legal-mandate:gl_canonical_threshold_seed",
+      "rule_version": "policyos.layer3.gl.legal_mandate_search.v1",
+      "s6_compatible_source_handoff_refs": [
+        "gl-mandate-source:e6adfaaccb2dcc3cc04d942a"
+      ],
+      "s6_evaluation_ref": null,
+      "s6_mandate_firewall_disposition": "compatibility_only",
+      "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1",
+      "scope_refs": [
+        "concept:economic_policy_support"
+      ],
+      "search_ledger_refs": [],
+      "source_authority": "lex_rule_thresholds:65b40d9e0f890cdb2883ffbb",
+      "source_norm_ref": "gl-norm:52090c7349cd02e7d04e582c",
+      "status": "compatibility_only",
+      "temporal_resolution_status": null
+    }
+  ],
+  "rule_version": "policyos.layer3.gl.legal_mandate_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1"
+}

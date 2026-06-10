@@ -228,6 +228,7 @@ KNOWN_READINESS_CHECKS = frozenset(
         "production_quality.decision_artifact_quality",
         "production_quality.phase_barriers_closed",
         "production_quality.closeout_matrix_smoke",
+        "layer3_gl_legal_mandate_search_readiness_gate",
     }
 )
 KNOWN_RUNTIME_EVENTS = frozenset(

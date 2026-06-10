@@ -1,0 +1,45 @@
+{
+  "description": "Malformed GL fixture: threshold authority is built from summary JSON instead of lex_rule_thresholds hydration.",
+  "payload": {
+    "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1",
+    "rule_version": "policyos.layer3.gl.legal_mandate_search.v1",
+    "readiness_manifest": {
+      "g0_dependency_status": "pass"
+    },
+    "l3_legal_kg_index_coverage": {
+      "status": "pass"
+    },
+    "l3_legal_kg_search_ledgers": [
+      {
+        "ledger_id": "gl-ledger:threshold-malformed",
+        "canonical_route": "l3_legal_kg_duckdb",
+        "transition_input": false
+      }
+    ],
+    "l3_legal_kg_query_traces": [
+      {
+        "trace_id": "gl-trace:threshold-malformed",
+        "sql_shape": "SELECT fact_id FROM lex_normative_ready_facts LIMIT ?"
+      }
+    ],
+    "search_recall_freshness": {
+      "status": "pass",
+      "domain_ceiling_allowed": false
+    },
+    "legal_authority_report": {
+      "status": "pass",
+      "selected_norm_refs": [],
+      "legal_authority_record_refs": [],
+      "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_legal_requirement_bindings.json#fixture"
+    },
+    "threshold_authority_records": [
+      {
+        "record_id": "threshold-record:malformed",
+        "hydrated_from_table": "search_facts_with_threshold",
+        "threshold_source_field": "thresholds_json",
+        "operator": ">=",
+        "unit": "UAH"
+      }
+    ]
+  }
+}

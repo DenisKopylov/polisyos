@@ -1,0 +1,93 @@
+{
+  "adapter_admission_registry": {
+    "adapter_admission_records": [
+      {
+        "adapter_contract_path_refs": [
+          "layer3_gl_l3_legal_kg_to_search_ledger",
+          "layer3_gl_search_ledger_to_norm_candidate_binding",
+          "layer3_gl_l3_legal_kg_to_authority_facet_binding",
+          "layer3_gl_legal_requirement_to_legal_authority_report",
+          "layer3_gl_authority_facet_binding_to_legal_authority_report",
+          "layer3_gl_legal_authority_report_to_threshold_authority_record",
+          "layer3_gl_legal_authority_report_to_mandate_authority_record",
+          "layer3_gl_temporal_lineage_to_competence_record",
+          "layer3_gl_amendment_lineage_to_reissue_gate",
+          "layer3_gl_authority_record_to_lex_intervention_map_binding",
+          "layer3_gl_authority_record_to_claim_registry",
+          "layer3_gl_authority_record_to_argument_graph_readiness",
+          "layer3_gl_mandate_record_to_s6_s7_consumer_gate",
+          "layer3_gl_mandate_record_to_s8_value_choice_consumer_gate",
+          "layer3_gl_authority_record_to_design_constraints",
+          "layer3_gl_authority_record_to_g4_promotion_gate_input",
+          "layer3_gl_audit_surface_to_public_projection_refs",
+          "layer3_gl_public_projection_refs_to_reference_only_surface"
+        ],
+        "adapter_id": "layer3-gl-legal-mandate-search-adapter",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "blocked",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "layer3.legal_mandate_search_adapter"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "task1_search_only_no_authority_admission",
+        "source_ids": [
+          "lex_knowledge_graph.duckdb"
+        ],
+        "source_touchpoint_refs": [
+          "polisyos.runtime.quality.layer3_legal_mandate_search"
+        ]
+      }
+    ],
+    "amendment_lineage_refs": [],
+    "authoritative_for": [],
+    "authority_boundary": {
+      "authoritative_for": [],
+      "may_not_use_for": [
+        "recommendation_substance",
+        "closeout_authority",
+        "publication_authority",
+        "agent_authority",
+        "legal_authority_without_claim_level_adapter",
+        "mandate_authority_without_temporal_competence",
+        "s6_mandate_pass_without_s6_evaluation",
+        "ranked_value_choice_without_s8_authorization"
+      ]
+    },
+    "authority_facet_binding_refs": [],
+    "authority_level": null,
+    "claim_id": null,
+    "effective_from": null,
+    "effective_to": null,
+    "jurisdiction": null,
+    "l5_calibration_refs": [],
+    "legal_as_of": null,
+    "legal_kg_snapshot_ref": null,
+    "legal_requirement_artifact_ref": null,
+    "may_not_use_for": [
+      "recommendation_substance",
+      "closeout_authority",
+      "publication_authority",
+      "agent_authority",
+      "legal_authority_without_claim_level_adapter",
+      "mandate_authority_without_temporal_competence",
+      "s6_mandate_pass_without_s6_evaluation",
+      "ranked_value_choice_without_s8_authorization"
+    ],
+    "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
+    "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+    "provenance_refs": [],
+    "query_trace_refs": [],
+    "reference_resolution_status": null,
+    "requirement_ref": null,
+    "rule_version": "policyos.layer3.gl.legal_mandate_search.v1",
+    "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1",
+    "search_ledger_refs": [],
+    "source_authority": null,
+    "status": "reference_only",
+    "temporal_resolution_status": null
+  },
+  "rule_version": "policyos.layer3.gl.legal_mandate_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1"
+}

@@ -57,6 +57,8 @@ __all__ = [
     "WorldEventRefLike",
     "assemble_norm_pack",
     "build_legal_authority_report",
+    "build_legal_authority_requirement_artifact",
+    "build_normative_applicability_report",
     "diff_norm_packs",
     "evaluate_legality",
     "lex_evidence_from_fabric_decision_data",
@@ -74,6 +76,14 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "build_legal_authority_report": (
         "polisyos.lex.normpack",
         "build_legal_authority_report",
+    ),
+    "build_legal_authority_requirement_artifact": (
+        "polisyos.lex.normpack",
+        "build_legal_authority_requirement_artifact",
+    ),
+    "build_normative_applicability_report": (
+        "polisyos.lex.normpack.applicability_report",
+        "build_normative_applicability_report",
     ),
     "evaluate_legality": ("polisyos.lex.api", "evaluate_legality"),
     "propose_changes": ("polisyos.lex.api", "propose_changes"),

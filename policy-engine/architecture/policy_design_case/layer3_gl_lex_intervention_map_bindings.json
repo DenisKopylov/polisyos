@@ -1,0 +1,149 @@
+{
+  "bindings": [
+    {
+      "admitted_authority_precondition_status": "pass",
+      "amendment_lineage_refs": [],
+      "authoritative_for": [
+        "lex_intervention_map_handoff"
+      ],
+      "authority_boundary": {
+        "authoritative_for": [],
+        "may_not_use_for": [
+          "recommendation_substance",
+          "closeout_authority",
+          "publication_authority",
+          "agent_authority",
+          "legal_authority_without_claim_level_adapter",
+          "mandate_authority_without_temporal_competence",
+          "s6_mandate_pass_without_s6_evaluation",
+          "ranked_value_choice_without_s8_authorization"
+        ]
+      },
+      "authority_facet_binding_refs": [],
+      "authority_level": null,
+      "binding_id": "gl-lex-intervention-map:52090c7349cd02e7d04e582c",
+      "claim_id": "gl_canonical_threshold_seed",
+      "crosswalk_confidence_score": 0.64,
+      "crosswalk_refs": [
+        "lex-provision-program-crosswalk:676287c62198dfe55808dc39"
+      ],
+      "directive_compiled": false,
+      "effective_from": null,
+      "effective_to": null,
+      "executable_compile_status": "out_of_scope",
+      "intervention_kind": "subsidized_credit_threshold",
+      "issue_codes": [],
+      "jurisdiction": "UA",
+      "knob_ids": [
+        "gl_credit_threshold_knob"
+      ],
+      "l5_calibration_refs": [],
+      "legal_as_of": "2022-03-01",
+      "legal_authority_record_refs": [
+        "legal-authority-record:gl_canonical_threshold_seed:implementing:ccc3c2e6098cfd13"
+      ],
+      "legal_kg_snapshot_ref": "sha256:33f486da808f6eaaf0335a3c",
+      "legal_requirement_artifact_ref": null,
+      "mapping_confidence_score": 0.72,
+      "mapping_coverage_status": "synthetic_seed_used_zero_row_production_map",
+      "mapping_metadata": {
+        "crosswalk_metadata": {
+          "mapping_source": "gl_synthetic_boundary_seed"
+        },
+        "knob_dictionary_entries": [
+          {
+            "default_value": "25",
+            "knob_id": "gl_credit_threshold_knob",
+            "max_value": null,
+            "metadata": {
+              "source_unit": "percent"
+            },
+            "min_value": null,
+            "notes": [
+              "Boundary handoff only; compiler resolve is out of scope."
+            ],
+            "param_id": "gl_credit_threshold",
+            "param_path": "params.credit_threshold_percent",
+            "sensitivity_priority": 4,
+            "tunable": true
+          }
+        ],
+        "mapping_metadata": {
+          "authority_precondition": "claim_level_legal_authority_record_required",
+          "mapping_source": "gl_synthetic_boundary_seed",
+          "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_legal_requirement_bindings.json#a70a11e4f56de44b5e9febf1"
+        }
+      },
+      "mapping_provenance_refs": [
+        "lex_rule_thresholds:a5429abb6621acb11ed10b20",
+        "repo://architecture/policy_design_case/layer3_gl_legal_requirement_bindings.json#a70a11e4f56de44b5e9febf1",
+        "lex_rule_thresholds:a5429abb6621acb11ed10b20"
+      ],
+      "mapping_ref": "lex-intervention-map:c8a114bc57aed3f19474ab51",
+      "may_not_use_for": [
+        "recommendation_substance",
+        "closeout_authority",
+        "publication_authority",
+        "agent_authority",
+        "legal_authority_without_claim_level_adapter",
+        "mandate_authority_without_temporal_competence",
+        "s6_mandate_pass_without_s6_evaluation",
+        "ranked_value_choice_without_s8_authorization"
+      ],
+      "measurement_expectations": {
+        "legal_authority_record_refs": [
+          "legal-authority-record:gl_canonical_threshold_seed:implementing:ccc3c2e6098cfd13"
+        ],
+        "source": "gl_lex_intervention_map_boundary_seed",
+        "threshold_metric": "percent",
+        "threshold_operator": "lte",
+        "threshold_unit": "percent"
+      },
+      "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
+      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "production_mapping_row_count": 0,
+      "program_id": "gl_subsidized_credit_program",
+      "program_name": "GL Subsidized Credit Program",
+      "provenance_refs": [],
+      "provision_ref": "lex_rule_thresholds:a5429abb6621acb11ed10b20",
+      "query_trace_refs": [
+        "gl-query-trace:threshold:c19bfbbe159c0cbb3eccbd2e"
+      ],
+      "reference_resolution_status": null,
+      "registry_lookup_method_refs": [
+        "LexProvisionMappingRegistry.get_mapping",
+        "LexProvisionMappingRegistry.require_mapping",
+        "LexProvisionMappingRegistry.require_knob",
+        "LexProvisionMappingRegistry.get_crosswalk"
+      ],
+      "registry_validation_status": "pass",
+      "requirement_ref": "legal-requirement:layer3-gl-canonical-legal-mandate:gl_canonical_threshold_seed",
+      "rule_version": "policyos.layer3.gl.legal_mandate_search.v1",
+      "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1",
+      "search_ledger_refs": [],
+      "selected_norm_refs": [
+        "gl-norm:52090c7349cd02e7d04e582c"
+      ],
+      "source_authority": null,
+      "status": "pass",
+      "strategic_response_expected": true,
+      "synthetic_mapping_seed_used": true,
+      "target_population_type": "sme_firms",
+      "target_region_ids": [
+        "UA"
+      ],
+      "target_sector_ids": [
+        "credit_access",
+        "public_finance"
+      ],
+      "temporal_resolution_status": null,
+      "transmission_channels": [
+        "budget_channel",
+        "compliance_channel"
+      ],
+      "used_as_legal_authority": false
+    }
+  ],
+  "rule_version": "policyos.layer3.gl.legal_mandate_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1"
+}

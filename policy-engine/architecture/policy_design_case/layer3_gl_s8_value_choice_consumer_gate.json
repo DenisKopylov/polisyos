@@ -1,0 +1,71 @@
+{
+  "amendment_lineage_refs": [],
+  "authoritative_for": [],
+  "authority_boundary": {
+    "authoritative_for": [],
+    "may_not_use_for": [
+      "recommendation_substance",
+      "closeout_authority",
+      "publication_authority",
+      "agent_authority",
+      "legal_authority_without_claim_level_adapter",
+      "mandate_authority_without_temporal_competence",
+      "s6_mandate_pass_without_s6_evaluation",
+      "ranked_value_choice_without_s8_authorization"
+    ]
+  },
+  "authority_facet_binding_refs": [],
+  "authority_level": null,
+  "authorized_value_schedule_refs": [],
+  "blocker_refs": [],
+  "claim_id": null,
+  "effective_from": null,
+  "effective_to": null,
+  "gate_id": "layer3.gl.s8.value_choice_reference_consumer_gate",
+  "issue_codes": [],
+  "jurisdiction": null,
+  "l5_calibration_refs": [],
+  "layer2_s8_compatible_input_refs": [
+    "Layer2S8ValuePostureInput.mandate_record_ref",
+    "Layer2S8ValuePostureInput.s6_mandate_firewall_disposition"
+  ],
+  "legal_as_of": null,
+  "legal_authority_record_refs": [
+    "legal-authority-record:gl_canonical_threshold_seed:implementing:ccc3c2e6098cfd13"
+  ],
+  "legal_kg_snapshot_ref": null,
+  "legal_requirement_artifact_ref": null,
+  "limitation_refs": [
+    "gl-limitation:s6-evaluation-required"
+  ],
+  "mandate_record_refs": [
+    "gl-mandate:5fe78d6a55dd3ffe82e706b9"
+  ],
+  "may_not_use_for": [
+    "recommendation_substance",
+    "closeout_authority",
+    "publication_authority",
+    "agent_authority",
+    "legal_authority_without_claim_level_adapter",
+    "mandate_authority_without_temporal_competence",
+    "s6_mandate_pass_without_s6_evaluation",
+    "ranked_value_choice_without_s8_authorization"
+  ],
+  "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
+  "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+  "provenance_refs": [],
+  "query_trace_refs": [],
+  "ranking_authorized": false,
+  "reference_resolution_status": null,
+  "requirement_ref": null,
+  "requires_s6_mandate_pass_for_ranking": true,
+  "rule_version": "policyos.layer3.gl.legal_mandate_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1",
+  "search_ledger_refs": [],
+  "selected_norm_refs": [],
+  "source_authority": null,
+  "status": "out_of_scope",
+  "temporal_resolution_status": null,
+  "threshold_record_refs": [],
+  "value_choice_scope": "non_ranking_gl_closure"
+}

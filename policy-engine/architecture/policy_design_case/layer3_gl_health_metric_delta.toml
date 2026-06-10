@@ -1,0 +1,10 @@
+schema_version = "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1"
+rule_version = "policyos.layer3.gl.legal_mandate_search.v1"
+
+[health_metric_delta]
+metric_ids = ["envelope-expansion-rate", "adapter-semantic-loss", "governance-throughput", "demand-pull-vs-abstention", "search-recall@known-seeds+index-staleness"]
+readings."adapter-semantic-loss" = "pass"
+readings."governance-throughput" = "pass"
+readings."search-recall.index_freshness_status" = "pass"
+readings."search-recall.known_seed_status" = "pass"
+readings."search-recall@known-seeds+index-staleness" = "pass"

@@ -1,0 +1,10 @@
+schema_version = "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1"
+rule_version = "policyos.layer3.gl.legal_mandate_search.v1"
+status = "pass"
+public_projection_mode = "reference_only"
+public_projection_route = "layer3_gl_public_projection_refs_to_reference_only_surface"
+public_export_bundle_route_registered = false
+adapter_path_count = 18
+
+[adapter_contract_registry]
+adapter_path_ids = ["layer3_gl_l3_legal_kg_to_search_ledger", "layer3_gl_search_ledger_to_norm_candidate_binding", "layer3_gl_l3_legal_kg_to_authority_facet_binding", "layer3_gl_legal_requirement_to_legal_authority_report", "layer3_gl_authority_facet_binding_to_legal_authority_report", "layer3_gl_legal_authority_report_to_threshold_authority_record", "layer3_gl_legal_authority_report_to_mandate_authority_record", "layer3_gl_temporal_lineage_to_competence_record", "layer3_gl_amendment_lineage_to_reissue_gate", "layer3_gl_authority_record_to_lex_intervention_map_binding", "layer3_gl_authority_record_to_claim_registry", "layer3_gl_authority_record_to_argument_graph_readiness", "layer3_gl_mandate_record_to_s6_s7_consumer_gate", "layer3_gl_mandate_record_to_s8_value_choice_consumer_gate", "layer3_gl_authority_record_to_design_constraints", "layer3_gl_authority_record_to_g4_promotion_gate_input", "layer3_gl_audit_surface_to_public_projection_refs", "layer3_gl_public_projection_refs_to_reference_only_surface"]

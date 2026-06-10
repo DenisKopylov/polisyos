@@ -1,0 +1,1401 @@
+{
+  "adapter_candidate_norm_count": 2,
+  "adapter_input_contract": {
+    "candidate_norm_count": 2,
+    "candidate_source": "gl_norm_candidate_bindings",
+    "legal_requirement_specs": [
+      {
+        "authority_profile_ref": "gl_legal_mandate",
+        "authority_types": [
+          "implementing"
+        ],
+        "capability_reality_label": "implemented",
+        "claim_id": "gl_canonical_threshold_seed",
+        "claim_ref": "claim:gl:canonical-threshold-seed",
+        "concept_spine_refs": [
+          "concept:economic_policy_support"
+        ],
+        "contestability_or_appeal_required": false,
+        "facet_refs": [],
+        "fallback_policy": {
+          "config_ref": "jurisdiction-fallback:gl-ua-v1",
+          "mode": "governed_config_required",
+          "owner": "policyos:runtime-quality",
+          "policy_ref": null,
+          "review_ref": null
+        },
+        "fiscal_authority_required": false,
+        "implementation_authority_required": true,
+        "jurisdiction": "UA",
+        "mandatory": true,
+        "metadata": {
+          "producer": "legal_authority_requirement_compiler",
+          "rejected_reuse": "Existing Lex W3 adapter derived legal requirements internally; W7.B needs a typed producer artifact consumed by Lex.",
+          "reuse_classification": "build_new"
+        },
+        "obligation_refs": [],
+        "out_of_scope": false,
+        "pattern_refs": [
+          "P01",
+          "P05",
+          "P08",
+          "P12"
+        ],
+        "provenance_refs": [],
+        "required_actor_refs": [],
+        "required_fiscal_authority_refs": [],
+        "required_hierarchy_depth": 1,
+        "required_implementation_authority_refs": [],
+        "required_instrument_classes": [],
+        "requirement_id": "legal-requirement:layer3-gl-canonical-legal-mandate:gl_canonical_threshold_seed",
+        "rule_version_ref": "legal-requirement-compiler:v1",
+        "schema_version": "policyos.legal_requirement.spec.v1",
+        "scope_predicates": {
+          "geography": [
+            "UA"
+          ],
+          "population": [],
+          "time": [
+            "2022-03-01/2022-12-31"
+          ]
+        },
+        "source_claim_refs": [
+          "claim:gl:canonical-threshold-seed"
+        ],
+        "temporal_competence_window": {
+          "end": "2022-12-31",
+          "legal_as_of": "2022-03-01",
+          "start": "2022-03-01",
+          "time_role": "implementation_period"
+        }
+      }
+    ],
+    "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_legal_requirement_bindings.json#a70a11e4f56de44b5e9febf1"
+  },
+  "adapter_legal_authority_record_refs": [
+    "legal-authority-record:gl_canonical_threshold_seed:implementing:ccc3c2e6098cfd13"
+  ],
+  "adapter_report": {
+    "authority_role": "producer_authority",
+    "blocking_issue_count": 0,
+    "capability_reality_status": "implemented",
+    "claim_legal_anchors": [
+      {
+        "admissibility_grade": "selected_authority",
+        "anchor_mode": "claim_level_legal_authority",
+        "blocked_authority_types": [],
+        "blocked_segment_refs": [],
+        "candidate_norm_refs": [
+          "gl-norm:cdc0a68393248737f79f2647",
+          "gl-norm:52090c7349cd02e7d04e582c"
+        ],
+        "claim_id": "gl_canonical_threshold_seed",
+        "context_only_norm_refs": [
+          "gl-norm:cdc0a68393248737f79f2647"
+        ],
+        "legacy_admissibility_grade": "selected_authority",
+        "legal_admissibility_grade": "admissible",
+        "legal_authority_blocker_refs": [],
+        "legal_authority_record_refs": [
+          "legal-authority-record:gl_canonical_threshold_seed:implementing:ccc3c2e6098cfd13"
+        ],
+        "legal_authority_required": true,
+        "legal_requirement_ref": "legal-requirement:layer3-gl-canonical-legal-mandate:gl_canonical_threshold_seed",
+        "major": true,
+        "no_anchor_rationale": null,
+        "no_anchor_refs": [],
+        "reason_code": "claim_level_legal_authority_selected",
+        "rejected_norm_refs": [
+          "gl-norm:cdc0a68393248737f79f2647"
+        ],
+        "selected_authority_types": [
+          "implementing"
+        ],
+        "selected_norm_refs": [
+          "gl-norm:52090c7349cd02e7d04e582c"
+        ],
+        "status": "pass"
+      }
+    ],
+    "claim_window_splits": [
+      {
+        "claim_segment_ref": "legal-authority-segment:gl_canonical_threshold_seed:implementing:2022-03-01:2022-12-31",
+        "legal_segment_disposition": "admissible",
+        "legal_window_end": "2022-12-31",
+        "legal_window_start": "2022-03-01",
+        "rejoin_policy": "preserve_weakest_segment_disposition",
+        "schema_version": "policyos.lex.legal_authority_window_split.v1",
+        "segment_authority_types": [
+          "implementing"
+        ],
+        "segment_blocker_ref": "",
+        "segment_disposition": "selected_authority",
+        "segment_limitation_ref": "",
+        "source_claim_ref": "gl_canonical_threshold_seed",
+        "split_reason": "single_legal_window"
+      }
+    ],
+    "issue_codes": [],
+    "issues": [],
+    "legal_authority_records": [
+      {
+        "admissibility_grade": "selected_authority",
+        "authority_basis": "lex_rule_thresholds:65b40d9e0f890cdb2883ffbb",
+        "authority_composition_rule_ref": "",
+        "authority_profile_ref": "",
+        "authority_type": "implementing",
+        "authority_types": [
+          "implementing"
+        ],
+        "blocker_ref": null,
+        "capability_index_ref": "",
+        "capability_ref": "",
+        "claim_id": "gl_canonical_threshold_seed",
+        "claim_ref": "claim:gl:canonical-threshold-seed",
+        "claim_segment_ref": "legal-authority-segment:gl_canonical_threshold_seed:implementing:2022-03-01:2022-12-31",
+        "competent_actor_ref": "cabinet_ministers_ua",
+        "conflict_state": "clear",
+        "construct_ref": "",
+        "construct_registry_ref": "",
+        "contestability_or_appeal_ref": "",
+        "fallback_disposition": "none",
+        "fallback_path": [],
+        "fiscal_authority_ref": "ministry_finance_ua",
+        "fiscal_period": {
+          "end": null,
+          "start": null
+        },
+        "hierarchy_position": "national",
+        "implementation_authority_ref": "cabinet_ministers_ua",
+        "implementation_period": {
+          "end": "2022-12-31",
+          "start": "2022-03-01"
+        },
+        "instrument_types": [
+          "resolution"
+        ],
+        "issues": [],
+        "jurisdiction": "UA",
+        "jurisdiction_fallback_policy_ref": "",
+        "legacy_admissibility_grade": "selected_authority",
+        "legal_admissibility_grade": "admissible",
+        "legal_as_of": "2022-03-01",
+        "legal_authority_record_id": "legal-authority-record:gl_canonical_threshold_seed:implementing:ccc3c2e6098cfd13",
+        "legal_effective_window": {
+          "end": "2022-12-31",
+          "start": "2022-03-01"
+        },
+        "legal_hierarchy_constraints": [],
+        "legal_requirement_ref": "legal-requirement:layer3-gl-canonical-legal-mandate:gl_canonical_threshold_seed",
+        "lex_amendment_refs": [],
+        "lex_normative_fact_refs": [
+          "lex_normative_ready_facts:ef64d4844594c3112281"
+        ],
+        "lex_rule_threshold_refs": [
+          "lex_rule_thresholds:a5429abb6621acb11ed10b20"
+        ],
+        "lex_temporal_audit_refs": [],
+        "limitation_ref": null,
+        "missing_facets": [],
+        "no_anchor_rationale": null,
+        "no_anchor_refs": [],
+        "norm_ref": "gl-norm:52090c7349cd02e7d04e582c",
+        "norm_version_ref": "ef64d4844594c3112281@2022-03-01",
+        "policy_effective_window": {
+          "end": "2022-12-31",
+          "start": "2022-03-01"
+        },
+        "preemption_state": "not_assessed",
+        "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_legal_requirement_bindings.json#a70a11e4f56de44b5e9febf1",
+        "publication_time": "",
+        "reader_effect": "claim_legal_authority_selected",
+        "reason_code": "claim_level_legal_authority_selected",
+        "rejected_norm_refs": [],
+        "replay_time": "",
+        "required_hierarchy_depth": 1,
+        "required_instrument_classes": [],
+        "rule_version_ref": "lex-legal-authority:v1",
+        "schema_version": "policyos.lex.legal_authority_record.v1",
+        "scope_predicates": {
+          "geography": [
+            "UA"
+          ],
+          "population": [],
+          "time": [
+            "2022-03-01/2022-12-31"
+          ]
+        },
+        "selected_norm_refs": [
+          "gl-norm:52090c7349cd02e7d04e582c"
+        ],
+        "source_provenance_ref": "lex_rule_thresholds:a5429abb6621acb11ed10b20",
+        "supersession_state": "current"
+      }
+    ],
+    "legal_authority_required": true,
+    "legal_requirement_specs": [
+      {
+        "authority_profile_ref": "gl_legal_mandate",
+        "authority_types": [
+          "implementing"
+        ],
+        "capability_reality_label": "implemented",
+        "claim_id": "gl_canonical_threshold_seed",
+        "claim_ref": "claim:gl:canonical-threshold-seed",
+        "concept_spine_refs": [
+          "concept:economic_policy_support"
+        ],
+        "contestability_or_appeal_required": false,
+        "facet_refs": [],
+        "fallback_policy": {
+          "config_ref": "jurisdiction-fallback:gl-ua-v1",
+          "mode": "governed_config_required",
+          "owner": "policyos:runtime-quality",
+          "policy_ref": null,
+          "review_ref": null
+        },
+        "fiscal_authority_required": false,
+        "implementation_authority_required": true,
+        "jurisdiction": "UA",
+        "mandatory": true,
+        "metadata": {
+          "producer": "legal_authority_requirement_compiler",
+          "rejected_reuse": "Existing Lex W3 adapter derived legal requirements internally; W7.B needs a typed producer artifact consumed by Lex.",
+          "reuse_classification": "build_new"
+        },
+        "obligation_refs": [],
+        "out_of_scope": false,
+        "pattern_refs": [
+          "P01",
+          "P05",
+          "P08",
+          "P12"
+        ],
+        "provenance_refs": [],
+        "required_actor_refs": [],
+        "required_fiscal_authority_refs": [],
+        "required_hierarchy_depth": 1,
+        "required_implementation_authority_refs": [],
+        "required_instrument_classes": [],
+        "requirement_id": "legal-requirement:layer3-gl-canonical-legal-mandate:gl_canonical_threshold_seed",
+        "rule_version_ref": "legal-requirement-compiler:v1",
+        "schema_version": "policyos.legal_requirement.spec.v1",
+        "scope_predicates": {
+          "geography": [
+            "UA"
+          ],
+          "population": [],
+          "time": [
+            "2022-03-01/2022-12-31"
+          ]
+        },
+        "source_claim_refs": [
+          "claim:gl:canonical-threshold-seed"
+        ],
+        "temporal_competence_window": {
+          "end": "2022-12-31",
+          "legal_as_of": "2022-03-01",
+          "start": "2022-03-01",
+          "time_role": "implementation_period"
+        }
+      }
+    ],
+    "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_legal_requirement_bindings.json#a70a11e4f56de44b5e9febf1",
+    "producer_component": "polisyos.lex.normpack.legal_authority",
+    "provenance_kind": "runtime_emitted",
+    "rejected_norm_refs": [
+      "gl-norm:cdc0a68393248737f79f2647"
+    ],
+    "rule_version_ref": "lex-legal-authority:v1",
+    "runtime_authority_envelope": {
+      "authoritative_for": [
+        "claim_level_legal_admissibility",
+        "selected_norm_anchors",
+        "rejected_norm_anchors",
+        "jurisdiction_fallback_validation",
+        "competence_window_splitting",
+        "no_anchor_rationale"
+      ],
+      "authority_role": "producer_authority",
+      "may_not_use_for": [
+        "recommendation_substance",
+        "source_family_satisfaction",
+        "method_validity",
+        "participation_representativeness",
+        "academic_support_strength",
+        "closeout_pass"
+      ],
+      "provenance_kind": "runtime_emitted"
+    },
+    "schema_version": "policyos.lex.legal_authority_report.v1",
+    "selected_norm_refs": [
+      "gl-norm:52090c7349cd02e7d04e582c"
+    ],
+    "status": "pass",
+    "summary": {
+      "candidate_norm_count": 2,
+      "capability_binding_count": 0,
+      "claim_count": 1,
+      "claim_window_split_count": 1,
+      "issue_count": 0,
+      "legal_authority_record_count": 1,
+      "legal_requirement_spec_count": 1,
+      "rejected_norm_ref_count": 1,
+      "selected_norm_ref_count": 1
+    }
+  },
+  "amendment_lineage_refs": [],
+  "applicability_internal_kg_fallback_used": false,
+  "applicability_report": {
+    "applied_norms": [
+      {
+        "amendment_lineage_refs": [],
+        "applicability_status": "applied",
+        "authority_facet_binding_refs": [
+          "gl-authority-facet:5869f2c9f5ba4f1b5dc03916",
+          "gl-authority-facet:f38742694678571bc898b666",
+          "gl-authority-facet:607174021d4630f035387d9f",
+          "gl-authority-facet:3881512b174e4401422bd904",
+          "gl-authority-facet:bfaa4badff84fbe5c2bbf773",
+          "gl-authority-facet:13f51ad8771ffa7892328869",
+          "gl-authority-facet:a5b7af81aec182411850e15b",
+          "gl-authority-facet:c6b9d2e77e7ae6e82a016aa6"
+        ],
+        "authority_level": "national",
+        "authority_position": "claim_level_candidate_for_legal_authority_adapter",
+        "authority_type_source": "governed_config_threshold_profile",
+        "authority_types": [
+          "implementing"
+        ],
+        "candidate_context_status": "claim_level_adapter_candidate",
+        "canonical_status": "canonicalized",
+        "competent_actor_ref": "cabinet_ministers_ua",
+        "conflict_state": "clear",
+        "context_only_reason": "",
+        "effective_from": "2022-03-01",
+        "effective_to": "2022-12-31",
+        "fiscal_authority_ref": "ministry_finance_ua",
+        "grounding_status": "kg_threshold_hydrated",
+        "hierarchy_depth": 2,
+        "implementation_authority_ref": "cabinet_ministers_ua",
+        "instrument_types": [
+          "resolution"
+        ],
+        "jurisdiction": "UA",
+        "legal_as_of": "2022-03-01",
+        "legal_effective_window": {
+          "end": "2022-12-31",
+          "start": "2022-03-01"
+        },
+        "lex_normative_fact_refs": [
+          "lex_normative_ready_facts:ef64d4844594c3112281"
+        ],
+        "lex_rule_threshold_refs": [
+          "lex_rule_thresholds:a5429abb6621acb11ed10b20"
+        ],
+        "norm_id": "gl-norm:52090c7349cd02e7d04e582c",
+        "norm_version_ref": "ef64d4844594c3112281@2022-03-01",
+        "policy_domain": "economic_policy",
+        "preemption_state": "not_assessed",
+        "query_trace_refs": [
+          "gl-query-trace:threshold:c19bfbbe159c0cbb3eccbd2e"
+        ],
+        "reference_resolution_status": "not_applicable",
+        "source_authority": "lex_rule_thresholds:65b40d9e0f890cdb2883ffbb",
+        "source_provenance_ref": "lex_rule_thresholds:a5429abb6621acb11ed10b20",
+        "supersession_state": "current",
+        "temporal_resolution_status": "resolved_by_claim_competence_window",
+        "temporal_status": "resolved_by_claim_competence_window",
+        "threshold_ids": [
+          "a5429abb6621acb11ed10b20"
+        ],
+        "top_domain": "economic_policy",
+        "trust_tier": "claim_level_threshold_hydrated"
+      }
+    ],
+    "authority_blockers": [],
+    "blockers": [],
+    "blocking_issue_count": 1,
+    "candidate_norm_refs": [
+      "gl-norm:cdc0a68393248737f79f2647",
+      "gl-norm:52090c7349cd02e7d04e582c"
+    ],
+    "candidate_norms": [
+      {
+        "amendment_lineage_refs": [],
+        "authority_facet_binding_refs": [
+          "gl-authority-facet:e0dd5066f6006ec76c76476e",
+          "gl-authority-facet:2144f0eab9b00741ed3033a5",
+          "gl-authority-facet:caf7820d1da961d01448a5ff",
+          "gl-authority-facet:2cc888d6001312b8caaba3d8",
+          "gl-authority-facet:e49e3f9691732ad0dbad3e1a",
+          "gl-authority-facet:1ec75266ef993494a7675e27",
+          "gl-authority-facet:eb2c4f7ec6e45652aaba5de1",
+          "gl-authority-facet:3b6b3323d2cbc46bc4f611ed",
+          "gl-authority-facet:57ae5a291f319649d1d91fbc",
+          "gl-authority-facet:1c68fd4beec88119ff653211"
+        ],
+        "authority_level": "national",
+        "authority_position": "context_only_until_lex_explicit_authority_type",
+        "authority_type_source": "compiler_default",
+        "authority_types": [],
+        "candidate_context_status": "context_only",
+        "canonical_status": "canonicalized",
+        "competent_actor_ref": "cabinet_ministers_ua",
+        "compiler_default_authority_types": [
+          "implementing"
+        ],
+        "conflict_state": "clear",
+        "context_only_reason": "authority_type_is_compiler_default_not_lex_discovered",
+        "effective_from": "2022-03-01",
+        "effective_to": "2022-12-31",
+        "fallback_policy_ref": "jurisdiction-fallback:gl-ua-v1",
+        "fiscal_authority_ref": "ministry_finance_ua",
+        "grounding_status": "kg_candidate",
+        "hierarchy_depth": 2,
+        "implementation_authority_ref": "cabinet_ministers_ua",
+        "instrument_types": [
+          "resolution"
+        ],
+        "jurisdiction": "UA",
+        "legal_as_of": "2022-03-01",
+        "norm_id": "gl-norm:cdc0a68393248737f79f2647",
+        "norm_version_ref": "00003a7579810a2a@2022-03-01",
+        "policy_domain": "fiscal",
+        "preemption_state": "not_assessed",
+        "query_trace_refs": [
+          "gl-query-trace:normative-fact:c19bfbbe159c0cbb3eccbd2e",
+          "gl-query-trace:intervention-map:c19bfbbe159c0cbb3eccbd2e"
+        ],
+        "reference_resolution_status": null,
+        "source_authority": "lex_doc_metadata:00003a7579810a2a",
+        "source_provenance_ref": "lex_normative_ready_facts:43dd79e005f33fdbb73c",
+        "supersession_state": "not_assessed",
+        "temporal_status": "partial",
+        "threshold_ids": [],
+        "top_domain": "fiscal",
+        "trust_tier": "normative_fact"
+      },
+      {
+        "amendment_lineage_refs": [],
+        "authority_facet_binding_refs": [
+          "gl-authority-facet:5869f2c9f5ba4f1b5dc03916",
+          "gl-authority-facet:f38742694678571bc898b666",
+          "gl-authority-facet:607174021d4630f035387d9f",
+          "gl-authority-facet:3881512b174e4401422bd904",
+          "gl-authority-facet:bfaa4badff84fbe5c2bbf773",
+          "gl-authority-facet:13f51ad8771ffa7892328869",
+          "gl-authority-facet:a5b7af81aec182411850e15b",
+          "gl-authority-facet:c6b9d2e77e7ae6e82a016aa6"
+        ],
+        "authority_level": "national",
+        "authority_position": "claim_level_candidate_for_legal_authority_adapter",
+        "authority_type_source": "governed_config_threshold_profile",
+        "authority_types": [
+          "implementing"
+        ],
+        "candidate_context_status": "claim_level_adapter_candidate",
+        "canonical_status": "canonicalized",
+        "competent_actor_ref": "cabinet_ministers_ua",
+        "conflict_state": "clear",
+        "context_only_reason": "",
+        "effective_from": "2022-03-01",
+        "effective_to": "2022-12-31",
+        "fiscal_authority_ref": "ministry_finance_ua",
+        "grounding_status": "kg_threshold_hydrated",
+        "hierarchy_depth": 2,
+        "implementation_authority_ref": "cabinet_ministers_ua",
+        "instrument_types": [
+          "resolution"
+        ],
+        "jurisdiction": "UA",
+        "legal_as_of": "2022-03-01",
+        "legal_effective_window": {
+          "end": "2022-12-31",
+          "start": "2022-03-01"
+        },
+        "lex_normative_fact_refs": [
+          "lex_normative_ready_facts:ef64d4844594c3112281"
+        ],
+        "lex_rule_threshold_refs": [
+          "lex_rule_thresholds:a5429abb6621acb11ed10b20"
+        ],
+        "norm_id": "gl-norm:52090c7349cd02e7d04e582c",
+        "norm_version_ref": "ef64d4844594c3112281@2022-03-01",
+        "policy_domain": "economic_policy",
+        "preemption_state": "not_assessed",
+        "query_trace_refs": [
+          "gl-query-trace:threshold:c19bfbbe159c0cbb3eccbd2e"
+        ],
+        "reference_resolution_status": "not_applicable",
+        "source_authority": "lex_rule_thresholds:65b40d9e0f890cdb2883ffbb",
+        "source_provenance_ref": "lex_rule_thresholds:a5429abb6621acb11ed10b20",
+        "supersession_state": "current",
+        "temporal_resolution_status": "resolved_by_claim_competence_window",
+        "temporal_status": "resolved_by_claim_competence_window",
+        "threshold_ids": [
+          "a5429abb6621acb11ed10b20"
+        ],
+        "top_domain": "economic_policy",
+        "trust_tier": "claim_level_threshold_hydrated"
+      }
+    ],
+    "capability_reality_status": "implemented",
+    "claim_legal_anchors": [
+      {
+        "admissibility_grade": "selected_authority",
+        "anchor_mode": "claim_level_legal_authority",
+        "blocked_authority_types": [],
+        "blocked_segment_refs": [],
+        "candidate_norm_refs": [
+          "gl-norm:cdc0a68393248737f79f2647",
+          "gl-norm:52090c7349cd02e7d04e582c"
+        ],
+        "claim_id": "gl_canonical_threshold_seed",
+        "context_only_norm_refs": [
+          "gl-norm:cdc0a68393248737f79f2647"
+        ],
+        "legacy_admissibility_grade": "selected_authority",
+        "legal_admissibility_grade": "admissible",
+        "legal_authority_blocker_refs": [],
+        "legal_authority_record_refs": [
+          "legal-authority-record:gl_canonical_threshold_seed:implementing:ccc3c2e6098cfd13"
+        ],
+        "legal_authority_required": true,
+        "legal_requirement_ref": "legal-requirement:layer3-gl-canonical-legal-mandate:gl_canonical_threshold_seed",
+        "major": true,
+        "no_anchor_rationale": null,
+        "no_anchor_refs": [],
+        "norm_refs": [],
+        "reason_code": "claim_level_legal_authority_selected",
+        "rejected_norm_refs": [
+          "gl-norm:cdc0a68393248737f79f2647"
+        ],
+        "scored_norms": [
+          {
+            "matched_facets": [
+              "jurisdiction",
+              "temporal_validity",
+              "competence",
+              "claim_text_overlap"
+            ],
+            "missing_facets": [
+              "policy_instrument",
+              "beneficiary_class",
+              "fiscal_authority",
+              "implementation_agency"
+            ],
+            "norm_id": "gl-norm:52090c7349cd02e7d04e582c",
+            "reason_code": "policy_instrument_mismatch",
+            "score": 4,
+            "selection_status": "rejected"
+          }
+        ],
+        "selected_authority_types": [
+          "implementing"
+        ],
+        "selected_norm_refs": [
+          "gl-norm:52090c7349cd02e7d04e582c"
+        ],
+        "status": "pass"
+      }
+    ],
+    "claim_window_splits": [
+      {
+        "claim_segment_ref": "legal-authority-segment:gl_canonical_threshold_seed:implementing:2022-03-01:2022-12-31",
+        "legal_segment_disposition": "admissible",
+        "legal_window_end": "2022-12-31",
+        "legal_window_start": "2022-03-01",
+        "rejoin_policy": "preserve_weakest_segment_disposition",
+        "schema_version": "policyos.lex.legal_authority_window_split.v1",
+        "segment_authority_types": [
+          "implementing"
+        ],
+        "segment_blocker_ref": "",
+        "segment_disposition": "selected_authority",
+        "segment_limitation_ref": "",
+        "source_claim_ref": "gl_canonical_threshold_seed",
+        "split_reason": "single_legal_window"
+      }
+    ],
+    "competence": [
+      {
+        "authority_level": "national",
+        "competent_authority": "lex_rule_thresholds:65b40d9e0f890cdb2883ffbb",
+        "jurisdiction": "UA",
+        "norm_id": "gl-norm:52090c7349cd02e7d04e582c",
+        "source_authority": "lex_rule_thresholds:65b40d9e0f890cdb2883ffbb"
+      }
+    ],
+    "concept_refs": [],
+    "conflicts": [],
+    "global_candidate_norm_refs": [
+      "gl-norm:cdc0a68393248737f79f2647",
+      "gl-norm:52090c7349cd02e7d04e582c"
+    ],
+    "global_candidate_norms": [
+      {
+        "amendment_lineage_refs": [],
+        "authority_facet_binding_refs": [
+          "gl-authority-facet:e0dd5066f6006ec76c76476e",
+          "gl-authority-facet:2144f0eab9b00741ed3033a5",
+          "gl-authority-facet:caf7820d1da961d01448a5ff",
+          "gl-authority-facet:2cc888d6001312b8caaba3d8",
+          "gl-authority-facet:e49e3f9691732ad0dbad3e1a",
+          "gl-authority-facet:1ec75266ef993494a7675e27",
+          "gl-authority-facet:eb2c4f7ec6e45652aaba5de1",
+          "gl-authority-facet:3b6b3323d2cbc46bc4f611ed",
+          "gl-authority-facet:57ae5a291f319649d1d91fbc",
+          "gl-authority-facet:1c68fd4beec88119ff653211"
+        ],
+        "authority_level": "national",
+        "authority_position": "context_only_until_lex_explicit_authority_type",
+        "authority_type_source": "compiler_default",
+        "authority_types": [],
+        "candidate_context_status": "context_only",
+        "canonical_status": "canonicalized",
+        "competent_actor_ref": "cabinet_ministers_ua",
+        "compiler_default_authority_types": [
+          "implementing"
+        ],
+        "conflict_state": "clear",
+        "context_only_reason": "authority_type_is_compiler_default_not_lex_discovered",
+        "effective_from": "2022-03-01",
+        "effective_to": "2022-12-31",
+        "fallback_policy_ref": "jurisdiction-fallback:gl-ua-v1",
+        "fiscal_authority_ref": "ministry_finance_ua",
+        "grounding_status": "kg_candidate",
+        "hierarchy_depth": 2,
+        "implementation_authority_ref": "cabinet_ministers_ua",
+        "instrument_types": [
+          "resolution"
+        ],
+        "jurisdiction": "UA",
+        "legal_as_of": "2022-03-01",
+        "norm_id": "gl-norm:cdc0a68393248737f79f2647",
+        "norm_version_ref": "00003a7579810a2a@2022-03-01",
+        "policy_domain": "fiscal",
+        "preemption_state": "not_assessed",
+        "query_trace_refs": [
+          "gl-query-trace:normative-fact:c19bfbbe159c0cbb3eccbd2e",
+          "gl-query-trace:intervention-map:c19bfbbe159c0cbb3eccbd2e"
+        ],
+        "reference_resolution_status": null,
+        "source_authority": "lex_doc_metadata:00003a7579810a2a",
+        "source_provenance_ref": "lex_normative_ready_facts:43dd79e005f33fdbb73c",
+        "supersession_state": "not_assessed",
+        "temporal_status": "partial",
+        "threshold_ids": [],
+        "top_domain": "fiscal",
+        "trust_tier": "normative_fact"
+      },
+      {
+        "amendment_lineage_refs": [],
+        "authority_facet_binding_refs": [
+          "gl-authority-facet:5869f2c9f5ba4f1b5dc03916",
+          "gl-authority-facet:f38742694678571bc898b666",
+          "gl-authority-facet:607174021d4630f035387d9f",
+          "gl-authority-facet:3881512b174e4401422bd904",
+          "gl-authority-facet:bfaa4badff84fbe5c2bbf773",
+          "gl-authority-facet:13f51ad8771ffa7892328869",
+          "gl-authority-facet:a5b7af81aec182411850e15b",
+          "gl-authority-facet:c6b9d2e77e7ae6e82a016aa6"
+        ],
+        "authority_level": "national",
+        "authority_position": "claim_level_candidate_for_legal_authority_adapter",
+        "authority_type_source": "governed_config_threshold_profile",
+        "authority_types": [
+          "implementing"
+        ],
+        "candidate_context_status": "claim_level_adapter_candidate",
+        "canonical_status": "canonicalized",
+        "competent_actor_ref": "cabinet_ministers_ua",
+        "conflict_state": "clear",
+        "context_only_reason": "",
+        "effective_from": "2022-03-01",
+        "effective_to": "2022-12-31",
+        "fiscal_authority_ref": "ministry_finance_ua",
+        "grounding_status": "kg_threshold_hydrated",
+        "hierarchy_depth": 2,
+        "implementation_authority_ref": "cabinet_ministers_ua",
+        "instrument_types": [
+          "resolution"
+        ],
+        "jurisdiction": "UA",
+        "legal_as_of": "2022-03-01",
+        "legal_effective_window": {
+          "end": "2022-12-31",
+          "start": "2022-03-01"
+        },
+        "lex_normative_fact_refs": [
+          "lex_normative_ready_facts:ef64d4844594c3112281"
+        ],
+        "lex_rule_threshold_refs": [
+          "lex_rule_thresholds:a5429abb6621acb11ed10b20"
+        ],
+        "norm_id": "gl-norm:52090c7349cd02e7d04e582c",
+        "norm_version_ref": "ef64d4844594c3112281@2022-03-01",
+        "policy_domain": "economic_policy",
+        "preemption_state": "not_assessed",
+        "query_trace_refs": [
+          "gl-query-trace:threshold:c19bfbbe159c0cbb3eccbd2e"
+        ],
+        "reference_resolution_status": "not_applicable",
+        "source_authority": "lex_rule_thresholds:65b40d9e0f890cdb2883ffbb",
+        "source_provenance_ref": "lex_rule_thresholds:a5429abb6621acb11ed10b20",
+        "supersession_state": "current",
+        "temporal_resolution_status": "resolved_by_claim_competence_window",
+        "temporal_status": "resolved_by_claim_competence_window",
+        "threshold_ids": [
+          "a5429abb6621acb11ed10b20"
+        ],
+        "top_domain": "economic_policy",
+        "trust_tier": "claim_level_threshold_hydrated"
+      }
+    ],
+    "global_rejected_norm_refs": [
+      "gl-norm:cdc0a68393248737f79f2647"
+    ],
+    "global_rejected_norms": [
+      {
+        "amendment_lineage_refs": [],
+        "applicability_status": "rejected",
+        "authority_facet_binding_refs": [
+          "gl-authority-facet:e0dd5066f6006ec76c76476e",
+          "gl-authority-facet:2144f0eab9b00741ed3033a5",
+          "gl-authority-facet:caf7820d1da961d01448a5ff",
+          "gl-authority-facet:2cc888d6001312b8caaba3d8",
+          "gl-authority-facet:e49e3f9691732ad0dbad3e1a",
+          "gl-authority-facet:1ec75266ef993494a7675e27",
+          "gl-authority-facet:eb2c4f7ec6e45652aaba5de1",
+          "gl-authority-facet:3b6b3323d2cbc46bc4f611ed",
+          "gl-authority-facet:57ae5a291f319649d1d91fbc",
+          "gl-authority-facet:1c68fd4beec88119ff653211"
+        ],
+        "authority_level": "national",
+        "authority_position": "context_only_until_lex_explicit_authority_type",
+        "authority_type_source": "compiler_default",
+        "authority_types": [],
+        "candidate_context_status": "context_only",
+        "canonical_status": "canonicalized",
+        "competent_actor_ref": "cabinet_ministers_ua",
+        "compiler_default_authority_types": [
+          "implementing"
+        ],
+        "conflict_state": "clear",
+        "context_only_reason": "authority_type_is_compiler_default_not_lex_discovered",
+        "effective_from": "2022-03-01",
+        "effective_to": "2022-12-31",
+        "fallback_policy_ref": "jurisdiction-fallback:gl-ua-v1",
+        "fiscal_authority_ref": "ministry_finance_ua",
+        "grounding_status": "kg_candidate",
+        "hierarchy_depth": 2,
+        "implementation_authority_ref": "cabinet_ministers_ua",
+        "instrument_types": [
+          "resolution"
+        ],
+        "jurisdiction": "UA",
+        "legal_as_of": "2022-03-01",
+        "message": "Norm gl-norm:cdc0a68393248737f79f2647 domain fiscal does not match target domain economic_policy.",
+        "norm_id": "gl-norm:cdc0a68393248737f79f2647",
+        "norm_version_ref": "00003a7579810a2a@2022-03-01",
+        "policy_domain": "fiscal",
+        "preemption_state": "not_assessed",
+        "query_trace_refs": [
+          "gl-query-trace:normative-fact:c19bfbbe159c0cbb3eccbd2e",
+          "gl-query-trace:intervention-map:c19bfbbe159c0cbb3eccbd2e"
+        ],
+        "reason_code": "wrong_policy_domain",
+        "reference_resolution_status": null,
+        "source_authority": "lex_doc_metadata:00003a7579810a2a",
+        "source_provenance_ref": "lex_normative_ready_facts:43dd79e005f33fdbb73c",
+        "supersession_state": "not_assessed",
+        "temporal_status": "partial",
+        "threshold_ids": [],
+        "top_domain": "fiscal",
+        "trust_tier": "normative_fact"
+      }
+    ],
+    "global_selected_norm_refs": [
+      "gl-norm:52090c7349cd02e7d04e582c"
+    ],
+    "global_selected_norms": [
+      {
+        "amendment_lineage_refs": [],
+        "applicability_status": "applied",
+        "authority_facet_binding_refs": [
+          "gl-authority-facet:5869f2c9f5ba4f1b5dc03916",
+          "gl-authority-facet:f38742694678571bc898b666",
+          "gl-authority-facet:607174021d4630f035387d9f",
+          "gl-authority-facet:3881512b174e4401422bd904",
+          "gl-authority-facet:bfaa4badff84fbe5c2bbf773",
+          "gl-authority-facet:13f51ad8771ffa7892328869",
+          "gl-authority-facet:a5b7af81aec182411850e15b",
+          "gl-authority-facet:c6b9d2e77e7ae6e82a016aa6"
+        ],
+        "authority_level": "national",
+        "authority_position": "claim_level_candidate_for_legal_authority_adapter",
+        "authority_type_source": "governed_config_threshold_profile",
+        "authority_types": [
+          "implementing"
+        ],
+        "candidate_context_status": "claim_level_adapter_candidate",
+        "canonical_status": "canonicalized",
+        "competent_actor_ref": "cabinet_ministers_ua",
+        "conflict_state": "clear",
+        "context_only_reason": "",
+        "effective_from": "2022-03-01",
+        "effective_to": "2022-12-31",
+        "fiscal_authority_ref": "ministry_finance_ua",
+        "grounding_status": "kg_threshold_hydrated",
+        "hierarchy_depth": 2,
+        "implementation_authority_ref": "cabinet_ministers_ua",
+        "instrument_types": [
+          "resolution"
+        ],
+        "jurisdiction": "UA",
+        "legal_as_of": "2022-03-01",
+        "legal_effective_window": {
+          "end": "2022-12-31",
+          "start": "2022-03-01"
+        },
+        "lex_normative_fact_refs": [
+          "lex_normative_ready_facts:ef64d4844594c3112281"
+        ],
+        "lex_rule_threshold_refs": [
+          "lex_rule_thresholds:a5429abb6621acb11ed10b20"
+        ],
+        "norm_id": "gl-norm:52090c7349cd02e7d04e582c",
+        "norm_version_ref": "ef64d4844594c3112281@2022-03-01",
+        "policy_domain": "economic_policy",
+        "preemption_state": "not_assessed",
+        "query_trace_refs": [
+          "gl-query-trace:threshold:c19bfbbe159c0cbb3eccbd2e"
+        ],
+        "reference_resolution_status": "not_applicable",
+        "source_authority": "lex_rule_thresholds:65b40d9e0f890cdb2883ffbb",
+        "source_provenance_ref": "lex_rule_thresholds:a5429abb6621acb11ed10b20",
+        "supersession_state": "current",
+        "temporal_resolution_status": "resolved_by_claim_competence_window",
+        "temporal_status": "resolved_by_claim_competence_window",
+        "threshold_ids": [
+          "a5429abb6621acb11ed10b20"
+        ],
+        "top_domain": "economic_policy",
+        "trust_tier": "claim_level_threshold_hydrated"
+      }
+    ],
+    "issue_codes": [
+      "wrong_policy_domain"
+    ],
+    "issues": [
+      {
+        "claim_id": null,
+        "code": "wrong_policy_domain",
+        "layer": "lex",
+        "message": "Norm gl-norm:cdc0a68393248737f79f2647 domain fiscal does not match target domain economic_policy.",
+        "next_action": "Use domain-relevant norms or document why cross-domain authority applies.",
+        "norm_id": "gl-norm:cdc0a68393248737f79f2647",
+        "phase": "normative_applicability",
+        "severity": "fail"
+      }
+    ],
+    "jurisdiction_filters": [
+      "UA"
+    ],
+    "legal_authority_records": [
+      {
+        "admissibility_grade": "selected_authority",
+        "authority_basis": "lex_rule_thresholds:65b40d9e0f890cdb2883ffbb",
+        "authority_composition_rule_ref": "",
+        "authority_profile_ref": "",
+        "authority_type": "implementing",
+        "authority_types": [
+          "implementing"
+        ],
+        "blocker_ref": null,
+        "capability_index_ref": "",
+        "capability_ref": "",
+        "claim_id": "gl_canonical_threshold_seed",
+        "claim_ref": "claim:gl:canonical-threshold-seed",
+        "claim_segment_ref": "legal-authority-segment:gl_canonical_threshold_seed:implementing:2022-03-01:2022-12-31",
+        "competent_actor_ref": "cabinet_ministers_ua",
+        "conflict_state": "clear",
+        "construct_ref": "",
+        "construct_registry_ref": "",
+        "contestability_or_appeal_ref": "",
+        "fallback_disposition": "none",
+        "fallback_path": [],
+        "fiscal_authority_ref": "ministry_finance_ua",
+        "fiscal_period": {
+          "end": null,
+          "start": null
+        },
+        "hierarchy_position": "national",
+        "implementation_authority_ref": "cabinet_ministers_ua",
+        "implementation_period": {
+          "end": "2022-12-31",
+          "start": "2022-03-01"
+        },
+        "instrument_types": [
+          "resolution"
+        ],
+        "issues": [],
+        "jurisdiction": "UA",
+        "jurisdiction_fallback_policy_ref": "",
+        "legacy_admissibility_grade": "selected_authority",
+        "legal_admissibility_grade": "admissible",
+        "legal_as_of": "2022-03-01",
+        "legal_authority_record_id": "legal-authority-record:gl_canonical_threshold_seed:implementing:ccc3c2e6098cfd13",
+        "legal_effective_window": {
+          "end": "2022-12-31",
+          "start": "2022-03-01"
+        },
+        "legal_hierarchy_constraints": [],
+        "legal_requirement_ref": "legal-requirement:layer3-gl-canonical-legal-mandate:gl_canonical_threshold_seed",
+        "lex_amendment_refs": [],
+        "lex_normative_fact_refs": [
+          "lex_normative_ready_facts:ef64d4844594c3112281"
+        ],
+        "lex_rule_threshold_refs": [
+          "lex_rule_thresholds:a5429abb6621acb11ed10b20"
+        ],
+        "lex_temporal_audit_refs": [],
+        "limitation_ref": null,
+        "missing_facets": [],
+        "no_anchor_rationale": null,
+        "no_anchor_refs": [],
+        "norm_ref": "gl-norm:52090c7349cd02e7d04e582c",
+        "norm_version_ref": "ef64d4844594c3112281@2022-03-01",
+        "policy_effective_window": {
+          "end": "2022-12-31",
+          "start": "2022-03-01"
+        },
+        "preemption_state": "not_assessed",
+        "producer_artifact_ref": "sha256:e56aa2c0b3f084c6b51108c8583562e5325100aebd9152f29616225e456abfc1",
+        "publication_time": "",
+        "reader_effect": "claim_legal_authority_selected",
+        "reason_code": "claim_level_legal_authority_selected",
+        "rejected_norm_refs": [],
+        "replay_time": "",
+        "required_hierarchy_depth": 1,
+        "required_instrument_classes": [],
+        "rule_version_ref": "lex-legal-authority:v1",
+        "schema_version": "policyos.lex.legal_authority_record.v1",
+        "scope_predicates": {
+          "geography": [
+            "UA"
+          ],
+          "population": [],
+          "time": [
+            "2022-03-01/2022-12-31"
+          ]
+        },
+        "selected_norm_refs": [
+          "gl-norm:52090c7349cd02e7d04e582c"
+        ],
+        "source_provenance_ref": "lex_rule_thresholds:a5429abb6621acb11ed10b20",
+        "supersession_state": "current"
+      }
+    ],
+    "legal_authority_report_schema_version": "policyos.lex.legal_authority_report.v1",
+    "legal_authority_required": true,
+    "legal_authority_summary": {
+      "candidate_norm_count": 2,
+      "capability_binding_count": 0,
+      "claim_count": 1,
+      "claim_window_split_count": 1,
+      "issue_count": 0,
+      "legal_authority_record_count": 1,
+      "legal_requirement_spec_count": 1,
+      "rejected_norm_ref_count": 1,
+      "selected_norm_ref_count": 1
+    },
+    "legal_corpus_snapshot": {
+      "candidate_norm_count": 2,
+      "snapshot_ref": "sha256:8622dfa76c6d38454c6cc859bf9218d2acd915d655482de823fed1540fac5572",
+      "store_kind": "runtime_candidate_norms"
+    },
+    "legal_requirement_specs": [
+      {
+        "authority_profile_ref": "gl_legal_mandate",
+        "authority_types": [
+          "implementing"
+        ],
+        "capability_reality_label": "implemented",
+        "claim_id": "gl_canonical_threshold_seed",
+        "claim_ref": "claim:gl:canonical-threshold-seed",
+        "concept_spine_refs": [
+          "concept:economic_policy_support"
+        ],
+        "contestability_or_appeal_required": false,
+        "facet_refs": [],
+        "fallback_policy": {
+          "config_ref": "jurisdiction-fallback:gl-ua-v1",
+          "mode": "governed_config_required",
+          "owner": "policyos:runtime-quality",
+          "policy_ref": null,
+          "review_ref": null
+        },
+        "fiscal_authority_required": false,
+        "implementation_authority_required": true,
+        "jurisdiction": "UA",
+        "mandatory": true,
+        "metadata": {
+          "producer": "legal_authority_requirement_compiler",
+          "rejected_reuse": "Existing Lex W3 adapter derived legal requirements internally; W7.B needs a typed producer artifact consumed by Lex.",
+          "reuse_classification": "build_new"
+        },
+        "obligation_refs": [],
+        "out_of_scope": false,
+        "pattern_refs": [
+          "P01",
+          "P05",
+          "P08",
+          "P12"
+        ],
+        "provenance_refs": [],
+        "required_actor_refs": [],
+        "required_fiscal_authority_refs": [],
+        "required_hierarchy_depth": 1,
+        "required_implementation_authority_refs": [],
+        "required_instrument_classes": [],
+        "requirement_id": "legal-requirement:layer3-gl-canonical-legal-mandate:gl_canonical_threshold_seed",
+        "rule_version_ref": "legal-requirement-compiler:v1",
+        "schema_version": "policyos.legal_requirement.spec.v1",
+        "scope_predicates": {
+          "geography": [
+            "UA"
+          ],
+          "population": [],
+          "time": [
+            "2022-03-01/2022-12-31"
+          ]
+        },
+        "source_claim_refs": [
+          "claim:gl:canonical-threshold-seed"
+        ],
+        "temporal_competence_window": {
+          "end": "2022-12-31",
+          "legal_as_of": "2022-03-01",
+          "start": "2022-03-01",
+          "time_role": "implementation_period"
+        }
+      }
+    ],
+    "legal_requirements": [],
+    "normalized_query_terms": [
+      "economic_policy",
+      "UA",
+      "gl_canonical_threshold_seed",
+      "державна підтримка бізнесу",
+      "підтримка підприємництва під час воєнного стану",
+      "повноваження щодо підтримки бізнесу",
+      "підприємство",
+      "підприємництво"
+    ],
+    "query_normalization_report": {
+      "blocker_code": null,
+      "concept_expansions": [],
+      "confidence": 0.93,
+      "jurisdiction_tags": [
+        "UA"
+      ],
+      "kg_paths": [],
+      "language_coverage": {
+        "covered": [
+          "en",
+          "uk"
+        ],
+        "required": [
+          "uk"
+        ],
+        "status": "pass"
+      },
+      "language_tags": [
+        "en",
+        "uk"
+      ],
+      "legal_requirements": [],
+      "normalized_terms": [
+        "economic_policy",
+        "UA",
+        "gl_canonical_threshold_seed",
+        "державна підтримка бізнесу",
+        "підтримка підприємництва під час воєнного стану",
+        "повноваження щодо підтримки бізнесу",
+        "підприємство",
+        "підприємництво"
+      ],
+      "original_terms": [
+        "economic_policy",
+        "UA",
+        "gl_canonical_threshold_seed"
+      ],
+      "schema_version": "policyos.lex.query_normalization_report.v1"
+    },
+    "query_terms": [
+      "economic_policy",
+      "UA",
+      "gl_canonical_threshold_seed"
+    ],
+    "recommendation_coverage": [
+      {
+        "candidate_norm_refs": [
+          "gl-norm:cdc0a68393248737f79f2647",
+          "gl-norm:52090c7349cd02e7d04e582c"
+        ],
+        "claim_id": "gl_canonical_threshold_seed",
+        "major": true,
+        "norm_refs": [],
+        "reason_code": "missing_normative_anchor",
+        "rejected_norm_refs": [
+          "gl-norm:52090c7349cd02e7d04e582c"
+        ],
+        "selected_norm_refs": [],
+        "status": "fail"
+      }
+    ],
+    "rejected_norm_refs": [
+      "gl-norm:cdc0a68393248737f79f2647"
+    ],
+    "rejected_norms": [
+      {
+        "amendment_lineage_refs": [],
+        "applicability_status": "rejected",
+        "authority_facet_binding_refs": [
+          "gl-authority-facet:e0dd5066f6006ec76c76476e",
+          "gl-authority-facet:2144f0eab9b00741ed3033a5",
+          "gl-authority-facet:caf7820d1da961d01448a5ff",
+          "gl-authority-facet:2cc888d6001312b8caaba3d8",
+          "gl-authority-facet:e49e3f9691732ad0dbad3e1a",
+          "gl-authority-facet:1ec75266ef993494a7675e27",
+          "gl-authority-facet:eb2c4f7ec6e45652aaba5de1",
+          "gl-authority-facet:3b6b3323d2cbc46bc4f611ed",
+          "gl-authority-facet:57ae5a291f319649d1d91fbc",
+          "gl-authority-facet:1c68fd4beec88119ff653211"
+        ],
+        "authority_level": "national",
+        "authority_position": "context_only_until_lex_explicit_authority_type",
+        "authority_type_source": "compiler_default",
+        "authority_types": [],
+        "candidate_context_status": "context_only",
+        "canonical_status": "canonicalized",
+        "competent_actor_ref": "cabinet_ministers_ua",
+        "compiler_default_authority_types": [
+          "implementing"
+        ],
+        "conflict_state": "clear",
+        "context_only_reason": "authority_type_is_compiler_default_not_lex_discovered",
+        "effective_from": "2022-03-01",
+        "effective_to": "2022-12-31",
+        "fallback_policy_ref": "jurisdiction-fallback:gl-ua-v1",
+        "fiscal_authority_ref": "ministry_finance_ua",
+        "grounding_status": "kg_candidate",
+        "hierarchy_depth": 2,
+        "implementation_authority_ref": "cabinet_ministers_ua",
+        "instrument_types": [
+          "resolution"
+        ],
+        "jurisdiction": "UA",
+        "legal_as_of": "2022-03-01",
+        "message": "Norm gl-norm:cdc0a68393248737f79f2647 domain fiscal does not match target domain economic_policy.",
+        "norm_id": "gl-norm:cdc0a68393248737f79f2647",
+        "norm_version_ref": "00003a7579810a2a@2022-03-01",
+        "policy_domain": "fiscal",
+        "preemption_state": "not_assessed",
+        "query_trace_refs": [
+          "gl-query-trace:normative-fact:c19bfbbe159c0cbb3eccbd2e",
+          "gl-query-trace:intervention-map:c19bfbbe159c0cbb3eccbd2e"
+        ],
+        "reason_code": "wrong_policy_domain",
+        "reference_resolution_status": null,
+        "source_authority": "lex_doc_metadata:00003a7579810a2a",
+        "source_provenance_ref": "lex_normative_ready_facts:43dd79e005f33fdbb73c",
+        "supersession_state": "not_assessed",
+        "temporal_status": "partial",
+        "threshold_ids": [],
+        "top_domain": "fiscal",
+        "trust_tier": "normative_fact"
+      }
+    ],
+    "retrieval_status": "complete_with_candidates",
+    "runtime_authority_envelope": {
+      "authoritative_for": [
+        "claim_level_legal_admissibility",
+        "selected_norm_anchors",
+        "rejected_norm_anchors",
+        "jurisdiction_fallback_validation",
+        "competence_window_splitting",
+        "no_anchor_rationale"
+      ],
+      "authority_role": "producer_authority",
+      "may_not_use_for": [
+        "recommendation_substance",
+        "source_family_satisfaction",
+        "method_validity",
+        "participation_representativeness",
+        "academic_support_strength",
+        "closeout_pass"
+      ],
+      "provenance_kind": "runtime_emitted"
+    },
+    "schema_version": "policyos.lex.normative_applicability_report.v1",
+    "selected_norm_refs": [
+      "gl-norm:52090c7349cd02e7d04e582c"
+    ],
+    "selected_norms": [
+      {
+        "amendment_lineage_refs": [],
+        "applicability_status": "applied",
+        "authority_facet_binding_refs": [
+          "gl-authority-facet:5869f2c9f5ba4f1b5dc03916",
+          "gl-authority-facet:f38742694678571bc898b666",
+          "gl-authority-facet:607174021d4630f035387d9f",
+          "gl-authority-facet:3881512b174e4401422bd904",
+          "gl-authority-facet:bfaa4badff84fbe5c2bbf773",
+          "gl-authority-facet:13f51ad8771ffa7892328869",
+          "gl-authority-facet:a5b7af81aec182411850e15b",
+          "gl-authority-facet:c6b9d2e77e7ae6e82a016aa6"
+        ],
+        "authority_level": "national",
+        "authority_position": "claim_level_candidate_for_legal_authority_adapter",
+        "authority_type_source": "governed_config_threshold_profile",
+        "authority_types": [
+          "implementing"
+        ],
+        "candidate_context_status": "claim_level_adapter_candidate",
+        "canonical_status": "canonicalized",
+        "competent_actor_ref": "cabinet_ministers_ua",
+        "conflict_state": "clear",
+        "context_only_reason": "",
+        "effective_from": "2022-03-01",
+        "effective_to": "2022-12-31",
+        "fiscal_authority_ref": "ministry_finance_ua",
+        "grounding_status": "kg_threshold_hydrated",
+        "hierarchy_depth": 2,
+        "implementation_authority_ref": "cabinet_ministers_ua",
+        "instrument_types": [
+          "resolution"
+        ],
+        "jurisdiction": "UA",
+        "legal_as_of": "2022-03-01",
+        "legal_effective_window": {
+          "end": "2022-12-31",
+          "start": "2022-03-01"
+        },
+        "lex_normative_fact_refs": [
+          "lex_normative_ready_facts:ef64d4844594c3112281"
+        ],
+        "lex_rule_threshold_refs": [
+          "lex_rule_thresholds:a5429abb6621acb11ed10b20"
+        ],
+        "norm_id": "gl-norm:52090c7349cd02e7d04e582c",
+        "norm_version_ref": "ef64d4844594c3112281@2022-03-01",
+        "policy_domain": "economic_policy",
+        "preemption_state": "not_assessed",
+        "query_trace_refs": [
+          "gl-query-trace:threshold:c19bfbbe159c0cbb3eccbd2e"
+        ],
+        "reference_resolution_status": "not_applicable",
+        "source_authority": "lex_rule_thresholds:65b40d9e0f890cdb2883ffbb",
+        "source_provenance_ref": "lex_rule_thresholds:a5429abb6621acb11ed10b20",
+        "supersession_state": "current",
+        "temporal_resolution_status": "resolved_by_claim_competence_window",
+        "temporal_status": "resolved_by_claim_competence_window",
+        "threshold_ids": [
+          "a5429abb6621acb11ed10b20"
+        ],
+        "top_domain": "economic_policy",
+        "trust_tier": "claim_level_threshold_hydrated"
+      }
+    ],
+    "status": "fail",
+    "summary": {
+      "applied_norm_count": 1,
+      "candidate_norm_count": 2,
+      "claim_legal_anchor_count": 1,
+      "claim_legal_anchor_fail_count": 0,
+      "claim_legal_anchor_pass_count": 1,
+      "global_candidate_norm_count": 2,
+      "legal_requirement_count": 0,
+      "legal_requirement_spec_count": 1,
+      "major_recommendation_count": 1,
+      "rejected_norm_count": 1
+    },
+    "target_context": {
+      "as_of": "2022-03-01",
+      "jurisdiction": "UA",
+      "policy_domain": "economic_policy"
+    },
+    "time_filters": [
+      "2022-03-01"
+    ]
+  },
+  "applicability_status": "fail",
+  "authoritative_for": [],
+  "authority_boundary": {
+    "authoritative_for": [],
+    "may_not_use_for": [
+      "recommendation_substance",
+      "closeout_authority",
+      "publication_authority",
+      "agent_authority",
+      "legal_authority_without_claim_level_adapter",
+      "mandate_authority_without_temporal_competence",
+      "s6_mandate_pass_without_s6_evaluation",
+      "ranked_value_choice_without_s8_authorization"
+    ]
+  },
+  "authority_facet_binding_refs": [],
+  "authority_level": null,
+  "blocker_refs": [],
+  "candidate_source": "gl_norm_candidate_bindings",
+  "claim_id": "gl_canonical_threshold_seed",
+  "effective_from": null,
+  "effective_to": null,
+  "explicit_gl_requirement_spec_refs": [
+    "legal-requirement:layer3-gl-canonical-legal-mandate:gl_canonical_threshold_seed"
+  ],
+  "issue_codes": [],
+  "jurisdiction": "UA",
+  "l5_calibration_refs": [],
+  "legal_as_of": "2022-03-01",
+  "legal_authority_record_refs": [
+    "legal-authority-record:gl_canonical_threshold_seed:implementing:ccc3c2e6098cfd13"
+  ],
+  "legal_kg_snapshot_ref": null,
+  "legal_requirement_artifact_ref": null,
+  "may_not_use_for": [
+    "recommendation_substance",
+    "closeout_authority",
+    "publication_authority",
+    "agent_authority",
+    "legal_authority_without_claim_level_adapter",
+    "mandate_authority_without_temporal_competence",
+    "s6_mandate_pass_without_s6_evaluation",
+    "ranked_value_choice_without_s8_authorization"
+  ],
+  "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_legal_requirement_bindings.json#a70a11e4f56de44b5e9febf1",
+  "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+  "provenance_refs": [
+    "repo://architecture/policy_design_case/layer3_gl_legal_authority_report.json#2d8ab2063c322469c37cbcfe"
+  ],
+  "query_trace_refs": [],
+  "reference_resolution_status": null,
+  "rejected_norm_refs": [
+    "gl-norm:cdc0a68393248737f79f2647"
+  ],
+  "requirement_ref": "legal-requirement:layer3-gl-canonical-legal-mandate:gl_canonical_threshold_seed",
+  "rule_version": "policyos.layer3.gl.legal_mandate_search.v1",
+  "runtime_candidate_norms_used_for_closure": false,
+  "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1",
+  "search_ledger_refs": [],
+  "selected_norm_refs": [
+    "gl-norm:52090c7349cd02e7d04e582c"
+  ],
+  "source_authority": null,
+  "status": "pass",
+  "temporal_resolution_status": null,
+  "used_internal_requirement_compile": false
+}

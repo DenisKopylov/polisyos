@@ -1,0 +1,87 @@
+{
+  "bindings": [
+    {
+      "amendment_lineage_refs": [],
+      "authoritative_for": [],
+      "authority_boundary": {
+        "authoritative_for": [],
+        "may_not_use_for": [
+          "recommendation_substance",
+          "closeout_authority",
+          "publication_authority",
+          "agent_authority",
+          "legal_authority_without_claim_level_adapter",
+          "mandate_authority_without_temporal_competence",
+          "s6_mandate_pass_without_s6_evaluation",
+          "ranked_value_choice_without_s8_authorization"
+        ]
+      },
+      "authority_facet_binding_refs": [],
+      "authority_level": null,
+      "binding_id": "gl-l5-calibration:e6adfaaccb2dcc3cc04d942a",
+      "calibration_provenance_refs": [
+        "repo://architecture/policy_design_case/layer3_gl_legal_requirement_bindings.json#a70a11e4f56de44b5e9febf1",
+        "lex_rule_thresholds:a5429abb6621acb11ed10b20"
+      ],
+      "calibration_status": "missing_l5_calibration_limitation",
+      "candidate_norm_refs": [
+        "gl-norm:52090c7349cd02e7d04e582c"
+      ],
+      "changepoint_refs": [],
+      "claim_id": null,
+      "confidence_fields": {
+        "claim_level_authority_adapter_status": "pass",
+        "raw_lex_confidence_authority": "not_used"
+      },
+      "effective_from": null,
+      "effective_to": null,
+      "issue_codes": [
+        "layer3_gl_l5_calibration_binding_missing"
+      ],
+      "jurisdiction": null,
+      "l5_calibration_refs": [],
+      "legal_as_of": null,
+      "legal_kg_snapshot_ref": "sha256:33f486da808f6eaaf0335a3c",
+      "legal_requirement_artifact_ref": null,
+      "mandate_record_refs": [
+        "gl-mandate:5fe78d6a55dd3ffe82e706b9"
+      ],
+      "may_not_use_for": [
+        "recommendation_substance",
+        "closeout_authority",
+        "publication_authority",
+        "agent_authority",
+        "legal_authority_without_claim_level_adapter",
+        "mandate_authority_without_temporal_competence",
+        "s6_mandate_pass_without_s6_evaluation",
+        "ranked_value_choice_without_s8_authorization"
+      ],
+      "minimum_coverage": "not_l5_calibrated",
+      "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
+      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "provenance_refs": [],
+      "quality_band": "unscored_without_l5_calibration",
+      "query_trace_refs": [
+        "gl-query-trace:threshold:c19bfbbe159c0cbb3eccbd2e"
+      ],
+      "reference_resolution_status": null,
+      "requirement_ref": null,
+      "rule_version": "policyos.layer3.gl.legal_mandate_search.v1",
+      "schema_regime_refs": [
+        "lex_knowledge_graph.duckdb"
+      ],
+      "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1",
+      "search_ledger_refs": [],
+      "source_authority": null,
+      "status": "limitation",
+      "temporal_resolution_status": null,
+      "threshold_record_refs": [
+        "gl-threshold:c61def5591e7b49c9e1b7219"
+      ],
+      "trust_cap": "context_or_claim_level_only",
+      "trust_tier": "claim_level_threshold_hydrated"
+    }
+  ],
+  "rule_version": "policyos.layer3.gl.legal_mandate_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1"
+}

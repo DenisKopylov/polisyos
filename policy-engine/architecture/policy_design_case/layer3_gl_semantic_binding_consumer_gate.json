@@ -1,0 +1,735 @@
+{
+  "amendment_lineage_refs": [],
+  "authoritative_for": [],
+  "authority_boundary": {
+    "authoritative_for": [],
+    "may_not_use_for": [
+      "recommendation_substance",
+      "closeout_authority",
+      "publication_authority",
+      "agent_authority",
+      "legal_authority_without_claim_level_adapter",
+      "mandate_authority_without_temporal_competence",
+      "s6_mandate_pass_without_s6_evaluation",
+      "ranked_value_choice_without_s8_authorization"
+    ]
+  },
+  "authority_facet_binding_refs": [],
+  "authority_level": null,
+  "blocker_refs": [],
+  "claim_id": "gl_canonical_threshold_seed",
+  "effective_from": null,
+  "effective_to": null,
+  "gate_id": "layer3.gl.semantic_binding.legal_mandate_consumer_gate",
+  "issue_codes": [],
+  "jurisdiction": null,
+  "jurisdiction_fallback_policy_refs": [],
+  "l5_calibration_refs": [],
+  "legal_admissibility_grades": [
+    "admissible"
+  ],
+  "legal_as_of": null,
+  "legal_authority_record_refs": [
+    "legal-authority-record:gl_canonical_threshold_seed:implementing:ccc3c2e6098cfd13"
+  ],
+  "legal_kg_snapshot_ref": null,
+  "legal_requirement_artifact_ref": null,
+  "limitation_refs": [
+    "gl-limitation:s6-evaluation-required"
+  ],
+  "mandate_record_refs": [
+    "gl-mandate:5fe78d6a55dd3ffe82e706b9"
+  ],
+  "may_not_use_for": [
+    "recommendation_substance",
+    "closeout_authority",
+    "publication_authority",
+    "agent_authority",
+    "legal_authority_without_claim_level_adapter",
+    "mandate_authority_without_temporal_competence",
+    "s6_mandate_pass_without_s6_evaluation",
+    "ranked_value_choice_without_s8_authorization"
+  ],
+  "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
+  "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+  "provenance_refs": [],
+  "query_trace_refs": [],
+  "reference_resolution_status": null,
+  "requirement_ref": null,
+  "rule_version": "policyos.layer3.gl.legal_mandate_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1",
+  "search_ledger_refs": [],
+  "selected_norm_refs": [
+    "gl-norm:52090c7349cd02e7d04e582c"
+  ],
+  "semantic_binding_issue_codes": [],
+  "semantic_binding_ledger": {
+    "authority_envelope": null,
+    "blocking_issue_count": 0,
+    "cas_artifact_refs": null,
+    "degradation_ledger_ref": null,
+    "diagnostic_event_ref": null,
+    "effective_mode_ref": null,
+    "fabric": [
+      {
+        "ambiguity_blocker_refs": [],
+        "binding_id": "fabric-binding-runtime",
+        "calendar_time_bindings": [],
+        "candidate_dataset_source_refs": [
+          "data-source://layer3/gl/legal-mandate-consumer"
+        ],
+        "candidate_spine_binding_refs": [
+          "spine-binding:fabric:concept:economic_policy_support:jurisdiction:UA:83927c8bdb951920"
+        ],
+        "canonical_concept_refs": [
+          "concept:economic_policy_support"
+        ],
+        "claim_support_feature_refs": [
+          "claim-feature://layer3/gl/legal-threshold"
+        ],
+        "column_bindings": [
+          {
+            "claim_id": "gl_canonical_threshold_seed",
+            "column_refs": [
+              "field://layer3/gl/legal-mandate-threshold"
+            ],
+            "source_ref": "data-source://layer3/gl/legal-mandate-consumer"
+          }
+        ],
+        "consumed_concept_spine_ref": "concept-spine://layer3/gl/legal-mandate",
+        "consumed_jurisdiction_spine_ref": "jurisdiction-spine://UA",
+        "data_coverage": [
+          {
+            "claim_ids": [
+              "gl_canonical_threshold_seed"
+            ],
+            "source_ref": "data-source://layer3/gl/legal-mandate-consumer",
+            "status": "covers"
+          }
+        ],
+        "data_forge_snapshot_refs": [
+          "data-forge-snapshot://layer3/gl/legal-mandate-consumer"
+        ],
+        "data_gap_blocker_refs": [],
+        "derived_features": [
+          {
+            "claim_ids": [
+              "gl_canonical_threshold_seed"
+            ],
+            "claim_support_feature_refs": [
+              "claim-feature://layer3/gl/legal-threshold"
+            ],
+            "feature_ref": "feature://layer3/gl/legal-threshold",
+            "lineage_refs": [],
+            "source_facet_refs": [
+              "field://layer3/gl/legal-mandate-threshold"
+            ],
+            "source_ref": "data-source://layer3/gl/legal-mandate-consumer",
+            "transformation_refs": []
+          }
+        ],
+        "dictionary_refs": [],
+        "geography_bindings": [],
+        "geography_refs": [
+          "geo:UA"
+        ],
+        "jurisdiction_refs": [
+          "jurisdiction:UA"
+        ],
+        "lineage_refs": [],
+        "local_labels": [],
+        "metric_bindings": [
+          {
+            "claim_ids": [
+              "gl_canonical_threshold_seed"
+            ],
+            "metric_id": "legal_mandate_readiness",
+            "source_refs": [
+              "data-source://layer3/gl/legal-mandate-consumer"
+            ]
+          }
+        ],
+        "period_refs": [
+          "time:2022-03-01/2022-12-31"
+        ],
+        "rejected_dataset_source_refs": [],
+        "selected_dataset_source_refs": [
+          "data-source://layer3/gl/legal-mandate-consumer"
+        ],
+        "source_facets": [
+          {
+            "data_forge_snapshot_refs": [
+              "data-forge-snapshot://layer3/gl/legal-mandate-consumer"
+            ],
+            "dataset_ref": "dataset://layer3/gl/legal-mandate-consumer",
+            "dictionary_ref": "dictionary://layer3/gl/legal-mandate-consumer",
+            "field_refs": [
+              "field://layer3/gl/legal-mandate-threshold"
+            ],
+            "freshness_refs": [
+              "freshness://layer3/gl/legal-mandate-consumer"
+            ],
+            "geography_refs": [
+              "geo:UA"
+            ],
+            "lineage_refs": [
+              "lineage://layer3/gl/legal-mandate-consumer"
+            ],
+            "missingness_refs": [
+              "missingness://layer3/gl/legal-mandate-consumer"
+            ],
+            "quality_refs": [
+              "quality://layer3/gl/legal-mandate-consumer"
+            ],
+            "rejected_candidate_refs": [],
+            "schema_ref": "schema://layer3/gl/legal-mandate-consumer",
+            "selected_candidate_ref": "data-source://layer3/gl/legal-mandate-consumer",
+            "source_family": "legal_mandate_runtime_projection",
+            "source_ref": "data-source://layer3/gl/legal-mandate-consumer",
+            "source_rights": "internal_runtime_audit",
+            "time_coverage_refs": [
+              "time:2022-03-01/2022-12-31"
+            ],
+            "transformation_refs": [
+              "transform://layer3/gl/legal-mandate-consumer"
+            ],
+            "unit_refs": [
+              "unit:percent"
+            ]
+          }
+        ],
+        "source_freshness": [],
+        "spine_blocker_refs": [],
+        "unit_bindings": [],
+        "unit_refs": [
+          "unit:percent"
+        ]
+      }
+    ],
+    "final_compiler": [
+      {
+        "binding_id": "final-compiler-binding-runtime",
+        "budget_feasibility_ids": [],
+        "candidate_spine_binding_refs": [
+          "spine-binding:final_compiler:concept:economic_policy_support:jurisdiction:UA:5f232a6f91a3bf73"
+        ],
+        "canonical_concept_refs": [
+          "concept:economic_policy_support"
+        ],
+        "claim_evidence_paths": [
+          {
+            "alternative_refs": [],
+            "argument_refs": [
+              "argument://layer3/gl/legal-mandate-consumer"
+            ],
+            "assumption_gate_refs": [
+              "assumption-gate://layer3/gl/legal-mandate-consumer"
+            ],
+            "baseline_refs": [],
+            "blocker_refs": [],
+            "canonical_concept_refs": [
+              "concept:economic_policy_support"
+            ],
+            "claim_family": "legal_mandate_search_consumer_gate",
+            "claim_id": "gl_canonical_threshold_seed",
+            "claim_type": "recommendation_evidence_readiness",
+            "claim_use": "readiness",
+            "column_refs": [
+              "field://layer3/gl/legal-mandate-threshold"
+            ],
+            "comparison_refs": [],
+            "counter_evidence_refs": [
+              "counter-evidence://layer3/gl/legal-mandate-consumer"
+            ],
+            "fabric_binding_refs": [
+              "fabric-binding-runtime"
+            ],
+            "foundry_binding_refs": [
+              "foundry-binding-runtime"
+            ],
+            "lex_binding_refs": [
+              "lex-binding-runtime"
+            ],
+            "limitation_refs": [
+              "gl-limitation:s6-evaluation-required",
+              "gl-mandate:5fe78d6a55dd3ffe82e706b9",
+              "deficit://layer3/gl/consumer-projection-only"
+            ],
+            "method_output_refs": [
+              "method-output://layer3/gl/legal-mandate-consumer-projection"
+            ],
+            "rebuttal_refs": [
+              "rebuttal://layer3/gl/legal-mandate-consumer"
+            ],
+            "scenario_requirement_refs": [
+              "legal-requirement:layer3-gl-canonical-legal-mandate:gl_canonical_threshold_seed"
+            ],
+            "scientist_claim_refs": [
+              "claim://layer3/gl/gl-canonical-threshold-seed"
+            ],
+            "selected_method_refs": [
+              "method://layer3/gl/legal-mandate-consumer-projection"
+            ],
+            "selected_norm_refs": [
+              "gl-norm:52090c7349cd02e7d04e582c"
+            ],
+            "source_refs": [
+              "data-source://layer3/gl/legal-mandate-consumer"
+            ],
+            "uncertainty_refs": [
+              "uncertainty://layer3/gl/legal-mandate-consumer"
+            ],
+            "warrant_refs": [
+              "warrant://layer3/gl/legal-mandate-consumer"
+            ]
+          }
+        ],
+        "consumed_concept_spine_ref": "concept-spine://layer3/gl/legal-mandate",
+        "consumed_jurisdiction_spine_ref": "jurisdiction-spine://UA",
+        "distributional_impact_ids": [],
+        "geography_refs": [
+          "geo:UA"
+        ],
+        "implementation_risk_ids": [],
+        "jurisdiction_refs": [
+          "jurisdiction:UA"
+        ],
+        "legal_assertion_ids": [],
+        "local_labels": [],
+        "major_claim_ids": [
+          "gl_canonical_threshold_seed"
+        ],
+        "monitoring_ids": [],
+        "period_refs": [
+          "time:2022-03-01/2022-12-31"
+        ],
+        "public_artifact_section_refs": [
+          "section:recommendations"
+        ],
+        "recommendation_ids": [
+          "gl_canonical_threshold_seed"
+        ],
+        "required_blocker_refs": [],
+        "required_data_refs": [
+          "data-source://layer3/gl/legal-mandate-consumer"
+        ],
+        "required_literature_refs": [],
+        "required_method_refs": [
+          "method://layer3/gl/legal-mandate-consumer-projection"
+        ],
+        "required_norm_refs": [
+          "gl-norm:52090c7349cd02e7d04e582c"
+        ],
+        "required_uncertainty_refs": [
+          "uncertainty://layer3/gl/legal-mandate-consumer"
+        ],
+        "residual_uncertainty_ids": [],
+        "spine_blocker_refs": [],
+        "unit_refs": [
+          "unit:percent"
+        ]
+      }
+    ],
+    "foundry": [
+      {
+        "assumption_gate_refs": [
+          "assumption-gate://layer3/gl/legal-mandate-consumer"
+        ],
+        "assumptions": [],
+        "binding_id": "foundry-binding-runtime",
+        "candidate_spine_binding_refs": [
+          "spine-binding:foundry:concept:economic_policy_support:jurisdiction:UA:e723eaca5a07e20a"
+        ],
+        "canonical_concept_refs": [
+          "concept:economic_policy_support"
+        ],
+        "consumed_concept_spine_ref": "concept-spine://layer3/gl/legal-mandate",
+        "consumed_jurisdiction_spine_ref": "jurisdiction-spine://UA",
+        "geography_refs": [
+          "geo:UA"
+        ],
+        "input_coverage": [
+          {
+            "method_ref": "method://layer3/gl/legal-mandate-consumer-projection",
+            "status": "pass"
+          }
+        ],
+        "jurisdiction_refs": [
+          "jurisdiction:UA"
+        ],
+        "limitation_refs": [
+          "gl-limitation:s6-evaluation-required"
+        ],
+        "local_labels": [],
+        "method_incompatibility_blocker_refs": [],
+        "method_output_refs": [
+          "method-output://layer3/gl/legal-mandate-consumer-projection"
+        ],
+        "period_refs": [
+          "time:2022-03-01/2022-12-31"
+        ],
+        "placebo_negative_control_refs": [],
+        "rejected_method_reasons": [],
+        "rejected_method_refs": [],
+        "runtime_assumption_gates": [],
+        "sample_power_adequacy": [
+          {
+            "method_ref": "method://layer3/gl/legal-mandate-consumer-projection",
+            "status": "not_applicable"
+          }
+        ],
+        "scenario_method_expectation_refs": [
+          "consumer_projection_validation"
+        ],
+        "selected_method_refs": [
+          "method://layer3/gl/legal-mandate-consumer-projection"
+        ],
+        "sensitivity_refs": [],
+        "simulation_assumption_lineage_refs": [],
+        "spine_blocker_refs": [],
+        "uncertainty_envelopes": [],
+        "uncertainty_refs": [
+          "uncertainty://layer3/gl/legal-mandate-consumer"
+        ],
+        "unit_refs": [
+          "unit:percent"
+        ]
+      }
+    ],
+    "hypothesis_ledger": null,
+    "intent": {
+      "canonical_concept_refs": [
+        "concept:economic_policy_support"
+      ],
+      "columns": [
+        "field://layer3/gl/legal-mandate-threshold"
+      ],
+      "data_source_family": "legal_mandate_runtime_projection",
+      "dataset": "data-source://layer3/gl/legal-mandate-consumer",
+      "final_claim": "gl_canonical_threshold_seed",
+      "intervention": "subsidized_credit",
+      "jurisdiction": "UA",
+      "legal_domain": "economic_policy",
+      "method_family": "consumer_projection_validation",
+      "monitoring_signal": "legal_mandate_readiness",
+      "outcome": "eligible_credit_access",
+      "policy_intent_ref": "sha256:5439798d6219824b1aeb7a7f",
+      "population": "msme_credit_applicants",
+      "public_artifact_section": "recommendations",
+      "time_context": "2022-03-01",
+      "treatment": "credit_threshold"
+    },
+    "issues": [],
+    "lex": [
+      {
+        "binding_id": "lex-binding-runtime",
+        "candidate_norm_refs": [
+          "gl-norm:52090c7349cd02e7d04e582c"
+        ],
+        "candidate_spine_binding_refs": [
+          "spine-binding:lex:concept:economic_policy_support:jurisdiction:UA:f6295f116e637844"
+        ],
+        "canonical_concept_refs": [
+          "concept:economic_policy_support"
+        ],
+        "competence_refs": [],
+        "concept_refs": [
+          "concept:economic_policy_support"
+        ],
+        "consumed_concept_spine_ref": "concept-spine://layer3/gl/legal-mandate",
+        "consumed_jurisdiction_spine_ref": "jurisdiction-spine://UA",
+        "effective_date_filters": [
+          "2022-03-01"
+        ],
+        "geography_refs": [
+          "geo:UA"
+        ],
+        "hierarchy_conflict_refs": [],
+        "jurisdiction_fallback_policy_refs": [],
+        "jurisdiction_filters": [
+          "UA"
+        ],
+        "jurisdiction_refs": [
+          "jurisdiction:UA"
+        ],
+        "legal_admissibility_grades": [
+          "admissible"
+        ],
+        "legal_authority_blocker_refs": [],
+        "legal_authority_record_refs": [
+          "legal-authority-record:gl_canonical_threshold_seed:implementing:ccc3c2e6098cfd13"
+        ],
+        "legal_authority_required": true,
+        "legal_authority_types": [
+          "implementing"
+        ],
+        "legal_query_refs": [],
+        "legal_query_terms": [
+          "threshold",
+          "mandate",
+          "legal_authority"
+        ],
+        "legal_snapshot_refs": [],
+        "legal_window_segment_refs": [
+          "legal-authority-segment:gl_canonical_threshold_seed:implementing:2022-03-01:2022-12-31"
+        ],
+        "local_labels": [],
+        "no_norm_blocker_refs": [],
+        "period_refs": [
+          "time:2022-03-01/2022-12-31"
+        ],
+        "rejected_norm_refs": [
+          "gl-norm:cdc0a68393248737f79f2647"
+        ],
+        "retrieval_error_blocker_refs": [],
+        "selected_norm_refs": [
+          "gl-norm:52090c7349cd02e7d04e582c"
+        ],
+        "spine_blocker_refs": [],
+        "unit_refs": [
+          "unit:percent"
+        ]
+      }
+    ],
+    "policy_intent_ref": "sha256:5439798d6219824b1aeb7a7f",
+    "producer_handshake_ledger": null,
+    "projection_boundaries_ref": null,
+    "runtime_event_ref": null,
+    "runtime_report_status": "pass",
+    "same_input_closure_ref": null,
+    "schema_compatibility": null,
+    "schema_version": "policyos.semantic_binding_ledger.v1",
+    "scholar": [
+      {
+        "binding_id": "scholar-binding-runtime",
+        "candidate_literature_refs": [
+          "literature://layer3/gl/legal-mandate-boundary-note"
+        ],
+        "candidate_spine_binding_refs": [
+          "spine-binding:scholar:concept:economic_policy_support:jurisdiction:UA:57da8fd7eefb79f1"
+        ],
+        "canonical_concept_refs": [
+          "concept:economic_policy_support"
+        ],
+        "conflict_link_refs": [],
+        "consumed_concept_spine_ref": "concept-spine://layer3/gl/legal-mandate",
+        "consumed_jurisdiction_spine_ref": "jurisdiction-spine://UA",
+        "geography_refs": [
+          "geo:UA"
+        ],
+        "jurisdiction_refs": [
+          "jurisdiction:UA"
+        ],
+        "local_labels": [],
+        "period_refs": [
+          "time:2022-03-01/2022-12-31"
+        ],
+        "rejected_literature_refs": [],
+        "retrieval_blocker_refs": [],
+        "selected_literature_refs": [
+          "literature://layer3/gl/legal-mandate-boundary-note"
+        ],
+        "spine_blocker_refs": [],
+        "support_link_refs": [],
+        "unit_refs": [
+          "unit:percent"
+        ]
+      }
+    ],
+    "scientist": [
+      {
+        "binding_id": "scientist-binding-runtime",
+        "budget_feasibility_ids": [],
+        "candidate_spine_binding_refs": [
+          "spine-binding:scientist:concept:economic_policy_support:jurisdiction:UA:1b25f15e42e5e6e2"
+        ],
+        "canonical_concept_refs": [
+          "concept:economic_policy_support"
+        ],
+        "claim_evidence_paths": [
+          {
+            "alternative_refs": [],
+            "argument_refs": [
+              "argument://layer3/gl/legal-mandate-consumer"
+            ],
+            "assumption_gate_refs": [
+              "assumption-gate://layer3/gl/legal-mandate-consumer"
+            ],
+            "baseline_refs": [],
+            "blocker_refs": [],
+            "canonical_concept_refs": [
+              "concept:economic_policy_support"
+            ],
+            "claim_family": "legal_mandate_search_consumer_gate",
+            "claim_id": "gl_canonical_threshold_seed",
+            "claim_type": "recommendation_evidence_readiness",
+            "claim_use": "readiness",
+            "column_refs": [
+              "field://layer3/gl/legal-mandate-threshold"
+            ],
+            "comparison_refs": [],
+            "counter_evidence_refs": [
+              "counter-evidence://layer3/gl/legal-mandate-consumer"
+            ],
+            "fabric_binding_refs": [
+              "fabric-binding-runtime"
+            ],
+            "foundry_binding_refs": [
+              "foundry-binding-runtime"
+            ],
+            "lex_binding_refs": [
+              "lex-binding-runtime"
+            ],
+            "limitation_refs": [
+              "gl-limitation:s6-evaluation-required",
+              "gl-mandate:5fe78d6a55dd3ffe82e706b9",
+              "deficit://layer3/gl/consumer-projection-only"
+            ],
+            "method_output_refs": [
+              "method-output://layer3/gl/legal-mandate-consumer-projection"
+            ],
+            "rebuttal_refs": [
+              "rebuttal://layer3/gl/legal-mandate-consumer"
+            ],
+            "scenario_requirement_refs": [
+              "legal-requirement:layer3-gl-canonical-legal-mandate:gl_canonical_threshold_seed"
+            ],
+            "scientist_claim_refs": [
+              "claim://layer3/gl/gl-canonical-threshold-seed"
+            ],
+            "selected_method_refs": [
+              "method://layer3/gl/legal-mandate-consumer-projection"
+            ],
+            "selected_norm_refs": [
+              "gl-norm:52090c7349cd02e7d04e582c"
+            ],
+            "source_refs": [
+              "data-source://layer3/gl/legal-mandate-consumer"
+            ],
+            "uncertainty_refs": [
+              "uncertainty://layer3/gl/legal-mandate-consumer"
+            ],
+            "warrant_refs": [
+              "warrant://layer3/gl/legal-mandate-consumer"
+            ]
+          }
+        ],
+        "consumed_concept_spine_ref": "concept-spine://layer3/gl/legal-mandate",
+        "consumed_jurisdiction_spine_ref": "jurisdiction-spine://UA",
+        "distributional_impact_ids": [],
+        "geography_refs": [
+          "geo:UA"
+        ],
+        "implementation_risk_ids": [],
+        "jurisdiction_refs": [
+          "jurisdiction:UA"
+        ],
+        "legal_assertion_ids": [],
+        "local_labels": [],
+        "major_claim_ids": [
+          "gl_canonical_threshold_seed"
+        ],
+        "monitoring_ids": [],
+        "period_refs": [
+          "time:2022-03-01/2022-12-31"
+        ],
+        "public_artifact_section_refs": [],
+        "recommendation_ids": [
+          "gl_canonical_threshold_seed"
+        ],
+        "required_blocker_refs": [],
+        "required_data_refs": [
+          "data-source://layer3/gl/legal-mandate-consumer"
+        ],
+        "required_literature_refs": [],
+        "required_method_refs": [
+          "method://layer3/gl/legal-mandate-consumer-projection"
+        ],
+        "required_norm_refs": [
+          "gl-norm:52090c7349cd02e7d04e582c"
+        ],
+        "required_uncertainty_refs": [
+          "uncertainty://layer3/gl/legal-mandate-consumer"
+        ],
+        "residual_uncertainty_ids": [],
+        "spine_blocker_refs": [],
+        "unit_refs": [
+          "unit:percent"
+        ]
+      }
+    ],
+    "semantic_binding_ref": "semantic-binding://layer3/gl/gl_canonical_threshold_seed",
+    "semantic_closure": {
+      "blocker_refs": [],
+      "issue_codes": [],
+      "reason_family": "complete",
+      "rejected_candidate_refs": [
+        "gl-norm:cdc0a68393248737f79f2647"
+      ],
+      "selected_evidence_refs": [
+        "data-source://layer3/gl/legal-mandate-consumer",
+        "gl-norm:52090c7349cd02e7d04e582c",
+        "legal-authority-record:gl_canonical_threshold_seed:implementing:ccc3c2e6098cfd13",
+        "literature://layer3/gl/legal-mandate-boundary-note",
+        "method://layer3/gl/legal-mandate-consumer-projection"
+      ],
+      "status": "pass"
+    },
+    "spine_context": {
+      "canonical_concept_refs": [
+        "concept:economic_policy_support"
+      ],
+      "concept_spine_ref": "concept-spine://layer3/gl/legal-mandate",
+      "consumer_components": [
+        "lex",
+        "fabric",
+        "scholar",
+        "foundry",
+        "scientist",
+        "final_compiler"
+      ],
+      "context_id": "layer3-gl-task6-consumer-context",
+      "geography_refs": [
+        "geo:UA"
+      ],
+      "jurisdiction_refs": [
+        "jurisdiction:UA"
+      ],
+      "jurisdiction_spine_ref": "jurisdiction-spine://UA",
+      "period_refs": [
+        "time:2022-03-01/2022-12-31"
+      ],
+      "schema_version": "policyos.producer_spine_context.v1",
+      "unit_refs": [
+        "unit:percent"
+      ]
+    },
+    "status": "pass"
+  },
+  "semantic_binding_ref": "semantic-binding://layer3/gl/gl_canonical_threshold_seed",
+  "semantic_binding_rows": [
+    {
+      "binding_id": "lex-binding-runtime",
+      "blocker_refs": [],
+      "claim_id": "gl_canonical_threshold_seed",
+      "fallback_refs": [],
+      "jurisdiction_fallback_policy_refs": [],
+      "legal_admissibility_grades": [
+        "admissible"
+      ],
+      "legal_authority_record_refs": [
+        "legal-authority-record:gl_canonical_threshold_seed:implementing:ccc3c2e6098cfd13"
+      ],
+      "selected_norm_refs": [
+        "gl-norm:52090c7349cd02e7d04e582c"
+      ]
+    }
+  ],
+  "semantic_binding_status": "pass",
+  "source_authority": null,
+  "status": "pass",
+  "temporal_resolution_status": null,
+  "threshold_record_refs": [
+    "gl-threshold:c61def5591e7b49c9e1b7219"
+  ]
+}

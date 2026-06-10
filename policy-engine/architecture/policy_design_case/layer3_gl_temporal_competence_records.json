@@ -1,0 +1,152 @@
+{
+  "records": [
+    {
+      "amendment_effective_time": null,
+      "amendment_lineage_refs": [],
+      "authoritative_for": [],
+      "authority_boundary": {
+        "authoritative_for": [],
+        "may_not_use_for": [
+          "recommendation_substance",
+          "closeout_authority",
+          "publication_authority",
+          "agent_authority",
+          "legal_authority_without_claim_level_adapter",
+          "mandate_authority_without_temporal_competence",
+          "s6_mandate_pass_without_s6_evaluation",
+          "ranked_value_choice_without_s8_authorization"
+        ]
+      },
+      "authority_facet_binding_refs": [],
+      "authority_level": null,
+      "claim_id": "gl_canonical_threshold_seed",
+      "claim_implementation_window": {
+        "end": "2022-12-31",
+        "legal_as_of": "2022-03-01",
+        "start": "2022-03-01",
+        "time_role": "implementation_period"
+      },
+      "effective_from": null,
+      "effective_to": null,
+      "issue_codes": [],
+      "jurisdiction": "UA",
+      "l5_calibration_refs": [],
+      "legal_as_of": "2022-03-01",
+      "legal_authority_record_refs": [
+        "legal-authority-record:gl_canonical_threshold_seed:implementing:ccc3c2e6098cfd13"
+      ],
+      "legal_effective_window": {
+        "end": "2022-12-31",
+        "start": "2022-03-01"
+      },
+      "legal_kg_snapshot_ref": "sha256:33f486da808f6eaaf0335a3c",
+      "legal_requirement_artifact_ref": null,
+      "may_not_use_for": [
+        "recommendation_substance",
+        "closeout_authority",
+        "publication_authority",
+        "agent_authority",
+        "legal_authority_without_claim_level_adapter",
+        "mandate_authority_without_temporal_competence",
+        "s6_mandate_pass_without_s6_evaluation",
+        "ranked_value_choice_without_s8_authorization"
+      ],
+      "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
+      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "provenance_refs": [],
+      "query_trace_refs": [
+        "gl-query-trace:threshold:c19bfbbe159c0cbb3eccbd2e"
+      ],
+      "record_id": "gl-temporal-competence:e6adfaaccb2dcc3cc04d942a",
+      "reference_resolution_status": null,
+      "reissue_required": false,
+      "requirement_ref": "legal-requirement:layer3-gl-canonical-legal-mandate:gl_canonical_threshold_seed",
+      "resolution_basis": "claim_window_with_hydrated_threshold_candidate",
+      "rule_version": "policyos.layer3.gl.legal_mandate_search.v1",
+      "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1",
+      "search_ledger_refs": [],
+      "source_authority": null,
+      "source_norm_ref": "gl-norm:52090c7349cd02e7d04e582c",
+      "source_row_refs": [
+        "lex_rule_thresholds:a5429abb6621acb11ed10b20"
+      ],
+      "status": "pass",
+      "temporal_resolution_status": "resolved"
+    },
+    {
+      "amendment_effective_time": null,
+      "amendment_lineage_refs": [],
+      "authoritative_for": [],
+      "authority_boundary": {
+        "authoritative_for": [],
+        "may_not_use_for": [
+          "recommendation_substance",
+          "closeout_authority",
+          "publication_authority",
+          "agent_authority",
+          "legal_authority_without_claim_level_adapter",
+          "mandate_authority_without_temporal_competence",
+          "s6_mandate_pass_without_s6_evaluation",
+          "ranked_value_choice_without_s8_authorization"
+        ]
+      },
+      "authority_facet_binding_refs": [],
+      "authority_level": null,
+      "claim_id": "gl_canonical_threshold_seed",
+      "claim_implementation_window": {
+        "end": "2022-12-31",
+        "start": "2022-03-01"
+      },
+      "effective_from": null,
+      "effective_to": null,
+      "issue_codes": [
+        "layer3_gl_partial_temporal_row_promoted_to_authority"
+      ],
+      "jurisdiction": "UA",
+      "l5_calibration_refs": [],
+      "legal_as_of": "2022-03-01",
+      "legal_authority_record_refs": [],
+      "legal_effective_window": {
+        "end": "",
+        "start": ""
+      },
+      "legal_kg_snapshot_ref": "sha256:33f486da808f6eaaf0335a3c",
+      "legal_requirement_artifact_ref": null,
+      "may_not_use_for": [
+        "recommendation_substance",
+        "closeout_authority",
+        "publication_authority",
+        "agent_authority",
+        "legal_authority_without_claim_level_adapter",
+        "mandate_authority_without_temporal_competence",
+        "s6_mandate_pass_without_s6_evaluation",
+        "ranked_value_choice_without_s8_authorization"
+      ],
+      "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
+      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "provenance_refs": [],
+      "query_trace_refs": [
+        "gl-query-trace:provision-source:c19bfbbe159c0cbb3eccbd2e"
+      ],
+      "record_id": "gl-temporal-competence:03acddfa38d201528effaec7",
+      "reference_resolution_status": null,
+      "reissue_required": true,
+      "requirement_ref": "legal-requirement:layer3-gl-canonical-legal-mandate:gl_canonical_threshold_seed",
+      "resolution_basis": "lex_doc_temporal_partial_not_promotable",
+      "rule_version": "policyos.layer3.gl.legal_mandate_search.v1",
+      "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1",
+      "search_ledger_refs": [
+        "gl-ledger:provision-source:gl-request-canonical-threshold-seed"
+      ],
+      "source_authority": null,
+      "source_norm_ref": null,
+      "source_row_refs": [
+        "lex_doc_versions:f3e853791d73144d4e1386ed"
+      ],
+      "status": "reissue_required",
+      "temporal_resolution_status": "partial"
+    }
+  ],
+  "rule_version": "policyos.layer3.gl.legal_mandate_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1"
+}

@@ -1,0 +1,39 @@
+{
+  "description": "Malformed GL fixture: text-search discovery is incorrectly used as authority.",
+  "payload": {
+    "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1",
+    "rule_version": "policyos.layer3.gl.legal_mandate_search.v1",
+    "readiness_manifest": {
+      "g0_dependency_status": "pass"
+    },
+    "l3_legal_kg_index_coverage": {
+      "status": "pass"
+    },
+    "l3_legal_kg_search_ledgers": [
+      {
+        "ledger_id": "gl-ledger:text-search-malformed",
+        "canonical_route": "l3_legal_kg_duckdb",
+        "transition_input": false,
+        "candidate_source": "text_search",
+        "used_as_authority": true
+      }
+    ],
+    "l3_legal_kg_query_traces": [
+      {
+        "trace_id": "gl-trace:text-search-malformed",
+        "sql_shape": "SELECT fact_id FROM lex_normative_ready_facts LIMIT ?"
+      }
+    ],
+    "search_recall_freshness": {
+      "status": "pass",
+      "domain_ceiling_allowed": false
+    },
+    "legal_authority_report": {
+      "status": "pass",
+      "candidate_source": "gl_norm_candidate_bindings",
+      "selected_norm_refs": [],
+      "legal_authority_record_refs": [],
+      "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_legal_requirement_bindings.json#fixture"
+    }
+  }
+}

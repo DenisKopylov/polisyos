@@ -1,0 +1,205 @@
+{
+  "description": "Minimal GL fixture proving canonical search -> authority -> consumer gates without raw legal authority laundering.",
+  "payload": {
+    "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1",
+    "rule_version": "policyos.layer3.gl.legal_mandate_search.v1",
+    "readiness_manifest": {
+      "g0_dependency_status": "pass"
+    },
+    "l3_legal_kg_index_coverage": {
+      "status": "pass"
+    },
+    "l3_legal_kg_search_ledgers": [
+      {
+        "ledger_id": "gl-ledger:fixture",
+        "canonical_route": "l3_legal_kg_duckdb",
+        "transition_input": false,
+        "used_full_table_scan": false
+      }
+    ],
+    "l3_legal_kg_query_traces": [
+      {
+        "trace_id": "gl-trace:fixture",
+        "sql_shape": "SELECT threshold_id FROM lex_rule_thresholds LIMIT ?",
+        "bounded_result_limit": 5,
+        "observed_row_count": 1,
+        "query_budget": {
+          "full_corpus_scan_allowed": false,
+          "python_full_scan_allowed": false
+        }
+      }
+    ],
+    "search_recall_freshness": {
+      "status": "pass",
+      "domain_ceiling_allowed": false
+    },
+    "legal_requirement_bindings": [
+      {
+        "binding_id": "legal-requirement-binding:fixture",
+        "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_legal_requirement_bindings.json#fixture",
+        "mandatory": true,
+        "authority_types": ["implementing"],
+        "authority_type_source": "compiler_default",
+        "compiler_default_marked": true,
+        "fallback_policy": {
+          "config_ref": "jurisdiction-fallback:gl-fixture"
+        }
+      }
+    ],
+    "authority_facet_bindings": [
+      {
+        "binding_id": "authority-facet:source-authority:fixture",
+        "facet_name": "source_authority",
+        "facet_source": "governed_config",
+        "facet_value": "binding",
+        "validation_status": "pass"
+      },
+      {
+        "binding_id": "authority-facet:actor:fixture",
+        "facet_name": "competent_actor_ref",
+        "facet_source": "governed_config",
+        "facet_value": "cabinet_ministers_ua",
+        "validation_status": "pass"
+      },
+      {
+        "binding_id": "authority-facet:instrument:fixture",
+        "facet_name": "instrument_types",
+        "facet_source": "governed_config",
+        "facet_value": ["resolution"],
+        "validation_status": "pass"
+      }
+    ],
+    "norm_candidate_bindings": [
+      {
+        "binding_id": "norm-candidate:fixture",
+        "authority_facet_binding_refs": ["authority-facet:source-authority:fixture"],
+        "authority_facets_source": "gl_authority_facet_bindings"
+      }
+    ],
+    "legal_authority_report": {
+      "status": "pass",
+      "candidate_source": "gl_norm_candidate_bindings",
+      "selected_norm_refs": ["norm:fixture"],
+      "legal_authority_record_refs": ["legal-authority-record:fixture"],
+      "used_internal_requirement_compile": false,
+      "runtime_candidate_norms_used_for_closure": false,
+      "applicability_internal_kg_fallback_used": false,
+      "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_legal_requirement_bindings.json#fixture"
+    },
+    "threshold_authority_records": [
+      {
+        "record_id": "threshold-record:fixture",
+        "threshold_record_ref": "threshold-record:fixture",
+        "hydrated_from_table": "lex_rule_thresholds",
+        "threshold_source_field": "lex_rule_thresholds",
+        "operator": ">=",
+        "unit": "UAH"
+      }
+    ],
+    "mandate_authority_records": [
+      {
+        "mandate_record_ref": "mandate-record:fixture",
+        "mandate_source_refs": ["mandate-source:fixture"],
+        "s6_mandate_firewall_disposition": "compatibility_only"
+      }
+    ],
+    "temporal_competence_records": [
+      {
+        "record_id": "temporal-record:fixture",
+        "status": "pass",
+        "temporal_resolution_status": "resolved"
+      }
+    ],
+    "lex_intervention_map_bindings": [
+      {
+        "binding_id": "lex-intervention-map:fixture",
+        "status": "pass",
+        "legal_authority_record_refs": ["legal-authority-record:fixture"],
+        "admitted_authority_precondition_status": "pass",
+        "used_as_legal_authority": false,
+        "authoritative_for": []
+      }
+    ],
+    "claim_registry_consumer_gate": {
+      "status": "pass",
+      "authoritative_for": [],
+      "claim_registry_rows": [
+        {
+          "selected_norm_refs": ["norm:fixture"],
+          "legal_authority_record_refs": ["legal-authority-record:fixture"]
+        }
+      ]
+    },
+    "semantic_binding_consumer_gate": {
+      "status": "pass",
+      "issue_codes": [],
+      "semantic_binding_issue_codes": [],
+      "semantic_binding_rows": [
+        {
+          "selected_norm_refs": ["norm:fixture"],
+          "legal_authority_record_refs": ["legal-authority-record:fixture"]
+        }
+      ]
+    },
+    "argument_graph_readiness_consumer_gate": {
+      "status": "pass",
+      "readiness_rows": [
+        {
+          "status": "pass",
+          "readiness_check": "layer3_gl_legal_mandate_search_readiness_gate",
+          "authority_refs": [
+            "legal-authority-record:fixture",
+            "threshold-record:fixture",
+            "mandate-record:fixture"
+          ]
+        }
+      ]
+    },
+    "s6_mandate_consumer_gate": {
+      "status": "pass",
+      "s6_gate_disposition": "compatibility_only",
+      "s6_mandate_source_records": [
+        {
+          "mandate_source_ref": "mandate-source:fixture",
+          "mandate_source_disposition": "compatibility_only"
+        }
+      ]
+    },
+    "s7_delegation_consumer_gate": {
+      "status": "pass",
+      "p26_boundary_preserved": true
+    },
+    "s8_value_choice_consumer_gate": {
+      "status": "out_of_scope",
+      "ranking_authorized": false
+    },
+    "pdc_compiler_consumer_gate": {
+      "status": "pass",
+      "compatible_with_pdc_input": true
+    },
+    "design_constraint_consumer_gate": {
+      "status": "pass",
+      "design_constraint_rows": [
+        {
+          "constraint_ref": "design-constraint:fixture"
+        }
+      ],
+      "consumed_as_recommendation_substance": false,
+      "consumed_as_promotion_authority": false
+    },
+    "g4_promotion_gate_consumer_gate": {
+      "status": "pass",
+      "future_g4_required_refs": ["legal-authority-record:fixture"],
+      "promotion_authority_claimed": false,
+      "governed_promoted_claimed": false,
+      "closeout_authority_claimed": false
+    },
+    "public_export_projection_refs": {
+      "status": "pass",
+      "projection_mode": "reference_only",
+      "projection_policy_ref": "projection-policy:gl-reference-only",
+      "public_export_hook_status": "out_of_scope_reference_only",
+      "raw_legal_payload_exported": false
+    }
+  }
+}

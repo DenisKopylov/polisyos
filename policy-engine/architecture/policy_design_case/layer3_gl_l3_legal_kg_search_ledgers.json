@@ -1,0 +1,1037 @@
+{
+  "ledgers": [
+    {
+      "amendment_lineage_refs": [],
+      "authoritative_for": [],
+      "authority_boundary": {
+        "authoritative_for": [],
+        "may_not_use_for": [
+          "recommendation_substance",
+          "closeout_authority",
+          "publication_authority",
+          "agent_authority",
+          "legal_authority_without_claim_level_adapter",
+          "mandate_authority_without_temporal_competence",
+          "s6_mandate_pass_without_s6_evaluation",
+          "ranked_value_choice_without_s8_authorization"
+        ]
+      },
+      "authority_facet_binding_refs": [],
+      "authority_level": null,
+      "bounded_result_limit": 5,
+      "candidate_rows": [
+        {
+          "applies_to": "25 percent",
+          "candidate_path": "threshold_metric_operator_value_unit",
+          "fact_id": "ef64d4844594c3112281",
+          "hydrated_from_table": "lex_rule_thresholds",
+          "metric": "percent",
+          "operator": "lte",
+          "row_ref": "lex_rule_thresholds:a5429abb6621acb11ed10b20",
+          "source_table": "lex_rule_thresholds",
+          "threshold_id": "a5429abb6621acb11ed10b20",
+          "threshold_source_field": "lex_rule_thresholds",
+          "unit": "percent",
+          "value_decimal": "25",
+          "value_text": "25"
+        },
+        {
+          "applies_to": "25",
+          "candidate_path": "threshold_metric_operator_value_unit",
+          "fact_id": "eea8abb765c0c3caf210",
+          "hydrated_from_table": "lex_rule_thresholds",
+          "metric": "percent",
+          "operator": "lte",
+          "row_ref": "lex_rule_thresholds:5e343db22fc414c1350957b9",
+          "source_table": "lex_rule_thresholds",
+          "threshold_id": "5e343db22fc414c1350957b9",
+          "threshold_source_field": "lex_rule_thresholds",
+          "unit": "percent",
+          "value_decimal": "25",
+          "value_text": "25"
+        },
+        {
+          "applies_to": "отримати кредит за рахунок коштів Державного позабюджетного фонду приватизації (надалі - підприємство) - це підприємство, в статутному фонді якого державна частка не перевищує 25 відсотків",
+          "candidate_path": "threshold_metric_operator_value_unit",
+          "fact_id": "1a8e8f13f18377929934",
+          "hydrated_from_table": "lex_rule_thresholds",
+          "metric": "percent",
+          "operator": "lte",
+          "row_ref": "lex_rule_thresholds:f337e1f2b37b58ecf470f7c8",
+          "source_table": "lex_rule_thresholds",
+          "threshold_id": "f337e1f2b37b58ecf470f7c8",
+          "threshold_source_field": "lex_rule_thresholds",
+          "unit": "percent",
+          "value_decimal": "25",
+          "value_text": "25"
+        },
+        {
+          "applies_to": "25 percent",
+          "candidate_path": "threshold_metric_operator_value_unit",
+          "fact_id": "5b70d2a85ca9a498fc8f",
+          "hydrated_from_table": "lex_rule_thresholds",
+          "metric": "percent",
+          "operator": "lte",
+          "row_ref": "lex_rule_thresholds:b8a18d6bad25bfba3cf9496a",
+          "source_table": "lex_rule_thresholds",
+          "threshold_id": "b8a18d6bad25bfba3cf9496a",
+          "threshold_source_field": "lex_rule_thresholds",
+          "unit": "percent",
+          "value_decimal": "25",
+          "value_text": "25"
+        },
+        {
+          "applies_to": "33 percent",
+          "candidate_path": "threshold_metric_operator_value_unit",
+          "fact_id": "d0a77c14fa1e34219da4",
+          "hydrated_from_table": "lex_rule_thresholds",
+          "metric": "percent",
+          "operator": "lte",
+          "row_ref": "lex_rule_thresholds:5a6922fab9932615678509d3",
+          "source_table": "lex_rule_thresholds",
+          "threshold_id": "5a6922fab9932615678509d3",
+          "threshold_source_field": "lex_rule_thresholds",
+          "unit": "percent",
+          "value_decimal": "33",
+          "value_text": "33"
+        }
+      ],
+      "canonical_route": "l3_legal_kg_duckdb",
+      "claim_id": "claim:gl:canonical-threshold-seed",
+      "effective_from": null,
+      "effective_to": null,
+      "filters": {
+        "jurisdiction": "UA",
+        "legal_as_of": "2022-03-01",
+        "policy_domain": "economic_policy",
+        "threshold_fields_required": true
+      },
+      "index_schema_snapshot_ref": "sha256:33f486da808f6eaaf0335a3c",
+      "issue_codes": [],
+      "jurisdiction": "UA",
+      "l5_calibration_refs": [],
+      "ledger_id": "gl-ledger:threshold:gl-request-canonical-threshold-seed",
+      "legal_as_of": "2022-03-01",
+      "legal_kg_snapshot_ref": "sha256:33f486da808f6eaaf0335a3c",
+      "legal_requirement_artifact_ref": null,
+      "may_not_use_for": [
+        "recommendation_substance",
+        "closeout_authority",
+        "publication_authority",
+        "agent_authority",
+        "legal_authority_without_claim_level_adapter",
+        "mandate_authority_without_temporal_competence",
+        "s6_mandate_pass_without_s6_evaluation",
+        "ranked_value_choice_without_s8_authorization"
+      ],
+      "no_hit_blockers": [],
+      "normalized_terms": [
+        "threshold",
+        "mandate",
+        "credit"
+      ],
+      "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
+      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "provenance_refs": [],
+      "query_trace_refs": [
+        "gl-query-trace:threshold:c19bfbbe159c0cbb3eccbd2e"
+      ],
+      "reference_resolution_status": null,
+      "request_ref": "gl-request:canonical-threshold-seed",
+      "requirement_ref": "legal-requirement://gl/canonical-threshold-seed",
+      "rule_version": "policyos.layer3.gl.legal_mandate_search.v1",
+      "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1",
+      "search_ledger_refs": [],
+      "selected_row_refs": [
+        "lex_rule_thresholds:a5429abb6621acb11ed10b20",
+        "lex_rule_thresholds:5e343db22fc414c1350957b9",
+        "lex_rule_thresholds:f337e1f2b37b58ecf470f7c8",
+        "lex_rule_thresholds:b8a18d6bad25bfba3cf9496a",
+        "lex_rule_thresholds:5a6922fab9932615678509d3"
+      ],
+      "source_authority": null,
+      "sql_shapes": [
+        "SELECT threshold_id, fact_id, metric, operator, value_decimal, value_text, unit, applies_to FROM lex_rule_thresholds WHERE metric IS NOT NULL AND operator IS NOT NULL AND unit IS NOT NULL LIMIT ?"
+      ],
+      "status": "complete_with_candidates",
+      "table_routes": [
+        "lex_rule_thresholds",
+        "lex_normative_ready_facts"
+      ],
+      "temporal_resolution_status": null,
+      "transition_input": false,
+      "used_full_table_scan": false
+    },
+    {
+      "amendment_lineage_refs": [],
+      "authoritative_for": [],
+      "authority_boundary": {
+        "authoritative_for": [],
+        "may_not_use_for": [
+          "recommendation_substance",
+          "closeout_authority",
+          "publication_authority",
+          "agent_authority",
+          "legal_authority_without_claim_level_adapter",
+          "mandate_authority_without_temporal_competence",
+          "s6_mandate_pass_without_s6_evaluation",
+          "ranked_value_choice_without_s8_authorization"
+        ]
+      },
+      "authority_facet_binding_refs": [],
+      "authority_level": null,
+      "bounded_result_limit": 5,
+      "candidate_rows": [
+        {
+          "candidate_path": "normative_fact",
+          "canonical_status": "canonicalized",
+          "doc_id": "00003a7579810a2a",
+          "effective_from": "",
+          "effective_to": "",
+          "fact_id": "43dd79e005f33fdbb73c",
+          "jurisdiction": "UA",
+          "row_ref": "lex_normative_ready_facts:43dd79e005f33fdbb73c",
+          "source_table": "lex_normative_ready_facts",
+          "temporal_resolution_status": "partial",
+          "top_domain": "fiscal",
+          "trust_tier": "normative_fact"
+        },
+        {
+          "candidate_path": "normative_fact",
+          "canonical_status": "canonicalized",
+          "doc_id": "00003a7579810a2a",
+          "effective_from": "",
+          "effective_to": "",
+          "fact_id": "d7ce7763551f5f29e9dc",
+          "jurisdiction": "UA",
+          "row_ref": "lex_normative_ready_facts:d7ce7763551f5f29e9dc",
+          "source_table": "lex_normative_ready_facts",
+          "temporal_resolution_status": "partial",
+          "top_domain": "fiscal",
+          "trust_tier": "normative_fact"
+        },
+        {
+          "candidate_path": "normative_fact",
+          "canonical_status": "canonicalized",
+          "doc_id": "00003a7579810a2a",
+          "effective_from": "",
+          "effective_to": "",
+          "fact_id": "ef64d4844594c3112281",
+          "jurisdiction": "UA",
+          "row_ref": "lex_normative_ready_facts:ef64d4844594c3112281",
+          "source_table": "lex_normative_ready_facts",
+          "temporal_resolution_status": "partial",
+          "top_domain": "fiscal",
+          "trust_tier": "normative_fact"
+        },
+        {
+          "candidate_path": "normative_fact",
+          "canonical_status": "canonicalized",
+          "doc_id": "00003a7579810a2a",
+          "effective_from": "",
+          "effective_to": "",
+          "fact_id": "eea8abb765c0c3caf210",
+          "jurisdiction": "UA",
+          "row_ref": "lex_normative_ready_facts:eea8abb765c0c3caf210",
+          "source_table": "lex_normative_ready_facts",
+          "temporal_resolution_status": "partial",
+          "top_domain": "fiscal",
+          "trust_tier": "normative_fact"
+        },
+        {
+          "candidate_path": "normative_fact",
+          "canonical_status": "canonicalized",
+          "doc_id": "00003a7579810a2a",
+          "effective_from": "",
+          "effective_to": "",
+          "fact_id": "1a8e8f13f18377929934",
+          "jurisdiction": "UA",
+          "row_ref": "lex_normative_ready_facts:1a8e8f13f18377929934",
+          "source_table": "lex_normative_ready_facts",
+          "temporal_resolution_status": "partial",
+          "top_domain": "fiscal",
+          "trust_tier": "normative_fact"
+        }
+      ],
+      "canonical_route": "l3_legal_kg_duckdb",
+      "claim_id": "claim:gl:canonical-threshold-seed",
+      "effective_from": null,
+      "effective_to": null,
+      "filters": {
+        "doc_id_required": true,
+        "fact_id_required": true,
+        "jurisdiction": "UA",
+        "legal_as_of": "2022-03-01"
+      },
+      "index_schema_snapshot_ref": "sha256:33f486da808f6eaaf0335a3c",
+      "issue_codes": [],
+      "jurisdiction": "UA",
+      "l5_calibration_refs": [],
+      "ledger_id": "gl-ledger:normative-fact:gl-request-canonical-threshold-seed",
+      "legal_as_of": "2022-03-01",
+      "legal_kg_snapshot_ref": "sha256:33f486da808f6eaaf0335a3c",
+      "legal_requirement_artifact_ref": null,
+      "may_not_use_for": [
+        "recommendation_substance",
+        "closeout_authority",
+        "publication_authority",
+        "agent_authority",
+        "legal_authority_without_claim_level_adapter",
+        "mandate_authority_without_temporal_competence",
+        "s6_mandate_pass_without_s6_evaluation",
+        "ranked_value_choice_without_s8_authorization"
+      ],
+      "no_hit_blockers": [],
+      "normalized_terms": [
+        "normative_fact",
+        "ua"
+      ],
+      "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
+      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "provenance_refs": [],
+      "query_trace_refs": [
+        "gl-query-trace:normative-fact:c19bfbbe159c0cbb3eccbd2e"
+      ],
+      "reference_resolution_status": null,
+      "request_ref": "gl-request:canonical-threshold-seed",
+      "requirement_ref": "legal-requirement://gl/canonical-threshold-seed",
+      "rule_version": "policyos.layer3.gl.legal_mandate_search.v1",
+      "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1",
+      "search_ledger_refs": [],
+      "selected_row_refs": [
+        "lex_normative_ready_facts:43dd79e005f33fdbb73c",
+        "lex_normative_ready_facts:d7ce7763551f5f29e9dc",
+        "lex_normative_ready_facts:ef64d4844594c3112281",
+        "lex_normative_ready_facts:eea8abb765c0c3caf210",
+        "lex_normative_ready_facts:1a8e8f13f18377929934"
+      ],
+      "source_authority": null,
+      "sql_shapes": [
+        "SELECT fact_id, doc_id, jurisdiction, top_domain, effective_from, effective_to, temporal_resolution_status, trust_tier, canonical_status FROM lex_normative_ready_facts WHERE jurisdiction = ? AND fact_id IS NOT NULL AND doc_id IS NOT NULL LIMIT ?"
+      ],
+      "status": "complete_with_candidates",
+      "table_routes": [
+        "lex_normative_ready_facts"
+      ],
+      "temporal_resolution_status": null,
+      "transition_input": false,
+      "used_full_table_scan": false
+    },
+    {
+      "amendment_lineage_refs": [],
+      "authoritative_for": [],
+      "authority_boundary": {
+        "authoritative_for": [],
+        "may_not_use_for": [
+          "recommendation_substance",
+          "closeout_authority",
+          "publication_authority",
+          "agent_authority",
+          "legal_authority_without_claim_level_adapter",
+          "mandate_authority_without_temporal_competence",
+          "s6_mandate_pass_without_s6_evaluation",
+          "ranked_value_choice_without_s8_authorization"
+        ]
+      },
+      "authority_facet_binding_refs": [],
+      "authority_level": null,
+      "bounded_result_limit": 5,
+      "candidate_rows": [
+        {
+          "amended_doc_id": "b67b1a85227c0bf5",
+          "amending_doc_id": "00603a453afd86e5",
+          "amendment_id": "b54e6771cbe95f6d0029b20e",
+          "amendment_type": "general_amendment",
+          "candidate_path": "amendment_lineage",
+          "confidence": 0.7200000286102295,
+          "detected_by": "pattern+title",
+          "effective_from": "",
+          "row_ref": "lex_amendments:b54e6771cbe95f6d0029b20e",
+          "source_table": "lex_amendments"
+        },
+        {
+          "amended_doc_id": "b67b1a85227c0bf5",
+          "amending_doc_id": "00603a453afd86e5",
+          "amendment_id": "6ad759a93a8795845f45b838",
+          "amendment_type": "amendment_signal",
+          "candidate_path": "amendment_lineage",
+          "confidence": 0.6499999761581421,
+          "detected_by": "pattern+title",
+          "effective_from": "",
+          "row_ref": "lex_amendments:6ad759a93a8795845f45b838",
+          "source_table": "lex_amendments"
+        },
+        {
+          "amended_doc_id": "b67b1a85227c0bf5",
+          "amending_doc_id": "00603a453afd86e5",
+          "amendment_id": "4347c5a8970795608927054c",
+          "amendment_type": "amendment_signal",
+          "candidate_path": "amendment_lineage",
+          "confidence": 0.6499999761581421,
+          "detected_by": "pattern+title",
+          "effective_from": "",
+          "row_ref": "lex_amendments:4347c5a8970795608927054c",
+          "source_table": "lex_amendments"
+        },
+        {
+          "amended_doc_id": "964a15dd781ae493",
+          "amending_doc_id": "006c8d78b20d6d3d",
+          "amendment_id": "5728a27a3ceb873209d4c6f5",
+          "amendment_type": "general_amendment",
+          "candidate_path": "amendment_lineage",
+          "confidence": 0.7200000286102295,
+          "detected_by": "pattern+title",
+          "effective_from": "",
+          "row_ref": "lex_amendments:5728a27a3ceb873209d4c6f5",
+          "source_table": "lex_amendments"
+        },
+        {
+          "amended_doc_id": "964a15dd781ae493",
+          "amending_doc_id": "006c8d78b20d6d3d",
+          "amendment_id": "4c4b53cf44b4126a32ef50b0",
+          "amendment_type": "replace_text",
+          "candidate_path": "amendment_lineage",
+          "confidence": 0.8799999952316284,
+          "detected_by": "pattern+title",
+          "effective_from": "",
+          "row_ref": "lex_amendments:4c4b53cf44b4126a32ef50b0",
+          "source_table": "lex_amendments"
+        }
+      ],
+      "canonical_route": "l3_legal_kg_duckdb",
+      "claim_id": "claim:gl:canonical-threshold-seed",
+      "effective_from": null,
+      "effective_to": null,
+      "filters": {
+        "amended_doc_id_required": true,
+        "amendment_id_required": true
+      },
+      "index_schema_snapshot_ref": "sha256:33f486da808f6eaaf0335a3c",
+      "issue_codes": [],
+      "jurisdiction": "UA",
+      "l5_calibration_refs": [],
+      "ledger_id": "gl-ledger:amendment-lineage:gl-request-canonical-threshold-seed",
+      "legal_as_of": "2022-03-01",
+      "legal_kg_snapshot_ref": "sha256:33f486da808f6eaaf0335a3c",
+      "legal_requirement_artifact_ref": null,
+      "may_not_use_for": [
+        "recommendation_substance",
+        "closeout_authority",
+        "publication_authority",
+        "agent_authority",
+        "legal_authority_without_claim_level_adapter",
+        "mandate_authority_without_temporal_competence",
+        "s6_mandate_pass_without_s6_evaluation",
+        "ranked_value_choice_without_s8_authorization"
+      ],
+      "no_hit_blockers": [],
+      "normalized_terms": [
+        "amendment_lineage",
+        "effective_from"
+      ],
+      "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
+      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "provenance_refs": [],
+      "query_trace_refs": [
+        "gl-query-trace:amendment-lineage:c19bfbbe159c0cbb3eccbd2e"
+      ],
+      "reference_resolution_status": null,
+      "request_ref": "gl-request:canonical-threshold-seed",
+      "requirement_ref": "legal-requirement://gl/canonical-threshold-seed",
+      "rule_version": "policyos.layer3.gl.legal_mandate_search.v1",
+      "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1",
+      "search_ledger_refs": [],
+      "selected_row_refs": [
+        "lex_amendments:b54e6771cbe95f6d0029b20e",
+        "lex_amendments:6ad759a93a8795845f45b838",
+        "lex_amendments:4347c5a8970795608927054c",
+        "lex_amendments:5728a27a3ceb873209d4c6f5",
+        "lex_amendments:4c4b53cf44b4126a32ef50b0"
+      ],
+      "source_authority": null,
+      "sql_shapes": [
+        "SELECT amendment_id, amending_doc_id, amended_doc_id, amendment_type, effective_from, confidence, detected_by FROM lex_amendments WHERE amendment_id IS NOT NULL AND amended_doc_id IS NOT NULL LIMIT ?"
+      ],
+      "status": "complete_with_candidates",
+      "table_routes": [
+        "lex_amendments"
+      ],
+      "temporal_resolution_status": null,
+      "transition_input": false,
+      "used_full_table_scan": false
+    },
+    {
+      "amendment_lineage_refs": [],
+      "authoritative_for": [],
+      "authority_boundary": {
+        "authoritative_for": [],
+        "may_not_use_for": [
+          "recommendation_substance",
+          "closeout_authority",
+          "publication_authority",
+          "agent_authority",
+          "legal_authority_without_claim_level_adapter",
+          "mandate_authority_without_temporal_competence",
+          "s6_mandate_pass_without_s6_evaluation",
+          "ranked_value_choice_without_s8_authorization"
+        ]
+      },
+      "authority_facet_binding_refs": [],
+      "authority_level": null,
+      "bounded_result_limit": 5,
+      "candidate_rows": [
+        {
+          "candidate_path": "provision_source_bundle",
+          "doc_id": "00003a7579810a2a",
+          "doc_reestr_code": "3614(1)/1997",
+          "doc_status": "Втратив чинність",
+          "doc_type": "Постанова",
+          "effective_from": "",
+          "effective_to": "",
+          "published_at": "1997-09-17",
+          "row_ref": "lex_doc_versions:f3e853791d73144d4e1386ed",
+          "source_table": "lex_doc_versions",
+          "temporal_resolution_status": "partial",
+          "temporal_state": "historical",
+          "temporal_table": "lex_doc_temporal",
+          "version_id": "00003a7579810a2a",
+          "version_row_id": "f3e853791d73144d4e1386ed"
+        },
+        {
+          "candidate_path": "provision_source_bundle",
+          "doc_id": "00009ea7414f675b",
+          "doc_reestr_code": "18873/2001",
+          "doc_status": "Втратив чинність",
+          "doc_type": "Постанова",
+          "effective_from": "",
+          "effective_to": "",
+          "published_at": "2001-05-23",
+          "row_ref": "lex_doc_versions:c367dc32cf003b4c5f5c0963",
+          "source_table": "lex_doc_versions",
+          "temporal_resolution_status": "partial",
+          "temporal_state": "historical",
+          "temporal_table": "lex_doc_temporal",
+          "version_id": "00009ea7414f675b",
+          "version_row_id": "c367dc32cf003b4c5f5c0963"
+        },
+        {
+          "candidate_path": "provision_source_bundle",
+          "doc_id": "0000a1c93d28f479",
+          "doc_reestr_code": "134236/2025",
+          "doc_status": "Чинний",
+          "doc_type": "Постанова",
+          "effective_from": "",
+          "effective_to": "",
+          "published_at": "2025-09-26",
+          "row_ref": "lex_doc_versions:b52dbaf1714b3319ed1d8b70",
+          "source_table": "lex_doc_versions",
+          "temporal_resolution_status": "partial",
+          "temporal_state": "current",
+          "temporal_table": "lex_doc_temporal",
+          "version_id": "0000a1c93d28f479",
+          "version_row_id": "b52dbaf1714b3319ed1d8b70"
+        },
+        {
+          "candidate_path": "provision_source_bundle",
+          "doc_id": "0001215775bf49ef",
+          "doc_reestr_code": "69219/2013",
+          "doc_status": "Чинний",
+          "doc_type": "Постанова",
+          "effective_from": "",
+          "effective_to": "",
+          "published_at": "2013-10-25",
+          "row_ref": "lex_doc_versions:d05bb5786ba3108ef4fab3f1",
+          "source_table": "lex_doc_versions",
+          "temporal_resolution_status": "partial",
+          "temporal_state": "current",
+          "temporal_table": "lex_doc_temporal",
+          "version_id": "0001215775bf49ef",
+          "version_row_id": "d05bb5786ba3108ef4fab3f1"
+        },
+        {
+          "candidate_path": "provision_source_bundle",
+          "doc_id": "000199a3865ebe8f",
+          "doc_reestr_code": "112920/2022",
+          "doc_status": "Чинний",
+          "doc_type": "Розпорядження",
+          "effective_from": "",
+          "effective_to": "",
+          "published_at": "2022-08-12",
+          "row_ref": "lex_doc_versions:59d56c032ef22f2b7593e9e7",
+          "source_table": "lex_doc_versions",
+          "temporal_resolution_status": "partial",
+          "temporal_state": "current",
+          "temporal_table": "lex_doc_temporal",
+          "version_id": "000199a3865ebe8f",
+          "version_row_id": "59d56c032ef22f2b7593e9e7"
+        }
+      ],
+      "canonical_route": "l3_legal_kg_duckdb",
+      "claim_id": "claim:gl:canonical-threshold-seed",
+      "effective_from": null,
+      "effective_to": null,
+      "filters": {
+        "doc_id_required": true,
+        "version_row_id_required": true
+      },
+      "index_schema_snapshot_ref": "sha256:33f486da808f6eaaf0335a3c",
+      "issue_codes": [],
+      "jurisdiction": "UA",
+      "l5_calibration_refs": [],
+      "ledger_id": "gl-ledger:provision-source:gl-request-canonical-threshold-seed",
+      "legal_as_of": "2022-03-01",
+      "legal_kg_snapshot_ref": "sha256:33f486da808f6eaaf0335a3c",
+      "legal_requirement_artifact_ref": null,
+      "may_not_use_for": [
+        "recommendation_substance",
+        "closeout_authority",
+        "publication_authority",
+        "agent_authority",
+        "legal_authority_without_claim_level_adapter",
+        "mandate_authority_without_temporal_competence",
+        "s6_mandate_pass_without_s6_evaluation",
+        "ranked_value_choice_without_s8_authorization"
+      ],
+      "no_hit_blockers": [],
+      "normalized_terms": [
+        "provision_source_bundle",
+        "temporal"
+      ],
+      "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
+      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "provenance_refs": [],
+      "query_trace_refs": [
+        "gl-query-trace:provision-source:c19bfbbe159c0cbb3eccbd2e"
+      ],
+      "reference_resolution_status": null,
+      "request_ref": "gl-request:canonical-threshold-seed",
+      "requirement_ref": "legal-requirement://gl/canonical-threshold-seed",
+      "rule_version": "policyos.layer3.gl.legal_mandate_search.v1",
+      "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1",
+      "search_ledger_refs": [],
+      "selected_row_refs": [
+        "lex_doc_versions:f3e853791d73144d4e1386ed",
+        "lex_doc_versions:c367dc32cf003b4c5f5c0963",
+        "lex_doc_versions:b52dbaf1714b3319ed1d8b70",
+        "lex_doc_versions:d05bb5786ba3108ef4fab3f1",
+        "lex_doc_versions:59d56c032ef22f2b7593e9e7"
+      ],
+      "source_authority": null,
+      "sql_shapes": [
+        "SELECT v.version_row_id, v.doc_id, v.version_id, v.doc_reestr_code, v.doc_type, v.doc_status, t.temporal_state, t.temporal_resolution_status, t.published_at, t.effective_from, t.effective_to FROM lex_doc_versions AS v LEFT JOIN lex_doc_temporal AS t ON v.doc_id = t.doc_id WHERE v.version_row_id IS NOT NULL AND v.doc_id IS NOT NULL LIMIT ?"
+      ],
+      "status": "complete_with_candidates",
+      "table_routes": [
+        "lex_doc_versions",
+        "lex_doc_temporal"
+      ],
+      "temporal_resolution_status": null,
+      "transition_input": false,
+      "used_full_table_scan": false
+    },
+    {
+      "amendment_lineage_refs": [],
+      "authoritative_for": [],
+      "authority_boundary": {
+        "authoritative_for": [],
+        "may_not_use_for": [
+          "recommendation_substance",
+          "closeout_authority",
+          "publication_authority",
+          "agent_authority",
+          "legal_authority_without_claim_level_adapter",
+          "mandate_authority_without_temporal_competence",
+          "s6_mandate_pass_without_s6_evaluation",
+          "ranked_value_choice_without_s8_authorization"
+        ]
+      },
+      "authority_facet_binding_refs": [],
+      "authority_level": null,
+      "bounded_result_limit": 5,
+      "candidate_rows": [
+        {
+          "audit_table": "lex_reference_resolution_audit",
+          "candidate_count": 0,
+          "candidate_path": "reference_resolution",
+          "reference_edge_id": "7b1083e8dc858294c1f1c341",
+          "relation_type": "references",
+          "resolution_confidence": 0.9200000166893005,
+          "resolution_method": "",
+          "resolution_status": "partial",
+          "row_ref": "lex_reference_edges:7b1083e8dc858294c1f1c341",
+          "selected_target_doc_id": "",
+          "source_anchor": "body:1/item:0001",
+          "source_doc_id": "0001215775bf49ef",
+          "source_table": "lex_reference_edges",
+          "target_anchor": "article:261",
+          "target_doc_id": ""
+        },
+        {
+          "audit_table": "lex_reference_resolution_audit",
+          "candidate_count": 0,
+          "candidate_path": "reference_resolution",
+          "reference_edge_id": "bd49a4b248933270259a7e7b",
+          "relation_type": "references",
+          "resolution_confidence": 0.9200000166893005,
+          "resolution_method": "",
+          "resolution_status": "partial",
+          "row_ref": "lex_reference_edges:bd49a4b248933270259a7e7b",
+          "selected_target_doc_id": "",
+          "source_anchor": "body:1/item:0014",
+          "source_doc_id": "0001215775bf49ef",
+          "source_table": "lex_reference_edges",
+          "target_anchor": "article:6",
+          "target_doc_id": ""
+        },
+        {
+          "audit_table": "lex_reference_resolution_audit",
+          "candidate_count": 0,
+          "candidate_path": "reference_resolution",
+          "reference_edge_id": "321b0e1e55ee084a7fda82b4",
+          "relation_type": "references",
+          "resolution_confidence": 0.9200000166893005,
+          "resolution_method": "",
+          "resolution_status": "partial",
+          "row_ref": "lex_reference_edges:321b0e1e55ee084a7fda82b4",
+          "selected_target_doc_id": "",
+          "source_anchor": "body:1/item:0001",
+          "source_doc_id": "0002b98091ff2445",
+          "source_table": "lex_reference_edges",
+          "target_anchor": "article:12/point:10",
+          "target_doc_id": ""
+        },
+        {
+          "audit_table": "lex_reference_resolution_audit",
+          "candidate_count": 5,
+          "candidate_path": "reference_resolution",
+          "reference_edge_id": "a62f7c4f002d587ca38d9dca",
+          "relation_type": "references",
+          "resolution_confidence": 0.9200000166893005,
+          "resolution_method": "",
+          "resolution_status": "partial",
+          "row_ref": "lex_reference_edges:a62f7c4f002d587ca38d9dca",
+          "selected_target_doc_id": "",
+          "source_anchor": "body:1/para:0001",
+          "source_doc_id": "0008550513fce68b",
+          "source_table": "lex_reference_edges",
+          "target_anchor": "article:7",
+          "target_doc_id": ""
+        },
+        {
+          "audit_table": "lex_reference_resolution_audit",
+          "candidate_count": 5,
+          "candidate_path": "reference_resolution",
+          "reference_edge_id": "7f0e1064aaa64458ea007024",
+          "relation_type": "references",
+          "resolution_confidence": 0.9700000286102295,
+          "resolution_method": "",
+          "resolution_status": "unresolved",
+          "row_ref": "lex_reference_edges:7f0e1064aaa64458ea007024",
+          "selected_target_doc_id": "",
+          "source_anchor": "body:1/para:0001",
+          "source_doc_id": "0008550513fce68b",
+          "source_table": "lex_reference_edges",
+          "target_anchor": "",
+          "target_doc_id": ""
+        }
+      ],
+      "canonical_route": "l3_legal_kg_duckdb",
+      "claim_id": "claim:gl:canonical-threshold-seed",
+      "effective_from": null,
+      "effective_to": null,
+      "filters": {
+        "reference_edge_id_required": true
+      },
+      "index_schema_snapshot_ref": "sha256:33f486da808f6eaaf0335a3c",
+      "issue_codes": [],
+      "jurisdiction": "UA",
+      "l5_calibration_refs": [],
+      "ledger_id": "gl-ledger:reference-resolution:gl-request-canonical-threshold-seed",
+      "legal_as_of": "2022-03-01",
+      "legal_kg_snapshot_ref": "sha256:33f486da808f6eaaf0335a3c",
+      "legal_requirement_artifact_ref": null,
+      "may_not_use_for": [
+        "recommendation_substance",
+        "closeout_authority",
+        "publication_authority",
+        "agent_authority",
+        "legal_authority_without_claim_level_adapter",
+        "mandate_authority_without_temporal_competence",
+        "s6_mandate_pass_without_s6_evaluation",
+        "ranked_value_choice_without_s8_authorization"
+      ],
+      "no_hit_blockers": [],
+      "normalized_terms": [
+        "reference_resolution"
+      ],
+      "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
+      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "provenance_refs": [],
+      "query_trace_refs": [
+        "gl-query-trace:reference-resolution:c19bfbbe159c0cbb3eccbd2e"
+      ],
+      "reference_resolution_status": null,
+      "request_ref": "gl-request:canonical-threshold-seed",
+      "requirement_ref": "legal-requirement://gl/canonical-threshold-seed",
+      "rule_version": "policyos.layer3.gl.legal_mandate_search.v1",
+      "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1",
+      "search_ledger_refs": [],
+      "selected_row_refs": [
+        "lex_reference_edges:7b1083e8dc858294c1f1c341",
+        "lex_reference_edges:bd49a4b248933270259a7e7b",
+        "lex_reference_edges:321b0e1e55ee084a7fda82b4",
+        "lex_reference_edges:a62f7c4f002d587ca38d9dca",
+        "lex_reference_edges:7f0e1064aaa64458ea007024"
+      ],
+      "source_authority": null,
+      "sql_shapes": [
+        "SELECT e.reference_edge_id, e.source_doc_id, e.source_anchor, e.target_doc_id, e.target_anchor, e.relation_type, e.resolution_status, e.resolution_confidence, a.resolution_method, a.candidate_count, a.selected_target_doc_id FROM lex_reference_edges AS e LEFT JOIN lex_reference_resolution_audit AS a ON e.reference_edge_id = a.ref_id WHERE e.reference_edge_id IS NOT NULL LIMIT ?"
+      ],
+      "status": "complete_with_candidates",
+      "table_routes": [
+        "lex_reference_edges",
+        "lex_reference_resolution_audit"
+      ],
+      "temporal_resolution_status": null,
+      "transition_input": false,
+      "used_full_table_scan": false
+    },
+    {
+      "amendment_lineage_refs": [],
+      "authoritative_for": [],
+      "authority_boundary": {
+        "authoritative_for": [],
+        "may_not_use_for": [
+          "recommendation_substance",
+          "closeout_authority",
+          "publication_authority",
+          "agent_authority",
+          "legal_authority_without_claim_level_adapter",
+          "mandate_authority_without_temporal_competence",
+          "s6_mandate_pass_without_s6_evaluation",
+          "ranked_value_choice_without_s8_authorization"
+        ]
+      },
+      "authority_facet_binding_refs": [],
+      "authority_level": null,
+      "bounded_result_limit": 5,
+      "candidate_rows": [
+        {
+          "action_canon": "approves",
+          "authority_status": "candidate_only",
+          "candidate_path": "intervention_map_candidate",
+          "doc_id": "00003a7579810a2a",
+          "fact_id": "43dd79e005f33fdbb73c",
+          "intervention_family": "subsidized_credit",
+          "jurisdiction": "UA",
+          "norm_type_canon": "procedure",
+          "predicate": "approves",
+          "row_ref": "lex_normative_ready_facts:43dd79e005f33fdbb73c",
+          "source_table": "lex_normative_ready_facts",
+          "temporal_resolution_status": "partial",
+          "top_domain": "fiscal"
+        },
+        {
+          "action_canon": "approves",
+          "authority_status": "candidate_only",
+          "candidate_path": "intervention_map_candidate",
+          "doc_id": "00003a7579810a2a",
+          "fact_id": "d7ce7763551f5f29e9dc",
+          "intervention_family": "subsidized_credit",
+          "jurisdiction": "UA",
+          "norm_type_canon": "procedure",
+          "predicate": "approves",
+          "row_ref": "lex_normative_ready_facts:d7ce7763551f5f29e9dc",
+          "source_table": "lex_normative_ready_facts",
+          "temporal_resolution_status": "partial",
+          "top_domain": "fiscal"
+        },
+        {
+          "action_canon": "sets_threshold",
+          "authority_status": "candidate_only",
+          "candidate_path": "intervention_map_candidate",
+          "doc_id": "00003a7579810a2a",
+          "fact_id": "ef64d4844594c3112281",
+          "intervention_family": "subsidized_credit",
+          "jurisdiction": "UA",
+          "norm_type_canon": "obligation",
+          "predicate": "sets_threshold",
+          "row_ref": "lex_normative_ready_facts:ef64d4844594c3112281",
+          "source_table": "lex_normative_ready_facts",
+          "temporal_resolution_status": "partial",
+          "top_domain": "fiscal"
+        },
+        {
+          "action_canon": "sets_threshold",
+          "authority_status": "candidate_only",
+          "candidate_path": "intervention_map_candidate",
+          "doc_id": "00003a7579810a2a",
+          "fact_id": "eea8abb765c0c3caf210",
+          "intervention_family": "subsidized_credit",
+          "jurisdiction": "UA",
+          "norm_type_canon": "obligation",
+          "predicate": "sets_threshold",
+          "row_ref": "lex_normative_ready_facts:eea8abb765c0c3caf210",
+          "source_table": "lex_normative_ready_facts",
+          "temporal_resolution_status": "partial",
+          "top_domain": "fiscal"
+        },
+        {
+          "action_canon": "grants",
+          "authority_status": "candidate_only",
+          "candidate_path": "intervention_map_candidate",
+          "doc_id": "00003a7579810a2a",
+          "fact_id": "1a8e8f13f18377929934",
+          "intervention_family": "subsidized_credit",
+          "jurisdiction": "UA",
+          "norm_type_canon": "permission",
+          "predicate": "grants",
+          "row_ref": "lex_normative_ready_facts:1a8e8f13f18377929934",
+          "source_table": "lex_normative_ready_facts",
+          "temporal_resolution_status": "partial",
+          "top_domain": "fiscal"
+        }
+      ],
+      "canonical_route": "l3_legal_kg_duckdb",
+      "claim_id": "claim:gl:canonical-threshold-seed",
+      "effective_from": null,
+      "effective_to": null,
+      "filters": {
+        "action_or_predicate_required": true,
+        "authority_status": "candidate_only",
+        "jurisdiction": "UA"
+      },
+      "index_schema_snapshot_ref": "sha256:33f486da808f6eaaf0335a3c",
+      "issue_codes": [],
+      "jurisdiction": "UA",
+      "l5_calibration_refs": [],
+      "ledger_id": "gl-ledger:intervention-map:gl-request-canonical-threshold-seed",
+      "legal_as_of": "2022-03-01",
+      "legal_kg_snapshot_ref": "sha256:33f486da808f6eaaf0335a3c",
+      "legal_requirement_artifact_ref": null,
+      "may_not_use_for": [
+        "recommendation_substance",
+        "closeout_authority",
+        "publication_authority",
+        "agent_authority",
+        "legal_authority_without_claim_level_adapter",
+        "mandate_authority_without_temporal_competence",
+        "s6_mandate_pass_without_s6_evaluation",
+        "ranked_value_choice_without_s8_authorization"
+      ],
+      "no_hit_blockers": [],
+      "normalized_terms": [
+        "intervention_map_candidate",
+        "subsidized_credit"
+      ],
+      "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
+      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "provenance_refs": [],
+      "query_trace_refs": [
+        "gl-query-trace:intervention-map:c19bfbbe159c0cbb3eccbd2e"
+      ],
+      "reference_resolution_status": null,
+      "request_ref": "gl-request:canonical-threshold-seed",
+      "requirement_ref": "legal-requirement://gl/canonical-threshold-seed",
+      "rule_version": "policyos.layer3.gl.legal_mandate_search.v1",
+      "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1",
+      "search_ledger_refs": [],
+      "selected_row_refs": [
+        "lex_normative_ready_facts:43dd79e005f33fdbb73c",
+        "lex_normative_ready_facts:d7ce7763551f5f29e9dc",
+        "lex_normative_ready_facts:ef64d4844594c3112281",
+        "lex_normative_ready_facts:eea8abb765c0c3caf210",
+        "lex_normative_ready_facts:1a8e8f13f18377929934"
+      ],
+      "source_authority": null,
+      "sql_shapes": [
+        "SELECT fact_id, doc_id, action_canon, norm_type_canon, predicate, jurisdiction, top_domain, temporal_resolution_status FROM lex_normative_ready_facts WHERE jurisdiction = ? AND (action_canon IS NOT NULL OR predicate IS NOT NULL) LIMIT ?"
+      ],
+      "status": "complete_with_candidates",
+      "table_routes": [
+        "lex_normative_ready_facts"
+      ],
+      "temporal_resolution_status": null,
+      "transition_input": false,
+      "used_full_table_scan": false
+    },
+    {
+      "amendment_lineage_refs": [],
+      "authoritative_for": [],
+      "authority_boundary": {
+        "authoritative_for": [],
+        "may_not_use_for": [
+          "recommendation_substance",
+          "closeout_authority",
+          "publication_authority",
+          "agent_authority",
+          "legal_authority_without_claim_level_adapter",
+          "mandate_authority_without_temporal_competence",
+          "s6_mandate_pass_without_s6_evaluation",
+          "ranked_value_choice_without_s8_authorization"
+        ]
+      },
+      "authority_facet_binding_refs": [],
+      "authority_level": null,
+      "bounded_result_limit": 1,
+      "candidate_rows": [],
+      "canonical_route": "l3_legal_kg_duckdb",
+      "claim_id": "claim:gl:canonical-threshold-seed",
+      "effective_from": null,
+      "effective_to": null,
+      "filters": {
+        "known_no_hit_seed": "__policyos_gl_known_no_hit_seed__"
+      },
+      "index_schema_snapshot_ref": "sha256:33f486da808f6eaaf0335a3c",
+      "issue_codes": [],
+      "jurisdiction": "UA",
+      "l5_calibration_refs": [],
+      "ledger_id": "gl-ledger:no-hit:gl-request-canonical-threshold-seed",
+      "legal_as_of": "2022-03-01",
+      "legal_kg_snapshot_ref": "sha256:33f486da808f6eaaf0335a3c",
+      "legal_requirement_artifact_ref": null,
+      "may_not_use_for": [
+        "recommendation_substance",
+        "closeout_authority",
+        "publication_authority",
+        "agent_authority",
+        "legal_authority_without_claim_level_adapter",
+        "mandate_authority_without_temporal_competence",
+        "s6_mandate_pass_without_s6_evaluation",
+        "ranked_value_choice_without_s8_authorization"
+      ],
+      "no_hit_blockers": [
+        "bounded_no_hit_probe"
+      ],
+      "normalized_terms": [
+        "__policyos_gl_known_no_hit_seed__"
+      ],
+      "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
+      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "provenance_refs": [],
+      "query_trace_refs": [
+        "gl-query-trace:no-hit:c19bfbbe159c0cbb3eccbd2e"
+      ],
+      "reference_resolution_status": null,
+      "request_ref": "gl-request:canonical-threshold-seed",
+      "requirement_ref": "legal-requirement://gl/canonical-threshold-seed",
+      "rule_version": "policyos.layer3.gl.legal_mandate_search.v1",
+      "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1",
+      "search_ledger_refs": [],
+      "selected_row_refs": [],
+      "source_authority": null,
+      "sql_shapes": [
+        "SELECT fact_id FROM lex_normative_ready_facts WHERE fact_id = ? LIMIT 1"
+      ],
+      "status": "complete_no_candidate",
+      "table_routes": [
+        "lex_normative_ready_facts"
+      ],
+      "temporal_resolution_status": null,
+      "transition_input": false,
+      "used_full_table_scan": false
+    }
+  ],
+  "rule_version": "policyos.layer3.gl.legal_mandate_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1"
+}

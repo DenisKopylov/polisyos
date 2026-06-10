@@ -1,0 +1,266 @@
+{
+  "bindings": [
+    {
+      "amendment_lineage_refs": [],
+      "authoritative_for": [],
+      "authority_boundary": {
+        "authoritative_for": [
+          "legal_authority_requirements",
+          "lex_claim_level_competence_preconditions"
+        ],
+        "may_not_use_for": [
+          "legal_admissibility_without_lex_evaluation",
+          "source_family_satisfaction",
+          "method_validity",
+          "academic_support_strength",
+          "participation_representativeness",
+          "closeout_pass"
+        ]
+      },
+      "authority_facet_binding_refs": [],
+      "authority_level": null,
+      "authority_profile_ref": "gl_legal_mandate",
+      "authority_type_source": "compiler_default",
+      "authority_types": [
+        "implementing"
+      ],
+      "binding_id": "gl-legal-requirement:46da831b10cd13f365a529e9",
+      "claim_id": "gl_canonical_threshold_seed",
+      "claim_ref": "claim:gl:canonical-threshold-seed",
+      "compiler_default_fields": [
+        "authority_types"
+      ],
+      "compiler_default_marked": true,
+      "compiler_runtime_event_ref": "event://legal-requirement/layer3-gl-canonical-legal-mandate",
+      "concept_spine_refs": [
+        "concept:economic_policy_support"
+      ],
+      "effective_from": "2022-03-01",
+      "effective_to": "2022-12-31",
+      "facet_refs": [],
+      "fallback_policy": {
+        "config_ref": "jurisdiction-fallback:gl-ua-v1",
+        "mode": "governed_config_required",
+        "owner": "policyos:runtime-quality",
+        "policy_ref": null,
+        "review_ref": null
+      },
+      "issue_codes": [],
+      "jurisdiction": "UA",
+      "l5_calibration_refs": [],
+      "legal_as_of": "2022-03-01",
+      "legal_kg_snapshot_ref": null,
+      "legal_requirement_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_legal_requirement_bindings.json#a70a11e4f56de44b5e9febf1",
+      "mandatory": true,
+      "may_not_use_for": [
+        "recommendation_substance",
+        "closeout_authority",
+        "publication_authority",
+        "agent_authority",
+        "legal_authority_without_claim_level_adapter",
+        "mandate_authority_without_temporal_competence",
+        "s6_mandate_pass_without_s6_evaluation",
+        "ranked_value_choice_without_s8_authorization"
+      ],
+      "no_authority_rationale": null,
+      "obligation_refs": [],
+      "out_of_scope": false,
+      "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_legal_requirement_bindings.json#a70a11e4f56de44b5e9febf1",
+      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "provenance_refs": [],
+      "query_trace_refs": [],
+      "reference_resolution_status": null,
+      "required_actor_refs": [],
+      "required_fiscal_authority_refs": [],
+      "required_hierarchy_depth": 1,
+      "required_implementation_authority_refs": [],
+      "required_instrument_classes": [],
+      "requirement_artifact": {
+        "authority_boundary": {
+          "authoritative_for": [
+            "legal_authority_requirements",
+            "lex_claim_level_competence_preconditions"
+          ],
+          "may_not_use_for": [
+            "legal_admissibility_without_lex_evaluation",
+            "source_family_satisfaction",
+            "method_validity",
+            "academic_support_strength",
+            "participation_representativeness",
+            "closeout_pass"
+          ]
+        },
+        "capability_reality_label": "implemented",
+        "metadata": {
+          "jurisdiction_fallback_config_ref": "jurisdiction-fallback:gl-ua-v1",
+          "pattern_guards": [
+            "P01",
+            "P05",
+            "P08",
+            "P12"
+          ],
+          "producer": "legal_authority_requirement_compiler",
+          "requirement_count": 1
+        },
+        "requirements": [
+          {
+            "authority_profile_ref": "gl_legal_mandate",
+            "authority_types": [
+              "implementing"
+            ],
+            "capability_reality_label": "implemented",
+            "claim_id": "gl_canonical_threshold_seed",
+            "claim_ref": "claim:gl:canonical-threshold-seed",
+            "concept_spine_refs": [
+              "concept:economic_policy_support"
+            ],
+            "contestability_or_appeal_required": false,
+            "facet_refs": [],
+            "fallback_policy": {
+              "config_ref": "jurisdiction-fallback:gl-ua-v1",
+              "mode": "governed_config_required",
+              "owner": "policyos:runtime-quality",
+              "policy_ref": null,
+              "review_ref": null
+            },
+            "fiscal_authority_required": false,
+            "implementation_authority_required": true,
+            "jurisdiction": "UA",
+            "mandatory": true,
+            "metadata": {
+              "producer": "legal_authority_requirement_compiler",
+              "rejected_reuse": "Existing Lex W3 adapter derived legal requirements internally; W7.B needs a typed producer artifact consumed by Lex.",
+              "reuse_classification": "build_new"
+            },
+            "obligation_refs": [],
+            "out_of_scope": false,
+            "pattern_refs": [
+              "P01",
+              "P05",
+              "P08",
+              "P12"
+            ],
+            "provenance_refs": [],
+            "required_actor_refs": [],
+            "required_fiscal_authority_refs": [],
+            "required_hierarchy_depth": 1,
+            "required_implementation_authority_refs": [],
+            "required_instrument_classes": [],
+            "requirement_id": "legal-requirement:layer3-gl-canonical-legal-mandate:gl_canonical_threshold_seed",
+            "rule_version_ref": "legal-requirement-compiler:v1",
+            "schema_version": "policyos.legal_requirement.spec.v1",
+            "scope_predicates": {
+              "geography": [
+                "UA"
+              ],
+              "population": [],
+              "time": [
+                "2022-03-01/2022-12-31"
+              ]
+            },
+            "source_claim_refs": [
+              "claim:gl:canonical-threshold-seed"
+            ],
+            "temporal_competence_window": {
+              "end": "2022-12-31",
+              "legal_as_of": "2022-03-01",
+              "start": "2022-03-01",
+              "time_role": "implementation_period"
+            }
+          }
+        ],
+        "run_id": "layer3-gl-canonical-legal-mandate",
+        "runtime_event_ref": "event://legal-requirement/layer3-gl-canonical-legal-mandate",
+        "schema_version": "policyos.legal_requirement_artifact.v1",
+        "target_context": {
+          "as_of": "2022-03-01",
+          "authority_profile": "gl_legal_mandate",
+          "jurisdiction": "UA",
+          "policy_domain": "economic_policy",
+          "run_id": "layer3-gl-canonical-legal-mandate"
+        }
+      },
+      "requirement_ref": "legal-requirement:layer3-gl-canonical-legal-mandate:gl_canonical_threshold_seed",
+      "requirement_spec": {
+        "authority_profile_ref": "gl_legal_mandate",
+        "authority_types": [
+          "implementing"
+        ],
+        "capability_reality_label": "implemented",
+        "claim_id": "gl_canonical_threshold_seed",
+        "claim_ref": "claim:gl:canonical-threshold-seed",
+        "concept_spine_refs": [
+          "concept:economic_policy_support"
+        ],
+        "contestability_or_appeal_required": false,
+        "facet_refs": [],
+        "fallback_policy": {
+          "config_ref": "jurisdiction-fallback:gl-ua-v1",
+          "mode": "governed_config_required",
+          "owner": "policyos:runtime-quality",
+          "policy_ref": null,
+          "review_ref": null
+        },
+        "fiscal_authority_required": false,
+        "implementation_authority_required": true,
+        "jurisdiction": "UA",
+        "mandatory": true,
+        "metadata": {
+          "producer": "legal_authority_requirement_compiler",
+          "rejected_reuse": "Existing Lex W3 adapter derived legal requirements internally; W7.B needs a typed producer artifact consumed by Lex.",
+          "reuse_classification": "build_new"
+        },
+        "obligation_refs": [],
+        "out_of_scope": false,
+        "pattern_refs": [
+          "P01",
+          "P05",
+          "P08",
+          "P12"
+        ],
+        "provenance_refs": [],
+        "required_actor_refs": [],
+        "required_fiscal_authority_refs": [],
+        "required_hierarchy_depth": 1,
+        "required_implementation_authority_refs": [],
+        "required_instrument_classes": [],
+        "requirement_id": "legal-requirement:layer3-gl-canonical-legal-mandate:gl_canonical_threshold_seed",
+        "rule_version_ref": "legal-requirement-compiler:v1",
+        "schema_version": "policyos.legal_requirement.spec.v1",
+        "scope_predicates": {
+          "geography": [
+            "UA"
+          ],
+          "population": [],
+          "time": [
+            "2022-03-01/2022-12-31"
+          ]
+        },
+        "source_claim_refs": [
+          "claim:gl:canonical-threshold-seed"
+        ],
+        "temporal_competence_window": {
+          "end": "2022-12-31",
+          "legal_as_of": "2022-03-01",
+          "start": "2022-03-01",
+          "time_role": "implementation_period"
+        }
+      },
+      "rule_version": "policyos.layer3.gl.legal_mandate_search.v1",
+      "rule_version_ref": "legal-requirement-compiler:v1",
+      "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1",
+      "search_ledger_refs": [],
+      "source_authority": null,
+      "status": "pass",
+      "temporal_competence_window": {
+        "end": "2022-12-31",
+        "legal_as_of": "2022-03-01",
+        "start": "2022-03-01",
+        "time_role": "implementation_period"
+      },
+      "temporal_resolution_status": null
+    }
+  ],
+  "rule_version": "policyos.layer3.gl.legal_mandate_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1"
+}

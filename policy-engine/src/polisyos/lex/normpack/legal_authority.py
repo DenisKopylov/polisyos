@@ -18,7 +18,9 @@ if TYPE_CHECKING:
     from datetime import date
 
 from polisyos.legal_requirement import (
+    LegalAuthorityRequirementArtifact,
     LegalAuthorityRequirementSpec,
+    compile_legal_authority_requirement_artifact,
     compile_legal_authority_requirements,
     normalize_legal_authority_type,
 )
@@ -81,6 +83,27 @@ _LLM_PROVENANCE_KINDS = frozenset(
 )
 
 
+def build_legal_authority_requirement_artifact(
+    *,
+    run_id: str,
+    target_context: Mapping[str, Any],
+    claims: Sequence[Mapping[str, Any] | object],
+    facets: Sequence[Mapping[str, Any] | object] = (),
+    obligations: Sequence[Mapping[str, Any] | object] = (),
+    jurisdiction_fallback_config: Mapping[str, Any] | None = None,
+) -> LegalAuthorityRequirementArtifact:
+    """Compile the claim-level requirement contract consumed by Lex authority checks."""
+
+    return compile_legal_authority_requirement_artifact(
+        run_id=run_id,
+        target_context=target_context,
+        claims=claims,
+        facets=facets,
+        obligations=obligations,
+        jurisdiction_fallback_config=jurisdiction_fallback_config,
+    )
+
+
 def build_legal_authority_report(
     *,
     target_context: Mapping[str, Any],
@@ -140,9 +163,7 @@ def build_legal_authority_report(
     anchors: list[dict[str, Any]] = []
     splits: list[dict[str, Any]] = []
     issues: list[dict[str, Any]] = []
-    claim_by_id = {
-        _claim_id(claim, index): claim for index, claim in enumerate(claims)
-    }
+    claim_by_id = {_claim_id(claim, index): claim for index, claim in enumerate(claims)}
 
     for index, requirement in enumerate(requirements):
         claim = claim_by_id.get(requirement.claim_id) or _claim_from_requirement(requirement)
@@ -162,18 +183,10 @@ def build_legal_authority_report(
 
     status = _status_from_issues(issues)
     selected_norm_refs = _dedupe(
-        [
-            ref
-            for anchor in anchors
-            for ref in _as_text_list(anchor.get("selected_norm_refs"))
-        ]
+        [ref for anchor in anchors for ref in _as_text_list(anchor.get("selected_norm_refs"))]
     )
     rejected_norm_refs = _dedupe(
-        [
-            ref
-            for anchor in anchors
-            for ref in _as_text_list(anchor.get("rejected_norm_refs"))
-        ]
+        [ref for anchor in anchors for ref in _as_text_list(anchor.get("rejected_norm_refs"))]
     )
     return {
         "schema_version": LEGAL_AUTHORITY_REPORT_SCHEMA_VERSION,
@@ -343,9 +356,7 @@ def _evaluate_claim(
         ref for ref in _dedupe(rejected_norm_refs) if ref not in set(selected_norm_refs)
     ]
     grades = [_legal_grade(record) for record in records]
-    if (required and not selected_norm_refs) or any(
-        grade == "blocked" for grade in grades
-    ):
+    if (required and not selected_norm_refs) or any(grade == "blocked" for grade in grades):
         anchor_grade = "blocked"
     elif any(grade == "contested" for grade in grades):
         anchor_grade = "contested"
@@ -360,11 +371,7 @@ def _evaluate_claim(
     if anchor_grade == "blocked" and context_only_norm_refs and not selected_norm_refs:
         anchor_grade = "context_only"
     no_anchor_refs = _dedupe(
-        [
-            ref
-            for record in records
-            for ref in _as_text_list(record.get("no_anchor_refs"))
-        ]
+        [ref for record in records for ref in _as_text_list(record.get("no_anchor_refs"))]
     )
     return {
         "records": records,
@@ -712,16 +719,13 @@ def _authority_record(
         "capability_index_ref": _text(norm.get("capability_index_ref")),
         "construct_registry_ref": _text(norm.get("construct_registry_ref")),
         "authority_composition_rule_ref": _text(
-            norm.get("authority_composition_rule_ref")
-            or norm.get("rule_version_ref")
+            norm.get("authority_composition_rule_ref") or norm.get("rule_version_ref")
         ),
         "lex_normative_fact_refs": _as_text_list(norm.get("lex_normative_fact_refs")),
         "lex_rule_threshold_refs": _as_text_list(norm.get("lex_rule_threshold_refs")),
         "lex_amendment_refs": _as_text_list(norm.get("lex_amendment_refs")),
         "lex_temporal_audit_refs": _as_text_list(norm.get("lex_temporal_audit_refs")),
-        "legal_hierarchy_constraints": _as_text_list(
-            norm.get("legal_hierarchy_constraints")
-        ),
+        "legal_hierarchy_constraints": _as_text_list(norm.get("legal_hierarchy_constraints")),
     }
 
 
@@ -1155,9 +1159,11 @@ def _no_anchor_rationale(claim: Mapping[str, Any]) -> str | None:
 
 def _is_llm_candidate(norm: Mapping[str, Any]) -> bool:
     provenance = _text(norm.get("provenance_kind") or norm.get("source_class")).casefold()
-    return provenance in _LLM_PROVENANCE_KINDS or _text(norm.get("norm_id")).startswith(
-        "llm-"
-    ) or _text(norm.get("norm_id")).startswith("llm:")
+    return (
+        provenance in _LLM_PROVENANCE_KINDS
+        or _text(norm.get("norm_id")).startswith("llm-")
+        or _text(norm.get("norm_id")).startswith("llm:")
+    )
 
 
 def _norms_from_capability_bindings(
@@ -1201,9 +1207,7 @@ def _norms_from_capability_bindings(
                 or ["implementing"],
                 "competent_actor_ref": _text(metadata.get("competent_actor_ref")),
                 "instrument_types": _as_text_list(metadata.get("instrument_types")),
-                "implementation_authority_ref": _text(
-                    metadata.get("implementation_authority_ref")
-                ),
+                "implementation_authority_ref": _text(metadata.get("implementation_authority_ref")),
                 "fiscal_authority_ref": _text(metadata.get("fiscal_authority_ref")),
                 "hierarchy_position": _text(metadata.get("hierarchy_position"))
                 or _text(metadata.get("authority_level")),
@@ -1218,11 +1222,9 @@ def _norms_from_capability_bindings(
                 "legal_as_of": _text(metadata.get("legal_as_of")),
                 "preemption_state": _text(metadata.get("preemption_state")) or "clear",
                 "conflict_state": _text(metadata.get("conflict_state")) or "clear",
-                "supersession_state": _text(metadata.get("supersession_state"))
-                or "current",
+                "supersession_state": _text(metadata.get("supersession_state")) or "current",
                 "rule_version_ref": _text(
-                    binding.get("authority_composition_rule_ref")
-                    or binding.get("rule_version_ref")
+                    binding.get("authority_composition_rule_ref") or binding.get("rule_version_ref")
                 )
                 or LEGAL_AUTHORITY_RULE_VERSION,
                 "provenance_kind": "deterministic_producer",
@@ -1231,19 +1233,12 @@ def _norms_from_capability_bindings(
                 "capability_index_ref": _text(binding.get("capability_index_ref")),
                 "construct_registry_ref": _text(binding.get("construct_registry_ref")),
                 "authority_composition_rule_ref": _text(
-                    binding.get("authority_composition_rule_ref")
-                    or binding.get("rule_version_ref")
+                    binding.get("authority_composition_rule_ref") or binding.get("rule_version_ref")
                 ),
-                "lex_normative_fact_refs": _as_text_list(
-                    metadata.get("lex_normative_fact_refs")
-                ),
-                "lex_rule_threshold_refs": _as_text_list(
-                    metadata.get("lex_rule_threshold_refs")
-                ),
+                "lex_normative_fact_refs": _as_text_list(metadata.get("lex_normative_fact_refs")),
+                "lex_rule_threshold_refs": _as_text_list(metadata.get("lex_rule_threshold_refs")),
                 "lex_amendment_refs": _as_text_list(metadata.get("lex_amendment_refs")),
-                "lex_temporal_audit_refs": _as_text_list(
-                    metadata.get("lex_temporal_audit_refs")
-                ),
+                "lex_temporal_audit_refs": _as_text_list(metadata.get("lex_temporal_audit_refs")),
                 "legal_hierarchy_constraints": _as_text_list(
                     metadata.get("legal_hierarchy_constraints")
                 ),
@@ -1314,10 +1309,7 @@ def _segment_ref(
     start: str | None,
     end: str | None,
 ) -> str:
-    return (
-        f"legal-authority-segment:{claim_id}:{authority_type}:"
-        f"{start or 'open'}:{end or 'open'}"
-    )
+    return f"legal-authority-segment:{claim_id}:{authority_type}:{start or 'open'}:{end or 'open'}"
 
 
 def _norm_id(norm: Mapping[str, Any]) -> str:
@@ -1366,10 +1358,7 @@ def _status_from_issues(issues: Sequence[Mapping[str, Any]]) -> str:
 
 def _legal_requirement_specs(
     *,
-    legal_requirement_specs: Sequence[
-        Mapping[str, Any] | LegalAuthorityRequirementSpec
-    ]
-    | None,
+    legal_requirement_specs: Sequence[Mapping[str, Any] | LegalAuthorityRequirementSpec] | None,
     target_context: Mapping[str, Any],
     claims: Sequence[Mapping[str, Any]],
     jurisdiction_fallback_config: Mapping[str, Any],

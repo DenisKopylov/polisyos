@@ -1,0 +1,75 @@
+{
+  "records": [
+    {
+      "amended_doc_id": "b67b1a85227c0bf5",
+      "amending_doc_id": "00603a453afd86e5",
+      "amendment_id": "b54e6771cbe95f6d0029b20e",
+      "amendment_lineage_refs": [],
+      "amendment_type": "general_amendment",
+      "authoritative_for": [],
+      "authority_boundary": {
+        "authoritative_for": [],
+        "may_not_use_for": [
+          "recommendation_substance",
+          "closeout_authority",
+          "publication_authority",
+          "agent_authority",
+          "legal_authority_without_claim_level_adapter",
+          "mandate_authority_without_temporal_competence",
+          "s6_mandate_pass_without_s6_evaluation",
+          "ranked_value_choice_without_s8_authorization"
+        ]
+      },
+      "authority_facet_binding_refs": [],
+      "authority_level": null,
+      "claim_id": null,
+      "confidence": 0.7200000286102295,
+      "effective_from": null,
+      "effective_to": null,
+      "issue_codes": [
+        "layer3_gl_stale_amendment_lineage"
+      ],
+      "jurisdiction": null,
+      "l5_calibration_refs": [],
+      "legal_as_of": null,
+      "legal_kg_snapshot_ref": "sha256:33f486da808f6eaaf0335a3c",
+      "legal_requirement_artifact_ref": null,
+      "lineage_status": "reissue_required",
+      "may_not_use_for": [
+        "recommendation_substance",
+        "closeout_authority",
+        "publication_authority",
+        "agent_authority",
+        "legal_authority_without_claim_level_adapter",
+        "mandate_authority_without_temporal_competence",
+        "s6_mandate_pass_without_s6_evaluation",
+        "ranked_value_choice_without_s8_authorization"
+      ],
+      "new_text_ref": null,
+      "old_text_ref": null,
+      "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
+      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "provenance_refs": [],
+      "query_trace_refs": [
+        "gl-query-trace:amendment-lineage:c19bfbbe159c0cbb3eccbd2e"
+      ],
+      "record_id": "gl-amendment-lineage:f64cf938381725b7937e4a07",
+      "reference_resolution_status": null,
+      "requirement_ref": null,
+      "rule_version": "policyos.layer3.gl.legal_mandate_search.v1",
+      "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1",
+      "search_ledger_refs": [
+        "gl-ledger:amendment-lineage:gl-request-canonical-threshold-seed"
+      ],
+      "source_authority": null,
+      "source_row_refs": [
+        "lex_amendments:b54e6771cbe95f6d0029b20e"
+      ],
+      "status": "reissue_required",
+      "target_anchor": null,
+      "temporal_resolution_status": null
+    }
+  ],
+  "rule_version": "policyos.layer3.gl.legal_mandate_search.v1",
+  "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1"
+}

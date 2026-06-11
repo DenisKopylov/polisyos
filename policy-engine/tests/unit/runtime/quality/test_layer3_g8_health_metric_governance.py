@@ -439,6 +439,45 @@ def test_g8_sealed_battery_join_blocks_mutation_or_floor_lowering() -> None:
     assert "layer3_g8_rebasing_leaks_gold_or_hidden_payload" in join.issue_codes
 
 
+def test_g8_open_question_ledger_answers_every_vision_question_with_current_evidence() -> None:
+    registry = g8.build_g8_health_metric_registry()
+    snapshot = g8.build_g8_metric_source_snapshot(REPO_ROOT)
+    signals = g8.build_g8_normalized_metric_signals(
+        registry=registry,
+        source_snapshot=snapshot,
+    )
+    diagnosis = g8.build_g8_cross_metric_diagnosis(signals=signals, repo_root=REPO_ROOT)
+    gate = g8.build_g8_domain_vs_search_ceiling_gate(diagnosis=diagnosis)
+    ledger = g8.build_g8_open_question_answer_ledger(
+        diagnosis=diagnosis,
+        ceiling_gate=gate,
+        repo_root=REPO_ROOT,
+    )
+
+    assert ledger.status == "pass"
+    assert {row.question_id for row in ledger.answers} == {
+        "8.4-waist-altitude",
+        "8.4-real-grounding-cost",
+        "8.4-demand-pull-strength",
+        "8.4-search-recall-freshness",
+        "8.4-agent-orchestration-authority-leak",
+    }
+    answers = {row.question_id: row for row in ledger.answers}
+    assert (
+        answers["8.4-real-grounding-cost"].answer_status
+        == "provisional_insufficient_data"
+    )
+    assert (
+        answers["8.4-demand-pull-strength"].answer_status
+        == "provisional_insufficient_data"
+    )
+    assert (
+        answers["8.4-search-recall-freshness"].answer_status
+        == "answered_currently_healthy"
+    )
+    assert "recommendation_authority" in ledger.may_not_use_for
+
+
 def _signal(
     metric_id: str,
     slice_id: str,

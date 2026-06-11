@@ -1606,6 +1606,147 @@ def build_g8_sealed_battery_integrity_join(
     )
 
 
+class Layer3G8OpenQuestionAnswerRow(_G8Model):
+    """Evidence-bound answer to one §8.4 open question."""
+
+    question_id: str
+    question: str
+    answer_status: Literal[
+        "answered_currently_healthy",
+        "answered_currently_blocked",
+        "provisional_insufficient_data",
+    ]
+    current_answer: str
+    evidence_refs: tuple[str, ...]
+    authority_boundary: str = "empirical_governance_reading_only"
+
+
+class Layer3G8OpenQuestionAnswerLedger(_G8Model):
+    """Ledger of current empirical answers to §8.4 open questions."""
+
+    schema_version: str = G8_SCHEMA_VERSION
+    rule_version: str = G8_RULE_VERSION
+    ledger_id: str = "layer3-g8://open-question-answer-ledger"
+    status: Literal["pass", "blocked"]
+    answers: tuple[Layer3G8OpenQuestionAnswerRow, ...]
+    issue_codes: tuple[str, ...] = ()
+    authoritative_for: tuple[str, ...] = G8_AUTHORITATIVE_FOR
+    may_not_use_for: tuple[str, ...] = G8_MAY_NOT_USE_FOR
+
+
+def build_g8_open_question_answer_ledger(
+    *,
+    diagnosis: Layer3G8CrossMetricDiagnosis,
+    ceiling_gate: Layer3G8DomainVsSearchCeilingGate,
+    repo_root: str | Path = DEFAULT_REPO_ROOT,
+) -> Layer3G8OpenQuestionAnswerLedger:
+    """Answer §8.4 open questions from current G8 evidence without authority leak."""
+
+    rows = (
+        Layer3G8OpenQuestionAnswerRow(
+            question_id="8.4-waist-altitude",
+            question=(
+                "Is the waist vocabulary at the right altitude, or does it need "
+                "a first-class dimension it currently encodes only as status?"
+            ),
+            answer_status=(
+                "answered_currently_healthy"
+                if diagnosis.semantic_loss_status in {"pass", "clean", "0"}
+                else "answered_currently_blocked"
+            ),
+            current_answer=(
+                "No forced waist change is justified by current G8 readings; "
+                "semantic-loss watch remains active and any future waist change "
+                "requires highest-governance rule replay."
+            ),
+            evidence_refs=(
+                "repo://architecture/policy_design_case/"
+                "layer3_health_metric_ledgers.toml#adapter-semantic-loss",
+                "repo://architecture/policy_design_case/"
+                "layer3_g7_health_metric_delta.toml#semantic_loss_status",
+            ),
+        ),
+        Layer3G8OpenQuestionAnswerRow(
+            question_id="8.4-real-grounding-cost",
+            question=(
+                "Is real grounding achievable at acceptable cost in the target "
+                "domains, or is the honest equilibrium mostly abstention?"
+            ),
+            answer_status="provisional_insufficient_data",
+            current_answer=(
+                "Current G5/G7 readings prove engineering readiness and honest "
+                "blockers, not a domain ceiling: G5 remains an unchanged blocker "
+                "and G7 has zero grounded regional breadth."
+            ),
+            evidence_refs=diagnosis.current_blocker_refs,
+        ),
+        Layer3G8OpenQuestionAnswerRow(
+            question_id="8.4-demand-pull-strength",
+            question="Is demand-pull strong enough to overcome abstention inertia?",
+            answer_status="provisional_insufficient_data",
+            current_answer=(
+                "G6 demand reaches the G5 bridge, but grounded result rate is "
+                "still zero because current G5/G7 blockers remain. This is not "
+                "an honesty success claim."
+            ),
+            evidence_refs=(
+                "repo://architecture/policy_design_case/"
+                "layer3_g6_demand_pull_vs_abstention_delta.json",
+                "repo://architecture/policy_design_case/layer3_g6_readiness_manifest.json",
+            ),
+        ),
+        Layer3G8OpenQuestionAnswerRow(
+            question_id="8.4-search-recall-freshness",
+            question=(
+                "Does capability search have enough recall and freshness to "
+                "distinguish honest abstention from a missed grounding path?"
+            ),
+            answer_status=(
+                "answered_currently_healthy"
+                if ceiling_gate.status != "search_ceiling_repair_required"
+                else "answered_currently_blocked"
+            ),
+            current_answer=(
+                "Current search-recall/freshness signals do not identify a "
+                "search ceiling; future recall miss or stale index readings "
+                "block domain-ceiling claims."
+            ),
+            evidence_refs=(
+                "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json",
+                "repo://architecture/policy_design_case/layer3_g2_search_recall_freshness.json",
+                "repo://architecture/policy_design_case/layer3_g3_search_recall_freshness.json",
+                "repo://architecture/policy_design_case/layer3_gl_search_recall_freshness.json",
+                "repo://architecture/policy_design_case/layer3_g7_search_recall_freshness_join.json",
+            ),
+        ),
+        Layer3G8OpenQuestionAnswerRow(
+            question_id="8.4-agent-orchestration-authority-leak",
+            question=(
+                "Does the bounded agent leak authority through orchestration "
+                "choices in ways the current search ledger does not capture?"
+            ),
+            answer_status="answered_currently_healthy",
+            current_answer=(
+                "Current G6 conformance and public projection checks pass; G8 "
+                "preserves G6 candidate and orchestration outputs as audit "
+                "signals only."
+            ),
+            evidence_refs=(
+                "repo://architecture/policy_design_case/layer3_g6_conformance_report.json",
+                "repo://architecture/policy_design_case/"
+                "layer3_g6_orchestration_choice_audit.json",
+                "repo://architecture/policy_design_case/layer3_g6_search_ledger.json",
+            ),
+        ),
+    )
+    missing = [row.question_id for row in rows if not row.evidence_refs]
+    return Layer3G8OpenQuestionAnswerLedger(
+        status="blocked" if missing else "pass",
+        answers=rows,
+        issue_codes=("layer3_g8_open_question_answer_missing",) if missing else (),
+    )
+
+
 def _dedupe(values: Iterable[str]) -> tuple[str, ...]:
     return tuple(dict.fromkeys(str(value) for value in values if str(value)))
 

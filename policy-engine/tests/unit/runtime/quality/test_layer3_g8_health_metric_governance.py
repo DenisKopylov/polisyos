@@ -224,3 +224,104 @@ def test_g8_metric_trend_report_exposes_all_five_ci_visible_metrics() -> None:
     }
     assert by_metric["search-recall@known-seeds+index-staleness"].source_refs
     assert report.ci_report_status == "first_class_metric_trends_visible"
+
+
+def test_g8_current_state_does_not_claim_domain_ceiling() -> None:
+    registry = g8.build_g8_health_metric_registry()
+    snapshot = g8.build_g8_metric_source_snapshot(REPO_ROOT)
+    signals = g8.build_g8_normalized_metric_signals(
+        registry=registry,
+        source_snapshot=snapshot,
+    )
+    diagnosis = g8.build_g8_cross_metric_diagnosis(signals=signals, repo_root=REPO_ROOT)
+    gate = g8.build_g8_domain_vs_search_ceiling_gate(diagnosis=diagnosis)
+
+    assert diagnosis.status == "pass"
+    assert gate.status == "not_claimed_current_grounding_blocker"
+    assert gate.domain_ceiling_claim_allowed is False
+    assert (
+        "layer3_g8_flat_expansion_reported_as_domain_ceiling_without_search_health"
+        not in gate.issue_codes
+    )
+    assert gate.current_blocker_refs
+    assert diagnosis.effective_independence_status == "sufficient"
+    assert diagnosis.effective_independent_evidence_count == 2
+    assert diagnosis.effective_independence_source_ref == (
+        "repo://architecture/policy_design_case/layer3_g5_effective_evidence_independence.json"
+        "#independence_map_payload.effective_mass_report"
+    )
+
+
+def test_g8_search_recall_miss_blocks_domain_ceiling() -> None:
+    signals = g8.Layer3G8NormalizedMetricSignals(
+        status="pass",
+        signals=(
+            _signal("envelope-expansion-rate", "G5", "g5_envelope_expansion_status", "flat"),
+            _signal("governance-throughput", "G5", "g5_governance_throughput_status", "pass"),
+            _signal("demand-pull-vs-abstention", "G6", "grounded_result_rate", 0.0),
+            _signal("adapter-semantic-loss", "G7", "semantic_loss_status", "pass"),
+            _signal(
+                "search-recall@known-seeds+index-staleness",
+                "G1",
+                "search-recall@known-seeds+index-staleness",
+                "search_ceiling",
+            ),
+        ),
+    )
+    diagnosis = g8.build_g8_cross_metric_diagnosis(signals=signals, repo_root=REPO_ROOT)
+    gate = g8.build_g8_domain_vs_search_ceiling_gate(diagnosis=diagnosis)
+
+    assert gate.status == "search_ceiling_repair_required"
+    assert gate.domain_ceiling_claim_allowed is False
+    assert "layer3_g8_search_recall_miss_reported_as_domain_ceiling" in gate.issue_codes
+
+
+def test_g8_zero_grounded_response_blocks_domain_ceiling_as_abstention_inertia() -> None:
+    signals = g8.Layer3G8NormalizedMetricSignals(
+        status="pass",
+        signals=(
+            _signal("envelope-expansion-rate", "G5", "g5_envelope_expansion_status", "flat"),
+            _signal("governance-throughput", "G4", "g4_governance_throughput_status", "pass"),
+            _signal(
+                "demand-pull-vs-abstention",
+                "G6",
+                "abstention_or_blocker_rate",
+                "abstention_inertia",
+            ),
+            _signal("adapter-semantic-loss", "G7", "semantic_loss_status", "pass"),
+            _signal(
+                "search-recall@known-seeds+index-staleness",
+                "G7",
+                "g1_search_recall_status",
+                "pass",
+            ),
+        ),
+    )
+    diagnosis = g8.build_g8_cross_metric_diagnosis(signals=signals, repo_root=REPO_ROOT)
+    gate = g8.build_g8_domain_vs_search_ceiling_gate(diagnosis=diagnosis)
+
+    assert "abstention_inertia" in diagnosis.diagnoses
+    assert gate.status == "abstention_inertia_repair_required"
+    assert gate.domain_ceiling_claim_allowed is False
+    assert "layer3_g8_abstention_inertia_hidden_as_honesty" in gate.issue_codes
+
+
+def _signal(
+    metric_id: str,
+    slice_id: str,
+    raw_key: str,
+    value: object,
+) -> g8.Layer3G8NormalizedMetricSignal:
+    return g8.Layer3G8NormalizedMetricSignal(
+        signal_id=f"test://{metric_id}/{slice_id}/{raw_key}",
+        slice_id=slice_id,
+        metric_id=metric_id,
+        raw_key=raw_key,
+        raw_value=value,
+        status=str(value),
+        raw_source_ref=f"repo://test#{raw_key}",
+        source_digest="sha256:" + "1" * 64,
+        freshness_status="fresh_committed",
+        authority_boundary_status="pass",
+        observed_at="2026-06-10T00:00:00Z",
+    )

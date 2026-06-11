@@ -760,6 +760,252 @@ def build_g8_metric_trend_report(
     )
 
 
+class Layer3G8CrossMetricDiagnosis(_G8Model):
+    """Cross-metric diagnosis distinguishing source ceilings from value blockers."""
+
+    schema_version: str = G8_SCHEMA_VERSION
+    rule_version: str = G8_RULE_VERSION
+    diagnosis_id: str = "layer3-g8://cross-metric-diagnosis"
+    status: Literal["pass", "blocked"]
+    envelope_expansion_status: str
+    semantic_loss_status: str
+    governance_throughput_status: str
+    demand_pull_status: str
+    search_recall_freshness_status: str
+    effective_independence_status: str
+    effective_independent_evidence_count: int
+    effective_independence_source_ref: str
+    current_blocker_refs: tuple[str, ...]
+    diagnoses: tuple[str, ...]
+    issue_codes: tuple[str, ...] = ()
+    authoritative_for: tuple[str, ...] = G8_AUTHORITATIVE_FOR
+    may_not_use_for: tuple[str, ...] = G8_MAY_NOT_USE_FOR
+
+
+class Layer3G8DomainVsSearchCeilingGate(_G8Model):
+    """Gate preventing search/governance/abstention blockers becoming domain ceilings."""
+
+    schema_version: str = G8_SCHEMA_VERSION
+    rule_version: str = G8_RULE_VERSION
+    gate_id: str = "layer3-g8://domain-vs-search-ceiling-gate"
+    status: Literal[
+        "domain_ceiling_candidate",
+        "search_ceiling_repair_required",
+        "governance_stall_repair_required",
+        "abstention_inertia_repair_required",
+        "semantic_loss_repair_required",
+        "not_claimed_current_grounding_blocker",
+        "blocked",
+    ]
+    domain_ceiling_claim_allowed: bool
+    current_blocker_refs: tuple[str, ...]
+    issue_codes: tuple[str, ...] = ()
+    authoritative_for: tuple[str, ...] = G8_AUTHORITATIVE_FOR
+    may_not_use_for: tuple[str, ...] = G8_MAY_NOT_USE_FOR
+
+
+def build_g8_cross_metric_diagnosis(
+    *,
+    signals: Layer3G8NormalizedMetricSignals,
+    repo_root: str | Path = DEFAULT_REPO_ROOT,
+) -> Layer3G8CrossMetricDiagnosis:
+    """Build cross-metric diagnosis without minting domain-ceiling authority."""
+
+    root = Path(repo_root).resolve()
+    g5 = _read_optional_json(root / POLICY_DESIGN_CASE_DIR / "layer3_g5_readiness_manifest.json")
+    g7 = _read_optional_json(root / POLICY_DESIGN_CASE_DIR / "layer3_g7_readiness_manifest.json")
+    g5_independence = _read_optional_json(
+        root / POLICY_DESIGN_CASE_DIR / "layer3_g5_effective_evidence_independence.json"
+    )
+    effective_mass = _mapping(
+        _mapping(g5_independence.get("independence_map_payload")).get(
+            "effective_mass_report"
+        )
+    )
+    statuses = {
+        metric_id: _latest_metric_status(signals, metric_id)
+        for metric_id in G8_CANONICAL_METRIC_IDS
+    }
+    g5_summary = _mapping(g5.get("summary"))
+    g7_summary = _mapping(g7.get("summary"))
+    current_blockers: list[str] = []
+    if (
+        _text(g5.get("g5_conversion_outcome") or g5_summary.get("g5_conversion_outcome"))
+        == "unchanged_blocker"
+    ):
+        current_blockers.append(
+            "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json"
+            "#g5_conversion_outcome"
+        )
+    if _text(
+        g7.get("g7_region_value_closure_status")
+        or g7_summary.get("g7_region_value_closure_status")
+    ).startswith("blocked"):
+        current_blockers.append(
+            "repo://architecture/policy_design_case/layer3_g7_readiness_manifest.json"
+            "#g7_region_value_closure_status"
+        )
+    if int(
+        g7.get("g7_region_grounded_case_count")
+        or g7_summary.get("g7_region_grounded_case_count")
+        or 0
+    ) == 0:
+        current_blockers.append(
+            "repo://architecture/policy_design_case/layer3_g7_readiness_manifest.json"
+            "#g7_region_grounded_case_count"
+        )
+
+    diagnoses: list[str] = []
+    issues: list[str] = [*signals.issue_codes]
+    effective_independence_status = _text(effective_mass.get("independence_status")) or "missing"
+    effective_independent_evidence_count = int(
+        effective_mass.get("effective_independent_evidence_count") or 0
+    )
+    if effective_independence_status in {"inflated", "unknown", "missing"}:
+        issues.append("layer3_g8_effective_independence_inflated")
+    if _is_search_ceiling(statuses["search-recall@known-seeds+index-staleness"]):
+        diagnoses.append("search_ceiling")
+        issues.append("layer3_g8_search_recall_miss_reported_as_domain_ceiling")
+    if _is_governance_stall(statuses["governance-throughput"]):
+        diagnoses.append("governance_bottleneck")
+        issues.append("layer3_g8_governance_stall_hidden_as_domain_ceiling")
+    current_committed_source_set = _is_current_committed_source_set(signals)
+    if (
+        _is_abstention_inertia(statuses["demand-pull-vs-abstention"])
+        and not (current_blockers and current_committed_source_set)
+    ):
+        diagnoses.append("abstention_inertia")
+        issues.append("layer3_g8_abstention_inertia_hidden_as_honesty")
+    if _is_semantic_loss(statuses["adapter-semantic-loss"]):
+        diagnoses.append("semantic_loss")
+        issues.append("layer3_g8_semantic_loss_hidden_by_metric_rollup")
+    if current_blockers:
+        diagnoses.append("current_grounding_blocker")
+    if not diagnoses:
+        diagnoses.append("healthy_metric_watch")
+
+    blocking = {
+        "layer3_g8_metric_source_missing",
+        "layer3_g8_metric_alias_unresolved",
+        "layer3_g8_metric_raw_ref_missing",
+        "layer3_g8_metric_authority_boundary_missing",
+    }
+    return Layer3G8CrossMetricDiagnosis(
+        status="blocked" if blocking.intersection(issues) else "pass",
+        envelope_expansion_status=statuses["envelope-expansion-rate"],
+        semantic_loss_status=statuses["adapter-semantic-loss"],
+        governance_throughput_status=statuses["governance-throughput"],
+        demand_pull_status=statuses["demand-pull-vs-abstention"],
+        search_recall_freshness_status=statuses[
+            "search-recall@known-seeds+index-staleness"
+        ],
+        effective_independence_status=effective_independence_status,
+        effective_independent_evidence_count=effective_independent_evidence_count,
+        effective_independence_source_ref=(
+            "repo://architecture/policy_design_case/"
+            "layer3_g5_effective_evidence_independence.json"
+            "#independence_map_payload.effective_mass_report"
+        ),
+        current_blocker_refs=_dedupe(current_blockers),
+        diagnoses=_dedupe(diagnoses),
+        issue_codes=_dedupe(issues),
+    )
+
+
+def build_g8_domain_vs_search_ceiling_gate(
+    *,
+    diagnosis: Layer3G8CrossMetricDiagnosis,
+) -> Layer3G8DomainVsSearchCeilingGate:
+    """Return the strongest current blocker before any domain-ceiling claim."""
+
+    if diagnosis.status == "blocked":
+        return Layer3G8DomainVsSearchCeilingGate(
+            status="blocked",
+            domain_ceiling_claim_allowed=False,
+            current_blocker_refs=diagnosis.current_blocker_refs,
+            issue_codes=diagnosis.issue_codes,
+        )
+    if "search_ceiling" in diagnosis.diagnoses:
+        return Layer3G8DomainVsSearchCeilingGate(
+            status="search_ceiling_repair_required",
+            domain_ceiling_claim_allowed=False,
+            current_blocker_refs=diagnosis.current_blocker_refs,
+            issue_codes=_dedupe(
+                (
+                    *diagnosis.issue_codes,
+                    "layer3_g8_search_recall_miss_reported_as_domain_ceiling",
+                )
+            ),
+        )
+    if "governance_bottleneck" in diagnosis.diagnoses:
+        return Layer3G8DomainVsSearchCeilingGate(
+            status="governance_stall_repair_required",
+            domain_ceiling_claim_allowed=False,
+            current_blocker_refs=diagnosis.current_blocker_refs,
+            issue_codes=_dedupe(
+                (
+                    *diagnosis.issue_codes,
+                    "layer3_g8_governance_stall_hidden_as_domain_ceiling",
+                )
+            ),
+        )
+    if "abstention_inertia" in diagnosis.diagnoses:
+        return Layer3G8DomainVsSearchCeilingGate(
+            status="abstention_inertia_repair_required",
+            domain_ceiling_claim_allowed=False,
+            current_blocker_refs=diagnosis.current_blocker_refs,
+            issue_codes=_dedupe(
+                (
+                    *diagnosis.issue_codes,
+                    "layer3_g8_abstention_inertia_hidden_as_honesty",
+                )
+            ),
+        )
+    if "semantic_loss" in diagnosis.diagnoses:
+        return Layer3G8DomainVsSearchCeilingGate(
+            status="semantic_loss_repair_required",
+            domain_ceiling_claim_allowed=False,
+            current_blocker_refs=diagnosis.current_blocker_refs,
+            issue_codes=diagnosis.issue_codes,
+        )
+    if diagnosis.current_blocker_refs:
+        return Layer3G8DomainVsSearchCeilingGate(
+            status="not_claimed_current_grounding_blocker",
+            domain_ceiling_claim_allowed=False,
+            current_blocker_refs=diagnosis.current_blocker_refs,
+            issue_codes=diagnosis.issue_codes,
+        )
+    return Layer3G8DomainVsSearchCeilingGate(
+        status="domain_ceiling_candidate",
+        domain_ceiling_claim_allowed=True,
+        current_blocker_refs=(),
+        issue_codes=diagnosis.issue_codes,
+    )
+
+
+def domain_ceiling_claim_issue_codes(
+    *,
+    diagnosis: Layer3G8CrossMetricDiagnosis,
+    claimed_domain_ceiling: bool,
+) -> tuple[str, ...]:
+    """Report issue codes if a caller tries to claim a domain ceiling."""
+
+    if not claimed_domain_ceiling:
+        return ()
+    issues: list[str] = []
+    if "search_ceiling" in diagnosis.diagnoses:
+        issues.append("layer3_g8_search_recall_miss_reported_as_domain_ceiling")
+    if "governance_bottleneck" in diagnosis.diagnoses:
+        issues.append("layer3_g8_governance_stall_hidden_as_domain_ceiling")
+    if "abstention_inertia" in diagnosis.diagnoses:
+        issues.append("layer3_g8_abstention_inertia_hidden_as_honesty")
+    if "semantic_loss" in diagnosis.diagnoses:
+        issues.append("layer3_g8_semantic_loss_hidden_by_metric_rollup")
+    if diagnosis.current_blocker_refs or diagnosis.envelope_expansion_status == "flat":
+        issues.append("layer3_g8_flat_expansion_reported_as_domain_ceiling_without_search_health")
+    return _dedupe(issues)
+
+
 def _dedupe(values: Iterable[str]) -> tuple[str, ...]:
     return tuple(dict.fromkeys(str(value) for value in values if str(value)))
 
@@ -788,6 +1034,13 @@ def _read_json(path: Path) -> dict[str, Any]:
     with path.open("r", encoding="utf-8") as handle:
         payload = json.load(handle)
     return dict(payload) if isinstance(payload, Mapping) else {}
+
+
+def _read_optional_json(path: Path) -> dict[str, Any]:
+    try:
+        return _read_json(path)
+    except (OSError, json.JSONDecodeError):
+        return {}
 
 
 def _read_toml(path: Path) -> dict[str, Any]:
@@ -1017,3 +1270,39 @@ def _latest_metric_status(signals: Layer3G8NormalizedMetricSignals, metric_id: s
 
 def _slug(value: str) -> str:
     return "".join(ch if ch.isalnum() else "-" for ch in value.lower()).strip("-")
+
+
+def _is_current_committed_source_set(signals: Layer3G8NormalizedMetricSignals) -> bool:
+    return bool(signals.signals) and all(
+        signal.raw_source_ref.startswith("repo://architecture/policy_design_case/")
+        for signal in signals.signals
+    )
+
+
+def _is_search_ceiling(status: str) -> bool:
+    return status.casefold() in {
+        "search_ceiling",
+        "stale",
+        "fail",
+        "miss",
+        "blocked_search_control_plane_only",
+    }
+
+
+def _is_governance_stall(status: str) -> bool:
+    return status.casefold() in {"stalled", "missing", "blocked", "fail"}
+
+
+def _is_abstention_inertia(status: str) -> bool:
+    return status.casefold() in {
+        "abstention_inertia",
+        "cheap_refusal",
+        "blocked_no_demand_response",
+        "no_grounded_response",
+        "blocked_no_real_grounded_breadth",
+        "blocked_by_current_g5_unchanged_blocker",
+    }
+
+
+def _is_semantic_loss(status: str) -> bool:
+    return status.casefold() in {"lossy", "blocked", "fail"}

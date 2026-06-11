@@ -1006,6 +1006,151 @@ def domain_ceiling_claim_issue_codes(
     return _dedupe(issues)
 
 
+class Layer3G8MetricGamingFirewall(_G8Model):
+    """Firewall blocking health metric gains from threshold or fixture gaming."""
+
+    schema_version: str = G8_SCHEMA_VERSION
+    rule_version: str = G8_RULE_VERSION
+    firewall_id: str = "layer3-g8://metric-gaming-firewall"
+    status: Literal["pass", "blocked"]
+    checked_change_count: int
+    blocked_change_refs: tuple[str, ...]
+    issue_codes: tuple[str, ...] = ()
+    authoritative_for: tuple[str, ...] = G8_AUTHORITATIVE_FOR
+    may_not_use_for: tuple[str, ...] = G8_MAY_NOT_USE_FOR
+
+
+class Layer3G8WarningLifecycleRow(_G8Model):
+    """Owned warning row with aging and accepted-deficit semantics."""
+
+    warning_id: str
+    metric_id: str
+    severity: Literal["info", "warn", "blocked"]
+    owner: str
+    deadline: str
+    aging_policy: str
+    accepted_deficit_policy: str
+    source_ref: str
+    issue_codes: tuple[str, ...] = ()
+
+
+class Layer3G8WarningLifecycleLedger(_G8Model):
+    """Ledger converting G8 soft gates into owned warning lifecycle rows."""
+
+    schema_version: str = G8_SCHEMA_VERSION
+    rule_version: str = G8_RULE_VERSION
+    ledger_id: str = "layer3-g8://warning-lifecycle-ledger"
+    status: Literal["pass", "blocked"]
+    warnings: tuple[Layer3G8WarningLifecycleRow, ...]
+    issue_codes: tuple[str, ...] = ()
+    authoritative_for: tuple[str, ...] = G8_AUTHORITATIVE_FOR
+    may_not_use_for: tuple[str, ...] = G8_MAY_NOT_USE_FOR
+
+
+def build_g8_metric_gaming_firewall(
+    *,
+    metric_changes: Sequence[Mapping[str, Any]],
+) -> Layer3G8MetricGamingFirewall:
+    """Block metric improvements produced by gaming rather than real capability."""
+
+    issues: list[str] = []
+    blocked_refs: list[str] = []
+    for change in metric_changes:
+        change_class = _text(change.get("change_class")).casefold()
+        target_metric = _text(change.get("target_metric")).casefold()
+        source_ref = _text(change.get("source_ref")) or "unknown://metric-change"
+        if change.get("claimed_improvement") and change_class in {
+            "threshold_lowered",
+            "floor_relaxed",
+            "hidden_fixture_added",
+            "synthetic_breadth",
+        }:
+            blocked_refs.append(source_ref)
+            if change_class in {"threshold_lowered", "floor_relaxed"}:
+                issues.append("layer3_g8_metric_improved_by_threshold_lowering")
+            else:
+                issues.append("layer3_g8_metric_improved_by_fixture_or_synthetic_breadth")
+        if target_metric == "useful_design_rate":
+            blocked_refs.append(source_ref)
+            issues.append("layer3_g8_useful_design_rate_optimized")
+    return Layer3G8MetricGamingFirewall(
+        status="blocked" if issues else "pass",
+        checked_change_count=len(metric_changes),
+        blocked_change_refs=_dedupe(blocked_refs),
+        issue_codes=_dedupe(issues),
+    )
+
+
+def build_g8_warning_lifecycle_ledger(
+    *,
+    warnings: Sequence[Mapping[str, Any]],
+) -> Layer3G8WarningLifecycleLedger:
+    """Build an owned warning ledger and block warnings missing lifecycle fields."""
+
+    rows: list[Layer3G8WarningLifecycleRow] = []
+    issues: list[str] = []
+    for raw in warnings:
+        row_issues: list[str] = []
+        if not _text(raw.get("owner")):
+            row_issues.append("layer3_g8_warning_owner_missing")
+        if not _text(raw.get("aging_policy")):
+            row_issues.append("layer3_g8_warning_aging_policy_missing")
+        issues.extend(row_issues)
+        metric_id = _text(raw.get("metric_id"))
+        severity = _text(raw.get("severity")) or "warn"
+        if severity not in {"info", "warn", "blocked"}:
+            severity = "warn"
+        rows.append(
+            Layer3G8WarningLifecycleRow(
+                warning_id=_text(raw.get("warning_id")) or "layer3-g8-warning",
+                metric_id=canonical_metric_id(metric_id) or metric_id,
+                severity=severity,  # type: ignore[arg-type]
+                owner=_text(raw.get("owner")),
+                deadline=_text(raw.get("deadline")),
+                aging_policy=_text(raw.get("aging_policy")),
+                accepted_deficit_policy=(
+                    _text(raw.get("accepted_deficit_policy"))
+                    or "blocks_closeout_authority"
+                ),
+                source_ref=_text(raw.get("source_ref")),
+                issue_codes=_dedupe(row_issues),
+            )
+        )
+    return Layer3G8WarningLifecycleLedger(
+        status="blocked" if issues else "pass",
+        warnings=tuple(rows),
+        issue_codes=_dedupe(issues),
+    )
+
+
+def build_g8_default_warning_lifecycle_ledger(
+    *,
+    diagnosis: Layer3G8CrossMetricDiagnosis,
+) -> Layer3G8WarningLifecycleLedger:
+    """Build default owned warnings from current G8 diagnosis signals."""
+
+    warnings: list[dict[str, Any]] = []
+    if "current_grounding_blocker" in diagnosis.diagnoses:
+        warnings.append(
+            {
+                "warning_id": "layer3-g8-current-grounding-blocker",
+                "metric_id": "envelope-expansion-rate",
+                "severity": "warn",
+                "owner": "team-runtime-quality",
+                "deadline": "2026-06-17",
+                "aging_policy": "escalate_if_unchanged_after_next_g_slice",
+                "accepted_deficit_policy": (
+                    "may_pass_engineering_readiness_but_blocks_domain_ceiling_claim"
+                ),
+                "source_ref": (
+                    "repo://architecture/policy_design_case/"
+                    "layer3_g7_readiness_manifest.json"
+                ),
+            }
+        )
+    return build_g8_warning_lifecycle_ledger(warnings=warnings)
+
+
 def _dedupe(values: Iterable[str]) -> tuple[str, ...]:
     return tuple(dict.fromkeys(str(value) for value in values if str(value)))
 

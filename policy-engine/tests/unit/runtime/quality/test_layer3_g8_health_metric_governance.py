@@ -306,6 +306,70 @@ def test_g8_zero_grounded_response_blocks_domain_ceiling_as_abstention_inertia()
     assert "layer3_g8_abstention_inertia_hidden_as_honesty" in gate.issue_codes
 
 
+def test_g8_metric_gaming_firewall_blocks_threshold_lowering_and_useful_design_optimization() -> None:
+    firewall = g8.build_g8_metric_gaming_firewall(
+        metric_changes=[
+            {
+                "metric_id": "demand-pull-vs-abstention",
+                "claimed_improvement": True,
+                "change_class": "threshold_lowered",
+                "target_metric": "useful_design_rate",
+                "source_ref": "test://threshold-lowering",
+            }
+        ]
+    )
+
+    assert firewall.status == "blocked"
+    assert "layer3_g8_metric_improved_by_threshold_lowering" in firewall.issue_codes
+    assert "layer3_g8_useful_design_rate_optimized" in firewall.issue_codes
+
+
+def test_g8_warning_lifecycle_requires_owner_and_aging_policy() -> None:
+    ledger = g8.build_g8_warning_lifecycle_ledger(
+        warnings=[
+            {
+                "warning_id": "metric-stale",
+                "metric_id": "search-recall@known-seeds+index-staleness",
+                "severity": "warn",
+                "owner": "",
+                "deadline": "2026-06-17",
+                "aging_policy": "",
+                "source_ref": (
+                    "repo://architecture/policy_design_case/"
+                    "layer3_g1_health_metric_delta.toml"
+                ),
+            }
+        ]
+    )
+
+    assert ledger.status == "blocked"
+    assert "layer3_g8_warning_owner_missing" in ledger.issue_codes
+    assert "layer3_g8_warning_aging_policy_missing" in ledger.issue_codes
+
+
+def test_g8_default_warning_lifecycle_owns_current_grounding_blocker() -> None:
+    registry = g8.build_g8_health_metric_registry()
+    snapshot = g8.build_g8_metric_source_snapshot(REPO_ROOT)
+    signals = g8.build_g8_normalized_metric_signals(
+        registry=registry,
+        source_snapshot=snapshot,
+    )
+    diagnosis = g8.build_g8_cross_metric_diagnosis(signals=signals, repo_root=REPO_ROOT)
+    ledger = g8.build_g8_default_warning_lifecycle_ledger(diagnosis=diagnosis)
+
+    assert ledger.status == "pass"
+    assert ledger.issue_codes == ()
+    assert len(ledger.warnings) == 1
+    warning = ledger.warnings[0]
+    assert warning.warning_id == "layer3-g8-current-grounding-blocker"
+    assert warning.owner == "team-runtime-quality"
+    assert warning.aging_policy == "escalate_if_unchanged_after_next_g_slice"
+    assert warning.accepted_deficit_policy == (
+        "may_pass_engineering_readiness_but_blocks_domain_ceiling_claim"
+    )
+    assert warning.metric_id == "envelope-expansion-rate"
+
+
 def _signal(
     metric_id: str,
     slice_id: str,

@@ -44,3 +44,49 @@ def test_g8_models_are_strict_and_frozen() -> None:
         )
     with pytest.raises(ValidationError):
         row.ref = "repo://mutated"
+
+
+def test_g8_metric_registry_preserves_g0_ledger_semantics() -> None:
+    registry = g8.build_g8_health_metric_registry()
+
+    assert registry.status == "pass"
+    assert len(registry.entries) == 5
+    by_id = {entry.metric_id: entry for entry in registry.entries}
+    assert by_id["envelope-expansion-rate"].owner == "team-runtime-quality"
+    assert by_id["governance-throughput"].owner == "principal-governance"
+    assert by_id["search-recall@known-seeds+index-staleness"].trend_vocabulary == (
+        "fresh_recall_ok",
+        "search_ceiling",
+    )
+    assert by_id["search-recall@known-seeds+index-staleness"].source_ledger_ref == (
+        "repo://architecture/policy_design_case/layer3_health_metric_ledgers.toml"
+        "#search-recall@known-seeds+index-staleness"
+    )
+
+
+def test_g8_alias_normalization_accepts_existing_g1_to_g7_spellings() -> None:
+    assert g8.canonical_metric_id("search-recall@known-seeds + index-staleness") == (
+        "search-recall@known-seeds+index-staleness"
+    )
+    assert g8.canonical_metric_id(
+        "search-recall@known-seeds+index-staleness(region)"
+    ) == "search-recall@known-seeds+index-staleness"
+    assert g8.canonical_metric_id("envelope_expansion_rate_region") == (
+        "envelope-expansion-rate"
+    )
+    assert g8.canonical_metric_id("g4-governed-promoted-count") == (
+        "governance-throughput"
+    )
+    assert g8.canonical_metric_id("abstention_or_blocker_rate") == (
+        "demand-pull-vs-abstention"
+    )
+    assert g8.canonical_metric_id("g7_s14_grounded_breadth_feed_status") == (
+        "demand-pull-vs-abstention"
+    )
+    assert g8.canonical_metric_id("search_recall.freshness_status") == (
+        "search-recall@known-seeds+index-staleness"
+    )
+    assert g8.canonical_metric_id("gl_search_recall_freshness_status") == (
+        "search-recall@known-seeds+index-staleness"
+    )
+    assert g8.canonical_metric_id("unknown-local-metric") is None

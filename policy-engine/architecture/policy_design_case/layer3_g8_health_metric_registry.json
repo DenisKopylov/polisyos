@@ -1,0 +1,353 @@
+{
+  "authoritative_for": [
+    "layer3_g8_metric_governance_audit",
+    "layer3_g8_d44_rebasing_integrity_reading",
+    "layer3_g8_open_question_answer_reading"
+  ],
+  "entries": [
+    {
+      "aliases": [
+        "envelope-expansion-rate",
+        "envelope-expansion-rate(region)",
+        "envelope_expansion_rate_region",
+        "g5_envelope_expansion_status",
+        "g7_region_envelope_expansion_rate"
+      ],
+      "authoritative_for": [
+        "layer3_g8_metric_governance_audit",
+        "layer3_g8_d44_rebasing_integrity_reading",
+        "layer3_g8_open_question_answer_reading"
+      ],
+      "freeze_value": {
+        "g0_admitted_adapter_count": 0
+      },
+      "may_not_use_for": [
+        "production_authority",
+        "production_claim_authority",
+        "rollout_authority",
+        "publication_authority",
+        "approval_authority",
+        "scorecard_authority",
+        "closeout_authority",
+        "runtime_closeout_authority",
+        "public_recommendation",
+        "policy_recommendation",
+        "legal_advice",
+        "claim_authority",
+        "obligation_authority",
+        "causal_effect_authority",
+        "proof_authority",
+        "legal_authority",
+        "recommendation_authority",
+        "universal_claim_authority",
+        "universal_claim_authority_without_s14",
+        "s14_universality_claim_without_s14_gate",
+        "domain_ceiling_authority_without_gate",
+        "metric_optimization_authority",
+        "useful_design_rate_optimization",
+        "threshold_lowering",
+        "s14_battery_training",
+        "hidden_fixture_access",
+        "g7_region_widening_authority"
+      ],
+      "metric_id": "envelope-expansion-rate",
+      "next_update_rule": "Recompute when a G1+ adapter slice writes governed artifacts.",
+      "owner": "team-runtime-quality",
+      "per_slice_delta_rule": "Later slices may change only after admitted adapter evidence.",
+      "source_ledger_ref": "repo://architecture/policy_design_case/layer3_health_metric_ledgers.toml#envelope-expansion-rate",
+      "trend_vocabulary": [
+        "expanding",
+        "flat",
+        "shrinking"
+      ]
+    },
+    {
+      "aliases": [
+        "adapter-semantic-loss",
+        "adapter-semantic-loss(region)",
+        "semantic_loss_status",
+        "g7_region_semantic_loss_status"
+      ],
+      "authoritative_for": [
+        "layer3_g8_metric_governance_audit",
+        "layer3_g8_d44_rebasing_integrity_reading",
+        "layer3_g8_open_question_answer_reading"
+      ],
+      "freeze_value": {
+        "semantic_loss_events": 0
+      },
+      "may_not_use_for": [
+        "production_authority",
+        "production_claim_authority",
+        "rollout_authority",
+        "publication_authority",
+        "approval_authority",
+        "scorecard_authority",
+        "closeout_authority",
+        "runtime_closeout_authority",
+        "public_recommendation",
+        "policy_recommendation",
+        "legal_advice",
+        "claim_authority",
+        "obligation_authority",
+        "causal_effect_authority",
+        "proof_authority",
+        "legal_authority",
+        "recommendation_authority",
+        "universal_claim_authority",
+        "universal_claim_authority_without_s14",
+        "s14_universality_claim_without_s14_gate",
+        "domain_ceiling_authority_without_gate",
+        "metric_optimization_authority",
+        "useful_design_rate_optimization",
+        "threshold_lowering",
+        "s14_battery_training",
+        "hidden_fixture_access",
+        "g7_region_widening_authority"
+      ],
+      "metric_id": "adapter-semantic-loss",
+      "next_update_rule": "Recompute from conformance harness outputs.",
+      "owner": "team-runtime-quality",
+      "per_slice_delta_rule": "Any AdapterLossBlocker event increments lossy evidence.",
+      "source_ledger_ref": "repo://architecture/policy_design_case/layer3_health_metric_ledgers.toml#adapter-semantic-loss",
+      "trend_vocabulary": [
+        "clean",
+        "lossy"
+      ]
+    },
+    {
+      "aliases": [
+        "governance-throughput",
+        "governance-throughput(region)",
+        "g4_governance_throughput_status",
+        "g4-promotion-attempts",
+        "g4-governed-promoted-count",
+        "g4-promotion-blocked-count",
+        "g4-promotion-stalled-count",
+        "g4-human-decision-routed-count",
+        "g4-hard-a-incompleteness-block-count",
+        "g4-search-health-stall-count",
+        "g4-stale-index-stall-count",
+        "g4-legal-reissue-stall-count",
+        "g4-human-decision-stall-count",
+        "g7_governance_throughput_status"
+      ],
+      "authoritative_for": [
+        "layer3_g8_metric_governance_audit",
+        "layer3_g8_d44_rebasing_integrity_reading",
+        "layer3_g8_open_question_answer_reading"
+      ],
+      "freeze_value": {
+        "accepted_adr_count": 0,
+        "open_human_gate_count": 1
+      },
+      "may_not_use_for": [
+        "production_authority",
+        "production_claim_authority",
+        "rollout_authority",
+        "publication_authority",
+        "approval_authority",
+        "scorecard_authority",
+        "closeout_authority",
+        "runtime_closeout_authority",
+        "public_recommendation",
+        "policy_recommendation",
+        "legal_advice",
+        "claim_authority",
+        "obligation_authority",
+        "causal_effect_authority",
+        "proof_authority",
+        "legal_authority",
+        "recommendation_authority",
+        "universal_claim_authority",
+        "universal_claim_authority_without_s14",
+        "s14_universality_claim_without_s14_gate",
+        "domain_ceiling_authority_without_gate",
+        "metric_optimization_authority",
+        "useful_design_rate_optimization",
+        "threshold_lowering",
+        "s14_battery_training",
+        "hidden_fixture_access",
+        "g7_region_widening_authority"
+      ],
+      "metric_id": "governance-throughput",
+      "next_update_rule": "Recompute at ADR-0175 acceptance.",
+      "owner": "principal-governance",
+      "per_slice_delta_rule": "Human acceptance gates move throughput only with acceptance refs.",
+      "source_ledger_ref": "repo://architecture/policy_design_case/layer3_health_metric_ledgers.toml#governance-throughput",
+      "trend_vocabulary": [
+        "flowing",
+        "stalled"
+      ]
+    },
+    {
+      "aliases": [
+        "demand-pull-vs-abstention",
+        "demand-pull-vs-abstention(region)",
+        "abstention_or_blocker_rate",
+        "grounded_result_rate",
+        "out_of_envelope_abstention_rate",
+        "g6_demand_pull_vs_abstention_status",
+        "g7_region_value_closure_status",
+        "g7_region_grounded_case_count",
+        "g7_s14_grounded_breadth_feed_status"
+      ],
+      "authoritative_for": [
+        "layer3_g8_metric_governance_audit",
+        "layer3_g8_d44_rebasing_integrity_reading",
+        "layer3_g8_open_question_answer_reading"
+      ],
+      "freeze_value": {
+        "grounded_conversion_count": 0
+      },
+      "may_not_use_for": [
+        "production_authority",
+        "production_claim_authority",
+        "rollout_authority",
+        "publication_authority",
+        "approval_authority",
+        "scorecard_authority",
+        "closeout_authority",
+        "runtime_closeout_authority",
+        "public_recommendation",
+        "policy_recommendation",
+        "legal_advice",
+        "claim_authority",
+        "obligation_authority",
+        "causal_effect_authority",
+        "proof_authority",
+        "legal_authority",
+        "recommendation_authority",
+        "universal_claim_authority",
+        "universal_claim_authority_without_s14",
+        "s14_universality_claim_without_s14_gate",
+        "domain_ceiling_authority_without_gate",
+        "metric_optimization_authority",
+        "useful_design_rate_optimization",
+        "threshold_lowering",
+        "s14_battery_training",
+        "hidden_fixture_access",
+        "g7_region_widening_authority"
+      ],
+      "metric_id": "demand-pull-vs-abstention",
+      "next_update_rule": "Recompute from universal corpus G0 route.",
+      "owner": "team-runtime-quality",
+      "per_slice_delta_rule": "Demand pull cannot count until a grounded adapter admits evidence.",
+      "source_ledger_ref": "repo://architecture/policy_design_case/layer3_health_metric_ledgers.toml#demand-pull-vs-abstention",
+      "trend_vocabulary": [
+        "responding",
+        "abstention_inertia"
+      ]
+    },
+    {
+      "aliases": [
+        "search-recall@known-seeds+index-staleness",
+        "search-recall@known-seeds + index-staleness",
+        "search-recall@known-seeds+index-staleness(region)",
+        "search-recall.index_freshness_status",
+        "search-recall.known_seed_status",
+        "search_recall.status",
+        "search_recall.freshness_status",
+        "search_recall.certificate_resolution_seed_status",
+        "search_recall.ir_catalog_seed_status",
+        "search_recall.l2_skg_seed_status",
+        "search_recall.known_seed_count",
+        "search_recall.recalled_seed_count",
+        "search_recall.missed_seed_count",
+        "search_recall.search_ceiling_repair_required",
+        "search_recall.domain_ceiling_allowed",
+        "search_recall_status",
+        "index_freshness_status",
+        "known_seed_status",
+        "g2_search_engineering_quality_status",
+        "g3_search_recall_freshness_status",
+        "gl_search_recall_freshness_status",
+        "g1_search_recall_status",
+        "g1_index_freshness_status",
+        "g5_search_recall_status",
+        "g5_index_freshness_status"
+      ],
+      "authoritative_for": [
+        "layer3_g8_metric_governance_audit",
+        "layer3_g8_d44_rebasing_integrity_reading",
+        "layer3_g8_open_question_answer_reading"
+      ],
+      "freeze_value": {
+        "known_groundable_seed_miss_count": 0,
+        "stale_required_index_count": 0
+      },
+      "may_not_use_for": [
+        "production_authority",
+        "production_claim_authority",
+        "rollout_authority",
+        "publication_authority",
+        "approval_authority",
+        "scorecard_authority",
+        "closeout_authority",
+        "runtime_closeout_authority",
+        "public_recommendation",
+        "policy_recommendation",
+        "legal_advice",
+        "claim_authority",
+        "obligation_authority",
+        "causal_effect_authority",
+        "proof_authority",
+        "legal_authority",
+        "recommendation_authority",
+        "universal_claim_authority",
+        "universal_claim_authority_without_s14",
+        "s14_universality_claim_without_s14_gate",
+        "domain_ceiling_authority_without_gate",
+        "metric_optimization_authority",
+        "useful_design_rate_optimization",
+        "threshold_lowering",
+        "s14_battery_training",
+        "hidden_fixture_access",
+        "g7_region_widening_authority"
+      ],
+      "metric_id": "search-recall@known-seeds+index-staleness",
+      "next_update_rule": "Recompute from GroundingSearchDiscipline recall/freshness records.",
+      "owner": "team-runtime-quality",
+      "per_slice_delta_rule": "Recall misses or stale required indexes block domain-ceiling and no-hit claims.",
+      "source_ledger_ref": "repo://architecture/policy_design_case/layer3_health_metric_ledgers.toml#search-recall@known-seeds+index-staleness",
+      "trend_vocabulary": [
+        "fresh_recall_ok",
+        "search_ceiling"
+      ]
+    }
+  ],
+  "issue_codes": [],
+  "may_not_use_for": [
+    "production_authority",
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "public_recommendation",
+    "policy_recommendation",
+    "legal_advice",
+    "claim_authority",
+    "obligation_authority",
+    "causal_effect_authority",
+    "proof_authority",
+    "legal_authority",
+    "recommendation_authority",
+    "universal_claim_authority",
+    "universal_claim_authority_without_s14",
+    "s14_universality_claim_without_s14_gate",
+    "domain_ceiling_authority_without_gate",
+    "metric_optimization_authority",
+    "useful_design_rate_optimization",
+    "threshold_lowering",
+    "s14_battery_training",
+    "hidden_fixture_access",
+    "g7_region_widening_authority"
+  ],
+  "registry_id": "layer3-g8://health-metric-registry",
+  "rule_version": "policyos.layer3.g8.health_metric_governance.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g8_health_metric_governance.v1",
+  "status": "pass"
+}

@@ -32,7 +32,11 @@ Boundary notes:
   consumes policy-grammar projections, runs an allowlisted tool loop, bridges
   same-class requests to G5, and emits replay/continuity audit surfaces for a
   grounded result or abstention without claiming policy authority.
-- `runtime.quality` does not eagerly export G0, G5, or G6 modules. Import these
+- `layer3_health_metric_governance.py` is the G8 health-metric governance and
+  D4.4 corpus re-basing producer. It normalizes health metric signals, separates
+  cross-metric diagnosis from authority, writes warning lifecycle and re-basing
+  receipts, and exposes closeout-readable readiness without closeout authority.
+- `runtime.quality` does not eagerly export G0, G5, G6, or G8 modules. Import these
   internal audit producers by canonical module path when a validator or
   reference workflow needs them.
 - Public experimental exports must be reflected in the public-surface

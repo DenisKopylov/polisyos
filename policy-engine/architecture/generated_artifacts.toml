@@ -392,6 +392,62 @@ check_command = [
 ]
 
 [[family]]
+id = "policy-design-case-layer3-g8-health-metric-governance-artifacts"
+label = "Policy Design Case Layer 3 G8 health-metric governance artifacts"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+generator = "Layer 3 G8 readiness validator write mode"
+verifier = "Layer 3 G8 readiness validator and architecture guardrails"
+promotion_target = "registered Policy Design Case G8 health-metric governance audit artifacts"
+stale_output_behavior = "fail"
+source_of_truth = "src/polisyos/runtime/quality/layer3_health_metric_governance.py and tools/quality/validation/check_policy_design_case_layer3_g8_readiness.py"
+outputs = [
+  "architecture/policy_design_case/layer3_g8_health_metric_registry.json",
+  "architecture/policy_design_case/layer3_g8_metric_source_snapshot.json",
+  "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+  "architecture/policy_design_case/layer3_g8_metric_trend_report.json",
+  "architecture/policy_design_case/layer3_g8_cross_metric_diagnosis.json",
+  "architecture/policy_design_case/layer3_g8_domain_vs_search_ceiling_gate.json",
+  "architecture/policy_design_case/layer3_g8_metric_gaming_firewall.json",
+  "architecture/policy_design_case/layer3_g8_warning_lifecycle_ledger.json",
+  "architecture/policy_design_case/layer3_g8_d44_corpus_rebasing_rule.json",
+  "architecture/policy_design_case/layer3_g8_d44_reannotation_coverage_matrix.json",
+  "architecture/policy_design_case/layer3_g8_d44_rebasing_trigger_ledger.json",
+  "architecture/policy_design_case/layer3_g8_d44_rebasing_candidate_set.json",
+  "architecture/policy_design_case/layer3_g8_d44_rebasing_receipt.json",
+  "architecture/policy_design_case/layer3_g8_sealed_battery_integrity_join.json",
+  "architecture/policy_design_case/layer3_g8_open_question_answer_ledger.json",
+  "architecture/policy_design_case/layer3_g8_metric_governance_audit_surface.json",
+  "architecture/policy_design_case/layer3_g8_closeout_signal_consumer_gate.json",
+  "architecture/policy_design_case/layer3_g8_public_export_projection_refs.json",
+  "architecture/policy_design_case/layer3_g8_replay_manifest.json",
+  "architecture/policy_design_case/layer3_g8_conformance_report.json",
+  "architecture/policy_design_case/layer3_g8_health_metric_governance_delta.toml",
+  "architecture/policy_design_case/layer3_g8_metric_governance_route_contract_registry.toml",
+  "architecture/policy_design_case/layer3_g8_registry_ratchet_delta.json",
+  "architecture/policy_design_case/layer3_g8_readiness_manifest.json",
+]
+regenerate_commands = [
+  "uv run python tools/quality/validation/check_policy_design_case_layer3_g8_readiness.py --repo-root . --write --output-format json",
+]
+commit_policy = "committed_after_task9_write"
+freshness_rule = "Regenerate and commit whenever the Layer 3 G8 metric governance runtime builder, validator, route registry, public projection refs, D4.4 rebasing receipts, or replay rules change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_policy_design_case_layer3_g8_readiness.py"
+check_cwd = "."
+check_command = [
+  "uv",
+  "run",
+  "python",
+  "tools/quality/validation/check_policy_design_case_layer3_g8_readiness.py",
+  "--repo-root",
+  ".",
+  "--output-format",
+  "json",
+]
+
+[[family]]
 id = "abi-schema-snapshots"
 label = "ABI schema snapshots"
 owner = "team-polisyos"

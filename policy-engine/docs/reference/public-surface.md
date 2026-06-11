@@ -41,6 +41,16 @@ projection-only public refs;
 `layer3_g6_public_export_projection_refs.json` records
 `out_of_scope_reference_only` and does not register a public-export bundle route.
 
+`layer3_g8_health_metric_governance_surface` is a generated EXPERT/MACHINE
+Policy Design Case audit surface documented here until the health-metric
+governance reference page graduates. It publishes metric registry refs,
+normalized metric signal refs, cross-metric diagnosis refs, D4.4 re-basing
+receipt refs, replay-manifest refs, route registry refs, and
+`layer3_g8_closeout_signal_consumer_gate.json` refs. PUBLIC/REVIEWER access is
+projection-only through `layer3_g8_public_export_projection_refs.json`, which
+records `out_of_scope_reference_only` and does not register a public-export
+bundle route.
+
 | Package | Classification | Facade | Exports | Owner | README |
 | --- | --- | --- | ---: | --- | --- |
 | `polisyos.common` | `public_stable` | `lazy_facade` | 7 | `team-polisyos` | `src/polisyos/common/README.md` |

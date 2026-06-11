@@ -1,0 +1,9 @@
+schema_version = "policyos.policy_design_case.layer3_g8_health_metric_governance.v1"
+rule_version = "policyos.layer3.g8.health_metric_governance.v1"
+route_contract_registry_kind = "generated_metric_governance_route_contract_registry"
+surface_id = "layer3_g8_health_metric_governance_surface"
+producer = "src/polisyos/runtime/quality/layer3_health_metric_governance.py"
+validator = "tools/quality/validation/check_policy_design_case_layer3_g8_readiness.py"
+metric_trend_report = "architecture/policy_design_case/layer3_g8_metric_trend_report.json"
+closeout_consumer_gate = "architecture/policy_design_case/layer3_g8_closeout_signal_consumer_gate.json"
+may_not_use_for = ["production_authority", "production_claim_authority", "rollout_authority", "publication_authority", "approval_authority", "scorecard_authority", "closeout_authority", "runtime_closeout_authority", "public_recommendation", "policy_recommendation", "legal_advice", "claim_authority", "obligation_authority", "causal_effect_authority", "proof_authority", "legal_authority", "recommendation_authority", "universal_claim_authority", "universal_claim_authority_without_s14", "s14_universality_claim_without_s14_gate", "domain_ceiling_authority_without_gate", "metric_optimization_authority", "useful_design_rate_optimization", "threshold_lowering", "s14_battery_training", "hidden_fixture_access", "g7_region_widening_authority"]

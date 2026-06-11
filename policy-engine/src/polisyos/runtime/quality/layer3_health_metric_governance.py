@@ -304,6 +304,38 @@ D44_REQUIRED_REANNOTATION_FIELDS = (
     "reviewer_disagreement",
     "value_choice_provenance",
 )
+G8_CONFORMANCE_NEGATIVE_EXPECTED_ISSUE_CODES: dict[str, tuple[str, ...]] = {
+    "metric_improved_by_threshold_lowering": (
+        "layer3_g8_metric_improved_by_threshold_lowering",
+    ),
+    "useful_design_rate_optimization": ("layer3_g8_useful_design_rate_optimized",),
+    "search_recall_miss_as_domain_ceiling": (
+        "layer3_g8_search_recall_miss_reported_as_domain_ceiling",
+    ),
+    "flat_expansion_with_current_blocker_as_domain_ceiling": (
+        "layer3_g8_flat_expansion_reported_as_domain_ceiling_without_search_health",
+    ),
+    "governance_stall_as_domain_ceiling": (
+        "layer3_g8_governance_stall_hidden_as_domain_ceiling",
+    ),
+    "abstention_inertia_as_honesty": (
+        "layer3_g8_abstention_inertia_hidden_as_honesty",
+    ),
+    "semantic_loss_hidden_by_metric_rollup": (
+        "layer3_g8_semantic_loss_hidden_by_metric_rollup",
+    ),
+    "rebasing_mutates_sealed_battery": ("layer3_g8_rebasing_mutates_sealed_battery",),
+    "rebasing_leaks_gold_or_hidden_payload": (
+        "layer3_g8_rebasing_leaks_gold_or_hidden_payload",
+    ),
+    "rebasing_lowers_s14_floor": ("layer3_g8_rebasing_lowers_s14_floor",),
+    "closeout_signal_used_as_authority": (
+        "layer3_g8_metric_used_as_closeout_authority",
+    ),
+    "public_projection_authority_leak": (
+        "layer3_g8_public_projection_authority_leak",
+    ),
+}
 
 
 class _G8Model(BaseModel):
@@ -1745,6 +1777,673 @@ def build_g8_open_question_answer_ledger(
         answers=rows,
         issue_codes=("layer3_g8_open_question_answer_missing",) if missing else (),
     )
+
+
+class Layer3G8MetricGovernanceAuditSurface(_G8Model):
+    """EXPERT/MACHINE audit surface for G8 metric governance readings."""
+
+    schema_version: str = G8_SCHEMA_VERSION
+    rule_version: str = G8_RULE_VERSION
+    surface_id: str = G8_SURFACE_ID
+    status: Literal["pass", "blocked"]
+    surface_audiences: tuple[str, ...] = ("EXPERT", "MACHINE")
+    metric_registry_ref: str
+    normalized_metric_signals_ref: str
+    metric_trend_report_status: str
+    domain_vs_search_ceiling_status: str
+    d44_reannotation_coverage_status: str
+    d44_rebasing_trigger_status: str
+    d44_rebasing_receipt_status: str
+    sealed_battery_integrity_status: str
+    open_question_answer_status: str
+    warning_lifecycle_status: str
+    metric_gaming_firewall_status: str
+    issue_codes: tuple[str, ...] = ()
+    authoritative_for: tuple[str, ...] = G8_AUTHORITATIVE_FOR
+    may_not_use_for: tuple[str, ...] = G8_MAY_NOT_USE_FOR
+
+
+class Layer3G8CloseoutSignalConsumerGate(_G8Model):
+    """Gate allowing closeout visibility without closeout authority."""
+
+    schema_version: str = G8_SCHEMA_VERSION
+    rule_version: str = G8_RULE_VERSION
+    gate_id: str = "layer3-g8://closeout-signal-consumer-gate"
+    status: Literal["pass", "blocked"]
+    closeout_consumption_status: Literal[
+        "readiness_visible_no_authority",
+        "blocked_authority_leak",
+    ]
+    consumed_signal_refs: tuple[str, ...]
+    denied_uses: tuple[str, ...] = G8_MAY_NOT_USE_FOR
+    issue_codes: tuple[str, ...] = ()
+    authoritative_for: tuple[str, ...] = ("layer3_g8_metric_governance_audit",)
+    may_not_use_for: tuple[str, ...] = G8_MAY_NOT_USE_FOR
+
+
+class Layer3G8PublicExportProjectionRefs(_G8Model):
+    """Reference-only public projection refs for G8 audit surfaces."""
+
+    schema_version: str = G8_SCHEMA_VERSION
+    rule_version: str = G8_RULE_VERSION
+    projection_ref_id: str = "layer3-g8://public-export-projection-refs"
+    public_projection_status: Literal["out_of_scope_reference_only", "blocked"]
+    source_surface: str = G8_SURFACE_ID
+    denied_uses: tuple[str, ...] = G8_MAY_NOT_USE_FOR
+    issue_codes: tuple[str, ...] = ()
+
+
+class Layer3G8ConformanceReport(_G8Model):
+    """Conformance report proving required G8 negative probes fire."""
+
+    schema_version: str = G8_SCHEMA_VERSION
+    rule_version: str = G8_RULE_VERSION
+    report_id: str = "layer3-g8://conformance-report"
+    status: Literal["pass", "blocked"]
+    negative_results: tuple[dict[str, Any], ...]
+    missing_negative_ids: tuple[str, ...]
+    failing_negative_ids: tuple[str, ...]
+    issue_codes: tuple[str, ...] = ()
+    authoritative_for: tuple[str, ...] = ("layer3_g8_metric_governance_audit",)
+    may_not_use_for: tuple[str, ...] = G8_MAY_NOT_USE_FOR
+
+
+class Layer3G8Bundle(_G8Model):
+    """In-memory bundle connecting G8 producers, surfaces, and conformance."""
+
+    registry: Layer3G8HealthMetricRegistry
+    source_snapshot: Layer3G8MetricSourceSnapshot
+    normalized_signals: Layer3G8NormalizedMetricSignals
+    metric_trend_report: Layer3G8MetricTrendReport
+    cross_metric_diagnosis: Layer3G8CrossMetricDiagnosis
+    ceiling_gate: Layer3G8DomainVsSearchCeilingGate
+    metric_gaming_firewall: Layer3G8MetricGamingFirewall
+    warning_lifecycle_ledger: Layer3G8WarningLifecycleLedger
+    d44_rebasing_rule: Layer3G8D44CorpusRebasingRule
+    d44_reannotation_coverage_matrix: Layer3G8D44ReannotationCoverageMatrix
+    d44_rebasing_trigger_ledger: Layer3G8D44RebasingTriggerLedger
+    d44_rebasing_candidate_set: Layer3G8D44RebasingCandidateSet
+    d44_rebasing_receipt: Layer3G8D44RebasingReceipt
+    sealed_battery_integrity_join: Layer3G8SealedBatteryIntegrityJoin
+    open_question_answer_ledger: Layer3G8OpenQuestionAnswerLedger
+    audit_surface: Layer3G8MetricGovernanceAuditSurface
+    closeout_signal_consumer_gate: Layer3G8CloseoutSignalConsumerGate
+    public_export_projection_refs: Layer3G8PublicExportProjectionRefs
+    replay_manifest: dict[str, Any]
+    conformance_report: Layer3G8ConformanceReport
+    health_metric_governance_delta: dict[str, Any]
+    route_contract_registry: dict[str, Any]
+    registry_ratchet_delta: dict[str, Any]
+
+
+def build_layer3_g8_bundle(repo_root: str | Path = DEFAULT_REPO_ROOT) -> Layer3G8Bundle:
+    """Build the current G8 bundle from committed G0-G7/S14 artifacts."""
+
+    registry = build_g8_health_metric_registry()
+    source_snapshot = build_g8_metric_source_snapshot(repo_root)
+    signals = build_g8_normalized_metric_signals(
+        registry=registry,
+        source_snapshot=source_snapshot,
+        repo_root=repo_root,
+    )
+    trend_report = build_g8_metric_trend_report(registry=registry, signals=signals)
+    diagnosis = build_g8_cross_metric_diagnosis(signals=signals, repo_root=repo_root)
+    ceiling_gate = build_g8_domain_vs_search_ceiling_gate(diagnosis=diagnosis)
+    metric_gaming = build_g8_metric_gaming_firewall(metric_changes=[])
+    warnings = build_g8_default_warning_lifecycle_ledger(diagnosis=diagnosis)
+    rebasing_rule = build_g8_d44_corpus_rebasing_rule(repo_root=repo_root)
+    coverage_matrix = build_g8_d44_reannotation_coverage_matrix(
+        rule=rebasing_rule,
+        repo_root=repo_root,
+    )
+    trigger_ledger = build_g8_d44_rebasing_trigger_ledger(repo_root=repo_root)
+    candidate_set = build_g8_d44_rebasing_candidate_set(repo_root=repo_root)
+    receipt = build_g8_d44_rebasing_receipt(
+        rule=rebasing_rule,
+        candidate_set=candidate_set,
+        repo_root=repo_root,
+    )
+    sealed_join = build_g8_sealed_battery_integrity_join(repo_root=repo_root)
+    open_questions = build_g8_open_question_answer_ledger(
+        diagnosis=diagnosis,
+        ceiling_gate=ceiling_gate,
+        repo_root=repo_root,
+    )
+    audit_surface = build_g8_metric_governance_audit_surface(
+        registry=registry,
+        signals=signals,
+        trend_report=trend_report,
+        ceiling_gate=ceiling_gate,
+        metric_gaming_firewall=metric_gaming,
+        warning_lifecycle_ledger=warnings,
+        d44_reannotation_coverage_matrix=coverage_matrix,
+        d44_rebasing_trigger_ledger=trigger_ledger,
+        rebasing_receipt=receipt,
+        sealed_battery_integrity_join=sealed_join,
+        open_question_ledger=open_questions,
+    )
+    closeout_gate = build_g8_closeout_signal_consumer_gate(
+        audit_surface=audit_surface
+    )
+    public_refs = build_g8_public_export_projection_refs(
+        audit_surface=audit_surface
+    )
+    replay_manifest = build_g8_replay_manifest(audit_surface=audit_surface)
+    conformance = build_g8_conformance_report(repo_root=repo_root)
+    return Layer3G8Bundle(
+        registry=registry,
+        source_snapshot=source_snapshot,
+        normalized_signals=signals,
+        metric_trend_report=trend_report,
+        cross_metric_diagnosis=diagnosis,
+        ceiling_gate=ceiling_gate,
+        metric_gaming_firewall=metric_gaming,
+        warning_lifecycle_ledger=warnings,
+        d44_rebasing_rule=rebasing_rule,
+        d44_reannotation_coverage_matrix=coverage_matrix,
+        d44_rebasing_trigger_ledger=trigger_ledger,
+        d44_rebasing_candidate_set=candidate_set,
+        d44_rebasing_receipt=receipt,
+        sealed_battery_integrity_join=sealed_join,
+        open_question_answer_ledger=open_questions,
+        audit_surface=audit_surface,
+        closeout_signal_consumer_gate=closeout_gate,
+        public_export_projection_refs=public_refs,
+        replay_manifest=replay_manifest,
+        conformance_report=conformance,
+        health_metric_governance_delta=_g8_health_metric_governance_delta(
+            registry=registry,
+            trend_report=trend_report,
+            ceiling_gate=ceiling_gate,
+        ),
+        route_contract_registry=_g8_route_contract_registry(audit_surface),
+        registry_ratchet_delta=_g8_registry_ratchet_delta(conformance),
+    )
+
+
+def build_g8_metric_governance_audit_surface(
+    *,
+    registry: Layer3G8HealthMetricRegistry,
+    signals: Layer3G8NormalizedMetricSignals,
+    trend_report: Layer3G8MetricTrendReport,
+    ceiling_gate: Layer3G8DomainVsSearchCeilingGate,
+    metric_gaming_firewall: Layer3G8MetricGamingFirewall,
+    warning_lifecycle_ledger: Layer3G8WarningLifecycleLedger,
+    d44_reannotation_coverage_matrix: Layer3G8D44ReannotationCoverageMatrix,
+    d44_rebasing_trigger_ledger: Layer3G8D44RebasingTriggerLedger,
+    rebasing_receipt: Layer3G8D44RebasingReceipt,
+    sealed_battery_integrity_join: Layer3G8SealedBatteryIntegrityJoin,
+    open_question_ledger: Layer3G8OpenQuestionAnswerLedger,
+) -> Layer3G8MetricGovernanceAuditSurface:
+    """Build the reader-facing G8 audit surface."""
+
+    issues = _dedupe(
+        (
+            *registry.issue_codes,
+            *signals.issue_codes,
+            *trend_report.issue_codes,
+            *metric_gaming_firewall.issue_codes,
+            *warning_lifecycle_ledger.issue_codes,
+            *d44_reannotation_coverage_matrix.issue_codes,
+            *d44_rebasing_trigger_ledger.issue_codes,
+            *rebasing_receipt.issue_codes,
+            *sealed_battery_integrity_join.issue_codes,
+            *open_question_ledger.issue_codes,
+        )
+    )
+    blocking = set(issues).intersection(
+        {
+            "layer3_g8_metric_source_missing",
+            "layer3_g8_metric_alias_unresolved",
+            "layer3_g8_metric_trend_report_missing",
+            "layer3_g8_metric_improved_by_threshold_lowering",
+            "layer3_g8_d44_reannotation_coverage_missing",
+            "layer3_g8_d44_rebasing_trigger_missing",
+            "layer3_g8_rebasing_mutates_sealed_battery",
+            "layer3_g8_rebasing_leaks_gold_or_hidden_payload",
+            "layer3_g8_rebasing_lowers_s14_floor",
+            "layer3_g8_rebasing_without_freeze_hash",
+        }
+    )
+    return Layer3G8MetricGovernanceAuditSurface(
+        status="blocked" if blocking else "pass",
+        metric_registry_ref=(
+            "repo://architecture/policy_design_case/"
+            "layer3_g8_health_metric_registry.json"
+        ),
+        normalized_metric_signals_ref=(
+            "repo://architecture/policy_design_case/"
+            "layer3_g8_normalized_metric_signals.json"
+        ),
+        metric_trend_report_status=trend_report.status,
+        domain_vs_search_ceiling_status=ceiling_gate.status,
+        d44_reannotation_coverage_status=d44_reannotation_coverage_matrix.status,
+        d44_rebasing_trigger_status=d44_rebasing_trigger_ledger.status,
+        d44_rebasing_receipt_status=rebasing_receipt.status,
+        sealed_battery_integrity_status=sealed_battery_integrity_join.status,
+        open_question_answer_status=open_question_ledger.status,
+        warning_lifecycle_status=warning_lifecycle_ledger.status,
+        metric_gaming_firewall_status=metric_gaming_firewall.status,
+        issue_codes=issues,
+    )
+
+
+def build_g8_closeout_signal_consumer_gate(
+    *,
+    audit_surface: Layer3G8MetricGovernanceAuditSurface,
+    authority_role: str = "readiness_visibility_only",
+) -> Layer3G8CloseoutSignalConsumerGate:
+    """Expose G8 signals to closeout only as readiness visibility."""
+
+    issues: list[str] = []
+    if authority_role != "readiness_visibility_only":
+        issues.append("layer3_g8_metric_used_as_closeout_authority")
+    if "closeout_authority" not in audit_surface.may_not_use_for:
+        issues.append("layer3_g8_metric_used_as_closeout_authority")
+    return Layer3G8CloseoutSignalConsumerGate(
+        status="blocked" if issues else "pass",
+        closeout_consumption_status=(
+            "blocked_authority_leak" if issues else "readiness_visible_no_authority"
+        ),
+        consumed_signal_refs=(
+            "repo://architecture/policy_design_case/"
+            "layer3_g8_metric_governance_audit_surface.json",
+            "repo://architecture/policy_design_case/"
+            "layer3_g8_domain_vs_search_ceiling_gate.json",
+            "repo://architecture/policy_design_case/"
+            "layer3_g8_warning_lifecycle_ledger.json",
+        ),
+        issue_codes=_dedupe(issues),
+    )
+
+
+def build_g8_public_export_projection_refs(
+    *,
+    audit_surface: Layer3G8MetricGovernanceAuditSurface,
+    authority_role: str = "projection_only",
+) -> Layer3G8PublicExportProjectionRefs:
+    """Declare G8 public projection refs as reference-only."""
+
+    issues: list[str] = []
+    if authority_role != "projection_only":
+        issues.append("layer3_g8_public_projection_authority_leak")
+    return Layer3G8PublicExportProjectionRefs(
+        public_projection_status="blocked" if issues else "out_of_scope_reference_only",
+        issue_codes=_dedupe(issues),
+    )
+
+
+def build_g8_replay_manifest(
+    *,
+    audit_surface: Layer3G8MetricGovernanceAuditSurface,
+) -> dict[str, Any]:
+    """Build a replay manifest pinning G8 source refs and rule authority."""
+
+    return {
+        "schema_version": G8_SCHEMA_VERSION,
+        "rule_version": G8_RULE_VERSION,
+        "manifest_id": "layer3-g8-health-metric-governance-replay",
+        "status": "pass" if audit_surface.status in {"pass", "blocked"} else "blocked",
+        "source_refs": [
+            "repo://architecture/policy_design_case/layer3_health_metric_ledgers.toml",
+            "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json",
+            "repo://architecture/policy_design_case/layer3_g2_search_recall_freshness.json",
+            "repo://architecture/policy_design_case/layer3_g3_search_recall_freshness.json",
+            "repo://architecture/policy_design_case/layer3_gl_search_recall_freshness.json",
+            "repo://architecture/policy_design_case/layer3_g4_governance_throughput_delta.json",
+            "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json",
+            "repo://architecture/policy_design_case/layer3_g5_dependency_health_metric_snapshot.json",
+            "repo://architecture/policy_design_case/layer3_g6_demand_pull_vs_abstention_delta.json",
+            "repo://architecture/policy_design_case/layer3_g6_readiness_manifest.json",
+            "repo://architecture/policy_design_case/layer3_g7_search_recall_freshness_join.json",
+            "repo://architecture/policy_design_case/layer3_g7_readiness_manifest.json",
+            "repo://architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json",
+        ],
+        "audit_surface_ref": (
+            "repo://architecture/policy_design_case/"
+            "layer3_g8_metric_governance_audit_surface.json"
+        ),
+        "issue_codes": [],
+        "authoritative_for": list(G8_AUTHORITATIVE_FOR),
+        "may_not_use_for": list(G8_MAY_NOT_USE_FOR),
+    }
+
+
+def build_g8_conformance_report(
+    *,
+    repo_root: str | Path = DEFAULT_REPO_ROOT,
+) -> Layer3G8ConformanceReport:
+    """Run G8 negative probes and report missing/failing issue codes."""
+
+    negative_results: list[dict[str, Any]] = []
+    for negative_id, expected in G8_CONFORMANCE_NEGATIVE_EXPECTED_ISSUE_CODES.items():
+        observed = _observed_g8_negative_issue_codes(negative_id)
+        missing = sorted(set(expected) - set(observed))
+        negative_results.append(
+            {
+                "negative_id": negative_id,
+                "expected_issue_codes": list(expected),
+                "observed_issue_codes": list(observed),
+                "missing_issue_codes": missing,
+                "status": "fail" if missing else "pass",
+                "probe_ref": f"layer3-g8://conformance/negative/{negative_id}",
+            }
+        )
+    observed_ids = {str(result["negative_id"]) for result in negative_results}
+    missing_negative_ids = tuple(
+        sorted(set(G8_CONFORMANCE_NEGATIVE_EXPECTED_ISSUE_CODES) - observed_ids)
+    )
+    failing = tuple(
+        str(result["negative_id"])
+        for result in negative_results
+        if result["status"] != "pass"
+    )
+    issue_codes = tuple(
+        sorted(
+            {
+                code
+                for result in negative_results
+                for code in result["missing_issue_codes"]
+            }
+        )
+    )
+    return Layer3G8ConformanceReport(
+        status="blocked" if missing_negative_ids or failing else "pass",
+        negative_results=tuple(negative_results),
+        missing_negative_ids=missing_negative_ids,
+        failing_negative_ids=failing,
+        issue_codes=(
+            issue_codes
+            or (("layer3_g8_conformance_negative_missing",) if missing_negative_ids else ())
+        ),
+    )
+
+
+def _observed_g8_negative_issue_codes(negative_id: str) -> tuple[str, ...]:
+    if negative_id == "metric_improved_by_threshold_lowering":
+        return build_g8_metric_gaming_firewall(
+            metric_changes=[
+                {
+                    "metric_id": "demand-pull-vs-abstention",
+                    "claimed_improvement": True,
+                    "change_class": "threshold_lowered",
+                    "source_ref": "layer3-g8://negative/threshold-lowering",
+                }
+            ]
+        ).issue_codes
+    if negative_id == "useful_design_rate_optimization":
+        return build_g8_metric_gaming_firewall(
+            metric_changes=[
+                {
+                    "metric_id": "envelope-expansion-rate",
+                    "claimed_improvement": True,
+                    "change_class": "metric_target_changed",
+                    "target_metric": "useful_design_rate",
+                    "source_ref": "layer3-g8://negative/useful-design-rate",
+                }
+            ]
+        ).issue_codes
+    if negative_id == "search_recall_miss_as_domain_ceiling":
+        diagnosis = build_g8_cross_metric_diagnosis(
+            signals=_negative_signal_set(
+                search_status="search_ceiling",
+                governance_status="pass",
+                demand_status="pass",
+                semantic_status="pass",
+                expansion_status="flat",
+            )
+        )
+        return domain_ceiling_claim_issue_codes(
+            diagnosis=diagnosis,
+            claimed_domain_ceiling=True,
+        )
+    if negative_id == "flat_expansion_with_current_blocker_as_domain_ceiling":
+        diagnosis = Layer3G8CrossMetricDiagnosis(
+            status="pass",
+            envelope_expansion_status="flat",
+            semantic_loss_status="pass",
+            governance_throughput_status="pass",
+            demand_pull_status="pass",
+            search_recall_freshness_status="pass",
+            effective_independence_status="sufficient",
+            effective_independent_evidence_count=2,
+            effective_independence_source_ref=(
+                "repo://architecture/policy_design_case/"
+                "layer3_g5_effective_evidence_independence.json"
+                "#independence_map_payload.effective_mass_report"
+            ),
+            current_blocker_refs=(
+                "repo://architecture/policy_design_case/"
+                "layer3_g7_readiness_manifest.json#g7_region_grounded_case_count",
+            ),
+            diagnoses=("current_grounding_blocker",),
+        )
+        return domain_ceiling_claim_issue_codes(
+            diagnosis=diagnosis,
+            claimed_domain_ceiling=True,
+        )
+    if negative_id == "governance_stall_as_domain_ceiling":
+        diagnosis = build_g8_cross_metric_diagnosis(
+            signals=_negative_signal_set(
+                search_status="pass",
+                governance_status="stalled",
+                demand_status="pass",
+                semantic_status="pass",
+                expansion_status="flat",
+            )
+        )
+        return domain_ceiling_claim_issue_codes(
+            diagnosis=diagnosis,
+            claimed_domain_ceiling=True,
+        )
+    if negative_id == "abstention_inertia_as_honesty":
+        diagnosis = build_g8_cross_metric_diagnosis(
+            signals=_negative_signal_set(
+                search_status="pass",
+                governance_status="pass",
+                demand_status="abstention_inertia",
+                semantic_status="pass",
+                expansion_status="flat",
+            )
+        )
+        return domain_ceiling_claim_issue_codes(
+            diagnosis=diagnosis,
+            claimed_domain_ceiling=True,
+        )
+    if negative_id == "semantic_loss_hidden_by_metric_rollup":
+        diagnosis = build_g8_cross_metric_diagnosis(
+            signals=_negative_signal_set(
+                search_status="pass",
+                governance_status="pass",
+                demand_status="pass",
+                semantic_status="lossy",
+                expansion_status="flat",
+            )
+        )
+        return diagnosis.issue_codes
+    if negative_id in {
+        "rebasing_mutates_sealed_battery",
+        "rebasing_leaks_gold_or_hidden_payload",
+        "rebasing_lowers_s14_floor",
+    }:
+        return build_g8_sealed_battery_integrity_join(
+            rebasing_attempt={
+                "pre_rebase_freeze_hash": "sha256:" + "1" * 64,
+                "post_rebase_freeze_hash": "sha256:" + "2" * 64,
+                "floor_change": "lowered",
+                "hidden_payload_ref": "sealed_gold_label_ref://leak",
+            }
+        ).issue_codes
+    if negative_id == "closeout_signal_used_as_authority":
+        return build_g8_closeout_signal_consumer_gate(
+            audit_surface=_test_audit_surface(),
+            authority_role="closeout_authority",
+        ).issue_codes
+    if negative_id == "public_projection_authority_leak":
+        return build_g8_public_export_projection_refs(
+            audit_surface=_test_audit_surface(),
+            authority_role="claim_authority",
+        ).issue_codes
+    return ()
+
+
+def _test_audit_surface() -> Layer3G8MetricGovernanceAuditSurface:
+    return Layer3G8MetricGovernanceAuditSurface(
+        status="pass",
+        metric_registry_ref="repo://test/registry",
+        normalized_metric_signals_ref="repo://test/signals",
+        metric_trend_report_status="pass",
+        domain_vs_search_ceiling_status="not_claimed_current_grounding_blocker",
+        d44_reannotation_coverage_status="pass",
+        d44_rebasing_trigger_status="pass_no_rebase_due",
+        d44_rebasing_receipt_status="pass_no_rebase_required",
+        sealed_battery_integrity_status="pass",
+        open_question_answer_status="pass",
+        warning_lifecycle_status="pass",
+        metric_gaming_firewall_status="pass",
+    )
+
+
+def _negative_signal_set(
+    *,
+    search_status: str,
+    governance_status: str,
+    demand_status: str,
+    semantic_status: str,
+    expansion_status: str,
+) -> Layer3G8NormalizedMetricSignals:
+    return Layer3G8NormalizedMetricSignals(
+        status="pass",
+        signals=(
+            Layer3G8NormalizedMetricSignal(
+                signal_id="negative://envelope",
+                slice_id="G8",
+                metric_id="envelope-expansion-rate",
+                raw_key="envelope-expansion-rate",
+                raw_value=expansion_status,
+                status=expansion_status,
+                raw_source_ref="repo://negative#envelope",
+                source_digest="sha256:" + "1" * 64,
+                freshness_status="fresh_committed",
+                authority_boundary_status="pass",
+                observed_at="2026-06-10T00:00:00Z",
+            ),
+            Layer3G8NormalizedMetricSignal(
+                signal_id="negative://semantic-loss",
+                slice_id="G8",
+                metric_id="adapter-semantic-loss",
+                raw_key="adapter-semantic-loss",
+                raw_value=semantic_status,
+                status=semantic_status,
+                raw_source_ref="repo://negative#semantic",
+                source_digest="sha256:" + "1" * 64,
+                freshness_status="fresh_committed",
+                authority_boundary_status="pass",
+                observed_at="2026-06-10T00:00:00Z",
+            ),
+            Layer3G8NormalizedMetricSignal(
+                signal_id="negative://governance",
+                slice_id="G8",
+                metric_id="governance-throughput",
+                raw_key="governance-throughput",
+                raw_value=governance_status,
+                status=governance_status,
+                raw_source_ref="repo://negative#governance",
+                source_digest="sha256:" + "1" * 64,
+                freshness_status="fresh_committed",
+                authority_boundary_status="pass",
+                observed_at="2026-06-10T00:00:00Z",
+            ),
+            Layer3G8NormalizedMetricSignal(
+                signal_id="negative://demand",
+                slice_id="G8",
+                metric_id="demand-pull-vs-abstention",
+                raw_key="demand-pull-vs-abstention",
+                raw_value=demand_status,
+                status=demand_status,
+                raw_source_ref="repo://negative#demand",
+                source_digest="sha256:" + "1" * 64,
+                freshness_status="fresh_committed",
+                authority_boundary_status="pass",
+                observed_at="2026-06-10T00:00:00Z",
+            ),
+            Layer3G8NormalizedMetricSignal(
+                signal_id="negative://search",
+                slice_id="G8",
+                metric_id="search-recall@known-seeds+index-staleness",
+                raw_key="search-recall@known-seeds+index-staleness",
+                raw_value=search_status,
+                status=search_status,
+                raw_source_ref="repo://negative#search",
+                source_digest="sha256:" + "1" * 64,
+                freshness_status="fresh_committed",
+                authority_boundary_status="pass",
+                observed_at="2026-06-10T00:00:00Z",
+            ),
+        ),
+    )
+
+
+def _g8_health_metric_governance_delta(
+    *,
+    registry: Layer3G8HealthMetricRegistry,
+    trend_report: Layer3G8MetricTrendReport,
+    ceiling_gate: Layer3G8DomainVsSearchCeilingGate,
+) -> dict[str, Any]:
+    return {
+        "schema_version": G8_SCHEMA_VERSION,
+        "rule_version": G8_RULE_VERSION,
+        "health_metric_governance_delta": {
+            "metric_ids": list(G8_CANONICAL_METRIC_IDS),
+            "metric_governance_status": registry.status,
+            "metric_trend_report_status": trend_report.status,
+            "metric_trend_refs": [
+                "repo://architecture/policy_design_case/"
+                "layer3_g8_metric_trend_report.json"
+            ],
+            "domain_vs_search_ceiling_status": ceiling_gate.status,
+            "authority_boundary": "governed_signal_never_authority",
+        },
+    }
+
+
+def _g8_route_contract_registry(
+    audit_surface: Layer3G8MetricGovernanceAuditSurface,
+) -> dict[str, Any]:
+    return {
+        "schema_version": G8_SCHEMA_VERSION,
+        "rule_version": G8_RULE_VERSION,
+        "route_contract_registry_kind": (
+            "generated_metric_governance_route_contract_registry"
+        ),
+        "surface_id": audit_surface.surface_id,
+        "producer": "src/polisyos/runtime/quality/layer3_health_metric_governance.py",
+        "validator": (
+            "tools/quality/validation/check_policy_design_case_layer3_g8_readiness.py"
+        ),
+        "metric_trend_report": (
+            "architecture/policy_design_case/layer3_g8_metric_trend_report.json"
+        ),
+        "closeout_consumer_gate": (
+            "architecture/policy_design_case/"
+            "layer3_g8_closeout_signal_consumer_gate.json"
+        ),
+        "may_not_use_for": list(G8_MAY_NOT_USE_FOR),
+    }
+
+
+def _g8_registry_ratchet_delta(
+    conformance_report: Layer3G8ConformanceReport,
+) -> dict[str, Any]:
+    return {
+        "schema_version": G8_SCHEMA_VERSION,
+        "rule_version": G8_RULE_VERSION,
+        "ratchet_id": "layer3_g8_registry_ratchet_delta",
+        "status": "pass" if conformance_report.status == "pass" else "blocked",
+        "negative_count": len(conformance_report.negative_results),
+        "missing_negative_ids": list(conformance_report.missing_negative_ids),
+        "failing_negative_ids": list(conformance_report.failing_negative_ids),
+    }
 
 
 def _dedupe(values: Iterable[str]) -> tuple[str, ...]:

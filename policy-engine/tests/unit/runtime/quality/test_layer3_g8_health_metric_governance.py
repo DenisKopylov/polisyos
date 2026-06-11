@@ -478,6 +478,44 @@ def test_g8_open_question_ledger_answers_every_vision_question_with_current_evid
     assert "recommendation_authority" in ledger.may_not_use_for
 
 
+def test_g8_audit_surface_is_expert_machine_and_public_projection_is_reference_only() -> None:
+    bundle = g8.build_layer3_g8_bundle(REPO_ROOT)
+
+    assert bundle.audit_surface.status == "pass"
+    assert bundle.audit_surface.surface_audiences == ("EXPERT", "MACHINE")
+    assert bundle.audit_surface.domain_vs_search_ceiling_status == (
+        "not_claimed_current_grounding_blocker"
+    )
+    assert bundle.audit_surface.metric_trend_report_status == "pass"
+    assert bundle.audit_surface.d44_reannotation_coverage_status == "pass"
+    assert bundle.audit_surface.sealed_battery_integrity_status == "pass"
+    assert bundle.closeout_signal_consumer_gate.status == "pass"
+    assert bundle.closeout_signal_consumer_gate.closeout_consumption_status == (
+        "readiness_visible_no_authority"
+    )
+    assert "closeout_authority" in bundle.closeout_signal_consumer_gate.denied_uses
+    assert bundle.public_export_projection_refs.public_projection_status == (
+        "out_of_scope_reference_only"
+    )
+    assert "recommendation_authority" in bundle.public_export_projection_refs.denied_uses
+    assert bundle.replay_manifest["manifest_id"] == (
+        "layer3-g8-health-metric-governance-replay"
+    )
+
+
+def test_g8_conformance_report_covers_required_negatives() -> None:
+    bundle = g8.build_layer3_g8_bundle(REPO_ROOT)
+
+    assert bundle.conformance_report.status == "pass"
+    required = set(g8.G8_CONFORMANCE_NEGATIVE_EXPECTED_ISSUE_CODES)
+    observed = {
+        result["negative_id"] for result in bundle.conformance_report.negative_results
+    }
+    assert observed == required
+    assert bundle.conformance_report.missing_negative_ids == ()
+    assert not bundle.conformance_report.failing_negative_ids
+
+
 def _signal(
     metric_id: str,
     slice_id: str,

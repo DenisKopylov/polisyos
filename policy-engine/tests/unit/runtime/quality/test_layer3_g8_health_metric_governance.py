@@ -370,6 +370,75 @@ def test_g8_default_warning_lifecycle_owns_current_grounding_blocker() -> None:
     assert warning.metric_id == "envelope-expansion-rate"
 
 
+def test_g8_d44_rebasing_receipt_uses_freeze_hashes_without_hidden_payload_refs() -> None:
+    rule = g8.build_g8_d44_corpus_rebasing_rule(repo_root=REPO_ROOT)
+    coverage = g8.build_g8_d44_reannotation_coverage_matrix(
+        rule=rule,
+        repo_root=REPO_ROOT,
+    )
+    trigger_ledger = g8.build_g8_d44_rebasing_trigger_ledger(repo_root=REPO_ROOT)
+    candidate_set = g8.build_g8_d44_rebasing_candidate_set(repo_root=REPO_ROOT)
+    integrity_join = g8.build_g8_sealed_battery_integrity_join(repo_root=REPO_ROOT)
+    receipt = g8.build_g8_d44_rebasing_receipt(
+        rule=rule,
+        candidate_set=candidate_set,
+        repo_root=REPO_ROOT,
+    )
+
+    serialized = receipt.model_dump_json()
+    assert rule.status == "pass"
+    assert len(rule.required_reannotation_fields) == len(
+        g8.D44_REQUIRED_REANNOTATION_FIELDS
+    )
+    assert coverage.status == "pass"
+    assert {row.field_id for row in coverage.field_rows} == set(
+        g8.D44_REQUIRED_REANNOTATION_FIELDS
+    )
+    assert {row.coverage_status for row in coverage.field_rows} <= {
+        "required_for_next_rebase",
+        "satisfied_by_existing_s14_record",
+    }
+    assert any(
+        row.coverage_status == "satisfied_by_existing_s14_record"
+        for row in coverage.field_rows
+    )
+    assert any(
+        row.coverage_status == "required_for_next_rebase"
+        for row in coverage.field_rows
+    )
+    assert trigger_ledger.status == "pass_no_rebase_due"
+    assert (
+        trigger_ledger.current_action
+        == "no_rebase_required_current_g7_has_no_real_grounded_breadth"
+    )
+    assert receipt.status == "pass_no_rebase_required"
+    assert integrity_join.status == "pass"
+    assert integrity_join.hidden_payload_access_status == "not_accessed_by_g7"
+    assert receipt.pre_rebase_freeze_hash.startswith("sha256:")
+    assert receipt.post_rebase_freeze_hash == receipt.pre_rebase_freeze_hash
+    assert "sealed_gold_label_ref" not in serialized
+    assert "expected_boundary_disposition" not in serialized
+    assert "input_condition_ref" not in serialized
+    assert receipt.hidden_payload_access_status == "not_accessed_by_g8"
+
+
+def test_g8_sealed_battery_join_blocks_mutation_or_floor_lowering() -> None:
+    join = g8.build_g8_sealed_battery_integrity_join(
+        repo_root=REPO_ROOT,
+        rebasing_attempt={
+            "post_rebase_freeze_hash": "sha256:" + "2" * 64,
+            "pre_rebase_freeze_hash": "sha256:" + "1" * 64,
+            "floor_change": "lowered",
+            "hidden_payload_ref": "sealed_gold_label_ref://leak",
+        },
+    )
+
+    assert join.status == "blocked"
+    assert "layer3_g8_rebasing_mutates_sealed_battery" in join.issue_codes
+    assert "layer3_g8_rebasing_lowers_s14_floor" in join.issue_codes
+    assert "layer3_g8_rebasing_leaks_gold_or_hidden_payload" in join.issue_codes
+
+
 def _signal(
     metric_id: str,
     slice_id: str,

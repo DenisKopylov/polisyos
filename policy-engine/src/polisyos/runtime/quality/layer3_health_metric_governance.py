@@ -260,6 +260,50 @@ EXPECTED_MANIFEST_DRIFT_KEYS = (
     "g8_route_contract_registry_status",
     "g8_registry_ratchet_status",
 )
+D44_REQUIRED_REANNOTATION_FIELDS = (
+    "problem_framing_independent_of_existing_policy",
+    "axis_position_vector",
+    "per_axis_firewall_status",
+    "claim_epistemic_regime_labels",
+    "regime_conditional_design_strategy",
+    "scale_class",
+    "recursive_sub_design_graph",
+    "coupling_graph",
+    "decomposition_result",
+    "interaction_residual_annotations",
+    "expert_candidate_designs",
+    "rejected_alternatives",
+    "critical_path_annotations",
+    "dependency_annotations",
+    "system_dynamics_feedback_equilibrium_obligations",
+    "expected_evidence_tier",
+    "construct_demand_denominator",
+    "available_source_contracts",
+    "unavailable_source_contracts",
+    "expected_graded_outcome_by_authority_posture",
+    "certified_operation_envelope_status",
+    "expected_abstention_limitation_boundary",
+    "expected_counterexample_class",
+    "valid_refinement_decision",
+    "search_ledger_replay_surface",
+    "human_decision_points",
+    "accountable_actor",
+    "mandate_boundary",
+    "responsibility_integrity_requirements",
+    "canonical_design_record_contents",
+    "projection_requests",
+    "redaction_access_posture",
+    "lowering_requests_with_authority_gates",
+    "bootstrap_role",
+    "reuse_vs_bespoke_signal",
+    "resource_economics_annotation",
+    "universality_battery_metadata",
+    "post_deploy_monitoring_hooks",
+    "historical_outcomes_prediction_backtest_usability",
+    "realized_regret_observability",
+    "reviewer_disagreement",
+    "value_choice_provenance",
+)
 
 
 class _G8Model(BaseModel):
@@ -1149,6 +1193,417 @@ def build_g8_default_warning_lifecycle_ledger(
             }
         )
     return build_g8_warning_lifecycle_ledger(warnings=warnings)
+
+
+class Layer3G8D44CorpusRebasingRule(_G8Model):
+    """D4.4 re-basing rule with freeze-hash and hidden-access discipline."""
+
+    schema_version: str = G8_SCHEMA_VERSION
+    rule_version: str = G8_RULE_VERSION
+    rule_id: str = "layer3-g8://d44-corpus-rebasing-rule"
+    status: Literal["pass", "blocked"]
+    required_reannotation_fields: tuple[str, ...]
+    freeze_hash_discipline: str
+    hidden_access_rule: str
+    issue_codes: tuple[str, ...] = ()
+    authoritative_for: tuple[str, ...] = G8_AUTHORITATIVE_FOR
+    may_not_use_for: tuple[str, ...] = G8_MAY_NOT_USE_FOR
+
+
+class Layer3G8D44ReannotationCoverageRow(_G8Model):
+    """Coverage status for one required D4.4 re-annotation field."""
+
+    field_id: str
+    coverage_status: Literal[
+        "required_for_next_rebase",
+        "satisfied_by_existing_s14_record",
+    ]
+    source_ref: str
+    issue_codes: tuple[str, ...] = ()
+
+
+class Layer3G8D44ReannotationCoverageMatrix(_G8Model):
+    """Matrix proving every D4.4 field is covered or carried to next rebase."""
+
+    schema_version: str = G8_SCHEMA_VERSION
+    rule_version: str = G8_RULE_VERSION
+    matrix_id: str = "layer3-g8://d44-reannotation-coverage-matrix"
+    status: Literal["pass", "blocked"]
+    field_rows: tuple[Layer3G8D44ReannotationCoverageRow, ...]
+    issue_codes: tuple[str, ...] = ()
+    authoritative_for: tuple[str, ...] = G8_AUTHORITATIVE_FOR
+    may_not_use_for: tuple[str, ...] = G8_MAY_NOT_USE_FOR
+
+
+class Layer3G8D44RebasingTriggerRow(_G8Model):
+    """One trigger considered by the D4.4 re-basing ledger."""
+
+    trigger_id: str
+    trigger_status: Literal["not_due", "due", "blocked"]
+    source_ref: str
+    reason: str
+
+
+class Layer3G8D44RebasingTriggerLedger(_G8Model):
+    """Current D4.4 re-basing trigger ledger."""
+
+    schema_version: str = G8_SCHEMA_VERSION
+    rule_version: str = G8_RULE_VERSION
+    ledger_id: str = "layer3-g8://d44-rebasing-trigger-ledger"
+    status: Literal["pass_no_rebase_due", "rebase_due", "blocked"]
+    current_action: str
+    trigger_rows: tuple[Layer3G8D44RebasingTriggerRow, ...]
+    issue_codes: tuple[str, ...] = ()
+    authoritative_for: tuple[str, ...] = G8_AUTHORITATIVE_FOR
+    may_not_use_for: tuple[str, ...] = G8_MAY_NOT_USE_FOR
+
+
+class Layer3G8D44RebasingCandidateSet(_G8Model):
+    """Visible candidate refs considered for a future D4.4 rebase."""
+
+    schema_version: str = G8_SCHEMA_VERSION
+    rule_version: str = G8_RULE_VERSION
+    candidate_set_id: str = "layer3-g8://d44-rebasing-candidate-set"
+    status: Literal["pass", "blocked"]
+    candidate_refs: tuple[str, ...]
+    source_refs: tuple[str, ...]
+    issue_codes: tuple[str, ...] = ()
+    authoritative_for: tuple[str, ...] = G8_AUTHORITATIVE_FOR
+    may_not_use_for: tuple[str, ...] = G8_MAY_NOT_USE_FOR
+
+
+class Layer3G8D44RebasingReceipt(_G8Model):
+    """D4.4 receipt preserving freeze-hash discipline for current G8."""
+
+    schema_version: str = G8_SCHEMA_VERSION
+    rule_version: str = G8_RULE_VERSION
+    receipt_id: str = "layer3-g8://d44-rebasing-receipt/current"
+    status: Literal["pass_no_rebase_required", "blocked", "rebased_with_new_freeze_hash"]
+    action: str
+    pre_rebase_freeze_hash: str
+    post_rebase_freeze_hash: str
+    corpus_partition_ref: str
+    s14_assurance_manifest_ref: str
+    candidate_set_ref: str
+    hidden_payload_access_status: Literal["not_accessed_by_g8", "blocked"]
+    issue_codes: tuple[str, ...] = ()
+    authoritative_for: tuple[str, ...] = G8_AUTHORITATIVE_FOR
+    may_not_use_for: tuple[str, ...] = G8_MAY_NOT_USE_FOR
+
+
+class Layer3G8SealedBatteryIntegrityJoin(_G8Model):
+    """Join proving G8 did not mutate or inspect sealed S14 battery payloads."""
+
+    schema_version: str = G8_SCHEMA_VERSION
+    rule_version: str = G8_RULE_VERSION
+    join_id: str = "layer3-g8://sealed-battery-integrity-join"
+    status: Literal["pass", "blocked"]
+    partition_freeze_hash: str
+    s14_manifest_freeze_hash: str
+    g7_mutation_status: str
+    hidden_payload_access_status: str
+    issue_codes: tuple[str, ...] = ()
+    authoritative_for: tuple[str, ...] = G8_AUTHORITATIVE_FOR
+    may_not_use_for: tuple[str, ...] = G8_MAY_NOT_USE_FOR
+
+
+def build_g8_d44_corpus_rebasing_rule(
+    *,
+    repo_root: str | Path = DEFAULT_REPO_ROOT,
+) -> Layer3G8D44CorpusRebasingRule:
+    """Build the D4.4 corpus re-basing rule for governed G8 receipts."""
+
+    return Layer3G8D44CorpusRebasingRule(
+        status="pass",
+        required_reannotation_fields=D44_REQUIRED_REANNOTATION_FIELDS,
+        freeze_hash_discipline=(
+            "Any re-basing that changes sealed battery membership, labels, "
+            "thresholds, or expected dispositions requires a new "
+            "governance-approved freeze hash and replay receipt."
+        ),
+        hidden_access_rule=(
+            "G8 may read committed partition and S14 assurance manifests; it "
+            "must not read hidden sealed case payloads or gold labels in "
+            "development paths."
+        ),
+    )
+
+
+_D44_EXISTING_S14_FIELD_REFS: dict[str, str] = {
+    "expected_evidence_tier": (
+        "repo://architecture/policy_design_case/"
+        "layer2_s14_universality_assurance_manifest.json"
+        "#supporting_records.UniversalityBreadthFloorConfig"
+    ),
+    "available_source_contracts": (
+        "repo://architecture/policy_design_case/"
+        "layer2_s14_universality_assurance_manifest.json"
+        "#grounded_authority_coverage_ref"
+    ),
+    "expected_graded_outcome_by_authority_posture": (
+        "repo://architecture/policy_design_case/"
+        "layer2_s14_universality_assurance_manifest.json"
+        "#supporting_records.EvaluationStatusCompositionRecord"
+    ),
+    "certified_operation_envelope_status": (
+        "repo://architecture/policy_design_case/"
+        "layer2_s14_universality_assurance_manifest.json"
+        "#declared_operation_envelope_ref"
+    ),
+    "expected_abstention_limitation_boundary": (
+        "repo://architecture/policy_design_case/"
+        "layer2_s14_universality_assurance_manifest.json#universal_claim_gate_status"
+    ),
+    "expected_counterexample_class": (
+        "repo://architecture/policy_design_case/"
+        "layer2_s14_universality_assurance_manifest.json#skeptic_defeater_mapping"
+    ),
+    "bootstrap_role": (
+        "repo://architecture/policy_design_case/"
+        "layer2_s14_universality_assurance_manifest.json"
+        "#supporting_records.ExpertOracleBootstrapRecord"
+    ),
+    "universality_battery_metadata": (
+        "repo://architecture/policy_design_case/"
+        "layer2_s14_universality_assurance_manifest.json"
+        "#artifact_records.SealedUniversalityBatteryRun"
+    ),
+    "post_deploy_monitoring_hooks": (
+        "repo://architecture/policy_design_case/"
+        "layer2_s14_universality_assurance_manifest.json"
+        "#supporting_records.EnvelopeRevisionDynamicsRecord"
+    ),
+    "historical_outcomes_prediction_backtest_usability": (
+        "repo://architecture/policy_design_case/"
+        "layer2_s14_universality_assurance_manifest.json#baseline_comparison_ref"
+    ),
+    "realized_regret_observability": (
+        "repo://architecture/policy_design_case/"
+        "layer2_s14_universality_assurance_manifest.json"
+        "#supporting_records.EvaluationStatusCompositionRecord"
+    ),
+}
+
+
+def build_g8_d44_reannotation_coverage_matrix(
+    *,
+    rule: Layer3G8D44CorpusRebasingRule,
+    repo_root: str | Path = DEFAULT_REPO_ROOT,
+) -> Layer3G8D44ReannotationCoverageMatrix:
+    """Build D4.4 field coverage without silently dropping required fields."""
+
+    rows: list[Layer3G8D44ReannotationCoverageRow] = []
+    for field_id in rule.required_reannotation_fields:
+        source_ref = _D44_EXISTING_S14_FIELD_REFS.get(
+            field_id,
+            (
+                "repo://docs/system-design-decisions/"
+                "universal-policy-design-target-architecture-and-gap.md#D4.4"
+            ),
+        )
+        rows.append(
+            Layer3G8D44ReannotationCoverageRow(
+                field_id=field_id,
+                coverage_status=(
+                    "satisfied_by_existing_s14_record"
+                    if field_id in _D44_EXISTING_S14_FIELD_REFS
+                    else "required_for_next_rebase"
+                ),
+                source_ref=source_ref,
+            )
+        )
+    missing = sorted(set(D44_REQUIRED_REANNOTATION_FIELDS) - {row.field_id for row in rows})
+    stale_existing_refs = sorted(
+        set(_D44_EXISTING_S14_FIELD_REFS) - set(D44_REQUIRED_REANNOTATION_FIELDS)
+    )
+    issues = (
+        ("layer3_g8_d44_reannotation_coverage_missing",)
+        if missing or stale_existing_refs
+        else ()
+    )
+    return Layer3G8D44ReannotationCoverageMatrix(
+        status="blocked" if issues else "pass",
+        field_rows=tuple(rows),
+        issue_codes=issues,
+    )
+
+
+def build_g8_d44_rebasing_trigger_ledger(
+    *,
+    repo_root: str | Path = DEFAULT_REPO_ROOT,
+) -> Layer3G8D44RebasingTriggerLedger:
+    """Build current D4.4 re-basing trigger ledger from visible G7/S14 refs."""
+
+    root = Path(repo_root).resolve()
+    g7_feed = _read_optional_json(
+        root / POLICY_DESIGN_CASE_DIR / "layer3_g7_s14_grounded_breadth_feed.json"
+    )
+    feed_status = _text(g7_feed.get("status")) or "blocked_no_real_grounded_breadth"
+    new_breadth_due = bool(feed_status and not feed_status.startswith("blocked"))
+    trigger_rows = (
+        Layer3G8D44RebasingTriggerRow(
+            trigger_id="new_real_grounded_breadth",
+            trigger_status="due" if new_breadth_due else "not_due",
+            source_ref=(
+                "repo://architecture/policy_design_case/"
+                "layer3_g7_s14_grounded_breadth_feed.json#status"
+            ),
+            reason=feed_status,
+        ),
+        Layer3G8D44RebasingTriggerRow(
+            trigger_id="s14_floor_or_threshold_change",
+            trigger_status="not_due",
+            source_ref=(
+                "repo://architecture/policy_design_case/"
+                "layer2_s14_universality_assurance_manifest.json"
+            ),
+            reason="no_floor_or_threshold_change_requested_by_g8",
+        ),
+        Layer3G8D44RebasingTriggerRow(
+            trigger_id="sealed_battery_membership_change",
+            trigger_status="not_due",
+            source_ref=(
+                "repo://architecture/policy_design_case/layer2_corpus_partition.json"
+                "#sealed_universality_battery.freeze_hash"
+            ),
+            reason="sealed_battery_membership_not_mutated_by_g8",
+        ),
+        Layer3G8D44RebasingTriggerRow(
+            trigger_id="d44_reannotation_schema_change",
+            trigger_status="not_due",
+            source_ref="layer3-g8://d44-corpus-rebasing-rule",
+            reason="initial_g8_rule_version",
+        ),
+        Layer3G8D44RebasingTriggerRow(
+            trigger_id="post_deploy_monitoring_update",
+            trigger_status="not_due",
+            source_ref="layer3-g8://d44-rebasing-trigger-ledger/post-deploy-monitoring",
+            reason="no_post_deploy_monitoring_signal_for_current_s14_seed",
+        ),
+    )
+    due = [row.trigger_id for row in trigger_rows if row.trigger_status == "due"]
+    return Layer3G8D44RebasingTriggerLedger(
+        status="rebase_due" if due else "pass_no_rebase_due",
+        current_action=(
+            "prepare_rebase_receipt_for_new_grounded_breadth"
+            if due
+            else "no_rebase_required_current_g7_has_no_real_grounded_breadth"
+        ),
+        trigger_rows=trigger_rows,
+        issue_codes=(),
+    )
+
+
+def build_g8_d44_rebasing_candidate_set(
+    *,
+    repo_root: str | Path = DEFAULT_REPO_ROOT,
+) -> Layer3G8D44RebasingCandidateSet:
+    """Build visible D4.4 candidate refs without hidden sealed payload refs."""
+
+    return Layer3G8D44RebasingCandidateSet(
+        status="pass",
+        candidate_refs=(
+            "repo://architecture/policy_design_case/"
+            "layer2_s14_universality_assurance_manifest.json#d4_corpus_track_coverage_ref",
+            "repo://architecture/policy_design_case/layer3_g7_s14_grounded_breadth_feed.json",
+        ),
+        source_refs=(
+            "repo://architecture/policy_design_case/layer2_corpus_partition.json",
+            (
+                "repo://architecture/policy_design_case/"
+                "layer2_s14_universality_assurance_manifest.json"
+            ),
+            "repo://architecture/policy_design_case/layer3_g7_s14_battery_input_manifest.json",
+        ),
+    )
+
+
+def build_g8_d44_rebasing_receipt(
+    *,
+    rule: Layer3G8D44CorpusRebasingRule,
+    candidate_set: Layer3G8D44RebasingCandidateSet,
+    repo_root: str | Path = DEFAULT_REPO_ROOT,
+) -> Layer3G8D44RebasingReceipt:
+    """Build current D4.4 receipt and preserve sealed-battery freeze hashes."""
+
+    root = Path(repo_root).resolve()
+    partition = _read_json(root / POLICY_DESIGN_CASE_DIR / "layer2_corpus_partition.json")
+    s14 = _read_json(
+        root / POLICY_DESIGN_CASE_DIR / "layer2_s14_universality_assurance_manifest.json"
+    )
+    sealed = _mapping(partition.get("sealed_universality_battery"))
+    partition_hash = _text(sealed.get("freeze_hash"))
+    s14_hash = _text(s14.get("sealed_battery_freeze_hash"))
+    issues: list[str] = []
+    if not partition_hash or not s14_hash or partition_hash != s14_hash:
+        issues.append("layer3_g8_rebasing_without_freeze_hash")
+    return Layer3G8D44RebasingReceipt(
+        status="blocked" if issues else "pass_no_rebase_required",
+        action="no_rebase_required_current_g7_has_no_real_grounded_breadth",
+        pre_rebase_freeze_hash=partition_hash or s14_hash,
+        post_rebase_freeze_hash=s14_hash or partition_hash,
+        corpus_partition_ref="repo://architecture/policy_design_case/layer2_corpus_partition.json",
+        s14_assurance_manifest_ref=(
+            "repo://architecture/policy_design_case/"
+            "layer2_s14_universality_assurance_manifest.json"
+        ),
+        candidate_set_ref=candidate_set.candidate_set_id,
+        hidden_payload_access_status="not_accessed_by_g8",
+        issue_codes=_dedupe(issues),
+    )
+
+
+def build_g8_sealed_battery_integrity_join(
+    *,
+    repo_root: str | Path = DEFAULT_REPO_ROOT,
+    rebasing_attempt: Mapping[str, Any] | None = None,
+) -> Layer3G8SealedBatteryIntegrityJoin:
+    """Build sealed-battery integrity join and block mutation/leak attempts."""
+
+    root = Path(repo_root).resolve()
+    partition = _read_json(root / POLICY_DESIGN_CASE_DIR / "layer2_corpus_partition.json")
+    s14 = _read_json(
+        root / POLICY_DESIGN_CASE_DIR / "layer2_s14_universality_assurance_manifest.json"
+    )
+    g7_manifest = _read_optional_json(
+        root / POLICY_DESIGN_CASE_DIR / "layer3_g7_s14_battery_input_manifest.json"
+    )
+    sealed = _mapping(partition.get("sealed_universality_battery"))
+    partition_hash = _text(sealed.get("freeze_hash"))
+    s14_hash = _text(s14.get("sealed_battery_freeze_hash"))
+    attempt = dict(rebasing_attempt or {})
+    issues: list[str] = []
+    hidden_status = _text(g7_manifest.get("hidden_case_access_status")) or "not_observed"
+    if partition_hash != s14_hash:
+        issues.append("layer3_g8_rebasing_without_freeze_hash")
+    if hidden_status not in {"not_accessed_by_g7", "not_observed"}:
+        issues.append("layer3_g8_rebasing_leaks_gold_or_hidden_payload")
+    if attempt:
+        if _text(attempt.get("pre_rebase_freeze_hash")) != _text(
+            attempt.get("post_rebase_freeze_hash")
+        ):
+            issues.append("layer3_g8_rebasing_mutates_sealed_battery")
+        if _text(attempt.get("floor_change")) == "lowered":
+            issues.append("layer3_g8_rebasing_lowers_s14_floor")
+        hidden_payload_ref = _text(attempt.get("hidden_payload_ref"))
+        if "hidden" in hidden_payload_ref or "gold" in hidden_payload_ref:
+            hidden_status = "blocked"
+            issues.append("layer3_g8_rebasing_leaks_gold_or_hidden_payload")
+    if _text(g7_manifest.get("sealed_battery_mutation_status")) not in {
+        "",
+        "not_mutated",
+    }:
+        issues.append("layer3_g8_rebasing_mutates_sealed_battery")
+    return Layer3G8SealedBatteryIntegrityJoin(
+        status="blocked" if issues else "pass",
+        partition_freeze_hash=partition_hash,
+        s14_manifest_freeze_hash=s14_hash,
+        g7_mutation_status=(
+            _text(g7_manifest.get("sealed_battery_mutation_status")) or "not_observed"
+        ),
+        hidden_payload_access_status=hidden_status,
+        issue_codes=_dedupe(issues),
+    )
 
 
 def _dedupe(values: Iterable[str]) -> tuple[str, ...]:

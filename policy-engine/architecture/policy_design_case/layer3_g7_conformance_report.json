@@ -1,0 +1,15 @@
+{
+  "capability_reality_label": "semantic_test_missing",
+  "failing_negative_ids": [],
+  "issue_codes": [
+    "public_projection_authority_leak"
+  ],
+  "missing_negative_ids": [
+    "public_projection_authority_leak"
+  ],
+  "negative_results": [],
+  "report_id": "layer3-g7://conformance/report",
+  "rule_version": "policyos.layer3.g7.region_widening.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g7_region_widening.v1",
+  "status": "fail"
+}

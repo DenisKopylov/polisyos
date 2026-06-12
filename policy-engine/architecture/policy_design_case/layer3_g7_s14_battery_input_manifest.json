@@ -1,0 +1,46 @@
+{
+  "certified_envelope_delta_refs": [
+    "s13-certified-delta://g7/no-region-expansion"
+  ],
+  "envelope_revision_dynamics_ref": "pdc://layer2/s14/envelope-revision-dynamics",
+  "grounded_authority_coverage_ref": "layer3-g7://s14/grounded-authority-coverage",
+  "grounded_breadth_feed_ref": "layer3-g7://s14/grounded-breadth-feed/region---ua-msme-adjacent",
+  "hidden_case_access_status": "not_accessed_by_g7",
+  "issue_codes": [
+    "layer3_g7_current_g5_unchanged_blocker",
+    "layer3_g7_s14_feed_missing"
+  ],
+  "may_not_use_for": [
+    "production_authority",
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "public_recommendation",
+    "policy_recommendation",
+    "legal_advice",
+    "claim_authority",
+    "obligation_authority",
+    "causal_effect_authority",
+    "proof_authority",
+    "legal_authority",
+    "recommendation_authority",
+    "universal_claim_authority",
+    "universal_claim_authority_without_s14",
+    "s14_universality_claim_without_s14_gate",
+    "g8_metric_governance_authority",
+    "s14_universality"
+  ],
+  "mechanism_generality_projection_ref": "layer3-g7://s14/mechanism-generality-projection",
+  "rule_version": "policyos.layer3.g7.region_widening.v1",
+  "s14_battery_input_manifest_id": "layer3-g7-s14-battery-input:ua-msme-adjacent",
+  "schema_version": "policyos.policy_design_case.layer3_g7_region_widening.v1",
+  "sealed_battery_mutation_status": "not_mutated",
+  "visible_limitation_refs": [
+    "limitation://g7/s14/capacity-regime-coupling-missing-until-grounded-breadth",
+    "limitation://g7/s14/mandate-legal-refs-missing-until-grounded-breadth"
+  ]
+}

@@ -1732,10 +1732,10 @@ allowed_targets = []
 notes = "User/plugin supplied module name; call site is inventoried for review."
 
 [[pattern]]
-id = "dynamic-80ff16bd5d62"
+id = "dynamic-9b5a07976878"
 pattern = "module_name"
 source_file = "src/polisyos/scientist/__init__.py"
-line = 52
+line = 77
 call = "importlib.import_module"
 owner = "team-scientist"
 target = "module_name"

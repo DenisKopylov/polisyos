@@ -1,0 +1,9 @@
+schema_version = "policyos.policy_design_case.layer3_g7_region_widening.v1"
+rule_version = "policyos.layer3.g7.region_widening.v1"
+status = "blocked"
+region_ref = "region://ua/msme-adjacent"
+
+[metrics]
+envelope_expansion_rate_region = 0.0
+marginal_cost_status = "blocked_insufficient_grounded_cases"
+semantic_loss_status = "pass"

@@ -1,0 +1,40 @@
+{
+  "authoritative_for": [
+    "layer3_g7_region_widening_audit",
+    "layer3_g7_marginal_grounding_cost_reading",
+    "layer3_g7_s14_grounded_breadth_feed"
+  ],
+  "issue_codes": [
+    "layer3_g7_current_g5_unchanged_blocker",
+    "layer3_g7_s14_feed_missing"
+  ],
+  "may_not_use_for": [
+    "production_authority",
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "public_recommendation",
+    "policy_recommendation",
+    "legal_advice",
+    "claim_authority",
+    "obligation_authority",
+    "causal_effect_authority",
+    "proof_authority",
+    "legal_authority",
+    "recommendation_authority",
+    "universal_claim_authority",
+    "universal_claim_authority_without_s14",
+    "s14_universality_claim_without_s14_gate",
+    "g8_metric_governance_authority"
+  ],
+  "missing_capability_label": null,
+  "rule_version": "policyos.layer3.g7.region_widening.v1",
+  "s14_authority_issue_codes": [],
+  "s14_battery_input_manifest_ref": "layer3-g7-s14-battery-input:ua-msme-adjacent",
+  "schema_version": "policyos.policy_design_case.layer3_g7_region_widening.v1",
+  "status": "blocked"
+}

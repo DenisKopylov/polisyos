@@ -803,6 +803,24 @@ owner = "team-runtime-quality"
 purpose = "Policy Design Case Layer 3 G4 promotion gate coverage."
 
 [[tests]]
+path = "tests/unit/runtime/quality/test_layer3_g5_proving_ground_conversion.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Policy Design Case Layer 3 G5 proving-ground conversion coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_layer3_g6_bounded_agent.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Policy Design Case Layer 3 G6 bounded-agent coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_layer3_g7_region_widening.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Policy Design Case Layer 3 G7 region-widening coverage."
+
+[[tests]]
 path = "tests/unit/runtime/quality/test_layer3_gl_legal_mandate_search.py"
 tier = "fast-pr"
 owner = "team-runtime-quality"

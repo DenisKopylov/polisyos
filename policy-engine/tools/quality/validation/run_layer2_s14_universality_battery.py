@@ -122,11 +122,16 @@ def run_layer2_s14_universality_battery(
     allow_sealed_battery: bool = False,
     output: str | Path | None = None,
     generated_at: str = GENERATED_AT,
+    g7_grounded_breadth_input_manifest: str | Path | None = None,
 ) -> dict[str, Any]:
     """Run the explicit S14 sealed battery and return the persisted artifact payload."""
 
     root = Path(repo_root).resolve()
     requested_battery = _resolve(root, Path(battery_root))
+    external_grounded_breadth_input = _external_grounded_breadth_input_diagnostic(
+        root=root,
+        manifest_path=g7_grounded_breadth_input_manifest,
+    )
     partition = _sealed_partition(root)
     configured_battery = _resolve(root, Path(_required_text(partition.get("path"), "path")))
     preflight_issues = _preflight_issues(
@@ -333,6 +338,8 @@ def run_layer2_s14_universality_battery(
             "missing_capability_labels": [],
         },
     }
+    if external_grounded_breadth_input is not None:
+        payload["external_grounded_breadth_input"] = external_grounded_breadth_input
     _write_output(root=root, output=output, payload=payload)
     return payload
 
@@ -346,6 +353,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--allow-sealed-battery", action="store_true")
     parser.add_argument("--print-freeze-hash", action="store_true")
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument("--g7-grounded-breadth-input-manifest", type=Path, default=None)
     return parser
 
 
@@ -379,6 +387,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         allow_sealed_battery=args.allow_sealed_battery,
         output=args.output,
         generated_at=datetime.now(UTC).isoformat().replace("+00:00", "Z"),
+        g7_grounded_breadth_input_manifest=args.g7_grounded_breadth_input_manifest,
     )
     json.dump(payload, sys.stdout, indent=2, ensure_ascii=False)
     sys.stdout.write("\n")
@@ -429,6 +438,34 @@ def _manifest_issues(manifest: Mapping[str, object]) -> list[dict[str, str]]:
     if len(sealed_case_ids) != 6:
         issues.append(_issue("sealed_battery_case_count_mismatch"))
     return issues
+
+
+def _external_grounded_breadth_input_diagnostic(
+    *,
+    root: Path,
+    manifest_path: str | Path | None,
+) -> dict[str, Any] | None:
+    if manifest_path is None:
+        return None
+    resolved = _resolve(root, Path(manifest_path))
+    issue_codes: list[str] = []
+    if not resolved.exists():
+        issue_codes.append("g7_grounded_breadth_input_manifest_missing")
+        return {
+            "status": "missing",
+            "manifest_ref": str(resolved),
+            "issue_codes": issue_codes,
+        }
+    payload = _read_json(resolved)
+    if _text(payload.get("sealed_battery_mutation_status")) != "not_mutated":
+        issue_codes.append("g7_grounded_breadth_input_mutates_sealed_battery")
+    if _text(payload.get("hidden_case_access_status")) != "not_accessed_by_g7":
+        issue_codes.append("g7_grounded_breadth_input_hidden_case_access")
+    return {
+        "status": "present" if not issue_codes else "fail",
+        "manifest_ref": str(resolved),
+        "issue_codes": issue_codes,
+    }
 
 
 def _blocked_payload(

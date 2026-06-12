@@ -1,0 +1,533 @@
+{
+  "authoritative_for": [
+    "layer3_g7_region_widening_audit"
+  ],
+  "generated_artifact_paths": [
+    "architecture/policy_design_case/layer3_g7_region_scorecard.json",
+    "architecture/policy_design_case/layer3_g7_region_widening_audit_surface.json",
+    "architecture/policy_design_case/layer3_g7_public_export_projection_refs.json",
+    "architecture/policy_design_case/layer3_g7_orchestration_continuity.json",
+    "architecture/policy_design_case/layer3_g7_replay_manifest.json"
+  ],
+  "issue_codes": [],
+  "manifest": {
+    "assurance_case": {},
+    "authority_envelopes": [
+      {
+        "authoritative_for": [
+          "layer3_g7_region_widening_audit"
+        ],
+        "may_not_use_for": [
+          "production_authority",
+          "production_claim_authority",
+          "rollout_authority",
+          "publication_authority",
+          "approval_authority",
+          "scorecard_authority",
+          "closeout_authority",
+          "runtime_closeout_authority",
+          "public_recommendation",
+          "policy_recommendation",
+          "legal_advice",
+          "claim_authority",
+          "obligation_authority",
+          "causal_effect_authority",
+          "proof_authority",
+          "legal_authority",
+          "recommendation_authority",
+          "universal_claim_authority",
+          "universal_claim_authority_without_s14",
+          "s14_universality_claim_without_s14_gate",
+          "g8_metric_governance_authority"
+        ],
+        "ref": "repo://architecture/policy_design_case/layer3_g7_region_scorecard.json#region---ua-msme-adjacent"
+      },
+      {
+        "authoritative_for": [
+          "layer3_g7_region_widening_audit"
+        ],
+        "may_not_use_for": [
+          "production_authority",
+          "production_claim_authority",
+          "rollout_authority",
+          "publication_authority",
+          "approval_authority",
+          "scorecard_authority",
+          "closeout_authority",
+          "runtime_closeout_authority",
+          "public_recommendation",
+          "policy_recommendation",
+          "legal_advice",
+          "claim_authority",
+          "obligation_authority",
+          "causal_effect_authority",
+          "proof_authority",
+          "legal_authority",
+          "recommendation_authority",
+          "universal_claim_authority",
+          "universal_claim_authority_without_s14",
+          "s14_universality_claim_without_s14_gate",
+          "g8_metric_governance_authority",
+          "aggregate_universal_score",
+          "automated_value_learning",
+          "budget_interchangeability",
+          "current_evidence_slot",
+          "floor_relaxation",
+          "llm_attribution_authority",
+          "local_governance_enum_for_reissue",
+          "mdp_bandit_optimizer_authority",
+          "mission_or_value_self_authorization",
+          "naive_ml_update",
+          "pre_policy_evidence",
+          "preference_learning",
+          "preference_learning_authority",
+          "production_recommendation",
+          "production_rollout_authority",
+          "s13_accountability_closure",
+          "s13_envelope_shrink",
+          "s14_universality"
+        ],
+        "ref": "layer3_g7_region_widening_surface"
+      }
+    ],
+    "cas_refs": {},
+    "data_refs": {
+      "dependency_artifact_refs": [
+        "repo://architecture/policy_design_case/layer3_g1_readiness_manifest.json",
+        "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json",
+        "repo://architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json",
+        "repo://architecture/policy_design_case/layer3_g4_readiness_manifest.json",
+        "repo://architecture/policy_design_case/layer3_g4_promotion_records.json",
+        "repo://architecture/policy_design_case/layer3_g4_governance_throughput_delta.json",
+        "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json",
+        "repo://architecture/policy_design_case/layer3_g5_conversion_records.json",
+        "repo://architecture/policy_design_case/layer3_g5_w12d_consumer_gate.json",
+        "repo://architecture/policy_design_case/layer3_g5_envelope_expansion_delta.json",
+        "repo://architecture/policy_design_case/layer3_g5_status_composition_ledger.json",
+        "repo://architecture/policy_design_case/layer3_g5_demand_pull_attempt_record.json",
+        "repo://architecture/policy_design_case/layer3_g5_dependency_health_metric_snapshot.json",
+        "repo://architecture/policy_design_case/layer3_g6_readiness_manifest.json",
+        "repo://architecture/policy_design_case/layer3_g6_grounded_result_or_abstention.json",
+        "repo://architecture/policy_design_case/layer3_g6_search_ledger.json",
+        "repo://architecture/policy_design_case/layer3_g6_agent_run_records.json",
+        "repo://architecture/policy_design_case/layer3_g6_g5_invocation_plan.json",
+        "repo://architecture/policy_design_case/layer3_g6_demand_pull_vs_abstention_delta.json",
+        "repo://architecture/policy_design_case/layer3_g6_orchestration_continuity.json",
+        "repo://architecture/policy_design_case/layer3_g6_replay_manifest.json",
+        "repo://architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json"
+      ],
+      "generated_artifact_paths": [
+        "architecture/policy_design_case/layer3_g7_region_scorecard.json",
+        "architecture/policy_design_case/layer3_g7_region_widening_audit_surface.json",
+        "architecture/policy_design_case/layer3_g7_public_export_projection_refs.json",
+        "architecture/policy_design_case/layer3_g7_orchestration_continuity.json",
+        "architecture/policy_design_case/layer3_g7_replay_manifest.json"
+      ],
+      "safe_artifact_refs": [
+        "repo://architecture/policy_design_case/layer3_g7_region_scorecard.json",
+        "repo://architecture/policy_design_case/layer3_g7_region_widening_audit_surface.json",
+        "repo://architecture/policy_design_case/layer3_g7_public_export_projection_refs.json",
+        "repo://architecture/policy_design_case/layer3_g7_replay_manifest.json"
+      ]
+    },
+    "degradation_ledger": {},
+    "dependency_fingerprints": {
+      "conversion_status_matrix_fingerprint": "sha256:6117e46593b724c1f75f96b27f6fb10904c42b41e0d359a1a2447e5ad2b7a2a8",
+      "governed_promotion_join_fingerprint": "sha256:1ef4a6368a99038c1b8cc0f0fd54e104f50cac48bfc6555b479705f8e7e2d359",
+      "grounding_matrix_fingerprint": "sha256:3ba9bd6ade746df11a8a8f19cef24f8c95c5653f04a7062f54d75f58db964937",
+      "marginal_cost_ledger_fingerprint": "sha256:8ba4a9a4b35202606b41b07711d69a809c7e1ceb6e1ede45e2c055b5b010b1fc",
+      "mechanism_reuse_ledger_fingerprint": "sha256:0251d050139c9becb834bb9135af4f2a31c7d35353d4493ec9773f305dac48c9",
+      "public_projection_fingerprint": "sha256:ac34c779505e84905b5b9d9488d894b67474a419e72e1c3cab98f80a0aa23fe3",
+      "region_candidate_set_fingerprint": "sha256:ed37448b6649694ec174017898de25db8693f1fef69be220d60e5a70beb19a32",
+      "region_envelope_expansion_delta_fingerprint": "sha256:22c823831cc2a58c294ffc4b5b141dd0d26222f7e69ffd5fa8fea556757b056c",
+      "s12_growth_thermometer_projection_fingerprint": "sha256:49bf045eaa8674df2bc555c9b4ddeea88753e49cae9a3be1e1a62d855b850f85",
+      "s14_battery_input_manifest_fingerprint": "sha256:130aad7b2daaef652ea7d1b1a5644a3c393c42199cc6c3d410f746eea684bbff",
+      "s14_consumer_gate_fingerprint": "sha256:37224c0dd7b7e0dfbf2bc95b45a25d4f187cc7ee708eadc858a8c249469908a8",
+      "s14_feed_fingerprint": "sha256:45d93cc4d9a391f2de07d65d57fdd4bfba20248496634181f3cf78405f4608b4",
+      "scorecard_fingerprint": "sha256:b7b022786802cd470826e06154be485c18ca2190440c5113d8722f3b3e509653",
+      "semantic_loss_ledger_fingerprint": "sha256:79ef0adb577966e490795ad1cd53712535762bb94063fb7b88fe37cb4d893525",
+      "status_composition_ledger_fingerprint": "sha256:1c9c2d1bb43e2bbca73dd9059580f9b337bb4e15aa2d984b040939a543cbdfc0",
+      "upstream_closed_g5_replay_fingerprint": "sha256:9b51fef6f95cada3dc88b2d48934be07a56ccca32a2907658da4d321606928d7",
+      "upstream_closed_g6_replay_fingerprint": "sha256:7ec5b6baa52b1124abe49d6e81395ccc0a9d30e013d78592306bdb65d18cd98e"
+    },
+    "deterministic_fingerprint": "sha256:698e50ead66d95ddd8a90ab8f86bb048a54cf3606208115dcc4bd56ccd74378c",
+    "effective_mode_ledger": {},
+    "execution_summary": {
+      "g7_public_projection_contract_status": "pass",
+      "g7_region_value_closure_status": "blocked_by_no_real_grounded_region_breadth",
+      "generated_artifact_paths": [
+        "architecture/policy_design_case/layer3_g7_region_scorecard.json",
+        "architecture/policy_design_case/layer3_g7_region_widening_audit_surface.json",
+        "architecture/policy_design_case/layer3_g7_public_export_projection_refs.json",
+        "architecture/policy_design_case/layer3_g7_orchestration_continuity.json",
+        "architecture/policy_design_case/layer3_g7_replay_manifest.json"
+      ]
+    },
+    "feature_flags": {},
+    "git_sha": null,
+    "norm_refs": {},
+    "orchestration_continuity": {
+      "authority_boundary": {
+        "authoritative_for": [
+          "boundary_continuity"
+        ],
+        "authority_role": "diagnostic_only",
+        "may_not_use_for": [
+          "producer_domain_truth",
+          "scorecard_authority",
+          "approval_authority",
+          "runtime_closeout_authority",
+          "public_projection_authority",
+          "evidence_strength"
+        ],
+        "provenance_kind": "runtime_emitted"
+      },
+      "bridge_authority_refs": [],
+      "carrier_ref": "evidence-spine://layer3-g7/region---ua-msme-adjacent",
+      "claim_refs": [],
+      "closed_payload_mutation_status": "not_mutated",
+      "concept_spine_ref": "concept-spine://policy-design-case/layer3-g7-region",
+      "continuity_fingerprint": "sha256:b6e8ba3560a988edbb7ae63d08c5d2e94cf0bf2a7a816ba3c188047f24f55af1",
+      "continuity_ref": "quality_evidence/runtime_orchestration_continuity.json",
+      "findings": [],
+      "generated_at": "2026-06-12T09:13:26+00:00",
+      "handoff_refs": [
+        "repo://architecture/policy_design_case/layer3_g7_public_export_projection_refs.json",
+        "repo://architecture/policy_design_case/layer3_g7_region_scorecard.json",
+        "repo://architecture/policy_design_case/layer3_g7_region_widening_audit_surface.json",
+        "repo://architecture/policy_design_case/layer3_g7_replay_manifest.json"
+      ],
+      "jurisdiction_spine_ref": "jurisdiction-spine://region---ua-msme-adjacent",
+      "parent_spine_ref": null,
+      "producer_binding_refs": [
+        "producer-binding://layer3-g7/region-conversion",
+        "producer-binding://layer3-g7/s14-grounded-breadth-feed"
+      ],
+      "producer_handshake_ledger_ref": "producer-handshake-ledger://layer3-g7/region-widening",
+      "producer_handshake_refs": [],
+      "producer_spine_context_ref": null,
+      "record_family": "nl_replay_orchestration_continuity.v1",
+      "runtime_claim_registry_ref": "runtime-claim-registry://layer3-g7/region-widening",
+      "scenario_contract_refs": [],
+      "schema_version": "policyos.runtime.nl_replay_orchestration_continuity.v1",
+      "status": "pass",
+      "summary": {
+        "claim_ref_count": 0,
+        "finding_count": 0,
+        "handoff_ref_count": 4,
+        "producer_binding_ref_count": 2,
+        "producer_handshake_ref_count": 0,
+        "required_surface_count": 8,
+        "surface_count": 9
+      },
+      "surface_coverage": [
+        {
+          "carrier_refs": [
+            "evidence-spine://layer3-g7/region---ua-msme-adjacent"
+          ],
+          "claim_ref_count": 0,
+          "concept_spine_refs": [
+            "concept-spine://policy-design-case/layer3-g7-region"
+          ],
+          "handoff_ref_count": 0,
+          "jurisdiction_spine_refs": [
+            "jurisdiction-spine://region---ua-msme-adjacent"
+          ],
+          "producer_binding_ref_count": 2,
+          "producer_handshake_ref_count": 0,
+          "runtime_claim_registry_refs": [
+            "runtime-claim-registry://layer3-g7/region-widening"
+          ],
+          "surface": "bundle"
+        },
+        {
+          "carrier_refs": [
+            "evidence-spine://layer3-g7/region---ua-msme-adjacent"
+          ],
+          "claim_ref_count": 0,
+          "concept_spine_refs": [
+            "concept-spine://policy-design-case/layer3-g7-region"
+          ],
+          "handoff_ref_count": 0,
+          "jurisdiction_spine_refs": [
+            "jurisdiction-spine://region---ua-msme-adjacent"
+          ],
+          "producer_binding_ref_count": 2,
+          "producer_handshake_ref_count": 0,
+          "runtime_claim_registry_refs": [
+            "runtime-claim-registry://layer3-g7/region-widening"
+          ],
+          "surface": "export"
+        },
+        {
+          "carrier_refs": [
+            "evidence-spine://layer3-g7/region---ua-msme-adjacent"
+          ],
+          "claim_ref_count": 0,
+          "concept_spine_refs": [
+            "concept-spine://policy-design-case/layer3-g7-region"
+          ],
+          "handoff_ref_count": 0,
+          "jurisdiction_spine_refs": [
+            "jurisdiction-spine://region---ua-msme-adjacent"
+          ],
+          "producer_binding_ref_count": 2,
+          "producer_handshake_ref_count": 0,
+          "runtime_claim_registry_refs": [
+            "runtime-claim-registry://layer3-g7/region-widening"
+          ],
+          "surface": "inspection"
+        },
+        {
+          "carrier_refs": [
+            "evidence-spine://layer3-g7/region---ua-msme-adjacent"
+          ],
+          "claim_ref_count": 0,
+          "concept_spine_refs": [
+            "concept-spine://policy-design-case/layer3-g7-region"
+          ],
+          "handoff_ref_count": 0,
+          "jurisdiction_spine_refs": [
+            "jurisdiction-spine://region---ua-msme-adjacent"
+          ],
+          "producer_binding_ref_count": 2,
+          "producer_handshake_ref_count": 0,
+          "runtime_claim_registry_refs": [
+            "runtime-claim-registry://layer3-g7/region-widening"
+          ],
+          "surface": "job_progress"
+        },
+        {
+          "carrier_refs": [
+            "evidence-spine://layer3-g7/region---ua-msme-adjacent"
+          ],
+          "claim_ref_count": 0,
+          "concept_spine_refs": [
+            "concept-spine://policy-design-case/layer3-g7-region"
+          ],
+          "handoff_ref_count": 4,
+          "jurisdiction_spine_refs": [
+            "jurisdiction-spine://region---ua-msme-adjacent"
+          ],
+          "producer_binding_ref_count": 2,
+          "producer_handshake_ref_count": 0,
+          "runtime_claim_registry_refs": [
+            "runtime-claim-registry://layer3-g7/region-widening"
+          ],
+          "surface": "quality_evidence"
+        },
+        {
+          "carrier_refs": [
+            "evidence-spine://layer3-g7/region---ua-msme-adjacent"
+          ],
+          "claim_ref_count": 0,
+          "concept_spine_refs": [
+            "concept-spine://policy-design-case/layer3-g7-region"
+          ],
+          "handoff_ref_count": 0,
+          "jurisdiction_spine_refs": [
+            "jurisdiction-spine://region---ua-msme-adjacent"
+          ],
+          "producer_binding_ref_count": 2,
+          "producer_handshake_ref_count": 0,
+          "runtime_claim_registry_refs": [
+            "runtime-claim-registry://layer3-g7/region-widening"
+          ],
+          "surface": "readiness"
+        },
+        {
+          "carrier_refs": [
+            "evidence-spine://layer3-g7/region---ua-msme-adjacent"
+          ],
+          "claim_ref_count": 0,
+          "concept_spine_refs": [
+            "concept-spine://policy-design-case/layer3-g7-region"
+          ],
+          "handoff_ref_count": 0,
+          "jurisdiction_spine_refs": [
+            "jurisdiction-spine://region---ua-msme-adjacent"
+          ],
+          "producer_binding_ref_count": 2,
+          "producer_handshake_ref_count": 0,
+          "runtime_claim_registry_refs": [
+            "runtime-claim-registry://layer3-g7/region-widening"
+          ],
+          "surface": "replay_manifest"
+        },
+        {
+          "carrier_refs": [
+            "evidence-spine://layer3-g7/region---ua-msme-adjacent"
+          ],
+          "claim_ref_count": 0,
+          "concept_spine_refs": [
+            "concept-spine://policy-design-case/layer3-g7-region"
+          ],
+          "handoff_ref_count": 0,
+          "jurisdiction_spine_refs": [
+            "jurisdiction-spine://region---ua-msme-adjacent"
+          ],
+          "producer_binding_ref_count": 2,
+          "producer_handshake_ref_count": 0,
+          "runtime_claim_registry_refs": [
+            "runtime-claim-registry://layer3-g7/region-widening"
+          ],
+          "surface": "request_context"
+        },
+        {
+          "carrier_refs": [
+            "evidence-spine://layer3-g7/region---ua-msme-adjacent"
+          ],
+          "claim_ref_count": 0,
+          "concept_spine_refs": [
+            "concept-spine://policy-design-case/layer3-g7-region"
+          ],
+          "handoff_ref_count": 0,
+          "jurisdiction_spine_refs": [
+            "jurisdiction-spine://region---ua-msme-adjacent"
+          ],
+          "producer_binding_ref_count": 2,
+          "producer_handshake_ref_count": 0,
+          "runtime_claim_registry_refs": [
+            "runtime-claim-registry://layer3-g7/region-widening"
+          ],
+          "surface": "workflow_state"
+        }
+      ],
+      "upstream_closed_case_replay_refs": {
+        "g5": {
+          "fingerprint": "sha256:9b51fef6f95cada3dc88b2d48934be07a56ccca32a2907658da4d321606928d7",
+          "ref": "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json"
+        },
+        "g6": {
+          "fingerprint": "sha256:7ec5b6baa52b1124abe49d6e81395ccc0a9d30e013d78592306bdb65d18cd98e",
+          "ref": "repo://architecture/policy_design_case/layer3_g6_replay_manifest.json"
+        }
+      }
+    },
+    "prompt_template_fingerprints": {},
+    "prompt_tool_parser_ledger": {},
+    "provider_model_metadata": {},
+    "quality_scorecard_ref": null,
+    "quality_summary": {
+      "marginal_cost_status": "blocked_insufficient_grounded_cases",
+      "mechanism_reuse_status": "blocked_insufficient_grounded_cases",
+      "projection_contract_statuses": {
+        "s12_resource_projection_contract_status": "pass",
+        "s13_post_deploy_accountability_projection_contract_status": "pass",
+        "s14_universality_projection_contract_status": "pass"
+      },
+      "s14_feed_status": "blocked_no_real_grounded_breadth"
+    },
+    "random_seeds": {},
+    "registry_refs": {
+      "generated_artifact_family_id": "policy-design-case-layer3-g7-region-widening-artifacts",
+      "surface_id": "layer3_g7_region_widening_surface"
+    },
+    "request_fingerprint": "sha256:654ded28f9b22f104cc3abf006810820c994775138789ae980af56b45f47b887",
+    "request_keys": [
+      "authority_role",
+      "region_ref",
+      "scorecard_ref",
+      "surface_id"
+    ],
+    "revalidation_state": {},
+    "rule_evolution_public_annotation": {},
+    "rule_evolution_registry": {
+      "rule_version": "policyos.layer3.g7.region_widening.v1",
+      "schema_version": "policyos.policy_design_case.layer3_g7_region_widening.v1"
+    },
+    "rule_evolution_replay_context": {},
+    "run_params": {
+      "authority_role": "projection_only",
+      "may_not_use_for": [
+        "production_authority",
+        "production_claim_authority",
+        "rollout_authority",
+        "publication_authority",
+        "approval_authority",
+        "scorecard_authority",
+        "closeout_authority",
+        "runtime_closeout_authority",
+        "public_recommendation",
+        "policy_recommendation",
+        "legal_advice",
+        "claim_authority",
+        "obligation_authority",
+        "causal_effect_authority",
+        "proof_authority",
+        "legal_authority",
+        "recommendation_authority",
+        "universal_claim_authority",
+        "universal_claim_authority_without_s14",
+        "s14_universality_claim_without_s14_gate",
+        "g8_metric_governance_authority"
+      ],
+      "rule_version": "policyos.layer3.g7.region_widening.v1",
+      "schema_version": "policyos.policy_design_case.layer3_g7_region_widening.v1"
+    },
+    "runtime_event_log": {},
+    "schema_compatibility_decisions": {},
+    "schema_version": "policyos.replay_manifest.v1",
+    "semantic_binding_ledger": {},
+    "source_refs": {
+      "public_export_projection_ref": "repo://architecture/policy_design_case/layer3_g7_public_export_projection_refs.json#PUBLIC",
+      "upstream_closed_case_replay_refs": {
+        "g5": {
+          "fingerprint": "sha256:9b51fef6f95cada3dc88b2d48934be07a56ccca32a2907658da4d321606928d7",
+          "ref": "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json"
+        },
+        "g6": {
+          "fingerprint": "sha256:7ec5b6baa52b1124abe49d6e81395ccc0a9d30e013d78592306bdb65d18cd98e",
+          "ref": "repo://architecture/policy_design_case/layer3_g6_replay_manifest.json"
+        }
+      }
+    }
+  },
+  "manifest_id": "layer3-g7://replay-manifest/region---ua-msme-adjacent",
+  "may_not_use_for": [
+    "production_authority",
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "public_recommendation",
+    "policy_recommendation",
+    "legal_advice",
+    "claim_authority",
+    "obligation_authority",
+    "causal_effect_authority",
+    "proof_authority",
+    "legal_authority",
+    "recommendation_authority",
+    "universal_claim_authority",
+    "universal_claim_authority_without_s14",
+    "s14_universality_claim_without_s14_gate",
+    "g8_metric_governance_authority"
+  ],
+  "region_ref": "region://ua/msme-adjacent",
+  "replay_fingerprints": {
+    "conversion_status_matrix_fingerprint": "sha256:6117e46593b724c1f75f96b27f6fb10904c42b41e0d359a1a2447e5ad2b7a2a8",
+    "governed_promotion_join_fingerprint": "sha256:1ef4a6368a99038c1b8cc0f0fd54e104f50cac48bfc6555b479705f8e7e2d359",
+    "grounding_matrix_fingerprint": "sha256:3ba9bd6ade746df11a8a8f19cef24f8c95c5653f04a7062f54d75f58db964937",
+    "marginal_cost_ledger_fingerprint": "sha256:8ba4a9a4b35202606b41b07711d69a809c7e1ceb6e1ede45e2c055b5b010b1fc",
+    "mechanism_reuse_ledger_fingerprint": "sha256:0251d050139c9becb834bb9135af4f2a31c7d35353d4493ec9773f305dac48c9",
+    "public_projection_fingerprint": "sha256:ac34c779505e84905b5b9d9488d894b67474a419e72e1c3cab98f80a0aa23fe3",
+    "region_candidate_set_fingerprint": "sha256:ed37448b6649694ec174017898de25db8693f1fef69be220d60e5a70beb19a32",
+    "region_envelope_expansion_delta_fingerprint": "sha256:22c823831cc2a58c294ffc4b5b141dd0d26222f7e69ffd5fa8fea556757b056c",
+    "s12_growth_thermometer_projection_fingerprint": "sha256:49bf045eaa8674df2bc555c9b4ddeea88753e49cae9a3be1e1a62d855b850f85",
+    "s14_battery_input_manifest_fingerprint": "sha256:130aad7b2daaef652ea7d1b1a5644a3c393c42199cc6c3d410f746eea684bbff",
+    "s14_consumer_gate_fingerprint": "sha256:37224c0dd7b7e0dfbf2bc95b45a25d4f187cc7ee708eadc858a8c249469908a8",
+    "s14_feed_fingerprint": "sha256:45d93cc4d9a391f2de07d65d57fdd4bfba20248496634181f3cf78405f4608b4",
+    "scorecard_fingerprint": "sha256:b7b022786802cd470826e06154be485c18ca2190440c5113d8722f3b3e509653",
+    "semantic_loss_ledger_fingerprint": "sha256:79ef0adb577966e490795ad1cd53712535762bb94063fb7b88fe37cb4d893525",
+    "status_composition_ledger_fingerprint": "sha256:1c9c2d1bb43e2bbca73dd9059580f9b337bb4e15aa2d984b040939a543cbdfc0",
+    "upstream_closed_g5_replay_fingerprint": "sha256:9b51fef6f95cada3dc88b2d48934be07a56ccca32a2907658da4d321606928d7",
+    "upstream_closed_g6_replay_fingerprint": "sha256:7ec5b6baa52b1124abe49d6e81395ccc0a9d30e013d78592306bdb65d18cd98e"
+  },
+  "rule_version": "policyos.layer3.g7.region_widening.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g7_region_widening.v1",
+  "status": "pass"
+}

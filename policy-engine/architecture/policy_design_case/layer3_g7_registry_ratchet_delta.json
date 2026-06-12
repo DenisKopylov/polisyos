@@ -1,0 +1,11 @@
+{
+  "admission_maturity": "implemented_but_not_orchestrated",
+  "conformance_report_ref": "layer3-g7://conformance/report",
+  "issue_codes": [
+    "public_projection_authority_leak"
+  ],
+  "registry_delta_id": "layer3_g7_registry_ratchet_delta",
+  "rule_version": "policyos.layer3.g7.region_widening.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g7_region_widening.v1",
+  "status": "fail"
+}

@@ -1,0 +1,91 @@
+{
+  "a_firewall_refs": [
+    "a-firewall://g7/missing---g7-no-grounded-case"
+  ],
+  "authoritative_for": [
+    "layer3_g7_region_widening_audit",
+    "layer3_g7_marginal_grounding_cost_reading",
+    "layer3_g7_s14_grounded_breadth_feed"
+  ],
+  "capacity_regime_coupling_refs": [
+    "capacity://g7/missing---g7-no-grounded-case",
+    "regime://g7/missing---g7-no-grounded-case",
+    "coupling://g7/missing---g7-no-grounded-case"
+  ],
+  "claim_evidence_binding_refs": [
+    "claim-evidence-binding://g7/missing---g7-no-grounded-case"
+  ],
+  "denied_uses": [
+    "production_authority",
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "public_recommendation",
+    "policy_recommendation",
+    "legal_advice",
+    "claim_authority",
+    "obligation_authority",
+    "causal_effect_authority",
+    "proof_authority",
+    "legal_authority",
+    "recommendation_authority",
+    "universal_claim_authority",
+    "universal_claim_authority_without_s14",
+    "s14_universality_claim_without_s14_gate",
+    "g8_metric_governance_authority"
+  ],
+  "envelope_revision_delta_refs": [
+    "s13-certified-delta://g7/no-region-expansion"
+  ],
+  "feed_id": "layer3-g7://s14-grounded-breadth-feed/region---ua-msme-adjacent",
+  "feed_ref": "layer3-g7://s14/grounded-breadth-feed/region---ua-msme-adjacent",
+  "grounded_authority_coverage_refs": [
+    "layer3-g7://s14/grounded-authority-coverage"
+  ],
+  "grounded_region_case_refs": [],
+  "issue_codes": [
+    "layer3_g7_current_g5_unchanged_blocker",
+    "layer3_g7_s14_feed_missing"
+  ],
+  "mandate_legal_refs": [
+    "mandate-legal://g7/missing---g7-no-grounded-case"
+  ],
+  "may_not_use_for": [
+    "production_authority",
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "public_recommendation",
+    "policy_recommendation",
+    "legal_advice",
+    "claim_authority",
+    "obligation_authority",
+    "causal_effect_authority",
+    "proof_authority",
+    "legal_authority",
+    "recommendation_authority",
+    "universal_claim_authority",
+    "universal_claim_authority_without_s14",
+    "s14_universality_claim_without_s14_gate",
+    "g8_metric_governance_authority"
+  ],
+  "mechanism_generality_report_refs": [
+    "pdc://layer2/s14/mechanism-generality"
+  ],
+  "region_ref": "region://ua/msme-adjacent",
+  "rule_version": "policyos.layer3.g7.region_widening.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g7_region_widening.v1",
+  "status": "blocked_no_real_grounded_breadth",
+  "visible_limitation_refs": [
+    "limitation://g7/s14/capacity-regime-coupling-missing-until-grounded-breadth",
+    "limitation://g7/s14/mandate-legal-refs-missing-until-grounded-breadth"
+  ]
+}

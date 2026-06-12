@@ -392,6 +392,67 @@ check_command = [
 ]
 
 [[family]]
+id = "policy-design-case-layer3-g7-region-widening-artifacts"
+label = "Policy Design Case Layer 3 G7 region-widening artifacts"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+generator = "Layer 3 G7 readiness validator write mode"
+verifier = "Layer 3 G7 readiness validator and architecture guardrails"
+promotion_target = "registered Policy Design Case G7 region-widening audit surface artifacts"
+stale_output_behavior = "fail"
+source_of_truth = "src/polisyos/runtime/quality/layer3_region_widening.py and tools/quality/validation/check_policy_design_case_layer3_g7_readiness.py"
+outputs = [
+  "architecture/policy_design_case/layer3_g7_dependency_readiness_snapshot.json",
+  "architecture/policy_design_case/layer3_g7_region_candidate_set.json",
+  "architecture/policy_design_case/layer3_g7_region_grounding_matrix.json",
+  "architecture/policy_design_case/layer3_g7_region_case_conversion_inputs.json",
+  "architecture/policy_design_case/layer3_g7_region_conversion_records.json",
+  "architecture/policy_design_case/layer3_g7_region_conversion_status_matrix.json",
+  "architecture/policy_design_case/layer3_g7_governed_promotion_join.json",
+  "architecture/policy_design_case/layer3_g7_status_composition_ledger.json",
+  "architecture/policy_design_case/layer3_g7_s12_growth_thermometer_projection.json",
+  "architecture/policy_design_case/layer3_g7_mechanism_reuse_ledger.json",
+  "architecture/policy_design_case/layer3_g7_marginal_grounding_cost_ledger.json",
+  "architecture/policy_design_case/layer3_g7_region_envelope_expansion_delta.json",
+  "architecture/policy_design_case/layer3_g7_region_semantic_loss_ledger.json",
+  "architecture/policy_design_case/layer3_g7_search_recall_freshness_join.json",
+  "architecture/policy_design_case/layer3_g7_g5_g6_authority_boundary_report.json",
+  "architecture/policy_design_case/layer3_g7_s14_grounded_breadth_feed.json",
+  "architecture/policy_design_case/layer3_g7_s14_mechanism_generality_projection.json",
+  "architecture/policy_design_case/layer3_g7_s14_battery_input_manifest.json",
+  "architecture/policy_design_case/layer3_g7_s14_consumer_gate.json",
+  "architecture/policy_design_case/layer3_g7_region_scorecard.json",
+  "architecture/policy_design_case/layer3_g7_region_widening_audit_surface.json",
+  "architecture/policy_design_case/layer3_g7_public_export_projection_refs.json",
+  "architecture/policy_design_case/layer3_g7_orchestration_continuity.json",
+  "architecture/policy_design_case/layer3_g7_replay_manifest.json",
+  "architecture/policy_design_case/layer3_g7_conformance_report.json",
+  "architecture/policy_design_case/layer3_g7_health_metric_delta.toml",
+  "architecture/policy_design_case/layer3_g7_region_route_contract_registry.toml",
+  "architecture/policy_design_case/layer3_g7_registry_ratchet_delta.json",
+  "architecture/policy_design_case/layer3_g7_readiness_manifest.json",
+]
+regenerate_commands = [
+  "uv run python tools/quality/validation/check_policy_design_case_layer3_g7_readiness.py --repo-root . --write --output-format json",
+]
+commit_policy = "committed_after_task9_write"
+freshness_rule = "Regenerate and commit whenever the Layer 3 G7 region-widening runtime builder, validator, route registry, public projection refs, S14 feed handoff, or replay rules change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_policy_design_case_layer3_g7_readiness.py"
+check_cwd = "."
+check_command = [
+  "uv",
+  "run",
+  "python",
+  "tools/quality/validation/check_policy_design_case_layer3_g7_readiness.py",
+  "--repo-root",
+  ".",
+  "--output-format",
+  "json",
+]
+
+[[family]]
 id = "policy-design-case-layer3-g8-health-metric-governance-artifacts"
 label = "Policy Design Case Layer 3 G8 health-metric governance artifacts"
 owner = "team-runtime-quality"

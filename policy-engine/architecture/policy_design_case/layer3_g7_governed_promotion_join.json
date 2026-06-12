@@ -1,0 +1,21 @@
+{
+  "issue_codes": [],
+  "rows": [
+    {
+      "case_id": "ua-msme-affordable-loans-2022",
+      "g4_a_completeness_ledger_ref": "repo://architecture/policy_design_case/layer3_g4_a_completeness_ledger.json",
+      "g4_g5_handoff_ref": "repo://architecture/policy_design_case/layer3_g4_g5_promotion_handoff.json",
+      "g4_grounded_contract_set_ref": "repo://architecture/policy_design_case/layer3_g4_grounded_contract_set.json",
+      "g4_human_decision_integrity_gate_ref": "repo://architecture/policy_design_case/layer3_g4_human_decision_integrity_gate.json",
+      "g4_promotion_record_ref": "g4-promotion-record:g4-request:ua-msme-source-only-valid",
+      "g4_weakest_boundary_composition_ref": "repo://architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json",
+      "issue_codes": [
+        "layer3_g7_current_g5_unchanged_blocker"
+      ],
+      "status": "pass"
+    }
+  ],
+  "rule_version": "policyos.layer3.g7.region_widening.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g7_region_widening.v1",
+  "status": "blocked_current_seed_only"
+}

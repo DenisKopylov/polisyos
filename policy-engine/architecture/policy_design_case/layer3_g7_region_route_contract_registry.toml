@@ -1,0 +1,14 @@
+schema_version = "policyos.policy_design_case.layer3_g7_region_widening.v1"
+rule_version = "policyos.layer3.g7.region_widening.v1"
+status = "pass"
+route_contract_registry_kind = "generated_region_route_contract_registry"
+route_count = 1
+
+[[region_route_records]]
+authoritative_for = ["layer3_g7_region_widening_audit"]
+may_not_use_for = ["production_authority", "production_claim_authority", "rollout_authority", "publication_authority", "approval_authority", "scorecard_authority", "closeout_authority", "runtime_closeout_authority", "public_recommendation", "policy_recommendation", "legal_advice", "claim_authority", "obligation_authority", "causal_effect_authority", "proof_authority", "legal_authority", "recommendation_authority", "universal_claim_authority", "universal_claim_authority_without_s14", "s14_universality_claim_without_s14_gate", "g8_metric_governance_authority"]
+public_projection_mode = "projection_only"
+region_ref = "region://ua/msme-adjacent"
+region_value_closure_status = "blocked_by_no_real_grounded_region_breadth"
+route_id = "layer3.g7.region_route.ua_msme_adjacent"
+scorecard_ref = "repo://architecture/policy_design_case/layer3_g7_region_scorecard.json#region---ua-msme-adjacent"

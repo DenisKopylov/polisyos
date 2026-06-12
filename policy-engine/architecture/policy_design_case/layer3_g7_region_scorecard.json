@@ -47,6 +47,7 @@
   "g7_region_value_closure_status": "blocked_by_no_real_grounded_region_breadth",
   "grounded_case_count": 0,
   "issue_codes": [
+    "layer3_g7_grounded_case_without_governed_promotion",
     "layer3_g7_current_g5_unchanged_blocker",
     "layer3_g7_no_real_grounded_region_breadth",
     "layer3_g7_sublinear_claim_without_grounded_cases",
@@ -89,22 +90,23 @@
     "repo://architecture/policy_design_case/layer3_g7_replay_manifest.json"
   ],
   "schema_version": "policyos.policy_design_case.layer3_g7_region_widening.v1",
-  "scorecard_fingerprint": "sha256:b7b022786802cd470826e06154be485c18ca2190440c5113d8722f3b3e509653",
+  "scorecard_fingerprint": "sha256:6e9ffeadf5da47f389f991f70124b294fa061869cf6ae85705e9b1c655b3afb8",
   "scorecard_id": "layer3-g7://region-scorecard/region---ua-msme-adjacent",
   "scorecard_ref": "repo://architecture/policy_design_case/layer3_g7_region_scorecard.json#region---ua-msme-adjacent",
   "source_fingerprints": {
-    "conversion_status_matrix_fingerprint": "sha256:6117e46593b724c1f75f96b27f6fb10904c42b41e0d359a1a2447e5ad2b7a2a8",
-    "governed_promotion_join_fingerprint": "sha256:1ef4a6368a99038c1b8cc0f0fd54e104f50cac48bfc6555b479705f8e7e2d359",
-    "marginal_cost_ledger_fingerprint": "sha256:8ba4a9a4b35202606b41b07711d69a809c7e1ceb6e1ede45e2c055b5b010b1fc",
+    "conversion_status_matrix_fingerprint": "sha256:a10447f024cc324219d8a42de3dba10fec0dc97f5d13b528214a304d4ee908ae",
+    "governed_promotion_join_fingerprint": "sha256:284f429193edc4174c509654e874a04146c696dda891ea080686249c636e4c00",
+    "marginal_cost_ledger_fingerprint": "sha256:8fb63f3c6149d5070ebb52896a9c138dc87abaff0ddcf129de79c493608a4ce6",
     "mechanism_reuse_ledger_fingerprint": "sha256:0251d050139c9becb834bb9135af4f2a31c7d35353d4493ec9773f305dac48c9",
-    "s14_feed_fingerprint": "sha256:45d93cc4d9a391f2de07d65d57fdd4bfba20248496634181f3cf78405f4608b4",
-    "scorecard_fingerprint": "sha256:b7b022786802cd470826e06154be485c18ca2190440c5113d8722f3b3e509653",
-    "status_composition_ledger_fingerprint": "sha256:1c9c2d1bb43e2bbca73dd9059580f9b337bb4e15aa2d984b040939a543cbdfc0"
+    "s14_feed_fingerprint": "sha256:6a64db1e82f14884c61bef154f2d9a9bce3bb3d550cc0b4694fa36774e1df89f",
+    "scorecard_fingerprint": "sha256:6e9ffeadf5da47f389f991f70124b294fa061869cf6ae85705e9b1c655b3afb8",
+    "status_composition_ledger_fingerprint": "sha256:e2cc2030306abac0a4d1b70c6a5d280fe800bb88c59819d17eae95689482706d"
   },
   "status": "blocked",
   "visible_limitation_refs": [
     "limitation://g7/s14/capacity-regime-coupling-missing-until-grounded-breadth",
     "limitation://g7/s14/mandate-legal-refs-missing-until-grounded-breadth",
+    "layer3_g7_grounded_case_without_governed_promotion",
     "layer3_g7_current_g5_unchanged_blocker",
     "layer3_g7_no_real_grounded_region_breadth",
     "layer3_g7_sublinear_claim_without_grounded_cases",

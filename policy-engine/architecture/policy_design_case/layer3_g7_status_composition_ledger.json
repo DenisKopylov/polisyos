@@ -5,6 +5,7 @@
     "layer3_g7_s14_grounded_breadth_feed"
   ],
   "issue_codes": [
+    "layer3_g7_grounded_case_without_governed_promotion",
     "layer3_g7_current_g5_unchanged_blocker",
     "layer3_g7_no_real_grounded_region_breadth",
     "layer3_g7_sublinear_claim_without_grounded_cases",

@@ -1,16 +1,5 @@
 {
   "blocker_refs": [
-    "layer3_g4_missing_g2_calibration_ref",
-    "layer3_g4_missing_g2_forecast_support",
-    "layer3_g4_placeholder_design_record_promoted",
-    "layer3_g4_w12d_manifest_only_not_payload"
-  ],
-  "conversion_outcome": "typed_blocker -> grounded_abstention",
-  "g4_design_scope_status": "blocked",
-  "grounding_disposition": "grounded_abstention",
-  "issue_codes": [
-    "layer3_g5_g4_dependency_not_ready",
-    "layer3_g5_gl_pass_with_reissue_required",
     "layer3_g5_no_governed_promotion_record",
     "layer3_g5_blocked_promotion_used_as_conversion",
     "layer3_g5_g4_weakest_boundary_record_mismatch",
@@ -21,16 +10,18 @@
     "layer3_g5_missing_g2_calibration_ref",
     "layer3_g5_g3_proof_status_overclaimed",
     "layer3_g5_duplicate_source_lineage_ref_inflates_independence",
-    "layer3_g5_upstream_scope_join_missing",
-    "layer3_g5_grounded_limited_without_g2_g3_design_support"
+    "layer3_g5_gl_pass_with_reissue_required",
+    "layer3_g5_s14_pending_sealed_overclaimed"
   ],
+  "conversion_outcome": "unchanged_blocker",
+  "g4_design_scope_status": "blocked",
+  "grounding_disposition": "ungrounded_blocked",
+  "issue_codes": [],
   "limitation_refs": [],
   "mixed_upstream_statuses": [],
-  "requested_claim_families": [
-    "source_data"
-  ],
-  "status": "pass",
+  "requested_claim_families": [],
+  "status": "fail",
   "useful_design_credit_requested": false,
-  "weakest_boundary_reason": "blocked_g4_promotion",
+  "weakest_boundary_reason": "unchanged_blocker_first_readiness_surface",
   "weakest_boundary_status": "limited"
 }

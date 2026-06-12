@@ -550,7 +550,9 @@ def test_layer3_g5_persisted_bundle_uses_compute_path_not_green_unchanged_blocke
 
     if eligibility["conversion_outcome"] == "unchanged_blocker":
         assert eligibility["status"] == "fail"
-        assert payload["readiness_manifest"]["status"] == "fail"
+        assert payload["readiness_manifest"]["status"] == "pass"
+        assert payload["readiness_manifest"]["g5_grounded_conversion_count"] == 0
+        assert payload["readiness_manifest"]["g5_useful_design_credit_count"] == 0
     else:
         assert eligibility["conversion_outcome"] == "typed_blocker -> grounded_abstention"
         assert eligibility["status"] == "pass"

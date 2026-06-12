@@ -7,15 +7,23 @@
         "w12d_layer3_conversion_gate"
       ],
       "blocker_refs": [
-        "layer3_g4_missing_g2_calibration_ref",
-        "layer3_g4_missing_g2_forecast_support",
-        "layer3_g4_placeholder_design_record_promoted",
-        "layer3_g4_w12d_manifest_only_not_payload"
+        "layer3_g5_no_governed_promotion_record",
+        "layer3_g5_blocked_promotion_used_as_conversion",
+        "layer3_g5_g4_weakest_boundary_record_mismatch",
+        "layer3_g5_g1_source_contract_hash_missing",
+        "layer3_g5_g1_observed_time_missing",
+        "layer3_g5_g1_may_not_use_for_dropped",
+        "layer3_g5_g2_s2_replay_key_ref_missing",
+        "layer3_g5_missing_g2_calibration_ref",
+        "layer3_g5_g3_proof_status_overclaimed",
+        "layer3_g5_duplicate_source_lineage_ref_inflates_independence",
+        "layer3_g5_gl_pass_with_reissue_required",
+        "layer3_g5_s14_pending_sealed_overclaimed"
       ],
       "case_id": "ua-msme-affordable-loans-2022",
-      "conversion_outcome": "typed_blocker -> grounded_abstention",
-      "conversion_record_id": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:typed-blocker----grounded-abstention",
-      "grounding_disposition": "grounded_abstention",
+      "conversion_outcome": "unchanged_blocker",
+      "conversion_record_id": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
+      "grounding_disposition": "ungrounded_blocked",
       "limitation_refs": [],
       "may_not_use_for": [
         "production_authority",

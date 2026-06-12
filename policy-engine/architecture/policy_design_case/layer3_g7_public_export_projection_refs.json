@@ -206,6 +206,7 @@
     "status_composition_limit_refs": [
       "limitation://g7/s14/capacity-regime-coupling-missing-until-grounded-breadth",
       "limitation://g7/s14/mandate-legal-refs-missing-until-grounded-breadth",
+      "layer3_g7_grounded_case_without_governed_promotion",
       "layer3_g7_current_g5_unchanged_blocker",
       "layer3_g7_no_real_grounded_region_breadth",
       "layer3_g7_sublinear_claim_without_grounded_cases",
@@ -219,6 +220,7 @@
     "visible_limitations": [
       "limitation://g7/s14/capacity-regime-coupling-missing-until-grounded-breadth",
       "limitation://g7/s14/mandate-legal-refs-missing-until-grounded-breadth",
+      "layer3_g7_grounded_case_without_governed_promotion",
       "layer3_g7_current_g5_unchanged_blocker",
       "layer3_g7_no_real_grounded_region_breadth",
       "layer3_g7_sublinear_claim_without_grounded_cases",
@@ -229,6 +231,7 @@
     "layer3_g7_region_widening_audit"
   ],
   "issue_codes": [
+    "layer3_g7_grounded_case_without_governed_promotion",
     "layer3_g7_current_g5_unchanged_blocker",
     "layer3_g7_no_real_grounded_region_breadth",
     "layer3_g7_sublinear_claim_without_grounded_cases",

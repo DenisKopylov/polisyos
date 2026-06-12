@@ -7,10 +7,9 @@
   "d44_reannotation_coverage_status": "pass",
   "d44_rebasing_receipt_status": "pass_no_rebase_required",
   "d44_rebasing_trigger_status": "pass_no_rebase_due",
-  "domain_vs_search_ceiling_status": "blocked",
+  "domain_vs_search_ceiling_status": "governance_stall_repair_required",
   "issue_codes": [
-    "layer3_g8_demand_numeric_inertia_hidden_as_pass",
-    "layer3_g8_metric_source_missing"
+    "layer3_g8_demand_numeric_inertia_hidden_as_pass"
   ],
   "may_not_use_for": [
     "production_authority",
@@ -49,7 +48,7 @@
   "rule_version": "policyos.layer3.g8.health_metric_governance.v1",
   "schema_version": "policyos.policy_design_case.layer3_g8_health_metric_governance.v1",
   "sealed_battery_integrity_status": "pass",
-  "status": "blocked",
+  "status": "pass",
   "surface_audiences": [
     "EXPERT",
     "MACHINE"

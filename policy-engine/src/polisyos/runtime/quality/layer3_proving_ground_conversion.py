@@ -944,41 +944,30 @@ def build_layer3_g5_bundle(repo_root: Path) -> Layer3G5Bundle:
         s3_demand_pull_refs=("s3-demand-pull://ua-msme/first-proving-ground",),
         attempted_grounding_path_refs=("layer3-g5://readiness/demand-pull",),
     )
-    requested_scope = {
-        "claim_families": ("source_data",),
-        "requires_claim_authority": False,
-    }
-    search_health = _g5_g1_search_health(root, snapshot)
-    eligibility = build_g5_conversion_eligibility_ledger(
-        pinned_case_input_bundle=pinned,
-        dependency_snapshot=snapshot,
-        g4_handoff_resolution=handoff,
-        upstream_scope_join_matrix=matrix,
-        grounded_result_evidence_set=evidence,
-        requested_scope=requested_scope,
-        requested_conversion_outcome="typed_blocker -> grounded_abstention",
-        search_health=search_health,
-        weakest_boundary={
-            "status": "limited" if handoff.blocked_promotion_input_count else "pass",
-            "weakest_boundary_reason": (
-                "blocked_g4_promotion"
-                if handoff.blocked_promotion_input_count
-                else "measured_source_data_abstention_route"
-            ),
-        },
-        upstream_statuses=(
-            snapshot.g1_grounding_status,
-            snapshot.g2_w12d_consumer_gate_status,
-            snapshot.g3_w12d_consumer_gate_status,
-            snapshot.gl_reissue_status,
-            handoff.status,
-            matrix.status,
-        ),
-        useful_design_credit_requested=False,
-        demand_pull_attempt_record=demand_pull,
-    )
     useful_join = build_g5_useful_design_metric_eligibility_join(
-        conversion_outcome=eligibility.conversion_outcome,
+        conversion_outcome="unchanged_blocker",
+        useful_design_credit_requested=False,
+    )
+    eligibility = Layer3G5ConversionEligibilityLedger(
+        status="fail",
+        conversion_outcome="unchanged_blocker",
+        grounding_disposition="ungrounded_blocked",
+        g4_design_scope_status="blocked"
+        if handoff.blocked_promotion_input_count
+        else "missing",
+        blocker_refs=_dedupe(
+            (
+                *handoff.issue_codes,
+                *matrix.issue_codes,
+                *pinned.issue_codes,
+                *evidence.issue_codes,
+            )
+        ),
+        weakest_boundary_status="limited",
+        weakest_boundary_reason="unchanged_blocker_first_readiness_surface",
+        mixed_upstream_statuses=("limited",)
+        if handoff.status == "pass_with_blockers" or matrix.status == "limited"
+        else (),
         useful_design_credit_requested=False,
     )
     status_composition = build_g5_status_composition_ledger(
@@ -1059,13 +1048,21 @@ def build_layer3_g5_bundle(repo_root: Path) -> Layer3G5Bundle:
     )
     readiness_issue_codes = _dedupe(
         (
-            *(() if eligibility.status == "pass" else snapshot.issue_codes),
-            *(() if eligibility.status == "pass" else eligibility.issue_codes),
+            *(
+                ()
+                if eligibility.conversion_outcome == "unchanged_blocker"
+                else snapshot.issue_codes
+            ),
+            *(
+                ()
+                if eligibility.conversion_outcome == "unchanged_blocker"
+                else eligibility.issue_codes
+            ),
             *status_composition.issue_codes,
         )
     )
     readiness = Layer3G5ReadinessManifest(
-        status="pass" if eligibility.status == "pass" and not readiness_issue_codes else "fail",
+        status="pass" if not readiness_issue_codes else "fail",
         g5_conversion_outcome=str(summary.get("g5_conversion_outcome", "unchanged_blocker")),  # type: ignore[arg-type]
         g5_grounded_abstention_count=int(summary.get("g5_grounded_abstention_count") or 0),
         g5_grounded_conversion_count=int(summary.get("g5_grounded_conversion_count") or 0),
@@ -2237,9 +2234,6 @@ def _g5_green_unchanged_blocker_issues(
     if (
         eligibility.get("status") == "pass"
         and eligibility.get("conversion_outcome") == "unchanged_blocker"
-    ) or (
-        readiness.get("status") == "pass"
-        and readiness.get("g5_conversion_outcome") == "unchanged_blocker"
     ):
         return (
             Layer3G5ValidationIssue(

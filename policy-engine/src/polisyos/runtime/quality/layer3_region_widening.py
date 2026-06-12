@@ -2628,7 +2628,10 @@ def build_g7_dependency_readiness_snapshot(repo_root: Path) -> Layer3G7Dependenc
     engineering_status = _engineering_readiness_status(
         missing_paths=missing_paths,
         g1_status=_readiness_presence_status(g1_readiness),
-        g4_status=_manifest_status(g4_readiness),
+        g4_status=str(
+            g4_readiness.get("g4_g5_promotion_handoff_status")
+            or _manifest_status(g4_readiness)
+        ),
         g5_status=_manifest_status(g5_readiness),
         g6_status=_manifest_status(g6_readiness),
         s14_status=_readiness_presence_status(

@@ -5,10 +5,10 @@
     "accepted_deficit",
     "typed_blocker"
   ],
-  "conversion_outcome": "typed_blocker -> grounded_abstention",
+  "conversion_outcome": "unchanged_blocker",
   "counts_toward_runtime_useful_design": false,
   "issue_codes": [],
   "status": "pass",
   "w12d_outcome": "typed_blocker",
-  "weakest_boundary_reason": "blocked_g4_promotion"
+  "weakest_boundary_reason": "unchanged_blocker_first_readiness_surface"
 }

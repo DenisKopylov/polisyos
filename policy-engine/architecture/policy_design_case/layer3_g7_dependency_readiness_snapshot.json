@@ -17,10 +17,10 @@
     "search_hit_as_authority"
   ],
   "g4_governance_throughput_status": "pass",
-  "g4_governed_promoted_count": 1,
-  "g4_promotion_blocked_count": 1,
+  "g4_governed_promoted_count": 0,
+  "g4_promotion_blocked_count": 2,
   "g4_promotion_record_count": 2,
-  "g4_readiness_status": "pass",
+  "g4_readiness_status": "fail",
   "g5_conversion_outcome": "unchanged_blocker",
   "g5_conversion_record_count": 1,
   "g5_demand_pull_attempt_status": "pass",

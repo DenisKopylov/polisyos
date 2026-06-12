@@ -2,17 +2,25 @@
   "EXPERT": {
     "audience": "expert",
     "audit_refs": [
-      "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:typed-blocker----grounded-abstention"
+      "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker"
     ],
     "authoritative_for": [],
     "authority_role": "projection_only",
     "capability_reality_state": "implemented_but_not_orchestrated",
     "closeout_truth": {
       "blocker_codes": [
-        "layer3_g4_missing_g2_calibration_ref",
-        "layer3_g4_missing_g2_forecast_support",
-        "layer3_g4_placeholder_design_record_promoted",
-        "layer3_g4_w12d_manifest_only_not_payload"
+        "layer3_g5_no_governed_promotion_record",
+        "layer3_g5_blocked_promotion_used_as_conversion",
+        "layer3_g5_g4_weakest_boundary_record_mismatch",
+        "layer3_g5_g1_source_contract_hash_missing",
+        "layer3_g5_g1_observed_time_missing",
+        "layer3_g5_g1_may_not_use_for_dropped",
+        "layer3_g5_g2_s2_replay_key_ref_missing",
+        "layer3_g5_missing_g2_calibration_ref",
+        "layer3_g5_g3_proof_status_overclaimed",
+        "layer3_g5_duplicate_source_lineage_ref_inflates_independence",
+        "layer3_g5_gl_pass_with_reissue_required",
+        "layer3_g5_s14_pending_sealed_overclaimed"
       ],
       "can_closeout": false,
       "status": "blocked",
@@ -50,7 +58,7 @@
       "useful_design_credit"
     ],
     "policy_design_case_id": "ua-msme-affordable-loans-2022",
-    "primary_state": "projection_only",
+    "primary_state": "blocked",
     "projection_policy": "reads_policy_design_case_only",
     "redaction_summary": {
       "raw_payload_redacted": true
@@ -58,12 +66,12 @@
     "run_id": "layer3-g5-readiness",
     "schema_version": "policyos.runtime.policy_design_case.projection.v1",
     "source_authority_refs": {
-      "g5_conversion_record_ref": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:typed-blocker----grounded-abstention"
+      "g5_conversion_record_ref": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker"
     },
-    "source_ref": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:typed-blocker----grounded-abstention",
+    "source_ref": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
     "source_state": {
-      "g5_conversion_outcome": "typed_blocker -> grounded_abstention",
-      "g5_grounding_disposition": "grounded_abstention"
+      "g5_conversion_outcome": "unchanged_blocker",
+      "g5_grounding_disposition": "ungrounded_blocked"
     },
     "states": [
       "blocked",
@@ -74,17 +82,25 @@
   "MACHINE": {
     "audience": "machine",
     "audit_refs": [
-      "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:typed-blocker----grounded-abstention"
+      "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker"
     ],
     "authoritative_for": [],
     "authority_role": "projection_only",
     "capability_reality_state": "implemented_but_not_orchestrated",
     "closeout_truth": {
       "blocker_codes": [
-        "layer3_g4_missing_g2_calibration_ref",
-        "layer3_g4_missing_g2_forecast_support",
-        "layer3_g4_placeholder_design_record_promoted",
-        "layer3_g4_w12d_manifest_only_not_payload"
+        "layer3_g5_no_governed_promotion_record",
+        "layer3_g5_blocked_promotion_used_as_conversion",
+        "layer3_g5_g4_weakest_boundary_record_mismatch",
+        "layer3_g5_g1_source_contract_hash_missing",
+        "layer3_g5_g1_observed_time_missing",
+        "layer3_g5_g1_may_not_use_for_dropped",
+        "layer3_g5_g2_s2_replay_key_ref_missing",
+        "layer3_g5_missing_g2_calibration_ref",
+        "layer3_g5_g3_proof_status_overclaimed",
+        "layer3_g5_duplicate_source_lineage_ref_inflates_independence",
+        "layer3_g5_gl_pass_with_reissue_required",
+        "layer3_g5_s14_pending_sealed_overclaimed"
       ],
       "can_closeout": false,
       "status": "blocked",
@@ -122,7 +138,7 @@
       "useful_design_credit"
     ],
     "policy_design_case_id": "ua-msme-affordable-loans-2022",
-    "primary_state": "projection_only",
+    "primary_state": "blocked",
     "projection_policy": "reads_policy_design_case_only",
     "redaction_summary": {
       "raw_payload_redacted": true
@@ -130,12 +146,12 @@
     "run_id": "layer3-g5-readiness",
     "schema_version": "policyos.runtime.policy_design_case.projection.v1",
     "source_authority_refs": {
-      "g5_conversion_record_ref": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:typed-blocker----grounded-abstention"
+      "g5_conversion_record_ref": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker"
     },
-    "source_ref": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:typed-blocker----grounded-abstention",
+    "source_ref": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
     "source_state": {
-      "g5_conversion_outcome": "typed_blocker -> grounded_abstention",
-      "g5_grounding_disposition": "grounded_abstention"
+      "g5_conversion_outcome": "unchanged_blocker",
+      "g5_grounding_disposition": "ungrounded_blocked"
     },
     "states": [
       "blocked",
@@ -146,17 +162,25 @@
   "PUBLIC": {
     "audience": "public",
     "audit_refs": [
-      "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:typed-blocker----grounded-abstention"
+      "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker"
     ],
     "authoritative_for": [],
     "authority_role": "projection_only",
     "capability_reality_state": "implemented_but_not_orchestrated",
     "closeout_truth": {
       "blocker_codes": [
-        "layer3_g4_missing_g2_calibration_ref",
-        "layer3_g4_missing_g2_forecast_support",
-        "layer3_g4_placeholder_design_record_promoted",
-        "layer3_g4_w12d_manifest_only_not_payload"
+        "layer3_g5_no_governed_promotion_record",
+        "layer3_g5_blocked_promotion_used_as_conversion",
+        "layer3_g5_g4_weakest_boundary_record_mismatch",
+        "layer3_g5_g1_source_contract_hash_missing",
+        "layer3_g5_g1_observed_time_missing",
+        "layer3_g5_g1_may_not_use_for_dropped",
+        "layer3_g5_g2_s2_replay_key_ref_missing",
+        "layer3_g5_missing_g2_calibration_ref",
+        "layer3_g5_g3_proof_status_overclaimed",
+        "layer3_g5_duplicate_source_lineage_ref_inflates_independence",
+        "layer3_g5_gl_pass_with_reissue_required",
+        "layer3_g5_s14_pending_sealed_overclaimed"
       ],
       "blockers": [],
       "can_closeout": false,
@@ -173,8 +197,8 @@
     "contract_verification_status": "pass",
     "deficit_register": [],
     "evidence_class": "diagnostic_supporting",
-    "g5_conversion_outcome": "typed_blocker -> grounded_abstention",
-    "g5_conversion_record_ref": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:typed-blocker----grounded-abstention",
+    "g5_conversion_outcome": "unchanged_blocker",
+    "g5_conversion_record_ref": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
     "g5_envelope_expansion_rate": 0.0,
     "generated_at": "2026-06-09T00:00:00Z",
     "invariant_summary": {
@@ -212,7 +236,7 @@
     "omission_manifest": [],
     "participation_requirements": [],
     "policy_design_case_id": "ua-msme-affordable-loans-2022",
-    "primary_state": "projection_only",
+    "primary_state": "blocked",
     "projection_gaps": [],
     "projection_policy": "reads_policy_design_case_only",
     "provenance_kind": "runtime_projection",
@@ -224,12 +248,12 @@
     "s12_public_growth_limitation": "G5 demand/growth refs are diagnostic and cannot allocate budget.",
     "schema_version": "policyos.runtime.policy_design_case.projection.v1",
     "source_authority_refs": {
-      "g5_conversion_record_ref": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:typed-blocker----grounded-abstention"
+      "g5_conversion_record_ref": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker"
     },
-    "source_ref": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:typed-blocker----grounded-abstention",
+    "source_ref": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
     "source_state": {
-      "g5_conversion_outcome": "typed_blocker -> grounded_abstention",
-      "g5_grounding_disposition": "grounded_abstention"
+      "g5_conversion_outcome": "unchanged_blocker",
+      "g5_grounding_disposition": "ungrounded_blocked"
     },
     "states": [
       "blocked",
@@ -240,17 +264,25 @@
   "REVIEWER": {
     "audience": "reviewer",
     "audit_refs": [
-      "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:typed-blocker----grounded-abstention"
+      "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker"
     ],
     "authoritative_for": [],
     "authority_role": "projection_only",
     "capability_reality_state": "implemented_but_not_orchestrated",
     "closeout_truth": {
       "blocker_codes": [
-        "layer3_g4_missing_g2_calibration_ref",
-        "layer3_g4_missing_g2_forecast_support",
-        "layer3_g4_placeholder_design_record_promoted",
-        "layer3_g4_w12d_manifest_only_not_payload"
+        "layer3_g5_no_governed_promotion_record",
+        "layer3_g5_blocked_promotion_used_as_conversion",
+        "layer3_g5_g4_weakest_boundary_record_mismatch",
+        "layer3_g5_g1_source_contract_hash_missing",
+        "layer3_g5_g1_observed_time_missing",
+        "layer3_g5_g1_may_not_use_for_dropped",
+        "layer3_g5_g2_s2_replay_key_ref_missing",
+        "layer3_g5_missing_g2_calibration_ref",
+        "layer3_g5_g3_proof_status_overclaimed",
+        "layer3_g5_duplicate_source_lineage_ref_inflates_independence",
+        "layer3_g5_gl_pass_with_reissue_required",
+        "layer3_g5_s14_pending_sealed_overclaimed"
       ],
       "can_closeout": false,
       "status": "blocked",
@@ -288,7 +320,7 @@
       "useful_design_credit"
     ],
     "policy_design_case_id": "ua-msme-affordable-loans-2022",
-    "primary_state": "projection_only",
+    "primary_state": "blocked",
     "projection_policy": "reads_policy_design_case_only",
     "redaction_summary": {
       "raw_payload_redacted": true
@@ -296,12 +328,12 @@
     "run_id": "layer3-g5-readiness",
     "schema_version": "policyos.runtime.policy_design_case.projection.v1",
     "source_authority_refs": {
-      "g5_conversion_record_ref": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:typed-blocker----grounded-abstention"
+      "g5_conversion_record_ref": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker"
     },
-    "source_ref": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:typed-blocker----grounded-abstention",
+    "source_ref": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
     "source_state": {
-      "g5_conversion_outcome": "typed_blocker -> grounded_abstention",
-      "g5_grounding_disposition": "grounded_abstention"
+      "g5_conversion_outcome": "unchanged_blocker",
+      "g5_grounding_disposition": "ungrounded_blocked"
     },
     "states": [
       "blocked",

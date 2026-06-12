@@ -4,7 +4,7 @@
     "layer3_g8_d44_rebasing_integrity_reading",
     "layer3_g8_open_question_answer_reading"
   ],
-  "g7_mutation_status": "not_observed",
+  "g7_mutation_status": "not_mutated",
   "hidden_payload_access_status": "not_observed",
   "issue_codes": [],
   "join_id": "layer3-g8://sealed-battery-integrity-join",

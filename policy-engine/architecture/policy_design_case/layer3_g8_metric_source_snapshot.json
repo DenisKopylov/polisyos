@@ -4,9 +4,7 @@
     "layer3_g8_d44_rebasing_integrity_reading",
     "layer3_g8_open_question_answer_reading"
   ],
-  "issue_codes": [
-    "layer3_g8_metric_source_missing"
-  ],
+  "issue_codes": [],
   "may_not_use_for": [
     "production_authority",
     "production_claim_authority",
@@ -246,7 +244,7 @@
       "status": "present"
     },
     {
-      "digest": "sha256:38e40a4e574ffd1d7a1eaaf7bd9aa0e2cfed8148e9475fecdfd102aecd1dc640",
+      "digest": "sha256:35808dff248cc647f886f41eebc74f93af7cf15434b8f09fc1f8a3fd809510a1",
       "format": "json",
       "generated_at": "",
       "issue_codes": [],
@@ -294,7 +292,7 @@
       "status": "present"
     },
     {
-      "digest": "sha256:b9b804e52ad382d7e110774de162dd1bdde3ae758d1cf0cfd636eb06d89a8149",
+      "digest": "sha256:f44e0dae2df6e7d097abe3d2d09a4e8ce1c5c08614b3d20566950102d3f524bf",
       "format": "json",
       "generated_at": "",
       "issue_codes": [],
@@ -318,7 +316,7 @@
       "status": "present"
     },
     {
-      "digest": "sha256:1ada189eb2c19629ca42add4cf7c82580b9683eb75d70e10a7a9bd867fd8b1c3",
+      "digest": "sha256:87f9d6d41a5e761201b31d143fafa7c17021597ea8ecdcc96c3a255704c60cfc",
       "format": "json",
       "generated_at": "",
       "issue_codes": [],
@@ -426,144 +424,124 @@
       "status": "present"
     },
     {
-      "digest": "",
+      "digest": "sha256:d7204bed39388f6c1977e8f4523d44fcced067e9c934ab608c337acc06389ace",
       "format": "toml",
       "generated_at": "",
-      "issue_codes": [
-        "layer3_g8_metric_source_missing"
-      ],
+      "issue_codes": [],
       "path": "architecture/policy_design_case/layer3_g7_health_metric_delta.toml",
-      "rule_version": "",
-      "schema_version": "",
+      "rule_version": "policyos.layer3.g7.region_widening.v1",
+      "schema_version": "policyos.policy_design_case.layer3_g7_region_widening.v1",
       "slice_id": "G7",
       "source_ref": "repo://architecture/policy_design_case/layer3_g7_health_metric_delta.toml",
-      "status": "missing"
+      "status": "present"
     },
     {
-      "digest": "",
+      "digest": "sha256:f10be4e7a3728b45f41f516caffe136dd9a124246a13f99edec1bd64d38a9d5b",
       "format": "json",
       "generated_at": "",
-      "issue_codes": [
-        "layer3_g8_metric_source_missing"
-      ],
+      "issue_codes": [],
       "path": "architecture/policy_design_case/layer3_g7_dependency_readiness_snapshot.json",
-      "rule_version": "",
-      "schema_version": "",
+      "rule_version": "policyos.layer3.g7.region_widening.v1",
+      "schema_version": "policyos.policy_design_case.layer3_g7_region_widening.v1",
       "slice_id": "G7",
       "source_ref": "repo://architecture/policy_design_case/layer3_g7_dependency_readiness_snapshot.json",
-      "status": "missing"
+      "status": "present"
     },
     {
-      "digest": "",
+      "digest": "sha256:94341478e93a8269d0c79f7afd246a2a34d2dd3164685556ce0f6becfa7c9370",
       "format": "json",
       "generated_at": "",
-      "issue_codes": [
-        "layer3_g8_metric_source_missing"
-      ],
+      "issue_codes": [],
       "path": "architecture/policy_design_case/layer3_g7_search_recall_freshness_join.json",
       "rule_version": "",
       "schema_version": "",
       "slice_id": "G7",
       "source_ref": "repo://architecture/policy_design_case/layer3_g7_search_recall_freshness_join.json",
-      "status": "missing"
+      "status": "present"
     },
     {
-      "digest": "",
+      "digest": "sha256:a10447f024cc324219d8a42de3dba10fec0dc97f5d13b528214a304d4ee908ae",
       "format": "json",
       "generated_at": "",
-      "issue_codes": [
-        "layer3_g8_metric_source_missing"
-      ],
+      "issue_codes": [],
       "path": "architecture/policy_design_case/layer3_g7_region_conversion_status_matrix.json",
-      "rule_version": "",
-      "schema_version": "",
+      "rule_version": "policyos.layer3.g7.region_widening.v1",
+      "schema_version": "policyos.policy_design_case.layer3_g7_region_widening.v1",
       "slice_id": "G7",
       "source_ref": "repo://architecture/policy_design_case/layer3_g7_region_conversion_status_matrix.json",
-      "status": "missing"
+      "status": "present"
     },
     {
-      "digest": "",
+      "digest": "sha256:0a9454e2d380720253418ea10c100e745130bddfa24d0c6b23fed7f13364a673",
       "format": "json",
       "generated_at": "",
-      "issue_codes": [
-        "layer3_g8_metric_source_missing"
-      ],
+      "issue_codes": [],
       "path": "architecture/policy_design_case/layer3_g7_g5_g6_authority_boundary_report.json",
-      "rule_version": "",
-      "schema_version": "",
+      "rule_version": "policyos.layer3.g7.region_widening.v1",
+      "schema_version": "policyos.policy_design_case.layer3_g7_region_widening.v1",
       "slice_id": "G7",
       "source_ref": "repo://architecture/policy_design_case/layer3_g7_g5_g6_authority_boundary_report.json",
-      "status": "missing"
+      "status": "present"
     },
     {
-      "digest": "",
+      "digest": "sha256:6a64db1e82f14884c61bef154f2d9a9bce3bb3d550cc0b4694fa36774e1df89f",
       "format": "json",
       "generated_at": "",
-      "issue_codes": [
-        "layer3_g8_metric_source_missing"
-      ],
+      "issue_codes": [],
       "path": "architecture/policy_design_case/layer3_g7_s14_grounded_breadth_feed.json",
-      "rule_version": "",
-      "schema_version": "",
+      "rule_version": "policyos.layer3.g7.region_widening.v1",
+      "schema_version": "policyos.policy_design_case.layer3_g7_region_widening.v1",
       "slice_id": "G7",
       "source_ref": "repo://architecture/policy_design_case/layer3_g7_s14_grounded_breadth_feed.json",
-      "status": "missing"
+      "status": "present"
     },
     {
-      "digest": "",
+      "digest": "sha256:cfa7532a64965c8d1fe471284ee30f35adc5d5b7a954ce35c464d44b4708ca1a",
       "format": "json",
       "generated_at": "",
-      "issue_codes": [
-        "layer3_g8_metric_source_missing"
-      ],
+      "issue_codes": [],
       "path": "architecture/policy_design_case/layer3_g7_region_scorecard.json",
-      "rule_version": "",
-      "schema_version": "",
+      "rule_version": "policyos.layer3.g7.region_widening.v1",
+      "schema_version": "policyos.policy_design_case.layer3_g7_region_widening.v1",
       "slice_id": "G7",
       "source_ref": "repo://architecture/policy_design_case/layer3_g7_region_scorecard.json",
-      "status": "missing"
+      "status": "present"
     },
     {
-      "digest": "",
+      "digest": "sha256:dc0c0f8c9a1a33944bb5008659644309b1d4ed103e0e73f72eafb4f18373a605",
       "format": "json",
       "generated_at": "",
-      "issue_codes": [
-        "layer3_g8_metric_source_missing"
-      ],
+      "issue_codes": [],
       "path": "architecture/policy_design_case/layer3_g7_region_widening_audit_surface.json",
-      "rule_version": "",
-      "schema_version": "",
+      "rule_version": "policyos.layer3.g7.region_widening.v1",
+      "schema_version": "policyos.policy_design_case.layer3_g7_region_widening.v1",
       "slice_id": "G7",
       "source_ref": "repo://architecture/policy_design_case/layer3_g7_region_widening_audit_surface.json",
-      "status": "missing"
+      "status": "present"
     },
     {
-      "digest": "",
+      "digest": "sha256:4c01a14545ccf8e8f1c7f28e9045d846f37faafa7a6dc3317c2aa79bcded3b32",
       "format": "json",
       "generated_at": "",
-      "issue_codes": [
-        "layer3_g8_metric_source_missing"
-      ],
+      "issue_codes": [],
       "path": "architecture/policy_design_case/layer3_g7_readiness_manifest.json",
-      "rule_version": "",
-      "schema_version": "",
+      "rule_version": "policyos.layer3.g7.region_widening.v1",
+      "schema_version": "policyos.policy_design_case.layer3_g7_region_widening.v1",
       "slice_id": "G7",
       "source_ref": "repo://architecture/policy_design_case/layer3_g7_readiness_manifest.json",
-      "status": "missing"
+      "status": "present"
     },
     {
-      "digest": "",
+      "digest": "sha256:f3feb96f7b0e2c2de5ef461bceefa9c8ccbe819b2039249e295de6968396bd76",
       "format": "json",
       "generated_at": "",
-      "issue_codes": [
-        "layer3_g8_metric_source_missing"
-      ],
+      "issue_codes": [],
       "path": "architecture/policy_design_case/layer3_g7_s14_battery_input_manifest.json",
-      "rule_version": "",
-      "schema_version": "",
+      "rule_version": "policyos.layer3.g7.region_widening.v1",
+      "schema_version": "policyos.policy_design_case.layer3_g7_region_widening.v1",
       "slice_id": "G7",
       "source_ref": "repo://architecture/policy_design_case/layer3_g7_s14_battery_input_manifest.json",
-      "status": "missing"
+      "status": "present"
     },
     {
       "digest": "sha256:cb620831258903387134d3246f5505bdd676e6ff5b7488bc4632237726ff8113",
@@ -590,5 +568,5 @@
       "status": "present"
     }
   ],
-  "status": "blocked"
+  "status": "pass"
 }

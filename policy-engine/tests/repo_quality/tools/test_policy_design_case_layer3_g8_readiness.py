@@ -59,10 +59,10 @@ def test_layer3_g8_readiness_writes_and_passes_current_blocked_value_state() -> 
     assert summary["g8_canonical_metric_count"] == 5
     assert summary["g8_metric_source_count"] >= 44
     assert summary["g8_metric_trend_report_status"] == "pass"
-    assert summary["g8_effective_independence_status"] == "sufficient"
-    assert summary["g8_effective_independent_evidence_count"] == 2
+    assert summary["g8_effective_independence_status"] == "singular"
+    assert summary["g8_effective_independent_evidence_count"] == 1
     assert summary["g8_domain_vs_search_ceiling_status"] == (
-        "not_claimed_current_grounding_blocker"
+        "governance_stall_repair_required"
     )
     assert summary["g8_d44_reannotation_coverage_status"] == "pass"
     assert summary["g8_d44_rebasing_trigger_status"] == "pass_no_rebase_due"

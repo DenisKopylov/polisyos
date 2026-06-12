@@ -14346,13 +14346,6 @@
       "target_root": "foundry"
     },
     {
-      "source_module": "polisyos.runtime.quality.layer3_substrate_grounding",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/quality/layer3_substrate_grounding.py",
-      "target_module": "polisyos.data_forge.read_api.catalog",
-      "target_root": "data_forge"
-    },
-    {
       "source_module": "polisyos.runtime.quality.legacy_migration_sandbox",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/quality/legacy_migration_sandbox.py",

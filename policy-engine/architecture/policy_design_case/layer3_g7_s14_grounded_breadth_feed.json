@@ -48,6 +48,7 @@
   ],
   "grounded_region_case_refs": [],
   "issue_codes": [
+    "layer3_g7_grounded_case_without_governed_promotion",
     "layer3_g7_current_g5_unchanged_blocker",
     "layer3_g7_s14_feed_missing"
   ],

@@ -1605,10 +1605,12 @@ def build_g8_sealed_battery_integrity_join(
     s14_hash = _text(s14.get("sealed_battery_freeze_hash"))
     attempt = dict(rebasing_attempt or {})
     issues: list[str] = []
-    hidden_status = _text(g7_manifest.get("hidden_case_access_status")) or "not_observed"
+    g7_hidden_status = _text(g7_manifest.get("hidden_case_access_status"))
+    hidden_status = "not_observed"
     if partition_hash != s14_hash:
         issues.append("layer3_g8_rebasing_without_freeze_hash")
-    if hidden_status not in {"not_accessed_by_g7", "not_observed"}:
+    if g7_hidden_status and g7_hidden_status != "not_accessed_by_g7":
+        hidden_status = "blocked"
         issues.append("layer3_g8_rebasing_leaks_gold_or_hidden_payload")
     if attempt:
         if _text(attempt.get("pre_rebase_freeze_hash")) != _text(

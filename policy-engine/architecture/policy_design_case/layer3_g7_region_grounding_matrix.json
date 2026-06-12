@@ -52,7 +52,7 @@
       "g4_promotion_record_refs": [
         "g4-promotion-record:g4-request:ua-msme-source-only-valid"
       ],
-      "g4_promotion_state": "governed_promoted",
+      "g4_promotion_state": "promotion_blocked",
       "g5_conversion_outcome": "unchanged_blocker",
       "g5_conversion_record_refs": [
         "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker"
@@ -116,7 +116,7 @@
       "search_authoritative_for": [],
       "search_ledger_refs": [
         "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json",
-        "g1-ledger:construct_to_metric_binding:firm_survival",
+        "g1-ledger:construct_to_metric_binding:credit_access",
         "g1-ledger:scenario_family_to_source_contract:firm_survival"
       ],
       "search_may_not_use_for": [
@@ -213,7 +213,7 @@
       "search_authoritative_for": [],
       "search_ledger_refs": [
         "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json",
-        "g1-ledger:construct_to_metric_binding:firm_survival",
+        "g1-ledger:construct_to_metric_binding:credit_access",
         "g1-ledger:scenario_family_to_source_contract:firm_survival"
       ],
       "search_may_not_use_for": [
@@ -310,7 +310,7 @@
       "search_authoritative_for": [],
       "search_ledger_refs": [
         "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json",
-        "g1-ledger:construct_to_metric_binding:firm_survival",
+        "g1-ledger:construct_to_metric_binding:credit_access",
         "g1-ledger:scenario_family_to_source_contract:firm_survival"
       ],
       "search_may_not_use_for": [
@@ -407,7 +407,7 @@
       "search_authoritative_for": [],
       "search_ledger_refs": [
         "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json",
-        "g1-ledger:construct_to_metric_binding:firm_survival",
+        "g1-ledger:construct_to_metric_binding:credit_access",
         "g1-ledger:scenario_family_to_source_contract:firm_survival"
       ],
       "search_may_not_use_for": [
@@ -445,7 +445,7 @@
       "search://g1/free-growth/ua-msme-adjacent"
     ],
     "search_ledger_refs": [
-      "g1-ledger:construct_to_metric_binding:firm_survival",
+      "g1-ledger:construct_to_metric_binding:credit_access",
       "g1-ledger:scenario_family_to_source_contract:firm_survival"
     ],
     "search_may_not_use_for": [

@@ -10,7 +10,7 @@
     "search://g1/free-growth/ua-msme-adjacent"
   ],
   "search_ledger_refs": [
-    "g1-ledger:construct_to_metric_binding:firm_survival",
+    "g1-ledger:construct_to_metric_binding:credit_access",
     "g1-ledger:scenario_family_to_source_contract:firm_survival"
   ],
   "search_may_not_use_for": [

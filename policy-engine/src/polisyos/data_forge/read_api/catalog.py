@@ -47,6 +47,7 @@ _EXPORTS = {
     "PStarZResult": "polisyos.data_forge.domains.catalog.knowledge.types",
     "ProxyCandidate": "polisyos.data_forge.domains.catalog.knowledge.proxy_resolver",
     "ProxyChain": "polisyos.data_forge.domains.catalog.knowledge.proxy_resolver",
+    "ResolvedFetchTarget": "polisyos.data_forge.domains.catalog.knowledge.types",
     "SearchFilters": "polisyos.data_forge.domains.catalog.knowledge.search",
     "VariableAlignment": "polisyos.data_forge.domains.catalog.knowledge.variable_alignment",
     "build_catalog_source_asset_group": _CATALOG_DOMAIN,

@@ -218,6 +218,26 @@ def _source_only_request_copy() -> dict[str, Any]:
     )
 
 
+def test_g4_runtime_bundle_does_not_promote_placeholder_design_record_digest() -> None:
+    g4 = _g4()
+
+    payload = _dump(g4.build_layer3_g4_bundle(REPO_ROOT))
+
+    promoted = [
+        record
+        for record in payload["promotion_records"]
+        if record["promotion_state"] == "governed_promoted"
+    ]
+    assert not any(
+        record["source_design_record_digest"]
+        == "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+        for record in promoted
+    )
+    assert "layer3_g4_placeholder_design_record_promoted" in payload[
+        "readiness_manifest"
+    ]["issue_codes"]
+
+
 def _authority_boundary() -> dict[str, Any]:
     return {
         "authoritative_for": ["mandate_bounded_decision_record"],

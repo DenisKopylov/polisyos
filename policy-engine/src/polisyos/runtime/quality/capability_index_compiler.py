@@ -109,11 +109,6 @@ L5_DERIVED_PARQUET_NAMES = frozenset(
         "survival_hazard_estimates.parquet",
     }
 )
-KNOWN_CONSTRUCTS = (
-    "firm_survival",
-    "credit_program_enrollment",
-    "regional_displacement_pressure",
-)
 CREDIT_PROGRAM_ENROLLMENT_STRATEGY_IDS = (
     "acquisition:acquire_from_nbu_registry",
     "acquisition:derive_proxy_from_tax_relief_records",
@@ -1479,7 +1474,7 @@ def build_white_space_nodes(
         if _capability_observes_construct(capability)
     }
     nodes: dict[str, FailureModeNode] = {}
-    for construct in KNOWN_CONSTRUCTS:
+    for construct in _white_space_construct_universe(capabilities):
         if construct not in observed:
             _add_failure_node(
                 nodes,
@@ -1556,6 +1551,18 @@ def build_white_space_nodes(
                 severity="blocking_production",
             )
     return tuple(nodes[key] for key in sorted(nodes))
+
+
+def _white_space_construct_universe(
+    capabilities: Sequence[EvidenceCapability],
+) -> tuple[str, ...]:
+    constructs = {
+        capability.construct_id
+        for capability in capabilities
+        if not capability.compatibility_only and capability.construct_id
+    }
+    constructs.update(CONSTRUCT_DOMAINS)
+    return tuple(sorted(constructs))
 
 
 def build_acquisition_strategies(

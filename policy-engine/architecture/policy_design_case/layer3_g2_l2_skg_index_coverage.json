@@ -30,7 +30,7 @@
     "required_tables_present": true,
     "skg_query_api_route": "polisyos.data_forge.read_api.academic.SKGQuery",
     "skg_query_construction_status": "pass",
-    "skg_snapshot_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb#v1",
+    "skg_snapshot_ref": "duckdb:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb#v1",
     "skg_version_id": 1,
     "snapshot_hash_ref": "sha256:bc03583dc1cd4eea716a1cc0628aa4a3d06d0f8fea68debed84d3b5ae6b293f8",
     "status": "pass"

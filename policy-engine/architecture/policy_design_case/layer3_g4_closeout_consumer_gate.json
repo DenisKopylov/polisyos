@@ -30,8 +30,7 @@
     "g4-promotion-record:g4-request:blocked-effect"
   ],
   "promotion_states": {
-    "governed_promoted": 1,
-    "promotion_blocked": 1
+    "promotion_blocked": 2
   },
   "status": "pass"
 }

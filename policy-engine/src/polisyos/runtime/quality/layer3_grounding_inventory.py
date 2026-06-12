@@ -45,6 +45,7 @@ CapabilityDisposition = Literal[
     "integrate_after_refactor",
     "wrap_then_strangle",
     "quarantine",
+    "surface_out_of_scope",
 ]
 DataKind = Literal["data_asset", "acquisition", "processing_transform"]
 AdapterMaturity = Literal["fail_closed", "predictive", "calibrated"]
@@ -193,7 +194,7 @@ class ValidationReport(Layer2ReadinessModel):
 class CapabilityInventoryEntry(Layer2ReadinessModel):
     """Inventory row for a package or data/corpus source root."""
 
-    capability_id: str = Field(..., min_length=1, max_length=200)
+    capability_id: str = Field(..., min_length=1, max_length=300)
     package_kind: str = Field(..., min_length=1, max_length=120)
     path: str = Field(..., min_length=1, max_length=500)
     file_count: int = Field(default=0, ge=0)
@@ -385,7 +386,7 @@ class RequiredDataAssetRoot(Layer2ReadinessModel):
 class CapabilityTriageRecord(Layer2ReadinessModel):
     """Triage disposition for a capability source before adapter admission."""
 
-    capability_id: str = Field(..., min_length=1, max_length=200)
+    capability_id: str = Field(..., min_length=1, max_length=300)
     disposition: CapabilityDisposition
     rationale: str = Field(..., min_length=1, max_length=1000)
     evidence_refs: list[str] = Field(..., min_length=1, max_length=60)
@@ -1650,8 +1651,8 @@ def build_layer3_g0_bundle(repo_root: Path) -> Layer3G0Bundle:
     adapter_paths = load_source_truth_adapter_paths(
         repo_root / "architecture/production_quality/source_truth_lattice.toml"
     )
-    triage = _default_triage_records()
-    quarantine = [_scenario_family_quarantine()]
+    triage = _complete_triage_records(capability_inventory, data_asset_inventory)
+    quarantine = [_scenario_family_quarantine(), _lex_binary_status_quarantine()]
     adapter_registry = _adapter_admission_records(touchpoints.registrations)
     data_ports = _data_asset_ports(data_asset_inventory)
     conformance = ConformanceHarnessRecord(
@@ -2622,13 +2623,7 @@ def validate_first_vertical_case_record(
 
 
 def _default_triage_records() -> list[CapabilityTriageRecord]:
-    authority = AuthorityBoundary(
-        authoritative_for=["layer3_g0_pre_adapter_triage"],
-        may_not_use_for=["adapter_admission", "publication_authority"],
-        source_authority="deterministic_producer",
-        posture="shadow",
-        rule_version_refs=[LAYER3_G0_RULE_VERSION],
-    )
+    authority = _triage_authority_boundary()
     return [
         CapabilityTriageRecord(
             capability_id="scenario_family_authority_selector",
@@ -2665,6 +2660,87 @@ def _default_triage_records() -> list[CapabilityTriageRecord]:
     ]
 
 
+def _triage_authority_boundary() -> AuthorityBoundary:
+    return AuthorityBoundary(
+        authoritative_for=["layer3_g0_pre_adapter_triage"],
+        may_not_use_for=["adapter_admission", "publication_authority"],
+        source_authority="deterministic_producer",
+        posture="shadow",
+        rule_version_refs=[LAYER3_G0_RULE_VERSION],
+    )
+
+
+def _complete_triage_records(
+    capability_inventory: CapabilityDataInventory,
+    data_asset_inventory: DataAssetInventory,
+) -> list[CapabilityTriageRecord]:
+    records = list(_default_triage_records())
+    seen = {record.capability_id for record in records}
+    authority = _triage_authority_boundary()
+    for entry in capability_inventory.entries:
+        if entry.capability_id in seen:
+            continue
+        records.append(
+            CapabilityTriageRecord(
+                capability_id=entry.capability_id,
+                disposition="surface_out_of_scope",
+                rationale=(
+                    "Inventory row is visible to G0 but is not adapter-admitted by "
+                    "pre-adapter triage."
+                ),
+                evidence_refs=list(
+                    dict.fromkeys(entry.source_refs or [entry.owner_evidence_ref])
+                )[:60],
+                missing_capability_labels=[entry.current_capability_label],
+                quarantine_ref=None,
+                adapter_admissibility="not_admitted_pre_adapter",
+                authority_boundary=authority,
+            )
+        )
+        seen.add(entry.capability_id)
+    for asset in data_asset_inventory.data_assets:
+        if asset.asset_id in seen:
+            continue
+        records.append(
+            CapabilityTriageRecord(
+                capability_id=asset.asset_id,
+                disposition="surface_out_of_scope",
+                rationale=(
+                    "Data asset is inventoried for lineage/rights/freshness but is "
+                    "not a capability until a source-contract adapter consumes it."
+                ),
+                evidence_refs=[asset.owner_evidence_ref],
+                missing_capability_labels=["implemented_but_not_orchestrated"],
+                quarantine_ref=None,
+                adapter_admissibility="data_asset_port_required",
+                authority_boundary=authority,
+            )
+        )
+        seen.add(asset.asset_id)
+    for transform in data_asset_inventory.processing_transforms:
+        if transform.transform_id in seen:
+            continue
+        records.append(
+            CapabilityTriageRecord(
+                capability_id=transform.transform_id,
+                disposition="surface_out_of_scope",
+                rationale=(
+                    "Processing transform is inventoried as a replayable producer "
+                    "candidate; G0 triage does not admit it as source authority."
+                ),
+                evidence_refs=list(
+                    dict.fromkeys(transform.transform_script_refs or [transform.owner_evidence_ref])
+                )[:60],
+                missing_capability_labels=["producer_missing"],
+                quarantine_ref=None,
+                adapter_admissibility="producer_contract_required",
+                authority_boundary=authority,
+            )
+        )
+        seen.add(transform.transform_id)
+    return records
+
+
 def _scenario_family_quarantine() -> QuarantineRegistryEntry:
     return QuarantineRegistryEntry(
         target_id="scenario_family_authority_selector",
@@ -2674,6 +2750,18 @@ def _scenario_family_quarantine() -> QuarantineRegistryEntry:
         blocker_codes=["layer3_g0_quarantined_source_admitted"],
         enforcement_surface="adapter_admission_registry",
         release_condition="source-truth adapter path and human retriage required",
+    )
+
+
+def _lex_binary_status_quarantine() -> QuarantineRegistryEntry:
+    return QuarantineRegistryEntry(
+        target_id="lex_binary_status_candidate",
+        target_kind="data_asset",
+        reason="Binary Lex projection cannot substitute for graded legal authority.",
+        pattern_ids=["P04", "P05", "P10"],
+        blocker_codes=["layer3_g0_quarantined_source_admitted"],
+        enforcement_surface="adapter_admission_registry",
+        release_condition="graded Lex authority adapter and semantic tests required",
     )
 
 

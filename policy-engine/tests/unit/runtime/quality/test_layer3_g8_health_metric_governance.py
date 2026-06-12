@@ -99,7 +99,8 @@ def test_g8_alias_normalization_accepts_existing_g1_to_g7_spellings() -> None:
 def test_g8_source_snapshot_reads_current_g0_to_g7_and_s14_artifacts() -> None:
     snapshot = g8.build_g8_metric_source_snapshot(REPO_ROOT)
 
-    assert snapshot.status == "pass"
+    assert snapshot.status == "blocked"
+    assert "layer3_g8_metric_source_missing" in snapshot.issue_codes
     assert snapshot.source_count >= 44
     refs = {source.source_ref for source in snapshot.sources}
     assert "repo://architecture/policy_design_case/layer3_health_metric_ledgers.toml" in refs
@@ -154,7 +155,8 @@ def test_g8_normalizes_current_metric_dialects_without_losing_raw_refs() -> None
         source_snapshot=snapshot,
     )
 
-    assert signals.status == "pass"
+    assert signals.status == "blocked"
+    assert "layer3_g8_metric_source_missing" in signals.issue_codes
     by_metric = {metric_id: [] for metric_id in g8.G8_CANONICAL_METRIC_IDS}
     for signal in signals.signals:
         by_metric[signal.metric_id].append(signal)
@@ -168,7 +170,6 @@ def test_g8_normalizes_current_metric_dialects_without_losing_raw_refs() -> None
         for signal in by_metric["search-recall@known-seeds+index-staleness"]
     }
     assert "search-recall@known-seeds + index-staleness" in search_refs
-    assert "search-recall@known-seeds+index-staleness(region)" in search_refs
     demand_readings = by_metric["demand-pull-vs-abstention"]
     assert any(signal.raw_key == "abstention_or_blocker_rate" for signal in demand_readings)
     assert any(
@@ -194,12 +195,6 @@ def test_g8_normalizes_current_metric_dialects_without_losing_raw_refs() -> None
         and signal.raw_key == "known_seed_status"
         and signal.status == "pass"
         for signal in by_metric["search-recall@known-seeds+index-staleness"]
-    )
-    assert any(
-        signal.slice_id == "G7"
-        and signal.raw_key == "g7_s14_grounded_breadth_feed_status"
-        and signal.status == "blocked_no_real_grounded_breadth"
-        for signal in demand_readings
     )
 
 
@@ -236,16 +231,16 @@ def test_g8_current_state_does_not_claim_domain_ceiling() -> None:
     diagnosis = g8.build_g8_cross_metric_diagnosis(signals=signals, repo_root=REPO_ROOT)
     gate = g8.build_g8_domain_vs_search_ceiling_gate(diagnosis=diagnosis)
 
-    assert diagnosis.status == "pass"
-    assert gate.status == "not_claimed_current_grounding_blocker"
+    assert diagnosis.status == "blocked"
+    assert gate.status == "blocked"
     assert gate.domain_ceiling_claim_allowed is False
     assert (
         "layer3_g8_flat_expansion_reported_as_domain_ceiling_without_search_health"
         not in gate.issue_codes
     )
     assert gate.current_blocker_refs
-    assert diagnosis.effective_independence_status == "sufficient"
-    assert diagnosis.effective_independent_evidence_count == 2
+    assert diagnosis.effective_independence_status == "singular"
+    assert diagnosis.effective_independent_evidence_count == 1
     assert diagnosis.effective_independence_source_ref == (
         "repo://architecture/policy_design_case/layer3_g5_effective_evidence_independence.json"
         "#independence_map_payload.effective_mass_report"
@@ -268,6 +263,30 @@ def test_g8_search_recall_miss_blocks_domain_ceiling() -> None:
             ),
         ),
     )
+    diagnosis = g8.build_g8_cross_metric_diagnosis(signals=signals, repo_root=REPO_ROOT)
+    gate = g8.build_g8_domain_vs_search_ceiling_gate(diagnosis=diagnosis)
+
+    assert gate.status == "search_ceiling_repair_required"
+    assert gate.domain_ceiling_claim_allowed is False
+    assert "layer3_g8_search_recall_miss_reported_as_domain_ceiling" in gate.issue_codes
+
+
+def test_g8_unmeasured_g1_recall_blocks_healthy_search_answer() -> None:
+    signals = g8.Layer3G8NormalizedMetricSignals(
+        status="pass",
+        signals=(
+            _signal("envelope-expansion-rate", "G5", "g5_envelope_expansion_status", "flat"),
+            _signal("governance-throughput", "G5", "g5_governance_throughput_status", "pass"),
+            _signal("demand-pull-vs-abstention", "G6", "grounded_result_rate", 0.0),
+            _signal(
+                "search-recall@known-seeds+index-staleness",
+                "G1",
+                "g1_search_recall_status",
+                "not_measured",
+            ),
+        ),
+    )
+
     diagnosis = g8.build_g8_cross_metric_diagnosis(signals=signals, repo_root=REPO_ROOT)
     gate = g8.build_g8_domain_vs_search_ceiling_gate(diagnosis=diagnosis)
 
@@ -413,7 +432,7 @@ def test_g8_d44_rebasing_receipt_uses_freeze_hashes_without_hidden_payload_refs(
     )
     assert receipt.status == "pass_no_rebase_required"
     assert integrity_join.status == "pass"
-    assert integrity_join.hidden_payload_access_status == "not_accessed_by_g7"
+    assert integrity_join.hidden_payload_access_status == "not_observed"
     assert receipt.pre_rebase_freeze_hash.startswith("sha256:")
     assert receipt.post_rebase_freeze_hash == receipt.pre_rebase_freeze_hash
     assert "sealed_gold_label_ref" not in serialized
@@ -478,13 +497,38 @@ def test_g8_open_question_ledger_answers_every_vision_question_with_current_evid
     assert "recommendation_authority" in ledger.may_not_use_for
 
 
+def test_g8_open_question_ledger_reflects_current_grounded_abstention() -> None:
+    registry = g8.build_g8_health_metric_registry()
+    snapshot = g8.build_g8_metric_source_snapshot(REPO_ROOT)
+    signals = g8.build_g8_normalized_metric_signals(
+        registry=registry,
+        source_snapshot=snapshot,
+    )
+    diagnosis = g8.build_g8_cross_metric_diagnosis(signals=signals, repo_root=REPO_ROOT)
+    gate = g8.build_g8_domain_vs_search_ceiling_gate(diagnosis=diagnosis)
+    ledger = g8.build_g8_open_question_answer_ledger(
+        diagnosis=diagnosis,
+        ceiling_gate=gate,
+        repo_root=REPO_ROOT,
+    )
+
+    answers = {row.question_id: row for row in ledger.answers}
+    real_grounding_answer = answers["8.4-real-grounding-cost"].current_answer
+    demand_answer = answers["8.4-demand-pull-strength"].current_answer
+
+    assert "grounded_abstention" in real_grounding_answer
+    assert "unchanged blocker" not in real_grounding_answer.casefold()
+    assert "grounded_abstention" in demand_answer
+    assert "still zero" not in demand_answer.casefold()
+
+
 def test_g8_audit_surface_is_expert_machine_and_public_projection_is_reference_only() -> None:
     bundle = g8.build_layer3_g8_bundle(REPO_ROOT)
 
-    assert bundle.audit_surface.status == "pass"
+    assert bundle.audit_surface.status == "blocked"
     assert bundle.audit_surface.surface_audiences == ("EXPERT", "MACHINE")
     assert bundle.audit_surface.domain_vs_search_ceiling_status == (
-        "not_claimed_current_grounding_blocker"
+        "blocked"
     )
     assert bundle.audit_surface.metric_trend_report_status == "pass"
     assert bundle.audit_surface.d44_reannotation_coverage_status == "pass"

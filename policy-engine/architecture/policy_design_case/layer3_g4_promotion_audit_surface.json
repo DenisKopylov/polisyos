@@ -7,7 +7,9 @@
   ],
   "blocker_refs": [
     "layer3_g4_missing_g2_calibration_ref",
-    "layer3_g4_missing_g2_forecast_support"
+    "layer3_g4_missing_g2_forecast_support",
+    "layer3_g4_placeholder_design_record_promoted",
+    "layer3_g4_w12d_manifest_only_not_payload"
   ],
   "issue_codes": [],
   "limitation_refs": [],
@@ -37,8 +39,7 @@
     "g4-promotion-record:g4-request:blocked-effect"
   ],
   "promotion_state_counts": {
-    "governed_promoted": 1,
-    "promotion_blocked": 1
+    "promotion_blocked": 2
   },
   "surface_audiences": [
     "PUBLIC",

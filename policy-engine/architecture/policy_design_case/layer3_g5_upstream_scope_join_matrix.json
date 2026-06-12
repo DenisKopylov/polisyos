@@ -1,28 +1,19 @@
 {
   "case_id": "ua-msme-affordable-loans-2022",
-  "g1_conversion_scope_disposition": "substrate_only_limited",
-  "g1_grounding_status": "observed_but_uncertain",
-  "g1_may_not_use_for": [
-    "claim_authority",
-    "causal_effect",
-    "policy_recommendation",
-    "publishability",
-    "adapter_promotion",
-    "useful_design_credit",
-    "production_authority",
-    "search_hit_as_authority"
-  ],
-  "g1_observed_through": "2026-04-10",
-  "g1_source_contract_content_hash": "sha256:b4a2bd9b7050dc68fefa7576b5f9421594b3f76847658f555bbc925a54103341",
-  "g1_source_contract_ref": "source-contract://layer3.ua_msme.firm_survival.panel",
+  "g1_conversion_scope_disposition": "blocked_missing_source_contract",
+  "g1_grounding_status": "missing",
+  "g1_may_not_use_for": [],
+  "g1_observed_through": null,
+  "g1_source_contract_content_hash": null,
+  "g1_source_contract_ref": null,
   "g2_design_record_alias_resolution": {
     "issue_codes": [],
-    "normalized_ref": "pdc://layer2/s2/ua-msme/design-record-v0",
-    "source_ref": "pdc://layer2/s2/ua-msme/design-record-v0",
-    "status": "pass"
+    "normalized_ref": null,
+    "source_ref": null,
+    "status": "not_required"
   },
   "g2_s2_replay_key_refs": [],
-  "g2_source_contract_ref": "source-contract://ua-msme/server-support",
+  "g2_source_contract_ref": "source-contract://ua-msme/credit-access-firm-survival",
   "g3_proof_status": "identified",
   "g3_source_lineage_refs": [
     "polisyos.ir.analytics.causal.persist_proof_bundle",
@@ -32,14 +23,16 @@
   ],
   "gl_reissue_status": "reissue_required",
   "issue_codes": [
-    "layer3_g5_g1_observed_but_uncertain_overclaimed",
+    "layer3_g5_g1_source_contract_hash_missing",
+    "layer3_g5_g1_observed_time_missing",
+    "layer3_g5_g1_may_not_use_for_dropped",
     "layer3_g5_g2_s2_replay_key_ref_missing",
-    "layer3_g5_g2_source_contract_ref_mismatch",
+    "layer3_g5_missing_g2_calibration_ref",
     "layer3_g5_g3_proof_status_overclaimed",
     "layer3_g5_duplicate_source_lineage_ref_inflates_independence",
     "layer3_g5_gl_pass_with_reissue_required"
   ],
   "rule_version": "policyos.layer3.g5.first_proving_ground_conversion.v1",
   "schema_version": "policyos.policy_design_case.layer3_g5_proving_ground_conversion.v1",
-  "status": "limited"
+  "status": "fail"
 }

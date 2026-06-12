@@ -19,8 +19,8 @@ from polisyos.runtime.quality.capability_index import (
     QualityScore,
     RightsEnvelope,
 )
+from polisyos.core.contracts import REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS
 from polisyos.runtime.quality.capability_resolver import (
-    REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS,
     RequirementToCapabilityQuery,
     RequirementToCapabilityResolver,
 )

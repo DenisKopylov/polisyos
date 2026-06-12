@@ -1,14 +1,19 @@
 {
   "authority_envelopes": [
     {
-      "issue_codes": [],
-      "record_id": "layer3-g2-authority-envelope:d2e200eeba7556ddca1aaec3",
-      "refs": [
-        "pdc://layer3/g2/ua-msme-affordable-loans-2022/forecast-support/d65f61522884e1cd85048188/authority-envelope",
-        "pdc://layer3/g2/ua-msme-affordable-loans-2022/forecast-support/d65f61522884e1cd85048188",
-        "pdc://layer3/g2/ua-msme/calibration/observable-subset"
+      "issue_codes": [
+        "layer3_g2_method_validity_missing",
+        "layer3_g2_s10_prerequisite_binding_missing",
+        "layer3_g2_observable_calibration_required",
+        "layer3_g2_forecast_support_invalid",
+        "layer3_g2_adapter_maturity_overclaim",
+        "layer3_g2_synthetic_calibration_overclaim"
       ],
-      "status": "pass"
+      "record_id": "layer3-g2-authority-envelope:d28242d1253d063b88a1aedb",
+      "refs": [
+        "pdc://layer3/g2/ua-msme-affordable-loans-2022/forecast-support/eee7b28ed5e3ea5bd8cfabf6"
+      ],
+      "status": "fail"
     }
   ],
   "rule_version": "policyos.layer3.g2.causal_forecast_search.v1",

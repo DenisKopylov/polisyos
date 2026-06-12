@@ -1,9 +1,12 @@
 {
-  "issue_codes": [],
+  "issue_codes": [
+    "layer3_g4_w12d_manifest_only_not_payload",
+    "layer3_g4_placeholder_design_record_promoted"
+  ],
   "promotion_inputs": [
     {
       "candidate_ref": "s2-design-candidate:ua-msme-credit-support",
-      "candidate_source": "shadow_design_record_v0",
+      "candidate_source": "layer2_s2_design_search_manifest",
       "case_id": "ua-msme-affordable-loans-2022",
       "claim_refs": [
         "claim://ua-msme/firm-survival/source-data-grounding"
@@ -35,7 +38,10 @@
         "rationale": "Routine, non-high-stakes source/data-only promotion within a bounded envelope."
       },
       "incoming_projection_status": "shadow",
-      "issue_codes": [],
+      "issue_codes": [
+        "layer3_g4_w12d_manifest_only_not_payload",
+        "layer3_g4_placeholder_design_record_promoted"
+      ],
       "may_not_use_for": [
         "production_authority",
         "production_claim_authority",
@@ -70,10 +76,10 @@
       "required_contract_families": [
         "g1_source_contract"
       ],
-      "source_design_record_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
-      "source_design_record_ref": "cas://s2/design-record/ua-msme-credit-support",
-      "source_design_record_replay_ref": "cas://s2/search-run/ua-msme-credit-support",
-      "source_design_record_resolution_status": "full_payload",
+      "source_design_record_digest": "sha256:4985ce6c2b4ce6a9e2cb11a477dbc6dff499b78198f250fa551a5ad7696ea5ba",
+      "source_design_record_ref": "repo://architecture/policy_design_case/layer2_s2_design_search_manifest.json",
+      "source_design_record_replay_ref": "repo://architecture/policy_design_case/layer2_s2_design_search_manifest.json",
+      "source_design_record_resolution_status": "manifest_only",
       "stakes_profile": {
         "accountability_sensitive": false,
         "high_stakes": false,
@@ -84,7 +90,7 @@
     },
     {
       "candidate_ref": "s2-design-candidate:blocked-effect",
-      "candidate_source": "shadow_design_record_v0",
+      "candidate_source": "layer2_s2_design_search_manifest",
       "case_id": "ua-msme-affordable-loans-2022",
       "claim_refs": [
         "claim://ua-msme/firm-survival/effect-forecast"
@@ -116,7 +122,10 @@
         "rationale": "Routine, non-high-stakes source/data-only promotion within a bounded envelope."
       },
       "incoming_projection_status": "shadow",
-      "issue_codes": [],
+      "issue_codes": [
+        "layer3_g4_w12d_manifest_only_not_payload",
+        "layer3_g4_placeholder_design_record_promoted"
+      ],
       "may_not_use_for": [
         "production_authority",
         "production_claim_authority",
@@ -153,10 +162,10 @@
         "g1_source_contract",
         "g2_forecast_support"
       ],
-      "source_design_record_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
-      "source_design_record_ref": "cas://s2/design-record/ua-msme-credit-support",
-      "source_design_record_replay_ref": "cas://s2/search-run/ua-msme-credit-support",
-      "source_design_record_resolution_status": "full_payload",
+      "source_design_record_digest": "sha256:4985ce6c2b4ce6a9e2cb11a477dbc6dff499b78198f250fa551a5ad7696ea5ba",
+      "source_design_record_ref": "repo://architecture/policy_design_case/layer2_s2_design_search_manifest.json",
+      "source_design_record_replay_ref": "repo://architecture/policy_design_case/layer2_s2_design_search_manifest.json",
+      "source_design_record_resolution_status": "manifest_only",
       "stakes_profile": {
         "accountability_sensitive": false,
         "high_stakes": false,
@@ -169,7 +178,7 @@
   "promotion_requests": [
     {
       "candidate_ref": "s2-design-candidate:ua-msme-credit-support",
-      "candidate_source": "shadow_design_record_v0",
+      "candidate_source": "layer2_s2_design_search_manifest",
       "case_id": "ua-msme-affordable-loans-2022",
       "claim_refs": [
         "claim://ua-msme/firm-survival/source-data-grounding"
@@ -217,15 +226,16 @@
       ],
       "source_design_record": {
         "authority_posture": "shadow",
-        "digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
-        "payload_status": "full_payload",
-        "ref": "cas://s2/design-record/ua-msme-credit-support",
-        "replay_ref": "cas://s2/search-run/ua-msme-credit-support"
+        "digest": "sha256:4985ce6c2b4ce6a9e2cb11a477dbc6dff499b78198f250fa551a5ad7696ea5ba",
+        "payload_status": "manifest_only",
+        "ref": "repo://architecture/policy_design_case/layer2_s2_design_search_manifest.json",
+        "replay_ref": "repo://architecture/policy_design_case/layer2_s2_design_search_manifest.json",
+        "resolution_strategy": "layer2_s2_manifest_digest_only"
       }
     },
     {
       "candidate_ref": "s2-design-candidate:blocked-effect",
-      "candidate_source": "shadow_design_record_v0",
+      "candidate_source": "layer2_s2_design_search_manifest",
       "case_id": "ua-msme-affordable-loans-2022",
       "claim_refs": [
         "claim://ua-msme/firm-survival/effect-forecast"
@@ -275,14 +285,15 @@
       ],
       "source_design_record": {
         "authority_posture": "shadow",
-        "digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
-        "payload_status": "full_payload",
-        "ref": "cas://s2/design-record/ua-msme-credit-support",
-        "replay_ref": "cas://s2/search-run/ua-msme-credit-support"
+        "digest": "sha256:4985ce6c2b4ce6a9e2cb11a477dbc6dff499b78198f250fa551a5ad7696ea5ba",
+        "payload_status": "manifest_only",
+        "ref": "repo://architecture/policy_design_case/layer2_s2_design_search_manifest.json",
+        "replay_ref": "repo://architecture/policy_design_case/layer2_s2_design_search_manifest.json",
+        "resolution_strategy": "layer2_s2_manifest_digest_only"
       }
     }
   ],
   "rule_version": "policyos.layer3.g4.shadow_to_governed_promotion.v1",
   "schema_version": "policyos.policy_design_case.layer3_g4_promotion_gate.v1",
-  "status": "pass"
+  "status": "fail"
 }

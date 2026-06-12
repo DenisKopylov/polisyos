@@ -805,6 +805,32 @@ def test_g2_runtime_exposes_plan_dtos_builders_validators_and_issue_codes() -> N
     assert issue_codes >= REQUIRED_ISSUE_CODES
 
 
+def test_g2_default_persisted_request_uses_pinned_credit_survival_semantics() -> None:
+    g2 = _g2()
+
+    request = g2._default_g2_method_request()
+
+    assert request.case_id == "ua-msme-affordable-loans-2022"
+    assert request.cause == "policy.credit_access"
+    assert request.effect == "firm.survival"
+
+
+def test_g2_synthetic_fixture_candidate_cannot_produce_persisted_calibrated() -> None:
+    g2 = _g2()
+    bundle = g2.build_layer3_g2_bundle(REPO_ROOT)
+    payload = _dump(bundle)
+
+    assert payload["readiness_manifest"]["adapter_maturity"] == "fail_closed"
+    assert payload["readiness_manifest"]["status"] == "fail"
+    assert "layer3_g2_synthetic_calibration_overclaim" in payload[
+        "readiness_manifest"
+    ]["issue_codes"]
+    assert not any(
+        binding["adapter_maturity"] == "calibrated"
+        for binding in payload["forecast_support_bindings"]
+    )
+
+
 def test_g2_bundle_builder_returns_all_persisted_contract_sections() -> None:
     bundle = _g2().build_layer3_g2_bundle(REPO_ROOT)
 
@@ -815,9 +841,13 @@ def test_g2_bundle_builder_returns_all_persisted_contract_sections() -> None:
     assert set(payload) >= EXPECTED_BUNDLE_SECTIONS
     assert payload["readiness_manifest"]["schema_version"] == G2_SCHEMA_VERSION
     assert payload["readiness_manifest"]["rule_version"] == G2_RULE_VERSION
-    assert payload["conformance_report"]["status"] == "pass"
-    assert payload["conformance_report"]["conformance_status"] == "pass"
-    assert payload["conformance_report"]["issue_codes"] == []
+    assert payload["readiness_manifest"]["status"] == "fail"
+    assert payload["readiness_manifest"]["adapter_maturity"] == "fail_closed"
+    assert payload["conformance_report"]["status"] == "fail"
+    assert payload["conformance_report"]["conformance_status"] == "fail"
+    assert "layer3_g2_synthetic_calibration_overclaim" in payload[
+        "conformance_report"
+    ]["issue_codes"]
 
 
 def test_g2_conformance_passes_for_runtime_bundle_and_summarizes_final_gates() -> None:
@@ -826,16 +856,16 @@ def test_g2_conformance_passes_for_runtime_bundle_and_summarizes_final_gates() -
 
     report = _dump(g2.validate_g2_adapter_conformance(REPO_ROOT, bundle))
 
-    assert report["status"] == "pass"
-    assert report["conformance_status"] == "pass"
-    assert report["issue_codes"] == []
-    assert report["capability_reality_label"] == "implemented"
-    assert report["check_statuses"]["g2_conformance_status"] == "pass"
+    assert report["status"] == "fail"
+    assert report["conformance_status"] == "fail"
+    assert "layer3_g2_synthetic_calibration_overclaim" in report["issue_codes"]
+    assert report["capability_reality_label"] == "semantic_test_missing"
+    assert report["check_statuses"]["g2_conformance_status"] == "fail"
     assert report["check_statuses"]["g2_l2_skg_coverage_status"] == "pass"
     assert report["check_statuses"]["g2_foundry_method_registry_search_status"] == "pass"
-    assert report["check_statuses"]["g2_method_requirement_status"] == "pass"
+    assert report["check_statuses"]["g2_method_requirement_status"] == "fail"
     assert report["check_statuses"]["g2_semantic_binding_spine_status"] == "pass"
-    assert report["check_statuses"]["g2_w12d_consumer_gate_status"] == "pass"
+    assert report["check_statuses"]["g2_w12d_consumer_gate_status"] == "fail"
     assert report["check_statuses"]["g2_engineering_quality_status"] == "pass"
 
 

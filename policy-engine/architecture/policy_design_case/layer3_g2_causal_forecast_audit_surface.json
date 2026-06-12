@@ -2,15 +2,16 @@
   "causal_forecast_audit_surface": {
     "denied_use_visibility": true,
     "forecast_support_refs": [
-      "pdc://layer3/g2/ua-msme-affordable-loans-2022/forecast-support/d65f61522884e1cd85048188"
+      "pdc://layer3/g2/ua-msme-affordable-loans-2022/forecast-support/eee7b28ed5e3ea5bd8cfabf6"
     ],
-    "forecast_tiers": [
-      "observable_calibrated"
-    ],
+    "forecast_tiers": [],
     "handoff_refs": [
-      "g2-grounded-forecast-handoff:f736412ede9cc6b1a9617a45"
+      "g2-grounded-forecast-handoff:5488820a59a03c358628673a"
     ],
-    "issue_codes": [],
+    "issue_codes": [
+      "layer3_g2_forecast_support_missing",
+      "layer3_g2_s10_consumer_bridge_missing"
+    ],
     "limitation_refs": [
       "limitation://forecast/support-only"
     ],
@@ -31,10 +32,9 @@
       "s11_calibration",
       "s12_envelope_growth",
       "s13_accountability_closure",
-      "s14_universality",
-      "preference_learning_authority"
+      "s14_universality"
     ],
-    "public_forecast_tier_visibility": true,
+    "public_forecast_tier_visibility": false,
     "public_limitation_visibility": true,
     "public_uncertainty_visibility": true,
     "raw_query_ledger_audiences": [
@@ -42,7 +42,7 @@
       "MACHINE"
     ],
     "raw_query_ledger_refs": [
-      "g2-skg-search-ledger:2a5fe403f11b0189ce13d34a"
+      "g2-skg-search-ledger:93a24f4d5b2389fabb974018"
     ],
     "record_id": "layer3-g2-causal-forecast-audit-surface",
     "replay_field_refs": [
@@ -57,7 +57,7 @@
     ],
     "rule_version": "policyos.layer3.g2.causal_forecast_search.v1",
     "schema_version": "policyos.policy_design_case.layer3_g2_causal_forecast.v1",
-    "status": "pass",
+    "status": "fail",
     "surface_audiences": [
       "PUBLIC",
       "REVIEWER",
@@ -66,7 +66,7 @@
     ],
     "surface_id": "layer3_g2_causal_forecast_audit_surface",
     "uncertainty_interval_refs": [
-      "interval://ua-msme/fertilizer-support/95"
+      "interval://ua-msme/credit-survival/95"
     ]
   },
   "rule_version": "policyos.layer3.g2.causal_forecast_search.v1",

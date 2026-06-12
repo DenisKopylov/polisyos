@@ -1,6 +1,13 @@
 {
-  "blocker_refs": [],
-  "issue_codes": [],
+  "blocker_refs": [
+    "layer3_g4_placeholder_design_record_promoted",
+    "layer3_g4_w12d_manifest_only_not_payload"
+  ],
+  "issue_codes": [
+    "layer3_g4_w12d_manifest_only_not_payload",
+    "layer3_g4_placeholder_design_record_promoted",
+    "layer3_g4_a_completeness_failed"
+  ],
   "limitation_refs": [],
   "missing_requirement_count": 0,
   "requirements": [
@@ -16,5 +23,5 @@
       ]
     }
   ],
-  "status": "pass"
+  "status": "fail"
 }

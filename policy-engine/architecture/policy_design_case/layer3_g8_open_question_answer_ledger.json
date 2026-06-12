@@ -14,10 +14,10 @@
     {
       "answer_status": "provisional_insufficient_data",
       "authority_boundary": "empirical_governance_reading_only",
-      "current_answer": "Current G5/G7 readings prove engineering readiness and honest blockers, not a domain ceiling: G5 remains an unchanged blocker and G7 has zero grounded regional breadth.",
+      "current_answer": "Current G5 readings record a grounded_abstention for the pinned case: the waist converted a typed blocker into an honest abstention, with useful-design credit count 0. G7 still has no grounded regional breadth, so this is not domain-ceiling evidence.",
       "evidence_refs": [
-        "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json#g5_conversion_outcome",
-        "repo://architecture/policy_design_case/layer3_g7_readiness_manifest.json#g7_region_value_closure_status",
+        "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json",
+        "repo://architecture/policy_design_case/layer3_g5_conversion_eligibility_ledger.json",
         "repo://architecture/policy_design_case/layer3_g7_readiness_manifest.json#g7_region_grounded_case_count"
       ],
       "question": "Is real grounding achievable at acceptable cost in the target domains, or is the honest equilibrium mostly abstention?",
@@ -26,8 +26,10 @@
     {
       "answer_status": "provisional_insufficient_data",
       "authority_boundary": "empirical_governance_reading_only",
-      "current_answer": "G6 demand reaches the G5 bridge, but grounded result rate is still zero because current G5/G7 blockers remain. This is not an honesty success claim.",
+      "current_answer": "G6 demand reaches the G5 bridge, and the current G5 result is grounded_abstention rather than useful-design credit. This is an honest abstention signal, not evidence that demand has overcome causal/support limits.",
       "evidence_refs": [
+        "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json",
+        "repo://architecture/policy_design_case/layer3_g5_conversion_eligibility_ledger.json",
         "repo://architecture/policy_design_case/layer3_g6_demand_pull_vs_abstention_delta.json",
         "repo://architecture/policy_design_case/layer3_g6_readiness_manifest.json"
       ],

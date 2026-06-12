@@ -5,19 +5,25 @@
       {
         "backlog_ref": "capability_index_compiler.KNOWN_CONSTRUCTS",
         "fallback_deleted_or_disabled": true,
+        "measurement_ref": "repo://src/polisyos/runtime/quality/capability_index_compiler.py#KNOWN_CONSTRUCTS",
         "no_fallback_proof_ref": "tests/unit/runtime/quality/test_layer3_g1_substrate_grounding.py",
+        "production_closure_reachable": false,
         "search_backed_replacement_ref": "g1-resource-discovery:l1-dcat-construct-search"
       },
       {
         "backlog_ref": "capability_resolver.REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS",
         "fallback_deleted_or_disabled": true,
+        "measurement_ref": "repo://src/polisyos/runtime/quality/capability_resolver.py#REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS",
         "no_fallback_proof_ref": "tests/unit/runtime/quality/test_layer3_g1_substrate_grounding.py",
+        "production_closure_reachable": false,
         "search_backed_replacement_ref": "g1-resource-discovery:scenario-family-source-contract"
       }
     ],
     "fallback_closure_count": 0,
     "fallback_deletion_status": "deleted_or_disabled_no_fallback",
-    "hardcode_strangle_delta_count": 2
+    "hardcode_strangle_delta_count": 2,
+    "issue_codes": [],
+    "measurement_provenance": "repo_ast_targeted_hardcode_probe"
   },
   "rule_version": "policyos.layer3.g1.substrate_grounding_search.v1",
   "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1"

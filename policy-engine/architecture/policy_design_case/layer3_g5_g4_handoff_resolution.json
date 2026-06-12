@@ -2,15 +2,19 @@
   "authoritative_for": [
     "g5_first_proving_ground_promotion_state_input_refs"
   ],
-  "blocked_promotion_input_count": 1,
+  "blocked_promotion_input_count": 2,
   "blocker_refs": [
     "layer3_g4_missing_g2_calibration_ref",
-    "layer3_g4_missing_g2_forecast_support"
+    "layer3_g4_missing_g2_forecast_support",
+    "layer3_g4_placeholder_design_record_promoted",
+    "layer3_g4_w12d_manifest_only_not_payload"
   ],
-  "governed_promotion_input_count": 1,
+  "governed_promotion_input_count": 0,
   "handoff_status": "pass",
   "issue_codes": [
-    "layer3_g5_blocked_promotion_used_as_conversion"
+    "layer3_g5_no_governed_promotion_record",
+    "layer3_g5_blocked_promotion_used_as_conversion",
+    "layer3_g5_g4_weakest_boundary_record_mismatch"
   ],
   "limitation_refs": [],
   "may_not_use_for": [
@@ -36,13 +40,18 @@
   ],
   "promotion_record_resolutions": [
     {
-      "admitted_for_g5_conversion": true,
-      "blocker_refs": [],
+      "admitted_for_g5_conversion": false,
+      "blocker_refs": [
+        "layer3_g4_placeholder_design_record_promoted",
+        "layer3_g4_w12d_manifest_only_not_payload"
+      ],
       "case_id": "ua-msme-affordable-loans-2022",
       "claim_families": [
         "source_data"
       ],
-      "issue_codes": [],
+      "issue_codes": [
+        "layer3_g5_blocked_promotion_used_as_conversion"
+      ],
       "limitation_refs": [],
       "may_not_use_for": [
         "production_authority",
@@ -66,9 +75,9 @@
         "human_override_of_a_incompleteness"
       ],
       "promotion_record_id": "g4-promotion-record:g4-request:ua-msme-source-only-valid",
-      "promotion_state": "governed_promoted",
-      "source_design_record_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
-      "source_design_record_ref": "cas://s2/design-record/ua-msme-credit-support",
+      "promotion_state": "promotion_blocked",
+      "source_design_record_digest": "sha256:4985ce6c2b4ce6a9e2cb11a477dbc6dff499b78198f250fa551a5ad7696ea5ba",
+      "source_design_record_ref": "repo://architecture/policy_design_case/layer2_s2_design_search_manifest.json",
       "upstream_contract_refs": [
         "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json#bindings/firm_survival"
       ]
@@ -77,7 +86,9 @@
       "admitted_for_g5_conversion": false,
       "blocker_refs": [
         "layer3_g4_missing_g2_calibration_ref",
-        "layer3_g4_missing_g2_forecast_support"
+        "layer3_g4_missing_g2_forecast_support",
+        "layer3_g4_placeholder_design_record_promoted",
+        "layer3_g4_w12d_manifest_only_not_payload"
       ],
       "case_id": "ua-msme-affordable-loans-2022",
       "claim_families": [
@@ -110,8 +121,8 @@
       ],
       "promotion_record_id": "g4-promotion-record:g4-request:blocked-effect",
       "promotion_state": "promotion_blocked",
-      "source_design_record_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
-      "source_design_record_ref": "cas://s2/design-record/ua-msme-credit-support",
+      "source_design_record_digest": "sha256:4985ce6c2b4ce6a9e2cb11a477dbc6dff499b78198f250fa551a5ad7696ea5ba",
+      "source_design_record_ref": "repo://architecture/policy_design_case/layer2_s2_design_search_manifest.json",
       "upstream_contract_refs": [
         "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json#bindings/firm_survival"
       ]
@@ -119,5 +130,5 @@
   ],
   "rule_version": "policyos.layer3.g5.first_proving_ground_conversion.v1",
   "schema_version": "policyos.policy_design_case.layer3_g5_proving_ground_conversion.v1",
-  "status": "pass_with_blockers"
+  "status": "fail"
 }

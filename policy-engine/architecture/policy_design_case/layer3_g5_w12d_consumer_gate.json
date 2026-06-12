@@ -1,6 +1,6 @@
 {
   "case_id": "ua-msme-affordable-loans-2022",
-  "conversion_classification": "unchanged_blocker",
+  "conversion_classification": "typed_blocker -> grounded_abstention",
   "issue_codes": [],
   "rule_version": "policyos.layer3.g5.first_proving_ground_conversion.v1",
   "schema_version": "policyos.policy_design_case.layer3_g5_proving_ground_conversion.v1",

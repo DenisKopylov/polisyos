@@ -1,25 +1,6 @@
 {
   "lineage_contamination_ledger": {
-    "records": [
-      {
-        "construct_ref": "firm_survival",
-        "contamination_status": "clean",
-        "lineage_refs": [
-          "repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/LOCAL_IMPORT_MANIFEST.json"
-        ],
-        "local_path_lineage_ref_count": 0,
-        "record_id": "g1-lineage:firm_survival"
-      },
-      {
-        "construct_ref": "firm_survival",
-        "contamination_status": "clean",
-        "lineage_refs": [
-          "repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/LOCAL_IMPORT_MANIFEST.json"
-        ],
-        "local_path_lineage_ref_count": 0,
-        "record_id": "g1-lineage:firm_survival"
-      }
-    ]
+    "records": []
   },
   "rule_version": "policyos.layer3.g1.substrate_grounding_search.v1",
   "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1"

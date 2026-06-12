@@ -4,13 +4,11 @@
       "authoritative_for": [],
       "canonical_l2_route": "scholar_knowledge.duckdb",
       "cutoff_limit": 8,
-      "duckdb_validated_candidate_refs": [
-        "skg-edge://06fb46cd681818bc52d1cc01"
-      ],
-      "event_type": "selected_candidate",
+      "duckdb_validated_candidate_refs": [],
+      "event_type": "no_hit",
       "forecast_support_refs": [],
       "hnsw_candidate_refs": [],
-      "ledger_id": "g2-skg-search-ledger:2a5fe403f11b0189ce13d34a",
+      "ledger_id": "g2-skg-search-ledger:93a24f4d5b2389fabb974018",
       "may_not_use_for": [
         "claim_authority",
         "causal_effect_authority_without_adapter_validation",
@@ -27,18 +25,16 @@
       ],
       "query_vector_producer_ref": null,
       "rejected_candidate_refs": [],
-      "replay_key": "633d6b3009b4b1bc03632775",
+      "replay_key": "d65fee8d7b40f794176088b5",
       "request_ref": "g2-request:default-causal-forecast-method-search",
-      "result_count": 1,
+      "result_count": 0,
       "searched_table_refs": [
         "ac_skg_edges",
         "ac_skg_edge_evidence",
         "ac_causal_claims",
         "ac_skg_transport_scores"
       ],
-      "selected_candidate_refs": [
-        "skg-edge://06fb46cd681818bc52d1cc01"
-      ],
+      "selected_candidate_refs": [],
       "semantic_retrieval_required": false
     }
   ],

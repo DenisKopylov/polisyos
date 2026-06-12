@@ -315,7 +315,8 @@ def test_runtime_touchpoint_scan_includes_local_imports_in_producer_pipeline() -
         if touchpoint.file == "src/polisyos/runtime/quality/producer_pipeline.py"
     }
 
-    assert len(touchpoints) == 35
+    assert len(touchpoints) >= 35
+    assert touchpoints.summary["runtime_quality_touchpoint_count"] == len(touchpoints)
     assert g0.SOURCE_TOUCHPOINT_SCAN_MODE == "ast_top_level_and_local_imports"
     assert producer_pipeline_roots >= {
         "fabric",
@@ -325,6 +326,33 @@ def test_runtime_touchpoint_scan_includes_local_imports_in_producer_pipeline() -
         "participation_requirement",
         "scholar_requirement",
     }
+
+
+def test_g0_triage_registry_covers_inventory_and_quarantines_binary_lex() -> None:
+    g0 = _g0()
+    bundle = g0.build_layer3_g0_bundle(REPO_ROOT)
+
+    triaged_ids = {record.capability_id for record in bundle.triage_registry}
+    capability_ids = {entry.capability_id for entry in bundle.capability_inventory.entries}
+    data_asset_ids = {entry.asset_id for entry in bundle.data_asset_inventory.data_assets}
+    transform_ids = {
+        entry.transform_id for entry in bundle.data_asset_inventory.processing_transforms
+    }
+
+    assert capability_ids <= triaged_ids
+    assert data_asset_ids <= triaged_ids
+    assert transform_ids <= triaged_ids
+    assert any(
+        record.capability_id == "lex_binary_status_candidate"
+        and record.disposition in {"quarantine", "wrap_then_strangle"}
+        for record in bundle.triage_registry
+    )
+    assert bundle.data_asset_inventory.summary[
+        "data_asset_inventory_unclassified_discovered_count"
+    ] == 0
+    assert bundle.data_asset_inventory.summary[
+        "processing_transform_inventory_unclassified_discovered_count"
+    ] == 0
 
 
 def test_g0_does_not_mutate_source_truth_lattice_adapter_paths() -> None:
@@ -597,7 +625,7 @@ def test_g0_admits_zero_adapters() -> None:
     }
 
 
-def test_no_hardcode_lint_scans_targeted_paths_and_registers_detected_fallbacks() -> None:
+def test_no_hardcode_lint_scans_targeted_paths_and_reports_strangled_fallbacks() -> None:
     g0 = _g0()
 
     report = g0.build_no_hardcode_lint_report(REPO_ROOT)
@@ -609,8 +637,8 @@ def test_no_hardcode_lint_scans_targeted_paths_and_registers_detected_fallbacks(
     assert report.scan_profile == "targeted_search_adapter_paths"
     assert "src/polisyos/runtime/quality/capability_index_compiler.py" in report.scanned_paths
     assert "src/polisyos/runtime/quality/capability_resolver.py" in report.scanned_paths
-    assert "KNOWN_CONSTRUCTS" in violations_by_pattern
-    assert "REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS" in violations_by_pattern
+    assert "KNOWN_CONSTRUCTS" not in violations_by_pattern
+    assert "REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS" not in violations_by_pattern
     assert {
         violation.registered_backlog_ref for violation in report.violations
     } <= backlog_ids

@@ -235,6 +235,92 @@ def test_g1_manifest_counts_match_runtime_builder() -> None:
     ]
 
 
+def test_g1_runtime_uses_construct_agnostic_l1_dcat_search_not_pinned_constants() -> None:
+    g1 = _g1()
+
+    assert not hasattr(g1, "G1_PREFERRED_EXISTING_ASSET_CONSTRUCT_ID")
+    assert not hasattr(g1, "G1_EXPECTED_ACQUISITION_GAP_CONSTRUCT_ID")
+    assert not hasattr(g1, "G1_CREDIT_ACCESS_CONSTRUCT_ID")
+    assert not hasattr(g1, "G1_FIRM_SURVIVAL_CONSTRUCT_ID")
+    assert g1._l1_query_text("credit_access") == "credit access"
+    assert g1._l1_query_text("firm_survival") == "firm survival"
+
+    bundle = g1.build_layer3_g1_bundle(REPO_ROOT)
+    payload = _dump(bundle)
+    ledgers = payload["search_ledgers"]
+
+    assert any(
+        ledger["typed_request_ref"].endswith(":credit_access")
+        and ledger["selected_candidate_refs"]
+        and ledger["candidate_count"] > 0
+        and ledger["measurement_provenance"] == "l1_dcat_query"
+        and ledger["query_hash"]
+        for ledger in ledgers
+    )
+    assert any(
+        ledger["typed_request_ref"].endswith(":firm_survival")
+        and not ledger["selected_candidate_refs"]
+        and ledger["absence_or_incompleteness_reason"] == "l1_dcat_no_metric_binding"
+        and ledger["measurement_provenance"] == "l1_dcat_query"
+        for ledger in ledgers
+    )
+
+
+def test_g1_free_growth_uses_live_l1_dcat_search_not_fixture_loader(
+    monkeypatch: Any,
+) -> None:
+    g1 = _g1()
+
+    def _forbidden_fixture_loader(*_args: object, **_kwargs: object) -> dict[str, Any]:
+        raise AssertionError("G1 free-growth must not be fixture-only")
+
+    monkeypatch.setattr(g1, "_fixture_payload", _forbidden_fixture_loader)
+
+    report = g1.build_g1_free_growth_report(REPO_ROOT)
+
+    assert report.status == "pass"
+    assert report.free_growth_fixture_count == 0
+    assert "credit_access" in report.discovered_metric_ids
+    assert report.search_route == "l1_dcat_ds_metric_bindings"
+
+
+def test_g1_search_health_and_strangle_reports_are_measured_not_self_attested() -> None:
+    g1 = _g1()
+    bundle = g1.build_layer3_g1_bundle(REPO_ROOT)
+    payload = _dump(bundle)
+
+    recall = payload["search_recall_freshness"]
+    assert recall["search_recall_status"] in {"pass", "fail"}
+    assert recall["measurement_provenance"] == "l1_dcat_query"
+    assert recall["query_trace_refs"]
+    assert recall["search_frontier_ref"].startswith("g1-search-frontier:l1-dcat:")
+
+    quality = payload["search_engineering_quality"]
+    assert quality["status"] in {"pass", "fail"}
+    assert quality["measurement_provenance"] == "l1_dcat_query"
+    assert quality["query_trace_refs"]
+
+    hardcode = payload["hardcode_strangle_delta"]
+    assert hardcode["fallback_deletion_status"] == "deleted_or_disabled_no_fallback"
+    assert "layer3_g1_hardcode_strangle_incomplete" not in hardcode["issue_codes"]
+
+
+def test_g1_validation_rejects_self_attested_search_health() -> None:
+    g1 = _g1()
+    bundle = _dump(g1.build_layer3_g1_bundle(REPO_ROOT))
+    bundle["search_recall_freshness"] = {
+        **bundle["search_recall_freshness"],
+        "search_recall_status": "pass",
+        "measurement_provenance": "self_attested",
+        "query_trace_refs": (),
+    }
+
+    report = g1.validate_layer3_g1_bundle(REPO_ROOT, bundle)
+
+    assert _dump(report)["status"] == "fail"
+    assert "layer3_g1_search_recall_not_measured" in _issue_codes(report)
+
+
 def test_g1_does_not_mutate_g0_source_truth_baseline() -> None:
     g1 = _g1()
     report = g1.validate_layer3_g1_bundle(REPO_ROOT, g1.build_layer3_g1_bundle(REPO_ROOT))
@@ -297,15 +383,14 @@ def test_stale_index_blocks_domain_ceiling() -> None:
 
 
 def test_g1_free_growth_metric_binding_requires_no_code_change() -> None:
-    fixture = _fixture("free_growth_metric_binding_fixture.json")
     g1 = _g1()
 
     report = g1.build_g1_free_growth_report(REPO_ROOT)
 
     payload = _dump(report)
     assert payload["status"] == "pass"
-    assert payload["free_growth_fixture_count"] >= 1
-    assert fixture["payload"]["metric_binding"]["metric_id"] in payload["discovered_metric_ids"]
+    assert payload["free_growth_fixture_count"] == 0
+    assert "credit_access" in payload["discovered_metric_ids"]
     assert payload["code_change_required"] is False
     assert payload["search_route"] == "l1_dcat_ds_metric_bindings"
 

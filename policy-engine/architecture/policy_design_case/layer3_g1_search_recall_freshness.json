@@ -3,13 +3,21 @@
   "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1",
   "search_recall_freshness": {
     "index_freshness_status": "pass",
+    "issue_codes": [],
     "known_groundable_seed_refs": [
-      "g1-recall-seed:source-contract-discovery",
-      "g1-recall-seed:ua-msme-firm-survival"
+      "g1-recall-seed:credit-access"
     ],
+    "measurement_provenance": "l1_dcat_query",
     "missed_seed_refs": [],
+    "query_trace_refs": [
+      "g1-query-trace:l1-dcat:a0cb93344f775689e4713a9b48ae16e2530f5e2d99a484e269774551567b7f48",
+      "g1-search-frontier:l1-dcat:a0cb93344f775689e4713a9b48ae16e2530f5e2d99a484e269774551567b7f48:exact=8:text=8",
+      "g1-search-frontier:l1-dcat:11a4c3135d908f2d8e3873430e4c74dbe4dbd51358ef459ce3f1c4857b8ce83b:exact=0:text=0"
+    ],
     "report_id": "layer3-g1-search-recall-freshness",
+    "search_frontier_ref": "g1-search-frontier:l1-dcat:a0cb93344f775689e4713a9b48ae16e2530f5e2d99a484e269774551567b7f48:exact=8:text=8",
     "search_recall_status": "pass",
+    "source_request_kind": "runtime_l1_dcat_probe",
     "stale_index_refs": []
   }
 }

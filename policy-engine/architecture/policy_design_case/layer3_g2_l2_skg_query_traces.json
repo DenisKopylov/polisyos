@@ -7,8 +7,8 @@
       "matched_moderators": [],
       "normalization_diagnostics": [],
       "predicates": {
-        "cause": "agriculture.fertilizer_use",
-        "effect": "agriculture.food_nutritional_quality",
+        "cause": "policy.credit_access",
+        "effect": "firm.survival",
         "min_confidence": 0.25,
         "support_mode": "hybrid"
       },
@@ -16,15 +16,11 @@
       "query_api_route": "polisyos.data_forge.read_api.academic.SKGQuery",
       "query_vector_producer_ref": null,
       "rejected_candidate_refs": [],
-      "result_count": 1,
-      "row_refs": [
-        "skg-edge://06fb46cd681818bc52d1cc01"
-      ],
-      "selected_candidate_refs": [
-        "skg-edge://06fb46cd681818bc52d1cc01"
-      ],
+      "result_count": 0,
+      "row_refs": [],
+      "selected_candidate_refs": [],
       "semantic_retrieval_required": false,
-      "skg_snapshot_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb#v1",
+      "skg_snapshot_ref": "duckdb:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb#v1",
       "skg_version_id": 1,
       "sql_description": null,
       "table_refs": [
@@ -41,38 +37,28 @@
       "canonical_l2_route": "scholar_knowledge.duckdb",
       "direct_sql_read_only": true,
       "limit": 8,
-      "matched_moderators": [
-        "06fb46cd681818bc52d1cc01:5"
-      ],
+      "matched_moderators": [],
       "normalization_diagnostics": [],
       "predicates": {
-        "edge_ids": [
-          "06fb46cd681818bc52d1cc01"
-        ],
+        "edge_ids": [],
         "target_context_id": "UA"
       },
       "quality_flags": [],
       "query_api_route": "polisyos.data_forge.read_api.academic.SKGQuery",
       "query_vector_producer_ref": null,
       "rejected_candidate_refs": [],
-      "result_count": 1,
-      "row_refs": [
-        "skg-transport://06fb46cd681818bc52d1cc01:UA"
-      ],
-      "selected_candidate_refs": [
-        "skg-transport://06fb46cd681818bc52d1cc01:UA"
-      ],
+      "result_count": 0,
+      "row_refs": [],
+      "selected_candidate_refs": [],
       "semantic_retrieval_required": false,
-      "skg_snapshot_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb#v1",
+      "skg_snapshot_ref": "duckdb:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb#v1",
       "skg_version_id": 1,
       "sql_description": null,
       "table_refs": [
         "ac_skg_transport_scores"
       ],
       "trace_id": "g2-skg-query-trace:ff1ee66cbc7204f652067f7e",
-      "transport_notes": [
-        "claim_ref:0.780"
-      ],
+      "transport_notes": [],
       "uncertainty_sources": [],
       "used_skg_query": true
     }

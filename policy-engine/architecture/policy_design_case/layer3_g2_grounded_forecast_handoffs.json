@@ -1,22 +1,20 @@
 {
   "grounded_forecast_handoffs": [
     {
-      "adapter_maturity": "calibrated",
+      "adapter_maturity": "fail_closed",
       "authoritative_for": [
         "grounded_forecast_handoff"
       ],
-      "calibration_record_refs": [
-        "pdc://layer3/g2/ua-msme/calibration/observable-subset"
-      ],
-      "concept_alignment_ref": "g2-concept-alignment:9fd202376b77bfd48b173651",
+      "calibration_record_refs": [],
+      "concept_alignment_ref": "g2-concept-alignment:d3576d28d2836d2e0054e13e",
       "conversion_authority_claimed": false,
-      "design_record_ledger_refs": [
-        "pdc://layer2/s2/ua-msme/design-record-v0"
+      "design_record_ledger_refs": [],
+      "forecast_support_binding_ref": "g2-forecast-support-binding:eee7b28ed5e3ea5bd8cfabf6",
+      "g4_g5_readable_handoff_ref": "g2-grounded-forecast-handoff:5488820a59a03c358628673a",
+      "handoff_id": "g2-grounded-forecast-handoff:5488820a59a03c358628673a",
+      "issue_codes": [
+        "layer3_g2_grounded_forecast_handoff_missing"
       ],
-      "forecast_support_binding_ref": "g2-forecast-support-binding:d65f61522884e1cd85048188",
-      "g4_g5_readable_handoff_ref": "g2-grounded-forecast-handoff:f736412ede9cc6b1a9617a45",
-      "handoff_id": "g2-grounded-forecast-handoff:f736412ede9cc6b1a9617a45",
-      "issue_codes": [],
       "limitation_refs": [
         "limitation://forecast/support-only"
       ],
@@ -38,7 +36,6 @@
         "s12_envelope_growth",
         "s13_accountability_closure",
         "s14_universality",
-        "preference_learning_authority",
         "promotion_authority",
         "conversion_authority"
       ],
@@ -49,30 +46,28 @@
         "method-validity://foundry/causal/local"
       ],
       "promotion_authority_claimed": false,
-      "s10_forecast_support_ref": "pdc://layer3/g2/ua-msme-affordable-loans-2022/forecast-support/d65f61522884e1cd85048188",
-      "s10_forecast_tier": "observable_calibrated",
+      "s10_forecast_support_ref": "pdc://layer3/g2/ua-msme-affordable-loans-2022/forecast-support/eee7b28ed5e3ea5bd8cfabf6",
+      "s10_forecast_tier": null,
       "s2_deterministic_replay_key_refs": [],
       "search_ledger_refs": [
-        "g2-skg-search-ledger:2a5fe403f11b0189ce13d34a"
+        "g2-skg-search-ledger:93a24f4d5b2389fabb974018"
       ],
       "skg_claim_refs": [],
-      "skg_edge_refs": [
-        "skg-edge://06fb46cd681818bc52d1cc01"
-      ],
+      "skg_edge_refs": [],
       "skg_parameter_refs": [],
       "skg_query_trace_refs": [
-        "g2-trace:bf40b5c0af0721a86652e4a2"
+        "g2-trace:91df1b7a6e7d034b88202d6f"
       ],
-      "source_contract_ref": "source-contract://ua-msme/server-support",
+      "source_contract_ref": "source-contract://ua-msme/credit-access-firm-survival",
       "source_contract_replay_refs": [
-        "source-contract://ua-msme/server-support"
+        "source-contract://ua-msme/credit-access-firm-survival"
       ],
-      "status": "pass",
+      "status": "fail",
       "transport_limit_declaration_refs": [
-        "g2-transport-limit-declaration:5ab4f9ec64f09c710201ebf9"
+        "g2-transport-limit-declaration:804dcfcd88d4912983813c0b"
       ],
       "uncertainty_interval_refs": [
-        "interval://ua-msme/fertilizer-support/95"
+        "interval://ua-msme/credit-survival/95"
       ],
       "useful_design_credit_claimed": false
     }

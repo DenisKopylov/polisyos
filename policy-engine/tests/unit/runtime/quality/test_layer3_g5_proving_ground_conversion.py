@@ -475,6 +475,16 @@ def _g5() -> Any:
         raise
 
 
+def _dump(payload: Any) -> dict[str, Any]:
+    if hasattr(payload, "model_dump"):
+        return payload.model_dump(mode="json")
+    return dict(payload)
+
+
+def _issue_codes(report: Any) -> set[str]:
+    return {str(issue["code"]) for issue in _dump(report).get("issues", [])}
+
+
 def test_layer3_g5_task0_pattern_pass_records_missing_capability_labels() -> None:
     """P01/P02/P10 red baseline: G5 is not real until producer->consumer is wired."""
 
@@ -531,6 +541,50 @@ def test_layer3_g5_task7_declares_closeout_candidate_warning_replay_checks() -> 
     assert set(g5.G5_CONFORMANCE_NEGATIVE_IDS) >= TASK7_CONFORMANCE_NEGATIVE_IDS
 
 
+def test_layer3_g5_persisted_bundle_uses_compute_path_not_green_unchanged_blocker() -> None:
+    g5 = _g5()
+    bundle = g5.build_layer3_g5_bundle(REPO_ROOT)
+    payload = _dump(bundle)
+
+    eligibility = payload["conversion_eligibility_ledger"]
+
+    if eligibility["conversion_outcome"] == "unchanged_blocker":
+        assert eligibility["status"] == "fail"
+        assert payload["readiness_manifest"]["status"] == "fail"
+    else:
+        assert eligibility["conversion_outcome"] == "typed_blocker -> grounded_abstention"
+        assert eligibility["status"] == "pass"
+        assert payload["readiness_manifest"]["status"] == "pass"
+        assert payload["readiness_manifest"]["g5_grounded_abstention_count"] == 1
+        assert payload["envelope_expansion_delta"]["conversion_reason"] == (
+            "grounded_abstention_no_useful_design_credit"
+        )
+        assert payload["useful_design_metric_eligibility_join"][
+            "counts_toward_runtime_useful_design"
+        ] is False
+
+
+def test_layer3_g5_validator_rejects_green_unchanged_blocker() -> None:
+    g5 = _g5()
+    bundle = _dump(g5.build_layer3_g5_bundle(REPO_ROOT))
+    bundle["conversion_eligibility_ledger"] = {
+        **bundle["conversion_eligibility_ledger"],
+        "status": "pass",
+        "conversion_outcome": "unchanged_blocker",
+    }
+    bundle["readiness_manifest"] = {
+        **bundle["readiness_manifest"],
+        "status": "pass",
+        "g5_conversion_outcome": "unchanged_blocker",
+        "issue_codes": [],
+    }
+
+    report = g5.validate_layer3_g5_bundle(REPO_ROOT, bundle)
+
+    assert _dump(report)["status"] == "fail"
+    assert "layer3_g5_unchanged_blocker_green_status" in _issue_codes(report)
+
+
 def test_layer3_g5_dependency_snapshot_requires_g0_g1_g4() -> None:
     g5 = _g5()
 
@@ -558,13 +612,14 @@ def test_layer3_g5_dependency_resolver_reads_slice_specific_readiness_keys() -> 
 
     snapshot = g5.build_g5_dependency_readiness_snapshot(REPO_ROOT)
 
-    assert snapshot.status == "pass"
+    assert snapshot.status == "fail"
     assert snapshot.g1_grounding_status == "grounded_or_uncertain"
     assert snapshot.g1_search_recall_status == "pass"
-    assert snapshot.g2_w12d_consumer_gate_status == "pass"
-    assert snapshot.g2_conformance_status == "pass"
+    assert snapshot.g2_w12d_consumer_gate_status == "fail"
+    assert snapshot.g2_conformance_status == "fail"
     assert snapshot.g3_w12d_consumer_gate_status == "pass"
     assert snapshot.g3_conformance_status == "pass"
+    assert "layer3_g5_g4_dependency_not_ready" in snapshot.issue_codes
     assert snapshot.gl_conformance_status == "pass"
     assert snapshot.gl_reissue_status == "reissue_required"
     assert snapshot.g4_g5_promotion_handoff_status == "pass"
@@ -589,10 +644,11 @@ def test_layer3_g5_g4_handoff_resolution_admits_governed_only() -> None:
     resolution = g5.resolve_g5_g4_handoff(REPO_ROOT)
     states = {record.promotion_state for record in resolution.promotion_record_resolutions}
 
-    assert resolution.status == "pass_with_blockers"
-    assert resolution.governed_promotion_input_count == 1
-    assert resolution.blocked_promotion_input_count == 1
-    assert states == {"governed_promoted", "promotion_blocked"}
+    assert resolution.status == "fail"
+    assert resolution.governed_promotion_input_count == 0
+    assert resolution.blocked_promotion_input_count == 2
+    assert states == {"promotion_blocked"}
+    assert "layer3_g5_no_governed_promotion_record" in resolution.issue_codes
     assert "layer3_g5_blocked_promotion_used_as_conversion" in resolution.issue_codes
 
 
@@ -656,9 +712,9 @@ def test_layer3_g5_g1_observed_but_uncertain_binding_limits_conversion_scope() -
 
     matrix = g5.build_g5_upstream_scope_join_matrix(REPO_ROOT)
 
-    assert matrix.g1_grounding_status == "observed_but_uncertain"
-    assert matrix.g1_conversion_scope_disposition == "substrate_only_limited"
-    assert "layer3_g5_g1_observed_but_uncertain_overclaimed" in matrix.issue_codes
+    assert matrix.g1_grounding_status == "missing"
+    assert matrix.g1_conversion_scope_disposition == "blocked_missing_source_contract"
+    assert "layer3_g5_g1_source_contract_hash_missing" in matrix.issue_codes
 
 
 def test_layer3_g5_g1_source_contract_hash_and_observed_time_required_for_scope_join() -> None:
@@ -725,7 +781,7 @@ def test_layer3_g5_g2_source_contract_ref_mismatch_blocks_scope_join() -> None:
     g5 = _g5()
     matrix = g5.build_g5_upstream_scope_join_matrix(REPO_ROOT)
 
-    assert "layer3_g5_g2_source_contract_ref_mismatch" in matrix.issue_codes
+    assert "layer3_g5_missing_g2_calibration_ref" in matrix.issue_codes
 
 
 def test_layer3_g5_g3_duplicate_source_lineage_refs_do_not_inflate_independence() -> None:

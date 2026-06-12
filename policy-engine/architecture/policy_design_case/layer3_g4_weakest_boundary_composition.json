@@ -1,6 +1,12 @@
 {
-  "blocker_refs": [],
-  "issue_codes": [],
+  "blocker_refs": [
+    "layer3_g4_placeholder_design_record_promoted",
+    "layer3_g4_w12d_manifest_only_not_payload"
+  ],
+  "issue_codes": [
+    "layer3_g4_placeholder_design_record_promoted",
+    "layer3_g4_w12d_manifest_only_not_payload"
+  ],
   "limitation_refs": [],
   "promotion_scope": {
     "authority_purpose": "layer3_g4_governed_promotion_state",
@@ -12,7 +18,7 @@
     "requires_legal_or_mandate_authority": false,
     "routine_in_envelope": true
   },
-  "promotion_state": "governed_promoted",
-  "status": "pass",
-  "weakest_boundary_reason": "all_required_refs_pass"
+  "promotion_state": "promotion_blocked",
+  "status": "fail",
+  "weakest_boundary_reason": "layer3_g4_placeholder_design_record_promoted;layer3_g4_w12d_manifest_only_not_payload"
 }

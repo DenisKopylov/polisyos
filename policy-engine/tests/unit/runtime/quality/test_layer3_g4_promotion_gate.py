@@ -410,7 +410,7 @@ def test_g4_dependency_readiness_snapshot_reads_hard_and_context_artifacts() -> 
     assert payload["rule_version"] == G4_RULE_VERSION
     assert payload["g0_dependency_status"] == "pass"
     assert payload["g1_dependency_status"] == "pass"
-    assert payload["g2_context_status"] in {"pass", "missing"}
+    assert payload["g2_context_status"] == "fail"
     assert payload["g3_context_status"] in {"pass", "missing"}
     assert payload["gl_context_status"] in {"pass", "missing"}
     assert payload["generated_artifacts_ref"] == "architecture/generated_artifacts.toml"
@@ -490,6 +490,27 @@ def test_source_design_record_ref_only_or_missing_digest_blocks_with_typed_issue
         "layer3_g4_source_design_record_unresolved",
         "layer3_g4_source_design_record_digest_missing",
     } <= set(_dump(resolution)["issue_codes"])
+
+
+def test_g4_runtime_bundle_does_not_promote_placeholder_design_record_digest() -> None:
+    g4 = _g4()
+    bundle = g4.build_layer3_g4_bundle(REPO_ROOT)
+    payload = _dump(bundle)
+
+    promoted = [
+        record
+        for record in payload["promotion_records"]
+        if record["promotion_state"] == "governed_promoted"
+    ]
+
+    assert payload["readiness_manifest"]["status"] == "fail"
+    assert not any(
+        record.get("source_design_record_digest", "").endswith("1111111111111111")
+        for record in promoted
+    )
+    assert "layer3_g4_placeholder_design_record_promoted" in payload[
+        "readiness_manifest"
+    ]["issue_codes"]
 
 
 def test_dependency_artifact_shape_mismatch_fails_closed(tmp_path: Path) -> None:

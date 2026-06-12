@@ -227,6 +227,8 @@ ALL_ISSUE_CODES: tuple[str, ...] = (
     "layer3_g2_forecast_support_missing",
     "layer3_g2_forecast_support_invalid",
     "layer3_g2_adapter_maturity_overclaim",
+    "layer3_g2_synthetic_calibration_overclaim",
+    "layer3_g2_case_semantic_mismatch",
     "layer3_g2_forecast_tier_overclaimed",
     "layer3_g2_regime_forecast_tier_laundering",
     "layer3_g2_observable_calibration_required",
@@ -1496,19 +1498,18 @@ def build_layer3_g2_bundle(repo_root: Path) -> Layer3G2Bundle:
     recall = build_g2_search_recall_freshness(root)
     free_growth = build_g2_free_growth_report(root)
     search_quality = build_g2_search_engineering_quality_report(root, search_result)
-    runtime_method_candidate = _default_g2_runtime_method_candidate()
     foundry_coverage = build_g2_foundry_method_registry_coverage(root)
     foundry_search = search_foundry_methods_for_forecast(method_request)
     method_bindings = build_g2_method_requirement_bindings(
         method_request,
         foundry_search,
-        runtime_method_candidates=(runtime_method_candidate,),
+        runtime_method_candidates=(),
     )
     method_validity = (
         build_g2_method_validity_transport_record(
             method_request,
             method_bindings[0],
-            method_candidates=(runtime_method_candidate,),
+            method_candidates=(),
         )
         if method_bindings
         else None
@@ -1538,8 +1539,12 @@ def build_layer3_g2_bundle(repo_root: Path) -> Layer3G2Bundle:
         method_validity_record=method_validity,
         requested_forecast_tier="observable_calibrated",
         requested_adapter_maturity="calibrated",
-        calibration_payload=_default_g2_calibration_payload(method_request),
-        calibrated_dynamics_producer_ref="producer://layer3/g2/readiness/calibrated-dynamics",
+        calibration_payload=None,
+        calibrated_dynamics_producer_ref=None,
+    )
+    forecast_support_bindings = tuple(
+        _mark_g2_default_pinned_case_fail_closed(binding, method_request)
+        for binding in forecast_support_bindings
     )
     calibration = build_g2_observable_calibration_report(forecast_support_bindings)
     transport_limits = build_g2_transport_limit_declarations(
@@ -1556,7 +1561,9 @@ def build_layer3_g2_bundle(repo_root: Path) -> Layer3G2Bundle:
         transport_limit_declarations=transport_limits,
     )
     forecast_postures = tuple(
-        build_g2_s10_forecast_posture(binding) for binding in forecast_support_bindings
+        build_g2_s10_forecast_posture(binding)
+        for binding in forecast_support_bindings
+        if binding.status == "pass" and binding.s10_forecast_support
     )
     w12d_gate = build_g2_w12d_consumer_gate(
         forecast_postures=forecast_postures,
@@ -2243,7 +2250,7 @@ def _g2_validate_semantic_and_s10_acceptance(
 
 
 def _g2_is_regime_forecast_tier_laundering(binding: Mapping[str, Any]) -> bool:
-    tier = str(binding.get("s10_forecast_tier") or "")
+    tier = str(binding.get("s10_forecast_tier") or binding.get("requested_forecast_tier") or "")
     regime = str(binding.get("epistemic_regime") or binding.get("epistemic_regime_ref") or "")
     if tier not in {"observable_calibrated", "transported_limited"}:
         return False
@@ -3250,6 +3257,21 @@ def build_g2_forecast_support_bindings(
     issue_codes.extend(_string_tuple(semantic.get("issue_codes", ())))
     issue_codes.extend(_string_tuple(alignment.get("issue_codes", ())))
     issue_codes.extend(_string_tuple(prereq.get("issue_codes", ())))
+    calibration_source_kind = (
+        str(calibration_payload.get("source_request_kind") or "")
+        if calibration_payload is not None
+        else ""
+    )
+    if calibration_source_kind == "synthetic_fixture":
+        issue_codes.append("layer3_g2_synthetic_calibration_overclaim")
+        calibration_payload = None
+    if _g2_case_semantic_mismatch(
+        resolved_request,
+        semantic=semantic,
+        alignment=alignment,
+        calibration_payload=calibration_payload,
+    ):
+        issue_codes.append("layer3_g2_case_semantic_mismatch")
     if semantic.get("status") != "pass":
         issue_codes.append("layer3_g2_semantic_binding_spine_missing")
     if alignment.get("status") != "pass" or alignment.get("alignment_status") != "direct":
@@ -3428,6 +3450,39 @@ def build_g2_forecast_support_bindings(
             may_not_use_for=may_not_use_for,
             issue_codes=issue_tuple,
         ),
+    )
+
+
+def _mark_g2_default_pinned_case_fail_closed(
+    binding: Layer3G2ForecastSupportBinding,
+    request: Layer3G2CausalForecastRequest,
+) -> Layer3G2ForecastSupportBinding:
+    """Prevent the persisted pinned-case path from receiving fixture calibration credit."""
+
+    if request.case_id != "ua-msme-affordable-loans-2022":
+        return binding
+    issue_codes = tuple(
+        dict.fromkeys(
+            (
+                *binding.issue_codes,
+                "layer3_g2_synthetic_calibration_overclaim",
+            )
+        )
+    )
+    return binding.model_copy(
+        update={
+            "status": "fail",
+            "adapter_maturity": "fail_closed",
+            "issue_codes": issue_codes,
+            "maturity_blocker_refs": tuple(
+                dict.fromkeys(
+                    (
+                        *binding.maturity_blocker_refs,
+                        "maturity-blocker://layer3/g2/no-real-credit-survival-calibration",
+                    )
+                )
+            ),
+        }
     )
 
 
@@ -4554,9 +4609,26 @@ def _validate_task5_calibration_transport_downgrades(
                 )
             )
 
-    for idx, declaration_obj in enumerate(
-        _sequence(payload.get("transport_limit_declarations", ()))
-    ):
+    transport_declarations = _sequence(payload.get("transport_limit_declarations", ()))
+    forecast_bindings = [
+        _mapping(item) for item in _sequence(payload.get("forecast_support_bindings", ()))
+    ]
+    needs_transport_limits = any(
+        binding.get("requested_forecast_tier") in {"observable_calibrated", "transported_limited"}
+        or binding.get("s10_forecast_tier") in {"observable_calibrated", "transported_limited"}
+        or _string_tuple(binding.get("skg_transport_refs", ()))
+        for binding in forecast_bindings
+    )
+    if needs_transport_limits and not transport_declarations:
+        issues.append(
+            _issue(
+                "layer3_g2_transport_limit_missing",
+                "$.transport_limit_declarations",
+                "Transported or observable G2 support requires explicit transport limits.",
+            )
+        )
+
+    for idx, declaration_obj in enumerate(transport_declarations):
         declaration = _mapping(declaration_obj)
         if declaration.get("status") == "fail":
             for code in _string_tuple(declaration.get("issue_codes", ())):
@@ -4580,8 +4652,7 @@ def _validate_task5_calibration_transport_downgrades(
                 )
             )
 
-    for idx, binding_obj in enumerate(_sequence(payload.get("forecast_support_bindings", ()))):
-        binding = _mapping(binding_obj)
+    for idx, binding in enumerate(forecast_bindings):
         if binding.get("requested_adapter_maturity") == "calibrated" and binding.get(
             "adapter_maturity"
         ) != "calibrated":
@@ -4617,6 +4688,14 @@ def _validate_task6_consumer_bridge_and_handoffs(
     handoffs = [
         _mapping(item) for item in _sequence(payload.get("grounded_forecast_handoffs", ()))
     ]
+    if bindings and not handoffs:
+        issues.append(
+            _issue(
+                "layer3_g2_grounded_forecast_handoff_missing",
+                "$.grounded_forecast_handoffs",
+                "G2 ForecastSupport bindings require a G4/G5-readable handoff or no-hit frontier.",
+            )
+        )
     handoff_support_refs = {
         str(handoff.get("s10_forecast_support_ref") or "")
         for handoff in handoffs
@@ -5225,6 +5304,49 @@ def _g2_adapter_maturity_blockers(
     return tuple(dict.fromkeys(blockers))
 
 
+def _g2_case_semantic_mismatch(
+    request: Layer3G2CausalForecastRequest,
+    *,
+    semantic: Mapping[str, Any],
+    alignment: Mapping[str, Any],
+    calibration_payload: Mapping[str, Any] | None,
+) -> bool:
+    if request.case_id != "ua-msme-affordable-loans-2022":
+        return False
+    values: list[str] = [
+        request.cause,
+        request.effect,
+        request.outcome_type,
+        *_string_tuple(semantic.get("canonical_concept_refs", ())),
+        str(alignment.get("skg_cause_variable_ref") or ""),
+        str(alignment.get("skg_effect_variable_ref") or ""),
+    ]
+    if calibration_payload is not None:
+        values.extend(
+            str(calibration_payload.get(key) or "")
+            for key in (
+                "prediction_ref",
+                "observed_outcome_ref",
+                "historical_implementation_ref",
+            )
+        )
+    text = " ".join(values).casefold()
+    mismatch_tokens = (
+        "agriculture.",
+        "fertilizer",
+        "food_nutritional",
+        "food-nutritional",
+        "food_quality",
+    )
+    if not any(token in text for token in mismatch_tokens):
+        return False
+    handshake_text = " ".join(
+        _string_tuple(semantic.get("producer_handshake_refs", ()))
+        + _string_tuple(alignment.get("producer_handshake_refs", ()))
+    ).casefold()
+    return not ("credit" in handshake_text and "survival" in handshake_text)
+
+
 def _g2_calibration_is_passed(calibration_record: Mapping[str, Any]) -> bool:
     return bool(
         calibration_record
@@ -5457,9 +5579,9 @@ def _default_g2_method_request() -> Layer3G2CausalForecastRequest:
     return Layer3G2CausalForecastRequest(
         request_id="g2-request:default-causal-forecast-method-search",
         case_id="ua-msme-affordable-loans-2022",
-        source_contract_refs=("source-contract://ua-msme/server-support",),
-        cause="agriculture.fertilizer_use",
-        effect="agriculture.food_nutritional_quality",
+        source_contract_refs=("source-contract://ua-msme/credit-access-firm-survival",),
+        cause="policy.credit_access",
+        effect="firm.survival",
         target_context_id="UA",
         limit=8,
         method_task_tags=(
@@ -5469,8 +5591,8 @@ def _default_g2_method_request() -> Layer3G2CausalForecastRequest:
             "validation",
         ),
         data_modality="panel",
-        treatment_structure="continuous_policy",
-        outcome_type="food_quality",
+        treatment_structure="binary_or_intensity_credit_access",
+        outcome_type="firm_survival",
         required_diagnostics=("identification", "transportability", "uncertainty"),
     )
 
@@ -5482,7 +5604,8 @@ def _default_g2_runtime_method_candidate() -> dict[str, object]:
         "method_fqn": "causal.did.difference_in_differences@1.0.0",
         "method_family": "causal_effect_estimation",
         "method_expectations": ["causal_effect_estimation", "uncertainty"],
-        "truthfulness_status": "runtime_consistent",
+        "truthfulness_status": "synthetic_fixture",
+        "source_request_kind": "synthetic_fixture",
         "input_refs": {
             "data_snapshot_ref": sha + "1" * 64,
             "input_bindings_ref": sha + "2" * 64,
@@ -5536,14 +5659,14 @@ def _default_g2_runtime_method_candidate() -> dict[str, object]:
 
 def _default_g2_semantic_spine_kwargs() -> dict[str, object]:
     return {
-        "concept_spine_ref": "concept-spine://g2/agriculture-fertilizer-food-quality",
+        "concept_spine_ref": "concept-spine://g2/policy-credit-access-firm-survival",
         "jurisdiction_spine_ref": "jurisdiction-spine://UA",
         "canonical_concept_refs": (
-            "concept://agriculture.fertilizer_use",
-            "concept://agriculture.food_nutritional_quality",
+            "concept://policy.credit_access",
+            "concept://firm.survival",
         ),
         "jurisdiction_refs": ("jurisdiction://UA",),
-        "unit_refs": ("unit://farm-household",),
+        "unit_refs": ("unit://firm",),
         "period_refs": ("period://2022-2024",),
         "geography_refs": ("geo://UA",),
         "governed_namespace_refs": (
@@ -5553,16 +5676,16 @@ def _default_g2_semantic_spine_kwargs() -> dict[str, object]:
             "namespace://layer2/s10",
         ),
         "reconciled_concept_statuses": {
-            "agriculture.fertilizer_use": "reconciled",
-            "agriculture.food_nutritional_quality": "reconciled",
+            "policy.credit_access": "reconciled",
+            "firm.survival": "reconciled",
         },
         "producer_handshake_refs": (
-            "producer-handshake://g1-skg-foundry-s10/fertilizer-food-quality",
+            "producer-handshake://g1-skg-foundry-s10/credit-access-firm-survival",
         ),
         "candidate_refs": (
-            "source-contract://ua-msme/server-support",
-            "skg-variable://agriculture.fertilizer_use",
-            "skg-variable://agriculture.food_nutritional_quality",
+            "source-contract://ua-msme/credit-access-firm-survival",
+            "skg-variable://policy.credit_access",
+            "skg-variable://firm.survival",
             "foundry-slot://treatment",
             "foundry-slot://outcome",
         ),
@@ -5575,15 +5698,15 @@ def _default_g2_concept_alignment_kwargs(
     return {
         "source_contract_refs": request.source_contract_refs,
         "g1_target_outcome_refs": (
-            "source-contract://ua-msme/server-support#food-nutritional-quality",
+            "source-contract://ua-msme/credit-access-firm-survival#firm-survival",
         ),
-        "g1_metric_refs": ("metric://food-nutritional-quality",),
-        "skg_cause_variable_ref": "skg-variable://agriculture.fertilizer_use",
-        "skg_effect_variable_ref": "skg-variable://agriculture.food_nutritional_quality",
-        "skg_parameter_refs": ("skg-parameter://06fb46cd681818bc52d1cc01",),
+        "g1_metric_refs": ("metric://firm-survival", "metric://credit-access"),
+        "skg_cause_variable_ref": "skg-variable://policy.credit_access",
+        "skg_effect_variable_ref": "skg-variable://firm.survival",
+        "skg_parameter_refs": (),
         "foundry_input_slot_refs": ("foundry-slot://treatment", "foundry-slot://panel-data"),
         "foundry_output_slot_refs": ("foundry-slot://effect-estimate",),
-        "s10_target_outcome_refs": ("outcome://food-nutritional-quality",),
+        "s10_target_outcome_refs": ("outcome://ua-msme/firm-survival",),
         "alignment_status": "direct",
         "direct_grounding_claimed": True,
     }
@@ -5597,11 +5720,11 @@ def _default_g2_s10_prerequisite_kwargs(
         "design_graph_ref": "pdc://layer2/s5/ua-msme/recursive-design-graph",
         "prediction_context_ref": "pdc://layer2/s10/ua-msme/prediction-context",
         "policy_context_ref": "policy-context://ua-msme/2022",
-        "candidate_design_ref": "candidate://ua-msme/fertilizer-support",
-        "baseline_design_ref": "baseline://ua-msme/no-new-fertilizer-support",
-        "alternative_design_refs": ("alternative://ua-msme/cash-transfer",),
+        "candidate_design_ref": "candidate://ua-msme/affordable-loans",
+        "baseline_design_ref": "baseline://ua-msme/no-new-affordable-loans",
+        "alternative_design_refs": ("alternative://ua-msme/grant-support",),
         "prediction_horizon_ref": "horizon://12-months",
-        "target_outcome_refs": ("outcome://food-nutritional-quality",),
+        "target_outcome_refs": ("outcome://ua-msme/firm-survival",),
         "jurisdiction_scope_ref": "jurisdiction://UA",
         "s5_forecast_support_ref": "pdc://layer2/s5/ua-msme/system-effect-support",
         "s5_support_label": "validated_local_dynamic_model",
@@ -5615,14 +5738,14 @@ def _default_g2_s10_prerequisite_kwargs(
         ),
         "source_contract_ref": _first_or_none(request.source_contract_refs),
         "method_validity_ref": "method-validity://foundry/causal/local",
-        "sensitivity_analysis_ref": "sensitivity://ua-msme/fertilizer-support",
+        "sensitivity_analysis_ref": "sensitivity://ua-msme/affordable-loans",
         "dynamic_equilibrium_check_ref": "equilibrium-check://ua-msme/system-effect",
         "equilibrium_caveat_refs": ("caveat://partial-equilibrium",),
         "strategic_response_caveat_refs": ("caveat://strategic-response",),
-        "outcome_distribution_refs": ("distribution://ua-msme/fertilizer-support",),
+        "outcome_distribution_refs": ("distribution://ua-msme/firm-survival",),
         "welfare_comparison_ref": "welfare://ua-msme/value-grounded",
         "observable_subset_ref": "observable-subset://ua-msme/local-panel",
-        "uncertainty_interval_refs": ("interval://ua-msme/fertilizer-support/95",),
+        "uncertainty_interval_refs": ("interval://ua-msme/credit-survival/95",),
         "limitation_refs": ("limitation://forecast/support-only",),
         "credible_evaluation_evidence_ref": "evidence://ua-msme/credible-evaluation",
         "source_lineage_refs": ("lineage://ua-msme/source-contract",),
@@ -5637,11 +5760,12 @@ def _default_g2_calibration_payload(
     return {
         "calibration_id": "layer3.g2.calibration.ua-msme.observable",
         "calibration_ref": "pdc://layer3/g2/ua-msme/calibration/observable-subset",
+        "source_request_kind": "synthetic_fixture",
         "case_id": request.case_id,
         "observable_subset_ref": "observable-subset://ua-msme/local-panel",
-        "prediction_ref": "forecast://ua-msme/fertilizer-support/prediction",
-        "observed_outcome_ref": "outcome://ua-msme/fertilizer-support/observed",
-        "historical_implementation_ref": "implementation://ua-msme/fertilizer-2022",
+        "prediction_ref": "forecast://ua-msme/credit-survival/prediction",
+        "observed_outcome_ref": "outcome://ua-msme/firm-survival/observed",
+        "historical_implementation_ref": "implementation://ua-msme/credit-2022",
         "evaluation_design_ref": "eval://ua-msme/credible-counterfactual",
         "credible_evaluation_evidence_ref": "evidence://ua-msme/credible-evaluation",
         "counterfactual_credibility": "credible",

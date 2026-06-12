@@ -314,8 +314,9 @@ def test_runtime_touchpoint_scan_includes_local_imports_in_producer_pipeline() -
         for touchpoint in touchpoints
         if touchpoint.file == "src/polisyos/runtime/quality/producer_pipeline.py"
     }
+    bundle = g0.build_layer3_g0_bundle(REPO_ROOT)
 
-    assert len(touchpoints) == 35
+    assert len(touchpoints) == len(bundle.runtime_quality_touchpoints)
     assert g0.SOURCE_TOUCHPOINT_SCAN_MODE == "ast_top_level_and_local_imports"
     assert producer_pipeline_roots >= {
         "fabric",
@@ -325,6 +326,24 @@ def test_runtime_touchpoint_scan_includes_local_imports_in_producer_pipeline() -
         "participation_requirement",
         "scholar_requirement",
     }
+
+
+def test_g0_triage_registry_covers_inventory_and_quarantines_binary_lex() -> None:
+    g0 = _g0()
+    bundle = g0.build_layer3_g0_bundle(REPO_ROOT)
+    triaged_ids = {row.capability_id for row in bundle.triage_registry}
+    capability_ids = {entry.capability_id for entry in bundle.capability_inventory.entries}
+    asset_ids = {asset.asset_id for asset in bundle.data_asset_inventory.data_assets}
+    transform_ids = {
+        transform.transform_id
+        for transform in bundle.data_asset_inventory.processing_transforms
+    }
+    quarantine_ids = {entry.target_id for entry in bundle.quarantine_registry}
+
+    assert capability_ids <= triaged_ids
+    assert asset_ids <= triaged_ids
+    assert transform_ids <= triaged_ids
+    assert "lex_binary_status_candidate" in quarantine_ids
 
 
 def test_g0_does_not_mutate_source_truth_lattice_adapter_paths() -> None:

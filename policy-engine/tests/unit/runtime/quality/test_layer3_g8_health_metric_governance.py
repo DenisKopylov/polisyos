@@ -99,7 +99,7 @@ def test_g8_alias_normalization_accepts_existing_g1_to_g7_spellings() -> None:
 def test_g8_source_snapshot_reads_current_g0_to_g7_and_s14_artifacts() -> None:
     snapshot = g8.build_g8_metric_source_snapshot(REPO_ROOT)
 
-    assert snapshot.status == "pass"
+    assert snapshot.status == "blocked"
     assert snapshot.source_count >= 44
     refs = {source.source_ref for source in snapshot.sources}
     assert "repo://architecture/policy_design_case/layer3_health_metric_ledgers.toml" in refs
@@ -154,7 +154,7 @@ def test_g8_normalizes_current_metric_dialects_without_losing_raw_refs() -> None
         source_snapshot=snapshot,
     )
 
-    assert signals.status == "pass"
+    assert signals.status == "blocked"
     by_metric = {metric_id: [] for metric_id in g8.G8_CANONICAL_METRIC_IDS}
     for signal in signals.signals:
         by_metric[signal.metric_id].append(signal)
@@ -168,7 +168,7 @@ def test_g8_normalizes_current_metric_dialects_without_losing_raw_refs() -> None
         for signal in by_metric["search-recall@known-seeds+index-staleness"]
     }
     assert "search-recall@known-seeds + index-staleness" in search_refs
-    assert "search-recall@known-seeds+index-staleness(region)" in search_refs
+    assert "search-recall@known-seeds+index-staleness(region)" not in search_refs
     demand_readings = by_metric["demand-pull-vs-abstention"]
     assert any(signal.raw_key == "abstention_or_blocker_rate" for signal in demand_readings)
     assert any(
@@ -195,12 +195,7 @@ def test_g8_normalizes_current_metric_dialects_without_losing_raw_refs() -> None
         and signal.status == "pass"
         for signal in by_metric["search-recall@known-seeds+index-staleness"]
     )
-    assert any(
-        signal.slice_id == "G7"
-        and signal.raw_key == "g7_s14_grounded_breadth_feed_status"
-        and signal.status == "blocked_no_real_grounded_breadth"
-        for signal in demand_readings
-    )
+    assert not any(signal.slice_id == "G7" for signal in demand_readings)
 
 
 def test_g8_metric_trend_report_exposes_all_five_ci_visible_metrics() -> None:
@@ -236,8 +231,8 @@ def test_g8_current_state_does_not_claim_domain_ceiling() -> None:
     diagnosis = g8.build_g8_cross_metric_diagnosis(signals=signals, repo_root=REPO_ROOT)
     gate = g8.build_g8_domain_vs_search_ceiling_gate(diagnosis=diagnosis)
 
-    assert diagnosis.status == "pass"
-    assert gate.status == "not_claimed_current_grounding_blocker"
+    assert diagnosis.status == "blocked"
+    assert gate.status == "blocked"
     assert gate.domain_ceiling_claim_allowed is False
     assert (
         "layer3_g8_flat_expansion_reported_as_domain_ceiling_without_search_health"
@@ -274,6 +269,37 @@ def test_g8_search_recall_miss_blocks_domain_ceiling() -> None:
     assert gate.status == "search_ceiling_repair_required"
     assert gate.domain_ceiling_claim_allowed is False
     assert "layer3_g8_search_recall_miss_reported_as_domain_ceiling" in gate.issue_codes
+
+
+def test_g8_unmeasured_g1_recall_blocks_healthy_search_answer() -> None:
+    signals = g8.Layer3G8NormalizedMetricSignals(
+        status="pass",
+        signals=(
+            _signal("envelope-expansion-rate", "G5", "g5_envelope_expansion_status", "flat"),
+            _signal("governance-throughput", "G4", "g4_governance_throughput_status", "pass"),
+            _signal("demand-pull-vs-abstention", "G6", "grounded_result_rate", 0.0),
+            _signal("adapter-semantic-loss", "G7", "semantic_loss_status", "pass"),
+            _signal(
+                "search-recall@known-seeds+index-staleness",
+                "G1",
+                "g1_search_recall_status",
+                "not_measured",
+            ),
+        ),
+    )
+    diagnosis = g8.build_g8_cross_metric_diagnosis(signals=signals, repo_root=REPO_ROOT)
+    gate = g8.build_g8_domain_vs_search_ceiling_gate(diagnosis=diagnosis)
+    ledger = g8.build_g8_open_question_answer_ledger(
+        diagnosis=diagnosis,
+        ceiling_gate=gate,
+        repo_root=REPO_ROOT,
+    )
+    answers = {row.question_id: row for row in ledger.answers}
+
+    assert gate.status == "search_ceiling_repair_required"
+    assert answers["8.4-search-recall-freshness"].answer_status == (
+        "answered_currently_blocked"
+    )
 
 
 def test_g8_zero_grounded_response_blocks_domain_ceiling_as_abstention_inertia() -> None:
@@ -413,7 +439,10 @@ def test_g8_d44_rebasing_receipt_uses_freeze_hashes_without_hidden_payload_refs(
     )
     assert receipt.status == "pass_no_rebase_required"
     assert integrity_join.status == "pass"
-    assert integrity_join.hidden_payload_access_status == "not_accessed_by_g7"
+    assert integrity_join.hidden_payload_access_status in {
+        "not_accessed_by_g7",
+        "not_observed",
+    }
     assert receipt.pre_rebase_freeze_hash.startswith("sha256:")
     assert receipt.post_rebase_freeze_hash == receipt.pre_rebase_freeze_hash
     assert "sealed_gold_label_ref" not in serialized
@@ -481,11 +510,9 @@ def test_g8_open_question_ledger_answers_every_vision_question_with_current_evid
 def test_g8_audit_surface_is_expert_machine_and_public_projection_is_reference_only() -> None:
     bundle = g8.build_layer3_g8_bundle(REPO_ROOT)
 
-    assert bundle.audit_surface.status == "pass"
+    assert bundle.audit_surface.status == "blocked"
     assert bundle.audit_surface.surface_audiences == ("EXPERT", "MACHINE")
-    assert bundle.audit_surface.domain_vs_search_ceiling_status == (
-        "not_claimed_current_grounding_blocker"
-    )
+    assert bundle.audit_surface.domain_vs_search_ceiling_status == "blocked"
     assert bundle.audit_surface.metric_trend_report_status == "pass"
     assert bundle.audit_surface.d44_reannotation_coverage_status == "pass"
     assert bundle.audit_surface.sealed_battery_integrity_status == "pass"

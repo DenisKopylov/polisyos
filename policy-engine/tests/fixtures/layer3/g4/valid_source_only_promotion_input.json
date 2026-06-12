@@ -17,7 +17,7 @@
         "source_design_record": {
           "ref": "cas://s2/design-record/ua-msme-credit-support",
           "replay_ref": "cas://s2/search-run/ua-msme-credit-support",
-          "digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+          "digest": "sha256:387c808045e3204fa0ea285fa7d2d4810ba9986989b752758150a160150b6b63",
           "payload_status": "full_payload",
           "authority_posture": "shadow"
         },

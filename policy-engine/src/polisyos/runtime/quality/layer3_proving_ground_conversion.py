@@ -223,11 +223,13 @@ ALL_ISSUE_CODES: tuple[str, ...] = (
     "layer3_g5_g4_dependency_not_ready",
     "layer3_g5_context_dependency_missing",
     "layer3_g5_dependency_readiness_snapshot_missing",
+    "layer3_g5_unchanged_blocker_green_status",
     "layer3_g5_dependency_manifest_status_key_missing",
     "layer3_g5_dependency_manifest_status_overclaimed",
     "layer3_g5_g2_g3_artifact_without_g4_design_promotion",
     "layer3_g5_g4_registration_unknown_blocks_readiness",
     "layer3_g5_g1_observed_but_uncertain_overclaimed",
+    "layer3_g1_search_recall_not_measured",
     "layer3_g5_g1_source_contract_hash_missing",
     "layer3_g5_g1_observed_time_missing",
     "layer3_g5_g1_may_not_use_for_dropped",
@@ -927,37 +929,6 @@ def build_layer3_g5_bundle(repo_root: Path) -> Layer3G5Bundle:
     evidence = build_g5_grounded_result_evidence_set(
         _g5_readiness_grounded_evidence_rows(matrix=matrix, handoff=handoff)
     )
-    useful_join = build_g5_useful_design_metric_eligibility_join(
-        conversion_outcome="unchanged_blocker",
-        useful_design_credit_requested=False,
-    )
-    eligibility = Layer3G5ConversionEligibilityLedger(
-        status="pass",
-        conversion_outcome="unchanged_blocker",
-        grounding_disposition="ungrounded_blocked",
-        g4_design_scope_status="blocked"
-        if handoff.blocked_promotion_input_count
-        else "missing",
-        blocker_refs=_dedupe(
-            (
-                *handoff.issue_codes,
-                *matrix.issue_codes,
-                *pinned.issue_codes,
-                *evidence.issue_codes,
-            )
-        ),
-        weakest_boundary_status="limited",
-        weakest_boundary_reason="unchanged_blocker_first_readiness_surface",
-        mixed_upstream_statuses=("limited",)
-        if handoff.status == "pass_with_blockers" or matrix.status == "limited"
-        else (),
-        useful_design_credit_requested=False,
-    )
-    status_composition = build_g5_status_composition_ledger(
-        conversion_eligibility_ledger=eligibility,
-        useful_design_metric_eligibility_join=useful_join,
-        w12d_outcome="typed_blocker",
-    )
     s12_growth = build_g5_s12_demand_growth_evidence(
         s12_case_signals=_g5_s12_readiness_signals(pinned),
         requested_scope={"demand_act_refs": pinned.s12_demand_act_refs},
@@ -967,6 +938,48 @@ def build_layer3_g5_bundle(repo_root: Path) -> Layer3G5Bundle:
         s12_demand_growth_evidence=s12_growth,
         s3_demand_pull_refs=("s3-demand-pull://ua-msme/first-proving-ground",),
         attempted_grounding_path_refs=("layer3-g5://readiness/demand-pull",),
+    )
+    requested_scope = {
+        "claim_families": ("source_data",),
+        "requires_claim_authority": False,
+    }
+    search_health = _g5_g1_search_health(root, snapshot)
+    eligibility = build_g5_conversion_eligibility_ledger(
+        pinned_case_input_bundle=pinned,
+        dependency_snapshot=snapshot,
+        g4_handoff_resolution=handoff,
+        upstream_scope_join_matrix=matrix,
+        grounded_result_evidence_set=evidence,
+        requested_scope=requested_scope,
+        requested_conversion_outcome="typed_blocker -> grounded_abstention",
+        search_health=search_health,
+        weakest_boundary={
+            "status": "limited" if handoff.blocked_promotion_input_count else "pass",
+            "weakest_boundary_reason": (
+                "blocked_g4_promotion"
+                if handoff.blocked_promotion_input_count
+                else "measured_source_data_abstention_route"
+            ),
+        },
+        upstream_statuses=(
+            snapshot.g1_grounding_status,
+            snapshot.g2_w12d_consumer_gate_status,
+            snapshot.g3_w12d_consumer_gate_status,
+            snapshot.gl_reissue_status,
+            handoff.status,
+            matrix.status,
+        ),
+        useful_design_credit_requested=False,
+        demand_pull_attempt_record=demand_pull,
+    )
+    useful_join = build_g5_useful_design_metric_eligibility_join(
+        conversion_outcome=eligibility.conversion_outcome,
+        useful_design_credit_requested=False,
+    )
+    status_composition = build_g5_status_composition_ledger(
+        conversion_eligibility_ledger=eligibility,
+        useful_design_metric_eligibility_join=useful_join,
+        w12d_outcome="typed_blocker",
     )
     envelope_delta = build_g5_envelope_expansion_delta(
         conversion_eligibility_ledger=eligibility,
@@ -986,7 +999,7 @@ def build_layer3_g5_bundle(repo_root: Path) -> Layer3G5Bundle:
     conversion_record = Layer3G5ConversionRecord(
         conversion_record_id=(
             "layer3-g5-conversion-record:"
-            "ua-msme-affordable-loans-2022:unchanged-blocker"
+            f"ua-msme-affordable-loans-2022:{_g5_slug_token(eligibility.conversion_outcome)}"
         ),
         case_id=G5_PINNED_CASE_ID,
         conversion_outcome=eligibility.conversion_outcome,
@@ -1034,10 +1047,17 @@ def build_layer3_g5_bundle(repo_root: Path) -> Layer3G5Bundle:
         conformance_report=conformance_report,
         registry_ratchet=registry_ratchet,
     )
+    readiness_issue_codes = _dedupe(
+        (
+            *snapshot.issue_codes,
+            *eligibility.issue_codes,
+            *status_composition.issue_codes,
+        )
+    )
     readiness = Layer3G5ReadinessManifest(
-        status="pass",
+        status="pass" if eligibility.status == "pass" and not readiness_issue_codes else "fail",
         summary=summary,
-        issue_codes=(),
+        issue_codes=readiness_issue_codes,
     )
     return Layer3G5Bundle(
         dependency_readiness_snapshot=snapshot,
@@ -2164,6 +2184,18 @@ def validate_layer3_g5_bundle(
         )
         for code in bundle.readiness_manifest.issue_codes
     ]
+    eligibility = bundle.conversion_eligibility_ledger
+    if (
+        eligibility.status == "pass"
+        and eligibility.conversion_outcome == "unchanged_blocker"
+    ):
+        issues.append(
+            Layer3G5ValidationIssue(
+                code="layer3_g5_unchanged_blocker_green_status",
+                path="$.conversion_eligibility_ledger",
+                message="unchanged_blocker is a failed conversion attempt, not a green conversion.",
+            )
+        )
     return Layer3G5ValidationReport(
         status="fail" if issues else "pass",
         issues=tuple(issues),
@@ -3513,6 +3545,32 @@ def _requires_high_stakes_human_decision(scope: Mapping[str, Any]) -> bool:
     return any(bool(scope.get(key)) for key in ("high_stakes", "value_laden", "irreversible"))
 
 
+def _g5_g1_search_health(
+    repo_root: Path,
+    snapshot: Layer3G5DependencyReadinessSnapshot,
+) -> dict[str, Any]:
+    report = _read_optional_json(repo_root, G1_SEARCH_RECALL_FRESHNESS_PATH) or {}
+    measurement_provenance = _first_text(report.get("measurement_provenance"))
+    query_trace_refs = _as_str_tuple(report.get("query_trace_refs", ()))
+    issue_codes = list(_as_str_tuple(report.get("issue_codes", ())))
+    recall_status = _first_text(report.get("search_recall_status"), snapshot.g1_search_recall_status)
+    freshness_status = _first_text(
+        report.get("index_freshness_status"),
+        snapshot.g1_index_freshness_status,
+    )
+    if measurement_provenance in {"missing", "self_attested", "constant"} or not query_trace_refs:
+        recall_status = "not_measured"
+        freshness_status = "not_measured"
+        issue_codes.append("layer3_g1_search_recall_not_measured")
+    return {
+        "search_recall_status": recall_status,
+        "index_freshness_status": freshness_status,
+        "measurement_provenance": measurement_provenance,
+        "query_trace_refs": query_trace_refs,
+        "issue_codes": _dedupe(issue_codes),
+    }
+
+
 def _abstention_search_issue_codes(search_health: Mapping[str, Any] | None) -> tuple[str, ...]:
     health = _mapping(search_health)
     recall_status = _first_text(health.get("search_recall_status"), health.get("status"))
@@ -3523,11 +3581,15 @@ def _abstention_search_issue_codes(search_health: Mapping[str, Any] | None) -> t
     issues: list[str] = []
     if recall_status != "pass":
         issues.append("layer3_g5_search_recall_seed_miss_blocks_abstention")
-    if freshness_status in {"stale", "fail", "failed", "missing"}:
+    if freshness_status in {"stale", "fail", "failed", "missing", "not_measured"}:
         issues.append("layer3_g5_stale_index_blocks_abstention")
     if health.get("non_conversion_reason") == "domain_ceiling" and recall_status != "pass":
         issues.append("layer3_g5_search_ceiling_not_domain_ceiling")
     return _dedupe(issues)
+
+
+def _g5_slug_token(value: str) -> str:
+    return "".join(ch if ch.isalnum() else "-" for ch in value.casefold()).strip("-")
 
 
 def _has_grounded_limited_blocking_issue(issue_codes: Sequence[str]) -> bool:

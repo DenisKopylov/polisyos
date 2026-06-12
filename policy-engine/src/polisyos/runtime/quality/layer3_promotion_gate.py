@@ -8,6 +8,7 @@ production, publication, approval, scorecard, closeout, or useful-design credit.
 from __future__ import annotations
 
 import json
+import hashlib
 import tomllib
 from collections.abc import Mapping, Sequence
 from pathlib import Path
@@ -388,6 +389,7 @@ ALL_ISSUE_CODES: tuple[str, ...] = (
     "layer3_g4_source_design_record_shape_mismatch",
     "layer3_g4_source_design_record_not_shadow",
     "layer3_g4_w12d_manifest_only_not_payload",
+    "layer3_g4_placeholder_design_record_promoted",
     "layer3_g4_shadow_self_promotion",
     "layer3_g4_data_promotion_lane_confused",
     "layer3_g4_generated_artifact_promotion_target_confused",
@@ -1337,9 +1339,13 @@ def resolve_g4_source_design_record(
         blocker_refs.append(str(ref or "source_design_record"))
     if payload_status == "manifest_only":
         issue_codes.append("layer3_g4_w12d_manifest_only_not_payload")
+        issue_codes.append("layer3_g4_placeholder_design_record_promoted")
         blocker_refs.append(str(ref or "source_design_record"))
     if not digest:
         issue_codes.append("layer3_g4_source_design_record_digest_missing")
+        blocker_refs.append(str(ref or "source_design_record_digest"))
+    elif _g4_placeholder_digest(str(digest)):
+        issue_codes.append("layer3_g4_placeholder_design_record_promoted")
         blocker_refs.append(str(ref or "source_design_record_digest"))
     if payload_status == "full_payload" and not replay_ref:
         issue_codes.append("layer3_g4_source_design_record_unresolved")
@@ -1787,6 +1793,8 @@ def build_g4_a_completeness_ledger(
     issue_codes: list[str] = []
     limitation_refs: list[str] = []
     blocker_refs: list[str] = []
+    issue_codes.extend(input_set.issue_codes)
+    blocker_refs.extend(input_set.issue_codes)
     for promotion_input in input_set.promotion_inputs:
         required_families = _required_families_for_input(promotion_input)
         posture_codes = _declared_posture_issue_codes(
@@ -3112,22 +3120,14 @@ def validate_g4_conformance(
     )
 
 
-def _default_g4_promoted_request() -> dict[str, Any]:
+def _default_g4_promoted_request(repo_root: Path | None = None) -> dict[str, Any]:
     return {
         "request_id": "g4-request:ua-msme-source-only-valid",
         "case_id": "ua-msme-affordable-loans-2022",
         "candidate_ref": "s2-design-candidate:ua-msme-credit-support",
-        "candidate_source": "shadow_design_record_v0",
+        "candidate_source": "layer2_s2_design_search_manifest",
         "incoming_projection_status": "shadow",
-        "source_design_record": {
-            "ref": "cas://s2/design-record/ua-msme-credit-support",
-            "replay_ref": "cas://s2/search-run/ua-msme-credit-support",
-            "digest": (
-                "sha256:1111111111111111111111111111111111111111111111111111111111111111"
-            ),
-            "payload_status": "full_payload",
-            "authority_posture": "shadow",
-        },
+        "source_design_record": _g4_default_source_design_record(repo_root),
         "promotion_scope": {
             "authority_purpose": "layer3_g4_governed_promotion_state",
             "claim_families": ["source_data"],
@@ -3150,8 +3150,8 @@ def _default_g4_promoted_request() -> dict[str, Any]:
     }
 
 
-def _default_g4_blocked_request() -> dict[str, Any]:
-    request = dict(_default_g4_promoted_request())
+def _default_g4_blocked_request(repo_root: Path | None = None) -> dict[str, Any]:
+    request = dict(_default_g4_promoted_request(repo_root))
     request["request_id"] = "g4-request:blocked-effect"
     request["candidate_ref"] = "s2-design-candidate:blocked-effect"
     request["promotion_scope"] = {
@@ -3171,6 +3171,39 @@ def _default_g4_blocked_request() -> dict[str, Any]:
     ]
     request["grounded_contract_rows"] = [_default_g4_grounded_g1_row()]
     return request
+
+
+def _g4_default_source_design_record(repo_root: Path | None) -> dict[str, Any]:
+    manifest_path = Path("architecture/policy_design_case/layer2_s2_design_search_manifest.json")
+    if repo_root is None:
+        return {
+            "ref": "cas://s2/design-record/ua-msme-credit-support",
+            "replay_ref": "cas://s2/search-run/ua-msme-credit-support",
+            "digest": (
+                "sha256:387c808045e3204fa0ea285fa7d2d4810ba9986989b752758150a160150b6b63"
+            ),
+            "payload_status": "full_payload",
+            "authority_posture": "shadow",
+            "resolution_strategy": "conformance_fixture_full_payload",
+        }
+    payload = _read_json(Path(repo_root) / manifest_path)
+    digest = None
+    if payload:
+        canonical = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        digest = f"sha256:{hashlib.sha256(canonical).hexdigest()}"
+    return {
+        "ref": f"repo://{manifest_path.as_posix()}",
+        "replay_ref": f"repo://{manifest_path.as_posix()}",
+        "digest": digest,
+        "payload_status": "manifest_only",
+        "authority_posture": "shadow",
+        "resolution_strategy": "layer2_s2_manifest_digest_only",
+    }
+
+
+def _g4_placeholder_digest(value: str) -> bool:
+    digest = value.removeprefix("sha256:")
+    return bool(digest) and len(set(digest)) == 1
 
 
 def _default_g4_grounded_g1_row() -> dict[str, Any]:
@@ -4016,14 +4049,15 @@ def validate_layer3_g4_bundle(
 def build_layer3_g4_bundle(repo_root: Path) -> Layer3G4Bundle:
     """Build the G4 runtime bundle from persisted dependency artifacts."""
 
+    root = Path(repo_root).resolve()
     snapshot = build_g4_dependency_readiness_snapshot(repo_root)
     artifact_shapes = load_g4_dependency_artifacts(
         repo_root,
         required_families=("g1", "g2", "g3", "gl"),
     )
     collision_guard = check_g4_naming_collisions(repo_root)
-    promoted_request = _default_g4_promoted_request()
-    blocked_request = _default_g4_blocked_request()
+    promoted_request = _default_g4_promoted_request(root)
+    blocked_request = _default_g4_blocked_request(root)
     (
         promoted_inputs,
         promoted_contracts,
@@ -4052,8 +4086,19 @@ def build_layer3_g4_bundle(repo_root: Path) -> Layer3G4Bundle:
     registry_delta = build_g4_registry_ratchet_delta(conformance)
     health_delta = _health_metric_delta_from_records(promotion_records)
     adapter_registry = _adapter_contract_registry_payload()
-    issue_codes = tuple(snapshot.issue_codes)
-    bundle_status: Literal["pass", "fail"] = "pass" if snapshot.status == "pass" else "fail"
+    issue_codes = tuple(
+        dict.fromkeys(
+            (
+                *snapshot.issue_codes,
+                *promoted_inputs.issue_codes,
+                *blocked_inputs.issue_codes,
+                *promoted_ledger.issue_codes,
+            )
+        )
+    )
+    bundle_status: Literal["pass", "fail"] = (
+        "pass" if snapshot.status == "pass" and not issue_codes else "fail"
+    )
     placeholder_manifest = Layer3G4ReadinessManifest(
         status=bundle_status,
         summary={},

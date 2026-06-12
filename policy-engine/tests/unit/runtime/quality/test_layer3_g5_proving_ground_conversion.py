@@ -531,6 +531,33 @@ def test_layer3_g5_task7_declares_closeout_candidate_warning_replay_checks() -> 
     assert set(g5.G5_CONFORMANCE_NEGATIVE_IDS) >= TASK7_CONFORMANCE_NEGATIVE_IDS
 
 
+def test_layer3_g5_persisted_bundle_uses_compute_path_not_green_unchanged_blocker() -> None:
+    g5 = _g5()
+
+    bundle = g5.build_layer3_g5_bundle(REPO_ROOT)
+    eligibility = bundle.conversion_eligibility_ledger
+
+    assert not (
+        eligibility.status == "pass"
+        and eligibility.conversion_outcome == "unchanged_blocker"
+    )
+    assert bundle.status_composition_ledger.counts_toward_runtime_useful_design is False
+
+
+def test_layer3_g5_validator_rejects_green_unchanged_blocker() -> None:
+    g5 = _g5()
+    payload = g5.build_layer3_g5_bundle(REPO_ROOT).model_dump(mode="json")
+    payload["conversion_eligibility_ledger"]["status"] = "pass"
+    payload["conversion_eligibility_ledger"]["conversion_outcome"] = "unchanged_blocker"
+
+    report = g5.validate_layer3_g5_bundle(REPO_ROOT, payload)
+
+    assert report.status == "fail"
+    assert "layer3_g5_unchanged_blocker_green_status" in {
+        issue.code for issue in report.issues
+    }
+
+
 def test_layer3_g5_dependency_snapshot_requires_g0_g1_g4() -> None:
     g5 = _g5()
 

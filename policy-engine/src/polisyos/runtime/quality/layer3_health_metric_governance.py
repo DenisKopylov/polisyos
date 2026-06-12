@@ -2641,6 +2641,10 @@ def _signal_issue_codes(
         "stale",
         "fail",
         "miss",
+        "missing",
+        "not_measured",
+        "self_attested",
+        "unmeasured",
         "search_ceiling",
     }:
         issues.append("layer3_g8_search_recall_miss_reported_as_domain_ceiling")
@@ -2684,6 +2688,10 @@ def _latest_metric_status(signals: Layer3G8NormalizedMetricSignals, metric_id: s
         "search_ceiling",
         "stale",
         "miss",
+        "missing",
+        "not_measured",
+        "self_attested",
+        "unmeasured",
         "stalled",
         "lossy",
         "blocked",
@@ -2725,6 +2733,10 @@ def _is_search_ceiling(status: str) -> bool:
         "stale",
         "fail",
         "miss",
+        "missing",
+        "not_measured",
+        "self_attested",
+        "unmeasured",
         "blocked_search_control_plane_only",
     }
 

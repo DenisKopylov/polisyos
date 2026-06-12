@@ -235,6 +235,41 @@ def test_g1_manifest_counts_match_runtime_builder() -> None:
     ]
 
 
+def test_g1_runtime_search_health_is_measured_not_self_attested() -> None:
+    g1 = _g1()
+    payload = _dump(g1.build_layer3_g1_bundle(REPO_ROOT))
+
+    recall = payload["search_recall_freshness"]
+    quality = payload["search_engineering_quality"]
+    hardcode = payload["hardcode_strangle_delta"]
+
+    assert recall["search_recall_status"] in {"pass", "fail"}
+    assert recall["index_freshness_status"] in {"pass", "fail"}
+    assert recall["measurement_provenance"] == "l1_dcat_duckdb_metric_binding_query"
+    assert recall["query_trace_refs"]
+    assert quality["measurement_provenance"] == "l1_dcat_search_adapter_runtime_probe"
+    assert quality["query_trace_refs"]
+    assert hardcode["fallback_deletion_status"] == "search_path_replaced_deletion_pending"
+    assert "layer3_g1_hardcode_strangle_incomplete" in hardcode["issue_codes"]
+
+
+def test_g1_validation_rejects_search_health_without_measurement_provenance() -> None:
+    g1 = _g1()
+    payload = _dump(g1.build_layer3_g1_bundle(REPO_ROOT))
+    payload["search_recall_freshness"].pop("measurement_provenance", None)
+    payload["search_recall_freshness"]["query_trace_refs"] = []
+    payload["search_engineering_quality"].pop("measurement_provenance", None)
+    payload["search_engineering_quality"]["query_trace_refs"] = []
+
+    report = g1.validate_layer3_g1_bundle(REPO_ROOT, payload)
+
+    assert _dump(report)["status"] == "fail"
+    assert {
+        "layer3_g1_search_recall_not_measured",
+        "layer3_g1_search_engineering_quality_not_measured",
+    } <= _issue_codes(report)
+
+
 def test_g1_does_not_mutate_g0_source_truth_baseline() -> None:
     g1 = _g1()
     report = g1.validate_layer3_g1_bundle(REPO_ROOT, g1.build_layer3_g1_bundle(REPO_ROOT))

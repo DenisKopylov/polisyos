@@ -40,7 +40,7 @@
   "REVIEWER": {
     "blocker_refs": [
       "layer3_g5_blocked_promotion_used_as_conversion",
-      "layer3_g5_g1_observed_but_uncertain_overclaimed",
+      "layer3_g5_g1_construct_mismatch",
       "layer3_g5_g2_s2_replay_key_ref_missing",
       "layer3_g5_g2_source_contract_ref_mismatch",
       "layer3_g5_g3_proof_status_overclaimed",
@@ -63,7 +63,7 @@
   ],
   "blocker_refs": [
     "layer3_g5_blocked_promotion_used_as_conversion",
-    "layer3_g5_g1_observed_but_uncertain_overclaimed",
+    "layer3_g5_g1_construct_mismatch",
     "layer3_g5_g2_s2_replay_key_ref_missing",
     "layer3_g5_g2_source_contract_ref_mismatch",
     "layer3_g5_g3_proof_status_overclaimed",

@@ -4,20 +4,31 @@
     "delta_records": [
       {
         "backlog_ref": "capability_index_compiler.KNOWN_CONSTRUCTS",
-        "fallback_deleted_or_disabled": true,
-        "no_fallback_proof_ref": "tests/unit/runtime/quality/test_layer3_g1_substrate_grounding.py",
+        "fallback_deleted_or_disabled": false,
+        "measurement_provenance": "repo_static_reachability_probe",
+        "reachability_probe_refs": [
+          "repo://src/polisyos/runtime/quality/capability_index_compiler.py#KNOWN_CONSTRUCTS"
+        ],
         "search_backed_replacement_ref": "g1-resource-discovery:l1-dcat-construct-search"
       },
       {
         "backlog_ref": "capability_resolver.REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS",
-        "fallback_deleted_or_disabled": true,
-        "no_fallback_proof_ref": "tests/unit/runtime/quality/test_layer3_g1_substrate_grounding.py",
-        "search_backed_replacement_ref": "g1-resource-discovery:scenario-family-source-contract"
+        "fallback_deleted_or_disabled": false,
+        "measurement_provenance": "repo_static_reachability_probe",
+        "reachability_probe_refs": [
+          "repo://src/polisyos/runtime/quality/capability_resolver.py#REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS",
+          "repo://src/polisyos/core/contracts/capability_resolution.py#REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS"
+        ],
+        "search_backed_replacement_ref": "g1-resource-discovery:l1-dcat-construct-search"
       }
     ],
     "fallback_closure_count": 0,
-    "fallback_deletion_status": "deleted_or_disabled_no_fallback",
-    "hardcode_strangle_delta_count": 2
+    "fallback_deletion_status": "search_path_replaced_deletion_pending",
+    "hardcode_strangle_delta_count": 2,
+    "issue_codes": [
+      "layer3_g1_hardcode_strangle_incomplete"
+    ],
+    "measurement_provenance": "repo_static_reachability_probe"
   },
   "rule_version": "policyos.layer3.g1.substrate_grounding_search.v1",
   "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1"

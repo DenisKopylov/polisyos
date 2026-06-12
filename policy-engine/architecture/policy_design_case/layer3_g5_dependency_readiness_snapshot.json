@@ -2,7 +2,7 @@
   "dependency_manifest_key_resolution_status": "pass",
   "g0_dependency_status": "pass",
   "g1_dependency_status": "pass",
-  "g1_grounding_status": "grounded_or_uncertain",
+  "g1_grounding_status": "grounded_abstention",
   "g1_index_freshness_status": "pass",
   "g1_search_recall_status": "pass",
   "g2_conformance_status": "pass",

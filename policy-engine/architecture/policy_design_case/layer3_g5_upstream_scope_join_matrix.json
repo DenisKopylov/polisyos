@@ -1,7 +1,7 @@
 {
   "case_id": "ua-msme-affordable-loans-2022",
-  "g1_conversion_scope_disposition": "substrate_only_limited",
-  "g1_grounding_status": "observed_but_uncertain",
+  "g1_conversion_scope_disposition": "blocked_construct_mismatch",
+  "g1_grounding_status": "grounded_binding",
   "g1_may_not_use_for": [
     "claim_authority",
     "causal_effect",
@@ -13,8 +13,8 @@
     "search_hit_as_authority"
   ],
   "g1_observed_through": "2026-04-10",
-  "g1_source_contract_content_hash": "sha256:b4a2bd9b7050dc68fefa7576b5f9421594b3f76847658f555bbc925a54103341",
-  "g1_source_contract_ref": "source-contract://layer3.ua_msme.firm_survival.panel",
+  "g1_source_contract_content_hash": "sha256:992cb1d1c96f8bd4909d543c957e4455c272feafc124470057e9aad6f474c521",
+  "g1_source_contract_ref": "source-contract://layer3.dcat.credit_access.f_02a97e2f54d48b8fa8ef.ed13d084fb78ebca61e1",
   "g2_design_record_alias_resolution": {
     "issue_codes": [],
     "normalized_ref": "pdc://layer2/s2/ua-msme/design-record-v0",
@@ -32,7 +32,7 @@
   ],
   "gl_reissue_status": "reissue_required",
   "issue_codes": [
-    "layer3_g5_g1_observed_but_uncertain_overclaimed",
+    "layer3_g5_g1_construct_mismatch",
     "layer3_g5_g2_s2_replay_key_ref_missing",
     "layer3_g5_g2_source_contract_ref_mismatch",
     "layer3_g5_g3_proof_status_overclaimed",
@@ -41,5 +41,5 @@
   ],
   "rule_version": "policyos.layer3.g5.first_proving_ground_conversion.v1",
   "schema_version": "policyos.policy_design_case.layer3_g5_proving_ground_conversion.v1",
-  "status": "limited"
+  "status": "fail"
 }

@@ -7,15 +7,22 @@
     "eager_full_corpus_scan": false,
     "full_parquet_scan_count": 0,
     "index_backed": true,
+    "issue_codes": [],
     "lazy_or_streaming": true,
+    "measurement_provenance": "l1_dcat_query",
     "named_library_refs": [
       "duckdb",
       "pyarrow.metadata_only",
       "pydantic"
     ],
     "parquet_profile_mode": "metadata_only",
+    "query_trace_refs": [
+      "g1-query-trace:l1-dcat:ba667ef69d48895a2ae51d6df6e87ba49e5b618f66e8068ef421b5b7834c6929"
+    ],
     "report_id": "layer3-g1-search-engineering-quality",
+    "search_frontier_ref": "g1-search-frontier:l1-dcat:ba667ef69d48895a2ae51d6df6e87ba49e5b618f66e8068ef421b5b7834c6929:exact=20:text=20",
     "search_scaling_fixture_status": "pass",
+    "source_request_kind": "runtime_l1_dcat_probe",
     "status": "pass"
   }
 }

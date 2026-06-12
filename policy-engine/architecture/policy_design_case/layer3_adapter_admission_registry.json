@@ -136,6 +136,25 @@
       },
       {
         "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-bounded-agent-py-40-scientist",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/layer3_bounded_agent.py:40:scientist"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/layer3_bounded_agent.py:40:scientist"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
         "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-causal-forecast-py-21-method-requirement",
         "admission_state": "candidate_shadow_only",
         "admitted": false,
@@ -326,7 +345,7 @@
       },
       {
         "adapter_contract_path_refs": [],
-        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-substrate-grounding-py-20-fabric",
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-substrate-grounding-py-21-fabric",
         "admission_state": "candidate_shadow_only",
         "admitted": false,
         "conformance_status": "not_run_pre_adapter",
@@ -337,10 +356,29 @@
         "promotion_state": "shadow",
         "quarantine_check": "not_blocked",
         "source_ids": [
-          "src/polisyos/runtime/quality/layer3_substrate_grounding.py:20:fabric"
+          "src/polisyos/runtime/quality/layer3_substrate_grounding.py:21:fabric"
         ],
         "source_touchpoint_refs": [
-          "src/polisyos/runtime/quality/layer3_substrate_grounding.py:20:fabric"
+          "src/polisyos/runtime/quality/layer3_substrate_grounding.py:21:fabric"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-substrate-grounding-py-28-data-forge",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/layer3_substrate_grounding.py:28:data_forge"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/layer3_substrate_grounding.py:28:data_forge"
         ]
       },
       {

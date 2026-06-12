@@ -6,13 +6,13 @@
   ],
   "current_blocker_refs": [
     "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json#g5_conversion_outcome",
-    "repo://architecture/policy_design_case/layer3_g7_readiness_manifest.json#g7_region_value_closure_status",
     "repo://architecture/policy_design_case/layer3_g7_readiness_manifest.json#g7_region_grounded_case_count"
   ],
   "domain_ceiling_claim_allowed": false,
   "gate_id": "layer3-g8://domain-vs-search-ceiling-gate",
   "issue_codes": [
-    "layer3_g8_demand_numeric_inertia_hidden_as_pass"
+    "layer3_g8_demand_numeric_inertia_hidden_as_pass",
+    "layer3_g8_metric_source_missing"
   ],
   "may_not_use_for": [
     "production_authority",
@@ -45,5 +45,5 @@
   ],
   "rule_version": "policyos.layer3.g8.health_metric_governance.v1",
   "schema_version": "policyos.policy_design_case.layer3_g8_health_metric_governance.v1",
-  "status": "not_claimed_current_grounding_blocker"
+  "status": "blocked"
 }

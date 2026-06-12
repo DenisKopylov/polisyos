@@ -2,22 +2,14 @@
   "lineage_contamination_ledger": {
     "records": [
       {
-        "construct_ref": "firm_survival",
+        "construct_ref": "credit_access",
         "contamination_status": "clean",
         "lineage_refs": [
-          "repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/LOCAL_IMPORT_MANIFEST.json"
+          "dcat://metric-binding/credit_access/02a97e2f54d48b8fa8ef/ed13d084fb78ebca61e1",
+          "g1-query-trace:l1-dcat:ba667ef69d48895a2ae51d6df6e87ba49e5b618f66e8068ef421b5b7834c6929"
         ],
         "local_path_lineage_ref_count": 0,
-        "record_id": "g1-lineage:firm_survival"
-      },
-      {
-        "construct_ref": "firm_survival",
-        "contamination_status": "clean",
-        "lineage_refs": [
-          "repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/LOCAL_IMPORT_MANIFEST.json"
-        ],
-        "local_path_lineage_ref_count": 0,
-        "record_id": "g1-lineage:firm_survival"
+        "record_id": "g1-lineage:credit_access"
       }
     ]
   },

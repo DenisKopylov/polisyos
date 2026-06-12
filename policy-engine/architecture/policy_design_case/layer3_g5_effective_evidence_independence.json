@@ -24,10 +24,10 @@
         "collapse_reasons": [],
         "effective_line_count": 1,
         "line_ids": [
-          "source-contract://layer3.ua_msme.firm_survival.panel"
+          "source-contract://layer3.dcat.credit_access.f_02a97e2f54d48b8fa8ef.ed13d084fb78ebca61e1"
         ],
         "raw_line_count": 1,
-        "representative_line_id": "source-contract://layer3.ua_msme.firm_survival.panel"
+        "representative_line_id": "source-contract://layer3.dcat.credit_access.f_02a97e2f54d48b8fa8ef.ed13d084fb78ebca61e1"
       },
       {
         "cluster_id": "g5-independent-cluster-2",
@@ -83,7 +83,7 @@
       "raw_evidence_line_count": 2,
       "raw_support_line_count": 2,
       "support_line_ids": [
-        "source-contract://layer3.ua_msme.firm_survival.panel",
+        "source-contract://layer3.dcat.credit_access.f_02a97e2f54d48b8fa8ef.ed13d084fb78ebca61e1",
         "g4-promotion-record:g4-request:ua-msme-source-only-valid"
       ]
     },

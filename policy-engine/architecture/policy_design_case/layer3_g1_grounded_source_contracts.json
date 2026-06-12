@@ -6,16 +6,17 @@
           "layer3_g1_construct_grounding_audit",
           "layer3_g1_lineage_contamination_audit"
         ],
-        "binding_id": "g1-binding:construct_to_metric_binding:firm_survival",
+        "binding_id": "g1-binding:construct_to_metric_binding:credit_access",
         "case_id": "ua-msme-affordable-loans-2022",
         "construct_bundle_id": "ukrainian_msme_credit_constructs",
-        "construct_ref": "firm_survival",
+        "construct_ref": "credit_access",
         "coverage_period_ref": "coverage-period://ua-msme/2022-02-open",
         "freshness_ref": "freshness://ukraine_server_support_20260410",
         "generated_at": "2026-06-07T00:00:00Z",
-        "grounding_status": "observed_but_uncertain",
+        "grounding_status": "grounded_binding",
         "lineage_refs": [
-          "repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/LOCAL_IMPORT_MANIFEST.json"
+          "dcat://metric-binding/credit_access/02a97e2f54d48b8fa8ef/ed13d084fb78ebca61e1",
+          "g1-query-trace:l1-dcat:ba667ef69d48895a2ae51d6df6e87ba49e5b618f66e8068ef421b5b7834c6929"
         ],
         "may_not_use_for": [
           "claim_authority",
@@ -29,24 +30,21 @@
         ],
         "observed_through": "2026-04-10",
         "rule_version": "policyos.layer3.g1.substrate_grounding_search.v1",
-        "source_contract_content_hash": "sha256:b4a2bd9b7050dc68fefa7576b5f9421594b3f76847658f555bbc925a54103341",
-        "source_contract_ref": "source-contract://layer3.ua_msme.firm_survival.panel",
+        "source_contract_content_hash": "sha256:992cb1d1c96f8bd4909d543c957e4455c272feafc124470057e9aad6f474c521",
+        "source_contract_ref": "source-contract://layer3.dcat.credit_access.f_02a97e2f54d48b8fa8ef.ed13d084fb78ebca61e1",
         "source_contract_snapshot": {
-          "created_at": "2026-06-07T11:00:27.569240Z",
+          "created_at": "2026-06-12T08:49:36.732367Z",
           "deprecation": null,
           "docs": {
             "generated_anchor": null,
             "reference_page": "docs/reference/fabric/source-platform.md"
           },
-          "id": "layer3.ua_msme.firm_survival.panel",
+          "id": "layer3.dcat.credit_access.f_02a97e2f54d48b8fa8ef.ed13d084fb78ebca61e1",
           "lineage": {
-            "evidence_ref": "sha256:fd930d300b0ebcb40547349da4e1006c212075e848a487b0c8f2327b4801d4dd",
+            "evidence_ref": "sha256:5e745edda0ecb0ccb6b12be5e1e48dbe3837f2be1012b76591c8d4cb68e291a9",
             "seed_fields": [
-              "firm_id",
-              "revenue",
-              "assets",
-              "employees",
-              "survival_signal"
+              "dp_dod_decd_cr_bc_z1",
+              "gdp"
             ],
             "seed_node_kind": "source_dataset"
           },
@@ -88,7 +86,7 @@
             }
           },
           "quality": {
-            "contract_ref": "fabric.quality.layer3.ua_msme.firm_survival.panel.v1",
+            "contract_ref": "fabric.quality.layer3.dcat.credit_access.f_02a97e2f54d48b8fa8ef.ed13d084fb78ebca61e1.v1",
             "min_quality_score": 0.8,
             "required_checks": [
               "schema_compliance",
@@ -99,8 +97,8 @@
             ]
           },
           "replay": {
-            "determinism_key": "sha256:fd930d300b0ebcb40547349da4e1006c212075e848a487b0c8f2327b4801d4dd",
-            "fixture_ref": "repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/LOCAL_IMPORT_MANIFEST.json",
+            "determinism_key": "sha256:5e745edda0ecb0ccb6b12be5e1e48dbe3837f2be1012b76591c8d4cb68e291a9",
+            "fixture_ref": "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings[metric_id=credit_access;dataset_id=02a97e2f54d48b8fa8ef;distribution_id=ed13d084fb78ebca61e1]",
             "non_replayable_reason": null,
             "required": true
           },
@@ -121,21 +119,23 @@
                   null,
                   null
                 ],
-                "data_type": "string",
+                "data_type": "float64",
                 "description": "",
                 "display_unit": null,
                 "element_type": null,
                 "expected_completeness": 1.0,
                 "field_id": null,
                 "max_length": null,
-                "name": "firm_id",
-                "nullable": false,
+                "name": "dp_dod_decd_cr_bc_z1",
+                "nullable": true,
                 "pattern": null,
                 "precision": null,
                 "scale": null,
                 "semantic_type": null,
-                "source_name": "",
-                "tags": [],
+                "source_name": "DP.DOD.DECD.CR.BC.Z1",
+                "tags": [
+                  "l1_dcat_schema_profile"
+                ],
                 "unit": null
               },
               {
@@ -152,91 +152,21 @@
                 "expected_completeness": 1.0,
                 "field_id": null,
                 "max_length": null,
-                "name": "revenue",
+                "name": "gdp",
                 "nullable": true,
                 "pattern": null,
                 "precision": null,
                 "scale": null,
                 "semantic_type": null,
-                "source_name": "",
-                "tags": [],
-                "unit": null
-              },
-              {
-                "additivity": null,
-                "allowed_values": null,
-                "bounds": [
-                  null,
-                  null
+                "source_name": "GDP",
+                "tags": [
+                  "l1_dcat_schema_profile"
                 ],
-                "data_type": "float64",
-                "description": "",
-                "display_unit": null,
-                "element_type": null,
-                "expected_completeness": 1.0,
-                "field_id": null,
-                "max_length": null,
-                "name": "assets",
-                "nullable": true,
-                "pattern": null,
-                "precision": null,
-                "scale": null,
-                "semantic_type": null,
-                "source_name": "",
-                "tags": [],
-                "unit": null
-              },
-              {
-                "additivity": null,
-                "allowed_values": null,
-                "bounds": [
-                  null,
-                  null
-                ],
-                "data_type": "float64",
-                "description": "",
-                "display_unit": null,
-                "element_type": null,
-                "expected_completeness": 1.0,
-                "field_id": null,
-                "max_length": null,
-                "name": "employees",
-                "nullable": true,
-                "pattern": null,
-                "precision": null,
-                "scale": null,
-                "semantic_type": null,
-                "source_name": "",
-                "tags": [],
-                "unit": null
-              },
-              {
-                "additivity": null,
-                "allowed_values": null,
-                "bounds": [
-                  null,
-                  null
-                ],
-                "data_type": "float64",
-                "description": "",
-                "display_unit": null,
-                "element_type": null,
-                "expected_completeness": 1.0,
-                "field_id": null,
-                "max_length": null,
-                "name": "survival_signal",
-                "nullable": true,
-                "pattern": null,
-                "precision": null,
-                "scale": null,
-                "semantic_type": null,
-                "source_name": "",
-                "tags": [],
                 "unit": null
               }
             ],
-            "schema_contract_ref": "schemas/snapshots/fabric/connector_contract_registry.json#/contracts/layer3.ua_msme.firm_survival.panel",
-            "schema_id": "layer3.ua_msme.firm_survival",
+            "schema_contract_ref": "schemas/snapshots/fabric/connector_contract_registry.json#/contracts/layer3.dcat.credit_access.f_02a97e2f54d48b8fa8ef.ed13d084fb78ebca61e1",
+            "schema_id": "layer3.dcat.credit_access.f_02a97e2f54d48b8fa8ef",
             "schema_version": "1.0.0"
           },
           "schema_version": "fabric.source_contract.v2",
@@ -247,50 +177,20 @@
               {
                 "classification": "public",
                 "decision_role": "decision",
-                "field_id": "firm_id",
+                "field_id": "dp_dod_decd_cr_bc_z1",
                 "pii_tier": "none",
                 "policy_ref": null,
-                "reason": "firm_id inherits SourceContract security classification 'public'.",
+                "reason": "dp_dod_decd_cr_bc_z1 inherits SourceContract security classification 'public'.",
                 "redaction": "none",
                 "tenant_scope": "shared_public"
               },
               {
                 "classification": "public",
                 "decision_role": "decision",
-                "field_id": "revenue",
+                "field_id": "gdp",
                 "pii_tier": "none",
                 "policy_ref": null,
-                "reason": "revenue inherits SourceContract security classification 'public'.",
-                "redaction": "none",
-                "tenant_scope": "shared_public"
-              },
-              {
-                "classification": "public",
-                "decision_role": "decision",
-                "field_id": "assets",
-                "pii_tier": "none",
-                "policy_ref": null,
-                "reason": "assets inherits SourceContract security classification 'public'.",
-                "redaction": "none",
-                "tenant_scope": "shared_public"
-              },
-              {
-                "classification": "public",
-                "decision_role": "decision",
-                "field_id": "employees",
-                "pii_tier": "none",
-                "policy_ref": null,
-                "reason": "employees inherits SourceContract security classification 'public'.",
-                "redaction": "none",
-                "tenant_scope": "shared_public"
-              },
-              {
-                "classification": "public",
-                "decision_role": "decision",
-                "field_id": "survival_signal",
-                "pii_tier": "none",
-                "policy_ref": null,
-                "reason": "survival_signal inherits SourceContract security classification 'public'.",
+                "reason": "gdp inherits SourceContract security classification 'public'.",
                 "redaction": "none",
                 "tenant_scope": "shared_public"
               }
@@ -301,9 +201,9 @@
           },
           "semantics": {
             "canonical_ids": [
-              "layer3.ua_msme.firm_survival"
+              "layer3.dcat.credit_access.f_02a97e2f54d48b8fa8ef"
             ],
-            "domain": "msme_credit_support",
+            "domain": "layer3_g1_l1_dcat_grounding",
             "metric_definitions": []
           },
           "sla": {
@@ -315,9 +215,9 @@
             "replay_success_target": 0.99
           },
           "source": {
-            "connector_id": "layer3_ukraine_manifest",
-            "dataset_pattern": "ukraine_server_support_20260410/firm_survival",
-            "profile_id": "layer3_g1",
+            "connector_id": "worldbank.wdi",
+            "dataset_pattern": "DP.DOD.DECD.CR.BC.Z1",
+            "profile_id": "worldbank_wdi",
             "source_name": "",
             "source_organization": "",
             "source_url": null
@@ -339,369 +239,26 @@
           },
           "version": "1.0.0"
         },
-        "source_contract_snapshot_ref": "sha256:b4a2bd9b7050dc68fefa7576b5f9421594b3f76847658f555bbc925a54103341"
-      },
-      {
-        "authoritative_for": [
-          "layer3_g1_construct_grounding_audit",
-          "layer3_g1_lineage_contamination_audit"
-        ],
-        "binding_id": "g1-binding:scenario_family_to_source_contract:firm_survival",
-        "case_id": "ua-msme-affordable-loans-2022",
-        "construct_bundle_id": "ukrainian_msme_credit_constructs",
-        "construct_ref": "firm_survival",
-        "coverage_period_ref": "coverage-period://ua-msme/2022-02-open",
-        "freshness_ref": "freshness://ukraine_server_support_20260410",
-        "generated_at": "2026-06-07T00:00:00Z",
-        "grounding_status": "observed_but_uncertain",
-        "lineage_refs": [
-          "repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/LOCAL_IMPORT_MANIFEST.json"
-        ],
-        "may_not_use_for": [
-          "claim_authority",
-          "causal_effect",
-          "policy_recommendation",
-          "publishability",
-          "adapter_promotion",
-          "useful_design_credit",
-          "production_authority",
-          "search_hit_as_authority"
-        ],
-        "observed_through": "2026-04-10",
-        "rule_version": "policyos.layer3.g1.substrate_grounding_search.v1",
-        "source_contract_content_hash": "sha256:b4a2bd9b7050dc68fefa7576b5f9421594b3f76847658f555bbc925a54103341",
-        "source_contract_ref": "source-contract://layer3.ua_msme.firm_survival.panel",
-        "source_contract_snapshot": {
-          "created_at": "2026-06-07T11:00:27.577599Z",
-          "deprecation": null,
-          "docs": {
-            "generated_anchor": null,
-            "reference_page": "docs/reference/fabric/source-platform.md"
-          },
-          "id": "layer3.ua_msme.firm_survival.panel",
-          "lineage": {
-            "evidence_ref": "sha256:fd930d300b0ebcb40547349da4e1006c212075e848a487b0c8f2327b4801d4dd",
-            "seed_fields": [
-              "firm_id",
-              "revenue",
-              "assets",
-              "employees",
-              "survival_signal"
-            ],
-            "seed_node_kind": "source_dataset"
-          },
-          "owner": "team-runtime-quality",
-          "processing": {
-            "atomicity_proof": null,
-            "backpressure": {
-              "max_backpressure_events": null,
-              "max_buffered_bytes": 16777216,
-              "max_buffered_rows": 10000,
-              "pause_seconds": 0.01,
-              "strategy": "pause"
-            },
-            "cdc_schema_changes": {
-              "additive_change_action": "accept",
-              "breaking_change_action": "quarantine",
-              "metadata_only_action": "accept",
-              "require_lineage_impact": true
-            },
-            "guarantee": "batch_atomic",
-            "idempotency": {
-              "dedupe_window_seconds": 86400,
-              "enabled": true,
-              "key_fields": [
-                "connector_id",
-                "dataset_id",
-                "partition_key"
-              ],
-              "max_dedupe_keys": 16384,
-              "missing_key_action": "hash_payload",
-              "replay_retention_days": 30
-            },
-            "notes": "Batch paths publish CAS/manifest outputs atomically at artifact boundaries.",
-            "out_of_order": {
-              "handling": "watermark",
-              "late_event_action": "quarantine",
-              "max_lateness_seconds": 300,
-              "timestamp_field": "event_time"
-            }
-          },
-          "quality": {
-            "contract_ref": "fabric.quality.layer3.ua_msme.firm_survival.panel.v1",
-            "min_quality_score": 0.8,
-            "required_checks": [
-              "schema_compliance",
-              "finite_values",
-              "freshness",
-              "safe_filters",
-              "bounded_reads"
-            ]
-          },
-          "replay": {
-            "determinism_key": "sha256:fd930d300b0ebcb40547349da4e1006c212075e848a487b0c8f2327b4801d4dd",
-            "fixture_ref": "repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/LOCAL_IMPORT_MANIFEST.json",
-            "non_replayable_reason": null,
-            "required": true
-          },
-          "retention": {
-            "artifact_retention_days": 365,
-            "cold_storage_required": false,
-            "min_retention_days": 30,
-            "policy": "retain"
-          },
-          "reviewer": "team-data-acquisition",
-          "schema": {
-            "compatibility_status": "contracted",
-            "fields": [
-              {
-                "additivity": null,
-                "allowed_values": null,
-                "bounds": [
-                  null,
-                  null
-                ],
-                "data_type": "string",
-                "description": "",
-                "display_unit": null,
-                "element_type": null,
-                "expected_completeness": 1.0,
-                "field_id": null,
-                "max_length": null,
-                "name": "firm_id",
-                "nullable": false,
-                "pattern": null,
-                "precision": null,
-                "scale": null,
-                "semantic_type": null,
-                "source_name": "",
-                "tags": [],
-                "unit": null
-              },
-              {
-                "additivity": null,
-                "allowed_values": null,
-                "bounds": [
-                  null,
-                  null
-                ],
-                "data_type": "float64",
-                "description": "",
-                "display_unit": null,
-                "element_type": null,
-                "expected_completeness": 1.0,
-                "field_id": null,
-                "max_length": null,
-                "name": "revenue",
-                "nullable": true,
-                "pattern": null,
-                "precision": null,
-                "scale": null,
-                "semantic_type": null,
-                "source_name": "",
-                "tags": [],
-                "unit": null
-              },
-              {
-                "additivity": null,
-                "allowed_values": null,
-                "bounds": [
-                  null,
-                  null
-                ],
-                "data_type": "float64",
-                "description": "",
-                "display_unit": null,
-                "element_type": null,
-                "expected_completeness": 1.0,
-                "field_id": null,
-                "max_length": null,
-                "name": "assets",
-                "nullable": true,
-                "pattern": null,
-                "precision": null,
-                "scale": null,
-                "semantic_type": null,
-                "source_name": "",
-                "tags": [],
-                "unit": null
-              },
-              {
-                "additivity": null,
-                "allowed_values": null,
-                "bounds": [
-                  null,
-                  null
-                ],
-                "data_type": "float64",
-                "description": "",
-                "display_unit": null,
-                "element_type": null,
-                "expected_completeness": 1.0,
-                "field_id": null,
-                "max_length": null,
-                "name": "employees",
-                "nullable": true,
-                "pattern": null,
-                "precision": null,
-                "scale": null,
-                "semantic_type": null,
-                "source_name": "",
-                "tags": [],
-                "unit": null
-              },
-              {
-                "additivity": null,
-                "allowed_values": null,
-                "bounds": [
-                  null,
-                  null
-                ],
-                "data_type": "float64",
-                "description": "",
-                "display_unit": null,
-                "element_type": null,
-                "expected_completeness": 1.0,
-                "field_id": null,
-                "max_length": null,
-                "name": "survival_signal",
-                "nullable": true,
-                "pattern": null,
-                "precision": null,
-                "scale": null,
-                "semantic_type": null,
-                "source_name": "",
-                "tags": [],
-                "unit": null
-              }
-            ],
-            "schema_contract_ref": "schemas/snapshots/fabric/connector_contract_registry.json#/contracts/layer3.ua_msme.firm_survival.panel",
-            "schema_id": "layer3.ua_msme.firm_survival",
-            "schema_version": "1.0.0"
-          },
-          "schema_version": "fabric.source_contract.v2",
-          "security": {
-            "audit_required": true,
-            "classification": "public",
-            "field_policies": [
-              {
-                "classification": "public",
-                "decision_role": "decision",
-                "field_id": "firm_id",
-                "pii_tier": "none",
-                "policy_ref": null,
-                "reason": "firm_id inherits SourceContract security classification 'public'.",
-                "redaction": "none",
-                "tenant_scope": "shared_public"
-              },
-              {
-                "classification": "public",
-                "decision_role": "decision",
-                "field_id": "revenue",
-                "pii_tier": "none",
-                "policy_ref": null,
-                "reason": "revenue inherits SourceContract security classification 'public'.",
-                "redaction": "none",
-                "tenant_scope": "shared_public"
-              },
-              {
-                "classification": "public",
-                "decision_role": "decision",
-                "field_id": "assets",
-                "pii_tier": "none",
-                "policy_ref": null,
-                "reason": "assets inherits SourceContract security classification 'public'.",
-                "redaction": "none",
-                "tenant_scope": "shared_public"
-              },
-              {
-                "classification": "public",
-                "decision_role": "decision",
-                "field_id": "employees",
-                "pii_tier": "none",
-                "policy_ref": null,
-                "reason": "employees inherits SourceContract security classification 'public'.",
-                "redaction": "none",
-                "tenant_scope": "shared_public"
-              },
-              {
-                "classification": "public",
-                "decision_role": "decision",
-                "field_id": "survival_signal",
-                "pii_tier": "none",
-                "policy_ref": null,
-                "reason": "survival_signal inherits SourceContract security classification 'public'.",
-                "redaction": "none",
-                "tenant_scope": "shared_public"
-              }
-            ],
-            "pii_tier": "none",
-            "safe_filters_required": true,
-            "tenant_scope": "shared_public"
-          },
-          "semantics": {
-            "canonical_ids": [
-              "layer3.ua_msme.firm_survival"
-            ],
-            "domain": "msme_credit_support",
-            "metric_definitions": []
-          },
-          "sla": {
-            "availability_target": 0.99,
-            "freshness_slo_seconds": 86400,
-            "max_latency": "PT2S",
-            "p95_latency_ms": 2000.0,
-            "refresh_frequency": "daily",
-            "replay_success_target": 0.99
-          },
-          "source": {
-            "connector_id": "layer3_ukraine_manifest",
-            "dataset_pattern": "ukraine_server_support_20260410/firm_survival",
-            "profile_id": "layer3_g1",
-            "source_name": "",
-            "source_organization": "",
-            "source_url": null
-          },
-          "source_trust": {
-            "calibration_status": "heuristic",
-            "rationale": "Migrated from ConnectorSchemaContract and connector metadata.",
-            "tier": "institutional"
-          },
-          "status": "active",
-          "terms": {
-            "allowed_uses": [
-              "policy_analysis",
-              "reporting"
-            ],
-            "attribution_required": false,
-            "disallowed_uses": [],
-            "terms_url": null
-          },
-          "version": "1.0.0"
-        },
-        "source_contract_snapshot_ref": "sha256:b4a2bd9b7050dc68fefa7576b5f9421594b3f76847658f555bbc925a54103341"
+        "source_contract_snapshot_ref": "sha256:992cb1d1c96f8bd4909d543c957e4455c272feafc124470057e9aad6f474c521"
       }
     ],
     "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1",
     "source_contract_snapshots": {
-      "source-contract://layer3.ua_msme.firm_survival.panel": {
-        "content_hash": "sha256:b4a2bd9b7050dc68fefa7576b5f9421594b3f76847658f555bbc925a54103341",
+      "source-contract://layer3.dcat.credit_access.f_02a97e2f54d48b8fa8ef.ed13d084fb78ebca61e1": {
+        "content_hash": "sha256:992cb1d1c96f8bd4909d543c957e4455c272feafc124470057e9aad6f474c521",
         "contract": {
-          "created_at": "2026-06-07T11:00:27.577599Z",
+          "created_at": "2026-06-12T08:49:36.732367Z",
           "deprecation": null,
           "docs": {
             "generated_anchor": null,
             "reference_page": "docs/reference/fabric/source-platform.md"
           },
-          "id": "layer3.ua_msme.firm_survival.panel",
+          "id": "layer3.dcat.credit_access.f_02a97e2f54d48b8fa8ef.ed13d084fb78ebca61e1",
           "lineage": {
-            "evidence_ref": "sha256:fd930d300b0ebcb40547349da4e1006c212075e848a487b0c8f2327b4801d4dd",
+            "evidence_ref": "sha256:5e745edda0ecb0ccb6b12be5e1e48dbe3837f2be1012b76591c8d4cb68e291a9",
             "seed_fields": [
-              "firm_id",
-              "revenue",
-              "assets",
-              "employees",
-              "survival_signal"
+              "dp_dod_decd_cr_bc_z1",
+              "gdp"
             ],
             "seed_node_kind": "source_dataset"
           },
@@ -743,7 +300,7 @@
             }
           },
           "quality": {
-            "contract_ref": "fabric.quality.layer3.ua_msme.firm_survival.panel.v1",
+            "contract_ref": "fabric.quality.layer3.dcat.credit_access.f_02a97e2f54d48b8fa8ef.ed13d084fb78ebca61e1.v1",
             "min_quality_score": 0.8,
             "required_checks": [
               "schema_compliance",
@@ -754,8 +311,8 @@
             ]
           },
           "replay": {
-            "determinism_key": "sha256:fd930d300b0ebcb40547349da4e1006c212075e848a487b0c8f2327b4801d4dd",
-            "fixture_ref": "repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/LOCAL_IMPORT_MANIFEST.json",
+            "determinism_key": "sha256:5e745edda0ecb0ccb6b12be5e1e48dbe3837f2be1012b76591c8d4cb68e291a9",
+            "fixture_ref": "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings[metric_id=credit_access;dataset_id=02a97e2f54d48b8fa8ef;distribution_id=ed13d084fb78ebca61e1]",
             "non_replayable_reason": null,
             "required": true
           },
@@ -776,21 +333,23 @@
                   null,
                   null
                 ],
-                "data_type": "string",
+                "data_type": "float64",
                 "description": "",
                 "display_unit": null,
                 "element_type": null,
                 "expected_completeness": 1.0,
                 "field_id": null,
                 "max_length": null,
-                "name": "firm_id",
-                "nullable": false,
+                "name": "dp_dod_decd_cr_bc_z1",
+                "nullable": true,
                 "pattern": null,
                 "precision": null,
                 "scale": null,
                 "semantic_type": null,
-                "source_name": "",
-                "tags": [],
+                "source_name": "DP.DOD.DECD.CR.BC.Z1",
+                "tags": [
+                  "l1_dcat_schema_profile"
+                ],
                 "unit": null
               },
               {
@@ -807,91 +366,21 @@
                 "expected_completeness": 1.0,
                 "field_id": null,
                 "max_length": null,
-                "name": "revenue",
+                "name": "gdp",
                 "nullable": true,
                 "pattern": null,
                 "precision": null,
                 "scale": null,
                 "semantic_type": null,
-                "source_name": "",
-                "tags": [],
-                "unit": null
-              },
-              {
-                "additivity": null,
-                "allowed_values": null,
-                "bounds": [
-                  null,
-                  null
+                "source_name": "GDP",
+                "tags": [
+                  "l1_dcat_schema_profile"
                 ],
-                "data_type": "float64",
-                "description": "",
-                "display_unit": null,
-                "element_type": null,
-                "expected_completeness": 1.0,
-                "field_id": null,
-                "max_length": null,
-                "name": "assets",
-                "nullable": true,
-                "pattern": null,
-                "precision": null,
-                "scale": null,
-                "semantic_type": null,
-                "source_name": "",
-                "tags": [],
-                "unit": null
-              },
-              {
-                "additivity": null,
-                "allowed_values": null,
-                "bounds": [
-                  null,
-                  null
-                ],
-                "data_type": "float64",
-                "description": "",
-                "display_unit": null,
-                "element_type": null,
-                "expected_completeness": 1.0,
-                "field_id": null,
-                "max_length": null,
-                "name": "employees",
-                "nullable": true,
-                "pattern": null,
-                "precision": null,
-                "scale": null,
-                "semantic_type": null,
-                "source_name": "",
-                "tags": [],
-                "unit": null
-              },
-              {
-                "additivity": null,
-                "allowed_values": null,
-                "bounds": [
-                  null,
-                  null
-                ],
-                "data_type": "float64",
-                "description": "",
-                "display_unit": null,
-                "element_type": null,
-                "expected_completeness": 1.0,
-                "field_id": null,
-                "max_length": null,
-                "name": "survival_signal",
-                "nullable": true,
-                "pattern": null,
-                "precision": null,
-                "scale": null,
-                "semantic_type": null,
-                "source_name": "",
-                "tags": [],
                 "unit": null
               }
             ],
-            "schema_contract_ref": "schemas/snapshots/fabric/connector_contract_registry.json#/contracts/layer3.ua_msme.firm_survival.panel",
-            "schema_id": "layer3.ua_msme.firm_survival",
+            "schema_contract_ref": "schemas/snapshots/fabric/connector_contract_registry.json#/contracts/layer3.dcat.credit_access.f_02a97e2f54d48b8fa8ef.ed13d084fb78ebca61e1",
+            "schema_id": "layer3.dcat.credit_access.f_02a97e2f54d48b8fa8ef",
             "schema_version": "1.0.0"
           },
           "schema_version": "fabric.source_contract.v2",
@@ -902,50 +391,20 @@
               {
                 "classification": "public",
                 "decision_role": "decision",
-                "field_id": "firm_id",
+                "field_id": "dp_dod_decd_cr_bc_z1",
                 "pii_tier": "none",
                 "policy_ref": null,
-                "reason": "firm_id inherits SourceContract security classification 'public'.",
+                "reason": "dp_dod_decd_cr_bc_z1 inherits SourceContract security classification 'public'.",
                 "redaction": "none",
                 "tenant_scope": "shared_public"
               },
               {
                 "classification": "public",
                 "decision_role": "decision",
-                "field_id": "revenue",
+                "field_id": "gdp",
                 "pii_tier": "none",
                 "policy_ref": null,
-                "reason": "revenue inherits SourceContract security classification 'public'.",
-                "redaction": "none",
-                "tenant_scope": "shared_public"
-              },
-              {
-                "classification": "public",
-                "decision_role": "decision",
-                "field_id": "assets",
-                "pii_tier": "none",
-                "policy_ref": null,
-                "reason": "assets inherits SourceContract security classification 'public'.",
-                "redaction": "none",
-                "tenant_scope": "shared_public"
-              },
-              {
-                "classification": "public",
-                "decision_role": "decision",
-                "field_id": "employees",
-                "pii_tier": "none",
-                "policy_ref": null,
-                "reason": "employees inherits SourceContract security classification 'public'.",
-                "redaction": "none",
-                "tenant_scope": "shared_public"
-              },
-              {
-                "classification": "public",
-                "decision_role": "decision",
-                "field_id": "survival_signal",
-                "pii_tier": "none",
-                "policy_ref": null,
-                "reason": "survival_signal inherits SourceContract security classification 'public'.",
+                "reason": "gdp inherits SourceContract security classification 'public'.",
                 "redaction": "none",
                 "tenant_scope": "shared_public"
               }
@@ -956,9 +415,9 @@
           },
           "semantics": {
             "canonical_ids": [
-              "layer3.ua_msme.firm_survival"
+              "layer3.dcat.credit_access.f_02a97e2f54d48b8fa8ef"
             ],
-            "domain": "msme_credit_support",
+            "domain": "layer3_g1_l1_dcat_grounding",
             "metric_definitions": []
           },
           "sla": {
@@ -970,9 +429,9 @@
             "replay_success_target": 0.99
           },
           "source": {
-            "connector_id": "layer3_ukraine_manifest",
-            "dataset_pattern": "ukraine_server_support_20260410/firm_survival",
-            "profile_id": "layer3_g1",
+            "connector_id": "worldbank.wdi",
+            "dataset_pattern": "DP.DOD.DECD.CR.BC.Z1",
+            "profile_id": "worldbank_wdi",
             "source_name": "",
             "source_organization": "",
             "source_url": null

@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import json
+import shutil
 from importlib import import_module
 from pathlib import Path
 from typing import Any
+
+import duckdb
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 FIXTURE_DIR = REPO_ROOT / "tests/fixtures/layer3/g1"
@@ -227,12 +230,73 @@ def test_g1_manifest_counts_match_runtime_builder() -> None:
     report = g1.validate_layer3_g1_bundle(REPO_ROOT, bundle)
 
     payload = _dump(report)
-    assert payload["status"] == "pass"
+    assert payload["status"] == "fail"
+    assert "layer3_g1_hardcode_strangle_incomplete" in _issue_codes(report)
     assert payload["summary"]["manifest_runtime_drift_count"] == 0
     assert payload["summary"]["g1_substrate_search_ledger_count"] >= 1
-    assert payload["summary"]["source_contract_snapshot_count"] >= payload["summary"][
-        "grounded_or_uncertain_construct_count"
+    assert payload["summary"]["g1_no_hit_count"] >= 1
+    assert payload["summary"]["g1_search_measurement_provenance"] == "l1_dcat_query"
+
+
+def test_g1_runtime_uses_real_l1_dcat_for_credit_and_survival_without_pinned_constants() -> None:
+    g1 = _g1()
+
+    assert not hasattr(g1, "G1_PREFERRED_EXISTING_ASSET_CONSTRUCT_ID")
+    assert not hasattr(g1, "G1_EXPECTED_ACQUISITION_GAP_CONSTRUCT_ID")
+
+    requests = [
+        g1.Layer3G1SubstrateSearchRequest.model_validate(
+            _request_payload(construct_ref="credit_access")
+        ),
+        g1.Layer3G1SubstrateSearchRequest.model_validate(
+            _request_payload(construct_ref="firm_survival")
+        ),
     ]
+
+    results = g1.build_substrate_grounding_search_adapter(REPO_ROOT, requests)
+    by_construct = {result.construct_ref: result for result in results}
+
+    credit = _dump(by_construct["credit_access"])
+    assert credit["binding"] is not None
+    assert credit["binding"]["construct_ref"] == "credit_access"
+    assert credit["binding"]["source_contract_content_hash"].startswith("sha256:")
+    assert credit["search_ledgers"][0]["measurement_provenance"] == "l1_dcat_query"
+    assert credit["search_ledgers"][0]["exact_candidate_count"] >= 1
+    assert credit["search_ledgers"][0]["selected_candidate_refs"]
+
+    survival = _dump(by_construct["firm_survival"])
+    assert survival["binding"] is None
+    assert survival["grounding_status"] == "grounded_abstention"
+    assert "layer3_g1_l1_dcat_no_metric_binding" in survival["issue_codes"]
+    assert survival["search_ledgers"][0]["measurement_provenance"] == "l1_dcat_query"
+    assert survival["search_ledgers"][0]["exact_candidate_count"] == 0
+    assert survival["search_ledgers"][0]["selected_candidate_refs"] == []
+    assert survival["search_ledgers"][0]["absence_or_incompleteness_reason"] == (
+        "l1_dcat_no_metric_binding"
+    )
+
+
+def test_g1_validation_rejects_self_attested_search_reports() -> None:
+    g1 = _g1()
+    payload = _dump(g1.build_layer3_g1_bundle(REPO_ROOT))
+    payload["search_recall_freshness"] = {
+        **payload["search_recall_freshness"],
+        "search_recall_status": "pass",
+        "measurement_provenance": "self_attested",
+        "query_trace_refs": [],
+    }
+    payload["search_engineering_quality"] = {
+        **payload["search_engineering_quality"],
+        "status": "pass",
+        "measurement_provenance": "self_attested",
+        "query_trace_refs": [],
+    }
+
+    report = g1.validate_layer3_g1_bundle(REPO_ROOT, payload)
+
+    assert _dump(report)["status"] == "fail"
+    assert "layer3_g1_search_recall_not_measured" in _issue_codes(report)
+    assert "layer3_g1_search_engineering_quality_not_measured" in _issue_codes(report)
 
 
 def test_g1_does_not_mutate_g0_source_truth_baseline() -> None:
@@ -296,18 +360,75 @@ def test_stale_index_blocks_domain_ceiling() -> None:
     _validate_fixture("stale_index_domain_ceiling.json")
 
 
-def test_g1_free_growth_metric_binding_requires_no_code_change() -> None:
-    fixture = _fixture("free_growth_metric_binding_fixture.json")
+def test_g1_free_growth_metric_binding_requires_no_code_change(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
     g1 = _g1()
+    source_db = REPO_ROOT / g1.L1_DCAT_PATH
+    tmp_repo = tmp_path / "repo"
+    tmp_db = tmp_repo / g1.L1_DCAT_PATH
+    tmp_db.parent.mkdir(parents=True)
+    shutil.copy2(source_db, tmp_db)
+    with duckdb.connect(str(tmp_db)) as connection:
+        connection.execute(
+            """
+            INSERT INTO ds_metric_bindings (
+                metric_id,
+                dataset_id,
+                distribution_id,
+                connector_id,
+                profile_id,
+                request_dataset_id,
+                confidence,
+                metric_inference_confidence,
+                default_filters,
+                execution_tier,
+                source
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            [
+                "synthetic_free_growth_metric",
+                "unit-test-dataset",
+                "unit-test-distribution",
+                "unit.test",
+                "unit_test",
+                "unit-test-request-dataset",
+                0.99,
+                0.98,
+                "{}",
+                "transport_ready",
+                "unit_test",
+            ],
+        )
 
-    report = g1.build_g1_free_growth_report(REPO_ROOT)
+    def _forbidden_fixture_loader(*_args: object, **_kwargs: object) -> dict[str, Any]:
+        raise AssertionError("free-growth must use live L1 DCAT, not fixture JSON")
+
+    monkeypatch.setattr(g1, "_fixture_payload", _forbidden_fixture_loader)
+
+    report = g1.build_g1_free_growth_report(tmp_repo)
 
     payload = _dump(report)
     assert payload["status"] == "pass"
-    assert payload["free_growth_fixture_count"] >= 1
-    assert fixture["payload"]["metric_binding"]["metric_id"] in payload["discovered_metric_ids"]
+    assert payload["free_growth_fixture_count"] == 0
+    assert "synthetic_free_growth_metric" in payload["discovered_metric_ids"]
     assert payload["code_change_required"] is False
     assert payload["search_route"] == "l1_dcat_ds_metric_bindings"
+
+
+def test_g1_hardcode_strangle_stays_pending_while_global_hardcodes_are_reachable() -> None:
+    g1 = _g1()
+
+    delta = g1.build_g1_hardcode_strangle_delta(REPO_ROOT)
+    payload = _dump(delta)
+
+    assert payload["fallback_deletion_status"] == "search_path_replaced_deletion_pending"
+    assert "layer3_g1_hardcode_strangle_incomplete" in payload["issue_codes"]
+    assert all(
+        record["fallback_deleted_or_disabled"] is False
+        for record in payload["delta_records"]
+    )
 
 
 def test_g1_mechanism_generality_requires_two_request_shapes() -> None:

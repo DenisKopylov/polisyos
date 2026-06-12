@@ -6,7 +6,6 @@
   ],
   "current_blocker_refs": [
     "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json#g5_conversion_outcome",
-    "repo://architecture/policy_design_case/layer3_g7_readiness_manifest.json#g7_region_value_closure_status",
     "repo://architecture/policy_design_case/layer3_g7_readiness_manifest.json#g7_region_grounded_case_count"
   ],
   "demand_pull_status": "abstention_inertia",
@@ -17,10 +16,11 @@
   "effective_independence_source_ref": "repo://architecture/policy_design_case/layer3_g5_effective_evidence_independence.json#independence_map_payload.effective_mass_report",
   "effective_independence_status": "sufficient",
   "effective_independent_evidence_count": 2,
-  "envelope_expansion_status": "numeric_reading",
+  "envelope_expansion_status": "flat",
   "governance_throughput_status": "pass",
   "issue_codes": [
-    "layer3_g8_demand_numeric_inertia_hidden_as_pass"
+    "layer3_g8_demand_numeric_inertia_hidden_as_pass",
+    "layer3_g8_metric_source_missing"
   ],
   "may_not_use_for": [
     "production_authority",
@@ -55,5 +55,5 @@
   "schema_version": "policyos.policy_design_case.layer3_g8_health_metric_governance.v1",
   "search_recall_freshness_status": "pass",
   "semantic_loss_status": "pass",
-  "status": "pass"
+  "status": "blocked"
 }

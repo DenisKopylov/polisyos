@@ -37,18 +37,15 @@
   ],
   "metric_trends": [
     {
-      "latest_status": "numeric_reading",
+      "latest_status": "flat",
       "metric_id": "envelope-expansion-rate",
-      "signal_count": 8,
+      "signal_count": 5,
       "source_refs": [
         "repo://architecture/policy_design_case/layer3_g1_health_metric_delta.toml#envelope-expansion-rate",
         "repo://architecture/policy_design_case/layer3_g2_health_metric_delta.toml#envelope-expansion-rate",
         "repo://architecture/policy_design_case/layer3_g3_health_metric_delta.toml#envelope-expansion-rate",
         "repo://architecture/policy_design_case/layer3_g5_health_metric_delta.toml#envelope-expansion-rate",
-        "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json#g5_envelope_expansion_status",
-        "repo://architecture/policy_design_case/layer3_g7_health_metric_delta.toml#envelope_expansion_rate_region",
-        "repo://architecture/policy_design_case/layer3_g7_dependency_readiness_snapshot.json#g5_envelope_expansion_status",
-        "repo://architecture/policy_design_case/layer3_g7_readiness_manifest.json#g7_region_envelope_expansion_rate"
+        "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json#g5_envelope_expansion_status"
       ],
       "trend_status": "reported",
       "trend_vocabulary": [
@@ -60,15 +57,13 @@
     {
       "latest_status": "pass",
       "metric_id": "adapter-semantic-loss",
-      "signal_count": 7,
+      "signal_count": 5,
       "source_refs": [
         "repo://architecture/policy_design_case/layer3_g1_health_metric_delta.toml#adapter-semantic-loss",
         "repo://architecture/policy_design_case/layer3_g2_health_metric_delta.toml#adapter-semantic-loss",
         "repo://architecture/policy_design_case/layer3_g3_health_metric_delta.toml#adapter-semantic-loss",
         "repo://architecture/policy_design_case/layer3_gl_health_metric_delta.toml#adapter-semantic-loss",
-        "repo://architecture/policy_design_case/layer3_g5_health_metric_delta.toml#adapter-semantic-loss",
-        "repo://architecture/policy_design_case/layer3_g7_health_metric_delta.toml#semantic_loss_status",
-        "repo://architecture/policy_design_case/layer3_g7_readiness_manifest.json#g7_region_semantic_loss_status"
+        "repo://architecture/policy_design_case/layer3_g5_health_metric_delta.toml#adapter-semantic-loss"
       ],
       "trend_status": "reported",
       "trend_vocabulary": [
@@ -79,7 +74,7 @@
     {
       "latest_status": "pass",
       "metric_id": "governance-throughput",
-      "signal_count": 22,
+      "signal_count": 20,
       "source_refs": [
         "repo://architecture/policy_design_case/layer3_g1_health_metric_delta.toml#governance-throughput",
         "repo://architecture/policy_design_case/layer3_g2_health_metric_delta.toml#governance-throughput",
@@ -98,9 +93,7 @@
         "repo://architecture/policy_design_case/layer3_g4_governance_throughput_delta.json#governance-throughput",
         "repo://architecture/policy_design_case/layer3_g4_readiness_manifest.json#g4_governance_throughput_status",
         "repo://architecture/policy_design_case/layer3_g4_readiness_manifest.json#governance-throughput",
-        "repo://architecture/policy_design_case/layer3_g5_health_metric_delta.toml#governance-throughput",
-        "repo://architecture/policy_design_case/layer3_g7_dependency_readiness_snapshot.json#g4_governance_throughput_status",
-        "repo://architecture/policy_design_case/layer3_g7_readiness_manifest.json#g7_governance_throughput_status"
+        "repo://architecture/policy_design_case/layer3_g5_health_metric_delta.toml#governance-throughput"
       ],
       "trend_status": "reported",
       "trend_vocabulary": [
@@ -111,7 +104,7 @@
     {
       "latest_status": "abstention_inertia",
       "metric_id": "demand-pull-vs-abstention",
-      "signal_count": 16,
+      "signal_count": 11,
       "source_refs": [
         "repo://architecture/policy_design_case/layer3_g1_health_metric_delta.toml#demand-pull-vs-abstention",
         "repo://architecture/policy_design_case/layer3_g2_health_metric_delta.toml#demand-pull-vs-abstention",
@@ -123,12 +116,7 @@
         "repo://architecture/policy_design_case/layer3_g6_demand_pull_vs_abstention_delta.json#abstention_or_blocker_rate",
         "repo://architecture/policy_design_case/layer3_g6_demand_pull_vs_abstention_delta.json#grounded_result_rate",
         "repo://architecture/policy_design_case/layer3_g6_demand_pull_vs_abstention_delta.json#out_of_envelope_abstention_rate",
-        "repo://architecture/policy_design_case/layer3_g6_readiness_manifest.json#g6_demand_pull_vs_abstention_status",
-        "repo://architecture/policy_design_case/layer3_g7_dependency_readiness_snapshot.json#g6_demand_pull_vs_abstention_status",
-        "repo://architecture/policy_design_case/layer3_g7_region_scorecard.json#g7_region_value_closure_status",
-        "repo://architecture/policy_design_case/layer3_g7_readiness_manifest.json#g7_region_value_closure_status",
-        "repo://architecture/policy_design_case/layer3_g7_readiness_manifest.json#g7_region_grounded_case_count",
-        "repo://architecture/policy_design_case/layer3_g7_readiness_manifest.json#g7_s14_grounded_breadth_feed_status"
+        "repo://architecture/policy_design_case/layer3_g6_readiness_manifest.json#g6_demand_pull_vs_abstention_status"
       ],
       "trend_status": "reported",
       "trend_vocabulary": [
@@ -139,7 +127,7 @@
     {
       "latest_status": "pass",
       "metric_id": "search-recall@known-seeds+index-staleness",
-      "signal_count": 33,
+      "signal_count": 27,
       "source_refs": [
         "repo://architecture/policy_design_case/layer3_g1_health_metric_delta.toml#search-recall@known-seeds+index-staleness",
         "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json#search_recall_status",
@@ -167,13 +155,7 @@
         "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json#gl_search_recall_freshness_status",
         "repo://architecture/policy_design_case/layer3_g5_health_metric_delta.toml#search-recall@known-seeds + index-staleness",
         "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json#g5_search_recall_status",
-        "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json#g5_index_freshness_status",
-        "repo://architecture/policy_design_case/layer3_g7_dependency_readiness_snapshot.json#g1_search_recall_status",
-        "repo://architecture/policy_design_case/layer3_g7_dependency_readiness_snapshot.json#g1_index_freshness_status",
-        "repo://architecture/policy_design_case/layer3_g7_dependency_readiness_snapshot.json#search-recall@known-seeds+index-staleness(region)",
-        "repo://architecture/policy_design_case/layer3_g7_search_recall_freshness_join.json#g1_search_recall_status",
-        "repo://architecture/policy_design_case/layer3_g7_search_recall_freshness_join.json#g1_index_freshness_status",
-        "repo://architecture/policy_design_case/layer3_g7_search_recall_freshness_join.json#search-recall@known-seeds+index-staleness(region)"
+        "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json#g5_index_freshness_status"
       ],
       "trend_status": "reported",
       "trend_vocabulary": [

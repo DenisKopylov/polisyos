@@ -228,6 +228,7 @@ ALL_ISSUE_CODES: tuple[str, ...] = (
     "layer3_g5_g2_g3_artifact_without_g4_design_promotion",
     "layer3_g5_g4_registration_unknown_blocks_readiness",
     "layer3_g5_g1_observed_but_uncertain_overclaimed",
+    "layer3_g5_g1_construct_mismatch",
     "layer3_g5_g1_source_contract_hash_missing",
     "layer3_g5_g1_observed_time_missing",
     "layer3_g5_g1_may_not_use_for_dropped",
@@ -3215,8 +3216,14 @@ def build_g5_upstream_scope_join_matrix(
         dict(g1_bindings[0]) if g1_bindings else {},
     )
     g1_grounding_status = _first_text(g1.get("grounding_status"))
+    g1_construct = (_optional_str(g1.get("construct_ref")) or "").removeprefix(
+        "construct:"
+    )
     g1_scope_disposition = "missing"
-    if g1_grounding_status == "observed_but_uncertain":
+    if g1_construct and g1_construct not in {"firm_survival", "survival"}:
+        g1_scope_disposition = "blocked_construct_mismatch"
+        issues.append("layer3_g5_g1_construct_mismatch")
+    elif g1_grounding_status == "observed_but_uncertain":
         g1_scope_disposition = "substrate_only_limited"
         issues.append("layer3_g5_g1_observed_but_uncertain_overclaimed")
     elif g1_grounding_status:
@@ -3281,6 +3288,7 @@ def build_g5_upstream_scope_join_matrix(
             "layer3_g5_g1_source_contract_hash_missing",
             "layer3_g5_g1_observed_time_missing",
             "layer3_g5_g1_may_not_use_for_dropped",
+            "layer3_g5_g1_construct_mismatch",
             "layer3_g5_g2_design_record_ref_unresolved",
         }
         for code in issues

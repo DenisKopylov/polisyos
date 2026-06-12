@@ -276,6 +276,37 @@ def test_g8_search_recall_miss_blocks_domain_ceiling() -> None:
     assert "layer3_g8_search_recall_miss_reported_as_domain_ceiling" in gate.issue_codes
 
 
+def test_g8_unmeasured_g1_recall_blocks_healthy_search_answer() -> None:
+    signals = g8.Layer3G8NormalizedMetricSignals(
+        status="pass",
+        signals=(
+            _signal("envelope-expansion-rate", "G5", "g5_envelope_expansion_status", "flat"),
+            _signal("governance-throughput", "G5", "g5_governance_throughput_status", "pass"),
+            _signal("demand-pull-vs-abstention", "G6", "grounded_result_rate", 0.0),
+            _signal("adapter-semantic-loss", "G7", "semantic_loss_status", "pass"),
+            _signal(
+                "search-recall@known-seeds+index-staleness",
+                "G1",
+                "g1_search_recall_status",
+                "not_measured",
+            ),
+        ),
+    )
+    diagnosis = g8.build_g8_cross_metric_diagnosis(signals=signals, repo_root=REPO_ROOT)
+    gate = g8.build_g8_domain_vs_search_ceiling_gate(diagnosis=diagnosis)
+    ledger = g8.build_g8_open_question_answer_ledger(
+        diagnosis=diagnosis,
+        ceiling_gate=gate,
+        repo_root=REPO_ROOT,
+    )
+    answers = {row.question_id: row for row in ledger.answers}
+
+    assert gate.status == "search_ceiling_repair_required"
+    assert answers["8.4-search-recall-freshness"].answer_status == (
+        "answered_currently_blocked"
+    )
+
+
 def test_g8_zero_grounded_response_blocks_domain_ceiling_as_abstention_inertia() -> None:
     signals = g8.Layer3G8NormalizedMetricSignals(
         status="pass",

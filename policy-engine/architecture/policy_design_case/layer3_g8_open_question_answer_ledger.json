@@ -17,7 +17,6 @@
       "current_answer": "Current G5/G7 readings prove engineering readiness and honest blockers, not a domain ceiling: G5 remains an unchanged blocker and G7 has zero grounded regional breadth.",
       "evidence_refs": [
         "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json#g5_conversion_outcome",
-        "repo://architecture/policy_design_case/layer3_g7_readiness_manifest.json#g7_region_value_closure_status",
         "repo://architecture/policy_design_case/layer3_g7_readiness_manifest.json#g7_region_grounded_case_count"
       ],
       "question": "Is real grounding achievable at acceptable cost in the target domains, or is the honest equilibrium mostly abstention?",

@@ -24,7 +24,7 @@
         "facet": "jurisdiction",
         "port_id": "SYSTEM.jurisdiction",
         "publishes": [],
-        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L101"
+        "source_line_ref": "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-g1-honest-l1-search-repair/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L101"
       },
       {
         "cluster": "SYSTEM",
@@ -34,7 +34,7 @@
         "facet": "outcome_observations",
         "port_id": "SYSTEM.outcome_observations",
         "publishes": [],
-        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L102"
+        "source_line_ref": "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-g1-honest-l1-search-repair/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L102"
       },
       {
         "cluster": "SYSTEM",
@@ -44,7 +44,7 @@
         "facet": "population_scope",
         "port_id": "SYSTEM.population_scope",
         "publishes": [],
-        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L103"
+        "source_line_ref": "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-g1-honest-l1-search-repair/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L103"
       },
       {
         "cluster": "SYSTEM",
@@ -56,7 +56,7 @@
         "publishes": [
           "OTHER_AGENTS.strategic_response"
         ],
-        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L104"
+        "source_line_ref": "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-g1-honest-l1-search-repair/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L104"
       },
       {
         "cluster": "KNOWLEDGE",
@@ -66,7 +66,7 @@
         "publishes": [
           "SYSTEM.nonstationarity"
         ],
-        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L105"
+        "source_line_ref": "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-g1-honest-l1-search-repair/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L105"
       },
       {
         "cluster": "INTERVENTION",
@@ -79,7 +79,7 @@
         "publishes": [
           "INTERVENTION.design_grammar"
         ],
-        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L106"
+        "source_line_ref": "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-g1-honest-l1-search-repair/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L106"
       },
       {
         "cluster": "INTERVENTION",
@@ -89,7 +89,7 @@
         "publishes": [
           "KNOWLEDGE.epistemic_regime"
         ],
-        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L107"
+        "source_line_ref": "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-g1-honest-l1-search-repair/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L107"
       },
       {
         "cluster": "INTERVENTION",
@@ -101,7 +101,7 @@
           "INTERVENTION.requirement_compilers",
           "INTERVENTION.scale_composition"
         ],
-        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L108"
+        "source_line_ref": "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-g1-honest-l1-search-repair/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L108"
       },
       {
         "cluster": "INTERVENTION",
@@ -111,7 +111,7 @@
         "facet": "method_requirements",
         "port_id": "INTERVENTION.method_requirements",
         "publishes": [],
-        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L109"
+        "source_line_ref": "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-g1-honest-l1-search-repair/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L109"
       },
       {
         "cluster": "INTERVENTION",
@@ -122,7 +122,7 @@
         "facet": "objectives",
         "port_id": "INTERVENTION.objectives",
         "publishes": [],
-        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L110"
+        "source_line_ref": "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-g1-honest-l1-search-repair/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L110"
       },
       {
         "cluster": "INTERVENTION",
@@ -132,7 +132,7 @@
         "publishes": [
           "ACTOR.value_choice_provenance"
         ],
-        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L111"
+        "source_line_ref": "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-g1-honest-l1-search-repair/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L111"
       },
       {
         "cluster": "INTERVENTION",
@@ -142,7 +142,7 @@
         "facet": "tradeoffs",
         "port_id": "INTERVENTION.tradeoffs",
         "publishes": [],
-        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L112"
+        "source_line_ref": "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-g1-honest-l1-search-repair/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L112"
       },
       {
         "cluster": "INTERVENTION",
@@ -152,7 +152,7 @@
         "publishes": [
           "SYSTEM.subject_granularity"
         ],
-        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L113"
+        "source_line_ref": "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-g1-honest-l1-search-repair/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L113"
       },
       {
         "cluster": "INTERVENTION",
@@ -162,7 +162,7 @@
         "facet": "population_scope",
         "port_id": "INTERVENTION.population_scope",
         "publishes": [],
-        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L114"
+        "source_line_ref": "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-g1-honest-l1-search-repair/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L114"
       },
       {
         "cluster": "INTERVENTION",
@@ -172,7 +172,7 @@
         "facet": "forecast",
         "port_id": "INTERVENTION.forecast",
         "publishes": [],
-        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L115"
+        "source_line_ref": "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-g1-honest-l1-search-repair/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L115"
       },
       {
         "cluster": "INTERVENTION",
@@ -182,7 +182,7 @@
         "publishes": [
           "KNOWLEDGE.calibration"
         ],
-        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L116"
+        "source_line_ref": "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-g1-honest-l1-search-repair/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L116"
       },
       {
         "cluster": "INTERVENTION",
@@ -192,7 +192,7 @@
         "publishes": [
           "SYSTEM.dynamics_feedback"
         ],
-        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L117"
+        "source_line_ref": "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-g1-honest-l1-search-repair/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L117"
       },
       {
         "cluster": "INTERVENTION",
@@ -203,7 +203,7 @@
           "ACTOR.legal_authority",
           "ACTOR.state_capacity_feasibility"
         ],
-        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L118"
+        "source_line_ref": "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-g1-honest-l1-search-repair/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L118"
       },
       {
         "cluster": "INTERVENTION",
@@ -214,7 +214,7 @@
           "INTERVENTION.design_candidate",
           "KNOWLEDGE.ir_proof_carrying_analytics"
         ],
-        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L119"
+        "source_line_ref": "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-g1-honest-l1-search-repair/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L119"
       },
       {
         "cluster": "INTERVENTION",
@@ -225,7 +225,7 @@
           "INTERVENTION.reversibility_lifecycle_stakes",
           "KNOWLEDGE.calibration"
         ],
-        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L120"
+        "source_line_ref": "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-g1-honest-l1-search-repair/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L120"
       },
       {
         "cluster": "INTERVENTION",
@@ -235,7 +235,7 @@
         "publishes": [
           "OTHER_AGENTS.strategic_response"
         ],
-        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L121"
+        "source_line_ref": "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-g1-honest-l1-search-repair/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L121"
       },
       {
         "cluster": "OTHER_AGENTS",
@@ -246,7 +246,7 @@
           "INTERVENTION.design_candidate",
           "SYSTEM.dynamics_feedback"
         ],
-        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L122"
+        "source_line_ref": "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-g1-honest-l1-search-repair/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L122"
       },
       {
         "cluster": "DESIGNER_ITSELF",
@@ -257,7 +257,7 @@
           "ACTOR.legal_authority",
           "KNOWLEDGE.evidence_claims_portfolio"
         ],
-        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L123"
+        "source_line_ref": "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-g1-honest-l1-search-repair/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L123"
       },
       {
         "cluster": "DESIGNER_ITSELF",
@@ -268,7 +268,7 @@
           "ACTOR.state_capacity_feasibility",
           "KNOWLEDGE.epistemic_regime"
         ],
-        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L124"
+        "source_line_ref": "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-g1-honest-l1-search-repair/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L124"
       },
       {
         "cluster": "DESIGNER_ITSELF",
@@ -278,7 +278,7 @@
         "publishes": [
           "DESIGNER_ITSELF.evaluation_corpus"
         ],
-        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L125"
+        "source_line_ref": "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-g1-honest-l1-search-repair/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L125"
       },
       {
         "cluster": "DESIGNER_ITSELF",
@@ -288,7 +288,7 @@
         "publishes": [
           "DESIGNER_ITSELF.envelope_growth"
         ],
-        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L126"
+        "source_line_ref": "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-g1-honest-l1-search-repair/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L126"
       },
       {
         "cluster": "DESIGNER_ITSELF",
@@ -298,7 +298,7 @@
         "publishes": [
           "CROSS_CUTTING.scientist_orchestration"
         ],
-        "source_line_ref": "repo:///Users/deniskopylov/polisyos/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L127"
+        "source_line_ref": "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-g1-honest-l1-search-repair/policy-engine/architecture/policy_design_case/cluster_ownership_map.toml#L127"
       }
     ],
     "summary": {

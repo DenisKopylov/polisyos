@@ -97,6 +97,11 @@ ALL_ISSUE_CODES: tuple[str, ...] = (
     "layer3_g1_useful_design_credit_leak",
     "layer3_g1_search_ledger_missing",
     "layer3_g1_search_ledger_authority_boundary_leak",
+    "layer3_g1_search_recall_not_measured",
+    "layer3_g1_search_engineering_quality_not_measured",
+    "layer3_g1_l1_dcat_no_metric_binding",
+    "layer3_g1_source_contract_materialization_missing",
+    "layer3_g1_hardcode_strangle_incomplete",
     "layer3_g1_search_recall_seed_miss_blocks_domain_ceiling",
     "layer3_g1_stale_index_blocks_domain_ceiling",
     "layer3_g1_hardcode_fallback_used_for_closure",
@@ -485,9 +490,10 @@ def _validate_search_health(bundle: g1.Layer3G1Bundle) -> list[dict[str, str]]:
             "Index freshness must pass before any domain ceiling.",
         ),
         (
-            int(counts.get("g1_free_growth_fixture_count") or 0) >= 1,
+            bool(bundle.free_growth_report.discovered_metric_ids)
+            and int(counts.get("g1_free_growth_fixture_count") or 0) == 0,
             "layer3_g1_surface_unsynced",
-            "G1 must prove free growth through the L1 route.",
+            "G1 must prove free growth through the L1 route without fixture substitution.",
         ),
         (
             int(counts.get("g1_mechanism_generality_request_shape_count") or 0) >= 2,
@@ -501,9 +507,12 @@ def _validate_search_health(bundle: g1.Layer3G1Bundle) -> list[dict[str, str]]:
         ),
         (
             counts.get("g1_hardcode_fallback_deletion_status")
-            == "deleted_or_disabled_no_fallback",
-            "layer3_g1_hardcode_fallback_not_deleted",
-            "Hardcoded fallback must be deleted or disabled.",
+            in {
+                "deleted_or_disabled_no_fallback",
+                "search_path_replaced_deletion_pending",
+            },
+            "layer3_g1_hardcode_strangle_incomplete",
+            "Hardcoded fallback cleanup must be explicitly pending or complete.",
         ),
         (
             int(counts.get("g1_hardcode_fallback_closure_count") or 0) == 0,

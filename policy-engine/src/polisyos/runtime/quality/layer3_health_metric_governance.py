@@ -2642,6 +2642,10 @@ def _signal_issue_codes(
         "fail",
         "miss",
         "search_ceiling",
+        "not_measured",
+        "self_attested",
+        "unmeasured",
+        "missing",
     }:
         issues.append("layer3_g8_search_recall_miss_reported_as_domain_ceiling")
     if metric_id == "adapter-semantic-loss" and lowered in {"lossy", "blocked", "fail"}:
@@ -2682,6 +2686,10 @@ def _latest_metric_status(signals: Layer3G8NormalizedMetricSignals, metric_id: s
         "blocked_no_real_grounded_breadth",
         "blocked_by_current_g5_unchanged_blocker",
         "search_ceiling",
+        "not_measured",
+        "self_attested",
+        "unmeasured",
+        "missing",
         "stale",
         "miss",
         "stalled",
@@ -2722,6 +2730,10 @@ def _is_current_committed_source_set(signals: Layer3G8NormalizedMetricSignals) -
 def _is_search_ceiling(status: str) -> bool:
     return status.casefold() in {
         "search_ceiling",
+        "not_measured",
+        "self_attested",
+        "unmeasured",
+        "missing",
         "stale",
         "fail",
         "miss",

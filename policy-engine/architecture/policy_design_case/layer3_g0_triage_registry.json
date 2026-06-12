@@ -101,6 +101,17 @@
       {
         "admission_allowed": false,
         "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/layer3_bounded_agent.py",
+        "import_root": "scientist",
+        "line": 40,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.scientist",
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_bounded_agent.py:40:scientist"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_causal_forecast.py",
         "import_root": "method_requirement",
         "line": 21,
@@ -213,11 +224,22 @@
         "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_substrate_grounding.py",
         "import_root": "fabric",
-        "line": 20,
+        "line": 21,
         "quarantine_check_result": "not_blocked",
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.fabric",
-        "touchpoint_id": "src/polisyos/runtime/quality/layer3_substrate_grounding.py:20:fabric"
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_substrate_grounding.py:21:fabric"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/layer3_substrate_grounding.py",
+        "import_root": "data_forge",
+        "line": 28,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.data_forge.read_api.catalog",
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_substrate_grounding.py:28:data_forge"
       },
       {
         "admission_allowed": false,
@@ -410,7 +432,7 @@
     "scan_mode": "ast_top_level_and_local_imports",
     "summary": {
       "runtime_quality_touchpoint_admission_allowed_without_contract_count": 0,
-      "runtime_quality_touchpoint_count": 35,
+      "runtime_quality_touchpoint_count": 37,
       "runtime_quality_touchpoints_without_registration": 0
     }
   },

@@ -559,7 +559,7 @@ def test_layer3_g5_dependency_resolver_reads_slice_specific_readiness_keys() -> 
     snapshot = g5.build_g5_dependency_readiness_snapshot(REPO_ROOT)
 
     assert snapshot.status == "pass"
-    assert snapshot.g1_grounding_status == "grounded_or_uncertain"
+    assert snapshot.g1_grounding_status == "grounded_abstention"
     assert snapshot.g1_search_recall_status == "pass"
     assert snapshot.g2_w12d_consumer_gate_status == "pass"
     assert snapshot.g2_conformance_status == "pass"
@@ -651,14 +651,14 @@ def test_layer3_g5_g4_grounded_contract_duplicates_do_not_inflate_evidence() -> 
     assert "layer3_g5_g4_grounded_contract_duplicate_inflates_evidence" in evidence.issue_codes
 
 
-def test_layer3_g5_g1_observed_but_uncertain_binding_limits_conversion_scope() -> None:
+def test_layer3_g5_g1_credit_access_binding_cannot_ground_survival_scope() -> None:
     g5 = _g5()
 
     matrix = g5.build_g5_upstream_scope_join_matrix(REPO_ROOT)
 
-    assert matrix.g1_grounding_status == "observed_but_uncertain"
-    assert matrix.g1_conversion_scope_disposition == "substrate_only_limited"
-    assert "layer3_g5_g1_observed_but_uncertain_overclaimed" in matrix.issue_codes
+    assert matrix.g1_grounding_status == "grounded_binding"
+    assert matrix.g1_conversion_scope_disposition == "blocked_construct_mismatch"
+    assert "layer3_g5_g1_construct_mismatch" in matrix.issue_codes
 
 
 def test_layer3_g5_g1_source_contract_hash_and_observed_time_required_for_scope_join() -> None:
@@ -676,6 +676,29 @@ def test_layer3_g5_g1_source_contract_hash_and_observed_time_required_for_scope_
 
     assert "layer3_g5_g1_source_contract_hash_missing" in matrix.issue_codes
     assert "layer3_g5_g1_observed_time_missing" in matrix.issue_codes
+
+
+def test_layer3_g5_credit_access_source_contract_cannot_ground_firm_survival_slot() -> None:
+    g5 = _g5()
+
+    matrix = g5.build_g5_upstream_scope_join_matrix(
+        REPO_ROOT,
+        g1_bindings=[
+            {
+                "case_id": G5_PINNED_CASE_ID,
+                "construct_ref": "credit_access",
+                "grounding_status": "grounded_binding",
+                "source_contract_ref": "source-contract://layer3.ua_msme.credit_access",
+                "source_contract_content_hash": "sha256:credit-access",
+                "observed_through": "2026-06-01",
+                "may_not_use_for": ["claim_authority_without_g5"],
+            }
+        ],
+    )
+
+    assert matrix.status == "fail"
+    assert matrix.g1_conversion_scope_disposition == "blocked_construct_mismatch"
+    assert "layer3_g5_g1_construct_mismatch" in matrix.issue_codes
 
 
 def test_layer3_g5_g1_may_not_use_for_denials_are_preserved() -> None:

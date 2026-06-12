@@ -10,13 +10,17 @@ useful-design authority.
 from __future__ import annotations
 
 import json
+import hashlib
 from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
 import duckdb
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.data_forge import read_api as data_forge_read_api
 from polisyos.fabric import (
     ConnectorSchemaContract,
     DataSchema,
@@ -32,6 +36,7 @@ from polisyos.runtime.quality.adapter_contracts import (
 )
 from polisyos.runtime.quality.capability_index import (
     AuthorityEnvelope,
+    CapabilitySourceAsset,
     CapabilityScope,
     EvidenceCapability,
     FreshnessEnvelope,
@@ -63,8 +68,6 @@ G1_SUBSTRATE_DATA_BINDING_ADAPTER_PATH_ID = "layer3_data_asset_port_to_source_co
 G1_ACQUISITION_ADAPTER_PATH_ID = "layer3_fabric_acquisition_to_source_contract"
 G1_PINNED_CASE_ID = "ua-msme-affordable-loans-2022"
 G1_CONSTRUCT_BUNDLE_ID = "ukrainian_msme_credit_constructs"
-G1_PREFERRED_EXISTING_ASSET_CONSTRUCT_ID = "firm_survival"
-G1_EXPECTED_ACQUISITION_GAP_CONSTRUCT_ID = "credit_program_enrollment"
 G0_SCHEMA_VERSION = "policyos.policy_design_case.layer3_g0_discovery_search.v2"
 G0_RULE_VERSION = "policyos.layer3.g0.discovery_search_free_growth.v2"
 GENERATED_AT = "2026-06-07T00:00:00Z"
@@ -75,6 +78,8 @@ L1_DCAT_REF = (
 L1_DCAT_PATH = Path(
     "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb"
 )
+L1_DCAT_INDEX_DIR = Path("production_data/datasets_full_phase3full_20260327_183054")
+G1_SEARCH_STATUS = Literal["pass", "fail", "not_measured"]
 EXPECTED_HEALTH_METRICS: tuple[str, ...] = (
     "envelope-expansion-rate",
     "adapter-semantic-loss",
@@ -106,6 +111,24 @@ _G0_CONTRACT_MODEL_REFS: tuple[type[BaseModel], ...] = (
     ResourceDiscoveryRecord,
     SearchRecallSeed,
 )
+
+
+@dataclass(frozen=True)
+class _L1DcatSearchMeasurement:
+    """Internal replay facts for one L1 DCAT query."""
+
+    construct: str
+    query_text: str
+    query_hash: str
+    row_count: int
+    exact_bindings: tuple[Any, ...]
+    dataset_candidate_refs: tuple[str, ...]
+    query_trace_ref: str
+    search_frontier_ref: str
+    searched_index_refs: tuple[str, ...]
+    index_version_refs: tuple[str, ...]
+    measurement_provenance: str
+    issue_codes: tuple[str, ...] = ()
 
 
 class _G1Model(BaseModel):
@@ -154,11 +177,17 @@ class Layer3G1GroundingSearchLedger(_G1Model):
     ledger_id: str = Field(min_length=1)
     event_type: str = Field(min_length=1)
     typed_request_ref: str = Field(min_length=1)
+    query_text: str = Field(min_length=1)
+    query_hash: str = Field(min_length=1)
     normalized_query_refs: tuple[str, ...] = Field(default=())
     searched_index_refs: tuple[str, ...] = Field(min_length=1)
     index_version_refs: tuple[str, ...] = Field(default=())
+    candidate_count: int = Field(default=0, ge=0)
     selected_candidate_refs: tuple[str, ...] = Field(default=())
     rejected_candidate_refs: tuple[str, ...] = Field(default=())
+    no_hit_candidate_refs: tuple[str, ...] = Field(default=())
+    search_frontier_ref: str | None = None
+    measurement_provenance: str = Field(min_length=1)
     ranking_policy_ref: str | None = None
     cutoff_budget_ref: str | None = None
     absence_or_incompleteness_reason: str | None = None
@@ -256,11 +285,16 @@ class Layer3G1SearchRecallFreshnessReport(_G1Model):
     """G1 recall and index freshness report linked to search ledgers."""
 
     report_id: str = "layer3-g1-search-recall-freshness"
-    search_recall_status: Literal["pass", "fail"]
-    index_freshness_status: Literal["pass", "fail"]
+    search_recall_status: G1_SEARCH_STATUS
+    index_freshness_status: G1_SEARCH_STATUS
+    measurement_provenance: str = Field(min_length=1)
+    query_trace_refs: tuple[str, ...] = Field(default=())
+    search_frontier_ref: str | None = None
+    source_request_kind: str = "runtime_l1_dcat_probe"
     known_groundable_seed_refs: tuple[str, ...] = Field(default=())
     missed_seed_refs: tuple[str, ...] = Field(default=())
     stale_index_refs: tuple[str, ...] = Field(default=())
+    issue_codes: tuple[str, ...] = Field(default=())
 
 
 class Layer3G1FreeGrowthFixture(_G1Model):
@@ -298,15 +332,21 @@ class Layer3G1HardcodeStrangleDelta(_G1Model):
     delta_id: str = "layer3-g1-hardcode-strangle-delta"
     hardcode_strangle_delta_count: int = 2
     fallback_closure_count: int = 0
-    fallback_deletion_status: str = "deleted_or_disabled_no_fallback"
+    fallback_deletion_status: str = "search_path_replaced_deletion_pending"
+    measurement_provenance: str = Field(min_length=1)
     delta_records: tuple[dict[str, Any], ...] = Field(default=())
+    issue_codes: tuple[str, ...] = Field(default=())
 
 
 class Layer3G1SearchEngineeringQualityReport(_G1Model):
     """Engineering-quality report for G1 search implementation."""
 
     report_id: str = "layer3-g1-search-engineering-quality"
-    status: Literal["pass", "fail"]
+    status: G1_SEARCH_STATUS
+    measurement_provenance: str = Field(min_length=1)
+    query_trace_refs: tuple[str, ...] = Field(default=())
+    search_frontier_ref: str | None = None
+    source_request_kind: str = "runtime_l1_dcat_probe"
     named_library_refs: tuple[str, ...] = Field(default=())
     index_backed: bool = True
     lazy_or_streaming: bool = True
@@ -316,6 +356,7 @@ class Layer3G1SearchEngineeringQualityReport(_G1Model):
     search_scaling_fixture_status: Literal["pass", "fail"] = "pass"
     parquet_profile_mode: str = "metadata_only"
     full_parquet_scan_count: int = 0
+    issue_codes: tuple[str, ...] = Field(default=())
 
 
 class LineageContaminationCheck(_G1Model):
@@ -451,10 +492,10 @@ def build_layer3_g1_bundle(repo_root: Path) -> Layer3G1Bundle:
     results = tuple(build_substrate_grounding_search_adapter(root, requests))
     ledgers = tuple(ledger for result in results for ledger in result.search_ledgers)
     coverage = build_g1_l1_l5_l6_index_coverage_report(root, results)
-    recall = validate_g1_search_recall_freshness(root, None)
+    recall = validate_g1_search_recall_freshness(root, ledgers)
     free_growth = build_g1_free_growth_report(root)
     hardcode_delta = build_g1_hardcode_strangle_delta(root)
-    search_quality = build_g1_search_engineering_quality_report(root, None)
+    search_quality = build_g1_search_engineering_quality_report(root, ledgers)
     acquisition = tuple(build_acquisition_grounding_adapter(root))
     conformance = validate_g1_adapter_conformance(root, None)
     source_contracts = _source_contract_records(results)
@@ -514,10 +555,6 @@ def validate_layer3_g1_bundle(
 
     root = Path(repo_root)
     payload = _payload(persisted)
-    if isinstance(persisted, Layer3G1Bundle):
-        summary = dict(persisted.readiness_manifest.counts)
-        return Layer3G1ValidationReport(status="pass", summary=summary)
-
     issues: list[Layer3G1ValidationIssue] = []
     _validate_raw_payload(payload, issues)
     _validate_g0_dependency(payload, issues)
@@ -552,30 +589,44 @@ def build_substrate_grounding_search_adapter(
     root = Path(repo_root)
     results: list[Layer3G1SubstrateSearchResult] = []
     for request in requests:
-        l1_query_ref = _l1_query_ref(root, request.construct_ref)
+        measurement = _search_l1_dcat(root, request.construct_ref)
+        selected_refs = _binding_candidate_refs(measurement.exact_bindings)
+        no_hit_refs = () if selected_refs else (measurement.search_frontier_ref,)
         ledger = Layer3G1GroundingSearchLedger(
             ledger_id=f"g1-ledger:{request.request_shape}:{request.construct_ref}",
-            event_type="selected_candidate",
+            event_type="selected_candidate" if selected_refs else "no_hit_frontier",
             typed_request_ref=request.request_id,
-            normalized_query_refs=(f"construct:{request.construct_ref}",),
-            searched_index_refs=(
-                L1_DCAT_REF,
-                "repo://architecture/policy_design_case/layer3_discovery_search_discipline.json",
+            query_text=measurement.query_text,
+            query_hash=measurement.query_hash,
+            normalized_query_refs=(
+                f"construct:{request.construct_ref}",
+                f"query-hash:{measurement.query_hash}",
             ),
-            index_version_refs=(l1_query_ref,),
-            selected_candidate_refs=(
-                f"capability:layer3-g1:{request.construct_ref}:source-contract",
-            ),
+            searched_index_refs=measurement.searched_index_refs,
+            index_version_refs=measurement.index_version_refs,
+            candidate_count=len(measurement.exact_bindings) + len(measurement.dataset_candidate_refs),
+            selected_candidate_refs=selected_refs,
             rejected_candidate_refs=("capability-index-transition:not-l1-authority",),
+            no_hit_candidate_refs=no_hit_refs,
+            search_frontier_ref=measurement.search_frontier_ref,
+            measurement_provenance=measurement.measurement_provenance,
             ranking_policy_ref="policyos.layer3.g1.rank.source_contract_readiness.v1",
             cutoff_budget_ref="budget://layer3-g1/targeted-unit-search",
-            completeness_status="complete",
-            replay_key=f"layer3-g1:{request.request_shape}:{request.construct_ref}:2026-06-07",
+            absence_or_incompleteness_reason=(
+                None
+                if selected_refs
+                else "l1_dcat_no_metric_binding"
+            ),
+            completeness_status="complete" if selected_refs else "no_exact_hit",
+            replay_key=(
+                f"layer3-g1:{request.request_shape}:{request.construct_ref}:"
+                f"{measurement.query_hash[:12]}"
+            ),
             index_freshness_refs=("g1-index-freshness:l1-dcat",),
-            known_seed_refs=("g1-recall-seed:ua-msme-firm-survival",),
+            known_seed_refs=("g1-recall-seed:credit-access",),
             g0_ledger_ref="repo://architecture/policy_design_case/layer3_discovery_search_discipline.json#grounding_search_ledgers",
         )
-        binding = _binding_for_request(root, request)
+        binding = _binding_for_request(root, request, measurement)
         results.append(
             Layer3G1SubstrateSearchResult(
                 result_id=f"g1-result:{request.request_shape}:{request.construct_ref}",
@@ -588,7 +639,7 @@ def build_substrate_grounding_search_adapter(
                 binding=binding,
                 acquisition_gap_refs=(
                     ("g1-acquisition:credit-program-enrollment",)
-                    if request.construct_ref == G1_EXPECTED_ACQUISITION_GAP_CONSTRUCT_ID
+                    if request.construct_ref == _acquisition_gap_construct_ref()
                     else ()
                 ),
             )
@@ -611,11 +662,18 @@ def build_g1_l1_l5_l6_index_coverage_report(
 ) -> Layer3G1L1L5L6IndexCoverageReport:
     """Build the L1/L5/L6 coverage report using the real DCAT DuckDB route."""
 
-    del results
     row_count = _l1_metric_binding_count(Path(repo_root))
+    query_refs = tuple(
+        dict.fromkeys(
+            ref
+            for result in results
+            for ledger in result.search_ledgers
+            for ref in ledger.index_version_refs
+        )
+    )
     return Layer3G1L1L5L6IndexCoverageReport(
         status="pass" if row_count > 0 else "fail",
-        l1_query_refs=(_l1_query_ref(Path(repo_root), "firm_survival"),),
+        l1_query_refs=query_refs or (_l1_query_ref(Path(repo_root), _known_seed_construct_ref()),),
         l1_row_count=row_count,
         l5_calibration_refs=(
             "repo://architecture/policy_design_case/layer3_health_metric_ledgers.toml#search-recall@known-seeds+index-staleness",
@@ -629,54 +687,90 @@ def build_g1_l1_l5_l6_index_coverage_report(
 
 def validate_g1_search_recall_freshness(
     repo_root: Path,
-    bundle: Layer3G1Bundle | None,
+    bundle: Layer3G1Bundle | Sequence[Layer3G1GroundingSearchLedger] | None,
 ) -> Layer3G1SearchRecallFreshnessReport:
     """Validate G1 known-groundable seeds and index freshness."""
 
-    del repo_root, bundle
+    root = Path(repo_root)
+    seed = _search_l1_dcat(root, _known_seed_construct_ref())
+    ledgers = tuple(bundle or ()) if not isinstance(bundle, Layer3G1Bundle) else bundle.search_ledgers
+    query_trace_refs = tuple(
+        dict.fromkeys(
+            (
+                seed.query_trace_ref,
+                *(ledger.search_frontier_ref or ledger.ledger_id for ledger in ledgers),
+            )
+        )
+    )
+    issue_codes: list[str] = []
+    if seed.issue_codes:
+        issue_codes.extend(seed.issue_codes)
+    if not seed.exact_bindings:
+        issue_codes.append("layer3_g1_search_recall_seed_miss_blocks_domain_ceiling")
+    if not query_trace_refs:
+        issue_codes.append("layer3_g1_search_recall_not_measured")
+    catalog_path = root / L1_DCAT_PATH
+    freshness_status: G1_SEARCH_STATUS = "pass" if catalog_path.exists() else "fail"
+    if freshness_status != "pass":
+        issue_codes.append("layer3_g1_stale_index_blocks_domain_ceiling")
     return Layer3G1SearchRecallFreshnessReport(
-        search_recall_status="pass",
-        index_freshness_status="pass",
+        search_recall_status="pass" if seed.exact_bindings else "fail",
+        index_freshness_status=freshness_status,
+        measurement_provenance=seed.measurement_provenance,
+        query_trace_refs=query_trace_refs,
+        search_frontier_ref=seed.search_frontier_ref,
         known_groundable_seed_refs=(
-            "g1-recall-seed:source-contract-discovery",
-            "g1-recall-seed:ua-msme-firm-survival",
+            "g1-recall-seed:credit-access",
         ),
+        missed_seed_refs=() if seed.exact_bindings else ("g1-recall-seed:credit-access",),
+        stale_index_refs=() if freshness_status == "pass" else (L1_DCAT_REF,),
+        issue_codes=tuple(dict.fromkeys(issue_codes)),
     )
 
 
 def build_g1_hardcode_strangle_delta(repo_root: Path) -> Layer3G1HardcodeStrangleDelta:
     """Build the G1 hardcode-strangle delta for G0 backlog entries."""
 
-    del repo_root
+    root = Path(repo_root)
+    records = (
+        _hardcode_strangle_record(
+            root,
+            backlog_ref="capability_index_compiler.KNOWN_CONSTRUCTS",
+            search_backed_replacement_ref="g1-resource-discovery:l1-dcat-construct-search",
+        ),
+        _hardcode_strangle_record(
+            root,
+            backlog_ref="capability_resolver.REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS",
+            search_backed_replacement_ref=(
+                "g1-resource-discovery:scenario-family-source-contract"
+            ),
+        ),
+    )
+    complete = all(record["fallback_deleted_or_disabled"] for record in records)
+    issue_codes = () if complete else ("layer3_g1_hardcode_strangle_incomplete",)
     return Layer3G1HardcodeStrangleDelta(
-        delta_records=(
-            {
-                "backlog_ref": "capability_index_compiler.KNOWN_CONSTRUCTS",
-                "search_backed_replacement_ref": "g1-resource-discovery:l1-dcat-construct-search",
-                "fallback_deleted_or_disabled": True,
-                "no_fallback_proof_ref": G1_UNIT_TEST_REF,
-            },
-            {
-                "backlog_ref": "capability_resolver.REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS",
-                "search_backed_replacement_ref": (
-                    "g1-resource-discovery:scenario-family-source-contract"
-                ),
-                "fallback_deleted_or_disabled": True,
-                "no_fallback_proof_ref": G1_UNIT_TEST_REF,
-            },
-        )
+        fallback_deletion_status=(
+            "deleted_or_disabled_no_fallback"
+            if complete
+            else "search_path_replaced_deletion_pending"
+        ),
+        measurement_provenance="repo_ast_targeted_hardcode_probe",
+        delta_records=records,
+        issue_codes=issue_codes,
     )
 
 
 def build_g1_free_growth_report(repo_root: Path) -> Layer3G1FreeGrowthReport:
     """Build a no-code-change free-growth report over the L1 DCAT route."""
 
-    fixture = _fixture_payload(Path(repo_root), "free_growth_metric_binding_fixture.json")
-    metric_id = str(fixture["payload"]["metric_binding"]["metric_id"])
+    measurement = _search_l1_dcat(Path(repo_root), _known_seed_construct_ref())
+    metric_ids = tuple(
+        dict.fromkeys(str(binding.metric_id) for binding in measurement.exact_bindings)
+    )
     return Layer3G1FreeGrowthReport(
-        status="pass",
-        free_growth_fixture_count=1,
-        discovered_metric_ids=(metric_id,),
+        status="pass" if metric_ids else "fail",
+        free_growth_fixture_count=0,
+        discovered_metric_ids=metric_ids,
         code_change_required=False,
         search_route="l1_dcat_ds_metric_bindings",
     )
@@ -684,19 +778,43 @@ def build_g1_free_growth_report(repo_root: Path) -> Layer3G1FreeGrowthReport:
 
 def build_g1_search_engineering_quality_report(
     repo_root: Path,
-    bundle: Layer3G1Bundle | None,
+    bundle: Layer3G1Bundle | Sequence[Layer3G1GroundingSearchLedger] | None,
 ) -> Layer3G1SearchEngineeringQualityReport:
     """Build the G1 search-engineering quality report."""
 
-    del repo_root, bundle
+    root = Path(repo_root)
+    ledgers = tuple(bundle or ()) if not isinstance(bundle, Layer3G1Bundle) else bundle.search_ledgers
+    catalog_path = root / L1_DCAT_PATH
+    index_dir = root / L1_DCAT_INDEX_DIR
+    query_trace_refs = tuple(
+        dict.fromkeys(ledger.search_frontier_ref or ledger.ledger_id for ledger in ledgers)
+    )
+    index_backed = (index_dir / "ds_dataset_index.hnsw").exists() and (
+        index_dir / "ds_dataset_embeddings.npz"
+    ).exists()
+    issue_codes: list[str] = []
+    if not catalog_path.exists() or not query_trace_refs:
+        issue_codes.append("layer3_g1_search_engineering_quality_not_measured")
+    if not index_backed:
+        issue_codes.append("layer3_g1_search_engineering_quality_failed")
     return Layer3G1SearchEngineeringQualityReport(
-        status="pass",
-        named_library_refs=("duckdb", "pyarrow.metadata_only", "pydantic"),
-        index_backed=True,
+        status="fail" if issue_codes else "pass",
+        measurement_provenance="l1_dcat_query",
+        query_trace_refs=query_trace_refs,
+        search_frontier_ref=query_trace_refs[0] if query_trace_refs else None,
+        named_library_refs=(
+            "DatasetCatalogGraph.search_datasets",
+            "DatasetCatalogGraph.resolve_metric_bindings",
+            "DatasetCatalogStore.resolve_metric_bindings",
+            "duckdb",
+            "pydantic",
+        ),
+        index_backed=index_backed,
         lazy_or_streaming=True,
         deterministic_replay=True,
         eager_full_corpus_scan=False,
         broad_fail_open_error_handling=False,
+        issue_codes=tuple(dict.fromkeys(issue_codes)),
     )
 
 
@@ -707,7 +825,7 @@ def build_acquisition_grounding_adapter(repo_root: Path) -> list[AcquisitionGrou
     return [
         AcquisitionGroundingRecord(
             record_id="g1-acquisition:credit-program-enrollment",
-            construct_ref=G1_EXPECTED_ACQUISITION_GAP_CONSTRUCT_ID,
+            construct_ref=_acquisition_gap_construct_ref(),
             strategy_refs=("acquisition:acquire_from_nbu_registry",),
         )
     ]
@@ -780,6 +898,15 @@ def probe_firm_survival_source_contract_v2_groundability(
 
     resolver = build_g1_requirement_to_capability_resolver(Path(repo_root))
     binding = resolver.resolve(_resolver_query("firm_survival"))
+    if binding.status.startswith("blocked_"):
+        return Layer3G1GroundabilityProbe(
+            construct_ref="firm_survival",
+            groundability_status="domain_ceiling_data_insufficiency",
+            blocker_evidence_refs=(
+                *binding.blocked_reasons,
+                "repo://architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json#firm_survival",
+            ),
+        )
     contract = build_fabric_source_contract_snapshot_from_capability(
         Path(repo_root),
         binding,
@@ -787,7 +914,7 @@ def probe_firm_survival_source_contract_v2_groundability(
     )
     snapshot = contract.model_dump(mode="json", by_alias=True)
     return Layer3G1GroundabilityProbe(
-        construct_ref=G1_PREFERRED_EXISTING_ASSET_CONSTRUCT_ID,
+        construct_ref="firm_survival",
         groundability_status="valid_source_contract",
         source_contract_snapshot=snapshot,
         source_contract_content_hash=contract.content_hash,
@@ -801,29 +928,33 @@ def build_fabric_source_contract_snapshot_from_capability(
 ) -> SourceContract:
     """Build and validate a Fabric SourceContract v2 from capability metadata."""
 
-    del repo_root, source_assets
-    construct = (binding.construct_ref or "construct:firm_survival").removeprefix("construct:")
+    del repo_root
+    construct = (binding.construct_ref or "construct:unknown_metric").removeprefix("construct:")
+    source_asset = _mapping(source_assets[0]) if source_assets else {}
+    dataset_id = str(source_asset.get("dataset_id") or construct)
+    connector_id = str(source_asset.get("connector_id") or "l1_dcat_metric_binding")
+    confidence = float(source_asset.get("confidence") or 0.0)
     schema = DataSchema(
         schema_id=f"layer3.ua_msme.{construct}",
         version="1.0.0",
         fields=(
-            FieldSpec(name="firm_id", data_type=SchemaType.STRING, nullable=False),
-            FieldSpec(name="revenue", data_type=SchemaType.FLOAT64),
-            FieldSpec(name="assets", data_type=SchemaType.FLOAT64),
-            FieldSpec(name="employees", data_type=SchemaType.FLOAT64),
-            FieldSpec(name="survival_signal", data_type=SchemaType.FLOAT64),
+            FieldSpec(name="entity_id", data_type=SchemaType.STRING, nullable=False),
+            FieldSpec(name="metric_id", data_type=SchemaType.STRING, nullable=False),
+            FieldSpec(name="metric_value", data_type=SchemaType.FLOAT64),
+            FieldSpec(name="observed_at", data_type=SchemaType.STRING),
+            FieldSpec(name="source_dataset_id", data_type=SchemaType.STRING),
         ),
-        primary_key=("firm_id",),
-        grain_dims=("firm_id",),
-        source="ukraine_server_support",
+        primary_key=("entity_id", "metric_id"),
+        grain_dims=("entity_id",),
+        source=connector_id,
         tags=frozenset({"layer3_g1", "ua_msme", construct}),
     )
     schema_contract = ConnectorSchemaContract(
         contract_id=f"layer3.ua_msme.{construct}.panel",
-        connector_id="layer3_ukraine_manifest",
-        dataset_id=f"ukraine_server_support_20260410/{construct}",
+        connector_id=connector_id,
+        dataset_id=dataset_id,
         schema=schema,
-        min_completeness=0.8,
+        min_completeness=max(0.5, min(confidence, 0.95)),
         expected_row_count_range=(1, None),
         created_by="team-runtime-quality",
     )
@@ -834,10 +965,7 @@ def build_fabric_source_contract_snapshot_from_capability(
         reviewer="team-data-acquisition",
         version="1.0.0",
         domain="msme_credit_support",
-        replay_fixture_ref=(
-            "repo://production_data/canonical/local_data_20260501/"
-            "ukraine_server_support_20260410/LOCAL_IMPORT_MANIFEST.json"
-        ),
+        replay_fixture_ref=f"{L1_DCAT_REF}?dataset_id={dataset_id}&construct={construct}",
     )
 
 
@@ -847,56 +975,15 @@ def build_g1_requirement_to_capability_resolver(
 ) -> RequirementToCapabilityResolver:
     """Expose G1 grounded/uncertain bindings through the existing resolver port."""
 
-    del repo_root, bundle
-    capability = EvidenceCapability(
-        capability_id="capability:layer3_g1:firm_survival:source_contract_v2",
-        construct="firm_survival",
-        modality=("fabric_data", "derived"),
-        evidence_mode="derived_administrative_with_proxy_validation",
-        concept_spine_refs=("concept:firm_survival", "concept:registered_firm"),
-        scope=CapabilityScope(
-            geography="UA",
-            time_start="2022-02-01",
-            schema_regime="ukraine_schema_v2",
-            population=None,
-            entity_scope="firm",
-        ),
-        identification_mode="proxy_identified",
-        trust_tier="administrative_noisy",
-        quality_score=QualityScore(
-            composite=0.74,
-            breakdown={"construct_validity": 0.7, "freshness": 0.8},
-        ),
-        source_assets=(),
-        proxy_validation={"construct_validity_status": "proxy_validated"},
-        limitations=(
-            "Observed but proxy-limited firm survival signal; not causal impact evidence.",
-        ),
-        authority_envelope=AuthorityEnvelope(
-            research="admissible",
-            governed_pilot="admissible_with_proxy_limitation",
-            production="blocked_construct_validity_below_floor",
-            authoritative_for=("layer3_g1_construct_grounding_audit",),
-            may_not_use_for=G1_MAY_NOT_USE_FOR,
-            authority_basis=("Fabric SourceContract v2", "L1 DCAT search frontier"),
-        ),
-        lineage_refs=(
-            "repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/LOCAL_IMPORT_MANIFEST.json",
-        ),
-        freshness_envelope=FreshnessEnvelope(
-            freshness_class="fresh_for_governed_pilot",
-            source_release_ref="ukraine_server_support_20260410",
-        ),
-        rights_envelope=RightsEnvelope(
-            access_class="government_administrative",
-            public_export_allowed="aggregate_only",
-            restrictions=("no_row_level_public_export",),
-        ),
-        may_not_use_for=G1_MAY_NOT_USE_FOR,
+    root = Path(repo_root)
+    capabilities = tuple(
+        _capability_from_metric_binding(binding)
+        for construct in _default_search_construct_refs()
+        for binding in _search_l1_dcat(root, construct).exact_bindings[:3]
     )
     return _Layer3G1RequirementToCapabilityResolver(
-        capabilities=(capability,),
-        capability_index_ref="layer3-g1:substrate-grounding:firm-survival",
+        capabilities=capabilities,
+        capability_index_ref="layer3-g1:substrate-grounding:l1-dcat",
     )
 
 
@@ -924,23 +1011,23 @@ class _Layer3G1RequirementToCapabilityResolver(RequirementToCapabilityResolver):
 def _default_requests() -> tuple[Layer3G1SubstrateSearchRequest, ...]:
     return (
         Layer3G1SubstrateSearchRequest(
-            request_id="g1-request:construct-to-metric-binding:firm-survival",
+            request_id="g1-request:construct-to-metric-binding:credit_access",
             case_id=G1_PINNED_CASE_ID,
             construct_bundle_id=G1_CONSTRUCT_BUNDLE_ID,
             request_shape="construct_to_metric_binding",
-            construct_ref=G1_PREFERRED_EXISTING_ASSET_CONSTRUCT_ID,
+            construct_ref="credit_access",
             scenario_family_ref="ua_msme_credit_support",
-            metric_intent="ground firm survival substrate data",
+            metric_intent="ground credit access substrate data",
             required_route_refs=(L1_DCAT_REF,),
         ),
         Layer3G1SubstrateSearchRequest(
-            request_id="g1-request:scenario-family-to-source-contract:firm-survival",
+            request_id="g1-request:scenario-family-to-source-contract:firm_survival",
             case_id=G1_PINNED_CASE_ID,
             construct_bundle_id=G1_CONSTRUCT_BUNDLE_ID,
             request_shape="scenario_family_to_source_contract",
-            construct_ref=G1_PREFERRED_EXISTING_ASSET_CONSTRUCT_ID,
+            construct_ref="firm_survival",
             scenario_family_ref="ua_msme_credit_support",
-            metric_intent="ground scenario-family source contract",
+            metric_intent="test firm survival source contract availability",
             required_route_refs=(L1_DCAT_REF,),
         ),
     )
@@ -949,15 +1036,27 @@ def _default_requests() -> tuple[Layer3G1SubstrateSearchRequest, ...]:
 def _binding_for_request(
     repo_root: Path,
     request: Layer3G1SubstrateSearchRequest,
+    measurement: _L1DcatSearchMeasurement,
 ) -> GroundedSourceContractBinding | None:
-    if request.construct_ref != G1_PREFERRED_EXISTING_ASSET_CONSTRUCT_ID:
+    if not measurement.exact_bindings:
         return None
     resolver = build_g1_requirement_to_capability_resolver(repo_root)
     resolver_binding = resolver.resolve(_resolver_query(request.construct_ref))
+    if resolver_binding.status.startswith("blocked_"):
+        return None
+    first_binding = measurement.exact_bindings[0]
     contract = build_fabric_source_contract_snapshot_from_capability(
         repo_root,
         resolver_binding,
-        (),
+        (
+            {
+                "metric_id": first_binding.metric_id,
+                "dataset_id": first_binding.catalog_dataset_id,
+                "distribution_id": first_binding.distribution_id,
+                "connector_id": first_binding.connector_id,
+                "confidence": first_binding.confidence,
+            },
+        ),
     )
     snapshot = contract.model_dump(mode="json", by_alias=True)
     return GroundedSourceContractBinding(
@@ -969,7 +1068,9 @@ def _binding_for_request(
         source_contract_content_hash=contract.content_hash,
         source_contract_snapshot=snapshot,
         lineage_refs=(
-            "repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/LOCAL_IMPORT_MANIFEST.json",
+            f"{L1_DCAT_REF}?metric_id={first_binding.metric_id}"
+            f"&dataset_id={first_binding.catalog_dataset_id}"
+            f"&distribution_id={first_binding.distribution_id}",
         ),
     )
 
@@ -1035,10 +1136,260 @@ def _l1_metric_binding_count(repo_root: Path) -> int:
 
 def _l1_query_ref(repo_root: Path, construct: str) -> str:
     row_count = _l1_metric_binding_count(repo_root)
+    query_hash = _query_hash(_l1_query_text(construct))
     return (
         f"{L1_DCAT_REF}?construct={construct}"
-        f"&query=select_metric_bindings&row_count={row_count}"
+        f"&query=select_metric_bindings&query_hash={query_hash}&row_count={row_count}"
     )
+
+
+def _search_l1_dcat(repo_root: Path, construct: str) -> _L1DcatSearchMeasurement:
+    return _search_l1_dcat_cached(str(Path(repo_root).resolve()), construct)
+
+
+@lru_cache(maxsize=32)
+def _search_l1_dcat_cached(repo_root: str, construct: str) -> _L1DcatSearchMeasurement:
+    root = Path(repo_root)
+    catalog_path = root / L1_DCAT_PATH
+    index_dir = root / L1_DCAT_INDEX_DIR
+    metric_key = _dcat_metric_key(construct)
+    query_text = _l1_query_text(construct)
+    query_hash = _query_hash(query_text)
+    row_count = _l1_metric_binding_count(root)
+    searched_index_refs = (
+        L1_DCAT_REF,
+        f"duckdb://{L1_DCAT_INDEX_DIR}/ds_dataset_index.hnsw",
+        f"duckdb://{L1_DCAT_INDEX_DIR}/ds_dataset_embeddings.npz",
+    )
+    index_version_refs = (
+        f"{L1_DCAT_REF}?metric_id={metric_key}&query_hash={query_hash}&row_count={row_count}",
+    )
+    if not catalog_path.exists():
+        return _L1DcatSearchMeasurement(
+            construct=construct,
+            query_text=query_text,
+            query_hash=query_hash,
+            row_count=0,
+            exact_bindings=(),
+            dataset_candidate_refs=(),
+            query_trace_ref=f"g1-query-trace:l1-dcat:{query_hash}",
+            search_frontier_ref=f"g1-search-frontier:l1-dcat:{query_hash}:missing",
+            searched_index_refs=searched_index_refs,
+            index_version_refs=index_version_refs,
+            measurement_provenance="not_measured",
+            issue_codes=("layer3_g1_search_recall_not_measured",),
+        )
+    store: Any | None = None
+    graph: Any | None = None
+    try:
+        catalog_read_api = data_forge_read_api.catalog
+        store = catalog_read_api.DatasetCatalogStore(catalog_path, index_dir)
+        graph = catalog_read_api.DatasetCatalogGraph(catalog_path, index_dir)
+        graph._embedding_disabled = True
+        store_bindings = tuple(store.resolve_metric_bindings(metric_key, top_k=8))
+        graph_bindings = tuple(graph.resolve_metric_bindings(metric_key, top_k=8))
+        exact_bindings = _dedupe_metric_bindings((*store_bindings, *graph_bindings))
+        dataset_candidates = tuple(
+            f"dcat-dataset://{item.id}"
+            for item in graph.find_by_polisyos_metric(metric_key, top_k=8)
+        )
+        return _L1DcatSearchMeasurement(
+            construct=construct,
+            query_text=query_text,
+            query_hash=query_hash,
+            row_count=row_count,
+            exact_bindings=exact_bindings,
+            dataset_candidate_refs=dataset_candidates,
+            query_trace_ref=f"g1-query-trace:l1-dcat:{query_hash}",
+            search_frontier_ref=(
+                f"g1-search-frontier:l1-dcat:{query_hash}:"
+                f"exact={len(exact_bindings)}:text={len(dataset_candidates)}"
+            ),
+            searched_index_refs=searched_index_refs,
+            index_version_refs=index_version_refs,
+            measurement_provenance="l1_dcat_query",
+        )
+    except Exception:
+        return _L1DcatSearchMeasurement(
+            construct=construct,
+            query_text=query_text,
+            query_hash=query_hash,
+            row_count=row_count,
+            exact_bindings=(),
+            dataset_candidate_refs=(),
+            query_trace_ref=f"g1-query-trace:l1-dcat:{query_hash}:error",
+            search_frontier_ref=f"g1-search-frontier:l1-dcat:{query_hash}:error",
+            searched_index_refs=searched_index_refs,
+            index_version_refs=index_version_refs,
+            measurement_provenance="not_measured",
+            issue_codes=("layer3_g1_search_recall_not_measured",),
+        )
+    finally:
+        if graph is not None:
+            graph.close()
+        if store is not None:
+            store.close()
+
+
+def _l1_query_text(construct: str) -> str:
+    normalized = _dcat_metric_key(construct)
+    return normalized.replace("_", " ")
+
+
+def _dcat_metric_key(construct: str) -> str:
+    return str(construct).removeprefix("construct:").removeprefix("policy.").replace(".", "_")
+
+
+def _acquisition_gap_construct_ref() -> str:
+    return "credit_program_enrollment"
+
+
+def _known_seed_construct_ref() -> str:
+    return _default_requests()[0].construct_ref
+
+
+def _default_search_construct_refs() -> tuple[str, ...]:
+    return tuple(dict.fromkeys(request.construct_ref for request in _default_requests()))
+
+
+def _query_hash(query_text: str) -> str:
+    return hashlib.sha256(query_text.encode("utf-8")).hexdigest()
+
+
+def _dedupe_metric_bindings(
+    bindings: Sequence[Any],
+) -> tuple[Any, ...]:
+    out: list[Any] = []
+    seen: set[tuple[str, str, str]] = set()
+    for binding in bindings:
+        key = (binding.metric_id, binding.catalog_dataset_id, binding.distribution_id)
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(binding)
+    return tuple(out)
+
+
+def _binding_candidate_refs(bindings: Sequence[Any]) -> tuple[str, ...]:
+    return tuple(
+        f"dcat-metric-binding://{binding.metric_id}/{binding.catalog_dataset_id}/{binding.distribution_id}"
+        for binding in bindings
+    )
+
+
+def _capability_from_metric_binding(binding: Any) -> EvidenceCapability:
+    composite = max(0.0, min(1.0, float(binding.confidence or 0.0)))
+    metric_confidence = max(0.0, min(1.0, float(binding.metric_inference_confidence or 0.0)))
+    source_asset = CapabilitySourceAsset(
+        ref=(
+            f"dcat-metric-binding://{binding.metric_id}/"
+            f"{binding.catalog_dataset_id}/{binding.distribution_id}"
+        ),
+        source_layer="L1_DCAT",
+        asset_type="metric_binding",
+        role="substrate_metric_binding",
+        path=str(L1_DCAT_PATH),
+        table="ds_metric_bindings",
+        fields=("metric_id", "dataset_id", "distribution_id", "connector_id"),
+        metadata={
+            "metric_id": binding.metric_id,
+            "dataset_id": binding.catalog_dataset_id,
+            "distribution_id": binding.distribution_id,
+            "connector_id": binding.connector_id,
+            "profile_id": binding.profile_id,
+            "execution_tier": binding.execution_tier,
+            "title": binding.title,
+        },
+    )
+    return EvidenceCapability(
+        capability_id=(
+            f"capability:layer3_g1:{binding.metric_id}:"
+            f"{binding.catalog_dataset_id}:{binding.distribution_id}"
+        ),
+        construct=binding.metric_id,
+        modality=("l1_dcat_metric_binding", binding.execution_tier or "catalog"),
+        evidence_mode="catalog_metric_binding",
+        concept_spine_refs=(f"concept://policyos/{binding.metric_id}",),
+        scope=CapabilityScope(
+            geography="catalog_unspecified",
+            schema_regime=binding.profile_id or "l1_dcat",
+            population="ua_msme_candidate_context",
+            entity_scope="dataset_metric",
+        ),
+        identification_mode="proxy_identified",
+        trust_tier="administrative_noisy",
+        quality_score=QualityScore(
+            composite=composite,
+            breakdown={
+                "metric_binding_confidence": composite,
+                "metric_inference_confidence": metric_confidence,
+            },
+        ),
+        source_assets=(source_asset,),
+        proxy_validation={"construct_validity_status": "face_validated_from_l1_dcat"},
+        limitations=(
+            "L1 DCAT metric binding is substrate/source-data evidence only; it is not causal support.",
+        ),
+        authority_envelope=AuthorityEnvelope(
+            research="admissible",
+            governed_pilot="admissible_with_catalog_metric_limitation",
+            production="blocked_without_source_specific_contract_and_g5",
+            authoritative_for=("layer3_g1_construct_grounding_audit",),
+            may_not_use_for=G1_MAY_NOT_USE_FOR,
+            authority_basis=(
+                "DatasetCatalogStore.resolve_metric_bindings",
+                "DatasetCatalogGraph.resolve_metric_bindings",
+                "L1 DCAT search frontier",
+            ),
+        ),
+        lineage_refs=(
+            f"{L1_DCAT_REF}?metric_id={binding.metric_id}"
+            f"&dataset_id={binding.catalog_dataset_id}"
+            f"&distribution_id={binding.distribution_id}",
+        ),
+        freshness_envelope=FreshnessEnvelope(
+            freshness_class="catalog_snapshot_available",
+            source_release_ref=str(L1_DCAT_INDEX_DIR),
+        ),
+        rights_envelope=RightsEnvelope(
+            access_class=binding.source or binding.connector_id or "catalog_unspecified",
+            public_export_allowed="aggregate_only",
+            restrictions=("no_row_level_public_export_without_source_contract",),
+        ),
+        may_not_use_for=G1_MAY_NOT_USE_FOR,
+        metadata={
+            "measurement_provenance": "l1_dcat_query",
+            "request_dataset_id": binding.request_dataset_id,
+        },
+    )
+
+
+def _hardcode_strangle_record(
+    repo_root: Path,
+    *,
+    backlog_ref: str,
+    search_backed_replacement_ref: str,
+) -> dict[str, Any]:
+    module_name, _, pattern = backlog_ref.partition(".")
+    path_by_module = {
+        "capability_index_compiler": (
+            "src/polisyos/runtime/quality/capability_index_compiler.py"
+        ),
+        "capability_resolver": "src/polisyos/runtime/quality/capability_resolver.py",
+    }
+    rel_path = path_by_module.get(module_name, "")
+    target_path = repo_root / rel_path
+    reachable = False
+    if rel_path and target_path.exists():
+        reachable = pattern in target_path.read_text(encoding="utf-8")
+    return {
+        "backlog_ref": backlog_ref,
+        "search_backed_replacement_ref": search_backed_replacement_ref,
+        "fallback_deleted_or_disabled": not reachable,
+        "production_closure_reachable": reachable,
+        "measurement_ref": f"repo://{rel_path}#{pattern}" if rel_path else "unresolved",
+        "no_fallback_proof_ref": G1_UNIT_TEST_REF if not reachable else None,
+    }
 
 
 def _adapter_admissions(
@@ -1360,6 +1711,22 @@ def _validate_search_ledgers(
                     "Search ledgers are control-plane records only.",
                 )
             )
+        if not ledger.get("query_text") or not ledger.get("query_hash"):
+            issues.append(
+                _issue(
+                    "layer3_g1_search_recall_not_measured",
+                    f"$.search_ledgers[{index}].query_hash",
+                    "G1 search ledgers must carry replayable query text/hash.",
+                )
+            )
+        if ledger.get("measurement_provenance") in {None, "", "self_attested", "not_measured"}:
+            issues.append(
+                _issue(
+                    "layer3_g1_search_recall_not_measured",
+                    f"$.search_ledgers[{index}].measurement_provenance",
+                    "G1 search ledgers must be measured by the L1 DCAT search producer.",
+                )
+            )
 
 
 def _validate_construct_bundle(
@@ -1370,8 +1737,8 @@ def _validate_construct_bundle(
     for index, binding in enumerate(bindings):
         construct = str(binding.get("construct_ref", "")).removeprefix("construct:")
         if construct not in {
-            G1_PREFERRED_EXISTING_ASSET_CONSTRUCT_ID,
-            G1_EXPECTED_ACQUISITION_GAP_CONSTRUCT_ID,
+            *_default_search_construct_refs(),
+            _acquisition_gap_construct_ref(),
             "regional_displacement_pressure",
         }:
             issues.append(
@@ -1446,8 +1813,16 @@ def _validate_acquisition(
     issues: list[Layer3G1ValidationIssue],
 ) -> None:
     for index, record in enumerate(_sequence(payload.get("acquisition_grounding_records"))):
-        if not record.get("source_contract_ref") or not record.get(
-            "source_contract_snapshot_ref"
+        records_gap_abstention = (
+            record.get("grounding_status") == "grounded_abstention"
+            and not record.get("coverage_claimed")
+        )
+        if (
+            not records_gap_abstention
+            and (
+                not record.get("source_contract_ref")
+                or not record.get("source_contract_snapshot_ref")
+            )
         ):
             issues.append(
                 _issue(
@@ -1488,6 +1863,17 @@ def _validate_recall_freshness(
     recall = _mapping(payload.get("search_recall_freshness"))
     if not recall:
         return
+    if (
+        recall.get("measurement_provenance") in {None, "", "self_attested", "not_measured"}
+        or not _sequence(recall.get("query_trace_refs"))
+    ):
+        issues.append(
+            _issue(
+                "layer3_g1_search_recall_not_measured",
+                "$.search_recall_freshness.measurement_provenance",
+                "Search recall/freshness must be measured, not self-attested.",
+            )
+        )
     domain_ceiling = payload.get("grounding_closure_outcome") == (
         "grounded_abstention_domain_ceiling"
     )
@@ -1538,18 +1924,39 @@ def _validate_hardcode_delta(
                 "Hardcoded construct/scenario-family fallbacks cannot close G1.",
             )
         )
-    if delta.get("fallback_deletion_status") not in {
-        None,
-        "deleted_or_disabled_no_fallback",
-    } or any(
+    status = delta.get("fallback_deletion_status")
+    pending = status == "search_path_replaced_deletion_pending"
+    fully_deleted = status in {None, "deleted_or_disabled_no_fallback"}
+    any_reachable = any(
         not _mapping(record).get("fallback_deleted_or_disabled")
         for record in _sequence(delta.get("delta_records"))
-    ):
+    )
+    if status not in {
+        None,
+        "deleted_or_disabled_no_fallback",
+        "search_path_replaced_deletion_pending",
+    }:
+        issues.append(
+            _issue(
+                "layer3_g1_hardcode_fallback_not_deleted",
+                "$.hardcode_strangle_delta.fallback_deletion_status",
+                "G1 hardcode strangle status must be either deleted or explicitly pending.",
+            )
+        )
+    if fully_deleted and any_reachable:
         issues.append(
             _issue(
                 "layer3_g1_hardcode_fallback_not_deleted",
                 "$.hardcode_strangle_delta.delta_records",
                 "Executable hardcoded fallbacks must be deleted or disabled with no fallback.",
+            )
+        )
+    if pending and not delta.get("measurement_provenance"):
+        issues.append(
+            _issue(
+                "layer3_g1_hardcode_strangle_incomplete",
+                "$.hardcode_strangle_delta.measurement_provenance",
+                "Pending hardcode strangle status must carry measurement provenance.",
             )
         )
 
@@ -1620,6 +2027,17 @@ def _validate_search_engineering_quality(
     quality = _mapping(payload.get("search_engineering_quality"))
     if not quality:
         return
+    if (
+        quality.get("measurement_provenance") in {None, "", "self_attested", "not_measured"}
+        or not _sequence(quality.get("query_trace_refs"))
+    ):
+        issues.append(
+            _issue(
+                "layer3_g1_search_engineering_quality_not_measured",
+                "$.search_engineering_quality.measurement_provenance",
+                "G1 search engineering quality must be measured from runtime query traces.",
+            )
+        )
     if (
         quality.get("status") != "pass"
         or not quality.get("index_backed", True)
@@ -1715,11 +2133,13 @@ def _validation_summary(
     payload: Mapping[str, Any],
     issues: Sequence[Layer3G1ValidationIssue],
 ) -> dict[str, Any]:
-    del repo_root, payload
+    del repo_root
+    counts = dict(_mapping(_mapping(payload.get("readiness_manifest")).get("counts")))
     return {
         "schema_version": LAYER3_G1_SCHEMA_VERSION,
         "rule_version": LAYER3_G1_RULE_VERSION,
         "issue_count": len(issues),
+        **counts,
     }
 
 

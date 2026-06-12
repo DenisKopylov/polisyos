@@ -4,7 +4,8 @@
     "capability_index_refs": [],
     "coverage_claim": "l1_dcat_ds_metric_bindings",
     "l1_query_refs": [
-      "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings?construct=firm_survival&query=select_metric_bindings&row_count=56846"
+      "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings?metric_id=credit_access&query_hash=a0cb93344f775689e4713a9b48ae16e2530f5e2d99a484e269774551567b7f48&row_count=56846",
+      "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings?metric_id=firm_survival&query_hash=11a4c3135d908f2d8e3873430e4c74dbe4dbd51358ef459ce3f1c4857b8ce83b&row_count=56846"
     ],
     "l1_row_count": 56846,
     "l5_calibration_refs": [

@@ -1674,6 +1674,55 @@ def build_g8_open_question_answer_ledger(
 ) -> Layer3G8OpenQuestionAnswerLedger:
     """Answer §8.4 open questions from current G8 evidence without authority leak."""
 
+    root = Path(repo_root)
+    g5_manifest = _read_optional_json(
+        root / POLICY_DESIGN_CASE_DIR / "layer3_g5_readiness_manifest.json"
+    )
+    g5_eligibility = _read_optional_json(
+        root / POLICY_DESIGN_CASE_DIR / "layer3_g5_conversion_eligibility_ledger.json"
+    )
+    g5_conversion_outcome = _text(
+        g5_manifest.get("g5_conversion_outcome")
+        or g5_eligibility.get("conversion_outcome")
+        or "unknown"
+    )
+    g5_grounded_abstention_count = int(
+        g5_manifest.get("g5_grounded_abstention_count") or 0
+    )
+    g5_useful_design_credit_count = int(
+        g5_manifest.get("g5_useful_design_credit_count") or 0
+    )
+    g5_unchanged_blocker_count = int(
+        g5_manifest.get("g5_unchanged_blocker_count") or 0
+    )
+    g5_currently_grounded_abstention = (
+        g5_conversion_outcome == "typed_blocker -> grounded_abstention"
+        or g5_grounded_abstention_count > 0
+    )
+    grounding_cost_answer = (
+        "Current G5 readings record a grounded_abstention for the pinned case: "
+        "the waist converted a typed blocker into an honest abstention, with "
+        f"useful-design credit count {g5_useful_design_credit_count}. G7 still "
+        "has no grounded regional breadth, so this is not domain-ceiling evidence."
+        if g5_currently_grounded_abstention
+        else (
+            "Current G5/G7 readings do not prove a domain ceiling: "
+            f"G5 outcome is {g5_conversion_outcome} with "
+            f"{g5_unchanged_blocker_count} unchanged blockers, and G7 has no "
+            "grounded regional breadth."
+        )
+    )
+    demand_pull_answer = (
+        "G6 demand reaches the G5 bridge, and the current G5 result is "
+        "grounded_abstention rather than useful-design credit. This is an "
+        "honest abstention signal, not evidence that demand has overcome "
+        "causal/support limits."
+        if g5_currently_grounded_abstention
+        else (
+            "G6 demand reaches the G5 bridge, but current G5/G7 blockers still "
+            "prevent a grounded result. This is not an honesty success claim."
+        )
+    )
     rows = (
         Layer3G8OpenQuestionAnswerRow(
             question_id="8.4-waist-altitude",
@@ -1705,23 +1754,23 @@ def build_g8_open_question_answer_ledger(
                 "domains, or is the honest equilibrium mostly abstention?"
             ),
             answer_status="provisional_insufficient_data",
-            current_answer=(
-                "Current G5/G7 readings prove engineering readiness and honest "
-                "blockers, not a domain ceiling: G5 remains an unchanged blocker "
-                "and G7 has zero grounded regional breadth."
+            current_answer=grounding_cost_answer,
+            evidence_refs=(
+                "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json",
+                "repo://architecture/policy_design_case/"
+                "layer3_g5_conversion_eligibility_ledger.json",
+                *diagnosis.current_blocker_refs,
             ),
-            evidence_refs=diagnosis.current_blocker_refs,
         ),
         Layer3G8OpenQuestionAnswerRow(
             question_id="8.4-demand-pull-strength",
             question="Is demand-pull strong enough to overcome abstention inertia?",
             answer_status="provisional_insufficient_data",
-            current_answer=(
-                "G6 demand reaches the G5 bridge, but grounded result rate is "
-                "still zero because current G5/G7 blockers remain. This is not "
-                "an honesty success claim."
-            ),
+            current_answer=demand_pull_answer,
             evidence_refs=(
+                "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json",
+                "repo://architecture/policy_design_case/"
+                "layer3_g5_conversion_eligibility_ledger.json",
                 "repo://architecture/policy_design_case/"
                 "layer3_g6_demand_pull_vs_abstention_delta.json",
                 "repo://architecture/policy_design_case/layer3_g6_readiness_manifest.json",
@@ -2641,6 +2690,10 @@ def _signal_issue_codes(
         "stale",
         "fail",
         "miss",
+        "missing",
+        "not_measured",
+        "self_attested",
+        "unmeasured",
         "search_ceiling",
     }:
         issues.append("layer3_g8_search_recall_miss_reported_as_domain_ceiling")
@@ -2684,6 +2737,10 @@ def _latest_metric_status(signals: Layer3G8NormalizedMetricSignals, metric_id: s
         "search_ceiling",
         "stale",
         "miss",
+        "missing",
+        "not_measured",
+        "self_attested",
+        "unmeasured",
         "stalled",
         "lossy",
         "blocked",
@@ -2725,6 +2782,10 @@ def _is_search_ceiling(status: str) -> bool:
         "stale",
         "fail",
         "miss",
+        "missing",
+        "not_measured",
+        "self_attested",
+        "unmeasured",
         "blocked_search_control_plane_only",
     }
 

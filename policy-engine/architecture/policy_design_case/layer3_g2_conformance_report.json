@@ -1,28 +1,28 @@
 {
   "conformance_report": {
-    "capability_reality_label": "implemented",
+    "capability_reality_label": "semantic_test_missing",
     "check_statuses": {
       "g1_dependency_status": "pass",
       "g2_authority_boundary_status": "pass",
-      "g2_calibration_transport_status": "pass",
+      "g2_calibration_transport_status": "fail",
       "g2_concept_alignment_status": "pass",
-      "g2_conformance_status": "pass",
+      "g2_conformance_status": "fail",
       "g2_engineering_quality_status": "pass",
-      "g2_forecast_support_status": "pass",
+      "g2_forecast_support_status": "fail",
       "g2_foundry_method_registry_coverage_status": "pass",
       "g2_foundry_method_registry_search_status": "pass",
       "g2_grounded_forecast_handoff_status": "pass",
       "g2_index_freshness_status": "pass",
       "g2_l2_skg_coverage_status": "pass",
-      "g2_method_requirement_status": "pass",
-      "g2_method_validity_report_status": "pass",
-      "g2_s10_prerequisite_binding_status": "pass",
+      "g2_method_requirement_status": "fail",
+      "g2_method_validity_report_status": "fail",
+      "g2_s10_prerequisite_binding_status": "fail",
       "g2_search_recall_status": "pass",
       "g2_semantic_binding_spine_status": "pass",
-      "g2_surface_status": "pass",
-      "g2_w12d_consumer_gate_status": "pass"
+      "g2_surface_status": "fail",
+      "g2_w12d_consumer_gate_status": "fail"
     },
-    "closure_outcome": "bounded_forecast_support",
+    "closure_outcome": "conformance_failed",
     "conformance_checks": [
       "g1_dependency_status",
       "g2_l2_skg_coverage_status",
@@ -44,13 +44,31 @@
       "g2_surface_status",
       "g2_conformance_status"
     ],
-    "conformance_status": "pass",
-    "issue_codes": [],
+    "conformance_status": "fail",
+    "issue_codes": [
+      "layer3_g2_method_requirement_selection_failed",
+      "layer3_g2_method_validity_missing",
+      "layer3_g2_s10_prerequisite_binding_missing",
+      "layer3_g2_observable_calibration_required",
+      "layer3_g2_forecast_support_invalid",
+      "layer3_g2_adapter_maturity_overclaim",
+      "layer3_g2_synthetic_calibration_overclaim",
+      "layer3_g2_observable_calibration_denominator_missing",
+      "layer3_g2_credible_evaluation_evidence_missing",
+      "layer3_g2_transportability_limit_missing",
+      "layer3_g2_w12d_not_routed_closeout",
+      "layer3_g2_s10_consumer_bridge_missing",
+      "layer3_g2_method_requirement_missing",
+      "layer3_g2_identification_requirement_missing",
+      "layer3_g2_forecast_support_missing",
+      "layer3_g2_public_surface_visibility_missing",
+      "layer3_g2_s10_posture_not_consumed"
+    ],
     "record_id": "layer3-g2-conformance-report",
     "report_id": "layer3-g2-conformance-report",
     "rule_version": "policyos.layer3.g2.causal_forecast_search.v1",
     "schema_version": "policyos.policy_design_case.layer3_g2_causal_forecast.v1",
-    "status": "pass"
+    "status": "fail"
   },
   "rule_version": "policyos.layer3.g2.causal_forecast_search.v1",
   "schema_version": "policyos.policy_design_case.layer3_g2_causal_forecast.v1"

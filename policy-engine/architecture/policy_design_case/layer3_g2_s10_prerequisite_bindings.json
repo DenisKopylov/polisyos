@@ -3,14 +3,14 @@
   "s10_prerequisite_bindings": [
     {
       "alternative_design_refs": [
-        "alternative://ua-msme/cash-transfer"
+        "alternative://ua-msme/grant-support"
       ],
       "authoritative_for": [],
-      "baseline_design_ref": "baseline://ua-msme/no-new-fertilizer-support",
+      "baseline_design_ref": "baseline://ua-msme/no-new-affordable-loans",
       "binding_id": "g2-s10-prerequisite-binding:ac75cc8a10826b5b5a4a9867",
-      "candidate_design_ref": "candidate://ua-msme/fertilizer-support",
-      "capability_reality_label": "implemented",
-      "concept_alignment_ref": "g2-concept-alignment:9fd202376b77bfd48b173651",
+      "candidate_design_ref": "candidate://ua-msme/affordable-loans",
+      "capability_reality_label": "bridge_missing",
+      "concept_alignment_ref": "g2-concept-alignment:d3576d28d2836d2e0054e13e",
       "credible_evaluation_evidence_ref": "evidence://ua-msme/credible-evaluation",
       "design_graph_ref": "pdc://layer2/s5/ua-msme/recursive-design-graph",
       "dynamic_equilibrium_check_ref": "equilibrium-check://ua-msme/system-effect",
@@ -18,7 +18,9 @@
         "caveat://partial-equilibrium"
       ],
       "forecast_authority_disposition_reason": "G2 translated bounded causal/forecast search through existing S10 support.",
-      "issue_codes": [],
+      "issue_codes": [
+        "layer3_g2_method_validity_missing"
+      ],
       "jurisdiction_scope_ref": "jurisdiction://UA",
       "limitation_refs": [
         "limitation://forecast/support-only"
@@ -39,18 +41,11 @@
       ],
       "method_validity_ref": "method-validity://foundry/causal/local",
       "method_validity_refs": [
-        "method-validity://foundry/causal/local",
-        "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-        "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
-        "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
-        "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-        "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-        "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+        "method-validity://foundry/causal/local"
       ],
       "observable_subset_ref": "observable-subset://ua-msme/local-panel",
       "outcome_distribution_refs": [
-        "distribution://ua-msme/fertilizer-support"
+        "distribution://ua-msme/firm-survival"
       ],
       "policy_context_ref": "policy-context://ua-msme/2022",
       "prediction_context_ref": "pdc://layer2/s10/ua-msme/prediction-context",
@@ -74,22 +69,22 @@
       ],
       "s8_value_choice_provenance_ref": "pdc://layer2/s8/ua-msme/value-choice-provenance",
       "s8_value_tradeoff_disclosure_ref": "pdc://layer2/s8/ua-msme/value-tradeoff-disclosure",
-      "semantic_spine_binding_ref": "g2-semantic-spine-binding:5588542ea2e0bf122cb48086",
-      "sensitivity_analysis_ref": "sensitivity://ua-msme/fertilizer-support",
-      "source_contract_ref": "source-contract://ua-msme/server-support",
+      "semantic_spine_binding_ref": "g2-semantic-spine-binding:8dd770b92f050f29480c5d1f",
+      "sensitivity_analysis_ref": "sensitivity://ua-msme/affordable-loans",
+      "source_contract_ref": "source-contract://ua-msme/credit-access-firm-survival",
       "source_design_record_ref": "pdc://layer2/s2/ua-msme/design-record-v0",
       "source_lineage_refs": [
         "lineage://ua-msme/source-contract"
       ],
-      "status": "pass",
+      "status": "fail",
       "strategic_response_caveat_refs": [
         "caveat://strategic-response"
       ],
       "target_outcome_refs": [
-        "outcome://food-nutritional-quality"
+        "outcome://ua-msme/firm-survival"
       ],
       "uncertainty_interval_refs": [
-        "interval://ua-msme/fertilizer-support/95"
+        "interval://ua-msme/credit-survival/95"
       ],
       "welfare_comparison_ref": "welfare://ua-msme/value-grounded"
     }

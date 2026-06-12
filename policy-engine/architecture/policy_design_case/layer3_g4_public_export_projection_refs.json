@@ -64,7 +64,9 @@
     ],
     "blocker_codes": [
       "layer3_g4_missing_g2_calibration_ref",
-      "layer3_g4_missing_g2_forecast_support"
+      "layer3_g4_missing_g2_forecast_support",
+      "layer3_g4_placeholder_design_record_promoted",
+      "layer3_g4_w12d_manifest_only_not_payload"
     ],
     "limitation_codes": [],
     "may_not_use_for": [
@@ -112,18 +114,20 @@
       }
     ],
     "promotion_states": [
-      "governed_promoted",
+      "promotion_blocked",
       "promotion_blocked"
     ],
     "safe_evidence_refs": [
-      "cas://s2/design-record/ua-msme-credit-support",
-      "cas://s2/design-record/ua-msme-credit-support"
+      "repo://architecture/policy_design_case/layer2_s2_design_search_manifest.json",
+      "repo://architecture/policy_design_case/layer2_s2_design_search_manifest.json"
     ]
   },
   "REVIEWER": {
     "blocker_refs": [
       "layer3_g4_missing_g2_calibration_ref",
-      "layer3_g4_missing_g2_forecast_support"
+      "layer3_g4_missing_g2_forecast_support",
+      "layer3_g4_placeholder_design_record_promoted",
+      "layer3_g4_w12d_manifest_only_not_payload"
     ],
     "limitation_refs": [],
     "may_not_use_for": [

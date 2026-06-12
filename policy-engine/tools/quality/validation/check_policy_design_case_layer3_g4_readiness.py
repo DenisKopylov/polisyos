@@ -479,10 +479,9 @@ def _validate_runtime_surfaces(bundle: g4.Layer3G4Bundle) -> list[dict[str, str]
         ),
         (
             bool(bundle.promotion_records)
-            and any(record.promotion_state == "governed_promoted" for record in bundle.promotion_records)
             and any(record.promotion_state == "promotion_blocked" for record in bundle.promotion_records),
             "layer3_g4_promotion_record_missing",
-            "G4 runtime bundle must include promoted and blocked promotion records.",
+            "G4 runtime bundle must include promotion records and preserve blocked promotions.",
         ),
         (
             bundle.closeout_consumer_gate.status == "pass"

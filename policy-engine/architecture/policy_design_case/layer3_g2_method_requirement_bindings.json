@@ -24,12 +24,13 @@
         "foundry-method://causal.inference.structural_time_series@1.0.0",
         "foundry-method://econometrics.panel.nonstationary_garch@1.0.0",
         "foundry-method://causal.diagnostics.parallel_trends_check@1.0.0",
-        "foundry-method://causal.inference.did.borusyak_jaravel_spiess@1.0.0",
-        "causal.did.readiness"
+        "foundry-method://causal.inference.did.borusyak_jaravel_spiess@1.0.0"
       ],
-      "issue_codes": [],
+      "issue_codes": [
+        "layer3_g2_method_requirement_selection_failed"
+      ],
       "method_requirement_refs": [
-        "g2-method-req:fertilizer-use-agriculture-food-nutritional-quality"
+        "g2-method-req:credit-access-firm-survival"
       ],
       "method_requirement_specs": [
         {
@@ -64,7 +65,7 @@
           "baseline_refs": [],
           "claim_id": "g2-request:default-causal-forecast-method-search",
           "concept_spine_refs": [
-            "source-contract://ua-msme/server-support"
+            "source-contract://ua-msme/credit-access-firm-survival"
           ],
           "facet_refs": [
             "g2-request-facet:g2-request:default-causal-forecast-method-search:causal-forecast"
@@ -72,9 +73,9 @@
           "fairness_decomposition_need": "subgroup",
           "identification_class": "point",
           "metadata": {
-            "cause": "agriculture.fertilizer_use",
+            "cause": "policy.credit_access",
             "data_modality": "panel",
-            "effect": "agriculture.food_nutritional_quality",
+            "effect": "firm.survival",
             "required_diagnostics": [
               "identification",
               "transportability",
@@ -92,7 +93,7 @@
           "required_method_families": [
             "causal_effect_estimation"
           ],
-          "requirement_id": "g2-method-req:fertilizer-use-agriculture-food-nutritional-quality",
+          "requirement_id": "g2-method-req:credit-access-firm-survival",
           "requires_ir_analytics": true,
           "requires_limitation_refs": true,
           "requires_method_output": true,
@@ -110,7 +111,7 @@
             "required_refs": []
           },
           "source_precondition_refs": [
-            "source-contract://ua-msme/server-support"
+            "source-contract://ua-msme/credit-access-firm-survival"
           ],
           "strategic_response_sensitivity": "monitor",
           "transportability_requirement": "target_population_limits",
@@ -118,7 +119,7 @@
         }
       ],
       "method_requirement_statuses": {
-        "g2-method-req:fertilizer-use-agriculture-food-nutritional-quality": "satisfied"
+        "g2-method-req:credit-access-firm-survival": "missing"
       },
       "rejected_method_refs": [
         "foundry-method://causal.space_time.fem_spde_g_computation@1.0.0",
@@ -132,13 +133,13 @@
       ],
       "request_ref": "g2-request:default-causal-forecast-method-search",
       "search_report_ref": "layer3-g2-foundry-method-registry-search",
-      "selected_method_refs": [
-        "causal.did.readiness"
+      "selected_method_refs": [],
+      "selection_issue_codes": [
+        "method_requirement_no_selected_method"
       ],
-      "selection_issue_codes": [],
-      "selection_report_ref": "g2-method-requirement-selection:e755ff32f6fb5ebbd9589cb5",
-      "selection_status": "pass",
-      "status": "pass"
+      "selection_report_ref": "g2-method-requirement-selection:ca292ff010e7fd2313107726",
+      "selection_status": "fail",
+      "status": "fail"
     }
   ],
   "rule_version": "policyos.layer3.g2.causal_forecast_search.v1",

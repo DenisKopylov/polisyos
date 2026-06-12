@@ -281,27 +281,10 @@
     "status": "pass",
     "summary": {
       "no_hardcode_lint_status": "pass",
-      "registered_violation_count": 2,
+      "registered_violation_count": 0,
       "scan_profile": "targeted_search_adapter_paths"
     },
-    "violations": [
-      {
-        "enumeration_kind": "construct",
-        "fallback_forbidden": true,
-        "file": "src/polisyos/runtime/quality/capability_index_compiler.py",
-        "governed_vocabulary_exception": false,
-        "pattern": "KNOWN_CONSTRUCTS",
-        "registered_backlog_ref": "hardcode://runtime-quality/capability-index-known-constructs"
-      },
-      {
-        "enumeration_kind": "construct",
-        "fallback_forbidden": true,
-        "file": "src/polisyos/runtime/quality/capability_resolver.py",
-        "governed_vocabulary_exception": false,
-        "pattern": "REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS",
-        "registered_backlog_ref": "hardcode://runtime-quality/scenario-family-construct-mappings"
-      }
-    ]
+    "violations": []
   },
   "resource_discovery_inventory": {
     "records": [

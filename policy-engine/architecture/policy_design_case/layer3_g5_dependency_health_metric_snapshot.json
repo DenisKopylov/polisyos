@@ -1,7 +1,7 @@
 {
   "health_toml": {
     "envelope-expansion-rate": {
-      "conversion_reason": "unchanged_blocker_readiness_surface_no_expansion",
+      "conversion_reason": "grounded_abstention_no_useful_design_credit",
       "demand_pull_refs": [
         "s3-demand-pull://ua-msme/first-proving-ground",
         "demand-act://ua-msme/principal",

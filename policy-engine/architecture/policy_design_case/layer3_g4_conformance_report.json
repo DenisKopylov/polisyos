@@ -97,7 +97,8 @@
       "fixture_ref": "g4-conformance-negative:source_design_record_resolution_unresolved",
       "negative_id": "source_design_record_resolution_unresolved",
       "observed_issue_codes": [
-        "layer3_g4_source_design_record_unresolved"
+        "layer3_g4_source_design_record_unresolved",
+        "layer3_g4_a_completeness_failed"
       ],
       "pattern_ids": [
         "P01",
@@ -117,7 +118,8 @@
       "negative_id": "source_design_record_digest_missing",
       "observed_issue_codes": [
         "layer3_g4_source_design_record_digest_missing",
-        "layer3_g4_grounded_contract_ref_missing"
+        "layer3_g4_grounded_contract_ref_missing",
+        "layer3_g4_a_completeness_failed"
       ],
       "pattern_ids": [
         "P01",
@@ -155,6 +157,7 @@
       "fixture_ref": "g4-conformance-negative:effect_claim_without_g2_forecast_support",
       "negative_id": "effect_claim_without_g2_forecast_support",
       "observed_issue_codes": [
+        "layer3_g4_context_dependency_missing",
         "layer3_g4_missing_g2_forecast_support",
         "layer3_g4_missing_g2_calibration_ref",
         "layer3_g4_a_completeness_failed"
@@ -367,7 +370,9 @@
       "fixture_ref": "g4-conformance-negative:w12d_manifest_only_source_payload",
       "negative_id": "w12d_manifest_only_source_payload",
       "observed_issue_codes": [
-        "layer3_g4_w12d_manifest_only_not_payload"
+        "layer3_g4_w12d_manifest_only_not_payload",
+        "layer3_g4_placeholder_design_record_promoted",
+        "layer3_g4_a_completeness_failed"
       ],
       "pattern_ids": [
         "P07",
@@ -386,7 +391,8 @@
       "fixture_ref": "g4-conformance-negative:source_design_record_ref_only_promoted",
       "negative_id": "source_design_record_ref_only_promoted",
       "observed_issue_codes": [
-        "layer3_g4_source_design_record_payload_ref_only"
+        "layer3_g4_source_design_record_payload_ref_only",
+        "layer3_g4_a_completeness_failed"
       ],
       "pattern_ids": [
         "P01",

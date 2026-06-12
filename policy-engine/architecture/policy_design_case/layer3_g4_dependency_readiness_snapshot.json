@@ -1,7 +1,7 @@
 {
   "g0_dependency_status": "pass",
   "g1_dependency_status": "pass",
-  "g2_context_status": "pass",
+  "g2_context_status": "fail",
   "g3_context_status": "pass",
   "generated_artifacts_ref": "architecture/generated_artifacts.toml",
   "gl_context_status": "pass",

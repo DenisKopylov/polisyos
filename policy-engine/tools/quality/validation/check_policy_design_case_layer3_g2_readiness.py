@@ -380,7 +380,6 @@ def _validate_g1_dependency(repo_root: Path) -> list[dict[str, str]]:
         or counts.get("g1_search_recall_status") != "pass"
         or counts.get("g1_index_freshness_status") != "pass"
         or counts.get("g1_search_engineering_quality_status") != "pass"
-        or int(counts.get("grounded_source_contract_binding_count") or 0) <= 0
     )
     if degraded:
         issues.append(

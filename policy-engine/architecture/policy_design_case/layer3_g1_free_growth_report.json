@@ -2,9 +2,9 @@
   "free_growth_report": {
     "code_change_required": false,
     "discovered_metric_ids": [
-      "synthetic_g1_msme_working_capital_continuity_rate"
+      "credit_access"
     ],
-    "free_growth_fixture_count": 1,
+    "free_growth_fixture_count": 0,
     "report_id": "layer3-g1-free-growth-report",
     "search_route": "l1_dcat_ds_metric_bindings",
     "status": "pass"

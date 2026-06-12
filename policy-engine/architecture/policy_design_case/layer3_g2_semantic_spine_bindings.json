@@ -4,25 +4,25 @@
   "semantic_spine_bindings": [
     {
       "authoritative_for": [],
-      "binding_id": "g2-semantic-spine-binding:5588542ea2e0bf122cb48086",
+      "binding_id": "g2-semantic-spine-binding:8dd770b92f050f29480c5d1f",
       "candidate_spine_binding_refs": [
-        "spine-binding:scholar:concept://agriculture.fertilizer_use:jurisdiction://UA:0eb04cf3cee4ee4b",
-        "spine-binding:scholar:concept://agriculture.food_nutritional_quality:jurisdiction://UA:0eb04cf3cee4ee4b",
-        "spine-binding:scholar:concept://agriculture.fertilizer_use:jurisdiction://UA:7342bd48a55c28c8",
-        "spine-binding:scholar:concept://agriculture.food_nutritional_quality:jurisdiction://UA:7342bd48a55c28c8",
-        "spine-binding:scholar:concept://agriculture.fertilizer_use:jurisdiction://UA:6667cd0045243d20",
-        "spine-binding:scholar:concept://agriculture.food_nutritional_quality:jurisdiction://UA:6667cd0045243d20",
-        "spine-binding:scholar:concept://agriculture.fertilizer_use:jurisdiction://UA:0fd618aa41e24fce",
-        "spine-binding:scholar:concept://agriculture.food_nutritional_quality:jurisdiction://UA:0fd618aa41e24fce",
-        "spine-binding:scholar:concept://agriculture.fertilizer_use:jurisdiction://UA:0e26dd5b26d59f3e",
-        "spine-binding:scholar:concept://agriculture.food_nutritional_quality:jurisdiction://UA:0e26dd5b26d59f3e"
+        "spine-binding:scholar:concept://policy.credit_access:jurisdiction://UA:1b03cef1edfeedfa",
+        "spine-binding:scholar:concept://firm.survival:jurisdiction://UA:1b03cef1edfeedfa",
+        "spine-binding:scholar:concept://policy.credit_access:jurisdiction://UA:3a76896ae1ec18b7",
+        "spine-binding:scholar:concept://firm.survival:jurisdiction://UA:3a76896ae1ec18b7",
+        "spine-binding:scholar:concept://policy.credit_access:jurisdiction://UA:1c60132ee10dbac1",
+        "spine-binding:scholar:concept://firm.survival:jurisdiction://UA:1c60132ee10dbac1",
+        "spine-binding:scholar:concept://policy.credit_access:jurisdiction://UA:0fd618aa41e24fce",
+        "spine-binding:scholar:concept://firm.survival:jurisdiction://UA:0fd618aa41e24fce",
+        "spine-binding:scholar:concept://policy.credit_access:jurisdiction://UA:0e26dd5b26d59f3e",
+        "spine-binding:scholar:concept://firm.survival:jurisdiction://UA:0e26dd5b26d59f3e"
       ],
       "canonical_concept_refs": [
-        "concept://agriculture.fertilizer_use",
-        "concept://agriculture.food_nutritional_quality"
+        "concept://policy.credit_access",
+        "concept://firm.survival"
       ],
       "capability_reality_label": "implemented",
-      "consumed_concept_spine_ref": "concept-spine://g2/agriculture-fertilizer-food-quality",
+      "consumed_concept_spine_ref": "concept-spine://g2/policy-credit-access-firm-survival",
       "consumed_jurisdiction_spine_ref": "jurisdiction-spine://UA",
       "direct_semantic_grounding_allowed": true,
       "geography_refs": [
@@ -53,26 +53,26 @@
         "period://2022-2024"
       ],
       "producer_handshake_refs": [
-        "producer-handshake://g1-skg-foundry-s10/fertilizer-food-quality"
+        "producer-handshake://g1-skg-foundry-s10/credit-access-firm-survival"
       ],
       "producer_spine_binding_fields": {
         "candidate_spine_binding_refs": [
-          "spine-binding:scholar:concept://agriculture.fertilizer_use:jurisdiction://UA:0eb04cf3cee4ee4b",
-          "spine-binding:scholar:concept://agriculture.food_nutritional_quality:jurisdiction://UA:0eb04cf3cee4ee4b",
-          "spine-binding:scholar:concept://agriculture.fertilizer_use:jurisdiction://UA:7342bd48a55c28c8",
-          "spine-binding:scholar:concept://agriculture.food_nutritional_quality:jurisdiction://UA:7342bd48a55c28c8",
-          "spine-binding:scholar:concept://agriculture.fertilizer_use:jurisdiction://UA:6667cd0045243d20",
-          "spine-binding:scholar:concept://agriculture.food_nutritional_quality:jurisdiction://UA:6667cd0045243d20",
-          "spine-binding:scholar:concept://agriculture.fertilizer_use:jurisdiction://UA:0fd618aa41e24fce",
-          "spine-binding:scholar:concept://agriculture.food_nutritional_quality:jurisdiction://UA:0fd618aa41e24fce",
-          "spine-binding:scholar:concept://agriculture.fertilizer_use:jurisdiction://UA:0e26dd5b26d59f3e",
-          "spine-binding:scholar:concept://agriculture.food_nutritional_quality:jurisdiction://UA:0e26dd5b26d59f3e"
+          "spine-binding:scholar:concept://policy.credit_access:jurisdiction://UA:1b03cef1edfeedfa",
+          "spine-binding:scholar:concept://firm.survival:jurisdiction://UA:1b03cef1edfeedfa",
+          "spine-binding:scholar:concept://policy.credit_access:jurisdiction://UA:3a76896ae1ec18b7",
+          "spine-binding:scholar:concept://firm.survival:jurisdiction://UA:3a76896ae1ec18b7",
+          "spine-binding:scholar:concept://policy.credit_access:jurisdiction://UA:1c60132ee10dbac1",
+          "spine-binding:scholar:concept://firm.survival:jurisdiction://UA:1c60132ee10dbac1",
+          "spine-binding:scholar:concept://policy.credit_access:jurisdiction://UA:0fd618aa41e24fce",
+          "spine-binding:scholar:concept://firm.survival:jurisdiction://UA:0fd618aa41e24fce",
+          "spine-binding:scholar:concept://policy.credit_access:jurisdiction://UA:0e26dd5b26d59f3e",
+          "spine-binding:scholar:concept://firm.survival:jurisdiction://UA:0e26dd5b26d59f3e"
         ],
         "canonical_concept_refs": [
-          "concept://agriculture.fertilizer_use",
-          "concept://agriculture.food_nutritional_quality"
+          "concept://policy.credit_access",
+          "concept://firm.survival"
         ],
-        "consumed_concept_spine_ref": "concept-spine://g2/agriculture-fertilizer-food-quality",
+        "consumed_concept_spine_ref": "concept-spine://g2/policy-credit-access-firm-survival",
         "consumed_jurisdiction_spine_ref": "jurisdiction-spine://UA",
         "geography_refs": [
           "geo://UA"
@@ -86,15 +86,15 @@
         ],
         "spine_blocker_refs": [],
         "unit_refs": [
-          "unit://farm-household"
+          "unit://firm"
         ]
       },
       "producer_spine_context": {
         "canonical_concept_refs": [
-          "concept://agriculture.fertilizer_use",
-          "concept://agriculture.food_nutritional_quality"
+          "concept://policy.credit_access",
+          "concept://firm.survival"
         ],
-        "concept_spine_ref": "concept-spine://g2/agriculture-fertilizer-food-quality",
+        "concept_spine_ref": "concept-spine://g2/policy-credit-access-firm-survival",
         "consumer_components": [
           "lex",
           "fabric",
@@ -116,17 +116,17 @@
         ],
         "schema_version": "policyos.producer_spine_context.v1",
         "unit_refs": [
-          "unit://farm-household"
+          "unit://firm"
         ]
       },
       "producer_spine_context_ref": "g2-spine-context:db5513b75f266e53fa5d1541",
       "producer_spine_views": [
         {
           "canonical_concept_refs": [
-            "concept://agriculture.fertilizer_use",
-            "concept://agriculture.food_nutritional_quality"
+            "concept://policy.credit_access",
+            "concept://firm.survival"
           ],
-          "concept_spine_ref": "concept-spine://g2/agriculture-fertilizer-food-quality",
+          "concept_spine_ref": "concept-spine://g2/policy-credit-access-firm-survival",
           "consumer_component": "scholar",
           "context_id": "g2-spine-context:db5513b75f266e53fa5d1541",
           "geography_refs": [
@@ -141,15 +141,15 @@
           ],
           "schema_version": "policyos.producer_spine_context.v1",
           "unit_refs": [
-            "unit://farm-household"
+            "unit://firm"
           ]
         },
         {
           "canonical_concept_refs": [
-            "concept://agriculture.fertilizer_use",
-            "concept://agriculture.food_nutritional_quality"
+            "concept://policy.credit_access",
+            "concept://firm.survival"
           ],
-          "concept_spine_ref": "concept-spine://g2/agriculture-fertilizer-food-quality",
+          "concept_spine_ref": "concept-spine://g2/policy-credit-access-firm-survival",
           "consumer_component": "foundry",
           "context_id": "g2-spine-context:db5513b75f266e53fa5d1541",
           "geography_refs": [
@@ -164,15 +164,15 @@
           ],
           "schema_version": "policyos.producer_spine_context.v1",
           "unit_refs": [
-            "unit://farm-household"
+            "unit://firm"
           ]
         },
         {
           "canonical_concept_refs": [
-            "concept://agriculture.fertilizer_use",
-            "concept://agriculture.food_nutritional_quality"
+            "concept://policy.credit_access",
+            "concept://firm.survival"
           ],
-          "concept_spine_ref": "concept-spine://g2/agriculture-fertilizer-food-quality",
+          "concept_spine_ref": "concept-spine://g2/policy-credit-access-firm-survival",
           "consumer_component": "scientist",
           "context_id": "g2-spine-context:db5513b75f266e53fa5d1541",
           "geography_refs": [
@@ -187,19 +187,19 @@
           ],
           "schema_version": "policyos.producer_spine_context.v1",
           "unit_refs": [
-            "unit://farm-household"
+            "unit://firm"
           ]
         }
       ],
       "reconciled_concept_statuses": {
-        "agriculture.fertilizer_use": "reconciled",
-        "agriculture.food_nutritional_quality": "reconciled"
+        "firm.survival": "reconciled",
+        "policy.credit_access": "reconciled"
       },
       "request_ref": "g2-request:default-causal-forecast-method-search",
       "spine_blocker_refs": [],
       "status": "pass",
       "unit_refs": [
-        "unit://farm-household"
+        "unit://firm"
       ]
     }
   ]

@@ -7,25 +7,22 @@
     ],
     "claim_authority_claimed": false,
     "closeout_claimed": false,
-    "consumed_forecast_posture_refs": [
-      "pdc://layer3/g2/ua-msme-affordable-loans-2022/forecast-support/d65f61522884e1cd85048188"
-    ],
+    "consumed_forecast_posture_refs": [],
     "domain_ceiling_status": null,
-    "forecast_calibration_record_refs": [
-      "pdc://layer3/g2/ua-msme/calibration/observable-subset"
-    ],
+    "forecast_calibration_record_refs": [],
     "forecast_support_refs": [
-      "pdc://layer3/g2/ua-msme-affordable-loans-2022/forecast-support/d65f61522884e1cd85048188"
+      "pdc://layer3/g2/ua-msme-affordable-loans-2022/forecast-support/eee7b28ed5e3ea5bd8cfabf6"
     ],
-    "forecast_tiers": [
-      "observable_calibrated"
-    ],
+    "forecast_tiers": [],
     "full_s2_consumer_case_count": 1,
     "full_s2_consumer_case_refs": [
       "ua-msme-affordable-loans-2022"
     ],
     "gate_id": "layer3.g2.w12d.forecast_gate",
-    "issue_codes": [],
+    "issue_codes": [
+      "layer3_g2_w12d_not_routed_closeout",
+      "layer3_g2_s10_posture_not_consumed"
+    ],
     "layer3_g1_grounding_gate_ref": "layer3.g1.grounding_gate",
     "layer3_g2_gate_injection_order": "after_g1_before_summary",
     "lightweight_case_refs": [
@@ -50,23 +47,16 @@
       "s11_calibration",
       "s12_envelope_growth",
       "s13_accountability_closure",
-      "s14_universality",
-      "preference_learning_authority"
+      "s14_universality"
     ],
-    "method_validity_refs": [
-      "method-validity://foundry/causal/local"
-    ],
-    "posture_consumed": true,
+    "method_validity_refs": [],
+    "posture_consumed": false,
     "recommendation_authority_claimed": false,
     "record_id": "layer3-g2-w12d-consumer-gate",
     "schema_version": "policyos.policy_design_case.layer3_g2_forecast_gate.v1",
-    "source_contract_refs": [
-      "source-contract://ua-msme/server-support"
-    ],
-    "status": "pass",
-    "uncertainty_interval_refs": [
-      "interval://ua-msme/fertilizer-support/95"
-    ],
+    "source_contract_refs": [],
+    "status": "fail",
+    "uncertainty_interval_refs": [],
     "useful_design_delta_count": 0
   }
 }

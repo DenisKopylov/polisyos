@@ -1,5 +1,5 @@
 {
-  "conversion_outcome": "unchanged_blocker",
+  "conversion_outcome": "typed_blocker -> grounded_abstention",
   "counts_toward_runtime_useful_design": false,
   "issue_codes": [],
   "runtime_credit_reason": "not_requested",

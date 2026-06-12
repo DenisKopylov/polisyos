@@ -485,7 +485,8 @@ def _validate_search_health(bundle: g1.Layer3G1Bundle) -> list[dict[str, str]]:
             "Index freshness must pass before any domain ceiling.",
         ),
         (
-            int(counts.get("g1_free_growth_fixture_count") or 0) >= 1,
+            bundle.free_growth_report.status == "pass"
+            and bool(bundle.free_growth_report.discovered_metric_ids),
             "layer3_g1_surface_unsynced",
             "G1 must prove free growth through the L1 route.",
         ),

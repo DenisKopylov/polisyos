@@ -118,6 +118,7 @@ def validate_layer3_g8_readiness(repo_root: Path, *, write: bool = False) -> dic
         bundle=bundle,
         drift_keys=(),
         registration_statuses=registration_statuses,
+        issue_codes=(),
     )
     if write:
         _write_json(_resolve_repo_path(root, READINESS_MANIFEST_PATH), readiness_manifest)
@@ -130,6 +131,14 @@ def validate_layer3_g8_readiness(repo_root: Path, *, write: bool = False) -> dic
     issues.extend(_registration_issues(registration_statuses))
     issues.extend(_validate_runtime_surfaces(bundle))
     normalized_issues = _dedupe_issues(issues)
+    readiness_manifest = _readiness_manifest(
+        bundle=bundle,
+        drift_keys=drift_keys,
+        registration_statuses=registration_statuses,
+        issue_codes=tuple(issue["code"] for issue in normalized_issues),
+    )
+    if write:
+        _write_json(_resolve_repo_path(root, READINESS_MANIFEST_PATH), readiness_manifest)
     return {
         "schema_version": G8_SCHEMA_VERSION,
         "rule_version": G8_RULE_VERSION,
@@ -296,6 +305,7 @@ def _readiness_manifest(
     bundle: g8.Layer3G8Bundle,
     drift_keys: Sequence[str],
     registration_statuses: Mapping[str, str],
+    issue_codes: Sequence[str],
 ) -> dict[str, Any]:
     summary = _summary(
         bundle=bundle,
@@ -306,14 +316,14 @@ def _readiness_manifest(
         "schema_version": G8_SCHEMA_VERSION,
         "rule_version": G8_RULE_VERSION,
         "manifest_id": "layer3-g8-health-metric-governance-readiness",
-        "status": "pass" if not drift_keys else "fail",
+        "status": "pass" if not drift_keys and not issue_codes else "fail",
         "surface_id": g8.G8_SURFACE_ID,
         "generated_artifact_family": G8_GENERATED_ARTIFACT_FAMILY_ID,
         "expected_artifact_paths": [path.as_posix() for path in EXPECTED_ARTIFACT_PATHS],
         "manifest_runtime_drift_keys": list(drift_keys),
         "summary": summary,
         **{key: summary.get(key) for key in EXPECTED_MANIFEST_DRIFT_KEYS},
-        "issue_codes": [],
+        "issue_codes": list(_dedupe_strings(issue_codes)),
         "authoritative_for": list(g8.G8_AUTHORITATIVE_FOR),
         "may_not_use_for": list(g8.G8_MAY_NOT_USE_FOR),
     }
@@ -497,6 +507,28 @@ def _registration_issues(
 
 def _validate_runtime_surfaces(bundle: g8.Layer3G8Bundle) -> list[dict[str, str]]:
     issues: list[dict[str, str]] = []
+    if bundle.audit_surface.status != "pass":
+        for code in bundle.audit_surface.issue_codes or (
+            "layer3_g8_metric_governance_audit_surface_blocked",
+        ):
+            issues.append(
+                _issue(
+                    str(code),
+                    METRIC_GOVERNANCE_AUDIT_SURFACE_PATH.as_posix(),
+                    "G8 audit surface must fail readiness when blocker-specific audit is blocked.",
+                )
+            )
+    if bundle.open_question_answer_ledger.status != "pass":
+        for code in bundle.open_question_answer_ledger.issue_codes or (
+            "layer3_g8_open_question_answer_missing",
+        ):
+            issues.append(
+                _issue(
+                    str(code),
+                    OPEN_QUESTION_ANSWER_LEDGER_PATH.as_posix(),
+                    "G8 open-question answers must not pass with hidden optimism.",
+                )
+            )
     if bundle.conformance_report.status != "pass":
         for code in bundle.conformance_report.issue_codes or (
             "layer3_g8_conformance_negative_missing",
@@ -654,6 +686,10 @@ def _dedupe_issues(issues: Sequence[Mapping[str, Any]]) -> list[dict[str, str]]:
         seen.add(key)
         normalized.append({"code": code, "path": path, "message": message})
     return normalized
+
+
+def _dedupe_strings(values: Sequence[str]) -> tuple[str, ...]:
+    return tuple(dict.fromkeys(str(value) for value in values if str(value)))
 
 
 def _issue(code: str, path: str, message: str) -> dict[str, str]:

@@ -14346,6 +14346,13 @@
       "target_root": "foundry"
     },
     {
+      "source_module": "polisyos.runtime.quality.layer3_substrate_grounding",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/layer3_substrate_grounding.py",
+      "target_module": "polisyos.core.contracts",
+      "target_root": "core"
+    },
+    {
       "source_module": "polisyos.runtime.quality.legacy_migration_sandbox",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/quality/legacy_migration_sandbox.py",
@@ -14420,6 +14427,13 @@
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/quality/replay.py",
       "target_module": "polisyos.core.canon.canon_json",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.required_reference_resolver",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/required_reference_resolver.py",
+      "target_module": "polisyos.core.contracts.reference_resolution",
       "target_root": "core"
     },
     {

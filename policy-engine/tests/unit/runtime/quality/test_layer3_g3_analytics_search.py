@@ -256,9 +256,7 @@ def test_layer3_g3_validator_fails_closed_when_search_recall_freshness_fails() -
             "status": "fail",
             "recalled_seed_count": 0,
             "missed_seed_count": bundle.search_recall_freshness.known_seed_count,
-            "issue_codes": (
-                "layer3_g3_search_recall_seed_miss_blocks_domain_ceiling",
-            ),
+            "issue_codes": ("layer3_g3_search_recall_seed_miss_blocks_domain_ceiling",),
         }
     )
 
@@ -430,9 +428,7 @@ def test_layer3_g3_task1_search_recall_freshness_fails_before_proof_domain_ceili
         ir_catalog_coverage=bundle.ir_catalog_coverage,
         search_ledgers=bundle.ir_analytics_search_ledgers,
         query_traces=(),
-        ir_artifact_store_index=bundle.ir_artifact_store_index.model_copy(
-            update={"stale": True}
-        ),
+        ir_artifact_store_index=bundle.ir_artifact_store_index.model_copy(update={"stale": True}),
         certificate_resolution_report=broken_resolution,
     )
     payload = _dump(report)
@@ -497,6 +493,97 @@ def test_layer3_g3_task1_free_growth_catalog_entry_is_discoverable_without_code_
         result.ledger.selected_candidate_refs
     )
     assert coverage.free_growth_entry_count == 1
+
+
+def test_task6_g3_ir_proof_candidate_insertion_is_replayable_but_not_certificate_authority() -> (
+    None
+):
+    from polisyos.runtime.quality.layer3_status_reducers import (
+        G3ProofAuthorityInputs,
+        Layer3ReducerInputRef,
+        reduce_g3_proof_authority,
+    )
+
+    g3 = _g3()
+    synthetic = {
+        "entry_id": "ir-analytics-catalog-entry:task6-proof-candidate",
+        "name": "Task6ProofCandidateContract",
+        "fqn": "polisyos.ir.analytics.synthetic_fixture.Task6ProofCandidateContract",
+        "module": "polisyos.ir.analytics.synthetic_fixture",
+        "kind": "pydantic_model",
+        "schema_version": "task6.synthetic.v1",
+        "public_status": "package_facade",
+        "exported": True,
+        "field_refs": ("claim_id", "proof_bundle_ref"),
+        "ref_field_refs": ("proof_bundle_ref",),
+        "certificate_field_refs": ("proof_bundle_ref",),
+        "proof_status_field_refs": ("proof_status",),
+        "composability_field_refs": ("proof_composability_ref",),
+        "persistence_helper_refs": ("put_json_artifact",),
+        "producer_refs": ("producer://synthetic/task6-proof-candidate",),
+        "certificate_kinds": ("proof_bundle",),
+    }
+    coverage = g3.build_g3_ir_catalog_coverage(REPO_ROOT, additional_entries=(synthetic,))
+    request = g3.Layer3G3AnalyticsRequest(
+        request_id="g3-request:task6-proof-candidate",
+        claim_id="claim:g3:task6-proof-candidate",
+        case_id="case:g3:task6-proof-candidate",
+        cause="task6",
+        effect="proof",
+        comparison_ref="comparison://g3/task6-proof-candidate",
+        baseline_ref="baseline://g3/task6-proof-candidate",
+        alternative_refs=("alternative://g3/task6-proof-candidate",),
+        concept_refs=("concept://g3/task6-proof-candidate",),
+        semantic_spine_refs=("semantic-spine://g3/task6-proof-candidate",),
+        method_requirement_refs=("g3-method-req:task6-proof-candidate",),
+        catalog_query_text="Task6ProofCandidateContract",
+        certificate_kinds=("proof_bundle",),
+        limit=4,
+    )
+
+    result = g3.search_ir_analytics_catalog(request, coverage)
+    method_bindings = g3.build_g3_method_requirement_bindings(
+        request=request,
+        method_requirements=(_task3_point_requirement(request),),
+    )
+    proof_bindings = g3.build_g3_proof_carrying_analytics_bindings(
+        request=request,
+        certificate_resolution_report=g3.Layer3G3CertificateResolutionReport(
+            status="fail",
+            selected_candidate_count=len(result.ledger.selected_candidate_refs),
+            issue_codes=("layer3_g3_search_hit_laundered_as_certificate",),
+        ),
+        method_requirement_bindings=method_bindings,
+    )
+    decision = reduce_g3_proof_authority(
+        G3ProofAuthorityInputs(
+            proof_candidate_status="candidate",
+            certificate_status="missing",
+            input_refs=(
+                Layer3ReducerInputRef(
+                    ref="duckdb://memory/layer3_g3_ir_analytics_catalog#task6-proof-candidate",
+                    content_hash="sha256:" + "8" * 64,
+                    producer_ref="measurement://layer3-g3/task6-ir-catalog-search",
+                    producer_type="measurement",
+                    producer_root_refs=("measurement://layer3-g3/task6-ir-catalog-root",),
+                ),
+            ),
+        )
+    )
+
+    ledger = _dump(result.ledger)
+    assert "ir-analytics-catalog-entry:task6-proof-candidate" in (ledger["selected_candidate_refs"])
+    assert ledger["replay_key"]
+    assert ledger["authoritative_for"] == []
+    assert "search_hit_as_certificate" in ledger["may_not_use_for"]
+    assert coverage.free_growth_entry_count == 1
+    assert proof_bindings[0].status == "fail"
+    assert "layer3_g3_search_hit_laundered_as_certificate" in proof_bindings[0].issue_codes
+    assert decision.status == "typed_blocker"
+    assert {
+        "layer3_g3_proof_candidate_not_authority",
+        "layer3_g3_certificate_not_valid",
+    } <= set(decision.blocker_refs)
 
 
 def test_layer3_g3_task1_engineering_quality_detects_unindexed_or_unbounded_search() -> None:
@@ -867,7 +954,9 @@ def test_layer3_g3_task3_builds_s11_proof_record_and_existing_ir_bridge(
     assert bridge_binding.bridge_payload["summary"]["method_requirement_binding_count"] == 1
 
 
-def test_layer3_g3_task3_search_hit_without_resolved_certificate_cannot_build_proof_record() -> None:
+def test_layer3_g3_task3_search_hit_without_resolved_certificate_cannot_build_proof_record() -> (
+    None
+):
     g3 = _g3()
     request = _task3_request(g3, "search-hit")
     method_bindings = g3.build_g3_method_requirement_bindings(
@@ -891,7 +980,9 @@ def test_layer3_g3_task3_search_hit_without_resolved_certificate_cannot_build_pr
     assert "layer3_g3_proof_carrying_record_missing" in proof_bindings[0].issue_codes
 
 
-def test_layer3_g3_task3_s11_fixture_string_without_resolver_payload_cannot_build_proof_record() -> None:
+def test_layer3_g3_task3_s11_fixture_string_without_resolver_payload_cannot_build_proof_record() -> (
+    None
+):
     g3 = _g3()
     request = _task3_request(g3, "fixture-string")
     method_bindings = g3.build_g3_method_requirement_bindings(
@@ -985,7 +1076,9 @@ def test_layer3_g3_task3_bounds_requirement_without_uncertainty_refs_fails_bridg
     )
 
 
-def test_layer3_g3_task3_negative_certificate_requirement_not_satisfied_by_positive_output() -> None:
+def test_layer3_g3_task3_negative_certificate_requirement_not_satisfied_by_positive_output() -> (
+    None
+):
     g3 = _g3()
     request = _task3_request(g3, "negative-requirement")
     method_bindings = g3.build_g3_method_requirement_bindings(
@@ -1326,10 +1419,10 @@ def test_layer3_g3_task6_adapter_registry_loads_and_summary_only_toml_fails(
     summary_only.write_text(
         "\n".join(
             [
-                "schema_version = \"policyos.policy_design_case.layer3_g3_analytics_search.v1\"",
+                'schema_version = "policyos.policy_design_case.layer3_g3_analytics_search.v1"',
                 "",
                 "[adapter_contract_registry]",
-                "adapter_contract_refs = [\"layer3_g3_certificate_resolution_to_proof_record\"]",
+                'adapter_contract_refs = ["layer3_g3_certificate_resolution_to_proof_record"]',
             ]
         ),
         encoding="utf-8",
@@ -1350,11 +1443,13 @@ def test_layer3_g3_task6_generated_artifact_registration_status_reads_real_surfa
     assert payload["generated_artifact_family_id"] == (
         "policy-design-case-layer3-g3-analytics-search-artifacts"
     )
-    assert "architecture/policy_design_case/layer3_g3_readiness_manifest.json" in (
-        payload["registered_artifact_paths"]
+    assert (
+        "architecture/policy_design_case/layer3_g3_readiness_manifest.json"
+        in (payload["registered_artifact_paths"])
     )
-    assert "architecture/policy_design_case/layer3_g3_search_recall_freshness.json" in (
-        payload["registered_artifact_paths"]
+    assert (
+        "architecture/policy_design_case/layer3_g3_search_recall_freshness.json"
+        in (payload["registered_artifact_paths"])
     )
     assert "docs/reference/generated-artifacts.md" in payload["registered_doc_refs"]
     assert payload["missing_registration_refs"] == []
@@ -1447,9 +1542,7 @@ def test_layer3_g3_task7_conformance_fails_replay_adapter_and_cas_negatives() ->
                     "records": (
                         {
                             "adapter_id": "layer3_g3_unknown_adapter_path",
-                            "adapter_contract_path_refs": (
-                                "layer3_g3_unknown_adapter_path",
-                            ),
+                            "adapter_contract_path_refs": ("layer3_g3_unknown_adapter_path",),
                             "conformance_status": "fail",
                             "semantic_loss_blockers": ["lost_authority_boundary"],
                             "source_touchpoint_refs": [
@@ -1493,9 +1586,9 @@ def test_layer3_g3_task7_unknown_adapter_path_in_registry_fails_status(
     tmp_path: Path,
 ) -> None:
     g3 = _g3()
-    registry_text = (REPO_ROOT / "architecture/policy_design_case/layer3_g3_adapter_contract_registry.toml").read_text(
-        encoding="utf-8"
-    )
+    registry_text = (
+        REPO_ROOT / "architecture/policy_design_case/layer3_g3_adapter_contract_registry.toml"
+    ).read_text(encoding="utf-8")
     registry_path = tmp_path / "unknown-adapter.toml"
     registry_path.write_text(
         registry_text.replace(

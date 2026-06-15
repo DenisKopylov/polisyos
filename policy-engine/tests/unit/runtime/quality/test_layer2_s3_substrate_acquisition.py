@@ -7,6 +7,7 @@ import pytest
 from pydantic import ValidationError
 
 from polisyos.runtime.quality.capability_authority import CapabilityBindingResult
+from polisyos.runtime.quality.capability_resolver import RequirementToCapabilityResolver
 from polisyos.runtime.quality.layer2_substrate_acquisition import (
     AcquisitionState,
     ConstructDemandLedger,
@@ -85,11 +86,22 @@ def test_resolve_expression_binds_by_construct_not_scenario_family() -> None:
     binding = resolve_expression(
         _expression(),
         source="tests/fixtures/layer2/s3/ua_msme_credit_program_enrollment_source.json",
+        resolver=RequirementToCapabilityResolver.governed_fixture(),
     )
 
     assert isinstance(binding, CapabilityBindingResult)
     assert binding.construct_ref == PINNED
     assert "production_msme_panel" not in (binding.selected_capability_ref or "")
+
+
+def test_resolve_expression_without_resolver_blocks_legacy_fixture_fallback() -> None:
+    binding = resolve_expression(
+        _expression(),
+        source="tests/fixtures/layer2/s3/ua_msme_credit_program_enrollment_source.json",
+    )
+
+    assert binding.status == "blocked_acquisition_required"
+    assert "governed_capability_index_required" in binding.blocked_reasons
 
 
 def test_proxy_status_is_limitation_not_production() -> None:
@@ -166,10 +178,10 @@ def test_s3_substrate_consumes_g1_grounded_binding_through_existing_resolver_por
     g1 = import_module("polisyos.runtime.quality.layer3_substrate_grounding")
     resolver = g1.build_g1_requirement_to_capability_resolver(REPO_ROOT)
 
-    binding = resolve_expression(_expression("firm_survival"), resolver=resolver)
+    binding = resolve_expression(_expression("credit_access"), resolver=resolver)
 
     assert isinstance(binding, CapabilityBindingResult)
-    assert binding.construct_ref == "firm_survival"
+    assert binding.construct_ref == "credit_access"
     assert str(binding.capability_index_ref).startswith("layer3-g1:")
     assert binding.lineage_refs
     assert "claim_authority" in binding.may_not_use_for

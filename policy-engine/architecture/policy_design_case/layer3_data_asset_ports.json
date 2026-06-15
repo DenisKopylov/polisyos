@@ -3,19 +3,19 @@
     "records": [
       {
         "asset_id": "production-data-curated",
-        "contamination_check_ref": "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/manifest.json",
+        "contamination_check_ref": "repo://production_data/manifest.json",
         "data_kind": "data_asset",
-        "fitness_ref": "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/manifest.json",
-        "freshness_ref": "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/manifest.json",
+        "fitness_ref": "repo://production_data/manifest.json",
+        "freshness_ref": "repo://production_data/manifest.json",
         "index_refs": [
           "production-data-manifest-index"
         ],
-        "lineage_ref": "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/manifest.json",
+        "lineage_ref": "repo://production_data/manifest.json",
         "path": "production_data/canonical/local_data_20260501/policy_engine_data/curated",
         "port_ids": [
           "DESIGNER_ITSELF.cluster_evidence"
         ],
-        "rights_ref": "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/manifest.json",
+        "rights_ref": "repo://production_data/manifest.json",
         "source_contract_readiness": "source-contract-readiness://fabric/production-data-curated",
         "source_contract_ref": "source-contract://fabric/production-data-curated"
       },

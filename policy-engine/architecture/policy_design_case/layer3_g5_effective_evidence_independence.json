@@ -12,24 +12,7 @@
     "shared_failure_mode_cluster_id"
   ],
   "independence_map_payload": {
-    "collapse_clusters": [
-      {
-        "cluster_id": "g5-independent-cluster-1",
-        "collapse_dimensions": {
-          "assumption_cluster_id": "g5.first_proving_ground",
-          "method_cluster_id": "g5.adapter",
-          "shared_failure_mode_cluster_id": "g5.upstream_scope_join",
-          "source_lineage_cluster_id": "lineage://layer3/g5/readiness"
-        },
-        "collapse_reasons": [],
-        "effective_line_count": 1,
-        "line_ids": [
-          "layer3-g5://readiness/no-grounded-row"
-        ],
-        "raw_line_count": 1,
-        "representative_line_id": "layer3-g5://readiness/no-grounded-row"
-      }
-    ],
+    "collapse_clusters": [],
     "collapse_dimensions_used": [
       "claim_ids",
       "evidence_strand",
@@ -43,18 +26,18 @@
       "shared_failure_mode_cluster_id"
     ],
     "contract_id": "policy_design_case.independence_map.v1",
-    "effective_independent_evidence_count": 1,
+    "effective_independent_evidence_count": 0,
     "effective_mass_report": {
-      "balance_status": "support_dominant",
+      "balance_status": "insufficient",
       "context_line_ids": [],
       "counterevidence_line_ids": [],
       "dominant_collapse_reasons": [],
       "effective_context_mass": 0.0,
       "effective_counterevidence_mass": 0.0,
-      "effective_independent_evidence_count": 1,
-      "effective_support_mass": 1.0,
+      "effective_independent_evidence_count": 0,
+      "effective_support_mass": 0.0,
       "independence_status": "singular",
-      "largest_hard_collapse_cluster": 1,
+      "largest_hard_collapse_cluster": 0,
       "limiting_deficits": [],
       "raw_context_line_count": 0,
       "raw_count_display_policy": {
@@ -64,11 +47,9 @@
         "raw_counts_are_diagnostic_only": true
       },
       "raw_counterevidence_line_count": 0,
-      "raw_evidence_line_count": 1,
-      "raw_support_line_count": 1,
-      "support_line_ids": [
-        "layer3-g5://readiness/no-grounded-row"
-      ]
+      "raw_evidence_line_count": 0,
+      "raw_support_line_count": 0,
+      "support_line_ids": []
     },
     "graded_independence": {
       "authority_posture": "strict_hard_collapse_only",
@@ -76,23 +57,23 @@
       "feature_flag": "policy_design_case.graded_independence.v1",
       "feature_flag_enabled": false,
       "governed_config_status": "provisional",
-      "graded_effective_independent_evidence_count": 1.0,
-      "hard_effective_independent_evidence_count": 1,
+      "graded_effective_independent_evidence_count": 0.0,
+      "hard_effective_independent_evidence_count": 0,
       "may_not_use_for": [
         "closeout_authority",
         "publication_strength_inflation"
       ],
-      "raw_evidence_line_count": 1
+      "raw_evidence_line_count": 0
     },
     "map_id": "layer3-g5-effective-evidence-independence",
     "rare_domain_scarcity": {
       "authority_effect": "none",
-      "effective_support_mass_after_scarcity": 1.0,
+      "effective_support_mass_after_scarcity": 0.0,
       "minimum_effective_independent_evidence_count": 1,
       "status": "not_rare_domain",
       "support_inflation_allowed": false
     },
-    "raw_evidence_line_count": 1,
+    "raw_evidence_line_count": 0,
     "schema_version": "policyos.runtime.policy_design_case.independence_map.v1"
   },
   "issue_codes": [],

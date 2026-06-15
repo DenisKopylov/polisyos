@@ -1,5 +1,6 @@
 # Deterministic Replay
 
+Owner: `@runtime-owners`
 Source of truth: `src/polisyos/runtime/quality/replay.py`,
 `tools/ops_runners/runtime/replay_canary_bundle.py`, and
 `tests/unit/runtime/quality/test_replay.py`.

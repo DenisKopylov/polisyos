@@ -35,9 +35,6 @@ from polisyos.runtime.quality.capability_index import (
     capability_is_production_admissible,
 )
 from polisyos.runtime.quality.capability_white_space import (
-    CONSTRUCT_DOMAINS,
-)
-from polisyos.runtime.quality.capability_white_space import (
     build_capability_white_space_report as build_grouped_capability_white_space_report,
 )
 
@@ -109,13 +106,6 @@ L5_DERIVED_PARQUET_NAMES = frozenset(
         "survival_hazard_estimates.parquet",
     }
 )
-CREDIT_PROGRAM_ENROLLMENT_STRATEGY_IDS = (
-    "acquisition:acquire_from_nbu_registry",
-    "acquisition:derive_proxy_from_tax_relief_records",
-    "acquisition:simulation_only_dynamic_treatment",
-)
-
-
 @dataclass(frozen=True)
 class CapabilityIndexCompilerConfig:
     """Compiler configuration for fixture, full, and incremental builds."""
@@ -241,7 +231,11 @@ def compile_capability_index(
     }
 
     if config.inject_same_construct_conflict:
-        capabilities.append(_build_fixture_conflicting_capability())
+        capabilities.append(
+            _build_fixture_conflicting_capability(
+                next((capability for capability in capabilities if not capability.compatibility_only), None)
+            )
+        )
 
     capabilities = _dedupe_capabilities(capabilities)
     for capability in capabilities:
@@ -1100,7 +1094,7 @@ def load_ukraine_panel_capabilities(
     capabilities: list[EvidenceCapability] = []
     if "dps_financials" in by_family:
         capabilities.append(
-            _build_firm_survival_capability(
+            _build_firm_fundamentals_capability(
                 by_family,
                 calibration_context=calibration_context,
                 foundry_context=foundry_context,
@@ -1561,7 +1555,6 @@ def _white_space_construct_universe(
         for capability in capabilities
         if not capability.compatibility_only and capability.construct_id
     }
-    constructs.update(CONSTRUCT_DOMAINS)
     return tuple(sorted(constructs))
 
 
@@ -1588,7 +1581,6 @@ def _add_failure_node(
     geography: str = "UA",
 ) -> None:
     failure_id = deterministic_record_id("failure", status, gap_type, construct, geography)
-    domains = CONSTRUCT_DOMAINS.get(construct, ("uncategorized",))
     nodes[failure_id] = FailureModeNode(
         failure_id=failure_id,
         construct=construct,
@@ -1601,7 +1593,7 @@ def _add_failure_node(
         detected_at="capability_index_release_time",
         status=status,
         gap_type=gap_type,
-        domain=domains,
+        domain=("uncategorized",),
         producer_owner="team-data-acquisition",
         authority_posture="production",
         ttl="P30D",
@@ -1611,89 +1603,10 @@ def _add_failure_node(
 
 
 def _strategy_refs_for_construct(construct: str, geography: str) -> tuple[str, ...]:
-    if construct == "credit_program_enrollment":
-        return CREDIT_PROGRAM_ENROLLMENT_STRATEGY_IDS
     return (deterministic_record_id("acquisition", "close_gap", construct, geography),)
 
 
 def _strategies_for_failure_node(node: FailureModeNode) -> tuple[AcquisitionStrategy, ...]:
-    if node.construct_id == "credit_program_enrollment":
-        return (
-            AcquisitionStrategy(
-                strategy_id="acquisition:acquire_from_nbu_registry",
-                target_construct="credit_program_enrollment",
-                owner=("team-data-acquisition", "team-legal-counsel"),
-                owner_team="team-data-acquisition",
-                legal_counsel_owner="team-legal-counsel",
-                authority_class="government_official_request",
-                estimated_cost="medium_dollar_amount",
-                estimated_time="45_days",
-                prerequisites=(
-                    "NBU registry data-sharing request",
-                    "legal_use_scope_review",
-                    "producer_handshake",
-                ),
-                resulting_authority_envelope={
-                    "research": "admissible",
-                    "governed_pilot": "admissible_after_legal_review",
-                    "production": "admissible_after_construct_validity_review",
-                },
-                contact_path="ops://team-data-acquisition#acquire-from-nbu-registry",
-                ttl="P30D",
-                review_cadence="P14D",
-                escalation_owner="team-data-acquisition",
-                requires_construct_validity_review=True,
-            ),
-            AcquisitionStrategy(
-                strategy_id="acquisition:derive_proxy_from_tax_relief_records",
-                target_construct="credit_program_enrollment",
-                owner=("team-data-acquisition", "team-legal-counsel"),
-                owner_team="team-data-acquisition",
-                legal_counsel_owner="team-legal-counsel",
-                authority_class="government_administrative_proxy",
-                estimated_cost="low_dollar_amount",
-                estimated_time="21_days",
-                prerequisites=(
-                    "tax_relief_records_source_contract",
-                    "proxy_construct_validity_protocol",
-                    "legal_use_scope_review",
-                ),
-                resulting_authority_envelope={
-                    "research": "admissible_with_proxy_limitation",
-                    "governed_pilot": "admissible_with_proxy_limitation_requires_review",
-                    "production": "blocked_until_construct_validity_review",
-                },
-                contact_path="ops://team-data-acquisition#tax-relief-proxy",
-                ttl="P21D",
-                review_cadence="P7D",
-                escalation_owner="team-data-acquisition",
-                requires_construct_validity_review=True,
-            ),
-            AcquisitionStrategy(
-                strategy_id="acquisition:simulation_only_dynamic_treatment",
-                target_construct="credit_program_enrollment",
-                owner=("team-foundry-owners",),
-                owner_team="team-foundry-owners",
-                authority_class="simulation_only_modeling_support",
-                estimated_cost="low_dollar_amount",
-                estimated_time="14_days",
-                prerequisites=(
-                    "dynamic_treatment_model_contract",
-                    "simulation_authority_boundary_notice",
-                    "reviewer_scope_admission",
-                ),
-                resulting_authority_envelope={
-                    "research": "advisory_simulation_only",
-                    "governed_pilot": "context_only_with_reviewer_admission",
-                    "production": "blocked_simulation_only",
-                },
-                contact_path="ops://team-foundry-owners#dynamic-treatment-simulation",
-                ttl="P14D",
-                review_cadence="P7D",
-                escalation_owner="team-foundry-owners",
-                requires_construct_validity_review=True,
-            ),
-        )
     strategy_id = deterministic_record_id(
         "acquisition", "close_gap", node.construct_id, node.geography
     )
@@ -2336,7 +2249,7 @@ def _incremental_state(
     }
 
 
-def _build_firm_survival_capability(
+def _build_firm_fundamentals_capability(
     by_family: Mapping[str, ParquetProfile],
     *,
     calibration_context: CalibrationContext,
@@ -2345,6 +2258,7 @@ def _build_firm_survival_capability(
 ) -> EvidenceCapability:
     firm = by_family["dps_financials"]
     source_family = "firm_fundamentals"
+    construct = _construct_from_family(source_family)
     coverage = calibration_context.coverage_rules.get(source_family, 0.8)
     source_assets = [_source_asset_from_parquet(firm, role="firm_fundamentals")]
     for family, role in (
@@ -2367,16 +2281,16 @@ def _build_firm_survival_capability(
     }
     return EvidenceCapability(
         capability_id=deterministic_capability_id(
-            "firm_survival",
+            construct,
             "fabric_data",
             "ua",
             "firm_fundamentals",
             "survival_hazard_estimates",
         ),
-        construct="firm_survival",
+        construct=construct,
         modality=("fabric_data", "derived"),
         evidence_mode="derived_administrative_with_proxy_validation",
-        concept_spine_refs=("concept:firm_survival", "concept:registered_firm"),
+        concept_spine_refs=(f"concept:{construct}", "concept:registered_firm"),
         scope=CapabilityScope(
             geography="UA",
             time_start="2022-02-01",
@@ -2441,24 +2355,32 @@ def _build_firm_survival_capability(
     )
 
 
-def _build_fixture_conflicting_capability() -> EvidenceCapability:
+def _build_fixture_conflicting_capability(
+    reference: EvidenceCapability | None = None,
+) -> EvidenceCapability:
+    construct = reference.construct_id if reference is not None else _construct_from_text("fixture conflict")
+    scope = (
+        reference.scope
+        if reference is not None
+        else CapabilityScope(geography="UA", entity_scope="firm")
+    )
     return EvidenceCapability(
         capability_id=deterministic_capability_id(
-            "firm_survival",
+            construct,
             "fabric_data",
             "fixture_conflict",
         ),
-        construct="firm_survival",
+        construct=construct,
         modality=("fabric_data",),
         evidence_mode="context_only",
-        concept_spine_refs=("concept:firm_survival",),
-        scope=CapabilityScope(geography="UA", entity_scope="firm"),
+        concept_spine_refs=(f"concept:{construct}",),
+        scope=scope,
         identification_mode="context_only",
         trust_tier="weak_anchor",
         quality_score=QualityScore(composite=0.25, breakdown={"context": 0.25}),
         source_assets=(
             CapabilitySourceAsset(
-                ref="fixture:conflicting_firm_survival_context",
+                ref=f"fixture:conflicting_{construct}_context",
                 source_layer="L4",
                 asset_type="synthetic_test_fixture",
                 role="conflict_fixture",
@@ -2622,7 +2544,7 @@ def _create_fixture_dataset_catalog(root: Path) -> None:
                 'Firm revenue assets liabilities employees',
                 'State Tax Service of Ukraine', 'UA', '2022-02-01', NULL,
                 'restricted_government', 'fixture', 'ready', 'annual', '2026-05-01',
-                'firm_survival', 'firm,msme', 'economy', 'revenue,assets,employees',
+                'fixture_survival', 'firm,msme', 'economy', 'revenue,assets,employees',
                 'parquet', 'UA', NULL, '2022-02-01', NULL, 'annual', NULL, NULL,
                 'restricted_government', false, 0.9, 1.0, 1.0, 0.8, 0.9,
                 'distribution:ua-firm-fundamentals', '2026-05-25'
@@ -2684,7 +2606,7 @@ def _create_fixture_dataset_catalog(root: Path) -> None:
             """
             INSERT INTO ds_metric_bindings VALUES
             (
-                'firm_survival', 'ua_firm_fundamentals',
+                'fixture_survival', 'ua_firm_fundamentals',
                 'distribution:ua-firm-fundamentals', 'parquet', 'schema:firm',
                 'ua_firm_fundamentals', 0.86, 0.84, '{}', 'ready', 'fixture'
             )
@@ -2763,7 +2685,7 @@ def _create_fixture_scholar_kg(root: Path) -> None:
         con.execute(
             """
             INSERT INTO ac_skg_edges VALUES
-            ('edge:credit_access:firm_survival', 'credit_access', 'firm_survival',
+            ('edge:fixture_cause:fixture_effect', 'fixture_cause', 'fixture_effect',
              'positive', 2, '["work:1"]', 0.8, 0.82, 'wartime firms', 0.2,
              'runtime', '{}', '2026-05-25')
             """
@@ -2781,7 +2703,7 @@ def _create_fixture_scholar_kg(root: Path) -> None:
         con.execute(
             """
             INSERT INTO ac_skg_transport_scores VALUES
-            ('transport:1', 'edge:credit_access:firm_survival', 'UA-wartime',
+            ('transport:1', 'edge:fixture_cause:fixture_effect', 'UA-wartime',
              0.82, 0.1, 0.12, 0.84, 'context_match', '{}', 'fixture')
             """
         )
@@ -2801,7 +2723,7 @@ def _create_fixture_scholar_kg(root: Path) -> None:
         con.execute(
             """
             INSERT INTO ac_skg_contested_edges VALUES
-            ('contested:1', 'credit_access', 'firm_survival', 2, 2, '[]', '[]',
+            ('contested:1', 'fixture_cause', 'fixture_effect', 2, 2, '[]', '[]',
              'positive', 'resolved', 'supportive', 0.8, 0.82, 0.8, 0.1, 0.1,
              0.8, 0.1, 2024, '{}', '{}', '2026-05-25')
             """
@@ -2819,8 +2741,8 @@ def _create_fixture_scholar_kg(root: Path) -> None:
         con.execute(
             """
             INSERT INTO ac_parameter_estimates VALUES
-            ('parameter:1', 'work:1', 'firm_survival', 0.2, 0.1, 0.3, 0.01,
-             'hazard_ratio', 'msme_credit', 'quasi_experimental', 1000, 'UA',
+            ('parameter:1', 'work:1', 'fixture_effect', 0.2, 0.1, 0.3, 0.01,
+             'effect_ratio', 'fixture_domain', 'quasi_experimental', 1000, 'UA',
              '2022', '2024', 0.78, '{}')
             """
         )
@@ -2835,7 +2757,7 @@ def _create_fixture_scholar_kg(root: Path) -> None:
         con.execute(
             """
             INSERT INTO ac_boundary_conditions VALUES
-            ('boundary:1', 'work:1', 'firm_survival', '>=', 0.0, 'registered firms', 0.75)
+            ('boundary:1', 'work:1', 'fixture_effect', '>=', 0.0, 'registered firms', 0.75)
             """
         )
 
@@ -3261,33 +3183,11 @@ def _authority_for_panel(coverage: float, source_family: str) -> AuthorityEnvelo
 
 
 def _construct_from_family(family: str) -> str:
-    mapping = {
-        "firm_fundamentals": "firm_survival",
-        "dps_financials": "firm_survival",
-        "distress_events": "firm_survival",
-        "budget_flows": "public_spending_flow",
-        "household_distribution": "household_welfare_distribution",
-        "procurement_flows": "procurement_exposure",
-        "logistics_friction": "regional_displacement_pressure",
-    }
-    return mapping.get(family, _construct_from_text(family))
+    return _construct_from_text(family)
 
 
 def _construct_from_text(text: str) -> str:
-    slug = _slug(text)
-    if "firm_survival" in slug or ("firm" in slug and "survival" in slug):
-        return "firm_survival"
-    if "credit" in slug:
-        return "credit_program_enrollment"
-    if "displacement" in slug or "mobility" in slug or "transport_pressure" in slug:
-        return "regional_displacement_pressure"
-    if "unemployment" in slug or "employment" in slug:
-        return "employment_rate"
-    if "gdp" in slug or "economic" in slug:
-        return "economic_output"
-    if "employee_count" in slug or "msme" in slug:
-        return "msme_eligibility"
-    return slug or "catalog_dataset"
+    return _slug(text) or "catalog_dataset"
 
 
 def _legal_construct(metric: str, applies_to: object) -> str:
@@ -3298,10 +3198,6 @@ def _legal_construct(metric: str, applies_to: object) -> str:
 
 
 def _panel_construct(family: str, fields: Sequence[str]) -> str:
-    if family in {"dps_financials", "firm_fundamentals", "survival_hazard_estimates"}:
-        return "firm_survival"
-    if family in {"logistics_mobility_displacement", "logistics_friction"}:
-        return "regional_displacement_pressure"
     joined = " ".join((family, *fields))
     return _construct_from_text(joined)
 

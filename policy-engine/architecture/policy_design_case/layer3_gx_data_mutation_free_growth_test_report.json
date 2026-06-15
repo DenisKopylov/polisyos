@@ -1,0 +1,199 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gx_data_mutation_free_growth_test_report.v1",
+  "rule_version": "policyos.layer3.gx.data_mutation_free_growth_tests.v1",
+  "status": "pass",
+  "required_requirement_ids": [
+    "g1_dcat_metric_binding_insertion",
+    "g2_skg_edge_no_calibration",
+    "g2_skg_edge_governed_calibration_admission",
+    "g3_ir_proof_candidate_no_certificate",
+    "gl_legal_threshold_temporal_reissue_gate",
+    "g4_governed_upstream_artifact_promotion",
+    "g5_conversion_reducer_inputs_only",
+    "g8_case_specific_search_health_diagnostic_data",
+    "canonical_corpus_pinned_request_search_health",
+    "g1_canonical_overlay_injection"
+  ],
+  "missing_requirement_ids": [],
+  "coverage_rows": [
+    {
+      "requirement_id": "g1_dcat_metric_binding_insertion",
+      "test_refs": [
+        "tests/unit/runtime/quality/test_layer3_g1_substrate_grounding.py::test_task6_g1_temp_dcat_metric_insertion_changes_candidates_without_authority"
+      ],
+      "missing_test_refs": [],
+      "coverage_status": "pass",
+      "corpus_kind": "temp_store",
+      "production_readiness_status": "bounded_surrogate",
+      "requires_corpus_snapshot_hash": false,
+      "authority_boundary": {
+        "can_create_source_contract": false,
+        "can_create_admission": false,
+        "can_create_promotion": false,
+        "can_create_conversion": false
+      }
+    },
+    {
+      "requirement_id": "g2_skg_edge_no_calibration",
+      "test_refs": [
+        "tests/unit/runtime/quality/test_layer3_g2_causal_forecast.py::test_task6_g2_temp_skg_edge_insertion_is_replayable_but_not_admitted_without_calibration"
+      ],
+      "missing_test_refs": [],
+      "coverage_status": "pass",
+      "corpus_kind": "temp_store",
+      "production_readiness_status": "test_only",
+      "requires_corpus_snapshot_hash": false,
+      "authority_boundary": {
+        "can_create_source_contract": false,
+        "can_create_admission": false,
+        "can_create_promotion": false,
+        "can_create_conversion": false
+      }
+    },
+    {
+      "requirement_id": "g2_skg_edge_governed_calibration_admission",
+      "test_refs": [
+        "tests/unit/runtime/quality/test_layer3_g2_causal_forecast.py::test_task6_g2_temp_skg_edge_plus_governed_calibration_changes_reducer_admission"
+      ],
+      "missing_test_refs": [],
+      "coverage_status": "pass",
+      "corpus_kind": "temp_store",
+      "production_readiness_status": "test_only",
+      "requires_corpus_snapshot_hash": false,
+      "authority_boundary": {
+        "can_create_source_contract": false,
+        "can_create_admission": false,
+        "can_create_promotion": false,
+        "can_create_conversion": false
+      }
+    },
+    {
+      "requirement_id": "g3_ir_proof_candidate_no_certificate",
+      "test_refs": [
+        "tests/unit/runtime/quality/test_layer3_g3_analytics_search.py::test_task6_g3_ir_proof_candidate_insertion_is_replayable_but_not_certificate_authority"
+      ],
+      "missing_test_refs": [],
+      "coverage_status": "pass",
+      "corpus_kind": "temp_store",
+      "production_readiness_status": "test_only",
+      "requires_corpus_snapshot_hash": false,
+      "authority_boundary": {
+        "can_create_source_contract": false,
+        "can_create_admission": false,
+        "can_create_promotion": false,
+        "can_create_conversion": false
+      }
+    },
+    {
+      "requirement_id": "gl_legal_threshold_temporal_reissue_gate",
+      "test_refs": [
+        "tests/unit/runtime/quality/test_layer3_gl_legal_mandate_search.py::test_task6_gl_temp_legal_threshold_insertion_is_replayable_with_temporal_reissue_gate"
+      ],
+      "missing_test_refs": [],
+      "coverage_status": "pass",
+      "corpus_kind": "temp_store",
+      "production_readiness_status": "test_only",
+      "requires_corpus_snapshot_hash": false,
+      "authority_boundary": {
+        "can_create_source_contract": false,
+        "can_create_admission": false,
+        "can_create_promotion": false,
+        "can_create_conversion": false
+      }
+    },
+    {
+      "requirement_id": "g4_governed_upstream_artifact_promotion",
+      "test_refs": [
+        "tests/unit/runtime/quality/test_layer3_g4_promotion_gate.py::test_task6_g4_governed_upstream_artifact_insertion_promotes_after_admission"
+      ],
+      "missing_test_refs": [],
+      "coverage_status": "pass",
+      "corpus_kind": "temp_repo",
+      "production_readiness_status": "test_only",
+      "requires_corpus_snapshot_hash": false,
+      "authority_boundary": {
+        "can_create_source_contract": false,
+        "can_create_admission": false,
+        "can_create_promotion": false,
+        "can_create_conversion": false
+      }
+    },
+    {
+      "requirement_id": "g5_conversion_reducer_inputs_only",
+      "test_refs": [
+        "tests/unit/runtime/quality/test_layer3_g5_proving_ground_conversion.py::test_task6_g5_conversion_changes_only_from_governed_reducer_inputs"
+      ],
+      "missing_test_refs": [],
+      "coverage_status": "pass",
+      "corpus_kind": "temp_repo",
+      "production_readiness_status": "test_only",
+      "requires_corpus_snapshot_hash": false,
+      "authority_boundary": {
+        "can_create_source_contract": false,
+        "can_create_admission": false,
+        "can_create_promotion": false,
+        "can_create_conversion": false
+      }
+    },
+    {
+      "requirement_id": "g8_case_specific_search_health_diagnostic_data",
+      "test_refs": [
+        "tests/unit/runtime/quality/test_layer3_g8_health_metric_governance.py::test_task6_g8_pinned_case_search_health_changes_with_case_diagnostic_data"
+      ],
+      "missing_test_refs": [],
+      "coverage_status": "pass",
+      "corpus_kind": "temp_repo",
+      "production_readiness_status": "test_only",
+      "requires_corpus_snapshot_hash": false,
+      "authority_boundary": {
+        "can_create_source_contract": false,
+        "can_create_admission": false,
+        "can_create_promotion": false,
+        "can_create_conversion": false
+      }
+    },
+    {
+      "requirement_id": "canonical_corpus_pinned_request_search_health",
+      "test_refs": [
+        "tests/unit/runtime/quality/test_layer3_g1_substrate_grounding.py::test_substrate_search_adapter_builds_replayable_ledger_for_pinned_ukraine_construct"
+      ],
+      "missing_test_refs": [],
+      "coverage_status": "pass",
+      "corpus_kind": "canonical",
+      "production_readiness_status": "test_only",
+      "requires_corpus_snapshot_hash": true,
+      "authority_boundary": {
+        "can_create_source_contract": false,
+        "can_create_admission": false,
+        "can_create_promotion": false,
+        "can_create_conversion": false
+      }
+    },
+    {
+      "requirement_id": "g1_canonical_overlay_injection",
+      "test_refs": [
+        "tests/unit/runtime/quality/test_layer3_g1_substrate_grounding.py::test_task6_g1_canonical_overlay_seed_is_recall_only_not_grounding"
+      ],
+      "missing_test_refs": [],
+      "coverage_status": "pass",
+      "corpus_kind": "canonical_with_isolated_overlay",
+      "production_readiness_status": "bounded_surrogate",
+      "requires_corpus_snapshot_hash": false,
+      "authority_boundary": {
+        "can_create_source_contract": false,
+        "can_create_admission": false,
+        "can_create_promotion": false,
+        "can_create_conversion": false
+      }
+    }
+  ],
+  "authoritative_for": [],
+  "may_not_use_for": [
+    "claim_authority",
+    "production_authority",
+    "admission_authority",
+    "promotion_authority",
+    "conversion_authority"
+  ],
+  "issues": []
+}

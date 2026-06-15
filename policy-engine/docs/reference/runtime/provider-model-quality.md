@@ -1,5 +1,8 @@
 # Provider And Model Quality Drift Ledger
 
+Owner: `@runtime-owners`
+Source of truth: `tools/ops_runners/runtime/provider_quality_ledger.py`, `tools/ops_runners/runtime/canary_evidence.py`, and `tests/unit/runtime/quality/**`
+
 PolicyOS records provider/model quality drift in
 `policyos.provider_model_quality_ledger.v1` ledgers. The runtime quality bundle
 ref is `provider_model_quality_ledger_ref`.

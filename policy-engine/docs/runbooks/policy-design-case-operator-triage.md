@@ -8,7 +8,7 @@ rollback, or kill-switch work, use
 [Policy Design Case Rollout And Rollback](policy-design-case-rollout-rollback.md).
 
 Related reference:
-[Policy Design Best-In-Class Operating Model](../system-design-decisions/policy-design-best-in-class-operating-model.md),
+`docs/system-design-decisions/policy-design-best-in-class-operating-model.md`,
 [Policy Design Case Operator Guide](../reference/policy-design-case-operator-guide.md),
 [Policy Design Case Evidence Paths](../reference/policy-design-case-evidence-paths.md),
 [Production Quality Approval](../reference/runtime/production-quality-approval.md),

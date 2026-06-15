@@ -8,15 +8,15 @@
         "measurement_ref": "repo://src/polisyos/runtime/quality/capability_index_compiler.py#KNOWN_CONSTRUCTS",
         "no_fallback_proof_ref": "tests/unit/runtime/quality/test_layer3_g1_substrate_grounding.py",
         "production_closure_reachable": false,
-        "search_backed_replacement_ref": "g1-resource-discovery:l1-dcat-construct-search"
+        "search_backed_replacement_ref": "discovery://layer3-g0/resource-discovery/constructs"
       },
       {
         "backlog_ref": "capability_resolver.REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS",
         "fallback_deleted_or_disabled": true,
-        "measurement_ref": "repo://src/polisyos/runtime/quality/capability_resolver.py#REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS",
+        "measurement_ref": "repo://src/polisyos/core/contracts/capability_resolution.py#REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS;repo://src/polisyos/runtime/quality/capability_resolver.py#REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS",
         "no_fallback_proof_ref": "tests/unit/runtime/quality/test_layer3_g1_substrate_grounding.py",
         "production_closure_reachable": false,
-        "search_backed_replacement_ref": "g1-resource-discovery:scenario-family-source-contract"
+        "search_backed_replacement_ref": "discovery://layer3-g0/resource-discovery/scenario-family-constructs"
       }
     ],
     "fallback_closure_count": 0,

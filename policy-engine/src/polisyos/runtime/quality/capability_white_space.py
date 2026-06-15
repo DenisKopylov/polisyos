@@ -27,11 +27,6 @@ CAPABILITY_WHITE_SPACE_REPORT_SCHEMA_VERSION = (
 DEFAULT_REVIEW_TTL = "P30D"
 DEFAULT_REVIEW_CADENCE = "P14D"
 
-CONSTRUCT_DOMAINS: dict[str, tuple[str, ...]] = {
-    "firm_survival": ("msme_credit", "employment_outcome"),
-    "credit_program_enrollment": ("msme_credit", "fiscal_program_delivery"),
-    "regional_displacement_pressure": ("displacement", "service_delivery"),
-}
 STATUS_TO_GAP_TYPE: dict[str, str] = {
     "blocked_construct_not_observed": "construct_gap",
     "blocked_acquisition_required": "acquisition_gap",
@@ -208,7 +203,7 @@ def _strategy_lifecycle_errors(
 
 
 def _enriched_failure_node(node: FailureModeNode) -> FailureModeNode:
-    domain = node.domain or CONSTRUCT_DOMAINS.get(node.construct_id, ("uncategorized",))
+    domain = node.domain or ("uncategorized",)
     authority_posture = node.authority_posture or _first_posture(node)
     producer_owner = node.producer_owner or node.owner
     status = node.status or _status_from_gap_type(node.gap_type)

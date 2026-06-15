@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import pytest
@@ -30,6 +31,11 @@ def test_g8_declares_red_baseline_contract() -> None:
     assert "hidden_fixture_access" in g8.G8_MAY_NOT_USE_FOR
     assert "layer3_g8_metric_improved_by_threshold_lowering" in g8.ALL_ISSUE_CODES
     assert "layer3_g8_search_recall_miss_reported_as_domain_ceiling" in g8.ALL_ISSUE_CODES
+    assert "layer3_g8_blocker_specific_search_diagnostic_missing" in g8.ALL_ISSUE_CODES
+    assert "layer3_g8_global_seed_health_used_as_current_blocker_health" in g8.ALL_ISSUE_CODES
+    assert "layer3_g8_positive_open_question_reducer_provenance_missing" in (
+        g8.ALL_ISSUE_CODES
+    )
 
 
 def test_g8_models_are_strict_and_frozen() -> None:
@@ -147,6 +153,24 @@ def test_g8_source_snapshot_reads_current_g0_to_g7_and_s14_artifacts() -> None:
     )
 
 
+def test_g8_source_snapshot_audits_g1_universal_search_contract_fields() -> None:
+    snapshot = g8.build_g8_metric_source_snapshot(REPO_ROOT)
+    source = next(
+        source
+        for source in snapshot.sources
+        if source.source_ref
+        == "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json"
+    )
+
+    assert source.search_contract_status == "pass"
+    assert source.search_contract_ref.endswith("#search_recall_freshness")
+    assert source.search_contract_corpus_kind == "canonical"
+    assert source.search_contract_corpus_snapshot_hash.startswith("sha256:")
+    assert source.search_contract_replay_command_present is True
+    assert source.search_contract_replay_expected_output_hash.startswith("sha256:")
+    assert source.search_contract_issue_codes == ()
+
+
 def test_g8_normalizes_current_metric_dialects_without_losing_raw_refs() -> None:
     registry = g8.build_g8_health_metric_registry()
     snapshot = g8.build_g8_metric_source_snapshot(REPO_ROOT)
@@ -232,15 +256,21 @@ def test_g8_current_state_does_not_claim_domain_ceiling() -> None:
     gate = g8.build_g8_domain_vs_search_ceiling_gate(diagnosis=diagnosis)
 
     assert diagnosis.status == "pass"
-    assert gate.status == "governance_stall_repair_required"
+    assert gate.status == "search_ceiling_repair_required"
     assert gate.domain_ceiling_claim_allowed is False
+    assert diagnosis.search_health_classification.seed_corpus_status == "fail"
+    assert diagnosis.search_health_classification.current_blocker_status == "unmeasured"
+    assert (
+        "layer3_g8_blocker_specific_search_diagnostic_missing"
+        in diagnosis.issue_codes
+    )
     assert (
         "layer3_g8_flat_expansion_reported_as_domain_ceiling_without_search_health"
         not in gate.issue_codes
     )
     assert gate.current_blocker_refs
     assert diagnosis.effective_independence_status == "singular"
-    assert diagnosis.effective_independent_evidence_count == 1
+    assert diagnosis.effective_independent_evidence_count == 0
     assert diagnosis.effective_independence_source_ref == (
         "repo://architecture/policy_design_case/layer3_g5_effective_evidence_independence.json"
         "#independence_map_payload.effective_mass_report"
@@ -295,6 +325,178 @@ def test_g8_unmeasured_g1_recall_blocks_healthy_search_answer() -> None:
     assert "layer3_g8_search_recall_miss_reported_as_domain_ceiling" in gate.issue_codes
 
 
+def test_task6_g8_pinned_case_search_health_changes_with_case_diagnostic_data(
+    tmp_path: Path,
+) -> None:
+    repo_root = _write_task6_case_health_repo(tmp_path)
+    global_search_ceiling = g8.Layer3G8NormalizedMetricSignals(
+        status="pass",
+        signals=(
+            _signal("envelope-expansion-rate", "G5", "g5_envelope_expansion_status", "flat"),
+            _signal("governance-throughput", "G4", "g4_governance_throughput_status", "pass"),
+            _signal("demand-pull-vs-abstention", "G6", "g6_demand_pull_vs_abstention_status", "pass"),
+            _signal("adapter-semantic-loss", "G7", "semantic_loss_status", "pass"),
+            _signal(
+                "search-recall@known-seeds+index-staleness",
+                "G1",
+                "search-recall@known-seeds+index-staleness",
+                "search_ceiling",
+            ),
+        ),
+    )
+    case_specific_recall = g8.Layer3G8NormalizedMetricSignals(
+        status="pass",
+        signals=(
+            *global_search_ceiling.signals,
+            _signal(
+                "search-recall@known-seeds+index-staleness",
+                "G1",
+                "search-recall@known-seeds+index-staleness",
+                "pass",
+                case_id="case:task6",
+                diagnostic_scope="blocker_specific_recall",
+            ),
+        ),
+    )
+
+    global_diagnosis = g8.build_g8_cross_metric_diagnosis(
+        signals=global_search_ceiling,
+        repo_root=repo_root,
+        case_id="case:task6",
+    )
+    global_gate = g8.build_g8_domain_vs_search_ceiling_gate(diagnosis=global_diagnosis)
+    case_diagnosis = g8.build_g8_cross_metric_diagnosis(
+        signals=case_specific_recall,
+        repo_root=repo_root,
+        case_id="case:task6",
+    )
+    case_gate = g8.build_g8_domain_vs_search_ceiling_gate(diagnosis=case_diagnosis)
+
+    assert global_gate.status == "search_ceiling_repair_required"
+    assert case_diagnosis.search_recall_freshness_status == "pass"
+    assert "search_ceiling" in case_diagnosis.diagnoses
+    assert case_gate.status == "search_ceiling_repair_required"
+    assert case_gate.domain_ceiling_claim_allowed is False
+    assert "layer3_g8_domain_ceiling_claim_without_admission_or_deref" in (
+        case_gate.issue_codes
+    )
+
+
+def test_task11_domain_ceiling_requires_blocker_frontier_admission_and_deref(
+    tmp_path: Path,
+) -> None:
+    repo_root = _write_task6_case_health_repo(tmp_path)
+    full_blocker_recall = g8.Layer3G8NormalizedMetricSignals(
+        status="pass",
+        signals=(
+            _signal("envelope-expansion-rate", "G5", "g5_envelope_expansion_status", "flat"),
+            _signal("governance-throughput", "G4", "g4_governance_throughput_status", "pass"),
+            _signal("demand-pull-vs-abstention", "G6", "g6_demand_pull_vs_abstention_status", "pass"),
+            _signal("adapter-semantic-loss", "G7", "semantic_loss_status", "pass"),
+            _signal(
+                "search-recall@known-seeds+index-staleness",
+                "G1",
+                "search-recall@known-seeds+index-staleness",
+                "search_ceiling",
+            ),
+            _signal(
+                "search-recall@known-seeds+index-staleness",
+                "G1",
+                "search_recall.blocker_specific_frontier",
+                {
+                    "status": "pass",
+                    "search_frontier_status": "pass",
+                    "freshness_status": "pass",
+                    "admission_status": "pass",
+                    "dereferenced_artifact_status": "pass",
+                },
+                case_id="case:task11",
+                diagnostic_scope="blocker_specific_recall",
+            ),
+        ),
+    )
+
+    diagnosis = g8.build_g8_cross_metric_diagnosis(
+        signals=full_blocker_recall,
+        repo_root=repo_root,
+        case_id="case:task11",
+    )
+    gate = g8.build_g8_domain_vs_search_ceiling_gate(diagnosis=diagnosis)
+
+    assert diagnosis.search_health_classification.current_blocker_status == "pass"
+    assert gate.domain_ceiling_precondition_statuses == {
+        "search_frontier": "pass",
+        "freshness": "pass",
+        "admission": "pass",
+        "dereferenced_artifacts": "pass",
+    }
+    assert gate.status == "domain_ceiling_candidate"
+    assert gate.domain_ceiling_claim_allowed is True
+
+
+def test_task11_global_seed_pass_without_blocker_specific_ledger_blocks_search_answer() -> None:
+    signals = g8.Layer3G8NormalizedMetricSignals(
+        status="pass",
+        signals=(
+            _signal("envelope-expansion-rate", "G5", "g5_envelope_expansion_status", "flat"),
+            _signal("governance-throughput", "G4", "g4_governance_throughput_status", "pass"),
+            _signal("demand-pull-vs-abstention", "G6", "g6_demand_pull_vs_abstention_status", "pass"),
+            _signal("adapter-semantic-loss", "G7", "semantic_loss_status", "pass"),
+            _signal(
+                "search-recall@known-seeds+index-staleness",
+                "G1",
+                "search-recall@known-seeds+index-staleness",
+                "pass",
+            ),
+        ),
+    )
+    diagnosis = g8.build_g8_cross_metric_diagnosis(signals=signals, repo_root=REPO_ROOT)
+    gate = g8.build_g8_domain_vs_search_ceiling_gate(diagnosis=diagnosis)
+    ledger = g8.build_g8_open_question_answer_ledger(
+        diagnosis=diagnosis,
+        ceiling_gate=gate,
+        repo_root=REPO_ROOT,
+    )
+
+    answer = {
+        row.question_id: row for row in ledger.answers
+    }["8.4-search-recall-freshness"]
+    assert answer.answer_status == "answered_currently_blocked"
+    assert answer.search_health_classification["seed_corpus"] == "pass"
+    assert answer.search_health_classification["current_blocker"] == "unmeasured"
+    assert "layer3_g8_blocker_specific_search_diagnostic_missing" in ledger.issue_codes
+    assert "layer3_g8_global_seed_health_used_as_current_blocker_health" in (
+        ledger.issue_codes
+    )
+
+
+def test_task11_positive_open_question_answers_carry_reducer_provenance() -> None:
+    registry = g8.build_g8_health_metric_registry()
+    snapshot = g8.build_g8_metric_source_snapshot(REPO_ROOT)
+    signals = g8.build_g8_normalized_metric_signals(
+        registry=registry,
+        source_snapshot=snapshot,
+    )
+    diagnosis = g8.build_g8_cross_metric_diagnosis(signals=signals, repo_root=REPO_ROOT)
+    gate = g8.build_g8_domain_vs_search_ceiling_gate(diagnosis=diagnosis)
+    ledger = g8.build_g8_open_question_answer_ledger(
+        diagnosis=diagnosis,
+        ceiling_gate=gate,
+        repo_root=REPO_ROOT,
+    )
+
+    positive_answers = [
+        row for row in ledger.answers if row.answer_status == "answered_currently_healthy"
+    ]
+
+    assert positive_answers
+    for row in positive_answers:
+        assert row.produced_by["reducer_id"].startswith("reduce_g8_open_question")
+        assert row.produced_by["rule_version"]
+        assert row.produced_by["input_hashes"]
+        assert row.produced_by["output_hash"].startswith("sha256:")
+
+
 def test_g8_zero_grounded_response_blocks_domain_ceiling_as_abstention_inertia() -> None:
     signals = g8.Layer3G8NormalizedMetricSignals(
         status="pass",
@@ -320,8 +522,9 @@ def test_g8_zero_grounded_response_blocks_domain_ceiling_as_abstention_inertia()
     gate = g8.build_g8_domain_vs_search_ceiling_gate(diagnosis=diagnosis)
 
     assert "abstention_inertia" in diagnosis.diagnoses
-    assert gate.status == "abstention_inertia_repair_required"
+    assert gate.status == "search_ceiling_repair_required"
     assert gate.domain_ceiling_claim_allowed is False
+    assert "layer3_g8_blocker_specific_search_diagnostic_missing" in gate.issue_codes
     assert "layer3_g8_abstention_inertia_hidden_as_honesty" in gate.issue_codes
 
 
@@ -473,7 +676,7 @@ def test_g8_open_question_ledger_answers_every_vision_question_with_current_evid
         repo_root=REPO_ROOT,
     )
 
-    assert ledger.status == "pass"
+    assert ledger.status == "blocked"
     assert {row.question_id for row in ledger.answers} == {
         "8.4-waist-altitude",
         "8.4-real-grounding-cost",
@@ -492,8 +695,15 @@ def test_g8_open_question_ledger_answers_every_vision_question_with_current_evid
     )
     assert (
         answers["8.4-search-recall-freshness"].answer_status
-        == "answered_currently_healthy"
+        == "answered_currently_blocked"
     )
+    assert answers["8.4-search-recall-freshness"].search_health_classification == {
+        "seed_corpus": "fail",
+        "pinned_request": "unmeasured",
+        "current_blocker": "unmeasured",
+        "production_readiness": "blocked_current_blocker_search_unmeasured",
+    }
+    assert "layer3_g8_blocker_specific_search_diagnostic_missing" in ledger.issue_codes
     assert "recommendation_authority" in ledger.may_not_use_for
 
 
@@ -522,13 +732,36 @@ def test_g8_open_question_ledger_reflects_current_unchanged_blocker() -> None:
     assert "not an honesty success claim" in demand_answer
 
 
+def test_g8_open_question_ledger_dereferences_metric_source_refs(
+    tmp_path: Path,
+) -> None:
+    registry = g8.build_g8_health_metric_registry()
+    snapshot = g8.build_g8_metric_source_snapshot(REPO_ROOT)
+    signals = g8.build_g8_normalized_metric_signals(
+        registry=registry,
+        source_snapshot=snapshot,
+    )
+    diagnosis = g8.build_g8_cross_metric_diagnosis(signals=signals, repo_root=REPO_ROOT)
+    gate = g8.build_g8_domain_vs_search_ceiling_gate(diagnosis=diagnosis)
+
+    ledger = g8.build_g8_open_question_answer_ledger(
+        diagnosis=diagnosis,
+        ceiling_gate=gate,
+        repo_root=tmp_path,
+    )
+
+    assert ledger.status == "blocked"
+    assert "layer3_g8_open_question_evidence_ref_unresolved" in set(ledger.issue_codes)
+    assert "required_ref_missing_artifact" in set(ledger.issue_codes)
+
+
 def test_g8_audit_surface_is_expert_machine_and_public_projection_is_reference_only() -> None:
     bundle = g8.build_layer3_g8_bundle(REPO_ROOT)
 
-    assert bundle.audit_surface.status == "pass"
+    assert bundle.audit_surface.status == "blocked"
     assert bundle.audit_surface.surface_audiences == ("EXPERT", "MACHINE")
     assert bundle.audit_surface.domain_vs_search_ceiling_status == (
-        "governance_stall_repair_required"
+        "search_ceiling_repair_required"
     )
     assert bundle.audit_surface.metric_trend_report_status == "pass"
     assert bundle.audit_surface.d44_reannotation_coverage_status == "pass"
@@ -565,17 +798,72 @@ def _signal(
     slice_id: str,
     raw_key: str,
     value: object,
+    *,
+    case_id: str | None = None,
+    diagnostic_scope: str = "global_metric",
 ) -> g8.Layer3G8NormalizedMetricSignal:
+    status = str(value.get("status")) if isinstance(value, dict) else str(value)
     return g8.Layer3G8NormalizedMetricSignal(
         signal_id=f"test://{metric_id}/{slice_id}/{raw_key}",
         slice_id=slice_id,
         metric_id=metric_id,
         raw_key=raw_key,
         raw_value=value,
-        status=str(value),
+        status=status,
         raw_source_ref=f"repo://test#{raw_key}",
         source_digest="sha256:" + "1" * 64,
         freshness_status="fresh_committed",
         authority_boundary_status="pass",
         observed_at="2026-06-10T00:00:00Z",
+        case_id=case_id,
+        diagnostic_scope=diagnostic_scope,
     )
+
+
+def _write_task6_case_health_repo(tmp_path: Path) -> Path:
+    pdc = tmp_path / "architecture/policy_design_case"
+    pdc.mkdir(parents=True)
+    (pdc / "layer3_g5_readiness_manifest.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "policyos.policy_design_case.layer3_g5_conversion.v1",
+                "g5_conversion_outcome": "typed_blocker -> grounded_abstention",
+                "summary": {
+                    "g5_conversion_outcome": "typed_blocker -> grounded_abstention"
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    (pdc / "layer3_g7_readiness_manifest.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "policyos.policy_design_case.layer3_g7_region_widening.v1",
+                "g7_region_value_closure_status": "region_closed",
+                "g7_region_grounded_case_count": 1,
+                "summary": {
+                    "g7_region_value_closure_status": "region_closed",
+                    "g7_region_grounded_case_count": 1,
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    (pdc / "layer3_g5_effective_evidence_independence.json").write_text(
+        json.dumps(
+            {
+                "schema_version": (
+                    "policyos.policy_design_case.layer3_g5_effective_evidence_"
+                    "independence.v1"
+                ),
+                "independence_map_payload": {
+                    "effective_mass_report": {
+                        "independence_status": "singular",
+                        "effective_independent_evidence_count": 1,
+                    }
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    return tmp_path

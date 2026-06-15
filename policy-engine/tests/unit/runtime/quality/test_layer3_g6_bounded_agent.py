@@ -489,6 +489,33 @@ def test_g6_search_ledger_blocks_authority_and_transcript_only_trace() -> None:
     assert "layer3_g6_tool_loop_transcript_only_not_audit" in ledger.issue_codes
 
 
+def test_g6_selected_evidence_refs_must_dereference_before_counting_audit_branch(
+    tmp_path: Path,
+) -> None:
+    from polisyos.runtime.quality import layer3_bounded_agent as g6
+
+    ledger = g6.build_g6_search_ledger(
+        request_id="g6-missing-evidence",
+        typed_request_ref="layer3-g6://request/g6-missing-evidence",
+        normalized_query_refs=("query://g6/missing/grammar-facets",),
+        searched_index_refs=("repo://architecture/policy_design_case/inventory.json",),
+        selected_candidate_refs=("candidate://g6/missing",),
+        rejected_candidate_refs=("candidate://g6/rejected",),
+        selected_tool_names=("layer3_g6_read_g5_conversion",),
+        rejected_tool_names=("unbounded_web_search",),
+        selected_evidence_refs=(
+            "repo://architecture/policy_design_case/missing_evidence.json#records/0",
+        ),
+        completeness_status="complete_with_candidates",
+        absence_or_incompleteness_reason="fixture",
+        repo_root=tmp_path,
+    )
+
+    assert ledger.status == "fail"
+    assert "layer3_g6_selected_evidence_ref_unresolved" in set(ledger.issue_codes)
+    assert "required_ref_missing_artifact" in set(ledger.issue_codes)
+
+
 def test_g6_design_record_candidate_handoff_stays_candidate_only() -> None:
     from polisyos.runtime.quality import layer3_bounded_agent as g6
     from polisyos.runtime.quality.candidate_firewall import (

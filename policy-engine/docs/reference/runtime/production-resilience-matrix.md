@@ -1,5 +1,8 @@
 # Production Resilience Matrix
 
+Owner: `@runtime-owners`
+Source of truth: `tools/quality/testing/runtime_resilience_matrix.py`, `src/polisyos/runtime/quality/resilience.py`, and `tests/unit/runtime/quality/**`
+
 Phase 5.5/5.6 defines the `policyos.runtime_resilience_matrix.v1` payload
 emitted by:
 

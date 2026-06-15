@@ -56,7 +56,12 @@
       "fixture_ref": "g4-conformance-negative:shadow_design_record_self_promotes",
       "negative_id": "shadow_design_record_self_promotes",
       "observed_issue_codes": [
-        "layer3_g4_shadow_self_promotion"
+        "layer3_g4_shadow_self_promotion",
+        "layer3_g4_required_ref_unresolved",
+        "layer3_g4_grounded_contract_ref_missing",
+        "required_ref_pointer_missing",
+        "layer3_g4_missing_g1_grounded_source_contract",
+        "layer3_g4_a_completeness_failed"
       ],
       "pattern_ids": [
         "P01",
@@ -98,6 +103,10 @@
       "negative_id": "source_design_record_resolution_unresolved",
       "observed_issue_codes": [
         "layer3_g4_source_design_record_unresolved",
+        "layer3_g4_required_ref_unresolved",
+        "layer3_g4_grounded_contract_ref_missing",
+        "required_ref_pointer_missing",
+        "layer3_g4_missing_g1_grounded_source_contract",
         "layer3_g4_a_completeness_failed"
       ],
       "pattern_ids": [
@@ -158,6 +167,10 @@
       "negative_id": "effect_claim_without_g2_forecast_support",
       "observed_issue_codes": [
         "layer3_g4_context_dependency_missing",
+        "layer3_g4_required_ref_unresolved",
+        "layer3_g4_grounded_contract_ref_missing",
+        "required_ref_pointer_missing",
+        "layer3_g4_missing_g1_grounded_source_contract",
         "layer3_g4_missing_g2_forecast_support",
         "layer3_g4_missing_g2_calibration_ref",
         "layer3_g4_a_completeness_failed"
@@ -179,6 +192,10 @@
       "fixture_ref": "g4-conformance-negative:proof_claim_without_g3_proof_record",
       "negative_id": "proof_claim_without_g3_proof_record",
       "observed_issue_codes": [
+        "layer3_g4_required_ref_unresolved",
+        "layer3_g4_grounded_contract_ref_missing",
+        "required_ref_pointer_missing",
+        "layer3_g4_missing_g1_grounded_source_contract",
         "layer3_g4_missing_g3_proof_record",
         "layer3_g4_missing_g3_certificate_resolution",
         "layer3_g4_a_completeness_failed"
@@ -200,6 +217,10 @@
       "fixture_ref": "g4-conformance-negative:legal_claim_without_gl_legal_authority",
       "negative_id": "legal_claim_without_gl_legal_authority",
       "observed_issue_codes": [
+        "layer3_g4_required_ref_unresolved",
+        "layer3_g4_grounded_contract_ref_missing",
+        "required_ref_pointer_missing",
+        "layer3_g4_missing_g1_grounded_source_contract",
         "layer3_g4_missing_gl_legal_authority",
         "layer3_g4_a_completeness_failed"
       ],
@@ -240,6 +261,10 @@
       "fixture_ref": "g4-conformance-negative:gl_reissue_required_promoted",
       "negative_id": "gl_reissue_required_promoted",
       "observed_issue_codes": [
+        "layer3_g4_required_ref_unresolved",
+        "layer3_g4_grounded_contract_ref_missing",
+        "required_ref_pointer_missing",
+        "layer3_g4_missing_g1_grounded_source_contract",
         "layer3_g4_adapter_admission_missing",
         "layer3_g4_adapter_conformance_missing",
         "layer3_g4_gl_reissue_required_blocks_promotion",
@@ -330,7 +355,13 @@
       "observed_issue_codes": [
         "layer3_g4_human_decision_required",
         "layer3_g4_human_decision_record_missing",
-        "layer3_g4_s7_manifest_only_human_decision"
+        "layer3_g4_s7_manifest_only_human_decision",
+        "layer3_g4_required_ref_unresolved",
+        "layer3_g4_grounded_contract_ref_missing",
+        "required_ref_pointer_missing",
+        "layer3_g4_missing_g1_grounded_source_contract",
+        "layer3_g4_a_completeness_failed",
+        "layer3_g4_human_decision_overrides_a_incompleteness"
       ],
       "pattern_ids": [
         "P26",
@@ -351,7 +382,13 @@
       "observed_issue_codes": [
         "layer3_g4_human_decision_required",
         "layer3_g4_human_decision_record_missing",
-        "layer3_g4_s2_ledger_ref_only_human_decision"
+        "layer3_g4_s2_ledger_ref_only_human_decision",
+        "layer3_g4_required_ref_unresolved",
+        "layer3_g4_grounded_contract_ref_missing",
+        "required_ref_pointer_missing",
+        "layer3_g4_missing_g1_grounded_source_contract",
+        "layer3_g4_a_completeness_failed",
+        "layer3_g4_human_decision_overrides_a_incompleteness"
       ],
       "pattern_ids": [
         "P26",
@@ -371,7 +408,11 @@
       "negative_id": "w12d_manifest_only_source_payload",
       "observed_issue_codes": [
         "layer3_g4_w12d_manifest_only_not_payload",
-        "layer3_g4_placeholder_design_record_promoted",
+        "layer3_g4_source_design_record_unresolved",
+        "layer3_g4_required_ref_unresolved",
+        "layer3_g4_grounded_contract_ref_missing",
+        "required_ref_pointer_missing",
+        "layer3_g4_missing_g1_grounded_source_contract",
         "layer3_g4_a_completeness_failed"
       ],
       "pattern_ids": [
@@ -392,6 +433,10 @@
       "negative_id": "source_design_record_ref_only_promoted",
       "observed_issue_codes": [
         "layer3_g4_source_design_record_payload_ref_only",
+        "layer3_g4_required_ref_unresolved",
+        "layer3_g4_grounded_contract_ref_missing",
+        "required_ref_pointer_missing",
+        "layer3_g4_missing_g1_grounded_source_contract",
         "layer3_g4_a_completeness_failed"
       ],
       "pattern_ids": [
@@ -411,7 +456,12 @@
       "fixture_ref": "g4-conformance-negative:data_promotion_lane_reused_for_g4",
       "negative_id": "data_promotion_lane_reused_for_g4",
       "observed_issue_codes": [
-        "layer3_g4_data_promotion_lane_confused"
+        "layer3_g4_data_promotion_lane_confused",
+        "layer3_g4_required_ref_unresolved",
+        "layer3_g4_grounded_contract_ref_missing",
+        "required_ref_pointer_missing",
+        "layer3_g4_missing_g1_grounded_source_contract",
+        "layer3_g4_a_completeness_failed"
       ],
       "pattern_ids": [
         "P01",
@@ -430,7 +480,12 @@
       "fixture_ref": "g4-conformance-negative:generated_artifact_promotion_target_reused_for_g4",
       "negative_id": "generated_artifact_promotion_target_reused_for_g4",
       "observed_issue_codes": [
-        "layer3_g4_generated_artifact_promotion_target_confused"
+        "layer3_g4_generated_artifact_promotion_target_confused",
+        "layer3_g4_required_ref_unresolved",
+        "layer3_g4_grounded_contract_ref_missing",
+        "required_ref_pointer_missing",
+        "layer3_g4_missing_g1_grounded_source_contract",
+        "layer3_g4_a_completeness_failed"
       ],
       "pattern_ids": [
         "P01",
@@ -449,7 +504,12 @@
       "fixture_ref": "g4-conformance-negative:upstream_builder_rerun_in_request_path",
       "negative_id": "upstream_builder_rerun_in_request_path",
       "observed_issue_codes": [
-        "layer3_g4_upstream_builder_rerun_in_request_path"
+        "layer3_g4_upstream_builder_rerun_in_request_path",
+        "layer3_g4_required_ref_unresolved",
+        "layer3_g4_grounded_contract_ref_missing",
+        "required_ref_pointer_missing",
+        "layer3_g4_missing_g1_grounded_source_contract",
+        "layer3_g4_a_completeness_failed"
       ],
       "pattern_ids": [
         "P01",
@@ -509,7 +569,13 @@
       "negative_id": "human_decision_missing_for_high_stakes",
       "observed_issue_codes": [
         "layer3_g4_human_decision_required",
-        "layer3_g4_human_decision_record_missing"
+        "layer3_g4_human_decision_record_missing",
+        "layer3_g4_required_ref_unresolved",
+        "layer3_g4_grounded_contract_ref_missing",
+        "required_ref_pointer_missing",
+        "layer3_g4_missing_g1_grounded_source_contract",
+        "layer3_g4_a_completeness_failed",
+        "layer3_g4_human_decision_overrides_a_incompleteness"
       ],
       "pattern_ids": [
         "P26",
@@ -530,7 +596,13 @@
       "observed_issue_codes": [
         "layer3_g4_high_stakes_human_decision_not_required_bypass",
         "layer3_g4_human_decision_required",
-        "layer3_g4_human_decision_record_missing"
+        "layer3_g4_human_decision_record_missing",
+        "layer3_g4_required_ref_unresolved",
+        "layer3_g4_grounded_contract_ref_missing",
+        "required_ref_pointer_missing",
+        "layer3_g4_missing_g1_grounded_source_contract",
+        "layer3_g4_a_completeness_failed",
+        "layer3_g4_human_decision_overrides_a_incompleteness"
       ],
       "pattern_ids": [
         "P26",
@@ -551,7 +623,13 @@
       "observed_issue_codes": [
         "layer3_g4_human_decision_scope_mismatch",
         "layer3_g4_human_decision_required",
-        "layer3_g4_human_decision_record_missing"
+        "layer3_g4_human_decision_record_missing",
+        "layer3_g4_required_ref_unresolved",
+        "layer3_g4_grounded_contract_ref_missing",
+        "required_ref_pointer_missing",
+        "layer3_g4_missing_g1_grounded_source_contract",
+        "layer3_g4_a_completeness_failed",
+        "layer3_g4_human_decision_overrides_a_incompleteness"
       ],
       "pattern_ids": [
         "P26",

@@ -1,5 +1,8 @@
 # Policy Design Case Layer 3 Proving-Ground Conversion
 
+Owner: `team-runtime-quality`
+Source of truth: `src/polisyos/runtime/quality/layer3_proving_ground_conversion.py`, `tools/quality/validation/check_policy_design_case_layer3_g5_readiness.py`, and `architecture/policy_design_case/layer3_g5_readiness_manifest.json`
+
 G5 is the first proving-ground conversion surface for a pinned Policy Design Case.
 It answers whether a governed G4 promotion handoff can become a useful grounded
 conversion signal, an unchanged blocker, or a grounded abstention signal without

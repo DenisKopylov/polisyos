@@ -1,0 +1,874 @@
+{
+  "schema_version": "layer3_gy_substrate_package_capability_inventory.v1",
+  "source_plan": "docs/plans/active/layer3-slices/GY-engine-subordination.md#task-0",
+  "generated_at": "2026-06-14",
+  "methodology": {
+    "agents_used": false,
+    "network_fetches_run": false,
+    "runtime_server_started": false,
+    "probe_type": "source_static_package_capability_inventory",
+    "parsed_failure_register": true,
+    "parsed_public_surface_contract": true,
+    "parsed_package_contracts": true,
+    "parsed_package_readmes": true,
+    "ast_inventory": true,
+    "cross_package_import_inventory": true,
+    "gy_engine_census_reference_scan": true,
+    "runtime_execution": false
+  },
+  "classification": {
+    "primary": "substrate_packages_real_but_not_gy_censused_route_assets",
+    "gap_class": "mixed",
+    "capability_label": "route_pinned_core_ir_plus_near_route_requirement_evidence_calibration_substrates_with_bridge_and_surface_gaps",
+    "route_pinned": true,
+    "repair_before_downstream_governance": true,
+    "patterns": [
+      "P01",
+      "P02",
+      "P03",
+      "P05",
+      "P07",
+      "P10",
+      "P13",
+      "P14",
+      "P15",
+      "P20",
+      "P21",
+      "P22",
+      "P25"
+    ]
+  },
+  "summary": {
+    "packages_in_scope": 11,
+    "public_stable_count": 2,
+    "public_experimental_count": 2,
+    "internal_count": 6,
+    "public_surface_absent_count": 1,
+    "package_contract_missing_count": 1,
+    "total_python_files": 466,
+    "total_root_facade_exports": 435,
+    "total_classes": 2639,
+    "total_top_level_functions": 2114,
+    "gy_engine_census_rows_in_scope": 0,
+    "route_pinned_substrate_count": 2,
+    "near_route_package_count": 6,
+    "broader_system_support_count": 2,
+    "out_of_route_monitoring_count": 1,
+    "data_requirement_public_surface_registered": false,
+    "data_requirement_package_contract_registered": false,
+    "overall_status": "package_capabilities_real_but_not_pinned_route_authority"
+  },
+  "negative_assertions": [
+    {
+      "id": "do_not_count_zero_gy_rows_as_zero_capability",
+      "assertion_holds": true,
+      "guards": [
+        "P01",
+        "P03"
+      ],
+      "evidence": "GY census has 0 rows for all 11 packages, while source inventory finds 466 Python files and 435 root-facade exports."
+    },
+    {
+      "id": "do_not_count_core_ir_substrate_as_policy_claim_authority",
+      "assertion_holds": true,
+      "guards": [
+        "P05",
+        "P10"
+      ],
+      "evidence": "core and ir are route-pinned infrastructure/contracts, not source, legal, method, participation, or closeout authority."
+    },
+    {
+      "id": "do_not_count_data_requirement_compiler_as_fetch_admission",
+      "assertion_holds": true,
+      "guards": [
+        "P01",
+        "P02"
+      ],
+      "evidence": "data_requirement has contracts/producers/audit surface, but the normal catalog FetchPlan route does not consume DataRequirementSpec before connector fetch."
+    },
+    {
+      "id": "do_not_count_evidence_conflict_or_raw_count_as_positive_support",
+      "assertion_holds": true,
+      "guards": [
+        "P14",
+        "P05"
+      ],
+      "evidence": "conflict records forbid support-strength use; effective-independence graph marks raw evidence counts diagnostic-only and separates counterevidence mass."
+    },
+    {
+      "id": "do_not_count_berl_display_policy_as_recommendation_authority",
+      "assertion_holds": true,
+      "guards": [
+        "P05",
+        "P15"
+      ],
+      "evidence": "BERL validates explanation display/faithfulness, not policy recommendation authority."
+    },
+    {
+      "id": "do_not_count_ddm_monitoring_as_gy_pinned_route_execution",
+      "assertion_holds": true,
+      "guards": [
+        "P01",
+        "P03"
+      ],
+      "evidence": "DDM emits monitoring/readiness/incident records and is consumed by continuous governance, but no GY route node consumes DDM outputs in the pinned run."
+    },
+    {
+      "id": "do_not_count_llm_or_candidate_rules_as_governed_obligations",
+      "assertion_holds": true,
+      "guards": [
+        "P15",
+        "P07"
+      ],
+      "evidence": "obligation_rules requires explicit RuleGovernanceDecision before candidate admission and exposes candidate may_not_use_for boundaries."
+    },
+    {
+      "id": "do_not_count_participation_llm_speculation_as_participation_evidence",
+      "assertion_holds": true,
+      "guards": [
+        "P15",
+        "P22"
+      ],
+      "evidence": "participation_requirement blocks LLM speculation and analyst summaries as participation evidence."
+    }
+  ],
+  "package_inventory": [
+    {
+      "module": "polisyos.core",
+      "package_contract": "architecture/packages/core.toml",
+      "package_contract_registered": true,
+      "public_surface_classification": "public_stable",
+      "public_surface_registered": true,
+      "owner": "team-polisyos",
+      "python_files": 198,
+      "root_facade_exports": 15,
+      "classes": 911,
+      "top_level_functions": 572,
+      "consumer_import_file_count": 1358,
+      "consumer_packages": {
+        "data_forge": 10,
+        "data_requirement": 1,
+        "fabric": 120,
+        "foundry": 227,
+        "ir": 3,
+        "lex": 17,
+        "obligation_rules": 1,
+        "pdc": 2,
+        "policy_grammar": 7,
+        "runtime": 75,
+        "schemas": 1,
+        "scholar": 16,
+        "scientist": 285,
+        "tests": 559,
+        "tools": 34
+      },
+      "primary_contracts": [
+        "CAS/artifacts",
+        "runtime contracts",
+        "capability resolver/search contracts",
+        "observability/determinism",
+        "registry/security primitives"
+      ],
+      "producers": [
+        "core.artifacts/CAS writers",
+        "core.contracts runtime DTOs and capability/search references",
+        "core.registry/discovery helpers"
+      ],
+      "persisted_artifacts_or_events": [
+        "ArtifactRef/CAS-backed records through core artifact stores",
+        "runtime contract records consumed by higher packages"
+      ],
+      "consumers": [
+        "runtime",
+        "scientist",
+        "foundry",
+        "fabric",
+        "lex",
+        "data_requirement",
+        "obligation_rules"
+      ],
+      "verification": [
+        "tests/unit/core",
+        "tests/repo_quality architecture guardrails"
+      ],
+      "public_or_audit_surface": [
+        "polisyos.core public stable facade",
+        "architecture/public_surface/contract.toml"
+      ],
+      "route_participation": "route_pinned_substrate",
+      "gy_engine_census_row_count": 0,
+      "capability_state": "wired_substrate_not_domain_authority",
+      "missing_labels": [
+        "semantic_test_missing"
+      ],
+      "authority_boundary_summary": "Foundational artifact/contract/observability substrate; may not be counted as claim, legal, method, participation, or closeout authority without a downstream producer chain.",
+      "evidence_refs": [
+        "src/polisyos/core/README.md",
+        "architecture/packages/core.toml",
+        "architecture/public_surface/contract.toml"
+      ]
+    },
+    {
+      "module": "polisyos.ir",
+      "package_contract": "architecture/packages/ir.toml",
+      "package_contract_registered": true,
+      "public_surface_classification": "public_stable",
+      "public_surface_registered": true,
+      "owner": "team-polisyos",
+      "python_files": 191,
+      "root_facade_exports": 273,
+      "classes": 1560,
+      "top_level_functions": 1073,
+      "consumer_import_file_count": 1007,
+      "consumer_packages": {
+        "calibration": 5,
+        "core": 21,
+        "data_forge": 24,
+        "data_requirement": 1,
+        "fabric": 106,
+        "foundry": 194,
+        "lex": 16,
+        "policy_grammar": 3,
+        "runtime": 4,
+        "schemas": 1,
+        "scholar": 3,
+        "scientist": 136,
+        "tests": 478,
+        "tools": 15
+      },
+      "primary_contracts": [
+        "policy/problem/model specs",
+        "analytics and calibration diagnostic contracts",
+        "governance validation reports",
+        "observation readiness and execution bundles"
+      ],
+      "producers": [
+        "IR loaders/contract builders",
+        "analytics DTO constructors",
+        "link_trinity and schema catalog helpers"
+      ],
+      "persisted_artifacts_or_events": [
+        "IR artifact payloads when consumed by runtime/scientist/foundry",
+        "governance validation reports"
+      ],
+      "consumers": [
+        "foundry",
+        "scientist",
+        "fabric",
+        "calibration",
+        "lex",
+        "runtime"
+      ],
+      "verification": [
+        "tests/unit/ir",
+        "tests/repo_quality architecture guardrails"
+      ],
+      "public_or_audit_surface": [
+        "polisyos.ir public stable facade",
+        "polisyos.ir.api",
+        "architecture/public_surface/contract.toml"
+      ],
+      "route_participation": "route_pinned_contract_substrate",
+      "gy_engine_census_row_count": 0,
+      "capability_state": "wired_contract_substrate_not_route_evidence",
+      "missing_labels": [
+        "semantic_test_missing"
+      ],
+      "authority_boundary_summary": "Canonical contract vocabulary for downstream packages; not itself evidence support, admissibility, or publishability authority.",
+      "evidence_refs": [
+        "src/polisyos/ir/README.md",
+        "architecture/packages/ir.toml",
+        "architecture/public_surface/contract.toml"
+      ]
+    },
+    {
+      "module": "polisyos.evidence",
+      "package_contract": "architecture/packages/evidence.toml",
+      "package_contract_registered": true,
+      "public_surface_classification": "internal",
+      "public_surface_registered": true,
+      "owner": "team-policyos-runtime",
+      "python_files": 6,
+      "root_facade_exports": 19,
+      "classes": 7,
+      "top_level_functions": 83,
+      "consumer_import_file_count": 7,
+      "consumer_packages": {
+        "runtime": 1,
+        "scientist": 3,
+        "tests": 3
+      },
+      "primary_contracts": [
+        "policyos.evidence.portfolio.conflict_record.v1",
+        "policyos.evidence.portfolio.conflict_index.v1",
+        "policyos.evidence.portfolio.effective_independence_graph.v1",
+        "runtime claim registry normalization"
+      ],
+      "producers": [
+        "build_conflict_record",
+        "build_conflict_portfolio_index",
+        "build_effective_independence_graph",
+        "normalize_runtime_claim_registry"
+      ],
+      "persisted_artifacts_or_events": [
+        "conflict records/index payloads",
+        "effective-independence graph payloads",
+        "runtime_event_ref/evidence_ref fields when provided by callers"
+      ],
+      "consumers": [
+        "scientist.validation.policy_grounding",
+        "scientist.validation.decision_artifact_quality",
+        "scientist.cross_graph.conflict_materializer",
+        "runtime.quality.evidence_independence"
+      ],
+      "verification": [
+        "tests/unit/evidence/portfolio/test_conflict_records.py",
+        "tests/unit/evidence/portfolio/test_effective_independence_graph.py",
+        "tests/repo_quality/tools/test_pdc_graph_consumer_contract.py"
+      ],
+      "public_or_audit_surface": [
+        "internal facade only",
+        "conflict portfolio index",
+        "effective independence graph annotation"
+      ],
+      "route_participation": "near_route_evidence_strength_bridge",
+      "gy_engine_census_row_count": 0,
+      "capability_state": "implemented_with_consumers_but_not_pinned_gy_closure_surface",
+      "missing_labels": [
+        "bridge_missing",
+        "surface_missing",
+        "semantic_test_missing"
+      ],
+      "authority_boundary_summary": "Authoritative for conflict materialization/effective-independence annotation only; may not be used for claim authority, support strength inflation, legal authority, method authority, or projection authority.",
+      "evidence_refs": [
+        "src/polisyos/evidence/README.md",
+        "src/polisyos/evidence/portfolio/conflict_records.py",
+        "src/polisyos/evidence/portfolio/effective_independence_graph.py"
+      ]
+    },
+    {
+      "module": "polisyos.berl",
+      "package_contract": "architecture/packages/berl.toml",
+      "package_contract_registered": true,
+      "public_surface_classification": "public_experimental",
+      "public_surface_registered": true,
+      "owner": "team-scientist",
+      "python_files": 31,
+      "root_facade_exports": 11,
+      "classes": 54,
+      "top_level_functions": 80,
+      "consumer_import_file_count": 8,
+      "consumer_packages": {
+        "runtime": 1,
+        "scientist": 1,
+        "tests": 6
+      },
+      "primary_contracts": [
+        "ExplanationBundle",
+        "ValidationThresholds",
+        "ExplanationValidationResult",
+        "display policy and use restrictions"
+      ],
+      "producers": [
+        "ExplanationOrchestrator.explain",
+        "validate_explanation_bundle",
+        "summarize_explanation_response",
+        "BERL adapters and metrics"
+      ],
+      "persisted_artifacts_or_events": [
+        "ExplanationBundle audit.artifact_refs",
+        "runtime warrant reliability records when caller embeds BERL bundle"
+      ],
+      "consumers": [
+        "scientist.validation.phase5_preflight",
+        "runtime.quality.explanation_reliability",
+        "tests/unit/berl",
+        "tests/integration/scientist_berl/test_explanation_reliability_bridge.py"
+      ],
+      "verification": [
+        "tests/unit/berl/test_contracts.py",
+        "tests/unit/berl/test_service.py",
+        "tests/integration/scientist_berl/test_explanation_reliability_bridge.py"
+      ],
+      "public_or_audit_surface": [
+        "polisyos.berl public experimental facade",
+        "ExplanationBundle summary/display_policy"
+      ],
+      "route_participation": "broader_system_explanation_reliability_support",
+      "gy_engine_census_row_count": 0,
+      "capability_state": "implemented_with_scientist_runtime_quality_consumers_but_not_pinned_route_evidence",
+      "missing_labels": [
+        "implemented_but_not_orchestrated",
+        "semantic_test_missing"
+      ],
+      "authority_boundary_summary": "Authoritative for explanation reliability/display gating only; no causal, policy recommendation, legal, data, or closeout authority.",
+      "evidence_refs": [
+        "src/polisyos/berl/README.md",
+        "src/polisyos/berl/service.py",
+        "src/polisyos/berl/contracts/explanation_bundle.py",
+        "src/polisyos/berl/contracts/validation_rules.py",
+        "src/polisyos/runtime/quality/explanation_reliability.py"
+      ]
+    },
+    {
+      "module": "polisyos.calibration",
+      "package_contract": "architecture/packages/calibration.toml",
+      "package_contract_registered": true,
+      "public_surface_classification": "public_experimental",
+      "public_surface_registered": true,
+      "owner": "team-scientist",
+      "python_files": 8,
+      "root_facade_exports": 10,
+      "classes": 7,
+      "top_level_functions": 77,
+      "consumer_import_file_count": 9,
+      "consumer_packages": {
+        "foundry": 1,
+        "scientist": 1,
+        "tests": 7
+      },
+      "primary_contracts": [
+        "CalibrationDiagnosticsReport",
+        "CalibrationResult",
+        "ValidationReport projection"
+      ],
+      "producers": [
+        "evaluate_binary",
+        "evaluate_multiclass",
+        "evaluate_continuous",
+        "fit_calibrator",
+        "to_validation_report"
+      ],
+      "persisted_artifacts_or_events": [
+        "calibration diagnostics report payloads",
+        "governance ValidationReport projection"
+      ],
+      "consumers": [
+        "foundry.methods.catalog.econometrics.advanced",
+        "scientist.methods.backtesting.calibration_curve",
+        "tests/integration/foundry_calibration/test_method_calibration_bridge.py"
+      ],
+      "verification": [
+        "tests/unit/calibration",
+        "tests/integration/foundry_calibration/test_method_calibration_bridge.py"
+      ],
+      "public_or_audit_surface": [
+        "polisyos.calibration public experimental facade",
+        "to_validation_report governance projection"
+      ],
+      "route_participation": "near_route_metric_validation_support",
+      "gy_engine_census_row_count": 0,
+      "capability_state": "implemented_shared_diagnostics_but_not_metric_validation_root_in_current_gy_dag",
+      "missing_labels": [
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "authority_boundary_summary": "Calibration diagnostics can support method/forecast validity, but only after a route consumer binds the report to a measurement root or validation gate.",
+      "evidence_refs": [
+        "src/polisyos/calibration/README.md",
+        "src/polisyos/calibration/diagnostics.py",
+        "src/polisyos/calibration/adapters.py",
+        "src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+        "tests/integration/foundry_calibration/test_method_calibration_bridge.py"
+      ]
+    },
+    {
+      "module": "polisyos.ddm",
+      "package_contract": "architecture/packages/ddm.toml",
+      "package_contract_registered": true,
+      "public_surface_classification": "internal",
+      "public_surface_registered": true,
+      "owner": "team-scientist",
+      "python_files": 17,
+      "root_facade_exports": 17,
+      "classes": 37,
+      "top_level_functions": 60,
+      "consumer_import_file_count": 8,
+      "consumer_packages": {
+        "scientist": 1,
+        "tests": 7
+      },
+      "primary_contracts": [
+        "ShiftDetectedEvent",
+        "ShiftRiskEvent",
+        "PerformanceDegradationEvent",
+        "ReadinessStateEvent",
+        "CalibrationAudit",
+        "RootCauseBundle",
+        "IncidentPayload"
+      ],
+      "producers": [
+        "DriftAndDegradationMonitor.evaluate_window",
+        "adapt_shift_event",
+        "map_readiness",
+        "build_model_registry_record",
+        "build_incident_payload"
+      ],
+      "persisted_artifacts_or_events": [
+        "DDMWindowResult outputs",
+        "readiness/root-cause/incident payloads"
+      ],
+      "consumers": [
+        "scientist.governance.continuous.detectors.fairness",
+        "tests/unit/ddm"
+      ],
+      "verification": [
+        "tests/unit/ddm/test_full_acceptance.py",
+        "tests/unit/ddm/test_readiness_mapping.py",
+        "tests/unit/scientist/governance/continuous/detectors/test_drift_detectors.py"
+      ],
+      "public_or_audit_surface": [
+        "internal facade registered to prevent accidental deep-import promotion",
+        "model registry readiness record",
+        "incident payload"
+      ],
+      "route_participation": "out_of_route_production_monitoring",
+      "gy_engine_census_row_count": 0,
+      "capability_state": "implemented_monitoring_package_not_gy_pinned_route",
+      "missing_labels": [
+        "surface_out_of_scope",
+        "implemented_but_not_orchestrated"
+      ],
+      "authority_boundary_summary": "Authoritative for drift/degradation monitoring and production readiness; not GY pinned-route policy-design evidence without an invalidation/reissue bridge.",
+      "evidence_refs": [
+        "src/polisyos/ddm/README.md",
+        "src/polisyos/ddm/integration/events.py",
+        "src/polisyos/ddm/integration/monitor.py",
+        "src/polisyos/scientist/governance/continuous/detectors/fairness.py"
+      ]
+    },
+    {
+      "module": "polisyos.data_requirement",
+      "package_contract": null,
+      "package_contract_registered": false,
+      "public_surface_classification": "absent",
+      "public_surface_registered": false,
+      "owner": "team-policyos-runtime",
+      "python_files": 4,
+      "root_facade_exports": 11,
+      "classes": 5,
+      "top_level_functions": 50,
+      "consumer_import_file_count": 11,
+      "consumer_packages": {
+        "fabric": 1,
+        "runtime": 2,
+        "tests": 6,
+        "tools": 2
+      },
+      "primary_contracts": [
+        "policyos.data_requirement_compilation.v1",
+        "DataRequirementSpec",
+        "DataRequirementCompilationReport",
+        "16 mandatory source-contract facets",
+        "7 admissibility predicates"
+      ],
+      "producers": [
+        "DataRequirementCompiler.compile_for_claim_ledger",
+        "compile_data_requirements_for_scenario",
+        "data_requirement_compilation_audit_surface",
+        "write_data_requirement_compilation_report"
+      ],
+      "persisted_artifacts_or_events": [
+        "deterministic data-requirements JSON report",
+        "runtime_event_ref event://data-requirement/{run_id}"
+      ],
+      "consumers": [
+        "fabric.catalog.data_requirement_adapter",
+        "runtime.quality.production_data_contract_index",
+        "runtime.quality.scenario_evidence_contract",
+        "tools/quality validation smokes"
+      ],
+      "verification": [
+        "tests/unit/data_requirement/test_compiler.py",
+        "tests/unit/fabric/catalog/test_data_requirement_adapter.py",
+        "tests/unit/runtime/quality/test_acquisition_planner.py",
+        "tests/unit/runtime/quality/test_wave7_requirement_pipeline_integration.py"
+      ],
+      "public_or_audit_surface": [
+        "data_requirement_compilation_audit_surface",
+        "deterministic report writer",
+        "no architecture/public_surface package row"
+      ],
+      "route_participation": "near_route_fetch_admission_bridge",
+      "gy_engine_census_row_count": 0,
+      "capability_state": "near_route_bridge_missing_at_pinned_fetch_admission",
+      "missing_labels": [
+        "bridge_missing",
+        "implemented_but_not_orchestrated",
+        "surface_missing"
+      ],
+      "authority_boundary_summary": "Authoritative for compiled data requirements; may not be counted as source-contract satisfaction or connector admission until FetchPlan/FetchExecutor consumes the spec and binding status.",
+      "evidence_refs": [
+        "src/polisyos/data_requirement/README.md",
+        "src/polisyos/data_requirement/compiler.py",
+        "src/polisyos/data_requirement/_impl/models.py",
+        "src/polisyos/fabric/catalog/data_requirement_adapter.py",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_data_requirement_compiler_audit.json"
+      ]
+    },
+    {
+      "module": "polisyos.method_requirement",
+      "package_contract": "architecture/packages/method_requirement.toml",
+      "package_contract_registered": true,
+      "public_surface_classification": "internal",
+      "public_surface_registered": true,
+      "owner": "team-policyos-runtime",
+      "python_files": 4,
+      "root_facade_exports": 14,
+      "classes": 10,
+      "top_level_functions": 26,
+      "consumer_import_file_count": 14,
+      "consumer_packages": {
+        "foundry": 2,
+        "runtime": 3,
+        "scientist": 1,
+        "tests": 7,
+        "tools": 1
+      },
+      "primary_contracts": [
+        "MethodValidityRequirementSpec",
+        "MethodValidityRequirementArtifact",
+        "method_requirement_authority_boundary"
+      ],
+      "producers": [
+        "MethodValidityRequirementCompiler.compile",
+        "compile_method_validity_requirements",
+        "method_validity_requirement_audit_surface",
+        "write_method_validity_requirement_artifact"
+      ],
+      "persisted_artifacts_or_events": [
+        "deterministic method-validity-requirements JSON",
+        "runtime_event_ref event://method-requirement/{run_id}"
+      ],
+      "consumers": [
+        "foundry.validation.method_quality",
+        "foundry.methods.selection.requirements",
+        "scientist.methods.requirements",
+        "runtime.quality.layer3_analytics_search",
+        "runtime.quality.layer3_causal_forecast",
+        "runtime.quality.ir_analytics_bridge"
+      ],
+      "verification": [
+        "tests/unit/method_requirement/test_compiler.py",
+        "tests/unit/foundry/validation/test_method_quality_method_requirements.py",
+        "tests/unit/foundry/methods/selection/test_method_requirements.py",
+        "tests/unit/runtime/quality/test_ir_analytics_bridge_method_requirements.py"
+      ],
+      "public_or_audit_surface": [
+        "method_validity_requirement_audit_surface",
+        "deterministic writer",
+        "internal public-surface row"
+      ],
+      "route_participation": "near_route_method_admission_bridge",
+      "gy_engine_census_row_count": 0,
+      "capability_state": "implemented_compiler_consumed_by_foundry_runtime_quality_but_not_pinned_gy_method_gate",
+      "missing_labels": [
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "authority_boundary_summary": "Authoritative for method preconditions and IR analytics binding; may not be used for legal authority, source-family satisfaction, participation representativeness, academic support strength, or closeout pass.",
+      "evidence_refs": [
+        "src/polisyos/method_requirement/README.md",
+        "src/polisyos/method_requirement/_impl/compiler.py",
+        "src/polisyos/method_requirement/_impl/models.py"
+      ]
+    },
+    {
+      "module": "polisyos.participation_requirement",
+      "package_contract": "architecture/packages/participation_requirement.toml",
+      "package_contract_registered": true,
+      "public_surface_classification": "internal",
+      "public_surface_registered": true,
+      "owner": "team-policyos-runtime",
+      "python_files": 1,
+      "root_facade_exports": 23,
+      "classes": 16,
+      "top_level_functions": 30,
+      "consumer_import_file_count": 9,
+      "consumer_packages": {
+        "runtime": 1,
+        "scientist": 2,
+        "tests": 5,
+        "tools": 1
+      },
+      "primary_contracts": [
+        "ParticipationProvenanceRequirementSpec",
+        "ParticipationRequirementBundle",
+        "ParticipationRequirementEvaluation",
+        "ParticipationPublicProjectionRow",
+        "ParticipationDeficitRecord"
+      ],
+      "producers": [
+        "ParticipationProvenanceCompiler.compile",
+        "compile_participation_requirements",
+        "participation_requirement_bundle_audit_surface",
+        "evaluate_participation_requirement",
+        "write_participation_requirement_bundle"
+      ],
+      "persisted_artifacts_or_events": [
+        "deterministic participation-requirements JSON",
+        "event://participation_requirement/{requirement_id} deficit events"
+      ],
+      "consumers": [
+        "scientist.policy_design.claim_decomposition",
+        "scientist.evals.challenge_factory",
+        "runtime.quality.producer_pipeline",
+        "tests/unit/runtime/quality/test_policy_design_case_projection_semantics.py"
+      ],
+      "verification": [
+        "tests/unit/participation_requirement/test_compiler.py",
+        "tests/unit/runtime/quality/test_policy_design_case_projection_semantics.py",
+        "tests/unit/runtime/quality/test_acquisition_planner.py"
+      ],
+      "public_or_audit_surface": [
+        "participation_requirement_bundle_audit_surface",
+        "public projection rows",
+        "deficit records"
+      ],
+      "route_participation": "broader_system_legitimacy_gate",
+      "gy_engine_census_row_count": 0,
+      "capability_state": "implemented_claim_use_ceiling_not_gy_pinned_route",
+      "missing_labels": [
+        "implemented_but_not_orchestrated",
+        "surface_out_of_scope"
+      ],
+      "authority_boundary_summary": "Authoritative for participation claim-use ceilings and public projection limitations; blocks LLM speculation and analyst summaries as participation evidence.",
+      "evidence_refs": [
+        "src/polisyos/participation_requirement/README.md",
+        "src/polisyos/participation_requirement/__init__.py"
+      ]
+    },
+    {
+      "module": "polisyos.obligation_rules",
+      "package_contract": "architecture/packages/obligation_rules.toml",
+      "package_contract_registered": true,
+      "public_surface_classification": "internal",
+      "public_surface_registered": true,
+      "owner": "team-policyos-runtime",
+      "python_files": 2,
+      "root_facade_exports": 22,
+      "classes": 17,
+      "top_level_functions": 19,
+      "consumer_import_file_count": 10,
+      "consumer_packages": {
+        "data_requirement": 1,
+        "tests": 6,
+        "tools": 3
+      },
+      "primary_contracts": [
+        "policy_design_case.governed_obligation_rule_catalog.v1",
+        "ObligationRuleCatalog",
+        "ObligationRuleCandidate",
+        "RuleGovernanceDecision"
+      ],
+      "producers": [
+        "build_seed_obligation_rule_catalog",
+        "govern_rule_candidate",
+        "build_rule_evolution_registry_for_catalog",
+        "governed_rule_catalog_public_surface",
+        "persist_obligation_rule_catalog"
+      ],
+      "persisted_artifacts_or_events": [
+        "catalog_ref sha256-backed catalog identity",
+        "CAS ref via persist_obligation_rule_catalog",
+        "rule evolution registry bridge"
+      ],
+      "consumers": [
+        "data_requirement.compiler",
+        "obligation_graph compiler via selected governed rules",
+        "tools/quality compilation checks"
+      ],
+      "verification": [
+        "tests/unit/obligation_rules/test_catalog.py",
+        "tests/repo_quality/tools/test_universal_compilation_smoke.py"
+      ],
+      "public_or_audit_surface": [
+        "governed_rule_catalog_public_surface",
+        "internal public-surface row"
+      ],
+      "route_participation": "near_route_requirement_substrate",
+      "gy_engine_census_row_count": 0,
+      "capability_state": "implemented_governed_rule_catalog_consumed_by_compilers_not_direct_gy_route",
+      "missing_labels": [
+        "implemented_but_not_orchestrated"
+      ],
+      "authority_boundary_summary": "Authoritative for governed obligation rule catalog inspection/compilation inputs only; candidate and LLM-derived rules cannot become authority without RuleGovernanceDecision.",
+      "evidence_refs": [
+        "src/polisyos/obligation_rules/README.md",
+        "src/polisyos/obligation_rules/catalog.py",
+        "tests/unit/obligation_rules/test_catalog.py"
+      ]
+    },
+    {
+      "module": "polisyos.obligation_graph",
+      "package_contract": "architecture/packages/obligation_graph.toml",
+      "package_contract_registered": true,
+      "public_surface_classification": "internal",
+      "public_surface_registered": true,
+      "owner": "team-policyos-runtime",
+      "python_files": 4,
+      "root_facade_exports": 20,
+      "classes": 15,
+      "top_level_functions": 44,
+      "consumer_import_file_count": 10,
+      "consumer_packages": {
+        "data_requirement": 1,
+        "scientist": 1,
+        "tests": 5,
+        "tools": 3
+      },
+      "primary_contracts": [
+        "policyos.obligation_graph.v1",
+        "policy_design_case.obligation_graph.v1",
+        "FacetSnapshot",
+        "ObligationGraph",
+        "FrontierItem"
+      ],
+      "producers": [
+        "compile_obligation_graph",
+        "obligation_graph_audit_surface",
+        "write_obligation_graph_artifact"
+      ],
+      "persisted_artifacts_or_events": [
+        "event://runtime/obligation-graph/{run_id}",
+        "artifact://policy-design-case/{run_id}/obligation-graph",
+        "deterministic graph JSON writer"
+      ],
+      "consumers": [
+        "data_requirement.compiler",
+        "scientist.policy_design.critic_obligation_bridge",
+        "tools/quality universal compilation checks"
+      ],
+      "verification": [
+        "tests/unit/obligation_graph/test_compiler.py",
+        "tests/repo_quality/tools/test_compiled_pdc_graph_smoke.py",
+        "tests/repo_quality/tools/test_universal_compilation_smoke.py"
+      ],
+      "public_or_audit_surface": [
+        "obligation_graph_audit_surface",
+        "deterministic graph writer",
+        "internal public-surface row"
+      ],
+      "route_participation": "near_route_requirement_substrate",
+      "gy_engine_census_row_count": 0,
+      "capability_state": "implemented_compiler_consumed_by_data_requirement_and_scientist_not_direct_gy_route",
+      "missing_labels": [
+        "implemented_but_not_orchestrated",
+        "semantic_test_missing"
+      ],
+      "authority_boundary_summary": "Authoritative for obligation candidate visibility, bundle deduplication, and frontier selection; may not be used for domain evidence, claim support, legal authority without Lex, method validity, participation legitimacy, or projection authority.",
+      "evidence_refs": [
+        "src/polisyos/obligation_graph/README.md",
+        "src/polisyos/obligation_graph/_impl/compiler.py",
+        "src/polisyos/obligation_graph/_impl/models.py"
+      ]
+    }
+  ],
+  "acceptance_signal": [
+    "All 11 substrate packages are classified with contract, producer, artifact/event, bridge, consumer, surface, verification, and authority-boundary fields.",
+    "The inventory preserves 0 GY census rows as a coverage fact rather than treating broad substrate maturity as pinned-route execution.",
+    "data_requirement remains surface_missing/bridge_missing for pinned FetchPlan admission until an actual route consumes DataRequirementSpec and SourceContract binding status.",
+    "evidence conflict/effective-independence records cannot be counted as positive support strength or claim authority.",
+    "BERL, calibration, DDM, participation, obligation rules, and obligation graph cannot be upgraded to GY route authority without route-consumed producer-root proof."
+  ]
+}

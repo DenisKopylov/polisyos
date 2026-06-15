@@ -5,6 +5,7 @@
     "layer3_g8_open_question_answer_reading"
   ],
   "issue_codes": [
+    "layer3_g8_search_recall_miss_reported_as_domain_ceiling",
     "layer3_g8_demand_numeric_inertia_hidden_as_pass"
   ],
   "may_not_use_for": [
@@ -47,6 +48,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -98,6 +101,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -146,6 +151,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -194,6 +201,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -244,6 +253,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -295,8 +306,12 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
-      "issue_codes": [],
+      "issue_codes": [
+        "layer3_g8_search_recall_miss_reported_as_domain_ceiling"
+      ],
       "may_not_use_for": [
         "production_authority",
         "production_claim_authority",
@@ -330,11 +345,11 @@
       "observed_at": "2026-06-10T00:00:00Z",
       "raw_key": "search_recall_status",
       "raw_source_ref": "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json#search_recall_status",
-      "raw_value": "pass",
+      "raw_value": "fail",
       "signal_id": "layer3-g8://normalized-metric/g1/search-recall-known-seeds-index-staleness/search-recall-status",
       "slice_id": "G1",
-      "source_digest": "sha256:74efea4a68f59e330bc9396b4e688d1abfd403a0ae0898b2c13425932818939b",
-      "status": "pass"
+      "source_digest": "sha256:209ad7ba2851d138ec5153ef78602a01915a8336a68dfb4f15e315277fcab6e0",
+      "status": "fail"
     },
     {
       "authoritative_for": [
@@ -343,6 +358,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -381,7 +398,7 @@
       "raw_value": "pass",
       "signal_id": "layer3-g8://normalized-metric/g1/search-recall-known-seeds-index-staleness/index-freshness-status",
       "slice_id": "G1",
-      "source_digest": "sha256:74efea4a68f59e330bc9396b4e688d1abfd403a0ae0898b2c13425932818939b",
+      "source_digest": "sha256:209ad7ba2851d138ec5153ef78602a01915a8336a68dfb4f15e315277fcab6e0",
       "status": "pass"
     },
     {
@@ -391,6 +408,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -439,6 +458,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -487,6 +508,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -535,6 +558,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -583,6 +608,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -631,6 +658,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -679,6 +708,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -727,6 +758,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -775,6 +808,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -823,6 +858,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -871,6 +908,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -919,6 +958,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -967,6 +1008,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -1015,6 +1058,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -1063,6 +1108,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -1111,6 +1158,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -1159,6 +1208,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -1207,6 +1258,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -1255,6 +1308,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -1303,6 +1358,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -1351,6 +1408,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -1399,6 +1458,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -1447,6 +1508,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -1495,6 +1558,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -1543,6 +1608,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -1591,6 +1658,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -1639,6 +1708,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -1687,6 +1758,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -1735,6 +1808,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -1783,6 +1858,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -1831,6 +1908,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -1879,6 +1958,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -1917,7 +1998,7 @@
       "raw_value": 0,
       "signal_id": "layer3-g8://normalized-metric/g4/governance-throughput/g4-governed-promoted-count",
       "slice_id": "G4",
-      "source_digest": "sha256:ff63e15e9e8610199a59c3fc14f499e4232b9eaeb3bb9a372cfb60a6213d974b",
+      "source_digest": "sha256:88d2447c1db68931f350f95ca8e3df106bc98094c7b133be3838ed0d238bf875",
       "status": "numeric_reading"
     },
     {
@@ -1927,6 +2008,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -1962,10 +2045,10 @@
       "observed_at": "2026-06-10T00:00:00Z",
       "raw_key": "g4-hard-a-incompleteness-block-count",
       "raw_source_ref": "repo://architecture/policy_design_case/layer3_g4_health_metric_delta.toml#g4-hard-a-incompleteness-block-count",
-      "raw_value": 1,
+      "raw_value": 0,
       "signal_id": "layer3-g8://normalized-metric/g4/governance-throughput/g4-hard-a-incompleteness-block-count",
       "slice_id": "G4",
-      "source_digest": "sha256:ff63e15e9e8610199a59c3fc14f499e4232b9eaeb3bb9a372cfb60a6213d974b",
+      "source_digest": "sha256:88d2447c1db68931f350f95ca8e3df106bc98094c7b133be3838ed0d238bf875",
       "status": "numeric_reading"
     },
     {
@@ -1975,6 +2058,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -2013,7 +2098,7 @@
       "raw_value": 0,
       "signal_id": "layer3-g8://normalized-metric/g4/governance-throughput/g4-human-decision-routed-count",
       "slice_id": "G4",
-      "source_digest": "sha256:ff63e15e9e8610199a59c3fc14f499e4232b9eaeb3bb9a372cfb60a6213d974b",
+      "source_digest": "sha256:88d2447c1db68931f350f95ca8e3df106bc98094c7b133be3838ed0d238bf875",
       "status": "numeric_reading"
     },
     {
@@ -2023,6 +2108,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -2061,7 +2148,7 @@
       "raw_value": 0,
       "signal_id": "layer3-g8://normalized-metric/g4/governance-throughput/g4-human-decision-stall-count",
       "slice_id": "G4",
-      "source_digest": "sha256:ff63e15e9e8610199a59c3fc14f499e4232b9eaeb3bb9a372cfb60a6213d974b",
+      "source_digest": "sha256:88d2447c1db68931f350f95ca8e3df106bc98094c7b133be3838ed0d238bf875",
       "status": "numeric_reading"
     },
     {
@@ -2071,6 +2158,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -2109,7 +2198,7 @@
       "raw_value": 0,
       "signal_id": "layer3-g8://normalized-metric/g4/governance-throughput/g4-legal-reissue-stall-count",
       "slice_id": "G4",
-      "source_digest": "sha256:ff63e15e9e8610199a59c3fc14f499e4232b9eaeb3bb9a372cfb60a6213d974b",
+      "source_digest": "sha256:88d2447c1db68931f350f95ca8e3df106bc98094c7b133be3838ed0d238bf875",
       "status": "numeric_reading"
     },
     {
@@ -2119,6 +2208,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -2154,10 +2245,10 @@
       "observed_at": "2026-06-10T00:00:00Z",
       "raw_key": "g4-promotion-attempts",
       "raw_source_ref": "repo://architecture/policy_design_case/layer3_g4_health_metric_delta.toml#g4-promotion-attempts",
-      "raw_value": 2,
+      "raw_value": 0,
       "signal_id": "layer3-g8://normalized-metric/g4/governance-throughput/g4-promotion-attempts",
       "slice_id": "G4",
-      "source_digest": "sha256:ff63e15e9e8610199a59c3fc14f499e4232b9eaeb3bb9a372cfb60a6213d974b",
+      "source_digest": "sha256:88d2447c1db68931f350f95ca8e3df106bc98094c7b133be3838ed0d238bf875",
       "status": "numeric_reading"
     },
     {
@@ -2167,6 +2258,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -2202,10 +2295,10 @@
       "observed_at": "2026-06-10T00:00:00Z",
       "raw_key": "g4-promotion-blocked-count",
       "raw_source_ref": "repo://architecture/policy_design_case/layer3_g4_health_metric_delta.toml#g4-promotion-blocked-count",
-      "raw_value": 2,
+      "raw_value": 0,
       "signal_id": "layer3-g8://normalized-metric/g4/governance-throughput/g4-promotion-blocked-count",
       "slice_id": "G4",
-      "source_digest": "sha256:ff63e15e9e8610199a59c3fc14f499e4232b9eaeb3bb9a372cfb60a6213d974b",
+      "source_digest": "sha256:88d2447c1db68931f350f95ca8e3df106bc98094c7b133be3838ed0d238bf875",
       "status": "numeric_reading"
     },
     {
@@ -2215,6 +2308,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -2253,7 +2348,7 @@
       "raw_value": 0,
       "signal_id": "layer3-g8://normalized-metric/g4/governance-throughput/g4-promotion-stalled-count",
       "slice_id": "G4",
-      "source_digest": "sha256:ff63e15e9e8610199a59c3fc14f499e4232b9eaeb3bb9a372cfb60a6213d974b",
+      "source_digest": "sha256:88d2447c1db68931f350f95ca8e3df106bc98094c7b133be3838ed0d238bf875",
       "status": "numeric_reading"
     },
     {
@@ -2263,6 +2358,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -2301,7 +2398,7 @@
       "raw_value": 0,
       "signal_id": "layer3-g8://normalized-metric/g4/governance-throughput/g4-search-health-stall-count",
       "slice_id": "G4",
-      "source_digest": "sha256:ff63e15e9e8610199a59c3fc14f499e4232b9eaeb3bb9a372cfb60a6213d974b",
+      "source_digest": "sha256:88d2447c1db68931f350f95ca8e3df106bc98094c7b133be3838ed0d238bf875",
       "status": "numeric_reading"
     },
     {
@@ -2311,6 +2408,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -2349,7 +2448,7 @@
       "raw_value": 0,
       "signal_id": "layer3-g8://normalized-metric/g4/governance-throughput/g4-stale-index-stall-count",
       "slice_id": "G4",
-      "source_digest": "sha256:ff63e15e9e8610199a59c3fc14f499e4232b9eaeb3bb9a372cfb60a6213d974b",
+      "source_digest": "sha256:88d2447c1db68931f350f95ca8e3df106bc98094c7b133be3838ed0d238bf875",
       "status": "numeric_reading"
     },
     {
@@ -2359,6 +2458,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -2397,7 +2498,7 @@
       "raw_value": "pass",
       "signal_id": "layer3-g8://normalized-metric/g4/governance-throughput/governance-throughput",
       "slice_id": "G4",
-      "source_digest": "sha256:63bc2e73b0a8480032b33e0b3e27862451045ca14e1e42f8cd17a33badee77a9",
+      "source_digest": "sha256:d4e2f0eac78cc12c82f6bbfa0896424efe8c0f7ba95aab1b3a0ddc52917c2033",
       "status": "pass"
     },
     {
@@ -2407,6 +2508,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -2445,7 +2548,7 @@
       "raw_value": 0,
       "signal_id": "layer3-g8://normalized-metric/g4/governance-throughput/governance-throughput",
       "slice_id": "G4",
-      "source_digest": "sha256:63bc2e73b0a8480032b33e0b3e27862451045ca14e1e42f8cd17a33badee77a9",
+      "source_digest": "sha256:d4e2f0eac78cc12c82f6bbfa0896424efe8c0f7ba95aab1b3a0ddc52917c2033",
       "status": "numeric_reading"
     },
     {
@@ -2455,6 +2558,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -2493,7 +2598,7 @@
       "raw_value": 0,
       "signal_id": "layer3-g8://normalized-metric/g4/governance-throughput/governance-throughput",
       "slice_id": "G4",
-      "source_digest": "sha256:63bc2e73b0a8480032b33e0b3e27862451045ca14e1e42f8cd17a33badee77a9",
+      "source_digest": "sha256:d4e2f0eac78cc12c82f6bbfa0896424efe8c0f7ba95aab1b3a0ddc52917c2033",
       "status": "numeric_reading"
     },
     {
@@ -2503,6 +2608,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -2541,7 +2648,7 @@
       "raw_value": "pass",
       "signal_id": "layer3-g8://normalized-metric/g4/governance-throughput/g4-governance-throughput-status",
       "slice_id": "G4",
-      "source_digest": "sha256:1dc52f8977863428df32676f9eb1636f153667109d89d79db45573edf00698af",
+      "source_digest": "sha256:9c909f60a82c89b79ccacc121b47c5bd1485af6d0ed13a83fa9b101dc8d8c172",
       "status": "pass"
     },
     {
@@ -2551,6 +2658,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -2589,7 +2698,7 @@
       "raw_value": "fail",
       "signal_id": "layer3-g8://normalized-metric/g4/governance-throughput/governance-throughput",
       "slice_id": "G4",
-      "source_digest": "sha256:1dc52f8977863428df32676f9eb1636f153667109d89d79db45573edf00698af",
+      "source_digest": "sha256:9c909f60a82c89b79ccacc121b47c5bd1485af6d0ed13a83fa9b101dc8d8c172",
       "status": "fail"
     },
     {
@@ -2599,6 +2708,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -2647,6 +2758,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -2695,6 +2808,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -2743,6 +2858,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -2791,6 +2908,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -2839,6 +2958,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -2877,7 +2998,7 @@
       "raw_value": "flat",
       "signal_id": "layer3-g8://normalized-metric/g5/envelope-expansion-rate/g5-envelope-expansion-status",
       "slice_id": "G5",
-      "source_digest": "sha256:87f9d6d41a5e761201b31d143fafa7c17021597ea8ecdcc96c3a255704c60cfc",
+      "source_digest": "sha256:9537ecdccf561319ec6deb2d8e32d4f545f900c5956701baa19dbc2f28a777ed",
       "status": "flat"
     },
     {
@@ -2887,8 +3008,12 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
-      "issue_codes": [],
+      "issue_codes": [
+        "layer3_g8_search_recall_miss_reported_as_domain_ceiling"
+      ],
       "may_not_use_for": [
         "production_authority",
         "production_claim_authority",
@@ -2922,11 +3047,11 @@
       "observed_at": "2026-06-10T00:00:00Z",
       "raw_key": "g5_search_recall_status",
       "raw_source_ref": "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json#g5_search_recall_status",
-      "raw_value": "pass",
+      "raw_value": "fail",
       "signal_id": "layer3-g8://normalized-metric/g5/search-recall-known-seeds-index-staleness/g5-search-recall-status",
       "slice_id": "G5",
-      "source_digest": "sha256:87f9d6d41a5e761201b31d143fafa7c17021597ea8ecdcc96c3a255704c60cfc",
-      "status": "pass"
+      "source_digest": "sha256:9537ecdccf561319ec6deb2d8e32d4f545f900c5956701baa19dbc2f28a777ed",
+      "status": "fail"
     },
     {
       "authoritative_for": [
@@ -2935,6 +3060,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -2973,7 +3100,7 @@
       "raw_value": "pass",
       "signal_id": "layer3-g8://normalized-metric/g5/search-recall-known-seeds-index-staleness/g5-index-freshness-status",
       "slice_id": "G5",
-      "source_digest": "sha256:87f9d6d41a5e761201b31d143fafa7c17021597ea8ecdcc96c3a255704c60cfc",
+      "source_digest": "sha256:9537ecdccf561319ec6deb2d8e32d4f545f900c5956701baa19dbc2f28a777ed",
       "status": "pass"
     },
     {
@@ -2983,6 +3110,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [
         "layer3_g8_demand_numeric_inertia_hidden_as_pass"
@@ -3033,6 +3162,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [
         "layer3_g8_demand_numeric_inertia_hidden_as_pass"
@@ -3083,6 +3214,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -3131,6 +3264,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [
         "layer3_g8_demand_numeric_inertia_hidden_as_pass"
@@ -3181,6 +3316,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [
         "layer3_g8_demand_numeric_inertia_hidden_as_pass"
@@ -3231,6 +3368,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -3279,6 +3418,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -3327,6 +3468,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -3375,6 +3518,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -3423,8 +3568,12 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
-      "issue_codes": [],
+      "issue_codes": [
+        "layer3_g8_search_recall_miss_reported_as_domain_ceiling"
+      ],
       "may_not_use_for": [
         "production_authority",
         "production_claim_authority",
@@ -3458,11 +3607,11 @@
       "observed_at": "2026-06-10T00:00:00Z",
       "raw_key": "g1_search_recall_status",
       "raw_source_ref": "repo://architecture/policy_design_case/layer3_g7_dependency_readiness_snapshot.json#g1_search_recall_status",
-      "raw_value": "pass",
+      "raw_value": "fail",
       "signal_id": "layer3-g8://normalized-metric/g7/search-recall-known-seeds-index-staleness/g1-search-recall-status",
       "slice_id": "G7",
-      "source_digest": "sha256:f10be4e7a3728b45f41f516caffe136dd9a124246a13f99edec1bd64d38a9d5b",
-      "status": "pass"
+      "source_digest": "sha256:828e730f913fae1cb80f9e7da7e575cfff33f9b165905bd2094c49f8d8ea6317",
+      "status": "fail"
     },
     {
       "authoritative_for": [
@@ -3471,6 +3620,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -3509,7 +3660,7 @@
       "raw_value": "pass",
       "signal_id": "layer3-g8://normalized-metric/g7/search-recall-known-seeds-index-staleness/g1-index-freshness-status",
       "slice_id": "G7",
-      "source_digest": "sha256:f10be4e7a3728b45f41f516caffe136dd9a124246a13f99edec1bd64d38a9d5b",
+      "source_digest": "sha256:828e730f913fae1cb80f9e7da7e575cfff33f9b165905bd2094c49f8d8ea6317",
       "status": "pass"
     },
     {
@@ -3519,8 +3670,12 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
-      "issue_codes": [],
+      "issue_codes": [
+        "layer3_g8_search_recall_miss_reported_as_domain_ceiling"
+      ],
       "may_not_use_for": [
         "production_authority",
         "production_claim_authority",
@@ -3554,11 +3709,11 @@
       "observed_at": "2026-06-10T00:00:00Z",
       "raw_key": "search-recall@known-seeds+index-staleness(region)",
       "raw_source_ref": "repo://architecture/policy_design_case/layer3_g7_dependency_readiness_snapshot.json#search-recall@known-seeds+index-staleness(region)",
-      "raw_value": "pass",
+      "raw_value": "fail",
       "signal_id": "layer3-g8://normalized-metric/g7/search-recall-known-seeds-index-staleness/search-recall-known-seeds-index-staleness-region",
       "slice_id": "G7",
-      "source_digest": "sha256:f10be4e7a3728b45f41f516caffe136dd9a124246a13f99edec1bd64d38a9d5b",
-      "status": "pass"
+      "source_digest": "sha256:828e730f913fae1cb80f9e7da7e575cfff33f9b165905bd2094c49f8d8ea6317",
+      "status": "fail"
     },
     {
       "authoritative_for": [
@@ -3567,6 +3722,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -3605,7 +3762,7 @@
       "raw_value": "pass",
       "signal_id": "layer3-g8://normalized-metric/g7/governance-throughput/g4-governance-throughput-status",
       "slice_id": "G7",
-      "source_digest": "sha256:f10be4e7a3728b45f41f516caffe136dd9a124246a13f99edec1bd64d38a9d5b",
+      "source_digest": "sha256:828e730f913fae1cb80f9e7da7e575cfff33f9b165905bd2094c49f8d8ea6317",
       "status": "pass"
     },
     {
@@ -3615,6 +3772,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -3653,7 +3812,7 @@
       "raw_value": "flat",
       "signal_id": "layer3-g8://normalized-metric/g7/envelope-expansion-rate/g5-envelope-expansion-status",
       "slice_id": "G7",
-      "source_digest": "sha256:f10be4e7a3728b45f41f516caffe136dd9a124246a13f99edec1bd64d38a9d5b",
+      "source_digest": "sha256:828e730f913fae1cb80f9e7da7e575cfff33f9b165905bd2094c49f8d8ea6317",
       "status": "flat"
     },
     {
@@ -3663,6 +3822,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -3701,7 +3862,7 @@
       "raw_value": "pass",
       "signal_id": "layer3-g8://normalized-metric/g7/demand-pull-vs-abstention/g6-demand-pull-vs-abstention-status",
       "slice_id": "G7",
-      "source_digest": "sha256:f10be4e7a3728b45f41f516caffe136dd9a124246a13f99edec1bd64d38a9d5b",
+      "source_digest": "sha256:828e730f913fae1cb80f9e7da7e575cfff33f9b165905bd2094c49f8d8ea6317",
       "status": "pass"
     },
     {
@@ -3711,8 +3872,12 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
-      "issue_codes": [],
+      "issue_codes": [
+        "layer3_g8_search_recall_miss_reported_as_domain_ceiling"
+      ],
       "may_not_use_for": [
         "production_authority",
         "production_claim_authority",
@@ -3746,11 +3911,11 @@
       "observed_at": "2026-06-10T00:00:00Z",
       "raw_key": "g1_search_recall_status",
       "raw_source_ref": "repo://architecture/policy_design_case/layer3_g7_search_recall_freshness_join.json#g1_search_recall_status",
-      "raw_value": "pass",
+      "raw_value": "fail",
       "signal_id": "layer3-g8://normalized-metric/g7/search-recall-known-seeds-index-staleness/g1-search-recall-status",
       "slice_id": "G7",
-      "source_digest": "sha256:94341478e93a8269d0c79f7afd246a2a34d2dd3164685556ce0f6becfa7c9370",
-      "status": "pass"
+      "source_digest": "sha256:09415e59f3d5f6424100db76fd2442355096993770cd831b7b692975a9294a23",
+      "status": "fail"
     },
     {
       "authoritative_for": [
@@ -3759,6 +3924,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -3797,7 +3964,7 @@
       "raw_value": "pass",
       "signal_id": "layer3-g8://normalized-metric/g7/search-recall-known-seeds-index-staleness/g1-index-freshness-status",
       "slice_id": "G7",
-      "source_digest": "sha256:94341478e93a8269d0c79f7afd246a2a34d2dd3164685556ce0f6becfa7c9370",
+      "source_digest": "sha256:09415e59f3d5f6424100db76fd2442355096993770cd831b7b692975a9294a23",
       "status": "pass"
     },
     {
@@ -3807,8 +3974,12 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
-      "issue_codes": [],
+      "issue_codes": [
+        "layer3_g8_search_recall_miss_reported_as_domain_ceiling"
+      ],
       "may_not_use_for": [
         "production_authority",
         "production_claim_authority",
@@ -3842,11 +4013,11 @@
       "observed_at": "2026-06-10T00:00:00Z",
       "raw_key": "search-recall@known-seeds+index-staleness(region)",
       "raw_source_ref": "repo://architecture/policy_design_case/layer3_g7_search_recall_freshness_join.json#search-recall@known-seeds+index-staleness(region)",
-      "raw_value": "pass",
+      "raw_value": "fail",
       "signal_id": "layer3-g8://normalized-metric/g7/search-recall-known-seeds-index-staleness/search-recall-known-seeds-index-staleness-region",
       "slice_id": "G7",
-      "source_digest": "sha256:94341478e93a8269d0c79f7afd246a2a34d2dd3164685556ce0f6becfa7c9370",
-      "status": "pass"
+      "source_digest": "sha256:09415e59f3d5f6424100db76fd2442355096993770cd831b7b692975a9294a23",
+      "status": "fail"
     },
     {
       "authoritative_for": [
@@ -3855,6 +4026,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -3893,7 +4066,7 @@
       "raw_value": "blocked_by_no_real_grounded_region_breadth",
       "signal_id": "layer3-g8://normalized-metric/g7/demand-pull-vs-abstention/g7-region-value-closure-status",
       "slice_id": "G7",
-      "source_digest": "sha256:cfa7532a64965c8d1fe471284ee30f35adc5d5b7a954ce35c464d44b4708ca1a",
+      "source_digest": "sha256:447dcc549970401ca1933c09a54c8e6820c829552bc86eea6839b283bbf19695",
       "status": "blocked_by_no_real_grounded_region_breadth"
     },
     {
@@ -3903,6 +4076,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -3941,7 +4116,7 @@
       "raw_value": 0.0,
       "signal_id": "layer3-g8://normalized-metric/g7/envelope-expansion-rate/g7-region-envelope-expansion-rate",
       "slice_id": "G7",
-      "source_digest": "sha256:4c01a14545ccf8e8f1c7f28e9045d846f37faafa7a6dc3317c2aa79bcded3b32",
+      "source_digest": "sha256:f5bed838478a0b974078cd04413f78494028ed5a7d10a95201ef8defa542cd62",
       "status": "numeric_reading"
     },
     {
@@ -3951,6 +4126,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -3989,7 +4166,7 @@
       "raw_value": "pass",
       "signal_id": "layer3-g8://normalized-metric/g7/adapter-semantic-loss/g7-region-semantic-loss-status",
       "slice_id": "G7",
-      "source_digest": "sha256:4c01a14545ccf8e8f1c7f28e9045d846f37faafa7a6dc3317c2aa79bcded3b32",
+      "source_digest": "sha256:f5bed838478a0b974078cd04413f78494028ed5a7d10a95201ef8defa542cd62",
       "status": "pass"
     },
     {
@@ -3999,6 +4176,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [],
       "may_not_use_for": [
@@ -4037,7 +4216,7 @@
       "raw_value": "pass",
       "signal_id": "layer3-g8://normalized-metric/g7/governance-throughput/g7-governance-throughput-status",
       "slice_id": "G7",
-      "source_digest": "sha256:4c01a14545ccf8e8f1c7f28e9045d846f37faafa7a6dc3317c2aa79bcded3b32",
+      "source_digest": "sha256:f5bed838478a0b974078cd04413f78494028ed5a7d10a95201ef8defa542cd62",
       "status": "pass"
     },
     {
@@ -4047,6 +4226,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [
         "layer3_g8_demand_numeric_inertia_hidden_as_pass"
@@ -4087,7 +4268,7 @@
       "raw_value": "blocked_by_current_g5_unchanged_blocker",
       "signal_id": "layer3-g8://normalized-metric/g7/demand-pull-vs-abstention/g7-region-value-closure-status",
       "slice_id": "G7",
-      "source_digest": "sha256:4c01a14545ccf8e8f1c7f28e9045d846f37faafa7a6dc3317c2aa79bcded3b32",
+      "source_digest": "sha256:f5bed838478a0b974078cd04413f78494028ed5a7d10a95201ef8defa542cd62",
       "status": "blocked_by_current_g5_unchanged_blocker"
     },
     {
@@ -4097,6 +4278,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [
         "layer3_g8_demand_numeric_inertia_hidden_as_pass"
@@ -4137,7 +4320,7 @@
       "raw_value": 0,
       "signal_id": "layer3-g8://normalized-metric/g7/demand-pull-vs-abstention/g7-region-grounded-case-count",
       "slice_id": "G7",
-      "source_digest": "sha256:4c01a14545ccf8e8f1c7f28e9045d846f37faafa7a6dc3317c2aa79bcded3b32",
+      "source_digest": "sha256:f5bed838478a0b974078cd04413f78494028ed5a7d10a95201ef8defa542cd62",
       "status": "no_grounded_response"
     },
     {
@@ -4147,6 +4330,8 @@
         "layer3_g8_open_question_answer_reading"
       ],
       "authority_boundary_status": "pass",
+      "case_id": null,
+      "diagnostic_scope": "global_metric",
       "freshness_status": "fresh_committed",
       "issue_codes": [
         "layer3_g8_demand_numeric_inertia_hidden_as_pass"
@@ -4187,7 +4372,7 @@
       "raw_value": "blocked_no_real_grounded_breadth",
       "signal_id": "layer3-g8://normalized-metric/g7/demand-pull-vs-abstention/g7-s14-grounded-breadth-feed-status",
       "slice_id": "G7",
-      "source_digest": "sha256:4c01a14545ccf8e8f1c7f28e9045d846f37faafa7a6dc3317c2aa79bcded3b32",
+      "source_digest": "sha256:f5bed838478a0b974078cd04413f78494028ed5a7d10a95201ef8defa542cd62",
       "status": "blocked_no_real_grounded_breadth"
     }
   ],

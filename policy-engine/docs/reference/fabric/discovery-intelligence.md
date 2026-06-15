@@ -1,5 +1,8 @@
 # Fabric Discovery And Entity Intelligence
 
+Owner: `@fabric-owners`
+Source of truth: `src/polisyos/fabric/discovery/**`, `src/polisyos/fabric/world/query.py`, `tests/unit/fabric/test_discovery_intelligence.py`, and `tests/unit/fabric/test_entity_resolution.py`
+
 Related plan evidence path: `docs/plans/active/FABRIC_BEST_IN_CLASS_PLAN.md`.
 Best-in-class inventory: [best-in-class-inventory.md](best-in-class-inventory.md).
 

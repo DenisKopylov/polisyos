@@ -86,18 +86,11 @@
     "held_out_case_refs": [],
     "marginal_bespoke_cost_status": "pass",
     "mechanism_reuse_rate": 0.0,
-    "replay_digest": "sha256:37fd91b2c30fbe316996ad1cdbb4e0a911ddae7a775b27856f3552da1b1e7337",
+    "replay_digest": "sha256:a3c8c3bcc3b074ebe90e985c48c256ddb3f017ca645e63e75dd37873fde041a1",
     "report_id": "s14-mechanism-generality",
     "report_ref": "pdc://layer2/s14/mechanism-generality",
     "reused_mechanism_refs": [
-      "reuse-acquisition://ua-msme/layer3-g5",
-      "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
-      "g4-promotion-record:g4-request:ua-msme-source-only-valid",
-      "repo://architecture/policy_design_case/layer3_g4_grounded_contract_set.json",
-      "repo://architecture/policy_design_case/layer3_g4_a_completeness_ledger.json",
-      "repo://architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json",
-      "repo://architecture/policy_design_case/layer3_g4_human_decision_integrity_gate.json",
-      "repo://architecture/policy_design_case/layer3_g4_g5_promotion_handoff.json"
+      "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker"
     ],
     "rule_version_ref": "policyos.layer2.s14.universality_assurance.v1",
     "s12_held_out_status": "pending_s14",
@@ -105,14 +98,7 @@
     "sublinear_marginal_bespoke_cost": true
   },
   "reused_mechanism_refs": [
-    "reuse-acquisition://ua-msme/layer3-g5",
-    "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
-    "g4-promotion-record:g4-request:ua-msme-source-only-valid",
-    "repo://architecture/policy_design_case/layer3_g4_grounded_contract_set.json",
-    "repo://architecture/policy_design_case/layer3_g4_a_completeness_ledger.json",
-    "repo://architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json",
-    "repo://architecture/policy_design_case/layer3_g4_human_decision_integrity_gate.json",
-    "repo://architecture/policy_design_case/layer3_g4_g5_promotion_handoff.json"
+    "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker"
   ],
   "rule_version": "policyos.layer3.g7.region_widening.v1",
   "schema_version": "policyos.policy_design_case.layer3_g7_region_widening.v1",

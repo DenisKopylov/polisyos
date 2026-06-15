@@ -54,11 +54,24 @@ route, and does not publish universal authority.
 Policy Design Case audit surface documented here until the health-metric
 governance reference page graduates. It publishes metric registry refs,
 normalized metric signal refs, cross-metric diagnosis refs, D4.4 re-basing
-receipt refs, replay-manifest refs, route registry refs, and
+receipt refs, replay-manifest refs, route registry refs, blocker-specific
+search-health classifications for seed corpus, pinned request, current blocker,
+and production readiness, and
 `layer3_g8_closeout_signal_consumer_gate.json` refs. PUBLIC/REVIEWER access is
 projection-only through `layer3_g8_public_export_projection_refs.json`, which
 records `out_of_scope_reference_only` and does not register a public-export
 bundle route.
+
+`layer3_gx_universal_free_growth_hardening_surface` is a generated
+EXPERT/MACHINE Policy Design Case hardening audit surface documented here
+until the GX reference page graduates. It publishes data-home refs, runtime
+literal lint refs, reducer/provenance refs, measurement replay refs, vertical
+pinned-route refs, provisional and final Task 12 outcome/audit refs, data
+mutation free-growth refs, and expected-red refs. PUBLIC/REVIEWER access is
+out of scope until a dedicated GX public-export projection is produced; the
+surface does not register a public-export bundle route and does not publish
+production, closeout, domain-ceiling, recommendation, or useful-design
+authority.
 
 | Package | Classification | Facade | Exports | Owner | README |
 | --- | --- | --- | ---: | --- | --- |

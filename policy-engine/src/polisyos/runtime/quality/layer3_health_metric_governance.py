@@ -14,7 +14,9 @@ from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
+
+from polisyos.runtime.quality.required_reference_resolver import resolve_required_ref
 
 G8_SCHEMA_VERSION = "policyos.policy_design_case.layer3_g8_health_metric_governance.v1"
 G8_RULE_VERSION = "policyos.layer3.g8.health_metric_governance.v1"
@@ -169,6 +171,11 @@ ALL_ISSUE_CODES = (
     "layer3_g8_metric_improved_by_fixture_or_synthetic_breadth",
     "layer3_g8_flat_expansion_reported_as_domain_ceiling_without_search_health",
     "layer3_g8_search_recall_miss_reported_as_domain_ceiling",
+    "layer3_g8_search_contract_common_fields_missing",
+    "layer3_g8_blocker_specific_search_diagnostic_missing",
+    "layer3_g8_pinned_search_diagnostic_missing",
+    "layer3_g8_global_seed_health_used_as_current_blocker_health",
+    "layer3_g8_domain_ceiling_claim_without_admission_or_deref",
     "layer3_g8_governance_stall_hidden_as_domain_ceiling",
     "layer3_g8_abstention_inertia_hidden_as_honesty",
     "layer3_g8_demand_numeric_inertia_hidden_as_pass",
@@ -186,6 +193,8 @@ ALL_ISSUE_CODES = (
     "layer3_g8_rebasing_lowers_s14_floor",
     "layer3_g8_rebasing_without_freeze_hash",
     "layer3_g8_open_question_answer_missing",
+    "layer3_g8_open_question_evidence_ref_unresolved",
+    "layer3_g8_positive_open_question_reducer_provenance_missing",
     "layer3_g8_closeout_signal_consumer_missing",
     "layer3_g8_public_projection_authority_leak",
     "layer3_g8_replay_manifest_missing",
@@ -197,6 +206,22 @@ ALL_ISSUE_CODES = (
     "layer3_g8_route_contract_registry_missing",
     "layer3_g8_registry_ratchet_missing",
     "layer3_g8_persisted_artifact_missing",
+)
+SEARCH_CONTRACT_AUDIT_REQUIRED_FIELDS = (
+    "corpus_ref",
+    "corpus_snapshot_hash",
+    "corpus_kind",
+    "replay_command",
+    "replay_expected_output_hash",
+)
+SEARCH_CONTRACT_AUDIT_REQUIRED_PATH_GROUPS = (
+    ("corpus_path", "canonical_corpus_path"),
+    ("configured_store_path",),
+)
+SEARCH_CONTRACT_AUDIT_PAYLOAD_KEYS = (
+    "search_recall_freshness",
+    "search_contract",
+    "search_ledger",
 )
 
 DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -311,6 +336,19 @@ G8_CONFORMANCE_NEGATIVE_EXPECTED_ISSUE_CODES: dict[str, tuple[str, ...]] = {
     "useful_design_rate_optimization": ("layer3_g8_useful_design_rate_optimized",),
     "search_recall_miss_as_domain_ceiling": (
         "layer3_g8_search_recall_miss_reported_as_domain_ceiling",
+    ),
+    "global_seed_health_as_current_blocker_health": (
+        "layer3_g8_blocker_specific_search_diagnostic_missing",
+        "layer3_g8_global_seed_health_used_as_current_blocker_health",
+    ),
+    "blocker_specific_search_ledger_absent": (
+        "layer3_g8_blocker_specific_search_diagnostic_missing",
+    ),
+    "domain_ceiling_without_admission_or_deref": (
+        "layer3_g8_domain_ceiling_claim_without_admission_or_deref",
+    ),
+    "positive_open_question_without_reducer_provenance": (
+        "layer3_g8_positive_open_question_reducer_provenance_missing",
     ),
     "flat_expansion_with_current_blocker_as_domain_ceiling": (
         "layer3_g8_flat_expansion_reported_as_domain_ceiling_without_search_health",
@@ -491,6 +529,15 @@ class Layer3G8MetricSourceRef(_G8Model):
     rule_version: str = ""
     generated_at: str = ""
     issue_codes: tuple[str, ...] = ()
+    search_contract_status: Literal["pass", "missing", "not_applicable"] = (
+        "not_applicable"
+    )
+    search_contract_ref: str = ""
+    search_contract_corpus_kind: str = ""
+    search_contract_corpus_snapshot_hash: str = ""
+    search_contract_replay_command_present: bool = False
+    search_contract_replay_expected_output_hash: str = ""
+    search_contract_issue_codes: tuple[str, ...] = ()
 
 
 class Layer3G8MetricSourceSnapshot(_G8Model):
@@ -521,6 +568,13 @@ class Layer3G8NormalizedMetricSignal(_G8Model):
     freshness_status: Literal["fresh_committed", "missing", "unknown_time"]
     authority_boundary_status: Literal["pass", "missing"]
     observed_at: str
+    case_id: str | None = None
+    diagnostic_scope: Literal[
+        "global_metric",
+        "pinned_case",
+        "case_overlay",
+        "blocker_specific_recall",
+    ] = "global_metric"
     issue_codes: tuple[str, ...] = ()
     authoritative_for: tuple[str, ...] = G8_AUTHORITATIVE_FOR
     may_not_use_for: tuple[str, ...] = G8_MAY_NOT_USE_FOR
@@ -562,6 +616,44 @@ class Layer3G8MetricTrendReport(_G8Model):
     issue_codes: tuple[str, ...] = ()
     authoritative_for: tuple[str, ...] = G8_AUTHORITATIVE_FOR
     may_not_use_for: tuple[str, ...] = G8_MAY_NOT_USE_FOR
+
+
+class Layer3G8SearchHealthClassification(_G8Model):
+    """Scope-separated search health reading for G8 blocker audits."""
+
+    classification_id: str = "layer3-g8://search-health-classification"
+    seed_corpus_status: str
+    pinned_request_status: str
+    current_blocker_status: str
+    production_readiness_status: str
+    search_frontier_status: str = "unmeasured"
+    freshness_status: str = "unmeasured"
+    admission_status: str = "unmeasured"
+    dereferenced_artifact_status: str = "unmeasured"
+    evidence_refs: tuple[str, ...] = ()
+    issue_codes: tuple[str, ...] = ()
+
+    @property
+    def answer_classification(self) -> dict[str, str]:
+        """Return the compact answer-facing status map."""
+
+        return {
+            "seed_corpus": self.seed_corpus_status,
+            "pinned_request": self.pinned_request_status,
+            "current_blocker": self.current_blocker_status,
+            "production_readiness": self.production_readiness_status,
+        }
+
+    @property
+    def domain_ceiling_precondition_statuses(self) -> dict[str, str]:
+        """Return blocker-specific preconditions for any domain-ceiling claim."""
+
+        return {
+            "search_frontier": self.search_frontier_status,
+            "freshness": self.freshness_status,
+            "admission": self.admission_status,
+            "dereferenced_artifacts": self.dereferenced_artifact_status,
+        }
 
 
 _G8_SOURCE_PATHS: tuple[tuple[str, Path, str], ...] = (
@@ -679,7 +771,8 @@ def build_g8_metric_source_snapshot(
     for slice_id, relative_path, source_format in _G8_SOURCE_PATHS:
         path = root / relative_path
         source_ref = f"repo://{relative_path.as_posix()}"
-        if not path.exists():
+        resolved = resolve_required_ref(root, source_ref)
+        if not resolved.exists:
             issues.append("layer3_g8_metric_source_missing")
             sources.append(
                 Layer3G8MetricSourceRef(
@@ -688,7 +781,13 @@ def build_g8_metric_source_snapshot(
                     source_ref=source_ref,
                     format=source_format,  # type: ignore[arg-type]
                     status="missing",
-                    issue_codes=("layer3_g8_metric_source_missing",),
+                    digest=resolved.content_hash or "",
+                    schema_version=resolved.schema_version or "",
+                    rule_version=resolved.rule_version or "",
+                    issue_codes=(
+                        "layer3_g8_metric_source_missing",
+                        *resolved.issue_codes,
+                    ),
                 )
             )
             continue
@@ -703,10 +802,15 @@ def build_g8_metric_source_snapshot(
                     source_ref=source_ref,
                     format=source_format,  # type: ignore[arg-type]
                     status="unreadable",
-                    issue_codes=("layer3_g8_metric_source_missing",),
+                    issue_codes=(
+                        "layer3_g8_metric_source_missing",
+                        "required_ref_artifact_unreadable",
+                    ),
                 )
             )
             continue
+        search_contract_audit = _search_contract_audit_fields(source_ref, payload)
+        issues.extend(search_contract_audit.get("search_contract_issue_codes", ()))
         sources.append(
             Layer3G8MetricSourceRef(
                 slice_id=slice_id,
@@ -714,10 +818,12 @@ def build_g8_metric_source_snapshot(
                 source_ref=source_ref,
                 format=source_format,  # type: ignore[arg-type]
                 status="present",
-                digest=_digest_payload(payload),
-                schema_version=_text(payload.get("schema_version")),
-                rule_version=_text(payload.get("rule_version")),
+                digest=resolved.content_hash or _digest_payload(payload),
+                schema_version=resolved.schema_version
+                or _text(payload.get("schema_version")),
+                rule_version=resolved.rule_version or _text(payload.get("rule_version")),
                 generated_at=_text(payload.get("generated_at")),
+                **search_contract_audit,
             )
         )
     return Layer3G8MetricSourceSnapshot(
@@ -848,6 +954,7 @@ class Layer3G8CrossMetricDiagnosis(_G8Model):
     governance_throughput_status: str
     demand_pull_status: str
     search_recall_freshness_status: str
+    search_health_classification: Layer3G8SearchHealthClassification
     effective_independence_status: str
     effective_independent_evidence_count: int
     effective_independence_source_ref: str
@@ -875,6 +982,8 @@ class Layer3G8DomainVsSearchCeilingGate(_G8Model):
     ]
     domain_ceiling_claim_allowed: bool
     current_blocker_refs: tuple[str, ...]
+    search_health_classification: Layer3G8SearchHealthClassification | None = None
+    domain_ceiling_precondition_statuses: dict[str, str] = Field(default_factory=dict)
     issue_codes: tuple[str, ...] = ()
     authoritative_for: tuple[str, ...] = G8_AUTHORITATIVE_FOR
     may_not_use_for: tuple[str, ...] = G8_MAY_NOT_USE_FOR
@@ -884,6 +993,7 @@ def build_g8_cross_metric_diagnosis(
     *,
     signals: Layer3G8NormalizedMetricSignals,
     repo_root: str | Path = DEFAULT_REPO_ROOT,
+    case_id: str | None = None,
 ) -> Layer3G8CrossMetricDiagnosis:
     """Build cross-metric diagnosis without minting domain-ceiling authority."""
 
@@ -899,7 +1009,7 @@ def build_g8_cross_metric_diagnosis(
         )
     )
     statuses = {
-        metric_id: _latest_metric_status(signals, metric_id)
+        metric_id: _latest_metric_status(signals, metric_id, case_id=case_id)
         for metric_id in G8_CANONICAL_METRIC_IDS
     }
     g5_summary = _mapping(g5.get("summary"))
@@ -933,6 +1043,12 @@ def build_g8_cross_metric_diagnosis(
 
     diagnoses: list[str] = []
     issues: list[str] = [*signals.issue_codes]
+    search_health = _build_g8_search_health_classification(
+        signals=signals,
+        case_id=case_id,
+        current_blocker_refs=tuple(current_blockers),
+    )
+    issues.extend(search_health.issue_codes)
     effective_independence_status = _text(effective_mass.get("independence_status")) or "missing"
     effective_independent_evidence_count = int(
         effective_mass.get("effective_independent_evidence_count") or 0
@@ -942,6 +1058,8 @@ def build_g8_cross_metric_diagnosis(
     if _is_search_ceiling(statuses["search-recall@known-seeds+index-staleness"]):
         diagnoses.append("search_ceiling")
         issues.append("layer3_g8_search_recall_miss_reported_as_domain_ceiling")
+    if search_health.production_readiness_status != "pass":
+        diagnoses.append("search_ceiling")
     if _is_governance_stall(statuses["governance-throughput"]):
         diagnoses.append("governance_bottleneck")
         issues.append("layer3_g8_governance_stall_hidden_as_domain_ceiling")
@@ -975,6 +1093,7 @@ def build_g8_cross_metric_diagnosis(
         search_recall_freshness_status=statuses[
             "search-recall@known-seeds+index-staleness"
         ],
+        search_health_classification=search_health,
         effective_independence_status=effective_independence_status,
         effective_independent_evidence_count=effective_independent_evidence_count,
         effective_independence_source_ref=(
@@ -994,11 +1113,16 @@ def build_g8_domain_vs_search_ceiling_gate(
 ) -> Layer3G8DomainVsSearchCeilingGate:
     """Return the strongest current blocker before any domain-ceiling claim."""
 
+    search_health = diagnosis.search_health_classification
     if diagnosis.status == "blocked":
         return Layer3G8DomainVsSearchCeilingGate(
             status="blocked",
             domain_ceiling_claim_allowed=False,
             current_blocker_refs=diagnosis.current_blocker_refs,
+            search_health_classification=search_health,
+            domain_ceiling_precondition_statuses=(
+                search_health.domain_ceiling_precondition_statuses
+            ),
             issue_codes=diagnosis.issue_codes,
         )
     if "search_ceiling" in diagnosis.diagnoses:
@@ -1006,6 +1130,10 @@ def build_g8_domain_vs_search_ceiling_gate(
             status="search_ceiling_repair_required",
             domain_ceiling_claim_allowed=False,
             current_blocker_refs=diagnosis.current_blocker_refs,
+            search_health_classification=search_health,
+            domain_ceiling_precondition_statuses=(
+                search_health.domain_ceiling_precondition_statuses
+            ),
             issue_codes=_dedupe(
                 (
                     *diagnosis.issue_codes,
@@ -1018,6 +1146,10 @@ def build_g8_domain_vs_search_ceiling_gate(
             status="governance_stall_repair_required",
             domain_ceiling_claim_allowed=False,
             current_blocker_refs=diagnosis.current_blocker_refs,
+            search_health_classification=search_health,
+            domain_ceiling_precondition_statuses=(
+                search_health.domain_ceiling_precondition_statuses
+            ),
             issue_codes=_dedupe(
                 (
                     *diagnosis.issue_codes,
@@ -1030,6 +1162,10 @@ def build_g8_domain_vs_search_ceiling_gate(
             status="abstention_inertia_repair_required",
             domain_ceiling_claim_allowed=False,
             current_blocker_refs=diagnosis.current_blocker_refs,
+            search_health_classification=search_health,
+            domain_ceiling_precondition_statuses=(
+                search_health.domain_ceiling_precondition_statuses
+            ),
             issue_codes=_dedupe(
                 (
                     *diagnosis.issue_codes,
@@ -1042,6 +1178,10 @@ def build_g8_domain_vs_search_ceiling_gate(
             status="semantic_loss_repair_required",
             domain_ceiling_claim_allowed=False,
             current_blocker_refs=diagnosis.current_blocker_refs,
+            search_health_classification=search_health,
+            domain_ceiling_precondition_statuses=(
+                search_health.domain_ceiling_precondition_statuses
+            ),
             issue_codes=diagnosis.issue_codes,
         )
     if diagnosis.current_blocker_refs:
@@ -1049,12 +1189,20 @@ def build_g8_domain_vs_search_ceiling_gate(
             status="not_claimed_current_grounding_blocker",
             domain_ceiling_claim_allowed=False,
             current_blocker_refs=diagnosis.current_blocker_refs,
+            search_health_classification=search_health,
+            domain_ceiling_precondition_statuses=(
+                search_health.domain_ceiling_precondition_statuses
+            ),
             issue_codes=diagnosis.issue_codes,
         )
     return Layer3G8DomainVsSearchCeilingGate(
         status="domain_ceiling_candidate",
         domain_ceiling_claim_allowed=True,
         current_blocker_refs=(),
+        search_health_classification=search_health,
+        domain_ceiling_precondition_statuses=(
+            search_health.domain_ceiling_precondition_statuses
+        ),
         issue_codes=diagnosis.issue_codes,
     )
 
@@ -1652,6 +1800,8 @@ class Layer3G8OpenQuestionAnswerRow(_G8Model):
     ]
     current_answer: str
     evidence_refs: tuple[str, ...]
+    search_health_classification: dict[str, str] = Field(default_factory=dict)
+    produced_by: dict[str, Any] = Field(default_factory=dict)
     authority_boundary: str = "empirical_governance_reading_only"
 
 
@@ -1725,6 +1875,62 @@ def build_g8_open_question_answer_ledger(
             "prevent a grounded result. This is not an honesty success claim."
         )
     )
+    search_health = diagnosis.search_health_classification
+    search_answer_status: Literal[
+        "answered_currently_healthy",
+        "answered_currently_blocked",
+        "provisional_insufficient_data",
+    ] = (
+        "answered_currently_healthy"
+        if (
+            ceiling_gate.status != "search_ceiling_repair_required"
+            and search_health.production_readiness_status == "pass"
+        )
+        else "answered_currently_blocked"
+    )
+    search_answer = (
+        "Current blocker-specific search frontier, freshness, admission, and "
+        "dereferenced artifact checks all pass for the relevant blocker; this "
+        "is a G8 audit reading only, not domain-ceiling authority."
+        if search_answer_status == "answered_currently_healthy"
+        else (
+            "Current search-recall/freshness is not blocker-specific enough "
+            "for a healthy answer: seed corpus status is "
+            f"{search_health.seed_corpus_status}, pinned request status is "
+            f"{search_health.pinned_request_status}, current blocker status "
+            f"is {search_health.current_blocker_status}, and production "
+            f"readiness is {search_health.production_readiness_status}."
+        )
+    )
+    waist_status: Literal[
+        "answered_currently_healthy",
+        "answered_currently_blocked",
+        "provisional_insufficient_data",
+    ] = (
+        "answered_currently_healthy"
+        if diagnosis.semantic_loss_status in {"pass", "clean", "0"}
+        else "answered_currently_blocked"
+    )
+    waist_evidence_refs = (
+        "repo://architecture/policy_design_case/"
+        "layer3_health_metric_ledgers.toml#adapter-semantic-loss",
+        "repo://architecture/policy_design_case/"
+        "layer3_g7_health_metric_delta.toml#semantic_loss_status",
+    )
+    search_evidence_refs = (
+        "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json",
+        "repo://architecture/policy_design_case/layer3_g2_search_recall_freshness.json",
+        "repo://architecture/policy_design_case/layer3_g3_search_recall_freshness.json",
+        "repo://architecture/policy_design_case/layer3_gl_search_recall_freshness.json",
+        "repo://architecture/policy_design_case/layer3_g7_search_recall_freshness_join.json",
+        *search_health.evidence_refs,
+    )
+    orchestration_evidence_refs = (
+        "repo://architecture/policy_design_case/layer3_g6_conformance_report.json",
+        "repo://architecture/policy_design_case/"
+        "layer3_g6_orchestration_choice_audit.json",
+        "repo://architecture/policy_design_case/layer3_g6_search_ledger.json",
+    )
     rows = (
         Layer3G8OpenQuestionAnswerRow(
             question_id="8.4-waist-altitude",
@@ -1732,21 +1938,27 @@ def build_g8_open_question_answer_ledger(
                 "Is the waist vocabulary at the right altitude, or does it need "
                 "a first-class dimension it currently encodes only as status?"
             ),
-            answer_status=(
-                "answered_currently_healthy"
-                if diagnosis.semantic_loss_status in {"pass", "clean", "0"}
-                else "answered_currently_blocked"
-            ),
+            answer_status=waist_status,
             current_answer=(
                 "No forced waist change is justified by current G8 readings; "
                 "semantic-loss watch remains active and any future waist change "
                 "requires highest-governance rule replay."
             ),
-            evidence_refs=(
-                "repo://architecture/policy_design_case/"
-                "layer3_health_metric_ledgers.toml#adapter-semantic-loss",
-                "repo://architecture/policy_design_case/"
-                "layer3_g7_health_metric_delta.toml#semantic_loss_status",
+            evidence_refs=waist_evidence_refs,
+            produced_by=(
+                _g8_answer_produced_by(
+                    root=root,
+                    reducer_id="reduce_g8_open_question_waist_altitude",
+                    answer_status=waist_status,
+                    current_answer=(
+                        "No forced waist change is justified by current G8 readings; "
+                        "semantic-loss watch remains active and any future waist change "
+                        "requires highest-governance rule replay."
+                    ),
+                    evidence_refs=waist_evidence_refs,
+                )
+                if waist_status == "answered_currently_healthy"
+                else {}
             ),
         ),
         Layer3G8OpenQuestionAnswerRow(
@@ -1784,22 +1996,20 @@ def build_g8_open_question_answer_ledger(
                 "Does capability search have enough recall and freshness to "
                 "distinguish honest abstention from a missed grounding path?"
             ),
-            answer_status=(
-                "answered_currently_healthy"
-                if ceiling_gate.status != "search_ceiling_repair_required"
-                else "answered_currently_blocked"
-            ),
-            current_answer=(
-                "Current search-recall/freshness signals do not identify a "
-                "search ceiling; future recall miss or stale index readings "
-                "block domain-ceiling claims."
-            ),
-            evidence_refs=(
-                "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json",
-                "repo://architecture/policy_design_case/layer3_g2_search_recall_freshness.json",
-                "repo://architecture/policy_design_case/layer3_g3_search_recall_freshness.json",
-                "repo://architecture/policy_design_case/layer3_gl_search_recall_freshness.json",
-                "repo://architecture/policy_design_case/layer3_g7_search_recall_freshness_join.json",
+            answer_status=search_answer_status,
+            current_answer=search_answer,
+            evidence_refs=_dedupe(search_evidence_refs),
+            search_health_classification=search_health.answer_classification,
+            produced_by=(
+                _g8_answer_produced_by(
+                    root=root,
+                    reducer_id="reduce_g8_open_question_search_recall_freshness",
+                    answer_status=search_answer_status,
+                    current_answer=search_answer,
+                    evidence_refs=_dedupe(search_evidence_refs),
+                )
+                if search_answer_status == "answered_currently_healthy"
+                else {}
             ),
         ),
         Layer3G8OpenQuestionAnswerRow(
@@ -1814,20 +2024,92 @@ def build_g8_open_question_answer_ledger(
                 "preserves G6 candidate and orchestration outputs as audit "
                 "signals only."
             ),
-            evidence_refs=(
-                "repo://architecture/policy_design_case/layer3_g6_conformance_report.json",
-                "repo://architecture/policy_design_case/"
-                "layer3_g6_orchestration_choice_audit.json",
-                "repo://architecture/policy_design_case/layer3_g6_search_ledger.json",
+            evidence_refs=orchestration_evidence_refs,
+            produced_by=_g8_answer_produced_by(
+                root=root,
+                reducer_id="reduce_g8_open_question_agent_orchestration_authority_leak",
+                answer_status="answered_currently_healthy",
+                current_answer=(
+                    "Current G6 conformance and public projection checks pass; G8 "
+                    "preserves G6 candidate and orchestration outputs as audit "
+                    "signals only."
+                ),
+                evidence_refs=orchestration_evidence_refs,
             ),
         ),
     )
     missing = [row.question_id for row in rows if not row.evidence_refs]
+    unresolved_issues: list[str] = []
+    for row in rows:
+        for evidence_ref in row.evidence_refs:
+            if not _g8_is_required_cross_slice_ref(evidence_ref):
+                continue
+            resolved = resolve_required_ref(root, evidence_ref)
+            if not resolved.exists:
+                unresolved_issues.append("layer3_g8_open_question_evidence_ref_unresolved")
+                unresolved_issues.extend(resolved.issue_codes)
+    issue_codes: list[str] = []
+    if missing:
+        issue_codes.append("layer3_g8_open_question_answer_missing")
+    issue_codes.extend(unresolved_issues)
+    issue_codes.extend(search_health.issue_codes)
+    issue_codes.extend(_g8_positive_answer_provenance_issue_codes(rows))
     return Layer3G8OpenQuestionAnswerLedger(
-        status="blocked" if missing else "pass",
+        status="blocked" if issue_codes else "pass",
         answers=rows,
-        issue_codes=("layer3_g8_open_question_answer_missing",) if missing else (),
+        issue_codes=_dedupe(issue_codes),
     )
+
+
+def _g8_answer_produced_by(
+    *,
+    root: Path,
+    reducer_id: str,
+    answer_status: str,
+    current_answer: str,
+    evidence_refs: Sequence[str],
+) -> dict[str, Any]:
+    input_hashes: dict[str, str] = {}
+    for evidence_ref in evidence_refs:
+        resolved = resolve_required_ref(root, evidence_ref)
+        input_hashes[evidence_ref] = resolved.content_hash or _digest_payload(
+            {"ref": evidence_ref}
+        )
+    produced_by_without_hash = {
+        "reducer_id": reducer_id,
+        "reducer_version": "v1",
+        "rule_version": G8_RULE_VERSION,
+        "input_hashes": input_hashes,
+        "vocabulary_status_id": answer_status,
+    }
+    output_hash = _digest_payload(
+        {
+            "answer_status": answer_status,
+            "current_answer": current_answer,
+            "produced_by": produced_by_without_hash,
+        }
+    )
+    return {**produced_by_without_hash, "output_hash": output_hash}
+
+
+def _g8_positive_answer_provenance_issue_codes(
+    rows: Sequence[Layer3G8OpenQuestionAnswerRow],
+) -> tuple[str, ...]:
+    required = {
+        "reducer_id",
+        "reducer_version",
+        "rule_version",
+        "input_hashes",
+        "output_hash",
+    }
+    issues: list[str] = []
+    for row in rows:
+        if row.answer_status != "answered_currently_healthy":
+            continue
+        missing = required - set(row.produced_by)
+        if missing or not row.produced_by.get("input_hashes"):
+            issues.append("layer3_g8_positive_open_question_reducer_provenance_missing")
+    return _dedupe(issues)
 
 
 class Layer3G8MetricGovernanceAuditSurface(_G8Model):
@@ -2048,6 +2330,10 @@ def build_g8_metric_governance_audit_surface(
             "layer3_g8_metric_alias_unresolved",
             "layer3_g8_metric_trend_report_missing",
             "layer3_g8_metric_improved_by_threshold_lowering",
+            "layer3_g8_blocker_specific_search_diagnostic_missing",
+            "layer3_g8_global_seed_health_used_as_current_blocker_health",
+            "layer3_g8_domain_ceiling_claim_without_admission_or_deref",
+            "layer3_g8_positive_open_question_reducer_provenance_missing",
             "layer3_g8_d44_reannotation_coverage_missing",
             "layer3_g8_d44_rebasing_trigger_missing",
             "layer3_g8_rebasing_mutates_sealed_battery",
@@ -2248,6 +2534,75 @@ def _observed_g8_negative_issue_codes(negative_id: str) -> tuple[str, ...]:
             diagnosis=diagnosis,
             claimed_domain_ceiling=True,
         )
+    if negative_id in {
+        "global_seed_health_as_current_blocker_health",
+        "blocker_specific_search_ledger_absent",
+    }:
+        diagnosis = build_g8_cross_metric_diagnosis(
+            signals=_negative_signal_set(
+                search_status="pass",
+                governance_status="pass",
+                demand_status="pass",
+                semantic_status="pass",
+                expansion_status="flat",
+            ),
+            repo_root=DEFAULT_REPO_ROOT,
+        )
+        gate = build_g8_domain_vs_search_ceiling_gate(diagnosis=diagnosis)
+        ledger = build_g8_open_question_answer_ledger(
+            diagnosis=diagnosis,
+            ceiling_gate=gate,
+            repo_root=DEFAULT_REPO_ROOT,
+        )
+        return ledger.issue_codes
+    if negative_id == "domain_ceiling_without_admission_or_deref":
+        diagnosis = Layer3G8CrossMetricDiagnosis(
+            status="pass",
+            envelope_expansion_status="flat",
+            semantic_loss_status="pass",
+            governance_throughput_status="pass",
+            demand_pull_status="pass",
+            search_recall_freshness_status="pass",
+            search_health_classification=Layer3G8SearchHealthClassification(
+                seed_corpus_status="pass",
+                pinned_request_status="unmeasured",
+                current_blocker_status="pass",
+                production_readiness_status=(
+                    "blocked_domain_ceiling_preconditions_missing"
+                ),
+                search_frontier_status="pass",
+                freshness_status="pass",
+                admission_status="unmeasured",
+                dereferenced_artifact_status="unmeasured",
+                evidence_refs=("repo://negative/blocker-search",),
+                issue_codes=(
+                    "layer3_g8_domain_ceiling_claim_without_admission_or_deref",
+                ),
+            ),
+            effective_independence_status="sufficient",
+            effective_independent_evidence_count=2,
+            effective_independence_source_ref=(
+                "repo://architecture/policy_design_case/"
+                "layer3_g5_effective_evidence_independence.json"
+                "#independence_map_payload.effective_mass_report"
+            ),
+            current_blocker_refs=(),
+            diagnoses=("search_ceiling",),
+            issue_codes=("layer3_g8_domain_ceiling_claim_without_admission_or_deref",),
+        )
+        return build_g8_domain_vs_search_ceiling_gate(diagnosis=diagnosis).issue_codes
+    if negative_id == "positive_open_question_without_reducer_provenance":
+        return _g8_positive_answer_provenance_issue_codes(
+            (
+                Layer3G8OpenQuestionAnswerRow(
+                    question_id="negative://positive-without-provenance",
+                    question="Negative control",
+                    answer_status="answered_currently_healthy",
+                    current_answer="Healthy without reducer provenance.",
+                    evidence_refs=("repo://negative/evidence",),
+                ),
+            )
+        )
     if negative_id == "flat_expansion_with_current_blocker_as_domain_ceiling":
         diagnosis = Layer3G8CrossMetricDiagnosis(
             status="pass",
@@ -2256,6 +2611,13 @@ def _observed_g8_negative_issue_codes(negative_id: str) -> tuple[str, ...]:
             governance_throughput_status="pass",
             demand_pull_status="pass",
             search_recall_freshness_status="pass",
+            search_health_classification=Layer3G8SearchHealthClassification(
+                seed_corpus_status="pass",
+                pinned_request_status="unmeasured",
+                current_blocker_status="unmeasured",
+                production_readiness_status="blocked_current_blocker_search_unmeasured",
+                issue_codes=("layer3_g8_blocker_specific_search_diagnostic_missing",),
+            ),
             effective_independence_status="sufficient",
             effective_independent_evidence_count=2,
             effective_independence_source_ref=(
@@ -2521,6 +2883,69 @@ def _mapping(value: object) -> dict[str, Any]:
     return dict(value) if isinstance(value, Mapping) else {}
 
 
+def _search_contract_audit_fields(
+    source_ref: str,
+    payload: Mapping[str, Any],
+) -> dict[str, Any]:
+    contract_ref, contract = _search_contract_payload(source_ref, payload)
+    if not contract:
+        return {}
+
+    missing_fields = [
+        field for field in SEARCH_CONTRACT_AUDIT_REQUIRED_FIELDS if not contract.get(field)
+    ]
+    missing_fields.extend(
+        "|".join(field_group)
+        for field_group in SEARCH_CONTRACT_AUDIT_REQUIRED_PATH_GROUPS
+        if not any(contract.get(field) for field in field_group)
+    )
+    issue_codes = (
+        ("layer3_g8_search_contract_common_fields_missing",)
+        if missing_fields
+        else ()
+    )
+    return {
+        "search_contract_status": "missing" if missing_fields else "pass",
+        "search_contract_ref": contract_ref,
+        "search_contract_corpus_kind": _text(contract.get("corpus_kind")),
+        "search_contract_corpus_snapshot_hash": _text(
+            contract.get("corpus_snapshot_hash")
+        ),
+        "search_contract_replay_command_present": bool(
+            _text(contract.get("replay_command"))
+        ),
+        "search_contract_replay_expected_output_hash": _text(
+            contract.get("replay_expected_output_hash")
+        ),
+        "search_contract_issue_codes": issue_codes,
+    }
+
+
+def _search_contract_payload(
+    source_ref: str,
+    payload: Mapping[str, Any],
+) -> tuple[str, dict[str, Any]]:
+    for payload_key in SEARCH_CONTRACT_AUDIT_PAYLOAD_KEYS:
+        contract = _mapping(payload.get(payload_key))
+        if _has_search_contract_signal(contract):
+            return f"{source_ref}#{payload_key}", contract
+    if _has_search_contract_signal(payload):
+        return source_ref, dict(payload)
+    return "", {}
+
+
+def _has_search_contract_signal(payload: Mapping[str, Any]) -> bool:
+    return any(payload.get(field) for field in SEARCH_CONTRACT_AUDIT_REQUIRED_FIELDS) or any(
+        payload.get(field)
+        for field_group in SEARCH_CONTRACT_AUDIT_REQUIRED_PATH_GROUPS
+        for field in field_group
+    )
+
+
+def _g8_is_required_cross_slice_ref(ref: str) -> bool:
+    return ref.startswith(("repo://", "manifest://", "generated-artifact://"))
+
+
 def _read_json(path: Path) -> dict[str, Any]:
     with path.open("r", encoding="utf-8") as handle:
         payload = json.load(handle)
@@ -2697,10 +3122,6 @@ def _signal_issue_codes(
         "self_attested",
         "unmeasured",
         "search_ceiling",
-        "not_measured",
-        "self_attested",
-        "unmeasured",
-        "missing",
     }:
         issues.append("layer3_g8_search_recall_miss_reported_as_domain_ceiling")
     if metric_id == "adapter-semantic-loss" and lowered in {"lossy", "blocked", "fail"}:
@@ -2717,6 +3138,151 @@ def _signal_issue_codes(
     return tuple(issues)
 
 
+def _build_g8_search_health_classification(
+    *,
+    signals: Layer3G8NormalizedMetricSignals,
+    case_id: str | None,
+    current_blocker_refs: Sequence[str],
+) -> Layer3G8SearchHealthClassification:
+    search_signals = tuple(
+        signal
+        for signal in signals.signals
+        if signal.metric_id == "search-recall@known-seeds+index-staleness"
+    )
+    global_signals = tuple(
+        signal for signal in search_signals if signal.diagnostic_scope == "global_metric"
+    )
+    pinned_signals = _g8_scoped_search_signals(
+        search_signals,
+        case_id=case_id,
+        scopes=("pinned_case", "case_overlay"),
+    )
+    blocker_signals = _g8_scoped_search_signals(
+        search_signals,
+        case_id=case_id,
+        scopes=("blocker_specific_recall",),
+    )
+    seed_status = _aggregate_g8_search_status(global_signals)
+    pinned_status = _aggregate_g8_search_status(pinned_signals)
+    blocker_status = _aggregate_g8_search_status(blocker_signals)
+    preconditions = _g8_blocker_search_precondition_statuses(blocker_signals)
+    preconditions_pass = set(preconditions.values()) == {"pass"}
+    issues: list[str] = []
+    if blocker_status == "unmeasured" and (current_blocker_refs or case_id):
+        issues.append("layer3_g8_blocker_specific_search_diagnostic_missing")
+        if seed_status == "pass":
+            issues.append("layer3_g8_global_seed_health_used_as_current_blocker_health")
+    elif blocker_status != "pass":
+        issues.append("layer3_g8_search_recall_miss_reported_as_domain_ceiling")
+    elif not preconditions_pass:
+        issues.append("layer3_g8_domain_ceiling_claim_without_admission_or_deref")
+
+    if blocker_status == "unmeasured":
+        production_status = "blocked_current_blocker_search_unmeasured"
+    elif blocker_status != "pass":
+        production_status = "blocked_current_blocker_search_not_healthy"
+    elif not preconditions_pass:
+        production_status = "blocked_domain_ceiling_preconditions_missing"
+    else:
+        production_status = "pass"
+
+    return Layer3G8SearchHealthClassification(
+        seed_corpus_status=seed_status,
+        pinned_request_status=pinned_status,
+        current_blocker_status=blocker_status,
+        production_readiness_status=production_status,
+        search_frontier_status=preconditions["search_frontier"],
+        freshness_status=preconditions["freshness"],
+        admission_status=preconditions["admission"],
+        dereferenced_artifact_status=preconditions["dereferenced_artifacts"],
+        evidence_refs=_dedupe(
+            _g8_artifact_ref(signal.raw_source_ref) for signal in search_signals
+        ),
+        issue_codes=_dedupe(issues),
+    )
+
+
+def _g8_scoped_search_signals(
+    signals: Sequence[Layer3G8NormalizedMetricSignal],
+    *,
+    case_id: str | None,
+    scopes: set[str] | tuple[str, ...],
+) -> tuple[Layer3G8NormalizedMetricSignal, ...]:
+    scope_set = set(scopes)
+    return tuple(
+        signal
+        for signal in signals
+        if signal.diagnostic_scope in scope_set
+        and (case_id is None or signal.case_id == case_id)
+    )
+
+
+def _aggregate_g8_search_status(
+    signals: Sequence[Layer3G8NormalizedMetricSignal],
+) -> str:
+    if not signals:
+        return "unmeasured"
+    for signal in signals:
+        if _is_search_ceiling(signal.status):
+            return signal.status
+    for signal in signals:
+        if signal.status.casefold() in {
+            "pass",
+            "clean",
+            "fresh_recall_ok",
+            "task1_catalog_search_ready",
+        }:
+            return "pass"
+    return signals[-1].status or "present"
+
+
+def _g8_blocker_search_precondition_statuses(
+    signals: Sequence[Layer3G8NormalizedMetricSignal],
+) -> dict[str, str]:
+    return {
+        "search_frontier": _g8_search_precondition_status(
+            signals,
+            "search_frontier_status",
+            "search_frontier",
+            "frontier_status",
+        ),
+        "freshness": _g8_search_precondition_status(
+            signals,
+            "freshness_status",
+            "index_freshness_status",
+        ),
+        "admission": _g8_search_precondition_status(
+            signals,
+            "admission_status",
+            "artifact_admission_status",
+        ),
+        "dereferenced_artifacts": _g8_search_precondition_status(
+            signals,
+            "dereferenced_artifact_status",
+            "dereferenced_artifacts_status",
+            "dereference_status",
+        ),
+    }
+
+
+def _g8_search_precondition_status(
+    signals: Sequence[Layer3G8NormalizedMetricSignal],
+    *keys: str,
+) -> str:
+    for signal in signals:
+        payload = _mapping(signal.raw_value)
+        for key in keys:
+            if key in payload:
+                return _text(payload.get(key)) or "unmeasured"
+    return "unmeasured"
+
+
+def _g8_artifact_ref(ref: str) -> str:
+    if ref.startswith("repo://") and "#" in ref:
+        return ref.split("#", 1)[0]
+    return ref
+
+
 def _blocking_signal_issues(issue_codes: Iterable[str]) -> tuple[str, ...]:
     return tuple(
         code
@@ -2731,10 +3297,23 @@ def _blocking_signal_issues(issue_codes: Iterable[str]) -> tuple[str, ...]:
     )
 
 
-def _latest_metric_status(signals: Layer3G8NormalizedMetricSignals, metric_id: str) -> str:
+def _latest_metric_status(
+    signals: Layer3G8NormalizedMetricSignals,
+    metric_id: str,
+    *,
+    case_id: str | None = None,
+) -> str:
     matching = [signal for signal in signals.signals if signal.metric_id == metric_id]
     if not matching:
         return "missing"
+    if case_id:
+        case_scoped = [
+            signal
+            for signal in matching
+            if signal.case_id == case_id and signal.diagnostic_scope != "global_metric"
+        ]
+        if case_scoped:
+            matching = case_scoped
     semantic_blockers = {
         "abstention_inertia",
         "no_grounded_response",
@@ -2747,10 +3326,6 @@ def _latest_metric_status(signals: Layer3G8NormalizedMetricSignals, metric_id: s
         "missing",
         "stale",
         "miss",
-        "missing",
-        "not_measured",
-        "self_attested",
-        "unmeasured",
         "stalled",
         "lossy",
         "blocked",
@@ -2796,10 +3371,6 @@ def _is_search_ceiling(status: str) -> bool:
         "stale",
         "fail",
         "miss",
-        "missing",
-        "not_measured",
-        "self_attested",
-        "unmeasured",
         "blocked_search_control_plane_only",
     }
 

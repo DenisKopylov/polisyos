@@ -197,6 +197,11 @@ def _dump(payload: Any) -> dict[str, Any]:
     return dict(payload)
 
 
+def _write_json(path: Path, payload: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
+
+
 def _issue_codes(report: Any) -> set[str]:
     return {str(issue["code"]) for issue in _dump(report).get("issues", [])}
 
@@ -218,7 +223,176 @@ def _source_only_request_copy() -> dict[str, Any]:
     )
 
 
-def test_g4_runtime_bundle_does_not_promote_placeholder_design_record_digest() -> None:
+def _write_gx_data_home_without_g4_requests(repo_root: Path) -> None:
+    pdc = repo_root / "architecture/policy_design_case"
+    _write_json(
+        pdc / "layer3_gx_pinned_request.json",
+        {
+            "schema_version": "policyos.policy_design_case.layer3_gx_pinned_request.v1",
+            "rule_version": "policyos.layer3.gx.data_home.v1",
+            "request_id": "gx-request:no-g4-default",
+            "case_id": "case:no-g4-default",
+            "request_ref": "external-request://layer3-gx/case:no-g4-default",
+            "producer_ref": "external-request://layer3-gx/pinned-request/case:no-g4-default",
+            "producer_type": "external_request",
+            "producer_root_refs": [
+                "external-request://layer3-gx/pinned-request/case:no-g4-default"
+            ],
+            "authority_purpose": "pinned_route_replay_input_only",
+            "expected_consumer_path": ["G1", "G2", "G4", "G5"],
+            "requested_constructs": [
+                {
+                    "construct_ref": "solar_credit_access",
+                    "role": "cause",
+                    "g1_request_shape": "construct_to_metric_binding",
+                    "g2_variable_ref": "policy.solar_credit_access",
+                    "broad_query_terms": ["solar credit access"],
+                }
+            ],
+            "g1_requests": [],
+            "g2_request": {
+                "request_id": "g2-request:no-g4-default",
+                "cause": "policy.solar_credit_access",
+                "effect": "firm.energy_resilience",
+                "target_context_id": "UA",
+            },
+            "g4_promotion_requests": [],
+            "may_not_use_for": ["corpus_supply_fact"],
+        },
+    )
+    _write_json(
+        pdc / "layer3_gx_concept_alias_seed_rows.json",
+        {
+            "schema_version": "policyos.policy_design_case.layer3_gx_concept_alias_seed_rows.v1",
+            "rule_version": "policyos.layer3.gx.data_home.v1",
+            "producer_ref": "external-request://layer3-gx/concept-alias-seeds/case:no-g4-default",
+            "producer_type": "external_request",
+            "alias_rows": [
+                {
+                    "row_id": "gx-alias:solar_credit_access",
+                    "concept_ref": "solar_credit_access",
+                    "aliases": ["solar credit access"],
+                    "resolution_status": "unverified",
+                    "asserts_corpus_supply": False,
+                    "corpus_row_refs": [],
+                }
+            ],
+        },
+    )
+    _write_json(
+        pdc / "layer3_gx_scope_seed_rows.json",
+        {
+            "schema_version": "policyos.policy_design_case.layer3_gx_scope_seed_rows.v1",
+            "rule_version": "policyos.layer3.gx.data_home.v1",
+            "producer_ref": "external-request://layer3-gx/scope/case:no-g4-default",
+            "producer_type": "external_request",
+            "scope_rows": [
+                {"scope_key": "entity_type", "value": "firm"},
+                {"scope_key": "population", "value": "msme"},
+                {"scope_key": "geography", "value": "UA"},
+                {"scope_key": "modality", "value": "panel"},
+                {"scope_key": "source_family_alias", "value": "solar_credit_panel"},
+                {"scope_key": "validity_limit", "value": "demand_seed_only"},
+            ],
+        },
+    )
+    _write_json(
+        pdc / "layer3_gx_demand_pull_request.json",
+        {
+            "schema_version": "policyos.policy_design_case.layer3_gx_demand_pull_request.v1",
+            "rule_version": "policyos.layer3.gx.data_home.v1",
+            "request_id": "gx-demand:no-g4-default",
+            "case_id": "case:no-g4-default",
+            "producer_ref": "external-request://layer3-gx/demand-pull/case:no-g4-default",
+            "producer_type": "external_request",
+            "source": "test",
+            "timestamp": "2026-06-12T00:00:00Z",
+            "accountable_principal_ref": "principal://test",
+            "replay_key": "gx-demand:no-g4-default",
+            "consumer_path": ["G5"],
+            "demand_refs": ["demand://no-g4-default"],
+            "attempted_grounding_path_refs": ["path://no-g4-default"],
+        },
+    )
+
+
+def _repo_root_with_g1_binding(tmp_path: Path) -> Path:
+    pdc_dir = tmp_path / "architecture/policy_design_case"
+    pdc_dir.mkdir(parents=True)
+    (pdc_dir / "layer3_g1_grounded_source_contracts.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1",
+                "grounded_source_contracts": {
+                    "bindings": [
+                        {
+                            "binding_id": "g1-binding:firm-survival",
+                            "case_id": "ua-msme-affordable-loans-2022",
+                            "construct_ref": "firm_survival",
+                            "source_contract_ref": (
+                                "source-contract://layer3.ua_msme.firm_survival.panel"
+                            ),
+                            "source_contract_content_hash": "sha256:g1-test-binding",
+                            "lineage_refs": [
+                                "repo://production_data/ua-msme/source-contract.json"
+                            ],
+                            "may_not_use_for": [
+                                "claim_authority",
+                                "production_authority",
+                            ],
+                        }
+                    ],
+                    "source_contract_snapshots": {
+                        "source-contract://layer3.ua_msme.firm_survival.panel": {
+                            "content_hash": "sha256:g1-test-binding",
+                        }
+                    },
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    (pdc_dir / "layer3_g2_forecast_support_bindings.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "policyos.policy_design_case.layer3_g2_causal_forecast.v1",
+                "rule_version": "policyos.layer3.g2.causal_forecast.v1",
+                "forecast_support_bindings": [
+                    {"binding_id": "g2-forecast-support-binding:test"}
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    (pdc_dir / "layer3_g3_proof_carrying_analytics_records.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "policyos.policy_design_case.layer3_g3_analytics.v1",
+                "rule_version": "policyos.layer3.g3.proof_carrying_analytics.v1",
+                "proof_carrying_analytics_records": [
+                    {"binding_id": "g3-proof-carrying-analytics-binding:test"}
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+    (pdc_dir / "layer3_gl_promotion_gate_handoff.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate.v1",
+                "rule_version": "policyos.layer3.gl.legal_mandate.v1",
+                "handoff_id": "gl-handoff:test",
+                "authority_boundary": {
+                    "may_not_use_for": ["legal_authority_without_gl"]
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    return tmp_path
+
+
+def test_g4_runtime_bundle_readiness_flags_placeholder_design_record_digest() -> None:
     g4 = _g4()
 
     payload = _dump(g4.build_layer3_g4_bundle(REPO_ROOT))
@@ -233,9 +407,10 @@ def test_g4_runtime_bundle_does_not_promote_placeholder_design_record_digest() -
         == "sha256:1111111111111111111111111111111111111111111111111111111111111111"
         for record in promoted
     )
-    assert "layer3_g4_placeholder_design_record_promoted" in payload[
-        "readiness_manifest"
-    ]["issue_codes"]
+    assert {
+        "layer3_g4_source_design_record_unresolved",
+        "layer3_g4_source_design_record_digest_missing",
+    } <= set(payload["readiness_manifest"]["issue_codes"])
 
 
 def _authority_boundary() -> dict[str, Any]:
@@ -440,6 +615,26 @@ def test_g4_dependency_readiness_snapshot_reads_hard_and_context_artifacts() -> 
     )
 
 
+def test_task1_g4_bundle_uses_data_home_requests_without_runtime_default_fallback(
+    tmp_path: Path,
+) -> None:
+    g4 = _g4()
+    _write_gx_data_home_without_g4_requests(tmp_path)
+
+    bundle = g4.build_layer3_g4_bundle(tmp_path)
+    payload = _dump(bundle)
+
+    assert payload["promotion_input_set"]["promotion_requests"] == []
+    assert payload["promotion_records"] == []
+    assert payload["weakest_boundary_composition"]["produced_by"]["reducer_id"] == (
+        "reduce_g4_promotion_state"
+    )
+    assert payload["readiness_manifest"]["status"] == "fail"
+    assert "layer3_g4_promotion_input_missing" in payload["readiness_manifest"][
+        "issue_codes"
+    ]
+
+
 def test_missing_g1_readiness_blocks_all_promotion(tmp_path: Path) -> None:
     g4 = _g4()
     repo_root = tmp_path
@@ -528,9 +723,10 @@ def test_g4_runtime_bundle_does_not_promote_placeholder_design_record_digest() -
         record.get("source_design_record_digest", "").endswith("1111111111111111")
         for record in promoted
     )
-    assert "layer3_g4_placeholder_design_record_promoted" in payload[
-        "readiness_manifest"
-    ]["issue_codes"]
+    assert {
+        "layer3_g4_source_design_record_unresolved",
+        "layer3_g4_source_design_record_digest_missing",
+    } <= set(payload["readiness_manifest"]["issue_codes"])
 
 
 def test_dependency_artifact_shape_mismatch_fails_closed(tmp_path: Path) -> None:
@@ -606,8 +802,11 @@ def test_promotion_input_set_normalizes_required_fields_and_source_resolution() 
     assert set(normalized["may_not_use_for"]) >= EXPECTED_MAY_NOT_USE_FOR
 
 
-def test_grounded_contract_set_normalizes_g1_rows_with_lineage_and_coverage_refs() -> None:
+def test_grounded_contract_set_normalizes_g1_rows_with_lineage_and_coverage_refs(
+    tmp_path: Path,
+) -> None:
     g4 = _g4()
+    repo_root = _repo_root_with_g1_binding(tmp_path)
     request = json.loads(
         json.dumps(_fixture("valid_source_only_promotion_input.json")["payload"][
             "promotion_requests"
@@ -624,8 +823,8 @@ def test_grounded_contract_set_normalizes_g1_rows_with_lineage_and_coverage_refs
         }
     )
 
-    input_set = g4.build_g4_promotion_input_set(REPO_ROOT, [request])
-    contract_set = g4.build_g4_grounded_contract_set(REPO_ROOT, input_set)
+    input_set = g4.build_g4_promotion_input_set(repo_root, [request])
+    contract_set = g4.build_g4_grounded_contract_set(repo_root, input_set)
     payload = _dump(contract_set)
     ref = payload["grounded_contract_refs"][0]
 
@@ -640,8 +839,11 @@ def test_grounded_contract_set_normalizes_g1_rows_with_lineage_and_coverage_refs
     assert set(ref["may_not_use_for"]) >= {"claim_authority", "production_authority"}
 
 
-def test_grounded_contract_set_normalizes_g2_g3_gl_refs_and_preserves_limitations() -> None:
+def test_grounded_contract_set_normalizes_g2_g3_gl_refs_and_preserves_limitations(
+    tmp_path: Path,
+) -> None:
     g4 = _g4()
+    repo_root = _repo_root_with_g1_binding(tmp_path)
     request = json.loads(
         json.dumps(_fixture("valid_source_only_promotion_input.json")["payload"][
             "promotion_requests"
@@ -701,8 +903,8 @@ def test_grounded_contract_set_normalizes_g2_g3_gl_refs_and_preserves_limitation
         ]
     )
 
-    input_set = g4.build_g4_promotion_input_set(REPO_ROOT, [request])
-    contract_set = g4.build_g4_grounded_contract_set(REPO_ROOT, input_set)
+    input_set = g4.build_g4_promotion_input_set(repo_root, [request])
+    contract_set = g4.build_g4_grounded_contract_set(repo_root, input_set)
     payload = _dump(contract_set)
     refs_by_family = {ref["family"]: ref for ref in payload["grounded_contract_refs"]}
 
@@ -749,6 +951,72 @@ def test_search_ledgers_and_readiness_summaries_are_rejected_as_grounded_contrac
         "layer3_g4_search_ledger_only_promotion",
         "layer3_g4_readiness_summary_only_promotion",
     } <= set(_dump(contract_set)["issue_codes"])
+
+
+def test_absent_g1_binding_ref_cannot_be_promoted_as_grounded_contract(
+    tmp_path: Path,
+) -> None:
+    g4 = _g4()
+    repo_root = tmp_path
+    pdc_dir = repo_root / "architecture/policy_design_case"
+    pdc_dir.mkdir(parents=True)
+    (pdc_dir / "layer3_g1_grounded_source_contracts.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1",
+                "grounded_source_contracts": {
+                    "bindings": [],
+                    "source_contract_snapshots": {},
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    request = json.loads(
+        json.dumps(_fixture("valid_source_only_promotion_input.json")["payload"][
+            "promotion_requests"
+        ][0])
+    )
+    request["grounded_contract_rows"][0]["ref"] = (
+        "repo://architecture/policy_design_case/"
+        "layer3_g1_grounded_source_contracts.json#bindings/firm_survival"
+    )
+
+    input_set = g4.build_g4_promotion_input_set(repo_root, [request])
+    contract_set = g4.build_g4_grounded_contract_set(repo_root, input_set)
+
+    assert _dump(contract_set)["status"] == "fail"
+    assert "layer3_g4_grounded_contract_ref_missing" in set(
+        _dump(contract_set)["issue_codes"]
+    )
+
+
+def test_missing_json_pointer_ref_fails_g4_required_resolution(
+    tmp_path: Path,
+) -> None:
+    g4 = _g4()
+    repo_root = _repo_root_with_g1_binding(tmp_path)
+    request = json.loads(
+        json.dumps(_fixture("valid_source_only_promotion_input.json")["payload"][
+            "promotion_requests"
+        ][0])
+    )
+    request["grounded_contract_rows"][0].update(
+        {
+            "ref": (
+                "repo://architecture/policy_design_case/"
+                "layer3_g1_grounded_source_contracts.json#bindings/missing"
+            ),
+            "binding_id": "missing",
+        }
+    )
+
+    input_set = g4.build_g4_promotion_input_set(repo_root, [request])
+    contract_set = g4.build_g4_grounded_contract_set(repo_root, input_set)
+
+    assert _dump(contract_set)["status"] == "fail"
+    assert "required_ref_pointer_missing" in set(_dump(contract_set)["issue_codes"])
+    assert "layer3_g4_required_ref_unresolved" in set(_dump(contract_set)["issue_codes"])
 
 
 def test_gl_g4_compatibility_row_alone_does_not_satisfy_legal_mandate_contract() -> None:
@@ -903,8 +1171,11 @@ def test_limited_upstream_boundary_blocks_unlimited_promotion_scope() -> None:
     ]
 
 
-def test_adapter_admission_and_conformance_must_be_pass_not_only_ref_present() -> None:
+def test_adapter_admission_and_conformance_must_be_pass_not_only_ref_present(
+    tmp_path: Path,
+) -> None:
     g4 = _g4()
+    repo_root = _repo_root_with_g1_binding(tmp_path)
     request = _source_only_request_copy()
     request["grounded_contract_rows"][0].update(
         {
@@ -915,9 +1186,9 @@ def test_adapter_admission_and_conformance_must_be_pass_not_only_ref_present() -
         }
     )
 
-    input_set = g4.build_g4_promotion_input_set(REPO_ROOT, [request])
-    contract_set = g4.build_g4_grounded_contract_set(REPO_ROOT, input_set)
-    ledger = g4.build_g4_a_completeness_ledger(REPO_ROOT, input_set, contract_set)
+    input_set = g4.build_g4_promotion_input_set(repo_root, [request])
+    contract_set = g4.build_g4_grounded_contract_set(repo_root, input_set)
+    ledger = g4.build_g4_a_completeness_ledger(repo_root, input_set, contract_set)
 
     assert {
         "layer3_g4_adapter_admission_failed",
@@ -925,8 +1196,9 @@ def test_adapter_admission_and_conformance_must_be_pass_not_only_ref_present() -
     } <= set(_dump(ledger)["issue_codes"])
 
 
-def test_search_health_and_stale_index_status_block_promotion() -> None:
+def test_search_health_and_stale_index_status_block_promotion(tmp_path: Path) -> None:
     g4 = _g4()
+    repo_root = _repo_root_with_g1_binding(tmp_path)
     request = _source_only_request_copy()
     request["grounded_contract_rows"][0].update(
         {
@@ -937,9 +1209,9 @@ def test_search_health_and_stale_index_status_block_promotion() -> None:
         }
     )
 
-    input_set = g4.build_g4_promotion_input_set(REPO_ROOT, [request])
-    contract_set = g4.build_g4_grounded_contract_set(REPO_ROOT, input_set)
-    ledger = g4.build_g4_a_completeness_ledger(REPO_ROOT, input_set, contract_set)
+    input_set = g4.build_g4_promotion_input_set(repo_root, [request])
+    contract_set = g4.build_g4_grounded_contract_set(repo_root, input_set)
+    ledger = g4.build_g4_a_completeness_ledger(repo_root, input_set, contract_set)
 
     assert {
         "layer3_g4_search_recall_dependency_unhealthy",
@@ -986,15 +1258,17 @@ def test_declared_authority_posture_refs_are_required(
     scope_flag: str,
     row_ref_field: str,
     expected_issue: str,
+    tmp_path: Path,
 ) -> None:
     g4 = _g4()
+    repo_root = _repo_root_with_g1_binding(tmp_path)
     request = _source_only_request_copy()
     request["promotion_scope"][scope_flag] = True
 
-    missing_input = g4.build_g4_promotion_input_set(REPO_ROOT, [request])
-    missing_contracts = g4.build_g4_grounded_contract_set(REPO_ROOT, missing_input)
+    missing_input = g4.build_g4_promotion_input_set(repo_root, [request])
+    missing_contracts = g4.build_g4_grounded_contract_set(repo_root, missing_input)
     missing_ledger = g4.build_g4_a_completeness_ledger(
-        REPO_ROOT,
+        repo_root,
         missing_input,
         missing_contracts,
     )
@@ -1002,10 +1276,10 @@ def test_declared_authority_posture_refs_are_required(
     request["grounded_contract_rows"][0][row_ref_field] = [
         f"pdc://layer2/{row_ref_field}/ua-msme"
     ]
-    satisfied_input = g4.build_g4_promotion_input_set(REPO_ROOT, [request])
-    satisfied_contracts = g4.build_g4_grounded_contract_set(REPO_ROOT, satisfied_input)
+    satisfied_input = g4.build_g4_promotion_input_set(repo_root, [request])
+    satisfied_contracts = g4.build_g4_grounded_contract_set(repo_root, satisfied_input)
     satisfied_ledger = g4.build_g4_a_completeness_ledger(
-        REPO_ROOT,
+        repo_root,
         satisfied_input,
         satisfied_contracts,
     )
@@ -1045,8 +1319,11 @@ def test_weakest_boundary_composition_is_deterministic_and_preserves_blockers() 
     } <= set(_dump(first)["blocker_refs"])
 
 
-def test_weakest_boundary_promotes_only_declared_scope_when_a_complete() -> None:
+def test_weakest_boundary_promotes_only_declared_scope_when_a_complete(
+    tmp_path: Path,
+) -> None:
     g4 = _g4()
+    repo_root = _repo_root_with_g1_binding(tmp_path)
     request = json.loads(
         json.dumps(_fixture("valid_source_only_promotion_input.json")["payload"][
             "promotion_requests"
@@ -1059,9 +1336,9 @@ def test_weakest_boundary_promotes_only_declared_scope_when_a_complete() -> None
         }
     )
 
-    input_set = g4.build_g4_promotion_input_set(REPO_ROOT, [request])
-    contract_set = g4.build_g4_grounded_contract_set(REPO_ROOT, input_set)
-    ledger = g4.build_g4_a_completeness_ledger(REPO_ROOT, input_set, contract_set)
+    input_set = g4.build_g4_promotion_input_set(repo_root, [request])
+    contract_set = g4.build_g4_grounded_contract_set(repo_root, input_set)
+    ledger = g4.build_g4_a_completeness_ledger(repo_root, input_set, contract_set)
     weakest = g4.build_g4_weakest_boundary_composition(input_set, contract_set, ledger)
 
     assert _dump(ledger)["status"] == "pass"
@@ -1222,8 +1499,11 @@ def test_non_high_stakes_bounded_scope_can_skip_human_decision_with_rationale() 
     assert _dump(gate)["issue_codes"] == []
 
 
-def test_promotion_records_emit_promoted_and_blocked_records_with_required_refs() -> None:
+def test_promotion_records_emit_promoted_and_blocked_records_with_required_refs(
+    tmp_path: Path,
+) -> None:
     g4 = _g4()
+    repo_root = _repo_root_with_g1_binding(tmp_path)
     promoted_request = _source_only_request_copy()
     promoted_request["grounded_contract_rows"][0].update(
         {
@@ -1231,10 +1511,10 @@ def test_promotion_records_emit_promoted_and_blocked_records_with_required_refs(
             "conformance_ref": "repo://architecture/policy_design_case/layer3_g1_conformance_report.json#g1",
         }
     )
-    promoted_inputs = g4.build_g4_promotion_input_set(REPO_ROOT, [promoted_request])
-    promoted_contracts = g4.build_g4_grounded_contract_set(REPO_ROOT, promoted_inputs)
+    promoted_inputs = g4.build_g4_promotion_input_set(repo_root, [promoted_request])
+    promoted_contracts = g4.build_g4_grounded_contract_set(repo_root, promoted_inputs)
     promoted_ledger = g4.build_g4_a_completeness_ledger(
-        REPO_ROOT,
+        repo_root,
         promoted_inputs,
         promoted_contracts,
     )
@@ -1254,10 +1534,10 @@ def test_promotion_records_emit_promoted_and_blocked_records_with_required_refs(
         "g1_source_contract",
         "g2_forecast_support",
     ]
-    blocked_inputs = g4.build_g4_promotion_input_set(REPO_ROOT, [blocked_request])
-    blocked_contracts = g4.build_g4_grounded_contract_set(REPO_ROOT, blocked_inputs)
+    blocked_inputs = g4.build_g4_promotion_input_set(repo_root, [blocked_request])
+    blocked_contracts = g4.build_g4_grounded_contract_set(repo_root, blocked_inputs)
     blocked_ledger = g4.build_g4_a_completeness_ledger(
-        REPO_ROOT,
+        repo_root,
         blocked_inputs,
         blocked_contracts,
     )
@@ -1320,8 +1600,124 @@ def test_promotion_records_emit_promoted_and_blocked_records_with_required_refs(
     assert "layer3_g4_missing_g2_forecast_support" in blocked_record["blocker_refs"]
 
 
-def test_consumer_gates_and_g5_handoff_are_reference_only_and_preserve_boundaries() -> None:
+def test_task6_g4_governed_upstream_artifact_insertion_promotes_after_admission(
+    tmp_path: Path,
+) -> None:
     g4 = _g4()
+    repo_root = _repo_root_with_g1_binding(tmp_path)
+    request = _source_only_request_copy()
+    request["grounded_contract_rows"][0].pop("adapter_admission_ref", None)
+    request["grounded_contract_rows"][0].pop("conformance_ref", None)
+
+    blocked_inputs = g4.build_g4_promotion_input_set(repo_root, [request])
+    blocked_contracts = g4.build_g4_grounded_contract_set(repo_root, blocked_inputs)
+    blocked_ledger = g4.build_g4_a_completeness_ledger(
+        repo_root,
+        blocked_inputs,
+        blocked_contracts,
+    )
+    blocked_weakest = g4.build_g4_weakest_boundary_composition(
+        blocked_inputs,
+        blocked_contracts,
+        blocked_ledger,
+    )
+    blocked_records = g4.build_g4_promotion_records(
+        blocked_inputs,
+        blocked_contracts,
+        blocked_ledger,
+        blocked_weakest,
+        g4.build_g4_human_decision_integrity_gate(request),
+    )
+
+    admitted_request = json.loads(json.dumps(request))
+    admitted_request["grounded_contract_rows"][0].update(
+        {
+            "adapter_admission_ref": (
+                "repo://architecture/policy_design_case/"
+                "layer3_g1_adapter_admission_registry.json#g1"
+            ),
+            "conformance_ref": (
+                "repo://architecture/policy_design_case/"
+                "layer3_g1_conformance_report.json#g1"
+            ),
+        }
+    )
+    admitted_inputs = g4.build_g4_promotion_input_set(repo_root, [admitted_request])
+    admitted_contracts = g4.build_g4_grounded_contract_set(repo_root, admitted_inputs)
+    admitted_ledger = g4.build_g4_a_completeness_ledger(
+        repo_root,
+        admitted_inputs,
+        admitted_contracts,
+    )
+    admitted_weakest = g4.build_g4_weakest_boundary_composition(
+        admitted_inputs,
+        admitted_contracts,
+        admitted_ledger,
+    )
+    admitted_records = g4.build_g4_promotion_records(
+        admitted_inputs,
+        admitted_contracts,
+        admitted_ledger,
+        admitted_weakest,
+        g4.build_g4_human_decision_integrity_gate(admitted_request),
+    )
+
+    blocked = _dump(blocked_records[0])
+    admitted = _dump(admitted_records[0])
+    assert blocked["promotion_state"] == "promotion_blocked"
+    assert "layer3_g4_adapter_admission_missing" in blocked["blocker_refs"]
+    assert admitted["promotion_state"] == "governed_promoted"
+    assert admitted["upstream_contract_refs"]
+    assert set(admitted["may_not_use_for"]) >= EXPECTED_MAY_NOT_USE_FOR
+    assert "production_authority" not in admitted["authoritative_for"]
+
+
+def test_task9_g4_promotion_records_are_reducer_authored_waist_court(
+    tmp_path: Path,
+) -> None:
+    g4 = _g4()
+    repo_root = _repo_root_with_g1_binding(tmp_path)
+    request = _source_only_request_copy()
+    request["grounded_contract_rows"][0].update(
+        {
+            "adapter_admission_ref": (
+                "repo://architecture/policy_design_case/"
+                "layer3_g1_adapter_admission_registry.json#g1"
+            ),
+            "conformance_ref": (
+                "repo://architecture/policy_design_case/"
+                "layer3_g1_conformance_report.json#g1"
+            ),
+        }
+    )
+
+    input_set = g4.build_g4_promotion_input_set(repo_root, [request])
+    contract_set = g4.build_g4_grounded_contract_set(repo_root, input_set)
+    ledger = g4.build_g4_a_completeness_ledger(repo_root, input_set, contract_set)
+    weakest = g4.build_g4_weakest_boundary_composition(input_set, contract_set, ledger)
+    records = g4.build_g4_promotion_records(
+        input_set,
+        contract_set,
+        ledger,
+        weakest,
+        g4.build_g4_human_decision_integrity_gate(request),
+    )
+    record = _dump(records[0])
+
+    assert record["promotion_state"] == "governed_promoted"
+    assert record["produced_by"]["reducer_id"] == "reduce_g4_promotion_state"
+    assert record["produced_by"]["rule_version"] == (
+        "policyos.layer3.gx.reducer_only_status.v1"
+    )
+    assert record["produced_by"]["output_hash"].startswith("sha256:")
+    assert record["produced_by"]["input_hashes"]
+
+
+def test_consumer_gates_and_g5_handoff_are_reference_only_and_preserve_boundaries(
+    tmp_path: Path,
+) -> None:
+    g4 = _g4()
+    repo_root = _repo_root_with_g1_binding(tmp_path)
     promoted_request = _source_only_request_copy()
     promoted_request["grounded_contract_rows"][0].update(
         {
@@ -1329,9 +1725,9 @@ def test_consumer_gates_and_g5_handoff_are_reference_only_and_preserve_boundarie
             "conformance_ref": "repo://architecture/policy_design_case/layer3_g1_conformance_report.json#g1",
         }
     )
-    input_set = g4.build_g4_promotion_input_set(REPO_ROOT, [promoted_request])
-    contract_set = g4.build_g4_grounded_contract_set(REPO_ROOT, input_set)
-    ledger = g4.build_g4_a_completeness_ledger(REPO_ROOT, input_set, contract_set)
+    input_set = g4.build_g4_promotion_input_set(repo_root, [promoted_request])
+    contract_set = g4.build_g4_grounded_contract_set(repo_root, input_set)
+    ledger = g4.build_g4_a_completeness_ledger(repo_root, input_set, contract_set)
     weakest = g4.build_g4_weakest_boundary_composition(input_set, contract_set, ledger)
     human_gate = g4.build_g4_human_decision_integrity_gate(promoted_request)
     records = g4.build_g4_promotion_records(

@@ -28,7 +28,7 @@
   "projection_id": "layer3-g6-prompt-tool-ledger-projection:layer3-g6-run:req-layer3-g6-readiness",
   "prompt_tool_ledger": {
     "findings": [],
-    "generated_at": "2026-06-10T09:12:37.737940Z",
+    "generated_at": "2026-06-13T18:28:25.645550Z",
     "job_id": "layer3-g6-job:req-layer3-g6-readiness",
     "model_variant_id": "layer3-g6-bounded-agent-candidate",
     "prompt_tool_ledger_ref": "layer3-g6://prompt-tool-ledger/layer3-g6-run:req-layer3-g6-readiness",

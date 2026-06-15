@@ -37,6 +37,7 @@ from polisyos.runtime.quality.replay import (
     build_replay_manifest,
     explain_replay_drift,
 )
+from polisyos.runtime.quality.required_reference_resolver import resolve_required_ref
 from polisyos.scientist import (
     ToolContractSummary,
     ToolDefinition,
@@ -60,7 +61,7 @@ G6_GENERATED_ARTIFACT_FAMILY_ID = (
 )
 G6_POLICY_GRAMMAR_AUTHORITATIVE_FOR = ("layer3_g6_policy_grammar_routing_facets",)
 G6_DEFAULT_G5_ENVELOPE_REFS = (
-    "layer3-g5-envelope://ua-msme-affordable-loans-2022",
+    f"layer3-g5-envelope://{g5.G5_PINNED_CASE_ID}",
     "layer3-g5-claim-family://ua-msme-support",
 )
 G6_ALLOWED_TOOL_NAMES = (
@@ -129,6 +130,7 @@ ALL_ISSUE_CODES = (
     "layer3_g6_rejected_branch_memory_missing",
     "layer3_g6_search_ledger_missing",
     "layer3_g6_search_ledger_authority_boundary_leak",
+    "layer3_g6_selected_evidence_ref_unresolved",
     "layer3_g6_outside_g5_envelope",
     "layer3_g6_outside_envelope_abstention_without_search_health",
     "layer3_g6_cheap_refusal_without_demand_signal",
@@ -744,6 +746,10 @@ def _fingerprint(payload: object) -> str:
     return "sha256:" + hashlib.sha256(encoded).hexdigest()
 
 
+def _g6_is_required_cross_slice_ref(ref: str) -> bool:
+    return ref.startswith(("repo://", "manifest://", "generated-artifact://"))
+
+
 def validate_g6_policy_grammar_projection(
     payload: Mapping[str, Any] | Layer3G6PolicyGrammarProjection,
 ) -> Layer3G6PolicyGrammarProjection:
@@ -1229,6 +1235,7 @@ def build_g6_search_ledger(
     deterministic_replay_key: str | None = None,
     search_health_refs: tuple[str, ...] = (),
     authoritative_for: tuple[str, ...] = (),
+    repo_root: str | Path = DEFAULT_REPO_ROOT,
 ) -> Layer3G6SearchLedger:
     """Build the G6 search frontier ledger as a non-authoritative control record."""
 
@@ -1264,6 +1271,14 @@ def build_g6_search_ledger(
         issue_codes.append("layer3_g6_search_ledger_missing")
     if not rejected_candidate_refs and not rejected_tool_names:
         issue_codes.append("layer3_g6_tool_loop_transcript_only_not_audit")
+    root = Path(repo_root)
+    for evidence_ref in selected_evidence_refs:
+        if not _g6_is_required_cross_slice_ref(evidence_ref):
+            continue
+        resolved = resolve_required_ref(root, evidence_ref)
+        if not resolved.exists:
+            issue_codes.append("layer3_g6_selected_evidence_ref_unresolved")
+            issue_codes.extend(resolved.issue_codes)
     status: Literal["pass", "fail"] = "fail" if issue_codes else "pass"
     return Layer3G6SearchLedger(
         ledger_id=f"layer3-g6://search-ledger/{request_id}",

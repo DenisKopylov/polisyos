@@ -107,6 +107,7 @@
           - Privacy Compliance Evidence: reference/runtime/privacy-compliance-evidence.md
           - Provider Model Quality: reference/runtime/provider-model-quality.md
           - Production Quality Maturity: reference/runtime/production-quality-maturity.md
+          - Run-Cost Proportionality Ledger: reference/runtime/run-cost-proportionality-ledger.md
       - Frontend:
           - reference/frontend/index.md
           - Workspace Contract: reference/frontend/workspace-contract.md
@@ -125,6 +126,15 @@
       - Policy Design Case Evidence Paths: reference/policy-design-case-evidence-paths.md
       - Policy Design Case Structural ADR Registry: reference/policy-design-case-structural-adr-registry.md
       - Policy Design Case Operator Guide: reference/policy-design-case-operator-guide.md
+      - Policy Design Case Layer 3:
+          - Grounding Inventory: reference/policy-design-case-layer3-grounding-inventory.md
+          - Substrate Grounding: reference/policy-design-case-layer3-substrate-grounding.md
+          - Causal Forecast: reference/policy-design-case-layer3-causal-forecast.md
+          - Analytics Search: reference/policy-design-case-layer3-analytics-search.md
+          - Legal Mandate Search: reference/policy-design-case-layer3-legal-mandate-search.md
+          - Promotion Gate: reference/policy-design-case-layer3-promotion-gate.md
+          - Proving-Ground Conversion: reference/policy-design-case-layer3-proving-ground-conversion.md
+          - Bounded Agent: reference/policy-design-case-layer3-bounded-agent.md
       - Repository Topology: reference/repository-topology.md
       - Data Lake Policy: reference/data-lake-policy.md
       - Local Runtime State: reference/local-runtime-state.md

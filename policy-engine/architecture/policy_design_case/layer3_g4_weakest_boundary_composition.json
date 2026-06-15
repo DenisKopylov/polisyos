@@ -1,24 +1,28 @@
 {
   "blocker_refs": [
-    "layer3_g4_placeholder_design_record_promoted",
-    "layer3_g4_w12d_manifest_only_not_payload"
+    "layer3_g4_source_design_record_digest_missing",
+    "layer3_g4_source_design_record_unresolved"
   ],
   "issue_codes": [
-    "layer3_g4_placeholder_design_record_promoted",
-    "layer3_g4_w12d_manifest_only_not_payload"
+    "layer3_g4_source_design_record_unresolved",
+    "layer3_g4_source_design_record_digest_missing",
+    "layer3_g4_a_completeness_failed"
   ],
   "limitation_refs": [],
-  "promotion_scope": {
-    "authority_purpose": "layer3_g4_governed_promotion_state",
-    "claim_families": [
-      "source_data"
-    ],
-    "high_stakes": false,
-    "requested_boundary": "bounded",
-    "requires_legal_or_mandate_authority": false,
-    "routine_in_envelope": true
+  "produced_by": {
+    "input_hashes": {
+      "repo://architecture/policy_design_case/layer3_g4_a_completeness_ledger.json": "sha256:7f4762b7a31c39bf2ae8b2d83f177cdef043c6d21283b7907d71b99ebceb97cc",
+      "repo://architecture/policy_design_case/layer3_g4_grounded_contract_set.json": "sha256:947fbb6358196bc2b9d71327fd7d10b3b6d261a3d85d81134ef93cd5a2b1f278",
+      "repo://architecture/policy_design_case/layer3_g4_promotion_input_set.json": "sha256:6472da270a4dc372d6ccd6015aedd7abf5c4ec323a53e2b17d554a1e26dba89f"
+    },
+    "output_hash": "sha256:f297ad5cab71033ca53a0a60cac55e5e103baa5c424cc51607bf7d024d3dfad1",
+    "reducer_id": "reduce_g4_promotion_state",
+    "reducer_version": "v1",
+    "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
+    "vocabulary_status_id": "promotion_blocked"
   },
+  "promotion_scope": {},
   "promotion_state": "promotion_blocked",
   "status": "fail",
-  "weakest_boundary_reason": "layer3_g4_placeholder_design_record_promoted;layer3_g4_w12d_manifest_only_not_payload"
+  "weakest_boundary_reason": "layer3_g4_source_design_record_digest_missing;layer3_g4_source_design_record_unresolved;layer3_g4_source_design_record_unresolved;layer3_g4_source_design_record_digest_missing;layer3_g4_a_completeness_failed"
 }

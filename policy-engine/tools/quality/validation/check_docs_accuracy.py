@@ -4,8 +4,8 @@
 The checker intentionally focuses on the published MkDocs surface defined by
 ``mkdocs.yml`` and enforces the D2 reference contract:
 
-* published pages come from ``nav`` and must not be excluded by
-  ``exclude_docs``;
+* published pages come from ``nav`` or ``not_in_nav`` and must not be excluded
+  by ``exclude_docs``;
 * placeholder repository URLs such as ``<repo-url>`` are rejected;
 * workflow references must point to workflow files that actually exist under
   ``.github/workflows`` in this repository;
@@ -102,13 +102,40 @@ def collect_nav_entries(value: Any) -> list[str]:
 
 
 def parse_site_url(mkdocs_path: Path) -> str | None:
-    """Read ``site_url`` from ``mkdocs.yml`` without extra assumptions."""
+    """Read ``site_url`` from one MkDocs file without resolving inheritance."""
     if not mkdocs_path.exists():
         return None
     for line in mkdocs_path.read_text(encoding="utf-8").splitlines():
         if line.startswith("site_url:"):
             return line.split(":", 1)[1].strip()
     return None
+
+
+def load_mkdocs_data(
+    mkdocs_path: Path,
+    loader_cls: type[yaml.SafeLoader],
+    *,
+    seen: frozenset[Path] = frozenset(),
+) -> dict[str, Any]:
+    """Load MkDocs YAML and merge a single-file ``INHERIT`` chain."""
+    resolved_path = mkdocs_path.resolve()
+    if resolved_path in seen:
+        raise ValueError(f"cyclic MkDocs INHERIT chain at {mkdocs_path}")
+    data = yaml.load(mkdocs_path.read_text(encoding="utf-8"), Loader=loader_cls) or {}
+    if not isinstance(data, dict):
+        return {}
+    inherited_ref = data.get("INHERIT")
+    if not inherited_ref:
+        return data
+    inherited_path = Path(str(inherited_ref))
+    if not inherited_path.is_absolute():
+        inherited_path = mkdocs_path.parent / inherited_path
+    inherited = load_mkdocs_data(
+        inherited_path,
+        loader_cls,
+        seen=seen | frozenset({resolved_path}),
+    )
+    return {**inherited, **{key: value for key, value in data.items() if key != "INHERIT"}}
 
 
 def split_exclude_docs(value: Any) -> list[str]:
@@ -163,9 +190,12 @@ def published_docs_config(repo_root: Path) -> tuple[PublishedDocsConfig, list[Vi
         return None
 
     MkDocsLoader.add_multi_constructor("tag:yaml.org,2002:python/name:", _unknown_tag)
-    data = yaml.load(mkdocs_path.read_text(encoding="utf-8"), Loader=MkDocsLoader) or {}
+    data = load_mkdocs_data(mkdocs_path, MkDocsLoader)
+    site_url_value = data.get("site_url")
+    site_url = str(site_url_value).strip() if site_url_value else site_url
     nav_paths = collect_nav_entries(data.get("nav", []))
     exclude_patterns = split_exclude_docs(data.get("exclude_docs"))
+    not_in_nav_paths = split_exclude_docs(data.get("not_in_nav"))
     published: set[Path] = set()
 
     for nav_entry in nav_paths:
@@ -204,6 +234,29 @@ def published_docs_config(repo_root: Path) -> tuple[PublishedDocsConfig, list[Vi
                     mkdocs_path,
                     1,
                     f"nav entry `{nav_entry}` does not resolve under `docs/`",
+                )
+            )
+            continue
+        published.add(file_path)
+
+    for not_in_nav_entry in not_in_nav_paths:
+        relative = Path(not_in_nav_entry)
+        if is_excluded_docs_path(relative, exclude_patterns):
+            violations.append(
+                Violation(
+                    mkdocs_path,
+                    1,
+                    f"not_in_nav entry `{not_in_nav_entry}` is excluded by `exclude_docs`",
+                )
+            )
+            continue
+        file_path = (docs_root / relative).resolve()
+        if not file_path.exists():
+            violations.append(
+                Violation(
+                    mkdocs_path,
+                    1,
+                    f"not_in_nav entry `{not_in_nav_entry}` does not resolve under `docs/`",
                 )
             )
             continue

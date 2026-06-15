@@ -1,5 +1,8 @@
 # Production Canary Matrix
 
+Owner: `@runtime-owners`
+Source of truth: `tools/ops_runners/runtime/canary_matrix.py`, `tools/ops_runners/runtime/run_canary_matrix.py`, and `tests/unit/runtime/quality/**`
+
 The Phase 0.4 baseline defines the `policyos.canary_matrix.v1` payload emitted by:
 
 ```bash

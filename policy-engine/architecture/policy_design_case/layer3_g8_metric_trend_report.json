@@ -137,7 +137,7 @@
       ]
     },
     {
-      "latest_status": "pass",
+      "latest_status": "fail",
       "metric_id": "search-recall@known-seeds+index-staleness",
       "signal_count": 33,
       "source_refs": [

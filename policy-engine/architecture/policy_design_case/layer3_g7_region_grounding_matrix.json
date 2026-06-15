@@ -4,8 +4,8 @@
   "coverage_status": "blocked_search_control_plane_only",
   "grounded_case_count": 0,
   "issue_codes": [
-    "layer3_g7_current_g5_unchanged_blocker",
     "layer3_g7_region_case_without_grounding_matrix",
+    "layer3_g7_current_g5_unchanged_blocker",
     "layer3_g7_accountable_principal_missing",
     "layer3_g7_search_hit_counted_as_coverage"
   ],
@@ -38,21 +38,20 @@
   "rows": [
     {
       "accountable_principal_refs": [
-        "principal://ua-msme/first-proving-ground"
+        "principal://deniskopylov"
       ],
       "blockers": [
+        "blocker://g7/missing-g4-promotion-record",
         "blocker://g7/current-g5-unchanged-blocker"
       ],
       "candidate_source": "current_g5_seed_case",
       "case_id": "ua-msme-affordable-loans-2022",
       "demand_refs": [
-        "demand://g5/ua-msme-affordable-loans-2022"
+        "demand-act://layer3-gx/ua-msme-affordable-loans-2022"
       ],
       "envelope_posture": "in",
-      "g4_promotion_record_refs": [
-        "g4-promotion-record:g4-request:ua-msme-source-only-valid"
-      ],
-      "g4_promotion_state": "promotion_blocked",
+      "g4_promotion_record_refs": [],
+      "g4_promotion_state": "missing",
       "g5_conversion_outcome": "unchanged_blocker",
       "g5_conversion_record_refs": [
         "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker"
@@ -69,6 +68,7 @@
       "gl_legal_status": "available",
       "grounding_disposition": "ungrounded_blocked",
       "issue_codes": [
+        "layer3_g7_region_case_without_grounding_matrix",
         "layer3_g7_current_g5_unchanged_blocker"
       ],
       "limitations": [
@@ -97,7 +97,9 @@
         "s14_universality_claim_without_s14_gate",
         "g8_metric_governance_authority"
       ],
-      "missing_ref_blockers": [],
+      "missing_ref_blockers": [
+        "missing:g4_promotion_record_ref"
+      ],
       "missing_ref_limitations": [
         "missing:g6_case_specific_request_or_agent_ref"
       ],
@@ -110,9 +112,7 @@
       "s14_pending_feed_refs": [
         "repo://architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json"
       ],
-      "s3_demand_pull_refs": [
-        "s3-demand-pull://ua-msme/first-proving-ground"
-      ],
+      "s3_demand_pull_refs": [],
       "search_authoritative_for": [],
       "search_ledger_refs": [
         "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json",
@@ -435,7 +435,7 @@
   ],
   "search_recall_freshness_join": {
     "g1_index_freshness_status": "pass",
-    "g1_search_recall_status": "pass",
+    "g1_search_recall_status": "fail",
     "g1_source_contract_refs": [
       "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json"
     ],

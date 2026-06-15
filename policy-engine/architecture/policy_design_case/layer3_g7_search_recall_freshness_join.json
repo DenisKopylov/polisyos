@@ -1,6 +1,6 @@
 {
   "g1_index_freshness_status": "pass",
-  "g1_search_recall_status": "pass",
+  "g1_search_recall_status": "fail",
   "g1_source_contract_refs": [
     "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json"
   ],

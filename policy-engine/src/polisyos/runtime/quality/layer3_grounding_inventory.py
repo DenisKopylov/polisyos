@@ -19,6 +19,10 @@ from typing import Any, Literal
 from pydantic import AliasChoices, Field, model_validator
 
 from polisyos.pdc import AuthorityBoundary, Layer2ReadinessModel
+from polisyos.runtime.quality.layer3_gx_data_home import (
+    read_layer3_gx_construct_bundle_id,
+    read_layer3_gx_pinned_case_id,
+)
 
 LAYER3_G0_SCHEMA_VERSION = "policyos.policy_design_case.layer3_g0_discovery_search.v2"
 LAYER3_G0_RULE_VERSION = "policyos.layer3.g0.discovery_search_free_growth.v2"
@@ -31,8 +35,9 @@ NO_ADAPTER_ADMISSION_IN_G0 = True
 NO_HARDCODE_FALLBACKS = True
 SEARCH_FRONTIER_REQUIRED_FOR_ABSTENTION = True
 RECALL_FRESHNESS_REQUIRED_FOR_DOMAIN_CEILING = True
-FIRST_VERTICAL_CORPUS_CASE_ID = "ua-msme-affordable-loans-2022"
-FIRST_VERTICAL_CONSTRUCT_BUNDLE_ID = "ukrainian_msme_credit_constructs"
+REPO_ROOT = Path(__file__).resolve().parents[4]
+FIRST_VERTICAL_CORPUS_CASE_ID = read_layer3_gx_pinned_case_id(REPO_ROOT)
+FIRST_VERTICAL_CONSTRUCT_BUNDLE_ID = read_layer3_gx_construct_bundle_id(REPO_ROOT)
 
 PDC_IMPORT_ALLOWLIST_ROOTS: tuple[str, ...] = ("core",)
 PDC_IMPORT_ALLOWLIST_RATIONALE = (
@@ -163,16 +168,9 @@ _HEALTH_METRICS: tuple[HealthMetricId, ...] = (
     "demand-pull-vs-abstention",
     "search-recall@known-seeds+index-staleness",
 )
-_HARDCODE_ENUMERATION_PATTERNS: dict[str, tuple[HardcodeEnumerationKind, str]] = {
-    "KNOWN_CONSTRUCTS": (
-        "construct",
-        "hardcode://runtime-quality/capability-index-known-constructs",
-    ),
-    "REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS": (
-        "construct",
-        "hardcode://runtime-quality/scenario-family-construct-mappings",
-    ),
-}
+HARDCODE_ENUMERATION_BACKLOG_PATH = Path(
+    "architecture/policy_design_case/layer3_hardcode_enumeration_backlog.json"
+)
 
 
 class ValidationIssue(Layer2ReadinessModel):
@@ -1095,7 +1093,7 @@ def build_grounding_search_contracts(repo_root: Path) -> GroundingSearchDiscipli
             cutoff_budget_ref="budget://layer3-g0/fixture-small",
             absence_or_incompleteness_reason="none",
             completeness_status="complete_with_candidates",
-            deterministic_replay_key="sha256:fixture-minimal-search",
+            deterministic_replay_key="sha256:b05bebc58889febbdfc2778403db376b68c0216da747b5e73b325146f1626595",
             authoritative_for=[],
             may_not_use_for=["adapter_admission", "publication_authority"],
         )
@@ -1260,36 +1258,15 @@ def build_grounding_search_contracts(repo_root: Path) -> GroundingSearchDiscipli
 def build_hardcode_enumeration_backlog(repo_root: Path) -> HardcodeEnumerationBacklog:
     """Build the G0 strangle backlog for known hardcoded capability enumerations."""
 
+    payload = _load_json(repo_root / HARDCODE_ENUMERATION_BACKLOG_PATH)
+    entries_payload = _mapping(payload.get("hardcode_enumeration_backlog")).get(
+        "entries",
+        (),
+    )
     entries = [
-        HardcodeEnumerationBacklogEntry(
-            backlog_id="hardcode://runtime-quality/capability-index-known-constructs",
-            file="src/polisyos/runtime/quality/capability_index_compiler.py",
-            pattern="KNOWN_CONSTRUCTS",
-            enumeration_kind="construct",
-            governed_vocabulary_exception=False,
-            target_discovery_path="discovery://layer3-g0/resource-discovery/constructs",
-            owner="team-runtime-quality",
-            deletion_condition=(
-                "Delete after G1+ consumes ResourceDiscoveryRecord-backed construct discovery."
-            ),
-            fallback_forbidden=True,
-        ),
-        HardcodeEnumerationBacklogEntry(
-            backlog_id="hardcode://runtime-quality/scenario-family-construct-mappings",
-            file="src/polisyos/runtime/quality/capability_resolver.py",
-            pattern="REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS",
-            enumeration_kind="construct",
-            governed_vocabulary_exception=False,
-            target_discovery_path=(
-                "discovery://layer3-g0/resource-discovery/scenario-family-constructs"
-            ),
-            owner="team-runtime-quality",
-            deletion_condition=(
-                "Delete after G1+ consumes ResourceDiscoveryRecord-backed scenario "
-                "family construct discovery."
-            ),
-            fallback_forbidden=True,
-        )
+        HardcodeEnumerationBacklogEntry.model_validate(row)
+        for row in _sequence(entries_payload)
+        if isinstance(row, Mapping)
     ]
     return HardcodeEnumerationBacklog(
         entries=entries,
@@ -1302,13 +1279,14 @@ def build_no_hardcode_lint_report(repo_root: Path) -> NoHardcodeEnumerationLintR
 
     backlog = build_hardcode_enumeration_backlog(repo_root)
     backlog_by_pattern = {entry.pattern: entry for entry in backlog.entries}
+    patterns = _hardcode_enumeration_patterns(repo_root)
     scanned_paths = _no_hardcode_scan_paths(repo_root)
     violations: list[NoHardcodeEnumerationViolation] = []
     for rel_path in scanned_paths:
         path = repo_root / rel_path
-        mentioned_patterns = _mentioned_hardcode_patterns(path)
+        mentioned_patterns = _mentioned_hardcode_patterns(path, patterns)
         for pattern in sorted(mentioned_patterns):
-            kind, _default_backlog_ref = _HARDCODE_ENUMERATION_PATTERNS[pattern]
+            kind, _default_backlog_ref = patterns[pattern]
             backlog_entry = backlog_by_pattern.get(pattern)
             violations.append(
                 NoHardcodeEnumerationViolation(
@@ -3159,16 +3137,29 @@ def _no_hardcode_scan_paths(repo_root: Path) -> list[str]:
     return sorted(path for path in paths if (repo_root / path).exists())
 
 
-def _mentioned_hardcode_patterns(path: Path) -> set[str]:
+def _mentioned_hardcode_patterns(
+    path: Path,
+    patterns: Mapping[str, tuple[HardcodeEnumerationKind, str]],
+) -> set[str]:
     text = path.read_text(encoding="utf-8")
     tree = ast.parse(text, filename=str(path))
     mentioned: set[str] = set()
     for node in ast.walk(tree):
-        if isinstance(node, ast.Name) and node.id in _HARDCODE_ENUMERATION_PATTERNS:
+        if isinstance(node, ast.Name) and node.id in patterns:
             mentioned.add(node.id)
-        elif isinstance(node, ast.Attribute) and node.attr in _HARDCODE_ENUMERATION_PATTERNS:
+        elif isinstance(node, ast.Attribute) and node.attr in patterns:
             mentioned.add(node.attr)
     return mentioned
+
+
+def _hardcode_enumeration_patterns(
+    repo_root: Path,
+) -> dict[str, tuple[HardcodeEnumerationKind, str]]:
+    backlog = build_hardcode_enumeration_backlog(repo_root)
+    return {
+        entry.pattern: (entry.enumeration_kind, entry.backlog_id)
+        for entry in backlog.entries
+    }
 
 
 def _immediate_polisyos_roots(repo_root: Path) -> list[str]:

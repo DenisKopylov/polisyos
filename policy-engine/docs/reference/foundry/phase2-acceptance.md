@@ -1,5 +1,8 @@
 # Foundry Phase 2 Acceptance
 
+Owner: `@foundry-owners`
+Source of truth: `tools/quality/validation/foundry_phase2_manifest.json`, `tools/quality/validation/validate_foundry_phase2_closure.py`, `tools/quality/validation/run_foundry_phase2_validation.sh`, and `tools/quality/validation/generate_foundry_phase2_evidence.py`
+
 Foundry Phase 2 is closed only when every `P2.01` through `P2.14` track has a
 machine-checkable evidence path that is reproducible from the repository:
 typed target surface, enrolled acceptance tests, enrolled benchmark entrypoint,

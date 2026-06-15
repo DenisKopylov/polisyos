@@ -2,7 +2,7 @@
 
 Freshness: 2026-05-13.
 Owner: `team-data-forge`, `team-runtime`
-Source: Phase 5.1 of `docs/plans/active/POLICYOS_BEST_IN_CLASS_PRODUCTION_QUALITY_REMEDIATION_PLAN.md`
+Source of truth: `src/polisyos/runtime/quality/production_data_quality.py`, `tools/ops_runners/runtime/canary_evidence.py`, and Phase 5.1 of `docs/plans/active/POLICYOS_BEST_IN_CLASS_PRODUCTION_QUALITY_REMEDIATION_PLAN.md`
 
 Serious data-backed runs emit a runtime-owned
 `production_data_quality_report_ref`. The report is built from the materialized

@@ -19,6 +19,8 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.runtime.quality.layer3_gx_data_home import read_layer3_gx_pinned_case_id
+
 if TYPE_CHECKING:
     import duckdb
 
@@ -31,6 +33,8 @@ LAYER3_G3_SURFACE_ID = "layer3_g3_proof_carrying_audit_surface"
 LAYER3_G3_GENERATED_ARTIFACT_FAMILY_ID = (
     "policy-design-case-layer3-g3-analytics-search-artifacts"
 )
+REPO_ROOT = Path(__file__).resolve().parents[4]
+G3_PINNED_CASE_ID = read_layer3_gx_pinned_case_id(REPO_ROOT)
 G3_GENERATED_ARTIFACT_PATH_REFS: tuple[str, ...] = (
     "architecture/policy_design_case/layer3_g3_adapter_admission_registry.json",
     "architecture/policy_design_case/layer3_g3_l2_skg_proof_candidate_bindings.json",
@@ -1301,6 +1305,7 @@ def build_layer3_g3_bundle(repo_root: Path) -> Layer3G3Bundle:
         proof_carrying_analytics_records=proof_records,
         claims=(_default_g3_claim_registry_claim(request),),
     )
+    objective_metric = f"{request.cause.replace('.', '_')}_gain"
     baseline_gate = build_g3_baseline_comparison_consumer_gate(
         request=request,
         claim_ledger=claim_ledger,
@@ -1308,10 +1313,10 @@ def build_layer3_g3_bundle(repo_root: Path) -> Layer3G3Bundle:
         selected_option_ref=selected_option_ref,
         selected_option_label="Layer 3 G3 deterministic proof-supported option",
         option_metric_values={
-            selected_option_ref: {"credit_access_gain": 0.34},
-            alternative_ref: {"credit_access_gain": 0.22},
+            selected_option_ref: {objective_metric: 0.34},
+            alternative_ref: {objective_metric: 0.22},
         },
-        objective_directions={"credit_access_gain": "maximize"},
+        objective_directions={objective_metric: "maximize"},
     )
     w12d_gate = build_g3_w12d_consumer_gate(
         case_id=request.case_id,
@@ -4789,7 +4794,7 @@ def _default_g3_request() -> Layer3G3AnalyticsRequest:
     return Layer3G3AnalyticsRequest(
         request_id="g3-request:default-analytics-search",
         claim_id="claim:g3:default-analytics-search",
-        case_id="ua-msme-affordable-loans-2022",
+        case_id=G3_PINNED_CASE_ID,
         cause="agriculture.fertilizer_use",
         effect="agriculture.food_nutritional_quality",
         target_context_id="UA",
@@ -4817,6 +4822,10 @@ def _default_g3_claim_ledger_route() -> tuple[Any, Layer3G3AnalyticsRequest, str
         decomposition_module.ClaimDecompositionNamedAlternative
     )
     decomposition_obligation_cls = decomposition_module.ClaimDecompositionObligation
+    default_request = _default_g3_request()
+    outcome_ref = default_request.cause.replace("policy.", "").replace(".", "_")
+    outcome_label = outcome_ref.replace("_", " ")
+    outcome_concept_ref = f"concept.{outcome_ref}"
 
     ledger = decomposition_compiler_cls().compile(
         decomposition_input_cls(
@@ -4836,8 +4845,8 @@ def _default_g3_claim_ledger_route() -> tuple[Any, Layer3G3AnalyticsRequest, str
                 decomposition_facet_cls(
                     facet_id="facet_outcome",
                     facet_type="outcome_channel",
-                    value="credit access",
-                    concept_spine_refs=["concept.credit_access"],
+                    value=outcome_label,
+                    concept_spine_refs=[outcome_concept_ref],
                     authority_profile_refs=["authority.fiscal_delegated"],
                 ),
             ],
@@ -4847,7 +4856,7 @@ def _default_g3_claim_ledger_route() -> tuple[Any, Layer3G3AnalyticsRequest, str
                     family="welfare comparison",
                     description="Compare selected option against baselines and alternatives.",
                     facet_refs=["facet_instrument", "facet_outcome"],
-                    concept_spine_refs=["concept.credit_access"],
+                    concept_spine_refs=[outcome_concept_ref],
                     authority_profile_refs=["authority.fiscal_delegated"],
                 )
             ],
@@ -4866,7 +4875,7 @@ def _default_g3_claim_ledger_route() -> tuple[Any, Layer3G3AnalyticsRequest, str
     baseline_ref = sorted(superiority_claim.baseline_refs)[0]
     alternative_ref = sorted(superiority_claim.alternative_refs)[0]
     selected_option_ref = "selected:layer3-g3-msme-credit-guarantee"
-    request = _default_g3_request().model_copy(
+    request = default_request.model_copy(
         update={
             "claim_id": superiority_claim.claim_id,
             "baseline_ref": baseline_ref,

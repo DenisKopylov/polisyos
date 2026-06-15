@@ -66,6 +66,42 @@ def _g1_fixture(name: str) -> dict[str, object]:
     return json.loads((G1_FIXTURE_DIR / name).read_text(encoding="utf-8"))
 
 
+def test_w12d_construct_lookup_reads_governed_rows_without_legacy_fallback(
+    tmp_path: Path,
+) -> None:
+    pdc_dir = tmp_path / "architecture/policy_design_case"
+    pdc_dir.mkdir(parents=True)
+    (pdc_dir / "layer2_s3_governed_capability_rows.json").write_text(
+        json.dumps(
+            {
+                "scenario_family_construct_rows": [
+                    {
+                        "scenario_family": "solar_credit_panel",
+                        "construct": "solar_credit_access",
+                        "producer_ref": "producer://test/solar-credit-panel",
+                    }
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    assert (
+        w12d._first_construct_ref(
+            {"required_data_families": ["solar-credit-panel"]},
+            repo_root=tmp_path,
+        )
+        == "solar_credit_access"
+    )
+    assert (
+        w12d._first_construct_ref(
+            {"required_data_families": ["unknown-family"]},
+            repo_root=tmp_path,
+        )
+        is None
+    )
+
+
 def test_w12d_manifest_is_deterministic_and_runs_real_corpus() -> None:
     manifest = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
 

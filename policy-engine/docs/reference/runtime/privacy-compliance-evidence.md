@@ -1,5 +1,8 @@
 # Privacy Compliance Evidence
 
+Owner: `@runtime-owners`
+Source of truth: `src/polisyos/runtime/quality/privacy_compliance.py`, `tools/ops_runners/runtime/canary_evidence.py`, and `tests/unit/runtime/quality/**`
+
 `privacy_compliance_report_ref` is the runtime evidence handle for privacy,
 licensing, and public-export compliance. It is intentionally separate from
 source quality reports: governance reviewers can audit compliance status from a

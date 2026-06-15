@@ -7,8 +7,8 @@ production, publication, approval, scorecard, closeout, or useful-design credit.
 
 from __future__ import annotations
 
-import json
 import hashlib
+import json
 import tomllib
 from collections.abc import Mapping, Sequence
 from pathlib import Path
@@ -16,11 +16,25 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
+from polisyos.runtime.quality.layer3_gx_data_home import (
+    build_g4_promotion_request_dicts_from_data_home,
+    load_layer3_gx_data_home,
+    read_layer3_gx_pinned_case_id,
+)
+from polisyos.runtime.quality.layer3_status_reducers import (
+    G4PromotionStateInputs,
+    Layer3ReducerInputRef,
+    reduce_g4_promotion_state,
+)
+from polisyos.runtime.quality.required_reference_resolver import resolve_required_ref
+
 LAYER3_G4_SCHEMA_VERSION = "policyos.policy_design_case.layer3_g4_promotion_gate.v1"
 LAYER3_G4_RULE_VERSION = "policyos.layer3.g4.shadow_to_governed_promotion.v1"
 G4_SURFACE_ID = "layer3_g4_shadow_to_governed_promotion_surface"
 G4_READINESS_CHECK_ID = "layer3_g4_shadow_to_governed_promotion_gate"
 G4_GENERATED_ARTIFACT_FAMILY_ID = "policy-design-case-layer3-g4-promotion-gate-artifacts"
+REPO_ROOT = Path(__file__).resolve().parents[4]
+G4_PINNED_CASE_ID = read_layer3_gx_pinned_case_id(REPO_ROOT)
 
 PROMOTION_STATE_VALUES: tuple[str, ...] = (
     "shadow",
@@ -389,12 +403,12 @@ ALL_ISSUE_CODES: tuple[str, ...] = (
     "layer3_g4_source_design_record_shape_mismatch",
     "layer3_g4_source_design_record_not_shadow",
     "layer3_g4_w12d_manifest_only_not_payload",
-    "layer3_g4_placeholder_design_record_promoted",
     "layer3_g4_shadow_self_promotion",
     "layer3_g4_data_promotion_lane_confused",
     "layer3_g4_generated_artifact_promotion_target_confused",
     "layer3_g4_dependency_artifact_shape_mismatch",
     "layer3_g4_grounded_contract_set_missing",
+    "layer3_g4_required_ref_unresolved",
     "layer3_g4_grounded_contract_ref_missing",
     "layer3_g4_readiness_summary_only_promotion",
     "layer3_g4_search_ledger_only_promotion",
@@ -726,6 +740,7 @@ class Layer3G4WeakestBoundaryComposition(_G4Model):
     limitation_refs: tuple[str, ...] = Field(default=())
     blocker_refs: tuple[str, ...] = Field(default=())
     issue_codes: tuple[str, ...] = Field(default=())
+    produced_by: dict[str, Any] = Field(default_factory=dict)
 
 
 class Layer3G4PromotionRecord(_G4Model):
@@ -751,6 +766,7 @@ class Layer3G4PromotionRecord(_G4Model):
     pdc_compiler_consumer_gate_ref: str = Field(min_length=1)
     g5_handoff_ref: str = Field(min_length=1)
     registry_ratchet_delta_ref: str = Field(min_length=1)
+    produced_by: dict[str, Any] = Field(default_factory=dict)
     rule_version: str = LAYER3_G4_RULE_VERSION
     schema_version: str = LAYER3_G4_SCHEMA_VERSION
 
@@ -1339,13 +1355,10 @@ def resolve_g4_source_design_record(
         blocker_refs.append(str(ref or "source_design_record"))
     if payload_status == "manifest_only":
         issue_codes.append("layer3_g4_w12d_manifest_only_not_payload")
-        issue_codes.append("layer3_g4_placeholder_design_record_promoted")
+        issue_codes.append("layer3_g4_source_design_record_unresolved")
         blocker_refs.append(str(ref or "source_design_record"))
-    if not digest:
+    if not digest or _g4_placeholder_digest(str(digest)):
         issue_codes.append("layer3_g4_source_design_record_digest_missing")
-        blocker_refs.append(str(ref or "source_design_record_digest"))
-    elif _g4_placeholder_digest(str(digest)):
-        issue_codes.append("layer3_g4_placeholder_design_record_promoted")
         blocker_refs.append(str(ref or "source_design_record_digest"))
     if payload_status == "full_payload" and not replay_ref:
         issue_codes.append("layer3_g4_source_design_record_unresolved")
@@ -1468,18 +1481,29 @@ def build_g4_promotion_input_set(
     )
 
 
+def build_g4_promotion_requests_from_gx_data_home(
+    repo_root: Path,
+) -> tuple[Layer3G4PromotionRequest, ...]:
+    """Build explicit G4 promotion requests from the persisted GX data home."""
+
+    return tuple(
+        Layer3G4PromotionRequest.model_validate(payload)
+        for payload in build_g4_promotion_request_dicts_from_data_home(repo_root)
+    )
+
+
 def build_g4_grounded_contract_set(
     repo_root: Path,
     promotion_input_set: Layer3G4PromotionInputSet | Sequence[Mapping[str, Any]] = (),
 ) -> Layer3G4GroundedContractSet:
     """Normalize upstream grounded contract rows for promotion consumption."""
 
-    del repo_root
+    root = Path(repo_root)
     if isinstance(promotion_input_set, Layer3G4PromotionInputSet):
         promotion_inputs = promotion_input_set.promotion_inputs
     else:
         promotion_inputs = build_g4_promotion_input_set(
-            Path("."),
+            root,
             promotion_input_set,
         ).promotion_inputs
     refs: list[Layer3G4GroundedContractRef] = []
@@ -1513,6 +1537,18 @@ def build_g4_grounded_contract_set(
                 "gl_legal_mandate",
             }:
                 issue_codes.append("layer3_g4_grounded_contract_ref_missing")
+                continue
+            ref_resolution = resolve_required_ref(root, str(ref))
+            if _is_required_cross_slice_ref(str(ref)) and not ref_resolution.exists:
+                issue_codes.extend(
+                    (
+                        "layer3_g4_required_ref_unresolved",
+                        "layer3_g4_grounded_contract_ref_missing",
+                        *ref_resolution.issue_codes,
+                    )
+                )
+                if family_id == "g1_source_contract":
+                    issue_codes.append("layer3_g4_missing_g1_grounded_source_contract")
                 continue
             limitation_refs = _as_str_tuple(row.get("limitation_refs", ()))
             amendment_status = row.get("amendment_lineage_status")
@@ -1646,6 +1682,59 @@ def build_g4_grounded_contract_set(
         status=status,
         grounded_contract_refs=tuple(refs),
         issue_codes=tuple(dict.fromkeys(issue_codes)),
+    )
+
+
+def _g4_g1_binding_ref_exists(
+    repo_root: Path,
+    ref: str,
+    row: Mapping[str, Any],
+) -> bool:
+    if not ref.startswith("repo://"):
+        return False
+    ref_body = ref.removeprefix("repo://")
+    rel_path, _, fragment = ref_body.partition("#")
+    payload = _read_json(repo_root / rel_path)
+    raw_bindings = _dig(payload, ("grounded_source_contracts", "bindings")) or payload.get(
+        "bindings"
+    )
+    bindings = (
+        tuple(item for item in raw_bindings if isinstance(item, Mapping))
+        if isinstance(raw_bindings, Sequence) and not isinstance(raw_bindings, str | bytes)
+        else ()
+    )
+    if not bindings:
+        return False
+    fragment_target = fragment.split("/", 1)[1] if fragment.startswith("bindings/") else fragment
+    expected_refs = {
+        _g4_normalize_binding_selector(fragment_target),
+        _g4_normalize_binding_selector(_optional_str(row.get("binding_id"))),
+        _g4_normalize_binding_selector(_optional_str(row.get("source_binding_ref"))),
+    }
+    expected_refs.discard("")
+    if not expected_refs:
+        return False
+    for binding in bindings:
+        candidates = {
+            _g4_normalize_binding_selector(_optional_str(binding.get("binding_id"))),
+            _g4_normalize_binding_selector(_optional_str(binding.get("construct_ref"))),
+            _g4_normalize_binding_selector(_optional_str(binding.get("source_contract_ref"))),
+        }
+        if expected_refs & candidates:
+            return True
+    return False
+
+
+def _is_required_cross_slice_ref(ref: str) -> bool:
+    return ref.startswith(("repo://", "manifest://", "generated-artifact://"))
+
+
+def _g4_normalize_binding_selector(value: str | None) -> str:
+    return (
+        str(value or "")
+        .removeprefix("construct:")
+        .removeprefix("source-contract://")
+        .strip()
     )
 
 
@@ -2226,10 +2315,22 @@ def build_g4_weakest_boundary_composition(
         if input_set.promotion_inputs
         else {}
     )
-    status: Literal["pass", "fail"] = "fail" if sorted_blockers else "pass"
+    decision = reduce_g4_promotion_state(
+        G4PromotionStateInputs(
+            dependency_statuses=("pass",),
+            blocker_refs=sorted_blockers,
+            limitation_refs=sorted_limitations,
+            input_refs=_g4_reducer_input_refs(
+                promotion_input_set=input_set,
+                contract_set=contract_set,
+                a_completeness_ledger=ledger,
+            ),
+        )
+    )
+    status: Literal["pass", "fail"] = "pass" if decision.status == "governed_promoted" else "fail"
     return Layer3G4WeakestBoundaryComposition(
         status=status,
-        promotion_state="promotion_blocked" if sorted_blockers else "governed_promoted",
+        promotion_state=decision.status,  # type: ignore[arg-type]
         promotion_scope=promotion_scope,
         weakest_boundary_reason=(
             ";".join(sorted_blockers) if sorted_blockers else "all_required_refs_pass"
@@ -2237,6 +2338,7 @@ def build_g4_weakest_boundary_composition(
         limitation_refs=sorted_limitations,
         blocker_refs=sorted_blockers,
         issue_codes=sorted_blockers,
+        produced_by=decision.produced_by,
     )
 
 
@@ -2276,6 +2378,56 @@ def _contract_limitation_values(
         limitations.extend(ref.limitation_refs)
         limitations.extend(ref.transport_limitation_refs)
     return tuple(sorted(set(limitations)))
+
+
+def _g4_reducer_input_refs(
+    *,
+    promotion_input_set: Layer3G4PromotionInputSet,
+    contract_set: Layer3G4GroundedContractSet | None = None,
+    a_completeness_ledger: Layer3G4ACompletenessLedger | None = None,
+    weakest_boundary: Layer3G4WeakestBoundaryComposition | None = None,
+    human_decision_integrity_gate: Layer3G4HumanDecisionIntegrityGate | None = None,
+) -> tuple[Layer3ReducerInputRef, ...]:
+    inputs: list[tuple[str, object]] = [
+        ("layer3_g4_promotion_input_set.json", promotion_input_set),
+    ]
+    if contract_set is not None:
+        inputs.append(("layer3_g4_grounded_contract_set.json", contract_set))
+    if a_completeness_ledger is not None:
+        inputs.append(("layer3_g4_a_completeness_ledger.json", a_completeness_ledger))
+    if weakest_boundary is not None:
+        inputs.append(("layer3_g4_weakest_boundary_composition.json", weakest_boundary))
+    if human_decision_integrity_gate is not None:
+        inputs.append(
+            ("layer3_g4_human_decision_integrity_gate.json", human_decision_integrity_gate)
+        )
+    return tuple(
+        Layer3ReducerInputRef(
+            ref=_g4_artifact_ref(filename),
+            content_hash=_g4_payload_hash(payload),
+            producer_ref=f"runtime://layer3-g4/waist-court/{filename}",
+            producer_type="governance",
+            producer_root_refs=("runtime://layer3-g4/waist-court",),
+            supply_side=False,
+        )
+        for filename, payload in inputs
+    )
+
+
+def _g4_payload_hash(payload: object) -> str:
+    encoded = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        default=_g4_json_default,
+    ).encode("utf-8")
+    return f"sha256:{hashlib.sha256(encoded).hexdigest()}"
+
+
+def _g4_json_default(value: object) -> object:
+    if hasattr(value, "model_dump"):
+        return value.model_dump(mode="json")  # type: ignore[no-any-return, attr-defined]
+    return str(value)
 
 
 def _record_refs_and_records(
@@ -2374,18 +2526,32 @@ def build_g4_promotion_records(
     shared_limitations.update(contract_limitations)
     sorted_blockers = tuple(sorted(shared_blockers))
     sorted_limitations = tuple(sorted(shared_limitations))
+    reducer_blockers = (
+        (*sorted_blockers, "layer3_g4_weakest_boundary_blocked")
+        if weakest.promotion_state == "promotion_blocked" and not sorted_blockers
+        else sorted_blockers
+    )
+    decision = reduce_g4_promotion_state(
+        G4PromotionStateInputs(
+            dependency_statuses=("pass",),
+            blocker_refs=reducer_blockers,
+            limitation_refs=sorted_limitations,
+            input_refs=_g4_reducer_input_refs(
+                promotion_input_set=input_set,
+                contract_set=contract_set,
+                a_completeness_ledger=ledger,
+                weakest_boundary=weakest,
+                human_decision_integrity_gate=human_gate,
+            ),
+        )
+    )
     records: list[Layer3G4PromotionRecord] = []
     for index, promotion_input in enumerate(input_set.promotion_inputs):
         request_id = _request_id_for_input(input_set, index, promotion_input)
-        promotion_state: Literal["governed_promoted", "promotion_blocked"] = (
-            "promotion_blocked"
-            if sorted_blockers or weakest.promotion_state == "promotion_blocked"
-            else "governed_promoted"
-        )
         records.append(
             Layer3G4PromotionRecord(
                 promotion_record_id=f"g4-promotion-record:{request_id}",
-                promotion_state=promotion_state,
+                promotion_state=decision.status,  # type: ignore[arg-type]
                 promotion_scope=dict(promotion_input.promotion_scope),
                 case_id=promotion_input.case_id,
                 candidate_ref=promotion_input.candidate_ref,
@@ -2416,6 +2582,7 @@ def build_g4_promotion_records(
                 registry_ratchet_delta_ref=_g4_artifact_ref(
                     "layer3_g4_registry_ratchet_delta.json"
                 ),
+                produced_by=decision.produced_by,
             )
         )
     return tuple(records)
@@ -2706,8 +2873,8 @@ def _base_authority_bypass_payload(repo_root: Path) -> dict[str, Any]:
     payload["promotion_records"] = [
         {
             "promotion_record_id": "g4-promotion-record:task7-negative",
-            "promotion_state": "governed_promoted",
-            "case_id": "ua-msme-affordable-loans-2022",
+            "promotion_state": PROMOTION_STATE_VALUES[1],
+            "case_id": G4_PINNED_CASE_ID,
             "promotion_scope": {"claim_families": ["source_data"]},
             "authoritative_for": ["governed_promotion_state_for_declared_scope"],
             "may_not_use_for": list(G4_MAY_NOT_USE_FOR),
@@ -2776,6 +2943,20 @@ def _authority_bypass_issue_codes(repo_root: Path, negative_id: str) -> tuple[st
 
 def _conformance_request_for_negative(negative_id: str) -> dict[str, Any]:
     request = json.loads(json.dumps(_default_g4_promoted_request()))
+    if negative_id in {
+        "missing_a_firewall_ref_promoted",
+        "upstream_may_not_use_for_ignored",
+    }:
+        construct_ref = _default_g4_grounded_construct_ref(REPO_ROOT)
+        request["grounded_contract_rows"][0].update(
+            {
+                "ref": (
+                    "repo://tests/fixtures/layer3/g4/"
+                    f"g1_grounded_source_contracts_valid.json#bindings/{construct_ref}"
+                ),
+                "binding_id": f"g1-binding:{construct_ref.replace('_', '-')}",
+            }
+        )
     if negative_id == "shadow_design_record_self_promotes":
         request["candidate_source"] = "llm_candidate"
         request["promotion_asserted_by"] = "candidate_self_attested"
@@ -3123,7 +3304,7 @@ def validate_g4_conformance(
 def _default_g4_promoted_request(repo_root: Path | None = None) -> dict[str, Any]:
     return {
         "request_id": "g4-request:ua-msme-source-only-valid",
-        "case_id": "ua-msme-affordable-loans-2022",
+        "case_id": G4_PINNED_CASE_ID,
         "candidate_ref": "s2-design-candidate:ua-msme-credit-support",
         "candidate_source": "layer2_s2_design_search_manifest",
         "incoming_projection_status": "shadow",
@@ -3207,13 +3388,14 @@ def _g4_placeholder_digest(value: str) -> bool:
 
 
 def _default_g4_grounded_g1_row() -> dict[str, Any]:
+    construct_ref = _default_g4_grounded_construct_ref(REPO_ROOT)
     return {
         "family": "g1_source_contract",
         "ref": (
             "repo://architecture/policy_design_case/"
-            "layer3_g1_grounded_source_contracts.json#bindings/firm_survival"
+            f"layer3_g1_grounded_source_contracts.json#bindings/{construct_ref}"
         ),
-        "binding_id": "g1-binding:firm-survival",
+        "binding_id": f"g1-binding:{construct_ref.replace('_', '-')}",
         "lineage_refs": ["repo://production_data/ua-msme/source-contract.json"],
         "coverage_period_ref": "coverage-period://ua-msme/2022-02-open",
         "freshness_ref": "freshness://ukraine_server_support_20260410",
@@ -3256,6 +3438,180 @@ def _build_g4_promotion_chain(
         human_gate,
     )
     return input_set, contract_set, ledger, weakest, human_gate, records
+
+
+def _build_g4_promotion_chains_from_requests(
+    repo_root: Path,
+    requests: Sequence[Mapping[str, Any]],
+) -> tuple[
+    Layer3G4PromotionInputSet,
+    Layer3G4GroundedContractSet,
+    Layer3G4ACompletenessLedger,
+    Layer3G4WeakestBoundaryComposition,
+    Layer3G4HumanDecisionIntegrityGate,
+    tuple[Layer3G4PromotionRecord, ...],
+]:
+    if not requests:
+        issue_codes = ("layer3_g4_promotion_input_missing",)
+        input_set = Layer3G4PromotionInputSet(status="fail", issue_codes=issue_codes)
+        contract_set = Layer3G4GroundedContractSet(
+            status="fail",
+            issue_codes=issue_codes,
+        )
+        ledger = Layer3G4ACompletenessLedger(
+            status="fail",
+            blocker_refs=issue_codes,
+            issue_codes=issue_codes,
+        )
+        decision = reduce_g4_promotion_state(
+            G4PromotionStateInputs(
+                dependency_statuses=("fail",),
+                blocker_refs=issue_codes,
+                input_refs=_g4_reducer_input_refs(
+                    promotion_input_set=input_set,
+                    contract_set=contract_set,
+                    a_completeness_ledger=ledger,
+                ),
+            )
+        )
+        return (
+            input_set,
+            contract_set,
+            ledger,
+            Layer3G4WeakestBoundaryComposition(
+                status="fail",
+                promotion_state="promotion_blocked"
+                if decision.status != "governed_promoted"
+                else "governed_promoted",
+                weakest_boundary_reason="layer3_g4_promotion_input_missing",
+                blocker_refs=issue_codes,
+                issue_codes=issue_codes,
+                produced_by=decision.produced_by,
+            ),
+            Layer3G4HumanDecisionIntegrityGate(status="not_required"),
+            (),
+        )
+    input_sets: list[Layer3G4PromotionInputSet] = []
+    contract_sets: list[Layer3G4GroundedContractSet] = []
+    ledgers: list[Layer3G4ACompletenessLedger] = []
+    weakest_boundaries: list[Layer3G4WeakestBoundaryComposition] = []
+    human_gates: list[Layer3G4HumanDecisionIntegrityGate] = []
+    records: list[Layer3G4PromotionRecord] = []
+    for request in requests:
+        input_set, contract_set, ledger, weakest, human_gate, chain_records = (
+            _build_g4_promotion_chain(repo_root, request)
+        )
+        input_sets.append(input_set)
+        contract_sets.append(contract_set)
+        ledgers.append(ledger)
+        weakest_boundaries.append(weakest)
+        human_gates.append(human_gate)
+        records.extend(chain_records)
+    issue_codes = tuple(
+        dict.fromkeys(
+            code
+            for group in (
+                *(ledger.issue_codes for ledger in ledgers),
+                *(weakest.issue_codes for weakest in weakest_boundaries),
+                *(gate.issue_codes for gate in human_gates),
+            )
+            for code in group
+        )
+    )
+    blocker_refs = tuple(
+        dict.fromkeys(
+            ref
+            for group in (
+                *(ledger.blocker_refs for ledger in ledgers),
+                *(weakest.blocker_refs for weakest in weakest_boundaries),
+                *(gate.blocker_refs for gate in human_gates),
+            )
+            for ref in group
+        )
+    )
+    limitations = tuple(
+        dict.fromkeys(
+            ref
+            for group in (
+                *(ledger.limitation_refs for ledger in ledgers),
+                *(weakest.limitation_refs for weakest in weakest_boundaries),
+                *(gate.limitation_refs for gate in human_gates),
+            )
+            for ref in group
+        )
+    )
+    human_status: Literal["fail", "not_required"] = (
+        "fail" if any(gate.status == "fail" for gate in human_gates) else "not_required"
+    )
+    combined_input_set = _combined_promotion_input_set(*input_sets)
+    combined_contract_set = _combined_grounded_contract_set(*contract_sets)
+    combined_ledger = Layer3G4ACompletenessLedger(
+        status="fail" if issue_codes else "pass",
+        requirements=tuple(
+            requirement for ledger in ledgers for requirement in ledger.requirements
+        ),
+        missing_requirement_count=sum(ledger.missing_requirement_count for ledger in ledgers),
+        limitation_refs=limitations,
+        blocker_refs=blocker_refs,
+        issue_codes=issue_codes,
+    )
+    combined_decision = reduce_g4_promotion_state(
+        G4PromotionStateInputs(
+            dependency_statuses=tuple(boundary.status for boundary in weakest_boundaries),
+            blocker_refs=tuple(dict.fromkeys((*blocker_refs, *issue_codes))),
+            limitation_refs=limitations,
+            input_refs=_g4_reducer_input_refs(
+                promotion_input_set=combined_input_set,
+                contract_set=combined_contract_set,
+                a_completeness_ledger=combined_ledger,
+            ),
+        )
+    )
+    combined_promotion_state: Literal["governed_promoted", "promotion_blocked"] = (
+        "governed_promoted"
+        if combined_decision.status == "governed_promoted"
+        else "promotion_blocked"
+    )
+    combined_status: Literal["pass", "fail"] = (
+        "pass" if combined_promotion_state == "governed_promoted" else "fail"
+    )
+    return (
+        combined_input_set,
+        combined_contract_set,
+        combined_ledger,
+        Layer3G4WeakestBoundaryComposition(
+            status=combined_status,
+            promotion_state=combined_promotion_state,
+            weakest_boundary_reason=(
+                ";".join((*blocker_refs, *issue_codes))
+                if blocker_refs or issue_codes
+                else "all_required_refs_pass"
+            ),
+            limitation_refs=limitations,
+            blocker_refs=blocker_refs,
+            issue_codes=issue_codes,
+            produced_by=combined_decision.produced_by,
+        ),
+        Layer3G4HumanDecisionIntegrityGate(
+            status=human_status,
+            human_decision_required=any(gate.human_decision_required for gate in human_gates),
+            human_decision_record_refs=tuple(
+                dict.fromkeys(
+                    ref for gate in human_gates for ref in gate.human_decision_record_refs
+                )
+            ),
+            blocker_refs=tuple(
+                dict.fromkeys(ref for gate in human_gates for ref in gate.blocker_refs)
+            ),
+            limitation_refs=tuple(
+                dict.fromkeys(ref for gate in human_gates for ref in gate.limitation_refs)
+            ),
+            issue_codes=tuple(
+                dict.fromkeys(code for gate in human_gates for code in gate.issue_codes)
+            ),
+        ),
+        tuple(records),
+    )
 
 
 def _combined_promotion_input_set(
@@ -3434,6 +3790,19 @@ def _adapter_contract_registry_payload() -> dict[str, Any]:
         "authoritative_for": list(G4_AUTHORITATIVE_FOR),
         "may_not_use_for": list(G4_MAY_NOT_USE_FOR),
     }
+
+
+def _default_g4_grounded_construct_ref(repo_root: Path) -> str:
+    data_home = load_layer3_gx_data_home(repo_root)
+    if data_home.status != "ready" or data_home.pinned_request is None:
+        return "missing_construct"
+    constructs = data_home.pinned_request.requested_constructs
+    for row in constructs:
+        if row.role == "effect":
+            return row.construct_ref
+    if constructs:
+        return constructs[0].construct_ref
+    return "missing_construct"
 
 
 def _g4_bundle_summary(
@@ -4056,25 +4425,15 @@ def build_layer3_g4_bundle(repo_root: Path) -> Layer3G4Bundle:
         required_families=("g1", "g2", "g3", "gl"),
     )
     collision_guard = check_g4_naming_collisions(repo_root)
-    promoted_request = _default_g4_promoted_request(root)
-    blocked_request = _default_g4_blocked_request(root)
+    request_payloads = build_g4_promotion_request_dicts_from_data_home(root)
     (
-        promoted_inputs,
-        promoted_contracts,
-        promoted_ledger,
-        promoted_weakest,
-        promoted_human_gate,
-        promoted_records,
-    ) = _build_g4_promotion_chain(repo_root, promoted_request)
-    (
-        blocked_inputs,
-        blocked_contracts,
-        _blocked_ledger,
-        _blocked_weakest,
-        _blocked_human_gate,
-        blocked_records,
-    ) = _build_g4_promotion_chain(repo_root, blocked_request)
-    promotion_records = promoted_records + blocked_records
+        promotion_inputs,
+        grounded_contracts,
+        a_completeness_ledger,
+        weakest_boundary,
+        human_gate,
+        promotion_records,
+    ) = _build_g4_promotion_chains_from_requests(root, request_payloads)
     closeout_gate = build_g4_closeout_consumer_gate(promotion_records)
     pdc_gate = build_g4_pdc_compiler_consumer_gate(promotion_records)
     g5_handoff = build_g4_g5_promotion_handoff(promotion_records)
@@ -4090,9 +4449,8 @@ def build_layer3_g4_bundle(repo_root: Path) -> Layer3G4Bundle:
         dict.fromkeys(
             (
                 *snapshot.issue_codes,
-                *promoted_inputs.issue_codes,
-                *blocked_inputs.issue_codes,
-                *promoted_ledger.issue_codes,
+                *promotion_inputs.issue_codes,
+                *a_completeness_ledger.issue_codes,
             )
         )
     )
@@ -4108,14 +4466,11 @@ def build_layer3_g4_bundle(repo_root: Path) -> Layer3G4Bundle:
         dependency_readiness_snapshot=snapshot,
         dependency_artifact_shapes=artifact_shapes,
         naming_collision_guard=collision_guard,
-        promotion_input_set=_combined_promotion_input_set(promoted_inputs, blocked_inputs),
-        grounded_contract_set=_combined_grounded_contract_set(
-            promoted_contracts,
-            blocked_contracts,
-        ),
-        a_completeness_ledger=promoted_ledger,
-        human_decision_integrity_gate=promoted_human_gate,
-        weakest_boundary_composition=promoted_weakest,
+        promotion_input_set=promotion_inputs,
+        grounded_contract_set=grounded_contracts,
+        a_completeness_ledger=a_completeness_ledger,
+        human_decision_integrity_gate=human_gate,
+        weakest_boundary_composition=weakest_boundary,
         promotion_records=promotion_records,
         closeout_consumer_gate=closeout_gate,
         pdc_compiler_consumer_gate=pdc_gate,

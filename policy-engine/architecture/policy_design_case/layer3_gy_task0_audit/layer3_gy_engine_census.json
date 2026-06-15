@@ -1,0 +1,2472 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gy_engine_census.v1",
+  "rule_version": "policyos.layer3.gy.engine_reality_census.v1",
+  "case_id": "ua-msme-affordable-loans-2022",
+  "generated": "2026-06-14",
+  "branch": "codex/consolidated-all-changes-20260612",
+  "scope": "pinned UA-MSME route (credit_access -> firm_survival), engine assets touched end-to-end",
+  "discipline": "execution over label; every execution/evidence-bearing status carries a sha256 run/probe hash; every blocked route row carries a named blocker; zero rows at unknown.",
+  "environment_notes": [
+    "JAX defaults to experimental Apple-Metal backend which raises 'UNIMPLEMENTED: default_memory_space'; all foundry/simulation runs require JAX_PLATFORMS=cpu.",
+    "sentence_transformers is NOT installed; the canonical hnsw vector arm degrades to text-only despite the hnsw index being present on disk.",
+    "Real connector fetches require an optional network suite (outward calls) deliberately not run in this census; replay fixtures are generic scaffolds."
+  ],
+  "execution_status_vocabulary": {
+    "runs_e2e_on_real": "recorded run on real input succeeded",
+    "runs_with_deadline_adapter": "runs only via a deadline/budget adapter (none observed here)",
+    "runs_degraded_dependency": "runs but a documented optional dependency/arm is unavailable (e.g., hnsw vector arm w/o embedder)",
+    "fails": "recorded failure on real input",
+    "never_invoked": "exists; not called on the route in this run (DAG skip, validator-only, or contract w/o producer) -- a real determination, not unknown",
+    "not_exercised_network": "transport implementation registered + replay-scaffold present; real-data fetch = optional network suite not run"
+  },
+  "gap_taxonomy_extensions": {
+    "blocked_upstream": "wired into the DAG but never invoked because a NAMED upstream asset is rotten (structured blocked_by required); downstream verb=none until the upstream is repaired",
+    "blocked_input": "wired into the DAG but skipped because the pinned request omitted a named non-lex input; not a broken engine and not a downstream-governance target",
+    "out_of_route": "existing/follow-on engine surface discovered by the census but outside the pinned UA-MSME route; listed to prevent build-new drift, not inspected as a closeout row",
+    "note": "all other gap_class values are the plan's 8; partial covers duplicates/surrogates with verb demote and bounded-scope assets"
+  },
+  "verb_gap_consistency": {
+    "wired_and_works": [
+      "govern",
+      "none"
+    ],
+    "wired_but_ungoverned": [
+      "govern",
+      "repair"
+    ],
+    "wired_but_rotten": [
+      "repair"
+    ],
+    "built_not_wired": [
+      "wire"
+    ],
+    "contract_without_producer": [
+      "build"
+    ],
+    "producer_without_consumer": [
+      "wire"
+    ],
+    "partial": [
+      "extend",
+      "wire",
+      "repair",
+      "demote",
+      "none"
+    ],
+    "missing": [
+      "build"
+    ],
+    "blocked_upstream": [
+      "none",
+      "wire"
+    ],
+    "blocked_input": [
+      "none",
+      "wire"
+    ],
+    "out_of_route": [
+      "none"
+    ]
+  },
+  "subcensus_summary": {
+    "foundry_methods": {
+      "registered": 389,
+      "route_relevant": 172,
+      "executable_on_real_proven": "causal.bounds.manski direct representative smoke only; per-method route execution remains blocked behind lex/foundry DAG gates",
+      "families": {
+        "causal": 151,
+        "econometrics": 46,
+        "policy": 23,
+        "ml": 20,
+        "bayesian": 19,
+        "survey": 19,
+        "optimization": 18,
+        "distributional": 17,
+        "simulation": 15,
+        "spatial": 13,
+        "network": 11,
+        "forecasting": 10,
+        "microsim": 9,
+        "sensitivity": 8,
+        "mechanism": 5,
+        "validation": 4,
+        "dependence": 1
+      }
+    },
+    "fabric_connectors": {
+      "route_connector_ids": [
+        "worldbank.wdi",
+        "ckan.resource",
+        "unesco_uis.data",
+        "socrata.soda",
+        "rest.json",
+        "sdmx.source",
+        "eurostat.data",
+        "wvs.wave7",
+        "who.indicators",
+        "opendatasoft.ods",
+        "unpd.data",
+        "ukons.datasets"
+      ],
+      "execution_tiers": {
+        "transport_ready": 34308,
+        "catalog": 14870,
+        "fetchable": 7668
+      },
+      "transport_ready_plus_fetchable": 41976,
+      "plan_42k_estimate_reconciled": "transport_ready(34308)+fetchable(7668)=41976 ~= 42k",
+      "executable_on_real_data": "0 verified (network suite not run; replay fixtures are scaffolds)"
+    },
+    "scientist_dag": {
+      "nodes": 37,
+      "ok": 14,
+      "fail": 1,
+      "skip": 22,
+      "final_smoke_artifact": "_build/.tmp/gy0-census/dag_node_census3.json",
+      "final_smoke_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e",
+      "production_invocation": "run_lifecycle.py:1408 workflow_run path persists a failed WorkflowExecutionResult; nl_pipeline.py:6596/6618 can surface the report from reports_index without a G4/G5 producer-root chain"
+    },
+    "catalog_scale": {
+      "datasets": 137176,
+      "metric_bindings": 56846,
+      "observations": 3708006
+    }
+  },
+  "duplication_map": {
+    "search_engine": {
+      "canonical": "data_forge.DatasetCatalogGraph (hnsw+text, 137k datasets)",
+      "duplicate": "fabric.SemanticCatalogIndex (hashing-BOW, ~3 curated contracts) -> demote/bounded_surrogate",
+      "runtime_today": "RetrievalService(dataset_catalog=None) -> curated fastlane surrogate; catalog lane exists but is not wired"
+    },
+    "demand_contract": {
+      "canonical": "scientist.agent.DataNeedSpec (NL->demand->RetrievalService is already wired)",
+      "second_source_to_build": "foundry.RequiredDataSpec -> DataNeedSpec (GY-3 bridge only)",
+      "dataset_catalog_enrichment_gap": "LLMDataNeedExtractorAgent accepts dataset_catalog but production constructs it with None",
+      "do_not_reinvent": "no parallel DataNeed type"
+    },
+    "design_space": {
+      "canonical": "lex HierarchicalPolicySearchAdapter + TemporalInterventionSequencer, subordinated via DAG node run_hierarchical_policy_search",
+      "do_not_rebuild": "no separate 'subordinate lex' task (GY-5 folds into GY-2)"
+    },
+    "design_process": {
+      "canonical": "scientist run_policy_design_workflow (DAG), invoked in prod via run_experiment",
+      "do_not_rebuild": "no second DAG execution path (GY-2 governs the existing output)"
+    },
+    "engine_side_ports": {
+      "canonical": [
+        "scientist/adapters/foundry_bridge.py",
+        "scientist/adapters/fabric_bridge.py"
+      ]
+    }
+  },
+  "critical_findings": [
+    "Second-pass validator hardening: execution/evidence rows now require sha256 hashes; n/a / see-file placeholders, stale row_count/digest, unnamed blocked_upstream rows, and tools-only wired_and_works claims fail mechanically.",
+    "1184->0: the GX validator reports 0 expected-red / 0 reducer_provenance_missing on this consolidated branch; the plan's progress-meter premise is stale (verify-by-execution).",
+    "Baseline shift: pinned-route final outcome = 'search_ceiling_repair_required' (not 'typed_blocker'); provisional='unchanged_blocker'. This points at GY-1 (real catalog wiring) as the unblock, not provenance backfill.",
+    "DAG top-level is rotten on the final smoke, not pass: 14 ok / 1 fail (lex degenerate bounds) / 22 skip, with run_hierarchical_policy_search invoked and failing on verified_policy_option_rate lower>=upper.",
+    "DAG skip split: build_literature_prior, reconcile_causal_graph, and run_causal_evaluation are blocked_input rows; foundry/simulation/governance/decision-packet rows are blocked_upstream by the lex failure.",
+    "GY-2 is repair-then-govern: run_experiment persists workflow reports/final state to CAS/run index and the NL pipeline can surface them, but the current surfaced object is failed/candidate and bypasses the G4/G5 producer-root reducers.",
+    "Foundry method layer is executable but not consumed on the pinned route: registry loads 389 methods; Manski is a representative direct smoke, not wired_and_works until lex/foundry compile reaches it.",
+    "DataNeedSpec seed correction: NL->DataNeedSpec->RetrievalService already works; the missing pieces are only RequiredDataSpec->DataNeedSpec and LLMDataNeedExtractorAgent.dataset_catalog enrichment wiring.",
+    "Scholar search is out-of-route for GY-0 but discovered as a follow-on: wire/extend the existing OpenAlexClient into ScholarDeepSearchService provider policy instead of building a new search engine.",
+    "Env constraints: foundry/simulation need JAX_PLATFORMS=cpu (Metal unimplemented); search hnsw arm needs sentence_transformers (degrades to text-only)."
+  ],
+  "rows": [
+    {
+      "asset_id": "data_forge.DatasetCatalogGraph.search_datasets",
+      "module_path": "src/polisyos/data_forge/domains/catalog/knowledge/search.py:242,487",
+      "entrypoint": "DatasetCatalogGraph.search_datasets",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "data_forge.domains.catalog.knowledge.search"
+        ],
+        "called_from_production": "false \u2014 runtime RetrievalService passes dataset_catalog=None (run_lifecycle.py:223, nl_pipeline.py:4290)"
+      },
+      "execution_status": "runs_degraded_dependency",
+      "execution_evidence": {
+        "smoke": "DatasetCatalogGraph(prod_catalog).search_datasets('credit access affordable loans'...)",
+        "result": "8 relevant hits/query on 137,176-dataset prod catalog; TEXT arm only \u2014 vector_ms=0.0 because sentence_transformers not installed (hnsw index present but embedder absent)",
+        "output_hash": "sha256:2a4dcafaef1ed216ab4121aa412a5574d615f5f4c96688d0ab3c00d8921854c4",
+        "reproducible": true,
+        "evidence_note": "time/score-stripped canonical hash over returned dataset ids (tools/quality/validation/gy_evidence_canon.py); replaces a prior wall-time-tainted hash"
+      },
+      "consumes": [
+        "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb (137176 datasets, 56846 bindings)",
+        "ds_dataset_index.hnsw (582MB), ds_dataset_embeddings.npz (565MB)"
+      ],
+      "emits": "list[DatasetSearchResult]",
+      "output_destination": "dropped (not reached by runtime RetrievalService)",
+      "authority_status": "none",
+      "gap_class": "built_not_wired",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "wire",
+      "evidence_refs": [
+        "search.py:487",
+        "store.py:134 has_vector_index",
+        "70959ff19fd70e5379539a60ea9ce0cc6901cfdb9759023ad0e6adabb1510845"
+      ],
+      "notes": "Canonical hnsw+text engine. PRECISE GAP: runtime never calls it (RetrievalService dataset_catalog=None). Secondary gap: hnsw arm needs sentence_transformers + intfloat/multilingual-e5-large to run the vector path; this env degraded to text-only."
+    },
+    {
+      "asset_id": "data_forge.DatasetCatalogStore.search_by_vector",
+      "module_path": "src/polisyos/data_forge/domains/catalog/knowledge/store.py:369",
+      "entrypoint": "DatasetCatalogStore.search_by_vector",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "data_forge.domains.catalog.knowledge.search:539"
+        ],
+        "called_from_production": "false"
+      },
+      "execution_status": "runs_degraded_dependency",
+      "execution_evidence": {
+        "smoke": "exercised via search_datasets smoke",
+        "result": "has_vector_index=True (index files present) but _get_query_embedding returned None (sentence_transformers missing) so vector arm did not execute",
+        "output_hash": "sha256:2a4dcafaef1ed216ab4121aa412a5574d615f5f4c96688d0ab3c00d8921854c4",
+        "reproducible": true,
+        "evidence_note": "time/score-stripped canonical hash over returned dataset ids (tools/quality/validation/gy_evidence_canon.py); replaces a prior wall-time-tainted hash"
+      },
+      "consumes": [
+        "ds_dataset_index.hnsw",
+        "ds_dataset_embeddings.npz"
+      ],
+      "emits": "list[DatasetSearchResult]",
+      "output_destination": "dropped",
+      "authority_status": "none",
+      "gap_class": "built_not_wired",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "wire",
+      "evidence_refs": [
+        "store.py:369",
+        "store.py:134"
+      ],
+      "notes": "Canonical hnsw vector search. hnsw index materialized on disk; executable only with the embedding model present."
+    },
+    {
+      "asset_id": "data_forge.DatasetCatalogStore.search_by_text",
+      "module_path": "src/polisyos/data_forge/domains/catalog/knowledge/store.py:394",
+      "entrypoint": "DatasetCatalogStore.search_by_text",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "data_forge.domains.catalog.knowledge.search:308"
+        ],
+        "called_from_production": "false"
+      },
+      "execution_status": "runs_e2e_on_real",
+      "execution_evidence": {
+        "smoke": "search_datasets text arm on prod catalog",
+        "result": "returned on-target hits (WBL legal framework, microloans, domestic credit to private sector, firms with bank loan/line of credit) for all 3 pinned constructs",
+        "output_hash": "sha256:2a4dcafaef1ed216ab4121aa412a5574d615f5f4c96688d0ab3c00d8921854c4",
+        "reproducible": true,
+        "evidence_note": "time/score-stripped canonical hash over returned dataset ids (tools/quality/validation/gy_evidence_canon.py); replaces a prior wall-time-tainted hash"
+      },
+      "consumes": [
+        "dataset_catalog.duckdb full-text"
+      ],
+      "emits": "list[DatasetSearchResult]",
+      "output_destination": "dropped",
+      "authority_status": "none",
+      "gap_class": "built_not_wired",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "wire",
+      "evidence_refs": [
+        "store.py:394",
+        "70959ff19fd70e5379539a60ea9ce0cc6901cfdb9759023ad0e6adabb1510845"
+      ],
+      "notes": "Text/FTS arm over the FULL 137k catalog. Runs e2e on real input. Not reached by runtime."
+    },
+    {
+      "asset_id": "runtime.RetrievalService.curated_fastlane_surrogate",
+      "module_path": "src/polisyos/fabric/retrieval/service.py:142",
+      "entrypoint": "RetrievalService.__init__ with dataset_catalog=None",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "runtime/http/services/control/run_lifecycle.py:223",
+          "runtime/http/services/control/nl_pipeline.py:4290"
+        ],
+        "called_from_production": "true - both production constructions pass curated_dir and omit dataset_catalog"
+      },
+      "execution_status": "runs_e2e_on_real",
+      "execution_evidence": {
+        "smoke": "_build/.tmp/gy0-census/retrieval_service_smoke.json",
+        "result": "RetrievalService resolved a DataNeed(metric=gdp) through the curated fastlane; dataset_catalog_is_none=True; fetch_plan_count=1",
+        "output_hash": "sha256:edf2c6030a9769452d34426896cc61774fd30f49a0c0ba9bc5d913771ded2771"
+      },
+      "consumes": [
+        "curated contracts dir"
+      ],
+      "emits": "FetchPlan / resolved targets",
+      "output_destination": "runtime fetch path (bounded curated fastlane)",
+      "authority_status": "none",
+      "gap_class": "partial",
+      "canonical_vs_duplicate": "bounded_surrogate_for:data_forge.DatasetCatalogGraph.search_datasets",
+      "recommended_gy_action": "demote",
+      "evidence_refs": [
+        "src/polisyos/fabric/retrieval/service.py:150",
+        "src/polisyos/fabric/retrieval/service.py:271",
+        "src/polisyos/runtime/http/services/control/run_lifecycle.py:223",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:4290",
+        "_build/.tmp/gy0-census/retrieval_service_smoke.json"
+      ],
+      "notes": "Current production retrieval works only as a bounded curated fastlane surrogate. It is not the GY-1 catalog-backed lane."
+    },
+    {
+      "asset_id": "runtime.RetrievalService.dataset_catalog_lane",
+      "module_path": "src/polisyos/fabric/retrieval/service.py:271",
+      "entrypoint": "RetrievalService._resolve_via_catalog / catalog-backed candidate path",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "runtime/http/services/control/run_lifecycle.py:223",
+          "runtime/http/services/control/nl_pipeline.py:4290"
+        ],
+        "called_from_production": "false - production constructors pass dataset_catalog=None"
+      },
+      "execution_status": "never_invoked",
+      "execution_evidence": {
+        "smoke": "_build/.tmp/gy0-census/retrieval_service_smoke.json",
+        "result": "same production-construction smoke proves dataset_catalog_is_none=True; catalog lane was absent, not unknown",
+        "output_hash": "sha256:edf2c6030a9769452d34426896cc61774fd30f49a0c0ba9bc5d913771ded2771"
+      },
+      "consumes": [
+        "DatasetCatalogGraph",
+        "MetricBindingMatch"
+      ],
+      "emits": "FetchPlan / MetricCandidate bound to canonical catalog rows",
+      "output_destination": "not reached on pinned route until GY-1 passes DatasetCatalogGraph into RetrievalService",
+      "authority_status": "none",
+      "gap_class": "built_not_wired",
+      "canonical_vs_duplicate": "canonical_wiring_target",
+      "recommended_gy_action": "wire",
+      "evidence_refs": [
+        "src/polisyos/fabric/retrieval/service.py:271",
+        "src/polisyos/fabric/retrieval/service.py:719",
+        "src/polisyos/fabric/retrieval/service.py:838",
+        "src/polisyos/runtime/http/services/control/run_lifecycle.py:223",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:4290",
+        "_build/.tmp/gy0-census/retrieval_service_smoke.json"
+      ],
+      "notes": "THE GY-1 wiring point. The class is ready and consumes dataset_catalog when present; production simply never passes the DatasetCatalogGraph."
+    },
+    {
+      "asset_id": "fabric.SemanticCatalogIndex",
+      "module_path": "src/polisyos/fabric/catalog/semantic.py (used by src/polisyos/fabric/catalog/search.py:111)",
+      "entrypoint": "SemanticCatalogIndex (hashing-BOW)",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "fabric/catalog/search.py:111"
+        ],
+        "called_from_production": "true \u2014 runtime semantic path over curated contracts"
+      },
+      "execution_status": "runs_e2e_on_real",
+      "execution_evidence": {
+        "smoke": "_build/.tmp/gy0-census/semantic_catalog_smoke.json",
+        "result": "MetricSearcher / SemanticCatalogIndex indexed the production curated source contracts; indexed_contracts=3; hashing-BOW surrogate, not hnsw",
+        "output_hash": "sha256:bf7bb8a1d267839e4841bb764291a92ab3bc6428c141213c0f50ac5e4be18ae1"
+      },
+      "consumes": [
+        "~3 curated source contracts"
+      ],
+      "emits": "semantic match scores",
+      "output_destination": "runtime catalog search",
+      "authority_status": "none",
+      "gap_class": "partial",
+      "canonical_vs_duplicate": "duplicate_of:data_forge.DatasetCatalogGraph.search_datasets",
+      "recommended_gy_action": "demote",
+      "evidence_refs": [
+        "src/polisyos/fabric/catalog/search.py:111",
+        "src/polisyos/fabric/catalog/semantic.py",
+        "_build/.tmp/gy0-census/semantic_catalog_smoke.json"
+      ],
+      "notes": "Hashing-BOW duplicate/bounded surrogate of the canonical catalog graph search. GY-1 should demote/delete or mark bounded_surrogate for curated-only."
+    },
+    {
+      "asset_id": "scientist.run_experiment.workflow_run_path",
+      "module_path": "src/polisyos/runtime/http/services/control/run_lifecycle.py:1408 (-> src/polisyos/scientist/api.py:191)",
+      "entrypoint": "ControlPlaneService._execute_workflow -> run_experiment(state_payload, store)",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "src/polisyos/runtime/http/services/control/run_lifecycle.py:1406-1408"
+        ],
+        "called_from_production": "true - workflow_run job path"
+      },
+      "execution_status": "fails",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) on real UA panel, JAX_PLATFORMS=cpu",
+        "result": "final workflow status=fail; 14 nodes ok, 1 fail (lex), 22 skip; run_lifecycle.py:1408 discards the return but persistence still occurs below run_experiment",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "state_payload (data_snapshot_ref/input_bindings_ref/data_view_request_ref + registry_bundle_ref)"
+      ],
+      "emits": "failed final ExperimentState + WorkflowExecutionResult",
+      "output_destination": "CAS/run manifest via scientist executor; return value discarded at run_lifecycle.py:1408",
+      "authority_status": "none",
+      "gap_class": "wired_but_rotten",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "repair",
+      "evidence_refs": [
+        "src/polisyos/runtime/http/services/control/run_lifecycle.py:1408",
+        "src/polisyos/scientist/orchestration/engine/executor.py:1249",
+        "src/polisyos/scientist/orchestration/engine/executor.py:1265",
+        "src/polisyos/scientist/orchestration/engine/executor.py:1296",
+        "_build/.tmp/gy0-census/dag_node_census3.json"
+      ],
+      "notes": "Production invocation exists, but the current top-level result is failed because lex fails. Repair lex before any downstream governance claim."
+    },
+    {
+      "asset_id": "scientist.run_experiment.nl_pipeline_path",
+      "module_path": "src/polisyos/runtime/http/services/control/nl_pipeline.py:6596 (reports_index read at 6618)",
+      "entrypoint": "Natural-language policy run -> run_experiment(...) -> reports_index/workflow_report projection",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "src/polisyos/runtime/http/services/control/nl_pipeline.py:6596",
+          "src/polisyos/runtime/run_index.py:339"
+        ],
+        "called_from_production": "true - NL pipeline path calls run_experiment and can surface reports_index.workflow_report"
+      },
+      "execution_status": "fails",
+      "execution_evidence": {
+        "smoke": "same real UA panel DAG smoke as workflow_run path",
+        "result": "failed/candidate WorkflowExecutionResult is persisted and can be surfaced through reports_index/run index without a G4/G5 producer-root reducer chain",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "NL pipeline state payload",
+        "reports_index.workflow_report",
+        "artifacts_index.final_policy_claims"
+      ],
+      "emits": "runtime/NL projection of scientist workflow report and final_state refs",
+      "output_destination": "CAS + reports_index + runtime run index workflow_report_ref",
+      "authority_status": "laundered",
+      "gap_class": "wired_but_ungoverned",
+      "canonical_vs_duplicate": "canonical_surface_path",
+      "recommended_gy_action": "repair",
+      "evidence_refs": [
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:6596",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:6618",
+        "src/polisyos/scientist/orchestration/engine/executor.py:1265",
+        "src/polisyos/scientist/orchestration/engine/executor.py:1296",
+        "src/polisyos/scientist/api.py:286",
+        "src/polisyos/runtime/http/services/control/core_run.py:131",
+        "src/polisyos/runtime/run_index.py:339",
+        "_build/.tmp/gy0-census/dag_node_census3.json"
+      ],
+      "notes": "GY-2 target is repair-then-govern: the surface path exists, but today it can launder failed/candidate workflow output unless lex is fixed and G4/G5 producer-root reducers govern the surfaced artifact."
+    },
+    {
+      "asset_id": "scientist.run_policy_design_workflow",
+      "module_path": "src/polisyos/scientist/orchestration/workflows/builder.py:635 (spec: workflows/policy_design.py)",
+      "entrypoint": "run_policy_design_workflow",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "builder.run_selected_workflow:549",
+          "api.run_experiment:277"
+        ],
+        "called_from_production": "true (via run_experiment)"
+      },
+      "execution_status": "fails",
+      "execution_evidence": {
+        "smoke": "direct run_selected_workflow(scientist_policy_design) on real UA panel",
+        "result": "workflow status=fail (error_policy=continue); 37-node spec executed; run_hierarchical_policy_search failed after 14 ok nodes",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "registry_bundle_ref",
+        "data_snapshot_ref"
+      ],
+      "emits": "WorkflowExecutionResult (state + report)",
+      "output_destination": "WorkflowExecutionResult + CAS/run manifest; downstream foundry/lex bridges stop at failed lex node",
+      "authority_status": "candidate_only",
+      "gap_class": "wired_but_rotten",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "repair",
+      "evidence_refs": [
+        "src/polisyos/scientist/orchestration/workflows/builder.py:635",
+        "src/polisyos/scientist/orchestration/workflows/policy_design.py:110",
+        "_build/.tmp/gy0-census/dag_node_census3.json"
+      ],
+      "notes": "Function lives in builder.py:635; workflows/policy_design.py holds the WorkflowSpec. Current execution is real and failed, so this is repair-before-govern."
+    },
+    {
+      "asset_id": "scientist.dag.node.start",
+      "module_path": "src/polisyos/scientist/orchestration/workflows/policy_design.py:73",
+      "entrypoint": "scientist.node_start",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "runs_e2e_on_real",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=ok",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "node bundle",
+      "output_destination": "another DAG node / artifacts_index",
+      "authority_status": "candidate_only",
+      "gap_class": "wired_and_works",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "govern",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Ran e2e on real input."
+    },
+    {
+      "asset_id": "scientist.dag.node.plan_policy_request",
+      "module_path": "src/polisyos/scientist/nodes/builtins/planning/plan_policy_request.py",
+      "entrypoint": "scientist.node_plan_policy_request",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "runs_e2e_on_real",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=ok",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "node bundle",
+      "output_destination": "another DAG node / artifacts_index",
+      "authority_status": "candidate_only",
+      "gap_class": "wired_and_works",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "govern",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Ran e2e on real input."
+    },
+    {
+      "asset_id": "scientist.dag.node.build_data_snapshot",
+      "module_path": "src/polisyos/scientist/nodes/builtins/data/build_data_snapshot.py",
+      "entrypoint": "scientist.node_build_data_snapshot",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "runs_e2e_on_real",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=ok",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "node bundle",
+      "output_destination": "another DAG node / artifacts_index",
+      "authority_status": "candidate_only",
+      "gap_class": "wired_and_works",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "govern",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Ran e2e on real input."
+    },
+    {
+      "asset_id": "scientist.dag.node.build_literature_prior",
+      "module_path": "src/polisyos/scientist/nodes/builtins/causal/build_literature_prior.py",
+      "entrypoint": "scientist.node_build_literature_prior",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "never_invoked",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=skip",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "world-model / causal-evidence bundle (GY-2 rung-2..6)",
+      "output_destination": "world-model / causal-evidence bundle (GY-2 rung-2..6)",
+      "authority_status": "none",
+      "gap_class": "blocked_input",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "none",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Skipped because the pinned route omitted this named input: No causal variables; skip literature prior build. This is not a lex failure and not an engine break.",
+      "blocked_by": "missing_causal_variables"
+    },
+    {
+      "asset_id": "scientist.dag.node.reconcile_causal_graph",
+      "module_path": "src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+      "entrypoint": "scientist.node_reconcile_causal_graph",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "never_invoked",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=skip",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "causal graph evidence",
+      "output_destination": "causal graph evidence",
+      "authority_status": "none",
+      "gap_class": "blocked_input",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "none",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Skipped because the pinned route omitted this named input: No data causal graph; skip reconciliation. This is not a lex failure and not an engine break.",
+      "blocked_by": "missing_data_causal_graph"
+    },
+    {
+      "asset_id": "scientist.dag.node.build_execution_plan",
+      "module_path": "src/polisyos/scientist/nodes/builtins/planning/build_execution_plan.py",
+      "entrypoint": "scientist.node_build_execution_plan",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "runs_e2e_on_real",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=ok",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "node bundle",
+      "output_destination": "another DAG node / artifacts_index",
+      "authority_status": "candidate_only",
+      "gap_class": "wired_and_works",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "govern",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Ran e2e on real input."
+    },
+    {
+      "asset_id": "scientist.dag.node.build_method_catalog_snapshot",
+      "module_path": "src/polisyos/scientist/nodes/builtins/planning/build_method_catalog_snapshot.py",
+      "entrypoint": "scientist.node_build_method_catalog_snapshot",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "runs_e2e_on_real",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=ok",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "node bundle",
+      "output_destination": "another DAG node / artifacts_index",
+      "authority_status": "candidate_only",
+      "gap_class": "wired_and_works",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "govern",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Ran e2e on real input."
+    },
+    {
+      "asset_id": "scientist.dag.node.run_preflight",
+      "module_path": "src/polisyos/scientist/nodes/builtins/planning/run_preflight.py",
+      "entrypoint": "scientist.node_run_preflight",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "runs_e2e_on_real",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=ok",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "node bundle",
+      "output_destination": "another DAG node / artifacts_index",
+      "authority_status": "candidate_only",
+      "gap_class": "wired_and_works",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "govern",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Ran e2e on real input."
+    },
+    {
+      "asset_id": "scientist.dag.node.assemble_legal_candidate_pack",
+      "module_path": "src/polisyos/scientist/nodes/builtins/planning/assemble_legal_candidate_pack.py",
+      "entrypoint": "scientist.node_assemble_legal_candidate_pack",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "runs_e2e_on_real",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=ok",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "node bundle",
+      "output_destination": "another DAG node / artifacts_index",
+      "authority_status": "candidate_only",
+      "gap_class": "wired_and_works",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "govern",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Ran e2e on real input."
+    },
+    {
+      "asset_id": "scientist.dag.node.expand_legal_source_pack",
+      "module_path": "src/polisyos/scientist/nodes/builtins/planning/expand_legal_source_pack.py",
+      "entrypoint": "scientist.node_expand_legal_source_pack",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "runs_e2e_on_real",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=ok",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "node bundle",
+      "output_destination": "another DAG node / artifacts_index",
+      "authority_status": "candidate_only",
+      "gap_class": "wired_and_works",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "govern",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Ran e2e on real input."
+    },
+    {
+      "asset_id": "scientist.dag.node.run_source_verification",
+      "module_path": "src/polisyos/scientist/nodes/builtins/planning/run_source_verification.py",
+      "entrypoint": "scientist.node_run_source_verification",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "runs_e2e_on_real",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=ok",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "node bundle",
+      "output_destination": "another DAG node / artifacts_index",
+      "authority_status": "candidate_only",
+      "gap_class": "wired_and_works",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "govern",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Ran e2e on real input."
+    },
+    {
+      "asset_id": "scientist.dag.node.run_source_gap_review",
+      "module_path": "src/polisyos/scientist/nodes/builtins/planning/run_source_gap_review.py",
+      "entrypoint": "scientist.node_run_source_gap_review",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "runs_e2e_on_real",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=ok",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "node bundle",
+      "output_destination": "another DAG node / artifacts_index",
+      "authority_status": "candidate_only",
+      "gap_class": "wired_and_works",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "govern",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Ran e2e on real input."
+    },
+    {
+      "asset_id": "scientist.dag.node.draft_policy_options",
+      "module_path": "src/polisyos/scientist/nodes/builtins/planning/draft_policy_options.py",
+      "entrypoint": "scientist.node_draft_policy_options",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "runs_e2e_on_real",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=ok",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "node bundle",
+      "output_destination": "another DAG node / artifacts_index",
+      "authority_status": "candidate_only",
+      "gap_class": "wired_and_works",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "govern",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Ran e2e on real input."
+    },
+    {
+      "asset_id": "scientist.dag.node.formalize_verified_policy",
+      "module_path": "src/polisyos/scientist/nodes/builtins/compile/formalize_verified_policy.py",
+      "entrypoint": "scientist.node_formalize_verified_policy",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "runs_e2e_on_real",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=ok",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "node bundle",
+      "output_destination": "another DAG node / artifacts_index",
+      "authority_status": "candidate_only",
+      "gap_class": "wired_and_works",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "govern",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Ran e2e on real input."
+    },
+    {
+      "asset_id": "scientist.dag.node.bind_foundry_inputs",
+      "module_path": "src/polisyos/scientist/nodes/builtins/data/bind_foundry_inputs.py",
+      "entrypoint": "scientist.node_bind_foundry_inputs",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "runs_e2e_on_real",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=ok",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "node bundle",
+      "output_destination": "another DAG node / artifacts_index",
+      "authority_status": "candidate_only",
+      "gap_class": "wired_and_works",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "govern",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Ran e2e on real input."
+    },
+    {
+      "asset_id": "scientist.dag.node.run_data_plane_gate",
+      "module_path": "src/polisyos/scientist/nodes/builtins/governance/data_plane_gate.py",
+      "entrypoint": "scientist.node_run_data_plane_gate",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "runs_e2e_on_real",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=ok",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "node bundle",
+      "output_destination": "another DAG node / artifacts_index",
+      "authority_status": "candidate_only",
+      "gap_class": "wired_and_works",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "govern",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Ran e2e on real input."
+    },
+    {
+      "asset_id": "scientist.dag.node.run_hierarchical_policy_search",
+      "module_path": "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py:180",
+      "entrypoint": "scientist.node_run_hierarchical_policy_search",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "fails",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=fail",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "node bundle",
+      "output_destination": "another DAG node / artifacts_index",
+      "authority_status": "none",
+      "gap_class": "wired_but_rotten",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "repair",
+      "evidence_refs": [
+        "src/polisyos/scientist/orchestration/workflows/policy_design.py:110",
+        "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py:180",
+        "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py:201",
+        "src/polisyos/lex/interventions.py:771",
+        "_build/.tmp/gy0-census/dag_node_census3.json"
+      ],
+      "notes": "LEX SUBORDINATION POINT: invoked and executes, then fails on verified_policy_option_rate lower>=upper. This is the stop-rule repair before downstream governance."
+    },
+    {
+      "asset_id": "scientist.dag.node.compile_foundry",
+      "module_path": "src/polisyos/scientist/nodes/builtins/compile/compile_foundry.py",
+      "entrypoint": "scientist.node_compile_foundry",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "never_invoked",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=skip",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "node bundle",
+      "output_destination": "another DAG node / artifacts_index",
+      "authority_status": "none",
+      "gap_class": "blocked_upstream",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "none",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Never invoked because upstream lex node failed. NOT independently broken. blocked_by=scientist.dag.node.run_hierarchical_policy_search.",
+      "blocked_by": "scientist.dag.node.run_hierarchical_policy_search"
+    },
+    {
+      "asset_id": "scientist.dag.node.compile_cross_graph_evidence",
+      "module_path": "src/polisyos/scientist/nodes/builtins/planning/compile_cross_graph_evidence.py",
+      "entrypoint": "scientist.node_compile_cross_graph_evidence",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "never_invoked",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=skip",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "node bundle",
+      "output_destination": "another DAG node / artifacts_index",
+      "authority_status": "none",
+      "gap_class": "blocked_upstream",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "none",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Never invoked because upstream lex node failed. NOT independently broken. blocked_by=scientist.dag.node.run_hierarchical_policy_search.",
+      "blocked_by": "scientist.dag.node.run_hierarchical_policy_search"
+    },
+    {
+      "asset_id": "scientist.dag.node.run_causal_readiness",
+      "module_path": "src/polisyos/scientist/nodes/builtins/causal/run_causal_readiness.py",
+      "entrypoint": "scientist.node_run_causal_readiness",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "never_invoked",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=skip",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "identification status (G2)",
+      "output_destination": "identification status (G2)",
+      "authority_status": "none",
+      "gap_class": "blocked_upstream",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "none",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Never invoked because upstream lex node failed. NOT independently broken. blocked_by=scientist.dag.node.run_hierarchical_policy_search.",
+      "blocked_by": "scientist.dag.node.run_hierarchical_policy_search"
+    },
+    {
+      "asset_id": "scientist.dag.node.resolve_parameters",
+      "module_path": "src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py",
+      "entrypoint": "scientist.node_resolve_parameters",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "never_invoked",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=skip",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "node bundle",
+      "output_destination": "another DAG node / artifacts_index",
+      "authority_status": "none",
+      "gap_class": "blocked_upstream",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "none",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Never invoked because upstream lex node failed. NOT independently broken. blocked_by=scientist.dag.node.run_hierarchical_policy_search.",
+      "blocked_by": "scientist.dag.node.run_hierarchical_policy_search"
+    },
+    {
+      "asset_id": "scientist.dag.node.counterfactual_identification_gate",
+      "module_path": "src/polisyos/scientist/nodes/builtins/causal/counterfactual_identification_gate.py",
+      "entrypoint": "scientist.node_counterfactual_identification_gate",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "never_invoked",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=skip",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "identification gate",
+      "output_destination": "identification gate",
+      "authority_status": "none",
+      "gap_class": "blocked_upstream",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "none",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Never invoked because upstream lex node failed. NOT independently broken. blocked_by=scientist.dag.node.run_hierarchical_policy_search.",
+      "blocked_by": "scientist.dag.node.run_hierarchical_policy_search"
+    },
+    {
+      "asset_id": "scientist.dag.node.run_simulation",
+      "module_path": "src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py",
+      "entrypoint": "scientist.node_run_simulation",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "never_invoked",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=skip",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "ForecastSupport (rung 5 simulation_only)",
+      "output_destination": "ForecastSupport (rung 5 simulation_only)",
+      "authority_status": "none",
+      "gap_class": "blocked_upstream",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "none",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Never invoked because upstream lex node failed. NOT independently broken. blocked_by=scientist.dag.node.run_hierarchical_policy_search.",
+      "blocked_by": "scientist.dag.node.run_hierarchical_policy_search"
+    },
+    {
+      "asset_id": "scientist.dag.node.run_metric_validation",
+      "module_path": "src/polisyos/scientist/nodes/builtins/simulate/run_metric_validation.py",
+      "entrypoint": "scientist.node_run_metric_validation",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "never_invoked",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=skip",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "calibration evidence",
+      "output_destination": "calibration evidence",
+      "authority_status": "none",
+      "gap_class": "blocked_upstream",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "none",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Never invoked because upstream lex node failed. NOT independently broken. blocked_by=scientist.dag.node.run_hierarchical_policy_search.",
+      "blocked_by": "scientist.dag.node.run_hierarchical_policy_search"
+    },
+    {
+      "asset_id": "scientist.dag.node.legal_check",
+      "module_path": "src/polisyos/scientist/nodes/builtins/governance/legal_check.py",
+      "entrypoint": "scientist.node_legal_check",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "never_invoked",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=skip",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "node bundle",
+      "output_destination": "another DAG node / artifacts_index",
+      "authority_status": "none",
+      "gap_class": "blocked_upstream",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "none",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Never invoked because upstream lex node failed. NOT independently broken. blocked_by=scientist.dag.node.run_hierarchical_policy_search.",
+      "blocked_by": "scientist.dag.node.run_hierarchical_policy_search"
+    },
+    {
+      "asset_id": "scientist.dag.node.run_distributional_analysis",
+      "module_path": "src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py",
+      "entrypoint": "scientist.node_run_distributional_analysis",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "never_invoked",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=skip",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "distributional evidence",
+      "output_destination": "distributional evidence",
+      "authority_status": "none",
+      "gap_class": "blocked_upstream",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "none",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Never invoked because upstream lex node failed. NOT independently broken. blocked_by=scientist.dag.node.run_hierarchical_policy_search.",
+      "blocked_by": "scientist.dag.node.run_hierarchical_policy_search"
+    },
+    {
+      "asset_id": "scientist.dag.node.propagate_welfare",
+      "module_path": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "entrypoint": "scientist.node_propagate_welfare",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "never_invoked",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=skip",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "welfare evidence (S8 value-choice)",
+      "output_destination": "welfare evidence (S8 value-choice)",
+      "authority_status": "none",
+      "gap_class": "blocked_upstream",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "none",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Never invoked because upstream lex node failed. NOT independently broken. blocked_by=scientist.dag.node.run_hierarchical_policy_search.",
+      "blocked_by": "scientist.dag.node.run_hierarchical_policy_search"
+    },
+    {
+      "asset_id": "scientist.dag.node.propagate_uncertainty",
+      "module_path": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "entrypoint": "scientist.node_propagate_uncertainty",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "never_invoked",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=skip",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "uncertainty envelope",
+      "output_destination": "uncertainty envelope",
+      "authority_status": "none",
+      "gap_class": "blocked_upstream",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "none",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Never invoked because upstream lex node failed. NOT independently broken. blocked_by=scientist.dag.node.run_hierarchical_policy_search.",
+      "blocked_by": "scientist.dag.node.run_hierarchical_policy_search"
+    },
+    {
+      "asset_id": "scientist.dag.node.run_causal_evaluation",
+      "module_path": "src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+      "entrypoint": "scientist.node_run_causal_evaluation",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "never_invoked",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=skip",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "node bundle",
+      "output_destination": "another DAG node / artifacts_index",
+      "authority_status": "none",
+      "gap_class": "blocked_input",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "none",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Skipped because the pinned route omitted this named input: No observational_data_ref; skip causal evaluation. This is not a lex failure and not an engine break.",
+      "blocked_by": "missing_observational_data_ref"
+    },
+    {
+      "asset_id": "scientist.dag.node.run_normative_arbitration",
+      "module_path": "src/polisyos/scientist/nodes/builtins/governance/run_normative_arbitration.py",
+      "entrypoint": "scientist.node_run_normative_arbitration",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "never_invoked",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=skip",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "node bundle",
+      "output_destination": "another DAG node / artifacts_index",
+      "authority_status": "none",
+      "gap_class": "blocked_upstream",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "none",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Never invoked because upstream lex node failed. NOT independently broken. blocked_by=scientist.dag.node.run_hierarchical_policy_search.",
+      "blocked_by": "scientist.dag.node.run_hierarchical_policy_search"
+    },
+    {
+      "asset_id": "scientist.dag.node.run_governance",
+      "module_path": "src/polisyos/scientist/nodes/builtins/governance/run_governance.py",
+      "entrypoint": "scientist.node_run_governance",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "never_invoked",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=skip",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "node bundle",
+      "output_destination": "another DAG node / artifacts_index",
+      "authority_status": "none",
+      "gap_class": "blocked_upstream",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "none",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Never invoked because upstream lex node failed. NOT independently broken. blocked_by=scientist.dag.node.run_hierarchical_policy_search.",
+      "blocked_by": "scientist.dag.node.run_hierarchical_policy_search"
+    },
+    {
+      "asset_id": "scientist.dag.node.build_verified_policy_report",
+      "module_path": "src/polisyos/scientist/nodes/builtins/decide/build_verified_policy_report.py",
+      "entrypoint": "scientist.node_build_verified_policy_report",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "never_invoked",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=skip",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "node bundle",
+      "output_destination": "another DAG node / artifacts_index",
+      "authority_status": "none",
+      "gap_class": "blocked_upstream",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "none",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Never invoked because upstream lex node failed. NOT independently broken. blocked_by=scientist.dag.node.run_hierarchical_policy_search.",
+      "blocked_by": "scientist.dag.node.run_hierarchical_policy_search"
+    },
+    {
+      "asset_id": "scientist.dag.node.run_policy_blueprint_runtime",
+      "module_path": "src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+      "entrypoint": "scientist.node_run_policy_blueprint_runtime",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "never_invoked",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=skip",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "node bundle",
+      "output_destination": "another DAG node / artifacts_index",
+      "authority_status": "none",
+      "gap_class": "blocked_upstream",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "none",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Never invoked because upstream lex node failed. NOT independently broken. blocked_by=scientist.dag.node.run_hierarchical_policy_search.",
+      "blocked_by": "scientist.dag.node.run_hierarchical_policy_search"
+    },
+    {
+      "asset_id": "scientist.dag.node.run_policy_translation",
+      "module_path": "src/polisyos/scientist/nodes/builtins/decide/run_policy_translation.py",
+      "entrypoint": "scientist.node_run_policy_translation",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "never_invoked",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=skip",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "node bundle",
+      "output_destination": "another DAG node / artifacts_index",
+      "authority_status": "none",
+      "gap_class": "blocked_upstream",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "none",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Never invoked because upstream lex node failed. NOT independently broken. blocked_by=scientist.dag.node.run_hierarchical_policy_search.",
+      "blocked_by": "scientist.dag.node.run_hierarchical_policy_search"
+    },
+    {
+      "asset_id": "scientist.dag.node.run_translator_compliance",
+      "module_path": "src/polisyos/scientist/nodes/builtins/decide/run_translator_compliance.py",
+      "entrypoint": "scientist.node_run_translator_compliance",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "never_invoked",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=skip",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "node bundle",
+      "output_destination": "another DAG node / artifacts_index",
+      "authority_status": "none",
+      "gap_class": "blocked_upstream",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "none",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Never invoked because upstream lex node failed. NOT independently broken. blocked_by=scientist.dag.node.run_hierarchical_policy_search.",
+      "blocked_by": "scientist.dag.node.run_hierarchical_policy_search"
+    },
+    {
+      "asset_id": "scientist.dag.node.build_policy_output_bundle",
+      "module_path": "src/polisyos/scientist/nodes/builtins/decide/build_policy_output_bundle.py",
+      "entrypoint": "scientist.node_build_policy_output_bundle",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "never_invoked",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=skip",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "node bundle",
+      "output_destination": "another DAG node / artifacts_index",
+      "authority_status": "none",
+      "gap_class": "blocked_upstream",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "none",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Never invoked because upstream lex node failed. NOT independently broken. blocked_by=scientist.dag.node.run_hierarchical_policy_search.",
+      "blocked_by": "scientist.dag.node.run_hierarchical_policy_search"
+    },
+    {
+      "asset_id": "scientist.dag.node.build_decision_packet",
+      "module_path": "src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py",
+      "entrypoint": "scientist.node_build_decision_packet",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "workflows/policy_design.py (DAG spec)"
+        ],
+        "called_from_production": "true (via run_experiment DAG)"
+      },
+      "execution_status": "never_invoked",
+      "execution_evidence": {
+        "smoke": "run_selected_workflow(scientist_policy_design) real UA panel, JAX cpu",
+        "result": "node status=skip",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state / upstream bundles"
+      ],
+      "emits": "decision packet surface",
+      "output_destination": "decision packet surface",
+      "authority_status": "none",
+      "gap_class": "blocked_upstream",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "none",
+      "evidence_refs": [
+        "policy_design.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Never invoked because upstream lex node failed. NOT independently broken. blocked_by=scientist.dag.node.run_hierarchical_policy_search.",
+      "blocked_by": "scientist.dag.node.run_hierarchical_policy_search"
+    },
+    {
+      "asset_id": "foundry.data_plane.build_input_bindings",
+      "module_path": "src/polisyos/foundry/data_plane/bindings.py:69 (node: scientist/nodes/builtins/data/bind_foundry_inputs.py)",
+      "entrypoint": "build_input_bindings",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "scientist/nodes/builtins/data/bind_foundry_inputs.py:14"
+        ],
+        "called_from_production": "true (DAG node bind_foundry_inputs)"
+      },
+      "execution_status": "runs_e2e_on_real",
+      "execution_evidence": {
+        "smoke": "DAG run with JAX_PLATFORMS=cpu",
+        "result": "bind_foundry_inputs=ok and run_data_plane_gate=ok on real panel",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "fabric DataSnapshot",
+        "registry bundle slot schema"
+      ],
+      "emits": "FoundryInputBindings + bound StateSnapshot",
+      "output_destination": "another_engine:foundry (GlobalState) + CAS",
+      "authority_status": "candidate_only",
+      "gap_class": "wired_and_works",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "govern",
+      "evidence_refs": [
+        "bindings.py:69",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "ENV FINDING: fails with 'UNIMPLEMENTED: default_memory_space' on the JAX Apple-Metal backend; runs once JAX_PLATFORMS=cpu is set. Also: a fabric DataSnapshot whose inner data_ref.kind=='foundry.state_snapshot' triggers a compatibility branch that misvalidates raw rows (test helper put_rows_data_snapshot mismatch) -- not an intrinsic bug."
+    },
+    {
+      "asset_id": "foundry.methods.registry",
+      "module_path": "src/polisyos/foundry/methods/selection/registry.py (facade: methods/registry.py)",
+      "entrypoint": "get_registry() + ensure_all_methods_registered()",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "scientist build_method_catalog_snapshot / run_preflight nodes"
+        ],
+        "called_from_production": "true (DAG nodes build_method_catalog_snapshot=ok, run_preflight=ok)"
+      },
+      "execution_status": "runs_e2e_on_real",
+      "execution_evidence": {
+        "smoke": "_build/.tmp/gy0-census/foundry_registry_probe.json",
+        "result": "get_registry(); ensure_all_methods_registered(); list_all(); registered=389, namespaces=157, tags=714, route_relevant=172, causal_family=151",
+        "output_hash": "sha256:48b4014792dcb71ed0e4f1e509071061d17a3c2203c6e1facef80e4f4070f68f"
+      },
+      "consumes": [
+        "method catalog modules"
+      ],
+      "emits": "MethodRegistry (389 entries)",
+      "output_destination": "another_engine:foundry (compile_foundry / run_simulation)",
+      "authority_status": "none",
+      "gap_class": "wired_and_works",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "none",
+      "evidence_refs": [
+        "src/polisyos/foundry/methods/selection/registry.py",
+        "src/polisyos/foundry/methods/registry.py",
+        "_build/.tmp/gy0-census/foundry_registry_probe.json"
+      ],
+      "notes": "Registry loads and DAG catalog/preflight nodes resolve it. Per-method execution is not proven by registry count alone."
+    },
+    {
+      "asset_id": "foundry.methods.causal.bounds.manski",
+      "module_path": "foundry method causal.bounds.manski@1.0.0",
+      "entrypoint": "MethodClass.pure_step(state, params)",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "foundry method registry (lazy)"
+        ],
+        "called_from_production": "tools-only in this census; DAG path gated before compile_foundry reaches method execution"
+      },
+      "execution_status": "runs_e2e_on_real",
+      "execution_evidence": {
+        "smoke": "_build/.tmp/gy0-census/manski_run.json",
+        "result": "representative direct pure_step smoke on real ds_observations arrays; ATE bounds [-0.475, 0.525], bound_width=1.0, naive_ate=0.051",
+        "output_hash": "sha256:ae6aece3a480d078305ed1964661fda25382cc6b0c37f0f41a32a0c0e20ff0f3"
+      },
+      "consumes": [
+        "real outcome/treatment arrays from ds_observations"
+      ],
+      "emits": "ATE bounds result",
+      "output_destination": "dropped (direct smoke, not consumed by pinned-route DAG)",
+      "authority_status": "none",
+      "gap_class": "producer_without_consumer",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "wire",
+      "evidence_refs": [
+        "_build/.tmp/gy0-census/manski_run.json",
+        "foundry method causal.bounds.manski@1.0.0"
+      ],
+      "notes": "Executable-on-real proof for a route-relevant causal estimator, not a production-consumed capability until lex/foundry compile reaches it."
+    },
+    {
+      "asset_id": "foundry.RequiredDataSpec",
+      "module_path": "src/polisyos/foundry/methods/catalog/causal/_id_contracts.py:25",
+      "entrypoint": "RequiredDataSpec",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "foundry id_engine (ORACLE_NEEDED/hedge)"
+        ],
+        "called_from_production": "emitted by foundry id_engine; NOT bridged to scientist DataNeedSpec"
+      },
+      "execution_status": "never_invoked",
+      "execution_evidence": {
+        "smoke": "class-existence trace",
+        "result": "contract present; no producer maps it into DataNeedSpec",
+        "output_hash": "n/a"
+      },
+      "consumes": [
+        "identification gap"
+      ],
+      "emits": "RequiredDataSpec",
+      "output_destination": "dropped (no DataNeed bridge consumer)",
+      "authority_status": "none",
+      "gap_class": "contract_without_producer",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "build",
+      "evidence_refs": [
+        "_id_contracts.py:25"
+      ],
+      "notes": "GY-3: build a producer mapping foundry RequiredDataSpec -> existing scientist DataNeedSpec (identification-gap demand source). Genuine new code."
+    },
+    {
+      "asset_id": "scientist.adapters.foundry_bridge",
+      "module_path": "src/polisyos/scientist/adapters/foundry_bridge.py",
+      "entrypoint": "foundry_bridge (DAG->engine port)",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "scientist orchestration ports"
+        ],
+        "called_from_production": "true (via DAG)"
+      },
+      "execution_status": "runs_e2e_on_real",
+      "execution_evidence": {
+        "smoke": "DAG run",
+        "result": "exercised via bind_foundry_inputs/run_data_plane_gate",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state"
+      ],
+      "emits": "engine call",
+      "output_destination": "another_engine:foundry",
+      "authority_status": "none",
+      "gap_class": "wired_and_works",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "govern",
+      "evidence_refs": [
+        "scientist/adapters/foundry_bridge.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Canonical engine-side adapter (DAG->engine). Exercised in DAG run."
+    },
+    {
+      "asset_id": "scientist.adapters.fabric_bridge",
+      "module_path": "src/polisyos/scientist/adapters/fabric_bridge.py",
+      "entrypoint": "fabric_bridge (DAG->engine port)",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "scientist orchestration ports"
+        ],
+        "called_from_production": "false on pinned route; bridge exists but GY-1 RetrievalService catalog lane is not wired"
+      },
+      "execution_status": "never_invoked",
+      "execution_evidence": {
+        "smoke": "DAG run",
+        "result": "not exercised on snapshot-fed route (no data_view_request_ref)",
+        "output_hash": "sha256:66dcc7012bbc08aa79023c441dac05ab97d06053939df0f8c18d01e45955866e"
+      },
+      "consumes": [
+        "DAG state"
+      ],
+      "emits": "engine call",
+      "output_destination": "another_engine:fabric",
+      "authority_status": "none",
+      "gap_class": "built_not_wired",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "wire",
+      "evidence_refs": [
+        "scientist/adapters/fabric_bridge.py",
+        "4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f"
+      ],
+      "notes": "Existing bridge target for GY-1; not a separate build-new task."
+    },
+    {
+      "asset_id": "fabric.connector.worldbank.wdi",
+      "module_path": "src/polisyos/fabric/connectors/ (impl) ; profile via sdk/scaffold.py PROFILE_ID_BY_CONNECTOR_ID",
+      "entrypoint": "connector worldbank.wdi",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "RetrievalProviders -> ConnectorRegistry (run_lifecycle.py:257)"
+        ],
+        "called_from_production": "registered-only; not invoked on pinned route until GY-1 emits a catalog-backed FetchPlan"
+      },
+      "execution_status": "not_exercised_network",
+      "execution_evidence": {
+        "smoke": "catalog binding census + registry profile map + replay-fixture inventory",
+        "result": "22490 bindings; impl+profile present; generic replay fixture present (tests/_data/fabric/shared/source_contracts/worldbank.wdi.generic.replay.json)",
+        "output_hash": "sha256:55dcca3f80a29ce244310662135bdd2efc61a15f86b50604e727dab4fc7cc286"
+      },
+      "consumes": [
+        "external source API (optional network suite)"
+      ],
+      "emits": "normalized rows -> fabric DataSnapshot (measurement, CAS digest)",
+      "output_destination": "CAS (when fetched)",
+      "authority_status": "none",
+      "gap_class": "built_not_wired",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "wire",
+      "evidence_refs": [
+        "sdmx/scaffold.py PROFILE_ID_BY_CONNECTOR_ID",
+        "tests/_data/fabric/shared/source_contracts/worldbank.wdi.generic.replay.json",
+        "_build/.tmp/gy0-census/connector_census.json"
+      ],
+      "notes": "Connector implementation and generic replay fixture observed; real-data network fetch intentionally not exercised in GY-0."
+    },
+    {
+      "asset_id": "fabric.connector.ckan.resource",
+      "module_path": "src/polisyos/fabric/connectors/ (impl) ; profile via sdk/scaffold.py PROFILE_ID_BY_CONNECTOR_ID",
+      "entrypoint": "connector ckan.resource",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "RetrievalProviders -> ConnectorRegistry (run_lifecycle.py:257)"
+        ],
+        "called_from_production": "registered-only; not invoked on pinned route until GY-1 emits a catalog-backed FetchPlan"
+      },
+      "execution_status": "not_exercised_network",
+      "execution_evidence": {
+        "smoke": "catalog binding census + registry profile map + replay-fixture inventory",
+        "result": "14906 bindings; impl+profile present; generic replay fixture present (tests/_data/fabric/shared/source_contracts/ckan.resource.generic.replay.json)",
+        "output_hash": "sha256:55dcca3f80a29ce244310662135bdd2efc61a15f86b50604e727dab4fc7cc286"
+      },
+      "consumes": [
+        "external source API (optional network suite)"
+      ],
+      "emits": "normalized rows -> fabric DataSnapshot (measurement, CAS digest)",
+      "output_destination": "CAS (when fetched)",
+      "authority_status": "none",
+      "gap_class": "built_not_wired",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "wire",
+      "evidence_refs": [
+        "sdmx/scaffold.py PROFILE_ID_BY_CONNECTOR_ID",
+        "tests/_data/fabric/shared/source_contracts/ckan.resource.generic.replay.json",
+        "_build/.tmp/gy0-census/connector_census.json"
+      ],
+      "notes": "Connector implementation and generic replay fixture observed; real-data network fetch intentionally not exercised in GY-0."
+    },
+    {
+      "asset_id": "fabric.connector.unesco_uis.data",
+      "module_path": "src/polisyos/fabric/connectors/ (impl) ; profile via sdk/scaffold.py PROFILE_ID_BY_CONNECTOR_ID",
+      "entrypoint": "connector unesco_uis.data",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "RetrievalProviders -> ConnectorRegistry (run_lifecycle.py:257)"
+        ],
+        "called_from_production": "registered-only; not invoked on pinned route until GY-1 emits a catalog-backed FetchPlan"
+      },
+      "execution_status": "not_exercised_network",
+      "execution_evidence": {
+        "smoke": "catalog binding census + registry profile map + replay-fixture inventory",
+        "result": "4824 bindings; impl+profile present; generic replay fixture present (tests/_data/fabric/shared/source_contracts/unesco_uis.data.generic.replay.json)",
+        "output_hash": "sha256:55dcca3f80a29ce244310662135bdd2efc61a15f86b50604e727dab4fc7cc286"
+      },
+      "consumes": [
+        "external source API (optional network suite)"
+      ],
+      "emits": "normalized rows -> fabric DataSnapshot (measurement, CAS digest)",
+      "output_destination": "CAS (when fetched)",
+      "authority_status": "none",
+      "gap_class": "built_not_wired",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "wire",
+      "evidence_refs": [
+        "sdmx/scaffold.py PROFILE_ID_BY_CONNECTOR_ID",
+        "tests/_data/fabric/shared/source_contracts/unesco_uis.data.generic.replay.json",
+        "_build/.tmp/gy0-census/connector_census.json"
+      ],
+      "notes": "Connector implementation and generic replay fixture observed; real-data network fetch intentionally not exercised in GY-0."
+    },
+    {
+      "asset_id": "fabric.connector.socrata.soda",
+      "module_path": "src/polisyos/fabric/connectors/ (impl) ; profile via sdk/scaffold.py PROFILE_ID_BY_CONNECTOR_ID",
+      "entrypoint": "connector socrata.soda",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "RetrievalProviders -> ConnectorRegistry (run_lifecycle.py:257)"
+        ],
+        "called_from_production": "registered-only; not invoked on pinned route until GY-1 emits a catalog-backed FetchPlan"
+      },
+      "execution_status": "not_exercised_network",
+      "execution_evidence": {
+        "smoke": "catalog binding census + registry profile map + replay-fixture inventory",
+        "result": "3603 bindings; impl+profile present; generic replay fixture present (tests/_data/fabric/shared/source_contracts/socrata.soda.generic.replay.json)",
+        "output_hash": "sha256:55dcca3f80a29ce244310662135bdd2efc61a15f86b50604e727dab4fc7cc286"
+      },
+      "consumes": [
+        "external source API (optional network suite)"
+      ],
+      "emits": "normalized rows -> fabric DataSnapshot (measurement, CAS digest)",
+      "output_destination": "CAS (when fetched)",
+      "authority_status": "none",
+      "gap_class": "built_not_wired",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "wire",
+      "evidence_refs": [
+        "sdmx/scaffold.py PROFILE_ID_BY_CONNECTOR_ID",
+        "tests/_data/fabric/shared/source_contracts/socrata.soda.generic.replay.json",
+        "_build/.tmp/gy0-census/connector_census.json"
+      ],
+      "notes": "Connector implementation and generic replay fixture observed; real-data network fetch intentionally not exercised in GY-0."
+    },
+    {
+      "asset_id": "fabric.connector.rest.json",
+      "module_path": "src/polisyos/fabric/connectors/ (impl) ; profile via sdk/scaffold.py PROFILE_ID_BY_CONNECTOR_ID",
+      "entrypoint": "connector rest.json",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "RetrievalProviders -> ConnectorRegistry (run_lifecycle.py:257)"
+        ],
+        "called_from_production": "registered-only; not invoked on pinned route until GY-1 emits a catalog-backed FetchPlan"
+      },
+      "execution_status": "not_exercised_network",
+      "execution_evidence": {
+        "smoke": "catalog binding census + registry profile map + replay-fixture inventory",
+        "result": "3578 bindings; impl+profile present; generic replay fixture present (tests/_data/fabric/shared/source_contracts/rest.json.generic.replay.json)",
+        "output_hash": "sha256:55dcca3f80a29ce244310662135bdd2efc61a15f86b50604e727dab4fc7cc286"
+      },
+      "consumes": [
+        "external source API (optional network suite)"
+      ],
+      "emits": "normalized rows -> fabric DataSnapshot (measurement, CAS digest)",
+      "output_destination": "CAS (when fetched)",
+      "authority_status": "none",
+      "gap_class": "built_not_wired",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "wire",
+      "evidence_refs": [
+        "sdmx/scaffold.py PROFILE_ID_BY_CONNECTOR_ID",
+        "tests/_data/fabric/shared/source_contracts/rest.json.generic.replay.json",
+        "_build/.tmp/gy0-census/connector_census.json"
+      ],
+      "notes": "Connector implementation and generic replay fixture observed; real-data network fetch intentionally not exercised in GY-0."
+    },
+    {
+      "asset_id": "fabric.connector.sdmx.source",
+      "module_path": "src/polisyos/fabric/connectors/ (impl) ; profile via sdk/scaffold.py PROFILE_ID_BY_CONNECTOR_ID",
+      "entrypoint": "connector sdmx.source",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "RetrievalProviders -> ConnectorRegistry (run_lifecycle.py:257)"
+        ],
+        "called_from_production": "registered-only; not invoked on pinned route until GY-1 emits a catalog-backed FetchPlan"
+      },
+      "execution_status": "not_exercised_network",
+      "execution_evidence": {
+        "smoke": "catalog binding census + registry profile map + replay-fixture inventory",
+        "result": "2714 bindings; impl+profile present; generic replay fixture present (tests/_data/fabric/shared/source_contracts/sdmx.source.generic.replay.json)",
+        "output_hash": "sha256:55dcca3f80a29ce244310662135bdd2efc61a15f86b50604e727dab4fc7cc286"
+      },
+      "consumes": [
+        "external source API (optional network suite)"
+      ],
+      "emits": "normalized rows -> fabric DataSnapshot (measurement, CAS digest)",
+      "output_destination": "CAS (when fetched)",
+      "authority_status": "none",
+      "gap_class": "built_not_wired",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "wire",
+      "evidence_refs": [
+        "src/polisyos/fabric/source_connectors/sdmx_source.py",
+        "tests/_data/fabric/shared/source_contracts/sdmx.generic.replay.json",
+        "_build/.tmp/gy0-census/connector_census.json"
+      ],
+      "notes": "Fixture correction: the observed replay fixture is sdmx.generic.replay.json, not sdmx.source.generic.replay.json. Network fetch not exercised in GY-0."
+    },
+    {
+      "asset_id": "fabric.connector.eurostat.data",
+      "module_path": "src/polisyos/fabric/connectors/ (impl) ; profile via sdk/scaffold.py PROFILE_ID_BY_CONNECTOR_ID",
+      "entrypoint": "connector eurostat.data",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "RetrievalProviders -> ConnectorRegistry (run_lifecycle.py:257)"
+        ],
+        "called_from_production": "registered-only; not invoked on pinned route until GY-1 emits a catalog-backed FetchPlan"
+      },
+      "execution_status": "not_exercised_network",
+      "execution_evidence": {
+        "smoke": "catalog binding census + registry profile map + replay-fixture inventory",
+        "result": "1791 bindings; impl+profile present; generic replay fixture present (tests/_data/fabric/shared/source_contracts/eurostat.data.generic.replay.json)",
+        "output_hash": "sha256:55dcca3f80a29ce244310662135bdd2efc61a15f86b50604e727dab4fc7cc286"
+      },
+      "consumes": [
+        "external source API (optional network suite)"
+      ],
+      "emits": "normalized rows -> fabric DataSnapshot (measurement, CAS digest)",
+      "output_destination": "CAS (when fetched)",
+      "authority_status": "none",
+      "gap_class": "built_not_wired",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "wire",
+      "evidence_refs": [
+        "sdmx/scaffold.py PROFILE_ID_BY_CONNECTOR_ID",
+        "tests/_data/fabric/shared/source_contracts/eurostat.data.generic.replay.json",
+        "_build/.tmp/gy0-census/connector_census.json"
+      ],
+      "notes": "Connector implementation and generic replay fixture observed; real-data network fetch intentionally not exercised in GY-0."
+    },
+    {
+      "asset_id": "fabric.connector.wvs.wave7",
+      "module_path": "src/polisyos/fabric/connectors/ (impl) ; profile via sdk/scaffold.py PROFILE_ID_BY_CONNECTOR_ID",
+      "entrypoint": "connector wvs.wave7",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "RetrievalProviders -> ConnectorRegistry (run_lifecycle.py:257)"
+        ],
+        "called_from_production": "registered-only; not invoked on pinned route until GY-1 emits a catalog-backed FetchPlan"
+      },
+      "execution_status": "not_exercised_network",
+      "execution_evidence": {
+        "smoke": "catalog binding census + registry profile map + replay-fixture inventory",
+        "result": "1279 bindings; impl+profile present; generic replay fixture present (tests/_data/fabric/shared/source_contracts/wvs.wave7.generic.replay.json)",
+        "output_hash": "sha256:55dcca3f80a29ce244310662135bdd2efc61a15f86b50604e727dab4fc7cc286"
+      },
+      "consumes": [
+        "external source API (optional network suite)"
+      ],
+      "emits": "normalized rows -> fabric DataSnapshot (measurement, CAS digest)",
+      "output_destination": "CAS (when fetched)",
+      "authority_status": "none",
+      "gap_class": "built_not_wired",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "wire",
+      "evidence_refs": [
+        "sdmx/scaffold.py PROFILE_ID_BY_CONNECTOR_ID",
+        "tests/_data/fabric/shared/source_contracts/wvs.wave7.generic.replay.json",
+        "_build/.tmp/gy0-census/connector_census.json"
+      ],
+      "notes": "Connector implementation and generic replay fixture observed; real-data network fetch intentionally not exercised in GY-0."
+    },
+    {
+      "asset_id": "fabric.connector.who.indicators",
+      "module_path": "src/polisyos/fabric/connectors/ (impl) ; profile via sdk/scaffold.py PROFILE_ID_BY_CONNECTOR_ID",
+      "entrypoint": "connector who.indicators",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "RetrievalProviders -> ConnectorRegistry (run_lifecycle.py:257)"
+        ],
+        "called_from_production": "registered-only; not invoked on pinned route until GY-1 emits a catalog-backed FetchPlan"
+      },
+      "execution_status": "not_exercised_network",
+      "execution_evidence": {
+        "smoke": "catalog binding census + registry profile map + replay-fixture inventory",
+        "result": "1221 bindings; impl+profile present; generic replay fixture present (tests/_data/fabric/shared/source_contracts/who.indicators.generic.replay.json)",
+        "output_hash": "sha256:55dcca3f80a29ce244310662135bdd2efc61a15f86b50604e727dab4fc7cc286"
+      },
+      "consumes": [
+        "external source API (optional network suite)"
+      ],
+      "emits": "normalized rows -> fabric DataSnapshot (measurement, CAS digest)",
+      "output_destination": "CAS (when fetched)",
+      "authority_status": "none",
+      "gap_class": "built_not_wired",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "wire",
+      "evidence_refs": [
+        "sdmx/scaffold.py PROFILE_ID_BY_CONNECTOR_ID",
+        "tests/_data/fabric/shared/source_contracts/who.indicators.generic.replay.json",
+        "_build/.tmp/gy0-census/connector_census.json"
+      ],
+      "notes": "Connector implementation and generic replay fixture observed; real-data network fetch intentionally not exercised in GY-0."
+    },
+    {
+      "asset_id": "fabric.connector.opendatasoft.ods",
+      "module_path": "src/polisyos/fabric/connectors/ (impl) ; profile via sdk/scaffold.py PROFILE_ID_BY_CONNECTOR_ID",
+      "entrypoint": "connector opendatasoft.ods",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "RetrievalProviders -> ConnectorRegistry (run_lifecycle.py:257)"
+        ],
+        "called_from_production": "registered-only; not invoked on pinned route until GY-1 emits a catalog-backed FetchPlan"
+      },
+      "execution_status": "not_exercised_network",
+      "execution_evidence": {
+        "smoke": "catalog binding census + registry profile map + replay-fixture inventory",
+        "result": "320 bindings; impl+profile present; generic replay fixture present (tests/_data/fabric/shared/source_contracts/opendatasoft.ods.generic.replay.json)",
+        "output_hash": "sha256:55dcca3f80a29ce244310662135bdd2efc61a15f86b50604e727dab4fc7cc286"
+      },
+      "consumes": [
+        "external source API (optional network suite)"
+      ],
+      "emits": "normalized rows -> fabric DataSnapshot (measurement, CAS digest)",
+      "output_destination": "CAS (when fetched)",
+      "authority_status": "none",
+      "gap_class": "built_not_wired",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "wire",
+      "evidence_refs": [
+        "sdmx/scaffold.py PROFILE_ID_BY_CONNECTOR_ID",
+        "tests/_data/fabric/shared/source_contracts/opendatasoft.ods.generic.replay.json",
+        "_build/.tmp/gy0-census/connector_census.json"
+      ],
+      "notes": "Connector implementation and generic replay fixture observed; real-data network fetch intentionally not exercised in GY-0."
+    },
+    {
+      "asset_id": "fabric.connector.unpd.data",
+      "module_path": "src/polisyos/fabric/connectors/ (impl) ; profile via sdk/scaffold.py PROFILE_ID_BY_CONNECTOR_ID",
+      "entrypoint": "connector unpd.data",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "RetrievalProviders -> ConnectorRegistry (run_lifecycle.py:257)"
+        ],
+        "called_from_production": "registered-only; not invoked on pinned route until GY-1 emits a catalog-backed FetchPlan"
+      },
+      "execution_status": "not_exercised_network",
+      "execution_evidence": {
+        "smoke": "catalog binding census + registry profile map + replay-fixture inventory",
+        "result": "70 bindings; impl+profile present; generic replay fixture present (tests/_data/fabric/shared/source_contracts/unpd.data.generic.replay.json)",
+        "output_hash": "sha256:55dcca3f80a29ce244310662135bdd2efc61a15f86b50604e727dab4fc7cc286"
+      },
+      "consumes": [
+        "external source API (optional network suite)"
+      ],
+      "emits": "normalized rows -> fabric DataSnapshot (measurement, CAS digest)",
+      "output_destination": "CAS (when fetched)",
+      "authority_status": "none",
+      "gap_class": "built_not_wired",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "wire",
+      "evidence_refs": [
+        "sdmx/scaffold.py PROFILE_ID_BY_CONNECTOR_ID",
+        "tests/_data/fabric/shared/source_contracts/unpd.data.generic.replay.json",
+        "_build/.tmp/gy0-census/connector_census.json"
+      ],
+      "notes": "Connector implementation and generic replay fixture observed; real-data network fetch intentionally not exercised in GY-0."
+    },
+    {
+      "asset_id": "fabric.connector.ukons.datasets",
+      "module_path": "src/polisyos/fabric/connectors/ (impl) ; profile via sdk/scaffold.py PROFILE_ID_BY_CONNECTOR_ID",
+      "entrypoint": "connector ukons.datasets",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "RetrievalProviders -> ConnectorRegistry (run_lifecycle.py:257)"
+        ],
+        "called_from_production": "registered-only; not invoked on pinned route until GY-1 emits a catalog-backed FetchPlan"
+      },
+      "execution_status": "not_exercised_network",
+      "execution_evidence": {
+        "smoke": "catalog binding census + registry profile map + replay-fixture inventory",
+        "result": "50 bindings; impl+profile present; generic replay fixture present (tests/_data/fabric/shared/source_contracts/ukons.datasets.generic.replay.json)",
+        "output_hash": "sha256:55dcca3f80a29ce244310662135bdd2efc61a15f86b50604e727dab4fc7cc286"
+      },
+      "consumes": [
+        "external source API (optional network suite)"
+      ],
+      "emits": "normalized rows -> fabric DataSnapshot (measurement, CAS digest)",
+      "output_destination": "CAS (when fetched)",
+      "authority_status": "none",
+      "gap_class": "built_not_wired",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "wire",
+      "evidence_refs": [
+        "sdmx/scaffold.py PROFILE_ID_BY_CONNECTOR_ID",
+        "tests/_data/fabric/shared/source_contracts/ukons.datasets.generic.replay.json",
+        "_build/.tmp/gy0-census/connector_census.json"
+      ],
+      "notes": "Connector implementation and generic replay fixture observed; real-data network fetch intentionally not exercised in GY-0."
+    },
+    {
+      "asset_id": "scientist.agent.DataNeedSpec.nl_to_retrieval",
+      "module_path": "src/polisyos/scientist/agent/protocols.py:120 (extractor protocol :272)",
+      "entrypoint": "DataNeedSpec + DataNeedExtractorAgent -> RetrievalService DataNeed",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "src/polisyos/runtime/http/services/control/nl_pipeline.py:4266",
+          "src/polisyos/runtime/http/services/control/nl_pipeline.py:4459"
+        ],
+        "called_from_production": "true - NL pipeline constructs an extractor, extracts DataNeedSpec, converts to DataNeed, and calls RetrievalService"
+      },
+      "execution_status": "runs_e2e_on_real",
+      "execution_evidence": {
+        "smoke": "_build/.tmp/gy0-census/data_need_to_retrieval_smoke.json",
+        "result": "MockDataNeedExtractorAgent produced one DataNeedSpec; conversion to DataNeed reached RetrievalService fastlane; fetch_plan_count=1",
+        "output_hash": "sha256:d31e9b698692f61aabbd9acfcd6a76aa0ff2e8a4e287929d9797a3c248ecab6a"
+      },
+      "consumes": [
+        "ProblemFrame / NL extracted data-needs frame"
+      ],
+      "emits": "DataNeedSpec -> DataNeed -> FetchPlan",
+      "output_destination": "RetrievalService fastlane fetch plan",
+      "authority_status": "none",
+      "gap_class": "wired_and_works",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "none",
+      "evidence_refs": [
+        "src/polisyos/scientist/agent/protocols.py:120",
+        "src/polisyos/scientist/agent/protocols.py:272",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:4459",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:4465",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:4730",
+        "_build/.tmp/gy0-census/data_need_to_retrieval_smoke.json"
+      ],
+      "notes": "Seed correction: DataNeedSpec already has a working NL->retrieval path. GY-3 should build only the RequiredDataSpec->DataNeedSpec bridge, not a new demand type."
+    },
+    {
+      "asset_id": "scientist.agent.LLMDataNeedExtractorAgent.dataset_catalog_enrichment",
+      "module_path": "src/polisyos/scientist/agent/data_need_extractor.py:98",
+      "entrypoint": "LLMDataNeedExtractorAgent(..., dataset_catalog=...) enrichment branch",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "src/polisyos/runtime/http/services/control/nl_pipeline.py:4275"
+        ],
+        "called_from_production": "false for catalog enrichment - runtime constructs LLMDataNeedExtractorAgent without dataset_catalog"
+      },
+      "execution_status": "never_invoked",
+      "execution_evidence": {
+        "smoke": "source + construction trace; data_need_to_retrieval smoke covers no-catalog path only",
+        "result": "agent accepts dataset_catalog and has enrichment code, but production passes None",
+        "output_hash": "n/a"
+      },
+      "consumes": [
+        "DatasetCatalogGraph",
+        "ProblemFrame"
+      ],
+      "emits": "catalog-enriched DataNeedSpec candidates",
+      "output_destination": "not reached until GY-1 wires DatasetCatalogGraph into extractor construction",
+      "authority_status": "none",
+      "gap_class": "built_not_wired",
+      "canonical_vs_duplicate": "canonical_wiring_target",
+      "recommended_gy_action": "wire",
+      "evidence_refs": [
+        "src/polisyos/scientist/agent/data_need_extractor.py:98",
+        "src/polisyos/scientist/agent/data_need_extractor.py:173",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:4275",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:4279"
+      ],
+      "notes": "GY-1 companion to RetrievalService.dataset_catalog_lane: extractor enrichment is implemented but not wired."
+    },
+    {
+      "asset_id": "scholar.search.ScholarDeepSearchService.default_provider_policy",
+      "module_path": "src/polisyos/scholar/search/service.py:62",
+      "entrypoint": "ScholarDeepSearchService.__init__ default ProviderFailoverPolicy",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "scholar search service"
+        ],
+        "called_from_production": "out_of_route for pinned UA-MSME GY-0; discovered as GY-6 follow-on surface"
+      },
+      "execution_status": "never_invoked",
+      "execution_evidence": {
+        "smoke": "source trace only; no Scholar deep-search route invoked in GY-0",
+        "result": "default providers are DuckDuckGoHtmlSearchProvider and WikipediaOpenSearchProvider; provider failover exists",
+        "output_hash": "n/a"
+      },
+      "consumes": [
+        "SearchQuery / web provider policy"
+      ],
+      "emits": "Scholar search results",
+      "output_destination": "out_of_route follow-on",
+      "authority_status": "none",
+      "gap_class": "out_of_route",
+      "canonical_vs_duplicate": "follow_on_surface",
+      "recommended_gy_action": "none",
+      "evidence_refs": [
+        "src/polisyos/scholar/search/service.py:77",
+        "src/polisyos/scholar/search/providers.py:35"
+      ],
+      "notes": "GY-6 should wire/extend existing providers instead of building a new search engine; OpenAlex exists in data_forge."
+    },
+    {
+      "asset_id": "data_forge.academic.OpenAlexClient",
+      "module_path": "src/polisyos/data_forge/domains/academic/openalex/client.py:32",
+      "entrypoint": "OpenAlexClient",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "data_forge/domains/academic/openalex"
+        ],
+        "called_from_production": "out_of_route for pinned UA-MSME GY-0; existing client for Scholar follow-on wiring"
+      },
+      "execution_status": "never_invoked",
+      "execution_evidence": {
+        "smoke": "source trace only; network client not invoked in GY-0",
+        "result": "existing OpenAlex client is available as the reuse-first Scholar provider candidate",
+        "output_hash": "n/a"
+      },
+      "consumes": [
+        "OpenAlex API request"
+      ],
+      "emits": "OpenAlex works/authors/venues results",
+      "output_destination": "out_of_route follow-on",
+      "authority_status": "none",
+      "gap_class": "out_of_route",
+      "canonical_vs_duplicate": "canonical_reuse_target",
+      "recommended_gy_action": "none",
+      "evidence_refs": [
+        "src/polisyos/data_forge/domains/academic/openalex/client.py:32"
+      ],
+      "notes": "Reuse-first target for GY-6 Scholar widening; do not build a parallel academic search client."
+    },
+    {
+      "asset_id": "legacy.reducer_provenance_missing.g2_g8",
+      "module_path": "architecture/policy_design_case/layer3_g{2,3,gl,6,7,8}_*.json (legacy artifacts)",
+      "entrypoint": "GX hardening validator recompute",
+      "existence_status": "present",
+      "reachability": {
+        "imported_by": [
+          "check_policy_design_case_layer3_gx_hardening.py"
+        ],
+        "called_from_production": "validator-only"
+      },
+      "execution_status": "runs_e2e_on_real",
+      "execution_evidence": {
+        "smoke": "python tools/quality/validation/check_policy_design_case_layer3_gx_hardening.py --output-format json (PYTHONPATH=.:src JAX_PLATFORMS=cpu)",
+        "result": "status=pass; expected_red_check_count=0; issue_count=0; runtime_literal_issue_count=0 -- ZERO reducer_provenance_missing on the consolidated branch",
+        "output_hash": "sha256:e30d15c7bbaa3d425b9a5ab58bc265b4afd70369d9bfb99c43f0e2c72cb62048"
+      },
+      "consumes": [
+        "all layer3 g* artifacts"
+      ],
+      "emits": "GX validator report",
+      "output_destination": "validator report",
+      "authority_status": "none",
+      "gap_class": "partial",
+      "canonical_vs_duplicate": "canonical",
+      "recommended_gy_action": "none",
+      "evidence_refs": [
+        "tools/quality/validation/check_policy_design_case_layer3_gx_hardening.py",
+        "_build/.tmp/gy0-census/gx_validator_report.json"
+      ],
+      "notes": "CRITICAL: the GY plan's headline premise -- '~1184 reducer_provenance_missing' as GY's progress meter -- is STALE on this consolidated branch. The validator now reports 0 expected-red and 0 issues. Pinned-route outcome is now final='search_ceiling_repair_required' / provisional='unchanged_blocker' (NOT 'typed_blocker' as the precondition states). 406 candidate positive statuses are ALL excluded (positive_status_count=0). GY-0.5 must re-baseline against these numbers."
+    }
+  ],
+  "row_count": 69,
+  "census_digest": "sha256:7e72b72dc0c6b0ea874992c6ae9fb2b5940724ca31084776d2e7038c5620635b",
+  "evidence_reproducibility": {
+    "module": "tools/quality/validation/gy_evidence_canon.py",
+    "policy": "every recorded output_hash must be a time/score-invariant canonical hash; wall-clock ms/seconds/timestamps are stripped before hashing",
+    "verified": "search rows re-derived 4/4 identical via canonical_evidence_hash over returned dataset ids",
+    "remaining": "the other recorded hashes predate this policy; GY-0.5 should re-derive any execution-bearing hash through gy_evidence_canon before treating it as replay evidence"
+  }
+}

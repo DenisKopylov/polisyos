@@ -1,0 +1,484 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gx_baseline_note.v1",
+  "plan_id": "layer3-gx-universal-free-growth-runtime-hardening",
+  "task_id": "task--1-clean-baseline-and-signal-isolation",
+  "recorded_at": "2026-06-12T14:07:09+03:00",
+  "recorded_by": "codex",
+  "repo_root": "/Users/deniskopylov/polisyos/policy-engine",
+  "git": {
+    "branch": "codex/consolidated-all-changes-20260612",
+    "head_short": "93486ec4",
+    "worktree_isolation": "normal_checkout_on_codex_branch",
+    "task_minus_1_worktree_state": "scoped_not_clean",
+    "notes": [
+      "The branch was already dirty before GX Task -1 edits.",
+      "No GX behavior work was started in Task -1.",
+      "Generated artifacts written by baseline tests are quarantined separately from pre-existing branch changes."
+    ]
+  },
+  "pattern_pass": {
+    "relevant_pattern_ids": [
+      "P01",
+      "P02",
+      "P03",
+      "P04",
+      "P05",
+      "P07",
+      "P10",
+      "P12",
+      "P14",
+      "P15",
+      "P25"
+    ],
+    "existing_anti_patterns_found": [
+      {
+        "pattern_id": "P01",
+        "evidence": "Several validators report pass-like persisted artifacts while upstream dependencies remain blocked or drifted.",
+        "missing_capability_label": "verification_missing"
+      },
+      {
+        "pattern_id": "P02",
+        "evidence": "G4/G5 summaries still depend on unresolved or manifest-only upstream records.",
+        "missing_capability_label": "bridge_missing"
+      },
+      {
+        "pattern_id": "P04",
+        "evidence": "G5 CLI status is pass while dependency readiness, G2, and G4 are failed or blocked.",
+        "missing_capability_label": "semantic_test_missing"
+      },
+      {
+        "pattern_id": "P10",
+        "evidence": "G1 validator is pass but repo-quality test fails because free_growth_fixture_count is 0.",
+        "missing_capability_label": "semantic_test_missing"
+      }
+    ],
+    "target_correct_pattern_for_task_minus_1": "Do not add GX diagnostics on top of unowned baseline drift. Record every pre-existing red signal, quarantine generated drift, and make Task 0 failures attributable."
+  },
+  "initial_git_status_short_before_gx_changes": {
+    "command": "git status --short",
+    "captured_before_task_minus_1_edits": true,
+    "lines": [
+      " M policy-engine/architecture/policy_design_case/layer3_g1_hardcode_strangle_delta.json",
+      " M policy-engine/architecture/policy_design_case/layer3_g1_readiness_manifest.json",
+      " M policy-engine/architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json",
+      " M policy-engine/architecture/policy_design_case/layer3_g4_a_completeness_ledger.json",
+      " M policy-engine/architecture/policy_design_case/layer3_g4_conformance_report.json",
+      " M policy-engine/architecture/policy_design_case/layer3_g4_g5_promotion_handoff.json",
+      " M policy-engine/architecture/policy_design_case/layer3_g4_governance_throughput_delta.json",
+      " M policy-engine/architecture/policy_design_case/layer3_g4_grounded_contract_set.json",
+      " M policy-engine/architecture/policy_design_case/layer3_g4_health_metric_delta.toml",
+      " M policy-engine/architecture/policy_design_case/layer3_g4_promotion_audit_surface.json",
+      " M policy-engine/architecture/policy_design_case/layer3_g4_promotion_records.json",
+      " M policy-engine/architecture/policy_design_case/layer3_g4_public_export_projection_refs.json",
+      " M policy-engine/architecture/policy_design_case/layer3_g4_readiness_manifest.json",
+      " M policy-engine/architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json",
+      " M policy-engine/architecture/policy_design_case/layer3_g5_dependency_readiness_snapshot.json",
+      " M policy-engine/architecture/policy_design_case/layer3_g5_effective_evidence_independence.json",
+      " M policy-engine/architecture/policy_design_case/layer3_g5_g4_handoff_resolution.json",
+      " M policy-engine/architecture/policy_design_case/layer3_g5_g4_promotion_record_resolution.json",
+      " M policy-engine/architecture/policy_design_case/layer3_g5_grounded_result_evidence_set.json",
+      " M policy-engine/architecture/policy_design_case/layer3_g5_readiness_manifest.json",
+      " M policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/search.py",
+      " M policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+      " M policy-engine/src/polisyos/runtime/quality/layer3_promotion_gate.py",
+      " M policy-engine/src/polisyos/runtime/quality/layer3_proving_ground_conversion.py",
+      " M policy-engine/src/polisyos/runtime/quality/layer3_substrate_grounding.py",
+      " M policy-engine/tests/unit/runtime/quality/test_layer3_g1_substrate_grounding.py",
+      " M policy-engine/tests/unit/runtime/quality/test_layer3_g4_promotion_gate.py",
+      " M policy-engine/tests/unit/runtime/quality/test_layer3_g5_proving_ground_conversion.py",
+      " M policy-engine/tools/quality/validation/check_policy_design_case_layer3_g1_readiness.py",
+      "?? policy-engine/docs/plans/active/layer3-slices/GX-universal-free-growth-runtime-hardening.md",
+      "?? policy-engine/tests/fixtures/layer3/g4/g1_grounded_source_contracts_valid.json"
+    ]
+  },
+  "required_runtime_literal_scan": {
+    "command": "rg -n 'firm_survival|credit_access|credit_program_enrollment|ua-msme-affordable-loans-2022|KNOWN_CONSTRUCTS|REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS|sha256:|grounded_or_uncertain|calibrated|governed_promoted' src/polisyos/runtime src/polisyos/core tools/quality/validation tests/unit/runtime tests/repo_quality",
+    "exit_code": 0,
+    "raw_output_line_count": 1234,
+    "selected_runtime_quality_hit_counts": {
+      "src/polisyos/runtime/quality/layer3_substrate_grounding.py": 29,
+      "src/polisyos/runtime/quality/layer3_causal_forecast.py": 56,
+      "src/polisyos/runtime/quality/layer3_promotion_gate.py": 22,
+      "src/polisyos/runtime/quality/layer3_proving_ground_conversion.py": 15,
+      "src/polisyos/runtime/quality/layer3_region_widening.py": 15,
+      "src/polisyos/runtime/quality/layer3_health_metric_governance.py": 8,
+      "src/polisyos/runtime/quality/capability_resolver.py": 19,
+      "src/polisyos/runtime/quality/capability_index_compiler.py": 33,
+      "src/polisyos/runtime/quality/capability_white_space.py": 2
+    },
+    "legacy_mapping_hits": [
+      "src/polisyos/core/contracts/capability_resolution.py",
+      "src/polisyos/core/contracts/__init__.py",
+      "src/polisyos/runtime/quality/layer3_grounding_inventory.py",
+      "src/polisyos/runtime/quality/layer3_substrate_grounding.py",
+      "tests/unit/runtime/quality/test_capability_resolver.py",
+      "tests/unit/runtime/quality/test_layer3_g0_grounding_inventory.py"
+    ],
+    "baseline_interpretation": "The required scan is red. Hits are not automatically illegal until Task 0 AST allowlisting exists, but runtime/core positive-literal and legacy mapping hits must be treated as GX blockers."
+  },
+  "pytest_baseline": [
+    {
+      "name": "focused_g0_g1_g4_g5_task_minus_1_suite",
+      "command": "uv run pytest tests/unit/runtime/quality/test_layer3_g0_grounding_inventory.py tests/unit/runtime/quality/test_layer3_g1_substrate_grounding.py tests/unit/runtime/quality/test_layer3_g4_promotion_gate.py tests/unit/runtime/quality/test_layer3_g5_proving_ground_conversion.py tests/repo_quality/tools/test_policy_design_case_layer3_g0_readiness.py tests/repo_quality/tools/test_policy_design_case_layer3_g1_readiness.py tests/repo_quality/tools/test_policy_design_case_layer3_g4_readiness.py tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness.py",
+      "exit_code": 1,
+      "summary": "5 failed, 251 passed in 61.21s",
+      "failed_node_ids": [
+        "tests/repo_quality/tools/test_policy_design_case_layer3_g0_readiness.py::test_layer3_g0_validator_loads_v2_persisted_artifacts_and_search_gate_statuses",
+        "tests/repo_quality/tools/test_policy_design_case_layer3_g1_readiness.py::test_layer3_g1_validator_requires_free_growth_and_mechanism_generality",
+        "tests/repo_quality/tools/test_policy_design_case_layer3_g4_readiness.py::test_layer3_g4_readiness_passes_for_persisted_runtime_bundle",
+        "tests/repo_quality/tools/test_policy_design_case_layer3_g4_readiness.py::test_layer3_g4_readiness_persisted_conformance_covers_task7_negatives",
+        "tests/repo_quality/tools/test_policy_design_case_layer3_g4_readiness.py::test_layer3_g4_persisted_adapter_registry_and_throughput_are_semantic"
+      ]
+    },
+    {
+      "name": "full_layer3_pytest_pattern",
+      "command": "uv run pytest tests/unit/runtime/quality/test_layer3_*.py tests/repo_quality/tools/test_policy_design_case_layer3_*.py",
+      "exit_code": 1,
+      "summary": "18 failed, 613 passed in 317.33s",
+      "failed_node_ids": [
+        "tests/unit/runtime/quality/test_layer3_g3_analytics_search.py::test_layer3_g3_task1_loads_g2_dependencies_and_builds_control_plane_bindings",
+        "tests/unit/runtime/quality/test_layer3_g3_analytics_search.py::test_layer3_g3_task3_consumes_g2_method_requirements_for_claim_bound_bridge",
+        "tests/unit/runtime/quality/test_layer3_g3_analytics_search.py::test_layer3_g3_task4_builds_s11_prerequisites_calibration_and_posture",
+        "tests/unit/runtime/quality/test_layer3_g3_analytics_search.py::test_layer3_g3_task4_stale_or_out_of_scope_calibration_cannot_pass",
+        "tests/unit/runtime/quality/test_layer3_g3_analytics_search.py::test_layer3_g3_task4_predictive_upgrade_without_proof_ref_blocks",
+        "tests/unit/runtime/quality/test_layer3_g3_analytics_search.py::test_layer3_g3_task4_s11_authority_boundary_leak_blocks_binding",
+        "tests/unit/runtime/quality/test_layer3_g3_analytics_search.py::test_layer3_g3_task4_fail_closed_upgrade_limits_posture_without_overriding_s10",
+        "tests/unit/runtime/quality/test_layer3_g3_analytics_search.py::test_layer3_g3_task7_conformance_report_covers_replay_performance_and_adapter_gates",
+        "tests/unit/runtime/quality/test_layer3_g8_health_metric_governance.py::test_g8_current_state_does_not_claim_domain_ceiling",
+        "tests/repo_quality/tools/test_policy_design_case_layer3_g0_readiness.py::test_layer3_g0_validator_loads_v2_persisted_artifacts_and_search_gate_statuses",
+        "tests/repo_quality/tools/test_policy_design_case_layer3_g1_readiness.py::test_layer3_g1_validator_requires_free_growth_and_mechanism_generality",
+        "tests/repo_quality/tools/test_policy_design_case_layer3_g2_readiness.py::test_layer3_g2_readiness_passes_only_for_persisted_runtime_bundle",
+        "tests/repo_quality/tools/test_policy_design_case_layer3_g3_readiness.py::test_layer3_g3_readiness_passes_only_for_persisted_runtime_bundle",
+        "tests/repo_quality/tools/test_policy_design_case_layer3_g3_readiness.py::test_layer3_g3_readiness_manifest_contains_selected_runtime_drift_keys",
+        "tests/repo_quality/tools/test_policy_design_case_layer3_g4_readiness.py::test_layer3_g4_readiness_passes_for_persisted_runtime_bundle",
+        "tests/repo_quality/tools/test_policy_design_case_layer3_g4_readiness.py::test_layer3_g4_readiness_persisted_conformance_covers_task7_negatives",
+        "tests/repo_quality/tools/test_policy_design_case_layer3_g4_readiness.py::test_layer3_g4_persisted_adapter_registry_and_throughput_are_semantic",
+        "tests/repo_quality/tools/test_policy_design_case_layer3_g8_readiness.py::test_layer3_g8_readiness_writes_and_passes_current_blocked_value_state"
+      ],
+      "side_effect": "This suite includes repo-quality tests that call write=True and dirtied generated G6/G7/G8 artifacts after the initial baseline status."
+    }
+  ],
+  "readiness_cli_baseline": [
+    {
+      "slice_id": "G0",
+      "command": "uv run python tools/quality/validation/check_policy_design_case_layer3_g0_readiness.py --output-format json",
+      "exit_code": 1,
+      "status": "fail",
+      "issue_codes": [
+        "layer3_g0_manifest_runtime_drift"
+      ],
+      "important_summary": {
+        "persisted_content_hash": "sha256:1b12b33d3ccdecaff3da3f096abd80e3c56d4f3ad7dc2af4d173cfd088c001be",
+        "runtime_content_hash": "sha256:28376a2d38d96ec98db46912dd3ac06a28acce05d7256fc29cf22c62ca93b611",
+        "data_asset_inventory_unclassified_discovered_count": 0,
+        "processing_transform_inventory_unclassified_discovered_count": 0,
+        "quarantine_registry_min_count": 1,
+        "free_growth_fixture_count": 4
+      }
+    },
+    {
+      "slice_id": "G1",
+      "command": "uv run python tools/quality/validation/check_policy_design_case_layer3_g1_readiness.py --output-format json",
+      "exit_code": 0,
+      "status": "pass",
+      "issue_codes": [],
+      "important_summary": {
+        "g1_free_growth_fixture_count": 0,
+        "grounding_closure_outcome": "ungrounded_blocked",
+        "grounded_source_contract_binding_count": 0,
+        "g1_hardcode_fallback_deletion_status": "search_path_replaced_deletion_pending"
+      },
+      "baseline_interpretation": "CLI pass conflicts with repo-quality semantic expectation requiring at least one free-growth fixture."
+    },
+    {
+      "slice_id": "G2",
+      "command": "uv run python tools/quality/validation/check_policy_design_case_layer3_g2_readiness.py --output-format json",
+      "exit_code": 1,
+      "status": "fail",
+      "issue_codes": [
+        "layer3_g2_method_validity_missing",
+        "layer3_g2_s10_prerequisite_binding_missing",
+        "layer3_g2_observable_calibration_required",
+        "layer3_g2_forecast_support_invalid",
+        "layer3_g2_adapter_maturity_overclaim",
+        "layer3_g2_synthetic_calibration_overclaim",
+        "layer3_g2_observable_calibration_denominator_missing",
+        "layer3_g2_credible_evaluation_evidence_missing",
+        "layer3_g2_w12d_not_routed_closeout"
+      ],
+      "important_summary": {
+        "g2_conformance_status": "fail",
+        "g2_method_validity_report_status": "fail",
+        "g2_s10_prerequisite_binding_status": "fail",
+        "g2_w12d_consumer_gate_status": "fail"
+      }
+    },
+    {
+      "slice_id": "G3",
+      "command": "uv run python tools/quality/validation/check_policy_design_case_layer3_g3_readiness.py --output-format json",
+      "exit_code": 1,
+      "status": "fail",
+      "issue_codes": [
+        "layer3_g3_w12d_consumer_gate_missing",
+        "layer3_g3_manifest_runtime_drift"
+      ],
+      "important_summary": {
+        "g3_conformance_status": "fail",
+        "g3_manifest_runtime_drift_key_count": 4,
+        "g3_s11_prerequisite_binding_status": "blocked",
+        "g3_w12d_consumer_gate_status": "fail"
+      }
+    },
+    {
+      "slice_id": "G4",
+      "command": "uv run python tools/quality/validation/check_policy_design_case_layer3_g4_readiness.py --output-format json",
+      "exit_code": 1,
+      "status": "fail",
+      "issue_codes": [
+        "layer3_g4_w12d_manifest_only_not_payload",
+        "layer3_g4_placeholder_design_record_promoted",
+        "layer3_g4_context_dependency_missing"
+      ],
+      "important_summary": {
+        "g2_context_status": "fail",
+        "g4_grounded_contract_set_status": "fail",
+        "g4_weakest_boundary_status": "fail",
+        "g4_governed_promoted_count": 0,
+        "g4_promotion_blocked_count": 2
+      }
+    },
+    {
+      "slice_id": "G5",
+      "command": "uv run python tools/quality/validation/check_policy_design_case_layer3_g5_readiness.py --output-format json",
+      "exit_code": 0,
+      "status": "pass",
+      "issue_codes": [],
+      "important_summary": {
+        "g5_conversion_outcome": "unchanged_blocker",
+        "g5_dependency_readiness_status": "fail",
+        "g5_g2_dependency_status": "fail",
+        "g5_g4_dependency_status": "fail",
+        "g5_g4_handoff_resolution_status": "fail",
+        "g5_g4_promotion_record_resolution_status": "fail",
+        "g5_grounded_evidence_ref_count": 0,
+        "g5_useful_design_credit_count": 0
+      },
+      "baseline_interpretation": "Legacy pass has no GX closeout authority because dependency readiness is failed and outcome is unchanged_blocker."
+    },
+    {
+      "slice_id": "G6",
+      "command": "uv run python tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py --output-format json",
+      "exit_code": 0,
+      "status": "pass",
+      "issue_codes": [],
+      "important_summary": {
+        "g6_grounded_value_closure_status": "blocked_by_current_g5_unchanged_blocker",
+        "g6_agent_loop_trace_status": "pass",
+        "g6_g5_bridge_status": "pass"
+      },
+      "baseline_interpretation": "Legacy pass is diagnostic only for GX while G5 remains unchanged_blocker."
+    },
+    {
+      "slice_id": "G7",
+      "command": "uv run python tools/quality/validation/check_policy_design_case_layer3_g7_readiness.py --output-format json",
+      "exit_code": 1,
+      "status": "fail",
+      "issue_codes": [
+        "layer3_g7_manifest_runtime_drift"
+      ],
+      "important_summary": {
+        "g7_manifest_runtime_drift_key_count": 1,
+        "g7_region_grounded_case_count": 0,
+        "g7_s14_consumer_gate_status": "blocked",
+        "g7_current_g5_unchanged_blocker_status": "blocked"
+      }
+    },
+    {
+      "slice_id": "G8",
+      "command": "uv run python tools/quality/validation/check_policy_design_case_layer3_g8_readiness.py --output-format json",
+      "exit_code": 1,
+      "status": "fail",
+      "issue_codes": [
+        "layer3_g8_manifest_runtime_drift"
+      ],
+      "important_summary": {
+        "g8_manifest_runtime_drift_key_count": 2,
+        "g8_domain_vs_search_ceiling_status": "governance_stall_repair_required",
+        "g8_effective_independent_evidence_count": 0
+      }
+    },
+    {
+      "slice_id": "GL",
+      "command": "uv run python tools/quality/validation/check_policy_design_case_layer3_gl_readiness.py --output-format json",
+      "exit_code": 0,
+      "status": "pass",
+      "issue_codes": [],
+      "important_summary": {
+        "gl_reference_resolution_status": "reissue_required",
+        "gl_temporal_competence_status": "pass_with_reissue_required",
+        "gl_l5_calibration_binding_status": "limitation"
+      },
+      "baseline_interpretation": "Pass carries reissue/limitation semantics and should not be flattened into unrestricted GX authority."
+    }
+  ],
+  "generated_artifact_scope": {
+    "pre_existing_dirty_generated_artifacts": [
+      "architecture/policy_design_case/layer3_g1_hardcode_strangle_delta.json",
+      "architecture/policy_design_case/layer3_g1_readiness_manifest.json",
+      "architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json",
+      "architecture/policy_design_case/layer3_g4_a_completeness_ledger.json",
+      "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "architecture/policy_design_case/layer3_g4_g5_promotion_handoff.json",
+      "architecture/policy_design_case/layer3_g4_governance_throughput_delta.json",
+      "architecture/policy_design_case/layer3_g4_grounded_contract_set.json",
+      "architecture/policy_design_case/layer3_g4_health_metric_delta.toml",
+      "architecture/policy_design_case/layer3_g4_promotion_audit_surface.json",
+      "architecture/policy_design_case/layer3_g4_promotion_records.json",
+      "architecture/policy_design_case/layer3_g4_public_export_projection_refs.json",
+      "architecture/policy_design_case/layer3_g4_readiness_manifest.json",
+      "architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json",
+      "architecture/policy_design_case/layer3_g5_dependency_readiness_snapshot.json",
+      "architecture/policy_design_case/layer3_g5_effective_evidence_independence.json",
+      "architecture/policy_design_case/layer3_g5_g4_handoff_resolution.json",
+      "architecture/policy_design_case/layer3_g5_g4_promotion_record_resolution.json",
+      "architecture/policy_design_case/layer3_g5_grounded_result_evidence_set.json",
+      "architecture/policy_design_case/layer3_g5_readiness_manifest.json"
+    ],
+    "baseline_test_written_artifacts": [
+      "architecture/policy_design_case/layer3_g6_agent_run_records.json",
+      "architecture/policy_design_case/layer3_g6_design_record_candidate_handoff.json",
+      "architecture/policy_design_case/layer3_g6_hypothesis_ledger_projection.json",
+      "architecture/policy_design_case/layer3_g6_orchestration_continuity.json",
+      "architecture/policy_design_case/layer3_g6_prompt_tool_ledger_projection.json",
+      "architecture/policy_design_case/layer3_g6_replay_manifest.json",
+      "architecture/policy_design_case/layer3_g6_request_envelope.json",
+      "architecture/policy_design_case/layer3_g7_orchestration_continuity.json",
+      "architecture/policy_design_case/layer3_g7_region_conversion_records.json",
+      "architecture/policy_design_case/layer3_g7_region_conversion_status_matrix.json",
+      "architecture/policy_design_case/layer3_g7_region_scorecard.json",
+      "architecture/policy_design_case/layer3_g7_region_widening_audit_surface.json",
+      "architecture/policy_design_case/layer3_g7_replay_manifest.json",
+      "architecture/policy_design_case/layer3_g8_cross_metric_diagnosis.json",
+      "architecture/policy_design_case/layer3_g8_metric_source_snapshot.json",
+      "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "architecture/policy_design_case/layer3_g8_readiness_manifest.json"
+    ],
+    "quarantine_decision": "Do not count dirty generated artifacts as GX Task 0 behavior. Before Task 0 closeout, commit, park, regenerate, or explicitly supersede them through the relevant readiness workflow."
+  },
+  "mixed_work_exclusions": {
+    "atlas_or_non_layer3_dirty_paths": [],
+    "non_layer3_or_upstream_dirty_paths_excluded_from_gx_closeout": [
+      "src/polisyos/data_forge/domains/catalog/knowledge/search.py",
+      "src/polisyos/data_forge/domains/catalog/knowledge/store.py"
+    ],
+    "source_and_test_paths_scoped_as_pre_existing_layer3_work": [
+      "src/polisyos/runtime/quality/layer3_promotion_gate.py",
+      "src/polisyos/runtime/quality/layer3_proving_ground_conversion.py",
+      "src/polisyos/runtime/quality/layer3_substrate_grounding.py",
+      "tests/unit/runtime/quality/test_layer3_g1_substrate_grounding.py",
+      "tests/unit/runtime/quality/test_layer3_g4_promotion_gate.py",
+      "tests/unit/runtime/quality/test_layer3_g5_proving_ground_conversion.py",
+      "tools/quality/validation/check_policy_design_case_layer3_g1_readiness.py",
+      "tests/fixtures/layer3/g4/g1_grounded_source_contracts_valid.json"
+    ]
+  },
+  "slice_plan_status_reconciliation": [
+    {
+      "slice_id": "G0",
+      "plan_status": "active",
+      "validator_status": "fail",
+      "reconciliation": "matches active; blocks GX closeout until manifest/runtime drift is resolved"
+    },
+    {
+      "slice_id": "G1",
+      "plan_status": "active",
+      "validator_status": "pass",
+      "reconciliation": "active is appropriate because free-growth fixture count and hardcode deletion remain unresolved for GX"
+    },
+    {
+      "slice_id": "G2",
+      "plan_status": "completed",
+      "validator_status": "fail",
+      "reconciliation": "status mismatch; completed cannot count for GX authority"
+    },
+    {
+      "slice_id": "G3",
+      "plan_status": "active",
+      "validator_status": "fail",
+      "reconciliation": "matches active"
+    },
+    {
+      "slice_id": "G4",
+      "plan_status": "active",
+      "validator_status": "fail",
+      "reconciliation": "matches active"
+    },
+    {
+      "slice_id": "G5",
+      "plan_status": "completed",
+      "validator_status": "pass_with_failed_dependencies",
+      "reconciliation": "status mismatch for GX; completed legacy status has no GX closeout authority while unchanged_blocker and failed dependencies remain"
+    },
+    {
+      "slice_id": "G6",
+      "plan_status": "active",
+      "validator_status": "pass_with_g5_blocker",
+      "reconciliation": "active remains appropriate for GX"
+    },
+    {
+      "slice_id": "G7",
+      "plan_status": "active",
+      "validator_status": "fail",
+      "reconciliation": "matches active"
+    },
+    {
+      "slice_id": "G8",
+      "plan_status": "active_unstructured_plan_header",
+      "validator_status": "fail",
+      "reconciliation": "G8 plan lacks the same frontmatter shape as other slice plans; keep active and do not count as GX-ready"
+    },
+    {
+      "slice_id": "GL",
+      "plan_status": "active",
+      "validator_status": "pass_with_reissue_limits",
+      "reconciliation": "active remains appropriate until reissue/limitation semantics are reconciled in GX"
+    }
+  ],
+  "g0_residual_debt_ownership": [
+    {
+      "debt_id": "g0-triage-coverage-for-inventory-sources-assets",
+      "current_signal": "G0 summary reports data_asset_inventory_unclassified_discovered_count=0 and processing_transform_inventory_unclassified_discovered_count=0.",
+      "owner": "layer3-gx-runtime-hardening",
+      "approval_principal": "deniskopylov",
+      "blocks_gx_closeout": true,
+      "closeout_condition": "G0 readiness passes without layer3_g0_manifest_runtime_drift after persisted artifacts are regenerated or runtime output is reconciled."
+    },
+    {
+      "debt_id": "g0-binary-lex-quarantine-status",
+      "current_signal": "Task -1 search found quarantine registry coverage, including scenario-family authority selector quarantine, but did not find a separate machine-readable binary lex quarantine artifact.",
+      "owner": "layer3-gx-runtime-hardening",
+      "approval_principal": "deniskopylov",
+      "blocks_gx_closeout": true,
+      "missing_capability_label": "artifact_missing",
+      "closeout_condition": "Either add/link the explicit binary lex quarantine status artifact or document a live plan that blocks GX closeout until that quarantine status is machine-checkable."
+    },
+    {
+      "debt_id": "g0-manifest-runtime-drift",
+      "current_signal": "G0 validator fails with layer3_g0_manifest_runtime_drift at $.bundle_content_hash.",
+      "owner": "layer3-gx-runtime-hardening",
+      "approval_principal": "deniskopylov",
+      "blocks_gx_closeout": true,
+      "closeout_condition": "Persisted G0 bundle hash equals runtime builder hash, or a correction record explains and supersedes the drift."
+    }
+  ],
+  "acceptance_state": {
+    "baseline_note_lists_pre_existing_red_checks": true,
+    "dirty_artifacts_are_scoped_or_quarantined": true,
+    "unrelated_work_excluded_from_gx_closeout_surface": true,
+    "g0_debts_have_owner_and_closeout_condition": true,
+    "clean_worktree": false,
+    "scoped_worktree": true,
+    "may_start_task_0": "conditional",
+    "task_0_start_condition": "Task 0 may start only with this scoped baseline as the authority boundary; Task 0 may not claim green or close GX while the listed baseline reds and G0 debts remain unresolved or explicitly carried as expected-red blockers."
+  }
+}

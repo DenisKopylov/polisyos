@@ -4,12 +4,12 @@ rule_version = "policyos.layer3.g4.shadow_to_governed_promotion.v1"
 [health_metric_delta]
 metric_ids = ["g4-promotion-attempts", "g4-governed-promoted-count", "g4-promotion-blocked-count", "g4-promotion-stalled-count", "g4-human-decision-routed-count"]
 readings.g4-governed-promoted-count = 0
-readings.g4-hard-a-incompleteness-block-count = 1
+readings.g4-hard-a-incompleteness-block-count = 0
 readings.g4-human-decision-routed-count = 0
 readings.g4-human-decision-stall-count = 0
 readings.g4-legal-reissue-stall-count = 0
-readings.g4-promotion-attempts = 2
-readings.g4-promotion-blocked-count = 2
+readings.g4-promotion-attempts = 0
+readings.g4-promotion-blocked-count = 0
 readings.g4-promotion-stalled-count = 0
 readings.g4-search-health-stall-count = 0
 readings.g4-stale-index-stall-count = 0

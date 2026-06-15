@@ -1,0 +1,397 @@
+{
+  "schema_version": "layer3_gy_lex_frontier_root_cause_audit.v1",
+  "audit_id": "layer3-gy-lex-frontier-root-cause-audit-2026-06-14",
+  "source_plan": "docs/plans/active/layer3-slices/GY-engine-subordination.md",
+  "scope": {
+    "question": "Diagnose why the Lex/hierarchical-policy-search node fails on the pinned GY policy-design DAG route, and whether the failure is bug, thin input, scaffold, bad bounds, or frontier/objective laundering.",
+    "pinned_node": "run_hierarchical_policy_search",
+    "pinned_asset_id": "scientist.dag.node.run_hierarchical_policy_search",
+    "capability_reality_lens": "typed contract/artifact + producer + persisted artifact/event + orchestration bridge + consumer + verification + external/audit/API/dashboard surface or explicit out_of_scope + negative/e2e semantic test",
+    "non_goals": [
+      "repair production code",
+      "greenlight downstream governance nodes",
+      "treat search frontier support as policy authority"
+    ]
+  },
+  "methodology": {
+    "network_fetches_run": false,
+    "agents_used": false,
+    "repo_root": "/Users/deniskopylov/polisyos/policy-engine",
+    "evidence_style": "saved DAG trace plus direct CAS-artifact reproduction plus static contract inspection plus validator negatives",
+    "commands": [
+      {
+        "id": "saved_dag_snapshot_probe",
+        "command": "python3 - <<'PY' ... inspect _build/.tmp/gy0-census/dag_node_census3.json ... PY",
+        "result": "status=fail; nodes=37; ok=14; fail=1; skip=22; failing node run_hierarchical_policy_search; message=Invalid bounds for 'verified_policy_option_rate': lower >= upper; no policy_frontier_report_ref"
+      },
+      {
+        "id": "cas_trinity_bundle_probe",
+        "command": "rg -n trinity_bundle _build/.tmp/gy0-census; inspect sha256:9497cb4c5c629e004a322836112ad361f44618132346b019433620a6e58333cf.blob",
+        "result": "persisted ir.trinity_bundle has ParameterSpec param_id=verified_policy_option_rate, default_value='0.1', min_value absent, max_value absent, tunable=true"
+      },
+      {
+        "id": "direct_search_spec_reproducer",
+        "command": "uv run python - <<'PY' ... load persisted TrinityBundle, build PolicyCandidateSchema, call HierarchicalSearchCoordinator.build_parameter_search_spec ... PY",
+        "result": "normalized_default=0.1; normalized_min=0.0; normalized_max=0.0; derived=(0.0, 0.0); ValueError Invalid bounds for 'verified_policy_option_rate': lower >= upper"
+      },
+      {
+        "id": "schedule_branch_control_probe",
+        "command": "uv run python - <<'PY' ... inspect candidate.parameter_schedule for same persisted bundle ... PY",
+        "result": "parameter_schedule entry for verified_policy_option_rate derives (0.08, 0.12000000000000001) when None bounds are preserved"
+      },
+      {
+        "id": "static_route_trace",
+        "command": "rg/nl over policy_design.py, run_hierarchical_policy_search.py, lex/interventions.py, policy_design/search.py, methods/search/strategies/types.py, policy_verified/service.py",
+        "result": "DAG invokes Lex adapter; adapter calls build_parameter_search_spec before coordinator.run; ParameterBounds correctly rejects lower>=upper; node catches ValueError and returns fail"
+      },
+      {
+        "id": "frontier_semantics_trace",
+        "command": "rg/nl over _persist_frontier_report, PolicyFrontierReport, ObjectiveStack, _iter_candidate_records",
+        "result": "current failed run persists no frontier; after repair, existing frontier report metadata is too thin for P25 and unevaluated structure fallback can become feasible=true/objective=0 records"
+      }
+    ]
+  },
+  "classification": {
+    "primary": "implementation_bug_optional_bounds_none_normalized_to_zero",
+    "lex_node_gap_class": "wired_but_rotten",
+    "route_pinned": true,
+    "repair_before_downstream_governance": true,
+    "root_cause_matrix": {
+      "bug": {
+        "primary": true,
+        "classification": "search_spec_optional_bound_handling_bug",
+        "evidence": "src/polisyos/scientist/policy_design/search.py normalizes parameter.min_value/max_value before preserving None; _normalize_value_like(None) returns 0.0; _derive_bounds then treats both bounds as explicit."
+      },
+      "thin_input": {
+        "primary": false,
+        "contributing": false,
+        "evidence": "The persisted Trinity bundle carries a tunable numeric default_value='0.1'. The same value yields a valid 0.08..0.12 derived range through the schedule branch."
+      },
+      "synthetic_scaffold": {
+        "primary": false,
+        "contributing": true,
+        "evidence": "formalize_policy_option_set and MockFormalizerAgent produce a generic tax_subsidy/rate/avg_income scaffold from the verified option, but this scaffold is sufficient to derive a search range if optional bounds remain None."
+      },
+      "bad_bounds": {
+        "primary": false,
+        "contributing": false,
+        "evidence": "The real CAS Trinity bundle does not contain min_value/max_value for verified_policy_option_rate; bad equal bounds are synthesized inside search-spec construction."
+      },
+      "frontier_objective_laundering": {
+        "observed": false,
+        "risk_after_repair": true,
+        "evidence": "The failed run reaches no policy_frontier_report_ref. Existing frontier report persistence has thin metadata and can emit records from candidate structures without evaluated objective provenance, so P25 remains a repair acceptance constraint."
+      }
+    },
+    "missing_capability_labels": [
+      "verification_missing",
+      "semantic_test_missing",
+      "surface_missing"
+    ],
+    "patterns": [
+      "P01",
+      "P02",
+      "P03",
+      "P10",
+      "P12",
+      "P25"
+    ],
+    "rationale": [
+      "Lex is wired and invoked by the real policy-design DAG, so this is not built_not_wired.",
+      "The failure occurs before frontier persistence and before downstream governance nodes; downstream skips are blocked_upstream, not independent failures.",
+      "The direct CAS-artifact reproduction proves absent bounds are converted to a strict invalid 0.0..0.0 search space.",
+      "The ParameterBounds strict lower<upper check is correct; the faulty contract is the optional-bound conversion in the search-spec builder.",
+      "The generic verified-policy scaffold is a semantic-quality issue for future frontier authority, but not the immediate lower>=upper cause."
+    ]
+  },
+  "summary": {
+    "workflow_id": "scientist_policy_design",
+    "run_id": "gy0_dag_smoke3_uamsme",
+    "workflow_status": "fail",
+    "workflow_node_count": 37,
+    "workflow_ok_nodes": 14,
+    "workflow_fail_nodes": 1,
+    "workflow_skip_nodes": 22,
+    "failing_node": "run_hierarchical_policy_search",
+    "failing_node_status": "fail",
+    "failing_node_error_code": "node.invalid_state",
+    "failing_parameter": "verified_policy_option_rate",
+    "failure_message": "Hierarchical policy search failed: Invalid bounds for 'verified_policy_option_rate': lower >= upper",
+    "trinity_bundle_artifact_id": "sha256:9497cb4c5c629e004a322836112ad361f44618132346b019433620a6e58333cf",
+    "trinity_bundle_kind": "ir.trinity_bundle",
+    "persisted_parameter_default_value": "0.1",
+    "persisted_parameter_min_value_is_null": true,
+    "persisted_parameter_max_value_is_null": true,
+    "persisted_parameter_tunable": true,
+    "normalized_default_value": 0.1,
+    "normalized_min_value": 0.0,
+    "normalized_max_value": 0.0,
+    "derived_bounds_from_current_builder": [
+      0.0,
+      0.0
+    ],
+    "derived_bounds_if_none_preserved": [
+      0.08,
+      0.12000000000000001
+    ],
+    "parameter_bounds_validator_correct": true,
+    "lex_adapter_invoked": true,
+    "lex_adapter_swallows_invalid_bounds": false,
+    "node_catches_value_error_as_fail": true,
+    "search_frontier_persisted": false,
+    "policy_frontier_report_ref_present": false,
+    "frontier_laundering_observed": false,
+    "frontier_laundering_risk_after_repair": true,
+    "bad_upstream_bounds_observed": false,
+    "thin_input_primary": false,
+    "synthetic_scaffold_primary": false,
+    "synthetic_scaffold_contributing": true,
+    "optional_bound_bug_primary": true,
+    "downstream_skips_blocked_upstream": true,
+    "recommended_gy_action": "repair_search_spec_optional_bound_handling_then_add_p25_frontier_ledger_acceptance_before_gy2_governance"
+  },
+  "probes": {
+    "pinned_dag_failure": {
+      "snapshot_path": "_build/.tmp/gy0-census/dag_node_census3.json",
+      "trace_path": "_build/.tmp/gy0-census/dag_cas3/runs/gy0_dag_smoke3_uamsme/trace.jsonl",
+      "workflow_status": "fail",
+      "node_counts": {
+        "ok": 14,
+        "fail": 1,
+        "skip": 22
+      },
+      "node_error": {
+        "alias": "run_hierarchical_policy_search",
+        "code": "node.invalid_state",
+        "message": "Hierarchical policy search failed: Invalid bounds for 'verified_policy_option_rate': lower >= upper"
+      },
+      "trace_events": [
+        "scientist.node.formalize_verified_policy:NODE_OK:sha256:9497cb4c5c629e004a322836112ad361f44618132346b019433620a6e58333cf",
+        "scientist.node.bind_foundry_inputs:NODE_OK:sha256:a57a686b1dca8ddeaf0b40343db34bc9daeaeb43b76af704adaca98901545fa8",
+        "scientist.node.run_hierarchical_policy_search:NODE_STARTED",
+        "scientist.node.run_hierarchical_policy_search:NODE_FAIL"
+      ],
+      "frontier_ref_present": false,
+      "evidence": [
+        "_build/.tmp/gy0-census/dag_node_census3.json",
+        "_build/.tmp/gy0-census/dag_cas3/runs/gy0_dag_smoke3_uamsme/trace.jsonl"
+      ]
+    },
+    "persisted_trinity_bundle": {
+      "artifact_id": "sha256:9497cb4c5c629e004a322836112ad361f44618132346b019433620a6e58333cf",
+      "artifact_path": "_build/.tmp/gy0-census/dag_cas/artifacts/sha256/94/97/9497cb4c5c629e004a322836112ad361f44618132346b019433620a6e58333cf.blob",
+      "policy_id": "policy_bd9c057adf",
+      "intervention_id": "verified_policy_option",
+      "intervention_kind": "tax_subsidy",
+      "intervention_params": {
+        "rate": "0.1"
+      },
+      "problem_objective_metric_id": "avg_income",
+      "parameter": {
+        "param_id": "verified_policy_option_rate",
+        "param_path": "rate",
+        "default_value": "0.1",
+        "min_value": null,
+        "max_value": null,
+        "tunable": true
+      },
+      "interpretation": "The persisted bundle carries an optional-bound search parameter, not bad equal bounds."
+    },
+    "direct_reproducer": {
+      "input_artifact_id": "sha256:9497cb4c5c629e004a322836112ad361f44618132346b019433620a6e58333cf",
+      "candidate_id": "policy_bd9c057adf",
+      "failing_operation": "HierarchicalSearchCoordinator.build_parameter_search_spec(PolicyCandidateSchema.from_trinity_bundle(bundle))",
+      "observed_values": {
+        "default_value": "0.1",
+        "min_value": null,
+        "max_value": null,
+        "normalized_default": 0.1,
+        "normalized_min": 0.0,
+        "normalized_max": 0.0,
+        "builder_inputs_to_derive_bounds": [
+          0.1,
+          0.0,
+          0.0
+        ],
+        "derived_bounds_from_current_builder": [
+          0.0,
+          0.0
+        ],
+        "exception_type": "ValueError",
+        "exception_message": "Invalid bounds for 'verified_policy_option_rate': lower >= upper"
+      },
+      "control_values": {
+        "parameter_schedule_entry_id": "param_schedule_1",
+        "parameter_schedule_param_id": "verified_policy_option_rate",
+        "schedule_value": "0.1",
+        "schedule_derived_bounds_when_none_preserved": [
+          0.08,
+          0.12000000000000001
+        ]
+      },
+      "interpretation": "The immediate failure is caused by optional-bound loss, not by the source Trinity parameter having bad bounds."
+    },
+    "code_trace": {
+      "dag_invocation": [
+        "src/polisyos/scientist/orchestration/workflows/policy_design.py:110",
+        "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py:201",
+        "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py:207"
+      ],
+      "lex_adapter": [
+        "src/polisyos/lex/interventions.py:1008",
+        "src/polisyos/lex/interventions.py:1024",
+        "src/polisyos/lex/interventions.py:1026"
+      ],
+      "search_spec_bug": [
+        "src/polisyos/scientist/policy_design/search.py:282",
+        "src/polisyos/scientist/policy_design/search.py:283",
+        "src/polisyos/scientist/policy_design/search.py:284",
+        "src/polisyos/scientist/policy_design/search.py:1107",
+        "src/polisyos/scientist/policy_design/search.py:1118"
+      ],
+      "strict_bounds_validator": [
+        "src/polisyos/scientist/methods/search/strategies/types.py:63"
+      ],
+      "formalized_scaffold_source": [
+        "src/polisyos/scientist/validation/policy_verified/service.py:531",
+        "src/polisyos/scientist/validation/policy_verified/service.py:541",
+        "src/polisyos/scientist/agent/formalizer.py:1339",
+        "src/polisyos/scientist/agent/formalizer.py:1343"
+      ],
+      "frontier_persistence_semantics": [
+        "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py:626",
+        "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py:670",
+        "src/polisyos/scientist/policy_design/output.py:171",
+        "src/polisyos/scientist/policy_design/output.py:1232"
+      ]
+    },
+    "frontier_semantics": {
+      "current_run_frontier_status": "absent_due_to_node_fail",
+      "current_run_laundering_status": "not_observed",
+      "risk_points_after_bounds_repair": [
+        {
+          "risk": "thin_frontier_metadata",
+          "evidence": "PolicyFrontierReport metadata from the DAG node is only {source: c6c_hierarchical_policy_search}.",
+          "pattern": "P25"
+        },
+        {
+          "risk": "objective_source_defaults",
+          "evidence": "ObjectiveStack supplies simulation_metrics/candidate_metadata source labels and fallback policy_value=0.0 when measured inputs are absent.",
+          "pattern": "P10"
+        },
+        {
+          "risk": "unevaluated_candidate_feasible_fallback",
+          "evidence": "_iter_candidate_records emits feasible=true/objective=0 records when structure candidates exist but no parameter-search records exist.",
+          "pattern": "P25"
+        },
+        {
+          "risk": "search_budget_not_authority",
+          "evidence": "SearchResult has iterations_completed, stopping_reason, telemetry, and history, but PolicyFrontierReport does not preserve a typed SearchLedger/incompleteness boundary.",
+          "pattern": "P25"
+        }
+      ],
+      "required_repair_acceptance": [
+        "missing min_value/max_value must remain None until _derive_bounds or equivalent typed optional-bound handling",
+        "bad explicit equal bounds must still fail closed or be typed as fixed/non-tunable before search",
+        "frontier reports must carry search space source, bound derivation, candidate/seed source, objective source refs, stage-b blockers, stopping budget, and non-authority purpose",
+        "unevaluated candidates must not be marked feasible in frontier persistence",
+        "downstream governance must stay blocked until a valid search result or explicit typed search_blocker artifact exists"
+      ]
+    }
+  },
+  "route_rows": [
+    {
+      "route_id": "scientist.workflow.policy_design.lex_node",
+      "classification": "route_pinned",
+      "execution_status": "fails",
+      "gap_labels": [
+        "semantic_test_missing"
+      ],
+      "evidence": [
+        "src/polisyos/scientist/orchestration/workflows/policy_design.py:110",
+        "_build/.tmp/gy0-census/dag_node_census3.json"
+      ],
+      "finding": "The policy-design DAG invokes the lex search node and the node fails on a real GY smoke."
+    },
+    {
+      "route_id": "lex.adapter.run_search",
+      "classification": "route_pinned",
+      "execution_status": "invoked_then_fails",
+      "gap_labels": [
+        "verification_missing"
+      ],
+      "evidence": [
+        "src/polisyos/lex/interventions.py:1008",
+        "src/polisyos/lex/interventions.py:1024"
+      ],
+      "finding": "The Lex adapter reaches Scientist search spec validation and does not swallow invalid search bounds."
+    },
+    {
+      "route_id": "scientist.policy_design.search.optional_bounds",
+      "classification": "root_cause",
+      "execution_status": "fails",
+      "gap_labels": [
+        "semantic_test_missing"
+      ],
+      "evidence": [
+        "src/polisyos/scientist/policy_design/search.py:282",
+        "src/polisyos/scientist/policy_design/search.py:283",
+        "src/polisyos/scientist/policy_design/search.py:284",
+        "src/polisyos/scientist/policy_design/search.py:1052"
+      ],
+      "finding": "Absent optional bounds are normalized to 0.0 before _derive_bounds, creating a false explicit 0.0..0.0 range."
+    },
+    {
+      "route_id": "scientist.methods.search.ParameterBounds",
+      "classification": "strict_validator",
+      "execution_status": "works",
+      "gap_labels": [],
+      "evidence": [
+        "src/polisyos/scientist/methods/search/strategies/types.py:63"
+      ],
+      "finding": "ParameterBounds correctly rejects strict-invalid lower>=upper ranges."
+    },
+    {
+      "route_id": "scientist.policy_verified.formalize_policy_option_set",
+      "classification": "scaffold_contributor",
+      "execution_status": "works_but_scaffolded",
+      "gap_labels": [
+        "surface_missing"
+      ],
+      "evidence": [
+        "src/polisyos/scientist/validation/policy_verified/service.py:531",
+        "src/polisyos/scientist/validation/policy_verified/service.py:541",
+        "_build/.tmp/gy0-census/dag_cas/artifacts/sha256/94/97/9497cb4c5c629e004a322836112ad361f44618132346b019433620a6e58333cf.blob"
+      ],
+      "finding": "The formalizer route emits a generic verified_policy_option rate scaffold; this is not the immediate bounds failure, but it is not enough for authoritative frontier semantics."
+    },
+    {
+      "route_id": "scientist.policy_frontier_report.persistence",
+      "classification": "post_repair_risk",
+      "execution_status": "not_reached",
+      "gap_labels": [
+        "surface_missing",
+        "semantic_test_missing"
+      ],
+      "evidence": [
+        "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py:626",
+        "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py:674",
+        "src/polisyos/scientist/policy_design/output.py:171"
+      ],
+      "finding": "Current run does not persist a frontier; after bounds repair, frontier persistence needs typed SearchLedger and objective/source provenance before GY-2 can govern downstream."
+    },
+    {
+      "route_id": "scientist.policy_design.frontier_unevaluated_candidate_fallback",
+      "classification": "post_repair_risk",
+      "execution_status": "not_observed_in_failed_run",
+      "gap_labels": [
+        "semantic_test_missing"
+      ],
+      "evidence": [
+        "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py:514",
+        "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py:520"
+      ],
+      "finding": "When no parameter-search records exist, structure candidates can be converted into feasible=true/objective=0 records; this must not be allowed to launder frontier authority."
+    }
+  ]
+}

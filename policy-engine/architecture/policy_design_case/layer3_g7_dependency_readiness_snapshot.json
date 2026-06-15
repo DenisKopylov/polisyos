@@ -1,8 +1,8 @@
 {
-  "engineering_readiness_status": "pass",
+  "engineering_readiness_status": "fail",
   "g1_index_freshness_status": "pass",
   "g1_readiness_status": "pass",
-  "g1_search_recall_status": "pass",
+  "g1_search_recall_status": "fail",
   "g1_substrate_search_authoritative_for": [],
   "g1_substrate_search_control_plane_status": "pass",
   "g1_substrate_search_ledger_count": 2,
@@ -18,8 +18,8 @@
   ],
   "g4_governance_throughput_status": "pass",
   "g4_governed_promoted_count": 0,
-  "g4_promotion_blocked_count": 2,
-  "g4_promotion_record_count": 2,
+  "g4_promotion_blocked_count": 0,
+  "g4_promotion_record_count": 0,
   "g4_readiness_status": "fail",
   "g5_conversion_outcome": "unchanged_blocker",
   "g5_conversion_record_count": 1,
@@ -48,8 +48,8 @@
     "g6_arbitrary_request_orchestration",
     "g7_region_widening"
   ],
-  "g5_readiness_status": "pass",
-  "g5_status_composition_status": "pass",
+  "g5_readiness_status": "fail",
+  "g5_status_composition_status": "fail",
   "g5_w12d_consumer_gate_status": "pass",
   "g6_agent_run_record_count": 1,
   "g6_demand_pull_vs_abstention_status": "pass",
@@ -83,6 +83,7 @@
   "g6_result_outcome": "g5_unchanged_blocker",
   "g6_search_ledger_status": "pass",
   "issue_codes": [
+    "layer3_g7_g5_readiness_missing",
     "layer3_g7_current_g5_unchanged_blocker"
   ],
   "loaded_artifact_paths": [

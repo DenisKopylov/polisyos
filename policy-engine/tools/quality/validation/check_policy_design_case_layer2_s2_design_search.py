@@ -22,6 +22,9 @@ from polisyos.pdc import (  # noqa: E402
     project_s2_design_search,
     run_s2_shadow_design_loop,
 )
+from polisyos.runtime.quality.layer3_gx_data_home import (  # noqa: E402
+    read_layer3_gx_pinned_case_id,
+)
 
 DEFAULT_MANIFEST_PATH = Path(
     "architecture/policy_design_case/layer2_s2_design_search_manifest.json"
@@ -34,8 +37,9 @@ DEFAULT_FLOOR_GOVERNANCE_PATH = Path(
     "architecture/policy_design_case/layer2_floor_governance.toml"
 )
 DEFAULT_INVENTORY_PATH = Path("architecture/policy_design_case/inventory.json")
-DEFAULT_CANONICAL_CASE_PATH = Path(
-    "tests/fixtures/universal-corpus/cases/ua-msme-affordable-loans-2022.json"
+DEFAULT_CANONICAL_CASE_PATH = (
+    Path("tests/fixtures/universal-corpus/cases")
+    / f"{read_layer3_gx_pinned_case_id(REPO_ROOT)}.json"
 )
 DEFAULT_PRODUCER_STUB_DIR = Path("tests/fixtures/universal-corpus/producer_stubs")
 

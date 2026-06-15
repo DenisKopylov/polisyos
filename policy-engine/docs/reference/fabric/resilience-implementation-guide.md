@@ -1,5 +1,8 @@
 # Resilience Patterns - Implementation Guide
 
+Owner: `@fabric-owners`
+Source of truth: `src/polisyos/fabric/connectors/resilience.py`, `src/polisyos/ir/connectors.py`, and `tests/unit/fabric/connectors/**`
+
 ## Quick Start
 
 ### Decorator Stack (recommended)

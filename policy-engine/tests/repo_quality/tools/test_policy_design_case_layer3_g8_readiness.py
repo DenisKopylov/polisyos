@@ -47,37 +47,39 @@ def test_layer3_g8_readiness_declares_exact_artifact_contract() -> None:
     )
 
 
-def test_layer3_g8_readiness_writes_and_passes_current_blocked_value_state() -> None:
+def test_layer3_g8_readiness_writes_and_fails_current_unmeasured_blocker_search() -> None:
     write_report = validator.validate_layer3_g8_readiness(REPO_ROOT, write=True)
     validation = validator.validate_layer3_g8_readiness(REPO_ROOT)
 
-    assert write_report["status"] == "pass"
-    assert validation["status"] == "pass"
+    assert write_report["status"] == "fail"
+    assert validation["status"] == "fail"
     assert validation["artifacts"]["missing_persisted_artifact_paths"] == []
     summary = validation["summary"]
-    assert summary["g8_metric_governance_status"] == "pass"
+    assert summary["g8_metric_governance_status"] == "blocked"
     assert summary["g8_canonical_metric_count"] == 5
     assert summary["g8_metric_source_count"] >= 44
     assert summary["g8_metric_trend_report_status"] == "pass"
     assert summary["g8_effective_independence_status"] == "singular"
-    assert summary["g8_effective_independent_evidence_count"] == 1
+    assert summary["g8_effective_independent_evidence_count"] == 0
     assert summary["g8_domain_vs_search_ceiling_status"] == (
-        "governance_stall_repair_required"
+        "search_ceiling_repair_required"
     )
     assert summary["g8_d44_reannotation_coverage_status"] == "pass"
     assert summary["g8_d44_rebasing_trigger_status"] == "pass_no_rebase_due"
     assert summary["g8_d44_rebasing_receipt_status"] == "pass_no_rebase_required"
     assert summary["g8_sealed_battery_integrity_status"] == "pass"
     assert summary["g8_closeout_signal_consumer_status"] == "pass"
-    assert summary["g8_open_question_answer_status"] == "pass"
+    assert summary["g8_open_question_answer_status"] == "blocked"
     assert summary["g8_manifest_runtime_drift_key_count"] == 0
     assert summary["expected_artifact_count"] == len(validator.EXPECTED_ARTIFACT_PATHS)
+    issue_codes = {issue["code"] for issue in validation["issues"]}
+    assert "layer3_g8_blocker_specific_search_diagnostic_missing" in issue_codes
 
 
 def test_layer3_g8_readiness_requires_registration_inventory_and_docs() -> None:
     validation = validator.validate_layer3_g8_readiness(REPO_ROOT)
 
-    assert validation["status"] == "pass"
+    assert validation["status"] == "fail"
     assert validation["summary"]["g8_generated_artifacts_registration_status"] == "pass"
     assert validation["summary"]["g8_inventory_surface_status"] == "pass"
     assert validation["summary"]["g8_reference_docs_status"] == "pass"
@@ -100,6 +102,7 @@ def test_layer3_g8_write_path_must_include_every_expected_artifact(
             path.as_posix() for path in expected_paths if path != omitted
         ],
     )
+    monkeypatch.setattr(validator, "_write_json", lambda _path, _payload: None)
 
     validation = validator.validate_layer3_g8_readiness(REPO_ROOT, write=True)
 
@@ -121,7 +124,24 @@ def test_layer3_g8_readiness_fails_when_conformance_negative_is_missing(
             issue_codes=("layer3_g8_conformance_negative_missing",),
         )
 
+    captured_manifest: dict[str, Any] = {}
+
+    def capture_write_json(path: Path, payload: Any) -> None:
+        if path.name == validator.READINESS_MANIFEST_PATH.name:
+            captured_manifest.clear()
+            captured_manifest.update(payload)
+
     monkeypatch.setattr(g8, "build_g8_conformance_report", failing_conformance_report)
+    monkeypatch.setattr(
+        validator,
+        "_write_artifacts",
+        lambda _repo_root, _bundle: [
+            path.as_posix()
+            for path in validator.EXPECTED_ARTIFACT_PATHS
+            if path != validator.READINESS_MANIFEST_PATH
+        ],
+    )
+    monkeypatch.setattr(validator, "_write_json", capture_write_json)
 
     validation = validator.validate_layer3_g8_readiness(REPO_ROOT, write=True)
 
@@ -130,3 +150,5 @@ def test_layer3_g8_readiness_fails_when_conformance_negative_is_missing(
     assert "layer3_g8_conformance_negative_missing" in {
         issue["code"] for issue in validation["issues"]
     }
+    assert captured_manifest["status"] == "fail"
+    assert "layer3_g8_conformance_negative_missing" in captured_manifest["issue_codes"]

@@ -367,7 +367,7 @@ def _g4_resolution(
                     "promotion_state": state,
                     "promotion_scope": {"claim_families": list(claim_families)},
                     "source_design_record_ref": "pdc://layer2/s2/ua-msme/design-record-v0",
-                    "source_design_record_digest": "sha256:design",
+                    "source_design_record_digest": "sha256:" + ("1234567890abcdef" * 4),
                     "blocker_refs": list(blocker_refs),
                     "limitation_refs": [],
                     "upstream_contract_refs": ["source-contract://ua-msme"],
@@ -550,9 +550,10 @@ def test_layer3_g5_persisted_bundle_uses_compute_path_not_green_unchanged_blocke
 
     if eligibility["conversion_outcome"] == "unchanged_blocker":
         assert eligibility["status"] == "fail"
-        assert payload["readiness_manifest"]["status"] == "pass"
+        assert payload["readiness_manifest"]["status"] == "fail"
         assert payload["readiness_manifest"]["g5_grounded_conversion_count"] == 0
         assert payload["readiness_manifest"]["g5_useful_design_credit_count"] == 0
+        assert payload["grounded_abstention_quality_record"]["status"] == "fail"
     else:
         assert eligibility["conversion_outcome"] == "typed_blocker -> grounded_abstention"
         assert eligibility["status"] == "pass"
@@ -564,6 +565,25 @@ def test_layer3_g5_persisted_bundle_uses_compute_path_not_green_unchanged_blocke
         assert payload["useful_design_metric_eligibility_join"][
             "counts_toward_runtime_useful_design"
         ] is False
+    assert not payload["demand_pull_attempt_record"]["s3_demand_pull_refs"]
+    assert payload["demand_pull_attempt_record"]["s12_demand_act_refs"] == [
+        "demand-act://layer3-gx/ua-msme-affordable-loans-2022"
+    ]
+
+
+def test_task9_g5_data_home_demand_pull_preserves_artifact_metadata() -> None:
+    g5 = _g5()
+    demand_pull = _dump(g5.build_g5_demand_pull_request_from_gx_data_home(REPO_ROOT))
+
+    assert demand_pull["authority_purpose"] == "demand_pull_input_only"
+    assert "conversion_authority" in demand_pull["may_not_use_for"]
+    assert "production_authority" in demand_pull["may_not_use_for"]
+    assert demand_pull["producer_ref"]
+    assert demand_pull["timestamp"]
+    assert demand_pull["source"]
+    assert demand_pull["request_source_ref"]
+    assert demand_pull["replay_key"]
+    assert demand_pull["consumer_path"]
 
 
 def test_layer3_g5_validator_rejects_green_unchanged_blocker() -> None:
@@ -615,7 +635,7 @@ def test_layer3_g5_dependency_resolver_reads_slice_specific_readiness_keys() -> 
     snapshot = g5.build_g5_dependency_readiness_snapshot(REPO_ROOT)
 
     assert snapshot.status == "fail"
-    assert snapshot.g1_grounding_status == "grounded_or_uncertain"
+    assert snapshot.g1_grounding_status == "typed_blocker"
     assert snapshot.g1_search_recall_status == "pass"
     assert snapshot.g2_w12d_consumer_gate_status == "fail"
     assert snapshot.g2_conformance_status == "fail"
@@ -624,7 +644,7 @@ def test_layer3_g5_dependency_resolver_reads_slice_specific_readiness_keys() -> 
     assert "layer3_g5_g4_dependency_not_ready" in snapshot.issue_codes
     assert snapshot.gl_conformance_status == "pass"
     assert snapshot.gl_reissue_status == "reissue_required"
-    assert snapshot.g4_g5_promotion_handoff_status == "pass"
+    assert snapshot.g4_g5_promotion_handoff_status == "fail"
     assert "layer3_g5_dependency_manifest_status_key_missing" not in snapshot.issue_codes
 
 
@@ -648,18 +668,19 @@ def test_layer3_g5_g4_handoff_resolution_admits_governed_only() -> None:
 
     assert resolution.status == "fail"
     assert resolution.governed_promotion_input_count == 0
-    assert resolution.blocked_promotion_input_count == 2
-    assert states == {"promotion_blocked"}
+    assert resolution.blocked_promotion_input_count == 0
+    assert states == set()
+    assert "layer3_g5_promotion_record_missing" in resolution.issue_codes
     assert "layer3_g5_no_governed_promotion_record" in resolution.issue_codes
-    assert "layer3_g5_blocked_promotion_used_as_conversion" in resolution.issue_codes
 
 
 def test_layer3_g5_blocked_promotion_cannot_be_conversion_input() -> None:
     g5 = _g5()
 
-    resolution = g5.resolve_g5_g4_handoff(
-        REPO_ROOT,
-        requested_scope={"claim_families": ("causal_forecast",)},
+    resolution = _g4_resolution(
+        g5,
+        state="promotion_blocked",
+        blocker_refs=("blocker://g4/causal-probe",),
     )
     blocked = next(
         record
@@ -686,13 +707,55 @@ def test_layer3_g5_g4_weakest_boundary_artifact_is_not_enough_without_matching_r
 
 def test_layer3_g5_g4_handoff_pass_with_blockers_blocks_requested_scope() -> None:
     g5 = _g5()
-    resolution = g5.resolve_g5_g4_handoff(
-        REPO_ROOT,
-        requested_scope={"claim_families": ("causal_forecast",)},
+    resolution = _g4_resolution(
+        g5,
+        state="promotion_blocked",
+        blocker_refs=("blocker://g4/causal-probe",),
     )
 
     assert resolution.handoff_status == "pass"
-    assert "layer3_g5_g4_handoff_pass_with_blockers_overclaimed" in resolution.issue_codes
+    assert "layer3_g5_blocked_promotion_used_as_conversion" in resolution.issue_codes
+
+
+def test_layer3_g5_manifest_only_source_design_record_cannot_be_promoted(
+    tmp_path: Path,
+) -> None:
+    g5 = _g5()
+    digest = "sha256:" + ("0123456789abcdef" * 4)
+
+    resolution = g5.resolve_g5_g4_handoff(
+        tmp_path,
+        handoff_payload={
+            "status": "pass",
+            "authoritative_for": ["g5_first_proving_ground_promotion_state_input_refs"],
+            "may_not_use_for": ["conversion_authority_without_g5"],
+        },
+        promotion_records_payload={
+            "promotion_records": [
+                {
+                    "promotion_record_id": "promotion://ua-msme/manifest-only",
+                    "case_id": G5_PINNED_CASE_ID,
+                    "promotion_state": "governed_promoted",
+                    "promotion_scope": {"claim_families": ["causal_forecast"]},
+                    "source_design_record_ref": (
+                        "repo://architecture/policy_design_case/design_manifest.json"
+                    ),
+                    "source_design_record_digest": digest,
+                    "source_design_record_payload_status": "manifest_only",
+                    "blocker_refs": [],
+                    "upstream_contract_refs": ["source-contract://ua-msme"],
+                    "may_not_use_for": ["production_authority"],
+                }
+            ]
+        },
+        requested_scope={"claim_families": ("causal_forecast",)},
+    )
+
+    assert resolution.status == "fail"
+    assert resolution.governed_promotion_input_count == 0
+    assert "layer3_g5_manifest_only_source_design_record_not_promotable" in set(
+        resolution.issue_codes
+    )
 
 
 def test_layer3_g5_g4_grounded_contract_duplicates_do_not_inflate_evidence() -> None:
@@ -707,6 +770,54 @@ def test_layer3_g5_g4_grounded_contract_duplicates_do_not_inflate_evidence() -> 
     assert evidence.lineage_deduplication_record.raw_ref_count == 2
     assert evidence.lineage_deduplication_record.deduped_ref_count == 1
     assert "layer3_g5_g4_grounded_contract_duplicate_inflates_evidence" in evidence.issue_codes
+
+
+def test_layer3_g5_missing_g1_g4_grounding_does_not_create_placeholder_evidence() -> None:
+    g5 = _g5()
+
+    bundle = g5.build_layer3_g5_bundle(REPO_ROOT)
+    payload = _dump(bundle)
+
+    assert payload["grounded_result_evidence_set"]["grounded_evidence_refs"] == []
+    assert payload["readiness_manifest"]["summary"]["g5_grounded_evidence_ref_count"] == 0
+
+
+def test_layer3_g5_missing_g1_binding_is_not_counted_as_grounded_evidence(
+    tmp_path: Path,
+) -> None:
+    g5 = _g5()
+    pdc_dir = tmp_path / "architecture/policy_design_case"
+    pdc_dir.mkdir(parents=True)
+    (pdc_dir / "layer3_g1_grounded_source_contracts.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1",
+                "grounded_source_contracts": {"bindings": []},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    evidence = g5.build_g5_grounded_result_evidence_set(
+        [
+            {
+                "ref": (
+                    "repo://architecture/policy_design_case/"
+                    "layer3_g1_grounded_source_contracts.json#bindings/missing"
+                ),
+                "family": "g1_source_contract",
+                "lineage_refs": ["lineage://ua-msme/a"],
+                "source_hash": "sha256:" + ("abcdef0123456789" * 4),
+            }
+        ],
+        repo_root=tmp_path,
+    )
+
+    assert evidence.status == "fail"
+    assert evidence.grounded_evidence_refs == ()
+    assert evidence.lineage_deduplication_record.raw_ref_count == 0
+    assert "layer3_g5_grounded_evidence_ref_unresolved" in set(evidence.issue_codes)
+    assert "required_ref_pointer_missing" in set(evidence.issue_codes)
 
 
 def test_layer3_g5_g1_observed_but_uncertain_binding_limits_conversion_scope() -> None:
@@ -1273,6 +1384,66 @@ def test_layer3_g5_grounded_limited_requires_scope_covering_evidence() -> None:
     assert "layer3_g5_grounded_contract_ref_missing" in ledger.issue_codes
 
 
+def test_task6_g5_conversion_changes_only_from_governed_reducer_inputs() -> None:
+    g5 = _g5()
+    blocked_inputs = _valid_eligibility_kwargs(g5)
+    blocked_inputs["g4_handoff_resolution"] = _g4_resolution(
+        g5,
+        state="promotion_blocked",
+        blocker_refs=("blocker://g4/task6-no-admission",),
+    )
+    admitted_inputs = _valid_eligibility_kwargs(g5)
+
+    blocked_ledger = g5.build_g5_conversion_eligibility_ledger(
+        **blocked_inputs,
+        requested_conversion_outcome="typed_blocker -> grounded_limited",
+    )
+    admitted_ledger = g5.build_g5_conversion_eligibility_ledger(
+        **admitted_inputs,
+        requested_conversion_outcome="typed_blocker -> grounded_limited",
+    )
+    admitted_composition = g5.build_g5_status_composition_ledger(
+        conversion_eligibility_ledger=admitted_ledger,
+        w12d_outcome="typed_blocker",
+    )
+
+    assert blocked_inputs["requested_scope"] == admitted_inputs["requested_scope"]
+    assert blocked_ledger.conversion_outcome == "unchanged_blocker"
+    assert blocked_ledger.status == "fail"
+    assert "layer3_g5_blocked_promotion_used_as_conversion" in blocked_ledger.issue_codes
+    assert admitted_ledger.conversion_outcome == "typed_blocker -> grounded_limited"
+    assert admitted_ledger.status == "pass"
+    assert admitted_ledger.issue_codes == ()
+    assert admitted_composition.status == "pass"
+    assert admitted_composition.counts_toward_runtime_useful_design is False
+
+
+def test_task9_g5_conversion_eligibility_is_reducer_authored_waist_court() -> None:
+    g5 = _g5()
+    inputs = _valid_eligibility_kwargs(g5)
+    snapshot = inputs["dependency_snapshot"]
+    inputs["dependency_snapshot"] = snapshot.model_copy(
+        update={
+            "status": "fail",
+            "issue_codes": ("layer3_g5_g4_dependency_not_ready",),
+        }
+    )
+
+    ledger = g5.build_g5_conversion_eligibility_ledger(
+        **inputs,
+        requested_conversion_outcome="typed_blocker -> grounded_limited",
+    )
+
+    assert ledger.conversion_outcome == "unchanged_blocker"
+    assert "layer3_g5_g4_dependency_not_ready" in ledger.issue_codes
+    assert ledger.produced_by["reducer_id"] == "reduce_g5_conversion_outcome"
+    assert ledger.produced_by["rule_version"] == (
+        "policyos.layer3.gx.reducer_only_status.v1"
+    )
+    assert ledger.produced_by["output_hash"].startswith("sha256:")
+    assert ledger.produced_by["input_hashes"]
+
+
 def test_layer3_g5_grounded_abstention_requires_search_recall_and_freshness() -> None:
     g5 = _g5()
     inputs = _valid_eligibility_kwargs(g5)
@@ -1556,6 +1727,35 @@ def test_layer3_g5_grounded_abstention_requires_demand_pull_attempt_refs() -> No
         **inputs,
         requested_conversion_outcome="typed_blocker -> grounded_abstention",
         demand_pull_attempt_record=None,
+    )
+
+    assert ledger.conversion_outcome == "unchanged_blocker"
+    assert "layer3_g5_grounded_abstention_without_demand_pull_attempt" in (
+        ledger.issue_codes
+    )
+
+
+def test_task9_g5_bare_s3_demand_pull_string_blocks_grounded_abstention() -> None:
+    g5 = _g5()
+    bundle = _resolved_pinned_bundle(g5)
+    bare_attempt = g5.build_g5_demand_pull_attempt_record(
+        pinned_case_input_bundle=bundle,
+        s12_demand_growth_evidence=g5.Layer3G5S12DemandGrowthEvidence(status="pass"),
+        s3_demand_pull_refs=("s3-demand-pull://ua-msme/freeform",),
+    )
+
+    assert bare_attempt.status == "fail"
+    assert "layer3_g5_demand_pull_ref_unresolved" in bare_attempt.issue_codes
+
+    inputs = _valid_eligibility_kwargs(g5)
+    inputs["search_health"] = {
+        "search_recall_status": "pass",
+        "index_freshness_status": "pass",
+    }
+    ledger = g5.build_g5_conversion_eligibility_ledger(
+        **inputs,
+        requested_conversion_outcome="typed_blocker -> grounded_abstention",
+        demand_pull_attempt_record=bare_attempt,
     )
 
     assert ledger.conversion_outcome == "unchanged_blocker"

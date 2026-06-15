@@ -1,9 +1,9 @@
 {
   "admitted_count": 0,
   "block_reason_counts": {
-    "hard_a_incompleteness": 1
+    "hard_a_incompleteness": 0
   },
-  "blocked_count": 2,
+  "blocked_count": 0,
   "human_review_routed_count": 0,
   "stall_reason_counts": {
     "human_decision_stall": 0,

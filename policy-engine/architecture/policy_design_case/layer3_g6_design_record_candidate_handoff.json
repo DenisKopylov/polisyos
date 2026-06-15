@@ -39,7 +39,7 @@
         "content": {
           "policy_family": "ua_msme_support"
         },
-        "emitted_at": "2026-06-10T09:12:37.743017Z",
+        "emitted_at": "2026-06-13T18:28:25.649949Z",
         "producer_validation_refs": [],
         "prompt_fingerprint": null,
         "prompt_tool_ledger_ref": null,
@@ -57,7 +57,7 @@
         "tool_refs": []
       }
     ],
-    "generated_at": "2026-06-10T09:12:37.742994Z",
+    "generated_at": "2026-06-13T18:28:25.649932Z",
     "hypothesis_ledger_ref": "layer3-g6://hypothesis-ledger/design-record/req-layer3-g6-readiness",
     "job_id": "layer3-g6-design-record-handoff:req-layer3-g6-readiness",
     "prompt_tool_ledger_ref": null,

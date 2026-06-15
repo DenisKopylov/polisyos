@@ -7,8 +7,27 @@
   ],
   "conversion_outcome": "unchanged_blocker",
   "counts_toward_runtime_useful_design": false,
-  "issue_codes": [],
-  "status": "pass",
+  "issue_codes": [
+    "layer3_g5_g4_dependency_not_ready",
+    "layer3_g5_gl_pass_with_reissue_required",
+    "layer3_g5_promotion_record_missing",
+    "layer3_g5_no_governed_promotion_record",
+    "layer3_g5_g4_weakest_boundary_record_mismatch",
+    "layer3_g5_g1_source_contract_hash_missing",
+    "layer3_g5_g1_observed_time_missing",
+    "layer3_g5_g1_may_not_use_for_dropped",
+    "layer3_g5_g2_s2_replay_key_ref_missing",
+    "layer3_g5_missing_g2_calibration_ref",
+    "layer3_g5_g3_proof_status_overclaimed",
+    "layer3_g5_duplicate_source_lineage_ref_inflates_independence",
+    "layer3_g5_upstream_scope_join_missing",
+    "layer3_g5_grounded_limited_without_g2_g3_design_support",
+    "layer3_g5_grounded_contract_ref_missing",
+    "layer3_g5_cross_slice_checks_not_ready",
+    "layer3_g5_grounded_evidence_ref_missing",
+    "layer3_g5_requested_conversion_not_positive"
+  ],
+  "status": "fail",
   "w12d_outcome": "typed_blocker",
-  "weakest_boundary_reason": "unchanged_blocker_first_readiness_surface"
+  "weakest_boundary_reason": "missing"
 }

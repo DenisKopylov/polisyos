@@ -96,33 +96,33 @@
         "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_analytics_search.py",
         "import_root": "method_requirement",
-        "line": 4207,
+        "line": 4212,
         "quarantine_check_result": "not_blocked",
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.method_requirement",
-        "touchpoint_id": "src/polisyos/runtime/quality/layer3_analytics_search.py:4207:method_requirement"
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_analytics_search.py:4212:method_requirement"
       },
       {
         "admission_allowed": false,
         "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_analytics_search.py",
         "import_root": "method_requirement",
-        "line": 4257,
+        "line": 4262,
         "quarantine_check_result": "not_blocked",
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.method_requirement",
-        "touchpoint_id": "src/polisyos/runtime/quality/layer3_analytics_search.py:4257:method_requirement"
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_analytics_search.py:4262:method_requirement"
       },
       {
         "admission_allowed": false,
         "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_bounded_agent.py",
         "import_root": "scientist",
-        "line": 40,
+        "line": 41,
         "quarantine_check_result": "not_blocked",
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.scientist",
-        "touchpoint_id": "src/polisyos/runtime/quality/layer3_bounded_agent.py:40:scientist"
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_bounded_agent.py:41:scientist"
       },
       {
         "admission_allowed": false,
@@ -140,121 +140,121 @@
         "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_causal_forecast.py",
         "import_root": "data_forge",
-        "line": 1055,
+        "line": 1065,
         "quarantine_check_result": "not_blocked",
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.data_forge.read_api.academic",
-        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:1055:data_forge"
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:1065:data_forge"
       },
       {
         "admission_allowed": false,
         "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_causal_forecast.py",
         "import_root": "data_forge",
-        "line": 1116,
+        "line": 1126,
         "quarantine_check_result": "not_blocked",
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.data_forge.read_api.academic",
-        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:1116:data_forge"
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:1126:data_forge"
       },
       {
         "admission_allowed": false,
         "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_causal_forecast.py",
         "import_root": "foundry",
-        "line": 2736,
+        "line": 2751,
         "quarantine_check_result": "not_blocked",
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.foundry.methods.selection.requirements",
-        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:2736:foundry"
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:2751:foundry"
       },
       {
         "admission_allowed": false,
         "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_causal_forecast.py",
         "import_root": "foundry",
-        "line": 2809,
+        "line": 2824,
         "quarantine_check_result": "not_blocked",
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.foundry.validation.method_quality",
-        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:2809:foundry"
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:2824:foundry"
       },
       {
         "admission_allowed": false,
         "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_causal_forecast.py",
         "import_root": "foundry",
-        "line": 4823,
+        "line": 4853,
         "quarantine_check_result": "not_blocked",
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.foundry.methods.catalog",
-        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:4823:foundry"
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:4853:foundry"
       },
       {
         "admission_allowed": false,
         "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_causal_forecast.py",
         "import_root": "foundry",
-        "line": 4824,
+        "line": 4854,
         "quarantine_check_result": "not_blocked",
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.foundry.methods.selection.registry",
-        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:4824:foundry"
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:4854:foundry"
       },
       {
         "admission_allowed": false,
         "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_legal_mandate_search.py",
         "import_root": "lex",
-        "line": 1609,
+        "line": 1612,
         "quarantine_check_result": "not_blocked",
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.lex",
-        "touchpoint_id": "src/polisyos/runtime/quality/layer3_legal_mandate_search.py:1609:lex"
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_legal_mandate_search.py:1612:lex"
       },
       {
         "admission_allowed": false,
         "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_legal_mandate_search.py",
         "import_root": "lex",
-        "line": 1924,
+        "line": 1927,
         "quarantine_check_result": "not_blocked",
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.lex",
-        "touchpoint_id": "src/polisyos/runtime/quality/layer3_legal_mandate_search.py:1924:lex"
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_legal_mandate_search.py:1927:lex"
       },
       {
         "admission_allowed": false,
         "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_legal_mandate_search.py",
         "import_root": "lex",
-        "line": 3031,
+        "line": 3034,
         "quarantine_check_result": "not_blocked",
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.lex",
-        "touchpoint_id": "src/polisyos/runtime/quality/layer3_legal_mandate_search.py:3031:lex"
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_legal_mandate_search.py:3034:lex"
       },
       {
         "admission_allowed": false,
         "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_substrate_grounding.py",
         "import_root": "data_forge",
-        "line": 23,
+        "line": 24,
         "quarantine_check_result": "not_blocked",
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.data_forge",
-        "touchpoint_id": "src/polisyos/runtime/quality/layer3_substrate_grounding.py:23:data_forge"
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_substrate_grounding.py:24:data_forge"
       },
       {
         "admission_allowed": false,
         "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_substrate_grounding.py",
         "import_root": "fabric",
-        "line": 24,
+        "line": 25,
         "quarantine_check_result": "not_blocked",
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.fabric",
-        "touchpoint_id": "src/polisyos/runtime/quality/layer3_substrate_grounding.py:24:fabric"
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_substrate_grounding.py:25:fabric"
       },
       {
         "admission_allowed": false,
@@ -1309,7 +1309,7 @@
         "capability_id": "production-data",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data"
+          "repo://production_data"
         ],
         "missing_capability_labels": [
           "artifact_missing"
@@ -1471,7 +1471,7 @@
         "capability_id": "production-data-curated",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/manifest.json"
+          "repo://production_data/manifest.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -1498,7 +1498,7 @@
         "capability_id": "production-data-datasets",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/manifest.json"
+          "repo://production_data/manifest.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -1525,7 +1525,7 @@
         "capability_id": "production-data-lex",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/manifest.json"
+          "repo://production_data/manifest.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -1552,7 +1552,7 @@
         "capability_id": "production-data-academic",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/manifest.json"
+          "repo://production_data/manifest.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -1579,7 +1579,7 @@
         "capability_id": "production-data-ukraine-simulation",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/manifest.json"
+          "repo://production_data/manifest.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -1606,7 +1606,7 @@
         "capability_id": "ukraine-simulation-readme-txt",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -1633,7 +1633,7 @@
         "capability_id": "ukraine-simulation-heavy-graph-addon-budget-graph-sparse-npz",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -1660,7 +1660,7 @@
         "capability_id": "ukraine-simulation-heavy-graph-addon-distress-graph-sparse-npz",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -1687,7 +1687,7 @@
         "capability_id": "ukraine-simulation-heavy-graph-addon-procurement-graph-sparse-npz",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -1714,7 +1714,7 @@
         "capability_id": "ukraine-simulation-heavy-graph-addon-public-service-graph-sparse-npz",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -1741,7 +1741,7 @@
         "capability_id": "ukraine-simulation-heavy-graph-addon-trade-graph-sparse-npz",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -1768,7 +1768,7 @@
         "capability_id": "ukraine-simulation-production-bundle-inventory-txt",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -1795,7 +1795,7 @@
         "capability_id": "ukraine-simulation-production-bundle-bundles-calibration-bundle-v1-calibration-bundle-manifest-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -1822,7 +1822,7 @@
         "capability_id": "ukraine-simulation-production-bundle-bundles-calibration-bundle-v1-calibration-run-manifest-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -1849,7 +1849,7 @@
         "capability_id": "ukraine-simulation-production-bundle-bundles-calibration-bundle-v1-holdout-scores-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -1876,7 +1876,7 @@
         "capability_id": "ukraine-simulation-production-bundle-bundles-calibration-bundle-v1-observation-panel-annual-parquet",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -1903,7 +1903,7 @@
         "capability_id": "ukraine-simulation-production-bundle-bundles-calibration-bundle-v1-observation-panel-monthly-parquet",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -1930,7 +1930,7 @@
         "capability_id": "ukraine-simulation-production-bundle-bundles-embedding-bundle-v1-agent-embedding-32d-npz",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -1957,7 +1957,7 @@
         "capability_id": "ukraine-simulation-production-bundle-bundles-embedding-bundle-v1-cell-prototype-embeddings-npz",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -1984,7 +1984,7 @@
         "capability_id": "ukraine-simulation-production-bundle-bundles-embedding-bundle-v1-graph-compression-bundle-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2011,7 +2011,7 @@
         "capability_id": "ukraine-simulation-production-bundle-bundles-governance-report-v1-calibration-leaderboard-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2038,7 +2038,7 @@
         "capability_id": "ukraine-simulation-production-bundle-bundles-governance-report-v1-governance-report-v1-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2065,7 +2065,7 @@
         "capability_id": "ukraine-simulation-production-bundle-bundles-governance-report-v1-shock-scenario-scores-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2092,7 +2092,7 @@
         "capability_id": "ukraine-simulation-production-bundle-bundles-intervention-bundle-v1-intervention-knob-dictionary-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2119,7 +2119,7 @@
         "capability_id": "ukraine-simulation-production-bundle-bundles-intervention-bundle-v1-lex-intervention-map-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2146,7 +2146,7 @@
         "capability_id": "ukraine-simulation-production-bundle-bundles-intervention-bundle-v1-policy-scenario-templates-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2173,7 +2173,7 @@
         "capability_id": "ukraine-simulation-production-bundle-bundles-intervention-bundle-v1-provision-to-program-crosswalk-parquet",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2200,7 +2200,7 @@
         "capability_id": "ukraine-simulation-production-bundle-bundles-intervention-bundle-v1-temporal-intervention-sequences-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2227,7 +2227,7 @@
         "capability_id": "ukraine-simulation-production-bundle-bundles-method-contract-bundle-v1-backtest-plan-bundle-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2254,7 +2254,7 @@
         "capability_id": "ukraine-simulation-production-bundle-bundles-method-contract-bundle-v1-bounds-estimation-bundle-v1-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2281,7 +2281,7 @@
         "capability_id": "ukraine-simulation-production-bundle-bundles-method-contract-bundle-v1-network-causal-contract-bundle-v1-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2308,7 +2308,7 @@
         "capability_id": "ukraine-simulation-production-bundle-bundles-method-contract-bundle-v1-network-contract-bundle-v1-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2335,7 +2335,7 @@
         "capability_id": "ukraine-simulation-production-bundle-bundles-method-contract-bundle-v1-observation-to-contract-manifest-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2362,7 +2362,7 @@
         "capability_id": "ukraine-simulation-production-bundle-bundles-runtime-bundle-v1-agent-registry-runtime-parquet",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2389,7 +2389,7 @@
         "capability_id": "ukraine-simulation-production-bundle-bundles-runtime-bundle-v1-cell-registry-region-sector-parquet",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2416,7 +2416,7 @@
         "capability_id": "ukraine-simulation-production-bundle-bundles-runtime-bundle-v1-geo-index-runtime-parquet",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2443,7 +2443,7 @@
         "capability_id": "ukraine-simulation-production-bundle-bundles-runtime-bundle-v1-runtime-bundle-manifest-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2470,7 +2470,7 @@
         "capability_id": "ukraine-simulation-production-bundle-bundles-runtime-bundle-v1-slot-family-manifest-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2497,7 +2497,7 @@
         "capability_id": "ukraine-simulation-production-bundle-manifests-build-run-d0-p0-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2524,7 +2524,7 @@
         "capability_id": "ukraine-simulation-production-bundle-manifests-build-run-d1-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2551,7 +2551,7 @@
         "capability_id": "ukraine-simulation-production-bundle-manifests-build-run-d2-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2578,7 +2578,7 @@
         "capability_id": "ukraine-simulation-production-bundle-manifests-build-run-d3-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2605,7 +2605,7 @@
         "capability_id": "ukraine-simulation-production-bundle-manifests-build-run-d4-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2632,7 +2632,7 @@
         "capability_id": "ukraine-simulation-production-bundle-manifests-build-run-d5-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2659,7 +2659,7 @@
         "capability_id": "ukraine-simulation-production-bundle-manifests-release-manifest-v1-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2686,7 +2686,7 @@
         "capability_id": "academic-runtime-academic-ac-work-embeddings-npz",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2713,7 +2713,7 @@
         "capability_id": "academic-runtime-academic-ac-work-index-hnsw",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2740,7 +2740,7 @@
         "capability_id": "academic-runtime-academic-benchmark-report-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2767,7 +2767,7 @@
         "capability_id": "academic-runtime-academic-benchmark-suite-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2794,7 +2794,7 @@
         "capability_id": "academic-runtime-academic-graph-scholar-knowledge-duckdb",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2821,7 +2821,7 @@
         "capability_id": "academic-runtime-academic-manifests-benchmark-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2848,7 +2848,7 @@
         "capability_id": "academic-runtime-academic-manifests-embed-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2875,7 +2875,7 @@
         "capability_id": "academic-runtime-academic-manifests-graph-index-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2902,7 +2902,7 @@
         "capability_id": "academic-runtime-academic-manifests-publish-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2929,7 +2929,7 @@
         "capability_id": "academic-runtime-academic-manifests-qc-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2956,7 +2956,7 @@
         "capability_id": "academic-runtime-academic-manifests-transport-score-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -2983,7 +2983,7 @@
         "capability_id": "academic-runtime-academic-publish-academic-pipeline-readiness-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -3010,7 +3010,7 @@
         "capability_id": "academic-runtime-academic-publish-manifest-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -3037,7 +3037,7 @@
         "capability_id": "academic-runtime-academic-qc-report-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -3064,7 +3064,7 @@
         "capability_id": "academic-runtime-academic-runtime-demand-backlog-jsonl",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -3091,7 +3091,7 @@
         "capability_id": "academic-runtime-academic-transport-scores-jsonl",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -3118,7 +3118,7 @@
         "capability_id": "academic-runtime-meta-assembly-manifest-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -3145,7 +3145,7 @@
         "capability_id": "academic-runtime-meta-promotion-report-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -3172,7 +3172,7 @@
         "capability_id": "academic-runtime-meta-runtime-evidence-sources-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"
@@ -3199,7 +3199,7 @@
         "capability_id": "academic-runtime-meta-source-lineage-json",
         "disposition": "surface_out_of_scope",
         "evidence_refs": [
-          "repo:///Users/deniskopylov/.config/superpowers/worktrees/polisyos/layer3-binding-waist-repair/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
         ],
         "missing_capability_labels": [
           "implemented_but_not_orchestrated"

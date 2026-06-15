@@ -8,8 +8,20 @@
         "repo://architecture/policy_design_case/layer3_health_metric_ledgers.toml#adapter-semantic-loss",
         "repo://architecture/policy_design_case/layer3_g7_health_metric_delta.toml#semantic_loss_status"
       ],
+      "produced_by": {
+        "input_hashes": {
+          "repo://architecture/policy_design_case/layer3_g7_health_metric_delta.toml#semantic_loss_status": "sha256:fedce8e8af485c2586f54c43a9b656dc70b41eb9be8c64b69c98391847dd4baf",
+          "repo://architecture/policy_design_case/layer3_health_metric_ledgers.toml#adapter-semantic-loss": "sha256:e4f73c14c8f7524aa17475bafd9a67e37bbfea015745b450efeab8d02043e603"
+        },
+        "output_hash": "sha256:03d3ea302f5f2714702785cf64e43edd415bd0f97c54c43df03d22ece4dd71a6",
+        "reducer_id": "reduce_g8_open_question_waist_altitude",
+        "reducer_version": "v1",
+        "rule_version": "policyos.layer3.g8.health_metric_governance.v1",
+        "vocabulary_status_id": "answered_currently_healthy"
+      },
       "question": "Is the waist vocabulary at the right altitude, or does it need a first-class dimension it currently encodes only as status?",
-      "question_id": "8.4-waist-altitude"
+      "question_id": "8.4-waist-altitude",
+      "search_health_classification": {}
     },
     {
       "answer_status": "provisional_insufficient_data",
@@ -22,8 +34,10 @@
         "repo://architecture/policy_design_case/layer3_g7_readiness_manifest.json#g7_region_value_closure_status",
         "repo://architecture/policy_design_case/layer3_g7_readiness_manifest.json#g7_region_grounded_case_count"
       ],
+      "produced_by": {},
       "question": "Is real grounding achievable at acceptable cost in the target domains, or is the honest equilibrium mostly abstention?",
-      "question_id": "8.4-real-grounding-cost"
+      "question_id": "8.4-real-grounding-cost",
+      "search_health_classification": {}
     },
     {
       "answer_status": "provisional_insufficient_data",
@@ -35,22 +49,41 @@
         "repo://architecture/policy_design_case/layer3_g6_demand_pull_vs_abstention_delta.json",
         "repo://architecture/policy_design_case/layer3_g6_readiness_manifest.json"
       ],
+      "produced_by": {},
       "question": "Is demand-pull strong enough to overcome abstention inertia?",
-      "question_id": "8.4-demand-pull-strength"
+      "question_id": "8.4-demand-pull-strength",
+      "search_health_classification": {}
     },
     {
-      "answer_status": "answered_currently_healthy",
+      "answer_status": "answered_currently_blocked",
       "authority_boundary": "empirical_governance_reading_only",
-      "current_answer": "Current search-recall/freshness signals do not identify a search ceiling; future recall miss or stale index readings block domain-ceiling claims.",
+      "current_answer": "Current search-recall/freshness is not blocker-specific enough for a healthy answer: seed corpus status is fail, pinned request status is unmeasured, current blocker status is unmeasured, and production readiness is blocked_current_blocker_search_unmeasured.",
       "evidence_refs": [
         "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json",
         "repo://architecture/policy_design_case/layer3_g2_search_recall_freshness.json",
         "repo://architecture/policy_design_case/layer3_g3_search_recall_freshness.json",
         "repo://architecture/policy_design_case/layer3_gl_search_recall_freshness.json",
-        "repo://architecture/policy_design_case/layer3_g7_search_recall_freshness_join.json"
+        "repo://architecture/policy_design_case/layer3_g7_search_recall_freshness_join.json",
+        "repo://architecture/policy_design_case/layer3_g1_health_metric_delta.toml",
+        "repo://architecture/policy_design_case/layer3_g2_health_metric_delta.toml",
+        "repo://architecture/policy_design_case/layer3_g2_readiness_manifest.json",
+        "repo://architecture/policy_design_case/layer3_g3_health_metric_delta.toml",
+        "repo://architecture/policy_design_case/layer3_g3_readiness_manifest.json",
+        "repo://architecture/policy_design_case/layer3_gl_health_metric_delta.toml",
+        "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
+        "repo://architecture/policy_design_case/layer3_g5_health_metric_delta.toml",
+        "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json",
+        "repo://architecture/policy_design_case/layer3_g7_dependency_readiness_snapshot.json"
       ],
+      "produced_by": {},
       "question": "Does capability search have enough recall and freshness to distinguish honest abstention from a missed grounding path?",
-      "question_id": "8.4-search-recall-freshness"
+      "question_id": "8.4-search-recall-freshness",
+      "search_health_classification": {
+        "current_blocker": "unmeasured",
+        "pinned_request": "unmeasured",
+        "production_readiness": "blocked_current_blocker_search_unmeasured",
+        "seed_corpus": "fail"
+      }
     },
     {
       "answer_status": "answered_currently_healthy",
@@ -61,8 +94,21 @@
         "repo://architecture/policy_design_case/layer3_g6_orchestration_choice_audit.json",
         "repo://architecture/policy_design_case/layer3_g6_search_ledger.json"
       ],
+      "produced_by": {
+        "input_hashes": {
+          "repo://architecture/policy_design_case/layer3_g6_conformance_report.json": "sha256:74a7f8344806d752b3287b56093248a7fcb7cd4df5b20269617023b05b28e679",
+          "repo://architecture/policy_design_case/layer3_g6_orchestration_choice_audit.json": "sha256:d88ecc3aaa2f0a1e2eb1c171ff79d633d1ea2df5435dc30feae1fa2951024dd1",
+          "repo://architecture/policy_design_case/layer3_g6_search_ledger.json": "sha256:da8d5dfc5391e8de7917aa718c6301ed1d6d58d506b16911219d1169e25d2b75"
+        },
+        "output_hash": "sha256:d8c32d8c7eb938dff5dfb00c33500832fedb335930f727c791bf3e6c229c8d39",
+        "reducer_id": "reduce_g8_open_question_agent_orchestration_authority_leak",
+        "reducer_version": "v1",
+        "rule_version": "policyos.layer3.g8.health_metric_governance.v1",
+        "vocabulary_status_id": "answered_currently_healthy"
+      },
       "question": "Does the bounded agent leak authority through orchestration choices in ways the current search ledger does not capture?",
-      "question_id": "8.4-agent-orchestration-authority-leak"
+      "question_id": "8.4-agent-orchestration-authority-leak",
+      "search_health_classification": {}
     }
   ],
   "authoritative_for": [
@@ -70,7 +116,9 @@
     "layer3_g8_d44_rebasing_integrity_reading",
     "layer3_g8_open_question_answer_reading"
   ],
-  "issue_codes": [],
+  "issue_codes": [
+    "layer3_g8_blocker_specific_search_diagnostic_missing"
+  ],
   "ledger_id": "layer3-g8://open-question-answer-ledger",
   "may_not_use_for": [
     "production_authority",
@@ -103,5 +151,5 @@
   ],
   "rule_version": "policyos.layer3.g8.health_metric_governance.v1",
   "schema_version": "policyos.policy_design_case.layer3_g8_health_metric_governance.v1",
-  "status": "pass"
+  "status": "blocked"
 }

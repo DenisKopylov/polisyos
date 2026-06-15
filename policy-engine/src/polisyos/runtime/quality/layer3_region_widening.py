@@ -16,6 +16,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
+from polisyos.runtime.quality.layer3_gx_data_home import read_layer3_gx_pinned_case_id
 from polisyos.runtime.quality.nl_replay_orchestration import (
     build_nl_replay_orchestration_continuity,
     validate_nl_replay_orchestration_continuity,
@@ -30,6 +31,7 @@ from polisyos.runtime.quality.projection_semantics import (
 from polisyos.runtime.quality.replay import build_replay_manifest
 
 DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[4]
+G7_PINNED_CASE_ID = read_layer3_gx_pinned_case_id(DEFAULT_REPO_ROOT)
 POLICY_DESIGN_CASE_DIR = Path("architecture/policy_design_case")
 G1_READINESS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g1_readiness_manifest.json"
 G1_SEARCH_RECALL_FRESHNESS_PATH = (
@@ -1148,9 +1150,12 @@ class Layer3G7RegionGroundingMatrix(_G7Model):
     may_not_use_for: tuple[str, ...] = G7_MAY_NOT_USE_FOR
 
 
-def default_readiness_candidate_rows() -> tuple[dict[str, object], ...]:
+def default_readiness_candidate_rows(
+    repo_root: Path = DEFAULT_REPO_ROOT,
+) -> tuple[dict[str, object], ...]:
     """Return deterministic readiness candidates for the UA MSME adjacent region."""
 
+    g5_demand = _g5_s12_projection_inputs(repo_root=repo_root)
     common = {
         "region_ref": "region://ua/msme-adjacent",
         "search_ledger_refs": (
@@ -1162,12 +1167,11 @@ def default_readiness_candidate_rows() -> tuple[dict[str, object], ...]:
     return (
         {
             **common,
-            "case_id": "ua-msme-affordable-loans-2022",
+            "case_id": G7_PINNED_CASE_ID,
             "candidate_source": "current_g5_seed_case",
             "adjacency_basis_refs": ("adjacency://ua-msme/pinned-g5-seed",),
-            "demand_refs": ("demand://g5/ua-msme-affordable-loans-2022",),
-            "s3_demand_pull_refs": ("s3-demand-pull://ua-msme/first-proving-ground",),
-            "accountable_principal_refs": ("principal://ua-msme/first-proving-ground",),
+            "demand_refs": g5_demand["demand_pull_refs"],
+            "accountable_principal_refs": g5_demand["accountable_principal_refs"],
             "envelope_posture": "in",
         },
         {
@@ -2599,7 +2603,7 @@ def build_g7_dependency_readiness_snapshot(repo_root: Path) -> Layer3G7Dependenc
     g5_grounded_seed_count = sum(
         1
         for row in g5_records
-        if row.get("case_id") == "ua-msme-affordable-loans-2022"
+        if row.get("case_id") == G7_PINNED_CASE_ID
         and row.get("grounding_disposition") in {"grounded_limited", "grounded_abstention"}
         and row.get("conversion_outcome") != "unchanged_blocker"
     )
@@ -4600,7 +4604,7 @@ def _synthetic_g4_promotion_record(
 ) -> dict[str, object]:
     payload: dict[str, object] = {
         "promotion_record_id": f"g4-promotion-record:g7-synthetic:{case_id}",
-        "promotion_state": "governed_promoted",
+        "promotion_state": "promotion_blocked",
         "promotion_scope": {
             "authority_purpose": "layer3_g4_governed_promotion_state",
             "requested_boundary": "bounded_region_case",
@@ -4608,9 +4612,6 @@ def _synthetic_g4_promotion_record(
         "case_id": case_id,
         "candidate_ref": f"s2-design-candidate:g7-synthetic:{case_id}",
         "source_design_record_ref": f"cas://s2/design-record/g7-synthetic/{case_id}",
-        "source_design_record_digest": (
-            "sha256:2222222222222222222222222222222222222222222222222222222222222222"
-        ),
         "grounded_contract_set_ref": (
             f"repo://architecture/policy_design_case/g7_synthetic/{case_id}/"
             "grounded_contract_set.json"
@@ -4627,7 +4628,7 @@ def _synthetic_g4_promotion_record(
             f"repo://architecture/policy_design_case/g7_synthetic/{case_id}/"
             "human_decision_integrity_gate.json"
         ),
-        "blocker_refs": (),
+        "blocker_refs": ("blocker://g7/source-design-record-digest-missing",),
         "limitation_refs": (),
         "upstream_contract_refs": (
             f"repo://architecture/policy_design_case/g7_synthetic/{case_id}/"

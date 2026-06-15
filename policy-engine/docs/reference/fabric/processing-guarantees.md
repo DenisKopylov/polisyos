@@ -1,5 +1,8 @@
 # Fabric Processing Guarantees
 
+Owner: `@fabric-owners`
+Source of truth: `schemas/fabric/processing_guarantee.schema.json`, `src/polisyos/fabric/data_plane/**`, `schemas/snapshots/fabric/source_contracts_v2.json`, and `tools/quality/validation/fabric_processing_guarantees.py`
+
 Related plan evidence path: `docs/plans/active/FABRIC_BEST_IN_CLASS_PLAN.md`.
 Related ADR: [0133 Fabric Streaming and Scale Semantics](../../adr/0133-fabric-streaming-scale-semantics.md).
 

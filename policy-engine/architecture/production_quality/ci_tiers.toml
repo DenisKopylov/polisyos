@@ -821,7 +821,31 @@ owner = "team-runtime-quality"
 purpose = "Policy Design Case Layer 3 G7 region-widening coverage."
 
 [[tests]]
+path = "tests/unit/runtime/quality/test_layer3_g8_health_metric_governance.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Policy Design Case Layer 3 G8 health metric governance coverage."
+
+[[tests]]
 path = "tests/unit/runtime/quality/test_layer3_gl_legal_mandate_search.py"
 tier = "fast-pr"
 owner = "team-runtime-quality"
 purpose = "Policy Design Case Layer 3 GL legal mandate search coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_layer3_gx_data_home.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Policy Design Case Layer 3 GX data-home coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_layer3_status_reducers.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Policy Design Case Layer 3 reducer truth-table coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_required_reference_resolver.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Policy Design Case Layer 3 required-reference resolver coverage."

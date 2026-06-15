@@ -1,0 +1,1034 @@
+{
+  "acceptance_signal_for_future_fix": {
+    "future_green": "Every execution-ready connector family has a family-specific request-shape gate plus at least one bounded replay producing a persisted measurement root or an explicit out_of_scope surface label.",
+    "minimum": "Validator passes with 12 family rows, non-uniform statuses preserved, and REST/UNPD/UKONS blockers represented explicitly."
+  },
+  "connector_rows": [
+    {
+      "authority_risk": "Shape pass proves package/resource locator grammar, not that the resource payload schema satisfies the metric.",
+      "binding_count": 14906,
+      "capability_state": "binding_shape_matches_fetch_contract_structurally",
+      "connector_family": "ckan",
+      "connector_id": "ckan.resource",
+      "distinct_request_ids": 10167,
+      "evidence_refs": [
+        "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+        "_build/gy_connector_family_truth_probe.json",
+        "src/polisyos/fabric/connectors/sources/ckan_resource.py:128",
+        "src/polisyos/fabric/connectors/sources/ckan_resource.py:211",
+        "src/polisyos/fabric/connectors/sources/ckan_resource.py:484"
+      ],
+      "execution_ready_count": 6008,
+      "execution_tier_counts": {
+        "catalog": 8898,
+        "fetchable": 6008
+      },
+      "fetch_contract": {
+        "dataset_id": "Direct resource URL or exact package_id/resource_id pair",
+        "filter_contract": "filters ignored by resolver; request identity must carry package/resource"
+      },
+      "gap_labels": [],
+      "next_probe": "Resolve one package/resource to raw payload, prove format parse, and bind payload columns to a metric field contract.",
+      "pattern_ids": [
+        "P10",
+        "P12"
+      ],
+      "profile_count": 3,
+      "representative_binding": {
+        "connector_id": "ckan.resource",
+        "dataset_id": "d810897ba1456da2b831",
+        "default_filters": "{}",
+        "execution_tier": "fetchable",
+        "metric_id": "access_to_justice",
+        "profile_id": "data_gov_ua",
+        "request_dataset_id": "ebc0f4b1-dfcb-4f91-86d5-bddb84a33e77/4f3612bc-f4e5-45fb-bc92-2717ad087760",
+        "source": "data_gov_ua_exec"
+      },
+      "shape_checks": [
+        {
+          "id": "profile_exists",
+          "observed": "data_gov_ua",
+          "status": "pass"
+        },
+        {
+          "expected": "ckan",
+          "fatal": true,
+          "id": "profile_family_matches_connector",
+          "observed": "ckan",
+          "status": "pass"
+        },
+        {
+          "fatal": true,
+          "id": "request_dataset_id_present",
+          "observed": "ebc0f4b1-dfcb-4f91-86d5-bddb84a33e77/4f3612bc-f4e5-45fb-bc92-2717ad087760",
+          "status": "pass"
+        },
+        {
+          "expected": "direct_url_or_package_id/resource_id",
+          "fatal": true,
+          "id": "resource_locator_grammar",
+          "observed": "ebc0f4b1-dfcb-4f91-86d5-bddb84a33e77/4f3612bc-f4e5-45fb-bc92-2717ad087760",
+          "status": "pass"
+        },
+        {
+          "fatal": false,
+          "id": "default_filters_are_empty",
+          "observed": {},
+          "status": "pass"
+        }
+      ],
+      "shape_status": "shape_pass",
+      "source_count": 6,
+      "stage": "catalog_binding_shape_to_connector_fetch_contract"
+    },
+    {
+      "authority_risk": "Shape pass proves safe dataset-code routing, not that dimensions/time/units are bound to the policy metric.",
+      "binding_count": 1791,
+      "capability_state": "binding_shape_matches_fetch_contract_structurally",
+      "connector_family": "eurostat",
+      "connector_id": "eurostat.data",
+      "distinct_request_ids": 1465,
+      "evidence_refs": [
+        "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+        "_build/gy_connector_family_truth_probe.json",
+        "src/polisyos/fabric/connectors/sources/eurostat.py:148",
+        "src/polisyos/fabric/connectors/sources/eurostat.py:379"
+      ],
+      "execution_ready_count": 1791,
+      "execution_tier_counts": {
+        "transport_ready": 1791
+      },
+      "fetch_contract": {
+        "dataset_id": "Eurostat dataset code as safe URL segment",
+        "filter_contract": "default filters become query params; date bounds become since/until"
+      },
+      "gap_labels": [],
+      "next_probe": "Run a bounded dataset-code replay with dimension/time filters and verify row fields against the metric binding.",
+      "pattern_ids": [
+        "P10",
+        "P12"
+      ],
+      "profile_count": 1,
+      "representative_binding": {
+        "connector_id": "eurostat.data",
+        "dataset_id": "57cec7a21123dfb044c5",
+        "default_filters": "{}",
+        "execution_tier": "transport_ready",
+        "metric_id": "air_quality_index",
+        "profile_id": "eurostat_public",
+        "request_dataset_id": "SDG_11_52",
+        "source": "eurostat"
+      },
+      "shape_checks": [
+        {
+          "id": "profile_exists",
+          "observed": "eurostat_public",
+          "status": "pass"
+        },
+        {
+          "expected": "eurostat",
+          "fatal": true,
+          "id": "profile_family_matches_connector",
+          "observed": "eurostat",
+          "status": "pass"
+        },
+        {
+          "fatal": true,
+          "id": "request_dataset_id_present",
+          "observed": "SDG_11_52",
+          "status": "pass"
+        },
+        {
+          "error": null,
+          "fatal": true,
+          "id": "dataset_code_safe_path",
+          "observed": "SDG_11_52",
+          "status": "pass"
+        }
+      ],
+      "shape_status": "shape_pass",
+      "source_count": 1,
+      "stage": "catalog_binding_shape_to_connector_fetch_contract"
+    },
+    {
+      "authority_risk": "Shape pass proves ODS slug and no raw where filter; it does not prove field-level semantic adequacy.",
+      "binding_count": 320,
+      "capability_state": "binding_shape_matches_fetch_contract_structurally",
+      "connector_family": "opendatasoft",
+      "connector_id": "opendatasoft.ods",
+      "distinct_request_ids": 203,
+      "evidence_refs": [
+        "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+        "_build/gy_connector_family_truth_probe.json",
+        "src/polisyos/fabric/connectors/sources/opendatasoft.py:181",
+        "src/polisyos/fabric/connectors/sources/opendatasoft.py:191",
+        "src/polisyos/fabric/connectors/sources/opendatasoft.py:345",
+        "src/polisyos/fabric/connectors/sources/opendatasoft.py:377"
+      ],
+      "execution_ready_count": 65,
+      "execution_tier_counts": {
+        "catalog": 255,
+        "fetchable": 65
+      },
+      "fetch_contract": {
+        "dataset_id": "ODS dataset slug as safe URL segment",
+        "filter_contract": "ODSQL where built only from structured safe filters; raw where blocked"
+      },
+      "gap_labels": [],
+      "next_probe": "Run a bounded records preview and schema-field binding check against the selected metric.",
+      "pattern_ids": [
+        "P10",
+        "P12"
+      ],
+      "profile_count": 2,
+      "representative_binding": {
+        "connector_id": "opendatasoft.ods",
+        "dataset_id": "fa6268937feaf745a391",
+        "default_filters": "{}",
+        "execution_tier": "fetchable",
+        "metric_id": "air_quality_index",
+        "profile_id": "paris_opendata",
+        "request_dataset_id": "qualite-de-l-air-concentration-moyenne-no2-pm2-5-pm10",
+        "source": "paris_opendata_exec"
+      },
+      "shape_checks": [
+        {
+          "id": "profile_exists",
+          "observed": "paris_opendata",
+          "status": "pass"
+        },
+        {
+          "expected": "opendatasoft",
+          "fatal": true,
+          "id": "profile_family_matches_connector",
+          "observed": "opendatasoft",
+          "status": "pass"
+        },
+        {
+          "fatal": true,
+          "id": "request_dataset_id_present",
+          "observed": "qualite-de-l-air-concentration-moyenne-no2-pm2-5-pm10",
+          "status": "pass"
+        },
+        {
+          "error": null,
+          "fatal": true,
+          "id": "dataset_slug_safe_path",
+          "observed": "qualite-de-l-air-concentration-moyenne-no2-pm2-5-pm10",
+          "status": "pass"
+        },
+        {
+          "fatal": true,
+          "id": "raw_where_absent",
+          "observed": {},
+          "status": "pass"
+        }
+      ],
+      "shape_status": "shape_pass",
+      "source_count": 3,
+      "stage": "catalog_binding_shape_to_connector_fetch_contract"
+    },
+    {
+      "authority_risk": "Generic REST fetch ignores the full URL carried as request_dataset_id and instead calls the profile base URL, so a fetchable label can launder a catalog URL as execution-ready.",
+      "binding_count": 3578,
+      "capability_state": "binding_shape_mismatches_fetch_contract",
+      "connector_family": "rest",
+      "connector_id": "rest.json",
+      "distinct_request_ids": 2600,
+      "evidence_refs": [
+        "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+        "_build/gy_connector_family_truth_probe.json",
+        "src/polisyos/fabric/connectors/reference/rest_json.py:193",
+        "src/polisyos/fabric/connectors/reference/rest_json.py:321",
+        "src/polisyos/fabric/connectors/reference/rest_json.py:378",
+        "src/polisyos/fabric/connectors/reference/rest_json.py:464",
+        "src/polisyos/fabric/connectors/profiles/builtin_profiles.py:456"
+      ],
+      "execution_ready_count": 277,
+      "execution_tier_counts": {
+        "catalog": 3301,
+        "fetchable": 277
+      },
+      "fetch_contract": {
+        "dataset_id": "Generic REST does not use request.dataset_id to build endpoint; profile base_url is the fetch endpoint",
+        "filter_contract": "filters become query params; data_path/pagination/date params come from X-REST headers"
+      },
+      "gap_labels": [
+        "bridge_missing",
+        "producer_missing",
+        "semantic_test_missing"
+      ],
+      "next_probe": "Either introduce a profile adapter that promotes request_dataset_id into the endpoint URL or downgrade/remap data_gov_pl exec bindings until the endpoint contract is true.",
+      "pattern_ids": [
+        "P02",
+        "P10",
+        "P12"
+      ],
+      "profile_count": 2,
+      "representative_binding": {
+        "connector_id": "rest.json",
+        "dataset_id": "5103b42800d161f17c88",
+        "default_filters": "{}",
+        "execution_tier": "fetchable",
+        "metric_id": "air_quality_index",
+        "profile_id": "data_gov_pl",
+        "request_dataset_id": "https://api.dane.gov.pl/1.4/datasets/2913,dane-pomiarowe-esa-edukacyjna-siec-antysmogowa/resources",
+        "source": "data_gov_pl_exec"
+      },
+      "shape_checks": [
+        {
+          "id": "profile_exists",
+          "observed": "data_gov_pl",
+          "status": "pass"
+        },
+        {
+          "expected": "rest",
+          "fatal": true,
+          "id": "profile_family_matches_connector",
+          "observed": "rest",
+          "status": "pass"
+        },
+        {
+          "fatal": true,
+          "id": "request_dataset_id_present",
+          "observed": "https://api.dane.gov.pl/1.4/datasets/2913,dane-pomiarowe-esa-edukacyjna-siec-antysmogowa/resources",
+          "status": "pass"
+        },
+        {
+          "id": "profile_rest_config_parses",
+          "observed": {
+            "data_path": "('data',)",
+            "date_end_param": "end_date",
+            "date_start_param": "start_date",
+            "page_param": "page",
+            "page_size_param": "limit",
+            "pagination": "PaginationStrategy.PAGE_NUMBER"
+          },
+          "status": "pass"
+        },
+        {
+          "expected": "GenericREST fetch uses profile_base_url; full URL request ids need adapter support",
+          "fatal": true,
+          "id": "request_dataset_id_controls_endpoint",
+          "observed": {
+            "profile_base_url": "https://api.dane.gov.pl/1.4/datasets",
+            "request_dataset_id": "https://api.dane.gov.pl/1.4/datasets/2913,dane-pomiarowe-esa-edukacyjna-siec-antysmogowa/resources"
+          },
+          "status": "fail"
+        }
+      ],
+      "shape_status": "contract_mismatch",
+      "source_count": 3,
+      "stage": "catalog_binding_shape_to_connector_fetch_contract"
+    },
+    {
+      "authority_risk": "Empty filters on transport-ready SDMX dataflows can create an unbounded all-dimensions fetch that looks ready without a dimension key adequacy proof.",
+      "binding_count": 2714,
+      "capability_state": "binding_shape_structural_pass_unbounded_dimensions",
+      "connector_family": "sdmx",
+      "connector_id": "sdmx.source",
+      "distinct_request_ids": 1806,
+      "evidence_refs": [
+        "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+        "_build/gy_connector_family_truth_probe.json",
+        "src/polisyos/fabric/connectors/sources/sdmx_source.py:492",
+        "src/polisyos/fabric/connectors/sources/sdmx_source.py:498",
+        "src/polisyos/fabric/connectors/sources/sdmx_source.py:725",
+        "src/polisyos/fabric/connectors/sources/sdmx_source.py:748"
+      ],
+      "execution_ready_count": 2633,
+      "execution_tier_counts": {
+        "catalog": 81,
+        "transport_ready": 2633
+      },
+      "fetch_contract": {
+        "dataset_id": "SDMX dataflow id / flow reference; URL built from profile agency/data_path + dataflow + key path",
+        "filter_contract": "raw key filter or structural dimension filters; empty filters mean all dimensions"
+      },
+      "gap_labels": [
+        "semantic_test_missing"
+      ],
+      "next_probe": "Add a dimension-key adequacy probe: request must carry a raw key or dimension filters derived from catalog schema/codelist constraints before execution-ready status.",
+      "pattern_ids": [
+        "P10"
+      ],
+      "profile_count": 4,
+      "representative_binding": {
+        "connector_id": "sdmx.source",
+        "dataset_id": "9a50698e17ba17ac42cf",
+        "default_filters": "{}",
+        "execution_tier": "transport_ready",
+        "metric_id": "access_to_justice",
+        "profile_id": "oecd_sdmx",
+        "request_dataset_id": "DSD_SDG@DF_SDG_G_16",
+        "source": "oecd"
+      },
+      "shape_checks": [
+        {
+          "id": "profile_exists",
+          "observed": "oecd_sdmx",
+          "status": "pass"
+        },
+        {
+          "expected": "sdmx",
+          "fatal": true,
+          "id": "profile_family_matches_connector",
+          "observed": "sdmx",
+          "status": "pass"
+        },
+        {
+          "fatal": true,
+          "id": "request_dataset_id_present",
+          "observed": "DSD_SDG@DF_SDG_G_16",
+          "status": "pass"
+        },
+        {
+          "id": "profile_sdmx_config_parses",
+          "observed": {
+            "agency": "OECD",
+            "data_path": "data",
+            "dataflow_path": "dataflow",
+            "include_agency_in_data_path": false
+          },
+          "status": "pass"
+        },
+        {
+          "fatal": true,
+          "id": "dataflow_key_shape",
+          "observed": "DSD_SDG@DF_SDG_G_16",
+          "status": "pass"
+        },
+        {
+          "expected": "key filter or dimension filters for bounded execution",
+          "fatal": false,
+          "id": "dimension_key_bound",
+          "observed": "{}",
+          "status": "warn"
+        }
+      ],
+      "shape_status": "shape_warn",
+      "source_count": 4,
+      "stage": "catalog_binding_shape_to_connector_fetch_contract"
+    },
+    {
+      "authority_risk": "Shape pass proves safe Socrata id and no raw where filter; it does not prove field-level semantic adequacy.",
+      "binding_count": 3603,
+      "capability_state": "binding_shape_matches_fetch_contract_structurally",
+      "connector_family": "socrata",
+      "connector_id": "socrata.soda",
+      "distinct_request_ids": 1761,
+      "evidence_refs": [
+        "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+        "_build/gy_connector_family_truth_probe.json",
+        "src/polisyos/fabric/connectors/sources/socrata.py:181",
+        "src/polisyos/fabric/connectors/sources/socrata.py:300",
+        "src/polisyos/fabric/connectors/sources/socrata.py:365"
+      ],
+      "execution_ready_count": 1318,
+      "execution_tier_counts": {
+        "catalog": 2285,
+        "fetchable": 1318
+      },
+      "fetch_contract": {
+        "dataset_id": "Socrata 4x4 dataset identifier as safe URL segment",
+        "filter_contract": "SOQL params built from structured filters; raw $where blocked"
+      },
+      "gap_labels": [],
+      "next_probe": "Run a bounded row preview and schema-field binding check against the selected metric.",
+      "pattern_ids": [
+        "P10",
+        "P12"
+      ],
+      "profile_count": 2,
+      "representative_binding": {
+        "connector_id": "socrata.soda",
+        "dataset_id": "84be46a1343884ebf02a",
+        "default_filters": "{}",
+        "execution_tier": "fetchable",
+        "metric_id": "air_quality_index",
+        "profile_id": "chicago_opendata",
+        "request_dataset_id": "rtmx-vkjr",
+        "source": "chicago_opendata_exec"
+      },
+      "shape_checks": [
+        {
+          "id": "profile_exists",
+          "observed": "chicago_opendata",
+          "status": "pass"
+        },
+        {
+          "expected": "socrata",
+          "fatal": true,
+          "id": "profile_family_matches_connector",
+          "observed": "socrata",
+          "status": "pass"
+        },
+        {
+          "fatal": true,
+          "id": "request_dataset_id_present",
+          "observed": "rtmx-vkjr",
+          "status": "pass"
+        },
+        {
+          "error": null,
+          "fatal": true,
+          "id": "dataset_id_safe_path",
+          "observed": "rtmx-vkjr",
+          "status": "pass"
+        },
+        {
+          "fatal": true,
+          "id": "raw_where_absent",
+          "observed": {},
+          "status": "pass"
+        }
+      ],
+      "shape_status": "shape_pass",
+      "source_count": 4,
+      "stage": "catalog_binding_shape_to_connector_fetch_contract"
+    },
+    {
+      "authority_risk": "Connector can form an observations URL, but all production bindings are catalog-tier, so family existence must not be treated as route execution readiness.",
+      "binding_count": 50,
+      "capability_state": "binding_shape_valid_but_catalog_tier_not_fetch_ready",
+      "connector_family": "ukons",
+      "connector_id": "ukons.datasets",
+      "distinct_request_ids": 39,
+      "evidence_refs": [
+        "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+        "_build/gy_connector_family_truth_probe.json",
+        "src/polisyos/fabric/connectors/sources/ukons.py:138",
+        "src/polisyos/fabric/connectors/sources/ukons.py:185"
+      ],
+      "execution_ready_count": 0,
+      "execution_tier_counts": {
+        "catalog": 50
+      },
+      "fetch_contract": {
+        "dataset_id": "ONS dataset id as safe URL segment",
+        "filter_contract": "dataset observations endpoint can fetch, but production binding tier is catalog"
+      },
+      "gap_labels": [
+        "bridge_missing",
+        "producer_missing",
+        "semantic_test_missing"
+      ],
+      "next_probe": "Promote only proven ONS bindings to fetchable/transport_ready after a replay fixture or keep them out of GY execution-ready counts.",
+      "pattern_ids": [
+        "P01",
+        "P10",
+        "P12"
+      ],
+      "profile_count": 1,
+      "representative_binding": {
+        "connector_id": "ukons.datasets",
+        "dataset_id": "17ea2881d4c7bc37e418",
+        "default_filters": "{}",
+        "execution_tier": "catalog",
+        "metric_id": "avg_income",
+        "profile_id": "ukons_public",
+        "request_dataset_id": "ashe-table-5",
+        "source": "ukons"
+      },
+      "shape_checks": [
+        {
+          "id": "profile_exists",
+          "observed": "ukons_public",
+          "status": "pass"
+        },
+        {
+          "expected": "ukons",
+          "fatal": true,
+          "id": "profile_family_matches_connector",
+          "observed": "ukons",
+          "status": "pass"
+        },
+        {
+          "fatal": true,
+          "id": "request_dataset_id_present",
+          "observed": "ashe-table-5",
+          "status": "pass"
+        },
+        {
+          "error": null,
+          "fatal": true,
+          "id": "dataset_id_safe_path",
+          "observed": "ashe-table-5",
+          "status": "pass"
+        },
+        {
+          "expected": "transport_ready or fetchable",
+          "fatal": true,
+          "id": "binding_execution_tier_fetchable",
+          "observed": "catalog",
+          "status": "fail"
+        }
+      ],
+      "shape_status": "not_execution_ready",
+      "source_count": 1,
+      "stage": "catalog_binding_shape_to_connector_fetch_contract"
+    },
+    {
+      "authority_risk": "Shape pass proves indicator parameter routing, not country/time scoping or metric adequacy.",
+      "binding_count": 4824,
+      "capability_state": "binding_shape_matches_fetch_contract_structurally",
+      "connector_family": "unesco_uis",
+      "connector_id": "unesco_uis.data",
+      "distinct_request_ids": 3291,
+      "evidence_refs": [
+        "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+        "_build/gy_connector_family_truth_probe.json",
+        "src/polisyos/fabric/connectors/sources/unesco_uis.py:141",
+        "src/polisyos/fabric/connectors/sources/unesco_uis.py:221",
+        "src/polisyos/fabric/connectors/sources/unesco_uis.py:233"
+      ],
+      "execution_ready_count": 4824,
+      "execution_tier_counts": {
+        "transport_ready": 4824
+      },
+      "fetch_contract": {
+        "dataset_id": "UIS indicator code sent as indicator query param",
+        "filter_contract": "country/geo/geoUnit optional; date/year bounds optional"
+      },
+      "gap_labels": [],
+      "next_probe": "Run a bounded indicator replay with country/year filters and verify metric field semantics.",
+      "pattern_ids": [
+        "P10",
+        "P12"
+      ],
+      "profile_count": 1,
+      "representative_binding": {
+        "connector_id": "unesco_uis.data",
+        "dataset_id": "302a7170c0763f2f3b0c",
+        "default_filters": "{}",
+        "execution_tier": "transport_ready",
+        "metric_id": "avg_price",
+        "profile_id": "unesco_uis_public",
+        "request_dataset_id": "PA.NUS.PPPC.RF",
+        "source": "unesco_uis"
+      },
+      "shape_checks": [
+        {
+          "id": "profile_exists",
+          "observed": "unesco_uis_public",
+          "status": "pass"
+        },
+        {
+          "expected": "unesco_uis",
+          "fatal": true,
+          "id": "profile_family_matches_connector",
+          "observed": "unesco_uis",
+          "status": "pass"
+        },
+        {
+          "fatal": true,
+          "id": "request_dataset_id_present",
+          "observed": "PA.NUS.PPPC.RF",
+          "status": "pass"
+        },
+        {
+          "fatal": true,
+          "id": "indicator_code_present",
+          "observed": "PA.NUS.PPPC.RF",
+          "status": "pass"
+        }
+      ],
+      "shape_status": "shape_pass",
+      "source_count": 1,
+      "stage": "catalog_binding_shape_to_connector_fetch_contract"
+    },
+    {
+      "authority_risk": "Transport-ready bindings lack filters that the connector treats as mandatory, so the row is fetch-blocked despite the tier label.",
+      "binding_count": 70,
+      "capability_state": "binding_shape_mismatches_fetch_contract",
+      "connector_family": "unpd",
+      "connector_id": "unpd.data",
+      "distinct_request_ids": 53,
+      "evidence_refs": [
+        "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+        "_build/gy_connector_family_truth_probe.json",
+        "src/polisyos/fabric/connectors/sources/unpd.py:153",
+        "src/polisyos/fabric/connectors/sources/unpd.py:159",
+        "src/polisyos/fabric/connectors/sources/unpd.py:166",
+        "src/polisyos/fabric/connectors/sources/unpd.py:241",
+        "src/polisyos/fabric/connectors/sources/unpd.py:255"
+      ],
+      "execution_ready_count": 70,
+      "execution_tier_counts": {
+        "transport_ready": 70
+      },
+      "fetch_contract": {
+        "dataset_id": "UNPD indicator id",
+        "filter_contract": "fetch requires at least one location_id/country and date_start/date_end or year filter"
+      },
+      "gap_labels": [
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "next_probe": "Repair binding generation so UNPD rows include country/location_id and year/date bounds before they can be called transport_ready.",
+      "pattern_ids": [
+        "P10",
+        "P12"
+      ],
+      "profile_count": 1,
+      "representative_binding": {
+        "connector_id": "unpd.data",
+        "dataset_id": "b258cd177172f57d7910",
+        "default_filters": "{}",
+        "execution_tier": "transport_ready",
+        "metric_id": "dependency_ratio",
+        "profile_id": "unpd_dataportal",
+        "request_dataset_id": "86",
+        "source": "unpd"
+      },
+      "shape_checks": [
+        {
+          "id": "profile_exists",
+          "observed": "unpd_dataportal",
+          "status": "pass"
+        },
+        {
+          "expected": "unpd",
+          "fatal": true,
+          "id": "profile_family_matches_connector",
+          "observed": "unpd",
+          "status": "pass"
+        },
+        {
+          "fatal": true,
+          "id": "request_dataset_id_present",
+          "observed": "86",
+          "status": "pass"
+        },
+        {
+          "expected": "country/location_id required by fetch",
+          "fatal": true,
+          "id": "location_filter_present",
+          "observed": {},
+          "status": "fail"
+        },
+        {
+          "expected": "date_start/date_end or year filter required by fetch",
+          "fatal": true,
+          "id": "time_filter_present",
+          "observed": {},
+          "status": "fail"
+        }
+      ],
+      "shape_status": "contract_mismatch",
+      "source_count": 1,
+      "stage": "catalog_binding_shape_to_connector_fetch_contract"
+    },
+    {
+      "authority_risk": "Shape pass proves WHO indicator routing, not SpatialDim/TimeDim adequacy.",
+      "binding_count": 1221,
+      "capability_state": "binding_shape_matches_fetch_contract_structurally",
+      "connector_family": "who",
+      "connector_id": "who.indicators",
+      "distinct_request_ids": 989,
+      "evidence_refs": [
+        "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+        "_build/gy_connector_family_truth_probe.json",
+        "src/polisyos/fabric/connectors/sources/who.py:160",
+        "src/polisyos/fabric/connectors/sources/who.py:214"
+      ],
+      "execution_ready_count": 1221,
+      "execution_tier_counts": {
+        "transport_ready": 1221
+      },
+      "fetch_contract": {
+        "dataset_id": "WHO indicator id appended to API base URL",
+        "filter_contract": "country/geography/SpatialDim and year/TimeDim filters supported"
+      },
+      "gap_labels": [],
+      "next_probe": "Run a bounded indicator/country/year replay and verify SpatialDim/TimeDim semantics.",
+      "pattern_ids": [
+        "P10",
+        "P12"
+      ],
+      "profile_count": 1,
+      "representative_binding": {
+        "connector_id": "who.indicators",
+        "dataset_id": "d556c9670c9c2925471d",
+        "default_filters": "{}",
+        "execution_tier": "transport_ready",
+        "metric_id": "air_pollution_health",
+        "profile_id": "who_gho",
+        "request_dataset_id": "AIR_8",
+        "source": "who"
+      },
+      "shape_checks": [
+        {
+          "id": "profile_exists",
+          "observed": "who_gho",
+          "status": "pass"
+        },
+        {
+          "expected": "who",
+          "fatal": true,
+          "id": "profile_family_matches_connector",
+          "observed": "who",
+          "status": "pass"
+        },
+        {
+          "fatal": true,
+          "id": "request_dataset_id_present",
+          "observed": "AIR_8",
+          "status": "pass"
+        },
+        {
+          "error": null,
+          "fatal": true,
+          "id": "indicator_id_safe_path",
+          "observed": "AIR_8",
+          "status": "pass"
+        }
+      ],
+      "shape_status": "shape_pass",
+      "source_count": 1,
+      "stage": "catalog_binding_shape_to_connector_fetch_contract"
+    },
+    {
+      "authority_risk": "Shape pass only proves indicator/request grammar; it does not prove metric adequacy, source rights, or measurement-root persistence.",
+      "binding_count": 22490,
+      "capability_state": "binding_shape_matches_fetch_contract_structurally",
+      "connector_family": "worldbank",
+      "connector_id": "worldbank.wdi",
+      "distinct_request_ids": 15775,
+      "evidence_refs": [
+        "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+        "_build/gy_connector_family_truth_probe.json",
+        "src/polisyos/fabric/connectors/sources/world_bank.py:147",
+        "src/polisyos/fabric/connectors/sources/world_bank.py:262",
+        "src/polisyos/fabric/connectors/sources/world_bank.py:276",
+        "src/polisyos/fabric/connectors/sources/world_bank.py:293"
+      ],
+      "execution_ready_count": 22490,
+      "execution_tier_counts": {
+        "transport_ready": 22490
+      },
+      "fetch_contract": {
+        "dataset_id": "World Bank indicator id batch; semicolon-delimited safe path segments",
+        "filter_contract": "country optional; date_start/date_end optional; mrv/mrnev/frequency only as extra params"
+      },
+      "gap_labels": [],
+      "next_probe": "Run one bounded replay with country/time filters and verify payload root propagation into the measurement chain.",
+      "pattern_ids": [
+        "P10",
+        "P12"
+      ],
+      "profile_count": 1,
+      "representative_binding": {
+        "connector_id": "worldbank.wdi",
+        "dataset_id": "7a761c95a19f84e1952d",
+        "default_filters": "{}",
+        "execution_tier": "transport_ready",
+        "metric_id": "access_to_justice",
+        "profile_id": "worldbank_wdi",
+        "request_dataset_id": "GD_WBL_MAR_SFR_LEGALAID",
+        "source": "worldbank"
+      },
+      "shape_checks": [
+        {
+          "id": "profile_exists",
+          "observed": "worldbank_wdi",
+          "status": "pass"
+        },
+        {
+          "expected": "worldbank",
+          "fatal": true,
+          "id": "profile_family_matches_connector",
+          "observed": "worldbank",
+          "status": "pass"
+        },
+        {
+          "fatal": true,
+          "id": "request_dataset_id_present",
+          "observed": "GD_WBL_MAR_SFR_LEGALAID",
+          "status": "pass"
+        },
+        {
+          "id": "indicator_batch_safe_path",
+          "observed": "GD_WBL_MAR_SFR_LEGALAID",
+          "status": "pass"
+        },
+        {
+          "fatal": true,
+          "id": "default_filters_allowed",
+          "illegal_keys": [],
+          "observed": {},
+          "status": "pass"
+        }
+      ],
+      "shape_status": "shape_pass",
+      "source_count": 1,
+      "stage": "catalog_binding_shape_to_connector_fetch_contract"
+    },
+    {
+      "authority_risk": "Shape pass proves variable-id routing, not sample/time/country adequacy for the policy metric.",
+      "binding_count": 1279,
+      "capability_state": "binding_shape_matches_fetch_contract_structurally",
+      "connector_family": "wvs",
+      "connector_id": "wvs.wave7",
+      "distinct_request_ids": 1049,
+      "evidence_refs": [
+        "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+        "_build/gy_connector_family_truth_probe.json",
+        "src/polisyos/fabric/connectors/sources/wvs.py:257",
+        "src/polisyos/fabric/connectors/sources/wvs.py:370",
+        "src/polisyos/fabric/connectors/sources/wvs.py:376"
+      ],
+      "execution_ready_count": 1279,
+      "execution_tier_counts": {
+        "transport_ready": 1279
+      },
+      "fetch_contract": {
+        "dataset_id": "WVS variable id looked up in local/bulk survey table",
+        "filter_contract": "country and target year optional; nearest wave fallback"
+      },
+      "gap_labels": [],
+      "next_probe": "Run a bounded variable/country/year replay and verify wave fallback is represented in provenance.",
+      "pattern_ids": [
+        "P10",
+        "P12"
+      ],
+      "profile_count": 1,
+      "representative_binding": {
+        "connector_id": "wvs.wave7",
+        "dataset_id": "892cae20fb90747f8ff4",
+        "default_filters": "{}",
+        "execution_tier": "transport_ready",
+        "metric_id": "air_quality_index",
+        "profile_id": "wvs_wave7",
+        "request_dataset_id": "B019",
+        "source": "wvs"
+      },
+      "shape_checks": [
+        {
+          "id": "profile_exists",
+          "observed": "wvs_wave7",
+          "status": "pass"
+        },
+        {
+          "expected": "wvs",
+          "fatal": true,
+          "id": "profile_family_matches_connector",
+          "observed": "wvs",
+          "status": "pass"
+        },
+        {
+          "fatal": true,
+          "id": "request_dataset_id_present",
+          "observed": "B019",
+          "status": "pass"
+        },
+        {
+          "fatal": true,
+          "id": "variable_id_present",
+          "observed": "B019",
+          "status": "pass"
+        }
+      ],
+      "shape_status": "shape_pass",
+      "source_count": 1,
+      "stage": "catalog_binding_shape_to_connector_fetch_contract"
+    }
+  ],
+  "findings": [
+    {
+      "evidence": "The same production catalog table yields 8 structural pass rows, 1 warning, 2 contract mismatches, and 1 catalog-tier-only row.",
+      "id": "connector_exists_is_not_family_truth",
+      "impact": "GY must not use a uniform connector-exists label as execution evidence.",
+      "title": "The 12 connector rows are not semantically interchangeable."
+    },
+    {
+      "evidence": "GenericREST fetch calls handle.config.url; data_gov_pl bindings carry a full resources URL as request_dataset_id while the profile base_url is the datasets collection.",
+      "id": "rest_json_dataset_id_is_not_endpoint_authority",
+      "impact": "data_gov_pl exec/fetchable rows can launder catalog URLs unless a family adapter maps request ids into endpoint URLs.",
+      "title": "Generic REST ignores request_dataset_id when building the fetch URL."
+    },
+    {
+      "evidence": "UNPD fetch raises without country/location_id and date/year bounds; representative binding default_filters is empty.",
+      "id": "unpd_transport_ready_missing_mandatory_filters",
+      "impact": "UNPD should be downgraded or fixed before being counted as runs_e2e_on_real.",
+      "title": "UNPD transport_ready rows lack mandatory location and time filters."
+    },
+    {
+      "evidence": "All 50 ukons.datasets bindings are catalog tier; representative dataset id is structurally valid but not fetchable/transport_ready.",
+      "id": "ukons_family_exists_but_catalog_tier_only",
+      "impact": "Family presence must be separated from execution readiness in GY rows.",
+      "title": "UK ONS has a connector but no production binding is execution-ready."
+    },
+    {
+      "evidence": "The connector builds URL from profile/dataflow/key path; empty filters produce an empty filter path for representative OECD binding.",
+      "id": "sdmx_shape_pass_needs_dimension_bound",
+      "impact": "SDMX transport readiness needs a codelist/dimension key adequacy test, not only a dataflow id.",
+      "title": "SDMX shape is structurally valid but unbounded without dimension filters."
+    },
+    {
+      "evidence": "This slice intentionally performs no external replay and does not prove payload root persistence or field-level metric adequacy.",
+      "id": "shape_pass_is_still_not_measurement_root",
+      "impact": "Follow-up replay must still prove payload -> root-chain -> consumer, especially for CKAN/Socrata/ODS/EUROSTAT/WHO/UNESCO/WVS/WorldBank.",
+      "title": "Passing family-shape checks is below the measurement-root bar."
+    }
+  ],
+  "generated_at_utc": "2026-06-14T08:19:56+00:00",
+  "methodology": {
+    "helpers_exercised": [
+      "WorldBankConnector._normalize_indicator_batch",
+      "SDMXSourceConnector._parse_sdmx_config",
+      "GenericRESTConnector._parse_rest_config",
+      "safe_path_segment family checks",
+      "catalog SQL over ds_metric_bindings"
+    ],
+    "network_fetches_run": false,
+    "production_catalog": "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+    "selection_rule": "For each connector_id, select one representative binding ordered by execution_tier priority transport_ready > fetchable > catalog, then metric_id.",
+    "why_no_network_fetches": "This slice checks binding shape against connector request/profile/filter contract. End-to-end external fetch belongs to the follow-up replay suite and must be separately budgeted."
+  },
+  "plan_ref": "docs/plans/active/layer3-slices/GY-engine-subordination.md#task-0",
+  "schema_version": "layer3_gy_connector_family_truth_audit.v1",
+  "scope": "Audit-only connector-family truth pass for the 12 connector ids represented in the real production dataset catalog metric bindings.",
+  "summary": {
+    "all_rows_uniform": false,
+    "blocking_gap_count": 3,
+    "catalog_binding_shape_validation_required_before_fetch": true,
+    "connector_count": 12,
+    "critical_gap_labels": [
+      "bridge_missing",
+      "producer_missing",
+      "semantic_test_missing"
+    ],
+    "expected_connector_count": 12,
+    "families_shape_pass": [
+      "ckan.resource",
+      "eurostat.data",
+      "opendatasoft.ods",
+      "socrata.soda",
+      "unesco_uis.data",
+      "who.indicators",
+      "worldbank.wdi",
+      "wvs.wave7"
+    ],
+    "families_warn_only": [
+      "sdmx.source"
+    ],
+    "families_with_blocking_shape_gaps": [
+      "rest.json",
+      "ukons.datasets",
+      "unpd.data"
+    ],
+    "missing_connectors": [],
+    "production_binding_count_for_12_families": 56846,
+    "requires_family_specific_adapters": true,
+    "route_verdict": "connector_family_truth_mixed_binding_shape_contracts",
+    "shape_status_counts": {
+      "contract_mismatch": 2,
+      "not_execution_ready": 1,
+      "shape_pass": 8,
+      "shape_warn": 1
+    },
+    "uniform_connector_exists_claim_rejected": true,
+    "warn_gap_count": 1
+  }
+}

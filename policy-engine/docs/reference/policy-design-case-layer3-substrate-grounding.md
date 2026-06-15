@@ -1,5 +1,8 @@
 # Policy Design Case Layer 3 Substrate Grounding
 
+Owner: `team-runtime-quality`
+Source of truth: `src/polisyos/runtime/quality/layer3_substrate_grounding.py`, `tools/quality/validation/check_policy_design_case_layer3_g1_readiness.py`, and `architecture/policy_design_case/layer3_g1_readiness_manifest.json`
+
 Layer 3 G1 is the substrate grounding and acquisition-gap audit slice for the
 Policy Design Case. It turns existing Layer 3 G0 discovery/search discipline
 into a runtime bundle that can say whether a pinned construct has a validated

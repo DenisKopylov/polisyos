@@ -203,7 +203,7 @@
               "request_class": "ua_msme_support",
               "request_id": "req-layer3-g6-readiness"
             },
-            "emitted_at": "2026-06-10T09:12:37.738166Z",
+            "emitted_at": "2026-06-13T18:28:25.645820Z",
             "producer_validation_refs": [],
             "prompt_fingerprint": "sha256:6a125f5184963fab0aea620abdde2bcf906aeb3fd1048643fadb7f175cd9ce75",
             "prompt_tool_ledger_ref": "layer3-g6://prompt-tool-ledger/layer3-g6-run:req-layer3-g6-readiness",
@@ -230,7 +230,7 @@
             ]
           }
         ],
-        "generated_at": "2026-06-10T09:12:37.738135Z",
+        "generated_at": "2026-06-13T18:28:25.645783Z",
         "hypothesis_ledger_ref": "layer3-g6://hypothesis-ledger/layer3-g6-run:req-layer3-g6-readiness",
         "job_id": "layer3-g6-job:req-layer3-g6-readiness",
         "prompt_tool_ledger_ref": "layer3-g6://prompt-tool-ledger/layer3-g6-run:req-layer3-g6-readiness",
@@ -388,7 +388,7 @@
         "projection_id": "layer3-g6-prompt-tool-ledger-projection:layer3-g6-run:req-layer3-g6-readiness",
         "prompt_tool_ledger": {
           "findings": [],
-          "generated_at": "2026-06-10T09:12:37.737940Z",
+          "generated_at": "2026-06-13T18:28:25.645550Z",
           "job_id": "layer3-g6-job:req-layer3-g6-readiness",
           "model_variant_id": "layer3-g6-bounded-agent-candidate",
           "prompt_tool_ledger_ref": "layer3-g6://prompt-tool-ledger/layer3-g6-run:req-layer3-g6-readiness",
@@ -652,7 +652,7 @@
         "raw_request_ref": "layer3-g6://request/req-layer3-g6-readiness/raw",
         "request_class": "ua_msme_support",
         "request_id": "req-layer3-g6-readiness",
-        "request_received_at": "2026-06-10T09:12:37.733243Z",
+        "request_received_at": "2026-06-13T18:28:25.641570Z",
         "requested_audience": "REVIEWER",
         "rule_version": "policyos.layer3.g6.bounded_agent.v1",
         "schema_version": "policyos.policy_design_case.layer3_g6_bounded_agent.v1"

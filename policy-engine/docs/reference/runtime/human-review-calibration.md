@@ -13,6 +13,9 @@ related:
 
 # Human Review Calibration
 
+Owner: `team-governance`
+Source of truth: `src/polisyos/runtime/quality/human_review.py`, `src/polisyos/runtime/quality/approval.py`, `tests/unit/runtime/quality/**`, and `docs/adr/0171-review-effectiveness-telemetry-advisory-first.md`
+
 Human-review calibration is the runtime-owned evidence layer for production
 approval, override, escalation, reissue, and withdrawal review flows. It emits
 `human_review_calibration_report_ref` so approval packets and dashboard

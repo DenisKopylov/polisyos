@@ -19,6 +19,7 @@ from polisyos.runtime.quality.argument_graph import (
     build_argument_graph,
     inspect_argument_graph,
 )
+from polisyos.runtime.quality.layer3_gx_data_home import read_layer3_gx_pinned_case_id
 from tools.quality.validation import (
     generate_policy_evidence_capability_cards as cards,
 )
@@ -27,7 +28,10 @@ from tools.quality.validation import run_universal_outcome_corpus as w12d
 SCHEMA_VERSION = "policyos.policy_design_case.i7bis.integration_realism.v1"
 TOOL_NAME = "quality.validation.run-universal-compilation-integration-realism-check"
 PHASE_ID = "I7-bis"
-DEFAULT_CASE = Path("tests/fixtures/universal-corpus/cases/ua-msme-affordable-loans-2022.json")
+DEFAULT_CASE = (
+    Path("tests/fixtures/universal-corpus/cases")
+    / f"{read_layer3_gx_pinned_case_id(REPO_ROOT)}.json"
+)
 DEFAULT_PRODUCER_STUB_DIR = Path("tests/fixtures/universal-corpus/producer_stubs")
 DEFAULT_OUTPUT = Path("_build/.tmp/production-quality/i7bis_integration_realism_check.json")
 DEFAULT_GRAPH_OUTPUT_DIR = Path("_build/.tmp/production-quality/i7bis-runtime-pdc-graphs")

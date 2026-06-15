@@ -1,11 +1,9 @@
 {
   "failing_negative_ids": [],
-  "missing_negative_ids": [
-    "public_projection_authority_leak"
-  ],
-  "negative_count": 0,
+  "missing_negative_ids": [],
+  "negative_count": 16,
   "ratchet_id": "layer3_g8_registry_ratchet_delta",
   "rule_version": "policyos.layer3.g8.health_metric_governance.v1",
   "schema_version": "policyos.policy_design_case.layer3_g8_health_metric_governance.v1",
-  "status": "blocked"
+  "status": "pass"
 }

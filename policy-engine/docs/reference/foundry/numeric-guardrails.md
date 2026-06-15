@@ -1,5 +1,8 @@
 # Foundry Numeric Guardrails
 
+Owner: `@foundry-owners`
+Source of truth: `src/polisyos/foundry/runtime/numeric.py` and `tests/unit/foundry/**`
+
 This note documents the WS-4 numeric invariants that are now enforced across
 calibration, constraints, actor-critic math, distributional metrics, and fiscal
 mechanisms.

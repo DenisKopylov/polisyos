@@ -1,5 +1,8 @@
 # Counterfactual Layer
 
+Owner: `@runtime-owners`
+Source of truth: `src/polisyos/runtime/http/routes/runs.py`, `src/polisyos/runtime/http/services/**`, `src/polisyos/ir/**`, and `packages/runtime-api-client/**`
+
 PolicyOS counterfactuals are named scenario manifests, not anonymous forecast
 flags. Any value rendered as a scenario value must point to a `ScenarioRef`, and
 the referenced scenario must include interventions, assumptions, temporal scope,

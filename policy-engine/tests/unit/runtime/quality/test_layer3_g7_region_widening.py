@@ -164,6 +164,11 @@ def test_g7_default_candidate_set_is_control_plane_not_coverage() -> None:
     assert candidate_set.case_count == 4
     assert candidate_set.coverage_authority_status == "control_plane_only"
     assert all("universal_claim_authority" in row.may_not_use_for for row in candidate_set.cases)
+    seed = candidate_set.cases[0]
+    assert seed.s3_demand_pull_refs == ()
+    assert seed.demand_refs == (
+        "demand-act://layer3-gx/ua-msme-affordable-loans-2022",
+    )
     assert {
         row.candidate_source for row in candidate_set.cases if row.case_id != "ua-msme-affordable-loans-2022"
     } == {"readiness_control_plane_fixture"}

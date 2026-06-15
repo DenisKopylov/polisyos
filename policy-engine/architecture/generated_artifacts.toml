@@ -492,7 +492,7 @@ outputs = [
 regenerate_commands = [
   "uv run python tools/quality/validation/check_policy_design_case_layer3_g8_readiness.py --repo-root . --write --output-format json",
 ]
-commit_policy = "committed_after_task9_write"
+commit_policy = "committed_after_task11_write"
 freshness_rule = "Regenerate and commit whenever the Layer 3 G8 metric governance runtime builder, validator, route registry, public projection refs, D4.4 rebasing receipts, or replay rules change."
 drift_gate = "automated"
 workflow = "tools/quality/validation/check_policy_design_case_layer3_g8_readiness.py"
@@ -502,6 +502,96 @@ check_command = [
   "run",
   "python",
   "tools/quality/validation/check_policy_design_case_layer3_g8_readiness.py",
+  "--repo-root",
+  ".",
+  "--output-format",
+  "json",
+]
+
+[[family]]
+id = "policy-design-case-layer2-s3-governed-capability-rows"
+label = "Policy Design Case Layer 2 S3 governed capability rows"
+owner = "team-runtime-quality"
+approval_owner = "deniskopylov"
+lifecycle = "source_committed"
+generator = "manual governed-data updates through the Layer 3 GX Task 1 literal-closure migration"
+verifier = "capability resolver tests, Layer 2 S3 substrate acquisition tests, and GX runtime literal lint"
+promotion_target = "committed governed capability rows consumed by RequirementToCapabilityResolver.governed_fixture"
+stale_output_behavior = "fail"
+source_of_truth = "architecture/policy_design_case/layer2_s3_governed_capability_rows.json and docs/plans/active/layer3-slices/GX-universal-free-growth-runtime-hardening.md"
+outputs = [
+  "architecture/policy_design_case/layer2_s3_governed_capability_rows.json",
+]
+regenerate_commands = [
+  "manual review: update architecture/policy_design_case/layer2_s3_governed_capability_rows.json, then rerun the capability resolver and Layer 2 S3 substrate acquisition tests",
+]
+commit_policy = "committed_after_task1_write"
+freshness_rule = "Update and commit whenever governed scenario-family construct rows, resolver capabilities, failure modes, or acquisition strategies change."
+drift_gate = "automated"
+workflow = "tests/unit/runtime/quality/test_capability_resolver.py"
+check_cwd = "."
+check_command = [
+  "uv",
+  "run",
+  "pytest",
+  "tests/unit/core/contracts/test_capability_resolution.py",
+  "tests/unit/runtime/quality/test_capability_resolver.py",
+  "tests/unit/runtime/quality/test_layer2_s3_substrate_acquisition.py",
+  "-q",
+]
+
+[[family]]
+id = "policy-design-case-layer3-gx-hardening-artifacts"
+label = "Policy Design Case Layer 3 GX hardening artifacts"
+owner = "team-runtime-quality"
+approval_owner = "deniskopylov"
+lifecycle = "generated_committed"
+generator = "Layer 3 GX hardening validator write mode"
+verifier = "Layer 3 GX hardening validator and architecture guardrails"
+promotion_target = "registered Policy Design Case GX hardening, authority-boundary, provenance, and expected-red clearance artifacts"
+stale_output_behavior = "fail"
+source_of_truth = "tools/quality/validation/check_policy_design_case_layer3_gx_hardening.py and docs/plans/active/layer3-slices/GX-universal-free-growth-runtime-hardening.md"
+outputs = [
+  "architecture/policy_design_case/layer3_gx_pinned_request.json",
+  "architecture/policy_design_case/layer3_gx_concept_alias_seed_rows.json",
+  "architecture/policy_design_case/layer3_gx_concept_alias_graph.json",
+  "architecture/policy_design_case/layer3_gx_scope_seed_rows.json",
+  "architecture/policy_design_case/layer3_gx_demand_pull_request.json",
+  "architecture/policy_design_case/layer3_gx_baseline_note.json",
+  "architecture/policy_design_case/layer3_gx_runtime_literal_lint.json",
+  "architecture/policy_design_case/layer3_gx_reducer_integrity_report.json",
+  "architecture/policy_design_case/layer3_gx_positive_status_provenance.json",
+  "architecture/policy_design_case/layer3_gx_producer_registry.json",
+  "architecture/policy_design_case/layer3_gx_producer_root_chain_report.json",
+  "architecture/policy_design_case/layer3_gx_measurement_replay_report.json",
+  "architecture/policy_design_case/layer3_gx_vertical_pinned_route_report.json",
+  "architecture/policy_design_case/layer3_gx_provisional_pinned_route_outcome_report.json",
+  "architecture/policy_design_case/layer3_gx_provisional_blocker_audit_record.json",
+  "architecture/policy_design_case/layer3_gx_final_pinned_route_outcome_report.json",
+  "architecture/policy_design_case/layer3_gx_final_blocker_audit_record.json",
+  "architecture/policy_design_case/layer3_gx_data_mutation_free_growth_test_report.json",
+  "architecture/policy_design_case/layer3_gx_g4_g5_dereference_waist_court_report.json",
+  "architecture/policy_design_case/layer3_gx_persisted_status_recompute_drift.json",
+  "architecture/policy_design_case/layer3_gx_status_vocabulary_delta.json",
+  "architecture/policy_design_case/layer3_gx_correction_retraction_log.json",
+  "architecture/policy_design_case/layer3_gx_independent_audit_sample.json",
+  "architecture/policy_design_case/layer3_gx_validation_authority_boundary.json",
+  "architecture/policy_design_case/layer3_gx_expected_red_checks.json",
+  "architecture/policy_design_case/layer3_gx_human_approval_receipts.json",
+]
+regenerate_commands = [
+  "uv run python tools/quality/validation/check_policy_design_case_layer3_gx_hardening.py --repo-root . --write --output-format json",
+]
+commit_policy = "committed_after_expected_red_cleanup"
+freshness_rule = "Regenerate and commit whenever the GX hardening validator, runtime literal lint rules, reducer provenance inventory, producer-root checks, validation authority boundary, or expected-red set changes."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_policy_design_case_layer3_gx_hardening.py"
+check_cwd = "."
+check_command = [
+  "uv",
+  "run",
+  "python",
+  "tools/quality/validation/check_policy_design_case_layer3_gx_hardening.py",
   "--repo-root",
   ".",
   "--output-format",

@@ -1,0 +1,123 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gx_provisional_pinned_route_outcome.v1",
+  "rule_version": "policyos.layer3.gx.provisional_task12.v1",
+  "run_phase": "provisional_task12",
+  "status": "blocked",
+  "outcome_kind": "typed_blocker",
+  "outcome_source": "reduce_g5_conversion_outcome",
+  "case_id": "ua-msme-affordable-loans-2022",
+  "request_ref": "external-request://layer3-gx/ua-msme-affordable-loans-2022",
+  "route_replay_key": "layer3-gx-vertical-pinned-route:ua-msme-affordable-loans-2022:v1",
+  "data_home_status": "ready",
+  "g1_search_measurement_status": "blocked",
+  "g1_grounding_closure": "search_ceiling_repair_required",
+  "g4_promotion_state": "promotion_blocked",
+  "g5_conversion_outcome": "unchanged_blocker",
+  "useful_design_credit": false,
+  "reducer_calls": [
+    {
+      "reducer_id": "reduce_g1_source_grounding_closure",
+      "status_field": "grounding_closure_outcome",
+      "status": "search_ceiling_repair_required",
+      "readiness_status": "blocked",
+      "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
+      "input_refs": [
+        "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json",
+        "repo://architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json",
+        "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json"
+      ],
+      "input_hashes": {
+        "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json": "sha256:bc2112bfbf228d4d742a4add3b8473ea358d21471e7b650024963fb20a7561fd",
+        "repo://architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json": "sha256:4f7ece8c2e18fac5826ae56ae6c1b6d9875511fc55e79ece7a791092cfa2e45b",
+        "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json": "sha256:99bb3f31d68ebd6c41e286f60fc00f0a6558577c0fa460d86efa2b179c42f60d"
+      },
+      "output_hash": "sha256:e2a1e876731a9bb5b7fb053ed9c4603337093ae4530adb840c148f3700439fc4",
+      "persisted_status_ref": "repo://architecture/policy_design_case/layer3_gx_vertical_pinned_route_report.json#decisions/0"
+    },
+    {
+      "reducer_id": "reduce_g4_promotion_state",
+      "status_field": "promotion_state",
+      "status": "promotion_blocked",
+      "readiness_status": "fail",
+      "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
+      "input_refs": [
+        "repo://architecture/policy_design_case/layer3_gx_pinned_request.json",
+        "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json",
+        "repo://architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json",
+        "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json"
+      ],
+      "input_hashes": {
+        "repo://architecture/policy_design_case/layer3_gx_pinned_request.json": "sha256:4105e5b22179d0f2b71a50bc550fd1866539577d2b41ae8a6c2b2df8ebcee7d6",
+        "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json": "sha256:bc2112bfbf228d4d742a4add3b8473ea358d21471e7b650024963fb20a7561fd",
+        "repo://architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json": "sha256:4f7ece8c2e18fac5826ae56ae6c1b6d9875511fc55e79ece7a791092cfa2e45b",
+        "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json": "sha256:99bb3f31d68ebd6c41e286f60fc00f0a6558577c0fa460d86efa2b179c42f60d"
+      },
+      "output_hash": "sha256:9f9a9c699c9b4480602a43362c81dc6c285250448a2484ae676f41a64d9092c8",
+      "persisted_status_ref": "repo://architecture/policy_design_case/layer3_gx_vertical_pinned_route_report.json#decisions/1"
+    },
+    {
+      "reducer_id": "reduce_g5_conversion_outcome",
+      "status_field": "conversion_outcome",
+      "status": "unchanged_blocker",
+      "readiness_status": "fail",
+      "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
+      "input_refs": [
+        "repo://architecture/policy_design_case/layer3_gx_demand_pull_request.json",
+        "reducer://layer3-gx/reduce_g1_source_grounding_closure",
+        "reducer://layer3-gx/reduce_g4_promotion_state",
+        "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json",
+        "repo://architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json",
+        "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json"
+      ],
+      "input_hashes": {
+        "repo://architecture/policy_design_case/layer3_gx_demand_pull_request.json": "sha256:8220b04c7a9dc928d7aca2f339e0229851a1e9caed12a5e4e45aa1f563cdfd26",
+        "reducer://layer3-gx/reduce_g1_source_grounding_closure": "sha256:e2a1e876731a9bb5b7fb053ed9c4603337093ae4530adb840c148f3700439fc4",
+        "reducer://layer3-gx/reduce_g4_promotion_state": "sha256:9f9a9c699c9b4480602a43362c81dc6c285250448a2484ae676f41a64d9092c8",
+        "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json": "sha256:bc2112bfbf228d4d742a4add3b8473ea358d21471e7b650024963fb20a7561fd",
+        "repo://architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json": "sha256:4f7ece8c2e18fac5826ae56ae6c1b6d9875511fc55e79ece7a791092cfa2e45b",
+        "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json": "sha256:99bb3f31d68ebd6c41e286f60fc00f0a6558577c0fa460d86efa2b179c42f60d"
+      },
+      "output_hash": "sha256:9b906610bafc8332c1e4592e2de39ab39f47b0b626e437483dcf82def9c13784",
+      "persisted_status_ref": "repo://architecture/policy_design_case/layer3_gx_vertical_pinned_route_report.json#decisions/2"
+    }
+  ],
+  "persisted_artifact_refs": [
+    "repo://architecture/policy_design_case/layer3_gx_vertical_pinned_route_report.json",
+    "repo://architecture/policy_design_case/layer3_gx_provisional_blocker_audit_record.json",
+    "repo://architecture/policy_design_case/layer3_gx_pinned_request.json",
+    "repo://architecture/policy_design_case/layer3_gx_demand_pull_request.json",
+    "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json",
+    "repo://architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json",
+    "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json"
+  ],
+  "blocker_audit_ref": "repo://architecture/policy_design_case/layer3_gx_provisional_blocker_audit_record.json",
+  "blocker_audit_hash": "sha256:823faa8b19b7b0556f1354ce981d881921a6035b6a4f36491123ba5dbe5be6a9",
+  "next_missing_refs": [
+    "layer3_g5_cross_slice_checks_not_ready",
+    "layer3_g5_grounded_evidence_ref_missing",
+    "layer3_g5_abstention_candidate_missing",
+    "layer3_g1_search_health_not_measured_or_failed",
+    "layer3_g4_missing_g1_grounded_source_contract",
+    "layer3_g4_source_design_record_unresolved",
+    "layer3_g4_dependency_not_ready:blocked"
+  ],
+  "issue_codes": [
+    "layer3_g1_search_health_not_measured_or_failed",
+    "layer3_g4_missing_g1_grounded_source_contract",
+    "layer3_g4_source_design_record_unresolved",
+    "layer3_g4_dependency_not_ready:blocked",
+    "layer3_g5_cross_slice_checks_not_ready",
+    "layer3_g5_grounded_evidence_ref_missing",
+    "layer3_g5_abstention_candidate_missing"
+  ],
+  "may_not_use_for": [
+    "production_authority",
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority",
+    "runtime_closeout_authority",
+    "useful_design_credit",
+    "domain_ceiling_authority_without_gate"
+  ],
+  "provisional_run_hash": "sha256:f5c47d4dfe2d8c5341a13e80be7929f54a98fc0aaad9fb1982c5ccb08441832a"
+}

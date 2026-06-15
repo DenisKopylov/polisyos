@@ -2,7 +2,7 @@
   "conversion_input_rows": [
     {
       "case_id": "ua-msme-affordable-loans-2022",
-      "g4_promotion_record_ref": "g4-promotion-record:g4-request:ua-msme-source-only-valid",
+      "g4_promotion_record_ref": null,
       "g5_conversion_record_ref": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
       "may_not_use_for": [
         "production_authority",

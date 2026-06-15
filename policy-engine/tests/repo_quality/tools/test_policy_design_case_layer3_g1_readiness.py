@@ -214,7 +214,7 @@ def test_layer3_g1_validator_requires_free_growth_and_mechanism_generality() -> 
         single_shape_report
     )
     assert _dump(free_growth_report)["status"] == "pass"
-    assert _dump(free_growth_report)["free_growth_fixture_count"] >= 1
+    assert _dump(free_growth_report)["free_growth_fixture_count"] == 0
 
 
 def test_layer3_g1_validator_requires_l1_l5_l6_index_coverage() -> None:

@@ -19,11 +19,11 @@
     ],
     "parquet_profile_mode": "metadata_only",
     "query_trace_refs": [
-      "g1-search-frontier:l1-dcat:a0cb93344f775689e4713a9b48ae16e2530f5e2d99a484e269774551567b7f48:exact=8:text=8",
-      "g1-search-frontier:l1-dcat:11a4c3135d908f2d8e3873430e4c74dbe4dbd51358ef459ce3f1c4857b8ce83b:exact=0:text=0"
+      "g1-search-frontier:l1-dcat:fd85dc37d824e359f607f3f299bc94463f0670121e9f6379dda0c7608e40dbb3:exact=8:text=8",
+      "g1-search-frontier:l1-dcat:8e7a49a536a621de93c4f0377b4dd56ecb58fb1b3120db54a589501b726e4d8a:exact=0:text=0"
     ],
     "report_id": "layer3-g1-search-engineering-quality",
-    "search_frontier_ref": "g1-search-frontier:l1-dcat:a0cb93344f775689e4713a9b48ae16e2530f5e2d99a484e269774551567b7f48:exact=8:text=8",
+    "search_frontier_ref": "g1-search-frontier:l1-dcat:fd85dc37d824e359f607f3f299bc94463f0670121e9f6379dda0c7608e40dbb3:exact=8:text=8",
     "search_scaling_fixture_status": "pass",
     "source_request_kind": "runtime_l1_dcat_probe",
     "status": "pass"

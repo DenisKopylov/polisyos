@@ -210,7 +210,7 @@ def validate_layer3_g7_readiness(repo_root: Path, *, write: bool = False) -> dic
         "rule_version": G7_RULE_VERSION,
         "status": "fail" if normalized_issues else "pass",
         "issues": normalized_issues,
-        "summary": _summary(root, bundle, drift_keys, registration_statuses),
+        "summary": _summary(bundle, drift_keys, registration_statuses),
         "artifacts": {
             "expected_artifact_paths": [
                 path.as_posix() for path in EXPECTED_ARTIFACT_PATHS
@@ -540,7 +540,7 @@ def _manifest_runtime_drift_keys(
         persisted = _read_json(path)
     except (OSError, json.JSONDecodeError):
         return ["readiness_manifest_unreadable"]
-    runtime_summary = _summary(repo_root, bundle, (), _registration_statuses(repo_root))
+    runtime_summary = _summary(bundle, (), _registration_statuses(repo_root))
     persisted_summary = {
         **_mapping(persisted.get("summary")),
         **{key: persisted.get(key) for key in EXPECTED_MANIFEST_DRIFT_KEYS if key in persisted},
@@ -727,12 +727,10 @@ def _validate_runtime_surfaces(bundle: Mapping[str, Any]) -> list[dict[str, str]
 
 
 def _summary(
-    repo_root: Path,
     bundle: Mapping[str, Any],
     drift_keys: Sequence[str],
     registration_statuses: Mapping[str, str],
 ) -> dict[str, Any]:
-    del repo_root
     snapshot = bundle["dependency_readiness_snapshot"]
     candidate_set = bundle["region_candidate_set"]
     grounding_matrix = bundle["region_grounding_matrix"]
@@ -855,11 +853,18 @@ def _readiness_manifest(
     drift_keys: Sequence[str],
     registration_statuses: Mapping[str, str],
 ) -> dict[str, Any]:
-    summary = _summary(repo_root, bundle, drift_keys, registration_statuses)
+    summary = _summary(bundle, drift_keys, registration_statuses)
+    region_closure_authority_status = (
+        "pass" if summary["g7_region_value_closure_status"] == "pass" else "blocked"
+    )
     return {
         "schema_version": G7_SCHEMA_VERSION,
         "rule_version": G7_RULE_VERSION,
         "status": "pass",
+        "status_authority_boundary": (
+            "artifact_family_integrity_only_not_region_closure_authority"
+        ),
+        "region_closure_authority_status": region_closure_authority_status,
         "surface_id": g7.G7_SURFACE_ID,
         "summary": summary,
         **{key: summary[key] for key in EXPECTED_MANIFEST_DRIFT_KEYS},

@@ -1,0 +1,13 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gx_runtime_literal_lint.v1",
+  "status": "pass",
+  "scan_roots": [
+    "src/polisyos/core",
+    "src/polisyos/runtime",
+    "tools/quality/validation",
+    "tests/unit/runtime",
+    "tests/repo_quality"
+  ],
+  "scanned_file_count": 949,
+  "issues": []
+}

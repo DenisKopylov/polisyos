@@ -21,6 +21,7 @@ from urllib.parse import quote, urlsplit, urlunsplit
 
 from polisyos.core.contracts import (
     RequirementToCapabilityQuery,
+    ScenarioFamilyConstructRow,
     construct_for_legacy_family,
 )
 from polisyos.core.security.authz import AuthzDecision, AuthzResult
@@ -58,6 +59,9 @@ SCHEMA_VERSION = "policyos.local_prod_debug_probe.v1"
 DEFAULT_OUTPUT = Path("_build/.tmp/production-quality/local_prod_debug_probe.json")
 DEFAULT_CAPABILITY_INDEX = Path(
     "_build/.tmp/production-quality/capability-index/capability_index_v1.duckdb"
+)
+_GOVERNED_CAPABILITY_ROWS_PATH = Path(
+    "architecture/policy_design_case/layer2_s3_governed_capability_rows.json"
 )
 DEFAULT_MODEL = "Qwen/Qwen3-235B-A22B-Instruct-2507-FP8"
 KIMI_MODEL = "moonshotai/Kimi-K2.6"
@@ -1423,10 +1427,16 @@ def _construct_capability_report(
                 }
             ],
         }
+    scenario_family_construct_rows = _governed_scenario_family_construct_rows(
+        context.repo_root
+    )
     bindings: list[dict[str, Any]] = []
     issues: list[dict[str, Any]] = []
     for spec in specs:
-        query = _capability_query_for_static_spec(spec)
+        query = _capability_query_for_static_spec(
+            spec,
+            scenario_family_construct_rows=scenario_family_construct_rows,
+        )
         if query is None:
             issues.append(
                 {
@@ -1481,9 +1491,14 @@ def _embedded_capability_bindings(report: Mapping[str, Any]) -> list[dict[str, A
 
 def _capability_query_for_static_spec(
     spec: Mapping[str, Any],
+    *,
+    scenario_family_construct_rows: Sequence[ScenarioFamilyConstructRow] = (),
 ) -> RequirementToCapabilityQuery | None:
     requirement_id = _optional_text(spec.get("requirement_id"))
-    construct = _construct_for_static_spec(spec)
+    construct = _construct_for_static_spec(
+        spec,
+        scenario_family_construct_rows=scenario_family_construct_rows,
+    )
     if not requirement_id or not construct:
         return None
     scope = spec.get("scope") if isinstance(spec.get("scope"), Mapping) else {}
@@ -1516,7 +1531,11 @@ def _capability_query_for_static_spec(
     )
 
 
-def _construct_for_static_spec(spec: Mapping[str, Any]) -> str | None:
+def _construct_for_static_spec(
+    spec: Mapping[str, Any],
+    *,
+    scenario_family_construct_rows: Sequence[ScenarioFamilyConstructRow] = (),
+) -> str | None:
     metadata = spec.get("metadata") if isinstance(spec.get("metadata"), Mapping) else {}
     binding = (
         metadata.get("capability_binding")
@@ -1533,7 +1552,31 @@ def _construct_for_static_spec(spec: Mapping[str, Any]) -> str | None:
         if text:
             return text.removeprefix("construct:")
     family = _first_text(spec.get("required_data_families"))
-    return construct_for_legacy_family(family) if family else None
+    return (
+        construct_for_legacy_family(family, rows=scenario_family_construct_rows)
+        if family
+        else None
+    )
+
+
+def _governed_scenario_family_construct_rows(
+    repo_root: Path,
+) -> tuple[ScenarioFamilyConstructRow, ...]:
+    path = repo_root / _GOVERNED_CAPABILITY_ROWS_PATH
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return ()
+    rows = payload.get("scenario_family_construct_rows") if isinstance(payload, Mapping) else ()
+    if not isinstance(rows, Sequence) or isinstance(rows, str | bytes | bytearray):
+        return ()
+    normalized: list[ScenarioFamilyConstructRow] = []
+    for row in rows:
+        try:
+            normalized.append(ScenarioFamilyConstructRow.model_validate(row))
+        except (TypeError, ValueError):
+            continue
+    return tuple(normalized)
 
 
 def _entity_scope_for_construct(construct: str) -> str:

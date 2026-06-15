@@ -21,13 +21,8 @@
       "legal_authority_without_gl",
       "human_override_of_a_incompleteness"
     ],
-    "promotion_record_refs": [
-      "g4-promotion-record:g4-request:ua-msme-source-only-valid",
-      "g4-promotion-record:g4-request:blocked-effect"
-    ],
-    "upstream_contract_refs": [
-      "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json#bindings/firm_survival"
-    ]
+    "promotion_record_refs": [],
+    "upstream_contract_refs": []
   },
   "MACHINE": {
     "may_not_use_for": [
@@ -51,10 +46,7 @@
       "legal_authority_without_gl",
       "human_override_of_a_incompleteness"
     ],
-    "promotion_record_refs": [
-      "g4-promotion-record:g4-request:ua-msme-source-only-valid",
-      "g4-promotion-record:g4-request:blocked-effect"
-    ],
+    "promotion_record_refs": [],
     "rule_version": "policyos.layer3.g4.shadow_to_governed_promotion.v1",
     "schema_version": "policyos.policy_design_case.layer3_g4_promotion_gate.v1"
   },
@@ -62,12 +54,7 @@
     "authoritative_for": [
       "promotion_state_explanation"
     ],
-    "blocker_codes": [
-      "layer3_g4_missing_g2_calibration_ref",
-      "layer3_g4_missing_g2_forecast_support",
-      "layer3_g4_placeholder_design_record_promoted",
-      "layer3_g4_w12d_manifest_only_not_payload"
-    ],
+    "blocker_codes": [],
     "limitation_codes": [],
     "may_not_use_for": [
       "production_authority",
@@ -90,45 +77,12 @@
       "legal_authority_without_gl",
       "human_override_of_a_incompleteness"
     ],
-    "promotion_scopes": [
-      {
-        "authority_purpose": "layer3_g4_governed_promotion_state",
-        "claim_families": [
-          "source_data"
-        ],
-        "high_stakes": false,
-        "requested_boundary": "bounded",
-        "requires_legal_or_mandate_authority": false,
-        "routine_in_envelope": true
-      },
-      {
-        "authority_purpose": "layer3_g4_governed_promotion_state",
-        "claim_families": [
-          "causal_forecast"
-        ],
-        "high_stakes": false,
-        "requested_boundary": "bounded",
-        "requires_causal_or_forecast_authority": true,
-        "requires_legal_or_mandate_authority": false,
-        "routine_in_envelope": true
-      }
-    ],
-    "promotion_states": [
-      "promotion_blocked",
-      "promotion_blocked"
-    ],
-    "safe_evidence_refs": [
-      "repo://architecture/policy_design_case/layer2_s2_design_search_manifest.json",
-      "repo://architecture/policy_design_case/layer2_s2_design_search_manifest.json"
-    ]
+    "promotion_scopes": [],
+    "promotion_states": [],
+    "safe_evidence_refs": []
   },
   "REVIEWER": {
-    "blocker_refs": [
-      "layer3_g4_missing_g2_calibration_ref",
-      "layer3_g4_missing_g2_forecast_support",
-      "layer3_g4_placeholder_design_record_promoted",
-      "layer3_g4_w12d_manifest_only_not_payload"
-    ],
+    "blocker_refs": [],
     "limitation_refs": [],
     "may_not_use_for": [
       "production_authority",
@@ -151,10 +105,7 @@
       "legal_authority_without_gl",
       "human_override_of_a_incompleteness"
     ],
-    "promotion_record_refs": [
-      "g4-promotion-record:g4-request:ua-msme-source-only-valid",
-      "g4-promotion-record:g4-request:blocked-effect"
-    ]
+    "promotion_record_refs": []
   },
   "audiences": [
     "PUBLIC",

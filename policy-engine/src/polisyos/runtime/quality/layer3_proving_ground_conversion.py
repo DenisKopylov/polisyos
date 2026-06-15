@@ -22,16 +22,27 @@ from polisyos.runtime.quality.evidence_independence import (
     INDEPENDENCE_MAP_SCHEMA_VERSION,
     validate_evidence_independence_map_record,
 )
+from polisyos.runtime.quality.layer3_gx_data_home import (
+    build_g5_demand_pull_dict_from_data_home,
+    read_layer3_gx_pinned_case_id,
+)
+from polisyos.runtime.quality.layer3_status_reducers import (
+    G5ConversionOutcomeInputs,
+    Layer3ReducerInputRef,
+    reduce_g5_conversion_outcome,
+)
 from polisyos.runtime.quality.projection_semantics import (
     assert_policy_design_projection_not_authority,
     verify_policy_design_case_projection_consumer_contract,
     verify_s12_resource_projection_consumer_contract,
     verify_s14_universality_projection_consumer_contract,
 )
+from polisyos.runtime.quality.required_reference_resolver import resolve_required_ref
 
 G5_SCHEMA_VERSION = "policyos.policy_design_case.layer3_g5_proving_ground_conversion.v1"
 G5_RULE_VERSION = "policyos.layer3.g5.first_proving_ground_conversion.v1"
-G5_PINNED_CASE_ID = "ua-msme-affordable-loans-2022"
+REPO_ROOT = Path(__file__).resolve().parents[4]
+G5_PINNED_CASE_ID = read_layer3_gx_pinned_case_id(REPO_ROOT)
 G5_SURFACE_ID = "layer3_g5_first_proving_ground_conversion_surface"
 G5_READINESS_CHECK_ID = "layer3_g5_first_proving_ground_conversion"
 G5_GENERATED_ARTIFACT_FAMILY_ID = (
@@ -255,11 +266,14 @@ ALL_ISSUE_CODES: tuple[str, ...] = (
     "layer3_g5_s14_grounded_authority_status_overclaimed",
     "layer3_g5_source_design_record_unresolved",
     "layer3_g5_source_design_record_digest_missing",
+    "layer3_g5_source_design_record_digest_invalid",
+    "layer3_g5_manifest_only_source_design_record_not_promotable",
     "layer3_g5_g4_handoff_missing",
     "layer3_g5_g4_handoff_authority_leak",
     "layer3_g5_g4_handoff_pass_with_blockers_overclaimed",
     "layer3_g5_g4_weakest_boundary_record_mismatch",
     "layer3_g5_g4_grounded_contract_duplicate_inflates_evidence",
+    "layer3_g5_grounded_evidence_ref_unresolved",
     "layer3_g5_promotion_record_missing",
     "layer3_g5_no_governed_promotion_record",
     "layer3_g5_g4_pass_without_design_scope",
@@ -525,6 +539,7 @@ class Layer3G5G4PromotionRecordResolution(_G5Model):
     promotion_state: str = Field(min_length=1)
     source_design_record_ref: str | None = None
     source_design_record_digest: str | None = None
+    source_design_record_payload_status: str | None = None
     claim_families: tuple[str, ...] = Field(default=())
     blocker_refs: tuple[str, ...] = Field(default=())
     limitation_refs: tuple[str, ...] = Field(default=())
@@ -654,6 +669,7 @@ class Layer3G5ConversionEligibilityLedger(_G5Model):
     mixed_upstream_statuses: tuple[str, ...] = Field(default=())
     useful_design_credit_requested: bool = False
     issue_codes: tuple[str, ...] = Field(default=())
+    produced_by: dict[str, Any] = Field(default_factory=dict)
 
 
 class Layer3G5StatusCompositionLedger(_G5Model):
@@ -679,6 +695,20 @@ class Layer3G5DemandPullAttemptRecord(_G5Model):
     """Task 4 demand-pull attempt over S3/S12/accountable-principal refs."""
 
     status: Literal["pass", "fail", "not_built"] = "not_built"
+    authority_purpose: Literal["demand_pull_input_only"] = "demand_pull_input_only"
+    may_not_use_for: tuple[str, ...] = (
+        "conversion_authority",
+        "production_authority",
+        "closeout_authority",
+        "useful_design_credit",
+    )
+    producer_ref: str | None = None
+    producer_type: str | None = None
+    source: str | None = None
+    timestamp: str | None = None
+    request_source_ref: str | None = None
+    replay_key: str | None = None
+    consumer_path: tuple[str, ...] = Field(default=())
     demand_pull_refs: tuple[str, ...] = Field(default=())
     s3_demand_pull_refs: tuple[str, ...] = Field(default=())
     s12_demand_act_refs: tuple[str, ...] = Field(default=())
@@ -932,43 +962,34 @@ def build_layer3_g5_bundle(repo_root: Path) -> Layer3G5Bundle:
     handoff = resolve_g5_g4_handoff(root)
     matrix = build_g5_upstream_scope_join_matrix(root)
     evidence = build_g5_grounded_result_evidence_set(
-        _g5_readiness_grounded_evidence_rows(matrix=matrix, handoff=handoff)
+        _g5_readiness_grounded_evidence_rows(matrix=matrix, handoff=handoff),
+        repo_root=root,
     )
     s12_growth = build_g5_s12_demand_growth_evidence(
         s12_case_signals=_g5_s12_readiness_signals(pinned),
         requested_scope={"demand_act_refs": pinned.s12_demand_act_refs},
     )
-    demand_pull = build_g5_demand_pull_attempt_record(
-        pinned_case_input_bundle=pinned,
-        s12_demand_growth_evidence=s12_growth,
-        s3_demand_pull_refs=("s3-demand-pull://ua-msme/first-proving-ground",),
-        attempted_grounding_path_refs=("layer3-g5://readiness/demand-pull",),
-    )
+    demand_pull = build_g5_demand_pull_request_from_gx_data_home(root)
     useful_join = build_g5_useful_design_metric_eligibility_join(
         conversion_outcome="unchanged_blocker",
         useful_design_credit_requested=False,
     )
-    eligibility = Layer3G5ConversionEligibilityLedger(
-        status="fail",
-        conversion_outcome="unchanged_blocker",
-        grounding_disposition="ungrounded_blocked",
-        g4_design_scope_status="blocked"
-        if handoff.blocked_promotion_input_count
-        else "missing",
-        blocker_refs=_dedupe(
-            (
-                *handoff.issue_codes,
-                *matrix.issue_codes,
-                *pinned.issue_codes,
-                *evidence.issue_codes,
-            )
+    eligibility = build_g5_conversion_eligibility_ledger(
+        pinned_case_input_bundle=pinned,
+        dependency_snapshot=snapshot,
+        g4_handoff_resolution=handoff,
+        upstream_scope_join_matrix=matrix,
+        grounded_result_evidence_set=evidence,
+        requested_scope={"demand_act_refs": demand_pull.s12_demand_act_refs},
+        requested_conversion_outcome="unchanged_blocker",
+        upstream_statuses=(
+            status
+            for status in (handoff.status, matrix.status, evidence.status)
+            if status not in {"pass", "not_required"}
         ),
-        weakest_boundary_status="limited",
-        weakest_boundary_reason="unchanged_blocker_first_readiness_surface",
-        mixed_upstream_statuses=("limited",)
-        if handoff.status == "pass_with_blockers" or matrix.status == "limited"
-        else (),
         useful_design_credit_requested=False,
+        useful_design_metric_eligibility_join=useful_join,
+        demand_pull_attempt_record=demand_pull,
     )
     status_composition = build_g5_status_composition_ledger(
         conversion_eligibility_ledger=eligibility,
@@ -998,7 +1019,7 @@ def build_layer3_g5_bundle(repo_root: Path) -> Layer3G5Bundle:
     conversion_record = Layer3G5ConversionRecord(
         conversion_record_id=(
             "layer3-g5-conversion-record:"
-            f"ua-msme-affordable-loans-2022:{_g5_slug_token(eligibility.conversion_outcome)}"
+            f"{G5_PINNED_CASE_ID}:{_g5_slug_token(eligibility.conversion_outcome)}"
         ),
         case_id=G5_PINNED_CASE_ID,
         conversion_outcome=eligibility.conversion_outcome,
@@ -1048,16 +1069,9 @@ def build_layer3_g5_bundle(repo_root: Path) -> Layer3G5Bundle:
     )
     readiness_issue_codes = _dedupe(
         (
-            *(
-                ()
-                if eligibility.conversion_outcome == "unchanged_blocker"
-                else snapshot.issue_codes
-            ),
-            *(
-                ()
-                if eligibility.conversion_outcome == "unchanged_blocker"
-                else eligibility.issue_codes
-            ),
+            *snapshot.issue_codes,
+            *demand_pull.issue_codes,
+            *eligibility.issue_codes,
             *status_composition.issue_codes,
         )
     )
@@ -1083,7 +1097,13 @@ def build_layer3_g5_bundle(repo_root: Path) -> Layer3G5Bundle:
         conversion_eligibility_ledger=eligibility,
         status_composition_ledger=status_composition,
         grounded_abstention_quality_record=Layer3G5GroundedAbstentionQualityRecord(
-            status="pass"
+            status=(
+                "pass"
+                if eligibility.status == "pass"
+                and eligibility.conversion_outcome == "typed_blocker -> grounded_abstention"
+                else "fail"
+            ),
+            issue_codes=eligibility.issue_codes,
         ),
         demand_pull_attempt_record=demand_pull,
         dependency_health_metric_snapshot=health_snapshot,
@@ -1106,13 +1126,13 @@ def _g5_readiness_grounded_evidence_rows(
     handoff: Layer3G5G4HandoffResolution,
 ) -> tuple[dict[str, Any], ...]:
     rows: list[dict[str, Any]] = []
-    if matrix.g1_source_contract_ref:
+    if matrix.g1_source_contract_ref and matrix.g1_source_contract_content_hash:
         rows.append(
             {
                 "ref": matrix.g1_source_contract_ref,
                 "family": "g1_source_contract",
                 "lineage_refs": ("lineage://layer3/g5/g1-source-contract",),
-                "source_hash": matrix.g1_source_contract_content_hash or "sha256:g5-g1",
+                "source_hash": matrix.g1_source_contract_content_hash,
                 "may_not_use_for": matrix.g1_may_not_use_for,
             }
         )
@@ -1124,23 +1144,14 @@ def _g5_readiness_grounded_evidence_rows(
         ),
         None,
     )
-    if promoted is not None:
+    if promoted is not None and promoted.source_design_record_digest:
         rows.append(
             {
                 "ref": promoted.promotion_record_id,
                 "family": "g4_governed_promotion",
                 "lineage_refs": ("lineage://layer3/g5/g4-promotion",),
-                "source_hash": promoted.source_design_record_digest or "sha256:g5-g4",
+                "source_hash": promoted.source_design_record_digest,
                 "may_not_use_for": promoted.may_not_use_for,
-            }
-        )
-    if not rows:
-        rows.append(
-            {
-                "ref": "layer3-g5://readiness/no-grounded-row",
-                "family": "readiness_placeholder",
-                "lineage_refs": ("lineage://layer3/g5/readiness",),
-                "source_hash": "sha256:g5-readiness",
             }
         )
     return tuple(rows)
@@ -1152,7 +1163,9 @@ def _g5_readiness_w12d_payload() -> dict[str, Any]:
         "outcome": "typed_blocker",
         "conversion_outcome": "not_attempted_g0_pre_adapter",
         "counts_toward_useful_design": False,
-        "source_path": "repo://tests/fixtures/universal-corpus/cases/ua-msme-affordable-loans-2022.json",
+        "source_path": (
+            f"repo://tests/fixtures/universal-corpus/cases/{G5_PINNED_CASE_ID}.json"
+        ),
         "s2_design_search": {
             "status": "shadow_ready",
             "deterministic_replay_key": "replay://layer2/s2/ua-msme",
@@ -2225,10 +2238,8 @@ def _g5_green_unchanged_blocker_issues(
 ) -> tuple[Layer3G5ValidationIssue, ...]:
     if isinstance(persisted, Layer3G5Bundle):
         eligibility = persisted.conversion_eligibility_ledger.model_dump(mode="json")
-        readiness = persisted.readiness_manifest.model_dump(mode="json")
     elif isinstance(persisted, Mapping):
         eligibility = _mapping(persisted.get("conversion_eligibility_ledger"))
-        readiness = _mapping(persisted.get("readiness_manifest"))
     else:
         return ()
     if (
@@ -2744,33 +2755,66 @@ def build_g5_conversion_eligibility_ledger(
     issue_codes = list(_dedupe(issue_codes))
     limited_blocked = _has_grounded_limited_blocking_issue(issue_codes)
     abstention_blocked = _has_grounded_abstention_blocking_issue(issue_codes)
-    conversion_outcome: Layer3G5ConversionOutcome = "unchanged_blocker"
-    grounding_disposition: Layer3G5GroundingDisposition = "ungrounded_blocked"
+    reducer_requested_outcome = "unchanged_blocker"
     if (
         requested_conversion_outcome == "typed_blocker -> grounded_limited"
         and not limited_blocked
     ):
-        conversion_outcome = "typed_blocker -> grounded_limited"
-        grounding_disposition = "grounded_limited"
+        reducer_requested_outcome = "grounded_limited"
     elif (
         requested_conversion_outcome == "typed_blocker -> grounded_abstention"
         and not abstention_blocked
     ):
-        conversion_outcome = "typed_blocker -> grounded_abstention"
-        grounding_disposition = "grounded_abstention"
+        reducer_requested_outcome = "grounded_abstention"
+    reducer_decision = reduce_g5_conversion_outcome(
+        G5ConversionOutcomeInputs(
+            requested_conversion_outcome=reducer_requested_outcome,
+            g4_promotion_state=(
+                "governed_promoted"
+                if handoff.governed_promotion_input_count
+                and not handoff.blocked_promotion_input_count
+                and handoff.status == "pass"
+                else "promotion_blocked"
+            ),
+            g1_grounding_closure=(
+                "grounded_abstention_candidate"
+                if requested_conversion_outcome == "typed_blocker -> grounded_abstention"
+                and not abstention_blocked
+                else "grounded_or_uncertain"
+            ),
+            demand_pull_status=demand_pull.status if demand_pull is not None else "missing",
+            cross_slice_status="pass" if not issue_codes else "fail",
+            grounded_evidence_ref_count=len(evidence.grounded_evidence_refs),
+            input_refs=_g5_reducer_input_refs(
+                pinned_case_input_bundle=pinned,
+                dependency_snapshot=snapshot,
+                g4_handoff_resolution=handoff,
+                upstream_scope_join_matrix=matrix,
+                grounded_result_evidence_set=evidence,
+                demand_pull_attempt_record=demand_pull,
+            ),
+        )
+    )
+    conversion_outcome, grounding_disposition = _g5_local_conversion_from_reducer(
+        reducer_decision.status
+    )
+    readiness_status: Literal["pass", "fail"] = (
+        "pass" if reducer_decision.readiness_status == "pass" else "fail"
+    )
     return Layer3G5ConversionEligibilityLedger(
-        status="pass" if conversion_outcome != "unchanged_blocker" else "fail",
+        status=readiness_status,
         conversion_outcome=conversion_outcome,
         grounding_disposition=grounding_disposition,
         g4_design_scope_status=g4_design_scope_status,
         requested_claim_families=requested_families,
-        blocker_refs=_dedupe(blocker_refs),
-        limitation_refs=_dedupe(limitation_refs),
+        blocker_refs=_dedupe((*blocker_refs, *reducer_decision.blocker_refs)),
+        limitation_refs=_dedupe((*limitation_refs, *reducer_decision.limitation_refs)),
         weakest_boundary_status=weakest_status,
         weakest_boundary_reason=weakest_reason,
         mixed_upstream_statuses=mixed_statuses,
         useful_design_credit_requested=useful_design_credit_requested,
-        issue_codes=tuple(issue_codes),
+        issue_codes=_dedupe((*issue_codes, *reducer_decision.issue_codes)),
+        produced_by=reducer_decision.produced_by,
     )
 
 
@@ -2850,6 +2894,13 @@ def build_g5_demand_pull_attempt_record(
     s12_demand_growth_evidence: Layer3G5S12DemandGrowthEvidence | Mapping[str, Any],
     s3_demand_pull_refs: Sequence[str] = (),
     attempted_grounding_path_refs: Sequence[str] = (),
+    producer_ref: str | None = None,
+    producer_type: str | None = None,
+    source: str | None = None,
+    timestamp: str | None = None,
+    request_source_ref: str | None = None,
+    replay_key: str | None = None,
+    consumer_path: Sequence[str] = (),
 ) -> Layer3G5DemandPullAttemptRecord:
     """Build a demand-pull attempt record from S3/S12/accountable-principal refs."""
 
@@ -2874,11 +2925,30 @@ def build_g5_demand_pull_attempt_record(
     if not demand_pull_refs:
         issue_codes.append("layer3_g5_grounded_abstention_without_demand_pull_attempt")
         issue_codes.append("layer3_g5_demand_pull_ref_unresolved")
+    bare_demand_pull_refs = tuple(
+        ref for ref in s3_demand_pull_refs if ref.startswith("s3-demand-pull://")
+    )
+    if bare_demand_pull_refs and not _has_g5_demand_pull_artifact_metadata(
+        producer_ref=producer_ref,
+        source=source,
+        timestamp=timestamp,
+        request_source_ref=request_source_ref,
+        replay_key=replay_key,
+        consumer_path=consumer_path,
+    ):
+        issue_codes.append("layer3_g5_demand_pull_ref_unresolved")
     if not s12_demand_refs:
         issue_codes.append("layer3_g5_s12_demand_act_ref_missing")
     issue_codes = list(_dedupe(issue_codes))
     return Layer3G5DemandPullAttemptRecord(
         status="fail" if issue_codes else "pass",
+        producer_ref=producer_ref,
+        producer_type=producer_type,
+        source=source,
+        timestamp=timestamp,
+        request_source_ref=request_source_ref,
+        replay_key=replay_key,
+        consumer_path=_dedupe(consumer_path),
         demand_pull_refs=demand_pull_refs,
         s3_demand_pull_refs=_dedupe(s3_demand_pull_refs),
         s12_demand_act_refs=s12_demand_refs,
@@ -2888,6 +2958,39 @@ def build_g5_demand_pull_attempt_record(
         accountable_principal_refs=s12.accountable_principal_refs,
         attempted_grounding_path_refs=_dedupe(attempted_grounding_path_refs),
         issue_codes=tuple(issue_codes),
+    )
+
+
+def build_g5_demand_pull_request_from_gx_data_home(
+    repo_root: Path,
+) -> Layer3G5DemandPullAttemptRecord:
+    """Build a bounded G5 demand-pull attempt record from GX Task 0A data."""
+
+    return Layer3G5DemandPullAttemptRecord.model_validate(
+        build_g5_demand_pull_dict_from_data_home(repo_root)
+    )
+
+
+def _has_g5_demand_pull_artifact_metadata(
+    *,
+    producer_ref: str | None,
+    source: str | None,
+    timestamp: str | None,
+    request_source_ref: str | None,
+    replay_key: str | None,
+    consumer_path: Sequence[str],
+) -> bool:
+    """Return whether a demand-pull ref is backed by a replayable artifact record."""
+
+    return all(
+        (
+            producer_ref,
+            source,
+            timestamp,
+            request_source_ref,
+            replay_key,
+            tuple(consumer_path),
+        )
     )
 
 
@@ -3219,7 +3322,11 @@ def resolve_g5_g4_handoff(
     blocker_refs = _as_str_tuple(handoff.get("blocker_refs", ()))
     limitation_refs = _as_str_tuple(handoff.get("limitation_refs", ()))
     records = tuple(
-        _resolve_g4_promotion_record(record, requested_scope=requested_scope)
+        _resolve_g4_promotion_record(
+            record,
+            repo_root=root,
+            requested_scope=requested_scope,
+        )
         for record in _sequence_of_mappings(records_payload.get("promotion_records"))
     )
     governed_count = sum(
@@ -3391,27 +3498,56 @@ def build_g5_upstream_scope_join_matrix(
 
 def build_g5_grounded_result_evidence_set(
     evidence_refs: Sequence[Mapping[str, Any]],
+    *,
+    repo_root: str | Path | None = None,
 ) -> Layer3G5GroundedResultEvidenceSet:
     """Build a G5 evidence set with exact-ref, lineage, and source-hash dedupe."""
 
-    refs = tuple(
-        Layer3G5GroundedEvidenceRef(
-            ref=str(row.get("ref") or row.get("id") or ""),
-            family=str(row.get("family") or "unknown"),
-            lineage_refs=_as_str_tuple(row.get("lineage_refs", ())),
-            source_hash=_optional_str(row.get("source_hash")),
-            may_not_use_for=_as_str_tuple(row.get("may_not_use_for", ())),
+    issue_codes: list[str] = []
+    normalized_refs: list[Layer3G5GroundedEvidenceRef] = []
+    root = Path(repo_root) if repo_root is not None else None
+    for row in evidence_refs:
+        ref_text = str(row.get("ref") or row.get("id") or "")
+        if not ref_text:
+            continue
+        family = str(row.get("family") or "unknown")
+        if root is not None and _is_required_cross_slice_ref(ref_text):
+            supply_side = family in {
+                "g1_source_contract",
+                "source_contract",
+                "grounded_source_contract",
+            }
+            resolved = resolve_required_ref(
+                root,
+                ref_text,
+                authority_bearing=supply_side,
+                allowed_producer_types=(
+                    ("source_binding", "observed_source", "grounded_source_contract")
+                    if supply_side
+                    else ()
+                ),
+                supply_side_evidence=supply_side,
+            )
+            if not resolved.exists:
+                issue_codes.append("layer3_g5_grounded_evidence_ref_unresolved")
+                issue_codes.extend(resolved.issue_codes)
+                continue
+        normalized_refs.append(
+            Layer3G5GroundedEvidenceRef(
+                ref=ref_text,
+                family=family,
+                lineage_refs=_as_str_tuple(row.get("lineage_refs", ())),
+                source_hash=_optional_str(row.get("source_hash")),
+                may_not_use_for=_as_str_tuple(row.get("may_not_use_for", ())),
+            )
         )
-        for row in evidence_refs
-        if row.get("ref") or row.get("id")
-    )
+    refs = tuple(normalized_refs)
     raw_refs = [ref.ref for ref in refs]
     lineage_refs = [lineage for ref in refs for lineage in ref.lineage_refs]
     source_hashes = [ref.source_hash for ref in refs if ref.source_hash]
     duplicate_refs = _duplicates(raw_refs)
     duplicate_lineage = _duplicates(lineage_refs)
     duplicate_hashes = _duplicates(source_hashes)
-    issue_codes: list[str] = []
     if duplicate_refs or duplicate_hashes:
         issue_codes.append("layer3_g5_g4_grounded_contract_duplicate_inflates_evidence")
     if duplicate_lineage:
@@ -3600,7 +3736,10 @@ def _g5_g1_search_health(
     measurement_provenance = _first_text(report.get("measurement_provenance"))
     query_trace_refs = _as_str_tuple(report.get("query_trace_refs", ()))
     issue_codes = list(_as_str_tuple(report.get("issue_codes", ())))
-    recall_status = _first_text(report.get("search_recall_status"), snapshot.g1_search_recall_status)
+    recall_status = _first_text(
+        report.get("search_recall_status"),
+        snapshot.g1_search_recall_status,
+    )
     freshness_status = _first_text(
         report.get("index_freshness_status"),
         snapshot.g1_index_freshness_status,
@@ -3857,6 +3996,64 @@ def _refs_from_mapping(payload: Mapping[str, Any]) -> tuple[str, ...]:
     return _dedupe(refs)
 
 
+def _g5_local_conversion_from_reducer(
+    reducer_status: str,
+) -> tuple[Layer3G5ConversionOutcome, Layer3G5GroundingDisposition]:
+    if reducer_status == "grounded_limited":
+        return "typed_blocker -> grounded_limited", "grounded_limited"
+    if reducer_status == "grounded_abstention":
+        return "typed_blocker -> grounded_abstention", "grounded_abstention"
+    return "unchanged_blocker", "ungrounded_blocked"
+
+
+def _g5_reducer_input_refs(
+    *,
+    pinned_case_input_bundle: Layer3G5PinnedCaseInputBundle,
+    dependency_snapshot: Layer3G5DependencyReadinessSnapshot,
+    g4_handoff_resolution: Layer3G5G4HandoffResolution,
+    upstream_scope_join_matrix: Layer3G5UpstreamScopeJoinMatrix,
+    grounded_result_evidence_set: Layer3G5GroundedResultEvidenceSet,
+    demand_pull_attempt_record: Layer3G5DemandPullAttemptRecord | None,
+) -> tuple[Layer3ReducerInputRef, ...]:
+    inputs: list[tuple[str, object]] = [
+        ("layer3_g5_pinned_case_input_bundle.json", pinned_case_input_bundle),
+        ("layer3_g5_dependency_readiness_snapshot.json", dependency_snapshot),
+        ("layer3_g5_g4_handoff_resolution.json", g4_handoff_resolution),
+        ("layer3_g5_upstream_scope_join_matrix.json", upstream_scope_join_matrix),
+        ("layer3_g5_grounded_result_evidence_set.json", grounded_result_evidence_set),
+    ]
+    if demand_pull_attempt_record is not None:
+        inputs.append(("layer3_g5_demand_pull_attempt_record.json", demand_pull_attempt_record))
+    return tuple(
+        Layer3ReducerInputRef(
+            ref=f"repo://architecture/policy_design_case/{filename}",
+            content_hash=_g5_payload_hash(payload),
+            producer_ref=f"runtime://layer3-g5/waist-court/{filename}",
+            producer_type="governance",
+            producer_root_refs=("runtime://layer3-g5/waist-court",),
+            supply_side=False,
+        )
+        for filename, payload in inputs
+    )
+
+
+def _g5_payload_hash(payload: object) -> str:
+    encoded = json.dumps(
+        payload,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=True,
+        default=_g5_json_default,
+    ).encode("utf-8")
+    return f"sha256:{hashlib.sha256(encoded).hexdigest()}"
+
+
+def _g5_json_default(value: object) -> object:
+    if hasattr(value, "model_dump"):
+        return value.model_dump(mode="json")  # type: ignore[no-any-return, attr-defined]
+    return str(value)
+
+
 def _stable_case_digest(case: Mapping[str, Any]) -> str:
     encoded = json.dumps(
         case,
@@ -3897,6 +4094,7 @@ def _has_pinned_bundle_blocking_issue(issue_codes: Sequence[str]) -> bool:
 def _resolve_g4_promotion_record(
     record: Mapping[str, Any],
     *,
+    repo_root: Path,
     requested_scope: Mapping[str, Any] | None,
 ) -> Layer3G5G4PromotionRecordResolution:
     state = _first_text(record.get("promotion_state"))
@@ -3904,11 +4102,38 @@ def _resolve_g4_promotion_record(
     claim_families = _as_str_tuple(scope.get("claim_families", ()))
     blockers = _as_str_tuple(record.get("blocker_refs", ()))
     may_not_use_for = _as_str_tuple(record.get("may_not_use_for", ()))
+    source_design_record_ref = _optional_str(record.get("source_design_record_ref"))
+    source_design_record_digest = _optional_str(record.get("source_design_record_digest"))
+    source_design_payload_status = _optional_str(
+        record.get("source_design_record_payload_status")
+        or record.get("source_design_record_resolution_status")
+        or record.get("payload_status")
+    )
     issues: list[str] = []
-    if not record.get("source_design_record_ref"):
+    if not source_design_record_ref:
         issues.append("layer3_g5_source_design_record_unresolved")
-    if not record.get("source_design_record_digest"):
+    if not source_design_record_digest:
         issues.append("layer3_g5_source_design_record_digest_missing")
+    elif _is_digest_ref(source_design_record_digest):
+        digest_resolution = resolve_required_ref(repo_root, source_design_record_digest)
+        if not digest_resolution.exists:
+            issues.append("layer3_g5_source_design_record_digest_invalid")
+            issues.extend(digest_resolution.issue_codes)
+    if source_design_payload_status == "manifest_only":
+        issues.append("layer3_g5_manifest_only_source_design_record_not_promotable")
+    if source_design_record_ref and _is_required_cross_slice_ref(source_design_record_ref):
+        source_resolution = resolve_required_ref(
+            repo_root,
+            source_design_record_ref,
+            expected_content_hash=(
+                source_design_record_digest
+                if source_design_record_digest and _is_digest_ref(source_design_record_digest)
+                else None
+            ),
+        )
+        if not source_resolution.exists:
+            issues.append("layer3_g5_source_design_record_unresolved")
+            issues.extend(source_resolution.issue_codes)
     if not may_not_use_for:
         issues.append("layer3_g5_g4_handoff_authority_leak")
     if state == "promotion_blocked":
@@ -3924,8 +4149,9 @@ def _resolve_g4_promotion_record(
         promotion_record_id=str(record.get("promotion_record_id") or "missing"),
         case_id=str(record.get("case_id") or ""),
         promotion_state=state,
-        source_design_record_ref=_optional_str(record.get("source_design_record_ref")),
-        source_design_record_digest=_optional_str(record.get("source_design_record_digest")),
+        source_design_record_ref=source_design_record_ref,
+        source_design_record_digest=source_design_record_digest,
+        source_design_record_payload_status=source_design_payload_status,
         claim_families=claim_families,
         blocker_refs=blockers,
         limitation_refs=_as_str_tuple(record.get("limitation_refs", ())),
@@ -4034,6 +4260,14 @@ def _build_independence_adapter_payload(
             "authority_effect": "none",
         },
     }
+
+
+def _is_required_cross_slice_ref(ref: str) -> bool:
+    return ref.startswith(("repo://", "manifest://", "generated-artifact://"))
+
+
+def _is_digest_ref(ref: str) -> bool:
+    return ref.startswith(("sha256:", "cas://sha256/", "cas://sha256:"))
 
 
 def _dependency_status(
@@ -4178,7 +4412,7 @@ def _scope_mentions(scope: Mapping[str, Any] | None, family: str) -> bool:
 def _normalize_s2_design_ref(ref: str) -> str:
     if ref in {
         "pdc://layer2/s2/ua-msme/design-record-v0",
-        "pdc://layer2/s2/ua-msme-affordable-loans-2022/design-record-v0",
+        f"pdc://layer2/s2/{G5_PINNED_CASE_ID}/design-record-v0",
     }:
         return "pdc://layer2/s2/ua-msme/design-record-v0"
     return ref

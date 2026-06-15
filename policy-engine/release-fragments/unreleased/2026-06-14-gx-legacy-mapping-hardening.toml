@@ -1,0 +1,40 @@
+id = "2026-06-14-gx-legacy-mapping-hardening"
+title = "Harden governed legacy scenario-family mapping"
+type = "changed"
+component = "runtime-quality"
+owner = "team-policyos-runtime"
+summary = "Legacy scenario-family mapping now requires governed mapping rows instead of hardcoded public constants."
+evidence = [
+  "tests/unit/core/contracts/test_capability_resolution.py",
+  "tests/unit/runtime/quality/test_capability_resolver.py",
+  "tests/repo_quality/tools/test_local_prod_debug_probe.py",
+]
+compatibility = "Python consumers must pass governed scenario-family construct rows to construct_for_legacy_family or legacy_family_for_construct; no-row calls intentionally fail closed and hardcoded mapping constants are not exported."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.core; public_stable: polisyos.runtime.quality"
+migration = "Load architecture/policy_design_case/layer2_s3_governed_capability_rows.json and pass its scenario_family_construct_rows through the helpers' rows keyword."
+api = "Removes hardcoded legacy mapping constants from the public Python surface and keeps the mapping helpers as governed-row projections only; no OpenAPI or generated runtime client change."
+limitations = "The compatibility projection is authority-safe only when backed by governed rows; diagnostic consumers without the artifact report missing query evidence rather than using fallback mappings."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "docs/reference/public-surface.md",
+  "docs/reference/generated-artifacts.md",
+]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "gx-governed-legacy-scenario-family-mapping"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_stable: polisyos.core; public_stable: polisyos.runtime.quality"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "authority-boundary hardening; hardcoded constants are not retained as a compatibility authority"
+release_note = "Legacy scenario-family mapping helpers now require governed mapping rows and no longer expose hardcoded mapping constants."
+generated_client_compatibility = "not_applicable"
+migration_docs = [
+  "docs/reference/public-surface.md",
+  "docs/reference/generated-artifacts.md",
+]
+runbook_docs = []

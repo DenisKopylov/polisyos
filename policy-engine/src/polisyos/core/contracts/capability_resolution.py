@@ -15,17 +15,40 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 REQUIREMENT_TO_CAPABILITY_QUERY_SCHEMA_VERSION = (
     "policyos.requirement_to_capability_query.v1"
 )
-REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS: dict[str, str] = {
-    "production_msme_panel": "firm_survival",
-    "regional_displacement_indicators": "regional_displacement_pressure",
-    "credit_program_registry": "credit_program_enrollment",
-}
-CONSTRUCT_TO_LEGACY_SCENARIO_FAMILY: dict[str, str] = {
-    construct: family
-    for family, construct in REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS.items()
-}
 
 AuthorityPosture = Literal["research", "governed_pilot", "production"]
+
+
+class ScenarioFamilyConstructRow(BaseModel):
+    """Governed source-family alias row used by legacy projections."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    scenario_family: str = Field(min_length=1)
+    construct_id: str = Field(alias="construct", serialization_alias="construct", min_length=1)
+    producer_ref: str = Field(min_length=1)
+
+    @property
+    def construct(self) -> str:
+        """Return the construct selector using the public row field name."""
+
+        return self.construct_id
+
+    @field_validator("scenario_family", "construct_id", "producer_ref", mode="before")
+    @classmethod
+    def _clean_required_text(cls, value: object) -> str:
+        text = _optional_text(value) or ""
+        if not text:
+            raise ValueError("value must not be blank")
+        return text
+
+    @field_validator("construct_id", mode="before")
+    @classmethod
+    def _clean_construct(cls, value: object) -> str:
+        return _bare_construct(value)
+
+
+type ScenarioFamilyConstructRows = Iterable[ScenarioFamilyConstructRow | Mapping[str, Any]]
 
 
 class RequirementTimeWindow(BaseModel):
@@ -139,17 +162,46 @@ class CapabilityResolverPort(Protocol):
         """Resolve a semantic requirement query into a selected or blocked binding."""
 
 
-def legacy_family_for_construct(construct: str) -> str:
+def legacy_family_for_construct(
+    construct: str,
+    *,
+    rows: ScenarioFamilyConstructRows = (),
+) -> str | None:
     """Return the rollout compatibility projection for a construct."""
 
     bare = _bare_construct(construct)
-    return CONSTRUCT_TO_LEGACY_SCENARIO_FAMILY.get(bare, bare)
+    for row in _scenario_family_construct_rows(rows):
+        if row.construct == bare:
+            return row.scenario_family
+    return None
 
 
-def construct_for_legacy_family(value: str) -> str | None:
+def construct_for_legacy_family(
+    value: str,
+    *,
+    rows: ScenarioFamilyConstructRows = (),
+) -> str | None:
     """Return the governed construct mapped from a legacy scenario family."""
 
-    return REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS.get(_slug(value))
+    slug = _slug(value)
+    for row in _scenario_family_construct_rows(rows):
+        if _slug(row.scenario_family) == slug:
+            return row.construct
+    return None
+
+
+def _scenario_family_construct_rows(
+    rows: ScenarioFamilyConstructRows,
+) -> tuple[ScenarioFamilyConstructRow, ...]:
+    normalized: list[ScenarioFamilyConstructRow] = []
+    for row in rows:
+        model = (
+            row
+            if isinstance(row, ScenarioFamilyConstructRow)
+            else ScenarioFamilyConstructRow.model_validate(row)
+        )
+        normalized.append(model)
+    return tuple(normalized)
 
 
 def _bare_construct(value: object) -> str:
@@ -189,14 +241,14 @@ def _slug(value: object) -> str:
 
 
 __all__ = [
-    "CONSTRUCT_TO_LEGACY_SCENARIO_FAMILY",
-    "REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS",
     "REQUIREMENT_TO_CAPABILITY_QUERY_SCHEMA_VERSION",
     "AuthorityPosture",
     "CapabilityBindingLike",
     "CapabilityResolverPort",
     "RequirementTimeWindow",
     "RequirementToCapabilityQuery",
+    "ScenarioFamilyConstructRow",
+    "ScenarioFamilyConstructRows",
     "construct_for_legacy_family",
     "legacy_family_for_construct",
 ]

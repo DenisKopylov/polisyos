@@ -13,12 +13,16 @@ from collections.abc import Mapping, Sequence
 from datetime import UTC, datetime
 from functools import lru_cache
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, get_args
 
 import duckdb
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.method_requirement import MethodValidityRequirementSpec
+from polisyos.runtime.quality.layer3_gx_data_home import (
+    build_g2_request_dict_from_data_home,
+    read_layer3_gx_pinned_case_id,
+)
 
 if TYPE_CHECKING:
     from polisyos.pdc import Layer2S10ForecastPostureInput
@@ -53,6 +57,8 @@ S10_INTEGRITY_SUMMARY_BUILDER_REF = (
 ACADEMIC_RUNTIME_ROOT = Path("production_data/policyos_academic_runtime_slim_20260411T112032Z")
 ACADEMIC_INDEX_DIR = ACADEMIC_RUNTIME_ROOT / "academic"
 ACADEMIC_SKG_DB_PATH = ACADEMIC_INDEX_DIR / "graph/scholar_knowledge.duckdb"
+REPO_ROOT = Path(__file__).resolve().parents[4]
+G2_PINNED_CASE_ID = read_layer3_gx_pinned_case_id(REPO_ROOT)
 G2_FREE_GROWTH_METHOD_REGISTRY_PATH = Path(
     "tests/fixtures/layer3/g2/free_growth_method_registry.json"
 )
@@ -171,6 +177,10 @@ CapabilityRealityLabel = Literal[
     "semantic_test_missing",
 ]
 AdapterMaturity = Literal["calibrated", "predictive", "fail_closed"]
+_ADAPTER_MATURITY_VALUES = tuple(str(value) for value in get_args(AdapterMaturity))
+ADAPTER_MATURITY_CALIBRATED = _ADAPTER_MATURITY_VALUES[0]
+ADAPTER_MATURITY_PREDICTIVE = _ADAPTER_MATURITY_VALUES[1]
+ADAPTER_MATURITY_FAIL_CLOSED = _ADAPTER_MATURITY_VALUES[2]
 ALL_ISSUE_CODES: tuple[str, ...] = (
     "layer3_g2_g1_dependency_not_ready",
     "layer3_g2_persisted_artifact_missing",
@@ -1371,6 +1381,11 @@ def build_g2_free_growth_report(repo_root: Path) -> Layer3G2FreeGrowthReport:
     root = Path(repo_root).resolve()
     db_path = _resolve_path(root, ACADEMIC_SKG_DB_PATH)
     method_path = _resolve_path(root, G2_FREE_GROWTH_METHOD_REGISTRY_PATH)
+    request_payload = build_g2_request_dict_from_data_home(root)
+    request_pair = (
+        str(request_payload.get("cause") or "missing.cause"),
+        str(request_payload.get("effect") or "missing.effect"),
+    )
     discovered_edge_ref: str | None = None
     discovered_method_ref: str | None = None
     issue_codes: list[str] = []
@@ -1378,7 +1393,7 @@ def build_g2_free_growth_report(repo_root: Path) -> Layer3G2FreeGrowthReport:
         con = duckdb.connect(str(db_path), read_only=True)
         try:
             for cause, effect in (
-                ("policy.credit_access", "firm.survival"),
+                request_pair,
                 ("agriculture.fertilizer_use", "agriculture.food_nutritional_quality"),
             ):
                 row = con.execute(
@@ -1495,7 +1510,7 @@ def build_layer3_g2_bundle(repo_root: Path) -> Layer3G2Bundle:
     """Build the current G2 runtime bundle across SKG, Foundry, S10, and W12D."""
 
     root = Path(repo_root).resolve()
-    method_request = _default_g2_method_request()
+    method_request = _default_g2_method_request(root)
     search_result = search_l2_skg_for_forecast_candidates(method_request, root)
     coverage = build_g2_l2_skg_index_coverage(root)
     recall = build_g2_search_recall_freshness(root)
@@ -3487,7 +3502,7 @@ def _mark_g2_default_pinned_case_fail_closed(
 ) -> Layer3G2ForecastSupportBinding:
     """Prevent the persisted pinned-case path from receiving fixture calibration credit."""
 
-    if request.case_id != "ua-msme-affordable-loans-2022":
+    if request.case_id != G2_PINNED_CASE_ID:
         return binding
     issue_codes = tuple(
         dict.fromkeys(
@@ -3553,10 +3568,12 @@ def build_g2_observable_calibration_report(
     if not evidence_refs:
         issue_codes.append("layer3_g2_credible_evaluation_evidence_missing")
     calibration_maturity_requested = any(
-        binding.get("requested_adapter_maturity") == "calibrated" for binding in bindings
+        binding.get("requested_adapter_maturity") == ADAPTER_MATURITY_CALIBRATED
+        for binding in bindings
     )
     all_bindings_calibrated = bool(bindings) and all(
-        binding.get("adapter_maturity") == "calibrated" for binding in bindings
+        binding.get("adapter_maturity") == ADAPTER_MATURITY_CALIBRATED
+        for binding in bindings
     )
     if calibration_maturity_requested and not all_bindings_calibrated:
         issue_codes.append("layer3_g2_adapter_maturity_overclaim")
@@ -3565,11 +3582,14 @@ def build_g2_observable_calibration_report(
     status: Literal["pass", "fail"] = "fail" if issue_tuple else "pass"
     adapter_maturity: AdapterMaturity
     if status == "pass" and all_bindings_calibrated:
-        adapter_maturity = "calibrated"
-    elif any(binding.get("adapter_maturity") == "fail_closed" for binding in bindings):
-        adapter_maturity = "fail_closed"
+        adapter_maturity = ADAPTER_MATURITY_CALIBRATED
+    elif any(
+        binding.get("adapter_maturity") == ADAPTER_MATURITY_FAIL_CLOSED
+        for binding in bindings
+    ):
+        adapter_maturity = ADAPTER_MATURITY_FAIL_CLOSED
     else:
-        adapter_maturity = "predictive"
+        adapter_maturity = ADAPTER_MATURITY_PREDICTIVE
     return Layer3G2ObservableCalibrationReport(
         status=status,
         adapter_maturity=adapter_maturity,
@@ -4220,6 +4240,16 @@ def _validate_search_authority(
                     "layer3_g2_search_ledger_authority_boundary_leak",
                     f"$.l2_skg_search_ledgers[{idx}].authoritative_for",
                     "Search ledgers are replay control-plane records only.",
+                )
+            )
+        if "search_hit_as_authority" not in set(
+            _string_tuple(ledger.get("may_not_use_for", ()))
+        ):
+            issues.append(
+                _issue(
+                    "layer3_g2_search_ledger_authority_boundary_leak",
+                    f"$.l2_skg_search_ledgers[{idx}].may_not_use_for",
+                    "Search ledgers must deny search-hit authority.",
                 )
             )
     bindings = _sequence(payload.get("forecast_support_bindings", ()))
@@ -5339,7 +5369,7 @@ def _g2_case_semantic_mismatch(
     alignment: Mapping[str, Any],
     calibration_payload: Mapping[str, Any] | None,
 ) -> bool:
-    if request.case_id != "ua-msme-affordable-loans-2022":
+    if request.case_id != G2_PINNED_CASE_ID:
         return False
     values: list[str] = [
         request.cause,
@@ -5603,25 +5633,12 @@ def _jsonable(value: object) -> object:
     return value
 
 
-def _default_g2_method_request() -> Layer3G2CausalForecastRequest:
-    return Layer3G2CausalForecastRequest(
-        request_id="g2-request:default-causal-forecast-method-search",
-        case_id="ua-msme-affordable-loans-2022",
-        source_contract_refs=("source-contract://ua-msme/credit-access-firm-survival",),
-        cause="policy.credit_access",
-        effect="firm.survival",
-        target_context_id="UA",
-        limit=8,
-        method_task_tags=(
-            "causal_effect_estimation",
-            "forecasting",
-            "uncertainty",
-            "validation",
-        ),
-        data_modality="panel",
-        treatment_structure="binary_or_intensity_credit_access",
-        outcome_type="firm_survival",
-        required_diagnostics=("identification", "transportability", "uncertainty"),
+def _default_g2_method_request(
+    repo_root: Path | None = None,
+) -> Layer3G2CausalForecastRequest:
+    root = REPO_ROOT if repo_root is None else Path(repo_root)
+    return Layer3G2CausalForecastRequest.model_validate(
+        build_g2_request_dict_from_data_home(root)
     )
 
 
@@ -5686,12 +5703,20 @@ def _default_g2_runtime_method_candidate() -> dict[str, object]:
 
 
 def _default_g2_semantic_spine_kwargs() -> dict[str, object]:
+    request_payload = build_g2_request_dict_from_data_home(REPO_ROOT)
+    cause = str(request_payload.get("cause") or "policy.missing_cause")
+    effect = str(request_payload.get("effect") or "outcome.missing_effect")
+    cause_ref = cause.replace(".", "_")
+    effect_ref = effect.replace(".", "_")
+    source_contract_refs = tuple(
+        str(ref) for ref in request_payload.get("source_contract_refs", ())
+    )
     return {
-        "concept_spine_ref": "concept-spine://g2/policy-credit-access-firm-survival",
+        "concept_spine_ref": f"concept-spine://g2/{cause_ref}-{effect_ref}",
         "jurisdiction_spine_ref": "jurisdiction-spine://UA",
         "canonical_concept_refs": (
-            "concept://policy.credit_access",
-            "concept://firm.survival",
+            f"concept://{cause}",
+            f"concept://{effect}",
         ),
         "jurisdiction_refs": ("jurisdiction://UA",),
         "unit_refs": ("unit://firm",),
@@ -5704,16 +5729,16 @@ def _default_g2_semantic_spine_kwargs() -> dict[str, object]:
             "namespace://layer2/s10",
         ),
         "reconciled_concept_statuses": {
-            "policy.credit_access": "reconciled",
-            "firm.survival": "reconciled",
+            cause: "reconciled",
+            effect: "reconciled",
         },
         "producer_handshake_refs": (
-            "producer-handshake://g1-skg-foundry-s10/credit-access-firm-survival",
+            f"producer-handshake://g1-skg-foundry-s10/{cause_ref}-{effect_ref}",
         ),
         "candidate_refs": (
-            "source-contract://ua-msme/credit-access-firm-survival",
-            "skg-variable://policy.credit_access",
-            "skg-variable://firm.survival",
+            *source_contract_refs,
+            f"skg-variable://{cause}",
+            f"skg-variable://{effect}",
             "foundry-slot://treatment",
             "foundry-slot://outcome",
         ),
@@ -5723,18 +5748,18 @@ def _default_g2_semantic_spine_kwargs() -> dict[str, object]:
 def _default_g2_concept_alignment_kwargs(
     request: Layer3G2CausalForecastRequest,
 ) -> dict[str, object]:
+    cause_ref = request.cause.replace(".", "_")
+    effect_ref = request.effect.replace(".", "_")
     return {
         "source_contract_refs": request.source_contract_refs,
-        "g1_target_outcome_refs": (
-            "source-contract://ua-msme/credit-access-firm-survival#firm-survival",
-        ),
-        "g1_metric_refs": ("metric://firm-survival", "metric://credit-access"),
-        "skg_cause_variable_ref": "skg-variable://policy.credit_access",
-        "skg_effect_variable_ref": "skg-variable://firm.survival",
+        "g1_target_outcome_refs": tuple(request.source_contract_refs),
+        "g1_metric_refs": (f"metric://{effect_ref}", f"metric://{cause_ref}"),
+        "skg_cause_variable_ref": f"skg-variable://{request.cause}",
+        "skg_effect_variable_ref": f"skg-variable://{request.effect}",
         "skg_parameter_refs": (),
         "foundry_input_slot_refs": ("foundry-slot://treatment", "foundry-slot://panel-data"),
         "foundry_output_slot_refs": ("foundry-slot://effect-estimate",),
-        "s10_target_outcome_refs": ("outcome://ua-msme/firm-survival",),
+        "s10_target_outcome_refs": (f"outcome://{G2_PINNED_CASE_ID}/{effect_ref}",),
         "alignment_status": "direct",
         "direct_grounding_claimed": True,
     }

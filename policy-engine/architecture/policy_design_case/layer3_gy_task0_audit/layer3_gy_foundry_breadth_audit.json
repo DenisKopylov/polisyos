@@ -1,0 +1,391 @@
+{
+  "schema_version": "layer3_gy_foundry_breadth_audit.v1",
+  "generated_at": "2026-06-14",
+  "methodology": {
+    "scope": "GY-0 Foundry breadth audit: one representative direct pure_step smoke per top family in the 172 pinned route-relevant envelope, separate from DAG-consumed truth.",
+    "agents_used": false,
+    "network_fetches_run": false,
+    "runtime_command": "JAX_PLATFORMS=cpu uv run python <ad hoc Foundry breadth probe>",
+    "direct_invocation": "registry.get(fqn).pure_step(state, params)",
+    "source_probe_artifacts": [
+      "_build/.tmp/gy0-foundry-breadth/direct_family_smokes.json",
+      "_build/.tmp/gy0-foundry-breadth/route_relevant_registry_probe.json",
+      "_build/.tmp/gy0-census/dag_node_census3.json",
+      "_build/.tmp/gy0-census/foundry_method_census.json"
+    ],
+    "not_claimed": [
+      "all 172 route-relevant methods executed",
+      "all 389 builtin registry methods executed",
+      "direct method outputs consumed by the pinned DAG",
+      "post-lex Foundry analytic correctness"
+    ]
+  },
+  "classification": {
+    "primary": "representative_direct_smoke_breadth_only",
+    "gap_class": "producer_without_consumer",
+    "route_pinned": true,
+    "registry_catalog_dag_consumed": true,
+    "method_outputs_dag_consumed": false,
+    "repair_before_downstream_governance": true,
+    "patterns": [
+      "P01",
+      "P02",
+      "P03",
+      "P10",
+      "P12",
+      "P14"
+    ],
+    "capability_label": "direct_producer_smoked_but_route_consumer_blocked_upstream"
+  },
+  "summary": {
+    "live_registry_total_including_dev_scan": 390,
+    "builtin_registry_total_excluding_example_dev_scan": 389,
+    "excluded_dev_scan_families": [
+      "example"
+    ],
+    "pinned_route_relevant_count": 172,
+    "broad_live_tag_envelope_count": 232,
+    "pinned_route_family_count": 6,
+    "direct_smoke_family_count": 6,
+    "direct_smoke_pass_count": 6,
+    "direct_smoke_fail_count": 0,
+    "direct_smoke_only": true,
+    "dag_consumed_method_outputs_count": 0,
+    "dag_truth_statement": "The pinned DAG consumed registry/catalog/preflight/input-binding surfaces, but no Foundry method output: compile_foundry and run_simulation skipped after the Lex node failed.",
+    "dag_ok_foundry_support_nodes": [
+      "build_method_catalog_snapshot",
+      "run_preflight",
+      "bind_foundry_inputs",
+      "run_data_plane_gate"
+    ],
+    "dag_blocker_node": "run_hierarchical_policy_search",
+    "dag_blocker_error_code": "node.invalid_state",
+    "dag_blocker_message": "Hierarchical policy search failed: Invalid bounds for 'verified_policy_option_rate': lower >= upper",
+    "dag_skipped_method_nodes": [
+      "compile_foundry",
+      "run_simulation"
+    ],
+    "foundry_family_status": "Registry, catalog snapshot, preflight, input binding, data-plane gate, and six representative direct producers work. Pinned-route method consumption remains blocked upstream."
+  },
+  "route_relevance": {
+    "pinned_legacy_filter": {
+      "definition": "builtin method where top family is causal/forecasting/validation OR exact family is ml.uncertainty OR exact tag is causal OR method name token is causal",
+      "count": 172,
+      "by_top_family": {
+        "causal": 151,
+        "econometrics": 1,
+        "forecasting": 10,
+        "ml": 5,
+        "survey": 1,
+        "validation": 4
+      },
+      "cross_family_rows": [
+        "econometrics.high_dimensional.post_double_selection@1.0.0",
+        "survey.estimation.causal_frontier_fay_herriot@1.0.0"
+      ]
+    },
+    "broad_live_tag_envelope": {
+      "definition": "builtin method where causal/forecasting/uncertainty/validation appears in tags, namespace parts, family parts, or name tokens",
+      "count": 232,
+      "by_top_family": {
+        "bayesian": 19,
+        "causal": 151,
+        "econometrics": 26,
+        "forecasting": 10,
+        "microsim": 6,
+        "ml": 15,
+        "survey": 1,
+        "validation": 4
+      },
+      "audit_implication": "The old 172 is reproducible only as a curated pinned-route filter. Broad tag matching pulls in Bayesian, microsim, and additional uncertainty-tagged methods and must not be silently substituted."
+    }
+  },
+  "direct_smokes": [
+    {
+      "top_family": "causal",
+      "fqn": "causal.bounds.manski@1.0.0",
+      "signature_family": "causal.bounds",
+      "signature_backend": "numpy",
+      "relevance_basis": "family_top=causal",
+      "fixture_source": "bounded UA-style binary treatment/outcome arrays; mirrors prior Manski smoke shape",
+      "input_slots": [
+        "outcome",
+        "treatment"
+      ],
+      "output_slots": [
+        "result"
+      ],
+      "parameters": [
+        "y_lower",
+        "y_upper"
+      ],
+      "invocation": "registry.get(fqn).pure_step(state, params)",
+      "evidence_kind": "direct_smoke_only",
+      "dag_consumed_on_pinned_route": false,
+      "dag_consumption_status": "blocked_upstream_by_lex_search_failure_before compile_foundry/run_simulation",
+      "status": "pass",
+      "output_hash": "sha256:51805880a4682c2bf1e68f0c49ad1e0e3ffc71e9026f5380bd9acce1559bdb65",
+      "output_summary": {
+        "ate_lower_bound": -0.27675219314067734,
+        "ate_upper_bound": 0.7232478068593227,
+        "bound_width": 1.0,
+        "n_obs": 40,
+        "naive_ate": 0.4464956137186454,
+        "top_level_keys": [
+          "result"
+        ]
+      }
+    },
+    {
+      "top_family": "forecasting",
+      "fqn": "forecasting.univariate.theta@1.0.0",
+      "signature_family": "forecasting.univariate",
+      "signature_backend": "numpy",
+      "relevance_basis": "family_top=forecasting",
+      "fixture_source": "tests/unit/foundry/methods/catalog/forecasting/test_univariate.py:44-46",
+      "input_slots": [
+        "series"
+      ],
+      "output_slots": [
+        "forecasting_uncertainty_bundle",
+        "result"
+      ],
+      "parameters": [
+        "horizon",
+        "alpha"
+      ],
+      "invocation": "registry.get(fqn).pure_step(state, params)",
+      "evidence_kind": "direct_smoke_only",
+      "dag_consumed_on_pinned_route": false,
+      "dag_consumption_status": "blocked_upstream_by_lex_search_failure_before compile_foundry/run_simulation",
+      "status": "pass",
+      "output_hash": "sha256:892aa0cceafcb09779551d3e93dfb8aae28bbd409b2ebd1420807d15779fbee5",
+      "output_summary": {
+        "forecast": [
+          34.71638399999999,
+          36.674717333333334,
+          38.63305066666666,
+          40.59138399999999
+        ],
+        "top_level_keys": [
+          "forecasting_uncertainty_bundle",
+          "result"
+        ]
+      }
+    },
+    {
+      "top_family": "ml",
+      "fqn": "ml.uncertainty.conformal_prediction@1.0.0",
+      "signature_family": "ml.uncertainty",
+      "signature_backend": "numpy",
+      "relevance_basis": "family=ml.uncertainty",
+      "fixture_source": "tests/unit/foundry/methods/catalog/ml/test_methods.py:111-130",
+      "input_slots": [
+        "prediction_result"
+      ],
+      "output_slots": [
+        "result",
+        "uncertainty_envelope"
+      ],
+      "parameters": [
+        "alpha",
+        "shift_mode",
+        "importance_weights",
+        "min_effective_sample_size"
+      ],
+      "invocation": "registry.get(fqn).pure_step(state, params)",
+      "evidence_kind": "direct_smoke_only",
+      "dag_consumed_on_pinned_route": false,
+      "dag_consumption_status": "blocked_upstream_by_lex_search_failure_before compile_foundry/run_simulation",
+      "status": "pass",
+      "output_hash": "sha256:118ea4f1ad3ced65e4b439087039c5428f514f2d92fd434ac4fc45c42d85a057",
+      "output_summary": {
+        "alpha": 0.2,
+        "coverage": 1.0,
+        "method_name": "conformal_prediction",
+        "top_level_keys": [
+          "result",
+          "uncertainty_envelope"
+        ]
+      }
+    },
+    {
+      "top_family": "validation",
+      "fqn": "validation.probabilistic.normal_scores@1.0.0",
+      "signature_family": "validation.probabilistic",
+      "signature_backend": "numpy",
+      "relevance_basis": "family_top=validation",
+      "fixture_source": "tests/unit/foundry/methods/catalog/validation/test_scoring.py:12-18",
+      "input_slots": [
+        "observations",
+        "predictive_mean",
+        "predictive_std"
+      ],
+      "output_slots": [
+        "result"
+      ],
+      "parameters": [],
+      "invocation": "registry.get(fqn).pure_step(state, params)",
+      "evidence_kind": "direct_smoke_only",
+      "dag_consumed_on_pinned_route": false,
+      "dag_consumption_status": "blocked_upstream_by_lex_search_failure_before compile_foundry/run_simulation",
+      "status": "pass",
+      "output_hash": "sha256:0b61a38524a75ecbfe3ec86fc9ebc8a7ff43be6fb07d7320611dc946157de279",
+      "output_summary": {
+        "mean_crps": 0.14049597814551607,
+        "mean_log_score": 0.28579135264472755,
+        "top_level_keys": [
+          "result"
+        ]
+      }
+    },
+    {
+      "top_family": "econometrics",
+      "fqn": "econometrics.high_dimensional.post_double_selection@1.0.0",
+      "signature_family": "econometrics.high_dimensional",
+      "signature_backend": "numpy",
+      "relevance_basis": "exact tag causal outside causal family",
+      "fixture_source": "bounded synthetic high-dimensional causal controls fixture derived from method contract X/d/y",
+      "input_slots": [
+        "X",
+        "d",
+        "y"
+      ],
+      "output_slots": [
+        "result"
+      ],
+      "parameters": [
+        "lambda_factor"
+      ],
+      "invocation": "registry.get(fqn).pure_step(state, params)",
+      "evidence_kind": "direct_smoke_only",
+      "dag_consumed_on_pinned_route": false,
+      "dag_consumption_status": "blocked_upstream_by_lex_search_failure_before compile_foundry/run_simulation",
+      "status": "pass",
+      "output_hash": "sha256:aee398df85af558259cfeb56e569f8b815e161455afa2da50381c260bddcac31",
+      "output_summary": {
+        "n_obs": 80,
+        "n_selected_union": 6,
+        "standard_error": 0.1112859973124584,
+        "treatment_effect": 1.0631199995922307,
+        "top_level_keys": [
+          "result"
+        ]
+      }
+    },
+    {
+      "top_family": "survey",
+      "fqn": "survey.estimation.causal_frontier_fay_herriot@1.0.0",
+      "signature_family": "survey.estimation",
+      "signature_backend": "numpy",
+      "relevance_basis": "method name contains causal and tag causal-frontier",
+      "fixture_source": "tests/unit/foundry/methods/catalog/survey/test_causal_frontier_estimation.py:26-54",
+      "input_slots": [
+        "X",
+        "frontier_mask",
+        "graph",
+        "policy_indicator",
+        "sampling_var",
+        "y_direct"
+      ],
+      "output_slots": [
+        "result"
+      ],
+      "parameters": [
+        "graph_id",
+        "lambda_spatial",
+        "component_ridge",
+        "contrast_eps",
+        "green_threshold",
+        "red_threshold"
+      ],
+      "invocation": "registry.get(fqn).pure_step(state, params)",
+      "evidence_kind": "direct_smoke_only",
+      "dag_consumed_on_pinned_route": false,
+      "dag_consumption_status": "blocked_upstream_by_lex_search_failure_before compile_foundry/run_simulation",
+      "status": "pass",
+      "output_hash": "sha256:1934b17b5629ea5bd846b2cea0bf76ba009d94e624e44882a3c0fc3f668365d3",
+      "output_summary": {
+        "method_name": "survey.estimation.causal_frontier_fay_herriot",
+        "n_areas": 8,
+        "tau": 1.9999999999925695,
+        "component_ids": [
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1,
+          1
+        ],
+        "diagnostics": {
+          "alert_level": "amber",
+          "blr": 0.09178470254620119,
+          "component_count": 2,
+          "decision": "identified",
+          "frontier_edges_active": 1,
+          "pli": 0.6336987492152416
+        },
+        "top_level_keys": [
+          "result"
+        ]
+      }
+    }
+  ],
+  "dag_consumption_truth": {
+    "workflow_status": "fail",
+    "node_counts": {
+      "ok": 14,
+      "fail": 1,
+      "skip": 22
+    },
+    "foundry_support_nodes": {
+      "build_method_catalog_snapshot": "ok",
+      "run_preflight": "ok",
+      "bind_foundry_inputs": "ok",
+      "run_data_plane_gate": "ok"
+    },
+    "method_execution_nodes": {
+      "compile_foundry": "skip",
+      "run_simulation": "skip"
+    },
+    "blocking_node": {
+      "alias": "run_hierarchical_policy_search",
+      "status": "fail",
+      "code": "node.invalid_state",
+      "message": "Hierarchical policy search failed: Invalid bounds for 'verified_policy_option_rate': lower >= upper"
+    },
+    "classification": "blocked_upstream_not_method_failure"
+  },
+  "findings": [
+    {
+      "id": "FB-1",
+      "finding": "The 172 route-relevant count is reproducible only with the curated pinned-route filter, not broad metadata/tag matching.",
+      "implication": "Future GY plans must name the route filter. Broad uncertainty matching produces a 232-method envelope and includes Bayesian, microsim, and additional uncertainty-tagged methods."
+    },
+    {
+      "id": "FB-2",
+      "finding": "One representative direct method per pinned route-relevant top family passes: causal, forecasting, ml, validation, econometrics, and survey.",
+      "implication": "Foundry breadth is stronger than the first Manski-only smoke, but this remains representative breadth, not all-method coverage."
+    },
+    {
+      "id": "FB-3",
+      "finding": "The pinned DAG consumed Foundry support surfaces but did not consume method outputs.",
+      "implication": "Registry/catalog/preflight/input-binding truth must not be laundered into analytic result truth until Lex is repaired and compile_foundry/run_simulation execute."
+    },
+    {
+      "id": "FB-4",
+      "finding": "The live registry now reports 390 methods because dev-scan adds one example family; builtin registry still matches the old 389 count.",
+      "implication": "Registry count checks must either exclude dev-scan examples or explicitly label live-plus-dev totals."
+    }
+  ],
+  "acceptance_signal": [
+    "validator passes with 6 direct smoke families and 0 failures",
+    "each direct smoke has a sha256 output hash",
+    "all direct smokes are marked direct_smoke_only",
+    "dag_consumed_method_outputs_count remains 0 while compile_foundry/run_simulation are skipped",
+    "pinned 172 filter and broad 232 envelope remain distinct",
+    "gap_class remains producer_without_consumer until a pinned DAG consumes method outputs"
+  ]
+}

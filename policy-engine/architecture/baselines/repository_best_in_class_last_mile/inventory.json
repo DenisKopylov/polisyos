@@ -1646,7 +1646,7 @@
       }
     },
     {
-      "count": 53,
+      "count": 56,
       "current_status": "needs_review",
       "finding_id": "LM-025",
       "kind": "stale_frontend_path_reference",
@@ -1683,9 +1683,11 @@
         "docs/plans/accepted/REPOSITORY_STRUCTURE_REMEDIATION_PLAN.md",
         "docs/plans/active/DOCUMENTATION_SOTA_PLAN.md",
         "docs/plans/active/POLICYOS_ATLAS_PRODUCT_MARKETING_CLIENT_SURFACES_MASTER_PLAN.md",
+        "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md",
         "docs/plans/active/POLICYOS_PRODUCTION_E2E_TESTING_AND_DEBUGGING_PLAN.md",
         "docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md",
         "docs/plans/active/SCIENTIST_BEST_IN_CLASS_PLAN.md",
+        "docs/plans/active/atlas-slices/DS0-source-of-truth-freeze-and-governing-decisions.md",
         "docs/plans/archive/2026-05-07-repository-best-in-class-last-mile-closeout.md",
         "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md",
         "docs/plans/archive/DATA_FORGE_CONSOLIDATION_PLAN_ROOT_LEGACY.md",
@@ -1695,6 +1697,7 @@
         "docs/reference/quality-gates.md",
         "docs/reference/repository-hygiene.md",
         "docs/reference/repository-topology.md",
+        "docs/system-design-decisions/policyos-atlas-surface-constitution-and-frontend-vision.md",
         "tests/repo_quality/architecture/test_repository_best_in_class_phase4_10_directory_docs.py",
         "tests/repo_quality/architecture/test_repository_sota_phase4_discipline.py",
         "tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py",
@@ -2473,6 +2476,6 @@
     "needs_review_count": 8,
     "not_observed_count": 7,
     "observed_count": 11,
-    "path_count": 245
+    "path_count": 248
   }
 }

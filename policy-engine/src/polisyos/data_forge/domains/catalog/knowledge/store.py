@@ -539,6 +539,135 @@ class DatasetCatalogStore:
             )
         return out
 
+    def search_metric_bindings(
+        self,
+        query: str,
+        *,
+        top_k: int = 20,
+        modes: tuple[str, ...] = ("exact", "alias", "lexical", "semantic"),
+        min_execution_tier: str | None = None,
+    ) -> list[MetricBindingMatch]:
+        """Search metric bindings by exact id, aliases, and lexical construct terms."""
+
+        if not self._table_exists("ds_metric_bindings"):
+            return []
+        aliases, tokens = self._metric_binding_search_terms(query)
+        if not aliases and not tokens:
+            return []
+
+        conditions: list[str] = []
+        params: list[object] = []
+        use_exact = "exact" in modes or "alias" in modes
+        use_lexical = "lexical" in modes or "semantic" in modes
+        metric_expr = "lower(coalesce(b.metric_id, ''))"
+        metric_norm_expr = "replace(replace(lower(coalesce(b.metric_id, '')), '.', '_'), '-', '_')"
+        if use_exact and aliases:
+            placeholders = ", ".join("?" for _ in aliases)
+            conditions.append(f"({metric_expr} IN ({placeholders}))")
+            params.extend(aliases)
+            conditions.append(f"({metric_norm_expr} IN ({placeholders}))")
+            params.extend(aliases)
+        if use_lexical:
+            for term in (*aliases, *tokens):
+                if len(term) < 2:
+                    continue
+                conditions.append(f"{metric_norm_expr} LIKE ?")
+                params.append(f"%{term}%")
+        if not conditions:
+            return []
+
+        tier_filter_sql = ""
+        if min_execution_tier:
+            allowed = _tiers_at_or_above(min_execution_tier)
+            if allowed:
+                placeholders = ", ".join("?" for _ in allowed)
+                tier_filter_sql = f"AND COALESCE(b.execution_tier, 'catalog') IN ({placeholders}) "
+                params.extend(allowed)
+        params.append(max(top_k * 8, top_k))
+        rows = self._fetch_dicts(
+            f"SELECT {self._select_clause('ds_metric_bindings', _BINDING_COLUMNS, alias='b')}, "
+            "COALESCE(ds.title, '') AS title "
+            "FROM ds_metric_bindings AS b "
+            "LEFT JOIN ds_datasets AS ds ON ds.id = b.dataset_id "
+            f"WHERE ({' OR '.join(conditions)}) {tier_filter_sql}"
+            "ORDER BY "
+            "CASE COALESCE(b.execution_tier, 'catalog') "
+            "WHEN 'transport_ready' THEN 0 "
+            "WHEN 'fetchable' THEN 1 "
+            "ELSE 2 END ASC, "
+            "b.confidence DESC, b.dataset_id ASC "
+            "LIMIT ?",
+            params,
+        )
+        ranked = sorted(
+            rows,
+            key=lambda row: (
+                self._metric_binding_search_rank(row, aliases, tokens),
+                _EXECUTION_TIER_RANK.get(str(row.get("execution_tier") or "catalog"), 2),
+                -float(row.get("confidence") or 0.0),
+                str(row.get("metric_id") or ""),
+                str(row.get("dataset_id") or ""),
+            ),
+        )
+        return [self._to_metric_binding_match(row) for row in ranked[:top_k]]
+
+    @staticmethod
+    def _metric_binding_search_terms(query: str) -> tuple[tuple[str, ...], tuple[str, ...]]:
+        raw = " ".join(str(query or "").strip().lower().split())
+        if not raw:
+            return (), ()
+        normalized = raw.removeprefix("construct:").removeprefix("policy.")
+        variants = (
+            raw,
+            normalized,
+            raw.replace(".", "_").replace("-", "_").replace(" ", "_"),
+            normalized.replace(".", "_").replace("-", "_").replace(" ", "_"),
+        )
+        aliases = tuple(dict.fromkeys(item for item in variants if item))
+        tokens = tuple(
+            dict.fromkeys(
+                token
+                for alias in aliases
+                for token in re.split(r"[^\w]+", alias, flags=re.UNICODE)
+                if len(token) >= 2
+            )
+        )
+        return aliases, tokens
+
+    @staticmethod
+    def _metric_binding_search_rank(
+        row: dict[str, object],
+        aliases: tuple[str, ...],
+        tokens: tuple[str, ...],
+    ) -> int:
+        metric = str(row.get("metric_id") or "").lower()
+        metric_norm = metric.replace(".", "_").replace("-", "_")
+        if metric in aliases or metric_norm in aliases:
+            return 0
+        if any(metric_norm.startswith(alias) for alias in aliases if len(alias) >= 3):
+            return 1
+        if any(metric_norm.startswith(token) for token in tokens):
+            return 2
+        if any(token in metric_norm for token in tokens):
+            return 3
+        return 4
+
+    def _to_metric_binding_match(self, row: dict[str, object]) -> MetricBindingMatch:
+        return MetricBindingMatch(
+            metric_id=str(row.get("metric_id") or ""),
+            catalog_dataset_id=str(row.get("dataset_id") or ""),
+            distribution_id=str(row.get("distribution_id") or ""),
+            connector_id=self._normalize_connector_id(str(row.get("connector_id") or "")),
+            profile_id=str(row.get("profile_id") or ""),
+            request_dataset_id=str(row.get("request_dataset_id") or ""),
+            confidence=float(row.get("confidence") or 0.0),
+            metric_inference_confidence=float(row.get("metric_inference_confidence") or 0.0),
+            default_filters=self._json_mapping(row.get("default_filters")),
+            execution_tier=str(row.get("execution_tier") or "catalog"),
+            source=str(row.get("source") or ""),
+            title=str(row.get("title") or ""),
+        )
+
     def resolve_fetch_target(self, dataset_id: str) -> ResolvedFetchTarget | None:
         dataset_row = self._get_dataset_row(dataset_id)
         distributions = self.get_distributions(dataset_id)

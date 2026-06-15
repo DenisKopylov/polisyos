@@ -1,5 +1,8 @@
 # Policy Design Case Layer 3 Bounded Agent
 
+Owner: `team-runtime-quality`
+Source of truth: `src/polisyos/runtime/quality/layer3_bounded_agent.py`, `tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py`, and `architecture/policy_design_case/layer3_g6_readiness_manifest.json`
+
 G6 is the bounded arbitrary-request adapter for Policy Design Case Layer 3. It
 accepts a natural-language request, projects it into policy-grammar routing
 facets, runs an allowlisted agent/tool loop, and either routes a same-class

@@ -4,7 +4,7 @@
   "cases": [
     {
       "accountable_principal_refs": [
-        "principal://ua-msme/first-proving-ground"
+        "principal://deniskopylov"
       ],
       "adjacency_basis_refs": [
         "adjacency://ua-msme/pinned-g5-seed"
@@ -16,7 +16,7 @@
         "envelope://g7/ua-msme-adjacent"
       ],
       "demand_refs": [
-        "demand://g5/ua-msme-affordable-loans-2022"
+        "demand-act://layer3-gx/ua-msme-affordable-loans-2022"
       ],
       "envelope_posture": "in",
       "g4_promotion_refs": [],
@@ -51,9 +51,7 @@
       "missing_ref_limitations": [],
       "region_ref": "region://ua/msme-adjacent",
       "s12_voi_refs": [],
-      "s3_demand_pull_refs": [
-        "s3-demand-pull://ua-msme/first-proving-ground"
-      ],
+      "s3_demand_pull_refs": [],
       "search_ledger_refs": [
         "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json"
       ],

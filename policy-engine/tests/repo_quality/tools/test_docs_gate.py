@@ -177,6 +177,83 @@ def test_docs_accuracy_rejects_planning_docs_in_nav(tmp_path: Path) -> None:
     assert any("planning/remediation document" in violation.message for violation in violations)
 
 
+def test_docs_accuracy_follows_mkdocs_inherit_for_published_nav(tmp_path: Path) -> None:
+    repo_root = tmp_path
+    docs_root = repo_root / "docs" / "reference"
+    generated_config = repo_root / "architecture" / "tooling" / "mkdocs" / "generated.yml"
+    docs_root.mkdir(parents=True)
+    generated_config.parent.mkdir(parents=True)
+    (repo_root / "mkdocs.yml").write_text(
+        "INHERIT: architecture/tooling/mkdocs/generated.yml\n",
+        encoding="utf-8",
+    )
+    (docs_root / "generated-artifacts.md").write_text(
+        "# Generated Artifacts\n\nCanonical regeneration commands:\n",
+        encoding="utf-8",
+    )
+    generated_config.write_text(
+        "\n".join(
+            [
+                "site_name: Demo",
+                "site_url: https://example.test/docs/",
+                "nav:",
+                "  - Reference:",
+                "      - reference/generated-artifacts.md",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    if check_docs_accuracy.yaml is None:
+        pytest.skip("PyYAML is not installed in this test environment")
+
+    config, violations = check_docs_accuracy.published_docs_config(repo_root)
+
+    assert violations == []
+    assert config.site_url == "https://example.test/docs/"
+    assert (docs_root / "generated-artifacts.md").resolve() in config.published_files
+
+
+def test_docs_accuracy_treats_not_in_nav_as_publishable(tmp_path: Path) -> None:
+    repo_root = tmp_path
+    docs_root = repo_root / "docs" / "reference"
+    generated_config = repo_root / "architecture" / "tooling" / "mkdocs" / "generated.yml"
+    docs_root.mkdir(parents=True)
+    generated_config.parent.mkdir(parents=True)
+    (repo_root / "mkdocs.yml").write_text(
+        "INHERIT: architecture/tooling/mkdocs/generated.yml\n",
+        encoding="utf-8",
+    )
+    (docs_root / "generated-artifacts.md").write_text(
+        "# Generated Artifacts\n\nCanonical regeneration commands:\n",
+        encoding="utf-8",
+    )
+    generated_config.write_text(
+        "\n".join(
+            [
+                "site_name: Demo",
+                "not_in_nav: |",
+                "  reference/generated-artifacts.md",
+                "nav:",
+                "  - Reference:",
+                "      - reference/index.md",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (docs_root / "index.md").write_text("# Reference\n", encoding="utf-8")
+
+    if check_docs_accuracy.yaml is None:
+        pytest.skip("PyYAML is not installed in this test environment")
+
+    config, violations = check_docs_accuracy.published_docs_config(repo_root)
+
+    assert violations == []
+    assert (docs_root / "generated-artifacts.md").resolve() in config.published_files
+
+
 def test_docs_command_check_fails_on_drift(tmp_path: Path, capsys) -> None:
     output = tmp_path / "tools-reference.md"
     output.write_text("stale\n", encoding="utf-8")

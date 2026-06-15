@@ -1,5 +1,7 @@
 # Run-Cost Enforcement Gate
 
+Owner: `@runtime-owners`
+
 W10.D adds authority-level enforcement on top of W2.C cost/degradation
 telemetry. The runtime artifact is `quality_evidence/run_cost_gate.json` with
 schema version `policyos.runtime.policy_design_case.run_cost_gate.v1`.

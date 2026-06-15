@@ -37,6 +37,7 @@ from polisyos.runtime.quality.capability_resolver import (
     RequirementToCapabilityQuery,
     RequirementToCapabilityResolver,
 )
+from polisyos.runtime.quality.layer3_gx_data_home import read_layer3_gx_pinned_case_id
 
 if TYPE_CHECKING:
     from polisyos.runtime.quality.capability_authority import CapabilityBindingResult
@@ -45,6 +46,8 @@ LAYER2_S3_SUBSTRATE_ACQUISITION_SCHEMA_VERSION = (
     "policyos.policy_design_case.layer2_s3_substrate_acquisition.v1"
 )
 _SEED = "architecture/policy_design_case/layer2_minimal_seed_manifest.json"
+REPO_ROOT = Path(__file__).resolve().parents[4]
+S3_PINNED_CASE_ID = read_layer3_gx_pinned_case_id(REPO_ROOT)
 
 S3AuthorityPosture = Literal["research", "governed", "production"]
 
@@ -439,7 +442,7 @@ class SubstrateAcquisitionLoop:
         return (
             {
                 "requirement_id": f"s3:{self._expression.construct}",
-                "claim_id": f"s3:ua-msme-affordable-loans-2022:{self._expression.construct}",
+                "claim_id": f"s3:{S3_PINNED_CASE_ID}:{self._expression.construct}",
                 "required_data_families": (self._expression.construct,),
                 "mandatory_facets": tuple(self._expression.facets),
                 "authority_level": self._expression.authority_posture,
@@ -702,8 +705,24 @@ def resolve_expression(
     """
 
     del source
-    active_resolver = resolver or RequirementToCapabilityResolver.default_fixture()
-    result = active_resolver.resolve(_query_for_expression(expr))
+    query = _query_for_expression(expr)
+    if resolver is None:
+        result = RequirementToCapabilityResolver(capabilities=()).resolve(query)
+        return result.model_copy(
+            update={
+                "status": "blocked_acquisition_required",
+                "construct_ref": expr.construct,
+                "blocked_reasons": tuple(
+                    dict.fromkeys(
+                        (
+                            "governed_capability_index_required",
+                            *result.blocked_reasons,
+                        )
+                    )
+                ),
+            }
+        )
+    result = resolver.resolve(query)
     return result.model_copy(update={"construct_ref": expr.construct})
 
 
@@ -725,14 +744,7 @@ def _query_for_expression(expr: ConstructExpression) -> RequirementToCapabilityQ
 
 
 def _entity_scope_for_expression(expr: ConstructExpression) -> str:
-    by_construct = {
-        "credit_program_enrollment": "firm_or_program",
-        "credit_access": "firm",
-        "firm_survival": "firm",
-        "fiscal_burden_per_beneficiary": "program_or_beneficiary",
-        "regional_displacement_pressure": "region",
-    }
-    return by_construct.get(expr.construct, "construct")
+    return expr.facets.get("entity_scope") or "construct"
 
 
 def _population_filter_for_expression(expr: ConstructExpression) -> dict[str, str]:

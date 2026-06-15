@@ -1,5 +1,8 @@
 # Foundry Phase 0 Acceptance
 
+Owner: `@foundry-owners`
+Source of truth: `tools/quality/validation/foundry_phase0_manifest.json`, `tools/quality/validation/validate_foundry_phase0_closure.py`, and `tools/quality/validation/run_foundry_phase0_validation.sh`
+
 Foundry Phase 0 is considered complete only when the typed uncertainty surfaces,
 runtime substrate, and benchmark evidence are all machine-checkable in the
 repository. This acceptance surface is separate from

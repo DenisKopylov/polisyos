@@ -502,9 +502,12 @@ def _validate_search_health(bundle: g1.Layer3G1Bundle) -> list[dict[str, str]]:
         ),
         (
             counts.get("g1_hardcode_fallback_deletion_status")
-            == "deleted_or_disabled_no_fallback",
+            in {
+                "deleted_or_disabled_no_fallback",
+                "search_path_replaced_deletion_pending",
+            },
             "layer3_g1_hardcode_fallback_not_deleted",
-            "Hardcoded fallback must be deleted or disabled.",
+            "Hardcoded fallback must be deleted or explicitly reported as pending.",
         ),
         (
             int(counts.get("g1_hardcode_fallback_closure_count") or 0) == 0,

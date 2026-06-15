@@ -1,0 +1,476 @@
+{
+  "schema_version": "layer3_gy_data_requirement_compiler_audit.v1",
+  "audit_id": "layer3-gy-data-requirement-compiler-audit-2026-06-14",
+  "source_plan": "docs/plans/active/layer3-slices/GY-engine-subordination.md",
+  "scope": {
+    "question": "Classify polisyos.data_requirement compiler relative to the GY pinned route.",
+    "taxonomy": [
+      "route_pinned",
+      "near_route",
+      "built_not_wired",
+      "out_of_route"
+    ],
+    "capability_reality_lens": "contract + producer + artifact/event + bridge + consumer + verification + surface + semantic test"
+  },
+  "methodology": {
+    "network_fetches_run": false,
+    "agents_used": false,
+    "repo_root": "/Users/deniskopylov/polisyos/policy-engine",
+    "evidence_style": "no-write runtime probes plus static call-site inspection plus targeted tests",
+    "commands": [
+      {
+        "id": "census_absence_probe",
+        "command": "python3 - <<'PY' ... search layer3_gy_engine_census.json for data_requirement ... PY",
+        "result": "row_count=69; data_requirement_rows=0"
+      },
+      {
+        "id": "default_public_compile_probe",
+        "command": "PYTHONPATH=src python3 - <<'PY' ... compile_data_requirements_for_scenario(ua_msme_wartime_credit_support) ... PY",
+        "result": "schema=policyos.data_requirement_compilation.v1; spec_count=0; event=event://data-requirement/scenario-ua_msme_wartime_credit_support"
+      },
+      {
+        "id": "scenario_contract_probe",
+        "command": "PYTHONPATH=src python3 - <<'PY' ... normalize_scenario_evidence_contract(DEFAULT_QUALITY_SCENARIO_ID) ... PY",
+        "result": "data_requirement_specs=0; admissible_data_source_families=[production_msme_panel, credit_program_registry, regional_displacement_indicators]"
+      },
+      {
+        "id": "g1_mapped_resolver_probe",
+        "command": "PYTHONPATH=src python3 - <<'PY' ... DataRequirementCompiler(capability_resolver=build_g1_requirement_to_capability_resolver(...)) ... PY",
+        "result": "spec_count=9; families=[credit_program_registry, production_msme_panel, regional_displacement_indicators]; binding_statuses=[blocked_construct_not_observed]"
+      },
+      {
+        "id": "g1_unmapped_credit_access_probe",
+        "command": "PYTHONPATH=src python3 - <<'PY' ... compile claim requiring credit_access through G1 resolver ... PY",
+        "result": "spec_count=0; capability_index_refs=(layer3-g1:substrate-grounding:l1-dcat)"
+      },
+      {
+        "id": "compiler_surface_tests",
+        "command": "uv run pytest tests/unit/data_requirement/test_compiler.py::test_compiler_emits_claim_bound_data_requirement_specs_from_universal_compilation tests/unit/data_requirement/test_compiler.py::test_missing_resolver_does_not_load_runtime_fixture_when_fallback_is_disabled tests/unit/data_requirement/test_compiler.py::test_compilation_report_is_persisted_as_replayable_artifact tests/unit/runtime/quality/test_scenario_evidence_contract.py::test_data_requirements_carry_source_admissibility_facets_and_owners -q",
+        "result": "4 passed"
+      },
+      {
+        "id": "consumer_tests",
+        "command": "uv run pytest tests/unit/fabric/catalog/test_data_requirement_adapter.py tests/unit/runtime/quality/test_production_data_contract_index.py::test_contract_index_can_bind_directly_against_compiled_data_requirement_specs tests/unit/runtime/quality/test_producer_pipeline.py::test_second_pass_requires_selected_rejected_or_blocked_requirement_binding -q",
+        "result": "5 passed"
+      }
+    ]
+  },
+  "classification": {
+    "primary": "near_route",
+    "route_pinned": false,
+    "near_route": true,
+    "built_not_wired": false,
+    "out_of_route": false,
+    "secondary_capability_state": "implemented_but_not_orchestrated_to_pinned_fetch_admission",
+    "missing_capability_labels": [
+      "bridge_missing",
+      "implemented_but_not_orchestrated",
+      "consumer_missing",
+      "verification_missing"
+    ],
+    "rationale": [
+      "The compiler has a typed public contract, deterministic producer, replayable writer, audit surface, Fabric/source-contract consumers, runtime-quality consumers, and unit/integration tests.",
+      "It is not route-pinned because the normal catalog resolve -> FetchPlan -> FetchExecutor path does not consume DataRequirementSpec rows or source-contract binding status before connector.fetch.",
+      "It is not out_of_route because it governs the same data admissibility seam and is consumed by scenario contracts, production-data contract index, Fabric requirement binding, and producer pipeline code.",
+      "It is not pure built_not_wired because consumers exist; the missing bridge is specifically from compiler/contract binding into pinned fetch admission and public GY census coverage."
+    ]
+  },
+  "summary": {
+    "classification": "near_route",
+    "route_pinned": false,
+    "near_route": true,
+    "built_not_wired": false,
+    "out_of_route": false,
+    "compiler_public_surface_present": true,
+    "typed_contracts_present": true,
+    "compiler_producer_present": true,
+    "audit_surface_present": true,
+    "deterministic_writer_present": true,
+    "fabric_adapter_consumes_specs": true,
+    "production_data_contract_index_consumes_specs": true,
+    "producer_pipeline_consumes_specs": true,
+    "source_selection_audit_can_surface_binding_failures": true,
+    "compiler_default_public_wrapper_emits_specs_for_pinned_scenario": false,
+    "scenario_contract_surfaces_compiled_specs_for_pinned_scenario": false,
+    "scenario_contract_legacy_projection_present": true,
+    "g1_release_backed_mapped_compile_emits_specs": true,
+    "g1_release_backed_unmapped_credit_access_emits_specs": false,
+    "normal_fetch_plan_consumes_data_requirement_specs": false,
+    "normal_fetch_plan_carries_source_contract_binding_status": false,
+    "normal_fetch_execute_enforces_data_requirement_binding": false,
+    "gy_engine_census_contains_data_requirement_compiler": false,
+    "mandatory_facet_count": 16,
+    "admissibility_predicate_count": 7,
+    "mapped_g1_spec_count": 9,
+    "mapped_g1_binding_statuses": [
+      "blocked_construct_not_observed"
+    ],
+    "default_public_scenario_spec_count": 0,
+    "scenario_contract_data_requirement_spec_count": 0,
+    "census_row_count_observed": 69,
+    "census_data_requirement_row_count": 0,
+    "recommended_gy_action": "wire_data_requirement_and_source_contract_binding_into_fetch_admission_or_mark_as_near_route_blocker"
+  },
+  "probes": {
+    "data_requirement_contract": {
+      "schema_version": "policyos.data_requirement_spec.v1",
+      "report_schema_version": "policyos.data_requirement_compilation.v1",
+      "mandatory_facets": [
+        "source_contract_ref",
+        "source_rights",
+        "dictionary_ref",
+        "schema_ref",
+        "field_refs",
+        "unit_refs",
+        "geography_refs",
+        "time_coverage_refs",
+        "freshness_ref",
+        "lineage_refs",
+        "transformation_refs",
+        "quality_assertion_refs",
+        "missingness_refs",
+        "outlier_refs",
+        "construct_validity_refs",
+        "claim_bindability_refs"
+      ],
+      "admissibility_predicates": [
+        "source_family_matches_compiled_requirement",
+        "source_contract_active",
+        "observation_time_covers_claim_time",
+        "lineage_preserves_required_transformations",
+        "missingness_within_tolerance",
+        "quality_minima_satisfied",
+        "claim_bindability_refs_present"
+      ],
+      "authority_boundary": {
+        "authoritative_for": [
+          "data_requirements",
+          "fabric_source_selection_preconditions",
+          "scenario_evidence_contract_legacy_projection"
+        ],
+        "may_not_use_for": [
+          "source_contract_binding_without_fabric_validation",
+          "scenario_family_authority_lookup",
+          "claim_support",
+          "legal_authority",
+          "method_validity",
+          "projection_authority",
+          "closeout_pass"
+        ]
+      },
+      "evidence": [
+        "src/polisyos/data_requirement/compiler.py:39",
+        "src/polisyos/data_requirement/compiler.py:57",
+        "src/polisyos/data_requirement/_impl/models.py:29",
+        "src/polisyos/data_requirement/_impl/models.py:85",
+        "src/polisyos/data_requirement/_impl/models.py:165"
+      ]
+    },
+    "default_public_scenario_compile": {
+      "scenario_id": "ua_msme_wartime_credit_support",
+      "resolver_injected": false,
+      "report_schema_version": "policyos.data_requirement_compilation.v1",
+      "run_id": "scenario-ua_msme_wartime_credit_support",
+      "spec_count": 0,
+      "required_data_families": [],
+      "runtime_event_ref": "event://data-requirement/scenario-ua_msme_wartime_credit_support",
+      "audit_surface": "data_requirement.audit_surface",
+      "capability_index_refs": [],
+      "producer": "data_requirement_compiler",
+      "evidence": [
+        "src/polisyos/data_requirement/compiler.py:439",
+        "src/polisyos/data_requirement/compiler.py:447"
+      ]
+    },
+    "g1_release_backed_mapped_construct_compile": {
+      "resolver": "build_g1_requirement_to_capability_resolver",
+      "scenario_id": "ua_msme_wartime_credit_support",
+      "constructs": [
+        "firm_survival",
+        "regional_displacement_pressure",
+        "credit_program_enrollment"
+      ],
+      "spec_count": 9,
+      "required_data_families": [
+        "credit_program_registry",
+        "production_msme_panel",
+        "regional_displacement_indicators"
+      ],
+      "mandatory_facet_count": 16,
+      "admissibility_predicate_count": 7,
+      "binding_statuses": [
+        "blocked_construct_not_observed"
+      ],
+      "capability_index_refs": [
+        "layer3-g1:substrate-grounding:l1-dcat"
+      ],
+      "authority_boundary_may_not_use_for": [
+        "source_contract_binding_without_fabric_validation",
+        "scenario_family_authority_lookup",
+        "claim_support",
+        "legal_authority",
+        "method_validity",
+        "projection_authority",
+        "closeout_pass"
+      ],
+      "interpretation": "Compiler can emit specs through governed family rows and a G1 resolver, but the embedded capability binding is blocked and does not reach fetch admission."
+    },
+    "g1_release_backed_unmapped_credit_access_compile": {
+      "resolver": "build_g1_requirement_to_capability_resolver",
+      "construct": "credit_access",
+      "spec_count": 0,
+      "capability_index_refs": [
+        "layer3-g1:substrate-grounding:l1-dcat"
+      ],
+      "resolver_status": "blocked_acquisition_required",
+      "interpretation": "Resolver evidence is recorded, but an unmapped construct cannot be projected into a scenario source family/spec."
+    },
+    "scenario_evidence_contract_probe": {
+      "scenario_id": "ukraine_msme_wartime_credit_support",
+      "data_requirement_specs_count": 0,
+      "admissible_data_source_families": [
+        "production_msme_panel",
+        "credit_program_registry",
+        "regional_displacement_indicators"
+      ],
+      "legacy_data_required_facets_first_family": [
+        "source_rights",
+        "dictionary_ref",
+        "schema_ref",
+        "field_refs",
+        "unit_refs",
+        "geography_refs",
+        "time_coverage_refs",
+        "quality_refs",
+        "missingness_refs",
+        "lineage_refs",
+        "transformation_refs",
+        "derived_feature_bindings"
+      ],
+      "interpretation": "Runtime-quality scenario contract still exposes legacy family requirements, not compiled DataRequirementSpec rows, on the pinned quality scenario."
+    },
+    "census_absence_probe": {
+      "artifact": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_engine_census.json",
+      "row_count_observed": 69,
+      "data_requirement_rows": 0,
+      "interpretation": "GY census currently omits the compiler and its audit surface."
+    },
+    "fetch_route_absence_probe": {
+      "fetch_plan_schema_has_typed_data_requirement_fields": false,
+      "fetch_plan_metadata_is_untyped_escape_hatch": true,
+      "retrieval_service_references_data_requirement": false,
+      "fetch_executor_references_data_requirement_or_source_contract_gate": false,
+      "normal_route": "resolve_metric_bindings -> FetchPlan -> FetchExecutor._fetch -> connector.fetch",
+      "evidence": [
+        "src/polisyos/core/contracts/control.py:458",
+        "src/polisyos/fabric/retrieval/service.py:726",
+        "src/polisyos/fabric/retrieval/service.py:870",
+        "src/polisyos/fabric/retrieval/executor.py:204",
+        "src/polisyos/fabric/retrieval/executor.py:210"
+      ]
+    }
+  },
+  "route_rows": [
+    {
+      "route_id": "data_requirement.public_api",
+      "classification": "near_route",
+      "capability_state": "implemented_public_surface",
+      "gap_labels": [],
+      "reaches_pinned_fetch_admission": false,
+      "evidence": [
+        "src/polisyos/data_requirement/__init__.py:18",
+        "src/polisyos/data_requirement/__init__.py:55",
+        "src/polisyos/data_requirement/README.md:3"
+      ]
+    },
+    {
+      "route_id": "data_requirement.typed_contracts",
+      "classification": "near_route",
+      "capability_state": "typed_contracts_present",
+      "gap_labels": [],
+      "reaches_pinned_fetch_admission": false,
+      "evidence": [
+        "src/polisyos/data_requirement/_impl/models.py:85",
+        "src/polisyos/data_requirement/_impl/models.py:165"
+      ]
+    },
+    {
+      "route_id": "data_requirement.compiler.producer",
+      "classification": "near_route",
+      "capability_state": "producer_present",
+      "gap_labels": [
+        "implemented_but_not_orchestrated"
+      ],
+      "reaches_pinned_fetch_admission": false,
+      "evidence": [
+        "src/polisyos/data_requirement/compiler.py:144",
+        "src/polisyos/data_requirement/compiler.py:177",
+        "src/polisyos/data_requirement/compiler.py:287"
+      ]
+    },
+    {
+      "route_id": "data_requirement.governed_family_projection_rows",
+      "classification": "near_route",
+      "capability_state": "projection_rows_present",
+      "gap_labels": [
+        "bridge_missing"
+      ],
+      "reaches_pinned_fetch_admission": false,
+      "evidence": [
+        "src/polisyos/data_requirement/compiler.py:122",
+        "src/polisyos/core/contracts/capability_resolution.py:165",
+        "architecture/policy_design_case/layer2_s3_governed_capability_rows.json:333"
+      ]
+    },
+    {
+      "route_id": "data_requirement.audit_and_persistence_surface",
+      "classification": "near_route",
+      "capability_state": "audit_surface_and_writer_present",
+      "gap_labels": [],
+      "reaches_pinned_fetch_admission": false,
+      "evidence": [
+        "src/polisyos/data_requirement/compiler.py:447",
+        "src/polisyos/data_requirement/compiler.py:476",
+        "tests/unit/data_requirement/test_compiler.py:393"
+      ]
+    },
+    {
+      "route_id": "runtime_quality.scenario_evidence_contract.consumer",
+      "classification": "near_route",
+      "capability_state": "consumer_present_but_pinned_scenario_compiled_specs_empty",
+      "gap_labels": [
+        "bridge_missing",
+        "implemented_but_not_orchestrated"
+      ],
+      "reaches_pinned_fetch_admission": false,
+      "evidence": [
+        "src/polisyos/runtime/quality/scenario_evidence_contract.py:187",
+        "tests/unit/runtime/quality/test_scenario_evidence_contract.py:33",
+        "tests/unit/runtime/quality/test_scenario_evidence_contract.py:132"
+      ]
+    },
+    {
+      "route_id": "runtime_quality.production_data_contract_index.consumer",
+      "classification": "near_route",
+      "capability_state": "consumer_present",
+      "gap_labels": [],
+      "reaches_pinned_fetch_admission": false,
+      "evidence": [
+        "src/polisyos/runtime/quality/production_data_contract_index.py:356",
+        "src/polisyos/runtime/quality/production_data_contract_index.py:378",
+        "tests/unit/runtime/quality/test_production_data_contract_index.py:465"
+      ]
+    },
+    {
+      "route_id": "fabric.data_requirement_adapter.consumer",
+      "classification": "near_route",
+      "capability_state": "strict_consumer_present",
+      "gap_labels": [],
+      "reaches_pinned_fetch_admission": false,
+      "evidence": [
+        "src/polisyos/fabric/catalog/data_requirement_adapter.py:15",
+        "src/polisyos/fabric/catalog/data_requirement_adapter.py:120",
+        "tests/unit/fabric/catalog/test_data_requirement_adapter.py:9"
+      ]
+    },
+    {
+      "route_id": "runtime_quality.producer_pipeline.consumer",
+      "classification": "near_route",
+      "capability_state": "producer_pipeline_consumer_present",
+      "gap_labels": [],
+      "reaches_pinned_fetch_admission": false,
+      "evidence": [
+        "src/polisyos/runtime/quality/producer_pipeline.py:2052",
+        "src/polisyos/runtime/quality/producer_pipeline.py:2292",
+        "tests/unit/runtime/quality/test_producer_pipeline.py:714"
+      ]
+    },
+    {
+      "route_id": "fabric.source_selection_audit.surface",
+      "classification": "near_route",
+      "capability_state": "post_selection_audit_surface_present",
+      "gap_labels": [
+        "implemented_but_not_orchestrated"
+      ],
+      "reaches_pinned_fetch_admission": false,
+      "evidence": [
+        "src/polisyos/fabric/catalog/source_selection_audit.py:474",
+        "src/polisyos/fabric/catalog/source_selection_audit.py:600",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:2307"
+      ]
+    },
+    {
+      "route_id": "retrieval.catalog_binding_to_fetch_plan.absent_data_requirement_bridge",
+      "classification": "route_pinned_absence",
+      "capability_state": "normal_fetch_plan_does_not_consume_data_requirement_specs",
+      "gap_labels": [
+        "bridge_missing",
+        "consumer_missing",
+        "implemented_but_not_orchestrated"
+      ],
+      "reaches_pinned_fetch_admission": true,
+      "evidence": [
+        "src/polisyos/fabric/retrieval/service.py:726",
+        "src/polisyos/fabric/retrieval/service.py:870",
+        "src/polisyos/fabric/retrieval/service.py:888"
+      ]
+    },
+    {
+      "route_id": "core.contracts.FetchPlan.contract_absence",
+      "classification": "route_pinned_absence",
+      "capability_state": "fetch_plan_lacks_typed_data_requirement_or_binding_status",
+      "gap_labels": [
+        "artifact_missing",
+        "bridge_missing"
+      ],
+      "reaches_pinned_fetch_admission": true,
+      "evidence": [
+        "src/polisyos/core/contracts/control.py:458",
+        "src/polisyos/core/contracts/control.py:477"
+      ]
+    },
+    {
+      "route_id": "fetch.executor.admission_consumer",
+      "classification": "route_pinned_absence",
+      "capability_state": "executor_does_not_enforce_data_requirement_or_source_contract_gate",
+      "gap_labels": [
+        "consumer_missing",
+        "bridge_missing"
+      ],
+      "reaches_pinned_fetch_admission": true,
+      "evidence": [
+        "src/polisyos/fabric/retrieval/executor.py:204",
+        "src/polisyos/fabric/retrieval/executor.py:210"
+      ]
+    },
+    {
+      "route_id": "gy_engine_census.coverage",
+      "classification": "audit_surface_gap",
+      "capability_state": "compiler_absent_from_census",
+      "gap_labels": [
+        "verification_missing",
+        "surface_missing"
+      ],
+      "reaches_pinned_fetch_admission": false,
+      "evidence": [
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_engine_census.json"
+      ]
+    }
+  ],
+  "decision_for_plan": {
+    "gy0_census_action": "add data_requirement compiler as near_route asset, not route_pinned green, and record pinned-fetch bridge absence",
+    "gy1_action": "define the admission envelope joining DataRequirementSpec, SourceContract binding report, MetricBindingMatch, and FetchPlan before connector.fetch",
+    "gy2_action": "do not govern FetchPlan execution below this surface until missing compiled specs or rejected source-contract bindings fail closed or downgrade the run"
+  },
+  "pattern_refs": [
+    "P01",
+    "P02",
+    "P03",
+    "P05",
+    "P07",
+    "P08",
+    "P10",
+    "P12",
+    "P15"
+  ]
+}

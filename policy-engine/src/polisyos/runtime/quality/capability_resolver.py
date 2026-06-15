@@ -27,7 +27,6 @@ from polisyos.runtime.quality.capability_index import (
     CapabilityConflictRecord,
     CapabilityIndex,
     CapabilityScope,
-    CapabilitySourceAsset,
     EvidenceCapability,
     FailureModeNode,
     FreshnessEnvelope,
@@ -40,7 +39,6 @@ from polisyos.runtime.quality.hypothesis_ledger import (
     deserialize_hypothesis_ledger,
 )
 
-CONSTRUCT_TO_LEGACY_SCENARIO_FAMILY = core_contracts.CONSTRUCT_TO_LEGACY_SCENARIO_FAMILY
 REQUIREMENT_TO_CAPABILITY_QUERY_SCHEMA_VERSION = (
     core_contracts.REQUIREMENT_TO_CAPABILITY_QUERY_SCHEMA_VERSION
 )
@@ -53,7 +51,10 @@ legacy_family_for_construct = core_contracts.legacy_family_for_construct
 REQUIREMENT_TO_CAPABILITY_RESOLVER_RULE_VERSION = (
     "requirement-to-capability-resolver-v1.0"
 )
-DEFAULT_CAPABILITY_INDEX_REF = "capability-index:policy-evidence-phase4-fixture"
+DEFAULT_CAPABILITY_INDEX_REF = "capability-index:policy-evidence-phase4-governed-rows"
+GOVERNED_CAPABILITY_ROWS_PATH = (
+    Path("architecture/policy_design_case/layer2_s3_governed_capability_rows.json")
+)
 
 type CapabilityBindingResult = _AuthorityCapabilityBindingResult
 
@@ -116,116 +117,31 @@ class RequirementToCapabilityResolver:
 
     @classmethod
     def default_fixture(cls) -> RequirementToCapabilityResolver:
-        """Return the tiny Phase 4 runtime fixture over the existing index contracts."""
+        """Block legacy runtime fixture construction."""
 
+        raise RuntimeError(
+            "A governed capability index is required; load persisted governed capability rows."
+        )
+
+    @classmethod
+    def governed_fixture(cls, repo_root: Path | None = None) -> RequirementToCapabilityResolver:
+        """Load governed capability rows from the persisted Policy Design Case artifact."""
+
+        root = _repo_root() if repo_root is None else Path(repo_root)
+        payload = json.loads(
+            (root / GOVERNED_CAPABILITY_ROWS_PATH).read_text(encoding="utf-8")
+        )
         return cls(
-            capabilities=(
-                _default_firm_survival_capability(),
-                _default_regional_displacement_capability(),
-                _default_firm_survival_scholar_capability(),
+            capabilities=tuple(
+                _capability_payload_from_json(row)
+                for row in payload.get("capabilities") or ()
             ),
-            failure_modes=(
-                FailureModeNode(
-                    failure_id="failure:construct_not_observed:credit_program_enrollment:UA",
-                    construct="credit_program_enrollment",
-                    geography="UA",
-                    cause_class="construct_not_observed",
-                    severity="blocking_governed_pilot",
-                    owner="team-data-acquisition",
-                    acquisition_strategy_refs=(
-                        "acquisition:acquire_from_nbu_registry",
-                        "acquisition:derive_proxy_from_tax_relief_records",
-                        "acquisition:simulation_only_dynamic_treatment",
-                    ),
-                    affected_authority_postures=("governed_pilot", "production"),
-                    detected_at="2026-05-25",
-                    status="blocked_construct_not_observed",
-                    gap_type="construct_gap",
-                    domain=("msme_credit", "fiscal_program_delivery"),
-                    producer_owner="team-data-acquisition",
-                    authority_posture="production",
-                    ttl="P30D",
-                    review_cadence="P14D",
-                    escalation_owner="team-data-acquisition",
-                ),
+            failure_modes=tuple(payload.get("failure_modes") or ()),
+            acquisition_strategies=tuple(payload.get("acquisition_strategies") or ()),
+            conflicts=tuple(payload.get("conflicts") or ()),
+            capability_index_ref=str(
+                payload.get("capability_index_ref") or DEFAULT_CAPABILITY_INDEX_REF
             ),
-            acquisition_strategies=(
-                AcquisitionStrategy(
-                    strategy_id="acquisition:acquire_from_nbu_registry",
-                    target_construct="credit_program_enrollment",
-                    owner=("team-data-acquisition", "team-legal-counsel"),
-                    owner_team="team-data-acquisition",
-                    legal_counsel_owner="team-legal-counsel",
-                    authority_class="government_official_request",
-                    estimated_cost="medium_dollar_amount",
-                    estimated_time="45_days",
-                    prerequisites=(
-                        "NBU registry data-sharing request",
-                        "legal_use_scope_review",
-                        "producer_handshake",
-                    ),
-                    resulting_authority_envelope={
-                        "research": "admissible",
-                        "governed_pilot": "admissible_after_legal_review",
-                        "production": "admissible_after_construct_validity_review",
-                    },
-                    contact_path="ops://team-data-acquisition#acquire-from-nbu-registry",
-                    ttl="P30D",
-                    review_cadence="P14D",
-                    escalation_owner="team-data-acquisition",
-                    requires_construct_validity_review=True,
-                ),
-                AcquisitionStrategy(
-                    strategy_id="acquisition:derive_proxy_from_tax_relief_records",
-                    target_construct="credit_program_enrollment",
-                    owner=("team-data-acquisition", "team-legal-counsel"),
-                    owner_team="team-data-acquisition",
-                    legal_counsel_owner="team-legal-counsel",
-                    authority_class="government_administrative_proxy",
-                    estimated_cost="low_dollar_amount",
-                    estimated_time="21_days",
-                    prerequisites=(
-                        "tax_relief_records_source_contract",
-                        "proxy_construct_validity_protocol",
-                        "legal_use_scope_review",
-                    ),
-                    resulting_authority_envelope={
-                        "research": "admissible_with_proxy_limitation",
-                        "governed_pilot": "admissible_with_proxy_limitation_requires_review",
-                        "production": "blocked_until_construct_validity_review",
-                    },
-                    contact_path="ops://team-data-acquisition#tax-relief-proxy",
-                    ttl="P21D",
-                    review_cadence="P7D",
-                    escalation_owner="team-data-acquisition",
-                    requires_construct_validity_review=True,
-                ),
-                AcquisitionStrategy(
-                    strategy_id="acquisition:simulation_only_dynamic_treatment",
-                    target_construct="credit_program_enrollment",
-                    owner=("team-foundry-owners",),
-                    owner_team="team-foundry-owners",
-                    authority_class="simulation_only_modeling_support",
-                    estimated_cost="low_dollar_amount",
-                    estimated_time="14_days",
-                    prerequisites=(
-                        "dynamic_treatment_model_contract",
-                        "simulation_authority_boundary_notice",
-                        "reviewer_scope_admission",
-                    ),
-                    resulting_authority_envelope={
-                        "research": "advisory_simulation_only",
-                        "governed_pilot": "context_only_with_reviewer_admission",
-                        "production": "blocked_simulation_only",
-                    },
-                    contact_path="ops://team-foundry-owners#dynamic-treatment-simulation",
-                    ttl="P14D",
-                    review_cadence="P7D",
-                    escalation_owner="team-foundry-owners",
-                    requires_construct_validity_review=True,
-                ),
-            ),
-            capability_index_ref=DEFAULT_CAPABILITY_INDEX_REF,
         )
 
     @classmethod
@@ -707,6 +623,8 @@ def _geography_matches(query_geography: str, capability_geography: str) -> bool:
 def _entity_scope_matches(query_scope: str, capability_scope: str) -> bool:
     query = _slug(query_scope)
     capability = _slug(capability_scope)
+    if query in {"construct", "unspecified"}:
+        return True
     if query == capability:
         return True
     query_parts = set(query.split("_or_"))
@@ -810,164 +728,17 @@ def _placeholder_capability(query: RequirementToCapabilityQuery) -> EvidenceCapa
     )
 
 
-def _default_firm_survival_capability() -> EvidenceCapability:
-    return EvidenceCapability(
-        capability_id="capability:firm_survival_signal__ua__wartime_2022",
-        construct="firm_survival",
-        modality=("fabric_data", "derived"),
-        evidence_mode="derived_administrative_with_proxy_validation",
-        concept_spine_refs=("concept:firm_survival", "concept:registered_firm"),
-        scope=CapabilityScope(
-            geography="UA",
-            time_start="2022-02-01",
-            schema_regime="ukraine_schema_v2",
-            population="registered_firms",
-            entity_scope="firm",
-        ),
-        identification_mode="proxy_identified",
-        trust_tier="administrative_noisy",
-        quality_score=QualityScore(
-            composite=0.73,
-            breakdown={
-                "schema_profile_present": 1.0,
-                "variable_alignment_confidence": 0.85,
-                "freshness": 0.8,
-                "construct_validity": 0.7,
-            },
-        ),
-        source_assets=(
-            CapabilitySourceAsset(
-                ref="parquet:dps_financials/firm_fundamentals_annual",
-                source_layer="L4",
-                asset_type="parquet",
-                role="firm_fundamentals",
-                fields=("revenue", "assets", "employees"),
-            ),
-            CapabilitySourceAsset(
-                ref="parquet:calibration/d3/survival_hazard_estimates",
-                source_layer="L5",
-                asset_type="parquet",
-                role="proxy_validation",
-                fields=("duration", "event", "risk_signal"),
-            ),
-        ),
-        method_contract_targets=("foundry.ml.survival_data.v1",),
-        proxy_validation={
-            "construct_validity_status": "proxy_validated",
-            "validated_by": ["survival_hazard_estimates.event"],
-        },
-        limitations=(
-            "Excludes informal-sector firms not represented in the EDR registry.",
-            "Survival event is derived from distress signals, not direct firm-closure registry.",
-        ),
-        authority_envelope=AuthorityEnvelope(
-            research="admissible",
-            governed_pilot="admissible_with_proxy_limitation",
-            production="blocked_construct_validity_below_floor",
-            authoritative_for=("governed_pilot_data_evidence",),
-            may_not_use_for=("production_closeout_without_construct_validity_review",),
-            authority_basis=("L4 Ukraine panels", "L5 calibration registries"),
-        ),
-        lineage_refs=("source_snapshot:ukraine_server_support_20260410", "calibration_run:d3"),
-        freshness_envelope=FreshnessEnvelope(
-            freshness_class="fresh_for_governed_pilot",
-            source_release_ref="ukraine_server_support_20260410",
-        ),
-        rights_envelope=RightsEnvelope(
-            access_class="government_administrative",
-            public_export_allowed="aggregate_only",
-            restrictions=("no_row_level_public_export",),
-        ),
-    )
-
-
-def _default_regional_displacement_capability() -> EvidenceCapability:
-    return EvidenceCapability(
-        capability_id="capability:regional_displacement_pressure__ua__transport_proxy",
-        construct="regional_displacement_pressure",
-        modality=("fabric_data",),
-        evidence_mode="proxy_observational",
-        concept_spine_refs=("concept:regional_displacement_pressure",),
-        scope=CapabilityScope(
-            geography="UA",
-            time_start="2022-02-01",
-            schema_regime="ukraine_schema_v2",
-            population="displacement_affected_regions",
-            entity_scope="region",
-            spatial_granularity="region",
-        ),
-        identification_mode="proxy_identified",
-        trust_tier="derived_proxy",
-        quality_score=QualityScore(
-            composite=0.62,
-            breakdown={"construct_validity": 0.65, "sample_sparsity": 0.35},
-        ),
-        source_assets=(
-            CapabilitySourceAsset(
-                ref="parquet:logistics_mobility_displacement/transport_pressure_monthly",
-                source_layer="L4",
-                asset_type="parquet",
-                role="mobility_pressure_proxy",
-                row_count=56,
-                fields=("region_code", "mobility_pressure"),
-            ),
-        ),
-        proxy_validation={"construct_validity_status": "proxy_validated"},
-        limitations=(
-            "Sparse sample and indirect transport-pressure proxy.",
-            "Does not directly observe household displacement status.",
-        ),
-        authority_envelope=AuthorityEnvelope(
-            research="admissible_with_proxy_limitation",
-            governed_pilot="admissible_with_proxy_limitation",
-            production="blocked_sample_size_below_floor",
-            authoritative_for=("governed_pilot_context_data",),
-            may_not_use_for=("production_claim_evidence",),
-        ),
-        lineage_refs=("source_snapshot:ukraine_server_support_20260410",),
-        freshness_envelope=FreshnessEnvelope(freshness_class="fresh_for_governed_pilot"),
-        rights_envelope=RightsEnvelope(access_class="government_administrative"),
-        metadata={"sample_size": 56},
-    )
-
-
-def _default_firm_survival_scholar_capability() -> EvidenceCapability:
-    return EvidenceCapability(
-        capability_id="capability:firm_survival_scholar_credit_access",
-        construct="firm_survival",
-        modality=("scholar_claim",),
-        evidence_mode="scholarly_causal_support",
-        concept_spine_refs=("concept:firm_survival", "concept:credit_access"),
-        scope=CapabilityScope(geography="multi_context", entity_scope="construct_pair"),
-        identification_mode="partially_identified",
-        trust_tier="administrative_noisy",
-        quality_score=QualityScore(composite=0.78, breakdown={"construct_validity": 0.78}),
-        source_assets=(
-            CapabilitySourceAsset(
-                ref="duckdb:scholar_knowledge.duckdb:ac_skg_edges:credit_access_firm_survival",
-                source_layer="L2",
-                asset_type="duckdb_table_row",
-                role="scholarly_causal_edge",
-            ),
-        ),
-        limitations=("Scholar support cannot satisfy direct runtime outcome observation.",),
-        authority_envelope=AuthorityEnvelope(
-            research="admissible",
-            governed_pilot="admissible_as_scholarly_support",
-            production="blocked_for_direct_outcome_evidence",
-            authoritative_for=("scholarly_support", "method_support"),
-            may_not_use_for=("direct_data_observation",),
-        ),
-        lineage_refs=("scholar_kg:policyos_academic_runtime_slim_20260411T112032Z",),
-        freshness_envelope=FreshnessEnvelope(freshness_class="scholar_release_snapshot"),
-        rights_envelope=RightsEnvelope(access_class="academic_metadata"),
-    )
-
-
 def _capability_model(value: EvidenceCapability | Mapping[str, Any]) -> EvidenceCapability:
     if isinstance(value, EvidenceCapability):
         return value
     return EvidenceCapability.model_validate(value)
+
+
+def _capability_payload_from_json(value: Mapping[str, Any]) -> dict[str, Any]:
+    payload = dict(value)
+    if "source_assets" in payload:
+        payload["source_assets"] = tuple(payload["source_assets"] or ())
+    return payload
 
 
 def _failure_mode_model(value: FailureModeNode | Mapping[str, Any]) -> FailureModeNode:
@@ -1036,8 +807,11 @@ def _text_tuple(value: object) -> tuple[str, ...]:
     return tuple(rows)
 
 
+def _repo_root() -> Path:
+    return Path(__file__).resolve().parents[4]
+
+
 __all__ = [
-    "CONSTRUCT_TO_LEGACY_SCENARIO_FAMILY",
     "DEFAULT_CAPABILITY_INDEX_REF",
     "REQUIREMENT_TO_CAPABILITY_QUERY_SCHEMA_VERSION",
     "REQUIREMENT_TO_CAPABILITY_RESOLVER_RULE_VERSION",

@@ -3,9 +3,7 @@
     "layer3_g8_metric_governance_audit"
   ],
   "failing_negative_ids": [],
-  "issue_codes": [
-    "layer3_g8_conformance_negative_missing"
-  ],
+  "issue_codes": [],
   "may_not_use_for": [
     "production_authority",
     "production_claim_authority",
@@ -35,12 +33,224 @@
     "hidden_fixture_access",
     "g7_region_widening_authority"
   ],
-  "missing_negative_ids": [
-    "public_projection_authority_leak"
+  "missing_negative_ids": [],
+  "negative_results": [
+    {
+      "expected_issue_codes": [
+        "layer3_g8_metric_improved_by_threshold_lowering"
+      ],
+      "missing_issue_codes": [],
+      "negative_id": "metric_improved_by_threshold_lowering",
+      "observed_issue_codes": [
+        "layer3_g8_metric_improved_by_threshold_lowering"
+      ],
+      "probe_ref": "layer3-g8://conformance/negative/metric_improved_by_threshold_lowering",
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g8_useful_design_rate_optimized"
+      ],
+      "missing_issue_codes": [],
+      "negative_id": "useful_design_rate_optimization",
+      "observed_issue_codes": [
+        "layer3_g8_useful_design_rate_optimized"
+      ],
+      "probe_ref": "layer3-g8://conformance/negative/useful_design_rate_optimization",
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g8_search_recall_miss_reported_as_domain_ceiling"
+      ],
+      "missing_issue_codes": [],
+      "negative_id": "search_recall_miss_as_domain_ceiling",
+      "observed_issue_codes": [
+        "layer3_g8_search_recall_miss_reported_as_domain_ceiling",
+        "layer3_g8_flat_expansion_reported_as_domain_ceiling_without_search_health"
+      ],
+      "probe_ref": "layer3-g8://conformance/negative/search_recall_miss_as_domain_ceiling",
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g8_blocker_specific_search_diagnostic_missing",
+        "layer3_g8_global_seed_health_used_as_current_blocker_health"
+      ],
+      "missing_issue_codes": [],
+      "negative_id": "global_seed_health_as_current_blocker_health",
+      "observed_issue_codes": [
+        "layer3_g8_open_question_evidence_ref_unresolved",
+        "required_ref_missing_artifact",
+        "layer3_g8_blocker_specific_search_diagnostic_missing",
+        "layer3_g8_global_seed_health_used_as_current_blocker_health"
+      ],
+      "probe_ref": "layer3-g8://conformance/negative/global_seed_health_as_current_blocker_health",
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g8_blocker_specific_search_diagnostic_missing"
+      ],
+      "missing_issue_codes": [],
+      "negative_id": "blocker_specific_search_ledger_absent",
+      "observed_issue_codes": [
+        "layer3_g8_open_question_evidence_ref_unresolved",
+        "required_ref_missing_artifact",
+        "layer3_g8_blocker_specific_search_diagnostic_missing",
+        "layer3_g8_global_seed_health_used_as_current_blocker_health"
+      ],
+      "probe_ref": "layer3-g8://conformance/negative/blocker_specific_search_ledger_absent",
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g8_domain_ceiling_claim_without_admission_or_deref"
+      ],
+      "missing_issue_codes": [],
+      "negative_id": "domain_ceiling_without_admission_or_deref",
+      "observed_issue_codes": [
+        "layer3_g8_domain_ceiling_claim_without_admission_or_deref",
+        "layer3_g8_search_recall_miss_reported_as_domain_ceiling"
+      ],
+      "probe_ref": "layer3-g8://conformance/negative/domain_ceiling_without_admission_or_deref",
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g8_positive_open_question_reducer_provenance_missing"
+      ],
+      "missing_issue_codes": [],
+      "negative_id": "positive_open_question_without_reducer_provenance",
+      "observed_issue_codes": [
+        "layer3_g8_positive_open_question_reducer_provenance_missing"
+      ],
+      "probe_ref": "layer3-g8://conformance/negative/positive_open_question_without_reducer_provenance",
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g8_flat_expansion_reported_as_domain_ceiling_without_search_health"
+      ],
+      "missing_issue_codes": [],
+      "negative_id": "flat_expansion_with_current_blocker_as_domain_ceiling",
+      "observed_issue_codes": [
+        "layer3_g8_flat_expansion_reported_as_domain_ceiling_without_search_health"
+      ],
+      "probe_ref": "layer3-g8://conformance/negative/flat_expansion_with_current_blocker_as_domain_ceiling",
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g8_governance_stall_hidden_as_domain_ceiling"
+      ],
+      "missing_issue_codes": [],
+      "negative_id": "governance_stall_as_domain_ceiling",
+      "observed_issue_codes": [
+        "layer3_g8_search_recall_miss_reported_as_domain_ceiling",
+        "layer3_g8_governance_stall_hidden_as_domain_ceiling",
+        "layer3_g8_flat_expansion_reported_as_domain_ceiling_without_search_health"
+      ],
+      "probe_ref": "layer3-g8://conformance/negative/governance_stall_as_domain_ceiling",
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g8_abstention_inertia_hidden_as_honesty"
+      ],
+      "missing_issue_codes": [],
+      "negative_id": "abstention_inertia_as_honesty",
+      "observed_issue_codes": [
+        "layer3_g8_search_recall_miss_reported_as_domain_ceiling",
+        "layer3_g8_abstention_inertia_hidden_as_honesty",
+        "layer3_g8_flat_expansion_reported_as_domain_ceiling_without_search_health"
+      ],
+      "probe_ref": "layer3-g8://conformance/negative/abstention_inertia_as_honesty",
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g8_semantic_loss_hidden_by_metric_rollup"
+      ],
+      "missing_issue_codes": [],
+      "negative_id": "semantic_loss_hidden_by_metric_rollup",
+      "observed_issue_codes": [
+        "layer3_g8_blocker_specific_search_diagnostic_missing",
+        "layer3_g8_global_seed_health_used_as_current_blocker_health",
+        "layer3_g8_semantic_loss_hidden_by_metric_rollup"
+      ],
+      "probe_ref": "layer3-g8://conformance/negative/semantic_loss_hidden_by_metric_rollup",
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g8_rebasing_mutates_sealed_battery"
+      ],
+      "missing_issue_codes": [],
+      "negative_id": "rebasing_mutates_sealed_battery",
+      "observed_issue_codes": [
+        "layer3_g8_rebasing_mutates_sealed_battery",
+        "layer3_g8_rebasing_lowers_s14_floor",
+        "layer3_g8_rebasing_leaks_gold_or_hidden_payload"
+      ],
+      "probe_ref": "layer3-g8://conformance/negative/rebasing_mutates_sealed_battery",
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g8_rebasing_leaks_gold_or_hidden_payload"
+      ],
+      "missing_issue_codes": [],
+      "negative_id": "rebasing_leaks_gold_or_hidden_payload",
+      "observed_issue_codes": [
+        "layer3_g8_rebasing_mutates_sealed_battery",
+        "layer3_g8_rebasing_lowers_s14_floor",
+        "layer3_g8_rebasing_leaks_gold_or_hidden_payload"
+      ],
+      "probe_ref": "layer3-g8://conformance/negative/rebasing_leaks_gold_or_hidden_payload",
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g8_rebasing_lowers_s14_floor"
+      ],
+      "missing_issue_codes": [],
+      "negative_id": "rebasing_lowers_s14_floor",
+      "observed_issue_codes": [
+        "layer3_g8_rebasing_mutates_sealed_battery",
+        "layer3_g8_rebasing_lowers_s14_floor",
+        "layer3_g8_rebasing_leaks_gold_or_hidden_payload"
+      ],
+      "probe_ref": "layer3-g8://conformance/negative/rebasing_lowers_s14_floor",
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g8_metric_used_as_closeout_authority"
+      ],
+      "missing_issue_codes": [],
+      "negative_id": "closeout_signal_used_as_authority",
+      "observed_issue_codes": [
+        "layer3_g8_metric_used_as_closeout_authority"
+      ],
+      "probe_ref": "layer3-g8://conformance/negative/closeout_signal_used_as_authority",
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g8_public_projection_authority_leak"
+      ],
+      "missing_issue_codes": [],
+      "negative_id": "public_projection_authority_leak",
+      "observed_issue_codes": [
+        "layer3_g8_public_projection_authority_leak"
+      ],
+      "probe_ref": "layer3-g8://conformance/negative/public_projection_authority_leak",
+      "status": "pass"
+    }
   ],
-  "negative_results": [],
   "report_id": "layer3-g8://conformance-report",
   "rule_version": "policyos.layer3.g8.health_metric_governance.v1",
   "schema_version": "policyos.policy_design_case.layer3_g8_health_metric_governance.v1",
-  "status": "blocked"
+  "status": "pass"
 }

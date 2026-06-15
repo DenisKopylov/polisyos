@@ -1,0 +1,95 @@
+{
+  "authoritative_for": [
+    "layer3_g8_metric_governance_audit",
+    "layer3_g8_d44_rebasing_integrity_reading",
+    "layer3_g8_open_question_answer_reading"
+  ],
+  "current_blocker_refs": [
+    "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json#g5_conversion_outcome",
+    "repo://architecture/policy_design_case/layer3_g7_readiness_manifest.json#g7_region_value_closure_status",
+    "repo://architecture/policy_design_case/layer3_g7_readiness_manifest.json#g7_region_grounded_case_count"
+  ],
+  "demand_pull_status": "abstention_inertia",
+  "diagnoses": [
+    "search_ceiling",
+    "governance_bottleneck",
+    "current_grounding_blocker"
+  ],
+  "diagnosis_id": "layer3-g8://cross-metric-diagnosis",
+  "effective_independence_source_ref": "repo://architecture/policy_design_case/layer3_g5_effective_evidence_independence.json#independence_map_payload.effective_mass_report",
+  "effective_independence_status": "singular",
+  "effective_independent_evidence_count": 0,
+  "envelope_expansion_status": "numeric_reading",
+  "governance_throughput_status": "fail",
+  "issue_codes": [
+    "layer3_g8_search_recall_miss_reported_as_domain_ceiling",
+    "layer3_g8_demand_numeric_inertia_hidden_as_pass",
+    "layer3_g8_blocker_specific_search_diagnostic_missing",
+    "layer3_g8_governance_stall_hidden_as_domain_ceiling"
+  ],
+  "may_not_use_for": [
+    "production_authority",
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "public_recommendation",
+    "policy_recommendation",
+    "legal_advice",
+    "claim_authority",
+    "obligation_authority",
+    "causal_effect_authority",
+    "proof_authority",
+    "legal_authority",
+    "recommendation_authority",
+    "universal_claim_authority",
+    "universal_claim_authority_without_s14",
+    "s14_universality_claim_without_s14_gate",
+    "domain_ceiling_authority_without_gate",
+    "metric_optimization_authority",
+    "useful_design_rate_optimization",
+    "threshold_lowering",
+    "s14_battery_training",
+    "hidden_fixture_access",
+    "g7_region_widening_authority"
+  ],
+  "rule_version": "policyos.layer3.g8.health_metric_governance.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g8_health_metric_governance.v1",
+  "search_health_classification": {
+    "admission_status": "unmeasured",
+    "classification_id": "layer3-g8://search-health-classification",
+    "current_blocker_status": "unmeasured",
+    "dereferenced_artifact_status": "unmeasured",
+    "evidence_refs": [
+      "repo://architecture/policy_design_case/layer3_g1_health_metric_delta.toml",
+      "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json",
+      "repo://architecture/policy_design_case/layer3_g2_health_metric_delta.toml",
+      "repo://architecture/policy_design_case/layer3_g2_search_recall_freshness.json",
+      "repo://architecture/policy_design_case/layer3_g2_readiness_manifest.json",
+      "repo://architecture/policy_design_case/layer3_g3_health_metric_delta.toml",
+      "repo://architecture/policy_design_case/layer3_g3_search_recall_freshness.json",
+      "repo://architecture/policy_design_case/layer3_g3_readiness_manifest.json",
+      "repo://architecture/policy_design_case/layer3_gl_health_metric_delta.toml",
+      "repo://architecture/policy_design_case/layer3_gl_search_recall_freshness.json",
+      "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
+      "repo://architecture/policy_design_case/layer3_g5_health_metric_delta.toml",
+      "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json",
+      "repo://architecture/policy_design_case/layer3_g7_dependency_readiness_snapshot.json",
+      "repo://architecture/policy_design_case/layer3_g7_search_recall_freshness_join.json"
+    ],
+    "freshness_status": "unmeasured",
+    "issue_codes": [
+      "layer3_g8_blocker_specific_search_diagnostic_missing"
+    ],
+    "pinned_request_status": "unmeasured",
+    "production_readiness_status": "blocked_current_blocker_search_unmeasured",
+    "search_frontier_status": "unmeasured",
+    "seed_corpus_status": "fail"
+  },
+  "search_recall_freshness_status": "fail",
+  "semantic_loss_status": "pass",
+  "status": "pass"
+}

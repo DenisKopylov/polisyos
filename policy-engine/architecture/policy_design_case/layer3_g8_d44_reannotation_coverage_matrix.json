@@ -1,0 +1,295 @@
+{
+  "authoritative_for": [
+    "layer3_g8_metric_governance_audit",
+    "layer3_g8_d44_rebasing_integrity_reading",
+    "layer3_g8_open_question_answer_reading"
+  ],
+  "field_rows": [
+    {
+      "coverage_status": "required_for_next_rebase",
+      "field_id": "problem_framing_independent_of_existing_policy",
+      "issue_codes": [],
+      "source_ref": "repo://docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md#D4.4"
+    },
+    {
+      "coverage_status": "required_for_next_rebase",
+      "field_id": "axis_position_vector",
+      "issue_codes": [],
+      "source_ref": "repo://docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md#D4.4"
+    },
+    {
+      "coverage_status": "required_for_next_rebase",
+      "field_id": "per_axis_firewall_status",
+      "issue_codes": [],
+      "source_ref": "repo://docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md#D4.4"
+    },
+    {
+      "coverage_status": "required_for_next_rebase",
+      "field_id": "claim_epistemic_regime_labels",
+      "issue_codes": [],
+      "source_ref": "repo://docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md#D4.4"
+    },
+    {
+      "coverage_status": "required_for_next_rebase",
+      "field_id": "regime_conditional_design_strategy",
+      "issue_codes": [],
+      "source_ref": "repo://docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md#D4.4"
+    },
+    {
+      "coverage_status": "required_for_next_rebase",
+      "field_id": "scale_class",
+      "issue_codes": [],
+      "source_ref": "repo://docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md#D4.4"
+    },
+    {
+      "coverage_status": "required_for_next_rebase",
+      "field_id": "recursive_sub_design_graph",
+      "issue_codes": [],
+      "source_ref": "repo://docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md#D4.4"
+    },
+    {
+      "coverage_status": "required_for_next_rebase",
+      "field_id": "coupling_graph",
+      "issue_codes": [],
+      "source_ref": "repo://docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md#D4.4"
+    },
+    {
+      "coverage_status": "required_for_next_rebase",
+      "field_id": "decomposition_result",
+      "issue_codes": [],
+      "source_ref": "repo://docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md#D4.4"
+    },
+    {
+      "coverage_status": "required_for_next_rebase",
+      "field_id": "interaction_residual_annotations",
+      "issue_codes": [],
+      "source_ref": "repo://docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md#D4.4"
+    },
+    {
+      "coverage_status": "required_for_next_rebase",
+      "field_id": "expert_candidate_designs",
+      "issue_codes": [],
+      "source_ref": "repo://docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md#D4.4"
+    },
+    {
+      "coverage_status": "required_for_next_rebase",
+      "field_id": "rejected_alternatives",
+      "issue_codes": [],
+      "source_ref": "repo://docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md#D4.4"
+    },
+    {
+      "coverage_status": "required_for_next_rebase",
+      "field_id": "critical_path_annotations",
+      "issue_codes": [],
+      "source_ref": "repo://docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md#D4.4"
+    },
+    {
+      "coverage_status": "required_for_next_rebase",
+      "field_id": "dependency_annotations",
+      "issue_codes": [],
+      "source_ref": "repo://docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md#D4.4"
+    },
+    {
+      "coverage_status": "required_for_next_rebase",
+      "field_id": "system_dynamics_feedback_equilibrium_obligations",
+      "issue_codes": [],
+      "source_ref": "repo://docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md#D4.4"
+    },
+    {
+      "coverage_status": "satisfied_by_existing_s14_record",
+      "field_id": "expected_evidence_tier",
+      "issue_codes": [],
+      "source_ref": "repo://architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json#supporting_records.UniversalityBreadthFloorConfig"
+    },
+    {
+      "coverage_status": "required_for_next_rebase",
+      "field_id": "construct_demand_denominator",
+      "issue_codes": [],
+      "source_ref": "repo://docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md#D4.4"
+    },
+    {
+      "coverage_status": "satisfied_by_existing_s14_record",
+      "field_id": "available_source_contracts",
+      "issue_codes": [],
+      "source_ref": "repo://architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json#grounded_authority_coverage_ref"
+    },
+    {
+      "coverage_status": "required_for_next_rebase",
+      "field_id": "unavailable_source_contracts",
+      "issue_codes": [],
+      "source_ref": "repo://docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md#D4.4"
+    },
+    {
+      "coverage_status": "satisfied_by_existing_s14_record",
+      "field_id": "expected_graded_outcome_by_authority_posture",
+      "issue_codes": [],
+      "source_ref": "repo://architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json#supporting_records.EvaluationStatusCompositionRecord"
+    },
+    {
+      "coverage_status": "satisfied_by_existing_s14_record",
+      "field_id": "certified_operation_envelope_status",
+      "issue_codes": [],
+      "source_ref": "repo://architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json#declared_operation_envelope_ref"
+    },
+    {
+      "coverage_status": "satisfied_by_existing_s14_record",
+      "field_id": "expected_abstention_limitation_boundary",
+      "issue_codes": [],
+      "source_ref": "repo://architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json#universal_claim_gate_status"
+    },
+    {
+      "coverage_status": "satisfied_by_existing_s14_record",
+      "field_id": "expected_counterexample_class",
+      "issue_codes": [],
+      "source_ref": "repo://architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json#skeptic_defeater_mapping"
+    },
+    {
+      "coverage_status": "required_for_next_rebase",
+      "field_id": "valid_refinement_decision",
+      "issue_codes": [],
+      "source_ref": "repo://docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md#D4.4"
+    },
+    {
+      "coverage_status": "required_for_next_rebase",
+      "field_id": "search_ledger_replay_surface",
+      "issue_codes": [],
+      "source_ref": "repo://docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md#D4.4"
+    },
+    {
+      "coverage_status": "required_for_next_rebase",
+      "field_id": "human_decision_points",
+      "issue_codes": [],
+      "source_ref": "repo://docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md#D4.4"
+    },
+    {
+      "coverage_status": "required_for_next_rebase",
+      "field_id": "accountable_actor",
+      "issue_codes": [],
+      "source_ref": "repo://docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md#D4.4"
+    },
+    {
+      "coverage_status": "required_for_next_rebase",
+      "field_id": "mandate_boundary",
+      "issue_codes": [],
+      "source_ref": "repo://docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md#D4.4"
+    },
+    {
+      "coverage_status": "required_for_next_rebase",
+      "field_id": "responsibility_integrity_requirements",
+      "issue_codes": [],
+      "source_ref": "repo://docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md#D4.4"
+    },
+    {
+      "coverage_status": "required_for_next_rebase",
+      "field_id": "canonical_design_record_contents",
+      "issue_codes": [],
+      "source_ref": "repo://docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md#D4.4"
+    },
+    {
+      "coverage_status": "required_for_next_rebase",
+      "field_id": "projection_requests",
+      "issue_codes": [],
+      "source_ref": "repo://docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md#D4.4"
+    },
+    {
+      "coverage_status": "required_for_next_rebase",
+      "field_id": "redaction_access_posture",
+      "issue_codes": [],
+      "source_ref": "repo://docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md#D4.4"
+    },
+    {
+      "coverage_status": "required_for_next_rebase",
+      "field_id": "lowering_requests_with_authority_gates",
+      "issue_codes": [],
+      "source_ref": "repo://docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md#D4.4"
+    },
+    {
+      "coverage_status": "satisfied_by_existing_s14_record",
+      "field_id": "bootstrap_role",
+      "issue_codes": [],
+      "source_ref": "repo://architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json#supporting_records.ExpertOracleBootstrapRecord"
+    },
+    {
+      "coverage_status": "required_for_next_rebase",
+      "field_id": "reuse_vs_bespoke_signal",
+      "issue_codes": [],
+      "source_ref": "repo://docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md#D4.4"
+    },
+    {
+      "coverage_status": "required_for_next_rebase",
+      "field_id": "resource_economics_annotation",
+      "issue_codes": [],
+      "source_ref": "repo://docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md#D4.4"
+    },
+    {
+      "coverage_status": "satisfied_by_existing_s14_record",
+      "field_id": "universality_battery_metadata",
+      "issue_codes": [],
+      "source_ref": "repo://architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json#artifact_records.SealedUniversalityBatteryRun"
+    },
+    {
+      "coverage_status": "satisfied_by_existing_s14_record",
+      "field_id": "post_deploy_monitoring_hooks",
+      "issue_codes": [],
+      "source_ref": "repo://architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json#supporting_records.EnvelopeRevisionDynamicsRecord"
+    },
+    {
+      "coverage_status": "satisfied_by_existing_s14_record",
+      "field_id": "historical_outcomes_prediction_backtest_usability",
+      "issue_codes": [],
+      "source_ref": "repo://architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json#baseline_comparison_ref"
+    },
+    {
+      "coverage_status": "satisfied_by_existing_s14_record",
+      "field_id": "realized_regret_observability",
+      "issue_codes": [],
+      "source_ref": "repo://architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json#supporting_records.EvaluationStatusCompositionRecord"
+    },
+    {
+      "coverage_status": "required_for_next_rebase",
+      "field_id": "reviewer_disagreement",
+      "issue_codes": [],
+      "source_ref": "repo://docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md#D4.4"
+    },
+    {
+      "coverage_status": "required_for_next_rebase",
+      "field_id": "value_choice_provenance",
+      "issue_codes": [],
+      "source_ref": "repo://docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md#D4.4"
+    }
+  ],
+  "issue_codes": [],
+  "matrix_id": "layer3-g8://d44-reannotation-coverage-matrix",
+  "may_not_use_for": [
+    "production_authority",
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "public_recommendation",
+    "policy_recommendation",
+    "legal_advice",
+    "claim_authority",
+    "obligation_authority",
+    "causal_effect_authority",
+    "proof_authority",
+    "legal_authority",
+    "recommendation_authority",
+    "universal_claim_authority",
+    "universal_claim_authority_without_s14",
+    "s14_universality_claim_without_s14_gate",
+    "domain_ceiling_authority_without_gate",
+    "metric_optimization_authority",
+    "useful_design_rate_optimization",
+    "threshold_lowering",
+    "s14_battery_training",
+    "hidden_fixture_access",
+    "g7_region_widening_authority"
+  ],
+  "rule_version": "policyos.layer3.g8.health_metric_governance.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g8_health_metric_governance.v1",
+  "status": "pass"
+}

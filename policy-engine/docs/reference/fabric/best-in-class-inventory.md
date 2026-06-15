@@ -2,6 +2,7 @@
 
 Freshness: 2026-04-26.
 Owner: `@fabric-owners`
+Source of truth: `tools/quality/validation/fabric_best_in_class_manifest.json` and `tools/quality/validation/fabric_best_in_class_inventory.py`
 Phase: 0 baseline inventory.
 
 This page is generated from `tools/quality/validation/fabric_best_in_class_manifest.json` by `tools/quality/validation/fabric_best_in_class_inventory.py`.

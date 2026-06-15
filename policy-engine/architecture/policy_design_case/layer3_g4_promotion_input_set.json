@@ -1,288 +1,32 @@
 {
-  "issue_codes": [],
-  "promotion_inputs": [
-    {
-      "candidate_ref": "s2-design-candidate:ua-msme-credit-support",
-      "candidate_source": "shadow_design_record_v0",
-      "case_id": "ua-msme-affordable-loans-2022",
-      "claim_refs": [
-        "claim://ua-msme/firm-survival/source-data-grounding"
-      ],
-      "envelope_ref": "envelope://ua-msme/source-data-bounded",
-      "grounded_contract_rows": [
-        {
-          "adapter_admission_ref": "repo://architecture/policy_design_case/layer3_g1_adapter_admission_registry.json#g1",
-          "authoritative_for": [
-            "layer3_g1_construct_grounding_audit"
-          ],
-          "binding_id": "g1-binding:firm-survival",
-          "conformance_ref": "repo://architecture/policy_design_case/layer3_g1_conformance_report.json#g1",
-          "coverage_period_ref": "coverage-period://ua-msme/2022-02-open",
-          "family": "g1_source_contract",
-          "freshness_ref": "freshness://ukraine_server_support_20260410",
-          "lineage_refs": [
-            "repo://production_data/ua-msme/source-contract.json"
-          ],
-          "may_not_use_for": [
-            "claim_authority",
-            "production_authority"
-          ],
-          "ref": "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json#bindings/firm_survival"
-        }
-      ],
-      "human_decision_policy": {
-        "human_decision_required": false,
-        "rationale": "Routine, non-high-stakes source/data-only promotion within a bounded envelope."
-      },
-      "incoming_projection_status": "shadow",
-      "issue_codes": [],
-      "may_not_use_for": [
-        "production_authority",
-        "production_claim_authority",
-        "rollout_authority",
-        "publication_authority",
-        "approval_authority",
-        "scorecard_authority",
-        "closeout_authority",
-        "runtime_closeout_authority",
-        "closeout_verdict",
-        "claim_authority",
-        "claim_authority_without_upstream_grounding",
-        "source_data_truth_authority",
-        "public_recommendation",
-        "policy_recommendation",
-        "useful_design_credit_before_g5",
-        "causal_effect_authority_without_g2",
-        "proof_authority_without_g3",
-        "legal_authority_without_gl",
-        "human_override_of_a_incompleteness"
-      ],
-      "promotion_scope": {
-        "authority_purpose": "layer3_g4_governed_promotion_state",
-        "claim_families": [
-          "source_data"
-        ],
-        "high_stakes": false,
-        "requested_boundary": "bounded",
-        "requires_legal_or_mandate_authority": false,
-        "routine_in_envelope": true
-      },
-      "required_contract_families": [
-        "g1_source_contract"
-      ],
-      "source_design_record_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
-      "source_design_record_ref": "cas://s2/design-record/ua-msme-credit-support",
-      "source_design_record_replay_ref": "cas://s2/search-run/ua-msme-credit-support",
-      "source_design_record_resolution_status": "full_payload",
-      "stakes_profile": {
-        "accountability_sensitive": false,
-        "high_stakes": false,
-        "out_of_routine": false,
-        "ranked_value": false,
-        "value_laden": false
-      }
-    },
-    {
-      "candidate_ref": "s2-design-candidate:blocked-effect",
-      "candidate_source": "shadow_design_record_v0",
-      "case_id": "ua-msme-affordable-loans-2022",
-      "claim_refs": [
-        "claim://ua-msme/firm-survival/effect-forecast"
-      ],
-      "envelope_ref": "envelope://ua-msme/effect-forecast-bounded",
-      "grounded_contract_rows": [
-        {
-          "adapter_admission_ref": "repo://architecture/policy_design_case/layer3_g1_adapter_admission_registry.json#g1",
-          "authoritative_for": [
-            "layer3_g1_construct_grounding_audit"
-          ],
-          "binding_id": "g1-binding:firm-survival",
-          "conformance_ref": "repo://architecture/policy_design_case/layer3_g1_conformance_report.json#g1",
-          "coverage_period_ref": "coverage-period://ua-msme/2022-02-open",
-          "family": "g1_source_contract",
-          "freshness_ref": "freshness://ukraine_server_support_20260410",
-          "lineage_refs": [
-            "repo://production_data/ua-msme/source-contract.json"
-          ],
-          "may_not_use_for": [
-            "claim_authority",
-            "production_authority"
-          ],
-          "ref": "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json#bindings/firm_survival"
-        }
-      ],
-      "human_decision_policy": {
-        "human_decision_required": false,
-        "rationale": "Routine, non-high-stakes source/data-only promotion within a bounded envelope."
-      },
-      "incoming_projection_status": "shadow",
-      "issue_codes": [],
-      "may_not_use_for": [
-        "production_authority",
-        "production_claim_authority",
-        "rollout_authority",
-        "publication_authority",
-        "approval_authority",
-        "scorecard_authority",
-        "closeout_authority",
-        "runtime_closeout_authority",
-        "closeout_verdict",
-        "claim_authority",
-        "claim_authority_without_upstream_grounding",
-        "source_data_truth_authority",
-        "public_recommendation",
-        "policy_recommendation",
-        "useful_design_credit_before_g5",
-        "causal_effect_authority_without_g2",
-        "proof_authority_without_g3",
-        "legal_authority_without_gl",
-        "human_override_of_a_incompleteness"
-      ],
-      "promotion_scope": {
-        "authority_purpose": "layer3_g4_governed_promotion_state",
-        "claim_families": [
-          "causal_forecast"
-        ],
-        "high_stakes": false,
-        "requested_boundary": "bounded",
-        "requires_causal_or_forecast_authority": true,
-        "requires_legal_or_mandate_authority": false,
-        "routine_in_envelope": true
-      },
-      "required_contract_families": [
-        "g1_source_contract",
-        "g2_forecast_support"
-      ],
-      "source_design_record_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
-      "source_design_record_ref": "cas://s2/design-record/ua-msme-credit-support",
-      "source_design_record_replay_ref": "cas://s2/search-run/ua-msme-credit-support",
-      "source_design_record_resolution_status": "full_payload",
-      "stakes_profile": {
-        "accountability_sensitive": false,
-        "high_stakes": false,
-        "out_of_routine": false,
-        "ranked_value": false,
-        "value_laden": false
-      }
-    }
+  "issue_codes": [
+    "layer3_g4_source_design_record_unresolved",
+    "layer3_g4_source_design_record_digest_missing"
   ],
+  "promotion_inputs": [],
   "promotion_requests": [
     {
-      "candidate_ref": "s2-design-candidate:ua-msme-credit-support",
-      "candidate_source": "shadow_design_record_v0",
+      "candidate_ref": "candidate://ua-msme/affordable-loans",
+      "candidate_source": "layer3_gx_pinned_request",
       "case_id": "ua-msme-affordable-loans-2022",
-      "claim_refs": [
-        "claim://ua-msme/firm-survival/source-data-grounding"
-      ],
-      "envelope_ref": "envelope://ua-msme/source-data-bounded",
-      "grounded_contract_rows": [
-        {
-          "adapter_admission_ref": "repo://architecture/policy_design_case/layer3_g1_adapter_admission_registry.json#g1",
-          "authoritative_for": [
-            "layer3_g1_construct_grounding_audit"
-          ],
-          "binding_id": "g1-binding:firm-survival",
-          "conformance_ref": "repo://architecture/policy_design_case/layer3_g1_conformance_report.json#g1",
-          "coverage_period_ref": "coverage-period://ua-msme/2022-02-open",
-          "family": "g1_source_contract",
-          "freshness_ref": "freshness://ukraine_server_support_20260410",
-          "lineage_refs": [
-            "repo://production_data/ua-msme/source-contract.json"
-          ],
-          "may_not_use_for": [
-            "claim_authority",
-            "production_authority"
-          ],
-          "ref": "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json#bindings/firm_survival"
-        }
-      ],
-      "human_decision_policy": {
-        "human_decision_required": false,
-        "rationale": "Routine, non-high-stakes source/data-only promotion within a bounded envelope."
-      },
       "incoming_projection_status": "shadow",
       "promotion_scope": {
-        "authority_purpose": "layer3_g4_governed_promotion_state",
         "claim_families": [
           "source_data"
         ],
-        "high_stakes": false,
-        "requested_boundary": "bounded",
-        "requires_legal_or_mandate_authority": false,
-        "routine_in_envelope": true
+        "requested_boundary": "declared_scope"
       },
-      "request_id": "g4-request:ua-msme-source-only-valid",
+      "request_id": "g4-request:ua-msme-source-data",
       "required_contract_families": [
         "g1_source_contract"
       ],
       "source_design_record": {
-        "authority_posture": "shadow",
-        "digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
-        "payload_status": "full_payload",
-        "ref": "cas://s2/design-record/ua-msme-credit-support",
-        "replay_ref": "cas://s2/search-run/ua-msme-credit-support"
-      }
-    },
-    {
-      "candidate_ref": "s2-design-candidate:blocked-effect",
-      "candidate_source": "shadow_design_record_v0",
-      "case_id": "ua-msme-affordable-loans-2022",
-      "claim_refs": [
-        "claim://ua-msme/firm-survival/effect-forecast"
-      ],
-      "envelope_ref": "envelope://ua-msme/effect-forecast-bounded",
-      "grounded_contract_rows": [
-        {
-          "adapter_admission_ref": "repo://architecture/policy_design_case/layer3_g1_adapter_admission_registry.json#g1",
-          "authoritative_for": [
-            "layer3_g1_construct_grounding_audit"
-          ],
-          "binding_id": "g1-binding:firm-survival",
-          "conformance_ref": "repo://architecture/policy_design_case/layer3_g1_conformance_report.json#g1",
-          "coverage_period_ref": "coverage-period://ua-msme/2022-02-open",
-          "family": "g1_source_contract",
-          "freshness_ref": "freshness://ukraine_server_support_20260410",
-          "lineage_refs": [
-            "repo://production_data/ua-msme/source-contract.json"
-          ],
-          "may_not_use_for": [
-            "claim_authority",
-            "production_authority"
-          ],
-          "ref": "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json#bindings/firm_survival"
-        }
-      ],
-      "human_decision_policy": {
-        "human_decision_required": false,
-        "rationale": "Routine, non-high-stakes source/data-only promotion within a bounded envelope."
-      },
-      "incoming_projection_status": "shadow",
-      "promotion_scope": {
-        "authority_purpose": "layer3_g4_governed_promotion_state",
-        "claim_families": [
-          "causal_forecast"
-        ],
-        "high_stakes": false,
-        "requested_boundary": "bounded",
-        "requires_causal_or_forecast_authority": true,
-        "requires_legal_or_mandate_authority": false,
-        "routine_in_envelope": true
-      },
-      "request_id": "g4-request:blocked-effect",
-      "required_contract_families": [
-        "g1_source_contract",
-        "g2_forecast_support"
-      ],
-      "source_design_record": {
-        "authority_posture": "shadow",
-        "digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
-        "payload_status": "full_payload",
-        "ref": "cas://s2/design-record/ua-msme-credit-support",
-        "replay_ref": "cas://s2/search-run/ua-msme-credit-support"
+        "payload_status": "unresolved",
+        "ref": "pdc://layer2/s2/ua-msme/design-record-v0"
       }
     }
   ],
   "rule_version": "policyos.layer3.g4.shadow_to_governed_promotion.v1",
   "schema_version": "policyos.policy_design_case.layer3_g4_promotion_gate.v1",
-  "status": "pass"
+  "status": "fail"
 }

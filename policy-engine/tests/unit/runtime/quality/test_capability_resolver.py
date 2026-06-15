@@ -20,7 +20,6 @@ from polisyos.runtime.quality.capability_index import (
     RightsEnvelope,
 )
 from polisyos.runtime.quality.capability_resolver import (
-    REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS,
     RequirementToCapabilityQuery,
     RequirementToCapabilityResolver,
 )
@@ -275,7 +274,7 @@ def test_every_query_returns_selected_or_typed_blocked_with_reason(
     geography: str,
     authority_level: str,
 ) -> None:
-    resolver = RequirementToCapabilityResolver.default_fixture()
+    resolver = RequirementToCapabilityResolver.governed_fixture()
 
     result = resolver.resolve(
         _query(
@@ -289,6 +288,11 @@ def test_every_query_returns_selected_or_typed_blocked_with_reason(
     assert result.status.startswith(("selected_", "blocked_"))
     assert result.blocked_reasons or result.binding_reasons
     assert result.status != "blocked"
+
+
+def test_default_fixture_is_removed_from_production_resolution_path() -> None:
+    with pytest.raises(RuntimeError, match="governed capability index"):
+        RequirementToCapabilityResolver.default_fixture()
 
 
 def test_cross_modal_traceability_uses_same_construct_and_capability_index_ref() -> None:
@@ -327,12 +331,12 @@ def test_cross_modal_traceability_uses_same_construct_and_capability_index_ref()
     )
 
 
-def test_required_scenario_family_mappings_are_exact_phase4_contract() -> None:
-    assert REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS == {
-        "production_msme_panel": "firm_survival",
-        "regional_displacement_indicators": "regional_displacement_pressure",
-        "credit_program_registry": "credit_program_enrollment",
-    }
+def test_required_scenario_family_mapping_reexport_is_absent() -> None:
+    import polisyos.core.contracts as contracts
+    import polisyos.runtime.quality.capability_resolver as resolver_module
+
+    assert not hasattr(contracts, "REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS")
+    assert "GOVERNED_CAPABILITY_ROWS_PATH" not in resolver_module.__all__
 
 
 def _query(**overrides: Any) -> RequirementToCapabilityQuery:

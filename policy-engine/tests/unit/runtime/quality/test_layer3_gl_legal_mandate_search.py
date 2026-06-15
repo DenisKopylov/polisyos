@@ -293,6 +293,202 @@ def _validate_mutation(mutator: Any, expected_issue_codes: set[str]) -> None:
     assert expected_issue_codes <= _issue_codes(report)
 
 
+def _write_minimal_legal_kg(repo_root: Path) -> None:
+    db_path = repo_root / "production_data/test_lex/finalize/lex_knowledge_graph.duckdb"
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    con = duckdb.connect(str(db_path))
+    try:
+        con.execute(
+            """
+            CREATE TABLE lex_rule_thresholds (
+                threshold_id VARCHAR,
+                fact_id VARCHAR,
+                metric VARCHAR,
+                operator VARCHAR,
+                value_decimal VARCHAR,
+                value_text VARCHAR,
+                unit VARCHAR,
+                applies_to VARCHAR
+            )
+            """
+        )
+        con.execute(
+            """
+            INSERT INTO lex_rule_thresholds VALUES
+            ('threshold-task6-solar-credit', 'fact-task6-credit', 'solar_credit_gap',
+             '<=', '0.07', NULL, 'ratio', 'msme_credit_program')
+            """
+        )
+        con.execute(
+            """
+            CREATE TABLE lex_normative_ready_facts (
+                fact_id VARCHAR,
+                fact_text VARCHAR,
+                jurisdiction VARCHAR,
+                top_domain VARCHAR,
+                effective_from VARCHAR,
+                effective_to VARCHAR,
+                temporal_resolution_status VARCHAR,
+                trust_tier VARCHAR,
+                grounding_status VARCHAR,
+                canonical_status VARCHAR,
+                reference_resolution_status VARCHAR,
+                doc_id VARCHAR,
+                provision_anchor VARCHAR,
+                action_canon VARCHAR,
+                norm_type_canon VARCHAR,
+                predicate VARCHAR
+            )
+            """
+        )
+        con.execute(
+            """
+            INSERT INTO lex_normative_ready_facts VALUES
+            ('fact-task6-credit', 'Task 6 credit support threshold.', 'UA', 'economic_policy',
+             '2022-03-01', '2022-12-31', 'resolved', 'legal_kg_candidate',
+             'grounded', 'canonicalized', 'resolved', 'doc-task6-credit', 'section-1',
+             'subsidized_credit', 'threshold', 'credit_support_threshold')
+            """
+        )
+        con.execute(
+            """
+            CREATE TABLE lex_normative_facts (
+                fact_id VARCHAR,
+                fact_text VARCHAR,
+                jurisdiction VARCHAR,
+                top_domain VARCHAR
+            )
+            """
+        )
+        con.execute(
+            """
+            INSERT INTO lex_normative_facts VALUES
+            ('fact-task6-credit', 'Task 6 credit support threshold.', 'UA', 'economic_policy')
+            """
+        )
+        con.execute(
+            """
+            CREATE TABLE lex_amendments (
+                amendment_id VARCHAR,
+                amending_doc_id VARCHAR,
+                amended_doc_id VARCHAR,
+                effective_from VARCHAR,
+                target_anchor VARCHAR,
+                amendment_type VARCHAR,
+                confidence DOUBLE,
+                detected_by VARCHAR
+            )
+            """
+        )
+        con.execute(
+            """
+            INSERT INTO lex_amendments VALUES
+            ('amendment-task6-credit', 'doc-task6-amending', 'doc-task6-credit',
+             '2022-05-01', 'section-1', 'update', 0.91, 'task6_temp_kg')
+            """
+        )
+        con.execute(
+            """
+            CREATE TABLE lex_doc_versions (
+                version_row_id VARCHAR,
+                doc_id VARCHAR,
+                doc_family_id VARCHAR,
+                version_id VARCHAR,
+                doc_reestr_code VARCHAR,
+                doc_type VARCHAR,
+                doc_status VARCHAR
+            )
+            """
+        )
+        con.execute(
+            """
+            INSERT INTO lex_doc_versions VALUES
+            ('version-task6-credit', 'doc-task6-credit', 'family-task6-credit',
+             'v1', 'task6-001', 'resolution', 'active')
+            """
+        )
+        con.execute(
+            """
+            CREATE TABLE lex_doc_temporal (
+                doc_id VARCHAR,
+                effective_from VARCHAR,
+                temporal_resolution_status VARCHAR,
+                temporal_state VARCHAR,
+                published_at VARCHAR,
+                effective_to VARCHAR
+            )
+            """
+        )
+        con.execute(
+            """
+            INSERT INTO lex_doc_temporal VALUES
+            ('doc-task6-credit', '2022-03-01', 'partial_reissue_required',
+             'partial', '2022-03-01', '2022-12-31')
+            """
+        )
+        con.execute(
+            """
+            CREATE TABLE lex_reference_edges (
+                reference_edge_id VARCHAR,
+                source_doc_id VARCHAR,
+                target_doc_id VARCHAR,
+                resolution_status VARCHAR,
+                source_anchor VARCHAR,
+                target_anchor VARCHAR,
+                relation_type VARCHAR,
+                resolution_confidence DOUBLE
+            )
+            """
+        )
+        con.execute(
+            """
+            INSERT INTO lex_reference_edges VALUES
+            ('ref-task6-credit', 'doc-task6-credit', 'doc-task6-target', 'resolved',
+             'section-1', 'section-2', 'references', 0.92)
+            """
+        )
+        con.execute(
+            """
+            CREATE TABLE lex_reference_resolution_audit (
+                ref_id VARCHAR,
+                source_doc_id VARCHAR,
+                resolution_status VARCHAR,
+                selected_target_doc_id VARCHAR,
+                resolution_method VARCHAR,
+                candidate_count INTEGER
+            )
+            """
+        )
+        con.execute(
+            """
+            INSERT INTO lex_reference_resolution_audit VALUES
+            ('ref-task6-credit', 'doc-task6-credit', 'resolved', 'doc-task6-target',
+             'task6_temp_kg', 1)
+            """
+        )
+        con.execute(
+            """
+            CREATE TABLE lex_temporal_audit (
+                audit_id VARCHAR,
+                scope VARCHAR,
+                doc_id VARCHAR,
+                fact_id VARCHAR,
+                temporal_resolution_status VARCHAR
+            )
+            """
+        )
+        con.execute(
+            """
+            INSERT INTO lex_temporal_audit VALUES
+            ('temporal-task6-credit', 'document', 'doc-task6-credit',
+             'fact-task6-credit', 'partial_reissue_required')
+            """
+        )
+        con.execute("CHECKPOINT")
+    finally:
+        con.close()
+
+
 def test_layer3_gl_dependency_audit_substrates_are_available_for_task0() -> None:
     g0_manifest = json.loads(
         (REPO_ROOT / "architecture/policy_design_case/layer3_g0_readiness_manifest.json").read_text(
@@ -607,6 +803,84 @@ def test_layer3_gl_task1_search_ledgers_use_bounded_canonical_sql_and_hydrate_th
         "lex_reference_edges",
         "lex_reference_resolution_audit",
     } <= {table for trace in trace_payloads for table in trace["table_routes"]}
+
+
+def test_task6_gl_temp_legal_threshold_insertion_is_replayable_with_temporal_reissue_gate(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    from polisyos.runtime.quality.layer3_status_reducers import (
+        GLLegalAuthorityInputs,
+        Layer3ReducerInputRef,
+        reduce_gl_legal_authority,
+    )
+
+    _write_minimal_legal_kg(tmp_path)
+    gl = _gl()
+    monkeypatch.setattr(
+        gl,
+        "CANONICAL_L3_LEGAL_KG_PATH",
+        Path("production_data/test_lex/finalize/lex_knowledge_graph.duckdb"),
+    )
+    gl._cached_coverage.cache_clear()
+    request = gl.Layer3GLLegalMandateRequest(
+        request_id="gl-request:task6-temp-threshold",
+        claim_id="claim:gl:task6-temp-threshold",
+        case_id="case:gl:task6-temp-threshold",
+        legal_requirement_ref="legal-requirement://claim/gl/task6-temp-threshold",
+        jurisdiction="UA",
+        policy_domain="economic_policy",
+        legal_as_of="2022-03-01",
+        intervention_family="subsidized_credit",
+        query_terms=("solar", "credit", "threshold"),
+        limit=5,
+    )
+
+    ledgers = gl.build_gl_legal_search_ledgers(tmp_path, [request])
+    threshold_hits = [
+        candidate
+        for ledger in ledgers
+        for candidate in ledger.candidate_rows
+        if candidate.get("row_ref") == "lex_rule_thresholds:threshold-task6-solar-credit"
+    ]
+    temporal_records = gl.build_gl_temporal_competence_records(tmp_path, ledgers=ledgers)
+    decision = reduce_gl_legal_authority(
+        GLLegalAuthorityInputs(
+            legal_basis_status="candidate",
+            applicability_status="pass",
+            mandate_status="missing",
+            input_refs=(
+                Layer3ReducerInputRef(
+                    ref="duckdb://task6-temp-legal-kg#threshold-task6-solar-credit",
+                    content_hash="sha256:" + "9" * 64,
+                    producer_ref="measurement://layer3-gl/task6-temp-legal-kg",
+                    producer_type="measurement",
+                    producer_root_refs=("measurement://layer3-gl/task6-temp-legal-kg-root",),
+                ),
+            ),
+        )
+    )
+
+    assert threshold_hits
+    assert threshold_hits[0]["metric"] == "solar_credit_gap"
+    assert threshold_hits[0]["operator"] == "<="
+    assert threshold_hits[0]["hydrated_from_table"] == "lex_rule_thresholds"
+    assert all(ledger.authoritative_for == () for ledger in ledgers)
+    assert all(
+        "legal_authority_without_claim_level_adapter" in ledger.may_not_use_for
+        for ledger in ledgers
+    )
+    assert any(record.status == "reissue_required" for record in temporal_records)
+    assert all(
+        record.legal_authority_record_refs == ()
+        for record in temporal_records
+        if record.status == "reissue_required"
+    )
+    assert decision.status == "typed_blocker"
+    assert {
+        "layer3_gl_legal_basis_not_authoritative",
+        "layer3_gl_mandate_not_authoritative",
+    } <= set(decision.blocker_refs)
 
 
 def test_layer3_gl_task2_search_recall_freshness_tracks_all_known_seed_classes() -> None:

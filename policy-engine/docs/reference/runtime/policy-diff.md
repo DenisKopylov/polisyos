@@ -1,5 +1,8 @@
 # Policy Diff Runtime Contract
 
+Owner: `@runtime-owners`
+Source of truth: `src/polisyos/runtime/http/routes/runs.py`, `src/polisyos/runtime/http/services/**`, `packages/runtime-api-client/**`, and `apps/runtime-dashboard/**`
+
 Policy Diff compares two runs through a `ComparisonFrame`, not through raw JSON
 or word-level document changes. The endpoint only renders deltas after the
 runtime has checked that the runs are comparable enough for the requested frame.

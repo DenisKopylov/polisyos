@@ -1,0 +1,17 @@
+{
+  "check_id": "candidate_firewall_check",
+  "helper": "candidate_firewall_issues_for_payload",
+  "helper_issue_codes": [
+    "candidate_firewall_hypothesis_ledger_missing"
+  ],
+  "issue_codes": [],
+  "observed_issue_codes": [
+    "layer3_g6_agent_candidate_used_as_authority",
+    "layer3_g6_candidate_without_hypothesis_ledger"
+  ],
+  "required_issue_codes": [
+    "layer3_g6_agent_candidate_used_as_authority",
+    "layer3_g6_candidate_without_hypothesis_ledger"
+  ],
+  "status": "pass"
+}

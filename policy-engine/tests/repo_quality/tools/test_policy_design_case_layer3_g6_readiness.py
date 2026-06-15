@@ -1,0 +1,177 @@
+from __future__ import annotations
+
+from pathlib import Path
+from typing import Any
+
+from polisyos.runtime.quality import layer3_bounded_agent as g6
+from tools.quality.validation import check_policy_design_case_layer3_g6_readiness as validator
+
+REPO_ROOT = Path(__file__).resolve().parents[3]
+G6_SCHEMA_VERSION = "policyos.policy_design_case.layer3_g6_bounded_agent.v1"
+G6_RULE_VERSION = "policyos.layer3.g6.bounded_agent.v1"
+
+EXPECTED_ARTIFACT_PATHS = {
+    "architecture/policy_design_case/layer3_g6_dependency_readiness_snapshot.json",
+    "architecture/policy_design_case/layer3_g6_request_envelope.json",
+    "architecture/policy_design_case/layer3_g6_request_classification.json",
+    "architecture/policy_design_case/layer3_g6_policy_grammar_projection.json",
+    "architecture/policy_design_case/layer3_g6_grammar_expansion_candidates.json",
+    "architecture/policy_design_case/layer3_g6_grounding_demand_record.json",
+    "architecture/policy_design_case/layer3_g6_tool_contract_summary.json",
+    "architecture/policy_design_case/layer3_g6_prompt_tool_ledger_projection.json",
+    "architecture/policy_design_case/layer3_g6_hypothesis_ledger_projection.json",
+    "architecture/policy_design_case/layer3_g6_search_ledger.json",
+    "architecture/policy_design_case/layer3_g6_orchestration_choice_audit.json",
+    "architecture/policy_design_case/layer3_g6_counterexample_refinement_record.json",
+    "architecture/policy_design_case/layer3_g6_design_record_candidate_handoff.json",
+    "architecture/policy_design_case/layer3_g6_candidate_authority_firewall_report.json",
+    "architecture/policy_design_case/layer3_g6_g5_invocation_plan.json",
+    "architecture/policy_design_case/layer3_g6_g5_consumer_gate.json",
+    "architecture/policy_design_case/layer3_g6_orchestration_continuity.json",
+    "architecture/policy_design_case/layer3_g6_replay_manifest.json",
+    "architecture/policy_design_case/layer3_g6_agent_run_records.json",
+    "architecture/policy_design_case/layer3_g6_grounded_result_or_abstention.json",
+    "architecture/policy_design_case/layer3_g6_demand_pull_vs_abstention_delta.json",
+    "architecture/policy_design_case/layer3_g6_agent_audit_surface.json",
+    "architecture/policy_design_case/layer3_g6_public_export_projection_refs.json",
+    "architecture/policy_design_case/layer3_g6_conformance_report.json",
+    "architecture/policy_design_case/layer3_g6_health_metric_delta.toml",
+    "architecture/policy_design_case/layer3_g6_agent_route_contract_registry.toml",
+    "architecture/policy_design_case/layer3_g6_registry_ratchet_delta.json",
+    "architecture/policy_design_case/layer3_g6_readiness_manifest.json",
+}
+EXPECTED_MANIFEST_DRIFT_KEYS = {
+    "g6_engineering_readiness_status",
+    "g6_grounded_value_closure_status",
+    "g6_policy_grammar_status",
+    "g6_agent_loop_trace_status",
+    "g6_llm_client_status",
+    "g6_search_ledger_status",
+    "g6_search_ledger_authority_boundary_status",
+    "g6_design_record_candidate_handoff_status",
+    "g6_g4_source_design_record_boundary_status",
+    "g6_g5_bridge_status",
+    "g6_g5_may_not_use_for_boundary_status",
+    "g6_orchestration_choice_audit_status",
+    "g6_orchestration_continuity_status",
+    "g6_replay_manifest_status",
+    "g6_replay_drift_status",
+    "g6_runtime_import_boundary_status",
+    "g6_public_projection_contract_status",
+    "g6_outside_envelope_abstention_quality_status",
+    "g6_demand_pull_vs_abstention_status",
+}
+
+TASK1_REQUIRED_ISSUE_CODES = {
+    "layer3_g6_g5_readiness_missing",
+    "layer3_g6_request_envelope_missing",
+    "layer3_g6_policy_grammar_projection_missing",
+    "layer3_g6_llm_client_unavailable",
+    "layer3_g6_agent_candidate_used_as_authority",
+    "layer3_g6_g5_bypass_attempt",
+    "layer3_g6_public_raw_prompt_leak",
+    "layer3_g6_persisted_artifact_missing",
+}
+
+
+def _validator() -> Any:
+    return validator
+
+
+def test_layer3_g6_readiness_module_declares_red_baseline_contract() -> None:
+    validator = _validator()
+    expected_paths = {path.as_posix() for path in validator.EXPECTED_ARTIFACT_PATHS}
+
+    assert validator.G6_SCHEMA_VERSION == g6.G6_SCHEMA_VERSION == G6_SCHEMA_VERSION
+    assert validator.G6_RULE_VERSION == g6.G6_RULE_VERSION == G6_RULE_VERSION
+    assert expected_paths == EXPECTED_ARTIFACT_PATHS
+    assert set(validator.EXPECTED_MANIFEST_DRIFT_KEYS) >= EXPECTED_MANIFEST_DRIFT_KEYS
+    assert set(validator.ALL_ISSUE_CODES) >= TASK1_REQUIRED_ISSUE_CODES
+
+
+def test_layer3_g6_readiness_passes_for_persisted_runtime_bundle() -> None:
+    validator = _validator()
+
+    write_report = validator.validate_layer3_g6_readiness(REPO_ROOT, write=True)
+    validation = validator.validate_layer3_g6_readiness(REPO_ROOT)
+
+    assert write_report["status"] == "pass"
+    assert validation["status"] == "pass"
+    assert validation["artifacts"]["missing_persisted_artifact_paths"] == []
+    assert validation["summary"]["g6_g5_bridge_status"] == "pass"
+    assert validation["summary"]["g6_policy_grammar_status"] == "pass"
+    assert validation["summary"]["g6_agent_loop_trace_status"] == "pass"
+    assert validation["summary"]["g6_llm_client_status"] in {
+        "pass",
+        "blocked_with_typed_issue",
+    }
+    assert validation["summary"]["g6_search_ledger_status"] == "pass"
+    assert validation["summary"]["g6_search_ledger_authority_boundary_status"] == "pass"
+    assert validation["summary"]["g6_orchestration_choice_audit_status"] == "pass"
+    assert validation["summary"]["g6_orchestration_continuity_status"] == "pass"
+    assert validation["summary"]["g6_replay_manifest_status"] == "pass"
+    assert validation["summary"]["g6_runtime_import_boundary_status"] == "pass"
+    assert validation["summary"]["g6_public_projection_contract_status"] == "pass"
+    assert validation["summary"]["g6_engineering_readiness_status"] == "pass"
+    assert validation["summary"]["g6_grounded_value_closure_status"] in {
+        "pass",
+        "blocked_by_current_g5_unchanged_blocker",
+    }
+
+
+def test_layer3_g6_readiness_mirrors_exact_artifact_and_drift_scaffold() -> None:
+    validator = _validator()
+    validation = validator.validate_layer3_g6_readiness(REPO_ROOT, write=True)
+    expected_paths = {path.as_posix() for path in validator.EXPECTED_ARTIFACT_PATHS}
+
+    assert expected_paths == EXPECTED_ARTIFACT_PATHS
+    assert set(validation["artifacts"]["written_artifact_paths"]) == expected_paths
+    assert set(validator.EXPECTED_MANIFEST_DRIFT_KEYS) >= EXPECTED_MANIFEST_DRIFT_KEYS
+    assert validation["summary"]["g6_manifest_runtime_drift_key_count"] == 0
+
+
+def test_layer3_g6_readiness_requires_registered_artifacts_inventory_and_docs() -> None:
+    validator = _validator()
+    validation = validator.validate_layer3_g6_readiness(REPO_ROOT, write=True)
+
+    assert validation["status"] == "pass"
+    assert validation["summary"]["g6_generated_artifacts_registration_status"] == "pass"
+    assert validation["summary"]["g6_inventory_surface_status"] == "pass"
+    assert validation["summary"]["g6_reference_docs_status"] == "pass"
+
+
+def test_layer3_g6_registration_and_docs_fail_closed_when_markers_are_missing() -> None:
+    validator = _validator()
+
+    issues = validator._validate_registration_and_docs(
+        {"generated_artifacts": "fail", "inventory": "fail", "docs": "fail"}
+    )
+
+    assert {
+        "layer3_g6_generated_artifacts_family_missing",
+        "layer3_g6_inventory_surface_missing",
+        "layer3_g6_reference_index_missing",
+    } <= {issue["code"] for issue in issues}
+
+
+def test_layer3_g6_write_path_must_include_every_expected_artifact(
+    monkeypatch: Any,
+) -> None:
+    validator = _validator()
+    omitted = Path("architecture/policy_design_case/layer3_g6_agent_run_records.json")
+    expected_paths = tuple(Path(path) for path in sorted(EXPECTED_ARTIFACT_PATHS))
+    monkeypatch.setattr(validator, "EXPECTED_ARTIFACT_PATHS", expected_paths)
+    monkeypatch.setattr(
+        validator,
+        "_write_artifacts",
+        lambda _repo_root, _bundle: [
+            path.as_posix() for path in expected_paths if path != omitted
+        ],
+    )
+
+    validation = validator.validate_layer3_g6_readiness(REPO_ROOT, write=True)
+
+    assert validation["status"] == "fail"
+    assert "layer3_g6_persisted_artifact_missing" in {
+        issue["code"] for issue in validation["issues"]
+    }

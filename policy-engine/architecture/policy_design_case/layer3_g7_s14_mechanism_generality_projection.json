@@ -1,0 +1,106 @@
+{
+  "authoritative_for": [
+    "layer3_g7_region_widening_audit",
+    "layer3_g7_marginal_grounding_cost_reading",
+    "layer3_g7_s14_grounded_breadth_feed"
+  ],
+  "bespoke_patch_refs": [],
+  "growth_thermometer_ref": "s12-growth-thermometer://layer3-g7/ua-msme-adjacent",
+  "held_out_status": "pending_s14",
+  "issue_codes": [],
+  "may_not_use_for": [
+    "production_authority",
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "public_recommendation",
+    "policy_recommendation",
+    "legal_advice",
+    "claim_authority",
+    "obligation_authority",
+    "causal_effect_authority",
+    "proof_authority",
+    "legal_authority",
+    "recommendation_authority",
+    "universal_claim_authority",
+    "universal_claim_authority_without_s14",
+    "s14_universality_claim_without_s14_gate",
+    "g8_metric_governance_authority"
+  ],
+  "mechanism_generality_report_ref": "pdc://layer2/s14/mechanism-generality",
+  "mechanism_reuse_rate": 0.0,
+  "projection_id": "layer3-g7://s14-mechanism-generality-projection/ua-msme-adjacent",
+  "projection_ref": "layer3-g7://s14/mechanism-generality-projection",
+  "report_payload": {
+    "authority_boundary": {
+      "authoritative_for": [
+        "s14_universality_claim_gate",
+        "sealed_battery_integrity",
+        "per_axis_universality_scorecard",
+        "mechanism_generality_assessment",
+        "skeptic_defeater_evaluation",
+        "d4_corpus_track_coverage",
+        "expert_oracle_bootstrap",
+        "universality_breadth_floor",
+        "baseline_comparison",
+        "grounded_authority_coverage",
+        "evaluation_status_composition",
+        "envelope_revision_dynamics",
+        "declared_operation_envelope"
+      ],
+      "may_not_use_for": [
+        "production_rollout_authority",
+        "production_recommendation",
+        "recommendation_authority",
+        "publication_authority",
+        "approval_authority",
+        "claim_authority",
+        "runtime_closeout_authority",
+        "scorecard_authority",
+        "preference_learning",
+        "automated_value_learning",
+        "sealed_battery_training",
+        "development_fixture_access",
+        "aggregate_universal_score",
+        "untested_axis_envelope_expansion",
+        "gold_label_authority",
+        "weak_gold_promotion_floor",
+        "shadow_candidate_oracle",
+        "baseline_free_universal_claim",
+        "grounded_authority_without_a_firewalls"
+      ],
+      "posture": "shadow",
+      "rule_version_refs": [
+        "policyos.layer2.s14.universality_assurance.v1"
+      ],
+      "source_authority": "deterministic_producer"
+    },
+    "bespoke_patch_limitations": [],
+    "bespoke_patch_refs": [],
+    "dev_case_refs": [],
+    "growth_thermometer_ref": "s12-growth-thermometer://layer3-g7/ua-msme-adjacent",
+    "held_out_case_refs": [],
+    "marginal_bespoke_cost_status": "pass",
+    "mechanism_reuse_rate": 0.0,
+    "replay_digest": "sha256:a3c8c3bcc3b074ebe90e985c48c256ddb3f017ca645e63e75dd37873fde041a1",
+    "report_id": "s14-mechanism-generality",
+    "report_ref": "pdc://layer2/s14/mechanism-generality",
+    "reused_mechanism_refs": [
+      "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker"
+    ],
+    "rule_version_ref": "policyos.layer2.s14.universality_assurance.v1",
+    "s12_held_out_status": "pending_s14",
+    "schema_version": "policyos.policy_design_case.layer2_s14_universality_assurance.v1",
+    "sublinear_marginal_bespoke_cost": true
+  },
+  "reused_mechanism_refs": [
+    "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker"
+  ],
+  "rule_version": "policyos.layer3.g7.region_widening.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g7_region_widening.v1",
+  "status": "pass"
+}

@@ -371,6 +371,7 @@ def test_production_data_static_uses_resolver_when_projection_lacks_binding(
         json.dumps({"bundles": {"catalog": {"path": "catalog.duckdb"}}}),
         encoding="utf-8",
     )
+    _write_governed_scenario_family_construct_rows(tmp_path)
 
     monkeypatch.setattr(
         local_prod_debug_probe,
@@ -464,6 +465,131 @@ def test_production_data_static_uses_resolver_when_projection_lacks_binding(
     assert result["details"]["compatibility_projection_findings"]
     assert result["details"]["construct_capability_blockers"][0]["status"] == (
         "blocked_acquisition_required"
+    )
+
+
+def test_production_data_static_fails_closed_without_governed_legacy_mapping(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    production_root = tmp_path / "production_data"
+    production_root.mkdir()
+    capability_index = (
+        tmp_path
+        / "_build/.tmp/production-quality/capability-index/capability_index_v1.duckdb"
+    )
+    capability_index.parent.mkdir(parents=True)
+    capability_index.write_text("fixture", encoding="utf-8")
+    (production_root / "manifest.json").write_text(
+        json.dumps({"bundles": {"catalog": {"path": "catalog.duckdb"}}}),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(
+        local_prod_debug_probe,
+        "load_production_data_manifest",
+        lambda _root: {"bundles": {"catalog": {"path": "catalog.duckdb"}}},
+    )
+    monkeypatch.setattr(
+        local_prod_debug_probe,
+        "production_data_evidence_context",
+        lambda *_args, **_kwargs: {"production_data_root": str(production_root)},
+    )
+    monkeypatch.setattr(
+        local_prod_debug_probe,
+        "production_data_quality_report",
+        lambda *_args, **_kwargs: {"status": "pass", "issues": []},
+    )
+    monkeypatch.setattr(
+        local_prod_debug_probe,
+        "load_quality_scenario_contract",
+        lambda _scenario_id: {"scenario_evidence_contract": {}},
+    )
+    monkeypatch.setattr(
+        local_prod_debug_probe,
+        "production_data_contract_binding_report",
+        lambda *_args, **_kwargs: {
+            "summary": {"status": "blocked"},
+            "missing_scenario_source_families": ["credit_program_registry"],
+            "scenario_binding_findings": [
+                {
+                    "requirement_id": "req:credit-program",
+                    "expected_family": "credit_program_registry",
+                    "status": "blocked",
+                }
+            ],
+            "compiled_data_requirement_specs": [
+                {
+                    "requirement_id": "req:credit-program",
+                    "claim_id": "claim:credit-program",
+                    "claim_use": "claim_evidence_closeout",
+                    "required_data_families": ["credit_program_registry"],
+                    "scope": {
+                        "population": "msme",
+                        "geography": "UA",
+                        "time": "2022",
+                        "jurisdiction": "UA",
+                    },
+                    "metadata": {},
+                }
+            ],
+        },
+    )
+
+    class _Resolver:
+        capability_index_ref = "capability-index:test"
+
+        @classmethod
+        def from_duckdb(cls, path: Path) -> _Resolver:
+            assert path == capability_index
+            return cls()
+
+        def resolve(self, query: object) -> object:
+            raise AssertionError("legacy family mapping must not use hardcoded fallback")
+
+    monkeypatch.setattr(local_prod_debug_probe, "RequirementToCapabilityResolver", _Resolver)
+    context = local_prod_debug_probe.ProbeContext.for_tests(
+        repo_root=tmp_path,
+        production_data_root=production_root,
+    )
+
+    result = local_prod_debug_probe.run_production_data_static_check(context)
+
+    assert result["status"] == "fail"
+    details = result["details"]
+    assert details["construct_capability_report"]["resolver_executed"] is True
+    assert details["construct_capability_report"]["binding_count"] == 0
+    assert details["construct_capability_report"]["issue_codes"] == [
+        "production_data_construct_capability_query_missing"
+    ]
+
+
+def _write_governed_scenario_family_construct_rows(repo_root: Path) -> None:
+    path = (
+        repo_root
+        / "architecture/policy_design_case/layer2_s3_governed_capability_rows.json"
+    )
+    path.parent.mkdir(parents=True)
+    path.write_text(
+        json.dumps(
+            {
+                "schema_version": (
+                    "policyos.policy_design_case.layer2_s3_governed_capability_rows.v1"
+                ),
+                "scenario_family_construct_rows": [
+                    {
+                        "scenario_family": "credit_program_registry",
+                        "construct": "credit_program_enrollment",
+                        "producer_ref": (
+                            "repo://architecture/policy_design_case/"
+                            "layer2_s3_governed_capability_rows.json"
+                            "#scenario-family/credit_program_registry"
+                        ),
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
     )
 
 

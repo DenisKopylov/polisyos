@@ -1,5 +1,6 @@
 # Runtime Quality Scorecard
 
+Owner: `@runtime-owners`
 Source of truth: `src/polisyos/runtime/quality/scorecard.py`,
 `tools/ops_runners/runtime/canary_evidence.py`, and
 `tests/unit/runtime/quality/test_scorecard.py`.

@@ -1,0 +1,495 @@
+{
+  "acceptance_signal_for_future_fix": {
+    "future_green": "Catalog-derived FetchPlan admission either consumes a selected SourceContract/DataRequirement binding with all mandatory facets or emits a typed blocker before connector.fetch is called.",
+    "minimum": "Validator passes with the 16 mandatory facets preserved, the current FetchPlan facet loss recorded, and the strict-but-unorchestrated gates represented explicitly."
+  },
+  "findings": [
+    {
+      "evidence": "DataRequirementSpec requires 16 mandatory facets and 7 admissibility predicates, but MetricBindingMatch cannot carry those facets.",
+      "id": "mandatory_facets_exist_above_fetch",
+      "impact": "GY-1 has real contract vocabulary, but the normal catalog binding route loses it before fetch admission.",
+      "title": "Rights/freshness/source-contract requirements exist above the fetch path."
+    },
+    {
+      "evidence": "Execution-ready catalog bindings expose raw license/schema/freshness metadata in DuckDB, but time coverage is sparse and no source_contract_ref or claim_bindability_refs are materialized in ds_metric_bindings.",
+      "id": "catalog_raw_metadata_is_partial",
+      "impact": "The catalog can seed some facets, but cannot by itself satisfy admissibility.",
+      "title": "The production catalog has partial raw facet evidence, not a source-contract admission artifact."
+    },
+    {
+      "evidence": "The no-write route probe used a production WorldBank binding with license and inferred value/geography columns; the resulting FetchPlan contained zero of the 16 mandatory facets.",
+      "id": "fetch_plan_drops_required_facets",
+      "impact": "A FetchPlan can be connector-executable while carrying no rights, field refs, time coverage, freshness ref, or claim-bindability proof.",
+      "title": "Catalog-derived FetchPlan admission drops required facets."
+    },
+    {
+      "evidence": "FetchExecutor._fetch builds FetchRequest from dataset_id, filters, date_start/date_end, page size, and schema flags; it does not inspect source-contract bindings or source-selection trace status.",
+      "id": "executor_has_no_admissibility_consumer",
+      "impact": "The connector opens before a source-contract gate can fail closed.",
+      "title": "Fetch execution consumes FetchPlan, not admissibility."
+    },
+    {
+      "evidence": "build_source_contract_requirement_bindings rejects a catalog-plan-shaped candidate with reason_code=source_contract_facets_missing; build_fabric_source_selection_trace also fails the selected source with 18 blocking issues.",
+      "id": "strict_gates_exist_but_are_off_route",
+      "impact": "This is not a missing validator problem; it is a bridge/orchestration problem.",
+      "title": "Strict admissibility gates exist but are not on the normal fetch admission path."
+    },
+    {
+      "evidence": "Only 3 of 35 catalog source registry entries have rolling-window default lookbacks; the normal FetchPlan route carries history_policy/default_lookback_days but no watermark/ref freshness artifact.",
+      "id": "freshness_is_policy_hint_not_watermark",
+      "impact": "Freshness is treated as a coarse planning hint, not a replayable source freshness or watermark proof.",
+      "title": "Freshness does not yet reach admission as a replayable proof."
+    }
+  ],
+  "generated_at_utc": "2026-06-14T00:00:00+00:00",
+  "methodology": {
+    "network_fetches_run": false,
+    "no_write_probes": [
+      "Joined production ds_metric_bindings -> ds_datasets -> ds_schema_profiles for execution-ready facet availability.",
+      "Passed a production WorldBank MetricBindingMatch through RetrievalService._resolve_via_catalog using the live model shape.",
+      "Called build_source_contract_requirement_bindings on complete versus missing mandatory facets.",
+      "Called build_fabric_source_selection_trace on a selected source lacking source facets."
+    ],
+    "production_catalog": "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+    "why_no_network_fetches": "This slice audits pre-fetch admission. The failure is visible before opening an external connector."
+  },
+  "pattern_register_ids": [
+    "P01",
+    "P02",
+    "P05",
+    "P07",
+    "P08",
+    "P10",
+    "P12",
+    "P14"
+  ],
+  "plan_ref": "docs/plans/active/layer3-slices/GY-engine-subordination.md#gy-0---engine-reality-census",
+  "probe": {
+    "catalog_execution_ready_facet_counts": {
+      "has_freshness_hint": 41976,
+      "has_geo_column": 22981,
+      "has_license": 28426,
+      "has_schema_profile": 41976,
+      "has_time_column": 46,
+      "has_time_end": 4894,
+      "has_time_start": 4894,
+      "has_value_columns": 41976,
+      "total": 41976
+    },
+    "catalog_source_registry": {
+      "full_snapshot": 32,
+      "publish_blocking": 12,
+      "rolling_window": 3,
+      "total_sources": 35,
+      "with_default_lookback": 3
+    },
+    "data_requirement_contract": {
+      "admissibility_predicates": [
+        "source_family_matches_compiled_requirement",
+        "source_contract_active",
+        "observation_time_covers_claim_time",
+        "lineage_preserves_required_transformations",
+        "missingness_within_tolerance",
+        "quality_minima_satisfied",
+        "claim_bindability_refs_present"
+      ],
+      "mandatory_facet_count": 16,
+      "mandatory_facets": [
+        "source_contract_ref",
+        "source_rights",
+        "dictionary_ref",
+        "schema_ref",
+        "field_refs",
+        "unit_refs",
+        "geography_refs",
+        "time_coverage_refs",
+        "freshness_ref",
+        "lineage_refs",
+        "transformation_refs",
+        "quality_assertion_refs",
+        "missingness_refs",
+        "outlier_refs",
+        "construct_validity_refs",
+        "claim_bindability_refs"
+      ]
+    },
+    "fetch_admission_probe": {
+      "candidate_dump_excerpt": {
+        "candidate_id": "cat_a615fd72de9f560b",
+        "coverage_estimate": 0.75,
+        "freshness_score": 0.6,
+        "match_reason": "dataset_catalog_metric_binding",
+        "trust_score": 0.7
+      },
+      "fetch_plan_model_fields": [
+        "connector_id",
+        "dataset_id",
+        "date_end",
+        "date_start",
+        "fallbacks",
+        "filters",
+        "granularity",
+        "max_preview_rows",
+        "metadata",
+        "metric_id",
+        "persist_payload",
+        "plan_id",
+        "profile_id",
+        "quality_min",
+        "source_lane"
+      ],
+      "metric_binding_model_fields": [
+        "catalog_dataset_id",
+        "confidence",
+        "connector_id",
+        "default_filters",
+        "distribution_id",
+        "execution_tier",
+        "metric_id",
+        "metric_inference_confidence",
+        "profile_id",
+        "request_dataset_id",
+        "source",
+        "title"
+      ],
+      "plan_dump_excerpt": {
+        "connector_id": "worldbank.wdi",
+        "date_end": null,
+        "date_start": null,
+        "dataset_id": "SE.CLO.4.LDGAP.S.TMS.2011.5",
+        "filters": {},
+        "metadata": {
+          "catalog_dataset_id": "51701c8557a1d73db2f4",
+          "catalog_discovered": true,
+          "default_lookback_days": null,
+          "distribution_id": "e342b4cf8095f25a89dd",
+          "execution_tier": "transport_ready",
+          "history_policy": "full_snapshot",
+          "manual_backfill_allowed": false,
+          "resolution_route": "catalog",
+          "source": "worldbank"
+        },
+        "metric_id": "poverty_rate",
+        "plan_id": "plan_a615fd72de9f560b",
+        "profile_id": "worldbank_wdi",
+        "source_lane": "catalog"
+      },
+      "production_row_excerpt": {
+        "access_license": "CC-BY-4.0",
+        "connector_id": "worldbank.wdi",
+        "execution_tier": "transport_ready",
+        "inferred_geography_column": "country",
+        "inferred_value_columns": [
+          "SE.CLO.4.LDGAP.S.TMS.2011.5"
+        ],
+        "license": "CC-BY-4.0",
+        "metric_id": "poverty_rate",
+        "source": "worldbank",
+        "update_frequency": "annual"
+      },
+      "required_facets_missing_from_plan_payload": [
+        "source_contract_ref",
+        "source_rights",
+        "dictionary_ref",
+        "schema_ref",
+        "field_refs",
+        "unit_refs",
+        "geography_refs",
+        "time_coverage_refs",
+        "freshness_ref",
+        "lineage_refs",
+        "transformation_refs",
+        "quality_assertion_refs",
+        "missingness_refs",
+        "outlier_refs",
+        "construct_validity_refs",
+        "claim_bindability_refs"
+      ],
+      "required_facets_present_in_plan_payload": []
+    },
+    "strict_gate_probe": {
+      "complete_candidate_binding_status": "selected",
+      "complete_candidate_summary": {
+        "blocked": 0,
+        "context_only": 0,
+        "rejected": 0,
+        "requirements": 1,
+        "selected": 1
+      },
+      "missing_candidate_reason_code": "source_contract_facets_missing",
+      "missing_candidate_summary": {
+        "blocked": 0,
+        "context_only": 0,
+        "rejected": 1,
+        "requirements": 1,
+        "selected": 0
+      },
+      "source_selection_trace_blocking_issue_count": 18,
+      "source_selection_trace_issue_codes": [
+        "selected_source_missing_freshness",
+        "selected_source_missing_coverage",
+        "selected_source_missing_schema_compatibility",
+        "selected_source_missing_relevance_rationale",
+        "selected_source_missing_source_rights",
+        "selected_source_missing_dictionary_ref",
+        "selected_source_missing_schema_ref",
+        "selected_source_missing_field_refs",
+        "selected_source_missing_unit_refs",
+        "selected_source_missing_geography_refs",
+        "selected_source_missing_time_coverage_refs",
+        "selected_source_missing_quality_refs",
+        "selected_source_missing_missingness_refs",
+        "selected_source_missing_freshness_refs",
+        "selected_source_missing_lineage_refs",
+        "selected_source_missing_transformation_refs",
+        "selected_source_missing_data_forge_snapshot_refs",
+        "selected_source_missing_derived_feature_bindings"
+      ],
+      "source_selection_trace_status": "fail"
+    }
+  },
+  "route_rows": [
+    {
+      "authority_risk": "Requirements can be cited as if they govern Fabric, but they do not fail closed unless a downstream admission path consumes them.",
+      "capability_state": "contract_and_producer_exist_above_fetch",
+      "evidence_refs": [
+        "src/polisyos/data_requirement/compiler.py:30",
+        "src/polisyos/data_requirement/_impl/models.py:90"
+      ],
+      "gap_labels": [
+        "bridge_missing",
+        "consumer_missing"
+      ],
+      "observed": {
+        "admissibility_predicate_count": 7,
+        "mandatory_facet_count": 16
+      },
+      "pattern_ids": [
+        "P01",
+        "P02",
+        "P10"
+      ],
+      "route_id": "data_requirement.compiler.mandatory_facets",
+      "stage": "contract",
+      "next_probe": "Wire compiled requirement ids into catalog resolution and require a selected SourceContract binding before FetchPlan admission."
+    },
+    {
+      "authority_risk": "Raw metadata can be mistaken for admissibility even when claim bindability and field refs are absent.",
+      "capability_state": "partial_raw_metadata_not_admission_artifact",
+      "evidence_refs": [
+        "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+        "src/polisyos/data_forge/domains/catalog/batch/graph_builder.py:40",
+        "src/polisyos/data_forge/domains/catalog/knowledge/types.py:227"
+      ],
+      "gap_labels": [
+        "semantic_test_missing",
+        "artifact_missing"
+      ],
+      "observed": {
+        "execution_ready_bindings": 41976,
+        "has_freshness_hint": 41976,
+        "has_license": 28426,
+        "has_schema_profile": 41976,
+        "has_time_end": 4894,
+        "has_time_start": 4894
+      },
+      "pattern_ids": [
+        "P08",
+        "P10",
+        "P14"
+      ],
+      "route_id": "production_catalog.raw_source_metadata",
+      "stage": "catalog",
+      "next_probe": "Define which raw catalog columns can seed SourceContract facets and which require producer-backed refs."
+    },
+    {
+      "authority_risk": "A binding row can look execution-ready while carrying no rights, freshness ref, field refs, or claim bindability.",
+      "capability_state": "binding_contract_drops_source_contract_facets",
+      "evidence_refs": [
+        "src/polisyos/data_forge/domains/catalog/knowledge/types.py:227",
+        "src/polisyos/data_forge/domains/catalog/knowledge/store.py:475"
+      ],
+      "gap_labels": [
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "observed": {
+        "metric_binding_model_has_claim_bindability": false,
+        "metric_binding_model_has_field_refs": false,
+        "metric_binding_model_has_freshness_ref": false,
+        "metric_binding_model_has_source_rights": false
+      },
+      "pattern_ids": [
+        "P02",
+        "P10",
+        "P12"
+      ],
+      "route_id": "catalog.metric_binding_contract",
+      "stage": "binding",
+      "next_probe": "Extend or join binding results with a SourceContract admission envelope before FetchPlan creation."
+    },
+    {
+      "authority_risk": "FetchPlan admission can select a source that a strict SourceContract gate would reject.",
+      "capability_state": "fetch_plan_admission_missing_required_facets",
+      "evidence_refs": [
+        "src/polisyos/fabric/retrieval/service.py:726",
+        "src/polisyos/fabric/retrieval/service.py:869",
+        "src/polisyos/core/contracts/control.py:458"
+      ],
+      "gap_labels": [
+        "bridge_missing",
+        "semantic_test_missing",
+        "verification_missing"
+      ],
+      "observed": {
+        "plan_required_facets_missing_count": 16,
+        "plan_required_facets_present_count": 0,
+        "plan_source_lane": "catalog"
+      },
+      "pattern_ids": [
+        "P02",
+        "P05",
+        "P10"
+      ],
+      "route_id": "retrieval.catalog_binding_to_fetch_plan",
+      "stage": "admission",
+      "next_probe": "Block or downgrade FetchPlan creation when source_contract_ref/source_rights/field_refs/freshness_ref/time_coverage/claim_bindability are absent."
+    },
+    {
+      "authority_risk": "The connector can fetch before admissibility is known; later audit surfaces cannot prevent data from entering the context.",
+      "capability_state": "executor_consumes_fetch_plan_not_admissibility",
+      "evidence_refs": [
+        "src/polisyos/fabric/retrieval/executor.py:109",
+        "src/polisyos/fabric/retrieval/executor.py:204"
+      ],
+      "gap_labels": [
+        "consumer_missing",
+        "bridge_missing"
+      ],
+      "observed": {
+        "fetch_request_fields": [
+          "dataset_id",
+          "filters",
+          "date_start",
+          "date_end",
+          "include_metadata",
+          "include_schema",
+          "page_size",
+          "retryable"
+        ],
+        "source_contract_gate_called_before_connector_fetch": false
+      },
+      "pattern_ids": [
+        "P01",
+        "P02",
+        "P05"
+      ],
+      "route_id": "fetch.executor.admission_consumer",
+      "stage": "execute",
+      "next_probe": "Add a pre-fetch admission consumer or prove a separate upstream consumer blocks every non-admissible plan."
+    },
+    {
+      "authority_risk": "A strict audit surface can produce accurate blockers while the normal fetch path proceeds without consuming them.",
+      "capability_state": "implemented_but_not_orchestrated",
+      "evidence_refs": [
+        "src/polisyos/fabric/catalog/source_selection_audit.py:1",
+        "src/polisyos/fabric/catalog/source_selection_audit.py:553",
+        "src/polisyos/runtime/http/services/control/production_data.py:350"
+      ],
+      "gap_labels": [
+        "implemented_but_not_orchestrated",
+        "bridge_missing"
+      ],
+      "observed": {
+        "missing_source_trace_status": "fail",
+        "missing_source_trace_blocking_issue_count": 18
+      },
+      "pattern_ids": [
+        "P01",
+        "P03",
+        "P05",
+        "P10"
+      ],
+      "route_id": "fabric.source_selection_audit.strict_gate",
+      "stage": "audit_surface",
+      "next_probe": "Move source-selection trace status into resolve/fetch admission or make retrieval output candidate-only until trace passes."
+    },
+    {
+      "authority_risk": "The SourceContract/DataRequirement adapter is a real gate, but it currently does not guard normal catalog FetchPlan production.",
+      "capability_state": "implemented_but_not_orchestrated",
+      "evidence_refs": [
+        "src/polisyos/fabric/catalog/data_requirement_adapter.py:15",
+        "src/polisyos/runtime/quality/production_data_contract_index.py:378"
+      ],
+      "gap_labels": [
+        "implemented_but_not_orchestrated",
+        "bridge_missing"
+      ],
+      "observed": {
+        "complete_candidate_binding_status": "selected",
+        "missing_candidate_reason_code": "source_contract_facets_missing",
+        "missing_candidate_rejected": true
+      },
+      "pattern_ids": [
+        "P01",
+        "P02",
+        "P10",
+        "P12"
+      ],
+      "route_id": "fabric.data_requirement_adapter.strict_gate",
+      "stage": "admissibility_gate",
+      "next_probe": "Join SourceContract binding rows to DatasetCatalogGraph metric bindings and require selected binding ids at FetchPlan creation."
+    },
+    {
+      "authority_risk": "A rolling-window date hint can be misread as freshness proof even though no watermark/ref or source update assertion reaches admission.",
+      "capability_state": "freshness_policy_hint_only",
+      "evidence_refs": [
+        "src/polisyos/fabric/retrieval/service.py:198",
+        "src/polisyos/fabric/retrieval/service.py:215",
+        "src/polisyos/data_forge/domains/catalog/registry.py:21"
+      ],
+      "gap_labels": [
+        "artifact_missing",
+        "semantic_test_missing"
+      ],
+      "observed": {
+        "catalog_source_registry_entries": 35,
+        "entries_with_rolling_window": 3,
+        "fetch_plan_carries_freshness_ref": false,
+        "fetch_plan_carries_watermark_ref": false
+      },
+      "pattern_ids": [
+        "P07",
+        "P08",
+        "P10"
+      ],
+      "route_id": "retrieval.catalog_freshness_policy",
+      "stage": "freshness",
+      "next_probe": "Represent freshness as a replayable ref/watermark with data-update semantics, not only a lookback-derived date window."
+    }
+  ],
+  "schema_version": "layer3_gy_source_contract_admissibility_audit.v1",
+  "scope": "Audit-only pass for whether rights, freshness, field refs, time coverage, and claim bindability reach catalog-derived fetch admission.",
+  "summary": {
+    "admissibility_predicates_count": 7,
+    "catalog_raw_metadata_partial": true,
+    "claim_bindability_reaches_fetch_plan": false,
+    "executor_consumes_source_contract_gate": false,
+    "fetch_admission_verdict": "source_contract_admissibility_not_enforced",
+    "fetch_plan_required_facets_missing_count": 16,
+    "fetch_plan_required_facets_present_count": 0,
+    "field_refs_reach_fetch_plan": false,
+    "freshness_ref_reaches_fetch_plan": false,
+    "license_reaches_fetch_plan": false,
+    "mandatory_facet_count": 16,
+    "normal_catalog_fetch_admission_blocks_missing_source_contract": false,
+    "production_execution_ready_binding_count": 41976,
+    "route_verdict": "rights_freshness_source_contract_admissibility_missing_at_fetch_admission",
+    "source_contract_strict_binding_gate_exists": true,
+    "source_contract_strict_binding_gate_orchestrated_before_fetch": false,
+    "strict_missing_candidate_rejected": true,
+    "strict_source_selection_trace_fails_missing_facets": true,
+    "time_coverage_reaches_fetch_plan": false,
+    "watermark_ref_reaches_fetch_plan": false
+  }
+}

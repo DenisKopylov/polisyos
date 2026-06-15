@@ -1,0 +1,714 @@
+{
+  "schema_version": "layer3_gy_agent_workflow_event_backing_audit.v1",
+  "generated_at": "2026-06-14",
+  "scope": {
+    "plan": "docs/plans/active/layer3-slices/GY-engine-subordination.md",
+    "task": "Task 0",
+    "audit_surface": "Agent workflow event backing around NL runtime and G6 assets",
+    "focus": [
+      "PI agent",
+      "DataNeedExtractor handoff boundary",
+      "Drafter agent",
+      "Formalizer agent",
+      "Critic agent",
+      "prompt/tool/parser ledger",
+      "Scientist tool loop",
+      "G6 agent run records"
+    ],
+    "non_goal": "No repair, connector fetch, public export fix, or G6 redesign was attempted."
+  },
+  "methodology": {
+    "agents_used": false,
+    "network_fetches_run": false,
+    "runtime_server_started": false,
+    "runtime_nl_probe_run": true,
+    "probe_type": "source_static_probe_plus_temp_simulated_nl_execution",
+    "execution_probe_profile_count": 2,
+    "execution_probe_network_policy": "real gateway/network calls blocked via existing unit-test helper; RetrievalService faked; run_experiment captured before DAG execution",
+    "failure_register_patterns": [
+      "P01",
+      "P02",
+      "P03",
+      "P05",
+      "P10",
+      "P15",
+      "P25"
+    ],
+    "primary_files_read": [
+      "src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "src/polisyos/runtime/http/services/debug.py",
+      "src/polisyos/runtime/http/routes/runs.py",
+      "src/polisyos/runtime/quality/prompt_tool_ledger.py",
+      "src/polisyos/runtime/quality/layer3_bounded_agent.py",
+      "src/polisyos/scientist/agent/protocols.py",
+      "src/polisyos/scientist/agent/tools/tool_loop.py",
+      "architecture/policy_design_case/layer3_g6_agent_run_records.json",
+      "architecture/policy_design_case/layer3_g6_prompt_tool_ledger_projection.json",
+      "architecture/policy_design_case/layer3_g6_hypothesis_ledger_projection.json"
+    ]
+  },
+  "classification": {
+    "primary": "runtime_visible_agent_steps_without_g6_event_backing",
+    "gap_class": "partial",
+    "capability_label": "runtime_step_telemetry_plus_parser_ledger_but_g6_role_event_bridge_missing",
+    "route_pinned": true,
+    "repair_before_downstream_governance": true,
+    "patterns": [
+      "P01",
+      "P02",
+      "P03",
+      "P05",
+      "P10",
+      "P15",
+      "P25"
+    ]
+  },
+  "summary": {
+    "nl_pipeline_instantiates_pi_data_need_drafter_formalizer_critic": true,
+    "nl_pipeline_has_role_call_events": true,
+    "nl_pipeline_persists_llm_model_variant_steps": true,
+    "runtime_debug_agents_surface_reads_variant_steps": true,
+    "runtime_run_agents_endpoint_exists": true,
+    "serious_profile_persists_prompt_tool_parser_ledger_to_cas": true,
+    "dev_profile_persists_prompt_tool_parser_ledger_to_cas": false,
+    "prompt_tool_ledger_is_real_tool_loop_transcript": false,
+    "nl_pipeline_calls_scientist_tool_loop": false,
+    "g6_agent_run_records_bound_to_live_nl_run": false,
+    "g6_agent_run_record_count": 1,
+    "g6_projection_request_id": "req-layer3-g6-readiness",
+    "g6_projection_run_id": "layer3-g6-run:req-layer3-g6-readiness",
+    "runtime_visible_agent_role_count": 5,
+    "runtime_visible_non_role_step_count": 8,
+    "dedicated_role_event_artifact_count": 0,
+    "cas_backed_parser_ledger_count_on_serious_probe": 1,
+    "nl_tool_loop_invocation_count": 0,
+    "g6_records_bound_to_live_nl_run_count": 0,
+    "overall_status": "partial_event_backing_with_projection_gap"
+  },
+  "execution_probes": [
+    {
+      "probe_id": "dev_simulated_nl_variant_steps",
+      "status": "pass",
+      "profile": "dev",
+      "run_id": "R_gy_agent_event_probe",
+      "model": "simulated-qwen",
+      "provider": "gateway",
+      "verdict": "APPROVE",
+      "agent_circuit": true,
+      "step_count": 13,
+      "steps": [
+        {
+          "agent": "pi_agent",
+          "action": "create_problem_frame",
+          "status": "ok"
+        },
+        {
+          "agent": "data_need_extractor",
+          "action": "extract_data_need",
+          "status": "ok"
+        },
+        {
+          "agent": "planner",
+          "action": "build_execution_plan",
+          "status": "ok"
+        },
+        {
+          "agent": "preflight",
+          "action": "validate_execution_plan",
+          "status": "ok"
+        },
+        {
+          "agent": "source_resolver",
+          "action": "resolve_fast_lane",
+          "status": "ok"
+        },
+        {
+          "agent": "executor",
+          "action": "fetch_execute",
+          "status": "ok"
+        },
+        {
+          "agent": "executor",
+          "action": "preview_gate",
+          "status": "ok"
+        },
+        {
+          "agent": "promotion_lane",
+          "action": "promotion_signal_emit",
+          "status": "ok"
+        },
+        {
+          "agent": "executor",
+          "action": "materialize_data_artifacts",
+          "status": "ok"
+        },
+        {
+          "agent": "drafter",
+          "action": "draft_policy",
+          "status": "ok"
+        },
+        {
+          "agent": "formalizer",
+          "action": "formalize",
+          "status": "ok"
+        },
+        {
+          "agent": "critic",
+          "action": "critique",
+          "status": "ok"
+        },
+        {
+          "agent": "evaluator",
+          "action": "score_iteration",
+          "status": "ok"
+        }
+      ],
+      "variant_keys_observed": [
+        "critic",
+        "evaluator_report_ref",
+        "final_policy_claims_ref",
+        "trinity_bundle_ref"
+      ],
+      "reports_index_keys_observed": [
+        "llm_model_adjudication_ref",
+        "production_data_quality_report_ref"
+      ],
+      "prompt_tool_ledger_ref": null,
+      "finding": "Runtime role steps are present in the model variant carrier, but dev profile does not emit the prompt/tool/parser ledger."
+    },
+    {
+      "probe_id": "research_simulated_nl_prompt_tool_ledger",
+      "status": "pass",
+      "profile": "research",
+      "run_id": "R_gy_agent_event_research_probe",
+      "model": "simulated-qwen",
+      "provider": "gateway",
+      "verdict": "APPROVE",
+      "agent_circuit": true,
+      "step_count": 13,
+      "steps_match_dev_probe": true,
+      "steps": [
+        {
+          "agent": "pi_agent",
+          "action": "create_problem_frame",
+          "status": "ok"
+        },
+        {
+          "agent": "data_need_extractor",
+          "action": "extract_data_need",
+          "status": "ok"
+        },
+        {
+          "agent": "planner",
+          "action": "build_execution_plan",
+          "status": "ok"
+        },
+        {
+          "agent": "preflight",
+          "action": "validate_execution_plan",
+          "status": "ok"
+        },
+        {
+          "agent": "source_resolver",
+          "action": "resolve_fast_lane",
+          "status": "ok"
+        },
+        {
+          "agent": "executor",
+          "action": "fetch_execute",
+          "status": "ok"
+        },
+        {
+          "agent": "executor",
+          "action": "preview_gate",
+          "status": "ok"
+        },
+        {
+          "agent": "promotion_lane",
+          "action": "promotion_signal_emit",
+          "status": "ok"
+        },
+        {
+          "agent": "executor",
+          "action": "materialize_data_artifacts",
+          "status": "ok"
+        },
+        {
+          "agent": "drafter",
+          "action": "draft_policy",
+          "status": "ok"
+        },
+        {
+          "agent": "formalizer",
+          "action": "formalize",
+          "status": "ok"
+        },
+        {
+          "agent": "critic",
+          "action": "critique",
+          "status": "ok"
+        },
+        {
+          "agent": "evaluator",
+          "action": "score_iteration",
+          "status": "ok"
+        }
+      ],
+      "prompt_tool_ledger_ref": "sha256:5f31045a3ee25c27d580c6d329c825b9df7d87c8d990d3f8222d75eb92f4f0f0",
+      "prompt_tool_authority_status": "pass",
+      "prompt_tool_step_count": 13,
+      "prompt_tool_tool_names": [],
+      "reports_index_has_prompt_tool_ledger_ref": true,
+      "runtime_quality_refs_has_prompt_tool_ledger_ref": true,
+      "runtime_quality_refs_keys_sample": [
+        "causal_statistical_validity_report_ref",
+        "citation_faithfulness_report_ref",
+        "conflict_check_ref",
+        "normative_applicability_report_ref",
+        "policy_grounding_matrix_ref",
+        "prompt_tool_ledger_ref",
+        "runtime_claim_registry_ref",
+        "semantic_binding_ledger_ref",
+        "source_quality_report_ref"
+      ],
+      "finding": "Serious profile persists a CAS-backed parser/status ledger over variant steps; it contains no tool names and is not evidence of Scientist run_tool_loop execution."
+    }
+  ],
+  "static_probes": {
+    "nl_pipeline_tool_loop_references": {
+      "command": "rg -n \"run_tool_loop|ToolLoopResult|scientist\\.agent\\.tools\" src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "match_count": 0,
+      "classification": "no_nl_tool_loop_invocation_observed"
+    },
+    "g6_bounded_agent_tool_loop": {
+      "producer": "run_layer3_g6_bounded_agent_loop",
+      "tool_loop_call_site": "src/polisyos/runtime/quality/layer3_bounded_agent.py:1346",
+      "classification": "quality_g6_loop_exists_outside_nl_runtime_path"
+    },
+    "g6_agent_run_record_builder": {
+      "producer": "build_layer3_g6_agent_run_record",
+      "run_id_formula": "layer3-g6-run:{request_id}",
+      "job_id_formula": "layer3-g6-job:{request_id}",
+      "call_site": "src/polisyos/runtime/quality/layer3_bounded_agent.py:1633",
+      "classification": "builds_g6_projection_from_request_id_and_g5_bridge"
+    },
+    "committed_g6_agent_run_records": {
+      "count": 1,
+      "request_id": "req-layer3-g6-readiness",
+      "run_record_id": "layer3-g6://agent-run-record/req-layer3-g6-readiness",
+      "prompt_tool_ledger_ref": "layer3-g6://prompt-tool-ledger/layer3-g6-run:req-layer3-g6-readiness",
+      "selected_g5_invocation_input_refs": [
+        "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json",
+        "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
+        "repo://architecture/policy_design_case/layer3_g5_w12d_consumer_gate.json"
+      ],
+      "classification": "projection_only_not_nl_runtime_event_backed"
+    },
+    "committed_g6_prompt_tool_ledger_projection": {
+      "outer_status": "pass",
+      "nested_prompt_tool_ledger_summary_status": "fail",
+      "nested_run_id": "layer3-g6-run:req-layer3-g6-readiness",
+      "nested_model_variant_id": "layer3-g6-bounded-agent-candidate",
+      "selected_tool_names": [
+        "layer3_g6_build_g5_bundle"
+      ],
+      "tool_allowlist_size": 5,
+      "candidate_only_boundary": true,
+      "classification": "g6_candidate_projection_not_runtime_tool_loop_backing"
+    }
+  },
+  "roles": [
+    {
+      "component_id": "pi_agent",
+      "role": "PI",
+      "typed_contracts": [
+        "ProblemFrame"
+      ],
+      "producers": [
+        "MockPIAgent",
+        "LLMPIAgent"
+      ],
+      "nl_route_invoked": true,
+      "nl_actions": [
+        "create_problem_frame"
+      ],
+      "runtime_event_carrier": "llm_model_variants[].steps[]",
+      "runtime_surface": [
+        "control job progress step",
+        "experiment_state.params.llm_model_variants[].steps[]",
+        "/api/v1/runs/{run_id}/agents"
+      ],
+      "dedicated_persisted_role_artifact": null,
+      "g6_asset_backing": "absent",
+      "classification": "runtime_step_telemetry_only",
+      "gap_labels": [
+        "artifact_missing",
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "authority_ceiling": "telemetry_only_not_policy_authority",
+      "evidence_refs": [
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:4268",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:4274",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:4450",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:4385"
+      ]
+    },
+    {
+      "component_id": "data_need_extractor",
+      "role": "DataNeedExtractor",
+      "typed_contracts": [
+        "DataNeedSpec"
+      ],
+      "producers": [
+        "MockDataNeedExtractorAgent",
+        "LLMDataNeedExtractorAgent"
+      ],
+      "nl_route_invoked": true,
+      "nl_actions": [
+        "extract_data_need"
+      ],
+      "runtime_event_carrier": "llm_model_variants[].steps[] plus DataNeed list in retrieval context",
+      "runtime_surface": [
+        "control job progress step",
+        "experiment_state.params.llm_model_variants[].steps[]",
+        "retrieval_context.data_needs",
+        "/api/v1/runs/{run_id}/agents"
+      ],
+      "dedicated_persisted_role_artifact": null,
+      "g6_asset_backing": "covered_elsewhere_for_DataNeedSpec_not_recounted_as_G6_agent_record",
+      "classification": "covered_runtime_step_plus_data_need_contract_elsewhere",
+      "gap_labels": [
+        "surface_partial",
+        "g6_asset_missing"
+      ],
+      "authority_ceiling": "data need candidate/requirement input only",
+      "evidence_refs": [
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:4269",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:4275",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:4459",
+        "src/polisyos/scientist/agent/protocols.py:120"
+      ]
+    },
+    {
+      "component_id": "drafter",
+      "role": "Drafter",
+      "typed_contracts": [
+        "DraftResult"
+      ],
+      "producers": [
+        "MockDrafterAgent",
+        "LLMDrafterAgent"
+      ],
+      "nl_route_invoked": true,
+      "nl_actions": [
+        "draft_policy",
+        "refine_draft"
+      ],
+      "runtime_event_carrier": "llm_model_variants[].steps[]",
+      "runtime_surface": [
+        "control job progress step",
+        "experiment_state.params.llm_model_variants[].steps[]",
+        "/api/v1/runs/{run_id}/agents"
+      ],
+      "dedicated_persisted_role_artifact": null,
+      "downstream_artifacts": [
+        "trinity_bundle_ref after formalizer",
+        "final_policy_claims_ref after formalizer/final claims extraction"
+      ],
+      "g6_asset_backing": "absent",
+      "classification": "runtime_step_telemetry_only",
+      "gap_labels": [
+        "artifact_missing",
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "authority_ceiling": "LLM draft candidate only",
+      "evidence_refs": [
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:4270",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:4281",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:5047",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:5188",
+        "src/polisyos/scientist/agent/protocols.py:133"
+      ]
+    },
+    {
+      "component_id": "formalizer",
+      "role": "Formalizer",
+      "typed_contracts": [
+        "TrinityBundle"
+      ],
+      "producers": [
+        "MockFormalizerAgent",
+        "LLMFormalizerAgent"
+      ],
+      "nl_route_invoked": true,
+      "nl_actions": [
+        "formalize"
+      ],
+      "runtime_event_carrier": "llm_model_variants[].steps[]",
+      "runtime_surface": [
+        "control job progress step",
+        "experiment_state.params.llm_model_variants[].steps[]",
+        "/api/v1/runs/{run_id}/agents"
+      ],
+      "dedicated_persisted_role_artifact": null,
+      "downstream_artifacts": [
+        "trinity_bundle_ref",
+        "final_policy_claims_ref"
+      ],
+      "g6_asset_backing": "absent",
+      "classification": "runtime_step_plus_output_artifact_not_g6_role_record",
+      "gap_labels": [
+        "role_artifact_missing",
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "authority_ceiling": "formalization artifact may be consumed, but the formalizer call itself is not a G6 event-backed role record",
+      "evidence_refs": [
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:4271",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:4282",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:5056",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:5196",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:5517"
+      ]
+    },
+    {
+      "component_id": "critic",
+      "role": "Critic",
+      "typed_contracts": [
+        "CritiqueReport"
+      ],
+      "producers": [
+        "MockCriticAgent",
+        "LLMCriticAgent"
+      ],
+      "nl_route_invoked": true,
+      "nl_actions": [
+        "critique"
+      ],
+      "runtime_event_carrier": "llm_model_variants[].steps[] plus embedded critic payload",
+      "runtime_surface": [
+        "control job progress step",
+        "experiment_state.params.llm_model_variants[].steps[]",
+        "experiment_state.params.critic",
+        "/api/v1/runs/{run_id}/agents"
+      ],
+      "dedicated_persisted_role_artifact": null,
+      "g6_asset_backing": "absent",
+      "classification": "runtime_step_telemetry_plus_embedded_payload_only",
+      "gap_labels": [
+        "artifact_missing",
+        "bridge_missing",
+        "semantic_test_missing"
+      ],
+      "authority_ceiling": "critique is advisory/review signal, not authority closure",
+      "evidence_refs": [
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:4272",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:4288",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:5083",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:5474",
+        "src/polisyos/scientist/agent/protocols.py:161"
+      ]
+    },
+    {
+      "component_id": "prompt_tool_ledger",
+      "role": "PromptToolParserAuthorityLedger",
+      "typed_contracts": [
+        "PromptToolParserAuthorityLedger"
+      ],
+      "producer": "build_prompt_tool_ledger_from_model_variant",
+      "nl_route_invoked": true,
+      "nl_actions": [
+        "prompt_tool_parser_authority_ledger_persisted"
+      ],
+      "runtime_event_carrier": "CAS artifact plus reports_index.prompt_tool_ledger_ref on serious profiles",
+      "runtime_surface": [
+        "reports_index.prompt_tool_ledger_ref",
+        "runtime_quality_refs.prompt_tool_ledger_ref",
+        "runtime_quality_evidence.prompt_tool_ledger",
+        "experiment_state.params.llm_model_variants[].prompt_tool_ledger"
+      ],
+      "dedicated_persisted_role_artifact": "prompt_tool_ledger_ref",
+      "g6_asset_backing": "parser_ledger_only_not_tool_loop",
+      "classification": "runtime_cas_backed_parser_ledger_not_tool_loop",
+      "gap_labels": [
+        "semantic_test_missing_for_tool_loop_equivalence",
+        "tool_loop_bridge_missing"
+      ],
+      "authority_ceiling": "parser/status ledger over model-variant steps; not tool transcript or recommendation authority",
+      "evidence_refs": [
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:5892",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:5912",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:5955",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:6382",
+        "src/polisyos/runtime/quality/prompt_tool_ledger.py:767"
+      ]
+    },
+    {
+      "component_id": "scientist_tool_loop",
+      "role": "ToolLoop",
+      "typed_contracts": [
+        "ToolLoopResult"
+      ],
+      "producer": "run_tool_loop",
+      "nl_route_invoked": false,
+      "nl_actions": [],
+      "runtime_event_carrier": null,
+      "runtime_surface": [],
+      "dedicated_persisted_role_artifact": null,
+      "g6_asset_backing": "quality_g6_bounded_loop_only",
+      "classification": "implemented_but_not_orchestrated_in_nl_run",
+      "gap_labels": [
+        "bridge_missing",
+        "consumer_missing",
+        "surface_missing"
+      ],
+      "authority_ceiling": "must not be credited to NL run until NL path calls or consumes ToolLoopResult",
+      "evidence_refs": [
+        "src/polisyos/scientist/agent/tools/tool_loop.py:33",
+        "src/polisyos/runtime/quality/layer3_bounded_agent.py:1346",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:no_run_tool_loop_match"
+      ]
+    },
+    {
+      "component_id": "g6_agent_run_records",
+      "role": "G6AgentRunRecord",
+      "typed_contracts": [
+        "Layer3G6AgentRunRecord"
+      ],
+      "producer": "build_layer3_g6_agent_run_record",
+      "nl_route_invoked": false,
+      "nl_actions": [],
+      "runtime_event_carrier": "architecture/policy_design_case/layer3_g6_agent_run_records.json",
+      "runtime_surface": [
+        "G6 readiness artifact family",
+        "G6 public export projection refs"
+      ],
+      "dedicated_persisted_role_artifact": "layer3-g6://agent-run-record/req-layer3-g6-readiness",
+      "g6_asset_backing": "projection_only_not_nl_runtime_event_backed",
+      "classification": "projection_only_not_nl_runtime_event_backed",
+      "gap_labels": [
+        "bridge_missing",
+        "producer_handshake_gap",
+        "semantic_test_missing"
+      ],
+      "authority_ceiling": "G6 routing/readiness projection only; may not be counted as live NL role event backing",
+      "evidence_refs": [
+        "src/polisyos/runtime/quality/layer3_bounded_agent.py:1633",
+        "src/polisyos/runtime/quality/layer3_bounded_agent.py:1655",
+        "architecture/policy_design_case/layer3_g6_agent_run_records.json",
+        "architecture/policy_design_case/layer3_g6_prompt_tool_ledger_projection.json"
+      ]
+    }
+  ],
+  "surfaces": [
+    {
+      "surface_id": "control_job_progress",
+      "source": "_emit_job_progress(step=...)",
+      "status": "runtime_visible",
+      "authority_ceiling": "progress telemetry",
+      "evidence_refs": [
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:4351",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:4405"
+      ]
+    },
+    {
+      "surface_id": "experiment_state_params_llm_model_variants",
+      "source": "state_payload.params.llm_model_variants",
+      "status": "persisted_state_carrier",
+      "authority_ceiling": "debug/trace payload",
+      "evidence_refs": [
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:6435"
+      ]
+    },
+    {
+      "surface_id": "run_agents_endpoint",
+      "source": "/api/v1/runs/{run_id}/agents",
+      "status": "public_runtime_debug_surface",
+      "authority_ceiling": "agent pipeline view, not G6 role record",
+      "evidence_refs": [
+        "src/polisyos/runtime/http/routes/runs.py:1433",
+        "src/polisyos/runtime/http/services/debug.py:397",
+        "src/polisyos/runtime/http/services/debug.py:1432"
+      ]
+    },
+    {
+      "surface_id": "prompt_tool_ledger_reports_index",
+      "source": "reports_index.prompt_tool_ledger_ref",
+      "status": "serious_profile_cas_backed",
+      "authority_ceiling": "parser/status ledger",
+      "evidence_refs": [
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:6382"
+      ]
+    },
+    {
+      "surface_id": "g6_readiness_artifacts",
+      "source": "architecture/policy_design_case/layer3_g6_*.json",
+      "status": "projection_only",
+      "authority_ceiling": "G6 routing/readiness projection, not live NL role backing",
+      "evidence_refs": [
+        "architecture/policy_design_case/layer3_g6_agent_run_records.json",
+        "architecture/policy_design_case/layer3_g6_prompt_tool_ledger_projection.json"
+      ]
+    }
+  ],
+  "negative_assertions": [
+    {
+      "id": "do_not_count_variant_steps_as_g6_agent_run_records",
+      "assertion": "PI/drafter/formalizer/critic steps visible in llm_model_variants are runtime telemetry unless a dedicated role event artifact or G6 record is bound to the same run_id/job_id.",
+      "status": "required"
+    },
+    {
+      "id": "do_not_count_prompt_tool_ledger_as_tool_loop",
+      "assertion": "PromptToolParserAuthorityLedger built from model-variant steps is not a ToolLoopResult transcript and must not satisfy tool-loop backing.",
+      "status": "required"
+    },
+    {
+      "id": "do_not_count_g6_readiness_projection_as_live_nl_run",
+      "assertion": "G6 records with request_id=req-layer3-g6-readiness and run_id=layer3-g6-run:req-layer3-g6-readiness are readiness projections, not event records for /api/v1/control/runs/nl.",
+      "status": "required"
+    },
+    {
+      "id": "serious_profile_parser_ledger_is_conditional",
+      "assertion": "Dev/mock NL role telemetry must not imply prompt_tool_ledger_ref exists; the parser ledger is emitted on serious execution profiles.",
+      "status": "required"
+    }
+  ],
+  "findings": [
+    {
+      "id": "agent_roles_runtime_visible_but_not_g6_event_backed",
+      "severity": "high",
+      "finding": "PI, DataNeedExtractor, Drafter, Formalizer, and Critic are invoked on the NL path and are visible as variant steps, but only as telemetry/debug payloads; no dedicated G6 role event records are bound to the live NL run."
+    },
+    {
+      "id": "prompt_tool_ledger_backed_but_not_tool_loop",
+      "severity": "high",
+      "finding": "Serious NL runs persist a CAS-backed PromptToolParserAuthorityLedger and report index ref, but the observed ledger is derived from variant steps and has empty tool_names; it is not Scientist ToolLoopResult backing."
+    },
+    {
+      "id": "g6_agent_records_are_readiness_projection",
+      "severity": "high",
+      "finding": "Committed G6 AgentRunRecord artifacts are tied to req-layer3-g6-readiness and G5 bridge refs, not to runtime NL job/run ids or /runs agent events."
+    },
+    {
+      "id": "run_agents_surface_is_debug_projection",
+      "severity": "medium",
+      "finding": "/api/v1/runs/{run_id}/agents surfaces role steps by reading experiment_state.params.llm_model_variants; this is useful debug backing but not a producer-root chain for G6 authority."
+    }
+  ],
+  "acceptance_signal": [
+    "A future G6 event-backed claim for PI/drafter/formalizer/critic must include a dedicated persisted role event artifact or an explicit out_of_scope classification.",
+    "A future tool-loop claim must prove NL runtime calls or consumes ToolLoopResult, not only PromptToolParserAuthorityLedger over variant steps.",
+    "A future G6 AgentRunRecord must bind to the live runtime run_id/job_id and carry source refs to the runtime role events or explicitly remain projection_only.",
+    "The prompt_tool_ledger_ref must remain classified as parser/status lineage until tool_call_refs and tool transcript semantics are produced and consumed.",
+    "Debug/API surface tests must keep /runs/{run_id}/agents as telemetry unless role event authority is separately governed."
+  ],
+  "next_audit_probes": [
+    "Run a persisted end-to-end NL control job through the embedded/external worker and fetch /api/v1/runs/{run_id}/agents, /runs/{run_id}, and raw prompt_tool_ledger artifact from the runtime API.",
+    "Map role-event candidates to control outbox/diagnostic event tables to determine whether a generic event stream can become the producer-root chain.",
+    "Decide whether G6 should consume NL agent roles directly or remain a separate readiness projection with explicit out_of_scope boundaries.",
+    "If NL tool-loop backing is desired, wire or prove run_tool_loop consumption and add a negative semantic test that parser ledger alone does not satisfy the claim."
+  ]
+}

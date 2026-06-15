@@ -1,0 +1,3665 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gx_positive_status_provenance.v1",
+  "status": "pass",
+  "candidate_positive_status_count": 406,
+  "positive_status_count": 0,
+  "excluded_candidate_count": 406,
+  "excluded_candidate_records": [
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_discovery_search_discipline.json",
+      "json_pointer": "$/no_hardcode_enumeration_lint",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_engineering_quality_check.json",
+      "json_pointer": "$/engineering_quality_check",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g0_readiness_manifest.json",
+      "json_pointer": "$/counts",
+      "field": "index_freshness_status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "search_health_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g1_conformance_report.json",
+      "json_pointer": "$/conformance_report",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g1_free_growth_report.json",
+      "json_pointer": "$/free_growth_report",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g1_l1_l5_l6_index_coverage.json",
+      "json_pointer": "$/l1_l5_l6_index_coverage",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g1_search_engineering_quality_report.json",
+      "json_pointer": "$/search_engineering_quality",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g1_search_recall_freshness.json",
+      "json_pointer": "$/search_recall_freshness",
+      "field": "index_freshness_status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "search_health_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json",
+      "json_pointer": "$/search_ledgers/0/index_freshness",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json",
+      "json_pointer": "$/search_ledgers/1/index_freshness",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g2_adapter_admission_registry.json",
+      "json_pointer": "$/adapter_admission_registry",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g2_concept_alignment_records.json",
+      "json_pointer": "$/concept_alignment_records/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g2_foundry_method_registry_coverage.json",
+      "json_pointer": "$/foundry_method_registry_coverage",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g2_foundry_method_registry_search.json",
+      "json_pointer": "$/foundry_method_registry_search",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g2_l2_skg_index_coverage.json",
+      "json_pointer": "$/l2_skg_index_coverage",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g2_search_recall_freshness.json",
+      "json_pointer": "$/search_recall_freshness",
+      "field": "index_freshness_status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "search_health_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g2_search_recall_freshness.json",
+      "json_pointer": "$/search_recall_freshness",
+      "field": "search_recall_status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "search_health_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g2_search_recall_freshness.json",
+      "json_pointer": "$/search_recall_freshness",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g2_search_recall_freshness.json",
+      "json_pointer": "$/search_recall_freshness/freshness_records/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g2_search_recall_freshness.json",
+      "json_pointer": "$/search_recall_freshness/freshness_records/1",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g2_search_recall_freshness.json",
+      "json_pointer": "$/search_recall_freshness/freshness_records/2",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g2_semantic_spine_bindings.json",
+      "json_pointer": "$/semantic_spine_bindings/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g3_adapter_admission_registry.json",
+      "json_pointer": "$/adapter_admission_registry",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g3_baseline_comparison_consumer_gate.json",
+      "json_pointer": "$/baseline_comparison_consumer_gate",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g3_certificate_resolution_report.json",
+      "json_pointer": "$/certificate_resolution_report",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g3_claim_registry_consumer_gate.json",
+      "json_pointer": "$/claim_registry_consumer_gate",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g3_claim_registry_consumer_gate.json",
+      "json_pointer": "$/claim_registry_consumer_gate/claim_registry_payload",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g3_claim_registry_consumer_gate.json",
+      "json_pointer": "$/claim_registry_consumer_gate/claim_registry_payload/ir_analytics_bridge",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g3_conformance_report.json",
+      "json_pointer": "$/conformance_report",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g3_ir_analytics_claim_bridge.json",
+      "json_pointer": "$/ir_analytics_claim_bridge",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g3_ir_analytics_claim_bridge.json",
+      "json_pointer": "$/ir_analytics_claim_bridge/bridge_payload",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g3_ir_artifact_store_index.json",
+      "json_pointer": "$/ir_artifact_store_index",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g3_ir_catalog_coverage.json",
+      "json_pointer": "$/ir_catalog_coverage",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g3_l2_skg_proof_candidate_bindings.json",
+      "json_pointer": "$/l2_skg_proof_candidate_bindings/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g3_method_requirement_bindings.json",
+      "json_pointer": "$/method_requirement_bindings/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g3_proof_carrying_analytics_records.json",
+      "json_pointer": "$/proof_carrying_analytics_records/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g3_proof_carrying_audit_surface.json",
+      "json_pointer": "$/proof_carrying_audit_surface",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g3_public_export_projection_refs.json",
+      "json_pointer": "$/public_export_projection_refs",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g3_s11_calibration_bindings.json",
+      "json_pointer": "$/s11_calibration_bindings/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g3_s11_predictive_posture_bindings.json",
+      "json_pointer": "$/s11_predictive_posture_bindings/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g3_s11_prerequisite_bindings.json",
+      "json_pointer": "$/s11_prerequisite_bindings/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g3_search_recall_freshness.json",
+      "json_pointer": "$/search_recall_freshness",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g3_search_recall_freshness.json",
+      "json_pointer": "$/search_recall_freshness/seed_records/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g3_search_recall_freshness.json",
+      "json_pointer": "$/search_recall_freshness/seed_records/1",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g3_search_recall_freshness.json",
+      "json_pointer": "$/search_recall_freshness/seed_records/2",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g3_semantic_spine_bindings.json",
+      "json_pointer": "$/semantic_spine_bindings/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g3_w12d_consumer_gate.json",
+      "json_pointer": "$/w12d_consumer_gate",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/1",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/2",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/3",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/4",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/5",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/6",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/7",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/8",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/9",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/10",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/11",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/12",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/13",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/14",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/15",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/16",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/17",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/18",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/19",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/20",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/21",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/22",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/23",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/24",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/25",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/26",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/27",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/28",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/29",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/30",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/31",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/32",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/33",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/34",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/35",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/36",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/37",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/38",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/39",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/40",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/negative_results/41",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_conformance_report.json",
+      "json_pointer": "$/performance_contract",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_dependency_readiness_snapshot.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_governance_throughput_delta.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_registry_ratchet_delta.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_composed_loop_completeness_gate.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_composed_loop_completeness_gate.json",
+      "json_pointer": "$/layer2_status_readings/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_composed_loop_completeness_gate.json",
+      "json_pointer": "$/layer2_status_readings/1",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_composed_loop_completeness_gate.json",
+      "json_pointer": "$/layer2_status_readings/2",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_composed_loop_completeness_gate.json",
+      "json_pointer": "$/layer2_status_readings/3",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_composed_loop_completeness_gate.json",
+      "json_pointer": "$/layer2_status_readings/4",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_composed_loop_completeness_gate.json",
+      "json_pointer": "$/layer2_status_readings/5",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_composed_loop_completeness_gate.json",
+      "json_pointer": "$/layer2_status_readings/6",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_composed_loop_completeness_gate.json",
+      "json_pointer": "$/layer2_status_readings/7",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_composed_loop_completeness_gate.json",
+      "json_pointer": "$/layer2_status_readings/8",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_composed_loop_completeness_gate.json",
+      "json_pointer": "$/layer2_status_readings/9",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_composed_loop_completeness_gate.json",
+      "json_pointer": "$/layer2_status_readings/10",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_conformance_report.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_conformance_report.json",
+      "json_pointer": "$/candidate_firewall_check",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_conformance_report.json",
+      "json_pointer": "$/closed_case_replay_integrity",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_conformance_report.json",
+      "json_pointer": "$/closeout_boundary_check",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_conformance_report.json",
+      "json_pointer": "$/negative_results/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_conformance_report.json",
+      "json_pointer": "$/negative_results/1",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_conformance_report.json",
+      "json_pointer": "$/negative_results/2",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_conformance_report.json",
+      "json_pointer": "$/negative_results/3",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_conformance_report.json",
+      "json_pointer": "$/negative_results/4",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_conformance_report.json",
+      "json_pointer": "$/negative_results/5",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_conformance_report.json",
+      "json_pointer": "$/negative_results/6",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_conformance_report.json",
+      "json_pointer": "$/negative_results/7",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_conformance_report.json",
+      "json_pointer": "$/negative_results/8",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_conformance_report.json",
+      "json_pointer": "$/negative_results/9",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_conformance_report.json",
+      "json_pointer": "$/negative_results/10",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_conformance_report.json",
+      "json_pointer": "$/negative_results/11",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_conformance_report.json",
+      "json_pointer": "$/performance_contract",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_conformance_report.json",
+      "json_pointer": "$/warning_lifecycle_check",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_conversion_audit_surface.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_demand_pull_attempt_record.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": "external-request://layer3-gx/demand-pull/ua-msme-affordable-loans-2022",
+      "classification": "external_request_input_positive_not_reducer_output",
+      "exclusion_reason": "external_request_input_only_status_without_reducer_authority"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_dependency_health_metric_snapshot.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_dependency_health_metric_snapshot.json",
+      "json_pointer": "$/health_toml/upstream/adapter-semantic-loss",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_dependency_health_metric_snapshot.json",
+      "json_pointer": "$/health_toml/upstream/demand-pull-vs-abstention",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_dependency_health_metric_snapshot.json",
+      "json_pointer": "$/health_toml/upstream/governance-throughput",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_dependency_health_metric_snapshot.json",
+      "json_pointer": "$/health_toml/upstream/search-recall@known-seeds + index-staleness",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_effective_evidence_independence.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_grounded_result_evidence_set.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_grounded_result_evidence_set.json",
+      "json_pointer": "$/effective_independence_record",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_pinned_case_input_bundle.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_pinned_case_input_bundle.json",
+      "json_pointer": "$/composed_loop_completeness_gate",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_pinned_case_input_bundle.json",
+      "json_pointer": "$/composed_loop_completeness_gate/layer2_status_readings/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_pinned_case_input_bundle.json",
+      "json_pointer": "$/composed_loop_completeness_gate/layer2_status_readings/1",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_pinned_case_input_bundle.json",
+      "json_pointer": "$/composed_loop_completeness_gate/layer2_status_readings/2",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_pinned_case_input_bundle.json",
+      "json_pointer": "$/composed_loop_completeness_gate/layer2_status_readings/3",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_pinned_case_input_bundle.json",
+      "json_pointer": "$/composed_loop_completeness_gate/layer2_status_readings/4",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_pinned_case_input_bundle.json",
+      "json_pointer": "$/composed_loop_completeness_gate/layer2_status_readings/5",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_pinned_case_input_bundle.json",
+      "json_pointer": "$/composed_loop_completeness_gate/layer2_status_readings/6",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_pinned_case_input_bundle.json",
+      "json_pointer": "$/composed_loop_completeness_gate/layer2_status_readings/7",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_pinned_case_input_bundle.json",
+      "json_pointer": "$/composed_loop_completeness_gate/layer2_status_readings/8",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_pinned_case_input_bundle.json",
+      "json_pointer": "$/composed_loop_completeness_gate/layer2_status_readings/9",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_pinned_case_input_bundle.json",
+      "json_pointer": "$/composed_loop_completeness_gate/layer2_status_readings/10",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_pinned_case_input_bundle.json",
+      "json_pointer": "$/w12d_case_block_index",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_public_export_projection_refs.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_public_export_projection_refs.json",
+      "json_pointer": "$/projection_contract_verification",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_public_export_projection_refs.json",
+      "json_pointer": "$/projection_contract_verification/consumer_contracts/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_public_export_projection_refs.json",
+      "json_pointer": "$/s12_projection_contract_verification",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_public_export_projection_refs.json",
+      "json_pointer": "$/s12_projection_contract_verification/consumer_contracts/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_public_export_projection_refs.json",
+      "json_pointer": "$/s14_projection_contract_verification",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_public_export_projection_refs.json",
+      "json_pointer": "$/s14_projection_contract_verification/consumer_contracts/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_readiness_manifest.json",
+      "json_pointer": "$/summary",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_registry_ratchet_delta.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_w12d_case_block_index.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_w12d_consumer_gate.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_agent_audit_surface.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_agent_audit_surface.json",
+      "json_pointer": "$/public_projection_contract_verification",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_agent_run_records.json",
+      "json_pointer": "$/agent_run_records/0/g5_invocation_plan",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_agent_run_records.json",
+      "json_pointer": "$/agent_run_records/0/orchestration_choice_audit",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_agent_run_records.json",
+      "json_pointer": "$/agent_run_records/0/policy_grammar_projection",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_agent_run_records.json",
+      "json_pointer": "$/agent_run_records/0/prompt_tool_ledger_projection",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_agent_run_records.json",
+      "json_pointer": "$/agent_run_records/0/prompt_tool_ledger_projection/prompt_tool_ledger/steps/0/tool_call_refs/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_agent_run_records.json",
+      "json_pointer": "$/agent_run_records/0/prompt_tool_ledger_projection/prompt_tool_ledger/steps/0/validation_refs/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_agent_run_records.json",
+      "json_pointer": "$/agent_run_records/0/search_ledger",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_agent_run_records.json",
+      "json_pointer": "$/agent_run_records/0/tool_contract_summary",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_candidate_authority_firewall_report.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/agent_loop_trace_check",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/candidate_firewall_check",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/g5_bridge_check",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/negative_results/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/negative_results/1",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/negative_results/2",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/negative_results/3",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/negative_results/4",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/negative_results/5",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/negative_results/6",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/negative_results/7",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/negative_results/8",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/negative_results/9",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/negative_results/10",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/negative_results/11",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/negative_results/12",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/negative_results/13",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/negative_results/14",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/negative_results/15",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/negative_results/16",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/negative_results/17",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/negative_results/18",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/negative_results/19",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/negative_results/20",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/negative_results/21",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/negative_results/22",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/negative_results/23",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/negative_results/24",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/negative_results/25",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/negative_results/26",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/negative_results/27",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/negative_results/28",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/orchestration_continuity_check",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/public_projection_boundary_check",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/public_projection_boundary_check/public_projection_contract_verification",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/replay_manifest_check",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/runtime_import_boundary_check",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/search_ledger_check",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_conformance_report.json",
+      "json_pointer": "$/tool_contract_check",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_counterexample_refinement_record.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_demand_pull_vs_abstention_delta.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_dependency_readiness_snapshot.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_g5_consumer_gate.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_g5_invocation_plan.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_orchestration_choice_audit.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_orchestration_continuity.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_orchestration_continuity.json",
+      "json_pointer": "$/record",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_policy_grammar_projection.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_prompt_tool_ledger_projection.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_prompt_tool_ledger_projection.json",
+      "json_pointer": "$/prompt_tool_ledger/steps/0/tool_call_refs/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_prompt_tool_ledger_projection.json",
+      "json_pointer": "$/prompt_tool_ledger/steps/0/validation_refs/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_readiness_manifest.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_readiness_manifest.json",
+      "json_pointer": "$/summary",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_registry_ratchet_delta.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_replay_manifest.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_replay_manifest.json",
+      "json_pointer": "$/manifest/orchestration_continuity",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_search_ledger.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g6_tool_contract_summary.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g7_g5_g6_authority_boundary_report.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g7_orchestration_continuity.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g7_orchestration_continuity.json",
+      "json_pointer": "$/record",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g7_readiness_manifest.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g7_readiness_manifest.json",
+      "json_pointer": "$/summary",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g7_region_grounding_matrix.json",
+      "json_pointer": "$/search_recall_freshness_join",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g7_region_widening_audit_surface.json",
+      "json_pointer": "$/public_projection_contract_verification",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g7_region_widening_audit_surface.json",
+      "json_pointer": "$/s12_resource_projection_contract_verification",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g7_region_widening_audit_surface.json",
+      "json_pointer": "$/s12_resource_projection_contract_verification/consumer_contracts/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g7_region_widening_audit_surface.json",
+      "json_pointer": "$/s13_post_deploy_accountability_projection_contract_verification",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g7_region_widening_audit_surface.json",
+      "json_pointer": "$/s13_post_deploy_accountability_projection_contract_verification/consumer_contracts/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g7_region_widening_audit_surface.json",
+      "json_pointer": "$/s14_universality_projection_contract_verification",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g7_region_widening_audit_surface.json",
+      "json_pointer": "$/s14_universality_projection_contract_verification/consumer_contracts/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g7_replay_manifest.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g7_replay_manifest.json",
+      "json_pointer": "$/manifest/orchestration_continuity",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g7_s12_growth_thermometer_projection.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g7_s12_growth_thermometer_projection.json",
+      "json_pointer": "$/s12_projection_contract_verification",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g7_s12_growth_thermometer_projection.json",
+      "json_pointer": "$/s12_projection_contract_verification/consumer_contracts/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g7_s14_mechanism_generality_projection.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g7_search_recall_freshness_join.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_closeout_signal_consumer_gate.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_conformance_report.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_conformance_report.json",
+      "json_pointer": "$/negative_results/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_conformance_report.json",
+      "json_pointer": "$/negative_results/1",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_conformance_report.json",
+      "json_pointer": "$/negative_results/2",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_conformance_report.json",
+      "json_pointer": "$/negative_results/3",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_conformance_report.json",
+      "json_pointer": "$/negative_results/4",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_conformance_report.json",
+      "json_pointer": "$/negative_results/5",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_conformance_report.json",
+      "json_pointer": "$/negative_results/6",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_conformance_report.json",
+      "json_pointer": "$/negative_results/7",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_conformance_report.json",
+      "json_pointer": "$/negative_results/8",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_conformance_report.json",
+      "json_pointer": "$/negative_results/9",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_conformance_report.json",
+      "json_pointer": "$/negative_results/10",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_conformance_report.json",
+      "json_pointer": "$/negative_results/11",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_conformance_report.json",
+      "json_pointer": "$/negative_results/12",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_conformance_report.json",
+      "json_pointer": "$/negative_results/13",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_conformance_report.json",
+      "json_pointer": "$/negative_results/14",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_conformance_report.json",
+      "json_pointer": "$/negative_results/15",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_cross_metric_diagnosis.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_d44_corpus_rebasing_rule.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_d44_reannotation_coverage_matrix.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_d44_rebasing_candidate_set.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_health_metric_registry.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_metric_gaming_firewall.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_metric_source_snapshot.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_metric_trend_report.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/0/raw_value",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/4",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/4/raw_value",
+      "field": "index_freshness_status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "search_health_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/4/raw_value",
+      "field": "search_recall_status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "search_health_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/6",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/11",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/12",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/13",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/14",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/15",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/21",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/22",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/23",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/24",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/25",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/29",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/30",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/31",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/32",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/33",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/34",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/35",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/36",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/37",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/48",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/51",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/53",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/54",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/56",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/57",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/60",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/67",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/69",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/71",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/73",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/75",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/77",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/81",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "json_pointer": "$/signals/82",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_registry_ratchet_delta.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_replay_manifest.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_sealed_battery_integrity_join.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g8_warning_lifecycle_ledger.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_argument_graph_readiness_consumer_gate.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_argument_graph_readiness_consumer_gate.json",
+      "json_pointer": "$/readiness_rows/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_authority_facet_bindings.json",
+      "json_pointer": "$/bindings/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_authority_facet_bindings.json",
+      "json_pointer": "$/bindings/1",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_authority_facet_bindings.json",
+      "json_pointer": "$/bindings/2",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_authority_facet_bindings.json",
+      "json_pointer": "$/bindings/3",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_authority_facet_bindings.json",
+      "json_pointer": "$/bindings/4",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_authority_facet_bindings.json",
+      "json_pointer": "$/bindings/5",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_authority_facet_bindings.json",
+      "json_pointer": "$/bindings/6",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_authority_facet_bindings.json",
+      "json_pointer": "$/bindings/7",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_authority_facet_bindings.json",
+      "json_pointer": "$/bindings/9",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_authority_facet_bindings.json",
+      "json_pointer": "$/bindings/10",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_authority_facet_bindings.json",
+      "json_pointer": "$/bindings/11",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_authority_facet_bindings.json",
+      "json_pointer": "$/bindings/12",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_authority_facet_bindings.json",
+      "json_pointer": "$/bindings/13",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_authority_facet_bindings.json",
+      "json_pointer": "$/bindings/14",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_authority_facet_bindings.json",
+      "json_pointer": "$/bindings/15",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_authority_facet_bindings.json",
+      "json_pointer": "$/bindings/16",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_authority_facet_bindings.json",
+      "json_pointer": "$/bindings/17",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_claim_registry_consumer_gate.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_claim_registry_consumer_gate.json",
+      "json_pointer": "$/claim_registry_payload",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_conformance_report.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_design_constraint_consumer_gate.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_g4_promotion_gate_consumer_gate.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_l3_legal_kg_index_coverage.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_l3_legal_kg_query_traces.json",
+      "json_pointer": "$/query_traces/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_l3_legal_kg_query_traces.json",
+      "json_pointer": "$/query_traces/1",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_l3_legal_kg_query_traces.json",
+      "json_pointer": "$/query_traces/2",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_l3_legal_kg_query_traces.json",
+      "json_pointer": "$/query_traces/3",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_l3_legal_kg_query_traces.json",
+      "json_pointer": "$/query_traces/4",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_l3_legal_kg_query_traces.json",
+      "json_pointer": "$/query_traces/5",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_l3_legal_kg_query_traces.json",
+      "json_pointer": "$/query_traces/6",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_legal_authority_report.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_legal_authority_report.json",
+      "json_pointer": "$/adapter_report",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_legal_authority_report.json",
+      "json_pointer": "$/adapter_report/claim_legal_anchors/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_legal_authority_report.json",
+      "json_pointer": "$/applicability_report/claim_legal_anchors/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_legal_authority_report.json",
+      "json_pointer": "$/applicability_report/query_normalization_report/language_coverage",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_legal_mandate_audit_surface.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_legal_requirement_bindings.json",
+      "json_pointer": "$/bindings/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_lex_intervention_map_bindings.json",
+      "json_pointer": "$/bindings/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_norm_candidate_bindings.json",
+      "json_pointer": "$/bindings/1",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_pdc_compiler_consumer_gate.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_public_export_projection_refs.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_s6_mandate_consumer_gate.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_s7_delegation_consumer_gate.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_search_recall_freshness.json",
+      "json_pointer": "$",
+      "field": "index_freshness_status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "search_health_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_search_recall_freshness.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_search_recall_freshness.json",
+      "json_pointer": "$/known_seed_results/known_amendment_seed",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_search_recall_freshness.json",
+      "json_pointer": "$/known_seed_results/known_mapping_seed",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_search_recall_freshness.json",
+      "json_pointer": "$/known_seed_results/known_norm_seed",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_search_recall_freshness.json",
+      "json_pointer": "$/known_seed_results/known_reference_seed",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_search_recall_freshness.json",
+      "json_pointer": "$/known_seed_results/known_temporal_seed",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_search_recall_freshness.json",
+      "json_pointer": "$/known_seed_results/known_threshold_seed",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_semantic_binding_consumer_gate.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_semantic_binding_consumer_gate.json",
+      "json_pointer": "$/semantic_binding_ledger",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_semantic_binding_consumer_gate.json",
+      "json_pointer": "$/semantic_binding_ledger/foundry/0/input_coverage/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_semantic_binding_consumer_gate.json",
+      "json_pointer": "$/semantic_binding_ledger/semantic_closure",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_temporal_competence_records.json",
+      "json_pointer": "$/records/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gl_threshold_authority_records.json",
+      "json_pointer": "$/records/0",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gx_baseline_note.json",
+      "json_pointer": "$/readiness_cli_baseline/1",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gx_baseline_note.json",
+      "json_pointer": "$/readiness_cli_baseline/5",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gx_baseline_note.json",
+      "json_pointer": "$/readiness_cli_baseline/6",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gx_baseline_note.json",
+      "json_pointer": "$/readiness_cli_baseline/9",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gx_correction_retraction_log.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gx_data_mutation_free_growth_test_report.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gx_human_approval_receipts.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gx_measurement_replay_report.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gx_persisted_status_recompute_drift.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gx_positive_status_provenance.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gx_producer_registry.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gx_producer_registry.json",
+      "json_pointer": "$/producers/6/execution_parameters",
+      "field": "index_freshness_status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "search_health_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gx_producer_root_chain_report.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gx_reducer_integrity_report.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gx_runtime_literal_lint.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json",
+      "json_pointer": "$/artifact_records/SealedUniversalityBatteryRun",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json",
+      "json_pointer": "$/artifact_records/UniversalityAxisScorecard",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json",
+      "json_pointer": "$/artifact_records/MechanismGeneralityReport",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json",
+      "json_pointer": "$/artifact_records/SkepticDefeaterRecord",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json",
+      "json_pointer": "$/artifact_records/UniversalityClaimAssuranceCase",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json",
+      "json_pointer": "$/artifact_records/UniversalityClaimGateRecord",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json",
+      "json_pointer": "$/supporting_records/D4CorpusTrackCoverage",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json",
+      "json_pointer": "$/supporting_records/ExpertOracleBootstrapRecord",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json",
+      "json_pointer": "$/supporting_records/UniversalityBaselineComparison",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json",
+      "json_pointer": "$/supporting_records/GroundedAuthorityCoverageRecord",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json",
+      "json_pointer": "$/supporting_records/EvaluationStatusCompositionRecord",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json",
+      "json_pointer": "$/supporting_records/EnvelopeRevisionDynamicsRecord",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "diagnostic_positive_not_authority",
+      "exclusion_reason": "generic_status_without_producer_or_reducer_provenance"
+    }
+  ],
+  "records": [],
+  "issues": []
+}

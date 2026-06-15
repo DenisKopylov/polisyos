@@ -1,0 +1,1391 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gy_capability_coverage_matrix.v1",
+  "date": "2026-06-14",
+  "audit_order_item": "1 (repo-wide capability coverage matrix)",
+  "scope": "Synthesis of all 14 GY Task 0 audits into one capability x chain-stage grid. Each cell is cited to a source audit; statuses are claims those audits proved.",
+  "chain_stages": [
+    "contract",
+    "producer",
+    "artifact_or_event",
+    "bridge",
+    "consumer",
+    "surface",
+    "semantic_test"
+  ],
+  "status_vocabulary": [
+    "absent",
+    "bridge_missing",
+    "n/a",
+    "not_audited",
+    "out_of_route",
+    "partial",
+    "proven",
+    "surface_missing"
+  ],
+  "reading": "A capability is route-authority-safe only when its whole chain is proven/partial with no absent/bridge_missing/surface_missing in a route-bearing stage. The dominant failure mode across the repo is bridge_missing + surface_missing (capabilities exist as contracts+producers but are not orchestrated into the route or carried to an authority surface).",
+  "summary": {
+    "row_count": 29,
+    "fully_green_chains": 1,
+    "stage_status_counts": {
+      "contract": {
+        "proven": 26,
+        "partial": 3
+      },
+      "producer": {
+        "proven": 15,
+        "partial": 14
+      },
+      "artifact_or_event": {
+        "partial": 14,
+        "absent": 3,
+        "proven": 3,
+        "not_audited": 2,
+        "n/a": 2,
+        "surface_missing": 4,
+        "out_of_route": 1
+      },
+      "bridge": {
+        "bridge_missing": 20,
+        "partial": 1,
+        "n/a": 3,
+        "proven": 1,
+        "surface_missing": 1,
+        "absent": 3
+      },
+      "consumer": {
+        "partial": 11,
+        "surface_missing": 7,
+        "bridge_missing": 5,
+        "n/a": 5,
+        "out_of_route": 1
+      },
+      "surface": {
+        "not_audited": 5,
+        "n/a": 11,
+        "surface_missing": 10,
+        "absent": 1,
+        "partial": 1,
+        "out_of_route": 1
+      },
+      "semantic_test": {
+        "absent": 16,
+        "partial": 8,
+        "not_audited": 4,
+        "n/a": 1
+      }
+    },
+    "gap_class_counts": {
+      "built_not_wired": 1,
+      "contract_without_producer": 5,
+      "partial": 8,
+      "wired_but_ungoverned": 8,
+      "wired_but_rotten": 4,
+      "blocked_upstream": 1,
+      "wired_and_works": 1,
+      "producer_without_consumer": 1
+    },
+    "route_participation_counts": {
+      "pinned": 13,
+      "near_route": 9,
+      "policy_design_only_not_nl_selected": 1,
+      "causal_full_only": 1,
+      "pinned_substrate": 2,
+      "meta": 1,
+      "follow_on": 1,
+      "out_of_route": 1
+    },
+    "verb_counts": {
+      "wire": 8,
+      "build": 7,
+      "govern": 5,
+      "repair": 6,
+      "none": 1,
+      "extend": 2
+    }
+  },
+  "rows": [
+    {
+      "capability": "catalog_search (free-text / hnsw discovery)",
+      "packages": [
+        "data_forge"
+      ],
+      "route_participation": "pinned",
+      "chain": {
+        "contract": {
+          "status": "proven",
+          "note": "DatasetSearchResult/SearchFilters typed"
+        },
+        "producer": {
+          "status": "proven",
+          "note": "DatasetCatalogGraph.search_datasets runs on 137k-dataset prod catalog"
+        },
+        "artifact_or_event": {
+          "status": "partial",
+          "note": "text-only fallback (no sentence_transformers); similarity=1.0 for all candidates -> no calibrated relevance"
+        },
+        "bridge": {
+          "status": "bridge_missing",
+          "note": "RetrievalService(dataset_catalog=None) at run_lifecycle.py:223 + nl_pipeline.py:4290"
+        },
+        "consumer": {
+          "status": "partial",
+          "note": "runtime resolves curated-only (~3 contracts)"
+        },
+        "surface": {
+          "status": "not_audited",
+          "note": "search-health surface not GY-mapped"
+        },
+        "semantic_test": {
+          "status": "absent",
+          "note": "construct+scope precision@5=0.0 (construct-only 0.56); 4/4 country filters return 0"
+        }
+      },
+      "gap_class": "built_not_wired",
+      "verb": "wire",
+      "blocking_for": "GY-1",
+      "audits": [
+        "engine_census",
+        "catalog_fetch",
+        "p2_semantic_evidence_quality"
+      ]
+    },
+    {
+      "capability": "catalog_binding -> fetch -> measurement_root",
+      "packages": [
+        "fabric"
+      ],
+      "route_participation": "pinned",
+      "chain": {
+        "contract": {
+          "status": "proven",
+          "note": "MetricBindingMatch/FetchPlan typed"
+        },
+        "producer": {
+          "status": "partial",
+          "note": "FetchExecutor executes a real WorldBank fetch from a catalog plan"
+        },
+        "artifact_or_event": {
+          "status": "absent",
+          "note": "persist_payload=True writes 0 CAS objects, returns no digest (executor.py:140)"
+        },
+        "bridge": {
+          "status": "bridge_missing",
+          "note": "retrieval execute_fetch_plans(persist_payload=False) vs separate /data/ingest root path"
+        },
+        "consumer": {
+          "status": "surface_missing",
+          "note": "DataContextMetric drops payload/root/request/content-hash"
+        },
+        "surface": {
+          "status": "not_audited",
+          "note": ""
+        },
+        "semantic_test": {
+          "status": "absent",
+          "note": "no preview/full-fetch equivalence, no root-chain join"
+        }
+      },
+      "gap_class": "contract_without_producer",
+      "verb": "build",
+      "blocking_for": "GY-1",
+      "audits": [
+        "catalog_fetch",
+        "p1_substrate_authority"
+      ]
+    },
+    {
+      "capability": "fabric_connectors (12 families)",
+      "packages": [
+        "fabric"
+      ],
+      "route_participation": "pinned",
+      "chain": {
+        "contract": {
+          "status": "partial",
+          "note": "8 shape_pass / 1 warn(sdmx) / 2 mismatch(rest.json,unpd) / 1 catalog-only(ukons)"
+        },
+        "producer": {
+          "status": "proven",
+          "note": "registered impls + profile map for all 12"
+        },
+        "artifact_or_event": {
+          "status": "partial",
+          "note": "replay fixtures exist but are generic scaffolds (sample rows)"
+        },
+        "bridge": {
+          "status": "bridge_missing",
+          "note": "route-starved: curated-only until GY-1 wires catalog"
+        },
+        "consumer": {
+          "status": "partial",
+          "note": "RetrievalProviders->ConnectorRegistry"
+        },
+        "surface": {
+          "status": "n/a",
+          "note": ""
+        },
+        "semantic_test": {
+          "status": "absent",
+          "note": "real fetch not exercised (optional network suite); rest.json/unpd/ukons not execution-ready"
+        }
+      },
+      "gap_class": "partial",
+      "verb": "wire",
+      "blocking_for": "GY-1",
+      "audits": [
+        "connector_family_truth",
+        "engine_census"
+      ]
+    },
+    {
+      "capability": "source_contract rights/freshness admissibility",
+      "packages": [
+        "fabric",
+        "data_requirement"
+      ],
+      "route_participation": "near_route",
+      "chain": {
+        "contract": {
+          "status": "proven",
+          "note": "DataRequirementSpec = 16 mandatory facets incl. source_rights/freshness_ref"
+        },
+        "producer": {
+          "status": "proven",
+          "note": "build_source_contract_requirement_bindings rejects missing facets"
+        },
+        "artifact_or_event": {
+          "status": "proven",
+          "note": "source-selection trace fails missing-facet shape with 18 issues"
+        },
+        "bridge": {
+          "status": "bridge_missing",
+          "note": "catalog FetchPlan carries 0/16 facets; FetchExecutor._fetch ignores source-contract status"
+        },
+        "consumer": {
+          "status": "bridge_missing",
+          "note": "fetch admission does not consume rights/freshness"
+        },
+        "surface": {
+          "status": "not_audited",
+          "note": ""
+        },
+        "semantic_test": {
+          "status": "partial",
+          "note": "validators exist but not orchestrated at pinned fetch admission"
+        }
+      },
+      "gap_class": "wired_but_ungoverned",
+      "verb": "govern",
+      "blocking_for": "GY-1",
+      "audits": [
+        "source_contract_admissibility",
+        "data_requirement_compiler"
+      ]
+    },
+    {
+      "capability": "data_requirement compiler",
+      "packages": [
+        "data_requirement"
+      ],
+      "route_participation": "near_route",
+      "chain": {
+        "contract": {
+          "status": "proven",
+          "note": "DataRequirementSpec + DataRequirementCompilationReport"
+        },
+        "producer": {
+          "status": "proven",
+          "note": "compiler emits 9 specs w/ 16 facets + 7 admissibility predicates (with injected resolver)"
+        },
+        "artifact_or_event": {
+          "status": "proven",
+          "note": "deterministic report writer + audit surface (compiler.py:447,476)"
+        },
+        "bridge": {
+          "status": "bridge_missing",
+          "note": "normal resolve_metric_bindings->FetchPlan route has no DataRequirementSpec gate"
+        },
+        "consumer": {
+          "status": "partial",
+          "note": "Fabric/runtime-quality consumers exist; pinned fetch path does not"
+        },
+        "surface": {
+          "status": "surface_missing",
+          "note": "public wrapper emits 0 specs for UA MSME; golden contract serializes []"
+        },
+        "semantic_test": {
+          "status": "partial",
+          "note": "targeted tests exist"
+        }
+      },
+      "gap_class": "wired_but_ungoverned",
+      "verb": "govern",
+      "blocking_for": "GY-1",
+      "audits": [
+        "data_requirement_compiler",
+        "substrate_package_capability"
+      ]
+    },
+    {
+      "capability": "scientist DAG shared spine (19 nodes)",
+      "packages": [
+        "scientist",
+        "foundry"
+      ],
+      "route_participation": "pinned",
+      "chain": {
+        "contract": {
+          "status": "proven",
+          "note": "19/19 common nodes identical node_id across the 3 modes"
+        },
+        "producer": {
+          "status": "proven",
+          "note": "runs e2e on real panel (JAX cpu); data plane + foundry compile + simulation OK"
+        },
+        "artifact_or_event": {
+          "status": "partial",
+          "note": "bundles persist to CAS but 0 manifest.authority records (178 manifests scanned)"
+        },
+        "bridge": {
+          "status": "partial",
+          "note": "scientist/adapters bridges exercise foundry; fabric_bridge only with data_view_request_ref"
+        },
+        "consumer": {
+          "status": "bridge_missing",
+          "note": "governance tail consumes bundles but fails on synthetic input"
+        },
+        "surface": {
+          "status": "surface_missing",
+          "note": "no authority ceiling on workflow output"
+        },
+        "semantic_test": {
+          "status": "partial",
+          "note": "GX reducers pinned to ua-msme data_home; not case-parameterized"
+        }
+      },
+      "gap_class": "wired_but_ungoverned",
+      "verb": "govern",
+      "blocking_for": "GY-2",
+      "audits": [
+        "engine_census",
+        "workflow_mode_truth",
+        "p1_substrate_authority",
+        "p0_coverage"
+      ]
+    },
+    {
+      "capability": "scientist DAG governance/validation tail (judge stack)",
+      "packages": [
+        "scientist"
+      ],
+      "route_participation": "pinned",
+      "chain": {
+        "contract": {
+          "status": "proven",
+          "note": "run_normative_arbitration/run_governance/build_verified_policy_report typed"
+        },
+        "producer": {
+          "status": "partial",
+          "note": "runs but FAILS on synthetic input"
+        },
+        "artifact_or_event": {
+          "status": "partial",
+          "note": "phase-5 ValidationReport produced with verdict=blocked"
+        },
+        "bridge": {
+          "status": "n/a",
+          "note": ""
+        },
+        "consumer": {
+          "status": "n/a",
+          "note": ""
+        },
+        "surface": {
+          "status": "surface_missing",
+          "note": ""
+        },
+        "semantic_test": {
+          "status": "absent",
+          "note": "node.invalid_outcome (pydantic re-validation) + all 6 phase-5 judges fail fatally"
+        }
+      },
+      "gap_class": "wired_but_rotten",
+      "verb": "repair",
+      "blocking_for": "GY-2",
+      "audits": [
+        "workflow_mode_truth"
+      ]
+    },
+    {
+      "capability": "scientist DAG lex/design-space arm (policy_design only)",
+      "packages": [
+        "scientist",
+        "lex"
+      ],
+      "route_participation": "policy_design_only_not_nl_selected",
+      "chain": {
+        "contract": {
+          "status": "proven",
+          "note": "HierarchicalPolicySearchAdapter + TemporalInterventionSequencer"
+        },
+        "producer": {
+          "status": "partial",
+          "note": "invoked but FAILS (optional-bounds None->0.0 in search spec)"
+        },
+        "artifact_or_event": {
+          "status": "absent",
+          "note": "node fails before policy_frontier_report persists"
+        },
+        "bridge": {
+          "status": "n/a",
+          "note": ""
+        },
+        "consumer": {
+          "status": "n/a",
+          "note": ""
+        },
+        "surface": {
+          "status": "n/a",
+          "note": ""
+        },
+        "semantic_test": {
+          "status": "absent",
+          "note": "P25 frontier-laundering risk untyped"
+        }
+      },
+      "gap_class": "wired_but_rotten",
+      "verb": "repair",
+      "blocking_for": "GY-2/GY-5",
+      "audits": [
+        "lex_frontier_root_cause",
+        "workflow_mode_truth"
+      ]
+    },
+    {
+      "capability": "scientist DAG transport/ensemble arm (causal_full only)",
+      "packages": [
+        "scientist",
+        "foundry"
+      ],
+      "route_participation": "causal_full_only",
+      "chain": {
+        "contract": {
+          "status": "proven",
+          "note": "link_trinity/run_transportability/run_causal_ensemble/run_evaluator"
+        },
+        "producer": {
+          "status": "partial",
+          "note": "reached only with trinity; gated by governance-tail failure"
+        },
+        "artifact_or_event": {
+          "status": "not_audited",
+          "note": "never reached on real run (skip)"
+        },
+        "bridge": {
+          "status": "n/a",
+          "note": ""
+        },
+        "consumer": {
+          "status": "n/a",
+          "note": ""
+        },
+        "surface": {
+          "status": "n/a",
+          "note": ""
+        },
+        "semantic_test": {
+          "status": "absent",
+          "note": ""
+        }
+      },
+      "gap_class": "blocked_upstream",
+      "verb": "none",
+      "blocking_for": "GY-2",
+      "audits": [
+        "workflow_mode_truth"
+      ]
+    },
+    {
+      "capability": "workflow-mode selection (resolver)",
+      "packages": [
+        "scientist"
+      ],
+      "route_participation": "pinned",
+      "chain": {
+        "contract": {
+          "status": "proven",
+          "note": "resolve_workflow_id"
+        },
+        "producer": {
+          "status": "partial",
+          "note": "resolves but: NL never selects policy_design; explicit causal_full overridden to policy_verified"
+        },
+        "artifact_or_event": {
+          "status": "n/a",
+          "note": ""
+        },
+        "bridge": {
+          "status": "bridge_missing",
+          "note": "no runtime caller sets workflow_id=policy_design"
+        },
+        "consumer": {
+          "status": "n/a",
+          "note": ""
+        },
+        "surface": {
+          "status": "n/a",
+          "note": ""
+        },
+        "semantic_test": {
+          "status": "partial",
+          "note": "node-set algebra recomputed by validator"
+        }
+      },
+      "gap_class": "wired_but_rotten",
+      "verb": "repair",
+      "blocking_for": "GY-0.5/GY-2",
+      "audits": [
+        "workflow_mode_truth",
+        "p0_coverage"
+      ]
+    },
+    {
+      "capability": "production control worker -> DAG",
+      "packages": [
+        "runtime",
+        "scientist"
+      ],
+      "route_participation": "pinned",
+      "chain": {
+        "contract": {
+          "status": "proven",
+          "note": "workflow_run job kind + ControlWorker"
+        },
+        "producer": {
+          "status": "proven",
+          "note": "launch_workflow_run->_enqueue_job->dispatch_once->_execute_workflow->run_experiment reaches the real DAG"
+        },
+        "artifact_or_event": {
+          "status": "partial",
+          "note": "persists failed workflow report; control job still completes"
+        },
+        "bridge": {
+          "status": "bridge_missing",
+          "note": "1408 discards final state; 6596 (NL) captures it"
+        },
+        "consumer": {
+          "status": "surface_missing",
+          "note": "job status launders workflow failure"
+        },
+        "surface": {
+          "status": "surface_missing",
+          "note": ""
+        },
+        "semantic_test": {
+          "status": "absent",
+          "note": "no negative: failed workflow must not complete clean"
+        }
+      },
+      "gap_class": "wired_but_ungoverned",
+      "verb": "govern",
+      "blocking_for": "GY-2",
+      "audits": [
+        "p0_coverage"
+      ]
+    },
+    {
+      "capability": "foundry methods (389 registered)",
+      "packages": [
+        "foundry"
+      ],
+      "route_participation": "pinned",
+      "chain": {
+        "contract": {
+          "status": "proven",
+          "note": "389 registered, 172 route-relevant"
+        },
+        "producer": {
+          "status": "proven",
+          "note": "6 representative direct pure_step smokes pass (manski, theta, conformal, ...)"
+        },
+        "artifact_or_event": {
+          "status": "partial",
+          "note": "direct_smoke_only outputs"
+        },
+        "bridge": {
+          "status": "bridge_missing",
+          "note": "dag_consumed_method_outputs_count=0 (compile_foundry/run_simulation gated)"
+        },
+        "consumer": {
+          "status": "bridge_missing",
+          "note": ""
+        },
+        "surface": {
+          "status": "not_audited",
+          "note": ""
+        },
+        "semantic_test": {
+          "status": "partial",
+          "note": "registered vs executable-on-real distinguished"
+        }
+      },
+      "gap_class": "partial",
+      "verb": "extend",
+      "blocking_for": "GY-2",
+      "audits": [
+        "foundry_breadth",
+        "engine_census"
+      ]
+    },
+    {
+      "capability": "foundry data plane (build_input_bindings)",
+      "packages": [
+        "foundry"
+      ],
+      "route_participation": "pinned",
+      "chain": {
+        "contract": {
+          "status": "proven",
+          "note": "FoundryInputBindings"
+        },
+        "producer": {
+          "status": "proven",
+          "note": "runs e2e on CPU (requires JAX_PLATFORMS=cpu; Metal unimplemented)"
+        },
+        "artifact_or_event": {
+          "status": "proven",
+          "note": "bound StateSnapshot + binding report"
+        },
+        "bridge": {
+          "status": "proven",
+          "note": "consumed by compile_foundry/run_simulation"
+        },
+        "consumer": {
+          "status": "partial",
+          "note": ""
+        },
+        "surface": {
+          "status": "n/a",
+          "note": ""
+        },
+        "semantic_test": {
+          "status": "partial",
+          "note": ""
+        }
+      },
+      "gap_class": "wired_and_works",
+      "verb": "govern",
+      "blocking_for": "GY-2",
+      "audits": [
+        "engine_census"
+      ]
+    },
+    {
+      "capability": "ir/analytics evidence contracts (port vocabulary)",
+      "packages": [
+        "ir"
+      ],
+      "route_participation": "pinned_substrate",
+      "chain": {
+        "contract": {
+          "status": "proven",
+          "note": "93 files: partial_identification/estimand/transportability/welfare/..."
+        },
+        "producer": {
+          "status": "partial",
+          "note": "contract substrate, not route-executed here"
+        },
+        "artifact_or_event": {
+          "status": "not_audited",
+          "note": ""
+        },
+        "bridge": {
+          "status": "bridge_missing",
+          "note": "not route-consumed evidence roots"
+        },
+        "consumer": {
+          "status": "partial",
+          "note": ""
+        },
+        "surface": {
+          "status": "n/a",
+          "note": ""
+        },
+        "semantic_test": {
+          "status": "not_audited",
+          "note": ""
+        }
+      },
+      "gap_class": "partial",
+      "verb": "wire",
+      "blocking_for": "GY-2",
+      "audits": [
+        "substrate_package_capability"
+      ]
+    },
+    {
+      "capability": "core CAS / artifact authority backing",
+      "packages": [
+        "core"
+      ],
+      "route_participation": "pinned_substrate",
+      "chain": {
+        "contract": {
+          "status": "proven",
+          "note": "ArtifactRef/manifest; byte integrity+dedup+tamper proven"
+        },
+        "producer": {
+          "status": "proven",
+          "note": "FileSystemCAS writers"
+        },
+        "artifact_or_event": {
+          "status": "surface_missing",
+          "note": "0 manifest.authority on DAG outputs; runtime-quality has write_runtime_authority_artifact, scientist uses plain put_json"
+        },
+        "bridge": {
+          "status": "bridge_missing",
+          "note": ""
+        },
+        "consumer": {
+          "status": "partial",
+          "note": ""
+        },
+        "surface": {
+          "status": "absent",
+          "note": "no general GC/sweep/delete API"
+        },
+        "semantic_test": {
+          "status": "partial",
+          "note": ""
+        }
+      },
+      "gap_class": "wired_but_ungoverned",
+      "verb": "build",
+      "blocking_for": "GY-2",
+      "audits": [
+        "p1_substrate_authority",
+        "substrate_package_capability"
+      ]
+    },
+    {
+      "capability": "time semantics / bitemporal admission envelope",
+      "packages": [
+        "runtime",
+        "core",
+        "pdc"
+      ],
+      "route_participation": "pinned",
+      "chain": {
+        "contract": {
+          "status": "partial",
+          "note": "TemporalService bitemporal exists; PDC legal-time fields exist"
+        },
+        "producer": {
+          "status": "partial",
+          "note": "supports details/timeline/lineage/compare"
+        },
+        "artifact_or_event": {
+          "status": "surface_missing",
+          "note": "excludes run_workflow/run_nodes/artifact_content"
+        },
+        "bridge": {
+          "status": "bridge_missing",
+          "note": "no composed envelope joining watermark/source-freshness/effective/legal/tx time"
+        },
+        "consumer": {
+          "status": "surface_missing",
+          "note": "PDC legal_as_of 44/87 null; 0 catalog_watermark/source_updated_at in committed PDC"
+        },
+        "surface": {
+          "status": "surface_missing",
+          "note": ""
+        },
+        "semantic_test": {
+          "status": "absent",
+          "note": "replay can drift"
+        }
+      },
+      "gap_class": "contract_without_producer",
+      "verb": "build",
+      "blocking_for": "GY-1/GY-7",
+      "audits": [
+        "p1_substrate_authority"
+      ]
+    },
+    {
+      "capability": "secret/PII admission gate",
+      "packages": [
+        "runtime",
+        "fabric"
+      ],
+      "route_participation": "pinned",
+      "chain": {
+        "contract": {
+          "status": "partial",
+          "note": "ArtifactInspector preview redaction; Fabric PIIDetectionStage"
+        },
+        "producer": {
+          "status": "partial",
+          "note": "preview redaction exists"
+        },
+        "artifact_or_event": {
+          "status": "n/a",
+          "note": ""
+        },
+        "bridge": {
+          "status": "bridge_missing",
+          "note": "raw /content + /download bypass preview; PII defaults off; FetchExecutor doesn't apply PII"
+        },
+        "consumer": {
+          "status": "surface_missing",
+          "note": ""
+        },
+        "surface": {
+          "status": "surface_missing",
+          "note": "DAG workflow-report blob leaks error.details.api_token='Bearer should-not-leak'"
+        },
+        "semantic_test": {
+          "status": "absent",
+          "note": "no raw-route negative for nested secrets"
+        }
+      },
+      "gap_class": "wired_but_ungoverned",
+      "verb": "repair",
+      "blocking_for": "GY-2",
+      "audits": [
+        "p1_substrate_authority",
+        "runtime_surface"
+      ]
+    },
+    {
+      "capability": "S12 resource economics (cost / VOI / budget)",
+      "packages": [
+        "s12_resource_economics"
+      ],
+      "route_participation": "near_route",
+      "chain": {
+        "contract": {
+          "status": "proven",
+          "note": "ValueOfInformationAllocation/ResourceAllocationPolicy/EnvelopeGrowthLedger"
+        },
+        "producer": {
+          "status": "proven",
+          "note": "real producers + manifest (case_count=13, voi_site_count=5)"
+        },
+        "artifact_or_event": {
+          "status": "partial",
+          "note": "produced S12 objects exist generally"
+        },
+        "bridge": {
+          "status": "bridge_missing",
+          "note": "G5 pinned pass refs originate from hardcoded readiness payload (layer3_proving_ground_conversion.py:1219)"
+        },
+        "consumer": {
+          "status": "surface_missing",
+          "note": "demand-act://ua-msme/principal + voi://ua-msme/site-1 do NOT dereference to produced S12 objects"
+        },
+        "surface": {
+          "status": "surface_missing",
+          "note": ""
+        },
+        "semantic_test": {
+          "status": "absent",
+          "note": "pass accepted by string-ref shape"
+        }
+      },
+      "gap_class": "wired_but_ungoverned",
+      "verb": "repair",
+      "blocking_for": "GY-7",
+      "audits": [
+        "p1_substrate_authority"
+      ]
+    },
+    {
+      "capability": "runtime API / dashboard / public-export surfaces",
+      "packages": [
+        "runtime"
+      ],
+      "route_participation": "pinned",
+      "chain": {
+        "contract": {
+          "status": "proven",
+          "note": "run/artifact/lineage/export DTOs"
+        },
+        "producer": {
+          "status": "proven",
+          "note": "all 12 probed routes return 200"
+        },
+        "artifact_or_event": {
+          "status": "partial",
+          "note": "/runs/{id}/workflow exposes fail honestly"
+        },
+        "bridge": {
+          "status": "surface_missing",
+          "note": "neighbors don't carry a workflow authority ceiling"
+        },
+        "consumer": {
+          "status": "surface_missing",
+          "note": "dashboard score/public packet don't consume workflow failure"
+        },
+        "surface": {
+          "status": "surface_missing",
+          "note": "failed workflow renderable/exportable/signable"
+        },
+        "semantic_test": {
+          "status": "absent",
+          "note": "no cross-surface failed-workflow negative"
+        }
+      },
+      "gap_class": "wired_but_ungoverned",
+      "verb": "build",
+      "blocking_for": "GY-2",
+      "audits": [
+        "runtime_surface",
+        "generated_public_lifecycle"
+      ]
+    },
+    {
+      "capability": "generated-artifact / public-surface lifecycle (GY family)",
+      "packages": [
+        "runtime",
+        "architecture"
+      ],
+      "route_participation": "meta",
+      "chain": {
+        "contract": {
+          "status": "proven",
+          "note": "generated_artifacts.toml = 45 families; 10 Layer3 registered"
+        },
+        "producer": {
+          "status": "partial",
+          "note": "GY audits produce 30+ files"
+        },
+        "artifact_or_event": {
+          "status": "surface_missing",
+          "note": "0 GY generated outputs registered; inventory.json 0 GY entries"
+        },
+        "bridge": {
+          "status": "bridge_missing",
+          "note": ""
+        },
+        "consumer": {
+          "status": "n/a",
+          "note": ""
+        },
+        "surface": {
+          "status": "surface_missing",
+          "note": "public-surface.md GY surface not registry-derived"
+        },
+        "semantic_test": {
+          "status": "partial",
+          "note": "lifecycle classification undecided (generated vs source vs out-of-scope)"
+        }
+      },
+      "gap_class": "contract_without_producer",
+      "verb": "build",
+      "blocking_for": "GY-0.5",
+      "audits": [
+        "generated_public_lifecycle"
+      ]
+    },
+    {
+      "capability": "agent G6 event backing (PI/drafter/critic/tool-loop)",
+      "packages": [
+        "scientist",
+        "runtime"
+      ],
+      "route_participation": "near_route",
+      "chain": {
+        "contract": {
+          "status": "proven",
+          "note": "DataNeedSpec + agent role protocols"
+        },
+        "producer": {
+          "status": "partial",
+          "note": "NL path invokes PI/drafter/formalizer/critic; 13 variant steps"
+        },
+        "artifact_or_event": {
+          "status": "surface_missing",
+          "note": "no dedicated role-event artifacts; prompt_tool_ledger has tool_names=[]"
+        },
+        "bridge": {
+          "status": "bridge_missing",
+          "note": "run_tool_loop not on NL path; only in layer3_bounded_agent.py"
+        },
+        "consumer": {
+          "status": "partial",
+          "note": "/runs/{id}/agents projects steps"
+        },
+        "surface": {
+          "status": "partial",
+          "note": ""
+        },
+        "semantic_test": {
+          "status": "absent",
+          "note": "variant telemetry must not satisfy G6 role-event requirement"
+        }
+      },
+      "gap_class": "producer_without_consumer",
+      "verb": "wire",
+      "blocking_for": "GY-4",
+      "audits": [
+        "agent_workflow_event_backing",
+        "p2_semantic_evidence_quality"
+      ]
+    },
+    {
+      "capability": "scholar L2 SKG / OpenAlex provider",
+      "packages": [
+        "scholar"
+      ],
+      "route_participation": "follow_on",
+      "chain": {
+        "contract": {
+          "status": "proven",
+          "note": "ScholarKnowledgeGraph; SKG = 310,829 articles / 7,607 edges / 62,248 estimates"
+        },
+        "producer": {
+          "status": "partial",
+          "note": "canonical edge queries work for some pairs"
+        },
+        "artifact_or_event": {
+          "status": "partial",
+          "note": "web_evidence_bundle persists (NOT L2 SKG authority by G2 guardrail)"
+        },
+        "bridge": {
+          "status": "absent",
+          "note": "no OpenAlex/Crossref provider wiring"
+        },
+        "consumer": {
+          "status": "partial",
+          "note": ""
+        },
+        "surface": {
+          "status": "n/a",
+          "note": ""
+        },
+        "semantic_test": {
+          "status": "absent",
+          "note": "find_relevant_works NL search 0/5 route queries"
+        }
+      },
+      "gap_class": "contract_without_producer",
+      "verb": "build",
+      "blocking_for": "GY-6",
+      "audits": [
+        "p2_semantic_evidence_quality"
+      ]
+    },
+    {
+      "capability": "KnowledgeToolkit (agent tool registry)",
+      "packages": [
+        "scholar",
+        "scientist"
+      ],
+      "route_participation": "near_route",
+      "chain": {
+        "contract": {
+          "status": "proven",
+          "note": "declares dataset/scholar/legal/memory methods"
+        },
+        "producer": {
+          "status": "partial",
+          "note": "only 3/20 tools register (get_type_hints fails on TYPE_CHECKING annotations)"
+        },
+        "artifact_or_event": {
+          "status": "absent",
+          "note": "no event-backed tool-call artifacts"
+        },
+        "bridge": {
+          "status": "bridge_missing",
+          "note": "no default runtime injection of catalog/scholar graphs"
+        },
+        "consumer": {
+          "status": "partial",
+          "note": "legal-only/format-only route use"
+        },
+        "surface": {
+          "status": "n/a",
+          "note": ""
+        },
+        "semantic_test": {
+          "status": "absent",
+          "note": ""
+        }
+      },
+      "gap_class": "wired_but_rotten",
+      "verb": "repair",
+      "blocking_for": "GY-4/GY-6",
+      "audits": [
+        "p2_semantic_evidence_quality"
+      ]
+    },
+    {
+      "capability": "demand/acquisition (DataNeedSpec <- RequiredDataSpec)",
+      "packages": [
+        "scientist",
+        "foundry"
+      ],
+      "route_participation": "near_route",
+      "chain": {
+        "contract": {
+          "status": "proven",
+          "note": "DataNeedSpec exists (protocols.py:120); RequiredDataSpec exists (_id_contracts.py:25)"
+        },
+        "producer": {
+          "status": "partial",
+          "note": "NL->DataNeedSpec source exists; RequiredDataSpec emitted by id_engine"
+        },
+        "artifact_or_event": {
+          "status": "partial",
+          "note": ""
+        },
+        "bridge": {
+          "status": "absent",
+          "note": "no producer maps RequiredDataSpec -> DataNeedSpec"
+        },
+        "consumer": {
+          "status": "bridge_missing",
+          "note": ""
+        },
+        "surface": {
+          "status": "not_audited",
+          "note": ""
+        },
+        "semantic_test": {
+          "status": "absent",
+          "note": ""
+        }
+      },
+      "gap_class": "contract_without_producer",
+      "verb": "build",
+      "blocking_for": "GY-3",
+      "audits": [
+        "engine_census"
+      ]
+    },
+    {
+      "capability": "evidence independence / anti-inflation",
+      "packages": [
+        "evidence"
+      ],
+      "route_participation": "near_route",
+      "chain": {
+        "contract": {
+          "status": "proven",
+          "note": "conflict records + effective-independence graph"
+        },
+        "producer": {
+          "status": "proven",
+          "note": "implemented w/ consumers"
+        },
+        "artifact_or_event": {
+          "status": "partial",
+          "note": ""
+        },
+        "bridge": {
+          "status": "bridge_missing",
+          "note": "P14/P05 bridge into GY claim closure unproven"
+        },
+        "consumer": {
+          "status": "partial",
+          "note": ""
+        },
+        "surface": {
+          "status": "n/a",
+          "note": ""
+        },
+        "semantic_test": {
+          "status": "not_audited",
+          "note": "consume as P14 protection, not support strength"
+        }
+      },
+      "gap_class": "partial",
+      "verb": "wire",
+      "blocking_for": "GY-7",
+      "audits": [
+        "substrate_package_capability"
+      ]
+    },
+    {
+      "capability": "BERL / calibration validation substrate",
+      "packages": [
+        "berl",
+        "calibration"
+      ],
+      "route_participation": "near_route",
+      "chain": {
+        "contract": {
+          "status": "proven",
+          "note": "ExplanationBundle / calibration diagnostics + ValidationReport adapter"
+        },
+        "producer": {
+          "status": "proven",
+          "note": "implemented w/ Scientist/runtime-quality consumers"
+        },
+        "artifact_or_event": {
+          "status": "partial",
+          "note": ""
+        },
+        "bridge": {
+          "status": "bridge_missing",
+          "note": "not bound to a route method/output/measurement root"
+        },
+        "consumer": {
+          "status": "partial",
+          "note": ""
+        },
+        "surface": {
+          "status": "n/a",
+          "note": ""
+        },
+        "semantic_test": {
+          "status": "not_audited",
+          "note": "display policy != recommendation authority"
+        }
+      },
+      "gap_class": "partial",
+      "verb": "wire",
+      "blocking_for": "GY-2",
+      "audits": [
+        "substrate_package_capability"
+      ]
+    },
+    {
+      "capability": "obligation/participation/method-requirement authority ceilings",
+      "packages": [
+        "obligation_rules",
+        "obligation_graph",
+        "participation_requirement",
+        "method_requirement"
+      ],
+      "route_participation": "near_route",
+      "chain": {
+        "contract": {
+          "status": "proven",
+          "note": "governed catalog + may_not_use_for boundaries + anti-LLM ceilings"
+        },
+        "producer": {
+          "status": "proven",
+          "note": "real compilers/catalogs"
+        },
+        "artifact_or_event": {
+          "status": "partial",
+          "note": ""
+        },
+        "bridge": {
+          "status": "bridge_missing",
+          "note": "GY must CONSUME ceilings, not infer from route absence"
+        },
+        "consumer": {
+          "status": "bridge_missing",
+          "note": ""
+        },
+        "surface": {
+          "status": "n/a",
+          "note": ""
+        },
+        "semantic_test": {
+          "status": "not_audited",
+          "note": ""
+        }
+      },
+      "gap_class": "partial",
+      "verb": "wire",
+      "blocking_for": "GY-2/GY-4",
+      "audits": [
+        "substrate_package_capability"
+      ]
+    },
+    {
+      "capability": "DDM drift / invalidation monitoring",
+      "packages": [
+        "ddm"
+      ],
+      "route_participation": "out_of_route",
+      "chain": {
+        "contract": {
+          "status": "proven",
+          "note": ""
+        },
+        "producer": {
+          "status": "proven",
+          "note": "production monitoring/readiness"
+        },
+        "artifact_or_event": {
+          "status": "out_of_route",
+          "note": ""
+        },
+        "bridge": {
+          "status": "absent",
+          "note": "no invalidation/reissue bridge into GY route"
+        },
+        "consumer": {
+          "status": "out_of_route",
+          "note": ""
+        },
+        "surface": {
+          "status": "out_of_route",
+          "note": ""
+        },
+        "semantic_test": {
+          "status": "n/a",
+          "note": ""
+        }
+      },
+      "gap_class": "partial",
+      "verb": "wire",
+      "blocking_for": "follow_on",
+      "audits": [
+        "substrate_package_capability"
+      ]
+    },
+    {
+      "capability": "generalization (depth-2, second case)",
+      "packages": [
+        "scientist",
+        "data_forge",
+        "runtime"
+      ],
+      "route_participation": "pinned",
+      "chain": {
+        "contract": {
+          "status": "proven",
+          "note": "second case pl-household-energy-affordability-2024 constructed"
+        },
+        "producer": {
+          "status": "partial",
+          "note": "real DAG runs on case 2"
+        },
+        "artifact_or_event": {
+          "status": "partial",
+          "note": ""
+        },
+        "bridge": {
+          "status": "bridge_missing",
+          "note": "GX reducer CLI loads pinned ua-msme data_home; not case-parameterized"
+        },
+        "consumer": {
+          "status": "surface_missing",
+          "note": ""
+        },
+        "surface": {
+          "status": "surface_missing",
+          "note": ""
+        },
+        "semantic_test": {
+          "status": "absent",
+          "note": "case2 reproduces lex failure; country-filter catalog=0 despite topical hits"
+        }
+      },
+      "gap_class": "partial",
+      "verb": "extend",
+      "blocking_for": "GY-7",
+      "audits": [
+        "p0_coverage",
+        "p2_semantic_evidence_quality"
+      ]
+    }
+  ],
+  "digest": "sha256:5ef30038a665cc2b9336388800a8b67aa5e1b24bc8829f74c13c9a3d47d97d64"
+}

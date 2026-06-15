@@ -1,5 +1,8 @@
 # Policy Design Case Failure And Repair Patterns
 
+Owner: `team-policyos-runtime`
+Source of truth: `AGENTS.md`, `policy-engine/AGENTS.md`, and this register.
+
 This is the on-demand register behind the root `AGENTS.md` failure lens. Use it when changing Policy Design Case, governance, evidence, runtime quality, producer, API, dashboard, export, or research-plan behavior.
 
 ## How To Use

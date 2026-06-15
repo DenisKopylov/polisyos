@@ -67,7 +67,7 @@ def test_fixture_compiler_promotes_l1_l7_assets_into_authority_scoped_index(
             """
             SELECT capability_id, source_refs_json, method_contract_targets_json
             FROM capabilities
-            WHERE construct = 'firm_survival'
+            WHERE construct = 'firm_fundamentals'
               AND compatibility_only = false
             ORDER BY capability_id
             """

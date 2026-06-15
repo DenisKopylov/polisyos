@@ -1,5 +1,8 @@
 # Fabric Source Platform
 
+Owner: `@fabric-owners`
+Source of truth: `schemas/fabric/source_contract.schema.json`, `schemas/fabric/source_scorecard.schema.json`, `schemas/snapshots/fabric/source_contracts_v2.json`, `schemas/snapshots/fabric/source_scorecards.json`, and `tools/quality/validation/fabric_source_contracts.py`
+
 Related explanation: [Data Fabric](../../explanation/data-fabric.md).
 
 Best-in-class inventory: [best-in-class-inventory.md](best-in-class-inventory.md).

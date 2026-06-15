@@ -1,0 +1,12 @@
+schema_version = "policyos.policy_design_case.layer3_g6_bounded_agent.v1"
+rule_version = "policyos.layer3.g6.bounded_agent.v1"
+status = "pass"
+route_count = 1
+
+[[agent_route_records]]
+authoritative_for = ["layer3_g6_agent_orchestration_audit", "layer3_g6_g5_routing_decision", "layer3_g6_demand_pull_vs_abstention_reading"]
+envelope_match_status = "same_class_as_g5_pinned_case"
+g5_invocation_plan_ref = "layer3-g6://g5-invocation-plan/req-layer3-g6-readiness"
+may_not_use_for = ["production_authority", "rollout_authority", "publication_authority", "approval_authority", "scorecard_authority", "closeout_authority", "runtime_closeout_authority", "public_recommendation", "policy_recommendation", "legal_advice", "claim_authority", "obligation_authority", "causal_effect_authority", "proof_authority", "legal_authority", "g5_conversion_authority_without_g5", "g7_region_widening"]
+request_class = "ua_msme_support"
+route_id = "layer3.g6.agent_route.g5_pinned_bridge"

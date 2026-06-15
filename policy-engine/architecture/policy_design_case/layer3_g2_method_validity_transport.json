@@ -34,146 +34,69 @@
       "cas_persistence_reason": "No artifact store was supplied to the G2 readiness runtime check.",
       "cas_persistence_status": "out_of_scope",
       "foundry_method_report": {
-        "blocking_issue_count": 0,
+        "blocking_issue_count": 3,
         "canary_kind": "production",
-        "candidate_method_families": [
-          "causal_effect_estimation"
-        ],
-        "candidate_methods": [
-          {
-            "assumptions": {
-              "identification_strategy": "pass",
-              "overlap_or_support": "pass",
-              "transportability": "pass"
-            },
-            "identification_requirements": {
-              "estimand": "ATT",
-              "requirements": [
-                "panel_support"
-              ]
-            },
-            "input_refs": {
-              "data_snapshot_ref": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
-              "input_bindings_ref": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
-            },
-            "limitation_refs": {
-              "method_limitation_ref": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
-            },
-            "method_expectations": [
-              "causal_effect_estimation",
-              "uncertainty"
-            ],
-            "method_family": "causal_effect_estimation",
-            "method_fqn": "causal.did.difference_in_differences@1.0.0",
-            "method_id": "causal.did.readiness",
-            "method_result_refs": {
-              "method_result_ref": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
-            },
-            "missingness": {
-              "missing_rate": 0.01,
-              "status": "pass"
-            },
-            "missingness_handling": {
-              "status": "pass",
-              "strategy": "complete_case"
-            },
-            "runtime_assumption_gates": [
-              {
-                "assumption": "identification_strategy",
-                "gate_ref": "gate://layer3/g2/readiness/identification",
-                "status": "pass"
-              },
-              {
-                "assumption": "overlap_or_support",
-                "gate_ref": "gate://layer3/g2/readiness/overlap",
-                "status": "pass"
-              },
-              {
-                "assumption": "transportability",
-                "gate_ref": "gate://layer3/g2/readiness/transportability",
-                "status": "pass"
-              }
-            ],
-            "sensitivity": {
-              "robustness": "moderate",
-              "status": "pass"
-            },
-            "specification_space": {
-              "primary": "two_way_fixed_effects"
-            },
-            "transportability_limits": {
-              "target_population": "wartime_msmes"
-            },
-            "truthfulness_status": "runtime_consistent",
-            "uncertainty": {
-              "interval": [
-                0.01,
-                0.07
-              ],
-              "status": "pass"
-            },
-            "uncertainty_refs": {
-              "uncertainty_envelope_ref": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
-            },
-            "validity_surfaces": {
-              "causal_ensemble": {
-                "ref": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-                "status": "present"
-              },
-              "certificate_proof": {
-                "ref": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
-                "status": "present"
-              },
-              "falsification": {
-                "ref": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-                "status": "present"
-              },
-              "identification": {
-                "ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-                "status": "present"
-              },
-              "partial_identification": {
-                "ref": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
-                "status": "present"
-              },
-              "recoverability": {
-                "ref": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
-                "status": "present"
-              },
-              "transportability": {
-                "ref": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-                "status": "present"
-              }
-            }
-          }
-        ],
+        "candidate_method_families": [],
+        "candidate_methods": [],
         "capability_reality_status": "implemented",
         "expected_method_expectations": [
           "causal_effect_estimation"
         ],
-        "foundry_input_refs": {
-          "data_snapshot_ref": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
-          "input_bindings_ref": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
-        },
-        "issues": [],
+        "foundry_input_refs": {},
+        "issues": [
+          {
+            "claim_id": "g2-request:default-causal-forecast-method-search",
+            "code": "method_requirement_no_selected_method",
+            "layer": "foundry_methods",
+            "message": "No Foundry method candidate satisfied MethodValidityRequirementSpec g2-method-req:credit-access-firm-survival for claim g2-request:default-causal-forecast-method-search.",
+            "method_requirement_ref": "g2-method-req:credit-access-firm-survival",
+            "next_action": "Select a named method with runtime assumption gates, uncertainty refs, limitations, and method output refs, or emit a typed blocker.",
+            "phase": "method_requirement_selection",
+            "severity": "fail"
+          },
+          {
+            "code": "method_obligation_missing",
+            "layer": "foundry_methods",
+            "message": "Expected Foundry method obligation causal_effect_estimation is missing required facets: analytical_proof_surfaces, assumptions, method_refs, method_result_refs, missingness_diagnostics, sensitivity_or_transportability, uncertainty_interval.",
+            "method_id": "causal_effect_estimation",
+            "next_action": "Select a named analytical method before claim drafting and persist method refs, objective/tradeoff refs, uncertainty, sensitivity, limitations, and obligation-specific evidence.",
+            "phase": "method_quality",
+            "severity": "fail"
+          },
+          {
+            "code": "no_selected_methods",
+            "layer": "foundry_methods",
+            "message": "Foundry method report has no selected methods.",
+            "method_id": null,
+            "next_action": "Record at least one selected Foundry method.",
+            "phase": "method_quality",
+            "severity": "fail"
+          }
+        ],
         "method_independence": {
           "collapse_reasons": [],
-          "effective_independent_method_count": 1,
-          "raw_method_count": 1
+          "effective_independent_method_count": 0,
+          "raw_method_count": 0
         },
         "method_obligations": [
           {
             "expectation": "causal_effect_estimation",
-            "missing_facets": [],
-            "requirement_id": "foundry.method.causal_effect_estimation",
-            "selected_method_refs": [
-              "causal.did.readiness"
+            "missing_facets": [
+              "analytical_proof_surfaces",
+              "assumptions",
+              "method_refs",
+              "method_result_refs",
+              "missingness_diagnostics",
+              "sensitivity_or_transportability",
+              "uncertainty_interval"
             ],
-            "status": "satisfied"
+            "requirement_id": "foundry.method.causal_effect_estimation",
+            "selected_method_refs": [],
+            "status": "missing"
           }
         ],
         "method_requirement_statuses": {
-          "g2-method-req:fertilizer-use-agriculture-food-nutritional-quality": "satisfied"
+          "g2-method-req:credit-access-firm-survival": "missing"
         },
         "method_requirements": [
           {
@@ -208,7 +131,7 @@
             "baseline_refs": [],
             "claim_id": "g2-request:default-causal-forecast-method-search",
             "concept_spine_refs": [
-              "source-contract://ua-msme/server-support"
+              "source-contract://ua-msme/credit-access-firm-survival"
             ],
             "facet_refs": [
               "g2-request-facet:g2-request:default-causal-forecast-method-search:causal-forecast"
@@ -216,9 +139,9 @@
             "fairness_decomposition_need": "subgroup",
             "identification_class": "point",
             "metadata": {
-              "cause": "agriculture.fertilizer_use",
+              "cause": "policy.credit_access",
               "data_modality": "panel",
-              "effect": "agriculture.food_nutritional_quality",
+              "effect": "firm.survival",
               "required_diagnostics": [
                 "identification",
                 "transportability",
@@ -236,7 +159,7 @@
             "required_method_families": [
               "causal_effect_estimation"
             ],
-            "requirement_id": "g2-method-req:fertilizer-use-agriculture-food-nutritional-quality",
+            "requirement_id": "g2-method-req:credit-access-firm-survival",
             "requires_ir_analytics": true,
             "requires_limitation_refs": true,
             "requires_method_output": true,
@@ -254,7 +177,7 @@
               "required_refs": []
             },
             "source_precondition_refs": [
-              "source-contract://ua-msme/server-support"
+              "source-contract://ua-msme/credit-access-firm-survival"
             ],
             "strategic_response_sensitivity": "monitor",
             "transportability_requirement": "target_population_limits",
@@ -284,166 +207,36 @@
           "provenance_kind": "runtime_emitted"
         },
         "schema_version": "policyos.foundry.method_quality_report.v1",
-        "selected_methods": [
-          {
-            "assumption_gate_refs": {
-              "identification_strategy": "gate://layer3/g2/readiness/identification",
-              "overlap_or_support": "gate://layer3/g2/readiness/overlap",
-              "transportability": "gate://layer3/g2/readiness/transportability"
-            },
-            "assumptions": {
-              "identification_strategy": "pass",
-              "overlap_or_support": "pass",
-              "transportability": "pass"
-            },
-            "identification_requirements": {
-              "estimand": "ATT",
-              "requirements": [
-                "panel_support"
-              ]
-            },
-            "input_refs": {
-              "data_snapshot_ref": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
-              "input_bindings_ref": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
-            },
-            "limitation_refs": {
-              "method_limitation_ref": "sha256:5555555555555555555555555555555555555555555555555555555555555555"
-            },
-            "method_expectations": [
-              "causal_effect_estimation",
-              "uncertainty"
-            ],
-            "method_family": "causal_effect_estimation",
-            "method_fqn": "causal.did.difference_in_differences@1.0.0",
-            "method_id": "causal.did.readiness",
-            "method_output_refs": {
-              "method_result_ref": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
-            },
-            "method_requirement_refs": [
-              "g2-method-req:fertilizer-use-agriculture-food-nutritional-quality"
-            ],
-            "method_result_refs": {
-              "method_result_ref": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
-            },
-            "missingness": {
-              "missing_rate": 0.01,
-              "status": "pass"
-            },
-            "missingness_handling": {
-              "status": "pass",
-              "strategy": "complete_case"
-            },
-            "runtime_assumption_gates": [
-              {
-                "assumption": "identification_strategy",
-                "gate_ref": "gate://layer3/g2/readiness/identification",
-                "status": "pass"
-              },
-              {
-                "assumption": "overlap_or_support",
-                "gate_ref": "gate://layer3/g2/readiness/overlap",
-                "status": "pass"
-              },
-              {
-                "assumption": "transportability",
-                "gate_ref": "gate://layer3/g2/readiness/transportability",
-                "status": "pass"
-              }
-            ],
-            "sensitivity": {
-              "robustness": "moderate",
-              "status": "pass"
-            },
-            "specification_space": {
-              "primary": "two_way_fixed_effects"
-            },
-            "transportability_limits": {
-              "target_population": "wartime_msmes"
-            },
-            "truthfulness_status": "runtime_consistent",
-            "uncertainty": {
-              "interval": [
-                0.01,
-                0.07
-              ],
-              "status": "pass"
-            },
-            "uncertainty_envelope_refs": {
-              "uncertainty_envelope_ref": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
-            },
-            "uncertainty_refs": {
-              "uncertainty_envelope_ref": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
-            },
-            "validity_surfaces": {
-              "causal_ensemble": {
-                "ref": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-                "status": "present"
-              },
-              "certificate_proof": {
-                "ref": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
-                "status": "present"
-              },
-              "falsification": {
-                "ref": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-                "status": "present"
-              },
-              "identification": {
-                "ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-                "status": "present"
-              },
-              "partial_identification": {
-                "ref": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
-                "status": "present"
-              },
-              "recoverability": {
-                "ref": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
-                "status": "present"
-              },
-              "transportability": {
-                "ref": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-                "status": "present"
-              }
-            }
-          }
-        ],
-        "status": "pass",
+        "selected_methods": [],
+        "status": "fail",
         "summary": {
-          "assumption_gate_ref_count": 3,
-          "candidate_method_count": 1,
-          "effective_independent_method_count": 1,
-          "limitation_ref_count": 1,
-          "method_ids": [
-            "causal.did.readiness"
-          ],
+          "assumption_gate_ref_count": 0,
+          "candidate_method_count": 0,
+          "effective_independent_method_count": 0,
+          "limitation_ref_count": 0,
+          "method_ids": [],
           "method_independence_collapse_reasons": [],
           "method_obligation_statuses": {
-            "causal_effect_estimation": "satisfied"
+            "causal_effect_estimation": "missing"
           },
-          "method_output_ref_count": 1,
+          "method_output_ref_count": 0,
           "method_requirement_statuses": {
-            "g2-method-req:fertilizer-use-agriculture-food-nutritional-quality": "satisfied"
+            "g2-method-req:credit-access-firm-survival": "missing"
           },
-          "method_result_refs": [
-            {
-              "method_id": "causal.did.readiness",
-              "refs": {
-                "method_result_ref": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
-              }
-            }
-          ],
+          "method_result_refs": [],
           "rejected_method_count": 0,
-          "selected_method_count": 1,
-          "uncertainty_envelope_ref_count": 1
+          "selected_method_count": 0,
+          "uncertainty_envelope_ref_count": 0
         }
       },
-      "foundry_method_report_ref": "foundry-method-report:d145d18470dfbf87a3f66618",
-      "foundry_method_report_status": "pass",
-      "identification_requirement_refs": [
-        "identification_requirements:aa70e763e0eceecb3f1033c9",
-        "identification_requirements:6a6845488c572c7706f5d984"
+      "foundry_method_report_ref": "foundry-method-report:cb126ffa6776e85255f174be",
+      "foundry_method_report_status": "fail",
+      "identification_requirement_refs": [],
+      "issue_codes": [
+        "layer3_g2_method_validity_missing",
+        "layer3_g2_method_requirement_selection_failed"
       ],
-      "issue_codes": [],
-      "limitation_ref_count": 1,
+      "limitation_ref_count": 0,
       "may_not_use_for": [
         "legal_authority",
         "source_family_satisfaction",
@@ -454,35 +247,19 @@
         "participation_authority",
         "claim_support"
       ],
-      "method_lineage_refs": [
-        "sha256:1111111111111111111111111111111111111111111111111111111111111111",
-        "sha256:2222222222222222222222222222222222222222222222222222222222222222",
-        "sha256:4444444444444444444444444444444444444444444444444444444444444444"
-      ],
+      "method_lineage_refs": [],
       "method_requirement_binding_ref": "g2-method-requirement-binding:db5513b75f266e53fa5d1541",
       "method_requirement_statuses": {
-        "g2-method-req:fertilizer-use-agriculture-food-nutritional-quality": "satisfied"
+        "g2-method-req:credit-access-firm-survival": "missing"
       },
-      "method_validity_refs": [
-        "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-        "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
-        "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
-        "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-        "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-        "sha256:0000000000000000000000000000000000000000000000000000000000000000"
-      ],
+      "method_validity_refs": [],
       "record_id": "layer3-g2-method-validity-transport",
       "rejected_method_refs": [],
       "request_ref": "g2-request:default-causal-forecast-method-search",
-      "selected_method_refs": [
-        "causal.did.readiness"
-      ],
-      "status": "pass",
-      "transportability_limit_refs": [
-        "transportability_limits:83efbd00157fb5efda4ced39"
-      ],
-      "uncertainty_ref_count": 1
+      "selected_method_refs": [],
+      "status": "fail",
+      "transportability_limit_refs": [],
+      "uncertainty_ref_count": 0
     }
   ],
   "rule_version": "policyos.layer3.g2.causal_forecast_search.v1",

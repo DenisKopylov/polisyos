@@ -1,0 +1,74 @@
+{
+  "authoritative_for": [
+    "layer3_g8_metric_governance_audit",
+    "layer3_g8_d44_rebasing_integrity_reading",
+    "layer3_g8_open_question_answer_reading"
+  ],
+  "current_action": "no_rebase_required_current_g7_has_no_real_grounded_breadth",
+  "issue_codes": [],
+  "ledger_id": "layer3-g8://d44-rebasing-trigger-ledger",
+  "may_not_use_for": [
+    "production_authority",
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "public_recommendation",
+    "policy_recommendation",
+    "legal_advice",
+    "claim_authority",
+    "obligation_authority",
+    "causal_effect_authority",
+    "proof_authority",
+    "legal_authority",
+    "recommendation_authority",
+    "universal_claim_authority",
+    "universal_claim_authority_without_s14",
+    "s14_universality_claim_without_s14_gate",
+    "domain_ceiling_authority_without_gate",
+    "metric_optimization_authority",
+    "useful_design_rate_optimization",
+    "threshold_lowering",
+    "s14_battery_training",
+    "hidden_fixture_access",
+    "g7_region_widening_authority"
+  ],
+  "rule_version": "policyos.layer3.g8.health_metric_governance.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g8_health_metric_governance.v1",
+  "status": "pass_no_rebase_due",
+  "trigger_rows": [
+    {
+      "reason": "blocked_no_real_grounded_breadth",
+      "source_ref": "repo://architecture/policy_design_case/layer3_g7_s14_grounded_breadth_feed.json#status",
+      "trigger_id": "new_real_grounded_breadth",
+      "trigger_status": "not_due"
+    },
+    {
+      "reason": "no_floor_or_threshold_change_requested_by_g8",
+      "source_ref": "repo://architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json",
+      "trigger_id": "s14_floor_or_threshold_change",
+      "trigger_status": "not_due"
+    },
+    {
+      "reason": "sealed_battery_membership_not_mutated_by_g8",
+      "source_ref": "repo://architecture/policy_design_case/layer2_corpus_partition.json#sealed_universality_battery.freeze_hash",
+      "trigger_id": "sealed_battery_membership_change",
+      "trigger_status": "not_due"
+    },
+    {
+      "reason": "initial_g8_rule_version",
+      "source_ref": "layer3-g8://d44-corpus-rebasing-rule",
+      "trigger_id": "d44_reannotation_schema_change",
+      "trigger_status": "not_due"
+    },
+    {
+      "reason": "no_post_deploy_monitoring_signal_for_current_s14_seed",
+      "source_ref": "layer3-g8://d44-rebasing-trigger-ledger/post-deploy-monitoring",
+      "trigger_id": "post_deploy_monitoring_update",
+      "trigger_status": "not_due"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gx_correction_retraction_log.v1",
+  "status": "pass",
+  "records": [
+    {
+      "artifact_ref": "architecture/policy_design_case/layer3_g1_hardcode_strangle_delta.json",
+      "corrected_false_artifact_ref": "architecture/policy_design_case/layer3_g1_hardcode_strangle_delta.json#fallback_deletion_status",
+      "false_or_contested_claim": "prior hardcode deletion/disablement claims cannot close while runtime literal scan remains red",
+      "replacement_status": "recomputed_clean",
+      "recomputed_replacement_status": "deleted_or_disabled_no_fallback",
+      "runtime_literal_lint_status": "pass",
+      "owner": "layer3-gx-runtime-hardening",
+      "closeout_condition": "recompute hardcode/literal report under GX validator after Task 1 removes or data-owns legacy literals"
+    }
+  ],
+  "issues": []
+}

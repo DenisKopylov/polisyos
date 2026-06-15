@@ -17,6 +17,9 @@ adr_index: ../adr/index.md
 
 # Policy Design Case Structural ADR Registry
 
+Owner: `team-policyos-runtime`
+Source of truth: `docs/adr/index.md`, `docs/adr/index.toml`, `docs/reference/policy-design-case-source-ownership.md`, `docs/reference/policy-design-case-evidence-paths.md`, and `docs/plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md`
+
 This page is the W0.H registry for the universal Policy Design Case program.
 It maps every structural research decision from C0 through C41 to a decision
 source before later waves turn those decisions into tables, schemas, gates, or

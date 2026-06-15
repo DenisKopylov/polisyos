@@ -1,0 +1,794 @@
+{
+  "generated_at_utc": "2026-06-14T07:42:57Z",
+  "methodology": [
+    "Used existing failed runtime_http fixture rather than constructing an artificial happy path.",
+    "Called runtime API routes through FastAPI TestClient with temp CAS/core run root.",
+    "Classified each surface by whether failed workflow status is load-bearing at the consumer/export boundary.",
+    "Did not change runtime behavior; this artifact is an audit baseline for plan repair."
+  ],
+  "plan_implications": [
+    {
+      "acceptance_signal": "Failed workflow produces explicit workflow_authority_status/candidate_only/may_not_use_for on run DTOs or every public/export consumer proves it dereferences /workflow first.",
+      "finding": "RunDetails/list expose has_workflow_report as presence, not authority ceiling.",
+      "id": "GY-runtime-surface-1",
+      "priority": "blocker_before_public_export_claims"
+    },
+    {
+      "acceptance_signal": "OpenLineage/PROV exports distinguish graph completion from PolicyOS admissibility and carry failed-workflow caveat facets.",
+      "finding": "Lineage graph/export can be verified/COMPLETE while root workflow report failed.",
+      "id": "GY-runtime-surface-2",
+      "priority": "blocker_before_lineage_export_claims"
+    },
+    {
+      "acceptance_signal": "Failed owning workflow blocks official-form export or embeds non-authority/candidate-only caveats in machine-readable metadata and visible content.",
+      "finding": "Bureaucratic render/export joins decision packet but not owning workflow failure state.",
+      "id": "GY-runtime-surface-3",
+      "priority": "blocker_before_bureaucratic_export_claims"
+    },
+    {
+      "acceptance_signal": "Nested secret-like keys are redacted in artifact previews/download policy is scoped, with a negative test using the current fixture shape.",
+      "finding": "Raw artifact preview exposes nested workflow error details including api_token in the current fixture.",
+      "id": "GY-runtime-surface-4",
+      "priority": "security_boundary"
+    },
+    {
+      "acceptance_signal": "No-fix characterization test first, then gate/public packet embeds workflow authority ceiling at signing time.",
+      "finding": "Public packet semantics are projection-only but do not consume workflow failure or decision_review_required.",
+      "id": "GY-runtime-surface-5",
+      "priority": "dashboard_public_viewer"
+    }
+  ],
+  "plan_ref": "docs/plans/active/layer3-slices/GY-engine-subordination.md",
+  "probe": {
+    "command": "uv run --extra test --extra runtime python <runtime surface probe>",
+    "fixture": {
+      "decision_packet_artifact_id": "sha256:eeb81408b95a5f945dd6ca907aca25d3793129fa3a29807f5b9b1711ec7dca50",
+      "indexed_decision_review_required": false,
+      "indexed_decision_validity_status": "warning",
+      "indexed_execution_profile": "governed",
+      "indexed_has_workflow_report": true,
+      "indexed_run_status": "fail",
+      "run_id": "R_core_api_001",
+      "workflow_report_artifact_id": "sha256:d3b02648972523eecaaf240e6f6f1965fe3fc1590e2d8d42cf4d611925ffaa85"
+    },
+    "route_count": 12,
+    "route_status_codes": {
+      "packet_bureaucratic_export": 200,
+      "packet_bureaucratic_render": 200,
+      "run_details": 200,
+      "run_lineage": 200,
+      "run_workflow": 200,
+      "runs_list": 200,
+      "workflow_artifact_content": 200,
+      "workflow_artifact_lineage": 200,
+      "workflow_artifact_manifest": 200,
+      "workflow_lineage_graph": 200,
+      "workflow_openlineage_export": 200,
+      "workflow_prov_export": 200
+    },
+    "temp_probe_path": "_build/.tmp/gy-runtime-surface-audit/runtime_surface_probe.json",
+    "temp_probe_sha256": "783a1a30520fbefc6237bc4bba9ccd3556d5fd0ecec84b20a088c5a036861a6c"
+  },
+  "schema_version": "layer3_gy_runtime_surface_audit.v1",
+  "scope": "Runtime/API/dashboard/public export surfaces for failed/candidate scientist workflow laundering risk",
+  "summary": {
+    "api_probe_routes_200": 11,
+    "bottom_line": "Failed workflow status is visible on /workflow and raw artifact content, but cross-surface consumers/exporters do not carry an explicit authority ceiling; lineage and export surfaces can therefore present verified/complete/draft/signed artifacts without admissibility semantics.",
+    "critical_count": 7,
+    "dominant_gap_labels": [
+      "bridge_missing",
+      "consumer_missing",
+      "semantic_test_missing",
+      "surface_missing",
+      "verification_missing"
+    ],
+    "high_or_critical_count": 13,
+    "highest_risk_surfaces": [
+      "runtime.api.artifacts.content",
+      "runtime.api.lineage.graph",
+      "runtime.api.lineage.openlineage_export",
+      "runtime.api.bureaucratic.render",
+      "runtime.api.bureaucratic.export",
+      "dashboard.run_detail_score_and_explainability",
+      "dashboard.public_packet_builder"
+    ],
+    "surface_count": 15
+  },
+  "surface_rows": [
+    {
+      "authority_projection": {
+        "missing_load_bearing_fields": [
+          "workflow_authority_status",
+          "candidate_only",
+          "ungoverned",
+          "blocked_by_node",
+          "producer_root_chain_status",
+          "may_not_use_for"
+        ],
+        "positive_signals_visible": [
+          "status=fail",
+          "has_workflow_report=true",
+          "decision_validity_status=warning"
+        ],
+        "semantic_problem": "list view exposes workflow report as presence flag, not as an authority ceiling"
+      },
+      "entrypoint": "GET /api/v1/runs",
+      "evidence_refs": [
+        "src/polisyos/core/contracts/runtime.py:1495",
+        "src/polisyos/runtime/http/routes/runs.py:678",
+        "src/polisyos/runtime/http/services/run_index.py:347"
+      ],
+      "gap_labels": [
+        "surface_missing",
+        "semantic_test_missing"
+      ],
+      "laundering_risk": "high",
+      "next_probe": "Add list-route semantic negative test where failed workflow + governed profile + warning decision packet cannot be summarized as merely governed evidence.",
+      "observed_projection": {
+        "decision_review_required": false,
+        "decision_validity_status": "warning",
+        "execution_profile": "governed",
+        "has_workflow_report": true,
+        "root_artifact_count": 15,
+        "run_id": "R_core_api_001",
+        "status": "fail"
+      },
+      "observed_route_status_code": 200,
+      "pattern_ids": [
+        "P03",
+        "P05",
+        "P15"
+      ],
+      "producer_input": "RunIndexService summary adapted from finalized Core run manifest",
+      "surface_id": "runtime.api.runs.list",
+      "surface_kind": "api"
+    },
+    {
+      "authority_projection": {
+        "missing_load_bearing_fields": [
+          "workflow_report_status",
+          "workflow_authority_status",
+          "candidate_only",
+          "root_chain_authority",
+          "may_not_use_for"
+        ],
+        "positive_signals_visible": [
+          "status=fail",
+          "workflow_report_ref.kind=scientist.workflow_report",
+          "execution_profile=governed"
+        ],
+        "semantic_problem": "the failed workflow is navigable by ref, but its admissibility ceiling is not carried on the run boundary"
+      },
+      "entrypoint": "GET /api/v1/runs/{run_id}",
+      "evidence_refs": [
+        "src/polisyos/core/contracts/runtime.py:1536",
+        "src/polisyos/runtime/http/routes/runs.py:932",
+        "src/polisyos/runtime/http/services/adapters/core_run.py:131",
+        "src/polisyos/runtime/http/services/run_index.py:339"
+      ],
+      "gap_labels": [
+        "surface_missing",
+        "semantic_test_missing"
+      ],
+      "laundering_risk": "high",
+      "next_probe": "Require RunDetails to expose an explicit workflow authority ceiling or prove a consumer always dereferences /workflow before publication/export.",
+      "observed_projection": {
+        "decision_review_required": false,
+        "decision_validity_status": "warning",
+        "execution_profile": "governed",
+        "has_workflow_report": true,
+        "operator_diagnostic": null,
+        "policy_design_case_projection": null,
+        "run_id": "R_core_api_001",
+        "status": "fail",
+        "workflow_report_ref": {
+          "artifact_id": "sha256:d3b02648972523eecaaf240e6f6f1965fe3fc1590e2d8d42cf4d611925ffaa85",
+          "kind": "scientist.workflow_report",
+          "media_type": "application/json"
+        }
+      },
+      "observed_route_status_code": 200,
+      "pattern_ids": [
+        "P03",
+        "P05",
+        "P15"
+      ],
+      "producer_input": "RunDetails DTO populated by CoreRunAdapterResult refs",
+      "surface_id": "runtime.api.runs.details",
+      "surface_kind": "api"
+    },
+    {
+      "authority_projection": {
+        "missing_load_bearing_fields": [
+          "candidate_only",
+          "ungoverned",
+          "may_not_use_for",
+          "downstream_publication_block"
+        ],
+        "positive_signals_visible": [
+          "summary.status=fail",
+          "fail_count=1",
+          "failed node error_code=governance.blocked"
+        ],
+        "semantic_problem": "best backend surface for failure, but still only graph execution status; consumers must manually interpret fail as an authority ceiling"
+      },
+      "entrypoint": "GET /api/v1/runs/{run_id}/workflow",
+      "evidence_refs": [
+        "src/polisyos/core/contracts/runtime.py:1924",
+        "src/polisyos/runtime/http/routes/runs.py:1530",
+        "src/polisyos/runtime/http/services/debug.py:816",
+        "src/polisyos/runtime/http/services/debug.py:917"
+      ],
+      "gap_labels": [
+        "semantic_test_missing"
+      ],
+      "laundering_risk": "medium",
+      "next_probe": "Pin workflow route as the source of truth, then assert downstream surfaces consume its fail state before rendering public/export outputs.",
+      "observed_projection": {
+        "failed_nodes": [
+          {
+            "alias": "run_governance",
+            "artifact_ids": [
+              "sha256:78c701cd64b3ac56f5cefd36a3d0c3bf4343b2fcb0ba1a4278526b84e2a16a82"
+            ],
+            "error_code": "governance.blocked",
+            "error_message": "Blocked by policy",
+            "status": "fail"
+          }
+        ],
+        "workflow_report_ref": {
+          "artifact_id": "sha256:d3b02648972523eecaaf240e6f6f1965fe3fc1590e2d8d42cf4d611925ffaa85",
+          "kind": "scientist.workflow_report",
+          "media_type": "application/json"
+        },
+        "workflow_summary": {
+          "error_policy": "fail_fast",
+          "fail_count": 1,
+          "node_count": 2,
+          "ok_count": 1,
+          "skip_count": 0,
+          "status": "fail",
+          "workflow_id": "scientist_default"
+        }
+      },
+      "observed_route_status_code": 200,
+      "pattern_ids": [
+        "P04",
+        "P05"
+      ],
+      "producer_input": "DebugService projection from scientist.workflow_report + workflow spec + timeline",
+      "surface_id": "runtime.api.runs.workflow",
+      "surface_kind": "api"
+    },
+    {
+      "authority_projection": {
+        "missing_load_bearing_fields": [
+          "authority_role",
+          "workflow_status",
+          "admissibility_ceiling",
+          "producer_component",
+          "rule_version"
+        ],
+        "positive_signals_visible": [
+          "kind=scientist.workflow_report",
+          "integrity_sha256 present"
+        ],
+        "semantic_problem": "CAS integrity metadata can be mistaken for artifact authority"
+      },
+      "entrypoint": "GET /api/v1/artifacts/{workflow_report_id}",
+      "evidence_refs": [
+        "src/polisyos/core/contracts/runtime.py:1984",
+        "src/polisyos/runtime/http/services/artifact_inspector.py:343",
+        "tests/unit/runtime/http/test_artifact_inspector_api.py:4"
+      ],
+      "gap_labels": [
+        "surface_missing",
+        "semantic_test_missing"
+      ],
+      "laundering_risk": "high",
+      "next_probe": "Add manifest-level distinction between content integrity and decision/admissibility authority for workflow reports.",
+      "observed_projection": {
+        "integrity_sha256": "d3b02648972523eecaaf240e6f6f1965fe3fc1590e2d8d42cf4d611925ffaa85",
+        "kind": "scientist.workflow_report",
+        "producer_component": null,
+        "schema_name": "scientist.workflow_report"
+      },
+      "observed_route_status_code": 200,
+      "pattern_ids": [
+        "P05",
+        "P10",
+        "P15"
+      ],
+      "producer_input": "ArtifactInspectorService manifest projection from CAS manifest sidecar",
+      "surface_id": "runtime.api.artifacts.manifest",
+      "surface_kind": "api"
+    },
+    {
+      "authority_projection": {
+        "missing_load_bearing_fields": [
+          "authority_status",
+          "candidate_only",
+          "may_not_use_for"
+        ],
+        "positive_signals_visible": [
+          "raw status=fail is present in preview"
+        ],
+        "semantic_problem": "raw failed workflow is downloadable/previewable as data; nested error details are not redacted by the generic artifact preview path"
+      },
+      "entrypoint": "GET /api/v1/artifacts/{workflow_report_id}/content",
+      "evidence_refs": [
+        "src/polisyos/runtime/http/services/artifact_inspector.py:374",
+        "src/polisyos/runtime/http/services/artifact_inspector.py:438",
+        "tests/_helpers/runtime_http.py:834",
+        "tests/_helpers/runtime_http.py:839"
+      ],
+      "gap_labels": [
+        "semantic_test_missing",
+        "verification_missing"
+      ],
+      "laundering_risk": "critical",
+      "next_probe": "Add raw-artifact negative test: nested secret-like keys in workflow errors are redacted and failed workflow content carries a non-authority warning.",
+      "observed_projection": {
+        "decision_packet_preview": null,
+        "mode": "json",
+        "nested_secret_like_key_observed": "error.details.api_token",
+        "nested_secret_like_value_observed": "Bearer should-not-leak",
+        "preview_failed_error_code": "governance.blocked",
+        "preview_failed_node": "run_governance",
+        "preview_status": "fail"
+      },
+      "observed_route_status_code": 200,
+      "pattern_ids": [
+        "P05",
+        "P10",
+        "P15"
+      ],
+      "producer_input": "ArtifactInspectorService JSON preview from CAS bytes",
+      "surface_id": "runtime.api.artifacts.content",
+      "surface_kind": "api"
+    },
+    {
+      "authority_projection": {
+        "missing_load_bearing_fields": [
+          "workflow_failed",
+          "authority_status",
+          "admissibility_status"
+        ],
+        "positive_signals_visible": [
+          "artifact present",
+          "lineage complete"
+        ],
+        "semantic_problem": "lineage completeness is graph availability, not policy authority"
+      },
+      "entrypoint": "GET /api/v1/artifacts/{workflow_report_id}/lineage",
+      "evidence_refs": [
+        "src/polisyos/core/contracts/runtime.py:2147",
+        "tests/unit/runtime/http/test_artifact_inspector_api.py:28"
+      ],
+      "gap_labels": [
+        "semantic_test_missing"
+      ],
+      "laundering_risk": "high",
+      "next_probe": "Assert artifact lineage response cannot be interpreted as admissibility; expose separate graph_integrity_status vs decision_authority_status.",
+      "observed_projection": {
+        "is_complete": true,
+        "node_status": "present",
+        "total_edges": 0,
+        "total_nodes": 1
+      },
+      "observed_route_status_code": 200,
+      "pattern_ids": [
+        "P05",
+        "P07",
+        "P10"
+      ],
+      "producer_input": "Artifact lineage graph from CAS manifest input refs",
+      "surface_id": "runtime.api.artifacts.lineage",
+      "surface_kind": "api"
+    },
+    {
+      "authority_projection": {
+        "missing_load_bearing_fields": [
+          "workflow_failed",
+          "authority_role",
+          "admissibility_status"
+        ],
+        "positive_signals_visible": [
+          "status=verified",
+          "verification_method=lineage_hash_match"
+        ],
+        "semantic_problem": "verified means hash/lineage verification; a failed workflow report still exports as verified lineage"
+      },
+      "entrypoint": "GET /api/v1/lineage/artifact:{workflow_report_id}",
+      "evidence_refs": [
+        "src/polisyos/runtime/http/services/lineage.py:236",
+        "tests/unit/runtime/http/test_lineage_api.py:10"
+      ],
+      "gap_labels": [
+        "semantic_test_missing"
+      ],
+      "laundering_risk": "critical",
+      "next_probe": "Add failed-workflow lineage test proving verified graph status is paired with non-admissible workflow authority status.",
+      "observed_projection": {
+        "freshness": "current",
+        "hash": "sha256:3cb2d28565acc15de6d407dcad3abb9ff9fc10a830718b5c5b233e31dee1b584",
+        "id": "artifact:sha256:d3b02648972523eecaaf240e6f6f1965fe3fc1590e2d8d42cf4d611925ffaa85",
+        "metadata": {
+          "corrupted_artifact_ids": [],
+          "missing_artifact_ids": [],
+          "root_artifact_ids": [
+            "sha256:d3b02648972523eecaaf240e6f6f1965fe3fc1590e2d8d42cf4d611925ffaa85"
+          ],
+          "total_edges": 0,
+          "total_nodes": 1,
+          "total_size_bytes": 835
+        },
+        "status": "verified",
+        "trust_metadata": {
+          "dispute_status": "none",
+          "freshness": "current",
+          "hash": "sha256:3cb2d28565acc15de6d407dcad3abb9ff9fc10a830718b5c5b233e31dee1b584",
+          "temporal_scope": null,
+          "verification_method": "lineage_hash_match",
+          "verification_status": "verified",
+          "verified_at": null,
+          "verified_by": "PolicyOSLineageVerifier@1.0"
+        }
+      },
+      "observed_route_status_code": 200,
+      "pattern_ids": [
+        "P05",
+        "P07",
+        "P10"
+      ],
+      "producer_input": "LineageService runtime graph built from artifact lineage trace",
+      "surface_id": "runtime.api.lineage.graph",
+      "surface_kind": "api"
+    },
+    {
+      "authority_projection": {
+        "missing_load_bearing_fields": [
+          "workflow_failed",
+          "candidate_only",
+          "may_not_use_for"
+        ],
+        "positive_signals_visible": [
+          "eventType=COMPLETE",
+          "producer=polisyos-runtime-api"
+        ],
+        "semantic_problem": "external interoperability export says COMPLETE for graph export even when the exported root is a failed workflow report"
+      },
+      "entrypoint": "GET /api/v1/lineage/artifact:{workflow_report_id}/export/openlineage",
+      "evidence_refs": [
+        "src/polisyos/runtime/http/services/lineage.py:253",
+        "src/polisyos/runtime/http/services/lineage.py:264",
+        "tests/unit/runtime/http/test_lineage_api.py:42"
+      ],
+      "gap_labels": [
+        "semantic_test_missing",
+        "surface_missing"
+      ],
+      "laundering_risk": "critical",
+      "next_probe": "Split OpenLineage event completion from PolicyOS workflow admissibility; add external export warning facet.",
+      "observed_projection": {
+        "eventType": "COMPLETE",
+        "format": "openlineage",
+        "producer": "polisyos-runtime-api",
+        "status_facet": null
+      },
+      "observed_route_status_code": 200,
+      "pattern_ids": [
+        "P05",
+        "P07",
+        "P15"
+      ],
+      "producer_input": "LineageService export_runtime_lineage(format_name=openlineage)",
+      "surface_id": "runtime.api.lineage.openlineage_export",
+      "surface_kind": "export"
+    },
+    {
+      "authority_projection": {
+        "missing_load_bearing_fields": [
+          "workflow_failed",
+          "authority_role",
+          "may_not_use_for"
+        ],
+        "positive_signals_visible": [
+          "entity",
+          "wasDerivedFrom"
+        ],
+        "semantic_problem": "PROV export preserves derivation shape, not authority ceiling"
+      },
+      "entrypoint": "GET /api/v1/lineage/artifact:{workflow_report_id}/export/prov",
+      "evidence_refs": [
+        "src/polisyos/runtime/http/services/lineage.py:280",
+        "tests/unit/runtime/http/test_lineage_api.py:48"
+      ],
+      "gap_labels": [
+        "semantic_test_missing",
+        "surface_missing"
+      ],
+      "laundering_risk": "high",
+      "next_probe": "Add PROV annotation for PolicyOS authority role and workflow failure when root is a failed workflow report.",
+      "observed_projection": {
+        "format": "prov",
+        "keys": [
+          "entity",
+          "prefix",
+          "wasDerivedFrom"
+        ]
+      },
+      "observed_route_status_code": 200,
+      "pattern_ids": [
+        "P05",
+        "P07"
+      ],
+      "producer_input": "LineageService export_runtime_lineage(format_name=prov)",
+      "surface_id": "runtime.api.lineage.prov_export",
+      "surface_kind": "export"
+    },
+    {
+      "authority_projection": {
+        "missing_load_bearing_fields": [
+          "workflow_status",
+          "workflow_report_ref",
+          "decision_review_required",
+          "admissibility_ceiling"
+        ],
+        "positive_signals_visible": [
+          "document.status=draft",
+          "draft watermark",
+          "epistemic_summary"
+        ],
+        "semantic_problem": "render path accepts the packet and creates official-form genres without joining the failed workflow report authority state"
+      },
+      "entrypoint": "POST /api/v1/artifacts/{decision_packet_id}/render",
+      "evidence_refs": [
+        "src/polisyos/runtime/http/routes/artifacts.py:298",
+        "src/polisyos/runtime/http/services/bureaucratic_rendering.py:101",
+        "src/polisyos/runtime/http/services/bureaucratic_rendering.py:281",
+        "tests/unit/runtime/http/test_bureaucratic_rendering_api.py:4"
+      ],
+      "gap_labels": [
+        "bridge_missing",
+        "consumer_missing",
+        "semantic_test_missing"
+      ],
+      "laundering_risk": "critical",
+      "next_probe": "Render a decision packet whose owning run has failed workflow status; assert render response carries blocked/candidate authority caveat or refuses official-form export.",
+      "observed_projection": {
+        "epistemic_summary": {
+          "evidence_filled": 0.0,
+          "imported": 0.4545,
+          "model_generated": 0.3636,
+          "operator_filled": 0.1818
+        },
+        "genre": "postanova_kmu",
+        "jurisdiction": "ua",
+        "packet_id": "sha256:eeb81408b95a5f945dd6ca907aca25d3793129fa3a29807f5b9b1711ec7dca50",
+        "status": "draft",
+        "trust_view": true,
+        "watermark": "Generated by PolicyOS / Draft / Not an official state document"
+      },
+      "observed_route_status_code": 200,
+      "pattern_ids": [
+        "P05",
+        "P15",
+        "P20"
+      ],
+      "producer_input": "BureaucraticRenderingService render_document from scientist.decision_packet payload",
+      "surface_id": "runtime.api.bureaucratic.render",
+      "surface_kind": "api_export"
+    },
+    {
+      "authority_projection": {
+        "missing_load_bearing_fields": [
+          "workflow_status",
+          "candidate_only",
+          "may_not_use_for",
+          "public_export_blocked_by_failed_workflow"
+        ],
+        "positive_signals_visible": [
+          "HTML export 200",
+          "machine-readable watermark present"
+        ],
+        "semantic_problem": "watermark marks draft, but export is still available and does not carry failed-workflow authority semantics"
+      },
+      "entrypoint": "GET /api/v1/artifacts/{decision_packet_id}/export?format=html",
+      "evidence_refs": [
+        "src/polisyos/runtime/http/routes/artifacts.py:333",
+        "tests/unit/runtime/http/test_bureaucratic_rendering_api.py:66"
+      ],
+      "gap_labels": [
+        "bridge_missing",
+        "consumer_missing",
+        "semantic_test_missing"
+      ],
+      "laundering_risk": "critical",
+      "next_probe": "Pin negative export test: failed workflow + decision packet must not produce export without explicit non-authority and non-publication caveat.",
+      "observed_projection": {
+        "content_type": "text/html; charset=utf-8",
+        "format": "html",
+        "metadata": {
+          "packet_hash": "eeb81408b95a5f945dd6ca907aca25d3793129fa3a29807f5b9b1711ec7dca50",
+          "parity_source": "bureaucratic_document_ast",
+          "render_timestamp": "2026-06-14T07:39:25+00:00",
+          "template_id": "ua.expert_vysnovok.v1",
+          "template_version": "1.0.0",
+          "watermark": "Generated by PolicyOS / Draft / Not an official state document"
+        }
+      },
+      "observed_route_status_code": 200,
+      "pattern_ids": [
+        "P05",
+        "P15",
+        "P20"
+      ],
+      "producer_input": "BureaucraticRenderingService export from rendered document AST",
+      "surface_id": "runtime.api.bureaucratic.export",
+      "surface_kind": "public_export"
+    },
+    {
+      "authority_projection": {
+        "missing_load_bearing_fields": [
+          "authority ceiling badge",
+          "candidate-only public/export block"
+        ],
+        "positive_signals_visible": [
+          "workflow summary status and failed nodes can be displayed"
+        ],
+        "semantic_problem": "dashboard shows execution failure but does not make it a reusable authority gate for neighboring tabs"
+      },
+      "entrypoint": "apps/runtime-dashboard run detail workflow tab",
+      "evidence_refs": [
+        "apps/runtime-dashboard/src/api/hooks/useRunWorkflow.ts:20",
+        "apps/runtime-dashboard/src/features/runs/routes/tabs/WorkflowTab.tsx:20",
+        "apps/runtime-dashboard/src/features/runs/components/WorkflowDagPanel.tsx:96"
+      ],
+      "gap_labels": [
+        "consumer_missing",
+        "semantic_test_missing"
+      ],
+      "laundering_risk": "medium",
+      "next_probe": "Add dashboard test showing a failed workflow marks the whole run/export surface as blocked/candidate in the UI shell, not only inside workflow tab.",
+      "observed_projection": {
+        "lineage_visible": true,
+        "workflow_failure_visible": true,
+        "workflow_report_ref_visibly_rendered": false
+      },
+      "observed_route_status_code": null,
+      "pattern_ids": [
+        "P04",
+        "P05"
+      ],
+      "producer_input": "useRunWorkflow + useRunLineage hooks",
+      "surface_id": "dashboard.workflow_tab",
+      "surface_kind": "dashboard"
+    },
+    {
+      "authority_projection": {
+        "missing_load_bearing_fields": [
+          "workflow_report_status input",
+          "decision_review_required gate",
+          "failed_workflow_caveat"
+        ],
+        "positive_signals_visible": [
+          "decision score/evidence/provenance panels render"
+        ],
+        "semantic_problem": "prominent score/evidence surfaces can remain legible even when the scientist workflow failed"
+      },
+      "entrypoint": "apps/runtime-dashboard run detail overview/explainability panels",
+      "evidence_refs": [
+        "apps/runtime-dashboard/src/features/runs/routes/useRunDetailSummary.ts:180",
+        "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx:301",
+        "apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx:52",
+        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx:105"
+      ],
+      "gap_labels": [
+        "bridge_missing",
+        "consumer_missing",
+        "semantic_test_missing"
+      ],
+      "laundering_risk": "critical",
+      "next_probe": "No-fix UI test: run.status=failed + workflow_report_ref + APPROVE-like evaluator still renders score/public readiness unless explicit gate is added.",
+      "observed_projection": {
+        "decision_score_visible": true,
+        "evidence_summary_visible": true,
+        "workflow_failure_consumed_as_gate": false
+      },
+      "observed_route_status_code": null,
+      "pattern_ids": [
+        "P05",
+        "P10",
+        "P15"
+      ],
+      "producer_input": "useRunDetailSummary, OverviewTab, RunExplainabilityPanel",
+      "surface_id": "dashboard.run_detail_score_and_explainability",
+      "surface_kind": "dashboard"
+    },
+    {
+      "authority_projection": {
+        "missing_load_bearing_fields": [
+          "workflow_report_ref",
+          "workflow_failure_status",
+          "decision_review_required"
+        ],
+        "positive_signals_visible": [
+          "projection_only",
+          "not_closeout_authority",
+          "mayNotBeUsedFor",
+          "projection-only publishable labels fail closed"
+        ],
+        "semantic_problem": "public packet caveats exist but are projection-caveats, not failed-workflow authority gates"
+      },
+      "entrypoint": "buildPublicDecisionPacket / PublicationReadinessPanel",
+      "evidence_refs": [
+        "apps/runtime-dashboard/src/features/runs/components/PublicationReadinessPanel.tsx:15",
+        "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts:203",
+        "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts:250",
+        "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts:1102",
+        "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts:1198"
+      ],
+      "gap_labels": [
+        "bridge_missing",
+        "consumer_missing",
+        "semantic_test_missing"
+      ],
+      "laundering_risk": "critical",
+      "next_probe": "Add public packet fixture with failed workflow + decision_review_required=true; current expected behavior should prove packet still builds without workflow-failure block.",
+      "observed_projection": {
+        "decision_review_required_input_consumed": false,
+        "may_not_use_for_visible": true,
+        "projection_label_fail_closed": true,
+        "projection_only_semantics_visible": true,
+        "workflow_failure_input_consumed": false
+      },
+      "observed_route_status_code": null,
+      "pattern_ids": [
+        "P05",
+        "P15"
+      ],
+      "producer_input": "Frontend summary inputs and policy_design_case_projection",
+      "surface_id": "dashboard.public_packet_builder",
+      "surface_kind": "public_viewer"
+    },
+    {
+      "authority_projection": {
+        "missing_load_bearing_fields": [
+          "runtime workflow recheck",
+          "workflow authority ceiling",
+          "run decision_review_required"
+        ],
+        "positive_signals_visible": [
+          "signed payload verification",
+          "packet caveats"
+        ],
+        "semantic_problem": "public viewer verifies packet integrity, not current run/workflow admissibility"
+      },
+      "entrypoint": "PublicDecisionViewerPage",
+      "evidence_refs": [
+        "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.tsx:12",
+        "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx:132"
+      ],
+      "gap_labels": [
+        "consumer_missing",
+        "semantic_test_missing"
+      ],
+      "laundering_risk": "high",
+      "next_probe": "Decide whether public viewer must be purely static; if yes, packet must embed workflow authority ceiling at signing time.",
+      "observed_projection": {
+        "api_context_required": false,
+        "rechecks_runtime_workflow_status": false,
+        "verifies_signed_payload": true
+      },
+      "observed_route_status_code": null,
+      "pattern_ids": [
+        "P05",
+        "P15"
+      ],
+      "producer_input": "Signed frontend public decision packet payload",
+      "surface_id": "dashboard.public_viewer",
+      "surface_kind": "public_viewer"
+    }
+  ]
+}

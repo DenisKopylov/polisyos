@@ -1,7 +1,7 @@
 {
   "concept_alignment_records": [
     {
-      "alignment_id": "g2-concept-alignment:9fd202376b77bfd48b173651",
+      "alignment_id": "g2-concept-alignment:d3576d28d2836d2e0054e13e",
       "alignment_status": "direct",
       "authoritative_for": [],
       "direct_grounding_claimed": true,
@@ -14,10 +14,11 @@
         "foundry-slot://effect-estimate"
       ],
       "g1_metric_refs": [
-        "metric://food-nutritional-quality"
+        "metric://firm-survival",
+        "metric://credit-access"
       ],
       "g1_target_outcome_refs": [
-        "source-contract://ua-msme/server-support#food-nutritional-quality"
+        "source-contract://ua-msme/credit-access-firm-survival#firm-survival"
       ],
       "issue_codes": [],
       "may_not_use_for": [
@@ -33,16 +34,14 @@
       "proxy_disclosed": false,
       "request_ref": "g2-request:default-causal-forecast-method-search",
       "s10_target_outcome_refs": [
-        "outcome://food-nutritional-quality"
+        "outcome://ua-msme/firm-survival"
       ],
-      "semantic_spine_binding_ref": "g2-semantic-spine-binding:5588542ea2e0bf122cb48086",
-      "skg_cause_variable_ref": "skg-variable://agriculture.fertilizer_use",
-      "skg_effect_variable_ref": "skg-variable://agriculture.food_nutritional_quality",
-      "skg_parameter_refs": [
-        "skg-parameter://06fb46cd681818bc52d1cc01"
-      ],
+      "semantic_spine_binding_ref": "g2-semantic-spine-binding:8dd770b92f050f29480c5d1f",
+      "skg_cause_variable_ref": "skg-variable://policy.credit_access",
+      "skg_effect_variable_ref": "skg-variable://firm.survival",
+      "skg_parameter_refs": [],
       "source_contract_refs": [
-        "source-contract://ua-msme/server-support"
+        "source-contract://ua-msme/credit-access-firm-survival"
       ],
       "status": "pass"
     }

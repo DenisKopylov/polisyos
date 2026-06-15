@@ -1,0 +1,9 @@
+{
+  "admission_maturity": "implemented_but_not_orchestrated",
+  "conformance_report_ref": "layer3-g6://conformance/report",
+  "issue_codes": [],
+  "negative_count": 29,
+  "rule_version": "policyos.layer3.g6.bounded_agent.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g6_bounded_agent.v1",
+  "status": "pass"
+}

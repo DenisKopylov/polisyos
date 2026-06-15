@@ -26,10 +26,21 @@ def test_requirement_to_capability_query_preserves_construct_alias() -> None:
     assert query.required_evidence_modes == ("derived", "observed")
 
 
-def test_legacy_family_mapping_is_projection_only_contract() -> None:
-    assert construct_for_legacy_family("production-msme-panel") == "firm_survival"
-    assert legacy_family_for_construct("construct:firm_survival") == "production_msme_panel"
+def test_legacy_family_mapping_requires_governed_rows() -> None:
+    rows = (
+        {
+            "scenario_family": "production_msme_panel",
+            "construct": "firm_survival",
+            "producer_ref": "artifact://test/governed-scope-row",
+        },
+    )
+
+    assert construct_for_legacy_family("production-msme-panel", rows=rows) == "firm_survival"
+    assert legacy_family_for_construct("construct:firm_survival", rows=rows) == (
+        "production_msme_panel"
+    )
     assert construct_for_legacy_family("unknown_family") is None
+    assert legacy_family_for_construct("construct:firm_survival") is None
 
 
 def test_capability_resolver_port_shape_can_be_faked_without_runtime_imports() -> None:

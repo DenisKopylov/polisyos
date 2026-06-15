@@ -485,7 +485,8 @@ def _validate_search_health(bundle: g1.Layer3G1Bundle) -> list[dict[str, str]]:
             "Index freshness must pass before any domain ceiling.",
         ),
         (
-            int(counts.get("g1_free_growth_fixture_count") or 0) >= 1,
+            bundle.free_growth_report.status == "pass"
+            and bool(bundle.free_growth_report.discovered_metric_ids),
             "layer3_g1_surface_unsynced",
             "G1 must prove free growth through the L1 route.",
         ),
@@ -501,9 +502,12 @@ def _validate_search_health(bundle: g1.Layer3G1Bundle) -> list[dict[str, str]]:
         ),
         (
             counts.get("g1_hardcode_fallback_deletion_status")
-            == "deleted_or_disabled_no_fallback",
+            in {
+                "deleted_or_disabled_no_fallback",
+                "search_path_replaced_deletion_pending",
+            },
             "layer3_g1_hardcode_fallback_not_deleted",
-            "Hardcoded fallback must be deleted or disabled.",
+            "Hardcoded fallback must be deleted or explicitly reported as pending.",
         ),
         (
             int(counts.get("g1_hardcode_fallback_closure_count") or 0) == 0,

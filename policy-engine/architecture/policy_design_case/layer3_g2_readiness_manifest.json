@@ -1,6 +1,7 @@
 {
+  "adapter_maturity": "fail_closed",
   "g1_dependency_status": "pass",
-  "g2_conformance_status": "pass",
+  "g2_conformance_status": "fail",
   "g2_forecast_support_binding_count": 1,
   "g2_foundry_method_registry_coverage_status": "pass",
   "g2_health_metric_ids": [
@@ -12,13 +13,24 @@
   ],
   "g2_l2_skg_coverage_status": "pass",
   "g2_method_requirement_binding_count": 1,
-  "g2_method_validity_report_status": "pass",
-  "g2_s10_prerequisite_binding_status": "pass",
+  "g2_method_validity_report_status": "fail",
+  "g2_s10_prerequisite_binding_status": "fail",
   "g2_search_engineering_quality_status": "pass",
   "g2_search_ledger_count": 1,
   "g2_semantic_spine_binding_count": 1,
   "g2_skg_query_trace_count": 2,
-  "g2_w12d_consumer_gate_status": "pass",
+  "g2_w12d_consumer_gate_status": "fail",
+  "issue_codes": [
+    "layer3_g2_method_validity_missing",
+    "layer3_g2_s10_prerequisite_binding_missing",
+    "layer3_g2_observable_calibration_required",
+    "layer3_g2_forecast_support_invalid",
+    "layer3_g2_adapter_maturity_overclaim",
+    "layer3_g2_synthetic_calibration_overclaim",
+    "layer3_g2_observable_calibration_denominator_missing",
+    "layer3_g2_credible_evaluation_evidence_missing"
+  ],
   "rule_version": "policyos.layer3.g2.causal_forecast_search.v1",
-  "schema_version": "policyos.policy_design_case.layer3_g2_causal_forecast.v1"
+  "schema_version": "policyos.policy_design_case.layer3_g2_causal_forecast.v1",
+  "status": "fail"
 }

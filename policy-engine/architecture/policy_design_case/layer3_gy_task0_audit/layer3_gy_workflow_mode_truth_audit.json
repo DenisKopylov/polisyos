@@ -1,0 +1,243 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gy_workflow_mode_truth_audit.v1",
+  "date": "2026-06-14",
+  "scope": "The three scientist execution modes (policy_design / causal_full / policy_verified): which one the production route actually selects, their real per-node failure modes on the real UA panel, and the consolidation (reuse/merge/build-out) map toward a single mode.",
+  "mode": "audit-only; no runtime behavior changed; JAX_PLATFORMS=cpu; thin/synthetic-formalized input (no real fabric fetch).",
+  "audit_note": "Extends GY-0 finding #1 (workflow-selection mismatch). The original census/lex/foundry audits all ran scientist_policy_design; the NL route does not select it.",
+  "selection_truth": {
+    "resolver": "src/polisyos/scientist/orchestration/workflows/selection.py:resolve_workflow_id",
+    "resolution_probe": {
+      "NL governed + source/target contexts (transport_required=True, what _build_scientist_context_params emits)": "scientist_causal_full",
+      "NL governed + policy_question, no policy_mode": "scientist_policy_verified",
+      "NL research, no policy_mode/question": "scientist_causal_full",
+      "explicit workflow_id=scientist_policy_design": "scientist_policy_design",
+      "policy_mode=True only": "scientist_policy_design"
+    },
+    "bug_1_nl_never_selects_policy_design": {
+      "claim": "No production runtime path selects scientist_policy_design.",
+      "evidence": "policy_mode / workflow_id are never set in nl_pipeline.py; _build_scientist_context_params (nl_pipeline.py:548) sets transport_required=True but never policy_mode; grep of src/polisyos/runtime/ (non-test) finds no scientist_policy_design / policy_mode trigger (only a string label in claim_argument.py:459).",
+      "impact": "scientist_policy_design (37 nodes, the only mode with run_hierarchical_policy_search / lex) is reachable only via the explicit workflow_run API (launch_workflow_run reads request.params, run_lifecycle.py:1164) or reissue. The GX pinned-route artifact (layer3_gx_g4_g5_dereference_waist_court_report.json) names scientist_policy_design, but nothing in-repo triggers it."
+    },
+    "bug_2_explicit_causal_full_overridden": {
+      "claim": "An explicit workflow_id=scientist_causal_full is silently overridden to scientist_policy_verified.",
+      "evidence": "PROVEN: run_selected_workflow(workflow_id=scientist_causal_full) with a policy_question and no trinity_bundle_ref executed the policy_verified spec (28 nodes, exact match). Root: in selection.py, discovery/policy_design/policy_verified get early explicit honoring (lines 43-48), but the explicit scientist_causal_full check is at line 57 -- AFTER _should_use_policy_verified (line 53) and _execution_profile_requires_serious_workflow (line 55). So the heuristic wins over the explicit request.",
+      "impact": "The resolver docstring ('treats explicit params.workflow_id as authoritative when it matches a supported DAG') is false for causal_full. To actually run causal_full you must ALSO provide a trinity_bundle_ref (turns off the policy_verified heuristic) or a serious execution_profile."
+    }
+  },
+  "workflow_specs": {
+    "node_counts": {
+      "policy_design": 37,
+      "causal_full": 29,
+      "policy_verified": 28
+    },
+    "required_binds": {
+      "policy_design": [
+        "run_id",
+        "inputs.registry_bundle_ref"
+      ],
+      "causal_full": [
+        "run_id",
+        "inputs.trinity_bundle_ref",
+        "inputs.registry_bundle_ref"
+      ],
+      "policy_verified": [
+        "run_id",
+        "inputs.registry_bundle_ref"
+      ]
+    },
+    "shared_spine_common_to_all_3": [
+      "bind_foundry_inputs",
+      "build_data_snapshot",
+      "build_decision_packet",
+      "build_execution_plan",
+      "build_method_catalog_snapshot",
+      "compile_cross_graph_evidence",
+      "compile_foundry",
+      "propagate_uncertainty",
+      "propagate_welfare",
+      "resolve_parameters",
+      "run_causal_evaluation",
+      "run_data_plane_gate",
+      "run_distributional_analysis",
+      "run_governance",
+      "run_metric_validation",
+      "run_normative_arbitration",
+      "run_preflight",
+      "run_simulation",
+      "start"
+    ],
+    "shared_spine_node_id_identical": "19/19 common nodes carry identical node_id (real shared implementations, not name collisions)",
+    "only_policy_design": [
+      "build_policy_output_bundle",
+      "counterfactual_identification_gate",
+      "run_hierarchical_policy_search",
+      "run_policy_blueprint_runtime",
+      "run_policy_translation",
+      "run_translator_compliance"
+    ],
+    "only_causal_full": [
+      "link_trinity",
+      "ready_to_run",
+      "run_abm_consistency",
+      "run_causal_ensemble",
+      "run_causal_queries",
+      "run_evaluator",
+      "run_transportability"
+    ],
+    "only_policy_verified": [],
+    "policy_design_AND_causal_full_only": [
+      "build_literature_prior",
+      "reconcile_causal_graph",
+      "run_causal_readiness"
+    ],
+    "policy_design_AND_policy_verified_only": [
+      "assemble_legal_candidate_pack",
+      "build_verified_policy_report",
+      "draft_policy_options",
+      "expand_legal_source_pack",
+      "formalize_verified_policy",
+      "legal_check",
+      "plan_policy_request",
+      "run_source_gap_review",
+      "run_source_verification"
+    ],
+    "causal_full_AND_policy_verified_only": [],
+    "policy_verified_is_subset_of_policy_design_nodes": true,
+    "spine_dependency_divergence": {
+      "note": "Same node implementations, different wiring per mode. Key divergences:",
+      "run_simulation": "gated by counterfactual_identification_gate ONLY in policy_design (strongest pre-sim identification discipline); causal_full/policy_verified omit that gate.",
+      "run_governance": "causal_full feeds transport + abm_consistency + causal_ensemble; policy_design/policy_verified feed legal_check.",
+      "compile_foundry": "policy_design gates on lex; causal_full on link_trinity/ready_to_run; policy_verified on formalize_verified_policy.",
+      "build_decision_packet": "policy_design adds build_policy_output_bundle; causal_full adds run_evaluator."
+    }
+  },
+  "execution_census_real_panel": {
+    "policy_design": {
+      "ran_spec": "policy_design",
+      "nodes": 37,
+      "counts": {
+        "ok": 14,
+        "skip": 22,
+        "fail": 1
+      },
+      "fail_node": "run_hierarchical_policy_search",
+      "fail_cause": "lex optional-bounds bug (verified_policy_option_rate lower>=upper); see layer3_gy_lex_frontier_root_cause_audit",
+      "output_hash": "sha256:4dd3f4f9edd60c083f0d55c897ea0b5f970f951ebea7e3bcd3973e765c0f987f",
+      "note": "Governance/validation tail never reached (gated by lex)."
+    },
+    "policy_verified": {
+      "ran_spec": "policy_verified",
+      "nodes": 28,
+      "counts": {
+        "ok": 17,
+        "skip": 10,
+        "fail": 1
+      },
+      "fail_node_input_sensitive": {
+        "60row_UA/PL/RO/MD": "run_normative_arbitration / node.invalid_outcome",
+        "40row_UA/PL": "build_verified_policy_report / phase5_validation_failed"
+      },
+      "note": "Reaches the governance/validation tail; fails there. Failure NODE is input-sensitive but deterministic for a fixed panel (3/3 identical runs failed at the same node)."
+    },
+    "causal_full": {
+      "ran_spec": "causal_full (with minted trinity_bundle_ref)",
+      "nodes": 29,
+      "counts": {
+        "ok": 12,
+        "skip": 16,
+        "fail": 1
+      },
+      "fail_node": "run_normative_arbitration",
+      "fail_code": "node.invalid_outcome (NodeOutcome.model_validate raised pydantic ValidationError; async_executor.py:903)",
+      "has_link_trinity": true,
+      "has_run_transportability": true,
+      "note": "trinity minted by a policy_design run (formalize_verified_policy writes inputs.trinity_bundle_ref)."
+    }
+  },
+  "shared_spine_governance_tail_blocker": {
+    "claim": "The real production-route blocker is the SHARED governance/validation tail, not lex. It is masked in policy_design because lex fails first.",
+    "tail_nodes": [
+      "run_normative_arbitration",
+      "run_governance",
+      "build_verified_policy_report",
+      "build_decision_packet"
+    ],
+    "run_normative_arbitration": "node.invalid_outcome -- the returned NodeOutcome fails pydantic re-validation (async_executor.py:882->903); not an execute() exception. Hits causal_full and policy_verified(60row).",
+    "build_verified_policy_report": {
+      "code": "phase5_validation_failed",
+      "verdict": "blocked",
+      "readiness": "blocked",
+      "gate_failures_count": 18,
+      "judges_failed_fatally": [
+        "Judge compute failed fatally.",
+        "Judge governance failed fatally.",
+        "Judge reproducibility failed fatally.",
+        "Judge robustness failed fatally.",
+        "Judge statistical failed fatally.",
+        "Judge structural failed fatally."
+      ],
+      "note": "All 6 phase-5 judges (structural, statistical, robustness, governance, reproducibility, compute) fail fatally on the thin/synthetic-formalized input. Deterministic 3/3."
+    },
+    "interpretation": "On thin/synthetic input the spine governance tail fails regardless of mode. lex is an additional, policy_design-only upstream blocker. Repairing lex alone does NOT unblock the route; the judge stack / phase-5 validation needs real measurement-rooted formalized input."
+  },
+  "consolidation_map": {
+    "reuse_as_is": {
+      "what": "the 19-node shared spine (data plane -> foundry compile -> simulation -> analytics -> governance tail -> decision packet)",
+      "evidence": "19/19 identical node_id across all 3 modes; already shared implementations.",
+      "caveat": "spine WIRING (deps) diverges per mode for 7 nodes; unification must pick a union topology with conditional edges (esp. the counterfactual_identification_gate before run_simulation, which only policy_design enforces -- keep it)."
+    },
+    "merge": {
+      "legal/source arm (9 nodes)": "shared by policy_design + policy_verified (plan_policy_request, assemble/expand legal pack, source verification/gap review, draft/formalize, legal_check, build_verified_policy_report) -> single optional arm.",
+      "literature/causal-graph arm (3 nodes)": "shared by policy_design + causal_full (build_literature_prior, reconcile_causal_graph, run_causal_readiness) -> single optional arm."
+    },
+    "build_out_or_fold": {
+      "lex/design-space arm (6, policy_design only)": [
+        "run_hierarchical_policy_search",
+        "counterfactual_identification_gate",
+        "build_policy_output_bundle",
+        "run_policy_blueprint_runtime",
+        "run_policy_translation",
+        "run_translator_compliance"
+      ],
+      "transport/ensemble arm (7, causal_full only)": [
+        "link_trinity",
+        "ready_to_run",
+        "run_transportability",
+        "run_causal_queries",
+        "run_causal_ensemble",
+        "run_abm_consistency",
+        "run_evaluator"
+      ],
+      "decision": "These two arms are the genuine capability difference between modes. A single mode must compose BOTH as conditional sub-DAGs keyed on inputs (trinity present? policy-design requested? transport required?), rather than three top-level workflows selected by a fragile heuristic."
+    },
+    "input_contract_divergence": {
+      "trinity_bundle_ref": "REQUIRED by causal_full (required_binds), OPTIONAL/produced by policy_design+policy_verified (formalize_verified_policy writes it). A unified mode should treat trinity as produced-or-supplied, not a hard required_bind that silently reroutes selection."
+    },
+    "policy_verified_is_redundant": "policy_verified has 0 unique nodes (strict subset of policy_design). It can be expressed as policy_design with the lex/translation arm disabled -- a strong argument it should not be a separate top-level mode."
+  },
+  "recommended_target_for_future_work": [
+    "Collapse to ONE mode = shared 19-node spine + conditional arms (legal, literature, lex/design-space, transport/ensemble) keyed on typed inputs, not on a heuristic resolver.",
+    "Make the resolver honest in the interim: honor explicit workflow_id authoritatively for ALL modes (move the causal_full explicit check above the heuristics), or delete the heuristic override.",
+    "The single mode's artifacts then support cycle/transition/rollback operations the user wants (one artifact family per stage, not three divergent ones).",
+    "Repair order is spine-first: the governance/validation judge stack (phase-5) and run_normative_arbitration outcome validation must accept real measurement-rooted input before any mode produces a publishable report; lex is a policy_design-only upstream fix on top."
+  ],
+  "digest": "sha256:70ba49666ededa0c735271a69f11c4abe6ff219585812fd3d8a961b126561666",
+  "production_trigger_trace": {
+    "question": "Who triggers scientist_policy_design in production?",
+    "answer": "No production code path selects it by default; it is reachable only by an explicit caller-supplied param.",
+    "evidence": {
+      "runtime_composition": "no src/polisyos/runtime/ code sets workflow_id=scientist_policy_design or the selector params.policy_mode (only a string label projection_source in claim_argument.py:459).",
+      "execution_profile": "ExecutionProfile = Literal['dev','research','governed','production'] (core/contracts/control.py:38); 'policy_design' is NOT a valid profile, so _should_use_policy_design's execution_profile branch is unreachable from the API.",
+      "workflow_run_api": "POST /api/v1/control/runs (control.py:115 launch_run -> run_lifecycle.py:1164 launch_workflow_run) builds state_payload.params = dict(request.params). WorkflowRunRequest (core/contracts/control.py:255) has NO first-class workflow_id field; only a freeform params dict + execution_profile.",
+      "dashboard_composer": "apps/runtime-dashboard useLaunchRun -> POST /api/v1/control/runs. buildWorkflowLaunchRequest (composer/domain/forms.ts:96) sets params = operator_intent/expected_outputs/governance_constraints/atlas_context + user customParams; it never defaults workflow_id or policy_mode.",
+      "nl_path": "resolves to causal_full (transport) or policy_verified (policy question); never policy_design.",
+      "harnesses_only": "tools/ci/check_scientist_best_in_class_* and tools/ops_runners/experiments/run_msme_grand_tournament_v2.py set workflow_id=scientist_policy_design -- CI/ops, not production runtime."
+    },
+    "reachable_only_via": [
+      "external API client (or power-user Composer custom-param) explicitly setting params.workflow_id=scientist_policy_design or params.policy_mode=true on POST /api/v1/control/runs",
+      "reissue of a run originally launched that way",
+      "CI/ops harnesses (non-production)"
+    ],
+    "gy_implication": "The GX pinned-route artifact names policy_design as the design producer, but it is an intended-but-untriggered path. GY-0.5 must decide: (a) make policy_design the real default for policy-design intent (wire an intent->workflow_id mapping + honest resolver), or (b) scope GY-2 governance to the workflow the route actually runs (causal_full/policy_verified). Either way, GY-2 cannot assume policy_design is the production route."
+  }
+}

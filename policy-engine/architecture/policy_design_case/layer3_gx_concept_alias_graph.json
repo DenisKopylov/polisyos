@@ -1,0 +1,94 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gx_concept_alias_graph.v1",
+  "rule_version": "policyos.layer3.gx.concept_alias_graph.v1",
+  "status": "ready",
+  "producer_ref": "derivation://layer3-gx/concept-alias-graph/ua-msme-affordable-loans-2022",
+  "producer_type": "derivation",
+  "graph_rows": [
+    {
+      "row_id": "gx-concept-alias:credit_access",
+      "concept_ref": "credit_access",
+      "aliases": [
+        "credit access",
+        "affordable loans"
+      ],
+      "metric_ids": [
+        "credit_access"
+      ],
+      "variable_names": [
+        "policy.credit_access"
+      ],
+      "source_layer_refs": [
+        "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+      ],
+      "jurisdiction_constraints": [
+        "UA"
+      ],
+      "validity_limits": [
+        "demand_seed_only_no_supply_assertion"
+      ],
+      "producer_owner": "external-request://layer3-gx/concept-alias-seeds/ua-msme-affordable-loans-2022",
+      "producer_type": "external_request",
+      "verification_status": "unverified",
+      "resolved_corpus_row_refs": [],
+      "rule_version": "policyos.layer3.gx.concept_alias_graph.v1"
+    },
+    {
+      "row_id": "gx-concept-alias:firm_survival",
+      "concept_ref": "firm_survival",
+      "aliases": [
+        "firm survival",
+        "business continuity"
+      ],
+      "metric_ids": [
+        "firm_survival"
+      ],
+      "variable_names": [
+        "firm.survival"
+      ],
+      "source_layer_refs": [
+        "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+      ],
+      "jurisdiction_constraints": [
+        "UA"
+      ],
+      "validity_limits": [
+        "demand_seed_only_no_supply_assertion"
+      ],
+      "producer_owner": "external-request://layer3-gx/concept-alias-seeds/ua-msme-affordable-loans-2022",
+      "producer_type": "external_request",
+      "verification_status": "unverified",
+      "resolved_corpus_row_refs": [],
+      "rule_version": "policyos.layer3.gx.concept_alias_graph.v1"
+    },
+    {
+      "row_id": "gx-concept-alias:credit_program_enrollment",
+      "concept_ref": "credit_program_enrollment",
+      "aliases": [
+        "program enrollment",
+        "loan participation"
+      ],
+      "metric_ids": [
+        "credit_program_enrollment"
+      ],
+      "variable_names": [
+        "policy.credit_program_enrollment"
+      ],
+      "source_layer_refs": [
+        "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+      ],
+      "jurisdiction_constraints": [
+        "UA"
+      ],
+      "validity_limits": [
+        "demand_seed_only_no_supply_assertion"
+      ],
+      "producer_owner": "external-request://layer3-gx/concept-alias-seeds/ua-msme-affordable-loans-2022",
+      "producer_type": "external_request",
+      "verification_status": "unverified",
+      "resolved_corpus_row_refs": [],
+      "rule_version": "policyos.layer3.gx.concept_alias_graph.v1"
+    }
+  ],
+  "issue_codes": []
+}

@@ -13,6 +13,9 @@ rollout_runbook: ../runbooks/policy-design-case-rollout-rollback.md
 
 # Policy Design Case Evidence Paths
 
+Owner: `team-policyos-runtime`
+Source of truth: `docs/reference/policy-design-case-source-ownership.md`, `docs/reference/policy-design-case-structural-adr-registry.md`, `docs/plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md`, and `docs/reference/policy-design-case-failure-patterns.md`
+
 This page is the W1.E documentation-path contract for E23 in the universal
 Policy Design Case program. It extends the W0.G source-ownership ledger with
 the operational paths future agents and operators use for raw sources,

@@ -17,8 +17,11 @@ from typing import Any, Literal
 import duckdb
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.runtime.quality.layer3_gx_data_home import load_layer3_gx_data_home
+
 LAYER3_GL_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gl_legal_mandate_search.v1"
 LAYER3_GL_RULE_VERSION = "policyos.layer3.gl.legal_mandate_search.v1"
+REPO_ROOT = Path(__file__).resolve().parents[4]
 CANONICAL_L3_LEGAL_KG_PATH = Path(
     "production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/"
     "lex_knowledge_graph.duckdb"
@@ -3056,7 +3059,7 @@ def _synthetic_lex_intervention_registry(
         strategic_response_expected=True,
         transmission_channels=("budget_channel", "compliance_channel"),
         target_population_type="sme_firms",
-        target_sector_ids=("credit_access", "public_finance"),
+        target_sector_ids=_default_policy_sector_ids(REPO_ROOT),
         target_region_ids=("UA",),
         measurement_expectations=measurement_expectations,
         knob_ids=("gl_credit_threshold_knob",),
@@ -3083,7 +3086,7 @@ def _synthetic_lex_intervention_registry(
         program_id="gl_subsidized_credit_program",
         program_name="GL Subsidized Credit Program",
         target_region_ids=("UA",),
-        target_sector_ids=("credit_access", "public_finance"),
+        target_sector_ids=_default_policy_sector_ids(REPO_ROOT),
         provenance_source=legal_authority_report.producer_artifact_ref,
         confidence_score=0.64,
         notes=("Synthetic crosswalk for GL readiness boundary coverage.",),
@@ -3260,6 +3263,29 @@ def _gl_lex_semantic_report(legal_authority_report: Mapping[str, Any]) -> dict[s
     }
 
 
+def _default_policy_outcome(repo_root: Path) -> str:
+    data_home = load_layer3_gx_data_home(repo_root)
+    if data_home.status != "ready" or data_home.pinned_request is None:
+        return "eligible_missing_construct"
+    constructs = data_home.pinned_request.requested_constructs
+    for row in constructs:
+        if row.role == "cause":
+            return f"eligible_{row.construct_ref}"
+    if constructs:
+        return f"eligible_{constructs[0].construct_ref}"
+    return "eligible_missing_construct"
+
+
+def _default_policy_sector_ids(repo_root: Path) -> tuple[str, ...]:
+    data_home = load_layer3_gx_data_home(repo_root)
+    if data_home.status != "ready" or data_home.pinned_request is None:
+        return ("missing_construct", "public_finance")
+    constructs = tuple(row.construct_ref for row in data_home.pinned_request.requested_constructs)
+    if constructs:
+        return (*constructs, "public_finance")
+    return ("missing_construct", "public_finance")
+
+
 def _gl_semantic_consumer_inputs(
     legal_authority_report: Mapping[str, Any],
     claim: Mapping[str, Any],
@@ -3304,7 +3330,7 @@ def _gl_semantic_consumer_inputs(
             "population": "msme_credit_applicants",
             "intervention": "subsidized_credit",
             "treatment": "credit_threshold",
-            "outcome": "eligible_credit_access",
+            "outcome": _default_policy_outcome(REPO_ROOT),
             "legal_domain": "economic_policy",
             "data_source_family": "legal_mandate_runtime_projection",
             "dataset": source_ref,

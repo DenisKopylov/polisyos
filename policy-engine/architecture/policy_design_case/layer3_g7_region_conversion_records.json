@@ -1,0 +1,89 @@
+{
+  "region_conversion_records": [
+    {
+      "authoritative_for": [
+        "layer3_g7_region_widening_audit",
+        "layer3_g7_marginal_grounding_cost_reading",
+        "layer3_g7_s14_grounded_breadth_feed"
+      ],
+      "blocker_refs": [
+        "layer3_g5_cross_slice_checks_not_ready",
+        "layer3_g5_grounded_evidence_ref_missing",
+        "layer3_g5_requested_conversion_not_positive",
+        "blocker://g7/current-g5-unchanged-blocker"
+      ],
+      "case_id": "ua-msme-affordable-loans-2022",
+      "effective_independence_status": "pass",
+      "g4_a_completeness_ledger_ref": null,
+      "g4_g5_handoff_ref": null,
+      "g4_governed_promotion_join_status": "missing",
+      "g4_grounded_contract_set_ref": null,
+      "g4_human_decision_integrity_gate_ref": null,
+      "g4_promotion_record_ref": null,
+      "g4_weakest_boundary_composition_ref": null,
+      "g5_conversion_outcome": "unchanged_blocker",
+      "g5_conversion_record_ref": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
+      "governed_promotion_status": "missing",
+      "grounding_disposition": "ungrounded_blocked",
+      "is_grounded": false,
+      "issue_codes": [
+        "layer3_g7_grounded_case_without_governed_promotion",
+        "layer3_g7_current_g5_unchanged_blocker"
+      ],
+      "limitation_refs": [],
+      "may_not_use_for": [
+        "production_authority",
+        "production_claim_authority",
+        "rollout_authority",
+        "publication_authority",
+        "approval_authority",
+        "scorecard_authority",
+        "closeout_authority",
+        "runtime_closeout_authority",
+        "public_recommendation",
+        "policy_recommendation",
+        "legal_advice",
+        "claim_authority",
+        "obligation_authority",
+        "causal_effect_authority",
+        "proof_authority",
+        "legal_authority",
+        "recommendation_authority",
+        "universal_claim_authority",
+        "universal_claim_authority_without_s14",
+        "s14_universality_claim_without_s14_gate",
+        "g8_metric_governance_authority"
+      ],
+      "region_grounding_status": "blocked_current_g5_unchanged_blocker",
+      "region_ref": "region://ua/msme-adjacent",
+      "rule_version": "policyos.layer3.g7.region_widening.v1",
+      "schema_version": "policyos.policy_design_case.layer3_g7_region_widening.v1",
+      "search_health_status": "pass",
+      "search_status": "adapter_backed",
+      "source_class": "persisted_current_g5_record",
+      "source_contract_status": "pass",
+      "upstream_may_not_use_for": [
+        "production_authority",
+        "production_claim_authority",
+        "rollout_authority",
+        "publication_authority",
+        "approval_authority",
+        "scorecard_authority",
+        "closeout_authority",
+        "runtime_closeout_authority",
+        "public_recommendation",
+        "policy_recommendation",
+        "legal_advice",
+        "claim_authority_without_upstream_grounding",
+        "causal_effect_authority_without_g2",
+        "proof_authority_without_g3",
+        "legal_authority_without_gl",
+        "useful_design_rate_floor_relaxation",
+        "g6_arbitrary_request_orchestration",
+        "g7_region_widening"
+      ]
+    }
+  ],
+  "rule_version": "policyos.layer3.g7.region_widening.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g7_region_widening.v1"
+}

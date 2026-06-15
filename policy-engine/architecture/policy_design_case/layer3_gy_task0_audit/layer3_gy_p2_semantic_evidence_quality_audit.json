@@ -1,0 +1,576 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gy_p2_semantic_evidence_quality_audit.v1",
+  "status": "pass",
+  "system_readiness": "blocked_for_semantic_adequacy_and_evidence_quality",
+  "methodology": {
+    "agents_used": false,
+    "network_fetches_run": false,
+    "runtime_server_started": false,
+    "fixes_made": false,
+    "catalog_production_duckdb_queried": true,
+    "catalog_search_api_executed": true,
+    "catalog_metric_binding_api_executed": true,
+    "catalog_silver_benchmark_labeled": true,
+    "scholar_production_skg_duckdb_queried": true,
+    "scholar_query_api_executed": true,
+    "knowledge_toolkit_registry_probe_run": true,
+    "probe_digest": "sha256:714dfe6ec3df783f10d55613aa968e77f086ba42c08d890c3dcef3cddcd3e2b6",
+    "probe_scope_note": "Silver benchmark only: labels test route-level construct/scope adequacy for known GY-like needs, not a complete human relevance judgment over the catalog."
+  },
+  "classification": {
+    "primary": "semantic_adequacy_and_tool_bridge_missing",
+    "gap_class": "partial",
+    "route_pinned": true,
+    "repair_before_downstream_governance": true,
+    "capability_labels": [
+      "semantic_test_missing",
+      "bridge_missing",
+      "implemented_but_not_orchestrated",
+      "verification_missing"
+    ],
+    "patterns": [
+      "P01",
+      "P02",
+      "P05",
+      "P10",
+      "P12",
+      "P14",
+      "P15",
+      "P25"
+    ],
+    "authority_boundary": "Catalog/Scholar search outputs remain candidate evidence until route-level semantic adequacy, scope matching, producer lineage, and consumer gates are proven."
+  },
+  "summary": {
+    "catalog_dataset_count": 137176,
+    "catalog_distribution_count": 605408,
+    "catalog_metric_binding_count": 56846,
+    "catalog_schema_profile_count": 176249,
+    "catalog_vector_index_files_present": true,
+    "catalog_sentence_transformers_available": false,
+    "catalog_search_runs_text_only": true,
+    "catalog_silver_case_count": 5,
+    "catalog_silver_judged_topk_rows": 25,
+    "catalog_construct_precision_at_5_micro": 0.56,
+    "catalog_scope_precision_at_5_micro": 0.2,
+    "catalog_route_admissible_precision_at_5_micro": 0.0,
+    "catalog_country_filter_tested_cases": 4,
+    "catalog_country_filter_zero_result_cases": 4,
+    "catalog_metric_binding_probe_query_count": 9,
+    "catalog_metric_binding_zero_result_queries": [
+      "cash transfer",
+      "firm survival"
+    ],
+    "catalog_semantic_gate_exists": false,
+    "catalog_precision_recall_gate_exists": false,
+    "scholar_skg_db_present": true,
+    "scholar_skg_article_count": 310829,
+    "scholar_skg_edge_count": 7607,
+    "scholar_skg_parameter_estimate_count": 62248,
+    "scholar_route_like_work_queries_returned_total": 0,
+    "scholar_canonical_edge_probe_pairs": 6,
+    "scholar_canonical_edge_probe_pairs_with_hybrid_hits": 4,
+    "scholar_small_business_lending_pairs_with_hits": 0,
+    "scholar_web_bundle_persistence_exists": true,
+    "scholar_web_bundle_to_research_dag_projection_exists": true,
+    "g2_guard_rejects_web_bundle_as_l2_skg": true,
+    "knowledge_toolkit_methods_expected": 20,
+    "knowledge_toolkit_adapter_tools_registered_with_empty_toolkit": 3,
+    "knowledge_toolkit_all_expected_methods_registered": false,
+    "knowledge_toolkit_default_runtime_dataset_scholar_graph_injection_found": false,
+    "overall_status": "semantic_test_missing_and_tool_bridge_missing"
+  },
+  "catalog_semantic_adequacy": {
+    "production_catalog": {
+      "db_path": "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+      "dataset_count": 137176,
+      "distribution_count": 605408,
+      "metric_binding_count": 56846,
+      "schema_profile_count": 176249,
+      "vector_index_files_present": true,
+      "embedding_runtime": "text_only_sentence_transformers_missing"
+    },
+    "implementation_findings": [
+      {
+        "id": "catalog-search-text-only-fallback",
+        "evidence_refs": [
+          "src/polisyos/data_forge/domains/catalog/knowledge/search.py:_get_query_embedding",
+          "production_data/datasets_full_phase3full_20260327_183054/ds_dataset_embeddings.npz",
+          "production_data/datasets_full_phase3full_20260327_183054/ds_dataset_index.hnsw"
+        ],
+        "observation": "HNSW index files exist, but query embedding falls back to text-only because sentence_transformers is unavailable."
+      },
+      {
+        "id": "catalog-search-uncalibrated-text-score",
+        "evidence_refs": [
+          "src/polisyos/data_forge/domains/catalog/knowledge/store.py:search_by_text",
+          "src/polisyos/data_forge/domains/catalog/knowledge/search.py:search_datasets"
+        ],
+        "observation": "Text search ranks by lexical LIKE score, but returned DatasetSearchResult.similarity is 1.0 for every text result; route consumers get no calibrated relevance threshold."
+      },
+      {
+        "id": "catalog-country-filter-empty-for-route-cases",
+        "evidence_refs": [
+          "src/polisyos/data_forge/domains/catalog/knowledge/search.py:_passes_filters"
+        ],
+        "observation": "Country filtering checks coverage_countries/spatial. For four route-like probes, top topical unfiltered hits had empty countries or WORLD scope, and the country-filtered query returned zero."
+      }
+    ],
+    "silver_benchmark": {
+      "label_policy": "A top-k row is route-admissible only when it matches the construct and the required geography/scope. Construct-only matches are separately counted because they can still be useful candidates.",
+      "aggregate": {
+        "case_count": 5,
+        "judged_topk_rows": 25,
+        "construct_precision_at_5_macro": 0.56,
+        "construct_precision_at_5_micro": 0.56,
+        "scope_precision_at_5_micro": 0.2,
+        "route_admissible_precision_at_5_micro": 0.0,
+        "country_filter_tested_cases": 4,
+        "country_filter_zero_result_cases": 4
+      },
+      "cases": [
+        {
+          "case_id": "ua_msme_credit",
+          "query": "ukraine msme credit affordable loans small business survival",
+          "required_country": "UA",
+          "topic": "MSME credit/survival support",
+          "construct_precision_at_5": 0.4,
+          "scope_precision_at_5": 0.0,
+          "route_admissible_precision_at_5": 0.0,
+          "country_filter_returned": 0,
+          "top_hit_titles": [
+            "Chicago Microlending Institute (CMI) Microloans",
+            "Euro area and national MFI interest rates (MIR)(percentages per annum ; rates on new business as average of the period ;",
+            "Financial Incentive Projects - Small Business Improvement Fund (SBIF)",
+            "Performance Metrics - Housing & Economic Development - Small Business Improvement Fund (SBIF)",
+            "Performance Metrics - Housing & Economic Development - Small Business Improvement Fund (SBIF)"
+          ],
+          "top_hit_sources": [
+            "chicago_opendata",
+            "ecb",
+            "chicago_opendata",
+            "chicago_opendata_exec",
+            "chicago_opendata"
+          ],
+          "route_diagnosis": "Search found some small-business/credit-like candidates, but none were Ukraine-scoped or route-admissible."
+        },
+        {
+          "case_id": "pl_energy_affordability",
+          "query": "poland household energy affordability electricity prices poverty",
+          "required_country": "PL",
+          "topic": "household energy affordability / electricity bills",
+          "construct_precision_at_5": 0.4,
+          "scope_precision_at_5": 0.0,
+          "route_admissible_precision_at_5": 0.0,
+          "country_filter_returned": 0,
+          "top_hit_titles": [
+            "Affordability of an energy sufficient diet: ratio of cost to the food poverty line",
+            "Electricity prices for household consumers - bi-annual data (from 2007 onwards)",
+            "Main cooking fuel: electricity  (% of households)",
+            "Multidimensional poverty headcount ratio, household (% of total households)",
+            "Renewable energy electricity output (GWh)"
+          ],
+          "top_hit_sources": [
+            "worldbank",
+            "eurostat",
+            "worldbank",
+            "worldbank",
+            "worldbank"
+          ],
+          "route_diagnosis": "Unfiltered search has plausible energy/poverty/electricity hits, but country-scoped route admission is zero."
+        },
+        {
+          "case_id": "pk_cash_transfer",
+          "query": "pakistan cash transfer poverty households social protection",
+          "required_country": "PK",
+          "topic": "cash transfer / poverty / social protection",
+          "construct_precision_at_5": 1.0,
+          "scope_precision_at_5": 0.0,
+          "route_admissible_precision_at_5": 0.0,
+          "country_filter_returned": 0,
+          "top_hit_titles": [
+            "Poverty Headcount reduction (%) -  Conditional Cash Transfer - 1st quintile (poorest) -urban",
+            "Poverty Headcount reduction (%) -  Conditional Cash Transfer -1st quintile (poorest)",
+            "Poverty Headcount reduction (%) -  Conditional Cash Transfer -1st quintile (poorest) -rural",
+            "Poverty Headcount reduction (%) -  Conditional Cash Transfer -extreme poor (<$2.15 a day)",
+            "Poverty Headcount reduction (%) -  Unconditional Cash Transfers - 1st quintile (poorest) -urban"
+          ],
+          "top_hit_sources": [
+            "worldbank",
+            "worldbank",
+            "worldbank",
+            "worldbank",
+            "worldbank"
+          ],
+          "route_diagnosis": "Construct precision is high, but every top row is WORLD/unscoped; country filter returns zero."
+        },
+        {
+          "case_id": "ua_displacement",
+          "query": "ukraine regional displacement internally displaced persons idp oblast",
+          "required_country": "UA",
+          "topic": "regional IDP/displacement pressure",
+          "construct_precision_at_5": 1.0,
+          "scope_precision_at_5": 0.0,
+          "route_admissible_precision_at_5": 0.0,
+          "country_filter_returned": 0,
+          "top_hit_titles": [
+            "Internally displaced persons, new displacement associated with conflict and violence (number of cases)",
+            "Internally displaced persons, new displacement associated with disasters (number of cases)",
+            "Internally displaced people (IDP) by country or territory of asylum / origin",
+            "Internally displaced persons, total displaced by conflict and violence (number of people)",
+            "Internally displaced persons (number, high estimate)"
+          ],
+          "top_hit_sources": [
+            "worldbank",
+            "worldbank",
+            "worldbank",
+            "worldbank",
+            "worldbank"
+          ],
+          "route_diagnosis": "Construct precision is high, but no row proves Ukraine/oblast regional scope."
+        },
+        {
+          "case_id": "firm_survival",
+          "query": "business survival firm closure enterprise survival rate",
+          "required_country": null,
+          "topic": "firm survival / closures",
+          "construct_precision_at_5": 0.0,
+          "scope_precision_at_5": 1.0,
+          "route_admissible_precision_at_5": 0.0,
+          "country_filter_returned": null,
+          "top_hit_titles": [
+            "Enterprises that co-operated on business activities with other enterprises or organisations by field of activities, NACE",
+            "Enterprises that co-operated on business activities with other entities by innovation status, NACE Rev. 2 activity and s",
+            "Number of years firm operated without formal registration",
+            "Percent of firms identifying business licensing and permits as a major constraint",
+            "Percent of firms identifying tax rates as a major constraint"
+          ],
+          "top_hit_sources": [
+            "eurostat",
+            "eurostat",
+            "worldbank",
+            "worldbank",
+            "worldbank"
+          ],
+          "route_diagnosis": "The query retrieves generic enterprise/business constraints, not firm survival, closures, exit, or business demography."
+        }
+      ]
+    },
+    "metric_binding_comparison": [
+      {
+        "query": "msme credit",
+        "returned": 8,
+        "top_metric_ids": [
+          "credit_access"
+        ],
+        "diagnosis": "Binding layer can retrieve credit_access candidates, but search top-k was not route-admissible for Ukraine MSME."
+      },
+      {
+        "query": "credit access",
+        "returned": 8,
+        "top_metric_ids": [
+          "credit_access"
+        ],
+        "diagnosis": "Deterministic metric lookup exists for credit_access."
+      },
+      {
+        "query": "firm survival",
+        "returned": 0,
+        "top_metric_ids": [],
+        "diagnosis": "No metric binding vocabulary for firm survival/closure."
+      },
+      {
+        "query": "poverty",
+        "returned": 8,
+        "top_metric_ids": [
+          "poverty_rate"
+        ],
+        "diagnosis": "Poverty has strong metric binding coverage."
+      },
+      {
+        "query": "energy poverty",
+        "returned": 8,
+        "top_metric_ids": [
+          "energy_intensity",
+          "poverty_rate"
+        ],
+        "diagnosis": "The query decomposes into energy_intensity and poverty_rate rather than a household energy-affordability construct."
+      },
+      {
+        "query": "electricity price",
+        "returned": 8,
+        "top_metric_ids": [
+          "electricity_access",
+          "avg_price"
+        ],
+        "diagnosis": "Metric bindings confuse electricity access and generic average price with household electricity prices."
+      },
+      {
+        "query": "displacement",
+        "returned": 8,
+        "top_metric_ids": [
+          "displacement"
+        ],
+        "diagnosis": "Displacement has strong metric binding coverage but still lacks route-level Ukraine/regional scope proof."
+      },
+      {
+        "query": "social protection",
+        "returned": 8,
+        "top_metric_ids": [
+          "social_protection_coverage"
+        ],
+        "diagnosis": "Social protection coverage is available."
+      },
+      {
+        "query": "cash transfer",
+        "returned": 0,
+        "top_metric_ids": [],
+        "diagnosis": "Cash-transfer policy instrument vocabulary is absent from metric binding search despite top-k dataset search finding cash-transfer outcome rows."
+      }
+    ],
+    "route_verdict": "Catalog search is useful as candidate discovery, but GY-1 cannot count it as admissible data discovery until construct and jurisdiction/scope adequacy are measured and consumed before FetchPlan admission."
+  },
+  "scholar_openalex_knowledge_toolkit": {
+    "openalex_batch_and_skg_substrate": {
+      "db_path": "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb",
+      "db_size_bytes": 2390503424,
+      "table_counts": {
+        "ac_skg_articles": 310829,
+        "ac_skg_edges": 7607,
+        "ac_skg_transport_scores": 7607,
+        "ac_skg_contested_edges": 723,
+        "ac_parameter_estimates": 62248,
+        "ac_boundary_conditions": 38550,
+        "ac_skg_parameters": 51908,
+        "ac_skg_simulation_parameters": 5124
+      },
+      "evidence_refs": [
+        "src/polisyos/data_forge/domains/academic/batch/README.md",
+        "src/polisyos/data_forge/domains/academic/openalex",
+        "src/polisyos/data_forge/domains/academic/knowledge/search.py",
+        "src/polisyos/data_forge/domains/academic/knowledge/skg_query.py",
+        "src/polisyos/runtime/quality/capability_index_compiler.py:load_scholar_capabilities"
+      ],
+      "classification": "rich_substrate_not_route_semantic_closure"
+    },
+    "route_like_query_probe": {
+      "work_search_route_like_queries": [
+        {
+          "query": "cash transfers poverty",
+          "returned": 0
+        },
+        {
+          "query": "credit access firm survival",
+          "returned": 0
+        },
+        {
+          "query": "energy poverty household electricity prices",
+          "returned": 0
+        },
+        {
+          "query": "displacement conflict violence",
+          "returned": 0
+        },
+        {
+          "query": "msme loan employment",
+          "returned": 0
+        }
+      ],
+      "diagnosis": "ScholarKnowledgeStore.text_search_works uses ILIKE over the whole query phrase, and embeddings are unavailable; route-like natural-language queries returned zero despite a large SKG."
+    },
+    "canonical_edge_query_probe": [
+      {
+        "cause": "social.cash_transfer_program",
+        "effect": "economic.household_consumption",
+        "exact": 0,
+        "family": 1,
+        "hybrid": 1,
+        "contested": 0
+      },
+      {
+        "cause": "fiscal.cash_transfer",
+        "effect": "economic.consumption",
+        "exact": 2,
+        "family": 1,
+        "hybrid": 1,
+        "contested": 0
+      },
+      {
+        "cause": "finance.small_business_lending",
+        "effect": "economic.firm_productivity",
+        "exact": 0,
+        "family": 0,
+        "hybrid": 0,
+        "contested": 0
+      },
+      {
+        "cause": "finance.small_business_lending",
+        "effect": "labor.employment_rate",
+        "exact": 0,
+        "family": 0,
+        "hybrid": 0,
+        "contested": 0
+      },
+      {
+        "cause": "climate.drought_resilient_irrigation",
+        "effect": "energy.electricity_reliability",
+        "exact": 2,
+        "family": 1,
+        "hybrid": 1,
+        "contested": 0
+      },
+      {
+        "cause": "labor.minimum_wage",
+        "effect": "labor.employment_rate",
+        "exact": 0,
+        "family": 1,
+        "hybrid": 1,
+        "contested": 0
+      }
+    ],
+    "web_evidence_runtime_path": {
+      "service": "src/polisyos/scholar/search/service.py:ScholarDeepSearchService",
+      "cas_persistence": "persist_bundle(kind=scholar.web_evidence_bundle)",
+      "research_dag_projection": "src/polisyos/scientist/methods/research_dag/projections.py:project_web_evidence_bundle_to_research_dag",
+      "fixture_bridge_test": "tests/integration/scholar_scientist/test_search_orchestration_bridge.py",
+      "g2_laundering_guard": "src/polisyos/runtime/quality/layer3_causal_forecast.py rejects web_evidence_bundle_ref as L2 SKG search",
+      "classification": "near_route_evidence_tool_not_canonical_l2_skg_authority"
+    },
+    "knowledge_toolkit_probe": {
+      "toolkit_class": "src/polisyos/scientist/agent/knowledge_tools.py:KnowledgeToolkit",
+      "adapter": "src/polisyos/scientist/agent/tools/knowledge_tools_adapter.py:build_knowledge_tool_registry",
+      "expected_tool_methods": [
+        "search_datasets",
+        "find_datasets_for_metric",
+        "get_dataset_connector",
+        "search_evidence",
+        "get_parameter_prior",
+        "find_causal_evidence",
+        "get_mechanism_evidence",
+        "search_legal_facts",
+        "search_legal_provisions",
+        "find_legal_constraints",
+        "search_legal_thresholds",
+        "get_applicable_norms",
+        "load_provisions_by_anchor",
+        "load_doc_version_chain",
+        "expand_reference_neighborhood",
+        "load_source_bundle",
+        "assemble_legal_candidate_pack",
+        "expand_legal_source_pack",
+        "remember",
+        "recall"
+      ],
+      "registered_tool_names_with_empty_toolkit": [
+        "get_dataset_connector",
+        "recall",
+        "remember"
+      ],
+      "registered_count": 3,
+      "missing_registered_count": 17,
+      "failure_mode": "get_type_hints resolves annotations imported only under TYPE_CHECKING, so most methods fail registry registration at runtime.",
+      "production_route_uses_found": [
+        "src/polisyos/scientist/validation/policy_verified/service.py builds KnowledgeToolkit(legal_graph=...)",
+        "src/polisyos/scientist/agent/fabric.py uses KnowledgeToolkit().format_web_evidence_context(...)"
+      ],
+      "production_route_uses_not_found": [
+        "default runtime/NL route injecting DatasetCatalogGraph into KnowledgeToolkit",
+        "default runtime/NL route injecting ScholarKnowledgeGraph into KnowledgeToolkit",
+        "GY pinned DAG consuming KnowledgeToolkit dataset or scholar search tools as event-backed assets"
+      ],
+      "classification": "tool_facade_built_but_route_bridge_and_registry_completeness_missing"
+    },
+    "route_verdict": "Scholar/OpenAlex and KnowledgeToolkit are real substrate. They are not yet GY route authority for literature/prior/tool-backed search because natural-language SKG search is semantically brittle, small-business route pairs miss, web bundles are intentionally separated from L2 SKG authority, and KnowledgeToolkit tool registration is incomplete."
+  },
+  "findings": [
+    {
+      "id": "P2-1",
+      "severity": "critical",
+      "title": "Catalog top-k discovery has zero route-admissible precision on the GY-like silver benchmark",
+      "capability_label": "semantic_test_missing",
+      "pattern_ids": [
+        "P10",
+        "P25"
+      ],
+      "summary": "Across 25 top-k rows, construct-only precision was 0.56 but route-admissible construct+scope precision was 0.0. All four country-filtered cases returned zero."
+    },
+    {
+      "id": "P2-2",
+      "severity": "high",
+      "title": "Metric binding search is stronger than free-text search but still misses policy constructs",
+      "capability_label": "bridge_missing",
+      "pattern_ids": [
+        "P02",
+        "P10",
+        "P12"
+      ],
+      "summary": "credit_access, poverty_rate, displacement, and social_protection_coverage resolve; firm survival and cash transfer return zero, and energy poverty/electricity price split into weak or adjacent metric ids."
+    },
+    {
+      "id": "P2-3",
+      "severity": "high",
+      "title": "Scholar/OpenAlex SKG is rich but route-like queries do not bridge to canonical evidence",
+      "capability_label": "implemented_but_not_orchestrated",
+      "pattern_ids": [
+        "P01",
+        "P02",
+        "P10",
+        "P12",
+        "P14"
+      ],
+      "summary": "Production SKG has 310,829 articles and 7,607 edges. Natural-language work search returned zero for five route-like queries; canonical edge queries work for known pairs but not small-business lending route pairs."
+    },
+    {
+      "id": "P2-4",
+      "severity": "high",
+      "title": "KnowledgeToolkit adapter registers only 3 of 20 expected tools in a runtime probe",
+      "capability_label": "verification_missing",
+      "pattern_ids": [
+        "P01",
+        "P02",
+        "P12"
+      ],
+      "summary": "The generic adapter fails most typed methods because runtime type-hint resolution cannot see TYPE_CHECKING-only imports. Existing route uses are legal-only or formatting-only, not dataset/scholar GY search tools."
+    },
+    {
+      "id": "P2-5",
+      "severity": "medium",
+      "title": "Web evidence bundles are real but intentionally not L2 SKG authority",
+      "capability_label": "authority_boundary_present_but_bridge_missing",
+      "pattern_ids": [
+        "P05",
+        "P15"
+      ],
+      "summary": "ScholarDeepSearchService can persist web evidence bundles and project them to a research DAG, and G2 guards against laundering those bundles as canonical L2 SKG search. GY-6 must choose the correct authority path instead of treating both as interchangeable literature support."
+    }
+  ],
+  "negative_assertions": [
+    {
+      "id": "do_not_count_unfiltered_catalog_hit_as_route_admissible",
+      "assertion_holds": true,
+      "reason": "A topical global/WORLD/unscoped hit is a candidate, not an admissible FetchPlan source for a jurisdiction-scoped claim."
+    },
+    {
+      "id": "do_not_count_metric_binding_presence_as_semantic_relevance",
+      "assertion_holds": true,
+      "reason": "Metric binding rows still need construct, scope, source-contract, and measurement-root gates before authority."
+    },
+    {
+      "id": "do_not_count_web_evidence_bundle_as_l2_skg",
+      "assertion_holds": true,
+      "reason": "Layer 3 G2 already rejects web_evidence_bundle_ref in canonical L2 SKG ledgers."
+    },
+    {
+      "id": "do_not_count_knowledge_toolkit_class_as_route_tooling",
+      "assertion_holds": true,
+      "reason": "The adapter registered only 3 of 20 expected tools in the runtime probe, and default GY route injection was not found."
+    }
+  ],
+  "acceptance_signal_for_future_repairs": [
+    "Catalog semantic benchmark has reviewed construct labels and fails closed when route_admissible_precision_at_k is below threshold.",
+    "Country/jurisdiction/scope matching is measured before FetchPlan admission, not only after retrieval.",
+    "Metric binding search and free-text dataset search share a construct handshake with DataRequirementSpec and source-contract gates.",
+    "Scholar GY route uses SKGQuery/canonical L2 rows for literature/prior authority, with query traces and no-hit frontiers persisted.",
+    "Scholar web bundles remain citation/tool evidence unless explicitly transformed into a non-L2 authority boundary.",
+    "KnowledgeToolkit adapter registers the expected typed tools under runtime imports, and one GY route run persists tool-call events and outputs."
+  ]
+}

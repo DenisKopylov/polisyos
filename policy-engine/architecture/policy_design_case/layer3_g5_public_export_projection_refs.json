@@ -9,14 +9,9 @@
     "capability_reality_state": "implemented_but_not_orchestrated",
     "closeout_truth": {
       "blocker_codes": [
-        "layer3_g5_blocked_promotion_used_as_conversion",
-        "layer3_g5_g1_observed_but_uncertain_overclaimed",
-        "layer3_g5_g2_s2_replay_key_ref_missing",
-        "layer3_g5_g2_source_contract_ref_mismatch",
-        "layer3_g5_g3_proof_status_overclaimed",
-        "layer3_g5_duplicate_source_lineage_ref_inflates_independence",
-        "layer3_g5_gl_pass_with_reissue_required",
-        "layer3_g5_s14_pending_sealed_overclaimed"
+        "layer3_g5_cross_slice_checks_not_ready",
+        "layer3_g5_grounded_evidence_ref_missing",
+        "layer3_g5_requested_conversion_not_positive"
       ],
       "can_closeout": false,
       "status": "blocked",
@@ -85,14 +80,9 @@
     "capability_reality_state": "implemented_but_not_orchestrated",
     "closeout_truth": {
       "blocker_codes": [
-        "layer3_g5_blocked_promotion_used_as_conversion",
-        "layer3_g5_g1_observed_but_uncertain_overclaimed",
-        "layer3_g5_g2_s2_replay_key_ref_missing",
-        "layer3_g5_g2_source_contract_ref_mismatch",
-        "layer3_g5_g3_proof_status_overclaimed",
-        "layer3_g5_duplicate_source_lineage_ref_inflates_independence",
-        "layer3_g5_gl_pass_with_reissue_required",
-        "layer3_g5_s14_pending_sealed_overclaimed"
+        "layer3_g5_cross_slice_checks_not_ready",
+        "layer3_g5_grounded_evidence_ref_missing",
+        "layer3_g5_requested_conversion_not_positive"
       ],
       "can_closeout": false,
       "status": "blocked",
@@ -161,14 +151,9 @@
     "capability_reality_state": "implemented_but_not_orchestrated",
     "closeout_truth": {
       "blocker_codes": [
-        "layer3_g5_blocked_promotion_used_as_conversion",
-        "layer3_g5_g1_observed_but_uncertain_overclaimed",
-        "layer3_g5_g2_s2_replay_key_ref_missing",
-        "layer3_g5_g2_source_contract_ref_mismatch",
-        "layer3_g5_g3_proof_status_overclaimed",
-        "layer3_g5_duplicate_source_lineage_ref_inflates_independence",
-        "layer3_g5_gl_pass_with_reissue_required",
-        "layer3_g5_s14_pending_sealed_overclaimed"
+        "layer3_g5_cross_slice_checks_not_ready",
+        "layer3_g5_grounded_evidence_ref_missing",
+        "layer3_g5_requested_conversion_not_positive"
       ],
       "blockers": [],
       "can_closeout": false,
@@ -259,14 +244,9 @@
     "capability_reality_state": "implemented_but_not_orchestrated",
     "closeout_truth": {
       "blocker_codes": [
-        "layer3_g5_blocked_promotion_used_as_conversion",
-        "layer3_g5_g1_observed_but_uncertain_overclaimed",
-        "layer3_g5_g2_s2_replay_key_ref_missing",
-        "layer3_g5_g2_source_contract_ref_mismatch",
-        "layer3_g5_g3_proof_status_overclaimed",
-        "layer3_g5_duplicate_source_lineage_ref_inflates_independence",
-        "layer3_g5_gl_pass_with_reissue_required",
-        "layer3_g5_s14_pending_sealed_overclaimed"
+        "layer3_g5_cross_slice_checks_not_ready",
+        "layer3_g5_grounded_evidence_ref_missing",
+        "layer3_g5_requested_conversion_not_positive"
       ],
       "can_closeout": false,
       "status": "blocked",

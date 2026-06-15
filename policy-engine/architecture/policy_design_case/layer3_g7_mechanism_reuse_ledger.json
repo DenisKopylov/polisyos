@@ -1,0 +1,56 @@
+{
+  "authoritative_for": [
+    "layer3_g7_region_widening_audit",
+    "layer3_g7_marginal_grounding_cost_reading",
+    "layer3_g7_s14_grounded_breadth_feed"
+  ],
+  "bespoke_patch_count": 0,
+  "bespoke_patch_refs": [],
+  "grounded_region_case_count": 0,
+  "issue_codes": [
+    "layer3_g7_sublinear_claim_without_grounded_cases"
+  ],
+  "ledger_id": "layer3-g7://mechanism-reuse-ledger/ua-msme-adjacent",
+  "may_not_use_for": [
+    "production_authority",
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "public_recommendation",
+    "policy_recommendation",
+    "legal_advice",
+    "claim_authority",
+    "obligation_authority",
+    "causal_effect_authority",
+    "proof_authority",
+    "legal_authority",
+    "recommendation_authority",
+    "universal_claim_authority",
+    "universal_claim_authority_without_s14",
+    "s14_universality_claim_without_s14_gate",
+    "g8_metric_governance_authority"
+  ],
+  "mechanism_reuse_rate": 0.0,
+  "one_off_growth_refs": [],
+  "records": [
+    {
+      "bespoke_patch_refs": [],
+      "case_id": "ua-msme-affordable-loans-2022",
+      "conversion_record_ref": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
+      "is_grounded": false,
+      "one_off_growth_refs": [],
+      "reuse_status": "not_grounded",
+      "reused_primitive_refs": []
+    }
+  ],
+  "reuse_status": "blocked_insufficient_grounded_cases",
+  "reuse_threshold": 0.5,
+  "reused_case_count": 0,
+  "reused_primitive_refs": [],
+  "rule_version": "policyos.layer3.g7.region_widening.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g7_region_widening.v1"
+}

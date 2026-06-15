@@ -1,34 +1,38 @@
 {
   "accountable_principal_refs": [
-    "principal://ua-msme/ministry-economy"
+    "principal://deniskopylov"
   ],
   "attempted_grounding_path_refs": [
-    "layer3-g5://readiness/demand-pull"
+    "layer3-gx://pinned-route/g5/demand-pull"
+  ],
+  "authority_purpose": "demand_pull_input_only",
+  "consumer_path": [
+    "G5",
+    "G6",
+    "G7"
   ],
   "demand_pull_refs": [
-    "s3-demand-pull://ua-msme/first-proving-ground",
-    "demand-act://ua-msme/principal",
-    "s12-growth-entry://ua-msme/first-proving-ground",
-    "envelope-delta://ua-msme/first",
-    "voi://ua-msme/layer3-g5",
-    "reuse-acquisition://ua-msme/layer3-g5",
-    "layer3-g5://readiness/demand-pull"
+    "demand-act://layer3-gx/ua-msme-affordable-loans-2022"
   ],
   "issue_codes": [],
+  "may_not_use_for": [
+    "conversion_authority",
+    "production_authority",
+    "closeout_authority",
+    "useful_design_credit"
+  ],
+  "producer_ref": "external-request://layer3-gx/demand-pull/ua-msme-affordable-loans-2022",
+  "producer_type": "external_request",
+  "replay_key": "layer3-gx-demand-pull:ua-msme-affordable-loans-2022:v1",
+  "request_source_ref": "user://deniskopylov/task-0a",
   "s12_demand_act_refs": [
-    "demand-act://ua-msme/principal"
+    "demand-act://layer3-gx/ua-msme-affordable-loans-2022"
   ],
-  "s12_growth_entry_refs": [
-    "s12-growth-entry://ua-msme/first-proving-ground"
-  ],
-  "s12_reuse_acquisition_refs": [
-    "reuse-acquisition://ua-msme/layer3-g5"
-  ],
-  "s12_voi_refs": [
-    "voi://ua-msme/layer3-g5"
-  ],
-  "s3_demand_pull_refs": [
-    "s3-demand-pull://ua-msme/first-proving-ground"
-  ],
-  "status": "pass"
+  "s12_growth_entry_refs": [],
+  "s12_reuse_acquisition_refs": [],
+  "s12_voi_refs": [],
+  "s3_demand_pull_refs": [],
+  "source": "docs/plans/active/layer3-slices/GX-universal-free-growth-runtime-hardening.md#task-0a",
+  "status": "pass",
+  "timestamp": "2026-06-12T00:00:00Z"
 }

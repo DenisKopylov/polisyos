@@ -34,6 +34,9 @@ from polisyos.runtime.quality.graded_outcomes import (  # noqa: E402
     compose_graded_outcome,
     graded_outcome_closeout_record,
 )
+from polisyos.runtime.quality.layer3_gx_data_home import (  # noqa: E402
+    read_layer3_gx_pinned_case_id,
+)
 from polisyos.runtime.quality.projection_semantics import (  # noqa: E402
     build_policy_design_case_projection_contract_fixture,
 )
@@ -275,7 +278,11 @@ def _projection_audiences(closeout_verdict: Mapping[str, Any]) -> list[str]:
 
 
 def _canonical_route_status(repo_root: Path) -> tuple[str, float]:
-    case_path = repo_root / DEFAULT_CORPUS_CASES_PATH / "ua-msme-affordable-loans-2022.json"
+    case_path = (
+        repo_root
+        / DEFAULT_CORPUS_CASES_PATH
+        / f"{read_layer3_gx_pinned_case_id(repo_root)}.json"
+    )
     with tempfile.TemporaryDirectory() as tmpdir:
         tmp = Path(tmpdir)
         index_dir = tmp / "capability-index"

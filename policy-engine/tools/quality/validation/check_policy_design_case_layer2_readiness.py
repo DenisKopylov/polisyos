@@ -15,6 +15,8 @@ from tools.quality.validation import check_policy_design_case_cluster_ownership_
 
 REPO_ROOT, _SRC_ROOT = ensure_repo_import_roots(__file__)
 
+from polisyos.runtime.quality.layer3_gx_data_home import load_layer3_gx_data_home  # noqa: E402
+
 DEFAULT_READINESS_MANIFEST_PATH = Path(
     "architecture/policy_design_case/layer2_readiness_manifest.json"
 )
@@ -72,13 +74,6 @@ DEFAULT_S14_UNIVERSALITY_ASSURANCE_MANIFEST_PATH = Path(
 DEFAULT_INVENTORY_PATH = Path("architecture/policy_design_case/inventory.json")
 
 REQUIRED_SLICES = {f"S{number}" for number in range(15)}
-REQUIRED_UA_MSME_CONSTRUCTS = {
-    "credit_program_enrollment",
-    "firm_survival",
-    "regional_displacement_pressure",
-    "credit_access",
-    "fiscal_burden_per_beneficiary",
-}
 REQUIRED_ARTIFACT_NAMES = {
     "MinimalSeedManifest",
     "ValueOfInformationEstimate",
@@ -1498,7 +1493,7 @@ def _validate_corpus_partition(payload: dict[str, Any], issues: list[dict[str, s
 
 def _validate_first_proving_case(payload: dict[str, Any], issues: list[dict[str, str]]) -> None:
     constructs = set(payload.get("constructs", []))
-    missing = REQUIRED_UA_MSME_CONSTRUCTS - constructs
+    missing = _required_first_proving_constructs(REPO_ROOT) - constructs
     if missing:
         issues.append(
             _issue(
@@ -1506,6 +1501,13 @@ def _validate_first_proving_case(payload: dict[str, Any], issues: list[dict[str,
                 "First proving case omits constructs: " + ", ".join(sorted(missing)),
             )
         )
+
+
+def _required_first_proving_constructs(repo_root: Path) -> set[str]:
+    data_home = load_layer3_gx_data_home(repo_root)
+    if data_home.status != "ready" or data_home.pinned_request is None:
+        return set()
+    return {row.construct_ref for row in data_home.pinned_request.requested_constructs}
 
 
 def _validate_readiness_manifest(payload: dict[str, Any], issues: list[dict[str, str]]) -> None:

@@ -15,6 +15,21 @@
         "release_condition": "source-truth adapter path and human retriage required",
         "target_id": "scenario_family_authority_selector",
         "target_kind": "source_touchpoint"
+      },
+      {
+        "blocker_codes": [
+          "layer3_g0_quarantined_source_admitted"
+        ],
+        "enforcement_surface": "adapter_admission_registry",
+        "pattern_ids": [
+          "P04",
+          "P05",
+          "P10"
+        ],
+        "reason": "Binary Lex projection cannot substitute for graded legal authority.",
+        "release_condition": "graded Lex authority adapter and semantic tests required",
+        "target_id": "lex_binary_status_candidate",
+        "target_kind": "data_asset"
       }
     ]
   },
@@ -81,22 +96,33 @@
         "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_analytics_search.py",
         "import_root": "method_requirement",
-        "line": 4207,
+        "line": 4212,
         "quarantine_check_result": "not_blocked",
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.method_requirement",
-        "touchpoint_id": "src/polisyos/runtime/quality/layer3_analytics_search.py:4207:method_requirement"
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_analytics_search.py:4212:method_requirement"
       },
       {
         "admission_allowed": false,
         "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_analytics_search.py",
         "import_root": "method_requirement",
-        "line": 4257,
+        "line": 4262,
         "quarantine_check_result": "not_blocked",
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.method_requirement",
-        "touchpoint_id": "src/polisyos/runtime/quality/layer3_analytics_search.py:4257:method_requirement"
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_analytics_search.py:4262:method_requirement"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/layer3_bounded_agent.py",
+        "import_root": "scientist",
+        "line": 41,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.scientist",
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_bounded_agent.py:41:scientist"
       },
       {
         "admission_allowed": false,
@@ -114,110 +140,121 @@
         "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_causal_forecast.py",
         "import_root": "data_forge",
-        "line": 1050,
+        "line": 1065,
         "quarantine_check_result": "not_blocked",
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.data_forge.read_api.academic",
-        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:1050:data_forge"
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:1065:data_forge"
       },
       {
         "admission_allowed": false,
         "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_causal_forecast.py",
         "import_root": "data_forge",
-        "line": 1111,
+        "line": 1126,
         "quarantine_check_result": "not_blocked",
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.data_forge.read_api.academic",
-        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:1111:data_forge"
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:1126:data_forge"
       },
       {
         "admission_allowed": false,
         "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_causal_forecast.py",
         "import_root": "foundry",
-        "line": 2701,
+        "line": 2751,
         "quarantine_check_result": "not_blocked",
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.foundry.methods.selection.requirements",
-        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:2701:foundry"
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:2751:foundry"
       },
       {
         "admission_allowed": false,
         "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_causal_forecast.py",
         "import_root": "foundry",
-        "line": 2774,
+        "line": 2824,
         "quarantine_check_result": "not_blocked",
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.foundry.validation.method_quality",
-        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:2774:foundry"
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:2824:foundry"
       },
       {
         "admission_allowed": false,
         "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_causal_forecast.py",
         "import_root": "foundry",
-        "line": 4716,
+        "line": 4853,
         "quarantine_check_result": "not_blocked",
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.foundry.methods.catalog",
-        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:4716:foundry"
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:4853:foundry"
       },
       {
         "admission_allowed": false,
         "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_causal_forecast.py",
         "import_root": "foundry",
-        "line": 4717,
+        "line": 4854,
         "quarantine_check_result": "not_blocked",
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.foundry.methods.selection.registry",
-        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:4717:foundry"
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_causal_forecast.py:4854:foundry"
       },
       {
         "admission_allowed": false,
         "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_legal_mandate_search.py",
         "import_root": "lex",
-        "line": 1609,
+        "line": 1612,
         "quarantine_check_result": "not_blocked",
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.lex",
-        "touchpoint_id": "src/polisyos/runtime/quality/layer3_legal_mandate_search.py:1609:lex"
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_legal_mandate_search.py:1612:lex"
       },
       {
         "admission_allowed": false,
         "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_legal_mandate_search.py",
         "import_root": "lex",
-        "line": 1924,
+        "line": 1927,
         "quarantine_check_result": "not_blocked",
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.lex",
-        "touchpoint_id": "src/polisyos/runtime/quality/layer3_legal_mandate_search.py:1924:lex"
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_legal_mandate_search.py:1927:lex"
       },
       {
         "admission_allowed": false,
         "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_legal_mandate_search.py",
         "import_root": "lex",
-        "line": 3031,
+        "line": 3034,
         "quarantine_check_result": "not_blocked",
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.lex",
-        "touchpoint_id": "src/polisyos/runtime/quality/layer3_legal_mandate_search.py:3031:lex"
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_legal_mandate_search.py:3034:lex"
+      },
+      {
+        "admission_allowed": false,
+        "existing_source_truth_adapter_path_ref": null,
+        "file": "src/polisyos/runtime/quality/layer3_substrate_grounding.py",
+        "import_root": "data_forge",
+        "line": 24,
+        "quarantine_check_result": "not_blocked",
+        "registration_status": "registered_pre_admission",
+        "source_module": "polisyos.data_forge",
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_substrate_grounding.py:24:data_forge"
       },
       {
         "admission_allowed": false,
         "existing_source_truth_adapter_path_ref": null,
         "file": "src/polisyos/runtime/quality/layer3_substrate_grounding.py",
         "import_root": "fabric",
-        "line": 20,
+        "line": 25,
         "quarantine_check_result": "not_blocked",
         "registration_status": "registered_pre_admission",
         "source_module": "polisyos.fabric",
-        "touchpoint_id": "src/polisyos/runtime/quality/layer3_substrate_grounding.py:20:fabric"
+        "touchpoint_id": "src/polisyos/runtime/quality/layer3_substrate_grounding.py:25:fabric"
       },
       {
         "admission_allowed": false,
@@ -410,7 +447,7 @@
     "scan_mode": "ast_top_level_and_local_imports",
     "summary": {
       "runtime_quality_touchpoint_admission_allowed_without_contract_count": 0,
-      "runtime_quality_touchpoint_count": 35,
+      "runtime_quality_touchpoint_count": 37,
       "runtime_quality_touchpoints_without_registration": 0
     }
   },
@@ -577,6 +614,4596 @@
         ],
         "quarantine_ref": null,
         "rationale": "Only the simple_v1 binary projection path is triage-required; graded Lex authority remains the stronger seam."
+      },
+      {
+        "adapter_admissibility": "not_admitted_pre_adapter",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "berl",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://src/polisyos/berl/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Inventory row is visible to G0 but is not adapter-admitted by pre-adapter triage."
+      },
+      {
+        "adapter_admissibility": "not_admitted_pre_adapter",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "calibration",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://src/polisyos/calibration/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Inventory row is visible to G0 but is not adapter-admitted by pre-adapter triage."
+      },
+      {
+        "adapter_admissibility": "not_admitted_pre_adapter",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "common",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://src/polisyos/common/README.md"
+        ],
+        "missing_capability_labels": [
+          "surface_out_of_scope"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Inventory row is visible to G0 but is not adapter-admitted by pre-adapter triage."
+      },
+      {
+        "adapter_admissibility": "not_admitted_pre_adapter",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "core",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://src/polisyos/core/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Inventory row is visible to G0 but is not adapter-admitted by pre-adapter triage."
+      },
+      {
+        "adapter_admissibility": "not_admitted_pre_adapter",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "corpus",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://src/polisyos/corpus/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Inventory row is visible to G0 but is not adapter-admitted by pre-adapter triage."
+      },
+      {
+        "adapter_admissibility": "not_admitted_pre_adapter",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "data_forge",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://src/polisyos/data_forge/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Inventory row is visible to G0 but is not adapter-admitted by pre-adapter triage."
+      },
+      {
+        "adapter_admissibility": "not_admitted_pre_adapter",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "data_requirement",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://src/polisyos/data_requirement/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Inventory row is visible to G0 but is not adapter-admitted by pre-adapter triage."
+      },
+      {
+        "adapter_admissibility": "not_admitted_pre_adapter",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ddm",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://src/polisyos/ddm/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Inventory row is visible to G0 but is not adapter-admitted by pre-adapter triage."
+      },
+      {
+        "adapter_admissibility": "not_admitted_pre_adapter",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "evidence",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://src/polisyos/evidence/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Inventory row is visible to G0 but is not adapter-admitted by pre-adapter triage."
+      },
+      {
+        "adapter_admissibility": "not_admitted_pre_adapter",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "fabric",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://src/polisyos/fabric/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Inventory row is visible to G0 but is not adapter-admitted by pre-adapter triage."
+      },
+      {
+        "adapter_admissibility": "not_admitted_pre_adapter",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "foundry",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://src/polisyos/foundry/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Inventory row is visible to G0 but is not adapter-admitted by pre-adapter triage."
+      },
+      {
+        "adapter_admissibility": "not_admitted_pre_adapter",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ir",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://src/polisyos/ir/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Inventory row is visible to G0 but is not adapter-admitted by pre-adapter triage."
+      },
+      {
+        "adapter_admissibility": "not_admitted_pre_adapter",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "legal_requirement",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://src/polisyos/legal_requirement/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Inventory row is visible to G0 but is not adapter-admitted by pre-adapter triage."
+      },
+      {
+        "adapter_admissibility": "not_admitted_pre_adapter",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "lex",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://src/polisyos/lex/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Inventory row is visible to G0 but is not adapter-admitted by pre-adapter triage."
+      },
+      {
+        "adapter_admissibility": "not_admitted_pre_adapter",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "method_requirement",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://src/polisyos/method_requirement/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Inventory row is visible to G0 but is not adapter-admitted by pre-adapter triage."
+      },
+      {
+        "adapter_admissibility": "not_admitted_pre_adapter",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "obligation_graph",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://src/polisyos/obligation_graph/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Inventory row is visible to G0 but is not adapter-admitted by pre-adapter triage."
+      },
+      {
+        "adapter_admissibility": "not_admitted_pre_adapter",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "obligation_rules",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://src/polisyos/obligation_rules/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Inventory row is visible to G0 but is not adapter-admitted by pre-adapter triage."
+      },
+      {
+        "adapter_admissibility": "not_admitted_pre_adapter",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "participation_requirement",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://src/polisyos/participation_requirement/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Inventory row is visible to G0 but is not adapter-admitted by pre-adapter triage."
+      },
+      {
+        "adapter_admissibility": "not_admitted_pre_adapter",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "pdc",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://src/polisyos/pdc/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Inventory row is visible to G0 but is not adapter-admitted by pre-adapter triage."
+      },
+      {
+        "adapter_admissibility": "not_admitted_pre_adapter",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "policy_grammar",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://src/polisyos/policy_grammar/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Inventory row is visible to G0 but is not adapter-admitted by pre-adapter triage."
+      },
+      {
+        "adapter_admissibility": "not_admitted_pre_adapter",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "runtime",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://src/polisyos/runtime/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Inventory row is visible to G0 but is not adapter-admitted by pre-adapter triage."
+      },
+      {
+        "adapter_admissibility": "not_admitted_pre_adapter",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "schemas",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://src/polisyos/schemas"
+        ],
+        "missing_capability_labels": [
+          "surface_out_of_scope"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Inventory row is visible to G0 but is not adapter-admitted by pre-adapter triage."
+      },
+      {
+        "adapter_admissibility": "not_admitted_pre_adapter",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "scholar",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://src/polisyos/scholar/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Inventory row is visible to G0 but is not adapter-admitted by pre-adapter triage."
+      },
+      {
+        "adapter_admissibility": "not_admitted_pre_adapter",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "scholar_requirement",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://src/polisyos/scholar_requirement/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Inventory row is visible to G0 but is not adapter-admitted by pre-adapter triage."
+      },
+      {
+        "adapter_admissibility": "not_admitted_pre_adapter",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "scientist",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://src/polisyos/scientist/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Inventory row is visible to G0 but is not adapter-admitted by pre-adapter triage."
+      },
+      {
+        "adapter_admissibility": "not_admitted_pre_adapter",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "production-data",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data"
+        ],
+        "missing_capability_labels": [
+          "artifact_missing"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Inventory row is visible to G0 but is not adapter-admitted by pre-adapter triage."
+      },
+      {
+        "adapter_admissibility": "not_admitted_pre_adapter",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tools-ops-runners-ukraine-data",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tools/ops_runners/ukraine_data"
+        ],
+        "missing_capability_labels": [
+          "artifact_missing"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Inventory row is visible to G0 but is not adapter-admitted by pre-adapter triage."
+      },
+      {
+        "adapter_admissibility": "not_admitted_pre_adapter",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-universal-corpus-cases",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/universal-corpus/cases"
+        ],
+        "missing_capability_labels": [
+          "artifact_missing"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Inventory row is visible to G0 but is not adapter-admitted by pre-adapter triage."
+      },
+      {
+        "adapter_admissibility": "not_admitted_pre_adapter",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-universal-corpus-producer-stubs",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/universal-corpus/producer_stubs"
+        ],
+        "missing_capability_labels": [
+          "artifact_missing"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Inventory row is visible to G0 but is not adapter-admitted by pre-adapter triage."
+      },
+      {
+        "adapter_admissibility": "not_admitted_pre_adapter",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery"
+        ],
+        "missing_capability_labels": [
+          "artifact_missing"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Inventory row is visible to G0 but is not adapter-admitted by pre-adapter triage."
+      },
+      {
+        "adapter_admissibility": "not_admitted_pre_adapter",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "docs-research-universal-policy-design-outcome-corpus",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://docs/research/universal-policy-design/outcome-corpus"
+        ],
+        "missing_capability_labels": [
+          "artifact_missing"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Inventory row is visible to G0 but is not adapter-admitted by pre-adapter triage."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "production-data-curated",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/manifest.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "production-data-datasets",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/manifest.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "production-data-lex",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/manifest.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "production-data-academic",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/manifest.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "production-data-ukraine-simulation",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/manifest.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-readme-txt",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-heavy-graph-addon-budget-graph-sparse-npz",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-heavy-graph-addon-distress-graph-sparse-npz",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-heavy-graph-addon-procurement-graph-sparse-npz",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-heavy-graph-addon-public-service-graph-sparse-npz",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-heavy-graph-addon-trade-graph-sparse-npz",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-inventory-txt",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-bundles-calibration-bundle-v1-calibration-bundle-manifest-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-bundles-calibration-bundle-v1-calibration-run-manifest-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-bundles-calibration-bundle-v1-holdout-scores-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-bundles-calibration-bundle-v1-observation-panel-annual-parquet",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-bundles-calibration-bundle-v1-observation-panel-monthly-parquet",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-bundles-embedding-bundle-v1-agent-embedding-32d-npz",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-bundles-embedding-bundle-v1-cell-prototype-embeddings-npz",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-bundles-embedding-bundle-v1-graph-compression-bundle-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-bundles-governance-report-v1-calibration-leaderboard-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-bundles-governance-report-v1-governance-report-v1-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-bundles-governance-report-v1-shock-scenario-scores-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-bundles-intervention-bundle-v1-intervention-knob-dictionary-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-bundles-intervention-bundle-v1-lex-intervention-map-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-bundles-intervention-bundle-v1-policy-scenario-templates-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-bundles-intervention-bundle-v1-provision-to-program-crosswalk-parquet",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-bundles-intervention-bundle-v1-temporal-intervention-sequences-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-bundles-method-contract-bundle-v1-backtest-plan-bundle-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-bundles-method-contract-bundle-v1-bounds-estimation-bundle-v1-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-bundles-method-contract-bundle-v1-network-causal-contract-bundle-v1-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-bundles-method-contract-bundle-v1-network-contract-bundle-v1-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-bundles-method-contract-bundle-v1-observation-to-contract-manifest-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-bundles-runtime-bundle-v1-agent-registry-runtime-parquet",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-bundles-runtime-bundle-v1-cell-registry-region-sector-parquet",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-bundles-runtime-bundle-v1-geo-index-runtime-parquet",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-bundles-runtime-bundle-v1-runtime-bundle-manifest-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-bundles-runtime-bundle-v1-slot-family-manifest-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-manifests-build-run-d0-p0-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-manifests-build-run-d1-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-manifests-build-run-d2-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-manifests-build-run-d3-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-manifests-build-run-d4-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-manifests-build-run-d5-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-simulation-production-bundle-manifests-release-manifest-v1-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/ukraine_agent_simulation_baseline_20260410/FINAL_ARTIFACTS_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "academic-runtime-academic-ac-work-embeddings-npz",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "academic-runtime-academic-ac-work-index-hnsw",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "academic-runtime-academic-benchmark-report-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "academic-runtime-academic-benchmark-suite-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "academic-runtime-academic-graph-scholar-knowledge-duckdb",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "academic-runtime-academic-manifests-benchmark-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "academic-runtime-academic-manifests-embed-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "academic-runtime-academic-manifests-graph-index-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "academic-runtime-academic-manifests-publish-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "academic-runtime-academic-manifests-qc-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "academic-runtime-academic-manifests-transport-score-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "academic-runtime-academic-publish-academic-pipeline-readiness-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "academic-runtime-academic-publish-manifest-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "academic-runtime-academic-qc-report-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "academic-runtime-academic-runtime-demand-backlog-jsonl",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "academic-runtime-academic-transport-scores-jsonl",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "academic-runtime-meta-assembly-manifest-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "academic-runtime-meta-promotion-report-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "academic-runtime-meta-runtime-evidence-sources-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "academic-runtime-meta-source-lineage-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/SPLIT_MANIFEST.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-ops-runner-root",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tools/ops_runners/ukraine_data/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-universal-corpus-cases-tests-fixtures-universal-corpus-cases-ua-msme-affordable-loans-2022-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/universal-corpus/cases"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-universal-corpus-cases-tests-fixtures-universal-corpus-cases-w11a-berlin-rent-cap-2020-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/universal-corpus/cases"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-universal-corpus-cases-tests-fixtures-universal-corpus-cases-w11a-boston-operation-ceasefire-1996-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/universal-corpus/cases"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-universal-corpus-cases-tests-fixtures-universal-corpus-cases-w11a-eu-temporary-protection-ukraine-2022-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/universal-corpus/cases"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-universal-corpus-cases-tests-fixtures-universal-corpus-cases-w11a-ghana-free-shs-2017-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/universal-corpus/cases"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-universal-corpus-cases-tests-fixtures-universal-corpus-cases-w11a-india-aadhaar-dbt-2016-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/universal-corpus/cases"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-universal-corpus-cases-tests-fixtures-universal-corpus-cases-w11a-mexico-ssb-tax-2014-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/universal-corpus/cases"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-universal-corpus-cases-tests-fixtures-universal-corpus-cases-w11a-netherlands-room-for-river-2007-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/universal-corpus/cases"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-universal-corpus-cases-tests-fixtures-universal-corpus-cases-w11a-pakistan-ehsaas-cash-2020-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/universal-corpus/cases"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-universal-corpus-cases-tests-fixtures-universal-corpus-cases-w11a-uk-levelling-up-fund-2021-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/universal-corpus/cases"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-universal-corpus-cases-tests-fixtures-universal-corpus-cases-w11a-uk-mtd-vat-2019-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/universal-corpus/cases"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-universal-corpus-cases-tests-fixtures-universal-corpus-cases-w11a-uk-work-programme-2011-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/universal-corpus/cases"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-universal-corpus-cases-tests-fixtures-universal-corpus-cases-w11a-us-ppp-2020-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/universal-corpus/cases"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-universal-corpus-producer-stubs-tests-fixtures-universal-corpus-producer-stubs-ua-msme-affordable-loans-2022-producer-stubs-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/universal-corpus/producer_stubs"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-universal-corpus-producer-stubs-tests-fixtures-universal-corpus-producer-stubs-w11a-berlin-rent-cap-2020-producer-stubs-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/universal-corpus/producer_stubs"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-universal-corpus-producer-stubs-tests-fixtures-universal-corpus-producer-stubs-w11a-boston-operation-ceasefire-1996-producer-stubs-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/universal-corpus/producer_stubs"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-universal-corpus-producer-stubs-tests-fixtures-universal-corpus-producer-stubs-w11a-eu-temporary-protection-ukraine-2022-producer-stubs-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/universal-corpus/producer_stubs"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-universal-corpus-producer-stubs-tests-fixtures-universal-corpus-producer-stubs-w11a-ghana-free-shs-2017-producer-stubs-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/universal-corpus/producer_stubs"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-universal-corpus-producer-stubs-tests-fixtures-universal-corpus-producer-stubs-w11a-india-aadhaar-dbt-2016-producer-stubs-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/universal-corpus/producer_stubs"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-universal-corpus-producer-stubs-tests-fixtures-universal-corpus-producer-stubs-w11a-mexico-ssb-tax-2014-producer-stubs-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/universal-corpus/producer_stubs"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-universal-corpus-producer-stubs-tests-fixtures-universal-corpus-producer-stubs-w11a-netherlands-room-for-river-2007-producer-stubs-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/universal-corpus/producer_stubs"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-universal-corpus-producer-stubs-tests-fixtures-universal-corpus-producer-stubs-w11a-pakistan-ehsaas-cash-2020-producer-stubs-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/universal-corpus/producer_stubs"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-universal-corpus-producer-stubs-tests-fixtures-universal-corpus-producer-stubs-w11a-uk-levelling-up-fund-2021-producer-stubs-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/universal-corpus/producer_stubs"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-universal-corpus-producer-stubs-tests-fixtures-universal-corpus-producer-stubs-w11a-uk-mtd-vat-2019-producer-stubs-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/universal-corpus/producer_stubs"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-universal-corpus-producer-stubs-tests-fixtures-universal-corpus-producer-stubs-w11a-uk-work-programme-2011-producer-stubs-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/universal-corpus/producer_stubs"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-universal-corpus-producer-stubs-tests-fixtures-universal-corpus-producer-stubs-w11a-us-ppp-2020-producer-stubs-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/universal-corpus/producer_stubs"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery-tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery-a21c33420f04e61b",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery-tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery-356224ea09b0d29d",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery-tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery-ad6c5fdfa3dd7c6e",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery-tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery-ef37d8481854cd6e",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery-tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery-7a7cd91eeab39372",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery-tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery-398c805ed131728d",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery-tests-fixtures-policy-design-case-semantic-evaluation-packs-hidden-layer2-sealed-universality-battery-manifest-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/layer2-sealed-universality-battery/manifest.json"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-readme-md",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://docs/research/universal-policy-design/outcome-corpus/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-adjudications-readme-md",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://docs/research/universal-policy-design/outcome-corpus/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-adjudications-housing-rent-stabilization-001-adjudication-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://docs/research/universal-policy-design/outcome-corpus/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-adjudications-public-health-outreach-001-adjudication-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://docs/research/universal-policy-design/outcome-corpus/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-adjudications-ua-msme-affordable-loans-2022-adjudication-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://docs/research/universal-policy-design/outcome-corpus/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-adjudications-w11a-berlin-rent-cap-2020-adjudication-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://docs/research/universal-policy-design/outcome-corpus/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-adjudications-w11a-boston-operation-ceasefire-1996-adjudication-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://docs/research/universal-policy-design/outcome-corpus/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-adjudications-w11a-eu-temporary-protection-ukraine-2022-adjudication-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://docs/research/universal-policy-design/outcome-corpus/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-adjudications-w11a-ghana-free-shs-2017-adjudication-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://docs/research/universal-policy-design/outcome-corpus/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-adjudications-w11a-india-aadhaar-dbt-2016-adjudication-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://docs/research/universal-policy-design/outcome-corpus/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-adjudications-w11a-mexico-ssb-tax-2014-adjudication-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://docs/research/universal-policy-design/outcome-corpus/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-adjudications-w11a-netherlands-room-for-river-2007-adjudication-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://docs/research/universal-policy-design/outcome-corpus/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-adjudications-w11a-pakistan-ehsaas-cash-2020-adjudication-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://docs/research/universal-policy-design/outcome-corpus/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-adjudications-w11a-uk-levelling-up-fund-2021-adjudication-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://docs/research/universal-policy-design/outcome-corpus/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-adjudications-w11a-uk-mtd-vat-2019-adjudication-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://docs/research/universal-policy-design/outcome-corpus/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-adjudications-w11a-uk-work-programme-2011-adjudication-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://docs/research/universal-policy-design/outcome-corpus/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-adjudications-w11a-us-ppp-2020-adjudication-json",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://docs/research/universal-policy-design/outcome-corpus/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-berlin-rent-cap-2020-housing-md",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://docs/research/universal-policy-design/outcome-corpus/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-boston-operation-ceasefire-1996-public-safety-md",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://docs/research/universal-policy-design/outcome-corpus/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-eu-temporary-protection-ukraine-2022-migration-md",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://docs/research/universal-policy-design/outcome-corpus/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-ghana-free-shs-2017-education-access-md",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://docs/research/universal-policy-design/outcome-corpus/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-india-aadhaar-dbt-2016-digital-public-service-md",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://docs/research/universal-policy-design/outcome-corpus/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-mexico-ssb-tax-2014-public-health-md",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://docs/research/universal-policy-design/outcome-corpus/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-netherlands-room-for-the-river-2007-climate-adaptation-md",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://docs/research/universal-policy-design/outcome-corpus/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-pakistan-ehsaas-emergency-cash-2020-social-protection-md",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://docs/research/universal-policy-design/outcome-corpus/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-ua-msme-affordable-loans-2022-md",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://docs/research/universal-policy-design/outcome-corpus/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-uk-levelling-up-fund-2021-infrastructure-md",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://docs/research/universal-policy-design/outcome-corpus/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-uk-making-tax-digital-vat-2019-tax-enforcement-md",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://docs/research/universal-policy-design/outcome-corpus/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-uk-work-programme-2011-labour-activation-md",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://docs/research/universal-policy-design/outcome-corpus/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "data_asset_port_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "docs-research-universal-policy-design-outcome-corpus-docs-research-universal-policy-design-outcome-corpus-us-ppp-2020-msme-emergency-credit-md",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "repo://docs/research/universal-policy-design/outcome-corpus/README.md"
+        ],
+        "missing_capability_labels": [
+          "implemented_but_not_orchestrated"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Data asset is inventoried for lineage/rights/freshness but is not a capability until a source-contract adapter consumes it."
+      },
+      {
+        "adapter_admissibility": "producer_contract_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-ops-build-edr-identity-seed-candidates",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "tools/ops_runners/ukraine_data/build_edr_identity_seed_candidates.py"
+        ],
+        "missing_capability_labels": [
+          "producer_missing"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Processing transform is inventoried as a replayable producer candidate; G0 triage does not admit it as source authority."
+      },
+      {
+        "adapter_admissibility": "producer_contract_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-ops-build-p1-source-bindings",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "tools/ops_runners/ukraine_data/build_p1_source_bindings.py"
+        ],
+        "missing_capability_labels": [
+          "producer_missing"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Processing transform is inventoried as a replayable producer candidate; G0 triage does not admit it as source authority."
+      },
+      {
+        "adapter_admissibility": "producer_contract_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-ops-build-spending-contracts-procurement-proxy",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "tools/ops_runners/ukraine_data/build_spending_contracts_procurement_proxy.py"
+        ],
+        "missing_capability_labels": [
+          "producer_missing"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Processing transform is inventoried as a replayable producer candidate; G0 triage does not admit it as source authority."
+      },
+      {
+        "adapter_admissibility": "producer_contract_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-ops-fetch-p0-sources",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "tools/ops_runners/ukraine_data/fetch_p0_sources.py"
+        ],
+        "missing_capability_labels": [
+          "producer_missing"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Processing transform is inventoried as a replayable producer candidate; G0 triage does not admit it as source authority."
+      },
+      {
+        "adapter_admissibility": "producer_contract_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-ops-fetch-p1-p2-public-sources",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "tools/ops_runners/ukraine_data/fetch_p1_p2_public_sources.py"
+        ],
+        "missing_capability_labels": [
+          "producer_missing"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Processing transform is inventoried as a replayable producer candidate; G0 triage does not admit it as source authority."
+      },
+      {
+        "adapter_admissibility": "producer_contract_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-ops-harvest-prozorro-contract-details",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "tools/ops_runners/ukraine_data/harvest_prozorro_contract_details.py"
+        ],
+        "missing_capability_labels": [
+          "producer_missing"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Processing transform is inventoried as a replayable producer candidate; G0 triage does not admit it as source authority."
+      },
+      {
+        "adapter_admissibility": "producer_contract_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-ops-harvest-prozorro-contract-feed",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "tools/ops_runners/ukraine_data/harvest_prozorro_contract_feed.py"
+        ],
+        "missing_capability_labels": [
+          "producer_missing"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Processing transform is inventoried as a replayable producer candidate; G0 triage does not admit it as source authority."
+      },
+      {
+        "adapter_admissibility": "producer_contract_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-ops-harvest-spending-contracts-by-disposer",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "tools/ops_runners/ukraine_data/harvest_spending_contracts_by_disposer.py"
+        ],
+        "missing_capability_labels": [
+          "producer_missing"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Processing transform is inventoried as a replayable producer candidate; G0 triage does not admit it as source authority."
+      },
+      {
+        "adapter_admissibility": "producer_contract_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-ops-harvest-spending-daily",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "tools/ops_runners/ukraine_data/harvest_spending_daily.py"
+        ],
+        "missing_capability_labels": [
+          "producer_missing"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Processing transform is inventoried as a replayable producer candidate; G0 triage does not admit it as source authority."
+      },
+      {
+        "adapter_admissibility": "producer_contract_required",
+        "authority_boundary": {
+          "authoritative_for": [
+            "layer3_g0_pre_adapter_triage"
+          ],
+          "may_not_use_for": [
+            "adapter_admission",
+            "publication_authority"
+          ],
+          "posture": "shadow",
+          "rule_version_refs": [
+            "policyos.layer3.g0.discovery_search_free_growth.v2"
+          ],
+          "source_authority": "deterministic_producer"
+        },
+        "capability_id": "ukraine-ops-pre-shard-lex-corpus",
+        "disposition": "surface_out_of_scope",
+        "evidence_refs": [
+          "tools/ops_runners/ukraine_data/pre_shard_lex_corpus.py"
+        ],
+        "missing_capability_labels": [
+          "producer_missing"
+        ],
+        "quarantine_ref": null,
+        "rationale": "Processing transform is inventoried as a replayable producer candidate; G0 triage does not admit it as source authority."
       }
     ]
   }

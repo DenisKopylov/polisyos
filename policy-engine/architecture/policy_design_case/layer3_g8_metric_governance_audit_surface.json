@@ -1,0 +1,60 @@
+{
+  "authoritative_for": [
+    "layer3_g8_metric_governance_audit",
+    "layer3_g8_d44_rebasing_integrity_reading",
+    "layer3_g8_open_question_answer_reading"
+  ],
+  "d44_reannotation_coverage_status": "pass",
+  "d44_rebasing_receipt_status": "pass_no_rebase_required",
+  "d44_rebasing_trigger_status": "pass_no_rebase_due",
+  "domain_vs_search_ceiling_status": "search_ceiling_repair_required",
+  "issue_codes": [
+    "layer3_g8_search_recall_miss_reported_as_domain_ceiling",
+    "layer3_g8_demand_numeric_inertia_hidden_as_pass",
+    "layer3_g8_blocker_specific_search_diagnostic_missing"
+  ],
+  "may_not_use_for": [
+    "production_authority",
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "public_recommendation",
+    "policy_recommendation",
+    "legal_advice",
+    "claim_authority",
+    "obligation_authority",
+    "causal_effect_authority",
+    "proof_authority",
+    "legal_authority",
+    "recommendation_authority",
+    "universal_claim_authority",
+    "universal_claim_authority_without_s14",
+    "s14_universality_claim_without_s14_gate",
+    "domain_ceiling_authority_without_gate",
+    "metric_optimization_authority",
+    "useful_design_rate_optimization",
+    "threshold_lowering",
+    "s14_battery_training",
+    "hidden_fixture_access",
+    "g7_region_widening_authority"
+  ],
+  "metric_gaming_firewall_status": "pass",
+  "metric_registry_ref": "repo://architecture/policy_design_case/layer3_g8_health_metric_registry.json",
+  "metric_trend_report_status": "pass",
+  "normalized_metric_signals_ref": "repo://architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+  "open_question_answer_status": "blocked",
+  "rule_version": "policyos.layer3.g8.health_metric_governance.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g8_health_metric_governance.v1",
+  "sealed_battery_integrity_status": "pass",
+  "status": "blocked",
+  "surface_audiences": [
+    "EXPERT",
+    "MACHINE"
+  ],
+  "surface_id": "layer3_g8_health_metric_governance_surface",
+  "warning_lifecycle_status": "pass"
+}

@@ -1,0 +1,51 @@
+{
+  "authoritative_for": [
+    "layer3_g7_region_widening_audit",
+    "layer3_g7_marginal_grounding_cost_reading",
+    "layer3_g7_s14_grounded_breadth_feed"
+  ],
+  "issue_codes": [],
+  "ledger_id": "layer3-g7://region-semantic-loss-ledger/ua-msme-adjacent",
+  "may_not_use_for": [
+    "production_authority",
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "public_recommendation",
+    "policy_recommendation",
+    "legal_advice",
+    "claim_authority",
+    "obligation_authority",
+    "causal_effect_authority",
+    "proof_authority",
+    "legal_authority",
+    "recommendation_authority",
+    "universal_claim_authority",
+    "universal_claim_authority_without_s14",
+    "s14_universality_claim_without_s14_gate",
+    "g8_metric_governance_authority"
+  ],
+  "rows": [
+    {
+      "authority_boundary_weakened": false,
+      "case_caveats_disappeared": false,
+      "case_id": "ua-msme-affordable-loans-2022",
+      "certified_delta_ref_dropped": false,
+      "g6_candidate_text_as_evidence": false,
+      "issue_codes": [],
+      "legal_or_mandate_status_dropped": false,
+      "lineage_collapsed": false,
+      "semantic_loss_status": "pass",
+      "source_truth_lost": false,
+      "time_roles_merged": false
+    }
+  ],
+  "rule_version": "policyos.layer3.g7.region_widening.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g7_region_widening.v1",
+  "semantic_loss_blocker_count": 0,
+  "semantic_loss_status": "pass"
+}

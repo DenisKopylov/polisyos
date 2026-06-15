@@ -1,0 +1,351 @@
+{
+  "acquisition_strategies": [
+    {
+      "authority_class": "government_official_request",
+      "contact_path": "ops://team-data-acquisition#acquire-from-nbu-registry",
+      "estimated_cost": "medium_dollar_amount",
+      "estimated_time": "45_days",
+      "owner": [
+        "team-data-acquisition",
+        "team-legal-counsel"
+      ],
+      "prerequisites": [
+        "NBU registry data-sharing request",
+        "legal_use_scope_review",
+        "producer_handshake"
+      ],
+      "requires_construct_validity_review": true,
+      "resulting_authority_envelope": {
+        "governed_pilot": "admissible_after_legal_review",
+        "production": "admissible_after_construct_validity_review",
+        "research": "admissible"
+      },
+      "strategy_id": "acquisition:acquire_from_nbu_registry",
+      "target_construct": "credit_program_enrollment"
+    },
+    {
+      "authority_class": "government_administrative_proxy",
+      "contact_path": "ops://team-data-acquisition#tax-relief-proxy",
+      "estimated_cost": "low_dollar_amount",
+      "estimated_time": "21_days",
+      "owner": [
+        "team-data-acquisition",
+        "team-legal-counsel"
+      ],
+      "prerequisites": [
+        "tax_relief_records_source_contract",
+        "proxy_construct_validity_protocol",
+        "legal_use_scope_review"
+      ],
+      "requires_construct_validity_review": true,
+      "resulting_authority_envelope": {
+        "governed_pilot": "admissible_with_proxy_limitation_requires_review",
+        "production": "blocked_until_construct_validity_review",
+        "research": "admissible_with_proxy_limitation"
+      },
+      "strategy_id": "acquisition:derive_proxy_from_tax_relief_records",
+      "target_construct": "credit_program_enrollment"
+    },
+    {
+      "authority_class": "simulation_only_modeling_support",
+      "contact_path": "ops://team-foundry-owners#dynamic-treatment-simulation",
+      "estimated_cost": "low_dollar_amount",
+      "estimated_time": "14_days",
+      "owner": [
+        "team-foundry-owners"
+      ],
+      "prerequisites": [
+        "dynamic_treatment_model_contract",
+        "simulation_authority_boundary_notice",
+        "reviewer_scope_admission"
+      ],
+      "requires_construct_validity_review": true,
+      "resulting_authority_envelope": {
+        "governed_pilot": "context_only_with_reviewer_admission",
+        "production": "blocked_simulation_only",
+        "research": "advisory_simulation_only"
+      },
+      "strategy_id": "acquisition:simulation_only_dynamic_treatment",
+      "target_construct": "credit_program_enrollment"
+    }
+  ],
+  "capabilities": [
+    {
+      "authority_envelope": {
+        "authoritative_for": [
+          "governed_pilot_data_evidence"
+        ],
+        "authority_basis": [
+          "L4 Ukraine panels",
+          "L5 calibration registries"
+        ],
+        "governed_pilot": "admissible_with_proxy_limitation",
+        "may_not_use_for": [
+          "production_closeout_without_construct_validity_review"
+        ],
+        "production": "blocked_construct_validity_below_floor",
+        "research": "admissible"
+      },
+      "capability_id": "capability:firm_survival_signal__ua__wartime_2022",
+      "concept_spine_refs": [
+        "concept:firm_survival",
+        "concept:registered_firm"
+      ],
+      "construct": "firm_survival",
+      "evidence_mode": "derived_administrative_with_proxy_validation",
+      "freshness_envelope": {
+        "freshness_class": "fresh_for_governed_pilot",
+        "source_release_ref": "ukraine_server_support_20260410"
+      },
+      "identification_mode": "proxy_identified",
+      "limitations": [
+        "Excludes informal-sector firms not represented in the EDR registry.",
+        "Survival event is derived from distress signals, not direct firm-closure registry."
+      ],
+      "lineage_refs": [
+        "source_snapshot:ukraine_server_support_20260410",
+        "calibration_run:d3"
+      ],
+      "method_contract_targets": [
+        "foundry.ml.survival_data.v1"
+      ],
+      "modality": [
+        "fabric_data",
+        "derived"
+      ],
+      "proxy_validation": {
+        "construct_validity_status": "proxy_validated",
+        "validated_by": [
+          "survival_hazard_estimates.event"
+        ]
+      },
+      "quality_score": {
+        "breakdown": {
+          "construct_validity": 0.7,
+          "freshness": 0.8,
+          "schema_profile_present": 1.0,
+          "variable_alignment_confidence": 0.85
+        },
+        "composite": 0.73
+      },
+      "rights_envelope": {
+        "access_class": "government_administrative",
+        "claim_evidence_use_allowed": true,
+        "public_export_allowed": "aggregate_only",
+        "restrictions": [
+          "no_row_level_public_export"
+        ]
+      },
+      "scope": {
+        "entity_scope": "firm",
+        "geography": "UA",
+        "population": "registered_firms",
+        "schema_regime": "ukraine_schema_v2",
+        "time_start": "2022-02-01"
+      },
+      "source_assets": [
+        {
+          "asset_type": "parquet",
+          "fields": [
+            "revenue",
+            "assets",
+            "employees"
+          ],
+          "ref": "parquet:dps_financials/firm_fundamentals_annual",
+          "role": "firm_fundamentals",
+          "source_layer": "L4"
+        },
+        {
+          "asset_type": "parquet",
+          "fields": [
+            "duration",
+            "event",
+            "risk_signal"
+          ],
+          "ref": "parquet:calibration/d3/survival_hazard_estimates",
+          "role": "proxy_validation",
+          "source_layer": "L5"
+        }
+      ],
+      "trust_tier": "administrative_noisy"
+    },
+    {
+      "authority_envelope": {
+        "authoritative_for": [
+          "governed_pilot_context_data"
+        ],
+        "governed_pilot": "admissible_with_proxy_limitation",
+        "may_not_use_for": [
+          "production_claim_evidence"
+        ],
+        "production": "blocked_sample_size_below_floor",
+        "research": "admissible_with_proxy_limitation"
+      },
+      "capability_id": "capability:regional_displacement_pressure__ua__transport_proxy",
+      "concept_spine_refs": [
+        "concept:regional_displacement_pressure"
+      ],
+      "construct": "regional_displacement_pressure",
+      "evidence_mode": "proxy_observational",
+      "freshness_envelope": {
+        "freshness_class": "fresh_for_governed_pilot"
+      },
+      "identification_mode": "proxy_identified",
+      "limitations": [
+        "Sparse sample and indirect transport-pressure proxy.",
+        "Does not directly observe household displacement status."
+      ],
+      "lineage_refs": [
+        "source_snapshot:ukraine_server_support_20260410"
+      ],
+      "modality": [
+        "fabric_data"
+      ],
+      "proxy_validation": {
+        "construct_validity_status": "proxy_validated"
+      },
+      "quality_score": {
+        "breakdown": {
+          "construct_validity": 0.65,
+          "sample_sparsity": 0.35
+        },
+        "composite": 0.62
+      },
+      "rights_envelope": {
+        "access_class": "government_administrative"
+      },
+      "scope": {
+        "entity_scope": "region",
+        "geography": "UA",
+        "population": "displacement_affected_regions",
+        "schema_regime": "ukraine_schema_v2",
+        "spatial_granularity": "region",
+        "time_start": "2022-02-01"
+      },
+      "source_assets": [
+        {
+          "asset_type": "parquet",
+          "fields": [
+            "region_code",
+            "mobility_pressure"
+          ],
+          "metadata": {
+            "sample_size": 56
+          },
+          "ref": "parquet:logistics_mobility_displacement/transport_pressure_monthly",
+          "role": "mobility_pressure_proxy",
+          "row_count": 56,
+          "source_layer": "L4"
+        }
+      ],
+      "trust_tier": "derived_proxy"
+    },
+    {
+      "authority_envelope": {
+        "authoritative_for": [
+          "scholarly_support",
+          "method_support"
+        ],
+        "governed_pilot": "admissible_as_scholarly_support",
+        "may_not_use_for": [
+          "direct_data_observation"
+        ],
+        "production": "blocked_for_direct_outcome_evidence",
+        "research": "admissible"
+      },
+      "capability_id": "capability:firm_survival_scholar_credit_access",
+      "concept_spine_refs": [
+        "concept:firm_survival",
+        "concept:credit_access"
+      ],
+      "construct": "firm_survival",
+      "evidence_mode": "scholarly_causal_support",
+      "freshness_envelope": {
+        "freshness_class": "scholar_release_snapshot"
+      },
+      "identification_mode": "partially_identified",
+      "limitations": [
+        "Scholar support cannot satisfy direct runtime outcome observation."
+      ],
+      "lineage_refs": [
+        "scholar_kg:policyos_academic_runtime_slim_20260411T112032Z"
+      ],
+      "modality": [
+        "scholar_claim"
+      ],
+      "quality_score": {
+        "breakdown": {
+          "construct_validity": 0.78
+        },
+        "composite": 0.78
+      },
+      "rights_envelope": {
+        "access_class": "academic_metadata"
+      },
+      "scope": {
+        "entity_scope": "construct_pair",
+        "geography": "multi_context"
+      },
+      "source_assets": [
+        {
+          "asset_type": "duckdb_table_row",
+          "ref": "duckdb:scholar_knowledge.duckdb:ac_skg_edges:credit_access_firm_survival",
+          "role": "scholarly_causal_edge",
+          "source_layer": "L2"
+        }
+      ],
+      "trust_tier": "administrative_noisy"
+    }
+  ],
+  "capability_index_ref": "capability-index:policy-evidence-phase4-governed-rows",
+  "conflicts": [],
+  "failure_modes": [
+    {
+      "acquisition_strategy_refs": [
+        "acquisition:acquire_from_nbu_registry",
+        "acquisition:derive_proxy_from_tax_relief_records",
+        "acquisition:simulation_only_dynamic_treatment"
+      ],
+      "affected_authority_postures": [
+        "governed_pilot",
+        "production"
+      ],
+      "authority_posture": "production",
+      "cause_class": "construct_not_observed",
+      "construct": "credit_program_enrollment",
+      "detected_at": "2026-05-25",
+      "domain": [
+        "msme_credit",
+        "fiscal_program_delivery"
+      ],
+      "failure_id": "failure:construct_not_observed:credit_program_enrollment:UA",
+      "gap_type": "construct_gap",
+      "geography": "UA",
+      "owner": "team-data-acquisition",
+      "producer_owner": "team-data-acquisition",
+      "severity": "blocking_governed_pilot",
+      "status": "blocked_construct_not_observed"
+    }
+  ],
+  "producer_ref": "repo://architecture/policy_design_case/layer2_s3_governed_capability_rows.json",
+  "producer_type": "governed_data_rows",
+  "rule_version": "policyos.layer2.s3.governed_capability_rows.v1",
+  "scenario_family_construct_rows": [
+    {
+      "construct": "firm_survival",
+      "producer_ref": "repo://architecture/policy_design_case/layer2_s3_governed_capability_rows.json#scenario-family/production_msme_panel",
+      "scenario_family": "production_msme_panel"
+    },
+    {
+      "construct": "regional_displacement_pressure",
+      "producer_ref": "repo://architecture/policy_design_case/layer2_s3_governed_capability_rows.json#scenario-family/regional_displacement_indicators",
+      "scenario_family": "regional_displacement_indicators"
+    },
+    {
+      "construct": "credit_program_enrollment",
+      "producer_ref": "repo://architecture/policy_design_case/layer2_s3_governed_capability_rows.json#scenario-family/credit_program_registry",
+      "scenario_family": "credit_program_registry"
+    }
+  ],
+  "schema_version": "policyos.policy_design_case.layer2_s3_governed_capability_rows.v1"
+}

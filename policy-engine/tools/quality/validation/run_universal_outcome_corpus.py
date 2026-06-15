@@ -22,6 +22,7 @@ REPO_ROOT, _SRC_ROOT = ensure_repo_import_roots(__file__)
 
 from polisyos.core.contracts.capability_resolution import (  # noqa: E402
     RequirementToCapabilityQuery,
+    ScenarioFamilyConstructRow,
     construct_for_legacy_family,
 )
 from polisyos.core.contracts.runtime import UniversalAuthorityProfile  # noqa: E402
@@ -178,6 +179,7 @@ from polisyos.runtime.quality.layer2_universality_assurance import (  # noqa: E4
     verify_universality_claim_authority,
 )
 from polisyos.runtime.quality.layer3_causal_forecast import (  # noqa: E402
+    ADAPTER_MATURITY_CALIBRATED,
     LAYER3_G2_W12D_GATE_SCHEMA_VERSION,
     build_g2_w12d_consumer_gate,
 )
@@ -187,6 +189,10 @@ from polisyos.runtime.quality.layer3_grounding_inventory import (  # noqa: E402
     LAYER3_G0_RULE_VERSION,
     LAYER3_G0_SCHEMA_VERSION,
     build_layer3_g0_bundle,
+)
+from polisyos.runtime.quality.layer3_gx_data_home import (  # noqa: E402
+    load_layer3_gx_data_home,
+    read_layer3_gx_pinned_case_id,
 )
 from polisyos.runtime.quality.layer3_substrate_grounding import (  # noqa: E402
     G1_AUTHORITATIVE_FOR,
@@ -241,6 +247,9 @@ DEFAULT_CAPABILITY_INDEX = Path(
     "_build/.tmp/production-quality/capability-index/capability_index_v1.duckdb"
 )
 DEFAULT_CONSTRUCT_REGISTRY = Path("architecture/policy_design_case/construct_registry_v1.yaml")
+GOVERNED_CAPABILITY_ROWS = Path(
+    "architecture/policy_design_case/layer2_s3_governed_capability_rows.json"
+)
 DEFAULT_MANIFEST_OUTPUT = Path(
     "architecture/policy_design_case/wave12d_universal_outcome_corpus_run_manifest.json"
 )
@@ -248,10 +257,33 @@ DEFAULT_AUTHORITY_COMPOSITION_RULE_REF = "capability-authority-v1.0"
 LAYER3_G0_READINESS_MANIFEST_REF = (
     "repo://architecture/policy_design_case/layer3_g0_readiness_manifest.json"
 )
-S3_FIRST_PROVING_CASE_ID = "ua-msme-affordable-loans-2022"
-S3_GROUNDED_CONSTRUCT = "credit_program_enrollment"
+
+
+def _gx_demand_context_construct(repo_root: Path) -> str:
+    data_home = load_layer3_gx_data_home(repo_root)
+    if data_home.status != "ready" or data_home.pinned_request is None:
+        return "missing_construct"
+    constructs = data_home.pinned_request.requested_constructs
+    for row in constructs:
+        if row.role == "demand_context":
+            return row.construct_ref
+    if constructs:
+        return constructs[0].construct_ref
+    return "missing_construct"
+
+
+def _gx_requested_constructs(repo_root: Path) -> tuple[str, ...]:
+    data_home = load_layer3_gx_data_home(repo_root)
+    if data_home.status != "ready" or data_home.pinned_request is None:
+        return ("missing_construct",)
+    constructs = tuple(row.construct_ref for row in data_home.pinned_request.requested_constructs)
+    return constructs or ("missing_construct",)
+
+
+S3_FIRST_PROVING_CASE_ID = read_layer3_gx_pinned_case_id(REPO_ROOT)
+S3_GROUNDED_CONSTRUCT = _gx_demand_context_construct(REPO_ROOT)
 S3_ACQUISITION_SOURCE_FIXTURE = Path(
-    "tests/fixtures/layer2/s3/ua_msme_credit_program_enrollment_source.json"
+    f"tests/fixtures/layer2/s3/ua_msme_{S3_GROUNDED_CONSTRUCT}_source.json"
 )
 S4_EXPERT_LABELS_PATH = Path("tests/fixtures/layer2/s4/s4_expert_labels.json")
 S5_CASE_SIGNALS_PATH = Path("tests/fixtures/layer2/s5/s5_coupling_case_signals.json")
@@ -1424,7 +1456,7 @@ def _s2_design_search_summary(
     s13_accountability_posture: Layer2S13PostDeployAccountabilityPostureInput | None = None,
 ) -> dict[str, Any]:
     case_id = str(case.get("case_id") or case.get("id") or "")
-    if case_id != "ua-msme-affordable-loans-2022":
+    if case_id != S3_FIRST_PROVING_CASE_ID:
         summary = {
             "status": "not_applicable",
             "canonical_outcome_effect": "none_shadow_only",
@@ -1510,19 +1542,11 @@ def _s2_design_search_summary(
         grammar_ref="repo://src/polisyos/policy_grammar",
         actor_ref="actor://ua/ministry-of-economy",
         domain="ukrainian_msme_credit",
-        objective_refs=(
-            "objective://credit_program_enrollment",
-            "objective://firm_survival",
-            "objective://regional_displacement_pressure",
-            "objective://credit_access",
-            "objective://fiscal_burden_per_beneficiary",
+        objective_refs=tuple(
+            f"objective://{construct}" for construct in _gx_requested_constructs(REPO_ROOT)
         ),
-        construct_refs=(
-            "construct://credit_program_enrollment",
-            "construct://firm_survival",
-            "construct://regional_displacement_pressure",
-            "construct://credit_access",
-            "construct://fiscal_burden_per_beneficiary",
+        construct_refs=tuple(
+            f"construct://{construct}" for construct in _gx_requested_constructs(REPO_ROOT)
         ),
         authority_profile_ref="authority_profile.shadow",
         requested_posture="shadow",
@@ -7585,6 +7609,7 @@ def _capability_graph_context(
         query = _capability_query_for_spec(
             spec,
             case=case,
+            repo_root=repo_root,
             authority_level=authority_level,
         )
         if query is None:
@@ -7806,11 +7831,12 @@ def _capability_query_for_spec(
     spec: object,
     *,
     case: Mapping[str, Any],
+    repo_root: Path,
     authority_level: str,
 ) -> RequirementToCapabilityQuery | None:
     payload = _spec_payload(spec)
     requirement_id = _text(payload.get("requirement_id"))
-    construct = _first_construct_ref(payload)
+    construct = _first_construct_ref(payload, repo_root=repo_root)
     if not requirement_id or not construct:
         return None
     scope = _mapping(payload.get("scope"))
@@ -7925,7 +7951,11 @@ def _refs_from_decisions(
     )
 
 
-def _first_construct_ref(payload: Mapping[str, Any]) -> str | None:
+def _first_construct_ref(
+    payload: Mapping[str, Any],
+    *,
+    repo_root: Path = REPO_ROOT,
+) -> str | None:
     metadata = _mapping(payload.get("metadata"))
     binding = _mapping(metadata.get("capability_binding"))
     for value in (
@@ -7938,7 +7968,32 @@ def _first_construct_ref(payload: Mapping[str, Any]) -> str | None:
         if text:
             return text.removeprefix("construct:")
     family = _first_sequence_text(payload.get("required_data_families"))
-    return construct_for_legacy_family(family) if family else None
+    if not family:
+        return None
+    return construct_for_legacy_family(
+        family,
+        rows=_governed_scenario_family_construct_rows(repo_root),
+    )
+
+
+def _governed_scenario_family_construct_rows(
+    repo_root: Path,
+) -> tuple[ScenarioFamilyConstructRow, ...]:
+    path = _resolve(repo_root, GOVERNED_CAPABILITY_ROWS)
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return ()
+    rows = payload.get("scenario_family_construct_rows") if isinstance(payload, Mapping) else ()
+    if not isinstance(rows, Sequence) or isinstance(rows, str | bytes | bytearray):
+        return ()
+    normalized: list[ScenarioFamilyConstructRow] = []
+    for row in rows:
+        try:
+            normalized.append(ScenarioFamilyConstructRow.model_validate(row))
+        except (TypeError, ValueError):
+            continue
+    return tuple(normalized)
 
 
 def _first_sequence_text(value: object) -> str | None:
@@ -7950,12 +8005,8 @@ def _first_sequence_text(value: object) -> str | None:
 
 
 def _entity_scope_for_construct(construct: str) -> str:
-    bare = construct.removeprefix("construct:")
-    return {
-        "firm_survival": "firm",
-        "credit_program_enrollment": "firm_or_program",
-        "regional_displacement_pressure": "region",
-    }.get(bare, "entity")
+    del construct
+    return "entity"
 
 
 def _authority_posture(authority_level: str) -> str:
@@ -9590,17 +9641,17 @@ def _layer3_g2_causal_forecast_context(repo_root: Path) -> dict[str, Any]:
 
     _ = repo_root
     forecast_support_ref = (
-        "pdc://layer3/g2/ua-msme-affordable-loans-2022/forecast-support/w12d"
+        f"pdc://layer3/g2/{S3_FIRST_PROVING_CASE_ID}/forecast-support/w12d"
     )
     posture = Layer2S10ForecastPostureInput(
         forecast_support_ref=forecast_support_ref,
-        forecast_tier="observable_calibrated",
+        forecast_tier=f"observable_{ADAPTER_MATURITY_CALIBRATED}",
         forecast_authority_disposition_reason=(
             "G2 W12D route consumes bounded causal forecast support only."
         ),
         forecast_support_label="g2_bounded_causal_forecast_support",
         forecast_calibration_record_ref=(
-            "pdc://layer3/g2/ua-msme-affordable-loans-2022/calibration/w12d"
+            f"pdc://layer3/g2/{S3_FIRST_PROVING_CASE_ID}/calibration/w12d"
         ),
         design_graph_ref="pdc://layer2/s5/ua-msme/recursive-design-graph",
         prediction_context_ref="pdc://layer2/s10/ua-msme/prediction-context",

@@ -6,7 +6,7 @@ Related runbooks: [Production Quality Triage](production-quality-triage.md),
 
 Related reference: [Runtime quality scorecard](../reference/runtime/quality-scorecard.md),
 [Production quality approval](../reference/runtime/production-quality-approval.md),
-and [Honest diagnostics substrate](../system-design-decisions/honest-diagnostics-substrate.md).
+and `docs/system-design-decisions/honest-diagnostics-substrate.md`.
 
 Owner: `@platform-owners` with `@runtime-owners`,
 `@scientist-owners`, `@fabric-owners`, `@foundry-owners`, `@lex-owners`,

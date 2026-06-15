@@ -124,11 +124,61 @@ not_in_nav: |
   adr/0131-scientist-readiness-ladder.md
   adr/0132-scientist-voi-compute-law.md
   adr/0133-fabric-streaming-scale-semantics.md
+  adr/0146-product-root-decision.md
+  adr/0147-production-evidence-authority-ordering.md
+  adr/0148-serious-run-state-machine-and-phase-barriers.md
+  adr/0149-effective-mode-and-fallback-degradation-ledger.md
+  adr/0150-scorecard-readiness-approval-projection-boundaries.md
+  adr/0151-evidence-schema-compatibility-and-legacy-quarantine.md
+  adr/0152-semantic-binding-lineage-and-claim-evidence.md
+  adr/0153-diagnostic-slos-assurance-case-and-attestation.md
+  adr/0154-diagnostic-event-envelope-and-runtime-log-contract.md
+  adr/0155-production-invariant-registry-and-ownership-contract.md
+  adr/0156-policy-design-case-runtime-quality-assurance-profile.md
+  adr/0157-policy-intent-capability-ledger-authority-profile.md
+  adr/0158-concept-spine-multi-jurisdiction-reconciliation.md
+  adr/0159-production-evidence-producer-contracts.md
+  adr/0160-evidence-portfolio-independence-multiverse-synthesis.md
+  adr/0161-claim-argument-warrant-compiler-closeout-gate.md
+  adr/0162-human-oversight-publication-external-audit-authority.md
+  adr/0163-lifecycle-ddm-ex-post-calibration.md
+  adr/0164-run-cost-proportionality-evidence-budget-governance.md
+  adr/0165-formal-policy-case-substrate-invariant-specs.md
+  adr/0166-evidence-acquisition-decision-boundaries.md
+  adr/0167-participation-legitimacy-matrix.md
+  adr/0168-legal-hierarchy-and-competence.md
+  adr/0169-bounded-liveness-and-runtime-escalation.md
+  adr/0170-contestability-and-recourse-boundaries.md
+  adr/0171-review-effectiveness-telemetry-advisory-first.md
+  adr/0172-balanced-memory-influence-ledger.md
+  adr/0173-obligation-frontier-and-bundle-control.md
+  adr/0174-policy-evidence-capability-graph.md
+  adr/0175-layer3-grounding-subordination-discipline.md
   adr/ADR-042-janus-atlas-dual-brand.md
   adr/ADR-043-provenance-law.md
   adr/ADR-044-time-as-primitive.md
   adr/ADR-045-glyph-alphabet-limit-10.md
   adr/ADR-046-authored-text-registry.md
+  adr/repository-structure-0129-empty-placeholder-package-policy.md
+  adr/repository-structure-0130-workspace-boundary.md
+  adr/repository-structure-0131-build-cache-umbrella.md
+  adr/repository-structure-0132-architecture-governance-source.md
+  adr/repository-structure-0133-package-layout-budget.md
+  adr/repository-structure-0134-cross-package-name-registry.md
+  adr/repository-structure-0135-versioning-out-of-package-names.md
+  adr/repository-structure-0136-foundry-methods-flat-vs-catalog.md
+  adr/repository-structure-0137-production-data-fixtures.md
+  adr/repository-structure-0138-synthetic-world-agent-sim.md
+  adr/repository-structure-0139-calibration-canonical-home.md
+  adr/repository-structure-0140-pickle-checkpoint-compatibility.md
+  adr/repository-structure-0141-dynamic-import-registry.md
+  adr/repository-structure-0142-libcst-module-move-codemod.md
+  adr/repository-structure-0143-decomposition-blueprint-contract.md
+  adr/repository-structure-0144-jax-pydantic-registration-reexport-shims.md
+  adr/repository-structure-0145-import-cycle-baseline.md
+  adr/repository-structure-0146-foundry-execute-executor-naming.md
+  adr/repository-structure-0147-data-root-local-state-naming.md
+  adr/repository-structure-0148-cross-cutting-concern-canonical-homes.md
   adr/_template.md
   adr/template.md
   brand/A11Y_CONTRAST.md
@@ -319,6 +369,7 @@ nav:
           - Privacy Compliance Evidence: reference/runtime/privacy-compliance-evidence.md
           - Provider Model Quality: reference/runtime/provider-model-quality.md
           - Production Quality Maturity: reference/runtime/production-quality-maturity.md
+          - Run-Cost Proportionality Ledger: reference/runtime/run-cost-proportionality-ledger.md
       - Frontend:
           - reference/frontend/index.md
           - Workspace Contract: reference/frontend/workspace-contract.md
@@ -337,6 +388,15 @@ nav:
       - Policy Design Case Evidence Paths: reference/policy-design-case-evidence-paths.md
       - Policy Design Case Structural ADR Registry: reference/policy-design-case-structural-adr-registry.md
       - Policy Design Case Operator Guide: reference/policy-design-case-operator-guide.md
+      - Policy Design Case Layer 3:
+          - Grounding Inventory: reference/policy-design-case-layer3-grounding-inventory.md
+          - Substrate Grounding: reference/policy-design-case-layer3-substrate-grounding.md
+          - Causal Forecast: reference/policy-design-case-layer3-causal-forecast.md
+          - Analytics Search: reference/policy-design-case-layer3-analytics-search.md
+          - Legal Mandate Search: reference/policy-design-case-layer3-legal-mandate-search.md
+          - Promotion Gate: reference/policy-design-case-layer3-promotion-gate.md
+          - Proving-Ground Conversion: reference/policy-design-case-layer3-proving-ground-conversion.md
+          - Bounded Agent: reference/policy-design-case-layer3-bounded-agent.md
       - Repository Topology: reference/repository-topology.md
       - Data Lake Policy: reference/data-lake-policy.md
       - Local Runtime State: reference/local-runtime-state.md

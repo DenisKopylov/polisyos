@@ -1,5 +1,8 @@
 # PolicyOS Scientist — Архитектура пайплайна
 
+Owner: `@scientist-owners`
+Source of truth: `src/polisyos/scientist/**`, `src/polisyos/foundry/**`, `src/polisyos/fabric/connectors/**`, `src/polisyos/ir/analytics/**`, and `tests/unit/scientist/**`
+
 > Дата: 2026-03-21
 > Статус: живой документ, описывает текущее состояние кодовой базы
 

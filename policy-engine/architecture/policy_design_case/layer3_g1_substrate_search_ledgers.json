@@ -5,20 +5,1315 @@
     {
       "absence_or_incompleteness_reason": null,
       "authoritative_for": [],
+      "candidate_count": 45,
+      "candidates": [
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/02a97e2f54d48b8fa8ef/ed13d084fb78ebca61e1",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [],
+          "match_mode": "exact",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 1.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/13c732166d0740011e5b/77a1d47fb0158fd91037",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [],
+          "match_mode": "exact",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 1.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/26865c1c37205a601731/73e348fefedabee920d8",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [],
+          "match_mode": "exact",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 1.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/3533f14b1079955e42c3/96ea3ee0b88cf6b21854",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [],
+          "match_mode": "exact",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 1.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/48b27ecb5bd7cac3eeeb/7313d102c2011fec2d8d",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [],
+          "match_mode": "exact",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 1.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/4d54f1bb9fce5ffc63fa/343dab677a464f6b45ba",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [],
+          "match_mode": "exact",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 1.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/5492445a5b95df30a60a/10bba21a19ec643767fc",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [],
+          "match_mode": "exact",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 1.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/5afe5879f66d6f728628/10a76819adae405e4e81",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [],
+          "match_mode": "exact",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 1.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "alias-expansion://credit-access/credit-access",
+          "evidence_refs": [
+            "repo://architecture/policy_design_case/layer3_gx_concept_alias_graph.json",
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [
+            "layer3_gx_alias_unverified_not_recall_authority"
+          ],
+          "match_mode": "alias",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "alias-expansion://credit-access/affordable-loans",
+          "evidence_refs": [
+            "repo://architecture/policy_design_case/layer3_gx_concept_alias_graph.json",
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [
+            "layer3_gx_alias_unverified_not_recall_authority"
+          ],
+          "match_mode": "alias",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/02a97e2f54d48b8fa8ef/ed13d084fb78ebca61e1",
+          "evidence_refs": [
+            "repo://architecture/policy_design_case/layer3_gx_concept_alias_graph.json",
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [
+            "layer3_gx_alias_unverified_not_recall_authority"
+          ],
+          "match_mode": "alias",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/13c732166d0740011e5b/77a1d47fb0158fd91037",
+          "evidence_refs": [
+            "repo://architecture/policy_design_case/layer3_gx_concept_alias_graph.json",
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [
+            "layer3_gx_alias_unverified_not_recall_authority"
+          ],
+          "match_mode": "alias",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/26865c1c37205a601731/73e348fefedabee920d8",
+          "evidence_refs": [
+            "repo://architecture/policy_design_case/layer3_gx_concept_alias_graph.json",
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [
+            "layer3_gx_alias_unverified_not_recall_authority"
+          ],
+          "match_mode": "alias",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/3533f14b1079955e42c3/96ea3ee0b88cf6b21854",
+          "evidence_refs": [
+            "repo://architecture/policy_design_case/layer3_gx_concept_alias_graph.json",
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [
+            "layer3_gx_alias_unverified_not_recall_authority"
+          ],
+          "match_mode": "alias",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/48b27ecb5bd7cac3eeeb/7313d102c2011fec2d8d",
+          "evidence_refs": [
+            "repo://architecture/policy_design_case/layer3_gx_concept_alias_graph.json",
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [
+            "layer3_gx_alias_unverified_not_recall_authority"
+          ],
+          "match_mode": "alias",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/4d54f1bb9fce5ffc63fa/343dab677a464f6b45ba",
+          "evidence_refs": [
+            "repo://architecture/policy_design_case/layer3_gx_concept_alias_graph.json",
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [
+            "layer3_gx_alias_unverified_not_recall_authority"
+          ],
+          "match_mode": "alias",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/5492445a5b95df30a60a/10bba21a19ec643767fc",
+          "evidence_refs": [
+            "repo://architecture/policy_design_case/layer3_gx_concept_alias_graph.json",
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [
+            "layer3_gx_alias_unverified_not_recall_authority"
+          ],
+          "match_mode": "alias",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/5afe5879f66d6f728628/10a76819adae405e4e81",
+          "evidence_refs": [
+            "repo://architecture/policy_design_case/layer3_gx_concept_alias_graph.json",
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [
+            "layer3_gx_alias_unverified_not_recall_authority"
+          ],
+          "match_mode": "alias",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "lexical-query://l1-dcat/fd85dc37d824e359f607f3f299bc94463f0670121e9f6379dda0c7608e40dbb3",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [],
+          "match_mode": "lexical",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/02a97e2f54d48b8fa8ef/ed13d084fb78ebca61e1",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [],
+          "match_mode": "lexical",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/13c732166d0740011e5b/77a1d47fb0158fd91037",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [],
+          "match_mode": "lexical",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/26865c1c37205a601731/73e348fefedabee920d8",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [],
+          "match_mode": "lexical",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/3533f14b1079955e42c3/96ea3ee0b88cf6b21854",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [],
+          "match_mode": "lexical",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/48b27ecb5bd7cac3eeeb/7313d102c2011fec2d8d",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [],
+          "match_mode": "lexical",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/4d54f1bb9fce5ffc63fa/343dab677a464f6b45ba",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [],
+          "match_mode": "lexical",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/5492445a5b95df30a60a/10bba21a19ec643767fc",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [],
+          "match_mode": "lexical",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/5afe5879f66d6f728628/10a76819adae405e4e81",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [],
+          "match_mode": "lexical",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "semantic-frontier://l1-dcat/fd85dc37d824e359f607f3f299bc94463f0670121e9f6379dda0c7608e40dbb3",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [
+            "layer3_g1_semantic_candidate_requires_resolution"
+          ],
+          "match_mode": "semantic",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/02a97e2f54d48b8fa8ef/ed13d084fb78ebca61e1",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [
+            "layer3_g1_semantic_candidate_requires_resolution"
+          ],
+          "match_mode": "semantic",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/13c732166d0740011e5b/77a1d47fb0158fd91037",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [
+            "layer3_g1_semantic_candidate_requires_resolution"
+          ],
+          "match_mode": "semantic",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/26865c1c37205a601731/73e348fefedabee920d8",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [
+            "layer3_g1_semantic_candidate_requires_resolution"
+          ],
+          "match_mode": "semantic",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/3533f14b1079955e42c3/96ea3ee0b88cf6b21854",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [
+            "layer3_g1_semantic_candidate_requires_resolution"
+          ],
+          "match_mode": "semantic",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/48b27ecb5bd7cac3eeeb/7313d102c2011fec2d8d",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [
+            "layer3_g1_semantic_candidate_requires_resolution"
+          ],
+          "match_mode": "semantic",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/4d54f1bb9fce5ffc63fa/343dab677a464f6b45ba",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [
+            "layer3_g1_semantic_candidate_requires_resolution"
+          ],
+          "match_mode": "semantic",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/5492445a5b95df30a60a/10bba21a19ec643767fc",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [
+            "layer3_g1_semantic_candidate_requires_resolution"
+          ],
+          "match_mode": "semantic",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/5afe5879f66d6f728628/10a76819adae405e4e81",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [
+            "layer3_g1_semantic_candidate_requires_resolution"
+          ],
+          "match_mode": "semantic",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "source-layer-join://duckdb-production-data-datasets-full-phase3full-20260327-183054-dataset-catalog.duckdb-ds-metric-bindings",
+          "evidence_refs": [
+            "repo://architecture/policy_design_case/layer3_gx_concept_alias_graph.json",
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [
+            "layer3_g1_source_layer_join_not_authority"
+          ],
+          "match_mode": "relational",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        }
+      ],
       "completeness_status": "complete",
+      "configured_store_path": "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+      "corpus_kind": "canonical",
+      "corpus_path": "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+      "corpus_ref": "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings",
+      "corpus_snapshot_hash": "sha256:b6597d571d308e1d7f9353a9e77a2fbec2c19c31fe24b34c9e461ca84e1bc573",
       "cutoff_budget_ref": "budget://layer3-g1/targeted-unit-search",
       "event_type": "selected_candidate",
       "g0_ledger_ref": "repo://architecture/policy_design_case/layer3_discovery_search_discipline.json#grounding_search_ledgers",
+      "incompleteness": {
+        "reason": null,
+        "status": "complete"
+      },
+      "index_freshness": {
+        "index_freshness_refs": [
+          "g1-index-freshness:l1-dcat"
+        ],
+        "status": "pass"
+      },
       "index_freshness_refs": [
         "g1-index-freshness:l1-dcat"
       ],
       "index_version_refs": [
-        "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings?construct=firm_survival&query=select_metric_bindings&row_count=56846"
+        "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings?metric_id=credit_access&query_hash=fd85dc37d824e359f607f3f299bc94463f0670121e9f6379dda0c7608e40dbb3&row_count=56846"
+      ],
+      "indexes_used": [
+        "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings",
+        "duckdb://production_data/datasets_full_phase3full_20260327_183054/ds_dataset_index.hnsw",
+        "duckdb://production_data/datasets_full_phase3full_20260327_183054/ds_dataset_embeddings.npz"
       ],
       "known_seed_refs": [
-        "g1-recall-seed:ua-msme-firm-survival"
+        "g1-recall-seed:credit-access"
       ],
-      "ledger_id": "g1-ledger:construct_to_metric_binding:firm_survival",
+      "ledger_id": "g1-ledger:construct_to_metric_binding:credit_access",
       "may_not_use_for": [
         "claim_authority",
         "causal_effect",
@@ -29,38 +1324,641 @@
         "production_authority",
         "search_hit_as_authority"
       ],
+      "measurement_provenance": "l1_dcat_query",
+      "no_hit_candidate_refs": [],
+      "no_hit_frontier": [],
       "normalized_query_refs": [
-        "construct:firm_survival"
+        "construct:credit_access",
+        "query-hash:fd85dc37d824e359f607f3f299bc94463f0670121e9f6379dda0c7608e40dbb3"
       ],
+      "query_expansion_traces": [
+        {
+          "alias_graph_ref": "repo://architecture/policy_design_case/layer3_gx_concept_alias_graph.json",
+          "alias_graph_status": "ready",
+          "alias_terms": [
+            "credit access",
+            "affordable loans"
+          ],
+          "can_support_positive_recall": false,
+          "expanded_query_text": "credit_access credit access affordable loans",
+          "input": "credit_access",
+          "metric_ids": [
+            "credit_access"
+          ],
+          "modes": [
+            "exact",
+            "alias",
+            "lexical",
+            "semantic",
+            "relational"
+          ],
+          "query_terms": [
+            {
+              "match_mode": "exact",
+              "source_ref": "repo://architecture/policy_design_case/layer3_gx_concept_alias_graph.json",
+              "term": "credit_access"
+            },
+            {
+              "match_mode": "alias",
+              "source_ref": "repo://architecture/policy_design_case/layer3_gx_concept_alias_graph.json",
+              "term": "credit access"
+            },
+            {
+              "match_mode": "alias",
+              "source_ref": "repo://architecture/policy_design_case/layer3_gx_concept_alias_graph.json",
+              "term": "affordable loans"
+            },
+            {
+              "match_mode": "lexical",
+              "source_ref": "construct:credit_access",
+              "term": "credit access"
+            },
+            {
+              "match_mode": "relational",
+              "source_ref": "repo://architecture/policy_design_case/layer3_gx_concept_alias_graph.json",
+              "term": "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+            }
+          ],
+          "resolved_corpus_row_refs": [],
+          "semantic_search_status": "enabled",
+          "source_layer_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "trace_ref": "g1-query-expansion:l1-dcat:fd85dc37d824e359f607f3f299bc94463f0670121e9f6379dda0c7608e40dbb3",
+          "unverified_alias_refs": [
+            "gx-concept-alias:credit_access"
+          ],
+          "variable_names": [
+            "policy.credit_access"
+          ]
+        }
+      ],
+      "query_hash": "fd85dc37d824e359f607f3f299bc94463f0670121e9f6379dda0c7608e40dbb3",
+      "query_plan": {
+        "alias_graph_ref": "repo://architecture/policy_design_case/layer3_gx_concept_alias_graph.json",
+        "alias_graph_status": "ready",
+        "allowed_modes": [
+          "exact",
+          "alias",
+          "lexical",
+          "semantic",
+          "relational"
+        ],
+        "can_support_positive_recall": false,
+        "construct_ref": "credit_access",
+        "hnsw_index_refs": [
+          "duckdb://production_data/datasets_full_phase3full_20260327_183054/ds_dataset_index.hnsw",
+          "duckdb://production_data/datasets_full_phase3full_20260327_183054/ds_dataset_embeddings.npz"
+        ],
+        "query_expansion_trace_refs": [
+          "construct:credit_access",
+          "query-hash:fd85dc37d824e359f607f3f299bc94463f0670121e9f6379dda0c7608e40dbb3",
+          "repo://architecture/policy_design_case/layer3_gx_concept_alias_graph.json"
+        ],
+        "query_hash": "fd85dc37d824e359f607f3f299bc94463f0670121e9f6379dda0c7608e40dbb3",
+        "query_text": "credit_access credit access affordable loans",
+        "request_shape": "construct_to_metric_binding",
+        "required_layers": [
+          "L1"
+        ],
+        "resolved_corpus_row_refs": [],
+        "semantic_search_status": "enabled",
+        "unverified_alias_refs": [
+          "gx-concept-alias:credit_access"
+        ]
+      },
+      "query_text": "credit_access credit access affordable loans",
       "ranking_policy_ref": "policyos.layer3.g1.rank.source_contract_readiness.v1",
       "rejected_candidate_refs": [
+        "dcat-metric-binding://credit_access/02a97e2f54d48b8fa8ef/ed13d084fb78ebca61e1#resolver_admission=blocked_source_contract_materialization",
+        "dcat-metric-binding://credit_access/13c732166d0740011e5b/77a1d47fb0158fd91037#resolver_admission=blocked_source_contract_materialization",
+        "dcat-metric-binding://credit_access/26865c1c37205a601731/73e348fefedabee920d8#resolver_admission=blocked_source_contract_materialization",
+        "dcat-metric-binding://credit_access/3533f14b1079955e42c3/96ea3ee0b88cf6b21854#resolver_admission=blocked_source_contract_materialization",
+        "dcat-metric-binding://credit_access/48b27ecb5bd7cac3eeeb/7313d102c2011fec2d8d#resolver_admission=blocked_source_contract_materialization",
+        "dcat-metric-binding://credit_access/4d54f1bb9fce5ffc63fa/343dab677a464f6b45ba#resolver_admission=blocked_source_contract_materialization",
+        "dcat-metric-binding://credit_access/5492445a5b95df30a60a/10bba21a19ec643767fc#resolver_admission=blocked_source_contract_materialization",
+        "dcat-metric-binding://credit_access/5afe5879f66d6f728628/10a76819adae405e4e81#resolver_admission=blocked_source_contract_materialization",
         "capability-index-transition:not-l1-authority"
       ],
-      "replay_key": "layer3-g1:construct_to_metric_binding:firm_survival:2026-06-07",
+      "rejected_candidates": [
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/02a97e2f54d48b8fa8ef/ed13d084fb78ebca61e1#resolver_admission=blocked_source_contract_materialization",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [
+            "layer3_g1_source_contract_materialization_missing"
+          ],
+          "match_mode": "derived",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/13c732166d0740011e5b/77a1d47fb0158fd91037#resolver_admission=blocked_source_contract_materialization",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [
+            "layer3_g1_source_contract_materialization_missing"
+          ],
+          "match_mode": "derived",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/26865c1c37205a601731/73e348fefedabee920d8#resolver_admission=blocked_source_contract_materialization",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [
+            "layer3_g1_source_contract_materialization_missing"
+          ],
+          "match_mode": "derived",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/3533f14b1079955e42c3/96ea3ee0b88cf6b21854#resolver_admission=blocked_source_contract_materialization",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [
+            "layer3_g1_source_contract_materialization_missing"
+          ],
+          "match_mode": "derived",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/48b27ecb5bd7cac3eeeb/7313d102c2011fec2d8d#resolver_admission=blocked_source_contract_materialization",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [
+            "layer3_g1_source_contract_materialization_missing"
+          ],
+          "match_mode": "derived",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/4d54f1bb9fce5ffc63fa/343dab677a464f6b45ba#resolver_admission=blocked_source_contract_materialization",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [
+            "layer3_g1_source_contract_materialization_missing"
+          ],
+          "match_mode": "derived",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/5492445a5b95df30a60a/10bba21a19ec643767fc#resolver_admission=blocked_source_contract_materialization",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [
+            "layer3_g1_source_contract_materialization_missing"
+          ],
+          "match_mode": "derived",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "dcat-metric-binding://credit_access/5afe5879f66d6f728628/10a76819adae405e4e81#resolver_admission=blocked_source_contract_materialization",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [
+            "layer3_g1_source_contract_materialization_missing"
+          ],
+          "match_mode": "derived",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        }
+      ],
+      "replay_command": "uv run python tools/quality/validation/check_policy_design_case_layer3_g1_readiness.py --repo-root . --write",
+      "replay_expected_output_hash": "sha256:1b1922955aa8aeba498f415538adf144b3333aa89bf3fb1f81a1866aeaaabc37",
+      "replay_key": "layer3-g1:construct_to_metric_binding:credit_access:fd85dc37d824",
+      "request_ref": "g1-request:construct-to-metric-binding:credit_access",
+      "schema_version": "policyos.core.contracts.search.v1",
+      "search_frontier_ref": "g1-search-frontier:l1-dcat:fd85dc37d824e359f607f3f299bc94463f0670121e9f6379dda0c7608e40dbb3:exact=8:text=8",
       "searched_index_refs": [
         "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings",
-        "repo://architecture/policy_design_case/layer3_discovery_search_discipline.json"
+        "duckdb://production_data/datasets_full_phase3full_20260327_183054/ds_dataset_index.hnsw",
+        "duckdb://production_data/datasets_full_phase3full_20260327_183054/ds_dataset_embeddings.npz"
       ],
       "selected_candidate_refs": [
-        "capability:layer3-g1:firm_survival:source-contract"
+        "dcat-metric-binding://credit_access/02a97e2f54d48b8fa8ef/ed13d084fb78ebca61e1",
+        "dcat-metric-binding://credit_access/13c732166d0740011e5b/77a1d47fb0158fd91037",
+        "dcat-metric-binding://credit_access/26865c1c37205a601731/73e348fefedabee920d8",
+        "dcat-metric-binding://credit_access/3533f14b1079955e42c3/96ea3ee0b88cf6b21854",
+        "dcat-metric-binding://credit_access/48b27ecb5bd7cac3eeeb/7313d102c2011fec2d8d",
+        "dcat-metric-binding://credit_access/4d54f1bb9fce5ffc63fa/343dab677a464f6b45ba",
+        "dcat-metric-binding://credit_access/5492445a5b95df30a60a/10bba21a19ec643767fc",
+        "dcat-metric-binding://credit_access/5afe5879f66d6f728628/10a76819adae405e4e81"
       ],
-      "typed_request_ref": "g1-request:construct-to-metric-binding:firm-survival"
+      "typed_request_ref": "g1-request:construct-to-metric-binding:credit_access"
     },
     {
-      "absence_or_incompleteness_reason": null,
+      "absence_or_incompleteness_reason": "l1_dcat_no_metric_binding",
       "authoritative_for": [],
-      "completeness_status": "complete",
+      "candidate_count": 6,
+      "candidates": [
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "alias-expansion://firm-survival/firm-survival",
+          "evidence_refs": [
+            "repo://architecture/policy_design_case/layer3_gx_concept_alias_graph.json",
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [
+            "layer3_gx_alias_unverified_not_recall_authority"
+          ],
+          "match_mode": "alias",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "alias-expansion://firm-survival/business-continuity",
+          "evidence_refs": [
+            "repo://architecture/policy_design_case/layer3_gx_concept_alias_graph.json",
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [
+            "layer3_gx_alias_unverified_not_recall_authority"
+          ],
+          "match_mode": "alias",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "lexical-query://l1-dcat/8e7a49a536a621de93c4f0377b4dd56ecb58fb1b3120db54a589501b726e4d8a",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [],
+          "match_mode": "lexical",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "semantic-frontier://l1-dcat/8e7a49a536a621de93c4f0377b4dd56ecb58fb1b3120db54a589501b726e4d8a",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [
+            "layer3_g1_semantic_candidate_requires_resolution"
+          ],
+          "match_mode": "semantic",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        },
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "source-layer-join://duckdb-production-data-datasets-full-phase3full-20260327-183054-dataset-catalog.duckdb-ds-metric-bindings",
+          "evidence_refs": [
+            "repo://architecture/policy_design_case/layer3_gx_concept_alias_graph.json",
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [
+            "layer3_g1_source_layer_join_not_authority"
+          ],
+          "match_mode": "relational",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        }
+      ],
+      "completeness_status": "no_exact_hit",
+      "configured_store_path": "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+      "corpus_kind": "canonical",
+      "corpus_path": "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+      "corpus_ref": "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings",
+      "corpus_snapshot_hash": "sha256:b6597d571d308e1d7f9353a9e77a2fbec2c19c31fe24b34c9e461ca84e1bc573",
       "cutoff_budget_ref": "budget://layer3-g1/targeted-unit-search",
-      "event_type": "selected_candidate",
+      "event_type": "no_hit_frontier",
       "g0_ledger_ref": "repo://architecture/policy_design_case/layer3_discovery_search_discipline.json#grounding_search_ledgers",
+      "incompleteness": {
+        "reason": "l1_dcat_no_metric_binding",
+        "status": "no_exact_hit"
+      },
+      "index_freshness": {
+        "index_freshness_refs": [
+          "g1-index-freshness:l1-dcat"
+        ],
+        "status": "pass"
+      },
       "index_freshness_refs": [
         "g1-index-freshness:l1-dcat"
       ],
       "index_version_refs": [
-        "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings?construct=firm_survival&query=select_metric_bindings&row_count=56846"
+        "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings?metric_id=firm_survival&query_hash=8e7a49a536a621de93c4f0377b4dd56ecb58fb1b3120db54a589501b726e4d8a&row_count=56846"
+      ],
+      "indexes_used": [
+        "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings",
+        "duckdb://production_data/datasets_full_phase3full_20260327_183054/ds_dataset_index.hnsw",
+        "duckdb://production_data/datasets_full_phase3full_20260327_183054/ds_dataset_embeddings.npz"
       ],
       "known_seed_refs": [
-        "g1-recall-seed:ua-msme-firm-survival"
+        "g1-recall-seed:credit-access"
       ],
       "ledger_id": "g1-ledger:scenario_family_to_source_contract:firm_survival",
       "may_not_use_for": [
@@ -73,22 +1971,168 @@
         "production_authority",
         "search_hit_as_authority"
       ],
-      "normalized_query_refs": [
-        "construct:firm_survival"
+      "measurement_provenance": "l1_dcat_query",
+      "no_hit_candidate_refs": [
+        "g1-search-frontier:l1-dcat:8e7a49a536a621de93c4f0377b4dd56ecb58fb1b3120db54a589501b726e4d8a:exact=0:text=0"
       ],
+      "no_hit_frontier": [
+        "g1-search-frontier:l1-dcat:8e7a49a536a621de93c4f0377b4dd56ecb58fb1b3120db54a589501b726e4d8a:exact=0:text=0"
+      ],
+      "normalized_query_refs": [
+        "construct:firm_survival",
+        "query-hash:8e7a49a536a621de93c4f0377b4dd56ecb58fb1b3120db54a589501b726e4d8a"
+      ],
+      "query_expansion_traces": [
+        {
+          "alias_graph_ref": "repo://architecture/policy_design_case/layer3_gx_concept_alias_graph.json",
+          "alias_graph_status": "ready",
+          "alias_terms": [
+            "firm survival",
+            "business continuity"
+          ],
+          "can_support_positive_recall": false,
+          "expanded_query_text": "firm_survival firm survival business continuity",
+          "input": "firm_survival",
+          "metric_ids": [
+            "firm_survival"
+          ],
+          "modes": [
+            "exact",
+            "alias",
+            "lexical",
+            "semantic",
+            "relational"
+          ],
+          "query_terms": [
+            {
+              "match_mode": "exact",
+              "source_ref": "repo://architecture/policy_design_case/layer3_gx_concept_alias_graph.json",
+              "term": "firm_survival"
+            },
+            {
+              "match_mode": "alias",
+              "source_ref": "repo://architecture/policy_design_case/layer3_gx_concept_alias_graph.json",
+              "term": "firm survival"
+            },
+            {
+              "match_mode": "alias",
+              "source_ref": "repo://architecture/policy_design_case/layer3_gx_concept_alias_graph.json",
+              "term": "business continuity"
+            },
+            {
+              "match_mode": "lexical",
+              "source_ref": "construct:firm_survival",
+              "term": "firm survival"
+            },
+            {
+              "match_mode": "relational",
+              "source_ref": "repo://architecture/policy_design_case/layer3_gx_concept_alias_graph.json",
+              "term": "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+            }
+          ],
+          "resolved_corpus_row_refs": [],
+          "semantic_search_status": "enabled",
+          "source_layer_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "trace_ref": "g1-query-expansion:l1-dcat:8e7a49a536a621de93c4f0377b4dd56ecb58fb1b3120db54a589501b726e4d8a",
+          "unverified_alias_refs": [
+            "gx-concept-alias:firm_survival"
+          ],
+          "variable_names": [
+            "firm.survival"
+          ]
+        }
+      ],
+      "query_hash": "8e7a49a536a621de93c4f0377b4dd56ecb58fb1b3120db54a589501b726e4d8a",
+      "query_plan": {
+        "alias_graph_ref": "repo://architecture/policy_design_case/layer3_gx_concept_alias_graph.json",
+        "alias_graph_status": "ready",
+        "allowed_modes": [
+          "exact",
+          "alias",
+          "lexical",
+          "semantic",
+          "relational"
+        ],
+        "can_support_positive_recall": false,
+        "construct_ref": "firm_survival",
+        "hnsw_index_refs": [
+          "duckdb://production_data/datasets_full_phase3full_20260327_183054/ds_dataset_index.hnsw",
+          "duckdb://production_data/datasets_full_phase3full_20260327_183054/ds_dataset_embeddings.npz"
+        ],
+        "query_expansion_trace_refs": [
+          "construct:firm_survival",
+          "query-hash:8e7a49a536a621de93c4f0377b4dd56ecb58fb1b3120db54a589501b726e4d8a",
+          "repo://architecture/policy_design_case/layer3_gx_concept_alias_graph.json"
+        ],
+        "query_hash": "8e7a49a536a621de93c4f0377b4dd56ecb58fb1b3120db54a589501b726e4d8a",
+        "query_text": "firm_survival firm survival business continuity",
+        "request_shape": "scenario_family_to_source_contract",
+        "required_layers": [
+          "L1"
+        ],
+        "resolved_corpus_row_refs": [],
+        "semantic_search_status": "enabled",
+        "unverified_alias_refs": [
+          "gx-concept-alias:firm_survival"
+        ]
+      },
+      "query_text": "firm_survival firm survival business continuity",
       "ranking_policy_ref": "policyos.layer3.g1.rank.source_contract_readiness.v1",
       "rejected_candidate_refs": [
         "capability-index-transition:not-l1-authority"
       ],
-      "replay_key": "layer3-g1:scenario_family_to_source_contract:firm_survival:2026-06-07",
+      "rejected_candidates": [
+        {
+          "authority_boundary": {
+            "authoritative_for": [],
+            "may_not_use_for": [
+              "claim_authority",
+              "causal_effect",
+              "policy_recommendation",
+              "publishability",
+              "adapter_promotion",
+              "useful_design_credit",
+              "production_authority",
+              "search_hit_as_authority"
+            ]
+          },
+          "candidate_ref": "capability-index-transition:not-l1-authority",
+          "evidence_refs": [
+            "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+          ],
+          "limitation_refs": [
+            "layer3_g1_search_hit_not_authority"
+          ],
+          "match_mode": "derived",
+          "may_not_use_for": [
+            "claim_authority",
+            "causal_effect",
+            "policy_recommendation",
+            "publishability",
+            "adapter_promotion",
+            "useful_design_credit",
+            "production_authority",
+            "search_hit_as_authority"
+          ],
+          "score": 0.0,
+          "source_layer": "L1"
+        }
+      ],
+      "replay_command": "uv run python tools/quality/validation/check_policy_design_case_layer3_g1_readiness.py --repo-root . --write",
+      "replay_expected_output_hash": "sha256:de0c31336ef96a795808ddeb2d34799a1fd7e87ffd000dc9134840e7e014149e",
+      "replay_key": "layer3-g1:scenario_family_to_source_contract:firm_survival:8e7a49a536a6",
+      "request_ref": "g1-request:scenario-family-to-source-contract:firm_survival",
+      "schema_version": "policyos.core.contracts.search.v1",
+      "search_frontier_ref": "g1-search-frontier:l1-dcat:8e7a49a536a621de93c4f0377b4dd56ecb58fb1b3120db54a589501b726e4d8a:exact=0:text=0",
       "searched_index_refs": [
         "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings",
-        "repo://architecture/policy_design_case/layer3_discovery_search_discipline.json"
+        "duckdb://production_data/datasets_full_phase3full_20260327_183054/ds_dataset_index.hnsw",
+        "duckdb://production_data/datasets_full_phase3full_20260327_183054/ds_dataset_embeddings.npz"
       ],
-      "selected_candidate_refs": [
-        "capability:layer3-g1:firm_survival:source-contract"
-      ],
-      "typed_request_ref": "g1-request:scenario-family-to-source-contract:firm-survival"
+      "selected_candidate_refs": [],
+      "typed_request_ref": "g1-request:scenario-family-to-source-contract:firm_survival"
     }
   ]
 }

@@ -1,6 +1,7 @@
 # Scientist Deep Research Evidence Stack
 
 Status: Phase 1.3 runtime contract.
+Owner: `@scientist-owners`
 
 Source of truth:
 

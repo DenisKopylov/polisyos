@@ -1,5 +1,8 @@
 # Run-Cost Proportionality Ledger
 
+Owner: `@runtime-owners`
+Source of truth: `src/polisyos/runtime/quality/cost_gate.py`, `src/polisyos/runtime/quality/scorecard.py`, `schemas/runtime_quality/policy_design_run_cost_proportionality_ledger_v1.schema.json`, and `tests/unit/runtime/quality/**`
+
 Wave 30 closes the Policy Design Case evidence-production cost loop. Serious
 runtime closeout must either emit a run-cost proportionality ledger inside
 `quality_evidence/policy_design_case.json` or emit a typed run-cost blocker.

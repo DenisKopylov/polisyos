@@ -1,0 +1,15 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gx_independent_audit_sample.v1",
+  "status": "blocked_pending_manual_audit",
+  "principal": "deniskopylov",
+  "sample_size": 0,
+  "sample_records": [],
+  "manual_audit_required": true,
+  "issues": [
+    {
+      "code": "layer3_gx_human_approval_required",
+      "path": "architecture/policy_design_case/layer3_gx_independent_audit_sample.json",
+      "message": "Independent audit sample requires principal approval before GX closeout."
+    }
+  ]
+}

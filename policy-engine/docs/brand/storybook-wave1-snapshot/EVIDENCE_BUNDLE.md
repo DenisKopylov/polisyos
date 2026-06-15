@@ -2,12 +2,12 @@
 
 This bundle is the repository-backed proof surface used by Wave 1 closeout and
 the release notes. The canonical CI publisher is
-`.github/workflows/design-wave1-evidence.yml`; it emits fixed-name immutable
-artifacts and a machine-readable manifest.
+`.github/workflows/ci.yml`; its Storybook build and interaction-test steps emit
+the current repository-backed evidence surface.
 
 ## Immutable CI Artifact Contract
 
-- Workflow: `.github/workflows/design-wave1-evidence.yml`
+- Workflow: `.github/workflows/ci.yml`
 - Manifest artifact name: `wave1-evidence-manifest`
 - Manifest file: `wave1-evidence.json`
 - Storybook artifact name: `wave1-storybook-static`

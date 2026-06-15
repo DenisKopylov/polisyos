@@ -1,0 +1,49 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gx_provisional_blocker_audit.v1",
+  "rule_version": "policyos.layer3.gx.provisional_task12.v1",
+  "audit_phase": "provisional_task12",
+  "status": "blocked",
+  "answer_status": "blocked_not_currently_publishable",
+  "case_id": "ua-msme-affordable-loans-2022",
+  "request_ref": "external-request://layer3-gx/ua-msme-affordable-loans-2022",
+  "route_replay_key": "layer3-gx-vertical-pinned-route:ua-msme-affordable-loans-2022:v1",
+  "g8_open_question_surface_status": "not_required_until_task11",
+  "blocker_specific_search_status": "not_measured",
+  "g1_search_measurement_status": "blocked",
+  "g1_grounding_closure": "search_ceiling_repair_required",
+  "g4_promotion_state": "promotion_blocked",
+  "g5_conversion_outcome": "unchanged_blocker",
+  "next_blocker_refs": [
+    "layer3_g5_cross_slice_checks_not_ready",
+    "layer3_g5_grounded_evidence_ref_missing",
+    "layer3_g5_abstention_candidate_missing",
+    "layer3_g1_search_health_not_measured_or_failed",
+    "layer3_g4_missing_g1_grounded_source_contract",
+    "layer3_g4_source_design_record_unresolved",
+    "layer3_g4_dependency_not_ready:blocked"
+  ],
+  "cited_artifact_refs": [
+    "repo://architecture/policy_design_case/layer3_gx_vertical_pinned_route_report.json",
+    "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json",
+    "repo://architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json",
+    "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json",
+    "repo://architecture/policy_design_case/layer3_gx_pinned_request.json",
+    "repo://architecture/policy_design_case/layer3_gx_demand_pull_request.json"
+  ],
+  "audit_basis": {
+    "canonical_search_measured": false,
+    "source_contract_materialized": false,
+    "promotion_allowed": false,
+    "conversion_allowed": false
+  },
+  "may_not_use_for": [
+    "production_authority",
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority",
+    "runtime_closeout_authority",
+    "useful_design_credit",
+    "domain_ceiling_authority_without_gate"
+  ],
+  "audit_record_hash": "sha256:823faa8b19b7b0556f1354ce981d881921a6035b6a4f36491123ba5dbe5be6a9"
+}

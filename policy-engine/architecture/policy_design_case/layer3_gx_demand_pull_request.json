@@ -1,0 +1,24 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gx_demand_pull_request.v1",
+  "rule_version": "policyos.layer3.gx.data_home.v1",
+  "request_id": "gx-demand-pull:ua-msme-affordable-loans-2022",
+  "case_id": "ua-msme-affordable-loans-2022",
+  "producer_ref": "external-request://layer3-gx/demand-pull/ua-msme-affordable-loans-2022",
+  "producer_type": "external_request",
+  "source": "docs/plans/active/layer3-slices/GX-universal-free-growth-runtime-hardening.md#task-0a",
+  "timestamp": "2026-06-12T00:00:00Z",
+  "accountable_principal_ref": "principal://deniskopylov",
+  "request_source_ref": "user://deniskopylov/task-0a",
+  "replay_key": "layer3-gx-demand-pull:ua-msme-affordable-loans-2022:v1",
+  "consumer_path": [
+    "G5",
+    "G6",
+    "G7"
+  ],
+  "demand_refs": [
+    "demand-act://layer3-gx/ua-msme-affordable-loans-2022"
+  ],
+  "attempted_grounding_path_refs": [
+    "layer3-gx://pinned-route/g5/demand-pull"
+  ]
+}

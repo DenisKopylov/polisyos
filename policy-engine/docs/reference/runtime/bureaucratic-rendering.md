@@ -1,5 +1,8 @@
 # Runtime Bureaucratic Rendering
 
+Owner: `@runtime-owners`
+Source of truth: `src/polisyos/runtime/http/routes/artifacts.py`, `src/polisyos/runtime/http/services/**`, `packages/runtime-api-client/**`, and `apps/runtime-dashboard/**`
+
 Phase 2.5 adds a renderer that maps a decision packet artifact to a canonical
 document AST, then renders HTML/PDF/DOCX from that same source.
 

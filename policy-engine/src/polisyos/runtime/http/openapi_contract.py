@@ -12,6 +12,12 @@ from polisyos.runtime.http._openapi_contract_helpers import (
 )
 
 _ARTIFACT_ID_SAMPLE = "sha256:" + "a" * 64
+_SHA_PLAN = "sha256:79b64d4f43928e6cd7f7ad678c195d07fc61be69d672e768c82958761c869e1d"
+_SHA_REGISTRY = "sha256:bdedb5a6471e6a1b3bd16ef5065570d33157d96788e0ebc2ca17a569f03921b8"
+_SHA_METHOD = "sha256:08622409c86efbeb945e4bdbdea7585e8eaff6e380c450273bc5b41bcf3f0073"
+_SHA_DATA = "sha256:e79b613f05a6ebf356616cf97caa7b0e4d2dd15853974c3a76251a44ee0222fb"
+_SHA_BINDINGS = "sha256:e823430756f9bab004490a705c8baa7b2e0f441d82d5703239b2cfff3bf264e4"
+_SHA_LINEAGE = "sha256:0713f136ea316c8f3e274d55012e3bf10d05b5263837187a39593ff0d8838dfa"
 _RUN_ID_SAMPLE = "R_core_api_001"
 _REQUEST_ID_SAMPLE = "req_0123456789abcdef"
 _TS_SAMPLE = "2026-02-11T12:00:00Z"
@@ -1588,11 +1594,11 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
                 "seed": 0,
                 "seed_source": "params.random_seed",
                 "determinism_tier": "strict_cpu",
-                "plan_hash": "sha256:planhash",
-                "registry_hash": "sha256:registryhash",
-                "method_catalog_hash": "sha256:cataloghash",
-                "data_snapshot_hash": "sha256:datasnapshothash",
-                "input_bindings_hash": "sha256:bindingshash",
+                "plan_hash": _SHA_PLAN,
+                "registry_hash": _SHA_REGISTRY,
+                "method_catalog_hash": _SHA_METHOD,
+                "data_snapshot_hash": _SHA_DATA,
+                "input_bindings_hash": _SHA_BINDINGS,
                 "readiness": "partial",
                 "why_partial": ["missing_optional_inputs"],
                 "missing_refs": ["input_bindings_ref", "knowledge_bundle_ref"],
@@ -1724,7 +1730,7 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
                 "evaluation_ref": {"artifact_id": _ARTIFACT_ID_SAMPLE},
                 "superseded_by_ref": None,
                 "recommended_action": "human_review",
-                "decision_lineage_key": "sha256:lineage",
+                "decision_lineage_key": _SHA_LINEAGE,
             },
             "normative_summary": {
                 "selected_policy": "weighted_welfare",

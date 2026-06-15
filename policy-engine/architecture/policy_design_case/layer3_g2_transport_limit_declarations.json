@@ -4,32 +4,28 @@
   "transport_limit_declarations": [
     {
       "aggregation_scope_ref": "aggregation://firm",
-      "declaration_id": "g2-transport-limit-declaration:5ab4f9ec64f09c710201ebf9",
+      "declaration_id": "g2-transport-limit-declaration:804dcfcd88d4912983813c0b",
       "forecast_support_binding_refs": [
-        "g2-forecast-support-binding:d65f61522884e1cd85048188"
+        "g2-forecast-support-binding:eee7b28ed5e3ea5bd8cfabf6"
       ],
       "forecast_support_refs": [
-        "pdc://layer3/g2/ua-msme-affordable-loans-2022/forecast-support/d65f61522884e1cd85048188"
+        "pdc://layer3/g2/ua-msme-affordable-loans-2022/forecast-support/eee7b28ed5e3ea5bd8cfabf6"
       ],
-      "issue_codes": [],
+      "issue_codes": [
+        "layer3_g2_transportability_limit_missing"
+      ],
       "jurisdiction_scope_ref": "jurisdiction://UA",
       "limitation_refs": [
         "limitation://forecast/support-only"
       ],
-      "method_transportability_limit_refs": [
-        "transportability_limits:83efbd00157fb5efda4ced39"
-      ],
+      "method_transportability_limit_refs": [],
       "request_ref": "g2-request:default-causal-forecast-method-search",
-      "skg_transport_score_refs": [
-        "skg-transport://06fb46cd681818bc52d1cc01:UA"
-      ],
-      "status": "pass",
-      "transport_confidence_by_ref": {
-        "skg-transport://06fb46cd681818bc52d1cc01:UA": 0.78
-      },
-      "transport_status": "limited",
+      "skg_transport_score_refs": [],
+      "status": "fail",
+      "transport_confidence_by_ref": {},
+      "transport_status": "blocked",
       "uncertainty_interval_refs": [
-        "interval://ua-msme/fertilizer-support/95"
+        "interval://ua-msme/credit-survival/95"
       ]
     }
   ]

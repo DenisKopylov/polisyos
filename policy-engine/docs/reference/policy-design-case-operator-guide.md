@@ -15,6 +15,9 @@ triage_runbook: ../runbooks/policy-design-case-operator-triage.md
 
 # Policy Design Case Operator Guide
 
+Owner: `team-policyos-runtime`
+Source of truth: `docs/reference/policy-design-case-evidence-paths.md`, `docs/reference/policy-design-case-source-ownership.md`, `docs/reference/policy-design-case-structural-adr-registry.md`, and `docs/runbooks/policy-design-case-rollout-rollback.md`
+
 This page is the W5.E operator surface for E23 in the universal Policy Design
 Case program. It tells an operator who did not participate in the research
 thread where to find ADR authority, public evidence paths, tuned-parameter

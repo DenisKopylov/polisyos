@@ -642,6 +642,15 @@ class DatasetCatalogGraph:
     ) -> list[MetricBindingMatch]:
         return self._store.resolve_metric_bindings(metric_name, top_k=top_k)
 
+    def search_metric_bindings(
+        self,
+        query: str,
+        *,
+        top_k: int = 20,
+        modes: tuple[str, ...] = ("exact", "alias", "lexical", "semantic"),
+    ) -> list[MetricBindingMatch]:
+        return self._store.search_metric_bindings(query, top_k=top_k, modes=modes)
+
     def resolve_fetch_target(self, dataset_id: str) -> ResolvedFetchTarget | None:
         return self._store.resolve_fetch_target(dataset_id)
 

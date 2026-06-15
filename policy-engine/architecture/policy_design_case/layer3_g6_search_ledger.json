@@ -1,0 +1,59 @@
+{
+  "absence_or_incompleteness_reason": null,
+  "authoritative_for": [],
+  "completeness_status": "partial_budget_cutoff",
+  "cutoff_budget_ref": "layer3-g6://budget/single-g5-route",
+  "deterministic_replay_key": "sha256:6315e56aa17bdbb7a5bd1ac47b3ea23b2bdb608fbd8d3573d300d28e38c3717d",
+  "issue_codes": [],
+  "ledger_id": "layer3-g6://search-ledger/req-layer3-g6-readiness",
+  "may_not_use_for": [
+    "production_authority",
+    "rollout_authority",
+    "publication_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "public_recommendation",
+    "policy_recommendation",
+    "legal_advice",
+    "claim_authority",
+    "obligation_authority",
+    "causal_effect_authority",
+    "proof_authority",
+    "legal_authority",
+    "g5_conversion_authority_without_g5",
+    "g7_region_widening"
+  ],
+  "normalized_query_refs": [
+    "query://g6/req-layer3-g6-readiness/grammar-facets"
+  ],
+  "ranking_policy_ref": "layer3-g6://ranking-policy/grammar-first-g5-envelope",
+  "rejected_candidate_refs": [
+    "candidate://g6/req-layer3-g6-readiness/rejected/legal-advice-answer"
+  ],
+  "rejected_tool_names": [
+    "unbounded_web_search"
+  ],
+  "request_id": "req-layer3-g6-readiness",
+  "search_health_refs": [
+    "layer3-g6://search-health/same-class-g5-route"
+  ],
+  "searched_index_refs": [
+    "repo://architecture/policy_design_case/inventory.json",
+    "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json"
+  ],
+  "selected_candidate_refs": [
+    "layer3-g6-grammar-candidate:req-layer3-g6-readiness:675b29bdbedad5c4"
+  ],
+  "selected_evidence_refs": [
+    "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json",
+    "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
+    "repo://architecture/policy_design_case/layer3_g5_w12d_consumer_gate.json"
+  ],
+  "selected_tool_names": [
+    "layer3_g6_build_g5_bundle"
+  ],
+  "status": "pass",
+  "typed_request_ref": "layer3-g6://request/req-layer3-g6-readiness"
+}

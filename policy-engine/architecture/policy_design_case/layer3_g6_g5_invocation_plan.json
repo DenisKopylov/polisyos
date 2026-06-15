@@ -1,0 +1,43 @@
+{
+  "authoritative_for": [
+    "layer3_g6_agent_orchestration_audit",
+    "layer3_g6_g5_routing_decision",
+    "layer3_g6_demand_pull_vs_abstention_reading"
+  ],
+  "demand_signal_refs": [],
+  "envelope_match_status": "same_class_as_g5_pinned_case",
+  "g5_bundle_ref": "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json",
+  "g5_bypass_detected": false,
+  "g5_case_id": "ua-msme-affordable-loans-2022",
+  "g5_conversion_outcome": "unchanged_blocker",
+  "g5_conversion_record_ref": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
+  "g5_grounding_disposition": "ungrounded_blocked",
+  "g5_w12d_consumer_gate_ref": "repo://architecture/policy_design_case/layer3_g5_w12d_consumer_gate.json",
+  "g5_w12d_consumer_gate_status": "pass",
+  "invocation_plan_id": "layer3-g6://g5-invocation-plan/req-layer3-g6-readiness",
+  "issue_codes": [],
+  "may_not_use_for": [
+    "production_authority",
+    "rollout_authority",
+    "publication_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "public_recommendation",
+    "policy_recommendation",
+    "legal_advice",
+    "claim_authority",
+    "obligation_authority",
+    "causal_effect_authority",
+    "proof_authority",
+    "legal_authority",
+    "g5_conversion_authority_without_g5",
+    "g7_region_widening"
+  ],
+  "request_id": "req-layer3-g6-readiness",
+  "requested_authority_from_g5": [],
+  "requested_case_id": "ua-msme-affordable-loans-2022",
+  "search_health_refs": [],
+  "status": "pass"
+}

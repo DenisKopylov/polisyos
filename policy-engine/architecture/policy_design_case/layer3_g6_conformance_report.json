@@ -1,0 +1,603 @@
+{
+  "agent_loop_trace_check": {
+    "check_id": "agent_loop_trace_check",
+    "issue_codes": [],
+    "observed_issue_codes": [
+      "layer3_g6_tool_loop_transcript_only_not_audit",
+      "layer3_g6_agent_loop_trace_missing"
+    ],
+    "required_issue_codes": [
+      "layer3_g6_agent_loop_trace_missing",
+      "layer3_g6_tool_loop_transcript_only_not_audit"
+    ],
+    "status": "pass",
+    "trace_ref": "layer3-g6://agent-loop-trace/req-g6-conformance"
+  },
+  "authoritative_for": [
+    "layer3_g6_agent_orchestration_audit"
+  ],
+  "candidate_firewall_check": {
+    "check_id": "candidate_firewall_check",
+    "helper": "candidate_firewall_issues_for_payload",
+    "helper_issue_codes": [
+      "candidate_firewall_hypothesis_ledger_missing"
+    ],
+    "issue_codes": [],
+    "observed_issue_codes": [
+      "layer3_g6_agent_candidate_used_as_authority",
+      "layer3_g6_candidate_without_hypothesis_ledger"
+    ],
+    "required_issue_codes": [
+      "layer3_g6_agent_candidate_used_as_authority",
+      "layer3_g6_candidate_without_hypothesis_ledger"
+    ],
+    "status": "pass"
+  },
+  "g5_bridge_check": {
+    "check_id": "g5_bridge_check",
+    "issue_codes": [],
+    "non_pinned_invocation_ref": "layer3-g6://g5-invocation-plan/req-g6-conformance",
+    "observed_issue_codes": [
+      "layer3_g6_non_pinned_g5_widening_attempt",
+      "layer3_g6_g5_may_not_use_for_ignored",
+      "layer3_g6_outside_g5_envelope",
+      "layer3_g6_outside_envelope_abstention_without_search_health",
+      "layer3_g6_cheap_refusal_without_demand_signal",
+      "layer3_g6_g5_bypass_attempt",
+      "layer3_g6_g7_region_widening_attempt"
+    ],
+    "outside_invocation_ref": "layer3-g6://g5-invocation-plan/req-g6-conformance-outside-envelope",
+    "required_issue_codes": [
+      "layer3_g6_g5_bypass_attempt",
+      "layer3_g6_g5_may_not_use_for_ignored",
+      "layer3_g6_non_pinned_g5_widening_attempt",
+      "layer3_g6_outside_envelope_abstention_without_search_health",
+      "layer3_g6_cheap_refusal_without_demand_signal",
+      "layer3_g6_g7_region_widening_attempt"
+    ],
+    "status": "pass"
+  },
+  "issue_codes": [],
+  "may_not_use_for": [
+    "production_authority",
+    "rollout_authority",
+    "publication_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "public_recommendation",
+    "policy_recommendation",
+    "legal_advice",
+    "claim_authority",
+    "obligation_authority",
+    "causal_effect_authority",
+    "proof_authority",
+    "legal_authority",
+    "g5_conversion_authority_without_g5",
+    "g7_region_widening"
+  ],
+  "negative_results": [
+    {
+      "expected_issue_codes": [
+        "layer3_g6_agent_candidate_used_as_authority"
+      ],
+      "fixture_ref": "fixture://layer3-g6/conformance/agent_fluent_output_as_authority",
+      "negative_id": "agent_fluent_output_as_authority",
+      "observed_issue_codes": [
+        "layer3_g6_agent_candidate_used_as_authority",
+        "layer3_g6_candidate_without_hypothesis_ledger"
+      ],
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g6_rejected_branch_memory_missing"
+      ],
+      "fixture_ref": "fixture://layer3-g6/conformance/tool_choice_bias_hides_counterevidence",
+      "negative_id": "tool_choice_bias_hides_counterevidence",
+      "observed_issue_codes": [
+        "layer3_g6_orchestration_choice_audit_missing",
+        "layer3_g6_rejected_branch_memory_missing"
+      ],
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g6_agent_loop_trace_missing"
+      ],
+      "fixture_ref": "fixture://layer3-g6/conformance/agent_loop_trace_missing",
+      "negative_id": "agent_loop_trace_missing",
+      "observed_issue_codes": [
+        "layer3_g6_agent_loop_trace_missing",
+        "layer3_g6_tool_loop_transcript_only_not_audit"
+      ],
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g6_search_ledger_missing"
+      ],
+      "fixture_ref": "fixture://layer3-g6/conformance/search_ledger_missing",
+      "negative_id": "search_ledger_missing",
+      "observed_issue_codes": [
+        "layer3_g6_search_ledger_authority_boundary_leak",
+        "layer3_g6_search_ledger_missing",
+        "layer3_g6_tool_loop_transcript_only_not_audit"
+      ],
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g6_search_ledger_authority_boundary_leak"
+      ],
+      "fixture_ref": "fixture://layer3-g6/conformance/search_ledger_authority_boundary_leak",
+      "negative_id": "search_ledger_authority_boundary_leak",
+      "observed_issue_codes": [
+        "layer3_g6_search_ledger_authority_boundary_leak",
+        "layer3_g6_search_ledger_missing",
+        "layer3_g6_tool_loop_transcript_only_not_audit"
+      ],
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g6_tool_loop_transcript_only_not_audit"
+      ],
+      "fixture_ref": "fixture://layer3-g6/conformance/tool_loop_transcript_only_not_audit",
+      "negative_id": "tool_loop_transcript_only_not_audit",
+      "observed_issue_codes": [
+        "layer3_g6_agent_loop_trace_missing",
+        "layer3_g6_search_ledger_authority_boundary_leak",
+        "layer3_g6_search_ledger_missing",
+        "layer3_g6_tool_loop_transcript_only_not_audit"
+      ],
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g6_llm_client_unavailable"
+      ],
+      "fixture_ref": "fixture://layer3-g6/conformance/llm_client_unavailable",
+      "negative_id": "llm_client_unavailable",
+      "observed_issue_codes": [
+        "layer3_g6_llm_client_unavailable"
+      ],
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g6_policy_grammar_compile_blocked"
+      ],
+      "fixture_ref": "fixture://layer3-g6/conformance/policy_grammar_compile_blocked",
+      "negative_id": "policy_grammar_compile_blocked",
+      "observed_issue_codes": [
+        "layer3_g6_classifier_only_match_not_authority",
+        "layer3_g6_policy_grammar_compile_blocked",
+        "layer3_g6_policy_grammar_concept_refs_missing"
+      ],
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g6_policy_grammar_concept_refs_missing"
+      ],
+      "fixture_ref": "fixture://layer3-g6/conformance/policy_grammar_concept_refs_missing",
+      "negative_id": "policy_grammar_concept_refs_missing",
+      "observed_issue_codes": [
+        "layer3_g6_classifier_only_match_not_authority",
+        "layer3_g6_policy_grammar_compile_blocked",
+        "layer3_g6_policy_grammar_concept_refs_missing"
+      ],
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g6_runtime_imports_policy_grammar"
+      ],
+      "fixture_ref": "fixture://layer3-g6/conformance/runtime_imports_policy_grammar",
+      "negative_id": "runtime_imports_policy_grammar",
+      "observed_issue_codes": [
+        "layer3_g6_runtime_imports_policy_grammar"
+      ],
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g6_classifier_only_match_not_authority"
+      ],
+      "fixture_ref": "fixture://layer3-g6/conformance/hardcoded_template_classifier_only",
+      "negative_id": "hardcoded_template_classifier_only",
+      "observed_issue_codes": [
+        "layer3_g6_classifier_only_match_not_authority",
+        "layer3_g6_policy_grammar_compile_blocked",
+        "layer3_g6_policy_grammar_concept_refs_missing"
+      ],
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g6_design_record_candidate_used_as_authority"
+      ],
+      "fixture_ref": "fixture://layer3-g6/conformance/design_record_candidate_as_authority",
+      "negative_id": "design_record_candidate_as_authority",
+      "observed_issue_codes": [
+        "layer3_g6_design_record_candidate_used_as_authority",
+        "layer3_g6_g4_source_resolution_bypass_attempt"
+      ],
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g6_g4_source_resolution_bypass_attempt"
+      ],
+      "fixture_ref": "fixture://layer3-g6/conformance/design_record_candidate_as_g4_source_record",
+      "negative_id": "design_record_candidate_as_g4_source_record",
+      "observed_issue_codes": [
+        "layer3_g6_design_record_candidate_used_as_authority",
+        "layer3_g6_g4_source_resolution_bypass_attempt"
+      ],
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g6_g5_bypass_attempt"
+      ],
+      "fixture_ref": "fixture://layer3-g6/conformance/g5_bypass_attempt",
+      "negative_id": "g5_bypass_attempt",
+      "observed_issue_codes": [
+        "layer3_g6_cheap_refusal_without_demand_signal",
+        "layer3_g6_g5_bypass_attempt",
+        "layer3_g6_g5_may_not_use_for_ignored",
+        "layer3_g6_g7_region_widening_attempt",
+        "layer3_g6_non_pinned_g5_widening_attempt",
+        "layer3_g6_outside_envelope_abstention_without_search_health",
+        "layer3_g6_outside_g5_envelope"
+      ],
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g6_g5_may_not_use_for_ignored"
+      ],
+      "fixture_ref": "fixture://layer3-g6/conformance/g5_may_not_use_for_ignored",
+      "negative_id": "g5_may_not_use_for_ignored",
+      "observed_issue_codes": [
+        "layer3_g6_cheap_refusal_without_demand_signal",
+        "layer3_g6_g5_bypass_attempt",
+        "layer3_g6_g5_may_not_use_for_ignored",
+        "layer3_g6_g7_region_widening_attempt",
+        "layer3_g6_non_pinned_g5_widening_attempt",
+        "layer3_g6_outside_envelope_abstention_without_search_health",
+        "layer3_g6_outside_g5_envelope"
+      ],
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g6_non_allowlisted_tool_attempt"
+      ],
+      "fixture_ref": "fixture://layer3-g6/conformance/non_allowlisted_tool_attempt",
+      "negative_id": "non_allowlisted_tool_attempt",
+      "observed_issue_codes": [
+        "layer3_g6_non_allowlisted_tool_attempt"
+      ],
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g6_candidate_without_hypothesis_ledger"
+      ],
+      "fixture_ref": "fixture://layer3-g6/conformance/candidate_without_hypothesis_ledger",
+      "negative_id": "candidate_without_hypothesis_ledger",
+      "observed_issue_codes": [
+        "layer3_g6_agent_candidate_used_as_authority",
+        "layer3_g6_candidate_without_hypothesis_ledger"
+      ],
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g6_public_raw_prompt_leak"
+      ],
+      "fixture_ref": "fixture://layer3-g6/conformance/public_raw_prompt_leak",
+      "negative_id": "public_raw_prompt_leak",
+      "observed_issue_codes": [
+        "layer3_g6_public_raw_prompt_leak"
+      ],
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g6_outside_envelope_abstention_without_search_health"
+      ],
+      "fixture_ref": "fixture://layer3-g6/conformance/outside_envelope_abstention_without_search_health",
+      "negative_id": "outside_envelope_abstention_without_search_health",
+      "observed_issue_codes": [
+        "layer3_g6_cheap_refusal_without_demand_signal",
+        "layer3_g6_g5_bypass_attempt",
+        "layer3_g6_g5_may_not_use_for_ignored",
+        "layer3_g6_g7_region_widening_attempt",
+        "layer3_g6_non_pinned_g5_widening_attempt",
+        "layer3_g6_outside_envelope_abstention_without_search_health",
+        "layer3_g6_outside_g5_envelope"
+      ],
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g6_cheap_refusal_without_demand_signal"
+      ],
+      "fixture_ref": "fixture://layer3-g6/conformance/cheap_refusal_without_demand_signal",
+      "negative_id": "cheap_refusal_without_demand_signal",
+      "observed_issue_codes": [
+        "layer3_g6_cheap_refusal_without_demand_signal",
+        "layer3_g6_g5_bypass_attempt",
+        "layer3_g6_g5_may_not_use_for_ignored",
+        "layer3_g6_g7_region_widening_attempt",
+        "layer3_g6_non_pinned_g5_widening_attempt",
+        "layer3_g6_outside_envelope_abstention_without_search_health",
+        "layer3_g6_outside_g5_envelope"
+      ],
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g6_non_pinned_g5_widening_attempt"
+      ],
+      "fixture_ref": "fixture://layer3-g6/conformance/out_of_envelope_g5_widening_attempt",
+      "negative_id": "out_of_envelope_g5_widening_attempt",
+      "observed_issue_codes": [
+        "layer3_g6_cheap_refusal_without_demand_signal",
+        "layer3_g6_g5_bypass_attempt",
+        "layer3_g6_g5_may_not_use_for_ignored",
+        "layer3_g6_g7_region_widening_attempt",
+        "layer3_g6_non_pinned_g5_widening_attempt",
+        "layer3_g6_outside_envelope_abstention_without_search_health",
+        "layer3_g6_outside_g5_envelope"
+      ],
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g6_prompt_tool_ledger_missing"
+      ],
+      "fixture_ref": "fixture://layer3-g6/conformance/prompt_tool_ledger_missing",
+      "negative_id": "prompt_tool_ledger_missing",
+      "observed_issue_codes": [
+        "layer3_g6_prompt_tool_ledger_misread_as_authority",
+        "layer3_g6_prompt_tool_ledger_missing"
+      ],
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g6_prompt_tool_ledger_misread_as_authority"
+      ],
+      "fixture_ref": "fixture://layer3-g6/conformance/prompt_tool_ledger_misread_as_authority",
+      "negative_id": "prompt_tool_ledger_misread_as_authority",
+      "observed_issue_codes": [
+        "layer3_g6_prompt_tool_ledger_misread_as_authority",
+        "layer3_g6_prompt_tool_ledger_missing"
+      ],
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g6_orchestration_continuity_missing"
+      ],
+      "fixture_ref": "fixture://layer3-g6/conformance/orchestration_continuity_missing",
+      "negative_id": "orchestration_continuity_missing",
+      "observed_issue_codes": [
+        "layer3_g6_orchestration_continuity_missing",
+        "layer3_g6_orchestration_continuity_refs_missing"
+      ],
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g6_orchestration_continuity_refs_missing"
+      ],
+      "fixture_ref": "fixture://layer3-g6/conformance/orchestration_continuity_refs_missing",
+      "negative_id": "orchestration_continuity_refs_missing",
+      "observed_issue_codes": [
+        "layer3_g6_orchestration_continuity_missing",
+        "layer3_g6_orchestration_continuity_refs_missing"
+      ],
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g6_replay_manifest_missing"
+      ],
+      "fixture_ref": "fixture://layer3-g6/conformance/replay_manifest_missing",
+      "negative_id": "replay_manifest_missing",
+      "observed_issue_codes": [
+        "layer3_g6_orchestration_continuity_missing",
+        "layer3_g6_orchestration_continuity_refs_missing",
+        "layer3_g6_replay_drift_unexplained",
+        "layer3_g6_replay_manifest_missing"
+      ],
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g6_replay_drift_unexplained"
+      ],
+      "fixture_ref": "fixture://layer3-g6/conformance/replay_drift_unexplained",
+      "negative_id": "replay_drift_unexplained",
+      "observed_issue_codes": [
+        "layer3_g6_orchestration_continuity_missing",
+        "layer3_g6_orchestration_continuity_refs_missing",
+        "layer3_g6_replay_drift_unexplained",
+        "layer3_g6_replay_manifest_missing"
+      ],
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g6_orchestration_choice_audit_missing"
+      ],
+      "fixture_ref": "fixture://layer3-g6/conformance/orchestration_choice_audit_missing",
+      "negative_id": "orchestration_choice_audit_missing",
+      "observed_issue_codes": [
+        "layer3_g6_orchestration_choice_audit_missing",
+        "layer3_g6_rejected_branch_memory_missing"
+      ],
+      "status": "pass"
+    },
+    {
+      "expected_issue_codes": [
+        "layer3_g6_g7_region_widening_attempt"
+      ],
+      "fixture_ref": "fixture://layer3-g6/conformance/g7_region_widening_attempt",
+      "negative_id": "g7_region_widening_attempt",
+      "observed_issue_codes": [
+        "layer3_g6_cheap_refusal_without_demand_signal",
+        "layer3_g6_g5_bypass_attempt",
+        "layer3_g6_g5_may_not_use_for_ignored",
+        "layer3_g6_g7_region_widening_attempt",
+        "layer3_g6_non_pinned_g5_widening_attempt",
+        "layer3_g6_outside_envelope_abstention_without_search_health",
+        "layer3_g6_outside_g5_envelope"
+      ],
+      "status": "pass"
+    }
+  ],
+  "orchestration_continuity_check": {
+    "check_id": "orchestration_continuity_check",
+    "continuity_ref": "layer3-g6://orchestration-continuity/req-g6-conformance/negative",
+    "issue_codes": [],
+    "observed_issue_codes": [
+      "layer3_g6_orchestration_continuity_missing",
+      "layer3_g6_orchestration_continuity_refs_missing"
+    ],
+    "required_issue_codes": [
+      "layer3_g6_orchestration_continuity_missing",
+      "layer3_g6_orchestration_continuity_refs_missing"
+    ],
+    "status": "pass"
+  },
+  "performance_contract": {
+    "bounded_artifact_read_policy": "explicit_expected_paths_only",
+    "g5_builder_import_mode": "lazy",
+    "llm_simulation_mode_supported": true,
+    "network_tool_access_default": false,
+    "request_path_repo_glob_allowed": false,
+    "shell_tool_access_default": false
+  },
+  "public_projection_boundary_check": {
+    "check_id": "public_projection_boundary_check",
+    "helper": "assert_policy_design_projection_not_authority",
+    "issue_codes": [],
+    "observed_issue_codes": [
+      "layer3_g6_public_raw_prompt_leak"
+    ],
+    "public_projection_contract_verification": {
+      "checked_schema_version": "policyos.runtime.policy_design_case.projection.v1",
+      "issue_codes": [],
+      "observed_denied_uses": [
+        "approval_authority",
+        "causal_effect_authority",
+        "claim_authority",
+        "closeout_authority",
+        "g5_conversion_authority_without_g5",
+        "g7_region_widening",
+        "legal_advice",
+        "legal_authority",
+        "obligation_authority",
+        "policy_recommendation",
+        "production_authority",
+        "proof_authority",
+        "public_recommendation",
+        "publication_authority",
+        "recommendation_authority",
+        "rollout_authority",
+        "runtime_closeout_authority",
+        "scorecard_authority"
+      ],
+      "projection_contract_ref": "layer3-g6://public-projection-contract",
+      "required_denied_uses": [
+        "claim_authority",
+        "policy_recommendation",
+        "recommendation_authority",
+        "runtime_closeout_authority",
+        "scorecard_authority"
+      ],
+      "status": "pass"
+    },
+    "required_issue_codes": [
+      "layer3_g6_public_raw_prompt_leak"
+    ],
+    "status": "pass",
+    "surface_ref": "layer3_g6_bounded_agent_surface"
+  },
+  "replay_manifest_check": {
+    "check_id": "replay_manifest_check",
+    "drift_report_ref": "layer3-g6://replay-drift-report",
+    "issue_codes": [],
+    "manifest_ref": "layer3-g6://replay-manifest/req-g6-conformance",
+    "observed_issue_codes": [
+      "layer3_g6_replay_manifest_missing",
+      "layer3_g6_orchestration_continuity_missing",
+      "layer3_g6_orchestration_continuity_refs_missing",
+      "layer3_g6_replay_drift_unexplained"
+    ],
+    "required_issue_codes": [
+      "layer3_g6_replay_manifest_missing",
+      "layer3_g6_replay_drift_unexplained"
+    ],
+    "status": "pass"
+  },
+  "report_id": "layer3-g6://conformance/report",
+  "runtime_import_boundary_check": {
+    "check_id": "runtime_import_boundary_check",
+    "forbidden_import_present": false,
+    "issue_codes": [],
+    "observed_issue_codes": [
+      "layer3_g6_runtime_imports_policy_grammar"
+    ],
+    "required_issue_codes": [
+      "layer3_g6_runtime_imports_policy_grammar"
+    ],
+    "status": "pass"
+  },
+  "search_ledger_check": {
+    "check_id": "search_ledger_check",
+    "issue_codes": [],
+    "ledger_ref": "layer3-g6://search-ledger/req-g6-conformance-search-negative",
+    "observed_issue_codes": [
+      "layer3_g6_search_ledger_authority_boundary_leak",
+      "layer3_g6_search_ledger_missing",
+      "layer3_g6_tool_loop_transcript_only_not_audit"
+    ],
+    "required_issue_codes": [
+      "layer3_g6_search_ledger_missing",
+      "layer3_g6_search_ledger_authority_boundary_leak",
+      "layer3_g6_tool_loop_transcript_only_not_audit"
+    ],
+    "status": "pass"
+  },
+  "status": "pass",
+  "tool_contract_check": {
+    "check_id": "tool_contract_check",
+    "default_blockers": [],
+    "helper": "summarize_tool_contracts/tool_contract_default_blockers",
+    "issue_codes": [],
+    "observed_issue_codes": [
+      "layer3_g6_non_allowlisted_tool_attempt"
+    ],
+    "observed_tool_names": [
+      "layer3_g6_classify_request",
+      "layer3_g6_build_g5_bundle",
+      "layer3_g6_read_g5_conversion",
+      "layer3_g6_probe_counterexample",
+      "layer3_g6_probe_envelope_match",
+      "unbounded_web_search"
+    ],
+    "required_issue_codes": [
+      "layer3_g6_non_allowlisted_tool_attempt"
+    ],
+    "status": "pass"
+  }
+}

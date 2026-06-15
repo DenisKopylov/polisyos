@@ -1,0 +1,13 @@
+{
+  "counterexample_probe_refs": [
+    "candidate://g6/req-layer3-g6-readiness/counterexample/legal-authority"
+  ],
+  "issue_codes": [],
+  "record_id": "layer3-g6://counterexample-refinement/req-layer3-g6-readiness",
+  "rejected_branch_refs": [
+    "candidate://g6/req-layer3-g6-readiness/rejected/legal-advice-answer"
+  ],
+  "rule_version": "policyos.layer3.g6.bounded_agent.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g6_bounded_agent.v1",
+  "status": "pass"
+}

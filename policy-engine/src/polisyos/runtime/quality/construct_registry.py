@@ -10,14 +10,17 @@ from typing import Any, Literal
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from polisyos.runtime.quality.layer3_gx_data_home import read_layer3_gx_pinned_case_id
+
 CONSTRUCT_REGISTRY_SCHEMA_VERSION = "policyos.construct_registry.v1"
 CONSTRUCT_REGISTRY_ID = "policyos.policy_evidence.construct_registry"
 CONSTRUCT_REGISTRY_VERSION = "2026.05.phase2"
 CONSTRUCT_REGISTRY_RULE_VERSION = "construct-registry-v1.0"
+REPO_ROOT = Path(__file__).resolve().parents[4]
 CONSTRUCT_REGISTRY_DEFAULT_PATH = (
-    Path(__file__).resolve().parents[4]
-    / "architecture/policy_design_case/construct_registry_v1.yaml"
+    REPO_ROOT / "architecture/policy_design_case/construct_registry_v1.yaml"
 )
+PINNED_CASE_ID = read_layer3_gx_pinned_case_id(REPO_ROOT)
 
 AuthorityPosture = Literal["research", "governed_pilot", "production"]
 ConstructStatus = Literal["active", "deprecated", "withdrawn"]
@@ -586,7 +589,7 @@ def non_ukraine_bound_constructs(
         construct.construct_id
         for construct in model.constructs
         if any(
-            binding.case_id != "ua-msme-affordable-loans-2022"
+            binding.case_id != PINNED_CASE_ID
             for binding in construct.corpus_bindings
         )
     ]

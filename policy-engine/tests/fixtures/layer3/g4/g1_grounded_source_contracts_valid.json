@@ -1,0 +1,26 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1",
+  "grounded_source_contracts": {
+    "bindings": [
+      {
+        "binding_id": "g1-binding:firm-survival",
+        "case_id": "ua-msme-affordable-loans-2022",
+        "construct_ref": "firm_survival",
+        "source_contract_ref": "source-contract://layer3.ua_msme.firm_survival.panel",
+        "source_contract_content_hash": "sha256:g1-conformance-fixture",
+        "lineage_refs": [
+          "repo://tests/fixtures/layer3/g4/g1_grounded_source_contracts_valid.json"
+        ],
+        "may_not_use_for": [
+          "claim_authority",
+          "production_authority"
+        ]
+      }
+    ],
+    "source_contract_snapshots": {
+      "source-contract://layer3.ua_msme.firm_survival.panel": {
+        "content_hash": "sha256:g1-conformance-fixture"
+      }
+    }
+  }
+}

@@ -31,6 +31,48 @@ publishes conversion-record refs, blocker/limitation refs, and projection-only
 public refs; `layer3_g5_public_export_projection_refs.json` records
 `out_of_scope_reference_only` and does not register a public-export bundle route.
 
+`layer3_g6_bounded_agent_surface` is a generated PUBLIC/REVIEWER/EXPERT/MACHINE
+Policy Design Case audit surface documented in
+`docs/reference/policy-design-case-layer3-bounded-agent.md`. It publishes
+agent-run refs, policy-grammar projection refs, G5 invocation refs,
+search-ledger refs, replay-manifest refs, orchestration-continuity refs,
+candidate DesignRecord handoff refs, orchestration-choice audit refs, and
+projection-only public refs;
+`layer3_g6_public_export_projection_refs.json` records
+`out_of_scope_reference_only` and does not register a public-export bundle route.
+
+`layer3_g7_region_widening_surface` is a generated
+PUBLIC/REVIEWER/EXPERT/MACHINE Policy Design Case audit surface documented here
+until the region-widening reference page graduates. It publishes region
+scorecard refs, conversion status matrix refs, S12/S13/S14 projection status,
+replay-manifest refs, orchestration-continuity refs, route registry refs, and
+projection-only public refs; `layer3_g7_public_export_projection_refs.json`
+records `out_of_scope_reference_only`, does not register a public-export bundle
+route, and does not publish universal authority.
+
+`layer3_g8_health_metric_governance_surface` is a generated EXPERT/MACHINE
+Policy Design Case audit surface documented here until the health-metric
+governance reference page graduates. It publishes metric registry refs,
+normalized metric signal refs, cross-metric diagnosis refs, D4.4 re-basing
+receipt refs, replay-manifest refs, route registry refs, blocker-specific
+search-health classifications for seed corpus, pinned request, current blocker,
+and production readiness, and
+`layer3_g8_closeout_signal_consumer_gate.json` refs. PUBLIC/REVIEWER access is
+projection-only through `layer3_g8_public_export_projection_refs.json`, which
+records `out_of_scope_reference_only` and does not register a public-export
+bundle route.
+
+`layer3_gx_universal_free_growth_hardening_surface` is a generated
+EXPERT/MACHINE Policy Design Case hardening audit surface documented here
+until the GX reference page graduates. It publishes data-home refs, runtime
+literal lint refs, reducer/provenance refs, measurement replay refs, vertical
+pinned-route refs, provisional and final Task 12 outcome/audit refs, data
+mutation free-growth refs, and expected-red refs. PUBLIC/REVIEWER access is
+out of scope until a dedicated GX public-export projection is produced; the
+surface does not register a public-export bundle route and does not publish
+production, closeout, domain-ceiling, recommendation, or useful-design
+authority.
+
 | Package | Classification | Facade | Exports | Owner | README |
 | --- | --- | --- | ---: | --- | --- |
 | `polisyos.common` | `public_stable` | `lazy_facade` | 7 | `team-polisyos` | `src/polisyos/common/README.md` |
@@ -42,7 +84,7 @@ public refs; `layer3_g5_public_export_projection_refs.json` records
 | `polisyos.participation_requirement` | `internal` | `eager_exports` | 23 | `team-policyos-runtime` | `src/polisyos/participation_requirement/README.md` |
 | `polisyos.fabric` | `public_stable` | `lazy_facade` | 36 | `team-polisyos` | `src/polisyos/fabric/README.md` |
 | `polisyos.foundry` | `public_stable` | `lazy_facade` | 4 | `team-polisyos` | `src/polisyos/foundry/README.md` |
-| `polisyos.scientist` | `public_stable` | `lazy_facade` | 7 | `team-polisyos` | `src/polisyos/scientist/README.md` |
+| `polisyos.scientist` | `public_stable` | `lazy_facade` | 15 | `team-polisyos` | `src/polisyos/scientist/README.md` |
 | `polisyos.evidence` | `internal` | `eager_exports` | 19 | `team-policyos-runtime` | `src/polisyos/evidence/README.md` |
 | `polisyos.runtime` | `public_stable` | `lazy_facade` | 10 | `team-polisyos` | `src/polisyos/runtime/README.md` |
 | `polisyos.lex` | `public_stable` | `lazy_facade` | 53 | `team-polisyos` | `src/polisyos/lex/README.md` |
@@ -640,16 +682,24 @@ select_method_candidates_for_requirements
 - Notes: Workflow orchestration facade for experiment execution and shared observability hooks.
 - Summary: Stable Scientist package facade for workflow execution and run observability.
 
-<details><summary>Supported exports (7)</summary>
+<details><summary>Supported exports (15)</summary>
 
 ```text
 ExperimentState
+ToolContractSummary
+ToolDefinition
+ToolLoopResult
+ToolRegistry
 build_governance_pipeline
+create_traced_gateway_client
 discover_scientist_nodes
 get_metrics
 get_tracer
 load_governance_passes
 run_experiment
+run_tool_loop
+summarize_tool_contracts
+tool_contract_default_blockers
 ```
 
 </details>

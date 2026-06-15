@@ -54,8 +54,8 @@
         "capability_id": "core",
         "current_capability_label": "implemented",
         "current_imports": [],
-        "file_count": 196,
-        "loc": 46789,
+        "file_count": 198,
+        "loc": 46959,
         "mapped_port_ids": [],
         "owner_evidence_ref": "repo://src/polisyos/core/README.md",
         "package_kind": "support_package",
@@ -83,7 +83,7 @@
         "current_capability_label": "implemented_but_not_orchestrated",
         "current_imports": [],
         "file_count": 260,
-        "loc": 110306,
+        "loc": 110447,
         "mapped_port_ids": [],
         "owner_evidence_ref": "repo://src/polisyos/data_forge/README.md",
         "package_kind": "source_package",
@@ -103,7 +103,7 @@
           "policy_grammar"
         ],
         "file_count": 4,
-        "loc": 1471,
+        "loc": 1538,
         "mapped_port_ids": [],
         "owner_evidence_ref": "repo://src/polisyos/data_requirement/README.md",
         "package_kind": "source_package",
@@ -333,8 +333,8 @@
           "runtime",
           "scientist"
         ],
-        "file_count": 185,
-        "loc": 189430,
+        "file_count": 191,
+        "loc": 205405,
         "mapped_port_ids": [
           "DESIGNER_ITSELF.closeout"
         ],
@@ -404,7 +404,7 @@
           "scientist"
         ],
         "file_count": 580,
-        "loc": 202421,
+        "loc": 202446,
         "mapped_port_ids": [],
         "owner_evidence_ref": "repo://src/polisyos/scientist/README.md",
         "package_kind": "source_package",
@@ -417,7 +417,7 @@
         "capability_id": "production-data",
         "current_capability_label": "artifact_missing",
         "current_imports": [],
-        "file_count": 6551,
+        "file_count": 6562,
         "loc": 0,
         "mapped_port_ids": [
           "DESIGNER_ITSELF.cluster_evidence"

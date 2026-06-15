@@ -293,10 +293,7 @@ def _create_minimal_skg_fixture(
         )
         """
     )
-    con.execute(
-        "INSERT INTO ac_skg_parameters VALUES "
-        "('firm.survival', '{\"value\": 0.12}', '{}')"
-    )
+    con.execute("INSERT INTO ac_skg_parameters VALUES ('firm.survival', '{\"value\": 0.12}', '{}')")
     if include_transport_scores:
         con.execute(
             """
@@ -306,13 +303,15 @@ def _create_minimal_skg_fixture(
                 target_context_id VARCHAR,
                 transport_confidence DOUBLE,
                 match_mode VARCHAR,
-                matched_moderators_json VARCHAR
+                matched_moderators_json VARCHAR,
+                generic_penalty DOUBLE,
+                context_match_reward DOUBLE
             )
             """
         )
         con.execute(
             "INSERT INTO ac_skg_transport_scores VALUES "
-            "('transport-1', 'edge-1', 'UA', 0.61, 'fixture', '[]')"
+            "('transport-1', 'edge-1', 'UA', 0.61, 'fixture', '[]', 0.0, 0.1)"
         )
     con.execute(
         """
@@ -380,10 +379,7 @@ def _create_minimal_skg_fixture(
         )
         """
     )
-    con.execute(
-        "INSERT INTO ac_skg_versions VALUES "
-        "(1, now(), 1, 1, 1, 'fixture')"
-    )
+    con.execute("INSERT INTO ac_skg_versions VALUES (1, now(), 1, 1, 1, 'fixture')")
     con.close()
     return db_path, academic_root
 
@@ -415,6 +411,120 @@ def _write_method_registry_fixture(tmp_path: Path) -> Path:
         encoding="utf-8",
     )
     return path
+
+
+def _write_g2_data_home_fixture(tmp_path: Path) -> None:
+    pdc = tmp_path / "architecture/policy_design_case"
+    pdc.mkdir(parents=True, exist_ok=True)
+    case_id = "case:g2-task6-temp-store"
+    producer_root = "external-request://layer3-gx"
+    (pdc / "layer3_gx_pinned_request.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "policyos.policy_design_case.layer3_gx_pinned_request.v1",
+                "request_id": "gx-request:g2-task6-temp-store",
+                "case_id": case_id,
+                "request_ref": "external-request://layer3-gx/request/g2-task6-temp-store",
+                "producer_ref": f"{producer_root}/pinned-request/{case_id}",
+                "producer_type": "external_request",
+                "producer_root_refs": (f"{producer_root}/root/{case_id}",),
+                "authority_purpose": "temp_store_free_growth_request_only",
+                "expected_consumer_path": ("G1", "G2", "G4", "G5"),
+                "requested_constructs": (
+                    {
+                        "construct_ref": "policy.credit_access",
+                        "role": "cause",
+                        "g1_request_shape": "construct_to_metric_binding",
+                        "g2_variable_ref": "policy.credit_access",
+                        "broad_query_terms": ("credit access",),
+                    },
+                    {
+                        "construct_ref": "firm.survival",
+                        "role": "effect",
+                        "g1_request_shape": "construct_to_metric_binding",
+                        "g2_variable_ref": "firm.survival",
+                        "broad_query_terms": ("firm survival",),
+                    },
+                ),
+                "g1_requests": (),
+                "g2_request": {
+                    "request_id": "g2-request:task6-temp-store",
+                    "cause": "policy.credit_access",
+                    "effect": "firm.survival",
+                    "target_context_id": "UA",
+                    "limit": 8,
+                },
+                "g4_promotion_requests": (),
+                "may_not_use_for": ("production_authority",),
+            },
+            sort_keys=True,
+        ),
+        encoding="utf-8",
+    )
+    (pdc / "layer3_gx_concept_alias_seed_rows.json").write_text(
+        json.dumps(
+            {
+                "schema_version": (
+                    "policyos.policy_design_case.layer3_gx_concept_alias_seed_rows.v1"
+                ),
+                "producer_ref": f"{producer_root}/alias/{case_id}",
+                "producer_type": "external_request",
+                "alias_rows": (
+                    {
+                        "row_id": "alias:g2-task6-credit-access",
+                        "concept_ref": "policy.credit_access",
+                        "aliases": ("credit access",),
+                    },
+                    {
+                        "row_id": "alias:g2-task6-firm-survival",
+                        "concept_ref": "firm.survival",
+                        "aliases": ("firm survival",),
+                    },
+                ),
+            },
+            sort_keys=True,
+        ),
+        encoding="utf-8",
+    )
+    (pdc / "layer3_gx_scope_seed_rows.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "policyos.policy_design_case.layer3_gx_scope_seed_rows.v1",
+                "producer_ref": f"{producer_root}/scope/{case_id}",
+                "producer_type": "external_request",
+                "scope_rows": (
+                    {"scope_key": "entity_type", "value": "firm"},
+                    {"scope_key": "population", "value": "msme"},
+                    {"scope_key": "geography", "value": "UA"},
+                    {"scope_key": "modality", "value": "panel"},
+                    {"scope_key": "source_family_alias", "value": "task6_temp_skg"},
+                    {"scope_key": "validity_limit", "value": "temp_store_only"},
+                ),
+            },
+            sort_keys=True,
+        ),
+        encoding="utf-8",
+    )
+    (pdc / "layer3_gx_demand_pull_request.json").write_text(
+        json.dumps(
+            {
+                "schema_version": "policyos.policy_design_case.layer3_gx_demand_pull_request.v1",
+                "request_id": "gx-demand:g2-task6-temp-store",
+                "case_id": case_id,
+                "producer_ref": f"{producer_root}/demand-pull/{case_id}",
+                "producer_type": "external_request",
+                "source": "task6_temp_store_test",
+                "timestamp": "2026-06-12T00:00:00Z",
+                "accountable_principal_ref": "principal://task6-temp-store",
+                "replay_key": "gx-demand:g2-task6-temp-store:replay",
+                "consumer_path": ("G1", "G2", "G4", "G5"),
+                "demand_refs": ("demand://task6-temp-store",),
+                "attempted_grounding_path_refs": ("path://task6-temp-store/g2",),
+            },
+            sort_keys=True,
+        ),
+        encoding="utf-8",
+    )
 
 
 def _sha(char: str) -> str:
@@ -608,9 +718,7 @@ def _g2_semantic_spine_kwargs(**overrides: object) -> dict[str, object]:
             "policy.credit_access": "reconciled",
             "firm.survival": "reconciled",
         },
-        "producer_handshake_refs": (
-            "producer-handshake://g1-skg-foundry-s10/credit-survival",
-        ),
+        "producer_handshake_refs": ("producer-handshake://g1-skg-foundry-s10/credit-survival",),
         "candidate_refs": (
             "source-contract://ua-msme/server-support",
             "skg-variable://policy.credit_access",
@@ -623,7 +731,9 @@ def _g2_semantic_spine_kwargs(**overrides: object) -> dict[str, object]:
     return payload
 
 
-def _g2_concept_alignment_kwargs(g2: Any, semantic_binding: Any, **overrides: object) -> dict[str, object]:
+def _g2_concept_alignment_kwargs(
+    g2: Any, semantic_binding: Any, **overrides: object
+) -> dict[str, object]:
     request = _g2_forecast_request()
     payload: dict[str, object] = {
         "request": request,
@@ -674,9 +784,7 @@ def _g2_s10_prerequisite_kwargs(
         "s6_firewall_status_refs": ("pdc://layer2/s6/ua-msme/measurability-adequacy",),
         "s6_limitation_refs": ("pdc://layer2/s6/ua-msme/strategic-response-limitation",),
         "s8_value_choice_provenance_ref": "pdc://layer2/s8/ua-msme/value-choice-provenance",
-        "s8_value_tradeoff_disclosure_ref": (
-            "pdc://layer2/s8/ua-msme/value-tradeoff-disclosure"
-        ),
+        "s8_value_tradeoff_disclosure_ref": ("pdc://layer2/s8/ua-msme/value-tradeoff-disclosure"),
         "source_contract_ref": "source-contract://ua-msme/server-support",
         "method_validity_ref": "method-validity://foundry/causal/local",
         "sensitivity_analysis_ref": "sensitivity://ua-msme/credit-access",
@@ -734,9 +842,9 @@ def _g2_task4_positive_objects(**prereq_overrides: object) -> dict[str, object]:
     g2 = _g2()
     request = _g2_forecast_request()
     semantic = g2.build_g2_semantic_spine_bindings(**_g2_semantic_spine_kwargs())[0]
-    alignment = g2.build_g2_concept_alignment_records(
-        **_g2_concept_alignment_kwargs(g2, semantic)
-    )[0]
+    alignment = g2.build_g2_concept_alignment_records(**_g2_concept_alignment_kwargs(g2, semantic))[
+        0
+    ]
     method_validity = _g2_method_validity_record(g2, request)
     prerequisite = g2.build_g2_s10_prerequisite_bindings(
         **_g2_s10_prerequisite_kwargs(
@@ -795,14 +903,38 @@ def test_g2_runtime_exposes_plan_dtos_builders_validators_and_issue_codes() -> N
     g2 = _g2()
 
     missing_dtos = {name for name in EXPECTED_DTOS if not hasattr(g2, name)}
-    missing_functions = {
-        name for name in EXPECTED_BUILDERS_AND_VALIDATORS if not hasattr(g2, name)
-    }
+    missing_functions = {name for name in EXPECTED_BUILDERS_AND_VALIDATORS if not hasattr(g2, name)}
     issue_codes = set(getattr(g2, "ALL_ISSUE_CODES", ()))
 
     assert not missing_dtos
     assert not missing_functions
     assert issue_codes >= REQUIRED_ISSUE_CODES
+
+
+def test_g2_default_persisted_request_uses_pinned_credit_survival_semantics() -> None:
+    g2 = _g2()
+
+    request = g2._default_g2_method_request()
+
+    assert request.case_id == "ua-msme-affordable-loans-2022"
+    assert request.cause == "policy.credit_access"
+    assert request.effect == "firm.survival"
+
+
+def test_g2_synthetic_fixture_candidate_cannot_produce_persisted_calibrated() -> None:
+    g2 = _g2()
+    bundle = g2.build_layer3_g2_bundle(REPO_ROOT)
+    payload = _dump(bundle)
+
+    assert payload["readiness_manifest"]["adapter_maturity"] == "fail_closed"
+    assert payload["readiness_manifest"]["status"] == "fail"
+    assert (
+        "layer3_g2_synthetic_calibration_overclaim" in payload["readiness_manifest"]["issue_codes"]
+    )
+    assert not any(
+        binding["adapter_maturity"] == "calibrated"
+        for binding in payload["forecast_support_bindings"]
+    )
 
 
 def test_g2_bundle_builder_returns_all_persisted_contract_sections() -> None:
@@ -815,9 +947,13 @@ def test_g2_bundle_builder_returns_all_persisted_contract_sections() -> None:
     assert set(payload) >= EXPECTED_BUNDLE_SECTIONS
     assert payload["readiness_manifest"]["schema_version"] == G2_SCHEMA_VERSION
     assert payload["readiness_manifest"]["rule_version"] == G2_RULE_VERSION
-    assert payload["conformance_report"]["status"] == "pass"
-    assert payload["conformance_report"]["conformance_status"] == "pass"
-    assert payload["conformance_report"]["issue_codes"] == []
+    assert payload["readiness_manifest"]["status"] == "fail"
+    assert payload["readiness_manifest"]["adapter_maturity"] == "fail_closed"
+    assert payload["conformance_report"]["status"] == "fail"
+    assert payload["conformance_report"]["conformance_status"] == "fail"
+    assert (
+        "layer3_g2_synthetic_calibration_overclaim" in payload["conformance_report"]["issue_codes"]
+    )
 
 
 def test_g2_conformance_passes_for_runtime_bundle_and_summarizes_final_gates() -> None:
@@ -826,16 +962,16 @@ def test_g2_conformance_passes_for_runtime_bundle_and_summarizes_final_gates() -
 
     report = _dump(g2.validate_g2_adapter_conformance(REPO_ROOT, bundle))
 
-    assert report["status"] == "pass"
-    assert report["conformance_status"] == "pass"
-    assert report["issue_codes"] == []
-    assert report["capability_reality_label"] == "implemented"
-    assert report["check_statuses"]["g2_conformance_status"] == "pass"
+    assert report["status"] == "fail"
+    assert report["conformance_status"] == "fail"
+    assert "layer3_g2_synthetic_calibration_overclaim" in report["issue_codes"]
+    assert report["capability_reality_label"] == "semantic_test_missing"
+    assert report["check_statuses"]["g2_conformance_status"] == "fail"
     assert report["check_statuses"]["g2_l2_skg_coverage_status"] == "pass"
     assert report["check_statuses"]["g2_foundry_method_registry_search_status"] == "pass"
-    assert report["check_statuses"]["g2_method_requirement_status"] == "pass"
+    assert report["check_statuses"]["g2_method_requirement_status"] == "fail"
     assert report["check_statuses"]["g2_semantic_binding_spine_status"] == "pass"
-    assert report["check_statuses"]["g2_w12d_consumer_gate_status"] == "pass"
+    assert report["check_statuses"]["g2_w12d_consumer_gate_status"] == "fail"
     assert report["check_statuses"]["g2_engineering_quality_status"] == "pass"
 
 
@@ -942,16 +1078,12 @@ def test_g2_conformance_passes_for_runtime_bundle_and_summarizes_final_gates() -
         ),
         (
             "single_request_generality",
-            lambda payload: payload["free_growth_report"].update(
-                {"free_growth_fixture_count": 1}
-            ),
+            lambda payload: payload["free_growth_report"].update({"free_growth_fixture_count": 1}),
             {"layer3_g2_mechanism_generality_single_request"},
         ),
         (
             "method_registry_not_queried",
-            lambda payload: payload["foundry_method_registry_search"].update(
-                {"status": "fail"}
-            ),
+            lambda payload: payload["foundry_method_registry_search"].update({"status": "fail"}),
             {"layer3_g2_foundry_method_registry_not_queried"},
         ),
         (
@@ -1332,6 +1464,46 @@ def test_g2_validator_rejects_search_control_and_authority_laundering() -> None:
     } <= _issue_codes(report)
 
 
+def test_g2_validator_requires_search_hit_authority_denial_on_ledgers() -> None:
+    report = _g2().validate_layer3_g2_bundle(
+        REPO_ROOT,
+        {
+            "schema_version": G2_SCHEMA_VERSION,
+            "rule_version": G2_RULE_VERSION,
+            "l2_skg_search_ledgers": [
+                {
+                    "ledger_id": "g2-ledger:missing-search-hit-denial",
+                    "event_type": "selected_candidate",
+                    "request_ref": "g2-request:missing-search-hit-denial",
+                    "canonical_l2_route": "scholar_knowledge.duckdb",
+                    "query_trace_refs": ["g2-trace:missing-search-hit-denial"],
+                    "searched_table_refs": ["ac_skg_edges"],
+                    "selected_candidate_refs": ["skg-edge://edge-1"],
+                    "authoritative_for": [],
+                    "may_not_use_for": ["claim_authority"],
+                    "replay_key": "g2-ledger:missing-search-hit-denial:replay",
+                }
+            ],
+            "l2_skg_query_traces": [
+                {
+                    "trace_id": "g2-trace:missing-search-hit-denial",
+                    "query_api_route": "polisyos.data_forge.read_api.academic.SKGQuery",
+                    "canonical_l2_route": "scholar_knowledge.duckdb",
+                    "table_refs": ["ac_skg_edges"],
+                    "predicates": {},
+                    "limit": 1,
+                    "result_count": 1,
+                    "row_refs": ["skg-edge://edge-1"],
+                    "skg_snapshot_ref": "duckdb://fixture#v1",
+                }
+            ],
+        },
+    )
+
+    assert _dump(report)["status"] == "fail"
+    assert "layer3_g2_search_ledger_authority_boundary_leak" in _issue_codes(report)
+
+
 def test_g2_task1_core_dtos_are_strict_and_fail_on_extra_fields() -> None:
     g2 = _g2()
 
@@ -1430,7 +1602,10 @@ def test_g2_l2_skg_search_emits_replayable_trace_and_control_plane_ledger() -> N
     assert ledger["forecast_support_refs"] == []
     assert ledger["query_trace_refs"]
     assert traces
-    assert all(trace["query_api_route"] == "polisyos.data_forge.read_api.academic.SKGQuery" for trace in traces)
+    assert all(
+        trace["query_api_route"] == "polisyos.data_forge.read_api.academic.SKGQuery"
+        for trace in traces
+    )
     assert any("ac_skg_edges" in trace["table_refs"] for trace in traces)
     assert any(trace["result_count"] >= 1 for trace in traces)
     assert all(trace["skg_snapshot_ref"] for trace in traces)
@@ -1744,10 +1919,13 @@ def test_g2_free_growth_discovers_added_skg_edge_and_method_fixture(
     monkeypatch: Any,
 ) -> None:
     db_path, academic_root = _create_minimal_skg_fixture(tmp_path)
+    _write_g2_data_home_fixture(tmp_path)
     method_path = _write_method_registry_fixture(tmp_path)
     g2 = _g2()
     _patch_skg_paths(monkeypatch, g2, tmp_path, db_path, academic_root)
-    monkeypatch.setattr(g2, "G2_FREE_GROWTH_METHOD_REGISTRY_PATH", method_path.relative_to(tmp_path))
+    monkeypatch.setattr(
+        g2, "G2_FREE_GROWTH_METHOD_REGISTRY_PATH", method_path.relative_to(tmp_path)
+    )
 
     report = _dump(g2.build_g2_free_growth_report(tmp_path))
 
@@ -1762,6 +1940,7 @@ def test_g2_free_growth_fails_when_fixture_edge_or_method_is_missing(
     monkeypatch: Any,
 ) -> None:
     db_path, academic_root = _create_minimal_skg_fixture(tmp_path)
+    _write_g2_data_home_fixture(tmp_path)
     g2 = _g2()
     _patch_skg_paths(monkeypatch, g2, tmp_path, db_path, academic_root)
     monkeypatch.setattr(
@@ -1774,6 +1953,107 @@ def test_g2_free_growth_fails_when_fixture_edge_or_method_is_missing(
 
     assert report["status"] == "fail"
     assert "layer3_g2_free_growth_fixture_failed" in report["issue_codes"]
+
+
+def test_task6_g2_temp_skg_edge_insertion_is_replayable_but_not_admitted_without_calibration(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    from polisyos.runtime.quality.layer3_status_reducers import (
+        G2ForecastAdmissionInputs,
+        Layer3ReducerInputRef,
+        reduce_g2_forecast_admission,
+    )
+
+    db_path, academic_root = _create_minimal_skg_fixture(tmp_path)
+    g2 = _g2()
+    _patch_skg_paths(monkeypatch, g2, tmp_path, db_path, academic_root)
+    request = _g2_forecast_request()
+
+    search_result = g2.search_l2_skg_for_forecast_candidates(request, tmp_path)
+    binding = _dump(_g2_forecast_binding(search_result=search_result, calibration_payload=None))
+    decision = reduce_g2_forecast_admission(
+        G2ForecastAdmissionInputs(
+            method_binding_status="pass",
+            calibration_status="missing",
+            skg_edge_type="ForecastSupport",
+            input_refs=(
+                Layer3ReducerInputRef(
+                    ref="duckdb://task6-temp-skg#skg-edge://edge-1",
+                    content_hash=_sha("6"),
+                    producer_ref="measurement://layer3-g2/task6-temp-skg",
+                    producer_type="measurement",
+                    producer_root_refs=("measurement://layer3-g2/task6-temp-skg-root",),
+                ),
+            ),
+        )
+    )
+
+    ledger = _dump(search_result.ledger)
+    traces = [_dump(trace) for trace in search_result.query_traces]
+    assert "skg-edge://edge-1" in ledger["selected_candidate_refs"]
+    assert ledger["forecast_support_refs"] == []
+    assert ledger["authoritative_for"] == []
+    assert "search_hit_as_authority" in ledger["may_not_use_for"]
+    assert ledger["query_trace_refs"]
+    assert ledger["replay_key"]
+    assert "skg-edge://edge-1" in ledger["duckdb_validated_candidate_refs"]
+    assert traces
+    assert any("skg-edge://edge-1" in trace["row_refs"] for trace in traces)
+    assert all(trace["skg_snapshot_ref"] for trace in traces)
+    assert "skg-edge://edge-1" in binding["skg_edge_refs"]
+    assert binding["calibration_record_ref"] is None
+    assert "layer3_g2_observable_calibration_required" in binding["issue_codes"]
+    assert decision.status == "typed_blocker"
+    assert "layer3_g2_calibration_not_admitted" in decision.blocker_refs
+
+
+def test_task6_g2_temp_skg_edge_plus_governed_calibration_changes_reducer_admission(
+    tmp_path: Path,
+    monkeypatch: Any,
+) -> None:
+    from polisyos.runtime.quality.layer3_status_reducers import (
+        G2ForecastAdmissionInputs,
+        Layer3ReducerInputRef,
+        reduce_g2_forecast_admission,
+    )
+
+    db_path, academic_root = _create_minimal_skg_fixture(tmp_path)
+    g2 = _g2()
+    _patch_skg_paths(monkeypatch, g2, tmp_path, db_path, academic_root)
+    request = _g2_forecast_request()
+
+    search_result = g2.search_l2_skg_for_forecast_candidates(request, tmp_path)
+    binding_obj = _g2_forecast_binding(
+        search_result=search_result,
+        calibration_payload=_g2_calibration_payload(),
+    )
+    calibration = _dump(g2.build_g2_observable_calibration_report((binding_obj,)))
+    decision = reduce_g2_forecast_admission(
+        G2ForecastAdmissionInputs(
+            method_binding_status="pass",
+            calibration_status=calibration["status"],
+            skg_edge_type="ForecastSupport",
+            input_refs=(
+                Layer3ReducerInputRef(
+                    ref="pdc://layer3/g2/task6/governed-calibration",
+                    content_hash=_sha("7"),
+                    producer_ref="measurement://layer3-g2/task6-governed-calibration",
+                    producer_type="measurement",
+                    producer_root_refs=("measurement://layer3-g2/task6-governed-calibration-root",),
+                ),
+            ),
+        )
+    )
+
+    binding = _dump(binding_obj)
+    assert "skg-edge://edge-1" in binding["skg_edge_refs"]
+    assert binding["status"] == "pass"
+    assert binding["calibration_record_ref"]
+    assert calibration["status"] == "pass"
+    assert calibration["calibration_record_refs"] == [binding["calibration_record_ref"]]
+    assert decision.status == "forecast_admitted"
+    assert decision.blocker_refs == ()
 
 
 def test_g2_search_engineering_quality_requires_bounded_indexed_replayable_search() -> None:
@@ -1821,9 +2101,10 @@ def test_g2_foundry_method_registry_coverage_bootstraps_real_catalog_and_discove
     assert report["registered_method_count"] >= 300
     assert report["freshness_status"] == "pass"
     assert report["discovery_refresh_status"] == "pass"
-    assert "polisyos.foundry.methods.catalog.ensure_all_methods_registered" in report[
-        "built_in_catalog_bootstrap_refs"
-    ]
+    assert (
+        "polisyos.foundry.methods.catalog.ensure_all_methods_registered"
+        in report["built_in_catalog_bootstrap_refs"]
+    )
     assert "polisyos.foundry.methods.catalog" in report["discovery_source_roots"]
     assert "polisyos.foundry.methods" in report["entry_point_groups"]
     assert report["family_method_counts"]["causal"] > 0
@@ -2034,9 +2315,7 @@ def test_g2_semantic_spine_binding_fails_closed_without_spine_or_with_parallel_l
     g2 = _g2()
 
     missing = _dump(
-        g2.build_g2_semantic_spine_bindings(
-            **_g2_semantic_spine_kwargs(concept_spine_ref=None)
-        )[0]
+        g2.build_g2_semantic_spine_bindings(**_g2_semantic_spine_kwargs(concept_spine_ref=None))[0]
     )
     parallel = _dump(
         g2.build_g2_semantic_spine_bindings(
@@ -2056,9 +2335,7 @@ def test_g2_concept_alignment_ties_g1_skg_foundry_and_s10_refs() -> None:
     semantic = g2.build_g2_semantic_spine_bindings(**_g2_semantic_spine_kwargs())[0]
 
     alignment = _dump(
-        g2.build_g2_concept_alignment_records(
-            **_g2_concept_alignment_kwargs(g2, semantic)
-        )[0]
+        g2.build_g2_concept_alignment_records(**_g2_concept_alignment_kwargs(g2, semantic))[0]
     )
 
     assert alignment["status"] == "pass"
@@ -2107,9 +2384,9 @@ def test_g2_s10_prerequisite_binding_records_required_spine_without_skg_fabricat
     g2 = _g2()
     request = _g2_forecast_request()
     semantic = g2.build_g2_semantic_spine_bindings(**_g2_semantic_spine_kwargs())[0]
-    alignment = g2.build_g2_concept_alignment_records(
-        **_g2_concept_alignment_kwargs(g2, semantic)
-    )[0]
+    alignment = g2.build_g2_concept_alignment_records(**_g2_concept_alignment_kwargs(g2, semantic))[
+        0
+    ]
     method_validity = _g2_method_validity_record(g2, request)
 
     binding = _dump(
@@ -2138,9 +2415,9 @@ def test_g2_s10_prerequisite_binding_fails_without_s5_s6_s8_or_denials() -> None
     g2 = _g2()
     request = _g2_forecast_request()
     semantic = g2.build_g2_semantic_spine_bindings(**_g2_semantic_spine_kwargs())[0]
-    alignment = g2.build_g2_concept_alignment_records(
-        **_g2_concept_alignment_kwargs(g2, semantic)
-    )[0]
+    alignment = g2.build_g2_concept_alignment_records(**_g2_concept_alignment_kwargs(g2, semantic))[
+        0
+    ]
     method_validity = _g2_method_validity_record(g2, request)
 
     binding = _dump(
@@ -2170,9 +2447,9 @@ def test_g2_forecast_support_binding_uses_s10_builders_and_preserves_boundary() 
     request = _g2_forecast_request()
     search_result = _g2_skg_search_result(g2, request)
     semantic = g2.build_g2_semantic_spine_bindings(**_g2_semantic_spine_kwargs())[0]
-    alignment = g2.build_g2_concept_alignment_records(
-        **_g2_concept_alignment_kwargs(g2, semantic)
-    )[0]
+    alignment = g2.build_g2_concept_alignment_records(**_g2_concept_alignment_kwargs(g2, semantic))[
+        0
+    ]
     method_validity = _g2_method_validity_record(g2, request)
     prerequisite = g2.build_g2_s10_prerequisite_bindings(
         **_g2_s10_prerequisite_kwargs(g2, semantic, alignment, method_validity)
@@ -2197,9 +2474,7 @@ def test_g2_forecast_support_binding_uses_s10_builders_and_preserves_boundary() 
     assert binding["authority_envelope_builder_ref"].endswith(
         "verify_prediction_authority_envelope"
     )
-    assert binding["integrity_summary_builder_ref"].endswith(
-        "summarize_forecast_support_integrity"
-    )
+    assert binding["integrity_summary_builder_ref"].endswith("summarize_forecast_support_integrity")
     assert binding["s10_forecast_support"]["forecast_tier"] == "observable_calibrated"
     assert binding["s10_forecast_support_ref"].startswith("pdc://layer3/g2/")
     assert binding["authority_envelope"]["denies_claim_authority"] is True
@@ -2255,9 +2530,9 @@ def test_g2_forecast_support_binding_fails_s10_required_negative_controls(
     g2 = _g2()
     request = _g2_forecast_request()
     semantic = g2.build_g2_semantic_spine_bindings(**_g2_semantic_spine_kwargs())[0]
-    alignment = g2.build_g2_concept_alignment_records(
-        **_g2_concept_alignment_kwargs(g2, semantic)
-    )[0]
+    alignment = g2.build_g2_concept_alignment_records(**_g2_concept_alignment_kwargs(g2, semantic))[
+        0
+    ]
     method_validity = _g2_method_validity_record(g2, request)
     prerequisite = g2.build_g2_s10_prerequisite_bindings(
         **_g2_s10_prerequisite_kwargs(
@@ -2290,9 +2565,9 @@ def test_g2_forecast_support_binding_fails_observable_without_calibration_builde
     g2 = _g2()
     request = _g2_forecast_request()
     semantic = g2.build_g2_semantic_spine_bindings(**_g2_semantic_spine_kwargs())[0]
-    alignment = g2.build_g2_concept_alignment_records(
-        **_g2_concept_alignment_kwargs(g2, semantic)
-    )[0]
+    alignment = g2.build_g2_concept_alignment_records(**_g2_concept_alignment_kwargs(g2, semantic))[
+        0
+    ]
     method_validity = _g2_method_validity_record(g2, request)
     prerequisite = g2.build_g2_s10_prerequisite_bindings(
         **_g2_s10_prerequisite_kwargs(g2, semantic, alignment, method_validity)
@@ -2400,12 +2675,8 @@ def test_g2_observable_calibration_report_preserves_s10_time_roles_and_maturity(
     assert report["observable_subset_calibration_numerator"] == 4
     assert report["observable_subset_calibration_pass_rate"] == 1.0
     assert report["calibration_threshold_ref"].endswith("#s10")
-    assert report["credible_evaluation_evidence_refs"] == [
-        "evidence://ua-msme/credible-evaluation"
-    ]
-    assert report["observed_outcome_refs"] == [
-        "outcome://ua-msme/credit-access/observed"
-    ]
+    assert report["credible_evaluation_evidence_refs"] == ["evidence://ua-msme/credible-evaluation"]
+    assert report["observed_outcome_refs"] == ["outcome://ua-msme/credit-access/observed"]
     assert set(report["time_role_refs"]) >= {
         "prediction_time",
         "observation_time",
@@ -2414,9 +2685,7 @@ def test_g2_observable_calibration_report_preserves_s10_time_roles_and_maturity(
         "calibration_window_start",
         "calibration_window_end",
     }
-    assert report["authority_envelope_refs"] == [
-        _dump(binding)["authority_envelope_ref"]
-    ]
+    assert report["authority_envelope_refs"] == [_dump(binding)["authority_envelope_ref"]]
 
 
 def test_g2_observable_calibration_report_fails_without_denominator_or_evidence() -> None:
@@ -2585,12 +2854,21 @@ def test_g2_equilibrium_system_effect_blocks_without_calibrated_dynamics_produce
 @pytest.mark.parametrize(
     ("fixture_name", "expected_issue"),
     [
-        ("uncalibrated_observable_promotion_probe.json", "layer3_g2_observable_calibration_required"),
+        (
+            "uncalibrated_observable_promotion_probe.json",
+            "layer3_g2_observable_calibration_required",
+        ),
         ("hidden_uncertainty_interval_probe.json", "layer3_g2_uncertainty_interval_missing"),
         ("transported_estimate_without_limitation_probe.json", "layer3_g2_transport_limit_missing"),
         ("simulation_only_evidence_laundering_probe.json", "layer3_g2_simulation_only_laundered"),
-        ("equilibrium_contested_single_forecast_probe.json", "layer3_g2_equilibrium_authority_overclaim"),
-        ("production_authority_from_forecast_probe.json", "layer3_g2_recommendation_authority_leak"),
+        (
+            "equilibrium_contested_single_forecast_probe.json",
+            "layer3_g2_equilibrium_authority_overclaim",
+        ),
+        (
+            "production_authority_from_forecast_probe.json",
+            "layer3_g2_recommendation_authority_leak",
+        ),
     ],
 )
 def test_g2_reuses_s10_negative_probe_fixtures_for_downgrade_issue_codes(
@@ -2736,9 +3014,7 @@ def test_g2_w12d_consumer_gate_consumes_posture_without_authority_or_full_s2_ove
 
     assert gate["status"] == "pass"
     assert gate["layer3_g1_grounding_gate_ref"] == "layer3.g1.grounding_gate"
-    assert gate["consumed_forecast_posture_refs"] == [
-        _dump(binding)["s10_forecast_support_ref"]
-    ]
+    assert gate["consumed_forecast_posture_refs"] == [_dump(binding)["s10_forecast_support_ref"]]
     assert gate["forecast_tiers"] == ["observable_calibrated"]
     assert gate["forecast_calibration_record_refs"] == [_dump(binding)["calibration_record_ref"]]
     assert gate["source_contract_refs"] == ["source-contract://ua-msme/server-support"]
@@ -2811,9 +3087,7 @@ def test_g2_grounded_forecast_handoff_preserves_replay_surface_without_promotion
     assert handoff["source_contract_ref"] == "source-contract://ua-msme/server-support"
     assert handoff["method_validity_refs"] == ["method-validity://foundry/causal/local"]
     assert handoff["calibration_record_refs"] == [binding_payload["calibration_record_ref"]]
-    assert handoff["transport_limit_declaration_refs"] == [
-        _dump(transport[0])["declaration_id"]
-    ]
+    assert handoff["transport_limit_declaration_refs"] == [_dump(transport[0])["declaration_id"]]
     assert handoff["uncertainty_interval_refs"] == ["interval://ua-msme/credit-access/95"]
     assert handoff["adapter_maturity"] == "calibrated"
     assert handoff["search_ledger_refs"] == ["g2-ledger:credit-access-firm-survival"]

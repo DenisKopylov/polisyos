@@ -2,14 +2,49 @@
   "rule_version": "policyos.layer3.g1.substrate_grounding_search.v1",
   "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1",
   "search_recall_freshness": {
-    "index_freshness_status": "pass",
-    "known_groundable_seed_refs": [
-      "g1-recall-seed:source-contract-discovery",
-      "g1-recall-seed:ua-msme-firm-survival"
+    "alias_graph_ref": "repo://architecture/policy_design_case/layer3_gx_concept_alias_graph.json",
+    "alias_graph_status": "ready",
+    "canonical_corpus_path": "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+    "configured_store_path": "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+    "corpus_kind": "canonical",
+    "corpus_ref": "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings",
+    "corpus_snapshot_hash": "sha256:b6597d571d308e1d7f9353a9e77a2fbec2c19c31fe24b34c9e461ca84e1bc573",
+    "hnsw_index_refs": [
+      "duckdb://production_data/datasets_full_phase3full_20260327_183054/ds_dataset_index.hnsw",
+      "duckdb://production_data/datasets_full_phase3full_20260327_183054/ds_dataset_embeddings.npz"
     ],
-    "missed_seed_refs": [],
+    "index_freshness_status": "pass",
+    "issue_codes": [
+      "layer3_gx_concept_alias_unresolved_blocks_positive_recall"
+    ],
+    "known_groundable_seed_refs": [
+      "g1-recall-seed:credit-access"
+    ],
+    "measurement_provenance": "l1_dcat_query",
+    "missed_seed_refs": [
+      "g1-recall-seed:credit-access"
+    ],
+    "query_expansion_trace_refs": [
+      "construct:credit_access",
+      "query-hash:fd85dc37d824e359f607f3f299bc94463f0670121e9f6379dda0c7608e40dbb3",
+      "repo://architecture/policy_design_case/layer3_gx_concept_alias_graph.json"
+    ],
+    "query_trace_refs": [
+      "g1-query-trace:l1-dcat:fd85dc37d824e359f607f3f299bc94463f0670121e9f6379dda0c7608e40dbb3",
+      "g1-search-frontier:l1-dcat:fd85dc37d824e359f607f3f299bc94463f0670121e9f6379dda0c7608e40dbb3:exact=8:text=8",
+      "g1-search-frontier:l1-dcat:8e7a49a536a621de93c4f0377b4dd56ecb58fb1b3120db54a589501b726e4d8a:exact=0:text=0"
+    ],
+    "replay_command": "uv run python tools/quality/validation/check_policy_design_case_layer3_g1_readiness.py --repo-root . --write",
+    "replay_expected_output_hash": "sha256:06bb35e09d97fdaf614f18fa87d9ae21df9e47b3db429638077d81b9139d627d",
     "report_id": "layer3-g1-search-recall-freshness",
-    "search_recall_status": "pass",
-    "stale_index_refs": []
+    "resolved_corpus_row_refs": [],
+    "search_frontier_ref": "g1-search-frontier:l1-dcat:fd85dc37d824e359f607f3f299bc94463f0670121e9f6379dda0c7608e40dbb3:exact=8:text=8",
+    "search_recall_status": "fail",
+    "semantic_search_status": "enabled",
+    "source_request_kind": "runtime_l1_dcat_probe",
+    "stale_index_refs": [],
+    "unverified_alias_refs": [
+      "gx-concept-alias:credit_access"
+    ]
   }
 }

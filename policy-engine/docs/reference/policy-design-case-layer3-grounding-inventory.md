@@ -1,6 +1,7 @@
 # Policy Design Case Layer 3 Grounding Inventory
 
 Owner: `team-runtime-quality`
+Source of truth: `src/polisyos/runtime/quality/layer3_grounding_inventory.py`, `tools/quality/validation/check_policy_design_case_layer3_g0_readiness.py`, and `architecture/policy_design_case/layer3_g0_readiness_manifest.json`
 Review owner: `principal-governance`
 Status: `active_pre_adapter_audit_surface`
 Schema version: `policyos.policy_design_case.layer3_g0_discovery_search.v2`

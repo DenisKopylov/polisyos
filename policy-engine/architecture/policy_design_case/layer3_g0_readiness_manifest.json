@@ -20,7 +20,7 @@
   ],
   "counts": {
     "academic_runtime_slim_split_file_count": 20,
-    "adapter_candidate_count": 36,
+    "adapter_candidate_count": 38,
     "admitted_adapter_count": 0,
     "admitted_authority_resource_count": 0,
     "closure_artifact_count": 16,
@@ -58,7 +58,7 @@
     "required_data_asset_root_count": 6,
     "resource_discovery_record_count": 3,
     "runtime_quality_touchpoint_admission_allowed_without_contract_count": 0,
-    "runtime_quality_touchpoint_count": 35,
+    "runtime_quality_touchpoint_count": 37,
     "runtime_quality_touchpoints_without_registration": 0,
     "search_ceiling_blocks_domain_ceiling": true,
     "search_recall_seed_count": 2,
@@ -76,6 +76,6 @@
   "first_vertical_corpus_case_id": "ua-msme-affordable-loans-2022",
   "manifest_id": "layer3.g0.discovery_search_readiness",
   "rule_version": "policyos.layer3.g0.discovery_search_free_growth.v2",
-  "runtime_builder_hash": "sha256:c35a41a1a2626aced1675d461d9eee544133dda50325b9456b7b94847618332d",
+  "runtime_builder_hash": "sha256:d39f6070b6de3834af44a589b951ddcbedc00c83462accacca93b64898c37011",
   "schema_version": "policyos.policy_design_case.layer3_g0_discovery_search.v2"
 }

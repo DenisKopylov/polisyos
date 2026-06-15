@@ -90,6 +90,10 @@ _DATA_REQUIREMENT_FAMILY_FALLBACK_ENV = (
 )
 # POLISYOS_DATA_REQ_FAMILY_FALLBACK_FROM_HARDCODED default false.
 _DATA_REQUIREMENT_FAMILY_FALLBACK_DEFAULT = "false"
+_REPO_ROOT = Path(__file__).resolve().parents[3]
+_GOVERNED_CAPABILITY_ROWS_PATH = (
+    _REPO_ROOT / "architecture/policy_design_case/layer2_s3_governed_capability_rows.json"
+)
 _DATA_FAMILY_ORDER: tuple[str, ...] = (
     "production_msme_panel",
     "credit_program_registry",
@@ -115,6 +119,28 @@ def _data_requirement_family_fallback_enabled() -> bool:
     return str(raw).strip().casefold() in {"1", "true", "yes", "on"}
 
 
+def _load_governed_scenario_family_construct_rows() -> tuple[
+    contracts.ScenarioFamilyConstructRow,
+    ...,
+]:
+    if not _GOVERNED_CAPABILITY_ROWS_PATH.exists():
+        return ()
+    try:
+        payload = json.loads(_GOVERNED_CAPABILITY_ROWS_PATH.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return ()
+    rows = payload.get("scenario_family_construct_rows") if isinstance(payload, Mapping) else ()
+    if not isinstance(rows, Sequence) or isinstance(rows, str | bytes | bytearray):
+        return ()
+    normalized: list[contracts.ScenarioFamilyConstructRow] = []
+    for row in rows:
+        try:
+            normalized.append(contracts.ScenarioFamilyConstructRow.model_validate(row))
+        except (TypeError, ValueError):
+            continue
+    return tuple(normalized)
+
+
 class DataRequirementCompiler:
     """Compile claim-bound Fabric data needs from W6 facets and claim records."""
 
@@ -123,6 +149,7 @@ class DataRequirementCompiler:
         *,
         capability_resolver: CapabilityResolverPort | None = None,
         require_capability_index: bool = False,
+        scenario_family_construct_rows: contracts.ScenarioFamilyConstructRows | None = None,
     ) -> None:
         """Initialize the compiler with optional release-backed capability resolution.
 
@@ -131,10 +158,21 @@ class DataRequirementCompiler:
                 code that owns capability-index loading.
             require_capability_index: When true, fail closed unless a resolver is
                 injected by the caller.
+            scenario_family_construct_rows: Optional governed source-family rows.
+                When omitted, the compiler reads the persisted governed capability
+                row artifact instead of falling back to Python literals.
         """
 
         self._capability_resolver = capability_resolver
         self._require_capability_index = require_capability_index
+        self._scenario_family_construct_rows = tuple(
+            contracts.ScenarioFamilyConstructRow.model_validate(row)
+            for row in (
+                scenario_family_construct_rows
+                if scenario_family_construct_rows is not None
+                else _load_governed_scenario_family_construct_rows()
+            )
+        )
 
     def compile_for_claim_ledger(
         self,
@@ -171,18 +209,33 @@ class DataRequirementCompiler:
             scenario_id=scenario_id,
             scope=scope,
             resolver=self._resolver_for_compilation(),
+            scenario_family_construct_rows=self._scenario_family_construct_rows,
         )
         family_rules = tuple(
             dict.fromkeys(
-                legacy_family_for_construct(binding.construct_ref or "")
-                for binding in capability_bindings
-                if binding.construct_ref
+                family
+                for family in (
+                    legacy_family_for_construct(
+                        binding.construct_ref or "",
+                        rows=self._scenario_family_construct_rows,
+                    )
+                    for binding in capability_bindings
+                    if binding.construct_ref
+                )
+                if family
             )
         )
         bindings_by_family = {
-            legacy_family_for_construct(binding.construct_ref or ""): binding
+            family: binding
             for binding in capability_bindings
             if binding.construct_ref
+            for family in (
+                legacy_family_for_construct(
+                    binding.construct_ref or "",
+                    rows=self._scenario_family_construct_rows,
+                ),
+            )
+            if family
         }
         family_derivation = "capability_resolver" if family_rules else None
         if not family_rules and _data_requirement_family_fallback_enabled():
@@ -594,8 +647,16 @@ def _capability_bindings_for_requirements(
     scenario_id: str | None,
     scope: DataRequirementScope,
     resolver: CapabilityResolverPort | None = None,
+    scenario_family_construct_rows: contracts.ScenarioFamilyConstructRows = (),
 ) -> tuple[CapabilityBindingLike, ...]:
-    constructs = _required_constructs_from_obligation_graph(obligation_graph)
+    rows = tuple(
+        contracts.ScenarioFamilyConstructRow.model_validate(row)
+        for row in scenario_family_construct_rows
+    )
+    constructs = _required_constructs_from_obligation_graph(
+        obligation_graph,
+        scenario_family_construct_rows=rows,
+    )
     if not constructs:
         constructs = _required_constructs_from_semantics(
             facets=facets,
@@ -624,7 +685,7 @@ def _capability_bindings_for_requirements(
                 "scholarly_causal_support",
             ),
             forbidden_evidence_modes=("simulation_only", "candidate_unverified"),
-            source_family_alias=legacy_family_for_construct(construct),
+            source_family_alias=legacy_family_for_construct(construct, rows=rows),
         )
         bindings.append(resolver.resolve(query))
     return tuple(bindings)
@@ -632,6 +693,8 @@ def _capability_bindings_for_requirements(
 
 def _required_constructs_from_obligation_graph(
     obligation_graph: object | Mapping[str, Any] | None,
+    *,
+    scenario_family_construct_rows: contracts.ScenarioFamilyConstructRows = (),
 ) -> tuple[str, ...]:
     if obligation_graph is None:
         return ()
@@ -659,7 +722,11 @@ def _required_constructs_from_obligation_graph(
             "required_evidence_family",
         ):
             token = _text(metadata.get(key))
-            mapped = construct_for_legacy_family(token) if token else None
+            mapped = (
+                construct_for_legacy_family(token, rows=scenario_family_construct_rows)
+                if token
+                else None
+            )
             if mapped and mapped not in constructs:
                 constructs.append(mapped)
     return tuple(constructs)

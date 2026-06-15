@@ -159,3 +159,58 @@ def test_s14_battery_runner_redacts_hidden_case_content_from_public_summary() ->
     assert "input_condition_ref" not in serialized
     assert public_summary["sealed_battery_case_count"] >= 6
     assert public_summary["sealed_battery_run_ref"]
+
+
+def test_s14_battery_runner_reads_g7_manifest_without_mutating_freeze_hash(
+    tmp_path: Path,
+) -> None:
+    manifest_path = tmp_path / "g7_s14_input_manifest.json"
+    manifest_path.write_text(
+        json.dumps(
+            {
+                "s14_battery_input_manifest_id": "g7-s14-input:test",
+                "grounded_breadth_feed_ref": "layer3-g7://s14/grounded-breadth-feed",
+                "mechanism_generality_projection_ref": (
+                    "layer3-g7://s14/mechanism-generality-projection"
+                ),
+                "grounded_authority_coverage_ref": (
+                    "layer3-g7://s14/grounded-authority-coverage"
+                ),
+                "envelope_revision_dynamics_ref": (
+                    "layer3-g7://s14/envelope-revision-dynamics"
+                ),
+                "certified_envelope_delta_refs": [
+                    "s13-envelope-delta://ua-msme/expand-region"
+                ],
+                "visible_limitation_refs": ["limitation://g7/s14/region-only"],
+                "sealed_battery_mutation_status": "not_mutated",
+                "hidden_case_access_status": "not_accessed_by_g7",
+                "may_not_use_for": ["s14_universality", "production_authority"],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    without_manifest = _run_battery()
+    with_manifest = _run_battery(g7_grounded_breadth_input_manifest=manifest_path)
+
+    assert with_manifest["sealed_battery_freeze_hash"] == without_manifest[
+        "sealed_battery_freeze_hash"
+    ]
+    assert with_manifest["sealed_battery_computed_freeze_hash"] == without_manifest[
+        "sealed_battery_computed_freeze_hash"
+    ]
+    assert with_manifest["sealed_universality_battery_run"] == without_manifest[
+        "sealed_universality_battery_run"
+    ]
+    hook = with_manifest["external_grounded_breadth_input"]
+    assert hook == {
+        "status": "present",
+        "manifest_ref": str(manifest_path),
+        "issue_codes": [],
+    }
+    assert "external_grounded_breadth_input" not in without_manifest
+    assert "sealed_case_rows" not in with_manifest
+    assert with_manifest["grounded_authority_coverage"] == without_manifest[
+        "grounded_authority_coverage"
+    ]

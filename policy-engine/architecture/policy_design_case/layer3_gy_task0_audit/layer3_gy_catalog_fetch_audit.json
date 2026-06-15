@@ -1,0 +1,669 @@
+{
+  "acceptance_signal_for_future_fix": [
+    "Default runtime composition wires a real DatasetCatalogGraph or explicitly classifies catalog lane out_of_scope.",
+    "Catalog FetchPlan admission persists source-contract/right/freshness/field-ref decision payload before fetch.",
+    "FetchExecutor persist_payload=True writes a canonical connector fetch envelope to CAS and returns payload/root refs on DataContextMetric.",
+    "NL retrieval materialization consumes connector payload/root refs, not only DataContext summaries.",
+    "Replay/conformance compares connector output against the stored measurement root and fails on drift."
+  ],
+  "findings": [
+    {
+      "capability_label": "implemented_but_not_orchestrated",
+      "finding_id": "GY-CATALOG-FETCH-001",
+      "route_ids": [
+        "catalog.store.resolve_metric_bindings",
+        "retrieval.service.catalog_bridge",
+        "runtime.control.data_resolve.default_composition",
+        "runtime.nl_pipeline.retrieval_service.default_composition"
+      ],
+      "severity": "high",
+      "summary": "The real production DuckDB and store resolve metric bindings, and RetrievalService builds catalog FetchPlans under injection. Default runtime/NL RetrievalService construction omits dataset_catalog.",
+      "title": "Catalog binding and FetchPlan bridge run only when DatasetCatalogGraph is injected."
+    },
+    {
+      "capability_label": "artifact_missing",
+      "finding_id": "GY-CATALOG-FETCH-002",
+      "route_ids": [
+        "fetch.executor.persist_payload_true",
+        "contracts.data_context_metric_surface"
+      ],
+      "severity": "critical",
+      "summary": "Both deterministic fake connector and real WorldBank connector probes returned rows with CAS file delta 0 and no payload/root fields on DataContextMetric.",
+      "title": "FetchExecutor persist_payload=True is a placeholder, not a measurement-root producer."
+    },
+    {
+      "capability_label": "surface_missing",
+      "finding_id": "GY-CATALOG-FETCH-003",
+      "route_ids": [
+        "runtime.nl_pipeline.retrieval_service.default_composition",
+        "nl.retrieval_materialization.derived_snapshot"
+      ],
+      "severity": "high",
+      "summary": "The retrieval materialization path persists fabric.retrieval_payload and fabric.data_snapshot over DataContext, while normal fetch execute passes persist_payload=False.",
+      "title": "NL auto-materialization can create derived root-looking artifacts without raw connector roots."
+    },
+    {
+      "capability_label": "bridge_missing",
+      "finding_id": "GY-CATALOG-FETCH-004",
+      "route_ids": [
+        "ingest.fetch_plan_root_producer"
+      ],
+      "severity": "high",
+      "summary": "/data/ingest can accept FetchPlans and orchestrated ingestion can emit evidence/data snapshot refs, but the catalog resolve/execute route does not call that producer.",
+      "title": "Ingestion has CAS roots, but retrieval execute does not bridge into ingestion."
+    },
+    {
+      "capability_label": "verification_missing",
+      "finding_id": "GY-CATALOG-FETCH-005",
+      "route_ids": [
+        "source_contract.admissibility_join",
+        "catalog.store.resolve_metric_bindings"
+      ],
+      "severity": "high",
+      "summary": "The catalog plan carries ids/title/tier/source policy history, but no source_contract_ref, rights/freshness refs, field refs, claim bindability, or replayable measurement root.",
+      "title": "Source-contract admissibility is not joined into FetchPlan admission."
+    }
+  ],
+  "generated_at_utc": "2026-06-14T08:05:43.288206+00:00",
+  "pattern_register_ids": [
+    "P01",
+    "P02",
+    "P05",
+    "P07",
+    "P08",
+    "P10",
+    "P12",
+    "P14",
+    "P15",
+    "P18"
+  ],
+  "plan_ref": "docs/plans/active/layer3-slices/GY-engine-subordination.md",
+  "probe": {
+    "catalog_to_fetch_plan": {
+      "candidate_count": 3,
+      "fetch_plan_count": 1,
+      "lane_used": "catalog",
+      "mode": "hybrid",
+      "resolution_routes": {
+        "candidates": {
+          "catalog": 3
+        },
+        "selected": {
+          "catalog": 1
+        }
+      },
+      "top_plan": {
+        "connector_id": "worldbank.wdi",
+        "dataset_id": "per_sa_sp.cba_q1_rur",
+        "date_end": null,
+        "date_start": null,
+        "fallbacks": [
+          {
+            "connector_id": "worldbank.wdi",
+            "dataset_id": "CC.AVPB.TPOP.AI",
+            "filters": {},
+            "metadata": {
+              "catalog_dataset_id": "00c9ac599c656a35218a",
+              "distribution_id": "edf020ec56175ed34be5",
+              "resolution_route": "catalog"
+            },
+            "metric_id": "poverty_rate",
+            "profile_id": "worldbank_wdi"
+          },
+          {
+            "connector_id": "worldbank.wdi",
+            "dataset_id": "SE.CLO.15Y.LDSEV.R.PS.2000.F",
+            "filters": {},
+            "metadata": {
+              "catalog_dataset_id": "01490283ddccaec8e3e2",
+              "distribution_id": "176ebc1d493bd2ad8205",
+              "resolution_route": "catalog"
+            },
+            "metric_id": "poverty_rate",
+            "profile_id": "worldbank_wdi"
+          }
+        ],
+        "filters": {},
+        "granularity": "annual",
+        "max_preview_rows": 20,
+        "metadata": {
+          "catalog_dataset_id": "006f8c6c2c5cef185699",
+          "catalog_discovered": true,
+          "catalog_title": "Benefit-cost ratio -  Social Pension -1st quintile (poorest) -rural",
+          "default_lookback_days": null,
+          "distribution_id": "764cee545606bd01391a",
+          "execution_tier": "transport_ready",
+          "history_policy": "full_snapshot",
+          "manual_backfill_allowed": false,
+          "resolution_route": "catalog",
+          "source": "worldbank"
+        },
+        "metric_id": "poverty_rate",
+        "persist_payload": false,
+        "plan_id": "plan_b4941b939afd233a",
+        "profile_id": "worldbank_wdi",
+        "quality_min": 0.6,
+        "source_lane": "catalog"
+      }
+    },
+    "fake_connector_persist_payload_true": {
+      "cas_file_delta_count": 0,
+      "data_context_metric_fields": [],
+      "data_context_metric_has_artifact_ref": false,
+      "fetch_call_count": 1,
+      "fetch_requests": [
+        {
+          "dataset_id": "probe.dataset",
+          "date_end": null,
+          "date_start": null,
+          "filters": [],
+          "page_size": 20,
+          "query_key": "sha256:3ffc33594fd5c7f6dc99407f138cc3d4c0bbb523441f7fcc5d7628629e4224b7",
+          "request_key": "sha256:f442cea767c7212262d53515824c3d72ecfa801254b1be23dedfe81842d08664"
+        }
+      ]
+    },
+    "generated_at": "2026-06-14T08:03:31.822949+00:00",
+    "path": "_build/.tmp/gy-catalog-fetch-audit/catalog_fetch_probe.json",
+    "production_catalog": {
+      "counts": {
+        "ds_datasets": 137176,
+        "ds_distributions": 605408,
+        "ds_metric_bindings": 56846,
+        "ds_schema_profiles": 176249
+      },
+      "path": "/Users/deniskopylov/polisyos/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+      "size_bytes": 1320693760
+    },
+    "real_catalog_binding": {
+      "binding_count": 5,
+      "metric": "poverty_rate",
+      "top_binding": {
+        "catalog_dataset_id": "006f8c6c2c5cef185699",
+        "confidence": 0.8700000047683716,
+        "connector_id": "worldbank.wdi",
+        "default_filters": {},
+        "distribution_id": "764cee545606bd01391a",
+        "execution_tier": "transport_ready",
+        "metric_id": "poverty_rate",
+        "metric_inference_confidence": 0.550000011920929,
+        "profile_id": "worldbank_wdi",
+        "request_dataset_id": "per_sa_sp.cba_q1_rur",
+        "source": "worldbank",
+        "title": "Benefit-cost ratio -  Social Pension -1st quintile (poorest) -rural"
+      }
+    },
+    "real_connector_persist_payload_true": {
+      "cas_file_delta_count": 0,
+      "completeness": 0.8758741258741258,
+      "elapsed_ms": 1481,
+      "execution_plan_override": {
+        "connector_id": "worldbank.wdi",
+        "dataset_id": "per_sa_sp.cba_q1_rur",
+        "date_end": null,
+        "date_start": null,
+        "fallbacks": [
+          {
+            "connector_id": "worldbank.wdi",
+            "dataset_id": "CC.AVPB.TPOP.AI",
+            "filters": {},
+            "metadata": {
+              "catalog_dataset_id": "00c9ac599c656a35218a",
+              "distribution_id": "edf020ec56175ed34be5",
+              "resolution_route": "catalog"
+            },
+            "metric_id": "poverty_rate",
+            "profile_id": "worldbank_wdi"
+          },
+          {
+            "connector_id": "worldbank.wdi",
+            "dataset_id": "SE.CLO.15Y.LDSEV.R.PS.2000.F",
+            "filters": {},
+            "metadata": {
+              "catalog_dataset_id": "01490283ddccaec8e3e2",
+              "distribution_id": "176ebc1d493bd2ad8205",
+              "resolution_route": "catalog"
+            },
+            "metric_id": "poverty_rate",
+            "profile_id": "worldbank_wdi"
+          }
+        ],
+        "filters": {
+          "mrv": [
+            "1"
+          ]
+        },
+        "granularity": "annual",
+        "max_preview_rows": 10,
+        "metadata": {
+          "catalog_dataset_id": "006f8c6c2c5cef185699",
+          "catalog_discovered": true,
+          "catalog_title": "Benefit-cost ratio -  Social Pension -1st quintile (poorest) -rural",
+          "default_lookback_days": null,
+          "distribution_id": "764cee545606bd01391a",
+          "execution_tier": "transport_ready",
+          "history_policy": "full_snapshot",
+          "manual_backfill_allowed": false,
+          "resolution_route": "catalog",
+          "source": "worldbank"
+        },
+        "metric_id": "poverty_rate",
+        "persist_payload": false,
+        "plan_id": "plan_b4941b939afd233a",
+        "profile_id": "worldbank_wdi",
+        "quality_min": 0.01,
+        "source_lane": "catalog"
+      },
+      "preview_quality_flags": [
+        "freshness:source_timestamp_missing"
+      ],
+      "preview_status": "ok",
+      "row_count": 143,
+      "status": "ok"
+    },
+    "separate_ingestion_root_producer_static": {
+      "bridge_gap": "NL/run retrieval execute path does not call ingestion; FetchExecutor does not call connector cache/ingestion persistence.",
+      "emitted_refs": [
+        "evidence_bundle_ref",
+        "data_snapshot_ref"
+      ],
+      "ingest_request_accepts_fetch_plans": true,
+      "normal_retrieval_calls_ingest": false,
+      "root_producer_entrypoints": [
+        "POST /api/v1/control/data/ingest",
+        "ControlPlaneService.run_data_ingestion",
+        "fabric.data_plane.orchestrator.run_orchestrated_ingestion",
+        "fabric.ingestion.run_connectors_ingestion"
+      ],
+      "status": "implemented_separately_not_bridged"
+    },
+    "sha256": "936f28448b8984ecd51350dca67d1d31473f9222b48068d3d1e548baa59f0f54"
+  },
+  "route_rows": [
+    {
+      "authority_risk": "Binding tier/confidence proves catalog ranking and transport readiness, not claim adequacy or admissibility.",
+      "capability_state": "runs_on_real_catalog",
+      "evidence_refs": [
+        "src/polisyos/data_forge/domains/catalog/knowledge/store.py:475",
+        "src/polisyos/data_forge/domains/catalog/knowledge/types.py:227",
+        "_build/.tmp/gy-catalog-fetch-audit/catalog_fetch_probe.json"
+      ],
+      "gap_labels": [
+        "semantic_test_missing",
+        "surface_missing"
+      ],
+      "next_probe": "Add metric semantic adequacy check: top binding title/fields must satisfy the DataNeed purpose before fetch admission.",
+      "observed": {
+        "binding_count": 5,
+        "probe_metric": "poverty_rate",
+        "production_counts": {
+          "ds_datasets": 137176,
+          "ds_distributions": 605408,
+          "ds_metric_bindings": 56846,
+          "ds_schema_profiles": 176249
+        },
+        "top_binding_connector": "worldbank.wdi",
+        "top_binding_dataset": "per_sa_sp.cba_q1_rur",
+        "top_binding_execution_tier": "transport_ready",
+        "top_binding_title": "Benefit-cost ratio -  Social Pension -1st quintile (poorest) -rural"
+      },
+      "pattern_ids": [
+        "P10",
+        "P14"
+      ],
+      "route_id": "catalog.store.resolve_metric_bindings",
+      "stage": "catalog_binding"
+    },
+    {
+      "authority_risk": "Bridge is real only under injection; production composition does not wire DatasetCatalogGraph by default.",
+      "capability_state": "runs_when_dataset_catalog_injected",
+      "evidence_refs": [
+        "src/polisyos/fabric/retrieval/service.py:271",
+        "src/polisyos/fabric/retrieval/service.py:712",
+        "src/polisyos/fabric/retrieval/service.py:869"
+      ],
+      "gap_labels": [
+        "implemented_but_not_orchestrated",
+        "surface_missing",
+        "semantic_test_missing"
+      ],
+      "next_probe": "Wire production DatasetCatalogGraph or mark catalog lane out_of_scope; then run /data/resolve without test injection.",
+      "observed": {
+        "connector_id": "worldbank.wdi",
+        "dataset_id": "per_sa_sp.cba_q1_rur",
+        "fetch_plan_count": 1,
+        "lane_used": "catalog",
+        "metadata_keys": [
+          "catalog_dataset_id",
+          "catalog_discovered",
+          "catalog_title",
+          "default_lookback_days",
+          "distribution_id",
+          "execution_tier",
+          "history_policy",
+          "manual_backfill_allowed",
+          "resolution_route",
+          "source"
+        ],
+        "profile_id": "worldbank_wdi",
+        "source_lane": "catalog"
+      },
+      "pattern_ids": [
+        "P01",
+        "P02",
+        "P10"
+      ],
+      "route_id": "retrieval.service.catalog_bridge",
+      "stage": "catalog_to_fetch_plan"
+    },
+    {
+      "authority_risk": "API can expose FetchPlans, but the real production catalog lane is absent unless caller injects retrieval_service/dataset_catalog.",
+      "capability_state": "implemented_but_not_orchestrated",
+      "evidence_refs": [
+        "src/polisyos/runtime/http/routes/control.py:422",
+        "src/polisyos/runtime/http/services/control/run_lifecycle.py:223",
+        "src/polisyos/runtime/http/services/control/run_lifecycle.py:1740"
+      ],
+      "gap_labels": [
+        "bridge_missing",
+        "surface_missing",
+        "semantic_test_missing"
+      ],
+      "next_probe": "Public API route test with default composition and disabled fastlane/explore should show no catalog plan until GY-1 wiring exists.",
+      "observed": {
+        "api_route": "POST /api/v1/control/data/resolve",
+        "default_service_constructs_retrieval_without_dataset_catalog": true,
+        "response_contract_has_fetch_plans": true,
+        "response_contract_has_root_or_request_refs": false
+      },
+      "pattern_ids": [
+        "P01",
+        "P02",
+        "P03"
+      ],
+      "route_id": "runtime.control.data_resolve.default_composition",
+      "stage": "api_bridge"
+    },
+    {
+      "authority_risk": "NL can materialize downstream DataSnapshot artifacts from DataContext summaries even when raw connector measurement root is absent.",
+      "capability_state": "implemented_but_not_orchestrated",
+      "evidence_refs": [
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:4290",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:4888",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:4961"
+      ],
+      "gap_labels": [
+        "bridge_missing",
+        "artifact_missing",
+        "surface_missing",
+        "semantic_test_missing"
+      ],
+      "next_probe": "Run NL fixture with catalog-injected retrieval and assert materialized data_snapshot refuses authority without connector payload root.",
+      "observed": {
+        "auto_materialization_after_execute": true,
+        "nl_constructs_retrieval_without_dataset_catalog": true,
+        "normal_execute_persist_payload": false
+      },
+      "pattern_ids": [
+        "P02",
+        "P03",
+        "P15"
+      ],
+      "route_id": "runtime.nl_pipeline.retrieval_service.default_composition",
+      "stage": "nl_bridge"
+    },
+    {
+      "authority_risk": "Fetch returns rows, but preview/full fetch equivalence and claim adequacy are not replay-rooted.",
+      "capability_state": "runs_e2e_on_real_connector",
+      "evidence_refs": [
+        "src/polisyos/fabric/retrieval/executor.py:109",
+        "src/polisyos/fabric/retrieval/executor.py:204",
+        "_build/.tmp/gy-catalog-fetch-audit/catalog_fetch_probe.json"
+      ],
+      "gap_labels": [
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "next_probe": "Capture preview and full fetch request keys/content hashes and assert replay equivalence under the same connector/profile/config.",
+      "observed": {
+        "completeness": 0.8758741258741258,
+        "connector_id": "worldbank.wdi",
+        "dataset_id": "per_sa_sp.cba_q1_rur",
+        "execution_override_filters": {
+          "mrv": [
+            "1"
+          ]
+        },
+        "preview_status": "ok",
+        "quality_flags": [
+          "freshness:source_timestamp_missing"
+        ],
+        "row_count": 143,
+        "status": "ok"
+      },
+      "pattern_ids": [
+        "P07",
+        "P10"
+      ],
+      "route_id": "fetch.executor.preview_execute.real_connector",
+      "stage": "connector_fetch"
+    },
+    {
+      "authority_risk": "`persist_payload=True` reaches a placeholder; no CAS write, digest, request root, or root-chain id is emitted.",
+      "capability_state": "artifact_missing",
+      "evidence_refs": [
+        "src/polisyos/fabric/retrieval/executor.py:140",
+        "src/polisyos/core/contracts/control.py:499",
+        "_build/.tmp/gy-catalog-fetch-audit/catalog_fetch_probe.json"
+      ],
+      "gap_labels": [
+        "artifact_missing",
+        "bridge_missing",
+        "surface_missing",
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "next_probe": "Negative test should fail until FetchExecutor persists a canonical fetch envelope and returns payload/root refs.",
+      "observed": {
+        "data_context_metric_fields": [],
+        "data_context_metric_has_artifact_ref": false,
+        "fake_connector_cas_file_delta_count": 0,
+        "fake_connector_fetch_call_count": 1,
+        "real_connector_cas_file_delta_count": 0,
+        "real_connector_status": "ok"
+      },
+      "pattern_ids": [
+        "P01",
+        "P03",
+        "P07",
+        "P12"
+      ],
+      "route_id": "fetch.executor.persist_payload_true",
+      "stage": "measurement_root"
+    },
+    {
+      "authority_risk": "Downstream consumers see sample rows and counts but cannot inspect or replay the measurement root.",
+      "capability_state": "surface_missing",
+      "evidence_refs": [
+        "src/polisyos/core/contracts/control.py:499"
+      ],
+      "gap_labels": [
+        "surface_missing",
+        "semantic_test_missing"
+      ],
+      "next_probe": "Add DTO/root-chain contract before any dashboard/export treats DataContextMetric as measurement-backed evidence.",
+      "observed": {
+        "fields": [],
+        "missing_fields": [
+          "payload_ref",
+          "artifact_ref",
+          "request_key",
+          "query_key",
+          "content_hash",
+          "source_version",
+          "profile_id",
+          "config_fingerprint",
+          "root_chain_ref"
+        ]
+      },
+      "pattern_ids": [
+        "P03",
+        "P15"
+      ],
+      "route_id": "contracts.data_context_metric_surface",
+      "stage": "consumer_contract"
+    },
+    {
+      "authority_risk": "Derived DataSnapshot can look root-like while its data_ref is a DataContext summary, not connector payload evidence.",
+      "capability_state": "artifact_missing_for_raw_fetch_root",
+      "evidence_refs": [
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:3622",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:3656",
+        "src/polisyos/runtime/http/services/control/nl_pipeline.py:3670"
+      ],
+      "gap_labels": [
+        "artifact_missing",
+        "surface_missing",
+        "semantic_test_missing"
+      ],
+      "next_probe": "Require retrieval materialization to consume connector payload/root refs or mark snapshot as limited_summary_only.",
+      "observed": {
+        "raw_connector_payload_ref_present": false,
+        "snapshot_input_role": "retrieval_payload",
+        "writes_data_snapshot": true,
+        "writes_retrieval_payload": true
+      },
+      "pattern_ids": [
+        "P03",
+        "P15"
+      ],
+      "route_id": "nl.retrieval_materialization.derived_snapshot",
+      "stage": "derived_artifact"
+    },
+    {
+      "authority_risk": "The CAS/root infrastructure exists in ingestion, but retrieval execute does not bridge into it; this is not a closure for catalog fetch.",
+      "capability_state": "producer_present_but_not_bridged_to_retrieval_execute",
+      "evidence_refs": [
+        "src/polisyos/core/contracts/control.py:340",
+        "src/polisyos/runtime/http/services/control/run_lifecycle.py:1587",
+        "src/polisyos/fabric/ingestion/ingestion.py:951",
+        "src/polisyos/fabric/data_plane/orchestrator.py:609"
+      ],
+      "gap_labels": [
+        "bridge_missing",
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "next_probe": "Run /data/ingest with the same catalog FetchPlan and then prove lineage joins back to resolve/plan ids; today that is a separate call.",
+      "observed": {
+        "converts_fetch_plans_to_dataset_fetch_specs": true,
+        "data_snapshot_inputs_include_evidence_data_quality": true,
+        "ingest_request_accepts_fetch_plans": true,
+        "ingestion_payload_ref_code_path": true,
+        "normal_retrieval_calls_ingest": false
+      },
+      "pattern_ids": [
+        "P02",
+        "P07",
+        "P12"
+      ],
+      "route_id": "ingest.fetch_plan_root_producer",
+      "stage": "separate_root_producer"
+    },
+    {
+      "authority_risk": "Fetch admission uses connector/dataset availability, not source-contract rights, freshness, field refs, or claim bindability.",
+      "capability_state": "verification_missing",
+      "evidence_refs": [
+        "src/polisyos/fabric/retrieval/service.py:819",
+        "src/polisyos/fabric/retrieval/service.py:833",
+        "src/polisyos/fabric/retrieval/service.py:888",
+        "src/polisyos/fabric/connectors/contracts/source_contract.py:66",
+        "src/polisyos/data_requirement/compiler.py:39"
+      ],
+      "gap_labels": [
+        "verification_missing",
+        "surface_missing",
+        "semantic_test_missing"
+      ],
+      "next_probe": "Join MetricBindingMatch -> Dataset/Distribution -> SourceContract before FetchPlan admission and persist the rule result.",
+      "observed": {
+        "candidate_freshness_score_hardcoded": 0.6,
+        "candidate_trust_score_hardcoded": 0.7,
+        "metric_binding_fields_are_narrow": true,
+        "metric_inference_confidence_dropped_in_plan": true,
+        "rights_freshness_field_refs_in_plan": false,
+        "source_contract_ref_in_plan": false
+      },
+      "pattern_ids": [
+        "P05",
+        "P08",
+        "P10",
+        "P14"
+      ],
+      "route_id": "source_contract.admissibility_join",
+      "stage": "admissibility"
+    },
+    {
+      "authority_risk": "Replay fixture presence can be mistaken for replayed measurement equivalence.",
+      "capability_state": "verification_missing",
+      "evidence_refs": [
+        "tools/quality/validation/fabric_source_contracts.py:173",
+        "src/polisyos/fabric/connectors/testing/conformance.py:50",
+        "src/polisyos/fabric/data_plane/replay_store.py:72"
+      ],
+      "gap_labels": [
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "next_probe": "Store connector runtime payload root and replay against it; fixture existence alone must not satisfy root-chain closure.",
+      "observed": {
+        "conformance_checks_fixture_presence": true,
+        "fetch_executor_output_compared_to_measurement_root": false,
+        "fixtures_are_synthetic_schema_samples": true,
+        "source_contract_replay_fixtures_exist": true
+      },
+      "pattern_ids": [
+        "P07",
+        "P12"
+      ],
+      "route_id": "replay.conformance.measurement_equivalence",
+      "stage": "replay_verification"
+    }
+  ],
+  "schema_version": "layer3_gy_catalog_fetch_audit.v1",
+  "scope": {
+    "audit_only": true,
+    "non_goal": "No connector/root-chain remediation in this artifact.",
+    "repository_root": "/Users/deniskopylov/polisyos/policy-engine",
+    "slice": "Catalog binding -> FetchPlan -> connector fetch -> measurement root",
+    "task": "GY-0 Task 0 second pass"
+  },
+  "summary": {
+    "catalog_binding_runs_on_real_catalog": true,
+    "catalog_to_fetch_plan_runs_when_dataset_catalog_injected": true,
+    "critical_gap_labels": [
+      "implemented_but_not_orchestrated",
+      "artifact_missing",
+      "bridge_missing",
+      "surface_missing",
+      "verification_missing",
+      "semantic_test_missing"
+    ],
+    "default_nl_pipeline_injects_dataset_catalog": false,
+    "default_runtime_injects_dataset_catalog": false,
+    "fetch_executor_metric_exposes_payload_or_root_ref": false,
+    "fetch_executor_persist_payload_true_writes_cas": false,
+    "ingestion_root_producer_exists_separately": true,
+    "measurement_root_chain_status": "missing_on_retrieval_execute_path",
+    "normal_nl_fetch_execute_persist_payload": false,
+    "production_catalog_rows_proven": {
+      "ds_datasets": 137176,
+      "ds_distributions": 605408,
+      "ds_metric_bindings": 56846,
+      "ds_schema_profiles": 176249
+    },
+    "real_connector_fetch_runs_for_probe_plan": true,
+    "retrieval_to_ingestion_bridge_exists": false,
+    "route_verdict": "partial_route_measurement_root_missing"
+  }
+}

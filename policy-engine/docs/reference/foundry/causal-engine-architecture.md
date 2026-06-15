@@ -1,5 +1,8 @@
 # PolicyOS Causal Engine — Architecture, Capabilities & Benchmark Results
 
+Owner: `@foundry-owners`
+Source of truth: `src/polisyos/foundry/methods/catalog/causal/**`, `benchmarks/_reports/server_pull_focused_v26_20260320/`, and `tests/unit/foundry/methods/catalog/causal/**`
+
 > **Version**: v26 (March 20, 2026)
 > **Location**: `policy-engine/src/polisyos/foundry/methods/catalog/causal/`
 > **Benchmark data**: `policy-engine/benchmarks/_reports/server_pull_focused_v26_20260320/`

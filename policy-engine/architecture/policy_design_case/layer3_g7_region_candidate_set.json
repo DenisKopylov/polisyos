@@ -1,0 +1,260 @@
+{
+  "candidate_set_id": "layer3-g7://region-candidate-set/region---ua-msme-adjacent",
+  "case_count": 4,
+  "cases": [
+    {
+      "accountable_principal_refs": [
+        "principal://deniskopylov"
+      ],
+      "adjacency_basis_refs": [
+        "adjacency://ua-msme/pinned-g5-seed"
+      ],
+      "blockers": [],
+      "candidate_source": "current_g5_seed_case",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "declared_envelope_refs": [
+        "envelope://g7/ua-msme-adjacent"
+      ],
+      "demand_refs": [
+        "demand-act://layer3-gx/ua-msme-affordable-loans-2022"
+      ],
+      "envelope_posture": "in",
+      "g4_promotion_refs": [],
+      "g5_conversion_record_refs": [],
+      "g6_agent_refs": [],
+      "g6_request_refs": [],
+      "limitations": [],
+      "may_not_use_for": [
+        "production_authority",
+        "production_claim_authority",
+        "rollout_authority",
+        "publication_authority",
+        "approval_authority",
+        "scorecard_authority",
+        "closeout_authority",
+        "runtime_closeout_authority",
+        "public_recommendation",
+        "policy_recommendation",
+        "legal_advice",
+        "claim_authority",
+        "obligation_authority",
+        "causal_effect_authority",
+        "proof_authority",
+        "legal_authority",
+        "recommendation_authority",
+        "universal_claim_authority",
+        "universal_claim_authority_without_s14",
+        "s14_universality_claim_without_s14_gate",
+        "g8_metric_governance_authority"
+      ],
+      "missing_ref_blockers": [],
+      "missing_ref_limitations": [],
+      "region_ref": "region://ua/msme-adjacent",
+      "s12_voi_refs": [],
+      "s3_demand_pull_refs": [],
+      "search_ledger_refs": [
+        "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json"
+      ],
+      "source_contract_refs": [],
+      "time_refs": [
+        "time://policy-year/2022"
+      ]
+    },
+    {
+      "accountable_principal_refs": [],
+      "adjacency_basis_refs": [
+        "adjacency://ua-msme/energy-resilience"
+      ],
+      "blockers": [],
+      "candidate_source": "readiness_control_plane_fixture",
+      "case_id": "ua-msme-energy-resilience-2022",
+      "declared_envelope_refs": [
+        "envelope://g7/ua-msme-adjacent"
+      ],
+      "demand_refs": [
+        "demand://s12/ua-msme/energy-resilience"
+      ],
+      "envelope_posture": "pending",
+      "g4_promotion_refs": [],
+      "g5_conversion_record_refs": [],
+      "g6_agent_refs": [],
+      "g6_request_refs": [],
+      "limitations": [],
+      "may_not_use_for": [
+        "production_authority",
+        "production_claim_authority",
+        "rollout_authority",
+        "publication_authority",
+        "approval_authority",
+        "scorecard_authority",
+        "closeout_authority",
+        "runtime_closeout_authority",
+        "public_recommendation",
+        "policy_recommendation",
+        "legal_advice",
+        "claim_authority",
+        "obligation_authority",
+        "causal_effect_authority",
+        "proof_authority",
+        "legal_authority",
+        "recommendation_authority",
+        "universal_claim_authority",
+        "universal_claim_authority_without_s14",
+        "s14_universality_claim_without_s14_gate",
+        "g8_metric_governance_authority"
+      ],
+      "missing_ref_blockers": [],
+      "missing_ref_limitations": [],
+      "region_ref": "region://ua/msme-adjacent",
+      "s12_voi_refs": [],
+      "s3_demand_pull_refs": [],
+      "search_ledger_refs": [
+        "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json"
+      ],
+      "source_contract_refs": [],
+      "time_refs": [
+        "time://policy-year/2022"
+      ]
+    },
+    {
+      "accountable_principal_refs": [],
+      "adjacency_basis_refs": [
+        "adjacency://ua-msme/export-credit"
+      ],
+      "blockers": [],
+      "candidate_source": "readiness_control_plane_fixture",
+      "case_id": "ua-msme-export-credit-2022",
+      "declared_envelope_refs": [
+        "envelope://g7/ua-msme-adjacent"
+      ],
+      "demand_refs": [
+        "demand://s12/ua-msme/export-credit"
+      ],
+      "envelope_posture": "pending",
+      "g4_promotion_refs": [],
+      "g5_conversion_record_refs": [],
+      "g6_agent_refs": [],
+      "g6_request_refs": [],
+      "limitations": [],
+      "may_not_use_for": [
+        "production_authority",
+        "production_claim_authority",
+        "rollout_authority",
+        "publication_authority",
+        "approval_authority",
+        "scorecard_authority",
+        "closeout_authority",
+        "runtime_closeout_authority",
+        "public_recommendation",
+        "policy_recommendation",
+        "legal_advice",
+        "claim_authority",
+        "obligation_authority",
+        "causal_effect_authority",
+        "proof_authority",
+        "legal_authority",
+        "recommendation_authority",
+        "universal_claim_authority",
+        "universal_claim_authority_without_s14",
+        "s14_universality_claim_without_s14_gate",
+        "g8_metric_governance_authority"
+      ],
+      "missing_ref_blockers": [],
+      "missing_ref_limitations": [],
+      "region_ref": "region://ua/msme-adjacent",
+      "s12_voi_refs": [],
+      "s3_demand_pull_refs": [],
+      "search_ledger_refs": [
+        "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json"
+      ],
+      "source_contract_refs": [],
+      "time_refs": [
+        "time://policy-year/2022"
+      ]
+    },
+    {
+      "accountable_principal_refs": [],
+      "adjacency_basis_refs": [
+        "adjacency://ua-msme/displaced-firm-recovery"
+      ],
+      "blockers": [],
+      "candidate_source": "readiness_control_plane_fixture",
+      "case_id": "ua-msme-displaced-firm-recovery-2022",
+      "declared_envelope_refs": [
+        "envelope://g7/ua-msme-adjacent"
+      ],
+      "demand_refs": [
+        "demand://s12/ua-msme/displaced-firm-recovery"
+      ],
+      "envelope_posture": "pending",
+      "g4_promotion_refs": [],
+      "g5_conversion_record_refs": [],
+      "g6_agent_refs": [],
+      "g6_request_refs": [],
+      "limitations": [],
+      "may_not_use_for": [
+        "production_authority",
+        "production_claim_authority",
+        "rollout_authority",
+        "publication_authority",
+        "approval_authority",
+        "scorecard_authority",
+        "closeout_authority",
+        "runtime_closeout_authority",
+        "public_recommendation",
+        "policy_recommendation",
+        "legal_advice",
+        "claim_authority",
+        "obligation_authority",
+        "causal_effect_authority",
+        "proof_authority",
+        "legal_authority",
+        "recommendation_authority",
+        "universal_claim_authority",
+        "universal_claim_authority_without_s14",
+        "s14_universality_claim_without_s14_gate",
+        "g8_metric_governance_authority"
+      ],
+      "missing_ref_blockers": [],
+      "missing_ref_limitations": [],
+      "region_ref": "region://ua/msme-adjacent",
+      "s12_voi_refs": [],
+      "s3_demand_pull_refs": [],
+      "search_ledger_refs": [
+        "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json"
+      ],
+      "source_contract_refs": [],
+      "time_refs": [
+        "time://policy-year/2022"
+      ]
+    }
+  ],
+  "coverage_authority_status": "control_plane_only",
+  "issue_codes": [],
+  "may_not_use_for": [
+    "production_authority",
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "public_recommendation",
+    "policy_recommendation",
+    "legal_advice",
+    "claim_authority",
+    "obligation_authority",
+    "causal_effect_authority",
+    "proof_authority",
+    "legal_authority",
+    "recommendation_authority",
+    "universal_claim_authority",
+    "universal_claim_authority_without_s14",
+    "s14_universality_claim_without_s14_gate",
+    "g8_metric_governance_authority"
+  ],
+  "region_ref": "region://ua/msme-adjacent",
+  "rule_version": "policyos.layer3.g7.region_widening.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g7_region_widening.v1"
+}

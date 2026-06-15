@@ -548,7 +548,7 @@
     ],
     "data_affinity_predicates": {
       "data_modality": "panel",
-      "outcome_type": "food_quality",
+      "outcome_type": "firm_survival",
       "represented_by": [
         "MethodSignature.input_slots",
         "MethodSignature.data_modalities",
@@ -559,7 +559,7 @@
         "transportability",
         "uncertainty"
       ],
-      "treatment_structure": "continuous_policy"
+      "treatment_structure": "binary_or_intensity_credit_access"
     },
     "hardcoded_fqn_closure": false,
     "issue_codes": [],
@@ -569,7 +569,7 @@
       "foundry-method-discovery:entry-points",
       "foundry-method-discovery:dev-scan"
     ],
-    "registry_snapshot_ref": "foundry-method-registry-snapshot:3b4c1a510f120887169c7664",
+    "registry_snapshot_ref": "foundry-method-registry-snapshot:1144296d7071946b04764891",
     "rejected_methods": [
       {
         "method_ref": "foundry-method://econometrics.selection.tobit@1.0.0",
@@ -607,7 +607,7 @@
     "report_id": "layer3-g2-foundry-method-registry-search",
     "request_ref": "g2-request:default-causal-forecast-method-search",
     "search_ledger_refs": [
-      "g2-foundry-method-search-ledger:dab6972120bf218b1618217e"
+      "g2-foundry-method-search-ledger:8f9a86b8cc4f1e04a0d53aab"
     ],
     "search_strategy": "registry_metadata_predicate_search",
     "selected_methods": [

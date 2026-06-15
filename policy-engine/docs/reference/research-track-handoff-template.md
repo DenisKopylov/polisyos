@@ -1,5 +1,8 @@
 # PolicyOS Causal Engine — Research Track Handoff Template
 
+Owner: `@foundry-owners`
+Source of truth: `docs/reference/research-track-handoff-template.md`, `docs/plans/active/CAUSAL_ENGINE_RESEARCH_AGENDA.md`, and `docs/plans/active/CAUSAL_ENGINE_IMPLEMENTATION_PLAN.md`
+
 > **Version**: 1.0
 > **Date**: 2026-04-01
 > **Scope**: All research tracks in `CAUSAL_ENGINE_RESEARCH_AGENDA.md`

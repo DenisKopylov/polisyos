@@ -1,0 +1,399 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gy_p1_substrate_authority_audit.v1",
+  "source_plan": "docs/plans/active/layer3-slices/GY-engine-subordination.md#task-0",
+  "generated_at": "2026-06-14T12:00:00Z",
+  "status": "pass",
+  "system_readiness": "blocked_for_high_risk_substrate_authority",
+  "methodology": {
+    "agents_used": false,
+    "network_fetches_run": false,
+    "runtime_server_started": false,
+    "code_static_read": true,
+    "temporary_cas_probe_run": true,
+    "p0_dag_cas_manifests_scanned": true,
+    "selected_secret_pii_scan_run": true,
+    "time_field_inventory_run": true,
+    "s12_ref_dereference_run": true,
+    "fixes_made": false,
+    "scope_note": "Audit-only P1 substrate authority pass over CAS, time semantics, secrets/PII surfaces, and cost/VOI/budget honesty."
+  },
+  "classification": {
+    "primary": "high_risk_substrate_authority_partial",
+    "capability_label": "core_substrate_contracts_exist_but_route_authority_bridges_are_incomplete",
+    "route_pinned": true,
+    "repair_before_downstream_governance": true,
+    "patterns": [
+      "P01",
+      "P02",
+      "P03",
+      "P05",
+      "P07",
+      "P08",
+      "P10",
+      "P13",
+      "P15",
+      "P25"
+    ]
+  },
+  "summary": {
+    "cas_temp_dedup_same_ref": true,
+    "cas_temp_artifact_count_after_duplicate_put": 1,
+    "cas_temp_blob_tamper_detected_on_verify": true,
+    "cas_temp_blob_tamper_detected_on_read": true,
+    "cas_temp_reput_after_blob_tamper_heals_blob": false,
+    "cas_temp_manifest_tamper_detected_on_verify": true,
+    "cas_temp_manifest_tamper_detected_on_read": true,
+    "cas_temp_manifest_tamper_detected_on_get_manifest": false,
+    "filesystem_cas_gc_api_present": false,
+    "p0_dag_cas_manifest_count": 178,
+    "p0_dag_cas_authority_manifest_count": 0,
+    "production_worker_dag_manifest_count": 99,
+    "depth2_valid_snapshot_dag_manifest_count": 71,
+    "runtime_authority_writer_present": true,
+    "scientist_dag_uses_ordinary_put_json_for_workflow_report": true,
+    "artifact_preview_redaction_present": true,
+    "artifact_raw_content_route_unredacted": true,
+    "artifact_download_route_unredacted": true,
+    "pii_detection_stage_exists": true,
+    "pii_detection_default_enabled": false,
+    "retrieval_fetch_executor_applies_pii_stage": false,
+    "ingestion_path_applies_pii_stage_when_enabled": true,
+    "connector_probe_payload_files_scanned": 1,
+    "connector_probe_secret_pii_hits": 0,
+    "selected_secret_match_line_count": 5,
+    "selected_secret_match_file_count": 4,
+    "selected_pii_match_line_count": 0,
+    "runtime_workflow_temporal_surface_supported": false,
+    "artifact_content_temporal_surface_supported": false,
+    "runtime_temporal_supported_surface_count": 6,
+    "runtime_temporal_unsupported_surface_count": 5,
+    "pdc_json_files_time_scanned": 277,
+    "pdc_catalog_watermark_occurrences": 0,
+    "pdc_source_updated_at_occurrences": 0,
+    "pdc_legal_as_of_occurrences": 87,
+    "pdc_legal_as_of_null_or_empty_occurrences": 44,
+    "dag_time_fields_include_source_freshness": false,
+    "s12_real_resource_economics_producers_exist": true,
+    "g5_s12_pass_refs_exact_producer_artifacts_found": false,
+    "g5_s12_pass_uses_authorial_refs": true,
+    "run_cost_gate_is_separate_runtime_cost_capability": true,
+    "overall_status": "blocked_for_authority_bridging_not_core_contract_absence"
+  },
+  "cas_integrity_dedup_gc_tamper_evidence": {
+    "temporary_probe": {
+      "dedup_same_ref": true,
+      "artifact_count_after_duplicate_put": 1,
+      "blob_count_after_duplicate_put": 1,
+      "manifest_count_after_duplicate_put": 1,
+      "initial_verify_ok": true,
+      "blob_tamper_verify_ok": false,
+      "blob_tamper_verify_error": "sha256 mismatch",
+      "blob_tamper_get_bytes_exception": "ArtifactIntegrityError",
+      "reput_after_blob_tamper_same_ref": true,
+      "reput_after_blob_tamper_verify_ok": false,
+      "manifest_tamper_verify_ok": false,
+      "manifest_tamper_verify_error": "byte_size mismatch",
+      "manifest_tamper_get_manifest_exception": null,
+      "manifest_tamper_get_bytes_exception": "ArtifactIntegrityError",
+      "filesystem_cas_gc_like_methods": []
+    },
+    "code_anchors": [
+      "src/polisyos/core/artifacts/store.py:149",
+      "src/polisyos/core/artifacts/store.py:642",
+      "src/polisyos/core/artifacts/store.py:706",
+      "src/polisyos/core/artifacts/store.py:731",
+      "src/polisyos/core/artifacts/_integrity_ops.py:27",
+      "src/polisyos/runtime/http/services/control/artifacts.py:379",
+      "src/polisyos/runtime/quality/authority_reconciliation.py:40",
+      "src/polisyos/scientist/orchestration/engine/executor.py:1265",
+      "src/polisyos/scientist/orchestration/engine/executor.py:1299",
+      "src/polisyos/scientist/orchestration/engine/executor.py:1309",
+      "src/polisyos/scientist/orchestration/engine/executor.py:1370"
+    ],
+    "p0_dag_manifest_scan": {
+      "roots_scanned": [
+        "tmp/gy_p0_prod_worker_real_dag",
+        "tmp/gy_p0_depth2_direct_dag",
+        "tmp/gy_p0_depth2_valid_snapshot_dag"
+      ],
+      "total_manifest_count": 178,
+      "authority_manifest_count": 0,
+      "by_root": [
+        {
+          "root": "tmp/gy_p0_prod_worker_real_dag",
+          "manifest_count": 99,
+          "authority_manifest_count": 0,
+          "top_kinds": {
+            "scientist.checkpoint": 12,
+            "scientist.node_cache_entry": 11,
+            "scientist.node_outcome": 11,
+            "core.trace.jsonl": 4,
+            "core.run_manifest": 4,
+            "scientist.experiment_state": 3
+          }
+        },
+        {
+          "root": "tmp/gy_p0_depth2_direct_dag",
+          "manifest_count": 8,
+          "authority_manifest_count": 0,
+          "top_kinds": {
+            "core.registry_bundle": 1,
+            "ir.metric_registry": 1,
+            "ir.slot_registry": 1,
+            "ir.units_registry": 1
+          }
+        },
+        {
+          "root": "tmp/gy_p0_depth2_valid_snapshot_dag",
+          "manifest_count": 71,
+          "authority_manifest_count": 0,
+          "top_kinds": {
+            "scientist.checkpoint": 14,
+            "scientist.node_outcome": 13,
+            "scientist.node_cache_entry": 13,
+            "scientist.experiment_state": 2,
+            "scientist.source_verification_report": 2
+          }
+        }
+      ]
+    },
+    "authority_bridge_map": [
+      {
+        "surface": "runtime_quality_authority_writer",
+        "status": "event_backed_authority_manifest",
+        "producer": "write_runtime_authority_artifact",
+        "evidence": "tests/unit/runtime/quality/test_authority_reconciliation.py"
+      },
+      {
+        "surface": "scientist_workflow_report_final_state_run_dag",
+        "status": "cas_integrity_only_no_runtime_authority_manifest",
+        "producer": "WorkflowExecutor._persist_report/_persist_state/run_dag put_json",
+        "evidence": "P0 DAG CAS scan found 178 manifests and 0 manifest.authority records"
+      }
+    ],
+    "verdict": {
+      "capability_label": "cas_integrity_present_authority_event_bridge_partial_gc_missing",
+      "risk": "DAG bundles have immutable digest checks but are not authority-event-backed. If they become authority inputs, GY must govern the writer or reconcile them before public/API/dashboard consumption."
+    }
+  },
+  "time_semantics_bitemporality": {
+    "runtime_temporal_capabilities": {
+      "supported_surfaces": [
+        "run_details",
+        "run_timeline",
+        "run_lineage",
+        "run_quantities",
+        "run_fabric_decision_data",
+        "run_compare"
+      ],
+      "unsupported_surfaces": [
+        "run_agents",
+        "run_evidence_context",
+        "run_workflow",
+        "run_nodes",
+        "artifact_content"
+      ],
+      "world_query_kwargs_maps_valid_and_tx_time": true,
+      "artifact_content_temporal_surface_supported": false,
+      "workflow_temporal_surface_supported": false,
+      "code_anchor": "src/polisyos/runtime/http/services/temporal.py:35"
+    },
+    "pdc_time_field_inventory": {
+      "json_files_scanned": 277,
+      "field_occurrences": {
+        "catalog_watermark": 0,
+        "watermark": 0,
+        "source_updated_at": 0,
+        "source_timestamp": 0,
+        "fetched_at": 0,
+        "as_of": 2,
+        "valid_at": 0,
+        "tx_at": 0,
+        "legal_as_of": 87,
+        "effective_from": 86,
+        "effective_to": 81,
+        "time_coverage_refs": 1,
+        "freshness_ref": 9,
+        "source_rights": 1
+      },
+      "null_or_empty_occurrences": {
+        "legal_as_of": 44,
+        "effective_from": 74,
+        "effective_to": 69
+      }
+    },
+    "p0_dag_time_field_inventory": {
+      "roots_scanned": [
+        "tmp/gy_p0_prod_worker_real_dag",
+        "tmp/gy_p0_depth2_valid_snapshot_dag"
+      ],
+      "field_occurrences": {
+        "created_at": 224,
+        "as_of": 4,
+        "fetched_at": 0,
+        "source_updated_at": 0,
+        "as_of_time": 0,
+        "valid_at": 0,
+        "tx_at": 0,
+        "legal_as_of": 0,
+        "effective_from": 0,
+        "effective_to": 0,
+        "watermark": 0
+      }
+    },
+    "legal_time_evidence": {
+      "gl_doc_anchor": "docs/reference/policy-design-case-layer3-legal-mandate-search.md",
+      "sample_unresolved_artifact": "architecture/policy_design_case/layer3_gl_amendment_lineage_records.json",
+      "observed_status": "legal time roles are modeled in GL artifacts, but many rows remain null/reissue_required and are not joined to runtime as-of/source freshness/replay time."
+    },
+    "verdict": {
+      "capability_label": "bitemporal_runtime_partial_and_legal_time_near_route_not_composed",
+      "risk": "Watermark/source freshness/effective time/as-of replay/legal validity time are not one admission envelope. Workflow and artifact content, the highest laundering-risk surfaces, are explicitly outside runtime temporal support."
+    }
+  },
+  "secrets_pii_scan": {
+    "scan_scope": [
+      "architecture/policy_design_case/layer3_gy_task0_audit",
+      "tmp/gy_p0_prod_worker_real_dag",
+      "tmp/gy_p0_depth2_direct_dag",
+      "tmp/gy_p0_depth2_valid_snapshot_dag",
+      "_build/.tmp/gy-catalog-fetch-audit",
+      "tests/unit/security/fixtures/policyos_abuse_cases"
+    ],
+    "connector_probe_payload_scan": {
+      "root": "_build/.tmp/gy-catalog-fetch-audit",
+      "files_scanned": 1,
+      "secret_hits": 0,
+      "pii_hits": 0,
+      "note": "The catalog-fetch audit left one probe payload, catalog_fetch_probe.json; no secret/PII literals were found there."
+    },
+    "selected_secret_match_line_count": 5,
+    "selected_secret_match_file_count": 4,
+    "selected_pii_match_line_count": 0,
+    "secret_hits": [
+      {
+        "path": "tmp/gy_p0_prod_worker_real_dag/run_1781437754/.polisyos/artifacts/sha256/d3/b0/d3b02648972523eecaaf240e6f6f1965fe3fc1590e2d8d42cf4d611925ffaa85.blob",
+        "classification": "raw_dag_bundle_secret_like_fixture_leak",
+        "sample": "workflow_report error.details.api_token = Bearer should-not-leak"
+      },
+      {
+        "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_runtime_surface_audit.json",
+        "classification": "audit_documented_known_leak",
+        "sample": "nested_secret_like_value_observed = Bearer should-not-leak"
+      },
+      {
+        "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_runtime_surface_audit_findings.md",
+        "classification": "audit_documented_known_leak",
+        "sample": "raw failed workflow JSON exposes error.details.api_token"
+      },
+      {
+        "path": "tests/unit/security/fixtures/policyos_abuse_cases/secret_exfiltration.json",
+        "classification": "intentional_red_team_fixture",
+        "sample": "sk-live-red-team-secret"
+      }
+    ],
+    "route_behavior": {
+      "artifact_preview_redaction_present": true,
+      "artifact_preview_redaction_scope": "artifact kind markers and optional hooks",
+      "artifact_raw_content_route_unredacted": true,
+      "artifact_download_route_unredacted": true,
+      "raw_routes_code_anchor": "src/polisyos/runtime/http/routes/artifacts.py:172",
+      "download_route_code_anchor": "src/polisyos/runtime/http/routes/artifacts.py:402",
+      "preview_redaction_code_anchor": "src/polisyos/runtime/http/services/artifact_inspector.py:548"
+    },
+    "pii_stage_wiring": {
+      "detector_exists": true,
+      "default_enabled": false,
+      "ingestion_path_applies_when_enabled": true,
+      "retrieval_fetch_executor_applies_stage": false,
+      "stage_anchor": "src/polisyos/fabric/pii/stage.py:26",
+      "ingestion_anchor": "src/polisyos/fabric/ingestion/ingestion.py:862",
+      "retrieval_executor_anchor": "src/polisyos/fabric/retrieval/executor.py:204"
+    },
+    "verdict": {
+      "capability_label": "preview_redaction_and_optional_pii_scan_present_but_raw_artifact_and_retrieval_admission_gap",
+      "risk": "A known secret-like value is present in a P0 DAG bundle. Preview redaction does not protect raw routes, and retrieval fetch does not run PII admission/scanning."
+    }
+  },
+  "cost_voi_budget_honesty": {
+    "s12_real_producers": {
+      "exists": true,
+      "anchors": [
+        "src/polisyos/runtime/quality/layer2_resource_economics.py:473",
+        "src/polisyos/runtime/quality/layer2_resource_economics.py:510",
+        "src/polisyos/runtime/quality/layer2_resource_economics.py:603",
+        "src/polisyos/runtime/quality/layer2_resource_economics.py:766",
+        "tests/unit/runtime/quality/test_layer2_s12_resource_economics.py"
+      ],
+      "manifest": "architecture/policy_design_case/layer2_s12_resource_economics_manifest.json",
+      "manifest_case_count": 13,
+      "manifest_voi_site_count": 5,
+      "manifest_typed_budget_count": 5
+    },
+    "g5_s12_pass_exact_refs": {
+      "refs": [
+        "demand-act://ua-msme/principal",
+        "voi://ua-msme/site-1"
+      ],
+      "occurrence_files": [
+        "architecture/policy_design_case/layer3_g5_composed_loop_completeness_gate.json",
+        "architecture/policy_design_case/layer3_g5_pinned_case_input_bundle.json"
+      ],
+      "exact_producer_artifacts_found": false,
+      "hardcoded_payload_anchor": "src/polisyos/runtime/quality/layer3_proving_ground_conversion.py:1219",
+      "classification": "authorial_refs_in_g5_handoff_not_measured_exact_s12_objects"
+    },
+    "s12_projection_contract": {
+      "g5_public_export_projection_refs_exist": true,
+      "g7_projection_contract_status_pass": true,
+      "projection_authority_role": "projection_only",
+      "projection_risk": "Projection pass does not prove that exact G5 demand/VOI refs were produced or measured."
+    },
+    "runtime_run_cost_gate": {
+      "exists": true,
+      "separate_capability": true,
+      "anchors": [
+        "src/polisyos/runtime/quality/cost_gate.py:82",
+        "tests/unit/runtime/quality/test_cost_gate.py",
+        "docs/reference/runtime/run-cost-enforcement-gate.md"
+      ],
+      "not_equivalent_to_s12_voi_budget_honesty": true
+    },
+    "verdict": {
+      "capability_label": "s12_models_exist_but_g5_pass_handoff_uses_authorial_refs",
+      "risk": "S12 should not be counted as measured for G5 pinned pass until demand-act/VOI/budget refs dereference to produced objects with authority boundary, inputs, and verification."
+    }
+  },
+  "substrate_authority_risk_matrix": [
+    {
+      "area": "CAS integrity/dedup/GC/tamper",
+      "current_truth": "byte-level digest/dedup/tamper checks are real; GC API absent; DAG authority manifest/event backing absent",
+      "capability_label": "partial",
+      "must_not_count_as": "authority-rooted DAG bundle"
+    },
+    {
+      "area": "time semantics/bitemporality",
+      "current_truth": "runtime bitemporal support is partial and excludes workflow/artifact content; legal time exists but is not composed with source freshness/watermark",
+      "capability_label": "implemented_but_not_orchestrated",
+      "must_not_count_as": "replay-safe admissibility envelope"
+    },
+    {
+      "area": "secrets/PII",
+      "current_truth": "preview redaction and optional ingestion PII scan exist; raw artifact routes and retrieval execution are not blocked/redacted by that scan",
+      "capability_label": "surface_missing",
+      "must_not_count_as": "raw artifact publish-safe"
+    },
+    {
+      "area": "cost/VOI/budget",
+      "current_truth": "S12 producer package exists; G5 pass exact refs are authorial hardcoded handoff labels",
+      "capability_label": "bridge_missing",
+      "must_not_count_as": "measured resource-economics proof"
+    }
+  ],
+  "acceptance_signal_for_future_repairs": [
+    "DAG workflow reports/final state/run_dag are either written through runtime authority writer or explicitly projection-only with reconcileable authority boundary.",
+    "Artifact raw routes and public exports enforce secret/PII admission or expose a typed not_publishable/redaction-required status before raw bytes leave CAS.",
+    "A single temporal admission envelope composes catalog watermark, source freshness, source_updated_at/fetched_at, effective/legal time, and runtime as-of/tx replay.",
+    "G5 S12 refs dereference to produced ResourceAllocationPolicy/ValueOfInformationAllocation/EnvelopeGrowthLedger or the pass is downgraded to authorial_label_not_measured."
+  ]
+}

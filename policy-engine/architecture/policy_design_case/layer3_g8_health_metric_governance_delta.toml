@@ -1,0 +1,10 @@
+schema_version = "policyos.policy_design_case.layer3_g8_health_metric_governance.v1"
+rule_version = "policyos.layer3.g8.health_metric_governance.v1"
+
+[health_metric_governance_delta]
+authority_boundary = "governed_signal_never_authority"
+domain_vs_search_ceiling_status = "search_ceiling_repair_required"
+metric_governance_status = "pass"
+metric_ids = ["envelope-expansion-rate", "adapter-semantic-loss", "governance-throughput", "demand-pull-vs-abstention", "search-recall@known-seeds+index-staleness"]
+metric_trend_refs = ["repo://architecture/policy_design_case/layer3_g8_metric_trend_report.json"]
+metric_trend_report_status = "pass"

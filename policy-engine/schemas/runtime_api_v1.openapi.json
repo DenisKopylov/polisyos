@@ -33171,7 +33171,7 @@
                       "debug": {
                         "decision_validity": {
                           "checked_at": "2026-02-11T12:00:00Z",
-                          "decision_lineage_key": "sha256:lineage",
+                          "decision_lineage_key": "sha256:0713f136ea316c8f3e274d55012e3bf10d05b5263837187a39593ff0d8838dfa",
                           "evaluation_ref": {
                             "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
                           },
@@ -40627,21 +40627,21 @@
                           "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
                         },
                         "reproducibility": {
-                          "data_snapshot_hash": "sha256:datasnapshothash",
+                          "data_snapshot_hash": "sha256:e79b613f05a6ebf356616cf97caa7b0e4d2dd15853974c3a76251a44ee0222fb",
                           "determinism_tier": "strict_cpu",
-                          "input_bindings_hash": "sha256:bindingshash",
+                          "input_bindings_hash": "sha256:e823430756f9bab004490a705c8baa7b2e0f441d82d5703239b2cfff3bf264e4",
                           "manifest_ref": {
                             "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
                           },
-                          "method_catalog_hash": "sha256:cataloghash",
+                          "method_catalog_hash": "sha256:08622409c86efbeb945e4bdbdea7585e8eaff6e380c450273bc5b41bcf3f0073",
                           "missing_refs": [
                             "input_bindings_ref",
                             "knowledge_bundle_ref"
                           ],
                           "notes": [],
-                          "plan_hash": "sha256:planhash",
+                          "plan_hash": "sha256:79b64d4f43928e6cd7f7ad678c195d07fc61be69d672e768c82958761c869e1d",
                           "readiness": "partial",
-                          "registry_hash": "sha256:registryhash",
+                          "registry_hash": "sha256:bdedb5a6471e6a1b3bd16ef5065570d33157d96788e0ebc2ca17a569f03921b8",
                           "seed": 0,
                           "seed_source": "params.random_seed",
                           "suggested_next_step": "Persist input_bindings_ref for replay-grade completeness.",

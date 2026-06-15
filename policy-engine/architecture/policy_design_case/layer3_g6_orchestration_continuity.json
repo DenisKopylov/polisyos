@@ -1,0 +1,241 @@
+{
+  "authoritative_for": [
+    "layer3_g6_agent_orchestration_audit"
+  ],
+  "continuity_id": "layer3-g6://orchestration-continuity/req-layer3-g6-readiness",
+  "issue_codes": [],
+  "may_not_use_for": [
+    "production_authority",
+    "rollout_authority",
+    "publication_authority",
+    "approval_authority",
+    "scorecard_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "public_recommendation",
+    "policy_recommendation",
+    "legal_advice",
+    "claim_authority",
+    "obligation_authority",
+    "causal_effect_authority",
+    "proof_authority",
+    "legal_authority",
+    "g5_conversion_authority_without_g5",
+    "g7_region_widening"
+  ],
+  "record": {
+    "authority_boundary": {
+      "authoritative_for": [
+        "boundary_continuity"
+      ],
+      "authority_role": "diagnostic_only",
+      "may_not_use_for": [
+        "producer_domain_truth",
+        "scorecard_authority",
+        "approval_authority",
+        "runtime_closeout_authority",
+        "public_projection_authority",
+        "evidence_strength"
+      ],
+      "provenance_kind": "runtime_emitted"
+    },
+    "bridge_authority_refs": [],
+    "carrier_ref": "evidence-spine:g6:req-layer3-g6-readiness",
+    "claim_refs": [],
+    "concept_spine_ref": "cas://concept-spine/layer3-g6/req-layer3-g6-readiness",
+    "continuity_fingerprint": "sha256:9df9370a11e5070707c8ad191536b7a4dc5686a27c42f16df5aad429a8df12a2",
+    "continuity_ref": "quality_evidence/runtime_orchestration_continuity.json",
+    "findings": [],
+    "generated_at": "2026-06-13T18:28:25+00:00",
+    "handoff_refs": [
+      "producer-handshake-ledger://layer3-g6/req-layer3-g6-readiness",
+      "quality_evidence/runtime_orchestration_continuity.json"
+    ],
+    "jurisdiction_spine_ref": "cas://jurisdiction-spine/layer3-g6/req-layer3-g6-readiness",
+    "parent_spine_ref": null,
+    "producer_binding_refs": [
+      "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
+      "layer3-g6://g5-invocation-plan/req-layer3-g6-readiness",
+      "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json",
+      "repo://architecture/policy_design_case/layer3_g5_w12d_consumer_gate.json"
+    ],
+    "producer_handshake_ledger_ref": "producer-handshake-ledger://layer3-g6/req-layer3-g6-readiness",
+    "producer_handshake_refs": [
+      "producer-handshake://layer3-g6/g5-bridge/req-layer3-g6-readiness"
+    ],
+    "producer_spine_context_ref": null,
+    "record_family": "nl_replay_orchestration_continuity.v1",
+    "runtime_claim_registry_ref": "runtime-claim-registry://layer3-g6/req-layer3-g6-readiness",
+    "scenario_contract_refs": [],
+    "schema_version": "policyos.runtime.nl_replay_orchestration_continuity.v1",
+    "status": "pass",
+    "summary": {
+      "claim_ref_count": 0,
+      "finding_count": 0,
+      "handoff_ref_count": 2,
+      "producer_binding_ref_count": 4,
+      "producer_handshake_ref_count": 1,
+      "required_surface_count": 8,
+      "surface_count": 9
+    },
+    "surface_coverage": [
+      {
+        "carrier_refs": [
+          "evidence-spine:g6:req-layer3-g6-readiness"
+        ],
+        "claim_ref_count": 0,
+        "concept_spine_refs": [],
+        "handoff_ref_count": 0,
+        "jurisdiction_spine_refs": [],
+        "producer_binding_ref_count": 0,
+        "producer_handshake_ref_count": 1,
+        "runtime_claim_registry_refs": [
+          "runtime-claim-registry://layer3-g6/req-layer3-g6-readiness"
+        ],
+        "surface": "bundle"
+      },
+      {
+        "carrier_refs": [
+          "evidence-spine:g6:req-layer3-g6-readiness"
+        ],
+        "claim_ref_count": 0,
+        "concept_spine_refs": [
+          "cas://concept-spine/layer3-g6/req-layer3-g6-readiness"
+        ],
+        "handoff_ref_count": 2,
+        "jurisdiction_spine_refs": [
+          "cas://jurisdiction-spine/layer3-g6/req-layer3-g6-readiness"
+        ],
+        "producer_binding_ref_count": 0,
+        "producer_handshake_ref_count": 1,
+        "runtime_claim_registry_refs": [
+          "runtime-claim-registry://layer3-g6/req-layer3-g6-readiness"
+        ],
+        "surface": "export"
+      },
+      {
+        "carrier_refs": [
+          "evidence-spine:g6:req-layer3-g6-readiness"
+        ],
+        "claim_ref_count": 0,
+        "concept_spine_refs": [],
+        "handoff_ref_count": 1,
+        "jurisdiction_spine_refs": [],
+        "producer_binding_ref_count": 0,
+        "producer_handshake_ref_count": 1,
+        "runtime_claim_registry_refs": [
+          "runtime-claim-registry://layer3-g6/req-layer3-g6-readiness"
+        ],
+        "surface": "inspection"
+      },
+      {
+        "carrier_refs": [
+          "evidence-spine:g6:req-layer3-g6-readiness"
+        ],
+        "claim_ref_count": 0,
+        "concept_spine_refs": [
+          "cas://concept-spine/layer3-g6/req-layer3-g6-readiness"
+        ],
+        "handoff_ref_count": 0,
+        "jurisdiction_spine_refs": [
+          "cas://jurisdiction-spine/layer3-g6/req-layer3-g6-readiness"
+        ],
+        "producer_binding_ref_count": 0,
+        "producer_handshake_ref_count": 1,
+        "runtime_claim_registry_refs": [
+          "runtime-claim-registry://layer3-g6/req-layer3-g6-readiness"
+        ],
+        "surface": "job_progress"
+      },
+      {
+        "carrier_refs": [
+          "evidence-spine:g6:req-layer3-g6-readiness"
+        ],
+        "claim_ref_count": 0,
+        "concept_spine_refs": [],
+        "handoff_ref_count": 1,
+        "jurisdiction_spine_refs": [],
+        "producer_binding_ref_count": 4,
+        "producer_handshake_ref_count": 1,
+        "runtime_claim_registry_refs": [
+          "runtime-claim-registry://layer3-g6/req-layer3-g6-readiness"
+        ],
+        "surface": "quality_evidence"
+      },
+      {
+        "carrier_refs": [
+          "evidence-spine:g6:req-layer3-g6-readiness"
+        ],
+        "claim_ref_count": 0,
+        "concept_spine_refs": [],
+        "handoff_ref_count": 0,
+        "jurisdiction_spine_refs": [],
+        "producer_binding_ref_count": 0,
+        "producer_handshake_ref_count": 1,
+        "runtime_claim_registry_refs": [
+          "runtime-claim-registry://layer3-g6/req-layer3-g6-readiness"
+        ],
+        "surface": "readiness"
+      },
+      {
+        "carrier_refs": [
+          "evidence-spine:g6:req-layer3-g6-readiness"
+        ],
+        "claim_ref_count": 0,
+        "concept_spine_refs": [
+          "cas://concept-spine/layer3-g6/req-layer3-g6-readiness"
+        ],
+        "handoff_ref_count": 1,
+        "jurisdiction_spine_refs": [
+          "cas://jurisdiction-spine/layer3-g6/req-layer3-g6-readiness"
+        ],
+        "producer_binding_ref_count": 0,
+        "producer_handshake_ref_count": 1,
+        "runtime_claim_registry_refs": [
+          "runtime-claim-registry://layer3-g6/req-layer3-g6-readiness"
+        ],
+        "surface": "replay_manifest"
+      },
+      {
+        "carrier_refs": [
+          "evidence-spine:g6:req-layer3-g6-readiness"
+        ],
+        "claim_ref_count": 0,
+        "concept_spine_refs": [
+          "cas://concept-spine/layer3-g6/req-layer3-g6-readiness"
+        ],
+        "handoff_ref_count": 0,
+        "jurisdiction_spine_refs": [
+          "cas://jurisdiction-spine/layer3-g6/req-layer3-g6-readiness"
+        ],
+        "producer_binding_ref_count": 0,
+        "producer_handshake_ref_count": 1,
+        "runtime_claim_registry_refs": [
+          "runtime-claim-registry://layer3-g6/req-layer3-g6-readiness"
+        ],
+        "surface": "request_context"
+      },
+      {
+        "carrier_refs": [
+          "evidence-spine:g6:req-layer3-g6-readiness"
+        ],
+        "claim_ref_count": 0,
+        "concept_spine_refs": [
+          "cas://concept-spine/layer3-g6/req-layer3-g6-readiness"
+        ],
+        "handoff_ref_count": 0,
+        "jurisdiction_spine_refs": [
+          "cas://jurisdiction-spine/layer3-g6/req-layer3-g6-readiness"
+        ],
+        "producer_binding_ref_count": 0,
+        "producer_handshake_ref_count": 1,
+        "runtime_claim_registry_refs": [
+          "runtime-claim-registry://layer3-g6/req-layer3-g6-readiness"
+        ],
+        "surface": "workflow_state"
+      }
+    ]
+  },
+  "request_id": "req-layer3-g6-readiness",
+  "status": "pass"
+}

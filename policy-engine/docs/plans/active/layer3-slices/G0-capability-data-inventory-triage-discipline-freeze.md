@@ -194,7 +194,7 @@ Out of scope:
 ### Existing Substrates To Reuse
 
 - Existing G0 module and validator:
-  `src/polisyos/runtime/quality/layer3_grounding_inventory.py`,
+  `src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py`,
   `tools/quality/validation/check_policy_design_case_layer3_g0_readiness.py`,
   and `tests/unit/runtime/quality/test_layer3_g0_grounding_inventory.py`.
   These are a green v1 readiness gate, not a stub. The current gate already
@@ -307,7 +307,7 @@ truth.
 
 ## Implementation Design
 
-Update `src/polisyos/runtime/quality/layer3_grounding_inventory.py` as the single
+Update `src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py` as the single
 G0 contract/producer module. Keep it read-only. It may import public
 narrow-waist DTOs such as `polisyos.pdc.Layer2ReadinessModel` and standard
 library/TOML/JSON readers, but it must not import private `pdc._impl` modules or
@@ -557,7 +557,7 @@ the tree and manifests during execution, not trusted from the plan:
 Modify:
 
 - `policy-engine/docs/plans/active/layer3-slices/G0-capability-data-inventory-triage-discipline-freeze.md`
-- `src/polisyos/runtime/quality/layer3_grounding_inventory.py`
+- `src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py`
 - `tools/quality/validation/check_policy_design_case_layer3_g0_readiness.py`
 - `tests/unit/runtime/quality/test_layer3_g0_grounding_inventory.py`
 - `tests/repo_quality/tools/test_policy_design_case_layer3_g0_readiness.py`
@@ -703,7 +703,7 @@ Implement read-only gates:
     `src/polisyos/runtime/quality/*capability*`,
     `src/polisyos/runtime/quality/*resolver*`,
     `src/polisyos/runtime/quality/*registry*`,
-    `src/polisyos/runtime/quality/layer3_grounding_inventory.py`,
+    `src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py`,
     `tools/quality/validation/check_policy_design_case_layer3_g0_readiness.py`,
     and known Foundry/agent/tool registry fallback paths discovered by the G0
     builder;

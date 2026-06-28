@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+import pytest
+
+from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry
+from polisyos.scientist.methods.search.readiness import DecisionReadiness, DecisionReadinessContract
+from polisyos.scientist.methods.search.transfer_context import TransferContext
 from polisyos.scientist.policy_design.objectives import ObjectiveStack, PolicyEvaluationBundle
 from polisyos.scientist.policy_design.output import (
     ChampionPolicyDossier,
@@ -14,9 +19,6 @@ from polisyos.scientist.policy_design.search import (
     HierarchicalSearchCoordinator,
 )
 from polisyos.scientist.policy_design.translator import TranslatorInputBundle
-from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry
-from polisyos.scientist.methods.search.readiness import DecisionReadiness, DecisionReadinessContract
-from polisyos.scientist.methods.search.transfer_context import TransferContext
 
 from .test_phase_b_output import _candidate, _evaluation_vector
 
@@ -36,7 +38,11 @@ def test_generate_structure_candidates_includes_deterministic_variants() -> None
         }
     )
     coordinator = HierarchicalSearchCoordinator(
-        config=HierarchicalSearchConfig(enable_hybrid_seeds=False)
+        config=HierarchicalSearchConfig(
+            enable_hybrid_seeds=False,
+            require_explicit_parameter_bounds=False,
+            allow_legacy_shadow_inferred_bounds=True,
+        )
     )
 
     structures = coordinator.generate_structure_candidates(candidate)
@@ -48,7 +54,11 @@ def test_generate_structure_candidates_includes_deterministic_variants() -> None
 
 def test_build_parameter_search_spec_extracts_bounds_and_paths() -> None:
     coordinator = HierarchicalSearchCoordinator(
-        config=HierarchicalSearchConfig(enable_hybrid_seeds=False)
+        config=HierarchicalSearchConfig(
+            enable_hybrid_seeds=False,
+            require_explicit_parameter_bounds=False,
+            allow_legacy_shadow_inferred_bounds=True,
+        )
     )
     spec = coordinator.build_parameter_search_spec(_candidate())
 
@@ -58,6 +68,69 @@ def test_build_parameter_search_spec_extracts_bounds_and_paths() -> None:
         for bound in spec.search_space.bounds
     )
     assert any(bound.name.startswith("schedule::") for bound in spec.search_space.bounds)
+
+
+def test_phase2_parameter_search_blocks_missing_explicit_bounds() -> None:
+    candidate = _candidate()
+    parameter = candidate.trinity_bundle.policy_spec.parameters[0].model_copy(
+        update={"min_value": None, "max_value": None}
+    )
+    policy_spec = candidate.trinity_bundle.policy_spec.model_copy(
+        update={"parameters": [parameter]}
+    )
+    candidate = candidate.model_copy(
+        update={
+            "trinity_bundle": candidate.trinity_bundle.model_copy(
+                update={"policy_spec": policy_spec}
+            ),
+            "parameter_schedule": [],
+        }
+    )
+    coordinator = HierarchicalSearchCoordinator(
+        config=HierarchicalSearchConfig(
+            enable_hybrid_seeds=False,
+            require_explicit_parameter_bounds=True,
+        )
+    )
+
+    with pytest.raises(ValueError, match="no default zero may be used"):
+        coordinator.build_parameter_search_spec(candidate)
+
+
+def test_default_parameter_search_blocks_missing_bounds_instead_of_inference() -> None:
+    candidate = _candidate()
+    parameter = candidate.trinity_bundle.policy_spec.parameters[0].model_copy(
+        update={"min_value": None, "max_value": None}
+    )
+    policy_spec = candidate.trinity_bundle.policy_spec.model_copy(
+        update={"parameters": [parameter]}
+    )
+    candidate = candidate.model_copy(
+        update={
+            "trinity_bundle": candidate.trinity_bundle.model_copy(
+                update={"policy_spec": policy_spec}
+            ),
+            "parameter_schedule": [],
+        }
+    )
+    coordinator = HierarchicalSearchCoordinator(
+        config=HierarchicalSearchConfig(enable_hybrid_seeds=False)
+    )
+
+    with pytest.raises(ValueError, match="no default zero may be used"):
+        coordinator.build_parameter_search_spec(candidate)
+
+
+def test_legacy_inferred_bounds_require_explicit_shadow_opt_in() -> None:
+    coordinator = HierarchicalSearchCoordinator(
+        config=HierarchicalSearchConfig(
+            enable_hybrid_seeds=False,
+            require_explicit_parameter_bounds=False,
+        )
+    )
+
+    with pytest.raises(ValueError, match="legacy-shadow/candidate-only"):
+        coordinator.build_parameter_search_spec(_candidate())
 
 
 def test_build_optimizer_objective_spec_derives_multi_objective_surface() -> None:
@@ -90,7 +163,12 @@ def test_parameter_search_updates_shared_pareto_registry(tmp_path) -> None:
     registry = ParetoRegistry(tmp_path / "registry")
     coordinator = HierarchicalSearchCoordinator(
         pareto_registry=registry,
-        config=HierarchicalSearchConfig(enable_hybrid_seeds=False, max_parameter_iterations=3),
+        config=HierarchicalSearchConfig(
+            enable_hybrid_seeds=False,
+            max_parameter_iterations=3,
+            require_explicit_parameter_bounds=False,
+            allow_legacy_shadow_inferred_bounds=True,
+        ),
     )
     structure = coordinator.generate_structure_candidates(candidate)[0]
 
@@ -138,7 +216,12 @@ def test_parameter_search_uses_transfer_warm_start_without_mixing_seed_only_entr
     )
     coordinator = HierarchicalSearchCoordinator(
         pareto_registry=registry,
-        config=HierarchicalSearchConfig(enable_hybrid_seeds=False, max_parameter_iterations=2),
+        config=HierarchicalSearchConfig(
+            enable_hybrid_seeds=False,
+            max_parameter_iterations=2,
+            require_explicit_parameter_bounds=False,
+            allow_legacy_shadow_inferred_bounds=True,
+        ),
     )
     structure = coordinator.generate_structure_candidates(candidate)[0]
 
@@ -166,7 +249,12 @@ def test_parameter_search_does_not_promote_infeasible_candidates_to_feasible_fro
     registry = ParetoRegistry(tmp_path / "registry")
     coordinator = HierarchicalSearchCoordinator(
         pareto_registry=registry,
-        config=HierarchicalSearchConfig(enable_hybrid_seeds=False, max_parameter_iterations=2),
+        config=HierarchicalSearchConfig(
+            enable_hybrid_seeds=False,
+            max_parameter_iterations=2,
+            require_explicit_parameter_bounds=False,
+            allow_legacy_shadow_inferred_bounds=True,
+        ),
     )
     structure = coordinator.generate_structure_candidates(candidate)[0]
 

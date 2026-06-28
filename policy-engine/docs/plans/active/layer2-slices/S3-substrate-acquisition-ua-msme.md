@@ -56,7 +56,7 @@ First proving case:
 
 ## Architecture Decision
 
-S3 contracts live in `polisyos.runtime.quality.layer2_substrate_acquisition`, not in `pdc` and not in `scientist`.
+S3 contracts live in `polisyos.runtime.quality.design_axes.substrate_acquisition`, not in `pdc` and not in `scientist`.
 
 Reason: substrate coverage, capability binding, and acquisition closure are A-side authority concerns on the ADR-0174 capability-graph spine, alongside `capability_resolver`, `capability_index`, and `acquisition_planner`. They are not B-side generation and not the PDC narrow-waist record (that is `pdc._impl`).
 
@@ -141,7 +141,7 @@ Acceptance signal:
 
 Create:
 
-- `src/polisyos/runtime/quality/layer2_substrate_acquisition.py`
+- `src/polisyos/runtime/quality/design_axes/substrate_acquisition.py`
 - `architecture/policy_design_case/layer2_s3_substrate_acquisition_manifest.json`
 - `tests/unit/runtime/quality/test_layer2_s3_substrate_acquisition.py`
 - `tests/repo_quality/tools/test_policy_design_case_layer2_s3_substrate_acquisition.py`
@@ -162,7 +162,7 @@ Modify:
 **Files:**
 
 - Create: `tests/unit/runtime/quality/test_layer2_s3_substrate_acquisition.py`
-- Create: `src/polisyos/runtime/quality/layer2_substrate_acquisition.py` (empty/skeleton so import fails red on behavior, not syntax)
+- Create: `src/polisyos/runtime/quality/design_axes/substrate_acquisition.py` (empty/skeleton so import fails red on behavior, not syntax)
 
 - [x] **Step 1: Write failing unit tests for the S3 contracts and loop**
 
@@ -176,7 +176,7 @@ from pydantic import ValidationError
 
 # CapabilityBindingResult is REUSED from the existing capability spine, not redefined.
 from polisyos.runtime.quality.capability_authority import CapabilityBindingResult
-from polisyos.runtime.quality.layer2_substrate_acquisition import (
+from polisyos.runtime.quality.design_axes.substrate_acquisition import (
     AcquisitionState,
     ConstructDemandLedger,
     ConstructExpression,
@@ -318,12 +318,12 @@ Expected: `ImportError`/`AttributeError` for the not-yet-implemented contracts a
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer2_substrate_acquisition.py`
+- Modify: `src/polisyos/runtime/quality/design_axes/substrate_acquisition.py`
 - Modify: `src/polisyos/runtime/quality/__init__.py`
 
 - [x] **Step 1: Implement the strict S3 substrate contracts**
 
-In `src/polisyos/runtime/quality/layer2_substrate_acquisition.py` define strict (`extra="forbid"`) models, reusing S0 contracts:
+In `src/polisyos/runtime/quality/design_axes/substrate_acquisition.py` define strict (`extra="forbid"`) models, reusing S0 contracts:
 
 - `ConstructExpression`: `construct`, `facets: dict[str,str]`, `authority_posture`, `rule_version_refs`, optional `allowed_facet_primitives`. Validator: every facet key must be in the frozen seed primitives (load from `layer2_minimal_seed_manifest.json` if `allowed_facet_primitives` not passed). Method `is_composed_from(primitives)`.
 - `ConstructDemandLedger`: `case_id`, `expressions: list[ConstructExpression]`, `authority_posture`, derived `authority_boundary: AuthorityBoundary` (from `pdc._impl.layer2_readiness`) with `may_not_use_for` including `claim_authority`. The denominator, never evidence.
@@ -474,7 +474,7 @@ uv run pytest tests/unit/runtime/quality/test_layer2_s3_substrate_acquisition.py
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer2_substrate_acquisition.py`
+- Modify: `src/polisyos/runtime/quality/design_axes/substrate_acquisition.py`
 - Create: `tests/fixtures/layer2/s3/ua_msme_credit_program_enrollment_source.json`
 
 - [x] **Step 1: Add the deterministic acquired-source fixture**

@@ -1,0 +1,36 @@
+{
+  "audit": {
+    "agent_role_event_bridge": "polisyos.runtime.quality.workspace.agent_proposal_bridge.AgentEventBridge",
+    "candidate_only_required": true,
+    "event_builder_home": "polisyos.runtime.quality.proving_ground.bounded_request_agent",
+    "knowledge_tool_registry_core_tool_count": 20,
+    "method_plan_admission_state": "candidate_only",
+    "no_client_disposition": {
+      "missing_input": "agent_client",
+      "status": "repair_required",
+      "synthetic_audit_created": false
+    },
+    "ring1_event_types": [
+      "AgentDecisionRecord",
+      "MethodPlan",
+      "OperationInvocationRecord",
+      "SearchLedgerEvent"
+    ],
+    "ring2_write_negative_test": "AgentDecisionRecord(candidate_only=false) is rejected",
+    "tool_loop_execution": {
+      "client_generate_calls": 2,
+      "client_kind": "deterministic_real_client",
+      "module": "polisyos.scientist.agent.tools.tool_loop.run_tool_loop",
+      "persisted_event_ref_count": 4,
+      "tool_calls": [
+        "search_datasets"
+      ]
+    },
+    "voi_normalized_scores": {
+      "phase2.acquire": 1.0,
+      "phase2.refine": 0.0
+    },
+    "voi_rejected_or_clipped_count": 4
+  },
+  "schema_version": "policyos.policy_design_case.layer3_gy_phase2.agent_event_audit.v2"
+}

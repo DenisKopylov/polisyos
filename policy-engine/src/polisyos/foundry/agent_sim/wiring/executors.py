@@ -14,6 +14,7 @@ from typing import Any
 import jax.numpy as jnp
 import numpy as np
 
+from polisyos.core.contracts import ValueOuterSet
 from polisyos.foundry.agent_sim.distribution_mechanisms import (
     DistributionAwareTaxMechanism,
     TargetedTransferMechanism,
@@ -107,6 +108,83 @@ def _segment_sum(
     safe_indices = jnp.where(valid, indices, 0)
     safe_values = jnp.where(valid, values, 0.0)
     return jnp.bincount(safe_indices, weights=safe_values, length=n_segments)
+
+
+def _project_household_value_outer_set(
+    value_set: ValueOuterSet | None,
+    *,
+    old_values: dict[str, jnp.ndarray],
+    new_values: dict[str, jnp.ndarray],
+) -> ValueOuterSet | None:
+    if value_set is None or value_set.representation != "interval_box":
+        return value_set
+
+    lower: list[float] = []
+    upper: list[float] = []
+    bounded = value_set.identification_status in {"partial", "proxy"}
+    for coordinate, old_lower, old_upper in zip(
+        value_set.coordinates,
+        value_set.lower,
+        value_set.upper,
+        strict=True,
+    ):
+        parsed = _household_coordinate_metric_index(coordinate)
+        if parsed is None:
+            lower.append(float(old_lower))
+            upper.append(float(old_upper))
+            continue
+        metric, index = parsed
+        old_metric_values = old_values.get(metric)
+        new_metric_values = new_values.get(metric)
+        if old_metric_values is None or new_metric_values is None:
+            lower.append(float(old_lower))
+            upper.append(float(old_upper))
+            continue
+        old_arr = np.asarray(old_metric_values, dtype=float)
+        new_arr = np.asarray(new_metric_values, dtype=float)
+        if index >= old_arr.shape[0] or index >= new_arr.shape[0]:
+            lower.append(float(old_lower))
+            upper.append(float(old_upper))
+            continue
+        center_before = float(old_arr[index])
+        center_after = float(new_arr[index])
+        if bounded:
+            lower_delta = max(center_before - float(old_lower), 0.0)
+            upper_delta = max(float(old_upper) - center_before, 0.0)
+            projected_lower = center_after - lower_delta
+            projected_upper = max(projected_lower, center_after + upper_delta)
+            if metric == "poverty_rate":
+                projected_lower = float(np.clip(projected_lower, 0.0, 1.0))
+                projected_upper = max(
+                    projected_lower,
+                    float(np.clip(projected_upper, 0.0, 1.0)),
+                )
+            else:
+                projected_lower = max(projected_lower, 0.0)
+        else:
+            projected_lower = center_after
+            projected_upper = center_after
+        lower.append(round(float(projected_lower), 9))
+        upper.append(round(float(projected_upper), 9))
+
+    payload = value_set.model_dump(mode="json")
+    payload["lower"] = tuple(lower)
+    payload["upper"] = tuple(upper)
+    payload["width"] = ()
+    return ValueOuterSet.model_validate(payload)
+
+
+def _household_coordinate_metric_index(coordinate: str) -> tuple[str, int] | None:
+    prefix = "household_cells."
+    if not coordinate.startswith(prefix) or "[" not in coordinate or not coordinate.endswith("]"):
+        return None
+    metric, raw_index = coordinate[len(prefix) :].rsplit("[", maxsplit=1)
+    index_text = raw_index[:-1]
+    if metric not in {"disposable_income", "poverty_rate", "transfer_intensity"}:
+        return None
+    if not index_text.isdigit():
+        return None
+    return metric, int(index_text)
 
 
 def _agent_residence_cell_ids(state: GlobalState) -> jnp.ndarray:
@@ -212,8 +290,9 @@ def _project_multiscale(
         income_delta = jnp.zeros_like(agents.income)
 
     if state.household_cells is not None:
+        household_cells = state.household_cells
         household_ids = _agent_household_cell_ids(state)
-        n_household_cells = int(state.household_cells.size)
+        n_household_cells = int(household_cells.size)
         household_mask = agents.active & (household_ids >= 0) & (household_ids < n_household_cells)
         household_count = _segment_sum(
             jnp.ones_like(agents.income),
@@ -245,12 +324,26 @@ def _project_multiscale(
             mask=household_mask,
         )
         poverty_rate = poor_sum / jnp.maximum(household_count, 1.0)
+        value_outer_set = _project_household_value_outer_set(
+            household_cells.value_outer_set,
+            old_values={
+                "disposable_income": household_cells.disposable_income,
+                "poverty_rate": household_cells.poverty_rate,
+                "transfer_intensity": household_cells.transfer_intensity,
+            },
+            new_values={
+                "disposable_income": disposable_income,
+                "poverty_rate": poverty_rate,
+                "transfer_intensity": transfer_intensity,
+            },
+        )
         state = state.replace(
-            household_cells=state.household_cells.replace(
+            household_cells=household_cells.replace(
                 household_count=household_count,
                 disposable_income=disposable_income,
                 poverty_rate=poverty_rate,
                 transfer_intensity=transfer_intensity,
+                value_outer_set=value_outer_set,
             )
         )
 

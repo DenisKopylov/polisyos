@@ -45,12 +45,12 @@ depends_on:
   - architecture/policy_design_case/inventory.json
   - tools/quality/validation/run_universal_outcome_corpus.py
   - tools/quality/validation/check_policy_design_case_layer3_g4_readiness.py
-  - src/polisyos/runtime/quality/layer3_grounding_inventory.py
-  - src/polisyos/runtime/quality/layer3_substrate_grounding.py
-  - src/polisyos/runtime/quality/layer3_causal_forecast.py
-  - src/polisyos/runtime/quality/layer3_analytics_search.py
-  - src/polisyos/runtime/quality/layer3_legal_mandate_search.py
-  - src/polisyos/runtime/quality/layer3_promotion_gate.py
+  - src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py
+  - src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py
+  - src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py
+  - src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py
+  - src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py
+  - src/polisyos/runtime/quality/proving_ground/governed_promotion_gate.py
   - src/polisyos/runtime/quality/evidence_independence.py
   - src/polisyos/corpus/_impl/expert_adjudication.py
 context_inputs:
@@ -664,7 +664,7 @@ Simplifications from this audit:
 
 Create:
 
-- `src/polisyos/runtime/quality/layer3_proving_ground_conversion.py`
+- `src/polisyos/runtime/quality/proving_ground/proving_ground_conversion.py`
   - Strict G5 DTOs, builders, validators, dependency resolver, conversion
     eligibility logic, W12.D consumer gate builder, conformance negatives, and
     bundle builder.
@@ -744,13 +744,13 @@ modify.
 | Task | Create | Modify | Test |
 | --- | --- | --- | --- |
 | Task 0 | `tests/unit/runtime/quality/test_layer3_g5_proving_ground_conversion.py`; `tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness.py`; `tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness_cli.py` | `tests/repo_quality/tools/test_w12d_universal_outcome_corpus_run.py` | Same four test files |
-| Task 1 | `src/polisyos/runtime/quality/layer3_proving_ground_conversion.py`; selected `tests/fixtures/layer3/g5/*.json` negatives | none outside G5 module/tests | `tests/unit/runtime/quality/test_layer3_g5_proving_ground_conversion.py` |
-| Task 2 | additional `tests/fixtures/layer3/g5/*.json` W12.D/S2/S7/S12/S14 fixtures | `src/polisyos/runtime/quality/layer3_proving_ground_conversion.py`; `tests/unit/runtime/quality/test_layer3_g5_proving_ground_conversion.py` | `tests/unit/runtime/quality/test_layer3_g5_proving_ground_conversion.py` |
-| Task 3 | additional `tests/fixtures/layer3/g5/*.json` scope/status/useful-design fixtures | `src/polisyos/runtime/quality/layer3_proving_ground_conversion.py`; `tests/unit/runtime/quality/test_layer3_g5_proving_ground_conversion.py` | `tests/unit/runtime/quality/test_layer3_g5_proving_ground_conversion.py` |
-| Task 4 | G5 health TOML/JSON artifact producers inside `src/polisyos/runtime/quality/layer3_proving_ground_conversion.py` | `src/polisyos/runtime/quality/layer3_proving_ground_conversion.py`; `tests/unit/runtime/quality/test_layer3_g5_proving_ground_conversion.py` | `tests/unit/runtime/quality/test_layer3_g5_proving_ground_conversion.py` |
+| Task 1 | `src/polisyos/runtime/quality/proving_ground/proving_ground_conversion.py`; selected `tests/fixtures/layer3/g5/*.json` negatives | none outside G5 module/tests | `tests/unit/runtime/quality/test_layer3_g5_proving_ground_conversion.py` |
+| Task 2 | additional `tests/fixtures/layer3/g5/*.json` W12.D/S2/S7/S12/S14 fixtures | `src/polisyos/runtime/quality/proving_ground/proving_ground_conversion.py`; `tests/unit/runtime/quality/test_layer3_g5_proving_ground_conversion.py` | `tests/unit/runtime/quality/test_layer3_g5_proving_ground_conversion.py` |
+| Task 3 | additional `tests/fixtures/layer3/g5/*.json` scope/status/useful-design fixtures | `src/polisyos/runtime/quality/proving_ground/proving_ground_conversion.py`; `tests/unit/runtime/quality/test_layer3_g5_proving_ground_conversion.py` | `tests/unit/runtime/quality/test_layer3_g5_proving_ground_conversion.py` |
+| Task 4 | G5 health TOML/JSON artifact producers inside `src/polisyos/runtime/quality/proving_ground/proving_ground_conversion.py` | `src/polisyos/runtime/quality/proving_ground/proving_ground_conversion.py`; `tests/unit/runtime/quality/test_layer3_g5_proving_ground_conversion.py` | `tests/unit/runtime/quality/test_layer3_g5_proving_ground_conversion.py` |
 | Task 5 | none | `tools/quality/validation/run_universal_outcome_corpus.py`; `tests/repo_quality/tools/test_w12d_universal_outcome_corpus_run.py` | `tests/repo_quality/tools/test_w12d_universal_outcome_corpus_run.py` |
 | Task 6 | `tools/quality/validation/check_policy_design_case_layer3_g5_readiness.py`; `docs/reference/policy-design-case-layer3-proving-ground-conversion.md`; G5 persisted artifacts under `architecture/policy_design_case/` | `architecture/generated_artifacts.toml`; `architecture/policy_design_case/inventory.json`; `docs/reference/generated-artifacts.md`; `docs/reference/documentation-inventory.md`; `docs/reference/index.md`; `docs/reference/public-surface.md`; `tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness.py`; `tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness_cli.py` | `tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness.py`; `tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness_cli.py` |
-| Task 7 | any remaining `tests/fixtures/layer3/g5/*.json` conformance/performance fixtures | `src/polisyos/runtime/quality/layer3_proving_ground_conversion.py`; `tools/quality/validation/check_policy_design_case_layer3_g5_readiness.py`; G5 test files | all required commands in Task 7 |
+| Task 7 | any remaining `tests/fixtures/layer3/g5/*.json` conformance/performance fixtures | `src/polisyos/runtime/quality/proving_ground/proving_ground_conversion.py`; `tools/quality/validation/check_policy_design_case_layer3_g5_readiness.py`; G5 test files | all required commands in Task 7 |
 
 Exact fixture filenames:
 
@@ -1074,7 +1074,7 @@ rule/schema/time refs that produced it.
 Tests first:
 
 - Add `tests/unit/runtime/quality/test_layer3_g5_proving_ground_conversion.py`
-  with imports expecting `polisyos.runtime.quality.layer3_proving_ground_conversion`.
+  with imports expecting `polisyos.runtime.quality.proving_ground.proving_ground_conversion`.
 - Add repo-quality tests expecting
   `tools/quality/validation/check_policy_design_case_layer3_g5_readiness.py`.
 - Add W12.D tests proving no `layer3_g5_conversion_gate` exists yet and top-level
@@ -1457,7 +1457,7 @@ Required commands:
 
 ```bash
 cd policy-engine
-uv run ruff check src/polisyos/runtime/quality/layer3_proving_ground_conversion.py tools/quality/validation/check_policy_design_case_layer3_g5_readiness.py tools/quality/validation/run_universal_outcome_corpus.py tests/unit/runtime/quality/test_layer3_g5_proving_ground_conversion.py tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness.py tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness_cli.py tests/repo_quality/tools/test_w12d_universal_outcome_corpus_run.py
+uv run ruff check src/polisyos/runtime/quality/proving_ground/proving_ground_conversion.py tools/quality/validation/check_policy_design_case_layer3_g5_readiness.py tools/quality/validation/run_universal_outcome_corpus.py tests/unit/runtime/quality/test_layer3_g5_proving_ground_conversion.py tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness.py tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness_cli.py tests/repo_quality/tools/test_w12d_universal_outcome_corpus_run.py
 uv run pytest tests/unit/runtime/quality/test_layer3_g5_proving_ground_conversion.py
 uv run pytest tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness.py
 uv run pytest tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness_cli.py

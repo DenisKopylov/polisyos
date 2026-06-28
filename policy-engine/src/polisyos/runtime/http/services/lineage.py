@@ -40,6 +40,10 @@ from polisyos.fabric.evidence.decision_data import (
     coverage_from_decision_data,
     from_runtime_quantities,
 )
+from polisyos.runtime.quality.authority import (
+    AuthoritySurfaceDecision,
+    authority_surface_decision,
+)
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.protocol import ArtifactStore
@@ -58,6 +62,16 @@ _SOURCE_CONTRACT_SNAPSHOT = (
     / "source_contracts_v2.json"
 )
 _SOURCE_CONTRACT_CACHE: dict[str, SourceContract] | None = None
+
+
+class LineageSurfaceAdmissionError(RuntimeError):
+    """Raised when the composed authority gate blocks a lineage read."""
+
+    def __init__(self, decision: AuthoritySurfaceDecision) -> None:
+        self.decision = decision
+        super().__init__(
+            f"lineage surface admission blocked for {decision.surface}: {decision.reason}"
+        )
 
 
 class LineageService:
@@ -90,10 +104,18 @@ class LineageService:
         max_depth: int | None = None,
         max_nodes: int | None = None,
         timeout_seconds: float | None = None,
+        enforce_missing_authority: bool = False,
     ) -> ArtifactLineageView:
         """Return a merged lineage graph for one or more root artifacts."""
         if not artifact_ids:
             return ArtifactLineageView(root_artifact_ids=[])
+
+        for root_id in artifact_ids:
+            self._assert_surface_admission_allowed(
+                root_id,
+                surface="lineage",
+                enforce_missing_authority=enforce_missing_authority,
+            )
 
         depth_limit = max_depth if max_depth is not None else self._default_max_depth
         node_limit = max_nodes if max_nodes is not None else self._default_max_nodes
@@ -174,11 +196,19 @@ class LineageService:
             edges=edges,
         )
 
-    def build_runtime_lineage(self, lineage_id: str) -> LineageGraphView:
+    def build_runtime_lineage(
+        self,
+        lineage_id: str,
+        *,
+        enforce_missing_authority: bool = False,
+    ) -> LineageGraphView:
         """Return a compact + full runtime lineage graph for one lineage id."""
         artifact_id = _parse_artifact_lineage_id(lineage_id)
         if artifact_id is not None and self._store.has(artifact_id):
-            artifact_view = self.build_for_artifact_ids([artifact_id])
+            artifact_view = self.build_for_artifact_ids(
+                [artifact_id],
+                enforce_missing_authority=enforce_missing_authority,
+            )
             return _artifact_lineage_to_runtime_view(
                 lineage_id=lineage_id,
                 artifact_view=artifact_view,
@@ -190,12 +220,20 @@ class LineageService:
             tracking_issue="policyos://quantity-coverage/unresolved-lineage",
         )
 
-    def build_runtime_lineage_batch(self, lineage_ids: list[str]) -> list[LineageGraphView]:
+    def build_runtime_lineage_batch(
+        self,
+        lineage_ids: list[str],
+        *,
+        enforce_missing_authority: bool = False,
+    ) -> list[LineageGraphView]:
         """Return runtime lineage graphs preserving request order."""
         resolved: dict[str, LineageGraphView] = {}
         for lineage_id in lineage_ids:
             if lineage_id not in resolved:
-                resolved[lineage_id] = self.build_runtime_lineage(lineage_id)
+                resolved[lineage_id] = self.build_runtime_lineage(
+                    lineage_id,
+                    enforce_missing_authority=enforce_missing_authority,
+                )
         return [resolved[lineage_id] for lineage_id in lineage_ids]
 
     def build_from_fabric_trace(
@@ -252,7 +290,7 @@ class LineageService:
 
     def export_runtime_lineage(self, lineage_id: str, *, format_name: str) -> dict[str, Any]:
         """Return a best-effort external lineage representation for one runtime lineage id."""
-        graph = self.build_runtime_lineage(lineage_id)
+        graph = self.build_runtime_lineage(lineage_id, enforce_missing_authority=True)
         if format_name == "openlineage":
             inputs = [
                 {"namespace": "polisyos.lineage", "name": node.id}
@@ -468,6 +506,53 @@ class LineageService:
             "p95_ms": elapsed_ms,
             "is_complete": graph.is_complete,
         }
+
+    def assert_run_decision_surface_allowed(
+        self,
+        run: IndexedRunRecord,
+        *,
+        surface: str,
+    ) -> None:
+        """Gate a run's decision-packet artifact before surfacing derived quantities.
+
+        Applied at the user-facing quantity / fabric-decision egress, not inside the
+        shared inventory builder which internal flows (reissue, feedback, compare,
+        scenarios) reuse without surfacing payload to a caller.
+        """
+
+        if run.decision_packet_ref is None:
+            return
+        artifact_id = ArtifactID.model_validate(str(run.decision_packet_ref.artifact_id))
+        self._assert_surface_admission_allowed(
+            artifact_id, surface=surface, enforce_missing_authority=True
+        )
+
+    def _assert_surface_admission_allowed(
+        self,
+        artifact_id: ArtifactID,
+        *,
+        surface: str,
+        enforce_missing_authority: bool = False,
+    ) -> None:
+        # User-facing surfaces pass ``enforce_missing_authority=True`` so a
+        # clean no-authority artifact is blocked (fail closed). Internal flows
+        # (reissue/feedback/compare/scenarios) reuse the lenient default.
+        decision = authority_surface_decision(
+            {"lineage_root_artifact_id": str(artifact_id)},
+            surface=surface,
+            artifact_ref_or_route=f"lineage://{artifact_id}",
+            secret_pii_scope="dashboard/public/export packets",
+            block_on_secret_findings=True,
+            artifact_store=self._store,
+            artifact_id=artifact_id,
+            require_cas_integrity=True,
+            missing_authority_disposition="block" if enforce_missing_authority else "downgrade",
+        )
+        if decision.blocking or (
+            decision.visible_downgrade
+            and decision.reason != "authority_surface_signal_missing"
+        ):
+            raise LineageSurfaceAdmissionError(decision)
 
 
 def _merge_nodes(lhs: ArtifactLineageNode, rhs: ArtifactLineageNode) -> ArtifactLineageNode:

@@ -21,7 +21,7 @@ REPO_ROOT, _SRC_ROOT = ensure_repo_import_roots(__file__)
 from polisyos.runtime.quality.capability_ratchet import (  # noqa: E402
     build_capability_reality_report,
 )
-from polisyos.runtime.quality.layer2_universality_assurance import (  # noqa: E402
+from polisyos.runtime.quality.design_axes.universality_assurance import (  # noqa: E402
     LAYER2_S14_UNIVERSALITY_ASSURANCE_RULE_VERSION,
     S14_FALSE_CLEAR_FIELDS,
     S14_SKEPTIC_DEFEATER_IDS,
@@ -43,7 +43,7 @@ from polisyos.runtime.quality.layer2_universality_assurance import (  # noqa: E4
     summarize_universality_assurance,
     verify_sealed_battery_integrity,
 )
-from polisyos.runtime.quality.layer2_universality_assurance import (
+from polisyos.runtime.quality.design_axes.universality_assurance import (
     compute_sealed_battery_freeze_hash as _compute_sealed_battery_freeze_hash,
 )
 
@@ -72,10 +72,10 @@ SUBSTRATE_REUSE_REFS: tuple[str, ...] = (
     "src/polisyos/runtime/quality/assurance_case.py#build_universality_assurance_case",
     "src/polisyos/runtime/quality/assurance_case.py#build_assurance_case_for_scorecard",
     "src/polisyos/runtime/quality/capability_ratchet.py#build_capability_reality_report",
-    "src/polisyos/runtime/quality/layer2_resource_economics.py#GrowthThermometerRecord",
-    "src/polisyos/runtime/quality/layer2_resource_economics.py#EnvelopeGrowthLedger",
-    "src/polisyos/runtime/quality/layer2_post_deploy_accountability.py#EnvelopeRevision",
-    "src/polisyos/runtime/quality/layer2_post_deploy_accountability.py#CertifiedEnvelopeDelta",
+    "src/polisyos/runtime/quality/design_axes/resource_economics.py#GrowthThermometerRecord",
+    "src/polisyos/runtime/quality/design_axes/resource_economics.py#EnvelopeGrowthLedger",
+    "src/polisyos/runtime/quality/design_axes/post_deploy_accountability.py#EnvelopeRevision",
+    "src/polisyos/runtime/quality/design_axes/post_deploy_accountability.py#CertifiedEnvelopeDelta",
     "src/polisyos/runtime/quality/case_lifecycle.py#status_lattice",
     "src/polisyos/runtime/quality/approval.py#closeout_status_composition",
 )
@@ -581,7 +581,7 @@ def _s14_capability_claim() -> dict[str, str]:
         "purpose": "governance",
         "reality_state": "implemented",
         "typed_contract_ref": (
-            "repo://src/polisyos/runtime/quality/layer2_universality_assurance.py"
+            "repo://src/polisyos/runtime/quality/design_axes/universality_assurance.py"
         ),
         "producer_ref": (
             "repo://tools/quality/validation/run_layer2_s14_universality_battery.py"

@@ -61,7 +61,7 @@
     "delegated_autonomy_without_mandate",
     "s13_accountability_closure"
   ],
-  "producer_module": "src/polisyos/runtime/quality/layer2_delegation.py",
+  "producer_module": "src/polisyos/runtime/quality/design_axes/mandate_bounded_delegation.py",
   "consumer_module": "src/polisyos/pdc/_impl/layer2_design_search.py",
   "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py",
   "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py"

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import hashlib
 import sys
+from collections.abc import Mapping
 from contextlib import suppress
 from datetime import datetime
 from typing import TYPE_CHECKING
@@ -13,7 +15,7 @@ except ModuleNotFoundError:  # pragma: no cover
     TestClient = None  # type: ignore[assignment]
 
 from _helpers.artifacts import put_json_artifact
-from polisyos.core.artifacts.manifest import InputRef
+from polisyos.core.artifacts.manifest import ArtifactAuthorityInfo, InputRef
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.control import PromotionCandidate
 from polisyos.core.run.context import RunContext
@@ -28,8 +30,49 @@ if TYPE_CHECKING:
 # pytest uses importlib mode for duplicate-basename safety.
 sys.modules.setdefault("polisyos_tests_runtime_http_conftest", sys.modules[__name__])
 
-_put_json = put_json_artifact
+_put_json_raw = put_json_artifact
 _RUNTIME_API_ENVS: list[dict[str, object]] = []
+
+
+def _runtime_fixture_authority_boundary(
+    *,
+    boundary_id: str = "boundary-runtime-api-fixture",
+) -> dict[str, object]:
+    return {
+        "boundary_id": boundary_id,
+        "authoritative_for": [
+            "runtime_closeout_authority",
+            "dashboard_display",
+            "publication",
+        ],
+        "may_not_use_for": ["claim_authority"],
+        "source_authority": "runtime_api_fixture",
+        "posture": "governed",
+        "rule_version_refs": ["policyos.test.runtime_api.authority.v1"],
+        "evidence_kind": "measurement",
+        "decision_grade": "decision_admissible",
+    }
+
+
+def _with_runtime_fixture_authority(payload: object) -> object:
+    if not isinstance(payload, Mapping):
+        return payload
+    if "authority_boundary" in payload:
+        return payload
+    result = dict(payload)
+    result.setdefault("authority_result", "authority")
+    result.setdefault("legacy_path_disposition", "authority_path")
+    result["authority_boundary"] = _runtime_fixture_authority_boundary()
+    return result
+
+
+def _put_json(store: FileSystemCAS, payload: object, *args: object, **kwargs: object):
+    return _put_json_raw(
+        store,
+        _with_runtime_fixture_authority(payload),
+        *args,
+        **kwargs,
+    )
 
 
 def _record_fixture_owner(
@@ -49,6 +92,88 @@ def _record_fixture_owner(
             cell_id=cell_id,
             writer="tests.runtime_api_env",
         )
+
+
+def _with_fixture_authority_surface_packet(
+    payload: dict[str, object],
+    *,
+    run_id: str,
+) -> dict[str, object]:
+    """Attach bounded authority metadata required by runtime read surfaces."""
+
+    boundary = {
+        "boundary_id": f"boundary-fixture-runtime-surface-{run_id}",
+        "authoritative_for": ["runtime_closeout_authority", "dashboard_display"],
+        "may_not_use_for": ["publication", "policy_recommendation"],
+        "source_authority": "fixture_runtime_api_env",
+        "posture": "governed_fixture",
+        "rule_version_refs": ["policyos.runtime.authority_surface.v1"],
+        "evidence_kind": "measurement",
+        "decision_grade": "descriptive_only",
+        "known_limits": [
+            "fixture read-surface authority only",
+            "not admissible for publication or policy recommendation",
+        ],
+    }
+    surfaces = {
+        surface: {
+            "surface": surface,
+            "status": "allowed",
+            "authority_result": "allowed",
+            "transition_disposition": "workspace_loop",
+            "consumed_boundary_id": boundary["boundary_id"],
+            "boundary": boundary,
+            "boundary_source": "AuthorityBoundary",
+            "decision_grade": boundary["decision_grade"],
+            "evidence_kind": boundary["evidence_kind"],
+            "may_not_use_for": boundary["may_not_use_for"],
+            "reason": "fixture_runtime_surface_boundary",
+        }
+        for surface in (
+            "run",
+            "artifact",
+            "lineage",
+            "dashboard",
+        )
+    }
+    surfaces.update(
+        {
+            "export": {
+                **surfaces["artifact"],
+                "surface": "export",
+                "status": "blocked",
+                "authority_result": "allowed",
+                "reason": "fixture_export_publication_not_authorized",
+            },
+            "public_packet": {
+                **surfaces["artifact"],
+                "surface": "public_packet",
+                "status": "blocked",
+                "authority_result": "allowed",
+                "reason": "fixture_publication_not_authorized",
+            },
+        }
+    )
+    packet = {
+        "schema_version": "policyos.runtime.authority_surface_packet.v1",
+        "phase": "runtime_api_fixture",
+        "gate_code": "fixture_runtime_surface_boundary",
+        "authority_result": "allowed",
+        "boundary": boundary,
+        "surfaces": surfaces,
+    }
+    return {
+        **payload,
+        "authority_boundary": boundary,
+        "authority_surface_packet": packet,
+        "surface_authority": surfaces,
+        "artifact_projection": surfaces["artifact"],
+        "lineage_projection": surfaces["lineage"],
+        "public_packet": {
+            "authority_boundary": boundary,
+            "projection": surfaces["public_packet"],
+        },
+    }
 
 
 def close_runtime_api_env(env: dict[str, object]) -> None:
@@ -99,9 +224,24 @@ def build_runtime_api_env(
         kind="test.root",
         inputs=[InputRef(artifact_id=child_ref.artifact_id, role="child")],
     )
+    binary_payload = b"x" * 5000
+    binary_authority_ref = _put_json_raw(
+        store,
+        _runtime_fixture_authority_boundary(boundary_id="boundary-runtime-api-binary"),
+        kind="runtime.authority_boundary",
+    )
     binary_ref = store.put_bytes(
-        b"x" * 5000,
-        PutOptions(kind="test.binary", media_type="application/octet-stream"),
+        binary_payload,
+        PutOptions(
+            kind="test.binary",
+            media_type="application/octet-stream",
+            authority=ArtifactAuthorityInfo(
+                authority_envelope_ref=str(binary_authority_ref.artifact_id),
+                diagnostic_event_ref="event://tests/runtime-api/binary-authority",
+                manifest_ref="manifest://tests/runtime-api/binary",
+                payload_sha256="sha256:" + hashlib.sha256(binary_payload).hexdigest(),
+            ),
+        ),
     )
     secret_ref = _put_json(
         store,
@@ -492,7 +632,8 @@ def build_runtime_api_env(
     )
     decision_packet_ref = _put_json(
         store,
-        {
+        _with_fixture_authority_surface_packet(
+            {
             "schema_version": "3.4",
             "run_id": core_run_id,
             "inputs": {
@@ -589,12 +730,15 @@ def build_runtime_api_env(
                     "details": {"attempt": 1, "can_retry": False},
                 },
             ],
-        },
+            },
+            run_id=core_run_id,
+        ),
         kind="scientist.decision_packet",
     )
     decision_packet_ref_secondary = _put_json(
         store,
-        {
+        _with_fixture_authority_surface_packet(
+            {
             "schema_version": "3.4",
             "run_id": "R_core_api_002",
             "inputs": {
@@ -630,7 +774,9 @@ def build_runtime_api_env(
                 "legal_executed": True,
                 "contract_warnings": [],
             },
-        },
+            },
+            run_id="R_core_api_002",
+        ),
         kind="scientist.decision_packet",
     )
     reflexion_terminal_ref = _put_json(
@@ -924,6 +1070,7 @@ def build_runtime_api_env(
     _record_fixture_owner(
         store,
         binary_ref,
+        binary_authority_ref,
         secret_ref,
         registry_ref,
         governance_ref,

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import math
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -13,6 +14,22 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.ir.kernel.values import CountValue, DurationValue, MoneyValue, RateValue
+from polisyos.scientist.methods.search.controller import SearchIteration, SearchResult, SearchStatus
+from polisyos.scientist.methods.search.lessons import (
+    LessonCard,
+    LessonKind,
+    LessonRegistry,
+    LessonTrustLevel,
+)
+from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
+from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry
+from polisyos.scientist.methods.search.stopping import MaxIterations
+from polisyos.scientist.methods.search.strategies.adapter import StrategyAdapter
+from polisyos.scientist.methods.search.strategies.codec import _get_path, _set_path
+from polisyos.scientist.methods.search.strategies.multi_objective import MOBayesianOptimizer
+from polisyos.scientist.methods.search.strategies.space import SearchSpace
+from polisyos.scientist.methods.search.strategies.types import ParameterBounds, ParameterType
+from polisyos.scientist.methods.search.transfer_context import resolve_transfer_context
 from polisyos.scientist.orchestration.llm.factory import create_traced_gateway_client
 from polisyos.scientist.policy_design.critic import ConstraintCritic, ConstraintCriticInput
 from polisyos.scientist.policy_design.objectives import (
@@ -33,22 +50,6 @@ from polisyos.scientist.policy_design.translator import (
     TranslatorCompliancePass,
     TranslatorInputBundle,
 )
-from polisyos.scientist.methods.search.controller import SearchIteration, SearchResult, SearchStatus
-from polisyos.scientist.methods.search.lessons import (
-    LessonCard,
-    LessonKind,
-    LessonRegistry,
-    LessonTrustLevel,
-)
-from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
-from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry
-from polisyos.scientist.methods.search.stopping import MaxIterations
-from polisyos.scientist.methods.search.strategies.adapter import StrategyAdapter
-from polisyos.scientist.methods.search.strategies.codec import _get_path, _set_path
-from polisyos.scientist.methods.search.strategies.multi_objective import MOBayesianOptimizer
-from polisyos.scientist.methods.search.strategies.space import SearchSpace
-from polisyos.scientist.methods.search.strategies.types import ParameterBounds, ParameterType
-from polisyos.scientist.methods.search.transfer_context import resolve_transfer_context
 
 
 class PolicySearchLevel(str, Enum):
@@ -72,6 +73,8 @@ class HierarchicalSearchConfig(BaseModel):
     llm_model_name: str = "gpt-5.4"
     llm_provider_hint: str | None = None
     random_seed: int = Field(default=42, ge=0)
+    require_explicit_parameter_bounds: bool = True
+    allow_legacy_shadow_inferred_bounds: bool = False
 
 
 class StructureCandidate(BaseModel):
@@ -145,6 +148,45 @@ class HierarchicalSearchResult(BaseModel):
 
     state: HierarchicalSearchState
     shared_frontier: list[dict[str, Any]] = Field(default_factory=list)
+
+
+class Phase2BoundsApplicability(BaseModel):
+    """Search-owned applicability result for explicit Phase-2 parameter bounds."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    result_id: str
+    invocation_id: str
+    status: str
+    checked_preconditions: list[dict[str, Any]] = Field(default_factory=list)
+    failed_preconditions: list[dict[str, Any]] = Field(default_factory=list)
+    repair_options: list[dict[str, Any]] = Field(default_factory=list)
+
+
+class Phase2BoundsBlocker(BaseModel):
+    """Search-owned blocker for missing or invalid Phase-2 lex bounds."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    blocker_id: str
+    workspace_id: str
+    blocked_port: str
+    missing_input: str
+    reason: str
+    frontier_snapshot_ref: str
+    applicability_result_ref: str
+    repair_options: list[dict[str, Any]] = Field(default_factory=list)
+    producer_missing_label: str = "producer_missing"
+
+
+class Phase2ParameterBoundsResult(BaseModel):
+    """Applicability plus frontier provenance for Phase-2 parameter search bounds."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    applicability: Phase2BoundsApplicability
+    blocker: Phase2BoundsBlocker | None = None
+    frontier_payload: dict[str, Any]
 
 
 @dataclass(slots=True)
@@ -280,18 +322,52 @@ class HierarchicalSearchCoordinator:
             if not parameter.tunable:
                 continue
             default = _normalize_value_like(parameter.default_value)
-            lower = _normalize_value_like(parameter.min_value)
-            upper = _normalize_value_like(parameter.max_value)
-            lower, upper = _derive_bounds(default, lower, upper)
+            lower = (
+                None
+                if parameter.min_value is None
+                else _normalize_value_like(parameter.min_value)
+            )
+            upper = (
+                None
+                if parameter.max_value is None
+                else _normalize_value_like(parameter.max_value)
+            )
             dtype = _parameter_type(parameter.default_value)
-            bounds.append(
-                ParameterBounds(
-                    name=parameter.param_id,
+            if self._config.require_explicit_parameter_bounds:
+                phase2_bounds = derive_phase2_parameter_bounds(
+                    workspace_id=str(
+                        candidate.metadata.get("workspace_id") or candidate.candidate_id
+                    ),
+                    invocation_id=f"invoke-{parameter.param_id}",
+                    default=default,
                     lower=lower,
                     upper=upper,
-                    dtype=dtype,
                 )
-            )
+                if phase2_bounds.blocker is not None:
+                    raise ValueError(phase2_bounds.blocker.reason)
+                bounds.append(
+                    ParameterBounds.explicit(
+                        name=parameter.param_id,
+                        lower=lower,
+                        upper=upper,
+                        dtype=dtype,
+                    )
+                )
+            else:
+                if not self._config.allow_legacy_shadow_inferred_bounds:
+                    raise ValueError(
+                        "Inferred lex bounds are legacy-shadow/candidate-only; "
+                        "set allow_legacy_shadow_inferred_bounds=True for compatibility."
+                    )
+                derived_lower, derived_upper = _derive_bounds(default, lower, upper)
+                bounds.append(
+                    ParameterBounds(
+                        name=parameter.param_id,
+                        lower=derived_lower,
+                        upper=derived_upper,
+                        dtype=dtype,
+                    )
+                )
             index = intervention_indexes[parameter.intervention_id]
             parameter_paths[parameter.param_id] = (
                 f"trinity_bundle.policy_spec.interventions.{index}.params.{parameter.param_path}"
@@ -300,15 +376,42 @@ class HierarchicalSearchCoordinator:
 
         for index, entry in enumerate(candidate.parameter_schedule):
             default = _normalize_value_like(entry.scheduled_value)
-            lower, upper = _derive_bounds(default, None, None)
-            bounds.append(
-                ParameterBounds(
-                    name=f"schedule::{entry.entry_id}",
-                    lower=lower,
-                    upper=upper,
-                    dtype=_parameter_type(entry.scheduled_value),
+            dtype = _parameter_type(entry.scheduled_value)
+            if self._config.require_explicit_parameter_bounds:
+                phase2_bounds = derive_phase2_parameter_bounds(
+                    workspace_id=str(
+                        candidate.metadata.get("workspace_id") or candidate.candidate_id
+                    ),
+                    invocation_id=f"invoke-schedule-{entry.entry_id}",
+                    default=default,
+                    lower=None,
+                    upper=None,
                 )
-            )
+                if phase2_bounds.blocker is not None:
+                    raise ValueError(phase2_bounds.blocker.reason)
+                bounds.append(
+                    ParameterBounds.explicit(
+                        name=f"schedule::{entry.entry_id}",
+                        lower=None,
+                        upper=None,
+                        dtype=dtype,
+                    )
+                )
+            else:
+                if not self._config.allow_legacy_shadow_inferred_bounds:
+                    raise ValueError(
+                        "Inferred schedule bounds are legacy-shadow/candidate-only; "
+                        "set allow_legacy_shadow_inferred_bounds=True for compatibility."
+                    )
+                lower, upper = _derive_bounds(default, None, None)
+                bounds.append(
+                    ParameterBounds(
+                        name=f"schedule::{entry.entry_id}",
+                        lower=lower,
+                        upper=upper,
+                        dtype=dtype,
+                    )
+                )
             parameter_paths[f"schedule::{entry.entry_id}"] = (
                 f"parameter_schedule.{index}.scheduled_value"
             )
@@ -1122,6 +1225,109 @@ def _derive_bounds(
     return derived_lower, derived_upper
 
 
+def derive_phase2_parameter_bounds(
+    *,
+    workspace_id: str,
+    invocation_id: str,
+    default: float | int,
+    lower: float | int | None,
+    upper: float | int | None,
+) -> Phase2ParameterBoundsResult:
+    """Return the GY Phase-2 fail-closed bounds gate result for real search paths."""
+
+    del default
+    failed: list[dict[str, Any]] = []
+    lower_value = None if lower is None else float(lower)
+    upper_value = None if upper is None else float(upper)
+    if lower_value is None:
+        failed.append(_phase2_failed_bound("lower_bound", "bounds.lower"))
+    elif not math.isfinite(lower_value):
+        failed.append(_phase2_failed_bound("lower_bound", "bounds.lower", "non_finite_bound"))
+    if upper_value is None:
+        failed.append(_phase2_failed_bound("upper_bound", "bounds.upper"))
+    elif not math.isfinite(upper_value):
+        failed.append(_phase2_failed_bound("upper_bound", "bounds.upper", "non_finite_bound"))
+    if lower_value is not None and upper_value is not None and lower_value > upper_value:
+        failed.append(
+            {
+                "predicate_id": "phase2.lex_bounds.ordered",
+                "input_path": "bounds",
+                "reason": "lower_bound_exceeds_upper_bound",
+                "severity": "hard",
+            }
+        )
+    applicability = Phase2BoundsApplicability(
+        result_id="applicability-lex-bounds",
+        invocation_id=invocation_id,
+        status="repair_required" if failed else "applicable",
+        checked_preconditions=[
+            {
+                "predicate_id": "phase2.lex_bounds.present",
+                "status": "failed" if failed else "passed",
+                "lower_observed": lower_value,
+                "upper_observed": upper_value,
+                "rule_version": "policyos.gy.phase2.spine_repair.v1",
+            }
+        ],
+        failed_preconditions=failed,
+        repair_options=[
+            {
+                "operation_class": "REFINE",
+                "reason": "Provide finite lower and upper bounds for lex search.",
+            }
+        ]
+        if failed
+        else [],
+    )
+    blocker = None
+    if failed:
+        first = failed[0]
+        blocker = Phase2BoundsBlocker(
+            blocker_id=f"blocker-{_slug(str(first['reason']))}",
+            workspace_id=workspace_id,
+            blocked_port=str(first.get("input_path") or "bounds"),
+            missing_input=str(first.get("missing_input") or first.get("reason")),
+            reason="Lex search bounds are missing or invalid; no default zero may be used.",
+            frontier_snapshot_ref="frontier-lex-bounds",
+            applicability_result_ref=applicability.result_id,
+            repair_options=applicability.repair_options,
+        )
+    return Phase2ParameterBoundsResult(
+        applicability=applicability,
+        blocker=blocker,
+        frontier_payload={
+            "rule_version": "policyos.gy.phase2.spine_repair.v1",
+            "bounded_frontier": not failed,
+            "bounds": {"lower": lower_value, "upper": upper_value},
+            "frontier_provenance": {
+                "source": "scientist.policy_design.search",
+                "exhaustive": False,
+                "authority_disposition": "frontier_only_not_producer_evidence",
+            },
+        },
+    )
+
+
+def _phase2_failed_bound(
+    missing_input: str,
+    input_path: str,
+    reason: str = "missing_bound",
+) -> dict[str, Any]:
+    return {
+        "predicate_id": f"phase2.lex_bounds.{_slug(missing_input)}",
+        "input_path": input_path,
+        "missing_input": missing_input,
+        "reason": reason,
+        "severity": "hard",
+    }
+
+
+def _slug(value: str) -> str:
+    normalized = "".join(char.lower() if char.isalnum() else "-" for char in value)
+    compact = "-".join(part for part in normalized.split("-") if part)
+    return compact or "item"
+
+
 def _score_narrative_variant(brief: Any, compliance: Any) -> float:
     base = 1.0 if getattr(compliance, "passed", False) else 0.0
     action_score = min(len(getattr(brief, "recommended_actions", [])), 3) / 10.0
@@ -1141,4 +1347,5 @@ __all__ = [
     "PolicyParameterCodec",
     "PolicySearchLevel",
     "StructureCandidate",
+    "derive_phase2_parameter_bounds",
 ]

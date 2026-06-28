@@ -87,7 +87,13 @@ def _method_to_tool_definition(
 ) -> ToolDefinition:
     """Build a ``ToolDefinition`` from a method's signature and docstring."""
     sig = inspect.signature(method)
-    hints = get_type_hints(method) if hasattr(method, "__annotations__") else {}
+    if hasattr(method, "__annotations__"):
+        try:
+            hints = get_type_hints(method)
+        except (NameError, TypeError, AttributeError):
+            hints = dict(getattr(method, "__annotations__", {}))
+    else:
+        hints = {}
 
     properties: dict[str, Any] = {}
     required: list[str] = []

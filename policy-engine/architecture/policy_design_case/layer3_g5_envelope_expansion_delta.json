@@ -13,12 +13,14 @@
   ],
   "envelope_expansion_rate": 0.0,
   "envelope_ref": "envelope://ua-msme/declared-limited",
-  "issue_codes": [],
+  "issue_codes": [
+    "layer3_g5_s12_ref_candidate_only"
+  ],
   "numerator": 0,
   "region_ref": "region://ua",
   "search_health_refs": [
     "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json"
   ],
-  "status": "flat",
-  "trend": "flat"
+  "status": "blocked",
+  "trend": "blocked"
 }

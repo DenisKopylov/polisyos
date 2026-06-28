@@ -66,7 +66,7 @@ foundry welfare seed modules into a Policy Design Case value firewall:
   frontier facts from `ValueChoiceDecisionPoint` and blocks scalar-only public
   welfare payloads.
 - S8 adds the PDC narrow-waist producer in
-  `src/polisyos/runtime/quality/layer2_value_choice.py`, exports it from
+  `src/polisyos/runtime/quality/design_axes/value_choice_provenance.py`, exports it from
   `runtime.quality`, and persists replay-visible refs.
 - S8 injects a compact `Layer2S8ValuePostureInput` into the S2 shadow design
   loop. B can consume value posture refs, pause, block ranking, or expose
@@ -182,13 +182,13 @@ S8 closure is measured against these exact rows:
   - `src/polisyos/foundry/welfare/social_weight_provenance.py`
   - `src/polisyos/foundry/welfare/frontier_emitter.py`
 - target producer module:
-  - `src/polisyos/runtime/quality/layer2_value_choice.py`
+  - `src/polisyos/runtime/quality/design_axes/value_choice_provenance.py`
 
 ## Files
 
 Expected new files:
 
-- `src/polisyos/runtime/quality/layer2_value_choice.py`
+- `src/polisyos/runtime/quality/design_axes/value_choice_provenance.py`
 - `tests/unit/runtime/quality/test_layer2_s8_value_choice.py`
 - `tests/fixtures/layer2/s8/s8_value_choice_case_signals.json`
 - `tests/fixtures/layer2/s8/s8_value_choice_expert_labels.json`
@@ -205,7 +205,7 @@ Expected new files:
 Expected edited files:
 
 - `src/polisyos/runtime/quality/__init__.py`
-- `src/polisyos/runtime/quality/layer2_delegation.py`
+- `src/polisyos/runtime/quality/design_axes/mandate_bounded_delegation.py`
 - `src/polisyos/pdc/_impl/layer2_design_search.py`
 - `src/polisyos/pdc/__init__.py`
 - `tools/quality/validation/run_universal_outcome_corpus.py`
@@ -236,14 +236,14 @@ The code already gives S8 more than a blank slate:
   `ValueChoiceDecisionPoint`, `WelfareAuditTrail`, `WelfareFrontierEmission`,
   CAS persistence, and scalar-only publication blocking. S8 should adapt these
   into PDC `ParetoArchive`/value records instead of rewriting dominance logic.
-- `src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py` already emits
+- `src/polisyos/runtime/quality/design_axes/blind_spot_firewalls.py` already emits
   `MandateLegitimacyRecord` with top-level `firewall_disposition` values
   `pass`, `limit`, or `block`. Candidate-only mandate appears as nested
   `MandateSourceRecord.disposition == "candidate_unverified"` and therefore
   produces top-level `limit`. S8 tests must check both the exact top-level
   disposition and the nested source disposition where candidate-only semantics
   matter.
-- `src/polisyos/runtime/quality/layer2_delegation.py` has the S7
+- `src/polisyos/runtime/quality/design_axes/mandate_bounded_delegation.py` has the S7
   `GovernanceDecisionClass` registry, `DecisionRightsMatrix`, request/record
   helpers, and five-rights checks, but it does **not** yet register
   `value_authorization`. S8 needs a narrow S7 extension for that shared decision
@@ -339,7 +339,7 @@ uv run pytest \
 
 Expected red output:
 
-- missing `polisyos.runtime.quality.layer2_value_choice` exports, or
+- missing `polisyos.runtime.quality.design_axes.value_choice_provenance` exports, or
 - missing `Layer2S8ValuePostureInput`, or
 - missing `s8_value_choice` corpus block.
 
@@ -354,7 +354,7 @@ seed records into PDC runtime-quality contracts.
 
 - [ ] **Step 1: Add producer module**
 
-Create `src/polisyos/runtime/quality/layer2_value_choice.py`.
+Create `src/polisyos/runtime/quality/design_axes/value_choice_provenance.py`.
 
 Use `Layer2ReadinessModel` for all PDC-facing DTOs. Keep strict Pydantic
 defaults from the base model and add field bounds. Export all public names from
@@ -373,7 +373,7 @@ Required constants:
 
 - [ ] **Step 2: Extend S7 only enough to route value authorization**
 
-Edit `src/polisyos/runtime/quality/layer2_delegation.py` before relying on S7
+Edit `src/polisyos/runtime/quality/design_axes/mandate_bounded_delegation.py` before relying on S7
 value routes:
 
 - add `value_authorization` to `build_governance_decision_class_registry(...)`.
@@ -660,7 +660,7 @@ Expected green after Task 3:
 
 - S2 consumes injected S8 posture.
 - SearchLedger and DesignRecord carry S8 refs.
-- B-side code has no import from `polisyos.runtime.quality.layer2_value_choice`,
+- B-side code has no import from `polisyos.runtime.quality.design_axes.value_choice_provenance`,
   `polisyos.foundry.welfare.frontier_emitter`, or
   `polisyos.foundry.welfare.social_weight_provenance` for S8 authority inside
   `src/polisyos/pdc/_impl/layer2_design_search.py`.
@@ -814,7 +814,7 @@ Required fields:
   "slice": "S8",
   "depends_on": ["S2", "S6", "S7"],
   "cells_closed": ["ACTOR.value_choice_provenance"],
-  "producer_module": "src/polisyos/runtime/quality/layer2_value_choice.py",
+  "producer_module": "src/polisyos/runtime/quality/design_axes/value_choice_provenance.py",
   "expected_current_open_cell_count": 3,
   "floor_id": "s8_value_provenance",
   "floor_metric": "value_provenance_completeness",
@@ -892,7 +892,7 @@ Edit `architecture/policy_design_case/cluster_ownership_map.toml`:
 
 - remove `[open_cell_closure.ACTOR.value_choice_provenance]`.
 - update `[cell.ACTOR.value_choice_provenance]`:
-  - `owner_module = "src/polisyos/runtime/quality/layer2_value_choice.py"`
+  - `owner_module = "src/polisyos/runtime/quality/design_axes/value_choice_provenance.py"`
   - `ratchet_state = "implemented"`
   - `p01_chain = "implemented"`
   - `gap = "none_for_s8_value_choice_provenance_scope"`

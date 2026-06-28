@@ -53,6 +53,8 @@ EXPECTED_MANIFEST_DRIFT_KEYS = {
     "g4_promotion_input_count",
     "g4_grounded_contract_set_status",
     "g4_grounded_contract_ref_count",
+    "g4_grounded_contract_binding_scope",
+    "g4_persisted_g1_binding_count",
     "g4_a_completeness_status",
     "g4_a_completeness_requirement_count",
     "g4_a_completeness_missing_requirement_count",
@@ -245,8 +247,32 @@ def test_layer3_g4_readiness_passes_for_persisted_runtime_bundle() -> None:
     assert validation["status"] == "pass"
     assert validation["artifacts"]["missing_persisted_artifact_paths"] == []
     assert set(validation["summary"]) >= EXPECTED_MANIFEST_DRIFT_KEYS
-    assert validation["summary"]["g4_governed_promoted_count"] >= 1
+    assert validation["summary"]["g4_governed_promoted_count"] == 0
+    assert validation["summary"]["g4_grounded_contract_binding_scope"] == "fixture_scoped"
     assert validation["summary"]["g4_promotion_blocked_count"] >= 1
+
+
+def test_layer3_g4_manifest_drift_checks_summary_and_top_level(tmp_path: Path) -> None:
+    validator = _validator()
+    runtime_bundle = validator.g4.build_layer3_g4_bundle(REPO_ROOT)
+    manifest = runtime_bundle.readiness_manifest.model_dump(mode="json")
+    persisted = {
+        **manifest,
+        **manifest["summary"],
+        "summary": dict(manifest["summary"]),
+    }
+    persisted["summary"]["g4_promotion_blocked_count"] = (
+        int(persisted["summary"]["g4_promotion_blocked_count"]) + 1
+    )
+    manifest_path = (
+        tmp_path / "architecture/policy_design_case/layer3_g4_readiness_manifest.json"
+    )
+    manifest_path.parent.mkdir(parents=True)
+    manifest_path.write_text(json.dumps(persisted), encoding="utf-8")
+
+    assert validator._manifest_runtime_drift_keys(tmp_path, runtime_bundle) == [
+        "g4_promotion_blocked_count"
+    ]
 
 
 def test_layer3_g4_readiness_persisted_conformance_covers_task7_negatives() -> None:

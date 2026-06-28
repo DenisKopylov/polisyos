@@ -1,0 +1,674 @@
+{
+  "owner": "team-runtime-quality",
+  "proof_source": "durable_worker_surface_readback_recompute",
+  "proofs": [
+    {
+      "_execute_workflow_invocation_id": "execute-workflow-7577c0d4b11b5104",
+      "artifacts_index_refs": [
+        "workflow_failure_ref",
+        "authority_boundary",
+        "authority_surface_packet"
+      ],
+      "authority_boundary_ref": "runtime.workspace_loop_failed_non_authority.4becb09b4f255cd38d56f51dbdfad056",
+      "authority_path": "workflow_failure",
+      "authority_result": "repair_required",
+      "control_store_state_transitions": [
+        "pending",
+        "running",
+        "failed"
+      ],
+      "endpoint": "/api/v1/control/runs",
+      "enqueued_at": "2026-06-16T14:15:16+00:00",
+      "input_artifacts": [
+        "sha256:484bbaffaf04af94909c68cfa6a8aa22ffca535e76ff184d8c7c73bd10d208d4"
+      ],
+      "job_id": "4becb09b4f255cd38d56f51dbdfad056",
+      "job_kind": "workflow_run",
+      "legacy_path_disposition": "blocked_workflow_failure_ring2_withheld",
+      "output_cas_refs": [
+        "sha256:170572f197166147598769beef221d6457ffbba44e4ef8f9fc7a2aef3a553e1a",
+        "sha256:0d42088a2c68f1b68e9735d7c62852b47bf17b94231cd772fa3c8c158607dc3a",
+        "sha256:de1747b3408dd151de82fc3020eb5405192b256fbee18b02c651234e5e328bb5"
+      ],
+      "output_search_exit_contract_ref": "sha256:170572f197166147598769beef221d6457ffbba44e4ef8f9fc7a2aef3a553e1a",
+      "progress_artifact_ref": "sha256:f885e029611d119b184e8f647c6fb67fabfdce0441128725738529d9b148bd35",
+      "run_id": "R_1d88525b379c5c69",
+      "scenario": "workflow_failure",
+      "surface_readbacks": [
+        {
+          "decision": {
+            "authority_boundary_ref": "runtime.workspace_loop_failed_non_authority.4becb09b4f255cd38d56f51dbdfad056",
+            "authority_result": "blocked",
+            "blocking": true,
+            "candidate_firewall_issue_codes": [],
+            "composed_gate_inputs": [
+              "authority_boundary",
+              "time_source_envelope",
+              "s12_dereference",
+              "candidate_firewall"
+            ],
+            "consumed_authority_boundary": true,
+            "integrity_error": null,
+            "integrity_status": "not_applicable",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "purpose": "runtime_closeout_authority",
+            "reason": "workflow_failure_or_blocked_disposition",
+            "s12_issue_codes": [],
+            "secret_pii_finding_kinds": [],
+            "status": "blocked",
+            "surface": "run",
+            "time_source_dispositions": [],
+            "transition_disposition": "blocked_workflow_failure_ring2_withheld",
+            "visible_downgrade": true
+          },
+          "observed_authority_result": "repair_required",
+          "observed_job_state": "failed",
+          "read_method": "ControlPlaneService.get_job_status",
+          "surface": "run"
+        },
+        {
+          "blocked_or_downgraded": true,
+          "decision": {
+            "authority_boundary_ref": "runtime.workspace_loop_failed_non_authority.4becb09b4f255cd38d56f51dbdfad056",
+            "authority_result": "blocked",
+            "blocking": true,
+            "candidate_firewall_issue_codes": [],
+            "composed_gate_inputs": [
+              "authority_boundary",
+              "time_source_envelope",
+              "s12_dereference",
+              "candidate_firewall"
+            ],
+            "consumed_authority_boundary": true,
+            "integrity_error": null,
+            "integrity_status": "not_applicable",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "purpose": "runtime_closeout_authority",
+            "reason": "workflow_failure_or_blocked_disposition",
+            "s12_issue_codes": [],
+            "secret_pii_finding_kinds": [],
+            "status": "blocked",
+            "surface": "artifact",
+            "time_source_dispositions": [],
+            "transition_disposition": "blocked_workflow_failure_ring2_withheld",
+            "visible_downgrade": true
+          },
+          "read_method": "GET /api/v1/artifacts/sha256:f885e029611d119b184e8f647c6fb67fabfdce0441128725738529d9b148bd35/content",
+          "status_code": 409,
+          "surface": "artifact"
+        },
+        {
+          "blocked_or_downgraded": true,
+          "decision": {
+            "authority_boundary_ref": "runtime.workspace_loop_failed_non_authority.4becb09b4f255cd38d56f51dbdfad056",
+            "authority_result": "blocked",
+            "blocking": true,
+            "candidate_firewall_issue_codes": [],
+            "composed_gate_inputs": [
+              "authority_boundary",
+              "time_source_envelope",
+              "s12_dereference",
+              "candidate_firewall"
+            ],
+            "consumed_authority_boundary": true,
+            "integrity_error": null,
+            "integrity_status": "not_applicable",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "purpose": "runtime_closeout_authority",
+            "reason": "workflow_failure_or_blocked_disposition",
+            "s12_issue_codes": [],
+            "secret_pii_finding_kinds": [],
+            "status": "blocked",
+            "surface": "lineage",
+            "time_source_dispositions": [],
+            "transition_disposition": "blocked_workflow_failure_ring2_withheld",
+            "visible_downgrade": true
+          },
+          "read_method": "GET /api/v1/artifacts/sha256:f885e029611d119b184e8f647c6fb67fabfdce0441128725738529d9b148bd35/lineage",
+          "status_code": 409,
+          "surface": "lineage"
+        },
+        {
+          "blocked_or_downgraded": true,
+          "decision": {
+            "authority_boundary_ref": "runtime.workspace_loop_failed_non_authority.4becb09b4f255cd38d56f51dbdfad056",
+            "authority_result": "blocked",
+            "blocking": true,
+            "candidate_firewall_issue_codes": [],
+            "composed_gate_inputs": [
+              "authority_boundary",
+              "time_source_envelope",
+              "s12_dereference",
+              "candidate_firewall"
+            ],
+            "consumed_authority_boundary": true,
+            "integrity_error": null,
+            "integrity_status": "not_applicable",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "purpose": "publication",
+            "reason": "workflow_failure_or_blocked_disposition",
+            "s12_issue_codes": [],
+            "secret_pii_finding_kinds": [],
+            "status": "blocked",
+            "surface": "export",
+            "time_source_dispositions": [],
+            "transition_disposition": "blocked_workflow_failure_ring2_withheld",
+            "visible_downgrade": true
+          },
+          "read_method": "GET /api/v1/artifacts/sha256:f885e029611d119b184e8f647c6fb67fabfdce0441128725738529d9b148bd35/export",
+          "status_code": 409,
+          "surface": "export"
+        },
+        {
+          "blocked_or_downgraded": true,
+          "decision": {
+            "authority_boundary_ref": "runtime.workspace_loop_failed_non_authority.4becb09b4f255cd38d56f51dbdfad056",
+            "authority_result": "blocked",
+            "blocking": true,
+            "candidate_firewall_issue_codes": [],
+            "composed_gate_inputs": [
+              "authority_boundary",
+              "time_source_envelope",
+              "s12_dereference",
+              "candidate_firewall"
+            ],
+            "consumed_authority_boundary": true,
+            "integrity_error": null,
+            "integrity_status": "not_applicable",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "purpose": "dashboard_display",
+            "reason": "workflow_failure_or_blocked_disposition",
+            "s12_issue_codes": [],
+            "secret_pii_finding_kinds": [],
+            "status": "blocked",
+            "surface": "dashboard",
+            "time_source_dispositions": [],
+            "transition_disposition": "blocked_workflow_failure_ring2_withheld",
+            "visible_downgrade": true
+          },
+          "read_method": "POST /api/v1/artifacts/sha256:f885e029611d119b184e8f647c6fb67fabfdce0441128725738529d9b148bd35/render",
+          "status_code": 409,
+          "surface": "dashboard"
+        },
+        {
+          "blocked_or_downgraded": true,
+          "decision": {
+            "authority_boundary_ref": "runtime.workspace_loop_failed_non_authority.4becb09b4f255cd38d56f51dbdfad056",
+            "authority_result": "blocked",
+            "blocking": true,
+            "candidate_firewall_issue_codes": [],
+            "composed_gate_inputs": [
+              "authority_boundary",
+              "time_source_envelope",
+              "s12_dereference",
+              "candidate_firewall"
+            ],
+            "consumed_authority_boundary": true,
+            "integrity_error": null,
+            "integrity_status": "not_applicable",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "purpose": "publication",
+            "reason": "workflow_failure_or_blocked_disposition",
+            "s12_issue_codes": [],
+            "secret_pii_finding_kinds": [],
+            "status": "blocked",
+            "surface": "public_packet",
+            "time_source_dispositions": [],
+            "transition_disposition": "blocked_workflow_failure_ring2_withheld",
+            "visible_downgrade": true
+          },
+          "error_code": "authority_surface_blocked",
+          "read_method": "build_public_export_bundle",
+          "surface": "public_packet"
+        },
+        {
+          "attempted_state_after": "completed",
+          "blocked_clean_completion": true,
+          "error_message": "clean completion probe failed",
+          "observed_job_state": "failed",
+          "surface": "clean_completion_probe"
+        }
+      ],
+      "surface_reads_checked": [
+        "control_worker_precompletion",
+        "run",
+        "artifact",
+        "lineage",
+        "export",
+        "dashboard",
+        "public_packet"
+      ],
+      "terminal_job_state": "failed",
+      "worker_id": "control-worker-a7b643a3ec135268",
+      "worker_lease_id": "control-worker-a7b643a3ec135268",
+      "workspace_loop_invocation_id": "workspace-loop-2882576a2ce45a84"
+    },
+    {
+      "_execute_workflow_invocation_id": "legacy_shadow_candidate:ecc5db146f795977876c1219e6a2a437:not_applicable",
+      "artifacts_index_refs": [
+        "authority_boundary",
+        "authority_surface_packet"
+      ],
+      "authority_boundary_ref": "runtime.legacy_shadow_candidate_only.ecc5db146f795977876c1219e6a2a437",
+      "authority_path": "legacy_shadow",
+      "authority_result": "candidate_only",
+      "control_store_state_transitions": [
+        "pending",
+        "running",
+        "completed"
+      ],
+      "endpoint": "/api/v1/control/runs/nl",
+      "enqueued_at": "2026-06-16T14:15:16+00:00",
+      "input_artifacts": [
+        "sha256:10738517d67709ae18c1946676cf8083674bc3d8ae7506583e857fcc063a61dc"
+      ],
+      "job_id": "ecc5db146f795977876c1219e6a2a437",
+      "job_kind": "natural_language_run",
+      "legacy_path_disposition": "candidate_only_ring2_withheld",
+      "output_cas_refs": [
+        "sha256:10738517d67709ae18c1946676cf8083674bc3d8ae7506583e857fcc063a61dc"
+      ],
+      "output_search_exit_contract_ref": "sha256:10738517d67709ae18c1946676cf8083674bc3d8ae7506583e857fcc063a61dc",
+      "progress_artifact_ref": "sha256:10738517d67709ae18c1946676cf8083674bc3d8ae7506583e857fcc063a61dc",
+      "run_id": "R_a5d0ad0bd7d056b0",
+      "scenario": "legacy_shadow_candidate",
+      "surface_readbacks": [
+        {
+          "decision": {
+            "authority_boundary_ref": "runtime.legacy_shadow_candidate_only.ecc5db146f795977876c1219e6a2a437",
+            "authority_result": "candidate_only",
+            "blocking": false,
+            "candidate_firewall_issue_codes": [],
+            "composed_gate_inputs": [
+              "authority_boundary",
+              "time_source_envelope",
+              "s12_dereference",
+              "candidate_firewall"
+            ],
+            "consumed_authority_boundary": true,
+            "integrity_error": null,
+            "integrity_status": "not_applicable",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "purpose": "runtime_closeout_authority",
+            "reason": "candidate_or_legacy_shadow_disposition",
+            "s12_issue_codes": [],
+            "secret_pii_finding_kinds": [],
+            "status": "candidate_only",
+            "surface": "run",
+            "time_source_dispositions": [],
+            "transition_disposition": "candidate_only_ring2_withheld",
+            "visible_downgrade": true
+          },
+          "observed_authority_result": "candidate_only",
+          "observed_job_state": "completed",
+          "read_method": "ControlPlaneService.get_job_status",
+          "surface": "run"
+        },
+        {
+          "blocked_or_downgraded": true,
+          "decision": {
+            "authority_boundary_ref": "runtime.legacy_shadow_candidate_only.ecc5db146f795977876c1219e6a2a437",
+            "authority_result": "candidate_only",
+            "blocking": false,
+            "candidate_firewall_issue_codes": [],
+            "composed_gate_inputs": [
+              "authority_boundary",
+              "time_source_envelope",
+              "s12_dereference",
+              "candidate_firewall"
+            ],
+            "consumed_authority_boundary": true,
+            "integrity_error": null,
+            "integrity_status": "not_applicable",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "purpose": "runtime_closeout_authority",
+            "reason": "candidate_or_legacy_shadow_disposition",
+            "s12_issue_codes": [],
+            "secret_pii_finding_kinds": [],
+            "status": "candidate_only",
+            "surface": "artifact",
+            "time_source_dispositions": [],
+            "transition_disposition": "candidate_only_ring2_withheld",
+            "visible_downgrade": true
+          },
+          "read_method": "GET /api/v1/artifacts/sha256:10738517d67709ae18c1946676cf8083674bc3d8ae7506583e857fcc063a61dc/content",
+          "status_code": 409,
+          "surface": "artifact"
+        },
+        {
+          "blocked_or_downgraded": true,
+          "decision": {
+            "authority_boundary_ref": "runtime.legacy_shadow_candidate_only.ecc5db146f795977876c1219e6a2a437",
+            "authority_result": "candidate_only",
+            "blocking": false,
+            "candidate_firewall_issue_codes": [],
+            "composed_gate_inputs": [
+              "authority_boundary",
+              "time_source_envelope",
+              "s12_dereference",
+              "candidate_firewall"
+            ],
+            "consumed_authority_boundary": true,
+            "integrity_error": null,
+            "integrity_status": "not_applicable",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "purpose": "runtime_closeout_authority",
+            "reason": "candidate_or_legacy_shadow_disposition",
+            "s12_issue_codes": [],
+            "secret_pii_finding_kinds": [],
+            "status": "candidate_only",
+            "surface": "lineage",
+            "time_source_dispositions": [],
+            "transition_disposition": "candidate_only_ring2_withheld",
+            "visible_downgrade": true
+          },
+          "read_method": "GET /api/v1/artifacts/sha256:10738517d67709ae18c1946676cf8083674bc3d8ae7506583e857fcc063a61dc/lineage",
+          "status_code": 409,
+          "surface": "lineage"
+        },
+        {
+          "blocked_or_downgraded": true,
+          "decision": {
+            "authority_boundary_ref": "runtime.legacy_shadow_candidate_only.ecc5db146f795977876c1219e6a2a437",
+            "authority_result": "candidate_only",
+            "blocking": false,
+            "candidate_firewall_issue_codes": [],
+            "composed_gate_inputs": [
+              "authority_boundary",
+              "time_source_envelope",
+              "s12_dereference",
+              "candidate_firewall"
+            ],
+            "consumed_authority_boundary": true,
+            "integrity_error": null,
+            "integrity_status": "not_applicable",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "purpose": "publication",
+            "reason": "candidate_or_legacy_shadow_disposition",
+            "s12_issue_codes": [],
+            "secret_pii_finding_kinds": [],
+            "status": "candidate_only",
+            "surface": "export",
+            "time_source_dispositions": [],
+            "transition_disposition": "candidate_only_ring2_withheld",
+            "visible_downgrade": true
+          },
+          "read_method": "GET /api/v1/artifacts/sha256:10738517d67709ae18c1946676cf8083674bc3d8ae7506583e857fcc063a61dc/export",
+          "status_code": 409,
+          "surface": "export"
+        },
+        {
+          "blocked_or_downgraded": true,
+          "decision": {
+            "authority_boundary_ref": "runtime.legacy_shadow_candidate_only.ecc5db146f795977876c1219e6a2a437",
+            "authority_result": "candidate_only",
+            "blocking": false,
+            "candidate_firewall_issue_codes": [],
+            "composed_gate_inputs": [
+              "authority_boundary",
+              "time_source_envelope",
+              "s12_dereference",
+              "candidate_firewall"
+            ],
+            "consumed_authority_boundary": true,
+            "integrity_error": null,
+            "integrity_status": "not_applicable",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "purpose": "dashboard_display",
+            "reason": "candidate_or_legacy_shadow_disposition",
+            "s12_issue_codes": [],
+            "secret_pii_finding_kinds": [],
+            "status": "candidate_only",
+            "surface": "dashboard",
+            "time_source_dispositions": [],
+            "transition_disposition": "candidate_only_ring2_withheld",
+            "visible_downgrade": true
+          },
+          "read_method": "POST /api/v1/artifacts/sha256:10738517d67709ae18c1946676cf8083674bc3d8ae7506583e857fcc063a61dc/render",
+          "status_code": 409,
+          "surface": "dashboard"
+        },
+        {
+          "blocked_or_downgraded": true,
+          "decision": {
+            "authority_boundary_ref": "runtime.legacy_shadow_candidate_only.ecc5db146f795977876c1219e6a2a437",
+            "authority_result": "candidate_only",
+            "blocking": false,
+            "candidate_firewall_issue_codes": [],
+            "composed_gate_inputs": [
+              "authority_boundary",
+              "time_source_envelope",
+              "s12_dereference",
+              "candidate_firewall"
+            ],
+            "consumed_authority_boundary": true,
+            "integrity_error": null,
+            "integrity_status": "not_applicable",
+            "may_not_use_for": [
+              "approval_authority",
+              "decision_authority",
+              "design_recommendation_authority",
+              "publication_authority",
+              "runtime_closeout_authority",
+              "scorecard_authority",
+              "workflow_success_authority"
+            ],
+            "purpose": "publication",
+            "reason": "candidate_or_legacy_shadow_disposition",
+            "s12_issue_codes": [],
+            "secret_pii_finding_kinds": [],
+            "status": "candidate_only",
+            "surface": "public_packet",
+            "time_source_dispositions": [],
+            "transition_disposition": "candidate_only_ring2_withheld",
+            "visible_downgrade": true
+          },
+          "decisions": [
+            {
+              "artifact_key": "progress",
+              "decision": {
+                "authority_boundary_ref": "runtime.legacy_shadow_candidate_only.ecc5db146f795977876c1219e6a2a437",
+                "authority_result": "candidate_only",
+                "blocking": false,
+                "candidate_firewall_issue_codes": [],
+                "composed_gate_inputs": [
+                  "authority_boundary",
+                  "secret_pii_scan",
+                  "time_source_envelope",
+                  "s12_dereference",
+                  "candidate_firewall"
+                ],
+                "consumed_authority_boundary": true,
+                "integrity_error": null,
+                "integrity_status": "not_applicable",
+                "may_not_use_for": [
+                  "approval_authority",
+                  "decision_authority",
+                  "design_recommendation_authority",
+                  "publication_authority",
+                  "runtime_closeout_authority",
+                  "scorecard_authority",
+                  "workflow_success_authority"
+                ],
+                "purpose": "publication",
+                "reason": "candidate_or_legacy_shadow_disposition",
+                "s12_issue_codes": [],
+                "secret_pii_finding_kinds": [],
+                "status": "candidate_only",
+                "surface": "export",
+                "time_source_dispositions": [],
+                "transition_disposition": "candidate_only_ring2_withheld",
+                "visible_downgrade": true
+              }
+            },
+            {
+              "artifact_key": "progress",
+              "decision": {
+                "authority_boundary_ref": "runtime.legacy_shadow_candidate_only.ecc5db146f795977876c1219e6a2a437",
+                "authority_result": "candidate_only",
+                "blocking": false,
+                "candidate_firewall_issue_codes": [],
+                "composed_gate_inputs": [
+                  "authority_boundary",
+                  "secret_pii_scan",
+                  "time_source_envelope",
+                  "s12_dereference",
+                  "candidate_firewall"
+                ],
+                "consumed_authority_boundary": true,
+                "integrity_error": null,
+                "integrity_status": "not_applicable",
+                "may_not_use_for": [
+                  "approval_authority",
+                  "decision_authority",
+                  "design_recommendation_authority",
+                  "publication_authority",
+                  "runtime_closeout_authority",
+                  "scorecard_authority",
+                  "workflow_success_authority"
+                ],
+                "purpose": "publication",
+                "reason": "candidate_or_legacy_shadow_disposition",
+                "s12_issue_codes": [],
+                "secret_pii_finding_kinds": [],
+                "status": "candidate_only",
+                "surface": "public_packet",
+                "time_source_dispositions": [],
+                "transition_disposition": "candidate_only_ring2_withheld",
+                "visible_downgrade": true
+              }
+            }
+          ],
+          "read_method": "build_public_export_bundle",
+          "surface": "public_packet"
+        },
+        {
+          "attempted_state_after": "completed",
+          "blocked_clean_completion": true,
+          "error_message": "clean completion probe failed",
+          "observed_job_state": "failed",
+          "surface": "clean_completion_probe"
+        }
+      ],
+      "surface_reads_checked": [
+        "control_worker_precompletion",
+        "run",
+        "artifact",
+        "lineage",
+        "export",
+        "dashboard",
+        "public_packet"
+      ],
+      "terminal_job_state": "completed",
+      "worker_id": "control-worker-528d5bec3fae5635",
+      "worker_lease_id": "control-worker-528d5bec3fae5635",
+      "workspace_loop_invocation_id": "legacy_shadow_candidate:ecc5db146f795977876c1219e6a2a437:not_applicable"
+    }
+  ],
+  "schema_version": "policyos.policy_design_case.layer3_gy.workflow_failure_authority.v1",
+  "strangle_receipt": {
+    "default_after": "workflow failure progress is converted to failed before completion events",
+    "default_before": "workflow failure progress could be completed by a direct complete_job caller",
+    "disposition": "fenced_default_flipped",
+    "guard_ref": "tests/unit/runtime/http/test_control_plane_store.py::test_control_plane_store_rejects_clean_completion_for_failed_workflow_progress",
+    "predecessor_ref": "runtime.http.services.control.run_lifecycle.workflow_run.complete_job_unconditional_completed",
+    "remaining_callers": [
+      "runtime.http.services.control.run_lifecycle._process_control_job",
+      "tests and diagnostics that intentionally call complete_job"
+    ],
+    "remaining_callers_disposition": "all callers pass through store-level fail-closed guard",
+    "removed_loc": "src/polisyos/runtime/http/services/control_plane_store.py::complete_job",
+    "replacement_ref": "runtime.http.services.control_plane_store.complete_job.fail_closed_workflow_failure_progress",
+    "verified_by": [
+      "tools/quality/validation/check_layer3_workflow_failure_authority.py --check --repo-root ."
+    ]
+  }
+}

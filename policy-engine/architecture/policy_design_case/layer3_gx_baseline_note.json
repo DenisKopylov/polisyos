@@ -80,9 +80,9 @@
       " M policy-engine/architecture/policy_design_case/layer3_g5_readiness_manifest.json",
       " M policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/search.py",
       " M policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
-      " M policy-engine/src/polisyos/runtime/quality/layer3_promotion_gate.py",
-      " M policy-engine/src/polisyos/runtime/quality/layer3_proving_ground_conversion.py",
-      " M policy-engine/src/polisyos/runtime/quality/layer3_substrate_grounding.py",
+      " M policy-engine/src/polisyos/runtime/quality/proving_ground/governed_promotion_gate.py",
+      " M policy-engine/src/polisyos/runtime/quality/proving_ground/proving_ground_conversion.py",
+      " M policy-engine/src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py",
       " M policy-engine/tests/unit/runtime/quality/test_layer3_g1_substrate_grounding.py",
       " M policy-engine/tests/unit/runtime/quality/test_layer3_g4_promotion_gate.py",
       " M policy-engine/tests/unit/runtime/quality/test_layer3_g5_proving_ground_conversion.py",
@@ -92,16 +92,16 @@
     ]
   },
   "required_runtime_literal_scan": {
-    "command": "rg -n 'firm_survival|credit_access|credit_program_enrollment|ua-msme-affordable-loans-2022|KNOWN_CONSTRUCTS|REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS|sha256:|grounded_or_uncertain|calibrated|governed_promoted' src/polisyos/runtime src/polisyos/core tools/quality/validation tests/unit/runtime tests/repo_quality",
+    "command": "rg -n 'firm_survival|credit_access|credit_program_enrollment|__GX_SELECTED_CASE_ID__|KNOWN_CONSTRUCTS|REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS|sha256:|grounded_or_uncertain|calibrated|governed_promoted' src/polisyos/runtime src/polisyos/core tools/quality/validation tests/unit/runtime tests/repo_quality",
     "exit_code": 0,
     "raw_output_line_count": 1234,
     "selected_runtime_quality_hit_counts": {
-      "src/polisyos/runtime/quality/layer3_substrate_grounding.py": 29,
-      "src/polisyos/runtime/quality/layer3_causal_forecast.py": 56,
-      "src/polisyos/runtime/quality/layer3_promotion_gate.py": 22,
-      "src/polisyos/runtime/quality/layer3_proving_ground_conversion.py": 15,
-      "src/polisyos/runtime/quality/layer3_region_widening.py": 15,
-      "src/polisyos/runtime/quality/layer3_health_metric_governance.py": 8,
+      "src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py": 29,
+      "src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py": 56,
+      "src/polisyos/runtime/quality/proving_ground/governed_promotion_gate.py": 22,
+      "src/polisyos/runtime/quality/proving_ground/proving_ground_conversion.py": 15,
+      "src/polisyos/runtime/quality/proving_ground/region_widening.py": 15,
+      "src/polisyos/runtime/quality/proving_ground/health_metric_governance.py": 8,
       "src/polisyos/runtime/quality/capability_resolver.py": 19,
       "src/polisyos/runtime/quality/capability_index_compiler.py": 33,
       "src/polisyos/runtime/quality/capability_white_space.py": 2
@@ -109,8 +109,8 @@
     "legacy_mapping_hits": [
       "src/polisyos/core/contracts/capability_resolution.py",
       "src/polisyos/core/contracts/__init__.py",
-      "src/polisyos/runtime/quality/layer3_grounding_inventory.py",
-      "src/polisyos/runtime/quality/layer3_substrate_grounding.py",
+      "src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py",
+      "src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py",
       "tests/unit/runtime/quality/test_capability_resolver.py",
       "tests/unit/runtime/quality/test_layer3_g0_grounding_inventory.py"
     ],
@@ -132,7 +132,7 @@
     },
     {
       "name": "full_layer3_pytest_pattern",
-      "command": "uv run pytest tests/unit/runtime/quality/test_layer3_*.py tests/repo_quality/tools/test_policy_design_case_layer3_*.py",
+      "command": "uv run pytest tests/unit/runtime/quality/test_proving_ground_*.py tests/repo_quality/tools/test_policy_design_case_layer3_*.py",
       "exit_code": 1,
       "summary": "18 failed, 613 passed in 317.33s",
       "failed_node_ids": [
@@ -372,9 +372,9 @@
       "src/polisyos/data_forge/domains/catalog/knowledge/store.py"
     ],
     "source_and_test_paths_scoped_as_pre_existing_layer3_work": [
-      "src/polisyos/runtime/quality/layer3_promotion_gate.py",
-      "src/polisyos/runtime/quality/layer3_proving_ground_conversion.py",
-      "src/polisyos/runtime/quality/layer3_substrate_grounding.py",
+      "src/polisyos/runtime/quality/proving_ground/governed_promotion_gate.py",
+      "src/polisyos/runtime/quality/proving_ground/proving_ground_conversion.py",
+      "src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py",
       "tests/unit/runtime/quality/test_layer3_g1_substrate_grounding.py",
       "tests/unit/runtime/quality/test_layer3_g4_promotion_gate.py",
       "tests/unit/runtime/quality/test_layer3_g5_proving_ground_conversion.py",

@@ -34,7 +34,7 @@ from polisyos.runtime.quality.graded_outcomes import (  # noqa: E402
     compose_graded_outcome,
     graded_outcome_closeout_record,
 )
-from polisyos.runtime.quality.layer3_gx_data_home import (  # noqa: E402
+from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import (  # noqa: E402
     read_layer3_gx_pinned_case_id,
 )
 from polisyos.runtime.quality.projection_semantics import (  # noqa: E402

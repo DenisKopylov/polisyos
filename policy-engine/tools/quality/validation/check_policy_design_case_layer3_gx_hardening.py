@@ -5,26 +5,32 @@ from __future__ import annotations
 
 import argparse
 import ast
+import contextvars
 import hashlib
 import json
 import re
 import sys
 from collections import defaultdict
-from collections.abc import Iterable, Mapping, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass
+from functools import wraps
 from pathlib import Path
 from typing import Any
 
-from polisyos.runtime.quality.layer3_gx_data_home import (
-    CONCEPT_ALIAS_GRAPH_PATH,
-    CONCEPT_ALIAS_SEED_ROWS_PATH,
-    DEMAND_PULL_REQUEST_PATH,
-    PINNED_REQUEST_PATH,
-    SCOPE_SEED_ROWS_PATH,
+from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import (
+    LAYER3_GX_CONCEPT_ALIAS_GRAPH_FILENAME,
+    LAYER3_GX_CONCEPT_ALIAS_SEED_ROWS_FILENAME,
+    LAYER3_GX_DATA_HOME_CASES_PATH,
+    LAYER3_GX_DEMAND_PULL_REQUEST_FILENAME,
+    LAYER3_GX_PINNED_REQUEST_FILENAME,
+    LAYER3_GX_SCOPE_SEED_ROWS_FILENAME,
+    Layer3GXDataHomeSelection,
     build_layer3_gx_data_home_artifacts,
     load_layer3_gx_data_home,
+    resolve_layer3_gx_data_home_selection,
+    selected_layer3_gx_data_home_artifact_paths,
 )
-from polisyos.runtime.quality.layer3_status_reducers import (
+from polisyos.runtime.quality.proving_ground.status_decision_reducers import (
     G1SourceGroundingClosureInputs,
     G2ForecastAdmissionInputs,
     G3ProofAuthorityInputs,
@@ -49,7 +55,15 @@ from tools.lib.fs import atomic_write_json
 REPO_ROOT = Path(__file__).resolve().parents[3]
 POLICY_DESIGN_CASE_DIR = Path("architecture/policy_design_case")
 BASELINE_NOTE_PATH = POLICY_DESIGN_CASE_DIR / "layer3_gx_baseline_note.json"
+BASELINE_NOTE_SELECTED_CASE_TOKEN = "__GX_SELECTED_CASE_ID__"
 
+PINNED_REQUEST_ARTIFACT = POLICY_DESIGN_CASE_DIR / LAYER3_GX_PINNED_REQUEST_FILENAME
+CONCEPT_ALIAS_SEED_ROWS_ARTIFACT = (
+    POLICY_DESIGN_CASE_DIR / LAYER3_GX_CONCEPT_ALIAS_SEED_ROWS_FILENAME
+)
+CONCEPT_ALIAS_GRAPH_ARTIFACT = POLICY_DESIGN_CASE_DIR / LAYER3_GX_CONCEPT_ALIAS_GRAPH_FILENAME
+SCOPE_SEED_ROWS_ARTIFACT = POLICY_DESIGN_CASE_DIR / LAYER3_GX_SCOPE_SEED_ROWS_FILENAME
+DEMAND_PULL_REQUEST_ARTIFACT = POLICY_DESIGN_CASE_DIR / LAYER3_GX_DEMAND_PULL_REQUEST_FILENAME
 RUNTIME_LITERAL_LINT_PATH = POLICY_DESIGN_CASE_DIR / "layer3_gx_runtime_literal_lint.json"
 REDUCER_INTEGRITY_REPORT_PATH = POLICY_DESIGN_CASE_DIR / "layer3_gx_reducer_integrity_report.json"
 POSITIVE_STATUS_PROVENANCE_PATH = (
@@ -116,11 +130,11 @@ G1_SUBSTRATE_SEARCH_LEDGERS_PATH = (
 )
 
 GX_OUTPUT_PATHS: tuple[Path, ...] = (
-    PINNED_REQUEST_PATH,
-    CONCEPT_ALIAS_SEED_ROWS_PATH,
-    CONCEPT_ALIAS_GRAPH_PATH,
-    SCOPE_SEED_ROWS_PATH,
-    DEMAND_PULL_REQUEST_PATH,
+    PINNED_REQUEST_ARTIFACT,
+    CONCEPT_ALIAS_SEED_ROWS_ARTIFACT,
+    CONCEPT_ALIAS_GRAPH_ARTIFACT,
+    SCOPE_SEED_ROWS_ARTIFACT,
+    DEMAND_PULL_REQUEST_ARTIFACT,
     RUNTIME_LITERAL_LINT_PATH,
     REDUCER_INTEGRITY_REPORT_PATH,
     POSITIVE_STATUS_PROVENANCE_PATH,
@@ -143,6 +157,17 @@ GX_OUTPUT_PATHS: tuple[Path, ...] = (
     G4_G5_DEREFERENCE_WAIST_COURT_REPORT_PATH,
 )
 
+GX_DATA_HOME_INPUT_PATHS: tuple[Path, ...] = (
+    PINNED_REQUEST_ARTIFACT,
+    CONCEPT_ALIAS_SEED_ROWS_ARTIFACT,
+    CONCEPT_ALIAS_GRAPH_ARTIFACT,
+    SCOPE_SEED_ROWS_ARTIFACT,
+    DEMAND_PULL_REQUEST_ARTIFACT,
+)
+GX_DATA_HOME_INPUT_FILENAMES: frozenset[str] = frozenset(
+    path.name for path in GX_DATA_HOME_INPUT_PATHS
+)
+
 DEFAULT_SCAN_ROOTS: tuple[Path, ...] = (
     Path("src/polisyos/core"),
     Path("src/polisyos/runtime"),
@@ -155,12 +180,41 @@ DEFAULT_ARTIFACT_GLOBS: tuple[str, ...] = (
     "architecture/policy_design_case/layer2_s14_*.json",
 )
 
+
+def declared_outputs() -> list[str]:
+    """Return the committed GX artifacts this validator owns."""
+
+    outputs: set[str] = set()
+    registry_path = REPO_ROOT / LAYER3_GX_DATA_HOME_CASES_PATH
+    if not registry_path.is_file():
+        return sorted(outputs)
+
+    try:
+        registry = json.loads(registry_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError, UnicodeDecodeError):
+        return sorted(outputs)
+    for row in _as_list(registry.get("cases") if isinstance(registry, Mapping) else []):
+        if not isinstance(row, Mapping):
+            continue
+        data_home_path = Path(str(row.get("data_home_path") or ""))
+        report_path = Path(str(row.get("report_path") or ""))
+        if data_home_path.as_posix() not in {"", "."}:
+            outputs.update(
+                (data_home_path / path.name).as_posix() for path in GX_DATA_HOME_INPUT_PATHS
+            )
+        if report_path.as_posix() not in {"", "."}:
+            outputs.update(
+                (report_path / path.name).as_posix()
+                for path in GX_OUTPUT_PATHS
+                if path.name not in GX_DATA_HOME_INPUT_FILENAMES
+            )
+    return sorted(outputs)
+
 FORBIDDEN_DOMAIN_LITERALS: frozenset[str] = frozenset(
     {
         "firm_survival",
         "credit_access",
         "credit_program_enrollment",
-        "ua-msme-affordable-loans-2022",
         "KNOWN_CONSTRUCTS",
         "REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS",
     }
@@ -232,18 +286,75 @@ class PositiveStatus:
     record: Mapping[str, Any]
 
 
-def validate_layer3_gx_hardening(repo_root: Path, *, write: bool = False) -> dict[str, Any]:
+_CURRENT_GX_SELECTION: contextvars.ContextVar[Layer3GXDataHomeSelection | None] = (
+    contextvars.ContextVar("layer3_gx_data_home_selection", default=None)
+)
+
+
+def _with_gx_selection_context(
+    builder: Callable[..., dict[str, Any]],
+) -> Callable[..., dict[str, Any]]:
+    @wraps(builder)
+    def wrapper(repo_root: Path, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        root = Path(repo_root).resolve()
+        token: contextvars.Token[Layer3GXDataHomeSelection | None] | None = None
+        if _CURRENT_GX_SELECTION.get() is None:
+            token = _CURRENT_GX_SELECTION.set(resolve_layer3_gx_data_home_selection(root))
+        try:
+            return builder(root, *args, **kwargs)
+        finally:
+            if token is not None:
+                _CURRENT_GX_SELECTION.reset(token)
+
+    return wrapper
+
+
+def validate_layer3_gx_hardening(
+    repo_root: Path,
+    *,
+    case: str | None = None,
+    data_home: Path | None = None,
+    write: bool = False,
+) -> dict[str, Any]:
     """Build the Layer 3 GX hardening report and optionally persist sidecars."""
 
     root = Path(repo_root).resolve()
+    selection = resolve_layer3_gx_data_home_selection(root, case=case, data_home=data_home)
+    token = _CURRENT_GX_SELECTION.set(selection)
+    try:
+        return _validate_layer3_gx_hardening_selected(root, write=write)
+    finally:
+        _CURRENT_GX_SELECTION.reset(token)
+
+
+def _validate_layer3_gx_hardening_selected(repo_root: Path, *, write: bool) -> dict[str, Any]:
+    root = Path(repo_root).resolve()
+    selection = _require_gx_selection(root)
     artifact_paths = _default_artifact_paths(root)
-    data_home_artifacts = build_layer3_gx_data_home_artifacts(root)
+    data_home_artifacts = build_layer3_gx_data_home_artifacts(
+        root,
+        data_home=selection.data_home_path,
+    )
+    selected_data_home_paths = selected_layer3_gx_data_home_artifact_paths(
+        root,
+        data_home=selection.data_home_path,
+    )
     data_home_artifacts_by_path = {
-        PINNED_REQUEST_PATH: data_home_artifacts["layer3_gx_pinned_request"],
-        CONCEPT_ALIAS_SEED_ROWS_PATH: data_home_artifacts["layer3_gx_concept_alias_seed_rows"],
-        CONCEPT_ALIAS_GRAPH_PATH: data_home_artifacts["layer3_gx_concept_alias_graph"],
-        SCOPE_SEED_ROWS_PATH: data_home_artifacts["layer3_gx_scope_seed_rows"],
-        DEMAND_PULL_REQUEST_PATH: data_home_artifacts["layer3_gx_demand_pull_request"],
+        selected_data_home_paths["layer3_gx_pinned_request"]: data_home_artifacts[
+            "layer3_gx_pinned_request"
+        ],
+        selected_data_home_paths["layer3_gx_concept_alias_seed_rows"]: data_home_artifacts[
+            "layer3_gx_concept_alias_seed_rows"
+        ],
+        selected_data_home_paths["layer3_gx_concept_alias_graph"]: data_home_artifacts[
+            "layer3_gx_concept_alias_graph"
+        ],
+        selected_data_home_paths["layer3_gx_scope_seed_rows"]: data_home_artifacts[
+            "layer3_gx_scope_seed_rows"
+        ],
+        selected_data_home_paths["layer3_gx_demand_pull_request"]: data_home_artifacts[
+            "layer3_gx_demand_pull_request"
+        ],
     }
 
     runtime_literal_lint = build_runtime_literal_lint(root)
@@ -339,7 +450,10 @@ def validate_layer3_gx_hardening(repo_root: Path, *, write: bool = False) -> dic
         status = "fail"
 
     artifacts = {
-        "layer3_gx_baseline_note": _read_json(root / BASELINE_NOTE_PATH, default={}),
+        "layer3_gx_baseline_note": _load_layer3_gx_baseline_note(
+            root,
+            case_id=selection.case_id,
+        ),
         **data_home_artifacts,
         "layer3_gx_runtime_literal_lint": runtime_literal_lint,
         "layer3_gx_reducer_integrity_report": reducer_integrity,
@@ -366,8 +480,13 @@ def validate_layer3_gx_hardening(repo_root: Path, *, write: bool = False) -> dic
         "schema_version": "policyos.policy_design_case.layer3_gx_hardening.v1",
         "rule_version": "policyos.layer3.gx.hardening.v1",
         "status": status,
+        "case_id": selection.case_id,
+        "case_selector": selection.selector_ref,
+        "data_home_path": selection.data_home_path.as_posix(),
+        "report_path": selection.report_path.as_posix(),
         "issues": issues,
         "summary": {
+            "case_id": selection.case_id,
             "issue_count": len(issues),
             "expected_red_check_count": len(expected_red_checks["checks"]),
             "candidate_positive_status_count": positive_status_provenance[
@@ -569,26 +688,42 @@ def build_producer_registry(
 
     root = Path(repo_root).resolve()
     producers: dict[str, dict[str, Any]] = {}
-    existing = _read_json(root / PRODUCER_REGISTRY_PATH, default={})
-    for row in _as_list(existing.get("producers")):
-        if not isinstance(row, Mapping):
-            continue
-        producer_ref = str(row.get("producer_ref") or "")
-        if producer_ref:
-            producers[producer_ref] = dict(row)
+    selection = _CURRENT_GX_SELECTION.get()
+    if selection is None:
+        existing = _read_json(root / _gx_case_path(PRODUCER_REGISTRY_PATH), default={})
+        for row in _as_list(existing.get("producers")):
+            if not isinstance(row, Mapping):
+                continue
+            producer_ref = str(row.get("producer_ref") or "")
+            if producer_ref:
+                producers[producer_ref] = dict(row)
     for path in artifact_paths or _default_artifact_paths(root):
         payload = _read_json(root / path, default=None)
         if payload is None:
             continue
-        _collect_producers_from_payload(producers, path, payload)
+        _collect_producers_from_payload(
+            producers,
+            path,
+            payload,
+            selected_case_id=selection.case_id if selection is not None else None,
+        )
     for path, payload in (extra_artifacts or {}).items():
-        _collect_producers_from_payload(producers, path, payload)
-    _collect_g1_measurement_producers(root, producers)
+        _collect_producers_from_payload(
+            producers,
+            path,
+            payload,
+            selected_case_id=selection.case_id if selection is not None else None,
+        )
+    _collect_g1_measurement_producers(
+        root,
+        producers,
+        case_construct_refs=_selected_case_construct_refs(root, selection),
+    )
     issues = (
         [
             _issue(
                 "layer3_gx_producer_registry_empty",
-                PRODUCER_REGISTRY_PATH.as_posix(),
+                _gx_case_path(PRODUCER_REGISTRY_PATH).as_posix(),
                 "GX producer registry has no producer records.",
             )
         ]
@@ -608,12 +743,16 @@ def _collect_producers_from_payload(
     producers: dict[str, dict[str, Any]],
     path: Path,
     payload: Mapping[str, Any],
+    *,
+    selected_case_id: str | None = None,
 ) -> None:
     for item, pointer in _walk_json(payload):
         if not isinstance(item, Mapping):
             continue
         producer_ref = str(item.get("producer_ref") or "")
         if not producer_ref:
+            continue
+        if _gx_external_request_ref_targets_other_case(producer_ref, selected_case_id):
             continue
         producers.setdefault(
             producer_ref,
@@ -631,12 +770,17 @@ def _collect_producers_from_payload(
 def _collect_g1_measurement_producers(
     repo_root: Path,
     producers: dict[str, dict[str, Any]],
+    *,
+    case_construct_refs: frozenset[str] | None,
 ) -> None:
     recall_path = G1_SEARCH_RECALL_FRESHNESS_PATH
     recall_payload = _as_mapping(_read_json(repo_root / recall_path, default={}))
     search_health = _as_mapping(recall_payload.get("search_recall_freshness"))
     recall_row = _g1_search_recall_measurement_row(repo_root, recall_path, search_health)
-    if recall_row is not None:
+    if recall_row is not None and _payload_mentions_case_construct(
+        recall_row.get("query_or_probe"),
+        case_construct_refs,
+    ):
         producers[str(recall_row["producer_ref"])] = recall_row
 
     ledgers_path = G1_SUBSTRATE_SEARCH_LEDGERS_PATH
@@ -644,9 +788,41 @@ def _collect_g1_measurement_producers(
     ledgers = [
         row for row in _as_list(ledgers_payload.get("search_ledgers")) if isinstance(row, Mapping)
     ]
+    if case_construct_refs is not None:
+        ledgers = [
+            ledger
+            for ledger in ledgers
+            if _payload_mentions_case_construct(ledger, case_construct_refs)
+        ]
     ledgers_row = _g1_search_ledgers_measurement_row(repo_root, ledgers_path, ledgers)
     if ledgers_row is not None:
         producers[str(ledgers_row["producer_ref"])] = ledgers_row
+
+
+def _selected_case_construct_refs(
+    repo_root: Path,
+    selection: Layer3GXDataHomeSelection | None,
+) -> frozenset[str] | None:
+    if selection is None:
+        return None
+    loaded = load_layer3_gx_data_home(repo_root, data_home=selection.data_home_path)
+    if loaded.pinned_request is None:
+        return frozenset()
+    return frozenset(
+        construct.construct_ref for construct in loaded.pinned_request.requested_constructs
+    )
+
+
+def _payload_mentions_case_construct(
+    payload: Any,
+    case_construct_refs: frozenset[str] | None,
+) -> bool:
+    if case_construct_refs is None:
+        return True
+    if not case_construct_refs:
+        return False
+    text = json.dumps(payload, sort_keys=True, default=str)
+    return any(construct_ref in text for construct_ref in case_construct_refs)
 
 
 def _g1_search_recall_measurement_row(
@@ -886,11 +1062,11 @@ def build_measurement_replay_report(
             )
     if not measurements:
         issues.append(
-            _issue(
-                "layer3_gx_measurement_replay_not_measured",
-                PRODUCER_REGISTRY_PATH.as_posix(),
-                "No measurement roots are available for GX replay.",
-            )
+                _issue(
+                    "layer3_gx_measurement_replay_not_measured",
+                    _gx_case_path(PRODUCER_REGISTRY_PATH).as_posix(),
+                    "No measurement roots are available for GX replay.",
+                )
         )
     normalized = _deduplicate_issues(issues)
     return {
@@ -938,7 +1114,7 @@ def build_data_mutation_free_growth_test_report(repo_root: Path) -> dict[str, An
             root,
             requirement_id="g1_dcat_metric_binding_insertion",
             test_refs=(
-                "tests/unit/runtime/quality/test_layer3_g1_substrate_grounding.py::"
+                "tests/unit/runtime/quality/test_proving_ground_substrate_grounding_search.py::"
                 "test_task6_g1_temp_dcat_metric_insertion_changes_candidates_without_authority",
             ),
             corpus_kind="temp_store",
@@ -948,7 +1124,7 @@ def build_data_mutation_free_growth_test_report(repo_root: Path) -> dict[str, An
             root,
             requirement_id="g2_skg_edge_no_calibration",
             test_refs=(
-                "tests/unit/runtime/quality/test_layer3_g2_causal_forecast.py::"
+                "tests/unit/runtime/quality/test_proving_ground_causal_forecast_search.py::"
                 "test_task6_g2_temp_skg_edge_insertion_is_replayable_but_not_admitted_"
                 "without_calibration",
             ),
@@ -958,7 +1134,7 @@ def build_data_mutation_free_growth_test_report(repo_root: Path) -> dict[str, An
             root,
             requirement_id="g2_skg_edge_governed_calibration_admission",
             test_refs=(
-                "tests/unit/runtime/quality/test_layer3_g2_causal_forecast.py::"
+                "tests/unit/runtime/quality/test_proving_ground_causal_forecast_search.py::"
                 "test_task6_g2_temp_skg_edge_plus_governed_calibration_changes_reducer_"
                 "admission",
             ),
@@ -968,7 +1144,7 @@ def build_data_mutation_free_growth_test_report(repo_root: Path) -> dict[str, An
             root,
             requirement_id="g3_ir_proof_candidate_no_certificate",
             test_refs=(
-                "tests/unit/runtime/quality/test_layer3_g3_analytics_search.py::"
+                "tests/unit/runtime/quality/test_proving_ground_proof_carrying_analytics_search.py::"
                 "test_task6_g3_ir_proof_candidate_insertion_is_replayable_but_not_"
                 "certificate_authority",
             ),
@@ -978,7 +1154,7 @@ def build_data_mutation_free_growth_test_report(repo_root: Path) -> dict[str, An
             root,
             requirement_id="gl_legal_threshold_temporal_reissue_gate",
             test_refs=(
-                "tests/unit/runtime/quality/test_layer3_gl_legal_mandate_search.py::"
+                "tests/unit/runtime/quality/test_proving_ground_legal_mandate_search.py::"
                 "test_task6_gl_temp_legal_threshold_insertion_is_replayable_with_"
                 "temporal_reissue_gate",
             ),
@@ -988,7 +1164,7 @@ def build_data_mutation_free_growth_test_report(repo_root: Path) -> dict[str, An
             root,
             requirement_id="g4_governed_upstream_artifact_promotion",
             test_refs=(
-                "tests/unit/runtime/quality/test_layer3_g4_promotion_gate.py::"
+                "tests/unit/runtime/quality/test_proving_ground_governed_promotion_gate.py::"
                 "test_task6_g4_governed_upstream_artifact_insertion_promotes_after_"
                 "admission",
             ),
@@ -998,7 +1174,7 @@ def build_data_mutation_free_growth_test_report(repo_root: Path) -> dict[str, An
             root,
             requirement_id="g5_conversion_reducer_inputs_only",
             test_refs=(
-                "tests/unit/runtime/quality/test_layer3_g5_proving_ground_conversion.py::"
+                "tests/unit/runtime/quality/test_proving_ground_conversion.py::"
                 "test_task6_g5_conversion_changes_only_from_governed_reducer_inputs",
             ),
             corpus_kind="temp_repo",
@@ -1007,7 +1183,7 @@ def build_data_mutation_free_growth_test_report(repo_root: Path) -> dict[str, An
             root,
             requirement_id="g8_case_specific_search_health_diagnostic_data",
             test_refs=(
-                "tests/unit/runtime/quality/test_layer3_g8_health_metric_governance.py::"
+                "tests/unit/runtime/quality/test_proving_ground_health_metric_governance.py::"
                 "test_task6_g8_pinned_case_search_health_changes_with_case_diagnostic_"
                 "data",
             ),
@@ -1017,7 +1193,7 @@ def build_data_mutation_free_growth_test_report(repo_root: Path) -> dict[str, An
             root,
             requirement_id="canonical_corpus_pinned_request_search_health",
             test_refs=(
-                "tests/unit/runtime/quality/test_layer3_g1_substrate_grounding.py::"
+                "tests/unit/runtime/quality/test_proving_ground_substrate_grounding_search.py::"
                 "test_substrate_search_adapter_builds_replayable_ledger_for_pinned_"
                 "ukraine_construct",
             ),
@@ -1028,7 +1204,7 @@ def build_data_mutation_free_growth_test_report(repo_root: Path) -> dict[str, An
             root,
             requirement_id="g1_canonical_overlay_injection",
             test_refs=(
-                "tests/unit/runtime/quality/test_layer3_g1_substrate_grounding.py::"
+                "tests/unit/runtime/quality/test_proving_ground_substrate_grounding_search.py::"
                 "test_task6_g1_canonical_overlay_seed_is_recall_only_not_grounding",
             ),
             corpus_kind="canonical_with_isolated_overlay",
@@ -1039,7 +1215,10 @@ def build_data_mutation_free_growth_test_report(repo_root: Path) -> dict[str, An
     issues = [
         _issue(
             "layer3_gx_data_mutation_free_growth_test_missing",
-            f"{DATA_MUTATION_FREE_GROWTH_REPORT_PATH.as_posix()}#{row['requirement_id']}",
+            (
+                f"{_gx_case_path(DATA_MUTATION_FREE_GROWTH_REPORT_PATH).as_posix()}"
+                f"#{row['requirement_id']}"
+            ),
             "Task 6 data-mutation free-growth coverage row has no resolvable test ref.",
             missing_test_refs=row["missing_test_refs"],
         )
@@ -1069,11 +1248,13 @@ def build_data_mutation_free_growth_test_report(repo_root: Path) -> dict[str, An
     }
 
 
+@_with_gx_selection_context
 def build_layer3_gx_vertical_pinned_route_report(repo_root: Path) -> dict[str, Any]:
     """Run the minimal pinned G1 -> G4 -> G5 route through reducers."""
 
     root = Path(repo_root).resolve()
-    data_home = load_layer3_gx_data_home(root)
+    selection = _require_gx_selection(root)
+    data_home = load_layer3_gx_data_home(root, data_home=selection.data_home_path)
     case_id = (
         data_home.pinned_request.case_id
         if data_home.pinned_request is not None
@@ -1157,7 +1338,7 @@ def build_layer3_gx_vertical_pinned_route_report(repo_root: Path) -> dict[str, A
 
     pinned_request_ref = _vertical_artifact_input_ref(
         root,
-        PINNED_REQUEST_PATH,
+        PINNED_REQUEST_ARTIFACT,
         producer_ref=(
             data_home.pinned_request.producer_ref
             if data_home.pinned_request is not None
@@ -1196,7 +1377,7 @@ def build_layer3_gx_vertical_pinned_route_report(repo_root: Path) -> dict[str, A
 
     demand_request_ref = _vertical_artifact_input_ref(
         root,
-        DEMAND_PULL_REQUEST_PATH,
+        DEMAND_PULL_REQUEST_ARTIFACT,
         producer_ref=(
             data_home.demand_pull_request.producer_ref
             if data_home.demand_pull_request is not None
@@ -1288,6 +1469,7 @@ def build_layer3_gx_vertical_pinned_route_report(repo_root: Path) -> dict[str, A
     }
 
 
+@_with_gx_selection_context
 def build_layer3_gx_g4_g5_dereference_waist_court_report(
     repo_root: Path,
     *,
@@ -1296,7 +1478,8 @@ def build_layer3_gx_g4_g5_dereference_waist_court_report(
     """Expose GX Task 9 G4/G5 waist-court dereference diagnostics."""
 
     root = Path(repo_root).resolve()
-    data_home = load_layer3_gx_data_home(root)
+    selection = _require_gx_selection(root)
+    data_home = load_layer3_gx_data_home(root, data_home=selection.data_home_path)
     route = _as_mapping(vertical_pinned_route or build_layer3_gx_vertical_pinned_route_report(root))
     decisions = {
         _first_text(row.get("reducer_id")): _as_mapping(row)
@@ -1357,7 +1540,7 @@ def build_layer3_gx_g4_g5_dereference_waist_court_report(
             "demand_pull_artifact_metadata_status": (
                 "pass" if demand_metadata_complete else "blocked"
             ),
-            "demand_pull_artifact_ref": f"repo://{DEMAND_PULL_REQUEST_PATH.as_posix()}",
+            "demand_pull_artifact_ref": _gx_repo_ref(DEMAND_PULL_REQUEST_ARTIFACT),
             "bare_s3_demand_pull_ref_policy": "blocked_until_produced_artifact",
             "can_synthesize_evidence_rows": False,
             "can_synthesize_promotion_facts": False,
@@ -1379,6 +1562,7 @@ def build_layer3_gx_g4_g5_dereference_waist_court_report(
     return report
 
 
+@_with_gx_selection_context
 def build_layer3_gx_provisional_blocker_audit_record(
     repo_root: Path,
     *,
@@ -1390,12 +1574,12 @@ def build_layer3_gx_provisional_blocker_audit_record(
     route = _as_mapping(vertical_pinned_route or build_layer3_gx_vertical_pinned_route_report(root))
     next_blockers = _string_list(route.get("next_blocker_refs"))
     cited_artifact_refs = [
-        f"repo://{VERTICAL_PINNED_ROUTE_REPORT_PATH.as_posix()}",
+        _gx_repo_ref(VERTICAL_PINNED_ROUTE_REPORT_PATH),
         "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json",
         "repo://architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json",
         "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json",
-        f"repo://{PINNED_REQUEST_PATH.as_posix()}",
-        f"repo://{DEMAND_PULL_REQUEST_PATH.as_posix()}",
+        _gx_repo_ref(PINNED_REQUEST_ARTIFACT),
+        _gx_repo_ref(DEMAND_PULL_REQUEST_ARTIFACT),
     ]
     blocker_specific_search_status = (
         "measured_no_hit"
@@ -1446,6 +1630,7 @@ def build_layer3_gx_provisional_blocker_audit_record(
     return record
 
 
+@_with_gx_selection_context
 def build_layer3_gx_provisional_pinned_route_outcome_report(
     repo_root: Path,
     *,
@@ -1478,8 +1663,10 @@ def build_layer3_gx_provisional_pinned_route_outcome_report(
                 "input_hashes": dict(_as_mapping(row.get("input_hashes"))),
                 "output_hash": produced_by.get("output_hash") or "",
                 "persisted_status_ref": (
-                    f"repo://{VERTICAL_PINNED_ROUTE_REPORT_PATH.as_posix()}"
-                    f"#decisions/{len(reducer_calls)}"
+                    _gx_repo_ref(
+                        VERTICAL_PINNED_ROUTE_REPORT_PATH,
+                        f"#decisions/{len(reducer_calls)}",
+                    )
                 ),
             }
         )
@@ -1510,15 +1697,15 @@ def build_layer3_gx_provisional_pinned_route_outcome_report(
         "useful_design_credit": False,
         "reducer_calls": reducer_calls,
         "persisted_artifact_refs": [
-            f"repo://{VERTICAL_PINNED_ROUTE_REPORT_PATH.as_posix()}",
-            f"repo://{PROVISIONAL_BLOCKER_AUDIT_RECORD_PATH.as_posix()}",
-            f"repo://{PINNED_REQUEST_PATH.as_posix()}",
-            f"repo://{DEMAND_PULL_REQUEST_PATH.as_posix()}",
+            _gx_repo_ref(VERTICAL_PINNED_ROUTE_REPORT_PATH),
+            _gx_repo_ref(PROVISIONAL_BLOCKER_AUDIT_RECORD_PATH),
+            _gx_repo_ref(PINNED_REQUEST_ARTIFACT),
+            _gx_repo_ref(DEMAND_PULL_REQUEST_ARTIFACT),
             "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json",
             "repo://architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json",
             "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json",
         ],
-        "blocker_audit_ref": (f"repo://{PROVISIONAL_BLOCKER_AUDIT_RECORD_PATH.as_posix()}"),
+        "blocker_audit_ref": _gx_repo_ref(PROVISIONAL_BLOCKER_AUDIT_RECORD_PATH),
         "blocker_audit_hash": audit.get("audit_record_hash") or "",
         "next_missing_refs": _string_list(route.get("next_blocker_refs")),
         "issue_codes": _string_list(route.get("issue_codes")),
@@ -1528,6 +1715,7 @@ def build_layer3_gx_provisional_pinned_route_outcome_report(
     return report
 
 
+@_with_gx_selection_context
 def build_layer3_gx_final_blocker_audit_record(
     repo_root: Path,
     *,
@@ -1599,7 +1787,7 @@ def build_layer3_gx_final_blocker_audit_record(
         "case_id": route.get("case_id") or "",
         "request_ref": route.get("request_ref") or "",
         "route_replay_key": route.get("route_replay_key") or "",
-        "provisional_audit_ref": f"repo://{PROVISIONAL_BLOCKER_AUDIT_RECORD_PATH.as_posix()}",
+        "provisional_audit_ref": _gx_repo_ref(PROVISIONAL_BLOCKER_AUDIT_RECORD_PATH),
         "provisional_g8_open_question_surface_status": (
             provisional_audit.get("g8_open_question_surface_status") or ""
         ),
@@ -1624,11 +1812,11 @@ def build_layer3_gx_final_blocker_audit_record(
         "issue_codes": issue_codes,
         "cited_artifact_refs": _dedupe_strings(
             (
-                f"repo://{VERTICAL_PINNED_ROUTE_REPORT_PATH.as_posix()}",
-                f"repo://{PROVISIONAL_BLOCKER_AUDIT_RECORD_PATH.as_posix()}",
+                _gx_repo_ref(VERTICAL_PINNED_ROUTE_REPORT_PATH),
+                _gx_repo_ref(PROVISIONAL_BLOCKER_AUDIT_RECORD_PATH),
                 *_gx_final_task12_g8_artifact_refs(),
-                f"repo://{PINNED_REQUEST_PATH.as_posix()}",
-                f"repo://{DEMAND_PULL_REQUEST_PATH.as_posix()}",
+                _gx_repo_ref(PINNED_REQUEST_ARTIFACT),
+                _gx_repo_ref(DEMAND_PULL_REQUEST_ARTIFACT),
             )
         ),
         "g8_required_audit_refs": _gx_final_task12_required_audit_refs(),
@@ -1658,6 +1846,7 @@ def build_layer3_gx_final_blocker_audit_record(
     return record
 
 
+@_with_gx_selection_context
 def build_layer3_gx_final_pinned_route_outcome_report(
     repo_root: Path,
     *,
@@ -1695,20 +1884,17 @@ def build_layer3_gx_final_pinned_route_outcome_report(
         classification=classification,
     )
     reducer_calls = [
-        _gx_reducer_call_row(
-            _as_mapping(decision),
-            (
-                f"repo://{VERTICAL_PINNED_ROUTE_REPORT_PATH.as_posix()}"
-                f"#decisions/{index}"
-            ),
-        )
+            _gx_reducer_call_row(
+                _as_mapping(decision),
+                _gx_repo_ref(VERTICAL_PINNED_ROUTE_REPORT_PATH, f"#decisions/{index}"),
+            )
         for index, decision in enumerate(_as_list(route.get("decisions")))
         if isinstance(decision, Mapping)
     ]
     reducer_calls.append(
         _gx_reducer_call_row(
             g8_decision.model_dump(mode="json"),
-            f"repo://{FINAL_PINNED_ROUTE_OUTCOME_PATH.as_posix()}#g8_domain_vs_search_ceiling",
+            _gx_repo_ref(FINAL_PINNED_ROUTE_OUTCOME_PATH, "#g8_domain_vs_search_ceiling"),
         )
     )
     g5_outcome = _first_text(route.get("final_outcome"), "unchanged_blocker")
@@ -1767,11 +1953,11 @@ def build_layer3_gx_final_pinned_route_outcome_report(
         "reducer_calls": reducer_calls,
         "persisted_artifact_refs": _dedupe_strings(
             (
-                f"repo://{VERTICAL_PINNED_ROUTE_REPORT_PATH.as_posix()}",
-                f"repo://{PROVISIONAL_PINNED_ROUTE_OUTCOME_PATH.as_posix()}",
-                f"repo://{FINAL_BLOCKER_AUDIT_RECORD_PATH.as_posix()}",
-                f"repo://{PINNED_REQUEST_PATH.as_posix()}",
-                f"repo://{DEMAND_PULL_REQUEST_PATH.as_posix()}",
+                _gx_repo_ref(VERTICAL_PINNED_ROUTE_REPORT_PATH),
+                _gx_repo_ref(PROVISIONAL_PINNED_ROUTE_OUTCOME_PATH),
+                _gx_repo_ref(FINAL_BLOCKER_AUDIT_RECORD_PATH),
+                _gx_repo_ref(PINNED_REQUEST_ARTIFACT),
+                _gx_repo_ref(DEMAND_PULL_REQUEST_ARTIFACT),
                 "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json",
                 "repo://architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json",
                 "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json",
@@ -1779,9 +1965,9 @@ def build_layer3_gx_final_pinned_route_outcome_report(
             )
         ),
         "g8_required_audit_refs": _gx_final_task12_required_audit_refs(),
-        "g8_audit_ref": f"repo://{FINAL_BLOCKER_AUDIT_RECORD_PATH.as_posix()}",
+        "g8_audit_ref": _gx_repo_ref(FINAL_BLOCKER_AUDIT_RECORD_PATH),
         "g8_audit_hash": audit.get("audit_record_hash") or "",
-        "provisional_run_ref": f"repo://{PROVISIONAL_PINNED_ROUTE_OUTCOME_PATH.as_posix()}",
+        "provisional_run_ref": _gx_repo_ref(PROVISIONAL_PINNED_ROUTE_OUTCOME_PATH),
         "next_missing_refs": next_missing_refs,
         "issue_codes": issue_codes,
         "authoritative_for": [
@@ -1826,12 +2012,12 @@ def build_reducer_integrity_report(
     ]
     if missing:
         issues.append(
-            _issue(
-                "layer3_gx_reducer_provenance_missing",
-                POSITIVE_STATUS_PROVENANCE_PATH.as_posix(),
-                "One or more positive statuses lack reducer provenance.",
-                missing_record_count=len(missing),
-            )
+                _issue(
+                    "layer3_gx_reducer_provenance_missing",
+                    _gx_case_path(POSITIVE_STATUS_PROVENANCE_PATH).as_posix(),
+                    "One or more positive statuses lack reducer provenance.",
+                    missing_record_count=len(missing),
+                )
         )
     invalid_root_records = [
         record
@@ -1840,12 +2026,12 @@ def build_reducer_integrity_report(
     ]
     if invalid_root_records:
         issues.append(
-            _issue(
-                "layer3_gx_reducer_producer_root_chain_invalid",
-                PRODUCER_ROOT_CHAIN_REPORT_PATH.as_posix(),
-                "Reducer provenance is insufficient when producer-root validation fails.",
-                invalid_record_count=len(invalid_root_records),
-            )
+                _issue(
+                    "layer3_gx_reducer_producer_root_chain_invalid",
+                    _gx_case_path(PRODUCER_ROOT_CHAIN_REPORT_PATH).as_posix(),
+                    "Reducer provenance is insufficient when producer-root validation fails.",
+                    invalid_record_count=len(invalid_root_records),
+                )
         )
     reducer_decisions = _as_list((reducer_decision_report or {}).get("decisions"))
     manifest_override_issues = _as_list((reducer_decision_report or {}).get("issues"))
@@ -1959,7 +2145,7 @@ def build_status_vocabulary_delta() -> dict[str, Any]:
         "issues": [
             _issue(
                 "layer3_gx_human_approval_required",
-                STATUS_VOCABULARY_DELTA_PATH.as_posix(),
+                _gx_case_path(STATUS_VOCABULARY_DELTA_PATH).as_posix(),
                 "grounded_abstention_candidate remains blocked until highest-governance approval exists.",
             )
         ],
@@ -1976,7 +2162,7 @@ def build_correction_retraction_log(
     root = Path(repo_root).resolve()
     hardcode_delta = root / POLICY_DESIGN_CASE_DIR / "layer3_g1_hardcode_strangle_delta.json"
     runtime_lint = runtime_literal_lint or _read_json(
-        root / RUNTIME_LITERAL_LINT_PATH,
+        root / _gx_case_path(RUNTIME_LITERAL_LINT_PATH),
         default={},
     )
     issues: list[dict[str, Any]] = []
@@ -2059,7 +2245,7 @@ def build_independent_audit_sample(
         "issues": [
             _issue(
                 "layer3_gx_human_approval_required",
-                INDEPENDENT_AUDIT_SAMPLE_PATH.as_posix(),
+                _gx_case_path(INDEPENDENT_AUDIT_SAMPLE_PATH).as_posix(),
                 "Independent audit sample requires principal approval before GX closeout.",
             )
         ],
@@ -2181,7 +2367,10 @@ def build_expected_red_checks(
 def build_human_approval_receipts(repo_root: Path) -> dict[str, Any]:
     """Load human approval receipts and flag missing approval for Task 0 exceptions."""
 
-    payload = _read_json(Path(repo_root).resolve() / HUMAN_APPROVAL_RECEIPTS_PATH, default={})
+    payload = _read_json(
+        Path(repo_root).resolve() / _gx_case_path(HUMAN_APPROVAL_RECEIPTS_PATH),
+        default={},
+    )
     receipts = _as_list(payload.get("receipts")) if isinstance(payload, Mapping) else []
     issues = []
     for receipt in receipts:
@@ -2191,7 +2380,7 @@ def build_human_approval_receipts(repo_root: Path) -> dict[str, Any]:
             issues.append(
                 _issue(
                     "layer3_gx_human_approval_invalid",
-                    HUMAN_APPROVAL_RECEIPTS_PATH.as_posix(),
+                    _gx_case_path(HUMAN_APPROVAL_RECEIPTS_PATH).as_posix(),
                     "Human approval receipt must name deniskopylov and a concrete decision.",
                 )
             )
@@ -2209,12 +2398,24 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo-root", type=Path, default=REPO_ROOT)
+    parser.add_argument("--case", help="GX data-home case id or registry alias.")
+    parser.add_argument(
+        "--data-home",
+        type=Path,
+        help="Explicit GX data-home root containing the per-case data-home artifacts.",
+    )
+    parser.add_argument("--check", action="store_true", help="Validate without writing artifacts.")
     parser.add_argument("--write", action="store_true")
     parser.add_argument("--output", type=Path)
     parser.add_argument("--output-format", choices=("text", "json"), default="text")
     args = parser.parse_args(argv)
 
-    report = validate_layer3_gx_hardening(args.repo_root, write=args.write)
+    report = validate_layer3_gx_hardening(
+        args.repo_root,
+        case=args.case,
+        data_home=args.data_home,
+        write=args.write,
+    )
     rendered = _json_dumps(report) if args.output_format == "json" else _render_text(report)
     if args.output is not None:
         output_path = _resolve_path(args.repo_root, args.output)
@@ -2327,7 +2528,7 @@ def _is_positive_status_literal(node: ast.Constant) -> bool:
 
 
 def _is_task4_reducer_status_module(rel_path: str) -> bool:
-    return rel_path == "src/polisyos/runtime/quality/layer3_status_reducers.py"
+    return rel_path == "src/polisyos/runtime/quality/proving_ground/status_decision_reducers.py"
 
 
 def _is_lint_configuration_literal(node: ast.Constant) -> bool:
@@ -2479,7 +2680,7 @@ def _build_required_reducer_decisions(repo_root: Path) -> list[Layer3ReducerDeci
     g7_manifest = _as_mapping(_read_json(repo_root / g7_manifest_path, default={}))
     g7_summary = _as_mapping(g7_manifest.get("summary"))
     gx_boundary = _as_mapping(
-        _read_json(repo_root / VALIDATION_AUTHORITY_BOUNDARY_PATH, default={})
+        _read_json(repo_root / _gx_case_path(VALIDATION_AUTHORITY_BOUNDARY_PATH), default={})
     )
 
     g8_manifest_path = POLICY_DESIGN_CASE_DIR / "layer3_g8_readiness_manifest.json"
@@ -2773,10 +2974,11 @@ def _artifact_input_ref(
     *,
     supply_side: bool = True,
 ) -> Layer3ReducerInputRef:
-    path = repo_root / relative_path
+    selected_path = _gx_case_path(relative_path)
+    path = repo_root / selected_path
     if not path.exists():
         return Layer3ReducerInputRef(
-            ref=f"repo://{relative_path.as_posix()}",
+            ref=f"repo://{selected_path.as_posix()}",
             exists=False,
             required=True,
             supply_side=supply_side,
@@ -2786,7 +2988,7 @@ def _artifact_input_ref(
     producer_ref = _first_text(_find_first_key(mapping, "producer_ref"))
     producer_type = _first_text(_find_first_key(mapping, "producer_type"))
     return Layer3ReducerInputRef(
-        ref=f"repo://{relative_path.as_posix()}",
+        ref=f"repo://{selected_path.as_posix()}",
         exists=True,
         content_hash=_hash_file(path),
         producer_ref=producer_ref or None,
@@ -2806,9 +3008,10 @@ def _vertical_artifact_input_ref(
     producer_root_refs: Sequence[str] = (),
     supply_side: bool = True,
 ) -> Layer3ReducerInputRef:
-    path = repo_root / relative_path
+    selected_path = _gx_case_path(relative_path)
+    path = repo_root / selected_path
     return Layer3ReducerInputRef(
-        ref=f"repo://{relative_path.as_posix()}",
+        ref=f"repo://{selected_path.as_posix()}",
         exists=path.exists(),
         content_hash=_hash_file(path) if path.exists() else None,
         producer_ref=producer_ref,
@@ -3076,7 +3279,7 @@ def _gx_final_task12_provisional_comparison(
         if (repo_root / Path(artifact_ref.removeprefix("repo://").split("#", 1)[0])).exists()
     ]
     return {
-        "provisional_run_ref": f"repo://{PROVISIONAL_PINNED_ROUTE_OUTCOME_PATH.as_posix()}",
+        "provisional_run_ref": _gx_repo_ref(PROVISIONAL_PINNED_ROUTE_OUTCOME_PATH),
         "provisional_run_hash": provisional_hash,
         "final_run_hash": "",
         "changed_statuses": changed_statuses,
@@ -3157,7 +3360,9 @@ def _gx_slice_migration_state(boundary: Mapping[str, Any], slice_id: str) -> str
 
 
 def _gx_abstention_candidate_approved(repo_root: Path) -> bool:
-    payload = _as_mapping(_read_json(repo_root / STATUS_VOCABULARY_DELTA_PATH, default={}))
+    payload = _as_mapping(
+        _read_json(repo_root / _gx_case_path(STATUS_VOCABULARY_DELTA_PATH), default={})
+    )
     if payload.get("status") != "approved":
         return False
     for row in _as_list(payload.get("statuses")):
@@ -3182,6 +3387,8 @@ def _find_positive_status_candidates(
     artifact_paths: Sequence[Path] | None = None,
 ) -> list[PositiveStatus]:
     root = Path(repo_root).resolve()
+    selection = _CURRENT_GX_SELECTION.get()
+    selected_case_id = selection.case_id if selection is not None else None
     positives: list[PositiveStatus] = []
     for path in artifact_paths or _default_artifact_paths(root):
         payload = _read_json(root / path, default=None)
@@ -3189,6 +3396,9 @@ def _find_positive_status_candidates(
             continue
         for item, pointer in _walk_json(payload):
             if not isinstance(item, Mapping):
+                continue
+            producer_ref = str(item.get("producer_ref") or "")
+            if _gx_external_request_ref_targets_other_case(producer_ref, selected_case_id):
                 continue
             for key, value in item.items():
                 if key in POSITIVE_STATUS_FIELDS and str(value) in POSITIVE_LITERAL_VALUES:
@@ -3202,6 +3412,18 @@ def _find_positive_status_candidates(
                         )
                     )
     return positives
+
+
+def _gx_external_request_ref_targets_other_case(
+    producer_ref: str,
+    selected_case_id: str | None,
+) -> bool:
+    if selected_case_id is None:
+        return False
+    prefix = "external-request://layer3-gx/"
+    if not producer_ref.startswith(prefix):
+        return False
+    return producer_ref.rsplit("/", 1)[-1] != selected_case_id
 
 
 def _production_positive_statuses(
@@ -3254,6 +3476,20 @@ def _positive_status_classification_record(status: PositiveStatus) -> dict[str, 
 
 
 def _default_artifact_paths(repo_root: Path) -> tuple[Path, ...]:
+    selection = _CURRENT_GX_SELECTION.get()
+    if selection is not None:
+        gx_files = {
+            _gx_case_path(path, selection=selection) for path in GX_DATA_HOME_INPUT_PATHS
+        }
+        paths: list[Path] = list(gx_files)
+        for pattern in DEFAULT_ARTIFACT_GLOBS:
+            paths.extend(
+                path.relative_to(repo_root)
+                for path in sorted(repo_root.glob(pattern))
+                if path.is_file() and not path.name.startswith("layer3_gx_")
+            )
+        return tuple(dict.fromkeys(paths))
+
     paths: list[Path] = []
     for pattern in DEFAULT_ARTIFACT_GLOBS:
         paths.extend(
@@ -3262,6 +3498,37 @@ def _default_artifact_paths(repo_root: Path) -> tuple[Path, ...]:
             if path.is_file()
         )
     return tuple(paths)
+
+
+def _require_gx_selection(repo_root: Path) -> Layer3GXDataHomeSelection:
+    selection = _CURRENT_GX_SELECTION.get()
+    if selection is not None:
+        return selection
+    return resolve_layer3_gx_data_home_selection(repo_root)
+
+
+def _gx_case_path(
+    path: Path,
+    *,
+    selection: Layer3GXDataHomeSelection | None = None,
+) -> Path:
+    selected = selection or _CURRENT_GX_SELECTION.get()
+    if selected is None or path.name not in {candidate.name for candidate in GX_OUTPUT_PATHS}:
+        return path
+    if path.name in {
+        LAYER3_GX_PINNED_REQUEST_FILENAME.name,
+        LAYER3_GX_CONCEPT_ALIAS_SEED_ROWS_FILENAME.name,
+        LAYER3_GX_CONCEPT_ALIAS_GRAPH_FILENAME.name,
+        LAYER3_GX_SCOPE_SEED_ROWS_FILENAME.name,
+        LAYER3_GX_DEMAND_PULL_REQUEST_FILENAME.name,
+    }:
+        return selected.data_home_path / path.name
+    return selected.report_path / path.name
+
+
+def _gx_repo_ref(path: Path, fragment: str = "") -> str:
+    ref = f"repo://{_gx_case_path(path).as_posix()}"
+    return f"{ref}{fragment}" if fragment else ref
 
 
 def _missing_produced_by_keys(value: Any) -> set[str]:
@@ -3319,6 +3586,24 @@ def _read_json(path: Path, *, default: Any) -> Any:
         return default
 
 
+def _load_layer3_gx_baseline_note(repo_root: Path, *, case_id: str) -> Any:
+    payload = _read_json(repo_root / BASELINE_NOTE_PATH, default={})
+    return _render_selected_case_token(payload, case_id)
+
+
+def _render_selected_case_token(value: Any, case_id: str) -> Any:
+    if isinstance(value, str):
+        return value.replace(BASELINE_NOTE_SELECTED_CASE_TOKEN, case_id)
+    if isinstance(value, list):
+        return [_render_selected_case_token(item, case_id) for item in value]
+    if isinstance(value, dict):
+        return {
+            key: _render_selected_case_token(item, case_id)
+            for key, item in value.items()
+        }
+    return value
+
+
 def _as_list(value: Any) -> list[Any]:
     return value if isinstance(value, list) else []
 
@@ -3358,7 +3643,10 @@ def _authority_boundary_issues(boundary: Mapping[str, Any]) -> list[dict[str, An
             issues.append(
                 _issue(
                     code,
-                    f"{VALIDATION_AUTHORITY_BOUNDARY_PATH.as_posix()}#{row.get('slice_id')}",
+                    (
+                        f"{_gx_case_path(VALIDATION_AUTHORITY_BOUNDARY_PATH).as_posix()}"
+                        f"#{row.get('slice_id')}"
+                    ),
                     "Legacy slice validator status has no GX closeout authority.",
                     slice_id=row.get("slice_id"),
                 )
@@ -3409,43 +3697,67 @@ def _test_ref_exists(repo_root: Path, test_ref: str) -> bool:
 
 def _write_artifacts(repo_root: Path, artifacts: Mapping[str, Any]) -> list[str]:
     mapping = {
-        PINNED_REQUEST_PATH: artifacts["layer3_gx_pinned_request"],
-        CONCEPT_ALIAS_SEED_ROWS_PATH: artifacts["layer3_gx_concept_alias_seed_rows"],
-        CONCEPT_ALIAS_GRAPH_PATH: artifacts["layer3_gx_concept_alias_graph"],
-        SCOPE_SEED_ROWS_PATH: artifacts["layer3_gx_scope_seed_rows"],
-        DEMAND_PULL_REQUEST_PATH: artifacts["layer3_gx_demand_pull_request"],
-        RUNTIME_LITERAL_LINT_PATH: artifacts["layer3_gx_runtime_literal_lint"],
-        REDUCER_INTEGRITY_REPORT_PATH: artifacts["layer3_gx_reducer_integrity_report"],
-        POSITIVE_STATUS_PROVENANCE_PATH: artifacts["layer3_gx_positive_status_provenance"],
-        PRODUCER_REGISTRY_PATH: artifacts["layer3_gx_producer_registry"],
-        PRODUCER_ROOT_CHAIN_REPORT_PATH: artifacts["layer3_gx_producer_root_chain_report"],
-        MEASUREMENT_REPLAY_REPORT_PATH: artifacts["layer3_gx_measurement_replay_report"],
-        VERTICAL_PINNED_ROUTE_REPORT_PATH: artifacts["layer3_gx_vertical_pinned_route_report"],
-        PROVISIONAL_PINNED_ROUTE_OUTCOME_PATH: artifacts[
+        _gx_case_path(PINNED_REQUEST_ARTIFACT): artifacts["layer3_gx_pinned_request"],
+        _gx_case_path(CONCEPT_ALIAS_SEED_ROWS_ARTIFACT): artifacts[
+            "layer3_gx_concept_alias_seed_rows"
+        ],
+        _gx_case_path(CONCEPT_ALIAS_GRAPH_ARTIFACT): artifacts["layer3_gx_concept_alias_graph"],
+        _gx_case_path(SCOPE_SEED_ROWS_ARTIFACT): artifacts["layer3_gx_scope_seed_rows"],
+        _gx_case_path(DEMAND_PULL_REQUEST_ARTIFACT): artifacts["layer3_gx_demand_pull_request"],
+        _gx_case_path(RUNTIME_LITERAL_LINT_PATH): artifacts["layer3_gx_runtime_literal_lint"],
+        _gx_case_path(REDUCER_INTEGRITY_REPORT_PATH): artifacts[
+            "layer3_gx_reducer_integrity_report"
+        ],
+        _gx_case_path(POSITIVE_STATUS_PROVENANCE_PATH): artifacts[
+            "layer3_gx_positive_status_provenance"
+        ],
+        _gx_case_path(PRODUCER_REGISTRY_PATH): artifacts["layer3_gx_producer_registry"],
+        _gx_case_path(PRODUCER_ROOT_CHAIN_REPORT_PATH): artifacts[
+            "layer3_gx_producer_root_chain_report"
+        ],
+        _gx_case_path(MEASUREMENT_REPLAY_REPORT_PATH): artifacts[
+            "layer3_gx_measurement_replay_report"
+        ],
+        _gx_case_path(VERTICAL_PINNED_ROUTE_REPORT_PATH): artifacts[
+            "layer3_gx_vertical_pinned_route_report"
+        ],
+        _gx_case_path(PROVISIONAL_PINNED_ROUTE_OUTCOME_PATH): artifacts[
             "layer3_gx_provisional_pinned_route_outcome_report"
         ],
-        PROVISIONAL_BLOCKER_AUDIT_RECORD_PATH: artifacts[
+        _gx_case_path(PROVISIONAL_BLOCKER_AUDIT_RECORD_PATH): artifacts[
             "layer3_gx_provisional_blocker_audit_record"
         ],
-        FINAL_PINNED_ROUTE_OUTCOME_PATH: artifacts[
+        _gx_case_path(FINAL_PINNED_ROUTE_OUTCOME_PATH): artifacts[
             "layer3_gx_final_pinned_route_outcome_report"
         ],
-        FINAL_BLOCKER_AUDIT_RECORD_PATH: artifacts["layer3_gx_final_blocker_audit_record"],
-        DATA_MUTATION_FREE_GROWTH_REPORT_PATH: artifacts[
+        _gx_case_path(FINAL_BLOCKER_AUDIT_RECORD_PATH): artifacts[
+            "layer3_gx_final_blocker_audit_record"
+        ],
+        _gx_case_path(DATA_MUTATION_FREE_GROWTH_REPORT_PATH): artifacts[
             "layer3_gx_data_mutation_free_growth_test_report"
         ],
-        G4_G5_DEREFERENCE_WAIST_COURT_REPORT_PATH: artifacts[
+        _gx_case_path(G4_G5_DEREFERENCE_WAIST_COURT_REPORT_PATH): artifacts[
             "layer3_gx_g4_g5_dereference_waist_court_report"
         ],
-        PERSISTED_STATUS_RECOMPUTE_DRIFT_PATH: artifacts[
+        _gx_case_path(PERSISTED_STATUS_RECOMPUTE_DRIFT_PATH): artifacts[
             "layer3_gx_persisted_status_recompute_drift"
         ],
-        STATUS_VOCABULARY_DELTA_PATH: artifacts["layer3_gx_status_vocabulary_delta"],
-        CORRECTION_RETRACTION_LOG_PATH: artifacts["layer3_gx_correction_retraction_log"],
-        INDEPENDENT_AUDIT_SAMPLE_PATH: artifacts["layer3_gx_independent_audit_sample"],
-        VALIDATION_AUTHORITY_BOUNDARY_PATH: artifacts["layer3_gx_validation_authority_boundary"],
-        EXPECTED_RED_CHECKS_PATH: artifacts["layer3_gx_expected_red_checks"],
-        HUMAN_APPROVAL_RECEIPTS_PATH: artifacts["layer3_gx_human_approval_receipts"],
+        _gx_case_path(STATUS_VOCABULARY_DELTA_PATH): artifacts[
+            "layer3_gx_status_vocabulary_delta"
+        ],
+        _gx_case_path(CORRECTION_RETRACTION_LOG_PATH): artifacts[
+            "layer3_gx_correction_retraction_log"
+        ],
+        _gx_case_path(INDEPENDENT_AUDIT_SAMPLE_PATH): artifacts[
+            "layer3_gx_independent_audit_sample"
+        ],
+        _gx_case_path(VALIDATION_AUTHORITY_BOUNDARY_PATH): artifacts[
+            "layer3_gx_validation_authority_boundary"
+        ],
+        _gx_case_path(EXPECTED_RED_CHECKS_PATH): artifacts["layer3_gx_expected_red_checks"],
+        _gx_case_path(HUMAN_APPROVAL_RECEIPTS_PATH): artifacts[
+            "layer3_gx_human_approval_receipts"
+        ],
     }
     written: list[str] = []
     for path, payload in mapping.items():

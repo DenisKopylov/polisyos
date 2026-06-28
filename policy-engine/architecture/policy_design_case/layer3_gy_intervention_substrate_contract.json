@@ -1,0 +1,1568 @@
+{
+  "artifact_kind": "runtime.quality.intervention_substrate_lift",
+  "behavior_report": {
+    "bundle_content_hash": "sha256:816eff220b460b77e79951afa579407ac439128cda243f1723429b9b52c88356",
+    "case_count": 11,
+    "cases": [
+      {
+        "actual": "3/3",
+        "case_id": "all_real_knobs_resolve_world_slots",
+        "detail": {
+          "bound": 3,
+          "details": [
+            {
+              "knob_id": "budget_allocation_multiplier",
+              "owner_atom_id": "atom_a08df3131fc4a8ff",
+              "status": "bound",
+              "target_world_slots": [
+                "government.balance"
+              ]
+            },
+            {
+              "knob_id": "procurement_shock_intensity",
+              "owner_atom_id": "atom_b416fe0ad00d9e89",
+              "status": "bound",
+              "target_world_slots": [
+                "cells.distress_score"
+              ]
+            },
+            {
+              "knob_id": "tax_relief_rate",
+              "owner_atom_id": "atom_f5e09465fe1dc607",
+              "status": "bound",
+              "target_world_slots": [
+                "global.tax_rate"
+              ]
+            }
+          ],
+          "total": 3,
+          "unresolved": 0
+        },
+        "expected": "all_real_knobs_bind_through_n2_n3_owner"
+      },
+      {
+        "actual": "real_knob_domain_and_manifest_slot_bound",
+        "case_id": "knob_in_domain_resolves_world_slot",
+        "detail": {
+          "content_hash": "sha256:e673b413611faf0248dfa789b6899f87135b9b3c5a616862b79406bd7f973929",
+          "domain": {
+            "kind": "range",
+            "max_value": 2.0,
+            "min_value": 0.0,
+            "unit": null,
+            "value_type": "float"
+          },
+          "operator_kind": "budget_allocation_multiplier",
+          "owner_resolution": {
+            "atom_content_hash": "sha256:836f98ac79f1ca13369da867fdf1bc88b56e3e104c8591875c44e420edf27429",
+            "atom_id": "atom_836f98ac79f1ca13",
+            "target_slot_bindings": [
+              {
+                "entity_scope": "global",
+                "slot_id": "government.balance",
+                "state_path": "government_balance",
+                "temporal_granularity": "stock",
+                "unit": "usd"
+              }
+            ],
+            "world_model_record_content_hash": "sha256:a258fda4b7ceffd04fac6065055744f57e6fcbd8648e2599379a82ef01147dca",
+            "world_model_record_id": "world_model_record_a258fda4b7ceffd0"
+          },
+          "parameter_value": 1.25,
+          "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
+          "source_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
+          "target_world_slots": [
+            "government.balance"
+          ]
+        },
+        "expected": "real_knob_domain_and_manifest_slot_bound"
+      },
+      {
+        "actual": "knob_parameter_out_of_domain|knob_operator_unresolved",
+        "case_id": "knob_out_of_domain_and_unknown_operator_fail_closed",
+        "detail": {
+          "out_of_domain_code": "knob_parameter_out_of_domain",
+          "unknown_code": "knob_operator_unresolved"
+        },
+        "expected": "out_of_domain_and_unknown_operator_rejected"
+      },
+      {
+        "actual": "3/3",
+        "case_id": "all_real_laws_trace_l3_thresholds",
+        "detail": {
+          "details": [
+            {
+              "knob_id": "budget_allocation_multiplier",
+              "law_token": "budget_law",
+              "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/00003a7579810a2a:body:1/item:0010",
+              "status": "blocked",
+              "threshold_id": "a5429abb6621acb11ed10b20",
+              "threshold_reason": "threshold_violated"
+            },
+            {
+              "knob_id": "procurement_shock_intensity",
+              "law_token": "procurement_decree",
+              "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/010c215f6a22034d:body:1/item:0010",
+              "status": "blocked",
+              "threshold_id": "07baad7c3a120b0363322e71",
+              "threshold_reason": "temporal_not_in_force"
+            },
+            {
+              "knob_id": "tax_relief_rate",
+              "law_token": "tax_relief_statute",
+              "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/31df5cd1385f1792:body:1/sec:001-i/item:0022",
+              "status": "blocked",
+              "threshold_id": "01539d8d9b8cfedb489d689e",
+              "threshold_reason": "temporal_not_in_force"
+            }
+          ],
+          "total": 3,
+          "traced": 3,
+          "unresolved": 0
+        },
+        "expected": "all_real_law_routes_trace_real_l3_provisions_and_knobs"
+      },
+      {
+        "actual": "admissible|threshold_violated",
+        "case_id": "law_bound_lever_traces_l3_threshold_and_blocks_violation",
+        "detail": {
+          "admitted": {
+            "content_hash": "sha256:5a7791659da155d5d512af8d78e32f28b97eefe60ed54e7f0ea532c7cade412e",
+            "knob": {
+              "content_hash": "sha256:0b4b0cd013cd756e96bc5b3aa3b854eb17f93005d9167451ec9c9d5eea2f02d2",
+              "domain": {
+                "kind": "range",
+                "max_value": 2.0,
+                "min_value": 0.0,
+                "unit": null,
+                "value_type": "float"
+              },
+              "operator_kind": "budget_allocation_multiplier",
+              "owner_resolution": {
+                "atom_content_hash": "sha256:5a7c84fc5ba1e227e4deb0c8f69a48934c5bb725db4203f2e9beb2a64ac2a102",
+                "atom_id": "atom_5a7c84fc5ba1e227",
+                "target_slot_bindings": [
+                  {
+                    "entity_scope": "global",
+                    "slot_id": "government.balance",
+                    "state_path": "government_balance",
+                    "temporal_granularity": "stock",
+                    "unit": "usd"
+                  }
+                ],
+                "world_model_record_content_hash": "sha256:a258fda4b7ceffd04fac6065055744f57e6fcbd8648e2599379a82ef01147dca",
+                "world_model_record_id": "world_model_record_a258fda4b7ceffd0"
+              },
+              "parameter_value": 0.24,
+              "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
+              "source_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
+              "target_world_slots": [
+                "government.balance"
+              ]
+            },
+            "law_token": "budget_law",
+            "legal_threshold_evaluation": {
+              "applies_to": "25 percent",
+              "canonical_unit": "percent",
+              "fact_id": "ef64d4844594c3112281",
+              "metric": "percent",
+              "normalized_candidate_value": 24.0,
+              "normalized_threshold_value": 25.0,
+              "obligation_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_normative_facts/ef64d4844594c3112281",
+              "operator": "lte",
+              "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/00003a7579810a2a:body:1/item:0010",
+              "reason": "threshold_satisfied",
+              "status": "admitted",
+              "temporal_status": "in_force",
+              "threshold_id": "a5429abb6621acb11ed10b20",
+              "threshold_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/a5429abb6621acb11ed10b20"
+            },
+            "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/00003a7579810a2a:body:1/item:0010",
+            "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
+            "status": "admissible",
+            "temporal_competence": {
+              "amendment_id": "",
+              "amendment_type": "",
+              "as_of": "1998-01-01",
+              "effective_from": "1997-09-01",
+              "effective_to": "1999-06-14",
+              "reason": "threshold_version_in_force",
+              "stale_after": "",
+              "status": "in_force",
+              "subject_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/a5429abb6621acb11ed10b20"
+            },
+            "threshold_id": "a5429abb6621acb11ed10b20"
+          },
+          "blocked": {
+            "content_hash": "sha256:ebc83b89b8fed936fee6342e9282c7405efff32458cdbe5622db425e918ea41d",
+            "knob": {
+              "content_hash": "sha256:50f0f133ff76c5386232c39eef2b4abffbd5b3873b6b5d2c622a189f9ff36634",
+              "domain": {
+                "kind": "range",
+                "max_value": 2.0,
+                "min_value": 0.0,
+                "unit": null,
+                "value_type": "float"
+              },
+              "operator_kind": "budget_allocation_multiplier",
+              "owner_resolution": {
+                "atom_content_hash": "sha256:b47886b7bae23a46ade6f6f325786d53c836697e8fe0c56695f8867dedc877b0",
+                "atom_id": "atom_b47886b7bae23a46",
+                "target_slot_bindings": [
+                  {
+                    "entity_scope": "global",
+                    "slot_id": "government.balance",
+                    "state_path": "government_balance",
+                    "temporal_granularity": "stock",
+                    "unit": "usd"
+                  }
+                ],
+                "world_model_record_content_hash": "sha256:a258fda4b7ceffd04fac6065055744f57e6fcbd8648e2599379a82ef01147dca",
+                "world_model_record_id": "world_model_record_a258fda4b7ceffd0"
+              },
+              "parameter_value": 0.26,
+              "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
+              "source_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
+              "target_world_slots": [
+                "government.balance"
+              ]
+            },
+            "law_token": "budget_law",
+            "legal_threshold_evaluation": {
+              "applies_to": "25 percent",
+              "canonical_unit": "percent",
+              "fact_id": "ef64d4844594c3112281",
+              "metric": "percent",
+              "normalized_candidate_value": 26.0,
+              "normalized_threshold_value": 25.0,
+              "obligation_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_normative_facts/ef64d4844594c3112281",
+              "operator": "lte",
+              "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/00003a7579810a2a:body:1/item:0010",
+              "reason": "threshold_violated",
+              "status": "blocked",
+              "temporal_status": "in_force",
+              "threshold_id": "a5429abb6621acb11ed10b20",
+              "threshold_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/a5429abb6621acb11ed10b20"
+            },
+            "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/00003a7579810a2a:body:1/item:0010",
+            "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
+            "status": "blocked",
+            "temporal_competence": {
+              "amendment_id": "",
+              "amendment_type": "",
+              "as_of": "1998-01-01",
+              "effective_from": "1997-09-01",
+              "effective_to": "1999-06-14",
+              "reason": "threshold_version_in_force",
+              "stale_after": "",
+              "status": "in_force",
+              "subject_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/a5429abb6621acb11ed10b20"
+            },
+            "threshold_id": "a5429abb6621acb11ed10b20"
+          }
+        },
+        "expected": "law_to_knob_to_real_l3_threshold_admit_and_block"
+      },
+      {
+        "actual": "lex_map_knob_unresolved|law_modality_unresolved",
+        "case_id": "dangling_law_map_fails_closed",
+        "detail": {
+          "dangling_code": "lex_map_knob_unresolved",
+          "unknown_law_code": "law_modality_unresolved"
+        },
+        "expected": "dangling_knob_and_unknown_law_rejected"
+      },
+      {
+        "actual": "available=4/4;unavailable=0;unresolved=0",
+        "case_id": "family_method_route_real_available_and_truthful_blockers",
+        "detail": {
+          "available": 4,
+          "details": [
+            {
+              "candidate_method_fqns": [
+                "causal.inference.did.staggered@1.0.0",
+                "causal.inference.did.standard@1.0.0"
+              ],
+              "content_hash": "sha256:f5974ba5e5c52ebefc34cccc70a3d5f88f201857fc5693a16f64a2f6532c8826",
+              "family": "budget_flows",
+              "manifest_route_hash": "sha256:5a57d164ede19c578ec25ccd811b8d2a7dd56afa19f579660cbc4103b748480d",
+              "reason_code": null,
+              "registry_method_count": 390,
+              "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
+              "selected_method_fqn": "causal.inference.did.staggered@1.0.0",
+              "status": "routed",
+              "target_contract_fqn": "polisyos.foundry.methods.catalog.causal.protocols.PanelObservationalData",
+              "target_contract_id": "foundry.causal.panel_observational_data.v1",
+              "unavailable_method_fqns": []
+            },
+            {
+              "candidate_method_fqns": [
+                "microsim.behavior.behavioral_response@1.0.0",
+                "microsim.behavior.behavioral_response@2.0.0",
+                "microsim.calibration.inverse_behavioral_calibration@1.0.0",
+                "microsim.calibration.reweighting_calibration@1.0.0",
+                "microsim.dynamic.dynamic_microsim@1.0.0",
+                "microsim.imputation.imputation_model@1.0.0",
+                "microsim.imputation.mnar_income_bounds@1.0.0",
+                "microsim.policy.tax_benefit_calculator@1.0.0",
+                "microsim.static.static_microsim@1.0.0",
+                "survey.demography.demographic_consistency@1.0.0"
+              ],
+              "content_hash": "sha256:1dedd49667e9d8de8b2bf9daf4b6e08b4dab4f548090837698688368511d11eb",
+              "family": "household_distribution",
+              "manifest_route_hash": "sha256:8222442b289f3fda1026938521d4219e8c4c13589fa0e5a091a47109a194d95e",
+              "reason_code": null,
+              "registry_method_count": 390,
+              "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
+              "selected_method_fqn": "microsim.behavior.behavioral_response@1.0.0",
+              "status": "routed",
+              "target_contract_fqn": "polisyos.foundry.methods.catalog.microsim.protocols.SurveyMicroData",
+              "target_contract_id": "foundry.microsim.survey_micro_data.v1",
+              "unavailable_method_fqns": []
+            },
+            {
+              "candidate_method_fqns": [
+                "ml.survival.survival_analysis@1.0.0"
+              ],
+              "content_hash": "sha256:f28a66feb66675020aabe6f3db640d71d08cd9310aa7adfc0fe33bc285315f24",
+              "family": "firm_fundamentals",
+              "manifest_route_hash": "sha256:d096dc54d3c56df24415354ce1d524325913b05e5d84bc9af530f1c2fa0fd04c",
+              "reason_code": null,
+              "registry_method_count": 390,
+              "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
+              "selected_method_fqn": "ml.survival.survival_analysis@1.0.0",
+              "status": "routed",
+              "target_contract_fqn": "polisyos.foundry.methods.catalog.ml.protocols.SurvivalData",
+              "target_contract_id": "foundry.ml.survival_data.v1",
+              "unavailable_method_fqns": []
+            },
+            {
+              "candidate_method_fqns": [
+                "causal.dynamic.a_learning.a_learning@1.0.0",
+                "causal.dynamic.causal_bandit.causal_bandit@1.0.0",
+                "causal.dynamic.dr_dtr.dr_dtr@1.0.0",
+                "causal.dynamic.g_computation.parametric_g_formula@1.0.0",
+                "causal.dynamic.ice_g_formula.ice_g_formula@1.0.0",
+                "causal.dynamic.ltmle.ltmle@1.0.0",
+                "causal.dynamic.ope.ope@1.0.0",
+                "causal.dynamic.owl.owl@1.0.0",
+                "causal.dynamic.q_learning.q_learning@1.0.0",
+                "causal.dynamic.snmm.snmm_g_estimation@1.0.0"
+              ],
+              "content_hash": "sha256:0fb4c47e358d79a931c087c87c257d7dd67bf6fd3f4034b391982ecb82d7709a",
+              "family": "procurement_flows",
+              "manifest_route_hash": "sha256:5f10ed5e85136c8bec6e0e0dde91d9b11bee1da796f371c326a4c74a3c7c40a5",
+              "reason_code": null,
+              "registry_method_count": 390,
+              "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
+              "selected_method_fqn": "causal.dynamic.a_learning.a_learning@1.0.0",
+              "status": "routed",
+              "target_contract_fqn": "polisyos.foundry.methods.catalog.causal.protocols.DynamicTreatmentData",
+              "target_contract_id": "foundry.causal.dynamic_treatment_data.v1",
+              "unavailable_method_fqns": []
+            }
+          ],
+          "total": 4,
+          "unavailable_python314": 0,
+          "unresolved": 0
+        },
+        "expected": "all_manifest_families_resolve_to_registered_method_or_truthful_python314_blocker"
+      },
+      {
+        "actual": "blocked|method_unavailable_python314",
+        "case_id": "family_method_route_python314_unavailable_truthful_blocker",
+        "detail": {
+          "candidate_method_fqns": [
+            "bayesian.nonparametric.bart_regression@1.0.0"
+          ],
+          "content_hash": "sha256:7d68abe145e2049d82cdc1543a45705eab7f819bc99ebbc21454ba0b7ec2df73",
+          "family": "python314_unavailable_route_family",
+          "manifest_route_hash": "sha256:8ae17ef8096a3be958750055f818c50c8ccc37a37cc3b9d8aa41bd396a8b3309",
+          "reason_code": "method_unavailable_python314",
+          "registry_method_count": 390,
+          "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
+          "selected_method_fqn": null,
+          "status": "blocked",
+          "target_contract_fqn": "polisyos.foundry.methods.catalog.bayesian.protocols.BartRegressionData",
+          "target_contract_id": "foundry.bayesian.bart_regression.v1",
+          "unavailable_method_fqns": [
+            "bayesian.nonparametric.bart_regression@1.0.0"
+          ]
+        },
+        "expected": "registered_method_with_missing_dependency_blocks_truthfully"
+      },
+      {
+        "actual": "('household_cells.transfer_intensity',)|admissible|routed",
+        "case_id": "free_grow_knob_law_family_routes",
+        "detail": {
+          "law": {
+            "content_hash": "sha256:58239fae75cf7690ecd83735a85ffb01bf387ea644efc6785ad4aaa89ee3f504",
+            "knob": {
+              "content_hash": "sha256:c359e659d97bddaedac671903d3c2a4be802bcba36b51b21959d5e246201b8b4",
+              "domain": {
+                "kind": "range",
+                "max_value": 0.4,
+                "min_value": 0.0,
+                "unit": null,
+                "value_type": "float"
+              },
+              "operator_kind": "future_child_benefit_intensity",
+              "owner_resolution": {
+                "atom_content_hash": "sha256:58ce7c0f8edc5d0550e95356270a183ecfa80cc010378fa52b6750196724052c",
+                "atom_id": "atom_58ce7c0f8edc5d05",
+                "target_slot_bindings": [
+                  {
+                    "entity_scope": "per_cell",
+                    "slot_id": "household_cells.transfer_intensity",
+                    "state_path": "household_cells.transfer_intensity",
+                    "temporal_granularity": "stock",
+                    "unit": null
+                  }
+                ],
+                "world_model_record_content_hash": "sha256:a258fda4b7ceffd04fac6065055744f57e6fcbd8648e2599379a82ef01147dca",
+                "world_model_record_id": "world_model_record_a258fda4b7ceffd0"
+              },
+              "parameter_value": 0.2,
+              "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
+              "source_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
+              "target_world_slots": [
+                "household_cells.transfer_intensity"
+              ]
+            },
+            "law_token": "future_relief_law",
+            "legal_threshold_evaluation": {
+              "applies_to": "30 percent",
+              "canonical_unit": "percent",
+              "fact_id": "f2fc95fa00a98353c73f",
+              "metric": "percent",
+              "normalized_candidate_value": 20.0,
+              "normalized_threshold_value": 30.0,
+              "obligation_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_normative_facts/f2fc95fa00a98353c73f",
+              "operator": "lte",
+              "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/2aed0e5df654fce7:body:1/para:0235",
+              "reason": "threshold_satisfied",
+              "status": "admitted",
+              "temporal_status": "in_force",
+              "threshold_id": "00000109f781085bd1736cf1",
+              "threshold_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/00000109f781085bd1736cf1"
+            },
+            "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/2aed0e5df654fce7:body:1/para:0235",
+            "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
+            "status": "admissible",
+            "temporal_competence": {
+              "amendment_id": "",
+              "amendment_type": "",
+              "as_of": "2026-04-10",
+              "effective_from": "2023-07-20",
+              "effective_to": "",
+              "reason": "threshold_version_in_force",
+              "stale_after": "",
+              "status": "in_force",
+              "subject_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/00000109f781085bd1736cf1"
+            },
+            "threshold_id": "00000109f781085bd1736cf1"
+          },
+          "lever": {
+            "content_hash": "sha256:c359e659d97bddaedac671903d3c2a4be802bcba36b51b21959d5e246201b8b4",
+            "domain": {
+              "kind": "range",
+              "max_value": 0.4,
+              "min_value": 0.0,
+              "unit": null,
+              "value_type": "float"
+            },
+            "operator_kind": "future_child_benefit_intensity",
+            "owner_resolution": {
+              "atom_content_hash": "sha256:58ce7c0f8edc5d0550e95356270a183ecfa80cc010378fa52b6750196724052c",
+              "atom_id": "atom_58ce7c0f8edc5d05",
+              "target_slot_bindings": [
+                {
+                  "entity_scope": "per_cell",
+                  "slot_id": "household_cells.transfer_intensity",
+                  "state_path": "household_cells.transfer_intensity",
+                  "temporal_granularity": "stock",
+                  "unit": null
+                }
+              ],
+              "world_model_record_content_hash": "sha256:a258fda4b7ceffd04fac6065055744f57e6fcbd8648e2599379a82ef01147dca",
+              "world_model_record_id": "world_model_record_a258fda4b7ceffd0"
+            },
+            "parameter_value": 0.2,
+            "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
+            "source_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
+            "target_world_slots": [
+              "household_cells.transfer_intensity"
+            ]
+          },
+          "route": {
+            "candidate_method_fqns": [
+              "causal.inference.did.staggered@1.0.0",
+              "causal.inference.did.standard@1.0.0"
+            ],
+            "content_hash": "sha256:0d8f92c9129385af60d83560019b14f6ebe574478920442e1eb84ce279cef166",
+            "family": "future_budget_flows",
+            "manifest_route_hash": "sha256:a73b1432edde1ac4935e43a178b15cfce39b8051ba4c1cc746555502afad7fec",
+            "reason_code": null,
+            "registry_method_count": 390,
+            "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
+            "selected_method_fqn": "causal.inference.did.staggered@1.0.0",
+            "status": "routed",
+            "target_contract_fqn": "polisyos.foundry.methods.catalog.causal.protocols.PanelObservationalData",
+            "target_contract_id": "foundry.causal.panel_observational_data.v1",
+            "unavailable_method_fqns": []
+          }
+        },
+        "expected": "synthetic_new_entries_route_without_code_change"
+      },
+      {
+        "actual": "family_route_unresolved",
+        "case_id": "unknown_family_fails_closed",
+        "detail": {
+          "unknown_family_code": "family_route_unresolved"
+        },
+        "expected": "unknown_family_rejected_not_defaulted"
+      },
+      {
+        "actual": "registered",
+        "case_id": "s0_registers_l6_agent_sim_bundle",
+        "detail": {
+          "l6_entries": [
+            {
+              "authority_refs": [
+                "repo://production_data/manifest.json",
+                "repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json#measurement_registry"
+              ],
+              "coverage": {
+                "coverage_dimensions": {
+                  "readiness": "ready",
+                  "required_files": [
+                    "FINAL_ARTIFACTS_MANIFEST.json",
+                    "production_bundle/bundles/runtime_bundle_v1/runtime_bundle_manifest.json",
+                    "production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
+                    "production_bundle/bundles/calibration_bundle_v1/calibration_bundle_manifest.json",
+                    "production_bundle/bundles/method_contract_bundle_v1/network_contract_bundle_v1.json"
+                  ]
+                },
+                "coverage_kind": "production_data_root_manifest.readiness",
+                "coverage_rule_ref": "repo://production_data/manifest.json#/bundles/ukraine_simulation/readiness",
+                "coverage_score": 1.0,
+                "dataset_count": null,
+                "metric_binding_count": null,
+                "observation_count": null,
+                "quality_scores": {}
+              },
+              "data_version": "ukraine_agent_simulation_baseline_20260410",
+              "entry_content_hash": "sha256:0cf94e6a4e12054bf1828c6cc339996a19320c7c7979d76a5b8ca919ccf21198",
+              "family_id": "ukraine_agent_simulation_baseline",
+              "identification_mode": "intervention_or_method_route",
+              "layer": "L6",
+              "provenance_refs": [
+                "repo://production_data/manifest.json#/bundles/ukraine_simulation"
+              ],
+              "schema_regime": {
+                "authority_ref": "repo://production_data/manifest.json#/bundles/ukraine_simulation",
+                "boundary_buffer_periods": null,
+                "effective_end": null,
+                "effective_start": null,
+                "schema_regime_id": "manifest:ukraine_simulation",
+                "source_version": "ukraine_agent_simulation_baseline_20260410"
+              },
+              "snapshot_id": "ukraine_agent_simulation_baseline_20260410",
+              "source_id": "production_data:ukraine_simulation",
+              "source_snapshot_id": "ukraine_agent_simulation_baseline_20260410",
+              "trust_tier": {
+                "authority_ref": "repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json#measurement_registry#/trust_tiers/authoritative_high_coverage",
+                "max_coverage": 1.0,
+                "min_coverage": 0.85,
+                "tier": "authoritative_high_coverage",
+                "trust_cap": 1.0,
+                "trust_multiplier": 1.0
+              }
+            }
+          ],
+          "scenario_templates_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/policy_scenario_templates.json"
+        },
+        "expected": "l6_agent_sim_registered_in_s0_and_scenario_templates_registered"
+      }
+    ],
+    "coverage": {
+      "law_trace": {
+        "details": [
+          {
+            "knob_id": "budget_allocation_multiplier",
+            "law_token": "budget_law",
+            "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/00003a7579810a2a:body:1/item:0010",
+            "status": "blocked",
+            "threshold_id": "a5429abb6621acb11ed10b20",
+            "threshold_reason": "threshold_violated"
+          },
+          {
+            "knob_id": "procurement_shock_intensity",
+            "law_token": "procurement_decree",
+            "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/010c215f6a22034d:body:1/item:0010",
+            "status": "blocked",
+            "threshold_id": "07baad7c3a120b0363322e71",
+            "threshold_reason": "temporal_not_in_force"
+          },
+          {
+            "knob_id": "tax_relief_rate",
+            "law_token": "tax_relief_statute",
+            "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/31df5cd1385f1792:body:1/sec:001-i/item:0022",
+            "status": "blocked",
+            "threshold_id": "01539d8d9b8cfedb489d689e",
+            "threshold_reason": "temporal_not_in_force"
+          }
+        ],
+        "total": 3,
+        "traced": 3,
+        "unresolved": 0
+      },
+      "method_route": {
+        "available": 4,
+        "details": [
+          {
+            "candidate_method_fqns": [
+              "causal.inference.did.staggered@1.0.0",
+              "causal.inference.did.standard@1.0.0"
+            ],
+            "content_hash": "sha256:f5974ba5e5c52ebefc34cccc70a3d5f88f201857fc5693a16f64a2f6532c8826",
+            "family": "budget_flows",
+            "manifest_route_hash": "sha256:5a57d164ede19c578ec25ccd811b8d2a7dd56afa19f579660cbc4103b748480d",
+            "reason_code": null,
+            "registry_method_count": 390,
+            "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
+            "selected_method_fqn": "causal.inference.did.staggered@1.0.0",
+            "status": "routed",
+            "target_contract_fqn": "polisyos.foundry.methods.catalog.causal.protocols.PanelObservationalData",
+            "target_contract_id": "foundry.causal.panel_observational_data.v1",
+            "unavailable_method_fqns": []
+          },
+          {
+            "candidate_method_fqns": [
+              "microsim.behavior.behavioral_response@1.0.0",
+              "microsim.behavior.behavioral_response@2.0.0",
+              "microsim.calibration.inverse_behavioral_calibration@1.0.0",
+              "microsim.calibration.reweighting_calibration@1.0.0",
+              "microsim.dynamic.dynamic_microsim@1.0.0",
+              "microsim.imputation.imputation_model@1.0.0",
+              "microsim.imputation.mnar_income_bounds@1.0.0",
+              "microsim.policy.tax_benefit_calculator@1.0.0",
+              "microsim.static.static_microsim@1.0.0",
+              "survey.demography.demographic_consistency@1.0.0"
+            ],
+            "content_hash": "sha256:1dedd49667e9d8de8b2bf9daf4b6e08b4dab4f548090837698688368511d11eb",
+            "family": "household_distribution",
+            "manifest_route_hash": "sha256:8222442b289f3fda1026938521d4219e8c4c13589fa0e5a091a47109a194d95e",
+            "reason_code": null,
+            "registry_method_count": 390,
+            "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
+            "selected_method_fqn": "microsim.behavior.behavioral_response@1.0.0",
+            "status": "routed",
+            "target_contract_fqn": "polisyos.foundry.methods.catalog.microsim.protocols.SurveyMicroData",
+            "target_contract_id": "foundry.microsim.survey_micro_data.v1",
+            "unavailable_method_fqns": []
+          },
+          {
+            "candidate_method_fqns": [
+              "ml.survival.survival_analysis@1.0.0"
+            ],
+            "content_hash": "sha256:f28a66feb66675020aabe6f3db640d71d08cd9310aa7adfc0fe33bc285315f24",
+            "family": "firm_fundamentals",
+            "manifest_route_hash": "sha256:d096dc54d3c56df24415354ce1d524325913b05e5d84bc9af530f1c2fa0fd04c",
+            "reason_code": null,
+            "registry_method_count": 390,
+            "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
+            "selected_method_fqn": "ml.survival.survival_analysis@1.0.0",
+            "status": "routed",
+            "target_contract_fqn": "polisyos.foundry.methods.catalog.ml.protocols.SurvivalData",
+            "target_contract_id": "foundry.ml.survival_data.v1",
+            "unavailable_method_fqns": []
+          },
+          {
+            "candidate_method_fqns": [
+              "causal.dynamic.a_learning.a_learning@1.0.0",
+              "causal.dynamic.causal_bandit.causal_bandit@1.0.0",
+              "causal.dynamic.dr_dtr.dr_dtr@1.0.0",
+              "causal.dynamic.g_computation.parametric_g_formula@1.0.0",
+              "causal.dynamic.ice_g_formula.ice_g_formula@1.0.0",
+              "causal.dynamic.ltmle.ltmle@1.0.0",
+              "causal.dynamic.ope.ope@1.0.0",
+              "causal.dynamic.owl.owl@1.0.0",
+              "causal.dynamic.q_learning.q_learning@1.0.0",
+              "causal.dynamic.snmm.snmm_g_estimation@1.0.0"
+            ],
+            "content_hash": "sha256:0fb4c47e358d79a931c087c87c257d7dd67bf6fd3f4034b391982ecb82d7709a",
+            "family": "procurement_flows",
+            "manifest_route_hash": "sha256:5f10ed5e85136c8bec6e0e0dde91d9b11bee1da796f371c326a4c74a3c7c40a5",
+            "reason_code": null,
+            "registry_method_count": 390,
+            "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
+            "selected_method_fqn": "causal.dynamic.a_learning.a_learning@1.0.0",
+            "status": "routed",
+            "target_contract_fqn": "polisyos.foundry.methods.catalog.causal.protocols.DynamicTreatmentData",
+            "target_contract_id": "foundry.causal.dynamic_treatment_data.v1",
+            "unavailable_method_fqns": []
+          }
+        ],
+        "total": 4,
+        "unavailable_python314": 0,
+        "unresolved": 0
+      },
+      "world_slot": {
+        "bound": 3,
+        "details": [
+          {
+            "knob_id": "budget_allocation_multiplier",
+            "owner_atom_id": "atom_a08df3131fc4a8ff",
+            "status": "bound",
+            "target_world_slots": [
+              "government.balance"
+            ]
+          },
+          {
+            "knob_id": "procurement_shock_intensity",
+            "owner_atom_id": "atom_b416fe0ad00d9e89",
+            "status": "bound",
+            "target_world_slots": [
+              "cells.distress_score"
+            ]
+          },
+          {
+            "knob_id": "tax_relief_rate",
+            "owner_atom_id": "atom_f5e09465fe1dc607",
+            "status": "bound",
+            "target_world_slots": [
+              "global.tax_rate"
+            ]
+          }
+        ],
+        "total": 3,
+        "unresolved": 0
+      }
+    },
+    "issues": [],
+    "remove_property_mutations": [
+      {
+        "actual_signal": "knob_operator_unresolved",
+        "expected_red_signal": "knob_operator_unresolved",
+        "mutation_id": "unknown_op_admits",
+        "status": "red"
+      },
+      {
+        "actual_signal": "knob_parameter_out_of_domain",
+        "expected_red_signal": "knob_parameter_out_of_domain",
+        "mutation_id": "out_of_domain_clamps",
+        "status": "red"
+      },
+      {
+        "actual_signal": "lex_map_knob_unresolved",
+        "expected_red_signal": "lex_map_knob_unresolved",
+        "mutation_id": "dangling_map_binds_anyway",
+        "status": "red"
+      },
+      {
+        "actual_signal": "method_route_unresolved",
+        "expected_red_signal": "method_route_unresolved",
+        "mutation_id": "dead_route_succeeds",
+        "status": "red"
+      },
+      {
+        "actual_signal": "world_slot_unresolved",
+        "expected_red_signal": "world_slot_unresolved",
+        "mutation_id": "owner_slot_reference_binds_without_owner_validation",
+        "status": "red"
+      },
+      {
+        "actual_signal": "law_threshold_unresolved",
+        "expected_red_signal": "law_threshold_unresolved",
+        "mutation_id": "law_provision_reference_binds_without_l3_validation",
+        "status": "red"
+      },
+      {
+        "actual_signal": "world_slot_owner_derivation_coverage_collapsed",
+        "expected_red_signal": "world_slot_owner_derivation_coverage_collapsed",
+        "mutation_id": "world_slot_owner_derivation_disabled_drops_coverage",
+        "status": "red"
+      },
+      {
+        "actual_signal": "knob_owner_mechanism_manifest_missing",
+        "expected_red_signal": "knob_owner_mechanism_manifest_missing",
+        "mutation_id": "world_slot_hardcoded_bypass_rejected",
+        "status": "red"
+      },
+      {
+        "actual_signal": "family_route_unresolved",
+        "expected_red_signal": "family_route_unresolved",
+        "mutation_id": "unknown_family_defaults",
+        "status": "red"
+      }
+    ],
+    "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
+    "source_content_hashes": {
+      "intervention_knob_dictionary": "sha256:1aeda52a40c01aca9656365f6205a78c6972a284b7a9a74aa487de2de140a706",
+      "lex_intervention_map": "sha256:9c39fb2d70059290f00226518cec80e03e65aff89d2310ed2dc8e8d31c9e16ce",
+      "observation_to_contract_manifest": "sha256:481c32a566e8696b3ed1f98368fabdb24f4d34268b733915f75e64a807be04ee",
+      "owner_authority_bindings": "sha256:1546c17eb58f2dafac602ae2950f62e0776f6dcaf4157d07c16c35d5a9d5bb76",
+      "policy_scenario_templates": "sha256:5d1cec715f450d2ef2d6e047669dad9ba7b5644b8b93b3d9dc9f3153b422af5b",
+      "slot_family_manifest": "sha256:7700d633d83592d0010ef1598e05c8bbca58b27080986de2325ce365a9bb95cb"
+    },
+    "status": "pass"
+  },
+  "capability_reality": {
+    "consumer": "GY-N2/GY-N8/GY-N4 via existing owner APIs",
+    "orchestration_bridge": "N2 atom lever-space resolution, GY-S2 L3 admissibility, N8/N4 method route input",
+    "persisted_artifact_event": "architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json",
+    "producer": "load_l6_intervention_substrate + resolve_intervention_lever + resolve_law_bound_lever + route_observation_family_method",
+    "semantic_test": "real-data behavior cases + remove-property mutation witnesses",
+    "surface": "GY-S0 substrate registry + generated contract artifact",
+    "typed_contract_artifact": "InterventionSubstrateBundle + InterventionLeverResolution + LawLeverResolution + ObservationMethodRoute",
+    "verification": "intervention_substrate_behavior_report"
+  },
+  "contract_id": "policyos.runtime.intervention_substrate_lift",
+  "coverage_gate": {
+    "free_grow": "a novel knob with a novel owner mechanism must resolve to a real WMR slot with zero code registration",
+    "law_trace": "traced must equal total over the real lex_intervention_map",
+    "method_route": "unresolved must be zero over the real observation manifest; available + python314_unavailable must equal total",
+    "no_hardcode_mutation": "removing owner mechanism derivation or supplying raw target_world_slots must turn the contract red",
+    "owner_validation_mutations": "a non-existent owner slot and a non-existent L3 provision must fail closed instead of binding from the tracked artifact alone",
+    "world_slot": "bound must equal total over the real L6 knob dictionary"
+  },
+  "gy_lifecycle_marker": "policyos.policy_design_case.layer3_gy.intervention_substrate_contract.v1",
+  "intervention_substrate_schema_version": "policyos.runtime.intervention_substrate_lift.v1",
+  "json_schemas": {
+    "intervention_lever_resolution": {
+      "$defs": {
+        "KnobDomain": {
+          "additionalProperties": false,
+          "description": "Content-bound domain declared by an L6 intervention knob.",
+          "properties": {
+            "kind": {
+              "enum": [
+                "range",
+                "discrete"
+              ],
+              "title": "Kind",
+              "type": "string"
+            },
+            "max_value": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Max Value"
+            },
+            "min_value": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Min Value"
+            },
+            "unit": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Unit"
+            },
+            "value_type": {
+              "minLength": 1,
+              "title": "Value Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "value_type"
+          ],
+          "title": "KnobDomain",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Resolved atom lever-space record for one operator/value pair.",
+      "properties": {
+        "content_hash": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Content Hash",
+          "type": "string"
+        },
+        "domain": {
+          "$ref": "#/$defs/KnobDomain"
+        },
+        "operator_kind": {
+          "minLength": 1,
+          "title": "Operator Kind",
+          "type": "string"
+        },
+        "owner_resolution": {
+          "additionalProperties": true,
+          "title": "Owner Resolution",
+          "type": "object"
+        },
+        "parameter_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "boolean"
+            }
+          ],
+          "title": "Parameter Value"
+        },
+        "schema_version": {
+          "default": "policyos.runtime.intervention_substrate_lift.v1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "source_ref": {
+          "minLength": 1,
+          "title": "Source Ref",
+          "type": "string"
+        },
+        "target_world_slots": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Target World Slots",
+          "type": "array"
+        }
+      },
+      "required": [
+        "operator_kind",
+        "parameter_value",
+        "domain",
+        "target_world_slots",
+        "owner_resolution",
+        "source_ref",
+        "content_hash"
+      ],
+      "title": "InterventionLeverResolution",
+      "type": "object"
+    },
+    "intervention_substrate_bundle": {
+      "additionalProperties": false,
+      "description": "Loaded L6 bundle payload and source hashes.",
+      "properties": {
+        "content_hash": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Content Hash",
+          "type": "string"
+        },
+        "knob_dictionary": {
+          "additionalProperties": true,
+          "title": "Knob Dictionary",
+          "type": "object"
+        },
+        "lex_authority_manifest": {
+          "additionalProperties": true,
+          "title": "Lex Authority Manifest",
+          "type": "object"
+        },
+        "lex_intervention_map": {
+          "additionalProperties": true,
+          "title": "Lex Intervention Map",
+          "type": "object"
+        },
+        "observation_manifest": {
+          "additionalProperties": true,
+          "title": "Observation Manifest",
+          "type": "object"
+        },
+        "owner_authority_manifest": {
+          "additionalProperties": true,
+          "title": "Owner Authority Manifest",
+          "type": "object"
+        },
+        "policy_scenario_templates": {
+          "additionalProperties": true,
+          "title": "Policy Scenario Templates",
+          "type": "object"
+        },
+        "schema_version": {
+          "default": "policyos.runtime.intervention_substrate_lift.v1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "slot_family_manifest": {
+          "additionalProperties": true,
+          "title": "Slot Family Manifest",
+          "type": "object"
+        },
+        "source_content_hashes": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Source Content Hashes",
+          "type": "object"
+        },
+        "source_refs": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Source Refs",
+          "type": "object"
+        },
+        "world_mechanism_manifest": {
+          "additionalProperties": true,
+          "title": "World Mechanism Manifest",
+          "type": "object"
+        }
+      },
+      "required": [
+        "knob_dictionary",
+        "lex_intervention_map",
+        "observation_manifest",
+        "source_refs",
+        "source_content_hashes",
+        "content_hash"
+      ],
+      "title": "InterventionSubstrateBundle",
+      "type": "object"
+    },
+    "law_lever_resolution": {
+      "$defs": {
+        "InterventionLeverResolution": {
+          "additionalProperties": false,
+          "description": "Resolved atom lever-space record for one operator/value pair.",
+          "properties": {
+            "content_hash": {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "title": "Content Hash",
+              "type": "string"
+            },
+            "domain": {
+              "$ref": "#/$defs/KnobDomain"
+            },
+            "operator_kind": {
+              "minLength": 1,
+              "title": "Operator Kind",
+              "type": "string"
+            },
+            "owner_resolution": {
+              "additionalProperties": true,
+              "title": "Owner Resolution",
+              "type": "object"
+            },
+            "parameter_value": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "boolean"
+                }
+              ],
+              "title": "Parameter Value"
+            },
+            "schema_version": {
+              "default": "policyos.runtime.intervention_substrate_lift.v1",
+              "title": "Schema Version",
+              "type": "string"
+            },
+            "source_ref": {
+              "minLength": 1,
+              "title": "Source Ref",
+              "type": "string"
+            },
+            "target_world_slots": {
+              "items": {
+                "type": "string"
+              },
+              "title": "Target World Slots",
+              "type": "array"
+            }
+          },
+          "required": [
+            "operator_kind",
+            "parameter_value",
+            "domain",
+            "target_world_slots",
+            "owner_resolution",
+            "source_ref",
+            "content_hash"
+          ],
+          "title": "InterventionLeverResolution",
+          "type": "object"
+        },
+        "KnobDomain": {
+          "additionalProperties": false,
+          "description": "Content-bound domain declared by an L6 intervention knob.",
+          "properties": {
+            "kind": {
+              "enum": [
+                "range",
+                "discrete"
+              ],
+              "title": "Kind",
+              "type": "string"
+            },
+            "max_value": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Max Value"
+            },
+            "min_value": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Min Value"
+            },
+            "unit": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Unit"
+            },
+            "value_type": {
+              "minLength": 1,
+              "title": "Value Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "value_type"
+          ],
+          "title": "KnobDomain",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Resolved law -> knob -> L3 admissibility binding.",
+      "properties": {
+        "content_hash": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Content Hash",
+          "type": "string"
+        },
+        "knob": {
+          "$ref": "#/$defs/InterventionLeverResolution"
+        },
+        "law_token": {
+          "minLength": 1,
+          "title": "Law Token",
+          "type": "string"
+        },
+        "legal_threshold_evaluation": {
+          "additionalProperties": true,
+          "title": "Legal Threshold Evaluation",
+          "type": "object"
+        },
+        "provision_ref": {
+          "minLength": 1,
+          "title": "Provision Ref",
+          "type": "string"
+        },
+        "schema_version": {
+          "default": "policyos.runtime.intervention_substrate_lift.v1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "admissible",
+            "blocked"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "temporal_competence": {
+          "additionalProperties": true,
+          "title": "Temporal Competence",
+          "type": "object"
+        },
+        "threshold_id": {
+          "minLength": 1,
+          "title": "Threshold Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "law_token",
+        "status",
+        "knob",
+        "threshold_id",
+        "provision_ref",
+        "legal_threshold_evaluation",
+        "temporal_competence",
+        "content_hash"
+      ],
+      "title": "LawLeverResolution",
+      "type": "object"
+    },
+    "observation_method_route": {
+      "$defs": {
+        "RouteStatus": {
+          "description": "Status emitted by method routing.",
+          "enum": [
+            "routed",
+            "blocked"
+          ],
+          "title": "RouteStatus",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Resolved observation family -> method contract -> registry method route.",
+      "properties": {
+        "candidate_method_fqns": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Candidate Method Fqns",
+          "type": "array"
+        },
+        "content_hash": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Content Hash",
+          "type": "string"
+        },
+        "family": {
+          "minLength": 1,
+          "title": "Family",
+          "type": "string"
+        },
+        "manifest_route_hash": {
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "title": "Manifest Route Hash",
+          "type": "string"
+        },
+        "reason_code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason Code"
+        },
+        "registry_method_count": {
+          "minimum": 0,
+          "title": "Registry Method Count",
+          "type": "integer"
+        },
+        "schema_version": {
+          "default": "policyos.runtime.intervention_substrate_lift.v1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "selected_method_fqn": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Selected Method Fqn"
+        },
+        "status": {
+          "$ref": "#/$defs/RouteStatus"
+        },
+        "target_contract_fqn": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target Contract Fqn"
+        },
+        "target_contract_id": {
+          "minLength": 1,
+          "title": "Target Contract Id",
+          "type": "string"
+        },
+        "unavailable_method_fqns": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Unavailable Method Fqns",
+          "type": "array"
+        }
+      },
+      "required": [
+        "family",
+        "status",
+        "target_contract_id",
+        "registry_method_count",
+        "manifest_route_hash",
+        "content_hash"
+      ],
+      "title": "ObservationMethodRoute",
+      "type": "object"
+    }
+  },
+  "measured_coverage": {
+    "law_trace": {
+      "details": [
+        {
+          "knob_id": "budget_allocation_multiplier",
+          "law_token": "budget_law",
+          "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/00003a7579810a2a:body:1/item:0010",
+          "status": "blocked",
+          "threshold_id": "a5429abb6621acb11ed10b20",
+          "threshold_reason": "threshold_violated"
+        },
+        {
+          "knob_id": "procurement_shock_intensity",
+          "law_token": "procurement_decree",
+          "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/010c215f6a22034d:body:1/item:0010",
+          "status": "blocked",
+          "threshold_id": "07baad7c3a120b0363322e71",
+          "threshold_reason": "temporal_not_in_force"
+        },
+        {
+          "knob_id": "tax_relief_rate",
+          "law_token": "tax_relief_statute",
+          "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/31df5cd1385f1792:body:1/sec:001-i/item:0022",
+          "status": "blocked",
+          "threshold_id": "01539d8d9b8cfedb489d689e",
+          "threshold_reason": "temporal_not_in_force"
+        }
+      ],
+      "total": 3,
+      "traced": 3,
+      "unresolved": 0
+    },
+    "method_route": {
+      "available": 4,
+      "details": [
+        {
+          "candidate_method_fqns": [
+            "causal.inference.did.staggered@1.0.0",
+            "causal.inference.did.standard@1.0.0"
+          ],
+          "content_hash": "sha256:f5974ba5e5c52ebefc34cccc70a3d5f88f201857fc5693a16f64a2f6532c8826",
+          "family": "budget_flows",
+          "manifest_route_hash": "sha256:5a57d164ede19c578ec25ccd811b8d2a7dd56afa19f579660cbc4103b748480d",
+          "reason_code": null,
+          "registry_method_count": 390,
+          "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
+          "selected_method_fqn": "causal.inference.did.staggered@1.0.0",
+          "status": "routed",
+          "target_contract_fqn": "polisyos.foundry.methods.catalog.causal.protocols.PanelObservationalData",
+          "target_contract_id": "foundry.causal.panel_observational_data.v1",
+          "unavailable_method_fqns": []
+        },
+        {
+          "candidate_method_fqns": [
+            "microsim.behavior.behavioral_response@1.0.0",
+            "microsim.behavior.behavioral_response@2.0.0",
+            "microsim.calibration.inverse_behavioral_calibration@1.0.0",
+            "microsim.calibration.reweighting_calibration@1.0.0",
+            "microsim.dynamic.dynamic_microsim@1.0.0",
+            "microsim.imputation.imputation_model@1.0.0",
+            "microsim.imputation.mnar_income_bounds@1.0.0",
+            "microsim.policy.tax_benefit_calculator@1.0.0",
+            "microsim.static.static_microsim@1.0.0",
+            "survey.demography.demographic_consistency@1.0.0"
+          ],
+          "content_hash": "sha256:1dedd49667e9d8de8b2bf9daf4b6e08b4dab4f548090837698688368511d11eb",
+          "family": "household_distribution",
+          "manifest_route_hash": "sha256:8222442b289f3fda1026938521d4219e8c4c13589fa0e5a091a47109a194d95e",
+          "reason_code": null,
+          "registry_method_count": 390,
+          "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
+          "selected_method_fqn": "microsim.behavior.behavioral_response@1.0.0",
+          "status": "routed",
+          "target_contract_fqn": "polisyos.foundry.methods.catalog.microsim.protocols.SurveyMicroData",
+          "target_contract_id": "foundry.microsim.survey_micro_data.v1",
+          "unavailable_method_fqns": []
+        },
+        {
+          "candidate_method_fqns": [
+            "ml.survival.survival_analysis@1.0.0"
+          ],
+          "content_hash": "sha256:f28a66feb66675020aabe6f3db640d71d08cd9310aa7adfc0fe33bc285315f24",
+          "family": "firm_fundamentals",
+          "manifest_route_hash": "sha256:d096dc54d3c56df24415354ce1d524325913b05e5d84bc9af530f1c2fa0fd04c",
+          "reason_code": null,
+          "registry_method_count": 390,
+          "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
+          "selected_method_fqn": "ml.survival.survival_analysis@1.0.0",
+          "status": "routed",
+          "target_contract_fqn": "polisyos.foundry.methods.catalog.ml.protocols.SurvivalData",
+          "target_contract_id": "foundry.ml.survival_data.v1",
+          "unavailable_method_fqns": []
+        },
+        {
+          "candidate_method_fqns": [
+            "causal.dynamic.a_learning.a_learning@1.0.0",
+            "causal.dynamic.causal_bandit.causal_bandit@1.0.0",
+            "causal.dynamic.dr_dtr.dr_dtr@1.0.0",
+            "causal.dynamic.g_computation.parametric_g_formula@1.0.0",
+            "causal.dynamic.ice_g_formula.ice_g_formula@1.0.0",
+            "causal.dynamic.ltmle.ltmle@1.0.0",
+            "causal.dynamic.ope.ope@1.0.0",
+            "causal.dynamic.owl.owl@1.0.0",
+            "causal.dynamic.q_learning.q_learning@1.0.0",
+            "causal.dynamic.snmm.snmm_g_estimation@1.0.0"
+          ],
+          "content_hash": "sha256:0fb4c47e358d79a931c087c87c257d7dd67bf6fd3f4034b391982ecb82d7709a",
+          "family": "procurement_flows",
+          "manifest_route_hash": "sha256:5f10ed5e85136c8bec6e0e0dde91d9b11bee1da796f371c326a4c74a3c7c40a5",
+          "reason_code": null,
+          "registry_method_count": 390,
+          "schema_version": "policyos.runtime.intervention_substrate_lift.v1",
+          "selected_method_fqn": "causal.dynamic.a_learning.a_learning@1.0.0",
+          "status": "routed",
+          "target_contract_fqn": "polisyos.foundry.methods.catalog.causal.protocols.DynamicTreatmentData",
+          "target_contract_id": "foundry.causal.dynamic_treatment_data.v1",
+          "unavailable_method_fqns": []
+        }
+      ],
+      "total": 4,
+      "unavailable_python314": 0,
+      "unresolved": 0
+    },
+    "world_slot": {
+      "bound": 3,
+      "details": [
+        {
+          "knob_id": "budget_allocation_multiplier",
+          "owner_atom_id": "atom_a08df3131fc4a8ff",
+          "status": "bound",
+          "target_world_slots": [
+            "government.balance"
+          ]
+        },
+        {
+          "knob_id": "procurement_shock_intensity",
+          "owner_atom_id": "atom_b416fe0ad00d9e89",
+          "status": "bound",
+          "target_world_slots": [
+            "cells.distress_score"
+          ]
+        },
+        {
+          "knob_id": "tax_relief_rate",
+          "owner_atom_id": "atom_f5e09465fe1dc607",
+          "status": "bound",
+          "target_world_slots": [
+            "global.tax_rate"
+          ]
+        }
+      ],
+      "total": 3,
+      "unresolved": 0
+    }
+  },
+  "missing_capability_labels": [],
+  "owner": "polisyos.runtime.quality.intervention_substrate over existing N2/Lex/Foundry/S0 owners",
+  "patterns_closed": [
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P07",
+    "P08",
+    "P10",
+    "P12",
+    "P15",
+    "P27",
+    "P29",
+    "P31",
+    "P32",
+    "P33",
+    "P34"
+  ],
+  "real_l6_substrates": {
+    "intervention_knob_dictionary": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/intervention_knob_dictionary.json",
+    "lex_intervention_map": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/lex_intervention_map.json",
+    "observation_to_contract_manifest": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/method_contract_bundle_v1/observation_to_contract_manifest.json",
+    "owner_authority_bindings": "architecture/policy_design_case/layer3_gy_l6_owner_authority_bindings.json",
+    "policy_scenario_templates": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/intervention_bundle_v1/policy_scenario_templates.json"
+  },
+  "reuse_existing_owners": [
+    "InterventionAtomBinding/Trinity linker target_world_slots",
+    "WorldModelRecord.policy_slot_map",
+    "LegalKnowledgeStore.evaluate_rule_threshold",
+    "LegalKnowledgeStore.resolve_threshold_temporal_competence",
+    "foundry.methods.selection.registry.get_registry().list_all()",
+    "SubstrateRegistry L6 entries"
+  ],
+  "schema_version": "policyos.policy_design_case.layer3_gy.intervention_substrate_contract.v1",
+  "source_modules": [
+    "src/polisyos/runtime/quality/intervention_substrate.py",
+    "src/polisyos/runtime/quality/intervention_atom_binding.py",
+    "src/polisyos/runtime/quality/world_model_record.py",
+    "src/polisyos/runtime/quality/substrate_registry.py",
+    "src/polisyos/ir/kernel/mechanisms.py",
+    "src/polisyos/lex/intervention_artifacts.py",
+    "src/polisyos/lex/knowledge/store.py",
+    "src/polisyos/foundry/methods/selection/registry.py"
+  ],
+  "truthful_data_limitations": []
+}

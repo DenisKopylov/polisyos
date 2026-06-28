@@ -1,0 +1,52 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gx_producer_root_chain_report.v1",
+  "status": "fail",
+  "records": [
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json",
+      "json_pointer": "$",
+      "field": "promotion_state",
+      "value": "governed_promoted",
+      "producer_ref": "",
+      "producer_type": "untyped",
+      "classification": "production_positive_status",
+      "valid_root_chain": false
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": "",
+      "producer_type": "untyped",
+      "classification": "production_positive_status",
+      "valid_root_chain": false
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_conversion_eligibility_ledger.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": "",
+      "producer_type": "untyped",
+      "classification": "production_positive_status",
+      "valid_root_chain": false
+    }
+  ],
+  "issues": [
+    {
+      "code": "layer3_gx_producer_root_invalid",
+      "path": "architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json$",
+      "message": "Positive production status does not terminate in a valid measurement or external_request root.",
+      "producer_ref": "",
+      "producer_type": "untyped"
+    },
+    {
+      "code": "layer3_gx_producer_root_invalid",
+      "path": "architecture/policy_design_case/layer3_g5_conversion_eligibility_ledger.json$",
+      "message": "Positive production status does not terminate in a valid measurement or external_request root.",
+      "producer_ref": "",
+      "producer_type": "untyped"
+    }
+  ]
+}

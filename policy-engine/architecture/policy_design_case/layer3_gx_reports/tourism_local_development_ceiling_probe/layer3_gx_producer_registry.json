@@ -1,0 +1,59 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gx_producer_registry.v1",
+  "status": "pass",
+  "producer_count": 7,
+  "producers": [
+    {
+      "producer_ref": "derivation://layer3-gx/concept-alias-graph/tourism_local_development_ceiling_probe",
+      "producer_type": "derivation",
+      "root_refs": [],
+      "first_seen_path": "architecture/policy_design_case/layer3_gx_data_home/cases/tourism_local_development_ceiling_probe/layer3_gx_concept_alias_graph.json",
+      "first_seen_pointer": "$"
+    },
+    {
+      "producer_ref": "external-request://layer3-gx/concept-alias-seeds/tourism_local_development_ceiling_probe",
+      "producer_type": "external_request",
+      "root_refs": [],
+      "first_seen_path": "architecture/policy_design_case/layer3_gx_data_home/cases/tourism_local_development_ceiling_probe/layer3_gx_concept_alias_seed_rows.json",
+      "first_seen_pointer": "$"
+    },
+    {
+      "producer_ref": "external-request://layer3-gx/demand-pull/tourism_local_development_ceiling_probe",
+      "producer_type": "external_request",
+      "root_refs": [],
+      "first_seen_path": "architecture/policy_design_case/layer3_gx_data_home/cases/tourism_local_development_ceiling_probe/layer3_gx_demand_pull_request.json",
+      "first_seen_pointer": "$"
+    },
+    {
+      "producer_ref": "external-request://layer3-gx/pinned-request/tourism_local_development_ceiling_probe",
+      "producer_type": "external_request",
+      "root_refs": [
+        "external-request://layer3-gx/pinned-request/tourism_local_development_ceiling_probe"
+      ],
+      "first_seen_path": "architecture/policy_design_case/layer3_gx_data_home/cases/tourism_local_development_ceiling_probe/layer3_gx_pinned_request.json",
+      "first_seen_pointer": "$"
+    },
+    {
+      "producer_ref": "external-request://layer3-gx/scope/tourism_local_development_ceiling_probe",
+      "producer_type": "external_request",
+      "root_refs": [],
+      "first_seen_path": "architecture/policy_design_case/layer3_gx_data_home/cases/tourism_local_development_ceiling_probe/layer3_gx_scope_seed_rows.json",
+      "first_seen_pointer": "$"
+    },
+    {
+      "producer_ref": "pdc://layer2/s6/g3/measurability",
+      "producer_type": "derivation",
+      "root_refs": [],
+      "first_seen_path": "architecture/policy_design_case/layer3_g3_s11_predictive_posture_bindings.json",
+      "first_seen_pointer": "$/s11_predictive_posture_bindings/0/posture_payload/s6_bridge_consumer_rows/0"
+    },
+    {
+      "producer_ref": "polisyos.method_requirement.compiler",
+      "producer_type": "derivation",
+      "root_refs": [],
+      "first_seen_path": "architecture/policy_design_case/layer3_g2_method_requirement_bindings.json",
+      "first_seen_pointer": "$/method_requirement_bindings/0/method_requirement_specs/0"
+    }
+  ],
+  "issues": []
+}

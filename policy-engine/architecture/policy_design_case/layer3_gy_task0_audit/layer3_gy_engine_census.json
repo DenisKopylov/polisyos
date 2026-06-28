@@ -187,7 +187,7 @@
       "execution_evidence": {
         "smoke": "DatasetCatalogGraph(prod_catalog).search_datasets('credit access affordable loans'...)",
         "result": "8 relevant hits/query on 137,176-dataset prod catalog; TEXT arm only \u2014 vector_ms=0.0 because sentence_transformers not installed (hnsw index present but embedder absent)",
-        "output_hash": "sha256:2a4dcafaef1ed216ab4121aa412a5574d615f5f4c96688d0ab3c00d8921854c4",
+        "output_hash": "sha256:14a4cc7e5e273677f5e4f2edf51c203b5925d961a5496c6f790523d960353312",
         "reproducible": true,
         "evidence_note": "time/score-stripped canonical hash over returned dataset ids (tools/quality/validation/gy_evidence_canon.py); replaces a prior wall-time-tainted hash"
       },
@@ -223,7 +223,7 @@
       "execution_evidence": {
         "smoke": "exercised via search_datasets smoke",
         "result": "has_vector_index=True (index files present) but _get_query_embedding returned None (sentence_transformers missing) so vector arm did not execute",
-        "output_hash": "sha256:2a4dcafaef1ed216ab4121aa412a5574d615f5f4c96688d0ab3c00d8921854c4",
+        "output_hash": "sha256:14a4cc7e5e273677f5e4f2edf51c203b5925d961a5496c6f790523d960353312",
         "reproducible": true,
         "evidence_note": "time/score-stripped canonical hash over returned dataset ids (tools/quality/validation/gy_evidence_canon.py); replaces a prior wall-time-tainted hash"
       },
@@ -258,7 +258,7 @@
       "execution_evidence": {
         "smoke": "search_datasets text arm on prod catalog",
         "result": "returned on-target hits (WBL legal framework, microloans, domestic credit to private sector, firms with bank loan/line of credit) for all 3 pinned constructs",
-        "output_hash": "sha256:2a4dcafaef1ed216ab4121aa412a5574d615f5f4c96688d0ab3c00d8921854c4",
+        "output_hash": "sha256:14a4cc7e5e273677f5e4f2edf51c203b5925d961a5496c6f790523d960353312",
         "reproducible": true,
         "evidence_note": "time/score-stripped canonical hash over returned dataset ids (tools/quality/validation/gy_evidence_canon.py); replaces a prior wall-time-tainted hash"
       },
@@ -2462,7 +2462,7 @@
     }
   ],
   "row_count": 69,
-  "census_digest": "sha256:7e72b72dc0c6b0ea874992c6ae9fb2b5940724ca31084776d2e7038c5620635b",
+  "census_digest": "sha256:d03e80687e041b57655a21402729d96aed94137b65a12e878182669c791491b4",
   "evidence_reproducibility": {
     "module": "tools/quality/validation/gy_evidence_canon.py",
     "policy": "every recorded output_hash must be a time/score-invariant canonical hash; wall-clock ms/seconds/timestamps are stripped before hashing",

@@ -2,12 +2,20 @@
 
 Scope: entire repo. Product root is `policy-engine/`; follow `policy-engine/CONTRIBUTING.md` for style, tests, boundaries, and PR hygiene.
 
+## North Star (read first — what we are building)
+
+We are building a **causal operating system for policy**. Everything reduces to **data**; abstractions ("worker", "firm") are not objects but **communities over a causal variable graph** (an SCM) — but the causal *structure* (which variable affects which) is a distinct, harder, partly-irreducible knowledge, not just data. An **intervention** is a `do()` operation (direct state edit) carrying a predicted distribution over downstream change `P(Y|do(X))` (indirect); its atom is *(one operator, one target-slot, one bundle of direct effects, one declared intended effect)*, relative to the world-model resolution — goals are a separate selection layer. A **design** composes many atomic interventions, checked individual → pairwise → **joint** by **simulation in the world model**. Data is **required vs available**; the gap is filled by **VOI-driven acquisition** (demand paging). The real product is the **growing causal world model**; policies are programs against it; a deployed policy is monitored in two contours — **confirmatory** (high-authority Bayesian effect update) and **exploratory** (low-authority anomaly discovery under false-discovery control) that grows the model. The **safety kernel** is the honest-grounding firewall: every effect/abstraction/value is a **candidate until grounded + validated**; the worst failure is a **confident-wrong effect** shipped on a fake/weak coupling. Full frame: `policy-engine/docs/system-design-decisions/policy-design-causal-operating-system-north-star.md`; the law: `.../universal-policy-design-system-vision-and-organizing-rules.md`.
+
 ## Operating Model
 
 - Treat this file as the always-on map, not the manual. Add only repo-wide rules here; put detailed or path-specific guidance in docs, package READMEs, or nested `AGENTS.md` files.
 - Build working governance, not impressive contracts. A capability is real only when producer, typed artifact, orchestration bridge, consumer, verification, and audit/API/dashboard surface are wired or explicitly out of scope.
 - Prefer `wire-existing`, then `extend-existing`, then `consolidate-existing`, and only then `build-new`.
 - Treat authority, time, status, rule version, provenance, and audience as semantic load-bearing fields, not metadata decoration.
+- Fix the class, not the instance (`P31`): when a defect is one case of a class — authority emitted from unverified evidence, bytes leaving a surface ungated — close it with one structural invariant (single intake AND single emission), not a per-site patch; a sibling consumer reopens an instance fix.
+- Verify substance, not form (`P32`): an authority/promotion/Ring-2 decision admits evidence only by resolve + content-bind + verifier-provenance; presence/shape/keyword/string/self-attestation is not evidence, and absence fails closed.
+- A probe is a witness, not the spec (`P33`/`P34`): fix the general property and self-generate adversarial variants (synonym, malformed, present-but-fake, sibling consumer) before claiming done; finish a revert/stash isolation before excluding a failing test as honest/unrelated.
+- A gate must exercise the property, not check markers (`P29`): a validator/contract guarding a semantic property (a runtime cap, a round-trip, a strangle, a promotion rule) must import and run the real path and assert the property holds/fails — not confirm that marker strings or field names are present. Prove it with the *remove-the-property-keep-the-markers* probe: if the gate stays green when the runtime property is deleted but its markers remain, it is form-based and must be rewritten to behavioral. Stopping point: a verifier is *complete-by-construction* when it is GENERIC over the source of truth (derives its set from the runtime's rejection reasons / the artifact's schema / the actual objects — no enumerated list) with genuine exemptions (a "justified default-only" field must be truly type-constrained, e.g. a `Literal`, not a `str` loophole). Past that, coverage of future additions is governed by this rule + review — do not recursively verify the verifier; a merely hypothetical future gap against a generic mechanism is a GO, not a NO-GO.
 - Keep edits small, typed, and boundary-aware. Do not refactor unrelated code or touch user changes.
 
 ## Where To Look
@@ -28,7 +36,7 @@ For every nontrivial task, including plans, backlogs, specs, ADRs, research hand
 
 For any governance, evidence, runtime-quality, PDC, producer, API, dashboard, export, LLM-authority, or research-plan work, open the failure/repair register before design and again before closeout:
 
-`P01` contract-only capability; `P02` thin orchestration; `P03` hidden internal richness; `P04` status lattice gap; `P05` authority boundary leak; `P06` shim drift; `P07` rule replay gap; `P08` time-role conflation; `P09` warning lifecycle gap; `P10` semantic adequacy gap; `P11` failure-only memory; `P12` producer handshake gap; `P13` governance gravity; `P14` evidence independence inflation; `P15` LLM speculation laundering.
+`P01` contract-only capability; `P02` thin orchestration; `P03` hidden internal richness; `P04` status lattice gap; `P05` authority boundary leak; `P06` shim drift; `P07` rule replay gap; `P08` time-role conflation; `P09` warning lifecycle gap; `P10` semantic adequacy gap; `P11` failure-only memory; `P12` producer handshake gap; `P13` governance gravity; `P14` evidence independence inflation; `P15` LLM speculation laundering. Newer rows are in the register: `P16`–`P26` universal-design axes; `P27` owner-bypass duplication; `P28` un-strangled legacy; `P29` authorial proof; `P30` provenance naming; `P31` instance-patching; `P32` trust-by-form; `P33` teaching-to-the-test; `P34` uncompleted-exclusion green.
 
 Capability reality check: `typed contract/artifact + producer + persisted artifact/event + orchestration bridge + consumer + verification + external/audit/API/dashboard surface or explicit out_of_scope + negative/e2e semantic test`. If incomplete, name the state precisely using the register labels, such as `contract_only`, `producer_missing`, `artifact_missing`, `bridge_missing`, `consumer_missing`, `verification_missing`, `implemented_but_not_orchestrated`, `surface_missing`, `surface_out_of_scope`, or `semantic_test_missing`.
 
@@ -51,6 +59,8 @@ Repair priority: first authority/status/soft gates (`P05`, `P04`, `P09`) and LLM
 - CI parity: `cd policy-engine && python3 -m tools.cli workspace ci-parity --skip-browser`
 - Architecture guardrails: `cd policy-engine && uv run polisyos-tools architecture guardrails check`
 - Runtime contract: `cd policy-engine && uv run --extra runtime --extra ml polisyos-tools runtime check-runtime-api-contract`
+
+During iteration, verify by blast radius — the changed modules plus their importer tests, the recomputing validators (`--check` + a corrupt-field drift that must fail), `ruff`, and architecture guardrails — rather than the full suite; reserve the full backend-verify/CI-parity for closeout.
 
 Use `rg`/`rg --files` for search, keep tests mirrored under `tests/`, public APIs fully typed, Pydantic public DTOs strict (`extra="forbid"`), and Google-style docstrings for public modules/classes/functions.
 

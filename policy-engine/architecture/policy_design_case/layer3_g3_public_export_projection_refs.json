@@ -55,9 +55,7 @@
       "g3-search-frontier://layer3/g3/resolved-proof-candidates"
     ],
     "resolved_certificate_count": 1,
-    "s11_predictive_posture_refs": [
-      "pdc://layer3/g3/ua-msme-affordable-loans-2022/s11/predictive-knowledge"
-    ],
+    "s11_predictive_posture_refs": [],
     "search_ledger_refs": [
       "repo://architecture/policy_design_case/layer3_g3_ir_analytics_search_ledgers.json#g3-ir-analytics-search-ledger:996e76f3800bce22e3f639dc"
     ],

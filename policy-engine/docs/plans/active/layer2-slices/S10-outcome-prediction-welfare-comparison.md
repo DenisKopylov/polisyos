@@ -74,7 +74,7 @@ The closure contract is the roadmap S10 contract:
 S10 is a runtime-quality forecast support layer over existing Policy Design
 Case and Foundry substrates:
 
-- `src/polisyos/runtime/quality/layer2_coupling_composition.py` already defines
+- `src/polisyos/runtime/quality/design_axes/coupling_composition.py` already defines
   `ForecastSupportScope`, `ForecastSupportBaseOrigin`, `ForecastClaimScope`,
   and `SystemEffectSupportLabel`. S10 must reuse that dictionary rather than
   creating a separate forecast-tier vocabulary. Any serialized `forecast_tier`
@@ -84,12 +84,12 @@ Case and Foundry substrates:
   `forecast_support_label` through S5/S2 projection context. S10 should extend
   this into injected forecast posture refs; B-side search must not self-mint
   calibrated forecast authority.
-- `src/polisyos/runtime/quality/layer2_value_choice.py` already carries S8
+- `src/polisyos/runtime/quality/design_axes/value_choice_provenance.py` already carries S8
   value schedules, Pareto archives, and tradeoff disclosures. S10 welfare
   comparisons must cite those refs and cannot rank alternatives without them.
   Scalar welfare summaries must not hide Pareto tradeoffs, social-weight
   provenance, or unresolved multi-principal conflict.
-- `src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py` and S6 corpus
+- `src/polisyos/runtime/quality/design_axes/blind_spot_firewalls.py` and S6 corpus
   summaries already expose measurability, capacity, mandate, aggregation, and
   strategic-response firewall results. Any failed or limited S6 axis caps S10
   forecast authority.
@@ -108,7 +108,7 @@ Case and Foundry substrates:
 Boundary rule: S10 can produce `ForecastSupport` and
 `ForecastCalibrationRecord` runtime-quality artifacts. PDC search and projection
 may consume injected S10 posture refs, but `src/polisyos/pdc/_impl/layer2_design_search.py`
-must not import `polisyos.runtime.quality.layer2_outcome_prediction` or call
+must not import `polisyos.runtime.quality.design_axes.outcome_prediction` or call
 S10 producer helpers directly.
 
 ## Scope
@@ -202,7 +202,7 @@ Current S10 anchors:
   remaining `KNOWLEDGE.calibration` and
   `KNOWLEDGE.ir_proof_carrying_analytics` to S11, not S10. S10 must not close
   either cell.
-- `src/polisyos/runtime/quality/layer2_coupling_composition.py` has the S5
+- `src/polisyos/runtime/quality/design_axes/coupling_composition.py` has the S5
   `ForecastSupportScope` dictionary. S10 must extend this support scope into
   forecast authority records.
 - `src/polisyos/pdc/_impl/layer2_design_search.py` carries
@@ -231,7 +231,7 @@ new prediction platform:
   in `src/polisyos/pdc/_impl/layer2_readiness.py` and are strict/frozen. S10
   should reuse them; no new DTO base or authority-boundary abstraction is needed.
 - Strong substrate: S5 already owns the D3.5 forecast dictionary in
-  `src/polisyos/runtime/quality/layer2_coupling_composition.py`. S10 should
+  `src/polisyos/runtime/quality/design_axes/coupling_composition.py`. S10 should
   derive disposition from the raw `forecast_support_scope` block and should not
   expand `Layer2S5CompositionPostureInput` unless S2 actually needs extra S5
   fields.
@@ -338,7 +338,7 @@ Add tests with these exact names:
 - `test_transport_without_limitation_is_rejected`
 
 The tests should import from
-`polisyos.runtime.quality.layer2_outcome_prediction` and initially fail with
+`polisyos.runtime.quality.design_axes.outcome_prediction` and initially fail with
 `ModuleNotFoundError` or missing export errors.
 
 - [ ] **Step 2: Add PDC wiring red tests**
@@ -369,7 +369,7 @@ Required assertions:
 - S2 handoff/interface records include `Layer2S10ForecastPostureInput` as a
   consumed forecast-support posture, not recommendation authority.
 - `src/polisyos/pdc/_impl/layer2_design_search.py` does not import
-  `polisyos.runtime.quality.layer2_outcome_prediction` and does not call
+  `polisyos.runtime.quality.design_axes.outcome_prediction` and does not call
   `build_forecast_support(...)`.
 - PUBLIC projection exposes forecast tier and limitations, but not production
   recommendation text.
@@ -471,7 +471,7 @@ uv run pytest \
 Expected red output:
 
 - `test_layer2_s10_outcome_prediction.py` fails because
-  `polisyos.runtime.quality.layer2_outcome_prediction` does not exist.
+  `polisyos.runtime.quality.design_axes.outcome_prediction` does not exist.
 - W12.D tests fail because `s10_outcome_prediction_summary` and case blocks are
   absent.
 - readiness tests fail because S10 manifest/inventory/summary fields are absent.
@@ -502,7 +502,7 @@ without building a new modeling engine.
 
 - [ ] **Step 1: Add S10 runtime-quality module**
 
-Create `src/polisyos/runtime/quality/layer2_outcome_prediction.py`.
+Create `src/polisyos/runtime/quality/design_axes/outcome_prediction.py`.
 
 Required constants:
 
@@ -696,7 +696,7 @@ Export all S10 contracts, literals, constants, and helpers.
 
 ```bash
 uv run pytest tests/unit/runtime/quality/test_layer2_s10_outcome_prediction.py -q
-uv run ruff check src/polisyos/runtime/quality/layer2_outcome_prediction.py \
+uv run ruff check src/polisyos/runtime/quality/design_axes/outcome_prediction.py \
   src/polisyos/runtime/quality/__init__.py \
   tests/unit/runtime/quality/test_layer2_s10_outcome_prediction.py
 ```
@@ -709,7 +709,7 @@ Expected green output:
 - [ ] **Step 6: Commit Task 2**
 
 ```bash
-git add src/polisyos/runtime/quality/layer2_outcome_prediction.py \
+git add src/polisyos/runtime/quality/design_axes/outcome_prediction.py \
   src/polisyos/runtime/quality/__init__.py \
   tests/unit/runtime/quality/test_layer2_s10_outcome_prediction.py
 git commit -m "feat: add layer2 s10 forecast support contracts" \
@@ -803,7 +803,7 @@ Rules:
   all 13 cases can carry forecast refs without forcing full S2 search for every
   corpus row.
 - keep existing `forecast_support_label` behavior for S5 compatibility.
-- do not import `polisyos.runtime.quality.layer2_outcome_prediction`.
+- do not import `polisyos.runtime.quality.design_axes.outcome_prediction`.
 - public projection should show forecast tier and limitations.
 - expert/machine projection should show calibration refs, uncertainty refs,
   S5/S6/S8 source refs, and authority boundary.
@@ -1369,7 +1369,7 @@ If Task 6 only verifies and produces no target-file diff, do not create an empty
 commit. If verification required code/test fixes, commit with:
 
 ```bash
-git add src/polisyos/runtime/quality/layer2_outcome_prediction.py \
+git add src/polisyos/runtime/quality/design_axes/outcome_prediction.py \
   src/polisyos/runtime/quality/__init__.py \
   src/polisyos/pdc/__init__.py \
   src/polisyos/pdc/_impl/layer2_design_search.py \

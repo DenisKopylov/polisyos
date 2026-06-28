@@ -63,6 +63,7 @@ describe("ControlFailurePanel", () => {
             downstream_impact:
               "No serious decision packet can be materialized.",
             authority_refs: {
+              authority_boundary: "runtime.workflow_failed_non_authority.job-demo",
               provider_preflight_ref: "sha256:abcdef",
               runtime_event_log: "sha256:bbbb",
             },
@@ -97,6 +98,11 @@ describe("ControlFailurePanel", () => {
     expect(
       within(diagnosticPanel).getAllByText(/sha256:abcdef/).length,
     ).toBeGreaterThan(0);
+    expect(
+      within(diagnosticPanel).getByText(
+        "authority_boundary: runtime.workflow_failed_non_authority.job-demo",
+      ),
+    ).toBeInTheDocument();
     expect(
       within(diagnosticPanel).getByText(
         "uv run pytest tests/unit/scientist/orchestration/llm/test_provider_verification.py -q",

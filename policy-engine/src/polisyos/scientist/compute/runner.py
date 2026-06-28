@@ -288,11 +288,7 @@ class MethodBackend:
             "method_fqn": signature.fqn,
             "backend": signature.backend.value,
             "execution_backend": getattr(signature, "execution_backend", signature.backend).value,
-            "timing": {
-                "wall_time_ms": method_result.timing.wall_time_ms,
-                "cpu_time_ms": method_result.timing.cpu_time_ms,
-                "compile_time_ms": method_result.timing.compile_time_ms,
-            },
+            "timing": _content_addressed_timing_policy(),
             "reproducibility": {
                 "tier": method_result.reproducibility.determinism_tier.value,
                 "seed": method_result.reproducibility.seed,
@@ -333,6 +329,18 @@ class MethodBackend:
             applied=None,
             final_state=method_result.output,
         )
+
+
+def _content_addressed_timing_policy() -> dict[str, str]:
+    """Return stable timing semantics for content-addressed method evidence."""
+
+    return {
+        "policy": "runtime_timing_excluded_from_content_addressed_evidence",
+        "reason": (
+            "wall/cpu/compile timings are volatile runtime observations; "
+            "method evidence CAS identity is restricted to semantic execution provenance"
+        ),
+    }
 
 
 def resolve_backend(

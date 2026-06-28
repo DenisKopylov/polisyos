@@ -11,6 +11,7 @@ from pydantic import ValidationError
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.core.contracts import build_skip_blocker_record
 from polisyos.foundry.methods.catalog import (
     ensure_all_methods_registered as ensure_causal_methods_registered,
 )
@@ -35,14 +36,12 @@ from polisyos.ir.analytics.hte import (
 )
 from polisyos.ir.analytics.sensitivity import SensitivityResult, persist_sensitivity_result
 from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope, persist_uncertainty_envelope
-from polisyos.scientist.methods.causal.validity import persist_causal_validity_bundle
+from polisyos.scientist.compute.job_spec import JobSpec
+from polisyos.scientist.compute.runner import run_job
 from polisyos.scientist.evidence.claims.ledger import persist_claim_ledger
 from polisyos.scientist.evidence.claims.projections import project_causal_effect_claims
 from polisyos.scientist.evidence.claims.validators import is_claim_spine_enabled
-from polisyos.scientist.compute.job_spec import JobSpec
-from polisyos.scientist.compute.runner import run_job
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
+from polisyos.scientist.methods.causal.validity import persist_causal_validity_bundle
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_ENVELOPE_REF,
@@ -55,6 +54,13 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_POLICY_RECOMMENDATION_REF,
     ARTIFACT_SENSITIVITY_RESULT_REF,
 )
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 if TYPE_CHECKING:
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
@@ -367,6 +373,11 @@ class RunCausalEvaluationNode:
                         level="info", message="No observational_data_ref; skip causal evaluation"
                     )
                 ],
+                skip_blocker=_phase2_missing_input_blocker(
+                    missing_input="observational_data_ref",
+                    reason="No observational measurement root was produced for causal evaluation.",
+                    phase="run_causal_evaluation",
+                ),
             )
 
         method_fqn = state.causal_method_fqn or str(
@@ -839,6 +850,30 @@ class RunCausalEvaluationNode:
                 )
             ],
         )
+
+
+def _phase2_missing_input_blocker(
+    *,
+    missing_input: str,
+    reason: str,
+    phase: str,
+):
+    return build_skip_blocker_record(
+        node_id=str(_SPEC.metadata.component_id),
+        alias="run_causal_evaluation",
+        node_kind="causal",
+        reason=reason,
+        missing_input=missing_input,
+        owner="gy_phase2_blocked_input_producer",
+        phase=phase,
+        downstream_impact="Phase-2 ESTIMATE cannot consume Foundry output without this input.",
+        allowed_profile="dev",
+        closeout_blocking_policy="blocks_authority",
+        scorecard_blocking_policy="blocks_authority",
+        approval_blocking_policy="blocks_authority",
+        public_export_blocking_policy="blocks_authority",
+        blocker_code="gy_phase2_blocked_input_producer_missing",
+    )
 
 
 __all__ = ["RunCausalEvaluationNode"]

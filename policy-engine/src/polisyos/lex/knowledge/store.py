@@ -6,6 +6,7 @@ This is the persistence layer used by ``search.py``.
 from __future__ import annotations
 
 import hashlib
+from datetime import date, datetime
 from typing import TYPE_CHECKING, Any
 
 import duckdb
@@ -17,9 +18,12 @@ from polisyos.lex.knowledge.types import (
     LegalFactResult,
     LegalProvisionResult,
     LegalReferenceEdgeResult,
+    LegalRuleThresholdRow,
     LegalSearchResult,
     LegalSourceAnchor,
     LegalSourceBundle,
+    LegalTemporalCompetence,
+    LegalThresholdEvaluation,
 )
 
 if TYPE_CHECKING:
@@ -116,6 +120,7 @@ class LegalKnowledgeStore:
         self._provision_ids: list[str] | None = None
         self._table_exists_cache: dict[str, bool] = {}
         self._table_columns_cache: dict[str, set[str]] = {}
+        self._unit_registry_cache: dict[str, tuple[str, float, str]] | None = None
 
     def _table_exists(self, table_name: str) -> bool:
         cached = self._table_exists_cache.get(table_name)
@@ -246,6 +251,256 @@ class LegalKnowledgeStore:
             else:
                 selected.append(f"{default_sql} AS {column_name}")
         return ", ".join(selected)
+
+    def _threshold_fact_table(self) -> str:
+        if self._table_exists("lex_normative_ready_facts"):
+            return "lex_normative_ready_facts"
+        if self._table_exists("lex_normative_facts"):
+            return "lex_normative_facts"
+        return self._fact_table(
+            trust_tier="normative_fact",
+            include_candidates=False,
+        )
+
+    def _to_rule_threshold_row(self, row: tuple) -> LegalRuleThresholdRow:
+        provision_ref = ""
+        doc_id = str(row[8] or "")
+        provision_anchor = str(row[11] or "")
+        if doc_id and provision_anchor:
+            provision_ref = f"duckdb://{self._db_path}#lex_provisions/{doc_id}:{provision_anchor}"
+        return LegalRuleThresholdRow(
+            threshold_id=str(row[0] or ""),
+            fact_id=str(row[1] or ""),
+            metric=str(row[2] or ""),
+            operator=str(row[3] or ""),
+            value_decimal=None if row[4] is None else float(row[4]),
+            value_text=str(row[5] or ""),
+            unit=str(row[6] or ""),
+            applies_to=str(row[7] or ""),
+            doc_id=doc_id,
+            doc_family_id=str(row[9] or ""),
+            version_id=str(row[10] or ""),
+            provision_anchor=provision_anchor,
+            provision_citation=str(row[12] or ""),
+            provision_ref=provision_ref,
+            jurisdiction=str(row[13] or "UA"),
+            top_domain=str(row[14] or ""),
+            norm_type=str(row[15] or ""),
+            norm_type_canon=str(row[16] or ""),
+            effective_from=str(row[17] or ""),
+            effective_to=str(row[18] or ""),
+            temporal_resolution_status=str(row[19] or ""),
+            trust_tier=str(row[20] or "search_candidate"),
+        )
+
+    def _threshold_evaluation(
+        self,
+        threshold: LegalRuleThresholdRow,
+        *,
+        status: str,
+        reason: str,
+        normalized_candidate_value: float | None = None,
+        normalized_threshold_value: float | None = None,
+        canonical_unit: str = "",
+        temporal_status: str = "in_force",
+    ) -> LegalThresholdEvaluation:
+        threshold_ref = (
+            f"duckdb://{self._db_path}#lex_rule_thresholds/{threshold.threshold_id}"
+        )
+        return LegalThresholdEvaluation(
+            status=status,
+            reason=reason,
+            threshold_ref=threshold_ref,
+            threshold_id=threshold.threshold_id,
+            fact_id=threshold.fact_id,
+            metric=threshold.metric,
+            operator=threshold.operator,
+            applies_to=threshold.applies_to,
+            normalized_candidate_value=normalized_candidate_value,
+            normalized_threshold_value=normalized_threshold_value,
+            canonical_unit=canonical_unit,
+            temporal_status=temporal_status,
+            obligation_ref=f"duckdb://{self._db_path}#lex_normative_facts/{threshold.fact_id}",
+            provision_ref=threshold.provision_ref,
+        )
+
+    @staticmethod
+    def _threshold_ref(*, threshold_id: str | None, metric: str | None) -> str:
+        if threshold_id:
+            return f"lex_rule_thresholds/{threshold_id}"
+        if metric:
+            return f"lex_rule_thresholds?metric={metric}"
+        return "lex_rule_thresholds/unresolved"
+
+    @staticmethod
+    def _scope_applies(*, declared_scope: str, candidate_scope: str) -> bool:
+        declared_tokens = LegalKnowledgeStore._scope_tokens(declared_scope)
+        candidate_tokens = LegalKnowledgeStore._scope_tokens(candidate_scope)
+        if not declared_tokens or not candidate_tokens:
+            return False
+        return declared_tokens == candidate_tokens or declared_tokens.issubset(candidate_tokens)
+
+    @staticmethod
+    def _scope_tokens(value: str) -> set[str]:
+        return {
+            token
+            for token in (
+                str(value or "")
+                .strip()
+                .lower()
+                .replace(",", " ")
+                .replace(";", " ")
+                .replace(":", " ")
+                .split()
+            )
+            if token
+        }
+
+    def _unit_registry(self) -> dict[str, tuple[str, float, str]]:
+        if self._unit_registry_cache is not None:
+            return self._unit_registry_cache
+        registry: dict[str, tuple[str, float, str]] = {
+            "%": ("ratio", 1.0, "percent"),
+            "percent": ("ratio", 1.0, "percent"),
+            "percentage": ("ratio", 1.0, "percent"),
+            "ratio": ("ratio", 100.0, "percent"),
+            "fraction": ("ratio", 100.0, "percent"),
+            "decimal_fraction": ("ratio", 100.0, "percent"),
+            "percentage_point": ("percentage_point", 1.0, "percentage_point"),
+            "percentage_points": ("percentage_point", 1.0, "percentage_point"),
+            "pp": ("percentage_point", 1.0, "percentage_point"),
+            "year": ("time", 365.0, "day"),
+            "years": ("time", 365.0, "day"),
+            "рік": ("time", 365.0, "day"),
+            "років": ("time", 365.0, "day"),
+            "місяць": ("time", 30.0, "day"),
+            "місяц": ("time", 30.0, "day"),
+            "місяці": ("time", 30.0, "day"),
+            "місяців": ("time", 30.0, "day"),
+            "day": ("time", 1.0, "day"),
+            "days": ("time", 1.0, "day"),
+            "день": ("time", 1.0, "day"),
+            "дні": ("time", 1.0, "day"),
+            "днів": ("time", 1.0, "day"),
+            "дн": ("time", 1.0, "day"),
+            "hour": ("time", 1.0 / 24.0, "day"),
+            "hours": ("time", 1.0 / 24.0, "day"),
+            "година": ("time", 1.0 / 24.0, "day"),
+            "години": ("time", 1.0 / 24.0, "day"),
+            "годин": ("time", 1.0 / 24.0, "day"),
+            "грн": ("currency", 1.0, "uah"),
+            "uah": ("currency", 1.0, "uah"),
+            "₴": ("currency", 1.0, "uah"),
+            "коп": ("currency", 0.01, "uah"),
+            "копійка": ("currency", 0.01, "uah"),
+            "копійок": ("currency", 0.01, "uah"),
+            "кг": ("mass", 1.0, "kg"),
+            "kg": ("mass", 1.0, "kg"),
+            "кілограм": ("mass", 1.0, "kg"),
+            "кілограми": ("mass", 1.0, "kg"),
+            "тонна": ("mass", 1000.0, "kg"),
+            "тонни": ("mass", 1000.0, "kg"),
+            "тонн": ("mass", 1000.0, "kg"),
+            "t": ("mass", 1000.0, "kg"),
+            "км": ("length", 1.0, "km"),
+            "km": ("length", 1.0, "km"),
+            "кілометр": ("length", 1.0, "km"),
+            "кілометри": ("length", 1.0, "km"),
+            "га": ("area", 1.0, "ha"),
+            "ha": ("area", 1.0, "ha"),
+            "гектар": ("area", 1.0, "ha"),
+            "гектари": ("area", 1.0, "ha"),
+        }
+        if self._table_exists("lex_rule_thresholds"):
+            try:
+                rows = self._con.execute(
+                    """
+                    SELECT DISTINCT LOWER(TRIM(COALESCE(unit, ''))) AS unit
+                    FROM lex_rule_thresholds
+                    WHERE TRIM(COALESCE(unit, '')) != ''
+                    ORDER BY unit ASC
+                    """
+                ).fetchall()
+            except duckdb.Error:
+                rows = []
+            for row in rows:
+                token = str(row[0] or "").strip().lower()
+                if token and token not in registry:
+                    registry[token] = (f"unit:{token}", 1.0, token)
+        self._unit_registry_cache = registry
+        return registry
+
+    def _normalize_unit_value(self, value: float, unit: str) -> tuple[float, str, str] | None:
+        token = str(unit or "").strip().lower()
+        if not token:
+            return None
+        entry = self._unit_registry().get(token)
+        if entry is None:
+            return None
+        dimension, multiplier, canonical_unit = entry
+        try:
+            return (float(value) * multiplier, dimension, canonical_unit)
+        except (TypeError, ValueError):
+            return None
+
+    @staticmethod
+    def _operator_registry() -> dict[str, Any]:
+        tolerance = 1e-9
+        return {
+            "lte": lambda candidate, values: candidate <= values[0] + tolerance,
+            "<=": lambda candidate, values: candidate <= values[0] + tolerance,
+            "lt": lambda candidate, values: candidate < values[0],
+            "<": lambda candidate, values: candidate < values[0],
+            "gte": lambda candidate, values: candidate + tolerance >= values[0],
+            ">=": lambda candidate, values: candidate + tolerance >= values[0],
+            "gt": lambda candidate, values: candidate > values[0],
+            ">": lambda candidate, values: candidate > values[0],
+            "eq": lambda candidate, values: abs(candidate - values[0]) <= tolerance,
+            "=": lambda candidate, values: abs(candidate - values[0]) <= tolerance,
+            "range": lambda candidate, values: values[0] - tolerance <= candidate <= values[1] + tolerance,
+            "between": lambda candidate, values: values[0] - tolerance <= candidate <= values[1] + tolerance,
+            "interval": lambda candidate, values: values[0] - tolerance <= candidate <= values[1] + tolerance,
+            "in": lambda candidate, values: any(abs(candidate - value) <= tolerance for value in values),
+            "∈": lambda candidate, values: any(abs(candidate - value) <= tolerance for value in values),
+        }
+
+    @staticmethod
+    def _parse_numeric_values(*values: str) -> tuple[float, ...]:
+        parsed: list[float] = []
+        for value in values:
+            token = str(value or "").replace(",", ".")
+            number = ""
+            for char in token:
+                if char.isdigit() or char in ".-+":
+                    number += char
+                elif number:
+                    try:
+                        parsed.append(float(number))
+                    except ValueError:
+                        pass
+                    number = ""
+            if number:
+                try:
+                    parsed.append(float(number))
+                except ValueError:
+                    pass
+        return tuple(parsed)
+
+    def _threshold_operator_values(self, threshold: LegalRuleThresholdRow) -> tuple[float, ...]:
+        operator = str(threshold.operator or "").strip().lower()
+        if operator in {"range", "between", "interval", "in", "∈"}:
+            values = self._parse_numeric_values(threshold.value_decimal, threshold.value_text)
+            if operator in {"range", "between", "interval"} and len(values) >= 2:
+                lo, hi = min(values[:2]), max(values[:2])
+                return (lo, hi)
+            if operator in {"in", "∈"} and values:
+                return tuple(dict.fromkeys(values))
+        if threshold.value_decimal is None:
+            return ()
+        try:
+            return (float(threshold.value_decimal),)
+        except (TypeError, ValueError):
+            return ()
 
     # ------------------------------------------------------------------
     # Vector index loading (lazy)
@@ -663,6 +918,541 @@ class LegalKnowledgeStore:
             params,
         ).fetchall()
         return [self._to_fact_result(r, similarity=1.0) for r in rows]
+
+    def resolve_rule_threshold(
+        self,
+        *,
+        threshold_id: str | None = None,
+        metric: str | None = None,
+        applies_to: str | None = None,
+        as_of: str | None = None,
+        jurisdiction: str | None = None,
+        domain: str | None = None,
+        doc_family_id: str | None = None,
+    ) -> LegalRuleThresholdRow | None:
+        """Resolve a threshold row and bind it to its normative fact/provision context."""
+
+        if not self._table_exists("lex_rule_thresholds"):
+            return None
+        clauses: list[str] = []
+        params: list[Any] = []
+        if threshold_id:
+            clauses.append("t.threshold_id = ?")
+            params.append(str(threshold_id).strip())
+        elif metric:
+            clauses.append("t.metric = ?")
+            params.append(str(metric).strip())
+        else:
+            return None
+
+        fact_table = self._threshold_fact_table()
+        fact_clauses, fact_params = self._fact_filters(
+            alias="f",
+            jurisdiction=jurisdiction,
+            domain=domain,
+            as_of=None,
+            include_candidates=False,
+            selected_table=fact_table,
+        )
+        clauses.extend(fact_clauses)
+        params.extend(fact_params)
+        if doc_family_id:
+            clauses.append("f.doc_family_id = ?")
+            params.append(str(doc_family_id).strip())
+        where_sql = self._to_where_sql(clauses)
+        fact_select = self._select_sql(
+            table_name=fact_table,
+            alias="f",
+            fields=(
+                ("doc_id", "''"),
+                ("doc_family_id", "''"),
+                ("version_id", "''"),
+                ("provision_anchor", "''"),
+                ("provision_citation", "''"),
+                ("jurisdiction", "'UA'"),
+                ("top_domain", "''"),
+                ("norm_type", "''"),
+                ("norm_type_canon", "''"),
+                ("effective_from", "''"),
+                ("effective_to", "''"),
+                ("temporal_resolution_status", "''"),
+                ("trust_tier", "'search_candidate'"),
+            ),
+        )
+        rows = self._con.execute(
+            f"""
+            SELECT t.threshold_id, t.fact_id, t.metric, t.operator, t.value_decimal,
+                   t.value_text, t.unit, t.applies_to, {fact_select}
+            FROM lex_rule_thresholds t
+            LEFT JOIN {fact_table} f ON f.fact_id = t.fact_id
+            {where_sql}
+            ORDER BY COALESCE(f.confidence, 0.0) DESC, t.threshold_id ASC
+            LIMIT 16
+            """,
+            params,
+        ).fetchall()
+        resolved_rows = [self._to_rule_threshold_row(row) for row in rows]
+        if as_of:
+            in_force_rows = [
+                threshold
+                for threshold in resolved_rows
+                if self._threshold_temporal_status_from_row(
+                    threshold=threshold,
+                    as_of=as_of,
+                ).status
+                == "in_force"
+            ]
+            if in_force_rows:
+                resolved_rows = in_force_rows
+        if applies_to is not None:
+            applicable_rows = [
+                threshold
+                for threshold in resolved_rows
+                if self._scope_applies(
+                    declared_scope=threshold.applies_to,
+                    candidate_scope=applies_to,
+                )
+            ]
+            if applicable_rows:
+                return applicable_rows[0]
+        return resolved_rows[0] if resolved_rows else None
+
+    def evaluate_rule_threshold(
+        self,
+        *,
+        threshold_id: str | None = None,
+        metric: str | None = None,
+        candidate_value: float | None,
+        candidate_unit: str,
+        applies_to: str,
+        as_of: str | None = None,
+        jurisdiction: str | None = None,
+        domain: str | None = None,
+        doc_family_id: str | None = None,
+    ) -> LegalThresholdEvaluation:
+        """Evaluate an applicable L3 threshold with real operator and unit semantics."""
+
+        threshold = self.resolve_rule_threshold(
+            threshold_id=threshold_id,
+            metric=metric,
+            applies_to=applies_to,
+            as_of=as_of,
+            jurisdiction=jurisdiction,
+            domain=domain,
+            doc_family_id=doc_family_id,
+        )
+        threshold_ref = self._threshold_ref(threshold_id=threshold_id, metric=metric)
+        if threshold is None:
+            return LegalThresholdEvaluation(
+                status="blocked",
+                reason="threshold_unresolved",
+                threshold_ref=threshold_ref,
+                temporal_status="blocked",
+            )
+        if not self._scope_applies(
+            declared_scope=threshold.applies_to,
+            candidate_scope=applies_to,
+        ):
+            return self._threshold_evaluation(
+                threshold,
+                status="not_applicable",
+                reason="threshold_not_applicable",
+            )
+        temporal_status: LegalTemporalCompetence
+        if as_of:
+            temporal_status = self.resolve_threshold_temporal_competence(
+                threshold_id=threshold.threshold_id,
+                as_of=as_of,
+            )
+            if temporal_status.status != "in_force":
+                return self._threshold_evaluation(
+                    threshold,
+                    status="blocked",
+                    reason="temporal_not_in_force",
+                    temporal_status=temporal_status.status,
+                )
+        if candidate_value is None:
+            return self._threshold_evaluation(
+                threshold,
+                status="blocked",
+                reason="candidate_bound_missing",
+            )
+        threshold_values = self._threshold_operator_values(threshold)
+        if not threshold_values:
+            return self._threshold_evaluation(
+                threshold,
+                status="blocked",
+                reason="threshold_bound_missing",
+            )
+        candidate_normalized = self._normalize_unit_value(candidate_value, candidate_unit)
+        threshold_normalized_values = [
+            self._normalize_unit_value(value, threshold.unit)
+            for value in threshold_values
+        ]
+        if candidate_normalized is None or any(value is None for value in threshold_normalized_values):
+            return self._threshold_evaluation(
+                threshold,
+                status="blocked",
+                reason="unit_unresolved",
+            )
+        candidate_value_norm, candidate_dimension, _candidate_unit_norm = candidate_normalized
+        normalized_thresholds = [
+            value for value in threshold_normalized_values if value is not None
+        ]
+        threshold_dimensions = {value[1] for value in normalized_thresholds}
+        threshold_units = {value[2] for value in normalized_thresholds}
+        if threshold_dimensions != {candidate_dimension}:
+            return self._threshold_evaluation(
+                threshold,
+                status="blocked",
+                reason="unit_incompatible",
+                normalized_candidate_value=candidate_value_norm,
+                normalized_threshold_value=normalized_thresholds[0][0],
+                canonical_unit=sorted(threshold_units)[0],
+            )
+        threshold_value_norms = tuple(value[0] for value in normalized_thresholds)
+        threshold_unit_norm = sorted(threshold_units)[0]
+        operator_fn = self._operator_registry().get(str(threshold.operator).strip().lower())
+        if operator_fn is None:
+            return self._threshold_evaluation(
+                threshold,
+                status="blocked",
+                reason="operator_unresolved",
+                normalized_candidate_value=candidate_value_norm,
+                normalized_threshold_value=threshold_value_norms[0],
+                canonical_unit=threshold_unit_norm,
+            )
+        admitted = operator_fn(candidate_value_norm, threshold_value_norms)
+        return self._threshold_evaluation(
+            threshold,
+            status="admitted" if admitted else "blocked",
+            reason="threshold_satisfied" if admitted else "threshold_violated",
+            normalized_candidate_value=candidate_value_norm,
+            normalized_threshold_value=threshold_value_norms[0],
+            canonical_unit=threshold_unit_norm,
+        )
+
+    @staticmethod
+    def _parse_lex_date(value: str | None) -> date | None:
+        token = str(value or "").strip()
+        if not token:
+            return None
+        for fmt in ("%Y-%m-%d", "%d.%m.%Y", "%Y.%m.%d"):
+            try:
+                return datetime.strptime(token[:10], fmt).date()
+            except ValueError:
+                continue
+        return None
+
+    @staticmethod
+    def _date_to_iso(value: date | None) -> str:
+        return "" if value is None else value.isoformat()
+
+    def _threshold_lineage_rows(
+        self,
+        threshold: LegalRuleThresholdRow,
+    ) -> list[LegalRuleThresholdRow]:
+        if not threshold.doc_family_id or not threshold.metric:
+            return [threshold]
+        fact_table = self._threshold_fact_table()
+        fact_select = self._select_sql(
+            table_name=fact_table,
+            alias="f",
+            fields=(
+                ("doc_id", "''"),
+                ("doc_family_id", "''"),
+                ("version_id", "''"),
+                ("provision_anchor", "''"),
+                ("provision_citation", "''"),
+                ("jurisdiction", "'UA'"),
+                ("top_domain", "''"),
+                ("norm_type", "''"),
+                ("norm_type_canon", "''"),
+                ("effective_from", "''"),
+                ("effective_to", "''"),
+                ("temporal_resolution_status", "''"),
+                ("trust_tier", "'search_candidate'"),
+            ),
+        )
+        rows = self._con.execute(
+            f"""
+            SELECT t.threshold_id, t.fact_id, t.metric, t.operator, t.value_decimal,
+                   t.value_text, t.unit, t.applies_to, {fact_select}
+            FROM lex_rule_thresholds t
+            LEFT JOIN {fact_table} f ON f.fact_id = t.fact_id
+            WHERE f.doc_family_id = ?
+              AND t.metric = ?
+            ORDER BY COALESCE(f.effective_from, '') ASC,
+                     COALESCE(f.doc_date_acc, '') ASC,
+                     COALESCE(f.version_id, '') ASC,
+                     t.threshold_id ASC
+            """,
+            [threshold.doc_family_id, threshold.metric],
+        ).fetchall()
+        lineage = [self._to_rule_threshold_row(row) for row in rows]
+        return lineage or [threshold]
+
+    def _threshold_effective_start(self, threshold: LegalRuleThresholdRow) -> date | None:
+        explicit = self._parse_lex_date(threshold.effective_from)
+        if explicit is not None:
+            return explicit
+        if threshold.version_id:
+            try:
+                row = self._con.execute(
+                    """
+                    SELECT doc_date_acc
+                    FROM lex_doc_versions
+                    WHERE version_id = ? OR doc_id = ?
+                    ORDER BY version_rank ASC NULLS LAST
+                    LIMIT 1
+                    """,
+                    [threshold.version_id, threshold.doc_id],
+                ).fetchone()
+            except duckdb.Error:
+                row = None
+            if row is not None:
+                resolved = self._parse_lex_date(str(row[0] or ""))
+                if resolved is not None:
+                    return resolved
+        return None
+
+    def _threshold_next_start(
+        self,
+        *,
+        threshold: LegalRuleThresholdRow,
+        start: date | None,
+    ) -> date | None:
+        candidates: list[date] = []
+        if threshold.doc_family_id and self._table_exists("lex_doc_versions"):
+            try:
+                version_rows = self._con.execute(
+                    """
+                    SELECT doc_date_acc
+                    FROM lex_doc_versions
+                    WHERE doc_family_id = ?
+                      AND (version_id != ? OR doc_id != ?)
+                    ORDER BY version_rank ASC NULLS LAST, doc_date_acc ASC
+                    """,
+                    [threshold.doc_family_id, threshold.version_id, threshold.doc_id],
+                ).fetchall()
+            except duckdb.Error:
+                version_rows = []
+            for row in version_rows:
+                version_start = self._parse_lex_date(str(row[0] or ""))
+                if version_start is not None and (start is None or version_start > start):
+                    candidates.append(version_start)
+        for sibling in self._threshold_lineage_rows(threshold):
+            if sibling.threshold_id == threshold.threshold_id:
+                continue
+            sibling_start = self._threshold_effective_start(sibling)
+            if sibling_start is None:
+                continue
+            if start is None or sibling_start > start:
+                candidates.append(sibling_start)
+        return min(candidates) if candidates else None
+
+    def _threshold_temporal_status_from_row(
+        self,
+        *,
+        threshold: LegalRuleThresholdRow,
+        as_of: str,
+    ) -> LegalTemporalCompetence:
+        subject_ref = f"duckdb://{self._db_path}#lex_rule_thresholds/{threshold.threshold_id}"
+        as_of_date = self._parse_lex_date(as_of)
+        if as_of_date is None:
+            return LegalTemporalCompetence(
+                status="blocked",
+                subject_ref=subject_ref,
+                as_of=as_of,
+                reason="as_of_unparseable",
+            )
+        effective_from = self._threshold_effective_start(threshold)
+        effective_to = self._parse_lex_date(threshold.effective_to)
+        next_start = self._threshold_next_start(threshold=threshold, start=effective_from)
+        stale_after = effective_to
+        if next_start is not None and (stale_after is None or next_start < stale_after):
+            stale_after = next_start
+        if effective_from is not None and as_of_date < effective_from:
+            return LegalTemporalCompetence(
+                status="not_yet_in_force",
+                subject_ref=subject_ref,
+                as_of=as_of,
+                effective_from=self._date_to_iso(effective_from),
+                effective_to=self._date_to_iso(stale_after),
+                reason="as_of_before_effective_from",
+            )
+        if stale_after is not None and as_of_date >= stale_after:
+            return LegalTemporalCompetence(
+                status="stale",
+                subject_ref=subject_ref,
+                as_of=as_of,
+                effective_from=self._date_to_iso(effective_from),
+                effective_to=self._date_to_iso(stale_after),
+                stale_after=self._date_to_iso(stale_after),
+                reason="superseded_by_later_threshold_version",
+            )
+        return LegalTemporalCompetence(
+            status="in_force",
+            subject_ref=subject_ref,
+            as_of=as_of,
+            effective_from=self._date_to_iso(effective_from),
+            effective_to=self._date_to_iso(stale_after),
+            reason="threshold_version_in_force",
+        )
+
+    def resolve_threshold_temporal_competence(
+        self,
+        *,
+        threshold_id: str,
+        as_of: str,
+    ) -> LegalTemporalCompetence:
+        """Resolve the as-of temporal window for a threshold-backed norm."""
+
+        threshold = self.resolve_rule_threshold(threshold_id=threshold_id)
+        subject_ref = f"duckdb://{self._db_path}#lex_rule_thresholds/{threshold_id}"
+        if threshold is None:
+            return LegalTemporalCompetence(
+                status="blocked",
+                subject_ref=subject_ref,
+                as_of=as_of,
+                reason="threshold_unresolved",
+            )
+        return self._threshold_temporal_status_from_row(threshold=threshold, as_of=as_of)
+
+    def resolve_amendment_temporal_competence(
+        self,
+        *,
+        amendment_id: str,
+        as_of: str,
+    ) -> LegalTemporalCompetence:
+        """Resolve amendment effective_from as temporal competence authority."""
+
+        subject_ref = f"duckdb://{self._db_path}#lex_amendments/{amendment_id}"
+        if not self._table_exists("lex_amendments"):
+            return LegalTemporalCompetence(
+                status="blocked",
+                subject_ref=subject_ref,
+                as_of=as_of,
+                amendment_id=amendment_id,
+                reason="amendment_store_unavailable",
+            )
+        row = self._con.execute(
+            """
+            SELECT amendment_id, amendment_type, effective_from, amended_doc_id, target_anchor
+            FROM lex_amendments
+            WHERE amendment_id = ?
+            LIMIT 1
+            """,
+            [str(amendment_id).strip()],
+        ).fetchone()
+        if row is None:
+            return LegalTemporalCompetence(
+                status="blocked",
+                subject_ref=subject_ref,
+                as_of=as_of,
+                amendment_id=amendment_id,
+                reason="amendment_unresolved",
+            )
+        effective_from = str(row[2] or "").strip()
+        amendment_type = str(row[1] or "").strip()
+        amended_doc_id = str(row[3] or "").strip()
+        target_anchor = str(row[4] or "").strip()
+        if not effective_from:
+            return LegalTemporalCompetence(
+                status="blocked",
+                subject_ref=subject_ref,
+                as_of=as_of,
+                amendment_id=str(row[0]),
+                amendment_type=amendment_type,
+                reason="amendment_effective_from_missing",
+            )
+        as_of_date = self._parse_lex_date(as_of)
+        effective_from_date = self._parse_lex_date(effective_from)
+        if as_of_date is None or effective_from_date is None:
+            return LegalTemporalCompetence(
+                status="blocked",
+                subject_ref=subject_ref,
+                as_of=str(as_of),
+                effective_from=effective_from,
+                amendment_id=str(row[0]),
+                amendment_type=amendment_type,
+                reason="amendment_date_unparseable",
+            )
+        if as_of_date < effective_from_date:
+            return LegalTemporalCompetence(
+                status="not_yet_in_force",
+                subject_ref=subject_ref,
+                as_of=str(as_of),
+                effective_from=self._date_to_iso(effective_from_date),
+                amendment_id=str(row[0]),
+                amendment_type=amendment_type,
+                reason="as_of_before_effective_from",
+            )
+        superseding = self._superseding_amendment_start(
+            amendment_id=str(row[0]),
+            amended_doc_id=amended_doc_id,
+            target_anchor=target_anchor,
+            effective_from=effective_from_date,
+        )
+        if superseding is not None and as_of_date >= superseding:
+            return LegalTemporalCompetence(
+                status="stale",
+                subject_ref=subject_ref,
+                as_of=str(as_of),
+                effective_from=self._date_to_iso(effective_from_date),
+                effective_to=self._date_to_iso(superseding),
+                stale_after=self._date_to_iso(superseding),
+                amendment_id=str(row[0]),
+                amendment_type=amendment_type,
+                reason="superseded_by_later_amendment",
+            )
+        return LegalTemporalCompetence(
+            status="in_force",
+            subject_ref=subject_ref,
+            as_of=str(as_of),
+            effective_from=self._date_to_iso(effective_from_date),
+            effective_to=self._date_to_iso(superseding),
+            amendment_id=str(row[0]),
+            amendment_type=amendment_type,
+            reason="amendment_in_force",
+        )
+
+    def _superseding_amendment_start(
+        self,
+        *,
+        amendment_id: str,
+        amended_doc_id: str,
+        target_anchor: str,
+        effective_from: date,
+    ) -> date | None:
+        clauses = ["amendment_id != ?", "effective_from IS NOT NULL", "effective_from != ''"]
+        params: list[Any] = [amendment_id]
+        if amended_doc_id:
+            clauses.append("amended_doc_id = ?")
+            params.append(amended_doc_id)
+        else:
+            clauses.append("COALESCE(amended_doc_id, '') = ''")
+        if target_anchor:
+            clauses.append("target_anchor = ?")
+            params.append(target_anchor)
+        else:
+            clauses.append("COALESCE(target_anchor, '') = ''")
+        rows = self._con.execute(
+            f"""
+            SELECT effective_from
+            FROM lex_amendments
+            {self._to_where_sql(clauses)}
+            ORDER BY effective_from ASC, amendment_id ASC
+            """,
+            params,
+        ).fetchall()
+        candidates = [
+            parsed
+            for row in rows
+            if (parsed := self._parse_lex_date(str(row[0] or ""))) is not None
+            and parsed > effective_from
+        ]
+        return min(candidates) if candidates else None
 
     def find_constraints(
         self,

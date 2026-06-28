@@ -181,6 +181,38 @@ def test_request_json_handles_invalid_json() -> None:
         )
 
 
+def test_request_json_blocks_secret_pii_response_payload() -> None:
+    connector = _DummyConnector()
+    response = _FakeResponse(
+        status=200,
+        headers={},
+        body=b'{"email":"policy.fixture@example.org"}',
+    )
+
+    with pytest.raises(FetchError, match="blocked by secret/PII scan"):
+        _run(
+            connector._request_json(
+                _FakeSession(response),
+                "https://example.test/secret",
+                params={},
+                connector_id=connector.connector_id,
+            )
+        )
+
+
+def test_connection_config_redaction_uses_shared_secret_pii_scanner() -> None:
+    config = ConnectionConfig(
+        url="https://example.test",
+        auth_method="bearer",
+        auth_credentials={"token": "sk-testsecret1234567890"},
+    )
+
+    payload = config.to_dict(redact=True)
+
+    assert "sk-testsecret1234567890" not in str(payload)
+    assert "[POLISYOS_SECRET_" in str(payload)
+
+
 def test_request_json_rejects_oversized_content_length() -> None:
     class _LimitedConnector(_DummyConnector):
         resilience_profile = HTTPResilienceProfile(max_response_bytes=8, max_json_bytes=8)

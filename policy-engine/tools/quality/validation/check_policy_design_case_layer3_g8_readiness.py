@@ -12,7 +12,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from polisyos.runtime.quality import layer3_health_metric_governance as g8
+from polisyos.runtime.quality.proving_ground import health_metric_governance as g8
 from tools.lib.fs import atomic_write_text
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -417,7 +417,7 @@ def _registration_statuses(repo_root: Path) -> dict[str, str]:
     )
     inventory_ok = (
         g8.G8_SURFACE_ID in inventory_text
-        and "src/polisyos/runtime/quality/layer3_health_metric_governance.py"
+        and "src/polisyos/runtime/quality/proving_ground/health_metric_governance.py"
         in inventory_text
         and "check_policy_design_case_layer3_g8_readiness.py" in inventory_text
         and "validate_layer3_g8_readiness" in inventory_text

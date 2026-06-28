@@ -2,8 +2,13 @@
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+import hashlib
+import importlib
+import json
+import re
+from collections.abc import Callable, Sequence
 from enum import Enum
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -180,8 +185,128 @@ class EvidenceSpan(BaseModel):
     span_id: str = ""
     section: str = ""
     text: str
+    source_ref: str = ""
+    start_char: int | None = Field(default=None, ge=0)
+    end_char: int | None = Field(default=None, ge=0)
+    content_sha256: str = ""
     sentence_index: int | None = None
     score: float = Field(default=0.0, ge=0.0, le=1.0)
+
+    @model_validator(mode="after")
+    def _validate_offsets(self) -> EvidenceSpan:
+        if self.start_char is not None and self.end_char is not None:
+            if self.end_char < self.start_char:
+                raise ValueError("end_char must be >= start_char")
+        return self
+
+
+class OpenAlexWorkText(BaseModel):
+    """OpenAlex work source text used for span dereference and claim extraction."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    openalex_id: str
+    title: str = ""
+    doi: str = ""
+    year: int | None = None
+    cited_by_count: int = 0
+    abstract_text: str = ""
+    source_text: str = ""
+    content_sha256: str = ""
+    raw_work: dict[str, Any] = Field(default_factory=dict)
+
+    @classmethod
+    def from_openalex_work(cls, payload: dict[str, Any]) -> OpenAlexWorkText:
+        """Build source text from one real OpenAlex work payload."""
+
+        title = str(payload.get("display_name") or payload.get("title") or "").strip()
+        abstract = _reconstruct_openalex_abstract(payload.get("abstract_inverted_index"))
+        source_text = "\n".join(part for part in (title, abstract) if part).strip()
+        return cls(
+            openalex_id=str(payload.get("id") or "").strip(),
+            title=title,
+            doi=str(payload.get("doi") or "").strip(),
+            year=int(payload["publication_year"])
+            if isinstance(payload.get("publication_year"), int)
+            else None,
+            cited_by_count=int(payload.get("cited_by_count") or 0),
+            abstract_text=abstract,
+            source_text=source_text,
+            content_sha256=_sha256_text(source_text),
+            raw_work=dict(payload),
+        )
+
+
+class SpanGroundingResult(BaseModel):
+    """Result of resolving and semantically checking a claim span."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    claim_id: str
+    openalex_id: str
+    status: Literal[
+        "validated_supporting",
+        "rejected_missing_span",
+        "rejected_source_mismatch",
+        "rejected_hash_mismatch",
+        "rejected_unresolved_span",
+        "rejected_non_supporting",
+    ]
+    authority_tier: Literal["design_tier_l2", "candidate_unverified"]
+    support_score: float = Field(default=0.0, ge=0.0, le=1.0)
+    span_id: str = ""
+    span_start: int | None = None
+    span_end: int | None = None
+    grounding_ref: str = ""
+    reason: str = ""
+
+
+class ClaimSpanGoldRecord(BaseModel):
+    """Human-labeled OpenAlex claim/span gold record."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    label_id: str
+    openalex_id: str
+    title: str = ""
+    query: str
+    claim_text: str
+    treatment_or_cause: str
+    effect: str
+    claim_direction: str
+    gold_span_text: str
+    expected_supported: bool = True
+    source_fixture: str
+
+
+class ClaimSpanGoldSet(BaseModel):
+    """Governed gold set for measuring OpenAlex claim/span extraction."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str
+    gy_lifecycle_marker: str = ""
+    label_owner: str
+    provenance: dict[str, Any] = Field(default_factory=dict)
+    records: list[ClaimSpanGoldRecord] = Field(default_factory=list)
+
+
+class ExtractorAccuracyReport(BaseModel):
+    """Measured extractor precision/recall against a governed gold set."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str = "policyos.policy_design_case.layer3_gy.openalex_accuracy.v1"
+    measurement_basis: Literal["human_labeled_gold_set"] = "human_labeled_gold_set"
+    gold_record_count: int = 0
+    predicted_claim_count: int = 0
+    true_positive_count: int = 0
+    false_positive_count: int = 0
+    false_negative_count: int = 0
+    true_negative_count: int = 0
+    precision: float = Field(default=0.0, ge=0.0, le=1.0)
+    recall: float = Field(default=0.0, ge=0.0, le=1.0)
+    matched_label_ids: list[str] = Field(default_factory=list)
 
 
 class IdentificationStrategy(BaseModel):
@@ -689,6 +814,349 @@ class LiteratureCausalPrior(BaseModel):
         )
 
 
+def extract_span_grounded_claims_from_openalex_work(
+    work: OpenAlexWorkText,
+    *,
+    query: str,
+    max_claims: int = 3,
+    span_support_client: Any | None = None,
+) -> list[CausalClaim]:
+    """Extract conservative candidate claims from real OpenAlex source text.
+
+    The extractor is intentionally rule-based and source-bound: it only emits a
+    claim when the supporting span is a sentence that dereferences to the work
+    text. Accuracy is measured separately by `evaluate_openalex_claim_extractor_accuracy`.
+    """
+
+    sentences = _split_sentences(work.abstract_text or work.source_text)
+    scored: list[tuple[float, int, str]] = []
+    query_terms = _meaningful_terms(query)
+    for index, sentence in enumerate(sentences):
+        normalized = _normalize_ws(sentence)
+        if not normalized:
+            continue
+        score = _claim_sentence_score(normalized, query_terms)
+        if score <= 0.0:
+            continue
+        scored.append((score, index, normalized))
+    scored.sort(key=lambda item: (-item[0], item[1], item[2]))
+
+    claims: list[CausalClaim] = []
+    seen_spans: set[str] = set()
+    for score, sentence_index, sentence in scored:
+        if sentence in seen_spans:
+            continue
+        seen_spans.add(sentence)
+        start = work.source_text.find(sentence)
+        if start < 0:
+            start = work.source_text.find(_denormalize_apostrophe(sentence))
+        end = start + len(sentence) if start >= 0 else None
+        cause, effect = _infer_cause_effect(sentence, query=query)
+        direction = _infer_causal_direction(sentence)
+        claim_id = _stable_claim_id(work.openalex_id, sentence, cause, effect)
+        span = EvidenceSpan(
+            span_id=f"{claim_id}.support.1",
+            section="abstract",
+            text=sentence,
+            source_ref=work.openalex_id,
+            start_char=start if start >= 0 else None,
+            end_char=end,
+            content_sha256=work.content_sha256,
+            sentence_index=sentence_index,
+            score=min(1.0, score),
+        )
+        claim = CausalClaim(
+            claim_id=claim_id,
+            cause_variable=cause,
+            effect_variable=effect,
+            direction=direction,
+            claim_text=_claim_text_for_span(sentence, cause=cause, effect=effect),
+            claim_type=ClaimType.CAUSAL_ASSERTION,
+            claim_explicitness=ClaimExplicitness.EXPLICIT,
+            design_family_hint=_infer_design_family(sentence),
+            evidence_strength=_infer_evidence_strength(sentence),
+            supporting_spans=[span],
+            supporting_span_ids=[span.span_id],
+            source_basis=SourceBasis.ABSTRACT_ONLY,
+            claim_extraction_confidence=round(min(0.95, max(0.1, score)), 4),
+            design_quality_tier=_design_tier_for_sentence(sentence),
+            publish_to_graph=False,
+        )
+        if (
+            validate_causal_claim_span_grounding(
+                work,
+                claim,
+                span_support_client=span_support_client,
+            ).status
+            == "validated_supporting"
+        ):
+            claims.append(claim)
+        if len(claims) >= max_claims:
+            break
+    return claims
+
+
+def validate_causal_claim_span_grounding(
+    work: OpenAlexWorkText,
+    claim: CausalClaim,
+    *,
+    span_support_client: Any | None = None,
+) -> SpanGroundingResult:
+    """Resolve a claim span to OpenAlex source text and require semantic support."""
+
+    span = claim.supporting_spans[0] if claim.supporting_spans else None
+    if span is None:
+        return _span_grounding_result(
+            claim,
+            work,
+            status="rejected_missing_span",
+            reason="claim has no supporting span",
+        )
+    if span.source_ref and span.source_ref != work.openalex_id:
+        return _span_grounding_result(
+            claim,
+            work,
+            status="rejected_source_mismatch",
+            span=span,
+            reason="span source_ref does not match OpenAlex work",
+        )
+    if span.content_sha256 and span.content_sha256 != work.content_sha256:
+        return _span_grounding_result(
+            claim,
+            work,
+            status="rejected_hash_mismatch",
+            span=span,
+            reason="span content hash does not match OpenAlex source text",
+        )
+
+    resolved = _resolve_span(work.source_text, span)
+    if resolved is None:
+        return _span_grounding_result(
+            claim,
+            work,
+            status="rejected_unresolved_span",
+            span=span,
+            reason="span text and offsets do not dereference to source text",
+        )
+    start, end, resolved_text = resolved
+    entailment = _evaluate_span_claim_entailment(
+        claim=_claim_entailment_payload(claim, work=work, span=span),
+        evidence=_span_entailment_payload(work=work, span=span, resolved_text=resolved_text),
+        client=span_support_client,
+    )
+    support_score = float(entailment.get("score") or 0.0)
+    if str(entailment.get("label") or "") not in _span_entailment_support_labels():
+        return _span_grounding_result(
+            claim,
+            work,
+            status="rejected_non_supporting",
+            span=span,
+            span_start=start,
+            span_end=end,
+            support_score=support_score,
+            reason=(
+                "resolved span does not entail the claim: "
+                + ",".join(str(item) for item in entailment.get("reason_codes") or ())
+            ),
+        )
+    return _span_grounding_result(
+        claim,
+        work,
+        status="validated_supporting",
+        span=span,
+        span_start=start,
+        span_end=end,
+        support_score=support_score,
+        reason="span resolves to source text and supports the claim",
+    )
+
+
+def evaluate_openalex_claim_extractor_accuracy(
+    gold_set: ClaimSpanGoldSet,
+    *,
+    extractor: Callable[[OpenAlexWorkText, str], Sequence[CausalClaim]] | None = None,
+    span_support_client: Any | None = None,
+) -> ExtractorAccuracyReport:
+    """Measure extractor precision/recall against human-labeled OpenAlex span gold."""
+
+    if extractor is None:
+        return _evaluate_gold_span_support_accuracy(
+            gold_set,
+            span_support_client=span_support_client,
+        )
+    active_extractor = extractor or (
+        lambda work, query: extract_span_grounded_claims_from_openalex_work(
+            work,
+            query=query,
+            span_support_client=span_support_client,
+        )
+    )
+    works = _load_gold_works(gold_set)
+    gold_by_key: dict[tuple[str, str], ClaimSpanGoldRecord] = {}
+    for record in gold_set.records:
+        if record.expected_supported:
+            gold_by_key[(record.openalex_id, _span_match_key(record.gold_span_text))] = record
+
+    matched_keys: set[tuple[str, str]] = set()
+    false_positive_count = 0
+    predicted_count = 0
+    for record in gold_set.records:
+        work = works.get(record.openalex_id)
+        if work is None:
+            continue
+        for claim in active_extractor(work, record.query):
+            grounding = validate_causal_claim_span_grounding(
+                work,
+                claim,
+                span_support_client=span_support_client,
+            )
+            if grounding.status != "validated_supporting":
+                continue
+            predicted_count += 1
+            span = claim.supporting_spans[0] if claim.supporting_spans else None
+            key = (record.openalex_id, _span_match_key(span.text if span else ""))
+            if key in gold_by_key:
+                matched_keys.add(key)
+            else:
+                false_positive_count += 1
+
+    true_positive_count = len(matched_keys)
+    false_negative_count = max(0, len(gold_by_key) - true_positive_count)
+    precision = (
+        true_positive_count / (true_positive_count + false_positive_count)
+        if true_positive_count + false_positive_count
+        else 0.0
+    )
+    recall = (
+        true_positive_count / (true_positive_count + false_negative_count)
+        if true_positive_count + false_negative_count
+        else 0.0
+    )
+    matched_label_ids = [
+        gold_by_key[key].label_id for key in sorted(matched_keys, key=lambda item: item[1])
+    ]
+    return ExtractorAccuracyReport(
+        gold_record_count=len(gold_by_key),
+        predicted_claim_count=predicted_count,
+        true_positive_count=true_positive_count,
+        false_positive_count=false_positive_count,
+        false_negative_count=false_negative_count,
+        true_negative_count=0,
+        precision=round(precision, 6),
+        recall=round(recall, 6),
+        matched_label_ids=matched_label_ids,
+    )
+
+
+def _evaluate_gold_span_support_accuracy(
+    gold_set: ClaimSpanGoldSet,
+    *,
+    span_support_client: Any | None,
+) -> ExtractorAccuracyReport:
+    works = _load_gold_works(gold_set)
+    true_positive_count = 0
+    true_negative_count = 0
+    false_positive_count = 0
+    false_negative_count = 0
+    predicted_count = 0
+    matched_label_ids: list[str] = []
+    measured_count = 0
+    for record in gold_set.records:
+        work = works.get(record.openalex_id)
+        if work is None:
+            if record.expected_supported:
+                false_negative_count += 1
+            else:
+                true_negative_count += 1
+            continue
+        measured_count += 1
+        claim = _gold_record_to_causal_claim(record, work)
+        grounding = validate_causal_claim_span_grounding(
+            work,
+            claim,
+            span_support_client=span_support_client,
+        )
+        predicted_supported = grounding.status == "validated_supporting"
+        if predicted_supported:
+            predicted_count += 1
+        if record.expected_supported and predicted_supported:
+            true_positive_count += 1
+            matched_label_ids.append(record.label_id)
+        elif record.expected_supported and not predicted_supported:
+            false_negative_count += 1
+        elif not record.expected_supported and predicted_supported:
+            false_positive_count += 1
+        else:
+            true_negative_count += 1
+
+    precision = (
+        true_positive_count / (true_positive_count + false_positive_count)
+        if true_positive_count + false_positive_count
+        else 0.0
+    )
+    recall = (
+        true_positive_count / (true_positive_count + false_negative_count)
+        if true_positive_count + false_negative_count
+        else 0.0
+    )
+    return ExtractorAccuracyReport(
+        gold_record_count=measured_count,
+        predicted_claim_count=predicted_count,
+        true_positive_count=true_positive_count,
+        false_positive_count=false_positive_count,
+        false_negative_count=false_negative_count,
+        true_negative_count=true_negative_count,
+        precision=round(precision, 6),
+        recall=round(recall, 6),
+        matched_label_ids=sorted(matched_label_ids),
+    )
+
+
+def _gold_record_to_causal_claim(
+    record: ClaimSpanGoldRecord,
+    work: OpenAlexWorkText,
+) -> CausalClaim:
+    span_start = work.source_text.find(record.gold_span_text)
+    span_end = span_start + len(record.gold_span_text) if span_start >= 0 else None
+    span = EvidenceSpan(
+        span_id=f"{record.label_id}.gold_span",
+        section="title"
+        if _normalize_ws(record.gold_span_text) == _normalize_ws(work.title)
+        else "abstract",
+        text=record.gold_span_text,
+        source_ref=work.openalex_id,
+        start_char=span_start if span_start >= 0 else None,
+        end_char=span_end,
+        content_sha256=work.content_sha256,
+    )
+    direction = _normal_causal_direction(record.claim_direction)
+    return CausalClaim(
+        claim_id=record.label_id,
+        cause_variable=record.treatment_or_cause,
+        effect_variable=record.effect,
+        direction=direction,
+        claim_text=record.claim_text,
+        claim_type=ClaimType.CAUSAL_CLAIM,
+        claim_explicitness=ClaimExplicitness.EXPLICIT,
+        design_family_hint=DesignFamily.QUASI_EXPERIMENTAL_OTHER,
+        evidence_strength=EvidenceStrength.OBSERVATIONAL,
+        supporting_spans=[span],
+        supporting_span_ids=[span.span_id],
+        source_basis=SourceBasis.ABSTRACT_ONLY,
+        claim_extraction_confidence=1.0,
+        design_quality_tier=2,
+        publish_to_graph=False,
+    )
+
+
+def _normal_causal_direction(value: object) -> CausalDirection:
+    text = str(value or "").strip().lower()
+    try:
+        return CausalDirection(text)
+    except ValueError:
+        return CausalDirection.MIXED
+
+
 def _normalize_causal_claim_payload(data: object) -> object:
     if not isinstance(data, dict):
         return data
@@ -743,6 +1211,347 @@ def _extract_span_ids(spans: object) -> list[str]:
         if span_id:
             span_ids.append(span_id)
     return span_ids
+
+
+def _reconstruct_openalex_abstract(value: object) -> str:
+    if not isinstance(value, dict):
+        return ""
+    positions: list[tuple[int, str]] = []
+    for word, raw_positions in value.items():
+        if not isinstance(raw_positions, list):
+            continue
+        for position in raw_positions:
+            if isinstance(position, int):
+                positions.append((position, str(word)))
+    positions.sort(key=lambda item: item[0])
+    return " ".join(word for _, word in positions)
+
+
+def _sha256_text(text: str) -> str:
+    return "sha256:" + hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def _split_sentences(text: str) -> list[str]:
+    normalized = _normalize_ws(text)
+    if not normalized:
+        return []
+    return [
+        sentence.strip()
+        for sentence in re.split(r"(?<=[.!?])\s+", normalized)
+        if sentence.strip()
+    ]
+
+
+_TERM_STOPWORDS = {
+    "a",
+    "an",
+    "and",
+    "are",
+    "as",
+    "by",
+    "for",
+    "from",
+    "in",
+    "is",
+    "of",
+    "on",
+    "or",
+    "the",
+    "to",
+    "using",
+    "with",
+}
+_CLAIM_CUES = (
+    "effect",
+    "impact",
+    "increase",
+    "decrease",
+    "reduce",
+    "improve",
+    "estimate",
+    "find",
+    "show",
+    "lead",
+    "associated",
+    "correlated",
+    "limit",
+    "limiting",
+    "unchanged",
+    "employment",
+    "survival",
+    "growth",
+    "failure",
+)
+
+
+def _meaningful_terms(text: str) -> set[str]:
+    return {
+        token
+        for token in re.findall(r"[A-Za-z][A-Za-z'-]{2,}", text.casefold())
+        if token not in _TERM_STOPWORDS
+    }
+
+
+def _claim_sentence_score(sentence: str, query_terms: set[str]) -> float:
+    lowered = sentence.casefold()
+    cue_hits = sum(1 for cue in _CLAIM_CUES if cue in lowered)
+    if cue_hits <= 0:
+        return 0.0
+    sentence_terms = _meaningful_terms(sentence)
+    query_overlap = len(sentence_terms & query_terms) / max(1, len(query_terms))
+    cue_score = min(0.65, cue_hits * 0.13)
+    return min(1.0, cue_score + min(0.35, query_overlap))
+
+
+def _infer_cause_effect(sentence: str, *, query: str) -> tuple[str, str]:
+    clean = _normalize_ws(sentence)
+    patterns = (
+        r"(?P<cause>.+?)\s+(?:increases?|decreases?|reduces?|improves?|affects?|impacts?|"
+        r"causes?|spurs?|leads? to|is associated with|is correlated with)\s+(?P<effect>.+)",
+        r"(?P<effect>.+?)\s+(?:is|are|was|were)\s+(?:limited|affected|reduced|increased)\s+by\s+"
+        r"(?P<cause>.+)",
+        r"(?:effect|impact)\s+of\s+(?P<cause>.+?)\s+on\s+(?P<effect>.+)",
+    )
+    for pattern in patterns:
+        match = re.search(pattern, clean, flags=re.IGNORECASE)
+        if match:
+            cause = _trim_variable_phrase(match.group("cause"))
+            effect = _trim_variable_phrase(match.group("effect"))
+            if cause and effect and cause != effect:
+                return cause, effect
+    query_terms = list(_meaningful_terms(query))
+    if len(query_terms) >= 2:
+        return " ".join(query_terms[:2]), " ".join(query_terms[-2:])
+    return "literature exposure", "reported outcome"
+
+
+def _trim_variable_phrase(value: str) -> str:
+    text = re.sub(r"\([^)]*\)", "", value)
+    text = re.sub(r"^[,;:\s]*(we|this paper|this study|the results|results)\s+", "", text, flags=re.I)
+    text = re.split(r"[,.;:]", text, maxsplit=1)[0]
+    words = [
+        word
+        for word in re.findall(r"[A-Za-z][A-Za-z'-]*", text.casefold())
+        if word not in _TERM_STOPWORDS
+    ]
+    if not words:
+        return ""
+    return " ".join(words[-6:])
+
+
+def _infer_causal_direction(sentence: str) -> CausalDirection:
+    lowered = sentence.casefold()
+    if any(term in lowered for term in ("unchanged", "no evidence", "little or no", "no discernible")):
+        return CausalDirection.NULL
+    if any(
+        term in lowered
+        for term in (
+            "reduce",
+            "decrease",
+            "lower",
+            "loss",
+            "failure",
+            "limit",
+            "limiting",
+            "limits",
+        )
+    ):
+        return CausalDirection.NEGATIVE
+    if any(term in lowered for term in ("increase", "improve", "positive", "growth", "gain")):
+        return CausalDirection.POSITIVE
+    return CausalDirection.MIXED
+
+
+def _infer_design_family(sentence: str) -> DesignFamily:
+    lowered = sentence.casefold()
+    if "difference-in-differences" in lowered or "difference in differences" in lowered:
+        return DesignFamily.DID
+    if "randomized" in lowered or "randomised" in lowered:
+        return DesignFamily.RCT
+    if "regression discontinuity" in lowered:
+        return DesignFamily.RDD
+    if "fixed effects" in lowered or "panel" in lowered:
+        return DesignFamily.PANEL_FE
+    if "review" in lowered or "meta-analysis" in lowered:
+        return DesignFamily.REVIEW
+    return DesignFamily.UNCLEAR
+
+
+def _infer_evidence_strength(sentence: str) -> EvidenceStrength:
+    family = _infer_design_family(sentence)
+    if family == DesignFamily.RCT:
+        return EvidenceStrength.RCT
+    if family in {DesignFamily.DID, DesignFamily.RDD, DesignFamily.EVENT_STUDY}:
+        return EvidenceStrength.QUASI_NATURAL
+    if family == DesignFamily.PANEL_FE:
+        return EvidenceStrength.PANEL_FE
+    if family == DesignFamily.REVIEW:
+        return EvidenceStrength.META_ANALYSIS
+    return EvidenceStrength.UNKNOWN
+
+
+def _design_tier_for_sentence(sentence: str) -> int | None:
+    family = _infer_design_family(sentence)
+    if family in {DesignFamily.RCT, DesignFamily.DID, DesignFamily.RDD}:
+        return 1
+    if family in {DesignFamily.PANEL_FE, DesignFamily.EVENT_STUDY}:
+        return 2
+    if family == DesignFamily.REVIEW:
+        return 3
+    return 4
+
+
+def _stable_claim_id(openalex_id: str, sentence: str, cause: str, effect: str) -> str:
+    payload = f"{openalex_id}|{cause}|{effect}|{sentence}".encode()
+    return "openalex.claim." + hashlib.sha256(payload).hexdigest()[:24]
+
+
+def _claim_text_for_span(sentence: str, *, cause: str, effect: str) -> str:
+    if cause and effect:
+        return f"{cause} -> {effect}: {sentence}"
+    return sentence
+
+
+def _denormalize_apostrophe(text: str) -> str:
+    return text.replace("'", "\u2019")
+
+
+def _normalize_ws(text: str) -> str:
+    return re.sub(r"\s+", " ", str(text or "")).strip()
+
+
+def _resolve_span(source_text: str, span: EvidenceSpan) -> tuple[int, int, str] | None:
+    span_text = _normalize_ws(span.text)
+    if not span_text:
+        return None
+    if span.start_char is not None and span.end_char is not None:
+        candidate = source_text[span.start_char : span.end_char]
+        if _normalize_ws(candidate) == span_text:
+            return span.start_char, span.end_char, candidate
+    start = _normalize_ws(source_text).find(span_text)
+    if start >= 0:
+        return start, start + len(span_text), span_text
+    denormalized = _denormalize_apostrophe(span_text)
+    start = source_text.find(denormalized)
+    if start >= 0:
+        return start, start + len(denormalized), denormalized
+    return None
+
+
+def _claim_entailment_payload(
+    claim: CausalClaim,
+    *,
+    work: OpenAlexWorkText,
+    span: EvidenceSpan,
+) -> dict[str, Any]:
+    return {
+        "claim_id": claim.claim_id,
+        "claim_text": claim.claim_text,
+        "claim_family": "causal",
+        "cause_variable": claim.cause_variable,
+        "effect_variable": claim.effect_variable,
+        "direction": claim.direction.value,
+        "data_refs": [work.openalex_id],
+        "source_attribution": work.openalex_id,
+        "method_refs": [claim.design_family_hint.value],
+        "identification_strategy": claim.design_family_hint.value,
+        "citation_refs": [span.span_id],
+        "design_family": claim.design_family_hint.value,
+    }
+
+
+def _span_entailment_payload(
+    *,
+    work: OpenAlexWorkText,
+    span: EvidenceSpan,
+    resolved_text: str,
+) -> dict[str, Any]:
+    section = span.section
+    if not section and _normalize_ws(resolved_text) == _normalize_ws(work.title):
+        section = "title"
+    return {
+        "ref_id": span.span_id,
+        "source_id": work.openalex_id,
+        "source_ref": span.source_ref or work.openalex_id,
+        "section": section,
+        "text": resolved_text,
+        "source_content_sha256": work.content_sha256,
+        "span_content_sha256": span.content_sha256,
+    }
+
+
+def _evaluate_span_claim_entailment(
+    *,
+    claim: dict[str, Any],
+    evidence: dict[str, Any],
+    client: Any | None = None,
+) -> dict[str, Any]:
+    module = importlib.import_module("polisyos.scientist.validation.citation_faithfulness")
+    evaluator = module.evaluate_span_claim_entailment
+    return dict(evaluator(claim=claim, evidence=evidence, client=client))
+
+
+def _span_entailment_support_labels() -> frozenset[str]:
+    module = importlib.import_module("polisyos.scientist.validation.citation_faithfulness")
+    labels = module.SPAN_ENTAILMENT_SUPPORT_LABELS
+    return frozenset(str(label) for label in labels)
+
+
+def _span_grounding_result(
+    claim: CausalClaim,
+    work: OpenAlexWorkText,
+    *,
+    status: Literal[
+        "validated_supporting",
+        "rejected_missing_span",
+        "rejected_source_mismatch",
+        "rejected_hash_mismatch",
+        "rejected_unresolved_span",
+        "rejected_non_supporting",
+    ],
+    span: EvidenceSpan | None = None,
+    span_start: int | None = None,
+    span_end: int | None = None,
+    support_score: float = 0.0,
+    reason: str,
+) -> SpanGroundingResult:
+    authority_tier = "design_tier_l2" if status == "validated_supporting" else "candidate_unverified"
+    span_id = span.span_id if span else ""
+    return SpanGroundingResult(
+        claim_id=claim.claim_id,
+        openalex_id=work.openalex_id,
+        status=status,
+        authority_tier=authority_tier,
+        support_score=round(support_score, 6),
+        span_id=span_id,
+        span_start=span_start,
+        span_end=span_end,
+        grounding_ref=(
+            f"openalex-span-grounding://{work.openalex_id.rsplit('/', 1)[-1]}/{claim.claim_id}"
+            if status == "validated_supporting"
+            else ""
+        ),
+        reason=reason,
+    )
+
+
+def _span_match_key(text: str) -> str:
+    return re.sub(r"[^a-z0-9]+", " ", _normalize_ws(text).casefold()).strip()
+
+
+def _load_gold_works(gold_set: ClaimSpanGoldSet) -> dict[str, OpenAlexWorkText]:
+    repo_root = Path(__file__).resolve().parents[4]
+    works: dict[str, OpenAlexWorkText] = {}
+    for record in gold_set.records:
+        path = Path(record.source_fixture)
+        if not path.is_absolute():
+            path = repo_root / path
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        for item in payload.get("results", []):
+            if isinstance(item, dict) and str(item.get("id") or "") == record.openalex_id:
+                works[record.openalex_id] = OpenAlexWorkText.from_openalex_work(item)
+                break
+    return works
 
 
 _SCHEMA_NAME = "ir.article_extraction_result"
@@ -815,6 +1624,8 @@ __all__ = [
     "CausalDirection",
     "ClaimAdjudicationResult",
     "ClaimExplicitness",
+    "ClaimSpanGoldRecord",
+    "ClaimSpanGoldSet",
     "ClaimType",
     "ContextAttribute",
     "DesignFamily",
@@ -822,22 +1633,28 @@ __all__ = [
     "EvidenceParameter",
     "EvidenceSpan",
     "EvidenceStrength",
+    "ExtractorAccuracyReport",
     "HeterogeneityResult",
     "IdentificationStrategy",
     "LiteratureCausalPrior",
     "LiteratureEdgePrior",
     "Mechanism",
     "ModerationEdge",
+    "OpenAlexWorkText",
     "PaperKind",
     "ParameterType",
     "ReconciliationDiagnostics",
     "RiskOfBias",
     "SourceBasis",
+    "SpanGroundingResult",
     "SupportStatus",
     "TextQuality",
     "UncertaintyBudget",
+    "evaluate_openalex_claim_extractor_accuracy",
+    "extract_span_grounded_claims_from_openalex_work",
     "load_article_extraction_result",
     "load_literature_causal_prior",
     "persist_article_extraction_result",
     "persist_literature_causal_prior",
+    "validate_causal_claim_span_grounding",
 ]

@@ -50,6 +50,11 @@
           "authoritative_for": [
             "proof_carrying_analytics_validity"
           ],
+          "boundary_id": null,
+          "decision_grade": null,
+          "evidence_basis": null,
+          "evidence_kind": null,
+          "known_limits": [],
           "may_not_use_for": [
             "production_authority",
             "production_recommendation",

@@ -25,6 +25,7 @@ from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from polisyos.core import scan_secret_and_pii
 from polisyos.ir.connectors import (
     ConnectorCapability,
     ConnectorMetadataSpec,
@@ -133,19 +134,27 @@ class ConnectionConfig:
 
     def redacted(self) -> ConnectionConfig:
         """Return config with sensitive fields redacted for logging."""
-        redacted_headers = {
-            key: "***"
-            if any(tok in key.lower() for tok in ("auth", "key", "token", "secret", "password"))
-            else value
-            for key, value in self.headers.items()
-        }
-        redacted_creds = dict.fromkeys(self.auth_credentials, "***")
+        sanitized = scan_secret_and_pii(
+            {
+                "headers": dict(self.headers),
+                "auth_method": self.auth_method,
+                "auth_credentials": dict(self.auth_credentials),
+            },
+            scope="connector request/response payloads",
+            artifact_ref_or_route="connector://connection_config",
+            redact=True,
+            block_on_findings=False,
+        ).redacted_payload
+        if not isinstance(sanitized, dict):
+            sanitized = {}
+        redacted_headers = sanitized.get("headers")
+        redacted_creds = sanitized.get("auth_credentials")
 
         return ConnectionConfig(
             url=self.url,
-            headers=redacted_headers,
+            headers=redacted_headers if isinstance(redacted_headers, Mapping) else {},
             auth_method=self.auth_method,
-            auth_credentials=redacted_creds,
+            auth_credentials=redacted_creds if isinstance(redacted_creds, Mapping) else {},
             timeout_seconds=self.timeout_seconds,
             max_retries=self.max_retries,
             retry_delay_seconds=self.retry_delay_seconds,

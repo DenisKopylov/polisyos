@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import numpy as np
+
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
+from polisyos.core.contracts import DataTrust, ValueOuterSet
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.foundry.data_plane.bindings import (
@@ -12,6 +14,35 @@ from polisyos.foundry.data_plane.bindings import (
 )
 from polisyos.foundry.execute.executor import load_state_snapshot
 from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY
+
+_HOUSEHOLD_VALUE_OUTER_SET = ValueOuterSet.interval_box(
+    coordinates=(
+        "household_cells.disposable_income[0]",
+        "household_cells.disposable_income[1]",
+    ),
+    lower=(480.0, 410.0),
+    upper=(560.0, 410.0),
+    identification_mode="proxy_identified",
+    assumptions=("d3_bias_corrected_household_bounds",),
+    assumption_status="externally_supported",
+    calibration_scope={
+        "population": "synthetic_household_cells",
+        "regime": "test_regime",
+        "measurement": "household_distribution",
+    },
+    data_trust=DataTrust(
+        tier="derived_proxy",
+        trust_cap=0.6,
+        trust_multiplier=0.6,
+        min_coverage=0.35,
+        max_coverage=0.85,
+        promotion_floor=0.5,
+        authority_ref="repo://l5/measurement_registry.json#/trust_tiers/derived_proxy",
+    ),
+    world_model_record_ref="world_model_record_test",
+    epoch="test_regime",
+    representation_status="certified",
+)
 
 SYNTHETIC_MULTISCALE_PAYLOAD = {
     "agents": {
@@ -44,6 +75,7 @@ SYNTHETIC_MULTISCALE_PAYLOAD = {
         "disposable_income": [520.0, 410.0],
         "poverty_rate": [0.14, 0.22],
         "transfer_intensity": [0.28, 0.35],
+        "value_outer_set": _HOUSEHOLD_VALUE_OUTER_SET.model_dump(mode="json"),
     },
 }
 
@@ -81,6 +113,10 @@ def test_auto_rules_discover_cell_level_slots() -> None:
     assert "cells.population" in target_slot_ids
     assert "cells.output" in target_slot_ids
     assert "household_cells.disposable_income" in target_slot_ids
+    assert "household_cells.value_outer_set" in target_slot_ids
+    assert "household_cells.disposable_income_lower" not in target_slot_ids
+    assert "household_cells.disposable_income_upper" not in target_slot_ids
+    assert "household_cells.identification_mode_code" not in target_slot_ids
     assert "household_cells.poverty_rate" in target_slot_ids
 
 
@@ -119,6 +155,8 @@ def test_build_input_bindings_materializes_multiscale_state(tmp_path) -> None:
         np.asarray(state.household_cells.disposable_income),
         np.asarray([520.0, 410.0]),
     )
+    assert state.household_cells.value_outer_set == _HOUSEHOLD_VALUE_OUTER_SET
+    assert state.household_cells.value_outer_set.width == (80.0, 0.0)
     assert np.allclose(
         np.asarray(state.household_cells.poverty_rate),
         np.asarray([0.14, 0.22]),
@@ -127,5 +165,6 @@ def test_build_input_bindings_materializes_multiscale_state(tmp_path) -> None:
         "auto.cells_population",
         "auto.cells_output",
         "auto.household_cells_disposable_income",
+        "auto.household_cells_value_outer_set",
         "auto.household_cells_poverty_rate",
     }.issubset(set(result.applied_binding_ids))

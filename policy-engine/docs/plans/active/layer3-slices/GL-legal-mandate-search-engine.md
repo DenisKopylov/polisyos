@@ -28,9 +28,9 @@ depends_on:
   - src/polisyos/runtime/quality/argument_graph.py
   - src/polisyos/runtime/quality/public_export.py
   - src/polisyos/runtime/quality/invariants.py
-  - src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py
-  - src/polisyos/runtime/quality/layer2_delegation.py
-  - src/polisyos/runtime/quality/layer2_value_choice.py
+  - src/polisyos/runtime/quality/design_axes/blind_spot_firewalls.py
+  - src/polisyos/runtime/quality/design_axes/mandate_bounded_delegation.py
+  - src/polisyos/runtime/quality/design_axes/value_choice_provenance.py
   - src/polisyos/pdc/_impl/layer2_design_search.py
 context_inputs:
   - docs/plans/active/layer3-slices/G1-data-grounding-existing-assets-acquisition.md
@@ -183,9 +183,9 @@ The primary existing substrates are:
     surfaces.
   - They are downstream visibility/governance consumers, not legal authority
     producers.
-- `src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py`,
-  `src/polisyos/runtime/quality/layer2_delegation.py`,
-  `src/polisyos/runtime/quality/layer2_value_choice.py`, and
+- `src/polisyos/runtime/quality/design_axes/blind_spot_firewalls.py`,
+  `src/polisyos/runtime/quality/design_axes/mandate_bounded_delegation.py`,
+  `src/polisyos/runtime/quality/design_axes/value_choice_provenance.py`, and
   `src/polisyos/pdc/_impl/layer2_design_search.py`
   - Existing S6 mandate-legitimacy, S7 mandate-bounded delegation, S8
     value-choice provenance, and PDC consumer surfaces.
@@ -556,7 +556,7 @@ The following inspection facts should shape implementation:
 
 Runtime contracts and builders:
 
-- Add `src/polisyos/runtime/quality/layer3_legal_mandate_search.py`.
+- Add `src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py`.
   - Strict Pydantic DTOs with `extra="forbid"`.
   - No heavy Lex intervention/Foundry/Scientist imports at module load.
   - Public builder:

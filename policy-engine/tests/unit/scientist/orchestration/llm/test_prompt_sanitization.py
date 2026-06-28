@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import pytest
-from polisyos.core.llm import PromptSanitizer
+
+from polisyos.core.llm import PromptSanitizer, scan_secret_and_pii
 from polisyos.core.llm.traced_client import TracedLLMClient
 from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMResponse, GatewayUsage
 
@@ -46,6 +47,44 @@ def test_prompt_sanitizer_uses_stable_placeholders_and_restores_payloads():
         "tuple_value": ("test@example.org", "plain"),
         "nested": ["Bearer token-secret-value"],
     }
+
+
+def test_secret_pii_scan_reports_exact_fields_without_authority_false_positive():
+    clean = scan_secret_and_pii(
+        {"authority_role": "producer_authority", "authority_boundary": "runtime"},
+        scope="DAG bundles",
+        artifact_ref_or_route="gy-loop://clean-authority-payload",
+        redact=False,
+        block_on_findings=True,
+    )
+
+    assert clean.has_findings is False
+    assert clean.reports[0].finding_kind == "none"
+    assert set(clean.reports[0].model_dump()) == {
+        "scope",
+        "artifact_ref_or_route",
+        "detector_version",
+        "finding_kind",
+        "redaction_applied",
+        "authority_surface_blocked",
+        "negative_fixture_result",
+    }
+
+    secret = scan_secret_and_pii(
+        {
+            "auth_credentials": {"token": "sk-testsecret1234567890"},
+            "contact": "policy.fixture@example.org",
+        },
+        scope="connector request/response payloads",
+        artifact_ref_or_route="connector://fixture",
+        redact=True,
+        block_on_findings=False,
+    )
+
+    assert secret.has_findings is True
+    assert "policy.fixture@example.org" not in str(secret.redacted_payload)
+    assert "sk-testsecret1234567890" not in str(secret.redacted_payload)
+    assert {report.negative_fixture_result for report in secret.reports} == {"redacted"}
 
 
 def test_traced_client_sanitizes_positional_prompt_preview_text():

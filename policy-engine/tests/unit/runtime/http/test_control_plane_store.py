@@ -296,6 +296,45 @@ def test_control_job_response_marks_completed_without_quality_evidence_as_failed
     assert body["blocking_quality_failures"][0]["gate"] == "quality_evidence_present"
 
 
+def test_control_plane_store_rejects_clean_completion_for_failed_workflow_progress(
+    tmp_path,
+) -> None:
+    store = _make_store(tmp_path)
+    store.create_job(
+        job_id="job_fixture_failed_progress",
+        kind="workflow_run",
+        run_id="R_fixture_failed_progress",
+        pipeline_id=None,
+        requested_execution_profile=None,
+        effective_execution_profile="dev",
+        policy_flags={},
+        capability_manifest_ref=None,
+        payload_ref=None,
+        submitted_by="tester",
+    )
+
+    store.complete_job(
+        job_id="job_fixture_failed_progress",
+        progress={
+            "state": "failed",
+            "runtime_state": "blocked",
+            "authority_path": "workflow_failure",
+            "authority_result": "repair_required",
+            "legacy_path_disposition": "blocked_workflow_failure_ring2_withheld",
+            "failure": {
+                "code": "workflow_failed_non_authority",
+                "message": "workflow returned fail",
+            },
+        },
+    )
+
+    record = store.get_job("job_fixture_failed_progress")
+    assert record is not None
+    assert record.state == "failed"
+    assert record.error_message == "workflow returned fail"
+    assert store.list_dead_letter_jobs()[0].job_id == "job_fixture_failed_progress"
+
+
 def test_control_job_response_projects_operator_diagnostic_for_serious_quality_failure(
     tmp_path,
 ) -> None:

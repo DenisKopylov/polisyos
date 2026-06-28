@@ -1,0 +1,455 @@
+{
+  "artifact_kind": "runtime.quality.production_data_substrate_registry",
+  "behavioral_checks": {
+    "registry_honesty": {
+      "case_count": 27,
+      "case_ids": [
+        "household_distribution:honest",
+        "household_distribution:coverage_above_l5",
+        "household_distribution:identification_above_l5",
+        "household_distribution:expected_tier_cap_above_l5",
+        "household_distribution:expected_tier_multiplier_above_l5",
+        "administrative_noisy:trust_cap_above_l5",
+        "administrative_noisy:trust_multiplier_above_l5",
+        "administrative_noisy:boundary",
+        "administrative_noisy:honest_lower",
+        "authoritative_high_coverage:trust_cap_above_l5",
+        "authoritative_high_coverage:trust_multiplier_above_l5",
+        "authoritative_high_coverage:boundary",
+        "authoritative_high_coverage:honest_lower",
+        "authoritative_partial_coverage:trust_cap_above_l5",
+        "authoritative_partial_coverage:trust_multiplier_above_l5",
+        "authoritative_partial_coverage:boundary",
+        "authoritative_partial_coverage:honest_lower",
+        "derived_proxy:trust_cap_above_l5",
+        "derived_proxy:trust_multiplier_above_l5",
+        "derived_proxy:boundary",
+        "derived_proxy:honest_lower",
+        "weak_anchor:trust_cap_above_l5",
+        "weak_anchor:trust_multiplier_above_l5",
+        "weak_anchor:boundary",
+        "weak_anchor:honest_lower",
+        "unknown_tier_name",
+        "schema_regime_unregistered"
+      ],
+      "runtime_honesty_properties": {
+        "generic_trust_cap": "substrate_trust_cap_inflated",
+        "generic_trust_multiplier": "substrate_trust_multiplier_inflated",
+        "generic_trust_tier_unresolved": "substrate_trust_tier_unresolved",
+        "known_family_coverage": "substrate_coverage_inflated",
+        "known_family_expected_tier_cap": "substrate_trust_cap_inflated",
+        "known_family_expected_tier_multiplier": "substrate_trust_multiplier_inflated",
+        "known_family_identification": "substrate_identification_mode_inflated",
+        "schema_regime": "substrate_schema_regime_unresolved"
+      },
+      "status": "pass",
+      "subproperties": [
+        "known_family_coverage",
+        "known_family_expected_tier_cap",
+        "known_family_expected_tier_multiplier",
+        "known_family_honest",
+        "known_family_identification",
+        "schema_regime",
+        "trust_cap",
+        "trust_multiplier",
+        "trust_tier_boundary",
+        "trust_tier_honest_lower",
+        "unknown_tier"
+      ],
+      "tier_count": 5
+    }
+  },
+  "consumers": [
+    "polisyos.runtime.quality.world_model_record.build_world_model_record"
+  ],
+  "content_binding_checks": [
+    "entry_content_hash_mismatch",
+    "substrate_registry_content_hash_mismatch",
+    "substrate_registry_duplicate_entry",
+    "substrate_coverage_inflated",
+    "substrate_trust_cap_inflated",
+    "substrate_trust_multiplier_inflated",
+    "substrate_identification_mode_inflated",
+    "substrate_entry_unresolved"
+  ],
+  "contract_id": "policyos.runtime.production_data_substrate_registry",
+  "free_grow_interface": "register_substrate_entry",
+  "gy_lifecycle_marker": "policyos.policy_design_case.layer3_gy.production_data_substrate_registry_contract.v1",
+  "json_schema": {
+    "$defs": {
+      "SubstrateCoverage": {
+        "additionalProperties": false,
+        "description": "Coverage signal copied from an existing catalog authority.",
+        "properties": {
+          "coverage_dimensions": {
+            "additionalProperties": true,
+            "title": "Coverage Dimensions",
+            "type": "object"
+          },
+          "coverage_kind": {
+            "minLength": 1,
+            "title": "Coverage Kind",
+            "type": "string"
+          },
+          "coverage_rule_ref": {
+            "minLength": 1,
+            "title": "Coverage Rule Ref",
+            "type": "string"
+          },
+          "coverage_score": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Coverage Score",
+            "type": "number"
+          },
+          "dataset_count": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Dataset Count"
+          },
+          "metric_binding_count": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Metric Binding Count"
+          },
+          "observation_count": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Observation Count"
+          },
+          "quality_scores": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "title": "Quality Scores",
+            "type": "object"
+          }
+        },
+        "required": [
+          "coverage_score",
+          "coverage_kind",
+          "coverage_rule_ref"
+        ],
+        "title": "SubstrateCoverage",
+        "type": "object"
+      },
+      "SubstrateLayer": {
+        "description": "Production-data substrate layer labels.",
+        "enum": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5",
+          "L6"
+        ],
+        "title": "SubstrateLayer",
+        "type": "string"
+      },
+      "SubstrateRegistryEntry": {
+        "additionalProperties": false,
+        "description": "One source/family row in the runtime-authority substrate index.",
+        "properties": {
+          "authority_refs": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Authority Refs",
+            "type": "array"
+          },
+          "coverage": {
+            "$ref": "#/$defs/SubstrateCoverage"
+          },
+          "data_version": {
+            "minLength": 1,
+            "title": "Data Version",
+            "type": "string"
+          },
+          "entry_content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Entry Content Hash",
+            "type": "string"
+          },
+          "family_id": {
+            "minLength": 1,
+            "title": "Family Id",
+            "type": "string"
+          },
+          "identification_mode": {
+            "minLength": 1,
+            "title": "Identification Mode",
+            "type": "string"
+          },
+          "layer": {
+            "$ref": "#/$defs/SubstrateLayer"
+          },
+          "provenance_refs": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Provenance Refs",
+            "type": "array"
+          },
+          "schema_regime": {
+            "$ref": "#/$defs/SubstrateSchemaRegime"
+          },
+          "snapshot_id": {
+            "minLength": 1,
+            "title": "Snapshot Id",
+            "type": "string"
+          },
+          "source_id": {
+            "minLength": 1,
+            "title": "Source Id",
+            "type": "string"
+          },
+          "source_snapshot_id": {
+            "minLength": 1,
+            "title": "Source Snapshot Id",
+            "type": "string"
+          },
+          "trust_tier": {
+            "$ref": "#/$defs/SubstrateTrustTier"
+          }
+        },
+        "required": [
+          "source_id",
+          "family_id",
+          "layer",
+          "coverage",
+          "trust_tier",
+          "identification_mode",
+          "schema_regime",
+          "data_version",
+          "snapshot_id",
+          "source_snapshot_id",
+          "provenance_refs",
+          "authority_refs",
+          "entry_content_hash"
+        ],
+        "title": "SubstrateRegistryEntry",
+        "type": "object"
+      },
+      "SubstrateSchemaRegime": {
+        "additionalProperties": false,
+        "description": "Schema-regime reference lifted from L5 or the source catalog.",
+        "properties": {
+          "authority_ref": {
+            "minLength": 1,
+            "title": "Authority Ref",
+            "type": "string"
+          },
+          "boundary_buffer_periods": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Boundary Buffer Periods"
+          },
+          "effective_end": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Effective End"
+          },
+          "effective_start": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Effective Start"
+          },
+          "schema_regime_id": {
+            "minLength": 1,
+            "title": "Schema Regime Id",
+            "type": "string"
+          },
+          "source_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source Version"
+          }
+        },
+        "required": [
+          "schema_regime_id",
+          "authority_ref"
+        ],
+        "title": "SubstrateSchemaRegime",
+        "type": "object"
+      },
+      "SubstrateTrustTier": {
+        "additionalProperties": false,
+        "description": "Trust tier with the L5-declared cap carried explicitly.",
+        "properties": {
+          "authority_ref": {
+            "minLength": 1,
+            "title": "Authority Ref",
+            "type": "string"
+          },
+          "max_coverage": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Max Coverage"
+          },
+          "min_coverage": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Min Coverage"
+          },
+          "tier": {
+            "minLength": 1,
+            "title": "Tier",
+            "type": "string"
+          },
+          "trust_cap": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Trust Cap",
+            "type": "number"
+          },
+          "trust_multiplier": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Trust Multiplier",
+            "type": "number"
+          }
+        },
+        "required": [
+          "tier",
+          "trust_cap",
+          "trust_multiplier",
+          "authority_ref"
+        ],
+        "title": "SubstrateTrustTier",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Content-addressed version of the production-data metadata substrate.",
+    "properties": {
+      "content_hash": {
+        "pattern": "^sha256:[0-9a-f]{64}$",
+        "title": "Content Hash",
+        "type": "string"
+      },
+      "entries": {
+        "items": {
+          "$ref": "#/$defs/SubstrateRegistryEntry"
+        },
+        "title": "Entries",
+        "type": "array"
+      },
+      "producer_ref": {
+        "minLength": 1,
+        "title": "Producer Ref",
+        "type": "string"
+      },
+      "schema_version": {
+        "default": "policyos.runtime.substrate_registry.v1",
+        "title": "Schema Version",
+        "type": "string"
+      },
+      "source_catalog_refs": {
+        "items": {
+          "type": "string"
+        },
+        "title": "Source Catalog Refs",
+        "type": "array"
+      },
+      "substrate_version_id": {
+        "pattern": "^substrate_version_[a-f0-9]{16}$",
+        "title": "Substrate Version Id",
+        "type": "string"
+      }
+    },
+    "required": [
+      "substrate_version_id",
+      "producer_ref",
+      "content_hash",
+      "source_catalog_refs",
+      "entries"
+    ],
+    "title": "SubstrateRegistry",
+    "type": "object"
+  },
+  "lifted_authority_catalogs": [
+    "production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json",
+    "production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/identification_mode_registry.json",
+    "production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/schema_regime_registry.json",
+    "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_datasets",
+    "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+  ],
+  "no_parallel_authority_rule": "Coverage, trust tier, identification mode, and schema regime are lifted from L5 D2 registries and L1 DCAT metadata; registrations exceeding L5 caps fail closed.",
+  "owner": "polisyos.runtime.quality.substrate_registry.SubstrateRegistry",
+  "plan_named_owner_files_forbidden": "gy_s0_*",
+  "producer": "build_substrate_registry_from_existing_catalogs",
+  "schema_version": "policyos.policy_design_case.layer3_gy.production_data_substrate_registry_contract.v1",
+  "source_module": "src/polisyos/runtime/quality/substrate_registry.py",
+  "substrate_registry_schema_version": "policyos.runtime.substrate_registry.v1"
+}

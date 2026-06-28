@@ -46,3 +46,29 @@ Boundary notes:
   reference workflow needs them.
 - Public experimental exports must be reflected in the public-surface
   inventory and release fragments before release promotion.
+
+Workspace ownership:
+
+- `polisyos.pdc._impl.gy_waist` owns the Ring-1/Ring-2 GY contracts. It must
+  remain engine-free and must not import runtime, Scientist, Foundry, or HTTP
+  modules.
+- `workspace/loop.py` owns the Phase-2 orchestration bridge. `WorkspaceLoop.run_intent`
+  is the demonstrated authority path for Phase-2 proofs: intent selection,
+  playbook projection, legacy adapter execution, spine gates, Foundry
+  consumption, candidate events, and the resulting `SearchExitContract`.
+- `workspace/workflow_playbook_projection.py` is a projection layer over canonical Scientist
+  `WorkflowSpec` definitions and `NodeRegistry`/`NodeSpec` metadata. It must not
+  become a hand-maintained workflow table.
+- `workspace/scientist_node_adapters.py` owns the `ScientistNodeAdapter` and GY-specific shape checks.
+  Semantic adapter preservation remains owned by `adapter_contracts.py`.
+- `workspace/spine_repair_gates.py` contains shared typed helpers for GY proofs. Enforcement
+  belongs in the existing domain homes: `scientist.policy_design.search` for
+  bounds/frontier repair, Scientist causal/search nodes for blocked inputs, and
+  governance nodes for normative arbitration plus the phase-5 judge gate.
+- `workspace/foundry_consumption.py` owns the Phase-2 ESTIMATE/SIMULATE bridge: consumed Foundry
+  method outputs, persisted `MethodOutputConsumptionRecord`s, and
+  `ConstraintStore` ingestion/consumption. Do not split constraints into a
+  parallel Phase-2 sidecar.
+- `workspace/agent_proposal_bridge.py` is a thin GY projection over `proving_ground/bounded_request_agent.py` and the
+  existing knowledge-tool/tool-loop homes. Agent outputs remain Ring-1
+  candidate-only; VOI/usefulness scores pass through GY-H normalization.

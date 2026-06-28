@@ -12,7 +12,7 @@ from typing import Any
 
 from pydantic import BaseModel, ValidationError
 
-from polisyos.runtime.quality import layer3_promotion_gate as g4
+from polisyos.runtime.quality.proving_ground import governed_promotion_gate as g4
 from tools.lib.fs import atomic_write_text
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -111,6 +111,8 @@ EXPECTED_MANIFEST_DRIFT_KEYS: tuple[str, ...] = (
     "g4_promotion_input_count",
     "g4_grounded_contract_set_status",
     "g4_grounded_contract_ref_count",
+    "g4_grounded_contract_binding_scope",
+    "g4_persisted_g1_binding_count",
     "g4_a_completeness_status",
     "g4_a_completeness_requirement_count",
     "g4_a_completeness_missing_requirement_count",
@@ -305,15 +307,19 @@ def _manifest_runtime_drift_keys(
         "schema_version": runtime_manifest.get("schema_version"),
         "rule_version": runtime_manifest.get("rule_version"),
     }
-    persisted_summary = {
-        **_mapping(persisted.get("summary")),
-        **{key: persisted.get(key) for key in EXPECTED_MANIFEST_DRIFT_KEYS if key in persisted},
-    }
-    return [
-        key
-        for key in EXPECTED_MANIFEST_DRIFT_KEYS
-        if persisted_summary.get(key) != runtime_summary.get(key)
-    ]
+    persisted_summary = _mapping(persisted.get("summary"))
+    drift_keys: list[str] = []
+    for key in EXPECTED_MANIFEST_DRIFT_KEYS:
+        runtime_value = runtime_summary.get(key)
+        if key in persisted and persisted.get(key) != runtime_value:
+            drift_keys.append(key)
+            continue
+        if key in persisted_summary and persisted_summary.get(key) != runtime_value:
+            drift_keys.append(key)
+            continue
+        if key not in persisted and key not in persisted_summary:
+            drift_keys.append(key)
+    return drift_keys
 
 
 def _manifest_runtime_drift_issues(drift_keys: Sequence[str]) -> list[dict[str, str]]:

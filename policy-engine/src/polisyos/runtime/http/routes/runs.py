@@ -55,7 +55,8 @@ from polisyos.runtime.http.dependencies import (
     require_access_scope,
     set_authz_resource,
 )
-from polisyos.runtime.http.errors import bad_request
+from polisyos.runtime.http.errors import bad_request, conflict
+from polisyos.runtime.http.services.lineage import LineageSurfaceAdmissionError
 from polisyos.runtime.http.response_policies import add_run_link_relations
 from polisyos.runtime.quality.approval import (
     build_production_approval_packet,
@@ -1202,15 +1203,25 @@ if router is not None:
                 code="lineage_roots_missing",
             )
 
-        lineage = (
-            ctx.lineage.build_for_artifact_ids(
-                root_ids,
-                max_depth=max_depth,
-                max_nodes=max_nodes,
+        try:
+            lineage = (
+                ctx.lineage.build_for_artifact_ids(
+                    root_ids,
+                    max_depth=max_depth,
+                    max_nodes=max_nodes,
+                )
+                if root_ids
+                else ArtifactLineageView(root_artifact_ids=[])
             )
-            if root_ids
-            else ArtifactLineageView(root_artifact_ids=[])
-        )
+        except LineageSurfaceAdmissionError as exc:
+            raise conflict(
+                "Run lineage blocked or downgraded by composed authority surface admission",
+                code="authority_surface_admission_blocked",
+                extensions={
+                    "run_id": run_id,
+                    "authority_surface_decision": exc.decision.model_dump(mode="json"),
+                },
+            ) from exc
         record_data_access_audit(
             request,
             resource_id=run_id,
@@ -1261,7 +1272,18 @@ if router is not None:
             tenant_id=run.details.tenant_id,
             kind="runtime.run_quantities",
         )
-        quantities, coverage, entries = ctx.lineage.build_quantity_inventory_for_run(run)
+        try:
+            ctx.lineage.assert_run_decision_surface_allowed(run, surface="run_quantities")
+            quantities, coverage, entries = ctx.lineage.build_quantity_inventory_for_run(run)
+        except LineageSurfaceAdmissionError as exc:
+            raise conflict(
+                "Run quantities blocked or downgraded by composed authority surface admission",
+                code="authority_surface_admission_blocked",
+                extensions={
+                    "run_id": run_id,
+                    "authority_surface_decision": exc.decision.model_dump(mode="json"),
+                },
+            ) from exc
         quantities, coverage, entries = ctx.temporal.project_quantities(
             quantities,
             entries,
@@ -1323,7 +1345,20 @@ if router is not None:
             tenant_id=run.details.tenant_id,
             kind="runtime.run_fabric_decision_data",
         )
-        quantities, runtime_coverage, entries = ctx.lineage.build_quantity_inventory_for_run(run)
+        try:
+            ctx.lineage.assert_run_decision_surface_allowed(
+                run, surface="run_fabric_decision_data"
+            )
+            quantities, runtime_coverage, entries = ctx.lineage.build_quantity_inventory_for_run(run)
+        except LineageSurfaceAdmissionError as exc:
+            raise conflict(
+                "Run fabric decision data blocked or downgraded by composed authority surface admission",
+                code="authority_surface_admission_blocked",
+                extensions={
+                    "run_id": run_id,
+                    "authority_surface_decision": exc.decision.model_dump(mode="json"),
+                },
+            ) from exc
         quantities, runtime_coverage, _entries = ctx.temporal.project_quantities(
             quantities,
             entries,

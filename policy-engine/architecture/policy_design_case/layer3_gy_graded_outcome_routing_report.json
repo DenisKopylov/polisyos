@@ -1,0 +1,26 @@
+{
+  "graded_outcomes": [],
+  "honest_non_value_outcomes": [
+    {
+      "decision_grade": "unsupported",
+      "evidence_kind": null,
+      "evidence_ladder_rung": "none",
+      "fixture_id": "ua_msme_credit_worldbank_measurement",
+      "incompleteness_recorded": true,
+      "job_id": "d1b9cabba33b5d4dbb6e4ef1350aca44",
+      "run_id": "run-gy-loop-proof-ua_msme_credit_worldbank_measurement",
+      "terminal_state": "search_ceiling_repair_required",
+      "useful_design_credit": false
+    }
+  ],
+  "owner": "team-runtime-quality",
+  "proof_source": "durable_worker_recomputed",
+  "rule_version": "policyos.layer3.gy.graded_outcome_routing.v1",
+  "schema_version": "policyos.policy_design_case.layer3_gy.graded_outcome_routing_report.v1",
+  "summary": {
+    "capped_decision_grade_count": 0,
+    "floor_relaxation_used_count": 0,
+    "grounded_partial_admissible_count": 0,
+    "useful_design_rate": 0.0
+  }
+}

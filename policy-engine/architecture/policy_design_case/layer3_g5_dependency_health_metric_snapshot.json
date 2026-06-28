@@ -16,7 +16,7 @@
       "search_health_refs": [
         "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json"
       ],
-      "trend": "flat",
+      "trend": "blocked",
       "value": 0.0
     },
     "upstream": {
@@ -39,13 +39,15 @@
       }
     }
   },
-  "issue_codes": [],
+  "issue_codes": [
+    "layer3_g5_s12_ref_candidate_only"
+  ],
   "metric_statuses": {
     "adapter-semantic-loss": "pass",
     "demand-pull-vs-abstention": "pass",
-    "envelope-expansion-rate": "flat",
+    "envelope-expansion-rate": "blocked",
     "governance-throughput": "pass",
     "search-recall@known-seeds + index-staleness": "pass"
   },
-  "status": "pass"
+  "status": "fail"
 }

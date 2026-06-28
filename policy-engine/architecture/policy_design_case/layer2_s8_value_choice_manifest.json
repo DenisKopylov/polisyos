@@ -11,7 +11,7 @@
   "cells_closed": [
     "ACTOR.value_choice_provenance"
   ],
-  "producer_module": "src/polisyos/runtime/quality/layer2_value_choice.py",
+  "producer_module": "src/polisyos/runtime/quality/design_axes/value_choice_provenance.py",
   "expected_current_open_cell_count": 3,
   "floor_id": "s8_value_provenance",
   "floor_metric": "value_provenance_completeness",

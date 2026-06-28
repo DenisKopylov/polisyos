@@ -177,6 +177,27 @@ def build_governance_pipeline() -> ValidationPipeline:
     return _build()
 
 
+def verify_phase2_governance_tail(
+    *,
+    workspace_id: str,
+    invocation_id: str,
+    normative_result: Mapping[str, Any],
+    judge_verdict: Mapping[str, Any],
+) -> Any:
+    """Validate the Phase-2 governance tail through its owning governance node."""
+
+    from polisyos.scientist.nodes.builtins.governance.run_governance import (
+        verify_phase2_governance_tail as _verify,
+    )
+
+    return _verify(
+        workspace_id=workspace_id,
+        invocation_id=invocation_id,
+        normative_result=normative_result,
+        judge_verdict=judge_verdict,
+    )
+
+
 def discover_scientist_nodes(
     registry: NodeRegistry | None = None,
     *,

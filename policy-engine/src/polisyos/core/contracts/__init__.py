@@ -422,6 +422,18 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "UniversalPopulationPredicate",
         "UniversalTimePredicate",
     ),
+    ".value_outer_set": (
+        "DataTrust",
+        "ValueOuterSet",
+        "ValueOuterSetAssumptionStatus",
+        "ValueOuterSetComparison",
+        "ValueOuterSetIdentificationStatus",
+        "ValueOuterSetRepresentation",
+        "ValueOuterSetRepresentationStatus",
+        "ValuePromotionDecision",
+        "ValuePromotionDecisionGrade",
+        "ValuePromotionDecisionReason",
+    ),
     ".scholar": (
         "BudgetsV1",
         "FreshnessMetadata",
@@ -955,6 +967,18 @@ if TYPE_CHECKING:
         RegimeShiftForecastBundleRef,
         UncertaintyEnvelopeRef,
     )
+    from .value_outer_set import (
+        DataTrust,
+        ValueOuterSet,
+        ValueOuterSetAssumptionStatus,
+        ValueOuterSetComparison,
+        ValueOuterSetIdentificationStatus,
+        ValueOuterSetRepresentation,
+        ValueOuterSetRepresentationStatus,
+        ValuePromotionDecision,
+        ValuePromotionDecisionGrade,
+        ValuePromotionDecisionReason,
+    )
 
 _rel_mod = ""
 _names: tuple[str, ...] = ()
@@ -1080,6 +1104,7 @@ __all__ = [
     "DataSnapshot",
     "DataSnapshotRef",
     "DataSourceBinding",
+    "DataTrust",
     "DataViewRequestRef",
     "DatasetFetchSpecRequest",
     "DecisionBasisSection",
@@ -1362,6 +1387,15 @@ __all__ = [
     "UniversalTimePredicate",
     "UnresolvedEquilibriumStart",
     "ValidationReportRef",
+    "ValueOuterSet",
+    "ValueOuterSetAssumptionStatus",
+    "ValueOuterSetComparison",
+    "ValueOuterSetIdentificationStatus",
+    "ValueOuterSetRepresentation",
+    "ValueOuterSetRepresentationStatus",
+    "ValuePromotionDecision",
+    "ValuePromotionDecisionGrade",
+    "ValuePromotionDecisionReason",
     "WarningsBundle",
     "WarningsRef",
     "WorkflowRunRequest",

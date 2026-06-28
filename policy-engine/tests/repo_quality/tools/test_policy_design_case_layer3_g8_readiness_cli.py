@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-import polisyos.runtime.quality.layer3_health_metric_governance as g8
+import polisyos.runtime.quality.proving_ground.health_metric_governance as g8
 from tools.quality.validation import check_policy_design_case_layer3_g8_readiness as validator
 
 REPO_ROOT = Path(__file__).resolve().parents[3]

@@ -546,9 +546,9 @@
         "EXPERT",
         "MACHINE"
       ],
-      "producer": "src/polisyos/runtime/quality/layer3_grounding_inventory.py",
+      "producer": "src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py",
       "validator": "tools/quality/validation/check_policy_design_case_layer3_g0_readiness.py",
-      "runtime_validator": "polisyos.runtime.quality.layer3_grounding_inventory.validate_layer3_g0_bundle",
+      "runtime_validator": "polisyos.runtime.quality.proving_ground.pre_adapter_grounding_inventory.validate_layer3_g0_bundle",
       "canonical_route": "docs/reference/policy-design-case-layer3-grounding-inventory.md",
       "adr_ref": "docs/adr/0175-layer3-grounding-subordination-discipline.md",
       "readiness_manifest": "architecture/policy_design_case/layer3_g0_readiness_manifest.json",
@@ -623,9 +623,9 @@
           "rationale": "G1 is a grounding audit surface only; reviewer projection waits for G4/G5 promotion."
         }
       ],
-      "producer": "src/polisyos/runtime/quality/layer3_substrate_grounding.py",
+      "producer": "src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py",
       "validator": "tools/quality/validation/check_policy_design_case_layer3_g1_readiness.py",
-      "runtime_validator": "polisyos.runtime.quality.layer3_substrate_grounding.validate_layer3_g1_bundle",
+      "runtime_validator": "polisyos.runtime.quality.proving_ground.substrate_grounding_search.validate_layer3_g1_bundle",
       "canonical_route": "docs/reference/policy-design-case-layer3-substrate-grounding.md",
       "g0_dependency_gate": [
         "architecture/policy_design_case/layer3_g0_readiness_manifest.json",
@@ -704,9 +704,9 @@
         "EXPERT",
         "MACHINE"
       ],
-      "producer": "src/polisyos/runtime/quality/layer3_causal_forecast.py",
+      "producer": "src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py",
       "validator": "tools/quality/validation/check_policy_design_case_layer3_g2_readiness.py",
-      "runtime_validator": "polisyos.runtime.quality.layer3_causal_forecast.validate_layer3_g2_bundle",
+      "runtime_validator": "polisyos.runtime.quality.proving_ground.causal_forecast_search.validate_layer3_g2_bundle",
       "canonical_route": "docs/reference/policy-design-case-layer3-causal-forecast.md",
       "g1_dependency_gate": [
         "architecture/policy_design_case/layer3_g1_readiness_manifest.json",
@@ -797,9 +797,9 @@
         "EXPERT",
         "MACHINE"
       ],
-      "producer": "src/polisyos/runtime/quality/layer3_analytics_search.py",
+      "producer": "src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py",
       "validator": "tools/quality/validation/check_policy_design_case_layer3_g3_readiness.py",
-      "runtime_validator": "polisyos.runtime.quality.layer3_analytics_search.validate_layer3_g3_bundle",
+      "runtime_validator": "polisyos.runtime.quality.proving_ground.proof_carrying_analytics_search.validate_layer3_g3_bundle",
       "canonical_route": "docs/reference/policy-design-case-layer3-analytics-search.md",
       "g2_dependency_gate": [
         "architecture/policy_design_case/layer3_g2_readiness_manifest.json",
@@ -889,9 +889,9 @@
         "EXPERT": "May inspect search ledgers, authority refs, temporal competence refs, mandate handoffs, and adapter contract paths.",
         "MACHINE": "May consume persisted JSON/TOML artifacts for drift, replay, adapter preservation, consumer gates, and projection-mode checks."
       },
-      "producer": "src/polisyos/runtime/quality/layer3_legal_mandate_search.py",
+      "producer": "src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py",
       "validator": "tools/quality/validation/check_policy_design_case_layer3_gl_readiness.py",
-      "runtime_validator": "polisyos.runtime.quality.layer3_legal_mandate_search.validate_layer3_gl_bundle",
+      "runtime_validator": "polisyos.runtime.quality.proving_ground.legal_mandate_search.validate_layer3_gl_bundle",
       "canonical_route": "docs/reference/policy-design-case-layer3-legal-mandate-search.md",
       "readiness_manifest": "architecture/policy_design_case/layer3_gl_readiness_manifest.json",
       "closure_artifacts_status": "committed_after_task7_write",
@@ -1005,9 +1005,9 @@
         "EXPERT": "May inspect upstream contract refs, conformance refs, replay refs, weakest-boundary reasons, and P26/S7 routing refs.",
         "MACHINE": "May consume persisted JSON/TOML artifacts for drift, replay, write-set completeness, and projection-only authority checks."
       },
-      "producer": "src/polisyos/runtime/quality/layer3_promotion_gate.py",
+      "producer": "src/polisyos/runtime/quality/proving_ground/governed_promotion_gate.py",
       "validator": "tools/quality/validation/check_policy_design_case_layer3_g4_readiness.py",
-      "runtime_validator": "polisyos.runtime.quality.layer3_promotion_gate.validate_layer3_g4_bundle",
+      "runtime_validator": "polisyos.runtime.quality.proving_ground.governed_promotion_gate.validate_layer3_g4_bundle",
       "canonical_route": "docs/reference/policy-design-case-layer3-promotion-gate.md",
       "readiness_manifest": "architecture/policy_design_case/layer3_g4_readiness_manifest.json",
       "generated_artifact_family": "policy-design-case-layer3-g4-promotion-gate-artifacts",
@@ -1119,9 +1119,9 @@
         "EXPERT": "May inspect dependency readiness, upstream join, evidence independence, conformance, route-registry, and health metric refs.",
         "MACHINE": "May consume persisted JSON/TOML artifacts for drift, replay, write-set completeness, W12.D gating, and projection authority checks."
       },
-      "producer": "src/polisyos/runtime/quality/layer3_proving_ground_conversion.py",
+      "producer": "src/polisyos/runtime/quality/proving_ground/proving_ground_conversion.py",
       "validator": "tools/quality/validation/check_policy_design_case_layer3_g5_readiness.py",
-      "runtime_validator": "polisyos.runtime.quality.layer3_proving_ground_conversion.validate_layer3_g5_bundle",
+      "runtime_validator": "polisyos.runtime.quality.proving_ground.proving_ground_conversion.validate_layer3_g5_bundle",
       "canonical_route": "docs/reference/policy-design-case-layer3-proving-ground-conversion.md",
       "readiness_manifest": "architecture/policy_design_case/layer3_g5_readiness_manifest.json",
       "generated_artifact_family": "policy-design-case-layer3-g5-proving-ground-conversion-artifacts",
@@ -1243,7 +1243,7 @@
         "EXPERT": "May inspect policy-grammar projection refs, concept-spine refs, tool-contract summary, prompt/tool and hypothesis ledger refs, conformance, route registry, and health metric refs.",
         "MACHINE": "May consume persisted JSON/TOML artifacts for write-set completeness, manifest drift, replay continuity, G5 bridge checks, projection authority checks, and readiness validation."
       },
-      "producer": "src/polisyos/runtime/quality/layer3_bounded_agent.py",
+      "producer": "src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py",
       "validator": "tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py",
       "runtime_validator": "tools.quality.validation.check_policy_design_case_layer3_g6_readiness.validate_layer3_g6_readiness",
       "canonical_route": "docs/reference/policy-design-case-layer3-bounded-agent.md",
@@ -1376,7 +1376,7 @@
         "EXPERT": "May inspect dependency snapshot, grounding matrix, mechanism reuse, marginal cost, semantic loss, route registry, conformance, and health metric refs.",
         "MACHINE": "May consume persisted JSON/TOML artifacts for write-set completeness, manifest drift, replay continuity, S14 consumer gate status, and readiness validation."
       },
-      "producer": "src/polisyos/runtime/quality/layer3_region_widening.py",
+      "producer": "src/polisyos/runtime/quality/proving_ground/region_widening.py",
       "validator": "tools/quality/validation/check_policy_design_case_layer3_g7_readiness.py",
       "runtime_validator": "tools.quality.validation.check_policy_design_case_layer3_g7_readiness.validate_layer3_g7_readiness",
       "canonical_route": "docs/reference/public-surface.md#policy-design-case-generated-audit-surfaces",
@@ -1523,7 +1523,7 @@
         "PUBLIC": "Out of scope for the audit surface; may only see projection-only refs that carry out_of_scope_reference_only.",
         "REVIEWER": "Out of scope for the audit surface; may only see projection-only refs that carry out_of_scope_reference_only."
       },
-      "producer": "src/polisyos/runtime/quality/layer3_health_metric_governance.py",
+      "producer": "src/polisyos/runtime/quality/proving_ground/health_metric_governance.py",
       "validator": "tools/quality/validation/check_policy_design_case_layer3_g8_readiness.py",
       "runtime_validator": "tools.quality.validation.check_policy_design_case_layer3_g8_readiness.validate_layer3_g8_readiness",
       "canonical_route": "docs/reference/public-surface.md#policy-design-case-generated-audit-surfaces",
@@ -1758,6 +1758,494 @@
       "owner": "team-policyos-runtime",
       "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py",
       "authority_boundary": "proving_case_only_not_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_authority_candidate_inventory",
+      "path": "architecture/policy_design_case/layer3_gy_authority_candidate_inventory.json",
+      "kind": "layer3_gy_generated_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_cas_integrity_reports",
+      "path": "architecture/policy_design_case/layer3_gy_cas_integrity_reports.json",
+      "kind": "layer3_gy_generated_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_composition_certificates",
+      "path": "architecture/policy_design_case/layer3_gy_composition_certificates.json",
+      "kind": "layer3_gy_generated_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_phase2_agent_event_audit",
+      "path": "architecture/policy_design_case/layer3_gy_phase2_agent_event_audit.json",
+      "kind": "layer3_gy_generated_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_phase2_foundry_consumption_proofs",
+      "path": "architecture/policy_design_case/layer3_gy_phase2_foundry_consumption_proofs.json",
+      "kind": "layer3_gy_generated_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_phase2_lex_bounds_strangle_receipt",
+      "path": "architecture/policy_design_case/layer3_gy_phase2_lex_bounds_strangle_receipt.json",
+      "kind": "layer3_gy_generated_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_phase2_playbook_run_proofs",
+      "path": "architecture/policy_design_case/layer3_gy_phase2_playbook_run_proofs.json",
+      "kind": "layer3_gy_generated_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_phase2_spine_repair_proofs",
+      "path": "architecture/policy_design_case/layer3_gy_phase2_spine_repair_proofs.json",
+      "kind": "layer3_gy_generated_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_production_loop_run_proofs",
+      "path": "architecture/policy_design_case/layer3_gy_production_loop_run_proofs.json",
+      "kind": "layer3_gy_generated_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_secret_pii_scan_reports",
+      "path": "architecture/policy_design_case/layer3_gy_secret_pii_scan_reports.json",
+      "kind": "layer3_gy_generated_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_semantic_benchmark",
+      "path": "architecture/policy_design_case/layer3_gy_semantic_benchmark.json",
+      "kind": "layer3_gy_generated_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_slice0_fixture_manifest",
+      "path": "architecture/policy_design_case/layer3_gy_slice0_fixture_manifest.json",
+      "kind": "layer3_gy_generated_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_README",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/README.md",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_agent_workflow_event_backing_audit",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_agent_workflow_event_backing_audit.json",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_agent_workflow_event_backing_findings",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_agent_workflow_event_backing_findings.md",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_capability_coverage_matrix",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_capability_coverage_matrix.json",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_capability_coverage_matrix_findings",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_capability_coverage_matrix_findings.md",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_catalog_fetch_audit",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_catalog_fetch_audit.json",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_catalog_fetch_audit_findings",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_catalog_fetch_audit_findings.md",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_connector_family_truth_audit",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_connector_family_truth_audit.json",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_connector_family_truth_findings",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_connector_family_truth_findings.md",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_data_requirement_compiler_audit",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_data_requirement_compiler_audit.json",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_data_requirement_compiler_findings",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_data_requirement_compiler_findings.md",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_engine_census",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_engine_census.json",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_engine_census_findings",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_engine_census_findings.md",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_foundry_breadth_audit",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_foundry_breadth_audit.json",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_foundry_breadth_findings",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_foundry_breadth_findings.md",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_generated_public_lifecycle_audit",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_generated_public_lifecycle_audit.json",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_generated_public_lifecycle_findings",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_generated_public_lifecycle_findings.md",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_lex_frontier_root_cause_audit",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_lex_frontier_root_cause_audit.json",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_lex_frontier_root_cause_findings",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_lex_frontier_root_cause_findings.md",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_p0_coverage_audit",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_p0_coverage_audit.json",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_p0_coverage_findings",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_p0_coverage_findings.md",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_p1_substrate_authority_audit",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_p1_substrate_authority_audit.json",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_p1_substrate_authority_findings",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_p1_substrate_authority_findings.md",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_p2_semantic_evidence_quality_audit",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_p2_semantic_evidence_quality_audit.json",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_p2_semantic_evidence_quality_findings",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_p2_semantic_evidence_quality_findings.md",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_repair_design_grounding",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_repair_design_grounding.md",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_runtime_surface_audit",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_runtime_surface_audit.json",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_runtime_surface_audit_findings",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_runtime_surface_audit_findings.md",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_source_contract_admissibility_audit",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_source_contract_admissibility_audit.json",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_source_contract_admissibility_findings",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_source_contract_admissibility_findings.md",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_substrate_package_capability_findings",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_substrate_package_capability_findings.md",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_substrate_package_capability_inventory",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_substrate_package_capability_inventory.json",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_system_audit_gap_map",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_system_audit_gap_map.md",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_workflow_consolidation_analysis",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_workflow_consolidation_analysis.md",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_workflow_mode_truth_audit",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_workflow_mode_truth_audit.json",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_audit_layer3_gy_workflow_mode_truth_findings",
+      "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_workflow_mode_truth_findings.md",
+      "kind": "layer3_gy_task0_audit_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_task0_global_review",
+      "path": "architecture/policy_design_case/layer3_gy_task0_global_review.md",
+      "kind": "layer3_gy_generated_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_time_source_envelope_audit",
+      "path": "architecture/policy_design_case/layer3_gy_time_source_envelope_audit.json",
+      "kind": "layer3_gy_generated_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_workflow_failure_authority_proofs",
+      "path": "architecture/policy_design_case/layer3_gy_workflow_failure_authority_proofs.json",
+      "kind": "layer3_gy_generated_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+      "authority_boundary": "audit_or_proof_surface_only_no_publication_authority",
+      "status": "active"
+    },
+    {
+      "id": "layer3_gy_generation_cycle_disposition_ledger",
+      "path": "architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json",
+      "kind": "layer3_gy_source_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+      "authority_boundary": "governance_hard_gate_only_no_cycle_runtime_authority",
+      "status": "active"
+    },
+    {
+      "id": "production_data_substrate_registry_contract",
+      "path": "architecture/policy_design_case/production_data_substrate_registry_contract.json",
+      "kind": "layer3_gy_generated_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_production_data_substrate_registry_contract.py",
+      "authority_boundary": "runtime_substrate_index_contract_only_no_data_payload_authority",
+      "status": "active",
+      "capability_reality_label": "implemented",
+      "canonical_route": "polisyos.runtime.quality.substrate_registry"
+    },
+    {
+      "id": "layer3_gy_n0_investigation",
+      "path": "architecture/policy_design_case/layer3_gy_n0_investigation.md",
+      "kind": "layer3_gy_source_artifact",
+      "owner": "team-runtime-quality",
+      "validator": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+      "authority_boundary": "investigation_substrate_only_no_cycle_runtime_authority",
       "status": "active"
     }
   ]

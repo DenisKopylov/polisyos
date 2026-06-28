@@ -1,0 +1,153 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gx_validation_authority_boundary.v1",
+  "status": "authority_boundary_enforced",
+  "slices": [
+    {
+      "slice_id": "G0",
+      "gx_migration_state": "blocked_by_gx_migration",
+      "old_validator_status": "fail",
+      "gx_validator_status": "expected_red",
+      "readiness_authority": "no_gx_authority",
+      "may_count_for_gx_closeout": false,
+      "superseded_by": "tools/quality/validation/check_policy_design_case_layer3_gx_hardening.py",
+      "issue_codes": [],
+      "legacy_diagnostic_codes": [
+        "layer3_gx_legacy_red_blocks_closeout"
+      ],
+      "expected_red_eligible": false
+    },
+    {
+      "slice_id": "G1",
+      "gx_migration_state": "legacy_validator_no_gx_authority",
+      "old_validator_status": "pass",
+      "gx_validator_status": "expected_red",
+      "readiness_authority": "legacy_diagnostic_only",
+      "may_count_for_gx_closeout": false,
+      "superseded_by": "tools/quality/validation/check_policy_design_case_layer3_gx_hardening.py",
+      "issue_codes": [],
+      "legacy_diagnostic_codes": [
+        "layer3_gx_g1_legacy_green_not_authoritative",
+        "layer3_gx_legacy_green_not_authoritative"
+      ],
+      "expected_red_eligible": false
+    },
+    {
+      "slice_id": "G2",
+      "gx_migration_state": "blocked_by_gx_migration",
+      "old_validator_status": "fail",
+      "gx_validator_status": "expected_red",
+      "readiness_authority": "no_gx_authority",
+      "may_count_for_gx_closeout": false,
+      "superseded_by": "tools/quality/validation/check_policy_design_case_layer3_gx_hardening.py",
+      "issue_codes": [],
+      "legacy_diagnostic_codes": [
+        "layer3_gx_legacy_red_blocks_closeout"
+      ],
+      "expected_red_eligible": false
+    },
+    {
+      "slice_id": "G3",
+      "gx_migration_state": "blocked_by_gx_migration",
+      "old_validator_status": "fail",
+      "gx_validator_status": "expected_red",
+      "readiness_authority": "no_gx_authority",
+      "may_count_for_gx_closeout": false,
+      "superseded_by": "tools/quality/validation/check_policy_design_case_layer3_gx_hardening.py",
+      "issue_codes": [],
+      "legacy_diagnostic_codes": [
+        "layer3_gx_legacy_red_blocks_closeout"
+      ],
+      "expected_red_eligible": false
+    },
+    {
+      "slice_id": "G4",
+      "gx_migration_state": "blocked_by_gx_migration",
+      "old_validator_status": "fail",
+      "gx_validator_status": "expected_red",
+      "readiness_authority": "no_gx_authority",
+      "may_count_for_gx_closeout": false,
+      "superseded_by": "tools/quality/validation/check_policy_design_case_layer3_gx_hardening.py",
+      "issue_codes": [],
+      "legacy_diagnostic_codes": [
+        "layer3_gx_legacy_red_blocks_closeout"
+      ],
+      "expected_red_eligible": false
+    },
+    {
+      "slice_id": "G5",
+      "gx_migration_state": "legacy_validator_no_gx_authority",
+      "old_validator_status": "pass",
+      "gx_validator_status": "expected_red",
+      "readiness_authority": "legacy_diagnostic_only",
+      "may_count_for_gx_closeout": false,
+      "superseded_by": "tools/quality/validation/check_policy_design_case_layer3_gx_hardening.py",
+      "issue_codes": [],
+      "legacy_diagnostic_codes": [
+        "layer3_gx_g5_legacy_green_not_authoritative",
+        "layer3_gx_legacy_green_not_authoritative"
+      ],
+      "expected_red_eligible": false
+    },
+    {
+      "slice_id": "G6",
+      "gx_migration_state": "legacy_validator_no_gx_authority",
+      "old_validator_status": "pass",
+      "gx_validator_status": "expected_red",
+      "readiness_authority": "legacy_diagnostic_only",
+      "may_count_for_gx_closeout": false,
+      "superseded_by": "tools/quality/validation/check_policy_design_case_layer3_gx_hardening.py",
+      "issue_codes": [],
+      "legacy_diagnostic_codes": [
+        "layer3_gx_g6_legacy_green_not_authoritative",
+        "layer3_gx_legacy_green_not_authoritative"
+      ],
+      "expected_red_eligible": false
+    },
+    {
+      "slice_id": "G7",
+      "gx_migration_state": "blocked_by_gx_migration",
+      "old_validator_status": "fail",
+      "gx_validator_status": "expected_red",
+      "readiness_authority": "no_gx_authority",
+      "may_count_for_gx_closeout": false,
+      "superseded_by": "tools/quality/validation/check_policy_design_case_layer3_gx_hardening.py",
+      "issue_codes": [],
+      "legacy_diagnostic_codes": [
+        "layer3_gx_legacy_red_blocks_closeout"
+      ],
+      "expected_red_eligible": false
+    },
+    {
+      "slice_id": "G8",
+      "gx_migration_state": "blocked_by_gx_migration",
+      "old_validator_status": "fail",
+      "gx_validator_status": "expected_red",
+      "readiness_authority": "no_gx_authority",
+      "may_count_for_gx_closeout": false,
+      "superseded_by": "tools/quality/validation/check_policy_design_case_layer3_gx_hardening.py",
+      "issue_codes": [],
+      "legacy_diagnostic_codes": [
+        "layer3_gx_legacy_red_blocks_closeout"
+      ],
+      "expected_red_eligible": false
+    },
+    {
+      "slice_id": "GL",
+      "gx_migration_state": "legacy_validator_no_gx_authority",
+      "old_validator_status": "pass",
+      "gx_validator_status": "expected_red",
+      "readiness_authority": "legacy_diagnostic_only",
+      "may_count_for_gx_closeout": false,
+      "superseded_by": "tools/quality/validation/check_policy_design_case_layer3_gx_hardening.py",
+      "issue_codes": [],
+      "legacy_diagnostic_codes": [
+        "layer3_gx_gl_legacy_green_not_authoritative",
+        "layer3_gx_legacy_green_not_authoritative"
+      ],
+      "expected_red_eligible": false
+    }
+  ],
+  "legacy_green_slice_count": 4,
+  "legacy_diagnostic_count": 14,
+  "issues": []
+}

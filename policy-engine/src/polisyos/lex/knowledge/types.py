@@ -297,6 +297,88 @@ class LegalDocVersionResult(BaseModel):
     is_latest: bool = False
 
 
+ThresholdEvaluationStatus = Literal["admitted", "blocked", "not_applicable"]
+ThresholdEvaluationReason = Literal[
+    "threshold_satisfied",
+    "threshold_violated",
+    "threshold_unresolved",
+    "threshold_not_applicable",
+    "candidate_bound_missing",
+    "threshold_bound_missing",
+    "unit_unresolved",
+    "unit_incompatible",
+    "operator_unresolved",
+    "temporal_not_in_force",
+]
+TemporalCompetenceStatus = Literal["in_force", "not_yet_in_force", "stale", "blocked"]
+
+
+class LegalRuleThresholdRow(BaseModel):
+    """Resolved L3 threshold row bound to its normative fact and provision lineage."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    threshold_id: str
+    fact_id: str
+    metric: str
+    operator: str
+    value_decimal: float | None = None
+    value_text: str = ""
+    unit: str = ""
+    applies_to: str = ""
+    doc_id: str = ""
+    doc_family_id: str = ""
+    version_id: str = ""
+    provision_anchor: str = ""
+    provision_citation: str = ""
+    provision_ref: str = ""
+    jurisdiction: str = "UA"
+    top_domain: str = ""
+    norm_type: str = ""
+    norm_type_canon: str = ""
+    effective_from: str = ""
+    effective_to: str = ""
+    temporal_resolution_status: str = ""
+    trust_tier: FactTrustTier = "search_candidate"
+
+
+class LegalThresholdEvaluation(BaseModel):
+    """Semantic evaluation of a candidate value against an L3 threshold."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: ThresholdEvaluationStatus
+    reason: ThresholdEvaluationReason
+    threshold_ref: str
+    threshold_id: str = ""
+    fact_id: str = ""
+    metric: str = ""
+    operator: str = ""
+    applies_to: str = ""
+    normalized_candidate_value: float | None = None
+    normalized_threshold_value: float | None = None
+    canonical_unit: str = ""
+    temporal_status: TemporalCompetenceStatus = "blocked"
+    obligation_ref: str = ""
+    provision_ref: str = ""
+
+
+class LegalTemporalCompetence(BaseModel):
+    """As-of temporal competence for an amendment or threshold-backed norm."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: TemporalCompetenceStatus
+    subject_ref: str
+    as_of: str
+    effective_from: str = ""
+    effective_to: str = ""
+    amendment_id: str = ""
+    amendment_type: str = ""
+    stale_after: str = ""
+    reason: str = ""
+
+
 class LegalSourceAnchor(BaseModel):
     """Source anchor with full text and inherited structural hints."""
 

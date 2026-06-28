@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import hashlib
-import re
 from collections.abc import Mapping, Sequence
 from datetime import UTC, datetime
 
+from polisyos.core import PromptSanitizer, scan_secret_and_pii
 from polisyos.runtime.quality.authority import (
     AuthorityEnvelopeInput,
+    AuthoritySurfaceDecision,
+    authority_surface_decision,
     deserialize_authority_envelope,
 )
 from polisyos.runtime.quality.candidate_firewall import (
@@ -97,82 +99,18 @@ _OFFICIAL_USE_LIMITS = {
         "authority graph for scorecard, readiness, approval, or closeout."
     ),
 }
-_FORBIDDEN_KEY_TOKENS = (
-    "access_token",
-    "api_key",
-    "answer_key",
-    "bearer_token",
-    "benchmark_answer",
-    "credential",
-    "credentials",
-    "developer_prompt",
-    "hidden_answer",
-    "hidden_benchmark",
-    "hidden_eval",
-    "hidden_holdout",
-    "hidden_case_payload",
-    "password",
-    "private_prompt",
-    "private_reviewer",
-    "provider_config",
-    "provider_credential",
-    "raw_records",
-    "raw_sensitive",
-    "raw_source",
-    "raw_transcript",
-    "restricted_source",
-    "reviewer_private",
-    "secret",
-    "sealed_battery",
-    "sealed_case_payload",
-    "sealed_fixture",
-    "sealed_fixture_contents",
-    "sensitive_data",
-    "source_material",
-    "system_prompt",
-    "tenant",
-    "tenant_id",
-    "gold_label",
-    "gold_labels",
-    "weak_gold_answer",
-    "expert_oracle_private_notes",
-    "oracle_private_notes",
-)
-_FORBIDDEN_VALUE_TOKENS = (
-    "access_token",
-    "api_key",
-    "bearer ",
-    "benchmark_answer",
-    "gold answer",
-    "gold_label",
-    "gold_labels",
-    "hidden_benchmark",
-    "hidden_case_payload",
-    "password",
-    "private system prompt",
-    "sealed_battery",
-    "sealed_case_payload",
-    "sealed_fixture",
-    "sealed_fixture_contents",
-    "raw_sensitive",
-    "restricted source",
-    "secret-key",
-    "sk-",
-    "system_prompt",
-    "weak_gold_answer",
-    "expert_oracle_private_notes",
-    "oracle_private_notes",
-    "answer_key",
-)
-_SHA256_REF_RE = re.compile(r"^sha256:[0-9a-f]{64}$", re.IGNORECASE)
-_CAS_SHA256_REF_RE = re.compile(r"^cas://sha256/[0-9a-f]{64}$", re.IGNORECASE)
-
-
 class PublicExportRedactionError(ValueError):
     """Typed public-export redaction or authority-boundary violation."""
 
-    def __init__(self, code: str, message: str | None = None) -> None:
+    def __init__(
+        self,
+        code: str,
+        message: str | None = None,
+        *,
+        authority_surface_decisions: Sequence[Mapping[str, object]] = (),
+    ) -> None:
         self.code = code
+        self.authority_surface_decisions = [dict(item) for item in authority_surface_decisions]
         super().__init__(f"{code}: {message or code}")
 
 
@@ -203,12 +141,34 @@ def build_public_export_bundle(
     _assert_public_welfare_frontier_surface(artifacts)
     if projection_payload is not None:
         _assert_public_welfare_frontier_surface(projection_payload)
-    redactions: list[dict[str, str]] = []
-    sanitized_artifacts = _sanitize_public_payload(
-        dict(artifacts),
-        path="artifacts",
-        redactions=redactions,
-    )
+    (
+        sanitized_artifacts,
+        secret_pii_scan_reports,
+        redactions,
+        sanitizer_strangle_receipt,
+    ) = _scan_public_export_artifacts(run_id=run_id, artifacts=artifacts)
+    authority_surface_decisions = _authority_surface_decisions_for_public_export(artifacts)
+    blocking_decisions = [
+        (artifact_key, decision)
+        for artifact_key, decision in authority_surface_decisions
+        if decision.blocking
+    ]
+    if blocking_decisions:
+        artifact_key, decision = blocking_decisions[0]
+        raise PublicExportRedactionError(
+            "authority_surface_blocked",
+            (
+                f"{artifact_key} cannot be exported for "
+                f"{decision.purpose}: {decision.reason}"
+            ),
+            authority_surface_decisions=[
+                {
+                    "artifact_key": key,
+                    "decision": item.model_dump(mode="json"),
+                }
+                for key, item in authority_surface_decisions
+            ],
+        )
     rule_evolution_annotations = _iter_rule_evolution_annotations(sanitized_artifacts)
     public_revision_states = _iter_public_revision_states(sanitized_artifacts)
     orchestration_continuity = _public_orchestration_continuity_projection(
@@ -523,6 +483,13 @@ def build_public_export_bundle(
             "layer3_g3_analytics_search_projection_contract_verification": (
                 g3_verification
             ),
+            "authority_surface_decisions": [
+                {
+                    "artifact_key": artifact_key,
+                    "decision": decision.model_dump(mode="json"),
+                }
+                for artifact_key, decision in authority_surface_decisions
+            ],
             "omission_manifest": list(
                 projection_semantics.get("omission_manifest", [])
                 if projection_semantics is not None
@@ -534,12 +501,15 @@ def build_public_export_bundle(
                 else []
             ),
             "projection_contract_verification": projection_contract_verification,
+            "secret_pii_scan_reports": secret_pii_scan_reports,
+            "strangle_receipts": [sanitizer_strangle_receipt],
         },
         "redaction_summary": {
             "redaction_policy_ref": PUBLIC_EXPORT_REDACTION_POLICY_REF,
             "redacted_path_count": len(redactions),
             "erased_paths": sorted({item["path"] for item in redactions}),
             "upserted_redactions": redactions,
+            "strangle_receipt": sanitizer_strangle_receipt,
         },
     }
     if s13_projection is not None or s13_verification is not None:
@@ -553,6 +523,96 @@ def build_public_export_bundle(
         bundle["projection_semantics"] = projection_semantics
     assert_public_export_official_use_limits(bundle)
     return bundle
+
+
+def _scan_public_export_artifacts(
+    *,
+    run_id: str,
+    artifacts: Mapping[str, object],
+) -> tuple[dict[str, object], list[dict[str, object]], list[dict[str, str]], dict[str, object]]:
+    sanitizer = PromptSanitizer()
+    scan = scan_secret_and_pii(
+        dict(artifacts),
+        scope="dashboard/public/export packets",
+        artifact_ref_or_route=f"public-export://{run_id}",
+        sanitizer=sanitizer,
+        redact=True,
+        block_on_findings=False,
+    )
+    if not isinstance(scan.redacted_payload, Mapping):
+        raise PublicExportRedactionError(
+            "public_export_secret_scan_invalid_payload",
+            "Canonical secret/PII scan did not preserve public export mapping shape.",
+        )
+    placeholder_map = sanitizer.placeholder_map()
+    redactions = [
+        {
+            "path": f"canonical_redaction:{index}",
+            "reason": _canonical_redaction_reason(placeholder),
+        }
+        for index, placeholder in enumerate(sorted(placeholder_map), start=1)
+    ]
+    return (
+        dict(scan.redacted_payload),
+        [report.model_dump(mode="json") for report in scan.reports],
+        redactions,
+        _public_export_sanitizer_strangle_receipt(),
+    )
+
+
+def _canonical_redaction_reason(placeholder: str) -> str:
+    if "_EMAIL_" in placeholder:
+        return "email:redacted_by_canonical_scanner"
+    if "_KEYED_SECRET_" in placeholder:
+        return "keyed_secret:redacted_by_canonical_scanner"
+    return "secret_pii:redacted_by_canonical_scanner"
+
+
+def _public_export_sanitizer_strangle_receipt() -> dict[str, object]:
+    return {
+        "predecessor_ref": (
+            "runtime.quality.public_export._FORBIDDEN_*_TOKENS."
+            "_sanitize_public_payload"
+        ),
+        "replacement_ref": "polisyos.core.llm.sanitization.scan_secret_and_pii",
+        "disposition": "deleted_live_path_default_flipped_to_composed_gate",
+        "default_before": "public export used a parallel deny-list sanitizer",
+        "default_after": (
+            "public export redacts through the canonical SecretAndPIIScanReport emitter "
+            "and every artifact is admitted through authority_surface_decision"
+        ),
+        "remaining_callers": [],
+    }
+
+
+def _authority_surface_decisions_for_public_export(
+    artifacts: Mapping[str, object],
+) -> list[tuple[str, AuthoritySurfaceDecision]]:
+    decisions: list[tuple[str, AuthoritySurfaceDecision]] = []
+    for key, artifact in artifacts.items():
+        if not isinstance(artifact, Mapping):
+            continue
+        export_decision = authority_surface_decision(
+            artifact,
+            surface="export",
+            artifact_ref_or_route=f"public-export://{key}",
+            secret_pii_scope="dashboard/public/export packets",
+            block_on_secret_findings=False,
+            missing_authority_disposition="downgrade",
+            missing_boundary_disposition="downgrade",
+        )
+        public_packet_decision = authority_surface_decision(
+            artifact,
+            surface="public_packet",
+            artifact_ref_or_route=f"public-packet://{key}",
+            secret_pii_scope="dashboard/public/export packets",
+            block_on_secret_findings=False,
+            missing_authority_disposition="downgrade",
+            missing_boundary_disposition="downgrade",
+        )
+        for decision in (export_decision, public_packet_decision):
+            decisions.append((str(key), decision))
+    return decisions
 
 
 def _apply_s14_universality_projection(
@@ -1996,97 +2056,6 @@ def _authority_projection(envelope: AuthorityEnvelopeInput) -> dict[str, object]
         "tenant_redacted": True,
         "tenant_fingerprint": _fingerprint(validated.tenant_id),
     }
-
-
-def _sanitize_public_payload(
-    value: object,
-    *,
-    path: str,
-    redactions: list[dict[str, str]],
-) -> object | None:
-    if isinstance(value, Mapping):
-        sanitized: dict[str, object] = {}
-        for raw_key, item in value.items():
-            key = str(raw_key)
-            child_path = f"{path}.{key}"
-            reason = _forbidden_key_reason(key)
-            if reason is not None:
-                redactions.append(
-                    {
-                        "path": _redaction_pointer(child_path),
-                        "reason": _redaction_reason(reason),
-                    }
-                )
-                continue
-            sanitized_value = _sanitize_public_payload(
-                item,
-                path=child_path,
-                redactions=redactions,
-            )
-            if sanitized_value is not None:
-                sanitized[key] = sanitized_value
-        return sanitized
-    if isinstance(value, Sequence) and not isinstance(
-        value,
-        (str, bytes, bytearray),
-    ):
-        sanitized_items: list[object] = []
-        for index, item in enumerate(value):
-            sanitized_item = _sanitize_public_payload(
-                item,
-                path=f"{path}[{index}]",
-                redactions=redactions,
-            )
-            if sanitized_item is not None:
-                sanitized_items.append(sanitized_item)
-        return sanitized_items
-    if isinstance(value, str):
-        reason = _forbidden_value_reason(value)
-        if reason is not None:
-            redactions.append(
-                {
-                    "path": _redaction_pointer(path),
-                    "reason": _redaction_reason(reason),
-                }
-            )
-            return {
-                "redacted": True,
-                "reason": _redaction_reason(reason),
-                "fingerprint": _fingerprint(value),
-            }
-    return value
-
-
-def _forbidden_key_reason(key: str) -> str | None:
-    lowered = key.casefold().replace("-", "_")
-    for token in _FORBIDDEN_KEY_TOKENS:
-        if token in lowered:
-            return f"forbidden_key:{token}"
-    return None
-
-
-def _forbidden_value_reason(value: str) -> str | None:
-    if _is_tenant_private_ref(value):
-        return "tenant_private_ref"
-    lowered = value.casefold()
-    for token in _FORBIDDEN_VALUE_TOKENS:
-        if token in lowered:
-            return f"forbidden_value:{token}"
-    return None
-
-
-def _redaction_pointer(path: str) -> str:
-    return "redacted_path:" + hashlib.sha256(path.encode("utf-8")).hexdigest()[:16]
-
-
-def _redaction_reason(reason: str) -> str:
-    category = reason.split(":", 1)[0]
-    return f"{category}:redacted_sensitive_token"
-
-
-def _is_tenant_private_ref(value: str) -> bool:
-    text = value.strip()
-    return bool(_SHA256_REF_RE.fullmatch(text) or _CAS_SHA256_REF_RE.fullmatch(text))
 
 
 def _fingerprint(value: object) -> str:

@@ -64,7 +64,7 @@
       "violations": [],
       "governed_vocabulary_exceptions": [
         {
-          "file": "src/polisyos/runtime/quality/layer3_grounding_inventory.py",
+          "file": "src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py",
           "pattern": "DiscoveryPosture",
           "enumeration_kind": "governed_vocabulary_exception",
           "governed_vocabulary_exception": true,

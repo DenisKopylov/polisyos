@@ -11,6 +11,6 @@ case_id = "ua-msme-affordable-loans-2022"
 consumer = "tools.quality.validation.run_universal_outcome_corpus"
 consumer_gate_ref = "repo://architecture/policy_design_case/layer3_g5_w12d_consumer_gate.json"
 may_not_use_for = ["production_authority", "production_claim_authority", "rollout_authority", "publication_authority", "approval_authority", "scorecard_authority", "closeout_authority", "runtime_closeout_authority", "public_recommendation", "policy_recommendation", "legal_advice", "claim_authority_without_upstream_grounding", "causal_effect_authority_without_g2", "proof_authority_without_g3", "legal_authority_without_gl", "useful_design_rate_floor_relaxation", "g6_arbitrary_request_orchestration", "g7_region_widening", "conversion_authority_without_g5"]
-producer = "polisyos.runtime.quality.layer3_proving_ground_conversion"
+producer = "polisyos.runtime.quality.proving_ground.proving_ground_conversion"
 route_id = "layer3.g5.conversion_route.w12d_pinned_case"
 verification_refs = ["tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness.py"]

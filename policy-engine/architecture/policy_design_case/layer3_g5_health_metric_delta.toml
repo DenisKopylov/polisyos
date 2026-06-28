@@ -5,6 +5,6 @@ rule_version = "policyos.layer3.g5.first_proving_ground_conversion.v1"
 metric_ids = ["envelope-expansion-rate", "adapter-semantic-loss", "governance-throughput", "demand-pull-vs-abstention", "search-recall@known-seeds + index-staleness"]
 metric_statuses.adapter-semantic-loss = "pass"
 metric_statuses.demand-pull-vs-abstention = "pass"
-metric_statuses.envelope-expansion-rate = "flat"
+metric_statuses.envelope-expansion-rate = "blocked"
 metric_statuses.governance-throughput = "pass"
 metric_statuses."search-recall@known-seeds + index-staleness" = "pass"

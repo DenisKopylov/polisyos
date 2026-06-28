@@ -1,0 +1,188 @@
+{
+  "audit_model": "TimeSourceEnvelopeAudit",
+  "audits": [
+    {
+      "as_of_time": "2026-06-16T12:06:13Z",
+      "catalog_watermark": "2026-01-15T10:00:00Z",
+      "effective_time": "2026-01-15T10:00:00Z",
+      "ingested_at": "2026-01-15T10:00:00Z",
+      "legal_valid_time": "2026-01-15T10:00:00Z",
+      "mismatch_disposition": "admitted",
+      "node_finished_at": "2026-06-16T12:06:13Z",
+      "node_started_at": "2026-06-16T12:05:19Z",
+      "replay_time": "2026-06-16T12:06:13Z",
+      "retention_or_expiry": "2026-07-16T12:06:13Z",
+      "run_finished_at": "2026-06-16T12:06:13Z",
+      "run_started_at": "2026-06-16T12:05:19Z",
+      "source_observed_at": "2026-01-15T10:00:00Z",
+      "source_published_at": "2026-01-15T10:00:00Z",
+      "source_updated_at": "2026-01-15T10:00:00Z",
+      "transaction_time": "2026-06-16T12:06:13Z"
+    },
+    {
+      "as_of_time": "2026-06-16T12:06:13Z",
+      "catalog_watermark": "2026-01-15T10:00:00Z",
+      "effective_time": "2026-06-16T12:05:19Z",
+      "ingested_at": "2026-06-16T12:05:19Z",
+      "legal_valid_time": "2026-06-16T12:05:19Z",
+      "mismatch_disposition": "block:catalog_watermark_stale_for_source",
+      "node_finished_at": "2026-06-16T12:06:13Z",
+      "node_started_at": "2026-06-16T12:05:19Z",
+      "replay_time": "2026-06-16T12:06:13Z",
+      "retention_or_expiry": "2026-07-16T12:06:13Z",
+      "run_finished_at": "2026-06-16T12:06:13Z",
+      "run_started_at": "2026-06-16T12:05:19Z",
+      "source_observed_at": "2026-06-16T12:05:19Z",
+      "source_published_at": "2026-01-15T10:00:00Z",
+      "source_updated_at": "2026-06-16T12:05:19Z",
+      "transaction_time": "2026-06-16T12:06:13Z"
+    },
+    {
+      "as_of_time": "2026-06-16T12:06:13Z",
+      "catalog_watermark": "2026-06-16T12:06:13Z",
+      "effective_time": "2026-06-16T12:06:13Z",
+      "ingested_at": "2026-06-16T12:06:13Z",
+      "legal_valid_time": "2026-06-17T12:06:13Z",
+      "mismatch_disposition": "block:legal_valid_time_outside_as_of_replay",
+      "node_finished_at": "2026-06-16T12:06:13Z",
+      "node_started_at": "2026-06-16T12:05:19Z",
+      "replay_time": "2026-06-16T12:06:13Z",
+      "retention_or_expiry": "2026-07-16T12:06:13Z",
+      "run_finished_at": "2026-06-16T12:06:13Z",
+      "run_started_at": "2026-06-16T12:05:19Z",
+      "source_observed_at": "2026-06-16T12:06:13Z",
+      "source_published_at": "2026-01-15T10:00:00Z",
+      "source_updated_at": "2026-06-16T12:06:13Z",
+      "transaction_time": "2026-06-16T12:06:13Z"
+    }
+  ],
+  "catalog_source": {
+    "catalog_last_updated": "2026-01-15T10:00:00Z",
+    "dataset_ref": "catalog://production-data/worldbank-wdi/ny-gdp-mktp-cd",
+    "source": "worldbank",
+    "source_dataset_id": "NY.GDP.MKTP.CD"
+  },
+  "negative_fixtures": {
+    "legal_valid_time_outside_as_of_replay": "block:legal_valid_time_outside_as_of_replay",
+    "stale_watermark_fresh_source": "block:catalog_watermark_stale_for_source"
+  },
+  "owner": "team-runtime-quality",
+  "proof_source": "catalog_temporal_lineage_s12_recompute",
+  "runtime_lifecycle_source": {
+    "control_job_ref": "control-job:e50b8f90-e707-5b48-a79d-b52ea17db3f2",
+    "node_finished_event": "NODE_FINISHED",
+    "node_started_event": "NODE_STARTED",
+    "run_id": "R_fff1b9d4b0de5d4c"
+  },
+  "s12_ref_dereference": {
+    "authorial_negative_fixture": {
+      "accountable_principal_refs": [],
+      "candidate_only_s12_refs": [
+        "voi://ua-msme/layer3-g5"
+      ],
+      "certified_envelope_delta_refs": [
+        "envelope-delta://ua-msme/first-proving-ground"
+      ],
+      "demand_act_refs": [
+        "demand-act://ua-msme/first-proving-ground"
+      ],
+      "growth_entry_refs": [],
+      "issue_codes": [
+        "layer3_g5_s12_ref_candidate_only"
+      ],
+      "reuse_acquisition_refs": [],
+      "s12_ref_resolutions": [
+        {
+          "disposition": "candidate_only",
+          "issue_codes": [
+            "s12_ref_non_dereferenceable"
+          ],
+          "resolved": false,
+          "resolved_object_ref": null,
+          "resolved_object_type": null,
+          "source_ref": "voi://ua-msme/layer3-g5"
+        }
+      ],
+      "scope_join_status": "not_required",
+      "status": "fail",
+      "voi_allocation_refs": []
+    },
+    "g5_real_ref_evidence": {
+      "accountable_principal_refs": [],
+      "candidate_only_s12_refs": [],
+      "certified_envelope_delta_refs": [
+        "envelope-delta://ua-msme/first-proving-ground"
+      ],
+      "demand_act_refs": [
+        "demand-act://ua-msme/first-proving-ground"
+      ],
+      "growth_entry_refs": [],
+      "issue_codes": [],
+      "reuse_acquisition_refs": [],
+      "s12_ref_resolutions": [
+        {
+          "disposition": "authority_admitted",
+          "issue_codes": [],
+          "resolved": true,
+          "resolved_object_ref": "pdc://layer2/s12/ua-msme-affordable-loans-2022/voi-allocation",
+          "resolved_object_type": "ValueOfInformationAllocation",
+          "source_ref": "voi://ua-msme-affordable-loans-2022/s12_acquisition_voi"
+        }
+      ],
+      "scope_join_status": "not_required",
+      "status": "pass",
+      "voi_allocation_refs": [
+        "voi://ua-msme-affordable-loans-2022/s12_acquisition_voi"
+      ]
+    },
+    "g5_surface_ref_results": [
+      {
+        "disposition": "candidate_only",
+        "issue_codes": [
+          "s12_ref_non_dereferenceable"
+        ],
+        "resolved": false,
+        "resolved_object_ref": null,
+        "resolved_object_type": null,
+        "source_ref": "s12://layer3-g5/resource-economics"
+      },
+      {
+        "disposition": "candidate_only",
+        "issue_codes": [
+          "s12_ref_non_dereferenceable"
+        ],
+        "resolved": false,
+        "resolved_object_ref": null,
+        "resolved_object_type": null,
+        "source_ref": "voi://ua-msme/site-1"
+      }
+    ],
+    "real_ref_results": [
+      {
+        "disposition": "authority_admitted",
+        "issue_codes": [],
+        "resolved": true,
+        "resolved_object_ref": "pdc://layer2/s12/ua-msme-affordable-loans-2022/voi-allocation",
+        "resolved_object_type": "ValueOfInformationAllocation",
+        "source_ref": "pdc://layer2/s12/ua-msme-affordable-loans-2022/voi-allocation"
+      },
+      {
+        "disposition": "authority_admitted",
+        "issue_codes": [],
+        "resolved": true,
+        "resolved_object_ref": "pdc://layer2/s12/ua-msme-affordable-loans-2022/resource-allocation-policy",
+        "resolved_object_type": "ResourceAllocationPolicy",
+        "source_ref": "pdc://layer2/s12/ua-msme-affordable-loans-2022/resource-allocation-policy"
+      },
+      {
+        "disposition": "authority_admitted",
+        "issue_codes": [],
+        "resolved": true,
+        "resolved_object_ref": "pdc://layer2/s12/ua-msme-affordable-loans-2022/voi-allocation",
+        "resolved_object_type": "ValueOfInformationAllocation",
+        "source_ref": "voi://ua-msme-affordable-loans-2022/s12_acquisition_voi"
+      }
+    ]
+  },
+  "schema_version": "policyos.policy_design_case.layer3_gy.time_source_envelope_audit.v1"
+}

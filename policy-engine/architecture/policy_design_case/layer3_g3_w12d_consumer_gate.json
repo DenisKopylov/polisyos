@@ -13,7 +13,7 @@
       "refinement_status_consumed": true,
       "s11_constraint_store_entries_consumed": true,
       "search_ledger_g3_proof_ref_consumed": true,
-      "search_ledger_predictive_knowledge_ref_consumed": true
+      "search_ledger_predictive_knowledge_ref_consumed": false
     },
     "fixture_certificate_closure_count": 0,
     "fixture_s11_regression_context_ref": null,
@@ -25,7 +25,9 @@
     "g3_ir_analytics_bridge_ref": "sha256:c0bac918d049131c1c73e4bf60b0025258d19215593d0372977fd8edf9c6c76e",
     "g3_proof_carrying_analytics_ref": "pdc://layer3/g3/ua-msme-affordable-loans-2022/proof/7b90e79ae57710f75add190e",
     "gate_id": "layer3.g3.w12d.analytics_search_gate",
-    "issue_codes": [],
+    "issue_codes": [
+      "layer3_g3_w12d_consumer_gate_missing"
+    ],
     "lightweight_case_refs": [],
     "lightweight_posture_ref": null,
     "lightweight_posture_ref_count": 0,
@@ -42,10 +44,10 @@
     ],
     "negative_certificate_block_count": 0,
     "posture_consumed": true,
-    "predictive_knowledge_ref": "pdc://layer3/g3/ua-msme-affordable-loans-2022/s11/predictive-knowledge",
+    "predictive_knowledge_ref": null,
     "record_id": "layer3-g3-w12d-consumer-gate",
     "route_kind": "full_s11_s2_consumer",
-    "status": "pass",
+    "status": "fail",
     "useful_design_delta_count": 0
   }
 }

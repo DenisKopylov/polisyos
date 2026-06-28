@@ -2,7 +2,10 @@
   "authoritative_for": [
     "g5_first_proving_ground_promotion_state_input_refs"
   ],
-  "blocker_refs": [],
+  "blocker_refs": [
+    "layer3_g4_fixture_scoped_grounding_non_authoritative",
+    "layer3_g4_upstream_may_not_use_for_ignored"
+  ],
   "issue_codes": [],
   "limitation_refs": [],
   "may_not_use_for": [
@@ -26,8 +29,34 @@
     "legal_authority_without_gl",
     "human_override_of_a_incompleteness"
   ],
-  "promotion_record_refs": [],
-  "promotion_scopes": [],
-  "status": "fail",
-  "upstream_contract_refs": []
+  "promotion_record_refs": [
+    "g4-promotion-record:g4-request:ua-msme-source-only-valid",
+    "g4-promotion-record:g4-request:upstream-may-not-use-blocked"
+  ],
+  "promotion_scopes": [
+    {
+      "authority_purpose": "layer3_g4_governed_promotion_state",
+      "claim_families": [
+        "source_data"
+      ],
+      "high_stakes": false,
+      "requested_boundary": "bounded",
+      "requires_legal_or_mandate_authority": false,
+      "routine_in_envelope": true
+    },
+    {
+      "authority_purpose": "layer3_g4_governed_promotion_state",
+      "claim_families": [
+        "source_data"
+      ],
+      "high_stakes": false,
+      "requested_boundary": "bounded",
+      "requires_legal_or_mandate_authority": false,
+      "routine_in_envelope": true
+    }
+  ],
+  "status": "pass",
+  "upstream_contract_refs": [
+    "repo://tests/fixtures/layer3/g4/g1_grounded_source_contracts_valid.json#bindings/firm_survival"
+  ]
 }

@@ -1,0 +1,392 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gx_reducer_integrity_report.v1",
+  "status": "fail",
+  "positive_status_count": 3,
+  "positive_status_records": [
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json",
+      "json_pointer": "$",
+      "field": "promotion_state",
+      "value": "governed_promoted",
+      "producer_ref": null,
+      "classification": "production_positive_status",
+      "produced_by_present": true,
+      "missing_produced_by_keys": []
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "production_positive_status",
+      "produced_by_present": true,
+      "missing_produced_by_keys": []
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_conversion_eligibility_ledger.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "production_positive_status",
+      "produced_by_present": true,
+      "missing_produced_by_keys": [
+        "input_hashes",
+        "output_hash",
+        "reducer_version"
+      ]
+    }
+  ],
+  "missing_reducer_provenance_count": 1,
+  "producer_root_invalid_count": 3,
+  "required_reducer_ids": [
+    "reduce_g1_source_grounding_closure",
+    "reduce_g2_forecast_admission",
+    "reduce_g3_proof_authority",
+    "reduce_gl_legal_authority",
+    "reduce_g4_promotion_state",
+    "reduce_g5_conversion_outcome",
+    "reduce_g7_region_closure",
+    "reduce_g8_domain_vs_search_ceiling"
+  ],
+  "reducer_decisions": [
+    {
+      "schema_version": "policyos.policy_design_case.layer3_reducer_decision.v1",
+      "reducer_id": "reduce_g1_source_grounding_closure",
+      "reducer_version": "v1",
+      "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
+      "status_field": "grounding_closure_outcome",
+      "status": "typed_blocker",
+      "readiness_status": "fail",
+      "vocabulary_status_id": "typed_blocker",
+      "blocker_refs": [
+        "layer3_gx_inline_input_forbidden",
+        "layer3_gx_required_input_ref_blocked"
+      ],
+      "limitation_refs": [],
+      "input_refs": [
+        "repo://architecture/policy_design_case/layer3_g1_readiness_manifest.json",
+        "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json",
+        "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json"
+      ],
+      "input_hashes": {
+        "repo://architecture/policy_design_case/layer3_g1_readiness_manifest.json": "sha256:db9a172ce2bc021fe2a86ea35c85178649600a7f2c0e32650dea45610135e7bc",
+        "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json": "sha256:99bb3f31d68ebd6c41e286f60fc00f0a6558577c0fa460d86efa2b179c42f60d",
+        "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json": "sha256:bc2112bfbf228d4d742a4add3b8473ea358d21471e7b650024963fb20a7561fd"
+      },
+      "issue_codes": [
+        "layer3_gx_inline_input_forbidden",
+        "layer3_gx_required_input_ref_blocked"
+      ],
+      "produced_by": {
+        "reducer_id": "reduce_g1_source_grounding_closure",
+        "reducer_version": "v1",
+        "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
+        "input_hashes": {
+          "repo://architecture/policy_design_case/layer3_g1_readiness_manifest.json": "sha256:db9a172ce2bc021fe2a86ea35c85178649600a7f2c0e32650dea45610135e7bc",
+          "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json": "sha256:99bb3f31d68ebd6c41e286f60fc00f0a6558577c0fa460d86efa2b179c42f60d",
+          "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json": "sha256:bc2112bfbf228d4d742a4add3b8473ea358d21471e7b650024963fb20a7561fd"
+        },
+        "vocabulary_status_id": "typed_blocker",
+        "output_hash": "sha256:f730011e0c6480d0930fc8d98e9d30a37f6590f3ab0d8ce5b3f8962f501377d1"
+      }
+    },
+    {
+      "schema_version": "policyos.policy_design_case.layer3_reducer_decision.v1",
+      "reducer_id": "reduce_g2_forecast_admission",
+      "reducer_version": "v1",
+      "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
+      "status_field": "forecast_admission_status",
+      "status": "typed_blocker",
+      "readiness_status": "fail",
+      "vocabulary_status_id": "typed_blocker",
+      "blocker_refs": [
+        "layer3_gx_inline_input_forbidden",
+        "layer3_g2_skg_edge_not_forecast_support",
+        "layer3_g2_method_binding_not_admitted",
+        "layer3_g2_calibration_not_admitted"
+      ],
+      "limitation_refs": [],
+      "input_refs": [
+        "repo://architecture/policy_design_case/layer3_g2_readiness_manifest.json"
+      ],
+      "input_hashes": {
+        "repo://architecture/policy_design_case/layer3_g2_readiness_manifest.json": "sha256:8b2ca69e5d1e04cda917a4e4d22a609ecd50d54718b7c9be60c540f2ca0a3ccd"
+      },
+      "issue_codes": [
+        "layer3_gx_inline_input_forbidden",
+        "layer3_g2_skg_edge_not_forecast_support",
+        "layer3_g2_method_binding_not_admitted",
+        "layer3_g2_calibration_not_admitted"
+      ],
+      "produced_by": {
+        "reducer_id": "reduce_g2_forecast_admission",
+        "reducer_version": "v1",
+        "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
+        "input_hashes": {
+          "repo://architecture/policy_design_case/layer3_g2_readiness_manifest.json": "sha256:8b2ca69e5d1e04cda917a4e4d22a609ecd50d54718b7c9be60c540f2ca0a3ccd"
+        },
+        "vocabulary_status_id": "typed_blocker",
+        "output_hash": "sha256:7d6ca790e3d6f2a3e33cc49cc7908d0154f95bcd10215d2ff7cf52f837aed407"
+      }
+    },
+    {
+      "schema_version": "policyos.policy_design_case.layer3_reducer_decision.v1",
+      "reducer_id": "reduce_g3_proof_authority",
+      "reducer_version": "v1",
+      "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
+      "status_field": "proof_authority_status",
+      "status": "typed_blocker",
+      "readiness_status": "fail",
+      "vocabulary_status_id": "typed_blocker",
+      "blocker_refs": [
+        "layer3_gx_inline_input_forbidden",
+        "layer3_g3_proof_candidate_not_authority",
+        "layer3_g3_certificate_not_valid"
+      ],
+      "limitation_refs": [],
+      "input_refs": [
+        "repo://architecture/policy_design_case/layer3_g3_readiness_manifest.json"
+      ],
+      "input_hashes": {
+        "repo://architecture/policy_design_case/layer3_g3_readiness_manifest.json": "sha256:d56d443514bd4ed33679677af82ba6cb514da2de6ae9fac15b24c3d0ff26bb3c"
+      },
+      "issue_codes": [
+        "layer3_gx_inline_input_forbidden",
+        "layer3_g3_proof_candidate_not_authority",
+        "layer3_g3_certificate_not_valid"
+      ],
+      "produced_by": {
+        "reducer_id": "reduce_g3_proof_authority",
+        "reducer_version": "v1",
+        "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
+        "input_hashes": {
+          "repo://architecture/policy_design_case/layer3_g3_readiness_manifest.json": "sha256:d56d443514bd4ed33679677af82ba6cb514da2de6ae9fac15b24c3d0ff26bb3c"
+        },
+        "vocabulary_status_id": "typed_blocker",
+        "output_hash": "sha256:54dbbc91351bce9e12efddd40075ca5ac9826a608d4025bf1b3a0bb96bb1f519"
+      }
+    },
+    {
+      "schema_version": "policyos.policy_design_case.layer3_reducer_decision.v1",
+      "reducer_id": "reduce_gl_legal_authority",
+      "reducer_version": "v1",
+      "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
+      "status_field": "legal_authority_status",
+      "status": "typed_blocker",
+      "readiness_status": "fail",
+      "vocabulary_status_id": "typed_blocker",
+      "blocker_refs": [
+        "layer3_gx_inline_input_forbidden",
+        "layer3_gl_legal_basis_not_authoritative",
+        "layer3_gl_applicability_not_authoritative",
+        "layer3_gl_mandate_not_authoritative"
+      ],
+      "limitation_refs": [],
+      "input_refs": [
+        "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json"
+      ],
+      "input_hashes": {
+        "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json": "sha256:6d1302dca87fb814995817769299a9636549eaaf798ea538a2bfc6d8bab3633a"
+      },
+      "issue_codes": [
+        "layer3_gx_inline_input_forbidden",
+        "layer3_gl_legal_basis_not_authoritative",
+        "layer3_gl_applicability_not_authoritative",
+        "layer3_gl_mandate_not_authoritative"
+      ],
+      "produced_by": {
+        "reducer_id": "reduce_gl_legal_authority",
+        "reducer_version": "v1",
+        "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
+        "input_hashes": {
+          "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json": "sha256:6d1302dca87fb814995817769299a9636549eaaf798ea538a2bfc6d8bab3633a"
+        },
+        "vocabulary_status_id": "typed_blocker",
+        "output_hash": "sha256:c1516e3550432959ebd844e83e28314120f8128caf2d3fc75b46c9c005524270"
+      }
+    },
+    {
+      "schema_version": "policyos.policy_design_case.layer3_reducer_decision.v1",
+      "reducer_id": "reduce_g4_promotion_state",
+      "reducer_version": "v1",
+      "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
+      "status_field": "promotion_state",
+      "status": "promotion_blocked",
+      "readiness_status": "fail",
+      "vocabulary_status_id": "promotion_blocked",
+      "blocker_refs": [
+        "layer3_gx_inline_input_forbidden"
+      ],
+      "limitation_refs": [],
+      "input_refs": [
+        "repo://architecture/policy_design_case/layer3_g4_readiness_manifest.json",
+        "repo://architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json"
+      ],
+      "input_hashes": {
+        "repo://architecture/policy_design_case/layer3_g4_readiness_manifest.json": "sha256:0790441da71b0a12b5650fd90772e9a4b04071b384ce4125250bb340a4324ae3",
+        "repo://architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json": "sha256:2af5d03a2309529426f5a70aa19161a3132f893a3f2dae6786f74ad9d21c280b"
+      },
+      "issue_codes": [
+        "layer3_gx_inline_input_forbidden"
+      ],
+      "produced_by": {
+        "reducer_id": "reduce_g4_promotion_state",
+        "reducer_version": "v1",
+        "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
+        "input_hashes": {
+          "repo://architecture/policy_design_case/layer3_g4_readiness_manifest.json": "sha256:0790441da71b0a12b5650fd90772e9a4b04071b384ce4125250bb340a4324ae3",
+          "repo://architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json": "sha256:2af5d03a2309529426f5a70aa19161a3132f893a3f2dae6786f74ad9d21c280b"
+        },
+        "vocabulary_status_id": "promotion_blocked",
+        "output_hash": "sha256:f632dc337cf873326eebe37851fbd90d148712d18cc088556370610e2c61900e"
+      }
+    },
+    {
+      "schema_version": "policyos.policy_design_case.layer3_reducer_decision.v1",
+      "reducer_id": "reduce_g5_conversion_outcome",
+      "reducer_version": "v1",
+      "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
+      "status_field": "conversion_outcome",
+      "status": "unchanged_blocker",
+      "readiness_status": "fail",
+      "vocabulary_status_id": "unchanged_blocker",
+      "blocker_refs": [
+        "layer3_gx_inline_input_forbidden",
+        "layer3_g5_cross_slice_checks_not_ready",
+        "layer3_g5_grounded_evidence_ref_missing",
+        "layer3_g5_requested_conversion_not_positive"
+      ],
+      "limitation_refs": [],
+      "input_refs": [
+        "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json",
+        "repo://architecture/policy_design_case/layer3_g5_conversion_records.json"
+      ],
+      "input_hashes": {
+        "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json": "sha256:8d8e2411179ff25bf7a931a24fffc1d742bc95ac78319fc09628e66182f0eb96",
+        "repo://architecture/policy_design_case/layer3_g5_conversion_records.json": "sha256:48862a8dca521cc4c86de678a8557ca0525605beeb1fd5690089ced0e4b3718f"
+      },
+      "issue_codes": [
+        "layer3_gx_inline_input_forbidden",
+        "layer3_g5_cross_slice_checks_not_ready",
+        "layer3_g5_grounded_evidence_ref_missing",
+        "layer3_g5_requested_conversion_not_positive"
+      ],
+      "produced_by": {
+        "reducer_id": "reduce_g5_conversion_outcome",
+        "reducer_version": "v1",
+        "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
+        "input_hashes": {
+          "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json": "sha256:8d8e2411179ff25bf7a931a24fffc1d742bc95ac78319fc09628e66182f0eb96",
+          "repo://architecture/policy_design_case/layer3_g5_conversion_records.json": "sha256:48862a8dca521cc4c86de678a8557ca0525605beeb1fd5690089ced0e4b3718f"
+        },
+        "vocabulary_status_id": "unchanged_blocker",
+        "output_hash": "sha256:4ba65d0ec1bd687ddc6435380d2362152fe86fc8c266181846d9025baeb04588"
+      }
+    },
+    {
+      "schema_version": "policyos.policy_design_case.layer3_reducer_decision.v1",
+      "reducer_id": "reduce_g7_region_closure",
+      "reducer_version": "v1",
+      "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
+      "status_field": "g7_region_value_closure_status",
+      "status": "blocked_by_gx_migration",
+      "readiness_status": "fail",
+      "vocabulary_status_id": "blocked_by_gx_migration",
+      "blocker_refs": [
+        "layer3_gx_inline_input_forbidden",
+        "layer3_g7_blocked_by_gx_migration"
+      ],
+      "limitation_refs": [],
+      "input_refs": [
+        "repo://architecture/policy_design_case/layer3_g7_readiness_manifest.json"
+      ],
+      "input_hashes": {
+        "repo://architecture/policy_design_case/layer3_g7_readiness_manifest.json": "sha256:c838f79801c94be5346938648fa08da2471b138e951d21589029a6a9ffab8ce2"
+      },
+      "issue_codes": [
+        "layer3_gx_inline_input_forbidden",
+        "layer3_g7_blocked_by_gx_migration"
+      ],
+      "produced_by": {
+        "reducer_id": "reduce_g7_region_closure",
+        "reducer_version": "v1",
+        "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
+        "input_hashes": {
+          "repo://architecture/policy_design_case/layer3_g7_readiness_manifest.json": "sha256:c838f79801c94be5346938648fa08da2471b138e951d21589029a6a9ffab8ce2"
+        },
+        "vocabulary_status_id": "blocked_by_gx_migration",
+        "output_hash": "sha256:a011585a47cebc34c25bd4c4236a84eec805a9565b411c1bb035cfb49ad2cdcf"
+      }
+    },
+    {
+      "schema_version": "policyos.policy_design_case.layer3_reducer_decision.v1",
+      "reducer_id": "reduce_g8_domain_vs_search_ceiling",
+      "reducer_version": "v1",
+      "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
+      "status_field": "domain_vs_search_ceiling_status",
+      "status": "search_ceiling_repair_required",
+      "readiness_status": "blocked",
+      "vocabulary_status_id": "search_ceiling_repair_required",
+      "blocker_refs": [
+        "layer3_gx_inline_input_forbidden",
+        "layer3_g8_search_health_not_sufficient_for_domain_ceiling"
+      ],
+      "limitation_refs": [],
+      "input_refs": [
+        "repo://architecture/policy_design_case/layer3_g8_readiness_manifest.json"
+      ],
+      "input_hashes": {
+        "repo://architecture/policy_design_case/layer3_g8_readiness_manifest.json": "sha256:9004adafc5379a0508a5f10463073fbe5c5251bc790270141c3ce4a152782d89"
+      },
+      "issue_codes": [
+        "layer3_gx_inline_input_forbidden",
+        "layer3_g8_search_health_not_sufficient_for_domain_ceiling"
+      ],
+      "produced_by": {
+        "reducer_id": "reduce_g8_domain_vs_search_ceiling",
+        "reducer_version": "v1",
+        "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
+        "input_hashes": {
+          "repo://architecture/policy_design_case/layer3_g8_readiness_manifest.json": "sha256:9004adafc5379a0508a5f10463073fbe5c5251bc790270141c3ce4a152782d89"
+        },
+        "vocabulary_status_id": "search_ceiling_repair_required",
+        "output_hash": "sha256:75de3d77b1373695c6e36a6604773fd02da50f42edd0fd3cc0035147236e9973"
+      }
+    }
+  ],
+  "manifest_override_count": 2,
+  "issues": [
+    {
+      "code": "layer3_gx_reducer_provenance_missing",
+      "path": "architecture/policy_design_case/layer3_gx_reports/ua-msme-affordable-loans-2022/layer3_gx_positive_status_provenance.json",
+      "message": "One or more positive statuses lack reducer provenance.",
+      "missing_record_count": 1
+    },
+    {
+      "code": "layer3_gx_reducer_producer_root_chain_invalid",
+      "path": "architecture/policy_design_case/layer3_gx_reports/ua-msme-affordable-loans-2022/layer3_gx_producer_root_chain_report.json",
+      "message": "Reducer provenance is insufficient when producer-root validation fails.",
+      "invalid_record_count": 3
+    },
+    {
+      "code": "layer3_gx_readiness_manifest_overrides_reducer_output",
+      "path": "architecture/policy_design_case/layer3_g4_readiness_manifest.json#status",
+      "message": "Readiness manifest reports pass while the reducer remains blocked.",
+      "reducer_id": "reduce_g4_promotion_state",
+      "persisted_status": "pass",
+      "reducer_status": "promotion_blocked",
+      "reducer_readiness_status": "fail"
+    },
+    {
+      "code": "layer3_gx_readiness_manifest_overrides_reducer_output",
+      "path": "architecture/policy_design_case/layer3_g5_readiness_manifest.json#status",
+      "message": "Readiness manifest reports pass while the reducer remains blocked.",
+      "reducer_id": "reduce_g5_conversion_outcome",
+      "persisted_status": "pass",
+      "reducer_status": "unchanged_blocker",
+      "reducer_readiness_status": "fail"
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gy.slice0_fixture_manifest.v1",
+  "owner": "team-runtime-quality",
+  "fixtures": [
+    {
+      "fixture_id": "ua_msme_credit_worldbank_measurement",
+      "construct_scope_query": "Ukraine MSME credit access World Bank firm measurement",
+      "jurisdiction": "UA",
+      "population": "msme_firms",
+      "time_horizon": "2020-2024",
+      "expected_catalog_binding_refs": [
+        "catalog://worldbank/enterprise-surveys/ukraine/msme-credit-access",
+        "catalog://worldbank/global-findex/ukraine-account-credit",
+        "catalog://ilo/sme-finance/ukraine-credit-constraints"
+      ],
+      "expected_connector_profile": "worldbank",
+      "expected_producer_root_kind": "measurement",
+      "expected_terminal": "grounded_partial_admissible",
+      "forbidden_terminals": [
+        "grounded_admissible",
+        "grounded_abstention"
+      ],
+      "negative_controls": [
+        "tourism_attraction_reviews",
+        "synthetic_llm_only_credit_claim",
+        "catalog://who/ukraine-health-facility-capacity"
+      ]
+    },
+    {
+      "fixture_id": "tourism_local_development_ceiling_probe",
+      "construct_scope_query": "local tourism development attractions traffic measurement",
+      "jurisdiction": "UA",
+      "population": "local_tourism_sites",
+      "time_horizon": "2020-2024",
+      "expected_catalog_binding_refs": [],
+      "expected_connector_profile": "none",
+      "expected_producer_root_kind": "missing_acquisition",
+      "expected_terminal": "acquisition_required",
+      "forbidden_terminals": [
+        "grounded_admissible",
+        "grounded_partial_admissible",
+        "grounded_abstention"
+      ],
+      "negative_controls": [
+        "worldbank_msme_credit_access"
+      ]
+    }
+  ]
+}

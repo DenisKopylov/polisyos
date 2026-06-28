@@ -5,8 +5,8 @@ from __future__ import annotations
 from unittest.mock import patch
 
 import pytest
+
 from polisyos.ir.analytics.causal_graph import CausalGraphModel
-from polisyos.scientist.orchestration.engine.state_branching import branch_state as real_branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph import (
     ReconcileCausalGraphNode,
@@ -14,6 +14,9 @@ from polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph import (
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_LITERATURE_PRIOR_REF,
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
+)
+from polisyos.scientist.orchestration.engine.state_branching import (
+    branch_state as real_branch_state,
 )
 
 
@@ -23,6 +26,9 @@ def test_skip_when_no_data_causal_graph(execution_context, minimal_state):
     outcome = ReconcileCausalGraphNode().execute(execution_context, state)
     assert outcome.status == "skip"
     assert any("No data causal graph" in e.message for e in outcome.events)
+    assert outcome.skip_blocker is not None
+    assert outcome.skip_blocker.missing_input == "data_causal_graph"
+    assert outcome.skip_blocker.blocker_code == "gy_phase2_blocked_input_producer_missing"
 
 
 def test_already_reconciled_returns_ok(execution_context, minimal_state, artifact_ref_factory):

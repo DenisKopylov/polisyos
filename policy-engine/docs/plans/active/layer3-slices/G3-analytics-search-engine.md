@@ -33,7 +33,7 @@ depends_on:
   - architecture/policy_design_case/layer2_s11_predictive_knowledge_manifest.json
   - architecture/policy_design_case/layer2_floor_governance.toml
   - src/polisyos/runtime/quality/ir_analytics_bridge.py
-  - src/polisyos/runtime/quality/layer2_predictive_knowledge.py
+  - src/polisyos/runtime/quality/design_axes/predictive_knowledge.py
   - src/polisyos/ir/analytics/README.md
   - src/polisyos/ir/artifacts/README.md
 cells_closed: []
@@ -102,7 +102,7 @@ The primary existing substrates are:
   - Already fails when required IR analytics are missing, when a negative
     certificate blocks a claim, or when method requirements lack required
     certificate/uncertainty/limitation refs.
-- `src/polisyos/runtime/quality/layer2_predictive_knowledge.py`
+- `src/polisyos/runtime/quality/design_axes/predictive_knowledge.py`
   - Existing S11 waist artifacts: `ProofCarryingAnalyticsRecord`,
     `PredictiveAxisCalibrationRecord`, `PredictiveAxisUpgradeRecord`,
     `S11PredictiveKnowledgeIntegrityReport`, and S11 authority envelope checks.
@@ -386,7 +386,7 @@ Out of scope:
   certificate refs in EXPERT/MACHINE.
 - The vision doc names `ProofCarryingAnalyticsRecord` as a narrow-waist artifact
   and identifies `ir_analytics_bridge.py` as an exemplar adapter.
-- `runtime/quality/layer2_predictive_knowledge.py` already has strict S11
+- `runtime/quality/design_axes/predictive_knowledge.py` already has strict S11
   contracts and builders. `ProofCarryingAnalyticsRecord` requires claim,
   comparison, bridge refs, proof/certificate refs, authority denials, and can
   block via negative certificates or blocking proof/composability statuses.
@@ -489,7 +489,7 @@ Out of scope:
   rewriting their internal validation logic.
 - Heavy producer paths (`CausalEngine`, DuckDB/HNSW/vector dependencies,
   Foundry/Scientist proof execution) should be imported lazily inside builder or
-  producer functions. Importing `polisyos.runtime.quality.layer3_analytics_search`
+  producer functions. Importing `polisyos.runtime.quality.proving_ground.proof_carrying_analytics_search`
   must stay cheap and must not build catalogs, scan CAS, open DuckDB, or import
   producer engines at module load.
 
@@ -497,7 +497,7 @@ Out of scope:
 
 Create:
 
-- `src/polisyos/runtime/quality/layer3_analytics_search.py`
+- `src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py`
   - Owns G3 DTOs, L2/SKG proof-candidate bindings, search ledgers, IR catalog
     coverage, artifact-store index, certificate resolution, proof bindings, S11
     bindings, consumer gates, audit surface, adapter admission bundle, readiness
@@ -830,7 +830,7 @@ Status rules:
 Steps:
 
 - [x] Add failing tests that import
-  `polisyos.runtime.quality.layer3_analytics_search` and assert the module
+  `polisyos.runtime.quality.proving_ground.proof_carrying_analytics_search` and assert the module
   exposes schema/rule constants, bundle builder, validator, DTOs, and issue-code
   surfaces listed in this plan.
 - [x] Add a failing repo-quality test that
@@ -852,7 +852,7 @@ Steps:
 
 **Files:**
 
-- Create: `src/polisyos/runtime/quality/layer3_analytics_search.py`
+- Create: `src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py`
 - Test: `tests/unit/runtime/quality/test_layer3_g3_analytics_search.py`
 
 Steps:
@@ -899,7 +899,7 @@ Steps:
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_analytics_search.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py`
 - Test: `tests/unit/runtime/quality/test_layer3_g3_analytics_search.py`
 
 Steps:
@@ -958,7 +958,7 @@ Steps:
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_analytics_search.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py`
 - Test: `tests/unit/runtime/quality/test_layer3_g3_analytics_search.py`
 - Test: `tests/unit/runtime/quality/test_ir_analytics_bridge_method_requirements.py`
 - Test: `tests/unit/runtime/quality/test_claim_registry.py`
@@ -994,7 +994,7 @@ Steps:
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_analytics_search.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py`
 - Test: `tests/unit/runtime/quality/test_layer3_g3_analytics_search.py`
 - Test: `tests/unit/runtime/quality/test_layer2_s11_predictive_knowledge.py`
 - Test: `tests/unit/pdc/test_layer2_s2_design_search.py`
@@ -1024,7 +1024,7 @@ Steps:
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_analytics_search.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py`
 - Modify: `tools/quality/validation/run_universal_outcome_corpus.py`
 - Test: `tests/repo_quality/tools/test_w12d_universal_outcome_corpus_run.py`
 - Test: `tests/unit/runtime/quality/test_claim_registry.py`
@@ -1125,7 +1125,7 @@ Steps:
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_analytics_search.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py`
 - Test all G3 files above.
 
 Steps:
@@ -1136,7 +1136,7 @@ Steps:
   bounded L2/SKG ledger use, optional replay-backed HNSW/vector use, and bounded
   artifact-store indexing. A toy-case O(n) implementation is a defect.
 - [x] Add import/performance checks proving importing
-  `polisyos.runtime.quality.layer3_analytics_search` does not build catalogs,
+  `polisyos.runtime.quality.proving_ground.proof_carrying_analytics_search` does not build catalogs,
   open DuckDB, scan CAS, or import heavy Foundry/Scientist producer engines at
   module load. Heavy producer paths must be lazy and request-scoped.
 - [x] Add replay checks: every selected proof/certificate has a query trace,

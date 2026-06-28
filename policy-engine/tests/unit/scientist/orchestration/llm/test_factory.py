@@ -147,7 +147,7 @@ def test_create_traced_gateway_client_accepts_injected_observability(
 
 def test_gateway_config_from_env_requires_api_key(monkeypatch, real_gateway_mode):
     monkeypatch.setenv("POLISYOS_LLM_GATEWAY_BASE_URL", "https://api.gonkagate.com/v1")
-    monkeypatch.delenv("POLISYOS_LLM_GATEWAY_API_KEY", raising=False)
+    monkeypatch.setenv("POLISYOS_LLM_GATEWAY_API_KEY", "")
 
     assert GatewayLLMConfig.from_env() is None
     assert create_traced_gateway_client(model_name="m") is None
@@ -174,6 +174,29 @@ def test_create_traced_gateway_client_can_use_simulated_llm_mode(monkeypatch):
     raw_client = client.unwrap()
     assert isinstance(raw_client, SimulatedGatewayLLMClient)
     assert raw_client.model == "sim-model"
+
+
+@pytest.mark.asyncio
+async def test_simulated_gateway_exposes_deterministic_model_catalog() -> None:
+    client = SimulatedGatewayLLMClient(
+        model="simulated-qwen",
+        supported_model_ids=["simulated-qwen"],
+    )
+
+    assert await client.list_model_ids() == ["simulated-qwen"]
+
+
+@pytest.mark.asyncio
+async def test_simulated_factory_injects_selected_model_into_preflight_catalog(monkeypatch):
+    monkeypatch.setenv("POLISYOS_LLM_SIMULATION_MODE", "1")
+    client = create_traced_gateway_client(
+        model_name="simulated-qwen",
+        tracer=_FakeTracer(),
+        metrics=_FakeMetrics(),
+    )
+    assert client is not None
+
+    assert "simulated-qwen" in await client.list_model_ids()
 
 
 @pytest.mark.asyncio

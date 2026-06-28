@@ -8,6 +8,7 @@ __all__ = [
     "CanonicalVariableResolver",
     "EdgeSupportRecord",
     "EdgeTransportRecord",
+    "GroundedCausalPriorResolution",
     "ParameterCandidate",
     "ParameterSelector",
     "ResolutionResult",
@@ -19,13 +20,16 @@ __all__ = [
 
 _LAZY_EXPORTS = {
     "ScholarKnowledgeGraph": "polisyos.data_forge.domains.academic.knowledge.search",
-    "CanonicalVariableResolver": "polisyos.data_forge.domains.academic.knowledge.canonical_resolver",
+    "CanonicalVariableResolver": (
+        "polisyos.data_forge.domains.academic.knowledge.canonical_resolver"
+    ),
     "ResolutionResult": "polisyos.data_forge.domains.academic.knowledge.canonical_resolver",
     "ParameterSelector": "polisyos.data_forge.domains.academic.knowledge.parameter_selector",
     "SKGQuery": "polisyos.data_forge.domains.academic.knowledge.skg_query",
     "ParameterCandidate": "polisyos.data_forge.domains.academic.knowledge.skg_query",
     "EdgeSupportRecord": "polisyos.data_forge.domains.academic.knowledge.skg_query",
     "EdgeTransportRecord": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+    "GroundedCausalPriorResolution": "polisyos.data_forge.domains.academic.knowledge.skg_query",
     "SKGVersionManager": "polisyos.data_forge.domains.academic.knowledge.skg_versioning",
     "VariableCanonizer": "polisyos.data_forge.domains.academic.knowledge.variable_canonizer",
 }

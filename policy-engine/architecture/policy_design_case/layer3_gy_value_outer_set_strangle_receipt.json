@@ -1,0 +1,30 @@
+{
+  "gy_lifecycle_marker": "policyos.policy_design_case.layer3_gy.value_outer_set_strangle_receipt.v1",
+  "schema_version": "policyos.policy_design_case.layer3_gy.value_outer_set_strangle_receipt.v1",
+  "strangle_receipt": {
+    "disposition": "deleted",
+    "guard_status": "pass",
+    "pattern_id": "P28",
+    "predecessor_ref": "foundry.contracts.state.HouseholdCellState.ad_hoc_household_bounds",
+    "receipt_id": "layer3-gy-value-outer-set-household-bounds-strangle",
+    "remaining_callers": [],
+    "removed_loc": [
+      "src/polisyos/foundry/contracts/state.py:HouseholdCellState.disposable_income_lower",
+      "src/polisyos/foundry/contracts/state.py:HouseholdCellState.disposable_income_upper",
+      "src/polisyos/foundry/contracts/state.py:HouseholdCellState.poverty_rate_lower",
+      "src/polisyos/foundry/contracts/state.py:HouseholdCellState.poverty_rate_upper",
+      "src/polisyos/foundry/contracts/state.py:HouseholdCellState.transfer_intensity_lower",
+      "src/polisyos/foundry/contracts/state.py:HouseholdCellState.transfer_intensity_upper",
+      "src/polisyos/foundry/contracts/state.py:HouseholdCellState.identification_mode_code"
+    ],
+    "replacement_ref": "core.contracts.runtime.ValueOuterSet",
+    "value_outer_set_present": true,
+    "verified_by": [
+      "tools/quality/validation/check_layer3_gy_value_outer_set_strangle_receipt.py --check",
+      "tests/unit/foundry/contracts/test_state_contracts.py",
+      "tests/unit/foundry/data_plane/test_bindings_multiscale.py",
+      "tests/unit/foundry/agent_sim/test_wiring.py",
+      "tests/integration/runtime_quality/test_data_state_substrate.py"
+    ]
+  }
+}

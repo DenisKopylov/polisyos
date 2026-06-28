@@ -192,6 +192,7 @@
       "fixture_ref": "g4-conformance-negative:proof_claim_without_g3_proof_record",
       "negative_id": "proof_claim_without_g3_proof_record",
       "observed_issue_codes": [
+        "layer3_g4_context_dependency_missing",
         "layer3_g4_required_ref_unresolved",
         "layer3_g4_grounded_contract_ref_missing",
         "required_ref_pointer_missing",
@@ -968,7 +969,7 @@
     "bounded_artifact_path_count": 24,
     "bounded_artifact_resolution_status": "pass",
     "checked_source_refs": [
-      "src/polisyos/runtime/quality/layer3_promotion_gate.py",
+      "src/polisyos/runtime/quality/proving_ground/governed_promotion_gate.py",
       "tools/quality/validation/check_policy_design_case_layer3_g4_readiness.py"
     ],
     "declared_family_count": 4,

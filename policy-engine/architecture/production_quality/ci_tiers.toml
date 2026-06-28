@@ -779,6 +779,12 @@ owner = "team-runtime-quality"
 purpose = "Policy Design Case Layer 3 G0 grounding inventory coverage."
 
 [[tests]]
+path = "tests/unit/runtime/quality/test_gy_workspace_loop.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Policy Design Case Layer 3 GY Slice-0 workspace-loop coverage."
+
+[[tests]]
 path = "tests/unit/runtime/quality/test_layer3_g1_substrate_grounding.py"
 tier = "fast-pr"
 owner = "team-runtime-quality"

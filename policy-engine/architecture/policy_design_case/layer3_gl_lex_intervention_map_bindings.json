@@ -100,7 +100,7 @@
         "threshold_unit": "percent"
       },
       "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
-      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "producer_component": "polisyos.runtime.quality.proving_ground.legal_mandate_search",
       "production_mapping_row_count": 0,
       "program_id": "gl_subsidized_credit_program",
       "program_name": "GL Subsidized Credit Program",

@@ -1,0 +1,44 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gx_concept_alias_seed_rows.v1",
+  "rule_version": "policyos.layer3.gx.data_home.v1",
+  "producer_ref": "external-request://layer3-gx/concept-alias-seeds/tourism_local_development_ceiling_probe",
+  "producer_type": "external_request",
+  "alias_rows": [
+    {
+      "row_id": "gx-alias:local_tourism_site_traffic",
+      "concept_ref": "local_tourism_site_traffic",
+      "aliases": [
+        "local tourism site traffic",
+        "attraction visitor counts",
+        "tourism visits"
+      ],
+      "resolution_status": "unverified",
+      "asserts_corpus_supply": false,
+      "corpus_row_refs": []
+    },
+    {
+      "row_id": "gx-alias:tourism_attraction_accessibility",
+      "concept_ref": "tourism_attraction_accessibility",
+      "aliases": [
+        "tourism attraction accessibility",
+        "visitor access constraints",
+        "local attraction access"
+      ],
+      "resolution_status": "unverified",
+      "asserts_corpus_supply": false,
+      "corpus_row_refs": []
+    },
+    {
+      "row_id": "gx-alias:municipal_acquisition_capacity",
+      "concept_ref": "municipal_acquisition_capacity",
+      "aliases": [
+        "municipal tourism data acquisition capacity",
+        "local registry acquisition readiness",
+        "public registry evidence gap"
+      ],
+      "resolution_status": "unverified",
+      "asserts_corpus_supply": false,
+      "corpus_row_refs": []
+    }
+  ]
+}

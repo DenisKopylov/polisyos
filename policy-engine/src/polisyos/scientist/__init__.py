@@ -15,11 +15,13 @@ from typing import Any
 
 __all__ = [
     "ExperimentState",
+    "KnowledgeToolkit",
     "ToolContractSummary",
     "ToolDefinition",
     "ToolLoopResult",
     "ToolRegistry",
     "build_governance_pipeline",
+    "build_knowledge_tool_registry",
     "create_traced_gateway_client",
     "discover_scientist_nodes",
     "get_metrics",
@@ -33,11 +35,16 @@ __all__ = [
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "ExperimentState": ("polisyos.scientist.orchestration.engine.state", "ExperimentState"),
+    "KnowledgeToolkit": ("polisyos.scientist.agent.knowledge_tools", "KnowledgeToolkit"),
     "ToolContractSummary": ("polisyos.scientist.agent.tool_contracts", "ToolContractSummary"),
     "ToolDefinition": ("polisyos.scientist.agent.tools.schema", "ToolDefinition"),
     "ToolLoopResult": ("polisyos.scientist.agent.tools.tool_loop", "ToolLoopResult"),
     "ToolRegistry": ("polisyos.scientist.agent.tools.registry", "ToolRegistry"),
     "build_governance_pipeline": ("polisyos.scientist.api", "build_governance_pipeline"),
+    "build_knowledge_tool_registry": (
+        "polisyos.scientist.agent.tools.knowledge_tools_adapter",
+        "build_knowledge_tool_registry",
+    ),
     "create_traced_gateway_client": (
         "polisyos.scientist.orchestration.llm.factory",
         "create_traced_gateway_client",

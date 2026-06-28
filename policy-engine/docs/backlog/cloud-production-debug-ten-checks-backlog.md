@@ -834,7 +834,7 @@ uv run pytest tests/repo_quality/tools/test_docs_lifecycle.py tests/repo_quality
 - Runtime contract:
   `src/polisyos/runtime/quality/policy_design_case.py`
 - Phase gates:
-  `src/polisyos/runtime/quality/pass1b_hardening.py`,
+  `src/polisyos/runtime/quality/tenant_cas_approval_governance.py`,
   `src/polisyos/runtime/quality/case_maturity.py`,
   `src/polisyos/runtime/quality/case_integrity.py`
 - Wave 40 closeout:

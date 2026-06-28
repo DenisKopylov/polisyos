@@ -1,28 +1,21 @@
 {
-  "blocker_refs": [
-    "layer3_g4_source_design_record_digest_missing",
-    "layer3_g4_source_design_record_unresolved"
-  ],
-  "issue_codes": [
-    "layer3_g4_source_design_record_unresolved",
-    "layer3_g4_source_design_record_digest_missing",
-    "layer3_g4_a_completeness_failed"
-  ],
+  "blocker_refs": [],
+  "issue_codes": [],
   "limitation_refs": [],
   "produced_by": {
     "input_hashes": {
-      "repo://architecture/policy_design_case/layer3_g4_a_completeness_ledger.json": "sha256:7f4762b7a31c39bf2ae8b2d83f177cdef043c6d21283b7907d71b99ebceb97cc",
-      "repo://architecture/policy_design_case/layer3_g4_grounded_contract_set.json": "sha256:947fbb6358196bc2b9d71327fd7d10b3b6d261a3d85d81134ef93cd5a2b1f278",
-      "repo://architecture/policy_design_case/layer3_g4_promotion_input_set.json": "sha256:6472da270a4dc372d6ccd6015aedd7abf5c4ec323a53e2b17d554a1e26dba89f"
+      "repo://architecture/policy_design_case/layer3_g4_a_completeness_ledger.json": "sha256:bfb3336b6ca5c6c23bf042283db3693b130b43cec19ee7efe41f11075ef271d9",
+      "repo://architecture/policy_design_case/layer3_g4_grounded_contract_set.json": "sha256:79c5a3b9ac60c527ea9bf35d870a1130fd32908dca6b0d9e47a4a2913d25a025",
+      "repo://architecture/policy_design_case/layer3_g4_promotion_input_set.json": "sha256:4c3c170f4ebbc8478925b4084e61331f1f0da4d5a9feac0c831883683d549156"
     },
-    "output_hash": "sha256:f297ad5cab71033ca53a0a60cac55e5e103baa5c424cc51607bf7d024d3dfad1",
+    "output_hash": "sha256:eb8f287c5217ce00ced9a284837098e6199603c414f611776d0b75da83fb28b3",
     "reducer_id": "reduce_g4_promotion_state",
     "reducer_version": "v1",
     "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
-    "vocabulary_status_id": "promotion_blocked"
+    "vocabulary_status_id": "governed_promoted"
   },
   "promotion_scope": {},
-  "promotion_state": "promotion_blocked",
-  "status": "fail",
-  "weakest_boundary_reason": "layer3_g4_source_design_record_digest_missing;layer3_g4_source_design_record_unresolved;layer3_g4_source_design_record_unresolved;layer3_g4_source_design_record_digest_missing;layer3_g4_a_completeness_failed"
+  "promotion_state": "governed_promoted",
+  "status": "pass",
+  "weakest_boundary_reason": "all_required_refs_pass"
 }

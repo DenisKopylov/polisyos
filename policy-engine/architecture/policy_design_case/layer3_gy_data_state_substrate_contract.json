@@ -1,0 +1,820 @@
+{
+  "artifact_kind": "fabric.production_data_state_payload",
+  "behavioral_checks": {
+    "l1_l5_honesty": {
+      "case_count": 7,
+      "case_ids": [
+        "l1_avg_income_available",
+        "l1_missing_metric_unavailable",
+        "l5_point_identified_budget_full_trust",
+        "l5_proxy_identified_household_bounds",
+        "l5_proxy_behavioral_bounds_toggle_changes_state",
+        "l5_prewar_wartime_span_flagged",
+        "l5_unidentified_family_fails_closed"
+      ],
+      "status": "pass"
+    }
+  },
+  "consumers": [
+    "polisyos.foundry.data_plane.bindings.build_input_bindings",
+    "polisyos.runtime.quality.world_model_record.build_world_model_record",
+    "polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation"
+  ],
+  "content_binding_checks": [
+    "l1_variable_unavailable",
+    "l5_family_unidentified",
+    "production_data_state_empty",
+    "production_data_path_missing",
+    "schema_regime_period_order_invalid",
+    "schema_regime_period_invalid",
+    "l5_schema_regime_missing",
+    "skg_prior_ref_unresolved",
+    "fabric_world_empty",
+    "fabric_world_not_queryable",
+    "substrate_entry_unresolved"
+  ],
+  "contract_id": "policyos.runtime.data_state_substrate_lift",
+  "data_state_substrate_schema_version": "policyos.runtime.data_state_substrate.v1",
+  "gy_lifecycle_marker": "policyos.policy_design_case.layer3_gy.data_state_substrate_contract.v1",
+  "honesty_rules": [
+    "L1 DCAT is the coverage/availability authority for required variables.",
+    "L5 trust tiers cap value trust and are not upgraded by S1.",
+    "ValueOuterSet promotion value requires certified representation and L5 DataTrust above the promotion floor.",
+    "Proxy-identified L5 families materialize bounded state, never point effects.",
+    "Schema-regime spans across the 2022-02 changepoint are flagged.",
+    "SyntheticWorld is benchmark-only and not accepted as the production world."
+  ],
+  "json_schemas": {
+    "data_trust": {
+      "additionalProperties": false,
+      "description": "L5 trust-tier content used by value promotion and substrate registration.",
+      "properties": {
+        "authority_ref": {
+          "minLength": 1,
+          "title": "Authority Ref",
+          "type": "string"
+        },
+        "max_coverage": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Coverage"
+        },
+        "min_coverage": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min Coverage"
+        },
+        "promotion_floor": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Promotion Floor"
+        },
+        "tier": {
+          "minLength": 1,
+          "title": "Tier",
+          "type": "string"
+        },
+        "trust_cap": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Trust Cap",
+          "type": "number"
+        },
+        "trust_multiplier": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Trust Multiplier",
+          "type": "number"
+        }
+      },
+      "required": [
+        "tier",
+        "trust_cap",
+        "trust_multiplier",
+        "authority_ref"
+      ],
+      "title": "DataTrust",
+      "type": "object"
+    },
+    "l1_variable_availability": {
+      "additionalProperties": false,
+      "description": "L1 DCAT coverage decision for one required canonical variable.",
+      "properties": {
+        "coverage_ref": {
+          "minLength": 1,
+          "title": "Coverage Ref",
+          "type": "string"
+        },
+        "dataset_count": {
+          "minimum": 0,
+          "title": "Dataset Count",
+          "type": "integer"
+        },
+        "metric_binding_count": {
+          "minimum": 0,
+          "title": "Metric Binding Count",
+          "type": "integer"
+        },
+        "observation_count": {
+          "minimum": 0,
+          "title": "Observation Count",
+          "type": "integer"
+        },
+        "status": {
+          "enum": [
+            "available",
+            "unavailable"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "variable_id": {
+          "minLength": 1,
+          "title": "Variable Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "variable_id",
+        "status",
+        "dataset_count",
+        "metric_binding_count",
+        "observation_count",
+        "coverage_ref"
+      ],
+      "title": "L1VariableAvailability",
+      "type": "object"
+    },
+    "l5_family_authority": {
+      "additionalProperties": false,
+      "description": "L5 trust/identification cap for one bound observation family.",
+      "properties": {
+        "coverage_score": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Coverage Score",
+          "type": "number"
+        },
+        "family_id": {
+          "minLength": 1,
+          "title": "Family Id",
+          "type": "string"
+        },
+        "identification_mode": {
+          "minLength": 1,
+          "title": "Identification Mode",
+          "type": "string"
+        },
+        "identification_registry_ref": {
+          "minLength": 1,
+          "title": "Identification Registry Ref",
+          "type": "string"
+        },
+        "max_coverage": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Coverage"
+        },
+        "measurement_registry_ref": {
+          "minLength": 1,
+          "title": "Measurement Registry Ref",
+          "type": "string"
+        },
+        "min_coverage": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min Coverage"
+        },
+        "promotion_floor": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Promotion Floor",
+          "type": "number"
+        },
+        "trust_cap": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Trust Cap",
+          "type": "number"
+        },
+        "trust_multiplier": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Trust Multiplier",
+          "type": "number"
+        },
+        "trust_tier": {
+          "minLength": 1,
+          "title": "Trust Tier",
+          "type": "string"
+        },
+        "value_authority": {
+          "enum": [
+            "point",
+            "bounds",
+            "proxy_bounds",
+            "limited"
+          ],
+          "title": "Value Authority",
+          "type": "string"
+        }
+      },
+      "required": [
+        "family_id",
+        "coverage_score",
+        "trust_tier",
+        "trust_cap",
+        "trust_multiplier",
+        "promotion_floor",
+        "identification_mode",
+        "value_authority",
+        "measurement_registry_ref",
+        "identification_registry_ref"
+      ],
+      "title": "L5FamilyAuthority",
+      "type": "object"
+    },
+    "l5_family_binding_profile": {
+      "$defs": {
+        "L5FamilyAuthority": {
+          "additionalProperties": false,
+          "description": "L5 trust/identification cap for one bound observation family.",
+          "properties": {
+            "coverage_score": {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Coverage Score",
+              "type": "number"
+            },
+            "family_id": {
+              "minLength": 1,
+              "title": "Family Id",
+              "type": "string"
+            },
+            "identification_mode": {
+              "minLength": 1,
+              "title": "Identification Mode",
+              "type": "string"
+            },
+            "identification_registry_ref": {
+              "minLength": 1,
+              "title": "Identification Registry Ref",
+              "type": "string"
+            },
+            "max_coverage": {
+              "anyOf": [
+                {
+                  "maximum": 1.0,
+                  "minimum": 0.0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Max Coverage"
+            },
+            "measurement_registry_ref": {
+              "minLength": 1,
+              "title": "Measurement Registry Ref",
+              "type": "string"
+            },
+            "min_coverage": {
+              "anyOf": [
+                {
+                  "maximum": 1.0,
+                  "minimum": 0.0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Min Coverage"
+            },
+            "promotion_floor": {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Promotion Floor",
+              "type": "number"
+            },
+            "trust_cap": {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Trust Cap",
+              "type": "number"
+            },
+            "trust_multiplier": {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Trust Multiplier",
+              "type": "number"
+            },
+            "trust_tier": {
+              "minLength": 1,
+              "title": "Trust Tier",
+              "type": "string"
+            },
+            "value_authority": {
+              "enum": [
+                "point",
+                "bounds",
+                "proxy_bounds",
+                "limited"
+              ],
+              "title": "Value Authority",
+              "type": "string"
+            }
+          },
+          "required": [
+            "family_id",
+            "coverage_score",
+            "trust_tier",
+            "trust_cap",
+            "trust_multiplier",
+            "promotion_floor",
+            "identification_mode",
+            "value_authority",
+            "measurement_registry_ref",
+            "identification_registry_ref"
+          ],
+          "title": "L5FamilyAuthority",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Combined L5 family authority and schema-regime decision for S1.",
+      "properties": {
+        "boundary_buffer_periods": {
+          "minimum": 0,
+          "title": "Boundary Buffer Periods",
+          "type": "integer"
+        },
+        "changepoint_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Changepoint Id"
+        },
+        "changepoint_period": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Changepoint Period"
+        },
+        "families": {
+          "items": {
+            "$ref": "#/$defs/L5FamilyAuthority"
+          },
+          "title": "Families",
+          "type": "array"
+        },
+        "period_end": {
+          "minLength": 1,
+          "title": "Period End",
+          "type": "string"
+        },
+        "period_start": {
+          "minLength": 1,
+          "title": "Period Start",
+          "type": "string"
+        },
+        "regime_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Regime Ids",
+          "type": "array"
+        },
+        "schema_regime_status": {
+          "enum": [
+            "single_regime",
+            "boundary_buffer_flagged",
+            "spans_changepoint_flagged"
+          ],
+          "title": "Schema Regime Status",
+          "type": "string"
+        },
+        "schema_version": {
+          "default": "policyos.runtime.data_state_substrate.v1",
+          "title": "Schema Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "period_start",
+        "period_end",
+        "schema_regime_status",
+        "regime_ids",
+        "boundary_buffer_periods",
+        "families"
+      ],
+      "title": "L5FamilyBindingProfile",
+      "type": "object"
+    },
+    "value_outer_set": {
+      "$defs": {
+        "DataTrust": {
+          "additionalProperties": false,
+          "description": "L5 trust-tier content used by value promotion and substrate registration.",
+          "properties": {
+            "authority_ref": {
+              "minLength": 1,
+              "title": "Authority Ref",
+              "type": "string"
+            },
+            "max_coverage": {
+              "anyOf": [
+                {
+                  "maximum": 1.0,
+                  "minimum": 0.0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Max Coverage"
+            },
+            "min_coverage": {
+              "anyOf": [
+                {
+                  "maximum": 1.0,
+                  "minimum": 0.0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Min Coverage"
+            },
+            "promotion_floor": {
+              "anyOf": [
+                {
+                  "maximum": 1.0,
+                  "minimum": 0.0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Promotion Floor"
+            },
+            "tier": {
+              "minLength": 1,
+              "title": "Tier",
+              "type": "string"
+            },
+            "trust_cap": {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Trust Cap",
+              "type": "number"
+            },
+            "trust_multiplier": {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Trust Multiplier",
+              "type": "number"
+            }
+          },
+          "required": [
+            "tier",
+            "trust_cap",
+            "trust_multiplier",
+            "authority_ref"
+          ],
+          "title": "DataTrust",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Canonical typed carrier for set-valued value over policy-design worlds.",
+      "properties": {
+        "assumption_status": {
+          "enum": [
+            "declared",
+            "externally_supported",
+            "stress_tested",
+            "violated",
+            "out_of_scope"
+          ],
+          "title": "Assumption Status",
+          "type": "string"
+        },
+        "assumptions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Assumptions",
+          "type": "array"
+        },
+        "calibration_scope": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Calibration Scope",
+          "type": "object"
+        },
+        "coordinates": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Coordinates",
+          "type": "array"
+        },
+        "data_trust": {
+          "$ref": "#/$defs/DataTrust"
+        },
+        "epoch": {
+          "minLength": 1,
+          "title": "Epoch",
+          "type": "string"
+        },
+        "identification_status": {
+          "enum": [
+            "point",
+            "partial",
+            "proxy",
+            "blocked"
+          ],
+          "title": "Identification Status",
+          "type": "string"
+        },
+        "lower": {
+          "items": {
+            "type": "number"
+          },
+          "title": "Lower",
+          "type": "array"
+        },
+        "representation": {
+          "enum": [
+            "interval_box",
+            "polytope_support_functions",
+            "scenario_set",
+            "unknown"
+          ],
+          "title": "Representation",
+          "type": "string"
+        },
+        "representation_status": {
+          "enum": [
+            "certified",
+            "search_only",
+            "unknown"
+          ],
+          "title": "Representation Status",
+          "type": "string"
+        },
+        "solver_time_budget_ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Solver Time Budget Ms"
+        },
+        "upper": {
+          "items": {
+            "type": "number"
+          },
+          "title": "Upper",
+          "type": "array"
+        },
+        "world_model_record_ref": {
+          "minLength": 1,
+          "title": "World Model Record Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "representation",
+        "identification_status",
+        "assumption_status",
+        "data_trust",
+        "world_model_record_ref",
+        "epoch",
+        "representation_status"
+      ],
+      "title": "ValueOuterSet",
+      "type": "object"
+    },
+    "value_promotion_decision": {
+      "additionalProperties": false,
+      "description": "Content-bound decision for whether a value set can mint promotion value.",
+      "properties": {
+        "capped_decision_grade": {
+          "enum": [
+            "blocked",
+            "low",
+            "medium",
+            "high"
+          ],
+          "title": "Capped Decision Grade",
+          "type": "string"
+        },
+        "data_trust_tier": {
+          "title": "Data Trust Tier",
+          "type": "string"
+        },
+        "identification_status": {
+          "enum": [
+            "point",
+            "partial",
+            "proxy",
+            "blocked"
+          ],
+          "title": "Identification Status",
+          "type": "string"
+        },
+        "min_coverage": {
+          "anyOf": [
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min Coverage"
+        },
+        "promotable": {
+          "title": "Promotable",
+          "type": "boolean"
+        },
+        "reasons": {
+          "items": {
+            "enum": [
+              "eligible",
+              "representation_not_certified",
+              "assumption_violated",
+              "identification_blocked",
+              "data_trust_zero",
+              "data_trust_below_l5_min_coverage",
+              "data_trust_below_promotion_floor"
+            ],
+            "type": "string"
+          },
+          "title": "Reasons",
+          "type": "array"
+        },
+        "representation_status": {
+          "enum": [
+            "certified",
+            "search_only",
+            "unknown"
+          ],
+          "title": "Representation Status",
+          "type": "string"
+        },
+        "trust_cap": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Trust Cap",
+          "type": "number"
+        },
+        "trust_floor": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Trust Floor",
+          "type": "number"
+        },
+        "trust_multiplier": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Trust Multiplier",
+          "type": "number"
+        },
+        "trust_score": {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Trust Score",
+          "type": "number"
+        }
+      },
+      "required": [
+        "promotable",
+        "capped_decision_grade",
+        "reasons",
+        "representation_status",
+        "identification_status",
+        "data_trust_tier",
+        "trust_cap",
+        "trust_multiplier",
+        "trust_score",
+        "trust_floor"
+      ],
+      "title": "ValuePromotionDecision",
+      "type": "object"
+    }
+  },
+  "lifted_authority_catalogs": [
+    "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_datasets",
+    "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_observations",
+    "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings",
+    "production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json",
+    "production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/identification_mode_registry.json",
+    "production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/schema_regime_registry.json"
+  ],
+  "lifted_l4_corpus": [
+    "production_data/canonical/local_data_20260501/ukraine_server_support_20260410/normalized_corpus/agent_registry_full.parquet",
+    "production_data/canonical/local_data_20260501/ukraine_server_support_20260410/normalized_corpus/firm_fundamentals_annual.parquet",
+    "production_data/canonical/local_data_20260501/ukraine_server_support_20260410/normalized_corpus/budget_flows_monthly_sparse.parquet",
+    "production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d3/corrected_firm_panels.parquet",
+    "production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d3/calibrated_household_cells.parquet"
+  ],
+  "materializer": "materialize_l4_data_state_snapshot",
+  "owner": "polisyos.runtime.quality.data_state_substrate",
+  "patterns_closed": [
+    "P01",
+    "P10",
+    "P14",
+    "P27",
+    "P29",
+    "P30"
+  ],
+  "producer": "build_production_data_state_world_model_record",
+  "reuse_existing_owners": [
+    "data_forge.kernel.snapshot.finalize_snapshot",
+    "foundry.data_plane.bindings.build_input_bindings",
+    "runtime.quality.substrate_registry.build_substrate_registry_from_existing_catalogs",
+    "runtime.quality.substrate_registry.persist_substrate_registry",
+    "runtime.quality.world_model_record.build_world_model_record",
+    "runtime.quality.world_model_record.consume_world_model_record_for_simulation"
+  ],
+  "schema_version": "policyos.policy_design_case.layer3_gy.data_state_substrate_contract.v1",
+  "source_module": "src/polisyos/runtime/quality/data_state_substrate.py"
+}

@@ -2,7 +2,7 @@
 
 Owner: `team-runtime-quality`
 
-Source of truth: `src/polisyos/runtime/quality/layer3_promotion_gate.py`,
+Source of truth: `src/polisyos/runtime/quality/proving_ground/governed_promotion_gate.py`,
 `tools/quality/validation/check_policy_design_case_layer3_g4_readiness.py`,
 and `architecture/policy_design_case/layer3_g4_readiness_manifest.json`.
 

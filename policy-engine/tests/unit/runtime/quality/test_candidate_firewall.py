@@ -5,7 +5,9 @@ import pytest
 
 from polisyos.runtime.quality.candidate_firewall import (
     CandidateFirewallError,
+    assert_candidate_positive_firewall_boundary,
     assert_no_candidate_authority_laundering,
+    build_authority_candidate_inventory_rows,
     candidate_firewall_issues_for_payload,
     candidate_refs_from_payload,
 )
@@ -79,3 +81,44 @@ def test_candidate_ref_without_runtime_ledger_fails_closed() -> None:
     assert {issue["code"] for issue in issues} == {
         "candidate_firewall_hypothesis_ledger_missing"
     }
+
+
+def test_authority_candidate_inventory_uses_firewall_rows_and_blocks_promotion() -> None:
+    rows = build_authority_candidate_inventory_rows(
+        [
+            {
+                "artifact_family": "layer3_gx",
+                "artifact_path": "architecture/policy_design_case/layer3_gx_status.json",
+                "candidate_positive_status_id": "sha256:" + "1" * 64,
+                "classification": "diagnostic_positive_not_authority",
+                "false_exclusion_triage": {
+                    "needs_human_review": False,
+                    "note": "Correct diagnostic exclusion.",
+                    "risk": "low_false_exclusion_risk",
+                },
+                "field": "status",
+                "firewall_rule": "generic_status_without_producer_or_reducer_provenance",
+                "json_pointer": "$/diagnostic",
+                "producer_source": {
+                    "producer_ref": None,
+                    "producer_type": None,
+                },
+                "value": "pass",
+            }
+        ]
+    )
+
+    row = rows[0]
+    assert row.field_path == "$/diagnostic/status"
+    assert row.producer_component == "layer3_gx"
+    assert row.firewall_name == "candidate_positive_status_firewall"
+    assert row.false_exclusion_review == "no_false_exclusion:low_false_exclusion_risk"
+    with pytest.raises(
+        CandidateFirewallError,
+        match="candidate_positive_firewall_boundary_missing",
+    ):
+        assert_candidate_positive_firewall_boundary(
+            row,
+            surface="authority_surface",
+            boundary_ref=None,
+        )

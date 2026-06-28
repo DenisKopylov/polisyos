@@ -12,7 +12,7 @@ from typing import Any
 
 from pydantic import BaseModel, ValidationError
 
-from polisyos.runtime.quality import layer3_causal_forecast as g2
+from polisyos.runtime.quality.proving_ground import causal_forecast_search as g2
 from tools.lib.fs import atomic_write_text
 
 REPO_ROOT = Path(__file__).resolve().parents[3]

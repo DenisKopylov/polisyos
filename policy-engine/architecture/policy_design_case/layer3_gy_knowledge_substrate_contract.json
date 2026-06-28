@@ -1,0 +1,1230 @@
+{
+  "behavior_report": {
+    "case_count": 8,
+    "cases": [
+      {
+        "actual": "interval_nonpoint_with_numeric_trust_gradient",
+        "case_id": "l2_estimate_ci_lowers_to_value_outer_set",
+        "detail": {
+          "data_trust": {
+            "authority_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb#ac_parameter_estimates/179aff173ec40e640b535514",
+            "max_coverage": 1.0,
+            "min_coverage": 0.0,
+            "promotion_floor": 0.2,
+            "tier": "l2_numeric_trust",
+            "trust_cap": 0.8640000224113464,
+            "trust_multiplier": 0.8640000224113464
+          },
+          "estimate_id": "179aff173ec40e640b535514",
+          "identification_status": "partial",
+          "promotion_grade": "high",
+          "weak_promotion_grade": "blocked",
+          "width": [
+            11.5
+          ]
+        },
+        "expected": "interval_nonpoint_with_numeric_trust_gradient"
+      },
+      {
+        "actual": "transported_limited_wider_than_source",
+        "case_id": "l2_transport_score_widens_value_outer_set",
+        "detail": {
+          "edge_id": "06fb46cd681818bc52d1cc01",
+          "source_width": [
+            11.5
+          ],
+          "transport_confidence": "0.779711076934",
+          "transported_width": [
+            15.755
+          ],
+          "widening_multiplier": "1.37"
+        },
+        "expected": "transported_limited_wider_than_source"
+      },
+      {
+        "actual": "untransported_search_only_non_promotable",
+        "case_id": "l2_missing_transport_is_search_only_not_promotable",
+        "detail": {
+          "calibration_scope": {
+            "country": "AU+CN+GB",
+            "design_tier": "1",
+            "estimate_id": "179aff173ec40e640b535514",
+            "lowering_status": "transport_unavailable_for_scope",
+            "period_end": "",
+            "period_start": "",
+            "substrate": "L2:scholar_knowledge",
+            "target_context_id": "ZZ_WRONG_SCOPE",
+            "transport_confidence": "",
+            "transport_confidence_floor": "0.35",
+            "transport_edge_id": "06fb46cd681818bc52d1cc01",
+            "transport_reason": "transport_unavailable_for_scope",
+            "unit": "percent",
+            "work_id": "https://openalex.org/W2979411841"
+          },
+          "edge_id": "06fb46cd681818bc52d1cc01",
+          "identification_status": "blocked",
+          "promotion": {
+            "capped_decision_grade": "blocked",
+            "data_trust_tier": "l2_numeric_trust",
+            "identification_status": "blocked",
+            "min_coverage": 0.0,
+            "promotable": false,
+            "reasons": [
+              "representation_not_certified",
+              "identification_blocked",
+              "data_trust_zero",
+              "data_trust_below_promotion_floor"
+            ],
+            "representation_status": "search_only",
+            "trust_cap": 0.0,
+            "trust_floor": 0.2,
+            "trust_multiplier": 0.0,
+            "trust_score": 0.0
+          },
+          "representation_status": "search_only",
+          "target_context_id": "ZZ_WRONG_SCOPE"
+        },
+        "expected": "untransported_search_only_non_promotable"
+      },
+      {
+        "actual": "claim_ref_estimate_envelope_wide_signed_proxy_set",
+        "case_id": "l2_contested_edge_spans_structural_ambiguity",
+        "detail": {
+          "calibration_scope": {
+            "claim_refs": "[\"23943c6a12b290beae71a956\", \"7f72709ef74993073fc84496\", \"90e32a7ff31dd2fdbc312e00\", \"ae7dd5a13b881e748c17c4f4\"]",
+            "contested_edge_id": "aa4d86b83f216207989339f6",
+            "estimate_count": "2",
+            "estimate_refs": "[\"59d03f324121e8fd7470c8c6\", \"60d3a2827fd1a509f1b4f055\"]",
+            "lowering_status": "structural_ambiguity_estimate_envelope",
+            "resolved_claim_count": "4",
+            "source_variable": "health.telemedicine_adoption",
+            "substrate": "L2:scholar_knowledge",
+            "target_variable": "health.healthcare_spending"
+          },
+          "contested_edge_id": "aa4d86b83f216207989339f6",
+          "identification_status": "proxy",
+          "lower": [
+            -689.0
+          ],
+          "upper": [
+            2340.0
+          ],
+          "width": [
+            3029.0
+          ]
+        },
+        "expected": "claim_ref_estimate_envelope_wide_signed_proxy_set"
+      },
+      {
+        "actual": "true_and_alias_bound_wrong_cause_blocked_wrong_scope_search_only",
+        "case_id": "l2_skg_grounding_resolve_content_bind_validate_fail_closed",
+        "detail": {
+          "alias_match": {
+            "blockers": [],
+            "cause": "agriculture.organic_fertilizer_system",
+            "content_bind_status": "content_bound",
+            "edge_id": "402f07a2a3b12e58bf9e641e",
+            "effect": "agriculture.crop_yield",
+            "estimand": "directional_effect",
+            "relevance_score": 0.961989566971645,
+            "scope_context_id": "UA",
+            "skg_snapshot_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb#v1",
+            "skg_version_id": 1,
+            "status": "bound",
+            "transport_confidence": 0.8108741665762272,
+            "transport_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb#ac_skg_transport_scores/402f07a2a3b12e58bf9e641e:UA",
+            "validation_status": "validated"
+          },
+          "matched": {
+            "blockers": [],
+            "cause": "agriculture.fertilizer_use",
+            "content_bind_status": "content_bound",
+            "edge_id": "06fb46cd681818bc52d1cc01",
+            "effect": "agriculture.food_nutritional_quality",
+            "estimand": "directional_effect",
+            "relevance_score": 0.9527422740242731,
+            "scope_context_id": "UA",
+            "skg_snapshot_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb#v1",
+            "skg_version_id": 1,
+            "status": "bound",
+            "transport_confidence": 0.7797110769339541,
+            "transport_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb#ac_skg_transport_scores/06fb46cd681818bc52d1cc01:UA",
+            "validation_status": "validated"
+          },
+          "unrelated": {
+            "blockers": [
+              "skg_prior_resolution_empty"
+            ],
+            "cause": "astronomy.star_brightness",
+            "content_bind_status": "unbound",
+            "edge_id": null,
+            "effect": "agriculture.food_nutritional_quality",
+            "estimand": "directional_effect",
+            "relevance_score": 0.0,
+            "scope_context_id": "UA",
+            "skg_snapshot_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb#v1",
+            "skg_version_id": 1,
+            "status": "blocked",
+            "transport_confidence": null,
+            "transport_ref": null,
+            "validation_status": "failed_closed"
+          },
+          "wrong_scope": {
+            "blockers": [
+              "transport_unavailable_for_scope"
+            ],
+            "cause": "agriculture.fertilizer_use",
+            "content_bind_status": "content_bound_untransported",
+            "edge_id": "06fb46cd681818bc52d1cc01",
+            "effect": "agriculture.food_nutritional_quality",
+            "estimand": "directional_effect",
+            "relevance_score": 0.7968000586374823,
+            "scope_context_id": "ZZ_WRONG_SCOPE",
+            "skg_snapshot_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb#v1",
+            "skg_version_id": 1,
+            "status": "search_only",
+            "transport_confidence": null,
+            "transport_ref": null,
+            "validation_status": "failed_closed"
+          }
+        },
+        "expected": "true_and_alias_bound_wrong_cause_blocked_wrong_scope_search_only"
+      },
+      {
+        "actual": "multi_unit_operator_scope_missing_bound_semantics",
+        "case_id": "l3_rule_threshold_operator_unit_missing_bound_gate",
+        "detail": {
+          "admit": {
+            "applies_to": "25 percent",
+            "canonical_unit": "percent",
+            "fact_id": "ef64d4844594c3112281",
+            "metric": "percent",
+            "normalized_candidate_value": 24.0,
+            "normalized_threshold_value": 25.0,
+            "obligation_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_normative_facts/ef64d4844594c3112281",
+            "operator": "lte",
+            "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/00003a7579810a2a:body:1/item:0010",
+            "reason": "threshold_satisfied",
+            "status": "admitted",
+            "temporal_status": "in_force",
+            "threshold_id": "a5429abb6621acb11ed10b20",
+            "threshold_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/a5429abb6621acb11ed10b20"
+          },
+          "block": {
+            "applies_to": "25 percent",
+            "canonical_unit": "percent",
+            "fact_id": "ef64d4844594c3112281",
+            "metric": "percent",
+            "normalized_candidate_value": 26.0,
+            "normalized_threshold_value": 25.0,
+            "obligation_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_normative_facts/ef64d4844594c3112281",
+            "operator": "lte",
+            "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/00003a7579810a2a:body:1/item:0010",
+            "reason": "threshold_violated",
+            "status": "blocked",
+            "temporal_status": "in_force",
+            "threshold_id": "a5429abb6621acb11ed10b20",
+            "threshold_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/a5429abb6621acb11ed10b20"
+          },
+          "currency_admit": {
+            "applies_to": "максимальна інтервенційна ціна (з урахуванням податку на додану вартість) на цукор-пісок (буряковий)",
+            "canonical_unit": "uah",
+            "fact_id": "246872217509373e4a3d",
+            "metric": "currency_uah",
+            "normalized_candidate_value": 8800.0,
+            "normalized_threshold_value": 8800.0,
+            "obligation_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_normative_facts/246872217509373e4a3d",
+            "operator": "eq",
+            "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/b8d45ab0c8770389:body:1/item:0002",
+            "reason": "threshold_satisfied",
+            "status": "admitted",
+            "temporal_status": "in_force",
+            "threshold_id": "019cab2db39f0f14b0051ed5",
+            "threshold_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/019cab2db39f0f14b0051ed5"
+          },
+          "day_admit": {
+            "applies_to": "строк продовження не більше 180 днів",
+            "canonical_unit": "day",
+            "fact_id": "0a8aa2fd6fa650e31e36",
+            "metric": "днів",
+            "normalized_candidate_value": 179.0,
+            "normalized_threshold_value": 180.0,
+            "obligation_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_normative_facts/0a8aa2fd6fa650e31e36",
+            "operator": "lte",
+            "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/00b2e1b61ddf167f:art:763",
+            "reason": "threshold_satisfied",
+            "status": "admitted",
+            "temporal_status": "in_force",
+            "threshold_id": "72d0367ea085795e811da112",
+            "threshold_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/72d0367ea085795e811da112"
+          },
+          "day_block": {
+            "applies_to": "строк продовження не більше 180 днів",
+            "canonical_unit": "day",
+            "fact_id": "0a8aa2fd6fa650e31e36",
+            "metric": "днів",
+            "normalized_candidate_value": 181.0,
+            "normalized_threshold_value": 180.0,
+            "obligation_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_normative_facts/0a8aa2fd6fa650e31e36",
+            "operator": "lte",
+            "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/00b2e1b61ddf167f:art:763",
+            "reason": "threshold_violated",
+            "status": "blocked",
+            "temporal_status": "in_force",
+            "threshold_id": "72d0367ea085795e811da112",
+            "threshold_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/72d0367ea085795e811da112"
+          },
+          "incompatible": {
+            "applies_to": "строк продовження не більше 180 днів",
+            "canonical_unit": "day",
+            "fact_id": "0a8aa2fd6fa650e31e36",
+            "metric": "днів",
+            "normalized_candidate_value": 179.0,
+            "normalized_threshold_value": 180.0,
+            "obligation_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_normative_facts/0a8aa2fd6fa650e31e36",
+            "operator": "lte",
+            "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/00b2e1b61ddf167f:art:763",
+            "reason": "unit_incompatible",
+            "status": "blocked",
+            "temporal_status": "in_force",
+            "threshold_id": "72d0367ea085795e811da112",
+            "threshold_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/72d0367ea085795e811da112"
+          },
+          "missing": {
+            "applies_to": "25 percent",
+            "canonical_unit": "",
+            "fact_id": "ef64d4844594c3112281",
+            "metric": "percent",
+            "normalized_candidate_value": null,
+            "normalized_threshold_value": null,
+            "obligation_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_normative_facts/ef64d4844594c3112281",
+            "operator": "lte",
+            "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/00003a7579810a2a:body:1/item:0010",
+            "reason": "candidate_bound_missing",
+            "status": "blocked",
+            "temporal_status": "in_force",
+            "threshold_id": "a5429abb6621acb11ed10b20",
+            "threshold_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/a5429abb6621acb11ed10b20"
+          },
+          "month_admit": {
+            "applies_to": "заморожену яловичину",
+            "canonical_unit": "day",
+            "fact_id": "68bd46df8209fde43981",
+            "metric": "місяців",
+            "normalized_candidate_value": 900.0,
+            "normalized_threshold_value": 900.0,
+            "obligation_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_normative_facts/68bd46df8209fde43981",
+            "operator": "eq",
+            "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/001a7a99d7cb5b27:art:13/para:1",
+            "reason": "threshold_satisfied",
+            "status": "admitted",
+            "temporal_status": "in_force",
+            "threshold_id": "7bb54afa703ce2cc1ac8b22b",
+            "threshold_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/7bb54afa703ce2cc1ac8b22b"
+          },
+          "operator_registry": {
+            "membership_probe": true,
+            "present_operators": [
+              "<",
+              "<=",
+              "=",
+              ">",
+              ">=",
+              "between",
+              "eq",
+              "gt",
+              "gte",
+              "in",
+              "interval",
+              "lt",
+              "lte",
+              "range",
+              "∈"
+            ],
+            "range_probe": true
+          },
+          "outside": {
+            "applies_to": "25 percent",
+            "canonical_unit": "",
+            "fact_id": "ef64d4844594c3112281",
+            "metric": "percent",
+            "normalized_candidate_value": null,
+            "normalized_threshold_value": null,
+            "obligation_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_normative_facts/ef64d4844594c3112281",
+            "operator": "lte",
+            "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/00003a7579810a2a:body:1/item:0010",
+            "reason": "threshold_not_applicable",
+            "status": "not_applicable",
+            "temporal_status": "in_force",
+            "threshold_id": "a5429abb6621acb11ed10b20",
+            "threshold_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/a5429abb6621acb11ed10b20"
+          },
+          "ratio": {
+            "applies_to": "25 percent",
+            "canonical_unit": "percent",
+            "fact_id": "ef64d4844594c3112281",
+            "metric": "percent",
+            "normalized_candidate_value": 24.0,
+            "normalized_threshold_value": 25.0,
+            "obligation_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_normative_facts/ef64d4844594c3112281",
+            "operator": "lte",
+            "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/00003a7579810a2a:body:1/item:0010",
+            "reason": "threshold_satisfied",
+            "status": "admitted",
+            "temporal_status": "in_force",
+            "threshold_id": "a5429abb6621acb11ed10b20",
+            "threshold_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/a5429abb6621acb11ed10b20"
+          },
+          "year_admit": {
+            "applies_to": "неодружені діти віком до 21 року",
+            "canonical_unit": "day",
+            "fact_id": "7303b00b3122f389a4d1",
+            "metric": "duration",
+            "normalized_candidate_value": 8030.0,
+            "normalized_threshold_value": 7665.0,
+            "obligation_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_normative_facts/7303b00b3122f389a4d1",
+            "operator": "gte",
+            "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/cefd71baecb7e175:art:2/para:1",
+            "reason": "threshold_satisfied",
+            "status": "admitted",
+            "temporal_status": "in_force",
+            "threshold_id": "0017d256e4c232f4e4831c6e",
+            "threshold_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/0017d256e4c232f4e4831c6e"
+          },
+          "year_block": {
+            "applies_to": "неодружені діти віком до 21 року",
+            "canonical_unit": "day",
+            "fact_id": "7303b00b3122f389a4d1",
+            "metric": "duration",
+            "normalized_candidate_value": 7300.0,
+            "normalized_threshold_value": 7665.0,
+            "obligation_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_normative_facts/7303b00b3122f389a4d1",
+            "operator": "gte",
+            "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/cefd71baecb7e175:art:2/para:1",
+            "reason": "threshold_violated",
+            "status": "blocked",
+            "temporal_status": "in_force",
+            "threshold_id": "0017d256e4c232f4e4831c6e",
+            "threshold_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/0017d256e4c232f4e4831c6e"
+          }
+        },
+        "expected": "multi_unit_operator_scope_missing_bound_semantics"
+      },
+      {
+        "actual": "effective_from_and_lineage_supersession",
+        "case_id": "l3_amendment_effective_from_temporal_gate",
+        "detail": {
+          "after": {
+            "amendment_id": "17bd5016053d883db190603c",
+            "amendment_type": "amendment_signal",
+            "as_of": "2017-01-02",
+            "effective_from": "2017-01-01",
+            "effective_to": "",
+            "reason": "amendment_in_force",
+            "stale_after": "",
+            "status": "in_force",
+            "subject_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_amendments/17bd5016053d883db190603c"
+          },
+          "before": {
+            "amendment_id": "17bd5016053d883db190603c",
+            "amendment_type": "amendment_signal",
+            "as_of": "2016-12-31",
+            "effective_from": "2017-01-01",
+            "effective_to": "",
+            "reason": "as_of_before_effective_from",
+            "stale_after": "",
+            "status": "not_yet_in_force",
+            "subject_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_amendments/17bd5016053d883db190603c"
+          },
+          "lineage_mid_status": {
+            "amendment_id": "",
+            "amendment_type": "",
+            "as_of": "2021-12-01",
+            "effective_from": "2021-11-10",
+            "effective_to": "2022-10-28",
+            "reason": "threshold_version_in_force",
+            "stale_after": "",
+            "status": "in_force",
+            "subject_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/3442d0100891ca13d6c788b0"
+          },
+          "lineage_mid_threshold": {
+            "applies_to": "10",
+            "doc_family_id": "05640c577d76bebf85",
+            "doc_id": "d974dd347ab9eff8",
+            "effective_from": "",
+            "effective_to": "",
+            "fact_id": "4c9ecfc8b49a99bbd779",
+            "jurisdiction": "UA",
+            "metric": "днів",
+            "norm_type": "obligation",
+            "norm_type_canon": "obligation",
+            "operator": "eq",
+            "provision_anchor": "appendix:1/item:0033",
+            "provision_citation": "Додаток 1, пункт 8",
+            "provision_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_provisions/d974dd347ab9eff8:appendix:1/item:0033",
+            "temporal_resolution_status": "partial",
+            "threshold_id": "3442d0100891ca13d6c788b0",
+            "top_domain": "fiscal",
+            "trust_tier": "normative_fact",
+            "unit": "днів",
+            "value_decimal": 10.0,
+            "value_text": "10",
+            "version_id": "d974dd347ab9eff8"
+          },
+          "lineage_old_mid": {
+            "amendment_id": "",
+            "amendment_type": "",
+            "as_of": "2000-01-01",
+            "effective_from": "1999-07-08",
+            "effective_to": "2002-08-19",
+            "reason": "threshold_version_in_force",
+            "stale_after": "",
+            "status": "in_force",
+            "subject_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/2a516f4ad0a279af6cbc19cd"
+          },
+          "superseded_amendment": {
+            "amendment_id": "bc9fb973e424dc841aa7487b",
+            "amendment_type": "general_amendment",
+            "as_of": "2036-12-31",
+            "effective_from": "1994-01-01",
+            "effective_to": "2004-01-01",
+            "reason": "superseded_by_later_amendment",
+            "stale_after": "2004-01-01",
+            "status": "stale",
+            "subject_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_amendments/bc9fb973e424dc841aa7487b"
+          },
+          "superseded_threshold": {
+            "amendment_id": "",
+            "amendment_type": "",
+            "as_of": "2036-12-31",
+            "effective_from": "2018-10-01",
+            "effective_to": "2019-07-11",
+            "reason": "superseded_by_later_threshold_version",
+            "stale_after": "2019-07-11",
+            "status": "stale",
+            "subject_ref": "duckdb:///Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#lex_rule_thresholds/9d73aecb2a07e040897f34bf"
+          }
+        },
+        "expected": "effective_from_and_lineage_supersession"
+      },
+      {
+        "actual": "l2_l3_registered_with_live_counts",
+        "case_id": "s0_registers_l2_l3_real_knowledge_substrates",
+        "detail": {
+          "l2": {
+            "authority_refs": [
+              "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb#table_counts",
+              "repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json#measurement_registry"
+            ],
+            "coverage": {
+              "coverage_dimensions": {
+                "present_table_count": 8,
+                "required_table_count": 10,
+                "required_tables": [
+                  "ac_parameter_estimates",
+                  "ac_causal_claims",
+                  "ac_skg_edges",
+                  "ac_skg_transport_scores",
+                  "ac_skg_contested_edges",
+                  "ac_claim_adjudications",
+                  "ac_skg_variables",
+                  "ac_context_attributes",
+                  "ac_simulation_parameters",
+                  "ac_boundary_conditions"
+                ],
+                "table_counts": {
+                  "ac_boundary_conditions": 38550,
+                  "ac_causal_claims": 7868,
+                  "ac_claim_adjudications": 67791,
+                  "ac_context_attributes": 0,
+                  "ac_parameter_estimates": 62248,
+                  "ac_simulation_parameters": 0,
+                  "ac_skg_contested_edges": 723,
+                  "ac_skg_edges": 7607,
+                  "ac_skg_transport_scores": 7607,
+                  "ac_skg_variables": 55176
+                }
+              },
+              "coverage_kind": "l2.duckdb.real_store.table_coverage",
+              "coverage_rule_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb#table_counts",
+              "coverage_score": 0.8,
+              "dataset_count": 1,
+              "metric_binding_count": 8,
+              "observation_count": 247570,
+              "quality_scores": {}
+            },
+            "data_version": "1",
+            "entry_content_hash": "sha256:0b083d7e6784d2750ca4e933e754bbfc936ccdd8f70b825d5a3c46caf17e6aa8",
+            "family_id": "l2_scholar_kg_causal_priors_transport",
+            "identification_mode": "credal_interval_prior",
+            "layer": "L2",
+            "provenance_refs": [
+              "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb#table_counts",
+              "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb#duckdb_schema"
+            ],
+            "schema_regime": {
+              "authority_ref": "repo://production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb#duckdb_schema",
+              "boundary_buffer_periods": null,
+              "effective_end": null,
+              "effective_start": null,
+              "schema_regime_id": "manifest:l2_scholar_kg.duckdb.v1",
+              "source_version": "1"
+            },
+            "snapshot_id": "l2_scholar_kg_causal_priors_transport:sha256:2f63ec403d755c574e962ad99a6340c2e0efbe164c99cd58041ed2a9361b38b9",
+            "source_id": "l2_scholar_kg:scholar_knowledge.duckdb",
+            "source_snapshot_id": "l2_scholar_kg_causal_priors_transport:sha256:2f63ec403d755c574e962ad99a6340c2e0efbe164c99cd58041ed2a9361b38b9",
+            "trust_tier": {
+              "authority_ref": "repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json#measurement_registry#/trust_tiers/authoritative_partial_coverage",
+              "max_coverage": 1.0,
+              "min_coverage": 0.5,
+              "tier": "authoritative_partial_coverage",
+              "trust_cap": 0.85,
+              "trust_multiplier": 0.95
+            }
+          },
+          "l3": {
+            "authority_refs": [
+              "repo://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#table_counts",
+              "repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json#measurement_registry"
+            ],
+            "coverage": {
+              "coverage_dimensions": {
+                "present_table_count": 8,
+                "required_table_count": 8,
+                "required_tables": [
+                  "lex_provisions",
+                  "lex_normative_ready_facts",
+                  "lex_rule_thresholds",
+                  "lex_rule_clauses",
+                  "lex_amendments",
+                  "lex_entities",
+                  "lex_doc_domains",
+                  "lex_temporal_audit"
+                ],
+                "table_counts": {
+                  "lex_amendments": 156196,
+                  "lex_doc_domains": 222604,
+                  "lex_entities": 357742,
+                  "lex_normative_ready_facts": 1604211,
+                  "lex_provisions": 6074716,
+                  "lex_rule_clauses": 409108,
+                  "lex_rule_thresholds": 374516,
+                  "lex_temporal_audit": 1923162
+                }
+              },
+              "coverage_kind": "l3.duckdb.real_store.table_coverage",
+              "coverage_rule_ref": "repo://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#table_counts",
+              "coverage_score": 1.0,
+              "dataset_count": 1,
+              "metric_binding_count": 8,
+              "observation_count": 11122255,
+              "quality_scores": {}
+            },
+            "data_version": "2036-01-01",
+            "entry_content_hash": "sha256:8aa79d92687b27d89082212b6c8b1778d0f31b6ee69e64854bcb989abf59a5b0",
+            "family_id": "l3_lex_kg_admissibility_obligations",
+            "identification_mode": "normative_admissibility_authority",
+            "layer": "L3",
+            "provenance_refs": [
+              "repo://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#table_counts",
+              "repo://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#duckdb_schema"
+            ],
+            "schema_regime": {
+              "authority_ref": "repo://production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb#duckdb_schema",
+              "boundary_buffer_periods": null,
+              "effective_end": null,
+              "effective_start": null,
+              "schema_regime_id": "manifest:l3_lex_kg.duckdb.v1",
+              "source_version": "2036-01-01"
+            },
+            "snapshot_id": "l3_lex_kg_admissibility_obligations:sha256:bd1bc030a452f754ab74030f4ec96db6fe7d98402229fe9391cf02f218357d0d",
+            "source_id": "l3_lex_kg:lex_knowledge_graph.duckdb",
+            "source_snapshot_id": "l3_lex_kg_admissibility_obligations:sha256:bd1bc030a452f754ab74030f4ec96db6fe7d98402229fe9391cf02f218357d0d",
+            "trust_tier": {
+              "authority_ref": "repo://production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json#measurement_registry#/trust_tiers/authoritative_high_coverage",
+              "max_coverage": 1.0,
+              "min_coverage": 0.85,
+              "tier": "authoritative_high_coverage",
+              "trust_cap": 1.0,
+              "trust_multiplier": 1.0
+            }
+          }
+        },
+        "expected": "l2_l3_registered_with_live_counts"
+      }
+    ],
+    "issues": [],
+    "status": "pass"
+  },
+  "behavioral_checks": {
+    "knowledge_substrate": {
+      "case_count": 8,
+      "case_ids": [
+        "l2_estimate_ci_lowers_to_value_outer_set",
+        "l2_transport_score_widens_value_outer_set",
+        "l2_missing_transport_is_search_only_not_promotable",
+        "l2_contested_edge_spans_structural_ambiguity",
+        "l2_skg_grounding_resolve_content_bind_validate_fail_closed",
+        "l3_rule_threshold_operator_unit_missing_bound_gate",
+        "l3_amendment_effective_from_temporal_gate",
+        "s0_registers_l2_l3_real_knowledge_substrates"
+      ],
+      "status": "pass"
+    }
+  },
+  "capability_reality": {
+    "consumer": "N4/N8/N1/N2 hooks via existing owners",
+    "orchestration_bridge": "WorldModelRecord SKG ref + DesignProblem/N2 consumable Lex DTOs",
+    "persisted_artifact_event": "architecture/policy_design_case/layer3_gy_knowledge_substrate_contract.json",
+    "producer": "SKGQuery/LegalKnowledgeStore real DuckDB accessors",
+    "semantic_test": "real-store integration + remove-property behavior probes",
+    "surface": "GY-S0 substrate registry + generated contract artifact",
+    "typed_contract_artifact": "ValueOuterSet + LegalThresholdEvaluation + LegalTemporalCompetence",
+    "verification": "knowledge_substrate_behavior_report"
+  },
+  "contract_id": "policyos.runtime.knowledge_substrate_lift",
+  "gy_lifecycle_marker": "policyos.policy_design_case.layer3_gy.knowledge_substrate_contract.v1",
+  "json_schemas": {
+    "legal_rule_threshold_row": {
+      "additionalProperties": false,
+      "description": "Resolved L3 threshold row bound to its normative fact and provision lineage.",
+      "properties": {
+        "applies_to": {
+          "default": "",
+          "title": "Applies To",
+          "type": "string"
+        },
+        "doc_family_id": {
+          "default": "",
+          "title": "Doc Family Id",
+          "type": "string"
+        },
+        "doc_id": {
+          "default": "",
+          "title": "Doc Id",
+          "type": "string"
+        },
+        "effective_from": {
+          "default": "",
+          "title": "Effective From",
+          "type": "string"
+        },
+        "effective_to": {
+          "default": "",
+          "title": "Effective To",
+          "type": "string"
+        },
+        "fact_id": {
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "jurisdiction": {
+          "default": "UA",
+          "title": "Jurisdiction",
+          "type": "string"
+        },
+        "metric": {
+          "title": "Metric",
+          "type": "string"
+        },
+        "norm_type": {
+          "default": "",
+          "title": "Norm Type",
+          "type": "string"
+        },
+        "norm_type_canon": {
+          "default": "",
+          "title": "Norm Type Canon",
+          "type": "string"
+        },
+        "operator": {
+          "title": "Operator",
+          "type": "string"
+        },
+        "provision_anchor": {
+          "default": "",
+          "title": "Provision Anchor",
+          "type": "string"
+        },
+        "provision_citation": {
+          "default": "",
+          "title": "Provision Citation",
+          "type": "string"
+        },
+        "provision_ref": {
+          "default": "",
+          "title": "Provision Ref",
+          "type": "string"
+        },
+        "temporal_resolution_status": {
+          "default": "",
+          "title": "Temporal Resolution Status",
+          "type": "string"
+        },
+        "threshold_id": {
+          "title": "Threshold Id",
+          "type": "string"
+        },
+        "top_domain": {
+          "default": "",
+          "title": "Top Domain",
+          "type": "string"
+        },
+        "trust_tier": {
+          "default": "search_candidate",
+          "enum": [
+            "search_candidate",
+            "grounded_fact",
+            "normative_fact"
+          ],
+          "title": "Trust Tier",
+          "type": "string"
+        },
+        "unit": {
+          "default": "",
+          "title": "Unit",
+          "type": "string"
+        },
+        "value_decimal": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value Decimal"
+        },
+        "value_text": {
+          "default": "",
+          "title": "Value Text",
+          "type": "string"
+        },
+        "version_id": {
+          "default": "",
+          "title": "Version Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "threshold_id",
+        "fact_id",
+        "metric",
+        "operator"
+      ],
+      "title": "LegalRuleThresholdRow",
+      "type": "object"
+    },
+    "legal_temporal_competence": {
+      "additionalProperties": false,
+      "description": "As-of temporal competence for an amendment or threshold-backed norm.",
+      "properties": {
+        "amendment_id": {
+          "default": "",
+          "title": "Amendment Id",
+          "type": "string"
+        },
+        "amendment_type": {
+          "default": "",
+          "title": "Amendment Type",
+          "type": "string"
+        },
+        "as_of": {
+          "title": "As Of",
+          "type": "string"
+        },
+        "effective_from": {
+          "default": "",
+          "title": "Effective From",
+          "type": "string"
+        },
+        "effective_to": {
+          "default": "",
+          "title": "Effective To",
+          "type": "string"
+        },
+        "reason": {
+          "default": "",
+          "title": "Reason",
+          "type": "string"
+        },
+        "stale_after": {
+          "default": "",
+          "title": "Stale After",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "in_force",
+            "not_yet_in_force",
+            "stale",
+            "blocked"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "subject_ref": {
+          "title": "Subject Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status",
+        "subject_ref",
+        "as_of"
+      ],
+      "title": "LegalTemporalCompetence",
+      "type": "object"
+    },
+    "legal_threshold_evaluation": {
+      "additionalProperties": false,
+      "description": "Semantic evaluation of a candidate value against an L3 threshold.",
+      "properties": {
+        "applies_to": {
+          "default": "",
+          "title": "Applies To",
+          "type": "string"
+        },
+        "canonical_unit": {
+          "default": "",
+          "title": "Canonical Unit",
+          "type": "string"
+        },
+        "fact_id": {
+          "default": "",
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "metric": {
+          "default": "",
+          "title": "Metric",
+          "type": "string"
+        },
+        "normalized_candidate_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Normalized Candidate Value"
+        },
+        "normalized_threshold_value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Normalized Threshold Value"
+        },
+        "obligation_ref": {
+          "default": "",
+          "title": "Obligation Ref",
+          "type": "string"
+        },
+        "operator": {
+          "default": "",
+          "title": "Operator",
+          "type": "string"
+        },
+        "provision_ref": {
+          "default": "",
+          "title": "Provision Ref",
+          "type": "string"
+        },
+        "reason": {
+          "enum": [
+            "threshold_satisfied",
+            "threshold_violated",
+            "threshold_unresolved",
+            "threshold_not_applicable",
+            "candidate_bound_missing",
+            "threshold_bound_missing",
+            "unit_unresolved",
+            "unit_incompatible",
+            "operator_unresolved",
+            "temporal_not_in_force"
+          ],
+          "title": "Reason",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "admitted",
+            "blocked",
+            "not_applicable"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "temporal_status": {
+          "default": "blocked",
+          "enum": [
+            "in_force",
+            "not_yet_in_force",
+            "stale",
+            "blocked"
+          ],
+          "title": "Temporal Status",
+          "type": "string"
+        },
+        "threshold_id": {
+          "default": "",
+          "title": "Threshold Id",
+          "type": "string"
+        },
+        "threshold_ref": {
+          "title": "Threshold Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status",
+        "reason",
+        "threshold_ref"
+      ],
+      "title": "LegalThresholdEvaluation",
+      "type": "object"
+    },
+    "value_outer_set": {
+      "$defs": {
+        "DataTrust": {
+          "additionalProperties": false,
+          "description": "L5 trust-tier content used by value promotion and substrate registration.",
+          "properties": {
+            "authority_ref": {
+              "minLength": 1,
+              "title": "Authority Ref",
+              "type": "string"
+            },
+            "max_coverage": {
+              "anyOf": [
+                {
+                  "maximum": 1.0,
+                  "minimum": 0.0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Max Coverage"
+            },
+            "min_coverage": {
+              "anyOf": [
+                {
+                  "maximum": 1.0,
+                  "minimum": 0.0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Min Coverage"
+            },
+            "promotion_floor": {
+              "anyOf": [
+                {
+                  "maximum": 1.0,
+                  "minimum": 0.0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Promotion Floor"
+            },
+            "tier": {
+              "minLength": 1,
+              "title": "Tier",
+              "type": "string"
+            },
+            "trust_cap": {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Trust Cap",
+              "type": "number"
+            },
+            "trust_multiplier": {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "title": "Trust Multiplier",
+              "type": "number"
+            }
+          },
+          "required": [
+            "tier",
+            "trust_cap",
+            "trust_multiplier",
+            "authority_ref"
+          ],
+          "title": "DataTrust",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Canonical typed carrier for set-valued value over policy-design worlds.",
+      "properties": {
+        "assumption_status": {
+          "enum": [
+            "declared",
+            "externally_supported",
+            "stress_tested",
+            "violated",
+            "out_of_scope"
+          ],
+          "title": "Assumption Status",
+          "type": "string"
+        },
+        "assumptions": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Assumptions",
+          "type": "array"
+        },
+        "calibration_scope": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Calibration Scope",
+          "type": "object"
+        },
+        "coordinates": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Coordinates",
+          "type": "array"
+        },
+        "data_trust": {
+          "$ref": "#/$defs/DataTrust"
+        },
+        "epoch": {
+          "minLength": 1,
+          "title": "Epoch",
+          "type": "string"
+        },
+        "identification_status": {
+          "enum": [
+            "point",
+            "partial",
+            "proxy",
+            "blocked"
+          ],
+          "title": "Identification Status",
+          "type": "string"
+        },
+        "lower": {
+          "items": {
+            "type": "number"
+          },
+          "title": "Lower",
+          "type": "array"
+        },
+        "representation": {
+          "enum": [
+            "interval_box",
+            "polytope_support_functions",
+            "scenario_set",
+            "unknown"
+          ],
+          "title": "Representation",
+          "type": "string"
+        },
+        "representation_status": {
+          "enum": [
+            "certified",
+            "search_only",
+            "unknown"
+          ],
+          "title": "Representation Status",
+          "type": "string"
+        },
+        "solver_time_budget_ms": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Solver Time Budget Ms"
+        },
+        "upper": {
+          "items": {
+            "type": "number"
+          },
+          "title": "Upper",
+          "type": "array"
+        },
+        "world_model_record_ref": {
+          "minLength": 1,
+          "title": "World Model Record Ref",
+          "type": "string"
+        }
+      },
+      "required": [
+        "representation",
+        "identification_status",
+        "assumption_status",
+        "data_trust",
+        "world_model_record_ref",
+        "epoch",
+        "representation_status"
+      ],
+      "title": "ValueOuterSet",
+      "type": "object"
+    }
+  },
+  "missing_capability_labels": [],
+  "owner": "polisyos.data_forge.domains.academic.knowledge.skg_query + polisyos.lex.knowledge.store",
+  "patterns_closed": [
+    "P01",
+    "P03",
+    "P04",
+    "P05",
+    "P07",
+    "P08",
+    "P10",
+    "P27",
+    "P29",
+    "P32",
+    "P33"
+  ],
+  "real_substrates": {
+    "l2": "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/scholar_knowledge.duckdb",
+    "l3": "production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb"
+  },
+  "reuse_existing_owners": [
+    "SKGQuery.has_skg_version_id",
+    "SKGQuery.skg_snapshot_ref",
+    "WorldModelRecord.skg_causal_prior_ref",
+    "LegalKnowledgeStore.search_facts_with_threshold",
+    "SubstrateRegistry.register_substrate_entry"
+  ],
+  "schema_version": "policyos.policy_design_case.layer3_gy.knowledge_substrate_contract.v1",
+  "source_modules": [
+    "src/polisyos/data_forge/domains/academic/knowledge/skg_query.py",
+    "src/polisyos/lex/knowledge/store.py",
+    "src/polisyos/lex/knowledge/types.py",
+    "src/polisyos/runtime/quality/substrate_registry.py"
+  ]
+}

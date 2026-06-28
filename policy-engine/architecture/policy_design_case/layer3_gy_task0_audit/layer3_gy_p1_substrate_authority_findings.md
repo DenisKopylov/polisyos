@@ -67,7 +67,7 @@ However, the G5 pinned pass uses exact refs that do not dereference to produced 
 - `demand-act://ua-msme/principal`
 - `voi://ua-msme/site-1`
 
-Those refs occur in `layer3_g5_composed_loop_completeness_gate.json` and `layer3_g5_pinned_case_input_bundle.json`. Their source is the hardcoded readiness payload in `src/polisyos/runtime/quality/layer3_proving_ground_conversion.py:1219`.
+Those refs occur in `layer3_g5_composed_loop_completeness_gate.json` and `layer3_g5_pinned_case_input_bundle.json`. Their source is the hardcoded readiness payload in `src/polisyos/runtime/quality/proving_ground/proving_ground_conversion.py:1219`.
 
 The runtime run-cost gate is a separate real capability; it does not prove S12 VOI/budget honesty for the G5 handoff.
 

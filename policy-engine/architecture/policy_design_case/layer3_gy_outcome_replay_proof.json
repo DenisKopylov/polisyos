@@ -1,0 +1,203 @@
+{
+  "case_id": "ua-msme-affordable-loans-2022",
+  "owner": "team-runtime-quality",
+  "proof_source": "production_http_route_recomputed",
+  "replay_proof": {
+    "canonicalizer_ref": "tools.quality.validation.gy_evidence_canon.canonical_evidence_hash",
+    "case_id": "ua-msme-affordable-loans-2022",
+    "input_hashes": {
+      "sha256:84046dd6b320fee9f8c1d4732301a66f19646e33522731ad7f473d06adc9e264": "sha256:84046dd6b320fee9f8c1d4732301a66f19646e33522731ad7f473d06adc9e264"
+    },
+    "level_proofs": [
+      {
+        "input_hash": "sha256:12953456417613a0cef57821778a8d4d5b3980a5e9bf3d45db6abb509ecca6f7",
+        "level": "A",
+        "output_hash": "sha256:d470e1ce0c3ceeaf63b7d1601cba986513e0f0b4b21d03d29159d335fc67cf32",
+        "producer_roots": [
+          {
+            "artifact_id": "base-ua-msme-credit-worldbank-measurement",
+            "artifact_type": "BaseDataset",
+            "content_hash": "sha256:5e0d8e38760a56e6187ec74df75138b685df1b748b19e75ae5fbe139e168f0d6",
+            "schema_ref": "policyos.policy_design_case.layer3_gy_loop.v1",
+            "uri": "gy://slice0/ua_msme_credit_worldbank_measurement/base-dataset",
+            "version": "v1"
+          },
+          {
+            "change": "added_in_final_task12",
+            "content_hash": "sha256:9004adafc5379a0508a5f10463073fbe5c5251bc790270141c3ce4a152782d89",
+            "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_readiness_manifest.json"
+          },
+          {
+            "change": "added_in_final_task12",
+            "content_hash": "sha256:a9a8b92d88cb960d0cd20204c7b1167a69a5f56913c2a9373b3e92c2cf998033",
+            "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_cross_metric_diagnosis.json"
+          },
+          {
+            "change": "added_in_final_task12",
+            "content_hash": "sha256:c84144d37fd8fb73b76d815dbf7540a6186e191e523b85b0d84f79aeab48548f",
+            "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_domain_vs_search_ceiling_gate.json"
+          },
+          {
+            "change": "added_in_final_task12",
+            "content_hash": "sha256:e824fb88240256fe52b2f0c5de98e8be2342fdcd0d3d1af78f0cc30ab9ce32a8",
+            "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_open_question_answer_ledger.json"
+          },
+          {
+            "change": "added_in_final_task12",
+            "content_hash": "sha256:9054ad9c14ed3a5599fbcb55d554beda2d99ab46905b6dcfb9fcd9c5220188cc",
+            "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_metric_governance_audit_surface.json"
+          },
+          {
+            "change": "added_in_final_task12",
+            "content_hash": "sha256:cbecb5dc97fd1cc33597eda3f3fd0420049527074108bc7bbe971bad5aa66dd8",
+            "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_closeout_signal_consumer_gate.json"
+          }
+        ],
+        "replay_kind": "deterministic_operation",
+        "status": "verified"
+      },
+      {
+        "input_hash": "sha256:c7fbb90da2ca54ced45e691e50cbd0f225f1cdf80ac0e92db2909454c3cb91b6",
+        "level": "B",
+        "output_hash": "sha256:8867b89e16277c4179d5ad7a280a82639735c4f516dd15e858c7acfbec6cc35b",
+        "producer_roots": [
+          {
+            "artifact_id": "base-ua-msme-credit-worldbank-measurement",
+            "artifact_type": "BaseDataset",
+            "content_hash": "sha256:5e0d8e38760a56e6187ec74df75138b685df1b748b19e75ae5fbe139e168f0d6",
+            "schema_ref": "policyos.policy_design_case.layer3_gy_loop.v1",
+            "uri": "gy://slice0/ua_msme_credit_worldbank_measurement/base-dataset",
+            "version": "v1"
+          },
+          {
+            "change": "added_in_final_task12",
+            "content_hash": "sha256:9004adafc5379a0508a5f10463073fbe5c5251bc790270141c3ce4a152782d89",
+            "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_readiness_manifest.json"
+          },
+          {
+            "change": "added_in_final_task12",
+            "content_hash": "sha256:a9a8b92d88cb960d0cd20204c7b1167a69a5f56913c2a9373b3e92c2cf998033",
+            "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_cross_metric_diagnosis.json"
+          },
+          {
+            "change": "added_in_final_task12",
+            "content_hash": "sha256:c84144d37fd8fb73b76d815dbf7540a6186e191e523b85b0d84f79aeab48548f",
+            "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_domain_vs_search_ceiling_gate.json"
+          },
+          {
+            "change": "added_in_final_task12",
+            "content_hash": "sha256:e824fb88240256fe52b2f0c5de98e8be2342fdcd0d3d1af78f0cc30ab9ce32a8",
+            "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_open_question_answer_ledger.json"
+          },
+          {
+            "change": "added_in_final_task12",
+            "content_hash": "sha256:9054ad9c14ed3a5599fbcb55d554beda2d99ab46905b6dcfb9fcd9c5220188cc",
+            "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_metric_governance_audit_surface.json"
+          },
+          {
+            "change": "added_in_final_task12",
+            "content_hash": "sha256:cbecb5dc97fd1cc33597eda3f3fd0420049527074108bc7bbe971bad5aa66dd8",
+            "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_closeout_signal_consumer_gate.json"
+          }
+        ],
+        "replay_kind": "decision_provenance_trace",
+        "status": "verified"
+      },
+      {
+        "input_hash": "sha256:24265412bb5b2a2bd3949b976f07008ed45a3658415275079aa8e8e10df955d0",
+        "level": "C",
+        "output_hash": "sha256:c3e24528393c56f94730ce69c398d6942c1c8f67b5798f539fc5a4b3fd6a40f8",
+        "producer_roots": [
+          {
+            "artifact_id": "base-ua-msme-credit-worldbank-measurement",
+            "artifact_type": "BaseDataset",
+            "content_hash": "sha256:5e0d8e38760a56e6187ec74df75138b685df1b748b19e75ae5fbe139e168f0d6",
+            "schema_ref": "policyos.policy_design_case.layer3_gy_loop.v1",
+            "uri": "gy://slice0/ua_msme_credit_worldbank_measurement/base-dataset",
+            "version": "v1"
+          },
+          {
+            "change": "added_in_final_task12",
+            "content_hash": "sha256:9004adafc5379a0508a5f10463073fbe5c5251bc790270141c3ce4a152782d89",
+            "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_readiness_manifest.json"
+          },
+          {
+            "change": "added_in_final_task12",
+            "content_hash": "sha256:a9a8b92d88cb960d0cd20204c7b1167a69a5f56913c2a9373b3e92c2cf998033",
+            "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_cross_metric_diagnosis.json"
+          },
+          {
+            "change": "added_in_final_task12",
+            "content_hash": "sha256:c84144d37fd8fb73b76d815dbf7540a6186e191e523b85b0d84f79aeab48548f",
+            "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_domain_vs_search_ceiling_gate.json"
+          },
+          {
+            "change": "added_in_final_task12",
+            "content_hash": "sha256:e824fb88240256fe52b2f0c5de98e8be2342fdcd0d3d1af78f0cc30ab9ce32a8",
+            "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_open_question_answer_ledger.json"
+          },
+          {
+            "change": "added_in_final_task12",
+            "content_hash": "sha256:9054ad9c14ed3a5599fbcb55d554beda2d99ab46905b6dcfb9fcd9c5220188cc",
+            "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_metric_governance_audit_surface.json"
+          },
+          {
+            "change": "added_in_final_task12",
+            "content_hash": "sha256:cbecb5dc97fd1cc33597eda3f3fd0420049527074108bc7bbe971bad5aa66dd8",
+            "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_closeout_signal_consumer_gate.json"
+          }
+        ],
+        "replay_kind": "rewalkable_audit_trail",
+        "status": "verified"
+      }
+    ],
+    "output_hash": "sha256:c3e24528393c56f94730ce69c398d6942c1c8f67b5798f539fc5a4b3fd6a40f8",
+    "producer_roots": [
+      {
+        "artifact_id": "base-ua-msme-credit-worldbank-measurement",
+        "artifact_type": "BaseDataset",
+        "content_hash": "sha256:5e0d8e38760a56e6187ec74df75138b685df1b748b19e75ae5fbe139e168f0d6",
+        "schema_ref": "policyos.policy_design_case.layer3_gy_loop.v1",
+        "uri": "gy://slice0/ua_msme_credit_worldbank_measurement/base-dataset",
+        "version": "v1"
+      },
+      {
+        "change": "added_in_final_task12",
+        "content_hash": "sha256:9004adafc5379a0508a5f10463073fbe5c5251bc790270141c3ce4a152782d89",
+        "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_readiness_manifest.json"
+      },
+      {
+        "change": "added_in_final_task12",
+        "content_hash": "sha256:a9a8b92d88cb960d0cd20204c7b1167a69a5f56913c2a9373b3e92c2cf998033",
+        "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_cross_metric_diagnosis.json"
+      },
+      {
+        "change": "added_in_final_task12",
+        "content_hash": "sha256:c84144d37fd8fb73b76d815dbf7540a6186e191e523b85b0d84f79aeab48548f",
+        "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_domain_vs_search_ceiling_gate.json"
+      },
+      {
+        "change": "added_in_final_task12",
+        "content_hash": "sha256:e824fb88240256fe52b2f0c5de98e8be2342fdcd0d3d1af78f0cc30ab9ce32a8",
+        "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_open_question_answer_ledger.json"
+      },
+      {
+        "change": "added_in_final_task12",
+        "content_hash": "sha256:9054ad9c14ed3a5599fbcb55d554beda2d99ab46905b6dcfb9fcd9c5220188cc",
+        "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_metric_governance_audit_surface.json"
+      },
+      {
+        "change": "added_in_final_task12",
+        "content_hash": "sha256:cbecb5dc97fd1cc33597eda3f3fd0420049527074108bc7bbe971bad5aa66dd8",
+        "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_closeout_signal_consumer_gate.json"
+      }
+    ],
+    "replay_levels": [
+      "A",
+      "B",
+      "C"
+    ],
+    "schema_version": "policyos.runtime.outcome_replay_proof.v1"
+  },
+  "schema_version": "policyos.policy_design_case.layer3_gy.outcome_replay_artifact.v1"
+}

@@ -40,7 +40,7 @@ required_fields = [
 [[field_families]]
 id = "runtime_refs"
 description = "G3 runtime artifact refs crossing search, proof, S11, bridge, and W12D consumers."
-authoritative_producer = "polisyos.runtime.quality.layer3_analytics_search"
+authoritative_producer = "polisyos.runtime.quality.proving_ground.proof_carrying_analytics_search"
 owner = "team-runtime-quality"
 allowed_projection_surfaces = [
   "layer3.g3.l2_skg",
@@ -106,7 +106,7 @@ adapter_semantic_preservation_requirements = [
 [[field_families]]
 id = "legal_context"
 description = "Jurisdiction and rights context attached to G3 audit refs."
-authoritative_producer = "polisyos.runtime.quality.layer3_analytics_search"
+authoritative_producer = "polisyos.runtime.quality.proving_ground.proof_carrying_analytics_search"
 owner = "team-policy-semantics"
 allowed_projection_surfaces = [
   "layer3.g3.l2_skg",
@@ -147,7 +147,7 @@ adapter_semantic_preservation_requirements = [
 [[field_families]]
 id = "scorecard_identity_and_gates"
 description = "G3 gate status and blocker semantics for readiness and W12D surfaces."
-authoritative_producer = "polisyos.runtime.quality.layer3_analytics_search"
+authoritative_producer = "polisyos.runtime.quality.proving_ground.proof_carrying_analytics_search"
 owner = "team-quality-closeout"
 allowed_projection_surfaces = [
   "layer3.g3.certificate_resolution",
@@ -186,7 +186,7 @@ adapter_semantic_preservation_requirements = [
 [[field_families]]
 id = "mode_and_fallback_records"
 description = "Search frontier, no-hit, fixture, and fail-closed gap routing records."
-authoritative_producer = "polisyos.runtime.quality.layer3_analytics_search"
+authoritative_producer = "polisyos.runtime.quality.proving_ground.proof_carrying_analytics_search"
 owner = "team-runtime-quality"
 allowed_projection_surfaces = [
   "layer3.g3.l2_skg",

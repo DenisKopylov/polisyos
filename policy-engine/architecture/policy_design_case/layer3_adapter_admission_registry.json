@@ -41,7 +41,7 @@
       },
       {
         "adapter_contract_path_refs": [],
-        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-data-forge-binding-py-10-data-forge",
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-data-forge-binding-py-13-data-forge",
         "admission_state": "candidate_shadow_only",
         "admitted": false,
         "conformance_status": "not_run_pre_adapter",
@@ -52,15 +52,15 @@
         "promotion_state": "shadow",
         "quarantine_check": "not_blocked",
         "source_ids": [
-          "src/polisyos/runtime/quality/data_forge_binding.py:10:data_forge"
+          "src/polisyos/runtime/quality/data_forge_binding.py:13:data_forge"
         ],
         "source_touchpoint_refs": [
-          "src/polisyos/runtime/quality/data_forge_binding.py:10:data_forge"
+          "src/polisyos/runtime/quality/data_forge_binding.py:13:data_forge"
         ]
       },
       {
         "adapter_contract_path_refs": [],
-        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-data-forge-binding-py-11-data-forge",
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-data-forge-binding-py-14-data-forge",
         "admission_state": "candidate_shadow_only",
         "admitted": false,
         "conformance_status": "not_run_pre_adapter",
@@ -71,10 +71,48 @@
         "promotion_state": "shadow",
         "quarantine_check": "not_blocked",
         "source_ids": [
-          "src/polisyos/runtime/quality/data_forge_binding.py:11:data_forge"
+          "src/polisyos/runtime/quality/data_forge_binding.py:14:data_forge"
         ],
         "source_touchpoint_refs": [
-          "src/polisyos/runtime/quality/data_forge_binding.py:11:data_forge"
+          "src/polisyos/runtime/quality/data_forge_binding.py:14:data_forge"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-data-forge-binding-py-15-data-forge",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/data_forge_binding.py:15:data_forge"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/data_forge_binding.py:15:data_forge"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-data-forge-binding-py-16-data-requirement",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/data_forge_binding.py:16:data_requirement"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/data_forge_binding.py:16:data_requirement"
         ]
       },
       {
@@ -94,291 +132,6 @@
         ],
         "source_touchpoint_refs": [
           "src/polisyos/runtime/quality/ir_analytics_bridge.py:12:method_requirement"
-        ]
-      },
-      {
-        "adapter_contract_path_refs": [],
-        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-analytics-search-py-4212-method-requirement",
-        "admission_state": "candidate_shadow_only",
-        "admitted": false,
-        "conformance_status": "not_run_pre_adapter",
-        "maturity": "fail_closed",
-        "port_ids": [
-          "DESIGNER_ITSELF.cluster_evidence"
-        ],
-        "promotion_state": "shadow",
-        "quarantine_check": "not_blocked",
-        "source_ids": [
-          "src/polisyos/runtime/quality/layer3_analytics_search.py:4212:method_requirement"
-        ],
-        "source_touchpoint_refs": [
-          "src/polisyos/runtime/quality/layer3_analytics_search.py:4212:method_requirement"
-        ]
-      },
-      {
-        "adapter_contract_path_refs": [],
-        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-analytics-search-py-4262-method-requirement",
-        "admission_state": "candidate_shadow_only",
-        "admitted": false,
-        "conformance_status": "not_run_pre_adapter",
-        "maturity": "fail_closed",
-        "port_ids": [
-          "DESIGNER_ITSELF.cluster_evidence"
-        ],
-        "promotion_state": "shadow",
-        "quarantine_check": "not_blocked",
-        "source_ids": [
-          "src/polisyos/runtime/quality/layer3_analytics_search.py:4262:method_requirement"
-        ],
-        "source_touchpoint_refs": [
-          "src/polisyos/runtime/quality/layer3_analytics_search.py:4262:method_requirement"
-        ]
-      },
-      {
-        "adapter_contract_path_refs": [],
-        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-bounded-agent-py-41-scientist",
-        "admission_state": "candidate_shadow_only",
-        "admitted": false,
-        "conformance_status": "not_run_pre_adapter",
-        "maturity": "fail_closed",
-        "port_ids": [
-          "DESIGNER_ITSELF.cluster_evidence"
-        ],
-        "promotion_state": "shadow",
-        "quarantine_check": "not_blocked",
-        "source_ids": [
-          "src/polisyos/runtime/quality/layer3_bounded_agent.py:41:scientist"
-        ],
-        "source_touchpoint_refs": [
-          "src/polisyos/runtime/quality/layer3_bounded_agent.py:41:scientist"
-        ]
-      },
-      {
-        "adapter_contract_path_refs": [],
-        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-causal-forecast-py-21-method-requirement",
-        "admission_state": "candidate_shadow_only",
-        "admitted": false,
-        "conformance_status": "not_run_pre_adapter",
-        "maturity": "fail_closed",
-        "port_ids": [
-          "DESIGNER_ITSELF.cluster_evidence"
-        ],
-        "promotion_state": "shadow",
-        "quarantine_check": "not_blocked",
-        "source_ids": [
-          "src/polisyos/runtime/quality/layer3_causal_forecast.py:21:method_requirement"
-        ],
-        "source_touchpoint_refs": [
-          "src/polisyos/runtime/quality/layer3_causal_forecast.py:21:method_requirement"
-        ]
-      },
-      {
-        "adapter_contract_path_refs": [],
-        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-causal-forecast-py-1065-data-forge",
-        "admission_state": "candidate_shadow_only",
-        "admitted": false,
-        "conformance_status": "not_run_pre_adapter",
-        "maturity": "fail_closed",
-        "port_ids": [
-          "DESIGNER_ITSELF.cluster_evidence"
-        ],
-        "promotion_state": "shadow",
-        "quarantine_check": "not_blocked",
-        "source_ids": [
-          "src/polisyos/runtime/quality/layer3_causal_forecast.py:1065:data_forge"
-        ],
-        "source_touchpoint_refs": [
-          "src/polisyos/runtime/quality/layer3_causal_forecast.py:1065:data_forge"
-        ]
-      },
-      {
-        "adapter_contract_path_refs": [],
-        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-causal-forecast-py-1126-data-forge",
-        "admission_state": "candidate_shadow_only",
-        "admitted": false,
-        "conformance_status": "not_run_pre_adapter",
-        "maturity": "fail_closed",
-        "port_ids": [
-          "DESIGNER_ITSELF.cluster_evidence"
-        ],
-        "promotion_state": "shadow",
-        "quarantine_check": "not_blocked",
-        "source_ids": [
-          "src/polisyos/runtime/quality/layer3_causal_forecast.py:1126:data_forge"
-        ],
-        "source_touchpoint_refs": [
-          "src/polisyos/runtime/quality/layer3_causal_forecast.py:1126:data_forge"
-        ]
-      },
-      {
-        "adapter_contract_path_refs": [],
-        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-causal-forecast-py-2751-foundry",
-        "admission_state": "candidate_shadow_only",
-        "admitted": false,
-        "conformance_status": "not_run_pre_adapter",
-        "maturity": "fail_closed",
-        "port_ids": [
-          "DESIGNER_ITSELF.cluster_evidence"
-        ],
-        "promotion_state": "shadow",
-        "quarantine_check": "not_blocked",
-        "source_ids": [
-          "src/polisyos/runtime/quality/layer3_causal_forecast.py:2751:foundry"
-        ],
-        "source_touchpoint_refs": [
-          "src/polisyos/runtime/quality/layer3_causal_forecast.py:2751:foundry"
-        ]
-      },
-      {
-        "adapter_contract_path_refs": [],
-        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-causal-forecast-py-2824-foundry",
-        "admission_state": "candidate_shadow_only",
-        "admitted": false,
-        "conformance_status": "not_run_pre_adapter",
-        "maturity": "fail_closed",
-        "port_ids": [
-          "DESIGNER_ITSELF.cluster_evidence"
-        ],
-        "promotion_state": "shadow",
-        "quarantine_check": "not_blocked",
-        "source_ids": [
-          "src/polisyos/runtime/quality/layer3_causal_forecast.py:2824:foundry"
-        ],
-        "source_touchpoint_refs": [
-          "src/polisyos/runtime/quality/layer3_causal_forecast.py:2824:foundry"
-        ]
-      },
-      {
-        "adapter_contract_path_refs": [],
-        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-causal-forecast-py-4853-foundry",
-        "admission_state": "candidate_shadow_only",
-        "admitted": false,
-        "conformance_status": "not_run_pre_adapter",
-        "maturity": "fail_closed",
-        "port_ids": [
-          "DESIGNER_ITSELF.cluster_evidence"
-        ],
-        "promotion_state": "shadow",
-        "quarantine_check": "not_blocked",
-        "source_ids": [
-          "src/polisyos/runtime/quality/layer3_causal_forecast.py:4853:foundry"
-        ],
-        "source_touchpoint_refs": [
-          "src/polisyos/runtime/quality/layer3_causal_forecast.py:4853:foundry"
-        ]
-      },
-      {
-        "adapter_contract_path_refs": [],
-        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-causal-forecast-py-4854-foundry",
-        "admission_state": "candidate_shadow_only",
-        "admitted": false,
-        "conformance_status": "not_run_pre_adapter",
-        "maturity": "fail_closed",
-        "port_ids": [
-          "DESIGNER_ITSELF.cluster_evidence"
-        ],
-        "promotion_state": "shadow",
-        "quarantine_check": "not_blocked",
-        "source_ids": [
-          "src/polisyos/runtime/quality/layer3_causal_forecast.py:4854:foundry"
-        ],
-        "source_touchpoint_refs": [
-          "src/polisyos/runtime/quality/layer3_causal_forecast.py:4854:foundry"
-        ]
-      },
-      {
-        "adapter_contract_path_refs": [],
-        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-legal-mandate-search-py-1612-lex",
-        "admission_state": "candidate_shadow_only",
-        "admitted": false,
-        "conformance_status": "not_run_pre_adapter",
-        "maturity": "fail_closed",
-        "port_ids": [
-          "DESIGNER_ITSELF.cluster_evidence"
-        ],
-        "promotion_state": "shadow",
-        "quarantine_check": "not_blocked",
-        "source_ids": [
-          "src/polisyos/runtime/quality/layer3_legal_mandate_search.py:1612:lex"
-        ],
-        "source_touchpoint_refs": [
-          "src/polisyos/runtime/quality/layer3_legal_mandate_search.py:1612:lex"
-        ]
-      },
-      {
-        "adapter_contract_path_refs": [],
-        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-legal-mandate-search-py-1927-lex",
-        "admission_state": "candidate_shadow_only",
-        "admitted": false,
-        "conformance_status": "not_run_pre_adapter",
-        "maturity": "fail_closed",
-        "port_ids": [
-          "DESIGNER_ITSELF.cluster_evidence"
-        ],
-        "promotion_state": "shadow",
-        "quarantine_check": "not_blocked",
-        "source_ids": [
-          "src/polisyos/runtime/quality/layer3_legal_mandate_search.py:1927:lex"
-        ],
-        "source_touchpoint_refs": [
-          "src/polisyos/runtime/quality/layer3_legal_mandate_search.py:1927:lex"
-        ]
-      },
-      {
-        "adapter_contract_path_refs": [],
-        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-legal-mandate-search-py-3034-lex",
-        "admission_state": "candidate_shadow_only",
-        "admitted": false,
-        "conformance_status": "not_run_pre_adapter",
-        "maturity": "fail_closed",
-        "port_ids": [
-          "DESIGNER_ITSELF.cluster_evidence"
-        ],
-        "promotion_state": "shadow",
-        "quarantine_check": "not_blocked",
-        "source_ids": [
-          "src/polisyos/runtime/quality/layer3_legal_mandate_search.py:3034:lex"
-        ],
-        "source_touchpoint_refs": [
-          "src/polisyos/runtime/quality/layer3_legal_mandate_search.py:3034:lex"
-        ]
-      },
-      {
-        "adapter_contract_path_refs": [],
-        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-substrate-grounding-py-24-data-forge",
-        "admission_state": "candidate_shadow_only",
-        "admitted": false,
-        "conformance_status": "not_run_pre_adapter",
-        "maturity": "fail_closed",
-        "port_ids": [
-          "DESIGNER_ITSELF.cluster_evidence"
-        ],
-        "promotion_state": "shadow",
-        "quarantine_check": "not_blocked",
-        "source_ids": [
-          "src/polisyos/runtime/quality/layer3_substrate_grounding.py:24:data_forge"
-        ],
-        "source_touchpoint_refs": [
-          "src/polisyos/runtime/quality/layer3_substrate_grounding.py:24:data_forge"
-        ]
-      },
-      {
-        "adapter_contract_path_refs": [],
-        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-layer3-substrate-grounding-py-25-fabric",
-        "admission_state": "candidate_shadow_only",
-        "admitted": false,
-        "conformance_status": "not_run_pre_adapter",
-        "maturity": "fail_closed",
-        "port_ids": [
-          "DESIGNER_ITSELF.cluster_evidence"
-        ],
-        "promotion_state": "shadow",
-        "quarantine_check": "not_blocked",
-        "source_ids": [
-          "src/polisyos/runtime/quality/layer3_substrate_grounding.py:25:fabric"
-        ],
-        "source_touchpoint_refs": [
-          "src/polisyos/runtime/quality/layer3_substrate_grounding.py:25:fabric"
         ]
       },
       {
@@ -554,6 +307,291 @@
       },
       {
         "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-proving-ground-bounded-request-agent-py-48-scientist",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py:48:scientist"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py:48:scientist"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-proving-ground-causal-forecast-search-py-21-method-requirement",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py:21:method_requirement"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py:21:method_requirement"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-proving-ground-causal-forecast-search-py-1065-data-forge",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py:1065:data_forge"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py:1065:data_forge"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-proving-ground-causal-forecast-search-py-1126-data-forge",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py:1126:data_forge"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py:1126:data_forge"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-proving-ground-causal-forecast-search-py-2751-foundry",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py:2751:foundry"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py:2751:foundry"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-proving-ground-causal-forecast-search-py-2824-foundry",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py:2824:foundry"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py:2824:foundry"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-proving-ground-causal-forecast-search-py-4853-foundry",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py:4853:foundry"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py:4853:foundry"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-proving-ground-causal-forecast-search-py-4854-foundry",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py:4854:foundry"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py:4854:foundry"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-proving-ground-legal-mandate-search-py-1612-lex",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py:1612:lex"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py:1612:lex"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-proving-ground-legal-mandate-search-py-1927-lex",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py:1927:lex"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py:1927:lex"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-proving-ground-legal-mandate-search-py-3034-lex",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py:3034:lex"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py:3034:lex"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-proving-ground-proof-carrying-analytics-search-py-4212-method-requirement",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py:4212:method_requirement"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py:4212:method_requirement"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-proving-ground-proof-carrying-analytics-search-py-4262-method-requirement",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py:4262:method_requirement"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py:4262:method_requirement"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-proving-ground-substrate-grounding-search-py-24-data-forge",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py:24:data_forge"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py:24:data_forge"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-proving-ground-substrate-grounding-search-py-25-fabric",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py:25:fabric"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py:25:fabric"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
         "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-rule-replay-engine-py-792-scientist",
         "admission_state": "candidate_shadow_only",
         "admitted": false,
@@ -702,6 +740,234 @@
         ],
         "source_touchpoint_refs": [
           "src/polisyos/runtime/quality/scorecard.py:232:scientist"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-workspace-loop-py-28-data-forge",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/workspace/loop.py:28:data_forge"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/workspace/loop.py:28:data_forge"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-workspace-loop-py-105-scientist",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/workspace/loop.py:105:scientist"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/workspace/loop.py:105:scientist"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-workspace-loop-py-106-scientist",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/workspace/loop.py:106:scientist"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/workspace/loop.py:106:scientist"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-workspace-loop-py-107-scientist",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/workspace/loop.py:107:scientist"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/workspace/loop.py:107:scientist"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-workspace-loop-py-650-foundry",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/workspace/loop.py:650:foundry"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/workspace/loop.py:650:foundry"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-workspace-loop-py-651-foundry",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/workspace/loop.py:651:foundry"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/workspace/loop.py:651:foundry"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-workspace-spine-repair-gates-py-44-scientist",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/workspace/spine_repair_gates.py:44:scientist"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/workspace/spine_repair_gates.py:44:scientist"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-workspace-spine-repair-gates-py-134-scientist",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/workspace/spine_repair_gates.py:134:scientist"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/workspace/spine_repair_gates.py:134:scientist"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-workspace-workflow-playbook-projection-py-201-scientist",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/workspace/workflow_playbook_projection.py:201:scientist"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/workspace/workflow_playbook_projection.py:201:scientist"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-workspace-workflow-playbook-projection-py-204-scientist",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/workspace/workflow_playbook_projection.py:204:scientist"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/workspace/workflow_playbook_projection.py:204:scientist"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-workspace-workflow-playbook-projection-py-207-scientist",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/workspace/workflow_playbook_projection.py:207:scientist"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/workspace/workflow_playbook_projection.py:207:scientist"
+        ]
+      },
+      {
+        "adapter_contract_path_refs": [],
+        "adapter_id": "layer3-g0-shadow-src-polisyos-runtime-quality-workspace-workflow-playbook-projection-py-219-scientist",
+        "admission_state": "candidate_shadow_only",
+        "admitted": false,
+        "conformance_status": "not_run_pre_adapter",
+        "maturity": "fail_closed",
+        "port_ids": [
+          "DESIGNER_ITSELF.cluster_evidence"
+        ],
+        "promotion_state": "shadow",
+        "quarantine_check": "not_blocked",
+        "source_ids": [
+          "src/polisyos/runtime/quality/workspace/workflow_playbook_projection.py:219:scientist"
+        ],
+        "source_touchpoint_refs": [
+          "src/polisyos/runtime/quality/workspace/workflow_playbook_projection.py:219:scientist"
         ]
       },
       {

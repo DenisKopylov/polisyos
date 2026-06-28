@@ -127,8 +127,12 @@ from .calibration_ledger import (
     persist_calibration_ledger,
 )
 from .candidate_firewall import (
+    AUTHORITY_CANDIDATE_FIREWALL_NAME,
+    AuthorityCandidateInventoryRow,
     CandidateFirewallError,
+    assert_candidate_positive_firewall_boundary,
     assert_no_candidate_authority_laundering,
+    build_authority_candidate_inventory_rows,
     candidate_firewall_issues_for_payload,
     candidate_refs_from_payload,
 )
@@ -366,6 +370,22 @@ from .degradation import (
     evaluate_degradation_policy,
     serialize_degradation_record,
 )
+from .design_problem import (
+    DESIGN_PROBLEM_SCHEMA_VERSION,
+    AuthorityProfile,
+    CandidateLever,
+    CandidateLeverSpace,
+    DesignConstraint,
+    DesignObjective,
+    DesignProblem,
+    DesignProblemAuthorityError,
+    DesignStakeholder,
+    EvidenceAcquisitionNeeds,
+    EvidenceNeed,
+    JurisdictionTimeSemantics,
+    NLProvenance,
+    OutcomeOfInterest,
+)
 from .diagnostic_slos import (
     build_diagnostic_slo_report,
     build_diagnostic_slo_report_from_quality_context,
@@ -464,7 +484,7 @@ from .ir_analytics_bridge import (
     merge_ir_analytics_binding_into_registry_entry,
     normalize_ir_analytics_claim_bridge,
 )
-from .layer2_blind_spot_firewalls import (
+from .design_axes.blind_spot_firewalls import (
     LAYER2_S6_BLIND_SPOT_FIREWALLS_SCHEMA_VERSION,
     AggregationClaimLevel,
     AggregationScopeRow,
@@ -517,7 +537,7 @@ from .layer2_blind_spot_firewalls import (
     s6_firewall_report_to_c3_dimension_records,
     s6_firewall_report_to_constraint_store_updates,
 )
-from .layer2_coupling_composition import (
+from .design_axes.coupling_composition import (
     LAYER2_S5_COUPLING_COMPOSITION_SCHEMA_VERSION,
     BoundaryCouplingClassification,
     CompositionAuthorityMode,
@@ -559,7 +579,7 @@ from .layer2_coupling_composition import (
     derive_recursive_design_graph,
     discover_design_modules,
 )
-from .layer2_delegation import (
+from .design_axes.mandate_bounded_delegation import (
     LAYER2_S7_DELEGATION_SCHEMA_VERSION,
     DecisionAction,
     DecisionNeedReason,
@@ -588,7 +608,7 @@ from .layer2_delegation import (
     record_human_decision,
     s7_delegation_integrity,
 )
-from .layer2_epistemic_regime import (
+from .design_axes.epistemic_regime import (
     LAYER2_S4_EPISTEMIC_REGIME_SCHEMA_VERSION,
     DesignStrategy,
     EpistemicRegimeClaim,
@@ -600,7 +620,7 @@ from .layer2_epistemic_regime import (
     regime_claim_to_axis_position,
     regime_design_strategy,
 )
-from .layer2_outcome_prediction import (
+from .design_axes.outcome_prediction import (
     LAYER2_S10_OUTCOME_PREDICTION_RULE_VERSION,
     LAYER2_S10_OUTCOME_PREDICTION_SCHEMA_VERSION,
     S10_CALIBRATION_FLOOR_ID,
@@ -622,7 +642,7 @@ from .layer2_outcome_prediction import (
     summarize_forecast_support_integrity,
     verify_prediction_authority_envelope,
 )
-from .layer2_post_deploy_accountability import (
+from .design_axes.post_deploy_accountability import (
     LAYER2_S13_POST_DEPLOY_ACCOUNTABILITY_RULE_VERSION,
     LAYER2_S13_POST_DEPLOY_ACCOUNTABILITY_SCHEMA_VERSION,
     S13_ACCOUNTABILITY_FLOOR_ID,
@@ -658,7 +678,7 @@ from .layer2_post_deploy_accountability import (
     summarize_post_deploy_accountability,
     verify_post_deploy_learning_authority,
 )
-from .layer2_predictive_knowledge import (
+from .design_axes.predictive_knowledge import (
     LAYER2_S11_PREDICTIVE_KNOWLEDGE_RULE_VERSION,
     LAYER2_S11_PREDICTIVE_KNOWLEDGE_SCHEMA_VERSION,
     S11_AXIS_CALIBRATION_FLOOR_ID,
@@ -684,7 +704,7 @@ from .layer2_predictive_knowledge import (
     summarize_s11_predictive_knowledge_integrity,
     verify_s11_predictive_knowledge_authority_envelope,
 )
-from .layer2_projection_lowering import (
+from .design_axes.projection_lowering import (
     LAYER2_S9_PROJECTION_LOWERING_RULE_VERSION,
     LAYER2_S9_PROJECTION_LOWERING_SCHEMA_VERSION,
     S9_PROJECTION_FLOOR_ID,
@@ -708,7 +728,7 @@ from .layer2_projection_lowering import (
     s9_projection_lowering_integrity,
     verify_projection_faithfulness,
 )
-from .layer2_resource_economics import (
+from .design_axes.resource_economics import (
     LAYER2_S12_RESOURCE_ECONOMICS_RULE_VERSION,
     LAYER2_S12_RESOURCE_ECONOMICS_SCHEMA_VERSION,
     S12_FALSE_CLEAR_FIELDS,
@@ -728,6 +748,7 @@ from .layer2_resource_economics import (
     ResourceAuthorityDisposition,
     ResourceEconomicsAuthorityEnvelope,
     ResourceEconomicsIntegrityReport,
+    S12ResourceReferenceResolution,
     ThermometerTrend,
     ThroughputRow,
     TypedBudgetRow,
@@ -741,10 +762,11 @@ from .layer2_resource_economics import (
     build_resource_allocation_policy,
     build_s12_resource_authority_boundary,
     build_s12_resource_economics_posture,
+    resolve_s12_resource_refs,
     summarize_resource_economics_integrity,
     verify_resource_authority_envelope,
 )
-from .layer2_substrate_acquisition import (
+from .design_axes.substrate_acquisition import (
     LAYER2_S3_SUBSTRATE_ACQUISITION_SCHEMA_VERSION,
     AcquisitionState,
     AcquisitionTaskRecord,
@@ -760,7 +782,7 @@ from .layer2_substrate_acquisition import (
     max_admissible_posture,
     resolve_expression,
 )
-from .layer2_universality_assurance import (
+from .design_axes.universality_assurance import (
     LAYER2_S14_UNIVERSALITY_ASSURANCE_RULE_VERSION,
     LAYER2_S14_UNIVERSALITY_ASSURANCE_SCHEMA_VERSION,
     S14_FALSE_CLEAR_FIELDS,
@@ -808,7 +830,7 @@ from .layer2_universality_assurance import (
     verify_sealed_battery_integrity,
     verify_universality_claim_authority,
 )
-from .layer2_value_choice import (
+from .design_axes.value_choice_provenance import (
     LAYER2_S8_VALUE_CHOICE_RULE_VERSION,
     LAYER2_S8_VALUE_CHOICE_SCHEMA_VERSION,
     S8_VALUE_CHOICE_CELL_REF,
@@ -836,7 +858,7 @@ from .layer2_value_choice import (
     project_value_tradeoff_disclosure,
     s8_value_provenance_integrity,
 )
-from .legacy_migration_sandbox import (
+from .legacy_payload_migration_audit import (
     LEGACY_MIGRATION_SEMANTIC_LOSS,
     build_legacy_migration_sandbox,
     comparison_failure_codes,
@@ -877,7 +899,7 @@ from .observability_static_audit import (
     build_skip_causality_ledger_record,
     validate_observability_orchestration_static_audit_records,
 )
-from .pass1b_hardening import (
+from .tenant_cas_approval_governance import (
     PASS1B_HARDENING_READINESS_CHECK,
     PASS1B_HARDENING_SCORECARD_GATE,
     PASS1B_PDD_REQUIRED_SURFACES,
@@ -1067,7 +1089,7 @@ from .soft_gate_telemetry import (
     build_soft_gate_telemetry_report,
     warning_lifecycle_summaries,
 )
-from .wave2_walking_skeleton import (
+from .policy_design_case_integration_skeleton import (
     WAVE2_I2_MANIFEST_SCHEMA_VERSION,
     WAVE2_I2_SCHEMA_VERSION,
     build_wave2_policy_design_case_walking_skeleton,
@@ -1087,6 +1109,7 @@ __all__ = [
     "ARGUMENT_GRAPH_INSPECTION_SCHEMA_VERSION",
     "ARGUMENT_GRAPH_KIND",
     "ARGUMENT_GRAPH_SCHEMA_VERSION",
+    "AUTHORITY_CANDIDATE_FIREWALL_NAME",
     "AUTHORITY_FACTOR_NAMES",
     "C33_RULE_CHANGE_CLASS_TABLE",
     "CALIBRATION_LEDGER_CONTRACT_ID",
@@ -1144,6 +1167,7 @@ __all__ = [
     "DEFAULT_CLOSEOUT_MODULE_READERS",
     "DEFAULT_SOFT_GATE_ESCALATION_SECONDS",
     "DEFAULT_SOFT_GATE_TTL_SECONDS",
+    "DESIGN_PROBLEM_SCHEMA_VERSION",
     "DISCONFIRMING_EVIDENCE_LEDGER_CONTRACT_ID",
     "DISCONFIRMING_EVIDENCE_LEDGER_SCHEMA_VERSION",
     "DORMANT_CAPABILITY_INVENTORY_RECORD_KEY",
@@ -1325,12 +1349,14 @@ __all__ = [
     "AssuranceCaseChange",
     "AssuranceCaseDelta",
     "AttributionStatus",
+    "AuthorityCandidateInventoryRow",
     "AuthorityEnvelope",
     "AuthorityEnvelopeError",
     "AuthorityEnvelopeViolation",
     "AuthorityLevel",
     "AuthorityReconciliationError",
     "AuthorityReconciliationReport",
+    "AuthorityProfile",
     "AuthorizedValueSchedule",
     "AxisFailClosedDisposition",
     "BlindSpotAxis",
@@ -1346,6 +1372,8 @@ __all__ = [
     "CalibrationLedgerEntry",
     "CandidateAuthorityEnvelope",
     "CandidateFirewallError",
+    "CandidateLever",
+    "CandidateLeverSpace",
     "CanonicalDesignRecord",
     "CapabilityAuthorityError",
     "CapabilityAuthorityFactor",
@@ -1426,8 +1454,13 @@ __all__ = [
     "DeploymentDossier",
     "DeploymentReadinessDisposition",
     "DerivedFeatureBinding",
+    "DesignConstraint",
     "DesignInterfaceContract",
+    "DesignObjective",
+    "DesignProblem",
+    "DesignProblemAuthorityError",
     "DesignRecordMaturityReport",
+    "DesignStakeholder",
     "DesignStrategy",
     "DiagnosticEventPayloadPolicy",
     "DisconfirmingEvidenceLedgerError",
@@ -1443,8 +1476,10 @@ __all__ = [
     "EpistemicRegimeClaim",
     "EvaluationStatusCompositionRecord",
     "EvaluationStatusCompositionRow",
+    "EvidenceAcquisitionNeeds",
     "EvidenceAuthorityEnvelope",
     "EvidenceCapability",
+    "EvidenceNeed",
     "EvidenceIndependenceError",
     "EvidenceLineError",
     "EvidenceSynthesisReportError",
@@ -1487,6 +1522,7 @@ __all__ = [
     "ImplementationMonitoringEvaluationError",
     "IntentBindingRecord",
     "InteractionStrength",
+    "JurisdictionTimeSemantics",
     "KnowledgeGovernanceMode",
     "KnowledgeGovernanceThroughputLedger",
     "LearningChangeControlClass",
@@ -1512,9 +1548,11 @@ __all__ = [
     "ModePolicyViolation",
     "ModuleDiscoveryResult",
     "MultiverseSpecificationCurveError",
+    "NLProvenance",
     "ObjectiveFunctionProvenanceRecord",
     "ObservableSubsetCalibrationStatus",
     "OutcomeDistributionRecord",
+    "OutcomeOfInterest",
     "OversightLinkedAccountabilityState",
     "P16OverconfidenceError",
     "P16PrecautionLaunderingError",
@@ -1614,6 +1652,7 @@ __all__ = [
     "S11CalibrationStatus",
     "S11PredictiveKnowledgeAuthorityEnvelope",
     "S11PredictiveKnowledgeIntegrityReport",
+    "S12ResourceReferenceResolution",
     "SameInputClosure",
     "ScholarBindingRecord",
     "SealedUniversalityBatteryRun",
@@ -1669,6 +1708,7 @@ __all__ = [
     "assert_barrier_closed",
     "assert_barrier_passed",
     "assert_canary_bundle_closeout_allowed",
+    "assert_candidate_positive_firewall_boundary",
     "assert_capability_binding_purpose_allowed",
     "assert_composition_laws_hold",
     "assert_final_decision_artifact_allowed",
@@ -1690,6 +1730,7 @@ __all__ = [
     "build_argument_graph_quality_evidence_surfaces",
     "build_assurance_case_delta",
     "build_assurance_case_for_scorecard",
+    "build_authority_candidate_inventory_rows",
     "build_authorized_value_schedule",
     "build_berl_warrant_reliability_record",
     "build_calibration_ledger",
@@ -1934,6 +1975,7 @@ __all__ = [
     "replay_under_original_rules",
     "requirement_gaps_from_compiled_specs",
     "resolve_expression",
+    "resolve_s12_resource_refs",
     "review_controls_for_pruning",
     "run_cost_budget_policy_from_performance_budget",
     "run_cost_ledger_record_id",

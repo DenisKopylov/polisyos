@@ -1,0 +1,94 @@
+{
+  "gold_set_ref": "architecture/policy_design_case/layer3_gy_openalex_claim_span_gold.json",
+  "gy_lifecycle_marker": "policyos.policy_design_case.layer3_gy.openalex_skg_ingest_records.v1",
+  "ingest": {
+    "no_hit_frontier": {
+      "frontier_reason": "provider_returned_no_hits",
+      "hit_count": 0,
+      "provider": "openalex",
+      "query": "zzzxxy policyos nonexistent phrase qwertyuiopasdfgh 123456789",
+      "query_trace_id": "openalex-trace.0959061211b85a5441626aa1"
+    },
+    "skg_counts": {
+      "edge_evidence": 9,
+      "no_hit_frontier": 1,
+      "query_traces": 4,
+      "span_grounded_claims": 9
+    },
+    "span_validation_probe": {
+      "non_resolving_span_status": "rejected_unresolved_span",
+      "non_supporting_span_status": "rejected_non_supporting",
+      "valid_span_status": "validated_supporting"
+    },
+    "universality": {
+      "different_real_result_sets": true,
+      "queries": [
+        "loan guarantees SMEs firm survival impact evaluation",
+        "minimum wage employment effect"
+      ]
+    },
+    "web_firewall_probe": {
+      "non_web_no_grounding": "blocked",
+      "non_web_self_attested": "blocked",
+      "unvalidated_web_bundle": "blocked",
+      "validated_span_grounded_claim": "allowed",
+      "web_self_attested": "blocked"
+    },
+    "witness_records": [
+      {
+        "authority_tier": "design_tier_l2",
+        "first_title": "The Impact of Firm and Entrepreneurial Characteristics on Access to Debt Finance by SMEs in King Williams\u2019 Town, South Africa",
+        "fixture": "tests/fixtures/scholar/openalex/credit_guarantee_firm_survival.json",
+        "hit_ids": [
+          "https://openalex.org/W2169693233",
+          "https://openalex.org/W4206444459",
+          "https://openalex.org/W3123109680",
+          "https://openalex.org/W3126113144",
+          "https://openalex.org/W4210299055"
+        ],
+        "ingested_claim_count": 3,
+        "label_id": "openalex-gold-credit-sme-survival-001",
+        "query": "loan guarantees SMEs firm survival impact evaluation",
+        "query_trace_id": "openalex-trace.9982c5781bd522633086ed0c",
+        "rejected_claim_count": 0
+      },
+      {
+        "authority_tier": "design_tier_l2",
+        "first_title": "The Effect of the Minimum Wage on Employment and Unemployment",
+        "fixture": "tests/fixtures/scholar/openalex/minimum_wage_employment.json",
+        "hit_ids": [
+          "https://openalex.org/W1571659936",
+          "https://openalex.org/W2942870997",
+          "https://openalex.org/W118021563",
+          "https://openalex.org/W1981739276",
+          "https://openalex.org/W3023870743"
+        ],
+        "ingested_claim_count": 3,
+        "label_id": "openalex-gold-minwage-employment-001",
+        "query": "minimum wage employment effect",
+        "query_trace_id": "openalex-trace.97c998ed9c271dd3eecc2b0e",
+        "rejected_claim_count": 0
+      },
+      {
+        "authority_tier": "design_tier_l2",
+        "first_title": "The Impact of Firm and Entrepreneurial Characteristics on Access to Debt Finance by SMEs in King Williams\u2019 Town, South Africa",
+        "fixture": "tests/fixtures/scholar/openalex/credit_guarantee_firm_survival.json",
+        "hit_ids": [
+          "https://openalex.org/W2169693233",
+          "https://openalex.org/W4206444459",
+          "https://openalex.org/W3123109680",
+          "https://openalex.org/W3126113144",
+          "https://openalex.org/W4210299055"
+        ],
+        "ingested_claim_count": 3,
+        "label_id": "openalex-gold-covid-sme-failures-support-001",
+        "query": "loan guarantees SMEs firm survival impact evaluation",
+        "query_trace_id": "openalex-trace.86016089264366b02d24a48a",
+        "rejected_claim_count": 0
+      }
+    ]
+  },
+  "produced_by": "tools/quality/validation/check_layer3_gy_openalex_artifacts.py",
+  "provider_config_ref": "architecture/policy_design_case/layer3_gy_openalex_provider_config.json",
+  "schema_version": "policyos.policy_design_case.layer3_gy.openalex_skg_ingest_records.v1"
+}

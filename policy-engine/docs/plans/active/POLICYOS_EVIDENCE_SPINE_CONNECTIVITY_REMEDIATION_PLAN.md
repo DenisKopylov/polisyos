@@ -593,7 +593,7 @@ compilation.
 **Files:**
 
 - Modify: `src/polisyos/runtime/quality/policy_design_case.py`
-- Modify: `src/polisyos/runtime/quality/pass1b_hardening.py`
+- Modify: `src/polisyos/runtime/quality/tenant_cas_approval_governance.py`
 - Modify: `src/polisyos/runtime/quality/case_maturity.py`
 - Modify: `src/polisyos/runtime/http/services/control/nl_pipeline.py`
 - Test: `tests/unit/runtime/quality/test_policy_design_case_record_registry.py`

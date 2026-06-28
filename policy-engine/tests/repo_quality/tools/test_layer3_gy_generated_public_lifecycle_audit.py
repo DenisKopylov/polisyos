@@ -54,40 +54,35 @@ def test_gy_generated_public_lifecycle_validator_passes_current_artifact() -> No
     assert validator.validate(_load_audit()) == []
 
 
-def test_gy_generated_public_lifecycle_rejects_gy_family_greenwash() -> None:
+def test_gy_generated_public_lifecycle_rejects_missing_gy_family_registration() -> None:
     validator = _validator()
     audit = _load_audit()
     gy = _row(audit, "layer3_gy_task0_audit_artifacts")
-    gy["registered"] = True
-    gy["family_id"] = "policy-design-case-layer3-gy-task0-audit-artifacts"
-    gy["outputs_registered_count"] = 21
-    gy["stale_output_behavior"] = "fail"
-    audit["summary"]["gy_generated_family_registered"] = True
-    audit["summary"]["gy_artifact_files_registered_count"] = 21
+    gy["registered"] = False
+    gy["family_id"] = None
+    gy["outputs_registered_count"] = 0
+    gy["stale_output_behavior"] = "missing_registry"
+    audit["summary"]["gy_generated_family_registered"] = False
+    audit["summary"]["gy_artifact_files_registered_count"] = 0
 
     codes = _codes(validator.validate(audit))
     assert "summary_semantics_drift" in codes
-    assert "gy_family_registration_greenwash" in codes
-    assert "gy_family_id_greenwash" in codes
-    assert "gy_registered_output_greenwash" in codes
-    assert "gy_stale_policy_greenwash" in codes
+    assert "gy_family_registration_drift" in codes
+    assert "gy_family_id_drift" in codes
+    assert "gy_registered_output_count_drift" in codes
+    assert "gy_stale_policy_drift" in codes
 
 
-def test_gy_generated_public_lifecycle_rejects_public_surface_as_artifact_registry() -> None:
+def test_gy_generated_public_lifecycle_rejects_public_surface_family_drift() -> None:
     validator = _validator()
     audit = _load_audit()
-    public_surface = _row(audit, "public_surface_inventory")
-    public_surface["registers_json_artifact_families"] = True
-    audit["summary"]["public_surface_registers_python_packages_not_json_artifact_families"] = False
-    _negative(
-        audit,
-        "do_not_count_public_surface_contract_as_json_artifact_registry",
-    )["assertion_holds"] = False
+    surface = _surface(audit, "policy_design_case_generated_audit_surfaces_section")
+    surface["gy_surface_registered"] = False
+    audit["summary"]["gy_public_surface_family_registered"] = False
 
     codes = _codes(validator.validate(audit))
     assert "summary_semantics_drift" in codes
-    assert "public_surface_artifact_registry_laundering" in codes
-    assert "negative_assertion_not_enforced" in codes
+    assert "gy_public_surface_registration_drift" in codes
 
 
 def test_gy_generated_public_lifecycle_rejects_projection_refs_as_api_enforcement() -> None:
@@ -117,26 +112,23 @@ def test_gy_generated_public_lifecycle_rejects_missing_registered_stale_policy()
     assert "registered_family_missing_lifecycle_metadata" in codes
 
 
-def test_gy_generated_public_lifecycle_rejects_pdc_inventory_greenwash() -> None:
+def test_gy_generated_public_lifecycle_rejects_missing_pdc_inventory_gy_entries() -> None:
     validator = _validator()
     audit = _load_audit()
     pdc = _row(audit, "policy_design_case_inventory")
-    pdc["registered"] = True
-    pdc["contains_gy_entries"] = True
-    audit["summary"]["policy_design_case_inventory_registered_in_generated_artifacts"] = True
-    audit["summary"]["policy_design_case_inventory_gy_entries"] = 1
+    pdc["contains_gy_entries"] = False
+    audit["summary"]["policy_design_case_inventory_gy_entries"] = 0
 
     codes = _codes(validator.validate(audit))
     assert "summary_semantics_drift" in codes
-    assert "pdc_inventory_registration_greenwash" in codes
-    assert "pdc_inventory_gy_entry_greenwash" in codes
+    assert "pdc_inventory_gy_entry_missing" in codes
 
 
 def test_gy_generated_public_lifecycle_rejects_file_inventory_drift() -> None:
     validator = _validator()
     audit = _load_audit()
     audit["gy_artifact_inventory"]["paths"] = audit["gy_artifact_inventory"]["paths"][:-1]
-    audit["summary"]["gy_artifact_files_detected"] = 30
+    audit["summary"]["gy_artifact_files_detected"] -= 1
 
     codes = _codes(validator.validate(audit))
     assert "summary_semantics_drift" in codes
@@ -147,10 +139,12 @@ def test_gy_generated_public_lifecycle_rejects_missing_pattern_and_acceptance() 
     validator = _validator()
     audit = _load_audit()
     audit["classification"]["patterns"] = [
-        pattern for pattern in audit["classification"]["patterns"] if pattern != "P25"
+        pattern for pattern in audit["classification"]["patterns"] if pattern != "P31"
     ]
     audit["acceptance_signal"] = [
-        item for item in audit["acceptance_signal"] if "Projection-only refs" not in item
+        item
+        for item in audit["acceptance_signal"]
+        if "producer write-closure" not in item
     ]
 
     codes = _codes(validator.validate(audit))

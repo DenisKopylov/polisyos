@@ -17,6 +17,7 @@ from polisyos.core.contracts.control import (
     OperatorProjectionStateLabel,
 )
 from polisyos.runtime.http.services._control_contracts import _build_api_meta
+from polisyos.runtime.quality.authority import authority_surface_decision
 from polisyos.runtime.quality.projection_semantics import (
     PolicyDesignCaseProjectionError,
     build_policy_design_case_projection_from_runtime_graph,
@@ -232,6 +233,9 @@ def build_control_job_projection_shape(
         quality_gates=quality_gates,
         blocking_quality_failures=blocking_quality_failures,
     )
+    surface_gap = _authority_surface_gap(progress)
+    if surface_gap is not None and surface_gap.code not in {gap.code for gap in authority_gaps}:
+        authority_gaps = [*authority_gaps, surface_gap]
     authoritative_scorecard_ref = _authoritative_scorecard_ref(
         progress=progress,
         quality_scorecard_ref=quality_scorecard_ref,
@@ -372,6 +376,27 @@ def _authority_gaps(
             )
         )
     return gaps
+
+
+def _authority_surface_gap(progress: dict[str, Any]) -> ControlAuthorityGap | None:
+    decision = authority_surface_decision(progress, surface="run")
+    if not (decision.blocking or decision.visible_downgrade):
+        return None
+    return ControlAuthorityGap(
+        code=decision.reason,
+        layer="runtime_authority_surface",
+        phase="run_status",
+        message=(
+            "Run status consumed AuthorityBoundary and cannot be treated as "
+            f"authority for {decision.purpose}: {decision.status}."
+        ),
+        owner="team-runtime-quality",
+        next_action="Repair workflow failure or rerun through the workspace loop authority path.",
+        next_diagnostic_command=(
+            "python3 tools/quality/validation/"
+            "check_layer3_workflow_failure_authority.py --check --repo-root ."
+        ),
+    )
 
 
 def _api_projection_source_truth_conflict(

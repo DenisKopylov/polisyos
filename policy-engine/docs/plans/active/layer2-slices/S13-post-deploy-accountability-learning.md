@@ -101,10 +101,10 @@ Existing substrates to reuse:
 - `src/polisyos/core/contracts/feedback.py`, `src/polisyos/scientist/feedback/core.py`, and `src/polisyos/runtime/http/services/feedback.py` already provide monitoring contracts, reports, compare reports, and reissue plans.
 - `src/polisyos/scientist/governance/continuous/reissue.py` already models governed reissue packets and partial publication state.
 - `src/polisyos/pdc/_impl/layer2_design_search.py` already exports `TypedDiagnosticRecord`; S13 `DivergenceRecord` must compose that shared diagnostic shape, following the existing `RefinementDecision.diagnostic: TypedDiagnosticRecord` pattern, rather than inventing a local diagnostic vocabulary.
-- `polisyos.pdc` already exports `GovernanceDecisionClass` and `AuthorityBoundary`; `src/polisyos/runtime/quality/layer2_delegation.py` exports `HumanDecisionRequest` and `HumanDecisionRecord`. High-stakes S13 reissue and envelope-revision paths must carry these refs instead of adding local governance-decision enums.
+- `polisyos.pdc` already exports `GovernanceDecisionClass` and `AuthorityBoundary`; `src/polisyos/runtime/quality/design_axes/mandate_bounded_delegation.py` exports `HumanDecisionRequest` and `HumanDecisionRecord`. High-stakes S13 reissue and envelope-revision paths must carry these refs instead of adding local governance-decision enums.
 - `src/polisyos/runtime/quality/human_review.py` already computes oversight-effectiveness telemetry; S13 should link post-deploy divergence back to review/approval effectiveness without creating a seventh first-class S13 artifact.
 - `src/polisyos/runtime/quality/calibration_ledger.py` already enforces the historical-prior/current-evidence boundary; S13 should reuse this C41 posture for learned-prior checks.
-- `src/polisyos/runtime/quality/layer2_resource_economics.py` already provides the S12 `EnvelopeGrowthLedger`; S13 must build typed bidirectional revision on top of it instead of redefining S12 allocation economics.
+- `src/polisyos/runtime/quality/design_axes/resource_economics.py` already provides the S12 `EnvelopeGrowthLedger`; S13 must build typed bidirectional revision on top of it instead of redefining S12 allocation economics.
 - `architecture/policy_design_case/layer2_floor_governance.toml` already contains the `s13_accountability` floor.
 - `architecture/policy_design_case/layer2_artifact_traceability.toml` already plans S13 artifacts.
 - `architecture/policy_design_case/cluster_ownership_map.toml` currently marks `DESIGNER_ITSELF.envelope_growth` implemented by S12 and explicitly leaves shrink/bidirectional revision to S13.
@@ -327,7 +327,7 @@ Required S13 closeout metrics:
 
 ## Contract Dictionary
 
-Add runtime constants in `src/polisyos/runtime/quality/layer2_post_deploy_accountability.py`:
+Add runtime constants in `src/polisyos/runtime/quality/design_axes/post_deploy_accountability.py`:
 
 ```python
 LAYER2_S13_POST_DEPLOY_ACCOUNTABILITY_SCHEMA_VERSION = (
@@ -436,7 +436,7 @@ Authority posture:
 
 Create:
 
-- `src/polisyos/runtime/quality/layer2_post_deploy_accountability.py`
+- `src/polisyos/runtime/quality/design_axes/post_deploy_accountability.py`
 - `tests/unit/runtime/quality/test_layer2_s13_post_deploy_accountability.py`
 - `tests/fixtures/layer2/s13/s13_post_deploy_case_signals.json`
 - `tests/fixtures/layer2/s13/s13_post_deploy_expert_labels.json`
@@ -479,8 +479,8 @@ Read/reuse first; do not modify unless a failing test proves a contract gap:
 - `src/polisyos/runtime/quality/ddm_monitoring.py`
 - `src/polisyos/runtime/quality/calibration_ledger.py`
 - `src/polisyos/runtime/quality/human_review.py`
-- `src/polisyos/runtime/quality/layer2_delegation.py`
-- `src/polisyos/runtime/quality/layer2_resource_economics.py`
+- `src/polisyos/runtime/quality/design_axes/mandate_bounded_delegation.py`
+- `src/polisyos/runtime/quality/design_axes/resource_economics.py`
 
 Do not modify unless a validator proves it is necessary:
 
@@ -604,7 +604,7 @@ uv run pytest \
 
 Expected red output:
 
-- Import failure for `polisyos.runtime.quality.layer2_post_deploy_accountability`.
+- Import failure for `polisyos.runtime.quality.design_axes.post_deploy_accountability`.
 - Missing `Layer2S13PostDeployAccountabilityPostureInput`.
 - Missing S13 corpus blocks/summary fields.
 - Missing S13 manifest.
@@ -625,7 +625,7 @@ git commit -m "test: add layer2 s13 post-deploy accountability red tests"
 
 ## Task 2: Contracts, Producer, Accountability Gate, And Anti-Learning Firewalls
 
-Implement `src/polisyos/runtime/quality/layer2_post_deploy_accountability.py`.
+Implement `src/polisyos/runtime/quality/design_axes/post_deploy_accountability.py`.
 
 Implementation requirements:
 
@@ -661,7 +661,7 @@ Anti-learning firewalls:
 
 Execution steps:
 
-- [ ] **Step 1: Add module constants, literals, and strict models** in `src/polisyos/runtime/quality/layer2_post_deploy_accountability.py`.
+- [ ] **Step 1: Add module constants, literals, and strict models** in `src/polisyos/runtime/quality/design_axes/post_deploy_accountability.py`.
 - [ ] **Step 2: Implement producer helpers and deterministic replay digests** for dossier, divergence, MAPE-K, learning proposal, envelope delta, envelope revision, assurance delta, and summary.
 - [ ] **Step 3: Implement anti-learning firewalls** so every `S13_FALSE_CLEAR_FIELDS` key is produced and summarized.
 - [ ] **Step 4: Export runtime contracts** from `src/polisyos/runtime/quality/__init__.py`.
@@ -672,7 +672,7 @@ Verification:
 ```bash
 cd policy-engine
 uv run pytest tests/unit/runtime/quality/test_layer2_s13_post_deploy_accountability.py -q
-uv run ruff check src/polisyos/runtime/quality/layer2_post_deploy_accountability.py tests/unit/runtime/quality/test_layer2_s13_post_deploy_accountability.py
+uv run ruff check src/polisyos/runtime/quality/design_axes/post_deploy_accountability.py tests/unit/runtime/quality/test_layer2_s13_post_deploy_accountability.py
 ```
 
 Expected output:
@@ -683,7 +683,7 @@ Expected output:
 Commit:
 
 ```bash
-git add src/polisyos/runtime/quality/layer2_post_deploy_accountability.py \
+git add src/polisyos/runtime/quality/design_axes/post_deploy_accountability.py \
   src/polisyos/runtime/quality/__init__.py \
   tests/unit/runtime/quality/test_layer2_s13_post_deploy_accountability.py
 git commit -m "feat: add layer2 s13 post-deploy accountability contracts"
@@ -715,7 +715,7 @@ Concrete S2 touch points:
 - Add these S13 helper functions: `_s13_constraint_entries`, `_s13_design_record_ledger_refs`, `_s13_handoff_refs`, `_s13_handoff_record`, `_s13_cluster_interface`, and `_s13_projection_fields`.
 - Include S13 posture in `project_s2_design_search(...)` and in the serialized run payload only when present.
 - Add a persisted CAS round-trip test for S13 search-ledger refs, mirroring `test_s2_s12_persisted_search_ledger_round_trips_resource_refs`.
-- Add a no-import test that checks for absence of `polisyos.runtime.quality.layer2_post_deploy_accountability`, `layer2_post_deploy_accountability`, and `build_s13_post_deploy_accountability_posture` in S2 internals.
+- Add a no-import test that checks for absence of `polisyos.runtime.quality.design_axes.post_deploy_accountability`, `layer2_post_deploy_accountability`, and `build_s13_post_deploy_accountability_posture` in S2 internals.
 
 Projection semantics:
 
@@ -825,7 +825,7 @@ Implementation requirements:
 Concrete W12D touch points:
 
 - Import `Layer2S13PostDeployAccountabilityPostureInput` from `polisyos.pdc`.
-- Import S13 runtime constants/builders from `polisyos.runtime.quality.layer2_post_deploy_accountability`.
+- Import S13 runtime constants/builders from `polisyos.runtime.quality.design_axes.post_deploy_accountability`.
 - Add `S13_CASE_SIGNALS_PATH`, `S13_EXPERT_LABELS_PATH`, and `S13_NEGATIVE_CONTROL_PROBE_PATHS`.
 - Add `_s13_post_deploy_accountability_case_block(...)`, `_s13_accountability_posture_input(...)`, `_s13_post_deploy_accountability_summary(...)`, `_s13_negative_control_probe_results(...)`, and `_s13_matches_gold(...)` as siblings of the S12 helpers.
 - Extend `_s2_design_search_summary(...)` with an optional `s13_post_deploy_accountability`/design-time posture argument and keep non-UA cases on `canonical_outcome_effect == "none_shadow_only"`.
@@ -971,7 +971,7 @@ Cluster map:
 - Do not reopen the cell.
 - Open count remains zero.
 - Preserve existing S12-validated fields unless the readiness validator is intentionally changed in the same commit:
-  - `owner_module = "src/polisyos/runtime/quality/layer2_resource_economics.py"`
+  - `owner_module = "src/polisyos/runtime/quality/design_axes/resource_economics.py"`
   - `ratchet_state = "implemented"`
   - `p01_chain = "implemented"`
   - `gap = "none_for_s12_resource_economics_scope"`

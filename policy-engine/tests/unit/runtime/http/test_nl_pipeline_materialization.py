@@ -16,11 +16,16 @@ from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolve
 from polisyos.runtime.http.services.control import ControlPlaneService
 from polisyos.runtime.http.services.control.nl_pipeline import (
     _build_scientist_context_params,
+    _preflight_design_problem_model,
     _production_materialization_failure,
+    build_design_problem_from_nl_request,
 )
 from polisyos.runtime.http.services.control_registry_providers import ControlRegistryProviders
 from polisyos.runtime.quality.assurance_case import PolicyDesignCaseAuthorityError
 from polisyos.runtime.quality.authority_reconciliation import reconcile_authority_ref
+from polisyos.runtime.quality.design_problem import DesignProblemAuthorityError
+from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMResponse, GatewayToolCall
+from polisyos.scientist.orchestration.llm.simulated_gateway import SimulatedGatewayLLMClient
 from polisyos.scientist.validation.policy_grounding import build_policy_grounding_matrix_report
 from tools.ops_runners.runtime.canary_evidence import assemble_canary_evidence
 
@@ -168,6 +173,297 @@ def _intent_context(**overrides: Any) -> dict[str, Any]:
     }
     payload.update(overrides)
     return payload
+
+
+class _DeterministicSpanSupportClient:
+    def __init__(self, *, decision: str = "entails", confidence: float = 0.93) -> None:
+        self.decision = decision
+        self.confidence = confidence
+        self.calls: list[dict[str, Any]] = []
+
+    async def generate(
+        self,
+        *,
+        messages: list[dict[str, object]],
+        tools: list[dict[str, object]],
+        temperature: float | None = None,
+        seed: int | None = None,
+    ) -> Any:
+        self.calls.append(
+            {
+                "messages": messages,
+                "tools": tools,
+                "temperature": temperature,
+                "seed": seed,
+            }
+        )
+        return SimpleNamespace(
+            content="",
+            model="deterministic-span-support",
+            provider="test-gateway",
+            request_id="span-support-request",
+            tool_calls=[
+                SimpleNamespace(
+                    id="call-span-support",
+                    name="layer3_gy_record_span_support_judgment",
+                    arguments={
+                        "decision": self.decision,
+                        "confidence": self.confidence,
+                        "rationale": "deterministic test judgment",
+                    },
+                )
+            ],
+        )
+
+
+class _FakeDesignProblemGateway:
+    def __init__(self, *, models: list[str], arguments: dict[str, Any]) -> None:
+        self.models = models
+        self.arguments = arguments
+        self.generate_calls: list[dict[str, Any]] = []
+
+    async def list_model_ids(self, *, timeout: float | None = None) -> list[str]:
+        return list(self.models)
+
+    async def generate(self, **kwargs: Any) -> GatewayLLMResponse:
+        self.generate_calls.append(kwargs)
+        return GatewayLLMResponse(
+            content="",
+            model="Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
+            provider="gateway",
+            tool_calls=[
+                GatewayToolCall(
+                    id="call-design-problem",
+                    name="emit_design_problem",
+                    arguments=self.arguments,
+                )
+            ],
+        )
+
+
+def _design_problem_tool_args(*, constraint_source: str = "UAH 10b budget cap") -> dict[str, Any]:
+    return {
+        "design_problem_id": "design_problem_ua_msme_credit",
+        "problem_statement": "Design a wartime MSME credit guarantee for Ukraine.",
+        "domain": "social",
+        "nl_provenance": {
+            "raw_request": (
+                "Design a wartime MSME credit guarantee for Ukraine within the stated "
+                "UAH 10b budget cap."
+            ),
+            "source_surface": "runtime.control.nl_request",
+            "source_context": {"run_id": "run-design-problem"},
+        },
+        "authority_profile": {
+            "requester_authority": "research",
+            "requested_authority_level": "research",
+            "mandate": "Cabinet research mandate.",
+        },
+        "jurisdiction_time": {
+            "region": "UA",
+            "valid_time": "2026-05-15",
+            "as_of": "2026-05-12",
+            "policy_time": "2026-05-15",
+            "data_time": "2024-2026",
+            "time_semantics": {"frequency": "Q", "start_date": "2024-01-01", "step_count": 8},
+        },
+        "objectives": [
+            {
+                "objective_id": "increase_msme_survival",
+                "description": "Increase MSME survival.",
+                "metric_id": "msme_survival_rate",
+                "direction": "maximize",
+            }
+        ],
+        "constraints": [
+            {
+                "constraint_id": "budget_cap",
+                "description": f"Respect {constraint_source}.",
+                "hard": True,
+                "admissibility_basis": "request_text",
+                "source_text": constraint_source,
+            }
+        ],
+        "stakeholders": [
+            {"stakeholder_id": "wartime_msmes", "name": "wartime MSMEs", "role": "beneficiary"}
+        ],
+        "outcome_of_interest": {
+            "target_variable": "firm_survival",
+            "metric_id": "msme_survival_rate",
+            "estimand": "P(firm_survival | do(credit_access))",
+            "direction": "maximize",
+        },
+        "candidate_lever_space": {
+            "allowed_operator_kinds": ["credit_guarantee"],
+            "candidate_levers": [
+                {
+                    "lever_id": "credit_access_guarantee",
+                    "operator_kind": "credit_guarantee",
+                    "instrument": "credit guarantee",
+                    "target_slot": "credit_access",
+                }
+            ],
+        },
+        "evidence_acquisition_needs": {
+            "needs": [
+                {
+                    "need_id": "credit_panel",
+                    "question": "Measure credit access and firm survival.",
+                    "required_for": "outcome_of_interest",
+                    "status": "required",
+                    "source_hint": "measurement_root",
+                }
+            ]
+        },
+    }
+
+
+@pytest.mark.asyncio
+async def test_design_problem_front_door_uses_gateway_tool_calling_and_preflight() -> None:
+    gateway = _FakeDesignProblemGateway(
+        models=["Qwen/Qwen3-235B-A22B-Instruct-2507-FP8", "MiniMaxAI/MiniMax-M2.7"],
+        arguments=_design_problem_tool_args(),
+    )
+    span_support = _DeterministicSpanSupportClient()
+
+    problem = await build_design_problem_from_nl_request(
+        nl_request=(
+            "Design a wartime MSME credit guarantee for Ukraine within the stated "
+            "UAH 10b budget cap."
+        ),
+        context=_intent_context(as_of="2026-05-12"),
+        model_name="Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
+        gateway_client=gateway,
+        span_support_client=span_support,
+    )
+
+    assert problem.design_problem_id == "design_problem_ua_msme_credit"
+    assert problem.authority_profile.requested_authority_level == "research"
+    assert problem.jurisdiction_time.region == "UA"
+    assert problem.outcome_of_interest.target_variable == "firm_survival"
+    assert problem.candidate_lever_space.candidate_levers[0].operator_kind == "credit_guarantee"
+    assert problem.evidence_acquisition_needs.needs[0].status == "required"
+    assert gateway.generate_calls
+    assert gateway.generate_calls[0]["tools"][0]["function"]["name"] == "emit_design_problem"
+    assert gateway.generate_calls[0]["tool_choice"]["function"]["name"] == "emit_design_problem"
+    tool_schema = gateway.generate_calls[0]["tools"][0]["function"]["parameters"]
+    assert "$defs" not in tool_schema
+    assert "$ref" not in json.dumps(tool_schema)
+    assert span_support.calls
+
+
+@pytest.mark.asyncio
+async def test_design_problem_front_door_rejects_unsupported_model_profile() -> None:
+    gateway = _FakeDesignProblemGateway(
+        models=["Qwen/Qwen3-235B-A22B-Instruct-2507-FP8", "MiniMaxAI/MiniMax-M2.7"],
+        arguments=_design_problem_tool_args(),
+    )
+
+    with pytest.raises(DesignProblemAuthorityError, match="model_profile_unsupported"):
+        await build_design_problem_from_nl_request(
+            nl_request="Design a credit guarantee.",
+            context=_intent_context(),
+            model_name="gpt-5-mini",
+            gateway_client=gateway,
+        )
+
+
+@pytest.mark.asyncio
+async def test_design_problem_preflight_uses_offline_simulated_model_catalog() -> None:
+    client = SimulatedGatewayLLMClient(
+        model="simulated-qwen",
+        supported_model_ids=["simulated-qwen"],
+    )
+
+    await _preflight_design_problem_model(client=client, model_name="simulated-qwen")
+    with pytest.raises(DesignProblemAuthorityError, match="model_profile_unsupported"):
+        await _preflight_design_problem_model(client=client, model_name="gpt-5-mini")
+
+
+@pytest.mark.asyncio
+async def test_design_problem_front_door_rejects_hallucinated_constraint() -> None:
+    gateway = _FakeDesignProblemGateway(
+        models=["Qwen/Qwen3-235B-A22B-Instruct-2507-FP8"],
+        arguments=_design_problem_tool_args(constraint_source="unstated WTO compatibility"),
+    )
+
+    with pytest.raises(DesignProblemAuthorityError, match="invented_admissibility"):
+        await build_design_problem_from_nl_request(
+            nl_request="Design a wartime MSME credit guarantee for Ukraine.",
+            context=_intent_context(),
+            model_name="Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
+            gateway_client=gateway,
+            span_support_client=_DeterministicSpanSupportClient(),
+        )
+
+
+@pytest.mark.asyncio
+async def test_design_problem_front_door_rejects_word_sharing_without_entailment() -> None:
+    gateway = _FakeDesignProblemGateway(
+        models=["Qwen/Qwen3-235B-A22B-Instruct-2507-FP8"],
+        arguments=_design_problem_tool_args(constraint_source="budget"),
+    )
+    neutral_support = _DeterministicSpanSupportClient(decision="neutral", confidence=0.96)
+
+    with pytest.raises(DesignProblemAuthorityError, match="admissibility_unverified"):
+        await build_design_problem_from_nl_request(
+            nl_request=(
+                "Assess credit guarantees for MSMEs and discuss budget tradeoffs. "
+                "Do not set a fiscal cap."
+            ),
+            context=_intent_context(),
+            model_name="Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
+            gateway_client=gateway,
+            span_support_client=neutral_support,
+        )
+    assert neutral_support.calls
+
+
+@pytest.mark.asyncio
+async def test_design_problem_front_door_accepts_supported_paraphrase() -> None:
+    gateway = _FakeDesignProblemGateway(
+        models=["Qwen/Qwen3-235B-A22B-Instruct-2507-FP8"],
+        arguments=_design_problem_tool_args(constraint_source="below ten billion hryvnia"),
+    )
+    span_support = _DeterministicSpanSupportClient(decision="entails", confidence=0.91)
+
+    problem = await build_design_problem_from_nl_request(
+        nl_request=(
+            "Assess credit guarantees for MSMEs. Keep fiscal exposure below ten "
+            "billion hryvnia."
+        ),
+        context=_intent_context(),
+        model_name="Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
+        gateway_client=gateway,
+        span_support_client=span_support,
+    )
+
+    assert problem.constraints[0].source_text == "below ten billion hryvnia"
+    assert span_support.calls
+
+
+@pytest.mark.asyncio
+async def test_design_problem_front_door_fails_closed_without_entailment_verifier(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import polisyos.scientist.validation.citation_faithfulness as cf
+
+    monkeypatch.setattr(cf, "_create_default_span_support_client", lambda: None)
+    gateway = _FakeDesignProblemGateway(
+        models=["Qwen/Qwen3-235B-A22B-Instruct-2507-FP8"],
+        arguments=_design_problem_tool_args(),
+    )
+
+    with pytest.raises(DesignProblemAuthorityError, match="entailment_verifier_unavailable"):
+        await build_design_problem_from_nl_request(
+            nl_request=(
+                "Design a wartime MSME credit guarantee for Ukraine within the stated "
+                "UAH 10b budget cap."
+            ),
+            context=_intent_context(),
+            model_name="Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
+            gateway_client=gateway,
+        )
 
 
 _PHASE_24_REQUIRED_RUNTIME_REFS = {
@@ -1156,7 +1452,7 @@ def test_serious_nl_pipeline_phase_24_persists_runtime_quality_refs_fail_closed(
             for event in details["diagnostic_events"]
             if event.get("runtime_cas_ref")
         }
-        assert set(result[key] for key in _PHASE_24_REQUIRED_RUNTIME_REFS.values()) <= event_refs
+        assert {result[key] for key in _PHASE_24_REQUIRED_RUNTIME_REFS.values()} <= event_refs
         event_ref_keys = [
             event["ref_key"] for event in details["diagnostic_events"] if event.get("ref_key")
         ]
@@ -2524,7 +2820,7 @@ def test_nl_pipeline_promotes_serious_causal_context_into_scientist_params(
     closed_models: list[str] = []
 
     async def _record_simulated_close(client: object) -> None:
-        closed_models.append(str(getattr(client, "model")))
+        closed_models.append(str(client.model))
 
     monkeypatch.setenv("POLISYOS_LLM_SIMULATION_MODE", "1")
     _forbid_real_gateway_network(monkeypatch)
@@ -2659,7 +2955,7 @@ def test_nl_pipeline_promotes_serious_causal_context_into_scientist_params(
     assert params["benchmark_report_path"] == str(benchmark_report)
     assert params["academic_demand_backlog_path"] == str(academic_backlog)
     assert params["ukraine_runtime_bundle_dir"] == str(ukraine_bundles / "runtime_bundle_v1")
-    assert closed_models == ["simulated-qwen"]
+    assert closed_models == ["simulated-qwen", "simulated-qwen"]
 
 
 def test_nl_pipeline_reports_gateway_failure_when_mock_fallback_is_disallowed(
@@ -2669,7 +2965,31 @@ def test_nl_pipeline_reports_gateway_failure_when_mock_fallback_is_disallowed(
     class _FailingLLMClient:
         closed = False
 
-        async def generate(self, *args: object, **kwargs: object) -> None:
+        async def list_model_ids(self, *, timeout: float | None = None) -> list[str]:
+            return ["broken-gateway-model"]
+
+        async def generate(self, *args: object, **kwargs: object) -> GatewayLLMResponse:
+            tools = kwargs.get("tools")
+            if isinstance(tools, list):
+                for tool in tools:
+                    if not isinstance(tool, dict):
+                        continue
+                    function = tool.get("function")
+                    if isinstance(function, dict) and function.get("name") == "emit_design_problem":
+                        arguments = _design_problem_tool_args()
+                        arguments["constraints"] = []
+                        return GatewayLLMResponse(
+                            content="",
+                            model="broken-gateway-model",
+                            provider="test-gateway",
+                            tool_calls=[
+                                GatewayToolCall(
+                                    id="call-design-problem",
+                                    name="emit_design_problem",
+                                    arguments=arguments,
+                                )
+                            ],
+                        )
             raise RuntimeError("gateway temporarily unavailable")
 
         async def aclose(self) -> None:

@@ -16,6 +16,7 @@ from polisyos.scholar.search.fetcher import fetch_open_page, find_in_page, sourc
 from polisyos.scholar.search.models import (
     ClaimSupportLink,
     FetchResult,
+    NoHitFrontierRecord,
     QueryGraph,
     QueryNode,
     ResearchBrief,
@@ -57,6 +58,7 @@ if TYPE_CHECKING:
     from polisyos.core.contracts.scholar import ResearchIntent
 
 ProgressCallback = Callable[[ResearchProgressEvent, WebEvidenceBundle], Awaitable[None] | None]
+NoHitRecorder = Callable[[SearchQueryTrace, NoHitFrontierRecord], None]
 
 
 class ScholarDeepSearchService:
@@ -73,6 +75,7 @@ class ScholarDeepSearchService:
         search_timeout_s: float = 10.0,
         fetch_timeout_s: float = 10.0,
         user_agent: str = "polisyos-scholar-search/1.0",
+        no_hit_recorder: NoHitRecorder | None = None,
     ) -> None:
         self._provider_policy = provider_policy or ProviderFailoverPolicy(
             [DuckDuckGoHtmlSearchProvider(), WikipediaOpenSearchProvider()],
@@ -91,6 +94,7 @@ class ScholarDeepSearchService:
         self._search_timeout_s = max(float(search_timeout_s), 1.0)
         self._fetch_timeout_s = max(float(fetch_timeout_s), 1.0)
         self._user_agent = user_agent
+        self._no_hit_recorder = no_hit_recorder
 
     async def scholar_web_search(
         self,
@@ -331,16 +335,32 @@ class ScholarDeepSearchService:
                 node.provider = provider_name
                 node.hit_count = len(hits)
                 node.status = "failed" if error and not hits else "searched"
-                bundle.query_traces.append(
-                    SearchQueryTrace(
+                query_trace = SearchQueryTrace(
+                    query_node_id=node.node_id,
+                    query=node.query,
+                    perspective=node.perspective,
+                    provider=provider_name,
+                    hit_count=len(hits),
+                    error=error,
+                )
+                bundle.query_traces.append(query_trace)
+                if not hits:
+                    frontier = NoHitFrontierRecord(
                         query_node_id=node.node_id,
                         query=node.query,
                         perspective=node.perspective,
                         provider=provider_name,
-                        hit_count=len(hits),
+                        reason=(
+                            "provider_error_no_hits"
+                            if error
+                            else "provider_returned_no_hits"
+                        ),
+                        searched_at=query_trace.searched_at,
                         error=error,
                     )
-                )
+                    bundle.no_hit_frontier.append(frontier)
+                    if self._no_hit_recorder is not None:
+                        self._no_hit_recorder(query_trace, frontier)
                 searched_queries += 1
 
                 candidates = [

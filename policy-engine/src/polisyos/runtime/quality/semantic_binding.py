@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Callable, Mapping, Sequence
+from pathlib import Path
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -15,6 +16,7 @@ from polisyos.runtime.quality.candidate_firewall import (
 
 SEMANTIC_BINDING_SCHEMA_VERSION = "policyos.semantic_binding_ledger.v1"
 PRODUCER_SPINE_CONTEXT_SCHEMA_VERSION = "policyos.producer_spine_context.v1"
+GY_SEMANTIC_BENCHMARK_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.semantic_benchmark.v1"
 PRODUCER_SPINE_CONSUMER_COMPONENTS = (
     "lex",
     "fabric",
@@ -45,6 +47,149 @@ _SEMANTIC_SPINE_NEXT_COMMAND = (
     "uv run pytest tests/unit/runtime/quality/test_semantic_binding.py "
     "tests/unit/runtime/quality/test_scorecard.py -q"
 )
+
+
+class GySemanticBenchmark(BaseModel):
+    """Committed governed benchmark used by the GY semantic adequacy gate."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str
+    benchmark_id: str
+    catalog_corpus_kind: Literal[
+        "slice0_representative_fixture_corpus",
+        "production_dataset_catalog_graph_snapshot",
+    ]
+    closure_scope: Literal["slice0_gate_only", "production_closure"]
+    open_production_findings: list[str] = Field(default_factory=list)
+    label_owner: str
+    expert_author: str
+    reviewer: str
+    provenance: dict[str, str]
+    thresholds: dict[str, dict[str, float]]
+    labels: list[dict[str, Any]]
+
+
+class SemanticBenchmarkRun(BaseModel):
+    """Result of evaluating catalog search against the governed benchmark."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    run_id: str
+    benchmark_id: str
+    benchmark_ref: str
+    benchmark_version: str
+    catalog_corpus_kind: str
+    closure_scope: str
+    label_owner: str
+    reviewer: str
+    rule_version_ref: str
+    construct_scope: str
+    queries: list[str]
+    returned_hits: list[dict[str, Any]]
+    posture: str
+    precision_at_5: float
+    recall_at_known_seeds: float
+    freshness_ok: bool
+    missed_known_seeds: list[str]
+    negative_controls_passed: list[str]
+    threshold_disposition: Literal["pass", "fail"]
+
+
+class SemanticAdequacyGate:
+    """Evaluate construct/scope search adequacy against a governed benchmark."""
+
+    def __init__(self, benchmark: GySemanticBenchmark | None = None) -> None:
+        self._benchmark = benchmark or load_gy_semantic_benchmark()
+
+    def evaluate(
+        self,
+        *,
+        construct_scope: str,
+        returned_hits: list[dict[str, Any]],
+        posture: str = "pre_decision",
+        freshness_ok: bool = True,
+    ) -> SemanticBenchmarkRun:
+        """Compute calibrated precision/recall and negative-control failures."""
+
+        label = self._label_for(construct_scope)
+        known = set(label.get("known_admissible_dataset_ids") or ())
+        negatives = set(label.get("negative_control_dataset_ids") or ())
+        accepted_hits = [
+            hit
+            for hit in returned_hits
+            if float(hit.get("calibrated_relevance") or 0.0) >= 0.5
+        ]
+        top_hits = accepted_hits[:5]
+        returned_ids = [
+            str(hit.get("dataset_id") or hit.get("id") or "") for hit in accepted_hits
+        ]
+        top_ids = [str(hit.get("dataset_id") or hit.get("id") or "") for hit in top_hits]
+        negative_controls_passed = [hit_id for hit_id in returned_ids if hit_id in negatives]
+        known_returned = known.intersection(returned_ids)
+        precision_at_5 = len(known.intersection(top_ids)) / len(top_ids) if top_ids else 0.0
+        recall_at_known_seeds = len(known_returned) / len(known) if known else 1.0
+        floors = self._benchmark.thresholds.get(posture) or self._benchmark.thresholds[
+            "pre_decision"
+        ]
+        failed = bool(
+            negative_controls_passed
+            or precision_at_5 < floors["precision_at_5"]
+            or recall_at_known_seeds < floors["recall_at_known_seeds"]
+            or not freshness_ok
+        )
+        return SemanticBenchmarkRun(
+            run_id=f"semantic-run-{_slug(construct_scope)}",
+            benchmark_id=self._benchmark.benchmark_id,
+            benchmark_ref="architecture/policy_design_case/layer3_gy_semantic_benchmark.json",
+            benchmark_version=self._benchmark.schema_version,
+            catalog_corpus_kind=self._benchmark.catalog_corpus_kind,
+            closure_scope=self._benchmark.closure_scope,
+            label_owner=self._benchmark.label_owner,
+            reviewer=self._benchmark.reviewer,
+            rule_version_ref=self._benchmark.provenance["rule_version"],
+            construct_scope=construct_scope,
+            queries=[str(label.get("construct_scope_query") or construct_scope)],
+            returned_hits=returned_hits,
+            posture=posture,
+            precision_at_5=precision_at_5,
+            recall_at_known_seeds=recall_at_known_seeds,
+            freshness_ok=freshness_ok,
+            missed_known_seeds=sorted(known - known_returned),
+            negative_controls_passed=negative_controls_passed,
+            threshold_disposition="fail" if failed else "pass",
+        )
+
+    def _label_for(self, construct_scope: str) -> dict[str, Any]:
+        for label in self._benchmark.labels:
+            if construct_scope in {
+                label.get("fixture_id"),
+                label.get("construct_scope"),
+                label.get("construct_scope_query"),
+            }:
+                return label
+        raise KeyError(construct_scope)
+
+
+def load_gy_semantic_benchmark() -> GySemanticBenchmark:
+    """Load the committed governed semantic benchmark artifact."""
+
+    payload = json.loads(_semantic_benchmark_path().read_text(encoding="utf-8"))
+    return GySemanticBenchmark.model_validate(payload)
+
+
+def _semantic_benchmark_path() -> Path:
+    return _repo_root() / "architecture/policy_design_case/layer3_gy_semantic_benchmark.json"
+
+
+def _repo_root() -> Path:
+    return Path(__file__).resolve().parents[4]
+
+
+def _slug(value: str) -> str:
+    normalized = "".join(char.lower() if char.isalnum() else "-" for char in value)
+    compact = "-".join(part for part in normalized.split("-") if part)
+    return compact or "item"
 
 
 class SemanticBindingError(ValueError):
@@ -4542,11 +4687,14 @@ __all__ = [
     "DerivedFeatureBinding",
     "FabricBindingRecord",
     "FoundryBindingRecord",
+    "GySemanticBenchmark",
     "IntentBindingRecord",
     "LexBindingRecord",
     "MetricBinding",
     "ProducerSpineReadContext",
     "ScholarBindingRecord",
+    "SemanticAdequacyGate",
+    "SemanticBenchmarkRun",
     "SemanticBindingError",
     "SemanticBindingEvaluation",
     "SemanticBindingIssue",
@@ -4559,5 +4707,6 @@ __all__ = [
     "close_semantic_binding_ledger",
     "deserialize_semantic_binding_ledger",
     "evaluate_semantic_binding_ledger",
+    "load_gy_semantic_benchmark",
     "producer_spine_read_context_for",
 ]

@@ -5,6 +5,7 @@ import jax
 import jax.numpy as jnp
 from jaxtyping import Array, Bool, Float, Int
 
+from polisyos.core.contracts import DataTrust, ValueOuterSet
 from polisyos.foundry.agent_sim.distributions import DistributionState
 
 
@@ -290,9 +291,40 @@ class CellState:
         )
 
 
+def _empty_household_value_outer_set() -> ValueOuterSet:
+    return ValueOuterSet(
+        representation="unknown",
+        coordinates=(),
+        lower=(),
+        upper=(),
+        identification_status="blocked",
+        assumptions=("empty_household_cell_state",),
+        assumption_status="out_of_scope",
+        calibration_scope={},
+        data_trust=DataTrust(
+            tier="unknown",
+            trust_cap=0.0,
+            trust_multiplier=0.0,
+            min_coverage=1.0,
+            max_coverage=1.0,
+            promotion_floor=1.0,
+            authority_ref="policyos://foundry/household-cell-state/empty",
+        ),
+        world_model_record_ref="unbound",
+        epoch="unbound",
+        representation_status="unknown",
+    )
+
+
 @chex.dataclass(frozen=True)
 class HouseholdCellState:
-    """Per-household-cell welfare aggregates used by transfer mechanisms."""
+    """Per-household-cell welfare aggregates used by transfer mechanisms.
+
+    ``disposable_income`` remains the central estimate used by existing
+    dynamics. ``value_outer_set`` is the canonical GY-N-V carrier for the L5
+    identification envelope: point-identified values are tight intervals,
+    while proxy-identified values stay bounded in state.
+    """
 
     active: Bool[Array, n_household_cells]
     cell_id: Int[Array, n_household_cells]
@@ -300,6 +332,7 @@ class HouseholdCellState:
     disposable_income: Float[Array, n_household_cells]
     poverty_rate: Float[Array, n_household_cells]
     transfer_intensity: Float[Array, n_household_cells]
+    value_outer_set: ValueOuterSet | None = None
 
     @property
     def size(self) -> int:
@@ -314,6 +347,7 @@ class HouseholdCellState:
             disposable_income=jnp.zeros(n_household_cells, dtype=jnp.float32),
             poverty_rate=jnp.zeros(n_household_cells, dtype=jnp.float32),
             transfer_intensity=jnp.zeros(n_household_cells, dtype=jnp.float32),
+            value_outer_set=_empty_household_value_outer_set(),
         )
 
 

@@ -25,8 +25,8 @@ depends_on:
   - architecture/policy_design_case/layer2_s7_delegation_manifest.json
   - architecture/policy_design_case/wave12d_universal_outcome_corpus_run_manifest.json
   - architecture/generated_artifacts.toml
-  - src/polisyos/runtime/quality/layer3_grounding_inventory.py
-  - src/polisyos/runtime/quality/layer3_substrate_grounding.py
+  - src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py
+  - src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py
   - src/polisyos/runtime/quality/authority.py
   - src/polisyos/runtime/quality/authority_reconciliation.py
   - src/polisyos/runtime/quality/adapter_contracts.py
@@ -34,7 +34,7 @@ depends_on:
   - src/polisyos/runtime/quality/semantic_binding.py
   - src/polisyos/runtime/quality/approval.py
   - src/polisyos/runtime/quality/human_review.py
-  - src/polisyos/runtime/quality/layer2_delegation.py
+  - src/polisyos/runtime/quality/design_axes/mandate_bounded_delegation.py
   - src/polisyos/runtime/quality/phase_barriers.py
   - src/polisyos/runtime/quality/scorecard.py
   - src/polisyos/runtime/quality/effective_mode.py
@@ -305,23 +305,23 @@ Existing strengths G4 should reuse:
   `s10_prerequisite_bindings.source_design_record_ref`. G4 needs a small source
   design-record resolver; it must not assume a hardcoded
   `layer2_s2_design_record.json` path.
-- `src/polisyos/runtime/quality/layer3_grounding_inventory.py` already defines
+- `src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py` already defines
   `PromotionState = Literal["shadow", "governed_promoted", "promotion_blocked"]`
   and blocks pre-G4 promotion in G0.
-- `src/polisyos/runtime/quality/layer3_substrate_grounding.py` persists G1
+- `src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py` persists G1
   grounded source contracts and explicitly denies claim, promotion, useful-design,
   and production authority.
-- `src/polisyos/runtime/quality/layer3_causal_forecast.py` persists
+- `src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py` persists
   `layer3_g2_grounded_forecast_handoffs.json`; those handoffs are readable by
   G4/G5 but deny promotion/conversion authority.
-- `src/polisyos/runtime/quality/layer3_analytics_search.py` persists
+- `src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py` persists
   proof-carrying analytics records, S11 predictive posture bindings, and public
   projection refs while denying closeout/promotion authority.
-- `src/polisyos/runtime/quality/layer3_legal_mandate_search.py` already emits
+- `src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py` already emits
   `layer3_gl_g4_promotion_gate_consumer_gate.json` and
   `layer3_gl_promotion_gate_handoff.json`, and explicitly does not claim
   `governed_promoted`.
-- `src/polisyos/runtime/quality/layer2_delegation.py` already owns the S7
+- `src/polisyos/runtime/quality/design_axes/mandate_bounded_delegation.py` already owns the S7
   `HumanDecisionRequest` / `HumanDecisionRecord` / five-rights /
   responsibility-integrity contracts G4 needs for P26. This is the primary human
   decision source for G4.
@@ -414,7 +414,7 @@ Existing weak spots G4 must not underestimate:
 
 Create:
 
-- `src/polisyos/runtime/quality/layer3_promotion_gate.py`
+- `src/polisyos/runtime/quality/proving_ground/governed_promotion_gate.py`
   - Strict G4 DTOs, builders, validators, dependency artifact resolver,
     A-completeness and weakest-boundary logic, conformance negatives, and bundle
     builder.
@@ -854,7 +854,7 @@ Rules:
   `HumanDecisionRecord`. `human_decision_not_required` is valid only for
   non-high-stakes bounded promotion scopes with explicit routine/in-envelope
   rationale.
-- Use `src/polisyos/runtime/quality/layer2_delegation.py` as the primary contract
+- Use `src/polisyos/runtime/quality/design_axes/mandate_bounded_delegation.py` as the primary contract
   source: `HumanDecisionRequest`, `HumanDecisionRecord`, `FiveRightsCheck`, and
   `ResponsibilityIntegrityCheck`. `human_review.py` is adjacent production-review
   machinery, not the authority source for G4 promotion decisions.

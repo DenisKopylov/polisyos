@@ -1949,7 +1949,7 @@ def test_s2_does_not_import_or_call_s10_runtime_quality_producer() -> None:
 
     source = inspect.getsource(s2_design_search)
 
-    assert "polisyos.runtime.quality.layer2_outcome_prediction" not in source
+    assert "polisyos.runtime.quality.design_axes.outcome_prediction" not in source
     assert "layer2_outcome_prediction" not in source
     assert "build_forecast_support" not in source
 
@@ -2242,7 +2242,7 @@ def test_s2_does_not_import_layer2_resource_economics() -> None:
         REPO_ROOT / "src/polisyos/pdc/_impl/layer2_design_search.py"
     ).read_text(encoding="utf-8")
 
-    assert "polisyos.runtime.quality.layer2_resource_economics" not in source
+    assert "polisyos.runtime.quality.design_axes.resource_economics" not in source
     assert "layer2_resource_economics" not in source
     assert "build_s12_resource_economics_posture" not in source
 
@@ -2429,7 +2429,7 @@ def test_s2_does_not_import_layer2_post_deploy_accountability() -> None:
         REPO_ROOT / "src/polisyos/pdc/_impl/layer2_design_search.py"
     ).read_text(encoding="utf-8")
 
-    assert "polisyos.runtime.quality.layer2_post_deploy_accountability" not in source
+    assert "polisyos.runtime.quality.design_axes.post_deploy_accountability" not in source
     assert "layer2_post_deploy_accountability" not in source
     assert "build_s13_post_deploy_accountability_posture" not in source
 

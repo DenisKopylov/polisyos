@@ -7,10 +7,16 @@ import re
 
 from polisyos.scientist.orchestration.llm.gateway_client import (
     GatewayLLMResponse,
+    GatewayToolCall,
     GatewayUsage,
 )
 
 ZERO_ARTIFACT_REF = f"sha256:{'0' * 64}"
+DEFAULT_SIMULATED_MODEL_IDS = (
+    "Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
+    "MiniMaxAI/MiniMax-M2.7",
+    "moonshotai/Kimi-K2.6",
+)
 
 
 class SimulatedGatewayLLMClient:
@@ -18,10 +24,23 @@ class SimulatedGatewayLLMClient:
 
     provider = "simulated_gateway"
 
-    def __init__(self, *, model: str, provider_hint: str | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        model: str,
+        provider_hint: str | None = None,
+        supported_model_ids: tuple[str, ...] | list[str] | None = None,
+    ) -> None:
         self.model = model
         self.provider_name = provider_hint or self.provider
+        self.supported_model_ids = tuple(supported_model_ids or DEFAULT_SIMULATED_MODEL_IDS)
         self.calls: list[dict[str, object]] = []
+
+    async def list_model_ids(self, *, timeout: float | None = None) -> list[str]:
+        """Return the deterministic model catalog for offline gateway preflight."""
+
+        del timeout
+        return list(self.supported_model_ids)
 
     async def generate(
         self,
@@ -30,9 +49,44 @@ class SimulatedGatewayLLMClient:
         user: str | None = None,
         messages: list[dict[str, object]] | None = None,
         response_format: dict[str, object] | None = None,
+        tools: list[dict[str, object]] | None = None,
+        tool_choice: str | dict[str, object] | None = None,
         **kwargs: object,
     ) -> GatewayLLMResponse:
         prompt = _prompt_text(system=system, user=user, messages=messages)
+        tool_name = _selected_tool_name(tools=tools, tool_choice=tool_choice)
+        if tool_name == "emit_design_problem":
+            arguments = _design_problem_payload(prompt)
+            self.calls.append(
+                {
+                    "response_kind": "design_problem_tool",
+                    "response_format": response_format,
+                    "kwargs": {
+                        key: value for key, value in kwargs.items() if not key.startswith("_")
+                    },
+                    "tool_name": tool_name,
+                }
+            )
+            return GatewayLLMResponse(
+                content="",
+                usage=GatewayUsage(
+                    prompt_tokens=max(1, len(prompt) // 4),
+                    completion_tokens=max(1, len(json.dumps(arguments)) // 4),
+                    total_tokens=max(2, (len(prompt) + len(json.dumps(arguments))) // 4),
+                    cost_usd=0.0,
+                ),
+                model=self.model,
+                provider=self.provider_name,
+                raw={"simulated": True, "response_kind": "design_problem_tool"},
+                tool_calls=[
+                    GatewayToolCall(
+                        id="call-simulated-design-problem",
+                        name="emit_design_problem",
+                        arguments=arguments,
+                    )
+                ],
+            )
+
         payload = _payload_for_prompt(prompt)
         content = json.dumps(payload, ensure_ascii=False, sort_keys=True)
         prompt_tokens = max(1, len(prompt) // 4)
@@ -41,6 +95,7 @@ class SimulatedGatewayLLMClient:
             {
                 "response_kind": payload.get("_simulated_response_kind", "generic"),
                 "response_format": response_format,
+                "tool_choice": tool_choice,
                 "kwargs": {key: value for key, value in kwargs.items() if not key.startswith("_")},
             }
         )
@@ -62,6 +117,27 @@ class SimulatedGatewayLLMClient:
         return None
 
 
+def _selected_tool_name(
+    *,
+    tools: list[dict[str, object]] | None,
+    tool_choice: str | dict[str, object] | None,
+) -> str | None:
+    if isinstance(tool_choice, dict):
+        raw_function = tool_choice.get("function")
+        if isinstance(raw_function, dict):
+            raw_name = raw_function.get("name")
+            if isinstance(raw_name, str) and raw_name.strip():
+                return raw_name.strip()
+    if tools:
+        for tool in tools:
+            raw_function = tool.get("function")
+            if isinstance(raw_function, dict):
+                raw_name = raw_function.get("name")
+                if isinstance(raw_name, str) and raw_name.strip():
+                    return raw_name.strip()
+    return None
+
+
 def _prompt_text(
     *,
     system: str | None,
@@ -71,6 +147,118 @@ def _prompt_text(
     if messages:
         return "\n\n".join(str(item.get("content") or "") for item in messages)
     return "\n\n".join(part for part in (system or "", user or "") if part)
+
+
+def _design_problem_payload(prompt: str) -> dict[str, object]:
+    request, context = _extract_design_problem_request(prompt)
+    jurisdiction = str(context.get("jurisdiction") or "UA")
+    policy_time = str(context.get("policy_time") or context.get("as_of") or "2026-05-15")
+    data_time = str(context.get("data_time") or "2024-2026")
+    requested_outcome = str(context.get("desired_outcome") or "msme survival")
+    return {
+        "design_problem_id": "simulated_design_problem",
+        "problem_statement": request,
+        "domain": "social",
+        "nl_provenance": {
+            "raw_request": request,
+            "source_surface": "runtime.control.nl_request",
+            "source_context": {
+                key: value
+                for key, value in context.items()
+                if key in {"run_id", "job_id", "tenant_id", "cell_id", "as_of"}
+            },
+        },
+        "authority_profile": {
+            "requester_authority": "research",
+            "requested_authority_level": "research",
+            "mandate": str(context.get("mandate") or "runtime captured requester intent"),
+            "authority_refs": [],
+        },
+        "jurisdiction_time": {
+            "region": jurisdiction,
+            "valid_time": policy_time,
+            "as_of": str(context.get("as_of") or policy_time),
+            "policy_time": policy_time,
+            "data_time": data_time,
+            "time_semantics": {
+                "frequency": "M",
+                "start_date": policy_time,
+                "step_count": 18,
+                "end_date": None,
+                "notes": ["simulated gateway deterministic design problem"],
+            },
+        },
+        "objectives": [
+            {
+                "objective_id": "improve_policy_outcome",
+                "description": f"Improve {requested_outcome}.",
+                "metric_id": "policy_outcome_metric",
+                "direction": "maximize",
+            }
+        ],
+        "constraints": [],
+        "stakeholders": [
+            {
+                "stakeholder_id": "target_population",
+                "name": str(context.get("target_population") or "Target population"),
+                "role": "beneficiary",
+            },
+            {
+                "stakeholder_id": "policy_authority",
+                "name": "Policy authority",
+                "role": "requester",
+            },
+        ],
+        "outcome_of_interest": {
+            "target_variable": "policy_outcome",
+            "metric_id": "policy_outcome_metric",
+            "estimand": "Average treatment effect on the requested policy outcome.",
+            "direction": "maximize",
+        },
+        "candidate_lever_space": {
+            "allowed_operator_kinds": ["targeted_support"],
+            "candidate_levers": [
+                {
+                    "lever_id": "targeted_support_lever",
+                    "operator_kind": "targeted_support",
+                    "instrument": str(
+                        context.get("proposed_intervention") or "targeted policy support"
+                    ),
+                    "target_slot": "target_population",
+                }
+            ],
+        },
+        "evidence_acquisition_needs": {
+            "needs": [
+                {
+                    "need_id": "outcome_measurement",
+                    "question": "What evidence measures the requested outcome for the target population?",
+                    "required_for": "outcome_of_interest",
+                    "status": "required",
+                    "source_hint": "runtime_context",
+                    "artifact_ref": None,
+                }
+            ]
+        },
+    }
+
+
+def _extract_design_problem_request(prompt: str) -> tuple[str, dict[str, object]]:
+    json_start = prompt.find("{")
+    if json_start < 0:
+        return _extract_request(prompt), {}
+    try:
+        payload = json.loads(prompt[json_start:])
+    except json.JSONDecodeError:
+        return _extract_request(prompt), {}
+    if not isinstance(payload, dict):
+        return _extract_request(prompt), {}
+    raw_request = payload.get("raw_request")
+    context = payload.get("context")
+    return (
+        str(raw_request or _extract_request(prompt)),
+        dict(context) if isinstance(context, dict) else {},
+    )
 
 
 def _payload_for_prompt(prompt: str) -> dict[str, object]:

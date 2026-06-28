@@ -1,0 +1,143 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gx_expected_red_checks.v1",
+  "status": "active_post_final_task12",
+  "provisional_task12_complete": true,
+  "final_task12_complete": true,
+  "checks": [
+    {
+      "code": "layer3_gx_correction_required",
+      "status": "expected_red",
+      "first_path": "architecture/policy_design_case/layer3_g1_hardcode_strangle_delta.json",
+      "instance_count": 1,
+      "covered_issue_fingerprints": [
+        "sha256:81132722d2016685f41438da57cbabfe6faf975d648bcaad6c592de46561bb82"
+      ],
+      "owner": "layer3-gx-runtime-hardening",
+      "removal_condition": "Named GX producer/resolver/reducer/artifact is wired or the issue is explicitly superseded by a narrower diagnostic."
+    },
+    {
+      "code": "layer3_gx_malformed_sha256_forbidden",
+      "status": "expected_red",
+      "first_path": "tools/quality/validation/check_layer3_gy_composition_artifacts.py",
+      "instance_count": 1,
+      "covered_issue_fingerprints": [
+        "sha256:e28e4dea09c7de8a33ad4609aa680f569605cd4cd3b15bc68b970c574adb4236"
+      ],
+      "owner": "layer3-gx-runtime-hardening",
+      "removal_condition": "Named GX producer/resolver/reducer/artifact is wired or the issue is explicitly superseded by a narrower diagnostic."
+    },
+    {
+      "code": "layer3_gx_measurement_replay_not_measured",
+      "status": "expected_red",
+      "first_path": "architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_producer_registry.json",
+      "instance_count": 1,
+      "covered_issue_fingerprints": [
+        "sha256:cd7c0c86e8c0d31eb8a9ec125811b5a969f0b4c322610363e6acc484e3895165"
+      ],
+      "owner": "layer3-gx-runtime-hardening",
+      "removal_condition": "Named GX producer/resolver/reducer/artifact is wired or the issue is explicitly superseded by a narrower diagnostic."
+    },
+    {
+      "code": "layer3_gx_producer_root_invalid",
+      "status": "expected_red",
+      "first_path": "architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json$",
+      "instance_count": 2,
+      "covered_issue_fingerprints": [
+        "sha256:f9d30a8fb90cb999f79d0e5730b878d614fda3ff3da0765d2ccf1d591dcec9f2",
+        "sha256:84a4141550fab10c823f5bf0a4c5c9d83918160832015c26e47db5a31976856c"
+      ],
+      "owner": "layer3-gx-runtime-hardening",
+      "removal_condition": "Task 0/5 producer registry proves valid measurement or external_request roots."
+    },
+    {
+      "code": "layer3_gx_readiness_manifest_overrides_reducer_output",
+      "status": "expected_red",
+      "first_path": "architecture/policy_design_case/layer3_g4_readiness_manifest.json#status",
+      "instance_count": 2,
+      "covered_issue_fingerprints": [
+        "sha256:d8bb0f6f0a799608b8e365438d2fa28d60ed8a65e79800fa53618a4c886c8357",
+        "sha256:3f5008927997621c39daf0bca14f9c6f4e7d485577d182b2e41788825a48c381"
+      ],
+      "owner": "layer3-gx-runtime-hardening",
+      "removal_condition": "Named GX producer/resolver/reducer/artifact is wired or the issue is explicitly superseded by a narrower diagnostic."
+    },
+    {
+      "code": "layer3_gx_recompute_output_hash_mismatch",
+      "status": "expected_red",
+      "first_path": "architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json$",
+      "instance_count": 1,
+      "covered_issue_fingerprints": [
+        "sha256:086bd1319bfb05efe3cd958c9a0b2535613acd0366c4a193c2cec4c31fb745c2"
+      ],
+      "owner": "layer3-gx-runtime-hardening",
+      "removal_condition": "Named GX producer/resolver/reducer/artifact is wired or the issue is explicitly superseded by a narrower diagnostic."
+    },
+    {
+      "code": "layer3_gx_recompute_provenance_missing",
+      "status": "expected_red",
+      "first_path": "architecture/policy_design_case/layer3_g5_conversion_eligibility_ledger.json$",
+      "instance_count": 1,
+      "covered_issue_fingerprints": [
+        "sha256:273efb13da3d960e42ecf57911d329082fc1b4bfb53d10a9883573735af36069"
+      ],
+      "owner": "layer3-gx-runtime-hardening",
+      "removal_condition": "Named GX producer/resolver/reducer/artifact is wired or the issue is explicitly superseded by a narrower diagnostic."
+    },
+    {
+      "code": "layer3_gx_reducer_producer_root_chain_invalid",
+      "status": "expected_red",
+      "first_path": "architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_producer_root_chain_report.json",
+      "instance_count": 1,
+      "covered_issue_fingerprints": [
+        "sha256:cd42e5c3b32940b9a830bad6d31ef41aaf45d108803f465f11cdd999f7e53fb0"
+      ],
+      "owner": "layer3-gx-runtime-hardening",
+      "removal_condition": "Named GX producer/resolver/reducer/artifact is wired or the issue is explicitly superseded by a narrower diagnostic."
+    },
+    {
+      "code": "layer3_gx_reducer_provenance_missing",
+      "status": "expected_red",
+      "first_path": "architecture/policy_design_case/layer3_g5_conversion_eligibility_ledger.json$",
+      "instance_count": 2,
+      "covered_issue_fingerprints": [
+        "sha256:c40b4bd502b72fd40ea48e0d7a50b759b5a34cd857c6f75e519c8abe527923ed",
+        "sha256:3d216f2cefc208fe83776818cb85400a40c698d25d01674a5f9d3f99594b4e52"
+      ],
+      "owner": "layer3-gx-runtime-hardening",
+      "removal_condition": "Task 4 writes reducer provenance for every positive persisted status."
+    },
+    {
+      "code": "layer3_gx_runtime_literal_forbidden",
+      "status": "expected_red",
+      "first_path": "src/polisyos/runtime/quality/workspace/loop.py",
+      "instance_count": 4,
+      "covered_issue_fingerprints": [
+        "sha256:c0b4800e70d84994aa4d6022fcb3560d13e7be9b7c51f5c382b9da8f48bf2232",
+        "sha256:5338593c26817002c80d66778b800f6a2fc0b6e7fcd465c570ef919cfed99f84",
+        "sha256:cebe06f6900f80227e93e89d83137ee2f92b423dc540276bf7612783e2bc778c",
+        "sha256:4ee0149a97c3ed9e447e470d37d0c961b9a4d2eb00d6aab5ff1f47f065ed338a"
+      ],
+      "owner": "layer3-gx-runtime-hardening",
+      "removal_condition": "Task 1 removes or data-owns runtime domain/positive literals and the AST lint has zero unapproved hits."
+    }
+  ],
+  "covered_issue_fingerprints": [
+    "sha256:086bd1319bfb05efe3cd958c9a0b2535613acd0366c4a193c2cec4c31fb745c2",
+    "sha256:273efb13da3d960e42ecf57911d329082fc1b4bfb53d10a9883573735af36069",
+    "sha256:3d216f2cefc208fe83776818cb85400a40c698d25d01674a5f9d3f99594b4e52",
+    "sha256:3f5008927997621c39daf0bca14f9c6f4e7d485577d182b2e41788825a48c381",
+    "sha256:4ee0149a97c3ed9e447e470d37d0c961b9a4d2eb00d6aab5ff1f47f065ed338a",
+    "sha256:5338593c26817002c80d66778b800f6a2fc0b6e7fcd465c570ef919cfed99f84",
+    "sha256:81132722d2016685f41438da57cbabfe6faf975d648bcaad6c592de46561bb82",
+    "sha256:84a4141550fab10c823f5bf0a4c5c9d83918160832015c26e47db5a31976856c",
+    "sha256:c0b4800e70d84994aa4d6022fcb3560d13e7be9b7c51f5c382b9da8f48bf2232",
+    "sha256:c40b4bd502b72fd40ea48e0d7a50b759b5a34cd857c6f75e519c8abe527923ed",
+    "sha256:cd42e5c3b32940b9a830bad6d31ef41aaf45d108803f465f11cdd999f7e53fb0",
+    "sha256:cd7c0c86e8c0d31eb8a9ec125811b5a969f0b4c322610363e6acc484e3895165",
+    "sha256:cebe06f6900f80227e93e89d83137ee2f92b423dc540276bf7612783e2bc778c",
+    "sha256:d8bb0f6f0a799608b8e365438d2fa28d60ed8a65e79800fa53618a4c886c8357",
+    "sha256:e28e4dea09c7de8a33ad4609aa680f569605cd4cd3b15bc68b970c574adb4236",
+    "sha256:f9d30a8fb90cb999f79d0e5730b878d614fda3ff3da0765d2ccf1d591dcec9f2"
+  ],
+  "issues": []
+}

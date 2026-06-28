@@ -2748,7 +2748,7 @@
       "raw_value": "pass",
       "signal_id": "layer3-g8://normalized-metric/g5/adapter-semantic-loss/adapter-semantic-loss",
       "slice_id": "G5",
-      "source_digest": "sha256:ea0b432ac04fc78ae743281cae013e0a5f6764f74ccb0970c70ee2cdfbab33da",
+      "source_digest": "sha256:3af7cf14965b6c1b9cfa8063f082826b603e8c2d8e633af82d8adbfe672820e9",
       "status": "pass"
     },
     {
@@ -2798,7 +2798,7 @@
       "raw_value": "pass",
       "signal_id": "layer3-g8://normalized-metric/g5/demand-pull-vs-abstention/demand-pull-vs-abstention",
       "slice_id": "G5",
-      "source_digest": "sha256:ea0b432ac04fc78ae743281cae013e0a5f6764f74ccb0970c70ee2cdfbab33da",
+      "source_digest": "sha256:3af7cf14965b6c1b9cfa8063f082826b603e8c2d8e633af82d8adbfe672820e9",
       "status": "pass"
     },
     {
@@ -2845,11 +2845,11 @@
       "observed_at": "2026-06-10T00:00:00Z",
       "raw_key": "envelope-expansion-rate",
       "raw_source_ref": "repo://architecture/policy_design_case/layer3_g5_health_metric_delta.toml#envelope-expansion-rate",
-      "raw_value": "flat",
+      "raw_value": "blocked",
       "signal_id": "layer3-g8://normalized-metric/g5/envelope-expansion-rate/envelope-expansion-rate",
       "slice_id": "G5",
-      "source_digest": "sha256:ea0b432ac04fc78ae743281cae013e0a5f6764f74ccb0970c70ee2cdfbab33da",
-      "status": "flat"
+      "source_digest": "sha256:3af7cf14965b6c1b9cfa8063f082826b603e8c2d8e633af82d8adbfe672820e9",
+      "status": "blocked"
     },
     {
       "authoritative_for": [
@@ -2898,7 +2898,7 @@
       "raw_value": "pass",
       "signal_id": "layer3-g8://normalized-metric/g5/governance-throughput/governance-throughput",
       "slice_id": "G5",
-      "source_digest": "sha256:ea0b432ac04fc78ae743281cae013e0a5f6764f74ccb0970c70ee2cdfbab33da",
+      "source_digest": "sha256:3af7cf14965b6c1b9cfa8063f082826b603e8c2d8e633af82d8adbfe672820e9",
       "status": "pass"
     },
     {
@@ -2948,7 +2948,7 @@
       "raw_value": "pass",
       "signal_id": "layer3-g8://normalized-metric/g5/search-recall-known-seeds-index-staleness/search-recall-known-seeds---index-staleness",
       "slice_id": "G5",
-      "source_digest": "sha256:ea0b432ac04fc78ae743281cae013e0a5f6764f74ccb0970c70ee2cdfbab33da",
+      "source_digest": "sha256:3af7cf14965b6c1b9cfa8063f082826b603e8c2d8e633af82d8adbfe672820e9",
       "status": "pass"
     },
     {
@@ -2995,11 +2995,11 @@
       "observed_at": "2026-06-10T00:00:00Z",
       "raw_key": "g5_envelope_expansion_status",
       "raw_source_ref": "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json#g5_envelope_expansion_status",
-      "raw_value": "flat",
+      "raw_value": "blocked",
       "signal_id": "layer3-g8://normalized-metric/g5/envelope-expansion-rate/g5-envelope-expansion-status",
       "slice_id": "G5",
-      "source_digest": "sha256:9537ecdccf561319ec6deb2d8e32d4f545f900c5956701baa19dbc2f28a777ed",
-      "status": "flat"
+      "source_digest": "sha256:14eb7b79f9d05c926ef8be2485e3b37baa252e9ec8db961e0741680edea66020",
+      "status": "blocked"
     },
     {
       "authoritative_for": [
@@ -3050,7 +3050,7 @@
       "raw_value": "fail",
       "signal_id": "layer3-g8://normalized-metric/g5/search-recall-known-seeds-index-staleness/g5-search-recall-status",
       "slice_id": "G5",
-      "source_digest": "sha256:9537ecdccf561319ec6deb2d8e32d4f545f900c5956701baa19dbc2f28a777ed",
+      "source_digest": "sha256:14eb7b79f9d05c926ef8be2485e3b37baa252e9ec8db961e0741680edea66020",
       "status": "fail"
     },
     {
@@ -3100,7 +3100,7 @@
       "raw_value": "pass",
       "signal_id": "layer3-g8://normalized-metric/g5/search-recall-known-seeds-index-staleness/g5-index-freshness-status",
       "slice_id": "G5",
-      "source_digest": "sha256:9537ecdccf561319ec6deb2d8e32d4f545f900c5956701baa19dbc2f28a777ed",
+      "source_digest": "sha256:14eb7b79f9d05c926ef8be2485e3b37baa252e9ec8db961e0741680edea66020",
       "status": "pass"
     },
     {
@@ -3610,7 +3610,7 @@
       "raw_value": "fail",
       "signal_id": "layer3-g8://normalized-metric/g7/search-recall-known-seeds-index-staleness/g1-search-recall-status",
       "slice_id": "G7",
-      "source_digest": "sha256:828e730f913fae1cb80f9e7da7e575cfff33f9b165905bd2094c49f8d8ea6317",
+      "source_digest": "sha256:9f64fbc7b406bf26e5b3c80c7f7ff3d2a54fa522da985088c5019024a85b0cc8",
       "status": "fail"
     },
     {
@@ -3660,7 +3660,7 @@
       "raw_value": "pass",
       "signal_id": "layer3-g8://normalized-metric/g7/search-recall-known-seeds-index-staleness/g1-index-freshness-status",
       "slice_id": "G7",
-      "source_digest": "sha256:828e730f913fae1cb80f9e7da7e575cfff33f9b165905bd2094c49f8d8ea6317",
+      "source_digest": "sha256:9f64fbc7b406bf26e5b3c80c7f7ff3d2a54fa522da985088c5019024a85b0cc8",
       "status": "pass"
     },
     {
@@ -3712,7 +3712,7 @@
       "raw_value": "fail",
       "signal_id": "layer3-g8://normalized-metric/g7/search-recall-known-seeds-index-staleness/search-recall-known-seeds-index-staleness-region",
       "slice_id": "G7",
-      "source_digest": "sha256:828e730f913fae1cb80f9e7da7e575cfff33f9b165905bd2094c49f8d8ea6317",
+      "source_digest": "sha256:9f64fbc7b406bf26e5b3c80c7f7ff3d2a54fa522da985088c5019024a85b0cc8",
       "status": "fail"
     },
     {
@@ -3762,7 +3762,7 @@
       "raw_value": "pass",
       "signal_id": "layer3-g8://normalized-metric/g7/governance-throughput/g4-governance-throughput-status",
       "slice_id": "G7",
-      "source_digest": "sha256:828e730f913fae1cb80f9e7da7e575cfff33f9b165905bd2094c49f8d8ea6317",
+      "source_digest": "sha256:9f64fbc7b406bf26e5b3c80c7f7ff3d2a54fa522da985088c5019024a85b0cc8",
       "status": "pass"
     },
     {
@@ -3809,11 +3809,11 @@
       "observed_at": "2026-06-10T00:00:00Z",
       "raw_key": "g5_envelope_expansion_status",
       "raw_source_ref": "repo://architecture/policy_design_case/layer3_g7_dependency_readiness_snapshot.json#g5_envelope_expansion_status",
-      "raw_value": "flat",
+      "raw_value": "blocked",
       "signal_id": "layer3-g8://normalized-metric/g7/envelope-expansion-rate/g5-envelope-expansion-status",
       "slice_id": "G7",
-      "source_digest": "sha256:828e730f913fae1cb80f9e7da7e575cfff33f9b165905bd2094c49f8d8ea6317",
-      "status": "flat"
+      "source_digest": "sha256:9f64fbc7b406bf26e5b3c80c7f7ff3d2a54fa522da985088c5019024a85b0cc8",
+      "status": "blocked"
     },
     {
       "authoritative_for": [
@@ -3862,7 +3862,7 @@
       "raw_value": "pass",
       "signal_id": "layer3-g8://normalized-metric/g7/demand-pull-vs-abstention/g6-demand-pull-vs-abstention-status",
       "slice_id": "G7",
-      "source_digest": "sha256:828e730f913fae1cb80f9e7da7e575cfff33f9b165905bd2094c49f8d8ea6317",
+      "source_digest": "sha256:9f64fbc7b406bf26e5b3c80c7f7ff3d2a54fa522da985088c5019024a85b0cc8",
       "status": "pass"
     },
     {

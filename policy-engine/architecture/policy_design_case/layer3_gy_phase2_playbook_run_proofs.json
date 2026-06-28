@@ -1,0 +1,36 @@
+{
+  "proofs": [
+    {
+      "authority_path_disposition": "loop_only",
+      "candidate_artifact_envelope_count": 10,
+      "deviation_operation": "REFINE",
+      "deviation_terminal": "search_ceiling_repair_required",
+      "executed_legacy_aliases": [
+        "run_causal_evaluation",
+        "run_normative_arbitration"
+      ],
+      "legacy_workflow_id_disposition": "legacy_shadow_context",
+      "operation_invocation_count": 2,
+      "out_of_scope_steps": [
+        {
+          "disposition": "surface_out_of_scope",
+          "legacy_alias": "plan_policy_request",
+          "rationale": "Phase-2 executes a pre-resolved intent; NL planning remains owned by the policy request surface.",
+          "step_id": "scientist_policy_verified.plan_policy_request"
+        }
+      ],
+      "playbook_ids": [
+        "scientist_causal_full",
+        "scientist_policy_design",
+        "scientist_policy_verified"
+      ],
+      "playbook_step_source": "canonical_workflow_specs_via_node_registry",
+      "proof_id": "phase2-playbook-runtime-chain",
+      "search_ledger_event_count": 2,
+      "selected_playbook_id": "scientist_policy_verified",
+      "stable_terminal": "frontier_stable",
+      "workflow_id_does_not_select_authority": true
+    }
+  ],
+  "schema_version": "policyos.policy_design_case.layer3_gy_phase2.playbook_run_proofs.v2"
+}

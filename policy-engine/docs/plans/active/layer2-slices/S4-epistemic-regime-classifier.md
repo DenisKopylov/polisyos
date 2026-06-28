@@ -79,7 +79,7 @@ Reason: regime classification and the commitment profile are **A-side authority*
 
 Module placement:
 
-- Create `src/polisyos/runtime/quality/layer2_epistemic_regime.py` (build_new; `KNOWLEDGE.epistemic_regime`, owner `team-knowledge-regime`): `EpistemicRegimeClaim`, `RegimeEvidenceBasis`, `classify_regime`, the P16 firewall helpers, `DesignStrategy` + `regime_design_strategy`, and `regime_accuracy`.
+- Create `src/polisyos/runtime/quality/design_axes/epistemic_regime.py` (build_new; `KNOWLEDGE.epistemic_regime`, owner `team-knowledge-regime`): `EpistemicRegimeClaim`, `RegimeEvidenceBasis`, `classify_regime`, the P16 firewall helpers, `DesignStrategy` + `regime_design_strategy`, and `regime_accuracy`.
 - Modify `src/polisyos/runtime/quality/case_lifecycle.py` (extend_existing; `INTERVENTION.reversibility_lifecycle_stakes`, owner `team-case-lifecycle`): add the strict `CommitmentProfileRecord`, the **first-class** `build_commitment_profile` producer (derives the profile from case signals — `domain`/`instrument_type`/`policy_time`/scale — with a conservative default), `select_floor(commitment) -> floor_band`, and the P23 helper `assert_stakes_floor_consistency`. Reuse the module's existing transition/termination/reissue vocabulary (`ALLOWED_LIFECYCLE_EVENTS`, `build_lifecycle_reissue_report`) for the `transition`/`termination`/`grandfathering` lifecycle stages rather than duplicating lifecycle logic. The regime module imports `CommitmentProfileRecord`, `build_commitment_profile`, and `select_floor` from `case_lifecycle` (regime + strategy + floor consume the commitment profile — the cluster bridge_consumer).
 
 Reuse-first (no parallel regime store, no new candidate record):
@@ -153,7 +153,7 @@ Acceptance signal:
 | P16 / P23 firewalls | `docs/system-design-decisions/...gap.md` (Pattern Pass) + `docs/reference/policy-design-case-failure-patterns.md` |
 | Shared S0 contracts | `src/polisyos/pdc/_impl/layer2_readiness.py` (`EpistemicRegime`, `AxisPositionDeclaration`, `AxisFirewallStatus`, `CertifiedOperationEnvelope`, `AuthorityBoundary`) |
 | Commitment-profile seed (extend_existing) | `src/polisyos/runtime/quality/case_lifecycle.py` |
-| S3 substrate signal | `src/polisyos/runtime/quality/layer2_substrate_acquisition.py` (`SubstrateCoverageSnapshot`, `CapabilityBindingResult`) |
+| S3 substrate signal | `src/polisyos/runtime/quality/design_axes/substrate_acquisition.py` (`SubstrateCoverageSnapshot`, `CapabilityBindingResult`) |
 | Contested-model seeds | `src/polisyos/scholar/_impl/evidence.py`, `src/polisyos/runtime/quality/capability_white_space.py` |
 | B-side loop to wire | `src/polisyos/pdc/_impl/layer2_design_search.py` (`run_s2_shadow_design_loop`, `DesignCandidateV0`, `RefinementDecision`) |
 | Slice cell assignments | `architecture/policy_design_case/layer2_slice_cell_matrix.toml` (S4: both cells → `implemented`) |
@@ -166,7 +166,7 @@ Acceptance signal:
 
 Create:
 
-- `src/polisyos/runtime/quality/layer2_epistemic_regime.py`
+- `src/polisyos/runtime/quality/design_axes/epistemic_regime.py`
 - `architecture/policy_design_case/layer2_s4_epistemic_regime_manifest.json`
 - `tests/unit/runtime/quality/test_layer2_s4_epistemic_regime.py`
 - `tests/repo_quality/tools/test_policy_design_case_layer2_s4_epistemic_regime.py`
@@ -208,7 +208,7 @@ Do not modify:
 **Files:**
 
 - Create: `tests/unit/runtime/quality/test_layer2_s4_epistemic_regime.py`
-- Create: `src/polisyos/runtime/quality/layer2_epistemic_regime.py` (empty/skeleton so import fails red on behavior, not syntax)
+- Create: `src/polisyos/runtime/quality/design_axes/epistemic_regime.py` (empty/skeleton so import fails red on behavior, not syntax)
 
 - [x] **Step 1: Write failing unit tests for the S4 contracts, classifier, and firewalls**
 
@@ -231,7 +231,7 @@ from polisyos.runtime.quality.case_lifecycle import (
     build_commitment_profile,
     select_floor,
 )
-from polisyos.runtime.quality.layer2_epistemic_regime import (
+from polisyos.runtime.quality.design_axes.epistemic_regime import (
     EpistemicRegimeClaim,
     P16OverconfidenceError,
     P16PrecautionLaunderingError,
@@ -456,7 +456,7 @@ Expected: `ImportError`/`AttributeError` for the not-yet-implemented contracts, 
 **Files:**
 
 - Modify: `src/polisyos/runtime/quality/case_lifecycle.py`
-- Modify: `src/polisyos/runtime/quality/layer2_epistemic_regime.py`
+- Modify: `src/polisyos/runtime/quality/design_axes/epistemic_regime.py`
 - Modify: `src/polisyos/runtime/quality/__init__.py`
 
 - [x] **Step 1: Add the commitment-profile producer to `case_lifecycle` (extend_existing, P23)**
@@ -583,7 +583,7 @@ def assert_stakes_floor_consistency(profile: CommitmentProfileRecord, *, selecte
 
 - [x] **Step 2: Implement the A-owned regime classifier, P16 firewalls, strategy, and accuracy**
 
-In `src/polisyos/runtime/quality/layer2_epistemic_regime.py` define strict models and the gate-owned classifier, reusing the S0 `EpistemicRegime` literal and `AxisPositionDeclaration`/`AxisFirewallStatus`.
+In `src/polisyos/runtime/quality/design_axes/epistemic_regime.py` define strict models and the gate-owned classifier, reusing the S0 `EpistemicRegime` literal and `AxisPositionDeclaration`/`AxisFirewallStatus`.
 
 ```python
 from __future__ import annotations
@@ -1052,7 +1052,7 @@ For **each** of the two `[cell.*]` tables, apply all of the following as **one a
 
 `_validate_open_cell_closures` requires the `[open_cell_closure.*]` set to equal the open-state cell set, so flip-without-removal is `extra_closure` and removal-without-flip is `missing_closure`. The live open count drops `15 -> 13`. Do **not** edit `capability_reality_report.json`.
 
-`seed_files` stay as-is — the validator checks every entry **exists** (`scholar/_impl/evidence.py`, `capability_white_space.py`, `case_lifecycle.py` all do); `owner_module` is not existence-checked. Optionally add `src/polisyos/runtime/quality/layer2_epistemic_regime.py` to `seed_files` here in Task 5 (it exists only after Task 2 — never reference it before).
+`seed_files` stay as-is — the validator checks every entry **exists** (`scholar/_impl/evidence.py`, `capability_white_space.py`, `case_lifecycle.py` all do); `owner_module` is not existence-checked. Optionally add `src/polisyos/runtime/quality/design_axes/epistemic_regime.py` to `seed_files` here in Task 5 (it exists only after Task 2 — never reference it before).
 
 - [x] **Step 3: Add `_validate_s4_epistemic_regime` to the readiness validator**
 

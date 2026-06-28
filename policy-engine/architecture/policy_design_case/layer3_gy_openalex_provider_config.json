@@ -1,0 +1,41 @@
+{
+  "gy_lifecycle_marker": "policyos.policy_design_case.layer3_gy.openalex_provider_config.v1",
+  "owner": "team-runtime-quality",
+  "provider": {
+    "endpoint": "https://api.openalex.org/works",
+    "filters": [
+      "has_abstract:true",
+      "is_retracted:false"
+    ],
+    "max_results_cap": 50,
+    "name": "openalex",
+    "select_fields": [
+      "id",
+      "doi",
+      "display_name",
+      "title",
+      "abstract_inverted_index",
+      "publication_year",
+      "publication_date",
+      "cited_by_count",
+      "type",
+      "is_retracted",
+      "language",
+      "open_access",
+      "primary_location",
+      "authorships"
+    ]
+  },
+  "provenance": {
+    "captured_from": "https://api.openalex.org/works",
+    "recorded_response_fixtures": [
+      "tests/fixtures/scholar/openalex/credit_guarantee_firm_survival.json",
+      "tests/fixtures/scholar/openalex/minimum_wage_employment.json",
+      "tests/fixtures/scholar/openalex/no_hits.json"
+    ],
+    "reviewed_at": "2026-06-23",
+    "reviewer": "team-runtime-quality",
+    "source": "real OpenAlex API responses captured for deterministic provider verification"
+  },
+  "schema_version": "policyos.policy_design_case.layer3_gy.openalex_provider_config.v1"
+}

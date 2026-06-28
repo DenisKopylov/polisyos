@@ -243,7 +243,7 @@ def validate(audit: dict[str, Any]) -> list[dict[str, Any]]:
             "detail": static.get("nl_pipeline_tool_loop_references"),
         })
     if _nested(static, ("g6_bounded_agent_tool_loop", "tool_loop_call_site")) != (
-        "src/polisyos/runtime/quality/layer3_bounded_agent.py:1346"
+        "src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py:1346"
     ):
         violations.append({
             "code": "g6_tool_loop_call_site_drift",

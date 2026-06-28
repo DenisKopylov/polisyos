@@ -37,7 +37,7 @@
   ],
   "metric_trends": [
     {
-      "latest_status": "numeric_reading",
+      "latest_status": "blocked",
       "metric_id": "envelope-expansion-rate",
       "signal_count": 8,
       "source_refs": [

@@ -76,3 +76,31 @@ def test_run_hierarchical_policy_search_uses_branch_state_for_final_outputs(
 
     assert outcome.status == "ok"
     assert any("params.policy_candidate_schema" in write_paths for write_paths in calls)
+
+
+def test_run_hierarchical_policy_search_rejects_runtime_legacy_inferred_bounds_config(
+    execution_context,
+    minimal_state,
+) -> None:
+    candidate = MagicMock()
+    state = minimal_state.model_copy(deep=True)
+    state.params["hierarchical_policy_search_config"] = {
+        "require_explicit_parameter_bounds": False,
+        "allow_legacy_shadow_inferred_bounds": True,
+    }
+
+    with (
+        patch(
+            "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search._resolve_search_candidate",
+            return_value=candidate,
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.planning.run_hierarchical_policy_search.HierarchicalPolicySearchAdapter.run_search",
+            side_effect=AssertionError("legacy _derive_bounds path reached"),
+        ),
+    ):
+        outcome = RunHierarchicalPolicySearchNode().execute(execution_context, state)
+
+    assert outcome.status == "fail"
+    assert outcome.error is not None
+    assert "legacy inferred bounds" in outcome.error.message

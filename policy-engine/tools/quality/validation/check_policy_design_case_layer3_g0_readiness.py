@@ -14,7 +14,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from polisyos.runtime.quality import layer3_grounding_inventory as g0
+from polisyos.runtime.quality.proving_ground import pre_adapter_grounding_inventory as g0
 from tools.lib.fs import atomic_write_text
 
 REPO_ROOT = Path(__file__).resolve().parents[3]

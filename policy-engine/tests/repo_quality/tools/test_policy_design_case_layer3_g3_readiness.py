@@ -108,10 +108,10 @@ def _validator() -> Any:
     return import_module("tools.quality.validation.check_policy_design_case_layer3_g3_readiness")
 
 
-def test_layer3_g3_readiness_passes_only_for_persisted_runtime_bundle() -> None:
+def test_layer3_g3_readiness_records_blocked_w12d_consumer_without_drift() -> None:
     validation = _validator().validate_layer3_g3_readiness(REPO_ROOT)
 
-    assert validation["status"] == "pass"
+    assert validation["status"] == "fail"
     assert validation["summary"]["schema_version"] == G3_SCHEMA_VERSION
     assert validation["summary"]["g0_dependency_status"] == "pass"
     assert validation["summary"]["g1_dependency_status"] == "pass"
@@ -131,16 +131,18 @@ def test_layer3_g3_readiness_passes_only_for_persisted_runtime_bundle() -> None:
     assert validation["summary"]["g3_method_requirement_binding_count"] >= 1
     assert validation["summary"]["g3_proof_carrying_record_count"] >= 1
     assert validation["summary"]["g3_ir_analytics_bridge_status"] == "pass"
-    assert validation["summary"]["g3_s11_prerequisite_binding_status"] == "pass"
-    assert validation["summary"]["g3_s11_predictive_posture_binding_count"] >= 1
+    assert validation["summary"]["g3_s11_prerequisite_binding_status"] == "blocked"
+    assert validation["summary"]["g3_s11_predictive_posture_binding_count"] == 0
     assert validation["summary"]["g3_claim_registry_consumer_gate_status"] == "pass"
     assert validation["summary"]["g3_baseline_comparison_consumer_gate_status"] == "pass"
-    assert validation["summary"]["g3_w12d_consumer_gate_status"] == "pass"
+    assert validation["summary"]["g3_w12d_consumer_gate_status"] == "fail"
     assert validation["summary"]["g3_public_export_projection_status"] == "pass"
-    assert validation["summary"]["g3_conformance_status"] == "pass"
+    assert validation["summary"]["g3_conformance_status"] == "fail"
     assert validation["summary"]["g3_adapter_contract_registry_status"] == "pass"
     assert validation["summary"]["g3_manifest_runtime_drift_key_count"] == 0
-    assert validation["issues"] == []
+    assert [issue["code"] for issue in validation["issues"]] == [
+        "layer3_g3_w12d_consumer_gate_missing"
+    ]
 
 
 def test_layer3_g3_readiness_declares_complete_expected_artifact_set() -> None:

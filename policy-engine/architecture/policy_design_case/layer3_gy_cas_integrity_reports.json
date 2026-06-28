@@ -1,0 +1,106 @@
+{
+  "dedup_probe": {
+    "first_ref": "sha256:168ea4c3ae10c3ff56073938abcc35bc16595e44c776b5b2689397975d58e8f2",
+    "same_digest": true,
+    "second_ref": "sha256:168ea4c3ae10c3ff56073938abcc35bc16595e44c776b5b2689397975d58e8f2"
+  },
+  "gc_dry_run_summary": {
+    "authority_missing": [],
+    "not_retained": [],
+    "unreferenced_authority_probe": {
+      "artifact_ref": "sha256:a51217e50a28148a9de9218d4f82c526173b738b5f6f5334073e5e4ef163330b",
+      "result": "blocked"
+    }
+  },
+  "owner": "team-runtime-quality",
+  "proof_source": "live_cas_workspace_loop_recompute",
+  "reports": [
+    {
+      "artifact_ref": "sha256:0c190a8d887476d93b2767bfa5e7dbeb5915b0d83031ed245fcb24a13bee3079",
+      "authority_manifest_ref": "sha256:29a9ebd48b60956cda166fb9c96617477f3022e66517eaf0054cc0c6e0c16c41",
+      "blob_uri": "cas-blob://sha256:0c190a8d887476d93b2767bfa5e7dbeb5915b0d83031ed245fcb24a13bee3079",
+      "canonicalization_rule_ref": "polisyos.canon.json@0.2.0",
+      "duplicate_group_id": "sha256:0c190a8d887476d93b2767bfa5e7dbeb5915b0d83031ed245fcb24a13bee3079",
+      "gc_dry_run_result": "retain",
+      "gc_retain_reason": "authority_referenced_by:report_index,lineage,workspace",
+      "lineage_refs": [
+        "lineage://sha256:0c190a8d887476d93b2767bfa5e7dbeb5915b0d83031ed245fcb24a13bee3079"
+      ],
+      "manifest_ref": "cas-manifest://sha256:0c190a8d887476d93b2767bfa5e7dbeb5915b0d83031ed245fcb24a13bee3079",
+      "mutation_probe_result": "immutable_payload_ref",
+      "payload_digest": "0c190a8d887476d93b2767bfa5e7dbeb5915b0d83031ed245fcb24a13bee3079",
+      "referrers": [
+        "workspace://gy-f2/0c190a8d8874"
+      ],
+      "report_index_refs": [
+        "report-index://layer3-gy-f2"
+      ],
+      "tamper_probe_result": "verify_passed"
+    },
+    {
+      "artifact_ref": "sha256:168ea4c3ae10c3ff56073938abcc35bc16595e44c776b5b2689397975d58e8f2",
+      "authority_manifest_ref": "sha256:73117a8146ce9c6cfa50455e7a3636238b4241d1f61f0b1bec910a1aa583a317",
+      "blob_uri": "cas-blob://sha256:168ea4c3ae10c3ff56073938abcc35bc16595e44c776b5b2689397975d58e8f2",
+      "canonicalization_rule_ref": "polisyos.canon.json@0.2.0",
+      "duplicate_group_id": "sha256:168ea4c3ae10c3ff56073938abcc35bc16595e44c776b5b2689397975d58e8f2",
+      "gc_dry_run_result": "retain",
+      "gc_retain_reason": "authority_referenced_by:report_index,lineage,workspace",
+      "lineage_refs": [
+        "lineage://sha256:168ea4c3ae10c3ff56073938abcc35bc16595e44c776b5b2689397975d58e8f2"
+      ],
+      "manifest_ref": "cas-manifest://sha256:168ea4c3ae10c3ff56073938abcc35bc16595e44c776b5b2689397975d58e8f2",
+      "mutation_probe_result": "duplicate_write_same_digest:True",
+      "payload_digest": "168ea4c3ae10c3ff56073938abcc35bc16595e44c776b5b2689397975d58e8f2",
+      "referrers": [
+        "workspace://gy-f2/168ea4c3ae10"
+      ],
+      "report_index_refs": [
+        "report-index://layer3-gy-f2"
+      ],
+      "tamper_probe_result": "verify_passed"
+    },
+    {
+      "artifact_ref": "sha256:a51217e50a28148a9de9218d4f82c526173b738b5f6f5334073e5e4ef163330b",
+      "authority_manifest_ref": "sha256:25b6e6691d54416f92291a50ac05ed73074bc49fc71c91bb53f53c469df030ea",
+      "blob_uri": "cas-blob://sha256:a51217e50a28148a9de9218d4f82c526173b738b5f6f5334073e5e4ef163330b",
+      "canonicalization_rule_ref": "polisyos.canon.json@0.2.0",
+      "duplicate_group_id": "sha256:a51217e50a28148a9de9218d4f82c526173b738b5f6f5334073e5e4ef163330b",
+      "gc_dry_run_result": "blocked",
+      "gc_retain_reason": "authority_missing_referrer",
+      "lineage_refs": [],
+      "manifest_ref": "cas-manifest://sha256:a51217e50a28148a9de9218d4f82c526173b738b5f6f5334073e5e4ef163330b",
+      "mutation_probe_result": "immutable_payload_ref",
+      "payload_digest": "a51217e50a28148a9de9218d4f82c526173b738b5f6f5334073e5e4ef163330b",
+      "referrers": [],
+      "report_index_refs": [],
+      "tamper_probe_result": "verify_passed"
+    },
+    {
+      "artifact_ref": "sha256:b9ae17e0ded639ffcd22d6c3602758d4204fd6c624a55c8b941201b3cbc1d94f",
+      "authority_manifest_ref": "sha256:179da038ebedd39689ea3e78e815aaccd23960c0d56eb5768feb18cf4d2241c0",
+      "blob_uri": "cas-blob://sha256:b9ae17e0ded639ffcd22d6c3602758d4204fd6c624a55c8b941201b3cbc1d94f",
+      "canonicalization_rule_ref": "polisyos.canon.json@0.2.0",
+      "duplicate_group_id": "sha256:b9ae17e0ded639ffcd22d6c3602758d4204fd6c624a55c8b941201b3cbc1d94f",
+      "gc_dry_run_result": "retain",
+      "gc_retain_reason": "authority_referenced_by:report_index,lineage,workspace",
+      "lineage_refs": [
+        "lineage://sha256:b9ae17e0ded639ffcd22d6c3602758d4204fd6c624a55c8b941201b3cbc1d94f"
+      ],
+      "manifest_ref": "cas-manifest://sha256:b9ae17e0ded639ffcd22d6c3602758d4204fd6c624a55c8b941201b3cbc1d94f",
+      "mutation_probe_result": "immutable_payload_ref",
+      "payload_digest": "b9ae17e0ded639ffcd22d6c3602758d4204fd6c624a55c8b941201b3cbc1d94f",
+      "referrers": [
+        "workspace://gy-f2/b9ae17e0ded6"
+      ],
+      "report_index_refs": [
+        "report-index://layer3-gy-f2"
+      ],
+      "tamper_probe_result": "rejected:sha256 mismatch"
+    }
+  ],
+  "schema_version": "policyos.policy_design_case.layer3_gy.cas_integrity_reports.v1",
+  "tamper_probe": {
+    "artifact_ref": "sha256:b9ae17e0ded639ffcd22d6c3602758d4204fd6c624a55c8b941201b3cbc1d94f",
+    "result": "rejected:sha256 mismatch"
+  }
+}

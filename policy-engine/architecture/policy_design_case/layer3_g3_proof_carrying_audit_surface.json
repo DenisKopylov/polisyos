@@ -81,9 +81,7 @@
       "limitation_refs",
       "may_not_use_for"
     ],
-    "s11_predictive_posture_refs": [
-      "pdc://layer3/g3/ua-msme-affordable-loans-2022/s11/predictive-knowledge"
-    ],
+    "s11_predictive_posture_refs": [],
     "search_frontier_refs": [
       "g3-search-frontier://layer3/g3/resolved-proof-candidates"
     ],

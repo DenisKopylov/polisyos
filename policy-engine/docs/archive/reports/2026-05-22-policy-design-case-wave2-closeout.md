@@ -32,7 +32,7 @@ Relevant refs: `E6`, `E14`, `E18`, `E19`, `E20`, `E21`, `C21`, `C23`,
 | Soft-gate telemetry | `src/polisyos/runtime/quality/soft_gate_telemetry.py` |
 | Calibration ledger | `src/polisyos/runtime/quality/calibration_ledger.py` |
 | Balanced memory influence records | `src/polisyos/runtime/quality/memory_influence.py` and `src/polisyos/scientist/orchestration/memory/balanced.py` |
-| I2 runtime walking skeleton | `src/polisyos/runtime/quality/wave2_walking_skeleton.py` |
+| I2 runtime walking skeleton | `src/polisyos/runtime/quality/policy_design_case_integration_skeleton.py` |
 | Persisted I2 walking skeleton bundle | `architecture/policy_design_case/wave2_i2_walking_skeleton/manifest.json` |
 | Capability reality report | `architecture/policy_design_case/capability_reality_report.json` |
 | I2 semantic/e2e tests | `tests/unit/runtime/quality/test_wave2_walking_skeleton.py` |

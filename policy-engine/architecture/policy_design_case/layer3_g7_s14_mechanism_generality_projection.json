@@ -52,6 +52,11 @@
         "envelope_revision_dynamics",
         "declared_operation_envelope"
       ],
+      "boundary_id": null,
+      "decision_grade": null,
+      "evidence_basis": null,
+      "evidence_kind": null,
+      "known_limits": [],
       "may_not_use_for": [
         "production_rollout_authority",
         "production_recommendation",
@@ -86,7 +91,7 @@
     "held_out_case_refs": [],
     "marginal_bespoke_cost_status": "pass",
     "mechanism_reuse_rate": 0.0,
-    "replay_digest": "sha256:a3c8c3bcc3b074ebe90e985c48c256ddb3f017ca645e63e75dd37873fde041a1",
+    "replay_digest": "sha256:c34673d8086b9e54233fa55274fe14d2163540fc084fe03d7bbb96c5cba0b8b0",
     "report_id": "s14-mechanism-generality",
     "report_ref": "pdc://layer2/s14/mechanism-generality",
     "reused_mechanism_refs": [

@@ -1,6 +1,123 @@
 {
   "version": 1,
   "internal_rule": "Any polisyos module path not listed here is internal by default.",
+  "generated_artifact_families": [
+    {
+      "id": "policy-design-case-layer3-gy-loop-artifacts",
+      "owner": "team-runtime-quality",
+      "regenerate": "uv run python tools/quality/validation/check_layer3_gy_loop_artifacts.py --repo-root . --write --output-format json",
+      "stale_output_behavior": "fail",
+      "outputs": [
+        "architecture/policy_design_case/layer3_gy_production_loop_run_proofs.json"
+      ]
+    },
+    {
+      "id": "policy-design-case-layer3-gy-loop-source-artifacts",
+      "owner": "team-runtime-quality",
+      "regenerate": "uv run python tools/quality/validation/check_layer3_gy_loop_artifacts.py --repo-root . --check --output-format json",
+      "stale_output_behavior": "fail",
+      "outputs": [
+        "architecture/policy_design_case/layer3_gy_slice0_fixture_manifest.json",
+        "architecture/policy_design_case/layer3_gy_semantic_benchmark.json"
+      ]
+    },
+    {
+      "id": "policy-design-case-layer3-gy-phase2-artifacts",
+      "owner": "team-runtime-quality",
+      "regenerate": "uv run python tools/quality/validation/check_layer3_gy_phase2_artifacts.py --repo-root . --write --output-format json",
+      "stale_output_behavior": "fail",
+      "outputs": [
+        "architecture/policy_design_case/layer3_gy_phase2_playbook_run_proofs.json",
+        "architecture/policy_design_case/layer3_gy_phase2_spine_repair_proofs.json",
+        "architecture/policy_design_case/layer3_gy_phase2_foundry_consumption_proofs.json",
+        "architecture/policy_design_case/layer3_gy_phase2_agent_event_audit.json",
+        "architecture/policy_design_case/layer3_gy_phase2_lex_bounds_strangle_receipt.json"
+      ]
+    },
+    {
+      "id": "policy-design-case-layer3-gy-composition-artifacts",
+      "owner": "team-runtime-quality",
+      "regenerate": "uv run python tools/quality/validation/check_layer3_gy_composition_artifacts.py --repo-root . --write --output-format json",
+      "stale_output_behavior": "fail",
+      "outputs": [
+        "architecture/policy_design_case/layer3_gy_composition_certificates.json"
+      ]
+    },
+    {
+      "id": "policy-design-case-layer3-artifact-surface-safety",
+      "owner": "team-runtime-quality",
+      "regenerate": "uv run python tools/quality/validation/check_layer3_artifact_surface_safety.py --repo-root . --write --output-format json",
+      "stale_output_behavior": "fail",
+      "outputs": [
+        "architecture/policy_design_case/layer3_gy_cas_integrity_reports.json",
+        "architecture/policy_design_case/layer3_gy_secret_pii_scan_reports.json"
+      ]
+    },
+    {
+      "id": "policy-design-case-layer3-time-source-authority",
+      "owner": "team-runtime-quality",
+      "regenerate": "uv run python tools/quality/validation/check_layer3_time_source_authority.py --repo-root . --write --output-format json",
+      "stale_output_behavior": "fail",
+      "outputs": [
+        "architecture/policy_design_case/layer3_gy_time_source_envelope_audit.json",
+        "architecture/policy_design_case/layer3_gy_authority_candidate_inventory.json"
+      ]
+    },
+    {
+      "id": "policy-design-case-layer3-workflow-failure-authority",
+      "owner": "team-runtime-quality",
+      "regenerate": "uv run python tools/quality/validation/check_layer3_workflow_failure_authority.py --repo-root . --write --output-format json",
+      "stale_output_behavior": "fail",
+      "outputs": [
+        "architecture/policy_design_case/layer3_gy_workflow_failure_authority_proofs.json"
+      ]
+    },
+    {
+      "id": "policy-design-case-layer3-gy-task0-audit-artifacts",
+      "owner": "team-runtime-quality",
+      "regenerate": "uv run python tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py --repo-root . --check --json",
+      "stale_output_behavior": "fail",
+      "outputs": [
+        "architecture/policy_design_case/layer3_gy_task0_audit/README.md",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_agent_workflow_event_backing_audit.json",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_agent_workflow_event_backing_findings.md",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_capability_coverage_matrix.json",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_capability_coverage_matrix_findings.md",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_catalog_fetch_audit.json",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_catalog_fetch_audit_findings.md",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_connector_family_truth_audit.json",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_connector_family_truth_findings.md",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_data_requirement_compiler_audit.json",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_data_requirement_compiler_findings.md",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_engine_census.json",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_engine_census_findings.md",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_foundry_breadth_audit.json",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_foundry_breadth_findings.md",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_generated_public_lifecycle_audit.json",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_generated_public_lifecycle_findings.md",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_lex_frontier_root_cause_audit.json",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_lex_frontier_root_cause_findings.md",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_p0_coverage_audit.json",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_p0_coverage_findings.md",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_p1_substrate_authority_audit.json",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_p1_substrate_authority_findings.md",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_p2_semantic_evidence_quality_audit.json",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_p2_semantic_evidence_quality_findings.md",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_repair_design_grounding.md",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_runtime_surface_audit.json",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_runtime_surface_audit_findings.md",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_source_contract_admissibility_audit.json",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_source_contract_admissibility_findings.md",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_substrate_package_capability_findings.md",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_substrate_package_capability_inventory.json",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_system_audit_gap_map.md",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_workflow_consolidation_analysis.md",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_workflow_mode_truth_audit.json",
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_workflow_mode_truth_findings.md",
+        "architecture/policy_design_case/layer3_gy_task0_global_review.md"
+      ]
+    }
+  ],
   "packages": [
     {
       "module": "polisyos.common",
@@ -42,8 +159,13 @@
         "polisyos.core"
       ],
       "major_subsystem": true,
-      "export_count": 15,
+      "export_count": 21,
       "exports": [
+        "SECRET_AND_PII_SCAN_SCOPES",
+        "SECRET_PII_DETECTOR_VERSION",
+        "PromptSanitizer",
+        "SecretAndPIIScanReport",
+        "SecretPIIScanResult",
         "artifacts",
         "backends",
         "cache",
@@ -58,7 +180,8 @@
         "pipeline",
         "registry",
         "resilience",
-        "run"
+        "run",
+        "scan_secret_and_pii"
       ],
       "has___getattr__": true,
       "has___dir__": true,
@@ -537,7 +660,7 @@
         "polisyos.fabric.api"
       ],
       "major_subsystem": true,
-      "export_count": 36,
+      "export_count": 38,
       "exports": [
         "AccessRef",
         "AuthoredText",
@@ -554,6 +677,7 @@
         "QualityRef",
         "ReplayRef",
         "SchemaType",
+        "SimulationDB",
         "SourceContract",
         "SourceContractRef",
         "TemporalRef",
@@ -572,6 +696,7 @@
         "query_events",
         "query_world_table",
         "resolve_connector_registry",
+        "resolve_world_snapshot",
         "run_connectors_ingestion",
         "stream_processing_contract",
         "world"
@@ -623,14 +748,16 @@
         "polisyos.scientist.methods.research_dag"
       ],
       "major_subsystem": true,
-      "export_count": 15,
+      "export_count": 17,
       "exports": [
         "ExperimentState",
+        "KnowledgeToolkit",
         "ToolContractSummary",
         "ToolDefinition",
         "ToolLoopResult",
         "ToolRegistry",
         "build_governance_pipeline",
+        "build_knowledge_tool_registry",
         "create_traced_gateway_client",
         "discover_scientist_nodes",
         "get_metrics",

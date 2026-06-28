@@ -20,6 +20,7 @@ import numpy as np
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.contracts import ValueOuterSet
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import (
     FeedbackConfig,
@@ -817,6 +818,9 @@ def _to_decimal(value: Any) -> Decimal:
 
 
 def _coerce_to_slot_tensor(value: Any, *, slot: SlotSpec, target_tensor: Any):
+    if slot.value_type == SlotValueType.VALUE_OUTER_SET:
+        return _coerce_value_outer_set(value)
+
     target_arr = np.asarray(target_tensor)
     converted = _convert_slot_value(value=value, slot=slot)
     source_arr = np.asarray(converted)
@@ -848,7 +852,19 @@ def _convert_slot_value(*, value: Any, slot: SlotSpec) -> Any:
         return _map_values(value, _canonical_float)
     if slot.value_type == SlotValueType.STRING:
         return _map_values(value, lambda item: "" if item is None else str(item))
+    if slot.value_type == SlotValueType.VALUE_OUTER_SET:
+        return _coerce_value_outer_set(value)
     return value
+
+
+def _coerce_value_outer_set(value: Any) -> ValueOuterSet:
+    if isinstance(value, ValueOuterSet):
+        return value
+    if isinstance(value, str):
+        return ValueOuterSet.model_validate_json(value)
+    if isinstance(value, Mapping):
+        return ValueOuterSet.model_validate(value)
+    raise ValueError(f"Cannot cast '{type(value).__name__}' to ValueOuterSet")
 
 
 def _canonical_float(value: Any) -> float:

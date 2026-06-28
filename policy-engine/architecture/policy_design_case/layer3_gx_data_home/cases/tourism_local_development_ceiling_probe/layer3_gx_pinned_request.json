@@ -1,0 +1,130 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gx_pinned_request.v1",
+  "rule_version": "policyos.layer3.gx.data_home.v1",
+  "request_id": "gx-request:tourism-local-development-ceiling-probe",
+  "case_id": "tourism_local_development_ceiling_probe",
+  "request_ref": "external-request://layer3-gx/tourism_local_development_ceiling_probe",
+  "producer_ref": "external-request://layer3-gx/pinned-request/tourism_local_development_ceiling_probe",
+  "producer_type": "external_request",
+  "producer_root_refs": [
+    "external-request://layer3-gx/pinned-request/tourism_local_development_ceiling_probe"
+  ],
+  "authority_purpose": "pinned_route_replay_input_only",
+  "expected_consumer_path": [
+    "G1",
+    "G2",
+    "G4",
+    "G5",
+    "G6",
+    "G7"
+  ],
+  "requested_constructs": [
+    {
+      "construct_ref": "local_tourism_site_traffic",
+      "role": "effect",
+      "g1_request_shape": "acquisition_gap_probe",
+      "g2_variable_ref": "tourism.local_site_traffic",
+      "broad_query_terms": [
+        "local tourism development",
+        "attraction visitor traffic",
+        "tourism site visits"
+      ]
+    },
+    {
+      "construct_ref": "tourism_attraction_accessibility",
+      "role": "cause",
+      "g1_request_shape": "construct_to_metric_binding",
+      "g2_variable_ref": "tourism.attraction_accessibility",
+      "broad_query_terms": [
+        "tourism attraction accessibility",
+        "visitor access constraints",
+        "local development access"
+      ]
+    },
+    {
+      "construct_ref": "municipal_acquisition_capacity",
+      "role": "demand_context",
+      "g1_request_shape": "scenario_family_to_source_contract",
+      "g2_variable_ref": "municipal.acquisition_capacity",
+      "broad_query_terms": [
+        "municipal data acquisition",
+        "local registry capacity",
+        "tourism evidence acquisition"
+      ]
+    }
+  ],
+  "g1_requests": [
+    {
+      "request_id": "g1-request:acquisition-gap-probe:local_tourism_site_traffic",
+      "case_id": "tourism_local_development_ceiling_probe",
+      "construct_bundle_id": "tourism_local_development_constructs",
+      "request_shape": "acquisition_gap_probe",
+      "construct_ref": "local_tourism_site_traffic",
+      "scenario_family_ref": "tourism_local_development_ceiling",
+      "metric_intent": "confirm missing attraction traffic distribution before grounding",
+      "required_route_refs": []
+    },
+    {
+      "request_id": "g1-request:construct-to-metric-binding:tourism_attraction_accessibility",
+      "case_id": "tourism_local_development_ceiling_probe",
+      "construct_bundle_id": "tourism_local_development_constructs",
+      "request_shape": "construct_to_metric_binding",
+      "construct_ref": "tourism_attraction_accessibility",
+      "scenario_family_ref": "tourism_local_development_ceiling",
+      "metric_intent": "probe local attraction accessibility rows without asserting supply",
+      "required_route_refs": []
+    }
+  ],
+  "g2_request": {
+    "request_id": "g2-request:tourism-ceiling-acquisition-forecast-search",
+    "case_id": "tourism_local_development_ceiling_probe",
+    "source_contract_refs": [
+      "source-contract://tourism-local-development/site-traffic"
+    ],
+    "cause": "tourism.attraction_accessibility",
+    "effect": "tourism.local_site_traffic",
+    "target_context_id": "UA-LOCAL-TOURISM",
+    "limit": 4,
+    "method_task_tags": [
+      "demand_forecasting",
+      "acquisition_planning",
+      "uncertainty"
+    ],
+    "data_modality": "event_or_registry",
+    "treatment_structure": "site_accessibility_change",
+    "outcome_type": "local_tourism_site_traffic",
+    "required_diagnostics": [
+      "missing_distribution",
+      "measurement_feasibility",
+      "transportability"
+    ]
+  },
+  "g4_promotion_requests": [
+    {
+      "request_id": "g4-request:tourism-acquisition-ceiling",
+      "case_id": "tourism_local_development_ceiling_probe",
+      "candidate_ref": "candidate://tourism/local-development-ceiling",
+      "candidate_source": "layer3_gx_pinned_request",
+      "incoming_projection_status": "shadow",
+      "promotion_scope": {
+        "claim_families": [
+          "acquisition_required",
+          "source_gap"
+        ],
+        "requested_boundary": "declared_scope"
+      },
+      "required_contract_families": [
+        "g1_source_contract"
+      ],
+      "source_design_record": {
+        "payload_status": "unresolved",
+        "ref": "pdc://slice0/tourism_local_development_ceiling_probe/design-record-v0"
+      }
+    }
+  ],
+  "may_not_use_for": [
+    "claim_authority",
+    "policy_recommendation",
+    "corpus_supply_fact"
+  ]
+}

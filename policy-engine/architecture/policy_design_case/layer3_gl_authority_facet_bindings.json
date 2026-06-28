@@ -51,7 +51,7 @@
         "ranked_value_choice_without_s8_authorization"
       ],
       "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
-      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "producer_component": "polisyos.runtime.quality.proving_ground.legal_mandate_search",
       "provenance_refs": [],
       "query_trace_refs": [],
       "reference_resolution_status": null,
@@ -119,7 +119,7 @@
         "ranked_value_choice_without_s8_authorization"
       ],
       "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
-      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "producer_component": "polisyos.runtime.quality.proving_ground.legal_mandate_search",
       "provenance_refs": [],
       "query_trace_refs": [],
       "reference_resolution_status": null,
@@ -190,7 +190,7 @@
         "ranked_value_choice_without_s8_authorization"
       ],
       "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
-      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "producer_component": "polisyos.runtime.quality.proving_ground.legal_mandate_search",
       "provenance_refs": [],
       "query_trace_refs": [],
       "reference_resolution_status": null,
@@ -260,7 +260,7 @@
         "ranked_value_choice_without_s8_authorization"
       ],
       "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
-      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "producer_component": "polisyos.runtime.quality.proving_ground.legal_mandate_search",
       "provenance_refs": [],
       "query_trace_refs": [],
       "reference_resolution_status": null,
@@ -328,7 +328,7 @@
         "ranked_value_choice_without_s8_authorization"
       ],
       "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
-      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "producer_component": "polisyos.runtime.quality.proving_ground.legal_mandate_search",
       "provenance_refs": [],
       "query_trace_refs": [],
       "reference_resolution_status": null,
@@ -396,7 +396,7 @@
         "ranked_value_choice_without_s8_authorization"
       ],
       "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
-      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "producer_component": "polisyos.runtime.quality.proving_ground.legal_mandate_search",
       "provenance_refs": [],
       "query_trace_refs": [],
       "reference_resolution_status": null,
@@ -467,7 +467,7 @@
         "ranked_value_choice_without_s8_authorization"
       ],
       "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
-      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "producer_component": "polisyos.runtime.quality.proving_ground.legal_mandate_search",
       "provenance_refs": [],
       "query_trace_refs": [],
       "reference_resolution_status": null,
@@ -539,7 +539,7 @@
         "ranked_value_choice_without_s8_authorization"
       ],
       "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
-      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "producer_component": "polisyos.runtime.quality.proving_ground.legal_mandate_search",
       "provenance_refs": [],
       "query_trace_refs": [],
       "reference_resolution_status": null,
@@ -611,7 +611,7 @@
         "ranked_value_choice_without_s8_authorization"
       ],
       "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
-      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "producer_component": "polisyos.runtime.quality.proving_ground.legal_mandate_search",
       "provenance_refs": [],
       "query_trace_refs": [],
       "reference_resolution_status": null,
@@ -679,7 +679,7 @@
         "ranked_value_choice_without_s8_authorization"
       ],
       "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
-      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "producer_component": "polisyos.runtime.quality.proving_ground.legal_mandate_search",
       "provenance_refs": [],
       "query_trace_refs": [],
       "reference_resolution_status": null,
@@ -751,7 +751,7 @@
         "ranked_value_choice_without_s8_authorization"
       ],
       "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
-      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "producer_component": "polisyos.runtime.quality.proving_ground.legal_mandate_search",
       "provenance_refs": [],
       "query_trace_refs": [],
       "reference_resolution_status": null,
@@ -821,7 +821,7 @@
         "ranked_value_choice_without_s8_authorization"
       ],
       "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
-      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "producer_component": "polisyos.runtime.quality.proving_ground.legal_mandate_search",
       "provenance_refs": [],
       "query_trace_refs": [],
       "reference_resolution_status": null,
@@ -889,7 +889,7 @@
         "ranked_value_choice_without_s8_authorization"
       ],
       "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
-      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "producer_component": "polisyos.runtime.quality.proving_ground.legal_mandate_search",
       "provenance_refs": [],
       "query_trace_refs": [],
       "reference_resolution_status": null,
@@ -957,7 +957,7 @@
         "ranked_value_choice_without_s8_authorization"
       ],
       "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
-      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "producer_component": "polisyos.runtime.quality.proving_ground.legal_mandate_search",
       "provenance_refs": [],
       "query_trace_refs": [],
       "reference_resolution_status": null,
@@ -1028,7 +1028,7 @@
         "ranked_value_choice_without_s8_authorization"
       ],
       "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
-      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "producer_component": "polisyos.runtime.quality.proving_ground.legal_mandate_search",
       "provenance_refs": [],
       "query_trace_refs": [],
       "reference_resolution_status": null,
@@ -1102,7 +1102,7 @@
         "ranked_value_choice_without_s8_authorization"
       ],
       "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
-      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "producer_component": "polisyos.runtime.quality.proving_ground.legal_mandate_search",
       "provenance_refs": [],
       "query_trace_refs": [],
       "reference_resolution_status": null,
@@ -1174,7 +1174,7 @@
         "ranked_value_choice_without_s8_authorization"
       ],
       "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
-      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "producer_component": "polisyos.runtime.quality.proving_ground.legal_mandate_search",
       "provenance_refs": [],
       "query_trace_refs": [],
       "reference_resolution_status": null,
@@ -1250,7 +1250,7 @@
         "ranked_value_choice_without_s8_authorization"
       ],
       "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
-      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "producer_component": "polisyos.runtime.quality.proving_ground.legal_mandate_search",
       "provenance_refs": [],
       "query_trace_refs": [],
       "reference_resolution_status": null,

@@ -25,9 +25,8 @@ def test_artifact_content_preview_enforces_max_bytes(runtime_api_env) -> None:
     assert preview["max_bytes"] == 1024
 
     secret = client.get(f"/api/v1/artifacts/{runtime_api_env['secret_artifact_id']}/content")
-    assert secret.status_code == 200
-    secret_preview = secret.json()["artifact"]
-    assert secret_preview["preview"] == "[REDACTED]"
+    assert secret.status_code == 409
+    assert secret.json()["code"] == "authority_surface_admission_blocked"
 
 
 def test_artifact_lineage_and_schema_endpoints(runtime_api_env) -> None:

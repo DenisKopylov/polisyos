@@ -81,7 +81,7 @@ def test_cluster_ownership_map_keeps_known_blind_spots_explicit() -> None:
     ):
         cell = payload["cell"][cluster][axis]
         assert cell["owner_module"] == (
-            "src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py"
+            "src/polisyos/runtime/quality/design_axes/blind_spot_firewalls.py"
         )
         assert cell["ratchet_state"] == "implemented"
         assert cell["p01_chain"] == "implemented"
@@ -119,7 +119,7 @@ def test_cluster_ownership_map_keeps_known_blind_spots_explicit() -> None:
     )
 
     scientist = payload["cell"]["CROSS_CUTTING"]["scientist_orchestration"]
-    assert scientist["owner_module"] == "src/polisyos/runtime/quality/layer2_delegation.py"
+    assert scientist["owner_module"] == "src/polisyos/runtime/quality/design_axes/mandate_bounded_delegation.py"
     assert scientist["ratchet_state"] == "implemented"
     assert scientist["p01_chain"] == "implemented"
     assert scientist["authority_dim"] == "cluster_orchestration_integrity"
@@ -137,7 +137,7 @@ def test_cluster_ownership_envelope_growth_documents_s12_and_s13_without_open_ce
     cell = payload["cell"]["DESIGNER_ITSELF"]["envelope_growth"]
 
     assert cell["owner_module"] == (
-        "src/polisyos/runtime/quality/layer2_resource_economics.py"
+        "src/polisyos/runtime/quality/design_axes/resource_economics.py"
     )
     assert cell["ratchet_state"] == "implemented"
     assert cell["p01_chain"] == "implemented"

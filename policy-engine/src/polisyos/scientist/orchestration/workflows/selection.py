@@ -10,13 +10,13 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
-from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.evidence.sources import normalize_evidence_sources_config
 from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_KNOWLEDGE_BUNDLE_REF,
     INPUT_RESEARCH_INTENT_REF,
     INPUT_TRINITY_BUNDLE_REF,
 )
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 _EXTERNAL_EVIDENCE_MARKERS: frozenset[str] = frozenset(
     {
@@ -48,16 +48,16 @@ def resolve_workflow_id(initial_state: ExperimentState) -> str:
         return "scientist_policy_verified"
     if _should_use_discovery(initial_state):
         return "scientist_discovery"
-    if _should_use_policy_design(initial_state):
-        return "scientist_policy_design"
-    if _should_use_policy_verified(initial_state):
-        return "scientist_policy_verified"
-    if _execution_profile_requires_serious_workflow(initial_state):
-        return "scientist_causal_full"
     if explicit == "scientist_causal_full":
         return "scientist_causal_full"
     if _should_auto_escalate_to_causal_full(initial_state):
         return "scientist_causal_full"
+    if _execution_profile_requires_serious_workflow(initial_state):
+        return "scientist_causal_full"
+    if _should_use_policy_verified(initial_state):
+        return "scientist_policy_verified"
+    if _should_use_policy_design(initial_state):
+        return "scientist_policy_design"
     return "scientist_default"
 
 
@@ -69,17 +69,7 @@ def _should_use_policy_verified(state: ExperimentState) -> bool:
     )
     if answer_mode == "verified_async" or execution_profile == "policy_verified_async":
         return True
-    has_trinity = INPUT_TRINITY_BUNDLE_REF in state.inputs
-    has_policy_request = any(
-        (
-            INPUT_RESEARCH_INTENT_REF in state.inputs,
-            bool(str(params.get("policy_question", "") or "").strip()),
-            bool(str(params.get("policy_request", "") or "").strip()),
-            bool(str(params.get("problem_statement", "") or "").strip()),
-            bool(str(params.get("research_question", "") or "").strip()),
-        )
-    )
-    return (not has_trinity) and has_policy_request
+    return False
 
 
 def _should_use_policy_design(state: ExperimentState) -> bool:
@@ -94,7 +84,18 @@ def _should_use_policy_design(state: ExperimentState) -> bool:
         return raw
     if isinstance(raw, str):
         return raw.strip().lower() in {"1", "true", "yes", "on"}
-    return False
+    return any(
+        (
+            "design_problem_ref" in state.inputs,
+            bool(params.get("design_problem_ref")),
+            isinstance(params.get("design_problem"), Mapping),
+            INPUT_RESEARCH_INTENT_REF in state.inputs,
+            bool(str(params.get("policy_question", "") or "").strip()),
+            bool(str(params.get("policy_request", "") or "").strip()),
+            bool(str(params.get("problem_statement", "") or "").strip()),
+            bool(str(params.get("research_question", "") or "").strip()),
+        )
+    )
 
 
 def _should_use_discovery(state: ExperimentState) -> bool:

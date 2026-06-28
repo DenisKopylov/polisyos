@@ -1,0 +1,620 @@
+{
+  "contract_id": "policyos.runtime.design_problem",
+  "design_problem_schema_version": "policyos.runtime.design_problem.v1",
+  "gy_lifecycle_marker": "policyos.policy_design_case.layer3_gy.design_problem_contract.v1",
+  "json_schema": {
+    "$defs": {
+      "AuthorityProfile": {
+        "additionalProperties": false,
+        "description": "Record requester authority and mandate context for the problem.",
+        "properties": {
+          "authority_refs": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Authority Refs",
+            "type": "array"
+          },
+          "mandate": {
+            "minLength": 1,
+            "title": "Mandate",
+            "type": "string"
+          },
+          "requested_authority_level": {
+            "enum": [
+              "research",
+              "governed",
+              "production"
+            ],
+            "title": "Requested Authority Level",
+            "type": "string"
+          },
+          "requester_authority": {
+            "minLength": 1,
+            "title": "Requester Authority",
+            "type": "string"
+          }
+        },
+        "required": [
+          "requester_authority",
+          "requested_authority_level",
+          "mandate"
+        ],
+        "title": "AuthorityProfile",
+        "type": "object"
+      },
+      "CandidateLever": {
+        "additionalProperties": false,
+        "description": "Represent one candidate operator/instrument slot for atom binding.",
+        "properties": {
+          "instrument": {
+            "minLength": 1,
+            "title": "Instrument",
+            "type": "string"
+          },
+          "lever_id": {
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "title": "Lever Id",
+            "type": "string"
+          },
+          "operator_kind": {
+            "minLength": 1,
+            "title": "Operator Kind",
+            "type": "string"
+          },
+          "target_slot": {
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "title": "Target Slot",
+            "type": "string"
+          }
+        },
+        "required": [
+          "lever_id",
+          "operator_kind",
+          "instrument",
+          "target_slot"
+        ],
+        "title": "CandidateLever",
+        "type": "object"
+      },
+      "CandidateLeverSpace": {
+        "additionalProperties": false,
+        "description": "Represent the allowed lever/operator space for candidate generation.",
+        "properties": {
+          "allowed_operator_kinds": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Allowed Operator Kinds",
+            "type": "array"
+          },
+          "candidate_levers": {
+            "items": {
+              "$ref": "#/$defs/CandidateLever"
+            },
+            "title": "Candidate Levers",
+            "type": "array"
+          }
+        },
+        "title": "CandidateLeverSpace",
+        "type": "object"
+      },
+      "DesignConstraint": {
+        "additionalProperties": false,
+        "description": "Represent a constraint with explicit admissibility provenance.",
+        "properties": {
+          "admissibility_basis": {
+            "minLength": 1,
+            "title": "Admissibility Basis",
+            "type": "string"
+          },
+          "constraint_id": {
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "title": "Constraint Id",
+            "type": "string"
+          },
+          "description": {
+            "minLength": 1,
+            "title": "Description",
+            "type": "string"
+          },
+          "evidence_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Evidence Ref"
+          },
+          "hard": {
+            "default": true,
+            "title": "Hard",
+            "type": "boolean"
+          },
+          "source_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source Text"
+          }
+        },
+        "required": [
+          "constraint_id",
+          "description",
+          "admissibility_basis"
+        ],
+        "title": "DesignConstraint",
+        "type": "object"
+      },
+      "DesignObjective": {
+        "additionalProperties": false,
+        "description": "Represent one objective reused by generator and IR projections.",
+        "properties": {
+          "description": {
+            "minLength": 1,
+            "title": "Description",
+            "type": "string"
+          },
+          "direction": {
+            "default": "maximize",
+            "enum": [
+              "maximize",
+              "minimize",
+              "maintain_range"
+            ],
+            "title": "Direction",
+            "type": "string"
+          },
+          "metric_id": {
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "title": "Metric Id",
+            "type": "string"
+          },
+          "objective_id": {
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "title": "Objective Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "objective_id",
+          "description",
+          "metric_id"
+        ],
+        "title": "DesignObjective",
+        "type": "object"
+      },
+      "DesignStakeholder": {
+        "additionalProperties": false,
+        "description": "Represent an affected stakeholder shared across projections.",
+        "properties": {
+          "name": {
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Role"
+          },
+          "stakeholder_id": {
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "title": "Stakeholder Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "stakeholder_id",
+          "name"
+        ],
+        "title": "DesignStakeholder",
+        "type": "object"
+      },
+      "EvidenceAcquisitionNeeds": {
+        "additionalProperties": false,
+        "description": "Represent grounding demands carried into GY-N3/GY-N7.",
+        "properties": {
+          "needs": {
+            "items": {
+              "$ref": "#/$defs/EvidenceNeed"
+            },
+            "title": "Needs",
+            "type": "array"
+          }
+        },
+        "title": "EvidenceAcquisitionNeeds",
+        "type": "object"
+      },
+      "EvidenceNeed": {
+        "additionalProperties": false,
+        "description": "Represent one grounding or acquisition demand.",
+        "properties": {
+          "artifact_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Artifact Ref"
+          },
+          "need_id": {
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "title": "Need Id",
+            "type": "string"
+          },
+          "question": {
+            "minLength": 1,
+            "title": "Question",
+            "type": "string"
+          },
+          "required_for": {
+            "minLength": 1,
+            "title": "Required For",
+            "type": "string"
+          },
+          "source_hint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source Hint"
+          },
+          "status": {
+            "default": "required",
+            "enum": [
+              "required",
+              "satisfied",
+              "blocked"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "need_id",
+          "question",
+          "required_for"
+        ],
+        "title": "EvidenceNeed",
+        "type": "object"
+      },
+      "JurisdictionTimeSemantics": {
+        "additionalProperties": false,
+        "description": "Bind jurisdiction and time-role semantics for the design problem.",
+        "properties": {
+          "as_of": {
+            "minLength": 1,
+            "title": "As Of",
+            "type": "string"
+          },
+          "data_time": {
+            "minLength": 1,
+            "title": "Data Time",
+            "type": "string"
+          },
+          "policy_time": {
+            "minLength": 1,
+            "title": "Policy Time",
+            "type": "string"
+          },
+          "region": {
+            "minLength": 1,
+            "title": "Region",
+            "type": "string"
+          },
+          "time_semantics": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/TimeSemantics"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_time": {
+            "minLength": 1,
+            "title": "Valid Time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "region",
+          "valid_time",
+          "as_of",
+          "policy_time",
+          "data_time"
+        ],
+        "title": "JurisdictionTimeSemantics",
+        "type": "object"
+      },
+      "NLProvenance": {
+        "additionalProperties": false,
+        "description": "Record raw natural-language request provenance.\n\nAttributes:\n    raw_request: Original user request text before producer interpretation.\n    source_surface: Runtime or API surface that captured the request.\n    source_context: Structured context supplied at capture time.",
+        "properties": {
+          "raw_request": {
+            "minLength": 1,
+            "title": "Raw Request",
+            "type": "string"
+          },
+          "source_context": {
+            "additionalProperties": true,
+            "title": "Source Context",
+            "type": "object"
+          },
+          "source_surface": {
+            "minLength": 1,
+            "title": "Source Surface",
+            "type": "string"
+          }
+        },
+        "required": [
+          "raw_request",
+          "source_surface"
+        ],
+        "title": "NLProvenance",
+        "type": "object"
+      },
+      "OutcomeOfInterest": {
+        "additionalProperties": false,
+        "description": "Represent the target variable the value gate will estimate.",
+        "properties": {
+          "direction": {
+            "default": "maximize",
+            "enum": [
+              "maximize",
+              "minimize",
+              "maintain_range"
+            ],
+            "title": "Direction",
+            "type": "string"
+          },
+          "estimand": {
+            "minLength": 1,
+            "title": "Estimand",
+            "type": "string"
+          },
+          "metric_id": {
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "title": "Metric Id",
+            "type": "string"
+          },
+          "target_variable": {
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "title": "Target Variable",
+            "type": "string"
+          }
+        },
+        "required": [
+          "target_variable",
+          "metric_id",
+          "estimand"
+        ],
+        "title": "OutcomeOfInterest",
+        "type": "object"
+      },
+      "TimeFrequency": {
+        "description": "\u0415\u0434\u0438\u043d\u0438\u0446\u044b \u0432\u0440\u0435\u043c\u0435\u043d\u0438 \u0434\u043b\u044f \u0441\u0438\u043c\u0443\u043b\u044f\u0446\u0438\u0438.",
+        "enum": [
+          "M",
+          "Q",
+          "Y"
+        ],
+        "title": "TimeFrequency",
+        "type": "string"
+      },
+      "TimeSemantics": {
+        "additionalProperties": false,
+        "description": "Time semantics public type.",
+        "properties": {
+          "end_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "End Date"
+          },
+          "frequency": {
+            "$ref": "#/$defs/TimeFrequency"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Notes",
+            "type": "array"
+          },
+          "start_date": {
+            "title": "Start Date",
+            "type": "string"
+          },
+          "step_count": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Step Count"
+          }
+        },
+        "required": [
+          "frequency",
+          "start_date"
+        ],
+        "title": "TimeSemantics",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Bridge one policy-design problem across existing PolicyOS owners.\n\n``DesignProblem`` is the canonical request/problem bridge for the generation\ncycle. It reuses ``PolicyIntentEnvelope`` request semantics, projects to the\nScientist agent ``ProblemFrame``, projects to IR governance ``ProblemFrame``,\nkeeps the verified ``PolicyRequestFrame`` as a legal sub-projection, and\ncarries ``ModelSpec`` time semantics by reference instead of creating a\nparallel ontology.\n\nAttributes:\n    design_problem_id: Stable problem id used by projections.\n    nl_provenance: Raw NL request and capture context.\n    authority_profile: Requester authority and mandate boundaries.\n    jurisdiction_time: Jurisdiction and valid/as-of/policy/data time roles.\n    objectives: Formal objective candidates for generator and IR projection.\n    constraints: Constraints admitted only with request, authority, or\n        producer-evidence support.\n    stakeholders: Affected actor set.\n    outcome_of_interest: Target variable and estimand for value gating.\n    candidate_lever_space: Operator/instrument space for atom binding.\n    evidence_acquisition_needs: Grounding and acquisition demands.\n    model_spec_ref: Optional persisted ModelSpec reference.\n    ir_problem_frame_ref: Optional persisted IR ProblemFrame reference.\n    policy_request_frame_ref: Optional verified-policy sub-projection ref.\n    runtime_hints: Runtime-only projection hints for current cycle adapters.",
+    "properties": {
+      "authority_profile": {
+        "$ref": "#/$defs/AuthorityProfile"
+      },
+      "candidate_lever_space": {
+        "$ref": "#/$defs/CandidateLeverSpace"
+      },
+      "constraints": {
+        "items": {
+          "$ref": "#/$defs/DesignConstraint"
+        },
+        "title": "Constraints",
+        "type": "array"
+      },
+      "design_problem_id": {
+        "pattern": "^[a-z][a-z0-9_]*$",
+        "title": "Design Problem Id",
+        "type": "string"
+      },
+      "domain": {
+        "minLength": 1,
+        "title": "Domain",
+        "type": "string"
+      },
+      "evidence_acquisition_needs": {
+        "$ref": "#/$defs/EvidenceAcquisitionNeeds"
+      },
+      "ir_problem_frame_ref": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Ir Problem Frame Ref"
+      },
+      "jurisdiction_time": {
+        "$ref": "#/$defs/JurisdictionTimeSemantics"
+      },
+      "model_spec_ref": {
+        "anyOf": [
+          {
+            "pattern": "^sha256:[a-f0-9]{64}$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Model Spec Ref"
+      },
+      "nl_provenance": {
+        "$ref": "#/$defs/NLProvenance"
+      },
+      "objectives": {
+        "items": {
+          "$ref": "#/$defs/DesignObjective"
+        },
+        "title": "Objectives",
+        "type": "array"
+      },
+      "outcome_of_interest": {
+        "$ref": "#/$defs/OutcomeOfInterest"
+      },
+      "policy_request_frame_ref": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "default": null,
+        "title": "Policy Request Frame Ref"
+      },
+      "problem_statement": {
+        "minLength": 1,
+        "title": "Problem Statement",
+        "type": "string"
+      },
+      "runtime_hints": {
+        "additionalProperties": true,
+        "title": "Runtime Hints",
+        "type": "object"
+      },
+      "schema_version": {
+        "default": "policyos.runtime.design_problem.v1",
+        "title": "Schema Version",
+        "type": "string"
+      },
+      "stakeholders": {
+        "items": {
+          "$ref": "#/$defs/DesignStakeholder"
+        },
+        "title": "Stakeholders",
+        "type": "array"
+      }
+    },
+    "required": [
+      "design_problem_id",
+      "problem_statement",
+      "domain",
+      "nl_provenance",
+      "authority_profile",
+      "jurisdiction_time",
+      "outcome_of_interest",
+      "candidate_lever_space",
+      "evidence_acquisition_needs"
+    ],
+    "title": "DesignProblem",
+    "type": "object"
+  },
+  "owner": "polisyos.runtime.quality.design_problem.DesignProblem",
+  "projection_surfaces": [
+    "runtime.PolicyIntentEnvelope",
+    "scientist.agent.ProblemFrame",
+    "ir.governance.ProblemFrame",
+    "ir.model_layer.ModelSpec",
+    "scientist.policy_verified.PolicyRequestFrame",
+    "runtime.quality.workspace.WorkspaceLoop.run_intent"
+  ],
+  "schema_version": "policyos.policy_design_case.layer3_gy.design_problem_contract.v1",
+  "source_module": "src/polisyos/runtime/quality/design_problem.py",
+  "strangle_obligations": [
+    "plain_policy_nl_not_verified_default",
+    "workspace_run_intent_rejects_raw_dict"
+  ]
+}

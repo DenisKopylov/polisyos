@@ -160,6 +160,48 @@ class FallbackRouter:
         """No-op close hook for TracedLLMClient compatibility."""
         return None
 
+    async def list_model_ids(self, *, timeout: float | None = None) -> list[str]:
+        """Fetch model IDs from the first available endpoint for preflight checks."""
+
+        last_error: Exception | None = None
+        for state in self._available_endpoints():
+            cfg = state.config
+            client = GatewayLLMClient(
+                base_url=cfg.url,
+                api_key=cfg.api_key,
+                model=cfg.model or "default",
+                timeout_s=cfg.timeout_s,
+                max_retries=cfg.max_retries,
+                provider_hint=cfg.provider_hint,
+                extra_headers=self._extra_headers,
+                preset=cfg.preset,
+                default_plugins=[dict(plugin) for plugin in cfg.default_plugins],
+            )
+            try:
+                model_ids = await client.list_model_ids(timeout=timeout)
+                with self._lock:
+                    state.record_success()
+                return model_ids
+            except _FALLBACK_ROUTER_RUNTIME_ERRORS as exc:
+                last_error = exc
+                with self._lock:
+                    state.record_failure()
+                emit_degraded_path(
+                    component="scientist.llm.fallback_router",
+                    operation="list_model_ids",
+                    reason="endpoint_model_catalog_failed",
+                    exc=exc,
+                    details={
+                        "endpoint_url": cfg.url,
+                        "provider_hint": cfg.provider_hint,
+                        "priority": cfg.priority,
+                    },
+                )
+            finally:
+                await client.aclose()
+
+        raise RuntimeError("All LLM endpoints exhausted for model catalog") from last_error
+
     def _available_endpoints(self) -> list[_EndpointState]:
         with self._lock:
             now = time.monotonic()

@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
-from typing import Any
+import importlib
+from collections.abc import Awaitable, Callable, Mapping, Sequence
+from typing import Any, Protocol
+
+from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.runtime.quality.authority import authority_purpose_blockers
 from polisyos.runtime.quality.hypothesis_ledger import (
@@ -14,6 +17,40 @@ from polisyos.runtime.quality.hypothesis_ledger import (
     HypothesisLedgerInput,
     deserialize_hypothesis_ledger,
 )
+
+AUTHORITY_CANDIDATE_FIREWALL_NAME = "candidate_positive_status_firewall"
+
+
+class SpanSupportClient(Protocol):
+    """Structural client protocol for injected span-support judges."""
+
+    def generate(
+        self,
+        *,
+        messages: list[dict[str, object]],
+        tools: list[dict[str, object]],
+        temperature: float | None = None,
+        seed: int | None = None,
+    ) -> Awaitable[object]:
+        """Return a bounded-agent style tool-calling response."""
+
+
+class AuthorityCandidateInventoryRow(BaseModel):
+    """One firewall-excluded candidate-positive status row."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    producer_component: str = Field(..., min_length=1)
+    source_artifact_ref: str = Field(..., min_length=1)
+    field_path: str = Field(..., min_length=1)
+    status_text: str = Field(..., min_length=1)
+    candidate_positive_rule: str = Field(..., min_length=1)
+    firewall_name: str = AUTHORITY_CANDIDATE_FIREWALL_NAME
+    exclusion_reason: str = Field(..., min_length=1)
+    resulting_boundary_ref: str = Field(..., min_length=1)
+    false_exclusion_review: str = Field(..., min_length=1)
+    reviewer: str | None = None
+    reviewed_at: str | None = None
 
 _CANDIDATE_REF_PREFIXES = (
     "hypothesis-candidate:",
@@ -146,6 +183,499 @@ def candidate_refs_from_payload(value: object) -> tuple[str, ...]:
     refs: list[str] = []
     _collect_candidate_refs(value, refs)
     return tuple(dict.fromkeys(refs))
+
+
+def build_authority_candidate_inventory_rows(
+    firewall_rows: Sequence[Mapping[str, Any]],
+    *,
+    reviewer: str | None = None,
+    reviewed_at: str | None = None,
+) -> tuple[AuthorityCandidateInventoryRow, ...]:
+    """Build row-level authority inventory from existing firewall exclusions."""
+
+    return tuple(
+        _authority_candidate_inventory_row(
+            row,
+            reviewer=reviewer,
+            reviewed_at=reviewed_at,
+        )
+        for row in firewall_rows
+    )
+
+
+def assert_candidate_positive_firewall_boundary(
+    row: AuthorityCandidateInventoryRow | Mapping[str, Any],
+    *,
+    surface: str,
+    boundary_ref: str | None,
+) -> None:
+    """Reject candidate-positive authority promotion unless the firewall boundary exists."""
+
+    inventory_row = (
+        row
+        if isinstance(row, AuthorityCandidateInventoryRow)
+        else AuthorityCandidateInventoryRow.model_validate(row)
+    )
+    if boundary_ref != inventory_row.resulting_boundary_ref:
+        raise CandidateFirewallError(
+            "candidate_positive_firewall_boundary_missing",
+            "Candidate-positive diagnostic status cannot promote without its firewall boundary.",
+            candidate_id=inventory_row.resulting_boundary_ref,
+            surface=surface,
+        )
+
+
+def assert_l2_claim_authority_span_grounded(
+    payload: Mapping[str, Any],
+    *,
+    surface: str,
+    grounding_resolver: Callable[[str], Mapping[str, Any] | None] | None = None,
+    span_support_client: SpanSupportClient | None = None,
+) -> Mapping[str, Any]:
+    """Reject L2 claim-authority records without resolved validated span grounding."""
+
+    issues = l2_claim_authority_grounding_issues_for_payload(
+        payload,
+        surface=surface,
+        grounding_resolver=grounding_resolver,
+        span_support_client=span_support_client,
+    )
+    if issues:
+        first = issues[0]
+        raise CandidateFirewallError(
+            str(first.get("code") or "web_bundle_l2_authority_blocked"),
+            str(first.get("message") or "Web bundle cannot satisfy L2 authority."),
+            candidate_id=_text(first.get("source_ref")),
+            surface=surface,
+        )
+    return payload
+
+
+def web_bundle_l2_authority_issues_for_payload(
+    payload: Mapping[str, Any] | None,
+    *,
+    surface: str,
+) -> list[dict[str, Any]]:
+    """Return issues for web bundles attempting to fill L2 claim authority."""
+
+    return l2_claim_authority_grounding_issues_for_payload(payload, surface=surface)
+
+
+def l2_claim_authority_grounding_issues_for_payload(
+    payload: Mapping[str, Any] | None,
+    *,
+    surface: str,
+    grounding_resolver: Callable[[str], Mapping[str, Any] | None] | None = None,
+    span_support_client: SpanSupportClient | None = None,
+) -> list[dict[str, Any]]:
+    """Return issues for L2 claim authority without resolved span grounding."""
+
+    if not isinstance(payload, Mapping):
+        return []
+    issues: list[dict[str, Any]] = []
+    _collect_web_l2_authority_issues(
+        payload,
+        issues,
+        surface=surface,
+        in_claim_authority=False,
+        grounding_resolver=grounding_resolver,
+        span_support_client=span_support_client,
+    )
+    return _dedupe_web_issues(issues)
+
+
+def _authority_candidate_inventory_row(
+    row: Mapping[str, Any],
+    *,
+    reviewer: str | None,
+    reviewed_at: str | None,
+) -> AuthorityCandidateInventoryRow:
+    producer_source = row.get("producer_source")
+    if not isinstance(producer_source, Mapping):
+        producer_source = {}
+    producer_component = (
+        _text(producer_source.get("producer_ref"))
+        or _text(producer_source.get("producer_type"))
+        or _text(row.get("artifact_family"))
+        or "unknown_producer"
+    )
+    candidate_positive_rule = (
+        _text(row.get("firewall_rule"))
+        or _text(row.get("classification"))
+        or "candidate_positive_status_firewall"
+    )
+    exclusion_reason = (
+        _text(row.get("firewall_rule"))
+        or _text(row.get("classification"))
+        or "candidate_positive_excluded"
+    )
+    candidate_id = _text(row.get("candidate_positive_status_id")) or _stable_candidate_row_id(row)
+    return AuthorityCandidateInventoryRow(
+        producer_component=producer_component,
+        source_artifact_ref=_text(row.get("artifact_path")) or "unknown_artifact",
+        field_path=_candidate_positive_field_path(row),
+        status_text=_text(row.get("value")) or "unknown_status",
+        candidate_positive_rule=candidate_positive_rule,
+        firewall_name=AUTHORITY_CANDIDATE_FIREWALL_NAME,
+        exclusion_reason=exclusion_reason,
+        resulting_boundary_ref=f"authority-boundary://candidate-positive-status/{candidate_id}",
+        false_exclusion_review=_false_exclusion_review(row),
+        reviewer=reviewer,
+        reviewed_at=reviewed_at,
+    )
+
+
+_WEB_BUNDLE_SOURCE_KINDS = {
+    "scholar.web_evidence_bundle",
+    "web_evidence_bundle",
+    "web_search_hit",
+    "openalex_search_hit",
+    "candidate_web_bundle",
+}
+
+
+def _collect_web_l2_authority_issues(
+    value: object,
+    issues: list[dict[str, Any]],
+    *,
+    surface: str,
+    in_claim_authority: bool,
+    grounding_resolver: Callable[[str], Mapping[str, Any] | None] | None,
+    span_support_client: SpanSupportClient | None,
+) -> None:
+    if isinstance(value, Mapping):
+        is_claim_authority = in_claim_authority
+        for key in value:
+            if str(key).strip().lower() in {"claim_authority", "l2_claim_authority"}:
+                is_claim_authority = True
+                break
+        if is_claim_authority and _looks_like_l2_claim_authority_record(value):
+            issue = _l2_claim_authority_grounding_issue(
+                value,
+                surface=surface,
+                grounding_resolver=grounding_resolver,
+                span_support_client=span_support_client,
+            )
+            if issue is not None:
+                issues.append(issue)
+        elif (
+            is_claim_authority
+            and _looks_like_web_authority_record(value)
+            and not _has_validated_span_grounding(value)
+        ):
+            issues.append(
+                {
+                    "code": "web_bundle_l2_authority_blocked",
+                    "severity": "fail",
+                    "status": "fail",
+                    "surface": surface,
+                    "layer": "candidate_firewall",
+                    "source_kind": _text(value.get("source_kind")),
+                    "source_ref": _text(value.get("source_ref")),
+                    "authority_slot": "claim_authority",
+                    "message": (
+                        "Web bundles and raw search hits are candidate_unverified until "
+                        "a resolving, supporting span-grounding record validates them."
+                    ),
+                }
+            )
+        for key, item in value.items():
+            key_is_claim = str(key).strip().lower() in {
+                "claim_authority",
+                "l2_claim_authority",
+            }
+            _collect_web_l2_authority_issues(
+                item,
+                issues,
+                surface=surface,
+                in_claim_authority=is_claim_authority or key_is_claim,
+                grounding_resolver=grounding_resolver,
+                span_support_client=span_support_client,
+            )
+        return
+    if isinstance(value, Sequence) and not isinstance(value, bytes | bytearray | str):
+        for item in value:
+            _collect_web_l2_authority_issues(
+                item,
+                issues,
+                surface=surface,
+                in_claim_authority=in_claim_authority,
+                grounding_resolver=grounding_resolver,
+                span_support_client=span_support_client,
+            )
+
+
+def _looks_like_l2_claim_authority_record(value: Mapping[str, Any]) -> bool:
+    authority_tier = _text(value.get("authority_tier")) or ""
+    if authority_tier == "design_tier_l2":
+        return True
+    if _text(value.get("span_grounding_status")) or _text(
+        value.get("validated_span_grounding_ref")
+    ):
+        return True
+    source_kind = _text(value.get("source_kind")) or ""
+    source_ref = _text(value.get("source_ref")) or ""
+    return source_kind == "openalex_span_grounded_claim" or source_ref.startswith(
+        "openalex-span-grounding://"
+    )
+
+
+def _l2_claim_authority_grounding_issue(
+    value: Mapping[str, Any],
+    *,
+    surface: str,
+    grounding_resolver: Callable[[str], Mapping[str, Any] | None] | None,
+    span_support_client: SpanSupportClient | None,
+) -> dict[str, Any] | None:
+    source_ref = _text(value.get("source_ref")) or ""
+    grounding_ref = (
+        _text(value.get("validated_span_grounding_ref"))
+        or _text(value.get("grounding_ref"))
+        or (source_ref if source_ref.startswith("openalex-span-grounding://") else "")
+    )
+    if _looks_like_web_authority_record(value) and not grounding_ref:
+        return {
+            "code": "web_bundle_l2_authority_blocked",
+            "severity": "fail",
+            "status": "fail",
+            "surface": surface,
+            "layer": "candidate_firewall",
+            "source_kind": _text(value.get("source_kind")),
+            "source_ref": _text(value.get("source_ref")),
+            "authority_slot": "claim_authority",
+            "message": (
+                "Web bundles and raw search hits are candidate_unverified until "
+                "a resolving, supporting span-grounding record validates them."
+            ),
+        }
+    if not grounding_ref or grounding_resolver is None:
+        return _l2_grounding_issue(
+            code="l2_claim_authority_grounding_unresolved",
+            value=value,
+            surface=surface,
+            grounding_ref=grounding_ref,
+            message="L2 claim authority requires a resolver-backed span grounding record.",
+        )
+    resolved = grounding_resolver(grounding_ref)
+    if resolved is None:
+        return _l2_grounding_issue(
+            code="l2_claim_authority_grounding_unresolved",
+            value=value,
+            surface=surface,
+            grounding_ref=grounding_ref,
+            message="L2 claim authority grounding ref did not resolve.",
+        )
+    if not _resolved_grounding_validates(
+        grounding_ref,
+        candidate=value,
+        resolved=resolved,
+        span_support_client=span_support_client,
+    ):
+        return _l2_grounding_issue(
+            code="l2_claim_authority_grounding_unvalidated",
+            value=value,
+            surface=surface,
+            grounding_ref=grounding_ref,
+            message="Resolved L2 claim authority grounding is not validated supporting evidence.",
+        )
+    return None
+
+
+def _resolved_grounding_validates(
+    grounding_ref: str,
+    *,
+    candidate: Mapping[str, Any],
+    resolved: Mapping[str, Any],
+    span_support_client: SpanSupportClient | None,
+) -> bool:
+    resolved_ref = _text(resolved.get("grounding_ref")) or _text(resolved.get("source_ref"))
+    if resolved_ref and resolved_ref != grounding_ref:
+        return False
+    candidate_claim_text = _text(candidate.get("claim_text") or candidate.get("text"))
+    if not candidate_claim_text:
+        return False
+    candidate_claim_id = _text(candidate.get("claim_id") or candidate.get("id"))
+    resolved_claim_id = _text(resolved.get("claim_id") or resolved.get("id"))
+    if candidate_claim_id and resolved_claim_id and candidate_claim_id != resolved_claim_id:
+        return False
+    resolved_claim_text = _text(resolved.get("claim_text") or resolved.get("text"))
+    if not resolved_claim_text:
+        return False
+    if _content_binding_text(candidate_claim_text) != _content_binding_text(resolved_claim_text):
+        return False
+    candidate_span_text = _text(
+        candidate.get("span_text")
+        or candidate.get("evidence_text")
+        or candidate.get("source_span_text")
+    )
+    resolved_span_text = _text(
+        resolved.get("span_text")
+        or resolved.get("evidence_text")
+        or resolved.get("source_span_text")
+    )
+    if candidate_span_text and resolved_span_text and candidate_span_text != resolved_span_text:
+        return False
+    if (
+        _text(resolved.get("support_status") or resolved.get("span_grounding_status"))
+        != "validated_supporting"
+    ):
+        return False
+    if _text(resolved.get("authority_tier")) != "design_tier_l2":
+        return False
+    if not _text(resolved.get("source_content_sha256")):
+        return False
+    return _resolved_grounding_entails(
+        grounding_ref,
+        candidate=candidate,
+        resolved=resolved,
+        span_support_client=span_support_client,
+    )
+
+
+def _content_binding_text(value: object) -> str:
+    return " ".join(_text(value).casefold().split())
+
+
+def _resolved_grounding_entails(
+    grounding_ref: str,
+    *,
+    candidate: Mapping[str, Any],
+    resolved: Mapping[str, Any],
+    span_support_client: SpanSupportClient | None,
+) -> bool:
+    claim_text = _text(candidate.get("claim_text") or candidate.get("text"))
+    span_text = _text(
+        resolved.get("span_text")
+        or resolved.get("evidence_text")
+        or resolved.get("source_span_text")
+    )
+    if not claim_text or not span_text:
+        return False
+    module = importlib.import_module("polisyos.scientist.validation.citation_faithfulness")
+    entailment = module.evaluate_span_claim_entailment(
+        claim={
+            "claim_id": _text(candidate.get("claim_id") or candidate.get("id"))
+            or _text(resolved.get("claim_id"))
+            or grounding_ref,
+            "claim_text": claim_text,
+            "claim_family": (
+                candidate.get("claim_family") or resolved.get("claim_family") or "causal"
+            ),
+            "cause_variable": candidate.get("cause")
+            or candidate.get("cause_variable")
+            or resolved.get("cause")
+            or resolved.get("cause_variable"),
+            "effect_variable": candidate.get("effect")
+            or candidate.get("effect_variable")
+            or resolved.get("effect")
+            or resolved.get("effect_variable"),
+            "direction": candidate.get("direction") or resolved.get("direction"),
+            "data_refs": [resolved.get("openalex_id") or grounding_ref],
+            "source_attribution": resolved.get("openalex_id") or grounding_ref,
+            "method_refs": [resolved.get("design_family") or "source_bound_claim_span"],
+            "identification_strategy": (
+                resolved.get("identification_strategy")
+                or resolved.get("design_family")
+                or "source_bound_claim_span"
+            ),
+            "citation_refs": [grounding_ref],
+        },
+        evidence={
+            "ref_id": grounding_ref,
+            "source_id": resolved.get("openalex_id") or grounding_ref,
+            "section": resolved.get("section") or "abstract",
+            "text": span_text,
+            "source_content_sha256": resolved.get("source_content_sha256"),
+        },
+        client=span_support_client,
+    )
+    labels = module.SPAN_ENTAILMENT_SUPPORT_LABELS
+    return str(entailment.get("label") or "") in {str(label) for label in labels}
+
+
+def _l2_grounding_issue(
+    *,
+    code: str,
+    value: Mapping[str, Any],
+    surface: str,
+    grounding_ref: str,
+    message: str,
+) -> dict[str, Any]:
+    return {
+        "code": code,
+        "severity": "fail",
+        "status": "fail",
+        "surface": surface,
+        "layer": "candidate_firewall",
+        "source_kind": _text(value.get("source_kind")),
+        "source_ref": _text(value.get("source_ref")),
+        "grounding_ref": grounding_ref,
+        "authority_slot": "claim_authority",
+        "message": message,
+    }
+
+
+def _looks_like_web_authority_record(value: Mapping[str, Any]) -> bool:
+    source_kind = _text(value.get("source_kind")) or _text(value.get("artifact_kind")) or ""
+    source_ref = _text(value.get("source_ref")) or _text(value.get("bundle_ref")) or ""
+    authority_tier = _text(value.get("authority_tier")) or ""
+    return (
+        source_kind in _WEB_BUNDLE_SOURCE_KINDS
+        or source_ref.startswith("webkb.")
+        or source_ref.startswith("scholar.web_evidence_bundle:")
+        or (
+            authority_tier == "design_tier_l2"
+            and source_kind in {"web", "academic_search_result"}
+        )
+    )
+
+
+def _has_validated_span_grounding(value: Mapping[str, Any]) -> bool:
+    return (
+        _text(value.get("span_grounding_status")) == "validated_supporting"
+        and bool(_text(value.get("validated_span_grounding_ref")))
+    )
+
+
+def _dedupe_web_issues(issues: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    seen: set[tuple[str, str, str]] = set()
+    deduped: list[dict[str, Any]] = []
+    for issue in issues:
+        key = (
+            str(issue.get("code")),
+            str(issue.get("source_ref")),
+            str(issue.get("authority_slot")),
+        )
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(issue)
+    return deduped
+
+
+def _candidate_positive_field_path(row: Mapping[str, Any]) -> str:
+    pointer = _text(row.get("json_pointer")) or "$"
+    field = _text(row.get("field")) or "status"
+    return f"{pointer}/{field}"
+
+
+def _false_exclusion_review(row: Mapping[str, Any]) -> str:
+    triage = row.get("false_exclusion_triage")
+    if not isinstance(triage, Mapping):
+        return "repair_ticket_required:triage_missing"
+    risk = _text(triage.get("risk")) or "unknown_risk"
+    note = _text(triage.get("note")) or "no_note"
+    if triage.get("needs_human_review") is True:
+        return f"repair_ticket_required:{risk}:{note}"
+    return f"no_false_exclusion:{risk}"
+
+
+def _stable_candidate_row_id(row: Mapping[str, Any]) -> str:
+    import hashlib
+    import json
+
+    payload = json.dumps(row, sort_keys=True, default=str).encode("utf-8")
+    return f"sha256:{hashlib.sha256(payload).hexdigest()}"
 
 
 def _entry_issue(
@@ -415,8 +945,14 @@ def _dedupe_issues(issues: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 __all__ = [
+    "AUTHORITY_CANDIDATE_FIREWALL_NAME",
+    "AuthorityCandidateInventoryRow",
     "CandidateFirewallError",
+    "assert_candidate_positive_firewall_boundary",
+    "assert_l2_claim_authority_span_grounded",
     "assert_no_candidate_authority_laundering",
+    "build_authority_candidate_inventory_rows",
     "candidate_firewall_issues_for_payload",
     "candidate_refs_from_payload",
+    "web_bundle_l2_authority_issues_for_payload",
 ]

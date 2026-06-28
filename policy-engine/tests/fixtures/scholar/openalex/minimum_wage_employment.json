@@ -1,0 +1,2042 @@
+{
+  "_recording": {
+    "captured_at": "2026-06-23T17:23:53.738355+00:00",
+    "query": "minimum wage employment effect",
+    "real_openalex_api_response": true,
+    "request_params": {
+      "filter": "has_abstract:true,is_retracted:false,language:en",
+      "mailto": "policyos@example.invalid",
+      "per-page": "5",
+      "search": "minimum wage employment effect",
+      "select": "id,doi,display_name,title,abstract_inverted_index,publication_year,publication_date,cited_by_count,type,is_retracted,language,open_access,primary_location,authorships"
+    },
+    "source": "https://api.openalex.org/works"
+  },
+  "group_by": [],
+  "meta": {
+    "cost_usd": 0.001,
+    "count": 131793,
+    "db_response_time_ms": 358,
+    "groups_count": null,
+    "page": 1,
+    "per_page": 5,
+    "x_query": {
+      "oql": "works where full text has (minimum wage employment effect)\n  and it has an abstract\n  and it's not retracted\n  and language is en",
+      "oqo": {
+        "filter_rows": [
+          {
+            "column_id": "fulltext.search",
+            "operator": "has",
+            "value": "minimum wage employment effect"
+          },
+          {
+            "column_id": "has_abstract",
+            "value": true
+          },
+          {
+            "column_id": "is_retracted",
+            "value": false
+          },
+          {
+            "column_id": "language",
+            "value": "en"
+          }
+        ],
+        "get_rows": "works",
+        "per_page": 5,
+        "select": [
+          "id",
+          "doi",
+          "display_name",
+          "title",
+          "abstract_inverted_index",
+          "publication_year",
+          "publication_date",
+          "cited_by_count",
+          "type",
+          "is_retracted",
+          "language",
+          "open_access",
+          "primary_location",
+          "authorships"
+        ]
+      },
+      "url": "/works?filter=fulltext.search:minimum wage employment effect,has_abstract:true,is_retracted:false,language:en&select=id,doi,display_name,title,abstract_inverted_index,publication_year,publication_date,cited_by_count,type,is_retracted,language,open_access,primary_location,authorships&per_page=5"
+    }
+  },
+  "results": [
+    {
+      "abstract_inverted_index": {
+        "Abramovitz": [
+          3
+        ],
+        "Commission.": [
+          30
+        ],
+        "Minimum": [
+          27
+        ],
+        "Moses": [
+          2
+        ],
+        "Study": [
+          29
+        ],
+        "This": [
+          15
+        ],
+        "Wage": [
+          28
+        ],
+        "Welch": [
+          0
+        ],
+        "a": [
+          18
+        ],
+        "and": [
+          1,
+          4
+        ],
+        "at": [
+          9
+        ],
+        "by": [
+          25
+        ],
+        "for": [
+          7
+        ],
+        "help": [
+          8
+        ],
+        "of": [
+          12,
+          21
+        ],
+        "originally": [
+          23
+        ],
+        "our": [
+          13
+        ],
+        "referees": [
+          6
+        ],
+        "represents": [
+          17
+        ],
+        "revision": [
+          20
+        ],
+        "stages": [
+          11
+        ],
+        "substantial": [
+          19
+        ],
+        "supported": [
+          24
+        ],
+        "survey": [
+          16
+        ],
+        "the": [
+          26
+        ],
+        "two": [
+          5
+        ],
+        "various": [
+          10
+        ],
+        "work": [
+          22
+        ],
+        "work.": [
+          14
+        ]
+      },
+      "authorships": [
+        {
+          "affiliations": [],
+          "author": {
+            "display_name": "Charles Brown",
+            "id": "https://openalex.org/A5108515912",
+            "orcid": null
+          },
+          "author_position": "first",
+          "countries": [],
+          "institutions": [],
+          "is_corresponding": false,
+          "raw_affiliation_strings": [],
+          "raw_author_name": "Charles Brown",
+          "raw_orcid": null
+        },
+        {
+          "affiliations": [],
+          "author": {
+            "display_name": "Curtis L. Gilroy",
+            "id": "https://openalex.org/A5064524239",
+            "orcid": null
+          },
+          "author_position": "middle",
+          "countries": [],
+          "institutions": [],
+          "is_corresponding": false,
+          "raw_affiliation_strings": [],
+          "raw_author_name": "Curtis L. Gilroy",
+          "raw_orcid": null
+        },
+        {
+          "affiliations": [],
+          "author": {
+            "display_name": "Andrew I. Kohen",
+            "id": "https://openalex.org/A5004025734",
+            "orcid": null
+          },
+          "author_position": "last",
+          "countries": [],
+          "institutions": [],
+          "is_corresponding": false,
+          "raw_affiliation_strings": [],
+          "raw_author_name": "Andrew I. Kohen",
+          "raw_orcid": null
+        }
+      ],
+      "cited_by_count": 711,
+      "display_name": "The Effect of the Minimum Wage on Employment and Unemployment",
+      "doi": null,
+      "id": "https://openalex.org/W1571659936",
+      "is_retracted": false,
+      "language": "en",
+      "open_access": {
+        "any_repository_has_fulltext": false,
+        "is_oa": false,
+        "oa_status": "closed",
+        "oa_url": null
+      },
+      "primary_location": {
+        "id": "mag:1571659936",
+        "is_accepted": false,
+        "is_oa": false,
+        "is_published": false,
+        "landing_page_url": "https://ideas.repec.org/a/aea/jeclit/v20y1982i2p487-528.html",
+        "license": null,
+        "license_id": null,
+        "pdf_url": null,
+        "raw_source_name": "Journal of Economic Literature",
+        "raw_type": null,
+        "source": {
+          "display_name": "Journal of Economic Literature",
+          "host_organization": "https://openalex.org/P4310315912",
+          "host_organization_lineage": [
+            "https://openalex.org/P4310315912"
+          ],
+          "host_organization_lineage_names": [
+            "American Economic Association"
+          ],
+          "host_organization_name": "American Economic Association",
+          "id": "https://openalex.org/S127708089",
+          "is_core": true,
+          "is_in_doaj": false,
+          "is_oa": false,
+          "issn": [
+            "0022-0515",
+            "1547-1101",
+            "2328-8175"
+          ],
+          "issn_l": "0022-0515",
+          "type": "journal"
+        },
+        "version": "submittedVersion"
+      },
+      "publication_date": "1982-01-01",
+      "publication_year": 1982,
+      "title": "The Effect of the Minimum Wage on Employment and Unemployment",
+      "type": "article"
+    },
+    {
+      "abstract_inverted_index": {
+        "138": [
+          12
+        ],
+        "1979": [
+          19
+        ],
+        "2016": [
+          21
+        ],
+        "Abstract": [
+          0
+        ],
+        "At": [
+          109
+        ],
+        "However,": [
+          177
+        ],
+        "Our": [
+          136
+        ],
+        "States": [
+          25
+        ],
+        "United": [
+          24
+        ],
+        "We": [
+          1,
+          30,
+          51,
+          90,
+          162,
+          189
+        ],
+        "a": [
+          27,
+          202
+        ],
+        "above": [
+          73
+        ],
+        "allows": [
+          201
+        ],
+        "also": [
+          163,
+          190
+        ],
+        "amplified": [
+          124
+        ],
+        "and": [
+          20,
+          62
+        ],
+        "approach.": [
+          29
+        ],
+        "assessing": [
+          206
+        ],
+        "at": [
+          70,
+          129,
+          155
+        ],
+        "average": [
+          121
+        ],
+        "below": [
+          83
+        ],
+        "between": [
+          18
+        ],
+        "bins": [
+          45,
+          200
+        ],
+        "bottom": [
+          56,
+          131,
+          157
+        ],
+        "by": [
+          43,
+          125,
+          138,
+          152,
+          198
+        ],
+        "changes": [
+          17,
+          42
+        ],
+        "compare": [
+          63
+        ],
+        "consider": [
+          171
+        ],
+        "decomposing": [
+          193
+        ],
+        "demographic": [
+          140
+        ],
+        "detailed": [
+          139
+        ],
+        "difference-in-differences": [
+          28
+        ],
+        "direct": [
+          114
+        ],
+        "disemployment": [
+          168
+        ],
+        "distribution": [
+          61
+        ],
+        "distribution.": [
+          50,
+          135,
+          161
+        ],
+        "do": [
+          179
+        ],
+        "earnings": [
+          122
+        ],
+        "effect": [
+          4,
+          34,
+          115,
+          197
+        ],
+        "effect.": [
+          89
+        ],
+        "employment": [
+          41,
+          88,
+          185,
+          196
+        ],
+        "essentially": [
+          100
+        ],
+        "estimate": [
+          2,
+          32
+        ],
+        "estimates": [
+          137
+        ],
+        "estimates.": [
+          210
+        ],
+        "evidence": [
+          166,
+          182
+        ],
+        "excess": [
+          67
+        ],
+        "explained": [
+          151
+        ],
+        "find": [
+          91,
+          164,
+          180
+        ],
+        "first": [
+          31
+        ],
+        "five": [
+          104
+        ],
+        "focus": [
+          53
+        ],
+        "following": [
+          106
+        ],
+        "groups": [
+          141
+        ],
+        "higher": [
+          172
+        ],
+        "hourly": [
+          48
+        ],
+        "how": [
+          192
+        ],
+        "in": [
+          22,
+          186
+        ],
+        "increase": [
+          39
+        ],
+        "increase.": [
+          108
+        ],
+        "infer": [
+          86
+        ],
+        "is": [
+          149
+        ],
+        "it": [
+          84
+        ],
+        "job": [
+          147
+        ],
+        "jobs": [
+          10,
+          68,
+          81,
+          98
+        ],
+        "labor-labor": [
+          153
+        ],
+        "lack": [
+          145
+        ],
+        "levels": [
+          173
+        ],
+        "loss": [
+          148
+        ],
+        "low-wage": [
+          9,
+          97
+        ],
+        "minimum": [
+          6,
+          15,
+          37,
+          76,
+          118,
+          175
+        ],
+        "missing": [
+          80
+        ],
+        "modest": [
+          126
+        ],
+        "new": [
+          75
+        ],
+        "no": [
+          165
+        ],
+        "not": [
+          150
+        ],
+        "number": [
+          65,
+          95
+        ],
+        "of": [
+          5,
+          35,
+          58,
+          66,
+          96,
+          116,
+          132,
+          146,
+          158,
+          167,
+          174,
+          183,
+          205,
+          209
+        ],
+        "on": [
+          8,
+          40,
+          54,
+          120
+        ],
+        "or": [
+          71
+        ],
+        "over": [
+          102
+        ],
+        "overall": [
+          94,
+          195
+        ],
+        "part": [
+          57
+        ],
+        "paying": [
+          69,
+          82
+        ],
+        "plausibility": [
+          208
+        ],
+        "prominent": [
+          13
+        ],
+        "reduced": [
+          184
+        ],
+        "remained": [
+          99
+        ],
+        "same": [
+          111
+        ],
+        "sectors.": [
+          188
+        ],
+        "show": [
+          142,
+          191
+        ],
+        "slightly": [
+          72
+        ],
+        "some": [
+          181
+        ],
+        "spillovers": [
+          128
+        ],
+        "state-level": [
+          14
+        ],
+        "substitution": [
+          154
+        ],
+        "that": [
+          92,
+          143
+        ],
+        "the": [
+          3,
+          23,
+          33,
+          36,
+          47,
+          55,
+          59,
+          64,
+          74,
+          79,
+          87,
+          93,
+          103,
+          107,
+          110,
+          113,
+          117,
+          130,
+          133,
+          144,
+          156,
+          159,
+          194,
+          207
+        ],
+        "then": [
+          52
+        ],
+        "throughout": [
+          46
+        ],
+        "time,": [
+          112
+        ],
+        "to": [
+          78,
+          85
+        ],
+        "tradeable": [
+          187
+        ],
+        "transparent": [
+          203
+        ],
+        "unchanged": [
+          101
+        ],
+        "using": [
+          11,
+          26
+        ],
+        "wage": [
+          16,
+          38,
+          44,
+          49,
+          60,
+          77,
+          119,
+          127,
+          134,
+          160,
+          199
+        ],
+        "wages": [
+          7
+        ],
+        "wages.": [
+          176
+        ],
+        "was": [
+          123
+        ],
+        "way": [
+          204
+        ],
+        "we": [
+          170,
+          178
+        ],
+        "when": [
+          169
+        ],
+        "years": [
+          105
+        ]
+      },
+      "authorships": [
+        {
+          "affiliations": [
+            {
+              "institution_ids": [
+                "https://openalex.org/I24603500"
+              ],
+              "raw_affiliation_string": "University of Massachusetts, Amherst"
+            }
+          ],
+          "author": {
+            "display_name": "Doruk Cengiz",
+            "id": "https://openalex.org/A5069364966",
+            "orcid": null
+          },
+          "author_position": "first",
+          "countries": [
+            "US"
+          ],
+          "institutions": [
+            {
+              "country_code": "US",
+              "display_name": "University of Massachusetts Amherst",
+              "id": "https://openalex.org/I24603500",
+              "lineage": [
+                "https://openalex.org/I24603500"
+              ],
+              "ror": "https://ror.org/0072zz521",
+              "type": "education"
+            }
+          ],
+          "is_corresponding": false,
+          "raw_affiliation_strings": [
+            "University of Massachusetts, Amherst"
+          ],
+          "raw_author_name": "Doruk Cengiz",
+          "raw_orcid": null
+        },
+        {
+          "affiliations": [
+            {
+              "institution_ids": [
+                "https://openalex.org/I1321305853",
+                "https://openalex.org/I24603500"
+              ],
+              "raw_affiliation_string": "University of Massachusetts, Amherst, National Bureau of Economic Research, Institute of Labor Economics"
+            }
+          ],
+          "author": {
+            "display_name": "Arindrajit Dub\u00e9",
+            "id": "https://openalex.org/A5109516884",
+            "orcid": null
+          },
+          "author_position": "middle",
+          "countries": [
+            "US"
+          ],
+          "institutions": [
+            {
+              "country_code": "US",
+              "display_name": "National Bureau of Economic Research",
+              "id": "https://openalex.org/I1321305853",
+              "lineage": [
+                "https://openalex.org/I1321305853"
+              ],
+              "ror": "https://ror.org/04grmx538",
+              "type": "nonprofit"
+            },
+            {
+              "country_code": "US",
+              "display_name": "University of Massachusetts Amherst",
+              "id": "https://openalex.org/I24603500",
+              "lineage": [
+                "https://openalex.org/I24603500"
+              ],
+              "ror": "https://ror.org/0072zz521",
+              "type": "education"
+            }
+          ],
+          "is_corresponding": false,
+          "raw_affiliation_strings": [
+            "University of Massachusetts, Amherst, National Bureau of Economic Research, Institute of Labor Economics"
+          ],
+          "raw_author_name": "Arindrajit Dube",
+          "raw_orcid": null
+        },
+        {
+          "affiliations": [
+            {
+              "institution_ids": [
+                "https://openalex.org/I7597260",
+                "https://openalex.org/I45129253",
+                "https://openalex.org/I139607695"
+              ],
+              "raw_affiliation_string": "University College London, Center for Economic Performance, Institute for Fiscal Studies, Institute of Labor Economics, Research Center for Economic and Regional Studies, Hungarian Academy of Sciences"
+            }
+          ],
+          "author": {
+            "display_name": "Attila Lindner",
+            "id": "https://openalex.org/A5057309313",
+            "orcid": "https://orcid.org/0000-0003-3797-7002"
+          },
+          "author_position": "middle",
+          "countries": [
+            "GB",
+            "HU"
+          ],
+          "institutions": [
+            {
+              "country_code": "GB",
+              "display_name": "Institute for Fiscal Studies",
+              "id": "https://openalex.org/I139607695",
+              "lineage": [
+                "https://openalex.org/I139607695"
+              ],
+              "ror": "https://ror.org/04r1cjx59",
+              "type": "facility"
+            },
+            {
+              "country_code": "GB",
+              "display_name": "University College London",
+              "id": "https://openalex.org/I45129253",
+              "lineage": [
+                "https://openalex.org/I124357947",
+                "https://openalex.org/I45129253"
+              ],
+              "ror": "https://ror.org/02jx3x895",
+              "type": "education"
+            },
+            {
+              "country_code": "HU",
+              "display_name": "Hungarian Academy of Sciences",
+              "id": "https://openalex.org/I7597260",
+              "lineage": [
+                "https://openalex.org/I7597260"
+              ],
+              "ror": "https://ror.org/02ks8qq67",
+              "type": "government"
+            }
+          ],
+          "is_corresponding": false,
+          "raw_affiliation_strings": [
+            "University College London, Center for Economic Performance, Institute for Fiscal Studies, Institute of Labor Economics, Research Center for Economic and Regional Studies, Hungarian Academy of Sciences"
+          ],
+          "raw_author_name": "Attila Lindner",
+          "raw_orcid": null
+        },
+        {
+          "affiliations": [
+            {
+              "institution_ids": [
+                "https://openalex.org/I1325290502"
+              ],
+              "raw_affiliation_string": "Economic Policy Institute"
+            }
+          ],
+          "author": {
+            "display_name": "Ben Zipperer",
+            "id": "https://openalex.org/A5023349855",
+            "orcid": null
+          },
+          "author_position": "last",
+          "countries": [
+            "US"
+          ],
+          "institutions": [
+            {
+              "country_code": "US",
+              "display_name": "Economic Policy Institute",
+              "id": "https://openalex.org/I1325290502",
+              "lineage": [
+                "https://openalex.org/I1325290502"
+              ],
+              "ror": "https://ror.org/053v8b344",
+              "type": "nonprofit"
+            }
+          ],
+          "is_corresponding": false,
+          "raw_affiliation_strings": [
+            "Economic Policy Institute"
+          ],
+          "raw_author_name": "Ben Zipperer",
+          "raw_orcid": null
+        }
+      ],
+      "cited_by_count": 2386,
+      "display_name": "The Effect of Minimum Wages on Low-Wage Jobs*",
+      "doi": "https://doi.org/10.1093/qje/qjz014",
+      "id": "https://openalex.org/W2942870997",
+      "is_retracted": false,
+      "language": "en",
+      "open_access": {
+        "any_repository_has_fulltext": false,
+        "is_oa": true,
+        "oa_status": "bronze",
+        "oa_url": "https://academic.oup.com/qje/article-pdf/134/3/1405/29173920/qjz014.pdf"
+      },
+      "primary_location": {
+        "id": "doi:10.1093/qje/qjz014",
+        "is_accepted": true,
+        "is_oa": true,
+        "is_published": true,
+        "landing_page_url": "https://doi.org/10.1093/qje/qjz014",
+        "license": null,
+        "license_id": null,
+        "pdf_url": "https://academic.oup.com/qje/article-pdf/134/3/1405/29173920/qjz014.pdf",
+        "raw_source_name": "The Quarterly Journal of Economics",
+        "raw_type": "journal-article",
+        "source": {
+          "display_name": "The Quarterly Journal of Economics",
+          "host_organization": "https://openalex.org/P4310311648",
+          "host_organization_lineage": [
+            "https://openalex.org/P4310311648",
+            "https://openalex.org/P4310311647"
+          ],
+          "host_organization_lineage_names": [
+            "Oxford University Press",
+            "University of Oxford"
+          ],
+          "host_organization_name": "Oxford University Press",
+          "id": "https://openalex.org/S203860005",
+          "is_core": true,
+          "is_in_doaj": false,
+          "is_oa": false,
+          "issn": [
+            "0033-5533",
+            "1531-4650"
+          ],
+          "issn_l": "0033-5533",
+          "type": "journal"
+        },
+        "version": "publishedVersion"
+      },
+      "publication_date": "2019-05-01",
+      "publication_year": 2019,
+      "title": "The Effect of Minimum Wages on Low-Wage Jobs*",
+      "type": "article"
+    },
+    {
+      "abstract_inverted_index": {
+        "(\"wage": [
+          124
+        ],
+        "--": [
+          28,
+          32
+        ],
+        "2000": [
+          31
+        ],
+        "Given": [
+          130
+        ],
+        "The": [
+          0,
+          55,
+          98
+        ],
+        "This": [
+          18
+        ],
+        "a": [
+          161
+        ],
+        "adjustment": [
+          108,
+          145
+        ],
+        "adjustments": [
+          80
+        ],
+        "all": [
+          15
+        ],
+        "and": [
+          126
+        ],
+        "appear": [
+          147
+        ],
+        "are": [
+          94
+        ],
+        "are:": [
+          109
+        ],
+        "avoid": [
+          154
+        ],
+        "be": [
+          149
+        ],
+        "best": [
+          36
+        ],
+        "channels": [
+          106
+        ],
+        "compression\");": [
+          125
+        ],
+        "consistently": [
+          96
+        ],
+        "cost": [
+          134
+        ],
+        "current": [
+          37
+        ],
+        "determine": [
+          34
+        ],
+        "earners": [
+          123
+        ],
+        "economics.": [
+          17
+        ],
+        "effect": [
+          2
+        ],
+        "effects": [
+          93
+        ],
+        "efficiency;": [
+          117
+        ],
+        "eleven": [
+          78
+        ],
+        "employers": [
+          136,
+          159
+        ],
+        "employment": [
+          1,
+          50,
+          65,
+          92,
+          155
+        ],
+        "estimates": [
+          38
+        ],
+        "even": [
+          157
+        ],
+        "evidence": [
+          59,
+          76,
+          100
+        ],
+        "examines": [
+          20
+        ],
+        "explain": [
+          88
+        ],
+        "for": [
+          158
+        ],
+        "help": [
+          86
+        ],
+        "higher": [
+          122
+        ],
+        "impact": [
+          41
+        ],
+        "important": [
+          105
+        ],
+        "improvements": [
+          114
+        ],
+        "in": [
+          14,
+          44,
+          70,
+          111,
+          115,
+          119,
+          140
+        ],
+        "increases": [
+          43,
+          69,
+          83,
+          139
+        ],
+        "increases.": [
+          129
+        ],
+        "is": [
+          7
+        ],
+        "labor": [
+          112
+        ],
+        "large": [
+          162
+        ],
+        "little": [
+          62
+        ],
+        "losses,": [
+          156
+        ],
+        "low-wage": [
+          53,
+          165
+        ],
+        "may": [
+          85
+        ],
+        "measured": [
+          91
+        ],
+        "mechanisms": [
+          146
+        ],
+        "minimum": [
+          5,
+          46,
+          72,
+          142
+        ],
+        "minimum-wage": [
+          82
+        ],
+        "modest": [
+          68,
+          138
+        ],
+        "more": [
+          150
+        ],
+        "most": [
+          11,
+          22,
+          104
+        ],
+        "no": [
+          64
+        ],
+        "of": [
+          3,
+          9,
+          16,
+          25,
+          39,
+          42,
+          52,
+          57,
+          107,
+          121,
+          137,
+          164
+        ],
+        "on": [
+          48,
+          77
+        ],
+        "one": [
+          8
+        ],
+        "or": [
+          63
+        ],
+        "organizational": [
+          116
+        ],
+        "points": [
+          60
+        ],
+        "possible": [
+          79
+        ],
+        "price": [
+          128
+        ],
+        "prospects": [
+          51
+        ],
+        "recent": [
+          23
+        ],
+        "reductions": [
+          110,
+          118
+        ],
+        "relatively": [
+          132
+        ],
+        "report": [
+          19,
+          74
+        ],
+        "research": [
+          27
+        ],
+        "response": [
+          66
+        ],
+        "reviews": [
+          75
+        ],
+        "roughly": [
+          29
+        ],
+        "share": [
+          163
+        ],
+        "since": [
+          30
+        ],
+        "small": [
+          127,
+          133
+        ],
+        "small.": [
+          97
+        ],
+        "so": [
+          95
+        ],
+        "strongest": [
+          99
+        ],
+        "studied": [
+          12
+        ],
+        "sufficient": [
+          152
+        ],
+        "suggests": [
+          101
+        ],
+        "than": [
+          151
+        ],
+        "that": [
+          58,
+          84,
+          102
+        ],
+        "the": [
+          4,
+          10,
+          21,
+          35,
+          40,
+          45,
+          49,
+          71,
+          90,
+          103,
+          131,
+          141
+        ],
+        "these": [
+          144
+        ],
+        "this": [
+          26
+        ],
+        "to": [
+          33,
+          61,
+          67,
+          81,
+          87,
+          135,
+          148,
+          153
+        ],
+        "topics": [
+          13
+        ],
+        "turnover;": [
+          113
+        ],
+        "wage": [
+          6,
+          47
+        ],
+        "wage,": [
+          143
+        ],
+        "wage.The": [
+          73
+        ],
+        "wages": [
+          120
+        ],
+        "wave": [
+          24
+        ],
+        "weight": [
+          56
+        ],
+        "why": [
+          89
+        ],
+        "with": [
+          160
+        ],
+        "workers.": [
+          54,
+          166
+        ]
+      },
+      "authorships": [
+        {
+          "affiliations": [],
+          "author": {
+            "display_name": "John Schmitt",
+            "id": "https://openalex.org/A5026023005",
+            "orcid": null
+          },
+          "author_position": "first",
+          "countries": [],
+          "institutions": [],
+          "is_corresponding": true,
+          "raw_affiliation_strings": [],
+          "raw_author_name": "John Schmitt"
+        }
+      ],
+      "cited_by_count": 82,
+      "display_name": "Why Does the Minimum Wage Have No Discernible Effect on Employment",
+      "doi": null,
+      "id": "https://openalex.org/W118021563",
+      "is_retracted": false,
+      "language": "en",
+      "open_access": {
+        "any_repository_has_fulltext": false,
+        "is_oa": false,
+        "oa_status": "closed",
+        "oa_url": null
+      },
+      "primary_location": {
+        "id": "mag:118021563",
+        "is_accepted": false,
+        "is_oa": false,
+        "is_published": false,
+        "landing_page_url": "http://cepr.net/documents/publications/min-wage-2013-02.pdf",
+        "license": null,
+        "license_id": null,
+        "pdf_url": null,
+        "raw_source_name": "CEPR Reports and Issue Briefs",
+        "raw_type": null,
+        "source": {
+          "display_name": "CEPR Reports and Issue Briefs",
+          "host_organization": null,
+          "host_organization_lineage": [],
+          "host_organization_lineage_names": [],
+          "host_organization_name": null,
+          "id": "https://openalex.org/S2764584721",
+          "is_core": false,
+          "is_in_doaj": false,
+          "is_oa": false,
+          "issn": null,
+          "issn_l": null,
+          "type": "journal"
+        },
+        "version": "submittedVersion"
+      },
+      "publication_date": "2013-01-01",
+      "publication_year": 2013,
+      "title": "Why Does the Minimum Wage Have No Discernible Effect on Employment",
+      "type": "article"
+    },
+    {
+      "abstract_inverted_index": {
+        "However,": [
+          30
+        ],
+        "Recent": [
+          0
+        ],
+        "This": [
+          65
+        ],
+        "We": [
+          12,
+          51
+        ],
+        "a": [
+          16,
+          25
+        ],
+        "about": [
+          68
+        ],
+        "adults": [
+          60
+        ],
+        "and": [
+          63
+        ],
+        "better": [
+          49
+        ],
+        "bilateral": [
+          20
+        ],
+        "casts": [
+          2
+        ],
+        "competition": [
+          33
+        ],
+        "concerns": [
+          67
+        ],
+        "consequences": [
+          71
+        ],
+        "distributional": [
+          70
+        ],
+        "doubt": [
+          3
+        ],
+        "employment": [
+          58
+        ],
+        "employment.": [
+          11,
+          29,
+          79
+        ],
+        "even": [
+          75
+        ],
+        "evidence": [
+          53
+        ],
+        "from": [
+          34,
+          59
+        ],
+        "heterogeneous": [
+          23
+        ],
+        "higher": [
+          35,
+          46
+        ],
+        "in": [
+          15
+        ],
+        "increase": [
+          78
+        ],
+        "increased": [
+          32
+        ],
+        "increases": [
+          28
+        ],
+        "law": [
+          27
+        ],
+        "laws": [
+          9,
+          56
+        ],
+        "lower": [
+          39
+        ],
+        "makes": [
+          38
+        ],
+        "making": [
+          45
+        ],
+        "minimum": [
+          73
+        ],
+        "minimum-wage": [
+          8,
+          26,
+          55
+        ],
+        "model": [
+          18
+        ],
+        "of": [
+          19,
+          72
+        ],
+        "off": [
+          43
+        ],
+        "off.": [
+          50
+        ],
+        "on": [
+          4
+        ],
+        "productivity": [
+          36,
+          40,
+          47
+        ],
+        "provide": [
+          52
+        ],
+        "raises": [
+          66
+        ],
+        "reduce": [
+          10
+        ],
+        "research": [
+          1
+        ],
+        "search": [
+          21
+        ],
+        "shift": [
+          57
+        ],
+        "show": [
+          13
+        ],
+        "simple": [
+          17
+        ],
+        "students.": [
+          64
+        ],
+        "teenagers": [
+          62
+        ],
+        "that": [
+          7,
+          14,
+          54
+        ],
+        "the": [
+          5,
+          31,
+          69
+        ],
+        "they": [
+          77
+        ],
+        "to": [
+          61
+        ],
+        "view": [
+          6
+        ],
+        "wages": [
+          74
+        ],
+        "when": [
+          76
+        ],
+        "with": [
+          22
+        ],
+        "without": [
+          44
+        ],
+        "workers": [
+          37,
+          41,
+          48
+        ],
+        "workers,": [
+          24
+        ],
+        "worse": [
+          42
+        ]
+      },
+      "authorships": [
+        {
+          "affiliations": [
+            {
+              "institution_ids": [
+                "https://openalex.org/I78063147",
+                "https://openalex.org/I111088046"
+              ],
+              "raw_affiliation_string": "Department of Economics, Boston University, 270 Bay State Road, Boston, MA 02215, USA"
+            },
+            {
+              "institution_ids": [
+                "https://openalex.org/I78063147",
+                "https://openalex.org/I111088046"
+              ],
+              "raw_affiliation_string": "Department of Economics, Boston University, 270 Bay State Road, Boston, MA, 02215, USA"
+            }
+          ],
+          "author": {
+            "display_name": "Kevin Lang",
+            "id": "https://openalex.org/A5023869901",
+            "orcid": "https://orcid.org/0000-0002-8497-1706"
+          },
+          "author_position": "first",
+          "countries": [
+            "US"
+          ],
+          "institutions": [
+            {
+              "country_code": "US",
+              "display_name": "Bay State College",
+              "id": "https://openalex.org/I78063147",
+              "lineage": [
+                "https://openalex.org/I78063147"
+              ],
+              "ror": "https://ror.org/04hcs1a71",
+              "type": "education"
+            },
+            {
+              "country_code": "US",
+              "display_name": "Boston University",
+              "id": "https://openalex.org/I111088046",
+              "lineage": [
+                "https://openalex.org/I111088046"
+              ],
+              "ror": "https://ror.org/05qwgg493",
+              "type": "education"
+            }
+          ],
+          "is_corresponding": true,
+          "raw_affiliation_strings": [
+            "Department of Economics, Boston University, 270 Bay State Road, Boston, MA 02215, USA",
+            "Department of Economics, Boston University, 270 Bay State Road, Boston, MA, 02215, USA"
+          ],
+          "raw_author_name": "Kevin Lang"
+        },
+        {
+          "affiliations": [
+            {
+              "institution_ids": [
+                "https://openalex.org/I78063147",
+                "https://openalex.org/I111088046"
+              ],
+              "raw_affiliation_string": "Department of Economics, Boston University, 270 Bay State Road, Boston, MA 02215, USA"
+            },
+            {
+              "institution_ids": [
+                "https://openalex.org/I78063147",
+                "https://openalex.org/I111088046"
+              ],
+              "raw_affiliation_string": "Department of Economics, Boston University, 270 Bay State Road, Boston, MA, 02215, USA"
+            }
+          ],
+          "author": {
+            "display_name": "Shulamit Kahn",
+            "id": "https://openalex.org/A5074166782",
+            "orcid": "https://orcid.org/0000-0002-6553-0219"
+          },
+          "author_position": "last",
+          "countries": [
+            "US"
+          ],
+          "institutions": [
+            {
+              "country_code": "US",
+              "display_name": "Bay State College",
+              "id": "https://openalex.org/I78063147",
+              "lineage": [
+                "https://openalex.org/I78063147"
+              ],
+              "ror": "https://ror.org/04hcs1a71",
+              "type": "education"
+            },
+            {
+              "country_code": "US",
+              "display_name": "Boston University",
+              "id": "https://openalex.org/I111088046",
+              "lineage": [
+                "https://openalex.org/I111088046"
+              ],
+              "ror": "https://ror.org/05qwgg493",
+              "type": "education"
+            }
+          ],
+          "is_corresponding": false,
+          "raw_affiliation_strings": [
+            "Department of Economics, Boston University, 270 Bay State Road, Boston, MA 02215, USA",
+            "Department of Economics, Boston University, 270 Bay State Road, Boston, MA, 02215, USA"
+          ],
+          "raw_author_name": "Shulamit Kahn"
+        }
+      ],
+      "cited_by_count": 107,
+      "display_name": "The effect of minimum-wage laws on the distribution of employment: theory and evidence",
+      "doi": "https://doi.org/10.1016/s0047-2727(97)00085-6",
+      "id": "https://openalex.org/W1981739276",
+      "is_retracted": false,
+      "language": "en",
+      "open_access": {
+        "any_repository_has_fulltext": false,
+        "is_oa": true,
+        "oa_status": "hybrid",
+        "oa_url": "https://doi.org/10.1016/s0047-2727(97)00085-6"
+      },
+      "primary_location": {
+        "id": "doi:10.1016/s0047-2727(97)00085-6",
+        "is_accepted": true,
+        "is_oa": true,
+        "is_published": true,
+        "landing_page_url": "https://doi.org/10.1016/s0047-2727(97)00085-6",
+        "license": "cc-by-nc-nd",
+        "license_id": "https://openalex.org/licenses/cc-by-nc-nd",
+        "pdf_url": null,
+        "raw_source_name": "Journal of Public Economics",
+        "raw_type": "journal-article",
+        "source": {
+          "display_name": "Journal of Public Economics",
+          "host_organization": "https://openalex.org/P4310320990",
+          "host_organization_lineage": [
+            "https://openalex.org/P4310320990"
+          ],
+          "host_organization_lineage_names": [
+            "Elsevier BV"
+          ],
+          "host_organization_name": "Elsevier BV",
+          "id": "https://openalex.org/S199447588",
+          "is_core": true,
+          "is_in_doaj": false,
+          "is_oa": false,
+          "issn": [
+            "0047-2727",
+            "1879-2316"
+          ],
+          "issn_l": "0047-2727",
+          "type": "journal"
+        },
+        "version": "publishedVersion"
+      },
+      "publication_date": "1998-07-01",
+      "publication_year": 1998,
+      "title": "The effect of minimum-wage laws on the distribution of employment: theory and evidence",
+      "type": "article"
+    },
+    {
+      "abstract_inverted_index": {
+        "1990": [
+          45
+        ],
+        "April": [
+          44
+        ],
+        "Comparisons": [
+          59
+        ],
+        "The": [
+          0,
+          33
+        ],
+        "There": [
+          77
+        ],
+        "a": [
+          3,
+          9
+        ],
+        "across": [
+          18
+        ],
+        "and": [
+          56,
+          62
+        ],
+        "author": [
+          34
+        ],
+        "changes": [
+          88
+        ],
+        "confirm": [
+          66
+        ],
+        "corresponding": [
+          82
+        ],
+        "data": [
+          65
+        ],
+        "depending": [
+          20
+        ],
+        "earning": [
+          27
+        ],
+        "effect": [
+          41
+        ],
+        "effect\u201d": [
+          16
+        ],
+        "employment": [
+          86
+        ],
+        "employment,": [
+          55
+        ],
+        "enrollment.": [
+          58,
+          92
+        ],
+        "evaluate": [
+          39
+        ],
+        "evidence": [
+          80
+        ],
+        "experiment": [
+          11
+        ],
+        "exploits": [
+          35
+        ],
+        "fact": [
+          37
+        ],
+        "federal": [
+          49
+        ],
+        "fraction": [
+          23
+        ],
+        "grouped": [
+          61
+        ],
+        "imposition": [
+          1
+        ],
+        "in": [
+          12,
+          47,
+          70,
+          84,
+          89
+        ],
+        "increase": [
+          46
+        ],
+        "increased": [
+          74
+        ],
+        "individual": [
+          63
+        ],
+        "initially": [
+          26
+        ],
+        "is": [
+          78
+        ],
+        "less": [
+          28
+        ],
+        "losses": [
+          83
+        ],
+        "minimum": [
+          5,
+          50,
+          72
+        ],
+        "minimum.": [
+          32
+        ],
+        "national": [
+          4
+        ],
+        "natural": [
+          10
+        ],
+        "new": [
+          31
+        ],
+        "no": [
+          79
+        ],
+        "of": [
+          2,
+          24,
+          42,
+          60,
+          81
+        ],
+        "on": [
+          21,
+          52
+        ],
+        "or": [
+          87
+        ],
+        "provides": [
+          8
+        ],
+        "rise": [
+          69
+        ],
+        "school": [
+          57,
+          91
+        ],
+        "standard": [
+          7
+        ],
+        "state": [
+          64
+        ],
+        "states": [
+          19
+        ],
+        "teenage": [
+          85,
+          90
+        ],
+        "teenagers'": [
+          53,
+          75
+        ],
+        "than": [
+          29
+        ],
+        "that": [
+          67
+        ],
+        "the": [
+          14,
+          22,
+          30,
+          40,
+          43,
+          48,
+          68,
+          71
+        ],
+        "this": [
+          36
+        ],
+        "to": [
+          38
+        ],
+        "varies": [
+          17
+        ],
+        "wage": [
+          6,
+          51,
+          73
+        ],
+        "wages,": [
+          54
+        ],
+        "wages.": [
+          76
+        ],
+        "which": [
+          13
+        ],
+        "workers": [
+          25
+        ],
+        "\u201ctreatment": [
+          15
+        ]
+      },
+      "authorships": [
+        {
+          "affiliations": [],
+          "author": {
+            "display_name": "David Card",
+            "id": "https://openalex.org/A5090324651",
+            "orcid": "https://orcid.org/0000-0001-6914-6698"
+          },
+          "author_position": "first",
+          "countries": [],
+          "institutions": [],
+          "is_corresponding": true,
+          "raw_affiliation_strings": [],
+          "raw_author_name": "David Card",
+          "raw_orcid": null
+        }
+      ],
+      "cited_by_count": 638,
+      "display_name": "Using Regional Variation in Wages to Measure the Effects of the Federal Minimum Wage",
+      "doi": "https://doi.org/10.1177/001979399204600103",
+      "id": "https://openalex.org/W3023870743",
+      "is_retracted": false,
+      "language": "en",
+      "open_access": {
+        "any_repository_has_fulltext": false,
+        "is_oa": false,
+        "oa_status": "closed",
+        "oa_url": null
+      },
+      "primary_location": {
+        "id": "doi:10.1177/001979399204600103",
+        "is_accepted": true,
+        "is_oa": false,
+        "is_published": true,
+        "landing_page_url": "https://doi.org/10.1177/001979399204600103",
+        "license": null,
+        "license_id": null,
+        "pdf_url": null,
+        "raw_source_name": "ILR Review",
+        "raw_type": "journal-article",
+        "source": {
+          "display_name": "Industrial and Labor Relations Review",
+          "host_organization": "https://openalex.org/P4310320017",
+          "host_organization_lineage": [
+            "https://openalex.org/P4310320017"
+          ],
+          "host_organization_lineage_names": [
+            "SAGE Publishing"
+          ],
+          "host_organization_name": "SAGE Publishing",
+          "id": "https://openalex.org/S192274990",
+          "is_core": true,
+          "is_in_doaj": false,
+          "is_oa": false,
+          "issn": [
+            "0019-7939",
+            "2162-271X"
+          ],
+          "issn_l": "0019-7939",
+          "type": "journal"
+        },
+        "version": "publishedVersion"
+      },
+      "publication_date": "1992-10-01",
+      "publication_year": 1992,
+      "title": "Using Regional Variation in Wages to Measure the Effects of the Federal Minimum Wage",
+      "type": "article"
+    }
+  ]
+}

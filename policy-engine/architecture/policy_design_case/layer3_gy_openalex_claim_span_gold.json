@@ -1,0 +1,143 @@
+{
+  "gy_lifecycle_marker": "policyos.policy_design_case.layer3_gy.openalex_claim_span_gold.v1",
+  "label_owner": "team-runtime-quality",
+  "provenance": {
+    "captured_from": "https://api.openalex.org/works",
+    "label_method": "human-labeled causal-claim support spans over real OpenAlex abstract text",
+    "reviewed_at": "2026-06-23",
+    "reviewer": "team-runtime-quality"
+  },
+  "records": [
+    {
+      "claim_direction": "negative",
+      "claim_text": "Non-availability of debt financing limits SME survival and growth in South Africa.",
+      "effect": "SME survival and growth",
+      "expected_supported": true,
+      "gold_span_text": "One of the factors limiting the survival and growth ofSMEs in South Africa is non-availability of debt financing.",
+      "label_id": "openalex-gold-credit-sme-survival-001",
+      "openalex_id": "https://openalex.org/W2169693233",
+      "query": "loan guarantees SMEs firm survival impact evaluation",
+      "source_fixture": "tests/fixtures/scholar/openalex/credit_guarantee_firm_survival.json",
+      "title": "The Impact of Firm and Entrepreneurial Characteristics on Access to Debt Finance by SMEs in King Williams' Town, South Africa",
+      "treatment_or_cause": "non-availability of debt financing"
+    },
+    {
+      "claim_direction": "null",
+      "claim_text": "Minimum wage increases left the overall number of low-wage jobs essentially unchanged over five years.",
+      "effect": "low-wage employment",
+      "expected_supported": true,
+      "gold_span_text": "We find that the overall number of low-wage jobs remained essentially unchanged over the five years following the increase.",
+      "label_id": "openalex-gold-minwage-employment-001",
+      "openalex_id": "https://openalex.org/W2942870997",
+      "query": "minimum wage employment effect",
+      "source_fixture": "tests/fixtures/scholar/openalex/minimum_wage_employment.json",
+      "title": "The Effect of Minimum Wages on Low-Wage Jobs*",
+      "treatment_or_cause": "minimum wage increase"
+    },
+    {
+      "claim_direction": "mixed",
+      "claim_text": "Firm and entrepreneurial characteristics impact access to debt finance by SMEs.",
+      "effect": "access to debt finance by SMEs",
+      "expected_supported": true,
+      "gold_span_text": "The results indicate that firm and entrepreneurial characteristics impact onaccess to debt finance by SMEs.",
+      "label_id": "openalex-gold-credit-debt-access-002",
+      "openalex_id": "https://openalex.org/W2169693233",
+      "query": "loan guarantees SMEs firm survival impact evaluation",
+      "source_fixture": "tests/fixtures/scholar/openalex/credit_guarantee_firm_survival.json",
+      "title": "The Impact of Firm and Entrepreneurial Characteristics on Access to Debt Finance by SMEs in King Williams' Town, South Africa",
+      "treatment_or_cause": "firm and entrepreneurial characteristics"
+    },
+    {
+      "claim_direction": "negative",
+      "claim_text": "Minimum wage increases show evidence of reduced employment in tradeable sectors.",
+      "effect": "tradeable sector employment",
+      "expected_supported": true,
+      "gold_span_text": "However, we do find some evidence of reduced employment in tradeable sectors.",
+      "label_id": "openalex-gold-minwage-tradeable-employment-002",
+      "openalex_id": "https://openalex.org/W2942870997",
+      "query": "minimum wage employment effect",
+      "source_fixture": "tests/fixtures/scholar/openalex/minimum_wage_employment.json",
+      "title": "The Effect of Minimum Wages on Low-Wage Jobs*",
+      "treatment_or_cause": "minimum wage increase"
+    },
+    {
+      "claim_direction": "positive",
+      "claim_text": "Minimum wage hikes left total low-wage job counts roughly stable over the next five years.",
+      "effect": "overall low-wage jobs",
+      "expected_supported": true,
+      "gold_span_text": "We find that the overall number of low-wage jobs remained essentially unchanged over the five years following the increase.",
+      "label_id": "openalex-gold-minwage-paraphrase-stable-jobs-003",
+      "openalex_id": "https://openalex.org/W2942870997",
+      "query": "minimum wage employment effect",
+      "source_fixture": "tests/fixtures/scholar/openalex/minimum_wage_employment.json",
+      "title": "The Effect of Minimum Wages on Low-Wage Jobs*",
+      "treatment_or_cause": "minimum wage increase"
+    },
+    {
+      "claim_direction": "negative",
+      "claim_text": "Limited debt finance constrains SME survival and growth.",
+      "effect": "SME survival and growth",
+      "expected_supported": true,
+      "gold_span_text": "One of the factors limiting the survival and growth ofSMEs in South Africa is non-availability of debt financing.",
+      "label_id": "openalex-gold-credit-paraphrase-financing-constraint-003",
+      "openalex_id": "https://openalex.org/W2169693233",
+      "query": "loan guarantees SMEs firm survival impact evaluation",
+      "source_fixture": "tests/fixtures/scholar/openalex/credit_guarantee_firm_survival.json",
+      "title": "The Impact of Firm and Entrepreneurial Characteristics on Access to Debt Finance by SMEs in King Williams' Town, South Africa",
+      "treatment_or_cause": "limited debt finance"
+    },
+    {
+      "claim_direction": "positive",
+      "claim_text": "COVID-19 substantially increased SME business failures without government support.",
+      "effect": "SME business failures",
+      "expected_supported": true,
+      "gold_span_text": "We estimate a large increase in the failure rate of SMEs under COVID-19 of nearly 9 percentage points, absent government support.",
+      "label_id": "openalex-gold-covid-sme-failures-support-001",
+      "openalex_id": "https://openalex.org/W4206444459",
+      "query": "loan guarantees SMEs firm survival impact evaluation",
+      "source_fixture": "tests/fixtures/scholar/openalex/credit_guarantee_firm_survival.json",
+      "title": "COVID-19 and SME Failures",
+      "treatment_or_cause": "COVID-19 crisis"
+    },
+    {
+      "claim_direction": "positive",
+      "claim_text": "Minimum wage increases reduced overall low-wage employment.",
+      "effect": "overall low-wage employment",
+      "expected_supported": false,
+      "gold_span_text": "We estimate the effect of minimum wages on low-wage jobs using 138 prominent state-level minimum wage changes between 1979 and 2016 in the United States using a difference-in-differences approach.",
+      "label_id": "openalex-gold-minwage-method-only-negative-004",
+      "openalex_id": "https://openalex.org/W2942870997",
+      "query": "minimum wage employment effect",
+      "source_fixture": "tests/fixtures/scholar/openalex/minimum_wage_employment.json",
+      "title": "The Effect of Minimum Wages on Low-Wage Jobs*",
+      "treatment_or_cause": "minimum wage increase"
+    },
+    {
+      "claim_direction": "positive",
+      "claim_text": "Minimum wage increases substantially reduced all low-wage jobs.",
+      "effect": "all low-wage jobs",
+      "expected_supported": false,
+      "gold_span_text": "However, we do find some evidence of reduced employment in tradeable sectors.",
+      "label_id": "openalex-gold-minwage-hedged-scope-negative-005",
+      "openalex_id": "https://openalex.org/W2942870997",
+      "query": "minimum wage employment effect",
+      "source_fixture": "tests/fixtures/scholar/openalex/minimum_wage_employment.json",
+      "title": "The Effect of Minimum Wages on Low-Wage Jobs*",
+      "treatment_or_cause": "minimum wage increase"
+    },
+    {
+      "claim_direction": "negative",
+      "claim_text": "Minimum wage increases reduced overall low-wage jobs.",
+      "effect": "overall low-wage jobs",
+      "expected_supported": false,
+      "gold_span_text": "We find that the overall number of low-wage jobs remained essentially unchanged over the five years following the increase.",
+      "label_id": "openalex-gold-minwage-opposite-direction-negative-006",
+      "openalex_id": "https://openalex.org/W2942870997",
+      "query": "minimum wage employment effect",
+      "source_fixture": "tests/fixtures/scholar/openalex/minimum_wage_employment.json",
+      "title": "The Effect of Minimum Wages on Low-Wage Jobs*",
+      "treatment_or_cause": "minimum wage increase"
+    }
+  ],
+  "schema_version": "policyos.policy_design_case.layer3_gy.openalex_claim_span_gold.v1"
+}

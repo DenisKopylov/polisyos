@@ -235,7 +235,7 @@ def _operator_next_action(*, layer: str, retryable: bool) -> str:
     return "Inspect the job progress, artifacts, and runtime logs before retrying."
 
 
-def _derive_failure_envelope(record: "ControlJobRecord") -> ControlFailureEnvelope | None:
+def _derive_failure_envelope(record: ControlJobRecord) -> ControlFailureEnvelope | None:
     failure_payload = record.progress.get("failure")
     if isinstance(failure_payload, Mapping):
         code = _string_or_none(failure_payload.get("code")) or "control_job_failed"
@@ -384,10 +384,43 @@ def _progress_with_quality_scorecard_summary(
     return normalized
 
 
+def _completion_failure_message(progress: Mapping[str, Any]) -> str | None:
+    """Return why this progress must fail instead of being marked completed."""
+
+    authority_path = _string_or_none(progress.get("authority_path"))
+    disposition = _string_or_none(progress.get("legacy_path_disposition"))
+    authority_result = _string_or_none(progress.get("authority_result"))
+    runtime_state = _string_or_none(progress.get("runtime_state"))
+    progress_state = _string_or_none(progress.get("state"))
+    status = _string_or_none(progress.get("status"))
+    failure = progress.get("failure")
+    if isinstance(failure, Mapping):
+        failure_code = _string_or_none(failure.get("code"))
+        failure_message = _string_or_none(failure.get("message"))
+    else:
+        failure_code = None
+        failure_message = None
+    if authority_path == "workflow_failure":
+        return failure_message or failure_code or "workflow failure cannot complete cleanly"
+    if disposition and disposition.startswith("blocked_workflow_failure"):
+        return failure_message or failure_code or disposition
+    if progress_state == "failed" and authority_result in {"repair_required", "blocked"}:
+        return failure_message or failure_code or "failed progress cannot complete cleanly"
+    if runtime_state == "blocked" and authority_result in {"repair_required", "blocked"}:
+        return failure_message or failure_code or "blocked progress cannot complete cleanly"
+    if status in {"fail", "failed", "error"} and authority_result in {
+        None,
+        "repair_required",
+        "blocked",
+    }:
+        return failure_message or failure_code or "failed workflow status cannot complete cleanly"
+    return None
+
+
 def _coerce_quality_gate(
     payload: Any,
     *,
-    record: "ControlJobRecord",
+    record: ControlJobRecord,
     quality_scorecard_ref: str | None = None,
     quality_evidence_bundle_path: str | None = None,
 ) -> ControlQualityGate | None:
@@ -428,7 +461,7 @@ def _coerce_quality_gate(
 def _coerce_quality_failure(
     payload: Any,
     *,
-    record: "ControlJobRecord",
+    record: ControlJobRecord,
     quality_scorecard_ref: str | None = None,
     quality_evidence_bundle_path: str | None = None,
 ) -> ControlQualityFailure | None:
@@ -459,7 +492,7 @@ def _coerce_quality_failure(
     )
 
 
-def _quality_evidence_missing_gate(record: "ControlJobRecord") -> ControlQualityGate:
+def _quality_evidence_missing_gate(record: ControlJobRecord) -> ControlQualityGate:
     payload = {
         "name": "quality_evidence_present",
         "code": "quality_evidence_missing",
@@ -528,7 +561,7 @@ def _nested_runtime_quality_ref(payload: Any, key: str) -> Any:
     return None
 
 
-def _runtime_quality_ref_optional_reason(record: "ControlJobRecord", ref_key: str) -> str | None:
+def _runtime_quality_ref_optional_reason(record: ControlJobRecord, ref_key: str) -> str | None:
     optional_refs = _nested_get(record.progress, "optional_runtime_quality_refs")
     if not isinstance(optional_refs, Mapping) or ref_key not in optional_refs:
         return None
@@ -537,7 +570,7 @@ def _runtime_quality_ref_optional_reason(record: "ControlJobRecord", ref_key: st
 
 def _runtime_quality_ref_missing_gate(
     *,
-    record: "ControlJobRecord",
+    record: ControlJobRecord,
     ref_key: str,
     gate_name: str,
     layer: str,
@@ -592,7 +625,7 @@ def _runtime_quality_ref_missing_gate(
 
 def _enforce_runtime_quality_refs(
     *,
-    record: "ControlJobRecord",
+    record: ControlJobRecord,
     gates: list[ControlQualityGate],
     failures: list[ControlQualityFailure],
 ) -> tuple[list[ControlQualityGate], list[ControlQualityFailure]]:
@@ -645,7 +678,7 @@ def _blocking_failures_from_gates(gates: list[ControlQualityGate]) -> list[Contr
 
 
 def _derive_quality_summary(
-    record: "ControlJobRecord",
+    record: ControlJobRecord,
 ) -> tuple[str | None, list[ControlQualityGate], list[ControlQualityFailure]]:
     scorecard = _quality_scorecard_payload(record.progress)
     if scorecard is not None:
@@ -720,7 +753,7 @@ def _derive_quality_summary(
     return None, [], []
 
 
-def _derive_quality_refs(record: "ControlJobRecord") -> tuple[str | None, str | None]:
+def _derive_quality_refs(record: ControlJobRecord) -> tuple[str | None, str | None]:
     scorecard = _quality_scorecard_payload(record.progress)
     if scorecard is None:
         return None, None
@@ -743,7 +776,7 @@ def _derive_quality_refs(record: "ControlJobRecord") -> tuple[str | None, str | 
 
 def _derive_operator_diagnostic(
     *,
-    record: "ControlJobRecord",
+    record: ControlJobRecord,
     failure: ControlFailureEnvelope | None,
     quality_gates: list[ControlQualityGate],
     blocking_quality_failures: list[ControlQualityFailure],
@@ -753,7 +786,7 @@ def _derive_operator_diagnostic(
         try:
             return OperatorDiagnostic.model_validate(raw_diagnostic)
         except Exception:
-            pass
+            raw_diagnostic = None
     if failure is not None and failure.operator_diagnostic is not None:
         return failure.operator_diagnostic
     for failure_item in blocking_quality_failures:
@@ -1144,6 +1177,30 @@ class ControlPlaneStore:
             (job_id, event_type, json.dumps(payload, sort_keys=True), _iso(_utc_now())),
         )
 
+    def list_job_state_transitions(self, job_id: str) -> list[str]:
+        """Return observed lifecycle states from the append-only job event log."""
+
+        rows = self._fetchall(
+            """
+            SELECT payload_json
+            FROM control_job_events
+            WHERE job_id = ?
+            ORDER BY event_id ASC
+            """,
+            (job_id,),
+        )
+        transitions: list[str] = []
+        for row in rows:
+            raw = row[0] if not isinstance(row, Mapping) else row.get("payload_json")
+            try:
+                payload = json.loads(str(raw or "{}"))
+            except json.JSONDecodeError:
+                continue
+            state = str(payload.get("state") or "").strip()
+            if state and (not transitions or transitions[-1] != state):
+                transitions.append(state)
+        return transitions
+
     def upsert_progress(self, *, job_id: str, progress: dict[str, Any]) -> None:
         """Create or replace the latest JSON progress snapshot for one job."""
         now = _iso(_utc_now())
@@ -1262,6 +1319,16 @@ class ControlPlaneStore:
         now = _utc_now()
         if progress is not None:
             progress = _progress_with_quality_scorecard_summary(progress)
+            completion_failure_message = _completion_failure_message(progress)
+            if completion_failure_message is not None:
+                self.fail_job(
+                    job_id=job_id,
+                    error_message=completion_failure_message,
+                    capability_manifest_ref=capability_manifest_ref,
+                    progress=progress,
+                )
+                return
+            self.upsert_progress(job_id=job_id, progress=progress)
         self._execute(
             """
             UPDATE control_jobs
@@ -1272,8 +1339,6 @@ class ControlPlaneStore:
             """,
             ("completed", run_id, pipeline_id, capability_manifest_ref, _iso(now), job_id),
         )
-        if progress is not None:
-            self.upsert_progress(job_id=job_id, progress=progress)
         self.append_event(job_id=job_id, event_type="job_completed", payload={"state": "completed"})
         record = self.get_job(job_id)
         if record is not None:

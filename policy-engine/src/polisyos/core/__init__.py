@@ -11,28 +11,9 @@ Only names listed in `__all__` are considered stable package-level API.
 from __future__ import annotations
 
 import importlib
-from typing import TYPE_CHECKING, Any
+from typing import Any
 
-if TYPE_CHECKING:
-    from . import (
-        artifacts,
-        backends,
-        cache,
-        canon,
-        components,
-        contracts,
-        discovery,
-        errors,
-        evaluation,
-        llm,
-        observability,
-        pipeline,
-        registry,
-        resilience,
-        run,
-    )
-
-__all__ = [
+_SUBPACKAGES = (
     "artifacts",
     "backends",
     "cache",
@@ -48,6 +29,37 @@ __all__ = [
     "registry",
     "resilience",
     "run",
+)
+_LAZY_EXPORTS = {
+    "SECRET_AND_PII_SCAN_SCOPES": ("polisyos.core.llm", "SECRET_AND_PII_SCAN_SCOPES"),
+    "SECRET_PII_DETECTOR_VERSION": ("polisyos.core.llm", "SECRET_PII_DETECTOR_VERSION"),
+    "PromptSanitizer": ("polisyos.core.llm", "PromptSanitizer"),
+    "SecretAndPIIScanReport": ("polisyos.core.llm", "SecretAndPIIScanReport"),
+    "SecretPIIScanResult": ("polisyos.core.llm", "SecretPIIScanResult"),
+    "scan_secret_and_pii": ("polisyos.core.llm", "scan_secret_and_pii"),
+}
+__all__ = [
+    "SECRET_AND_PII_SCAN_SCOPES",
+    "SECRET_PII_DETECTOR_VERSION",
+    "PromptSanitizer",
+    "SecretAndPIIScanReport",
+    "SecretPIIScanResult",
+    "artifacts",
+    "backends",
+    "cache",
+    "canon",
+    "components",
+    "contracts",
+    "discovery",
+    "errors",
+    "evaluation",
+    "llm",
+    "observability",
+    "pipeline",
+    "registry",
+    "resilience",
+    "run",
+    "scan_secret_and_pii",
 ]
 
 
@@ -63,11 +75,16 @@ def __getattr__(name: str) -> Any:
     Raises:
         AttributeError: If `name` is not part of the stable facade surface.
     """
-    if name not in __all__:
-        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
-    module = importlib.import_module(f"{__name__}.{name}")
-    globals()[name] = module
-    return module
+    if name in _SUBPACKAGES:
+        module = importlib.import_module(f"{__name__}.{name}")
+        globals()[name] = module
+        return module
+    if name in _LAZY_EXPORTS:
+        module_name, attr_name = _LAZY_EXPORTS[name]
+        value = getattr(importlib.import_module(module_name), attr_name)
+        globals()[name] = value
+        return value
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 def __dir__() -> list[str]:

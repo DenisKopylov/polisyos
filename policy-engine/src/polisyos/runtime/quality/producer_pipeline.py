@@ -23,7 +23,7 @@ from polisyos.runtime.quality.concept_spine import (
     build_producer_handshake_ledger,
     build_producer_handshake_record,
 )
-from polisyos.runtime.quality.producer_pipeline_corpus_stub import (
+from polisyos.runtime.quality.corpus_fixture_producer_reports import (
     build_corpus_stub_adapter_reports,
     corpus_stub_authority_boundary,
 )

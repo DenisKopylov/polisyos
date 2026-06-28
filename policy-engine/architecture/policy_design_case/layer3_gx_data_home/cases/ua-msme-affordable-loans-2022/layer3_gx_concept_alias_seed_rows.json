@@ -1,0 +1,41 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gx_concept_alias_seed_rows.v1",
+  "rule_version": "policyos.layer3.gx.data_home.v1",
+  "producer_ref": "external-request://layer3-gx/concept-alias-seeds/ua-msme-affordable-loans-2022",
+  "producer_type": "external_request",
+  "alias_rows": [
+    {
+      "row_id": "gx-alias:credit_access",
+      "concept_ref": "credit_access",
+      "aliases": [
+        "credit access",
+        "affordable loans"
+      ],
+      "resolution_status": "unverified",
+      "asserts_corpus_supply": false,
+      "corpus_row_refs": []
+    },
+    {
+      "row_id": "gx-alias:firm_survival",
+      "concept_ref": "firm_survival",
+      "aliases": [
+        "firm survival",
+        "business continuity"
+      ],
+      "resolution_status": "unverified",
+      "asserts_corpus_supply": false,
+      "corpus_row_refs": []
+    },
+    {
+      "row_id": "gx-alias:credit_program_enrollment",
+      "concept_ref": "credit_program_enrollment",
+      "aliases": [
+        "program enrollment",
+        "loan participation"
+      ],
+      "resolution_status": "unverified",
+      "asserts_corpus_supply": false,
+      "corpus_row_refs": []
+    }
+  ]
+}

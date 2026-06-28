@@ -27,9 +27,9 @@ depends_on:
   - src/polisyos/policy_grammar/_impl/compiler.py
   - src/polisyos/policy_grammar/_impl/schema.py
   - src/polisyos/policy_grammar/_impl/consumer.py
-  - src/polisyos/runtime/quality/layer3_grounding_inventory.py
-  - src/polisyos/runtime/quality/layer3_proving_ground_conversion.py
-  - src/polisyos/runtime/quality/layer3_promotion_gate.py
+  - src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py
+  - src/polisyos/runtime/quality/proving_ground/proving_ground_conversion.py
+  - src/polisyos/runtime/quality/proving_ground/governed_promotion_gate.py
   - src/polisyos/runtime/quality/prompt_tool_ledger.py
   - src/polisyos/runtime/quality/hypothesis_ledger.py
   - src/polisyos/runtime/quality/candidate_firewall.py
@@ -156,7 +156,7 @@ The grammar/facet-first route has a concrete owner, but also an import-boundary
 constraint. `architecture/imports/policy.toml` currently allows `runtime` to
 import `scientist`, `pdc`, `core`, and `ir`, but not `policy_grammar`. Therefore
 the default G6 implementation must not import `polisyos.policy_grammar` from
-`src/polisyos/runtime/quality/layer3_bounded_agent.py`. Instead, reuse
+`src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py`. Instead, reuse
 `PolicyGrammarCompiler`, `PolicyGrammarIntent`, `PolicyGrammarConceptSpineRefs`,
 and `require_compiled_universal_policy_design_case(...)` in the readiness/tooling
 boundary to produce a typed `Layer3G6PolicyGrammarProjection` payload, then pass
@@ -361,7 +361,7 @@ Existing strengths to reuse:
   import `policy_grammar`. That is a real architecture constraint, not a
   missing import. G6 should consume a policy-grammar projection payload unless
   the implementation intentionally adds and justifies an import-policy change.
-- `src/polisyos/runtime/quality/layer3_grounding_inventory.py` already provides
+- `src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py` already provides
   the search-ledger, recall-seed, and index-freshness discipline G6 needs for
   out-of-envelope abstention quality. Its validator explicitly blocks search
   ledger authority leaks.
@@ -369,7 +369,7 @@ Existing strengths to reuse:
   `src/polisyos/runtime/quality/replay.py` already provide continuity and
   replay-manifest helpers; G6 should reuse them instead of inventing a local
   replay fingerprint convention.
-- `src/polisyos/runtime/quality/layer3_proving_ground_conversion.py` already
+- `src/polisyos/runtime/quality/proving_ground/proving_ground_conversion.py` already
   exposes strict G5 DTOs, `build_layer3_g5_bundle(...)`,
   `build_g5_w12d_consumer_gate(...)`, and G5 validation.
 - G5 persisted artifacts are registered and the readiness CLI passes.
@@ -398,7 +398,7 @@ Existing strengths to reuse:
 - `src/polisyos/pdc/_impl/layer2_design_search.py` already has the S2 pattern
   for grammar expansion, counterexample refinement, replayable search ledger,
   and shadow DesignRecord handoff.
-- `src/polisyos/runtime/quality/layer3_promotion_gate.py` already enforces G4
+- `src/polisyos/runtime/quality/proving_ground/governed_promotion_gate.py` already enforces G4
   source DesignRecord resolution with full payload/replay/digest requirements
   and upstream `may_not_use_for` checks.
 
@@ -452,7 +452,7 @@ Current weak points G6 must account for:
 
 Create:
 
-- `src/polisyos/runtime/quality/layer3_bounded_agent.py` - G6 contracts,
+- `src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py` - G6 contracts,
   builders, policy-grammar projection consumer, G0-shaped search ledger
   projection, G5 bridge, replay/continuity projections, audit/result
   projections, conformance checks. This module must not directly import
@@ -544,7 +544,7 @@ architecture/policy_design_case/layer3_g6_readiness_manifest.json
 
 - Create: `tests/unit/runtime/quality/test_layer3_g6_bounded_agent.py`
 - Create: `tests/repo_quality/tools/test_policy_design_case_layer3_g6_readiness.py`
-- Create: `src/polisyos/runtime/quality/layer3_bounded_agent.py`
+- Create: `src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py`
 - Create: `tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py`
 
 - [x] **Step 1: Add red tests for the G6 contract surface**
@@ -610,7 +610,7 @@ Expected: fail with missing `layer3_bounded_agent`.
 
 - [x] **Step 3: Add minimal constants and issue dictionary**
 
-In `src/polisyos/runtime/quality/layer3_bounded_agent.py`, add:
+In `src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py`, add:
 
 ```python
 import hashlib
@@ -711,7 +711,7 @@ Expected: pass.
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_bounded_agent.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py`
 - Modify: `tests/unit/runtime/quality/test_layer3_g6_bounded_agent.py`
 
 - [x] **Step 1: Add tests for request envelope and candidate-only parse**
@@ -940,7 +940,7 @@ def test_g6_runtime_module_does_not_import_policy_grammar() -> None:
     from pathlib import Path
 
     module_text = Path(
-        "src/polisyos/runtime/quality/layer3_bounded_agent.py"
+        "src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py"
     ).read_text(encoding="utf-8")
 
     assert "polisyos.policy_grammar" not in module_text
@@ -989,7 +989,7 @@ Expected: current task tests pass; later task tests may still fail until added.
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_bounded_agent.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py`
 - Modify: `tests/unit/runtime/quality/test_layer3_g6_bounded_agent.py`
 
 - [x] **Step 1: Add tests for grounding-demand and strict tools**
@@ -1097,7 +1097,7 @@ Scientist tool-contract summary.
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_bounded_agent.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py`
 - Modify: `tests/unit/runtime/quality/test_layer3_g6_bounded_agent.py`
 
 - [x] **Step 1: Add tests for candidate lineage and firewall**
@@ -1155,9 +1155,9 @@ The prompt/tool ledger step must set:
 - `step_kind = "layer3_g6_agent_orchestration_candidate"`
 - `authority_scopes = ("claims",)` because the candidate could be misread as a
   claim, while the G6 projection keeps the branch candidate-only.
-- parser contract refs under `repo://src/polisyos/runtime/quality/layer3_bounded_agent.py`
+- parser contract refs under `repo://src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py`
 - validation ref `layer3-g6://validation/candidate-only`
-- authority handoff consumer `polisyos.runtime.quality.layer3_bounded_agent`
+- authority handoff consumer `polisyos.runtime.quality.proving_ground.bounded_request_agent`
 - handoff status `not_applicable`
 
 Add a negative proving G6 fails closed if prompt/tool authority status is
@@ -1199,7 +1199,7 @@ The hypothesis ledger entries must set:
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_bounded_agent.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py`
 - Modify: `tests/unit/runtime/quality/test_layer3_g6_bounded_agent.py`
 
 - [x] **Step 1: Add audit tests**
@@ -1537,7 +1537,7 @@ promotion.
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_bounded_agent.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py`
 - Modify: `tests/unit/runtime/quality/test_layer3_g6_bounded_agent.py`
 
 - [x] **Step 1: Add tests preserving current G5 unchanged blocker**
@@ -1663,7 +1663,7 @@ Do not create a new G5 conversion record in G6.
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_bounded_agent.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py`
 - Modify: `tests/unit/runtime/quality/test_layer3_g6_bounded_agent.py`
 
 - [x] **Step 1: Add tests for current and future G5 outcomes**
@@ -1843,7 +1843,7 @@ wraps `explain_replay_drift(...)`; any `unexplained_drift` or
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_bounded_agent.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py`
 - Modify: `tests/unit/runtime/quality/test_layer3_g6_bounded_agent.py`
 
 - [x] **Step 1: Add surface and health tests**
@@ -1944,7 +1944,7 @@ include at least `claim_authority`, `scorecard_authority`,
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_bounded_agent.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py`
 - Modify: `tests/unit/runtime/quality/test_layer3_g6_bounded_agent.py`
 
 - [x] **Step 1: Add conformance negative tests**
@@ -2356,7 +2356,7 @@ generator = "Layer 3 G6 readiness validator write mode"
 verifier = "Layer 3 G6 readiness validator and architecture guardrails"
 promotion_target = "registered Policy Design Case G6 bounded-agent audit surface artifacts"
 stale_output_behavior = "fail"
-source_of_truth = "src/polisyos/runtime/quality/layer3_bounded_agent.py and tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py"
+source_of_truth = "src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py and tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py"
 regenerate_commands = [
   "uv run python tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py --repo-root . --write --output-format json",
 ]
@@ -2491,7 +2491,7 @@ G6 closure IDs: `P01`, `P02`, `P03`, `P04`, `P05`, `P07`, `P08`, `P09`,
   uses concept/jurisdiction spine refs and grammar/facet matching joined to G5
   envelope refs, and keeps classifier-only keyword matches as blockers, not
   authority.
-- [x] `src/polisyos/runtime/quality/layer3_bounded_agent.py` does not directly
+- [x] `src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py` does not directly
   import `polisyos.policy_grammar` on the default implementation path.
 - [x] Blocked policy grammar compilation or missing concept-spine refs produce
   typed blockers, not same-class routing.

@@ -5,6 +5,7 @@ from __future__ import annotations
 from unittest.mock import patch
 
 import pytest
+
 from polisyos.ir.analytics.causal_graph import CausalGraphModel, GraphType
 from polisyos.ir.analytics.literature import LiteratureCausalPrior
 from polisyos.scientist.nodes.builtins import errors as node_errors
@@ -32,6 +33,9 @@ def test_skip_when_no_causal_variables(execution_context, minimal_state):
     outcome = BuildLiteraturePriorNode().execute(execution_context, state)
     assert outcome.status == "skip"
     assert any("No causal variables" in e.message for e in outcome.events)
+    assert outcome.skip_blocker is not None
+    assert outcome.skip_blocker.missing_input == "causal_variables"
+    assert outcome.skip_blocker.blocker_code == "gy_phase2_blocked_input_producer_missing"
 
 
 def test_fail_when_pure_step_raises(execution_context, minimal_state):

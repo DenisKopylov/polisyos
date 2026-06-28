@@ -78,14 +78,14 @@ def test_resolve_workflow_id_uses_policy_verified_for_verified_async_mode() -> N
     assert resolve_workflow_id(state) == "scientist_policy_verified"
 
 
-def test_resolve_workflow_id_uses_policy_verified_for_policy_request_without_trinity() -> None:
+def test_resolve_workflow_id_uses_policy_design_for_plain_policy_request_without_trinity() -> None:
     state = ExperimentState(
         run_id="R_workflow_policy_request",
         inputs={INPUT_RESEARCH_INTENT_REF: _artifact_ref("scientist.research_intent")},
         params={"policy_question": "Як змінити ліцензування?"},  # no trinity input
     )
 
-    assert resolve_workflow_id(state) == "scientist_policy_verified"
+    assert resolve_workflow_id(state) == "scientist_policy_design"
 
 
 def test_resolve_workflow_id_uses_discovery_when_discovery_payload_present() -> None:

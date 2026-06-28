@@ -14,7 +14,10 @@ from polisyos.core.contracts.runtime import (
     TemporalScope,
     UnitRef,
 )
-from polisyos.runtime.http.services.temporal import TemporalService
+from polisyos.runtime.http.services.temporal import (
+    TemporalService,
+    build_time_source_envelope_audit,
+)
 
 
 def _parse_iso(value: str) -> datetime:
@@ -172,6 +175,55 @@ def test_temporal_scope_projects_runtime_state_without_naked_echo() -> None:
     assert [quantity.metric_id for quantity in quantities] == ["known_metric"]
     assert [entry.metric_id for entry in entries] == ["known_metric"]
     assert coverage.total == 1
+
+
+def test_time_source_envelope_blocks_stale_catalog_watermark() -> None:
+    catalog_time = datetime(2026, 1, 15, 10, 5, 7, tzinfo=UTC)
+    run_time = datetime(2026, 6, 16, 12, 5, 11, tzinfo=UTC)
+
+    audit = build_time_source_envelope_audit(
+        catalog_watermark=catalog_time,
+        source_observed_at=run_time,
+        source_published_at=catalog_time,
+        source_updated_at=run_time,
+        ingested_at=run_time,
+        effective_time=run_time,
+        legal_valid_time=run_time,
+        transaction_time=run_time,
+        as_of_time=run_time,
+        replay_time=run_time,
+        run_started_at=run_time,
+        run_finished_at=run_time + timedelta(seconds=5),
+        node_started_at=run_time,
+        node_finished_at=run_time + timedelta(seconds=1),
+        retention_or_expiry=run_time + timedelta(days=30),
+    )
+
+    assert audit.mismatch_disposition == "block:catalog_watermark_stale_for_source"
+
+
+def test_time_source_envelope_blocks_legal_valid_time_outside_replay() -> None:
+    base = datetime(2026, 6, 16, 12, 5, 11, tzinfo=UTC)
+
+    audit = build_time_source_envelope_audit(
+        catalog_watermark=base,
+        source_observed_at=base,
+        source_published_at=base,
+        source_updated_at=base,
+        ingested_at=base,
+        effective_time=base,
+        legal_valid_time=base + timedelta(days=1),
+        transaction_time=base,
+        as_of_time=base,
+        replay_time=base,
+        run_started_at=base,
+        run_finished_at=base + timedelta(seconds=5),
+        node_started_at=base,
+        node_finished_at=base + timedelta(seconds=1),
+        retention_or_expiry=base + timedelta(days=30),
+    )
+
+    assert audit.mismatch_disposition == "block:legal_valid_time_outside_as_of_replay"
 
 
 def test_temporal_scope_conflict_returns_422(runtime_api_env) -> None:

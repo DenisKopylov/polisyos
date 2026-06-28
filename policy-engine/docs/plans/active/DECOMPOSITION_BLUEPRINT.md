@@ -36,7 +36,7 @@ It authorizes no physical `.py` moves in `src/polisyos/scientist/` or
 
 ### `polisyos.foundry._quickstart`
 - `src/polisyos/foundry/README.md:97` (literal_fqn)
-- `tests/repo_quality/tools/test_docs_gate.py:202` (literal_fqn)
+- `tests/repo_quality/tools/test_docs_gate.py:279` (literal_fqn)
 - `tests/unit/foundry/facade/test_quickstart.py:8` (literal_fqn)
 - `tests/unit/foundry/runtime/test_execute_feedback.py:25` (literal_fqn)
 - `tools/ops_runners/experiments/run_msme_e2e_showcase.py:774` (literal_fqn)
@@ -76,13 +76,13 @@ No Pydantic models were found in planned move files.
 
 ## Dynamic Imports
 
-- Registered dynamic import patterns: 180
+- Registered dynamic import patterns: 201
 - Registry: `architecture/imports/dynamic.toml`
 
 ## Import Cycles
 
 - Modules in scientist/foundry graph: 1173
-- Edges in graph: 3423
+- Edges in graph: 3424
 - Pre-existing lazy SCCs: 14
 - Allowed lazy cycles are frozen in `architecture/imports/lazy.toml`.
 - The baseline graph records the collector mode; this workspace uses the internal

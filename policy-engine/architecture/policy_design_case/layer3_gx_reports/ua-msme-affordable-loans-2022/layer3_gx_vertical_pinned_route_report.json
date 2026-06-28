@@ -1,0 +1,189 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gx_vertical_pinned_route.v1",
+  "rule_version": "policyos.layer3.gx.vertical_pinned_route.v1",
+  "status": "blocked",
+  "case_id": "ua-msme-affordable-loans-2022",
+  "request_ref": "external-request://layer3-gx/ua-msme-affordable-loans-2022",
+  "data_home_status": "ready",
+  "g1_search_measurement_status": "blocked",
+  "g1_grounding_closure": "search_ceiling_repair_required",
+  "g4_promotion_state": "promotion_blocked",
+  "final_outcome": "unchanged_blocker",
+  "route_replay_key": "layer3-gx-vertical-pinned-route:ua-msme-affordable-loans-2022:v1",
+  "route_steps": [
+    "layer3_gx_pinned_request",
+    "g1_canonical_dcat_search_ledger",
+    "g1_measured_recall_freshness",
+    "g4_reducer_promotion_state",
+    "layer3_gx_demand_pull_request",
+    "g5_reducer_conversion_outcome"
+  ],
+  "decisions": [
+    {
+      "schema_version": "policyos.policy_design_case.layer3_reducer_decision.v1",
+      "reducer_id": "reduce_g1_source_grounding_closure",
+      "reducer_version": "v1",
+      "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
+      "status_field": "grounding_closure_outcome",
+      "status": "search_ceiling_repair_required",
+      "readiness_status": "blocked",
+      "vocabulary_status_id": "search_ceiling_repair_required",
+      "blocker_refs": [
+        "layer3_g1_search_health_not_measured_or_failed"
+      ],
+      "limitation_refs": [],
+      "input_refs": [
+        "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json",
+        "repo://architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json",
+        "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json"
+      ],
+      "input_hashes": {
+        "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json": "sha256:bc2112bfbf228d4d742a4add3b8473ea358d21471e7b650024963fb20a7561fd",
+        "repo://architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json": "sha256:4f7ece8c2e18fac5826ae56ae6c1b6d9875511fc55e79ece7a791092cfa2e45b",
+        "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json": "sha256:99bb3f31d68ebd6c41e286f60fc00f0a6558577c0fa460d86efa2b179c42f60d"
+      },
+      "issue_codes": [
+        "layer3_g1_search_health_not_measured_or_failed"
+      ],
+      "produced_by": {
+        "reducer_id": "reduce_g1_source_grounding_closure",
+        "reducer_version": "v1",
+        "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
+        "input_hashes": {
+          "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json": "sha256:bc2112bfbf228d4d742a4add3b8473ea358d21471e7b650024963fb20a7561fd",
+          "repo://architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json": "sha256:4f7ece8c2e18fac5826ae56ae6c1b6d9875511fc55e79ece7a791092cfa2e45b",
+          "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json": "sha256:99bb3f31d68ebd6c41e286f60fc00f0a6558577c0fa460d86efa2b179c42f60d"
+        },
+        "vocabulary_status_id": "search_ceiling_repair_required",
+        "output_hash": "sha256:e2a1e876731a9bb5b7fb053ed9c4603337093ae4530adb840c148f3700439fc4"
+      }
+    },
+    {
+      "schema_version": "policyos.policy_design_case.layer3_reducer_decision.v1",
+      "reducer_id": "reduce_g4_promotion_state",
+      "reducer_version": "v1",
+      "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
+      "status_field": "promotion_state",
+      "status": "promotion_blocked",
+      "readiness_status": "fail",
+      "vocabulary_status_id": "promotion_blocked",
+      "blocker_refs": [
+        "layer3_g1_search_health_not_measured_or_failed",
+        "layer3_g4_missing_g1_grounded_source_contract",
+        "layer3_g4_source_design_record_unresolved",
+        "layer3_g4_dependency_not_ready:blocked"
+      ],
+      "limitation_refs": [],
+      "input_refs": [
+        "repo://architecture/policy_design_case/layer3_gx_data_home/cases/ua-msme-affordable-loans-2022/layer3_gx_pinned_request.json",
+        "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json",
+        "repo://architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json",
+        "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json"
+      ],
+      "input_hashes": {
+        "repo://architecture/policy_design_case/layer3_gx_data_home/cases/ua-msme-affordable-loans-2022/layer3_gx_pinned_request.json": "sha256:4105e5b22179d0f2b71a50bc550fd1866539577d2b41ae8a6c2b2df8ebcee7d6",
+        "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json": "sha256:bc2112bfbf228d4d742a4add3b8473ea358d21471e7b650024963fb20a7561fd",
+        "repo://architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json": "sha256:4f7ece8c2e18fac5826ae56ae6c1b6d9875511fc55e79ece7a791092cfa2e45b",
+        "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json": "sha256:99bb3f31d68ebd6c41e286f60fc00f0a6558577c0fa460d86efa2b179c42f60d"
+      },
+      "issue_codes": [
+        "layer3_g1_search_health_not_measured_or_failed",
+        "layer3_g4_missing_g1_grounded_source_contract",
+        "layer3_g4_source_design_record_unresolved",
+        "layer3_g4_dependency_not_ready:blocked"
+      ],
+      "produced_by": {
+        "reducer_id": "reduce_g4_promotion_state",
+        "reducer_version": "v1",
+        "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
+        "input_hashes": {
+          "repo://architecture/policy_design_case/layer3_gx_data_home/cases/ua-msme-affordable-loans-2022/layer3_gx_pinned_request.json": "sha256:4105e5b22179d0f2b71a50bc550fd1866539577d2b41ae8a6c2b2df8ebcee7d6",
+          "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json": "sha256:bc2112bfbf228d4d742a4add3b8473ea358d21471e7b650024963fb20a7561fd",
+          "repo://architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json": "sha256:4f7ece8c2e18fac5826ae56ae6c1b6d9875511fc55e79ece7a791092cfa2e45b",
+          "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json": "sha256:99bb3f31d68ebd6c41e286f60fc00f0a6558577c0fa460d86efa2b179c42f60d"
+        },
+        "vocabulary_status_id": "promotion_blocked",
+        "output_hash": "sha256:338dc7ea3e51e42b9f794d688933ecb43005f0d78df4d68f5a80a88e9c7cab44"
+      }
+    },
+    {
+      "schema_version": "policyos.policy_design_case.layer3_reducer_decision.v1",
+      "reducer_id": "reduce_g5_conversion_outcome",
+      "reducer_version": "v1",
+      "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
+      "status_field": "conversion_outcome",
+      "status": "unchanged_blocker",
+      "readiness_status": "fail",
+      "vocabulary_status_id": "unchanged_blocker",
+      "blocker_refs": [
+        "layer3_g5_cross_slice_checks_not_ready",
+        "layer3_g5_grounded_evidence_ref_missing",
+        "layer3_g5_abstention_candidate_missing"
+      ],
+      "limitation_refs": [],
+      "input_refs": [
+        "repo://architecture/policy_design_case/layer3_gx_data_home/cases/ua-msme-affordable-loans-2022/layer3_gx_demand_pull_request.json",
+        "reducer://layer3-gx/reduce_g1_source_grounding_closure",
+        "reducer://layer3-gx/reduce_g4_promotion_state",
+        "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json",
+        "repo://architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json",
+        "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json"
+      ],
+      "input_hashes": {
+        "repo://architecture/policy_design_case/layer3_gx_data_home/cases/ua-msme-affordable-loans-2022/layer3_gx_demand_pull_request.json": "sha256:8220b04c7a9dc928d7aca2f339e0229851a1e9caed12a5e4e45aa1f563cdfd26",
+        "reducer://layer3-gx/reduce_g1_source_grounding_closure": "sha256:e2a1e876731a9bb5b7fb053ed9c4603337093ae4530adb840c148f3700439fc4",
+        "reducer://layer3-gx/reduce_g4_promotion_state": "sha256:338dc7ea3e51e42b9f794d688933ecb43005f0d78df4d68f5a80a88e9c7cab44",
+        "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json": "sha256:bc2112bfbf228d4d742a4add3b8473ea358d21471e7b650024963fb20a7561fd",
+        "repo://architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json": "sha256:4f7ece8c2e18fac5826ae56ae6c1b6d9875511fc55e79ece7a791092cfa2e45b",
+        "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json": "sha256:99bb3f31d68ebd6c41e286f60fc00f0a6558577c0fa460d86efa2b179c42f60d"
+      },
+      "issue_codes": [
+        "layer3_g5_cross_slice_checks_not_ready",
+        "layer3_g5_grounded_evidence_ref_missing",
+        "layer3_g5_abstention_candidate_missing"
+      ],
+      "produced_by": {
+        "reducer_id": "reduce_g5_conversion_outcome",
+        "reducer_version": "v1",
+        "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
+        "input_hashes": {
+          "repo://architecture/policy_design_case/layer3_gx_data_home/cases/ua-msme-affordable-loans-2022/layer3_gx_demand_pull_request.json": "sha256:8220b04c7a9dc928d7aca2f339e0229851a1e9caed12a5e4e45aa1f563cdfd26",
+          "reducer://layer3-gx/reduce_g1_source_grounding_closure": "sha256:e2a1e876731a9bb5b7fb053ed9c4603337093ae4530adb840c148f3700439fc4",
+          "reducer://layer3-gx/reduce_g4_promotion_state": "sha256:338dc7ea3e51e42b9f794d688933ecb43005f0d78df4d68f5a80a88e9c7cab44",
+          "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json": "sha256:bc2112bfbf228d4d742a4add3b8473ea358d21471e7b650024963fb20a7561fd",
+          "repo://architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json": "sha256:4f7ece8c2e18fac5826ae56ae6c1b6d9875511fc55e79ece7a791092cfa2e45b",
+          "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json": "sha256:99bb3f31d68ebd6c41e286f60fc00f0a6558577c0fa460d86efa2b179c42f60d"
+        },
+        "vocabulary_status_id": "unchanged_blocker",
+        "output_hash": "sha256:326494863c6127b21fe705d9e51af010418a2cde9438417fca12b465a84aedd9"
+      }
+    }
+  ],
+  "next_blocker_refs": [
+    "layer3_g5_cross_slice_checks_not_ready",
+    "layer3_g5_grounded_evidence_ref_missing",
+    "layer3_g5_abstention_candidate_missing",
+    "layer3_g1_search_health_not_measured_or_failed",
+    "layer3_g4_missing_g1_grounded_source_contract",
+    "layer3_g4_source_design_record_unresolved",
+    "layer3_g4_dependency_not_ready:blocked"
+  ],
+  "issue_codes": [
+    "layer3_g1_search_health_not_measured_or_failed",
+    "layer3_g4_missing_g1_grounded_source_contract",
+    "layer3_g4_source_design_record_unresolved",
+    "layer3_g4_dependency_not_ready:blocked",
+    "layer3_g5_cross_slice_checks_not_ready",
+    "layer3_g5_grounded_evidence_ref_missing",
+    "layer3_g5_abstention_candidate_missing"
+  ],
+  "may_not_use_for": [
+    "production_authority",
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority",
+    "runtime_closeout_authority",
+    "useful_design_credit",
+    "domain_ceiling_authority_without_gate"
+  ]
+}

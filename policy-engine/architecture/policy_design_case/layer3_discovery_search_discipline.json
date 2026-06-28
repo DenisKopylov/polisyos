@@ -28,7 +28,7 @@
       {
         "backing_path_or_service": "src/polisyos/runtime/quality",
         "corpus_snapshot_ref": "repo://src/polisyos/runtime/quality",
-        "freshness_ref": "repo://src/polisyos/runtime/quality/layer3_grounding_inventory.py",
+        "freshness_ref": "repo://src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py",
         "index_id": "runtime-quality-capability-registry",
         "index_kind": "registry",
         "index_version": "policyos.layer3.g0.discovery_search_free_growth.v2",
@@ -259,7 +259,7 @@
     "governed_vocabulary_exceptions": [
       {
         "enumeration_kind": "governed_vocabulary_exception",
-        "file": "src/polisyos/runtime/quality/layer3_grounding_inventory.py",
+        "file": "src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py",
         "governed_vocabulary_exception": true,
         "pattern": "DiscoveryPosture",
         "rationale": "schema vocabulary is governed contract language, not a capability fallback list"
@@ -275,7 +275,7 @@
       "src/polisyos/runtime/quality/capability_white_space.py",
       "src/polisyos/runtime/quality/claim_registry.py",
       "src/polisyos/runtime/quality/construct_registry.py",
-      "src/polisyos/runtime/quality/layer3_grounding_inventory.py",
+      "src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py",
       "src/polisyos/runtime/quality/required_reference_resolver.py",
       "tools/quality/validation/check_policy_design_case_layer3_g0_readiness.py"
     ],

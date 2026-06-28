@@ -1,0 +1,49 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gx_runtime_literal_lint.v1",
+  "status": "fail",
+  "scan_roots": [
+    "src/polisyos/core",
+    "src/polisyos/runtime",
+    "tools/quality/validation",
+    "tests/unit/runtime",
+    "tests/repo_quality"
+  ],
+  "scanned_file_count": 1009,
+  "issues": [
+    {
+      "code": "layer3_gx_runtime_literal_forbidden",
+      "path": "src/polisyos/runtime/quality/workspace/loop.py",
+      "message": "Runtime/core/validator code contains a GX-forbidden domain or positive-status literal.",
+      "literal": "credit_access",
+      "line": 1036
+    },
+    {
+      "code": "layer3_gx_malformed_sha256_forbidden",
+      "path": "tools/quality/validation/check_layer3_gy_composition_artifacts.py",
+      "message": "Malformed or incomplete sha256 digest is forbidden in GX authority paths.",
+      "digest": "sha256:other-graph",
+      "line": 240
+    },
+    {
+      "code": "layer3_gx_runtime_literal_forbidden",
+      "path": "tools/quality/validation/check_layer3_gy_data_requirement_compiler_audit.py",
+      "message": "Runtime/core/validator code contains a GX-forbidden domain or positive-status literal.",
+      "literal": "credit_access",
+      "line": 185
+    },
+    {
+      "code": "layer3_gx_runtime_literal_forbidden",
+      "path": "tools/quality/validation/check_layer3_gy_p2_semantic_evidence_quality_audit.py",
+      "message": "Runtime/core/validator code contains a GX-forbidden domain or positive-status literal.",
+      "literal": "firm_survival",
+      "line": 162
+    },
+    {
+      "code": "layer3_gx_runtime_literal_forbidden",
+      "path": "tools/quality/validation/check_layer3_gy_phase2_artifacts.py",
+      "message": "Runtime/core/validator code contains a GX-forbidden domain or positive-status literal.",
+      "literal": "credit_access",
+      "line": 171
+    }
+  ]
+}

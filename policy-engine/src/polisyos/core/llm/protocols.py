@@ -12,6 +12,13 @@ class LLMClientProtocol(Protocol):
     async def generate(self, **kwargs: Any) -> Any:  # pragma: no cover - protocol
         ...
 
+    async def list_model_ids(
+        self,
+        *,
+        timeout: float | None = None,
+    ) -> list[str]:  # pragma: no cover - protocol
+        ...
+
     def invoke(self, prompt: str, **kwargs: Any) -> Any:  # pragma: no cover - protocol
         ...
 

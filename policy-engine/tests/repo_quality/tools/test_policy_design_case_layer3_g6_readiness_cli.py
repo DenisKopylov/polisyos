@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from polisyos.runtime.quality import layer3_bounded_agent as g6
+from polisyos.runtime.quality.proving_ground import bounded_request_agent as g6
 from tools.quality.validation import check_policy_design_case_layer3_g6_readiness as validator
 
 REPO_ROOT = Path(__file__).resolve().parents[3]

@@ -59,6 +59,66 @@ def test_content_change_does_change_hash() -> None:
     assert h({"results": {"q": ["a", "b"]}}) != h({"results": {"q": ["a", "c"]}})
 
 
+def test_production_replay_proof_is_three_level_and_content_bound() -> None:
+    from polisyos.runtime.quality.authority import build_outcome_replay_proof
+
+    contract = {
+        "terminal_state": {
+            "kind": "search_ceiling_repair_required",
+            "reason": "measured recall is below the governed threshold",
+        },
+        "search_ledger": {
+            "invocations": [{"operation_id": "slice0.bind.catalog", "status": "completed"}],
+            "events": [{"event_type": "terminal_state_selected"}],
+        },
+        "incompleteness_record": {"search_quality": {"recall_at_known_seeds": 0.0}},
+        "artifact_envelopes": [],
+        "authority_boundary": None,
+    }
+    proof = build_outcome_replay_proof(
+        case_id="ua-msme-affordable-loans-2022",
+        input_payloads={"sha256:" + "a" * 64: {"case_id": "ua-msme"}},
+        search_exit_contract=contract,
+        output_cas_refs=["sha256:" + "b" * 64],
+    )
+
+    assert proof.replay_levels == ["A", "B", "C"]
+    assert [level.level for level in proof.level_proofs] == ["A", "B", "C"]
+    assert all(level.status == "verified" for level in proof.level_proofs)
+    assert proof.output_hash == _canon().canonical_evidence_hash(contract)
+    assert proof.input_hashes
+
+
+def test_production_replay_output_hash_is_time_invariant() -> None:
+    from polisyos.runtime.quality.authority import build_outcome_replay_proof
+
+    base = {
+        "terminal_state": {"kind": "search_ceiling_repair_required"},
+        "search_ledger": {"invocations": [], "events": []},
+        "incompleteness_record": {},
+        "artifact_envelopes": [],
+        "authority_boundary": None,
+        "generated_at": "2026-06-24T09:00:00Z",
+    }
+    replayed = {**base, "generated_at": "2031-01-01T00:00:00Z"}
+
+    first = build_outcome_replay_proof(
+        case_id="ua-msme-affordable-loans-2022",
+        input_payloads={"input": {"created_at": "2026-01-01T00:00:00Z", "value": 1}},
+        search_exit_contract=base,
+        output_cas_refs=[],
+    )
+    second = build_outcome_replay_proof(
+        case_id="ua-msme-affordable-loans-2022",
+        input_payloads={"input": {"created_at": "2030-01-01T00:00:00Z", "value": 1}},
+        search_exit_contract=replayed,
+        output_cas_refs=[],
+    )
+
+    assert first.input_hashes == second.input_hashes
+    assert first.output_hash == second.output_hash
+
+
 def test_strip_volatile_drops_timing_keys() -> None:
     stripped = _canon().strip_volatile({"keep": 1, "ms": 2, "x_ms": 3, "created_at": "z", "top": [{"sim": 1, "took_ms": 9}]})
     assert stripped == {"keep": 1, "top": [{"sim": 1}]}

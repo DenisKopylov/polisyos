@@ -27,7 +27,7 @@ EXPECTED_MAY_NOT_USE_FOR = {
 
 
 def _g1() -> Any:
-    return import_module("polisyos.runtime.quality.layer3_substrate_grounding")
+    return import_module("polisyos.runtime.quality.proving_ground.substrate_grounding_search")
 
 
 def _validator() -> Any:

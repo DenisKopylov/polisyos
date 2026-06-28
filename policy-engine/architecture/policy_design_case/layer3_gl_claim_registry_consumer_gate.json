@@ -326,7 +326,7 @@
   "producer_authority_refs": [
     "legal-authority-record:gl_canonical_threshold_seed:implementing:ccc3c2e6098cfd13"
   ],
-  "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+  "producer_component": "polisyos.runtime.quality.proving_ground.legal_mandate_search",
   "provenance_refs": [],
   "query_trace_refs": [],
   "reference_resolution_status": null,

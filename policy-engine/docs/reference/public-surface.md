@@ -73,18 +73,28 @@ surface does not register a public-export bundle route and does not publish
 production, closeout, domain-ceiling, recommendation, or useful-design
 authority.
 
+`layer3_gy_generated_artifact_lifecycle_surface` is a generated
+MACHINE/EXPERT Policy Design Case lifecycle audit surface documented in
+`architecture/policy_design_case/layer3_gy_task0_audit/` and
+`docs/reference/generated-artifacts.md`. It publishes the GY-M1 class
+invariant for generated-artifact family registration: every committed GY
+artifact must resolve to exactly one registered family output, and missing
+or duplicate family claims fail closed. PUBLIC/REVIEWER access is audit-only;
+the surface does not register a public-export bundle route and does not
+publish recommendation, rollout, closeout, or policy-design authority.
+
 | Package | Classification | Facade | Exports | Owner | README |
 | --- | --- | --- | ---: | --- | --- |
 | `polisyos.common` | `public_stable` | `lazy_facade` | 7 | `team-polisyos` | `src/polisyos/common/README.md` |
-| `polisyos.core` | `public_stable` | `lazy_facade` | 15 | `team-polisyos` | `src/polisyos/core/README.md` |
+| `polisyos.core` | `public_stable` | `lazy_facade` | 21 | `team-polisyos` | `src/polisyos/core/README.md` |
 | `polisyos.ir` | `public_stable` | `lazy_facade` | 273 | `team-polisyos` | `src/polisyos/ir/README.md` |
 | `polisyos.obligation_rules` | `internal` | `eager_exports` | 22 | `team-policyos-runtime` | `src/polisyos/obligation_rules/README.md` |
 | `polisyos.obligation_graph` | `internal` | `eager_exports` | 20 | `team-policyos-runtime` | `src/polisyos/obligation_graph/README.md` |
 | `polisyos.method_requirement` | `internal` | `eager_exports` | 14 | `team-policyos-runtime` | `src/polisyos/method_requirement/README.md` |
 | `polisyos.participation_requirement` | `internal` | `eager_exports` | 23 | `team-policyos-runtime` | `src/polisyos/participation_requirement/README.md` |
-| `polisyos.fabric` | `public_stable` | `lazy_facade` | 36 | `team-polisyos` | `src/polisyos/fabric/README.md` |
+| `polisyos.fabric` | `public_stable` | `lazy_facade` | 38 | `team-polisyos` | `src/polisyos/fabric/README.md` |
 | `polisyos.foundry` | `public_stable` | `lazy_facade` | 4 | `team-polisyos` | `src/polisyos/foundry/README.md` |
-| `polisyos.scientist` | `public_stable` | `lazy_facade` | 15 | `team-polisyos` | `src/polisyos/scientist/README.md` |
+| `polisyos.scientist` | `public_stable` | `lazy_facade` | 17 | `team-polisyos` | `src/polisyos/scientist/README.md` |
 | `polisyos.evidence` | `internal` | `eager_exports` | 19 | `team-policyos-runtime` | `src/polisyos/evidence/README.md` |
 | `polisyos.runtime` | `public_stable` | `lazy_facade` | 10 | `team-polisyos` | `src/polisyos/runtime/README.md` |
 | `polisyos.lex` | `public_stable` | `lazy_facade` | 53 | `team-polisyos` | `src/polisyos/lex/README.md` |
@@ -131,9 +141,14 @@ timestamps
 - Notes: Cross-layer contracts, CAS, registry, observability, and security primitives.
 - Summary: Expose the stable Core platform surface with lazy package imports.
 
-<details><summary>Supported exports (15)</summary>
+<details><summary>Supported exports (21)</summary>
 
 ```text
+SECRET_AND_PII_SCAN_SCOPES
+SECRET_PII_DETECTOR_VERSION
+PromptSanitizer
+SecretAndPIIScanReport
+SecretPIIScanResult
 artifacts
 backends
 cache
@@ -149,6 +164,7 @@ pipeline
 registry
 resilience
 run
+scan_secret_and_pii
 ```
 
 </details>
@@ -606,7 +622,7 @@ write_participation_requirement_bundle
 - Notes: Connector-backed ingestion, world queries, and catalog surfaces.
 - Summary: Stable Fabric facade for connector ingestion, world-query, and catalog APIs.
 
-<details><summary>Supported exports (36)</summary>
+<details><summary>Supported exports (38)</summary>
 
 ```text
 AccessRef
@@ -624,6 +640,7 @@ ProcessingGuaranteeContract
 QualityRef
 ReplayRef
 SchemaType
+SimulationDB
 SourceContract
 SourceContractRef
 TemporalRef
@@ -642,6 +659,7 @@ query_claims
 query_events
 query_world_table
 resolve_connector_registry
+resolve_world_snapshot
 run_connectors_ingestion
 stream_processing_contract
 world
@@ -682,15 +700,17 @@ select_method_candidates_for_requirements
 - Notes: Workflow orchestration facade for experiment execution and shared observability hooks.
 - Summary: Stable Scientist package facade for workflow execution and run observability.
 
-<details><summary>Supported exports (15)</summary>
+<details><summary>Supported exports (17)</summary>
 
 ```text
 ExperimentState
+KnowledgeToolkit
 ToolContractSummary
 ToolDefinition
 ToolLoopResult
 ToolRegistry
 build_governance_pipeline
+build_knowledge_tool_registry
 create_traced_gateway_client
 discover_scientist_nodes
 get_metrics

@@ -7,6 +7,8 @@ os.environ.setdefault("JAX_PLATFORMS", "cpu")
 
 import jax
 import numpy as np
+
+from polisyos.core.contracts import DataTrust, ValueOuterSet
 from polisyos.foundry.contracts.state import (
     AgentSimRuntimeState,
     CellState,
@@ -23,6 +25,39 @@ from polisyos.foundry.execute.executor import (
 )
 
 
+def _household_value_outer_set(
+    *,
+    lower: tuple[float, ...] = (450.0, 650.0),
+    upper: tuple[float, ...] = (550.0, 650.0),
+    identification_mode: str = "proxy_identified",
+) -> ValueOuterSet:
+    return ValueOuterSet.interval_box(
+        coordinates=tuple(f"household_cells.disposable_income[{idx}]" for idx in range(len(lower))),
+        lower=lower,
+        upper=upper,
+        identification_mode=identification_mode,
+        assumptions=("d3_bias_corrected_household_bounds",),
+        assumption_status="externally_supported",
+        calibration_scope={
+            "population": "ukraine_household_cells",
+            "regime": "ukraine_schema_v2",
+            "measurement": "household_distribution",
+        },
+        data_trust=DataTrust(
+            tier="derived_proxy",
+            trust_cap=0.6,
+            trust_multiplier=0.6,
+            min_coverage=0.35,
+            max_coverage=0.85,
+            promotion_floor=0.5,
+            authority_ref="repo://l5/measurement_registry.json#/trust_tiers/derived_proxy",
+        ),
+        world_model_record_ref="world_model_record_test",
+        epoch="ukraine_schema_v2",
+        representation_status="certified",
+    )
+
+
 def test_cell_and_household_cell_contracts_construct() -> None:
     cells = CellState.empty(3)
     household_cells = HouseholdCellState.empty(2)
@@ -31,6 +66,18 @@ def test_cell_and_household_cell_contracts_construct() -> None:
     assert household_cells.size == 2
     assert cells.population.shape == (3,)
     assert household_cells.disposable_income.shape == (2,)
+    assert household_cells.value_outer_set is not None
+    assert household_cells.value_outer_set.identification_status == "blocked"
+    for strangled_field in (
+        "disposable_income_lower",
+        "disposable_income_upper",
+        "poverty_rate_lower",
+        "poverty_rate_upper",
+        "transfer_intensity_lower",
+        "transfer_intensity_upper",
+        "identification_mode_code",
+    ):
+        assert not hasattr(household_cells, strangled_field)
 
 
 def test_global_state_empty_remains_backward_compatible_without_cells() -> None:
@@ -75,6 +122,7 @@ def test_global_state_with_cells_round_trips_through_snapshot(tmp_path) -> None:
             disposable_income=np.asarray([500.0, 300.0], dtype=np.float32),
             poverty_rate=np.asarray([0.15, 0.25], dtype=np.float32),
             transfer_intensity=np.asarray([0.3, 0.4], dtype=np.float32),
+            value_outer_set=_household_value_outer_set(lower=(450.0, 300.0), upper=(550.0, 300.0)),
         ),
     )
 
@@ -94,6 +142,8 @@ def test_global_state_with_cells_round_trips_through_snapshot(tmp_path) -> None:
         np.asarray(restored.household_cells.disposable_income),
         np.asarray(state.household_cells.disposable_income),
     )
+    assert restored.household_cells.value_outer_set == state.household_cells.value_outer_set
+    assert restored.household_cells.value_outer_set.width == (100.0, 0.0)
 
 
 def test_global_state_with_cells_stays_jittable() -> None:
@@ -181,6 +231,7 @@ def test_foundry_seed_state_npz_roundtrip_preserves_multiscale_blocks(tmp_path) 
         household_cells=HouseholdCellState.empty(2).replace(
             cell_id=np.asarray([0, 1], dtype=np.int32),
             disposable_income=np.asarray([500.0, 650.0], dtype=np.float32),
+            value_outer_set=_household_value_outer_set(),
         ),
         agent_sim_runtime=runtime,
     )
@@ -199,6 +250,7 @@ def test_foundry_seed_state_npz_roundtrip_preserves_multiscale_blocks(tmp_path) 
         np.asarray(restored.household_cells.disposable_income),
         np.asarray([500.0, 650.0], dtype=np.float32),
     )
+    assert restored.household_cells.value_outer_set == state.household_cells.value_outer_set
     assert np.array_equal(
         np.asarray(restored.agent_sim_runtime.procurement_graph.receivers),
         np.asarray([1, 2], dtype=np.int32),

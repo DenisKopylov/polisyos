@@ -28,7 +28,7 @@ S7_WORKFLOW_ONLY_PROBE = (
     REPO_ROOT / "tests/fixtures/layer2/s7/workflow_only_delegation_summary_probe.json"
 )
 PDC_DESIGN_SEARCH = REPO_ROOT / "src/polisyos/pdc/_impl/layer2_design_search.py"
-S7_DELEGATION_PRODUCER = REPO_ROOT / "src/polisyos/runtime/quality/layer2_delegation.py"
+S7_DELEGATION_PRODUCER = REPO_ROOT / "src/polisyos/runtime/quality/design_axes/mandate_bounded_delegation.py"
 S7_CELL = "CROSS_CUTTING.scientist_orchestration"
 S7_REQUIRED_ARTIFACTS = {
     "DelegationContract",
@@ -229,7 +229,7 @@ def test_layer2_s7_inventory_and_manifest_authority_boundaries_match() -> None:
     assert artifact["authority_scope"] == manifest["authority_scope"]
     assert artifact["may_not_use_for"] == manifest["may_not_use_for"]
     assert set(manifest["may_not_use_for"]) >= S7_REQUIRED_DENY
-    assert manifest["producer_module"] == "src/polisyos/runtime/quality/layer2_delegation.py"
+    assert manifest["producer_module"] == "src/polisyos/runtime/quality/design_axes/mandate_bounded_delegation.py"
     assert manifest["consumer_module"] == "src/polisyos/pdc/_impl/layer2_design_search.py"
 
 

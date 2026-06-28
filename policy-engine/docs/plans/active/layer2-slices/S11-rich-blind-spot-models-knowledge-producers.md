@@ -90,10 +90,10 @@ The closure contract is the roadmap S11 contract:
 S11 is a runtime-quality predictive knowledge layer over existing S6, S10,
 calibration, IR, and Foundry method substrates:
 
-- `src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py` already owns S6
+- `src/polisyos/runtime/quality/design_axes/blind_spot_firewalls.py` already owns S6
   fail-closed axes and firewall records. S11 consumes S6 refs and dispositions;
   it does not rebuild S6 producers and does not weaken P18/P19/P21/P24 floors.
-- `src/polisyos/runtime/quality/layer2_outcome_prediction.py` already owns S10
+- `src/polisyos/runtime/quality/design_axes/outcome_prediction.py` already owns S10
   `ForecastSupport` and `ForecastCalibrationRecord`. S11 consumes S10 forecast
   support refs and calibration posture; it does not reclassify S10 forecast
   tiers or claim recommendation authority.
@@ -114,7 +114,7 @@ calibration, IR, and Foundry method substrates:
 - `src/polisyos/pdc/_impl/layer2_design_search.py` already has the S10 injected
   posture pattern. S11 must add `Layer2S11PredictivePostureInput` and pass it as
   data. PDC search must not import
-  `polisyos.runtime.quality.layer2_predictive_knowledge` or call S11 producer
+  `polisyos.runtime.quality.design_axes.predictive_knowledge` or call S11 producer
   helpers directly.
 
 Boundary rule: S11 can produce predictive knowledge artifacts and PDC posture.
@@ -214,9 +214,9 @@ Target correct pattern after S11:
 Use these anchors before editing:
 
 - S6 axis contracts and fail-closed records:
-  `src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py`.
+  `src/polisyos/runtime/quality/design_axes/blind_spot_firewalls.py`.
 - S10 forecast-support contracts:
-  `src/polisyos/runtime/quality/layer2_outcome_prediction.py`.
+  `src/polisyos/runtime/quality/design_axes/outcome_prediction.py`.
 - Calibration primitives:
   `src/polisyos/runtime/quality/calibration_ledger.py`.
 - IR claim bridge:
@@ -294,7 +294,7 @@ Code-grounded workload risks:
 
 Create:
 
-- `src/polisyos/runtime/quality/layer2_predictive_knowledge.py`
+- `src/polisyos/runtime/quality/design_axes/predictive_knowledge.py`
 - `tests/unit/runtime/quality/test_layer2_s11_predictive_knowledge.py`
 - `tests/fixtures/layer2/s11/s11_predictive_knowledge_case_signals.json`
 - `tests/fixtures/layer2/s11/s11_predictive_knowledge_expert_labels.json`
@@ -316,7 +316,7 @@ Modify:
 - `src/polisyos/runtime/quality/__init__.py`
 - `src/polisyos/pdc/_impl/layer2_design_search.py`
 - `src/polisyos/pdc/__init__.py`
-- `src/polisyos/runtime/quality/layer2_epistemic_regime.py`
+- `src/polisyos/runtime/quality/design_axes/epistemic_regime.py`
 - `src/polisyos/runtime/quality/projection_semantics.py`
 - `src/polisyos/runtime/quality/public_export.py`
 - `tools/quality/validation/run_universal_outcome_corpus.py`
@@ -588,7 +588,7 @@ that decides whether each axis can relax from S6 fail-closed to predictive.
 
 **Files:**
 
-- Create: `src/polisyos/runtime/quality/layer2_predictive_knowledge.py`
+- Create: `src/polisyos/runtime/quality/design_axes/predictive_knowledge.py`
 - Modify: `src/polisyos/runtime/quality/__init__.py`
 - Test: `tests/unit/runtime/quality/test_layer2_s11_predictive_knowledge.py`
 - Test: `tests/unit/runtime/quality/test_claim_registry.py`
@@ -842,7 +842,7 @@ manifest tests still fail because wiring is not complete.
 
 ```bash
 git add \
-  src/polisyos/runtime/quality/layer2_predictive_knowledge.py \
+  src/polisyos/runtime/quality/design_axes/predictive_knowledge.py \
   src/polisyos/runtime/quality/__init__.py \
   tests/unit/runtime/quality/test_layer2_s11_predictive_knowledge.py \
   tests/unit/runtime/quality/test_claim_registry.py
@@ -859,7 +859,7 @@ constraint data, without importing runtime-quality producers.
 
 - Modify: `src/polisyos/pdc/_impl/layer2_design_search.py`
 - Modify: `src/polisyos/pdc/__init__.py`
-- Modify: `src/polisyos/runtime/quality/layer2_epistemic_regime.py`
+- Modify: `src/polisyos/runtime/quality/design_axes/epistemic_regime.py`
 - Modify: `src/polisyos/runtime/quality/projection_semantics.py`
 - Modify: `src/polisyos/runtime/quality/public_export.py`
 - Test: `tests/unit/pdc/test_layer2_readiness_contracts.py`
@@ -951,7 +951,7 @@ tests. Do not rely on a generic posture bag that does not exist.
 - [ ] **Step 3: Enforce consumer boundary**
 
 PDC search may use only `Layer2S11PredictivePostureInput` fields. It must not
-import `polisyos.runtime.quality.layer2_predictive_knowledge` or any S11
+import `polisyos.runtime.quality.design_axes.predictive_knowledge` or any S11
 producer helper.
 
 When S11 posture says the weakest boundary is fail-closed, S2 should:
@@ -1029,7 +1029,7 @@ architecture inventory.
 git add \
   src/polisyos/pdc/_impl/layer2_design_search.py \
   src/polisyos/pdc/__init__.py \
-  src/polisyos/runtime/quality/layer2_epistemic_regime.py \
+  src/polisyos/runtime/quality/design_axes/epistemic_regime.py \
   src/polisyos/runtime/quality/projection_semantics.py \
   src/polisyos/runtime/quality/public_export.py \
   tests/unit/pdc/test_layer2_readiness_contracts.py \
@@ -1720,11 +1720,11 @@ path arguments. The likely Task 6 paths are:
 
 ```bash
 git add \
-  src/polisyos/runtime/quality/layer2_predictive_knowledge.py \
+  src/polisyos/runtime/quality/design_axes/predictive_knowledge.py \
   src/polisyos/runtime/quality/__init__.py \
   src/polisyos/pdc/_impl/layer2_design_search.py \
   src/polisyos/pdc/__init__.py \
-  src/polisyos/runtime/quality/layer2_epistemic_regime.py \
+  src/polisyos/runtime/quality/design_axes/epistemic_regime.py \
   src/polisyos/runtime/quality/projection_semantics.py \
   src/polisyos/runtime/quality/public_export.py \
   tools/quality/validation/run_universal_outcome_corpus.py \

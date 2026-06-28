@@ -1,7 +1,7 @@
 # Policy Design Case Layer 3 Causal Forecast
 
 Owner: `team-runtime-quality`
-Source of truth: `src/polisyos/runtime/quality/layer3_causal_forecast.py`, `tools/quality/validation/check_policy_design_case_layer3_g2_readiness.py`, and `architecture/policy_design_case/layer3_g2_readiness_manifest.json`
+Source of truth: `src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py`, `tools/quality/validation/check_policy_design_case_layer3_g2_readiness.py`, and `architecture/policy_design_case/layer3_g2_readiness_manifest.json`
 
 Layer 3 G2 is the causal/forecast search readiness surface for Policy Design Case. It turns canonical L2 SKG search, Foundry method validity, semantic-spine binding, existing S10 `ForecastSupport`, and W12D consumer routing into persisted audit artifacts.
 

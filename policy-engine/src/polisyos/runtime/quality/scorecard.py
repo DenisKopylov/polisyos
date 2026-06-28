@@ -151,7 +151,7 @@ from polisyos.runtime.quality.invariants import (
     InvariantRegistryError,
     load_production_invariant_registry,
 )
-from polisyos.runtime.quality.legacy_migration_sandbox import (
+from polisyos.runtime.quality.legacy_payload_migration_audit import (
     LEGACY_MIGRATION_SEMANTIC_LOSS,
     comparison_failure_codes,
 )
@@ -162,7 +162,7 @@ from polisyos.runtime.quality.multiverse_specification_curve import (
 from polisyos.runtime.quality.observability_static_audit import (
     validate_observability_orchestration_static_audit_records,
 )
-from polisyos.runtime.quality.pass1b_hardening import (
+from polisyos.runtime.quality.tenant_cas_approval_governance import (
     policy_design_pass1b_hardening_scorecard_gates,
 )
 from polisyos.runtime.quality.phase_barriers import (

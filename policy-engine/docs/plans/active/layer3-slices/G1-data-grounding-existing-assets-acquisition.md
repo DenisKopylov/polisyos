@@ -293,10 +293,10 @@ Out of scope:
   errors, no eager full-corpus or full-Parquet scans.
 - G0 models already define `DataAssetPort` with lineage, rights, freshness,
   fitness, contamination check, and port refs at
-  `src/polisyos/runtime/quality/layer3_grounding_inventory.py:468`.
+  `src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py:468`.
 - G0 models already define `ResourceDiscoveryRecord` and `GroundingSearchLedger`
-  at `src/polisyos/runtime/quality/layer3_grounding_inventory.py:251` and
-  `src/polisyos/runtime/quality/layer3_grounding_inventory.py:263`; G1 must
+  at `src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py:251` and
+  `src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py:263`; G1 must
   consume or extend these semantics rather than inventing a parallel search
   status system.
 - The base G0 `GroundingSearchLedger` is intentionally narrow and does not carry
@@ -305,17 +305,17 @@ Out of scope:
   separation or wrap the base ledger, not validate extra G1 fields against the
   strict G0 model.
 - G0 models already define `AdapterAdmissionRecord` at
-  `src/polisyos/runtime/quality/layer3_grounding_inventory.py:452`, and the G0
+  `src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py:452`, and the G0
   bundle builder persists zero admitted adapters at
-  `src/polisyos/runtime/quality/layer3_grounding_inventory.py:1639`.
+  `src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py:1639`.
 - The base G0 `AdapterAdmissionRecord` also does not carry G1-specific
   `admission_purpose`, `admitted_for_binding`, or `admitted_for_gap_routing`
   fields. Those belong in `Layer3G1AdapterAdmissionBundle`, with a nested or
   adjacent G0-compatible admission record.
 - G0 validation already blocks manifest/runtime drift at
-  `src/polisyos/runtime/quality/layer3_grounding_inventory.py:1748` and validates
+  `src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py:1748` and validates
   adapter admission records at
-  `src/polisyos/runtime/quality/layer3_grounding_inventory.py:2142`.
+  `src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py:2142`.
 - G0 data-asset validation already requires lineage, rights, freshness, fitness,
   contamination refs, and SourceContract/readiness classification through the G0
   data-asset readiness validators and persisted `layer3_data_asset_ports.json`.
@@ -368,18 +368,18 @@ Out of scope:
   `src/polisyos/fabric/connectors/contracts/source_contract.py:622`. G1 should
   reuse these patterns when possible instead of hand-writing every nested block.
 - S3 substrate acquisition has `construct_not_observed` coverage snapshots at
-  `src/polisyos/runtime/quality/layer2_substrate_acquisition.py:173` and a
+  `src/polisyos/runtime/quality/design_axes/substrate_acquisition.py:173` and a
   closure state machine at
-  `src/polisyos/runtime/quality/layer2_substrate_acquisition.py:306`.
+  `src/polisyos/runtime/quality/design_axes/substrate_acquisition.py:306`.
 - S3 source contract validation fails on missing rights/legal use, missing data
   dictionary, missing rows, and unusable linkage at
-  `src/polisyos/runtime/quality/layer2_substrate_acquisition.py:511`.
+  `src/polisyos/runtime/quality/design_axes/substrate_acquisition.py:511`.
 - S3 converts validated source contracts into governed construct-binding
   capabilities at
-  `src/polisyos/runtime/quality/layer2_substrate_acquisition.py:546`.
+  `src/polisyos/runtime/quality/design_axes/substrate_acquisition.py:546`.
 - S3 already consumes an injected `RequirementToCapabilityResolver` through
   `resolve_expression(..., resolver=...)` at
-  `src/polisyos/runtime/quality/layer2_substrate_acquisition.py:691`; G1 should
+  `src/polisyos/runtime/quality/design_axes/substrate_acquisition.py:691`; G1 should
   prove substrate consumption through that port rather than editing the S3 state
   machine.
 - Capability resolution already maps `credit_program_registry` to
@@ -637,10 +637,10 @@ Out of scope:
 | G0 discovery/search discipline | `architecture/policy_design_case/layer3_discovery_search_discipline.json` | Required dependency contract for G1 substrate search ledgers, recall/freshness, free-growth, no-hit, and no-authority search boundaries. |
 | G0 hardcode backlog | `architecture/policy_design_case/layer3_hardcode_enumeration_backlog.json` | Source of the G1 strangle delta for `KNOWN_CONSTRUCTS` and scenario-family mappings; no fallback closure. |
 | G0 engineering-quality check | `architecture/policy_design_case/layer3_engineering_quality_check.json` | Engineering bar for manifest/index-backed, deterministic, fail-closed G1 search; no eager full scans. |
-| G0 `ResourceDiscoveryRecord` / `GroundingSearchLedger` | `src/polisyos/runtime/quality/layer3_grounding_inventory.py:251` / `src/polisyos/runtime/quality/layer3_grounding_inventory.py:263` | Reuse discovery posture and ledger semantics; do not create parallel search status. |
-| G0 `SearchRecallSeed` / `IndexFreshnessRecord` | `src/polisyos/runtime/quality/layer3_grounding_inventory.py:281` / `src/polisyos/runtime/quality/layer3_grounding_inventory.py:294` | Store G1 recall/freshness refs as sibling records or wrapper fields, not as extra keys on the base G0 ledger. |
-| G0 `DataAssetPort` | `src/polisyos/runtime/quality/layer3_grounding_inventory.py:468` | Input contract for substrate data-binding; no duplicate port model. |
-| G0 adapter admission vocabulary | `src/polisyos/runtime/quality/layer3_grounding_inventory.py:452` | Reuse admission posture and issue-code style inside two G1 admission bundles; G1 purpose booleans stay outside the strict G0 record. |
+| G0 `ResourceDiscoveryRecord` / `GroundingSearchLedger` | `src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py:251` / `src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py:263` | Reuse discovery posture and ledger semantics; do not create parallel search status. |
+| G0 `SearchRecallSeed` / `IndexFreshnessRecord` | `src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py:281` / `src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py:294` | Store G1 recall/freshness refs as sibling records or wrapper fields, not as extra keys on the base G0 ledger. |
+| G0 `DataAssetPort` | `src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py:468` | Input contract for substrate data-binding; no duplicate port model. |
+| G0 adapter admission vocabulary | `src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py:452` | Reuse admission posture and issue-code style inside two G1 admission bundles; G1 purpose booleans stay outside the strict G0 record. |
 | G0 readiness validator pattern | `tools/quality/validation/check_policy_design_case_layer3_g0_readiness.py:117` | Template for G1 validator, write mode, issue-code allowlist, manifest/runtime drift checks. |
 | Master L1/L5/L6 substrate route | `docs/plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGNER_LAYER3_GROUNDING_SUBORDINATION_IMPLEMENTATION_PLAN.md:368` | Closure gate for real L1 metric-binding search, L5 calibration ranking, and L6 routing; bounded surrogate must be explicit and limited and cannot replace available L1. |
 | Production L1 DCAT | `production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb::ds_metric_bindings` | Required G1 L1 search target; direct DuckDB SQL path with row/resource count, query refs, freshness, free-growth, and recall evidence. |
@@ -648,8 +648,8 @@ Out of scope:
 | Fabric SourceContract v2 | `src/polisyos/fabric/connectors/contracts/source_contract.py:382` | Canonical source contract; G1 wraps it instead of creating a parallel source schema. |
 | Fabric SourceContract helpers | `src/polisyos/fabric/connectors/contracts/source_contract.py:189` / `src/polisyos/fabric/connectors/contracts/source_contract.py:510` / `src/polisyos/fabric/connectors/contracts/source_contract.py:622` | Reuse field-policy, connector-schema wrapping, and snapshot patterns where possible; otherwise build equivalent nested Fabric submodels from metadata. |
 | Fabric source-contract report | `tools/quality/validation/fabric_source_contracts.py:271` | Reuse report semantics for acquisition adapter and fail-closed gaps. |
-| S3 substrate acquisition loop | `src/polisyos/runtime/quality/layer2_substrate_acquisition.py:306` | Consumer/bridge for construct-not-observed -> binding/gap route. |
-| S3 resolver-injection port | `src/polisyos/runtime/quality/layer2_substrate_acquisition.py:691` | Prove substrate consumption by resolving an S3 construct through a G1-built resolver, without rewriting the S3 state machine. |
+| S3 substrate acquisition loop | `src/polisyos/runtime/quality/design_axes/substrate_acquisition.py:306` | Consumer/bridge for construct-not-observed -> binding/gap route. |
+| S3 resolver-injection port | `src/polisyos/runtime/quality/design_axes/substrate_acquisition.py:691` | Prove substrate consumption by resolving an S3 construct through a G1-built resolver, without rewriting the S3 state machine. |
 | Capability-index compiler | `src/polisyos/runtime/quality/capability_index_compiler.py:1093` | Source of Ukraine panel capability metadata and acquisition strategy refs; not a substitute for L1 DCAT search. |
 | Requirement-to-capability resolver | `src/polisyos/runtime/quality/capability_resolver.py:255` / `src/polisyos/runtime/quality/capability_resolver.py:299` | Use `from_duckdb()` plus `resolve()` for indexed selected/blocked binding results, acquisition strategies, reviewer queue, and capability-index refs; G1 must not re-rank capabilities or count this as L1 search. |
 | Capability authority composer | `src/polisyos/runtime/quality/capability_authority.py:200` | Status/authority/limitation composition for G1 binding envelopes; no parallel G1 authority scorer. |
@@ -663,9 +663,9 @@ Out of scope:
 
 ## Implementation Design
 
-Create `src/polisyos/runtime/quality/layer3_substrate_grounding.py` as the G1
+Create `src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py` as the G1
 producer/validator module. It should import G0 contracts from
-`polisyos.runtime.quality.layer3_grounding_inventory`, import Fabric
+`polisyos.runtime.quality.proving_ground.pre_adapter_grounding_inventory`, import Fabric
 `SourceContract` explicitly from
 `polisyos.fabric.connectors.contracts.source_contract`, and use existing adapter
 preservation helpers from `adapter_contracts.py`. It should use the repo-standard
@@ -1105,7 +1105,7 @@ Authority posture:
 
 Create:
 
-- `src/polisyos/runtime/quality/layer3_substrate_grounding.py`
+- `src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py`
 - `tools/quality/validation/check_policy_design_case_layer3_g1_readiness.py`
 - `tests/unit/runtime/quality/test_layer3_g1_substrate_grounding.py`
 - `tests/repo_quality/tools/test_policy_design_case_layer3_g1_readiness.py`
@@ -1160,7 +1160,7 @@ Modify:
 
 Read/reuse-first:
 
-- `src/polisyos/runtime/quality/layer3_grounding_inventory.py`
+- `src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py`
 - `architecture/policy_design_case/layer3_discovery_search_discipline.json`
 - `architecture/policy_design_case/layer3_hardcode_enumeration_backlog.json`
 - `architecture/policy_design_case/layer3_engineering_quality_check.json`
@@ -1177,7 +1177,7 @@ Read/reuse-first:
 - `src/polisyos/fabric/connectors/contracts/source_contract.py`
 - `src/polisyos/fabric/connectors/contracts/_schema_field.py`
 - `tools/quality/validation/fabric_source_contracts.py`
-- `src/polisyos/runtime/quality/layer2_substrate_acquisition.py`
+- `src/polisyos/runtime/quality/design_axes/substrate_acquisition.py`
 - `src/polisyos/runtime/quality/capability_index_compiler.py`
 - `src/polisyos/data_requirement/compiler.py`
 - `src/polisyos/data_forge/domains/ukraine/models.py`
@@ -1314,7 +1314,7 @@ uv run pytest \
 
 Expected red output:
 
-- Tests fail because `polisyos.runtime.quality.layer3_substrate_grounding` does not
+- Tests fail because `polisyos.runtime.quality.proving_ground.substrate_grounding_search` does not
   exist.
 - CLI tests fail because
   `tools.quality.validation.check_policy_design_case_layer3_g1_readiness` does
@@ -1342,7 +1342,7 @@ fail-closed search/authority firewalls.
 
 Files:
 
-- Create `src/polisyos/runtime/quality/layer3_substrate_grounding.py`
+- Create `src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py`
 - Create `architecture/policy_design_case/layer3_g1_adapter_contract_registry.toml`
 - Create/update `tests/unit/runtime/quality/test_layer3_g1_substrate_grounding.py`
 - Modify `tests/unit/runtime/quality/test_layer2_s3_substrate_acquisition.py`
@@ -1708,7 +1708,7 @@ Files:
 Steps:
 
 - [x] Import `build_layer3_g1_bundle` from
-  `polisyos.runtime.quality.layer3_substrate_grounding`.
+  `polisyos.runtime.quality.proving_ground.substrate_grounding_search`.
 - [x] Add `_layer3_g1_grounding_context(repo_root)` mirroring the G0 context
   shape but reading G1 readiness/bundle metrics.
 - [x] Add `_with_layer3_g1_grounding_gate(case, g1_context=...)` beside the G0

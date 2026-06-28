@@ -103,7 +103,7 @@
     "aggregation_scope_transfer_without_validity",
     "post_policy_effect_claim_without_response_model"
   ],
-  "producer_module": "src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py",
+  "producer_module": "src/polisyos/runtime/quality/design_axes/blind_spot_firewalls.py",
   "consumer_module": "src/polisyos/pdc/_impl/layer2_design_search.py",
   "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py",
   "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py"

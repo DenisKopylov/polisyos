@@ -1,0 +1,2163 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gy.generation_cycle_disposition_ledger.v1",
+  "gy_lifecycle_marker": "policyos.policy_design_case.layer3_gy.generation_cycle_disposition_ledger.v1",
+  "produced_by": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+  "source_investigation": {
+    "path": "architecture/policy_design_case/layer3_gy_n0_investigation.md",
+    "source_sections": [
+      "C. Reuse / Rework / Delete Candidates",
+      "GY-N1..N7 -> Owners Mapping",
+      "North-Star Organ Checklist"
+    ],
+    "method": "Distilled from the completed five-pass notebook; no new owner investigation is claimed by this ledger."
+  },
+  "source_reconciliation": {
+    "reuse_rework_delete_source": "architecture/policy_design_case/layer3_gy_n0_investigation.md:2490",
+    "task_mapping_source": "architecture/policy_design_case/layer3_gy_n0_investigation.md:2571",
+    "disposition_counts": {
+      "DELETE": 10,
+      "REWORK_TO_FIT": 29,
+      "USE_AS_IS": 29
+    },
+    "total_owner_entries": 68,
+    "parallel_worlds_reconciled": 3,
+    "notes": "Owner entries are candidate-owner rows from the notebook's reuse/rework/delete synthesis, not per-file source inventory rows."
+  },
+  "tasks": {
+    "GY-N1": {
+      "status": "landed",
+      "focus": "Canonical DesignProblem bridge"
+    },
+    "GY-N2": {
+      "status": "landed",
+      "focus": "InterventionAtomBinding bridge"
+    },
+    "GY-N3": {
+      "status": "landed",
+      "focus": "WorldModelRecord lifecycle bridge"
+    },
+    "GY-S0": {
+      "status": "landed",
+      "focus": "Production-data substrate registry and free-grow lifecycle"
+    },
+    "GY-S1": {
+      "status": "landed",
+      "focus": "Data-state substrate lift with ValueOuterSet household bounds"
+    },
+    "GY-S2": {
+      "status": "landed",
+      "focus": "Knowledge substrate lift for L2 Scholar KG and L3 Lex KG"
+    },
+    "GY-S3": {
+      "status": "landed",
+      "focus": "L6 intervention substrate lift for lever space, law-to-lever binding, and value-method routing"
+    },
+    "GY-N-V": {
+      "status": "landed",
+      "focus": "ValueOuterSet set-valued value foundation contract"
+    },
+    "GY-N4": {
+      "status": "pending",
+      "focus": "Generation under A"
+    },
+    "GY-N5": {
+      "status": "pending",
+      "focus": "JointSimulationHorizonController"
+    },
+    "GY-N6": {
+      "status": "pending",
+      "focus": "Generation cycle controller"
+    },
+    "GY-N7": {
+      "status": "pending",
+      "focus": "Closed acquisition and same-cycle re-entry"
+    },
+    "GY-N8": {
+      "status": "pending",
+      "focus": "Value as live gate under Python 3.14"
+    },
+    "GY-N9": {
+      "status": "pending",
+      "focus": "In-cycle B to A promotion sequence"
+    },
+    "GY-N10": {
+      "status": "pending",
+      "focus": "Depth-N universality"
+    },
+    "GY-O1": {
+      "status": "pending",
+      "focus": "Confirmatory deployed-effect updater"
+    },
+    "GY-O2": {
+      "status": "pending",
+      "focus": "Exploratory anomaly to hypothesis controller"
+    },
+    "GY-O3": {
+      "status": "pending",
+      "focus": "World-model write-back"
+    }
+  },
+  "bridge_artifacts": {
+    "DesignProblem": {
+      "consuming_task": "GY-N1",
+      "disposition": "BUILD_NEW_BRIDGE",
+      "source": "docs/plans/active/layer3-slices/GY-engine-subordination.md:1169"
+    },
+    "InterventionAtomBinding": {
+      "consuming_task": "GY-N2",
+      "disposition": "BUILD_NEW_BRIDGE",
+      "source": "docs/plans/active/layer3-slices/GY-engine-subordination.md:1186"
+    },
+    "WorldModelRecord": {
+      "consuming_task": "GY-N3",
+      "disposition": "BUILD_NEW_BRIDGE",
+      "source": "docs/plans/active/layer3-slices/GY-engine-subordination.md:1198"
+    },
+    "JointSimulationHorizonController": {
+      "consuming_task": "GY-N5",
+      "disposition": "BUILD_NEW_BRIDGE",
+      "source": "docs/plans/active/layer3-slices/GY-engine-subordination.md:1224"
+    },
+    "ValueOuterSet": {
+      "consuming_task": "GY-N-V",
+      "disposition": "BUILD_NEW_FOUNDATION_CONTRACT",
+      "source": "docs/plans/active/layer3-slices/GY-engine-subordination.md:1309"
+    }
+  },
+  "method_availability_gate": {
+    "decision": "stay_on_python_3_14",
+    "basis": "The value path is live under the supported Python 3.14 baseline with statsmodels/JAX/SciPy/pymoo plus Foundry Bayesian and transport primitives. CVXPY is optional-runtime available: the host python3 baseline may lack it, while uv may provide it, and if present it must pass a basic convex solve. EconML/DoWhy remain unavailable and must surface blockers rather than force an interpreter migration.",
+    "expected": {
+      "cvxpy": {
+        "available": false,
+        "optional_available": true,
+        "expected_smoke": "ModuleNotFoundError or cvxpy basic convex solve"
+      },
+      "dowhy": {
+        "available": false,
+        "expected_smoke": "ModuleNotFoundError"
+      },
+      "econml": {
+        "available": false,
+        "expected_smoke": "ModuleNotFoundError"
+      },
+      "foundry_bayesian_bvar": {
+        "available": true,
+        "expected_smoke": "BayesianVAREstimator.pure_step"
+      },
+      "foundry_bayesian_variational": {
+        "available": true,
+        "expected_smoke": "MeanFieldVIEstimator.pure_step"
+      },
+      "foundry_transport": {
+        "available": true,
+        "expected_smoke": "solve_transportability"
+      },
+      "jax": {
+        "available": true,
+        "expected_smoke": "jax.numpy CPU array sum"
+      },
+      "pymoo": {
+        "available": true,
+        "expected_smoke": "NSGA2 one-generation minimize"
+      },
+      "scipy": {
+        "available": true,
+        "expected_smoke": "scipy.optimize.minimize"
+      },
+      "statsmodels": {
+        "available": true,
+        "expected_smoke": "statsmodels OLS"
+      }
+    }
+  },
+  "parallel_world_reconciliation": [
+    {
+      "parallel_world": "Scientist policy_design DAG",
+      "single_cycle_owner": "generation_cycle_controller",
+      "ledger_owner_ids": [
+        "workflow_selector_builder_dispatch",
+        "verified_policy_candidate_source",
+        "scientist_champion_vs_g4_promotion",
+        "verified_policy_fixed_option_defaults"
+      ],
+      "status": "pending_strangle_under_GY-N4_GY-N6_GY-N9"
+    },
+    {
+      "parallel_world": "Workspace loop",
+      "single_cycle_owner": "generation_cycle_controller",
+      "ledger_owner_ids": [
+        "workspace_honest_backbone_semantics",
+        "workspace_run_intent_cycle_adapter",
+        "workspace_method_selection_default"
+      ],
+      "status": "pending_strangle_under_GY-N6_GY-N8"
+    },
+    {
+      "parallel_world": "S2 shadow design search",
+      "single_cycle_owner": "generation_cycle_controller",
+      "ledger_owner_ids": [
+        "s2_refinement_discipline",
+        "s2_fixed_credit_guarantee_body",
+        "s2_fixed_candidate_as_generator"
+      ],
+      "status": "pending_strangle_under_GY-N6_GY-N10"
+    }
+  ],
+  "task_owner_mapping": {
+    "GY-N1": {
+      "owner_ids": [
+        "nl_pipeline_authority_publication",
+        "policy_intent_envelope",
+        "experiment_state_artifact_ref_contracts",
+        "workflow_selector_builder_dispatch",
+        "nl_pipeline_generation_cycle_front_door",
+        "mock_pi_data_need_path",
+        "design_problem_projection_surfaces",
+        "workspace_run_intent_cycle_adapter"
+      ]
+    },
+    "GY-N2": {
+      "owner_ids": [
+        "trinity_and_causal_intervention_halves",
+        "trinity_candidate_search_bridge",
+        "intervention_atom_binding_bridge"
+      ]
+    },
+    "GY-N3": {
+      "owner_ids": [
+        "fabric_world_substrate",
+        "world_lifecycle_piece_contracts",
+        "canonical_world_model_envelope",
+        "world_model_record_lifecycle_bridge"
+      ]
+    },
+    "GY-S0": {
+      "owner_ids": [
+        "production_data_substrate_registry"
+      ]
+    },
+    "GY-S1": {
+      "owner_ids": [
+        "production_data_substrate_registry",
+        "value_outer_set_foundation_contract",
+        "household_cell_ad_hoc_bounds_representation"
+      ]
+    },
+    "GY-S2": {
+      "owner_ids": [
+        "production_data_substrate_registry",
+        "value_outer_set_foundation_contract",
+        "scholar_kg_credal_lift_owner",
+        "lex_kg_admissibility_lift_owner"
+      ]
+    },
+    "GY-S3": {
+      "owner_ids": [
+        "production_data_substrate_registry",
+        "intervention_atom_binding_bridge",
+        "lex_kg_admissibility_lift_owner",
+        "foundry_method_registry",
+        "l6_intervention_substrate_lift"
+      ]
+    },
+    "GY-N-V": {
+      "owner_ids": [
+        "value_outer_set_foundation_contract",
+        "core_quantity_value_uncertainty_seed",
+        "household_cell_ad_hoc_bounds_representation"
+      ]
+    },
+    "GY-N4": {
+      "owner_ids": [
+        "llm_generator_organs",
+        "agent_event_bridge_candidate_audit",
+        "verified_policy_candidate_source",
+        "bounded_agent_proposal_bridge",
+        "llm_generation_model_preflight",
+        "verified_policy_fixed_option_defaults",
+        "mock_generator_outputs"
+      ]
+    },
+    "GY-N5": {
+      "owner_ids": [
+        "foundry_shared_state_joint_execution",
+        "joint_simulation_horizon_bridge"
+      ]
+    },
+    "GY-N6": {
+      "owner_ids": [
+        "workspace_honest_backbone_semantics",
+        "scientist_voi_scheduler",
+        "s2_refinement_discipline",
+        "engine_langgraph_legacy_shadow",
+        "s2_fixed_credit_guarantee_body"
+      ]
+    },
+    "GY-N7": {
+      "owner_ids": [
+        "acquisition_planner_evidence_gap_surface",
+        "acquisition_grounding_producers",
+        "w7_data_requirement_ingestion_chain",
+        "acquisition_planner_execution_bridge",
+        "candidate_grounding_bridge",
+        "required_data_spec_lossless_adapter",
+        "acquisition_control_reentry",
+        "unknown_missing_distribution_adapter"
+      ]
+    },
+    "GY-N8": {
+      "owner_ids": [
+        "optional_causal_method_dependency_gates",
+        "foundry_causal_evaluation_bridge",
+        "available_value_methods_subset",
+        "outcome_prediction_authority_gate",
+        "foundry_method_registry",
+        "bayesian_transport_primitives",
+        "foundry_value_path_method_assumptions",
+        "stage_b_foundry_nodes",
+        "policy_runtime_support_backend",
+        "workspace_method_selection_default",
+        "transport_value_receipts",
+        "synthetic_policy_runtime_backend"
+      ]
+    },
+    "GY-N9": {
+      "owner_ids": [
+        "ring2_waist_g4_promotion_enforcement",
+        "s6_s7_s8_scorecard_gates",
+        "authority_independence_composition_enforcement",
+        "g4_in_cycle_promotion_sequence",
+        "scientist_champion_vs_g4_promotion",
+        "scorecard_lifecycle_placement",
+        "direct_policy_promotion_node_policy_mode"
+      ]
+    },
+    "GY-N10": {
+      "owner_ids": [
+        "hierarchical_search_bounds_frontier",
+        "s2_fixed_candidate_as_generator",
+        "gy_g_s3_fixture_only_demonstrations"
+      ]
+    },
+    "GY-O1": {
+      "owner_ids": [
+        "post_deploy_monitoring_organs",
+        "two_contour_monitoring_bridge",
+        "bayesian_transport_primitives"
+      ]
+    },
+    "GY-O2": {
+      "owner_ids": [
+        "post_deploy_monitoring_organs",
+        "two_contour_monitoring_bridge"
+      ]
+    },
+    "GY-O3": {
+      "owner_ids": [
+        "fabric_world_substrate",
+        "world_model_record_lifecycle_bridge",
+        "two_contour_monitoring_bridge"
+      ]
+    }
+  },
+  "owners": [
+    {
+      "owner_id": "nl_pipeline_authority_publication",
+      "owner_path": "src/polisyos/runtime/http/services/control/nl_pipeline.py:2914",
+      "focus": "Runtime authority artifact publication helper path for CAS, authority envelope, and diagnostics.",
+      "disposition": "USE_AS_IS",
+      "rationale": "The notebook marks this as a real publication surface; GY-N1 should reuse it for emitted front-door artifacts rather than creating a side publication path.",
+      "consuming_task": "GY-N1",
+      "build_new_bridge_ref": "DesignProblem",
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2496"
+      ]
+    },
+    {
+      "owner_id": "policy_intent_envelope",
+      "owner_path": "src/polisyos/runtime/quality/assurance_case.py:311",
+      "focus": "PolicyIntentEnvelope request, authority, provenance, and time normalization.",
+      "disposition": "USE_AS_IS",
+      "rationale": "The envelope is a real front-door intent capture owner; the missing work is a broader DesignProblem bridge, not replacing this validation.",
+      "consuming_task": "GY-N1",
+      "build_new_bridge_ref": "DesignProblem",
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2497"
+      ]
+    },
+    {
+      "owner_id": "experiment_state_artifact_ref_contracts",
+      "owner_path": "src/polisyos/scientist/orchestration/engine/state.py:23",
+      "focus": "Strict ExperimentState and ArtifactRef boundary contracts.",
+      "disposition": "USE_AS_IS",
+      "rationale": "The notebook calls these useful typed bridge discipline for workflow boundaries; GY should reuse the pattern and not loosen it.",
+      "consuming_task": "GY-N1",
+      "build_new_bridge_ref": "DesignProblem",
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2498"
+      ]
+    },
+    {
+      "owner_id": "workflow_selector_builder_dispatch",
+      "owner_path": "src/polisyos/scientist/api.py:212",
+      "focus": "Scientist workflow selector, builder, and run_experiment dispatch.",
+      "disposition": "USE_AS_IS",
+      "rationale": "The selector and builder are real routing/execution owners; GY should set them deliberately instead of creating a competing DAG dispatcher.",
+      "consuming_task": "GY-N1",
+      "build_new_bridge_ref": "DesignProblem",
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2499"
+      ]
+    },
+    {
+      "owner_id": "hierarchical_search_bounds_frontier",
+      "owner_path": "src/polisyos/scientist/policy_design/search.py:1228",
+      "focus": "Hierarchical search bounds gate and frontier provenance.",
+      "disposition": "USE_AS_IS",
+      "rationale": "The bounds gate has the correct fail-closed P25/P32 shape and should be reused when depth-N search receives real bounded candidates.",
+      "consuming_task": "GY-N10",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2500"
+      ]
+    },
+    {
+      "owner_id": "optional_causal_method_dependency_gates",
+      "owner_path": "src/polisyos/foundry/methods/catalog/causal/_registry_boot.py:413",
+      "focus": "Optional causal method dependency gating and CI backend metadata.",
+      "disposition": "USE_AS_IS",
+      "rationale": "The method registry already records dependency truth; GY-N8 must surface this truthfully rather than pretending optional methods are available.",
+      "consuming_task": "GY-N8",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2501"
+      ]
+    },
+    {
+      "owner_id": "workspace_honest_backbone_semantics",
+      "owner_path": "src/polisyos/runtime/quality/workspace/loop.py:110",
+      "focus": "Workspace terminal selection, active operations, no-design cut line, and descriptive authority boundary.",
+      "disposition": "USE_AS_IS",
+      "rationale": "These are the honest backbone semantics the generation cycle must preserve while replacing single-pass behavior.",
+      "consuming_task": "GY-N6",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2502"
+      ]
+    },
+    {
+      "owner_id": "acquisition_planner_evidence_gap_surface",
+      "owner_path": "src/polisyos/runtime/quality/acquisition_planner.py:528",
+      "focus": "Plan-only evidence-gap surfacing for ACQUISITION_REQUIRED.",
+      "disposition": "USE_AS_IS",
+      "rationale": "The planner is useful as a gap surfacer, but not as acquisition execution authority; GY-N7 consumes it as an input.",
+      "consuming_task": "GY-N7",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2503"
+      ]
+    },
+    {
+      "owner_id": "foundry_causal_evaluation_bridge",
+      "owner_path": "src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py:392",
+      "focus": "Reachable Foundry causal method execution and output consumption bridge.",
+      "disposition": "USE_AS_IS",
+      "rationale": "The notebook found this path computes real method output under available methods; GY-N8 should wire it, not rebuild method dispatch.",
+      "consuming_task": "GY-N8",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2504"
+      ]
+    },
+    {
+      "owner_id": "available_value_methods_subset",
+      "owner_path": "src/polisyos/foundry/methods/catalog/causal/synthetic_control.py:40",
+      "focus": "Available Python 3.14 value methods: synthetic control, DID, diagnostics, SciPy QP fallback, and pymoo multiobjective.",
+      "disposition": "USE_AS_IS",
+      "rationale": "The value path is not globally blocked; GY-N8 should select from the reachable subset and surface blockers for unavailable families.",
+      "consuming_task": "GY-N8",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2505"
+      ]
+    },
+    {
+      "owner_id": "outcome_prediction_authority_gate",
+      "owner_path": "src/polisyos/runtime/quality/design_axes/outcome_prediction.py:97",
+      "focus": "S10 forecast calibration and authority gate, not a forecast producer.",
+      "disposition": "USE_AS_IS",
+      "rationale": "The notebook marks this as the correct authority gate over forecast support; GY-N8 feeds it method output and uncertainty.",
+      "consuming_task": "GY-N8",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2506"
+      ]
+    },
+    {
+      "owner_id": "ring2_waist_g4_promotion_enforcement",
+      "owner_path": "src/polisyos/pdc/_impl/gy_waist.py:91",
+      "focus": "Ring-2 waist validators and G4 governed promotion reducer.",
+      "disposition": "USE_AS_IS",
+      "rationale": "Promotion enforcement is real; GY-N9 must sequence inputs through it instead of introducing another promotion authority.",
+      "consuming_task": "GY-N9",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2507"
+      ]
+    },
+    {
+      "owner_id": "agent_event_bridge_candidate_audit",
+      "owner_path": "src/polisyos/runtime/quality/workspace/agent_proposal_bridge.py:51",
+      "focus": "AgentEventBridge candidate-only Ring-1 audit record shape and no-client blocker.",
+      "disposition": "USE_AS_IS",
+      "rationale": "The bridge is useful only as candidate/audit plumbing under verifier control, not as a cycle controller.",
+      "consuming_task": "GY-N4",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2508"
+      ]
+    },
+    {
+      "owner_id": "llm_generator_organs",
+      "owner_path": "src/polisyos/scientist/agent/drafter_clients.py:328",
+      "focus": "Real LLM drafter, formalizer, critic, and multipass drafter organs.",
+      "disposition": "USE_AS_IS",
+      "rationale": "The real gateway-backed organs are reusable as candidate producers under A; only their mock fallbacks and orchestration are deficient.",
+      "consuming_task": "GY-N4",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2509"
+      ]
+    },
+    {
+      "owner_id": "acquisition_grounding_producers",
+      "owner_path": "src/polisyos/fabric/retrieval/service.py:230",
+      "focus": "Fabric retrieval, Scholar/OpenAlex, Data Forge SKG, and candidate-firewall grounding producers.",
+      "disposition": "USE_AS_IS",
+      "rationale": "The execution/grounding producers are real adjacent owners; GY-N7 must bridge to them instead of building new providers.",
+      "consuming_task": "GY-N7",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2510"
+      ]
+    },
+    {
+      "owner_id": "s6_s7_s8_scorecard_gates",
+      "owner_path": "src/polisyos/runtime/quality/design_axes/blind_spot_firewalls.py:987",
+      "focus": "S6 blind-spot, S7 mandate/delegation, S8 value-choice, and scorecard authority gates.",
+      "disposition": "USE_AS_IS",
+      "rationale": "The governance gates are real closeout surfaces and must be invoked by GY-N9 rather than replicated.",
+      "consuming_task": "GY-N9",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2511"
+      ]
+    },
+    {
+      "owner_id": "foundry_method_registry",
+      "owner_path": "src/polisyos/foundry/methods/selection/registry.py:491",
+      "focus": "Foundry method registry for explicit lookup and availability surfacing.",
+      "disposition": "USE_AS_IS",
+      "rationale": "GY-N8 should use this registry for method lookup and blockers rather than hand-maintained method lists.",
+      "consuming_task": "GY-N8",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2512"
+      ]
+    },
+    {
+      "owner_id": "fabric_world_substrate",
+      "owner_path": "src/polisyos/fabric/world/store/segments.py:320",
+      "focus": "Fabric world append-only facts/events, materialization, bitemporal query, snapshots, branches, and audit.",
+      "disposition": "USE_AS_IS",
+      "rationale": "Pass 5 corrected the world-model diagnosis: this is the real store substrate and must not be replaced by a parallel world store.",
+      "consuming_task": "GY-N3",
+      "build_new_bridge_ref": "WorldModelRecord",
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2513"
+      ]
+    },
+    {
+      "owner_id": "world_lifecycle_piece_contracts",
+      "owner_path": "src/polisyos/ir/model_layer/model_spec.py:179",
+      "focus": "IR ModelSpec, Data Forge snapshot binding, runtime binding validator, and Foundry input bindings.",
+      "disposition": "USE_AS_IS",
+      "rationale": "These lifecycle pieces are real; GY-N3 builds one bridge over them, not a second state engine.",
+      "consuming_task": "GY-N3",
+      "build_new_bridge_ref": "WorldModelRecord",
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2514"
+      ]
+    },
+    {
+      "owner_id": "scientist_voi_scheduler",
+      "owner_path": "src/polisyos/scientist/methods/search/voi_scheduler.py:169",
+      "focus": "Scientist VOI scheduler and learned routing policies for search/evaluation budgets.",
+      "disposition": "USE_AS_IS",
+      "rationale": "The notebook found a real scheduling primitive; GY-N6 should reuse it for stop/advance/escalate decisions.",
+      "consuming_task": "GY-N6",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2515"
+      ]
+    },
+    {
+      "owner_id": "bayesian_transport_primitives",
+      "owner_path": "src/polisyos/foundry/methods/catalog/bayesian/variational.py:383",
+      "focus": "Foundry Bayesian posterior/calibration primitives and transportability stack under Python 3.14.",
+      "disposition": "USE_AS_IS",
+      "rationale": "These primitives are real and reachable; GY-N8/O1 should attach them to value and deployment updates, not rebuild them.",
+      "consuming_task": "GY-N8",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2516"
+      ]
+    },
+    {
+      "owner_id": "foundry_shared_state_joint_execution",
+      "owner_path": "src/polisyos/foundry/compile/_lowering.py:156",
+      "focus": "Foundry mechanism lowering, shared-state program graph, GlobalState binding, and NCM joint execution.",
+      "disposition": "USE_AS_IS",
+      "rationale": "The shared-state and NCM organs are real joint-execution substrates; GY-N5 adds the horizon/controller over them.",
+      "consuming_task": "GY-N5",
+      "build_new_bridge_ref": "JointSimulationHorizonController",
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2517"
+      ]
+    },
+    {
+      "owner_id": "trinity_and_causal_intervention_halves",
+      "owner_path": "src/polisyos/ir/analytics/interventions.py:134",
+      "focus": "IR causal intervention algebra and Trinity InterventionSpec halves of the north-star atom.",
+      "disposition": "USE_AS_IS",
+      "rationale": "Both halves are real and should be reused; authority comes from the new binding artifact, not either half alone.",
+      "consuming_task": "GY-N2",
+      "build_new_bridge_ref": "InterventionAtomBinding",
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2518"
+      ]
+    },
+    {
+      "owner_id": "w7_data_requirement_ingestion_chain",
+      "owner_path": "src/polisyos/data_requirement/compiler.py:83",
+      "focus": "W7 DataRequirementSpec compiler, Fabric matcher, ingestion, and DataSnapshot orchestration.",
+      "disposition": "USE_AS_IS",
+      "rationale": "The richer required/available-data chain is real and should consume all gaps in GY-N7.",
+      "consuming_task": "GY-N7",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2519"
+      ]
+    },
+    {
+      "owner_id": "authority_independence_composition_enforcement",
+      "owner_path": "src/polisyos/pdc/_impl/layer2_readiness.py:62",
+      "focus": "Authority derivation, P14 effective independence, scorecard validation, and content-bound composition enforcement.",
+      "disposition": "USE_AS_IS",
+      "rationale": "These are the existing safety-kernel enforcement pieces GY-N9 must call before promotion.",
+      "consuming_task": "GY-N9",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2520"
+      ]
+    },
+    {
+      "owner_id": "post_deploy_monitoring_organs",
+      "owner_path": "src/polisyos/ddm/detectors/realized_performance_monitor.py:49",
+      "focus": "DDM detector computations, DecisionFeedbackService lifecycle, and S13 attribution/firewall enforcement.",
+      "disposition": "USE_AS_IS",
+      "rationale": "The monitoring organs are reusable for GY-O1/O2/O3; the missing horizon is the deployed updater/controller/write-back.",
+      "consuming_task": "GY-O1",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2521"
+      ]
+    },
+    {
+      "owner_id": "value_outer_set_foundation_contract",
+      "owner_path": "src/polisyos/core/contracts/runtime.py:905",
+      "focus": "ValueOuterSet foundation carrier for set-valued value and S1 proxy household bounds.",
+      "disposition": "USE_AS_IS",
+      "rationale": "The contract lives in the shared core runtime value layer so Foundry and PDC can import one carrier without a waist-boundary violation.",
+      "consuming_task": "GY-N-V",
+      "build_new_bridge_ref": "ValueOuterSet",
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2522"
+      ]
+    },
+    {
+      "owner_id": "scholar_kg_credal_lift_owner",
+      "owner_path": "src/polisyos/data_forge/domains/academic/knowledge/skg_query.py:1745",
+      "focus": "L2 Scholar KG parameter-estimate, transport, contested-edge, and SKG grounding lift.",
+      "disposition": "USE_AS_IS",
+      "rationale": "GY-S2 extends the existing SKGQuery owner and reuses the ac_skg_versions store and ValueOuterSet carrier instead of adding a parallel SKG/value type.",
+      "consuming_task": "GY-S2",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2573"
+      ]
+    },
+    {
+      "owner_id": "lex_kg_admissibility_lift_owner",
+      "owner_path": "src/polisyos/lex/knowledge/store.py:890",
+      "focus": "L3 Lex KG threshold, unit/operator, obligation/provision, and amendment temporal-competence lift.",
+      "disposition": "USE_AS_IS",
+      "rationale": "GY-S2 extends LegalKnowledgeStore as the Lex runtime owner so DesignProblem/N2 can consume typed admissibility and temporal competence without a parallel Lex binding.",
+      "consuming_task": "GY-S2",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2574"
+      ]
+    },
+    {
+      "owner_id": "nl_pipeline_generation_cycle_front_door",
+      "owner_path": "src/polisyos/runtime/http/services/control/nl_pipeline.py:1131",
+      "focus": "nl_pipeline as the generation-cycle front door.",
+      "disposition": "REWORK_TO_FIT",
+      "rationale": "Preserve durable publication and handoff, but bridge a canonical generation request instead of relying on sidecar intent and agent-circuit shape.",
+      "consuming_task": "GY-N1",
+      "build_new_bridge_ref": "DesignProblem",
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2525"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-nl-pipeline-front-door",
+        "pattern_id": "P28",
+        "predecessor_ref": "scientist.orchestration.workflows.selection.plain_policy_verified_default",
+        "replacement_ref": "GY-N1.DesignProblem",
+        "disposition": "fenced_default_flipped",
+        "required_disposition": "fenced_default_flipped",
+        "default_before": "nl_request plus sidecar intent can enter policy workflow selection without a canonical DesignProblem.",
+        "default_after": "Generation-cycle entry requires an emitted DesignProblem consumed by the cycle.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "strangled; explicit verified_async remains a legal subflow only",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/scientist/orchestration/workflows/selection.py",
+        "consuming_task": "GY-N1",
+        "strangle_condition": {
+          "kind": "plain_policy_nl_not_verified_default"
+        },
+        "status": "strangled"
+      }
+    },
+    {
+      "owner_id": "mock_pi_data_need_path",
+      "owner_path": "src/polisyos/scientist/agent/pi.py:82",
+      "focus": "Mock PI and data-need parsing path.",
+      "disposition": "REWORK_TO_FIT",
+      "rationale": "Usable only for fixtures; it must not become authority or real design parsing for DesignProblem construction.",
+      "consuming_task": "GY-N1",
+      "build_new_bridge_ref": "DesignProblem",
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2526"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-mock-pi-data-need",
+        "pattern_id": "P28",
+        "predecessor_ref": "scientist.agent.pi.mock_problem_interpreter",
+        "replacement_ref": "GY-N1.DesignProblem.front_door_parser",
+        "disposition": "fenced_default_flipped",
+        "required_disposition": "fenced_default_flipped",
+        "default_before": "Mock PI/data-need extraction may be mistaken for generation-cycle parsing.",
+        "default_after": "Mock path is fixture-only and DesignProblem owns cycle parsing.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "strangled; mock PI/data-need remains fixture-only outside DesignProblem parsing",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/scientist/agent/pi.py",
+        "consuming_task": "GY-N1",
+        "strangle_condition": {
+          "kind": "design_problem_front_door_gateway_tool_calling"
+        },
+        "status": "strangled"
+      }
+    },
+    {
+      "owner_id": "verified_policy_candidate_source",
+      "owner_path": "src/polisyos/scientist/validation/policy_verified/service.py:457",
+      "focus": "Verified-policy scripted candidate source and mock formalization defaults.",
+      "disposition": "REWORK_TO_FIT",
+      "rationale": "Keep the legal/request skeleton, but replace scripted option/formalization when GY needs real candidate generation.",
+      "consuming_task": "GY-N4",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2527"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-verified-policy-source",
+        "pattern_id": "P28",
+        "predecessor_ref": "scientist.validation.policy_verified.service.scripted_options",
+        "replacement_ref": "GY-N4.real_llm_generator_under_A",
+        "disposition": "fenced_default_flipped",
+        "required_disposition": "fenced_default_flipped",
+        "default_before": "Scripted verified-policy options can act as the plain-policy generator.",
+        "default_after": "Real LLM organs produce shadow candidates and scripted options are fixture/scaffold only.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "pending GY-N4 generator cutover",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/scientist/validation/policy_verified/service.py",
+        "consuming_task": "GY-N4",
+        "strangle_condition": {
+          "kind": "text_absent",
+          "path": "src/polisyos/scientist/validation/policy_verified/service.py",
+          "pattern": "hypothesis"
+        },
+        "status": "strangled"
+      }
+    },
+    {
+      "owner_id": "trinity_candidate_search_bridge",
+      "owner_path": "src/polisyos/scientist/policy_design/schema.py:293",
+      "focus": "PolicyCandidateSchema.from_trinity_bundle and HierarchicalPolicySearchAdapter candidate bridge.",
+      "disposition": "REWORK_TO_FIT",
+      "rationale": "The bridge is useful, but it must receive real candidate bounds and atom bindings, not hardcoded tax-subsidy defaults.",
+      "consuming_task": "GY-N2",
+      "build_new_bridge_ref": "InterventionAtomBinding",
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2528"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-trinity-candidate-search-bridge",
+        "pattern_id": "P28",
+        "predecessor_ref": "scientist.policy_design.schema.from_trinity_bundle_without_atom_binding",
+        "replacement_ref": "GY-N2.InterventionAtomBinding",
+        "disposition": "fenced_default_flipped",
+        "required_disposition": "fenced_default_flipped",
+        "default_before": "Candidate search can rely on Trinity bundle without a content-bound intervention atom.",
+        "default_after": "Candidate search consumes InterventionAtomBinding per intervention.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "candidate search bridge consumes atom producer/consumer round-trip",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/scientist/policy_design/schema.py",
+        "consuming_task": "GY-N2",
+        "strangle_condition": {
+          "kind": "intervention_atom_binding_round_trip_preserves_halves"
+        },
+        "status": "strangled"
+      }
+    },
+    {
+      "owner_id": "foundry_value_path_method_assumptions",
+      "owner_path": "src/polisyos/foundry/methods/catalog/causal/_registry_boot.py:441",
+      "focus": "Foundry value path assumptions under Python 3.14 dependency truth.",
+      "disposition": "REWORK_TO_FIT",
+      "rationale": "Statsmodels/JAX/pymoo/SciPy are available while EconML/DoWhy/CVXPY are not; GY value must select reachable methods or emit blockers.",
+      "consuming_task": "GY-N8",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2529"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-value-method-assumptions",
+        "pattern_id": "P28",
+        "predecessor_ref": "GY-N8.unconditional_optional_causal_method_selection",
+        "replacement_ref": "GY-N8.python314_reachable_method_policy",
+        "disposition": "fenced_default_flipped",
+        "required_disposition": "fenced_default_flipped",
+        "default_before": "Optional method families may be assumed available by task text or fixed defaults.",
+        "default_after": "Method selection checks live availability and surfaces blockers.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "pending method policy",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/foundry/methods/catalog/causal/_registry_boot.py",
+        "consuming_task": "GY-N8",
+        "strangle_condition": {
+          "kind": "text_absent_under",
+          "root": "src/polisyos/runtime/quality/workspace",
+          "pattern": "synthetic_control",
+          "suffixes": [
+            ".py"
+          ]
+        },
+        "status": "pending"
+      }
+    },
+    {
+      "owner_id": "workspace_run_intent_cycle_adapter",
+      "owner_path": "src/polisyos/runtime/quality/workspace/loop.py:1266",
+      "focus": "Workspace run_intent adapter and consumer surfaces.",
+      "disposition": "REWORK_TO_FIT",
+      "rationale": "run_intent is descriptive and fixed-alias today; GY-N1 strangles its untyped public entry while later GY-N6 work owns the full multi-cycle controller.",
+      "consuming_task": "GY-N1",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2530"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-workspace-run-intent",
+        "pattern_id": "P28",
+        "predecessor_ref": "runtime.quality.workspace.loop.run_intent.raw_dict_entry",
+        "replacement_ref": "GY-N1.DesignProblem.cycle_entry",
+        "disposition": "fenced_default_flipped",
+        "required_disposition": "fenced_default_flipped",
+        "default_before": "run_intent accepts untyped dicts as cycle-entry intent.",
+        "default_after": "run_intent requires a canonical DesignProblem and derives adapter facts by projection.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "strangled; internal projected dict remains private to the adapter",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/runtime/quality/workspace/loop.py",
+        "consuming_task": "GY-N1",
+        "strangle_condition": {
+          "kind": "workspace_run_intent_rejects_raw_dict"
+        },
+        "status": "strangled"
+      }
+    },
+    {
+      "owner_id": "s2_refinement_discipline",
+      "owner_path": "src/polisyos/pdc/_impl/layer2_design_search.py:632",
+      "focus": "S2 SearchIteration, RefinementDecision, CounterexampleRecord, constraint store, and no-retry discipline.",
+      "disposition": "REWORK_TO_FIT",
+      "rationale": "Keep the refinement discipline, but replace the hardcoded grammar/candidate and single-iteration body.",
+      "consuming_task": "GY-N6",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2531"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-s2-refinement",
+        "pattern_id": "P28",
+        "predecessor_ref": "pdc._impl.layer2_design_search.run_s2_shadow_design_loop.single_iteration",
+        "replacement_ref": "GY-N6.generation_cycle_controller.refinement_state",
+        "disposition": "fenced_default_flipped",
+        "required_disposition": "fenced_default_flipped",
+        "default_before": "S2 constructs one fixed shadow iteration.",
+        "default_after": "Cycle controller re-enters only with changed grammar/evidence/value.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "pending controller bridge",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/pdc/_impl/layer2_design_search.py",
+        "consuming_task": "GY-N6",
+        "strangle_condition": {
+          "kind": "text_absent",
+          "path": "src/polisyos/pdc/_impl/layer2_design_search.py",
+          "pattern": "run_s2_shadow_design_loop"
+        },
+        "status": "pending"
+      }
+    },
+    {
+      "owner_id": "stage_b_foundry_nodes",
+      "owner_path": "src/polisyos/scientist/nodes/builtins/compile/compile_foundry.py:97",
+      "focus": "Stage-B compile, causal-readiness, and simulation nodes.",
+      "disposition": "REWORK_TO_FIT",
+      "rationale": "These are real bridge/gate owners but need an actual foundry context and valid candidate integration trace.",
+      "consuming_task": "GY-N8",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2532"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-stage-b-foundry-nodes",
+        "pattern_id": "P28",
+        "predecessor_ref": "scientist.stage_b.nodes.unreached_by_workspace_cycle",
+        "replacement_ref": "GY-N8.value_gate.execution_bridge",
+        "disposition": "fenced_default_flipped",
+        "required_disposition": "fenced_default_flipped",
+        "default_before": "Stage-B nodes exist beside the workspace loop without GY candidate/world integration.",
+        "default_after": "GY-N8 invokes them with candidate/world bindings or records blockers.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "pending value bridge",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/scientist/nodes/builtins/compile/compile_foundry.py",
+        "consuming_task": "GY-N8",
+        "strangle_condition": {
+          "kind": "text_absent",
+          "path": "src/polisyos/scientist/nodes/builtins/compile/compile_foundry.py",
+          "pattern": "CompileFoundry"
+        },
+        "status": "pending"
+      }
+    },
+    {
+      "owner_id": "policy_runtime_support_backend",
+      "owner_path": "src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py:165",
+      "focus": "ProductionPolicyEvaluationBackend and promotion support.",
+      "disposition": "REWORK_TO_FIT",
+      "rationale": "Keep evidence-driven metrics and promotion semantics, but do not let synthetic research-only backend stand in for authority.",
+      "consuming_task": "GY-N8",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2533"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-policy-runtime-support",
+        "pattern_id": "P28",
+        "predecessor_ref": "scientist.policy_runtime_support.synthetic_research_only_authority",
+        "replacement_ref": "GY-N8.value_gate.evidence_driven_backend",
+        "disposition": "fenced_default_flipped",
+        "required_disposition": "fenced_default_flipped",
+        "default_before": "Synthetic backend can compute research-only values beside authority path.",
+        "default_after": "Authority value packets require evidence-driven inputs and governance evidence.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "pending authority fence",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py",
+        "consuming_task": "GY-N8",
+        "strangle_condition": {
+          "kind": "text_absent",
+          "path": "src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py",
+          "pattern": "research_only"
+        },
+        "status": "pending"
+      }
+    },
+    {
+      "owner_id": "g4_in_cycle_promotion_sequence",
+      "owner_path": "src/polisyos/runtime/quality/proving_ground/governed_promotion_gate.py:1500",
+      "focus": "G4 governed promotion as an in-cycle GY-N9 sequence.",
+      "disposition": "REWORK_TO_FIT",
+      "rationale": "Enforcement is real, but the cycle must provide complete grounded inputs after value/revision.",
+      "consuming_task": "GY-N9",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2534"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-g4-promotion-sequence",
+        "pattern_id": "P28",
+        "predecessor_ref": "runtime.quality.proving_ground.governed_promotion_gate.out_of_cycle_validation",
+        "replacement_ref": "GY-N9.in_cycle_promotion_sequence",
+        "disposition": "fenced_default_flipped",
+        "required_disposition": "fenced_default_flipped",
+        "default_before": "G4 promotion exists as a parallel validation/tool surface.",
+        "default_after": "GY-N9 is the single persisted in-cycle promotion sequence.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "pending sequence bridge",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/runtime/quality/proving_ground/governed_promotion_gate.py",
+        "consuming_task": "GY-N9",
+        "strangle_condition": {
+          "kind": "text_absent",
+          "path": "src/polisyos/runtime/quality/proving_ground/governed_promotion_gate.py",
+          "pattern": "governed_promoted"
+        },
+        "status": "pending"
+      }
+    },
+    {
+      "owner_id": "bounded_agent_proposal_bridge",
+      "owner_path": "src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py:1318",
+      "focus": "G6 bounded agent and agent proposal bridge.",
+      "disposition": "REWORK_TO_FIT",
+      "rationale": "Useful candidate-only proposer/audit plumbing scoped to bounded G5 routing; it is not a GY cycle controller.",
+      "consuming_task": "GY-N4",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2535"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-bounded-agent-proposal",
+        "pattern_id": "P28",
+        "predecessor_ref": "runtime.quality.proving_ground.bounded_request_agent.pinned_g5_routing",
+        "replacement_ref": "GY-N4.generator_under_A.candidate_audit",
+        "disposition": "fenced_default_flipped",
+        "required_disposition": "fenced_default_flipped",
+        "default_before": "Bounded G5 routing can appear as cycle generation.",
+        "default_after": "Bounded agent remains candidate-only proposal/audit plumbing.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "pending candidate-only fence",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py",
+        "consuming_task": "GY-N4",
+        "strangle_condition": {
+          "kind": "text_absent",
+          "path": "src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py",
+          "pattern": "candidate_unverified"
+        },
+        "status": "pending"
+      }
+    },
+    {
+      "owner_id": "scientist_champion_vs_g4_promotion",
+      "owner_path": "src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py:120",
+      "focus": "Scientist champion promotion versus G4 PDC promotion.",
+      "disposition": "REWORK_TO_FIT",
+      "rationale": "Both are evidence-gated, but GY-N9 must pick one persisted sequence rather than leaving parallel promotion paths.",
+      "consuming_task": "GY-N9",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2536"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-scientist-vs-g4-promotion",
+        "pattern_id": "P28",
+        "predecessor_ref": "scientist.nodes.decide.run_policy_promotion.parallel_champion_path",
+        "replacement_ref": "GY-N9.single_persisted_promotion_sequence",
+        "disposition": "fenced_default_flipped",
+        "required_disposition": "fenced_default_flipped",
+        "default_before": "Scientist champion and G4 PDC promotion remain parallel.",
+        "default_after": "One persisted GY-N9 sequence owns B to A promotion.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "pending sequence decision",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py",
+        "consuming_task": "GY-N9",
+        "strangle_condition": {
+          "kind": "text_absent",
+          "path": "src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py",
+          "pattern": "RunPolicyPromotionNode"
+        },
+        "status": "pending"
+      }
+    },
+    {
+      "owner_id": "design_problem_projection_surfaces",
+      "owner_path": "src/polisyos/ir/governance/problem_frame.py:296",
+      "focus": "PolicyIntentEnvelope, Scientist ProblemFrame, IR ProblemFrame, and verified PolicyRequestFrame projections.",
+      "disposition": "REWORK_TO_FIT",
+      "rationale": "No current type spans the full request, authority, time, evidence, generation, and formal-evaluation payload; build a canonical bridge.",
+      "consuming_task": "GY-N1",
+      "build_new_bridge_ref": "DesignProblem",
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2537"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-design-problem-projections",
+        "pattern_id": "P28",
+        "predecessor_ref": "separate_problem_projection_surfaces",
+        "replacement_ref": "GY-N1.DesignProblem",
+        "disposition": "fenced_default_flipped",
+        "required_disposition": "fenced_default_flipped",
+        "default_before": "Multiple partial problem/request frames can fork the cycle.",
+        "default_after": "One DesignProblem names projections and owns generation-cycle entry.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "strangled; partial surfaces are projections from DesignProblem for cycle entry",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/ir/governance/problem_frame.py",
+        "consuming_task": "GY-N1",
+        "strangle_condition": {
+          "kind": "design_problem_bridge_projects_existing_surfaces"
+        },
+        "status": "strangled"
+      }
+    },
+    {
+      "owner_id": "acquisition_planner_execution_bridge",
+      "owner_path": "src/polisyos/runtime/quality/acquisition_planner.py:528",
+      "focus": "Bridge planner output into Fabric/Scholar/Data Forge execution and re-entry.",
+      "disposition": "REWORK_TO_FIT",
+      "rationale": "Workspace stops at ACQUISITION_REQUIRED; GY-N7 must execute and re-enter with receipts.",
+      "consuming_task": "GY-N7",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2538"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-acquisition-execution-bridge",
+        "pattern_id": "P28",
+        "predecessor_ref": "runtime.quality.acquisition_planner.plan_and_terminate",
+        "replacement_ref": "GY-N7.acquisition_receipt_reentry",
+        "disposition": "fenced_default_flipped",
+        "required_disposition": "fenced_default_flipped",
+        "default_before": "Planner output terminates at ACQUISITION_REQUIRED.",
+        "default_after": "Planner output compiles all gaps to provider execution and same-cycle re-entry.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "pending GY-N7 bridge",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/runtime/quality/acquisition_planner.py",
+        "consuming_task": "GY-N7",
+        "strangle_condition": {
+          "kind": "text_absent",
+          "path": "src/polisyos/runtime/quality/acquisition_planner.py",
+          "pattern": "unknown_missing_distribution"
+        },
+        "status": "pending"
+      }
+    },
+    {
+      "owner_id": "candidate_grounding_bridge",
+      "owner_path": "src/polisyos/runtime/quality/candidate_firewall.py:228",
+      "focus": "Candidate claim grounding through SKG, candidate firewall, and span entailment.",
+      "disposition": "REWORK_TO_FIT",
+      "rationale": "Reuse the grounding owners, but build the missing orchestrator and artifact bridge for generated candidates.",
+      "consuming_task": "GY-N7",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2539"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-candidate-grounding-bridge",
+        "pattern_id": "P28",
+        "predecessor_ref": "generated_candidate_without_claim_grounding_bridge",
+        "replacement_ref": "GY-N7.ground_candidate_claims_receipt",
+        "disposition": "fenced_default_flipped",
+        "required_disposition": "fenced_default_flipped",
+        "default_before": "Candidate grounding exists adjacent to, not inside, the generation cycle.",
+        "default_after": "Generated candidate claims resolve through grounding receipts before value/promotion.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "pending grounding bridge",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/runtime/quality/candidate_firewall.py",
+        "consuming_task": "GY-N7",
+        "strangle_condition": {
+          "kind": "text_absent",
+          "path": "src/polisyos/runtime/quality/candidate_firewall.py",
+          "pattern": "assert_l2_claim_authority_span_grounded"
+        },
+        "status": "pending"
+      }
+    },
+    {
+      "owner_id": "workspace_method_selection_default",
+      "owner_path": "src/polisyos/runtime/quality/workspace/loop.py:1036",
+      "focus": "Workspace default synthetic-control method selection.",
+      "disposition": "REWORK_TO_FIT",
+      "rationale": "The default is honest but not universal; GY-N8 needs a candidate/problem-aware method policy or explicit blocker.",
+      "consuming_task": "GY-N8",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2540"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-workspace-method-default",
+        "pattern_id": "P28",
+        "predecessor_ref": "runtime.quality.workspace.loop.synthetic_control_default",
+        "replacement_ref": "GY-N8.problem_aware_method_policy",
+        "disposition": "fenced_default_flipped",
+        "required_disposition": "fenced_default_flipped",
+        "default_before": "Value path defaults to synthetic_control regardless of DesignProblem.",
+        "default_after": "Method policy selects reachable methods by candidate/problem/world or emits blocker.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "pending method-policy cutover",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/runtime/quality/workspace/loop.py",
+        "consuming_task": "GY-N8",
+        "strangle_condition": {
+          "kind": "text_absent",
+          "path": "src/polisyos/runtime/quality/workspace/loop.py",
+          "pattern": "causal.inference.synthetic_control@1.0.0"
+        },
+        "status": "pending"
+      }
+    },
+    {
+      "owner_id": "scorecard_lifecycle_placement",
+      "owner_path": "src/polisyos/runtime/quality/scorecard.py:9955",
+      "focus": "Scorecard placement as downstream gate/closeout.",
+      "disposition": "REWORK_TO_FIT",
+      "rationale": "Use scorecard as a downstream authority gate, not necessarily for every internal revise iteration unless GY-N9 sets that boundary.",
+      "consuming_task": "GY-N9",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2541"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-scorecard-placement",
+        "pattern_id": "P28",
+        "predecessor_ref": "runtime.quality.scorecard.unsequenced_closeout_gate",
+        "replacement_ref": "GY-N9.scorecard_lifecycle_boundary",
+        "disposition": "fenced_default_flipped",
+        "required_disposition": "fenced_default_flipped",
+        "default_before": "Scorecard use is unsequenced relative to every revise iteration.",
+        "default_after": "GY-N9 names the lifecycle boundary where scorecard authority applies.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "pending lifecycle boundary",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/runtime/quality/scorecard.py",
+        "consuming_task": "GY-N9",
+        "strangle_condition": {
+          "kind": "text_absent",
+          "path": "src/polisyos/runtime/quality/scorecard.py",
+          "pattern": "scorecard"
+        },
+        "status": "pending"
+      }
+    },
+    {
+      "owner_id": "canonical_world_model_envelope",
+      "owner_path": "src/polisyos/foundry/agent_sim/world/world.py:30",
+      "focus": "Canonical world-model envelope over GlobalState, program graph, IR causal graph, NCM, and DataSnapshot owners.",
+      "disposition": "REWORK_TO_FIT",
+      "rationale": "SyntheticWorld remains test input, while production world state is unified through an envelope over existing owners.",
+      "consuming_task": "GY-N3",
+      "build_new_bridge_ref": "WorldModelRecord",
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2542"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-world-envelope",
+        "pattern_id": "P28",
+        "predecessor_ref": "foundry.agent_sim.world.synthetic_world_as_production_world",
+        "replacement_ref": "GY-N3.WorldModelRecord",
+        "disposition": "fenced_default_flipped",
+        "required_disposition": "fenced_default_flipped",
+        "default_before": "SyntheticWorld can be mistaken for production world model.",
+        "default_after": "SyntheticWorld is semantic-test input only; WorldModelRecord binds production substrates.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "strangled by WorldModelRecord bridge",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/foundry/agent_sim/world/world.py",
+        "consuming_task": "GY-N3",
+        "strangle_condition": {
+          "kind": "text_absent_under",
+          "root": "src/polisyos/runtime/quality",
+          "pattern": "SyntheticWorld",
+          "suffixes": [
+            ".py"
+          ]
+        },
+        "status": "strangled"
+      }
+    },
+    {
+      "owner_id": "world_model_record_lifecycle_bridge",
+      "owner_path": "src/polisyos/data_forge/kernel/snapshot/finalize.py:135",
+      "focus": "WorldModelRecord bridge over Fabric world, Data Forge snapshot binding, IR ModelSpec, Foundry bindings, SKG priors, and deployment lineage.",
+      "disposition": "REWORK_TO_FIT",
+      "rationale": "The missing owner is one lifecycle bridge/unify-existing record, not a new world store.",
+      "consuming_task": "GY-N3",
+      "build_new_bridge_ref": "WorldModelRecord",
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2543"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-world-model-record",
+        "pattern_id": "P28",
+        "predecessor_ref": "fragmented_world_lifecycle_substrates",
+        "replacement_ref": "GY-N3.WorldModelRecord",
+        "disposition": "fenced_default_flipped",
+        "required_disposition": "fenced_default_flipped",
+        "default_before": "World version, model spec, state binding, and SKG priors are separate lifecycle pieces.",
+        "default_after": "One WorldModelRecord names the bound world version used by value and simulation.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "pending world-record adoption",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/data_forge/kernel/snapshot/finalize.py",
+        "consuming_task": "GY-N3",
+        "strangle_condition": {
+          "kind": "world_model_record_bridge_landed"
+        },
+        "status": "strangled"
+      }
+    },
+    {
+      "owner_id": "production_data_substrate_registry",
+      "owner_path": "src/polisyos/runtime/quality/substrate_registry.py:158",
+      "focus": "Production-data substrate registry over L5/L1 metadata authority and generic free-grow registration.",
+      "disposition": "REWORK_TO_FIT",
+      "rationale": "Production-data metadata already exists across L5 measurement, identification, schema-regime catalogs and L1 DCAT; GY-S0 must lift those authorities into one runtime index without creating a parallel coverage/trust authority.",
+      "consuming_task": "GY-S0",
+      "build_new_bridge_ref": "SubstrateRegistry",
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2568"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-production-data-substrate-registry",
+        "pattern_id": "P28",
+        "predecessor_ref": "fragmented_production_data_metadata_without_runtime_authority_index",
+        "replacement_ref": "GY-S0.SubstrateRegistry",
+        "disposition": "fenced_default_flipped",
+        "required_disposition": "fenced_default_flipped",
+        "default_before": "Runtime world consumers could bind substrate metadata from fragmented L5, L1, and root-manifest refs without naming one substrate version.",
+        "default_after": "Runtime world consumers resolve substrate metadata through one content-addressed SubstrateRegistry version lifted from L5/L1 authorities.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "L5 and L1 catalogs remain source authorities; runtime consumers use the SubstrateRegistry bridge.",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "production_data/manifest.json",
+        "consuming_task": "GY-S0",
+        "strangle_condition": {
+          "kind": "production_data_substrate_registry_landed"
+        },
+        "status": "strangled"
+      }
+    },
+    {
+      "owner_id": "l6_intervention_substrate_lift",
+      "owner_path": "src/polisyos/runtime/quality/intervention_substrate.py:292",
+      "focus": "L6 agent-sim intervention substrate bridge for knob-domain lever resolution, law-to-lever L3 admissibility, and observation-family method routing.",
+      "disposition": "REWORK_TO_FIT",
+      "rationale": "The L6 control artifacts already exist in production data, the Lex store, the Foundry registry, and S0; GY-S3 lifts them into runtime authority without creating a parallel lever, method, or legal hierarchy.",
+      "consuming_task": "GY-S3",
+      "build_new_bridge_ref": "InterventionSubstrateBundle",
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2569"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-l6-intervention-substrate-lift",
+        "pattern_id": "P27",
+        "predecessor_ref": "raw_l6_agent_sim_control_json_used_without_runtime_resolution",
+        "replacement_ref": "GY-S3.InterventionSubstrateBundle",
+        "disposition": "fenced_default_flipped",
+        "required_disposition": "fenced_default_flipped",
+        "default_before": "Consumers could read L6 knob, law map, or observation manifest JSON directly or default to fixed synthetic-control routes without runtime authority checks.",
+        "default_after": "Consumers resolve L6 levers and method routes through content-bound fail-closed InterventionSubstrate records over existing owners.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "Raw L6 files remain source data; runtime consumers use the intervention substrate bridge.",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check",
+          "tools/quality/validation/check_layer3_gy_intervention_substrate_contract.py --check"
+        ],
+        "superseded_path": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles",
+        "consuming_task": "GY-S3",
+        "strangle_condition": {
+          "kind": "intervention_substrate_lift_landed"
+        },
+        "status": "strangled"
+      }
+    },
+    {
+      "owner_id": "joint_simulation_horizon_bridge",
+      "owner_path": "src/polisyos/foundry/methods/catalog/simulation/coupled.py:57",
+      "focus": "Joint simulation horizon/controller over Foundry shared-state executor, NCM, coupling certificate, and coupled DES/ABM.",
+      "disposition": "REWORK_TO_FIT",
+      "rationale": "The joint organs are real, but GY-N5 must add a controller that applies generated interventions jointly and replaces the ABM proof stub.",
+      "consuming_task": "GY-N5",
+      "build_new_bridge_ref": "JointSimulationHorizonController",
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2544"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-joint-simulation-horizon",
+        "pattern_id": "P28",
+        "predecessor_ref": "foundry.methods.catalog.simulation.dynamics._abm_result_stub",
+        "replacement_ref": "GY-N5.JointSimulationHorizonController",
+        "disposition": "fenced_default_flipped",
+        "required_disposition": "fenced_default_flipped",
+        "default_before": "Coupled DES/ABM has a stub proof/calibration receipt and no universal GY horizon controller.",
+        "default_after": "Controller emits content-bound individual/pairwise/joint simulation proof and gates unsupported feedback.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "pending GY-N5 controller",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/foundry/methods/catalog/simulation/dynamics.py",
+        "consuming_task": "GY-N5",
+        "strangle_condition": {
+          "kind": "text_absent",
+          "path": "src/polisyos/foundry/methods/catalog/simulation/dynamics.py",
+          "pattern": "_abm_result_stub"
+        },
+        "status": "pending"
+      }
+    },
+    {
+      "owner_id": "intervention_atom_binding_bridge",
+      "owner_path": "src/polisyos/ir/governance/policy_spec.py:73",
+      "focus": "Bind Trinity action/operator and registry-derived target footprint to typed causal do() expressions and world-model resolution.",
+      "disposition": "REWORK_TO_FIT",
+      "rationale": "The current split is bridge_missing; GY-N2 builds a binding artifact, not another action model.",
+      "consuming_task": "GY-N2",
+      "build_new_bridge_ref": "InterventionAtomBinding",
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2545"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-intervention-atom-binding",
+        "pattern_id": "P28",
+        "predecessor_ref": "free_form_measurement_expectations_as_policy_to_outcome_link",
+        "replacement_ref": "GY-N2.InterventionAtomBinding",
+        "disposition": "fenced_default_flipped",
+        "required_disposition": "fenced_default_flipped",
+        "default_before": "Policy-to-outcome association can live only in free-form measurement_expectations.",
+        "default_after": "InterventionAtomBinding content-binds direct effects, do() expression, estimand, and world version.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "free-form measurement_expectations retained as supporting metadata only",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/ir/governance/policy_spec.py",
+        "consuming_task": "GY-N2",
+        "strangle_condition": {
+          "kind": "intervention_atom_binding_measurement_expectations_metadata_only"
+        },
+        "status": "strangled"
+      }
+    },
+    {
+      "owner_id": "llm_generation_model_preflight",
+      "owner_path": "src/polisyos/scientist/orchestration/llm/gateway_client.py:276",
+      "focus": "LLM model catalog/profile preflight before generation.",
+      "disposition": "REWORK_TO_FIT",
+      "rationale": "The live gateway supports Qwen/MiniMax/Kimi but not the hardcoded gpt-5-mini profile, so GY-N4 must validate profile support before a run.",
+      "consuming_task": "GY-N4",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2546"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-llm-model-preflight",
+        "pattern_id": "P28",
+        "predecessor_ref": "hardcoded_gpt_5_mini_generation_profile",
+        "replacement_ref": "GY-N4.model_catalog_preflight",
+        "disposition": "fenced_default_flipped",
+        "required_disposition": "fenced_default_flipped",
+        "default_before": "A documented profile can be attempted without checking live gateway support.",
+        "default_after": "Generation preflights model IDs and fails closed on unsupported profile.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "pending preflight guard",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/scientist/orchestration/llm/gateway_client.py",
+        "consuming_task": "GY-N4",
+        "strangle_condition": {
+          "kind": "text_absent_under",
+          "root": "src/polisyos",
+          "pattern": "gpt-5-mini",
+          "suffixes": [
+            ".py"
+          ]
+        },
+        "status": "pending"
+      }
+    },
+    {
+      "owner_id": "transport_value_receipts",
+      "owner_path": "src/polisyos/ir/analytics/transportability.py:364",
+      "focus": "Transportability, density-ratio, and Bayesian posterior/calibration receipts attached to value packets.",
+      "disposition": "REWORK_TO_FIT",
+      "rationale": "Transport and Bayesian diagnostics are real, but GY-N8 must attach receipts to value authority rather than leave side diagnostics.",
+      "consuming_task": "GY-N8",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2547"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-transport-value-receipts",
+        "pattern_id": "P28",
+        "predecessor_ref": "transport_and_bayesian_side_diagnostics",
+        "replacement_ref": "GY-N8.value_packet_transport_posterior_receipts",
+        "disposition": "fenced_default_flipped",
+        "required_disposition": "fenced_default_flipped",
+        "default_before": "Transport/predictive diagnostics can remain side information.",
+        "default_after": "Value packets carry content-bound transport and posterior/calibration receipts.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "pending receipt bridge",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/ir/analytics/transportability.py",
+        "consuming_task": "GY-N8",
+        "strangle_condition": {
+          "kind": "text_absent_under",
+          "root": "src/polisyos",
+          "pattern": "transported_limited",
+          "suffixes": [
+            ".py"
+          ]
+        },
+        "status": "pending"
+      }
+    },
+    {
+      "owner_id": "core_quantity_value_uncertainty_seed",
+      "owner_path": "src/polisyos/core/contracts/runtime.py:905",
+      "focus": "Core QuantityValue and QuantityUncertainty seed extended by ValueOuterSet for set-valued value.",
+      "disposition": "REWORK_TO_FIT",
+      "rationale": "The shared core value-contract layer is the right import home, but set-valued GY value must use ValueOuterSet rather than point/uncertainty envelopes or PDC-local types.",
+      "consuming_task": "GY-N-V",
+      "build_new_bridge_ref": "ValueOuterSet",
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2548"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-core-value-seed-rework",
+        "pattern_id": "P27",
+        "predecessor_ref": "core.contracts.runtime.QuantityValue.QuantityUncertainty",
+        "replacement_ref": "core.contracts.runtime.ValueOuterSet",
+        "disposition": "reworked_to_fit",
+        "required_disposition": "reworked_to_fit",
+        "default_before": "Set-valued value could be represented through point QuantityValue plus ad-hoc uncertainty fields.",
+        "default_after": "Set-valued GY value has one core ValueOuterSet carrier with derived width and certified/search-only promotability.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "QuantityValue remains the point-value envelope; set-valued GY value uses ValueOuterSet.",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check",
+          "tests/unit/core/contracts/test_value_outer_set.py"
+        ],
+        "superseded_path": "src/polisyos/core/contracts/runtime.py",
+        "consuming_task": "GY-N-V",
+        "strangle_condition": {
+          "kind": "value_outer_set_contract_importable"
+        },
+        "status": "strangled"
+      }
+    },
+    {
+      "owner_id": "required_data_spec_lossless_adapter",
+      "owner_path": "src/polisyos/foundry/methods/catalog/causal/_id_contracts.py:24",
+      "focus": "Lossless DistributionRef to DataRequirementSpec bridge replacing first-item and unknown fallback behavior.",
+      "disposition": "REWORK_TO_FIT",
+      "rationale": "The current adapter can lose all but the first gap and fabricate an unknown distribution; GY-N7 needs lossless provider-sensitive VOI.",
+      "consuming_task": "GY-N7",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2549"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-required-data-lossless-adapter",
+        "pattern_id": "P28",
+        "predecessor_ref": "runtime.quality.acquisition_planner.first_gap_unknown_distribution_adapter",
+        "replacement_ref": "GY-N7.lossless_required_data_bridge",
+        "disposition": "fenced_default_flipped",
+        "required_disposition": "fenced_default_flipped",
+        "default_before": "First missing distribution or unknown_missing_distribution can drive acquisition.",
+        "default_after": "All gaps compile to claim-bound W7 DataRequirementSpecs or blockers.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "pending lossless bridge",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/runtime/quality/acquisition_planner.py",
+        "consuming_task": "GY-N7",
+        "strangle_condition": {
+          "kind": "text_absent",
+          "path": "src/polisyos/runtime/quality/acquisition_planner.py",
+          "pattern": "unknown_missing_distribution"
+        },
+        "status": "pending"
+      }
+    },
+    {
+      "owner_id": "acquisition_control_reentry",
+      "owner_path": "src/polisyos/runtime/quality/design_axes/substrate_acquisition.py:269",
+      "focus": "Durable acquisition job, receipt, same-workspace re-entry, and S3 consume-the-delta closure.",
+      "disposition": "REWORK_TO_FIT",
+      "rationale": "Keep S3 closure discipline, but replace fixture discovery/VOI with real acquisition receipts and re-entry.",
+      "consuming_task": "GY-N7",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2550"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-acquisition-control-reentry",
+        "pattern_id": "P28",
+        "predecessor_ref": "runtime.quality.design_axes.substrate_acquisition.fixture_source_voi",
+        "replacement_ref": "GY-N7.durable_acquisition_receipt_reentry",
+        "disposition": "fenced_default_flipped",
+        "required_disposition": "fenced_default_flipped",
+        "default_before": "S3 fixture discovery/VOI demonstrates closure without real provider receipt.",
+        "default_after": "Control job persists cost/quality/rights/binding receipt and rerun consumes delta.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "pending acquisition job kind",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/runtime/quality/design_axes/substrate_acquisition.py",
+        "consuming_task": "GY-N7",
+        "strangle_condition": {
+          "kind": "text_absent",
+          "path": "src/polisyos/runtime/quality/design_axes/substrate_acquisition.py",
+          "pattern": "fixture"
+        },
+        "status": "pending"
+      }
+    },
+    {
+      "owner_id": "two_contour_monitoring_bridge",
+      "owner_path": "src/polisyos/scientist/feedback/core.py:204",
+      "focus": "Two-contour monitoring bridge from DDM/FDR anomalies and Bayesian confirmatory updates to world-model write-back.",
+      "disposition": "REWORK_TO_FIT",
+      "rationale": "DDM/FDR/feedback/S13 primitives are real; O1/O2/O3 need new controllers and write-back sequencing.",
+      "consuming_task": "GY-O1",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2551"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-two-contour-monitoring",
+        "pattern_id": "P28",
+        "predecessor_ref": "post_deploy_primitives_without_two_contour_world_writeback",
+        "replacement_ref": "GY-O1_O2_O3.deployed_policy_learning_loop",
+        "disposition": "fenced_default_flipped",
+        "required_disposition": "fenced_default_flipped",
+        "default_before": "Monitoring primitives do not update a WorldModelRecord branch.",
+        "default_after": "Confirmatory updates and confirmed hypotheses write versioned world branches only after authority gates.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "pending O-phase controllers",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/scientist/feedback/core.py",
+        "consuming_task": "GY-O1",
+        "strangle_condition": {
+          "kind": "text_absent_under",
+          "root": "src/polisyos",
+          "pattern": "deployment_update",
+          "suffixes": [
+            ".py"
+          ]
+        },
+        "status": "pending"
+      }
+    },
+    {
+      "owner_id": "engine_langgraph_legacy_shadow",
+      "owner_path": "src/polisyos/scientist/orchestration/workflows/engine_langgraph.py:73",
+      "focus": "LangGraph workflow engine shadow/legacy path.",
+      "disposition": "DELETE",
+      "rationale": "The notebook marks this provisional SHADOW/LEGACY; GY-N6 stays owner-first on engine_simple and must not leave LangGraph as a parallel cycle owner.",
+      "consuming_task": "GY-N6",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2555"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-engine-langgraph-delete",
+        "pattern_id": "P28",
+        "predecessor_ref": "scientist.orchestration.workflows.engine_langgraph",
+        "replacement_ref": "scientist.orchestration.workflows.engine_simple.plus_GY-N6_controller",
+        "disposition": "deleted",
+        "required_disposition": "deleted",
+        "default_before": "LangGraph exists as a provisional parallel workflow engine.",
+        "default_after": "LangGraph is absent or fenced legacy and not a GY cycle path.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "pending caller search and delete",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/scientist/orchestration/workflows/engine_langgraph.py",
+        "consuming_task": "GY-N6",
+        "strangle_condition": {
+          "kind": "path_absent",
+          "path": "src/polisyos/scientist/orchestration/workflows/engine_langgraph.py"
+        },
+        "status": "pending"
+      }
+    },
+    {
+      "owner_id": "s2_fixed_credit_guarantee_body",
+      "owner_path": "src/polisyos/pdc/_impl/layer2_design_search.py:1441",
+      "focus": "S2 fixed credit-guarantee grammar/candidate/projection body.",
+      "disposition": "DELETE",
+      "rationale": "The reusable S2 discipline stays, but the fixed credit-guarantee candidate body must be strangled once real generation feeds it.",
+      "consuming_task": "GY-N6",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2556"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-s2-fixed-credit-guarantee-delete",
+        "pattern_id": "P28",
+        "predecessor_ref": "pdc._impl.layer2_design_search.fixed_credit_guarantee_candidate",
+        "replacement_ref": "GY-N6.generated_candidate_refinement_input",
+        "disposition": "deleted",
+        "required_disposition": "deleted",
+        "default_before": "S2 emits fixed credit_guarantee candidate body.",
+        "default_after": "Real generated candidates feed S2-compatible refinement; fixed body is fixture-only or gone.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "pending GY-N6 cutover",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/pdc/_impl/layer2_design_search.py",
+        "consuming_task": "GY-N6",
+        "strangle_condition": {
+          "kind": "text_absent",
+          "path": "src/polisyos/pdc/_impl/layer2_design_search.py",
+          "pattern": "credit_guarantee"
+        },
+        "status": "pending"
+      }
+    },
+    {
+      "owner_id": "verified_policy_fixed_option_defaults",
+      "owner_path": "src/polisyos/scientist/validation/policy_verified/service.py:457",
+      "focus": "Verified-policy fixed option/formalization defaults.",
+      "disposition": "DELETE",
+      "rationale": "These defaults are fixture/scaffold material, not the GY generator.",
+      "consuming_task": "GY-N4",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2557"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-verified-policy-fixed-defaults-delete",
+        "pattern_id": "P28",
+        "predecessor_ref": "scientist.validation.policy_verified.service.fixed_options",
+        "replacement_ref": "GY-N4.real_llm_generator_under_A",
+        "disposition": "deleted",
+        "required_disposition": "deleted",
+        "default_before": "Fixed verified-policy options can generate candidate authority.",
+        "default_after": "Fixed options are fixture/scaffold only or removed.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "pending GY-N4 cutover",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/scientist/validation/policy_verified/service.py",
+        "consuming_task": "GY-N4",
+        "strangle_condition": {
+          "kind": "text_absent",
+          "path": "src/polisyos/scientist/validation/policy_verified/service.py",
+          "pattern": "tax"
+        },
+        "status": "pending"
+      }
+    },
+    {
+      "owner_id": "direct_policy_promotion_node_policy_mode",
+      "owner_path": "src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py:120",
+      "focus": "Direct RunPolicyPromotionNode.execute policy mode.",
+      "disposition": "DELETE",
+      "rationale": "The notebook found policy mode disabled/fail-closed; keep only if a non-policy caller still needs it, otherwise GY-N9 owns promotion.",
+      "consuming_task": "GY-N9",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2558"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-direct-policy-promotion-delete",
+        "pattern_id": "P28",
+        "predecessor_ref": "scientist.nodes.builtins.decide.run_policy_promotion.policy_mode",
+        "replacement_ref": "GY-N9.single_persisted_promotion_sequence",
+        "disposition": "deleted",
+        "required_disposition": "deleted",
+        "default_before": "Direct policy promotion node can appear as a parallel policy-mode promotion path.",
+        "default_after": "GY-N9 owns in-cycle promotion or node remains non-policy-only.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "pending caller search",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py",
+        "consuming_task": "GY-N9",
+        "strangle_condition": {
+          "kind": "text_absent",
+          "path": "src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py",
+          "pattern": "policy mode"
+        },
+        "status": "pending"
+      }
+    },
+    {
+      "owner_id": "synthetic_policy_runtime_backend",
+      "owner_path": "src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py:244",
+      "focus": "Synthetic policy-runtime backend for authority purposes.",
+      "disposition": "DELETE",
+      "rationale": "Synthetic backend is compatibility/research-only; production promotability must come from evidence-driven inputs.",
+      "consuming_task": "GY-N8",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2559"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-synthetic-policy-runtime-backend-delete",
+        "pattern_id": "P28",
+        "predecessor_ref": "scientist.policy_runtime_support.synthetic_backend_authority",
+        "replacement_ref": "GY-N8.evidence_driven_value_backend",
+        "disposition": "deleted",
+        "required_disposition": "deleted",
+        "default_before": "Synthetic backend can stand in for value/promotability authority.",
+        "default_after": "Synthetic backend is research-only and cannot mint authority.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "pending authority fence",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py",
+        "consuming_task": "GY-N8",
+        "strangle_condition": {
+          "kind": "text_absent",
+          "path": "src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py",
+          "pattern": "synthetic"
+        },
+        "status": "pending"
+      }
+    },
+    {
+      "owner_id": "mock_generator_outputs",
+      "owner_path": "src/polisyos/scientist/agent/drafter_clients.py:86",
+      "focus": "MockDrafter, MockFormalizer, and MockCritic outputs.",
+      "disposition": "DELETE",
+      "rationale": "Mock generator outputs should be fixture-only and never GY generation authority.",
+      "consuming_task": "GY-N4",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2560"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-mock-generator-outputs-delete",
+        "pattern_id": "P28",
+        "predecessor_ref": "scientist.agent.mock_generator_outputs",
+        "replacement_ref": "GY-N4.real_llm_generator_under_A_fixture_fence",
+        "disposition": "deleted",
+        "required_disposition": "deleted",
+        "default_before": "Mock outputs can be confused with generated policy candidates.",
+        "default_after": "Mock outputs are test fixtures only and cannot enter authority path.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "pending fixture fence",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/scientist/agent/drafter_clients.py",
+        "consuming_task": "GY-N4",
+        "strangle_condition": {
+          "kind": "text_absent_under",
+          "root": "src/polisyos/scientist/agent",
+          "pattern": "Mock",
+          "suffixes": [
+            ".py"
+          ]
+        },
+        "status": "pending"
+      }
+    },
+    {
+      "owner_id": "s2_fixed_candidate_as_generator",
+      "owner_path": "src/polisyos/pdc/_impl/layer2_design_search.py:1470",
+      "focus": "Direct use of S2 fixed credit-guarantee candidate as a generator.",
+      "disposition": "DELETE",
+      "rationale": "Any production use of the fixed S2 candidate as generator must be deleted/strangled after real controller generation exists.",
+      "consuming_task": "GY-N10",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2561"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-s2-fixed-candidate-generator-delete",
+        "pattern_id": "P28",
+        "predecessor_ref": "pdc._impl.layer2_design_search._candidate.fixed_generator",
+        "replacement_ref": "GY-N10.depth_n_controller_generated_families",
+        "disposition": "deleted",
+        "required_disposition": "deleted",
+        "default_before": "S2 fixed candidate can be reused as a generator.",
+        "default_after": "Depth-N controller supplies generated candidate families.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "pending depth-N controller",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/pdc/_impl/layer2_design_search.py",
+        "consuming_task": "GY-N10",
+        "strangle_condition": {
+          "kind": "text_absent",
+          "path": "src/polisyos/pdc/_impl/layer2_design_search.py",
+          "pattern": "credit_guarantee"
+        },
+        "status": "pending"
+      }
+    },
+    {
+      "owner_id": "unknown_missing_distribution_adapter",
+      "owner_path": "src/polisyos/runtime/quality/acquisition_planner.py:528",
+      "focus": "unknown_missing_distribution fabrication and first-gap-only acquisition adaptation.",
+      "disposition": "DELETE",
+      "rationale": "Fabricated unknown positive VOI is not acceptable authority; delete it once the lossless required-data bridge exists.",
+      "consuming_task": "GY-N7",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2562"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-unknown-missing-distribution-delete",
+        "pattern_id": "P28",
+        "predecessor_ref": "runtime.quality.acquisition_planner.unknown_missing_distribution",
+        "replacement_ref": "GY-N7.lossless_required_data_bridge",
+        "disposition": "deleted",
+        "required_disposition": "deleted",
+        "default_before": "Empty or first gap can become unknown_missing_distribution with synthetic positive VOI.",
+        "default_after": "No fabricated distribution; all gaps are explicit or blocked.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "pending bridge cutover",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/runtime/quality/acquisition_planner.py",
+        "consuming_task": "GY-N7",
+        "strangle_condition": {
+          "kind": "text_absent",
+          "path": "src/polisyos/runtime/quality/acquisition_planner.py",
+          "pattern": "unknown_missing_distribution"
+        },
+        "status": "pending"
+      }
+    },
+    {
+      "owner_id": "gy_g_s3_fixture_only_demonstrations",
+      "owner_path": "src/polisyos/runtime/quality/workspace/loop.py:865",
+      "focus": "GY-G hardcoded depth-2 independent fixture recursion and S3 fixture-only source/VOI bodies.",
+      "disposition": "DELETE",
+      "rationale": "These should become compatibility tests after a real controller and acquisition receipt path exist, not production demonstrations.",
+      "consuming_task": "GY-N10",
+      "build_new_bridge_ref": null,
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2563"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-generation-cycle-gyg-s3-fixtures-delete",
+        "pattern_id": "P28",
+        "predecessor_ref": "runtime.quality.workspace.loop.run_recursive_case.declared_independent_fixture",
+        "replacement_ref": "GY-N10.depth_n_universality_controller",
+        "disposition": "deleted",
+        "required_disposition": "deleted",
+        "default_before": "Depth-2 independent fixture recursion and S3 fixture VOI can stand as demonstrations.",
+        "default_after": "Real cycle observes coupling, runs joint simulation where required, and uses real acquisition receipts.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "pending controller/acquisition cutover",
+        "removed_loc": [],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/runtime/quality/workspace/loop.py",
+        "consuming_task": "GY-N10",
+        "strangle_condition": {
+          "kind": "text_absent",
+          "path": "src/polisyos/runtime/quality/workspace/loop.py",
+          "pattern": "run_recursive_case"
+        },
+        "status": "pending"
+      }
+    },
+    {
+      "owner_id": "household_cell_ad_hoc_bounds_representation",
+      "owner_path": "src/polisyos/foundry/contracts/state.py:317",
+      "focus": "GY-S1 interim HouseholdCellState lower/upper/identification scalar representation.",
+      "disposition": "DELETE",
+      "rationale": "The ad-hoc lower/upper/identification fields were a parallel value representation; GY-N-V ValueOuterSet is now the single production carrier.",
+      "consuming_task": "GY-N-V",
+      "build_new_bridge_ref": "ValueOuterSet",
+      "source_notebook_refs": [
+        "architecture/policy_design_case/layer3_gy_n0_investigation.md:2564"
+      ],
+      "strangle_receipt": {
+        "receipt_id": "layer3-gy-value-outer-set-household-bounds-strangle",
+        "pattern_id": "P28",
+        "predecessor_ref": "foundry.contracts.state.HouseholdCellState.ad_hoc_household_bounds",
+        "replacement_ref": "core.contracts.runtime.ValueOuterSet",
+        "disposition": "deleted",
+        "required_disposition": "deleted",
+        "default_before": "HouseholdCellState lower/upper/id scalar fields carried S1 proxy bounds.",
+        "default_after": "HouseholdCellState carries a ValueOuterSet and no production reader consumes bare bound scalars.",
+        "guard_ref": "tools/quality/validation/check_layer3_gy_value_outer_set_strangle_receipt.py",
+        "remaining_callers": [],
+        "remaining_callers_disposition": "strangled; no protected state, slot, executor, or S1 payload caller remains",
+        "removed_loc": [
+          "src/polisyos/foundry/contracts/state.py:HouseholdCellState.disposable_income_lower",
+          "src/polisyos/foundry/contracts/state.py:HouseholdCellState.disposable_income_upper",
+          "src/polisyos/foundry/contracts/state.py:HouseholdCellState.poverty_rate_lower",
+          "src/polisyos/foundry/contracts/state.py:HouseholdCellState.poverty_rate_upper",
+          "src/polisyos/foundry/contracts/state.py:HouseholdCellState.transfer_intensity_lower",
+          "src/polisyos/foundry/contracts/state.py:HouseholdCellState.transfer_intensity_upper",
+          "src/polisyos/foundry/contracts/state.py:HouseholdCellState.identification_mode_code"
+        ],
+        "verified_by": [
+          "tools/quality/validation/check_layer3_gy_value_outer_set_strangle_receipt.py --check",
+          "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --check"
+        ],
+        "superseded_path": "src/polisyos/foundry/contracts/state.py",
+        "consuming_task": "GY-N-V",
+        "strangle_condition": {
+          "kind": "value_outer_set_strangle_receipt_landed"
+        },
+        "status": "strangled"
+      }
+    }
+  ]
+}

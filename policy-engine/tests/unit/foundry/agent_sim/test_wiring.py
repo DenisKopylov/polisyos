@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import numpy as np
+
+from polisyos.core.contracts import DataTrust, ValueOuterSet
 from polisyos.foundry.agent_sim.distributions import compute_gini_hard, compute_palma_ratio
 from polisyos.foundry.agent_sim.wiring import (
     ContractsDistributionAwareExecutor,
@@ -22,9 +24,42 @@ from polisyos.foundry.contracts.state import (
 from polisyos.ir.governance.policy_spec import InterventionSpec
 from polisyos.ir.governance.schedule import ScheduleSpec
 from polisyos.ir.governance.selector_expr import SelectorPredicate
-from polisyos.ir.observation.contracts import MultiplexGraphLayerId
 from polisyos.ir.model_layer.types import SelectorOperator
+from polisyos.ir.observation.contracts import MultiplexGraphLayerId
 from polisyos.lex.interventions import CompiledLexIntervention
+
+
+def _household_value_outer_set(
+    *,
+    lower: tuple[float, ...] = (20.0, 150.0),
+    upper: tuple[float, ...] = (40.0, 150.0),
+    identification_mode: str = "proxy_identified",
+) -> ValueOuterSet:
+    return ValueOuterSet.interval_box(
+        coordinates=tuple(f"household_cells.disposable_income[{idx}]" for idx in range(len(lower))),
+        lower=lower,
+        upper=upper,
+        identification_mode=identification_mode,
+        assumptions=("d3_bias_corrected_household_bounds",),
+        assumption_status="externally_supported",
+        calibration_scope={
+            "population": "synthetic_household_cells",
+            "regime": "test_regime",
+            "measurement": "household_distribution",
+        },
+        data_trust=DataTrust(
+            tier="derived_proxy",
+            trust_cap=0.6,
+            trust_multiplier=0.6,
+            min_coverage=0.35,
+            max_coverage=0.85,
+            promotion_floor=0.5,
+            authority_ref="repo://l5/measurement_registry.json#/trust_tiers/derived_proxy",
+        ),
+        world_model_record_ref="world_model_record_test",
+        epoch="test_regime",
+        representation_status="certified",
+    )
 
 
 def _base_multiscale_state(*, n_agents: int = 4, n_firms: int = 3) -> GlobalState:
@@ -36,7 +71,9 @@ def _base_multiscale_state(*, n_agents: int = 4, n_firms: int = 3) -> GlobalStat
     ).replace(
         cells=CellState.empty(3),
         household_cells=HouseholdCellState.empty(2).replace(
-            cell_id=np.asarray([0, 1], dtype=np.int32)
+            cell_id=np.asarray([0, 1], dtype=np.int32),
+            disposable_income=np.asarray([30.0, 150.0], dtype=np.float32),
+            value_outer_set=_household_value_outer_set(),
         ),
     )
 
@@ -165,9 +202,6 @@ def test_distribution_executor_updates_gini_and_palma_after_transfer() -> None:
             cell_id=np.asarray([0], dtype=np.int32),
         ),
         cells=CellState.empty(3),
-        household_cells=HouseholdCellState.empty(2).replace(
-            cell_id=np.asarray([0, 1], dtype=np.int32)
-        ),
     )
     baseline_gini = float(compute_gini_hard(state.agents.income, state.agents.active))
     baseline_palma = float(compute_palma_ratio(state.agents.income, state.agents.active))
@@ -192,6 +226,14 @@ def test_distribution_executor_updates_gini_and_palma_after_transfer() -> None:
         np.asarray(next_state.household_cells.disposable_income),
         np.asarray([45.0, 150.0], dtype=np.float32),
     )
+    assert next_state.household_cells.value_outer_set is not None
+    assert next_state.household_cells.value_outer_set.coordinates == (
+        "household_cells.disposable_income[0]",
+        "household_cells.disposable_income[1]",
+    )
+    assert next_state.household_cells.value_outer_set.lower == (35.0, 150.0)
+    assert next_state.household_cells.value_outer_set.upper == (55.0, 150.0)
+    assert next_state.household_cells.value_outer_set.identification_status == "proxy"
     assert np.allclose(
         np.asarray(next_state.household_cells.transfer_intensity),
         np.asarray([30.0, 0.0], dtype=np.float32),

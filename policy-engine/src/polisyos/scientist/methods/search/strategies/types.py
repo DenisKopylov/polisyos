@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
@@ -52,6 +53,34 @@ class ParameterBounds:
     dtype: ParameterType = ParameterType.CONTINUOUS
     log_scale: bool = False
     categories: tuple[Any, ...] | None = None
+
+    @classmethod
+    def explicit(
+        cls,
+        *,
+        name: str,
+        lower: float | int | None,
+        upper: float | int | None,
+        dtype: ParameterType = ParameterType.CONTINUOUS,
+        log_scale: bool = False,
+        categories: tuple[Any, ...] | None = None,
+    ) -> ParameterBounds:
+        """Build bounds for GY/serious paths where missing values may not default."""
+
+        if lower is None or upper is None:
+            raise ValueError(f"Explicit bounds required for '{name}'")
+        lower_float = float(lower)
+        upper_float = float(upper)
+        if not math.isfinite(lower_float) or not math.isfinite(upper_float):
+            raise ValueError(f"Finite explicit bounds required for '{name}'")
+        return cls(
+            name=name,
+            lower=lower_float,
+            upper=upper_float,
+            dtype=dtype,
+            log_scale=log_scale,
+            categories=categories,
+        )
 
     def __post_init__(self) -> None:
         if self.dtype == ParameterType.CATEGORICAL:

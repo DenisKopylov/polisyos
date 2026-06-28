@@ -18,6 +18,7 @@ environment fingerprints.
 - **Dependency graphs** - artifact lineage can be exported, imported, and verified as a graph.
 - **Environment capture** - reproducibility fingerprints track platform, runtime, and optional git/TEE context.
 - **Registry bundles** - registry payloads are stored as first-class CAS artifacts.
+- **Integrity reports** - `CASIntegrityReport` projects verified store reads and manifest authority links into audit proof records.
 
 ## Public API
 
@@ -25,10 +26,11 @@ environment fingerprints.
 - manifests/refs: `ArtifactManifest`, `ArtifactRef`, `InputRef`, `SchemaInfo`
 - signing: `SigningConfig`, `sign_artifact`, `verify_signature`, `sign_all_artifacts`, `verify_all_signatures`
 - lineage/graph: `DependencyGraph`, `resolve_dependency_graph`
+- integrity proofs: `CASIntegrityReport`, `build_cas_integrity_report`
 - registry/environment: `RegistryBundle`, `RegistryBundlePayload`, `capture_environment`, `compare_environments`
 
 ## Current State
 
-- Last updated: 2026-04-03
+- Last updated: 2026-06-16
 - The package still serves as the CAS source of truth for audit exports, runtime lineage, and registry bundles.
 - The tree now explicitly includes `protocol.py` and the `environment_parts.py` facade alongside the capture/comparison helpers.

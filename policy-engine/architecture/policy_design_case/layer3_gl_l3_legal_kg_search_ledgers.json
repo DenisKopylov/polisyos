@@ -131,7 +131,7 @@
         "credit"
       ],
       "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
-      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "producer_component": "polisyos.runtime.quality.proving_ground.legal_mandate_search",
       "provenance_refs": [],
       "query_trace_refs": [
         "gl-query-trace:threshold:c19bfbbe159c0cbb3eccbd2e"
@@ -287,7 +287,7 @@
         "ua"
       ],
       "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
-      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "producer_component": "polisyos.runtime.quality.proving_ground.legal_mandate_search",
       "provenance_refs": [],
       "query_trace_refs": [
         "gl-query-trace:normative-fact:c19bfbbe159c0cbb3eccbd2e"
@@ -430,7 +430,7 @@
         "effective_from"
       ],
       "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
-      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "producer_component": "polisyos.runtime.quality.proving_ground.legal_mandate_search",
       "provenance_refs": [],
       "query_trace_refs": [
         "gl-query-trace:amendment-lineage:c19bfbbe159c0cbb3eccbd2e"
@@ -598,7 +598,7 @@
         "temporal"
       ],
       "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
-      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "producer_component": "polisyos.runtime.quality.proving_ground.legal_mandate_search",
       "provenance_refs": [],
       "query_trace_refs": [
         "gl-query-trace:provision-source:c19bfbbe159c0cbb3eccbd2e"
@@ -765,7 +765,7 @@
         "reference_resolution"
       ],
       "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
-      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "producer_component": "polisyos.runtime.quality.proving_ground.legal_mandate_search",
       "provenance_refs": [],
       "query_trace_refs": [
         "gl-query-trace:reference-resolution:c19bfbbe159c0cbb3eccbd2e"
@@ -925,7 +925,7 @@
         "subsidized_credit"
       ],
       "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
-      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "producer_component": "polisyos.runtime.quality.proving_ground.legal_mandate_search",
       "provenance_refs": [],
       "query_trace_refs": [
         "gl-query-trace:intervention-map:c19bfbbe159c0cbb3eccbd2e"
@@ -1007,7 +1007,7 @@
         "__policyos_gl_known_no_hit_seed__"
       ],
       "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
-      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "producer_component": "polisyos.runtime.quality.proving_ground.legal_mandate_search",
       "provenance_refs": [],
       "query_trace_refs": [
         "gl-query-trace:no-hit:c19bfbbe159c0cbb3eccbd2e"

@@ -19,7 +19,7 @@
   "burn_down_complete": true,
   "floor_id": "s13_accountability",
   "floor_metric": "a_before_b_ratio_and_attribution_resolution",
-  "producer_module": "src/polisyos/runtime/quality/layer2_post_deploy_accountability.py",
+  "producer_module": "src/polisyos/runtime/quality/design_axes/post_deploy_accountability.py",
   "bridge_modules": [
     "src/polisyos/pdc/_impl/layer2_design_search.py",
     "tools/quality/validation/run_universal_outcome_corpus.py"
@@ -39,12 +39,12 @@
     "AssuranceCaseDelta"
   ],
   "artifact_paths": {
-    "DeploymentDossier": "src/polisyos/runtime/quality/layer2_post_deploy_accountability.py",
-    "DivergenceRecord": "src/polisyos/runtime/quality/layer2_post_deploy_accountability.py",
-    "LearningUpdateProposal": "src/polisyos/runtime/quality/layer2_post_deploy_accountability.py",
-    "EnvelopeRevision": "src/polisyos/runtime/quality/layer2_post_deploy_accountability.py",
-    "CertifiedEnvelopeDelta": "src/polisyos/runtime/quality/layer2_post_deploy_accountability.py",
-    "AssuranceCaseDelta": "src/polisyos/runtime/quality/layer2_post_deploy_accountability.py"
+    "DeploymentDossier": "src/polisyos/runtime/quality/design_axes/post_deploy_accountability.py",
+    "DivergenceRecord": "src/polisyos/runtime/quality/design_axes/post_deploy_accountability.py",
+    "LearningUpdateProposal": "src/polisyos/runtime/quality/design_axes/post_deploy_accountability.py",
+    "EnvelopeRevision": "src/polisyos/runtime/quality/design_axes/post_deploy_accountability.py",
+    "CertifiedEnvelopeDelta": "src/polisyos/runtime/quality/design_axes/post_deploy_accountability.py",
+    "AssuranceCaseDelta": "src/polisyos/runtime/quality/design_axes/post_deploy_accountability.py"
   },
   "summary_id": "layer2.s13.post_deploy_accountability.w12d.summary",
   "case_count": 13,
@@ -178,7 +178,7 @@
   "capability_reality_label": "implemented",
   "missing_capability_labels": [],
   "traceability_refs": {
-    "contract_ref": "repo://src/polisyos/runtime/quality/layer2_post_deploy_accountability.py",
+    "contract_ref": "repo://src/polisyos/runtime/quality/design_axes/post_deploy_accountability.py",
     "producer_ref": "repo://tools/quality/validation/run_universal_outcome_corpus.py#_s13_case_artifacts",
     "persisted_artifact_ref": "repo://architecture/policy_design_case/layer2_s13_post_deploy_accountability_manifest.json",
     "bridge_ref": "repo://src/polisyos/pdc/_impl/layer2_design_search.py#Layer2S13PostDeployAccountabilityPostureInput",

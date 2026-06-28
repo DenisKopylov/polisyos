@@ -1,51 +1,25 @@
 {
   "blocker_refs": [
-    "layer3_g5_cross_slice_checks_not_ready",
-    "layer3_g5_grounded_evidence_ref_missing",
-    "layer3_g5_requested_conversion_not_positive"
+    "layer3_g4_fixture_scoped_grounding_non_authoritative",
+    "layer3_g4_upstream_may_not_use_for_ignored"
   ],
   "conversion_outcome": "unchanged_blocker",
-  "g4_design_scope_status": "missing",
+  "decision_grade": "unsupported",
+  "g4_design_scope_status": "blocked",
   "grounding_disposition": "ungrounded_blocked",
-  "issue_codes": [
-    "layer3_g5_g4_dependency_not_ready",
-    "layer3_g5_gl_pass_with_reissue_required",
-    "layer3_g5_promotion_record_missing",
-    "layer3_g5_no_governed_promotion_record",
-    "layer3_g5_g4_weakest_boundary_record_mismatch",
-    "layer3_g5_g1_source_contract_hash_missing",
-    "layer3_g5_g1_observed_time_missing",
-    "layer3_g5_g1_may_not_use_for_dropped",
-    "layer3_g5_g2_s2_replay_key_ref_missing",
-    "layer3_g5_missing_g2_calibration_ref",
-    "layer3_g5_g3_proof_status_overclaimed",
-    "layer3_g5_duplicate_source_lineage_ref_inflates_independence",
-    "layer3_g5_upstream_scope_join_missing",
-    "layer3_g5_grounded_limited_without_g2_g3_design_support",
-    "layer3_g5_grounded_contract_ref_missing",
-    "layer3_g5_cross_slice_checks_not_ready",
-    "layer3_g5_grounded_evidence_ref_missing",
-    "layer3_g5_requested_conversion_not_positive"
+  "issue_codes": [],
+  "limitation_refs": [
+    "layer3_g5_no_governed_g4_input"
   ],
-  "limitation_refs": [],
+  "may_not_use_for": [],
   "mixed_upstream_statuses": [],
   "produced_by": {
-    "input_hashes": {
-      "repo://architecture/policy_design_case/layer3_g5_demand_pull_attempt_record.json": "sha256:e379912bbbe6c9853771b95a8cda4654af9f87191b456b6a8a38fa85a5cd843a",
-      "repo://architecture/policy_design_case/layer3_g5_dependency_readiness_snapshot.json": "sha256:b82b1a7cee97f5e8eb0d6e2569dbf43fbdab6650ffd8b9bc0df2467246bed4e4",
-      "repo://architecture/policy_design_case/layer3_g5_g4_handoff_resolution.json": "sha256:a83e49471c07650f947c365f9edb0cd198ffb8ae97c965634e07f3b487df7d03",
-      "repo://architecture/policy_design_case/layer3_g5_grounded_result_evidence_set.json": "sha256:40ac6b2258b4735f291185f2bcd9f794306e011a44544351a948e788a0bbe123",
-      "repo://architecture/policy_design_case/layer3_g5_pinned_case_input_bundle.json": "sha256:1054d3fa5386e6f93e9d1a4f7ee68e6ebf74a0bea6923165df1cd01cb0277094",
-      "repo://architecture/policy_design_case/layer3_g5_upstream_scope_join_matrix.json": "sha256:ffb22d1b6543d52a831c1a6ce428da590cd476fb4f3adb76b88319bc6f254ba7"
-    },
-    "output_hash": "sha256:7fd17b5bc44c139fc250cf19753003279c58a2a4c739f7578f4f8cae5b8acaf5",
-    "reducer_id": "reduce_g5_conversion_outcome",
-    "reducer_version": "v1",
-    "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
-    "vocabulary_status_id": "unchanged_blocker"
+    "reason": "no_governed_g4_promotion_input",
+    "reducer_id": "g5_no_governed_promotion_terminal",
+    "rule_version": "policyos.layer3.g5.first_proving_ground_conversion.v1"
   },
   "requested_claim_families": [],
-  "status": "fail",
+  "status": "pass",
   "useful_design_credit_requested": false,
   "weakest_boundary_reason": "missing",
   "weakest_boundary_status": "missing"

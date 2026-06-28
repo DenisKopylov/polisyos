@@ -9,6 +9,7 @@ from .models import (
     ClaimSupportLink,
     FetchResult,
     FetchSafetyEvent,
+    NoHitFrontierRecord,
     QueryGraph,
     QueryNode,
     ResearchBrief,
@@ -32,9 +33,11 @@ from .planner import (
 from .providers import (
     BraveSearchProvider,
     DuckDuckGoHtmlSearchProvider,
+    OpenAlexWorksProvider,
     ProviderFailoverPolicy,
     WebSearchProvider,
     WikipediaOpenSearchProvider,
+    reconstruct_openalex_abstract,
 )
 from .scoring import (
     anti_seo_score,
@@ -62,6 +65,8 @@ __all__ = [
     "DuckDuckGoHtmlSearchProvider",
     "FetchResult",
     "FetchSafetyEvent",
+    "NoHitFrontierRecord",
+    "OpenAlexWorksProvider",
     "ProviderFailoverPolicy",
     "QueryGraph",
     "QueryNode",
@@ -94,6 +99,7 @@ __all__ = [
     "find_in_page",
     "lexical_support_score",
     "plan_query_graph",
+    "reconstruct_openalex_abstract",
     "sanitize_untrusted_text",
     "score_search_hit",
     "source_id_from_url",

@@ -7,8 +7,9 @@ import tomllib
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Protocol, cast
 
+from polisyos.pdc import ApplicabilityResult
 from polisyos.runtime.quality.source_truth import (
     DEFAULT_SOURCE_TRUTH_LATTICE_PATH,
     MINIMUM_AUTHORITY_FIELD_FAMILIES,
@@ -115,6 +116,328 @@ class AdapterSemanticDifference:
     lost_fields: tuple[str, ...]
     missing_fields: tuple[str, ...]
     conflicting_fields: tuple[str, ...]
+
+
+WORKSPACE_FAIL_CLOSED_CONNECTORS = frozenset({"rest.json", "unpd", "ukons"})
+WORKSPACE_EXECUTION_READY_CONNECTORS = frozenset(
+    {"worldbank.wdi", "worldbank", "worldbank.enterprise"}
+)
+WORKSPACE_SOURCE_CONTRACT_FACETS = frozenset(
+    {
+        "authority_profile",
+        "connector",
+        "construct",
+        "coverage",
+        "freshness",
+        "granularity",
+        "jurisdiction",
+        "license",
+        "lineage",
+        "population",
+        "quality_floor",
+        "rule_version",
+        "scope",
+        "source_class",
+        "source_contract",
+        "time_horizon",
+        "variables",
+    }
+)
+
+
+class _OperationContractLike(Protocol):
+    formal_preconditions: list[dict[str, Any]]
+
+
+class _OperationRegistrationLike(Protocol):
+    operation_id: str
+    contract: _OperationContractLike
+    executable: bool
+    discovered_from: str
+    discovery_evidence: dict[str, Any]
+
+
+class FormalGate:
+    """Evaluate operation formal preconditions into GY ApplicabilityResult."""
+
+    def evaluate(
+        self,
+        *,
+        registration: _OperationRegistrationLike,
+        invocation_id: str,
+        result_id: str,
+        facts: dict[str, Any] | None = None,
+    ) -> ApplicabilityResult:
+        """Return an applicability verdict for one operation invocation."""
+
+        facts_by_predicate = facts or {}
+        checked: list[dict[str, Any]] = []
+        failed: list[dict[str, Any]] = []
+        for precondition in registration.contract.formal_preconditions:
+            predicate_id = str(precondition.get("predicate_id") or "")
+            severity = str(precondition.get("severity") or "hard")
+            fact = _formal_fact_payload(facts_by_predicate.get(predicate_id))
+            passed = bool(fact.get("passed", False))
+            reason = str(fact.get("reason") or ("passed" if passed else "missing_runtime_fact"))
+            checked_item = {
+                **precondition,
+                "status": "passed" if passed else "failed",
+                "reason": reason,
+                "operation_id": registration.operation_id,
+                "discovered_from": registration.discovered_from,
+                "discovery_evidence": registration.discovery_evidence,
+                "rule_version": "policyos.gy.formal_gate.v1",
+            }
+            if fact.get("evidence_ref") is not None:
+                checked_item["evidence_ref"] = fact["evidence_ref"]
+            if fact.get("observed") is not None:
+                checked_item["observed"] = fact["observed"]
+            checked.append(checked_item)
+            if not passed and severity == "hard":
+                failed.append(
+                    {
+                        "predicate_id": predicate_id,
+                        "reason": reason,
+                        "severity": severity,
+                    }
+                )
+        if registration.executable and not checked:
+            failed.append(
+                {
+                    "predicate_id": "slice0.formal_preconditions_missing",
+                    "reason": "Executable operation has no formal preconditions.",
+                    "severity": "hard",
+                }
+            )
+        return ApplicabilityResult(
+            result_id=result_id,
+            invocation_id=invocation_id,
+            status="repair_required" if failed else "applicable",
+            checked_preconditions=checked,
+            failed_preconditions=failed,
+            type_errors=[],
+            repair_options=[
+                {
+                    "kind": "operation_contract_repair",
+                    "operation_id": registration.operation_id,
+                    "failed_preconditions": [
+                        item["predicate_id"] for item in failed if item.get("predicate_id")
+                    ],
+                }
+            ]
+            if failed
+            else [],
+        )
+
+
+def _formal_fact_payload(value: object) -> dict[str, Any]:
+    if isinstance(value, dict):
+        return dict(value)
+    if value is None:
+        return {"passed": False, "reason": "missing_runtime_fact"}
+    return {"passed": bool(value)}
+
+
+class ConnectorAdmissionGate:
+    """Per-connector fail-closed applicability gate for workspace fetch admission."""
+
+    def evaluate(self, connector_type: str) -> ApplicabilityResult:
+        """Return whether a connector profile is execution-ready for the workspace loop."""
+
+        normalized = connector_type.strip().lower()
+        result_id = f"connector-{_slug(normalized)}"
+        checked = [{"connector_type": normalized, "rule": "slice0_execution_ready"}]
+        if normalized in WORKSPACE_EXECUTION_READY_CONNECTORS:
+            return ApplicabilityResult(
+                result_id=result_id,
+                invocation_id="invoke-connector-admission",
+                status="applicable",
+                checked_preconditions=checked,
+                failed_preconditions=[],
+                type_errors=[],
+                repair_options=[],
+            )
+        reason = (
+            "connector_profile_declared_fail_closed"
+            if normalized in WORKSPACE_FAIL_CLOSED_CONNECTORS
+            else "connector_profile_not_execution_ready"
+        )
+        return ApplicabilityResult(
+            result_id=result_id,
+            invocation_id="invoke-connector-admission",
+            status="repair_required",
+            checked_preconditions=checked,
+            failed_preconditions=[{"connector_type": normalized, "reason": reason}],
+            type_errors=[],
+            repair_options=[
+                {
+                    "kind": "connector_contract_repair",
+                    "reason": reason,
+                }
+            ],
+        )
+
+
+class DataRequirementAdmissionGate:
+    """VERIFY precondition gate for the source-contract/DataRequirement facets."""
+
+    def evaluate(self, requirement: object) -> ApplicabilityResult:
+        """Fail closed when any mandatory source-contract facet lacks semantic values."""
+
+        if hasattr(requirement, "model_dump"):
+            payload = cast("dict[str, object]", requirement.model_dump(mode="json"))
+        elif isinstance(requirement, dict):
+            payload = cast("dict[str, object]", requirement)
+        else:
+            payload = {}
+        source_contract = _source_contract_payload_from_requirement(payload)
+        raw_mandatory = payload.get("mandatory_facets") or ()
+        mandatory = (
+            {str(facet) for facet in raw_mandatory}
+            if isinstance(raw_mandatory, (list, tuple, set))
+            else set()
+        )
+        mandatory |= WORKSPACE_SOURCE_CONTRACT_FACETS
+        raw_facet_values = source_contract.get("facet_values") or payload.get("facet_values") or {}
+        facet_values = raw_facet_values if isinstance(raw_facet_values, dict) else {}
+        checked: list[dict[str, Any]] = []
+        failed: list[dict[str, str]] = []
+        for facet in sorted(mandatory):
+            value = facet_values.get(facet)
+            issue = _semantic_source_contract_value_issue(facet, value)
+            checked.append(
+                {
+                    "facet": facet,
+                    "rule": "slice0_source_contract_16_facets",
+                    "value_present": value is not None,
+                    "semantic_value_present": issue is None,
+                }
+            )
+            if issue is not None:
+                failed.append({"facet": facet, "reason": issue})
+        return ApplicabilityResult(
+            result_id=f"datareq-{_slug(str(payload.get('requirement_id') or 'source-contract'))}",
+            invocation_id="invoke-source-contract-admission",
+            status="repair_required" if failed else "applicable",
+            checked_preconditions=checked,
+            failed_preconditions=failed,
+            type_errors=[],
+            repair_options=[
+                {
+                    "kind": "source_contract_completion",
+                    "missing_facets": [item["facet"] for item in failed],
+                }
+            ]
+            if failed
+            else [],
+        )
+
+
+def evaluate_operation_adapter_conformance(
+    *,
+    required_contract: str,
+    registry_candidates: Sequence[str],
+    consumes_ports: Sequence[str],
+    produces_ports: Sequence[str],
+    preservation_passed: bool,
+    smoke_passed: bool,
+    no_candidate_reason: str = "no_registry_candidate",
+) -> dict[str, Any]:
+    """Compute adapter conformance from registry, port, preservation, and smoke facts."""
+
+    failures: list[str] = []
+    if not registry_candidates:
+        failures.append(no_candidate_reason)
+    if not consumes_ports:
+        failures.append("declared_consumes_ports_missing")
+    if not produces_ports:
+        failures.append("declared_produces_ports_missing")
+    if not preservation_passed:
+        failures.append("adapter_preservation_failed")
+    if not smoke_passed:
+        failures.append("adapter_smoke_failed")
+    return {
+        "passed": not failures,
+        "required_contract": required_contract,
+        "registry_candidate_count": len(tuple(registry_candidates)),
+        "registry_candidates": list(registry_candidates),
+        "consumes_ports": list(consumes_ports),
+        "produces_ports": list(produces_ports),
+        "preservation_passed": preservation_passed,
+        "smoke_passed": smoke_passed,
+        "failures": failures,
+    }
+
+
+def _semantic_source_contract_value_issue(facet: str, value: object) -> str | None:
+    if value is None:
+        return "missing_semantic_source_contract_value"
+    if isinstance(value, str):
+        normalized = value.strip().lower()
+        if not normalized or normalized in {
+            "unknown",
+            "none",
+            "null",
+            "catalog_source_registry_open_access_unspecified_license",
+        }:
+            return "missing_semantic_source_contract_value"
+        if normalized.startswith("facet:"):
+            return "fabricated_source_contract_value"
+        return None
+    if facet == "variables":
+        if not isinstance(value, Sequence) or isinstance(value, (str, bytes)):
+            return "missing_semantic_source_contract_value"
+        if not [item for item in value if str(item).strip()]:
+            return "missing_semantic_source_contract_value"
+        return None
+    if not isinstance(value, Mapping):
+        return None
+    if facet == "coverage":
+        coverage = value.get("catalog_coverage")
+        if not isinstance(coverage, Mapping):
+            return "missing_semantic_source_contract_value"
+        has_space = bool(coverage.get("countries") or coverage.get("regions"))
+        has_time = bool(coverage.get("time_start") or coverage.get("time_end"))
+        if not value.get("jurisdiction") or not value.get("population") or not has_space or not has_time:
+            return "missing_semantic_source_contract_value"
+    if facet == "lineage":
+        if not value.get("catalog_dataset_id") or not value.get("source_dataset_id"):
+            return "missing_semantic_source_contract_value"
+        if not value.get("source_registry_ref"):
+            return "missing_semantic_source_contract_value"
+    if facet == "quality_floor":
+        score = value.get("distribution_quality_score")
+        minimum = value.get("min_quality_score")
+        if not isinstance(score, (int, float)) or not isinstance(minimum, (int, float)):
+            return "missing_semantic_source_contract_value"
+        if float(score) < float(minimum):
+            return "source_contract_quality_floor_failed"
+    if facet == "scope" and (not value.get("query") or not value.get("time_horizon")):
+        return "missing_semantic_source_contract_value"
+    if facet == "source_contract":
+        if value.get("validation_status") != "source_registry_verified":
+            return "missing_semantic_source_contract_value"
+        if not value.get("candidate_ref"):
+            return "missing_semantic_source_contract_value"
+    return None
+
+
+def _source_contract_payload_from_requirement(payload: dict[str, object]) -> dict[str, Any]:
+    metadata = payload.get("metadata")
+    if isinstance(metadata, dict):
+        source_contract = metadata.get("gy_source_contract")
+        if isinstance(source_contract, dict):
+            return dict(source_contract)
+    source_contract = payload.get("source_contract_requirement")
+    if isinstance(source_contract, dict):
+        return dict(source_contract)
+    return {}
+
+
+def _slug(value: str) -> str:
+    normalized = "".join(char.lower() if char.isalnum() else "-" for char in value)
+    compact = "-".join(part for part in normalized.split("-") if part)
+    return compact or "item"
 
 
 def adapter_surface_payload_from_envelope(
@@ -474,6 +797,9 @@ def _present(value: object) -> bool:
 
 
 __all__ = [
+    "WORKSPACE_EXECUTION_READY_CONNECTORS",
+    "WORKSPACE_FAIL_CLOSED_CONNECTORS",
+    "WORKSPACE_SOURCE_CONTRACT_FACETS",
     "AdapterContract",
     "AdapterContractError",
     "AdapterContractRegistry",
@@ -481,6 +807,9 @@ __all__ = [
     "AdapterPreservationReport",
     "AdapterSemanticDifference",
     "AdapterSurfacePayload",
+    "ConnectorAdmissionGate",
+    "DataRequirementAdmissionGate",
+    "FormalGate",
     "adapter_surface_payload_from_envelope",
     "load_adapter_contract_registry",
     "validate_adapter_preservation",

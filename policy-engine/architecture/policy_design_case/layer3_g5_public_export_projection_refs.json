@@ -9,9 +9,8 @@
     "capability_reality_state": "implemented_but_not_orchestrated",
     "closeout_truth": {
       "blocker_codes": [
-        "layer3_g5_cross_slice_checks_not_ready",
-        "layer3_g5_grounded_evidence_ref_missing",
-        "layer3_g5_requested_conversion_not_positive"
+        "layer3_g4_fixture_scoped_grounding_non_authoritative",
+        "layer3_g4_upstream_may_not_use_for_ignored"
       ],
       "can_closeout": false,
       "status": "blocked",
@@ -80,9 +79,8 @@
     "capability_reality_state": "implemented_but_not_orchestrated",
     "closeout_truth": {
       "blocker_codes": [
-        "layer3_g5_cross_slice_checks_not_ready",
-        "layer3_g5_grounded_evidence_ref_missing",
-        "layer3_g5_requested_conversion_not_positive"
+        "layer3_g4_fixture_scoped_grounding_non_authoritative",
+        "layer3_g4_upstream_may_not_use_for_ignored"
       ],
       "can_closeout": false,
       "status": "blocked",
@@ -151,9 +149,8 @@
     "capability_reality_state": "implemented_but_not_orchestrated",
     "closeout_truth": {
       "blocker_codes": [
-        "layer3_g5_cross_slice_checks_not_ready",
-        "layer3_g5_grounded_evidence_ref_missing",
-        "layer3_g5_requested_conversion_not_positive"
+        "layer3_g4_fixture_scoped_grounding_non_authoritative",
+        "layer3_g4_upstream_may_not_use_for_ignored"
       ],
       "blockers": [],
       "can_closeout": false,
@@ -244,9 +241,8 @@
     "capability_reality_state": "implemented_but_not_orchestrated",
     "closeout_truth": {
       "blocker_codes": [
-        "layer3_g5_cross_slice_checks_not_ready",
-        "layer3_g5_grounded_evidence_ref_missing",
-        "layer3_g5_requested_conversion_not_positive"
+        "layer3_g4_fixture_scoped_grounding_non_authoritative",
+        "layer3_g4_upstream_may_not_use_for_ignored"
       ],
       "can_closeout": false,
       "status": "blocked",
@@ -457,7 +453,7 @@
       "override_rate_trend": "",
       "pareto_archive_ref": "",
       "residual_limitation_refs": [],
-      "resource_allocation_disposition": "",
+      "resource_allocation_disposition": "candidate_only",
       "resource_allocation_policy_ref": "s12://layer3-g5/resource-economics",
       "reuse_rate_trend": "",
       "rule_version_ref": "",

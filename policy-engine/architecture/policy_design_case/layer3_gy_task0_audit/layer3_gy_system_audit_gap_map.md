@@ -206,7 +206,7 @@ Follow-up completed: see `layer3_gy_agent_workflow_event_backing_audit.json` and
 
 Observed result: the NL runtime path really invokes PI, DataNeedExtractor, Drafter, Formalizer, and Critic, and a simulated no-network NL probe produced `13` model-variant steps including those roles. `/runs/{run_id}/agents` projects those steps through `experiment_state.params.llm_model_variants`, so they are runtime-visible. However, they are not yet G6 event-backed assets: PI/drafter/formalizer/critic have no dedicated persisted role-event artifacts, and committed G6 `AgentRunRecord` artifacts are readiness projections for `req-layer3-g6-readiness`, not live NL run records.
 
-The serious-profile probe also proved `prompt_tool_ledger_ref` persistence to CAS and report index, but that ledger is built from model-variant steps and had `tool_names=[]`; it is parser/status lineage, not `ToolLoopResult` backing. `nl_pipeline.py` has no `run_tool_loop` invocation; the real tool loop exists in `runtime/quality/layer3_bounded_agent.py` for G6 quality projection only.
+The serious-profile probe also proved `prompt_tool_ledger_ref` persistence to CAS and report index, but that ledger is built from model-variant steps and had `tool_names=[]`; it is parser/status lineage, not `ToolLoopResult` backing. `nl_pipeline.py` has no `run_tool_loop` invocation; the real tool loop exists in `runtime/quality/proving_ground/bounded_request_agent.py` for G6 quality projection only.
 
 Validator: `tools/quality/validation/check_layer3_gy_agent_workflow_event_backing_audit.py`.
 
@@ -218,7 +218,7 @@ GX validates reducer provenance, but a full-system audit also needs to know whet
 
 Evidence points:
 
-- `src/polisyos/runtime/quality/layer3_status_reducers.py`
+- `src/polisyos/runtime/quality/proving_ground/status_decision_reducers.py`
 - `src/polisyos/runtime/quality/public_export.py`
 - `src/polisyos/runtime/quality/authority.py`
 - `architecture/generated_artifacts.toml`

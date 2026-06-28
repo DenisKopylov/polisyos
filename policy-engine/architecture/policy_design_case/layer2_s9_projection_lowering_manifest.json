@@ -12,7 +12,7 @@
   "layer_cells_advanced": [
     "DESIGNER_ITSELF.closeout_projection_ratchet"
   ],
-  "producer_module": "src/polisyos/runtime/quality/layer2_projection_lowering.py",
+  "producer_module": "src/polisyos/runtime/quality/design_axes/projection_lowering.py",
   "expected_current_open_cell_count": 3,
   "floor_id": "s9_projection_faithfulness",
   "floor_metric": "projection_faithfulness_pass_rate",

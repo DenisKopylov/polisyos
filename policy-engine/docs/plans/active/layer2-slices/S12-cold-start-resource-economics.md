@@ -89,7 +89,7 @@ delegation, ratchet, VOI, and Pareto substrates:
   authority-boundary base. S12 reuses the VOI currency; it must not invent a
   second VOI vocabulary.
 - `src/polisyos/runtime/quality/acquisition_planner.py` and
-  `src/polisyos/runtime/quality/layer2_substrate_acquisition.py` already rank
+  `src/polisyos/runtime/quality/design_axes/substrate_acquisition.py` already rank
   acquisition by VOI (S3). S12 consumes the acquisition VOI site; it does not
   rebuild the acquisition loop.
 - The S0 `MinimalSeedManifest`
@@ -98,7 +98,7 @@ delegation, ratchet, VOI, and Pareto substrates:
   `["compute", "acquisition", "expert_time", "human_attention",
   "legal_access"]`. S12 carries all five budget kinds from the seed manifest; it
   must not invent budget kinds or treat them as interchangeable.
-- `src/polisyos/runtime/quality/layer2_delegation.py` (S7) already owns the
+- `src/polisyos/runtime/quality/design_axes/mandate_bounded_delegation.py` (S7) already owns the
   `DelegationContract` with `compute_budget_ref`, `acquisition_budget_ref`, and
   `human_attention_budget_ref` (the per-principal refs for three of the five
   seed-manifest budgets), plus `maximum_stakes_band`, `value_policy_ref`, and
@@ -121,7 +121,7 @@ delegation, ratchet, VOI, and Pareto substrates:
   never a new `DelegationContract` field. S12 never self-sets the dial
   (`meta_regress_past_principal` firewall). S12 does not create delegation
   authority or an attention ledger (that minimal ledger remains future work).
-- `src/polisyos/runtime/quality/layer2_value_choice.py` (S8) already owns
+- `src/polisyos/runtime/quality/design_axes/value_choice_provenance.py` (S8) already owns
   `ParetoArchive`. S12 presents allocation-policy tradeoffs as a Pareto frontier
   by reusing that archive shape; it must not collapse the frontier into a hidden
   scalar and must not select a policy without the principal's dial.
@@ -134,7 +134,7 @@ delegation, ratchet, VOI, and Pareto substrates:
 - `src/polisyos/pdc/_impl/layer2_design_search.py` already carries the
   S5/S6/S7/S8/S10/S11 injected-posture pattern. S12 adds
   `Layer2S12ResourceEconomicsPostureInput` and passes it as data. PDC search
-  must not import `polisyos.runtime.quality.layer2_resource_economics` or call
+  must not import `polisyos.runtime.quality.design_axes.resource_economics` or call
   S12 producer helpers directly.
 
 Boundary rule: S12 can produce allocation/ledger/thermometer artifacts and PDC
@@ -249,12 +249,12 @@ Current S12 anchors:
   must add the remaining S12 growth artifacts instead of pretending the
   throughput ledger alone is the capability.
 - `ValueOfInformationEstimate` is an S0 artifact and is already consumed in
-  `src/polisyos/runtime/quality/layer2_substrate_acquisition.py` (acquisition),
+  `src/polisyos/runtime/quality/design_axes/substrate_acquisition.py` (acquisition),
   `src/polisyos/pdc/_impl/layer2_design_search.py` (refinement), and
   `src/polisyos/runtime/quality/consultation.py`. S12 must coordinate these
   through a shared allocation, then add the missing sites (attention via S7,
   oracle via S4/S5/S8 override seeds, allocation via S12 itself).
-- `src/polisyos/runtime/quality/layer2_delegation.py` exposes
+- `src/polisyos/runtime/quality/design_axes/mandate_bounded_delegation.py` exposes
   `compute_budget_ref`, `acquisition_budget_ref`, `human_attention_budget_ref`
   on `DelegationContract`. The explore/exploit dial is a principal act; S12
   reads it as a ref, never sets it.
@@ -543,7 +543,7 @@ Authority boundary:
 
 Create:
 
-- `src/polisyos/runtime/quality/layer2_resource_economics.py`
+- `src/polisyos/runtime/quality/design_axes/resource_economics.py`
 - `tests/unit/runtime/quality/test_layer2_s12_resource_economics.py`
 - `tests/fixtures/layer2/s12/s12_resource_economics_case_signals.json`
 - `tests/fixtures/layer2/s12/s12_resource_economics_expert_labels.json`
@@ -771,7 +771,7 @@ optimizer.
 
 **Files:**
 
-- Create: `src/polisyos/runtime/quality/layer2_resource_economics.py`
+- Create: `src/polisyos/runtime/quality/design_axes/resource_economics.py`
 - Modify: `src/polisyos/runtime/quality/__init__.py`
 - Test: `tests/unit/runtime/quality/test_layer2_s12_resource_economics.py`
 
@@ -939,7 +939,7 @@ block. Run:
 ```bash
 cd /Users/deniskopylov/polisyos/policy-engine
 uv run pytest tests/unit/runtime/quality/test_layer2_s12_resource_economics.py -q
-uv run ruff check src/polisyos/runtime/quality/layer2_resource_economics.py \
+uv run ruff check src/polisyos/runtime/quality/design_axes/resource_economics.py \
   src/polisyos/runtime/quality/__init__.py \
   tests/unit/runtime/quality/test_layer2_s12_resource_economics.py
 ```
@@ -947,7 +947,7 @@ uv run ruff check src/polisyos/runtime/quality/layer2_resource_economics.py \
 Expected: runtime S12 tests pass; ruff clean. Commit:
 
 ```bash
-git add src/polisyos/runtime/quality/layer2_resource_economics.py \
+git add src/polisyos/runtime/quality/design_axes/resource_economics.py \
   src/polisyos/runtime/quality/__init__.py \
   tests/unit/runtime/quality/test_layer2_s12_resource_economics.py
 git commit -m "feat: add layer2 s12 resource economics contracts" \
@@ -1235,7 +1235,7 @@ In `architecture/policy_design_case/cluster_ownership_map.toml`:
 - remove `[open_cell_closure.DESIGNER_ITSELF.envelope_growth]` (this empties the
   open-cell-closure set).
 - update `[cell.DESIGNER_ITSELF.envelope_growth]`:
-  - `owner_module = "src/polisyos/runtime/quality/layer2_resource_economics.py"`
+  - `owner_module = "src/polisyos/runtime/quality/design_axes/resource_economics.py"`
   - `ratchet_state = "implemented"`
   - `p01_chain = "implemented"`
   - `gap = "none_for_s12_resource_economics_scope"`

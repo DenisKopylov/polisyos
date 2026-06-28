@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 from typing import Literal
 
 from pydantic import Field, model_validator
@@ -12,7 +12,7 @@ from .merge_rules import ConflictResolution, MergeRuleRef
 from .units import UnitRef
 
 
-class SlotKind(str, Enum):
+class SlotKind(StrEnum):
     """Slot kind public type."""
 
     STOCK = "stock"
@@ -20,7 +20,7 @@ class SlotKind(str, Enum):
     PARAMETER = "parameter"
 
 
-class SlotScope(str, Enum):
+class SlotScope(StrEnum):
     """Slot scope public type."""
 
     GLOBAL = "global"
@@ -30,13 +30,14 @@ class SlotScope(str, Enum):
     PER_ENTITY = "per_entity"
 
 
-class SlotValueType(str, Enum):
+class SlotValueType(StrEnum):
     """Slot value type public type."""
 
     BOOL = "bool"
     INT = "int"
     DECIMAL = "decimal"
     STRING = "string"
+    VALUE_OUTER_SET = "value_outer_set"
 
 
 class MergeOverride(KernelModel):
@@ -399,6 +400,16 @@ DEFAULT_SLOT_REGISTRY = SlotRegistry(
             merge_rule=MergeRuleRef(rule_id="override"),
             state_path="household_cells.transfer_intensity",
             description="Transfer intensity per household cell",
+            reset_rule="carry",
+        ),
+        "household_cells.value_outer_set": SlotSpec(
+            slot_id="household_cells.value_outer_set",
+            scope=SlotScope.PER_CELL,
+            value_type=SlotValueType.VALUE_OUTER_SET,
+            kind=SlotKind.STOCK,
+            merge_rule=MergeRuleRef(rule_id="override"),
+            state_path="household_cells.value_outer_set",
+            description="GY-N-V set-valued household value envelope",
             reset_rule="carry",
         ),
     }

@@ -40,16 +40,28 @@ allowed_targets = []
 notes = "Dynamic pattern has no static in-repo target."
 
 [[pattern]]
-id = "dynamic-848fd6ca70bf"
+id = "dynamic-0a2665d01750"
 pattern = "f'{__name__}.{name}'"
 source_file = "src/polisyos/core/__init__.py"
-line = 68
+line = 79
 call = "importlib.import_module"
 owner = "team-architecture"
 target = "f'{__name__}.{name}'"
 verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
 allowed_targets = []
 notes = "Dynamic pattern has no static in-repo target."
+
+[[pattern]]
+id = "dynamic-874a88950366"
+pattern = "module_name"
+source_file = "src/polisyos/core/__init__.py"
+line = 84
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
 
 [[pattern]]
 id = "dynamic-d5d9e46d26c8"
@@ -556,7 +568,7 @@ allowed_targets = []
 notes = "Entry-point group is registered; no in-repo target is declared in pyproject."
 
 [[pattern]]
-id = "dynamic-abf2ff6cb334"
+id = "dynamic-d3784cc06349"
 pattern = "_LAZY_IMPORTS[name]"
 source_file = "src/polisyos/core/contracts/__init__.py"
 line = 974
@@ -712,7 +724,7 @@ allowed_targets = []
 notes = "Dynamic pattern has no static in-repo target."
 
 [[pattern]]
-id = "dynamic-4cda7e22687c"
+id = "dynamic-d5525279c5ba"
 pattern = "polisyos.scientist.policy_design"
 source_file = "src/polisyos/data_requirement/compiler.py"
 line = 498
@@ -1444,7 +1456,7 @@ allowed_targets = []
 notes = "Dynamic pattern has no static in-repo target."
 
 [[pattern]]
-id = "dynamic-a8e22f052949"
+id = "dynamic-42c906379e48"
 pattern = "module_name"
 source_file = "src/polisyos/lex/__init__.py"
 line = 199
@@ -1480,10 +1492,10 @@ allowed_targets = []
 notes = "User/plugin supplied module name; call site is inventoried for review."
 
 [[pattern]]
-id = "dynamic-84420a335cab"
+id = "dynamic-a4a2046b3d39"
 pattern = "psycopg"
 source_file = "src/polisyos/runtime/http/services/control_plane_store.py"
-line = 2358
+line = 2399
 call = "importlib.import_module"
 owner = "team-architecture"
 target = "psycopg"
@@ -1492,9 +1504,33 @@ allowed_targets = []
 notes = "Dynamic pattern has no static in-repo target."
 
 [[pattern]]
-id = "dynamic-6cb3648c3c8d"
+id = "dynamic-072da0f93eb4"
+pattern = "polisyos.scientist"
+source_file = "src/polisyos/runtime/quality/workspace/agent_proposal_bridge.py"
+line = 70
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.scientist"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-0a53c9cd667f"
+pattern = "polisyos.scientist.agent.tools.tool_loop"
+source_file = "src/polisyos/runtime/quality/workspace/agent_proposal_bridge.py"
+line = 71
+call = "importlib.import_module"
+owner = "team-architecture"
+target = "polisyos.scientist.agent.tools.tool_loop"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = ["polisyos.scientist.agent.tools.tool_loop"]
+notes = "Fail-closed whitelist: every target must resolve."
+
+[[pattern]]
+id = "dynamic-bbc04db377cc"
 pattern = "polisyos.ir.schemas.catalog"
-source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+source_file = "src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py"
 line = 1025
 call = "importlib.import_module"
 owner = "team-architecture"
@@ -1504,9 +1540,9 @@ allowed_targets = ["polisyos.ir.schemas.catalog"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-a62376380851"
+id = "dynamic-ded6bc38224f"
 pattern = "polisyos.core.artifacts.store"
-source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+source_file = "src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py"
 line = 1207
 call = "importlib.import_module"
 owner = "team-architecture"
@@ -1516,9 +1552,9 @@ allowed_targets = ["polisyos.core.artifacts.store"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-df9ef897884f"
+id = "dynamic-3db2127457c0"
 pattern = "polisyos.ir.analytics.causal"
-source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+source_file = "src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py"
 line = 1476
 call = "importlib.import_module"
 owner = "team-architecture"
@@ -1528,9 +1564,9 @@ allowed_targets = ["polisyos.ir.analytics.causal"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-c9af37703c41"
+id = "dynamic-1965891066b0"
 pattern = "polisyos.scientist.policy_design.baseline_compiler"
-source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+source_file = "src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py"
 line = 3098
 call = "importlib.import_module"
 owner = "team-architecture"
@@ -1540,9 +1576,9 @@ allowed_targets = ["polisyos.scientist.policy_design.baseline_compiler"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-9caf2019d3bf"
+id = "dynamic-7c253e1ab673"
 pattern = "polisyos.ir.analytics.causal"
-source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+source_file = "src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py"
 line = 4063
 call = "importlib.import_module"
 owner = "team-architecture"
@@ -1552,9 +1588,9 @@ allowed_targets = ["polisyos.ir.analytics.causal"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-3e1b61a1701a"
+id = "dynamic-f9fec630f62f"
 pattern = "polisyos.ir.registry.refs"
-source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+source_file = "src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py"
 line = 4064
 call = "importlib.import_module"
 owner = "team-architecture"
@@ -1564,9 +1600,9 @@ allowed_targets = ["polisyos.ir.registry.refs"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-947238fd6e03"
+id = "dynamic-a74ff9f81826"
 pattern = "polisyos.ir.analytics.negative_certificate"
-source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+source_file = "src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py"
 line = 4075
 call = "importlib.import_module"
 owner = "team-architecture"
@@ -1576,9 +1612,9 @@ allowed_targets = ["polisyos.ir.analytics.negative_certificate"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-1b901e84b45e"
+id = "dynamic-75a378451411"
 pattern = "polisyos.ir.registry.refs"
-source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+source_file = "src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py"
 line = 4078
 call = "importlib.import_module"
 owner = "team-architecture"
@@ -1588,9 +1624,9 @@ allowed_targets = ["polisyos.ir.registry.refs"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-4c089ec5889f"
+id = "dynamic-0a71fac1cdf6"
 pattern = "polisyos.ir.analytics.proof_composability"
-source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+source_file = "src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py"
 line = 4092
 call = "importlib.import_module"
 owner = "team-architecture"
@@ -1600,9 +1636,9 @@ allowed_targets = ["polisyos.ir.analytics.proof_composability"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-b2d93c033d5c"
+id = "dynamic-d1fbe93b6769"
 pattern = "polisyos.ir.registry.refs"
-source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+source_file = "src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py"
 line = 4095
 call = "importlib.import_module"
 owner = "team-architecture"
@@ -1612,9 +1648,9 @@ allowed_targets = ["polisyos.ir.registry.refs"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-95313aa19d8e"
+id = "dynamic-f7c49ba983db"
 pattern = "polisyos.ir.analytics.partial_identification"
-source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+source_file = "src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py"
 line = 4110
 call = "importlib.import_module"
 owner = "team-architecture"
@@ -1624,9 +1660,9 @@ allowed_targets = ["polisyos.ir.analytics.partial_identification"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-656b795323ca"
+id = "dynamic-f14b477dc1ac"
 pattern = "polisyos.ir.registry.refs"
-source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+source_file = "src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py"
 line = 4113
 call = "importlib.import_module"
 owner = "team-architecture"
@@ -1636,9 +1672,9 @@ allowed_targets = ["polisyos.ir.registry.refs"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-19e35e20b9fb"
+id = "dynamic-0e74c04c4e7d"
 pattern = "polisyos.ir.analytics.dual_certificate"
-source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+source_file = "src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py"
 line = 4124
 call = "importlib.import_module"
 owner = "team-architecture"
@@ -1648,9 +1684,9 @@ allowed_targets = ["polisyos.ir.analytics.dual_certificate"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-3b67011d15c0"
+id = "dynamic-2326ebb40f6e"
 pattern = "polisyos.ir.registry.refs"
-source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+source_file = "src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py"
 line = 4125
 call = "importlib.import_module"
 owner = "team-architecture"
@@ -1660,9 +1696,9 @@ allowed_targets = ["polisyos.ir.registry.refs"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-afb3ea23b091"
+id = "dynamic-72c6ec34434f"
 pattern = "module_name"
-source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+source_file = "src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py"
 line = 4544
 call = "importlib.import_module"
 owner = "team-architecture"
@@ -1672,9 +1708,9 @@ allowed_targets = []
 notes = "User/plugin supplied module name; call site is inventoried for review."
 
 [[pattern]]
-id = "dynamic-b0cd192386c5"
+id = "dynamic-47b5b5d6d8bc"
 pattern = "module_name"
-source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+source_file = "src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py"
 line = 4564
 call = "importlib.import_module"
 owner = "team-architecture"
@@ -1684,9 +1720,9 @@ allowed_targets = []
 notes = "User/plugin supplied module name; call site is inventoried for review."
 
 [[pattern]]
-id = "dynamic-3979455daa2b"
+id = "dynamic-2838df400a59"
 pattern = "polisyos.scientist.evidence.claims.models"
-source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+source_file = "src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py"
 line = 4813
 call = "importlib.import_module"
 owner = "team-architecture"
@@ -1696,9 +1732,9 @@ allowed_targets = ["polisyos.scientist.evidence.claims.models"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-b7c152c1407f"
+id = "dynamic-474b53418c87"
 pattern = "polisyos.scientist.policy_design.claim_decomposition"
-source_file = "src/polisyos/runtime/quality/layer3_analytics_search.py"
+source_file = "src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py"
 line = 4814
 call = "importlib.import_module"
 owner = "team-architecture"
@@ -1732,10 +1768,10 @@ allowed_targets = []
 notes = "User/plugin supplied module name; call site is inventoried for review."
 
 [[pattern]]
-id = "dynamic-9b5a07976878"
+id = "dynamic-6e3e53119953"
 pattern = "module_name"
 source_file = "src/polisyos/scientist/__init__.py"
-line = 77
+line = 84
 call = "importlib.import_module"
 owner = "team-scientist"
 target = "module_name"
@@ -2390,3 +2426,51 @@ target = "f'{__name__}.{module_info.name}'"
 verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
 allowed_targets = []
 notes = "Tooling dynamic import; inventoried but no decomposition target."
+
+[[pattern]]
+id = "dynamic-gy-s3-foundry-catalog"
+pattern = "polisyos.foundry.methods.catalog"
+source_file = "src/polisyos/runtime/quality/intervention_substrate.py"
+line = 491
+call = "importlib.import_module"
+owner = "team-runtime-quality"
+target = "polisyos.foundry.methods.catalog"
+verifier = "tools/quality/validation/check_layer3_gy_intervention_substrate_contract.py --check"
+allowed_targets = ["polisyos.foundry.methods.catalog"]
+notes = "GY-S3 runtime route resolver lazily loads the Foundry catalog only while computing live method availability."
+
+[[pattern]]
+id = "dynamic-gy-s3-foundry-registry"
+pattern = "polisyos.foundry.methods.selection.registry"
+source_file = "src/polisyos/runtime/quality/intervention_substrate.py"
+line = 492
+call = "importlib.import_module"
+owner = "team-runtime-quality"
+target = "polisyos.foundry.methods.selection.registry"
+verifier = "tools/quality/validation/check_layer3_gy_intervention_substrate_contract.py --check"
+allowed_targets = ["polisyos.foundry.methods.selection.registry"]
+notes = "GY-S3 runtime route resolver uses the existing Foundry method registry as owner authority."
+
+[[pattern]]
+id = "dynamic-gy-s3-lex-store"
+pattern = "polisyos.lex.knowledge.store"
+source_file = "src/polisyos/runtime/quality/intervention_substrate.py"
+line = 552
+call = "importlib.import_module"
+owner = "team-runtime-quality"
+target = "polisyos.lex.knowledge.store"
+verifier = "tools/quality/validation/check_layer3_gy_intervention_substrate_contract.py --check"
+allowed_targets = ["polisyos.lex.knowledge.store"]
+notes = "GY-S3 behavior contract lazily loads the GY-S2 LegalKnowledgeStore for L3 threshold and temporal competence checks."
+
+[[pattern]]
+id = "dynamic-gy-s3-lex-intervention-artifacts"
+pattern = "polisyos.lex.intervention_artifacts"
+source_file = "src/polisyos/runtime/quality/intervention_substrate.py"
+line = 1756
+call = "importlib.import_module"
+owner = "team-runtime-quality"
+target = "polisyos.lex.intervention_artifacts"
+verifier = "tools/quality/validation/check_layer3_gy_intervention_substrate_contract.py --check"
+allowed_targets = ["polisyos.lex.intervention_artifacts"]
+notes = "GY-S3 law-to-lever resolver delegates provision mappings to the existing lex intervention artifact owner."

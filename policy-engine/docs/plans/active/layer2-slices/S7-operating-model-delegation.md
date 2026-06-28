@@ -43,7 +43,7 @@ Open cell count delta:
 - Current cluster-map open cell count becomes `4` after S7 (was `5` after S6).
 - S7 records the closed orchestration/delegation cell in its manifest and edits `cluster_ownership_map.toml`:
   - set `[cell.CROSS_CUTTING.scientist_orchestration]` to `ratchet_state="implemented"` and `p01_chain="implemented"`;
-  - set `owner_module` to `src/polisyos/runtime/quality/layer2_delegation.py` and keep `src/polisyos/pdc/_impl/layer2_design_search.py` as the consumer/ledger narrow waist;
+  - set `owner_module` to `src/polisyos/runtime/quality/design_axes/mandate_bounded_delegation.py` and keep `src/polisyos/pdc/_impl/layer2_design_search.py` as the consumer/ledger narrow waist;
   - keep Scientist and existing human-review packages as seeds/provenance only;
   - satisfy the existing open-cell closure contract with `ClusterHandoffRecord` plus a replay-visible handoff ledger keyed by workflow, candidate, cluster, and authority purpose;
   - set `gap="none_for_s7_delegation_scope"`;
@@ -86,7 +86,7 @@ Reason: Scientist and security modules contain useful execution and delegation-t
 
 Module placement:
 
-- Create `src/polisyos/runtime/quality/layer2_delegation.py`.
+- Create `src/polisyos/runtime/quality/design_axes/mandate_bounded_delegation.py`.
 - Modify `src/polisyos/runtime/quality/__init__.py` to export S7 contracts and producer functions.
 - Modify `src/polisyos/pdc/_impl/layer2_design_search.py` to add `Layer2S7DelegationPostureInput`, consume it in the S2 run, record it in constraints/handoffs/design refs, and project it by audience.
 - Modify `src/polisyos/pdc/__init__.py` to export the S7 posture DTO.
@@ -245,7 +245,7 @@ Weak spots that make S7 more than a small DTO patch:
 | Artifact traceability | `architecture/policy_design_case/layer2_artifact_traceability.toml` (`DelegationContract`, `DecisionRightsMatrix`, `HumanDecisionRequest`, `HumanDecisionRecord`) |
 | Shared S0 contracts | `src/polisyos/pdc/_impl/layer2_readiness.py`, `src/polisyos/pdc/__init__.py` |
 | S2 loop/projection narrow waist | `src/polisyos/pdc/_impl/layer2_design_search.py` |
-| S6 mandate prerequisite | `src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py` |
+| S6 mandate prerequisite | `src/polisyos/runtime/quality/design_axes/blind_spot_firewalls.py` |
 | Scientist delegation seeds | `src/polisyos/scientist/agent/protocols.py`, `src/polisyos/scientist/agent/supervisor.py`, `src/polisyos/scientist/agent/supervisor_eval.py` |
 | Human-review seed/provenance only | `src/polisyos/scientist/governance/human_review/*`, `src/polisyos/runtime/quality/human_review.py`, `src/polisyos/runtime/quality/approval.py` |
 | Security delegation-token seed | `src/polisyos/core/security/delegation.py` |
@@ -255,7 +255,7 @@ Weak spots that make S7 more than a small DTO patch:
 
 Create:
 
-- `src/polisyos/runtime/quality/layer2_delegation.py`
+- `src/polisyos/runtime/quality/design_axes/mandate_bounded_delegation.py`
 - `architecture/policy_design_case/layer2_s7_delegation_manifest.json`
 - `tests/unit/runtime/quality/test_layer2_s7_delegation.py`
 - `tests/repo_quality/tools/test_policy_design_case_layer2_s7_delegation.py`
@@ -491,13 +491,13 @@ git commit -m "test: add layer2 s7 delegation red tests" \
 
 **Files:**
 
-- Create: `src/polisyos/runtime/quality/layer2_delegation.py`
+- Create: `src/polisyos/runtime/quality/design_axes/mandate_bounded_delegation.py`
 - Modify: `src/polisyos/runtime/quality/__init__.py`
 - Test: `tests/unit/runtime/quality/test_layer2_s7_delegation.py`
 
 - [ ] **Step 1: Implement strict S7 contracts**
 
-Create `src/polisyos/runtime/quality/layer2_delegation.py` with strict `Layer2ReadinessModel` subclasses:
+Create `src/polisyos/runtime/quality/design_axes/mandate_bounded_delegation.py` with strict `Layer2ReadinessModel` subclasses:
 
 - `DecisionRightsMatrixRow`
 - `DecisionRightsMatrix`
@@ -559,7 +559,7 @@ Run:
 
 ```bash
 uv run pytest tests/unit/runtime/quality/test_layer2_s7_delegation.py -q
-uv run ruff check src/polisyos/runtime/quality/layer2_delegation.py src/polisyos/runtime/quality/__init__.py tests/unit/runtime/quality/test_layer2_s7_delegation.py
+uv run ruff check src/polisyos/runtime/quality/design_axes/mandate_bounded_delegation.py src/polisyos/runtime/quality/__init__.py tests/unit/runtime/quality/test_layer2_s7_delegation.py
 ```
 
 Expected:
@@ -574,7 +574,7 @@ Ruff passes.
 - [ ] **Step 5: Commit Task 2**
 
 ```bash
-git add src/polisyos/runtime/quality/layer2_delegation.py \
+git add src/polisyos/runtime/quality/design_axes/mandate_bounded_delegation.py \
   src/polisyos/runtime/quality/__init__.py \
   tests/unit/runtime/quality/test_layer2_s7_delegation.py
 git commit -m "feat: add layer2 s7 delegation contracts and P26 checks" \
@@ -700,7 +700,7 @@ Run:
 ```bash
 uv run pytest tests/unit/pdc/test_layer2_s2_design_search.py -q
 rg -n "layer2_delegation|build_decision_rights_matrix|record_human_decision|evaluate_delegation_for_case" src/polisyos/pdc/_impl/layer2_design_search.py
-rg -n "^(from|import) .*?(runtime\\.quality\\.(approval|human_review)|scientist\\.governance\\.human_review)" src/polisyos/runtime/quality/layer2_delegation.py src/polisyos/pdc/_impl/layer2_design_search.py
+rg -n "^(from|import) .*?(runtime\\.quality\\.(approval|human_review)|scientist\\.governance\\.human_review)" src/polisyos/runtime/quality/design_axes/mandate_bounded_delegation.py src/polisyos/pdc/_impl/layer2_design_search.py
 ```
 
 Expected:
@@ -968,7 +968,7 @@ Create `architecture/policy_design_case/layer2_s7_delegation_manifest.json`:
     "delegated_autonomy_without_mandate",
     "s13_accountability_closure"
   ],
-  "producer_module": "src/polisyos/runtime/quality/layer2_delegation.py",
+  "producer_module": "src/polisyos/runtime/quality/design_axes/mandate_bounded_delegation.py",
   "consumer_module": "src/polisyos/pdc/_impl/layer2_design_search.py",
   "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py",
   "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py"
@@ -1012,9 +1012,9 @@ Summary keys:
 Update `[cell.CROSS_CUTTING.scientist_orchestration]`:
 
 ```toml
-owner_module = "src/polisyos/runtime/quality/layer2_delegation.py"
+owner_module = "src/polisyos/runtime/quality/design_axes/mandate_bounded_delegation.py"
 seed_files = [
-  "src/polisyos/runtime/quality/layer2_delegation.py",
+  "src/polisyos/runtime/quality/design_axes/mandate_bounded_delegation.py",
   "src/polisyos/pdc/_impl/layer2_design_search.py",
   "src/polisyos/scientist/agent/supervisor.py",
   "src/polisyos/scientist/agent/supervisor_eval.py",
@@ -1290,7 +1290,7 @@ for name in names:
     print(name, getattr(obj, "model_config", {}).get("extra"))
 PY
 rg -n "layer2_delegation|build_decision_rights_matrix|record_human_decision|evaluate_delegation_for_case" src/polisyos/pdc/_impl/layer2_design_search.py
-rg -n "^(from|import) .*?(runtime\\.quality\\.(approval|human_review)|scientist\\.governance\\.human_review)" src/polisyos/runtime/quality/layer2_delegation.py src/polisyos/pdc/_impl/layer2_design_search.py
+rg -n "^(from|import) .*?(runtime\\.quality\\.(approval|human_review)|scientist\\.governance\\.human_review)" src/polisyos/runtime/quality/design_axes/mandate_bounded_delegation.py src/polisyos/pdc/_impl/layer2_design_search.py
 PYTHONPATH=src:. python3 - <<'PY'
 from polisyos.pdc import Layer2S7DelegationPostureInput
 print("delegation_contract_ref" in Layer2S7DelegationPostureInput.model_fields)

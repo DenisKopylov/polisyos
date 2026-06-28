@@ -26,6 +26,7 @@ from polisyos.core.contracts.capability_resolution import (  # noqa: E402
     construct_for_legacy_family,
 )
 from polisyos.core.contracts.runtime import UniversalAuthorityProfile  # noqa: E402
+from polisyos.corpus import build_expert_adjudication_useful_design_gate  # noqa: E402
 from polisyos.ir.governance.policy_composition import PolicyLayerLevel  # noqa: E402
 from polisyos.ir.governance.problem_frame import ProblemDomain  # noqa: E402
 from polisyos.obligation_graph import (  # noqa: E402
@@ -62,19 +63,11 @@ from polisyos.runtime.quality.case_lifecycle import (  # noqa: E402
 from polisyos.runtime.quality.closeout_reader import (  # noqa: E402
     build_can_i_closeout_verdict,
 )
-from polisyos.runtime.quality.graded_outcomes import (  # noqa: E402
-    S1_GRADED_OUTCOME_SCHEMA_VERSION,
-    GradedOutcomeDecision,
-    GradedOutcomeEvidenceInput,
-    compose_graded_outcome,
-    graded_outcome_closeout_record,
+from polisyos.runtime.quality.corpus_fixture_producer_reports import (  # noqa: E402
+    corpus_stub_authority_boundary,
+    load_corpus_stub_responses,
 )
-from polisyos.runtime.quality.hypothesis_ledger import (  # noqa: E402
-    HYPOTHESIS_LEDGER_SCHEMA_VERSION,
-    HypothesisLedger,
-    serialize_hypothesis_ledger,
-)
-from polisyos.runtime.quality.layer2_blind_spot_firewalls import (  # noqa: E402
+from polisyos.runtime.quality.design_axes.blind_spot_firewalls import (  # noqa: E402
     build_s6_blind_spot_firewall_report,
     evaluate_aggregation_validity,
     evaluate_capacity_feasibility,
@@ -86,7 +79,7 @@ from polisyos.runtime.quality.layer2_blind_spot_firewalls import (  # noqa: E402
     s6_firewall_report_to_c3_dimension_records,
     s6_firewall_report_to_constraint_store_updates,
 )
-from polisyos.runtime.quality.layer2_coupling_composition import (  # noqa: E402
+from polisyos.runtime.quality.design_axes.coupling_composition import (  # noqa: E402
     CouplingEdge,
     build_composition_receipt,
     build_computational_tractability_budget,
@@ -99,7 +92,13 @@ from polisyos.runtime.quality.layer2_coupling_composition import (  # noqa: E402
     derive_recursive_design_graph,
     discover_design_modules,
 )
-from polisyos.runtime.quality.layer2_delegation import (  # noqa: E402
+from polisyos.runtime.quality.design_axes.epistemic_regime import (  # noqa: E402
+    RegimeEvidenceBasis,
+    classify_regime,
+    regime_accuracy,
+    regime_claim_to_axis_position,
+)
+from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (  # noqa: E402
     LAYER2_S7_DELEGATION_SCHEMA_VERSION,
     P26ResponsibilityIntegrityError,
     build_decision_rights_matrix,
@@ -110,13 +109,7 @@ from polisyos.runtime.quality.layer2_delegation import (  # noqa: E402
     record_human_decision,
     s7_delegation_integrity,
 )
-from polisyos.runtime.quality.layer2_epistemic_regime import (  # noqa: E402
-    RegimeEvidenceBasis,
-    classify_regime,
-    regime_accuracy,
-    regime_claim_to_axis_position,
-)
-from polisyos.runtime.quality.layer2_outcome_prediction import (  # noqa: E402
+from polisyos.runtime.quality.design_axes.outcome_prediction import (  # noqa: E402
     LAYER2_S10_OUTCOME_PREDICTION_RULE_VERSION,
     LAYER2_S10_OUTCOME_PREDICTION_SCHEMA_VERSION,
     S10_CALIBRATION_FLOOR_ID,
@@ -124,7 +117,7 @@ from polisyos.runtime.quality.layer2_outcome_prediction import (  # noqa: E402
     build_forecast_calibration_record,
     build_forecast_support,
 )
-from polisyos.runtime.quality.layer2_post_deploy_accountability import (  # noqa: E402
+from polisyos.runtime.quality.design_axes.post_deploy_accountability import (  # noqa: E402
     LAYER2_S13_POST_DEPLOY_ACCOUNTABILITY_RULE_VERSION,
     S13_FALSE_CLEAR_FIELDS,
     build_assurance_case_delta,
@@ -139,7 +132,7 @@ from polisyos.runtime.quality.layer2_post_deploy_accountability import (  # noqa
     summarize_post_deploy_accountability,
     verify_post_deploy_learning_authority,
 )
-from polisyos.runtime.quality.layer2_predictive_knowledge import (  # noqa: E402
+from polisyos.runtime.quality.design_axes.predictive_knowledge import (  # noqa: E402
     LAYER2_S11_PREDICTIVE_KNOWLEDGE_RULE_VERSION,
     LAYER2_S11_PREDICTIVE_KNOWLEDGE_SCHEMA_VERSION,
     S11_AXIS_CALIBRATION_FLOOR_ID,
@@ -150,12 +143,12 @@ from polisyos.runtime.quality.layer2_predictive_knowledge import (  # noqa: E402
     build_s11_predictive_knowledge_posture,
     summarize_s11_predictive_knowledge_integrity,
 )
-from polisyos.runtime.quality.layer2_projection_lowering import (  # noqa: E402
+from polisyos.runtime.quality.design_axes.projection_lowering import (  # noqa: E402
     LAYER2_S9_PROJECTION_LOWERING_RULE_VERSION,
     LAYER2_S9_PROJECTION_LOWERING_SCHEMA_VERSION,
     S9_PROJECTION_FLOOR_ID,
 )
-from polisyos.runtime.quality.layer2_resource_economics import (  # noqa: E402
+from polisyos.runtime.quality.design_axes.resource_economics import (  # noqa: E402
     LAYER2_S12_RESOURCE_ECONOMICS_RULE_VERSION,
     LAYER2_S12_RESOURCE_ECONOMICS_SCHEMA_VERSION,
     S12_FALSE_CLEAR_FIELDS,
@@ -168,33 +161,48 @@ from polisyos.runtime.quality.layer2_resource_economics import (  # noqa: E402
     build_s12_resource_economics_posture,
     verify_resource_authority_envelope,
 )
-from polisyos.runtime.quality.layer2_substrate_acquisition import (  # noqa: E402
+from polisyos.runtime.quality.design_axes.substrate_acquisition import (  # noqa: E402
     ConstructExpression,
     SubstrateAcquisitionLoop,
 )
-from polisyos.runtime.quality.layer2_universality_assurance import (  # noqa: E402
+from polisyos.runtime.quality.design_axes.universality_assurance import (  # noqa: E402
     LAYER2_S14_UNIVERSALITY_ASSURANCE_RULE_VERSION,
     S14_FALSE_CLEAR_FIELDS,
     build_s14_universality_authority_boundary,
     verify_universality_claim_authority,
 )
-from polisyos.runtime.quality.layer3_causal_forecast import (  # noqa: E402
+from polisyos.runtime.quality.graded_outcomes import (  # noqa: E402
+    S1_GRADED_OUTCOME_SCHEMA_VERSION,
+    GradedOutcomeDecision,
+    GradedOutcomeEvidenceInput,
+    compose_graded_outcome,
+    graded_outcome_closeout_record,
+)
+from polisyos.runtime.quality.hypothesis_ledger import (  # noqa: E402
+    HYPOTHESIS_LEDGER_SCHEMA_VERSION,
+    HypothesisLedger,
+    serialize_hypothesis_ledger,
+)
+from polisyos.runtime.quality.producer_pipeline import (  # noqa: E402
+    run_requirement_spec_producer_pipeline,
+)
+from polisyos.runtime.quality.proving_ground.causal_forecast_search import (  # noqa: E402
     ADAPTER_MATURITY_CALIBRATED,
     LAYER3_G2_W12D_GATE_SCHEMA_VERSION,
     build_g2_w12d_consumer_gate,
 )
-from polisyos.runtime.quality.layer3_grounding_inventory import (  # noqa: E402
+from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import (  # noqa: E402
+    load_layer3_gx_data_home,
+    read_layer3_gx_pinned_case_id,
+)
+from polisyos.runtime.quality.proving_ground.pre_adapter_grounding_inventory import (  # noqa: E402
     FIRST_VERTICAL_CONSTRUCT_BUNDLE_ID,
     FIRST_VERTICAL_CORPUS_CASE_ID,
     LAYER3_G0_RULE_VERSION,
     LAYER3_G0_SCHEMA_VERSION,
     build_layer3_g0_bundle,
 )
-from polisyos.runtime.quality.layer3_gx_data_home import (  # noqa: E402
-    load_layer3_gx_data_home,
-    read_layer3_gx_pinned_case_id,
-)
-from polisyos.runtime.quality.layer3_substrate_grounding import (  # noqa: E402
+from polisyos.runtime.quality.proving_ground.substrate_grounding_search import (  # noqa: E402
     G1_AUTHORITATIVE_FOR,
     G1_CONSTRUCT_BUNDLE_ID,
     G1_MAY_NOT_USE_FOR,
@@ -204,13 +212,6 @@ from polisyos.runtime.quality.layer3_substrate_grounding import (  # noqa: E402
     LAYER3_G1_SCHEMA_VERSION,
     build_layer3_g1_bundle,
     validate_layer3_g1_bundle,
-)
-from polisyos.runtime.quality.producer_pipeline import (  # noqa: E402
-    run_requirement_spec_producer_pipeline,
-)
-from polisyos.runtime.quality.producer_pipeline_corpus_stub import (  # noqa: E402
-    corpus_stub_authority_boundary,
-    load_corpus_stub_responses,
 )
 from polisyos.scientist.policy_design.claim_decomposition import (  # noqa: E402
     ClaimDecompositionCompiler,
@@ -652,6 +653,7 @@ def build_w12d_universal_outcome_corpus_report(
             ),
             case_index=idx,
             case_ids=case_ids,
+            repo_root=root,
         )
         for idx, result in enumerate(case_results)
     ]
@@ -4286,7 +4288,7 @@ def _layer3_g3_first_case_proof_context(
         return {}
 
     from polisyos.core.artifacts.store import FileSystemCAS
-    from polisyos.runtime.quality import layer3_analytics_search as g3
+    from polisyos.runtime.quality.proving_ground import proof_carrying_analytics_search as g3
 
     request = g3.Layer3G3AnalyticsRequest(
         request_id=f"g3-request:w12d:{case_id}",
@@ -7339,6 +7341,7 @@ def _s5_coupling_edges(
             field_name="observed_feedback_intensity",
         )
         evidence_ref = f"fixture://layer2/s5/{case_id}/{boundary_ref}"
+        independence_consistency_ref = None
         edges.append(
             CouplingEdge(
                 boundary_ref=boundary_ref,
@@ -7349,6 +7352,7 @@ def _s5_coupling_edges(
                 feedback_intensity=intensity,  # type: ignore[arg-type]
                 feedback=intensity == "high",
                 evidence_ref=evidence_ref,
+                independence_consistency_ref=independence_consistency_ref,
             )
         )
         if intensity == "high":
@@ -9181,9 +9185,22 @@ def _summary(cases: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         outcome = str(case.get("outcome") or "typed_blocker")
         outcome_counts.setdefault(outcome, 0)
         outcome_counts[outcome] += 1
-    runtime_useful_count = sum(
-        1 for case in cases if case.get("counts_toward_useful_design")
-    )
+    runtime_useful_case_ids = {
+        str(case.get("case_id") or "")
+        for case in cases
+        if case.get("counts_toward_useful_design")
+    }
+    g5_runtime_useful_case_ids = {
+        str(case.get("case_id") or "")
+        for case in cases
+        for gate in (_mapping(case.get("layer3_g5_conversion_gate")),)
+        if gate.get("conversion_classification") == "typed_blocker -> grounded_limited"
+        and gate.get("status_composition_status") == "pass"
+        and bool(gate.get("counts_toward_useful_design"))
+        and int(gate.get("useful_design_credit_count") or 0) > 0
+    }
+    runtime_useful_case_ids.update(case_id for case_id in g5_runtime_useful_case_ids if case_id)
+    runtime_useful_count = len(runtime_useful_case_ids)
     expert_useful_count = sum(
         1
         for case in cases
@@ -9193,7 +9210,7 @@ def _summary(cases: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         1
         for case in cases
         if _expert_expected_useful_design(case)
-        and case.get("counts_toward_useful_design")
+        and str(case.get("case_id") or "") in runtime_useful_case_ids
     )
     graph_pass_count = sum(
         1
@@ -9809,7 +9826,7 @@ def _with_layer3_g3_analytics_search_gate(
     case_index: int,
     case_ids: Sequence[str],
 ) -> dict[str, Any]:
-    from polisyos.runtime.quality.layer3_analytics_search import (
+    from polisyos.runtime.quality.proving_ground.proof_carrying_analytics_search import (
         build_g3_w12d_consumer_gate,
     )
 
@@ -9865,25 +9882,433 @@ def _layer3_g3_summary(cases: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     }
 
 
+def _layer3_g5_w12d_bridge(
+    case: Mapping[str, Any],
+    *,
+    repo_root: Path,
+) -> dict[str, Any]:
+    from polisyos.runtime.quality.proving_ground.proving_ground_conversion import (
+        G5_MAY_NOT_USE_FOR,
+        Layer3G5ConversionRecord,
+        build_g5_conversion_eligibility_ledger,
+        build_g5_dependency_readiness_snapshot,
+        build_g5_grounded_result_evidence_set,
+        build_g5_pinned_case_input_bundle,
+        build_g5_status_composition_ledger,
+        build_g5_upstream_scope_join_matrix,
+        build_g5_useful_design_metric_eligibility_join,
+        resolve_g5_committed_grounding_refs,
+        resolve_g5_g4_handoff,
+    )
+
+    case_id = str(case.get("case_id") or "")
+    terminal = _layer3_g5_matching_graded_terminal(case, repo_root=repo_root)
+    source_case = _layer3_g5_source_fixture(case, repo_root=repo_root)
+    if not terminal or not source_case:
+        return {}
+
+    source_hash = _text(source_case.get("redacted_source_hash"))
+    if not source_hash.startswith("sha256:"):
+        return {}
+    g2_gate = _mapping(case.get("layer3_g2_forecast_gate"))
+    g3_gate = _mapping(case.get("layer3_g3_analytics_search_gate"))
+    source_contract_ref = _first_text_from(
+        g2_gate.get("source_contract_refs"),
+        "source-contract://ua-msme/server-support",
+    )
+    forecast_support_ref = _first_text_from(g2_gate.get("forecast_support_refs"))
+    calibration_ref = _first_text_from(g2_gate.get("forecast_calibration_record_refs"))
+    uncertainty_ref = _first_text_from(g2_gate.get("uncertainty_interval_refs"))
+    proof_ref = _text(g3_gate.get("g3_proof_carrying_analytics_ref"))
+    proof_hash = _text(g3_gate.get("g3_ir_analytics_bridge_ref"))
+    if not (
+        g2_gate.get("status") == "pass"
+        and g3_gate.get("status") == "pass"
+        and forecast_support_ref
+        and calibration_ref
+        and uncertainty_ref
+        and proof_ref
+        and proof_hash.startswith("sha256:")
+    ):
+        return {}
+    committed_grounding = resolve_g5_committed_grounding_refs(
+        repo_root,
+        forecast_support_ref=forecast_support_ref,
+        proof_ref=proof_ref,
+        source_hash=source_hash,
+        source_payload=source_case,
+        case_id=case_id,
+        proof_content_hash=proof_hash,
+    )
+    if committed_grounding.get("status") != "pass":
+        return {
+            "committed_grounding_resolution": committed_grounding,
+            "grounding_issue_codes": _unique_texts(
+                [
+                    *(_sequence(committed_grounding.get("issue_codes", ()))),
+                    "layer3_g5_useful_design_rate_blocked_on_real_grounding",
+                ]
+            ),
+        }
+
+    limitation_refs = _unique_texts(
+        [
+            *(_sequence(terminal.get("limitation_refs"))),
+            *(_sequence(_nested(case, ("authority_outcomes", "governed", "limitation_refs")))),
+            "layer3_g5_w12d_grounded_partial_limited_authority",
+        ]
+    )
+    may_not_use_for = _unique_texts(
+        [
+            *G5_MAY_NOT_USE_FOR,
+            *(_sequence(terminal.get("may_not_use_for"))),
+            "production_authority",
+            "production_claim_authority",
+            "publication_without_limitation",
+        ]
+    )
+    decision_grade = _text(terminal.get("decision_grade"))
+    if (
+        decision_grade not in {"descriptive_only", "advisory_admissible"}
+        or not limitation_refs
+        or not may_not_use_for
+    ):
+        return {}
+
+    observed_through = _text(
+        _nested(source_case, ("claim_evidence_annotations", "annotation_provenance", "reviewed_at"))
+    )
+    design_ref = _text(
+        _nested(case, ("s2_design_search", "design_record", "record_ref"))
+        or _nested(case, ("s2_design_search", "design_record", "ref"))
+        or "pdc://layer2/s2/ua-msme/design-record-v0"
+    )
+    replay_ref = _text(
+        _nested(case, ("s2_design_search", "deterministic_replay_key"))
+        or "replay://layer2/s2/ua-msme"
+    )
+    requested_scope = {
+        "claim_families": ("causal_forecast", "proof"),
+        "authority_posture": "governed",
+        "envelope_ref": _text(
+            _nested(case, ("s14_universality_assurance", "declared_envelope_ref"))
+            or "envelope://ua-msme/declared-limited"
+        ),
+    }
+    pinned_case = {
+        **dict(case),
+        "layer3_g5_terminal_cap": {
+            "terminal_state": terminal.get("terminal_state"),
+            "conversion_outcome": terminal.get("conversion_outcome"),
+            "decision_grade": decision_grade,
+            "limitation_refs": limitation_refs,
+            "may_not_use_for": may_not_use_for,
+            "floor_relaxation_used": terminal.get("floor_relaxation_used"),
+        },
+    }
+    pinned = build_g5_pinned_case_input_bundle(
+        repo_root,
+        w12d_report_payload={
+            "schema_version": SCHEMA_VERSION,
+            "phase_id": PHASE_ID,
+            "corpus_ref": "repo://tests/fixtures/universal-corpus",
+            "cases": [pinned_case],
+            "summary": {"case_count": 1},
+            "typed_blockers": list(_sequence_of_mappings(case.get("typed_blockers"))),
+        },
+        w12d_payload_ref="w12d://live-run/pinned-case",
+        source_context="w12d_g5_graded_bridge",
+    )
+    snapshot = build_g5_dependency_readiness_snapshot(
+        repo_root,
+        manifest_overrides={
+            "g0": {"status": "pass"},
+            "g1": {
+                "status": "pass",
+                "counts": {
+                    "g0_v2_dependency_status": "pass",
+                    "g1_search_recall_status": _text(
+                        _nested(case, ("layer3_g1_grounding_gate", "search_recall_status"))
+                    )
+                    or "missing",
+                    "g1_index_freshness_status": _text(
+                        _nested(case, ("layer3_g1_grounding_gate", "index_freshness_status"))
+                    )
+                    or "missing",
+                },
+            },
+            "g2": {
+                "status": "pass",
+                "g1_dependency_status": "pass",
+                "g2_w12d_consumer_gate_status": "pass",
+            },
+            "g3": {
+                "status": "pass",
+                "g2_dependency_status": "pass",
+                "g3_w12d_consumer_gate_status": "pass",
+            },
+            "gl": {
+                "status": "pass",
+                "g0_dependency_status": "pass",
+                "gl_conformance_status": "pass",
+                "gl_reference_resolution_status": "pass",
+                "gl_amendment_lineage_status": "pass",
+            },
+            "g4": {"status": "pass", "g4_g5_promotion_handoff_status": "pass"},
+        },
+    )
+    handoff = resolve_g5_g4_handoff(
+        repo_root,
+        handoff_payload={
+            "status": "pass",
+            "authoritative_for": ["g5_first_proving_ground_promotion_state_input_refs"],
+            "limitation_refs": limitation_refs,
+            "may_not_use_for": may_not_use_for,
+        },
+        promotion_records_payload={
+            "promotion_records": [
+                {
+                    "promotion_record_id": (
+                        "g4-promotion-record:w12d-g5-graded:"
+                        f"{case_id}"
+                    ),
+                    "case_id": case_id,
+                    "promotion_state": "governed_promoted",
+                    "promotion_scope": {
+                        "claim_families": ["causal_forecast", "proof"],
+                        "requested_boundary": "bounded",
+                        "authority_purpose": "layer3_g4_governed_promotion_state",
+                    },
+                    "source_design_record_ref": design_ref,
+                    "source_design_record_digest": source_hash,
+                    "limitation_refs": limitation_refs,
+                    "upstream_contract_refs": [source_contract_ref],
+                    "may_not_use_for": may_not_use_for,
+                }
+            ]
+        },
+        requested_scope=requested_scope,
+    )
+    matrix = build_g5_upstream_scope_join_matrix(
+        repo_root,
+        case_id=case_id,
+        g1_bindings=[
+            {
+                "case_id": case_id,
+                "grounding_status": "pass",
+                "source_contract_ref": source_contract_ref,
+                "source_contract_content_hash": source_hash,
+                "observed_through": observed_through or "2026-05-24",
+                "may_not_use_for": [
+                    "claim_authority_without_g5",
+                    "production_authority",
+                ],
+            }
+        ],
+        g2_handoffs=[
+            {
+                "case_id": case_id,
+                "status": "pass",
+                "design_record_ledger_refs": [design_ref],
+                "s2_deterministic_replay_key_refs": [replay_ref],
+                "source_contract_ref": source_contract_ref,
+                "forecast_support_refs": [forecast_support_ref],
+                "calibration_record_refs": [calibration_ref],
+                "uncertainty_interval_refs": [uncertainty_ref],
+            }
+        ],
+        g3_records=[
+            {
+                "case_id": case_id,
+                "proof_status": "validated",
+                "proof_record_refs": [proof_ref],
+                "s11_record": {
+                    "proof_status": "validated",
+                    "source_lineage_refs": [
+                        f"lineage://w12d/g2/{case_id}",
+                        f"lineage://w12d/g3/{case_id}",
+                    ],
+                },
+            }
+        ],
+    )
+    evidence = build_g5_grounded_result_evidence_set(
+        [
+            {
+                "ref": forecast_support_ref,
+                "family": "g2_forecast_support",
+                "lineage_refs": [f"lineage://w12d/g2/{case_id}"],
+                "source_hash": source_hash,
+                "may_not_use_for": _sequence(g2_gate.get("may_not_use_for")),
+            },
+            {
+                "ref": proof_ref,
+                "family": "g3_proof_support",
+                "lineage_refs": [f"lineage://w12d/g3/{case_id}"],
+                "source_hash": proof_hash,
+                "may_not_use_for": _sequence(g3_gate.get("may_not_use_for")),
+            },
+        ]
+    )
+    w11c_gate = build_expert_adjudication_useful_design_gate(
+        case_id=case_id,
+        structural_complete=True,
+        adjudication_result={
+            "status": "pass",
+            "labels": [_text(_nested(case, ("expert_adjudication_delta", "expert_label")))],
+        },
+    )
+    useful_join = build_g5_useful_design_metric_eligibility_join(
+        conversion_outcome="typed_blocker -> grounded_limited",
+        useful_design_credit_requested=True,
+        w11c_useful_design_gate={
+            **w11c_gate,
+            "ref": f"w11c://useful-design/{case_id}",
+        },
+        expert_useful_design_ceiling={
+            "status": "ignored_for_runtime_credit",
+            "expected_outcome": _text(
+                _nested(case, ("expert_adjudication_delta", "expected_outcome"))
+            ),
+        },
+    )
+    eligibility = build_g5_conversion_eligibility_ledger(
+        pinned_case_input_bundle=pinned,
+        dependency_snapshot=snapshot,
+        g4_handoff_resolution=handoff,
+        upstream_scope_join_matrix=matrix,
+        grounded_result_evidence_set=evidence,
+        requested_scope=requested_scope,
+        requested_conversion_outcome="typed_blocker -> grounded_limited",
+        upstream_statuses=("partial", "limited"),
+        weakest_boundary={
+            "status": "limited",
+            "weakest_boundary_reason": "grounded_partial_admissible_terminal_cap",
+            "decision_grade": decision_grade,
+            "limitation_refs": limitation_refs,
+            "may_not_use_for": may_not_use_for,
+            "authority_posture": "governed",
+        },
+        useful_design_credit_requested=True,
+        useful_design_metric_eligibility_join=useful_join,
+    )
+    composition = build_g5_status_composition_ledger(
+        conversion_eligibility_ledger=eligibility,
+        useful_design_metric_eligibility_join=useful_join,
+        w12d_outcome=str(case.get("outcome") or "typed_blocker"),
+    )
+    record = Layer3G5ConversionRecord(
+        conversion_record_id=(
+            "layer3-g5-conversion-record:"
+            f"{case_id}:w12d-grounded-limited-graded"
+        ),
+        case_id=case_id,
+        conversion_outcome=eligibility.conversion_outcome,
+        grounding_disposition=eligibility.grounding_disposition,
+        decision_grade=eligibility.decision_grade,
+        blocker_refs=eligibility.blocker_refs,
+        limitation_refs=eligibility.limitation_refs,
+        may_not_use_for=eligibility.may_not_use_for,
+        useful_design_credit_requested=eligibility.useful_design_credit_requested,
+    )
+    return {
+        "conversion_records": (record,),
+        "status_composition_ledger": composition,
+        "useful_design_metric_eligibility_join": useful_join,
+        "conversion_eligibility_ledger": eligibility,
+        "genuine_partial_evidence_refs": [
+            forecast_support_ref,
+            proof_ref,
+            terminal.get("output_search_exit_contract_ref"),
+        ],
+        "committed_grounding_resolution": committed_grounding,
+    }
+
+
+def _layer3_g5_matching_graded_terminal(
+    case: Mapping[str, Any],
+    *,
+    repo_root: Path,
+) -> Mapping[str, Any]:
+    terminal_cap = _mapping(case.get("layer3_g5_terminal_cap"))
+    if _layer3_g5_is_usable_graded_terminal(terminal_cap):
+        return terminal_cap
+    report_path = repo_root / "architecture/policy_design_case/layer3_gy_graded_outcome_routing_report.json"
+    try:
+        report = json.loads(report_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    for outcome in _sequence_of_mappings(report.get("graded_outcomes")):
+        if _layer3_g5_is_usable_graded_terminal(outcome):
+            return outcome
+    return {}
+
+
+def _layer3_g5_is_usable_graded_terminal(terminal: Mapping[str, Any]) -> bool:
+    return bool(
+        terminal
+        and terminal.get("terminal_state") == "grounded_partial_admissible"
+        and terminal.get("conversion_outcome") == "publish-with-limitation"
+        and terminal.get("floor_relaxation_used") is False
+        and terminal.get("decision_grade") in {"descriptive_only", "advisory_admissible"}
+        and _sequence(terminal.get("limitation_refs"))
+        and _sequence(terminal.get("may_not_use_for"))
+    )
+
+
+def _layer3_g5_source_fixture(
+    case: Mapping[str, Any],
+    *,
+    repo_root: Path,
+) -> Mapping[str, Any]:
+    raw = _text(case.get("source_path"))
+    if not raw:
+        return {}
+    if raw.startswith("repo://"):
+        path = repo_root / raw.removeprefix("repo://")
+    else:
+        path = Path(raw)
+        if not path.is_absolute():
+            path = repo_root / path
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+
+def _first_text_from(value: object, fallback: str = "") -> str:
+    for item in _sequence(value):
+        text = _text(item)
+        if text:
+            return text
+    return fallback
+
+
 def _with_layer3_g5_conversion_gate(
     case: dict[str, Any],
     *,
     case_index: int,
     case_ids: Sequence[str],
+    repo_root: Path,
 ) -> dict[str, Any]:
-    from polisyos.runtime.quality.layer3_proving_ground_conversion import (
-        G5_PINNED_CASE_ID,
+    from polisyos.runtime.quality.proving_ground.proving_ground_conversion import (
         S4_S14_CASE_BLOCK_KEYS,
         build_g5_w12d_consumer_gate,
     )
 
     case_id = str(case.get("case_id") or case.get("id") or f"case-{case_index}")
-    if case_id != G5_PINNED_CASE_ID:
-        return case
 
+    bridge = _layer3_g5_w12d_bridge(case, repo_root=repo_root)
+    if not bridge:
+        return case
     gate = build_g5_w12d_consumer_gate(
         case,
-        conversion_records=(),
+        conversion_records=bridge.get("conversion_records", ()),
+        status_composition_ledger=bridge.get("status_composition_ledger"),
+        useful_design_metric_eligibility_join=bridge.get(
+            "useful_design_metric_eligibility_join"
+        ),
+        grounding_issue_codes=bridge.get("grounding_issue_codes", ()),
     ).model_dump(mode="json")
     conversion_classification = str(
         gate.get("conversion_classification") or "unchanged_blocker"
@@ -9933,6 +10358,14 @@ def _with_layer3_g5_conversion_gate(
                 gate.get("counts_toward_useful_design")
             ),
             "useful_design_credit_count": useful_design_credit_count,
+            "genuine_partial_evidence_refs": bridge.get(
+                "genuine_partial_evidence_refs",
+                (),
+            ),
+            "committed_grounding_resolution": bridge.get(
+                "committed_grounding_resolution",
+                {},
+            ),
             "g0_g1_g2_g3_history_overwrite_count": 0,
             "upstream_gate_keys": [
                 key

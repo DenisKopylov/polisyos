@@ -1324,7 +1324,7 @@ def _valid_external_audit_record() -> dict[str, Any]:
 
 
 def _pass1b_tenant_cas_approval_governance_record() -> dict[str, Any]:
-    from polisyos.runtime.quality.pass1b_hardening import (
+    from polisyos.runtime.quality.tenant_cas_approval_governance import (
         build_pass1b_tenant_cas_approval_governance_record,
     )
 

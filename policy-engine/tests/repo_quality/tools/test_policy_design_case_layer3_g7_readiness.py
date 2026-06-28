@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from polisyos.runtime.quality import layer3_region_widening as g7
+from polisyos.runtime.quality.proving_ground import region_widening as g7
 from tools.quality.validation import check_policy_design_case_layer3_g7_readiness as validator
 
 REPO_ROOT = Path(__file__).resolve().parents[3]

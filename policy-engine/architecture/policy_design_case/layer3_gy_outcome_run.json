@@ -1,0 +1,1526 @@
+{
+  "artifacts_index": {
+    "authority_derivation_trace_refs": [],
+    "outcome_replay_proof_ref": "sha256:cd5fc2756d6aa7696d63e66aa16a4ce489321d88f7d5907dd5c48bfbb8494006",
+    "output_artifact_payload_refs": [
+      "sha256:5e0d8e38760a56e6187ec74df75138b685df1b748b19e75ae5fbe139e168f0d6",
+      "sha256:e4d43fb6a3ebc4b374d5ca153ffeb3f596148193414a44b7c2beeed28277584f"
+    ],
+    "production_loop_run_proof_ref": "sha256:27900b26824b6fe12b6b2a08ceec731b0104642e5728c0f9777a5e027544cc8a",
+    "search_exit_contract_ref": "sha256:3397e4191b969d13697a114ee19642c6b57562d48c19796677cd57e50561331e",
+    "search_ledger_ref": "sha256:9a7851c6f124c0dacf34f29ffcd5baa0e080b6748ec3b7adfe581a7e75c062fb"
+  },
+  "cas_resolution_checks": [
+    {
+      "artifact_ref": "sha256:3397e4191b969d13697a114ee19642c6b57562d48c19796677cd57e50561331e",
+      "payload_sha256": "sha256:3397e4191b969d13697a114ee19642c6b57562d48c19796677cd57e50561331e",
+      "resolved": true
+    },
+    {
+      "artifact_ref": "sha256:9a7851c6f124c0dacf34f29ffcd5baa0e080b6748ec3b7adfe581a7e75c062fb",
+      "payload_sha256": "sha256:9a7851c6f124c0dacf34f29ffcd5baa0e080b6748ec3b7adfe581a7e75c062fb",
+      "resolved": true
+    },
+    {
+      "artifact_ref": "sha256:5e0d8e38760a56e6187ec74df75138b685df1b748b19e75ae5fbe139e168f0d6",
+      "payload_sha256": "sha256:5e0d8e38760a56e6187ec74df75138b685df1b748b19e75ae5fbe139e168f0d6",
+      "resolved": true
+    },
+    {
+      "artifact_ref": "sha256:e4d43fb6a3ebc4b374d5ca153ffeb3f596148193414a44b7c2beeed28277584f",
+      "payload_sha256": "sha256:e4d43fb6a3ebc4b374d5ca153ffeb3f596148193414a44b7c2beeed28277584f",
+      "resolved": true
+    },
+    {
+      "artifact_ref": "sha256:cd5fc2756d6aa7696d63e66aa16a4ce489321d88f7d5907dd5c48bfbb8494006",
+      "payload_sha256": "sha256:cd5fc2756d6aa7696d63e66aa16a4ce489321d88f7d5907dd5c48bfbb8494006",
+      "resolved": true
+    },
+    {
+      "artifact_ref": "sha256:27900b26824b6fe12b6b2a08ceec731b0104642e5728c0f9777a5e027544cc8a",
+      "payload_sha256": "sha256:27900b26824b6fe12b6b2a08ceec731b0104642e5728c0f9777a5e027544cc8a",
+      "resolved": true
+    }
+  ],
+  "case_id": "ua-msme-affordable-loans-2022",
+  "decision_grade": "unsupported",
+  "evidence_kind": null,
+  "evidence_ladder_rung": "none",
+  "fixture_id": "ua_msme_credit_worldbank_measurement",
+  "gx_case_outcome": {
+    "case_id": "ua-msme-affordable-loans-2022",
+    "final_run_hash": "sha256:f4d81c2029007b936a550355aa3ffd809c992bfcd4d27ba50392f78a328da181",
+    "input_artifact_ref": "sha256:84046dd6b320fee9f8c1d4732301a66f19646e33522731ad7f473d06adc9e264",
+    "outcome_kind": "search_ceiling_repair_required",
+    "status": "blocked",
+    "useful_design_credit": false
+  },
+  "gx_validator_status": "expected_red",
+  "http_receipts": {
+    "launch": {
+      "job_id": "d1b9cabba33b5d4dbb6e4ef1350aca44",
+      "method": "POST",
+      "run_id": "run-gy-loop-proof-ua_msme_credit_worldbank_measurement",
+      "status_code": 200,
+      "surface": "/api/v1/control/runs"
+    },
+    "readback": {
+      "method": "GET",
+      "observed_state": "completed",
+      "status_code": 200,
+      "surface": "/api/v1/control/jobs/d1b9cabba33b5d4dbb6e4ef1350aca44"
+    }
+  },
+  "incompleteness": {
+    "budget": {
+      "consumed": {
+        "acquisition": {
+          "money_usd": 0.0
+        },
+        "calendar": {
+          "calendar_days": 0
+        },
+        "compute": {
+          "operation_invocations": 3
+        },
+        "expert_attention": {
+          "expert_hours": 0.0
+        },
+        "novelty": {
+          "disabled_slice0": 0
+        },
+        "recursion": {
+          "disabled_slice0": 0
+        },
+        "search_quality": {
+          "recall_at_known_seeds": 0.0,
+          "recall_deficit": 1.0
+        }
+      },
+      "exhausted": [
+        "search_quality.min_recall_at_known_seeds"
+      ],
+      "remaining": {
+        "acquisition": {
+          "money_usd": 0.0
+        },
+        "calendar": {
+          "calendar_days": 0
+        },
+        "compute": {
+          "operation_invocations": 0
+        },
+        "expert_attention": {
+          "expert_hours": 0.0
+        },
+        "novelty": {
+          "disabled_slice0": 0
+        },
+        "recursion": {
+          "disabled_slice0": 0
+        },
+        "search_quality": {
+          "recall_margin": 0.0
+        }
+      }
+    },
+    "ceiling_classification": "search_ceiling",
+    "coverage": {
+      "jurisdictions_checked": [
+        "UA"
+      ],
+      "methods_attempted": [
+        "slice0.estimate.measurement_summary"
+      ],
+      "operations_attempted": [
+        "BIND",
+        "ESTIMATE",
+        "VERIFY"
+      ],
+      "operations_not_attempted": [
+        {
+          "operation_id": "slice0.acquire.costed_plan",
+          "reason": "terminal_recommendation_not_executed_in_slice0"
+        }
+      ],
+      "source_classes_checked": [
+        "official"
+      ],
+      "source_classes_missing": [],
+      "time_horizons_checked": [
+        "2020-2024"
+      ]
+    },
+    "next_best_actions": [
+      {
+        "costed_plan": null,
+        "data_need_spec": null,
+        "estimated_cost": "out_of_scope_slice0",
+        "estimated_voi": 1.0,
+        "operation_proposal_ref": "slice0.acquire.costed_plan",
+        "reason_not_taken": "ACQUIRE continuation was not selected for this terminal."
+      }
+    ],
+    "record_id": "incomplete-ua-msme-credit-worldbank-measurement",
+    "search_quality": {
+      "freshness_ok": true,
+      "known_seeds_missed": [
+        "catalog://ilo/sme-finance/ukraine-credit-constraints",
+        "catalog://worldbank/enterprise-surveys/ukraine/msme-credit-access",
+        "catalog://worldbank/global-findex/ukraine-account-credit"
+      ],
+      "recall_at_known_seeds": 0.0,
+      "semantic_benchmark_run": {
+        "benchmark_id": "layer3_gy_slice0_semantic_adequacy_v1",
+        "benchmark_ref": "architecture/policy_design_case/layer3_gy_semantic_benchmark.json",
+        "benchmark_version": "policyos.policy_design_case.layer3_gy.semantic_benchmark.v1",
+        "catalog_corpus_kind": "slice0_representative_fixture_corpus",
+        "closure_scope": "slice0_gate_only",
+        "construct_scope": "ua_msme_credit_worldbank_measurement",
+        "freshness_ok": true,
+        "label_owner": "team-runtime-quality",
+        "missed_known_seeds": [
+          "catalog://ilo/sme-finance/ukraine-credit-constraints",
+          "catalog://worldbank/enterprise-surveys/ukraine/msme-credit-access",
+          "catalog://worldbank/global-findex/ukraine-account-credit"
+        ],
+        "negative_controls_passed": [],
+        "posture": "pre_decision",
+        "precision_at_5": 0.0,
+        "queries": [
+          "Ukraine MSME credit access World Bank firm measurement"
+        ],
+        "recall_at_known_seeds": 0.0,
+        "returned_hits": [
+          {
+            "calibrated_relevance": 0.49,
+            "dataset_id": "b4aa43327ebbb617daa4"
+          },
+          {
+            "calibrated_relevance": 0.49,
+            "dataset_id": "82cb20b6678b69084018"
+          },
+          {
+            "calibrated_relevance": 0.49,
+            "dataset_id": "766c81f100f5878036c4"
+          },
+          {
+            "calibrated_relevance": 0.49,
+            "dataset_id": "0188066e32fe20d2db45"
+          },
+          {
+            "calibrated_relevance": 0.49,
+            "dataset_id": "4528f1887381bc0dc733"
+          },
+          {
+            "calibrated_relevance": 0.49,
+            "dataset_id": "129144c0b6e375eb5552"
+          },
+          {
+            "calibrated_relevance": 0.49,
+            "dataset_id": "aaff37cb1fce7a85bff3"
+          },
+          {
+            "calibrated_relevance": 0.49,
+            "dataset_id": "50af350d36b28905a4ad"
+          },
+          {
+            "calibrated_relevance": 0.49,
+            "dataset_id": "51629a052c06d8028724"
+          },
+          {
+            "calibrated_relevance": 0.49,
+            "dataset_id": "34a4195268bbdb7fa416"
+          },
+          {
+            "calibrated_relevance": 0.49,
+            "dataset_id": "c657cfc8da4c1d591871"
+          },
+          {
+            "calibrated_relevance": 0.49,
+            "dataset_id": "619f9ff789eb3900373c"
+          },
+          {
+            "calibrated_relevance": 0.49,
+            "dataset_id": "c21e1a47a109f56d603a"
+          },
+          {
+            "calibrated_relevance": 0.49,
+            "dataset_id": "8aab89c0db8bc6fa4c6b"
+          },
+          {
+            "calibrated_relevance": 0.49,
+            "dataset_id": "2100970c4c24ac04de9a"
+          },
+          {
+            "calibrated_relevance": 0.49,
+            "dataset_id": "d5dd7c59642950b76de2"
+          },
+          {
+            "calibrated_relevance": 0.49,
+            "dataset_id": "f49971f74b75d7ff58c2"
+          },
+          {
+            "calibrated_relevance": 0.49,
+            "dataset_id": "ca73cf407cea2fb17018"
+          },
+          {
+            "calibrated_relevance": 0.49,
+            "dataset_id": "bf839640637d53a9b3f1"
+          },
+          {
+            "calibrated_relevance": 0.49,
+            "dataset_id": "41fc89e4f9f9ca81b768"
+          }
+        ],
+        "reviewer": "policy-design-case-verifier",
+        "rule_version_ref": "policyos.gy.semantic_adequacy.v1",
+        "run_id": "semantic-run-ua-msme-credit-worldbank-measurement",
+        "threshold_disposition": "fail"
+      },
+      "stale_source_classes": []
+    },
+    "unresolved": {
+      "counterexamples": [],
+      "human_questions": [],
+      "missing_data": [],
+      "unmet_required_ports": [],
+      "unresolved_couplings": []
+    },
+    "workspace_id": "ws-ua-msme-credit-worldbank-measurement"
+  },
+  "input_hashes": {
+    "sha256:84046dd6b320fee9f8c1d4732301a66f19646e33522731ad7f473d06adc9e264": "sha256:84046dd6b320fee9f8c1d4732301a66f19646e33522731ad7f473d06adc9e264"
+  },
+  "outcome_replay_proof_ref": "sha256:cd5fc2756d6aa7696d63e66aa16a4ce489321d88f7d5907dd5c48bfbb8494006",
+  "output_hash": "sha256:c3e24528393c56f94730ce69c398d6942c1c8f67b5798f539fc5a4b3fd6a40f8",
+  "owner": "team-runtime-quality",
+  "producer_roots": [
+    {
+      "artifact_id": "base-ua-msme-credit-worldbank-measurement",
+      "artifact_type": "BaseDataset",
+      "content_hash": "sha256:5e0d8e38760a56e6187ec74df75138b685df1b748b19e75ae5fbe139e168f0d6",
+      "schema_ref": "policyos.policy_design_case.layer3_gy_loop.v1",
+      "uri": "gy://slice0/ua_msme_credit_worldbank_measurement/base-dataset",
+      "version": "v1"
+    },
+    {
+      "change": "added_in_final_task12",
+      "content_hash": "sha256:9004adafc5379a0508a5f10463073fbe5c5251bc790270141c3ce4a152782d89",
+      "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_readiness_manifest.json"
+    },
+    {
+      "change": "added_in_final_task12",
+      "content_hash": "sha256:a9a8b92d88cb960d0cd20204c7b1167a69a5f56913c2a9373b3e92c2cf998033",
+      "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_cross_metric_diagnosis.json"
+    },
+    {
+      "change": "added_in_final_task12",
+      "content_hash": "sha256:c84144d37fd8fb73b76d815dbf7540a6186e191e523b85b0d84f79aeab48548f",
+      "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_domain_vs_search_ceiling_gate.json"
+    },
+    {
+      "change": "added_in_final_task12",
+      "content_hash": "sha256:e824fb88240256fe52b2f0c5de98e8be2342fdcd0d3d1af78f0cc30ab9ce32a8",
+      "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_open_question_answer_ledger.json"
+    },
+    {
+      "change": "added_in_final_task12",
+      "content_hash": "sha256:9054ad9c14ed3a5599fbcb55d554beda2d99ab46905b6dcfb9fcd9c5220188cc",
+      "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_metric_governance_audit_surface.json"
+    },
+    {
+      "change": "added_in_final_task12",
+      "content_hash": "sha256:cbecb5dc97fd1cc33597eda3f3fd0420049527074108bc7bbe971bad5aa66dd8",
+      "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_closeout_signal_consumer_gate.json"
+    }
+  ],
+  "production_loop_run_proof": {
+    "_execute_workflow_invocation_id": "execute-workflow-3140c5a2665550af",
+    "artifacts_index_refs": [
+      "search_exit_contract_ref",
+      "search_ledger_ref",
+      "outcome_replay_proof_ref",
+      "output_artifact_payload_refs"
+    ],
+    "control_store_state_transitions": [
+      "pending",
+      "running",
+      "completed"
+    ],
+    "endpoint": "/api/v1/control/runs",
+    "enqueued_at": "2026-06-15T12:00:00+00:00",
+    "http_request_id": "gy-loop-production-ua-msme-credit-worldbank-measurement",
+    "input_artifacts": [
+      "sha256:84046dd6b320fee9f8c1d4732301a66f19646e33522731ad7f473d06adc9e264"
+    ],
+    "job_id": "d1b9cabba33b5d4dbb6e4ef1350aca44",
+    "job_kind": "workflow_run",
+    "legacy_path_disposition": "routed_to_workspace_loop",
+    "output_cas_refs": [
+      "sha256:3397e4191b969d13697a114ee19642c6b57562d48c19796677cd57e50561331e",
+      "sha256:9a7851c6f124c0dacf34f29ffcd5baa0e080b6748ec3b7adfe581a7e75c062fb",
+      "sha256:5e0d8e38760a56e6187ec74df75138b685df1b748b19e75ae5fbe139e168f0d6",
+      "sha256:e4d43fb6a3ebc4b374d5ca153ffeb3f596148193414a44b7c2beeed28277584f",
+      "sha256:cd5fc2756d6aa7696d63e66aa16a4ce489321d88f7d5907dd5c48bfbb8494006"
+    ],
+    "output_replay_proof_ref": "sha256:cd5fc2756d6aa7696d63e66aa16a4ce489321d88f7d5907dd5c48bfbb8494006",
+    "output_search_exit_contract_ref": "sha256:3397e4191b969d13697a114ee19642c6b57562d48c19796677cd57e50561331e",
+    "run_id": "run-gy-loop-proof-ua_msme_credit_worldbank_measurement",
+    "schema_version": "policyos.policy_design_case.layer3_gy_loop.v1",
+    "surface_readbacks": [
+      {
+        "job_id": "d1b9cabba33b5d4dbb6e4ef1350aca44",
+        "matched_search_exit_contract_ref": true,
+        "observed_authority_path": "workspace_loop",
+        "observed_authority_result": "repair_required",
+        "observed_job_state": "completed",
+        "observed_search_exit_contract_ref": "sha256:3397e4191b969d13697a114ee19642c6b57562d48c19796677cd57e50561331e",
+        "observed_terminal_kind": "search_ceiling_repair_required",
+        "read_method": "ControlPlaneStore.get_job",
+        "run_id": "run-gy-loop-proof-ua_msme_credit_worldbank_measurement",
+        "surface": "/api/v1/control/runs"
+      }
+    ],
+    "surface_reads_checked": [
+      "control_worker_precompletion",
+      "control_job_status",
+      "runs_readback"
+    ],
+    "worker_id": "control-worker-gy-loop-proof-production-ua-msme-credit-worldbank-measurement",
+    "worker_lease_id": "control-worker-gy-loop-proof-production-ua-msme-credit-worldbank-measurement",
+    "workspace_loop_invocation_id": "workspace-loop-78d73248f7d85368"
+  },
+  "production_loop_run_proof_ref": "sha256:27900b26824b6fe12b6b2a08ceec731b0104642e5728c0f9777a5e027544cc8a",
+  "proof_source": "production_http_route_recomputed",
+  "rule_version": "policyos.layer3.gy.outcome_run.v1",
+  "schema_version": "policyos.policy_design_case.layer3_gy.outcome_run.v1",
+  "search_exit_contract": {
+    "artifact_envelopes": [
+      {
+        "authority_boundary": null,
+        "certified_operation_envelope": null,
+        "created_by": {
+          "component": "polisyos.runtime.quality.WorkspaceLoop",
+          "kind": "producer"
+        },
+        "input_artifacts": [],
+        "lifecycle_state": "shadow",
+        "obligations": [
+          "search_repair_required"
+        ],
+        "payload_ref": "sha256:5e0d8e38760a56e6187ec74df75138b685df1b748b19e75ae5fbe139e168f0d6",
+        "payload_schema_ref": "policyos.policy_design_case.layer3_gy_loop.v1",
+        "producer_operation": {
+          "invocation_id": "invoke-bind",
+          "operation_id": "slice0.bind.catalog",
+          "operation_version": "v1"
+        },
+        "producer_roots": [],
+        "ref": {
+          "artifact_id": "base-ua-msme-credit-worldbank-measurement",
+          "artifact_type": "BaseDataset",
+          "content_hash": "sha256:5e0d8e38760a56e6187ec74df75138b685df1b748b19e75ae5fbe139e168f0d6",
+          "schema_ref": "policyos.policy_design_case.layer3_gy_loop.v1",
+          "uri": "gy://slice0/ua_msme_credit_worldbank_measurement/base-dataset",
+          "version": "v1"
+        },
+        "verification": {
+          "latest_applicability_result": null,
+          "latest_promotion_result": null
+        }
+      },
+      {
+        "authority_boundary": null,
+        "certified_operation_envelope": null,
+        "created_by": {
+          "component": "polisyos.runtime.quality.WorkspaceLoop",
+          "kind": "producer"
+        },
+        "input_artifacts": [
+          {
+            "artifact_id": "base-ua-msme-credit-worldbank-measurement",
+            "artifact_type": "BaseDataset",
+            "content_hash": "sha256:5e0d8e38760a56e6187ec74df75138b685df1b748b19e75ae5fbe139e168f0d6",
+            "schema_ref": "policyos.policy_design_case.layer3_gy_loop.v1",
+            "uri": "gy://slice0/ua_msme_credit_worldbank_measurement/base-dataset",
+            "version": "v1"
+          }
+        ],
+        "lifecycle_state": "shadow",
+        "obligations": [],
+        "payload_ref": "sha256:e4d43fb6a3ebc4b374d5ca153ffeb3f596148193414a44b7c2beeed28277584f",
+        "payload_schema_ref": "policyos.policy_design_case.layer3_gy_loop.v1",
+        "producer_operation": {
+          "invocation_id": "invoke-estimate",
+          "operation_id": "slice0.estimate.measurement_summary",
+          "operation_version": "v1"
+        },
+        "producer_roots": [
+          {
+            "artifact_id": "base-ua-msme-credit-worldbank-measurement",
+            "artifact_type": "BaseDataset",
+            "content_hash": "sha256:5e0d8e38760a56e6187ec74df75138b685df1b748b19e75ae5fbe139e168f0d6",
+            "schema_ref": "policyos.policy_design_case.layer3_gy_loop.v1",
+            "uri": "gy://slice0/ua_msme_credit_worldbank_measurement/base-dataset",
+            "version": "v1"
+          }
+        ],
+        "ref": {
+          "artifact_id": "estimate-ua-msme-credit-worldbank-measurement",
+          "artifact_type": "Estimate",
+          "content_hash": "sha256:e4d43fb6a3ebc4b374d5ca153ffeb3f596148193414a44b7c2beeed28277584f",
+          "schema_ref": "policyos.policy_design_case.layer3_gy_loop.v1",
+          "uri": "gy://slice0/ua_msme_credit_worldbank_measurement/estimate",
+          "version": "v1"
+        },
+        "verification": {
+          "latest_applicability_result": null,
+          "latest_promotion_result": null
+        }
+      }
+    ],
+    "authority_boundary": null,
+    "authority_derivation_traces": [],
+    "budget_ledger": {
+      "consumed": {
+        "acquisition": {
+          "money_usd": 0.0
+        },
+        "calendar": {
+          "calendar_days": 0
+        },
+        "compute": {
+          "operation_invocations": 3
+        },
+        "expert_attention": {
+          "expert_hours": 0.0
+        },
+        "novelty": {
+          "disabled_slice0": 0
+        },
+        "recursion": {
+          "disabled_slice0": 0
+        },
+        "search_quality": {
+          "recall_at_known_seeds": 0.0,
+          "recall_deficit": 1.0
+        }
+      },
+      "exhausted": [
+        "search_quality.min_recall_at_known_seeds"
+      ],
+      "remaining": {
+        "acquisition": {
+          "money_usd": 0.0
+        },
+        "calendar": {
+          "calendar_days": 0
+        },
+        "compute": {
+          "operation_invocations": 0
+        },
+        "expert_attention": {
+          "expert_hours": 0.0
+        },
+        "novelty": {
+          "disabled_slice0": 0
+        },
+        "recursion": {
+          "disabled_slice0": 0
+        },
+        "search_quality": {
+          "recall_margin": 0.0
+        }
+      }
+    },
+    "cycle_index": 3,
+    "decision_grade": "unsupported",
+    "evidence_kind": null,
+    "evidence_ladder_rung": "none",
+    "exit_id": "exit-ua-msme-credit-worldbank-measurement",
+    "frontier_snapshot": {
+      "current_best": [],
+      "cycle_index": 3,
+      "dominated_candidates": [],
+      "frontier_metrics": {
+        "candidate_count": 2,
+        "cycles_without_improvement": 0,
+        "promoted_count": 0,
+        "rejected_count": 0
+      },
+      "promoted_candidates": [],
+      "rejected_candidates": [],
+      "shadow_candidates": [
+        {
+          "artifact_id": "base-ua-msme-credit-worldbank-measurement",
+          "artifact_type": "BaseDataset",
+          "content_hash": "sha256:5e0d8e38760a56e6187ec74df75138b685df1b748b19e75ae5fbe139e168f0d6",
+          "schema_ref": "policyos.policy_design_case.layer3_gy_loop.v1",
+          "uri": "gy://slice0/ua_msme_credit_worldbank_measurement/base-dataset",
+          "version": "v1"
+        },
+        {
+          "artifact_id": "estimate-ua-msme-credit-worldbank-measurement",
+          "artifact_type": "Estimate",
+          "content_hash": "sha256:e4d43fb6a3ebc4b374d5ca153ffeb3f596148193414a44b7c2beeed28277584f",
+          "schema_ref": "policyos.policy_design_case.layer3_gy_loop.v1",
+          "uri": "gy://slice0/ua_msme_credit_worldbank_measurement/estimate",
+          "version": "v1"
+        }
+      ],
+      "snapshot_id": "frontier-ua-msme-credit-worldbank-measurement",
+      "workspace_id": "ws-ua-msme-credit-worldbank-measurement"
+    },
+    "incompleteness_record": {
+      "budget": {
+        "consumed": {
+          "acquisition": {
+            "money_usd": 0.0
+          },
+          "calendar": {
+            "calendar_days": 0
+          },
+          "compute": {
+            "operation_invocations": 3
+          },
+          "expert_attention": {
+            "expert_hours": 0.0
+          },
+          "novelty": {
+            "disabled_slice0": 0
+          },
+          "recursion": {
+            "disabled_slice0": 0
+          },
+          "search_quality": {
+            "recall_at_known_seeds": 0.0,
+            "recall_deficit": 1.0
+          }
+        },
+        "exhausted": [
+          "search_quality.min_recall_at_known_seeds"
+        ],
+        "remaining": {
+          "acquisition": {
+            "money_usd": 0.0
+          },
+          "calendar": {
+            "calendar_days": 0
+          },
+          "compute": {
+            "operation_invocations": 0
+          },
+          "expert_attention": {
+            "expert_hours": 0.0
+          },
+          "novelty": {
+            "disabled_slice0": 0
+          },
+          "recursion": {
+            "disabled_slice0": 0
+          },
+          "search_quality": {
+            "recall_margin": 0.0
+          }
+        }
+      },
+      "ceiling_classification": "search_ceiling",
+      "coverage": {
+        "jurisdictions_checked": [
+          "UA"
+        ],
+        "methods_attempted": [
+          "slice0.estimate.measurement_summary"
+        ],
+        "operations_attempted": [
+          "BIND",
+          "ESTIMATE",
+          "VERIFY"
+        ],
+        "operations_not_attempted": [
+          {
+            "operation_id": "slice0.acquire.costed_plan",
+            "reason": "terminal_recommendation_not_executed_in_slice0"
+          }
+        ],
+        "source_classes_checked": [
+          "official"
+        ],
+        "source_classes_missing": [],
+        "time_horizons_checked": [
+          "2020-2024"
+        ]
+      },
+      "next_best_actions": [
+        {
+          "costed_plan": null,
+          "data_need_spec": null,
+          "estimated_cost": "out_of_scope_slice0",
+          "estimated_voi": 1.0,
+          "operation_proposal_ref": "slice0.acquire.costed_plan",
+          "reason_not_taken": "ACQUIRE continuation was not selected for this terminal."
+        }
+      ],
+      "record_id": "incomplete-ua-msme-credit-worldbank-measurement",
+      "search_quality": {
+        "freshness_ok": true,
+        "known_seeds_missed": [
+          "catalog://ilo/sme-finance/ukraine-credit-constraints",
+          "catalog://worldbank/enterprise-surveys/ukraine/msme-credit-access",
+          "catalog://worldbank/global-findex/ukraine-account-credit"
+        ],
+        "recall_at_known_seeds": 0.0,
+        "semantic_benchmark_run": {
+          "benchmark_id": "layer3_gy_slice0_semantic_adequacy_v1",
+          "benchmark_ref": "architecture/policy_design_case/layer3_gy_semantic_benchmark.json",
+          "benchmark_version": "policyos.policy_design_case.layer3_gy.semantic_benchmark.v1",
+          "catalog_corpus_kind": "slice0_representative_fixture_corpus",
+          "closure_scope": "slice0_gate_only",
+          "construct_scope": "ua_msme_credit_worldbank_measurement",
+          "freshness_ok": true,
+          "label_owner": "team-runtime-quality",
+          "missed_known_seeds": [
+            "catalog://ilo/sme-finance/ukraine-credit-constraints",
+            "catalog://worldbank/enterprise-surveys/ukraine/msme-credit-access",
+            "catalog://worldbank/global-findex/ukraine-account-credit"
+          ],
+          "negative_controls_passed": [],
+          "posture": "pre_decision",
+          "precision_at_5": 0.0,
+          "queries": [
+            "Ukraine MSME credit access World Bank firm measurement"
+          ],
+          "recall_at_known_seeds": 0.0,
+          "returned_hits": [
+            {
+              "calibrated_relevance": 0.49,
+              "dataset_id": "b4aa43327ebbb617daa4"
+            },
+            {
+              "calibrated_relevance": 0.49,
+              "dataset_id": "82cb20b6678b69084018"
+            },
+            {
+              "calibrated_relevance": 0.49,
+              "dataset_id": "766c81f100f5878036c4"
+            },
+            {
+              "calibrated_relevance": 0.49,
+              "dataset_id": "0188066e32fe20d2db45"
+            },
+            {
+              "calibrated_relevance": 0.49,
+              "dataset_id": "4528f1887381bc0dc733"
+            },
+            {
+              "calibrated_relevance": 0.49,
+              "dataset_id": "129144c0b6e375eb5552"
+            },
+            {
+              "calibrated_relevance": 0.49,
+              "dataset_id": "aaff37cb1fce7a85bff3"
+            },
+            {
+              "calibrated_relevance": 0.49,
+              "dataset_id": "50af350d36b28905a4ad"
+            },
+            {
+              "calibrated_relevance": 0.49,
+              "dataset_id": "51629a052c06d8028724"
+            },
+            {
+              "calibrated_relevance": 0.49,
+              "dataset_id": "34a4195268bbdb7fa416"
+            },
+            {
+              "calibrated_relevance": 0.49,
+              "dataset_id": "c657cfc8da4c1d591871"
+            },
+            {
+              "calibrated_relevance": 0.49,
+              "dataset_id": "619f9ff789eb3900373c"
+            },
+            {
+              "calibrated_relevance": 0.49,
+              "dataset_id": "c21e1a47a109f56d603a"
+            },
+            {
+              "calibrated_relevance": 0.49,
+              "dataset_id": "8aab89c0db8bc6fa4c6b"
+            },
+            {
+              "calibrated_relevance": 0.49,
+              "dataset_id": "2100970c4c24ac04de9a"
+            },
+            {
+              "calibrated_relevance": 0.49,
+              "dataset_id": "d5dd7c59642950b76de2"
+            },
+            {
+              "calibrated_relevance": 0.49,
+              "dataset_id": "f49971f74b75d7ff58c2"
+            },
+            {
+              "calibrated_relevance": 0.49,
+              "dataset_id": "ca73cf407cea2fb17018"
+            },
+            {
+              "calibrated_relevance": 0.49,
+              "dataset_id": "bf839640637d53a9b3f1"
+            },
+            {
+              "calibrated_relevance": 0.49,
+              "dataset_id": "41fc89e4f9f9ca81b768"
+            }
+          ],
+          "reviewer": "policy-design-case-verifier",
+          "rule_version_ref": "policyos.gy.semantic_adequacy.v1",
+          "run_id": "semantic-run-ua-msme-credit-worldbank-measurement",
+          "threshold_disposition": "fail"
+        },
+        "stale_source_classes": []
+      },
+      "unresolved": {
+        "counterexamples": [],
+        "human_questions": [],
+        "missing_data": [],
+        "unmet_required_ports": [],
+        "unresolved_couplings": []
+      },
+      "workspace_id": "ws-ua-msme-credit-worldbank-measurement"
+    },
+    "next_best_actions": [
+      {
+        "costed_plan": null,
+        "data_need_spec": null,
+        "estimated_cost": "out_of_scope_slice0",
+        "estimated_voi": 1.0,
+        "operation_proposal_ref": "slice0.acquire.costed_plan",
+        "reason_not_taken": "ACQUIRE continuation was not selected for this terminal."
+      }
+    ],
+    "obligation_records": [],
+    "output_artifacts": [
+      {
+        "artifact_id": "base-ua-msme-credit-worldbank-measurement",
+        "artifact_type": "BaseDataset",
+        "content_hash": "sha256:5e0d8e38760a56e6187ec74df75138b685df1b748b19e75ae5fbe139e168f0d6",
+        "schema_ref": "policyos.policy_design_case.layer3_gy_loop.v1",
+        "uri": "gy://slice0/ua_msme_credit_worldbank_measurement/base-dataset",
+        "version": "v1"
+      },
+      {
+        "artifact_id": "estimate-ua-msme-credit-worldbank-measurement",
+        "artifact_type": "Estimate",
+        "content_hash": "sha256:e4d43fb6a3ebc4b374d5ca153ffeb3f596148193414a44b7c2beeed28277584f",
+        "schema_ref": "policyos.policy_design_case.layer3_gy_loop.v1",
+        "uri": "gy://slice0/ua_msme_credit_worldbank_measurement/estimate",
+        "version": "v1"
+      }
+    ],
+    "search_ledger": {
+      "a_before_b_status": null,
+      "accountability_authority_boundary": null,
+      "accountability_phase": "not_applicable",
+      "accountability_posture_refs": [],
+      "acquisition_branch_state": "bridge_missing",
+      "action_item_closure_refs": [],
+      "action_item_statuses": [],
+      "applicability_results": [
+        {
+          "checked_preconditions": [
+            {
+              "description": "Fixture expectation is read from WorkspaceFixtureManifest before BIND.",
+              "discovered_from": "engine_registry:data_forge.catalog.DatasetCatalogGraph",
+              "discovery_evidence": {
+                "adapter_conformance": {
+                  "passed": true,
+                  "required_contract": "DatasetCatalogGraph.search_datasets"
+                },
+                "registration_mode": "executable",
+                "source_kind": "data_forge_catalog_source_registry",
+                "source_lookup": {
+                  "agency_allowlist": [],
+                  "agency_prefix": "",
+                  "allow_manual_backfill": false,
+                  "connector_id": "worldbank.wdi",
+                  "default_lookback_days": null,
+                  "enabled": true,
+                  "endpoint": "https://api.worldbank.org/v2/indicator",
+                  "exclude_agencies": [],
+                  "execution_tier": "transport_ready",
+                  "family": "worldbank",
+                  "format_allowlist": [],
+                  "format_denylist": [],
+                  "history_policy": "full_snapshot",
+                  "keyword_allowlist": [],
+                  "keyword_denylist": [],
+                  "max_bytes_per_snapshot": null,
+                  "max_rows_per_snapshot": null,
+                  "metrics_required": true,
+                  "profile_id": "worldbank_wdi",
+                  "publish_blocking": true,
+                  "require_curated_resources": false,
+                  "run_lane": "empirical",
+                  "seed_from": null,
+                  "source_id": "worldbank",
+                  "update_frequency": "annual",
+                  "wave": "B"
+                },
+                "source_ref": "polisyos.data_forge.domains.catalog.source_registry:worldbank"
+              },
+              "evidence_ref": "manifest:ua_msme_credit_worldbank_measurement",
+              "observed": {
+                "dataset_artifact_ref": "sha256:5e0d8e38760a56e6187ec74df75138b685df1b748b19e75ae5fbe139e168f0d6",
+                "expected_catalog_binding_refs": [
+                  "catalog://worldbank/enterprise-surveys/ukraine/msme-credit-access",
+                  "catalog://worldbank/global-findex/ukraine-account-credit",
+                  "catalog://ilo/sme-finance/ukraine-credit-constraints"
+                ]
+              },
+              "operation_id": "slice0.bind.catalog",
+              "predicate_id": "slice0.catalog_binding_expected",
+              "reason": "passed",
+              "rule_version": "policyos.gy.formal_gate.v1",
+              "severity": "hard",
+              "status": "passed"
+            },
+            {
+              "description": "DataRequirementSpec/source-contract facets must pass before fetch.",
+              "discovered_from": "engine_registry:data_forge.catalog.DatasetCatalogGraph",
+              "discovery_evidence": {
+                "adapter_conformance": {
+                  "passed": true,
+                  "required_contract": "DatasetCatalogGraph.search_datasets"
+                },
+                "registration_mode": "executable",
+                "source_kind": "data_forge_catalog_source_registry",
+                "source_lookup": {
+                  "agency_allowlist": [],
+                  "agency_prefix": "",
+                  "allow_manual_backfill": false,
+                  "connector_id": "worldbank.wdi",
+                  "default_lookback_days": null,
+                  "enabled": true,
+                  "endpoint": "https://api.worldbank.org/v2/indicator",
+                  "exclude_agencies": [],
+                  "execution_tier": "transport_ready",
+                  "family": "worldbank",
+                  "format_allowlist": [],
+                  "format_denylist": [],
+                  "history_policy": "full_snapshot",
+                  "keyword_allowlist": [],
+                  "keyword_denylist": [],
+                  "max_bytes_per_snapshot": null,
+                  "max_rows_per_snapshot": null,
+                  "metrics_required": true,
+                  "profile_id": "worldbank_wdi",
+                  "publish_blocking": true,
+                  "require_curated_resources": false,
+                  "run_lane": "empirical",
+                  "seed_from": null,
+                  "source_id": "worldbank",
+                  "update_frequency": "annual",
+                  "wave": "B"
+                },
+                "source_ref": "polisyos.data_forge.domains.catalog.source_registry:worldbank"
+              },
+              "observed": {
+                "latest_applicability_result": null,
+                "measurement_rooted": false
+              },
+              "operation_id": "slice0.bind.catalog",
+              "predicate_id": "slice0.source_contract_facets_complete",
+              "reason": "source_contract_not_applicable_or_missing",
+              "rule_version": "policyos.gy.formal_gate.v1",
+              "severity": "hard",
+              "status": "failed"
+            }
+          ],
+          "failed_preconditions": [
+            {
+              "predicate_id": "slice0.source_contract_facets_complete",
+              "reason": "source_contract_not_applicable_or_missing",
+              "severity": "hard"
+            }
+          ],
+          "invocation_id": "invoke-bind",
+          "repair_options": [
+            {
+              "failed_preconditions": [
+                "slice0.source_contract_facets_complete"
+              ],
+              "kind": "operation_contract_repair",
+              "operation_id": "slice0.bind.catalog"
+            }
+          ],
+          "result_id": "applicability-bind",
+          "status": "repair_required",
+          "type_errors": []
+        },
+        {
+          "checked_preconditions": [
+            {
+              "description": "ESTIMATE consumes a measurement-rooted BaseDataset artifact.",
+              "discovered_from": "engine_registry:foundry.methods.measurement_summary",
+              "discovery_evidence": {
+                "adapter_conformance": {
+                  "adapter_ref": "polisyos.runtime.quality.workspace.foundry_consumption.FoundryMethodOutputConsumer",
+                  "consumes_ports": [
+                    "BaseDataset.MeasurementRoot"
+                  ],
+                  "failures": [],
+                  "passed": true,
+                  "preservation_passed": true,
+                  "produces_ports": [
+                    "Estimate"
+                  ],
+                  "registry_candidate_count": 3,
+                  "registry_candidates": [
+                    "causal.inference.dowhy_identify_estimate@1.0.0",
+                    "causal.inference.dowhy_identify_estimate@2.0.0",
+                    "causal.measurement_error.measurement_error_proxy@1.0.0"
+                  ],
+                  "required_contract": "measurement-root BaseDataset -> Estimate",
+                  "smoke_passed": true
+                },
+                "registration_mode": "executable",
+                "source_kind": "foundry_method_registry",
+                "source_lookup": {
+                  "matched_fqns": [
+                    "causal.inference.dowhy_identify_estimate@1.0.0",
+                    "causal.inference.dowhy_identify_estimate@2.0.0",
+                    "causal.measurement_error.measurement_error_proxy@1.0.0"
+                  ],
+                  "query": "estimate-capable methods or local Slice-0 measurement summary adapter"
+                },
+                "source_ref": "polisyos.foundry.methods.selection.registry"
+              },
+              "evidence_ref": "sha256:5e0d8e38760a56e6187ec74df75138b685df1b748b19e75ae5fbe139e168f0d6",
+              "observed": {
+                "artifact_type": "BaseDataset",
+                "producer_root_types": []
+              },
+              "operation_id": "slice0.estimate.measurement_summary",
+              "predicate_id": "slice0.estimate_input_dataset",
+              "reason": "estimate_input_is_not_measurement_rooted",
+              "rule_version": "policyos.gy.formal_gate.v1",
+              "severity": "hard",
+              "status": "failed"
+            }
+          ],
+          "failed_preconditions": [
+            {
+              "predicate_id": "slice0.estimate_input_dataset",
+              "reason": "estimate_input_is_not_measurement_rooted",
+              "severity": "hard"
+            }
+          ],
+          "invocation_id": "invoke-estimate",
+          "repair_options": [
+            {
+              "failed_preconditions": [
+                "slice0.estimate_input_dataset"
+              ],
+              "kind": "operation_contract_repair",
+              "operation_id": "slice0.estimate.measurement_summary"
+            }
+          ],
+          "result_id": "applicability-estimate",
+          "status": "repair_required",
+          "type_errors": []
+        },
+        {
+          "checked_preconditions": [
+            {
+              "description": "VERIFY derives Ring-2 AuthorityBoundary and cannot self-promote.",
+              "discovered_from": "engine_registry:pdc.authority_derivation",
+              "discovery_evidence": {
+                "adapter_conformance": {
+                  "consumes_ports": [
+                    "Estimate",
+                    "AuthorityBoundary"
+                  ],
+                  "failures": [],
+                  "passed": true,
+                  "preservation_passed": true,
+                  "produces_ports": [
+                    "AuthorityDerivationTrace"
+                  ],
+                  "registry_candidate_count": 2,
+                  "registry_candidates": [
+                    "polisyos.pdc.AuthorityBoundary",
+                    "polisyos.pdc.AuthorityDerivationTrace"
+                  ],
+                  "required_contract": "verifier-stamped AuthorityBoundary only",
+                  "smoke_passed": true
+                },
+                "registration_mode": "executable",
+                "source_kind": "pdc_contract_registry",
+                "source_lookup": {
+                  "authority_boundary_lattice": "polisyos.pdc.AuthorityBoundary",
+                  "trace_contract": "polisyos.pdc.AuthorityDerivationTrace"
+                },
+                "source_ref": "polisyos.pdc.AuthorityDerivationTrace"
+              },
+              "observed": {
+                "authority_boundary": null,
+                "estimate_artifact_type": "Estimate"
+              },
+              "operation_id": "slice0.verify.authority",
+              "predicate_id": "slice0.verify_authority_boundary",
+              "reason": "no_authority_boundary_for_non_authority_terminal",
+              "rule_version": "policyos.gy.formal_gate.v1",
+              "severity": "hard",
+              "status": "failed"
+            }
+          ],
+          "failed_preconditions": [
+            {
+              "predicate_id": "slice0.verify_authority_boundary",
+              "reason": "no_authority_boundary_for_non_authority_terminal",
+              "severity": "hard"
+            }
+          ],
+          "invocation_id": "invoke-verify",
+          "repair_options": [
+            {
+              "failed_preconditions": [
+                "slice0.verify_authority_boundary"
+              ],
+              "kind": "operation_contract_repair",
+              "operation_id": "slice0.verify.authority"
+            }
+          ],
+          "result_id": "applicability-verify",
+          "status": "repair_required",
+          "type_errors": []
+        }
+      ],
+      "assurance_case_delta_refs": [],
+      "attribution_status": null,
+      "authorized_value_schedule_refs": [],
+      "candidate_refs": [
+        "base-ua-msme-credit-worldbank-measurement",
+        "estimate-ua-msme-credit-worldbank-measurement"
+      ],
+      "case_id": "ws-ua-msme-credit-worldbank-measurement",
+      "certified_envelope_delta_refs": [],
+      "cluster_handoff_refs": [],
+      "counterexample_class_vocabulary": [],
+      "counterexample_conversion_rate": 0.0,
+      "counterexample_refs": [],
+      "delegation_record_refs": [],
+      "delegation_request_refs": [],
+      "delegation_status": "not_applicable",
+      "deployment_dossier_refs": [],
+      "deterministic_replay_key": "policyos.policy_design_case.layer3_gy_loop.v1:ws-ua-msme-credit-worldbank-measurement:slice0",
+      "divergence_record_refs": [],
+      "envelope_growth_ledger_refs": [],
+      "envelope_revision_direction": null,
+      "envelope_revision_refs": [],
+      "events": [
+        {
+          "actor": {
+            "id": "workspace-loop",
+            "kind": "system"
+          },
+          "authority_delta": null,
+          "budget_delta": {
+            "compute": {
+              "operation_invocations": 1
+            }
+          },
+          "created_obligations": [],
+          "cycle_index": 0,
+          "decision_record_ref": null,
+          "event_id": "event-bind-finished",
+          "event_type": "operation_finished",
+          "input_artifacts": [],
+          "operation_invocation_ref": "invoke-bind",
+          "output_artifacts": [],
+          "timestamp": "2026-06-15T12:00:00Z",
+          "workspace_id": "ws-ua-msme-credit-worldbank-measurement"
+        },
+        {
+          "actor": {
+            "id": "workspace-loop",
+            "kind": "system"
+          },
+          "authority_delta": null,
+          "budget_delta": {
+            "compute": {
+              "operation_invocations": 1
+            }
+          },
+          "created_obligations": [],
+          "cycle_index": 1,
+          "decision_record_ref": null,
+          "event_id": "event-estimate-finished",
+          "event_type": "operation_finished",
+          "input_artifacts": [],
+          "operation_invocation_ref": "invoke-estimate",
+          "output_artifacts": [],
+          "timestamp": "2026-06-15T12:00:00Z",
+          "workspace_id": "ws-ua-msme-credit-worldbank-measurement"
+        },
+        {
+          "actor": {
+            "id": "workspace-loop",
+            "kind": "system"
+          },
+          "authority_delta": null,
+          "budget_delta": {
+            "compute": {
+              "operation_invocations": 1
+            }
+          },
+          "created_obligations": [],
+          "cycle_index": 2,
+          "decision_record_ref": null,
+          "event_id": "event-verify-finished",
+          "event_type": "operation_finished",
+          "input_artifacts": [],
+          "operation_invocation_ref": "invoke-verify",
+          "output_artifacts": [
+            {
+              "artifact_id": "base-ua-msme-credit-worldbank-measurement",
+              "artifact_type": "BaseDataset",
+              "content_hash": "sha256:5e0d8e38760a56e6187ec74df75138b685df1b748b19e75ae5fbe139e168f0d6",
+              "schema_ref": "policyos.policy_design_case.layer3_gy_loop.v1",
+              "uri": "gy://slice0/ua_msme_credit_worldbank_measurement/base-dataset",
+              "version": "v1"
+            },
+            {
+              "artifact_id": "estimate-ua-msme-credit-worldbank-measurement",
+              "artifact_type": "Estimate",
+              "content_hash": "sha256:e4d43fb6a3ebc4b374d5ca153ffeb3f596148193414a44b7c2beeed28277584f",
+              "schema_ref": "policyos.policy_design_case.layer3_gy_loop.v1",
+              "uri": "gy://slice0/ua_msme_credit_worldbank_measurement/estimate",
+              "version": "v1"
+            }
+          ],
+          "timestamp": "2026-06-15T12:00:00Z",
+          "workspace_id": "ws-ua-msme-credit-worldbank-measurement"
+        }
+      ],
+      "explore_exploit_posture": "not_applicable",
+      "forecast_authority_boundary": null,
+      "forecast_authority_status": "not_applicable",
+      "forecast_calibration_record_refs": [],
+      "forecast_posture_refs": [],
+      "forecast_support_refs": [],
+      "grammar_diversity_minimum": 0,
+      "growth_thermometer_refs": [],
+      "historical_prior_influence_refs": [],
+      "human_decision_record_refs": [],
+      "human_decision_request_refs": [],
+      "instrument_family_coverage": [
+        "bind",
+        "estimate",
+        "verify"
+      ],
+      "invocations": [
+        {
+          "applicability_result": "applicability-bind",
+          "budget_delta": {
+            "compute": {
+              "operation_invocations": 1
+            }
+          },
+          "cycle_index": 0,
+          "human_requests": [],
+          "input_artifacts": [],
+          "internal_trace": {
+            "trace_kind": "deterministic",
+            "trace_ref": "gy://slice0/ws-ua-msme-credit-worldbank-measurement/bind"
+          },
+          "invocation_id": "invoke-bind",
+          "operation_id": "slice0.bind.catalog",
+          "operation_version": "v1",
+          "output_artifacts": [],
+          "parameters": {
+            "schema_ref": "policyos.policy_design_case.layer3_gy_loop.v1",
+            "value_ref": "inline:slice0"
+          },
+          "selected_by": {
+            "id": "seed-trajectory",
+            "kind": "refinement_policy"
+          },
+          "selection_rationale_ref": null,
+          "status": "completed",
+          "tool_calls": [],
+          "workspace_id": "ws-ua-msme-credit-worldbank-measurement"
+        },
+        {
+          "applicability_result": "applicability-estimate",
+          "budget_delta": {
+            "compute": {
+              "operation_invocations": 1
+            }
+          },
+          "cycle_index": 1,
+          "human_requests": [],
+          "input_artifacts": [],
+          "internal_trace": {
+            "trace_kind": "deterministic",
+            "trace_ref": "gy://slice0/ws-ua-msme-credit-worldbank-measurement/estimate"
+          },
+          "invocation_id": "invoke-estimate",
+          "operation_id": "slice0.estimate.measurement_summary",
+          "operation_version": "v1",
+          "output_artifacts": [],
+          "parameters": {
+            "schema_ref": "policyos.policy_design_case.layer3_gy_loop.v1",
+            "value_ref": "inline:slice0"
+          },
+          "selected_by": {
+            "id": "seed-trajectory",
+            "kind": "refinement_policy"
+          },
+          "selection_rationale_ref": null,
+          "status": "completed",
+          "tool_calls": [],
+          "workspace_id": "ws-ua-msme-credit-worldbank-measurement"
+        },
+        {
+          "applicability_result": "applicability-verify",
+          "budget_delta": {
+            "compute": {
+              "operation_invocations": 1
+            }
+          },
+          "cycle_index": 2,
+          "human_requests": [],
+          "input_artifacts": [],
+          "internal_trace": {
+            "trace_kind": "deterministic",
+            "trace_ref": "gy://slice0/ws-ua-msme-credit-worldbank-measurement/verify"
+          },
+          "invocation_id": "invoke-verify",
+          "operation_id": "slice0.verify.authority",
+          "operation_version": "v1",
+          "output_artifacts": [
+            {
+              "artifact_id": "base-ua-msme-credit-worldbank-measurement",
+              "artifact_type": "BaseDataset",
+              "content_hash": "sha256:5e0d8e38760a56e6187ec74df75138b685df1b748b19e75ae5fbe139e168f0d6",
+              "schema_ref": "policyos.policy_design_case.layer3_gy_loop.v1",
+              "uri": "gy://slice0/ua_msme_credit_worldbank_measurement/base-dataset",
+              "version": "v1"
+            },
+            {
+              "artifact_id": "estimate-ua-msme-credit-worldbank-measurement",
+              "artifact_type": "Estimate",
+              "content_hash": "sha256:e4d43fb6a3ebc4b374d5ca153ffeb3f596148193414a44b7c2beeed28277584f",
+              "schema_ref": "policyos.policy_design_case.layer3_gy_loop.v1",
+              "uri": "gy://slice0/ua_msme_credit_worldbank_measurement/estimate",
+              "version": "v1"
+            }
+          ],
+          "parameters": {
+            "schema_ref": "policyos.policy_design_case.layer3_gy_loop.v1",
+            "value_ref": "inline:slice0"
+          },
+          "selected_by": {
+            "id": "seed-trajectory",
+            "kind": "refinement_policy"
+          },
+          "selection_rationale_ref": null,
+          "status": "completed",
+          "tool_calls": [],
+          "workspace_id": "ws-ua-msme-credit-worldbank-measurement"
+        }
+      ],
+      "ir_analytics_bridge_refs": [],
+      "iterations": [
+        {
+          "candidate_ref": "base-ua-msme-credit-worldbank-measurement",
+          "counterexample_refs": [],
+          "iteration_id": "iteration-bind",
+          "refinement_decision_ref": "applicability-bind",
+          "status": "abstained"
+        },
+        {
+          "candidate_ref": "base-ua-msme-credit-worldbank-measurement",
+          "counterexample_refs": [],
+          "iteration_id": "iteration-estimate",
+          "refinement_decision_ref": "applicability-estimate",
+          "status": "abstained"
+        },
+        {
+          "candidate_ref": "base-ua-msme-credit-worldbank-measurement",
+          "counterexample_refs": [],
+          "iteration_id": "iteration-verify",
+          "refinement_decision_ref": "applicability-verify",
+          "status": "abstained"
+        }
+      ],
+      "learning_update_proposal_refs": [],
+      "ledger_id": "ledger-ws-ua-msme-credit-worldbank-measurement",
+      "ledger_ref": "gy://slice0/ws-ua-msme-credit-worldbank-measurement/search-ledger",
+      "lifecycle_reissue_dispositions": [],
+      "mape_k_trace_refs": [],
+      "no_retry_without_new_grammar": true,
+      "oversight_accountability_state": null,
+      "pareto_archive_refs": [],
+      "predictive_authority_boundary": null,
+      "predictive_authority_status": "not_applicable",
+      "predictive_axis_upgrade_refs": [],
+      "predictive_knowledge_refs": [],
+      "proof_carrying_analytics_refs": [],
+      "public_accountability_note_refs": [],
+      "public_revision_state_refs": [],
+      "refinement_decision_refs": [
+        "applicability-bind",
+        "applicability-estimate",
+        "applicability-verify"
+      ],
+      "replay_levels": [
+        "A",
+        "B",
+        "C"
+      ],
+      "resource_allocation_policy_refs": [],
+      "resource_authority_boundary": null,
+      "s11_calibration_record_refs": [],
+      "s11_forecast_quality_constraint_refs": [],
+      "s11_regime_strategy_constraint_refs": [],
+      "s11_residual_limitation_refs": [],
+      "schema_version": "policyos.policy_design_case.layer2_s2_design_search.v1",
+      "search_incompleteness_note": "Slice-0 loop is BIND -> ESTIMATE -> VERIFY; no design candidate promotion.",
+      "shadow_scenario_value_schedule_refs": [],
+      "value_authorization_decision_refs": [],
+      "value_choice_provenance_refs": [],
+      "value_choice_status": "not_applicable",
+      "voi_allocation_refs": [],
+      "workspace_id": "ws-ua-msme-credit-worldbank-measurement"
+    },
+    "terminal_state": {
+      "blocking_obligations": [],
+      "budget_kind": null,
+      "costed_plan": null,
+      "data_need_spec": null,
+      "kind": "search_ceiling_repair_required",
+      "reason": "Search quality is below the governed ceiling threshold."
+    },
+    "voi_audit": {
+      "agent_suggested_scores": {},
+      "audit_id": "voi-ua-msme-credit-worldbank-measurement",
+      "authority_gain_basis": {
+        "selected_terminal": "search_ceiling_repair_required"
+      },
+      "bias_probe_result": {
+        "agent_scores_used": false,
+        "status": "not_applicable"
+      },
+      "candidate_actions": [
+        {
+          "operation_proposal_ref": "slice0.acquire.costed_plan"
+        }
+      ],
+      "candidates": [
+        {
+          "estimated_cost": "out_of_scope_slice0",
+          "estimated_voi": 1.0,
+          "hard_budgets_allow": false,
+          "operation_proposal_ref": "slice0.acquire.costed_plan",
+          "reason_not_taken": "ACQUIRE continuation was not selected for this terminal.",
+          "voi_per_cost": 0.0
+        }
+      ],
+      "continuation_allowed": false,
+      "cost_basis": {
+        "slice0_budget_only": true
+      },
+      "decision_rule_ref": "policyos.gy.anytime_exit.v1",
+      "decision_value_basis": {
+        "rule": "policyos.gy.anytime_exit.v1"
+      },
+      "deterministic_voi_inputs": {
+        "ceiling_classification": "search_ceiling",
+        "fixture_id": "ua_msme_credit_worldbank_measurement",
+        "known_seeds_missed": [
+          "catalog://ilo/sme-finance/ukraine-credit-constraints",
+          "catalog://worldbank/enterprise-surveys/ukraine/msme-credit-access",
+          "catalog://worldbank/global-findex/ukraine-account-credit"
+        ]
+      },
+      "normalized_scores": {
+        "slice0.acquire.costed_plan": 1.0
+      },
+      "notes": [],
+      "reason": "Deterministic Slice-0 anytime-exit selection.",
+      "rejected_or_clipped_inputs": [],
+      "selected_action": {
+        "operation_proposal_ref": "slice0.acquire.costed_plan"
+      },
+      "selected_action_ref": "slice0.acquire.costed_plan",
+      "selected_terminal": "search_ceiling_repair_required",
+      "threshold": 0.0,
+      "workspace_id": "ws-ua-msme-credit-worldbank-measurement"
+    },
+    "workspace_contract": {
+      "agenda_ref": "gy://slice0/ua_msme_credit_worldbank_measurement/agenda",
+      "allowed_operations": [
+        "slice0.bind.catalog",
+        "slice0.estimate.measurement_summary",
+        "slice0.verify.authority"
+      ],
+      "artifact_graph_ref": "gy://slice0/ua_msme_credit_worldbank_measurement/artifact-graph",
+      "budget": {
+        "acquisition": {},
+        "calendar": {},
+        "compute": {
+          "hard": true,
+          "max_operation_invocations": 3,
+          "max_wall_seconds": 30
+        },
+        "expert_attention": {},
+        "novelty": {},
+        "recursion": {},
+        "search_quality": {
+          "min_recall_at_known_seeds": 1.0,
+          "required_source_classes": [
+            "official"
+          ]
+        }
+      },
+      "constraint_store_ref": "gy://slice0/ua_msme_credit_worldbank_measurement/constraints",
+      "exit_requirements": {
+        "require_authority_boundaries_for_promotion": true,
+        "require_incompleteness_record": true,
+        "require_search_exit_contract": true
+      },
+      "frontier_ref": "gy://slice0/ua_msme_credit_worldbank_measurement/frontier",
+      "intent_ref": {
+        "artifact_id": "intent-ua-msme-credit-worldbank-measurement",
+        "artifact_type": "PolicyIntent",
+        "content_hash": "sha256:af390c54294859b17743ebf649c97208e0e9eb29ccb131b267e3d7ea8bf5e2c2",
+        "schema_ref": "policyos.policy_design_case.layer3_gy_loop.v1",
+        "uri": "gy://slice0/ua_msme_credit_worldbank_measurement/policy-intent",
+        "version": "v1"
+      },
+      "parent_workspace_id": null,
+      "recursion_policy": {
+        "decompose_allowed": false,
+        "max_child_workspaces": 0,
+        "max_depth": 0
+      },
+      "scope": {
+        "construct_scope_query": "Ukraine MSME credit access World Bank firm measurement",
+        "jurisdiction": "UA",
+        "population": "msme_firms",
+        "time_horizon": "2020-2024"
+      },
+      "workspace_id": "ws-ua-msme-credit-worldbank-measurement"
+    },
+    "workspace_contract_ref": "sha256:41ab3c93f4fd532d553d59f10866a3da66f46777e7738fd9e561ce80cdf47bbf",
+    "workspace_id": "ws-ua-msme-credit-worldbank-measurement"
+  },
+  "search_exit_contract_ref": "sha256:3397e4191b969d13697a114ee19642c6b57562d48c19796677cd57e50561331e",
+  "terminal_outcome": "search_ceiling_repair_required",
+  "trigger_kind": "http_control_route",
+  "useful_design_credit": false
+}

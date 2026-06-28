@@ -575,7 +575,7 @@ def test_s11_negative_certificate_blocks_claim_registry_evidence_upgrade() -> No
 def test_layer3_g3_resolved_bridge_reaches_claim_registry_consumer_gate(
     tmp_path: Path,
 ) -> None:
-    g3 = importlib.import_module("polisyos.runtime.quality.layer3_analytics_search")
+    g3 = importlib.import_module("polisyos.runtime.quality.proving_ground.proof_carrying_analytics_search")
     request, proof_bindings, bridge_binding = _g3_resolved_bridge(g3, tmp_path)
 
     gate = g3.build_g3_claim_registry_consumer_gate(

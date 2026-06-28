@@ -15,7 +15,7 @@ from tools.quality.validation import check_policy_design_case_cluster_ownership_
 
 REPO_ROOT, _SRC_ROOT = ensure_repo_import_roots(__file__)
 
-from polisyos.runtime.quality.layer3_gx_data_home import load_layer3_gx_data_home  # noqa: E402
+from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import load_layer3_gx_data_home  # noqa: E402
 
 DEFAULT_READINESS_MANIFEST_PATH = Path(
     "architecture/policy_design_case/layer2_readiness_manifest.json"
@@ -664,10 +664,10 @@ S14_REQUIRED_SUBSTRATE_REUSE_REFS = {
     "src/polisyos/runtime/quality/assurance_case.py#build_universality_assurance_case",
     "src/polisyos/runtime/quality/assurance_case.py#build_assurance_case_for_scorecard",
     "src/polisyos/runtime/quality/capability_ratchet.py#build_capability_reality_report",
-    "src/polisyos/runtime/quality/layer2_resource_economics.py#GrowthThermometerRecord",
-    "src/polisyos/runtime/quality/layer2_resource_economics.py#EnvelopeGrowthLedger",
-    "src/polisyos/runtime/quality/layer2_post_deploy_accountability.py#EnvelopeRevision",
-    "src/polisyos/runtime/quality/layer2_post_deploy_accountability.py#CertifiedEnvelopeDelta",
+    "src/polisyos/runtime/quality/design_axes/resource_economics.py#GrowthThermometerRecord",
+    "src/polisyos/runtime/quality/design_axes/resource_economics.py#EnvelopeGrowthLedger",
+    "src/polisyos/runtime/quality/design_axes/post_deploy_accountability.py#EnvelopeRevision",
+    "src/polisyos/runtime/quality/design_axes/post_deploy_accountability.py#CertifiedEnvelopeDelta",
     "src/polisyos/runtime/quality/case_lifecycle.py#status_lattice",
     "src/polisyos/runtime/quality/approval.py#closeout_status_composition",
 }
@@ -1504,10 +1504,20 @@ def _validate_first_proving_case(payload: dict[str, Any], issues: list[dict[str,
 
 
 def _required_first_proving_constructs(repo_root: Path) -> set[str]:
+    required: set[str] = set()
+    first_proving_case_path = repo_root / DEFAULT_FIRST_PROVING_CASE_PATH
+    try:
+        payload = json.loads(first_proving_case_path.read_text(encoding="utf-8"))
+    except (FileNotFoundError, json.JSONDecodeError):
+        payload = {}
+    constructs = payload.get("constructs")
+    if isinstance(constructs, list):
+        required.update(str(value) for value in constructs if str(value))
     data_home = load_layer3_gx_data_home(repo_root)
     if data_home.status != "ready" or data_home.pinned_request is None:
-        return set()
-    return {row.construct_ref for row in data_home.pinned_request.requested_constructs}
+        return required
+    required.update(row.construct_ref for row in data_home.pinned_request.requested_constructs)
+    return required
 
 
 def _validate_readiness_manifest(payload: dict[str, Any], issues: list[dict[str, str]]) -> None:
@@ -3936,7 +3946,7 @@ def _validate_s12_resource_economics(
                 )
             )
         if cell.get("owner_module") != (
-            "src/polisyos/runtime/quality/layer2_resource_economics.py"
+            "src/polisyos/runtime/quality/design_axes/resource_economics.py"
         ):
             issues.append(
                 _issue(
@@ -4294,7 +4304,7 @@ def _validate_s13_post_deploy_accountability(
         )
     else:
         if cell.get("owner_module") != (
-            "src/polisyos/runtime/quality/layer2_resource_economics.py"
+            "src/polisyos/runtime/quality/design_axes/resource_economics.py"
         ):
             issues.append(
                 _issue(
@@ -5199,7 +5209,7 @@ def _validate_s8_s7_value_authorization_support(
             )
         )
     try:
-        from polisyos.runtime.quality.layer2_delegation import (
+        from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
             build_decision_rights_matrix,
             build_governance_decision_class_registry,
         )
@@ -5245,7 +5255,7 @@ def _validate_s8_s7_value_authorization_support(
 
 def _validate_s8_runtime_negative_firewalls(issues: list[dict[str, str]]) -> None:
     try:
-        from polisyos.runtime.quality.layer2_value_choice import (
+        from polisyos.runtime.quality.design_axes.value_choice_provenance import (
             P20NormativeChoiceError,
             build_authorized_value_schedule,
             build_pareto_archive,

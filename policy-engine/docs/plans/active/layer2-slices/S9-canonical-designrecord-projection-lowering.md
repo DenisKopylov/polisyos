@@ -87,7 +87,7 @@ S9 is a runtime-quality layer over existing PDC and projection substrates:
 - `src/polisyos/runtime/quality/public_export.py` already treats public export
   as redacted projection and verifies projection consumer contracts.
 - S9 adds the Layer 2 projection/lowering producer in
-  `src/polisyos/runtime/quality/layer2_projection_lowering.py` and exports the
+  `src/polisyos/runtime/quality/design_axes/projection_lowering.py` and exports the
   strict contracts from `polisyos.runtime.quality`.
 
 S9 must wire existing projection semantics instead of replacing them. Its new
@@ -102,7 +102,7 @@ Boundary rule: the dependency direction is S9 runtime-quality -> PDC contracts,
 not PDC search -> S9 producer. `polisyos.pdc` may define/export
 `CanonicalDesignRecord` and may pass S9 source refs through projection contexts,
 but `src/polisyos/pdc/_impl/layer2_design_search.py` must not import
-`polisyos.runtime.quality.layer2_projection_lowering` or call S9 producer
+`polisyos.runtime.quality.design_axes.projection_lowering` or call S9 producer
 helpers. This mirrors the S8 B-side import firewall.
 
 ## Scope
@@ -221,7 +221,7 @@ Current S9 anchors:
   `projection_semantics`, `semantic_audit.omission_manifest`, `audit_refs`, and
   public revision states. S9 should add faithfulness/lowering refs into these
   existing audit surfaces instead of inventing a second public-export envelope.
-- `src/polisyos/runtime/quality/layer2_value_choice.py` is the nearest
+- `src/polisyos/runtime/quality/design_axes/value_choice_provenance.py` is the nearest
   producer template: strict `Layer2ReadinessModel` contracts, deterministic
   digest/CAS persistence, integrity report, false-clear counts, and manifest
   tests. S9 should copy that shape rather than create a separate persistence
@@ -292,7 +292,7 @@ S9 closure is measured against these exact rows and constraints:
 
 Expected new files:
 
-- `src/polisyos/runtime/quality/layer2_projection_lowering.py`
+- `src/polisyos/runtime/quality/design_axes/projection_lowering.py`
 - `tests/unit/runtime/quality/test_layer2_s9_projection_lowering.py`
 - `tests/fixtures/layer2/s9/s9_projection_lowering_case_signals.json`
 - `tests/fixtures/layer2/s9/s9_projection_lowering_expert_labels.json`
@@ -445,7 +445,7 @@ uv run pytest \
 
 Expected red output:
 
-- missing `polisyos.runtime.quality.layer2_projection_lowering` exports, or
+- missing `polisyos.runtime.quality.design_axes.projection_lowering` exports, or
 - missing `CanonicalDesignRecord`, or
 - missing `DesignRecordMaturityReport`, or
 - missing `s9_projection_lowering` corpus block, or
@@ -512,7 +512,7 @@ neutral contracts and B-side projection context fields.
 
 - [ ] **Step 2: Add producer module**
 
-Create `src/polisyos/runtime/quality/layer2_projection_lowering.py`.
+Create `src/polisyos/runtime/quality/design_axes/projection_lowering.py`.
 
 Use `Layer2ReadinessModel` for all Layer 2 DTOs. Keep strict Pydantic defaults
 from the base model and add field bounds. Public contracts:
@@ -551,7 +551,7 @@ Required constants:
 Persistence shape:
 
 - import `artifacts` and `canon` the same way
-  `src/polisyos/runtime/quality/layer2_value_choice.py` does when needed.
+  `src/polisyos/runtime/quality/design_axes/value_choice_provenance.py` does when needed.
 - `persist_projection_lowering_bundle(...)` must use deterministic
   `json.dumps(..., sort_keys=True, separators=(",", ":"))` hashing when no
   `FileSystemCAS` store is supplied.
@@ -758,7 +758,7 @@ Expected green output:
 Commit message:
 
 ```bash
-git add src/polisyos/runtime/quality/layer2_projection_lowering.py \
+git add src/polisyos/runtime/quality/design_axes/projection_lowering.py \
   src/polisyos/pdc/_impl/layer2_readiness.py \
   src/polisyos/pdc/__init__.py \
   src/polisyos/runtime/quality/__init__.py \
@@ -1354,7 +1354,7 @@ Commit message:
 
 ```bash
 git status --short
-git add src/polisyos/runtime/quality/layer2_projection_lowering.py \
+git add src/polisyos/runtime/quality/design_axes/projection_lowering.py \
   src/polisyos/runtime/quality/__init__.py \
   src/polisyos/pdc/_impl/layer2_readiness.py \
   src/polisyos/pdc/__init__.py \
@@ -1407,7 +1407,7 @@ S9 is complete only when all statements below are true:
 - S9 consumes S5 composition refs and S8 value-choice refs where present, and
   preserves their limitations and authority boundaries in projection.
 - `src/polisyos/pdc/_impl/layer2_design_search.py` does not import
-  `polisyos.runtime.quality.layer2_projection_lowering`, does not call S9
+  `polisyos.runtime.quality.design_axes.projection_lowering`, does not call S9
   producer helpers, and only exposes/pass-throughs S9 source context.
 - S9 projection semantics reuses/adapts the existing PDC projection consumer
   contract verifier for closeout truth, blocker, omission-manifest, contested

@@ -13,7 +13,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from polisyos.runtime.quality import layer3_bounded_agent as g6
+from polisyos.runtime.quality.proving_ground import bounded_request_agent as g6
 from tools.lib.fs import atomic_write_text
 
 REPO_ROOT = Path(__file__).resolve().parents[3]

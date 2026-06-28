@@ -25,7 +25,12 @@
     "legal_authority_without_gl",
     "human_override_of_a_incompleteness"
   ],
-  "promotion_record_refs": [],
-  "promotion_states": {},
-  "status": "fail"
+  "promotion_record_refs": [
+    "g4-promotion-record:g4-request:ua-msme-source-only-valid",
+    "g4-promotion-record:g4-request:upstream-may-not-use-blocked"
+  ],
+  "promotion_states": {
+    "promotion_blocked": 2
+  },
+  "status": "pass"
 }

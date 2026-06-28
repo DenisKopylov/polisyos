@@ -19,7 +19,7 @@ EXPECTED_SURFACE_AUDIENCES = {"PUBLIC", "REVIEWER", "EXPERT", "MACHINE"}
 
 
 def _g0() -> Any:
-    return import_module("polisyos.runtime.quality.layer3_grounding_inventory")
+    return import_module("polisyos.runtime.quality.proving_ground.pre_adapter_grounding_inventory")
 
 
 def _validator() -> Any:

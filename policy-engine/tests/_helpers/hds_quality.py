@@ -25,7 +25,7 @@ from polisyos.runtime.quality.diagnostic_slos import (
 from polisyos.runtime.quality.external_client_surface import (
     EXTERNAL_CLIENT_SURFACE_SCHEMA_VERSION,
 )
-from polisyos.runtime.quality.pass1b_hardening import (
+from polisyos.runtime.quality.tenant_cas_approval_governance import (
     build_pass1b_tenant_cas_approval_governance_record,
 )
 from polisyos.runtime.quality.phase_barriers import PhaseBarrierId, PhaseBarrierRecord

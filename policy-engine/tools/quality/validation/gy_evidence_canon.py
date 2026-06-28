@@ -47,9 +47,18 @@ def canonical_evidence_hash(obj: Any) -> str:
 
     Two results that differ only in timing/timestamps/ordering hash identically.
     """
-    stripped = strip_volatile(obj)
-    payload = json.dumps(stripped, sort_keys=True, separators=(",", ":"), default=str).encode("utf-8")
-    return "sha256:" + hashlib.sha256(payload).hexdigest()
+    try:
+        from polisyos.pdc import gy_content_hash
+    except ModuleNotFoundError:
+        stripped = strip_volatile(obj)
+        payload = json.dumps(
+            stripped,
+            sort_keys=True,
+            separators=(",", ":"),
+            default=str,
+        ).encode("utf-8")
+        return "sha256:" + hashlib.sha256(payload).hexdigest()
+    return gy_content_hash(obj)
 
 
 __all__ = ["canonical_evidence_hash", "strip_volatile"]

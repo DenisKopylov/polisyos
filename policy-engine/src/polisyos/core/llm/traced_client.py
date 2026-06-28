@@ -113,6 +113,15 @@ class TracedLLMClient:
             current = next_client
         return current
 
+    async def list_model_ids(self, *, timeout: float | None = None) -> list[str]:
+        """Forward gateway model preflight through the tracing wrapper."""
+
+        list_models = self._client.list_model_ids
+        result = list_models(timeout=timeout)
+        if inspect.isawaitable(result):
+            result = await result
+        return [str(item) for item in result]
+
     def _detect_model_name(self) -> str:
         for attr in ("model_name", "model", "model_id"):
             value = getattr(self._client, attr, None)

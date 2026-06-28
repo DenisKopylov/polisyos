@@ -30,13 +30,15 @@ from polisyos.runtime.http.dependencies import (
     record_data_access_audit,
     set_authz_resource,
 )
-from polisyos.runtime.http.errors import bad_request, not_acceptable, not_found
+from polisyos.runtime.http.errors import bad_request, conflict, not_acceptable, not_found
 from polisyos.runtime.http.response_policies import (
     add_artifact_link_relations,
     build_artifact_etag,
     build_not_modified_response,
     set_immutable_resource_headers,
 )
+from polisyos.runtime.http.services.artifact_inspector import ArtifactSurfaceAdmissionError
+from polisyos.runtime.quality.authority import authority_surface_decision
 
 if TYPE_CHECKING:
     from fastapi import APIRouter, Depends, Query, Request, Response
@@ -83,9 +85,32 @@ if router is not None:
                 artifact_id=str(parsed_id),
             )
             try:
-                views.append(ctx.artifacts.get_manifest_view(parsed_id))
+                manifest = ctx.store.get_manifest(parsed_id)
+                _ensure_surface_admission_allowed(
+                    manifest.model_dump(mode="json"),
+                    artifact_ref_or_route=f"cas-manifest://{parsed_id}",
+                    surface="artifact",
+                    scope="CAS manifests",
+                    artifact_store=ctx.store,
+                    artifact_id=parsed_id,
+                )
+                view = ctx.artifacts.get_manifest_view(parsed_id)
+                _ensure_surface_admission_allowed(
+                    view.model_dump(mode="json"),
+                    artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}",
+                    surface="dashboard",
+                    scope="dashboard/public/export packets",
+                    artifact_store=ctx.store,
+                    artifact_id=parsed_id,
+                )
+                views.append(view)
             except FileNotFoundError as exc:
                 raise not_found(str(exc), code="artifact_not_found") from exc
+            except ArtifactSurfaceAdmissionError as exc:
+                raise _artifact_surface_admission_conflict(
+                    exc,
+                    artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}",
+                ) from exc
         record_data_access_audit(
             request,
             resource_id="artifact.batch",
@@ -114,9 +139,23 @@ if router is not None:
             artifact_id=str(parsed_id),
         )
         try:
+            manifest = ctx.store.get_manifest(parsed_id)
+            _ensure_surface_admission_allowed(
+                manifest.model_dump(mode="json"),
+                artifact_ref_or_route=f"cas-manifest://{parsed_id}",
+                surface="artifact",
+                scope="CAS manifests",
+                artifact_store=ctx.store,
+                artifact_id=parsed_id,
+            )
             view = ctx.artifacts.get_manifest_view(parsed_id)
         except FileNotFoundError as exc:
             raise not_found(str(exc), code="artifact_not_found") from exc
+        except ArtifactSurfaceAdmissionError as exc:
+            raise _artifact_surface_admission_conflict(
+                exc,
+                artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}",
+            ) from exc
         etag = build_artifact_etag(view.artifact_id, view.integrity_sha256, "manifest")
         not_modified = build_not_modified_response(
             request.headers,
@@ -126,6 +165,14 @@ if router is not None:
         if not_modified is not None:
             add_artifact_link_relations(not_modified, artifact_id=str(parsed_id))
             return not_modified
+        _ensure_surface_admission_allowed(
+            view.model_dump(mode="json"),
+            artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}",
+            surface="dashboard",
+            scope="dashboard/public/export packets",
+            artifact_store=ctx.store,
+            artifact_id=parsed_id,
+        )
         set_immutable_resource_headers(response, etag=etag, last_modified=view.created_at)
         add_artifact_link_relations(response, artifact_id=str(parsed_id))
         record_data_access_audit(
@@ -157,9 +204,24 @@ if router is not None:
         )
         try:
             manifest = ctx.store.get_manifest(parsed_id)
+            payload = ctx.store.get_bytes(parsed_id)
+            _ensure_surface_admission_allowed(
+                payload,
+                artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/content",
+                surface="artifact",
+                scope="raw artifact content/download routes",
+                artifact_store=ctx.store,
+                artifact_id=parsed_id,
+                require_cas_integrity=True,
+            )
             view = ctx.artifacts.get_content_preview(parsed_id, max_bytes=max_bytes)
         except FileNotFoundError as exc:
             raise not_found(str(exc), code="artifact_not_found") from exc
+        except ArtifactSurfaceAdmissionError as exc:
+            raise _artifact_surface_admission_conflict(
+                exc,
+                artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/content",
+            ) from exc
         etag = build_artifact_etag(str(parsed_id), manifest.integrity.sha256, "content")
         not_modified = build_not_modified_response(
             request.headers,
@@ -170,8 +232,17 @@ if router is not None:
             add_artifact_link_relations(not_modified, artifact_id=str(parsed_id))
             return not_modified
         if _prefers_raw_representation(request, media_type=manifest.media_type):
+            _ensure_surface_admission_allowed(
+                payload,
+                artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/content",
+                surface="artifact",
+                scope="raw artifact content/download routes",
+                artifact_store=ctx.store,
+                artifact_id=parsed_id,
+                require_cas_integrity=True,
+            )
             raw_response = Response(
-                content=ctx.store.get_bytes(parsed_id),
+                content=payload,
                 media_type=manifest.media_type,
             )
             set_immutable_resource_headers(
@@ -189,6 +260,14 @@ if router is not None:
                 metadata={"max_bytes": max_bytes, "representation": "raw"},
             )
             return raw_response
+        _ensure_surface_admission_allowed(
+            view.model_dump(mode="json"),
+            artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/content",
+            surface="dashboard",
+            scope="raw artifact content/download routes",
+            artifact_store=ctx.store,
+            artifact_id=parsed_id,
+        )
         set_immutable_resource_headers(response, etag=etag, last_modified=manifest.created_at)
         add_artifact_link_relations(response, artifact_id=str(parsed_id))
         record_data_access_audit(
@@ -229,6 +308,11 @@ if router is not None:
             )
         except FileNotFoundError as exc:
             raise not_found(str(exc), code="artifact_not_found") from exc
+        except ArtifactSurfaceAdmissionError as exc:
+            raise _artifact_surface_admission_conflict(
+                exc,
+                artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/lineage",
+            ) from exc
         etag = build_artifact_etag(str(parsed_id), manifest.integrity.sha256, "lineage")
         not_modified = build_not_modified_response(
             request.headers,
@@ -238,6 +322,14 @@ if router is not None:
         if not_modified is not None:
             add_artifact_link_relations(not_modified, artifact_id=str(parsed_id))
             return not_modified
+        _ensure_surface_admission_allowed(
+            lineage.model_dump(mode="json"),
+            artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/lineage",
+            surface="lineage",
+            scope="dashboard/public/export packets",
+            artifact_store=ctx.store,
+            artifact_id=parsed_id,
+        )
         set_immutable_resource_headers(response, etag=etag, last_modified=manifest.created_at)
         add_artifact_link_relations(response, artifact_id=str(parsed_id))
         record_data_access_audit(
@@ -272,6 +364,11 @@ if router is not None:
             schema_view = ctx.artifacts.get_schema_view(parsed_id)
         except FileNotFoundError as exc:
             raise not_found(str(exc), code="artifact_not_found") from exc
+        except ArtifactSurfaceAdmissionError as exc:
+            raise _artifact_surface_admission_conflict(
+                exc,
+                artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/schema",
+            ) from exc
         etag = build_artifact_etag(str(parsed_id), manifest.integrity.sha256, "schema")
         not_modified = build_not_modified_response(
             request.headers,
@@ -281,6 +378,14 @@ if router is not None:
         if not_modified is not None:
             add_artifact_link_relations(not_modified, artifact_id=str(parsed_id))
             return not_modified
+        _ensure_surface_admission_allowed(
+            schema_view.model_dump(mode="json"),
+            artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/schema",
+            surface="dashboard",
+            scope="dashboard/public/export packets",
+            artifact_store=ctx.store,
+            artifact_id=parsed_id,
+        )
         set_immutable_resource_headers(response, etag=etag, last_modified=manifest.created_at)
         add_artifact_link_relations(response, artifact_id=str(parsed_id))
         record_data_access_audit(
@@ -315,9 +420,27 @@ if router is not None:
             artifact_id=str(parsed_id),
         )
         try:
+            payload = ctx.store.get_bytes(parsed_id)
+            _ensure_surface_admission_allowed(
+                payload,
+                artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/render",
+                surface="dashboard",
+                scope="raw artifact content/download routes",
+                artifact_store=ctx.store,
+                artifact_id=parsed_id,
+                require_cas_integrity=True,
+            )
             document = ctx.bureaucratic_rendering.render_document(parsed_id, body)
         except FileNotFoundError as exc:
             raise not_found(str(exc), code="artifact_not_found") from exc
+        _ensure_surface_admission_allowed(
+            document.model_dump(mode="json"),
+            artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/render",
+            surface="dashboard",
+            scope="dashboard/public/export packets",
+            artifact_store=ctx.store,
+            artifact_id=parsed_id,
+        )
         record_data_access_audit(
             request,
             resource_id=str(parsed_id),
@@ -366,6 +489,16 @@ if router is not None:
             trust_view=trust_view,
         )
         try:
+            payload = ctx.store.get_bytes(parsed_id)
+            _ensure_surface_admission_allowed(
+                payload,
+                artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/export",
+                surface="export",
+                scope="raw artifact content/download routes",
+                artifact_store=ctx.store,
+                artifact_id=parsed_id,
+                require_cas_integrity=True,
+            )
             export = ctx.bureaucratic_rendering.export_document(
                 parsed_id,
                 render_request,
@@ -374,6 +507,14 @@ if router is not None:
             )
         except FileNotFoundError as exc:
             raise not_found(str(exc), code="artifact_not_found") from exc
+        _ensure_surface_admission_allowed(
+            export.model_dump(mode="json"),
+            artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/export",
+            surface="export",
+            scope="dashboard/public/export packets",
+            artifact_store=ctx.store,
+            artifact_id=parsed_id,
+        )
         record_data_access_audit(
             request,
             resource_id=str(parsed_id),
@@ -422,6 +563,24 @@ if router is not None:
                 "Requested Accept header does not support artifact raw download",
                 code="artifact_representation_not_acceptable",
             )
+        _ensure_surface_admission_allowed(
+            payload,
+            artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/download",
+            surface="artifact",
+            scope="raw artifact content/download routes",
+            artifact_store=ctx.store,
+            artifact_id=parsed_id,
+            require_cas_integrity=True,
+        )
+        _ensure_surface_admission_allowed(
+            payload,
+            artifact_ref_or_route=f"/api/v1/artifacts/{parsed_id}/download",
+            surface="artifact",
+            scope="raw artifact content/download routes",
+            artifact_store=ctx.store,
+            artifact_id=parsed_id,
+            require_cas_integrity=True,
+        )
         etag = build_artifact_etag(str(parsed_id), manifest.integrity.sha256, "download")
         not_modified = build_not_modified_response(
             request.headers,
@@ -499,3 +658,50 @@ def _artifact_filename(artifact_id: str, kind: str, media_type: str) -> str:
     safe_kind = re.sub(r"[^a-z0-9._-]+", "-", kind.lower()).strip("-") or "artifact"
     short_id = artifact_id.split(":", 1)[-1][:12]
     return f"{safe_kind}-{short_id}{suffix}"
+
+
+def _ensure_surface_admission_allowed(
+    payload: object,
+    *,
+    artifact_ref_or_route: str,
+    surface: str,
+    scope: str,
+    artifact_store: object | None = None,
+    artifact_id: ArtifactID | None = None,
+    require_cas_integrity: bool = False,
+) -> None:
+    decision = authority_surface_decision(
+        payload,
+        surface=surface,
+        artifact_ref_or_route=artifact_ref_or_route,
+        secret_pii_scope=scope,
+        block_on_secret_findings=True,
+        artifact_store=artifact_store,
+        artifact_id=artifact_id,
+        require_cas_integrity=require_cas_integrity,
+    )
+    if not (decision.blocking or decision.visible_downgrade):
+        return
+    raise conflict(
+        "Artifact surface blocked or downgraded by composed authority surface admission",
+        code="authority_surface_admission_blocked",
+        extensions={
+            "artifact_ref_or_route": artifact_ref_or_route,
+            "authority_surface_decision": decision.model_dump(mode="json"),
+        },
+    )
+
+
+def _artifact_surface_admission_conflict(
+    exc: ArtifactSurfaceAdmissionError,
+    *,
+    artifact_ref_or_route: str,
+) -> Exception:
+    return conflict(
+        "Artifact surface blocked or downgraded by composed authority surface admission",
+        code="authority_surface_admission_blocked",
+        extensions={
+            "artifact_ref_or_route": artifact_ref_or_route,
+            "authority_surface_decision": exc.decision.model_dump(mode="json"),
+        },
+    )

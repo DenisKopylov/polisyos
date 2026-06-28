@@ -66,7 +66,7 @@ Reason: Foundry owns reusable method seeds; the Policy Design Case runtime owns 
 
 Module placement:
 
-- Create `src/polisyos/runtime/quality/layer2_coupling_composition.py`.
+- Create `src/polisyos/runtime/quality/design_axes/coupling_composition.py`.
 - Modify `src/polisyos/runtime/quality/__init__.py` to export S5 contracts.
 - Modify `src/polisyos/pdc/_impl/layer2_design_search.py` only to consume injected S5 data and project it. It must not import `runtime.quality.layer2_coupling_composition`.
 - Modify `tools/quality/validation/run_universal_outcome_corpus.py` to produce S5 blocks for all 13 cases and inject the pinned case's S5 posture into the existing S2/S4 shadow loop.
@@ -184,7 +184,7 @@ Scope correction from this code pass:
 | S0 public contracts | `src/polisyos/pdc/__init__.py`, `src/polisyos/pdc/_impl/layer2_readiness.py` |
 | S2 loop and projection narrow waist | `src/polisyos/pdc/_impl/layer2_design_search.py` |
 | Public S2 facade | `src/polisyos/pdc/__init__.py` |
-| S4 regime/commitment input | `src/polisyos/runtime/quality/layer2_epistemic_regime.py`, `src/polisyos/runtime/quality/case_lifecycle.py` |
+| S4 regime/commitment input | `src/polisyos/runtime/quality/design_axes/epistemic_regime.py`, `src/polisyos/runtime/quality/case_lifecycle.py` |
 | Foundry coupling seed | `src/polisyos/foundry/coupling/des_kernel.py` |
 | Foundry dynamics seeds | `src/polisyos/foundry/methods/catalog/causal/dynamic_graph_dscm.py`, `src/polisyos/foundry/methods/catalog/simulation/dynamics.py` |
 | Design-composition seeds | `src/polisyos/ir/loading/portfolio.py`, `src/polisyos/lex/intervention_artifacts.py` |
@@ -194,7 +194,7 @@ Scope correction from this code pass:
 
 Create:
 
-- `src/polisyos/runtime/quality/layer2_coupling_composition.py`
+- `src/polisyos/runtime/quality/design_axes/coupling_composition.py`
 - `architecture/policy_design_case/layer2_s5_coupling_composition_manifest.json`
 - `tests/unit/runtime/quality/test_layer2_s5_coupling_composition.py`
 - `tests/repo_quality/tools/test_policy_design_case_layer2_s5_coupling_composition.py`
@@ -238,7 +238,7 @@ Do not modify:
 - Create: `tests/fixtures/layer2/s5/false_modular_probe.json`
 - Create: `tests/fixtures/layer2/s5/syntactic_decomposition_probe.json`
 - Create: `tests/fixtures/layer2/s5/boundary_spoof_probe.json`
-- Create: `src/polisyos/runtime/quality/layer2_coupling_composition.py` (skeleton import target only)
+- Create: `src/polisyos/runtime/quality/design_axes/coupling_composition.py` (skeleton import target only)
 
 - [x] **Step 1: Add P17 negative-control fixtures**
 
@@ -338,7 +338,7 @@ import pytest
 from pydantic import ValidationError
 
 from polisyos.pdc import AxisFirewallStatus, AxisPositionDeclaration
-from polisyos.runtime.quality.layer2_coupling_composition import (
+from polisyos.runtime.quality.design_axes.coupling_composition import (
     BoundaryCouplingClassification,
     ComputationalTractabilityBudget,
     CompositionReceipt,
@@ -835,7 +835,7 @@ def test_recursive_design_graph_and_interface_contract_are_replay_visible() -> N
 
 - [x] **Step 3: Add import skeleton and run red**
 
-Create a temporary skeleton `src/polisyos/runtime/quality/layer2_coupling_composition.py` with only the module docstring and `__all__ = []`.
+Create a temporary skeleton `src/polisyos/runtime/quality/design_axes/coupling_composition.py` with only the module docstring and `__all__ = []`.
 
 Run:
 
@@ -853,14 +853,14 @@ uv run pytest tests/unit/runtime/quality/test_layer2_s5_coupling_composition.py 
 
 ERROR tests/unit/runtime/quality/test_layer2_s5_coupling_composition.py
 ImportError: cannot import name 'BoundaryCouplingClassification' from
-'polisyos.runtime.quality.layer2_coupling_composition'
+'polisyos.runtime.quality.design_axes.coupling_composition'
 ```
 
 ## Task 2: Coupling Contracts, Classifier, Decomposition, And P17 Firewalls
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer2_coupling_composition.py`
+- Modify: `src/polisyos/runtime/quality/design_axes/coupling_composition.py`
 - Modify: `src/polisyos/runtime/quality/__init__.py`
 - Modify: `src/polisyos/pdc/__init__.py`
 
@@ -1007,7 +1007,7 @@ Run:
 ```bash
 cd policy-engine
 uv run pytest tests/unit/runtime/quality/test_layer2_s5_coupling_composition.py -q
-uv run ruff check src/polisyos/runtime/quality/layer2_coupling_composition.py src/polisyos/runtime/quality/__init__.py
+uv run ruff check src/polisyos/runtime/quality/design_axes/coupling_composition.py src/polisyos/runtime/quality/__init__.py
 ```
 
 Expected: all S5 unit tests pass and ruff reports no issues.
@@ -1019,7 +1019,7 @@ uv run pytest tests/unit/runtime/quality/test_layer2_s5_coupling_composition.py 
 17 passed
 
 uv run ruff check \
-  src/polisyos/runtime/quality/layer2_coupling_composition.py \
+  src/polisyos/runtime/quality/design_axes/coupling_composition.py \
   src/polisyos/runtime/quality/__init__.py \
   src/polisyos/pdc/__init__.py
 All checks passed!

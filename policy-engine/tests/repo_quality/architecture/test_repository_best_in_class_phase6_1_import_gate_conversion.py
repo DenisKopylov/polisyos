@@ -992,7 +992,7 @@ def test_phase6_1_enforcement_promotes_unregistered_hidden_growth_to_error() -> 
                 "target_package": "polisyos.foundry",
                 "unregistered_added_hidden_edges": 1,
                 "added_edge_keys": [
-                    "polisyos.scientist.node->polisyos.foundry.methods._internal"
+                    "polisyos.scientist.node-polisyos.foundry.methods._internal"
                 ],
             }
         ]
@@ -1012,7 +1012,7 @@ def test_phase6_1_enforcement_promotes_unregistered_forbidden_edges_to_error() -
                 "source_package": "polisyos.foundry",
                 "target_package": "polisyos.scientist",
                 "unregistered_forbidden_edges": 1,
-                "edge_keys": ["polisyos.foundry.node->polisyos.scientist.private"],
+                "edge_keys": ["polisyos.foundry.node-polisyos.scientist.private"],
             }
         ]
     }

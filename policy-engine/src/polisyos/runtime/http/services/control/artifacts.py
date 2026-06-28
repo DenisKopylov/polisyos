@@ -29,6 +29,10 @@ from polisyos.core.canon import (
 )
 from polisyos.runtime.http.services import _control_contracts as _contracts
 from polisyos.runtime.http.services.control.production_data import production_data_bundle_path
+from polisyos.runtime.quality.attestation import (
+    build_verified_attestation_record,
+    serialize_attestation_record,
+)
 from polisyos.runtime.quality.authority import (
     AUTHORITY_ENVELOPE_CONTRACT_NAME,
     AUTHORITY_ENVELOPE_CONTRACT_VERSION,
@@ -36,17 +40,13 @@ from polisyos.runtime.quality.authority import (
     GovernanceMetadata,
     SameInputClosure,
 )
-from polisyos.runtime.quality.attestation import (
-    build_verified_attestation_record,
-    serialize_attestation_record,
-)
+from polisyos.runtime.quality.authority_reconciliation import reconcile_authority_ref
 from polisyos.runtime.quality.diagnostic_events import (
     DIAGNOSTIC_EVENT_SCHEMA_NAME,
     DIAGNOSTIC_EVENT_SCHEMA_VERSION,
     DiagnosticEvent,
     validate_diagnostic_event,
 )
-from polisyos.runtime.quality.authority_reconciliation import reconcile_authority_ref
 from polisyos.runtime.quality.event_log import DiagnosticEventPayloadPolicy
 
 NORMATIVE_APPLICABILITY_REPORT_KIND = "lex.normative_applicability_report"
@@ -191,6 +191,7 @@ def write_authority_artifact(
         cell_id=cell_id,
         execution_profile=effective_execution_profile,
         phase=phase,
+        generated_at=generated_at,
     )
 
     diagnostic_event = _build_diagnostic_event(
@@ -336,6 +337,7 @@ def _persist_cas_writer_attestation(
     cell_id: str | None,
     execution_profile: str,
     phase: str,
+    generated_at: str,
 ) -> str:
     record = build_verified_attestation_record(
         boundary_id="cas_writer",
@@ -358,6 +360,7 @@ def _persist_cas_writer_attestation(
             "source": "runtime.cas",
             "authority_role": "producer_authority",
         },
+        generated_at=_event_time(generated_at),
     )
     ref = store.put_json(
         serialize_attestation_record(record),

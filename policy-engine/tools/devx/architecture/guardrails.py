@@ -191,6 +191,15 @@ class GeneratedArtifactFamily:
     retention_days: int | None
 
 
+@dataclass(frozen=True)
+class PublicGeneratedArtifactFamily:
+    family_id: str
+    owner: str
+    regenerate: str
+    stale_output_behavior: str
+    outputs: tuple[str, ...]
+
+
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Render and validate architecture guardrail inventories."
@@ -269,6 +278,23 @@ def _parse_public_surface(path: Path) -> list[PackagePolicy]:
                 supported_entrypoints=tuple(item.get("supported_entrypoints", [])),
                 major_subsystem=bool(item.get("major_subsystem", False)),
                 notes=str(item.get("notes", "")),
+            )
+        )
+    return results
+
+
+def _parse_public_generated_artifact_families(path: Path) -> list[PublicGeneratedArtifactFamily]:
+    data = _read_toml(path)
+    families = data.get("generated_artifact_family", [])
+    results: list[PublicGeneratedArtifactFamily] = []
+    for item in families:
+        results.append(
+            PublicGeneratedArtifactFamily(
+                family_id=str(item["id"]),
+                owner=str(item["owner"]),
+                regenerate=str(item["regenerate"]),
+                stale_output_behavior=str(item["stale_output_behavior"]),
+                outputs=tuple(str(output) for output in item.get("outputs", [])),
             )
         )
     return results
@@ -541,10 +567,24 @@ def _parse_registry_ids(path: Path) -> set[str]:
     return ids
 
 
-def render_public_surface_json(inventory: list[PackageInventory]) -> str:
+def render_public_surface_json(
+    inventory: list[PackageInventory],
+    *,
+    generated_artifact_families: list[PublicGeneratedArtifactFamily] | None = None,
+) -> str:
     payload = {
         "version": 1,
         "internal_rule": "Any polisyos module path not listed here is internal by default.",
+        "generated_artifact_families": [
+            {
+                "id": item.family_id,
+                "owner": item.owner,
+                "regenerate": item.regenerate,
+                "stale_output_behavior": item.stale_output_behavior,
+                "outputs": list(item.outputs),
+            }
+            for item in (generated_artifact_families or [])
+        ],
         "packages": [
             {
                 "module": item.module,
@@ -646,6 +686,16 @@ def render_public_surface_markdown(inventory: list[PackageInventory]) -> str:
         "surface does not register a public-export bundle route and does not publish",
         "production, closeout, domain-ceiling, recommendation, or useful-design",
         "authority.",
+        "",
+        "`layer3_gy_generated_artifact_lifecycle_surface` is a generated",
+        "MACHINE/EXPERT Policy Design Case lifecycle audit surface documented in",
+        "`architecture/policy_design_case/layer3_gy_task0_audit/` and",
+        "`docs/reference/generated-artifacts.md`. It publishes the GY-M1 class",
+        "invariant for generated-artifact family registration: every committed GY",
+        "artifact must resolve to exactly one registered family output, and missing",
+        "or duplicate family claims fail closed. PUBLIC/REVIEWER access is audit-only;",
+        "the surface does not register a public-export bundle route and does not",
+        "publish recommendation, rollout, closeout, or policy-design authority.",
         "",
         "| Package | Classification | Facade | Exports | Owner | README |",
         "| --- | --- | --- | ---: | --- | --- |",
@@ -1273,11 +1323,18 @@ def _check_deep_import_creep(
 
 def run_sync(args: argparse.Namespace) -> int:
     public_policies = _parse_public_surface(args.public_manifest)
+    public_generated_families = _parse_public_generated_artifact_families(args.public_manifest)
     public_inventory = build_public_surface_inventory(public_policies)
     families = _parse_generated_artifacts(args.generated_manifest)
     deep_import_edges = collect_deep_import_edges(public_policies)
 
-    _write_if_changed(args.public_json, render_public_surface_json(public_inventory))
+    _write_if_changed(
+        args.public_json,
+        render_public_surface_json(
+            public_inventory,
+            generated_artifact_families=public_generated_families,
+        ),
+    )
     _write_if_changed(args.public_md, render_public_surface_markdown(public_inventory))
     if not args.skip_deep_import_baseline:
         _write_if_changed(
@@ -1293,8 +1350,12 @@ def run_check(args: argparse.Namespace) -> int:
     violations: list[str] = []
 
     public_policies = _parse_public_surface(args.public_manifest)
+    public_generated_families = _parse_public_generated_artifact_families(args.public_manifest)
     public_inventory = build_public_surface_inventory(public_policies)
-    expected_public_json = render_public_surface_json(public_inventory)
+    expected_public_json = render_public_surface_json(
+        public_inventory,
+        generated_artifact_families=public_generated_families,
+    )
     expected_public_md = render_public_surface_markdown(public_inventory)
     expected_deep_import_baseline = render_deep_import_baseline_json(
         collect_deep_import_edges(public_policies)

@@ -5,6 +5,7 @@ from __future__ import annotations
 from unittest.mock import MagicMock, patch
 
 import pytest
+
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation import (
     RunCausalEvaluationNode,
@@ -18,6 +19,9 @@ def test_skip_when_no_observational_data_ref(execution_context, minimal_state):
     outcome = RunCausalEvaluationNode().execute(execution_context, state)
     assert outcome.status == "skip"
     assert any("observational_data_ref" in e.message.lower() for e in outcome.events)
+    assert outcome.skip_blocker is not None
+    assert outcome.skip_blocker.missing_input == "observational_data_ref"
+    assert outcome.skip_blocker.blocker_code == "gy_phase2_blocked_input_producer_missing"
 
 
 def test_fail_when_observational_data_cannot_be_loaded(

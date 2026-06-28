@@ -170,7 +170,7 @@ def test_s13_cluster_map_advances_envelope_growth_without_reopening_cell() -> No
     cell = cluster_map["cell"]["DESIGNER_ITSELF"]["envelope_growth"]
 
     assert cell["owner_module"] == (
-        "src/polisyos/runtime/quality/layer2_resource_economics.py"
+        "src/polisyos/runtime/quality/design_axes/resource_economics.py"
     )
     assert cell["ratchet_state"] == "implemented"
     assert cell["p01_chain"] == "implemented"

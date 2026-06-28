@@ -319,10 +319,10 @@
     "s12_real_producers": {
       "exists": true,
       "anchors": [
-        "src/polisyos/runtime/quality/layer2_resource_economics.py:473",
-        "src/polisyos/runtime/quality/layer2_resource_economics.py:510",
-        "src/polisyos/runtime/quality/layer2_resource_economics.py:603",
-        "src/polisyos/runtime/quality/layer2_resource_economics.py:766",
+        "src/polisyos/runtime/quality/design_axes/resource_economics.py:473",
+        "src/polisyos/runtime/quality/design_axes/resource_economics.py:510",
+        "src/polisyos/runtime/quality/design_axes/resource_economics.py:603",
+        "src/polisyos/runtime/quality/design_axes/resource_economics.py:766",
         "tests/unit/runtime/quality/test_layer2_s12_resource_economics.py"
       ],
       "manifest": "architecture/policy_design_case/layer2_s12_resource_economics_manifest.json",
@@ -340,7 +340,7 @@
         "architecture/policy_design_case/layer3_g5_pinned_case_input_bundle.json"
       ],
       "exact_producer_artifacts_found": false,
-      "hardcoded_payload_anchor": "src/polisyos/runtime/quality/layer3_proving_ground_conversion.py:1219",
+      "hardcoded_payload_anchor": "src/polisyos/runtime/quality/proving_ground/proving_ground_conversion.py:1219",
       "classification": "authorial_refs_in_g5_handoff_not_measured_exact_s12_objects"
     },
     "s12_projection_contract": {

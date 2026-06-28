@@ -1,8 +1,19 @@
 {
   "case_id": "ua-msme-affordable-loans-2022",
   "conversion_classification": "unchanged_blocker",
+  "counts_toward_useful_design": false,
+  "decision_grade": "unsupported",
+  "floor_relaxation_used": false,
   "issue_codes": [],
+  "limitation_refs": [
+    "layer3_g5_no_governed_g4_input"
+  ],
+  "may_not_use_for": [],
   "rule_version": "policyos.layer3.g5.first_proving_ground_conversion.v1",
   "schema_version": "policyos.policy_design_case.layer3_g5_proving_ground_conversion.v1",
-  "status": "pass"
+  "status": "pass",
+  "status_composition_status": "pass",
+  "useful_design_credit_count": 0,
+  "useful_design_credit_reason": "not_requested",
+  "w11c_gate_ref": null
 }

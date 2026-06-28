@@ -40,7 +40,7 @@
       "src/polisyos/runtime/http/services/debug.py",
       "src/polisyos/runtime/http/routes/runs.py",
       "src/polisyos/runtime/quality/prompt_tool_ledger.py",
-      "src/polisyos/runtime/quality/layer3_bounded_agent.py",
+      "src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py",
       "src/polisyos/scientist/agent/protocols.py",
       "src/polisyos/scientist/agent/tools/tool_loop.py",
       "architecture/policy_design_case/layer3_g6_agent_run_records.json",
@@ -283,14 +283,14 @@
     },
     "g6_bounded_agent_tool_loop": {
       "producer": "run_layer3_g6_bounded_agent_loop",
-      "tool_loop_call_site": "src/polisyos/runtime/quality/layer3_bounded_agent.py:1346",
+      "tool_loop_call_site": "src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py:1346",
       "classification": "quality_g6_loop_exists_outside_nl_runtime_path"
     },
     "g6_agent_run_record_builder": {
       "producer": "build_layer3_g6_agent_run_record",
       "run_id_formula": "layer3-g6-run:{request_id}",
       "job_id_formula": "layer3-g6-job:{request_id}",
-      "call_site": "src/polisyos/runtime/quality/layer3_bounded_agent.py:1633",
+      "call_site": "src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py:1633",
       "classification": "builds_g6_projection_from_request_id_and_g5_bridge"
     },
     "committed_g6_agent_run_records": {
@@ -568,7 +568,7 @@
       "authority_ceiling": "must not be credited to NL run until NL path calls or consumes ToolLoopResult",
       "evidence_refs": [
         "src/polisyos/scientist/agent/tools/tool_loop.py:33",
-        "src/polisyos/runtime/quality/layer3_bounded_agent.py:1346",
+        "src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py:1346",
         "src/polisyos/runtime/http/services/control/nl_pipeline.py:no_run_tool_loop_match"
       ]
     },
@@ -596,8 +596,8 @@
       ],
       "authority_ceiling": "G6 routing/readiness projection only; may not be counted as live NL role event backing",
       "evidence_refs": [
-        "src/polisyos/runtime/quality/layer3_bounded_agent.py:1633",
-        "src/polisyos/runtime/quality/layer3_bounded_agent.py:1655",
+        "src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py:1633",
+        "src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py:1655",
         "architecture/policy_design_case/layer3_g6_agent_run_records.json",
         "architecture/policy_design_case/layer3_g6_prompt_tool_ledger_projection.json"
       ]

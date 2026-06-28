@@ -1,0 +1,567 @@
+{
+  "accuracy": {
+    "false_negative_count": 1,
+    "false_positive_count": 0,
+    "gold_record_count": 14,
+    "matched_label_ids": [
+      "openalex-gold-covid-sme-failures-support-001",
+      "openalex-gold-credit-debt-access-002",
+      "openalex-gold-credit-paraphrase-financing-constraint-003",
+      "openalex-gold-credit-sme-survival-001",
+      "openalex-gold-minwage-employment-001",
+      "openalex-gold-minwage-paraphrase-stable-jobs-003",
+      "openalex-heldout-collateral-credit-positive",
+      "openalex-heldout-credit-sme-contribution-positive"
+    ],
+    "measurement_basis": "human_labeled_gold_set",
+    "precision": 1.0,
+    "predicted_claim_count": 8,
+    "recall": 0.888889,
+    "schema_version": "policyos.policy_design_case.layer3_gy.openalex_accuracy.v1",
+    "true_negative_count": 5,
+    "true_positive_count": 8
+  },
+  "accuracy_provenance": {
+    "deterministic_replay": false,
+    "gold_case_count": 10,
+    "held_out_case_count": 4,
+    "judge_client": "create_traced_gateway_client",
+    "measurement_timestamp": "2026-06-24T08:42:25.307749+00:00",
+    "methodology": "Production default evaluate_span_claim_entailment over human-labeled gold plus held-out OpenAlex cases; no span-support client injection.",
+    "model_id": "MiniMaxAI/MiniMax-M2.7",
+    "model_variant_id": "layer3-gy-span-support-judge-v1",
+    "real_agent": true
+  },
+  "case_judgments": [
+    {
+      "agent_judgment": {
+        "confidence": 0.98,
+        "decision": "entails",
+        "model_id": "MiniMaxAI/MiniMax-M2.7",
+        "provider": "polisyos-gy-span-support",
+        "rationale": "The span is a direct paraphrase of the claim. Both state that non-availability of debt financing limits (limiting) the survival and growth of SMEs in South Africa. The phrase \"one of the factors\" in the span is consistent with the claim's assertion - it confirms debt financing is a limiting factor. The direction matches (negative/limiting effect) and the subject matter is identical.",
+        "raw": {
+          "confidence": 0.98,
+          "decision": "entails",
+          "rationale": "The span is a direct paraphrase of the claim. Both state that non-availability of debt financing limits (limiting) the survival and growth of SMEs in South Africa. The phrase \"one of the factors\" in the span is consistent with the claim's assertion - it confirms debt financing is a limiting factor. The direction matches (negative/limiting effect) and the subject matter is identical."
+        },
+        "request_id": "",
+        "tool_call_used": true
+      },
+      "blocker_codes": [],
+      "case_set": "gold",
+      "claim_text": "Non-availability of debt financing limits SME survival and growth in South Africa.",
+      "confidence": 0.98,
+      "decision": "entails",
+      "expected_supported": true,
+      "judge_client": "create_traced_gateway_client",
+      "label": "supports",
+      "label_id": "openalex-gold-credit-sme-survival-001",
+      "openalex_id": "https://openalex.org/W2169693233",
+      "predicted_supported": true,
+      "real_agent": true,
+      "reason_codes": [
+        "span_support_agent_entails_claim"
+      ],
+      "source_fixture": "tests/fixtures/scholar/openalex/credit_guarantee_firm_survival.json",
+      "span_found_in_source": true,
+      "span_text": "One of the factors limiting the survival and growth ofSMEs in South Africa is non-availability of debt financing.",
+      "status": "pass"
+    },
+    {
+      "agent_judgment": {
+        "confidence": 1.0,
+        "decision": "entails",
+        "model_id": "MiniMaxAI/MiniMax-M2.7",
+        "provider": "polisyos-gy-span-support",
+        "rationale": "The span is a direct paraphrase of the claim. Both state that the overall number of low-wage jobs remained essentially unchanged over a five-year period following a minimum wage increase. The language is functionally equivalent: \"remained essentially unchanged\" vs. \"left essentially unchanged.\" The span supports the claim's direction and strength without hedging or qualification.",
+        "raw": {
+          "confidence": 1,
+          "decision": "entails",
+          "rationale": "The span is a direct paraphrase of the claim. Both state that the overall number of low-wage jobs remained essentially unchanged over a five-year period following a minimum wage increase. The language is functionally equivalent: \"remained essentially unchanged\" vs. \"left essentially unchanged.\" The span supports the claim's direction and strength without hedging or qualification."
+        },
+        "request_id": "",
+        "tool_call_used": true
+      },
+      "blocker_codes": [],
+      "case_set": "gold",
+      "claim_text": "Minimum wage increases left the overall number of low-wage jobs essentially unchanged over five years.",
+      "confidence": 1.0,
+      "decision": "entails",
+      "expected_supported": true,
+      "judge_client": "create_traced_gateway_client",
+      "label": "supports",
+      "label_id": "openalex-gold-minwage-employment-001",
+      "openalex_id": "https://openalex.org/W2942870997",
+      "predicted_supported": true,
+      "real_agent": true,
+      "reason_codes": [
+        "span_support_agent_entails_claim"
+      ],
+      "source_fixture": "tests/fixtures/scholar/openalex/minimum_wage_employment.json",
+      "span_found_in_source": true,
+      "span_text": "We find that the overall number of low-wage jobs remained essentially unchanged over the five years following the increase.",
+      "status": "pass"
+    },
+    {
+      "agent_judgment": {
+        "confidence": 0.98,
+        "decision": "entails",
+        "model_id": "MiniMaxAI/MiniMax-M2.7",
+        "provider": "polisyos-gy-span-support",
+        "rationale": "The span is a direct paraphrase of the claim. The span states \"firm and entrepreneurial characteristics impact on access to debt finance by SMEs\" which matches the claim text \"Firm and entrepreneurial characteristics impact access to debt finance by SMEs\" almost verbatim. The only difference is \"impact on\" vs \"impact\" which is semantically equivalent. The reporting phrase \"The results indicate that\" confirms the direction is positive (there is an impact). This is a faithful paraphrase of the claim.",
+        "raw": {
+          "confidence": 0.98,
+          "decision": "entails",
+          "rationale": "The span is a direct paraphrase of the claim. The span states \"firm and entrepreneurial characteristics impact on access to debt finance by SMEs\" which matches the claim text \"Firm and entrepreneurial characteristics impact access to debt finance by SMEs\" almost verbatim. The only difference is \"impact on\" vs \"impact\" which is semantically equivalent. The reporting phrase \"The results indicate that\" confirms the direction is positive (there is an impact). This is a faithful paraphrase of the claim."
+        },
+        "request_id": "",
+        "tool_call_used": true
+      },
+      "blocker_codes": [],
+      "case_set": "gold",
+      "claim_text": "Firm and entrepreneurial characteristics impact access to debt finance by SMEs.",
+      "confidence": 0.98,
+      "decision": "entails",
+      "expected_supported": true,
+      "judge_client": "create_traced_gateway_client",
+      "label": "supports",
+      "label_id": "openalex-gold-credit-debt-access-002",
+      "openalex_id": "https://openalex.org/W2169693233",
+      "predicted_supported": true,
+      "real_agent": true,
+      "reason_codes": [
+        "span_support_agent_entails_claim"
+      ],
+      "source_fixture": "tests/fixtures/scholar/openalex/credit_guarantee_firm_survival.json",
+      "span_found_in_source": true,
+      "span_text": "The results indicate that firm and entrepreneurial characteristics impact onaccess to debt finance by SMEs.",
+      "status": "pass"
+    },
+    {
+      "agent_judgment": {
+        "confidence": 0.7,
+        "decision": "neutral",
+        "model_id": "MiniMaxAI/MiniMax-M2.7",
+        "provider": "polisyos-gy-span-support",
+        "rationale": "The span confirms finding \"some evidence of reduced employment in tradeable sectors,\" which matches the direction (negative) and the sectoral focus. However, the span does not explicitly mention minimum wage increases as the cause. The claim requires both the causal mechanism (minimum wage increases) and the outcome (reduced employment in tradeable sectors), but the span only addresses the outcome without specifying the policy driver. This is partial support missing the key causal element, warranting a neutral judgment.",
+        "raw": {
+          "confidence": 0.7,
+          "decision": "neutral",
+          "rationale": "The span confirms finding \"some evidence of reduced employment in tradeable sectors,\" which matches the direction (negative) and the sectoral focus. However, the span does not explicitly mention minimum wage increases as the cause. The claim requires both the causal mechanism (minimum wage increases) and the outcome (reduced employment in tradeable sectors), but the span only addresses the outcome without specifying the policy driver. This is partial support missing the key causal element, warranting a neutral judgment."
+        },
+        "request_id": "",
+        "tool_call_used": true
+      },
+      "blocker_codes": [
+        "layer3_gy_span_support_unverified"
+      ],
+      "case_set": "gold",
+      "claim_text": "Minimum wage increases show evidence of reduced employment in tradeable sectors.",
+      "confidence": 0.7,
+      "decision": "neutral",
+      "expected_supported": true,
+      "judge_client": "create_traced_gateway_client",
+      "label": "irrelevant",
+      "label_id": "openalex-gold-minwage-tradeable-employment-002",
+      "openalex_id": "https://openalex.org/W2942870997",
+      "predicted_supported": false,
+      "real_agent": true,
+      "reason_codes": [
+        "span_support_agent_neutral"
+      ],
+      "source_fixture": "tests/fixtures/scholar/openalex/minimum_wage_employment.json",
+      "span_found_in_source": true,
+      "span_text": "However, we do find some evidence of reduced employment in tradeable sectors.",
+      "status": "fail"
+    },
+    {
+      "agent_judgment": {
+        "confidence": 0.98,
+        "decision": "entails",
+        "model_id": "MiniMaxAI/MiniMax-M2.7",
+        "provider": "polisyos-gy-span-support",
+        "rationale": "The span is a faithful paraphrase of the claim. 'The overall number of low-wage jobs remained essentially unchanged over the five years following the increase' directly corresponds to 'Minimum wage hikes left total low--wage job counts roughly stable over the next five years.' Key mappings: 'overall number of low-wage jobs' = 'total low-wage job counts'; 'essentially unchanged' = 'roughly stable'; 'over the five years following the increase' = 'over the next five years' (referring to minimum wage increase). The direction is positive and the semantic content matches exactly.",
+        "raw": {
+          "confidence": 0.98,
+          "decision": "entails",
+          "rationale": "The span is a faithful paraphrase of the claim. 'The overall number of low-wage jobs remained essentially unchanged over the five years following the increase' directly corresponds to 'Minimum wage hikes left total low--wage job counts roughly stable over the next five years.' Key mappings: 'overall number of low-wage jobs' = 'total low-wage job counts'; 'essentially unchanged' = 'roughly stable'; 'over the five years following the increase' = 'over the next five years' (referring to minimum wage increase). The direction is positive and the semantic content matches exactly."
+        },
+        "request_id": "",
+        "tool_call_used": true
+      },
+      "blocker_codes": [],
+      "case_set": "gold",
+      "claim_text": "Minimum wage hikes left total low-wage job counts roughly stable over the next five years.",
+      "confidence": 0.98,
+      "decision": "entails",
+      "expected_supported": true,
+      "judge_client": "create_traced_gateway_client",
+      "label": "supports",
+      "label_id": "openalex-gold-minwage-paraphrase-stable-jobs-003",
+      "openalex_id": "https://openalex.org/W2942870997",
+      "predicted_supported": true,
+      "real_agent": true,
+      "reason_codes": [
+        "span_support_agent_entails_claim"
+      ],
+      "source_fixture": "tests/fixtures/scholar/openalex/minimum_wage_employment.json",
+      "span_found_in_source": true,
+      "span_text": "We find that the overall number of low-wage jobs remained essentially unchanged over the five years following the increase.",
+      "status": "pass"
+    },
+    {
+      "agent_judgment": {
+        "confidence": 0.95,
+        "decision": "entails",
+        "model_id": "MiniMaxAI/MiniMax-M2.7",
+        "provider": "polisyos-gy-span-support",
+        "rationale": "The span directly supports the claim. \"Non-availability of debt financing\" is a paraphrase of \"limited debt finance,\" and \"limiting the survival and growth of SMEs\" directly corresponds to \"constrains SME survival and growth.\" The causal relationship stated (lack of debt financing \u2192 limits SME outcomes) matches the claim's direction and meaning.",
+        "raw": {
+          "confidence": 0.95,
+          "decision": "entails",
+          "rationale": "The span directly supports the claim. \"Non-availability of debt financing\" is a paraphrase of \"limited debt finance,\" and \"limiting the survival and growth of SMEs\" directly corresponds to \"constrains SME survival and growth.\" The causal relationship stated (lack of debt financing \u2192 limits SME outcomes) matches the claim's direction and meaning."
+        },
+        "request_id": "",
+        "tool_call_used": true
+      },
+      "blocker_codes": [],
+      "case_set": "gold",
+      "claim_text": "Limited debt finance constrains SME survival and growth.",
+      "confidence": 0.95,
+      "decision": "entails",
+      "expected_supported": true,
+      "judge_client": "create_traced_gateway_client",
+      "label": "supports",
+      "label_id": "openalex-gold-credit-paraphrase-financing-constraint-003",
+      "openalex_id": "https://openalex.org/W2169693233",
+      "predicted_supported": true,
+      "real_agent": true,
+      "reason_codes": [
+        "span_support_agent_entails_claim"
+      ],
+      "source_fixture": "tests/fixtures/scholar/openalex/credit_guarantee_firm_survival.json",
+      "span_found_in_source": true,
+      "span_text": "One of the factors limiting the survival and growth ofSMEs in South Africa is non-availability of debt financing.",
+      "status": "pass"
+    },
+    {
+      "agent_judgment": {
+        "confidence": 0.98,
+        "decision": "entails",
+        "model_id": "MiniMaxAI/MiniMax-M2.7",
+        "provider": "polisyos-gy-span-support",
+        "rationale": "The span directly supports the claim. It explicitly states that COVID-19 caused \"a large increase in the failure rate of SMEs\" of \"nearly 9 percentage points\" and specifies this was \"absent government support.\" This is a faithful paraphrase of the claim: COVID-19 substantially increased SME business failures without government support. The quantitative detail (9 percentage points) reinforces the \"substantially\" element of the claim.",
+        "raw": {
+          "confidence": 0.98,
+          "decision": "entails",
+          "rationale": "The span directly supports the claim. It explicitly states that COVID-19 caused \"a large increase in the failure rate of SMEs\" of \"nearly 9 percentage points\" and specifies this was \"absent government support.\" This is a faithful paraphrase of the claim: COVID-19 substantially increased SME business failures without government support. The quantitative detail (9 percentage points) reinforces the \"substantially\" element of the claim."
+        },
+        "request_id": "",
+        "tool_call_used": true
+      },
+      "blocker_codes": [],
+      "case_set": "gold",
+      "claim_text": "COVID-19 substantially increased SME business failures without government support.",
+      "confidence": 0.98,
+      "decision": "entails",
+      "expected_supported": true,
+      "judge_client": "create_traced_gateway_client",
+      "label": "supports",
+      "label_id": "openalex-gold-covid-sme-failures-support-001",
+      "openalex_id": "https://openalex.org/W4206444459",
+      "predicted_supported": true,
+      "real_agent": true,
+      "reason_codes": [
+        "span_support_agent_entails_claim"
+      ],
+      "source_fixture": "tests/fixtures/scholar/openalex/credit_guarantee_firm_survival.json",
+      "span_found_in_source": true,
+      "span_text": "We estimate a large increase in the failure rate of SMEs under COVID-19 of nearly 9 percentage points, absent government support.",
+      "status": "pass"
+    },
+    {
+      "agent_judgment": {
+        "confidence": 1.0,
+        "decision": "neutral",
+        "model_id": "MiniMaxAI/MiniMax-M2.7",
+        "provider": "polisyos-gy-span-support",
+        "rationale": "The span is purely methodological, describing the research design (difference-in-differences approach, 138 state-level minimum wage changes, 1979-2016). It does not report any results or conclusions about the effect of minimum wages on employment. It merely states what the authors are studying and how, without any indication of the direction or magnitude of findings.",
+        "raw": {
+          "confidence": 1,
+          "decision": "neutral",
+          "rationale": "The span is purely methodological, describing the research design (difference-in-differences approach, 138 state-level minimum wage changes, 1979-2016). It does not report any results or conclusions about the effect of minimum wages on employment. It merely states what the authors are studying and how, without any indication of the direction or magnitude of findings."
+        },
+        "request_id": "",
+        "tool_call_used": true
+      },
+      "blocker_codes": [
+        "layer3_gy_span_support_unverified"
+      ],
+      "case_set": "gold",
+      "claim_text": "Minimum wage increases reduced overall low-wage employment.",
+      "confidence": 1.0,
+      "decision": "neutral",
+      "expected_supported": false,
+      "judge_client": "create_traced_gateway_client",
+      "label": "irrelevant",
+      "label_id": "openalex-gold-minwage-method-only-negative-004",
+      "openalex_id": "https://openalex.org/W2942870997",
+      "predicted_supported": false,
+      "real_agent": true,
+      "reason_codes": [
+        "span_support_agent_neutral"
+      ],
+      "source_fixture": "tests/fixtures/scholar/openalex/minimum_wage_employment.json",
+      "span_found_in_source": true,
+      "span_text": "We estimate the effect of minimum wages on low-wage jobs using 138 prominent state-level minimum wage changes between 1979 and 2016 in the United States using a difference-in-differences approach.",
+      "status": "fail"
+    },
+    {
+      "agent_judgment": {
+        "confidence": 0.95,
+        "decision": "neutral",
+        "model_id": "MiniMaxAI/MiniMax-M2.7",
+        "provider": "polisyos-gy-span-support",
+        "rationale": "The span provides only partial, hedged support that contradicts neither the claim's direction but falls far short of supporting it. The span: (1) uses hedged language (\"some evidence\") rather than a definitive finding; (2) limits scope to \"tradeable sectors\" only, not \"all low-wage jobs\"; (3) does not mention minimum wage as the cause; and (4) does not claim \"substantial\" reduction. The claim asserts a strong, universal effect (\"substantially reduced all low-wage jobs\"), while the span merely notes hedged, sector-limited evidence of reduced employment without attributing it to minimum wages.",
+        "raw": {
+          "confidence": 0.95,
+          "decision": "neutral",
+          "rationale": "The span provides only partial, hedged support that contradicts neither the claim's direction but falls far short of supporting it. The span: (1) uses hedged language (\"some evidence\") rather than a definitive finding; (2) limits scope to \"tradeable sectors\" only, not \"all low-wage jobs\"; (3) does not mention minimum wage as the cause; and (4) does not claim \"substantial\" reduction. The claim asserts a strong, universal effect (\"substantially reduced all low-wage jobs\"), while the span merely notes hedged, sector-limited evidence of reduced employment without attributing it to minimum wages."
+        },
+        "request_id": "",
+        "tool_call_used": true
+      },
+      "blocker_codes": [
+        "layer3_gy_span_support_unverified"
+      ],
+      "case_set": "gold",
+      "claim_text": "Minimum wage increases substantially reduced all low-wage jobs.",
+      "confidence": 0.95,
+      "decision": "neutral",
+      "expected_supported": false,
+      "judge_client": "create_traced_gateway_client",
+      "label": "irrelevant",
+      "label_id": "openalex-gold-minwage-hedged-scope-negative-005",
+      "openalex_id": "https://openalex.org/W2942870997",
+      "predicted_supported": false,
+      "real_agent": true,
+      "reason_codes": [
+        "span_support_agent_neutral"
+      ],
+      "source_fixture": "tests/fixtures/scholar/openalex/minimum_wage_employment.json",
+      "span_found_in_source": true,
+      "span_text": "However, we do find some evidence of reduced employment in tradeable sectors.",
+      "status": "fail"
+    },
+    {
+      "agent_judgment": {
+        "confidence": 0.95,
+        "decision": "contradicts",
+        "model_id": "MiniMaxAI/MiniMax-M2.7",
+        "provider": "polisyos-gy-span-support",
+        "rationale": "The claim states that minimum wage increases reduced overall low-wage jobs. The span directly states that 'the overall number of low-wage jobs remained essentially unchanged' following the increase. This is a direct contradiction - the claim asserts a reduction occurred, while the span asserts no change occurred.",
+        "raw": {
+          "confidence": 0.95,
+          "decision": "contradicts",
+          "rationale": "The claim states that minimum wage increases reduced overall low-wage jobs. The span directly states that 'the overall number of low-wage jobs remained essentially unchanged' following the increase. This is a direct contradiction - the claim asserts a reduction occurred, while the span asserts no change occurred."
+        },
+        "request_id": "",
+        "tool_call_used": true
+      },
+      "blocker_codes": [
+        "layer3_gy_span_support_unverified"
+      ],
+      "case_set": "gold",
+      "claim_text": "Minimum wage increases reduced overall low-wage jobs.",
+      "confidence": 0.95,
+      "decision": "contradicts",
+      "expected_supported": false,
+      "judge_client": "create_traced_gateway_client",
+      "label": "contradicts",
+      "label_id": "openalex-gold-minwage-opposite-direction-negative-006",
+      "openalex_id": "https://openalex.org/W2942870997",
+      "predicted_supported": false,
+      "real_agent": true,
+      "reason_codes": [
+        "span_support_agent_contradicts_claim"
+      ],
+      "source_fixture": "tests/fixtures/scholar/openalex/minimum_wage_employment.json",
+      "span_found_in_source": true,
+      "span_text": "We find that the overall number of low-wage jobs remained essentially unchanged over the five years following the increase.",
+      "status": "fail"
+    },
+    {
+      "agent_judgment": {
+        "confidence": 1.0,
+        "decision": "entails",
+        "model_id": "MiniMaxAI/MiniMax-M2.7",
+        "provider": "polisyos-gy-span-support",
+        "rationale": "The span is a direct paraphrase of the claim. Both state that SMEs contribute to economic growth, employment, and poverty alleviation in South Africa. The span adds \"positively\" which aligns with the positive claim direction. This is a faithful restatement of the claim.",
+        "raw": {
+          "confidence": 1,
+          "decision": "entails",
+          "rationale": "The span is a direct paraphrase of the claim. Both state that SMEs contribute to economic growth, employment, and poverty alleviation in South Africa. The span adds \"positively\" which aligns with the positive claim direction. This is a faithful restatement of the claim."
+        },
+        "request_id": "",
+        "tool_call_used": true
+      },
+      "blocker_codes": [],
+      "case_set": "held_out",
+      "claim_text": "SMEs contribute to economic growth, employment, and poverty alleviation in South Africa.",
+      "confidence": 1.0,
+      "decision": "entails",
+      "expected_supported": true,
+      "judge_client": "create_traced_gateway_client",
+      "label": "supports",
+      "label_id": "openalex-heldout-credit-sme-contribution-positive",
+      "openalex_id": "https://openalex.org/W2169693233",
+      "predicted_supported": true,
+      "real_agent": true,
+      "reason_codes": [
+        "span_support_agent_entails_claim"
+      ],
+      "source_fixture": "tests/fixtures/scholar/openalex/credit_guarantee_firm_survival.json",
+      "span_found_in_source": true,
+      "span_text": "SMEs contribute positively to economic growth, employment and poverty alleviation in South Africa.",
+      "status": "pass"
+    },
+    {
+      "agent_judgment": {
+        "confidence": 0.95,
+        "decision": "neutral",
+        "model_id": "MiniMaxAI/MiniMax-M2.7",
+        "provider": "polisyos-gy-span-support",
+        "rationale": "The span only describes data collection method (self-administered questionnaire in a survey). It does not mention randomization, control groups, or any RCT methodology. This is merely topical text about data collection that neither supports nor contradicts the claim that the study was an RCT.",
+        "raw": {
+          "confidence": 0.95,
+          "decision": "neutral",
+          "rationale": "The span only describes data collection method (self-administered questionnaire in a survey). It does not mention randomization, control groups, or any RCT methodology. This is merely topical text about data collection that neither supports nor contradicts the claim that the study was an RCT."
+        },
+        "request_id": "",
+        "tool_call_used": true
+      },
+      "blocker_codes": [
+        "layer3_gy_span_support_unverified"
+      ],
+      "case_set": "held_out",
+      "claim_text": "The South Africa SME study was a randomized controlled trial.",
+      "confidence": 0.95,
+      "decision": "neutral",
+      "expected_supported": false,
+      "judge_client": "create_traced_gateway_client",
+      "label": "irrelevant",
+      "label_id": "openalex-heldout-credit-rct-negative",
+      "openalex_id": "https://openalex.org/W2169693233",
+      "predicted_supported": false,
+      "real_agent": true,
+      "reason_codes": [
+        "span_support_agent_neutral"
+      ],
+      "source_fixture": "tests/fixtures/scholar/openalex/credit_guarantee_firm_survival.json",
+      "span_found_in_source": true,
+      "span_text": "Data was collected throughself-administered questionnaire in a survey.",
+      "status": "fail"
+    },
+    {
+      "agent_judgment": {
+        "confidence": 0.98,
+        "decision": "entails",
+        "model_id": "MiniMaxAI/MiniMax-M2.7",
+        "provider": "polisyos-gy-span-support",
+        "rationale": "The span directly supports all elements of the claim. It states: (1) a legal reform exogenously reduced collateral values, (2) the bank responded by increasing interest rates, (3) tightening credit limits, and (4) reducing the intensity of its monitoring of borrowers and collateral. This is a faithful paraphrase of the claim's core assertions.",
+        "raw": {
+          "confidence": 0.98,
+          "decision": "entails",
+          "rationale": "The span directly supports all elements of the claim. It states: (1) a legal reform exogenously reduced collateral values, (2) the bank responded by increasing interest rates, (3) tightening credit limits, and (4) reducing the intensity of its monitoring of borrowers and collateral. This is a faithful paraphrase of the claim's core assertions."
+        },
+        "request_id": "",
+        "tool_call_used": true
+      },
+      "blocker_codes": [],
+      "case_set": "held_out",
+      "claim_text": "A legal reform that reduced collateral values led the bank to raise interest rates, tighten credit limits, and reduce monitoring.",
+      "confidence": 0.98,
+      "decision": "entails",
+      "expected_supported": true,
+      "judge_client": "create_traced_gateway_client",
+      "label": "supports",
+      "label_id": "openalex-heldout-collateral-credit-positive",
+      "openalex_id": "https://openalex.org/W3123109680",
+      "predicted_supported": true,
+      "real_agent": true,
+      "reason_codes": [
+        "span_support_agent_entails_claim"
+      ],
+      "source_fixture": "tests/fixtures/scholar/openalex/credit_guarantee_firm_survival.json",
+      "span_found_in_source": true,
+      "span_text": "Using a unique data set from a large bank containing timely assessments of collateral values, we find that the bank responded to a legal reform that exogenously reduced collateral values by increasing interest rates, tightening credit limits, and reducing the intensity of its monitoring of borrowers and collateral, spurring borrower delinquency on outstanding claims.",
+      "status": "pass"
+    },
+    {
+      "agent_judgment": {
+        "confidence": 1.0,
+        "decision": "contradicts",
+        "model_id": "MiniMaxAI/MiniMax-M2.7",
+        "provider": "polisyos-gy-span-support",
+        "rationale": "The span explicitly states the bank responded to the collateral reduction by \"increasing interest rates, tightening credit limits\" - directly opposite to the claim's assertion that the bank \"lowered interest rates and loosened credit limits.\" The evidence contradicts the claim's direction.",
+        "raw": {
+          "confidence": 1,
+          "decision": "contradicts",
+          "rationale": "The span explicitly states the bank responded to the collateral reduction by \"increasing interest rates, tightening credit limits\" - directly opposite to the claim's assertion that the bank \"lowered interest rates and loosened credit limits.\" The evidence contradicts the claim's direction."
+        },
+        "request_id": "",
+        "tool_call_used": true
+      },
+      "blocker_codes": [
+        "layer3_gy_span_support_unverified"
+      ],
+      "case_set": "held_out",
+      "claim_text": "A legal reform that reduced collateral values led the bank to lower interest rates and loosen credit limits.",
+      "confidence": 1.0,
+      "decision": "contradicts",
+      "expected_supported": false,
+      "judge_client": "create_traced_gateway_client",
+      "label": "contradicts",
+      "label_id": "openalex-heldout-collateral-opposite-negative",
+      "openalex_id": "https://openalex.org/W3123109680",
+      "predicted_supported": false,
+      "real_agent": true,
+      "reason_codes": [
+        "span_support_agent_contradicts_claim"
+      ],
+      "source_fixture": "tests/fixtures/scholar/openalex/credit_guarantee_firm_survival.json",
+      "span_found_in_source": true,
+      "span_text": "Using a unique data set from a large bank containing timely assessments of collateral values, we find that the bank responded to a legal reform that exogenously reduced collateral values by increasing interest rates, tightening credit limits, and reducing the intensity of its monitoring of borrowers and collateral, spurring borrower delinquency on outstanding claims.",
+      "status": "fail"
+    }
+  ],
+  "degraded_extractor_accuracy": {
+    "false_negative_count": 9,
+    "false_positive_count": 0,
+    "gold_record_count": 14,
+    "matched_label_ids": [],
+    "measurement_basis": "human_labeled_gold_set",
+    "precision": 0.0,
+    "predicted_claim_count": 0,
+    "recall": 0.0,
+    "schema_version": "policyos.policy_design_case.layer3_gy.openalex_accuracy.v1",
+    "true_negative_count": 5,
+    "true_positive_count": 0
+  },
+  "gold_set_ref": "architecture/policy_design_case/layer3_gy_openalex_claim_span_gold.json",
+  "gy_lifecycle_marker": "policyos.policy_design_case.layer3_gy.openalex_accuracy_report.v1",
+  "patterns": [
+    "P01",
+    "P05",
+    "P10",
+    "P15",
+    "P29",
+    "P31",
+    "P32",
+    "P33"
+  ],
+  "produced_by": "tools/quality/validation/check_layer3_gy_openalex_artifacts.py",
+  "provider_config_ref": "architecture/policy_design_case/layer3_gy_openalex_provider_config.json",
+  "schema_version": "policyos.policy_design_case.layer3_gy.openalex_accuracy_report.v1"
+}

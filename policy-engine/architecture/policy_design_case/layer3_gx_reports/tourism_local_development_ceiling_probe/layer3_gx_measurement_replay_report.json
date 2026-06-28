@@ -1,0 +1,13 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gx_measurement_replay_report.v1",
+  "status": "fail",
+  "measurement_root_count": 0,
+  "records": [],
+  "issues": [
+    {
+      "code": "layer3_gx_measurement_replay_not_measured",
+      "path": "architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_producer_registry.json",
+      "message": "No measurement roots are available for GX replay."
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "proofs": [
+    {
+      "expected_missing_input": "lower_bound",
+      "expected_status": "repair_required",
+      "none_to_zero_laundering_rejected": true,
+      "proof_id": "phase2-lex-bounds-none-is-blocker",
+      "search_domain_status": "repair_required"
+    },
+    {
+      "expected_blocker_label": "producer_missing",
+      "proof_id": "phase2-causal-input-producer-missing-blockers",
+      "required_inputs": [
+        "causal_variables",
+        "data_causal_graph",
+        "observational_data_ref"
+      ]
+    },
+    {
+      "default_path_resolved": true,
+      "producer_refs": {
+        "causal_variables": "polisyos.runtime.quality.workspace.loop.WorkspaceLoop._phase2_causal_variables",
+        "data_causal_graph": "polisyos.runtime.quality.workspace.loop.WorkspaceLoop._phase2_data_causal_graph",
+        "observational_data_ref": "polisyos.runtime.quality.data_forge_binding.produce_phase2_recorded_panel_measurement_root"
+      },
+      "proof_id": "phase2-causal-input-producers-resolve-default-path",
+      "required_inputs": [
+        "causal_variables",
+        "data_causal_graph",
+        "observational_data_ref"
+      ],
+      "unresolved_blockers": []
+    },
+    {
+      "authority_blocked_port": "governance.authority",
+      "partial_judge_stack_status": "repair_required",
+      "proof_id": "phase2-governance-tail-six-judge-gate",
+      "six_judge_stack_status": "applicable"
+    }
+  ],
+  "schema_version": "policyos.policy_design_case.layer3_gy_phase2.spine_repair_proofs.v2"
+}

@@ -237,7 +237,7 @@ Existing substrates to reuse:
   `UniversalityAxisScorecard` must derive its 27 axis rows from this report
   plus cluster-map cell refs, adding only S14 posture, hard-corner refs, and
   battery status.
-- `src/polisyos/runtime/quality/layer2_resource_economics.py` already exports
+- `src/polisyos/runtime/quality/design_axes/resource_economics.py` already exports
   `GrowthThermometerRecord`, `EnvelopeGrowthLedger`,
   `build_growth_thermometers`, and `build_envelope_growth_ledger`.
   `GrowthThermometerRecord` carries `reuse_rate`, `reuse_rate_trend`,
@@ -245,7 +245,7 @@ Existing substrates to reuse:
   and `held_out_status == "pending_s14"` while rejecting a S12
   `held_out_battery_ref`. S14 must materialize that pending S12 hook through
   S14 refs, not mutate S12 thermometers into battery authority.
-- `src/polisyos/runtime/quality/layer2_post_deploy_accountability.py` already
+- `src/polisyos/runtime/quality/design_axes/post_deploy_accountability.py` already
   exports `EnvelopeRevision`, `CertifiedEnvelopeDelta`,
   `build_envelope_revision`, and `build_certified_envelope_delta`.
   `EnvelopeRevisionDynamicsRecord` must aggregate S12 expansion evidence
@@ -279,7 +279,7 @@ Existing substrates to reuse:
   currently loads through S13, keeps `S14` in future-slice guards, and expects
   inventory count `21`. Task 5 must add S14 constants, loader, summary,
   validator, traceability checks, and inventory count `22`.
-- `src/polisyos/runtime/quality/layer2_resource_economics.py` and the S12
+- `src/polisyos/runtime/quality/design_axes/resource_economics.py` and the S12
   manifest currently use `held_out_status == "pending_s14"`. S14 must convert
   this into an S14 assurance reference in S14 outputs without mutating S12
   growth entries into battery authority.
@@ -706,7 +706,7 @@ Required S14 closeout metrics:
 ## Contract Dictionary
 
 Add runtime constants in
-`src/polisyos/runtime/quality/layer2_universality_assurance.py`:
+`src/polisyos/runtime/quality/design_axes/universality_assurance.py`:
 
 ```python
 LAYER2_S14_UNIVERSALITY_ASSURANCE_SCHEMA_VERSION = (
@@ -788,10 +788,10 @@ Import and reuse existing public substrate APIs:
   fallback only if the sibling builder cannot satisfy the S14 tests.
 - From `polisyos.runtime.quality.capability_ratchet`:
   `build_capability_reality_report`.
-- From `polisyos.runtime.quality.layer2_resource_economics`:
+- From `polisyos.runtime.quality.design_axes.resource_economics`:
   `EnvelopeGrowthLedger`, `GrowthThermometerRecord`,
   `build_envelope_growth_ledger`, and `build_growth_thermometers`.
-- From `polisyos.runtime.quality.layer2_post_deploy_accountability`:
+- From `polisyos.runtime.quality.design_axes.post_deploy_accountability`:
   `CertifiedEnvelopeDelta`, `EnvelopeRevision`,
   `build_certified_envelope_delta`, and `build_envelope_revision`.
 
@@ -846,7 +846,7 @@ Authority posture:
 
 Create:
 
-- `src/polisyos/runtime/quality/layer2_universality_assurance.py`
+- `src/polisyos/runtime/quality/design_axes/universality_assurance.py`
 - `tools/quality/validation/run_layer2_s14_universality_battery.py`
 - `tests/unit/runtime/quality/test_layer2_s14_universality_assurance.py`
 - `tests/repo_quality/tools/test_layer2_s14_universality_battery.py`
@@ -919,9 +919,9 @@ Read/reuse first; do not modify unless a failing test proves a contract gap:
 - `tests/unit/corpus/test_loaders.py`
 - `src/polisyos/runtime/quality/capability_ratchet.py`
 - `tests/unit/runtime/quality/test_capability_ratchet.py`
-- `src/polisyos/runtime/quality/layer2_projection_lowering.py`
-- `src/polisyos/runtime/quality/layer2_resource_economics.py`
-- `src/polisyos/runtime/quality/layer2_post_deploy_accountability.py`
+- `src/polisyos/runtime/quality/design_axes/projection_lowering.py`
+- `src/polisyos/runtime/quality/design_axes/resource_economics.py`
+- `src/polisyos/runtime/quality/design_axes/post_deploy_accountability.py`
 - `src/polisyos/pdc/_impl/layer2_design_search.py`
 
 Do not modify unless a validator proves it is necessary:
@@ -1082,7 +1082,7 @@ uv run pytest \
 
 Expected red output:
 
-- Import failure for `polisyos.runtime.quality.layer2_universality_assurance`.
+- Import failure for `polisyos.runtime.quality.design_axes.universality_assurance`.
 - Missing `assurance_case.build_universality_assurance_case`; if the fallback
   `claim_spec` route is chosen instead, closeout regression tests must fail red
   until default behavior is proven unchanged.
@@ -1108,7 +1108,7 @@ git commit -m "test: add layer2 s14 universality assurance red tests"
 ## Task 2: Contracts, Producer Helpers, And Universality Firewalls
 
 Implement
-`src/polisyos/runtime/quality/layer2_universality_assurance.py`.
+`src/polisyos/runtime/quality/design_axes/universality_assurance.py`.
 
 Implementation requirements:
 
@@ -1221,7 +1221,7 @@ Execution steps:
   tests proving the existing closeout assurance case output remains unchanged
   by default.
 - [ ] **Step 2: Add module constants, literals, and strict models** in
-  `src/polisyos/runtime/quality/layer2_universality_assurance.py`.
+  `src/polisyos/runtime/quality/design_axes/universality_assurance.py`.
 - [ ] **Step 3: Implement the S14 authority boundary and D4 coverage, oracle,
   breadth, baseline, grounded authority, status composition, envelope revision,
   freeze-hash, scorecard, mechanism, skeptic, assurance, gate, authority, and
@@ -1244,7 +1244,7 @@ uv run pytest tests/unit/runtime/quality/test_layer2_s14_universality_assurance.
 uv run pytest tests/unit/runtime/quality/test_assurance_case.py -q
 uv run ruff check \
   src/polisyos/runtime/quality/assurance_case.py \
-  src/polisyos/runtime/quality/layer2_universality_assurance.py \
+  src/polisyos/runtime/quality/design_axes/universality_assurance.py \
   tests/unit/runtime/quality/test_assurance_case.py \
   tests/unit/runtime/quality/test_layer2_s14_universality_assurance.py
 ```
@@ -1264,7 +1264,7 @@ Expected output:
 Commit:
 
 ```bash
-git add src/polisyos/runtime/quality/layer2_universality_assurance.py \
+git add src/polisyos/runtime/quality/design_axes/universality_assurance.py \
   src/polisyos/runtime/quality/assurance_case.py \
   src/polisyos/runtime/quality/__init__.py \
   tests/unit/runtime/quality/test_assurance_case.py \
@@ -1489,7 +1489,7 @@ access.
 Concrete W12D touch points:
 
 - Import S14 runtime constants/builders from
-  `polisyos.runtime.quality.layer2_universality_assurance`.
+  `polisyos.runtime.quality.design_axes.universality_assurance`.
 - Add `S14_DEV_SIGNALS_PATH`, `S14_EXPERT_LABELS_PATH`, and
   `S14_NEGATIVE_CONTROL_PROBE_PATHS`.
 - Add `S14_D4_TRACK_COVERAGE_PATH`, `S14_ORACLE_BOOTSTRAP_PATH`,
@@ -1640,10 +1640,10 @@ Manifest requirements:
   - `src/polisyos/runtime/quality/assurance_case.py#build_universality_assurance_case`
   - `src/polisyos/runtime/quality/assurance_case.py#build_assurance_case_for_scorecard`
   - `src/polisyos/runtime/quality/capability_ratchet.py#build_capability_reality_report`
-  - `src/polisyos/runtime/quality/layer2_resource_economics.py#GrowthThermometerRecord`
-  - `src/polisyos/runtime/quality/layer2_resource_economics.py#EnvelopeGrowthLedger`
-  - `src/polisyos/runtime/quality/layer2_post_deploy_accountability.py#EnvelopeRevision`
-  - `src/polisyos/runtime/quality/layer2_post_deploy_accountability.py#CertifiedEnvelopeDelta`
+  - `src/polisyos/runtime/quality/design_axes/resource_economics.py#GrowthThermometerRecord`
+  - `src/polisyos/runtime/quality/design_axes/resource_economics.py#EnvelopeGrowthLedger`
+  - `src/polisyos/runtime/quality/design_axes/post_deploy_accountability.py#EnvelopeRevision`
+  - `src/polisyos/runtime/quality/design_axes/post_deploy_accountability.py#CertifiedEnvelopeDelta`
   - existing closeout/status composition surfaces in `case_lifecycle.py`,
     `approval.py`, and scorecard/source-truth lattice semantics
 - `skeptic_defeater_mapping` must map exactly:

@@ -1,0 +1,44 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gx_scope_seed_rows.v1",
+  "rule_version": "policyos.layer3.gx.data_home.v1",
+  "producer_ref": "external-request://layer3-gx/scope/tourism_local_development_ceiling_probe",
+  "producer_type": "external_request",
+  "scope_rows": [
+    {
+      "scope_key": "entity_type",
+      "value": "tourism_site",
+      "authority_role": "demand_scope",
+      "validity_status": "unverified"
+    },
+    {
+      "scope_key": "population",
+      "value": "local_tourism_sites",
+      "authority_role": "demand_scope",
+      "validity_status": "unverified"
+    },
+    {
+      "scope_key": "geography",
+      "value": "UA-local",
+      "authority_role": "demand_scope",
+      "validity_status": "unverified"
+    },
+    {
+      "scope_key": "modality",
+      "value": "event_or_registry",
+      "authority_role": "demand_scope",
+      "validity_status": "unverified"
+    },
+    {
+      "scope_key": "source_family_alias",
+      "value": "municipal_tourism_registry",
+      "authority_role": "demand_scope",
+      "validity_status": "unverified"
+    },
+    {
+      "scope_key": "validity_limit",
+      "value": "ceiling_probe_missing_acquisition_distribution",
+      "authority_role": "demand_scope",
+      "validity_status": "unverified"
+    }
+  ]
+}

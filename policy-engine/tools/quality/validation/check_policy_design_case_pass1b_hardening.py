@@ -34,7 +34,7 @@ from polisyos.runtime.quality.observability_static_audit import (  # noqa: E402
     SKIP_CAUSALITY_LEDGER_RECORD_KEY,
     SKIP_CAUSALITY_LEDGER_SCHEMA_VERSION,
 )
-from polisyos.runtime.quality.pass1b_hardening import (  # noqa: E402
+from polisyos.runtime.quality.tenant_cas_approval_governance import (  # noqa: E402
     PASS1B_HARDENING_READINESS_CHECK,
     PASS1B_HARDENING_SCORECARD_GATE,
     PASS1B_PDD_REQUIRED_SURFACES,

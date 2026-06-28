@@ -12,7 +12,7 @@ from typing import Any
 
 from pydantic import BaseModel, ValidationError
 
-from polisyos.runtime.quality import layer3_substrate_grounding as g1
+from polisyos.runtime.quality.proving_ground import substrate_grounding_search as g1
 from tools.lib.fs import atomic_write_text
 
 REPO_ROOT = Path(__file__).resolve().parents[3]

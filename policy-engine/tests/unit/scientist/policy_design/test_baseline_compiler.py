@@ -250,7 +250,7 @@ def test_superiority_publication_and_registry_fail_without_w8c_comparison_record
 def test_layer3_g3_bridge_is_baseline_comparison_evidence_without_authority_escalation(
     tmp_path: Path,
 ) -> None:
-    g3 = importlib.import_module("polisyos.runtime.quality.layer3_analytics_search")
+    g3 = importlib.import_module("polisyos.runtime.quality.proving_ground.proof_carrying_analytics_search")
     ledger = _claim_ledger()
     superiority_claim = next(
         claim for claim in ledger.claims if claim.claim_use is ClaimUse.SUPERIORITY

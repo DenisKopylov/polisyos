@@ -45,12 +45,14 @@ class ControlRegistryProviders:
     source_profiles: SourceProfileRegistryLike
     binding_profiles: BindingProfileRegistryLike
     model_profiles: ModelProfileRegistryLike
+    gy_catalog_graph: Any | None = None
 
 
 ConnectorRegistryFactory = Callable[[], ConnectorRegistryLike]
 SourceProfileRegistryFactory = Callable[[], SourceProfileRegistryLike]
 BindingProfileRegistryFactory = Callable[[], BindingProfileRegistryLike]
 ModelProfileRegistryFactory = Callable[[], ModelProfileRegistryLike]
+GyCatalogGraphFactory = Callable[[], Any]
 
 
 def resolve_control_registry_providers(
@@ -59,13 +61,24 @@ def resolve_control_registry_providers(
     source_profiles: SourceProfileRegistryLike | None = None,
     binding_profiles: BindingProfileRegistryLike | None = None,
     model_profiles: ModelProfileRegistryLike | None = None,
+    gy_catalog_graph: Any | None = None,
     connectors_factory: ConnectorRegistryFactory | None = None,
     source_profiles_factory: SourceProfileRegistryFactory | None = None,
     binding_profiles_factory: BindingProfileRegistryFactory | None = None,
     model_profiles_factory: ModelProfileRegistryFactory | None = None,
+    gy_catalog_graph_factory: GyCatalogGraphFactory | None = None,
 ) -> ControlRegistryProviders:
     """Resolve runtime control registries once at the bootstrap boundary."""
 
+    registry_factory_overridden = any(
+        factory is not None
+        for factory in (
+            connectors_factory,
+            source_profiles_factory,
+            binding_profiles_factory,
+            model_profiles_factory,
+        )
+    )
     if connectors is None:
         connectors = (
             connectors_factory() if connectors_factory is not None else _default_connectors()
@@ -88,11 +101,17 @@ def resolve_control_registry_providers(
             if model_profiles_factory is not None
             else _default_model_profiles()
         )
+    if gy_catalog_graph is None:
+        if gy_catalog_graph_factory is not None:
+            gy_catalog_graph = gy_catalog_graph_factory()
+        elif not registry_factory_overridden:
+            gy_catalog_graph = _default_gy_catalog_graph()
     return ControlRegistryProviders(
         connectors=connectors,
         source_profiles=source_profiles,
         binding_profiles=binding_profiles,
         model_profiles=model_profiles,
+        gy_catalog_graph=gy_catalog_graph,
     )
 
 
@@ -120,10 +139,17 @@ def _default_model_profiles() -> ModelProfileRegistryLike:
     return cast("ModelProfileRegistryLike", ModelProfileRegistry.get_instance())
 
 
+def _default_gy_catalog_graph() -> Any:
+    from polisyos.data_forge.read_api.catalog import build_slice0_fixture_catalog_graph
+
+    return build_slice0_fixture_catalog_graph()
+
+
 __all__ = [
     "BindingProfileRegistryLike",
     "ConnectorRegistryLike",
     "ControlRegistryProviders",
+    "GyCatalogGraphFactory",
     "ModelProfileRegistryLike",
     "SourceProfileRegistryLike",
     "resolve_control_registry_providers",

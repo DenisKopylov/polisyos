@@ -1,7 +1,7 @@
 # Policy Design Case Layer 3 Bounded Agent
 
 Owner: `team-runtime-quality`
-Source of truth: `src/polisyos/runtime/quality/layer3_bounded_agent.py`, `tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py`, and `architecture/policy_design_case/layer3_g6_readiness_manifest.json`
+Source of truth: `src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py`, `tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py`, and `architecture/policy_design_case/layer3_g6_readiness_manifest.json`
 
 G6 is the bounded arbitrary-request adapter for Policy Design Case Layer 3. It
 accepts a natural-language request, projects it into policy-grammar routing
@@ -91,7 +91,7 @@ or blocked compilation produce typed blockers such as
 `layer3_g6_policy_grammar_compile_blocked`.
 
 The default runtime decision is no direct eager import of
-`polisyos.policy_grammar` from `polisyos.runtime.quality.layer3_bounded_agent`.
+`polisyos.policy_grammar` from `polisyos.runtime.quality.proving_ground.bounded_request_agent`.
 The readiness validator may compile a projection as an external producer bridge,
 but the runtime module consumes the projection artifact and keeps policy grammar
 authority limited to routing facets.

@@ -147,10 +147,10 @@
       "scorecard_fingerprint": "sha256:8b908a688f5f30dade1769b4a89d5d70a34323d4e57510499bcd91c53382f237",
       "semantic_loss_ledger_fingerprint": "sha256:79ef0adb577966e490795ad1cd53712535762bb94063fb7b88fe37cb4d893525",
       "status_composition_ledger_fingerprint": "sha256:e2cc2030306abac0a4d1b70c6a5d280fe800bb88c59819d17eae95689482706d",
-      "upstream_closed_g5_replay_fingerprint": "sha256:9537ecdccf561319ec6deb2d8e32d4f545f900c5956701baa19dbc2f28a777ed",
-      "upstream_closed_g6_replay_fingerprint": "sha256:6afc50222e9a4ca2391a090b4d649c7cda3a647e8d9d58a24154ef5601e00f01"
+      "upstream_closed_g5_replay_fingerprint": "sha256:14eb7b79f9d05c926ef8be2485e3b37baa252e9ec8db961e0741680edea66020",
+      "upstream_closed_g6_replay_fingerprint": "sha256:ac1b2006a6d969229ab25565db4e063c74cd6267d64100ccc5f8f765482a16d9"
     },
-    "deterministic_fingerprint": "sha256:96773ed1ace6d49c9a41999d94e23ec8eadf56674d0c7703c391a246b1a01df9",
+    "deterministic_fingerprint": "sha256:51fc7379f9b1be33ddeb363137e6d9f9d80a3dcccf295ffb4546865de1e2b032",
     "effective_mode_ledger": {},
     "execution_summary": {
       "g7_public_projection_contract_status": "pass",
@@ -187,10 +187,10 @@
       "claim_refs": [],
       "closed_payload_mutation_status": "not_mutated",
       "concept_spine_ref": "concept-spine://policy-design-case/layer3-g7-region",
-      "continuity_fingerprint": "sha256:2ad9cc35baf4b3d6dde85fcf4b603cf697f9af8748504ee58bf1cbefc8e38daa",
+      "continuity_fingerprint": "sha256:25cd647cabfbc11d254ddc47da078d7640137fc80c7e11b718f83f18f1de628a",
       "continuity_ref": "quality_evidence/runtime_orchestration_continuity.json",
       "findings": [],
-      "generated_at": "2026-06-13T18:28:26+00:00",
+      "generated_at": "2026-06-16T13:50:03+00:00",
       "handoff_refs": [
         "repo://architecture/policy_design_case/layer3_g7_public_export_projection_refs.json",
         "repo://architecture/policy_design_case/layer3_g7_region_scorecard.json",
@@ -395,11 +395,11 @@
       ],
       "upstream_closed_case_replay_refs": {
         "g5": {
-          "fingerprint": "sha256:9537ecdccf561319ec6deb2d8e32d4f545f900c5956701baa19dbc2f28a777ed",
+          "fingerprint": "sha256:14eb7b79f9d05c926ef8be2485e3b37baa252e9ec8db961e0741680edea66020",
           "ref": "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json"
         },
         "g6": {
-          "fingerprint": "sha256:6afc50222e9a4ca2391a090b4d649c7cda3a647e8d9d58a24154ef5601e00f01",
+          "fingerprint": "sha256:ac1b2006a6d969229ab25565db4e063c74cd6267d64100ccc5f8f765482a16d9",
           "ref": "repo://architecture/policy_design_case/layer3_g6_replay_manifest.json"
         }
       }
@@ -473,11 +473,11 @@
       "public_export_projection_ref": "repo://architecture/policy_design_case/layer3_g7_public_export_projection_refs.json#PUBLIC",
       "upstream_closed_case_replay_refs": {
         "g5": {
-          "fingerprint": "sha256:9537ecdccf561319ec6deb2d8e32d4f545f900c5956701baa19dbc2f28a777ed",
+          "fingerprint": "sha256:14eb7b79f9d05c926ef8be2485e3b37baa252e9ec8db961e0741680edea66020",
           "ref": "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json"
         },
         "g6": {
-          "fingerprint": "sha256:6afc50222e9a4ca2391a090b4d649c7cda3a647e8d9d58a24154ef5601e00f01",
+          "fingerprint": "sha256:ac1b2006a6d969229ab25565db4e063c74cd6267d64100ccc5f8f765482a16d9",
           "ref": "repo://architecture/policy_design_case/layer3_g6_replay_manifest.json"
         }
       }
@@ -524,8 +524,8 @@
     "scorecard_fingerprint": "sha256:8b908a688f5f30dade1769b4a89d5d70a34323d4e57510499bcd91c53382f237",
     "semantic_loss_ledger_fingerprint": "sha256:79ef0adb577966e490795ad1cd53712535762bb94063fb7b88fe37cb4d893525",
     "status_composition_ledger_fingerprint": "sha256:e2cc2030306abac0a4d1b70c6a5d280fe800bb88c59819d17eae95689482706d",
-    "upstream_closed_g5_replay_fingerprint": "sha256:9537ecdccf561319ec6deb2d8e32d4f545f900c5956701baa19dbc2f28a777ed",
-    "upstream_closed_g6_replay_fingerprint": "sha256:6afc50222e9a4ca2391a090b4d649c7cda3a647e8d9d58a24154ef5601e00f01"
+    "upstream_closed_g5_replay_fingerprint": "sha256:14eb7b79f9d05c926ef8be2485e3b37baa252e9ec8db961e0741680edea66020",
+    "upstream_closed_g6_replay_fingerprint": "sha256:ac1b2006a6d969229ab25565db4e063c74cd6267d64100ccc5f8f765482a16d9"
   },
   "rule_version": "policyos.layer3.g7.region_widening.v1",
   "schema_version": "policyos.policy_design_case.layer3_g7_region_widening.v1",

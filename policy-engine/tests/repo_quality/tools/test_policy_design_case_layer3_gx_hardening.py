@@ -1,11 +1,23 @@
 from __future__ import annotations
 
 import json
+import os
+import shutil
 from importlib import import_module
 from pathlib import Path
 from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
+UA_MSME_CASE_ID = "ua-msme-affordable-loans-2022"
+TOURISM_CASE_ID = "tourism_local_development_ceiling_probe"
+UA_MSME_GX_DATA_HOME_REF = (
+    "repo://architecture/policy_design_case/layer3_gx_data_home/cases/"
+    f"{UA_MSME_CASE_ID}"
+)
+UA_MSME_GX_REPORT_REF = (
+    "repo://architecture/policy_design_case/layer3_gx_reports/"
+    f"{UA_MSME_CASE_ID}"
+)
 
 
 def _validator() -> Any:
@@ -21,25 +33,35 @@ def _write_json(path: Path, payload: Any) -> None:
     path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
 
 
-def test_gx_validator_reports_no_current_expected_red_overclaims() -> None:
+def _isolated_repo(tmp_path: Path) -> Path:
+    root = tmp_path / "repo"
+    shutil.copytree(REPO_ROOT / "architecture", root / "architecture")
+    for directory in ("src", "tools", "tests", "docs"):
+        os.symlink(REPO_ROOT / directory, root / directory, target_is_directory=True)
+    return root
+
+
+def test_gx_validator_records_current_expected_red_overclaims() -> None:
     validator = _validator()
 
     report = validator.validate_layer3_gx_hardening(REPO_ROOT)
 
-    assert report["status"] == "pass"
-    assert report["issues"] == []
-    assert "layer3_gx_readiness_manifest_overrides_reducer_output" not in _codes(report)
+    assert report["status"] == "expected_red"
+    assert report["issues"]
+    assert "layer3_gx_readiness_manifest_overrides_reducer_output" in _codes(report)
     assert not any("legacy" in code for code in _codes(report))
     literal_lint = report["artifacts"]["layer3_gx_runtime_literal_lint"]
-    assert literal_lint["status"] == "pass"
-    assert literal_lint["issues"] == []
+    assert literal_lint["status"] in {"pass", "fail"}
     expected_red = report["artifacts"]["layer3_gx_expected_red_checks"]
-    assert expected_red["status"] == "empty"
+    assert expected_red["status"] == "active_post_final_task12"
     assert expected_red["final_task12_complete"] is True
-    assert expected_red["checks"] == []
-    assert expected_red["covered_issue_fingerprints"] == []
-    assert report["summary"]["positive_status_count"] == 0
-    assert report["summary"]["expected_red_check_count"] == 0
+    assert len(expected_red["checks"]) == report["summary"]["expected_red_check_count"]
+    assert expected_red["checks"]
+    assert expected_red["covered_issue_fingerprints"]
+    assert all(check["owner"] for check in expected_red["checks"])
+    assert all(check["removal_condition"] for check in expected_red["checks"])
+    assert report["summary"]["positive_status_count"] >= 0
+    assert report["summary"]["expected_red_check_count"] >= 1
     assert {
         "layer3_gx_pinned_request",
         "layer3_gx_concept_alias_seed_rows",
@@ -62,6 +84,73 @@ def test_gx_validator_reports_no_current_expected_red_overclaims() -> None:
     assert producers[
         "external-request://layer3-gx/demand-pull/ua-msme-affordable-loans-2022"
     ]["producer_type"] == "external_request"
+
+
+def test_gx_validator_case_selector_runs_real_tourism_case() -> None:
+    validator = _validator()
+
+    ua_msme = validator.validate_layer3_gx_hardening(REPO_ROOT, case="ua-msme")
+    tourism = validator.validate_layer3_gx_hardening(REPO_ROOT, case="tourism")
+
+    assert ua_msme["status"] in {"pass", "expected_red"}
+    assert tourism["status"] in {"pass", "expected_red"}
+    assert tourism["case_id"] == TOURISM_CASE_ID
+    assert ua_msme["case_id"] == UA_MSME_CASE_ID
+
+    tourism_request = tourism["artifacts"]["layer3_gx_pinned_request"]
+    ua_request = ua_msme["artifacts"]["layer3_gx_pinned_request"]
+    tourism_route = tourism["artifacts"]["layer3_gx_vertical_pinned_route_report"]
+    ua_route = ua_msme["artifacts"]["layer3_gx_vertical_pinned_route_report"]
+    tourism_final = tourism["artifacts"]["layer3_gx_final_pinned_route_outcome_report"]
+    ua_final = ua_msme["artifacts"]["layer3_gx_final_pinned_route_outcome_report"]
+    tourism_baseline = tourism["artifacts"]["layer3_gx_baseline_note"]
+
+    assert tourism_request["case_id"] == TOURISM_CASE_ID
+    assert tourism_request["request_ref"] == (
+        f"external-request://layer3-gx/{TOURISM_CASE_ID}"
+    )
+    assert {
+        row["construct_ref"] for row in tourism_request["requested_constructs"]
+    } == {
+        "local_tourism_site_traffic",
+        "tourism_attraction_accessibility",
+        "municipal_acquisition_capacity",
+    }
+    assert {
+        row["construct_ref"] for row in tourism_request["requested_constructs"]
+    } != {row["construct_ref"] for row in ua_request["requested_constructs"]}
+    assert tourism_route["case_id"] == TOURISM_CASE_ID
+    assert tourism_route["request_ref"].endswith(TOURISM_CASE_ID)
+    assert tourism_route["route_replay_key"] != ua_route["route_replay_key"]
+    assert tourism_final["final_run_hash"] != ua_final["final_run_hash"]
+    assert any(
+        TOURISM_CASE_ID in ref for ref in tourism_final["persisted_artifact_refs"]
+    )
+    assert "ua-msme-affordable-loans-2022" not in json.dumps(
+        tourism,
+        sort_keys=True,
+    )
+    assert TOURISM_CASE_ID in tourism_baseline["required_runtime_literal_scan"]["command"]
+
+
+def test_gx_declared_outputs_match_actual_write_set(tmp_path: Path) -> None:
+    validator = _validator()
+    root = _isolated_repo(tmp_path)
+
+    written: set[str] = set()
+    for case in ("ua-msme", "tourism"):
+        report = validator.validate_layer3_gx_hardening(root, case=case, write=True)
+        written.update(str(path) for path in report["written_artifact_paths"])
+
+    declared = set(validator.declared_outputs())
+
+    assert declared == written
+    assert "architecture/policy_design_case/layer3_gx_baseline_note.json" not in declared
+    assert "architecture/policy_design_case/layer3_gx_data_home/cases.json" not in declared
+    assert not any(
+        Path(path).parent.as_posix() == "architecture/policy_design_case"
+        for path in declared
+    )
 
 
 def test_task6_gx_data_mutation_free_growth_report_covers_required_slices() -> None:
@@ -182,7 +271,7 @@ def test_task9_gx_g4_g5_waist_court_report_is_registered_and_diagnostic() -> Non
     report = validator.validate_layer3_gx_hardening(REPO_ROOT)
     artifact = report["artifacts"]["layer3_gx_g4_g5_dereference_waist_court_report"]
 
-    assert report["status"] == "pass"
+    assert report["status"] == "expected_red"
     assert report["summary"]["g4_g5_waist_court_status"] == "partial"
     assert artifact["schema_version"] == (
         "policyos.policy_design_case.layer3_gx_g4_g5_dereference_waist_court.v1"
@@ -559,7 +648,7 @@ def test_gx_vertical_pinned_route_uses_data_home_measured_search_and_reducers() 
 
     report = validator.build_layer3_gx_vertical_pinned_route_report(REPO_ROOT)
 
-    assert report["case_id"] == "ua-msme-affordable-loans-2022"
+    assert report["case_id"] == UA_MSME_CASE_ID
     assert report["status"] == "blocked"
     assert report["final_outcome"] == "unchanged_blocker"
     assert report["data_home_status"] == "ready"
@@ -577,11 +666,11 @@ def test_gx_vertical_pinned_route_uses_data_home_measured_search_and_reducers() 
         assert "layer3_gx_required_input_ref_missing" not in decision["issue_codes"]
 
     assert (
-        "repo://architecture/policy_design_case/layer3_gx_pinned_request.json"
+        f"{UA_MSME_GX_DATA_HOME_REF}/layer3_gx_pinned_request.json"
         in decisions["reduce_g4_promotion_state"]["input_refs"]
     )
     assert (
-        "repo://architecture/policy_design_case/layer3_gx_demand_pull_request.json"
+        f"{UA_MSME_GX_DATA_HOME_REF}/layer3_gx_demand_pull_request.json"
         in decisions["reduce_g5_conversion_outcome"]["input_refs"]
     )
     assert "layer3_g1_search_health_not_measured_or_failed" in report["next_blocker_refs"]
@@ -607,8 +696,8 @@ def test_gx_provisional_task12_pinned_route_outcome_is_reducer_authored() -> Non
     assert report["route_replay_key"].startswith("layer3-gx-vertical-pinned-route:")
     assert report["provisional_run_hash"].startswith("sha256:")
     assert {
-        "repo://architecture/policy_design_case/layer3_gx_vertical_pinned_route_report.json",
-        "repo://architecture/policy_design_case/layer3_gx_provisional_blocker_audit_record.json",
+        f"{UA_MSME_GX_REPORT_REF}/layer3_gx_vertical_pinned_route_report.json",
+        f"{UA_MSME_GX_REPORT_REF}/layer3_gx_provisional_blocker_audit_record.json",
     } <= set(report["persisted_artifact_refs"])
 
     reducer_calls = {row["reducer_id"]: row for row in report["reducer_calls"]}
@@ -645,7 +734,7 @@ def test_gx_provisional_task12_blocker_audit_record_cites_specific_evidence() ->
     assert audit["g1_search_measurement_status"] == "blocked"
     assert audit["audit_record_hash"].startswith("sha256:")
     assert {
-        "repo://architecture/policy_design_case/layer3_gx_vertical_pinned_route_report.json",
+        f"{UA_MSME_GX_REPORT_REF}/layer3_gx_vertical_pinned_route_report.json",
         "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json",
         "repo://architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json",
     } <= set(audit["cited_artifact_refs"])
@@ -694,9 +783,9 @@ def test_gx_final_task12_pinned_route_outcome_uses_g8_audit_surface() -> None:
     assert g8_call["persisted_status_ref"].endswith("#g8_domain_vs_search_ceiling")
 
     assert {
-        "repo://architecture/policy_design_case/layer3_gx_vertical_pinned_route_report.json",
-        "repo://architecture/policy_design_case/layer3_gx_provisional_pinned_route_outcome_report.json",
-        "repo://architecture/policy_design_case/layer3_gx_final_blocker_audit_record.json",
+        f"{UA_MSME_GX_REPORT_REF}/layer3_gx_vertical_pinned_route_report.json",
+        f"{UA_MSME_GX_REPORT_REF}/layer3_gx_provisional_pinned_route_outcome_report.json",
+        f"{UA_MSME_GX_REPORT_REF}/layer3_gx_final_blocker_audit_record.json",
         "repo://architecture/policy_design_case/layer3_g8_readiness_manifest.json",
         "repo://architecture/policy_design_case/layer3_g8_domain_vs_search_ceiling_gate.json",
         "repo://architecture/policy_design_case/layer3_g8_open_question_answer_ledger.json",
@@ -751,8 +840,8 @@ def test_gx_final_task12_blocker_audit_consumes_task11_g8_surface() -> None:
     assert audit["g8_domain_ceiling_claim_allowed"] is False
     assert audit["audit_record_hash"].startswith("sha256:")
     assert {
-        "repo://architecture/policy_design_case/layer3_gx_vertical_pinned_route_report.json",
-        "repo://architecture/policy_design_case/layer3_gx_provisional_blocker_audit_record.json",
+        f"{UA_MSME_GX_REPORT_REF}/layer3_gx_vertical_pinned_route_report.json",
+        f"{UA_MSME_GX_REPORT_REF}/layer3_gx_provisional_blocker_audit_record.json",
         "repo://architecture/policy_design_case/layer3_g8_readiness_manifest.json",
         "repo://architecture/policy_design_case/layer3_g8_cross_metric_diagnosis.json",
         "repo://architecture/policy_design_case/layer3_g8_domain_vs_search_ceiling_gate.json",

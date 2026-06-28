@@ -1,0 +1,50 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gx_independent_audit_sample.v1",
+  "status": "blocked_pending_manual_audit",
+  "principal": "deniskopylov",
+  "sample_size": 3,
+  "sample_records": [
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json",
+      "json_pointer": "$",
+      "field": "promotion_state",
+      "value": "governed_promoted",
+      "producer_ref": null,
+      "classification": "production_positive_status",
+      "produced_by_present": true,
+      "missing_produced_by_keys": []
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "production_positive_status",
+      "produced_by_present": true,
+      "missing_produced_by_keys": []
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_g5_conversion_eligibility_ledger.json",
+      "json_pointer": "$",
+      "field": "status",
+      "value": "pass",
+      "producer_ref": null,
+      "classification": "production_positive_status",
+      "produced_by_present": true,
+      "missing_produced_by_keys": [
+        "input_hashes",
+        "output_hash",
+        "reducer_version"
+      ]
+    }
+  ],
+  "manual_audit_required": true,
+  "issues": [
+    {
+      "code": "layer3_gx_human_approval_required",
+      "path": "architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_independent_audit_sample.json",
+      "message": "Independent audit sample requires principal approval before GX closeout."
+    }
+  ]
+}

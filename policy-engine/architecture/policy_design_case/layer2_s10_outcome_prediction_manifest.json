@@ -12,7 +12,7 @@
   "layer_cells_advanced": [
     "outcome_prediction_welfare_comparison"
   ],
-  "producer_module": "src/polisyos/runtime/quality/layer2_outcome_prediction.py",
+  "producer_module": "src/polisyos/runtime/quality/design_axes/outcome_prediction.py",
   "expected_current_open_cell_count": 3,
   "floor_id": "s10_calibration",
   "floor_metric": "observable_subset_calibration",

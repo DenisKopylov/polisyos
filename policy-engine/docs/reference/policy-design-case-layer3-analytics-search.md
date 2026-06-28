@@ -1,7 +1,7 @@
 # Policy Design Case Layer 3 Analytics Search
 
 Owner: `team-runtime-quality`
-Source of truth: `src/polisyos/runtime/quality/layer3_analytics_search.py`, `tools/quality/validation/check_policy_design_case_layer3_g3_readiness.py`, and `architecture/policy_design_case/layer3_g3_readiness_manifest.json`
+Source of truth: `src/polisyos/runtime/quality/proving_ground/proof_carrying_analytics_search.py`, `tools/quality/validation/check_policy_design_case_layer3_g3_readiness.py`, and `architecture/policy_design_case/layer3_g3_readiness_manifest.json`
 
 Layer 3 G3 is the proof-carrying analytics search readiness surface for Policy
 Design Case. It turns the canonical G2 L2/SKG proof-candidate route, indexed IR

@@ -40,7 +40,7 @@ required_fields = [
 [[field_families]]
 id = "runtime_refs"
 description = "Runtime refs and G1 artifact identities crossing acquisition/SourceContract adapters."
-authoritative_producer = "polisyos.runtime.quality.layer3_substrate_grounding"
+authoritative_producer = "polisyos.runtime.quality.proving_ground.substrate_grounding_search"
 owner = "team-runtime-quality"
 allowed_projection_surfaces = [
   "layer3.data_asset_port",
@@ -156,7 +156,7 @@ adapter_semantic_preservation_requirements = [
 [[field_families]]
 id = "scorecard_identity_and_gates"
 description = "G1 gate status and blocker semantics for readiness surfaces."
-authoritative_producer = "polisyos.runtime.quality.layer3_substrate_grounding"
+authoritative_producer = "polisyos.runtime.quality.proving_ground.substrate_grounding_search"
 owner = "team-quality-closeout"
 allowed_projection_surfaces = [
   "layer3.data_asset_port",
@@ -200,7 +200,7 @@ adapter_semantic_preservation_requirements = [
 [[field_families]]
 id = "mode_and_fallback_records"
 description = "Fallback deletion, hardcode strangle, and fail-closed gap routing records."
-authoritative_producer = "polisyos.runtime.quality.layer3_substrate_grounding"
+authoritative_producer = "polisyos.runtime.quality.proving_ground.substrate_grounding_search"
 owner = "team-runtime-quality"
 allowed_projection_surfaces = [
   "layer3.data_asset_port",

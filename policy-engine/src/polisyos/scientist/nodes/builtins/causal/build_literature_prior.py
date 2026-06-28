@@ -9,6 +9,7 @@ from pydantic import ValidationError
 
 from polisyos.core.artifacts.manifest import InputRef
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.core.contracts import build_skip_blocker_record
 from polisyos.foundry.methods.catalog.causal.invariance_tests import (
     build_environment_audit_report,
 )
@@ -19,16 +20,21 @@ from polisyos.ir.analytics.literature import (
     EnvironmentAuditReport,
     persist_literature_causal_prior,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_LITERATURE_PRIOR_GRAPH_REF,
     ARTIFACT_LITERATURE_PRIOR_REF,
     INPUT_KNOWLEDGE_BUNDLE_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_build_literature_prior@1.0.0"),
@@ -167,6 +173,11 @@ class BuildLiteraturePriorNode:
                         level="info", message="No causal variables; skip literature prior build."
                     )
                 ],
+                skip_blocker=_phase2_missing_input_blocker(
+                    missing_input="causal_variables",
+                    reason="No causal variables were produced for literature prior build.",
+                    phase="build_literature_prior",
+                ),
             )
 
         try:
@@ -276,6 +287,30 @@ class BuildLiteraturePriorNode:
                 )
             ],
         )
+
+
+def _phase2_missing_input_blocker(
+    *,
+    missing_input: str,
+    reason: str,
+    phase: str,
+):
+    return build_skip_blocker_record(
+        node_id=str(_SPEC.metadata.component_id),
+        alias="build_literature_prior",
+        node_kind="causal",
+        reason=reason,
+        missing_input=missing_input,
+        owner="gy_phase2_blocked_input_producer",
+        phase=phase,
+        downstream_impact="Phase-2 BIND cannot seed causal evidence without this input.",
+        allowed_profile="dev",
+        closeout_blocking_policy="blocks_authority",
+        scorecard_blocking_policy="blocks_authority",
+        approval_blocking_policy="blocks_authority",
+        public_export_blocking_policy="blocks_authority",
+        blocker_code="gy_phase2_blocked_input_producer_missing",
+    )
 
 
 __all__ = ["BuildLiteraturePriorNode"]

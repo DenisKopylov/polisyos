@@ -1,0 +1,97 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gx_concept_alias_graph.v1",
+  "rule_version": "policyos.layer3.gx.concept_alias_graph.v1",
+  "status": "ready",
+  "producer_ref": "derivation://layer3-gx/concept-alias-graph/tourism_local_development_ceiling_probe",
+  "producer_type": "derivation",
+  "graph_rows": [
+    {
+      "row_id": "gx-concept-alias:local_tourism_site_traffic",
+      "concept_ref": "local_tourism_site_traffic",
+      "aliases": [
+        "local tourism site traffic",
+        "attraction visitor counts",
+        "tourism visits"
+      ],
+      "metric_ids": [
+        "local_tourism_site_traffic"
+      ],
+      "variable_names": [
+        "tourism.local_site_traffic"
+      ],
+      "source_layer_refs": [
+        "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+      ],
+      "jurisdiction_constraints": [
+        "UA-local"
+      ],
+      "validity_limits": [
+        "ceiling_probe_missing_acquisition_distribution"
+      ],
+      "producer_owner": "external-request://layer3-gx/concept-alias-seeds/tourism_local_development_ceiling_probe",
+      "producer_type": "external_request",
+      "verification_status": "unverified",
+      "resolved_corpus_row_refs": [],
+      "rule_version": "policyos.layer3.gx.concept_alias_graph.v1"
+    },
+    {
+      "row_id": "gx-concept-alias:tourism_attraction_accessibility",
+      "concept_ref": "tourism_attraction_accessibility",
+      "aliases": [
+        "tourism attraction accessibility",
+        "visitor access constraints",
+        "local attraction access"
+      ],
+      "metric_ids": [
+        "tourism_attraction_accessibility"
+      ],
+      "variable_names": [
+        "tourism.attraction_accessibility"
+      ],
+      "source_layer_refs": [
+        "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+      ],
+      "jurisdiction_constraints": [
+        "UA-local"
+      ],
+      "validity_limits": [
+        "ceiling_probe_missing_acquisition_distribution"
+      ],
+      "producer_owner": "external-request://layer3-gx/concept-alias-seeds/tourism_local_development_ceiling_probe",
+      "producer_type": "external_request",
+      "verification_status": "unverified",
+      "resolved_corpus_row_refs": [],
+      "rule_version": "policyos.layer3.gx.concept_alias_graph.v1"
+    },
+    {
+      "row_id": "gx-concept-alias:municipal_acquisition_capacity",
+      "concept_ref": "municipal_acquisition_capacity",
+      "aliases": [
+        "municipal tourism data acquisition capacity",
+        "local registry acquisition readiness",
+        "public registry evidence gap"
+      ],
+      "metric_ids": [
+        "municipal_acquisition_capacity"
+      ],
+      "variable_names": [
+        "municipal.acquisition_capacity"
+      ],
+      "source_layer_refs": [
+        "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+      ],
+      "jurisdiction_constraints": [
+        "UA-local"
+      ],
+      "validity_limits": [
+        "ceiling_probe_missing_acquisition_distribution"
+      ],
+      "producer_owner": "external-request://layer3-gx/concept-alias-seeds/tourism_local_development_ceiling_probe",
+      "producer_type": "external_request",
+      "verification_status": "unverified",
+      "resolved_corpus_row_refs": [],
+      "rule_version": "policyos.layer3.gx.concept_alias_graph.v1"
+    }
+  ],
+  "issue_codes": []
+}

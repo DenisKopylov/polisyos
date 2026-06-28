@@ -1,518 +1,2013 @@
 ---
 plan_id: layer3-gy-engine-subordination
-title: "GY - Engine Subordination (scientist DAG / fabric / scholar through the waist)"
+title: "GY — Universal Execution Topology + Engine Subordination (blackboard control plane over an artifact graph)"
 type: slice-plan
 status: draft
 created: 2026-06-13
+revised: 2026-06-28
+revision: 12
 slice: GY
 scope: cross-slice
 depends_on:
-  - docs/plans/active/layer3-slices/GX-universal-free-growth-runtime-hardening.md
-  - docs/plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGNER_LAYER3_GROUNDING_SUBORDINATION_IMPLEMENTATION_PLAN.md
+  - docs/system-design-decisions/policy-design-execution-topology.md
   - docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md
+  - docs/system-design-decisions/universal-policy-design-target-architecture-and-gap.md
+  - docs/system-design-decisions/policy-design-best-in-class-operating-model.md
+  - docs/system-design-decisions/policy-design-search-target-spec.md
+  - docs/reference/policy-design-search-RACE-HOG-PODS-v3.2-spec.md
+  - docs/plans/active/layer3-slices/GX-universal-free-growth-runtime-hardening.md
   - docs/reference/policy-design-case-failure-patterns.md
+  - architecture/policy_design_case/layer3_gy_task0_audit/  (Task 0 audit campaign — DONE)
 floor_id: layer3_grounding_subordination
 metric: layer3_engine_subordination
 constitution: docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md
+center: docs/system-design-decisions/policy-design-execution-topology.md
 ---
 
-# GY - Engine Subordination
+# GY — Universal Execution Topology + Engine Subordination
 
-## For Agentic Workers
+## 0. What changed
 
-GX hardened the waist so it stops passing by authored summaries. GY connects the
-**already-built** engine capability to that hardened waist, so the proving ground
-can move past the honest blocker GX records. GY is where capability grows; GX is
-the rail that keeps the growth honest.
+**Revision 1 (2026-06-14).** Task 0 (the audit campaign) is complete and moved the
+center of gravity from "run the static `scientist_policy_design` DAG" to a **universal
+execution topology**: a **blackboard control loop over a content-addressed artifact
+graph**, engines subordinated as **Operations** behind a **two-ring waist**, the three
+legacy workflows demoted to **playbooks**. Read the center doc
+(`docs/system-design-decisions/policy-design-execution-topology.md`) first; this plan
+is the big detailed build plan.
 
-Two rules govern every GY task, both from the GX Asset Registry section:
+**Revision 2 (2026-06-14).** Applied the internal-review fixes:
 
-```text
-1. Subordinate, do not rebuild. The capability exists (Asset Registry). A GY
-   task that builds a parallel engine, pipeline, or agent is mis-specified.
-2. No pass for the smart component. A subordinated engine output is authority
-   only if it flows through GX rails — resolver, reducer, and a producer-root
-   chain that reaches measurement roots. DAG sophistication is not a root.
-```
+- **Blocker:** added the **production-trigger** task (GY-B2) so the loop is reachable
+  in production — without it the loop would repeat the Task-0 "built but untriggered"
+  failure.
+- **Coverage:** added the **artifact-lifecycle** task (GY-M) for the unregistered
+  GY/loop generated/public-surface family + GX-reducer case-parameterization.
+- **Sequencing:** moved the **anytime-exit core (GY-H)** ahead of acquisition (GY-E),
+  which forward-depended on it (VOI + `acquisition_required`).
+- **Size:** split the three mega-tasks into ~equal units — GY-C → C1/C2/C3
+  (subordination / **spine-repair, separated per stop-rule** / foundry-consumption),
+  GY-D → D1/D2/D3, GY-F → F1/F2/F3, GY-A → A1/A2.
+- **Coherence:** the two rings are **field-level write-permission classes**, not type
+  sets (Ring-2 fields are embedded in Ring-1 types); the `grade` enum is **reconciled
+  with the evidence ladder** (added `derivation_near_lossless`, `bounds`);
+  `CertifiedOperationEnvelope` is **operation-declared (Ring 1) + verifier-confirmed**;
+  **VOI ownership** is assigned to GY-H (GY-B exposes only the ranking hook and a
+  degenerate exit).
 
-GY does not amend GX. Every GY artifact is validated by the GX hardening
-validator (`check_policy_design_case_layer3_gx_hardening.py`): reducer
-provenance, producer-root chain, resolver dereference, runtime literal lint. A GY
-subordination that cannot pass those rails is not done; it is a typed blocker.
+**Revision 3 (2026-06-14).** Closed seven residual risks (see §3.5 + the marked
+edits): hard cut-lines for Vertical Slice 0 (anti-P13 contract gravity); a concrete
+`pdc` ownership/import map (most of the waist already exists in `pdc/_impl` — reuse, do
+not re-declare); explicit Operation-discovery sources + conformance criteria; a
+single-authority-path transition rule in GY-B2; the `AuthorityBoundary` grade **split
+into two orthogonal axes** (`evidence_kind` ⟂ `decision_grade`) with worked mixed
+examples (§13); a governed benchmark artifact for GY-D3; and GY-M split with the
+lifecycle registration promoted to a **Phase-0 hard gate** (GY-M1).
 
-## Precondition (hard gate) — SATISFIED (2026-06-13)
+**Revision 4 (2026-06-15).** Tightened the execution details before implementation:
+production proof now requires the actual durable path
+`enqueue_job -> ControlWorker -> _execute_workflow -> WorkspaceLoop -> persisted
+SearchExitContract`; Slice 0 now distinguishes active operation classes from
+fail-closed registry stubs; task and acceptance wording now use the two-axis
+`evidence_kind`/`decision_grade` semantics; GY-F now requires a complete
+406 candidate-positive inventory, CAS digest/dedup/tamper/GC proof, explicit
+time-role envelope, and repo-wide secret/PII scans across DAG bundles, connector
+payloads, and raw artifact routes; §3.5.4 adds proof-packet schemas so implementers
+do not invent the audit shape mid-flight.
 
-GY may not start until **GX provisional Task 12 has recorded a measured,
-reducer-authored outcome** for the pinned route. This is **met**:
-`layer3_gx_provisional_pinned_route_outcome_report.json` records outcome
-`typed_blocker` from `reduce_g5_conversion_outcome`, and
-`layer3_gx_expected_red_checks.json` carries `provisional_task12_complete: true`.
-The honest baseline GY moves from is: g1 grounding closure `typed_blocker`, g4
-`promotion_blocked`, g5 `unchanged_blocker`, with g1 search measured (`pass`).
+**Revision 5 (2026-06-15).** Closed the remaining executor-ambiguity seams: A's
+promotion step now has a deterministic Slice-0 `AuthorityBoundary` derivation rule and
+an `AuthorityDerivationTrace`; `OperationContract.authority_transform` is explicitly a
+Ring-1 hint, never trusted authority; Slice 0 now runs two fixtures (one
+catalog-groundable, one search-ceiling/acquisition-heavy) with a deterministic
+`BIND -> ESTIMATE -> VERIFY` seed trajectory rather than an agent/playbook; terminal
+precedence is specified; agent-provided VOI/selection inputs are candidate-only and
+normalized by GY-H; B2 now includes job-status honesty before F1; ConstraintStore
+producers are named; and the plan states plainly that Slice 0 proves the loop and
+grounding/abstention branches, not real policy-design synthesis.
 
-Before starting, confirm one thing the gate does **not** prove: that the GX
-validator's red set equals the `expected_red_checks` catalogue (no uncatalogued
-drift on the consolidated branch). GY's job is to drive that catalogued red —
-~1184 `reducer_provenance_missing` on `g2/g3/gl/g6/g7/g8` — to zero (real
-provenance via subordination) or to honest demotion. **That count is GY's
-progress meter.**
+**Revision 6 (2026-06-15).** Added the anti-simplification audit. Slice 0 now uses a
+committed `Slice0FixtureManifest` instead of a vague "World-Bank style" label; the
+positive Slice-0 terminal is estimate-scoped only; `BudgetVector` is constrained to a
+minimal subset in Slice 0; `evidence_kind` is defined as a partial order with explicit
+meet semantics instead of a fake total chain; and §3.6 adds a
+capability-preservation matrix so implementation must consume the real
+catalog/connectors/foundry/lex/agent/surface capabilities and close Task-0 findings
+substantively, not by labels.
 
-## Why Subordination, Not Construction
+**Revision 7 (2026-06-15).** Added the **phase-0–2 implementation-review corrections**.
+The review of the partial build found three recurring build-hygiene failures, now
+formalized as register patterns P27/P28/P29
+(`docs/reference/policy-design-case-failure-patterns.md`):
+**P27 parallel re-implementation** beside live owners (`Slice0SearchLedger` vs canonical
+`SearchLedger`; a second `AcquisitionPlanner`; the lex-bounds rule duplicated in
+`gy_spine_repair.py` and `policy_design/search.py`; two fixture catalog graphs), plus the
+dual symptom of a 2674-line `gy_loop.py` god-file;
+**P28 un-strangled legacy** (the `require_explicit_parameter_bounds=False` default still
+launders `None→0.0`; zero file deletions on a "subordinate the engine" branch; loop and
+static DAG both live); and
+**P29 authorial proof** (`ProductionLoopRunProof` hand-authored with placeholder ids and a
+shape-only validator; F4/F7 "closed" on a trivially-separable 2-record catalog corpus); and
+their upstream enabler **P30 provenance-named modules** (the `gy_*` files are named for the
+plan, not the function they own, so the owner-first grep misses them and parallel files get
+created — `gy_loop.py` is really `workspace_loop.py`).
+§1 adds binding rules 8–11; §3.5.5 is the binding remediation + forward discipline
+(**P28 strangle is the load-bearing one**, **P30 naming is the cheapest defense against P27**);
+§3.5.4, §9, §10, and §11 are tightened to
 
-The June 2026 `src/polisyos` sweep found the target architecture already built
-across four engines; the gap was seams, not systems — and several seams are
-**already partly wired**, which is exactly where the "build vs integrate" trap
-lives. GY wires (or completes the wiring of) these seams:
+**Correction status (2026-06-15).** The first remediation pass closed the highest-risk
+P27/P28/P29 regressions with executable guardrails: `ProductionLoopRunProof` is now
+recomputed through the durable worker validator, `_InMemorySlice0CatalogGraph` was removed
+in favor of `build_slice0_fixture_catalog_graph`, `Slice0SearchLedger` extends canonical
+`SearchLedger`, GY acquisition delegates to `runtime/quality/acquisition_planner.py`,
+`gy_spine_repair.py` delegates lex-bounds checks to `policy_design/search.py`, and
+`require_explicit_parameter_bounds` defaults to the explicit-bounds fail-closed path.
+Remaining debt: `gy_loop.py` is still too broad, representative F4/F7 catalog evaluation is
+not yet complete, and explicit legacy-shadow inferred-bounds paths still need final
+sunset/deletion after their owners migrate.
+enforce them. This revision does not change the topology — it makes the build do the
+subordination it already promised instead of layering on top of legacy.
 
-| Layer | Asset (exists) | Already-wired? | Seam GY completes |
+**Revision 8 (2026-06-24).** Added **Phase 5 — B-on-A Generation Cycle** before the
+Deep Workability Verification close (renumbered to Phase 6). A deep two-lens repo
+investigation found that the generative organs already exist as **decoupled parallel
+worlds** — the Scientist `scientist_policy_design` DAG (plans NL, generates candidates,
+hierarchical search), the foundry causal/optimization engine (econml/dowhy/statsmodels;
+cvxpy/pymoo), and the layer-2 **shadow** design search (real refinement discipline but a
+*hardcoded* candidate) — none subordinated to A and none in a cycle (`run_fixture`/
+`run_intent` are single-pass, fixture-driven, `descriptive_only`, acquisition-as-terminal).
+The heavy machinery (causal, optimization, generation, the `engine_simple`/legacy-LangGraph
+cyclic engine) is **already a dependency and already used** — so the phase is **reuse +
+subordination + promotion + acquisition execution + NL coupling**, not a from-scratch
+build, with **no new heavy dependency** (the one risk: econml/dowhy gated `python<3.13` —
+a GY-N0 availability gate). The phase is governed by the **no-parallel-worlds law** (every
+asset used-as-is, reworked, or deleted — never left parallel), enforced by the GY-N0
+disposition ledger.
+
+**Revision 9 (2026-06-24).** Reformulated Phase 5 against the completed **GY-N0 five-pass
+code investigation** (`architecture/policy_design_case/layer3_gy_n0_investigation.md`). The
+investigation proved the cycle is **predominantly REWORK / WIRE over real organs** (generation,
+causal, value, Bayesian, transport, VOI, joint-simulation, world-substrate organs all exist and
+are real under Python 3.14) with a small set of **narrow BUILD-NEW bridges**, and corrected the
+world-model status from greenfield to **UNIFY_EXISTING** (`fabric/world` epistemic facts +
+foundry `GlobalState`/NCM/GCM mechanisms + SKG priors + `DataSnapshot` binding need one
+`WorldModelRecord` bridge). Phase 5 is now **GY-N0..N10**: GY-N0 = disposition ledger +
+consumption validator; GY-N1–N3 = the three **foundation bridges** (`DesignProblem`,
+`InterventionAtomBinding`, `WorldModelRecord`) that precede the cycle because the value gate
+must name its world version; GY-N4–N10 = the cycle (generation-under-A with a model-profile
+preflight, the joint-simulation horizon controller, the cycle controller, closed acquisition,
+value-as-gate, in-cycle promotion, depth-N). Added **Phase 6 — Deployed-Policy Learning Loop**
+(GY-O1..O3), the one genuinely greenfield horizon where the world model *grows* from observation
+(two contours on the firewall; reuses the real posterior / drift / FDR / feedback primitives).
+Renumbered Deep Workability Verification to **Phase 7**. Tasks are scoped to roughly comparable
+work. Stay on Python 3.14 (DoWhy/EconML/CVXPY unavailable and not required).
+
+**Revision 10 (2026-06-25).** Added the **GY-S production-data substrate lift + free-grow**
+foundation block to Phase 5 (after GY-N3), once the build surfaced that PolicyOS already holds
+~32GB of richly preprocessed production data — L1 DCAT catalog (137k datasets, 3.7M
+observations), L2 Scholar KG (7.9k curated causal claims, transport scores, 62k parameter
+estimates), L3 Lex KG (6M provisions, 374k thresholds, 156k amendments), L4 Ukraine corpus
+(8.8M agents + firm/distress/budget panels), L5 calibration internals (trust-tier /
+identification-mode / schema-regime registries), L6 agent-sim bundle (intervention knobs,
+lex→knob map, observation→method manifest) — most of it **not yet lifted to runtime authority**.
+The world model and the cycle must ground / simulate / value against this REAL substrate, not toy
+fixtures (the GY-N3 empty-world finding is the canary). GY-S0 builds a **free-grow substrate
+registry** (content-addressed, versioned; a new source / family registers with no code change),
+and GY-S1–S3 lift the data-state (L1/L4/L5), knowledge (L2/L3), and intervention (L6) substrates
+to runtime authority — wire-existing, not rebuild. The GY-S0 registry is the shared growth
+mechanism for GY-N7 acquisition and the Phase-6 learning loop, so the world model expands as data
+arrives.
+
+**Revision 11 (2026-06-27).** Adopted the externally authored **formal target
+specification for policy-design search & selection** — `RACE-HOG-PODS v3.2` — registered as a
+decision record (`docs/system-design-decisions/policy-design-search-target-spec.md`; verbatim
+spec archived at `docs/reference/policy-design-search-RACE-HOG-PODS-v3.2-spec.md`). The spec is
+the **formal twin of Phase 5** (it converged independently on our B-on-A firewall) and is the
+**target architecture, not a from-scratch build**: its greenfield §27 build plan is **superseded**
+by this plan's subordination mapping under the no-parallel-worlds law. The adoption is threaded
+**at and after GY-S1** (the live task) and leaves the done backbone (GY-N0–N3, GY-S0) untouched:
+(a) the **GY-S block** gains the credal-component → L1–L6 mapping + **set-valued value** +
+CalCert-scope / DataTrust contracts (the spec's credal state IS our substrate, and this is exactly
+the GY-S1 proxy-bounds fix); (b) a new foundation contract **GY-N-V `ValueOuterSet`** (the typed
+set-valued value carrier S1/N8/N6 consume — landing with GY-S1); (c) bar-raises on **GY-N4
+(firewall + surrogate), N5 (equilibrium-semantics taxonomy), N6 (four stratified fronts), N7
+(eight acquisition families + affected-region revalidation), N8 (value-outer-set + honest
+dominance + six eval modes), N9 (obligations compiler + δ-confidence ledger)**; (d) two new cycle
+tasks **GY-N11 (honest confidence ledger)** and **GY-N12 (model-revision epochs + stale certs +
+OpenWorldRisk, on L3 amendments + L5 schema-regime)**; (e) an **EvalSafety gate + evaluation-mode
+ladder** bridging Phase 5 → Phase 6; and (f) an explicit **Phase-5 deferred list** (portfolio-as-
+design, CHHV solvers, scenario-tree VOI, EXP3 meta-controller, full MCTS — adopt the contract now,
+implement when a certified frontier exists). Two honest caveats carried from the decision record:
+the δ-safety theorem is **conditional on obligation completeness + validator soundness** (our P29
+regress — formalized, not closed), and joint-credal dominance is generally intractable so the
+system lives in the **marginal-interval fallback** with a strict `unknown`/incomparable discipline.
+
+**Revision 12 (2026-06-28).** Codified the **substrate / binding lift completeness gates** (new
+§3.5.6) distilled from the GY-S build saga (S1/S2/S3 each took many adversarial rounds). The
+recurring failure was a **shell that passes its own narrow probes** — coverage green on a curated
+subset; authority **supplied, not derived** (for S3 it escaped one level deeper each round:
+caller-supplied → hardcoded code-table → hand-injected into git-ignored data → a tracked JSON the
+runtime merely *trusted*); the contract exercising only the happy-path. The four binding gates —
+**(1)** full-denominator coverage, **(2)** fail-closed on a fake/novel input (owner-validation, not
+trust), **(3)** data-only free-grow (generic, not enumerated), **(4)** the contract mutates the
+**decisive** validation property (`P29`) — are now front-loaded into every impl/audit prompt and
+`Done when` for any lift/resolve/bind task (the GY-S block + the cycle tasks N2/N4/N7/N8/N9). They
+exist so the implementer builds to them on the first pass rather than rediscovering them through
+rounds.
+
+## 1. Binding rules (for every GY task)
+
+From the constitution and the execution-topology decision. A change that breaks one
+is wrong regardless of test status.
+
+1. **Subordinate, do not rebuild.** The capability exists (engine census). A task that
+   builds a parallel engine/pipeline/agent is mis-specified. Engines stay below the
+   waist; they enter only as Operations (adapters, pattern `ir_analytics_bridge`).
+2. **A leads B; the two-ring waist is the agent boundary — enforced at the FIELD
+   level.** Ring-1 fields are candidate/agent/engine-writable; **Ring-2 fields are
+   verifier/governance-writable only.** Ring-2 fields are embedded inside Ring-1 types
+   (e.g. `ArtifactEnvelope.authority_boundary`, `PortSpec.provided_authority`), so the
+   boundary is a per-field write permission, not a type partition. The agent gets full
+   freedom inside the loop but **cannot write a Ring-2 field** — "not a self-promoter,"
+   enforced by construction.
+3. **Fail closed and downgrade.** Missing grounding is a typed terminal or obligation,
+   never a silent pass. An Operation emits the narrowest authority boundary it can
+   prove: both `evidence_kind` and `decision_grade` are independently capped.
+4. **Authority composes to the weakest boundary, on ports.** Realized by the
+   port-authority `meet` + the three-stage composition (§7). Never average, never max.
+5. **Optimize honesty, never `useful_design_rate`.** Calibration, honest abstention,
+   reuse, envelope revision are the objectives; `useful_design_rate` is reported only.
+6. **Capability discovered by search, never enumerated** (Rule 12). The Operation
+   registry, the formal applicability gate, and corpus search are discovered from
+   engine registries + adapter conformance, with replayable `SearchLedger` /
+   incompleteness ledgers. No hand-maintained list of methods/constructs/datasets.
+7. **Every GY artifact passes the GX hardening validator** (reducer provenance,
+   producer-root chain, resolver dereference, runtime-literal lint). A subordinated
+   output is authority only with a measurement-rooted producer-root chain.
+8. **Owner-first; no parallel re-implementation (P27).** Before creating any new type,
+   engine, gate, planner, or fixture, find the canonical owner (§3.5.2 + grep the concept
+   root across `pdc/_impl/` and `runtime/quality/`) and **extend it**. A slice/plan name
+   (`gy_*`, `slice0_*`) is not a module boundary; new files are only for the genuinely-new
+   orchestration contracts in §3.5.2's build-new column. A `build-new` that shadows a live
+   owner is wrong even if its tests pass. The dual failure is equally banned: do not pile
+   orchestration into one slice god-file.
+9. **Strangle, never layer (P28) — the load-bearing rule.** When a task replaces or
+   subordinates a path, it must **delete or fence the predecessor in the same change** and
+   **flip the default** to the corrected path. A fix gated behind a default-off flag, a
+   legacy entrypoint left freely callable, or a branch with zero deletions is not a
+   migration — it is a second laundering surface. Every subordination task ships a
+   `StrangleReceipt` (§3.5.5). The universal loop must *replace* the static DAG, not sit
+   on top of it.
+10. **Proofs are emitted and recomputed, never authored (P29).** A proof, benchmark, or
+    closure artifact counts only if the real run emits it and its validator re-derives it
+    from live code/artifacts and fails on drift. Hand-authored packets (placeholder ids,
+    round `…T00:00:00Z` times), shape-only validators, and metrics computed on a
+    trivially-separable fixture corpus are laundering, not completion.
+11. **Name by function, not by plan (P30).** A module, file, or public symbol is named
+    for the capability it owns, never for the slice/plan that birthed it: `gy_loop.py`
+    should be `workspace_loop.py`; a foundry-consumption helper belongs in/near the
+    foundry owner, not `gy_foundry.py`. Provenance naming is the **upstream cause of P27** —
+    it hides the owner so the next implementer cannot find the file they should extend, and
+    re-creates it. If a provenance prefix is truly unavoidable, the module docstring must
+    name the canonical owner(s) it extends and link related modules so reuse is the path of
+    least resistance.
+
+## 2. The center — Universal Execution Topology (summary)
+
+Full statement: `docs/system-design-decisions/policy-design-execution-topology.md`.
+
+- **Unit of state = Artifact** (content-addressed, immutable, provenance-carrying).
+- **Unit of planning = Operation** (a coarse verb; internally a `MethodPlan` of
+  foundry methods / agent steps / tool calls / human requests — an Operation ≠ a
+  foundry method).
+- **Workspace = the blackboard**: artifact graph + ConstraintStore + Frontier +
+  Agenda + BudgetVector.
+- **Two rings = two field-level write-permission classes.** Ring 1 (execution) lets
+  the loop run and artifacts enter the shadow frontier; Ring 2 (promotion/honesty) is
+  verifier-stamped and required before any promotion / composition / grounded exit.
+- **Control loop** (CEGIS/CEGAR-shaped): A writes constraints before generation; B
+  proposes operations; the formal gate filters by applicability; RefinementPolicy
+  ranks by VOI; A verifies after; failures become typed counterexamples; loop until a
+  typed `SearchExitContract`.
+- **Two recursions**: problem decomposition (child Workspace → `SubDesignContract`)
+  and operation expansion (Operation → `MethodPlan`). Scale-invariant: one Workspace
+  for a local tourism policy; a tree of Workspaces (chapters), many cycles each, with
+  operations on derived artifacts, for an international-accession program.
+- **Migration**: build the loop directly on a minimal vertical slice; legacy is a
+  quarry; legacy nodes → `LegacyNodeAdapter` Operations; the three workflows →
+  `Playbook` trajectories the loop may follow and deviate from. **The loop is wired to
+  a production trigger from day one (GY-B2) so it is never an untriggered path.**
+
+## 3. What Task 0 established (the empirical basis — integrate, do not redo)
+
+Task 0 artifacts live in `architecture/policy_design_case/layer3_gy_task0_audit/`
+(16 audits + the coverage matrix + the global review, each with a recomputing
+validator; suite green). The plan-shaping findings every task below must honor:
+
+| # | Finding | Source audit | Task it shapes |
 | --- | --- | --- | --- |
-| supply | `data_forge` `DatasetCatalogGraph` (hnsw+text, 137k datasets, 56.8k bindings) | no — runtime `RetrievalService` passes no `dataset_catalog` | wire it in (GY-1) |
-| computation | `foundry` ID/bounds/transport/DRO (~410 methods), `ir/analytics` contracts | partially — DAG calls foundry via `scientist/adapters/foundry_bridge.py` | reality census (GY-0) |
-| design process | `scientist_policy_design` DAG | **yes — runtime already calls `run_experiment` at `run_lifecycle.py:1408`** | govern that output into the G5 route (GY-2) |
-| design space | `lex/interventions` (`TemporalInterventionSequencer`, `HierarchicalPolicySearchAdapter`) | **yes — DAG node `run_hierarchical_policy_search` already calls it** | knob-provenance via GY-2 (GY-5 folds in) |
-| acquisition | `fabric` connectors + `foundry` `RequiredDataSpec` + `scientist/agent` `DataNeedExtractor`/`DataNeedSpec` | partially — NL→`DataNeedSpec` exists; gap→DataNeed does not | add `RequiredDataSpec` as a second source (GY-3) |
-| agent | `scientist/agent` platform (PI/drafter/supervisor, tool-loop) | yes — but audit is synthetic, not event-backed | event-backed G6 audit (GY-4) |
-| L2 growth | `scholar/search` pipeline (provider failover) | no OpenAlex/Crossref provider | add provider (GY-6) |
+| F1 | The "~1184 reducer_provenance_missing" meter is stale → 0; baseline outcome = `search_ceiling_repair_required` (not `typed_blocker`) | engine census; GX validator | GY-H; acceptance bar |
+| F2 | No production path selects `scientist_policy_design`; 3 static DAGs; variability is D3.2 (missing) | workflow-mode truth | GY-B, GY-B2, GY-C1 (loop + trigger + playbooks; intent→operation, not workflow_id) |
+| F3 | Defect is bridge/surface/semantic-test, not absent capability (1/29 chains green) | coverage matrix | whole reframe; task postures |
+| F4 | Catalog→fetch never reaches a measurement root (`persist_payload=True` writes 0 CAS; `DataContextMetric` drops root facts) | catalog-fetch | GY-D1 |
+| F5 | Connector families not uniform (rest.json/unpd/ukons not execution-ready); replay fixtures are scaffolds | connector-family-truth | GY-D2 (per-connector formal gate) |
+| F6 | 16-facet source-contract/`DataRequirementSpec` admission exists but is not orchestrated into FetchPlan | source-contract-admissibility; data-requirement-compiler | GY-D2 |
+| F7 | Catalog top-k: construct+scope precision@5 = 0.0; country filters → 0; `similarity=1.0` for all (no calibrated relevance) | P2 | GY-D3 (semantic-adequacy gate + recall@seeds) |
+| F8 | Lex node fails on optional-bounds `None→0.0` bug; P25 frontier-laundering risk untyped | lex-frontier-root-cause | GY-C2 (REFINE precondition + frontier provenance) |
+| F9 | Governance/validation tail (judge stack) fails fatally on synthetic input; `run_normative_arbitration` outcome re-validation fails — the real shared-spine blocker, masked by lex | workflow-mode truth | GY-C2 (spine-rot repair before governance) |
+| F10 | 389 foundry methods registered; `dag_consumed_method_outputs_count=0` (route never consumes a method output) | foundry-breadth | GY-C3 (ESTIMATE/SIMULATE consume real outputs) |
+| F11 | Agent roles are runtime-telemetry only; no role-event artifacts; tool-loop off the NL path; KnowledgeToolkit 3/20 tools register | agent-workflow-event-backing; P2 | GY-I |
+| F12 | Worker path launders workflow failure (job completes on `fail`; 1408 discards / 6596 captures); CAS has 0 `manifest.authority` and no proven digest/dedup/tamper/GC authority; raw `/artifacts/{id}/content`+`/download`, DAG bundles, and connector payloads require systematic secret/PII scans; time semantics exclude run_workflow/nodes/content; S12 G5 pass refs are authorial (hardcoded payload, don't dereference to S12 objects) | P0; P1; runtime-surface | GY-F1, GY-F2, GY-F3 |
+| F13 | 406 candidate-positive statuses all firewall-excluded (`positive_status_count=0`) — diagnostic pass fields are the residual laundering surface and require a full row-level inventory, not only an aggregate count | P0 | GY-F3 |
+| F14 | Depth-2 generalization fails: GX reducers pinned to ua-msme `data_home` (not case-parameterized); blocked-input nodes need concrete state reads (`causal_variables` route_omitted, `data_causal_graph` producer_missing, `observational_data_ref` available_elsewhere_not_wired) | P0 | GY-M2 (reducer case-param), GY-C2 (blocked-input producer + ports), GY-G (recursion) |
+| F15 | Substrate (core/ir route-pinned; evidence/calibration/obligation/participation as authority ceilings to consume, not infer; evidence-independence = P14 anti-inflation) | substrate-package-capability | GY-A2 (ir ports), GY-C3 (ceilings as constraints), GY-G (P14 into composition) |
+| F16 | `output_hash` evidence must be time-invariant (`gy_evidence_canon.py`); replay is 3-level, not byte-exact | evidence-replay | GY-A1 (canonical hashing), GY-B (SearchLedger + replay levels) |
+| F17 | Graded outcomes is fork-independent near-term (`useful_design_rate` off 0; statuses exist, only routing missing) | D1; matrix | GY-J (parallel) |
+| F18 | GY/loop artifacts are an **unregistered** generated/public-surface family (0/31 registered; `inventory.json` no GY; lifecycle classification undecided) | generated-public-lifecycle | GY-M1 (Phase-0 hard gate) |
 
-**The recurring trap, restated for GY.** Two seams are *already wired in
-production* (`run_experiment` is called; lex is called by the DAG). A GY task
-that says "build the DAG adapter" or "subordinate lex" from scratch repeats the
-G1-hollow pattern — building beside a live path. For those rows the real work is
-**govern the existing output**, not construct a new one. GY-0 census must first
-report what the existing wiring produces and whether it reaches the waist.
+The coverage matrix is GY's single progress meter. A task is done only when its
+matrix rows move from `bridge_missing`/`surface_missing`/`absent` to a complete chain
+with a semantic test.
 
-## The Evidence Ladder (organizing frame for growth)
+## 3.5 Build discipline — cut-lines, ownership map, discovery sources
 
-GY does not promise "any policy." It promises that, when direct measurement is
-absent, the system descends a typed ladder of evidence producers instead of bare
-abstention, and reports which rung it reached. Each rung is a producer type with
-its own authority ceiling; composition follows the weakest-boundary rule
-(constitution Rule 4).
+This plan is large; without discipline it becomes the very P13 "contract gravity well"
+the constitution warns against. Four guards, binding before any build.
 
-| Rung | Producer | Asset | Authority ceiling |
-| --- | --- | --- | --- |
-| 0 direct measurement | catalog binding → panel | `DatasetCatalogGraph` + fabric fetch | per trust tier (L5) |
-| 1 derivation | deflate / per-capita / aggregate | `data_forge` recipes + `foundry` | near-lossless |
-| 2 proxy | validated substitute | L5 proxy_mappings + `ir.transportability` | proxy_identified |
-| 3 transport | cross-jurisdiction estimate | `ir.transportability` + L2 transport scores | limited |
-| 4 bounds | partial identification | `foundry.distributional_bounds`, `ir.partial_identification` | bounds, not point |
-| 5 simulation | calibrated structural model | `foundry.agent_sim` + `calibration` | simulation_only |
-| 6 elicitation | expert / LLM panel with track record | `scientist/agent` + scholar | elicited_prior |
-| 7 acquisition plan | RequiredDataSpec → fetch / pilot | `foundry` ID engine + fabric (GY-3) | plan, not evidence |
+### 3.5.1 Vertical Slice 0 — hard cut-lines (anti-P13)
 
-Gap → ladder descent replaces bare abstention: a no-hit at rung 0 routes to rung
-k+1 until a producer grounds or rung 7 emits an acquisition plan with a cost. The
-rung reached is the T1 measurement the constitution asks for. **Adding a rung is a
-follow-on slice, not part of GY's minimal set** — GY wires rungs 0–5 that already
-have assets and proves the descent mechanism on the pinned case.
+Slice 0 proves the loop **shape** end-to-end on the smallest two-fixture set, and
+nothing widens until both honest exits are recorded. The cut-lines:
 
-## Producer-Root Rule (inherited, restated)
+- **Artifact types: 4** — `PolicyIntent`, `BaseDataset`, `Estimate`,
+  `SearchExitContract`. Not all 14 `artifact_type` values. Slice 0 does **not**
+  synthesize a `DesignCandidate`; real policy-design synthesis starts after the
+  lowering/drafter/lex path is subordinated in Phase 2+.
+- **Active operation types: 3** — `BIND` (catalog→bound state, including the minimal
+  internal fetch/preview needed to materialize `BaseDataset`), `ESTIMATE` (one real
+  foundry method), `VERIFY` (formal gate + one authority stamp). Not the 14 operation
+  classes. `DISCOVER`/`ACQUIRE`/`REFINE`/`LOWER` may exist only as registry enum values
+  or fail-closed stubs until their owning tasks land; they must not execute in Slice 0.
+- **Two Slice-0 fixtures, one production trigger** — `/runs` (workflow path) → loop
+  (GY-B2) runs: (a) a catalog-supported groundable case identified by a committed
+  `Slice0FixtureManifest` (`fixture_id: ua_msme_credit_worldbank_measurement`, exact
+  construct/scope query, expected catalog binding ids or seed refs, expected connector
+  profile, expected producer-root kind) and (b) a tourism/local-development ceiling
+  probe expected to need search/acquisition repair under the no-`ACQUIRE` cut-line.
+  This avoids pretending an acquisition-heavy tourism case proves grounding.
+- **Two honest exits** — the groundable fixture must produce a measurement-rooted
+  `grounded_partial_admissible` **estimate-port** outcome only; Slice 0 must not emit
+  `grounded_admissible`, must not promote a `DesignCandidate`, and must not imply
+  design-level authority. The ceiling fixture must produce
+  `search_ceiling_repair_required` or `acquisition_required` with the ceiling gate
+  (§8.4). The other terminals are stubs that fail closed until later.
+- **No recursion, no composition, no full multi-budget, no agent proposer in Slice 0.**
+  `DECOMPOSE`/`COMPOSE` (GY-G), the agent (GY-I), and the full V-battery are **deferred
+  by contract** until Slice 0 records real exits. `BudgetVector` is limited to
+  `{compute.max_operation_invocations, compute.max_wall_seconds,
+  search_quality.min_recall_at_known_seeds, search_quality.required_source_classes}`;
+  `acquisition`, `expert`, `calendar`, `novelty`, and `recursion` budgets are explicit
+  zero/disabled stubs until their owning tasks land.
 
-Every subordinated output carries a typed producer record (GX Producer Root Chain
-Rule). For GY specifically:
+**Stop rule:** any Phase-1+ widening (more artifact/operation types, recursion,
+surfaces) before Slice 0's recorded honest exits is a scope violation — stop and review.
+Slice 0 = GY-A1(min) + GY-A2(min) + GY-B + GY-B2 + GY-H(core) + GY-D1 + GY-C2(only if
+the selected ESTIMATE path needs the lex/tail repair) + GY-M1. It proves loop shape,
+authority derivation, measurement grounding, and honest ceiling behavior; it does not
+claim the system can yet synthesize a full design.
 
-- `DatasetCatalogGraph` query → `measurement` (corpus + snapshot hash).
-- fabric fetch → `measurement` (CAS digest = snapshot hash).
-- a `scientist_policy_design` node bundle → `derivation`; its chain must reach the
-  measurement roots it consumed (panels, SKG). A bundle with no measurement
-  ancestry is a candidate, never authority.
-- `foundry` method output → `derivation` over its input data snapshot.
-- elicitation (LLM/expert) → `elicitation`; ceiling `elicited_prior`, never higher.
+### 3.5.2 `pdc` ownership / import map (reuse, do not re-declare)
 
-A GY adapter that emits a positive port status without a measurement-rooted chain
-fails the GX validator. This is the firewall against subordinating fluency.
+`pdc` already exists and `pdc/_impl/` already implements much of the waist. Most of §4
+is **reuse/extend**, not build-new. Build-new declarations that duplicate a canonical
+owner are a design-review failure.
 
----
+| Contract | Owner today | GY move |
+| --- | --- | --- |
+| `ArtifactRef` | `core/artifacts/manifest.py` (canonical) | **reuse** |
+| `ForecastSupport` | `ir/analytics/` (canonical port vocab) | **reuse** |
+| `AuthorityBoundary`, `CertifiedOperationEnvelope`, `DesignRecord`, `ValueOfInformation` | `pdc/_impl/layer2_readiness.py` | **reuse/extend** (add the two-axis authority semantics, §13) |
+| `TypedDiagnosticRecord`, `ConstraintStoreSnapshot`, `CounterexampleRecord`, `RefinementDecision`, `SearchLedger`, `DesignCandidate(V0)` | `pdc/_impl/layer2_design_search.py` | **reuse/extend** (these are D3.2 seeds) |
+| `DataNeedSpec` | `scientist/agent/protocols.py` | **reuse** (GY-E) |
+| `SourceContract` / `DataRequirementSpec` | `runtime/quality/...` + `data_requirement/` | **reuse** (GY-D2) |
+| `WorkspaceContract`, `OperationContract`, `OperationInvocationRecord`, `ApplicabilityResult`, `PortSpec`, `FrontierSnapshot`, `SearchExitContract`, `SearchIncompletenessRecord`, `ObligationRecord`, `SubDesignContract`, `CompositionCertificate`, `BudgetVector`, `ArtifactEnvelope` | none | **build-new in `pdc`** |
 
-## GY-0 - Engine Reality Census (the keystone — everything downstream is re-derived from it)
+So GY-A1/A2 are mostly *extend the existing pdc design-search contracts* + add the ~13
+genuinely-new orchestration types. Adapters/loop live in `runtime/quality`; `pdc` stays
+engine-free. §4 below is the target contract shape; §3.5.2 is the ownership source of
+truth for reuse vs extend vs build-new.
 
-This is the most important task in GY, and the one most likely to be done
-shallowly. **Both reviewers of this system repeatedly confused "exists" with
-"wired" with "works".** The G1 search was called hollow when it had been fixed;
-the DAG was told to be "built" when it was already invoked in production; a
-"DataNeed translator" was specified while `DataNeedSpec` already existed. The
-census exists to end that confusion *before* a single wire is changed. The user's
-framing is the test the census must pass: **if everything exists yet nothing
-works, then something specific was missing — name it precisely for every asset.**
+### 3.5.3 Operation-discovery sources + conformance criteria (anti-hidden-table)
 
-A capability that "exists but doesn't work" is never a mystery; it is always one
-of a small set of concrete gaps. The census's job is to assign each asset to
-exactly one gap, by **execution, not by label**.
+"Discovered, not enumerated" (Rule 12) is only real if the sources and admission
+criteria are concrete and the no-hardcode lint bites. **First discovery sources:**
+foundry method registry (`get_registry().list_all()` — 389 methods), fabric connector
+registry (`PROFILE_ID_BY_CONNECTOR_ID` + connector discovery), `scientist/agent` tool
+registry (KnowledgeToolkit/tools), `data_forge` catalog (`DatasetCatalogGraph`), `ir`
+analytics contracts (port vocabulary). **Adapter conformance criteria** (all must hold
+before an engine asset is admitted as an Operation): (1) a typed signature is
+discoverable from the registry (input_slots/dtypes/`requires`); (2) it passes
+`validate_adapter_preservation` + the derived formal-applicability check; (3) it declares
+`consumes`/`produces` ports + an `authority_transform`; (4) a smoke runs it on a real
+input (executable, not merely registered). **Free-growth test (Rule 12):** a correctly
+added engine asset becomes an Operation with **zero new code**; any hand-maintained
+operation/method/construct list is a lint failure to mark→replace→delete.
 
-### Census discipline (non-negotiable)
+### 3.5.4 Required proof packets (anti-P01/P05/P08/P10/P25)
 
-- **No label is evidence.** `execution_tier`, registry maturity, README claims,
-  prior plan prose, this conversation's findings, and assistant memory are NOT
-  evidence. The only evidence is a recorded run on real input. Every asset starts
-  at `execution_status: unknown` and may not leave it without a run.
-- **Existence is one field, not a verdict.** "The module is there" answers nothing.
-  An asset is not done in the census until reachability, execution, dataflow,
-  authority, and gap-class are all filled.
-- **Trace to a named consumer.** An asset is not "wired" because it is imported.
-  It is wired only if its output reaches a *named* downstream consumer. Record the
-  consumer, or mark the output `dropped`/`logged_only`.
-- **Smart-component check.** Any asset whose output already reaches a surface or
-  authority slot **without** producer-root provenance is flagged
-  `laundering_candidate` — a finding to fix, never a pass.
-- **Scope = the pinned route only.** Census every asset the pinned UA-MSME case
-  actually touches, traced end to end. Do not census all 308k of foundry; census
-  what the route invokes. Out-of-route assets are listed as `out_of_route`, not
-  inspected.
+The following packets are not optional prose reports. Each named high-risk task must
+persist the packet as a generated artifact with a recomputing validator. The packet is
+the acceptance surface: reviewers should inspect fields, not only task summaries.
 
-### The census record (one committed artifact, one row per asset)
+- **`ProductionLoopRunProof`** (GY-B2/GY-L/GY-V2): `{run_id, job_id, endpoint,
+  job_kind, enqueued_at, worker_lease_id, worker_id, _execute_workflow_invocation_id,
+  workspace_loop_invocation_id, control_store_state_transitions, input_artifacts,
+  output_search_exit_contract_ref, output_cas_refs, artifacts_index_refs,
+  surface_reads_checked, legacy_path_disposition}`. Required path:
+  `enqueue_job -> ControlWorker -> _execute_workflow -> WorkspaceLoop -> CAS +
+  artifacts_index + /runs readback`. A direct helper call does not satisfy this proof.
+- **`Slice0FixtureManifest`** (GY-B/GY-D1/GY-H): `{fixture_id,
+  construct_scope_query, jurisdiction, population, time_horizon,
+  expected_catalog_binding_refs, expected_connector_profile,
+  expected_producer_root_kind, expected_terminal, forbidden_terminals,
+  negative_controls}`. The manifest is the committed source of truth for Slice-0
+  fixture expectations; implementation may not replace it with an inline fixture table
+  or a prose "World-Bank style" label.
+- **`AuthorityDerivationTrace`** (GY-A2/GY-B/GY-V4): `{operation_invocation_id,
+  output_artifact_ref, declared_authority_transform, computed_evidence_kind,
+  computed_decision_grade, producer_root_classes, method_classification,
+  applicability_result_ref, calibration_refs, counterexamples_closed,
+  certified_envelope_ref, unresolved_blockers, resulting_authority_boundary_ref,
+  transform_mismatch_disposition}`. This is the audit trail for `A.verify`; an
+  Operation-declared transform is an input hint only and cannot be the stamped result.
+- **`AuthorityCandidateInventory`** (GY-F3/GY-V4): one row per candidate-positive
+  status, including `{producer_component, source_artifact_ref, field_path, status_text,
+  candidate_positive_rule, firewall_name, exclusion_reason, resulting_boundary_ref,
+  false_exclusion_review, reviewer, reviewed_at}`. The count must reconcile to 406 on
+  the Task-0 baseline, and false exclusions must become explicit repair tickets.
+- **`CASIntegrityReport`** (GY-F2/GY-V5): `{artifact_ref, payload_digest,
+  canonicalization_rule_ref, blob_uri, manifest_ref, authority_manifest_ref,
+  duplicate_group_id, referrers, report_index_refs, lineage_refs, tamper_probe_result,
+  mutation_probe_result, gc_retain_reason, gc_dry_run_result}`. It must prove digest
+  semantics, dedup, mutation/tamper rejection, and GC survivability.
+- **`TimeSourceEnvelopeAudit`** (GY-F3/GY-V5): `{catalog_watermark,
+  source_observed_at, source_published_at, source_updated_at, ingested_at,
+  effective_time, legal_valid_time, transaction_time, as_of_time, replay_time,
+  run_started_at, run_finished_at, node_started_at, node_finished_at,
+  retention_or_expiry, mismatch_disposition}`. A mismatch must block, downgrade, or
+  create an obligation; it cannot be logged as decoration.
+- **`SecretAndPIIScanReport`** (GY-F2/GY-V4): scopes are `{DAG bundles, connector
+  request/response payloads, CAS manifests, raw artifact content/download routes,
+  dashboard/public/export packets}`. Records include `{scope, artifact_ref_or_route,
+  detector_version, finding_kind, redaction_applied, authority_surface_blocked,
+  negative_fixture_result}`.
+- **`SemanticBenchmarkRun`** (GY-D3/GY-V3): `{benchmark_ref, benchmark_version,
+  label_owner, reviewer, rule_version_ref, construct_scope, queries, returned_hits,
+  precision_at_k, recall_at_known_seeds, known_seeds_missed, negative_controls_passed,
+  threshold_disposition}`. The gate consumes this packet; it may not validate itself.
+- **`VOISelectionAudit`** (GY-H/GY-I/GY-V4): `{workspace_id, cycle_index,
+  candidate_actions, agent_suggested_scores, normalized_scores, deterministic_voi_inputs,
+  rejected_or_clipped_inputs, selected_action, reason, authority_gain_basis,
+  decision_value_basis, cost_basis, bias_probe_result}`. Agent estimates are Ring-1
+  candidates; GY-H owns the deterministic normalization and selection decision.
+- **`StrangleReceipt`** (every replace/subordinate task — see §3.5.5): `{predecessor_ref,
+  replacement_ref, disposition: deleted|fenced_default_flipped, default_before,
+  default_after, guard_ref, remaining_callers, remaining_callers_disposition, removed_loc,
+  verified_by}`. It proves the predecessor was cut or fenced and the default flipped in the
+  same change (P28). "Both paths reachable" or "zero deletions" fails the receipt.
 
-Artifact: `architecture/policy_design_case/layer3_gy_engine_census.json`. Each
-row carries:
+**P29 — these packets are emitted, not authored.** Every packet above must be written by
+the real run it claims and its validator must recompute it from live code/artifacts and
+fail on drift. The phase-0 `ProductionLoopRunProof` was hand-authored with placeholder ids
+and a shape-only validator — the exact `authorial-refs` laundering (F12) these packets
+exist to prevent. A packet whose identifiers are round/placeholder, whose times are
+`…T00:00:00Z`, or whose validator only checks shape, does **not** satisfy its task.
 
-```text
-asset_id
-module_path                 # file
-entrypoint                  # function/class actually invoked
-existence_status            # present | absent
-reachability:
-  imported_by               # call sites (file:line)
-  called_from_production     # bool + cite (runtime/http path) | tools-only | tests-only | dead
-execution_status            # runs_e2e_on_real | runs_with_deadline_adapter | fails | never_invoked | unknown
-execution_evidence          # smoke command + output hash (required if not never_invoked)
-consumes                    # corpus / contract refs it reads
-emits                       # contract it produces
-output_destination          # waist_port:<id> | CAS | dropped | logged_only | another_engine:<id>
-authority_status            # governed | laundered | candidate_only | none
-gap_class                   # see taxonomy
-canonical_vs_duplicate      # canonical | shim_of:<asset> | dead | duplicate_of:<asset>
-recommended_gy_action       # govern | wire | repair | build | demote | delete | none
-evidence_refs               # file:line, smoke hash, artifact refs
+### 3.5.5 Phase-0–2 implementation-review corrections — strangle, owner-first, name-by-function, emit-proof (P27/P28/P29/P30)
+
+The phase-0–2 review found three recurring build-hygiene failures (now register patterns
+P27/P28/P29). They are binding on every remaining task: a task may not close while
+re-creating one. **P28 (strangle) is load-bearing** — without it the universal loop
+becomes "one more layer over the static DAG" instead of its replacement, which is the
+whole point of the slice.
+
+**A. Concrete debts to clear while fixing phases 0–2** (each move is owner-first +
+strangle, not a new parallel file):
+
+| Debt found in the partial build | Pattern | Correct move |
+| --- | --- | --- |
+| `Slice0SearchLedger` (`gy_loop.py`) beside canonical `SearchLedger` (`pdc/_impl/layer2_design_search.py`) | P27 | DONE first pass: `Slice0SearchLedger` extends canonical `SearchLedger`; remaining cleanup is to narrow GY sidecar fields as consumers migrate. |
+| Second `AcquisitionPlanner` (`gy_loop.py`) beside `acquisition_planner.py` / `layer2_substrate_acquisition.py` | P27 | DONE first pass: GY-E delegates routing/disposition to `plan_requirement_gap_acquisition`; remaining cleanup is to move the thin façade out of `gy_loop.py`. |
+| Lex-bounds rule duplicated in `gy_spine_repair.py` and `policy_design/search.py` | P27 | DONE first pass: one owner = the engine (`search.py`); GY façade calls it. |
+| Two fixture catalog graphs (`_InMemorySlice0CatalogGraph` + `build_slice0_fixture_catalog_graph`) | P27 | DONE: one fixture builder over the real `DatasetCatalogGraph`; tests use the canonical builder. |
+| `require_explicit_parameter_bounds=False` default still launders `None→0.0` | P28 | DONE first pass: default is explicit-bounds fail-closed; remaining legacy inferred-bounds calls must stay explicit until deleted. |
+| 2674-line `gy_loop.py` holding B/D1/D2/D3/E/H | P27 (dual) | Move each gate/producer to its owning module; `gy_loop.py` keeps only the loop. |
+| `ProductionLoopRunProof` hand-authored, shape-only validator | P29 | DONE: emitted from durable worker path and validator recomputes from CAS/index refs. |
+| F4/F7 "closed" on a 2-record catalog corpus | P29 | Measure recall/precision on a representative corpus, or mark `surface_out_of_scope` with rationale. |
+
+**B. Strangle protocol (P28).** A replace/subordinate task is not done until, **in the
+same change**, it (1) deletes or fences the predecessor, (2) flips the default to the
+corrected path, and (3) adds a guard (lint/test) that fails if a new caller reaches the
+predecessor. It then persists a `StrangleReceipt` (§3.5.4) with a recomputing validator.
+Legacy that genuinely cannot be cut yet is fenced as `legacy_shadow` / candidate-only
+**and** listed in `remaining_callers` with a dated cut ticket — never left as a silent
+default. This is exactly how GY-B2 already treats `/runs`, `/runs/nl`, and the
+`workflow_run` job path; every later subordination (GY-C1 legacy nodes, GY-C2 lex/
+governance, GY-F1 worker surfaces) follows the same pattern, not an additive layer.
+
+**C. Owner-first protocol (P27).** Before `class Foo` or a new `gy_*.py`, consult the
+§3.5.2 ownership map and run `grep -rl "<concept-root>" src/polisyos/{pdc/_impl,runtime/quality}`
+for a live owner. If one exists, extend it. New files are for genuinely-new orchestration
+contracts only. Free-growth still holds (§3.5.3): a correctly added engine asset becomes an
+Operation with zero new code — if you are writing a hand-maintained list or a parallel
+gate, stop.
+
+**D. Emit-proof protocol (P29).** See the §3.5.4 P29 note: identifiers come from the run
+(no placeholders), times are real, validators recompute, and any search/recall/precision
+closure is measured on a representative substrate — not a fixture small enough to make the
+metric vacuous. A committed Slice-0 `Slice0FixtureManifest` is allowed (§3.5.1); a
+2-record corpus standing in for the *benchmark substrate* of an F4/F7 closure is not.
+
+**E. Name-by-function protocol (P30) — so reuse is self-evident.** New files are named for
+the capability they own (`workspace_loop.py`, not `gy_loop.py`); the owner-first grep (C)
+is by *function word*, so it only finds owners if files are function-named. The phase-0–2
+`gy_*` files are a standing P30 debt: either rename each to its function, or — where it
+holds genuinely-new orchestration — add a module docstring that names the canonical owners
+it extends (`SearchLedger`, `acquisition_planner`, `adapter_contracts`, `semantic_binding`,
+`data_forge_binding`) and links related modules, so the next implementer reads them before
+writing a parallel file. No new GY file may take a bare plan-provenance name without that
+breadcrumb. Naming is not cosmetic: it decides which file the next person opens first, and
+is the cheapest defense against re-creating P27.
+
+**F. Standing gate for phases 2→5.** Every task's `Done when` now also requires: no second
+live owner for any concept it touches (P27); a `StrangleReceipt` for any path it replaces,
+with the default flipped (P28); function-named modules with owner breadcrumbs, never a bare
+plan name (P30); and run-emitted, recomputed proof packets on a representative substrate
+(P29). Checked at design review and at closeout, alongside the matrix/GX gates. A task whose
+local tests pass but that leaves a parallel owner, an un-strangled default, a plan-named
+file with no owner breadcrumb, or an authorial proof is **not done**.
+
+### 3.5.6 Substrate / binding lift completeness gates (the GY-S lesson — binding for every lift / resolution / binding task)
+
+The GY-S substrate lifts (S1 data-state, S2 knowledge, S3 intervention) cost many adversarial
+rounds because each shipped a **shell** that passed its own narrow probes: coverage looked green but
+on a curated subset; authority was **supplied, not derived**; the contract exercised only the
+happy-path. The failure **escaped one level deeper each round** — for S3 the supplied authority went
+caller-supplied → hardcoded code-table → hand-injected into git-ignored data → relocated into a
+tracked JSON the runtime merely *trusted*; for S2 it was percent-only units / single-row lineage /
+weight-synthetic contested. The disposition is always the same: **derive through the real owner +
+validate (fail-closed on a fake input), never supply; be generic over the data, not enumerated; and
+make the gate exercise the decisive property.** Four gates are now **binding on every task that
+lifts, resolves, or binds authority** (the GY-S block and the cycle tasks N2/N4/N7/N8/N9 — their
+contracts must encode all four for their decisive property):
+
+1. **Full-denominator coverage.** Measure coverage against the **full real vocabulary** (count the
+   real source files / registries), never a curated subset or a 2-record corpus. A green `N/N` is
+   load-bearing only when `N` is the full real denominator — prove the denominator (`P10`).
+2. **Fail-closed on a fake / novel input.** A binding to a **non-existent owner target** (a slot not
+   in the real world model / `GlobalState`, a provision not in real L3), an unknown unit, or an
+   out-of-domain parameter **must fail closed**. This proves the runtime **validates through the
+   real owner**, not merely trusts a declared / curated / supplied value (`P32`, the
+   resolve→content-bind→validate root). A tracked binding artifact is legitimate **only** if it is
+   owner-validated this way — a JSON the runtime trusts is just a relocated name-map.
+3. **Data-only free-grow.** A genuinely **new** entry (knob / law / family / claim / threshold)
+   added via **data alone** must lift with **zero code change**; a malformed one fails closed. This
+   proves the mechanism is **generic over the data**, not an enumerated / name-substring branch
+   (Rule 12, `P31`). Reusing an existing mechanism for the "novel" case is a fake free-grow.
+4. **The contract mutates the DECISIVE validation property (`P29`).** The behavioral contract must
+   include a remove-the-property mutation for the **decisive** property — the fail-closed-on-fake
+   owner validation of gate 2 — not only coverage / free-grow / no-hardcode. The gate must go **red**
+   if owner-validation is removed while the happy-path bindings stay valid. A runtime that is correct
+   today but whose contract would not catch that regression is **not done** (this is the exact
+   verifier-completeness gap that held S3 to its last round).
+
+Every impl/audit prompt and every `Done when` for a lift/resolution/binding task front-loads these
+four — so the implementer builds to them on the first pass instead of rediscovering them through
+rounds. Verification stays **targeted** (§Commands; blast-radius + recomputing validators + ruff +
+guardrails), never full pytest.
+
+### 3.6 Anti-simplification audit — preserve capability, close findings substantively
+
+Slice 0 is a shape proof, not a license to ship a small engine. The implementation must
+use the existing system's real capabilities and close Task-0 findings by moving
+producer/bridge/consumer/surface evidence, not by renaming stubs as governed artifacts.
+
+Acceptance constraints:
+
+- **Catalog:** use `DatasetCatalogGraph` and real catalog bindings; no private fixture
+  table may stand in for search/resolve.
+- **Connectors:** respect per-family fetch contracts (`WorldBank`, `CKAN`, `SDMX`, etc.)
+  rather than a generic "connector exists" flag.
+- **Foundry:** `ESTIMATE` consumes a real foundry method output and method metadata; a
+  synthetic estimate is a helper-only smoke.
+- **Lex/governance tail:** optional-bounds repair and judge-tail validity must land
+  before any governance output can become authority-bearing.
+- **Agent:** PI/drafter/critic/tool-loop records are event-backed Ring-1 proposals; no
+  synthetic G6 credit.
+- **LLM/public-surface authority:** LLM, drafter, critic, dashboard, and export text are
+  projections or candidates until a verifier-stamped artifact grants a purpose-scoped
+  boundary; no PUBLIC/REVIEWER/EXPERT/MACHINE view may infer authority from presentation.
+- **Surfaces/CAS/time/secrets/406:** proof must pass through production routes, raw
+  artifact access, public/dashboard exports, report indexes, CAS manifests, and the
+  candidate-positive firewall inventory.
+- **Scholar/OpenAlex, KnowledgeToolkit, and `data_requirement`:** if not in Slice 0,
+  they stay named follow-ons with ownership, blocker, and expected proof packet; they
+  cannot disappear as "out of scope" without a `surface_out_of_scope` rationale.
+- **Substrate packages:** core/IR/evidence/BERL/DDM/calibration/requirement packages are
+  consumed as existing constraints, ceilings, and authority inputs; do not copy their
+  semantics into new PDC enums.
+
+| Audit finding | Non-simplification closure |
+| --- | --- |
+| F4/F7 catalog/search | Real `DatasetCatalogGraph` + governed semantic benchmark + known-seed recall, consumed by `BIND`/`VERIFY`. |
+| F5/F6 connectors/source contracts | Per-family connector gates + source-contract/freshness admissibility before fetch. |
+| F10 foundry | At least one route-consumed real method output, with measurement-rooted authority and method classification. |
+| F8/F9 lex/governance tail | Repair optional-bounds + phase-5 judge tail before governance-to-authority. |
+| F11 agent/KnowledgeToolkit | Event-backed role records + Ring-2 rejection test; KnowledgeToolkit tools registered as discovered Operations. |
+| F12/F13 surfaces/CAS/time/secrets/406 | Production proof packets from real routes: `CASIntegrityReport`, `TimeSourceEnvelopeAudit`, `SecretAndPIIScanReport`, `AuthorityCandidateInventory`. |
+| F14 depth-2/generalization | GY-M2 non-pinned GX + GY-V3 labelled multi-case/depth-2 distribution; no one-case universal claim. |
+| F15 substrate packages | Existing core/IR/evidence/BERL/DDM/calibration/requirements become consumed constraints or ceilings, not duplicated schema folklore. |
+| P03/P15 LLM and public-surface laundering | Multi-audience projections consume `AuthorityBoundary`; LLM/drafter/export text remains candidate/projection unless backed by producer evidence and verifier authority. |
+| P2 Scholar/OpenAlex | GY-K remains required for literature/prior/tool-backed search; web bundles stay non-authority until span-grounded. |
+
+A task that only stubs/mocks/summarizes a finding and leaves the row green without a
+complete chain (`producer -> persisted artifact/event -> bridge -> consumer -> surface
+-> semantic/negative test`) is a P01/P10 failure, even if its local tests pass.
+
+## 4. The two-ring waist — full type schemas (canonical-owner map in §3.5.2)
+
+The canonical contracts the loop speaks. Some are reused from existing owners, some are
+extended, and only the missing orchestration contracts are new (§3.5.2). **Ring 1 vs
+Ring 2 is a per-field write permission, not a type set** — several Ring-2 fields live
+inside Ring-1 types and stay
+`null` until a verifier writes them (the agent may construct the surrounding Ring-1
+object but not those fields). 17 contracts total. (Abbreviated where obvious.)
+
+### 4.1 Ring 1 — execution waist (agent/engine-writable)
+
+```yaml
+ArtifactRef:               # identity + addressing, no payload
+  artifact_id: str
+  artifact_type: ArtifactType   # PolicyIntent|BaseDataset|ResearchClaim|MeasurementStrategy|
+                                # DataNeed|AcquisitionRequest|Estimate|SimulationResult|LegalFinding|
+                                # DesignCandidate|CounterexampleRecord|SubDesignContract|PolicyProgram|
+                                # SearchExitContract|CompositionCertificate|...
+  content_hash: str             # canonical, time-stripped (gy_evidence_canon) — F16
+  schema_ref: str; uri: str; version: str
+
+ArtifactEnvelope:          # provenance/authority carrier around every payload
+  ref: ArtifactRef
+  payload_ref: str; payload_schema_ref: str
+  lifecycle_state: shadow | verified | promoted | rejected | superseded | archived
+  created_by: {kind: operation|agent|human|imported, id: str}
+  producer_operation: {invocation_id, operation_id, operation_version}
+  input_artifacts: [ArtifactRef]
+  producer_roots: [ArtifactRef]                              # measurement roots for authority
+  certified_operation_envelope: CertifiedOperationEnvelope|null  # operation-DECLARED (Ring 1) + verifier-confirmed
+  authority_boundary: AuthorityBoundary | null               # RING-2 FIELD — verifier-only
+  obligations: [ObligationRef]
+  verification: {latest_applicability_result: Ref|null, latest_promotion_result: Ref|null}  # promotion_result is Ring-2
+
+PortSpec:
+  port_id; direction: consumes|produces|requires|provides
+  port_type: PolicyIntent|Dataset|Claim|Estimate|DesignCandidate|LegalFinding|CapacityModel|SequencePlan|RiskModel|SubDesign
+  claim_shape: {kind: causal|legal|fiscal|operational|forecast|descriptive|design|system_program|none, subject_type, predicate_type, object_type?}
+  multiplicity: {min, max}
+  constraints: {jurisdiction?, time_horizon?, population?, scale?, data_shape?}   # data_shape e.g. {kind: panel, requires_groups_min: 2, requires_pre_period: true, requires_post_period: true}
+  required_authority: AuthorityRequirement | null            # for requires/consumes
+  provided_authority: AuthorityBoundary | null               # RING-2 FIELD — verifier-only
+
+OperationContract:         # the coarse verb the loop plans over (not a foundry method)
+  operation_id; operation_version
+  operation_class: DISCOVER|ACQUIRE|BIND|TRANSFORM|ESTIMATE|SIMULATE|TRANSPORT|VERIFY|REFINE|LOWER|DECOMPOSE|COMPOSE|ELICIT|ESCALATE|ABSTAIN
+  consumes: [PortSpec]; produces: [PortSpec]
+  formal_preconditions: [{predicate_id, description, check_ref, severity: hard|soft}]
+  allowed_internal_execution: [foundry_method|foundry_method_chain|llm_agent_plan|tool_call|human_request]
+  implementation_refs: [{kind: python_function|foundry_method|agent_policy|tool_adapter|legacy_node_adapter, ref}]
+  cost_model: {compute, acquisition?, expert_attention?}
+  authority_transform: {kind: preserves|weakens|calibrates|simulates|transports|composes|unknown, rule_ref}
+  failure_modes: [ApplicabilityErrorKind]; repair_options: [OperationClass]
+
+OperationInvocationRecord:
+  invocation_id; operation_id; operation_version; workspace_id; cycle_index
+  selected_by: {kind: refinement_policy|llm_agent|human|playbook, id}; selection_rationale_ref?
+  input_artifacts: [ArtifactRef]; parameters: {schema_ref, value_ref}
+  internal_trace: {trace_kind: deterministic|agentic|mixed|human, trace_ref}
+  tool_calls: [ToolCallRecordRef]; human_requests: [HumanRequestRecordRef]
+  output_artifacts: [ArtifactRef]; applicability_result: ApplicabilityResultRef
+  budget_delta: BudgetDelta; status: started|completed|failed|repair_required|cancelled
+
+ApplicabilityResult:       # the deterministic formal gate result (type system for methods)
+  result_id; invocation_id
+  status: applicable|not_applicable|applicable_with_warnings|repair_required
+  checked_preconditions: [{predicate_id, status: passed|failed|unknown, evidence_ref?}]
+  failed_preconditions: [{predicate_id, reason}]
+  type_errors: [{input_port, expected, observed, repair_options: [OperationProposalRef]}]
+  repair_options: [{operation_class: TRANSFORM|ACQUIRE|BIND|SWITCH_METHOD|ESCALATE, description, expected_to_fix: [predicate_id]}]
+
+WorkspaceContract:
+  workspace_id; parent_workspace_id?
+  intent_ref: ArtifactRef
+  scope: {domain, jurisdiction, scale: local|regional|national|international|multi_level, time_horizon, posture: exploratory|advisory|pre_decision|implementation_ready}
+  artifact_graph_ref; constraint_store_ref; agenda_ref; frontier_ref
+  allowed_operations: [operation_id]; budget: BudgetVector
+  recursion_policy: {max_depth, max_child_workspaces, decompose_allowed}
+  exit_requirements: {require_search_exit_contract: true, require_incompleteness_record: true, require_authority_boundaries_for_promotion: true}
+
+SearchLedgerEvent:         # audit/provenance spine (W3C PROV: entity/activity/agent)
+  event_id; workspace_id; cycle_index
+  event_type: workspace_started|constraint_store_updated|operation_proposed|operation_selected|operation_started|operation_finished|tool_called|human_input_requested|human_input_received|verifier_ran|artifact_promoted|artifact_rejected|budget_updated|terminal_state_selected
+  actor: {kind: system|refinement_policy|llm_agent|human|verifier|tool, id}
+  input_artifacts: [ArtifactRef]; output_artifacts: [ArtifactRef]
+  operation_invocation_ref?; decision_record_ref?
+  budget_delta?; authority_delta?  # authority_delta is verifier-written
+  created_obligations: [ObligationRef]; timestamp
+
+BudgetVector:              # budget is a vector, never one max_iterations
+  compute: {max_tokens?, max_wall_seconds?, max_operation_invocations?, hard: bool}
+  acquisition: {max_money?, max_data_requests?, max_pilot_duration_days?, hard: bool}
+  expert_attention: {max_expert_hours?, max_review_rounds?, hard: bool}
+  calendar: {decision_deadline?, hard: bool}
+  novelty: {max_cycles_without_frontier_improvement?, min_improvement_delta?}
+  recursion: {max_depth, max_child_workspaces}
+  search_quality: {min_recall_at_known_seeds?, freshness_window_days?, required_source_classes: [official|academic|local_data|legal|administrative]}
 ```
 
-### Gap taxonomy (the central deliverable — answers "why doesn't it work")
+### 4.2 Ring 2 — promotion / honesty waist (verifier/governance-written fields)
 
-Every census row is assigned exactly one. The class dictates the downstream verb;
-the downstream task may not use a verb that contradicts the class.
+```yaml
+AuthorityBoundary:         # [extend pdc/_impl/layer2_readiness.py]; authoritative_for AND may_not_use_for both mandatory for promoted
+  boundary_id
+  authoritative_for: [{claim_type: causal|legal|fiscal|operational|forecast|sequencing|system_program, jurisdiction, scale, time_horizon, posture, population?}]
+  may_not_use_for: [{claim_type, reason}]
+  # TWO ORTHOGONAL AXES (do not collapse into one total order — see §13):
+  evidence_kind: measurement|derivation|proxy|transport|bounds|simulation|elicitation   # WHAT kind of evidence (the ladder)
+  decision_grade: unsupported|descriptive_only|advisory_admissible|decision_admissible   # HOW decision-ready it is
+  evidence_basis: {producer_roots: [ArtifactRef], method_refs: [str], calibration_refs: [ArtifactRef], counterexamples_closed: [ArtifactRef]}
+  known_limits: [str]
+  # SPEC OBLIGATION (GY-A2): define the lattice on EACH axis independently —
+  #   authoritative_for: partial order by ⊇ ; envelope: intersection ;
+  #   evidence_kind: partial order on the ladder (measurement strongest) ;
+  #   decision_grade: total order (unsupported < descriptive_only < advisory_admissible < decision_admissible).
+  # `meet` (§7) takes the meet on each axis separately. The two axes are orthogonal:
+  # e.g. a `simulation` result may be `advisory_admissible`; a `measurement` result may be
+  # only `descriptive_only` if it does not identify the effect. See §13 mixed examples.
 
-| gap_class | Meaning | Downstream verb |
-| --- | --- | --- |
-| `wired_and_works` | called from production, runs e2e, output reaches a consumer | **govern** into waist (provenance) — never "build" |
-| `wired_but_ungoverned` | output reaches a surface but bypasses producer-root | **govern/repair** the flow; laundering finding |
-| `wired_but_rotten` | called, but fails / deadline-adapter on real input | **repair** the asset first |
-| `built_not_wired` | exists, never called from production | **wire** it (the cheapest real gain) |
-| `contract_without_producer` | type/contract exists, nothing emits it | **build** the producer (genuine new code) |
-| `producer_without_consumer` | emits, but nobody reads the output | **wire** the consumer |
-| `partial` | works for pinned scope, not general | **extend** within budget |
-| `missing` | genuinely absent | **build** (genuine new code) |
+CertifiedOperationEnvelope:    # operation-DECLARED (Ring 1) scope + verifier-CONFIRMED for authority
+  envelope_id; domain; jurisdiction; scale; population?; time_horizon; posture
+  data_conditions: {required_data_shapes: [str], observed_data_shapes: [str], missing_data: [str]}
+  method_conditions: {assumptions: [str], diagnostics: [ArtifactRef]}
+  out_of_envelope_triggers: [str]
 
-The honest answer to "if everything exists why doesn't it work" will, for almost
-every asset, be `built_not_wired`, `wired_but_ungoverned`, or
-`contract_without_producer` — not `missing`. The census proves which.
+FrontierSnapshot:          # anytime state of the search
+  snapshot_id; workspace_id; cycle_index
+  promoted_candidates: [ArtifactRef]; shadow_candidates: [ArtifactRef]
+  rejected_candidates: [{artifact_ref, reason, counterexample_ref?}]
+  dominated_candidates: [{artifact_ref, dominated_by, dimensions: [cost|risk|authority|feasibility|welfare]}]
+  current_best: [ArtifactRef]
+  frontier_metrics: {candidate_count, promoted_count, rejected_count, cycles_without_improvement}
 
-### The three sub-censuses (each fills rows of the one artifact)
+SearchIncompletenessRecord:    # the honesty artifact — see §8.3
+  record_id; workspace_id
+  coverage: {operations_attempted, operations_not_attempted: [{operation_id, reason}], methods_attempted, source_classes_checked, source_classes_missing: [{source_class, reason}], jurisdictions_checked, time_horizons_checked}
+  search_quality: {recall_at_known_seeds?, known_seeds_missed: [ArtifactRef], freshness_ok?, stale_source_classes: [str]}
+  unresolved: {counterexamples, missing_data, unmet_required_ports, unresolved_couplings, human_questions}
+  budget: {consumed: BudgetVector, remaining: BudgetVector, exhausted: [compute|acquisition|expert_attention|calendar|novelty|recursion]}
+  next_best_actions: [{operation_proposal_ref, estimated_voi, estimated_cost, reason_not_taken}]
+  ceiling_classification: domain_ceiling | search_ceiling | mixed | unknown
 
-- **Foundry method census.** For each registered method on the pinned route, run a
-  smoke against a minimal real panel; fill execution_status with the run result,
-  not the registry's truthfulness label. Report executable-on-real vs registered
-  counts.
-- **Fabric connector census.** For each connector id the pinned route's bindings
-  resolve to (worldbank.wdi, ckan.resource, unesco_uis, socrata, rest.json, sdmx,
-  eurostat, …), one integration smoke (real fetch in an optional network suite +
-  replay fixture). Report honest "executable bindings" count vs the 42k
-  `transport_ready` estimate — the gap is the finding.
-- **Scientist DAG node census.** Two parts. (a) Run `run_policy_design_workflow`
-  on the pinned case; map each node → execution_status + the bundle it persists +
-  output_destination. (b) **Trace the existing production invocation**:
-  `run_lifecycle.py` calls `run_experiment(state_payload, ...)` at line 1408 —
-  record exactly what that call currently produces, where its output goes, and
-  whether it reaches a surface / G5 route or is dropped. This determines whether
-  GY-2 is `govern` (it reaches a surface) or `wire` (it is dropped).
+SearchExitContract:        # every Workspace exits with this, never success/failure — see §8
+  exit_id; workspace_id; cycle_index
+  terminal_state: {kind: grounded_admissible|grounded_partial_admissible|frontier_stable|acquisition_required|human_decision_required|grounded_abstention|search_ceiling_repair_required|budget_exhausted|composition_invalid|a_spec_gap|recursive_blocked|tool_failure, reason, blocking_obligations: [ObligationRef]}
+  frontier_snapshot: FrontierSnapshotRef; incompleteness_record: SearchIncompletenessRecordRef
+  budget_ledger: {consumed, remaining}; output_artifacts: [ArtifactRef]
+  authority_boundary: AuthorityBoundary | null; next_best_actions: [OperationProposalRef]
 
-### Seed findings (verified 2026-06-13 — extend, do not redo)
+ObligationRecord:
+  obligation_id; obligation_type: counterexample|acquisition_required|human_decision_required|verifier_spec_gap|composition_gap|search_repair_required|legal_review_required|capacity_review_required
+  raised_by: {workspace_id, operation_invocation_id?, verifier_id?}
+  blocks: [{artifact_ref?|port_ref?|claim_ref?}]; description; severity: informational|blocks_promotion|blocks_composition|blocks_decision
+  resolution_options: [{operation_class: ACQUIRE|REFINE|VERIFY|DECOMPOSE|COMPOSE|ESCALATE|HUMAN_DECISION, description, estimated_cost?, estimated_voi?}]
+  status: open|resolved|escalated|accepted_as_limit
 
-These rows are pre-filled from this conversation's verification. The census must
-*confirm and complete* them (fill execution_status by a real run), not re-derive
-or contradict them silently:
+SubDesignContract:         # what a child Workspace exports to its parent — see §7
+  subdesign_id; workspace_id; parent_workspace_id
+  scope: {domain, jurisdiction, scale, time_horizon, posture}
+  provides: [PortSpec]   # each provided port carries its own AuthorityBoundary (Ring-2) + envelope
+  requires: [PortSpec]
+  coupling_declarations: [{from_port, to_port, coupling_kind: independent|sequential|shared_resource|feedback|mutually_exclusive|unknown, rationale_ref}]
+  producer_roots: [ArtifactRef]; search_exit: SearchExitContractRef
+  unresolved_obligations: [ObligationRef]
+  internal_trace_ref: AuditOnlyRef   # parent may audit, may NOT use as an authority shortcut
 
-| asset | verified fact | provisional gap_class |
-| --- | --- | --- |
-| scientist DAG | `run_experiment` called at `run_lifecycle.py:1408` | wired — destination UNKNOWN (must trace) |
-| RetrievalService catalog | built at `run_lifecycle.py:223` + `nl_pipeline.py:4290` with **no** `dataset_catalog` | `built_not_wired` |
-| `DatasetCatalogGraph.search_datasets` | canonical hnsw+text, `data_forge/.../search.py:242` | canonical; `built_not_wired` into runtime |
-| fabric `SemanticCatalogIndex` (hashing-BOW) | runtime semantic path | `duplicate_of` the canonical engine |
-| `DataNeedSpec` + `DataNeedExtractor` | exist in `scientist/agent` (NL→DataNeed) | contract present |
-| `RequiredDataSpec` | foundry id_engine contract | `contract_without_producer` for the DataNeed bridge |
-| lex `HierarchicalPolicySearchAdapter` | called by node `run_hierarchical_policy_search` | `wired_and_works` (into DAG) |
-| `scientist/adapters/{foundry,fabric}_bridge.py` | engine-side ports (DAG→engine) | canonical engine-side adapters |
-| ~1184 `reducer_provenance_missing` (g2..g8) | legacy artifacts lacking provenance | each is a census target → demote or provenance |
-
-**Done when:** every Asset Registry row and every pinned-route-touched module has a
-census row with `execution_status` filled by a **real run** (zero rows left at
-`unknown` or existence-only); every row has exactly one `gap_class` and a
-`recommended_gy_action` consistent with it; the duplication map names the canonical
-implementation per capability (search engine, memory, calibration); the artifact
-is committed and passes a census-completeness check (a small validator that fails
-on any `unknown`, any verb/gap mismatch, or any asset reaching authority without
-provenance). The census is the single source of truth the re-spec gate and every
-later GY task cite by row.
-
-## GY-0.5 - Re-Specification Gate (rewrite GY-1..GY-7 from the census)
-
-**Hard stop after GY-0.** Before any wiring, re-derive the downstream tasks from
-the census, because the census will move tasks between verbs (it already moved
-GY-2 from "build" to "govern" and GY-3 from "invent type" to "reuse type" mid-
-review — expect more). Do not proceed to GY-1 on the current task text; proceed on
-the re-spec.
-
-Required:
-
-- Each of GY-1..GY-7 is rewritten to cite the census row(s) it acts on and their
-  `gap_class`, and its verb must match the class (a task that says "build" on a
-  `wired_and_works` row is rejected and rewritten to "govern").
-- Tasks the census proves already done are **deleted** (with the census row as
-  proof), not executed.
-- Pieces the census proves `missing` or `contract_without_producer` get **new**
-  tasks with explicit "genuine new code" scope — the only places GY is allowed to
-  build.
-- A `wired_but_rotten` finding inserts a repair task **before** its governance
-  task; governance of a rotten asset is forbidden.
-- The re-spec is recorded as a diff against this plan
-  (`layer3_gy_respec_note.md` or an edit to this file with a changelog), reviewed,
-  and only then does GY-1 (renumbered if needed) begin.
-
-**Done when:** every downstream GY task cites a census row and a matching verb;
-no `build` verb survives on an asset the census classified as already-present;
-the re-spec diff is committed; the census has zero `unknown` rows.
-
-## GY-1 - Fabric Catalog Wiring (the cheapest capability gain)
-
-Wire the real L1 catalog into the runtime retrieval path. Today both production
-`RetrievalService` constructions
-(`runtime/http/services/control/run_lifecycle.py`,
-`.../nl_pipeline.py`) pass no `dataset_catalog`, so runtime resolves against ~3
-curated contracts instead of 56.8k bindings, and uses hashing-BOW instead of the
-real hnsw engine.
-
-- Pass `dataset_catalog=DatasetCatalogGraph(<production L1>)` (lazy, read-only) to
-  both constructions; demote the curated dir to a pin/override layer.
-- Route the fabric semantic path to `DatasetCatalogStore.search_by_vector`
-  (hnsw); demote/delete `SemanticCatalogIndex` hashing-BOW or mark it
-  `bounded_surrogate` for curated-only.
-- License gate: build `FetchPlan` rights from L1 `access_license` (a G1
-  conformance requirement currently unenforced in the fetch path).
-- Freshness: compare source watermark to catalog snapshot at fetch time; emit
-  staleness into search-health (T7), not a perpetual fresh pass.
-
-**Done when:** a pinned-construct `DataNeed` resolves through the real catalog to
-an executable `FetchPlan`; production search-health names the canonical corpus
-path + snapshot hash (GX Task 2 contract); the GX free-growth mutation test runs
-against the real catalog, not a temp store only.
-
-## GY-2 - Govern the Existing Design-DAG Output (reframed GX Task 8)
-
-**The DAG is already invoked in production** (`run_experiment` at
-`run_lifecycle.py:1408`); foundry/fabric are already reached via
-`scientist/adapters/foundry_bridge.py` and `fabric_bridge.py`. So GY-2 is **not**
-"build a DAG adapter" — that would build beside a live path (the G1-hollow trap).
-GY-2 governs the output of the existing invocation into the waist. Start from the
-GY-0 census of where that output currently flows.
-
-- **Govern, don't rebuild.** Take the bundles the existing `run_experiment`
-  invocation already persists (`build_literature_prior` /
-  `reconcile_causal_graph` → world-model/causal evidence; `run_causal_readiness` +
-  `counterfactual_identification_gate` → identification status; `run_simulation` +
-  distributional/welfare/uncertainty → `ForecastSupport`, rung 5
-  `simulation_only`; `run_metric_validation` → calibration evidence) and route
-  them through the resolver + reducers into G2/G3 port contracts. Do not
-  re-execute the DAG behind a new wrapper.
-- Reuse `ir/analytics` contracts as the port vocabulary; do not re-declare types
-  in `runtime/quality`.
-- DAG internal gates (judge stack, candidate funnel, normative arbitration) are
-  engine-local; they do not satisfy a waist authority slot. If the census shows
-  the existing invocation already treats a DAG verdict as a surface, that is a
-  laundering finding to fix, not a flow to bless.
-- Producer-root: every bundle resolves to its measurement ancestry or is marked
-  candidate-only. A `calibrated` maturity is reducer-only with measurement-rooted
-  calibration evidence and non-zero denominator.
-
-**Done when:** the existing pinned-case `run_experiment` output is governed into
-resolver-clean `ForecastSupport`/analytics ports with measurement-rooted
-provenance; no second DAG execution path was created; a no-edge / no-calibration
-pinned case still fails forecast admission; a synthetic DAG bundle without
-measurement ancestry is rejected by the GX validator; the corresponding
-`reducer_provenance_missing` entries for g2/g3 leave `expected_red_checks`.
-
-## GY-3 - Acquisition Loop (RequiredDataSpec → DataNeed)
-
-Close the demand-pull loop so a gap routes to acquisition (ladder rung 7) instead
-of bare abstention. **Reuse the existing demand contract; do not invent a DataNeed
-type.** `scientist/agent` already has `DataNeedExtractor` (Mock + LLM) producing
-`DataNeedSpec` from a `ProblemFrame` — that is the NL→demand source. `foundry`
-already emits `RequiredDataSpec` from its ID engine. GY-3 adds the *second*
-source, not a new type.
-
-- Add a producer that maps `foundry` ID-engine `RequiredDataSpec` (emitted on
-  `ORACLE_NEEDED` / hedge) into the **existing** `DataNeedSpec` contract — an
-  identification-gap source alongside the existing NL source.
-- Route the `DataNeedSpec` to fabric (GY-1) for fetch, or — when no source
-  exists — to an `AcquisitionPlanRecord` with cost (rung 7).
-- The acquisition plan is a `plan`, never evidence; it carries a producer-root of
-  `external_request` (the demand) plus the measurement gap that justifies it.
-
-**Done when:** the pinned-case identification gap produces a `DataNeedSpec` via
-the new source that resolves either to a fetch (GY-1) or to an
-`AcquisitionPlanRecord` with a named missing distribution and cost; G5's
-`grounded_abstention` cites a real acquisition plan instead of an authored
-demand-pull string; no parallel DataNeed type was created.
-
-## GY-4 - G6 over the Existing Agent (reframed GX Task 10)
-
-Subordinate the `scientist/agent` platform; emit an event-backed orchestration
-audit. No synthetic rejected tools/branches/evidence.
-
-- Build the G6 audit from traced tool-loop events (event ids, selected/rejected
-  tool calls, selected/rejected candidate refs, resolver outcomes).
-- No tool loop → `not_measured` or typed blocker; never a populated synthetic
-  audit (the prior `rejected_tool_names=("unbounded_web_search",)` constant is the
-  banned pattern).
-- Selected evidence refs resolve through the shared resolver before counting;
-  demand-pull records are persisted producer outputs (GY-3), not inline refs.
-
-**Done when:** a real agent run records its exact tool-loop events; a no-client
-run blocks with no synthetic memory; G7/G8 cite G6 demand-pull health only when
-the audit is event-backed.
-
-## GY-5 - Design-Space Knob Provenance (folds into GY-2)
-
-**Lex is already subordinated into the DAG**: node
-`run_hierarchical_policy_search` already calls `HierarchicalPolicySearchAdapter`
-+ `TemporalInterventionSequencer`. So there is **no separate "subordinate lex"
-task** — that would double-count what the DAG already does. GY-5 is a thin
-provenance check folded into GY-2, not its own construction:
-
-- Verify the knob vectors flowing through the GY-2 adapter resolve their source to
-  L6 data (`lex_intervention_map` / `intervention_knob_dictionary`), **not** code
-  literals (Rule 12). If any knob is a Python constant, that is a GX runtime-literal
-  lint finding to fix.
-- Verify welfare/social-weight choices surface as S8 value-choice /
-  `HumanDecisionRecord` inputs (P26), never code constants.
-- Candidate design records (structure + parameters + phasing) stay candidate-only
-  with measurement/`external_request` producer roots until A grounds them.
-
-**Done when:** the GY-2-governed candidates carry lex-knob provenance to L6 data
-with effective-time windows; no design knob is a runtime literal; the lex path
-created no second subordination outside GY-2.
-
-## GY-6 - L2 Growth (scholar literature provider) — follow-on
-
-Add an OpenAlex/Crossref provider to the existing `scholar/search` pipeline so L2
-(the scarcest corpus, 7.9k claims) grows for the pinned topic. Extraction is
-`derivation` over documents (`measurement` root), span-grounded, with a calibrated
-extractor (sampled human audit; accuracy enters provenance). This is the cheapest
-real capability gain after GY-1 but is **follow-on**: GY's minimal set proves the
-mechanism on the existing corpus first.
-
-**Done when:** a credit-guarantee→firm-survival literature query ingests
-span-grounded, design-quality-tiered claims into L2 via the existing pipeline with
-zero new search engine; extractor accuracy is measured and recorded.
-
-## GY-7 - DAG-Route Outcome Run (the value check)
-
-The GY analogue of GX Task 12: run the pinned case through the **subordinated**
-route and persist the reducer-produced outcome.
-
-```text
-pinned request
--> GY-1 canonical fetch  -> GY-2 DAG bundles -> ladder descent (rungs 0..7)
--> resolver + producer-root validation -> G4/G5 reducers
--> reducer-produced outcome + rung reached + (if blocked) acquisition plan
+CompositionCertificate:    # required before any PolicyProgram promotion — see §7
+  certificate_id; parent_workspace_id; input_subdesigns: [SubDesignContractRef]
+  coupling_gate: {verdict: valid|requires_joint_workspace|requires_capacity_aggregation|requires_system_dynamics|invalid, blocking_edges: [CouplingEdgeRef]}
+  authority_flow: [{from_port, to_port, resulting_authority: AuthorityBoundary, rationale_ref}]
+  emergent_claims: [{claim_ref, grounding_status: grounded|simulation_only|missing|invalid, required_grounding: [capacity_aggregation|sequencing_consistency|system_dynamics|equilibrium_check|cross_chapter_counterexample_search], resulting_authority: AuthorityBoundary|null}]
+  unresolved_obligations: [ObligationRef]; verdict: composable|composable_with_limits|not_composable
 ```
 
-Allowed outcomes (reducer-produced, measurement-rooted): `grounded_limited`,
-`grounded_abstention`, `search_ceiling_repair_required`, or a typed blocker with
-the exact missing producer/corpus/method ref. A real `grounded_limited` is not
-rejected merely because the GX baseline was a blocker — that is the capability
-gain GY exists to produce. Forcing useful-design credit is forbidden.
+## 5. The control loop (spec)
 
-**Done when:** the pinned case produces a reducer-authored outcome that differs
-from (or honestly equals) the GX baseline, with every reducer's input hashes,
-output hash, producer roots, and rung reached recorded and replayable; the GX
-validator passes on the new artifacts.
+```text
+WorkspaceLoop(intent, budget):
+  ws = initialize Workspace(intent, budget)
+  publish initial ConstraintStore from A cluster producers
+  while true:
+    refresh ConstraintStore from current artifacts          # A BEFORE generation
+    proposals  = Planner.propose_operations(ws.frontier, ws.agenda, ws.budget)          # Ring 1
+    applicable = FormalGate.filter(proposals)               # ApplicabilityResult; deterministic
+    ranked     = RefinementPolicy.rank_by_VOI(applicable, ws.budget, ws.scope.stakes)   # VOI owned by GY-H
+    if should_terminate(ranked, ws.budget, ws.frontier, search_quality):
+        return SearchExitContract(...)                      # §8 — typed terminal, anytime
+    op  = ranked.best
+    res = execute(op)                                       # MethodPlan; Ring-1 artifacts, shadow
+    ws.graph.append(res.artifacts); SearchLedger.append(OperationInvocationRecord, events)
+    verdict = A.verify(res)                                 # A AFTER generation; writes Ring-2 fields on pass
+        promotable -> ws.frontier.update(res, AuthorityBoundary)   # only A writes Ring-2 fields
+        failed     -> ws.agenda.add(CounterexampleRecord(typed_class -> allowed moves))
+    if res is SubDesignContract:   register child
+    if res is CompositionCandidate: cert = compose(...);  promote PolicyProgram or agenda.add(cert.obligations)
+```
 
----
+Replay: deterministic operations replay exactly (input/param hashes, seed, container
+digest); agentic operations replay as decision/provenance trace; promoted artifacts
+replay as a re-walkable audit trail (levels A/B/C, center doc §7).
 
-## Execution Order
+**Slice-0 proposer.** Slice 0 has no agent proposer and no full playbook engine. It uses
+a deterministic `SeedTrajectoryPlanner` with exactly one trajectory:
+`BIND -> ESTIMATE -> VERIFY`. This is a temporary planner fixture, not GY-C1 playbooks.
+Once GY-H lands, VOI can decide whether to stop after the fixed trajectory or emit the
+matching typed terminal; it still cannot execute non-active operations in Slice 0.
 
-**GY-1..GY-7 below are PROVISIONAL until GY-0.5 rewrites them from the census.**
-The sequence is:
+**ConstraintStore producers.** Slice 0 starts with a minimal ConstraintStore built from
+`PolicyIntent` scope, catalog/source-contract facts, method applicability requirements,
+and existing authority ceilings attached to reused `pdc`/`ir` contracts. Later phases add
+named A-side producers in this order: epistemic-regime/measurability constraints,
+source/time/freshness constraints, legal/mandate constraints, capacity/participation
+constraints, evidence-independence constraints, coupling constraints, and
+human-decision/stakes constraints. An empty ConstraintStore is allowed only for a Slice-0
+fixture whose proof states that no such producer is yet in scope; after the owning phase
+lands, "empty because not wired" is a `producer_missing` blocker.
 
-1. GY-0 census (three sub-censuses; parallelizable, read-only). Gate everything on
-   it. The scientist-DAG census also traces the existing `run_experiment` flow.
-   No row may stay `unknown`.
-2. **GY-0.5 re-spec gate (hard stop).** Rewrite GY-1..GY-7 from census gap-classes;
-   delete proven-done tasks; add tasks for `missing`/`contract_without_producer`;
-   insert repairs before governance for `wired_but_rotten`. Commit the diff.
-3. GY-1 fabric wiring (cheapest gain; needed by GY-2/3/7) — verb confirmed by census.
-4. GY-2 govern the existing DAG output (only for census-green nodes; rotten nodes
-   → repair first). GY-5 (knob provenance) folds in here.
-5. GY-3 acquisition loop (reuse `DataNeedSpec`).
-6. GY-4 G6 agent audit.
-7. GY-7 DAG-route outcome run.
-8. GY-6 L2 growth (follow-on; may run any time after GY-1).
+## 6. A's in-loop role — formal gate + authority derivation
 
-The numbers above are the *expected* order; GY-0.5 may reorder, drop, or add steps.
-Trust the re-spec, not this list, once the census exists.
+A's first job each cycle is the **formal gate**: a type system over operations/methods
+that checks mechanically-checkable preconditions and emits `ApplicabilityResult` with
+actionable repairs (DiD needs ≥2 groups + pre/post + panel index; continuous method on
+integer outcome → `repair: count_model|to_rate|poisson`). It is **derived from existing
+metadata** (foundry method `input_slots`/dtypes/`requires`, IR contract assumptions),
+not hand-written per method (Rule 12). It is **not** semantic judgment ("is DiD optimal
+here") — that matures iteratively on output artifacts. The agent may propose freely and
+assemble method chains; it may not bypass the formal gate, and it may not write a Ring-2
+field.
 
-Stop rules: a census-red asset converts its subordination task into an
-engine-repair blocker — record it, do not stub past it. A census that finds an
-already-wired flow (`run_experiment`, lex-in-DAG) converts its task from "build"
-to "govern the existing flow" — building beside it is forbidden (Asset Registry,
-rebuild-over-subordinate). Any GY task whose output cannot pass the GX validator
-is not done. Budget overrun triggers a stop-and-review note before more wiring.
+A's second job is **authority derivation** after execution. `A.verify(res)` must emit an
+`AuthorityDerivationTrace` (§3.5.4) and compute the stamped `AuthorityBoundary`
+independently from the operation's self-description:
 
-## Global Acceptance Bar
+- `OperationContract.authority_transform` is a **Ring-1 hint**: the operation declares
+  what it believes it preserves/weakens/calibrates/transports/simulates/composes. A
+  verifier may use it as an input to check, but never as the stamped result.
+- `evidence_kind` is derived from producer roots + method classification:
+  `catalog/fetch CAS root -> measurement`; deterministic transform over measurement
+  roots -> `derivation`; validated substitute -> `proxy`; cross-scope estimate ->
+  `transport`; partial-identification method -> `bounds`; structural/ABM/simulation
+  method -> `simulation`; LLM/expert-only output -> `elicitation` and shadow unless a
+  separate producer validates it.
+- `decision_grade` is derived from gate/envelope/diagnostics, not from the operation:
+  no producer root, failed hard precondition, out-of-envelope output, open blocking
+  obligation, or unresolved critical counterexample -> `unsupported`; measured or
+  derived facts without identification for the requested claim -> `descriptive_only`;
+  in-envelope identified/bounded/calibrated output with required data shape,
+  applicability passed, calibration refs where required, and critical counterexamples
+  closed -> `advisory_admissible`; `decision_admissible` is outside Slice 0 and requires
+  the production-posture promotion gate, policy/legal/stakes floors, and no blocking
+  obligations.
+- A mismatch between declared `authority_transform` and computed boundary creates a
+  `CounterexampleRecord` or downgrades/rejects the artifact; it never upgrades authority.
 
-- GX provisional Task 12 outcome existed before GY started (satisfied 2026-06-13).
-- The census artifact (`layer3_gy_engine_census.json`) is committed with **zero
-  `unknown` rows**, every row execution-verified (not label-verified), every row
-  with one `gap_class` and a matching verb; it passes its completeness check.
-- The re-spec gate (GY-0.5) ran: GY-1..GY-7 were rewritten from census gap-classes,
-  the diff is committed, and no `build` verb survives on a present asset.
-- Every GY artifact passes the GX hardening validator (reducer provenance,
-  producer-root chain, resolver, runtime literal lint).
-- The `expected_red_checks` count is driven down: every `reducer_provenance_missing`
-  entry GY touches (g2/g3/gl/g6/g7) leaves the catalogue via real provenance or is
-  honestly demoted. GY is not complete while it leaves catalogued red it claimed to
-  resolve.
-- The three engine censuses are committed; each subordination task cites them, and
-  the scientist-DAG census records where the existing `run_experiment` output flows.
-- Runtime `RetrievalService` resolves against the real L1 catalog; no production
-  search-health passes as canonical while running on a surrogate.
-- A subordinated DAG bundle is authority only with a measurement-rooted chain.
-- The pinned case has a GY-7 reducer-produced outcome with rung reached recorded.
-- No parallel engine/pipeline/agent/DataNeed-type was built where an Asset Registry
-  entry exists; already-wired flows (`run_experiment`, lex-in-DAG) were governed,
-  not duplicated.
-- Ladder descent is real: a rung-0 no-hit routes to k+1 or to an acquisition plan,
-  never to bare abstention.
+Agent boundary, stated operationally:
 
-## Required Closeout Evidence
+- **Agent may:** propose next Operations; assemble an internal `MethodPlan`; call tools;
+  request data/human input; generate candidate artifacts; estimate expected usefulness
+  or VOI inputs; explain a selection rationale as Ring-1 trace.
+- **Agent may not:** bypass formal applicability checks; mutate `AuthorityBoundary` or
+  any Ring-2 field; promote a shadow artifact; close unresolved obligations; classify
+  abstention as grounded without the search-quality gate; compose subdesigns without a
+  `CompositionCertificate`; mark search complete without a `SearchExitContract`.
 
-- `layer3_gy_engine_census.json` (one row per pinned-route asset: existence,
-  reachability, execution_status by real run, dataflow, authority, gap_class,
-  verb), its completeness-check validator, and the duplication map (canonical impl
-  per capability). Includes the existing-`run_experiment`-flow trace.
-- `layer3_gy_respec_note.md` — the GY-0.5 diff rewriting GY-1..GY-7 from the census.
-- Fabric catalog-wiring report (real-catalog resolve + canonical snapshot hash).
-- DAG-output governance report with producer-root chains and lex-knob provenance
-  (GY-2 + folded GY-5).
-- Acquisition loop report (`RequiredDataSpec`→existing `DataNeedSpec` /
-  `AcquisitionPlanRecord`).
-- G6 event-backed audit report.
-- GY-7 pinned-route outcome report (reducers, hashes, roots, rung reached).
-- `expected_red_checks` delta report: which catalogued red GY resolved/demoted.
-- GX validator pass over all GY artifacts.
+Agent-provided VOI or usefulness estimates are also Ring-1 candidate inputs. GY-H's
+deterministic VOI policy normalizes, clips, rejects, or accepts them and records the
+decision in `VOISelectionAudit`; an agent cannot steer authority by framing the score.
 
-## Relationship To GX And The Roadmap
+## 7. Decision 3 — recursive SubDesign + port-authority composition (full)
 
-GX guarantees honesty (the waist cannot lie); GY grows capability (the engines
-reach the waist). GX completes at an honest blocker; GY is the first move from
-that blocker toward a grounded design — still bounded, still ladder-typed, never a
-universal claim. The constitution's open questions T1 (groundable at acceptable
-cost?) and T6 (does demand overcome abstention inertia?) become empirically
-answerable only after GY-7 records a real ladder descent on the pinned case.
+A child Workspace exports only a `SubDesignContract` (assume-guarantee). **Authority
+lives on ports**, never on the sub-design as a whole. The parent composes only through
+ports. `AuthorityBoundary` is multi-dimensional (`authoritative_for` ∧ `may_not_use_for`
++ `evidence_kind` ∧ `decision_grade` + evidence basis), never a scalar.
+
+Composition `compose(subdesigns, claims, graph) → CompositionCertificate |
+CompositionInvalid` runs three stages in order:
+
+1. **CouplingGate** — `independent`: compose by ports; `sequential`: downstream port
+   capped by upstream port; `shared_resource`: requires a `CapacityAggregation`
+   operation; **`feedback`: not independently composable** → joint sub-Workspace or an
+   explicit `FIXPOINT/EQUILIBRIUM/SIMULATION` operation with capped authority; `unknown`:
+   fail closed / discover coupling. Feedback is **not a warning** — it changes the
+   mathematical object.
+2. **PerPortAuthorityFlow** — lattice `meet` along dependencies: `authoritative_for =
+   ∩ upstream`, `may_not_use_for = ∪ upstream`, `envelope = ∩`, `evidence_kind =
+   evidence-ladder meet`, `decision_grade = min/upstream cap`, `obligations = ∪`.
+   Empty `authoritative_for` ⇒ fail-closed for that use.
+3. **EmergentClaimGrounding** — program-level claims are not inherited; they require own
+   grounding (system-dynamics / sequencing-consistency / capacity-aggregation /
+   cross-chapter counterexample search) and are capped by (weakest part) ∧ (system-model
+   authority) ∧ (coupling certificate). It also consumes **evidence-independence (P14)**
+   so support is not inflated by non-independent chapters (F15).
+
+Promotion rule: **no `PolicyProgram` promotion without a `CompositionCertificate`**;
+no composed claim exceeds child-port ∧ coupling ∧ emergent grounding authority.
+
+## 8. Decision 5 — anytime exit + typed incompleteness + VOI (full)
+
+Every Workspace exits with a `SearchExitContract`, never `success/failure`. **GY-H owns
+this machinery** (terminals, `SearchIncompletenessRecord`, `BudgetVector`, the
+ceiling-gate, and the VOI estimate + continuation); GY-B exposes only the
+`rank_by_VOI` hook and a degenerate single-terminal exit until GY-H lands.
+
+- **8.1 Multi-budget**: `BudgetVector`. Different exhaustions → different honest stops
+  (compute → `budget_exhausted:compute`/`frontier_stable`; acquisition →
+  `acquisition_required`; expert → `human_decision_required`; freshness/recall →
+  `search_ceiling_repair_required`; novelty → `frontier_stable` iff search quality ok).
+- **8.2 Typed terminal states** (§4.2 `SearchExitContract`).
+- **8.3 `SearchIncompletenessRecord`** makes stopping an audit object; the frontier is
+  always anytime-emittable as shadow with an honest boundary.
+- **8.4 Domain-ceiling vs search-ceiling is a formal gate.** `grounded_abstention`
+  allowed **only if** recall@known-seeds ≥ threshold AND freshness ok AND no required
+  source class missing AND no high-VOI untried move AND no verifier gap AND no core
+  tool failure. Otherwise `search_ceiling_repair_required` (formalizes F1/F8).
+- **8.5 VOI is the single currency**: continue while `max(VOI(action)/cost(action)) ≥
+  threshold` and hard budgets allow; else terminate with the matching state. "Buy data
+  / run a pilot" → `acquisition_required` with a costed rung-7 plan, not failure.
+- **8.6 Terminal precedence is deterministic.** When several terminal predicates fire,
+  choose the first applicable class in this order: `a_spec_gap` / verifier-contract gap;
+  `tool_failure` for a core producer with no repair path; `composition_invalid` /
+  `recursive_blocked` for invalid decomposition/composition; `search_ceiling_repair_required`
+  for recall/freshness/source-class/core-search deficits; `human_decision_required`;
+  `acquisition_required`; `budget_exhausted:<kind>` when a hard budget blocks the next
+  required/high-VOI action; `frontier_stable`; then `grounded_admissible` /
+  `grounded_partial_admissible` / `grounded_abstention`. Positive terminals are emitted
+  only after all higher-precedence blockers are absent.
+
+**3 and 5 are linked**: a `SubDesignContract` embeds its `SearchExitContract`; a parent
+cannot paper over a child's incompleteness (a child `acquisition_required` forces the
+parent to fund, cap, or escalate).
+
+## 9. The build tasks
+
+Each task names its **posture** (`wire-existing` / `extend-existing` /
+`consolidate-existing` / `build-new`), the **rows / findings** it acts on, and is sized
+to roughly one focused PR. A `build-new` overlapping a `wire-existing` owner is a
+design-review failure (Rule 1).
+
+Every task's **Done when** also implicitly carries the §3.5.5 build-hygiene gate:
+owner-first placement (P27), a `StrangleReceipt` with the default flipped for any path it
+replaces or subordinates (P28, rule 9), and run-emitted/recomputed proof packets on a
+representative substrate (P29). A task that leaves a parallel owner, an un-strangled legacy
+default, or an authorial proof is **not done**, regardless of local test status.
+
+### Phase 0 — the form (build-new; the binding hub)
+
+- **GY-A1 — Ring-1 execution waist + field-permission framework.** build-new (`pdc`).
+  The 9 Ring-1 contracts; the **field-level write-permission mechanism** that marks
+  Ring-2 fields verifier-only (F2/rule 2); `gy_evidence_canon` canonical hashing into
+  `ArtifactRef.content_hash` (F16). Done when: Ring-1 contracts + a test proving a
+  non-verifier writer cannot set a Ring-2 field; no `pdc`→engine import.
+- **GY-A2 — Ring-2 promotion waist + AuthorityBoundary lattice.** extend/build-new
+  (`pdc`, per §3.5.2). The 8 Ring-2 contracts; the `AuthorityBoundary` lattice
+  (`authoritative_for` ⊇-order, `may_not_use_for` ∪, envelope intersection,
+  `evidence_kind` partial meet, `decision_grade` total meet) + `meet`; the
+  deterministic Slice-0 authority derivation rule in §6; reuse `ir` analytics types as
+  port vocabulary (F15). Done when: lattice `meet`/order unit-tested; mixed-axis
+  examples in §13 pass, including measurement/descriptive, bounds/advisory,
+  calibrated-simulation/advisory, and ungrounded-emergent caps; `AuthorityDerivationTrace`
+  fixtures prove that `authority_transform` hints can only match/downgrade, never
+  self-promote.
+- **GY-B — Control loop skeleton + Operation registry + FormalGate + SearchLedger +
+  Slice-0 fixtures.** build-new (`runtime/quality`). Minimal slice: one Workspace;
+  active Operations are exactly `BIND/ESTIMATE/VERIFY`; `DISCOVER/ACQUIRE/REFINE/LOWER`
+  may be registered only as fail-closed stubs until their owning tasks land; a
+  deterministic `SeedTrajectoryPlanner` (`BIND -> ESTIMATE -> VERIFY`, not GY-C1
+  playbooks); two fixtures: a committed **`Slice0FixtureManifest`**
+  (`ua_msme_credit_worldbank_measurement`) as the catalog-supported groundable case and
+  **tourism/local-development** as the ceiling/acquisition-heavy probe. Operation
+  registry is **discovered** from engine registries (Rule 12). Quarry
+  `policy_design/search.py`, `iteration_state_machine`, CAS+`artifacts_index`. Done
+  when: both Slice-0 fixtures run to degenerate `SearchExitContract`s with
+  `FrontierSnapshot` + `SearchLedger`; the groundable fixture expectations are read from
+  `Slice0FixtureManifest`, not inline code; replay levels A/B/C implemented (F16); a
+  Slice-0 invariant test fails if any non-active operation executes, if an agent/full
+  playbook is used, or if the groundable fixture emits `grounded_admissible`/a
+  `DesignCandidate`. (Honest typed exit = GY-H.)
+- **GY-B2 — Production trigger + transition rule (one authority path).** build-new
+  (`runtime/http` + control). Wire a control-plane request → `WorkspaceLoop`
+  (intent-driven; **no `workflow_id`**). It is not enough to "augment/replace"
+  `run_experiment`; the task must fix an explicit **transition rule** so two production
+  paths cannot coexist and re-launder:
+  - `/runs` (workflow path), `/runs/nl` (NL pipeline at `nl_pipeline.py:6596`), and the
+    `workflow_run` job path (`run_lifecycle.py:1408`) either **route through the loop**
+    or are marked **legacy-shadow**: their outputs are stamped `candidate_only` /
+    non-authority (Ring-2 withheld) until migrated.
+  - dashboard / public-export / lineage consumers read authority **only** from a
+    loop-produced artifact with a verifier-stamped `AuthorityBoundary`; a legacy-path
+    artifact cannot reach an authority surface.
+  - **job-status honesty before F1:** until GY-F1 fully migrates all surfaces, any
+    legacy-shadow or failed workflow path must also be marked non-authority at the job
+    status/result layer (`candidate_only`, `repair_required`, or failed), not merely in
+    artifact authority fields. A workflow failure cannot produce a clean completed job
+    with an authority-looking result.
+  - **durable-worker proof:** produce a `ProductionLoopRunProof` (§3.5.4) showing
+    `enqueue_job -> ControlWorker lease -> _execute_workflow -> WorkspaceLoop ->
+    SearchExitContract persisted to CAS/artifacts_index -> /runs readback`. A direct
+    `WorkspaceLoop(...)` call or a direct `run_experiment(...)` call is only a helper
+    smoke, never B2 completion evidence.
+  - **invariant + test:** exactly one authority-bearing production path exists (the
+    loop); a negative test asserts no second path can emit an authority-stamped artifact.
+  Done when: a real queued control request launches a `WorkspaceLoop` through the
+  durable worker path; every legacy entry is redirected or demoted to candidate-only at
+  artifact **and job-result** level; `ProductionLoopRunProof` is persisted; the
+  "single-authority-path" and "failed workflow cannot complete clean as authority"
+  negative tests pass — closing both the Task-0 "built-but-untriggered" trap and the
+  two-path/status laundering risk (F2, F12).
+
+### Phase 1 — anytime-exit core + binding constraint (substrate + acquisition)
+
+- **GY-H — Anytime exit + incompleteness + VOI (decision 5).** build-new. The full
+  `SearchExitContract`/`SearchIncompletenessRecord`/`BudgetVector`, typed terminals, the
+  domain-vs-search-ceiling gate (§8.4), deterministic terminal precedence (§8.6), and
+  the **VOI estimate + continuation** (§8.5) with `VOISelectionAudit`.
+  Placed before GY-E (which depends on VOI + `acquisition_required`). Findings: F1, F14.
+  Done when: the groundable Slice-0 fixture exits as measurement-rooted
+  `grounded_partial_admissible` at the **Estimate port only**; `grounded_admissible` is
+  forbidden in Slice 0; the tourism ceiling fixture exits with
+  `search_ceiling_repair_required` or `acquisition_required`; a poor-recall run yields
+  `search_ceiling_repair_required`, not `grounded_abstention`; simultaneous-trigger
+  tests prove terminal precedence; Slice-0 `BudgetVector` uses only the minimal subset
+  named in §3.5.1.
+- **GY-D1 — Catalog → measurement-root producer.** wire-existing (catalog) + build-new
+  (root producer). Findings: F4. Wire `DatasetCatalogGraph` into Slice-0 `BIND` (and
+  later `ACQUIRE` once GY-E activates it), not `RetrievalService(dataset_catalog=None)`;
+  a real measurement-root producer so fetch writes a CAS artifact with producer-roots
+  (fix the `persist_payload` no-op). Done when: a pinned construct resolves through the
+  real catalog to a CAS-rooted artifact.
+- **GY-D2 — Admission gates (connector + source-contract).** extend-existing. Findings:
+  F5, F6. Per-connector **formal applicability gate** as `ApplicabilityResult`
+  (rest.json/unpd/ukons → `repair_required`); the 16-facet source-contract/
+  `DataRequirementSpec` admission as `VERIFY` preconditions before fetch. Done when:
+  non-execution-ready connectors fail closed with repairs; a fetch with missing facets
+  is blocked/downgraded.
+- **GY-D3 — Semantic-adequacy gate + governed benchmark.** extend-existing. Finding: F7.
+  A construct+scope adequacy gate + recall@known-seeds + freshness feeding
+  `SearchIncompletenessRecord`; calibrated relevance (not `similarity=1.0`). The gate's
+  **source of truth is a committed, versioned benchmark artifact** (not the gate's own
+  output) so adequacy cannot become a structural pass again:
+  - **labels:** a human-labelled construct→admissible-dataset gold set, with a named
+    owner/expert author + a reviewer, provenance (who/when/rule_version) — a Ring-2
+    governed artifact.
+  - **thresholds:** explicit per-posture floors (e.g. construct+scope `precision@5`,
+    `recall@known-seeds`) declared in the benchmark, not inline in code.
+  - **negative controls:** known-irrelevant datasets that the gate MUST reject + known-
+    groundable seeds it MUST find; the gate fails if a negative control passes or a seed
+    is missed. (Extends the P2 five-case silver benchmark; reused by GY-V3's labelled set.)
+  Done when: the benchmark artifact is committed + governed; the gate computes against it;
+  precision/recall@seeds recorded; a negative-control pass or below-floor precision fails
+  the gate; a no-hit with poor recall routes to `search_ceiling_repair_required` (GY-H),
+  not abstention.
+- **GY-E — Acquisition loop (RequiredDataSpec → DataNeedSpec → fetch / costed plan).**
+  build-new producer + orchestrate. Reuse `DataNeedSpec` (do not invent a type). Build
+  the `ACQUIRE` operation + the `acquisition_required` terminal carrying a costed rung-7
+  plan via VOI (now available from GY-H). Done when: a pinned identification gap yields
+  a `DataNeedSpec` resolving to a fetch (GY-D1) or an `acquisition_required` exit with a
+  named missing distribution + cost.
+
+### Phase 2 — subordinate engines + repair the spine rot
+
+- **GY-C1 — Engines as Operations (adapters) + playbooks.** wire-existing. Findings:
+  F2. `LegacyNodeAdapter` lands incrementally, only for nodes needed by the active
+  playbook/operation under implementation (no 37-node mega-drop); each adapter declares
+  ports/preconditions/authority-transform as a Ring-1 hint; the three workflows →
+  `Playbook` trajectories the loop may deviate from; intent→operations (no
+  `workflow_id`). Done when: at least one playbook trajectory runs as a default
+  trajectory and the loop can deviate on a counterexample; adding another legacy node
+  follows the same adapter conformance test.
+- **GY-C2 — Spine-rot repair (separated, per stop-rule).** extend-existing/repair.
+  Findings: F8, F9, F14. Repair: the lex optional-bounds `None→0.0` bug as a `REFINE`/
+  search `ApplicabilityResult` precondition with frontier provenance (P25); the
+  `run_normative_arbitration` outcome re-validation + the phase-5 judge stack; the
+  blocked-input producer (`data_causal_graph`, producer_missing) + the missing input
+  ports (`causal_variables`, `observational_data_ref`). **Lands before any
+  governance-to-authority** (governance of a rotten asset is forbidden). Done when: the
+  governance tail produces a valid verdict on real input; lex search yields a valid
+  bounded frontier or a typed `search_blocker`.
+- **GY-C3 — Foundry route-consumption + ceilings as constraints.** wire-existing.
+  Findings: F10, F15. `ESTIMATE/SIMULATE` consume real foundry method outputs
+  (`dag_consumed_method_outputs_count > 0`) with measurement-rooted authority;
+  obligation/participation/method-requirement ceilings become ConstraintStore
+  constraints A consumes (never inferred). Done when: the slice runs an `ESTIMATE`
+  consuming a real method output stamped with a measurement-rooted `AuthorityBoundary`.
+- **GY-I — Agent as Ring-1 proposer + event-backed G6.** extend-existing. Finding: F11.
+  The agent proposes operations / assembles `MethodPlan`s (Ring 1); it cannot write
+  Ring-2 fields. Emit role-event artifacts (`OperationInvocationRecord` +
+  `AgentDecisionRecord`) for PI/drafter/critic/tool-loop; wire `run_tool_loop`; register
+  KnowledgeToolkit tools (fix 3/20). Agent VOI/usefulness scores are candidate-only and
+  pass through GY-H normalization. Done when: an agent run records its tool-loop as
+  Ring-1 events; a no-client run blocks with no synthetic audit; Ring-2 writes by the
+  agent are rejected by construction; a biased agent score is clipped/rejected in
+  `VOISelectionAudit`.
+
+### Phase 3 — authority surfaces behind one boundary
+
+- **GY-F1 — Authority across surfaces + worker.** extend-existing. Finding: F12. Run/
+  artifact/lineage/export/dashboard/public packet consume `AuthorityBoundary`; the
+  worker job must not complete clean on workflow `fail`; a failed/candidate workflow is
+  blocked or visibly downgraded. Done when: a failed-workflow fixture is blocked/
+  downgraded across all probed surfaces.
+- **GY-F2 — Secret/PII gate + CAS integrity/authority backing.** extend-existing.
+  Finding: F12. Raw `/artifacts/{id}/content` + `/download`, DAG bundles, connector
+  request/response payloads, CAS manifests, dashboard/public/export packets all pass a
+  systematic `SecretAndPIIScanReport` (§3.5.4); DAG/loop CAS outputs carry
+  `manifest.authority`. CAS authority is not only "manifest present": prove digest
+  semantics over canonical bytes, dedup behavior, mutation/tamper rejection, GC
+  survivability from report-index/lineage/workspace references, and dereferenceability
+  through a `CASIntegrityReport` (§3.5.4). Done when: no scoped secret/PII fixture leaks
+  through raw or public routes; loop CAS artifacts carry an authority manifest; duplicate
+  payloads dedup to the same digest; a tampered blob is rejected or re-digested; GC dry
+  run retains every authority-bearing artifact referenced by reports/lineage/workspaces.
+- **GY-F3 — Time/source admission envelope + S12 + diagnostic-field boundary.**
+  extend-existing/consolidate. Findings: F12, F13. A composed time/source admission
+  envelope (catalog watermark, source observed/published/updated times, ingestion,
+  effective/legal-valid time, transaction time, as-of/replay time, run/node execution
+  times, retention/expiry); S12 G5 pass refs dereference to produced
+  `ValueOfInformationAllocation`/`ResourceAllocationPolicy` objects or are downgraded;
+  the 406 diagnostic pass fields are enumerated in an `AuthorityCandidateInventory`
+  (§3.5.4), each with producer/source, field path, status text, candidate-positive rule,
+  firewall, exclusion reason, resulting boundary, and false-exclusion review. Done when:
+  S12 refs dereference or are candidate-only; every time mismatch blocks/downgrades or
+  creates an obligation; all 406 candidate-positive rows reconcile to the validator
+  aggregate; false exclusions are either zero or named repair tickets; diagnostic pass
+  fields are not laundered.
+
+### Phase 4 — scale (recursion + composition)
+
+- **GY-G — Recursion + composition (decision 3) + promotion gate.** build-new (D2.6).
+  Findings: F14, F15. `DECOMPOSE`/`COMPOSE`, `SubDesignContract`, the three-stage
+  composition operator (incl. P14 evidence-independence), `CompositionCertificate`, the
+  D3.8 promotion-gate extension. Done when: a two-chapter decomposition composes through
+  ports with a certificate; a feedback decomposition is rejected
+  (`composition_invalid:feedback_requires_joint_grounding`); an emergent program claim
+  is capped to its own grounding.
+
+### Cross-cutting — artifact/case lifecycle
+
+- **GY-M1 — Artifact-family lifecycle registration (PHASE-0 HARD GATE).**
+  build-new/extend-existing. Finding: F18. **Must land before any GY task emits a new
+  committed artifact** — otherwise the build (and even the V-battery) produces unregistered
+  surfaces, recreating the exact gap Task 0 found. Register the GY/loop generated/
+  public-surface family in `architecture/generated_artifacts.toml` + `inventory.json`
+  with owner / regeneration command / stale-output behavior / drift gate; decide the
+  classification (`generated_committed` / `source_committed` / `surface_out_of_scope`).
+  Done when: a new GY artifact cannot be committed without a registered lifecycle entry
+  (a drift gate enforces it), and the generated-public-lifecycle validator is green for
+  the GY family.
+- **GY-M2 — GX reducer case-parameterization.** extend-existing. Finding: F14.
+  Parameterize the GX reducer CLI / `data_home` for arbitrary case input so the tourism
+  slice — not only the pinned ua-msme — validates. Runs before GY-L / GY-V (which
+  validate non-pinned cases). Done when: the GX validator runs on the tourism case, not
+  only the pinned ua-msme `data_home`.
+
+### Parallel / near-term and follow-on
+
+- **GY-J — Graded-outcome routing (fork-independent near-term).** wire. Finding: F17.
+  Route partial evidence to `grounded_partial_admissible` + downgrade (research/governed;
+  production strict per ADR-0174) using existing statuses. Independent of the mode
+  decision — may start immediately. Done when: a publish-with-limitation case exits
+  `grounded_partial_admissible`; `useful_design_rate` moves off 0 honestly.
+- **GY-K — L2 growth (scholar/OpenAlex provider).** build-new provider (follow-on).
+  Finding: P2. Provider in `scholar/search`; span-grounded design-tiered claims into L2;
+  measured extractor accuracy; SKG query traces + no-hit frontier; web bundle ≠ L2
+  authority. Done when: a credit-guarantee→firm-survival query ingests span-grounded
+  claims with recorded accuracy.
+- **GY-L — Outcome run (value check).** Run the pinned case through the loop end-to-end
+  via the production trigger (GY-B2); persist the typed `SearchExitContract`,
+  `evidence_kind`/`decision_grade`, ladder rung, and replay proof. Done when: the
+  pinned case produces a terminal outcome
+  (`grounded_partial_admissible` | `grounded_abstention` | `search_ceiling_repair_required`
+  | typed blocker) with input/output hashes, producer roots,
+  `evidence_kind`/`decision_grade`, and incompleteness recorded; GX validator passes on
+  the new artifacts.
+
+### Phase 5 — B-on-A Generation Cycle (subordinate the generative engine to A; close the loop)
+
+GY built and hardened **backbone A** — the engines subordinated behind the two-ring
+waist, the firewalls, and the honest *single-pass* terminals. The GY-N0 investigation
+(`architecture/policy_design_case/layer3_gy_n0_investigation.md`) then proved that the
+generative, causal, value, transport, VOI, monitoring-primitive, and world-substrate organs
+**already exist and are real under Python 3.14** — but as **decoupled parallel worlds**: real
+LLM drafter/formalizer/critic organs beside a scripted default generator; the foundry
+causal/Bayesian/transport/joint-simulation engines beside a single-pass descriptive loop; the
+layer-2 *shadow* design search with a hardcoded candidate; `fabric/world` (a bitemporal
+epistemic fact store) and the foundry `GlobalState`/NCM/GCM mechanisms with **no
+`WorldModelRecord` binding them**; and G4/Ring-2/P14/S6–S8 enforcement that nothing in-cycle
+sequences. So this phase is **predominantly REWORK / WIRE over real organs**, with a small set
+of **narrow BUILD-NEW bridges** (canonical `DesignProblem`, `InterventionAtomBinding`,
+`WorldModelRecord`, `JointSimulationHorizonController`, the acquisition receipt, and the cycle
+controller). No new heavy dependency is added; the value path stays on **Python 3.14**
+(DoWhy/EconML/CVXPY are unavailable there and are not required — the reachable
+statsmodels/JAX/SciPy/pymoo causal, Bayesian, and transport methods compute real value).
+
+This phase **subordinates the generative engine B under the honest backbone A in one real
+cycle** — plain-language request → typed `DesignProblem` → B proposes with high freedom → A
+grounds / gates / **values against a named `WorldModelRecord`** → on ceiling or acquisition the
+cycle **executes acquisition and revises** → re-enters → B is **promoted to real design
+authority only when A has grounded it**, else honest shadow / abstention. **B-on-A,
+shadow-first.** Tasks **N1–N3 build the three typed bridge artifacts the cycle operates over —
+the world model is a foundation that precedes the cycle controller and the value gate**; N4–N10
+are the cycle itself, predominantly rework/wire over the real organs. The deployed-policy
+learning loop (where the world model *grows* from observation) is the genuinely greenfield
+horizon and is **Phase 6**. Each task below is scoped to a roughly comparable amount of work.
+
+> **Governing law of this phase — no new parallel worlds (P27/P28/P30).** Every relevant
+> existing asset is **either USED (as-is, or reworked to fit the best approach) or
+> DELETED.** Nothing is left as a live parallel owner beside a new one. The three known
+> parallel worlds above are reconciled into **one** subordinated cycle; their generative
+> organs are consumed or reworked, and the superseded paths are **strangled and deleted in
+> the same change** (StrangleReceipt, §3.5.5). This phase opens with an exhaustive census
+> (GY-N0) that assigns **every** touched asset a disposition before any wiring begins.
+
+- **GY-N0 — Disposition ledger + consumption validator (PHASE HARD GATE).** build-new
+  ledger + recomputing validator. The repo-wide census is **done** — the GY-N0 investigation
+  notebook (`architecture/policy_design_case/layer3_gy_n0_investigation.md`, 5 passes) is the
+  code-grounded substrate. Distil it into a **committed disposition ledger**: every
+  cycle-relevant owner → `{USE_AS_IS | REWORK_TO_FIT | DELETE}` with file anchor,
+  best-approach rationale, consuming GY-N task, and (for REWORK / DELETE) a StrangleReceipt
+  obligation. Record the **runtime gate**: Python 3.14 keeps EconML/DoWhy/CVXPY unavailable
+  and statsmodels/JAX/SciPy/pymoo + the foundry Bayesian/transport primitives reachable
+  (stay on 3.14; do not move the baseline for EconML). Build a recomputing validator that
+  fails if a GY-N task ships without consuming / strangling its named owner, or if any asset
+  remains a **live parallel owner**. Done when: the ledger is committed, the validator is
+  green over the current tree, the 3.14 method-availability gate is recorded, and every
+  superseded path has a StrangleReceipt obligation pointing at its consuming task.
+- **GY-N1 — Canonical `DesignProblem` (foundation bridge).** build-new bridge type +
+  front-door rework. Build one canonical typed `DesignProblem` over the existing problem
+  surfaces (`assurance_case.PolicyIntentEnvelope`, Scientist `ProblemFrame`, IR governance
+  `ProblemFrame`, IR `ModelSpec`, verified `PolicyRequestFrame`): it spans NL provenance,
+  authority profile, jurisdiction / time semantics, objectives / constraints / stakeholders,
+  outcome-of-interest, candidate-lever space, evidence / acquisition needs, generator
+  projection, and the IR formal-problem ref. Rework `nl_pipeline` to **emit** it and the
+  cycle to **consume** it. **Strangle** the silent fork into `scientist_policy_verified` as
+  the universal generation path and `run_intent`'s untyped-dict entry. Done when: a
+  plain-language request produces a validated `DesignProblem` the cycle consumes; the
+  verified-fork and untyped-dict entry are strangled with receipts; a hallucinated /
+  unsupported constraint fails closed (no invented admissibility). `P10`/`P15`/`P30`.
+- **GY-N2 — `InterventionAtomBinding` (foundation bridge).** build-new content-bound
+  bridge artifact. Bind the two existing halves into one atom — Trinity
+  `InterventionSpec` + linker (`ir/governance/policy_spec.py`, `ir/linker/_trinity_linker.py`:
+  operator / target / schedule / params / read-write state slots) and proof-kernel `do()`
+  expressions (`ir/analytics/interventions.py`: `NodeIntervention` / `QueryTarget` / estimand
+  / identification plan). Fields per the GY-N0 seam contract: `operator_kind`,
+  `target_selector` + `target_world_slots` / `read_slots`, `direct_effect_bundle`,
+  `causal_do_expr`, `intended_downstream_estimand`, `causal_path_or_identification_plan_ref`,
+  `world_model_record_ref`, `content_hash` / provenance / lifecycle `status`. Do **not** build
+  a second lever hierarchy. Done when: a candidate's action binds to a typed `do()` + estimand
+  + world-slot atom with a content hash; an atom whose direct-effect bundle and causal path do
+  not content-bind fails closed; `measurement_expectations` is downgraded to metadata once the
+  estimand exists. `P31`/`P32`.
+- **GY-N3 — `WorldModelRecord` + build/bind/version lifecycle (FOUNDATION; UNIFY_EXISTING).**
+  build-new bridge type + lifecycle over four real substrates — `fabric/world` (epistemic
+  facts + provenance + bitemporal validity + snapshot / branch), foundry `GlobalState` / NCM /
+  GCM mechanisms + the `DataSnapshot → GlobalState` input binding (`foundry/data_plane/bindings.py`),
+  IR `ModelSpec`, and SKG / literature priors. Fields per the GY-N0 seam contract
+  (identity / authority, scope / region / time / resolution / `branch_mode`, fabric-world ref,
+  data-forge binding ref, model_spec / mechanism refs, foundry `input_bindings_ref`, SKG ref,
+  policy-slot map, limitations). Construct + bind + **version** a simulatable world the cycle
+  names; do **not** build a second world store (`P27`). The deployment / posterior write-back
+  is **Phase 6**. Done when: a `WorldModelRecord` binds the four substrates into one versioned,
+  regional, data-bound, simulatable world; the cycle's value step **names the exact world
+  version** it runs against; a record missing any required binding fails closed. `P27`/`P30`.
+  **Foundation — precedes GY-N6 and GY-N8.**
+
+#### Foundation: production-data substrate lift + free-grow (GY-S)
+
+The cycle grounds / simulates / values against a **real** world, not toy fixtures (the GY-N3 empty-world finding is
+the canary). PolicyOS already holds ~32GB of richly preprocessed production data — L1 DCAT catalog (137k datasets,
+3.7M observations), L2 Scholar KG (7.9k curated causal claims, transport scores, 62k parameter estimates), L3 Lex KG
+(6M provisions, 374k thresholds, 156k amendments), L4 Ukraine corpus (8.8M agents + firm/distress/budget panels), L5
+calibration internals (trust-tier / identification-mode / schema-regime registries + bias-corrected derivatives), L6
+agent-sim bundle (intervention knobs, lex→knob map, observation→method manifest). Much of it is **not yet lifted to
+runtime authority**. These foundation tasks **lift the existing substrate (wire-existing, do not rebuild)** and build a
+**free-grow registry** so the world model GROWS as data arrives — future production data, GY-N7-acquired data, and
+Phase-6 deployment-discovered data all register into the same substrate WITHOUT re-architecting. They land with the
+foundation bridges (GY-N1–N3) and feed GY-N3 (real world binding), GY-N4 (grounding), GY-N8 (value / calibration /
+transport), and GY-N2 (lever space).
+
+> **The GY-S substrate IS the credal state of the target spec (Rev 11).** Per the formal target
+> spec (`docs/system-design-decisions/policy-design-search-target-spec.md`), the L1–L6 substrate
+> does not merely "carry data" — it **initializes the separated credal components** the value gate
+> and promotion gate reason over. Each GY-S lift must therefore expose its data as the
+> corresponding credal contract, not as raw fields: **L1 observations / L4 corpus state → `K_world`
+> + `Obs`; L5 `identification_mode` (point/partial/proxy) → `K_id`; L5 `measurement_registry` /
+> proxy_mappings → `K_cal` + `K_meas`; L5 trust_tiers → `DataTrust`; L2 `transport_scores` →
+> transportability scope; L2 `contested_edges` → structural ambiguity; L3 thresholds / normative
+> facts → `K_impl` + `K_norm`; L3 amendments + L5 `schema_regime` → epoch / temporal validity; L6
+> knobs / lex_map / observation manifest → lever space + method routing**. The binding rule that
+> follows: **a lifted state is set-valued, not point** — point identification → a narrow set,
+> partial → an interval, proxy → a wide set; the L5 `identification_mode` selects the value-set
+> type; a calibration scope-mismatch downgrades proxy → partial → blocked, fail-closed. Simulation
+> output (`K_sim`, GY-N5) never shrinks `K_world` (L1/L4). The typed carrier for these set-valued
+> states is **GY-N-V `ValueOuterSet`** (below).
+>
+> **Every GY-S task is bound by the four §3.5.6 completeness gates** (full-denominator coverage;
+> fail-closed on a fake/novel input = owner-validation, not trust; data-only free-grow; the contract
+> mutates the decisive validation property). They are the distilled lesson of this block — front-load
+> them so a lift is real and load-bearing, not a happy-path shell.
+
+- **GY-S0 — Production-data substrate registry + free-grow lifecycle (FOUNDATION GATE).** build-new registry over
+  existing catalogs. A runtime-authority **substrate registry** that catalogs the production-data world by
+  source / family with coverage / trust-tier / version / provenance / schema-regime, **content-addressed and
+  versioned**, which the WorldModelRecord builder (GY-N3), the value gate (GY-N8), grounding (GY-N4), and the lever
+  space (GY-N2) CONSUME. **Free-grow:** a new source / family / dataset registers (with its coverage / trust / version
+  / provenance) and becomes available to the world model with **no code change** — the same registry absorbs future
+  production data, GY-N7-acquired data, and Phase-6 deployment-discovered data. **Lift, do not rebuild:** reuse the L5
+  `measurement_registry.json` (trust_tiers / coverage_rules / proxy_mappings), `identification_mode_registry.json`,
+  `schema_regime_registry.json`, and the L1 DCAT `ds_datasets` quality / coverage metadata. Done when: the registry
+  catalogs the L1–L6 substrate from the existing catalogs (no re-derivation); a new (test) source / family registers
+  and is consumed by the WorldModelRecord builder with no code change; a substrate version is content-addressed and
+  nameable (like the world version). `P27`/`P30`.
+- **GY-S1 — Data-state substrate lift (L1 DCAT + L4 corpus + L5 calibration).** rework / wire over existing data.
+  Materialize the real **L4 Ukraine corpus** (8.8M agent registry + firm_fundamentals / distress / budget panels;
+  unified `period_id` / `record_hash` / `schema_version` / `source_snapshot_id`) into the world's `GlobalState` via the
+  Data-Forge / Foundry binding, with the **L1 DCAT catalog** (`ds_datasets` / `ds_observations` / `ds_metric_bindings`)
+  as the required-vs-available + coverage authority, gated by the **L5 calibration** (trust_tiers, identification_mode,
+  schema_regime v1-prewar / v2-wartime changepoint + boundary buffer). The GY-N3 WorldModelRecord binds this REAL
+  populated, queryable, content-addressed world (a real world is never empty). **Set-valued lift (Rev 11):** the bound
+  state is **not point** — it carries a `GY-N-V ValueOuterSet` whose type is selected by the L5 `identification_mode`
+  (point → narrow set; partially → interval; proxy → wide set), with the L5 trust_tier as its `DataTrust` and the
+  measurement scope as its `K_cal`/`K_meas` obligation; a calibration scope-mismatch downgrades proxy → partial →
+  blocked fail-closed. This is the substantive (not label-only) form of the proxy-honesty fix: toggling
+  `identification_mode` must change the **bound set**, not just metadata. Done when: a WorldModelRecord builds a
+  populated content-addressed world from the real L4 corpus bound through L1 / L5; the bound state is a typed
+  `ValueOuterSet` whose width tracks the L5 `identification_mode` (proxy is bounded, never a point scalar); the value /
+  identification respects the L5 trust_tier + identification_mode + schema-regime for the bound family; the same slice
+  is **deterministically content-addressed** (same slice → same hash); the substrate registers in GY-S0.
+  `P10`/`P14`/`P27`/`P29`.
+- **GY-N-V — `ValueOuterSet` (set-valued value foundation contract; lands with GY-S1).** build-new bridge type +
+  reuse/extend. The typed carrier of **credal value** the whole cycle reasons over — the typed home for the proxy-bounds
+  GY-S1 would otherwise hand-roll into `HouseholdCellState`. A foundation contract **alongside N1–N3** (it must exist
+  before S1 binds a bounded state, before N8 values against it, before N6 compares). Representations per the target spec
+  (§7.3–7.4): `interval_box | polytope_support_functions | scenario_set | unknown`, each carrying
+  `identification_status (point|partial|proxy|blocked)`, `assumptions` + `assumption_status`, `calibration_scope`,
+  `world_model_record_ref`, `width`, `epoch`, and a `representation_status (certified|search_only|unknown)` — an
+  **uncertified** sample-only set may train the surrogate but **cannot** define a promotion-grade `V_out`. Reuse the
+  existing `pdc/_impl/layer2_readiness.py` value/uncertainty seeds; do **not** build a second value type. Honest
+  comparison lives here too: a pairwise `compare` returns `dominates | incomparable | unknown` and **returns `unknown`
+  on solver timeout — never silently "dominated"** (the marginal-interval fallback is the safe default; the joint
+  coupled solve is opportunistic). Done when: GY-S1 binds its household state as a `ValueOuterSet` (proxy → bounded,
+  point → narrow), GY-N8 values against it, and GY-N6 compares with the `unknown`/incomparable discipline; an
+  uncertified set cannot mint promotion value; a missing identification status fails closed. `P10`/`P14`/`P27`/`P32`.
+- **GY-S2 — Knowledge substrate lift (L2 Scholar KG + L3 Lex KG).** rework / wire over existing data. Bind the real
+  **L2 Scholar KG** (7,868 curated causal claims with direction / strength / design-tier / trust; SKG edges +
+  transport_scores; 62,248 parameter_estimates with CI; contested edges; the `ac_skg_versions` store) as the SKG causal
+  priors + transport that grounding (GY-N4), value (GY-N8 — real `transported_limited`), and the atom estimand consume;
+  bind the real **L3 Lex KG** (374,516 rule_thresholds metric+operator+value+unit; 156,196 amendments with
+  `effective_from`; normative facts; entities) as the admissibility / obligation + temporal-competence authority the
+  DesignProblem constraints (GY-N1) and the atom (GY-N2) consume. Lift (both are in data form, unused in runtime).
+  **Credal binding (Rev 11) — the worked example the spec lacks:** an L2 `parameter_estimate` (estimate + CI +
+  `design_quality_tier` + `trust_score`) is **world evidence with an identification status**, so it lowers to a
+  constraint on `K_world` / `K_id` (a `ValueOuterSet` whose width is the CI and whose `identification_status` follows
+  the design tier); the claim's **`transport_score` to the design scope sets the transportability bound**
+  (`transported_limited`, GY-N8); an L2 **`contested_edge` lowers to structural ambiguity** (a disjoint / wide scenario
+  set, never a point). L3 thresholds / normative facts lower to `K_impl` / `K_norm` admissibility, and L3 amendments'
+  `effective_from` feeds the GY-N12 epoch / temporal-validity layer. Done
+  when: candidate grounding resolves against the real L2 SKG (the `ac_skg_versions` store GY-N3 already resolves) and an
+  L2 estimate produces a `ValueOuterSet` constraint with CI-width + transport-bounded scope; a `contested_edge` yields a
+  wide (not point) set; a DesignProblem admissibility constraint resolves against a real L3 lex threshold / amendment
+  with `effective_from` temporal competence; both register in GY-S0. `P10`/`P14`/`P15`/`P27`.
+- **GY-S3 — Intervention substrate lift (L6 agent-sim bundle).** rework / wire over existing data. Bind the real
+  **`intervention_knob_dictionary`** (budget_allocation_multiplier 0–2, procurement_shock −1..1, tax_relief_rate
+  0–0.5) as the InterventionAtomBinding lever space (GY-N2); the **`lex_intervention_map`** (law→knob cross-modal:
+  budget_law → budget_allocation_multiplier, …) as the L3-lex→lever binding; the **`observation_to_contract_manifest`**
+  (family→foundry method: firm_fundamentals → foundry.ml.survival_data.v1, budget_flows →
+  foundry.causal.panel_observational_data.v1, …) as the value-method routing (GY-N8). Done when: an
+  InterventionAtomBinding operator / lever resolves against the real knob dictionary + lex_intervention_map (a
+  law-bound lever traces to its statute); the GY-N8 value-method selection routes via observation_to_contract_manifest;
+  registers in GY-S0. **Rev 11:** the knob dictionary is the spec atom's `(op, π)` lever space (GY-N2) and the
+  `observation_to_contract_manifest` is the method-routing input to both the GY-N4 graph-causal **surrogate** and the
+  GY-N8 value-method selection. `P27`/`P32`.
+
+The GY-S0 free-grow registry is the **shared growth mechanism**: GY-N7 acquisition and the Phase-6 learning loop write
+new data / discovered couplings into the **same** growing substrate, so the world model expands over time without
+re-architecting.
+
+- **GY-N4 — Generation under A (reuse the real LLM organs; shadow-only).** rework-existing +
+  delete. Make the canonical generator the **real** LLM organs (`LLMDrafterAgent.draft_policy`,
+  `LLMFormalizerAgent.formalize`, `LLMCriticAgent.critique`, `MultiPassLLMDrafter`) with a
+  **model-profile preflight**: the live gateway supports Qwen / MiniMax / Kimi and **not** the
+  documented `gpt-5-mini` — validate against `/models` before a run and fail closed on an
+  unsupported profile. Generated candidates enter as `InterventionAtomBinding` **shadow
+  (`candidate_unverified`)** through the candidate-firewall. **Strangle / delete** the scripted
+  and mock generator sources as authority (verified-policy fixed tax-subsidy, `MockDrafter` /
+  `MockFormalizer` / `MockCritic`, the S2 hardcoded `credit_guarantee` body) — keep them
+  fixture-only. **Firewall + surrogate (Rev 11):** make the spec's role separation explicit —
+  *Proposer proposes, Surrogate prioritizes, Validator certifies*; the **"Not certificates"** set
+  (LLM explanation / NL rationale, high proxy score, unverified simulation, posterior CI without a
+  coverage argument, self-reported causal claim, untyped JSON) **cannot** promote (this is our P32 +
+  P15 + P29 made explicit at the generator boundary). Add a **graph-causal surrogate** for
+  *prioritization only* — wire the foundry NCM / GCM + SKG priors (and the L6
+  `observation_to_contract_manifest` routing from GY-S3) as a search-ranking model with trust level
+  `proposal_only < search_guiding < calibrated_predictive < certified`; the surrogate ranks /
+  estimates VOI but **never certifies**. Done when: ≥3 **diverse real** candidates from a
+  `DesignProblem`, each shadow through the firewall; the scripted / mock / hardcoded generators are
+  strangled with receipts; the preflight rejects an unsupported model; a candidate cannot reach
+  authority without A; a surrogate score (any trust level below `certified`) cannot mint promotion.
+  `P15`/`P27`/`P28`/`P29`.
+- **GY-N5 — `JointSimulationHorizonController` (replace the ABM stub).** build-new thin
+  controller over the **real** foundry joint engines — the shared-state program executor
+  (`foundry/execute/_internal/graph`), NCM parallel worlds (`ncm_engine.py`), and the coupled
+  DES / ABM queue horizon (`simulation/coupled.py`) — plus the coupling-composition gate. Per
+  the GY-N0 seam contract it takes a `WorldModelRecord` + intervention atoms + horizon / engine
+  plan / escalation, runs **individual → pairwise → joint** horizons, and returns per-atom and
+  joint trajectories, interaction terms, shared-resource / feedback classification,
+  general-equilibrium limitations, and a **content-bound simulation proof / calibration
+  receipt that replaces `_abm_result_stub`** (`simulation/dynamics.py`). Done when: a generated
+  atom set runs individual / pairwise / joint over the real engines with interactions reported;
+  the ABM proof stub is replaced by a real content-bound receipt; an unsupported feedback /
+  shared-resource coupling is **gated, not silently summed**. **Equilibrium-semantics taxonomy
+  (Rev 11):** every design / objective declares
+  `equilibrium_semantics ∈ {none, static_SCM, dynamic_SCM, time_unrolled_SCM, equilibrium_SCM,
+  game_model, agent_based_model, unsupported}` bound to the actual engine that backs it; an
+  objective whose feedback is `unsupported` **cannot be grounded** for that objective (a residual
+  surrogate may flag it for investigation but never certifies equilibrium validity). The simulation
+  output is `K_sim` and **never shrinks `K_world`** (L1/L4). `P10`/`P32`.
+- **GY-N6 — The generation cycle controller (kill single-pass).** build-new thin controller
+  on `engine_simple` + the existing S2 refinement discipline (`SearchIteration`,
+  `no_retry_without_new_grammar`, `RefinementDecision`, `CounterexampleRecord`) + the
+  Scientist **VOI scheduler** (`voi_scheduler.py` — reuse for stopping / escalation / budget).
+  It closes the loop: `DesignProblem` → generate (N4) → ground (A) → joint-value (N5 + N8) →
+  revise → re-enter, with the terminal feeding the next action. Remove the hardcoded
+  `cycle_index` / single-pass from the production path; **LangGraph stays legacy** (owner-first
+  on `engine_simple`). Done when: a `DesignProblem` runs ≥2 real cycles with a revision
+  **driven by the prior terminal**; `no_retry_without_new_grammar` is enforced live; the VOI
+  scheduler drives a real stop / advance / escalate; the single-pass `run_fixture` path is
+  reworked or strangled (no parallel single-pass loop survives). **Four stratified fronts (Rev 11,
+  high-value):** the cycle returns **not one "best" design** but the spec's stratified set —
+  `DecisionFront` (certified / promoted, `current_valid` only), `ResearchFront` (promising shadow,
+  exploration-only), `QuarantineFront` (high-proxy / high-gap candidates routed to the in-cycle
+  `adversarial_validate` action — wire the existing S2 `CounterexampleRecord` discipline as the
+  generator of this front), and `PortfolioFront` (deferred — empty until portfolio certification
+  exists, §Phase-5 deferred). The **mixed proposer** keeps a **grammar-fallback channel** so
+  finite-slice coverage holds (the spec's Thm 4) independent of LLM behavior. *(MCTS / progressive
+  widening / nonstationary meta-controller are deferred — see the Phase-5 deferred list.)* Done
+  also when: a cycle run emits the four fronts (Portfolio may be empty); a high-proxy / low-grounding
+  candidate lands in `QuarantineFront` and is adversarially validated **before** it could promote,
+  never silently into `DecisionFront`. `P02`/`P27`/`P29`.
+- **GY-N7 — Closed acquisition (receipt + same-cycle re-entry).** rework-existing. Build the
+  durable acquisition **receipt + re-entry** over the real execution owners: an
+  `ACQUISITION_REQUIRED` decision compiles **all** gaps to claim-bound W7 `DataRequirementSpec`s
+  (replacing the lossy first-gap / `unknown_missing_distribution` adapter), executes via Fabric
+  retrieval / ingestion + Scholar / OpenAlex + Data Forge SKG on `control_worker`, persists a
+  **content-bound cost / quality / rights / binding receipt**, and re-enters the **same cycle
+  index**. Done when: an `ACQUISITION_REQUIRED` triggers a real acquisition run that ingests new
+  grounding, persists a receipt, and re-enters; `useful_design_rate` moves off 0 **iff** real
+  grounding results — honest, never forced (Rule 5); a no-result acquisition records an honest
+  costed gap; the lossy / unknown fallback is deleted. **Acquisition-family taxonomy (Rev 11):**
+  structure acquisition scoring as the spec's families — **start with `ID`** (identification /
+  bound-shrinkage: a `width_{t,j}` worst-case potency over near-frontier `ValueOuterSet`s), **`CERT`**
+  (proof-gap / certification closure), and **`COV`** (grammar coverage / search diversity); the
+  remaining families (`HV`, `HKG`, `ADV`, `AUD`, `SAFE`) are named hooks adopted now, scored later.
+  Add the **affected-region revalidation**: an acquisition `u` recomputes an **over-approximated**
+  region `R_out(u) = { x : Dep_out(x) ∩ N_h(S(u)) }` and re-derives identification / calibration /
+  value-set / grounding for **every** design in it (so a calibration buy that tightens one family
+  re-grades all dependents, not just the requested design). Note bundle / complementarity honestly:
+  single-step greedy is a **heuristic unless adaptive submodularity is verified** (two datasets each
+  useless alone but jointly identifying). Done also when: an `ID` acquisition that shrinks many
+  near-frontier widths is preferred over one that helps a single design; the affected region is
+  recomputed and dependents re-graded after a real acquisition. `P28`/`P29`.
+- **GY-N8 — Value as the live gate (reuse causal / Bayesian / transport under 3.14).**
+  rework-existing / wire. Wire the reachable foundry value stack as the **live value criterion
+  over a named `WorldModelRecord`**: causal methods (synthetic control, DID, diagnostics, SciPy
+  QP, pymoo) + the **Bayesian / posterior** primitives (variational, BVAR, uncertainty
+  envelopes) + the **transport** stack (selection diagrams, transport solver, density-ratio →
+  real `transported_limited` receipts), gated by `outcome_prediction`'s calibration discipline
+  (`forecast_tier`, uncertainty intervals, `false_clear` counters). Make method selection
+  **candidate / problem-aware** (not the fixed `synthetic_control` default) and surface
+  unavailable-method blockers truthfully. **Set-valued value + honest dominance + modes (Rev 11):**
+  the value the gate produces is a **certified `ValueOuterSet` `V_out` (GY-N-V) over the named
+  `WorldModelRecord`**, not a scalar + CI — point identification → a narrow set, partial → an
+  interval / support-function bound, proxy → a wide set (the spec's set-valued value). Comparison
+  uses **honest dominance**: strong-robust dominance where the coupled solve is available, else the
+  **marginal-interval fallback**, and a solver timeout / approximation returns **`unknown`, never
+  silently "dominated"**. Declare the **six evaluation modes** (`simulate_only`, `retrospective`,
+  `measurement_audit`, `sandbox_pilot`, `field_pilot`, `deployment`) on every value call; only
+  some yield world evidence — **`simulate_only` updates `K_sim` only and never shrinks `K_world`**;
+  any non-simulation mode requires the appropriate gate before execution (`retrospective` /
+  `measurement_audit` → DataTrust; `sandbox_pilot` / `field_pilot` / `deployment` → the **EvalSafety
+  gate**, GY-O0, Phase 6 — *safe to simulate ≠ safe to pilot*). Done when: a
+  candidate's value is a typed `ValueOuterSet` with an identification status **plus a transport
+  receipt naming its world version**; a pairwise comparison returns `unknown` on timeout rather than
+  a false dominance; a `simulate_only` evaluation provably does not narrow the world credal set; an
+  uncalibrated / unsupported / regime-laundered / un-transportable forecast **cannot mint value
+  authority**; the value feeds revision before promotion. `P10`/`P14`/`P32`.
+- **GY-N9 — In-cycle B→A promotion sequence (one canonical path).** rework-existing. Build the
+  **single** canonical in-cycle promotion sequence over the real enforcement owners (Ring-2
+  waist + `AuthorityDerivationTrace`, P14 effective-independence, G4 governed-promotion, the
+  S6 / S7 / S8 value / mandate / blind-spot gates): a shadow candidate promotes to
+  `grounded_partial_admissible` **only** on resolve + content-bind + verifier-provenance for
+  producer roots, entailment / grounding (GY-K), calibration + transport (N8), effective
+  independence, admissibility, and the S6 / S7 / S8 gates; else honest shadow / abstention.
+  **Collapse** the parallel Scientist-champion vs G4-PDC promotion into one persisted sequence.
+  **Obligations compiler + δ-budget (Rev 11):** state the promotion gate as the spec's
+  **obligations compiler** — the typed `O(x)` taxonomy (syntax / type / slot / param / coupling /
+  effect / identification / calibration / measurement / data / implementation / equilibrium /
+  normative / eval-safety / value), each with a satisfaction semantics and a fail-closed
+  `single_obligation_fail | joint_obligation_inconsistency | proof_timeout | scope_insufficient |
+  unknown` reason (`unknown`/timeout never implies grounded or blocked). Each probabilistic
+  certificate spends from the **GY-N11 confidence ledger** (δ-budget) so that
+  `P(false promotion) ≤ δ` by the union bound. **Honest caveat carried in the task:** this δ-claim
+  is **conditional on obligation completeness + validator soundness** (the spec's A4) — our **P29**
+  regress; the mitigation is the QuarantineFront + adversarial validation + GY-N12 epochs, not a
+  proof that the obligation set is complete. Done when: a fully grounded + admissible candidate
+  promotes with a derivation trace **and a recorded risk-spend within δ**; an
+  ungrounded / uncalibrated / un-transportable candidate stays shadow; a `proof_timeout` /
+  `unknown` obligation never promotes; a forced / optimistic promotion is rejected and the lower
+  boundary wins; no LLM output, surrogate score, or evidence-count upgrades itself.
+  `P05`/`P14`/`P15`/`P29`.
+- **GY-N10 — Depth-N universality (arbitrary `DesignProblem`; ≥2 distinct domains).**
+  rework + thin depth-N controller. Drive the whole cycle from **arbitrary** `DesignProblem`s
+  (not committed fixtures; reuse GY-M2 case-parameterization) with a depth-N controller that
+  reuses the existing ledgers / terminals / coupling-composition / recursion contract and
+  generalizes the cycle over depth and candidate families. Run the full `DesignProblem` →
+  generate → ground → joint-value → revise → promote cycle end-to-end on **≥2 distinct
+  domains** from plain language. **Replace GY-G's hardcoded depth-2 independent fixture** with
+  observed coupling + real joint simulation. Done when: the full cycle runs on ≥2 distinct
+  domains, each reaching an **honest** terminal (promotion / costed abstention / ceiling), with
+  no domain pinned / hardcoded; the GY-G fixture is strangled; the GY-N0 ledger shows no
+  parallel world reopened. `P27`/`P31`.
+- **GY-N11 — Honest confidence ledger (anytime-valid promotion risk; NEW, Rev 11).** build-new
+  ledger + recomputing validator. The promotion gate (N9) is queried **adaptively** (candidates
+  depend on prior outcomes, the validator is queried on demand, the user may stop anytime), so
+  fixed-time intervals are unsound for promotion. Build the spec's confidence-accounting layer:
+  promotion certificates use **anytime-valid** instruments (confidence sequences / e-values /
+  e-processes / sequential tests; deterministic proofs where available), risk is **spent only on
+  executed checks** from a predictable schedule (`Σ α_{t,q} ≤ δ`, e.g. the `6/(π²(t+1)²)` weights),
+  and a **good-event** `Ω_δ` gives `P(false promotion | maintained assumptions) ≤ δ` by the union
+  bound. Reuse any existing sequential-test / FDR primitives (the same family GY-O2 uses); do
+  **not** build a second statistics stack. Surface the **δ-split** across obligation classes
+  (value / ground / id / cal / data / eval / mc — a tunable budget). Done when: the promotion gate
+  draws every probabilistic certificate from the ledger; a run records a total risk-spend `≤ δ`
+  with a recomputing validator that fails on over-spend or on a non-anytime-valid certificate used
+  for promotion; a Bayesian credible interval **without** a coverage argument cannot be used as a
+  promotion certificate. `P29`/`P14`.
+- **GY-N12 — Model-revision epochs + stale certificates + OpenWorldRisk (NEW, Rev 11).**
+  build-new epoch manager + bridge over existing temporal authority. A certificate is valid only
+  within an **epoch** of fixed semantics (model class, obligation language, calibration scope,
+  measurement / implementation / equilibrium semantics, validator version). Sit it on the substrate
+  we already have: **L3 amendments `effective_from`** (legal validity windows) + **L5
+  `schema_regime`** (ukraine v1-prewar / v2-wartime changepoint + boundary buffer) are the real
+  epoch boundaries — do **not** invent a parallel time model (reuse `fabric/world` bitemporal
+  validity + the GY-N3 `branch_mode`). On a **revision trigger** (`K` empty, calibration-
+  transportability alarm, data-provenance alarm, simulator-discrepancy over bound, obligation-
+  completeness alarm, a new normative constraint, a validator-soundness issue): **freeze promotion
+  in the affected scope**, open a new epoch, mark affected certificates **stale /
+  revalidation_required**, and re-validate the decision front so it returns **`current_valid` only**.
+  Add the **OpenWorldRisk** indicator (true deployment scope outside the declared
+  model / obligation / calibration scope) that freezes promotion for the affected scope. Done when:
+  crossing an L3 amendment or an L5 schema-regime changepoint marks dependent certificates stale and
+  forces revalidation before they can stay on the decision front; a high OpenWorldRisk scope freezes
+  promotion; a stale certificate cannot appear in a public result. `P07`/`P08`/`P29`.
+
+**Phase-5 deferred (adopt the contract now, implement when a certified frontier exists).** With
+`useful_design_rate ≈ 0` and depth-1 integration, the mature-frontier machinery is not yet
+load-bearing. Carry the **contracts / labels** now (so artifacts already speak them) and implement
+later — tracked here so they are not lost: **(1) Portfolio-as-design** (a randomized / mixed policy
+as a new design object with its own obligations and **nonlinear** value — `V(x_μ) ≠ Σ μ(x)V(x)`
+unless linearity / no-interference / assignment semantics are certified) → the `PortfolioFront`
+stays empty until this lands (Phase 7 / follow-on; the spec itself forbids returning an uncertified
+portfolio). **(2) CHHV solvers, scenario-tree VOI with rectangularity, EXP3 / sliding-window
+meta-controller, and full MCTS** (progressive widening + `UCT_H` selection over the prefix tree) →
+needed for a rich certified frontier and a non-stationary acquisition mix; not now. The honest
+**marginal-interval fallback** (GY-N-V) and the **phase-schedule** acquisition weights (N7) are the
+interim stand-ins, and the `unknown`/incomparable discipline keeps them safe.
+
+**Phase-5 acceptance (gates Phase 6 / 7):** the GY-N0 ledger is complete and **no asset
+remains a live parallel owner** (every superseded path strangled / deleted with a receipt);
+the three foundation bridges (`DesignProblem`, `InterventionAtomBinding`, `WorldModelRecord`)
+exist and the cycle **names its exact world version**; the cycle runs on ≥2 domains from plain
+language with honest terminals; the firewalls hold **under generative freedom** (the GY-V4
+adversarial-against-A battery passes against the cycle); promotion is grounded-only; and
+`useful_design_rate` is the honest consequence of real grounding — **never forced** (Rule 5).
+**Rev-11 additions also gate Phase 6 / 7:** value is a set-valued `ValueOuterSet` (GY-N-V) with
+the `unknown`/incomparable discipline; the cycle returns the four stratified fronts (QuarantineFront
+populated, PortfolioFront deferred); promotion risk is ledgered with a recorded spend `≤ δ`
+(GY-N11); and epoch / stale-certificate revalidation (GY-N12) is wired to the real L3-amendment /
+L5-schema-regime boundaries. The deferred items (portfolio-as-design, CHHV / scenario-tree VOI /
+EXP3 / MCTS) are **not** acceptance blockers — they are tracked contracts, not omissions.
+**Rev-12 (the §3.5.6 completeness gates):** every cycle task that lifts / resolves / binds authority
+(N2 atom binding, N4 grounding, N7 acquisition, N8 value-method routing, N9 promotion) must encode
+all four gates for its decisive property — full-denominator coverage, fail-closed on a fake/novel
+input (owner-validation, not trust), data-only free-grow, and a **contract mutation on the decisive
+validation property** (the gate goes red if owner-validation is removed while the happy-path stays
+valid). A cycle task whose runtime is correct but whose contract would not catch that regression is
+**not done**.
+
+### Phase 6 — Deployed-Policy Learning Loop (the world model grows; greenfield horizon)
+
+The cycle (Phase 5) produces a grounded-or-honestly-limited design. The north-star's product
+is the **growing causal world model** (`docs/system-design-decisions/policy-design-causal-operating-system-north-star.md`):
+a deployed policy keeps living, its effect is updated from observation, and unpredicted
+consequences are discovered and folded back into the world model. This is the **one genuinely
+greenfield zone** — the posterior / calibration / drift / FDR / decision-feedback **primitives
+are real and reusable** (GY-N0 sweep), but the deployed updater, the exploratory controller,
+and the world write-back are new. It runs **two contours with different authority**, both on
+the candidate→authority firewall. (Scope note: this phase may spin into its own follow-on
+slice; it is planned here so the Phase-5 cycle designs its deployment hooks for it. Each task is
+scoped to a roughly comparable amount of work.)
+
+- **GY-O0 — Attempted-evaluation safety gate (EvalSafety; the Phase 5→6 bridge; NEW, Rev 11).**
+  build-new gate. The Phase-5 value gate (GY-N8) declares the **six evaluation modes**; this task
+  builds the **attempted-evaluation safety gate** the real-world modes must pass **before
+  execution** — *promotion safety and attempted-evaluation safety are distinct: a design can be safe
+  to simulate but unsafe to pilot.* Mode-specific requirements per the spec: `retrospective` → data
+  trust + privacy / access + measurement validity; `sandbox_pilot` → containment + stop rules + harm
+  bound; `field_pilot` → ethical / legal approval + monitoring + rollback + population protections;
+  `deployment` → full deployment safety + governance + accountability. The gate is **fail-closed**
+  and independent of the promotion gate (a promoted design still cannot be piloted without it). Done
+  when: a non-simulation evaluation cannot execute without a passing `EvalSafety` certificate for
+  its mode; an attempt to pilot a promotion-safe-but-pilot-unsafe design is **blocked** with a typed
+  reason; the gate records `unsafe_attempt_blocked_count` / `near_miss_count` honestly. `P05`/`P09`.
+- **GY-O1 — Confirmatory deployed-effect updater (Bayesian; high authority).** build-new
+  updater over reusable primitives. For the variables a deployed design **pre-declared** it
+  would change, compare realized vs predicted and produce a **Bayesian posterior effect
+  update** — reuse the foundry variational / BVAR estimators + the uncertainty-adapter
+  envelopes + `DecisionFeedbackService` confirm / refute / reissue + S13 attribution — and
+  write the updated posterior + provenance into `fabric/world` as a `deployment_update` branch
+  on the `WorldModelRecord`. Done when: a deployed design's pre-declared effect is Bayesian-
+  updated from real realized metrics with an uncertainty envelope, persisted to `fabric/world`
+  with attribution; an un-pre-registered or unpowered claim **cannot** mint a confirmatory
+  effect update. `P14`.
+- **GY-O2 — Exploratory anomaly→hypothesis controller (low authority).** build-new controller
+  over reusable detectors. Monitor the broader variable space for anomalies the model did
+  **not** predict — reuse the DDM drift / performance / readiness detectors + the
+  `multiple_testing` FDR controller — under false-discovery control. An anomaly is a
+  **low-authority candidate hypothesis** (`candidate_unverified`) that must earn authority by
+  passing into the confirmatory contour (O1); **never** a direct world edit. Done when: a real
+  anomaly is detected under FDR control and emitted as a candidate hypothesis with an
+  attribution trace; a chance / uncontrolled anomaly is rejected; an anomaly cannot become a
+  world-model edge without confirmatory promotion. `P15`/`P33`.
+- **GY-O3 — World-model write-back (the model grows).** build-new write-back + bridge. A
+  confirmed effect (O1) or a confirmation-promoted hypothesis (O2 → O1) writes a new / updated
+  coupling edge, mechanism update, or required-data spec into the `WorldModelRecord` as a new
+  versioned branch — reusing `fabric/world`'s append-only + branch + provenance as the storage
+  substrate — so future designs ground against a richer world. Done when: a confirmed deployed
+  finding produces a **new versioned `WorldModelRecord` branch** with the added / updated
+  coupling + provenance, and a subsequent Phase-5 cycle run grounds against the updated world;
+  an unconfirmed finding **cannot** write back. `P29`.
+
+**Phase-6 acceptance:** a deployed design's effect is Bayesian-updated from observation
+(confirmatory) and written to `fabric/world`; an exploratory anomaly is discovered under FDR
+control and promoted to a confirmed coupling **only via the firewall**; the world model gains a
+versioned branch that a later cycle run grounds against — proving the world model **grows
+honestly**, with no anomaly minting authority directly.
+
+### Phase 7 — Deep Workability Verification (audit-grade; the close)
+
+After implementation the system should begin producing **real policy design** — a
+grounded or honestly-limited design, or an honest grounded abstention with a costed
+acquisition path. That claim is **proven by execution, not asserted.** This phase
+re-applies the Task-0 census discipline to the *built* system:
+
+> **No label is evidence.** Not a green unit test, a README, a status enum, or this
+> plan's prose. The only evidence is a **recorded run on real input** with a
+> reproducible (`gy_evidence_canon`, time-invariant) hash and the **actual artifacts**
+> inspected (Workspace graph, `SearchLedger`, `SearchExitContract`, `AuthorityBoundary`,
+> `CompositionCertificate`), not their summaries.
+
+Every GY-V task emits a **committed artifact + a recomputing validator** (the Task-0
+pattern: the validator re-derives the claim from live code/artifacts and fails on
+drift), and a repo-quality negative test. The success criterion honors Rule 5: the win
+is **honest, measurement-rooted, replayable outcomes with firewalls intact** — *not* a
+high `useful_design_rate`. Forcing useful-design credit is a failure of this phase.
+
+- **GY-V1 — Coverage-matrix closure (the progress meter).** Re-derive the repo-wide
+  capability coverage matrix post-implementation. Prove every row a GY task acted on
+  moved off `bridge_missing`/`surface_missing`/`absent` to a **complete chain with a
+  semantic test** (1/29 green → the target set green). Validator fails if any
+  claimed-moved row is still broken. Done when: the moved-row delta is recorded and the
+  validator is green.
+- **GY-V2 — End-to-end loop execution proof (real input, reproducible).** Run the full
+  loop **via the production trigger (GY-B2)** on real cases; capture the
+  `WorkspaceContract`, artifact graph, `SearchLedger`, `FrontierSnapshot`, and typed
+  `SearchExitContract` with `gy_evidence_canon` hashes. Prove a real terminal outcome
+  whose promoted artifacts carry **measurement-rooted producer roots**. Done when: at
+  least one case reaches `grounded_admissible`/`grounded_partial_admissible` with a
+  measurement-rooted chain, **or** a `grounded_abstention`/`search_ceiling_repair_required`
+  that the ceiling-gate (§8.4) certifies as honest — recorded and replayable.
+- **GY-V3 — Multi-case generalization + scale battery.** Run a labelled set spanning
+  depth-1 (tourism local; ua-msme) and depth-2/recursion (pl-household-energy; an
+  accession-class recursive case). Record the **terminal-state distribution +
+  evidence-kind distribution + decision-grade distribution + rung reached** (the honest
+  claim is the distribution, never a useful-rate target). Prove scale-invariance: the
+  same loop handles a 1-cycle local case and a recursive program; the recursive case
+  actually composes via a
+  `CompositionCertificate`. Done when: the distribution is recorded; the recursive case
+  produces a certificate or an honest typed terminal; no case is forced to useful.
+- **GY-V4 — Adversarial-against-A battery (laundering firewalls live).** The
+  constitution mandates this once real grounding happens. Executed **negative** probes,
+  each with recorded evidence: (a) agent attempts to write a Ring-2 field → rejected;
+  (b) a synthetic / no-measurement bundle attempts promotion → rejected (producer-root
+  firewall); (c) a failed/candidate workflow attempts to reach a surface / export / sign
+  → blocked or visibly downgraded; (d) poor-recall abstention → forced to
+  `search_ceiling_repair_required`; (e) feedback decomposition → `composition_invalid`;
+  (f) emergent program claim without system grounding → capped; (g) raw artifact route
+  with a nested secret → redacted; (h) connector payload / DAG bundle with a nested
+  secret → redacted or surface-blocked; (i) S12 authorial ref → non-dereferenceable →
+  downgraded; (j) one candidate-positive diagnostic status attempts authority promotion
+  without its firewall boundary → rejected and reconciled in `AuthorityCandidateInventory`;
+  (k) CAS blob mutation/tamper probe → rejected or re-digested; (l) time-role mismatch
+  (fresh source but stale catalog watermark, or valid legal time outside as-of replay
+  time) → blocked/downgraded/obligation; (m) operation declares an optimistic
+  `authority_transform` but A computes a lower boundary → lower boundary wins and an
+  `AuthorityDerivationTrace` records the mismatch; (n) agent frames VOI/usefulness to
+  select weak evidence over a higher-authority repair path → deterministic GY-H
+  normalization rejects/clips the score in `VOISelectionAudit`; (o) workflow failure
+  attempts clean completed job status before F1 surface migration → job is failed or
+  non-authority. **Rev-11 firewall probes (the spec's "Not certificates" made behavioral —
+  remove-the-property-keep-the-markers, P29):** (p) a high surrogate / high-proxy candidate (any
+  trust level below `certified`) attempts promotion → rejected (QuarantineFront, not DecisionFront);
+  (q) an **uncertified sample-only `ValueOuterSet`** attempts to mint promotion value → rejected
+  (only a certified `V_out` promotes); (r) a `simulate_only` evaluation attempts to shrink `K_world`
+  → rejected (stays in `K_sim`); (s) a **stale certificate** (post epoch-revision on an L3-amendment
+  / L5-schema-regime boundary) attempts to appear on the decision front → removed /
+  `revalidation_required`; (t) promotion whose cumulative risk-spend would exceed **δ** → blocked by
+  the GY-N11 ledger; (u) a promotion-safe-but-pilot-unsafe design attempts a `field_pilot` without
+  an EvalSafety certificate → blocked (GY-O0); (v) an `unsupported`-equilibrium feedback objective
+  attempts grounding → capped (cannot be grounded). Done when: all listed probes fail closed with
+  recorded evidence.
+- **GY-V5 — Replay / determinism / reproducibility audit.** Prove the three replay
+  levels: deterministic operations replay byte-identical (input/param hashes, seed,
+  container digest); agentic operations replay as a decision/provenance trace; promoted
+  artifacts re-walk the audit trail and re-validate. Prove `output_hash` evidence is
+  time-invariant by re-running and comparing. Done when: a deterministic op replays
+  identically; an agentic op's trace is reconstructable; a promoted artifact re-passes
+  its audit trail; all recorded hashes are reproducible.
+- **GY-V6 — GX validator + full audit suite green over all GY artifacts.** Every GY
+  artifact passes the GX hardening validator (reducer provenance, producer-root chain,
+  resolver dereference, runtime-literal lint); the Task-0 coverage matrix + the 16 audit
+  validators + the GY-V validators are all green with **no uncatalogued drift**. Done
+  when: the whole validator suite is green over the built system.
+- **GY-V7 — Honest health-signal readout (T1/T6/T7).** Measure the constitution's five
+  health signals on the built system: envelope-expansion-rate (T1), adapter-semantic-loss
+  (T2), governance-throughput (T3), demand-pull-vs-abstention (T6),
+  search-recall@known-seeds + index-staleness (T7). This answers, empirically and
+  honestly, whether the system produces real grounded design or sits at a **domain
+  ceiling** vs a repairable **search ceiling**. Done when: the five signals are recorded
+  with the honest interpretation (domain vs search ceiling) per §8.4.
+
+## 10. Execution order
+
+1. **GY-M1 (hard gate) → GY-A1, GY-A2, GY-B, GY-B2** — the form. **GY-M1
+   (artifact-family lifecycle registration) lands first** so no GY artifact is committed
+   unregistered; then the waist (reuse/extend `pdc`, §3.5.2), the loop skeleton, and the
+   production trigger on both Slice-0 fixtures (groundable
+   `Slice0FixtureManifest:ua_msme_credit_worldbank_measurement` and tourism-ceiling).
+   Honor the Slice-0 cut-lines (§3.5.1). Gate everything on these.
+2. **GY-H, then GY-D1, GY-D2, GY-D3, GY-E** — anytime-exit core first (it owns VOI +
+   `acquisition_required`), then the binding constraint (substrate + acquisition).
+3. **GY-C1, then GY-C2 (repair), then GY-C3; GY-I** — subordination; **the spine-rot
+   repair (GY-C2) lands before any governance-to-authority** (stop-rule).
+4. **GY-F1, GY-F2, GY-F3** — authority surfaces behind one boundary.
+5. **GY-G** — recursion + composition (scale; the accession-class capability).
+6. **GY-M2** — GX reducer case-parameterization (needed before GY-L / GY-V validate a
+   non-pinned case). (GY-M1 already landed as the Phase-0 hard gate in step 1.)
+7. **GY-J** runs in parallel from the start (fork-independent). **GY-K, GY-L** are
+   follow-on (GY-L after Phase 3 + GY-M; GY-K any time after GY-D1).
+8. **GY-N0 (hard gate) → foundation bridges + GY-S substrate + GY-N4..N12 — B-on-A Generation
+   Cycle (target spec: `policy-design-search-target-spec.md`).** After GY-L, the
+   disposition ledger + consumption validator lands first (no parallel worlds — every asset
+   used / reworked / deleted). Then the **three foundation bridges land before the cycle**:
+   GY-N1 `DesignProblem`, GY-N2 `InterventionAtomBinding`, GY-N3 `WorldModelRecord` (the
+   world model is a foundation the value gate names). **Alongside the bridges, the GY-S
+   production-data substrate lift lands** — GY-S0 free-grow registry, then GY-S1 (data-state:
+   L1/L4/L5), **GY-N-V `ValueOuterSet`** (the set-valued value carrier, landing with GY-S1),
+   GY-S2 (knowledge: L2/L3), GY-S3 (intervention: L6) — so the world model binds the REAL
+   substrate **as the spec's credal state** (set-valued, wire-existing, not toy fixtures) and
+   grows as data arrives. Then the cycle is wired by **subordinating the existing generative /
+   causal / value engines under A** (reuse, not from-scratch): GY-N4 generation-under-A (+
+   firewall / surrogate), GY-N5 joint-simulation horizon (+ equilibrium-semantics taxonomy), GY-N6
+   the real propose→ground→value→revise cycle (+ four stratified fronts), GY-N7 closed acquisition
+   (+ ID/CERT/COV families + affected-region revalidation), GY-N8 value-as-gate (+ value-outer-set
+   + honest dominance + six modes), GY-N9 in-cycle promotion (+ obligations compiler), **GY-N11
+   honest confidence ledger (δ-budget)**, **GY-N12 epochs + stale certs + OpenWorldRisk**, GY-N10
+   depth-N universality. The **Phase-5 deferred list** (portfolio-as-design, CHHV / scenario-tree
+   VOI / EXP3 / MCTS) carries contracts now, implementation later. Runs before the learning loop
+   and the V-battery so verification audits the **cycle**, not the single-pass harness.
+9. **GY-O0..GY-O3 — Deployed-Policy Learning Loop (greenfield horizon).** After the cycle:
+   GY-O0 the **EvalSafety gate** (the Phase 5→6 bridge — real-world modes pass attempted-evaluation
+   safety before execution), then the confirmatory Bayesian deployed-effect updater, the exploratory
+   anomaly→hypothesis controller, and the world-model write-back that makes the world model **grow**
+   from observation. May spin into its own follow-on slice; the Phase-5 cycle designs its
+   deployment hooks for it.
+10. **GY-V1..GY-V7 — Deep Workability Verification (last).** Runs only after the build
+    phases land; it is the audit-grade close that proves, by execution, that the system
+    produces real (or honestly-limited/abstained) policy design with firewalls intact.
+    GY-V1 (matrix closure) and GY-V6 (validator suite) gate slice completion.
+
+Stop rules: a rotten asset is repaired before it is governed; a `build-new` overlapping
+a `wire-existing` owner is rejected; any GY output that cannot pass the GX validator is
+not done; the loop must have a production trigger (GY-B2) before GY-L; budget overrun
+triggers a stop-and-review note; a parallel re-implementation beside a live canonical
+owner is rejected (P27); a replacement that does not strangle its predecessor and flip the
+default in the same change is rejected (P28); a proof/benchmark that is hand-authored or
+validated for shape only — or a closure metric on a trivially-separable corpus — is not
+evidence (P29); a module named after its plan/slice rather than its function (and with no
+owner-breadcrumb docstring) is a naming defect fixed before merge (P30); a
+generation-cycle asset (Phase 5) left as a **live parallel owner** instead of being
+used-as-is, reworked-to-fit, or deleted via the GY-N0 disposition ledger is rejected
+(P27/P28); and — Rev 11 — the formal target spec
+(`policy-design-search-target-spec.md`) is **subordinated, not rebuilt**: its greenfield §27
+build plan is superseded, every spec object maps to an existing organ (the decision record's
+adoption table), and a task that implements a spec object as a parallel engine instead of
+wiring the named owner is rejected (P27). The δ-safety theorem is carried **honestly as
+conditional** on obligation completeness + validator soundness (the P29 regress), never asserted
+as closed.
+
+## 11. Acceptance bar
+
+- The two-ring waist (17 waist contracts, roughly 13 new and the rest reused/extended
+  per §3.5.2) is
+  wired; **Ring-2 fields are not agent-writable (field-level, enforced + tested)**;
+  `pdc` never imports engines; the `AuthorityBoundary` lattice tests cover
+  `authoritative_for`, `may_not_use_for`, envelope intersection, `evidence_kind`
+  partial meet, and `decision_grade` total meet; `AuthorityDerivationTrace` proves
+  `A.verify` derives the stamped boundary independently from operation hints.
+- The control loop runs both Slice-0 fixtures end-to-end **via the durable production
+  trigger (GY-B2)** to typed `SearchExitContract`s with `FrontierSnapshot`,
+  `SearchLedger`, replay levels A/B/C, and persisted `ProductionLoopRunProof`s showing
+  `enqueue_job -> ControlWorker -> _execute_workflow -> WorkspaceLoop -> CAS/index ->
+  /runs readback`; failed/legacy-shadow jobs cannot complete as authority-looking
+  clean successes.
+- Every coverage-matrix row a task acts on moves off `bridge_missing`/`surface_missing`/
+  `absent` to a complete chain **with a semantic test** (the matrix is the progress meter).
+- The binding constraint is real: a pinned construct resolves through the real catalog to
+  a CAS-rooted measurement artifact with a `CertifiedOperationEnvelope`; recall@seeds +
+  freshness recorded; non-execution-ready connectors fail closed; the groundable
+  Slice-0 fixture is driven by `Slice0FixtureManifest`, reaches a measurement-rooted
+  `grounded_partial_admissible` **Estimate-port** outcome, and is explicitly forbidden
+  from emitting `grounded_admissible` or promoting a `DesignCandidate`; the tourism
+  ceiling fixture stops honestly.
+- `grounded_abstention` is emitted only past the domain-vs-search-ceiling gate; else
+  `search_ceiling_repair_required` (F1/F8); simultaneous terminal triggers follow the
+  §8.6 precedence.
+- No authority surface renders/exports/signs a failed or candidate workflow as authority;
+  no scoped secret/PII leak across raw routes, DAG bundles, connector payloads, CAS
+  manifests, dashboard/public/export packets; CAS loop outputs carry `manifest.authority`
+  and pass digest/dedup/tamper/GC survivability checks; S12 refs dereference or are
+  candidate-only; the 406 candidate-positive statuses reconcile to a reviewed
+  `AuthorityCandidateInventory`.
+- A `PolicyProgram` is never promoted without a `CompositionCertificate`; feedback
+  decomposition is rejected; emergent claims are capped to their own grounding.
+- Graded outcomes route partial evidence to `grounded_partial_admissible` (GY-J), moving
+  `useful_design_rate` off 0 honestly without weakening floors.
+- The GY/loop artifact family has a registered lifecycle (F18); the GX validator runs on
+  a non-pinned case (F14); every GY artifact passes the GX hardening validator; the Task
+  0 coverage matrix and audit suite stay green.
+- No parallel engine/pipeline/agent/DataNeed-type was built; engines entered only as
+  Operations (adapters); the three workflows are playbooks, not modes.
+- **Build hygiene (P27/P28/P29/P30):** no GY concept has two live owners (the §3.5.2 owner
+  map is clean — `SearchLedger`, `AcquisitionPlanner`, the lex-bounds rule, and the fixture
+  catalog each have exactly one home); modules are named by function with owner breadcrumbs,
+  not by plan (`gy_loop.py`→`workspace_loop.py`, or a docstring naming the owners it extends
+  — P30); every subordination/replacement task shipped a `StrangleReceipt` with the
+  predecessor deleted or fenced and the default flipped (the `None→0.0` default is gone, no
+  zero-deletion "migration"); every proof packet is run-emitted and recomputed by its
+  validator, not authored; and F4/F7 closure is measured on a representative corpus or
+  marked `surface_out_of_scope`, never a 2-record fixture.
+- Slice 0 is not credited as policy-design synthesis: no `DesignCandidate` promotion is
+  expected until the Phase-2 lowering/drafter/lex path is subordinated.
+- **Deep Workability Verification (Phase 7) passes by execution:** the coverage matrix
+  closes (GY-V1); a real loop run produces a measurement-rooted grounded/limited design
+  or a ceiling-gate-certified honest abstention (GY-V2); the generalization distribution
+  is recorded without forcing useful-design credit (GY-V3); all listed adversarial probes
+  fail closed (GY-V4); replay levels A/B/C hold and hashes are reproducible (GY-V5); the
+  full validator suite is green with no uncatalogued drift (GY-V6); the five health
+  signals are recorded with the honest domain-vs-search-ceiling interpretation (GY-V7).
+
+## 12. Required closeout evidence
+
+- `pdc` two-ring waist + field-permission test + `AuthorityBoundary` two-axis lattice
+  tests (GY-A1/A2).
+- Control-loop Slice-0 fixture runs **launched via the durable production trigger**
+  (GY-B/B2): committed `Slice0FixtureManifest`, two `ProductionLoopRunProof`s,
+  `WorkspaceContract`, `SearchLedger`, `FrontierSnapshot`, typed `SearchExitContract`
+  (GY-H), `AuthorityDerivationTrace`, `VOISelectionAudit`, replay A/B/C demonstration.
+- GY-D supply report: real-catalog resolve → CAS measurement root + canonical snapshot
+  hash + per-connector applicability + recall/precision@seeds.
+- GY-E acquisition report (`RequiredDataSpec`→`DataNeedSpec`→fetch / costed plan).
+- GY-C report: operations registry (discovered) + playbooks (C1); **spine-rot repair
+  evidence — governance tail + lex (C2)**; a route-consumed foundry method output with
+  measurement-rooted authority (C3).
+- GY-I event-backed agent audit (Ring-1 role events; Ring-2 rejection test; VOI/input
+  bias normalization evidence).
+- GY-F report: failed-workflow blocked/downgraded across surfaces;
+  `SecretAndPIIScanReport`; `CASIntegrityReport`; `TimeSourceEnvelopeAudit`; S12
+  dereference; 406-row `AuthorityCandidateInventory`.
+- GY-G composition report (`CompositionCertificate`; feedback rejection; emergent cap).
+- GY-M1 artifact-family lifecycle registration (+ drift gate); GY-M2 GX validator run on a non-pinned case.
+- GY-J graded-outcome report; GY-K scholar growth; GY-L pinned-route loop outcome.
+- **Phase 5 generation-cycle artifacts (each with a recomputing validator + negative test):**
+  GY-N0 disposition ledger + consumption-validator green; the three foundation bridges
+  (`DesignProblem`, `InterventionAtomBinding`, `WorldModelRecord`) with content-bound provenance;
+  the GY-S substrate registry + the L1/L4/L5, L2/L3, L6 lift receipts; **GY-N-V `ValueOuterSet`
+  set-valued value evidence (proxy bounded, point narrow; `unknown`/incomparable on timeout)**; a
+  cycle run emitting the **four stratified fronts** (DecisionFront / ResearchFront / QuarantineFront
+  populated / PortfolioFront deferred); GY-N7 ID/CERT/COV acquisition + affected-region
+  revalidation receipt; GY-N8 value-outer-set + transport receipt naming a world version; **GY-N11
+  confidence-ledger risk-spend report (`Σ α ≤ δ`)**; **GY-N12 epoch / stale-certificate
+  revalidation evidence on an L3-amendment or L5-schema-regime boundary**; GY-N10 ≥2-domain
+  end-to-end honest terminals; StrangleReceipts for every superseded generator / single-pass path.
+- **Phase 6 learning-loop artifacts:** GY-O0 EvalSafety gate (mode-specific blocked-attempt
+  evidence); GY-O1 confirmatory Bayesian deployed-effect update persisted to `fabric/world`; GY-O2
+  FDR-controlled anomaly→hypothesis candidate; GY-O3 versioned `WorldModelRecord` write-back a
+  later cycle grounds against.
+- **Phase 7 verification artifacts (each with a recomputing validator + negative test):**
+  GY-V1 matrix-closure delta; GY-V2 e2e loop run (Workspace graph, `SearchLedger`,
+  `SearchExitContract`, `ProductionLoopRunProof`, reproducible hashes); GY-V3 multi-case
+  terminal/evidence-kind/decision-grade distribution; GY-V4 adversarial-against-A
+  battery results; GY-V5 replay A/B/C proof; GY-V6 full validator-suite green report;
+  GY-V7 health-signal readout.
+- Updated coverage matrix showing the moved rows; GX validator pass over all GY artifacts.
+
+## 13. Authority = two orthogonal axes (evidence_kind ⟂ decision_grade)
+
+The earlier single grade order conflated two different things. They are **orthogonal**
+and `meet`s independently (§7):
+
+- **`evidence_kind`** — WHAT kind of evidence backs the claim. It is a **partial order**,
+  not a total grade chain. `measurement` is strongest for directly observed facts;
+  `derivation` is below `measurement` only when it is near-lossless and references
+  measurement roots; `proxy` and `transport` are incomparable unless a rule proves one
+  dominates for the claim type; `bounds` is an interval/identification class that may be
+  decision-usable without being more "truthful" than `simulation`; `simulation` is
+  model-based and may be calibrated or uncalibrated; `elicitation` is weakest unless a
+  governed mandate/participation rule explicitly elevates its decision role. Rung-7
+  "acquisition plan" is not an evidence_kind — it is the `acquisition_required`
+  *terminal*, a plan not evidence.
+- **`decision_grade`** — HOW decision-ready the claim is (total order):
+  `unsupported` < `descriptive_only` < `advisory_admissible` < `decision_admissible`.
+- **`calibrated`** is **not** a grade — it is a property of `evidence_basis`
+  (`calibration_refs` present + non-zero denominator) that can *lift* `decision_grade`
+  for a given `evidence_kind`. Calibration of a simulation can make it
+  `advisory_admissible`; it does not turn it into `measurement`.
+
+Worked mixed examples at the contested seams (these pin the semantics for GY-A2/GY-G):
+
+- `(evidence_kind=bounds, decision_grade=advisory_admissible)` — Manski bounds on real
+  panel data: weak evidence_kind, but the *interval* is decision-usable as a guardrail
+  → advisory. **Beats** `(simulation, descriptive_only)` on decision_grade though it is
+  weaker in evidence_kind — which is why one total order was wrong.
+- `(evidence_kind=simulation, decision_grade=advisory_admissible)` only if the structural
+  model is `calibrated` (calibration_refs present); otherwise `simulation` caps at
+  `descriptive_only`. An *uncalibrated* simulation is never `advisory_admissible`.
+- `(evidence_kind=measurement, decision_grade=descriptive_only)` — a directly measured
+  correlation that does **not** identify the causal effect: strongest evidence_kind, but
+  only descriptive readiness. Measurement ≠ decision-ready.
+- `decision_admissible` requires BOTH a sufficient evidence_kind for the claim_type
+  **and** calibration + closed counterexamples + an in-envelope `CertifiedOperationEnvelope`
+  (it is the only `decision_grade` the promotion gate D3.8 admits to production posture).
+- Composition (`meet`): `evidence_kind = ⊓ upstream kinds`, returning the strongest
+  lower bound when comparable; if kinds are incomparable, the result is
+  `incomparable_meet` until an explicit cap/downgrade/obligation rule resolves the
+  combination. `decision_grade = min upstream`, independently. A program whose chapters are
+  `(measurement, decision_admissible)` but coupled by an ungrounded `simulation` emergent
+  claim composes to `(simulation, advisory_admissible)` at best — the emergent claim caps
+  both axes (§7 stage 3).
+
+Gap → ladder descent is the VOI-driven choice of the next Operation; the
+`(evidence_kind, decision_grade)` pair reached is recorded on the frontier artifact and
+in the `SearchExitContract`.
+
+## 14. Relationship to GX and the roadmap
+
+GX guarantees honesty (the waist cannot lie). GY grows capability **through** the honest
+waist — now as a universal execution topology, not a fixed DAG. GX completes at an honest
+blocker (`search_ceiling_repair_required` baseline). GY's first milestone is **not** full
+policy-design synthesis: it proves, through the durable production trigger, that the loop
+can (a) ground one catalog-supported estimate-level case with a verifier-derived
+`AuthorityBoundary`, and (b) stop an acquisition-heavy tourism/local-development case as
+an honest search/acquisition ceiling. The first full design milestone comes after Phase 2
+subordinates lowering/drafter/lex/playbooks and GY-L records a real loop outcome with
+input/output hashes, producer roots, `SearchExitContract`, and verifier-stamped
+authority. Only then do T1 (groundable at acceptable cost?) and T6 (does demand overcome
+abstention inertia?) become empirically answerable for generated policy designs.

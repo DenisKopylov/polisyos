@@ -1,0 +1,155 @@
+{
+  "schema_version": "policyos.runtime.l6_owner_authority_bindings.v1",
+  "artifact_kind": "runtime.quality.l6_owner_authority_bindings",
+  "producer_ref": "runtime.quality.intervention_substrate.owner-fixture",
+  "provenance": {
+    "production_bundle_ref": "repo://production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles",
+    "world_slot_owner": [
+      "polisyos.runtime.quality.world_model_record.WorldModelRecord.policy_slot_map",
+      "polisyos.foundry.contracts.state.GlobalState",
+      "polisyos.foundry.agent_sim.wiring.executors",
+      "polisyos.ir.governance.policy_spec.InterventionSpec",
+      "polisyos.ir.linker.link_trinity"
+    ],
+    "legal_owner": [
+      "polisyos.lex.intervention_artifacts.LexProvisionMappingRegistry",
+      "polisyos.lex.knowledge.store.LegalKnowledgeStore"
+    ],
+    "review_note": "Tracked owner bindings mirror the L6 production schema for attribution. Runtime resolution validates these bindings against the live production knob/lex/manifest files and owner APIs; no caller-supplied slot or provision authority is accepted."
+  },
+  "world_mechanism_manifest": {
+    "schema_version": "1.0",
+    "mechanisms": {
+      "budget_allocation_multiplier": {
+        "mechanism_id": "budget_allocation_multiplier",
+        "params": {
+          "multiplier": {
+            "param_id": "multiplier",
+            "required": true,
+            "value_type": "decimal",
+            "min_value": 0,
+            "max_value": 2,
+            "unit_id": "ratio"
+          }
+        },
+        "reads_slots": [
+          "government.balance"
+        ],
+        "writes_slots": [
+          "government.balance"
+        ],
+        "default_merge": {
+          "government.balance": "sum"
+        },
+        "description": "L6 budget allocation multiplier bound through the fiscal balance slot in the Foundry world.",
+        "provenance_refs": [
+          "src/polisyos/foundry/mechanisms/fiscal.py:83",
+          "src/polisyos/foundry/contracts/state.py:369"
+        ]
+      },
+      "procurement_shock_intensity": {
+        "mechanism_id": "procurement_shock_intensity",
+        "params": {
+          "intensity": {
+            "param_id": "intensity",
+            "required": true,
+            "value_type": "decimal",
+            "min_value": -1,
+            "max_value": 1,
+            "unit_id": "ratio"
+          }
+        },
+        "reads_slots": [
+          "cells.distress_score"
+        ],
+        "writes_slots": [
+          "cells.distress_score"
+        ],
+        "default_merge": {
+          "cells.distress_score": "override"
+        },
+        "description": "L6 procurement shock bound through the agent-sim cell distress state.",
+        "provenance_refs": [
+          "src/polisyos/foundry/agent_sim/wiring/executors.py:410",
+          "src/polisyos/foundry/contracts/state.py:268"
+        ]
+      },
+      "tax_relief_rate": {
+        "mechanism_id": "tax_relief_rate",
+        "params": {
+          "rate": {
+            "param_id": "rate",
+            "required": true,
+            "value_type": "rate",
+            "min_value": 0,
+            "max_value": 0.5,
+            "unit_id": "ratio"
+          }
+        },
+        "reads_slots": [
+          "global.tax_rate"
+        ],
+        "writes_slots": [
+          "global.tax_rate"
+        ],
+        "default_merge": {
+          "global.tax_rate": "override"
+        },
+        "description": "L6 tax relief rate bound through the Foundry global tax-rate state.",
+        "provenance_refs": [
+          "src/polisyos/foundry/agent_sim/wiring/executors.py:901",
+          "src/polisyos/foundry/contracts/state.py:370"
+        ]
+      }
+    }
+  },
+  "lex_authority_manifest": {
+    "intervention_map_entries": [
+      {
+        "law_token": "budget_law",
+        "provision_ref": "lex_rule_thresholds:a5429abb6621acb11ed10b20",
+        "intervention_kind": "budget_allocation_multiplier",
+        "knob_ids": [
+          "budget_allocation_multiplier"
+        ],
+        "measurement_expectations": {
+          "as_of": "1998-01-01",
+          "candidate_unit": "ratio"
+        },
+        "metadata": {
+          "law_token": "budget_law"
+        }
+      },
+      {
+        "law_token": "procurement_decree",
+        "provision_ref": "lex_rule_thresholds:07baad7c3a120b0363322e71",
+        "intervention_kind": "procurement_shock_intensity",
+        "knob_ids": [
+          "procurement_shock_intensity"
+        ],
+        "measurement_expectations": {
+          "as_of": "1998-01-01",
+          "candidate_unit": "ratio"
+        },
+        "metadata": {
+          "law_token": "procurement_decree"
+        }
+      },
+      {
+        "law_token": "tax_relief_statute",
+        "provision_ref": "lex_rule_thresholds:01539d8d9b8cfedb489d689e",
+        "intervention_kind": "tax_relief_rate",
+        "knob_ids": [
+          "tax_relief_rate"
+        ],
+        "measurement_expectations": {
+          "as_of": "1998-01-01",
+          "candidate_unit": "ratio"
+        },
+        "metadata": {
+          "law_token": "tax_relief_statute"
+        }
+      }
+    ]
+  }
+}

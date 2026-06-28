@@ -12,6 +12,7 @@ import numpy as np
 from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
+from polisyos.core.contracts import DataTrust, ValueOuterSet
 from polisyos.data_forge.domains.academic.knowledge.canonical_resolver import (
     CanonicalVariableResolver,
     ResolutionResult,
@@ -100,6 +101,27 @@ class EdgeTransportRecord:
     matched_moderators_count: int = 0
     generic_penalty: float = 0.0
     context_match_reward: float = 0.0
+    base_confidence: float = 0.0
+
+
+@dataclass(frozen=True)
+class GroundedCausalPriorResolution:
+    """Resolve-bind-validate result for a candidate effect against the SKG."""
+
+    status: str
+    cause: str
+    effect: str
+    estimand: str
+    scope_context_id: str
+    skg_version_id: int
+    skg_snapshot_ref: str
+    edge_id: str | None
+    relevance_score: float
+    content_bind_status: str
+    validation_status: str
+    blockers: tuple[str, ...] = ()
+    transport_ref: str | None = None
+    transport_confidence: float | None = None
 
 
 class SKGQuery:
@@ -110,6 +132,7 @@ class SKGQuery:
         self._store = ScholarKnowledgeStore(db_path, index_dir)
         self._con = duckdb.connect(str(db_path), read_only=True)
         self._resolver: CanonicalVariableResolver | None = None
+        self._transport_confidence_floor: float | None = None
 
     def query_prior(
         self,
@@ -602,6 +625,31 @@ class SKGQuery:
                     observed.append(clean_candidate)
         return list(dict.fromkeys(observed))
 
+    def _approved_synonym_neighbors(self, variable_name: str) -> list[str]:
+        clean_name = str(variable_name).strip()
+        if not clean_name or not self._table_exists("ac_skg_variable_synonyms"):
+            return []
+        try:
+            rows = self._con.execute(
+                """
+                SELECT synonym, canonical_name
+                FROM ac_skg_variable_synonyms
+                WHERE approved = TRUE
+                  AND (synonym = ? OR canonical_name = ?)
+                ORDER BY confidence DESC, synonym ASC, canonical_name ASC
+                """,
+                [clean_name, clean_name],
+            ).fetchall()
+        except duckdb.Error:
+            return []
+        neighbors: list[str] = []
+        for synonym, canonical_name in rows:
+            for candidate in (synonym, canonical_name):
+                token = str(candidate or "").strip()
+                if token:
+                    neighbors.append(token)
+        return list(dict.fromkeys(neighbors))
+
     def _child_canonical_names(self, parent_name: str) -> list[str]:
         """Return child canonical names that use ``parent_name`` as a suffix.
 
@@ -653,8 +701,10 @@ class SKGQuery:
             and resolved.canonical_name != clean_name
         ):
             candidates.append(resolved.canonical_name)
+        candidates.extend(self._approved_synonym_neighbors(clean_name))
         if resolved is not None and resolved.canonical_name:
             candidates.extend(self._observed_names_for_approved_canonical(resolved.canonical_name))
+            candidates.extend(self._approved_synonym_neighbors(resolved.canonical_name))
             parent = parent_canonical_name(resolved.canonical_name)
             if (
                 need_type in {"causal_edge", "scholar_query"}
@@ -795,10 +845,16 @@ class SKGQuery:
         ):
             return []
         placeholders = ", ".join(["?"] * len(clean_edge_ids))
+        base_confidence_sql = (
+            "base_confidence"
+            if self._column_exists("ac_skg_transport_scores", "base_confidence")
+            else "transport_confidence"
+        )
         rows = self._con.execute(
             f"""
             SELECT edge_id, target_context_id, transport_confidence, match_mode,
                    matched_moderators_json, generic_penalty, context_match_reward
+                   , {base_confidence_sql} AS base_confidence
             FROM ac_skg_transport_scores
             WHERE target_context_id = ?
               AND edge_id IN ({placeholders})
@@ -823,6 +879,7 @@ class SKGQuery:
                     matched_moderators_count=matched_count,
                     generic_penalty=float(row[5] or 0.0),
                     context_match_reward=float(row[6] or 0.0),
+                    base_confidence=float(row[7] or 0.0),
                 )
             )
         return results
@@ -1236,6 +1293,240 @@ class SKGQuery:
         except (TypeError, ValueError):
             return None
 
+    def _parameter_estimate_by_id(self, estimate_id: str) -> ParameterEstimateResult | None:
+        clean_id = str(estimate_id or "").strip()
+        if not clean_id or not self._table_exists("ac_parameter_estimates"):
+            return None
+        row = self._con.execute(
+            """
+            SELECT e.id, e.work_id, e.variable_name, e.estimate, e.ci_low, e.ci_high,
+                   e.std_error, e.unit, e.domain, e.study_design, e.sample_size,
+                   e.country, e.period_start, e.period_end, e.trust_score, e.raw_context,
+                   COALESCE(w.title, '') AS work_title,
+                   w.year
+            FROM ac_parameter_estimates e
+            LEFT JOIN ac_works w ON w.id = e.work_id
+            WHERE e.id = ?
+            LIMIT 1
+            """,
+            [clean_id],
+        ).fetchone()
+        if row is None:
+            return None
+        return ParameterEstimateResult(
+            id=str(row[0] or ""),
+            work_id=str(row[1] or ""),
+            variable_name=str(row[2] or ""),
+            estimate=float(row[3]),
+            ci_low=None if row[4] is None else float(row[4]),
+            ci_high=None if row[5] is None else float(row[5]),
+            std_error=None if row[6] is None else float(row[6]),
+            unit=str(row[7] or ""),
+            domain=str(row[8] or ""),
+            study_design=str(row[9] or ""),
+            sample_size=None if row[10] is None else int(row[10]),
+            country=str(row[11] or ""),
+            period_start=None if row[12] is None else int(row[12]),
+            period_end=None if row[13] is None else int(row[13]),
+            trust_score=float(row[14] or 0.0),
+            raw_context=str(row[15] or ""),
+            work_title=str(row[16] or ""),
+            work_year=None if row[17] is None else int(row[17]),
+        )
+
+    def _design_evidence_for_estimate(
+        self,
+        estimate: ParameterEstimateResult,
+        *,
+        design_tier_override: int | None,
+    ) -> dict[str, Any]:
+        tier = design_tier_override
+        strong_design_evidence = False
+        publish_blockers = ""
+        if tier is None and estimate.work_id:
+            row = self._con.execute(
+                """
+                SELECT MIN(design_quality_tier) AS design_quality_tier,
+                       MAX(CASE WHEN strong_design_evidence THEN 1 ELSE 0 END) AS strong_design,
+                       STRING_AGG(COALESCE(publish_blockers, ''), ';') AS publish_blockers
+                FROM (
+                    SELECT design_quality_tier, strong_design_evidence, '' AS publish_blockers
+                    FROM ac_causal_claims
+                    WHERE work_id = ? AND design_quality_tier IS NOT NULL
+                    UNION ALL
+                    SELECT design_quality_tier, strong_design_evidence, publish_blockers
+                    FROM ac_claim_adjudications
+                    WHERE work_id = ? AND design_quality_tier IS NOT NULL
+                )
+                """,
+                [estimate.work_id, estimate.work_id],
+            ).fetchone()
+            if row and row[0] is not None:
+                tier = int(row[0])
+                strong_design_evidence = bool(row[1])
+                publish_blockers = str(row[2] or "")
+        tiers = self._design_quality_tier_taxonomy()
+        tier_rank = tiers.index(tier) if tier in tiers else len(tiers)
+        if tier is None:
+            identification_mode = "proxy_identified"
+        elif tier_rank == 0:
+            identification_mode = "point_identified"
+        elif tier_rank < max(1, len(tiers) - 1):
+            identification_mode = "partially_identified"
+        else:
+            identification_mode = "proxy_identified"
+        certified_rank_cap = max(0, len(tiers) // 2)
+        assumptions = [
+            "l2_identification_conditional_on_declared_design_assumptions",
+            f"l2_design_tier:{'unresolved' if tier is None else tier}",
+            f"l2_design_tier_rank:{tier_rank}",
+        ]
+        if strong_design_evidence:
+            assumptions.append("l2_strong_design_evidence_declared")
+        if publish_blockers.strip():
+            assumptions.append("l2_publish_blockers_present")
+        return {
+            "tier": tier,
+            "tier_rank": tier_rank,
+            "certified_rank_cap": certified_rank_cap,
+            "identification_mode": identification_mode,
+            "assumptions": tuple(assumptions),
+        }
+
+    def _design_quality_tier_taxonomy(self) -> tuple[int, ...]:
+        if not self._table_exists("ac_claim_adjudications") and not self._table_exists(
+            "ac_causal_claims"
+        ):
+            return ()
+        rows = self._con.execute(
+            """
+            SELECT DISTINCT design_quality_tier
+            FROM (
+                SELECT design_quality_tier FROM ac_causal_claims
+                UNION ALL
+                SELECT design_quality_tier FROM ac_claim_adjudications
+            )
+            WHERE design_quality_tier IS NOT NULL
+            ORDER BY design_quality_tier ASC
+            """
+        ).fetchall()
+        return tuple(int(row[0]) for row in rows if row[0] is not None)
+
+    @staticmethod
+    def _data_trust_from_score(score: float, *, authority_ref: str) -> DataTrust:
+        bounded = SKGQuery._bounded_unit_interval(score)
+        return DataTrust(
+            tier="l2_numeric_trust",
+            trust_cap=bounded,
+            trust_multiplier=bounded,
+            min_coverage=0.0,
+            max_coverage=1.0,
+            promotion_floor=0.2,
+            authority_ref=authority_ref,
+        )
+
+    @staticmethod
+    def _bounded_unit_interval(value: float) -> float:
+        try:
+            return max(0.0, min(1.0, float(value)))
+        except (TypeError, ValueError):
+            return 0.0
+
+    @staticmethod
+    def _transport_widening_multiplier(record: EdgeTransportRecord) -> float:
+        base = SKGQuery._bounded_unit_interval(record.base_confidence)
+        confidence = SKGQuery._bounded_unit_interval(record.transport_confidence)
+        generic_penalty = max(0.0, float(record.generic_penalty or 0.0))
+        context_reward = max(0.0, float(record.context_match_reward or 0.0))
+        mode_penalties = {
+            "exact": 0.0,
+            "claim_ref": 0.05,
+            "moderator_match": 0.08,
+            "profile_match": 0.10,
+            "generic": 0.35,
+            "weak": 0.45,
+            "fallback": 0.55,
+        }
+        mode_penalty = mode_penalties.get(
+            str(record.match_mode or "").strip().lower(),
+            max(0.0, base - confidence),
+        )
+        transport_loss = max(0.0, base - confidence)
+        uncertainty = transport_loss + generic_penalty + mode_penalty
+        uncertainty = max(0.0, uncertainty - min(context_reward, 0.25))
+        return 1.0 + min(4.0, max(0.05, uncertainty))
+
+    def _transport_confidence_floor_from_data(self) -> float:
+        """Return the L2-derived floor for scope transport admissibility."""
+
+        if self._transport_confidence_floor is not None:
+            return self._transport_confidence_floor
+        if not self._table_exists("ac_skg_transport_scores"):
+            self._transport_confidence_floor = 1.0
+            return self._transport_confidence_floor
+        try:
+            row = self._con.execute(
+                """
+                SELECT COALESCE(QUANTILE_CONT(transport_confidence, 0.10), 1.0)
+                FROM ac_skg_transport_scores
+                WHERE transport_confidence IS NOT NULL
+                """
+            ).fetchone()
+        except duckdb.Error:
+            row = None
+        self._transport_confidence_floor = self._bounded_unit_interval(
+            1.0 if row is None or row[0] is None else float(row[0])
+        )
+        return self._transport_confidence_floor
+
+    def _edge_content_match_score(
+        self,
+        *,
+        requested_cause: str,
+        requested_effect: str,
+        record: EdgeSupportRecord,
+    ) -> float:
+        cause_score = self._resolved_variable_identity_score(requested_cause, record.src)
+        effect_score = self._resolved_variable_identity_score(requested_effect, record.dst)
+        return cause_score * effect_score
+
+    def _resolved_variable_identity_score(self, requested: str, candidate: str) -> float:
+        requested_aliases = self._variable_identity_aliases(requested)
+        candidate_aliases = self._variable_identity_aliases(candidate)
+        if not requested_aliases or not candidate_aliases:
+            return 0.0
+        if requested_aliases & candidate_aliases:
+            return 1.0
+        return max(
+            self._variable_identity_score(left, right)
+            for left in requested_aliases
+            for right in candidate_aliases
+        )
+
+    def _variable_identity_aliases(self, value: str) -> set[str]:
+        clean = str(value or "").strip()
+        if not clean:
+            return set()
+        aliases = set(self._parameter_lookup_names(clean, need_type="causal_edge")[0])
+        aliases.add(clean)
+        return {item.strip().lower() for item in aliases if item.strip()}
+
+    @staticmethod
+    def _variable_identity_score(requested: str, candidate: str) -> float:
+        requested_norm = str(requested or "").strip().lower()
+        candidate_norm = str(candidate or "").strip().lower()
+        if not requested_norm or not candidate_norm:
+            return 0.0
+        if requested_norm == candidate_norm:
+            return 1.0
+        requested_tokens = set(requested_norm.replace("_", ".").split("."))
+        candidate_tokens = set(candidate_norm.replace("_", ".").split("."))
+        if not requested_tokens or not candidate_tokens:
+            return 0.0
+        overlap = len(requested_tokens & candidate_tokens)
+        union = len(requested_tokens | candidate_tokens)
+        return overlap / union if union else 0.0
+
     @staticmethod
     def _edge_domain(src: str, dst: str) -> str:
         for candidate in (src, dst):
@@ -1505,11 +1796,670 @@ class SKGQuery:
             return None
         return int(row[0])
 
+    def has_skg_version_id(self, *, version_id: int) -> bool:
+        """Return whether the SKG store contains ``version_id``."""
+
+        try:
+            row = self._con.execute(
+                "SELECT 1 FROM ac_skg_versions WHERE version_id = ? LIMIT 1",
+                [int(version_id)],
+            ).fetchone()
+        except (duckdb.Error, TypeError, ValueError):
+            return False
+        return row is not None
+
     def skg_snapshot_ref(self, *, version_id: int | None = None) -> str | None:
         resolved_version = version_id if version_id is not None else self.latest_skg_version_id()
         if resolved_version is None:
             return None
         return f"duckdb://{self._db_path}#v{int(resolved_version)}"
+
+    def parameter_estimate_value_outer_set(
+        self,
+        *,
+        estimate_id: str,
+        world_model_record_ref: str,
+        epoch: str,
+        trust_score_override: float | None = None,
+        design_tier_override: int | None = None,
+    ) -> ValueOuterSet:
+        """Lower one real L2 parameter estimate into the GY-N-V carrier."""
+
+        estimate = self._parameter_estimate_by_id(estimate_id)
+        if estimate is None:
+            raise ValueError(f"l2_parameter_estimate_unresolved:{estimate_id}")
+        return self.lower_parameter_estimate_to_value_outer_set(
+            estimate=estimate,
+            world_model_record_ref=world_model_record_ref,
+            epoch=epoch,
+            trust_score_override=trust_score_override,
+            design_tier_override=design_tier_override,
+        )
+
+    def lower_parameter_estimate_to_value_outer_set(
+        self,
+        *,
+        estimate: ParameterEstimateResult,
+        world_model_record_ref: str,
+        epoch: str,
+        trust_score_override: float | None = None,
+        design_tier_override: int | None = None,
+    ) -> ValueOuterSet:
+        """Lower an L2 interval estimate without collapsing CI uncertainty to a point."""
+
+        if estimate.ci_low is None or estimate.ci_high is None:
+            raise ValueError(f"l2_parameter_estimate_ci_missing:{estimate.id}")
+        lower = float(estimate.ci_low)
+        upper = float(estimate.ci_high)
+        if lower > upper:
+            raise ValueError(f"l2_parameter_estimate_ci_invalid:{estimate.id}")
+        design_evidence = self._design_evidence_for_estimate(
+            estimate,
+            design_tier_override=design_tier_override,
+        )
+        identification_mode = design_evidence["identification_mode"]
+        assumptions = list(design_evidence["assumptions"])
+        if upper > lower and identification_mode in {"point", "point_identified"}:
+            identification_mode = "partial_identified"
+            assumptions.append("l2_interval_estimate_identification_is_conditional")
+        trust_score = (
+            float(trust_score_override)
+            if trust_score_override is not None
+            else float(estimate.trust_score)
+        )
+        trust_score = self._bounded_unit_interval(trust_score)
+        representation_status = (
+            "certified"
+            if upper > lower
+            and trust_score >= 0.5
+            and design_evidence["tier"] is not None
+            and design_evidence["tier_rank"] <= design_evidence["certified_rank_cap"]
+            else "search_only"
+        )
+        return ValueOuterSet.interval_box(
+            coordinates=(estimate.variable_name,),
+            lower=(lower,),
+            upper=(upper,),
+            identification_mode=identification_mode,
+            assumptions=tuple(assumptions),
+            assumption_status="declared",
+            calibration_scope={
+                "substrate": "L2:scholar_knowledge",
+                "estimate_id": estimate.id,
+                "work_id": estimate.work_id,
+                "unit": estimate.unit,
+                "country": estimate.country,
+                "period_start": "" if estimate.period_start is None else str(estimate.period_start),
+                "period_end": "" if estimate.period_end is None else str(estimate.period_end),
+                "lowering_status": "parameter_estimate_ci_interval",
+                "design_tier": "" if design_evidence["tier"] is None else str(design_evidence["tier"]),
+            },
+            data_trust=self._data_trust_from_score(
+                trust_score,
+                authority_ref=f"duckdb://{self._db_path}#ac_parameter_estimates/{estimate.id}",
+            ),
+            world_model_record_ref=world_model_record_ref,
+            epoch=epoch,
+            representation_status=representation_status,
+        )
+
+    def transport_value_outer_set(
+        self,
+        value_set: ValueOuterSet,
+        *,
+        edge_id: str,
+        target_context_id: str,
+    ) -> ValueOuterSet:
+        """Apply real SKG transport as a bounded widening of an existing ValueOuterSet."""
+
+        records = self.query_edge_transport([edge_id], target_context_id=target_context_id)
+        if not records:
+            return self.untransported_value_outer_set(
+                value_set,
+                edge_id=edge_id,
+                target_context_id=target_context_id,
+                reason="transport_unavailable_for_scope",
+            )
+        record = records[0]
+        floor = self._transport_confidence_floor_from_data()
+        if self._bounded_unit_interval(record.transport_confidence) < floor:
+            return self.untransported_value_outer_set(
+                value_set,
+                edge_id=edge_id,
+                target_context_id=target_context_id,
+                reason="transport_confidence_below_floor",
+                transport_record=record,
+            )
+        widening = self._transport_widening_multiplier(record)
+        lower: list[float] = []
+        upper: list[float] = []
+        for lo, hi in zip(value_set.lower, value_set.upper, strict=True):
+            width = max(float(hi) - float(lo), 1e-9)
+            midpoint = (float(lo) + float(hi)) / 2.0
+            widened_width = width * widening
+            half_width = widened_width / 2.0
+            lower.append(midpoint - half_width)
+            upper.append(midpoint + half_width)
+        identification_mode = (
+            "proxy_identified"
+            if value_set.identification_status in {"proxy", "blocked"}
+            else "partially_identified"
+        )
+        assumptions = (
+            *value_set.assumptions,
+            f"l2_transport_edge:{record.edge_id}",
+            f"l2_transport_target_context:{record.target_context_id}",
+            f"l2_transport_confidence:{record.transport_confidence:.6f}",
+        )
+        calibration_scope = dict(value_set.calibration_scope)
+        calibration_scope.update(
+            {
+                "transport_ref": (
+                    f"duckdb://{self._db_path}#ac_skg_transport_scores/"
+                    f"{record.edge_id}:{record.target_context_id}"
+                ),
+                "transport_edge_id": record.edge_id,
+                "target_context_id": record.target_context_id,
+                "transport_match_mode": record.match_mode,
+                "transport_confidence": f"{record.transport_confidence:.12g}",
+                "lowering_status": "transported_limited",
+                "source_width": ",".join(f"{width:.12g}" for width in value_set.width),
+                "widening_multiplier": f"{widening:.12g}",
+            }
+        )
+        return ValueOuterSet.interval_box(
+            coordinates=value_set.coordinates,
+            lower=tuple(lower),
+            upper=tuple(upper),
+            identification_mode=identification_mode,
+            assumptions=tuple(assumptions),
+            assumption_status="declared",
+            calibration_scope=calibration_scope,
+            data_trust=self._data_trust_from_score(
+                min(value_set.data_trust.effective_score, record.transport_confidence),
+                authority_ref=calibration_scope["transport_ref"],
+            ),
+            world_model_record_ref=value_set.world_model_record_ref,
+            epoch=value_set.epoch,
+            representation_status=value_set.representation_status,
+        )
+
+    def untransported_value_outer_set(
+        self,
+        value_set: ValueOuterSet,
+        *,
+        edge_id: str,
+        target_context_id: str,
+        reason: str,
+        transport_record: EdgeTransportRecord | None = None,
+    ) -> ValueOuterSet:
+        """Return a search-only, non-promotable bound for unavailable cross-scope transport."""
+
+        lower: list[float] = []
+        upper: list[float] = []
+        floor = self._transport_confidence_floor_from_data()
+        for lo, hi in zip(value_set.lower, value_set.upper, strict=True):
+            lo_float = float(lo)
+            hi_float = float(hi)
+            width = max(hi_float - lo_float, 1e-9)
+            midpoint = (lo_float + hi_float) / 2.0
+            # Keep the interval finite for the ValueOuterSet carrier, but make the
+            # lack of transport load-bearing through search_only + zero trust.
+            untransported_width = width * (1.0 + 10.0 * max(0.1, 1.0 - floor))
+            half_width = untransported_width / 2.0
+            lower.append(midpoint - half_width)
+            upper.append(midpoint + half_width)
+        calibration_scope = dict(value_set.calibration_scope)
+        calibration_scope.update(
+            {
+                "transport_edge_id": str(edge_id),
+                "target_context_id": str(target_context_id),
+                "lowering_status": "transport_unavailable_for_scope",
+                "transport_reason": str(reason),
+                "transport_confidence_floor": f"{floor:.12g}",
+                "transport_confidence": (
+                    ""
+                    if transport_record is None
+                    else f"{transport_record.transport_confidence:.12g}"
+                ),
+            }
+        )
+        if transport_record is not None:
+            calibration_scope["transport_ref"] = (
+                f"duckdb://{self._db_path}#ac_skg_transport_scores/"
+                f"{transport_record.edge_id}:{transport_record.target_context_id}"
+            )
+        return ValueOuterSet.interval_box(
+            coordinates=value_set.coordinates,
+            lower=tuple(lower),
+            upper=tuple(upper),
+            identification_mode="unidentified",
+            assumptions=(
+                *value_set.assumptions,
+                f"l2_transport_edge:{edge_id}",
+                f"l2_transport_target_context:{target_context_id}",
+                f"l2_transport_reason:{reason}",
+            ),
+            assumption_status="out_of_scope",
+            calibration_scope=calibration_scope,
+            data_trust=self._data_trust_from_score(
+                0.0,
+                authority_ref=(
+                    f"duckdb://{self._db_path}#ac_skg_transport_scores/"
+                    f"{edge_id}:{target_context_id}:untransported"
+                ),
+            ),
+            world_model_record_ref=value_set.world_model_record_ref,
+            epoch=value_set.epoch,
+            representation_status="search_only",
+        )
+
+    def _contested_claim_rows(self, claim_refs: tuple[str, ...]) -> dict[str, dict[str, str]]:
+        clean_refs = tuple(dict.fromkeys(ref for ref in claim_refs if str(ref).strip()))
+        if not clean_refs:
+            return {}
+        placeholders = ", ".join(["?"] * len(clean_refs))
+        claims: dict[str, dict[str, str]] = {}
+        if self._table_exists("ac_causal_claims"):
+            rows = self._con.execute(
+                f"""
+                SELECT id, work_id, cause, effect, direction
+                FROM ac_causal_claims
+                WHERE id IN ({placeholders})
+                ORDER BY id ASC
+                """,
+                list(clean_refs),
+            ).fetchall()
+            for row in rows:
+                claims[str(row[0])] = {
+                    "work_id": str(row[1] or ""),
+                    "cause": str(row[2] or ""),
+                    "effect": str(row[3] or ""),
+                    "direction": str(row[4] or ""),
+                }
+        if self._table_exists("ac_claim_adjudications"):
+            rows = self._con.execute(
+                f"""
+                SELECT claim_id, work_id, cause, effect, claim_type
+                FROM ac_claim_adjudications
+                WHERE claim_id IN ({placeholders})
+                ORDER BY claim_id ASC
+                """,
+                list(clean_refs),
+            ).fetchall()
+            for row in rows:
+                claim_id = str(row[0])
+                existing = claims.get(claim_id, {})
+                claims[claim_id] = {
+                    "work_id": existing.get("work_id") or str(row[1] or ""),
+                    "cause": existing.get("cause") or str(row[2] or ""),
+                    "effect": existing.get("effect") or str(row[3] or ""),
+                    "direction": existing.get("direction") or str(row[4] or ""),
+                }
+        return claims
+
+    def _parameter_estimates_for_work_ids(
+        self,
+        work_ids: tuple[str, ...],
+    ) -> list[ParameterEstimateResult]:
+        clean_work_ids = tuple(dict.fromkeys(work_id for work_id in work_ids if work_id))
+        if not clean_work_ids:
+            return []
+        placeholders = ", ".join(["?"] * len(clean_work_ids))
+        rows = self._con.execute(
+            f"""
+            SELECT e.id, e.work_id, e.variable_name, e.estimate, e.ci_low, e.ci_high,
+                   e.std_error, e.unit, e.domain, e.study_design, e.sample_size,
+                   e.country, e.period_start, e.period_end, e.trust_score,
+                   e.raw_context, w.title, w.year
+            FROM ac_parameter_estimates e
+            LEFT JOIN ac_works w ON w.id = e.work_id
+            WHERE e.work_id IN ({placeholders})
+              AND e.ci_low IS NOT NULL
+              AND e.ci_high IS NOT NULL
+            ORDER BY e.work_id ASC, e.id ASC
+            """,
+            list(clean_work_ids),
+        ).fetchall()
+        estimates: list[ParameterEstimateResult] = []
+        for row in rows:
+            estimates.append(
+                ParameterEstimateResult(
+                    id=str(row[0] or ""),
+                    work_id=str(row[1] or ""),
+                    variable_name=str(row[2] or ""),
+                    estimate=float(row[3]),
+                    ci_low=None if row[4] is None else float(row[4]),
+                    ci_high=None if row[5] is None else float(row[5]),
+                    std_error=None if row[6] is None else float(row[6]),
+                    unit=str(row[7] or ""),
+                    domain=str(row[8] or ""),
+                    study_design=str(row[9] or ""),
+                    sample_size=None if row[10] is None else int(row[10]),
+                    country=str(row[11] or ""),
+                    period_start=None if row[12] is None else int(row[12]),
+                    period_end=None if row[13] is None else int(row[13]),
+                    trust_score=float(row[14] or 0.0),
+                    raw_context=str(row[15] or ""),
+                    work_title=str(row[16] or ""),
+                    work_year=None if row[17] is None else int(row[17]),
+                )
+            )
+        return estimates
+
+    @staticmethod
+    def _direction_sign(direction: str) -> int:
+        direction_registry = {
+            "positive": 1,
+            "increase": 1,
+            "negative": -1,
+            "decrease": -1,
+            "mixed": 0,
+            "ambiguous": 0,
+            "non_linear": 0,
+            "nonlinear": 0,
+        }
+        return direction_registry.get(str(direction or "").strip().lower(), 0)
+
+    def _oriented_contested_interval(
+        self,
+        *,
+        estimate: ParameterEstimateResult,
+        direction: str,
+    ) -> tuple[float, float]:
+        if estimate.ci_low is None or estimate.ci_high is None:
+            raise ValueError(f"l2_contested_estimate_ci_missing:{estimate.id}")
+        lo = float(estimate.ci_low)
+        hi = float(estimate.ci_high)
+        if lo > hi:
+            lo, hi = hi, lo
+        sign = self._direction_sign(direction)
+        if sign > 0:
+            return lo, hi
+        magnitude = max(abs(lo), abs(hi), 1e-9)
+        if sign < 0:
+            return -magnitude, min(0.0, -min(abs(lo), abs(hi)))
+        return -magnitude, magnitude
+
+    def contested_edge_value_outer_set(
+        self,
+        *,
+        contested_edge_id: str,
+        world_model_record_ref: str,
+        epoch: str,
+    ) -> ValueOuterSet:
+        """Lower a contested SKG edge into explicit structural ambiguity."""
+
+        if not self._table_exists("ac_skg_contested_edges"):
+            raise ValueError("l2_contested_edges_unavailable")
+        id_column = (
+            "edge_id"
+            if self._column_exists("ac_skg_contested_edges", "edge_id")
+            else "contested_edge_id"
+        )
+        src_column = (
+            "src" if self._column_exists("ac_skg_contested_edges", "src") else "src_family"
+        )
+        dst_column = (
+            "dst" if self._column_exists("ac_skg_contested_edges", "dst") else "dst_family"
+        )
+        row = self._con.execute(
+            f"""
+            SELECT {id_column}, {src_column}, {dst_column},
+                   positive_weight, negative_weight, mixed_weight,
+                   confidence, evidence_strength, claim_refs
+            FROM ac_skg_contested_edges
+            WHERE {id_column} = ?
+            LIMIT 1
+            """,
+            [contested_edge_id],
+        ).fetchone()
+        if row is None:
+            raise ValueError(f"l2_contested_edge_unresolved:{contested_edge_id}")
+        confidence = self._bounded_unit_interval(float(row[6] or 0.0))
+        claim_refs = tuple(self._parse_json_list(row[8]))
+        if not claim_refs:
+            raise ValueError(f"l2_contested_claim_refs_missing:{contested_edge_id}")
+        claims = self._contested_claim_rows(claim_refs)
+        work_ids = tuple(claim["work_id"] for claim in claims.values() if claim.get("work_id"))
+        estimates = self._parameter_estimates_for_work_ids(work_ids)
+        if not estimates:
+            raise ValueError(f"l2_contested_estimates_unresolved:{contested_edge_id}")
+        claim_by_work: dict[str, list[dict[str, str]]] = {}
+        for claim in claims.values():
+            work_id = claim.get("work_id", "")
+            if work_id:
+                claim_by_work.setdefault(work_id, []).append(claim)
+        intervals: list[tuple[float, float]] = []
+        estimate_refs: list[str] = []
+        for estimate in estimates:
+            claim_rows = claim_by_work.get(estimate.work_id) or [{"direction": ""}]
+            for claim in claim_rows:
+                intervals.append(
+                    self._oriented_contested_interval(
+                        estimate=estimate,
+                        direction=claim.get("direction", ""),
+                    )
+                )
+            estimate_refs.append(estimate.id)
+        lower = min(lo for lo, _ in intervals)
+        upper = max(hi for _, hi in intervals)
+        if not lower < 0.0 < upper:
+            spread = max(abs(lower), abs(upper), 1e-6)
+            lower = -spread
+            upper = spread
+        resolved_claim_count = len(claims)
+        return ValueOuterSet.interval_box(
+            coordinates=(f"{row[1]}->{row[2]}",),
+            lower=(lower,),
+            upper=(upper,),
+            identification_mode="proxy_identified",
+            assumptions=(
+                f"l2_contested_edge:{contested_edge_id}",
+                "l2_structural_ambiguity_direction_disagreement",
+                "l2_contested_envelope_from_claim_ref_estimates",
+            ),
+            assumption_status="declared",
+            calibration_scope={
+                "substrate": "L2:scholar_knowledge",
+                "contested_edge_id": contested_edge_id,
+                "source_variable": str(row[1]),
+                "target_variable": str(row[2]),
+                "claim_refs": json.dumps(sorted(claim_refs), sort_keys=True),
+                "resolved_claim_count": str(resolved_claim_count),
+                "estimate_refs": json.dumps(sorted(set(estimate_refs)), sort_keys=True),
+                "estimate_count": str(len(set(estimate_refs))),
+                "lowering_status": "structural_ambiguity_estimate_envelope",
+            },
+            data_trust=self._data_trust_from_score(
+                confidence,
+                authority_ref=f"duckdb://{self._db_path}#ac_skg_contested_edges/{contested_edge_id}",
+            ),
+            world_model_record_ref=world_model_record_ref,
+            epoch=epoch,
+            representation_status="search_only",
+        )
+
+    def resolve_grounded_causal_prior(
+        self,
+        *,
+        cause: str,
+        effect: str,
+        estimand: str,
+        scope_context_id: str,
+        required_skg_version_id: int,
+        min_relevance: float = 0.55,
+    ) -> GroundedCausalPriorResolution:
+        """Resolve, content-bind, and validate a candidate effect against SKG priors."""
+
+        clean_cause = str(cause).strip()
+        clean_effect = str(effect).strip()
+        clean_scope = str(scope_context_id or "").strip()
+        snapshot_ref = self.skg_snapshot_ref(version_id=required_skg_version_id) or ""
+        blockers: list[str] = []
+        if not self.has_skg_version_id(version_id=required_skg_version_id):
+            blockers.append("skg_version_unresolved")
+        if not clean_cause or not clean_effect:
+            blockers.append("candidate_effect_unresolved")
+        if blockers:
+            return GroundedCausalPriorResolution(
+                status="blocked",
+                cause=clean_cause,
+                effect=clean_effect,
+                estimand=str(estimand),
+                scope_context_id=clean_scope,
+                skg_version_id=int(required_skg_version_id),
+                skg_snapshot_ref=snapshot_ref,
+                edge_id=None,
+                relevance_score=0.0,
+                content_bind_status="unbound",
+                validation_status="failed_closed",
+                blockers=tuple(blockers),
+            )
+        records = self.query_edge_support(
+            cause=clean_cause,
+            effect=clean_effect,
+            min_confidence=0.0,
+            support_mode="hybrid",
+            limit=8,
+        )
+        scored: list[tuple[float, EdgeSupportRecord, EdgeTransportRecord | None]] = []
+        untransported: list[
+            tuple[float, EdgeSupportRecord, EdgeTransportRecord | None, tuple[str, ...]]
+        ] = []
+        transport_floor = self._transport_confidence_floor_from_data() if clean_scope else 0.0
+        for record in records:
+            content_score = self._edge_content_match_score(
+                requested_cause=clean_cause,
+                requested_effect=clean_effect,
+                record=record,
+            )
+            if content_score <= 0.0:
+                continue
+            transport_record = None
+            transport_score = 0.0
+            if clean_scope:
+                transports = self.query_edge_transport(
+                    [record.edge_id],
+                    target_context_id=clean_scope,
+                )
+                transport_record = transports[0] if transports else None
+                if transport_record is None:
+                    untransported.append(
+                        (
+                            0.55 * content_score
+                            + 0.25 * self._bounded_unit_interval(record.confidence),
+                            record,
+                            None,
+                            ("transport_unavailable_for_scope",),
+                        )
+                    )
+                    continue
+                transport_score = float(transport_record.transport_confidence)
+                if self._bounded_unit_interval(transport_score) < transport_floor:
+                    untransported.append(
+                        (
+                            0.55 * content_score
+                            + 0.25 * self._bounded_unit_interval(record.confidence)
+                            + 0.20 * self._bounded_unit_interval(transport_score),
+                            record,
+                            transport_record,
+                            ("transport_confidence_below_floor",),
+                        )
+                    )
+                    continue
+            relevance = (
+                0.55 * content_score
+                + 0.25 * self._bounded_unit_interval(record.confidence)
+                + 0.20 * self._bounded_unit_interval(transport_score)
+            )
+            scored.append((relevance, record, transport_record))
+        if not scored:
+            if untransported:
+                relevance, best, transport_record, transport_blockers = max(
+                    untransported,
+                    key=lambda item: (item[0], item[1].confidence, item[1].edge_id),
+                )
+                transport_ref = (
+                    None
+                    if transport_record is None
+                    else f"duckdb://{self._db_path}#ac_skg_transport_scores/"
+                    f"{transport_record.edge_id}:{transport_record.target_context_id}"
+                )
+                return GroundedCausalPriorResolution(
+                    status="search_only",
+                    cause=clean_cause,
+                    effect=clean_effect,
+                    estimand=str(estimand),
+                    scope_context_id=clean_scope,
+                    skg_version_id=int(required_skg_version_id),
+                    skg_snapshot_ref=snapshot_ref,
+                    edge_id=best.edge_id,
+                    relevance_score=relevance,
+                    content_bind_status="content_bound_untransported",
+                    validation_status="failed_closed",
+                    blockers=transport_blockers,
+                    transport_ref=transport_ref,
+                    transport_confidence=(
+                        None
+                        if transport_record is None
+                        else transport_record.transport_confidence
+                    ),
+                )
+            return GroundedCausalPriorResolution(
+                status="blocked",
+                cause=clean_cause,
+                effect=clean_effect,
+                estimand=str(estimand),
+                scope_context_id=clean_scope,
+                skg_version_id=int(required_skg_version_id),
+                skg_snapshot_ref=snapshot_ref,
+                edge_id=None,
+                relevance_score=0.0,
+                content_bind_status="unbound",
+                validation_status="failed_closed",
+                blockers=("skg_prior_resolution_empty",),
+            )
+        relevance, best, transport_record = max(scored, key=lambda item: (item[0], item[1].confidence))
+        if relevance < min_relevance:
+            return GroundedCausalPriorResolution(
+                status="blocked",
+                cause=clean_cause,
+                effect=clean_effect,
+                estimand=str(estimand),
+                scope_context_id=clean_scope,
+                skg_version_id=int(required_skg_version_id),
+                skg_snapshot_ref=snapshot_ref,
+                edge_id=best.edge_id,
+                relevance_score=relevance,
+                content_bind_status="content_mismatch",
+                validation_status="failed_closed",
+                blockers=("skg_prior_relevance_below_threshold",),
+            )
+        transport_ref = (
+            None
+            if transport_record is None
+            else f"duckdb://{self._db_path}#ac_skg_transport_scores/"
+            f"{transport_record.edge_id}:{transport_record.target_context_id}"
+        )
+        return GroundedCausalPriorResolution(
+            status="bound",
+            cause=clean_cause,
+            effect=clean_effect,
+            estimand=str(estimand),
+            scope_context_id=clean_scope,
+            skg_version_id=int(required_skg_version_id),
+            skg_snapshot_ref=snapshot_ref,
+            edge_id=best.edge_id,
+            relevance_score=relevance,
+            content_bind_status="content_bound",
+            validation_status="validated",
+            blockers=(),
+            transport_ref=transport_ref,
+            transport_confidence=(
+                None if transport_record is None else transport_record.transport_confidence
+            ),
+        )
 
     def query_prior_for_variables(
         self,
@@ -1721,6 +2671,7 @@ class SKGQuery:
 __all__ = [
     "EdgeSupportRecord",
     "EdgeTransportRecord",
+    "GroundedCausalPriorResolution",
     "LiteraturePriorResult",
     "ParameterCandidate",
     "SKGQuery",

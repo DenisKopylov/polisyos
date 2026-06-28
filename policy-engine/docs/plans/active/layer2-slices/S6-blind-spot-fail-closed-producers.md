@@ -69,7 +69,7 @@ Reason: the seeds live across several packages, but the fail-closed authority ga
 
 Module placement:
 
-- Create `src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py`.
+- Create `src/polisyos/runtime/quality/design_axes/blind_spot_firewalls.py`.
 - Modify `src/polisyos/runtime/quality/__init__.py` to export S6 contracts and producer functions.
 - Modify `src/polisyos/pdc/_impl/layer2_readiness.py` only for the minimal shared envelope extension needed to carry C3 authority-dimension refs.
 - Modify `src/polisyos/pdc/_impl/layer2_design_search.py` only to consume injected S6 data and project it. It must not import `runtime.quality.layer2_blind_spot_firewalls`.
@@ -213,8 +213,8 @@ Scope correction from this code pass:
 | Artifact traceability | `architecture/policy_design_case/layer2_artifact_traceability.toml` (all six S6 named artifacts already listed) |
 | S0 public contracts | `src/polisyos/pdc/__init__.py`, `src/polisyos/pdc/_impl/layer2_readiness.py` |
 | S2 loop and projection narrow waist | `src/polisyos/pdc/_impl/layer2_design_search.py` |
-| S4 regime constraints | `src/polisyos/runtime/quality/layer2_epistemic_regime.py` |
-| S5 composition/dynamics constraints | `src/polisyos/runtime/quality/layer2_coupling_composition.py` |
+| S4 regime constraints | `src/polisyos/runtime/quality/design_axes/epistemic_regime.py` |
+| S5 composition/dynamics constraints | `src/polisyos/runtime/quality/design_axes/coupling_composition.py` |
 | Measurability seed | `src/polisyos/runtime/quality/semantic_binding.py` |
 | Aggregation seed | `src/polisyos/runtime/quality/concept_spine.py` |
 | Capacity/feasibility seeds | `src/polisyos/runtime/quality/institutional_provenance.py`, `src/polisyos/scientist/policy_design/output.py`, `src/polisyos/scientist/agent/feasibility.py` |
@@ -226,7 +226,7 @@ Scope correction from this code pass:
 
 Create:
 
-- `src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py`
+- `src/polisyos/runtime/quality/design_axes/blind_spot_firewalls.py`
 - `architecture/policy_design_case/layer2_s6_blind_spot_firewalls_manifest.json`
 - `tests/unit/runtime/quality/test_layer2_s6_blind_spot_firewalls.py`
 - `tests/repo_quality/tools/test_policy_design_case_layer2_s6_blind_spot_firewalls.py`
@@ -273,7 +273,7 @@ Do not modify:
 
 - Create: `tests/unit/runtime/quality/test_layer2_s6_blind_spot_firewalls.py`
 - Create: the five negative-control fixtures under `tests/fixtures/layer2/s6/`
-- Create: `src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py` (skeleton import target only)
+- Create: `src/polisyos/runtime/quality/design_axes/blind_spot_firewalls.py` (skeleton import target only)
 
 - [ ] **Step 1: Add P18/P19/P21/P22/P24 negative-control fixtures**
 
@@ -332,7 +332,7 @@ uv run pytest tests/unit/runtime/quality/test_layer2_s6_blind_spot_firewalls.py 
 Expected red:
 
 ```text
-ModuleNotFoundError or ImportError for polisyos.runtime.quality.layer2_blind_spot_firewalls
+ModuleNotFoundError or ImportError for polisyos.runtime.quality.design_axes.blind_spot_firewalls
 ```
 
 - [ ] **Step 3: Keep the skeleton empty enough to stay red**
@@ -343,13 +343,13 @@ Create only a module docstring if needed. Do not implement DTOs or pass logic in
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py`
+- Modify: `src/polisyos/runtime/quality/design_axes/blind_spot_firewalls.py`
 - Modify: `src/polisyos/runtime/quality/__init__.py`
 - Modify: `tests/unit/runtime/quality/test_layer2_s6_blind_spot_firewalls.py`
 
 - [ ] **Step 1: Implement strict S6 public DTOs**
 
-In `src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py`, define:
+In `src/polisyos/runtime/quality/design_axes/blind_spot_firewalls.py`, define:
 
 - Schema constant: `LAYER2_S6_BLIND_SPOT_FIREWALLS_SCHEMA_VERSION = "policyos.policy_design_case.layer2_s6_blind_spot_firewalls.v1"`
 - Errors:
@@ -440,7 +440,7 @@ Run:
 ```bash
 cd policy-engine
 uv run pytest tests/unit/runtime/quality/test_layer2_s6_blind_spot_firewalls.py -q
-uv run ruff check src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py tests/unit/runtime/quality/test_layer2_s6_blind_spot_firewalls.py
+uv run ruff check src/polisyos/runtime/quality/design_axes/blind_spot_firewalls.py tests/unit/runtime/quality/test_layer2_s6_blind_spot_firewalls.py
 ```
 
 Expected:
@@ -820,7 +820,7 @@ Create `architecture/policy_design_case/layer2_s6_blind_spot_firewalls_manifest.
     "aggregation_scope_transfer_without_validity",
     "post_policy_effect_claim_without_response_model"
   ],
-  "producer_module": "src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py",
+  "producer_module": "src/polisyos/runtime/quality/design_axes/blind_spot_firewalls.py",
   "consumer_module": "src/polisyos/pdc/_impl/layer2_design_search.py",
   "canonical_route": "tools/quality/validation/run_universal_outcome_corpus.py",
   "validator": "tools/quality/validation/check_policy_design_case_layer2_readiness.py"
@@ -907,8 +907,8 @@ Update `architecture/policy_design_case/cluster_ownership_map.toml`:
 - Remove `[open_cell_closure.ACTOR.mandate_legitimacy]`.
 - Remove `[open_cell_closure.OTHER_AGENTS.strategic_response]`.
 - For each corresponding `[cell.*]`, set:
-  - `owner_module = "src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py"` for the S6 fail-closed wrapper cells.
-  - `owner_module = "src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py"` for `OTHER_AGENTS.strategic_response` as the PDC wrapper, while preserving strategic seed files.
+  - `owner_module = "src/polisyos/runtime/quality/design_axes/blind_spot_firewalls.py"` for the S6 fail-closed wrapper cells.
+  - `owner_module = "src/polisyos/runtime/quality/design_axes/blind_spot_firewalls.py"` for `OTHER_AGENTS.strategic_response` as the PDC wrapper, while preserving strategic seed files.
   - `ratchet_state = "implemented"`.
   - `p01_chain = "implemented"`.
   - `gap = "none_for_s6_fail_closed_scope"`.
@@ -941,7 +941,7 @@ In `tests/repo_quality/tools/test_policy_design_case_layer2_readiness.py`:
 In `tests/repo_quality/tools/test_policy_design_case_cluster_ownership_map.py`:
 
 - Update `test_cluster_ownership_map_keeps_known_blind_spots_explicit` so `OTHER_AGENTS.strategic_response`, `ACTOR.state_capacity_feasibility`, and `ACTOR.mandate_legitimacy` are asserted as implemented S6 cells:
-  - `owner_module == "src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py"`
+  - `owner_module == "src/polisyos/runtime/quality/design_axes/blind_spot_firewalls.py"`
   - `ratchet_state == "implemented"`
   - `p01_chain == "implemented"`
   - `gap == "none_for_s6_fail_closed_scope"`

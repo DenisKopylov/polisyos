@@ -641,16 +641,16 @@ DEFAULT_WAVE2_CAPABILITY_CLAIMS: tuple[dict[str, Any], ...] = (
                 "architecture blocker or replacement seam proof is recorded"
             ),
         },
-        "typed_contract_ref": ("repo://src/polisyos/runtime/quality/wave2_walking_skeleton.py"),
+        "typed_contract_ref": ("repo://src/polisyos/runtime/quality/policy_design_case_integration_skeleton.py"),
         "producer_ref": (
-            "repo://src/polisyos/runtime/quality/wave2_walking_skeleton.py"
+            "repo://src/polisyos/runtime/quality/policy_design_case_integration_skeleton.py"
             "#build_wave2_policy_design_case_walking_skeleton"
         ),
         "artifact_ref": (
             "repo://architecture/policy_design_case/wave2_i2_walking_skeleton/manifest.json"
         ),
         "bridge_ref": (
-            "repo://src/polisyos/runtime/quality/wave2_walking_skeleton.py"
+            "repo://src/polisyos/runtime/quality/policy_design_case_integration_skeleton.py"
             "#persist_wave2_policy_design_case_walking_skeleton"
         ),
         "consumer_ref": "repo://src/polisyos/runtime/quality/closeout_reader.py",

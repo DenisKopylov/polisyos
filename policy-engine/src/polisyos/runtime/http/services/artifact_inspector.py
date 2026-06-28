@@ -11,6 +11,7 @@ from collections.abc import Callable
 from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
+from polisyos.core import scan_secret_and_pii
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.runtime import (
     ArtifactContentPreview,
@@ -25,6 +26,10 @@ from polisyos.core.contracts.runtime import (
     DecisionPacketPreview,
     PreviewMode,
 )
+from polisyos.runtime.quality.authority import (
+    AuthoritySurfaceDecision,
+    authority_surface_decision,
+)
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.ids import ArtifactID
@@ -36,6 +41,16 @@ RedactionHook = Callable[[Any, PreviewMode], Any]
 _SENSITIVE_KIND_MARKERS = ("secret", "token", "credential", "password", "key_material")
 _REDACTED_PREVIEW = "[REDACTED]"
 logger = get_logger(__name__)
+
+
+class ArtifactSurfaceAdmissionError(RuntimeError):
+    """Raised when the composed authority gate blocks an inspector read."""
+
+    def __init__(self, decision: AuthoritySurfaceDecision) -> None:
+        self.decision = decision
+        super().__init__(
+            f"artifact surface admission blocked for {decision.surface}: {decision.reason}"
+        )
 
 
 def _as_float(value: object) -> float | None:
@@ -355,6 +370,13 @@ class ArtifactInspectorService:
                 missing from CAS.
         """
         manifest = self._store.get_manifest(artifact_id)
+        payload = manifest.model_dump(mode="json")
+        self._assert_surface_admission_allowed(
+            payload,
+            artifact_id=artifact_id,
+            surface="artifact",
+            scope="CAS manifests",
+        )
         schema = manifest.artifact_schema
         producer = manifest.producer
         return ArtifactManifestView(
@@ -435,11 +457,21 @@ class ArtifactInspectorService:
             mode = "binary"
             preview = preview_bytes.hex()
 
+        self._assert_surface_admission_allowed(
+            preview if mode == "json" else data,
+            artifact_id=artifact_id,
+            surface="artifact",
+            scope="raw artifact content/download routes",
+        )
         preview = _apply_redaction_hook(
             hooks=self._redaction_hooks,
             artifact_kind=manifest.kind,
             mode=mode,
             preview=preview,
+        )
+        preview = _apply_secret_pii_redaction(
+            preview,
+            artifact_id=str(artifact_id),
         )
         decision_packet_preview = (
             _build_decision_packet_preview(preview)
@@ -476,9 +508,11 @@ class ArtifactInspectorService:
         schema = manifest.artifact_schema
 
         top_keys: list[str] = []
+        payload_for_gate: object = self._store.get_bytes(artifact_id)
         if _is_json_media_type(manifest.media_type):
             try:
-                payload = from_canonical_bytes(self._store.get_bytes(artifact_id))
+                payload = from_canonical_bytes(payload_for_gate)
+                payload_for_gate = payload
                 if isinstance(payload, dict):
                     top_keys = sorted(str(key) for key in payload)
             except (TypeError, ValueError) as exc:
@@ -489,7 +523,7 @@ class ArtifactInspectorService:
                 )
                 top_keys = []
 
-        return ArtifactSchemaView(
+        view = ArtifactSchemaView(
             artifact_id=str(artifact_id),
             kind=manifest.kind,
             media_type=manifest.media_type,
@@ -497,6 +531,13 @@ class ArtifactInspectorService:
             schema_version=schema.version if schema is not None else None,
             top_level_keys=top_keys,
         )
+        self._assert_surface_admission_allowed(
+            view.model_dump(mode="json"),
+            artifact_id=artifact_id,
+            surface="artifact",
+            scope="dashboard/public/export packets",
+        )
+        return view
 
     def get_lineage_view(
         self,
@@ -515,11 +556,38 @@ class ArtifactInspectorService:
         Returns:
             A lineage graph with completeness and corruption flags.
         """
+        self._assert_surface_admission_allowed(
+            {"lineage_root_artifact_id": str(artifact_id)},
+            artifact_id=artifact_id,
+            surface="lineage",
+            scope="dashboard/public/export packets",
+        )
         return self._lineage_service.build_for_artifact_ids(
             [artifact_id],
             max_depth=max_depth,
             max_nodes=max_nodes,
         )
+
+    def _assert_surface_admission_allowed(
+        self,
+        payload: object,
+        *,
+        artifact_id: ArtifactID,
+        surface: str,
+        scope: str,
+    ) -> None:
+        decision = authority_surface_decision(
+            payload,
+            surface=surface,
+            artifact_ref_or_route=f"artifact-inspector://{artifact_id}/{surface}",
+            secret_pii_scope=scope,
+            block_on_secret_findings=True,
+            artifact_store=self._store,
+            artifact_id=artifact_id,
+            require_cas_integrity=True,
+        )
+        if decision.blocking or decision.visible_downgrade:
+            raise ArtifactSurfaceAdmissionError(decision)
 
 
 def _normalize_preview_limit(max_bytes: int | None, *, default_value: int) -> int:
@@ -564,3 +632,18 @@ def _apply_redaction_hook(
     except (AttributeError, RuntimeError, TypeError, ValueError) as exc:
         logger.warning("Redaction hook failed for kind=%s mode=%s: %s", artifact_kind, mode, exc)
         return _REDACTED_PREVIEW
+
+
+def _apply_secret_pii_redaction(preview: Any, *, artifact_id: str) -> Any:
+    try:
+        result = scan_secret_and_pii(
+            preview,
+            scope="raw artifact content/download routes",
+            artifact_ref_or_route=f"artifact-preview://{artifact_id}",
+            redact=True,
+            block_on_findings=False,
+        )
+    except (AttributeError, RuntimeError, TypeError, ValueError) as exc:
+        logger.warning("Secret/PII preview scan failed for %s: %s", artifact_id, exc)
+        return _REDACTED_PREVIEW
+    return result.redacted_payload

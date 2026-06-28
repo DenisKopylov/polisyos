@@ -19,7 +19,7 @@
   "effective_independence_source_ref": "repo://architecture/policy_design_case/layer3_g5_effective_evidence_independence.json#independence_map_payload.effective_mass_report",
   "effective_independence_status": "singular",
   "effective_independent_evidence_count": 0,
-  "envelope_expansion_status": "numeric_reading",
+  "envelope_expansion_status": "blocked",
   "governance_throughput_status": "fail",
   "issue_codes": [
     "layer3_g8_search_recall_miss_reported_as_domain_ceiling",

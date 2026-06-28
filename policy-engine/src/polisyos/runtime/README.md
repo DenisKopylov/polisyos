@@ -31,7 +31,7 @@ clients, dashboards, and operator tooling.
 - `src/polisyos/runtime/quality/complexity_governance.py` for W10.E Net-MAV
   gating, periodic prune/merge review, and self-application over W2.D
   self-FMEA telemetry.
-- `src/polisyos/runtime/quality/wave2_walking_skeleton.py` for the Wave 2 I2
+- `src/polisyos/runtime/quality/policy_design_case_integration_skeleton.py` for the Wave 2 I2
   vertical proof over request, concept spine, producer handshake, claim
   registry, closeout reader, typed projection, and semantic negative control.
 - `src/polisyos/runtime/quality/ir_analytics_bridge.py` for the W3.A bridge

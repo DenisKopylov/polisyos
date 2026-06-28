@@ -23,7 +23,8 @@ from polisyos.runtime.http.dependencies import (
     record_data_access_audit,
     set_authz_resource,
 )
-from polisyos.runtime.http.errors import bad_request
+from polisyos.runtime.http.errors import bad_request, conflict
+from polisyos.runtime.http.services.lineage import LineageSurfaceAdmissionError
 
 if TYPE_CHECKING:
     from fastapi import APIRouter, Depends, Query, Request, Response
@@ -85,7 +86,10 @@ if router is not None:
             kind="runtime.lineage",
             artifact_id=lineage_id,
         )
-        lineage = _build_runtime_lineage(ctx, lineage_id, temporal_scope=temporal_scope)
+        try:
+            lineage = _build_runtime_lineage(ctx, lineage_id, temporal_scope=temporal_scope)
+        except LineageSurfaceAdmissionError as exc:
+            raise _lineage_admission_conflict(exc, lineage_id=lineage_id) from exc
         record_data_access_audit(
             request,
             resource_id=lineage_id,
@@ -137,11 +141,14 @@ if router is not None:
             tenant_id=tenant_ids[0] if tenant_ids else getattr(request.state, "tenant_id", None),
             kind="runtime.lineage_batch",
         )
-        lineages = _build_runtime_lineage_batch(
-            ctx,
-            body.lineage_ids,
-            temporal_scope=temporal_scope,
-        )
+        try:
+            lineages = _build_runtime_lineage_batch(
+                ctx,
+                body.lineage_ids,
+                temporal_scope=temporal_scope,
+            )
+        except LineageSurfaceAdmissionError as exc:
+            raise _lineage_admission_conflict(exc, lineage_id="lineage.batch") from exc
         record_data_access_audit(
             request,
             resource_id="lineage.batch",
@@ -257,6 +264,8 @@ def _export_lineage(
             payload = ctx.lineage.export_runtime_lineage(lineage_id, format_name=format_name)
     except ValueError as exc:
         raise bad_request(str(exc), code="unsupported_lineage_export") from exc
+    except LineageSurfaceAdmissionError as exc:
+        raise _lineage_admission_conflict(exc, lineage_id=lineage_id) from exc
     record_data_access_audit(
         request,
         resource_id=lineage_id,
@@ -281,8 +290,23 @@ def _build_runtime_lineage(
     if ctx.scenarios.is_scenario_lineage(lineage_id):
         lineage = ctx.scenarios.build_lineage(lineage_id)
     else:
-        lineage = ctx.lineage.build_runtime_lineage(lineage_id)
+        lineage = ctx.lineage.build_runtime_lineage(lineage_id, enforce_missing_authority=True)
     return _with_trust_metadata(lineage, temporal_scope=temporal_scope)
+
+
+def _lineage_admission_conflict(
+    exc: LineageSurfaceAdmissionError,
+    *,
+    lineage_id: str,
+) -> Exception:
+    return conflict(
+        "Lineage surface blocked or downgraded by composed authority surface admission",
+        code="authority_surface_admission_blocked",
+        extensions={
+            "lineage_id": lineage_id,
+            "authority_surface_decision": exc.decision.model_dump(mode="json"),
+        },
+    )
 
 
 def _build_runtime_lineage_batch(
@@ -301,7 +325,10 @@ def _build_runtime_lineage_batch(
             runtime_ids.append(lineage_id)
 
     runtime_lineage_by_id = {
-        lineage.id: lineage for lineage in ctx.lineage.build_runtime_lineage_batch(runtime_ids)
+        lineage.id: lineage
+        for lineage in ctx.lineage.build_runtime_lineage_batch(
+            runtime_ids, enforce_missing_authority=True
+        )
     }
     lineages: list[LineageGraphView] = []
     for lineage_id in lineage_ids:

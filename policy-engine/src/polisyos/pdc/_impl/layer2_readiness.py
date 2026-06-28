@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -26,6 +26,22 @@ SourceAuthority = Literal[
 ]
 FirewallDisposition = Literal["not_applicable", "pass", "warn", "limit", "block"]
 CellMaturity = Literal["fail_closed", "predictive"]
+EvidenceKind = Literal[
+    "measurement",
+    "derivation",
+    "proxy",
+    "transport",
+    "bounds",
+    "simulation",
+    "elicitation",
+    "incomparable_meet",
+]
+DecisionGrade = Literal[
+    "unsupported",
+    "descriptive_only",
+    "advisory_admissible",
+    "decision_admissible",
+]
 
 
 class Layer2ReadinessModel(BaseModel):
@@ -34,20 +50,206 @@ class Layer2ReadinessModel(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
 
+class EvidenceBasis(Layer2ReadinessModel):
+    """Producer evidence used by the GY authority lattice."""
+
+    producer_roots: list[Any] = Field(default_factory=list, max_length=80)
+    method_refs: list[str] = Field(default_factory=list, max_length=80)
+    calibration_refs: list[Any] = Field(default_factory=list, max_length=80)
+    counterexamples_closed: list[Any] = Field(default_factory=list, max_length=80)
+
+
 class AuthorityBoundary(Layer2ReadinessModel):
     """Purpose-scoped authority boundary carried by Layer 2 records."""
 
+    boundary_id: str | None = Field(default=None, pattern=ID_PATTERN)
     authoritative_for: list[str] = Field(..., min_length=1, max_length=20)
     may_not_use_for: list[str] = Field(..., min_length=1, max_length=20)
     source_authority: SourceAuthority
     posture: AuthorityPosture
     rule_version_refs: list[str] = Field(..., min_length=1, max_length=20)
+    evidence_kind: EvidenceKind | None = None
+    decision_grade: DecisionGrade | None = None
+    evidence_basis: EvidenceBasis | None = None
+    known_limits: list[str] = Field(default_factory=list, max_length=80)
 
     @model_validator(mode="after")
     def _validate_llm_firewall(self) -> AuthorityBoundary:
         if self.source_authority.startswith("llm_") and self.posture != "shadow":
             raise ValueError(f"{self.source_authority} cannot carry {self.posture} authority")
+        if (
+            self.evidence_kind == "simulation"
+            and _decision_grade_rank(self.decision_grade)
+            >= _decision_grade_rank("advisory_admissible")
+            and not (self.evidence_basis and self.evidence_basis.calibration_refs)
+        ):
+            raise ValueError(
+                "uncalibrated simulation cannot carry advisory_admissible or stronger authority"
+            )
         return self
+
+    def meet(
+        self,
+        other: AuthorityBoundary,
+        *,
+        boundary_id: str | None = None,
+    ) -> AuthorityBoundary:
+        """Return the weakest purpose-scoped boundary shared by two upstream ports."""
+
+        authoritative_for = sorted(set(self.authoritative_for) & set(other.authoritative_for))
+        may_not_use_for = sorted(set(self.may_not_use_for) | set(other.may_not_use_for))
+        evidence_kind = _meet_evidence_kind(self.evidence_kind, other.evidence_kind)
+        decision_grade = _meet_decision_grade(self.decision_grade, other.decision_grade)
+        return AuthorityBoundary(
+            boundary_id=boundary_id,
+            authoritative_for=authoritative_for or ["none"],
+            may_not_use_for=may_not_use_for or ["unspecified"],
+            source_authority=_meet_source_authority(self.source_authority, other.source_authority),
+            posture=_meet_posture(self.posture, other.posture),
+            rule_version_refs=sorted(set(self.rule_version_refs) | set(other.rule_version_refs)),
+            evidence_kind=evidence_kind,
+            decision_grade=decision_grade,
+            evidence_basis=_merge_evidence_basis(self.evidence_basis, other.evidence_basis),
+            known_limits=sorted(set(self.known_limits) | set(other.known_limits)),
+        )
+
+    def permits_at_most(self, other: AuthorityBoundary) -> bool:
+        """Return whether this boundary is no stronger than ``other``."""
+
+        if not set(self.authoritative_for) <= set(other.authoritative_for):
+            return False
+        if not set(other.may_not_use_for) <= set(self.may_not_use_for):
+            return False
+        return _decision_grade_rank(self.decision_grade) <= _decision_grade_rank(
+            other.decision_grade
+        )
+
+    def with_partial_evidence_downgrade(
+        self,
+        *,
+        limitation: str,
+        may_not_use_for: list[str] | tuple[str, ...],
+        decision_grade_cap: DecisionGrade = "advisory_admissible",
+        boundary_id: str | None = None,
+    ) -> AuthorityBoundary:
+        """Return this boundary capped for partial-but-grounded evidence.
+
+        Args:
+            limitation: Human-visible limitation explaining the bounded evidence.
+            may_not_use_for: Purpose deny-list entries added by the downgrade.
+            decision_grade_cap: Maximum decision grade allowed after downgrade.
+            boundary_id: Optional replacement boundary identifier.
+
+        Returns:
+            A boundary with a capped grade, merged limitations, and merged deny-list.
+        """
+
+        if not limitation.strip():
+            raise ValueError("partial evidence downgrade requires a visible limitation")
+        safe_cap: DecisionGrade = (
+            decision_grade_cap
+            if _decision_grade_rank(decision_grade_cap)
+            < _decision_grade_rank("decision_admissible")
+            else "advisory_admissible"
+        )
+        capped_grade = _meet_decision_grade(self.decision_grade, safe_cap)
+        return self.model_copy(
+            update={
+                "boundary_id": boundary_id if boundary_id is not None else self.boundary_id,
+                "decision_grade": capped_grade,
+                "may_not_use_for": sorted(
+                    set(self.may_not_use_for) | {str(value) for value in may_not_use_for}
+                ),
+                "known_limits": sorted(set(self.known_limits) | {limitation}),
+            }
+        )
+
+
+_DECISION_GRADE_RANK: dict[str | None, int] = {
+    None: 0,
+    "unsupported": 0,
+    "descriptive_only": 1,
+    "advisory_admissible": 2,
+    "decision_admissible": 3,
+}
+_POSTURE_RANK: dict[str, int] = {"shadow": 0, "advisory": 1, "governed": 2, "production": 3}
+_SOURCE_AUTHORITY_RANK: dict[str, int] = {
+    "llm_candidate": 0,
+    "llm_critic": 0,
+    "llm_drafter": 0,
+    "human_governance": 1,
+    "governed_config": 2,
+    "deterministic_producer": 3,
+}
+
+
+def _decision_grade_rank(value: DecisionGrade | None) -> int:
+    return _DECISION_GRADE_RANK.get(value, 0)
+
+
+def _meet_decision_grade(left: DecisionGrade | None, right: DecisionGrade | None) -> DecisionGrade:
+    rank = min(_decision_grade_rank(left), _decision_grade_rank(right))
+    for grade, grade_rank in _DECISION_GRADE_RANK.items():
+        if grade is not None and grade_rank == rank:
+            return grade
+    return "unsupported"
+
+
+def _meet_evidence_kind(left: EvidenceKind | None, right: EvidenceKind | None) -> EvidenceKind:
+    if left is None or right is None:
+        return "elicitation"
+    if left == right:
+        return left
+    if "incomparable_meet" in {left, right}:
+        return "incomparable_meet"
+    if "elicitation" in {left, right}:
+        return "elicitation"
+    if left == "measurement":
+        return right
+    if right == "measurement":
+        return left
+    if left == "derivation" and right in {"proxy", "transport", "bounds", "simulation"}:
+        return right
+    if right == "derivation" and left in {"proxy", "transport", "bounds", "simulation"}:
+        return left
+    comparable_pairs = {frozenset(("proxy", "transport"))}
+    if frozenset((left, right)) in comparable_pairs:
+        return "incomparable_meet"
+    if {left, right} <= {"bounds", "simulation"}:
+        return "incomparable_meet"
+    return "incomparable_meet"
+
+
+def _meet_posture(left: AuthorityPosture, right: AuthorityPosture) -> AuthorityPosture:
+    rank = min(_POSTURE_RANK[left], _POSTURE_RANK[right])
+    for posture, posture_rank in _POSTURE_RANK.items():
+        if posture_rank == rank:
+            return posture  # type: ignore[return-value]
+    return "shadow"
+
+
+def _meet_source_authority(left: SourceAuthority, right: SourceAuthority) -> SourceAuthority:
+    rank = min(_SOURCE_AUTHORITY_RANK[left], _SOURCE_AUTHORITY_RANK[right])
+    for source, source_rank in _SOURCE_AUTHORITY_RANK.items():
+        if source_rank == rank:
+            return source  # type: ignore[return-value]
+    return "llm_candidate"
+
+
+def _merge_evidence_basis(
+    left: EvidenceBasis | None,
+    right: EvidenceBasis | None,
+) -> EvidenceBasis | None:
+    if left is None and right is None:
+        return None
+    left = left or EvidenceBasis()
+    right = right or EvidenceBasis()
+    return EvidenceBasis(
+        producer_roots=[*left.producer_roots, *right.producer_roots],
+        method_refs=sorted(set(left.method_refs) | set(right.method_refs)),
+        calibration_refs=[*left.calibration_refs, *right.calibration_refs],
+        counterexamples_closed=[*left.counterexamples_closed, *right.counterexamples_closed],
+    )
 
 
 class ValueOfInformationEstimate(Layer2ReadinessModel):

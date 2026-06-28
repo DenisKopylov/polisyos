@@ -1,15 +1,39 @@
 {
-  "blocker_refs": [
-    "layer3_g4_source_design_record_digest_missing",
-    "layer3_g4_source_design_record_unresolved"
-  ],
-  "issue_codes": [
-    "layer3_g4_source_design_record_unresolved",
-    "layer3_g4_source_design_record_digest_missing",
-    "layer3_g4_a_completeness_failed"
-  ],
+  "blocker_refs": [],
+  "issue_codes": [],
   "limitation_refs": [],
   "missing_requirement_count": 0,
-  "requirements": [],
-  "status": "fail"
+  "requirements": [
+    {
+      "blocker_refs": [
+        "layer3_g4_upstream_may_not_use_for_ignored"
+      ],
+      "claim_ref": "claim://ua-msme/firm-survival/source-data-grounding",
+      "issue_codes": [
+        "layer3_g4_upstream_may_not_use_for_ignored"
+      ],
+      "limitation_refs": [],
+      "required_family": "g1_source_contract",
+      "status": "fail",
+      "supporting_refs": [
+        "repo://tests/fixtures/layer3/g4/g1_grounded_source_contracts_valid.json#bindings/firm_survival"
+      ]
+    },
+    {
+      "blocker_refs": [
+        "layer3_g4_upstream_may_not_use_for_ignored"
+      ],
+      "claim_ref": "claim://ua-msme/firm-survival/source-data-grounding",
+      "issue_codes": [
+        "layer3_g4_upstream_may_not_use_for_ignored"
+      ],
+      "limitation_refs": [],
+      "required_family": "g1_source_contract",
+      "status": "fail",
+      "supporting_refs": [
+        "repo://tests/fixtures/layer3/g4/g1_grounded_source_contracts_valid.json#bindings/firm_survival"
+      ]
+    }
+  ],
+  "status": "pass"
 }

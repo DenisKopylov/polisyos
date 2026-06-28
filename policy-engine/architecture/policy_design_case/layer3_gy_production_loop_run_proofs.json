@@ -1,0 +1,121 @@
+{
+  "owner": "team-runtime-quality",
+  "proof_source": "durable_worker_recomputed",
+  "proofs": [
+    {
+      "_execute_workflow_invocation_id": "execute-workflow-1abde7f9c9c452d6",
+      "artifacts_index_refs": [
+        "search_exit_contract_ref",
+        "search_ledger_ref",
+        "outcome_replay_proof_ref",
+        "authority_derivation_trace_refs",
+        "output_artifact_payload_refs"
+      ],
+      "control_store_state_transitions": [
+        "pending",
+        "running",
+        "completed"
+      ],
+      "endpoint": "/api/v1/control/runs",
+      "enqueued_at": "2026-06-15T12:00:00+00:00",
+      "http_request_id": "gy-loop-slice0_fixture-ua-msme-credit-worldbank-measurement",
+      "input_artifacts": [
+        "sha256:cd2f73f88c4814db7d4427c6199ec31c3fd3b77ff6329911372d2fb1387db224"
+      ],
+      "job_id": "c219f9284f8556868b165c07d987b043",
+      "job_kind": "workflow_run",
+      "legacy_path_disposition": "routed_to_workspace_loop",
+      "output_cas_refs": [
+        "sha256:d9ac7f2aea8c3b8df4204656c24f372a892efad84df61cefbcc7fd4864a04c14",
+        "sha256:fdd712fdec99d251bc32975b413f81fc20e098d8d9c750312f343efc42a8cbe2",
+        "sha256:13bd470a4fe841b32ce9f5c1af6ae8ce83aca7af127bc9de5e7cff73b7e9b2d5",
+        "sha256:b9ae17e0ded639ffcd22d6c3602758d4204fd6c624a55c8b941201b3cbc1d94f",
+        "sha256:0c190a8d887476d93b2767bfa5e7dbeb5915b0d83031ed245fcb24a13bee3079",
+        "sha256:5be3966164c568f5a33a4df0150956d9403311d67a8308471854528b795f58aa"
+      ],
+      "output_replay_proof_ref": "sha256:5be3966164c568f5a33a4df0150956d9403311d67a8308471854528b795f58aa",
+      "output_search_exit_contract_ref": "sha256:d9ac7f2aea8c3b8df4204656c24f372a892efad84df61cefbcc7fd4864a04c14",
+      "run_id": "run-gy-loop-proof-ua_msme_credit_worldbank_measurement",
+      "schema_version": "policyos.policy_design_case.layer3_gy_loop.v1",
+      "surface_readbacks": [
+        {
+          "job_id": "c219f9284f8556868b165c07d987b043",
+          "matched_search_exit_contract_ref": true,
+          "observed_authority_path": "workspace_loop",
+          "observed_authority_result": "verifier_stamped",
+          "observed_job_state": "completed",
+          "observed_search_exit_contract_ref": "sha256:d9ac7f2aea8c3b8df4204656c24f372a892efad84df61cefbcc7fd4864a04c14",
+          "observed_terminal_kind": "grounded_partial_admissible",
+          "read_method": "ControlPlaneStore.get_job",
+          "run_id": "run-gy-loop-proof-ua_msme_credit_worldbank_measurement",
+          "surface": "/api/v1/control/runs"
+        }
+      ],
+      "surface_reads_checked": [
+        "control_worker_precompletion",
+        "control_job_status",
+        "runs_readback"
+      ],
+      "worker_id": "control-worker-gy-loop-proof-slice0_fixture-ua-msme-credit-worldbank-measurement",
+      "worker_lease_id": "control-worker-gy-loop-proof-slice0_fixture-ua-msme-credit-worldbank-measurement",
+      "workspace_loop_invocation_id": "workspace-loop-9b5eb25bf38a5443"
+    },
+    {
+      "_execute_workflow_invocation_id": "execute-workflow-b22085679f9053f2",
+      "artifacts_index_refs": [
+        "search_exit_contract_ref",
+        "search_ledger_ref",
+        "outcome_replay_proof_ref",
+        "output_artifact_payload_refs"
+      ],
+      "control_store_state_transitions": [
+        "pending",
+        "running",
+        "completed"
+      ],
+      "endpoint": "/api/v1/control/runs",
+      "enqueued_at": "2026-06-15T12:00:00+00:00",
+      "http_request_id": "gy-loop-slice0_fixture-tourism-local-development-ceiling-probe",
+      "input_artifacts": [
+        "sha256:a8e9ab40b3f5403459b02b16e075757e610a8996aa89b679b3600399999597b1"
+      ],
+      "job_id": "7f7437ad291b56d59bed09dde0aae4c9",
+      "job_kind": "workflow_run",
+      "legacy_path_disposition": "routed_to_workspace_loop",
+      "output_cas_refs": [
+        "sha256:6f360e0f19df5c00d7a1402a7833b9af2ad7923d48748aece43d09e3e0a04039",
+        "sha256:fe8d092cf1831d9ba4f876ad7d0376a577d98a1b792de299065322a5644773bc",
+        "sha256:42fef6bd0e0e16868332e270f4dbecae8d3e5ecb8295e2651aa1ab30eb0bfc33",
+        "sha256:580766d6471bf02cdf088ca42b9fcda1fc57897faa5f007b746a2cc18438d1a1",
+        "sha256:31832b8e2ec832476a40f7219eaf58e1a3e925bd1e906fc74af206040083cf30"
+      ],
+      "output_replay_proof_ref": "sha256:31832b8e2ec832476a40f7219eaf58e1a3e925bd1e906fc74af206040083cf30",
+      "output_search_exit_contract_ref": "sha256:6f360e0f19df5c00d7a1402a7833b9af2ad7923d48748aece43d09e3e0a04039",
+      "run_id": "run-gy-loop-proof-tourism_local_development_ceiling_probe",
+      "schema_version": "policyos.policy_design_case.layer3_gy_loop.v1",
+      "surface_readbacks": [
+        {
+          "job_id": "7f7437ad291b56d59bed09dde0aae4c9",
+          "matched_search_exit_contract_ref": true,
+          "observed_authority_path": "workspace_loop",
+          "observed_authority_result": "acquisition_required",
+          "observed_job_state": "completed",
+          "observed_search_exit_contract_ref": "sha256:6f360e0f19df5c00d7a1402a7833b9af2ad7923d48748aece43d09e3e0a04039",
+          "observed_terminal_kind": "acquisition_required",
+          "read_method": "ControlPlaneStore.get_job",
+          "run_id": "run-gy-loop-proof-tourism_local_development_ceiling_probe",
+          "surface": "/api/v1/control/runs"
+        }
+      ],
+      "surface_reads_checked": [
+        "control_worker_precompletion",
+        "control_job_status",
+        "runs_readback"
+      ],
+      "worker_id": "control-worker-gy-loop-proof-slice0_fixture-tourism-local-development-ceiling-probe",
+      "worker_lease_id": "control-worker-gy-loop-proof-slice0_fixture-tourism-local-development-ceiling-probe",
+      "workspace_loop_invocation_id": "workspace-loop-776715045693588d"
+    }
+  ],
+  "schema_version": "policyos.policy_design_case.layer3_gy.production_loop_run_proofs.v1"
+}

@@ -203,6 +203,20 @@ class SearchQueryTrace(BaseModel):
     error: str | None = None
 
 
+class NoHitFrontierRecord(BaseModel):
+    """Replayable record that a real provider query returned no candidate hits."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    query_node_id: str
+    query: str
+    perspective: str
+    provider: str
+    reason: Literal["provider_returned_no_hits", "provider_error_no_hits"]
+    searched_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    error: str | None = None
+
+
 class ClaimSupportLink(BaseModel):
     """Link one claim to ranked evidence snippets and source URLs."""
 
@@ -276,6 +290,7 @@ class WebEvidenceBundle(BaseModel):
     brief: ResearchBrief
     query_graph: QueryGraph
     query_traces: list[SearchQueryTrace] = Field(default_factory=list)
+    no_hit_frontier: list[NoHitFrontierRecord] = Field(default_factory=list)
     sources: list[SourceMetadata] = Field(default_factory=list)
     snippets: list[SourceSnippet] = Field(default_factory=list)
     claim_supports: list[ClaimSupportLink] = Field(default_factory=list)
@@ -370,6 +385,7 @@ __all__ = [
     "ClaimSupportLink",
     "FetchResult",
     "FetchSafetyEvent",
+    "NoHitFrontierRecord",
     "QueryGraph",
     "QueryNode",
     "ResearchBrief",

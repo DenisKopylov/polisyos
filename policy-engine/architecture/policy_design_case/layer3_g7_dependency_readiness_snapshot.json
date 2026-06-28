@@ -24,8 +24,8 @@
   "g5_conversion_outcome": "unchanged_blocker",
   "g5_conversion_record_count": 1,
   "g5_demand_pull_attempt_status": "pass",
-  "g5_dependency_health_metric_snapshot_status": "pass",
-  "g5_envelope_expansion_status": "flat",
+  "g5_dependency_health_metric_snapshot_status": "fail",
+  "g5_envelope_expansion_status": "blocked",
   "g5_grounded_region_seed_count": 0,
   "g5_grounding_disposition": "ungrounded_blocked",
   "g5_may_not_use_for": [

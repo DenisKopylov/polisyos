@@ -1,5 +1,158 @@
 {
-  "promotion_records": [],
+  "promotion_records": [
+    {
+      "a_completeness_ledger_ref": "repo://architecture/policy_design_case/layer3_g4_a_completeness_ledger.json",
+      "authoritative_for": [
+        "promotion_decision_replay",
+        "governed_promotion_state_for_declared_scope",
+        "closeout_pdc_compiler_g5_promotion_state_input_refs"
+      ],
+      "blocker_refs": [
+        "layer3_g4_fixture_scoped_grounding_non_authoritative",
+        "layer3_g4_upstream_may_not_use_for_ignored"
+      ],
+      "candidate_ref": "s2-design-candidate:ua-msme-credit-support",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "closeout_consumer_gate_ref": "repo://architecture/policy_design_case/layer3_g4_closeout_consumer_gate.json",
+      "g5_handoff_ref": "repo://architecture/policy_design_case/layer3_g4_g5_promotion_handoff.json",
+      "grounded_contract_set_ref": "repo://architecture/policy_design_case/layer3_g4_grounded_contract_set.json",
+      "human_decision_integrity_gate_ref": "repo://architecture/policy_design_case/layer3_g4_human_decision_integrity_gate.json",
+      "limitation_refs": [],
+      "may_not_use_for": [
+        "production_authority",
+        "production_claim_authority",
+        "rollout_authority",
+        "publication_authority",
+        "approval_authority",
+        "scorecard_authority",
+        "closeout_authority",
+        "runtime_closeout_authority",
+        "closeout_verdict",
+        "claim_authority",
+        "claim_authority_without_upstream_grounding",
+        "source_data_truth_authority",
+        "public_recommendation",
+        "policy_recommendation",
+        "useful_design_credit_before_g5",
+        "causal_effect_authority_without_g2",
+        "proof_authority_without_g3",
+        "legal_authority_without_gl",
+        "human_override_of_a_incompleteness"
+      ],
+      "pdc_compiler_consumer_gate_ref": "repo://architecture/policy_design_case/layer3_g4_pdc_compiler_consumer_gate.json",
+      "produced_by": {
+        "input_hashes": {
+          "repo://architecture/policy_design_case/layer3_g4_a_completeness_ledger.json": "sha256:d92d35f7d68fbd6e3acc603afa54e284f5bb148a0f388e288f693420634bcadf",
+          "repo://architecture/policy_design_case/layer3_g4_grounded_contract_set.json": "sha256:da3de15df7ad9da21159b9ccc7a9425104dc17f2dd495dada5fd915c9ec78162",
+          "repo://architecture/policy_design_case/layer3_g4_human_decision_integrity_gate.json": "sha256:aa18515e1e5907b6a99c490df8efb0acddc155923b7d5889d2a0ac9261e81a53",
+          "repo://architecture/policy_design_case/layer3_g4_promotion_input_set.json": "sha256:61b28210fd2722a9d08bd039780b22ab555955f864f15c45dd05ee050fc86f03",
+          "repo://architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json": "sha256:61269157e776dc24f15b91c9614e5b3f892d4a7646dbaa79081da95c5c916caf"
+        },
+        "output_hash": "sha256:f48ed74e1c97c738371503ee3499e9a7a32a2bad04b913025a8cd84a9c525e12",
+        "reducer_id": "reduce_g4_promotion_state",
+        "reducer_version": "v1",
+        "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
+        "vocabulary_status_id": "promotion_blocked"
+      },
+      "promotion_record_id": "g4-promotion-record:g4-request:ua-msme-source-only-valid",
+      "promotion_scope": {
+        "authority_purpose": "layer3_g4_governed_promotion_state",
+        "claim_families": [
+          "source_data"
+        ],
+        "high_stakes": false,
+        "requested_boundary": "bounded",
+        "requires_legal_or_mandate_authority": false,
+        "routine_in_envelope": true
+      },
+      "promotion_state": "promotion_blocked",
+      "registry_ratchet_delta_ref": "repo://architecture/policy_design_case/layer3_g4_registry_ratchet_delta.json",
+      "rule_version": "policyos.layer3.g4.shadow_to_governed_promotion.v1",
+      "schema_version": "policyos.policy_design_case.layer3_g4_promotion_gate.v1",
+      "source_design_record_digest": "sha256:387c808045e3204fa0ea285fa7d2d4810ba9986989b752758150a160150b6b63",
+      "source_design_record_ref": "cas://s2/design-record/ua-msme-credit-support",
+      "upstream_contract_refs": [
+        "repo://tests/fixtures/layer3/g4/g1_grounded_source_contracts_valid.json#bindings/firm_survival"
+      ],
+      "weakest_boundary_composition_ref": "repo://architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json"
+    },
+    {
+      "a_completeness_ledger_ref": "repo://architecture/policy_design_case/layer3_g4_a_completeness_ledger.json",
+      "authoritative_for": [
+        "promotion_decision_replay",
+        "governed_promotion_state_for_declared_scope",
+        "closeout_pdc_compiler_g5_promotion_state_input_refs"
+      ],
+      "blocker_refs": [
+        "layer3_g4_fixture_scoped_grounding_non_authoritative",
+        "layer3_g4_upstream_may_not_use_for_ignored"
+      ],
+      "candidate_ref": "s2-design-candidate:blocked-upstream-boundary",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "closeout_consumer_gate_ref": "repo://architecture/policy_design_case/layer3_g4_closeout_consumer_gate.json",
+      "g5_handoff_ref": "repo://architecture/policy_design_case/layer3_g4_g5_promotion_handoff.json",
+      "grounded_contract_set_ref": "repo://architecture/policy_design_case/layer3_g4_grounded_contract_set.json",
+      "human_decision_integrity_gate_ref": "repo://architecture/policy_design_case/layer3_g4_human_decision_integrity_gate.json",
+      "limitation_refs": [],
+      "may_not_use_for": [
+        "production_authority",
+        "production_claim_authority",
+        "rollout_authority",
+        "publication_authority",
+        "approval_authority",
+        "scorecard_authority",
+        "closeout_authority",
+        "runtime_closeout_authority",
+        "closeout_verdict",
+        "claim_authority",
+        "claim_authority_without_upstream_grounding",
+        "source_data_truth_authority",
+        "public_recommendation",
+        "policy_recommendation",
+        "useful_design_credit_before_g5",
+        "causal_effect_authority_without_g2",
+        "proof_authority_without_g3",
+        "legal_authority_without_gl",
+        "human_override_of_a_incompleteness"
+      ],
+      "pdc_compiler_consumer_gate_ref": "repo://architecture/policy_design_case/layer3_g4_pdc_compiler_consumer_gate.json",
+      "produced_by": {
+        "input_hashes": {
+          "repo://architecture/policy_design_case/layer3_g4_a_completeness_ledger.json": "sha256:d92d35f7d68fbd6e3acc603afa54e284f5bb148a0f388e288f693420634bcadf",
+          "repo://architecture/policy_design_case/layer3_g4_grounded_contract_set.json": "sha256:da3de15df7ad9da21159b9ccc7a9425104dc17f2dd495dada5fd915c9ec78162",
+          "repo://architecture/policy_design_case/layer3_g4_human_decision_integrity_gate.json": "sha256:aa18515e1e5907b6a99c490df8efb0acddc155923b7d5889d2a0ac9261e81a53",
+          "repo://architecture/policy_design_case/layer3_g4_promotion_input_set.json": "sha256:95543c745baef1d23a0deee45dafa014175fc9de3df72384b9cd73f92cd5901e",
+          "repo://architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json": "sha256:05bef92352ece505ed66786541640b61786559e0529b38c3236591fad8d624fd"
+        },
+        "output_hash": "sha256:84e79c6f28cdbe5a119a01d14ca12bf07a16a6f9b592f7c56b5e6832e6f12cc6",
+        "reducer_id": "reduce_g4_promotion_state",
+        "reducer_version": "v1",
+        "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
+        "vocabulary_status_id": "promotion_blocked"
+      },
+      "promotion_record_id": "g4-promotion-record:g4-request:upstream-may-not-use-blocked",
+      "promotion_scope": {
+        "authority_purpose": "layer3_g4_governed_promotion_state",
+        "claim_families": [
+          "source_data"
+        ],
+        "high_stakes": false,
+        "requested_boundary": "bounded",
+        "requires_legal_or_mandate_authority": false,
+        "routine_in_envelope": true
+      },
+      "promotion_state": "promotion_blocked",
+      "registry_ratchet_delta_ref": "repo://architecture/policy_design_case/layer3_g4_registry_ratchet_delta.json",
+      "rule_version": "policyos.layer3.g4.shadow_to_governed_promotion.v1",
+      "schema_version": "policyos.policy_design_case.layer3_g4_promotion_gate.v1",
+      "source_design_record_digest": "sha256:387c808045e3204fa0ea285fa7d2d4810ba9986989b752758150a160150b6b63",
+      "source_design_record_ref": "cas://s2/design-record/ua-msme-credit-support",
+      "upstream_contract_refs": [
+        "repo://tests/fixtures/layer3/g4/g1_grounded_source_contracts_valid.json#bindings/firm_survival"
+      ],
+      "weakest_boundary_composition_ref": "repo://architecture/policy_design_case/layer3_g4_weakest_boundary_composition.json"
+    }
+  ],
   "rule_version": "policyos.layer3.g4.shadow_to_governed_promotion.v1",
   "schema_version": "policyos.policy_design_case.layer3_g4_promotion_gate.v1"
 }

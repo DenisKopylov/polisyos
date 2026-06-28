@@ -35,7 +35,7 @@
     "ranked_value_choice_without_s8_authorization"
   ],
   "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
-  "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+  "producer_component": "polisyos.runtime.quality.proving_ground.legal_mandate_search",
   "projection_mode": "reference_only",
   "projection_policy_ref": "projection-policy://layer3/gl/public-export-reference-only",
   "projection_refs": {

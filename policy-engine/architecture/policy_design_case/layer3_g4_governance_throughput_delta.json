@@ -3,7 +3,7 @@
   "block_reason_counts": {
     "hard_a_incompleteness": 0
   },
-  "blocked_count": 0,
+  "blocked_count": 2,
   "human_review_routed_count": 0,
   "stall_reason_counts": {
     "human_decision_stall": 0,

@@ -1,0 +1,609 @@
+{
+  "artifact_kind": "runtime.quality.intervention_atom_binding",
+  "authoritative_action_outcome_link": "intended_downstream_estimand",
+  "consumer": "consume_intervention_atom_for_cycle",
+  "content_binding_checks": [
+    "target_selector_context_mismatch",
+    "world_slot_do_variable_mismatch",
+    "mechanism_do_variable_mismatch",
+    "operator_kind_mismatch",
+    "identification_plan_type_mismatch",
+    "content_hash_mismatch"
+  ],
+  "contract_id": "policyos.runtime.intervention_atom_binding",
+  "existing_halves": [
+    "ir.governance.policy_spec.InterventionSpec",
+    "ir.linker.LinkedIntervention",
+    "ir.analytics.interventions.InterventionExpr",
+    "ir.analytics.interventions.QueryTarget",
+    "ir.analytics.interventions.InterventionIdentificationPlan"
+  ],
+  "gy_lifecycle_marker": "policyos.policy_design_case.layer3_gy.intervention_atom_binding_contract.v1",
+  "intervention_atom_binding_schema_version": "policyos.runtime.intervention_atom_binding.v1",
+  "json_schema": {
+    "$defs": {
+      "CausalAssignmentProjection": {
+        "additionalProperties": false,
+        "description": "Project one proof-kernel node assignment.",
+        "properties": {
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Value"
+          },
+          "value_expr": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Value Expr"
+          },
+          "variable": {
+            "minLength": 1,
+            "title": "Variable",
+            "type": "string"
+          }
+        },
+        "required": [
+          "variable"
+        ],
+        "title": "CausalAssignmentProjection",
+        "type": "object"
+      },
+      "CausalDoExpression": {
+        "additionalProperties": false,
+        "description": "Project the proof-kernel intervention expression and selection context.",
+        "properties": {
+          "assignments": {
+            "default": [],
+            "items": {
+              "$ref": "#/$defs/CausalAssignmentProjection"
+            },
+            "title": "Assignments",
+            "type": "array"
+          },
+          "context": {
+            "additionalProperties": true,
+            "title": "Context",
+            "type": "object"
+          },
+          "expression_payload": {
+            "additionalProperties": true,
+            "title": "Expression Payload",
+            "type": "object"
+          },
+          "intervention_type": {
+            "$ref": "#/$defs/ProofKernelInterventionType"
+          },
+          "selection_context_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Selection Context Ref",
+            "type": "string"
+          },
+          "write_variables": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Write Variables",
+            "type": "array"
+          }
+        },
+        "required": [
+          "intervention_type",
+          "expression_payload",
+          "write_variables",
+          "selection_context_ref"
+        ],
+        "title": "CausalDoExpression",
+        "type": "object"
+      },
+      "DirectEffectBundle": {
+        "additionalProperties": false,
+        "description": "Project the Trinity direct-effect bundle without redefining interventions.",
+        "properties": {
+          "coerce_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Coerce Refs",
+            "type": "array"
+          },
+          "enabled": {
+            "default": true,
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "identification_mode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Identification Mode"
+          },
+          "lex_provision_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Lex Provision Ref"
+          },
+          "mechanism_config_overrides": {
+            "additionalProperties": true,
+            "title": "Mechanism Config Overrides",
+            "type": "object"
+          },
+          "mechanism_id": {
+            "minLength": 1,
+            "title": "Mechanism Id",
+            "type": "string"
+          },
+          "notes": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Notes",
+            "type": "array"
+          },
+          "params": {
+            "additionalProperties": true,
+            "title": "Params",
+            "type": "object"
+          },
+          "priority": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Priority"
+          },
+          "schedule": {
+            "additionalProperties": true,
+            "title": "Schedule",
+            "type": "object"
+          },
+          "strategic_response_expected": {
+            "default": false,
+            "title": "Strategic Response Expected",
+            "type": "boolean"
+          },
+          "transform_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Transform Refs",
+            "type": "array"
+          },
+          "transmission_channels": {
+            "default": [],
+            "items": {},
+            "title": "Transmission Channels",
+            "type": "array"
+          }
+        },
+        "required": [
+          "schedule",
+          "mechanism_id"
+        ],
+        "title": "DirectEffectBundle",
+        "type": "object"
+      },
+      "IdentificationPlanRef": {
+        "additionalProperties": false,
+        "description": "Project proof-kernel identification backend, status, and conditions.",
+        "properties": {
+          "backend": {
+            "title": "Backend",
+            "type": "string"
+          },
+          "conditions": {
+            "default": [],
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Conditions",
+            "type": "array"
+          },
+          "intervention_type": {
+            "$ref": "#/$defs/ProofKernelInterventionType"
+          },
+          "notes": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Notes",
+            "type": "array"
+          },
+          "plan_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Plan Ref",
+            "type": "string"
+          },
+          "reductions": {
+            "default": [],
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Reductions",
+            "type": "array"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "theorem_family": {
+            "title": "Theorem Family",
+            "type": "string"
+          }
+        },
+        "required": [
+          "plan_ref",
+          "intervention_type",
+          "backend",
+          "status",
+          "theorem_family"
+        ],
+        "title": "IdentificationPlanRef",
+        "type": "object"
+      },
+      "IntendedDownstreamEstimand": {
+        "additionalProperties": false,
+        "description": "Project the authoritative QueryTarget action-to-outcome link.",
+        "properties": {
+          "conditioning_set": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Conditioning Set",
+            "type": "array"
+          },
+          "functional": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Functional"
+          },
+          "metric_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Metric Id"
+          },
+          "outcome_variables": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Outcome Variables",
+            "type": "array"
+          },
+          "source_population": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source Population"
+          },
+          "target_kind": {
+            "$ref": "#/$defs/QueryTargetKind"
+          },
+          "target_population": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Target Population"
+          },
+          "unit_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Unit Id"
+          }
+        },
+        "required": [
+          "target_kind",
+          "outcome_variables"
+        ],
+        "title": "IntendedDownstreamEstimand",
+        "type": "object"
+      },
+      "OperatorKind": {
+        "additionalProperties": false,
+        "description": "Bind the Trinity mechanism kind to the proof-kernel intervention type.",
+        "properties": {
+          "proof_kernel_type": {
+            "$ref": "#/$defs/ProofKernelInterventionType"
+          },
+          "trinity_kind": {
+            "minLength": 1,
+            "title": "Trinity Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "trinity_kind",
+          "proof_kernel_type"
+        ],
+        "title": "OperatorKind",
+        "type": "object"
+      },
+      "ProofKernelInterventionType": {
+        "description": "Intervention constructors understood by the proof-kernel typechecker.",
+        "enum": [
+          "node",
+          "conditional",
+          "stochastic",
+          "mtp",
+          "edge",
+          "path",
+          "transport",
+          "interference",
+          "composite"
+        ],
+        "title": "ProofKernelInterventionType",
+        "type": "string"
+      },
+      "QueryTargetKind": {
+        "description": "Functional family requested from the proof kernel.",
+        "enum": [
+          "distribution",
+          "conditional_distribution",
+          "expectation",
+          "contrast",
+          "decomposition"
+        ],
+        "title": "QueryTargetKind",
+        "type": "string"
+      },
+      "TargetSelectorBinding": {
+        "additionalProperties": false,
+        "description": "Project the Trinity target selector and population annotations.",
+        "properties": {
+          "selector_content_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Selector Content Ref",
+            "type": "string"
+          },
+          "target_population_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Target Population Type"
+          },
+          "target_region_ids": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Target Region Ids",
+            "type": "array"
+          },
+          "target_sector_ids": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Target Sector Ids",
+            "type": "array"
+          },
+          "trinity_target": {
+            "additionalProperties": true,
+            "title": "Trinity Target",
+            "type": "object"
+          }
+        },
+        "required": [
+          "trinity_target",
+          "selector_content_ref"
+        ],
+        "title": "TargetSelectorBinding",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Bind one executable Trinity action to one proof-kernel causal atom.\n\n``InterventionAtomBinding`` is a bridge over existing halves, not a second\nintervention hierarchy. The Trinity side remains ``InterventionSpec`` plus\n``LinkedIntervention`` slots. The proof-kernel side remains a typed\n``InterventionExpr``, ``QueryTarget``, and ``InterventionIdentificationPlan``.\nThis artifact records only the content correspondence needed by the\ngeneration cycle: same selector context, same written world slot, consistent\noperator kind, authoritative estimand, forward world-model reference, and a\ntime-invariant content hash.\n\nAttributes:\n    atom_id: Stable atom identifier derived from the content hash.\n    problem_frame_ref: ProblemFrame or DesignProblem reference.\n    policy_spec_ref: PolicySpec or Trinity bundle reference.\n    intervention_id: Trinity intervention id.\n    operator_kind: Trinity mechanism kind plus proof-kernel type.\n    target_selector: Trinity selector and population projection.\n    target_world_slots: Linker-resolved slots written by the action.\n    read_slots: Linker-resolved slots read by the action.\n    direct_effect_bundle: Trinity direct-effect projection.\n    causal_do_expr: Proof-kernel intervention expression projection.\n    intended_downstream_estimand: Authoritative QueryTarget projection.\n    causal_path_or_identification_plan_ref: Identification plan projection.\n    world_model_record_ref: Forward hook to the future WorldModelRecord.\n    measurement_expectations: Retained Trinity free-form metadata.\n    measurement_expectations_authority: Always supporting metadata.\n    content_hash: Time-invariant hash over the content-bound fields.\n    producer_ref: Producer that emitted this atom candidate.\n    provenance_refs: Upstream Trinity/proof-kernel provenance references.\n    status: Lifecycle state for A-side promotion.",
+    "properties": {
+      "atom_id": {
+        "pattern": "^atom_[a-f0-9]{16}$",
+        "title": "Atom Id",
+        "type": "string"
+      },
+      "causal_do_expr": {
+        "$ref": "#/$defs/CausalDoExpression"
+      },
+      "causal_path_or_identification_plan_ref": {
+        "$ref": "#/$defs/IdentificationPlanRef"
+      },
+      "content_hash": {
+        "pattern": "^sha256:[0-9a-f]{64}$",
+        "title": "Content Hash",
+        "type": "string"
+      },
+      "direct_effect_bundle": {
+        "$ref": "#/$defs/DirectEffectBundle"
+      },
+      "intended_downstream_estimand": {
+        "$ref": "#/$defs/IntendedDownstreamEstimand"
+      },
+      "intervention_id": {
+        "minLength": 1,
+        "title": "Intervention Id",
+        "type": "string"
+      },
+      "measurement_expectations": {
+        "additionalProperties": true,
+        "title": "Measurement Expectations",
+        "type": "object"
+      },
+      "measurement_expectations_authority": {
+        "const": "supporting_metadata",
+        "default": "supporting_metadata",
+        "title": "Measurement Expectations Authority",
+        "type": "string"
+      },
+      "operator_kind": {
+        "$ref": "#/$defs/OperatorKind"
+      },
+      "policy_spec_ref": {
+        "pattern": "^(?:[a-z][a-z0-9_.-]*|sha256:[0-9a-f]{64})$",
+        "title": "Policy Spec Ref",
+        "type": "string"
+      },
+      "problem_frame_ref": {
+        "pattern": "^(?:[a-z][a-z0-9_.-]*|sha256:[0-9a-f]{64})$",
+        "title": "Problem Frame Ref",
+        "type": "string"
+      },
+      "producer_ref": {
+        "minLength": 1,
+        "title": "Producer Ref",
+        "type": "string"
+      },
+      "provenance_refs": {
+        "default": [],
+        "items": {
+          "type": "string"
+        },
+        "title": "Provenance Refs",
+        "type": "array"
+      },
+      "read_slots": {
+        "default": [],
+        "items": {
+          "type": "string"
+        },
+        "title": "Read Slots",
+        "type": "array"
+      },
+      "schema_version": {
+        "const": "policyos.runtime.intervention_atom_binding.v1",
+        "default": "policyos.runtime.intervention_atom_binding.v1",
+        "title": "Schema Version",
+        "type": "string"
+      },
+      "status": {
+        "default": "candidate_unverified",
+        "enum": [
+          "candidate_unverified",
+          "grounded",
+          "valued",
+          "promoted",
+          "blocked"
+        ],
+        "title": "Status",
+        "type": "string"
+      },
+      "target_selector": {
+        "$ref": "#/$defs/TargetSelectorBinding"
+      },
+      "target_world_slots": {
+        "items": {
+          "type": "string"
+        },
+        "title": "Target World Slots",
+        "type": "array"
+      },
+      "world_model_record_ref": {
+        "minLength": 1,
+        "title": "World Model Record Ref",
+        "type": "string"
+      }
+    },
+    "required": [
+      "atom_id",
+      "problem_frame_ref",
+      "policy_spec_ref",
+      "intervention_id",
+      "operator_kind",
+      "target_selector",
+      "target_world_slots",
+      "direct_effect_bundle",
+      "causal_do_expr",
+      "intended_downstream_estimand",
+      "causal_path_or_identification_plan_ref",
+      "world_model_record_ref",
+      "content_hash",
+      "producer_ref"
+    ],
+    "title": "InterventionAtomBinding",
+    "type": "object"
+  },
+  "measurement_expectations_authority": "supporting_metadata",
+  "owner": "polisyos.runtime.quality.intervention_atom_binding.InterventionAtomBinding",
+  "producer": "build_intervention_atom_binding",
+  "schema_version": "policyos.policy_design_case.layer3_gy.intervention_atom_binding_contract.v1",
+  "source_module": "src/polisyos/runtime/quality/intervention_atom_binding.py"
+}

@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, replace
 from typing import Any, Literal
 
-from pydantic import ValidationError
+from pydantic import BaseModel, ConfigDict, ValidationError
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.ids import ArtifactID
@@ -48,11 +48,6 @@ from polisyos.scientist.evidence.claims.validators import (
     is_fail_on_naked_claims_enabled,
     validate_state_claim_projection,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
-from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.governance.pass_registry import (
     build_governance_pipeline,
 )
@@ -60,7 +55,6 @@ from polisyos.scientist.governance.pass_registry import (
     runtime_profile as build_runtime_profile,
 )
 from polisyos.scientist.governance.report import GovernanceReport, GovernanceReportLinks
-from polisyos.scientist.orchestration.kernel.gate_protocol import HumanGateProtocol
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_REPORT_REF,
     ARTIFACT_CLAIMS_REF,
@@ -77,6 +71,12 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     REPORT_GOVERNANCE_REPORT_REF,
     REPORT_LEGAL_REPORT_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
+from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
+from polisyos.scientist.orchestration.kernel.gate_protocol import HumanGateProtocol
 
 logger = get_logger(__name__)
 
@@ -136,7 +136,42 @@ _SPEC = NodeSpec(
 _DECISION_APPROVE = {"approve", "approved", "allow", "allowed"}
 _DECISION_REJECT = {"reject", "rejected", "deny", "denied"}
 _DECISION_ESCALATE = {"escalate", "escalated"}
+_PHASE2_REQUIRED_SIX_JUDGES = frozenset(
+    {"structural", "statistical", "robustness", "governance", "reproducibility", "compute"}
+)
 _RUNTIME_PIPELINE = build_governance_pipeline()
+
+
+class _Phase2GovernanceApplicability(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    result_id: str
+    invocation_id: str
+    status: str
+    checked_preconditions: list[dict[str, Any]] = []
+    failed_preconditions: list[dict[str, Any]] = []
+    repair_options: list[dict[str, Any]] = []
+
+
+class _Phase2GovernanceBlocker(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    blocker_id: str
+    workspace_id: str
+    blocked_port: str
+    missing_input: str
+    reason: str
+    applicability_result_ref: str
+    repair_options: list[dict[str, Any]] = []
+    producer_missing_label: str = "verification_missing"
+    severity: str = "blocks_authority"
+
+
+class _Phase2GovernanceTailResult(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    applicability: _Phase2GovernanceApplicability
+    blocker: _Phase2GovernanceBlocker | None = None
 
 
 @dataclass(frozen=True)
@@ -343,6 +378,34 @@ class RunGovernanceNode:
                     message="Governance blocked publication because claims_ref is missing.",
                 )
             )
+
+        if _phase2_governance_tail_required(new_state):
+            normative_result = _load_normative_arbitration_result(ctx, new_state)
+            tail = verify_phase2_governance_tail(
+                workspace_id=new_state.run_id,
+                invocation_id="invoke-run-governance",
+                normative_result=_normative_tail_payload(normative_result),
+                judge_verdict=_judge_verdict_payload(new_state.params.get("judge_verdict")),
+            )
+            if tail.blocker is not None:
+                issues.append(
+                    {
+                        "code": "GY_PHASE2_GOVERNANCE_TAIL_BLOCKED",
+                        "message": tail.blocker.reason,
+                        "details": {
+                            "blocker": tail.blocker.model_dump(mode="json"),
+                            "applicability": tail.applicability.model_dump(mode="json"),
+                        },
+                    }
+                )
+                if verdict != "human_gate":
+                    verdict = "reject"
+                events.append(
+                    NodeEvent(
+                        level="warn",
+                        message="Phase-2 governance tail blocked authority promotion.",
+                    )
+                )
 
         report = GovernanceReport(
             verdict=verdict,
@@ -1016,6 +1079,139 @@ def _normative_selects_revision(result: NormativeArbitrationResult) -> bool:
         ArbitrationOption.BASELINE,
         ArbitrationOption.INDETERMINATE,
     }
+
+
+def _phase2_governance_tail_required(state: ExperimentState) -> bool:
+    return (
+        state.execution_profile == "gy_phase2"
+        or state.params.get("gy_phase2_governance_tail_required") is True
+    )
+
+
+def _normative_tail_payload(result: NormativeArbitrationResult | None) -> dict[str, Any]:
+    if result is None:
+        return {
+            "warnings": ["normative_arbitration_result_missing"],
+            "model_completeness": "missing",
+        }
+    model_source = str(result.metadata.get("model_source") or "")
+    completeness = getattr(result.model_completeness, "value", result.model_completeness)
+    return {
+        "warnings": list(result.warnings),
+        "model_completeness": (
+            "declared_complete"
+            if completeness == "complete" and model_source == "declared"
+            else str(completeness)
+        ),
+    }
+
+
+def _judge_verdict_payload(value: object) -> dict[str, Any]:
+    if isinstance(value, dict):
+        return value
+    if hasattr(value, "model_dump"):
+        dumped = value.model_dump(mode="json")
+        return dumped if isinstance(dumped, dict) else {}
+    return {}
+
+
+def verify_phase2_governance_tail(
+    *,
+    workspace_id: str,
+    invocation_id: str,
+    normative_result: dict[str, Any],
+    judge_verdict: dict[str, Any],
+) -> _Phase2GovernanceTailResult:
+    """Validate the Phase-2 governance tail before any authority movement."""
+
+    failures: list[dict[str, Any]] = []
+    warnings = normative_result.get("warnings") or []
+    if warnings:
+        failures.append(
+            {
+                "predicate_id": "phase2.normative.warnings_empty",
+                "reason": "normative_arbitration_warnings_present",
+                "severity": "hard",
+                "observed": warnings,
+            }
+        )
+    if normative_result.get("model_completeness") not in {"declared_complete", "complete"}:
+        failures.append(
+            {
+                "predicate_id": "phase2.normative.model_complete",
+                "reason": "model_completeness_not_declared",
+                "severity": "hard",
+            }
+        )
+    if judge_verdict.get("composite_decision") != "promote":
+        failures.append(
+            {
+                "predicate_id": "phase2.judge_stack.promotable",
+                "reason": "judge_stack_did_not_promote",
+                "severity": "hard",
+            }
+        )
+    per_judge = judge_verdict.get("per_judge")
+    present_judges = {str(item) for item in per_judge} if isinstance(per_judge, dict) else set()
+    if not _PHASE2_REQUIRED_SIX_JUDGES.issubset(present_judges):
+        failures.append(
+            {
+                "predicate_id": "phase2.judge_stack.six_judges_present",
+                "reason": "judge_stack_missing_required_six_judges",
+                "severity": "hard",
+                "missing_judges": sorted(_PHASE2_REQUIRED_SIX_JUDGES - present_judges),
+            }
+        )
+    applicability = _Phase2GovernanceApplicability(
+        result_id="applicability-governance-tail",
+        invocation_id=invocation_id,
+        status="repair_required" if failures else "applicable",
+        checked_preconditions=[
+            {
+                "predicate_id": "phase2.governance_tail.promotable",
+                "status": "failed" if failures else "passed",
+                "rule_version": "policyos.gy.phase2.spine_repair.v1",
+            }
+        ],
+        failed_preconditions=failures,
+        repair_options=[
+            {
+                "operation_class": "VERIFY",
+                "reason": "Persist a complete normative result and promotable judge verdict.",
+            }
+        ]
+        if failures
+        else [],
+    )
+    blocker = None
+    if failures:
+        blocker = _Phase2GovernanceBlocker(
+            blocker_id="blocker-governance-tail",
+            workspace_id=workspace_id,
+            blocked_port="governance.authority",
+            missing_input="promotable_judge_verdict",
+            reason="Governance tail is not promotable; authority must be withheld.",
+            applicability_result_ref=applicability.result_id,
+            repair_options=applicability.repair_options,
+        )
+    return _Phase2GovernanceTailResult(applicability=applicability, blocker=blocker)
+
+
+def _verify_phase2_governance_tail(
+    *,
+    workspace_id: str,
+    invocation_id: str,
+    normative_result: dict[str, Any],
+    judge_verdict: dict[str, Any],
+) -> _Phase2GovernanceTailResult:
+    """Compatibility shim for older internal callers."""
+
+    return verify_phase2_governance_tail(
+        workspace_id=workspace_id,
+        invocation_id=invocation_id,
+        normative_result=normative_result,
+        judge_verdict=judge_verdict,
+    )
 
 
 def _has_issue_code(issues: list[ComplianceIssue], code: str) -> bool:

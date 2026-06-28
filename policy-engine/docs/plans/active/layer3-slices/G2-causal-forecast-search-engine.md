@@ -371,7 +371,7 @@ Out of scope:
   and
   `docs/system-design-decisions/universal-policy-design-system-vision-and-organizing-rules.md:245`.
 - G1 runtime already provides strict Layer 3 patterns in
-  `src/polisyos/runtime/quality/layer3_substrate_grounding.py`: schema/rule
+  `src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py`: schema/rule
   constants, search requests, search ledgers, SourceContract bindings, coverage,
   recall/freshness, free-growth, engineering quality, conformance, readiness,
   bundle builder, and validator.
@@ -387,7 +387,7 @@ Out of scope:
   must add a new TOML `[[family]]` and regenerate/sync the docs; hand-editing
   only `docs/reference/generated-artifacts.md` is not closure.
 - S10 contracts already exist in
-  `src/polisyos/runtime/quality/layer2_outcome_prediction.py`:
+  `src/polisyos/runtime/quality/design_axes/outcome_prediction.py`:
   `ForecastSupport`, `ForecastCalibrationRecord`, `PredictionAuthorityEnvelope`,
   `ForecastSupportIntegrityReport`, `build_forecast_support`,
   `build_forecast_calibration_record`, `verify_prediction_authority_envelope`,
@@ -413,7 +413,7 @@ Out of scope:
   rest of the corpus. G2 should reuse that route shape where possible.
 - S11 depends on S10 but is not G2's producer. `ProofCarryingAnalyticsRecord` and
   predictive-knowledge relaxation live in
-  `src/polisyos/runtime/quality/layer2_predictive_knowledge.py` and belong to
+  `src/polisyos/runtime/quality/design_axes/predictive_knowledge.py` and belong to
   G3/G11-style work, not G2 closure.
 - Scholar search models in `src/polisyos/scholar/search/models.py` provide
   budget controls, query traces, claim support links, and evidence bundles. G2
@@ -552,7 +552,7 @@ Out of scope:
 
 Create:
 
-- `src/polisyos/runtime/quality/layer3_causal_forecast.py`
+- `src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py`
   - Owns G2 DTOs, search records, SKG/method coverage reports, adapter
     bindings, calibration/transport summaries, S10 bridge records, readiness
     bundle builder, and runtime validator.
@@ -787,7 +787,7 @@ Tier rules:
 
 Steps:
 
-- [x] Add failing tests that import `polisyos.runtime.quality.layer3_causal_forecast`
+- [x] Add failing tests that import `polisyos.runtime.quality.proving_ground.causal_forecast_search`
   and assert the module exposes schema/rule constants, bundle builder, validator,
   DTOs, and issue-code surfaces listed in this plan.
 - [x] Add a failing repo-quality test that `validate_layer3_g2_readiness(REPO_ROOT)`
@@ -806,7 +806,7 @@ Steps:
 
 **Files:**
 
-- Create: `src/polisyos/runtime/quality/layer3_causal_forecast.py`
+- Create: `src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py`
 - Test: `tests/unit/runtime/quality/test_layer3_g2_causal_forecast.py`
 
 Steps:
@@ -854,7 +854,7 @@ Steps:
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_causal_forecast.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py`
 - Test: `tests/unit/runtime/quality/test_layer3_g2_causal_forecast.py`
 
 Steps:
@@ -887,7 +887,7 @@ Steps:
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_causal_forecast.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py`
 - Test: `tests/unit/runtime/quality/test_layer3_g2_causal_forecast.py`
 
 Steps:
@@ -942,7 +942,7 @@ Steps:
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_causal_forecast.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py`
 - Test: `tests/unit/runtime/quality/test_layer3_g2_causal_forecast.py`
 
 Steps:
@@ -993,7 +993,7 @@ Steps:
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_causal_forecast.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py`
 - Test: `tests/unit/runtime/quality/test_layer3_g2_causal_forecast.py`
 - Reuse fixtures from: `tests/fixtures/layer2/s10/`
 
@@ -1025,7 +1025,7 @@ Steps:
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_causal_forecast.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py`
 - Modify: `tools/quality/validation/run_universal_outcome_corpus.py`
 - Modify if needed: `tests/repo_quality/tools/test_w12d_universal_outcome_corpus_run.py`
 
@@ -1118,7 +1118,7 @@ Steps:
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_causal_forecast.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py`
 - Modify: `tools/quality/validation/check_policy_design_case_layer3_g2_readiness.py`
 - Test: all G2 tests
 

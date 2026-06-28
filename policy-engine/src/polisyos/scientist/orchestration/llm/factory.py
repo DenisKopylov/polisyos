@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from polisyos.core.llm.sanitization import PromptSanitizer
@@ -12,7 +13,7 @@ from polisyos.core.llm.traced_client import TracedLLMClient
 from .fallback_router import EndpointConfig, FallbackRouter
 from .gateway_client import GatewayLLMClient
 from .prompt_cache import CachingLLMClient, InMemoryPromptCache
-from .simulated_gateway import SimulatedGatewayLLMClient
+from .simulated_gateway import DEFAULT_SIMULATED_MODEL_IDS, SimulatedGatewayLLMClient
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -27,6 +28,36 @@ def _as_bool(value: str | None, *, default: bool) -> bool:
 def _is_plausible_gateway_api_key(value: str) -> bool:
     key = value.strip()
     return key.startswith("sk-") and len(key) >= 16 and not any(char.isspace() for char in key)
+
+
+def _load_gateway_dotenv() -> None:
+    """Load gateway env values from a local .env file without overriding env."""
+
+    for path in _candidate_dotenv_paths():
+        if not path.is_file():
+            continue
+        for raw_line in path.read_text(encoding="utf-8").splitlines():
+            line = raw_line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, raw_value = line.split("=", 1)
+            key = key.strip()
+            if not key or key in os.environ:
+                continue
+            value = raw_value.strip().strip('"').strip("'")
+            os.environ[key] = value
+        return
+
+
+def _candidate_dotenv_paths() -> tuple[Path, ...]:
+    cwd = Path.cwd()
+    module_root = Path(__file__).resolve().parents[5]
+    return (
+        cwd / ".env",
+        cwd.parent / ".env",
+        module_root / ".env",
+        module_root.parent / ".env",
+    )
 
 
 @dataclass(frozen=True)
@@ -53,9 +84,11 @@ class GatewayLLMConfig:
 
     @classmethod
     def from_env(cls) -> GatewayLLMConfig | None:
-        base_url = os.getenv("POLISYOS_LLM_GATEWAY_BASE_URL", "").strip()
-        if not base_url:
-            return None
+        _load_gateway_dotenv()
+        base_url = (
+            os.getenv("POLISYOS_LLM_GATEWAY_BASE_URL", "").strip()
+            or "https://proxy.gonka.gg/v1"
+        )
         api_key = os.getenv("POLISYOS_LLM_GATEWAY_API_KEY", "").strip()
         if not api_key:
             return None
@@ -126,9 +159,11 @@ def create_traced_gateway_client(
 ) -> TracedLLMClient | None:
     """Create traced LLM client from env-backed gateway config."""
     if _as_bool(os.getenv("POLISYOS_LLM_SIMULATION_MODE"), default=False):
+        simulated_model_ids = tuple(dict.fromkeys((model_name, *DEFAULT_SIMULATED_MODEL_IDS)))
         raw_client = SimulatedGatewayLLMClient(
             model=model_name,
             provider_hint=provider_hint or "simulated_gateway",
+            supported_model_ids=simulated_model_ids,
         )
         return TracedLLMClient(
             raw_client,

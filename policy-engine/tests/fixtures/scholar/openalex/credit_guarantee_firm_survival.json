@@ -1,0 +1,2757 @@
+{
+  "_recording": {
+    "captured_at": "2026-06-23T17:23:52.659992+00:00",
+    "query": "loan guarantees SMEs firm survival impact evaluation",
+    "real_openalex_api_response": true,
+    "request_params": {
+      "filter": "has_abstract:true,is_retracted:false,language:en",
+      "mailto": "policyos@example.invalid",
+      "per-page": "5",
+      "search": "loan guarantees SMEs firm survival impact evaluation",
+      "select": "id,doi,display_name,title,abstract_inverted_index,publication_year,publication_date,cited_by_count,type,is_retracted,language,open_access,primary_location,authorships"
+    },
+    "source": "https://api.openalex.org/works"
+  },
+  "group_by": [],
+  "meta": {
+    "cost_usd": 0.001,
+    "count": 6007,
+    "db_response_time_ms": 439,
+    "groups_count": null,
+    "page": 1,
+    "per_page": 5,
+    "x_query": {
+      "oql": "works where full text has (loan guarantees SMEs firm survival impact evaluation)\n  and it has an abstract\n  and it's not retracted\n  and language is en",
+      "oqo": {
+        "filter_rows": [
+          {
+            "column_id": "fulltext.search",
+            "operator": "has",
+            "value": "loan guarantees SMEs firm survival impact evaluation"
+          },
+          {
+            "column_id": "has_abstract",
+            "value": true
+          },
+          {
+            "column_id": "is_retracted",
+            "value": false
+          },
+          {
+            "column_id": "language",
+            "value": "en"
+          }
+        ],
+        "get_rows": "works",
+        "per_page": 5,
+        "select": [
+          "id",
+          "doi",
+          "display_name",
+          "title",
+          "abstract_inverted_index",
+          "publication_year",
+          "publication_date",
+          "cited_by_count",
+          "type",
+          "is_retracted",
+          "language",
+          "open_access",
+          "primary_location",
+          "authorships"
+        ]
+      },
+      "url": "/works?filter=fulltext.search:loan guarantees SMEs firm survival impact evaluation,has_abstract:true,is_retracted:false,language:en&select=id,doi,display_name,title,abstract_inverted_index,publication_year,publication_date,cited_by_count,type,is_retracted,language,open_access,primary_location,authorships&per_page=5"
+    }
+  },
+  "results": [
+    {
+      "abstract_inverted_index": {
+        "Africa": [
+          36
+        ],
+        "Africa.": [
+          12,
+          23,
+          60
+        ],
+        "Data": [
+          61
+        ],
+        "However,the": [
+          13
+        ],
+        "One": [
+          24
+        ],
+        "Pearsoncorrelation": [
+          75
+        ],
+        "SMEs": [
+          0,
+          17,
+          57,
+          98
+        ],
+        "SMEs.": [
+          93
+        ],
+        "South": [
+          11,
+          22,
+          35,
+          59
+        ],
+        "The": [
+          69,
+          79,
+          94
+        ],
+        "This": [
+          42
+        ],
+        "a": [
+          67
+        ],
+        "access": [
+          52
+        ],
+        "alleviation": [
+          9
+        ],
+        "analyses": [
+          71
+        ],
+        "and": [
+          7,
+          31,
+          76,
+          84,
+          108
+        ],
+        "andentrepreneurial": [
+          49
+        ],
+        "attend": [
+          106
+        ],
+        "be": [
+          101
+        ],
+        "by": [
+          56,
+          92,
+          103
+        ],
+        "characteristics": [
+          50,
+          86
+        ],
+        "collateral,": [
+          105
+        ],
+        "collected": [
+          63
+        ],
+        "competence.": [
+          116
+        ],
+        "contribute": [
+          1
+        ],
+        "debt": [
+          40,
+          54,
+          90
+        ],
+        "descriptive": [
+          73
+        ],
+        "economic": [
+          4
+        ],
+        "employment": [
+          6
+        ],
+        "entrepreneurial": [
+          85
+        ],
+        "factors": [
+          27
+        ],
+        "failure": [
+          14
+        ],
+        "finance": [
+          55,
+          91
+        ],
+        "financing.": [
+          41
+        ],
+        "firm": [
+          48,
+          83
+        ],
+        "growth": [
+          32
+        ],
+        "growth,": [
+          5
+        ],
+        "high": [
+          20
+        ],
+        "impact": [
+          46,
+          87
+        ],
+        "improve": [
+          112
+        ],
+        "in": [
+          10,
+          21,
+          34,
+          58,
+          66
+        ],
+        "included": [
+          72
+        ],
+        "indicate": [
+          81
+        ],
+        "investigates": [
+          44
+        ],
+        "investmentready": [
+          102
+        ],
+        "is": [
+          18,
+          37
+        ],
+        "limiting": [
+          28
+        ],
+        "logistic": [
+          77
+        ],
+        "managerial": [
+          115
+        ],
+        "non-availability": [
+          38
+        ],
+        "of": [
+          16,
+          25,
+          39,
+          47
+        ],
+        "ofSMEs": [
+          33
+        ],
+        "on": [
+          51,
+          113
+        ],
+        "onaccess": [
+          88
+        ],
+        "owners/managers": [
+          99
+        ],
+        "positively": [
+          2
+        ],
+        "poverty": [
+          8
+        ],
+        "programs": [
+          110
+        ],
+        "providing": [
+          104
+        ],
+        "questionnaire": [
+          65
+        ],
+        "rate": [
+          15
+        ],
+        "recommends": [
+          96
+        ],
+        "regression.": [
+          78
+        ],
+        "results": [
+          80
+        ],
+        "seminars": [
+          107
+        ],
+        "should": [
+          100
+        ],
+        "statistical": [
+          70
+        ],
+        "statistics,": [
+          74
+        ],
+        "study": [
+          43,
+          95
+        ],
+        "survey.": [
+          68
+        ],
+        "survival": [
+          30
+        ],
+        "that": [
+          82,
+          97
+        ],
+        "the": [
+          26,
+          29,
+          45
+        ],
+        "their": [
+          114
+        ],
+        "throughself-administered": [
+          64
+        ],
+        "to": [
+          3,
+          53,
+          89,
+          111
+        ],
+        "training": [
+          109
+        ],
+        "very": [
+          19
+        ],
+        "was": [
+          62
+        ]
+      },
+      "authorships": [
+        {
+          "affiliations": [
+            {
+              "institution_ids": [
+                "https://openalex.org/I114499477"
+              ],
+              "raw_affiliation_string": "Department of Business Management, University of Fort Hare Alice, P.B. X1314, Eastern Cape 5700, South Africa"
+            }
+          ],
+          "author": {
+            "display_name": "Olawale Fatoki",
+            "id": "https://openalex.org/A5070757473",
+            "orcid": "https://orcid.org/0000-0003-1539-8333"
+          },
+          "author_position": "first",
+          "countries": [
+            "ZA"
+          ],
+          "institutions": [
+            {
+              "country_code": "ZA",
+              "display_name": "University of Fort Hare",
+              "id": "https://openalex.org/I114499477",
+              "lineage": [
+                "https://openalex.org/I114499477"
+              ],
+              "ror": "https://ror.org/0184vwv17",
+              "type": "education"
+            }
+          ],
+          "is_corresponding": true,
+          "raw_affiliation_strings": [
+            "Department of Business Management, University of Fort Hare Alice, P.B. X1314, Eastern Cape 5700, South Africa"
+          ],
+          "raw_author_name": "Olawale Olufunso Fatoki",
+          "raw_orcid": null
+        },
+        {
+          "affiliations": [
+            {
+              "institution_ids": [
+                "https://openalex.org/I114499477"
+              ],
+              "raw_affiliation_string": "Department of Business Management, University of Fort Hare Alice, P.B. X1314, Eastern Cape 5700, South Africa"
+            }
+          ],
+          "author": {
+            "display_name": "Francis T. Asah",
+            "id": "https://openalex.org/A5018212008",
+            "orcid": "https://orcid.org/0000-0003-0255-0316"
+          },
+          "author_position": "last",
+          "countries": [
+            "ZA"
+          ],
+          "institutions": [
+            {
+              "country_code": "ZA",
+              "display_name": "University of Fort Hare",
+              "id": "https://openalex.org/I114499477",
+              "lineage": [
+                "https://openalex.org/I114499477"
+              ],
+              "ror": "https://ror.org/0184vwv17",
+              "type": "education"
+            }
+          ],
+          "is_corresponding": false,
+          "raw_affiliation_strings": [
+            "Department of Business Management, University of Fort Hare Alice, P.B. X1314, Eastern Cape 5700, South Africa"
+          ],
+          "raw_author_name": "Francis Asah",
+          "raw_orcid": null
+        }
+      ],
+      "cited_by_count": 219,
+      "display_name": "The Impact of Firm and Entrepreneurial Characteristics on Access to Debt Finance by SMEs in King Williams\u2019 Town, South Africa",
+      "doi": "https://doi.org/10.5539/ijbm.v6n8p170",
+      "id": "https://openalex.org/W2169693233",
+      "is_retracted": false,
+      "language": "en",
+      "open_access": {
+        "any_repository_has_fulltext": false,
+        "is_oa": true,
+        "oa_status": "hybrid",
+        "oa_url": "https://ccsenet.org/journal/index.php/ijbm/article/download/9534/8160"
+      },
+      "primary_location": {
+        "id": "doi:10.5539/ijbm.v6n8p170",
+        "is_accepted": true,
+        "is_oa": true,
+        "is_published": true,
+        "landing_page_url": "https://doi.org/10.5539/ijbm.v6n8p170",
+        "license": "cc-by",
+        "license_id": "https://openalex.org/licenses/cc-by",
+        "pdf_url": "https://ccsenet.org/journal/index.php/ijbm/article/download/9534/8160",
+        "raw_source_name": "International Journal of Business and Management",
+        "raw_type": "journal-article",
+        "source": {
+          "display_name": "International Journal of Business and Management",
+          "host_organization": "https://openalex.org/P4310322531",
+          "host_organization_lineage": [
+            "https://openalex.org/P4310322531"
+          ],
+          "host_organization_lineage_names": [
+            "Canadian Center of Science and Education"
+          ],
+          "host_organization_name": "Canadian Center of Science and Education",
+          "id": "https://openalex.org/S4210230633",
+          "is_core": true,
+          "is_in_doaj": false,
+          "is_oa": false,
+          "issn": [
+            "1833-3850",
+            "1833-8119"
+          ],
+          "issn_l": "1833-3850",
+          "type": "journal"
+        },
+        "version": "publishedVersion"
+      },
+      "publication_date": "2011-08-01",
+      "publication_year": 2011,
+      "title": "The Impact of Firm and Entrepreneurial Characteristics on Access to Debt Finance by SMEs in King Williams\u2019 Town, South Africa",
+      "type": "article"
+    },
+    {
+      "abstract_inverted_index": {
+        "&": [
+          83,
+          88
+        ],
+        "(0.54%": [
+          200
+        ],
+        "(1.82%": [
+          217
+        ],
+        "(SMEs)": [
+          17
+        ],
+        "0.3": [
+          155
+        ],
+        "0.75": [
+          164
+        ],
+        "11": [
+          151
+        ],
+        "3.1": [
+          112
+        ],
+        "9": [
+          76
+        ],
+        "Accommodation": [
+          82
+        ],
+        "Arts,": [
+          86
+        ],
+        "COVID-19": [
+          6,
+          73,
+          106,
+          230
+        ],
+        "COVID-19.": [
+          44
+        ],
+        "Despite": [
+          118
+        ],
+        "Education,": [
+          90
+        ],
+        "Entertainment": [
+          87
+        ],
+        "Food": [
+          84
+        ],
+        "GDP).": [
+          202,
+          219
+        ],
+        "However,": [
+          203
+        ],
+        "Loans": [
+          141
+        ],
+        "Non": [
+          139
+        ],
+        "Other": [
+          92
+        ],
+        "Our": [
+          45,
+          220
+        ],
+        "Performing": [
+          140
+        ],
+        "Recreation,": [
+          89
+        ],
+        "SME": [
+          108
+        ],
+        "SMEs": [
+          71
+        ],
+        "Services": [
+          93
+        ],
+        "Services,": [
+          85
+        ],
+        "The": [
+          100,
+          185
+        ],
+        "Tier-1": [
+          172
+        ],
+        "We": [
+          0,
+          27,
+          61,
+          175
+        ],
+        "a": [
+          22,
+          29,
+          49,
+          63,
+          163,
+          205
+        ],
+        "absent": [
+          79
+        ],
+        "affected": [
+          98
+        ],
+        "after": [
+          43
+        ],
+        "aggregate": [
+          55
+        ],
+        "allows": [
+          47
+        ],
+        "among": [
+          11,
+          95
+        ],
+        "an": [
+          189
+        ],
+        "and": [
+          13,
+          35,
+          42,
+          54,
+          58,
+          91,
+          125,
+          160,
+          179,
+          236
+        ],
+        "are": [
+          94
+        ],
+        "assets": [
+          159
+        ],
+        "at": [
+          102,
+          194,
+          204
+        ],
+        "balance": [
+          144
+        ],
+        "bank": [
+          143
+        ],
+        "banks'": [
+          158
+        ],
+        "be": [
+          198,
+          213
+        ],
+        "business": [
+          9,
+          109,
+          123
+        ],
+        "by": [
+          148
+        ],
+        "can": [
+          197,
+          212
+        ],
+        "capital": [
+          173
+        ],
+        "combination": [
+          51
+        ],
+        "common": [
+          170
+        ],
+        "cost": [
+          178,
+          187
+        ],
+        "cost-minimization": [
+          34
+        ],
+        "countries": [
+          20
+        ],
+        "crisis": [
+          7
+        ],
+        "database.": [
+          26
+        ],
+        "decline": [
+          167
+        ],
+        "demand": [
+          59
+        ],
+        "design": [
+          233
+        ],
+        "due": [
+          104
+        ],
+        "during": [
+          41
+        ],
+        "each": [
+          37
+        ],
+        "effectiveness": [
+          180
+        ],
+        "effectiveness,": [
+          209
+        ],
+        "effects": [
+          131
+        ],
+        "employment,": [
+          126
+        ],
+        "employment.": [
+          117
+        ],
+        "enterprises": [
+          16
+        ],
+        "equity": [
+          171
+        ],
+        "estimate": [
+          1,
+          62,
+          128
+        ],
+        "evaluate": [
+          176
+        ],
+        "expensive": [
+          216
+        ],
+        "failure": [
+          68
+        ],
+        "failures": [
+          10,
+          110,
+          124
+        ],
+        "financial": [
+          134
+        ],
+        "firm": [
+          33
+        ],
+        "firm's": [
+          38
+        ],
+        "firmlevel": [
+          25
+        ],
+        "firms": [
+          196
+        ],
+        "fiscal": [
+          186
+        ],
+        "for": [
+          48,
+          225
+        ],
+        "framework": [
+          46
+        ],
+        "government": [
+          80
+        ],
+        "have": [
+          222
+        ],
+        "impact": [
+          3,
+          121
+        ],
+        "implications": [
+          224
+        ],
+        "important": [
+          223
+        ],
+        "in": [
+          18,
+          66,
+          162,
+          168
+        ],
+        "increase": [
+          65,
+          147
+        ],
+        "intervention": [
+          190
+        ],
+        "interventions.": [
+          184
+        ],
+        "jobs": [
+          101
+        ],
+        "large": [
+          23,
+          64,
+          120
+        ],
+        "level": [
+          207
+        ],
+        "liquidity": [
+          39
+        ],
+        "measure": [
+          36
+        ],
+        "medium": [
+          14
+        ],
+        "model": [
+          31
+        ],
+        "moderate": [
+          130
+        ],
+        "modest": [
+          199
+        ],
+        "more": [
+          215
+        ],
+        "most": [
+          97
+        ],
+        "narrowly": [
+          192
+        ],
+        "nearly": [
+          75
+        ],
+        "non-targeted": [
+          210
+        ],
+        "of": [
+          4,
+          32,
+          52,
+          70,
+          74,
+          114,
+          138,
+          157,
+          181,
+          188,
+          201,
+          208,
+          218,
+          228,
+          234,
+          239
+        ],
+        "on": [
+          8,
+          122,
+          132,
+          142
+        ],
+        "only": [
+          129
+        ],
+        "percent": [
+          113,
+          156
+        ],
+        "percentage": [
+          77,
+          152,
+          165
+        ],
+        "point": [
+          166
+        ],
+        "points,": [
+          78,
+          153
+        ],
+        "policies,": [
+          235
+        ],
+        "policy": [
+          183
+        ],
+        "private": [
+          115
+        ],
+        "productivity,": [
+          57
+        ],
+        "rate": [
+          69
+        ],
+        "ratio.": [
+          174
+        ],
+        "recession,": [
+          231
+        ],
+        "recovery.": [
+          241
+        ],
+        "related": [
+          107
+        ],
+        "represent": [
+          111
+        ],
+        "representative": [
+          24
+        ],
+        "representing": [
+          154
+        ],
+        "resulting": [
+          161
+        ],
+        "results": [
+          221
+        ],
+        "rich": [
+          50
+        ],
+        "risk": [
+          103,
+          195
+        ],
+        "sector": [
+          116
+        ],
+        "sector:": [
+          135
+        ],
+        "sectoral": [
+          53
+        ],
+        "sectors.": [
+          99
+        ],
+        "seventeen": [
+          19
+        ],
+        "severity": [
+          227
+        ],
+        "share": [
+          137
+        ],
+        "sheets": [
+          145
+        ],
+        "shocks.": [
+          60
+        ],
+        "shortfall": [
+          40
+        ],
+        "similar": [
+          206
+        ],
+        "simple": [
+          30
+        ],
+        "size": [
+          15
+        ],
+        "small": [
+          12
+        ],
+        "speed": [
+          238
+        ],
+        "subsidies": [
+          211
+        ],
+        "substantially": [
+          214
+        ],
+        "supply,": [
+          56
+        ],
+        "support.": [
+          81
+        ],
+        "targets": [
+          193
+        ],
+        "that": [
+          191
+        ],
+        "the": [
+          2,
+          5,
+          67,
+          96,
+          119,
+          133,
+          136,
+          169,
+          177,
+          226,
+          229,
+          232,
+          237,
+          240
+        ],
+        "to": [
+          105,
+          150
+        ],
+        "under": [
+          72
+        ],
+        "up": [
+          149
+        ],
+        "use": [
+          28
+        ],
+        "using": [
+          21
+        ],
+        "various": [
+          182
+        ],
+        "we": [
+          127
+        ],
+        "would": [
+          146
+        ]
+      },
+      "authorships": [
+        {
+          "affiliations": [
+            {
+              "institution_ids": [
+                "https://openalex.org/I119878761"
+              ],
+              "raw_affiliation_string": "Federal Reserve Bank of Atlanta"
+            },
+            {
+              "institution_ids": [],
+              "raw_affiliation_string": "IMF and University of Maryland"
+            },
+            {
+              "institution_ids": [
+                "https://openalex.org/I134446601",
+                "https://openalex.org/I95457486"
+              ],
+              "raw_affiliation_string": "UC Berkeley"
+            }
+          ],
+          "author": {
+            "display_name": "\u1e62ebnem Kalemli\u2010\u00d6zcan",
+            "id": "https://openalex.org/A5035786249",
+            "orcid": null
+          },
+          "author_position": "first",
+          "countries": [
+            "US"
+          ],
+          "institutions": [
+            {
+              "country_code": "US",
+              "display_name": "Federal Reserve Bank of Atlanta",
+              "id": "https://openalex.org/I119878761",
+              "lineage": [
+                "https://openalex.org/I119878761",
+                "https://openalex.org/I1317239608"
+              ],
+              "ror": "https://ror.org/05qg1tz58",
+              "type": "other"
+            },
+            {
+              "country_code": "US",
+              "display_name": "Berkeley College",
+              "id": "https://openalex.org/I134446601",
+              "lineage": [
+                "https://openalex.org/I134446601"
+              ],
+              "ror": "https://ror.org/02xewxa75",
+              "type": "education"
+            },
+            {
+              "country_code": "US",
+              "display_name": "University of California, Berkeley",
+              "id": "https://openalex.org/I95457486",
+              "lineage": [
+                "https://openalex.org/I95457486"
+              ],
+              "ror": "https://ror.org/01an7q238",
+              "type": "education"
+            }
+          ],
+          "is_corresponding": false,
+          "raw_affiliation_strings": [
+            "Federal Reserve Bank of Atlanta",
+            "IMF and University of Maryland",
+            "UC Berkeley"
+          ],
+          "raw_author_name": "Sebnem Kalemli-Ozcan",
+          "raw_orcid": null
+        },
+        {
+          "affiliations": [
+            {
+              "institution_ids": [
+                "https://openalex.org/I119878761"
+              ],
+              "raw_affiliation_string": "Federal Reserve Bank of Atlanta"
+            },
+            {
+              "institution_ids": [],
+              "raw_affiliation_string": "IMF and University of Maryland"
+            },
+            {
+              "institution_ids": [
+                "https://openalex.org/I134446601",
+                "https://openalex.org/I95457486"
+              ],
+              "raw_affiliation_string": "UC Berkeley"
+            }
+          ],
+          "author": {
+            "display_name": "Pierre\u2010Olivier Gourinchas",
+            "id": "https://openalex.org/A5050532576",
+            "orcid": "https://orcid.org/0000-0003-4493-5628"
+          },
+          "author_position": "middle",
+          "countries": [
+            "US"
+          ],
+          "institutions": [
+            {
+              "country_code": "US",
+              "display_name": "Federal Reserve Bank of Atlanta",
+              "id": "https://openalex.org/I119878761",
+              "lineage": [
+                "https://openalex.org/I119878761",
+                "https://openalex.org/I1317239608"
+              ],
+              "ror": "https://ror.org/05qg1tz58",
+              "type": "other"
+            },
+            {
+              "country_code": "US",
+              "display_name": "Berkeley College",
+              "id": "https://openalex.org/I134446601",
+              "lineage": [
+                "https://openalex.org/I134446601"
+              ],
+              "ror": "https://ror.org/02xewxa75",
+              "type": "education"
+            },
+            {
+              "country_code": "US",
+              "display_name": "University of California, Berkeley",
+              "id": "https://openalex.org/I95457486",
+              "lineage": [
+                "https://openalex.org/I95457486"
+              ],
+              "ror": "https://ror.org/01an7q238",
+              "type": "education"
+            }
+          ],
+          "is_corresponding": false,
+          "raw_affiliation_strings": [
+            "Federal Reserve Bank of Atlanta",
+            "IMF and University of Maryland",
+            "UC Berkeley"
+          ],
+          "raw_author_name": "Pierre-Olivier Gourinchas",
+          "raw_orcid": null
+        },
+        {
+          "affiliations": [
+            {
+              "institution_ids": [
+                "https://openalex.org/I134446601",
+                "https://openalex.org/I95457486"
+              ],
+              "raw_affiliation_string": "UC Berkeley"
+            },
+            {
+              "institution_ids": [
+                "https://openalex.org/I119878761"
+              ],
+              "raw_affiliation_string": "Federal Reserve Bank of Atlanta"
+            },
+            {
+              "institution_ids": [],
+              "raw_affiliation_string": "IMF and University of Maryland"
+            }
+          ],
+          "author": {
+            "display_name": "Veronika Penciakova",
+            "id": "https://openalex.org/A5012203622",
+            "orcid": null
+          },
+          "author_position": "middle",
+          "countries": [
+            "US"
+          ],
+          "institutions": [
+            {
+              "country_code": "US",
+              "display_name": "Federal Reserve Bank of Atlanta",
+              "id": "https://openalex.org/I119878761",
+              "lineage": [
+                "https://openalex.org/I119878761",
+                "https://openalex.org/I1317239608"
+              ],
+              "ror": "https://ror.org/05qg1tz58",
+              "type": "other"
+            },
+            {
+              "country_code": "US",
+              "display_name": "Berkeley College",
+              "id": "https://openalex.org/I134446601",
+              "lineage": [
+                "https://openalex.org/I134446601"
+              ],
+              "ror": "https://ror.org/02xewxa75",
+              "type": "education"
+            },
+            {
+              "country_code": "US",
+              "display_name": "University of California, Berkeley",
+              "id": "https://openalex.org/I95457486",
+              "lineage": [
+                "https://openalex.org/I95457486"
+              ],
+              "ror": "https://ror.org/01an7q238",
+              "type": "education"
+            }
+          ],
+          "is_corresponding": false,
+          "raw_affiliation_strings": [
+            "UC Berkeley",
+            "Federal Reserve Bank of Atlanta",
+            "IMF and University of Maryland"
+          ],
+          "raw_author_name": "Veronika Penciakova",
+          "raw_orcid": null
+        },
+        {
+          "affiliations": [
+            {
+              "institution_ids": [],
+              "raw_affiliation_string": "IMF and University of Maryland"
+            },
+            {
+              "institution_ids": [
+                "https://openalex.org/I119878761"
+              ],
+              "raw_affiliation_string": "Federal Reserve Bank of Atlanta"
+            },
+            {
+              "institution_ids": [
+                "https://openalex.org/I134446601",
+                "https://openalex.org/I95457486"
+              ],
+              "raw_affiliation_string": "UC Berkeley"
+            }
+          ],
+          "author": {
+            "display_name": "Nick Sander",
+            "id": "https://openalex.org/A5000806353",
+            "orcid": null
+          },
+          "author_position": "last",
+          "countries": [
+            "US"
+          ],
+          "institutions": [
+            {
+              "country_code": "US",
+              "display_name": "Federal Reserve Bank of Atlanta",
+              "id": "https://openalex.org/I119878761",
+              "lineage": [
+                "https://openalex.org/I119878761",
+                "https://openalex.org/I1317239608"
+              ],
+              "ror": "https://ror.org/05qg1tz58",
+              "type": "other"
+            },
+            {
+              "country_code": "US",
+              "display_name": "Berkeley College",
+              "id": "https://openalex.org/I134446601",
+              "lineage": [
+                "https://openalex.org/I134446601"
+              ],
+              "ror": "https://ror.org/02xewxa75",
+              "type": "education"
+            },
+            {
+              "country_code": "US",
+              "display_name": "University of California, Berkeley",
+              "id": "https://openalex.org/I95457486",
+              "lineage": [
+                "https://openalex.org/I95457486"
+              ],
+              "ror": "https://ror.org/01an7q238",
+              "type": "education"
+            }
+          ],
+          "is_corresponding": false,
+          "raw_affiliation_strings": [
+            "IMF and University of Maryland",
+            "Federal Reserve Bank of Atlanta",
+            "UC Berkeley"
+          ],
+          "raw_author_name": "Nick Sander",
+          "raw_orcid": null
+        }
+      ],
+      "cited_by_count": 136,
+      "display_name": "COVID-19 and SME Failures",
+      "doi": "https://doi.org/10.5089/9781513557748.001",
+      "id": "https://openalex.org/W4206444459",
+      "is_retracted": false,
+      "language": "en",
+      "open_access": {
+        "any_repository_has_fulltext": false,
+        "is_oa": true,
+        "oa_status": "diamond",
+        "oa_url": "https://www.elibrary.imf.org/downloadpdf/view/journals/001/2020/207/001.2020.issue-207-en.pdf"
+      },
+      "primary_location": {
+        "id": "doi:10.5089/9781513557748.001",
+        "is_accepted": true,
+        "is_oa": true,
+        "is_published": true,
+        "landing_page_url": "https://doi.org/10.5089/9781513557748.001",
+        "license": null,
+        "license_id": null,
+        "pdf_url": "https://www.elibrary.imf.org/downloadpdf/view/journals/001/2020/207/001.2020.issue-207-en.pdf",
+        "raw_source_name": "IMF Working Papers",
+        "raw_type": "journal-article",
+        "source": {
+          "display_name": "IMF Working Paper",
+          "host_organization": "https://openalex.org/P4310316166",
+          "host_organization_lineage": [
+            "https://openalex.org/P4310316166",
+            "https://openalex.org/P4310321776"
+          ],
+          "host_organization_lineage_names": [
+            "International Monetary Fund",
+            "United Nations"
+          ],
+          "host_organization_name": "International Monetary Fund",
+          "id": "https://openalex.org/S4210171147",
+          "is_core": true,
+          "is_in_doaj": false,
+          "is_oa": true,
+          "issn": [
+            "1018-5941",
+            "2227-8885"
+          ],
+          "issn_l": "1018-5941",
+          "type": "journal"
+        },
+        "version": "publishedVersion"
+      },
+      "publication_date": "2020-09-01",
+      "publication_year": 2020,
+      "title": "COVID-19 and SME Failures",
+      "type": "article"
+    },
+    {
+      "abstract_inverted_index": {
+        "ABSTRACT": [
+          0
+        ],
+        "Using": [
+          27
+        ],
+        "We": [
+          1,
+          81
+        ],
+        "a": [
+          28,
+          33,
+          49
+        ],
+        "an": [
+          6
+        ],
+        "and": [
+          19,
+          64,
+          73,
+          89
+        ],
+        "are": [
+          86
+        ],
+        "assessments": [
+          38
+        ],
+        "bank": [
+          35,
+          46
+        ],
+        "banks": [
+          85
+        ],
+        "borrower": [
+          76
+        ],
+        "borrowers": [
+          72
+        ],
+        "borrowers.": [
+          26
+        ],
+        "by": [
+          57
+        ],
+        "claimant": [
+          94
+        ],
+        "claims.": [
+          80
+        ],
+        "collateral": [
+          4,
+          40,
+          55
+        ],
+        "collateral,": [
+          74
+        ],
+        "containing": [
+          36
+        ],
+        "contracts,": [
+          14
+        ],
+        "credit": [
+          62
+        ],
+        "credit,": [
+          18
+        ],
+        "data": [
+          30
+        ],
+        "debt": [
+          13
+        ],
+        "delinquency": [
+          77
+        ],
+        "design": [
+          11
+        ],
+        "exogenously": [
+          53
+        ],
+        "explain": [
+          83
+        ],
+        "find": [
+          43
+        ],
+        "from": [
+          32
+        ],
+        "important": [
+          7
+        ],
+        "in": [
+          9
+        ],
+        "incentives": [
+          21
+        ],
+        "increasing": [
+          58
+        ],
+        "intensity": [
+          67
+        ],
+        "interest": [
+          59
+        ],
+        "its": [
+          69
+        ],
+        "large": [
+          34
+        ],
+        "legal": [
+          50
+        ],
+        "lenders": [
+          23,
+          88
+        ],
+        "limits,": [
+          63
+        ],
+        "monitor": [
+          25
+        ],
+        "monitoring": [
+          70
+        ],
+        "of": [
+          12,
+          17,
+          22,
+          39,
+          68,
+          71,
+          93
+        ],
+        "on": [
+          78
+        ],
+        "outstanding": [
+          79
+        ],
+        "plays": [
+          5
+        ],
+        "priority.": [
+          95
+        ],
+        "provision": [
+          16
+        ],
+        "quantify": [
+          90
+        ],
+        "rates,": [
+          60
+        ],
+        "reduced": [
+          54
+        ],
+        "reducing": [
+          65
+        ],
+        "reform": [
+          51
+        ],
+        "responded": [
+          47
+        ],
+        "role": [
+          8
+        ],
+        "senior": [
+          87
+        ],
+        "set": [
+          31
+        ],
+        "show": [
+          2
+        ],
+        "spurring": [
+          75
+        ],
+        "that": [
+          3,
+          44,
+          52
+        ],
+        "the": [
+          10,
+          15,
+          20,
+          45,
+          66,
+          91
+        ],
+        "thus": [
+          82
+        ],
+        "tightening": [
+          61
+        ],
+        "timely": [
+          37
+        ],
+        "to": [
+          24,
+          48
+        ],
+        "unique": [
+          29
+        ],
+        "value": [
+          92
+        ],
+        "values": [
+          56
+        ],
+        "values,": [
+          41
+        ],
+        "we": [
+          42
+        ],
+        "why": [
+          84
+        ]
+      },
+      "authorships": [
+        {
+          "affiliations": [
+            {
+              "institution_ids": [
+                "https://openalex.org/I202697423"
+              ],
+              "raw_affiliation_string": "University of Zurich Z\u00fcrich, Switzerland"
+            }
+          ],
+          "author": {
+            "display_name": "Geraldo Cerqueiro",
+            "id": "https://openalex.org/A5047308258",
+            "orcid": "https://orcid.org/0000-0002-6709-1512"
+          },
+          "author_position": "first",
+          "countries": [
+            "CH"
+          ],
+          "institutions": [
+            {
+              "country_code": "CH",
+              "display_name": "University of Zurich",
+              "id": "https://openalex.org/I202697423",
+              "lineage": [
+                "https://openalex.org/I202697423"
+              ],
+              "ror": "https://ror.org/02crff812",
+              "type": "education"
+            }
+          ],
+          "is_corresponding": false,
+          "raw_affiliation_strings": [
+            "University of Zurich Z\u00fcrich, Switzerland"
+          ],
+          "raw_author_name": "GERALDO CERQUEIRO",
+          "raw_orcid": null
+        },
+        {
+          "affiliations": [
+            {
+              "institution_ids": [
+                "https://openalex.org/I25169866"
+              ],
+              "raw_affiliation_string": "UCP - Cat\u00f3lica Lisbon School of Business & Economics, Lisbon, Portugal"
+            }
+          ],
+          "author": {
+            "display_name": "Steven Ongena",
+            "id": "https://openalex.org/A5088788655",
+            "orcid": "https://orcid.org/0000-0002-8381-0062"
+          },
+          "author_position": "middle",
+          "countries": [
+            "PT"
+          ],
+          "institutions": [
+            {
+              "country_code": "PT",
+              "display_name": "Universidade Cat\u00f3lica Portuguesa",
+              "id": "https://openalex.org/I25169866",
+              "lineage": [
+                "https://openalex.org/I25169866"
+              ],
+              "ror": "https://ror.org/03b9snr86",
+              "type": "education"
+            }
+          ],
+          "is_corresponding": false,
+          "raw_affiliation_strings": [
+            "UCP - Cat\u00f3lica Lisbon School of Business & Economics, Lisbon, Portugal"
+          ],
+          "raw_author_name": "STEVEN ONGENA",
+          "raw_orcid": null
+        },
+        {
+          "affiliations": [
+            {
+              "institution_ids": [
+                "https://openalex.org/I169381384",
+                "https://openalex.org/I1307248880"
+              ],
+              "raw_affiliation_string": "Cerqueiro is from Cato\u0301lica Lisbon School of Business and Economics. Ongena is from the University of Zu\u0308rich, SFI, and CEPR. Roszbach is from the Sveriges Riksbank, Stockholm, and the University of Groningen. We are grateful to two anonymous referees, an anonymous Associate Editor, and Michael Roberts (the Editor) for very helpful comments and suggestions. We also thank Rui Albuquerque, O\u0301scar Arce, Diana Bonfim, Marieke Bos, Fabio Braggion, Charles Calomiris, Sudheer Chava, Ferre De Graeve, Hans Degryse, Robert DeYoung, Scott Frame, Diana Hancock, Charles Kahn, Moshe Kim, Alberto Manconi, Catarina Mendicino, Ouarda Merrouche, Thomas Mosk, Lars Norden, Andreas Pfingsten, Rodney Ramcharan, Herbert Rijken, Stefano Rossi, Jesu\u0301s Saurina, Johannes Stroebel, Gustavo Suarez, Pedro Teles, Greg Udell, Han Xia, Patricio Valenzuela, and Xin Zhang"
+            },
+            {
+              "institution_ids": [
+                "https://openalex.org/I4210160949"
+              ],
+              "raw_affiliation_string": "participants at annual Meetings of the American Finance Association (Chicago), the European Finance Association (Stockholm), the International Banking, Economics, and Finance Association (Denver), the Financial Intermediation Research Society (Minneapolis), and the Federal Reserve \u201cDay-Ahead\u201d Conference on Financial Markets and Institutions (Philadelphia), the Society for Economic Dynamics (Limassol)"
+            },
+            {
+              "institution_ids": [
+                "https://openalex.org/I7868373"
+              ],
+              "raw_affiliation_string": "as well as seminar participants at Aalto University (Helsinki), the Baltic International Centre for Economic Policy Studies (Riga), Banco de Portugal (Lisbon), Carlos III University (Madrid), Erasmus University (Rotterdam), K. U. Leuven, Maastricht University, Shandong University (Jinan), Sveriges Riksbank (Stockholm), and the VU University Amsterdam for their useful comments. A previous version of the paper circulated under the title \u201cCollateralization, Bank Loan Rates and Monitoring: Evidence from a Natural Experiment.\u201d Cerqueiro acknowledges the hospitality of Sveriges Riksbank while writing this paper, and financial support from the Portuguese Foundation for Science and Technology (grant PTDC/EGE-ECO/121186/2010). We thank Erik von Schedvin for very helpful discussions and excellent research assistance. The views expressed in this paper are solely the responsibility of the authors and should not be interpreted as reflecting the views of the Executive Board of Sveriges Riksbank"
+            },
+            {
+              "institution_ids": [
+                "https://openalex.org/I201298700"
+              ],
+              "raw_affiliation_string": "participants at CEPR-ESSFM (Gerzensee), the Third Financial Stability Conference (Tilburg), the EUI Workshop on Financial Fragility (Florence), the Norges Bank Workshop on Financial Intermediation (Oslo), the Banco de Espan\u030ca-CNMV Workshop on SME Finance (Madrid), the CAREFIN Conference on Bank Competitiveness in the Post-Crisis World (Milano), the 16th Panel Data Conference at the Banque de France (Paris), and the Basel Committee on Banking Supervision RTF Conference (Istanbul)"
+            }
+          ],
+          "author": {
+            "display_name": "Kasper Roszbach",
+            "id": "https://openalex.org/A5057423202",
+            "orcid": "https://orcid.org/0000-0002-2489-004X"
+          },
+          "author_position": "last",
+          "countries": [
+            "FR",
+            "NL",
+            "SE",
+            "US"
+          ],
+          "institutions": [
+            {
+              "country_code": "SE",
+              "display_name": "Swedish National Bank",
+              "id": "https://openalex.org/I1307248880",
+              "lineage": [
+                "https://openalex.org/I1307248880"
+              ],
+              "ror": "https://ror.org/01n28jn45",
+              "type": "other"
+            },
+            {
+              "country_code": "NL",
+              "display_name": "University of Groningen",
+              "id": "https://openalex.org/I169381384",
+              "lineage": [
+                "https://openalex.org/I169381384"
+              ],
+              "ror": "https://ror.org/012p63287",
+              "type": "education"
+            },
+            {
+              "country_code": "FR",
+              "display_name": "Banque de France",
+              "id": "https://openalex.org/I201298700",
+              "lineage": [
+                "https://openalex.org/I201298700"
+              ],
+              "ror": "https://ror.org/0088v6m32",
+              "type": "other"
+            },
+            {
+              "country_code": "US",
+              "display_name": "American Finance Association",
+              "id": "https://openalex.org/I4210160949",
+              "lineage": [
+                "https://openalex.org/I4210160949"
+              ],
+              "ror": "https://ror.org/04rynnm03",
+              "type": "education"
+            },
+            {
+              "country_code": "US",
+              "display_name": "International Institute for Strategic Studies",
+              "id": "https://openalex.org/I7868373",
+              "lineage": [
+                "https://openalex.org/I7868373"
+              ],
+              "ror": "https://ror.org/03jzczt57",
+              "type": "education"
+            }
+          ],
+          "is_corresponding": false,
+          "raw_affiliation_strings": [
+            "Cerqueiro is from Cato\u0301lica Lisbon School of Business and Economics. Ongena is from the University of Zu\u0308rich, SFI, and CEPR. Roszbach is from the Sveriges Riksbank, Stockholm, and the University of Groningen. We are grateful to two anonymous referees, an anonymous Associate Editor, and Michael Roberts (the Editor) for very helpful comments and suggestions. We also thank Rui Albuquerque, O\u0301scar Arce, Diana Bonfim, Marieke Bos, Fabio Braggion, Charles Calomiris, Sudheer Chava, Ferre De Graeve, Hans Degryse, Robert DeYoung, Scott Frame, Diana Hancock, Charles Kahn, Moshe Kim, Alberto Manconi, Catarina Mendicino, Ouarda Merrouche, Thomas Mosk, Lars Norden, Andreas Pfingsten, Rodney Ramcharan, Herbert Rijken, Stefano Rossi, Jesu\u0301s Saurina, Johannes Stroebel, Gustavo Suarez, Pedro Teles, Greg Udell, Han Xia, Patricio Valenzuela, and Xin Zhang",
+            "participants at annual Meetings of the American Finance Association (Chicago), the European Finance Association (Stockholm), the International Banking, Economics, and Finance Association (Denver), the Financial Intermediation Research Society (Minneapolis), and the Federal Reserve \u201cDay-Ahead\u201d Conference on Financial Markets and Institutions (Philadelphia), the Society for Economic Dynamics (Limassol)",
+            "as well as seminar participants at Aalto University (Helsinki), the Baltic International Centre for Economic Policy Studies (Riga), Banco de Portugal (Lisbon), Carlos III University (Madrid), Erasmus University (Rotterdam), K. U. Leuven, Maastricht University, Shandong University (Jinan), Sveriges Riksbank (Stockholm), and the VU University Amsterdam for their useful comments. A previous version of the paper circulated under the title \u201cCollateralization, Bank Loan Rates and Monitoring: Evidence from a Natural Experiment.\u201d Cerqueiro acknowledges the hospitality of Sveriges Riksbank while writing this paper, and financial support from the Portuguese Foundation for Science and Technology (grant PTDC/EGE-ECO/121186/2010). We thank Erik von Schedvin for very helpful discussions and excellent research assistance. The views expressed in this paper are solely the responsibility of the authors and should not be interpreted as reflecting the views of the Executive Board of Sveriges Riksbank",
+            "participants at CEPR-ESSFM (Gerzensee), the Third Financial Stability Conference (Tilburg), the EUI Workshop on Financial Fragility (Florence), the Norges Bank Workshop on Financial Intermediation (Oslo), the Banco de Espan\u030ca-CNMV Workshop on SME Finance (Madrid), the CAREFIN Conference on Bank Competitiveness in the Post-Crisis World (Milano), the 16th Panel Data Conference at the Banque de France (Paris), and the Basel Committee on Banking Supervision RTF Conference (Istanbul)"
+          ],
+          "raw_author_name": "KASPER ROSZBACH",
+          "raw_orcid": null
+        }
+      ],
+      "cited_by_count": 293,
+      "display_name": "Collateralization, Bank Loan Rates, and Monitoring",
+      "doi": "https://doi.org/10.1111/jofi.12214",
+      "id": "https://openalex.org/W3123109680",
+      "is_retracted": false,
+      "language": "en",
+      "open_access": {
+        "any_repository_has_fulltext": true,
+        "is_oa": true,
+        "oa_status": "green",
+        "oa_url": "https://pure.rug.nl/ws/files/80488484/Collateralization_bank_loan_rates_and_monitoring.pdf"
+      },
+      "primary_location": {
+        "id": "doi:10.1111/jofi.12214",
+        "is_accepted": true,
+        "is_oa": false,
+        "is_published": true,
+        "landing_page_url": "https://doi.org/10.1111/jofi.12214",
+        "license": null,
+        "license_id": null,
+        "pdf_url": null,
+        "raw_source_name": "The Journal of Finance",
+        "raw_type": "journal-article",
+        "source": {
+          "display_name": "The Journal of Finance",
+          "host_organization": "https://openalex.org/P4310320595",
+          "host_organization_lineage": [
+            "https://openalex.org/P4310320595"
+          ],
+          "host_organization_lineage_names": [
+            "Wiley"
+          ],
+          "host_organization_name": "Wiley",
+          "id": "https://openalex.org/S5353659",
+          "is_core": true,
+          "is_in_doaj": false,
+          "is_oa": false,
+          "issn": [
+            "0022-1082",
+            "1540-6261"
+          ],
+          "issn_l": "0022-1082",
+          "type": "journal"
+        },
+        "version": "publishedVersion"
+      },
+      "publication_date": "2014-09-17",
+      "publication_year": 2014,
+      "title": "Collateralization, Bank Loan Rates, and Monitoring",
+      "type": "article"
+    },
+    {
+      "abstract_inverted_index": {
+        "$8": [
+          90
+        ],
+        "2007": [
+          5
+        ],
+        "2007,": [
+          100
+        ],
+        "2007.": [
+          164
+        ],
+        "2008": [
+          7
+        ],
+        "2008.": [
+          111
+        ],
+        "At": [
+          52
+        ],
+        "Depression": [
+          19
+        ],
+        "Great": [
+          18
+        ],
+        "October": [
+          99,
+          110
+        ],
+        "The": [
+          0,
+          30
+        ],
+        "This": [
+          112
+        ],
+        "U.S.": [
+          93
+        ],
+        "While": [
+          71
+        ],
+        "absolute": [
+          80
+        ],
+        "after": [
+          158
+        ],
+        "all-time": [
+          107
+        ],
+        "amplify": [
+          128
+        ],
+        "an": [
+          79,
+          106
+        ],
+        "and": [
+          6,
+          20,
+          109,
+          133,
+          139,
+          154
+        ],
+        "are": [
+          76,
+          83
+        ],
+        "as": [
+          69
+        ],
+        "attempts": [
+          114
+        ],
+        "bad": [
+          46
+        ],
+        "bailouts": [
+          155
+        ],
+        "banks": [
+          37,
+          63
+        ],
+        "between": [
+          98
+        ],
+        "billion": [
+          43
+        ],
+        "broke": [
+          161
+        ],
+        "bubble": [
+          35
+        ],
+        "bursting": [
+          31
+        ],
+        "by": [
+          49,
+          65
+        ],
+        "capitalization": [
+          59
+        ],
+        "caused": [
+          48,
+          121
+        ],
+        "common": [
+          141
+        ],
+        "compared": [
+          87
+        ],
+        "crisis": [
+          15,
+          160
+        ],
+        "declined": [
+          64
+        ],
+        "declines,": [
+          150
+        ],
+        "defaults,": [
+          153
+        ],
+        "delinquencies.": [
+          51
+        ],
+        "describes": [
+          140
+        ],
+        "dislocations": [
+          132
+        ],
+        "dollars": [
+          44
+        ],
+        "down": [
+          40
+        ],
+        "dry-ups,": [
+          152
+        ],
+        "economic": [
+          118,
+          142
+        ],
+        "economy.": [
+          29
+        ],
+        "explain": [
+          116,
+          145
+        ],
+        "financial": [
+          1,
+          14,
+          137
+        ],
+        "forced": [
+          36
+        ],
+        "has": [
+          8
+        ],
+        "have": [
+          23
+        ],
+        "high,": [
+          108
+        ],
+        "housing": [
+          34
+        ],
+        "hundred": [
+          42
+        ],
+        "in": [
+          4,
+          45,
+          123,
+          135,
+          162
+        ],
+        "into": [
+          129
+        ],
+        "large": [
+          24,
+          77,
+          131
+        ],
+        "led": [
+          9
+        ],
+        "liquidity": [
+          151
+        ],
+        "loans": [
+          47
+        ],
+        "losses": [
+          75,
+          122
+        ],
+        "lost": [
+          97
+        ],
+        "major": [
+          62
+        ],
+        "market": [
+          2,
+          58,
+          95,
+          104,
+          126,
+          149
+        ],
+        "markets,": [
+          138
+        ],
+        "mechanisms": [
+          119
+        ],
+        "modest": [
+          86
+        ],
+        "more": [
+          66
+        ],
+        "mortgage": [
+          50,
+          74,
+          125
+        ],
+        "most": [
+          12
+        ],
+        "much.": [
+          70
+        ],
+        "occurred": [
+          157
+        ],
+        "of": [
+          32,
+          60,
+          92,
+          148
+        ],
+        "on": [
+          26,
+          78
+        ],
+        "overall": [
+          73
+        ],
+        "paper": [
+          113
+        ],
+        "plethora": [
+          147
+        ],
+        "reached": [
+          105
+        ],
+        "real": [
+          28
+        ],
+        "relatively": [
+          85
+        ],
+        "repercussions": [
+          25
+        ],
+        "same": [
+          54
+        ],
+        "scale,": [
+          81
+        ],
+        "several": [
+          41
+        ],
+        "severe": [
+          13
+        ],
+        "since": [
+          16
+        ],
+        "still": [
+          84
+        ],
+        "stock": [
+          57,
+          94,
+          103
+        ],
+        "such": [
+          130
+        ],
+        "summer": [
+          163
+        ],
+        "than": [
+          67
+        ],
+        "that": [
+          120,
+          144,
+          156
+        ],
+        "the": [
+          11,
+          17,
+          27,
+          33,
+          53,
+          56,
+          61,
+          72,
+          89,
+          102,
+          117,
+          124,
+          136,
+          146,
+          159
+        ],
+        "they": [
+          82
+        ],
+        "threads": [
+          143
+        ],
+        "threatens": [
+          21
+        ],
+        "time,": [
+          55
+        ],
+        "to": [
+          10,
+          22,
+          38,
+          88,
+          115,
+          127
+        ],
+        "trillion": [
+          91
+        ],
+        "turmoil": [
+          3,
+          134
+        ],
+        "twice": [
+          68
+        ],
+        "wealth": [
+          96
+        ],
+        "when": [
+          101
+        ],
+        "write": [
+          39
+        ]
+      },
+      "authorships": [
+        {
+          "affiliations": [
+            {
+              "institution_ids": [
+                "https://openalex.org/I20089843"
+              ],
+              "raw_affiliation_string": "Princeton University, Princeton, New Jersey"
+            }
+          ],
+          "author": {
+            "display_name": "Markus K. Brunnermeier",
+            "id": "https://openalex.org/A5034194808",
+            "orcid": null
+          },
+          "author_position": "first",
+          "countries": [
+            "US"
+          ],
+          "institutions": [
+            {
+              "country_code": "US",
+              "display_name": "Princeton University",
+              "id": "https://openalex.org/I20089843",
+              "lineage": [
+                "https://openalex.org/I20089843"
+              ],
+              "ror": "https://ror.org/00hx57361",
+              "type": "education"
+            }
+          ],
+          "is_corresponding": true,
+          "raw_affiliation_strings": [
+            "Princeton University, Princeton, New Jersey"
+          ],
+          "raw_author_name": "Markus K Brunnermeier",
+          "raw_orcid": null
+        }
+      ],
+      "cited_by_count": 3403,
+      "display_name": "Deciphering the Liquidity and Credit Crunch 2007\u20132008",
+      "doi": "https://doi.org/10.1257/jep.23.1.77",
+      "id": "https://openalex.org/W3126113144",
+      "is_retracted": false,
+      "language": "en",
+      "open_access": {
+        "any_repository_has_fulltext": false,
+        "is_oa": true,
+        "oa_status": "hybrid",
+        "oa_url": "https://www.aeaweb.org/articles/pdf/doi/10.1257/jep.23.1.77"
+      },
+      "primary_location": {
+        "id": "doi:10.1257/jep.23.1.77",
+        "is_accepted": true,
+        "is_oa": true,
+        "is_published": true,
+        "landing_page_url": "https://doi.org/10.1257/jep.23.1.77",
+        "license": "other-oa",
+        "license_id": "https://openalex.org/licenses/other-oa",
+        "pdf_url": "https://www.aeaweb.org/articles/pdf/doi/10.1257/jep.23.1.77",
+        "raw_source_name": "Journal of Economic Perspectives",
+        "raw_type": "journal-article",
+        "source": {
+          "display_name": "The Journal of Economic Perspectives",
+          "host_organization": "https://openalex.org/P4310315912",
+          "host_organization_lineage": [
+            "https://openalex.org/P4310315912"
+          ],
+          "host_organization_lineage_names": [
+            "American Economic Association"
+          ],
+          "host_organization_name": "American Economic Association",
+          "id": "https://openalex.org/S72880728",
+          "is_core": true,
+          "is_in_doaj": false,
+          "is_oa": false,
+          "issn": [
+            "0895-3309",
+            "1944-7965"
+          ],
+          "issn_l": "0895-3309",
+          "type": "journal"
+        },
+        "version": "publishedVersion"
+      },
+      "publication_date": "2009-01-01",
+      "publication_year": 2009,
+      "title": "Deciphering the Liquidity and Credit Crunch 2007\u20132008",
+      "type": "article"
+    },
+    {
+      "abstract_inverted_index": {
+        "(SMEs)": [
+          16
+        ],
+        "Almi,": [
+          36
+        ],
+        "SMEs": [
+          78
+        ],
+        "SMEs,": [
+          42
+        ],
+        "Swedish": [
+          34
+        ],
+        "The": [
+          62
+        ],
+        "This": [
+          91
+        ],
+        "Using": [
+          27
+        ],
+        "We": [
+          0
+        ],
+        "a": [
+          67,
+          70
+        ],
+        "access": [
+          109
+        ],
+        "aim": [
+          98
+        ],
+        "alone": [
+          112
+        ],
+        "and": [
+          13,
+          43,
+          47,
+          105
+        ],
+        "bank": [
+          3,
+          35
+        ],
+        "business": [
+          57
+        ],
+        "causal": [
+          53
+        ],
+        "cities": [
+          82
+        ],
+        "coarsened": [
+          44
+        ],
+        "constraints": [
+          10
+        ],
+        "credit": [
+          9,
+          111
+        ],
+        "credit-constrained": [
+          41
+        ],
+        "data": [
+          30
+        ],
+        "depending": [
+          20
+        ],
+        "designed": [
+          6
+        ],
+        "detailed": [
+          28
+        ],
+        "difference-in-difference": [
+          48
+        ],
+        "different": [
+          18
+        ],
+        "effects": [
+          54
+        ],
+        "employment": [
+          118
+        ],
+        "enterprises": [
+          15
+        ],
+        "exact": [
+          45
+        ],
+        "firm": [
+          24,
+          60,
+          74
+        ],
+        "firm-level": [
+          29
+        ],
+        "firms": [
+          85
+        ],
+        "for": [
+          11,
+          76,
+          84,
+          95
+        ],
+        "from": [
+          31
+        ],
+        "greater": [
+          71
+        ],
+        "growth": [
+          75,
+          101
+        ],
+        "growth.": [
+          61,
+          119
+        ],
+        "has": [
+          69,
+          93
+        ],
+        "have": [
+          17
+        ],
+        "impact": [
+          72
+        ],
+        "impacts": [
+          19
+        ],
+        "implications": [
+          94
+        ],
+        "in": [
+          80,
+          87,
+          102
+        ],
+        "increase": [
+          100,
+          117
+        ],
+        "increasing": [
+          108
+        ],
+        "investigate": [
+          1
+        ],
+        "is": [
+          25,
+          113
+        ],
+        "lends": [
+          39
+        ],
+        "loan": [
+          68
+        ],
+        "loans": [
+          4,
+          58
+        ],
+        "located": [
+          79,
+          86
+        ],
+        "located.": [
+          26
+        ],
+        "major": [
+          81
+        ],
+        "matching": [
+          46
+        ],
+        "medium-sized": [
+          14
+        ],
+        "not": [
+          114
+        ],
+        "of": [
+          55
+        ],
+        "on": [
+          21,
+          59,
+          73
+        ],
+        "policies": [
+          96
+        ],
+        "receiving": [
+          66
+        ],
+        "reduce": [
+          8
+        ],
+        "regions": [
+          104
+        ],
+        "regions.": [
+          90
+        ],
+        "regressions,": [
+          49
+        ],
+        "remote": [
+          88
+        ],
+        "result": [
+          92
+        ],
+        "results": [
+          63
+        ],
+        "rural": [
+          89,
+          103
+        ],
+        "show": [
+          64
+        ],
+        "small": [
+          12,
+          56
+        ],
+        "specifically": [
+          5,
+          38
+        ],
+        "state-owned": [
+          33
+        ],
+        "study": [
+          51
+        ],
+        "sufficient": [
+          115
+        ],
+        "suggests": [
+          106
+        ],
+        "than": [
+          83
+        ],
+        "that": [
+          65,
+          97,
+          107
+        ],
+        "the": [
+          23,
+          32,
+          52
+        ],
+        "those": [
+          77
+        ],
+        "to": [
+          7,
+          40,
+          99,
+          110,
+          116
+        ],
+        "we": [
+          50
+        ],
+        "where": [
+          22
+        ],
+        "whether": [
+          2
+        ],
+        "which": [
+          37
+        ]
+      },
+      "authorships": [
+        {
+          "affiliations": [
+            {
+              "institution_ids": [
+                "https://openalex.org/I77432436",
+                "https://openalex.org/I26437253"
+              ],
+              "raw_affiliation_string": "Research Institute of Industrial Economics (IFN), Stockholm, Sweden; and Department of Economics, \u00d6rebro University, \u00d6rebro, Sweden"
+            }
+          ],
+          "author": {
+            "display_name": "Anders K\u00e4rn\u00e4",
+            "id": "https://openalex.org/A5061504251",
+            "orcid": "https://orcid.org/0000-0002-9173-8347"
+          },
+          "author_position": "first",
+          "countries": [
+            "SE"
+          ],
+          "institutions": [
+            {
+              "country_code": "SE",
+              "display_name": "\u00d6rebro University",
+              "id": "https://openalex.org/I26437253",
+              "lineage": [
+                "https://openalex.org/I26437253"
+              ],
+              "ror": "https://ror.org/05kytsw45",
+              "type": "education"
+            },
+            {
+              "country_code": "SE",
+              "display_name": "Research Institute of Industrial Economics",
+              "id": "https://openalex.org/I77432436",
+              "lineage": [
+                "https://openalex.org/I77432436"
+              ],
+              "ror": "https://ror.org/0311gd774",
+              "type": "nonprofit"
+            }
+          ],
+          "is_corresponding": true,
+          "raw_affiliation_strings": [
+            "Research Institute of Industrial Economics (IFN), Stockholm, Sweden; and Department of Economics, \u00d6rebro University, \u00d6rebro, Sweden"
+          ],
+          "raw_author_name": "Anders K\u00e4rn\u00e4",
+          "raw_orcid": "https://orcid.org/0000-0002-9173-8347"
+        },
+        {
+          "affiliations": [
+            {
+              "institution_ids": [
+                "https://openalex.org/I223464139"
+              ],
+              "raw_affiliation_string": "Linnaeus University, V\u00e4xj\u00f6, Sweden"
+            }
+          ],
+          "author": {
+            "display_name": "Andreas Stephan",
+            "id": "https://openalex.org/A5058746097",
+            "orcid": "https://orcid.org/0000-0001-5776-9396"
+          },
+          "author_position": "last",
+          "countries": [
+            "SE"
+          ],
+          "institutions": [
+            {
+              "country_code": "SE",
+              "display_name": "Linnaeus University",
+              "id": "https://openalex.org/I223464139",
+              "lineage": [
+                "https://openalex.org/I223464139"
+              ],
+              "ror": "https://ror.org/00j9qag85",
+              "type": "education"
+            }
+          ],
+          "is_corresponding": false,
+          "raw_affiliation_strings": [
+            "Linnaeus University, V\u00e4xj\u00f6, Sweden"
+          ],
+          "raw_author_name": "Andreas Stephan",
+          "raw_orcid": "https://orcid.org/0000-0001-5776-9396"
+        }
+      ],
+      "cited_by_count": 81,
+      "display_name": "Do firms in rural regions lack access to credit? Local variation in small business loans and firm growth",
+      "doi": "https://doi.org/10.1080/00343404.2021.2016681",
+      "id": "https://openalex.org/W4210299055",
+      "is_retracted": false,
+      "language": "en",
+      "open_access": {
+        "any_repository_has_fulltext": true,
+        "is_oa": true,
+        "oa_status": "bronze",
+        "oa_url": "https://www.tandfonline.com/doi/epdf/10.1080/00343404.2021.2016681?needAccess=true&role=button"
+      },
+      "primary_location": {
+        "id": "doi:10.1080/00343404.2021.2016681",
+        "is_accepted": true,
+        "is_oa": true,
+        "is_published": true,
+        "landing_page_url": "https://doi.org/10.1080/00343404.2021.2016681",
+        "license": null,
+        "license_id": null,
+        "pdf_url": "https://www.tandfonline.com/doi/epdf/10.1080/00343404.2021.2016681?needAccess=true&role=button",
+        "raw_source_name": "Regional Studies",
+        "raw_type": "journal-article",
+        "source": {
+          "display_name": "Regional Studies",
+          "host_organization": "https://openalex.org/P4310319847",
+          "host_organization_lineage": [
+            "https://openalex.org/P4310319847"
+          ],
+          "host_organization_lineage_names": [
+            "Routledge"
+          ],
+          "host_organization_name": "Routledge",
+          "id": "https://openalex.org/S175672440",
+          "is_core": true,
+          "is_in_doaj": false,
+          "is_oa": false,
+          "issn": [
+            "0034-3404",
+            "1360-0591"
+          ],
+          "issn_l": "0034-3404",
+          "type": "journal"
+        },
+        "version": "publishedVersion"
+      },
+      "publication_date": "2022-01-27",
+      "publication_year": 2022,
+      "title": "Do firms in rural regions lack access to credit? Local variation in small business loans and firm growth",
+      "type": "article"
+    }
+  ]
+}

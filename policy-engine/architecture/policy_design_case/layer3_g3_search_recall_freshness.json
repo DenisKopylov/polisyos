@@ -50,7 +50,7 @@
           "architecture/policy_design_case/layer3_g2_l2_skg_query_traces.json",
           "architecture/policy_design_case/layer3_g2_l2_skg_index_coverage.json",
           "architecture/policy_design_case/layer3_g2_search_recall_freshness.json",
-          "g2-skg-search-ledger:2a5fe403f11b0189ce13d34a",
+          "g2-skg-search-ledger:93a24f4d5b2389fabb974018",
           "g2-skg-query-trace:e7a846b8d35e1d29de6fd4d5",
           "g2-skg-query-trace:ff1ee66cbc7204f652067f7e"
         ],

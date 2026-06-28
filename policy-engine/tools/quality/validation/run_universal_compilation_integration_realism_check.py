@@ -19,7 +19,7 @@ from polisyos.runtime.quality.argument_graph import (
     build_argument_graph,
     inspect_argument_graph,
 )
-from polisyos.runtime.quality.layer3_gx_data_home import read_layer3_gx_pinned_case_id
+from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import read_layer3_gx_pinned_case_id
 from tools.quality.validation import (
     generate_policy_evidence_capability_cards as cards,
 )

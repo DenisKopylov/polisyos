@@ -9,10 +9,19 @@ from typing import TYPE_CHECKING, Any
 
 import duckdb
 
-from polisyos.ir.analytics.literature import EvidenceStrength
+from polisyos.ir.analytics.literature import (
+    CausalClaim,
+    EvidenceStrength,
+    OpenAlexWorkText,
+    validate_causal_claim_span_grounding,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
+
+    from polisyos.data_forge.domains.academic.knowledge.variable_canonizer import (
+        VariableCanonizer,
+    )
 
 SKG_DDL = """
 CREATE TABLE IF NOT EXISTS ac_skg_articles (
@@ -169,6 +178,49 @@ CREATE TABLE IF NOT EXISTS ac_skg_versions (
     description        VARCHAR
 );
 
+CREATE TABLE IF NOT EXISTS ac_skg_query_traces (
+    trace_id           VARCHAR PRIMARY KEY,
+    query_node_id      VARCHAR NOT NULL,
+    query              VARCHAR NOT NULL,
+    perspective        VARCHAR NOT NULL,
+    provider           VARCHAR NOT NULL,
+    hit_count          INTEGER DEFAULT 0,
+    searched_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    error              VARCHAR,
+    skg_version        INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS ac_skg_no_hit_frontier (
+    frontier_id        VARCHAR PRIMARY KEY,
+    trace_id           VARCHAR NOT NULL,
+    query              VARCHAR NOT NULL,
+    provider           VARCHAR NOT NULL,
+    reason             VARCHAR NOT NULL,
+    skg_version        INTEGER NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS ac_skg_span_grounded_claims (
+    claim_id           VARCHAR PRIMARY KEY,
+    openalex_id        VARCHAR NOT NULL,
+    cause              VARCHAR NOT NULL,
+    effect             VARCHAR NOT NULL,
+    direction          VARCHAR NOT NULL,
+    claim_text         VARCHAR NOT NULL,
+    span_text          VARCHAR NOT NULL,
+    span_start         INTEGER,
+    span_end           INTEGER,
+    source_content_sha256 VARCHAR NOT NULL,
+    support_status     VARCHAR NOT NULL,
+    authority_tier     VARCHAR NOT NULL,
+    grounding_ref      VARCHAR NOT NULL,
+    query_trace_id     VARCHAR NOT NULL,
+    design_family      VARCHAR,
+    design_quality_tier INTEGER,
+    evidence_strength  VARCHAR NOT NULL,
+    confidence         DOUBLE NOT NULL,
+    skg_version        INTEGER NOT NULL
+);
+
 CREATE INDEX IF NOT EXISTS idx_ac_skg_edges_src ON ac_skg_edges(src);
 CREATE INDEX IF NOT EXISTS idx_ac_skg_edges_dst ON ac_skg_edges(dst);
 CREATE INDEX IF NOT EXISTS idx_ac_skg_edges_confidence ON ac_skg_edges(confidence);
@@ -186,6 +238,8 @@ CREATE INDEX IF NOT EXISTS idx_ac_skg_sim_params_name ON ac_skg_simulation_param
 CREATE INDEX IF NOT EXISTS idx_ac_skg_sim_params_article ON ac_skg_simulation_parameters(openalex_id);
 CREATE INDEX IF NOT EXISTS idx_ac_skg_articles_year ON ac_skg_articles(year);
 CREATE INDEX IF NOT EXISTS idx_ac_skg_articles_retracted ON ac_skg_articles(retracted);
+CREATE INDEX IF NOT EXISTS idx_ac_skg_query_traces_provider ON ac_skg_query_traces(provider);
+CREATE INDEX IF NOT EXISTS idx_ac_skg_span_grounded_article ON ac_skg_span_grounded_claims(openalex_id);
 CREATE INDEX IF NOT EXISTS idx_ac_skg_variable_synonyms_synonym ON ac_skg_variable_synonyms(synonym);
 CREATE INDEX IF NOT EXISTS idx_ac_skg_variable_synonyms_canonical ON ac_skg_variable_synonyms(canonical_name);
 
@@ -321,6 +375,19 @@ class WeightedDirectionSummary:
     direction_weights: dict[str, float]
     strongest_dissent_strength: str = ""
     strongest_dissent_year: int | None = None
+
+
+@dataclass(frozen=True)
+class OpenAlexSKGIngestReport:
+    """Result of writing validated OpenAlex claims into L2 SKG tables."""
+
+    skg_version_id: int
+    query_trace: Any
+    query_trace_id: str
+    ingested_claim_count: int
+    rejected_claim_count: int
+    rejected_claim_ids: tuple[str, ...]
+    authority_tier: str
 
 
 def _coerce_article_evidence(row: ArticleEvidence | tuple[Any, ...]) -> ArticleEvidence:
@@ -570,6 +637,345 @@ def finalize_skg_version(
     )
 
 
+def ingest_openalex_span_grounded_claims(
+    con: duckdb.DuckDBPyConnection,
+    *,
+    work: OpenAlexWorkText,
+    claims: Iterable[CausalClaim],
+    query_trace: Any,
+    span_support_client: Any | None = None,
+    variable_canonizer: VariableCanonizer | None = None,
+) -> OpenAlexSKGIngestReport:
+    """Persist validated OpenAlex claims into SKG query, claim, edge, and evidence tables."""
+
+    ensure_skg_schema(con)
+    version_id = next_skg_version(con, description="OpenAlex span-grounded L2 ingest")
+    trace_payload = _trace_payload(query_trace)
+    trace_id = _hash_trace_id(trace_payload)
+    con.execute(
+        """
+        INSERT OR REPLACE INTO ac_skg_query_traces(
+            trace_id, query_node_id, query, perspective, provider, hit_count,
+            searched_at, error, skg_version
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        [
+            trace_id,
+            trace_payload["query_node_id"],
+            trace_payload["query"],
+            trace_payload["perspective"],
+            trace_payload["provider"],
+            int(trace_payload["hit_count"]),
+            trace_payload["searched_at"],
+            trace_payload["error"],
+            version_id,
+        ],
+    )
+    if int(trace_payload["hit_count"]) == 0:
+        con.execute(
+            """
+            INSERT OR REPLACE INTO ac_skg_no_hit_frontier(
+                frontier_id, trace_id, query, provider, reason, skg_version
+            ) VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            [
+                _hash_frontier_id(trace_id, trace_payload["query"]),
+                trace_id,
+                trace_payload["query"],
+                trace_payload["provider"],
+                "provider_returned_no_hits"
+                if not trace_payload["error"]
+                else "provider_error_no_hits",
+                version_id,
+            ],
+        )
+
+    claim_rows = list(claims)
+    con.execute(
+        """
+        INSERT OR REPLACE INTO ac_skg_articles(
+            openalex_id, doi, title, year, cited_by_count,
+            extraction_json, context_json, retracted, skg_version
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        [
+            work.openalex_id,
+            work.doi,
+            work.title,
+            work.year,
+            int(work.cited_by_count),
+            _json_dumps(
+                {
+                    "source": "openalex",
+                    "claims": [claim.model_dump(mode="json") for claim in claim_rows],
+                    "source_content_sha256": work.content_sha256,
+                }
+            ),
+            _json_dumps({"query_trace_id": trace_id, "query": trace_payload["query"]}),
+            bool(work.raw_work.get("is_retracted") or False),
+            version_id,
+        ],
+    )
+
+    ingested = 0
+    rejected_ids: list[str] = []
+    variable_names: set[str] = set()
+    edge_ids: set[str] = set()
+    canonizer = variable_canonizer or _default_variable_canonizer()
+    for claim in claim_rows:
+        grounding = validate_causal_claim_span_grounding(
+            work,
+            claim,
+            span_support_client=span_support_client,
+        )
+        if grounding.status != "validated_supporting":
+            rejected_ids.append(claim.claim_id)
+            continue
+        span = claim.supporting_spans[0]
+        direction = claim.direction.value
+        evidence_strength = normalize_strength(claim.evidence_strength.value)
+        confidence = float(claim.claim_extraction_confidence or 0.5)
+        src_variable, src_is_new = canonizer.canonize(claim.cause_variable)
+        dst_variable, dst_is_new = canonizer.canonize(claim.effect_variable)
+        edge_id = hash_edge_id(src_variable, dst_variable, direction)
+        edge_ids.add(edge_id)
+        variable_names.update({src_variable, dst_variable})
+        quality_signals = {
+            "authority_tier": grounding.authority_tier,
+            "span_grounding_status": grounding.status,
+            "grounding_ref": grounding.grounding_ref,
+            "query_trace_id": trace_id,
+            "source_cause_variable": claim.cause_variable,
+            "source_effect_variable": claim.effect_variable,
+            "cause_canonized_new": src_is_new,
+            "effect_canonized_new": dst_is_new,
+        }
+        con.execute(
+            """
+            INSERT OR REPLACE INTO ac_skg_edges(
+                edge_id, src, dst, direction, n_articles, article_refs,
+                evidence_strength, confidence, scope_conditions, meta_effect_size,
+                candidate_layer, quality_signals_json
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            [
+                edge_id,
+                src_variable,
+                dst_variable,
+                direction,
+                1,
+                _json_dumps([work.openalex_id]),
+                evidence_strength,
+                confidence,
+                _json_dumps(list(claim.scope_conditions)),
+                claim.effect_size,
+                "design_tier_authority",
+                _json_dumps(quality_signals),
+            ],
+        )
+        con.execute(
+            """
+            INSERT OR REPLACE INTO ac_skg_edge_evidence(
+                edge_id, claim_id, openalex_id, src, dst, direction,
+                evidence_strength, confidence, design_family, design_quality_tier, skg_version
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            [
+                edge_id,
+                claim.claim_id,
+                work.openalex_id,
+                src_variable,
+                dst_variable,
+                direction,
+                evidence_strength,
+                confidence,
+                claim.design_family_hint.value,
+                claim.design_quality_tier,
+                version_id,
+            ],
+        )
+        con.execute(
+            """
+            INSERT OR REPLACE INTO ac_skg_span_grounded_claims(
+                claim_id, openalex_id, cause, effect, direction, claim_text,
+                span_text, span_start, span_end, source_content_sha256, support_status,
+                authority_tier, grounding_ref, query_trace_id, design_family,
+                design_quality_tier, evidence_strength, confidence, skg_version
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            [
+                claim.claim_id,
+                work.openalex_id,
+                claim.cause_variable,
+                claim.effect_variable,
+                direction,
+                claim.claim_text,
+                span.text,
+                grounding.span_start,
+                grounding.span_end,
+                work.content_sha256,
+                grounding.status,
+                grounding.authority_tier,
+                grounding.grounding_ref,
+                trace_id,
+                claim.design_family_hint.value,
+                claim.design_quality_tier,
+                evidence_strength,
+                confidence,
+                version_id,
+            ],
+        )
+        ingested += 1
+
+    finalize_skg_version(
+        con,
+        version_id=version_id,
+        n_articles=1,
+        n_edges=len(edge_ids),
+        n_variables=len(variable_names),
+    )
+    return OpenAlexSKGIngestReport(
+        skg_version_id=version_id,
+        query_trace=query_trace,
+        query_trace_id=trace_id,
+        ingested_claim_count=ingested,
+        rejected_claim_count=len(rejected_ids),
+        rejected_claim_ids=tuple(rejected_ids),
+        authority_tier="design_tier_l2" if ingested else "candidate_unverified",
+    )
+
+
+def ingest_openalex_no_hit_frontier(
+    con: duckdb.DuckDBPyConnection,
+    *,
+    query_trace: Any,
+) -> OpenAlexSKGIngestReport:
+    """Persist a real OpenAlex no-hit query trace into the SKG frontier table."""
+
+    ensure_skg_schema(con)
+    version_id = next_skg_version(con, description="OpenAlex no-hit frontier")
+    trace_payload = _trace_payload(query_trace)
+    trace_payload["hit_count"] = 0
+    trace_id = _hash_trace_id(trace_payload)
+    con.execute(
+        """
+        INSERT OR REPLACE INTO ac_skg_query_traces(
+            trace_id, query_node_id, query, perspective, provider, hit_count,
+            searched_at, error, skg_version
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        [
+            trace_id,
+            trace_payload["query_node_id"],
+            trace_payload["query"],
+            trace_payload["perspective"],
+            trace_payload["provider"],
+            0,
+            trace_payload["searched_at"],
+            trace_payload["error"],
+            version_id,
+        ],
+    )
+    con.execute(
+        """
+        INSERT OR REPLACE INTO ac_skg_no_hit_frontier(
+            frontier_id, trace_id, query, provider, reason, skg_version
+        ) VALUES (?, ?, ?, ?, ?, ?)
+        """,
+        [
+            _hash_frontier_id(trace_id, trace_payload["query"]),
+            trace_id,
+            trace_payload["query"],
+            trace_payload["provider"],
+            "provider_returned_no_hits"
+            if not trace_payload["error"]
+            else "provider_error_no_hits",
+            version_id,
+        ],
+    )
+    finalize_skg_version(
+        con,
+        version_id=version_id,
+        n_articles=0,
+        n_edges=0,
+        n_variables=0,
+    )
+    return OpenAlexSKGIngestReport(
+        skg_version_id=version_id,
+        query_trace=query_trace,
+        query_trace_id=trace_id,
+        ingested_claim_count=0,
+        rejected_claim_count=0,
+        rejected_claim_ids=(),
+        authority_tier="candidate_unverified",
+    )
+
+
+def _default_variable_canonizer() -> VariableCanonizer:
+    from polisyos.data_forge.domains.academic.knowledge.variable_canonizer import (
+        VariableCanonizer,
+    )
+
+    return VariableCanonizer()
+
+
+def _trace_payload(query_trace: Any) -> dict[str, Any]:
+    if hasattr(query_trace, "model_dump"):
+        payload = query_trace.model_dump(mode="json")
+    elif isinstance(query_trace, dict):
+        payload = dict(query_trace)
+    else:
+        payload = {
+            "query_node_id": getattr(query_trace, "query_node_id", ""),
+            "query": getattr(query_trace, "query", ""),
+            "perspective": getattr(query_trace, "perspective", ""),
+            "provider": getattr(query_trace, "provider", ""),
+            "hit_count": getattr(query_trace, "hit_count", 0),
+            "searched_at": getattr(query_trace, "searched_at", ""),
+            "error": getattr(query_trace, "error", None),
+        }
+    searched_at = payload.get("searched_at")
+    if isinstance(searched_at, datetime):
+        searched_at_value = searched_at.isoformat()
+    else:
+        searched_at_value = str(searched_at or datetime.now(UTC).isoformat())
+    return {
+        "query_node_id": str(payload.get("query_node_id") or ""),
+        "query": str(payload.get("query") or ""),
+        "perspective": str(payload.get("perspective") or ""),
+        "provider": str(payload.get("provider") or ""),
+        "hit_count": int(payload.get("hit_count") or 0),
+        "searched_at": searched_at_value,
+        "error": str(payload.get("error") or "") or None,
+    }
+
+
+def _hash_trace_id(payload: dict[str, Any]) -> str:
+    import hashlib
+
+    raw = _json_dumps(
+        {
+            "query_node_id": payload["query_node_id"],
+            "query": payload["query"],
+            "provider": payload["provider"],
+            "searched_at": payload["searched_at"],
+        }
+    ).encode("utf-8")
+    return "openalex-trace." + hashlib.sha256(raw).hexdigest()[:24]
+
+
+def _hash_frontier_id(trace_id: str, query: str) -> str:
+    import hashlib
+
+    return "openalex-frontier." + hashlib.sha256(f"{trace_id}|{query}".encode()).hexdigest()[:24]
+
+
+def _json_dumps(value: object) -> str:
+    import json
+
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), default=str)
+
+
 def hash_edge_id(src: str, dst: str, direction: str) -> str:
     """Hash edge ID helper."""
     import hashlib
@@ -689,6 +1095,7 @@ __all__ = [
     "EVIDENCE_WEIGHTS",
     "SKG_DDL",
     "ArticleEvidence",
+    "OpenAlexSKGIngestReport",
     "WeightedDirectionSummary",
     "aggregate_edge_confidence",
     "ensure_skg_schema",
@@ -699,6 +1106,8 @@ __all__ = [
     "hash_moderation_edge_id",
     "hash_param_id",
     "hash_transport_score_id",
+    "ingest_openalex_no_hit_frontier",
+    "ingest_openalex_span_grounded_claims",
     "next_skg_version",
     "normalize_strength",
     "parent_canonical_name",

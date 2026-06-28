@@ -1,0 +1,60 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gy.semantic_benchmark.v1",
+  "benchmark_id": "layer3_gy_slice0_semantic_adequacy_v1",
+  "catalog_corpus_kind": "slice0_representative_fixture_corpus",
+  "closure_scope": "slice0_gate_only",
+  "open_production_findings": [
+    "F4",
+    "F7"
+  ],
+  "label_owner": "team-runtime-quality",
+  "expert_author": "runtime-quality-governance",
+  "reviewer": "policy-design-case-verifier",
+  "provenance": {
+    "created_at": "2026-06-15",
+    "rule_version": "policyos.gy.semantic_adequacy.v1",
+    "source": "GY Phase 1 governed construct-scope benchmark"
+  },
+  "thresholds": {
+    "pre_decision": {
+      "precision_at_5": 0.6,
+      "recall_at_known_seeds": 1.0,
+      "freshness_required": 1.0
+    },
+    "descriptive": {
+      "precision_at_5": 0.6,
+      "recall_at_known_seeds": 1.0,
+      "freshness_required": 1.0
+    }
+  },
+  "labels": [
+    {
+      "fixture_id": "ua_msme_credit_worldbank_measurement",
+      "construct_scope": "ua_msme_credit_worldbank_measurement",
+      "construct_scope_query": "Ukraine MSME credit access World Bank firm measurement",
+      "owner_expert": "runtime-quality-governance",
+      "reviewer": "policy-design-case-verifier",
+      "known_admissible_dataset_ids": [
+        "catalog://worldbank/enterprise-surveys/ukraine/msme-credit-access",
+        "catalog://worldbank/global-findex/ukraine-account-credit",
+        "catalog://ilo/sme-finance/ukraine-credit-constraints"
+      ],
+      "negative_control_dataset_ids": [
+        "tourism_attraction_reviews",
+        "synthetic_llm_only_credit_claim",
+        "catalog://who/ukraine-health-facility-capacity"
+      ]
+    },
+    {
+      "fixture_id": "tourism_local_development_ceiling_probe",
+      "construct_scope": "tourism_local_development_ceiling_probe",
+      "construct_scope_query": "local tourism development attractions traffic measurement",
+      "owner_expert": "runtime-quality-governance",
+      "reviewer": "policy-design-case-verifier",
+      "known_admissible_dataset_ids": [],
+      "negative_control_dataset_ids": [
+        "catalog://worldbank/enterprise-surveys/ukraine/msme-credit-access"
+      ]
+    }
+  ]
+}

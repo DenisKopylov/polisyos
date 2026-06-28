@@ -5,8 +5,10 @@
       "binding_id": "g3-s11-prerequisite-binding:6e7d768fd3991b751f19f003",
       "case_id": "ua-msme-affordable-loans-2022",
       "claim_id": "claim_e4838289c699c353",
-      "g2_forecast_support_binding_ref": "g2-forecast-support-binding:d65f61522884e1cd85048188",
-      "issue_codes": [],
+      "g2_forecast_support_binding_ref": "g2-forecast-support-binding:eee7b28ed5e3ea5bd8cfabf6",
+      "issue_codes": [
+        "layer3_g3_s11_prerequisite_missing"
+      ],
       "may_not_use_for": [
         "claim_authority",
         "causal_effect_authority_without_adapter_validation",
@@ -21,13 +23,6 @@
       "method_validity_refs": [
         "method-validity://layer3/g3/default",
         "method-validity://foundry/causal/local",
-        "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-        "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
-        "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
-        "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-        "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
-        "sha256:0000000000000000000000000000000000000000000000000000000000000000",
         "method-requirement://layer3/g3/default"
       ],
       "post_intervention_dgp_update_ref": "pdc://layer3/g3/ua-msme-affordable-loans-2022/post-intervention-dgp",
@@ -68,10 +63,9 @@
         "pdc://layer2/s6/g3/strategic-response"
       ],
       "source_contract_refs": [
-        "source-contract://layer3/g3/default",
-        "source-contract://ua-msme/server-support"
+        "source-contract://layer3/g3/default"
       ],
-      "status": "pass",
+      "status": "blocked",
       "system_dynamics_handoff_required": true
     }
   ],

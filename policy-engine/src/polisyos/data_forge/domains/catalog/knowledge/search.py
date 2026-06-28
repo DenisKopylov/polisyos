@@ -566,7 +566,7 @@ class DatasetCatalogGraph:
                 + self._tier_boost(item)
             )
             ranked_pairs.append((dataset_id, final_score))
-        ranked = sorted(ranked_pairs, key=lambda pair: pair[1], reverse=True)
+        ranked = sorted(ranked_pairs, key=lambda pair: (-pair[1], pair[0]))
         out: list[DatasetSearchResult] = []
         for did, score in ranked:
             item = result_map[did]

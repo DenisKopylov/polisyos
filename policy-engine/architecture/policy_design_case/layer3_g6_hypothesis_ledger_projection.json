@@ -48,12 +48,12 @@
         "request_class": "ua_msme_support",
         "request_id": "req-layer3-g6-readiness"
       },
-      "emitted_at": "2026-06-13T18:28:25.645820Z",
+      "emitted_at": "2026-06-16T13:50:02.911916Z",
       "producer_validation_refs": [],
       "prompt_fingerprint": "sha256:6a125f5184963fab0aea620abdde2bcf906aeb3fd1048643fadb7f175cd9ce75",
       "prompt_tool_ledger_ref": "layer3-g6://prompt-tool-ledger/layer3-g6-run:req-layer3-g6-readiness",
       "provenance": {
-        "producer": "polisyos.runtime.quality.layer3_bounded_agent",
+        "producer": "polisyos.runtime.quality.proving_ground.bounded_request_agent",
         "source_candidate_id": "layer3-g6-grammar-candidate:req-layer3-g6-readiness:675b29bdbedad5c4"
       },
       "reader_validation_refs": [],
@@ -67,15 +67,15 @@
       "target_claim_ids": [],
       "tool_refs": [
         "layer3-g6://tool-call/req-layer3-g6-readiness/layer3_g6_build_g5_bundle",
-        "repo://src/polisyos/runtime/quality/layer3_bounded_agent.py#tool/layer3_g6_classify_request",
-        "repo://src/polisyos/runtime/quality/layer3_bounded_agent.py#tool/layer3_g6_build_g5_bundle",
-        "repo://src/polisyos/runtime/quality/layer3_bounded_agent.py#tool/layer3_g6_read_g5_conversion",
-        "repo://src/polisyos/runtime/quality/layer3_bounded_agent.py#tool/layer3_g6_probe_counterexample",
-        "repo://src/polisyos/runtime/quality/layer3_bounded_agent.py#tool/layer3_g6_probe_envelope_match"
+        "repo://src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py#tool/layer3_g6_classify_request",
+        "repo://src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py#tool/layer3_g6_build_g5_bundle",
+        "repo://src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py#tool/layer3_g6_read_g5_conversion",
+        "repo://src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py#tool/layer3_g6_probe_counterexample",
+        "repo://src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py#tool/layer3_g6_probe_envelope_match"
       ]
     }
   ],
-  "generated_at": "2026-06-13T18:28:25.645783Z",
+  "generated_at": "2026-06-16T13:50:02.911880Z",
   "hypothesis_ledger_ref": "layer3-g6://hypothesis-ledger/layer3-g6-run:req-layer3-g6-readiness",
   "job_id": "layer3-g6-job:req-layer3-g6-readiness",
   "prompt_tool_ledger_ref": "layer3-g6://prompt-tool-ledger/layer3-g6-run:req-layer3-g6-readiness",

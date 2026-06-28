@@ -45,13 +45,13 @@ depends_on:
   - architecture/generated_artifacts.toml
   - architecture/public_surface/contract.toml
   - architecture/policy_design_case/inventory.json
-  - src/polisyos/runtime/quality/layer3_grounding_inventory.py
-  - src/polisyos/runtime/quality/layer3_promotion_gate.py
-  - src/polisyos/runtime/quality/layer3_proving_ground_conversion.py
-  - src/polisyos/runtime/quality/layer3_bounded_agent.py
-  - src/polisyos/runtime/quality/layer2_resource_economics.py
-  - src/polisyos/runtime/quality/layer2_post_deploy_accountability.py
-  - src/polisyos/runtime/quality/layer2_universality_assurance.py
+  - src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py
+  - src/polisyos/runtime/quality/proving_ground/governed_promotion_gate.py
+  - src/polisyos/runtime/quality/proving_ground/proving_ground_conversion.py
+  - src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py
+  - src/polisyos/runtime/quality/design_axes/resource_economics.py
+  - src/polisyos/runtime/quality/design_axes/post_deploy_accountability.py
+  - src/polisyos/runtime/quality/design_axes/universality_assurance.py
   - src/polisyos/runtime/quality/projection_semantics.py
   - src/polisyos/runtime/quality/public_export.py
   - src/polisyos/runtime/quality/capability_ratchet.py
@@ -425,7 +425,7 @@ Capability transition:
 
 Existing strengths to reuse:
 
-- `src/polisyos/runtime/quality/layer3_proving_ground_conversion.py` already has
+- `src/polisyos/runtime/quality/proving_ground/proving_ground_conversion.py` already has
   strict G5 conversion records, grounding dispositions, envelope-expansion
   deltas, W12.D consumer gate, public projections, and conformance negatives.
 - G5 already persists a status-composition ledger and demand-pull attempt record;
@@ -440,7 +440,7 @@ Existing strengths to reuse:
   readiness bundle remains `unchanged_blocker`.
 - G5 persists `region_ref = "region://ua"` in its envelope expansion delta, so
   G7 has a starting region ref without inventing a new region taxonomy.
-- `src/polisyos/runtime/quality/layer3_bounded_agent.py` already persists G6
+- `src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py` already persists G6
   request class, envelope match, search ledger, orchestration audit, G5
   invocation, replay, demand-pull-vs-abstention, and public audit surfaces.
 - G6 conformance already blocks `g7_region_widening_attempt`, which is exactly
@@ -449,7 +449,7 @@ Existing strengths to reuse:
   `build_replay_manifest(...)` and
   `build_nl_replay_orchestration_continuity(...)` helpers. G7 should follow that
   pattern instead of creating a parallel replay vocabulary.
-- `src/polisyos/runtime/quality/layer2_universality_assurance.py` already
+- `src/polisyos/runtime/quality/design_axes/universality_assurance.py` already
   exposes `build_grounded_authority_coverage_record`,
   `build_envelope_revision_dynamics_record`,
   `build_s14_mechanism_generality_from_growth_thermometer`,
@@ -545,7 +545,7 @@ Current weak points G7 must account for:
 
 Create:
 
-- `src/polisyos/runtime/quality/layer3_region_widening.py` - G7 contracts,
+- `src/polisyos/runtime/quality/proving_ground/region_widening.py` - G7 contracts,
   builders, dependency snapshot, region candidate set, grounding matrix,
   conversion records, status composition, S12 growth thermometer projection,
   mechanism reuse, marginal cost, semantic loss, S14 feed, S14 battery input
@@ -584,7 +584,7 @@ Modify:
 
 Avoid unless explicitly justified:
 
-- `src/polisyos/runtime/quality/layer3_proving_ground_conversion.py` - do not
+- `src/polisyos/runtime/quality/proving_ground/proving_ground_conversion.py` - do not
   remove the pinned-case or non-pinned-widening protections just to make G7
   green. If implementation needs a reusable G5-compatible case conversion
   builder, add red replay/compat tests first and keep old G5 artifacts stable.
@@ -592,7 +592,7 @@ Avoid unless explicitly justified:
   mutate sealed-battery behavior. A narrow reader for the G7 battery
   input manifest is allowed only if hidden case content, access mode, partition
   ownership, and freeze-hash checks remain unchanged and tested.
-- `src/polisyos/runtime/quality/layer3_bounded_agent.py` - do not weaken the
+- `src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py` - do not weaken the
   G6 `g7_region_widening_attempt` negative.
 - `architecture/imports/policy.toml` - default G7 path should stay inside
   `runtime/quality` and existing allowed dependencies.
@@ -639,7 +639,7 @@ architecture/policy_design_case/layer3_g7_readiness_manifest.json
 
 - Create: `tests/unit/runtime/quality/test_layer3_g7_region_widening.py`
 - Create: `tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py`
-- Create: `src/polisyos/runtime/quality/layer3_region_widening.py`
+- Create: `src/polisyos/runtime/quality/proving_ground/region_widening.py`
 - Create: `tools/quality/validation/check_policy_design_case_layer3_g7_readiness.py`
 
 - [x] **Step 1: Add red tests for the G7 contract surface**
@@ -663,7 +663,7 @@ Add repo-quality expectations for the exact artifact set above.
 
 - [x] **Step 2: Add minimal constants and issue dictionary**
 
-In `src/polisyos/runtime/quality/layer3_region_widening.py`, add strict model
+In `src/polisyos/runtime/quality/proving_ground/region_widening.py`, add strict model
 base and constants:
 
 ```python
@@ -775,7 +775,7 @@ Expected: pass after constants exist.
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_region_widening.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/region_widening.py`
 - Modify: `tests/unit/runtime/quality/test_layer3_g7_region_widening.py`
 
 - [x] **Step 1: Add dependency snapshot DTOs**
@@ -848,7 +848,7 @@ def test_g7_dependency_snapshot_reports_current_g5_blocker() -> None:
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_region_widening.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/region_widening.py`
 - Modify: `tests/unit/runtime/quality/test_layer3_g7_region_widening.py`
 
 - [x] **Step 1: Add region candidate DTOs**
@@ -946,7 +946,7 @@ Missing joins produce typed blockers. Search hits alone produce
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_region_widening.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/region_widening.py`
 - Modify: `tests/unit/runtime/quality/test_layer3_g7_region_widening.py`
 
 - [x] **Step 1: Add conversion DTOs**
@@ -1112,7 +1112,7 @@ def test_g7_does_not_count_g4_mapping_fallback_as_governed() -> None:
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_region_widening.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/region_widening.py`
 - Modify: `tests/unit/runtime/quality/test_layer3_g7_region_widening.py`
 
 - [x] **Step 1: Add reuse and cost DTOs**
@@ -1297,7 +1297,7 @@ def test_g7_future_region_cost_passes_when_reuse_is_real() -> None:
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_region_widening.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/region_widening.py`
 - Modify: `tests/unit/runtime/quality/test_layer3_g7_region_widening.py`
 
 - [x] **Step 1: Add region health DTOs**
@@ -1399,7 +1399,7 @@ def test_g7_pending_delta_is_not_counted_as_region_expansion() -> None:
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_region_widening.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/region_widening.py`
 - Modify: `tests/unit/runtime/quality/test_layer3_g7_region_widening.py`
 - Modify: `tools/quality/validation/run_layer2_s14_universality_battery.py` -
   add the read-only G7 input-manifest hook.
@@ -1517,7 +1517,7 @@ def test_g7_s14_feed_blocks_fixture_breadth() -> None:
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_region_widening.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/region_widening.py`
 - Modify: `tests/unit/runtime/quality/test_layer3_g7_region_widening.py`
 
 - [x] **Step 1: Add surface DTOs**
@@ -1783,7 +1783,7 @@ The readiness CLI should validate runtime surfaces, not only file existence:
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_region_widening.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/region_widening.py`
 - Modify: `tests/unit/runtime/quality/test_layer3_g7_region_widening.py`
 - Modify: `tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py`
 

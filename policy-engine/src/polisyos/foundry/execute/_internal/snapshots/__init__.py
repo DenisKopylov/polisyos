@@ -13,6 +13,7 @@ from typing import Any, Union, get_args, get_origin, get_type_hints
 import jax
 import jax.numpy as jnp
 import numpy as np
+from pydantic import BaseModel
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
@@ -156,6 +157,9 @@ def _flatten_state(obj: Any, prefix: str = "") -> Iterable[tuple[str, np.ndarray
         key = current_prefix[:-1]
         if not key:
             raise ValueError("Cannot snapshot an unnamed scalar root")
+        if isinstance(current, BaseModel):
+            yield key, np.asarray(current.model_dump_json())
+            continue
         if isinstance(current, (jax.Array, np.ndarray)):
             yield key, np.asarray(current)
             continue
@@ -217,6 +221,24 @@ def _resolve_nested_dataclass_type(field_type: Any) -> tuple[type[Any] | None, b
     return None, False
 
 
+def _resolve_basemodel_type(field_type: Any) -> tuple[type[BaseModel] | None, bool]:
+    if isinstance(field_type, type) and issubclass(field_type, BaseModel):
+        return field_type, False
+
+    origin = get_origin(field_type)
+    if origin not in (Union, UnionType):
+        return None, False
+
+    args = [arg for arg in get_args(field_type) if arg is not type(None)]
+    if len(args) != 1:
+        return None, False
+
+    candidate = args[0]
+    if isinstance(candidate, type) and issubclass(candidate, BaseModel):
+        return candidate, True
+    return None, False
+
+
 def _build_dataclass(cls, data: dict[str, Any], *, blob: Any | None = None) -> Any:
     if not dataclasses.is_dataclass(cls):
         raise ValueError(f"Expected dataclass type, got: {cls}")
@@ -226,6 +248,7 @@ def _build_dataclass(cls, data: dict[str, Any], *, blob: Any | None = None) -> A
         value = data.get(field.name, dataclasses.MISSING)
         field_type = type_hints.get(field.name, field.type)
         nested_cls, is_optional_nested = _resolve_nested_dataclass_type(field_type)
+        model_cls, is_optional_model = _resolve_basemodel_type(field_type)
         default = _field_default(field)
         if nested_cls is not None:
             if value is dataclasses.MISSING or value is None:
@@ -239,6 +262,16 @@ def _build_dataclass(cls, data: dict[str, Any], *, blob: Any | None = None) -> A
             if not isinstance(value, dict):
                 raise ValueError(f"Missing nested data for '{field.name}'")
             kwargs[field.name] = _build_dataclass(nested_cls, value, blob=blob)
+        elif model_cls is not None:
+            if value is dataclasses.MISSING or value is None:
+                if default is not dataclasses.MISSING:
+                    kwargs[field.name] = default
+                    continue
+                if is_optional_model:
+                    kwargs[field.name] = None
+                    continue
+                raise ValueError(f"Missing model data for '{field.name}'")
+            kwargs[field.name] = _decode_model_leaf(value, blob=blob, model_cls=model_cls)
         else:
             if value is dataclasses.MISSING or value is None:
                 if default is not dataclasses.MISSING:
@@ -247,6 +280,28 @@ def _build_dataclass(cls, data: dict[str, Any], *, blob: Any | None = None) -> A
                 raise ValueError(f"Missing value for '{field.name}'")
             kwargs[field.name] = _decode_snapshot_leaf(value, blob=blob)
     return cls(**kwargs)
+
+
+def _decode_model_leaf(
+    value: Any,
+    *,
+    blob: Any | None,
+    model_cls: type[BaseModel],
+) -> BaseModel:
+    if isinstance(value, _SnapshotLeaf):
+        if blob is None:
+            raise ValueError(f"Snapshot leaf '{value.key}' requires an open NPZ blob")
+        raw = blob[value.key]
+    elif isinstance(value, _SnapshotScalar):
+        raw = value.value
+    else:
+        raw = value
+    scalar = np.asarray(raw).reshape(()).item()
+    if isinstance(scalar, bytes):
+        scalar = scalar.decode("utf-8")
+    if not isinstance(scalar, str):
+        raise ValueError(f"Snapshot model leaf must be a JSON string, got {type(scalar).__name__}")
+    return model_cls.model_validate_json(scalar)
 
 
 def _decode_snapshot_leaf(value: Any, *, blob: Any | None) -> Any:

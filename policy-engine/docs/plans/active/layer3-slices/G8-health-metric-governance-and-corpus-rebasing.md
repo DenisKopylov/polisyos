@@ -27,7 +27,7 @@ G8 starts from a working but intentionally uneven picture.
 - G4 writes promotion-specific health metrics, not the canonical five, so G8 must treat it as a governance-throughput source through `layer3_g4_governance_throughput_delta.json` and readiness summaries.
 - G1/G2/G3/GL readiness manifests are legacy-flat JSON payloads, while G5/G6/G7 use nested `summary` plus selected top-level drift keys, and G4 writes a mixed readiness manifest. G8 source parsing must support both shapes.
 - G3 search recall/freshness uses `freshness_status`, `known_seed_count`, `recalled_seed_count`, and seed-specific status fields inside `search_recall_freshness`; GL uses a top-level legal-search report with `known_seed_status` and `index_freshness_status`.
-- G4's canonical runtime owner is `src/polisyos/runtime/quality/layer3_promotion_gate.py`. The authoritative governance-throughput source is `layer3_g4_governance_throughput_delta.json`, with promotion-count TOML only as a secondary health snapshot.
+- G4's canonical runtime owner is `src/polisyos/runtime/quality/proving_ground/governed_promotion_gate.py`. The authoritative governance-throughput source is `layer3_g4_governance_throughput_delta.json`, with promotion-count TOML only as a secondary health snapshot.
 - G5 writes `metric_statuses` and uses the search metric spelling `search-recall@known-seeds + index-staleness` with spaces around `+`.
 - G5 also persists effective-independence and useful-design eligibility sidecars. G8 should read `layer3_g5_effective_evidence_independence.json`, `layer3_g5_grounded_result_evidence_set.json`, `layer3_g5_grounded_abstention_quality_record.json`, and `layer3_g5_useful_design_metric_eligibility_join.json` instead of recomputing evidence independence or useful-design credit.
 - G6 writes rate fields in `layer3_g6_health_metric_delta.toml` and a richer JSON `layer3_g6_demand_pull_vs_abstention_delta.json`; the JSON is authoritative for the G6 demand-pull reading, and numeric `0.0`/`1.0` readings must be interpreted as signal semantics rather than blindly mapped to `pass`.
@@ -43,7 +43,7 @@ This means the central G8 risk is not missing data. The risk is normalizing inco
 
 G8 should follow the established G5/G6/G7 shape rather than inventing a new validator style.
 
-- Use the canonical module import path (`polisyos.runtime.quality.layer3_health_metric_governance`) and keep `src/polisyos/runtime/quality/__init__.py` unchanged, matching G0/G5/G6/G7.
+- Use the canonical module import path (`polisyos.runtime.quality.proving_ground.health_metric_governance`) and keep `src/polisyos/runtime/quality/__init__.py` unchanged, matching G0/G5/G6/G7.
 - Mirror the G7 readiness validator structure: explicit artifact path constants, `EXPECTED_ARTIFACT_PATHS`, `EXPECTED_MANIFEST_DRIFT_KEYS`, `_build_runtime_bundle`/bundle builder, `_write_artifacts`, `_summary`, nested `readiness_manifest["summary"]` plus top-level drift keys, `_manifest_runtime_drift_keys`, `_validate_written_artifact_set`, registration/docs checks, and text/json CLI output.
 - Reuse the existing validator helper idioms: `_resolve_repo_path`, `_json_dumps(... ensure_ascii=False ...)`, `_toml_value`, `_toml_key`, `_dump`, `_mapping`, `_sequence`, and issue dictionaries shaped as `{"code", "path", "message"}`. Do not create a third readiness-report dialect.
 - Reuse G5/G7 authority-boundary patterns for closeout: G8 may expose a closeout consumer gate, but the gate must deny `closeout_authority` and `runtime_closeout_authority` at the consumer side rather than integrating with `core_runtime_closeout`.
@@ -126,7 +126,7 @@ Typed contract/artifact:
 
 Producer:
 
-- `src/polisyos/runtime/quality/layer3_health_metric_governance.py`
+- `src/polisyos/runtime/quality/proving_ground/health_metric_governance.py`
 
 Persisted artifacts:
 
@@ -202,7 +202,7 @@ Acceptance signal:
 
 Create:
 
-- `src/polisyos/runtime/quality/layer3_health_metric_governance.py`
+- `src/polisyos/runtime/quality/proving_ground/health_metric_governance.py`
   G8 constants, strict models, readers, normalization, trend reporting, diagnosis, warning lifecycle, metric-gaming firewall, D4.4 coverage/trigger/re-basing builders, audit surface, closeout consumer gate, public projection refs, conformance helpers.
 
 - `tools/quality/validation/check_policy_design_case_layer3_g8_readiness.py`
@@ -527,7 +527,7 @@ D44_REQUIRED_REANNOTATION_FIELDS = (
 
 **Files:**
 
-- Create: `src/polisyos/runtime/quality/layer3_health_metric_governance.py`
+- Create: `src/polisyos/runtime/quality/proving_ground/health_metric_governance.py`
 - Test: `tests/unit/runtime/quality/test_layer3_g8_health_metric_governance.py`
 - Test: `tests/repo_quality/tools/test_policy_design_case_layer3_g8_readiness.py`
 
@@ -541,7 +541,7 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
-import polisyos.runtime.quality.layer3_health_metric_governance as g8
+import polisyos.runtime.quality.proving_ground.health_metric_governance as g8
 
 
 def test_g8_declares_red_baseline_contract() -> None:
@@ -593,11 +593,11 @@ cd policy-engine
 uv run pytest tests/unit/runtime/quality/test_layer3_g8_health_metric_governance.py::test_g8_declares_red_baseline_contract -q
 ```
 
-Expected: fail with `ModuleNotFoundError: No module named 'polisyos.runtime.quality.layer3_health_metric_governance'`.
+Expected: fail with `ModuleNotFoundError: No module named 'polisyos.runtime.quality.proving_ground.health_metric_governance'`.
 
 - [ ] **Step 3: Add the minimal module baseline**
 
-Create `src/polisyos/runtime/quality/layer3_health_metric_governance.py` with the constants from the "Canonical Constants" section plus this strict base:
+Create `src/polisyos/runtime/quality/proving_ground/health_metric_governance.py` with the constants from the "Canonical Constants" section plus this strict base:
 
 ```python
 """Layer 3 G8 health-metric governance and corpus re-basing contracts.
@@ -695,7 +695,7 @@ Expected: both tests pass.
 
 ```bash
 cd policy-engine
-git add src/polisyos/runtime/quality/layer3_health_metric_governance.py tests/unit/runtime/quality/test_layer3_g8_health_metric_governance.py
+git add src/polisyos/runtime/quality/proving_ground/health_metric_governance.py tests/unit/runtime/quality/test_layer3_g8_health_metric_governance.py
 git commit -m "feat: add layer3 g8 health metric governance baseline"
 ```
 
@@ -703,7 +703,7 @@ git commit -m "feat: add layer3 g8 health metric governance baseline"
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_health_metric_governance.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/health_metric_governance.py`
 - Modify: `tests/unit/runtime/quality/test_layer3_g8_health_metric_governance.py`
 
 - [ ] **Step 1: Write the failing registry tests**
@@ -892,7 +892,7 @@ Expected: pass.
 
 ```bash
 cd policy-engine
-git add src/polisyos/runtime/quality/layer3_health_metric_governance.py tests/unit/runtime/quality/test_layer3_g8_health_metric_governance.py
+git add src/polisyos/runtime/quality/proving_ground/health_metric_governance.py tests/unit/runtime/quality/test_layer3_g8_health_metric_governance.py
 git commit -m "feat: govern layer3 health metric registry"
 ```
 
@@ -900,7 +900,7 @@ git commit -m "feat: govern layer3 health metric registry"
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_health_metric_governance.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/health_metric_governance.py`
 - Modify: `tests/unit/runtime/quality/test_layer3_g8_health_metric_governance.py`
 
 - [ ] **Step 1: Write the failing source, normalization, and trend tests**
@@ -1530,7 +1530,7 @@ Expected: pass.
 
 ```bash
 cd policy-engine
-git add src/polisyos/runtime/quality/layer3_health_metric_governance.py tests/unit/runtime/quality/test_layer3_g8_health_metric_governance.py
+git add src/polisyos/runtime/quality/proving_ground/health_metric_governance.py tests/unit/runtime/quality/test_layer3_g8_health_metric_governance.py
 git commit -m "feat: normalize layer3 health metric signals"
 ```
 
@@ -1538,7 +1538,7 @@ git commit -m "feat: normalize layer3 health metric signals"
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_health_metric_governance.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/health_metric_governance.py`
 - Modify: `tests/unit/runtime/quality/test_layer3_g8_health_metric_governance.py`
 
 - [ ] **Step 1: Write failing diagnosis tests**
@@ -1883,7 +1883,7 @@ Expected: pass.
 
 ```bash
 cd policy-engine
-git add src/polisyos/runtime/quality/layer3_health_metric_governance.py tests/unit/runtime/quality/test_layer3_g8_health_metric_governance.py
+git add src/polisyos/runtime/quality/proving_ground/health_metric_governance.py tests/unit/runtime/quality/test_layer3_g8_health_metric_governance.py
 git commit -m "feat: diagnose layer3 metric ceilings"
 ```
 
@@ -1891,7 +1891,7 @@ git commit -m "feat: diagnose layer3 metric ceilings"
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_health_metric_governance.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/health_metric_governance.py`
 - Modify: `tests/unit/runtime/quality/test_layer3_g8_health_metric_governance.py`
 
 - [ ] **Step 1: Write failing firewall and warning tests**
@@ -2090,7 +2090,7 @@ Expected: pass.
 
 ```bash
 cd policy-engine
-git add src/polisyos/runtime/quality/layer3_health_metric_governance.py tests/unit/runtime/quality/test_layer3_g8_health_metric_governance.py
+git add src/polisyos/runtime/quality/proving_ground/health_metric_governance.py tests/unit/runtime/quality/test_layer3_g8_health_metric_governance.py
 git commit -m "feat: block layer3 metric gaming"
 ```
 
@@ -2098,7 +2098,7 @@ git commit -m "feat: block layer3 metric gaming"
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_health_metric_governance.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/health_metric_governance.py`
 - Modify: `tests/unit/runtime/quality/test_layer3_g8_health_metric_governance.py`
 
 - [ ] **Step 1: Write failing D4.4 tests**
@@ -2531,7 +2531,7 @@ Expected: pass.
 
 ```bash
 cd policy-engine
-git add src/polisyos/runtime/quality/layer3_health_metric_governance.py tests/unit/runtime/quality/test_layer3_g8_health_metric_governance.py
+git add src/polisyos/runtime/quality/proving_ground/health_metric_governance.py tests/unit/runtime/quality/test_layer3_g8_health_metric_governance.py
 git commit -m "feat: add d44 corpus rebasing coverage and receipts"
 ```
 
@@ -2539,7 +2539,7 @@ git commit -m "feat: add d44 corpus rebasing coverage and receipts"
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_health_metric_governance.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/health_metric_governance.py`
 - Modify: `tests/unit/runtime/quality/test_layer3_g8_health_metric_governance.py`
 
 - [ ] **Step 1: Write the failing open-question test**
@@ -2733,7 +2733,7 @@ Expected: pass.
 
 ```bash
 cd policy-engine
-git add src/polisyos/runtime/quality/layer3_health_metric_governance.py tests/unit/runtime/quality/test_layer3_g8_health_metric_governance.py
+git add src/polisyos/runtime/quality/proving_ground/health_metric_governance.py tests/unit/runtime/quality/test_layer3_g8_health_metric_governance.py
 git commit -m "feat: answer layer3 g8 open questions"
 ```
 
@@ -2741,7 +2741,7 @@ git commit -m "feat: answer layer3 g8 open questions"
 
 **Files:**
 
-- Modify: `src/polisyos/runtime/quality/layer3_health_metric_governance.py`
+- Modify: `src/polisyos/runtime/quality/proving_ground/health_metric_governance.py`
 - Modify: `tests/unit/runtime/quality/test_layer3_g8_health_metric_governance.py`
 
 - [ ] **Step 1: Write failing surface and conformance tests**
@@ -3421,7 +3421,7 @@ def _g8_route_contract_registry(
         "rule_version": G8_RULE_VERSION,
         "route_contract_registry_kind": "generated_metric_governance_route_contract_registry",
         "surface_id": audit_surface.surface_id,
-        "producer": "src/polisyos/runtime/quality/layer3_health_metric_governance.py",
+        "producer": "src/polisyos/runtime/quality/proving_ground/health_metric_governance.py",
         "validator": "tools/quality/validation/check_policy_design_case_layer3_g8_readiness.py",
         "metric_trend_report": "architecture/policy_design_case/layer3_g8_metric_trend_report.json",
         "closeout_consumer_gate": "architecture/policy_design_case/layer3_g8_closeout_signal_consumer_gate.json",
@@ -3456,7 +3456,7 @@ Expected: pass.
 
 ```bash
 cd policy-engine
-git add src/polisyos/runtime/quality/layer3_health_metric_governance.py tests/unit/runtime/quality/test_layer3_g8_health_metric_governance.py
+git add src/polisyos/runtime/quality/proving_ground/health_metric_governance.py tests/unit/runtime/quality/test_layer3_g8_health_metric_governance.py
 git commit -m "feat: surface layer3 g8 metric governance gates"
 ```
 
@@ -3485,7 +3485,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-import polisyos.runtime.quality.layer3_health_metric_governance as g8
+import polisyos.runtime.quality.proving_ground.health_metric_governance as g8
 from tools.quality.validation import check_policy_design_case_layer3_g8_readiness as validator
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -3615,7 +3615,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-import polisyos.runtime.quality.layer3_health_metric_governance as g8
+import polisyos.runtime.quality.proving_ground.health_metric_governance as g8
 from tools.quality.validation import check_policy_design_case_layer3_g8_readiness as validator
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -3746,7 +3746,7 @@ from typing import Any
 from pydantic import BaseModel
 from tools.lib.fs import atomic_write_text
 
-import polisyos.runtime.quality.layer3_health_metric_governance as g8
+import polisyos.runtime.quality.proving_ground.health_metric_governance as g8
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 POLICY_DESIGN_CASE_DIR = Path("architecture/policy_design_case")
@@ -4003,7 +4003,7 @@ def _registration_statuses(repo_root: Path) -> dict[str, str]:
     )
     inventory_ok = (
         g8.G8_SURFACE_ID in inventory_text
-        and "src/polisyos/runtime/quality/layer3_health_metric_governance.py" in inventory_text
+        and "src/polisyos/runtime/quality/proving_ground/health_metric_governance.py" in inventory_text
         and "tools/quality/validation/check_policy_design_case_layer3_g8_readiness.py" in inventory_text
         and all(path.as_posix() in inventory_text for path in EXPECTED_ARTIFACT_PATHS)
     )
@@ -4231,7 +4231,7 @@ if __name__ == "__main__":
 
 - [ ] **Step 4: Add registrations and docs**
 
-Append a family to `architecture/generated_artifacts.toml` with label `Policy Design Case Layer 3 G8 health-metric governance artifacts`, source of truth `src/polisyos/runtime/quality/layer3_health_metric_governance.py and tools/quality/validation/check_policy_design_case_layer3_g8_readiness.py`, all `EXPECTED_ARTIFACT_PATHS`, regenerate command:
+Append a family to `architecture/generated_artifacts.toml` with label `Policy Design Case Layer 3 G8 health-metric governance artifacts`, source of truth `src/polisyos/runtime/quality/proving_ground/health_metric_governance.py and tools/quality/validation/check_policy_design_case_layer3_g8_readiness.py`, all `EXPECTED_ARTIFACT_PATHS`, regenerate command:
 
 ```bash
 uv run python tools/quality/validation/check_policy_design_case_layer3_g8_readiness.py --repo-root . --write --output-format json
@@ -4255,7 +4255,7 @@ Add an inventory entry in `architecture/policy_design_case/inventory.json`:
 - `surface_out_of_scope`: `PUBLIC` and `REVIEWER` as projection-only references
 - `metric_trend_report`: `architecture/policy_design_case/layer3_g8_metric_trend_report.json`
 - `closeout_consumer_gate`: `architecture/policy_design_case/layer3_g8_closeout_signal_consumer_gate.json`
-- `producer`: `src/polisyos/runtime/quality/layer3_health_metric_governance.py`
+- `producer`: `src/polisyos/runtime/quality/proving_ground/health_metric_governance.py`
 - `validator`: `tools/quality/validation/check_policy_design_case_layer3_g8_readiness.py`
 - `readiness_manifest`: `architecture/policy_design_case/layer3_g8_readiness_manifest.json`
 - `closure_artifact_paths`: all `EXPECTED_ARTIFACT_PATHS`
@@ -4428,7 +4428,7 @@ If verification required edits:
 ```bash
 cd policy-engine
 git add \
-  src/polisyos/runtime/quality/layer3_health_metric_governance.py \
+  src/polisyos/runtime/quality/proving_ground/health_metric_governance.py \
   tools/quality/validation/check_policy_design_case_layer3_g8_readiness.py \
   tests/unit/runtime/quality/test_layer3_g8_health_metric_governance.py \
   tests/repo_quality/tools/test_policy_design_case_layer3_g8_readiness.py \

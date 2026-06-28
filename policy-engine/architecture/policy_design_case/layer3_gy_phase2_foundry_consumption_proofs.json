@@ -1,0 +1,204 @@
+{
+  "proofs": [
+    {
+      "authority_boundary": {
+        "authoritative_for": [
+          "estimate:ws-phase2-estimate-a-causal-policy-effect"
+        ],
+        "boundary_id": "authority-ws-phase2-estimate-a-causal-policy-effect-foundry",
+        "decision_grade": "descriptive_only",
+        "evidence_basis": {
+          "calibration_refs": [],
+          "counterexamples_closed": [],
+          "method_refs": [
+            "sha256:9bc05e292e6dfaa9bb3adcaf5f7ed5c13c0fdae8f4387208f5e196f979af1b87"
+          ],
+          "producer_roots": [
+            {
+              "artifact_id": "sha256:d8c7a598e032007bcb7fe9f0a0bb665333a07511ac8506378842fa764dd1c6cb",
+              "artifact_type": "MeasurementRoot",
+              "content_hash": "sha256:ba2c6156811b069bbb40f98958124a86fe334dfb34356c94e6d5a9be71429b59",
+              "schema_ref": "polisyos.ir.observational_data.v1",
+              "uri": "cas://sha256:d8c7a598e032007bcb7fe9f0a0bb665333a07511ac8506378842fa764dd1c6cb",
+              "version": "v1"
+            }
+          ]
+        },
+        "evidence_kind": "measurement",
+        "known_limits": [
+          "Phase 2 caps Foundry consumption at descriptive authority."
+        ],
+        "may_not_use_for": [
+          "design_decision_authority",
+          "production_recommendation",
+          "publication_authority"
+        ],
+        "posture": "governed",
+        "rule_version_refs": [
+          "policyos.gy.phase2.foundry.v1"
+        ],
+        "source_authority": "deterministic_producer"
+      },
+      "authority_decision_grade": "descriptive_only",
+      "authority_evidence_kind": "measurement",
+      "constraint_blocks_promotion": true,
+      "constraint_downgrades_authority": true,
+      "constraint_store_consumed": true,
+      "consumed_method_output_refs": [
+        {
+          "artifact_id": "sha256:9bc05e292e6dfaa9bb3adcaf5f7ed5c13c0fdae8f4387208f5e196f979af1b87",
+          "artifact_type": "FoundryMethodResult",
+          "content_hash": "sha256:84b789de9d8f15734a7a940a45cda187588d74f9a981c5664081ac53f65bede0",
+          "schema_ref": "polisyos.foundry.methods.result.v1",
+          "uri": "cas://sha256:9bc05e292e6dfaa9bb3adcaf5f7ed5c13c0fdae8f4387208f5e196f979af1b87",
+          "version": "v1"
+        }
+      ],
+      "dag_consumed_method_outputs_count": 1,
+      "input_provenance": "measurement_rooted",
+      "measurement_root_refs": [
+        {
+          "artifact_id": "sha256:d8c7a598e032007bcb7fe9f0a0bb665333a07511ac8506378842fa764dd1c6cb",
+          "artifact_type": "MeasurementRoot",
+          "content_hash": "sha256:ba2c6156811b069bbb40f98958124a86fe334dfb34356c94e6d5a9be71429b59",
+          "schema_ref": "polisyos.ir.observational_data.v1",
+          "uri": "cas://sha256:d8c7a598e032007bcb7fe9f0a0bb665333a07511ac8506378842fa764dd1c6cb",
+          "version": "v1"
+        }
+      ],
+      "measurement_root_source": "production_data/ukraine_agent_simulation_baseline_20260410/production_bundle/bundles/calibration_bundle_v1/observation_panel_monthly.parquet",
+      "open_production_findings": [],
+      "operation_class": "ESTIMATE",
+      "persisted_consumption_artifact_type": "MethodOutputConsumptionRecord",
+      "proof_id": "phase2-estimate-consumes-foundry-output-through-loop",
+      "record": {
+        "constraint_store_ref": null,
+        "consumed_method_evidence_ref_count": 1,
+        "consumed_method_evidence_refs": [
+          {
+            "artifact_type": "FoundryMethodEvidence",
+            "runtime_produced": true,
+            "schema_ref": "polisyos.foundry.methods.evidence.v1"
+          }
+        ],
+        "consumed_method_output_refs": [
+          {
+            "artifact_id": "sha256:9bc05e292e6dfaa9bb3adcaf5f7ed5c13c0fdae8f4387208f5e196f979af1b87",
+            "artifact_type": "FoundryMethodResult",
+            "content_hash": "sha256:84b789de9d8f15734a7a940a45cda187588d74f9a981c5664081ac53f65bede0",
+            "schema_ref": "polisyos.foundry.methods.result.v1",
+            "uri": "cas://sha256:9bc05e292e6dfaa9bb3adcaf5f7ed5c13c0fdae8f4387208f5e196f979af1b87",
+            "version": "v1"
+          }
+        ],
+        "consumption_id": "consume-invoke-phase2-run-causal-evaluation",
+        "dag_consumed_method_outputs_count": 1,
+        "measurement_root_refs": [
+          {
+            "artifact_id": "sha256:d8c7a598e032007bcb7fe9f0a0bb665333a07511ac8506378842fa764dd1c6cb",
+            "artifact_type": "MeasurementRoot",
+            "content_hash": "sha256:ba2c6156811b069bbb40f98958124a86fe334dfb34356c94e6d5a9be71429b59",
+            "schema_ref": "polisyos.ir.observational_data.v1",
+            "uri": "cas://sha256:d8c7a598e032007bcb7fe9f0a0bb665333a07511ac8506378842fa764dd1c6cb",
+            "version": "v1"
+          }
+        ],
+        "operation_class": "ESTIMATE",
+        "operation_invocation_id": "invoke-phase2-run-causal-evaluation",
+        "workspace_id": "ws-phase2-estimate-a-causal-policy-effect"
+      },
+      "source_node": "run_causal_evaluation"
+    },
+    {
+      "authority_boundary": {
+        "authoritative_for": [
+          "estimate:ws-phase2-estimate-a-causal-policy-effect"
+        ],
+        "boundary_id": "authority-ws-phase2-estimate-a-causal-policy-effect-foundry",
+        "decision_grade": "descriptive_only",
+        "evidence_basis": {
+          "calibration_refs": [],
+          "counterexamples_closed": [],
+          "method_refs": [
+            "sha256:8989103878f28dde21aa2a7638673915e176e6bbae48cea8d86334525c1b6dbd"
+          ],
+          "producer_roots": [
+            {
+              "artifact_id": "sha256:57143db6aa17bc1eac8cc08d658f85d1a39c9be8f4fd9b0fa1501347b8acaace",
+              "artifact_type": "SyntheticObservationInput",
+              "content_hash": "sha256:843f1ebf7e15268add018ec2f6b937034e4d4f42d5da8707c82443f1df306f8b",
+              "schema_ref": "policyos.gy.phase2.synthetic_observational_data.v1",
+              "uri": "cas://sha256:57143db6aa17bc1eac8cc08d658f85d1a39c9be8f4fd9b0fa1501347b8acaace",
+              "version": "v1"
+            }
+          ]
+        },
+        "evidence_kind": "simulation",
+        "known_limits": [
+          "Phase 2 caps Foundry consumption at descriptive authority.",
+          "F10 open: loop-generated synthetic panel is a probe input, not catalog-measurement-rooted evidence."
+        ],
+        "may_not_use_for": [
+          "design_decision_authority",
+          "production_recommendation",
+          "publication_authority",
+          "measurement_rooted_authority"
+        ],
+        "posture": "governed",
+        "rule_version_refs": [
+          "policyos.gy.phase2.foundry.v1"
+        ],
+        "source_authority": "deterministic_producer"
+      },
+      "authority_decision_grade": "descriptive_only",
+      "authority_evidence_kind": "simulation",
+      "consumed_method_output_refs": [
+        {
+          "artifact_id": "sha256:8989103878f28dde21aa2a7638673915e176e6bbae48cea8d86334525c1b6dbd",
+          "artifact_type": "FoundryMethodResult",
+          "content_hash": "sha256:2cf53e66ce4435baf815c6f0356c1f8f9e1a929bca831903b45621787a2939cc",
+          "schema_ref": "polisyos.foundry.methods.result.v1",
+          "uri": "cas://sha256:8989103878f28dde21aa2a7638673915e176e6bbae48cea8d86334525c1b6dbd",
+          "version": "v1"
+        }
+      ],
+      "dag_consumed_method_outputs_count": 1,
+      "input_provenance": "synthetic_probe",
+      "measurement_root_refs": [],
+      "open_production_findings": [
+        "F10"
+      ],
+      "operation_class": "ESTIMATE",
+      "proof_id": "phase2-estimate-synthetic-panel-stays-simulation",
+      "record": {
+        "constraint_store_ref": null,
+        "consumed_method_evidence_ref_count": 1,
+        "consumed_method_evidence_refs": [
+          {
+            "artifact_type": "FoundryMethodEvidence",
+            "runtime_produced": true,
+            "schema_ref": "polisyos.foundry.methods.evidence.v1"
+          }
+        ],
+        "consumed_method_output_refs": [
+          {
+            "artifact_id": "sha256:8989103878f28dde21aa2a7638673915e176e6bbae48cea8d86334525c1b6dbd",
+            "artifact_type": "FoundryMethodResult",
+            "content_hash": "sha256:2cf53e66ce4435baf815c6f0356c1f8f9e1a929bca831903b45621787a2939cc",
+            "schema_ref": "polisyos.foundry.methods.result.v1",
+            "uri": "cas://sha256:8989103878f28dde21aa2a7638673915e176e6bbae48cea8d86334525c1b6dbd",
+            "version": "v1"
+          }
+        ],
+        "consumption_id": "consume-invoke-phase2-run-causal-evaluation",
+        "dag_consumed_method_outputs_count": 1,
+        "measurement_root_refs": [],
+        "operation_class": "ESTIMATE",
+        "operation_invocation_id": "invoke-phase2-run-causal-evaluation",
+        "workspace_id": "ws-phase2-estimate-a-causal-policy-effect"
+      },
+      "source_node": "run_causal_evaluation"
+    }
+  ],
+  "schema_version": "policyos.policy_design_case.layer3_gy_phase2.foundry_consumption_proofs.v2"
+}

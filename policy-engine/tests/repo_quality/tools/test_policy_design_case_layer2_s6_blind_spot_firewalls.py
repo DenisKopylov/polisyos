@@ -143,7 +143,7 @@ def test_layer2_s6_closes_five_cells_with_fail_closed_maturity() -> None:
     assert manifest["floor_expected_minimum"] == 1.0
     for cell in cells.values():
         assert cell["owner_module"] == (
-            "src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py"
+            "src/polisyos/runtime/quality/design_axes/blind_spot_firewalls.py"
         )
         assert cell["ratchet_state"] == "implemented"
         assert cell["p01_chain"] == "implemented"
@@ -215,7 +215,7 @@ def test_layer2_s6_inventory_and_manifest_authority_boundaries_match() -> None:
     assert artifact["authority_scope"] == manifest["authority_scope"]
     assert artifact["may_not_use_for"] == manifest["may_not_use_for"]
     assert manifest["producer_module"] == (
-        "src/polisyos/runtime/quality/layer2_blind_spot_firewalls.py"
+        "src/polisyos/runtime/quality/design_axes/blind_spot_firewalls.py"
     )
     assert manifest["consumer_module"] == "src/polisyos/pdc/_impl/layer2_design_search.py"
     assert manifest["canonical_route"] == artifact["canonical_route"]

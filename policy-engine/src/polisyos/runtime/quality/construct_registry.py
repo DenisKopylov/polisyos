@@ -10,7 +10,7 @@ from typing import Any, Literal
 import yaml
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from polisyos.runtime.quality.layer3_gx_data_home import read_layer3_gx_pinned_case_id
+from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import read_layer3_gx_pinned_case_id
 
 CONSTRUCT_REGISTRY_SCHEMA_VERSION = "policyos.construct_registry.v1"
 CONSTRUCT_REGISTRY_ID = "policyos.policy_evidence.construct_registry"

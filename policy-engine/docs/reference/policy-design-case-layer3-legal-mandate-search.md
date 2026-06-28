@@ -1,7 +1,7 @@
 # Policy Design Case Layer 3 Legal Mandate Search
 
 Owner: `team-runtime-quality`
-Source of truth: `src/polisyos/runtime/quality/layer3_legal_mandate_search.py`, `tools/quality/validation/check_policy_design_case_layer3_gl_readiness.py`, and `architecture/policy_design_case/layer3_gl_readiness_manifest.json`
+Source of truth: `src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py`, `tools/quality/validation/check_policy_design_case_layer3_gl_readiness.py`, and `architecture/policy_design_case/layer3_gl_readiness_manifest.json`
 
 Layer 3 GL is the legal mandate search and consumer-gate readiness surface for
 Policy Design Case. It turns canonical L3 Legal KG search, replayable query

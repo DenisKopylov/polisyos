@@ -39,7 +39,7 @@ from polisyos.runtime.quality.observability_static_audit import (
     build_freshness_policy_time_semantics_record,
     build_skip_causality_ledger_record,
 )
-from polisyos.runtime.quality.pass1b_hardening import (
+from polisyos.runtime.quality.tenant_cas_approval_governance import (
     PASS1B_PDD_REQUIRED_SURFACES,
     PASS1B_REQUIRED_CASE_BINDING_FIELDS,
     build_pass1b_tenant_cas_approval_governance_record,

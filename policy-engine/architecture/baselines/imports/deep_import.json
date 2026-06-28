@@ -748,6 +748,13 @@
       "source_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
       "source_root": "data_forge",
       "source_file": "src/polisyos/data_forge/domains/academic/knowledge/skg_query.py",
+      "target_module": "polisyos.core.contracts",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
+      "source_root": "data_forge",
+      "source_file": "src/polisyos/data_forge/domains/academic/knowledge/skg_query.py",
       "target_module": "polisyos.ir.analytics.context",
       "target_root": "ir"
     },
@@ -5648,6 +5655,13 @@
       "source_module": "polisyos.foundry.agent_sim.wiring.executors",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/agent_sim/wiring/executors.py",
+      "target_module": "polisyos.core.contracts",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.foundry.agent_sim.wiring.executors",
+      "source_root": "foundry",
+      "source_file": "src/polisyos/foundry/agent_sim/wiring/executors.py",
       "target_module": "polisyos.ir.observation.contracts",
       "target_root": "ir"
     },
@@ -6163,6 +6177,13 @@
       "target_root": "ir"
     },
     {
+      "source_module": "polisyos.foundry.contracts.state",
+      "source_root": "foundry",
+      "source_file": "src/polisyos/foundry/contracts/state.py",
+      "target_module": "polisyos.core.contracts",
+      "target_root": "core"
+    },
+    {
       "source_module": "polisyos.foundry.data_plane.bindings",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/data_plane/bindings.py",
@@ -6181,6 +6202,13 @@
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/data_plane/bindings.py",
       "target_module": "polisyos.core.canon",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.foundry.data_plane.bindings",
+      "source_root": "foundry",
+      "source_file": "src/polisyos/foundry/data_plane/bindings.py",
+      "target_module": "polisyos.core.contracts",
       "target_root": "core"
     },
     {
@@ -14248,6 +14276,90 @@
       "target_root": "data_forge"
     },
     {
+      "source_module": "polisyos.runtime.quality.data_state_substrate",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/data_state_substrate.py",
+      "target_module": "polisyos.core.artifacts",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.data_state_substrate",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/data_state_substrate.py",
+      "target_module": "polisyos.core.canon",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.data_state_substrate",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/data_state_substrate.py",
+      "target_module": "polisyos.core.contracts",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.data_state_substrate",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/data_state_substrate.py",
+      "target_module": "polisyos.core.contracts.fabric",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.data_state_substrate",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/data_state_substrate.py",
+      "target_module": "polisyos.core.registry",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.data_state_substrate",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/data_state_substrate.py",
+      "target_module": "polisyos.data_forge.kernel.pipeline.manifests",
+      "target_root": "data_forge"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.data_state_substrate",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/data_state_substrate.py",
+      "target_module": "polisyos.data_forge.kernel.snapshot",
+      "target_root": "data_forge"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.data_state_substrate",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/data_state_substrate.py",
+      "target_module": "polisyos.data_forge.read_api.academic",
+      "target_root": "data_forge"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.data_state_substrate",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/data_state_substrate.py",
+      "target_module": "polisyos.fabric.io.db",
+      "target_root": "fabric"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.data_state_substrate",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/data_state_substrate.py",
+      "target_module": "polisyos.fabric.world.materialize",
+      "target_root": "fabric"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.data_state_substrate",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/data_state_substrate.py",
+      "target_module": "polisyos.fabric.world.store",
+      "target_root": "fabric"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.data_state_substrate",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/data_state_substrate.py",
+      "target_module": "polisyos.ir.model_layer.model_spec",
+      "target_root": "ir"
+    },
+    {
       "source_module": "polisyos.runtime.quality.effective_mode",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/quality/effective_mode.py",
@@ -14309,6 +14421,132 @@
       "source_file": "src/polisyos/runtime/quality/human_review.py",
       "target_module": "polisyos.core.canon.canon_json",
       "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.intervention_atom_binding",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/intervention_atom_binding.py",
+      "target_module": "polisyos.core.artifacts",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.intervention_atom_binding",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/intervention_atom_binding.py",
+      "target_module": "polisyos.core.canon",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.intervention_atom_binding",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/intervention_atom_binding.py",
+      "target_module": "polisyos.ir.analytics.interventions",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.intervention_atom_binding",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/intervention_atom_binding.py",
+      "target_module": "polisyos.ir.governance",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.intervention_atom_binding",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/intervention_atom_binding.py",
+      "target_module": "polisyos.ir.kernel.base",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.intervention_atom_binding",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/intervention_atom_binding.py",
+      "target_module": "polisyos.ir.linker",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.intervention_substrate",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/intervention_substrate.py",
+      "target_module": "polisyos.core.artifacts",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.intervention_substrate",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/intervention_substrate.py",
+      "target_module": "polisyos.ir.analytics.interventions",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.intervention_substrate",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/intervention_substrate.py",
+      "target_module": "polisyos.ir.governance.policy_spec",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.intervention_substrate",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/intervention_substrate.py",
+      "target_module": "polisyos.ir.governance.problem_frame",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.intervention_substrate",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/intervention_substrate.py",
+      "target_module": "polisyos.ir.governance.schedule",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.intervention_substrate",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/intervention_substrate.py",
+      "target_module": "polisyos.ir.governance.selector_expr",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.intervention_substrate",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/intervention_substrate.py",
+      "target_module": "polisyos.ir.kernel",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.intervention_substrate",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/intervention_substrate.py",
+      "target_module": "polisyos.ir.linker",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.intervention_substrate",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/intervention_substrate.py",
+      "target_module": "polisyos.ir.model_layer.model_spec",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.intervention_substrate",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/intervention_substrate.py",
+      "target_module": "polisyos.ir.model_layer.types",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.intervention_substrate",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/intervention_substrate.py",
+      "target_module": "polisyos.ir.registry.registry_fragments",
+      "target_root": "ir"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.intervention_substrate",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/intervention_substrate.py",
+      "target_module": "polisyos.ir.trinity",
+      "target_root": "ir"
     },
     {
       "source_module": "polisyos.runtime.quality.layer3_causal_forecast",
@@ -14505,6 +14743,55 @@
       "source_file": "src/polisyos/runtime/quality/soft_gate_telemetry.py",
       "target_module": "polisyos.core.contracts",
       "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.world_model_record",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/world_model_record.py",
+      "target_module": "polisyos.core.artifacts",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.world_model_record",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/world_model_record.py",
+      "target_module": "polisyos.core.canon",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.world_model_record",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/world_model_record.py",
+      "target_module": "polisyos.core.contracts",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.world_model_record",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/world_model_record.py",
+      "target_module": "polisyos.core.registry",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.world_model_record",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/world_model_record.py",
+      "target_module": "polisyos.foundry.data_plane",
+      "target_root": "foundry"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.world_model_record",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/world_model_record.py",
+      "target_module": "polisyos.foundry.execute.executor",
+      "target_root": "foundry"
+    },
+    {
+      "source_module": "polisyos.runtime.quality.world_model_record",
+      "source_root": "runtime",
+      "source_file": "src/polisyos/runtime/quality/world_model_record.py",
+      "target_module": "polisyos.ir.kernel",
+      "target_root": "ir"
     },
     {
       "source_module": "polisyos.runtime.replay",

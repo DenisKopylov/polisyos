@@ -26,6 +26,7 @@ def _authority_boundary(
     *,
     source_authority: str = "deterministic_producer",
     posture: str = "shadow",
+    decision_grade: str = "decision_admissible",
 ) -> AuthorityBoundary:
     return AuthorityBoundary(
         authoritative_for=["shadow_design_candidate"],
@@ -33,6 +34,8 @@ def _authority_boundary(
         source_authority=source_authority,
         posture=posture,
         rule_version_refs=["repo://architecture/policy_design_case/cluster_ownership_map.toml"],
+        evidence_kind="measurement",
+        decision_grade=decision_grade,  # type: ignore[arg-type]
     )
 
 
@@ -71,6 +74,28 @@ def test_minimal_seed_manifest_rejects_missing_p15_or_p25() -> None:
             owned_by="team-policyos-runtime",
             rule_version_refs=["repo://docs/reference/policy-design-case-failure-patterns.md"],
         )
+
+
+def test_authority_boundary_partial_evidence_downgrade_caps_grade_and_denials() -> None:
+    boundary = _authority_boundary(posture="governed", decision_grade="decision_admissible")
+
+    downgraded = boundary.with_partial_evidence_downgrade(
+        limitation="observable subset only; causal pathway remains bounded",
+        may_not_use_for=[
+            "production_decision",
+            "publication_without_limitation",
+        ],
+        decision_grade_cap="advisory_admissible",
+        boundary_id="boundary-partial",
+    )
+
+    assert downgraded.boundary_id == "boundary-partial"
+    assert downgraded.decision_grade == "advisory_admissible"
+    assert downgraded.decision_grade != "decision_admissible"
+    assert "observable subset only; causal pathway remains bounded" in downgraded.known_limits
+    assert "production_decision" in downgraded.may_not_use_for
+    assert "publication_without_limitation" in downgraded.may_not_use_for
+    assert downgraded.permits_at_most(boundary)
 
 
 def _source_design_record() -> DesignRecordV0:

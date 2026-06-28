@@ -1,0 +1,18 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gx_measurement_replay_report.v1",
+  "status": "pass",
+  "measurement_root_count": 2,
+  "records": [
+    {
+      "producer_ref": "measurement://layer3-g1/l1-dcat-search-ledgers",
+      "missing_replay_keys": [],
+      "replayable": true
+    },
+    {
+      "producer_ref": "measurement://layer3-g1/l1-dcat-search-recall",
+      "missing_replay_keys": [],
+      "replayable": true
+    }
+  ],
+  "issues": []
+}

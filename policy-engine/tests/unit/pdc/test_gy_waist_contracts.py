@@ -1,0 +1,456 @@
+from __future__ import annotations
+
+import pytest
+from pydantic import ValidationError
+
+from polisyos.pdc import (
+    ApplicabilityResult,
+    ArtifactEnvelope,
+    ArtifactRef,
+    AuthorityBoundary,
+    AuthorityDerivationTrace,
+    BudgetVector,
+    CertifiedOperationEnvelope,
+    DecisionGrade,
+    EvidenceBasis,
+    EvidenceKind,
+    OperationClass,
+    OperationContract,
+    OperationInvocationRecord,
+    PortSpec,
+    SearchLedgerEvent,
+    SearchTerminalKind,
+    SearchTerminalState,
+    VOISelectionAudit,
+    WorkspaceContract,
+    assert_ring2_verifier_provenance,
+    gy_content_hash,
+)
+from polisyos.pdc._impl.gy_waist import ArtifactEnvelopeVerification
+
+
+def _artifact_ref(artifact_id: str = "artifact-base") -> ArtifactRef:
+    return ArtifactRef.from_payload(
+        artifact_id=artifact_id,
+        artifact_type="BaseDataset",
+        payload={"rows": [{"firm_id": 1}], "created_at": "2026-06-15T10:00:00Z"},
+        schema_ref="policyos.gy.fixture.v1",
+        uri=f"cas://{artifact_id}",
+        version="v1",
+    )
+
+
+def _boundary(
+    *,
+    evidence_kind: EvidenceKind = "measurement",
+    decision_grade: DecisionGrade = "descriptive_only",
+    authoritative_for: list[str] | None = None,
+    may_not_use_for: list[str] | None = None,
+    evidence_basis: EvidenceBasis | None = None,
+) -> AuthorityBoundary:
+    return AuthorityBoundary(
+        boundary_id="boundary-test",
+        authoritative_for=authoritative_for or ["claim:descriptive:ua-msme"],
+        may_not_use_for=may_not_use_for or ["claim:causal:ua-msme"],
+        source_authority="deterministic_producer",
+        posture="governed",
+        rule_version_refs=["policyos.gy.authority.v1"],
+        evidence_kind=evidence_kind,
+        decision_grade=decision_grade,
+        evidence_basis=evidence_basis
+        or EvidenceBasis(
+            producer_roots=[_artifact_ref()],
+            method_refs=["catalog.fetch"],
+            calibration_refs=[],
+            counterexamples_closed=[],
+        ),
+        known_limits=["estimate-port only"],
+    )
+
+
+def test_gy_evidence_hash_strips_volatile_time_fields() -> None:
+    payload = {"value": 3, "created_at": "2026-06-15T10:00:00Z", "ms": 1}
+    first = gy_content_hash(payload)
+    second = gy_content_hash({"value": 3, "created_at": "2026-06-15T11:30:00Z", "ms": 999})
+
+    assert first == second
+    assert first.startswith("sha256:")
+    assert ArtifactRef.from_payload(
+        artifact_id="artifact-hash",
+        artifact_type="BaseDataset",
+        payload=payload,
+        schema_ref="policyos.gy.fixture.v1",
+        uri="cas://artifact-hash",
+        version="v1",
+    ).content_hash == first
+
+
+def test_non_verifier_writer_cannot_set_ring2_field() -> None:
+    payload = {
+        "ref": _artifact_ref().model_dump(mode="json"),
+        "payload_ref": "cas://artifact-base",
+        "payload_schema_ref": "policyos.gy.fixture.v1",
+        "lifecycle_state": "shadow",
+        "created_by": {"kind": "agent", "id": "agent-b"},
+        "producer_operation": {
+            "invocation_id": "invoke-bind",
+            "operation_id": "bind.worldbank",
+            "operation_version": "v1",
+        },
+        "input_artifacts": [],
+        "producer_roots": [],
+        "authority_boundary": _boundary().model_dump(mode="json"),
+        "obligations": [],
+        "verification": {
+            "latest_applicability_result": None,
+            "latest_promotion_result": "promotion-pass",
+        },
+    }
+
+    with pytest.raises(ValidationError, match="verifier-only"):
+        ArtifactEnvelope.model_validate(payload, context={"writer_role": "agent"})
+
+    envelope = ArtifactEnvelope.model_validate(payload, context={"writer_role": "verifier"})
+    assert envelope.authority_boundary is not None
+
+
+def test_ring2_consumption_boundary_rejects_constructed_bypass_fields() -> None:
+    ref = _artifact_ref()
+    boundary = _boundary()
+    envelope = CertifiedOperationEnvelope(
+        envelope_id="envelope-slice0-estimate",
+        domains=["ukrainian_msme_credit"],
+        posture_scopes=["governed"],
+        epistemic_regime_scopes=[],
+        actor_scopes=["workspace_loop"],
+        method_scopes=["measurement_root_summary"],
+        certified_for=["slice0_estimate_port_authority"],
+        not_certified_for=["design_candidate", "grounded_admissible"],
+        rule_version_ref="policyos.gy.authority.v1",
+    )
+    constructed_verification = ArtifactEnvelopeVerification.model_construct(
+        latest_promotion_result="promotion-pass"
+    )
+
+    constructed_envelope = ArtifactEnvelope.model_construct(
+        ref=ref,
+        payload_ref="cas://artifact-base",
+        payload_schema_ref="policyos.gy.fixture.v1",
+        lifecycle_state="shadow",
+        created_by={"kind": "agent", "id": "agent-b"},
+        producer_operation={"operation_id": "slice0.estimate.measurement_summary"},
+        authority_boundary=boundary,
+        certified_operation_envelope=envelope,
+        verification=constructed_verification,
+    )
+    constructed_port = PortSpec.model_construct(
+        port_id="port-estimate",
+        direction="produces",
+        port_type="Estimate",
+        claim_shape={},
+        multiplicity={"min": 0, "max": 1},
+        provided_authority=boundary,
+    )
+    constructed_event = SearchLedgerEvent.model_construct(
+        event_id="event-authority-delta",
+        workspace_id="ws-slice0",
+        cycle_index=0,
+        event_type="operation_finished",
+        actor={"kind": "system"},
+        input_artifacts=[],
+        output_artifacts=[],
+        authority_delta=boundary.model_dump(mode="json"),
+        created_obligations=[],
+        timestamp="2026-06-15T00:00:00Z",
+    )
+
+    for constructed in (
+        constructed_envelope,
+        constructed_verification,
+        constructed_port,
+        constructed_event,
+    ):
+        with pytest.raises(ValueError, match="Ring-2"):
+            assert_ring2_verifier_provenance(
+                constructed,
+                context={"writer_role": "agent"},
+            )
+
+    assert_ring2_verifier_provenance(
+        constructed_envelope,
+        context={"writer_role": "system_verifier"},
+    )
+
+
+def test_ring1_contracts_are_constructible_without_ring2_authority() -> None:
+    port = PortSpec(
+        port_id="port-dataset",
+        direction="consumes",
+        port_type="Dataset",
+        claim_shape={"kind": "descriptive", "subject_type": "firm", "predicate_type": "credit"},
+        multiplicity={"min": 1, "max": 1},
+        constraints={"jurisdiction": "UA"},
+    )
+    op = OperationContract(
+        operation_id="slice0.bind.catalog",
+        operation_version="v1",
+        operation_class=OperationClass.BIND,
+        consumes=[port],
+        produces=[port.model_copy(update={"direction": "produces"})],
+        formal_preconditions=[],
+        allowed_internal_execution=["tool_call"],
+        implementation_refs=[{"kind": "python_function", "ref": "polisyos.runtime.quality.workspace.loop"}],
+        cost_model={"compute": {"max_operation_invocations": 1}},
+        authority_transform={"kind": "preserves", "rule_ref": "policyos.gy.authority.v1"},
+        failure_modes=[],
+        repair_options=[],
+    )
+    invocation = OperationInvocationRecord(
+        invocation_id="invoke-bind",
+        operation_id=op.operation_id,
+        operation_version=op.operation_version,
+        workspace_id="ws-slice0",
+        cycle_index=0,
+        selected_by={"kind": "refinement_policy", "id": "seed-trajectory"},
+        input_artifacts=[],
+        parameters={"schema_ref": "policyos.gy.params.v1", "value_ref": "cas://params"},
+        internal_trace={"trace_kind": "deterministic", "trace_ref": "trace://bind"},
+        output_artifacts=[_artifact_ref()],
+        applicability_result="applicability-bind",
+        budget_delta={"compute": {"operation_invocations": 1}},
+        status="completed",
+    )
+    applicability = ApplicabilityResult(
+        result_id="applicability-bind",
+        invocation_id=invocation.invocation_id,
+        status="applicable",
+        checked_preconditions=[],
+        failed_preconditions=[],
+        type_errors=[],
+        repair_options=[],
+    )
+    workspace = WorkspaceContract(
+        workspace_id="ws-slice0",
+        intent_ref=_artifact_ref("intent-ref"),
+        scope={
+            "domain": "msme_credit",
+            "jurisdiction": "UA",
+            "scale": "national",
+            "time_horizon": "2020-2024",
+            "posture": "advisory",
+        },
+        artifact_graph_ref="cas://graph",
+        constraint_store_ref="cas://constraints",
+        agenda_ref="cas://agenda",
+        frontier_ref="cas://frontier",
+        allowed_operations=[op.operation_id],
+        budget=BudgetVector.slice0(),
+    )
+    event = SearchLedgerEvent(
+        event_id="event-operation-finished",
+        workspace_id=workspace.workspace_id,
+        cycle_index=0,
+        event_type="operation_finished",
+        actor={"kind": "system", "id": "workspace-loop"},
+        input_artifacts=[],
+        output_artifacts=[_artifact_ref()],
+        operation_invocation_ref=invocation.invocation_id,
+        created_obligations=[],
+        timestamp="2026-06-15T00:00:00Z",
+    )
+
+    assert op.operation_class is OperationClass.BIND
+    assert applicability.status == "applicable"
+    assert workspace.budget.compute["max_operation_invocations"] == 3
+    assert event.output_artifacts[0].artifact_type == "BaseDataset"
+
+
+def test_slice0_budget_vector_uses_only_minimal_cut_line_subset() -> None:
+    budget = BudgetVector.slice0()
+    dumped = budget.model_dump(mode="json")
+    non_empty_axes = {axis for axis, value in dumped.items() if value}
+
+    assert non_empty_axes == {"compute", "search_quality"}
+    assert set(budget.compute) == {"max_operation_invocations", "max_wall_seconds", "hard"}
+    assert set(budget.search_quality) == {
+        "min_recall_at_known_seeds",
+        "required_source_classes",
+    }
+
+
+def test_search_terminal_and_voi_audit_are_typed_contracts() -> None:
+    terminal = SearchTerminalState(
+        kind=SearchTerminalKind.ACQUISITION_REQUIRED,
+        reason="Costed acquisition is required.",
+        blocking_obligations=[],
+        costed_plan={"missing_distribution": "local_tourism_site_traffic"},
+    )
+    audit = VOISelectionAudit(
+        audit_id="voi-slice0",
+        workspace_id="ws-slice0",
+        selected_terminal=SearchTerminalKind.ACQUISITION_REQUIRED,
+        candidates=[
+            {
+                "operation_proposal_ref": "slice0.acquire.costed_plan",
+                "estimated_voi": 0.82,
+                "estimated_cost": {"money": 2500, "expert_hours": 0},
+                "voi_per_cost": 0.000328,
+                "hard_budgets_allow": False,
+            }
+        ],
+        selected_action_ref="slice0.acquire.costed_plan",
+        continuation_allowed=False,
+        decision_rule_ref="policyos.gy.anytime_exit.v1",
+    )
+
+    assert terminal["kind"] == "acquisition_required"
+    assert audit.selected_terminal == SearchTerminalKind.ACQUISITION_REQUIRED
+    assert audit.continuation_allowed is False
+
+    with pytest.raises(ValidationError):
+        SearchTerminalState(kind="not_a_terminal", reason="bad", blocking_obligations=[])
+
+
+def test_authority_boundary_meet_uses_two_independent_axes() -> None:
+    measurement_descriptive = _boundary(
+        evidence_kind="measurement",
+        decision_grade="descriptive_only",
+        authoritative_for=["claim:descriptive"],
+        may_not_use_for=["claim:causal"],
+    )
+    bounds_advisory = _boundary(
+        evidence_kind="bounds",
+        decision_grade="advisory_admissible",
+        authoritative_for=["claim:descriptive", "claim:causal"],
+        may_not_use_for=["claim:production"],
+    )
+
+    met = measurement_descriptive.meet(bounds_advisory, boundary_id="boundary-meet")
+
+    assert met.authoritative_for == ["claim:descriptive"]
+    assert met.may_not_use_for == ["claim:causal", "claim:production"]
+    assert met.evidence_kind == "bounds"
+    assert met.decision_grade == "descriptive_only"
+
+
+def test_authority_boundary_enforces_calibrated_simulation_advisory_cap() -> None:
+    with pytest.raises(ValidationError, match="uncalibrated simulation"):
+        _boundary(
+            evidence_kind="simulation",
+            decision_grade="advisory_admissible",
+            evidence_basis=EvidenceBasis(
+                producer_roots=[_artifact_ref()],
+                method_refs=["simulation.structural"],
+                calibration_refs=[],
+                counterexamples_closed=[],
+            ),
+        )
+
+    calibrated = _boundary(
+        evidence_kind="simulation",
+        decision_grade="advisory_admissible",
+        evidence_basis=EvidenceBasis(
+            producer_roots=[_artifact_ref()],
+            method_refs=["simulation.structural"],
+            calibration_refs=[_artifact_ref("calibration-ref")],
+            counterexamples_closed=[],
+        ),
+    )
+
+    assert calibrated.evidence_kind == "simulation"
+    assert calibrated.decision_grade == "advisory_admissible"
+
+
+def test_ungrounded_emergent_simulation_caps_composed_program_authority() -> None:
+    measurement_decision = _boundary(
+        evidence_kind="measurement",
+        decision_grade="decision_admissible",
+        authoritative_for=["program:chapter-a"],
+        may_not_use_for=["program:ungrounded-emergent"],
+        evidence_basis=EvidenceBasis(
+            producer_roots=[_artifact_ref()],
+            method_refs=["measurement.design"],
+            calibration_refs=[_artifact_ref("calibration-ref")],
+            counterexamples_closed=[_artifact_ref("counterexample-closed")],
+        ),
+    )
+    emergent_cap = _boundary(
+        evidence_kind="simulation",
+        decision_grade="advisory_admissible",
+        authoritative_for=["program:chapter-a", "program:emergent"],
+        may_not_use_for=["program:production"],
+        evidence_basis=EvidenceBasis(
+            producer_roots=[_artifact_ref("simulation-root")],
+            method_refs=["system-dynamics.emergent-cap"],
+            calibration_refs=[_artifact_ref("calibration-ref-2")],
+            counterexamples_closed=[],
+        ),
+    )
+
+    met = measurement_decision.meet(emergent_cap, boundary_id="boundary-emergent-cap")
+
+    assert met.authoritative_for == ["program:chapter-a"]
+    assert met.may_not_use_for == ["program:production", "program:ungrounded-emergent"]
+    assert met.evidence_kind == "simulation"
+    assert met.decision_grade == "advisory_admissible"
+
+
+def test_authority_derivation_trace_downgrades_optimistic_transform() -> None:
+    boundary = _boundary(evidence_kind="elicitation", decision_grade="unsupported")
+    trace = AuthorityDerivationTrace(
+        operation_invocation_id="invoke-estimate",
+        output_artifact_ref=_artifact_ref("estimate-ref"),
+        declared_authority_transform={
+            "kind": "calibrates",
+            "requested_evidence_kind": "measurement",
+            "requested_decision_grade": "decision_admissible",
+            "rule_ref": "policyos.gy.authority.v1",
+        },
+        computed_evidence_kind="elicitation",
+        computed_decision_grade="unsupported",
+        producer_root_classes=["llm_candidate"],
+        method_classification="llm_or_expert_only",
+        applicability_result_ref="applicability-estimate",
+        calibration_refs=[],
+        counterexamples_closed=[],
+        certified_envelope_ref=None,
+        unresolved_blockers=["producer_root_missing"],
+        resulting_authority_boundary_ref=boundary.boundary_id,
+        transform_mismatch_disposition="downgraded",
+    )
+
+    assert trace.computed_decision_grade == "unsupported"
+
+    with pytest.raises(ValidationError, match="self-promote"):
+        AuthorityDerivationTrace(
+            **{
+                **trace.model_dump(mode="json"),
+                "computed_decision_grade": "decision_admissible",
+                "transform_mismatch_disposition": "upgraded",
+            }
+        )
+
+
+def test_authority_derivation_trace_rejects_matched_self_promotion() -> None:
+    with pytest.raises(ValidationError, match="authority_transform hints cannot self-promote"):
+        AuthorityDerivationTrace(
+            operation_invocation_id="invoke-estimate",
+            output_artifact_ref=_artifact_ref("estimate-ref"),
+            declared_authority_transform={
+                "kind": "calibrates",
+                "requested_evidence_kind": "measurement",
+                "requested_decision_grade": "decision_admissible",
+                "rule_ref": "policyos.gy.authority.v1",
+            },
+            computed_evidence_kind="measurement",
+            computed_decision_grade="descriptive_only",
+            producer_root_classes=["measurement"],
+            method_classification="measurement_root_summary",
+            applicability_result_ref="applicability-estimate",
+            calibration_refs=[],
+            counterexamples_closed=[],
+            certified_envelope_ref=None,
+            unresolved_blockers=[],
+            resulting_authority_boundary_ref="boundary-test",
+            transform_mismatch_disposition="matched",
+        )

@@ -196,7 +196,7 @@ class AuthorityFailureClassification:
 | Semantic closure | `src/polisyos/runtime/quality/semantic_binding.py`, `src/polisyos/runtime/quality/claim_argument.py`, `tests/_helpers/hds_quality.py` | Keep producer and reader schemas compatible and verify claim-level evidence closure. |
 | Authority classification | `src/polisyos/runtime/quality/authority.py`, `src/polisyos/runtime/quality/scorecard.py`, `tools/quality/validation/inspect_evidence_bundles.py` | Distinguish provenance failures from domain-authority failures. |
 | Operator triage | `src/polisyos/runtime/quality/scorecard.py`, `tools/ci/check_policyos_production_quality_best_in_class.py`, `tools/quality/validation/inspect_evidence_bundles.py` | Emit first failing producer, owner, root-cause class, remediation stage, and artifact refs for every red gate. |
-| Policy Design Case | `src/polisyos/runtime/quality/policy_design_case.py`, `src/polisyos/runtime/quality/pass1b_hardening.py`, `src/polisyos/runtime/quality/case_maturity.py`, `src/polisyos/runtime/quality/case_integrity.py` | Generate and gate minimum record families from runtime-owned evidence. |
+| Policy Design Case | `src/polisyos/runtime/quality/policy_design_case.py`, `src/polisyos/runtime/quality/tenant_cas_approval_governance.py`, `src/polisyos/runtime/quality/case_maturity.py`, `src/polisyos/runtime/quality/case_integrity.py` | Generate and gate minimum record families from runtime-owned evidence. |
 | Provider quality | `src/polisyos/scientist/orchestration/llm/provider_quality.py`, `tools/ops_runners/runtime/provider_quality_ledger.py`, `tools/quality/testing/local_prod_debug_probe.py` | Compare provider/model quality after an evidence-bound controlled task exists. |
 | Cloud validation | `tools/ops_runners/runtime/run_canary_matrix.py`, `tools/ops_runners/runtime/replay_canary_bundle.py`, `docs/backlog/cloud-production-debug-ten-checks-backlog.md` | Preserve the failed live lane as a regression guard and rerun one-lane cloud proof. |
 
@@ -543,7 +543,7 @@ evidence instead of relying on a top-level `status=pass`.
 **Files:**
 
 - Modify: `src/polisyos/runtime/quality/policy_design_case.py`
-- Modify: `src/polisyos/runtime/quality/pass1b_hardening.py`
+- Modify: `src/polisyos/runtime/quality/tenant_cas_approval_governance.py`
 - Modify: `src/polisyos/runtime/quality/case_maturity.py`
 - Modify: `src/polisyos/runtime/quality/case_integrity.py`
 - Test: `tests/unit/runtime/quality/test_policy_design_case_record_registry.py`

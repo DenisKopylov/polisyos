@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 
 import duckdb
+
 from polisyos.data_forge.domains.academic.knowledge import skg_query
 from polisyos.data_forge.domains.academic.knowledge.skg_query import SKGQuery
 from polisyos.ir.analytics.context import ContextProfile, IncomeLevel
@@ -209,6 +210,18 @@ def test_latest_version_and_snapshot_ref(tmp_path) -> None:
 
     assert version == 6
     assert snapshot == f"duckdb://{db_path}#v6"
+
+
+def test_skg_query_resolves_existing_version_ids(tmp_path) -> None:
+    db_path = tmp_path / "skg.duckdb"
+    _seed_skg_tables(db_path)
+
+    query = SKGQuery(db_path=db_path, index_dir=tmp_path / "idx")
+    try:
+        assert query.has_skg_version_id(version_id=5) is True
+        assert query.has_skg_version_id(version_id=999) is False
+    finally:
+        query.close()
 
 
 def test_query_parameters_parses_parameter_and_context(tmp_path) -> None:

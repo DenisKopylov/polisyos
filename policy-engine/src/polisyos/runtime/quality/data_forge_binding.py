@@ -5,10 +5,21 @@ from __future__ import annotations
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
-from typing import Any
+from functools import lru_cache
+from pathlib import Path
+from typing import Any, Protocol
 
+from polisyos.core import artifacts, canon, scan_secret_and_pii
+from polisyos.data_forge import read_api
 from polisyos.data_forge.read_api import OfficialSnapshotAnswer
 from polisyos.data_forge.read_api.surfaces import available_surfaces, surface_module
+from polisyos.data_requirement import DataQualityMinimums, DataRequirementScope, DataRequirementSpec
+from polisyos.pdc import ArtifactEnvelope, ArtifactRef, gy_content_hash
+from polisyos.runtime.quality.adapter_contracts import (
+    ConnectorAdmissionGate,
+    DataRequirementAdmissionGate,
+    WORKSPACE_SOURCE_CONTRACT_FACETS,
+)
 
 DATA_FORGE_SNAPSHOT_BINDING_SCHEMA_VERSION = (
     "policyos.runtime.data_forge_snapshot_binding.v1"
@@ -19,6 +30,10 @@ DATA_FORGE_SNAPSHOT_BINDING_GATE = "data_forge_snapshot_binding_valid"
 DATA_FORGE_SNAPSHOT_BINDING_LAYER = "data_forge_snapshot_binding"
 DATA_FORGE_SNAPSHOT_BINDING_PHASE = "data_forge_snapshot_binding"
 DEFAULT_DATA_FORGE_SNAPSHOT_TTL_SECONDS = 60 * 60 * 24 * 90
+WORKSPACE_MEASUREMENT_ROOT_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy_loop.v1"
+WORKSPACE_RECORDED_PANEL_SCHEMA_VERSION = (
+    "policyos.gy.phase2.recorded_panel_measurement_root.v1"
+)
 REQUIRED_DATA_FORGE_SNAPSHOT_ROLES = ("legal", "catalog", "academic", "domain")
 DATA_FORGE_SNAPSHOT_ROLE_SURFACES = {
     "legal": "legal",
@@ -48,6 +63,689 @@ _TIME_ROLES = {
     "transaction_time",
     "valid_time",
 }
+_RECORDED_WORLD_BANK_MEASUREMENT_ROWS: dict[str, tuple[dict[str, Any], ...]] = {
+    "FX.OWN.TOTL.ZS": (
+        {
+            "row_id": "worldbank-findex-ukr-fx-own-totl-zs-2024",
+            "evidence_kind": "measurement",
+            "indicator_id": "FX.OWN.TOTL.ZS",
+            "indicator_name": (
+                "Account ownership at a financial institution or with a mobile-money-service "
+                "provider (% of population ages 15+)"
+            ),
+            "country_code": "UA",
+            "country_iso3": "UKR",
+            "country_name": "Ukraine",
+            "year": 2024,
+            "value": 87.581225854266,
+            "unit": "percent_of_population_ages_15_plus",
+            "source_ref": (
+                "https://api.worldbank.org/v2/country/UKR/indicator/"
+                "FX.OWN.TOTL.ZS?format=json"
+            ),
+            "source_observed_at": "2026-06-16T00:00:00Z",
+            "cassette_ref": "recorded-worldbank-api:UKR:FX.OWN.TOTL.ZS:2024",
+        },
+        {
+            "row_id": "worldbank-findex-ukr-fx-own-totl-zs-2021",
+            "evidence_kind": "measurement",
+            "indicator_id": "FX.OWN.TOTL.ZS",
+            "indicator_name": (
+                "Account ownership at a financial institution or with a mobile-money-service "
+                "provider (% of population ages 15+)"
+            ),
+            "country_code": "UA",
+            "country_iso3": "UKR",
+            "country_name": "Ukraine",
+            "year": 2021,
+            "value": 83.5648133398349,
+            "unit": "percent_of_population_ages_15_plus",
+            "source_ref": (
+                "https://api.worldbank.org/v2/country/UKR/indicator/"
+                "FX.OWN.TOTL.ZS?format=json"
+            ),
+            "source_observed_at": "2026-06-16T00:00:00Z",
+            "cassette_ref": "recorded-worldbank-api:UKR:FX.OWN.TOTL.ZS:2021",
+        },
+        {
+            "row_id": "worldbank-findex-ukr-fx-own-totl-zs-2017",
+            "evidence_kind": "measurement",
+            "indicator_id": "FX.OWN.TOTL.ZS",
+            "indicator_name": (
+                "Account ownership at a financial institution or with a mobile-money-service "
+                "provider (% of population ages 15+)"
+            ),
+            "country_code": "UA",
+            "country_iso3": "UKR",
+            "country_name": "Ukraine",
+            "year": 2017,
+            "value": 62.9023288438411,
+            "unit": "percent_of_population_ages_15_plus",
+            "source_ref": (
+                "https://api.worldbank.org/v2/country/UKR/indicator/"
+                "FX.OWN.TOTL.ZS?format=json"
+            ),
+            "source_observed_at": "2026-06-16T00:00:00Z",
+            "cassette_ref": "recorded-worldbank-api:UKR:FX.OWN.TOTL.ZS:2017",
+        },
+    ),
+}
+
+
+class _CatalogRecordProtocol(Protocol):
+    id: str
+    source: str
+    execution_tier: str
+    connector_type: str
+
+    def model_dump(self, *, mode: str) -> dict[str, object]:
+        """Return a JSON payload for the catalog record."""
+
+        ...
+
+
+class CatalogGraphProtocol(Protocol):
+    """Minimal DatasetCatalogGraph surface consumed by the workspace measurement producer."""
+
+    def search_datasets(
+        self,
+        query: str,
+        *,
+        top_k: int,
+        explain: bool,
+    ) -> list[_CatalogRecordProtocol]:
+        """Return ranked dataset matches for a construct/scope query."""
+
+        ...
+
+    def get_distributions(self, dataset_id: str) -> list[object]:
+        """Return distribution metadata for one dataset id."""
+
+        ...
+
+    def resolve_fetch_target(self, dataset_id: str) -> object | None:
+        """Return the fetch target for one dataset id, if available."""
+
+        ...
+
+
+class _WorkspaceFixtureManifestProtocol(Protocol):
+    fixture_id: str
+    construct_scope_query: str
+    jurisdiction: str
+    population: str
+    time_horizon: str
+    expected_catalog_binding_refs: list[str]
+    expected_connector_profile: str
+    expected_producer_root_kind: str
+
+
+class MeasurementRootBindingError(RuntimeError):
+    """Raised when a workspace measurement-root catalog binding cannot be produced."""
+
+
+class MeasurementRootProducer:
+    """Produce CAS-backed BaseDataset artifacts from DatasetCatalogGraph bindings."""
+
+    def __init__(self, *, artifact_store: artifacts.FileSystemCAS | None = None) -> None:
+        self._artifact_store = artifact_store
+
+    def produce_from_catalog(
+        self,
+        manifest: _WorkspaceFixtureManifestProtocol,
+        catalog_graph: CatalogGraphProtocol,
+    ) -> ArtifactEnvelope:
+        """Resolve a pinned construct through DatasetCatalogGraph and persist its root."""
+
+        hits = catalog_graph.search_datasets(
+            manifest.construct_scope_query,
+            top_k=20,
+            explain=True,
+        )
+        expected_refs = set(manifest.expected_catalog_binding_refs)
+        expected_hits = [hit for hit in hits if hit.id in expected_refs]
+        selected = next(
+            (
+                hit
+                for hit in expected_hits
+                if measurement_rows_for_catalog_payload(hit.model_dump(mode="json"))
+            ),
+            None,
+        )
+        if selected is None:
+            selected = next(iter(expected_hits), None)
+        if selected is None:
+            selected = next(
+                (
+                    hit
+                    for hit in hits
+                    if hit.source == manifest.expected_connector_profile
+                    and hit.execution_tier == "transport_ready"
+                ),
+                None,
+            )
+        if selected is None:
+            raise MeasurementRootBindingError(
+                f"catalog binding not found for fixture {manifest.fixture_id}"
+            )
+        distributions = [
+            distribution.model_dump(mode="json")
+            for distribution in catalog_graph.get_distributions(selected.id)
+        ]
+        connector_type = selected.connector_type or (
+            str(distributions[0].get("connector_type")) if distributions else ""
+        )
+        connector_gate = ConnectorAdmissionGate().evaluate(connector_type)
+        if connector_gate.status != "applicable":
+            raise MeasurementRootBindingError(
+                f"connector admission failed for {connector_type}: {connector_gate.status}"
+            )
+        (
+            data_requirement_spec,
+            source_contract_requirement,
+        ) = source_requirement_for_catalog_binding(
+            manifest=manifest,
+            selected=selected,
+            distributions=distributions,
+            connector_type=connector_type,
+        )
+        source_contract_gate = DataRequirementAdmissionGate().evaluate(data_requirement_spec)
+        if source_contract_gate.status != "applicable":
+            raise MeasurementRootBindingError(
+                "source-contract admission failed before measurement-root fetch"
+            )
+        selected_payload = canonical_catalog_result_for_workspace_loop(
+            selected.model_dump(mode="json")
+        )
+        measurement_rows = measurement_rows_for_catalog_payload(selected_payload)
+        if manifest.expected_producer_root_kind == "measurement" and not measurement_rows:
+            raise MeasurementRootBindingError(
+                "measurement-root admission failed: no recorded source measurement rows"
+            )
+        payload = {
+            "fixture_id": manifest.fixture_id,
+            "catalog_binding_refs": [selected.id],
+            "catalog_result": selected_payload,
+            "connector_profile": manifest.expected_connector_profile,
+            "producer_root_kind": manifest.expected_producer_root_kind,
+            "measurement_rows": measurement_rows,
+            "distributions": distributions,
+            "fetch_target": _model_dump_or_none(catalog_graph.resolve_fetch_target(selected.id)),
+            "applicability_result": connector_gate.model_dump(mode="json"),
+            "source_contract_admission": source_contract_gate.model_dump(mode="json"),
+            "data_requirement_spec": data_requirement_spec.model_dump(mode="json"),
+            "source_contract_requirement": source_contract_requirement,
+        }
+        payload_ref = self._persist_payload(payload)
+        artifact_slug = _gy_slug(manifest.fixture_id)
+        producer_root = ArtifactRef.from_payload(
+            artifact_id=f"measurement-root-{artifact_slug}",
+            artifact_type="MeasurementRoot",
+            payload={
+                "dataset_id": selected.id,
+                "connector_type": connector_type,
+                "producer_root_kind": manifest.expected_producer_root_kind,
+                "measurement_row_count": len(measurement_rows),
+                "measurement_row_refs": [row["row_id"] for row in measurement_rows],
+            },
+            schema_ref=WORKSPACE_MEASUREMENT_ROOT_SCHEMA_VERSION,
+            uri=f"gy://slice0/{manifest.fixture_id}/measurement-root",
+            version="v1",
+        )
+        ref = ArtifactRef.from_payload(
+            artifact_id=f"base-{artifact_slug}",
+            artifact_type="BaseDataset",
+            payload=payload,
+            schema_ref=WORKSPACE_MEASUREMENT_ROOT_SCHEMA_VERSION,
+            uri=f"gy://slice0/{manifest.fixture_id}/base-dataset",
+            version="v1",
+        )
+        return ArtifactEnvelope(
+            ref=ref,
+            payload_ref=payload_ref,
+            payload_schema_ref=WORKSPACE_MEASUREMENT_ROOT_SCHEMA_VERSION,
+            lifecycle_state="shadow",
+            created_by={
+                "kind": "producer",
+                "component": "polisyos.runtime.quality.data_forge_binding.MeasurementRootProducer",
+            },
+            producer_operation={
+                "invocation_id": "invoke-bind",
+                "operation_id": "slice0.bind.catalog",
+                "operation_version": "v1",
+            },
+            input_artifacts=[],
+            producer_roots=[producer_root],
+            obligations=[],
+            verification={"latest_applicability_result": source_contract_gate.result_id},
+        )
+
+    def _persist_payload(self, payload: dict[str, Any]) -> str:
+        if self._artifact_store is None:
+            return gy_content_hash(payload)
+        scan = scan_secret_and_pii(
+            payload,
+            scope="DAG bundles",
+            artifact_ref_or_route="gy-measurement-root://payload",
+            redact=False,
+            block_on_findings=True,
+        )
+        if scan.has_findings:
+            raise MeasurementRootBindingError(
+                "Measurement-root payload blocked by secret/PII scan: "
+                + ",".join(scan.finding_kinds)
+            )
+        from polisyos.runtime.http.services.control.artifacts import write_authority_artifact
+
+        generated_at = _utc_now().replace(microsecond=0).isoformat().replace("+00:00", "Z")
+        fixture_id = str(payload.get("fixture_id") or "measurement-root")
+        result = write_authority_artifact(
+            self._artifact_store,
+            payload,
+            artifacts.PutOptions(
+                kind="policyos.gy.measurement_root_payload",
+                media_type="application/json",
+                schema=artifacts.SchemaInfo(
+                    name=WORKSPACE_MEASUREMENT_ROOT_SCHEMA_VERSION,
+                    version="v1",
+                ),
+                producer=artifacts.ProducerInfo(
+                    component=(
+                        "polisyos.runtime.quality.data_forge_binding."
+                        "MeasurementRootProducer"
+                    ),
+                    version="1.0.0",
+                ),
+            ),
+            evidence_id=f"gy-measurement-root-{gy_content_hash(payload).split(':')[-1][:16]}",
+            evidence_class="authority_bearing",
+            authority_role="producer_authority",
+            provenance_kind="runtime_emitted",
+            owner="team-runtime-quality",
+            reader_contract=WORKSPACE_MEASUREMENT_ROOT_SCHEMA_VERSION,
+            reader_contract_version="v1",
+            tenant_id="policyos-system",
+            cell_id=None,
+            run_id=f"run-gy-measurement-root-{_gy_slug(fixture_id)}",
+            job_id=f"job-gy-measurement-root-{_gy_slug(fixture_id)}",
+            trace_id="trace-gy-measurement-root",
+            span_id="span-gy-measurement-root",
+            parent_span_id=None,
+            requested_execution_profile="gy_slice0",
+            effective_execution_profile="gy_slice0",
+            phase="GY-F2",
+            generated_at=generated_at,
+            as_of_time=generated_at,
+            same_input_closure={
+                "closure_id": f"gy-measurement-root-{_gy_slug(fixture_id)}",
+                "status": "closed",
+                "run_id": f"run-gy-measurement-root-{_gy_slug(fixture_id)}",
+                "job_id": f"job-gy-measurement-root-{_gy_slug(fixture_id)}",
+                "tenant_id": "policyos-system",
+                "cell_id": None,
+                "evidence_input_refs": (),
+            },
+            input_refs=[],
+            effective_mode_ref="gy-slice0-runtime",
+            validation_status="pass",
+            blocking_status="non_blocking",
+            governance={
+                "classification": "internal",
+                "authority_boundary": "measurement_root",
+                "pii": "secret_pii_scanned",
+                "retention_policy": "policy_design_case_generated_artifact",
+                "review_status": "runtime_generated",
+                "override_policy": "no_override",
+                "approval_policy": "not_publication_authority",
+            },
+            redaction_policy_ref="polisyos.core.llm.sanitization.v1",
+            canon_spec=canon.CanonSpec(forbid_floats=False),
+        )
+        return str(result.cas_ref.artifact_id)
+
+
+def produce_phase2_recorded_panel_measurement_root(
+    *,
+    store: artifacts.FileSystemCAS,
+) -> artifacts.ArtifactRef:
+    """Persist a deterministic Foundry panel from recorded production rows.
+
+    This bridge stays with the Data Forge binding owner. It samples a fixed
+    three-entity, ten-period panel from the recorded Ukraine calibration
+    observation cassette and persists it as ``ir.observational_data`` so the
+    existing Foundry causal node can consume a real measurement root.
+    """
+
+    extracted = _phase2_recorded_panel_payload()
+    panel_payload = {
+        "outcome": extracted["outcome"],
+        "treatment": [1, 0, 0],
+        "time_treatment": 5,
+        "unit_ids": extracted["unit_ids"],
+        "time_index": extracted["time_index"],
+        "metadata": {
+            "input_provenance": "measurement_rooted",
+            "source": "recorded_rows",
+            "source_path": extracted["source_path"],
+            "source_manifest": extracted["source_manifest"],
+            "row_count": extracted["row_count"],
+            "metric_id": extracted["metric_id"],
+            "family": extracted["family"],
+            "aggregation": extracted["aggregation"],
+            "producer": (
+                "polisyos.runtime.quality.data_forge_binding."
+                "produce_phase2_recorded_panel_measurement_root"
+            ),
+        },
+    }
+    return store.put_json(
+        panel_payload,
+        artifacts.PutOptions(
+            kind="ir.observational_data",
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(
+                name=WORKSPACE_RECORDED_PANEL_SCHEMA_VERSION,
+                version="1.0",
+            ),
+            producer=artifacts.ProducerInfo(
+                component=(
+                    "polisyos.runtime.quality.data_forge_binding."
+                    "produce_phase2_recorded_panel_measurement_root"
+                ),
+                version="phase2.v1",
+            ),
+        ),
+        canon_spec=canon.CanonSpec(forbid_floats=False),
+    )
+
+
+@lru_cache(maxsize=1)
+def _phase2_recorded_panel_payload() -> dict[str, Any]:
+    try:
+        import duckdb
+    except ModuleNotFoundError as exc:  # pragma: no cover - dependency is expected locally
+        raise MeasurementRootBindingError("duckdb is required for recorded-row binding") from exc
+
+    root = Path(__file__).resolve().parents[4]
+    bundle_dir = (
+        root
+        / "production_data"
+        / "ukraine_agent_simulation_baseline_20260410"
+        / "production_bundle"
+        / "bundles"
+        / "calibration_bundle_v1"
+    )
+    parquet_path = bundle_dir / "observation_panel_monthly.parquet"
+    manifest_path = bundle_dir / "calibration_bundle_manifest.json"
+    if not parquet_path.exists():
+        raise MeasurementRootBindingError(f"recorded-row panel not found: {parquet_path}")
+    entity_order = ["42032422", "41865032", "41433726"]
+    query = """
+        WITH filtered AS (
+            SELECT
+                CAST(entity_id AS VARCHAR) AS entity_id,
+                CAST(period_start AS DATE) AS period_start,
+                SUM(CAST(observed_value AS DOUBLE)) AS observed_value
+            FROM read_parquet(?)
+            WHERE family = 'budget_flows'
+              AND metric_id = 'amount'
+              AND observed_value IS NOT NULL
+              AND CAST(entity_id AS VARCHAR) IN ('42032422', '41865032', '41433726')
+              AND CAST(period_start AS DATE) >= DATE '2018-05-01'
+              AND CAST(period_start AS DATE) <= DATE '2019-02-01'
+            GROUP BY 1, 2
+        ),
+        complete_periods AS (
+            SELECT period_start
+            FROM filtered
+            GROUP BY period_start
+            HAVING COUNT(*) = 3
+            ORDER BY period_start
+            LIMIT 10
+        )
+        SELECT entity_id, CAST(period_start AS VARCHAR) AS period_start, observed_value
+        FROM filtered
+        JOIN complete_periods USING (period_start)
+        ORDER BY period_start, entity_id
+    """
+    rows = duckdb.connect(database=":memory:").execute(query, [str(parquet_path)]).fetchall()
+    if len(rows) != 30:
+        raise MeasurementRootBindingError(
+            f"recorded-row panel expected 30 entity-period rows, got {len(rows)}"
+        )
+    period_order = sorted({str(row[1]) for row in rows})
+    values = {
+        (str(entity), str(period)): round(float(value), 6)
+        for entity, period, value in rows
+    }
+    return {
+        "outcome": [
+            [values[(entity_id, period)] for period in period_order]
+            for entity_id in entity_order
+        ],
+        "unit_ids": entity_order,
+        "time_index": period_order,
+        "row_count": len(rows),
+        "source_path": str(parquet_path.relative_to(root)),
+        "source_manifest": str(manifest_path.relative_to(root)),
+        "metric_id": "amount",
+        "family": "budget_flows",
+        "aggregation": "sum observed_value by entity_id and month",
+    }
+
+
+def build_default_workspace_catalog_graph() -> CatalogGraphProtocol:
+    """Build the canonical workspace fixture DatasetCatalogGraph."""
+
+    return read_api.catalog.build_slice0_fixture_catalog_graph()
+
+
+def source_requirement_for_catalog_binding(
+    *,
+    manifest: _WorkspaceFixtureManifestProtocol,
+    selected: _CatalogRecordProtocol,
+    distributions: list[dict[str, Any]],
+    connector_type: str,
+) -> tuple[DataRequirementSpec, dict[str, Any]]:
+    """Build the DataRequirementSpec/source-contract payload for a catalog root."""
+
+    selected_payload = selected.model_dump(mode="json")
+    source_registry_entry = _catalog_source_registry_entry(selected)
+    source_registry_payload = (
+        source_registry_entry.model_dump(mode="json")
+        if source_registry_entry is not None
+        else {}
+    )
+    facet_values = _source_contract_facet_values(
+        manifest=manifest,
+        selected_payload=selected_payload,
+        distributions=distributions,
+        connector_type=connector_type,
+        source_registry_payload=source_registry_payload,
+    )
+    source_contract_requirement = {
+        "requirement_id": f"req-{_gy_slug(manifest.fixture_id)}",
+        "claim_id": f"claim-{_gy_slug(manifest.fixture_id)}",
+        "dataset_id": selected.id,
+        "connector_type": connector_type,
+        "mandatory_facets": sorted(WORKSPACE_SOURCE_CONTRACT_FACETS),
+        "facet_refs": {},
+        "facet_values": facet_values,
+        "source_registry_entry": source_registry_payload,
+        "rule_version": "policyos.gy.source_contract_16_facets.v1",
+    }
+    spec = DataRequirementSpec(
+        requirement_id=source_contract_requirement["requirement_id"],
+        claim_id=source_contract_requirement["claim_id"],
+        claim_family="measurement_root",
+        claim_type="source_quality",
+        claim_use="estimate_port",
+        required_data_families=(str(selected_payload.get("source") or connector_type),),
+        scope=DataRequirementScope(
+            population=manifest.population,
+            geography=manifest.jurisdiction,
+            jurisdiction=manifest.jurisdiction,
+            time=manifest.time_horizon,
+            time_role="observation_time",
+        ),
+        recency_horizon=str(facet_values["freshness"]),
+        lineage_strictness="strict",
+        quality_minima=DataQualityMinimums(
+            min_quality_score=0.7,
+            min_completeness=0.9,
+            required_quality_refs=("source_contract.quality_floor",),
+        ),
+        missingness_tolerance=0.05,
+        transformation_tolerance="traceable",
+        admissibility_predicates=(
+            "connector_execution_ready",
+            "source_contract_16_facets_present",
+            "measurement_root_fetchable",
+        ),
+        mandatory_facets=tuple(sorted(WORKSPACE_SOURCE_CONTRACT_FACETS)),
+        facet_refs=(),
+        concept_spine_refs=(f"concept://gy/{_gy_slug(manifest.construct_scope_query)}",),
+        authority_profile_refs=("authority_profile://gy/measurement_root_descriptive",),
+        rule_version_ref="policyos.gy.data_requirement_admission.v1",
+        producer="polisyos.runtime.quality.data_forge_binding.MeasurementRootProducer",
+        source_requirement_refs=(f"catalog:{selected.id}",),
+        metadata={"gy_source_contract": source_contract_requirement},
+    )
+    return spec, source_contract_requirement
+
+
+def measurement_rows_for_catalog_payload(
+    selected_payload: Mapping[str, object],
+) -> list[dict[str, Any]]:
+    """Return recorded source rows for a catalog payload when the workspace has a cassette."""
+
+    source_dataset_id = str(selected_payload.get("source_dataset_id") or "").strip()
+    dataset_id = str(selected_payload.get("dataset_id") or "").strip()
+    rows = _RECORDED_WORLD_BANK_MEASUREMENT_ROWS.get(source_dataset_id) or (
+        _RECORDED_WORLD_BANK_MEASUREMENT_ROWS.get(dataset_id) or ()
+    )
+    return [dict(row) for row in rows]
+
+
+def canonical_catalog_result_for_workspace_loop(
+    selected_payload: Mapping[str, object],
+) -> dict[str, object]:
+    """Return the stable catalog evidence fields used by workspace proof payloads."""
+
+    payload = dict(selected_payload)
+    payload.pop("similarity", None)
+    payload.pop("search_explanation", None)
+    return payload
+
+
+def _catalog_source_registry_entry(selected: _CatalogRecordProtocol) -> object | None:
+    try:
+        registry = read_api.catalog.load_catalog_source_registry()
+    except (AttributeError, ImportError):
+        return None
+    source_id = str(getattr(selected, "source", "") or "").strip()
+    if source_id:
+        entry = registry.source_by_id(source_id)
+        if entry is not None:
+            return entry
+    connector_type = str(getattr(selected, "connector_type", "") or "").strip()
+    for entry in registry.sources:
+        if entry.connector_id == connector_type:
+            return entry
+    return None
+
+
+def _source_contract_facet_values(
+    *,
+    manifest: _WorkspaceFixtureManifestProtocol,
+    selected_payload: dict[str, object],
+    distributions: list[dict[str, Any]],
+    connector_type: str,
+    source_registry_payload: dict[str, Any],
+) -> dict[str, Any]:
+    distribution = distributions[0] if distributions else {}
+    access = (
+        selected_payload.get("access")
+        if isinstance(selected_payload.get("access"), dict)
+        else {}
+    )
+    coverage = (
+        selected_payload.get("coverage")
+        if isinstance(selected_payload.get("coverage"), dict)
+        else {}
+    )
+    quality = (
+        selected_payload.get("quality")
+        if isinstance(selected_payload.get("quality"), dict)
+        else {}
+    )
+    source_registry_ref = source_registry_payload.get("source_id")
+    validation_status = (
+        "source_registry_verified"
+        if selected_payload.get("id")
+        and selected_payload.get("source_dataset_id")
+        and selected_payload.get("variables")
+        and connector_type
+        and source_registry_ref
+        and distribution.get("quality_score") is not None
+        else "incomplete"
+    )
+    return {
+        "authority_profile": "authority_profile://gy/measurement_root_descriptive",
+        "connector": connector_type,
+        "construct": manifest.construct_scope_query,
+        "coverage": {
+            "jurisdiction": manifest.jurisdiction,
+            "population": manifest.population,
+            "catalog_coverage": coverage,
+        },
+        "freshness": selected_payload.get("update_frequency")
+        or source_registry_payload.get("update_frequency"),
+        "granularity": coverage.get("granularity"),
+        "jurisdiction": manifest.jurisdiction,
+        "license": access.get("license")
+        or selected_payload.get("license"),
+        "lineage": {
+            "catalog_dataset_id": selected_payload.get("id"),
+            "source_dataset_id": selected_payload.get("source_dataset_id"),
+            "source_registry_ref": source_registry_ref,
+        },
+        "population": manifest.population,
+        "quality_floor": {
+            "min_quality_score": 0.7,
+            "catalog_quality": quality,
+            "distribution_quality_score": distribution.get("quality_score"),
+        },
+        "rule_version": "policyos.gy.source_contract_16_facets.v1",
+        "scope": {
+            "query": manifest.construct_scope_query,
+            "time_horizon": manifest.time_horizon,
+        },
+        "source_class": selected_payload.get("source") or source_registry_payload.get("family"),
+        "source_contract": {
+            "candidate_ref": f"source-contract://gy/{manifest.fixture_id}",
+            "validation_status": validation_status,
+            "validated_from": (
+                "catalog_source_registry+dataset_catalog_graph+distribution_quality"
+            ),
+        },
+        "time_horizon": manifest.time_horizon,
+        "variables": list(selected_payload.get("variables") or []),
+    }
+
+
+def _model_dump_or_none(value: object) -> object | None:
+    if value is None:
+        return None
+    if hasattr(value, "model_dump"):
+        return value.model_dump(mode="json")
+    return value
+
+
+def _gy_slug(value: str) -> str:
+    normalized = "".join(char.lower() if char.isalnum() else "-" for char in value)
+    compact = "-".join(part for part in normalized.split("-") if part)
+    return compact or "item"
 
 
 @dataclass(frozen=True)
@@ -1521,10 +2219,14 @@ def _clean_text(value: object) -> str | None:
 
 def _utc(value: datetime | None) -> datetime:
     if value is None:
-        return datetime.now(UTC)
+        return _utc_now()
     if value.tzinfo is None:
         return value.replace(tzinfo=UTC)
     return value.astimezone(UTC)
+
+
+def _utc_now() -> datetime:
+    return datetime.now(UTC)
 
 
 def _json_value(value: object) -> object:
@@ -1564,8 +2266,16 @@ __all__ = [
     "DATA_FORGE_SNAPSHOT_BINDING_GATE",
     "DATA_FORGE_SNAPSHOT_BINDING_REPORT_KEY",
     "DATA_FORGE_SNAPSHOT_BINDING_SCHEMA_VERSION",
+    "WORKSPACE_MEASUREMENT_ROOT_SCHEMA_VERSION",
+    "WORKSPACE_RECORDED_PANEL_SCHEMA_VERSION",
     "REQUIRED_DATA_FORGE_SNAPSHOT_ROLES",
+    "CatalogGraphProtocol",
+    "MeasurementRootBindingError",
+    "MeasurementRootProducer",
+    "build_default_workspace_catalog_graph",
     "data_forge_snapshot_binding_scorecard_gates",
     "normalize_data_forge_snapshot_binding_report",
     "official_data_forge_snapshot_for_claim",
+    "produce_phase2_recorded_panel_measurement_root",
+    "source_requirement_for_catalog_binding",
 ]

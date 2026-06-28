@@ -19,14 +19,16 @@ from polisyos.ir.analytics.normative_arbitration import (
     persist_normative_arbitration_result,
 )
 from polisyos.ir.governance.problem_frame import NormativeArbitrationPolicy
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state as real_branch_state
 from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.nodes.builtins.governance.run_governance import RunGovernanceNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF,
     REPORT_GOVERNANCE_REPORT_REF,
+)
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import (
+    branch_state as real_branch_state,
 )
 
 
@@ -69,6 +71,47 @@ def test_run_governance_keeps_warning_only_for_partial_model_when_proposal_selec
 
     assert report.verdict == "approve"
     assert any(issue["code"] == "NORMATIVE_MODEL_PARTIAL" for issue in report.issues)
+
+
+def test_run_governance_phase2_blocks_without_six_judge_verdict(tmp_path) -> None:
+    report = _run_governance_with_normative_result(
+        tmp_path=tmp_path,
+        selected_option=ArbitrationOption.PROPOSAL,
+        rights_status=NormativeAuditStatus.SATISFIED,
+        model_source="declared",
+        completeness=NormativeModelCompleteness.COMPLETE,
+        execution_profile="gy_phase2",
+    )
+
+    assert report.verdict == "reject"
+    assert any(issue["code"] == "GY_PHASE2_GOVERNANCE_TAIL_BLOCKED" for issue in report.issues)
+
+
+def test_run_governance_phase2_accepts_complete_six_judge_tail(tmp_path) -> None:
+    report = _run_governance_with_normative_result(
+        tmp_path=tmp_path,
+        selected_option=ArbitrationOption.PROPOSAL,
+        rights_status=NormativeAuditStatus.SATISFIED,
+        model_source="declared",
+        completeness=NormativeModelCompleteness.COMPLETE,
+        execution_profile="gy_phase2",
+        judge_verdict={
+            "composite_decision": "promote",
+            "per_judge": {
+                "structural": {},
+                "statistical": {},
+                "robustness": {},
+                "governance": {},
+                "reproducibility": {},
+                "compute": {},
+            },
+        },
+    )
+
+    assert report.verdict == "approve"
+    assert not any(
+        issue["code"] == "GY_PHASE2_GOVERNANCE_TAIL_BLOCKED" for issue in report.issues
+    )
 
 
 def test_run_governance_preserves_human_gate_precedence(tmp_path) -> None:
@@ -166,6 +209,8 @@ def _run_governance_with_normative_result(
     model_source: str,
     completeness: NormativeModelCompleteness,
     require_human_gate: bool = False,
+    execution_profile: str | None = None,
+    judge_verdict: dict[str, object] | None = None,
 ) -> GovernanceReport:
     store = FileSystemCAS(tmp_path)
     registry_bundle = build_default_registry_bundle(store).bundle_ref
@@ -213,6 +258,7 @@ def _run_governance_with_normative_result(
 
     state = ExperimentState(
         run_id="R_governance",
+        execution_profile=execution_profile,
         artifacts_index={ARTIFACT_NORMATIVE_ARBITRATION_RESULT_REF: normative_ref},
         params={
             "governance_profile": {
@@ -224,6 +270,8 @@ def _run_governance_with_normative_result(
             "require_human_gate": require_human_gate,
         },
     )
+    if judge_verdict is not None:
+        state.params["judge_verdict"] = judge_verdict
     outcome = RunGovernanceNode().execute(ctx, state)
     report_ref = outcome.state.reports_index[REPORT_GOVERNANCE_REPORT_REF]
     payload = from_canonical_bytes(store.get_bytes(report_ref.artifact_id))

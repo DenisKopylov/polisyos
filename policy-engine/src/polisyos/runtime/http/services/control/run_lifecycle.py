@@ -36,7 +36,6 @@ from polisyos.core.contracts.control import (
     DataPreviewResponse,
     DataResolveRequest,
     DataResolveResponse,
-    DataSourceBinding,
     DecisionValidityEventRequest,
     DecisionValidityEventResponse,
     DecisionValidityLifecycleSummary,
@@ -86,6 +85,10 @@ from polisyos.runtime.http.services.control.nl_pipeline import NaturalLanguageRu
 from polisyos.runtime.http.services.control.response_shapes import (
     _decision_validity_dedupe_payload,
 )
+from polisyos.runtime.http.services.control.workspace_loop_transition import (
+    ControlPlaneWorkspaceLoopTransitionMixin,
+    _WorkflowExecutionNonAuthorityError,
+)
 from polisyos.runtime.quality.diagnostic_events import (
     DIAGNOSTIC_EVENT_SCHEMA_NAME,
     DIAGNOSTIC_EVENT_SCHEMA_VERSION,
@@ -112,7 +115,6 @@ from .._control_contracts import (
     _coerce_retrieval_mode,
     _dedupe_models,
     _is_multimodel_enabled,
-    _is_required_preflight_enabled,
     _resolve_data_source,
 )
 from ..control_plane_store import ControlJobRecord, ControlPlaneStore
@@ -152,7 +154,10 @@ if TYPE_CHECKING:
 # ---------------------------------------------------------------------------
 
 
-class ControlPlaneService(CapabilityManifestMixin, LexPipelineMixin, NaturalLanguageRunMixin):
+class ControlPlaneService(
+    ControlPlaneWorkspaceLoopTransitionMixin, CapabilityManifestMixin, LexPipelineMixin,
+    NaturalLanguageRunMixin,
+):
     """Bridge HTTP control requests to durable jobs and domain pipelines."""
 
     def __init__(
@@ -712,6 +717,16 @@ class ControlPlaneService(CapabilityManifestMixin, LexPipelineMixin, NaturalLang
         record = self._control_store.get_job(job_id)
         if record is None:
             raise KeyError(job_id)
+        if (
+            record.state == "completed"
+            and record.progress.get("authority_path") == "workspace_loop"
+        ):
+            proof_payload = record.progress.get("production_loop_run_proof")
+            endpoint = "/api/v1/control/runs"
+            if isinstance(proof_payload, Mapping):
+                endpoint = str(proof_payload.get("endpoint") or endpoint)
+            self._finalize_workspace_loop_run_proof(job_id=job_id, endpoint=endpoint)
+            record = self._control_store.get_job(job_id) or record
         return record.to_response(request_id=request_id)
 
     def get_latest_job_for_run(self, run_id: str) -> ControlJobRecord | None:
@@ -1013,12 +1028,31 @@ class ControlPlaneService(CapabilityManifestMixin, LexPipelineMixin, NaturalLang
                         job=job,
                         capability_manifest_ref=capability_manifest_ref,
                     )
-                    self._execute_workflow(state_payload, payload["checkpoint_policy"])
+                    progress = self._execute_workflow_control_transition(
+                        state_payload,
+                        payload["checkpoint_policy"],
+                        job=job,
+                        endpoint="/api/v1/control/runs",
+                        http_request_id=str(
+                            (payload.get("_telemetry") or {}).get("request_id")
+                            or f"control-job:{job.job_id}"
+                        ),
+                    )
                     self._control_store.complete_job(
                         job_id=job.job_id,
                         run_id=job.run_id,
                         capability_manifest_ref=capability_manifest_ref,
+                        progress=progress,
                     )
+                    terminal_record = self._control_store.get_job(job.job_id)
+                    terminal_state = (
+                        terminal_record.state if terminal_record is not None else "completed"
+                    )
+                    if terminal_state == "completed":
+                        self._finalize_workspace_loop_run_proof(
+                            job_id=job.job_id,
+                            endpoint="/api/v1/control/runs",
+                        )
                     self._emit_runtime_diagnostic_event(
                         job_id=job.job_id,
                         run_id=job.run_id,
@@ -1026,66 +1060,33 @@ class ControlPlaneService(CapabilityManifestMixin, LexPipelineMixin, NaturalLang
                         phase="job_execution",
                         event_type="polisyos.runtime.diagnostic.phase_transition.v1",
                         state_before="running",
-                        state_after="completed",
+                        state_after=terminal_state,
                         payload=payload,
                         event_payload={"job_kind": job.kind},
+                        blocking_status="blocking" if terminal_state == "failed" else None,
                     )
                     return
                 if job.kind == "natural_language_run":
                     capability_manifest_ref = (
                         job.capability_manifest_ref or self._refresh_capability_manifest(job=job)
                     )
-                    result = self._execute_nl_pipeline(
-                        run_id=str(payload["run_id"]),
-                        nl_request=str(payload["request"]),
-                        context=dict(payload.get("context") or {}),
-                        domain_hint=payload.get("domain_hint"),
-                        data_source=(
-                            DataSourceBinding.model_validate(payload["data_source"])
-                            if payload.get("data_source") is not None
-                            else None
+                    progress = self._legacy_shadow_progress(
+                        job=job,
+                        phase="natural_language_run",
+                        reason=(
+                            "/runs/nl remains legacy-shadow until the workspace loop "
+                            "owns the NL operation proposer; NL pipeline execution is withheld."
                         ),
-                        max_iterations=int(payload.get("max_iterations") or 1),
-                        llm_models=list(payload.get("llm_models") or []),
-                        max_parallel_models=int(payload.get("max_parallel_models") or 1),
-                        run_budget_usd=payload.get("run_budget_usd"),
-                        per_model_budget_usd=payload.get("per_model_budget_usd"),
-                        checkpoint_policy=str(payload.get("checkpoint_policy") or "strict"),
-                        execution_plan_ref=payload.get("execution_plan_ref"),
-                        execution_plan_payload=payload.get("execution_plan"),
-                        stop_criteria_payload=dict(payload.get("stop_criteria") or {}),
-                        governance_constraints_payload=list(
-                            payload.get("governance_constraints") or []
-                        ),
-                        expected_outputs_payload=list(payload.get("expected_outputs") or []),
-                        control_job_id=job.job_id,
-                        execution_profile=job.effective_execution_profile,
-                        capability_manifest_ref=capability_manifest_ref,
-                        allow_mock_fallback=bool(job.policy_flags.get("allow_mock_fallback"))
-                        or job.effective_execution_profile == "dev",
-                        provider_preflight_payload=(
-                            dict(payload.get("provider_preflight"))
-                            if isinstance(payload.get("provider_preflight"), dict)
-                            else None
-                        ),
-                        capability_manifest_updater=(
-                            lambda fallbacks: self._refresh_capability_manifest(
-                                job=job,
-                                observed_fallbacks=fallbacks,
-                            )
-                        ),
-                    )
-                    final_manifest_ref = str(
-                        result.get("capability_manifest_ref") or capability_manifest_ref
                     )
                     self._control_store.complete_job(
                         job_id=job.job_id,
-                        run_id=str(result.get("run_id") or job.run_id or ""),
-                        capability_manifest_ref=final_manifest_ref,
+                        run_id=str(job.run_id or payload.get("run_id") or ""),
+                        capability_manifest_ref=str(capability_manifest_ref),
+                        progress=progress,
                     )
                     self._emit_runtime_diagnostic_event(
                         job_id=job.job_id,
-                        run_id=str(result.get("run_id") or job.run_id or ""),
+                        run_id=str(job.run_id or payload.get("run_id") or ""),
                         execution_profile=job.effective_execution_profile,
                         phase="job_execution",
                         event_type="polisyos.runtime.diagnostic.phase_transition.v1",
@@ -1094,9 +1095,10 @@ class ControlPlaneService(CapabilityManifestMixin, LexPipelineMixin, NaturalLang
                         payload=payload,
                         event_payload={
                             "job_kind": job.kind,
-                            "capability_manifest_ref": final_manifest_ref,
+                            "capability_manifest_ref": str(capability_manifest_ref),
+                            "legacy_path_disposition": "candidate_only_ring2_withheld",
                         },
-                        artifact_refs=[final_manifest_ref],
+                        artifact_refs=[str(capability_manifest_ref)],
                     )
                     return
                 if job.kind == "lex_pipeline":
@@ -1112,6 +1114,11 @@ class ControlPlaneService(CapabilityManifestMixin, LexPipelineMixin, NaturalLang
                 raise RuntimeError(f"Unsupported control job kind: {job.kind}")
         except Exception as exc:
             logger.exception("Control job %s failed: %s", job.job_id, exc)
+            progress = (
+                dict(exc.progress)
+                if isinstance(exc, _WorkflowExecutionNonAuthorityError)
+                else None
+            )
             self._emit_runtime_diagnostic_event(
                 job_id=job.job_id,
                 run_id=job.run_id,
@@ -1132,6 +1139,7 @@ class ControlPlaneService(CapabilityManifestMixin, LexPipelineMixin, NaturalLang
                 job_id=job.job_id,
                 capability_manifest_ref=job.capability_manifest_ref,
                 error_message=str(exc),
+                progress=progress,
             )
 
     def _collect_lex_progress(
@@ -1398,13 +1406,8 @@ class ControlPlaneService(CapabilityManifestMixin, LexPipelineMixin, NaturalLang
             ),
         }
 
-    def _execute_workflow(
-        self,
-        state_payload: dict[str, Any],
-        checkpoint_policy: str,
-    ) -> None:
+    def _run_legacy_scientist_workflow(self, state_payload: dict[str, Any]) -> None:
         from polisyos.scientist.api import run_experiment
-
         run_experiment(state_payload, store=self._artifact_store)
 
     # ---- NL launch (agent circuit) ----------------------------------------

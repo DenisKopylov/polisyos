@@ -1,0 +1,68 @@
+{
+  "_recording": {
+    "captured_at": "2026-06-23T17:23:54.055578+00:00",
+    "query": "zzzxxy policyos nonexistent phrase qwertyuiopasdfgh 123456789",
+    "real_openalex_api_response": true,
+    "request_params": {
+      "filter": "has_abstract:true,is_retracted:false,language:en",
+      "mailto": "policyos@example.invalid",
+      "per-page": "5",
+      "search": "zzzxxy policyos nonexistent phrase qwertyuiopasdfgh 123456789",
+      "select": "id,doi,display_name,title,abstract_inverted_index,publication_year,publication_date,cited_by_count,type,is_retracted,language,open_access,primary_location,authorships"
+    },
+    "source": "https://api.openalex.org/works"
+  },
+  "group_by": [],
+  "meta": {
+    "cost_usd": 0.001,
+    "count": 0,
+    "db_response_time_ms": 44,
+    "groups_count": null,
+    "page": 1,
+    "per_page": 5,
+    "x_query": {
+      "oql": "works where full text has (zzzxxy policyos nonexistent phrase qwertyuiopasdfgh 123456789)\n  and it has an abstract\n  and it's not retracted\n  and language is en",
+      "oqo": {
+        "filter_rows": [
+          {
+            "column_id": "fulltext.search",
+            "operator": "has",
+            "value": "zzzxxy policyos nonexistent phrase qwertyuiopasdfgh 123456789"
+          },
+          {
+            "column_id": "has_abstract",
+            "value": true
+          },
+          {
+            "column_id": "is_retracted",
+            "value": false
+          },
+          {
+            "column_id": "language",
+            "value": "en"
+          }
+        ],
+        "get_rows": "works",
+        "per_page": 5,
+        "select": [
+          "id",
+          "doi",
+          "display_name",
+          "title",
+          "abstract_inverted_index",
+          "publication_year",
+          "publication_date",
+          "cited_by_count",
+          "type",
+          "is_retracted",
+          "language",
+          "open_access",
+          "primary_location",
+          "authorships"
+        ]
+      },
+      "url": "/works?filter=fulltext.search:zzzxxy policyos nonexistent phrase qwertyuiopasdfgh 123456789,has_abstract:true,is_retracted:false,language:en&select=id,doi,display_name,title,abstract_inverted_index,publication_year,publication_date,cited_by_count,type,is_retracted,language,open_access,primary_location,authorships&per_page=5"
+    }
+  },
+  "results": []
+}

@@ -58,7 +58,7 @@
       ],
       "minimum_coverage": "not_l5_calibrated",
       "producer_artifact_ref": "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
-      "producer_component": "polisyos.runtime.quality.layer3_legal_mandate_search",
+      "producer_component": "polisyos.runtime.quality.proving_ground.legal_mandate_search",
       "provenance_refs": [],
       "quality_band": "unscored_without_l5_calibration",
       "query_trace_refs": [

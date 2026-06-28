@@ -469,6 +469,9 @@ def test_public_export_redacts_sensitive_payloads_and_preserves_audit_semantics(
     assert "tenant-1" not in rendered
     assert "private system prompt" not in rendered
     assert "licensed source page text" not in rendered
+    assert public_bundle["artifacts"]["decision_artifact"]["hidden_benchmark_answer"].startswith(
+        "[POLISYOS_SECRET_KEYED_SECRET_"
+    )
 
     projection = public_bundle["semantic_audit"]["authority_projections"][0]
     assert projection["evidence_id"] == "evidence-policy_grounding_matrix"
@@ -487,6 +490,25 @@ def test_public_export_redacts_sensitive_payloads_and_preserves_audit_semantics(
     assert "scorecard_authority" in public_bundle["official_use_limits"]["may_not_be_used_for"]
     assert "approval_authority" in public_bundle["official_use_limits"]["may_not_be_used_for"]
     assert public_bundle["redaction_summary"]["redacted_path_count"] >= 5
+
+
+def test_public_export_uses_canonical_secret_pii_scan_for_email_redaction() -> None:
+    email = "audit.fixture@example.org"
+    public_bundle = build_public_export_bundle(
+        run_id="run-public-email-redaction",
+        artifacts={"packet": {"contact": email, "note": "public"}},
+    )
+
+    rendered = json.dumps(public_bundle, sort_keys=True)
+    reports = public_bundle["semantic_audit"]["secret_pii_scan_reports"]
+    assert email not in rendered
+    assert public_bundle["artifacts"]["packet"]["contact"].startswith(
+        "[POLISYOS_SECRET_EMAIL_"
+    )
+    assert any(report["finding_kind"] == "email" for report in reports)
+    assert public_bundle["redaction_summary"]["strangle_receipt"]["replacement_ref"] == (
+        "polisyos.core.llm.sanitization.scan_secret_and_pii"
+    )
 
 
 def test_public_export_reads_policy_design_case_projection_without_exposing_authority() -> None:
@@ -1013,9 +1035,12 @@ def test_public_export_blocks_hidden_battery_material_and_gold_labels() -> None:
     )
 
     serialized = json.dumps(bundle)
-    assert "sealed_fixture_contents" not in serialized
-    assert "gold_labels" not in serialized
-    assert "expert_oracle_private_notes" not in serialized
+    assert "s14-hidden" not in serialized
+    assert "sealed expected boundary" not in serialized
+    assert "private oracle note" not in serialized
+    assert bundle["artifacts"]["public_summary"]["sealed_fixture_contents"].startswith(
+        "[POLISYOS_SECRET_KEYED_SECRET_"
+    )
     assert bundle["redaction_summary"]["redacted_path_count"] >= 3
 
 

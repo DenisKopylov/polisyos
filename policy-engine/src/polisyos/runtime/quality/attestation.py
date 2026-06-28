@@ -277,6 +277,7 @@ def build_verified_attestation_record(
     service_generated: bool = True,
     consumer_verification: ConsumerVerificationStatus = "verified",
     tamper_check_status: TamperCheckStatus = "pass",
+    generated_at: datetime | None = None,
     allow_synthetic: bool = False,
     metadata: Mapping[str, Any] | None = None,
     registry: TrustBoundaryRegistry | None = None,
@@ -310,6 +311,7 @@ def build_verified_attestation_record(
     return AttestationRecord(
         attestation_id=attestation_id or f"att-{boundary_id}",
         trust_boundary_id=boundary.boundary_id,
+        generated_at=generated_at or datetime.now(UTC),
         expected_materials=expected_materials,
         observed_materials=list(expected_materials),
         expected_products=expected_products,

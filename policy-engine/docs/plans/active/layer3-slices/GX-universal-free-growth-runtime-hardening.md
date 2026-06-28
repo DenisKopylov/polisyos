@@ -505,7 +505,7 @@ obsolete.
 
 ### 1. Better G1 search, still domain-authored runtime
 
-`src/polisyos/runtime/quality/layer3_substrate_grounding.py` now has a real
+`src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py` now has a real
 search path in `_search_l1_dcat_cached(...)`: it wires `DatasetCatalogStore` and
 `DatasetCatalogGraph` and calls search APIs instead of relying only on exact
 metric-id resolution. That is real progress.
@@ -795,7 +795,7 @@ Required repair:
 
 ### 10. G6 audit can still be authored instead of observed
 
-`src/polisyos/runtime/quality/layer3_bounded_agent.py` has audit fields for
+`src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py` has audit fields for
 `rejected_tool_names`, `selected_evidence_refs`, and `rejected_branch_refs`, but
 current build paths still assign constants such as `("unbounded_web_search",)`
 and synthetic rejected branch refs around lines 1349-1354 and 1652-1654. The

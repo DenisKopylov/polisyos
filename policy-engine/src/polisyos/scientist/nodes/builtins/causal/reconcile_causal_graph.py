@@ -12,6 +12,7 @@ from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import InputRef
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.core.contracts import build_skip_blocker_record
 from polisyos.foundry.methods.catalog.causal.composition_failure_cards import (
     CompositionFailureCardBundle,
     persist_composition_failure_card_bundle,
@@ -61,10 +62,6 @@ from polisyos.ir.registry.refs import (
     InterfaceMappingRef,
     SCMFragmentRef,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_ALIGNMENT_REPORT_REF,
@@ -75,6 +72,15 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_LITERATURE_PRIOR_REF,
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 logger = get_logger(__name__)
 
@@ -807,6 +813,11 @@ class ReconcileCausalGraphNode:
                 events=[
                     NodeEvent(level="info", message="No data causal graph; skip reconciliation.")
                 ],
+                skip_blocker=_phase2_missing_input_blocker(
+                    missing_input="data_causal_graph",
+                    reason="No data causal graph was produced for reconciliation.",
+                    phase="reconcile_causal_graph",
+                ),
             )
 
         literature_prior_ref = state.artifacts_index.get(ARTIFACT_LITERATURE_PRIOR_REF)
@@ -898,6 +909,30 @@ class ReconcileCausalGraphNode:
                 )
             ],
         )
+
+
+def _phase2_missing_input_blocker(
+    *,
+    missing_input: str,
+    reason: str,
+    phase: str,
+):
+    return build_skip_blocker_record(
+        node_id=str(_SPEC.metadata.component_id),
+        alias="reconcile_causal_graph",
+        node_kind="causal",
+        reason=reason,
+        missing_input=missing_input,
+        owner="gy_phase2_blocked_input_producer",
+        phase=phase,
+        downstream_impact="Phase-2 REFINE cannot reconcile causal evidence without this input.",
+        allowed_profile="dev",
+        closeout_blocking_policy="blocks_authority",
+        scorecard_blocking_policy="blocks_authority",
+        approval_blocking_policy="blocks_authority",
+        public_export_blocking_policy="blocks_authority",
+        blocker_code="gy_phase2_blocked_input_producer_missing",
+    )
 
 
 __all__ = ["ReconcileCausalGraphNode"]

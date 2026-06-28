@@ -444,7 +444,7 @@ class DatasetCatalogStore:
             f"SELECT {select_clause}, ({score_expr}) AS text_score "
             "FROM ds_datasets "
             f"WHERE {where_clause} "
-            "ORDER BY text_score DESC, quality_execution_readiness_score DESC, title ASC "
+            "ORDER BY text_score DESC, quality_execution_readiness_score DESC, title ASC, id ASC "
             "LIMIT ?",
             [*score_params, *where_params, top_k],
         )

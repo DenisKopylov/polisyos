@@ -9,6 +9,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from polisyos.core import canon
+
 EvidenceClass = Literal[
     "authority_bearing",
     "diagnostic_supporting",
@@ -126,6 +128,234 @@ class AuthorityFailureClassification(BaseModel):
     domain_failure_code: str | None = None
     producer_component: str | None = None
     producer_authority: dict[str, Any] = Field(default_factory=dict)
+
+
+class AuthoritySurfaceDecision(BaseModel):
+    """Consumer-side authority decision for one runtime/public surface."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    surface: str = Field(min_length=1)
+    purpose: str = Field(min_length=1)
+    status: Literal["allowed", "blocked", "candidate_only", "downgraded"]
+    authority_result: str = Field(min_length=1)
+    transition_disposition: str | None = None
+    authority_boundary_ref: str | None = None
+    consumed_authority_boundary: bool
+    may_not_use_for: list[str] = Field(default_factory=list)
+    reason: str = Field(min_length=1)
+    blocking: bool
+    visible_downgrade: bool
+    composed_gate_inputs: list[str] = Field(default_factory=list)
+    secret_pii_finding_kinds: list[str] = Field(default_factory=list)
+    integrity_status: Literal["not_applicable", "verified", "failed", "missing_input"] = (
+        "not_applicable"
+    )
+    integrity_error: str | None = None
+    time_source_dispositions: list[str] = Field(default_factory=list)
+    s12_issue_codes: list[str] = Field(default_factory=list)
+    candidate_firewall_issue_codes: list[str] = Field(default_factory=list)
+
+
+class OutcomeReplayLevelProof(BaseModel):
+    """Content-bound verification record for one F16 replay level."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    level: Literal["A", "B", "C"]
+    replay_kind: Literal[
+        "deterministic_operation",
+        "decision_provenance_trace",
+        "rewalkable_audit_trail",
+    ]
+    input_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    output_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    producer_roots: list[dict[str, Any]] = Field(default_factory=list)
+    status: Literal["verified", "drift"]
+
+
+class OutcomeReplayProof(BaseModel):
+    """Typed three-level replay proof emitted by a production outcome run."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: str = "policyos.runtime.outcome_replay_proof.v1"
+    case_id: str = Field(min_length=1)
+    canonicalizer_ref: str = (
+        "tools.quality.validation.gy_evidence_canon.canonical_evidence_hash"
+    )
+    replay_levels: list[Literal["A", "B", "C"]]
+    input_hashes: dict[str, str]
+    output_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    producer_roots: list[dict[str, Any]] = Field(default_factory=list)
+    level_proofs: list[OutcomeReplayLevelProof]
+
+    @model_validator(mode="after")
+    def _require_three_replay_levels(self) -> OutcomeReplayProof:
+        if self.replay_levels != ["A", "B", "C"]:
+            raise ValueError("outcome replay proof requires levels A, B, and C")
+        if [item.level for item in self.level_proofs] != self.replay_levels:
+            raise ValueError("level proofs must match replay_levels in order")
+        if not self.input_hashes:
+            raise ValueError("outcome replay proof requires content-bound inputs")
+        return self
+
+
+class ProductionLoopRunProof(BaseModel):
+    """Typed proof of the durable HTTP control-to-WorkspaceLoop path."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, populate_by_name=True)
+
+    schema_version: str = "policyos.policy_design_case.layer3_gy_loop.v1"
+    run_id: str = Field(min_length=1)
+    job_id: str = Field(min_length=1)
+    endpoint: str = Field(min_length=1)
+    http_request_id: str = Field(min_length=1)
+    job_kind: str = Field(min_length=1)
+    enqueued_at: str | None = None
+    worker_lease_id: str | None = None
+    worker_id: str | None = None
+    execute_workflow_invocation_id: str = Field(
+        alias="_execute_workflow_invocation_id",
+        min_length=1,
+    )
+    workspace_loop_invocation_id: str = Field(min_length=1)
+    control_store_state_transitions: list[str]
+    input_artifacts: list[str]
+    output_search_exit_contract_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    output_replay_proof_ref: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    output_cas_refs: list[str]
+    artifacts_index_refs: list[str]
+    surface_reads_checked: list[str]
+    surface_readbacks: list[dict[str, Any]] = Field(default_factory=list)
+    legacy_path_disposition: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _validate_durable_path_shape(self) -> ProductionLoopRunProof:
+        if self.endpoint != "/api/v1/control/runs":
+            raise ValueError("production loop proof must originate at the control runs route")
+        if self.job_kind != "workflow_run":
+            raise ValueError("production loop proof requires a workflow_run job")
+        if self.worker_lease_id != self.worker_id or not self.worker_id:
+            raise ValueError("production loop proof requires the observed worker lease")
+        if (
+            self.legacy_path_disposition != "routed_to_workspace_loop"
+            and not self.legacy_path_disposition.startswith("blocked_")
+            and "failed" not in self.control_store_state_transitions
+        ):
+            raise ValueError("production loop proof must use the WorkspaceLoop authority path")
+        return self
+
+
+def build_outcome_replay_proof(
+    *,
+    case_id: str,
+    input_payloads: Mapping[str, Any],
+    search_exit_contract: Mapping[str, Any],
+    output_cas_refs: Iterable[str],
+) -> OutcomeReplayProof:
+    """Build the F16 A/B/C proof from run inputs and the emitted exit contract."""
+
+    from polisyos.pdc import gy_content_hash
+
+    contract = dict(search_exit_contract)
+    ledger = contract.get("search_ledger")
+    ledger = dict(ledger) if isinstance(ledger, Mapping) else {}
+    incompleteness = contract.get("incompleteness_record")
+    incompleteness = (
+        dict(incompleteness) if isinstance(incompleteness, Mapping) else {}
+    )
+    input_hashes = {
+        str(ref): gy_content_hash(payload)
+        for ref, payload in sorted(input_payloads.items(), key=lambda item: str(item[0]))
+    }
+    producer_roots = _outcome_producer_roots(contract, input_payloads)
+    deterministic_input = {
+        "input_hashes": input_hashes,
+        "invocations": ledger.get("invocations") or [],
+    }
+    deterministic_output = {
+        "output_artifacts": contract.get("output_artifacts") or [],
+        "terminal_state": contract.get("terminal_state") or {},
+    }
+    trace_input = {
+        "events": ledger.get("events") or [],
+        "applicability_results": ledger.get("applicability_results") or [],
+    }
+    trace_output = {
+        "terminal_state": contract.get("terminal_state") or {},
+        "incompleteness_record": incompleteness,
+    }
+    audit_input = {
+        "producer_roots": producer_roots,
+        "output_cas_refs": list(output_cas_refs),
+    }
+    output_hash = gy_content_hash(contract)
+    return OutcomeReplayProof(
+        case_id=case_id,
+        replay_levels=["A", "B", "C"],
+        input_hashes=input_hashes,
+        output_hash=output_hash,
+        producer_roots=producer_roots,
+        level_proofs=[
+            OutcomeReplayLevelProof(
+                level="A",
+                replay_kind="deterministic_operation",
+                input_hash=gy_content_hash(deterministic_input),
+                output_hash=gy_content_hash(deterministic_output),
+                producer_roots=producer_roots,
+                status="verified",
+            ),
+            OutcomeReplayLevelProof(
+                level="B",
+                replay_kind="decision_provenance_trace",
+                input_hash=gy_content_hash(trace_input),
+                output_hash=gy_content_hash(trace_output),
+                producer_roots=producer_roots,
+                status="verified",
+            ),
+            OutcomeReplayLevelProof(
+                level="C",
+                replay_kind="rewalkable_audit_trail",
+                input_hash=gy_content_hash(audit_input),
+                output_hash=output_hash,
+                producer_roots=producer_roots,
+                status="verified",
+            ),
+        ],
+    )
+
+
+def _outcome_producer_roots(
+    contract: Mapping[str, Any],
+    input_payloads: Mapping[str, Any],
+) -> list[dict[str, Any]]:
+    roots: list[dict[str, Any]] = []
+    envelopes = contract.get("artifact_envelopes")
+    if isinstance(envelopes, list):
+        for envelope in envelopes:
+            if not isinstance(envelope, Mapping):
+                continue
+            for root in envelope.get("producer_roots") or []:
+                if isinstance(root, Mapping):
+                    roots.append(dict(root))
+    for payload in input_payloads.values():
+        if not isinstance(payload, Mapping):
+            continue
+        comparison = payload.get("provisional_comparison")
+        if not isinstance(comparison, Mapping):
+            continue
+        for root in comparison.get("changed_producer_roots") or []:
+            if isinstance(root, Mapping):
+                roots.append(dict(root))
+    deduped: dict[str, dict[str, Any]] = {}
+    for root in roots:
+        key = json.dumps(root, sort_keys=True, separators=(",", ":"), default=str)
+        deduped.setdefault(key, root)
+    return list(deduped.values())
 
 
 class ProducerIdentity(BaseModel):
@@ -552,6 +782,383 @@ def assert_authority_purpose_allowed(
     return _authority_payload(envelope)
 
 
+def authority_surface_decision(
+    payload: Mapping[str, Any] | AuthorityEnvelopeInput | None,
+    *,
+    surface: str,
+    purpose: str | None = None,
+    artifact_ref_or_route: str | None = None,
+    secret_pii_scope: str | None = None,
+    block_on_secret_findings: bool = True,
+    artifact_store: Any | None = None,
+    artifact_id: Any | None = None,
+    require_cas_integrity: bool = False,
+    enforce_time_source: bool = True,
+    enforce_s12: bool = True,
+    enforce_candidate_firewall: bool = True,
+    missing_authority_disposition: Literal["block", "downgrade"] = "block",
+    missing_boundary_disposition: Literal["block", "downgrade"] = "block",
+) -> AuthoritySurfaceDecision:
+    """Return the composed fail-closed decision for a runtime/public surface.
+
+    This is the single egress gate for Phase 3 surfaces. It preserves the GY-B2
+    transition-disposition/AuthorityBoundary check and AND-composes the F2/F3
+    admission inputs: secret/PII scan, CAS integrity, time/source envelope
+    disposition, S12 dereference status, and candidate firewall.
+    """
+
+    authority_payload = _surface_authority_payload(
+        payload,
+        artifact_store=artifact_store,
+        artifact_id=artifact_id,
+    )
+    base = _authority_boundary_surface_decision(
+        authority_payload,
+        surface=surface,
+        purpose=purpose,
+        missing_authority_disposition=missing_authority_disposition,
+        missing_boundary_disposition=missing_boundary_disposition,
+    )
+    carrier = _authority_payload(authority_payload)
+    gate_inputs: list[str] = ["authority_boundary"]
+    blocking_reasons: list[str] = []
+    downgrade_reasons: list[str] = []
+    secret_findings: list[str] = []
+    integrity_status: Literal["not_applicable", "verified", "failed", "missing_input"] = (
+        "not_applicable"
+    )
+    integrity_error: str | None = None
+    time_dispositions: list[str] = []
+    s12_issue_codes: list[str] = []
+    candidate_issue_codes: list[str] = []
+
+    if base.blocking:
+        blocking_reasons.append(base.reason)
+    elif base.visible_downgrade:
+        downgrade_reasons.append(base.reason)
+
+    if secret_pii_scope is not None:
+        gate_inputs.append("secret_pii_scan")
+        try:
+            from polisyos.core import scan_secret_and_pii
+
+            scan = scan_secret_and_pii(
+                payload,
+                scope=secret_pii_scope,
+                artifact_ref_or_route=artifact_ref_or_route or f"{surface}:unknown",
+                redact=False,
+                block_on_findings=block_on_secret_findings,
+            )
+        except Exception as exc:  # pragma: no cover - exercised through route fail-closed tests.
+            secret_findings = ["scan_failed_closed"]
+            blocking_reasons.append("secret_pii_scan_failed_closed")
+            integrity_error = str(exc)
+        else:
+            secret_findings = list(scan.finding_kinds)
+            if scan.has_findings:
+                if block_on_secret_findings:
+                    blocking_reasons.append("secret_pii_surface_blocked")
+                else:
+                    downgrade_reasons.append("secret_pii_redacted")
+
+    if require_cas_integrity or artifact_store is not None or artifact_id is not None:
+        gate_inputs.append("cas_integrity")
+        if artifact_store is None or artifact_id is None:
+            integrity_status = "missing_input"
+            blocking_reasons.append("cas_integrity_input_missing")
+        else:
+            try:
+                verification = artifact_store.verify(artifact_id)
+            except Exception as exc:  # pragma: no cover - fail-closed guard.
+                integrity_status = "failed"
+                integrity_error = str(exc)
+                blocking_reasons.append("cas_integrity_verify_failed_closed")
+            else:
+                if getattr(verification, "ok", False):
+                    integrity_status = "verified"
+                else:
+                    integrity_status = "failed"
+                    integrity_error = str(getattr(verification, "error", "") or "verify_failed")
+                    blocking_reasons.append("cas_integrity_verify_failed")
+
+    if enforce_time_source:
+        gate_inputs.append("time_source_envelope")
+        time_dispositions = _time_source_dispositions(payload)
+        for disposition in time_dispositions:
+            normalized = disposition.strip().casefold()
+            if normalized.startswith("block:"):
+                blocking_reasons.append("time_source_envelope_blocked")
+            elif normalized.startswith("obligation:") or (
+                normalized and normalized != "admitted"
+            ):
+                downgrade_reasons.append("time_source_envelope_obligation")
+
+    if enforce_s12:
+        gate_inputs.append("s12_dereference")
+        s12_issue_codes = _s12_dereference_issue_codes(payload)
+        if s12_issue_codes:
+            downgrade_reasons.append("s12_reference_candidate_only")
+
+    if enforce_candidate_firewall:
+        gate_inputs.append("candidate_firewall")
+        try:
+            from polisyos.runtime.quality.candidate_firewall import (
+                candidate_firewall_issues_for_payload,
+            )
+
+            issues = candidate_firewall_issues_for_payload(
+                carrier,
+                surface=surface,
+            )
+        except Exception as exc:  # pragma: no cover - fail-closed guard.
+            candidate_issue_codes = ["candidate_firewall_failed_closed"]
+            blocking_reasons.append("candidate_firewall_failed_closed")
+            integrity_error = str(exc)
+        else:
+            candidate_issue_codes = [
+                str(issue.get("code") or "candidate_firewall_blocked")
+                for issue in issues
+            ]
+            if candidate_issue_codes:
+                blocking_reasons.append("candidate_firewall_blocked")
+
+    status = base.status
+    reason = base.reason
+    blocking = base.blocking
+    visible_downgrade = base.visible_downgrade
+    if blocking_reasons:
+        status = "blocked"
+        reason = blocking_reasons[0]
+        blocking = True
+        visible_downgrade = True
+    elif downgrade_reasons:
+        status = "downgraded" if base.status == "allowed" else base.status
+        reason = downgrade_reasons[0]
+        blocking = False
+        visible_downgrade = True
+
+    return AuthoritySurfaceDecision(
+        surface=base.surface,
+        purpose=base.purpose,
+        status=status,
+        authority_result=base.authority_result,
+        transition_disposition=base.transition_disposition,
+        authority_boundary_ref=base.authority_boundary_ref,
+        consumed_authority_boundary=base.consumed_authority_boundary,
+        may_not_use_for=list(base.may_not_use_for),
+        reason=reason,
+        blocking=blocking,
+        visible_downgrade=visible_downgrade,
+        composed_gate_inputs=list(dict.fromkeys(gate_inputs)),
+        secret_pii_finding_kinds=sorted(set(secret_findings)),
+        integrity_status=integrity_status,
+        integrity_error=integrity_error,
+        time_source_dispositions=sorted(set(time_dispositions)),
+        s12_issue_codes=sorted(set(s12_issue_codes)),
+        candidate_firewall_issue_codes=sorted(set(candidate_issue_codes)),
+    )
+
+
+def _authority_boundary_surface_decision(
+    payload: Mapping[str, Any] | AuthorityEnvelopeInput | None,
+    *,
+    surface: str,
+    purpose: str | None = None,
+    missing_authority_disposition: Literal["block", "downgrade"] = "block",
+    missing_boundary_disposition: Literal["block", "downgrade"] = "block",
+) -> AuthoritySurfaceDecision:
+    """Return the fail-closed authority decision for a runtime/public surface.
+
+    The helper consumes GY-B2 transition disposition (`legacy_path_disposition` /
+    `authority_path`) and the existing `AuthorityBoundary`; it does not introduce
+    a second authority flag.
+    """
+
+    carrier = _authority_payload(payload)
+    surface_name = _non_empty(surface)
+    requested_purpose = _optional_text(purpose) or _default_surface_purpose(surface_name)
+    surface_packet = _surface_packet_for(carrier, surface_name)
+    boundary_payload = _extract_authority_boundary(carrier, surface_packet)
+    transition_disposition = _transition_disposition(carrier, surface_packet)
+    authority_result = (
+        _authority_payload_text(surface_packet, "authority_result")
+        or _authority_payload_text(surface_packet, "status")
+        or _authority_payload_text(carrier, "authority_result")
+        or "not_applicable"
+    )
+    has_authority_signal = _has_authority_surface_signal(
+        carrier,
+        surface_packet=surface_packet,
+        transition_disposition=transition_disposition,
+        authority_result=authority_result,
+    )
+    if not has_authority_signal:
+        blocking = missing_authority_disposition == "block"
+        return AuthoritySurfaceDecision(
+            surface=surface_name,
+            purpose=requested_purpose,
+            status="blocked" if blocking else "downgraded",
+            authority_result="not_applicable",
+            transition_disposition=None,
+            authority_boundary_ref=None,
+            consumed_authority_boundary=False,
+            may_not_use_for=[],
+            reason="authority_surface_signal_missing",
+            blocking=blocking,
+            visible_downgrade=True,
+        )
+
+    if not boundary_payload:
+        blocking = missing_boundary_disposition == "block"
+        return AuthoritySurfaceDecision(
+            surface=surface_name,
+            purpose=requested_purpose,
+            status="blocked" if blocking else "downgraded",
+            authority_result=authority_result,
+            transition_disposition=transition_disposition,
+            authority_boundary_ref=None,
+            consumed_authority_boundary=False,
+            may_not_use_for=[],
+            reason="authority_boundary_missing",
+            blocking=blocking,
+            visible_downgrade=True,
+        )
+
+    boundary_dump = _validated_authority_boundary_payload(boundary_payload)
+    if boundary_dump is None:
+        return AuthoritySurfaceDecision(
+            surface=surface_name,
+            purpose=requested_purpose,
+            status="blocked",
+            authority_result=authority_result,
+            transition_disposition=transition_disposition,
+            authority_boundary_ref=_authority_payload_text(boundary_payload, "boundary_id"),
+            consumed_authority_boundary=False,
+            may_not_use_for=list(_authority_payload_sequence(boundary_payload, "may_not_use_for")),
+            reason="authority_boundary_invalid",
+            blocking=True,
+            visible_downgrade=True,
+        )
+
+    may_not_use_for = list(_authority_payload_sequence(boundary_dump, "may_not_use_for"))
+    boundary_ref = _authority_payload_text(boundary_dump, "boundary_id")
+    blockers = authority_purpose_blockers(boundary_dump, requested_purpose)
+    if _is_blocked_surface_result(authority_result, transition_disposition):
+        return AuthoritySurfaceDecision(
+            surface=surface_name,
+            purpose=requested_purpose,
+            status="blocked",
+            authority_result=authority_result,
+            transition_disposition=transition_disposition,
+            authority_boundary_ref=boundary_ref,
+            consumed_authority_boundary=True,
+            may_not_use_for=may_not_use_for,
+            reason="workflow_failure_or_blocked_disposition",
+            blocking=True,
+            visible_downgrade=True,
+        )
+    if _is_candidate_surface_result(authority_result, transition_disposition):
+        return AuthoritySurfaceDecision(
+            surface=surface_name,
+            purpose=requested_purpose,
+            status="candidate_only",
+            authority_result=authority_result,
+            transition_disposition=transition_disposition,
+            authority_boundary_ref=boundary_ref,
+            consumed_authority_boundary=True,
+            may_not_use_for=may_not_use_for,
+            reason="candidate_or_legacy_shadow_disposition",
+            blocking=False,
+            visible_downgrade=True,
+        )
+    if blockers:
+        return AuthoritySurfaceDecision(
+            surface=surface_name,
+            purpose=requested_purpose,
+            status="downgraded",
+            authority_result=authority_result,
+            transition_disposition=transition_disposition,
+            authority_boundary_ref=boundary_ref,
+            consumed_authority_boundary=True,
+            may_not_use_for=may_not_use_for,
+            reason=blockers[0],
+            blocking=False,
+            visible_downgrade=True,
+        )
+    return AuthoritySurfaceDecision(
+        surface=surface_name,
+        purpose=requested_purpose,
+        status="allowed",
+        authority_result=authority_result,
+        transition_disposition=transition_disposition,
+        authority_boundary_ref=boundary_ref,
+        consumed_authority_boundary=True,
+        may_not_use_for=may_not_use_for,
+        reason="authority_boundary_allows_surface_purpose",
+        blocking=False,
+        visible_downgrade=False,
+    )
+
+
+def _surface_authority_payload(
+    payload: object,
+    *,
+    artifact_store: Any | None,
+    artifact_id: Any | None,
+) -> object:
+    """Resolve the authority carrier for a surface without replacing scan bytes."""
+
+    carrier = _authority_payload(payload)
+    if _has_payload_authority_signal(carrier):
+        return payload
+    if artifact_store is None or artifact_id is None:
+        return payload
+
+    try:
+        stored_payload = canon.from_canonical_bytes(artifact_store.get_bytes(artifact_id))
+    except Exception:
+        stored_payload = None
+    if isinstance(stored_payload, Mapping) and _has_payload_authority_signal(stored_payload):
+        return stored_payload
+
+    try:
+        manifest = artifact_store.get_manifest(artifact_id)
+    except Exception:
+        return payload
+    authority = getattr(manifest, "authority", None)
+    envelope_ref = getattr(authority, "authority_envelope_ref", None)
+    if not envelope_ref:
+        return payload
+    try:
+        envelope_bytes = artifact_store.get_bytes(envelope_ref)
+        envelope_payload = canon.from_canonical_bytes(envelope_bytes)
+    except Exception:
+        return payload
+    if isinstance(envelope_payload, Mapping):
+        if _has_payload_authority_signal(envelope_payload):
+            return envelope_payload
+        if _validated_authority_boundary_payload(envelope_payload) is not None:
+            return {"authority_boundary": dict(envelope_payload)}
+    return payload
+
+
+def _has_payload_authority_signal(payload: Mapping[str, Any]) -> bool:
+    return any(
+        key in payload
+        for key in (
+            "authority_surface_packet",
+            "authority_boundary",
+            "surface_authority",
+            "public_packet",
+            "failure",
+            "runtime_state",
+            "legacy_path_disposition",
+            "authority_path",
+            "authority_result",
+        )
+    )
+
+
 def capability_binding_purpose_blockers(
     binding_result: Mapping[str, Any] | None,
     purpose: str,
@@ -846,6 +1453,272 @@ def _authority_payload_sequence(payload: Mapping[str, Any], key: str) -> tuple[s
     )
 
 
+def _default_surface_purpose(surface: str) -> str:
+    purposes = {
+        "run": "runtime_closeout_authority",
+        "run_status": "runtime_closeout_authority",
+        "artifact": "runtime_closeout_authority",
+        "lineage": "runtime_closeout_authority",
+        "export": "publication",
+        "dashboard": "dashboard_display",
+        "public_packet": "publication",
+    }
+    return purposes.get(surface, "runtime_closeout_authority")
+
+
+def _surface_packet_for(
+    carrier: Mapping[str, Any],
+    surface: str,
+) -> Mapping[str, Any]:
+    packet = carrier.get("authority_surface_packet")
+    if isinstance(packet, Mapping):
+        surfaces = packet.get("surfaces")
+        if isinstance(surfaces, Mapping):
+            surface_packet = surfaces.get(surface)
+            if isinstance(surface_packet, Mapping):
+                return surface_packet
+    surface_authority = carrier.get("surface_authority")
+    if isinstance(surface_authority, Mapping):
+        surface_packet = surface_authority.get(surface)
+        if isinstance(surface_packet, Mapping):
+            return surface_packet
+    for projection_key in (
+        f"{surface}_projection",
+        "projection" if surface == "public_packet" else "",
+    ):
+        if not projection_key:
+            continue
+        surface_packet = carrier.get(projection_key)
+        if isinstance(surface_packet, Mapping):
+            return surface_packet
+    return {}
+
+
+def _extract_authority_boundary(
+    carrier: Mapping[str, Any],
+    surface_packet: Mapping[str, Any],
+) -> Mapping[str, Any]:
+    for candidate in (
+        surface_packet.get("boundary"),
+        carrier.get("authority_boundary"),
+    ):
+        if isinstance(candidate, Mapping):
+            return candidate
+    public_packet = carrier.get("public_packet")
+    if isinstance(public_packet, Mapping):
+        boundary = public_packet.get("authority_boundary")
+        if isinstance(boundary, Mapping):
+            return boundary
+    search_exit_contract = carrier.get("search_exit_contract")
+    if isinstance(search_exit_contract, Mapping):
+        boundary = search_exit_contract.get("authority_boundary")
+        if isinstance(boundary, Mapping):
+            return boundary
+        envelopes = search_exit_contract.get("artifact_envelopes")
+        if isinstance(envelopes, Iterable) and not isinstance(envelopes, str | bytes):
+            for envelope in envelopes:
+                if not isinstance(envelope, Mapping):
+                    continue
+                envelope_boundary = envelope.get("authority_boundary")
+                if isinstance(envelope_boundary, Mapping):
+                    return envelope_boundary
+    packet = carrier.get("authority_surface_packet")
+    if isinstance(packet, Mapping):
+        boundary = packet.get("boundary")
+        if isinstance(boundary, Mapping):
+            return boundary
+    return {}
+
+
+def _validated_authority_boundary_payload(
+    payload: Mapping[str, Any],
+) -> Mapping[str, Any] | None:
+    if not isinstance(payload, Mapping):
+        return None
+    required_text = ("source_authority", "posture")
+    if any(_authority_payload_text(payload, key) is None for key in required_text):
+        return None
+    for key in ("authoritative_for", "may_not_use_for", "rule_version_refs"):
+        if not _authority_payload_sequence(payload, key):
+            return None
+    return dict(payload)
+
+
+def _transition_disposition(
+    carrier: Mapping[str, Any],
+    surface_packet: Mapping[str, Any],
+) -> str | None:
+    return (
+        _authority_payload_text(surface_packet, "transition_disposition")
+        or _authority_payload_text(surface_packet, "legacy_path_disposition")
+        or _authority_payload_text(carrier, "legacy_path_disposition")
+        or _authority_payload_text(carrier, "authority_path")
+    )
+
+
+def _has_authority_surface_signal(
+    carrier: Mapping[str, Any],
+    *,
+    surface_packet: Mapping[str, Any],
+    transition_disposition: str | None,
+    authority_result: str,
+) -> bool:
+    if surface_packet:
+        return True
+    if transition_disposition is not None:
+        return True
+    if authority_result != "not_applicable":
+        return True
+    return any(
+        key in carrier
+        for key in (
+            "authority_surface_packet",
+            "authority_boundary",
+            "surface_authority",
+            "public_packet",
+            "failure",
+            "runtime_state",
+        )
+    )
+
+
+def _time_source_dispositions(value: object) -> list[str]:
+    dispositions: list[str] = []
+    _collect_time_source_dispositions(value, dispositions)
+    return list(dict.fromkeys(dispositions))
+
+
+def _collect_time_source_dispositions(value: object, dispositions: list[str]) -> None:
+    if isinstance(value, bytes):
+        try:
+            loaded = json.loads(value)
+        except (TypeError, json.JSONDecodeError, UnicodeDecodeError):
+            return
+        _collect_time_source_dispositions(loaded, dispositions)
+        return
+    if isinstance(value, str):
+        return
+    if isinstance(value, Mapping):
+        disposition = value.get("mismatch_disposition")
+        if isinstance(disposition, str) and disposition.strip():
+            dispositions.append(disposition.strip())
+        for item in value.values():
+            _collect_time_source_dispositions(item, dispositions)
+        return
+    if isinstance(value, Iterable):
+        for item in value:
+            _collect_time_source_dispositions(item, dispositions)
+
+
+def _s12_dereference_issue_codes(value: object) -> list[str]:
+    issue_codes: list[str] = []
+    raw_refs: list[str] = []
+    explicit_resolution_seen = _collect_s12_dereference_issues(
+        value,
+        issue_codes=issue_codes,
+        raw_refs=raw_refs,
+    )
+    if raw_refs and not explicit_resolution_seen:
+        issue_codes.extend("s12_ref_non_dereferenceable" for _ in raw_refs)
+    return list(dict.fromkeys(issue_codes))
+
+
+def _collect_s12_dereference_issues(
+    value: object,
+    *,
+    issue_codes: list[str],
+    raw_refs: list[str],
+) -> bool:
+    explicit_resolution_seen = False
+    if isinstance(value, bytes):
+        try:
+            loaded = json.loads(value)
+        except (TypeError, json.JSONDecodeError, UnicodeDecodeError):
+            return False
+        return _collect_s12_dereference_issues(
+            loaded,
+            issue_codes=issue_codes,
+            raw_refs=raw_refs,
+        )
+    if isinstance(value, str):
+        if value.startswith("voi://") or value.startswith("s12://"):
+            raw_refs.append(value)
+        return False
+    if isinstance(value, Mapping):
+        candidate_refs = value.get("candidate_only_s12_refs")
+        if isinstance(candidate_refs, Iterable) and not isinstance(candidate_refs, str | bytes):
+            for ref in candidate_refs:
+                text = str(ref).strip()
+                if text:
+                    issue_codes.append("s12_ref_non_dereferenceable")
+                    raw_refs.append(text)
+        disposition = value.get("disposition")
+        if isinstance(disposition, str) and disposition == "candidate_only":
+            explicit_resolution_seen = True
+            issue_codes.append("s12_ref_non_dereferenceable")
+        if value.get("resolved") is False:
+            explicit_resolution_seen = True
+            issue_codes.append("s12_ref_non_dereferenceable")
+        raw_issue_codes = value.get("issue_codes")
+        if isinstance(raw_issue_codes, Iterable) and not isinstance(
+            raw_issue_codes,
+            str | bytes,
+        ):
+            for code in raw_issue_codes:
+                text = str(code).strip()
+                if text:
+                    issue_codes.append(text)
+        for key, item in value.items():
+            if key in {
+                "s12_ref_dereference",
+                "s12_ref_resolutions",
+                "authorial_negative_fixture",
+            }:
+                explicit_resolution_seen = True
+            if _collect_s12_dereference_issues(
+                item,
+                issue_codes=issue_codes,
+                raw_refs=raw_refs,
+            ):
+                explicit_resolution_seen = True
+        return explicit_resolution_seen
+    if isinstance(value, Iterable):
+        for item in value:
+            if _collect_s12_dereference_issues(
+                item,
+                issue_codes=issue_codes,
+                raw_refs=raw_refs,
+            ):
+                explicit_resolution_seen = True
+    return explicit_resolution_seen
+
+
+def _is_blocked_surface_result(
+    authority_result: str,
+    transition_disposition: str | None,
+) -> bool:
+    normalized_result = authority_result.strip().casefold()
+    normalized_disposition = (transition_disposition or "").strip().casefold()
+    return (
+        normalized_result in {"blocked", "repair_required"}
+        or normalized_disposition.startswith("blocked_")
+        or normalized_disposition == "workflow_failure"
+    )
+
+
+def _is_candidate_surface_result(
+    authority_result: str,
+    transition_disposition: str | None,
+) -> bool:
+    normalized_result = authority_result.strip().casefold()
+    normalized_disposition = (transition_disposition or "").strip().casefold()
+    return (
+        normalized_result in {"candidate_only", "legacy_shadow"}
+        or normalized_disposition in {"legacy_shadow", "candidate_only_ring2_withheld"}
+        or normalized_disposition.endswith("_candidate_only")
+    )
+
+
 def _normalize_code(value: str | None) -> str | None:
     return _optional_text(value)
 
@@ -1126,11 +1999,15 @@ __all__ = [
     "AuthorityFailureClassification",
     "AuthorityRole",
     "AuthorityRootCauseClass",
+    "AuthoritySurfaceDecision",
     "BlockingStatus",
     "EvidenceAuthorityEnvelope",
     "EvidenceClass",
     "GovernanceMetadata",
+    "OutcomeReplayLevelProof",
+    "OutcomeReplayProof",
     "ProducerIdentity",
+    "ProductionLoopRunProof",
     "ProvenanceKind",
     "SameInputClosure",
     "SameInputClosureStatus",
@@ -1143,6 +2020,8 @@ __all__ = [
     "authority_envelope_json_schema",
     "authority_envelope_ownership_issues",
     "authority_purpose_blockers",
+    "authority_surface_decision",
+    "build_outcome_replay_proof",
     "capability_binding_purpose_blockers",
     "classify_authority_failure",
     "classify_authority_role",

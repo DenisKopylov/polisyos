@@ -10,6 +10,7 @@ persists a frontier report plus the selected champion Trinity bundle.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any
 
@@ -200,11 +201,9 @@ class RunHierarchicalPolicySearchNode:
 
         adapter = HierarchicalPolicySearchAdapter()
         loop_id = str(state.params.get("policy_loop_id") or f"{state.run_id}:policy_search")
-        search_config = state.params.get("hierarchical_policy_search_config") or state.params.get(
-            "policy_search_config"
-        )
 
         try:
+            search_config = _runtime_search_config_from_state(state)
             search_result = adapter.run_search(
                 candidate,
                 loop_id=loop_id,
@@ -263,6 +262,32 @@ class RunHierarchicalPolicySearchNode:
         if frontier_ref is not None:
             artifacts.append(frontier_ref)
         return NodeOutcome(status="ok", state=new_state, artifacts=artifacts)
+
+
+def _runtime_search_config_from_state(state: ExperimentState) -> object:
+    raw = state.params.get("hierarchical_policy_search_config") or state.params.get(
+        "policy_search_config"
+    )
+    if raw is None:
+        return None
+    if isinstance(raw, Mapping):
+        require_explicit = raw.get("require_explicit_parameter_bounds")
+        legacy_shadow = raw.get("allow_legacy_shadow_inferred_bounds")
+        if require_explicit is False or legacy_shadow is True:
+            raise ValueError(
+                "runtime state params cannot enable legacy inferred bounds; "
+                "require_explicit_parameter_bounds=False and "
+                "allow_legacy_shadow_inferred_bounds=True are fenced from production."
+            )
+        return dict(raw)
+    require_explicit = getattr(raw, "require_explicit_parameter_bounds", None)
+    legacy_shadow = getattr(raw, "allow_legacy_shadow_inferred_bounds", None)
+    if require_explicit is False or legacy_shadow is True:
+        raise ValueError(
+            "runtime state params cannot enable legacy inferred bounds; "
+            "legacy shadow inferred bounds are fenced from production."
+        )
+    return raw
 
 
 def _resolve_search_candidate(

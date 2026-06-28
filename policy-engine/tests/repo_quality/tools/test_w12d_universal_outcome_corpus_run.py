@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 # ruff: noqa: S101
+import copy
 import json
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -271,6 +273,7 @@ def test_w12d_corpus_stub_mode_can_produce_useful_design_without_production_auth
     assert case["conversion_outcome"] == "not_attempted_g0_pre_adapter"
     assert case["layer3_g0_grounding_gate"]["counts_as_useful_design"] is False
     assert report["summary"]["grounded_conversion_count"] == 0
+    assert report["summary"]["grounded_conversion_count_source"] == "layer3_g5_conversion_gate"
     assert case["corpus_stub"]["max_authority_posture"] == "governed-pilot"
     assert "production_closeout_authority" in case["corpus_stub"]["may_not_use_for"]
 
@@ -283,6 +286,8 @@ def test_w12d_layer3_g0_blocks_all_corpus_conversion_without_useful_design_credi
 
     assert report["summary"]["case_count"] == 13
     assert report["summary"]["grounded_conversion_count"] == 0
+    assert report["summary"]["grounded_conversion_count_source"] == "layer3_g5_conversion_gate"
+    assert report["summary"]["layer3_g5_grounded_limited_count"] == 0
     assert report["summary"]["layer3_g0_pre_adapter_block_count"] == 13
     assert report["summary"]["first_vertical_corpus_case_id"] == (
         "ua-msme-affordable-loans-2022"
@@ -771,6 +776,7 @@ def test_w12d_real_producer_converts_capability_graph_blockers_to_actionable_evi
         "blocked_sample_size_below_floor",
         "blocked_rights_boundary",
         "blocked_authority_boundary",
+        "blocked_construct_not_observed",
     }
     assert all(not blocker["blocks_rollout_posture"] for blocker in report["typed_blockers"])
 
@@ -1087,6 +1093,7 @@ def test_w12d_cli_writes_report_for_existing_single_case(
     assert payload["cases"][0]["runtime_pdc_graph"]["status"] == "pass"
     assert payload["status"] == "pass"
     assert payload["summary"]["runtime_useful_design_rate"] == 0.0
+    assert payload["summary"]["layer3_g5_runtime_useful_design_credit_count"] == 0
     assert payload["cases"][0]["capability_graph_trace"]["s3_acquisition"][
         "terminal"
     ] == "closed_as_binding"
@@ -2056,10 +2063,10 @@ def test_w12d_layer3_g3_gate_does_not_overwrite_g0_g1_g2_or_useful_design(
     )
 
 
-def test_w12d_layer3_g5_red_baseline_missing_hook_keeps_pre_g5_grounded_count(
+def test_w12d_layer3_g5_hook_consumes_graded_route_for_grounded_count(
     w12d_s9_report: dict[str, object],
 ) -> None:
-    """P01/P02/P04 red baseline: G5 is absent until W12.D consumes the overlay."""
+    """P01/P02/P04: W12.D consumes the G5 overlay without mutating pre-G5 history."""
 
     pinned = next(
         dict(case)
@@ -2068,7 +2075,11 @@ def test_w12d_layer3_g5_red_baseline_missing_hook_keeps_pre_g5_grounded_count(
     )
 
     assert w12d_s9_report["summary"]["grounded_conversion_count"] == 0
+    assert w12d_s9_report["summary"]["grounded_conversion_count_source"] == (
+        "layer3_g5_conversion_gate"
+    )
     assert "layer3_g5_conversion_gate" in pinned
+    assert pinned["outcome"] == "typed_blocker"
 
 
 def test_w12d_layer3_g5_gate_is_inserted_after_g3_before_summary(
@@ -2108,9 +2119,279 @@ def test_w12d_layer3_g5_emits_pinned_case_conversion_classification(
     gate = dict(pinned["layer3_g5_conversion_gate"])
 
     assert gate["case_id"] == "ua-msme-affordable-loans-2022"
-    assert gate["status"] == "not_routed"
+    assert pinned["outcome"] == "typed_blocker"
+    assert pinned["counts_toward_useful_design"] is False
+    assert gate["status"] == "fail"
     assert gate["conversion_classification"] == "unchanged_blocker"
-    assert "layer3_g5_w12d_consumer_gate_missing" in gate["issue_codes"]
+    assert gate["status_composition_status"] == "missing"
+    assert gate["counts_toward_useful_design"] is False
+    assert gate["useful_design_credit_count"] == 0
+    assert gate["decision_grade"] == "unsupported"
+    assert gate["floor_relaxation_used"] is False
+    assert gate["limitation_refs"] == []
+    assert gate["may_not_use_for"] == []
+    assert not gate["genuine_partial_evidence_refs"]
+    assert "layer3_g5_missing_g2_forecast_support" in gate["issue_codes"]
+    assert "layer3_g5_missing_g3_proof_record" in gate["issue_codes"]
+    assert "layer3_g5_useful_design_rate_blocked_on_real_grounding" in gate["issue_codes"]
+
+
+def test_w12d_layer3_g5_current_committed_grounding_fails_validation(
+    w12d_s9_report: dict[str, object],
+) -> None:
+    """P29/P32: current UA cannot receive useful credit from fake grounding."""
+
+    case = next(
+        dict(case)
+        for case in w12d_s9_report["cases"]
+        if case["case_id"] == "ua-msme-affordable-loans-2022"
+    )
+    gate = dict(case["layer3_g5_conversion_gate"])
+    resolution = dict(gate["committed_grounding_resolution"])
+    g2_payload = json.loads(
+        (
+            REPO_ROOT
+            / "architecture/policy_design_case/layer3_g2_forecast_support_bindings.json"
+        ).read_text(encoding="utf-8")
+    )
+    g3_payload = json.loads(
+        (
+            REPO_ROOT
+            / "architecture/policy_design_case/layer3_g3_proof_carrying_analytics_records.json"
+        ).read_text(encoding="utf-8")
+    )
+
+    assert resolution["status"] == "fail"
+    assert resolution["source_hash_dereferenced"] is True
+    assert resolution["g2_record_bound_to_case"] is False
+    assert resolution["g3_record_bound_to_case"] is False
+    assert resolution["g2_record_substantial"] is False
+    assert resolution["g3_record_substantial"] is False
+    assert "layer3_g5_missing_g2_forecast_support" in resolution["issue_codes"]
+    assert "layer3_g5_missing_g3_proof_record" in resolution["issue_codes"]
+    assert resolution["forecast_support_ref"] not in {
+        row["s10_forecast_support_ref"]
+        for row in g2_payload["forecast_support_bindings"]
+        if row["status"] == "pass"
+    }
+    assert resolution["proof_ref"] not in {
+        row["proof_ref"]
+        for row in g3_payload["proof_carrying_analytics_records"]
+        if row["status"] == "pass"
+    }
+
+
+def test_w12d_layer3_g5_grounding_gate_is_general_not_case_pinned(
+    w12d_s9_report: dict[str, object],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """P31/P33: committed grounding, not case id, controls graded conversion."""
+
+    case = next(
+        copy.deepcopy(case)
+        for case in w12d_s9_report["cases"]
+        if case["case_id"] == "ua-msme-affordable-loans-2022"
+    )
+    case.pop("layer3_g5_conversion_gate", None)
+    case["case_id"] = "second-grounded-partial-probe"
+    case["layer3_g2_forecast_gate"]["case_id"] = case["case_id"]
+    case["layer3_g3_analytics_search_gate"]["case_id"] = case["case_id"]
+    source_payload = json.loads((REPO_ROOT / case["source_path"].removeprefix("repo://")).read_text())
+    source_hash = source_payload["redacted_source_hash"]
+    forecast_ref = "pdc://layer3/g2/second-grounded-partial-probe/forecast-support/w12d"
+    calibration_ref = "pdc://layer3/g2/second-grounded-partial-probe/calibration/w12d"
+    uncertainty_ref = "interval://second-grounded-partial-probe/credit-access/95"
+    proof_ref = "pdc://layer3/g3/second-grounded-partial-probe/proof/content-bound"
+    proof_hash = "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+    skg_claim_ref = "skg-claim://second-grounded-partial-probe/validated"
+    skg_transport_ref = "skg-transport://second-grounded-partial-probe/validated"
+    case["layer3_g2_forecast_gate"]["forecast_support_refs"] = [forecast_ref]
+    case["layer3_g2_forecast_gate"]["consumed_forecast_posture_refs"] = [forecast_ref]
+    case["layer3_g2_forecast_gate"]["forecast_calibration_record_refs"] = [calibration_ref]
+    case["layer3_g2_forecast_gate"]["uncertainty_interval_refs"] = [uncertainty_ref]
+    case["layer3_g3_analytics_search_gate"]["g3_proof_carrying_analytics_ref"] = proof_ref
+    case["layer3_g3_analytics_search_gate"]["g3_ir_analytics_bridge_ref"] = proof_hash
+
+    g5 = __import__(
+        "polisyos.runtime.quality.proving_ground.proving_ground_conversion",
+        fromlist=["_read_optional_json"],
+    )
+    original_read_optional_json = g5._read_optional_json
+
+    def fake_read_optional_json(repo_root: Path, relative_path: Path) -> dict[str, Any] | None:
+        payload = original_read_optional_json(repo_root, relative_path)
+        if relative_path.name == "layer3_g2_forecast_support_bindings.json":
+            payload = copy.deepcopy(payload or {"forecast_support_bindings": []})
+            payload["forecast_support_bindings"].append(
+                {
+                    "binding_id": "g2-second-grounded-partial-probe",
+                    "status": "pass",
+                    "request_ref": "g2-request:second-grounded-partial-probe",
+                    "s10_forecast_support_ref": forecast_ref,
+                    "s10_forecast_tier": "observable_calibrated",
+                    "s10_forecast_support": {
+                        "case_id": case["case_id"],
+                        "forecast_support_ref": forecast_ref,
+                        "source_hash": source_hash,
+                        "uncertainty_interval_refs": [uncertainty_ref],
+                    },
+                    "calibration_record_ref": calibration_ref,
+                    "calibration_record": {
+                        "case_id": case["case_id"],
+                        "forecast_support_ref": forecast_ref,
+                        "source_hash": source_hash,
+                        "status": "pass",
+                    },
+                    "calibration_attempt": {
+                        "case_id": case["case_id"],
+                        "forecast_support_ref": forecast_ref,
+                        "observed_source_hashes": [source_hash],
+                        "producer_ref": (
+                            "polisyos.runtime.quality.design_axes.outcome_prediction."
+                            "build_forecast_calibration_record"
+                        ),
+                        "status": "pass",
+                    },
+                    "authority_envelope": {
+                        "case_id": case["case_id"],
+                        "source_hash": source_hash,
+                        "decision_grade": "descriptive_only",
+                        "may_not_use_for": ["production_authority"],
+                    },
+                    "skg_claim_refs": [skg_claim_ref],
+                    "skg_transport_refs": [skg_transport_ref],
+                }
+            )
+        if relative_path.name == "layer3_g2_l2_skg_search_ledgers.json":
+            payload = {
+                "l2_skg_search_ledgers": [
+                    {
+                        "ledger_id": "g2-skg-search-ledger:second-grounded-partial-probe",
+                        "status": "pass",
+                        "result_count": 2,
+                        "selected_candidate_refs": [skg_claim_ref, skg_transport_ref],
+                    }
+                ]
+            }
+        if relative_path.name == "layer3_g2_l2_skg_query_traces.json":
+            payload = {
+                "l2_skg_query_traces": [
+                    {
+                        "trace_id": "g2-skg-query-trace:second-grounded-partial-probe",
+                        "result_count": 2,
+                        "row_refs": [skg_claim_ref, skg_transport_ref],
+                    }
+                ]
+            }
+        if relative_path.name == "layer3_g2_transport_limit_declarations.json":
+            payload = {
+                "transport_limit_declarations": [
+                    {
+                        "declaration_id": "g2-transport-limit:second-grounded-partial-probe",
+                        "status": "pass",
+                        "transport_status": "limited",
+                        "forecast_support_refs": [forecast_ref],
+                        "forecast_support_binding_refs": [
+                            "g2-second-grounded-partial-probe"
+                        ],
+                        "skg_transport_score_refs": [skg_transport_ref],
+                        "transport_confidence_by_ref": {skg_transport_ref: 0.72},
+                    }
+                ]
+            }
+        if relative_path.name == "layer3_g3_proof_carrying_analytics_records.json":
+            payload = copy.deepcopy(payload)
+            payload["proof_carrying_analytics_records"].append(
+                {
+                    "binding_id": "g3-second-grounded-partial-probe",
+                    "status": "pass",
+                    "request_ref": "g3-request:second-grounded-partial-probe",
+                    "claim_id": "claim-second-grounded-partial-probe",
+                    "proof_ref": proof_ref,
+                    "ir_certificate_refs": [proof_hash],
+                    "s11_record": {
+                        "case_id": case["case_id"],
+                        "claim_id": "claim-second-grounded-partial-probe",
+                        "proof_id": "proof.second-grounded-partial-probe",
+                        "proof_ref": proof_ref,
+                        "proof_status": "validated",
+                        "authority_boundary": {
+                            "authoritative_for": ["proof_carrying_analytics_validity"],
+                            "may_not_use_for": ["production_authority"],
+                        },
+                        "ir_certificate_refs": [proof_hash],
+                        "source_lineage_refs": [source_hash, proof_hash],
+                    },
+                }
+            )
+        if relative_path.name == "layer3_g3_ir_artifact_store_index.json":
+            payload = {
+                "ir_artifact_store_index": {
+                    "status": "pass",
+                    "indexed_artifact_refs": [proof_hash],
+                    "payload_fingerprint_refs": [proof_hash],
+                }
+            }
+        if relative_path.name == "layer3_g3_certificate_resolution_report.json":
+            payload = {
+                "certificate_resolution_report": {
+                    "status": "pass",
+                    "payload_fingerprint_refs": [proof_hash],
+                    "records": [
+                        {
+                            "status": "resolved",
+                            "payload_fingerprint_ref": proof_hash,
+                            "artifact_id": proof_hash,
+                            "typed_payload_kind": "ProofBundle",
+                            "positive_proof_closure": True,
+                        }
+                    ],
+                }
+            }
+        return payload
+
+    monkeypatch.setattr(g5, "_read_optional_json", fake_read_optional_json)
+
+    grounded = w12d._with_layer3_g5_conversion_gate(
+        case,
+        case_index=99,
+        case_ids=[case["case_id"]],
+        repo_root=REPO_ROOT,
+    )
+    grounded_gate = dict(grounded["layer3_g5_conversion_gate"])
+
+    assert grounded_gate["case_id"] == "second-grounded-partial-probe"
+    assert grounded_gate["conversion_classification"] == "typed_blocker -> grounded_limited"
+    assert grounded_gate["counts_toward_useful_design"] is True
+    assert grounded_gate["committed_grounding_resolution"]["status"] == "pass"
+    assert grounded_gate["committed_grounding_resolution"]["g2_record_bound_to_case"] is True
+    assert grounded_gate["committed_grounding_resolution"]["g3_record_bound_to_case"] is True
+    assert grounded_gate["committed_grounding_resolution"]["g2_record_substantial"] is True
+    assert grounded_gate["committed_grounding_resolution"]["g3_record_substantial"] is True
+    assert "layer3_g5_non_pinned_case_widening_attempt" not in grounded_gate["issue_codes"]
+
+    ungrounded = copy.deepcopy(case)
+    ungrounded.pop("layer3_g5_conversion_gate", None)
+    ungrounded["case_id"] = "same-shape-ungrounded-probe"
+    ungrounded["layer3_g2_forecast_gate"]["forecast_support_refs"] = [
+        "pdc://layer3/g2/uncommitted/forecast-support"
+    ]
+    ungrounded["layer3_g3_analytics_search_gate"][
+        "g3_proof_carrying_analytics_ref"
+    ] = "pdc://layer3/g3/uncommitted/proof"
+
+    blocked = w12d._with_layer3_g5_conversion_gate(
+        ungrounded,
+        case_index=100,
+        case_ids=[ungrounded["case_id"]],
+        repo_root=REPO_ROOT,
+    )
+    blocked_gate = dict(blocked["layer3_g5_conversion_gate"])
+
+    assert blocked_gate["status"] == "fail"
+    assert blocked_gate["conversion_classification"] == "unchanged_blocker"
+    assert blocked_gate["counts_toward_useful_design"] is False
+    assert "layer3_g5_ungrounded_case_not_gradeable" in blocked_gate["issue_codes"]
 
 
 def test_w12d_layer3_g5_grounded_conversion_count_is_g5_owned(
@@ -2220,6 +2501,9 @@ def test_w12d_layer3_g5_preserves_runtime_vs_expert_useful_design_metrics(
 
     assert summary["runtime_useful_design_count"] == summary["useful_design_count"]
     assert summary["expert_useful_design_ceiling_count"] >= summary["runtime_useful_design_count"]
+    assert summary["runtime_useful_design_count"] == 0
+    assert summary["runtime_useful_design_rate"] == 0.0
+    assert summary["layer3_g5_grounded_limited_count"] == 0
     assert summary["layer3_g5_runtime_useful_design_credit_count"] == 0
     assert "layer3_g5_expert_useful_design_ceiling_count" not in summary
 

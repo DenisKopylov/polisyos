@@ -1,0 +1,24 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gx_data_home_cases.v1",
+  "rule_version": "policyos.layer3.gx.data_home.v1",
+  "default_case_ref": "ua-msme",
+  "cases": [
+    {
+      "case_id": "ua-msme-affordable-loans-2022",
+      "aliases": [
+        "ua-msme",
+        "default"
+      ],
+      "data_home_path": "architecture/policy_design_case/layer3_gx_data_home/cases/ua-msme-affordable-loans-2022",
+      "report_path": "architecture/policy_design_case/layer3_gx_reports/ua-msme-affordable-loans-2022"
+    },
+    {
+      "case_id": "tourism_local_development_ceiling_probe",
+      "aliases": [
+        "tourism"
+      ],
+      "data_home_path": "architecture/policy_design_case/layer3_gx_data_home/cases/tourism_local_development_ceiling_probe",
+      "report_path": "architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe"
+    }
+  ]
+}

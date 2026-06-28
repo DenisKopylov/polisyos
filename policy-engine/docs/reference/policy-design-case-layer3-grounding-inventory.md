@@ -1,14 +1,14 @@
 # Policy Design Case Layer 3 Grounding Inventory
 
 Owner: `team-runtime-quality`
-Source of truth: `src/polisyos/runtime/quality/layer3_grounding_inventory.py`, `tools/quality/validation/check_policy_design_case_layer3_g0_readiness.py`, and `architecture/policy_design_case/layer3_g0_readiness_manifest.json`
+Source of truth: `src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py`, `tools/quality/validation/check_policy_design_case_layer3_g0_readiness.py`, and `architecture/policy_design_case/layer3_g0_readiness_manifest.json`
 Review owner: `principal-governance`
 Status: `active_pre_adapter_audit_surface`
 Schema version: `policyos.policy_design_case.layer3_g0_discovery_search.v2`
 Rule version: `policyos.layer3.g0.discovery_search_free_growth.v2`
 
 This page is the public audit surface for the Layer 3 G0 grounding inventory.
-The producer is `src/polisyos/runtime/quality/layer3_grounding_inventory.py`;
+The producer is `src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py`;
 the runtime check is `validate_layer3_g0_bundle(repo_root, persisted)`.
 
 G0 is a pre-adapter discipline. It may inventory current sources, derive ports,

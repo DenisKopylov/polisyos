@@ -18,6 +18,12 @@ from urllib.parse import urlsplit
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts.control import policy_authority_profile_mapping
+from polisyos.core.security.quality_gates import (
+    SECURITY_ASSURANCE_REPORT_REF_KEY,
+    SECURITY_REPORT_FILE,
+    build_security_assurance_report,
+    redact_sensitive_text,
+)
 from polisyos.data_forge import build_privacy_compliance_report
 from polisyos.foundry.validation.causal_validity import (
     build_causal_statistical_validity_report,
@@ -74,7 +80,7 @@ from polisyos.runtime.quality.evidence_synthesis import (
     build_evidence_synthesis_report,
 )
 from polisyos.runtime.quality.human_review import build_human_review_calibration_report
-from polisyos.runtime.quality.legacy_migration_sandbox import (
+from polisyos.runtime.quality.legacy_payload_migration_audit import (
     build_legacy_migration_sandbox,
     legacy_compatible_payload,
     persist_legacy_migration_sandbox_report,
@@ -120,12 +126,6 @@ from polisyos.runtime.quality.scorecard import (
     scorecard_control_progress,
 )
 from polisyos.runtime.quality.semantic_binding import build_semantic_binding_ledger
-from polisyos.core.security.quality_gates import (
-    SECURITY_ASSURANCE_REPORT_REF_KEY,
-    SECURITY_REPORT_FILE,
-    build_security_assurance_report,
-    redact_sensitive_text,
-)
 from polisyos.scientist.artifacts.decision_compiler import (
     DecisionArtifactCompilationError,
     compile_draft_decision_packet,
@@ -955,6 +955,34 @@ def _first_valid_authority_envelope(
     return envelopes[0] if envelopes else None
 
 
+def _public_runtime_orchestration_continuity_projection(
+    quality_evidence_payload: dict[str, Any],
+) -> dict[str, Any] | None:
+    continuity = quality_evidence_payload.get(NL_REPLAY_ORCHESTRATION_RECORD_KEY)
+    if not isinstance(continuity, dict):
+        return None
+    summary = continuity.get("summary")
+    summary = summary if isinstance(summary, dict) else {}
+    return {
+        "schema_version": continuity.get("schema_version"),
+        "status": continuity.get("status"),
+        "carrier_ref": continuity.get("carrier_ref"),
+        "concept_spine_ref": continuity.get("concept_spine_ref"),
+        "jurisdiction_spine_ref": continuity.get("jurisdiction_spine_ref"),
+        "runtime_claim_registry_ref": continuity.get("runtime_claim_registry_ref"),
+        "producer_handshake_ledger_ref": continuity.get("producer_handshake_ledger_ref"),
+        "handoff_ref_count": int(summary.get("handoff_ref_count") or 0),
+        "producer_binding_ref_count": int(summary.get("producer_binding_ref_count") or 0),
+        "authority_role": "projection_only",
+        "may_not_use_for": [
+            "producer_domain_truth",
+            "runtime_closeout_authority",
+            "scorecard_authority",
+            "approval_authority",
+        ],
+    }
+
+
 def _public_export_bundle_from_quality_evidence(
     *,
     run_id: Any,
@@ -963,8 +991,8 @@ def _public_export_bundle_from_quality_evidence(
 ) -> dict[str, Any]:
     scorecard = quality_scorecard or {}
     artifacts: dict[str, Any] = {
-        "runtime_orchestration_continuity": quality_evidence_payload.get(
-            NL_REPLAY_ORCHESTRATION_RECORD_KEY
+        "runtime_orchestration_continuity": _public_runtime_orchestration_continuity_projection(
+            quality_evidence_payload
         ),
         "producer_pipeline": quality_evidence_payload.get("producer_pipeline"),
         "producer_handshake_ledger": quality_evidence_payload.get("producer_handshake_ledger"),

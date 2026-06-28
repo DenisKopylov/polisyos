@@ -107,14 +107,16 @@
       "layer3_g3_replay_record_missing",
       "layer3_g3_import_laziness_violation"
     ],
-    "issue_codes": [],
+    "issue_codes": [
+      "layer3_g3_w12d_consumer_gate_missing"
+    ],
     "missing_replay_refs": [],
     "module_load_check_status": "pass",
     "performance_check_status": "pass",
     "record_id": "layer3-g3-conformance-report",
     "replay_check_status": "pass",
     "replayed_certificate_count": 1,
-    "status": "pass"
+    "status": "fail"
   },
   "rule_version": "policyos.layer3.g3.analytics_search.v1",
   "schema_version": "policyos.policy_design_case.layer3_g3_analytics_search.v1"

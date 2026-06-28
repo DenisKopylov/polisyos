@@ -7,11 +7,11 @@ import hashlib
 import json
 import os
 import threading
-from collections.abc import Callable, Mapping
+from collections.abc import Awaitable, Callable, Mapping
 from copy import deepcopy
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, cast
+from typing import Any, Protocol, cast
 
 from polisyos.common.async_tools import run_blocking_async
 from polisyos.common.logger import get_logger
@@ -45,10 +45,10 @@ from polisyos.runtime.http.services.control.production_data import (
     build_production_data_fabric_trace as _build_production_data_fabric_trace,
 )
 from polisyos.runtime.http.services.control.production_data import (
-    production_data_evidence_context as _production_data_evidence_context,
+    production_data_contract_binding_report as _production_data_contract_binding_report,
 )
 from polisyos.runtime.http.services.control.production_data import (
-    production_data_contract_binding_report as _production_data_contract_binding_report,
+    production_data_evidence_context as _production_data_evidence_context,
 )
 from polisyos.runtime.http.services.control.production_data import (
     production_data_quality_report as _build_production_data_quality_report,
@@ -65,6 +65,10 @@ from polisyos.runtime.http.services.control.response_shapes import (
 from polisyos.runtime.quality.attestation import (
     build_required_production_attestations,
     serialize_attestation_record,
+)
+from polisyos.runtime.quality.design_problem import (
+    DesignProblem,
+    DesignProblemAuthorityError,
 )
 from polisyos.runtime.quality.evidence_spine import (
     EvidenceSpineCarrier,
@@ -97,6 +101,7 @@ _CAUSAL_VALIDITY_CASES_PATH = (
     Path(__file__).resolve().parents[6]
     / "tests/_golden/foundry/causal_validity/cases.json"
 )
+_DESIGN_PROBLEM_TOOL_NAME = "emit_design_problem"
 _PROMOTED_CONTEXT_PARAM_KEYS = frozenset(
     {
         "source_context",
@@ -133,6 +138,369 @@ _PROMOTED_CONTEXT_PARAM_KEYS = frozenset(
         "ukraine_method_contract_bundle_dir",
     }
 )
+
+
+class _DesignProblemGatewayClient(Protocol):
+    async def list_model_ids(self, *, timeout: float | None = None) -> list[str]:
+        """Return gateway model ids available for the preflight."""
+        ...
+
+    async def generate(
+        self,
+        *,
+        messages: list[Mapping[str, object]] | None = None,
+        system: str | None = None,
+        user: str | None = None,
+        tools: list[Mapping[str, object]] | None = None,
+        tool_choice: Mapping[str, object] | str | None = None,
+        temperature: float | None = None,
+        seed: int | None = None,
+        max_tokens: int | None = None,
+        timeout_s: float | None = None,
+    ) -> object:
+        """Return one gateway completion."""
+        ...
+
+
+class _SpanSupportVerifierClient(Protocol):
+    async def generate(
+        self,
+        *,
+        messages: list[Mapping[str, object]] | None = None,
+        system: str | None = None,
+        user: str | None = None,
+        tools: list[Mapping[str, object]] | None = None,
+        tool_choice: Mapping[str, object] | str | None = None,
+        temperature: float | None = None,
+        seed: int | None = None,
+        max_tokens: int | None = None,
+        timeout_s: float | None = None,
+    ) -> object:
+        """Return one span-support verifier completion."""
+        ...
+
+
+async def build_design_problem_from_nl_request(
+    *,
+    nl_request: str,
+    context: Mapping[str, Any],
+    model_name: str,
+    gateway_client: _DesignProblemGatewayClient | None = None,
+    span_support_client: _SpanSupportVerifierClient | None = None,
+) -> DesignProblem:
+    """Produce a validated DesignProblem through gateway tool-calling.
+
+    Args:
+        nl_request: Raw natural-language policy-design request.
+        context: Runtime control context captured with the request.
+        model_name: Gateway model id requested for the structured extraction.
+        gateway_client: Optional prebuilt gateway client, used by tests and by
+            runtime callers that already constructed a traced client.
+        span_support_client: Optional GY-K span-support verifier client for
+            deterministic tests. Production leaves this unset so the
+            citation-faithfulness owner constructs the live bounded-agent judge.
+
+    Returns:
+        A strict, semantically validated ``DesignProblem``.
+
+    Raises:
+        DesignProblemAuthorityError: If the model is unsupported, the gateway
+            does not use tool-calling, or the returned structure invents
+            unsupported admissibility.
+    """
+
+    owns_client = gateway_client is None
+    client = gateway_client
+    if client is None:
+        client = create_traced_gateway_client(model_name=model_name)
+    if client is None:
+        raise DesignProblemAuthorityError(
+            "design_problem_gateway_missing",
+            "DesignProblem construction requires a gateway-backed model client.",
+        )
+    try:
+        await _preflight_design_problem_model(client=client, model_name=model_name)
+        response = await client.generate(
+            system=(
+                "Extract one PolicyOS DesignProblem. Use only the provided request and "
+                "authority context. Do not invent constraints, admissibility, mandate, "
+                "jurisdiction, evidence, or value authority."
+            ),
+            user=json.dumps(
+                {
+                    "raw_request": nl_request,
+                    "context": dict(context),
+                    "required_semantics": {
+                        "llm_output": "candidate_only",
+                        "constraints": (
+                            "must cite request_text, authority_profile, or producer_evidence"
+                        ),
+                    },
+                },
+                sort_keys=True,
+                ensure_ascii=True,
+            ),
+            tools=[
+                {
+                    "type": "function",
+                    "function": {
+                        "name": _DESIGN_PROBLEM_TOOL_NAME,
+                        "description": (
+                            "Emit the canonical PolicyOS DesignProblem bridge. Every "
+                            "constraint must include admissibility_basis and source_text "
+                            "or evidence_ref."
+                        ),
+                        "parameters": _inline_json_schema_refs(DesignProblem.model_json_schema()),
+                    },
+                }
+            ],
+            tool_choice={"type": "function", "function": {"name": _DESIGN_PROBLEM_TOOL_NAME}},
+            temperature=0.0,
+        )
+        tool_calls = list(getattr(response, "tool_calls", None) or [])
+        matching_calls = [
+            call
+            for call in tool_calls
+            if getattr(call, "name", "") == _DESIGN_PROBLEM_TOOL_NAME
+        ]
+        if len(matching_calls) != 1:
+            raise DesignProblemAuthorityError(
+                "design_problem_tool_call_missing",
+                "Gateway response must contain exactly one emit_design_problem tool call.",
+            )
+        arguments = getattr(matching_calls[0], "arguments", None)
+        if not isinstance(arguments, Mapping):
+            raise DesignProblemAuthorityError(
+                "design_problem_tool_arguments_invalid",
+                "DesignProblem tool call arguments must be an object.",
+            )
+        payload = _merge_design_problem_runtime_context(
+            dict(arguments),
+            nl_request=nl_request,
+            context=context,
+        )
+        try:
+            problem = DesignProblem.model_validate(payload)
+        except ValueError as exc:
+            raise DesignProblemAuthorityError(
+                "design_problem_validation_failed", str(exc)
+            ) from exc
+        _assert_design_problem_admissibility_grounded(
+            problem,
+            span_support_client=span_support_client,
+        )
+        return problem
+    finally:
+        if owns_client:
+            await _close_llm_client(client)
+
+
+async def _preflight_design_problem_model(
+    *,
+    client: _DesignProblemGatewayClient,
+    model_name: str,
+) -> None:
+    if not hasattr(client, "list_model_ids"):
+        raise DesignProblemAuthorityError(
+            "design_problem_model_preflight_missing",
+            "Gateway client must expose /models preflight.",
+        )
+    try:
+        live_model_ids = await client.list_model_ids(timeout=10.0)
+    except Exception as exc:
+        raise DesignProblemAuthorityError(
+            "design_problem_model_preflight_failed",
+            str(exc),
+        ) from exc
+    normalized = {str(item).casefold(): str(item) for item in live_model_ids}
+    if model_name.casefold() not in normalized:
+        raise DesignProblemAuthorityError(
+            "design_problem_model_profile_unsupported",
+            f"Gateway /models does not list requested model: {model_name}",
+        )
+
+
+def _inline_json_schema_refs(schema: Mapping[str, Any]) -> dict[str, Any]:
+    """Inline local JSON-schema ``$ref``/``$defs`` for gateway tool schemas."""
+
+    root = deepcopy(dict(schema))
+
+    def _resolve_pointer(ref: str) -> object:
+        if not ref.startswith("#/"):
+            raise ValueError(f"unsupported_json_schema_ref:{ref}")
+        current: object = root
+        for part in ref.removeprefix("#/").split("/"):
+            key = part.replace("~1", "/").replace("~0", "~")
+            if not isinstance(current, Mapping) or key not in current:
+                raise ValueError(f"unknown_json_schema_ref:{ref}")
+            current = current[key]
+        return current
+
+    def _inline(value: object, seen: tuple[str, ...] = ()) -> object:
+        if isinstance(value, list):
+            return [_inline(item, seen) for item in value]
+        if not isinstance(value, Mapping):
+            return value
+        if "$ref" in value:
+            ref = str(value["$ref"])
+            if ref in seen:
+                raise ValueError(f"recursive_json_schema_ref:{ref}")
+            resolved = _inline(deepcopy(_resolve_pointer(ref)), (*seen, ref))
+            siblings = {
+                key: item
+                for key, item in value.items()
+                if key not in {"$ref", "$defs", "definitions"}
+            }
+            if siblings and isinstance(resolved, dict):
+                merged = {**resolved, **_inline(siblings, seen)}
+                return merged
+            return resolved
+        return {
+            str(key): _inline(item, seen)
+            for key, item in value.items()
+            if key not in {"$defs", "definitions"}
+        }
+
+    inlined = _inline(root)
+    if not isinstance(inlined, dict):
+        raise ValueError("json_schema_inline_result_not_object")
+    return inlined
+
+
+def _assert_design_problem_admissibility_grounded(
+    problem: DesignProblem,
+    *,
+    span_support_client: _SpanSupportVerifierClient | None,
+) -> None:
+    """Fail closed unless admitted constraints are entailed by bound source spans."""
+
+    from polisyos.scientist.validation.citation_faithfulness import (
+        evaluate_span_claim_entailment,
+    )
+
+    source_bodies = {
+        "request_text": problem.nl_provenance.raw_request,
+        "authority_profile": " ".join(
+            (
+                problem.authority_profile.requester_authority,
+                problem.authority_profile.mandate,
+                " ".join(problem.authority_profile.authority_refs),
+            )
+        ),
+    }
+    for constraint in problem.constraints:
+        if constraint.admissibility_basis == "producer_evidence":
+            continue
+        source_text = constraint.source_text or ""
+        source_body = source_bodies.get(constraint.admissibility_basis, "")
+        if _normalize_design_problem_text(source_text) not in _normalize_design_problem_text(
+            source_body
+        ):
+            raise DesignProblemAuthorityError(
+                "design_problem_admissibility_unverified",
+                (
+                    f"invented_admissibility:{constraint.constraint_id}:"
+                    f"source_span_unbound:{constraint.admissibility_basis}"
+                ),
+            )
+        evidence_ref = (
+            f"design-problem://{problem.design_problem_id}/"
+            f"{constraint.admissibility_basis}/{constraint.constraint_id}"
+        )
+        result = evaluate_span_claim_entailment(
+            claim={
+                "claim_id": f"design_problem.constraint.{constraint.constraint_id}",
+                "claim_family": "causal",
+                "claim_text": constraint.description,
+                "direction": "positive",
+                "data_refs": [evidence_ref],
+                "source_attribution": evidence_ref,
+                "method_refs": [evidence_ref],
+                "identification_strategy": "source_bound_constraint_span",
+                "citation_refs": [evidence_ref],
+            },
+            evidence={
+                "ref_id": evidence_ref,
+                "source_id": problem.nl_provenance.source_surface,
+                "section": constraint.admissibility_basis,
+                "text": source_text,
+                "source_content_sha256": hashlib.sha256(
+                    source_text.encode("utf-8")
+                ).hexdigest(),
+            },
+            client=span_support_client,
+        )
+        if result.get("status") != "pass" or result.get("label") != "supports":
+            reason_codes = ",".join(str(item) for item in result.get("reason_codes") or [])
+            raise DesignProblemAuthorityError(
+                "design_problem_admissibility_unverified",
+                (
+                    f"invented_admissibility:{constraint.constraint_id}:"
+                    f"{reason_codes or 'span_support_unverified'}"
+                ),
+            )
+
+
+def _normalize_design_problem_text(value: object) -> str:
+    return " ".join(str(value or "").casefold().split())
+
+
+def _merge_design_problem_runtime_context(
+    payload: dict[str, Any],
+    *,
+    nl_request: str,
+    context: Mapping[str, Any],
+) -> dict[str, Any]:
+    merged = dict(payload)
+    provenance = dict(merged.get("nl_provenance") or {})
+    provenance["raw_request"] = nl_request
+    provenance.setdefault("source_surface", "runtime.control.nl_request")
+    source_context = dict(provenance.get("source_context") or {})
+    for key in ("run_id", "job_id", "tenant_id", "cell_id", "as_of"):
+        value = context.get(key)
+        if value is not None:
+            source_context.setdefault(key, value)
+    provenance["source_context"] = source_context
+    merged["nl_provenance"] = provenance
+
+    authority_level = _design_problem_authority_level(context.get("requested_authority_level"))
+    authority = dict(merged.get("authority_profile") or {})
+    authority.setdefault("requester_authority", authority_level)
+    authority.setdefault(
+        "requested_authority_level",
+        authority_level,
+    )
+    authority.setdefault(
+        "mandate",
+        str(context.get("mandate") or "runtime captured requester intent"),
+    )
+    merged["authority_profile"] = authority
+
+    jurisdiction_time = dict(merged.get("jurisdiction_time") or {})
+    jurisdiction_time.setdefault("region", str(context.get("jurisdiction") or "unspecified"))
+    jurisdiction_time.setdefault(
+        "valid_time",
+        str(context.get("policy_time") or context.get("as_of") or "unspecified"),
+    )
+    jurisdiction_time.setdefault(
+        "as_of",
+        str(context.get("as_of") or jurisdiction_time["valid_time"]),
+    )
+    jurisdiction_time.setdefault("policy_time", str(context.get("policy_time") or "unspecified"))
+    jurisdiction_time.setdefault("data_time", str(context.get("data_time") or "unspecified"))
+    merged["jurisdiction_time"] = jurisdiction_time
+    return merged
+
+
+def _design_problem_authority_level(value: object) -> str:
+    normalized = str(value or "research").strip().casefold()
+    if normalized in {"production", "binding", "publishable"}:
+        return "production"
+    if normalized in {"governed", "serious", "high_stakes", "review_required"}:
+        return "governed"
+    return "research"
+
+
 _NESTED_CONTEXT_PARAM_KEYS = (
     "scientist_params",
     "scientist",
@@ -177,7 +545,7 @@ _METRIC_NESTED_PAYLOAD_KEYS = frozenset(
 )
 
 
-def _clean_runtime_text(value: Any) -> str | None:
+def _clean_runtime_text(value: object) -> str | None:
     if value is None:
         return None
     text = str(value).strip()
@@ -431,7 +799,7 @@ def _is_serious_execution_profile(value: str | None) -> bool:
     return str(value or "").strip().lower() in _SERIOUS_EXECUTION_PROFILES
 
 
-def _copy_promotable_param(value: Any) -> Any:
+def _copy_promotable_param(value: object) -> object:
     if isinstance(value, Mapping):
         return {str(key): deepcopy(item) for key, item in value.items()}
     if isinstance(value, list):
@@ -484,7 +852,7 @@ def _requires_local_production_data_lane(
     return bool("use_production_data_materialization" in tokens)
 
 
-def _first_country_code(context_profile: Any) -> str | None:
+def _first_country_code(context_profile: object) -> str | None:
     if not isinstance(context_profile, Mapping):
         return None
     countries = context_profile.get("countries")
@@ -500,7 +868,7 @@ def _first_country_code(context_profile: Any) -> str | None:
     return None
 
 
-def _context_year(context_profile: Any) -> int | None:
+def _context_year(context_profile: object) -> int | None:
     if not isinstance(context_profile, Mapping):
         return None
     raw_year = context_profile.get("publication_year")
@@ -591,13 +959,13 @@ def _build_scientist_context_params(
 
 
 def _canonicalize_runtime_metric_payload(
-    value: Any,
+    value: object,
     *,
     taxonomy: ProductionMetricTaxonomy,
     diagnostics: list[dict[str, Any]],
     fail_unknown: bool,
     path: str,
-) -> Any:
+) -> object:
     if isinstance(value, Mapping):
         payload = {str(key): deepcopy(item) for key, item in value.items()}
         for key, item in list(payload.items()):
@@ -645,7 +1013,7 @@ def _canonicalize_runtime_metric_payload(
     return deepcopy(value)
 
 
-async def _close_llm_client(client: Any | None) -> None:
+async def _close_llm_client(client: object | None) -> None:
     if client is None:
         return
     close = getattr(client, "aclose", None)
@@ -899,7 +1267,7 @@ def _final_policy_claim_extraction_failure(
     }
 
 
-def _trinity_schema_healing_notes(bundle: Any) -> list[str]:
+def _trinity_schema_healing_notes(bundle: object) -> list[str]:
     model_spec = getattr(bundle, "model_spec", None)
     raw_notes = getattr(model_spec, "notes", None)
     if not isinstance(raw_notes, list | tuple):
@@ -1067,11 +1435,11 @@ def _nl_pipeline_timeout_seconds() -> float:
     return max(timeout, 1.0)
 
 
-def _enum_value(value: Any) -> Any:
+def _enum_value(value: object) -> object:
     return getattr(value, "value", value)
 
 
-def _artifact_id_from_ref_payload(value: Any) -> str | None:
+def _artifact_id_from_ref_payload(value: object) -> str | None:
     if isinstance(value, Mapping):
         artifact_id = value.get("artifact_id")
         if isinstance(artifact_id, str) and artifact_id:
@@ -1104,7 +1472,7 @@ def _foundry_method_report_ref_from_state_payload(value: Mapping[str, Any]) -> s
     return None
 
 
-def _serialize_critique_report(critique: Any) -> dict[str, Any]:
+def _serialize_critique_report(critique: object) -> dict[str, Any]:
     issues = []
     for issue in getattr(critique, "issues", []) or []:
         issues.append(
@@ -1153,7 +1521,7 @@ class NaturalLanguageRunMixin:
         execution_profile: str | None = None,
         capability_manifest_ref: str | None = None,
         allow_mock_fallback: bool = True,
-        capability_manifest_updater: Any | None = None,
+        capability_manifest_updater: Callable[[list[str]], str] | None = None,
         provider_preflight_payload: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """Run agent circuit synchronously for a durable control-plane job."""
@@ -1214,13 +1582,19 @@ class NaturalLanguageRunMixin:
                 build_capability_duty_record,
                 build_capability_selection_ledger,
                 build_policy_design_case_concept_spine,
-                build_policy_design_jurisdiction_spine,
                 build_policy_design_case_profile,
+                build_policy_design_jurisdiction_spine,
                 build_policy_intent_envelope,
+            )
+            from polisyos.runtime.quality.claim_registry import (
+                build_runtime_claim_registry,
             )
             from polisyos.runtime.quality.data_quality import (
                 DIAGNOSTIC_KEYS,
                 PRODUCTION_DATA_QUALITY_REF_KEY,
+            )
+            from polisyos.runtime.quality.policy_design_case import (
+                compile_policy_design_case_runtime_record_families,
             )
             from polisyos.runtime.quality.prompt_tool_ledger import (
                 PROMPT_TOOL_LEDGER_KIND,
@@ -1232,12 +1606,6 @@ class NaturalLanguageRunMixin:
             )
             from polisyos.runtime.quality.semantic_binding import (
                 build_producer_spine_read_context,
-            )
-            from polisyos.runtime.quality.claim_registry import (
-                build_runtime_claim_registry,
-            )
-            from polisyos.runtime.quality.policy_design_case import (
-                compile_policy_design_case_runtime_record_families,
             )
             from polisyos.scientist.agent.critic import LLMCriticAgent, MockCriticAgent
             from polisyos.scientist.agent.data_need_extractor import (
@@ -1293,7 +1661,7 @@ class NaturalLanguageRunMixin:
             runtime_quality_diagnostic_events: list[dict[str, Any]] = []
             diagnostic_event_log_ref: str | None = None
 
-            def _progress_json(value: Any) -> Any:
+            def _progress_json(value: object) -> object:
                 if hasattr(value, "model_dump"):
                     return value.model_dump(mode="json")
                 if isinstance(value, Mapping):
@@ -1558,7 +1926,7 @@ class NaturalLanguageRunMixin:
             def _artifact_ref_from_sha(sha: str, *, kind: str) -> ArtifactRef:
                 return _make_artifact_ref(sha, kind=kind)
 
-            def _load_json_artifact_payload(ref_value: Any) -> dict[str, Any] | None:
+            def _load_json_artifact_payload(ref_value: object) -> dict[str, Any] | None:
                 artifact_id = _artifact_id_from_ref_payload(ref_value)
                 if artifact_id is None and isinstance(ref_value, str):
                     artifact_id = ref_value.strip()
@@ -1573,7 +1941,7 @@ class NaturalLanguageRunMixin:
             def _quality_report_input_ref(
                 *,
                 role: str,
-                ref_value: Any,
+                ref_value: object,
                 kind: str,
             ) -> InputRef | None:
                 artifact_id = _artifact_id_from_ref_payload(ref_value)
@@ -1617,7 +1985,7 @@ class NaturalLanguageRunMixin:
             def _context_recommendation_norm_refs() -> list[str]:
                 refs: list[str] = []
 
-                def _walk(value: Any, *, depth: int = 0) -> None:
+                def _walk(value: object, *, depth: int = 0) -> None:
                     if depth > 6:
                         return
                     if isinstance(value, Mapping):
@@ -1689,7 +2057,7 @@ class NaturalLanguageRunMixin:
                 merged["summary"] = summary
                 return merged
 
-            def _nested_mapping_value(payload: Any, key: str) -> Any:
+            def _nested_mapping_value(payload: object, key: str) -> object:
                 if isinstance(payload, Mapping):
                     if key in payload:
                         return payload[key]
@@ -2555,7 +2923,7 @@ class NaturalLanguageRunMixin:
                 *,
                 input_refs: tuple[str, ...],
             ) -> dict[str, Any]:
-                def _context_ref(label: str, value: Any) -> str | None:
+                def _context_ref(label: str, value: object) -> str | None:
                     if value is None:
                         return None
                     if isinstance(value, str):
@@ -2760,7 +3128,7 @@ class NaturalLanguageRunMixin:
                             name="polisyos.runtime.quality.DiagnosticEvent",
                             version="1.0",
                         ),
-                        inputs=[
+                        input_refs=[
                             InputRef(
                                 artifact_id=_make_artifact_ref(
                                     ref_value,
@@ -2897,7 +3265,7 @@ class NaturalLanguageRunMixin:
                             name="polisyos.runtime.quality.EvidenceAuthorityEnvelope",
                             version="1.0",
                         ),
-                        inputs=[
+                        input_refs=[
                             InputRef(
                                 artifact_id=_make_artifact_ref(
                                     ref_value,
@@ -3217,6 +3585,64 @@ class NaturalLanguageRunMixin:
                     },
                 )
                 return intent_ref, evidence_payload
+
+            async def _materialize_design_problem(
+                *,
+                intent_ref: str,
+                intent_payload: Mapping[str, Any],
+            ) -> tuple[str | None, DesignProblem | None]:
+                nonlocal context
+
+                del intent_payload
+                if not models_to_run:
+                    return None, None
+                model_name = models_to_run[0]
+                design_problem = await build_design_problem_from_nl_request(
+                    nl_request=nl_request,
+                    context={
+                        **dict(context),
+                        "policy_intent_ref": intent_ref,
+                        "run_id": run_id,
+                        "job_id": _runtime_quality_job_id(),
+                    },
+                    model_name=model_name,
+                )
+                payload = design_problem.model_dump(mode="json")
+                design_problem_ref, evidence_payload = (
+                    await _persist_and_publish_runtime_quality_payload(
+                        report_key="design_problem",
+                        ref_key="design_problem_ref",
+                        report_payload=payload,
+                        artifact_kind="runtime.design_problem",
+                        schema_name="polisyos.runtime.DesignProblem",
+                        phase="design_problem",
+                        input_refs=[
+                            InputRef(
+                                artifact_id=_make_artifact_ref(
+                                    intent_ref,
+                                    kind="runtime.policy_intent_envelope",
+                                ).artifact_id,
+                                role="policy_intent_envelope",
+                            )
+                        ],
+                    )
+                )
+                evidence_payload["design_problem_ref"] = design_problem_ref
+                runtime_quality_refs["design_problem_ref"] = design_problem_ref
+                context = {
+                    **dict(context),
+                    "design_problem": payload,
+                    "design_problem_ref": design_problem_ref,
+                }
+                _emit_job_progress(
+                    phase="design_problem_materialized",
+                    details={
+                        "design_problem_ref": design_problem_ref,
+                        "model": model_name,
+                        **_runtime_quality_details(),
+                    },
+                )
+                return design_problem_ref, design_problem
 
             def _runtime_authority_from_evidence(
                 evidence_payload: Mapping[str, Any],
@@ -4172,7 +4598,7 @@ class NaturalLanguageRunMixin:
                 data_context_payload["production_data_evidence_context"] = evidence_context
                 return refs, data_context_payload, evidence_context
 
-            async def _store_bundle(bundle: Any) -> str:
+            async def _store_bundle(bundle: object) -> str:
                 ref = await async_store.put_json(
                     bundle,
                     ArtifactWriteOptions(
@@ -4333,11 +4759,11 @@ class NaturalLanguageRunMixin:
                     *,
                     agent: str,
                     action: str,
-                    coro: Any,
+                    coro: Awaitable[object],
                     summary: str | None = None,
                     status: str = "ok",
                     details: dict[str, Any] | None = None,
-                ) -> Any:
+                ) -> object:
                     before = _sum_call_events(call_events)
                     started = _now_ms()
                     running_step = {
@@ -4783,7 +5209,7 @@ class NaturalLanguageRunMixin:
 
                     execute_outcome = None
 
-                    def _json_payload(item: Any) -> dict[str, Any]:
+                    def _json_payload(item: object) -> dict[str, Any]:
                         if hasattr(item, "model_dump"):
                             return dict(item.model_dump(mode="json"))
                         if isinstance(item, dict):
@@ -4845,7 +5271,7 @@ class NaturalLanguageRunMixin:
                             )
                     elif resolve_outcome.fetch_plans:
 
-                        def _promotion_candidate_payload(item: Any) -> dict[str, Any]:
+                        def _promotion_candidate_payload(item: object) -> dict[str, Any]:
                             if hasattr(item, "model_dump"):
                                 return dict(item.model_dump(mode="json"))
                             if isinstance(item, dict):
@@ -4855,7 +5281,7 @@ class NaturalLanguageRunMixin:
                                 "candidate": repr(item),
                             }
 
-                        def _promotion_candidate_id(item: Any) -> str | None:
+                        def _promotion_candidate_id(item: object) -> str | None:
                             if isinstance(item, dict):
                                 value = item.get("promotion_id")
                             else:
@@ -5578,6 +6004,10 @@ class NaturalLanguageRunMixin:
 
             intent_ref, intent_evidence = await _materialize_policy_intent_envelope()
             intent_payload = dict(intent_evidence)
+            design_problem_ref, design_problem = await _materialize_design_problem(
+                intent_ref=intent_ref,
+                intent_payload=intent_payload,
+            )
             (
                 capability_ledger_ref,
                 capability_ledger_payload,
@@ -5586,7 +6016,7 @@ class NaturalLanguageRunMixin:
             (
                 concept_spine_payload,
                 jurisdiction_spine_payload,
-                producer_spine_context,
+                _producer_spine_context,
             ) = await _materialize_policy_design_spines(
                 intent_payload=intent_payload,
                 intent_ref=intent_ref,
@@ -6480,6 +6910,12 @@ class NaturalLanguageRunMixin:
                         ),
                         "runtime_quality_refs": dict(runtime_quality_refs),
                         "runtime_quality_evidence": dict(runtime_quality_evidence),
+                        "design_problem_ref": design_problem_ref,
+                        "design_problem": (
+                            design_problem.model_dump(mode="json")
+                            if design_problem is not None
+                            else None
+                        ),
                         "final_policy_claims_ref": selected_variant.get("final_policy_claims_ref"),
                         "final_policy_claims_summary": dict(
                             selected_variant.get("final_policy_claims_summary") or {}
@@ -7208,6 +7644,10 @@ class NaturalLanguageRunMixin:
                         causal_statistical_validity
                     )
 
+                    from polisyos.core.security.quality_gates import (
+                        SECURITY_ASSURANCE_REPORT_REF_KEY,
+                        build_security_assurance_report,
+                    )
                     from polisyos.runtime.quality.human_review import (
                         build_human_review_calibration_report,
                     )
@@ -7219,10 +7659,6 @@ class NaturalLanguageRunMixin:
                         build_semantic_binding_ledger,
                     )
                     from polisyos.scholar import build_scholar_spine_evidence_binding
-                    from polisyos.core.security.quality_gates import (
-                        SECURITY_ASSURANCE_REPORT_REF_KEY,
-                        build_security_assurance_report,
-                    )
                     from polisyos.scientist.artifacts.decision_compiler import (
                         DecisionArtifactCompilationError,
                         compile_public_decision_artifact,

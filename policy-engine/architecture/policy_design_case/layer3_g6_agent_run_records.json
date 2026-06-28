@@ -203,12 +203,12 @@
               "request_class": "ua_msme_support",
               "request_id": "req-layer3-g6-readiness"
             },
-            "emitted_at": "2026-06-13T18:28:25.645820Z",
+            "emitted_at": "2026-06-16T13:50:02.911916Z",
             "producer_validation_refs": [],
             "prompt_fingerprint": "sha256:6a125f5184963fab0aea620abdde2bcf906aeb3fd1048643fadb7f175cd9ce75",
             "prompt_tool_ledger_ref": "layer3-g6://prompt-tool-ledger/layer3-g6-run:req-layer3-g6-readiness",
             "provenance": {
-              "producer": "polisyos.runtime.quality.layer3_bounded_agent",
+              "producer": "polisyos.runtime.quality.proving_ground.bounded_request_agent",
               "source_candidate_id": "layer3-g6-grammar-candidate:req-layer3-g6-readiness:675b29bdbedad5c4"
             },
             "reader_validation_refs": [],
@@ -222,15 +222,15 @@
             "target_claim_ids": [],
             "tool_refs": [
               "layer3-g6://tool-call/req-layer3-g6-readiness/layer3_g6_build_g5_bundle",
-              "repo://src/polisyos/runtime/quality/layer3_bounded_agent.py#tool/layer3_g6_classify_request",
-              "repo://src/polisyos/runtime/quality/layer3_bounded_agent.py#tool/layer3_g6_build_g5_bundle",
-              "repo://src/polisyos/runtime/quality/layer3_bounded_agent.py#tool/layer3_g6_read_g5_conversion",
-              "repo://src/polisyos/runtime/quality/layer3_bounded_agent.py#tool/layer3_g6_probe_counterexample",
-              "repo://src/polisyos/runtime/quality/layer3_bounded_agent.py#tool/layer3_g6_probe_envelope_match"
+              "repo://src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py#tool/layer3_g6_classify_request",
+              "repo://src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py#tool/layer3_g6_build_g5_bundle",
+              "repo://src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py#tool/layer3_g6_read_g5_conversion",
+              "repo://src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py#tool/layer3_g6_probe_counterexample",
+              "repo://src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py#tool/layer3_g6_probe_envelope_match"
             ]
           }
         ],
-        "generated_at": "2026-06-13T18:28:25.645783Z",
+        "generated_at": "2026-06-16T13:50:02.911880Z",
         "hypothesis_ledger_ref": "layer3-g6://hypothesis-ledger/layer3-g6-run:req-layer3-g6-readiness",
         "job_id": "layer3-g6-job:req-layer3-g6-readiness",
         "prompt_tool_ledger_ref": "layer3-g6://prompt-tool-ledger/layer3-g6-run:req-layer3-g6-readiness",
@@ -388,7 +388,7 @@
         "projection_id": "layer3-g6-prompt-tool-ledger-projection:layer3-g6-run:req-layer3-g6-readiness",
         "prompt_tool_ledger": {
           "findings": [],
-          "generated_at": "2026-06-13T18:28:25.645550Z",
+          "generated_at": "2026-06-16T13:50:02.911647Z",
           "job_id": "layer3-g6-job:req-layer3-g6-readiness",
           "model_variant_id": "layer3-g6-bounded-agent-candidate",
           "prompt_tool_ledger_ref": "layer3-g6://prompt-tool-ledger/layer3-g6-run:req-layer3-g6-readiness",
@@ -398,7 +398,7 @@
             {
               "authority_handoff_refs": [
                 {
-                  "consumer": "polisyos.runtime.quality.layer3_bounded_agent",
+                  "consumer": "polisyos.runtime.quality.proving_ground.bounded_request_agent",
                   "handoff_ref": "layer3-g6://authority-handoff/not-applicable",
                   "scope": "claims",
                   "status": "not_applicable"
@@ -422,9 +422,9 @@
                 "layer3-g6://candidate-output/req-layer3-g6-readiness/1"
               ],
               "parser_contract": {
-                "contract_ref": "repo://src/polisyos/runtime/quality/layer3_bounded_agent.py#Layer3G6GrammarExpansionCandidate",
-                "input_schema_ref": "repo://src/polisyos/runtime/quality/layer3_bounded_agent.py#Layer3G6RequestEnvelope",
-                "output_schema_ref": "repo://src/polisyos/runtime/quality/layer3_bounded_agent.py#Layer3G6GrammarExpansionCandidate",
+                "contract_ref": "repo://src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py#Layer3G6GrammarExpansionCandidate",
+                "input_schema_ref": "repo://src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py#Layer3G6RequestEnvelope",
+                "output_schema_ref": "repo://src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py#Layer3G6GrammarExpansionCandidate",
                 "parser_id": "layer3_g6_candidate_parser",
                 "parser_version": "policyos.policy_design_case.layer3_g6_bounded_agent.v1"
               },
@@ -436,7 +436,7 @@
                 ],
                 "rendered_prompt_ref": "layer3-g6://request/req-layer3-g6-readiness/rendered-prompt",
                 "template_id": "layer3_g6_agent_orchestration_candidate",
-                "template_ref": "repo://src/polisyos/runtime/quality/layer3_bounded_agent.py#prompt-template",
+                "template_ref": "repo://src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py#prompt-template",
                 "template_variables_fingerprint": "sha256:a8369984956857f1053d0b905bd27c04a475d1112a7839eaca9b65693be1e9ff",
                 "template_version": "policyos.layer3.g6.bounded_agent.v1"
               },
@@ -483,7 +483,7 @@
                     "type": "object"
                   },
                   "schema_fingerprint": "sha256:b71072e8e7629e7f8dff6db7d31986c989e0860b300b14854c0e719b1659830a",
-                  "schema_ref": "repo://src/polisyos/runtime/quality/layer3_bounded_agent.py#tool/layer3_g6_classify_request",
+                  "schema_ref": "repo://src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py#tool/layer3_g6_classify_request",
                   "tool_name": "layer3_g6_classify_request"
                 },
                 {
@@ -500,7 +500,7 @@
                     "type": "object"
                   },
                   "schema_fingerprint": "sha256:778e9d10e3a520aa7d02a116b9d0ad60e8ee6743e039e062d2b56fd96d3fcff1",
-                  "schema_ref": "repo://src/polisyos/runtime/quality/layer3_bounded_agent.py#tool/layer3_g6_build_g5_bundle",
+                  "schema_ref": "repo://src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py#tool/layer3_g6_build_g5_bundle",
                   "tool_name": "layer3_g6_build_g5_bundle"
                 },
                 {
@@ -517,7 +517,7 @@
                     "type": "object"
                   },
                   "schema_fingerprint": "sha256:e4954e2e5405e403aa78d4a60939c0cfd1f0e03dedf45e6e8b2ff86f52434f1a",
-                  "schema_ref": "repo://src/polisyos/runtime/quality/layer3_bounded_agent.py#tool/layer3_g6_read_g5_conversion",
+                  "schema_ref": "repo://src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py#tool/layer3_g6_read_g5_conversion",
                   "tool_name": "layer3_g6_read_g5_conversion"
                 },
                 {
@@ -534,7 +534,7 @@
                     "type": "object"
                   },
                   "schema_fingerprint": "sha256:a7084113ee5e736b78dffca168640d9a8bba9e592e7c52510589a3c0fa1cd508",
-                  "schema_ref": "repo://src/polisyos/runtime/quality/layer3_bounded_agent.py#tool/layer3_g6_probe_counterexample",
+                  "schema_ref": "repo://src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py#tool/layer3_g6_probe_counterexample",
                   "tool_name": "layer3_g6_probe_counterexample"
                 },
                 {
@@ -551,7 +551,7 @@
                     "type": "object"
                   },
                   "schema_fingerprint": "sha256:f26eadec02ab5e91601ed5bc5930aebdb03a371ea2812520f3b69ce170bc6346",
-                  "schema_ref": "repo://src/polisyos/runtime/quality/layer3_bounded_agent.py#tool/layer3_g6_probe_envelope_match",
+                  "schema_ref": "repo://src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py#tool/layer3_g6_probe_envelope_match",
                   "tool_name": "layer3_g6_probe_envelope_match"
                 }
               ],
@@ -652,7 +652,7 @@
         "raw_request_ref": "layer3-g6://request/req-layer3-g6-readiness/raw",
         "request_class": "ua_msme_support",
         "request_id": "req-layer3-g6-readiness",
-        "request_received_at": "2026-06-13T18:28:25.641570Z",
+        "request_received_at": "2026-06-16T13:50:02.907687Z",
         "requested_audience": "REVIEWER",
         "rule_version": "policyos.layer3.g6.bounded_agent.v1",
         "schema_version": "policyos.policy_design_case.layer3_g6_bounded_agent.v1"

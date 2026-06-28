@@ -5,11 +5,14 @@ from __future__ import annotations
 import json
 import re
 import urllib.parse
-import urllib.request
+from datetime import UTC, datetime, timedelta
 from html.parser import HTMLParser
 from typing import TYPE_CHECKING, Protocol
 
+import httpx
+
 from polisyos.common.async_tools import run_blocking_async
+from polisyos.fabric.connectors import RateLimiter, RetryPolicy
 from polisyos.scholar.search.models import SearchConstraints, WebSearchHit
 
 if TYPE_CHECKING:
@@ -30,6 +33,19 @@ class WebSearchProvider(Protocol):
         timeout_s: float,
     ) -> list[WebSearchHit]:
         """Run one provider query and return normalized search hits."""
+
+
+class OpenAlexRateLimiter:
+    """OpenAlex-specific wrapper around the shared connector rate limiter."""
+
+    def __init__(self, *, rate_limit_rps: float = 9.0) -> None:
+        self._limiter = RateLimiter(
+            rate_limit_rps=rate_limit_rps,
+            limiter_id="scholar.openalex",
+        )
+
+    async def acquire(self) -> None:
+        await self._limiter.acquire()
 
 
 class ProviderFailoverPolicy:
@@ -135,6 +151,94 @@ class BraveSearchProvider:
                         str(item.get("title") or ""),
                         str(item.get("description") or ""),
                     ),
+                )
+            )
+        return _filter_hits(hits, constraints=constraints, max_results=max_results)
+
+
+class OpenAlexWorksProvider:
+    """Query the public OpenAlex works API and normalize works as academic search hits."""
+
+    name = "openalex"
+
+    def __init__(
+        self,
+        *,
+        endpoint: str = "https://api.openalex.org/works",
+        mailto: str = "",
+        user_agent: str = "polisyos-scholar-search/1.0",
+        rate_limiter: OpenAlexRateLimiter | None = None,
+        retry_policy: RetryPolicy | None = None,
+    ) -> None:
+        self._endpoint = endpoint.rstrip("/")
+        self._mailto = mailto.strip()
+        self._user_agent = user_agent
+        self._rate_limiter = rate_limiter or OpenAlexRateLimiter()
+        self._retry_policy = retry_policy or RetryPolicy(
+            max_attempts=3,
+            base_delay=0.25,
+            backoff_factor=2.0,
+            jitter_max=0.1,
+            max_delay=2.0,
+        )
+
+    async def search(
+        self,
+        query: str,
+        *,
+        constraints: SearchConstraints,
+        max_results: int,
+        timeout_s: float,
+    ) -> list[WebSearchHit]:
+        if constraints.source_types and "academic" not in constraints.source_types:
+            return []
+        search_query = query.strip()
+        if not search_query:
+            return []
+        params = {
+            "search": search_query,
+            "filter": ",".join(_openalex_filters(constraints)),
+            "per-page": str(max(1, min(int(max_results), 50))),
+            "select": ",".join(_OPENALEX_SELECT_FIELDS),
+        }
+        if self._mailto:
+            params["mailto"] = self._mailto
+        url = f"{self._endpoint}?{urllib.parse.urlencode(params)}"
+        headers = {
+            "Accept": "application/json",
+            "User-Agent": _openalex_user_agent(self._user_agent, self._mailto),
+        }
+        payload = await _read_openalex_url_text(
+            url,
+            headers=headers,
+            timeout_s=timeout_s,
+            rate_limiter=self._rate_limiter,
+            retry_policy=self._retry_policy,
+        )
+        decoded = json.loads(payload or "{}")
+        results = decoded.get("results", []) if isinstance(decoded, dict) else []
+        hits: list[WebSearchHit] = []
+        for rank, item in enumerate(results, start=1):
+            if not isinstance(item, dict):
+                continue
+            work_url = _coerce_http_url(item.get("id"))
+            if work_url is None:
+                continue
+            title = str(item.get("display_name") or item.get("title") or "").strip()
+            abstract = reconstruct_openalex_abstract(item.get("abstract_inverted_index"))
+            if not title and not abstract:
+                continue
+            hits.append(
+                WebSearchHit(
+                    url=work_url,
+                    title=title,
+                    snippet=abstract[:900],
+                    provider=self.name,
+                    query=query,
+                    rank=rank,
+                    source_type="academic",
+                    published_at=_openalex_published_at(item),
+                    score=_openalex_score(item),
                 )
             )
         return _filter_hits(hits, constraints=constraints, max_results=max_results)
@@ -380,6 +484,78 @@ def _infer_source_type(url: str, title: str, snippet: str) -> str:
     return "web"
 
 
+_OPENALEX_SELECT_FIELDS = (
+    "id",
+    "doi",
+    "display_name",
+    "title",
+    "abstract_inverted_index",
+    "publication_year",
+    "publication_date",
+    "cited_by_count",
+    "type",
+    "is_retracted",
+    "language",
+    "open_access",
+    "primary_location",
+    "authorships",
+)
+
+
+def reconstruct_openalex_abstract(value: object) -> str:
+    """Reconstruct an OpenAlex inverted-index abstract into source-text order."""
+
+    if not isinstance(value, dict):
+        return ""
+    positions: list[tuple[int, str]] = []
+    for word, raw_positions in value.items():
+        if not isinstance(raw_positions, list):
+            continue
+        for position in raw_positions:
+            if isinstance(position, int):
+                positions.append((position, str(word)))
+    positions.sort(key=lambda item: item[0])
+    return " ".join(word for _, word in positions)
+
+
+def _openalex_filters(constraints: SearchConstraints) -> list[str]:
+    filters = ["has_abstract:true", "is_retracted:false"]
+    language = constraints.locale.split("-", 1)[0].strip().lower()
+    if language:
+        filters.append(f"language:{language}")
+    if constraints.recency_days is not None:
+        since = datetime.now(UTC) - timedelta(days=int(constraints.recency_days))
+        filters.append(f"from_publication_date:{since.date().isoformat()}")
+    return filters
+
+
+def _openalex_user_agent(user_agent: str, mailto: str) -> str:
+    if mailto:
+        return f"{user_agent} (mailto:{mailto})"
+    return user_agent
+
+
+def _openalex_published_at(item: dict[str, object]) -> datetime | None:
+    published = str(item.get("publication_date") or "").strip()
+    if published:
+        try:
+            return datetime.fromisoformat(published).replace(tzinfo=UTC)
+        except ValueError:
+            pass
+    year = item.get("publication_year")
+    if isinstance(year, int) and year > 0:
+        return datetime(year, 1, 1, tzinfo=UTC)
+    return None
+
+
+def _openalex_score(item: dict[str, object]) -> float:
+    cited_by = item.get("cited_by_count")
+    try:
+        return min(1.0, max(0.0, float(cited_by or 0.0) / 500.0))
+    except (TypeError, ValueError):
+        return 0.0
+
+
 def _domain_matches(domain: str, pattern: str) -> bool:
     domain = domain.lower().strip(".")
     pattern = pattern.lower().strip(".")
@@ -407,17 +583,57 @@ async def _read_url_text(
     timeout_s: float,
 ) -> str:
     def _read() -> str:
-        request = urllib.request.Request(url, headers=headers)
-        with urllib.request.urlopen(request, timeout=timeout_s) as response:
-            return response.read(2_000_000).decode("utf-8", errors="replace")
+        with httpx.Client(
+            timeout=httpx.Timeout(timeout_s),
+            follow_redirects=True,
+            headers=headers,
+        ) as client:
+            response = client.get(url)
+            try:
+                response.raise_for_status()
+            except httpx.HTTPStatusError as exc:
+                exc.status_code = exc.response.status_code
+                retry_after = _retry_after_seconds(exc.response.headers.get("Retry-After"))
+                if retry_after is not None:
+                    exc.retry_after_seconds = retry_after
+                raise
+            return response.text
 
     return await run_blocking_async(_read, timeout_seconds=timeout_s)
+
+
+async def _read_openalex_url_text(
+    url: str,
+    *,
+    headers: dict[str, str],
+    timeout_s: float,
+    rate_limiter: OpenAlexRateLimiter,
+    retry_policy: RetryPolicy,
+) -> str:
+    async def _read_once() -> str:
+        await rate_limiter.acquire()
+        return await _read_url_text(url, headers=headers, timeout_s=timeout_s)
+
+    return await retry_policy.execute(_read_once)
+
+
+def _retry_after_seconds(value: str | None) -> float | None:
+    if not value:
+        return None
+    try:
+        parsed = float(value)
+    except ValueError:
+        return None
+    return parsed if parsed >= 0.0 else None
 
 
 __all__ = [
     "BraveSearchProvider",
     "DuckDuckGoHtmlSearchProvider",
+    "OpenAlexRateLimiter",
+    "OpenAlexWorksProvider",
     "ProviderFailoverPolicy",
     "WebSearchProvider",
     "WikipediaOpenSearchProvider",
+    "reconstruct_openalex_abstract",
 ]

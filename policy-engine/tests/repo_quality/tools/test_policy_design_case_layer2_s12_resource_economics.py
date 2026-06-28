@@ -114,7 +114,7 @@ def test_layer2_s12_closes_envelope_growth_cell() -> None:
     cell = cluster_map["cell"]["DESIGNER_ITSELF"]["envelope_growth"]
 
     assert cell["owner_module"] == (
-        "src/polisyos/runtime/quality/layer2_resource_economics.py"
+        "src/polisyos/runtime/quality/design_axes/resource_economics.py"
     )
     assert cell["ratchet_state"] == "implemented"
     assert cell["p01_chain"] == "implemented"
@@ -219,7 +219,7 @@ def test_layer2_s12_b_side_does_not_import_resource_economics_producer() -> None
         REPO_ROOT / "src/polisyos/pdc/_impl/layer2_design_search.py"
     ).read_text(encoding="utf-8")
 
-    assert "polisyos.runtime.quality.layer2_resource_economics" not in source
+    assert "polisyos.runtime.quality.design_axes.resource_economics" not in source
     assert "layer2_resource_economics" not in source
     assert "build_s12_resource_economics_posture" not in source
 

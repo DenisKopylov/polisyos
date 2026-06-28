@@ -1,0 +1,843 @@
+{
+  "artifact_kind": "runtime.quality.world_model_record",
+  "consumers": [
+    "consume_world_model_record_for_simulation",
+    "resolve_intervention_atom_world_binding"
+  ],
+  "content_binding_checks": [
+    "data_snapshot_version_missing",
+    "world_substrate_version_mismatch",
+    "data_forge_snapshot_binding_schema_mismatch",
+    "data_forge_snapshot_binding_snapshot_mismatch",
+    "fabric_world_empty",
+    "fabric_world_not_queryable",
+    "model_spec_registry_bundle_missing",
+    "world_slot_state_path_missing",
+    "substrate_entry_unresolved",
+    "substrate_registry_entries_missing",
+    "content_hash_mismatch"
+  ],
+  "contract_id": "policyos.runtime.world_model_record",
+  "gy_lifecycle_marker": "policyos.policy_design_case.layer3_gy.world_model_record_contract.v1",
+  "json_schema": {
+    "$defs": {
+      "BranchMode": {
+        "description": "World branch semantics for the bound version.",
+        "enum": [
+          "observed",
+          "scenario",
+          "deployment_update"
+        ],
+        "title": "BranchMode",
+        "type": "string"
+      },
+      "DataForgeBindingRef": {
+        "additionalProperties": false,
+        "description": "Reference one Data Forge snapshot/read-API binding row.",
+        "properties": {
+          "binding_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Binding Path"
+          },
+          "claim_requirement_bindings": {
+            "default": [],
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Claim Requirement Bindings",
+            "type": "array"
+          },
+          "data_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Data Hash",
+            "type": "string"
+          },
+          "lineage_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Lineage Refs",
+            "type": "array"
+          },
+          "merkle_root": {
+            "minLength": 1,
+            "title": "Merkle Root",
+            "type": "string"
+          },
+          "provenance_manifest_ref": {
+            "minLength": 1,
+            "title": "Provenance Manifest Ref",
+            "type": "string"
+          },
+          "quality_gate_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Quality Gate Refs",
+            "type": "array"
+          },
+          "read_api_identity": {
+            "minLength": 1,
+            "title": "Read Api Identity",
+            "type": "string"
+          },
+          "release_id": {
+            "minLength": 1,
+            "title": "Release Id",
+            "type": "string"
+          },
+          "role": {
+            "minLength": 1,
+            "title": "Role",
+            "type": "string"
+          },
+          "snapshot_id": {
+            "minLength": 1,
+            "title": "Snapshot Id",
+            "type": "string"
+          },
+          "snapshot_ref": {
+            "minLength": 1,
+            "title": "Snapshot Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "snapshot_id",
+          "release_id",
+          "role",
+          "read_api_identity",
+          "snapshot_ref",
+          "merkle_root",
+          "data_hash",
+          "provenance_manifest_ref"
+        ],
+        "title": "DataForgeBindingRef",
+        "type": "object"
+      },
+      "DeploymentUpdateRefs": {
+        "additionalProperties": false,
+        "description": "Declare Phase-6 write-back refs without performing deployment updates.",
+        "properties": {
+          "feedback_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Feedback Refs",
+            "type": "array"
+          },
+          "incident_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Incident Refs",
+            "type": "array"
+          },
+          "phase": {
+            "const": "phase_6_forward_hook",
+            "default": "phase_6_forward_hook",
+            "title": "Phase",
+            "type": "string"
+          },
+          "posterior_update_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Posterior Update Refs",
+            "type": "array"
+          },
+          "refute_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Refute Refs",
+            "type": "array"
+          },
+          "reissue_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Reissue Refs",
+            "type": "array"
+          }
+        },
+        "title": "DeploymentUpdateRefs",
+        "type": "object"
+      },
+      "FabricWorldRef": {
+        "additionalProperties": false,
+        "description": "Reference the Fabric world snapshot/branch and bitemporal query context.",
+        "properties": {
+          "as_of_tx_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "As Of Tx Time"
+          },
+          "as_of_valid_time": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "As Of Valid Time"
+          },
+          "branch": {
+            "minLength": 1,
+            "title": "Branch",
+            "type": "string"
+          },
+          "content_query_digest": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Content Query Digest"
+          },
+          "content_query_row_count": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Content Query Row Count"
+          },
+          "provenance_manifest_ref": {
+            "minLength": 1,
+            "title": "Provenance Manifest Ref",
+            "type": "string"
+          },
+          "snapshot_id": {
+            "minLength": 1,
+            "title": "Snapshot Id",
+            "type": "string"
+          },
+          "snapshot_root": {
+            "minLength": 1,
+            "title": "Snapshot Root",
+            "type": "string"
+          },
+          "world_query_policy": {
+            "minLength": 1,
+            "title": "World Query Policy",
+            "type": "string"
+          }
+        },
+        "required": [
+          "snapshot_root",
+          "snapshot_id",
+          "branch",
+          "world_query_policy",
+          "provenance_manifest_ref"
+        ],
+        "title": "FabricWorldRef",
+        "type": "object"
+      },
+      "FoundryBindingRef": {
+        "additionalProperties": false,
+        "description": "Reference the actual Foundry input binding and bound GlobalState snapshot.",
+        "properties": {
+          "bound_state_snapshot_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Bound State Snapshot Ref",
+            "type": "string"
+          },
+          "input_bindings_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Input Bindings Ref",
+            "type": "string"
+          },
+          "mapping_rules_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Mapping Rules Ref",
+            "type": "string"
+          },
+          "state_slot_digest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "State Slot Digest",
+            "type": "string"
+          }
+        },
+        "required": [
+          "input_bindings_ref",
+          "bound_state_snapshot_ref",
+          "mapping_rules_ref",
+          "state_slot_digest"
+        ],
+        "title": "FoundryBindingRef",
+        "type": "object"
+      },
+      "PolicySlotBinding": {
+        "additionalProperties": false,
+        "description": "Bind a policy slot id to a concrete path in the bound Foundry state.",
+        "properties": {
+          "entity_scope": {
+            "minLength": 1,
+            "title": "Entity Scope",
+            "type": "string"
+          },
+          "slot_id": {
+            "pattern": "^[a-z][a-z0-9_.]*$",
+            "title": "Slot Id",
+            "type": "string"
+          },
+          "state_path": {
+            "minLength": 1,
+            "title": "State Path",
+            "type": "string"
+          },
+          "temporal_granularity": {
+            "minLength": 1,
+            "title": "Temporal Granularity",
+            "type": "string"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Unit"
+          }
+        },
+        "required": [
+          "slot_id",
+          "state_path",
+          "entity_scope",
+          "temporal_granularity"
+        ],
+        "title": "PolicySlotBinding",
+        "type": "object"
+      },
+      "ResolvedSubstrateEntryRef": {
+        "additionalProperties": false,
+        "description": "Resolved substrate registry entry consumed by a world-model version.",
+        "properties": {
+          "coverage_score": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Coverage Score",
+            "type": "number"
+          },
+          "data_version": {
+            "minLength": 1,
+            "title": "Data Version",
+            "type": "string"
+          },
+          "entry_content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Entry Content Hash",
+            "type": "string"
+          },
+          "family_id": {
+            "minLength": 1,
+            "title": "Family Id",
+            "type": "string"
+          },
+          "identification_mode": {
+            "minLength": 1,
+            "title": "Identification Mode",
+            "type": "string"
+          },
+          "layer": {
+            "$ref": "#/$defs/SubstrateLayer"
+          },
+          "schema_regime_id": {
+            "minLength": 1,
+            "title": "Schema Regime Id",
+            "type": "string"
+          },
+          "snapshot_id": {
+            "minLength": 1,
+            "title": "Snapshot Id",
+            "type": "string"
+          },
+          "source_id": {
+            "minLength": 1,
+            "title": "Source Id",
+            "type": "string"
+          },
+          "source_snapshot_id": {
+            "minLength": 1,
+            "title": "Source Snapshot Id",
+            "type": "string"
+          },
+          "trust_cap": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Trust Cap",
+            "type": "number"
+          },
+          "trust_tier": {
+            "minLength": 1,
+            "title": "Trust Tier",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_id",
+          "family_id",
+          "layer",
+          "coverage_score",
+          "trust_tier",
+          "trust_cap",
+          "identification_mode",
+          "schema_regime_id",
+          "data_version",
+          "snapshot_id",
+          "source_snapshot_id",
+          "entry_content_hash"
+        ],
+        "title": "ResolvedSubstrateEntryRef",
+        "type": "object"
+      },
+      "SimulationModelRef": {
+        "additionalProperties": false,
+        "description": "Reference the IR model contract and mechanism/program graph surfaces.",
+        "properties": {
+          "assumptions": {
+            "default": [],
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Assumptions",
+            "type": "array"
+          },
+          "calibrated": {
+            "default": false,
+            "title": "Calibrated",
+            "type": "boolean"
+          },
+          "calibration_ref": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Calibration Ref"
+          },
+          "data_snapshot_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Data Snapshot Ref",
+            "type": "string"
+          },
+          "fidelity_level": {
+            "minLength": 1,
+            "title": "Fidelity Level",
+            "type": "string"
+          },
+          "gcm_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Gcm Refs",
+            "type": "array"
+          },
+          "mechanism_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Mechanism Refs",
+            "type": "array"
+          },
+          "model_id": {
+            "minLength": 1,
+            "title": "Model Id",
+            "type": "string"
+          },
+          "model_spec_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Model Spec Hash",
+            "type": "string"
+          },
+          "model_spec_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Model Spec Ref",
+            "type": "string"
+          },
+          "ncm_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Ncm Refs",
+            "type": "array"
+          },
+          "program_graph_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Program Graph Refs",
+            "type": "array"
+          },
+          "registry_bundle_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Registry Bundle Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "model_spec_ref",
+          "model_spec_hash",
+          "model_id",
+          "data_snapshot_ref",
+          "registry_bundle_ref",
+          "fidelity_level"
+        ],
+        "title": "SimulationModelRef",
+        "type": "object"
+      },
+      "SkgCausalPriorRef": {
+        "additionalProperties": false,
+        "description": "Reference SKG/G2 causal priors and transport traces for this world.",
+        "properties": {
+          "edge_prior_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Edge Prior Refs",
+            "type": "array"
+          },
+          "query_trace_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Query Trace Refs",
+            "type": "array"
+          },
+          "skg_snapshot_ref": {
+            "minLength": 1,
+            "title": "Skg Snapshot Ref",
+            "type": "string"
+          },
+          "skg_version_id": {
+            "minLength": 1,
+            "title": "Skg Version Id",
+            "type": "string"
+          },
+          "source_data_snapshot_id": {
+            "minLength": 1,
+            "title": "Source Data Snapshot Id",
+            "type": "string"
+          },
+          "transport_score_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Transport Score Refs",
+            "type": "array"
+          }
+        },
+        "required": [
+          "skg_snapshot_ref",
+          "skg_version_id",
+          "source_data_snapshot_id"
+        ],
+        "title": "SkgCausalPriorRef",
+        "type": "object"
+      },
+      "SubstrateLayer": {
+        "description": "Production-data substrate layer labels.",
+        "enum": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5",
+          "L6"
+        ],
+        "title": "SubstrateLayer",
+        "type": "string"
+      },
+      "SubstrateRegistryRef": {
+        "additionalProperties": false,
+        "description": "Name the production-data substrate registry version used by this world.",
+        "properties": {
+          "content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Content Hash",
+            "type": "string"
+          },
+          "registry_artifact_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Registry Artifact Ref"
+          },
+          "resolved_entries": {
+            "items": {
+              "$ref": "#/$defs/ResolvedSubstrateEntryRef"
+            },
+            "title": "Resolved Entries",
+            "type": "array"
+          },
+          "substrate_version_id": {
+            "pattern": "^substrate_version_[a-f0-9]{16}$",
+            "title": "Substrate Version Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "substrate_version_id",
+          "content_hash",
+          "resolved_entries"
+        ],
+        "title": "SubstrateRegistryRef",
+        "type": "object"
+      },
+      "WorldModelLimitations": {
+        "additionalProperties": false,
+        "description": "Represent world-model limits that constrain admissibility and transport.",
+        "properties": {
+          "admissibility_blockers": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Admissibility Blockers",
+            "type": "array"
+          },
+          "calibration_envelope_status": {
+            "default": "unknown",
+            "enum": [
+              "unknown",
+              "inside",
+              "near_boundary",
+              "outside"
+            ],
+            "title": "Calibration Envelope Status",
+            "type": "string"
+          },
+          "transport_limits": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Transport Limits",
+            "type": "array"
+          },
+          "unavailable_data": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Unavailable Data",
+            "type": "array"
+          },
+          "unresolved_conflicts": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Unresolved Conflicts",
+            "type": "array"
+          }
+        },
+        "title": "WorldModelLimitations",
+        "type": "object"
+      }
+    },
+    "additionalProperties": false,
+    "description": "Name one versioned, simulatable world built from existing substrates.\n\n``WorldModelRecord`` is a bridge contract, not a second world store. The\nFabric world remains the fact/provenance/snapshot owner, Data Forge remains\nthe read-surface binding owner, ``ModelSpec`` remains the simulation\ncontract, Foundry owns ``GlobalState`` and mechanism execution, and SKG/G2\nown causal prior traces. This record binds their corresponding versions,\nrecords a policy-slot map into the bound state, and carries Phase-6\ndeployment-update refs as forward hooks only.",
+    "properties": {
+      "authority_status": {
+        "default": "bound",
+        "enum": [
+          "candidate_unverified",
+          "bound",
+          "limited",
+          "contested",
+          "blocked",
+          "publishable"
+        ],
+        "title": "Authority Status",
+        "type": "string"
+      },
+      "branch_mode": {
+        "$ref": "#/$defs/BranchMode"
+      },
+      "content_hash": {
+        "pattern": "^sha256:[0-9a-f]{64}$",
+        "title": "Content Hash",
+        "type": "string"
+      },
+      "created_at": {
+        "title": "Created At",
+        "type": "string"
+      },
+      "data_forge_binding_ref": {
+        "$ref": "#/$defs/DataForgeBindingRef"
+      },
+      "deployment_update_refs": {
+        "$ref": "#/$defs/DeploymentUpdateRefs"
+      },
+      "fabric_world_ref": {
+        "$ref": "#/$defs/FabricWorldRef"
+      },
+      "foundry_binding_ref": {
+        "$ref": "#/$defs/FoundryBindingRef"
+      },
+      "limitations": {
+        "$ref": "#/$defs/WorldModelLimitations"
+      },
+      "policy_domain": {
+        "minLength": 1,
+        "title": "Policy Domain",
+        "type": "string"
+      },
+      "policy_slot_map": {
+        "items": {
+          "$ref": "#/$defs/PolicySlotBinding"
+        },
+        "title": "Policy Slot Map",
+        "type": "array"
+      },
+      "population_scope": {
+        "minLength": 1,
+        "title": "Population Scope",
+        "type": "string"
+      },
+      "producer_ref": {
+        "minLength": 1,
+        "title": "Producer Ref",
+        "type": "string"
+      },
+      "region_or_jurisdiction": {
+        "minLength": 1,
+        "title": "Region Or Jurisdiction",
+        "type": "string"
+      },
+      "resolution": {
+        "minLength": 1,
+        "title": "Resolution",
+        "type": "string"
+      },
+      "schema_version": {
+        "default": "policyos.runtime.world_model_record.v1",
+        "title": "Schema Version",
+        "type": "string"
+      },
+      "simulation_model_ref": {
+        "$ref": "#/$defs/SimulationModelRef"
+      },
+      "skg_causal_prior_ref": {
+        "$ref": "#/$defs/SkgCausalPriorRef"
+      },
+      "substrate_registry_ref": {
+        "$ref": "#/$defs/SubstrateRegistryRef"
+      },
+      "tx_time_scope": {
+        "minLength": 1,
+        "title": "Tx Time Scope",
+        "type": "string"
+      },
+      "valid_time_scope": {
+        "minLength": 1,
+        "title": "Valid Time Scope",
+        "type": "string"
+      },
+      "world_model_record_id": {
+        "pattern": "^world_model_record_[a-f0-9]{16}$",
+        "title": "World Model Record Id",
+        "type": "string"
+      }
+    },
+    "required": [
+      "world_model_record_id",
+      "producer_ref",
+      "content_hash",
+      "region_or_jurisdiction",
+      "population_scope",
+      "policy_domain",
+      "valid_time_scope",
+      "tx_time_scope",
+      "resolution",
+      "branch_mode",
+      "fabric_world_ref",
+      "data_forge_binding_ref",
+      "simulation_model_ref",
+      "foundry_binding_ref",
+      "skg_causal_prior_ref",
+      "substrate_registry_ref",
+      "policy_slot_map"
+    ],
+    "title": "WorldModelRecord",
+    "type": "object"
+  },
+  "owner": "polisyos.runtime.quality.world_model_record.WorldModelRecord",
+  "parallel_world_store_allowed": false,
+  "phase_6_forward_hook": "deployment_update_refs",
+  "producer": "build_world_model_record",
+  "schema_version": "policyos.policy_design_case.layer3_gy.world_model_record_contract.v1",
+  "source_module": "src/polisyos/runtime/quality/world_model_record.py",
+  "synthetic_world_disposition": "benchmark_only_not_production_world_owner",
+  "unify_existing_substrates": [
+    "fabric.world.query.WorldQueryRequest",
+    "data_forge.kernel.snapshot.write_snapshot_binding",
+    "ir.model_layer.model_spec.ModelSpec",
+    "foundry.data_plane.bindings.build_input_bindings",
+    "data_forge.read_api.academic.SKGQuery",
+    "runtime.quality.substrate_registry.SubstrateRegistry"
+  ],
+  "value_step_naming_deferred_to": "GY-N8",
+  "world_model_record_schema_version": "policyos.runtime.world_model_record.v1"
+}

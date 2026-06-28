@@ -12,11 +12,13 @@ import logging
 from collections.abc import Iterable, Mapping, Sequence
 from datetime import UTC, datetime, timedelta
 from enum import StrEnum
+from importlib import import_module
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from polisyos.core import artifacts, canon
+from polisyos.pdc import SearchTerminalKind, SearchTerminalState, VOISelectionAudit
 
 ACQUISITION_PLANNER_SCHEMA_VERSION = "policyos.runtime.acquisition_planner.v1"
 ACQUISITION_PLANNER_KIND = "runtime.acquisition_planner_report"
@@ -35,6 +37,35 @@ _REPORT_KEYS = (
 )
 _SERIOUS_AUTHORITY_LEVELS = frozenset({"governed", "production", "serious_runtime"})
 _LOGGER = logging.getLogger(__name__)
+_VOI_PER_COST_THRESHOLD = 0.0001
+_ACQUISITION_RATE_BASIS = {
+    "enumerator_day_usd": 180.0,
+    "expert_hour_usd": 125.0,
+    "data_license_day_usd": 60.0,
+    "registry_extract_base_usd": 450.0,
+}
+_ACQUISITION_GAP_BASIS = {
+    "local_tourism_site_traffic": {
+        "basis_ref": "gap-cost-basis:local_tourism_site_traffic:v1",
+        "collection_mode": "site-count intercept survey plus mobile-footfall panel",
+        "enumerator_days": 10,
+        "expert_hours": 8,
+        "data_license_days": 14,
+        "calendar_days": 21,
+        "authority_gain_base": 0.72,
+        "decision_value_base": 0.82,
+    },
+    "administrative_tax_receipts": {
+        "basis_ref": "gap-cost-basis:administrative_tax_receipts:v1",
+        "collection_mode": "municipal registry extract plus treasury time-series check",
+        "registry_extracts": 1,
+        "expert_hours": 5,
+        "data_license_days": 3,
+        "calendar_days": 9,
+        "authority_gain_base": 0.58,
+        "decision_value_base": 0.74,
+    },
+}
 
 
 class AcquisitionStrategy(StrEnum):
@@ -381,6 +412,28 @@ class AcquisitionPlannerReport(BaseModel):
         return self
 
 
+class AcquisitionPlan(BaseModel):
+    """Costed GY acquisition terminal carrying a reused scientist DataNeedSpec."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
+
+    workspace_id: str
+    data_need_spec: Any
+    terminal_state: SearchTerminalState
+    costed_plan: dict[str, Any]
+    voi_audit: VOISelectionAudit
+
+
+class RequiredDataGap(BaseModel):
+    """Adapter for RequiredDataSpec-like fields consumed by AcquisitionPlanner."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    missing_distributions: tuple[str, ...]
+    suggested_experiment: str | None = None
+    alternative_identification: str | None = None
+
+
 class _RankedVOI(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -470,6 +523,356 @@ def plan_requirement_gap_acquisition(
         voi_report=voi_report,
         generated_at=generated_at,
     )
+
+
+class AcquisitionPlanner:
+    """Build GY costed acquisition terminals through the canonical planner."""
+
+    def plan_from_required_data(
+        self,
+        required_data: object,
+        *,
+        workspace_id: str,
+        voi: float | None = None,
+    ) -> AcquisitionPlan:
+        """Convert RequiredDataSpec-like input into DataNeedSpec and a costed plan."""
+
+        missing_distributions = tuple(getattr(required_data, "missing_distributions", ()) or ())
+        missing_distribution = (
+            str(missing_distributions[0])
+            if missing_distributions
+            else "unknown_missing_distribution"
+        )
+        suggested_experiment = getattr(required_data, "suggested_experiment", None)
+        alternative_identification = getattr(
+            required_data,
+            "alternative_identification",
+            None,
+        )
+        cost_basis = _cost_basis_for_gap(
+            missing_distribution=missing_distribution,
+            suggested_experiment=suggested_experiment,
+            alternative_identification=alternative_identification,
+        )
+        authority_gain_basis = _authority_gain_basis_for_gap(
+            missing_distribution=missing_distribution,
+            cost_basis=cost_basis,
+            suggested_experiment=suggested_experiment,
+            alternative_identification=alternative_identification,
+        )
+        decision_value_basis = _decision_value_basis_for_gap(
+            missing_distribution=missing_distribution,
+            suggested_experiment=suggested_experiment,
+            alternative_identification=alternative_identification,
+        )
+        computed_voi = round(
+            float(authority_gain_basis["authority_gain"])
+            * float(decision_value_basis["decision_value"]),
+            6,
+        )
+        estimated_voi = max(0.0, float(voi)) if voi is not None else computed_voi
+        money_usd = float(cost_basis["money_usd"])
+        voi_per_cost = estimated_voi / money_usd if money_usd > 0 else 0.0
+        selected = estimated_voi > 0 and voi_per_cost >= _VOI_PER_COST_THRESHOLD
+        gap_id = f"gy-required-data-{_slug(workspace_id)}-{_slug(missing_distribution)}"
+        requirement_gap = AcquisitionRequirementGap(
+            requirement_gap_id=gap_id,
+            requirement_family=RequirementGapFamily.DATA,
+            compiled_requirement_ref=f"required-data:{_slug(missing_distribution)}",
+            requirement_schema_version="policyos.gy.required_data_adapter.v1",
+            gap_type=AcquisitionGapType.SCENARIO_SOURCE_FAMILY,
+            claim_ref=f"claim:gy:{workspace_id}:required_data",
+            scenario_requirement_refs=(missing_distribution,),
+            missing_requirement_fields=(f"missing_distribution:{missing_distribution}",),
+            authority_level=AuthorityLevel.RESEARCH,
+            mandatory_gate_state=MandatoryGateState.NONE,
+            limitation_permitted=True,
+            decision_owner_ref="gy-slice0-acquisition",
+            metadata={
+                "source": "gy_required_data_adapter",
+                "suggested_experiment": suggested_experiment,
+                "alternative_identification": alternative_identification,
+                "cost_basis_ref": cost_basis["basis_ref"],
+            },
+        )
+        voi_report = {
+            "run_id": f"voi-{_slug(workspace_id)}-acquisition",
+            "voi_ranking_ref": f"voi://gy/{_slug(workspace_id)}/acquisition",
+            "decisions": [
+                {
+                    "decision_id": f"voi-decision-{_slug(workspace_id)}-acquisition",
+                    "recommended_action": "public_registry",
+                    "expected_value": estimated_voi,
+                    "expected_cost": money_usd,
+                    "metadata": {
+                        "requirement_gap_id": gap_id,
+                        "acquisition_strategy": "public_registry",
+                        "authority_gain_basis": authority_gain_basis,
+                        "decision_value_basis": decision_value_basis,
+                        "cost_basis": cost_basis,
+                    },
+                }
+            ],
+        }
+        planner_report = plan_requirement_gap_acquisition(
+            run_id=workspace_id,
+            requirement_gaps=(requirement_gap,),
+            voi_report=voi_report,
+        )
+        if not planner_report.acquisition_records:
+            raise ValueError("canonical acquisition planner emitted no records")
+        acquisition_record = planner_report.acquisition_records[0]
+        strategy_record = next(
+            (
+                item
+                for item in acquisition_record.strategy_records
+                if item.strategy == acquisition_record.recommended_strategy.value
+            ),
+            None,
+        )
+        if strategy_record and strategy_record.voi_expected_cost is not None:
+            money_usd = float(strategy_record.voi_expected_cost)
+        data_need_spec_cls = import_module(
+            "polisyos.scientist.agent.protocols"
+        ).DataNeedSpec
+        data_need = data_need_spec_cls(
+            metric=missing_distribution,
+            geography=None,
+            purpose="acquisition_required",
+            quality_min=0.7,
+        )
+        costed_plan = {
+            "rung": 7,
+            "missing_distribution": missing_distribution,
+            "suggested_experiment": suggested_experiment,
+            "alternative_identification": alternative_identification,
+            "estimated_cost": {
+                "money_usd": money_usd,
+                "calendar_days": cost_basis["calendar_days"],
+                "expert_hours": cost_basis["expert_hours"],
+            },
+            "cost_basis": cost_basis,
+            "producer": (
+                acquisition_record.producer_expected
+                or "polisyos.runtime.quality.acquisition_planner"
+            ),
+            "canonical_planner_report": planner_report.model_dump(mode="json"),
+            "canonical_acquisition_record_ref": acquisition_record.acquisition_id,
+            "recommended_strategy": acquisition_record.recommended_strategy.value,
+            "terminal_disposition": acquisition_record.terminal_disposition.value,
+            "next_action": (
+                acquisition_record.next_actions[0].model_dump(mode="json")
+                if acquisition_record.next_actions
+                else None
+            ),
+        }
+        terminal_state = SearchTerminalState(
+            kind=(
+                SearchTerminalKind.ACQUISITION_REQUIRED
+                if selected
+                else SearchTerminalKind.SEARCH_CEILING_REPAIR_REQUIRED
+            ),
+            reason=(
+                acquisition_record.next_actions[0].message
+                if selected and acquisition_record.next_actions
+                else "RequiredDataSpec names a missing distribution with positive VOI."
+            ),
+            blocking_obligations=[],
+            costed_plan=costed_plan,
+            data_need_spec=data_need_spec_payload(data_need),
+        )
+        audit = VOISelectionAudit(
+            audit_id=f"voi-{_slug(workspace_id)}-acquisition",
+            workspace_id=workspace_id,
+            selected_terminal=(
+                SearchTerminalKind.ACQUISITION_REQUIRED
+                if selected
+                else SearchTerminalKind.SEARCH_CEILING_REPAIR_REQUIRED
+            ),
+            candidates=[
+                {
+                    "operation_proposal_ref": "slice0.acquire.costed_plan",
+                    "estimated_voi": estimated_voi,
+                    "estimated_cost": costed_plan["estimated_cost"],
+                    "voi_per_cost": voi_per_cost,
+                    "hard_budgets_allow": False,
+                    "authority_gain": authority_gain_basis["authority_gain"],
+                    "decision_value": decision_value_basis["decision_value"],
+                }
+            ],
+            selected_action_ref="slice0.acquire.costed_plan" if selected else None,
+            continuation_allowed=False,
+            decision_rule_ref="policyos.gy.anytime_exit.v1",
+            threshold=_VOI_PER_COST_THRESHOLD,
+            candidate_actions=[
+                {
+                    "operation_proposal_ref": "slice0.acquire.costed_plan",
+                    "terminal": SearchTerminalKind.ACQUISITION_REQUIRED.value,
+                }
+            ],
+            agent_suggested_scores={},
+            normalized_scores={"slice0.acquire.costed_plan": estimated_voi},
+            deterministic_voi_inputs={
+                "missing_distribution": missing_distribution,
+                "estimated_voi": estimated_voi,
+                "computed_voi": computed_voi,
+                "explicit_voi_override": voi,
+                "money_usd": costed_plan["estimated_cost"]["money_usd"],
+                "voi_per_cost": voi_per_cost,
+            },
+            rejected_or_clipped_inputs=[
+                {
+                    "operation_proposal_ref": "slice0.acquire.costed_plan",
+                    "reason": "below_voi_per_cost_threshold_or_zero_voi",
+                    "estimated_voi": estimated_voi,
+                    "voi_per_cost": voi_per_cost,
+                }
+            ]
+            if not selected
+            else [],
+            selected_action={
+                "operation_proposal_ref": "slice0.acquire.costed_plan",
+                "terminal": SearchTerminalKind.ACQUISITION_REQUIRED.value,
+            }
+            if selected
+            else {},
+            reason=(
+                "Pinned identification gap exceeds deterministic VOI-per-cost threshold."
+                if selected
+                else "Pinned identification gap did not exceed deterministic VOI-per-cost threshold."
+            ),
+            authority_gain_basis=authority_gain_basis,
+            decision_value_basis=decision_value_basis,
+            cost_basis=cost_basis,
+            bias_probe_result={"agent_scores_used": False, "status": "not_applicable"},
+        )
+        return AcquisitionPlan(
+            workspace_id=workspace_id,
+            data_need_spec=data_need,
+            terminal_state=terminal_state,
+            costed_plan=costed_plan,
+            voi_audit=audit,
+        )
+
+
+def _cost_basis_for_gap(
+    *,
+    missing_distribution: str,
+    suggested_experiment: str | None,
+    alternative_identification: str | None,
+) -> dict[str, Any]:
+    basis = dict(
+        _ACQUISITION_GAP_BASIS.get(
+            missing_distribution,
+            {
+                "basis_ref": f"gap-cost-basis:{_slug(missing_distribution)}:default",
+                "collection_mode": "named distribution acquisition",
+                "registry_extracts": 1,
+                "expert_hours": 4,
+                "data_license_days": 5,
+                "calendar_days": 10,
+                "authority_gain_base": 0.48,
+                "decision_value_base": 0.62,
+            },
+        )
+    )
+    line_items: dict[str, float] = {}
+    if basis.get("enumerator_days"):
+        line_items["enumerator_days"] = (
+            float(basis["enumerator_days"])
+            * _ACQUISITION_RATE_BASIS["enumerator_day_usd"]
+        )
+    if basis.get("registry_extracts"):
+        line_items["registry_extracts"] = (
+            float(basis["registry_extracts"])
+            * _ACQUISITION_RATE_BASIS["registry_extract_base_usd"]
+        )
+    if basis.get("expert_hours"):
+        line_items["expert_review"] = (
+            float(basis["expert_hours"])
+            * _ACQUISITION_RATE_BASIS["expert_hour_usd"]
+        )
+    if basis.get("data_license_days"):
+        line_items["data_license_or_panel"] = (
+            float(basis["data_license_days"])
+            * _ACQUISITION_RATE_BASIS["data_license_day_usd"]
+        )
+    money_usd = round(sum(line_items.values()), 2)
+    return {
+        "missing_distribution": missing_distribution,
+        "basis_ref": basis["basis_ref"],
+        "collection_mode": basis["collection_mode"],
+        "suggested_experiment": suggested_experiment,
+        "alternative_identification": alternative_identification,
+        "money_usd": money_usd,
+        "calendar_days": int(basis.get("calendar_days") or 0),
+        "expert_hours": float(basis.get("expert_hours") or 0),
+        "line_items": line_items,
+        "rate_basis": dict(_ACQUISITION_RATE_BASIS),
+    }
+
+
+def _authority_gain_basis_for_gap(
+    *,
+    missing_distribution: str,
+    cost_basis: Mapping[str, Any],
+    suggested_experiment: str | None,
+    alternative_identification: str | None,
+) -> dict[str, Any]:
+    basis = _ACQUISITION_GAP_BASIS.get(missing_distribution, {})
+    base = float(basis.get("authority_gain_base", 0.48))
+    experiment_bonus = 0.04 if suggested_experiment else 0.0
+    alternative_bonus = 0.03 if alternative_identification else 0.0
+    authority_gain = min(1.0, round(base + experiment_bonus + alternative_bonus, 6))
+    return {
+        "missing_distribution": missing_distribution,
+        "basis_ref": cost_basis["basis_ref"],
+        "from": "search_ceiling_repair_required",
+        "to": SearchTerminalKind.ACQUISITION_REQUIRED.value,
+        "authority_gain": authority_gain,
+        "components": {
+            "base_gap_authority_gain": base,
+            "suggested_experiment_bonus": experiment_bonus,
+            "alternative_identification_bonus": alternative_bonus,
+        },
+    }
+
+
+def _decision_value_basis_for_gap(
+    *,
+    missing_distribution: str,
+    suggested_experiment: str | None,
+    alternative_identification: str | None,
+) -> dict[str, Any]:
+    basis = _ACQUISITION_GAP_BASIS.get(missing_distribution, {})
+    base = float(basis.get("decision_value_base", 0.62))
+    experiment_bonus = 0.03 if suggested_experiment else 0.0
+    alternative_bonus = 0.02 if alternative_identification else 0.0
+    decision_value = min(1.0, round(base + experiment_bonus + alternative_bonus, 6))
+    return {
+        "missing_distribution": missing_distribution,
+        "rule": "policyos.gy.anytime_exit.v1",
+        "decision_value": decision_value,
+        "components": {
+            "base_gap_decision_value": base,
+            "suggested_experiment_bonus": experiment_bonus,
+            "alternative_identification_bonus": alternative_bonus,
+        },
+    }
+
+
+def data_need_spec_payload(value: object) -> dict[str, Any]:
+    """Return the stable GY JSON projection for a scientist DataNeedSpec."""
+
+    return {
+        "metric": getattr(value, "metric", None),
+        "geography": getattr(value, "geography", None),
+        "time_start": getattr(value, "time_start", None),
+        "time_end": getattr(value, "time_end", None),
+        "granularity": getattr(value, "granularity", None),
+        "quality_min": getattr(value, "quality_min", None),
+        "purpose": getattr(value, "purpose", None),
+    }
 
 
 def requirement_gaps_from_compiled_specs(
@@ -2257,18 +2660,22 @@ __all__ = [
     "AcquisitionGap",
     "AcquisitionGapType",
     "AcquisitionNextAction",
+    "AcquisitionPlan",
+    "AcquisitionPlanner",
     "AcquisitionPlannerReport",
     "AcquisitionRequirementGap",
     "AcquisitionStrategy",
     "AcquisitionStrategyRecord",
     "AuthorityLevel",
     "MandatoryGateState",
+    "RequiredDataGap",
     "RequirementGapFamily",
     "acquisition_gaps_from_capability_failure_modes",
     "acquisition_planner_reports_from_quality_evidence",
     "acquisition_planner_scorecard_gates",
     "acquisition_report_deficit_records",
     "acquisition_report_inputs",
+    "data_need_spec_payload",
     "load_acquisition_planner_report",
     "persist_acquisition_planner_report",
     "plan_evidence_acquisition",

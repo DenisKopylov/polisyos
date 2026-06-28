@@ -1,0 +1,131 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gx_pinned_request.v1",
+  "rule_version": "policyos.layer3.gx.data_home.v1",
+  "request_id": "gx-request:ua-msme-affordable-loans-2022",
+  "case_id": "ua-msme-affordable-loans-2022",
+  "request_ref": "external-request://layer3-gx/ua-msme-affordable-loans-2022",
+  "producer_ref": "external-request://layer3-gx/pinned-request/ua-msme-affordable-loans-2022",
+  "producer_type": "external_request",
+  "producer_root_refs": [
+    "external-request://layer3-gx/pinned-request/ua-msme-affordable-loans-2022"
+  ],
+  "authority_purpose": "pinned_route_replay_input_only",
+  "expected_consumer_path": [
+    "G1",
+    "G2",
+    "G4",
+    "G5",
+    "G6",
+    "G7"
+  ],
+  "requested_constructs": [
+    {
+      "construct_ref": "credit_access",
+      "role": "cause",
+      "g1_request_shape": "construct_to_metric_binding",
+      "g2_variable_ref": "policy.credit_access",
+      "broad_query_terms": [
+        "credit access",
+        "affordable loans"
+      ]
+    },
+    {
+      "construct_ref": "firm_survival",
+      "role": "effect",
+      "g1_request_shape": "scenario_family_to_source_contract",
+      "g2_variable_ref": "firm.survival",
+      "broad_query_terms": [
+        "firm survival",
+        "business continuity"
+      ]
+    },
+    {
+      "construct_ref": "credit_program_enrollment",
+      "role": "demand_context",
+      "g1_request_shape": "acquisition_gap_probe",
+      "g2_variable_ref": "policy.credit_program_enrollment",
+      "broad_query_terms": [
+        "program enrollment",
+        "loan participation"
+      ]
+    }
+  ],
+  "g1_requests": [
+    {
+      "request_id": "g1-request:construct-to-metric-binding:credit_access",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "construct_bundle_id": "ukrainian_msme_credit_constructs",
+      "request_shape": "construct_to_metric_binding",
+      "construct_ref": "credit_access",
+      "scenario_family_ref": "ua_msme_credit_support",
+      "metric_intent": "ground credit access substrate data",
+      "required_route_refs": [
+        "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+      ]
+    },
+    {
+      "request_id": "g1-request:scenario-family-to-source-contract:firm_survival",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "construct_bundle_id": "ukrainian_msme_credit_constructs",
+      "request_shape": "scenario_family_to_source_contract",
+      "construct_ref": "firm_survival",
+      "scenario_family_ref": "ua_msme_credit_support",
+      "metric_intent": "test firm survival source contract availability",
+      "required_route_refs": [
+        "duckdb://production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb#ds_metric_bindings"
+      ]
+    }
+  ],
+  "g2_request": {
+    "request_id": "g2-request:default-causal-forecast-method-search",
+    "case_id": "ua-msme-affordable-loans-2022",
+    "source_contract_refs": [
+      "source-contract://ua-msme/credit-access-firm-survival"
+    ],
+    "cause": "policy.credit_access",
+    "effect": "firm.survival",
+    "target_context_id": "UA",
+    "limit": 8,
+    "method_task_tags": [
+      "causal_effect_estimation",
+      "forecasting",
+      "uncertainty",
+      "validation"
+    ],
+    "data_modality": "panel",
+    "treatment_structure": "binary_or_intensity_credit_access",
+    "outcome_type": "firm_survival",
+    "required_diagnostics": [
+      "identification",
+      "transportability",
+      "uncertainty"
+    ]
+  },
+  "g4_promotion_requests": [
+    {
+      "request_id": "g4-request:ua-msme-source-data",
+      "case_id": "ua-msme-affordable-loans-2022",
+      "candidate_ref": "candidate://ua-msme/affordable-loans",
+      "candidate_source": "layer3_gx_pinned_request",
+      "incoming_projection_status": "shadow",
+      "promotion_scope": {
+        "claim_families": [
+          "source_data"
+        ],
+        "requested_boundary": "declared_scope"
+      },
+      "required_contract_families": [
+        "g1_source_contract"
+      ],
+      "source_design_record": {
+        "payload_status": "unresolved",
+        "ref": "pdc://layer2/s2/ua-msme/design-record-v0"
+      }
+    }
+  ],
+  "may_not_use_for": [
+    "claim_authority",
+    "policy_recommendation",
+    "corpus_supply_fact"
+  ]
+}

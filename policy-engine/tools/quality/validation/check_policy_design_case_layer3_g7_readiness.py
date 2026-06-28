@@ -12,7 +12,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from polisyos.runtime.quality import layer3_region_widening as g7
+from polisyos.runtime.quality.proving_ground import region_widening as g7
 from tools.lib.fs import atomic_write_text
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -578,7 +578,7 @@ def _registration_statuses(repo_root: Path) -> dict[str, str]:
     )
     inventory_ok = (
         g7.G7_SURFACE_ID in inventory_text
-        and "src/polisyos/runtime/quality/layer3_region_widening.py" in inventory_text
+        and "src/polisyos/runtime/quality/proving_ground/region_widening.py" in inventory_text
         and "validate_layer3_g7_readiness" in inventory_text
         and READINESS_MANIFEST_PATH.as_posix() in inventory_text
         and all(path.as_posix() in inventory_text for path in EXPECTED_ARTIFACT_PATHS)

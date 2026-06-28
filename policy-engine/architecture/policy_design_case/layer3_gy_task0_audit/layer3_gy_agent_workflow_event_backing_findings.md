@@ -74,7 +74,7 @@ The research probe confirmed this, but also confirmed `tool_names=[]`.
 
 `nl_pipeline.py` has no `run_tool_loop`, `ToolLoopResult`, or
 `scientist.agent.tools` references. The actual `run_tool_loop(...)` call is in
-`runtime/quality/layer3_bounded_agent.py`, inside the G6 bounded-agent quality
+`runtime/quality/proving_ground/bounded_request_agent.py`, inside the G6 bounded-agent quality
 producer, not the NL runtime path.
 
 The committed G6 records are tied to `req-layer3-g6-readiness` and G5 bridge refs.

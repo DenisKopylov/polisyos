@@ -432,7 +432,7 @@
       "cas_persistence": "persist_bundle(kind=scholar.web_evidence_bundle)",
       "research_dag_projection": "src/polisyos/scientist/methods/research_dag/projections.py:project_web_evidence_bundle_to_research_dag",
       "fixture_bridge_test": "tests/integration/scholar_scientist/test_search_orchestration_bridge.py",
-      "g2_laundering_guard": "src/polisyos/runtime/quality/layer3_causal_forecast.py rejects web_evidence_bundle_ref as L2 SKG search",
+      "g2_laundering_guard": "src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py rejects web_evidence_bundle_ref as L2 SKG search",
       "classification": "near_route_evidence_tool_not_canonical_l2_skg_authority"
     },
     "knowledge_toolkit_probe": {

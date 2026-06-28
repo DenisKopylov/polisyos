@@ -22,7 +22,7 @@ from polisyos.pdc import (  # noqa: E402
     project_s2_design_search,
     run_s2_shadow_design_loop,
 )
-from polisyos.runtime.quality.layer3_gx_data_home import (  # noqa: E402
+from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import (  # noqa: E402
     read_layer3_gx_pinned_case_id,
 )
 

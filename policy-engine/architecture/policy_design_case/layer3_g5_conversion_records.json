@@ -7,37 +7,21 @@
         "w12d_layer3_conversion_gate"
       ],
       "blocker_refs": [
-        "layer3_g5_cross_slice_checks_not_ready",
-        "layer3_g5_grounded_evidence_ref_missing",
-        "layer3_g5_requested_conversion_not_positive"
+        "layer3_g4_fixture_scoped_grounding_non_authoritative",
+        "layer3_g4_upstream_may_not_use_for_ignored"
       ],
       "case_id": "ua-msme-affordable-loans-2022",
       "conversion_outcome": "unchanged_blocker",
       "conversion_record_id": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
+      "decision_grade": "unsupported",
       "grounding_disposition": "ungrounded_blocked",
-      "limitation_refs": [],
-      "may_not_use_for": [
-        "production_authority",
-        "production_claim_authority",
-        "rollout_authority",
-        "publication_authority",
-        "approval_authority",
-        "scorecard_authority",
-        "closeout_authority",
-        "runtime_closeout_authority",
-        "public_recommendation",
-        "policy_recommendation",
-        "legal_advice",
-        "claim_authority_without_upstream_grounding",
-        "causal_effect_authority_without_g2",
-        "proof_authority_without_g3",
-        "legal_authority_without_gl",
-        "useful_design_rate_floor_relaxation",
-        "g6_arbitrary_request_orchestration",
-        "g7_region_widening"
+      "limitation_refs": [
+        "layer3_g5_no_governed_g4_input"
       ],
+      "may_not_use_for": [],
       "rule_version": "policyos.layer3.g5.first_proving_ground_conversion.v1",
-      "schema_version": "policyos.policy_design_case.layer3_g5_proving_ground_conversion.v1"
+      "schema_version": "policyos.policy_design_case.layer3_g5_proving_ground_conversion.v1",
+      "useful_design_credit_requested": false
     }
   ],
   "rule_version": "policyos.layer3.g5.first_proving_ground_conversion.v1",

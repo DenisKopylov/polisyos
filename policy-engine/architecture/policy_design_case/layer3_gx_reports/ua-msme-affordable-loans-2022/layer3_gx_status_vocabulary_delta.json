@@ -1,0 +1,132 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gx_status_vocabulary_delta.v1",
+  "status": "blocked_pending_human_approval",
+  "principal": "deniskopylov",
+  "statuses": [
+    {
+      "status_id": "not_measured",
+      "owner": "layer3-gx-runtime-hardening",
+      "allowed_producers": [
+        "measurement",
+        "derivation"
+      ],
+      "allowed_consumers": [
+        "GX validator",
+        "readiness manifests",
+        "audit surfaces"
+      ],
+      "composition": {
+        "readiness_status": "blocked",
+        "useful_design_credit": false,
+        "grounding_disposition": "blocked_not_measured"
+      }
+    },
+    {
+      "status_id": "search_ceiling_repair_required",
+      "owner": "layer3-gx-runtime-hardening",
+      "allowed_producers": [
+        "measurement",
+        "derivation"
+      ],
+      "allowed_consumers": [
+        "GX validator",
+        "G8 auditor",
+        "readiness manifests"
+      ],
+      "composition": {
+        "readiness_status": "blocked",
+        "useful_design_credit": false,
+        "grounding_disposition": "search_ceiling_unknown"
+      }
+    },
+    {
+      "status_id": "blocked_legacy_fallback",
+      "owner": "layer3-gx-runtime-hardening",
+      "allowed_producers": [
+        "GX validator"
+      ],
+      "allowed_consumers": [
+        "readiness manifests",
+        "audit surfaces"
+      ],
+      "composition": {
+        "readiness_status": "fail",
+        "useful_design_credit": false,
+        "promotion_state": "blocked"
+      }
+    },
+    {
+      "status_id": "bounded_surrogate",
+      "owner": "layer3-gx-runtime-hardening",
+      "allowed_producers": [
+        "measurement",
+        "derivation"
+      ],
+      "allowed_consumers": [
+        "search health",
+        "readiness manifests"
+      ],
+      "composition": {
+        "readiness_status": "limited",
+        "useful_design_credit": false,
+        "grounding_disposition": "limited_surrogate_only"
+      }
+    },
+    {
+      "status_id": "grounded_abstention_candidate",
+      "owner": "layer3-gx-runtime-hardening",
+      "allowed_producers": [
+        "reducer"
+      ],
+      "allowed_consumers": [
+        "G5 reducer only after approval"
+      ],
+      "composition": {
+        "readiness_status": "review_required",
+        "useful_design_credit": false,
+        "approval_required": "deniskopylov"
+      }
+    }
+  ],
+  "issue_codes": [
+    {
+      "code": "layer3_gx_reducer_provenance_missing",
+      "owner": "layer3-gx-runtime-hardening"
+    },
+    {
+      "code": "layer3_gx_inline_input_forbidden",
+      "owner": "layer3-gx-runtime-hardening"
+    },
+    {
+      "code": "layer3_gx_producer_root_invalid",
+      "owner": "layer3-gx-runtime-hardening"
+    },
+    {
+      "code": "layer3_gx_correction_required",
+      "owner": "layer3-gx-runtime-hardening"
+    },
+    {
+      "code": "layer3_gx_alias_unverified",
+      "owner": "layer3-gx-runtime-hardening"
+    },
+    {
+      "code": "layer3_gx_runtime_literal_forbidden",
+      "owner": "layer3-gx-runtime-hardening"
+    },
+    {
+      "code": "layer3_gx_placeholder_digest_forbidden",
+      "owner": "layer3-gx-runtime-hardening"
+    },
+    {
+      "code": "layer3_gx_malformed_sha256_forbidden",
+      "owner": "layer3-gx-runtime-hardening"
+    }
+  ],
+  "issues": [
+    {
+      "code": "layer3_gx_human_approval_required",
+      "path": "architecture/policy_design_case/layer3_gx_reports/ua-msme-affordable-loans-2022/layer3_gx_status_vocabulary_delta.json",
+      "message": "grounded_abstention_candidate remains blocked until highest-governance approval exists."
+    }
+  ]
+}

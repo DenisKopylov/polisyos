@@ -7,11 +7,29 @@ from polisyos.runtime.http.services.artifact_inspector import ArtifactInspectorS
 from polisyos.runtime.http.services.lineage import LineageService
 
 
+def _authority_boundary() -> dict[str, object]:
+    return {
+        "boundary_id": "boundary-inspector-test",
+        "authoritative_for": ["runtime_closeout_authority"],
+        "may_not_use_for": ["publication"],
+        "source_authority": "inspector_test_fixture",
+        "posture": "governed",
+        "rule_version_refs": ["policyos.test.authority.v1"],
+        "evidence_kind": "measurement",
+        "decision_grade": "decision_admissible",
+    }
+
+
 def test_redaction_hook_failure_fails_closed(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     ref = store.put_bytes(
-        b"super secret",
-        PutOptions(kind="test.preview", media_type="text/plain"),
+        json.dumps(
+            {
+                "authority_boundary": _authority_boundary(),
+                "value": "safe preview text",
+            }
+        ).encode("utf-8"),
+        PutOptions(kind="test.preview", media_type="application/json"),
     )
     service = ArtifactInspectorService(
         store=store,
@@ -29,6 +47,7 @@ def test_redaction_hook_failure_fails_closed(tmp_path) -> None:
 def test_decision_packet_preview_adds_typed_sidecar(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "cas")
     payload = {
+        "authority_boundary": _authority_boundary(),
         "document_outline": [
             {
                 "section_id": "policy_answer",

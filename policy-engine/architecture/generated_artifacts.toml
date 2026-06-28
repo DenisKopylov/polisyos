@@ -1539,3 +1539,217 @@ commit_policy = "committed"
 freshness_rule = "Review whenever runtime deployment contracts, tenant isolation, RLS, rollback, helper bindings, release gates, or migration sequencing changes."
 drift_gate = "manual_review"
 workflow = "ops/ci/templates/workflows/arch.yml"
+
+[[family]]
+id = "policy-design-case-layer3-gy-production-data-substrate-registry-contract"
+label = "Policy Design Case Layer 3 GY production-data substrate registry contract"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+gy_lifecycle_family = true
+generator = "Production-data substrate registry contract validator generated from the live Pydantic model"
+verifier = "Production-data substrate registry contract validator and GY-M1 lifecycle gate"
+promotion_target = "registered canonical substrate registry schema for GY-S0"
+stale_output_behavior = "fail"
+source_of_truth = "src/polisyos/runtime/quality/substrate_registry.py and tools/quality/validation/check_production_data_substrate_registry_contract.py"
+outputs = [
+  "architecture/policy_design_case/production_data_substrate_registry_contract.json",
+]
+regenerate_commands = [
+  "uv run python tools/quality/validation/check_production_data_substrate_registry_contract.py --repo-root . --write --output-format json",
+]
+commit_policy = "committed"
+freshness_rule = "Regenerate and commit whenever SubstrateRegistry fields, catalog authority lifting, free-grow registration, or WorldModelRecord substrate consumption changes."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_production_data_substrate_registry_contract.py"
+check_cwd = "."
+check_command = [
+  "uv",
+  "run",
+  "python",
+  "tools/quality/validation/check_production_data_substrate_registry_contract.py",
+  "--repo-root",
+  ".",
+  "--check",
+  "--output-format",
+  "json",
+]
+
+[[family]]
+id = "policy-design-case-layer3-gy-data-state-substrate-contract"
+label = "Policy Design Case Layer 3 GY data-state substrate contract"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+gy_lifecycle_family = true
+generator = "Layer 3 GY data-state substrate contract validator generated from the live S1 bridge"
+verifier = "Layer 3 GY data-state substrate contract validator and GY-M1 lifecycle gate"
+promotion_target = "registered canonical L1/L4/L5 data-state substrate lift contract for GY-S1"
+stale_output_behavior = "fail"
+source_of_truth = "src/polisyos/runtime/quality/data_state_substrate.py and tools/quality/validation/check_layer3_gy_data_state_substrate_contract.py"
+outputs = [
+  "architecture/policy_design_case/layer3_gy_data_state_substrate_contract.json",
+]
+regenerate_commands = [
+  "uv run python tools/quality/validation/check_layer3_gy_data_state_substrate_contract.py --repo-root . --write --output-format json",
+]
+commit_policy = "committed"
+freshness_rule = "Regenerate and commit whenever the real L4 materialization bridge, L1 availability checks, L5 trust/identification/regime checks, Data Forge/Foundry binding, S0 registration, or N3 world binding semantics change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_data_state_substrate_contract.py"
+check_cwd = "."
+check_command = [
+  "uv",
+  "run",
+  "python",
+  "tools/quality/validation/check_layer3_gy_data_state_substrate_contract.py",
+  "--repo-root",
+  ".",
+  "--check",
+  "--output-format",
+  "json",
+]
+
+[[family]]
+id = "policy-design-case-layer3-gy-knowledge-substrate-contract"
+label = "Policy Design Case Layer 3 GY knowledge substrate contract"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+gy_lifecycle_family = true
+generator = "Layer 3 GY knowledge-substrate contract validator generated from live L2 Scholar and L3 Lex stores"
+verifier = "Layer 3 GY knowledge-substrate contract validator and GY-M1 lifecycle gate"
+promotion_target = "registered canonical L2/L3 credal substrate lift contract for GY-S2"
+stale_output_behavior = "fail"
+source_of_truth = "src/polisyos/data_forge/domains/academic/knowledge/skg_query.py, src/polisyos/lex/knowledge/store.py, src/polisyos/lex/knowledge/types.py, src/polisyos/runtime/quality/substrate_registry.py, and tools/quality/validation/check_layer3_gy_knowledge_substrate_contract.py"
+outputs = [
+  "architecture/policy_design_case/layer3_gy_knowledge_substrate_contract.json",
+]
+regenerate_commands = [
+  "uv run python tools/quality/validation/check_layer3_gy_knowledge_substrate_contract.py --repo-root . --write --output-format json",
+]
+commit_policy = "committed"
+freshness_rule = "Regenerate and commit whenever L2 estimate lowering, SKG grounding, transport/contested lowering, L3 threshold/admissibility, amendment temporal competence, or S0 L2/L3 registration semantics change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_knowledge_substrate_contract.py"
+check_cwd = "."
+check_command = [
+  "uv",
+  "run",
+  "python",
+  "tools/quality/validation/check_layer3_gy_knowledge_substrate_contract.py",
+  "--repo-root",
+  ".",
+  "--check",
+  "--output-format",
+  "json",
+]
+
+[[family]]
+id = "policy-design-case-layer3-gy-intervention-substrate-contract"
+label = "Policy Design Case Layer 3 GY intervention substrate contract"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+gy_lifecycle_family = true
+generator = "Layer 3 GY intervention-substrate contract validator generated from live L6 agent-sim control artifacts"
+verifier = "Layer 3 GY intervention-substrate contract validator and GY-M1 lifecycle gate"
+promotion_target = "registered canonical L6 lever, law-route, and method-route substrate lift contract for GY-S3"
+stale_output_behavior = "fail"
+source_of_truth = "src/polisyos/runtime/quality/intervention_substrate.py, src/polisyos/runtime/quality/substrate_registry.py, src/polisyos/lex/knowledge/store.py, src/polisyos/foundry/methods/selection/registry.py, and tools/quality/validation/check_layer3_gy_intervention_substrate_contract.py"
+outputs = [
+  "architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json",
+]
+regenerate_commands = [
+  "uv run python tools/quality/validation/check_layer3_gy_intervention_substrate_contract.py --repo-root . --write --output-format json",
+]
+commit_policy = "committed"
+freshness_rule = "Regenerate and commit whenever L6 knob-domain resolution, law-to-lever L3 admissibility, Foundry method routing, Python 3.14 availability blockers, S0 L6 registration, or remove-property mutation witnesses change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_intervention_substrate_contract.py"
+check_cwd = "."
+check_command = [
+  "uv",
+  "run",
+  "python",
+  "tools/quality/validation/check_layer3_gy_intervention_substrate_contract.py",
+  "--repo-root",
+  ".",
+  "--check",
+  "--output-format",
+  "json",
+]
+
+[[family]]
+id = "policy-design-case-layer3-gy-value-outer-set-strangle-receipt"
+label = "Policy Design Case Layer 3 GY ValueOuterSet household bounds strangle receipt"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "generated_committed"
+gy_lifecycle_family = true
+generator = "Layer 3 GY ValueOuterSet strangle receipt validator generated from live state, slots, and S1 payload"
+verifier = "Layer 3 GY ValueOuterSet strangle receipt validator and GY-M1 lifecycle gate"
+promotion_target = "registered deletion receipt for ad-hoc GY-S1 household lower/upper identification fields"
+stale_output_behavior = "fail"
+source_of_truth = "src/polisyos/core/contracts/value_outer_set.py, src/polisyos/foundry/contracts/state.py, src/polisyos/ir/kernel/slots.py, src/polisyos/foundry/agent_sim/wiring/executors.py, src/polisyos/runtime/quality/data_state_substrate.py, and tools/quality/validation/check_layer3_gy_value_outer_set_strangle_receipt.py"
+outputs = [
+  "architecture/policy_design_case/layer3_gy_value_outer_set_strangle_receipt.json",
+]
+regenerate_commands = [
+  "uv run python tools/quality/validation/check_layer3_gy_value_outer_set_strangle_receipt.py --repo-root . --write --output-format json",
+]
+commit_policy = "committed"
+freshness_rule = "Regenerate and commit whenever GY-N-V ValueOuterSet, HouseholdCellState, household slots, S1 household payload, or executor interval projection semantics change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_value_outer_set_strangle_receipt.py"
+check_cwd = "."
+check_command = [
+  "uv",
+  "run",
+  "python",
+  "tools/quality/validation/check_layer3_gy_value_outer_set_strangle_receipt.py",
+  "--repo-root",
+  ".",
+  "--check",
+  "--output-format",
+  "json",
+]
+
+[[family]]
+id = "policy-design-case-layer3-gy-generation-cycle-disposition-ledger"
+label = "Policy Design Case Layer 3 GY generation-cycle disposition ledger"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+lifecycle = "source_committed"
+gy_lifecycle_family = true
+generator = "Reviewer-owned GY-N0 disposition ledger distilled from the completed five-pass investigation notebook"
+verifier = "Layer 3 GY generation-cycle disposition ledger validator, live Python 3.14 method probe, negative fixtures, corrupt-field drift probe, and architecture guardrails"
+promotion_target = "registered Policy Design Case GY-N0 hard gate ledger before GY-N1..N10 land"
+stale_output_behavior = "fail"
+source_committed_rationale = "human-authored governed source: the ledger distils the completed investigation into owner dispositions and pending strangle obligations; the validator recomputes anchors, coverage, live method availability, and landed-task consumption."
+source_of_truth = "architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json, architecture/policy_design_case/layer3_gy_n0_investigation.md, docs/plans/active/layer3-slices/GY-engine-subordination.md, and tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py"
+outputs = [
+  "architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json",
+  "architecture/policy_design_case/layer3_gy_n0_investigation.md",
+]
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json" = "sha256:2a3ddf2646ca803060a3462796e3acf85627e40baac8fe5104e9524e667002c0"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_n0_investigation.md" = "sha256:7aea27e40644f7b786219767810041cb0d3c302ab4435757faaa6bf959ce3b53"
+regenerate_commands = [
+  "uv run python tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --repo-root . --check --output-format json",
+]
+commit_policy = "committed"
+freshness_rule = "Review and update the ledger whenever the GY-N0 investigation, GY-N1..N10/O1..O3 task mapping, owner dispositions, or strangle conditions change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py"
+check_cwd = "."
+check_command = [
+  "uv",
+  "run",
+  "python",
+  "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+  "--repo-root",
+  ".",
+  "--check",
+  "--output-format",
+  "json",
+]

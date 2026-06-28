@@ -1,0 +1,44 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gx_scope_seed_rows.v1",
+  "rule_version": "policyos.layer3.gx.data_home.v1",
+  "producer_ref": "external-request://layer3-gx/scope/ua-msme-affordable-loans-2022",
+  "producer_type": "external_request",
+  "scope_rows": [
+    {
+      "scope_key": "entity_type",
+      "value": "firm",
+      "authority_role": "demand_scope",
+      "validity_status": "unverified"
+    },
+    {
+      "scope_key": "population",
+      "value": "msme",
+      "authority_role": "demand_scope",
+      "validity_status": "unverified"
+    },
+    {
+      "scope_key": "geography",
+      "value": "UA",
+      "authority_role": "demand_scope",
+      "validity_status": "unverified"
+    },
+    {
+      "scope_key": "modality",
+      "value": "panel",
+      "authority_role": "demand_scope",
+      "validity_status": "unverified"
+    },
+    {
+      "scope_key": "source_family_alias",
+      "value": "production_msme_panel",
+      "authority_role": "demand_scope",
+      "validity_status": "unverified"
+    },
+    {
+      "scope_key": "validity_limit",
+      "value": "demand_seed_only_no_supply_assertion",
+      "authority_role": "demand_scope",
+      "validity_status": "unverified"
+    }
+  ]
+}

@@ -5,7 +5,10 @@
     "EXPERT",
     "MACHINE"
   ],
-  "blocker_refs": [],
+  "blocker_refs": [
+    "layer3_g4_fixture_scoped_grounding_non_authoritative",
+    "layer3_g4_upstream_may_not_use_for_ignored"
+  ],
   "issue_codes": [],
   "limitation_refs": [],
   "may_not_use_for": [
@@ -29,8 +32,13 @@
     "legal_authority_without_gl",
     "human_override_of_a_incompleteness"
   ],
-  "promotion_record_refs": [],
-  "promotion_state_counts": {},
+  "promotion_record_refs": [
+    "g4-promotion-record:g4-request:ua-msme-source-only-valid",
+    "g4-promotion-record:g4-request:upstream-may-not-use-blocked"
+  ],
+  "promotion_state_counts": {
+    "promotion_blocked": 2
+  },
   "surface_audiences": [
     "PUBLIC",
     "REVIEWER",

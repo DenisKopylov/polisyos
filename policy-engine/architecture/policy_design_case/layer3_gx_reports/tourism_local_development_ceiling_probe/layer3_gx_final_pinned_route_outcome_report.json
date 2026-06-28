@@ -1,0 +1,316 @@
+{
+  "schema_version": "policyos.policy_design_case.layer3_gx_final_pinned_route_outcome.v1",
+  "rule_version": "policyos.layer3.gx.final_task12.v1",
+  "run_phase": "final_task12",
+  "status": "blocked",
+  "outcome_kind": "search_ceiling_repair_required",
+  "outcome_source": "reduce_g5_conversion_outcome+reduce_g8_domain_vs_search_ceiling",
+  "case_id": "tourism_local_development_ceiling_probe",
+  "request_ref": "external-request://layer3-gx/tourism_local_development_ceiling_probe",
+  "route_replay_key": "layer3-gx-vertical-pinned-route:tourism_local_development_ceiling_probe:v1",
+  "data_home_status": "ready",
+  "g1_search_measurement_status": "blocked",
+  "g1_grounding_closure": "search_ceiling_repair_required",
+  "g4_promotion_state": "promotion_blocked",
+  "g5_conversion_outcome": "unchanged_blocker",
+  "g8_domain_vs_search_ceiling_status": "search_ceiling_repair_required",
+  "g8_open_question_answer_status": "blocked",
+  "g8_metric_governance_audit_surface_status": "blocked",
+  "g8_closeout_signal_consumer_status": "pass",
+  "g8_search_health_classification": {
+    "admission_status": "unmeasured",
+    "classification_id": "layer3-g8://search-health-classification",
+    "current_blocker_status": "unmeasured",
+    "dereferenced_artifact_status": "unmeasured",
+    "evidence_refs": [
+      "repo://architecture/policy_design_case/layer3_g1_health_metric_delta.toml",
+      "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json",
+      "repo://architecture/policy_design_case/layer3_g2_health_metric_delta.toml",
+      "repo://architecture/policy_design_case/layer3_g2_search_recall_freshness.json",
+      "repo://architecture/policy_design_case/layer3_g2_readiness_manifest.json",
+      "repo://architecture/policy_design_case/layer3_g3_health_metric_delta.toml",
+      "repo://architecture/policy_design_case/layer3_g3_search_recall_freshness.json",
+      "repo://architecture/policy_design_case/layer3_g3_readiness_manifest.json",
+      "repo://architecture/policy_design_case/layer3_gl_health_metric_delta.toml",
+      "repo://architecture/policy_design_case/layer3_gl_search_recall_freshness.json",
+      "repo://architecture/policy_design_case/layer3_gl_readiness_manifest.json",
+      "repo://architecture/policy_design_case/layer3_g5_health_metric_delta.toml",
+      "repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json",
+      "repo://architecture/policy_design_case/layer3_g7_dependency_readiness_snapshot.json",
+      "repo://architecture/policy_design_case/layer3_g7_search_recall_freshness_join.json"
+    ],
+    "freshness_status": "unmeasured",
+    "issue_codes": [
+      "layer3_g8_blocker_specific_search_diagnostic_missing"
+    ],
+    "pinned_request_status": "unmeasured",
+    "production_readiness_status": "blocked_current_blocker_search_unmeasured",
+    "search_frontier_status": "unmeasured",
+    "seed_corpus_status": "fail"
+  },
+  "g8_domain_ceiling_precondition_statuses": {
+    "admission": "unmeasured",
+    "dereferenced_artifacts": "unmeasured",
+    "freshness": "unmeasured",
+    "search_frontier": "unmeasured"
+  },
+  "useful_design_credit": false,
+  "reducer_calls": [
+    {
+      "reducer_id": "reduce_g1_source_grounding_closure",
+      "status_field": "grounding_closure_outcome",
+      "status": "search_ceiling_repair_required",
+      "readiness_status": "blocked",
+      "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
+      "input_refs": [
+        "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json",
+        "repo://architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json",
+        "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json"
+      ],
+      "input_hashes": {
+        "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json": "sha256:bc2112bfbf228d4d742a4add3b8473ea358d21471e7b650024963fb20a7561fd",
+        "repo://architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json": "sha256:4f7ece8c2e18fac5826ae56ae6c1b6d9875511fc55e79ece7a791092cfa2e45b",
+        "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json": "sha256:99bb3f31d68ebd6c41e286f60fc00f0a6558577c0fa460d86efa2b179c42f60d"
+      },
+      "output_hash": "sha256:e2a1e876731a9bb5b7fb053ed9c4603337093ae4530adb840c148f3700439fc4",
+      "persisted_status_ref": "repo://architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_vertical_pinned_route_report.json#decisions/0"
+    },
+    {
+      "reducer_id": "reduce_g4_promotion_state",
+      "status_field": "promotion_state",
+      "status": "promotion_blocked",
+      "readiness_status": "fail",
+      "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
+      "input_refs": [
+        "repo://architecture/policy_design_case/layer3_gx_data_home/cases/tourism_local_development_ceiling_probe/layer3_gx_pinned_request.json",
+        "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json",
+        "repo://architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json",
+        "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json"
+      ],
+      "input_hashes": {
+        "repo://architecture/policy_design_case/layer3_gx_data_home/cases/tourism_local_development_ceiling_probe/layer3_gx_pinned_request.json": "sha256:39c28778f13e50df50caad86f1c33b4c56cd8c59d7cdb33c8339878ee382b170",
+        "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json": "sha256:bc2112bfbf228d4d742a4add3b8473ea358d21471e7b650024963fb20a7561fd",
+        "repo://architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json": "sha256:4f7ece8c2e18fac5826ae56ae6c1b6d9875511fc55e79ece7a791092cfa2e45b",
+        "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json": "sha256:99bb3f31d68ebd6c41e286f60fc00f0a6558577c0fa460d86efa2b179c42f60d"
+      },
+      "output_hash": "sha256:658589b312f6db6f13f054a0298874f7ac8ba95be98270712abcbb4e2b3b9ba6",
+      "persisted_status_ref": "repo://architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_vertical_pinned_route_report.json#decisions/1"
+    },
+    {
+      "reducer_id": "reduce_g5_conversion_outcome",
+      "status_field": "conversion_outcome",
+      "status": "unchanged_blocker",
+      "readiness_status": "fail",
+      "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
+      "input_refs": [
+        "repo://architecture/policy_design_case/layer3_gx_data_home/cases/tourism_local_development_ceiling_probe/layer3_gx_demand_pull_request.json",
+        "reducer://layer3-gx/reduce_g1_source_grounding_closure",
+        "reducer://layer3-gx/reduce_g4_promotion_state",
+        "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json",
+        "repo://architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json",
+        "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json"
+      ],
+      "input_hashes": {
+        "repo://architecture/policy_design_case/layer3_gx_data_home/cases/tourism_local_development_ceiling_probe/layer3_gx_demand_pull_request.json": "sha256:78a3db9e1f489c1b4675f9c25b3ac8c6fae0f93fdea954c88b807254f643426e",
+        "reducer://layer3-gx/reduce_g1_source_grounding_closure": "sha256:e2a1e876731a9bb5b7fb053ed9c4603337093ae4530adb840c148f3700439fc4",
+        "reducer://layer3-gx/reduce_g4_promotion_state": "sha256:658589b312f6db6f13f054a0298874f7ac8ba95be98270712abcbb4e2b3b9ba6",
+        "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json": "sha256:bc2112bfbf228d4d742a4add3b8473ea358d21471e7b650024963fb20a7561fd",
+        "repo://architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json": "sha256:4f7ece8c2e18fac5826ae56ae6c1b6d9875511fc55e79ece7a791092cfa2e45b",
+        "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json": "sha256:99bb3f31d68ebd6c41e286f60fc00f0a6558577c0fa460d86efa2b179c42f60d"
+      },
+      "output_hash": "sha256:4eccbb5bbf53f01ac45412b7585b304f9dcad105705b2b97601bb1d0679701fd",
+      "persisted_status_ref": "repo://architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_vertical_pinned_route_report.json#decisions/2"
+    },
+    {
+      "reducer_id": "reduce_g8_domain_vs_search_ceiling",
+      "status_field": "domain_vs_search_ceiling_status",
+      "status": "search_ceiling_repair_required",
+      "readiness_status": "blocked",
+      "rule_version": "policyos.layer3.gx.reducer_only_status.v1",
+      "input_refs": [
+        "repo://architecture/policy_design_case/layer3_g8_domain_vs_search_ceiling_gate.json",
+        "repo://architecture/policy_design_case/layer3_g8_open_question_answer_ledger.json",
+        "repo://architecture/policy_design_case/layer3_g8_cross_metric_diagnosis.json",
+        "repo://architecture/policy_design_case/layer3_g8_metric_governance_audit_surface.json",
+        "repo://architecture/policy_design_case/layer3_g8_closeout_signal_consumer_gate.json",
+        "repo://architecture/policy_design_case/layer3_g8_readiness_manifest.json"
+      ],
+      "input_hashes": {
+        "repo://architecture/policy_design_case/layer3_g8_domain_vs_search_ceiling_gate.json": "sha256:c84144d37fd8fb73b76d815dbf7540a6186e191e523b85b0d84f79aeab48548f",
+        "repo://architecture/policy_design_case/layer3_g8_open_question_answer_ledger.json": "sha256:e824fb88240256fe52b2f0c5de98e8be2342fdcd0d3d1af78f0cc30ab9ce32a8",
+        "repo://architecture/policy_design_case/layer3_g8_cross_metric_diagnosis.json": "sha256:a9a8b92d88cb960d0cd20204c7b1167a69a5f56913c2a9373b3e92c2cf998033",
+        "repo://architecture/policy_design_case/layer3_g8_metric_governance_audit_surface.json": "sha256:9054ad9c14ed3a5599fbcb55d554beda2d99ab46905b6dcfb9fcd9c5220188cc",
+        "repo://architecture/policy_design_case/layer3_g8_closeout_signal_consumer_gate.json": "sha256:cbecb5dc97fd1cc33597eda3f3fd0420049527074108bc7bbe971bad5aa66dd8",
+        "repo://architecture/policy_design_case/layer3_g8_readiness_manifest.json": "sha256:9004adafc5379a0508a5f10463073fbe5c5251bc790270141c3ce4a152782d89"
+      },
+      "output_hash": "sha256:7be6c17a4d19be607cc209bb2342d732164bcd05172b725747ecb694575ced54",
+      "persisted_status_ref": "repo://architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_final_pinned_route_outcome_report.json#g8_domain_vs_search_ceiling"
+    }
+  ],
+  "persisted_artifact_refs": [
+    "repo://architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_vertical_pinned_route_report.json",
+    "repo://architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_provisional_pinned_route_outcome_report.json",
+    "repo://architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_final_blocker_audit_record.json",
+    "repo://architecture/policy_design_case/layer3_gx_data_home/cases/tourism_local_development_ceiling_probe/layer3_gx_pinned_request.json",
+    "repo://architecture/policy_design_case/layer3_gx_data_home/cases/tourism_local_development_ceiling_probe/layer3_gx_demand_pull_request.json",
+    "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json",
+    "repo://architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json",
+    "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json",
+    "repo://architecture/policy_design_case/layer3_g8_readiness_manifest.json",
+    "repo://architecture/policy_design_case/layer3_g8_cross_metric_diagnosis.json",
+    "repo://architecture/policy_design_case/layer3_g8_domain_vs_search_ceiling_gate.json",
+    "repo://architecture/policy_design_case/layer3_g8_open_question_answer_ledger.json",
+    "repo://architecture/policy_design_case/layer3_g8_metric_governance_audit_surface.json",
+    "repo://architecture/policy_design_case/layer3_g8_closeout_signal_consumer_gate.json"
+  ],
+  "g8_required_audit_refs": [
+    "repo://architecture/policy_design_case/layer3_g8_cross_metric_diagnosis.json#search_health_classification",
+    "repo://architecture/policy_design_case/layer3_g8_domain_vs_search_ceiling_gate.json#search_health_classification",
+    "repo://architecture/policy_design_case/layer3_g8_domain_vs_search_ceiling_gate.json#domain_ceiling_precondition_statuses",
+    "repo://architecture/policy_design_case/layer3_g8_open_question_answer_ledger.json#8.4-search-recall-freshness",
+    "repo://architecture/policy_design_case/layer3_g8_metric_governance_audit_surface.json",
+    "repo://architecture/policy_design_case/layer3_g8_closeout_signal_consumer_gate.json"
+  ],
+  "g8_audit_ref": "repo://architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_final_blocker_audit_record.json",
+  "g8_audit_hash": "sha256:9652da0b5586e5d5a167da58330313bb90bf2505013c7ecb13e0dba9cb222b2d",
+  "provisional_run_ref": "repo://architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_provisional_pinned_route_outcome_report.json",
+  "next_missing_refs": [
+    "layer3_g5_cross_slice_checks_not_ready",
+    "layer3_g5_grounded_evidence_ref_missing",
+    "layer3_g5_abstention_candidate_missing",
+    "layer3_g1_search_health_not_measured_or_failed",
+    "layer3_g4_missing_g1_grounded_source_contract",
+    "layer3_g4_source_design_record_unresolved",
+    "layer3_g4_dependency_not_ready:blocked",
+    "layer3_g8_search_recall_miss_reported_as_domain_ceiling",
+    "layer3_g8_demand_numeric_inertia_hidden_as_pass",
+    "layer3_g8_blocker_specific_search_diagnostic_missing",
+    "layer3_g8_governance_stall_hidden_as_domain_ceiling",
+    "layer3_g8_search_health_not_sufficient_for_domain_ceiling"
+  ],
+  "issue_codes": [
+    "layer3_g1_search_health_not_measured_or_failed",
+    "layer3_g4_missing_g1_grounded_source_contract",
+    "layer3_g4_source_design_record_unresolved",
+    "layer3_g4_dependency_not_ready:blocked",
+    "layer3_g5_cross_slice_checks_not_ready",
+    "layer3_g5_grounded_evidence_ref_missing",
+    "layer3_g5_abstention_candidate_missing",
+    "layer3_g8_search_recall_miss_reported_as_domain_ceiling",
+    "layer3_g8_demand_numeric_inertia_hidden_as_pass",
+    "layer3_g8_blocker_specific_search_diagnostic_missing",
+    "layer3_g8_governance_stall_hidden_as_domain_ceiling",
+    "layer3_g8_search_health_not_sufficient_for_domain_ceiling"
+  ],
+  "authoritative_for": [
+    "gx_final_task12_pinned_route_replay",
+    "gx_final_task12_reducer_outcome_audit"
+  ],
+  "may_not_use_for": [
+    "production_authority",
+    "production_claim_authority",
+    "rollout_authority",
+    "publication_authority",
+    "approval_authority",
+    "closeout_authority",
+    "runtime_closeout_authority",
+    "recommendation_authority",
+    "universal_claim_authority",
+    "domain_ceiling_authority_without_gate",
+    "useful_design_credit",
+    "scorecard_authority",
+    "public_recommendation",
+    "policy_recommendation",
+    "legal_advice",
+    "claim_authority",
+    "obligation_authority",
+    "causal_effect_authority",
+    "proof_authority",
+    "legal_authority",
+    "universal_claim_authority_without_s14",
+    "s14_universality_claim_without_s14_gate",
+    "metric_optimization_authority",
+    "useful_design_rate_optimization",
+    "threshold_lowering",
+    "s14_battery_training",
+    "hidden_fixture_access",
+    "g7_region_widening_authority"
+  ],
+  "final_run_hash_basis": "report_without_final_run_hash",
+  "provisional_comparison": {
+    "provisional_run_ref": "repo://architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_provisional_pinned_route_outcome_report.json",
+    "provisional_run_hash": "sha256:60f54f7773db952633b738ae60b200b04fb278641b0dd958070fff9362ae1e66",
+    "final_run_hash": "sha256:4ad2f8d56a07c46a54edc8615c1823da624c92d0f035a38192237b31ec39b37c",
+    "changed_statuses": [
+      {
+        "field": "outcome_kind",
+        "provisional": "typed_blocker",
+        "final": "search_ceiling_repair_required",
+        "reason": "final_task12_adds_task11_g8_domain_vs_search_ceiling_gate"
+      },
+      {
+        "field": "g8_open_question_surface_status",
+        "provisional": "not_required_until_task11",
+        "final": "blocked",
+        "reason": "task11_g8_open_question_surface_is_now_required"
+      }
+    ],
+    "changed_reducer_inputs": [
+      {
+        "reducer_id": "reduce_g8_domain_vs_search_ceiling",
+        "change": "added_in_final_task12",
+        "input_refs": [
+          "repo://architecture/policy_design_case/layer3_g8_domain_vs_search_ceiling_gate.json",
+          "repo://architecture/policy_design_case/layer3_g8_open_question_answer_ledger.json",
+          "repo://architecture/policy_design_case/layer3_g8_cross_metric_diagnosis.json",
+          "repo://architecture/policy_design_case/layer3_g8_metric_governance_audit_surface.json",
+          "repo://architecture/policy_design_case/layer3_g8_closeout_signal_consumer_gate.json",
+          "repo://architecture/policy_design_case/layer3_g8_readiness_manifest.json"
+        ],
+        "input_hashes": {
+          "repo://architecture/policy_design_case/layer3_g8_domain_vs_search_ceiling_gate.json": "sha256:c84144d37fd8fb73b76d815dbf7540a6186e191e523b85b0d84f79aeab48548f",
+          "repo://architecture/policy_design_case/layer3_g8_open_question_answer_ledger.json": "sha256:e824fb88240256fe52b2f0c5de98e8be2342fdcd0d3d1af78f0cc30ab9ce32a8",
+          "repo://architecture/policy_design_case/layer3_g8_cross_metric_diagnosis.json": "sha256:a9a8b92d88cb960d0cd20204c7b1167a69a5f56913c2a9373b3e92c2cf998033",
+          "repo://architecture/policy_design_case/layer3_g8_metric_governance_audit_surface.json": "sha256:9054ad9c14ed3a5599fbcb55d554beda2d99ab46905b6dcfb9fcd9c5220188cc",
+          "repo://architecture/policy_design_case/layer3_g8_closeout_signal_consumer_gate.json": "sha256:cbecb5dc97fd1cc33597eda3f3fd0420049527074108bc7bbe971bad5aa66dd8",
+          "repo://architecture/policy_design_case/layer3_g8_readiness_manifest.json": "sha256:9004adafc5379a0508a5f10463073fbe5c5251bc790270141c3ce4a152782d89"
+        },
+        "reason": "final_task12_consumes_g8_audit_surface_after_task11_rollout"
+      }
+    ],
+    "changed_producer_roots": [
+      {
+        "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_readiness_manifest.json",
+        "change": "added_in_final_task12",
+        "content_hash": "sha256:9004adafc5379a0508a5f10463073fbe5c5251bc790270141c3ce4a152782d89"
+      },
+      {
+        "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_cross_metric_diagnosis.json",
+        "change": "added_in_final_task12",
+        "content_hash": "sha256:a9a8b92d88cb960d0cd20204c7b1167a69a5f56913c2a9373b3e92c2cf998033"
+      },
+      {
+        "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_domain_vs_search_ceiling_gate.json",
+        "change": "added_in_final_task12",
+        "content_hash": "sha256:c84144d37fd8fb73b76d815dbf7540a6186e191e523b85b0d84f79aeab48548f"
+      },
+      {
+        "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_open_question_answer_ledger.json",
+        "change": "added_in_final_task12",
+        "content_hash": "sha256:e824fb88240256fe52b2f0c5de98e8be2342fdcd0d3d1af78f0cc30ab9ce32a8"
+      },
+      {
+        "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_metric_governance_audit_surface.json",
+        "change": "added_in_final_task12",
+        "content_hash": "sha256:9054ad9c14ed3a5599fbcb55d554beda2d99ab46905b6dcfb9fcd9c5220188cc"
+      },
+      {
+        "producer_root_ref": "repo://architecture/policy_design_case/layer3_g8_closeout_signal_consumer_gate.json",
+        "change": "added_in_final_task12",
+        "content_hash": "sha256:cbecb5dc97fd1cc33597eda3f3fd0420049527074108bc7bbe971bad5aa66dd8"
+      }
+    ],
+    "explanation": "Final Task 12 keeps the provisional G5 reducer outcome, then adds the Task 11 G8 domain-vs-search ceiling reducer and audit-only evidence."
+  },
+  "final_run_hash": "sha256:4ad2f8d56a07c46a54edc8615c1823da624c92d0f035a38192237b31ec39b37c"
+}

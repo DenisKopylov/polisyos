@@ -13,6 +13,7 @@ from .async_store import (
     AsyncFileSystemArtifactStore,
     ensure_async_artifact_store,
 )
+from .cas_integrity_report import CASIntegrityReport, build_cas_integrity_report
 from .graph import (
     DependencyEdge,
     DependencyGraph,
@@ -70,6 +71,7 @@ __all__ = [
     "AsyncFileSystemArtifactStore",
     "BulkSigningReport",
     "BulkVerificationReport",
+    "CASIntegrityReport",
     "CanonInfo",
     "DependencyEdge",
     "DependencyGraph",
@@ -96,6 +98,7 @@ __all__ = [
     "SigningConfig",
     "VerificationReport",
     "WarningRecord",
+    "build_cas_integrity_report",
     "compute_key_id",
     "ensure_async_artifact_store",
     "ensure_private_key_permissions",

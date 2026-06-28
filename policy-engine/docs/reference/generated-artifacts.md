@@ -53,6 +53,12 @@ Every committed generated artifact family must have a source of truth, a regener
 | `Ops observability baselines` | `source_committed` | `committed` | `manual_review` | `team-observability` | `ops/observability/otel/baseline.yaml`<br/>`ops/observability/slo`<br/>`ops/observability/prometheus`<br/>`ops/observability/grafana/dashboards` |
 | `Ops security and release baselines` | `source_committed` | `committed` | `manual_review` | `team-security` | `ops/security/gitleaks.toml`<br/>`ops/security/trufflehog.yaml`<br/>`ops/security/osv-scanner.toml`<br/>`ops/security/sbom.toml`<br/>`ops/security/secrets-baseline.toml`<br/>`ops/release/release-fragment-policy.toml`<br/>`ops/release/commit-policy.toml`<br/>`ops/release/deployment-topology.toml`<br/>`ops/release/promotion-gates.toml` |
 | `Ops runtime and migration baselines` | `source_committed` | `committed` | `manual_review` | `team-platform` | `ops/runtime/runtime-contracts.toml`<br/>`ops/migrations/README.md`<br/>`ops/migrations/migration-contracts.toml`<br/>`ops/migrations/db/README.md`<br/>`ops/migrations/db/001_tenant_columns.sql`<br/>`ops/migrations/db/002_tenant_backfill.sql`<br/>`ops/migrations/db/003_rls_enable.sql`<br/>`ops/migrations/db/003_rls_disable_rollback.sql`<br/>`ops/migrations/db/004_roles_grants.sql`<br/>`ops/migrations/runtime_state/README.md`<br/>`ops/migrations/api_schemas/README.md`<br/>`ops/migrations/ir/README.md` |
+| `Policy Design Case Layer 3 GY production-data substrate registry contract` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/production_data_substrate_registry_contract.json` |
+| `Policy Design Case Layer 3 GY data-state substrate contract` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_data_state_substrate_contract.json` |
+| `Policy Design Case Layer 3 GY knowledge substrate contract` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_knowledge_substrate_contract.json` |
+| `Policy Design Case Layer 3 GY intervention substrate contract` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json` |
+| `Policy Design Case Layer 3 GY ValueOuterSet household bounds strangle receipt` | `generated_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_value_outer_set_strangle_receipt.json` |
+| `Policy Design Case Layer 3 GY generation-cycle disposition ledger` | `source_committed` | `committed` | `automated` | `team-runtime-quality` | `architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json`<br/>`architecture/policy_design_case/layer3_gy_n0_investigation.md` |
 
 ## `Policy Design Case Layer 3 G1 substrate grounding artifacts`
 
@@ -1482,4 +1488,149 @@ Canonical regeneration commands:
 
 ```bash
 manual review: update runtime and DB/runtime-state/API/IR migration baselines alongside deployment/runtime security contract changes
+```
+
+## `Policy Design Case Layer 3 GY production-data substrate registry contract`
+
+- Family id: `policy-design-case-layer3-gy-production-data-substrate-registry-contract`
+- Lifecycle: `generated_committed`
+- Source of truth: src/polisyos/runtime/quality/substrate_registry.py and tools/quality/validation/check_production_data_substrate_registry_contract.py
+- Generator: Production-data substrate registry contract validator generated from the live Pydantic model
+- Verifier: Production-data substrate registry contract validator and GY-M1 lifecycle gate
+- Promotion target: registered canonical substrate registry schema for GY-S0
+- Commit policy: `committed`
+- Freshness rule: Regenerate and commit whenever SubstrateRegistry fields, catalog authority lifting, free-grow registration, or WorldModelRecord substrate consumption changes.
+- Stale output behavior: `fail`
+- Drift gate: `automated`
+- Owner: `team-runtime-quality`
+- Approval owner: `team-runtime-quality`
+- Related workflow/config: `tools/quality/validation/check_production_data_substrate_registry_contract.py`
+- Outputs:
+  - `architecture/policy_design_case/production_data_substrate_registry_contract.json`
+
+Canonical regeneration commands:
+
+```bash
+uv run python tools/quality/validation/check_production_data_substrate_registry_contract.py --repo-root . --write --output-format json
+```
+
+## `Policy Design Case Layer 3 GY data-state substrate contract`
+
+- Family id: `policy-design-case-layer3-gy-data-state-substrate-contract`
+- Lifecycle: `generated_committed`
+- Source of truth: src/polisyos/runtime/quality/data_state_substrate.py and tools/quality/validation/check_layer3_gy_data_state_substrate_contract.py
+- Generator: Layer 3 GY data-state substrate contract validator generated from the live S1 bridge
+- Verifier: Layer 3 GY data-state substrate contract validator and GY-M1 lifecycle gate
+- Promotion target: registered canonical L1/L4/L5 data-state substrate lift contract for GY-S1
+- Commit policy: `committed`
+- Freshness rule: Regenerate and commit whenever the real L4 materialization bridge, L1 availability checks, L5 trust/identification/regime checks, Data Forge/Foundry binding, S0 registration, or N3 world binding semantics change.
+- Stale output behavior: `fail`
+- Drift gate: `automated`
+- Owner: `team-runtime-quality`
+- Approval owner: `team-runtime-quality`
+- Related workflow/config: `tools/quality/validation/check_layer3_gy_data_state_substrate_contract.py`
+- Outputs:
+  - `architecture/policy_design_case/layer3_gy_data_state_substrate_contract.json`
+
+Canonical regeneration commands:
+
+```bash
+uv run python tools/quality/validation/check_layer3_gy_data_state_substrate_contract.py --repo-root . --write --output-format json
+```
+
+## `Policy Design Case Layer 3 GY knowledge substrate contract`
+
+- Family id: `policy-design-case-layer3-gy-knowledge-substrate-contract`
+- Lifecycle: `generated_committed`
+- Source of truth: src/polisyos/data_forge/domains/academic/knowledge/skg_query.py, src/polisyos/lex/knowledge/store.py, src/polisyos/lex/knowledge/types.py, src/polisyos/runtime/quality/substrate_registry.py, and tools/quality/validation/check_layer3_gy_knowledge_substrate_contract.py
+- Generator: Layer 3 GY knowledge-substrate contract validator generated from live L2 Scholar and L3 Lex stores
+- Verifier: Layer 3 GY knowledge-substrate contract validator and GY-M1 lifecycle gate
+- Promotion target: registered canonical L2/L3 credal substrate lift contract for GY-S2
+- Commit policy: `committed`
+- Freshness rule: Regenerate and commit whenever L2 estimate lowering, SKG grounding, transport/contested lowering, L3 threshold/admissibility, amendment temporal competence, or S0 L2/L3 registration semantics change.
+- Stale output behavior: `fail`
+- Drift gate: `automated`
+- Owner: `team-runtime-quality`
+- Approval owner: `team-runtime-quality`
+- Related workflow/config: `tools/quality/validation/check_layer3_gy_knowledge_substrate_contract.py`
+- Outputs:
+  - `architecture/policy_design_case/layer3_gy_knowledge_substrate_contract.json`
+
+Canonical regeneration commands:
+
+```bash
+uv run python tools/quality/validation/check_layer3_gy_knowledge_substrate_contract.py --repo-root . --write --output-format json
+```
+
+## `Policy Design Case Layer 3 GY intervention substrate contract`
+
+- Family id: `policy-design-case-layer3-gy-intervention-substrate-contract`
+- Lifecycle: `generated_committed`
+- Source of truth: src/polisyos/runtime/quality/intervention_substrate.py, src/polisyos/runtime/quality/substrate_registry.py, src/polisyos/lex/knowledge/store.py, src/polisyos/foundry/methods/selection/registry.py, and tools/quality/validation/check_layer3_gy_intervention_substrate_contract.py
+- Generator: Layer 3 GY intervention-substrate contract validator generated from live L6 agent-sim control artifacts
+- Verifier: Layer 3 GY intervention-substrate contract validator and GY-M1 lifecycle gate
+- Promotion target: registered canonical L6 lever, law-route, and method-route substrate lift contract for GY-S3
+- Commit policy: `committed`
+- Freshness rule: Regenerate and commit whenever L6 knob-domain resolution, law-to-lever L3 admissibility, Foundry method routing, Python 3.14 availability blockers, S0 L6 registration, or remove-property mutation witnesses change.
+- Stale output behavior: `fail`
+- Drift gate: `automated`
+- Owner: `team-runtime-quality`
+- Approval owner: `team-runtime-quality`
+- Related workflow/config: `tools/quality/validation/check_layer3_gy_intervention_substrate_contract.py`
+- Outputs:
+  - `architecture/policy_design_case/layer3_gy_intervention_substrate_contract.json`
+
+Canonical regeneration commands:
+
+```bash
+uv run python tools/quality/validation/check_layer3_gy_intervention_substrate_contract.py --repo-root . --write --output-format json
+```
+
+## `Policy Design Case Layer 3 GY ValueOuterSet household bounds strangle receipt`
+
+- Family id: `policy-design-case-layer3-gy-value-outer-set-strangle-receipt`
+- Lifecycle: `generated_committed`
+- Source of truth: src/polisyos/core/contracts/value_outer_set.py, src/polisyos/foundry/contracts/state.py, src/polisyos/ir/kernel/slots.py, src/polisyos/foundry/agent_sim/wiring/executors.py, src/polisyos/runtime/quality/data_state_substrate.py, and tools/quality/validation/check_layer3_gy_value_outer_set_strangle_receipt.py
+- Generator: Layer 3 GY ValueOuterSet strangle receipt validator generated from live state, slots, and S1 payload
+- Verifier: Layer 3 GY ValueOuterSet strangle receipt validator and GY-M1 lifecycle gate
+- Promotion target: registered deletion receipt for ad-hoc GY-S1 household lower/upper identification fields
+- Commit policy: `committed`
+- Freshness rule: Regenerate and commit whenever GY-N-V ValueOuterSet, HouseholdCellState, household slots, S1 household payload, or executor interval projection semantics change.
+- Stale output behavior: `fail`
+- Drift gate: `automated`
+- Owner: `team-runtime-quality`
+- Approval owner: `team-runtime-quality`
+- Related workflow/config: `tools/quality/validation/check_layer3_gy_value_outer_set_strangle_receipt.py`
+- Outputs:
+  - `architecture/policy_design_case/layer3_gy_value_outer_set_strangle_receipt.json`
+
+Canonical regeneration commands:
+
+```bash
+uv run python tools/quality/validation/check_layer3_gy_value_outer_set_strangle_receipt.py --repo-root . --write --output-format json
+```
+
+## `Policy Design Case Layer 3 GY generation-cycle disposition ledger`
+
+- Family id: `policy-design-case-layer3-gy-generation-cycle-disposition-ledger`
+- Lifecycle: `source_committed`
+- Source of truth: architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json, architecture/policy_design_case/layer3_gy_n0_investigation.md, docs/plans/active/layer3-slices/GY-engine-subordination.md, and tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py
+- Generator: Reviewer-owned GY-N0 disposition ledger distilled from the completed five-pass investigation notebook
+- Verifier: Layer 3 GY generation-cycle disposition ledger validator, live Python 3.14 method probe, negative fixtures, corrupt-field drift probe, and architecture guardrails
+- Promotion target: registered Policy Design Case GY-N0 hard gate ledger before GY-N1..N10 land
+- Commit policy: `committed`
+- Freshness rule: Review and update the ledger whenever the GY-N0 investigation, GY-N1..N10/O1..O3 task mapping, owner dispositions, or strangle conditions change.
+- Stale output behavior: `fail`
+- Drift gate: `automated`
+- Owner: `team-runtime-quality`
+- Approval owner: `team-runtime-quality`
+- Related workflow/config: `tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py`
+- Outputs:
+  - `architecture/policy_design_case/layer3_gy_generation_cycle_disposition_ledger.json`
+  - `architecture/policy_design_case/layer3_gy_n0_investigation.md`
+
+Canonical regeneration commands:
+
+```bash
+uv run python tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py --repo-root . --check --output-format json
 ```
